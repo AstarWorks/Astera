@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+# Cancel in-progress runs for the same branch / PR.
+# For PRs we cancel on new pushes; for main we let runs complete (artifacts are useful).
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build & Test (./gradlew check)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        # Wrapper-driven: do NOT pin gradle-version here.
+        # The wrapper at gradle/wrapper/gradle-wrapper.properties decides the Gradle version (9.5.1).
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' && github.ref != 'refs/heads/main' }}
+
+      - name: Run check (unit tests + Konsist architecture tests)
+        run: ./gradlew check --no-daemon --stacktrace
+
+      - name: Build shadowJar (push to main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: ./gradlew :plugin:platform-paper-plugin:shadowJar --no-daemon
+
+      - name: Upload test reports (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            **/build/reports/tests/
+            **/build/test-results/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Upload shadowJar (push to main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: astera-paper-plugin
+          path: plugin/platform-paper-plugin/build/libs/astera-paper-*.jar
+          retention-days: 30
+          if-no-files-found: error
