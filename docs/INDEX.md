@@ -7,6 +7,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 - **新しく参加した人へ** → [contributing/getting-started.md](contributing/getting-started.md)
 - **アーキテクチャの全体像** → [architecture/overview.md](architecture/overview.md)
 - **進行中の Phase** → [roadmap.md](roadmap.md)
+- **RTM との設計差** → [architecture/rtm-divergence.md](architecture/rtm-divergence.md)
 - **インフラ構成** → [infrastructure/overview.md](infrastructure/overview.md)
 - **用語が分からない** → [glossary.md](glossary.md)
 

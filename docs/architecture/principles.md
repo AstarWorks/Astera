@@ -84,3 +84,58 @@ Astera の設計を支配する原則。これらに反するコード/設計提
 - Gradle module 間依存の制限
 
 詳細: [[dependency-rules]]
+
+## 12. RTM 由来とは違う Astera 原則
+
+RTM の参照は許可 ([[adr/0013-rtm-divergence-policy]]) だが、以下は **RTM がやっていたが Astera では明示的にやらない** ことを宣言する:
+
+### 12.1 Reflection は `domain` / `application` で禁止
+
+RTM は `org.reflections` を runtime にスキャンしてイベントリスナーを集めていた。
+Astera は **explicit registration + sealed dispatcher** で組み立て、Konsist で `domain` / `application` への `org.reflections` import を検知して fail させる。
+
+理由: reflection は読み手にとって不透明、IDE 補完が効かない、起動が遅い、コンパイル時の型保証がない。
+
+### 12.2 `Result<T, E>` + sealed Error が標準
+
+戻り値の null と例外を expected failure に流用しない。
+
+- 期待される失敗 (weapon not found, insufficient funds, player offline …) は `Result<T, E>` の `E` 側に sealed class を切る
+- バグ / 不変条件違反は `require(...)` / `check(...)`、最終的に例外
+- `kotlin.Result<T>` は `Throwable` 強制なので使わない (Astera は domain で定義)
+
+詳細: [[error-handling]]
+
+### 12.3 Event の発行責務は `application` のみ
+
+`domain` 層は値を返すだけ。`DomainEvent` の publish (`IBroadcaster.publish`) は **必ず** `application` の use case で起きる。
+RTM は `core/impl` の中で event を直接発行していた箇所があり、ドメイン純度が崩れていた。
+
+### 12.4 Damage は 1 型 + sealed `DamageSource`
+
+RTM は `EntityDamageEvent` / `EntitySkillDamageEvent` / `EntityDeathEvent` / `EntitySkillDeathEvent` × by-entity 派生で **8 個** の event クラスを抱えていた。
+Astera は単一 `DamageEvent` (data class) + `sealed DamageSource` (ENVIRONMENT / WEAPON / SKILL / FALL / ...) で表現する。
+
+### 12.5 Skill parameter は型付き
+
+`Skill<P : SkillParams>` のような generic で、skill の種類ごとに parameter 型を compile-time で固定する。
+RTM の `ISkillParams` reflection 解決は採用しない。
+
+### 12.6 Element 相性は data-driven
+
+属性 (physical / fire / electric / wind / water / earth) の相性 multiplier は **コード内 enum/switch ではなく** `content/balance/element-matrix.yaml` に置く。
+バランス調整に再コンパイルを必要とさせない。
+
+### 12.7 全 i18n キーは `MessageKey` 型
+
+生 String の i18n キーは domain / application / adapter のいずれの port シグネチャにも置かない。
+`MessageKey` value class が typo を compile-time に潰す。
+
+### 12.8 すべての use case は test されている
+
+RTM はほぼテスト無しだった。Astera では:
+- `domain` ≥ 90% line coverage
+- `application` ≥ 80%
+- `adapter-minecraft-impl-paper` ≥ 50% (Bukkit を mock しづらいため低め)
+
+詳細: [[testing-strategy]]
