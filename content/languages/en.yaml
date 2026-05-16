@@ -20,7 +20,21 @@ astera:
         - "<gray>Phase 1 demo weapon</gray>"
         - "<gray>Left-click to attack</gray>"
         - "<dark_gray>archetype: sword / rarity: common</dark_gray>"
+    example-pistol:
+      name: "<aqua>Example Pistol</aqua>"
+      lore:
+        - "<gray>Phase 2 starter: gun archetype</gray>"
+        - "<gray>Rapid fire (0.3s cooldown)</gray>"
+        - "<dark_gray>archetype: gun / rarity: common</dark_gray>"
+    example-wand:
+      name: "<light_purple>Example Wand</light_purple>"
+      lore:
+        - "<gray>Phase 2 starter: wand archetype</gray>"
+        - "<gray>High damage, long CD (3s)</gray>"
+        - "<dark_gray>archetype: wand / rarity: rare</dark_gray>"
     fired: "<yellow>{player} fired <gold>{weapon}</gold></yellow>"
+    on_cooldown: "<red>{weapon} is on cooldown ({remaining})</red>"
+    none_held: "<gray>No weapon equipped</gray>"
 
   error:
     internal: "<red>An internal error occurred. Check server logs for details.</red>"

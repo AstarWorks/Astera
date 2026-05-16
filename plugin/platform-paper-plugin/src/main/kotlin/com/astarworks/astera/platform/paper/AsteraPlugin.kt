@@ -4,15 +4,17 @@ import com.astarworks.astera.adapter.minecraftapi.binding.McPlayerGateway
 import com.astarworks.astera.adapter.minecraftapi.event.IMcEvent
 import com.astarworks.astera.adapter.paper.event.BukkitEventAdapter
 import com.astarworks.astera.adapter.paper.event.PaperBroadcaster
+import com.astarworks.astera.adapter.paper.scheduler.PaperScheduler
 import com.astarworks.astera.adapter.paper.server.PaperServer
 import com.astarworks.astera.application.i18n.LanguageLoader
 import com.astarworks.astera.application.i18n.SimpleMessageRenderer
+import com.astarworks.astera.application.service.InMemoryCooldownTracker
 import com.astarworks.astera.application.service.MutableWeaponRegistry
 import com.astarworks.astera.application.service.WeaponLoaderService
 import com.astarworks.astera.application.usecase.FireWeaponUseCase
 import com.astarworks.astera.application.usecase.GiveWeaponUseCase
 import com.astarworks.astera.domain.model.player.PlayerId
-import com.astarworks.astera.domain.model.weapon.WeaponId
+import com.astarworks.astera.domain.model.weapon.WeaponSpec
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -34,6 +36,9 @@ class AsteraPlugin : JavaPlugin() {
     private lateinit var weaponRegistry: MutableWeaponRegistry
     private lateinit var giveWeapon: GiveWeaponUseCase
     private lateinit var fireWeapon: FireWeaponUseCase
+    private lateinit var cooldowns: InMemoryCooldownTracker
+    private lateinit var messages: SimpleMessageRenderer
+    private lateinit var mcServer: PaperServer
 
     override fun onEnable() {
         logger.info("Astera enabling...")
@@ -41,12 +46,13 @@ class AsteraPlugin : JavaPlugin() {
         val contentDir = resolveContentDir()
         logger.info("Content directory: $contentDir")
 
-        // Vendor-neutral abstraction over Paper server.
-        val mcServer = PaperServer(this.server)
+        // Vendor-neutral abstraction over Paper server / scheduler.
+        mcServer = PaperServer(this.server)
+        val scheduler = PaperScheduler(this)
 
         // i18n.
         val languages = LanguageLoader.loadFrom(contentDir.resolve("languages"))
-        val messages = SimpleMessageRenderer(
+        messages = SimpleMessageRenderer(
             languages = languages,
             localeResolver = { playerId -> playerId?.let { mcServer.findPlayer(it)?.locale } },
         )
@@ -54,6 +60,7 @@ class AsteraPlugin : JavaPlugin() {
         // Outbound port bindings.
         val playerGateway = McPlayerGateway(mcServer, messages)
         val broadcaster = PaperBroadcaster()
+        cooldowns = InMemoryCooldownTracker(scheduler)
 
         // Weapon registry (populated from content/weapons/*.yaml).
         weaponRegistry = MutableWeaponRegistry()
@@ -65,16 +72,13 @@ class AsteraPlugin : JavaPlugin() {
         fireWeapon = FireWeaponUseCase(broadcaster, weaponRegistry)
 
         // Bridge Bukkit events into the application layer.
+        // Phase 2 starter: detect the player's held material and look up the weapon
+        // whose `materialKey` matches. Phase 2 mid will replace this with a
+        // PersistentDataContainer tag written at give-time, so multiple weapons
+        // can share the same vanilla material.
         val listener = BukkitEventAdapter { event ->
-            val player = event.player
-            // Phase 1: every left-click "fires" example-sword. Phase 2 will inspect the held item.
-            fireWeapon.execute(
-                playerId = player.id,
-                weaponId = WeaponId("example-sword"),
-                at = player.location,
-            )
             when (event) {
-                is IMcEvent.PlayerLeftClickAir, is IMcEvent.PlayerLeftClickBlock -> Unit
+                is IMcEvent.PlayerLeftClickAir, is IMcEvent.PlayerLeftClickBlock -> handleFire(event)
             }
         }
         server.pluginManager.registerEvents(listener, this)
@@ -87,6 +91,28 @@ class AsteraPlugin : JavaPlugin() {
 
     override fun onDisable() {
         logger.info("Astera disabling.")
+    }
+
+    private fun handleFire(event: IMcEvent) {
+        val player = event.player
+        val held = player.heldItemMaterialKey() ?: return
+        val weapon: WeaponSpec = weaponRegistry.all().firstOrNull { it.materialKey == held } ?: return
+
+        if (cooldowns.isOnCooldown(player.id, weapon.id)) {
+            val remainingTicks = cooldowns.remainingTicks(player.id, weapon.id)
+            val remainingSeconds = "%.1fs".format(remainingTicks / 20.0)
+            player.sendMessage(
+                messages.render(
+                    player.id,
+                    "astera.weapon.on_cooldown",
+                    mapOf("weapon" to weapon.id.value, "remaining" to remainingSeconds),
+                )
+            )
+            return
+        }
+
+        cooldowns.start(player.id, weapon.id, weapon.cooldownTicks)
+        fireWeapon.execute(playerId = player.id, weaponId = weapon.id, at = player.location)
     }
 
     private fun resolveContentDir(): Path {

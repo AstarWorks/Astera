@@ -1,0 +1,20 @@
+# Phase 2 starter: wand (magic) archetype example.
+# Long cooldown, electric attribute. Phase 2 mid adds the actual spell
+# particle / sound effects via Easing-driven Display animations.
+
+id: example-wand
+
+display_name_key: astera.weapon.example-wand.name
+lore_key: astera.weapon.example-wand.lore
+
+archetype: wand
+rarity: rare
+level_requirement: 3
+
+material: BLAZE_ROD
+
+damage:
+  base: 15.0
+  attribute: electric
+
+cooldown_ticks: 60          # 3-second charge (20 TPS)

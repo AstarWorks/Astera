@@ -28,7 +28,21 @@ astera:
         - "<gray>Phase 1 のテスト用武器</gray>"
         - "<gray>左クリックで攻撃</gray>"
         - "<dark_gray>archetype: sword / rarity: common</dark_gray>"
+    example-pistol:
+      name: "<aqua>サンプルピストル</aqua>"
+      lore:
+        - "<gray>Phase 2 スターター: 銃アーキタイプ</gray>"
+        - "<gray>連射可能 (CD 0.3 秒)</gray>"
+        - "<dark_gray>archetype: gun / rarity: common</dark_gray>"
+    example-wand:
+      name: "<light_purple>サンプルワンド</light_purple>"
+      lore:
+        - "<gray>Phase 2 スターター: 魔法アーキタイプ</gray>"
+        - "<gray>大威力・長 CD (3 秒)</gray>"
+        - "<dark_gray>archetype: wand / rarity: rare</dark_gray>"
     fired: "<yellow>{player} が <gold>{weapon}</gold> を撃ちました</yellow>"
+    on_cooldown: "<red>{weapon} はクールダウン中です ({remaining})</red>"
+    none_held: "<gray>武器を装備していません</gray>"
 
   error:
     internal: "<red>内部エラーが発生しました。詳細はサーバーログを確認してください。</red>"

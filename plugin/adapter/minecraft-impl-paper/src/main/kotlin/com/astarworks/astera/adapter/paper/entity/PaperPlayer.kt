@@ -38,6 +38,11 @@ class PaperPlayer(private val bukkit: Player) : IMcPlayer {
         bukkit.inventory.addItem(item)
     }
 
+    override fun heldItemMaterialKey(): String? {
+        val item = bukkit.inventory.itemInMainHand
+        return if (item.type.isAir) null else item.type.name
+    }
+
     private companion object {
         val MM: MiniMessage = MiniMessage.miniMessage()
     }

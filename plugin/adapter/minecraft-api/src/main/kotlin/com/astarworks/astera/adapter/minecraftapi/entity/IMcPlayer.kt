@@ -25,4 +25,12 @@ interface IMcPlayer {
 
     fun sendMessage(rendered: String)
     fun giveMaterial(materialKey: String, displayName: String?, lore: List<String>)
+
+    /**
+     * Material key of the item currently held in the main hand, or null if the
+     * hand is empty / holding air. Phase 2 mid will replace this with a richer
+     * "what weapon is in hand?" lookup that consults a PersistentDataContainer
+     * tag written at give-time.
+     */
+    fun heldItemMaterialKey(): String?
 }

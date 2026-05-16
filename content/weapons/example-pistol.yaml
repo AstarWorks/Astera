@@ -1,0 +1,20 @@
+# Phase 2 starter: gun archetype example.
+# Vanilla materials only. Behaviorally Phase 1 still just publishes
+# WeaponFired; projectile + recoil mechanics arrive in Phase 2 mid.
+
+id: example-pistol
+
+display_name_key: astera.weapon.example-pistol.name
+lore_key: astera.weapon.example-pistol.lore
+
+archetype: gun
+rarity: common
+level_requirement: 1
+
+material: CROSSBOW
+
+damage:
+  base: 5.0
+  attribute: physical
+
+cooldown_ticks: 6           # rapid fire (~3.3 shots/sec @ 20 TPS)
