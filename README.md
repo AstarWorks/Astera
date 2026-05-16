@@ -42,15 +42,17 @@ Why: see [`docs/adr/0001-clean-architecture-with-mc-as-edge.md`](docs/adr/0001-c
 
 ## Quick start
 
-> "5-minute setup" with `docker compose up` lands in **Phase 1 Step 4**. Until then, the only thing that runs is `./gradlew check`.
+5-minute setup with Docker Compose — full instructions in [`docker/README.md`](docker/README.md).
 
 ```bash
-git clone https://github.com/AstarWorks/Astera.git
-cd Astera
-./gradlew check
 ./gradlew :plugin:platform-paper-plugin:shadowJar
-# Output: plugin/platform-paper-plugin/build/libs/astera-paper-*.jar
+cp docker/.env.example docker/.env
+docker compose -f docker/docker-compose.yml up -d
+# Connect Minecraft Java client (26.1.x) to localhost:25565
+/astera give @p example-sword
 ```
+
+Just want to compile and run unit + architecture tests? `./gradlew check`.
 
 ## Tech stack
 

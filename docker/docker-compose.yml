@@ -1,0 +1,98 @@
+# Astera local development stack.
+#
+# Usage (from repo root):
+#     ./gradlew :plugin:platform-paper-plugin:shadowJar    # optional pre-build
+#     cp docker/.env.example docker/.env
+#     docker compose -f docker/docker-compose.yml up -d
+#
+# The Paper server image is built from ../docker/Dockerfile using the repo
+# root as the build context, so the multi-stage build can compile the plugin
+# from source. Once built, the container reads runtime YAML (weapons,
+# languages) from a read-only bind mount of `../content`, which means content
+# changes don't require an image rebuild — just restart the container.
+
+name: astera-dev
+
+services:
+  paper:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: astera/minecraft-server:dev
+    container_name: astera-paper
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    ports:
+      - "25565:25565"   # Minecraft Java client
+      - "25575:25575"   # RCON
+    environment:
+      # The user must accept the Minecraft EULA to run a server.
+      # https://www.minecraft.net/en-us/eula
+      EULA: "TRUE"
+      TYPE: "PAPER"
+      VERSION: "26.1.2"
+      MEMORY: "4G"
+      USE_AIKAR_FLAGS: "true"
+      MAX_PLAYERS: "20"
+      ONLINE_MODE: "FALSE"
+      MOTD: "Astera dev"
+      ENABLE_RCON: "true"
+      RCON_PORT: "25575"
+      RCON_PASSWORD: "${RCON_PASSWORD:-astera}"
+      # Datasource hints for the plugin (read by application config later).
+      ASTERA_DB_HOST: "postgres"
+      ASTERA_DB_PORT: "5432"
+      ASTERA_DB_NAME: "astera"
+      ASTERA_DB_USER: "astera"
+      ASTERA_DB_PASSWORD: "${POSTGRES_PASSWORD:-astera}"
+      ASTERA_REDIS_HOST: "redis"
+      ASTERA_REDIS_PORT: "6379"
+    volumes:
+      - paper-data:/data
+      # The plugin resolves content from `dataFolder.parentFile.parentFile/content`,
+      # which inside the container is `/data/content`. Mounting the repo's
+      # content directory here lets us iterate on YAML without rebuilding.
+      - ../content:/data/content:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: astera-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "astera"
+      POSTGRES_DB: "astera"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-astera}"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U astera -d astera"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: astera-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  paper-data:
+  postgres-data:
+  redis-data:
