@@ -59,9 +59,8 @@ All Secret manifests in this tree contain the literal value **`REPLACE_ME`**.
 Real values live in `private/infra/overlays/<env>/` (a separate, private repo
 attached as a git submodule under `private/`) as sealed-secrets or SOPS blobs.
 
-That submodule is **not** wired up in this commit — adding the
-`AstarWorks/astera-private` submodule requires interactive auth and is tracked
-as a follow-up.
+The `AstarWorks/AsteraPrivate` submodule is mounted at `private/`. See
+`.gitmodules`.
 
 ## Storage
 

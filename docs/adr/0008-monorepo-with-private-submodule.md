@@ -24,7 +24,7 @@ Claude Code 視点では「1 つのワーキングディレクトリに全てが
 ## Decision
 
 - **`AstarWorks/Astera`** (public モノレポ): プラグイン本体 / k8s base manifest / docs / content
-- **`AstarWorks/astera-private`** (非公開 submodule): 環境固有 overlay / secrets / anti-cheat / runbook 機密部分
+- **`AstarWorks/AsteraPrivate`** (非公開 submodule): 環境固有 overlay / secrets / anti-cheat / runbook 機密部分
 
 `Astera/private/` に submodule で mount。OSS コントリビュータは public 部分のみで `docker compose up` できる。
 

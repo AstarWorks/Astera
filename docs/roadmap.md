@@ -30,7 +30,7 @@ Astera の Phase 計画。各 Phase は 1〜2 ヶ月目安。
 
 - `docker compose up` を手元で実行 → in-game `/astera give @p example-sword` で動作確認
 - ローカル kind cluster で `kubectl apply -f deploy/apps/argocd-apps.yaml` 検証
-- `AstarWorks/astera-private` (非公開 submodule) 作成 + 環境固有 overlay 切出し
+- `AstarWorks/AsteraPrivate` (非公開 submodule) 作成 + 環境固有 overlay 切出し
 
 ## Phase 1.5: 動的 Game Pod スケール
 
