@@ -1,0 +1,101 @@
+[versions]
+# JVM / Kotlin
+kotlin = "2.2.20"
+ksp = "2.2.20-2.0.4"
+jdk = "25"
+
+# Paper (Minecraft Java Edition 26.x — requires JDK 25)
+paper = "26.1.2.build.63-stable"
+
+# DI / Config
+koin = "4.0.0"
+koin-annotations = "2.0.0"
+kaml = "0.66.0"
+kotlinx-coroutines = "1.10.1"
+
+# Logging
+slf4j = "2.0.16"
+logback = "1.5.12"
+
+# Persistence (PostgreSQL + Exposed; aligned with AstarManagement)
+postgresql = "42.7.5"
+exposed = "1.1.1"
+flyway = "11.1.0"
+lettuce = "6.5.3.RELEASE"
+
+# Testing
+junit = "5.11.4"
+assertj = "3.27.0"
+testcontainers = "1.20.4"
+mockk = "1.13.13"
+konsist = "0.17.0"
+
+# Build
+detekt = "1.23.7"
+shadow = "8.3.6"
+
+# External Paper plugins (compileOnly, soft-dep) — Phase 1 着手時に確認
+# Set to a sentinel; tasks resolving these dependencies are gated behind module activation.
+weaponmechanics = "999.999.999"
+oraxen = "999.999.999"
+mythic-dist = "999.999.999"
+
+[libraries]
+# Kotlin / kotlinx
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+
+# Paper
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
+
+# Koin (DI)
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations" }
+koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations" }
+
+# Config / Serialization
+kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
+
+# Logging
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
+# Persistence
+postgresql-jdbc = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-json = { module = "org.jetbrains.exposed:exposed-json", version.ref = "exposed" }
+exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed" }
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
+
+# Messaging / Cache
+lettuce-core = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
+
+# Testing
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.11.4" }
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+testcontainers-core = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
+testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
+
+# Build plugin classpaths (referenced from buildSrc convention plugins)
+detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+
+[bundles]
+test-common = ["junit-jupiter", "assertj-core"]
+exposed = ["exposed-core", "exposed-jdbc", "exposed-json", "exposed-java-time"]
+testcontainers = ["testcontainers-core", "testcontainers-junit-jupiter"]
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

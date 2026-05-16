@@ -1,0 +1,61 @@
+# Astera Detekt config (code style only).
+# Architecture enforcement (dependency direction, forbidden imports per layer)
+# lives in :tools:architecture-test as Konsist tests. See docs/architecture/dependency-rules.md.
+
+build:
+  maxIssues: 0
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+processors:
+  active: true
+
+console-reports:
+  active: true
+
+complexity:
+  active: true
+  LongMethod:
+    threshold: 80
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 10
+  TooManyFunctions:
+    thresholdInFiles: 30
+
+empty-blocks:
+  active: true
+
+exceptions:
+  active: true
+  TooGenericExceptionCaught:
+    active: false
+  SwallowedException:
+    active: true
+
+naming:
+  active: true
+  FunctionNaming:
+    functionPattern: '[a-z][a-zA-Z0-9]*|`.*`'
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][_A-Z0-9]*'
+    propertyPattern: '_?[a-z][A-Za-z0-9]*'
+
+performance:
+  active: true
+
+potential-bugs:
+  active: true
+
+style:
+  active: true
+  MagicNumber:
+    active: false  # too noisy for game balance code
+  WildcardImport:
+    active: true
+  MaxLineLength:
+    maxLineLength: 140
+  ReturnCount:
+    max: 4
