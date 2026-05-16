@@ -1,0 +1,31 @@
+---
+# Astera root App-of-Apps.
+# Apply once with `kubectl apply -f deploy/apps/argocd-apps.yaml` and ArgoCD will
+# pick up every child Application defined under deploy/apps/.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: astera-root
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/AstarWorks/Astera.git
+    targetRevision: main
+    path: deploy/apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

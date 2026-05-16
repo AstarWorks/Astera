@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: playerdata-snapshot
+  namespace: databases
+spec:
+  # 00:00 JST daily snapshot of the `playerdata` table for historical analytics.
+  schedule: "0 0 * * *"
+  timeZone: "Asia/Tokyo"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: snapshot
+              image: postgres:17-alpine
+              env:
+                - name: PGHOST
+                  value: postgresql.databases.svc.cluster.local
+                - name: PGPORT
+                  value: "5432"
+                - name: PGDATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgresql-secret
+                      key: postgres-db
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgresql-secret
+                      key: app-user
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: postgresql-secret
+                      key: app-password
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  psql -v ON_ERROR_STOP=1 <<'SQL'
+                  CREATE TABLE IF NOT EXISTS playerdata_snapshot (
+                    snapshot_at TIMESTAMPTZ NOT NULL,
+                    uuid        TEXT        NOT NULL,
+                    player_name TEXT,
+                    money       NUMERIC,
+                    PRIMARY KEY (snapshot_at, uuid)
+                  );
+                  CREATE INDEX IF NOT EXISTS idx_playerdata_snapshot_at
+                    ON playerdata_snapshot (snapshot_at);
+                  CREATE INDEX IF NOT EXISTS idx_playerdata_snapshot_uuid
+                    ON playerdata_snapshot (uuid, snapshot_at);
+
+                  INSERT INTO playerdata_snapshot (snapshot_at, uuid, player_name, money)
+                  SELECT date_trunc('day', now() AT TIME ZONE 'Asia/Tokyo') AT TIME ZONE 'Asia/Tokyo',
+                         uuid, player_name, money
+                  FROM playerdata
+                  ON CONFLICT (snapshot_at, uuid) DO NOTHING;
+                  SQL

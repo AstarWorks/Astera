@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+data:
+  astera-overview.json: |
+    {
+      "uid": "astera-overview",
+      "title": "Astera / Overview",
+      "tags": ["astera", "minecraft"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "30s",
+      "time": { "from": "now-6h", "to": "now" },
+      "templating": { "list": [] },
+      "panels": [
+        {
+          "id": 1,
+          "type": "timeseries",
+          "title": "TPS (Ticks Per Second)",
+          "description": "Server tick rate per pod. 20 TPS = full speed.",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prom-astera" },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "minecraft_tps{namespace=\"astera\"}",
+              "legendFormat": "{{pod}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "max": 20,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 15 },
+                  { "color": "green", "value": 19 }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": { "showLegend": true, "displayMode": "table", "placement": "right" },
+            "tooltip": { "mode": "multi" }
+          }
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "Players Online",
+          "description": "Active players across all Astera servers.",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prom-astera" },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(minecraft_players_online{namespace=\"astera\"})",
+              "legendFormat": "Total"
+            },
+            {
+              "refId": "B",
+              "expr": "minecraft_players_online{namespace=\"astera\"}",
+              "legendFormat": "{{pod}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": { "unit": "short", "decimals": 0 },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+            "orientation": "horizontal",
+            "textMode": "value_and_name",
+            "colorMode": "value",
+            "graphMode": "area"
+          }
+        }
+      ]
+    }

@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: astera-daily-restart
+  namespace: astera
+spec:
+  # 04:00 JST every day. RCON `stop` to drop locks; Deployment restartPolicy brings it back.
+  schedule: "0 4 * * *"
+  timeZone: "Asia/Tokyo"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      ttlSecondsAfterFinished: 3600
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: rcon
+              image: itzg/rcon-cli:latest
+              env:
+                - name: LOBBY_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: minecraft-rcon
+                      key: lobby-password
+                - name: GAME_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: minecraft-rcon
+                      key: game-password
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -eu
+                  restart_one() {
+                    HOST=$1 ; PASS=$2 ; LABEL=$3
+                    echo "[$LABEL] notify + save-all flush"
+                    rcon-cli --host "$HOST" --port 25575 --password "$PASS" \
+                      "say [Maintenance] Restarting in 10s..."
+                    rcon-cli --host "$HOST" --port 25575 --password "$PASS" save-all flush
+                    sleep 10
+                    echo "[$LABEL] stop"
+                    rcon-cli --host "$HOST" --port 25575 --password "$PASS" stop
+                  }
+                  restart_one astera-lobby "$LOBBY_PASS" lobby
+                  sleep 30
+                  restart_one astera-game  "$GAME_PASS"  game

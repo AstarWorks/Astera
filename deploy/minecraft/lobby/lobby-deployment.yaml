@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: astera-lobby
+  namespace: astera
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    # Minecraft servers are stateful; rolling updates clobber world locks.
+    type: Recreate
+  selector:
+    matchLabels:
+      app: astera-lobby
+  template:
+    metadata:
+      labels:
+        app: astera-lobby
+    spec:
+      securityContext:
+        fsGroup: 1005
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: minecraft
+          # ghcr.io/astarworks/astera:latest is built from docker/Dockerfile (Step 5).
+          # It bakes the Astera plugin jar into /plugins/ on top of itzg/minecraft-server:java25.
+          # Alternative considered: itzg/minecraft-server:java25 base + initContainer to fetch
+          # `astera-paper.jar` from a GHCR-published artifact. We chose the baked image because
+          # Step 5 already publishes it and it avoids an extra network dependency at pod start.
+          image: ghcr.io/astarworks/astera:latest
+          imagePullPolicy: Always
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+          env:
+            - name: EULA
+              value: "TRUE"
+            - name: TZ
+              value: "Asia/Tokyo"
+            - name: TYPE
+              value: "PAPER"
+            # Paper "year.drop.hotfix" versioning (Minecraft 26.1.x / JDK 25).
+            - name: VERSION
+              value: "26.1.2"
+            - name: USE_NATIVE_TRANSPORT
+              value: "true"
+            - name: ENABLE_AUTOPAUSE
+              value: "FALSE"
+            - name: USE_AIKAR_FLAGS
+              value: "true"
+            - name: CONSOLE
+              value: "false"
+            - name: SERVER_PORT
+              value: "31001"
+            - name: INIT_MEMORY
+              value: "4G"
+            - name: MAX_MEMORY
+              value: "6G"
+            - name: SERVER_NAME
+              value: "ASTERA LOBBY"
+            - name: MOTD
+              value: "Astera - Lobby"
+            - name: MAX_PLAYERS
+              value: "200"
+            - name: DIFFICULTY
+              value: "normal"
+            - name: SPAWN_PROTECTION
+              value: "0"
+            - name: ENABLE_RCON
+              value: "true"
+            - name: RCON_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minecraft-rcon
+                  key: lobby-password
+            - name: MODE
+              value: "survival"
+            - name: ALLOW_FLIGHT
+              value: "true"
+          ports:
+            - containerPort: 31001
+              name: minecraft
+              protocol: TCP
+            - containerPort: 25575
+              name: rcon
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: shared-data
+              mountPath: /shared
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "1200m"
+            limits:
+              memory: "6Gi"
+              cpu: "1500m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: astera-lobby-data
+        - name: shared-data
+          hostPath:
+            path: /srv/astera/shared
+            type: DirectoryOrCreate

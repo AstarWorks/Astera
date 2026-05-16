@@ -1,0 +1,35 @@
+---
+# Phase 1: hostPath PV. Future managed-k8s overlay swaps this for a managed StorageClass
+# (see deploy/README.md and docs/infrastructure/overview.md).
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: astera-lobby-data
+  labels:
+    app: astera-lobby
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: astera-hostpath
+  hostPath:
+    path: /srv/astera/lobby
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: astera-lobby-data
+  namespace: astera
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: astera-hostpath
+  selector:
+    matchLabels:
+      app: astera-lobby

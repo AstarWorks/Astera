@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: velocity-proxy
+  namespace: astera
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: velocity-proxy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: velocity-proxy
+    spec:
+      securityContext:
+        fsGroup: 1005
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: velocity
+          image: itzg/mc-proxy:latest
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+          env:
+            - name: TYPE
+              value: "VELOCITY"
+            - name: TZ
+              value: "Asia/Tokyo"
+            - name: VELOCITY_VERSION
+              value: "3.4.0-SNAPSHOT"
+            - name: MEMORY
+              value: "2G"
+            - name: REPLACE_ENV_VARIABLES
+              value: "true"
+            - name: JVM_OPTS
+              value: "-XX:+UseG1GC -XX:G1HeapRegionSize=4M -XX:+UnlockExperimentalVMOptions -XX:+ParallelRefProcEnabled -XX:+AlwaysPreTouch"
+          ports:
+            - containerPort: 25577
+              name: velocity
+              protocol: TCP
+          volumeMounts:
+            - name: proxy-data
+              mountPath: /server
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1500m"
+            limits:
+              memory: "3Gi"
+              cpu: "2000m"
+      volumes:
+        - name: proxy-data
+          hostPath:
+            path: /srv/astera/proxy
+            type: DirectoryOrCreate

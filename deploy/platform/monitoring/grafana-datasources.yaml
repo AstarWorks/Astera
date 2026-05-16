@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: monitoring
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: PostgreSQL
+        uid: pg-astera
+        type: postgres
+        access: proxy
+        url: postgresql.databases.svc.cluster.local:5432
+        database: astera_db
+        user: ${DS_PG_USER}
+        secureJsonData:
+          password: ${DS_PG_PASSWORD}
+        jsonData:
+          sslmode: disable
+          postgresVersion: 1700
+        isDefault: true
+        editable: false
+      - name: Prometheus
+        uid: prom-astera
+        type: prometheus
+        access: proxy
+        # Prometheus is deployed by a separate overlay (Phase 1.5+).
+        # Leaving the URL pointing at the conventional in-cluster service so a
+        # later "add Prometheus" PR doesn't have to touch Grafana provisioning.
+        url: http://prometheus.monitoring.svc.cluster.local:9090
+        editable: false

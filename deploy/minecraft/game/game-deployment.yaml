@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: astera-game
+  namespace: astera
+spec:
+  # Phase 1: static 1 replica. Phase 1.5 swaps this for KEDA-driven scaling triggered
+  # by the matchmaking queue length (see docs/infrastructure/overview.md scaling section).
+  # TODO(Phase 1.5): replace Deployment with a Job-per-match or KEDA ScaledObject.
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: astera-game
+  template:
+    metadata:
+      labels:
+        app: astera-game
+    spec:
+      securityContext:
+        fsGroup: 1005
+        fsGroupChangePolicy: "OnRootMismatch"
+      containers:
+        - name: minecraft
+          # Built from docker/Dockerfile (Step 5) — same image as lobby, baked plugin.
+          image: ghcr.io/astarworks/astera:latest
+          imagePullPolicy: Always
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+          env:
+            - name: EULA
+              value: "TRUE"
+            - name: TZ
+              value: "Asia/Tokyo"
+            - name: TYPE
+              value: "PAPER"
+            - name: VERSION
+              value: "26.1.2"
+            - name: USE_NATIVE_TRANSPORT
+              value: "true"
+            - name: ENABLE_AUTOPAUSE
+              value: "FALSE"
+            - name: USE_AIKAR_FLAGS
+              value: "true"
+            - name: CONSOLE
+              value: "false"
+            - name: SERVER_PORT
+              value: "31002"
+            - name: INIT_MEMORY
+              value: "8G"
+            - name: MAX_MEMORY
+              value: "12G"
+            - name: SERVER_NAME
+              value: "ASTERA GAME"
+            - name: MOTD
+              value: "Astera - Game"
+            - name: MAX_PLAYERS
+              value: "100"
+            - name: DIFFICULTY
+              value: "normal"
+            - name: PVP
+              value: "true"
+            - name: SPAWN_PROTECTION
+              value: "0"
+            - name: VIEW_DISTANCE
+              value: "10"
+            - name: SIMULATION_DISTANCE
+              value: "8"
+            - name: ONLINE_MODE
+              value: "false"
+            - name: ENABLE_RCON
+              value: "true"
+            - name: RCON_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minecraft-rcon
+                  key: game-password
+            - name: MODE
+              value: "survival"
+            - name: ALLOW_FLIGHT
+              value: "true"
+          ports:
+            - containerPort: 31002
+              name: minecraft
+              protocol: TCP
+            - containerPort: 25575
+              name: rcon
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: shared-data
+              mountPath: /shared
+          resources:
+            requests:
+              memory: "8Gi"
+              cpu: "1500m"
+            limits:
+              memory: "12Gi"
+              cpu: "2500m"
+      volumes:
+        - name: data
+          hostPath:
+            path: /srv/astera/game
+            type: DirectoryOrCreate
+        - name: shared-data
+          hostPath:
+            path: /srv/astera/shared
+            type: DirectoryOrCreate

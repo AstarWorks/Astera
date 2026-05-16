@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: astera-game
+  namespace: astera
+spec:
+  type: ClusterIP
+  selector:
+    app: astera-game
+  ports:
+    - name: minecraft
+      port: 31002
+      targetPort: 31002
+      protocol: TCP
+    - name: rcon
+      port: 25575
+      targetPort: 25575
+      protocol: TCP

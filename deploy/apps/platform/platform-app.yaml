@@ -1,0 +1,30 @@
+---
+# ArgoCD Application that syncs deploy/platform (databases / monitoring / ingress / jobs).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: astera-platform
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/AstarWorks/Astera.git
+    targetRevision: main
+    path: deploy/platform
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true
