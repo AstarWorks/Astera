@@ -4,19 +4,33 @@ Astera の Phase 計画。各 Phase は 1〜2 ヶ月目安。
 
 詳細な背景は [計画書 (private)](/home/node/.claude/plans/) を参照。
 
-## Phase 1: 基盤 (進行中)
+## Phase 1: 基盤 ✅ (コード/マニフェスト完了、実機検証は実クラスタ次第)
 
 **ゴール**: 疎結合プラグインアーキテクチャ + k8s manifest。ゲーム機能は最小限。
 
-主要 deliverable:
-- Hexagonal 多モジュール構成 (`domain` / `application` / `adapter-*` / `platform-*`)
-- レイヤ依存方向を Detekt + Konsist で CI 強制
-- `adapter/minecraft-api` (vendor-neutral) + `adapter/minecraft-impl-paper`
-- k8s manifest (Velocity / Lobby / Game / Postgres / Redis / Grafana / ArgoCD)
-- 参考武器 (バニラ完結) を YAML 1 枚で in-game に出せる
-- docs/ 必須ファイル ([docs/INDEX.md](INDEX.md) 参照)
+成果 (2026-05-16 時点):
 
-完了基準は [計画書 §9](/home/node/.claude/plans/https-github-com-y-ryuzu-ryuzutechnicalm-silly-knuth.md) を参照。
+| Deliverable | 状態 |
+|---|---|
+| Hexagonal 多モジュール構成 (`domain` / `application` / `adapter-*` / `platform-*`) | ✅ |
+| レイヤ依存方向を Konsist で CI 強制 (Detekt は JDK 25 対応待ち) | ✅ |
+| `adapter/minecraft-api` (vendor-neutral) + `adapter/minecraft-impl-paper` | ✅ |
+| 参考武器 (バニラ完結) を YAML 1 枚で in-game に出せる経路 | ✅ |
+| `docker/` (Dockerfile + compose) で local Paper + Postgres + Redis 起動 | ✅ (要 docker compose up 実機検証) |
+| `deploy/` k8s manifest 44 ファイル (ArgoCD GitOps 構成) | ✅ (要 kind / 実クラスタ検証) |
+| `.github/workflows/{ci,image}.yml` CI + GHCR push | ✅ (PR で実行確認は次回) |
+| Konsist negative test (domain で bukkit import → fail) | ✅ 実証済 |
+| JP/EN i18n リソース | ✅ |
+| `docs/` 必須ファイル ([docs/INDEX.md](INDEX.md) 参照) | ✅ |
+| README "5-minute setup" + docker README | ✅ |
+
+完了基準: [計画書 §9 + §10](/home/node/.claude/plans/https-github-com-y-ryuzu-ryuzutechnicalm-silly-knuth.md) を参照。
+
+### 次のアクション (Phase 1 残りタスク)
+
+- `docker compose up` を手元で実行 → in-game `/astera give @p example-sword` で動作確認
+- ローカル kind cluster で `kubectl apply -f deploy/apps/argocd-apps.yaml` 検証
+- `AstarWorks/astera-private` (非公開 submodule) 作成 + 環境固有 overlay 切出し
 
 ## Phase 1.5: 動的 Game Pod スケール
 
