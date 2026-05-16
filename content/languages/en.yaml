@@ -1,0 +1,27 @@
+# English locale (fallback).
+# See ja.yaml for key naming conventions and MiniMessage syntax.
+
+astera:
+  system:
+    welcome: "Welcome to <gold><bold>Astera</bold></gold>, {player}!"
+    plugin_enabled: "<green>Astera plugin enabled</green>"
+    plugin_disabled: "<yellow>Disabling Astera plugin...</yellow>"
+
+  command:
+    give:
+      success: "<green>Gave <gold>{weapon}</gold> to {player}</green>"
+      not_found: "<red>Weapon id <gold>{weapon}</gold> not found</red>"
+      usage: "<yellow>Usage: /astera give <player> <weapon-id></yellow>"
+
+  weapon:
+    example-sword:
+      name: "<gold>Example Sword</gold>"
+      lore:
+        - "<gray>Phase 1 demo weapon</gray>"
+        - "<gray>Left-click to attack</gray>"
+        - "<dark_gray>archetype: sword / rarity: common</dark_gray>"
+    fired: "<yellow>{player} fired <gold>{weapon}</gold></yellow>"
+
+  error:
+    internal: "<red>An internal error occurred. Check server logs for details.</red>"
+    permission: "<red>You do not have permission to run this command</red>"

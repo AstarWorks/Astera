@@ -44,12 +44,12 @@ dependencies {
     runtimeOnly(libs.logback.classic)
 }
 
-// Expand version into paper-plugin.yml at processResources (RTM pattern).
+// Expand ${version} into plugin.yml at processResources (Bukkit/Paper standard).
 tasks.named<ProcessResources>("processResources") {
     val pluginVersion = project.version.toString()
     inputs.property("version", pluginVersion)
     filteringCharset = "UTF-8"
-    filesMatching("paper-plugin.yml") {
+    filesMatching("plugin.yml") {
         expand("version" to pluginVersion)
     }
 }

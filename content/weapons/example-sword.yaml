@@ -1,0 +1,27 @@
+# Phase 1 demo weapon.
+# Vanilla materials only — no external plugin dependency.
+# See docs/contributing/add-a-weapon-yaml.md for the full schema (Phase 2+).
+
+id: example-sword
+
+# i18n keys; actual text in content/languages/{ja,en}.yaml
+display_name_key: astera.weapon.example-sword.name
+lore_key: astera.weapon.example-sword.lore
+
+archetype: sword              # sword | gun | wand  (Phase 2 expands)
+rarity: common                # common | uncommon | rare | epic | legendary
+level_requirement: 1
+
+# Bukkit Material name for Phase 1 (vanilla-only).
+# Phase 2+ may swap to Oraxen/MythicMobs item ids via the provider layer.
+material: IRON_SWORD
+
+damage:
+  base: 8.0
+  attribute: physical         # physical | fire | electric | wind | water | earth
+  # headshot_multiplier: 2.0  # Phase 2
+
+cooldown_ticks: 20            # 20 ticks = 1 second @ 20 TPS
+
+# Phase 1 fires WeaponFired on left-click; no skill/effect wiring yet.
+# Phase 2 adds: trigger[], effects.particle[], effects.sound[], status_effects[].

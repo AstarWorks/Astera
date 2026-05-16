@@ -10,12 +10,17 @@
 
 plugins {
     id("astera.kotlin-common")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
     api(project(":plugin:domain"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
+
+    // YAML config parsing. @Serializable DTOs (WeaponYamlConfig etc.) live in
+    // this layer; the domain stays free of serialization annotations.
+    implementation(libs.kaml)
 
     testImplementation(project(":plugin:test-fixtures"))
 }

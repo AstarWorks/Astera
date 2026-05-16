@@ -1,0 +1,35 @@
+# 日本語ロケール。
+# Key naming: astera.<area>.<...>
+# - astera.system.*       システムメッセージ
+# - astera.command.*      コマンド出力
+# - astera.weapon.<id>.*  武器ごとのテキスト
+# - astera.error.*        エラー
+#
+# Values can use MiniMessage tags:
+#   <red>, <gold>, <bold>, <italic>, <reset>
+# and placeholders: {player}, {weapon}, {amount}.
+
+astera:
+  system:
+    welcome: "<gold><bold>Astera</bold></gold> へようこそ、{player}！"
+    plugin_enabled: "<green>Astera プラグインが有効になりました</green>"
+    plugin_disabled: "<yellow>Astera プラグインを無効化しています...</yellow>"
+
+  command:
+    give:
+      success: "<green>{player} に <gold>{weapon}</gold> を渡しました</green>"
+      not_found: "<red>武器 ID <gold>{weapon}</gold> が見つかりません</red>"
+      usage: "<yellow>使い方: /astera give <プレイヤー> <武器ID></yellow>"
+
+  weapon:
+    example-sword:
+      name: "<gold>サンプルソード</gold>"
+      lore:
+        - "<gray>Phase 1 のテスト用武器</gray>"
+        - "<gray>左クリックで攻撃</gray>"
+        - "<dark_gray>archetype: sword / rarity: common</dark_gray>"
+    fired: "<yellow>{player} が <gold>{weapon}</gold> を撃ちました</yellow>"
+
+  error:
+    internal: "<red>内部エラーが発生しました。詳細はサーバーログを確認してください。</red>"
+    permission: "<red>このコマンドを実行する権限がありません</red>"

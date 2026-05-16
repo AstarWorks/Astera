@@ -1,0 +1,25 @@
+name: Astera
+version: '${version}'
+main: com.astarworks.astera.platform.paper.AsteraPlugin
+api-version: '1.21'
+authors: [AstarWorks]
+description: AstarWorks official Minecraft server (Siege / UGC / Place).
+website: https://github.com/AstarWorks/Astera
+
+# Phase 1 uses the traditional plugin.yml so that `getCommand()` works without
+# Brigadier wiring. Phase 2+ may migrate to paper-plugin.yml + Lifecycle API.
+#
+# All external Paper plugin dependencies are SOFT-DEPS (ADR-0009): Astera must
+# boot in vanilla Paper without any of these present.
+softdepend:
+  - WeaponMechanics
+  - Oraxen
+  - MythicMobs
+  - ProtocolLib
+  - PlaceholderAPI
+
+commands:
+  astera:
+    description: Astera root command
+    usage: /astera <subcommand> [args...]
+    aliases: []
