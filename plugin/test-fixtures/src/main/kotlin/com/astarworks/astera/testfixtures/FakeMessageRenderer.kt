@@ -1,8 +1,8 @@
 package com.astarworks.astera.testfixtures
 
-import com.astarworks.astera.application.port.outbound.IMessageRenderer
-import com.astarworks.astera.domain.model.i18n.MessageKey
-import com.astarworks.astera.domain.model.player.PlayerId
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
  * Trivial [IMessageRenderer] for use case tests.

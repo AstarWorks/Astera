@@ -1,0 +1,48 @@
+/*
+ * :plugin:match — Astera-Match plugin (ADR-0022).
+ *
+ * Match lifecycle: start / phase transitions / end / entry. Soft-depends
+ * on Combat (matches can apply damage). Stats subscribes to MatchEnded.
+ *
+ * Contents (populated in Phase 4 + Stage 3-改):
+ *  - MatchId / Match / MatchPhase / Team / TeamId / Score / MatchStateMachine
+ *  - IMatchLifecycle inbound port
+ *  - IMatchRepository (in-memory) outbound port
+ *  - StartMatch / EndMatch / EntryGame / SwitchPhase use cases
+ *  - /astera match * commands
+ *
+ * Produces: astera-match-<version>.jar
+ */
+
+plugins {
+    id("astera.kotlin-paper")
+    alias(libs.plugins.shadow)
+}
+
+dependencies {
+    implementation(project(":plugin:core"))
+
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.slf4j.api)
+
+    testImplementation(project(":plugin:test-fixtures"))
+}
+
+tasks.named<ProcessResources>("processResources") {
+    val pluginVersion = project.version.toString()
+    inputs.property("version", pluginVersion)
+    filteringCharset = "UTF-8"
+    filesMatching("plugin.yml") {
+        expand("version" to pluginVersion)
+    }
+}
+
+tasks.shadowJar {
+    archiveBaseName.set("astera-match")
+    archiveClassifier.set("")
+    mergeServiceFiles()
+}
+
+tasks.named("build") {
+    dependsOn(tasks.shadowJar)
+}

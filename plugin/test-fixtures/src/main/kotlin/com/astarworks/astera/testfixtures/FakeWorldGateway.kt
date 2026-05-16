@@ -1,11 +1,11 @@
 package com.astarworks.astera.testfixtures
 
-import com.astarworks.astera.application.port.outbound.IWorldGateway
-import com.astarworks.astera.domain.model.effect.ParticleSpec
-import com.astarworks.astera.domain.model.effect.SoundSpec
-import com.astarworks.astera.domain.model.geometry.Vec3
-import com.astarworks.astera.domain.model.world.BlockType
-import com.astarworks.astera.domain.model.world.WorldId
+import com.astarworks.astera.core.application.port.outbound.IWorldGateway
+import com.astarworks.astera.core.domain.effect.ParticleSpec
+import com.astarworks.astera.core.domain.effect.SoundSpec
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.world.BlockType
+import com.astarworks.astera.core.domain.world.WorldId
 
 /**
  * In-memory [IWorldGateway] for tests. Each operation records its arguments

@@ -1,7 +1,7 @@
 package com.astarworks.astera.testfixtures
 
-import com.astarworks.astera.application.port.outbound.IBroadcaster
-import com.astarworks.astera.domain.event.DomainEvent
+import com.astarworks.astera.core.application.port.outbound.IBroadcaster
+import com.astarworks.astera.core.domain.event.DomainEvent
 
 /**
  * In-memory [IBroadcaster]. Every published event is appended to [published]

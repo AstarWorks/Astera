@@ -1,22 +1,25 @@
 package com.astarworks.astera.testfixtures
 
-import com.astarworks.astera.application.port.outbound.IPlayerGateway
-import com.astarworks.astera.domain.model.player.PlayerId
-import com.astarworks.astera.domain.model.weapon.WeaponSpec
+import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
  * In-memory [IPlayerGateway] for use case tests.
  *
  * - [register] populates the name → id map consulted by [findByName].
- * - All [sendMessage] and [giveWeapon] calls are recorded on the public mutable
- *   lists so tests can assert on the exact invocations.
+ * - All [sendMessage] calls are recorded on [messages] so tests can assert
+ *   on the exact invocations.
+ *
+ * ADR-0022 trim: pre-Phase-2 this fake also implemented `giveWeapon(WeaponSpec)`.
+ * That capability moved to the Weapons plugin's outbound port; Weapons-specific
+ * tests should use a `FakeWeaponDelivery` fixture from the Weapons plugin's
+ * own test-fixtures.
  */
-class FakePlayerGateway : IPlayerGateway {
-    val players: MutableMap<String, PlayerId> = mutableMapOf()
-    val messages: MutableList<Pair<PlayerId, String>> = mutableListOf()
-    val given: MutableList<Pair<PlayerId, WeaponSpec>> = mutableListOf()
+public class FakePlayerGateway : IPlayerGateway {
+    public val players: MutableMap<String, PlayerId> = mutableMapOf()
+    public val messages: MutableList<Pair<PlayerId, String>> = mutableListOf()
 
-    fun register(name: String, id: PlayerId) {
+    public fun register(name: String, id: PlayerId) {
         players[name] = id
     }
 
@@ -24,9 +27,5 @@ class FakePlayerGateway : IPlayerGateway {
 
     override fun sendMessage(playerId: PlayerId, rendered: String) {
         messages += playerId to rendered
-    }
-
-    override fun giveWeapon(playerId: PlayerId, weapon: WeaponSpec) {
-        given += playerId to weapon
     }
 }

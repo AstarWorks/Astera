@@ -13,8 +13,12 @@ plugins {
 }
 
 dependencies {
-    api(project(":plugin:domain"))
-    api(project(":plugin:application"))
+    // ADR-0022 Phase 2: test-fixtures now depends on :plugin:core only.
+    // Legacy fakes that needed Weapons / Economy types (FakeCurrencyLedger,
+    // FakeWeaponRegistry, Specs.weaponSpec) were removed; each feature plugin
+    // (Weapons / Economy) reintroduces its own fakes inside its own
+    // test-fixtures source set in Phase 3-4.
+    api(project(":plugin:core"))
     // JUnit api is exposed so callers can write @Test directly against fixtures
     api(libs.junit.jupiter.api)
     implementation(libs.kotlinx.coroutines.core)

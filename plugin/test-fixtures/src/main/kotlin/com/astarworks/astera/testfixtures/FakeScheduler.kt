@@ -1,7 +1,7 @@
 package com.astarworks.astera.testfixtures
 
-import com.astarworks.astera.application.port.outbound.IScheduler
-import com.astarworks.astera.application.port.outbound.TICK
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.TICK
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine

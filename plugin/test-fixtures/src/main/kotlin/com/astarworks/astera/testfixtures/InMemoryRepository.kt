@@ -1,6 +1,6 @@
 package com.astarworks.astera.testfixtures
 
-import com.astarworks.astera.application.port.outbound.Repository
+import com.astarworks.astera.core.application.port.outbound.Repository
 
 /**
  * Generic in-memory [Repository] for tests. Caller supplies an `idOf` extractor
