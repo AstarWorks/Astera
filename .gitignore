@@ -89,5 +89,4 @@ libraries/
 versions/
 
 # --- Astera-specific ---
-private/
-!private/.gitkeep
+# (private/ is a git submodule; do NOT ignore it. See .gitmodules.)
