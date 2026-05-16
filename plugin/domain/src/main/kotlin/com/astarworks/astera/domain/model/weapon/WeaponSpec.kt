@@ -1,6 +1,7 @@
 package com.astarworks.astera.domain.model.weapon
 
 import com.astarworks.astera.domain.model.i18n.MessageKey
+import com.astarworks.astera.domain.model.item.ItemId
 
 /** High-level weapon family. Phase 2 expands to bow, throwable, etc. */
 public enum class WeaponArchetype { SWORD, GUN, WAND }
@@ -12,9 +13,9 @@ public enum class Rarity { COMMON, UNCOMMON, RARE, EPIC, LEGENDARY }
  * (in the application layer) into [WeaponSpec] and registered with an
  * `IWeaponRegistry`.
  *
- * `materialKey` is a vendor-neutral material reference (e.g. `IRON_SWORD` for
- * vanilla, `oraxen:my_blade` for Oraxen). The adapter layer resolves it to a
- * concrete item.
+ * Per Stage 1 D (Phase 2 mid), weapons reference items by [ItemId] instead of
+ * carrying a vendor material string. The item template (vanilla / external)
+ * lives in `IItemRegistry` and is resolved by the adapter layer at give-time.
  */
 public data class WeaponSpec(
     val id: WeaponId,
@@ -23,13 +24,12 @@ public data class WeaponSpec(
     val archetype: WeaponArchetype,
     val rarity: Rarity,
     val levelRequirement: Int,
-    val materialKey: String,
+    val itemId: ItemId,
     val damage: DamageProfile,
     val cooldownTicks: Int,
 ) {
     init {
         require(levelRequirement >= 1) { "levelRequirement must be >= 1: $levelRequirement" }
         require(cooldownTicks >= 0) { "cooldownTicks must be >= 0: $cooldownTicks" }
-        require(materialKey.isNotBlank()) { "materialKey must not be blank" }
     }
 }

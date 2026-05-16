@@ -15,4 +15,7 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
+    // Persistent (structurally-shared, immutable) collections.
+    // Pure-Kotlin, no platform dependency — safe for the domain layer.
+    api(libs.kotlinx.collections.immutable)
 }

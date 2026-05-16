@@ -1,0 +1,30 @@
+# Astera — Element matchup table (Phase 2 mid)
+#
+# Multiplier semantics:
+#   1.0 = neutral
+#   > 1.0 = attacker is strong vs defender (deal more damage)
+#   < 1.0 = attacker is weak vs defender (deal less damage)
+#
+# Missing pairs default to 1.0 at lookup time, so this file only lists
+# non-neutral matchups. Both keys are lower-case `DamageAttribute` names.
+#
+# Current rock-paper-scissors loop:
+#   fire   > wind   > earth  > electric > water > fire
+#   physical is neutral against everything (PvP baseline).
+
+matchups:
+  fire:
+    wind: 1.5
+    water: 0.5
+  water:
+    fire: 1.5
+    electric: 0.5
+  electric:
+    water: 1.5
+    earth: 0.5
+  wind:
+    earth: 1.5
+    fire: 0.5
+  earth:
+    electric: 1.5
+    wind: 0.5

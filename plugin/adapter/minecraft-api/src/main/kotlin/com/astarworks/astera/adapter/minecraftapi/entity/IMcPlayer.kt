@@ -1,5 +1,6 @@
 package com.astarworks.astera.adapter.minecraftapi.entity
 
+import com.astarworks.astera.adapter.minecraftapi.item.IMcItemTemplate
 import com.astarworks.astera.domain.model.geometry.Vec3
 import com.astarworks.astera.domain.model.player.PlayerId
 
@@ -13,9 +14,11 @@ import com.astarworks.astera.domain.model.player.PlayerId
  * Strings passed to [sendMessage] are already MiniMessage-formatted; the impl
  * is responsible for deserializing to its native Component / chat type.
  *
- * [giveMaterial] takes a vendor-neutral material reference. Paper resolves
- * via `Material.matchMaterial`; Oraxen provider resolves via the Oraxen
- * registry; etc.
+ * [giveItem] takes an [IMcItemTemplate] resolved from `IItemRegistry`. Display
+ * name and lore are pre-rendered per the viewer's locale by the caller, and
+ * passed in as overrides so weapon-level i18n keys can take precedence over
+ * the item template's defaults (typical: weapon name shows on a sword, not
+ * the underlying item name).
  */
 interface IMcPlayer {
     val id: PlayerId
@@ -24,11 +27,21 @@ interface IMcPlayer {
     val locale: String?
 
     fun sendMessage(rendered: String)
-    fun giveMaterial(materialKey: String, displayName: String?, lore: List<String>)
+
+    /**
+     * Materialize [template] in this player's inventory.
+     *
+     * @param displayNameOverride MiniMessage-formatted display name. When
+     *   non-null, overrides whatever the template would render. Pass `null`
+     *   to use the template's own `displayName` MessageKey.
+     * @param loreOverride MiniMessage-formatted lore lines. Empty means
+     *   "use the template's own lore".
+     */
+    fun giveItem(template: IMcItemTemplate, displayNameOverride: String?, loreOverride: List<String>)
 
     /**
      * Material key of the item currently held in the main hand, or null if the
-     * hand is empty / holding air. Phase 2 mid will replace this with a richer
+     * hand is empty / holding air. Stage 2 H will replace this with a richer
      * "what weapon is in hand?" lookup that consults a PersistentDataContainer
      * tag written at give-time.
      */

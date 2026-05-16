@@ -11,7 +11,7 @@ archetype: gun
 rarity: common
 level_requirement: 1
 
-material: CROSSBOW
+item: example-pistol
 
 damage:
   base: 5.0

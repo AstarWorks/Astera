@@ -1,6 +1,7 @@
 package com.astarworks.astera.testfixtures
 
 import com.astarworks.astera.domain.model.i18n.MessageKey
+import com.astarworks.astera.domain.model.item.ItemId
 import com.astarworks.astera.domain.model.weapon.DamageAttribute
 import com.astarworks.astera.domain.model.weapon.DamageProfile
 import com.astarworks.astera.domain.model.weapon.Rarity
@@ -19,7 +20,7 @@ public fun weaponSpec(
     archetype: WeaponArchetype = WeaponArchetype.SWORD,
     rarity: Rarity = Rarity.COMMON,
     levelRequirement: Int = 1,
-    materialKey: String = "IRON_SWORD",
+    itemId: ItemId = ItemId(id),
     damageBase: Double = 8.0,
     damageAttribute: DamageAttribute = DamageAttribute.PHYSICAL,
     cooldownTicks: Int = 20,
@@ -30,7 +31,7 @@ public fun weaponSpec(
     archetype = archetype,
     rarity = rarity,
     levelRequirement = levelRequirement,
-    materialKey = materialKey,
+    itemId = itemId,
     damage = DamageProfile(damageBase, damageAttribute),
     cooldownTicks = cooldownTicks,
 )

@@ -1,6 +1,7 @@
 package com.astarworks.astera.application.config
 
 import com.astarworks.astera.domain.model.i18n.MessageKey
+import com.astarworks.astera.domain.model.item.ItemId
 import com.astarworks.astera.domain.model.weapon.DamageAttribute
 import com.astarworks.astera.domain.model.weapon.DamageProfile
 import com.astarworks.astera.domain.model.weapon.Rarity
@@ -16,6 +17,14 @@ import kotlinx.serialization.Serializable
  * Kept separate from [WeaponSpec] so that the domain stays free of
  * serialization annotations and so the YAML schema can evolve independently
  * of the domain model (Phase 2+ adds `trigger`, `effects`, `status_effects`).
+ *
+ * # Item reference (Stage 1 D integration)
+ *
+ * `item:` is an [ItemId] reference into `content/items/`. The matching
+ * `content/items/<id>.yaml` defines the actual vanilla Material / custom model
+ * data / PDC tags. Authoring a new weapon now requires two files (weapon +
+ * item), which keeps the visual definition reusable (e.g. multiple weapon
+ * tiers sharing the same item appearance).
  */
 @Serializable
 data class WeaponYamlConfig(
@@ -25,7 +34,7 @@ data class WeaponYamlConfig(
     val archetype: String,
     val rarity: String,
     @SerialName("level_requirement") val levelRequirement: Int,
-    val material: String,
+    val item: String,
     val damage: DamageYamlConfig,
     @SerialName("cooldown_ticks") val cooldownTicks: Int,
 ) {
@@ -36,7 +45,7 @@ data class WeaponYamlConfig(
         archetype = WeaponArchetype.valueOf(archetype.uppercase()),
         rarity = Rarity.valueOf(rarity.uppercase()),
         levelRequirement = levelRequirement,
-        materialKey = material,
+        itemId = ItemId(item),
         damage = DamageProfile(damage.base, DamageAttribute.valueOf(damage.attribute.uppercase())),
         cooldownTicks = cooldownTicks,
     )

@@ -1,6 +1,7 @@
 package com.astarworks.astera.application.service
 
 import com.astarworks.astera.domain.model.i18n.MessageKey
+import com.astarworks.astera.domain.model.item.ItemId
 import com.astarworks.astera.domain.model.weapon.WeaponId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -17,7 +18,7 @@ class WeaponLoaderServiceTest {
         archetype: sword
         rarity: common
         level_requirement: 1
-        material: STONE_SWORD
+        item: test-sword
         damage:
           base: 5.0
           attribute: physical
@@ -36,7 +37,7 @@ class WeaponLoaderServiceTest {
         assertThat(spec).isNotNull
         requireNotNull(spec)
         assertThat(spec.displayNameKey).isEqualTo(MessageKey("test.name"))
-        assertThat(spec.materialKey).isEqualTo("STONE_SWORD")
+        assertThat(spec.itemId).isEqualTo(ItemId("test-sword"))
         assertThat(spec.damage.base).isEqualTo(5.0)
         assertThat(spec.cooldownTicks).isEqualTo(10)
     }

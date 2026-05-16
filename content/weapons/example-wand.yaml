@@ -11,7 +11,7 @@ archetype: wand
 rarity: rare
 level_requirement: 3
 
-material: BLAZE_ROD
+item: example-wand
 
 damage:
   base: 15.0

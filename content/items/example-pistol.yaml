@@ -1,0 +1,14 @@
+# Stage 1 D demo item — mirrors content/weapons/example-pistol.yaml.
+# CROSSBOW is the vanilla material used by the matching weapon; Stage 1
+# integration swaps WeaponSpec.materialKey for `item: example-pistol`.
+
+id: example-pistol
+
+material: CROSSBOW
+
+display_name_key: astera.item.example-pistol.name
+lore_keys:
+  - astera.item.example-pistol.lore
+
+pdc_tags:
+  astera:rarity: common

@@ -1,0 +1,21 @@
+# Phase 2 starter: PROJECTILE archetype example.
+# Launches a single projectile with a damage payload. The projectile engine
+# (Phase 2 mid Batch 3) reads launch_speed / max_lifetime_ticks; the damage
+# block is what lands on the first entity the projectile hits.
+
+id: example-blast
+
+display_name_key: astera.skill.example-blast.name
+description_key: astera.skill.example-blast.lore
+
+archetype: projectile
+trigger: right_click
+cooldown_ticks: 40        # ~2s @ 20 TPS
+
+params:
+  type: projectile
+  launch_speed: 1.8       # blocks/tick
+  max_lifetime_ticks: 60  # ~3s flight time before despawn
+  damage:
+    base: 12.0
+    attribute: fire

@@ -2,6 +2,7 @@ package com.astarworks.astera.application.config.parser
 
 import com.astarworks.astera.application.port.outbound.IContentParser
 import com.charleskorn.kaml.AnchorsAndAliases
+import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
 import kotlinx.serialization.DeserializationStrategy
 
@@ -34,10 +35,18 @@ public class YamlContentParser(
          * configuration with `AnchorsAndAliases.Permitted` enabled. The 100-
          * alias cap is kaml's default for the Permitted variant and is more
          * than enough for any realistic Astera content file.
+         *
+         * `polymorphismStyle = Property` + `polymorphismPropertyName = "type"`
+         * align kaml with the kotlinx-JSON `@JsonClassDiscriminator("type")`
+         * convention used by Astera sealed DTOs (skill / status `params`).
+         * Same discriminator across YAML and JSON keeps content authoring
+         * uniform.
          */
         val DEFAULT_YAML: Yaml = Yaml(
             configuration = Yaml.default.configuration.copy(
                 anchorsAndAliases = AnchorsAndAliases.Permitted(maxAliasCount = 100u),
+                polymorphismStyle = PolymorphismStyle.Property,
+                polymorphismPropertyName = "type",
             ),
         )
     }

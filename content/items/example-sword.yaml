@@ -1,0 +1,27 @@
+# Stage 1 D demo item — mirrors content/weapons/example-sword.yaml so the
+# weapon's `material: IRON_SWORD` can be replaced (at Stage 1 integration)
+# with `item: example-sword` and resolved through IItemRegistry.
+#
+# Vanilla template — Astera materializes this via Material.matchMaterial.
+# See docs/contributing/add-an-item-yaml.md (to be authored in Stage 1 me).
+
+id: example-sword
+
+# Bukkit Material name. Required for vanilla templates; mutually exclusive
+# with `external_key` (Oraxen / ItemAdder / MythicItems).
+material: IRON_SWORD
+
+# Optional. Resource-pack custom_model_data; null means "leave unset".
+# Stage 6 / Phase 6 may auto-allocate these from a manifest.
+# custom_model_data: 1001
+
+# i18n keys; actual text in content/languages/{ja,en}.yaml.
+display_name_key: astera.item.example-sword.name
+lore_keys:
+  - astera.item.example-sword.lore
+
+# PDC tags written into the materialized ItemStack. Stage 2 H replaces
+# weapon-material matching with PDC lookup; this is where the adapter
+# stamps an `astera:item-id` tag plus anything content authors add.
+pdc_tags:
+  astera:rarity: common

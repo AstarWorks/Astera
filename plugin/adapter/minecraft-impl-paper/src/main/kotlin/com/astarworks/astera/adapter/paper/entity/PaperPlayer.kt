@@ -1,21 +1,29 @@
 package com.astarworks.astera.adapter.paper.entity
 
 import com.astarworks.astera.adapter.minecraftapi.entity.IMcPlayer
+import com.astarworks.astera.adapter.minecraftapi.item.IMcItemTemplate
 import com.astarworks.astera.domain.model.geometry.Vec3
 import com.astarworks.astera.domain.model.player.PlayerId
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
+import org.slf4j.LoggerFactory
 
 /**
  * Paper concrete of [IMcPlayer]. The only layer where `org.bukkit.*` imports
  * are sanctioned for player operations (see ADR-0002 and the Konsist guard
  * in :tools:architecture-test).
  *
- * Phase 1 uses Bukkit's vanilla `Material` for [giveMaterial]; the Oraxen
- * provider module will intercept non-vanilla `materialKey` values before
- * the call ever reaches this class (Phase 2+).
+ * Vanilla templates resolve via `Material.matchMaterial`; External templates
+ * (Oraxen / ItemAdder) fall back to STONE in Stage 1 since the provider
+ * adapters are not yet wired (Stage 6 / Phase 4).
+ *
+ * PDC tags: every materialized item gets an `astera:item-id` tag plus any
+ * extra entries from `template.pdcTags`. Stage 2 H uses these for weapon
+ * identity at fire-time (replacing material matching).
  */
 class PaperPlayer(private val bukkit: Player) : IMcPlayer {
 
@@ -28,12 +36,36 @@ class PaperPlayer(private val bukkit: Player) : IMcPlayer {
         bukkit.sendMessage(MM.deserialize(rendered))
     }
 
-    override fun giveMaterial(materialKey: String, displayName: String?, lore: List<String>) {
-        val material = Material.matchMaterial(materialKey) ?: Material.STONE
-        val item = ItemStack(material)
+    override fun giveItem(template: IMcItemTemplate, displayNameOverride: String?, loreOverride: List<String>) {
+        val item = when (template) {
+            is IMcItemTemplate.Vanilla -> buildVanilla(template)
+            is IMcItemTemplate.External -> {
+                log.warn(
+                    "External item template '{}' (key={}) — provider adapter not wired in Stage 1; falling back to STONE.",
+                    template.id, template.key,
+                )
+                ItemStack(Material.STONE)
+            }
+        }
         item.editMeta { meta ->
-            if (displayName != null) meta.displayName(MM.deserialize(displayName))
-            if (lore.isNotEmpty()) meta.lore(lore.map { MM.deserialize(it) })
+            if (displayNameOverride != null) {
+                meta.displayName(MM.deserialize(displayNameOverride))
+            }
+            if (loreOverride.isNotEmpty()) {
+                meta.lore(loreOverride.map { MM.deserialize(it) })
+            }
+            val pdc = meta.persistentDataContainer
+            pdc.set(ITEM_ID_KEY, PersistentDataType.STRING, template.id.value)
+            if (template is IMcItemTemplate.Vanilla) {
+                if (template.customModelData != null) {
+                    @Suppress("DEPRECATION")
+                    meta.setCustomModelData(template.customModelData)
+                }
+                for ((rawKey, rawValue) in template.pdcTags) {
+                    val key = NamespacedKey.fromString(rawKey) ?: continue
+                    pdc.set(key, PersistentDataType.STRING, rawValue)
+                }
+            }
         }
         bukkit.inventory.addItem(item)
     }
@@ -43,7 +75,17 @@ class PaperPlayer(private val bukkit: Player) : IMcPlayer {
         return if (item.type.isAir) null else item.type.name
     }
 
+    private fun buildVanilla(template: IMcItemTemplate.Vanilla): ItemStack {
+        val material = Material.matchMaterial(template.material) ?: run {
+            log.warn("Unknown Material '{}' for item id={}, falling back to STONE", template.material, template.id)
+            Material.STONE
+        }
+        return ItemStack(material)
+    }
+
     private companion object {
         val MM: MiniMessage = MiniMessage.miniMessage()
+        val ITEM_ID_KEY: NamespacedKey = NamespacedKey.fromString("astera:item-id")!!
+        val log = LoggerFactory.getLogger(PaperPlayer::class.java)
     }
 }

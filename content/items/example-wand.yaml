@@ -1,0 +1,13 @@
+# Stage 1 D demo item — mirrors content/weapons/example-wand.yaml (rare wand).
+# BLAZE_ROD is the vanilla material used by the matching weapon.
+
+id: example-wand
+
+material: BLAZE_ROD
+
+display_name_key: astera.item.example-wand.name
+lore_keys:
+  - astera.item.example-wand.lore
+
+pdc_tags:
+  astera:rarity: rare

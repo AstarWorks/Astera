@@ -12,9 +12,10 @@ archetype: sword              # sword | gun | wand  (Phase 2 expands)
 rarity: common                # common | uncommon | rare | epic | legendary
 level_requirement: 1
 
-# Bukkit Material name for Phase 1 (vanilla-only).
-# Phase 2+ may swap to Oraxen/MythicMobs item ids via the provider layer.
-material: IRON_SWORD
+# Item reference into content/items/. The item template carries the
+# vendor-neutral material / custom model data / lore / PDC tags
+# (see content/items/example-sword.yaml).
+item: example-sword
 
 damage:
   base: 8.0
