@@ -42,24 +42,55 @@ Categories: `items`, `blocks`, `entities`, `animations` (must match
 ### Step A: Automated (Codex CLI) path
 
 1. Create working dir: `WORK=$(mktemp -d -t texgen.XXXX)`. Note path.
-2. Build prompt template:
+2. Build prompt and save to `$WORK/prompt.txt`. Template (adapt subject):
    ```
-   Generate a single PNG image: a {ROWS}×{COLS} grid of {COUNT} distinct
-   32×32 pixel-art {SUBJECT} on a transparent background. Each cell is
-   exactly 32×32 pixels with no padding, so the full sheet is {COLS*32}×{ROWS*32}.
-   Style: consistent palette across all cells, ≤32 colors total, hard
-   1-pixel dark outline, no anti-aliasing, no semi-transparent edges.
-   Save as {WORK}/grid.png. Confirm by listing the file size when done.
+   Use your image-generation tool to create a single PNG at $WORK/grid.png.
+
+   Subject: A {ROWS}×{COLS} grid of {COUNT} distinct {SUBJECT} in pixel-art style.
+   - List each cell with its variant name (top-left, top-right, ...) so the
+     model knows what goes where.
+
+   Style requirements:
+   - Classic 32×32 pixel-art aesthetic look (we will downscale later)
+   - Hard 1-pixel dark outlines around every shape
+   - Limited palette: ≤16 distinct colors total across all cells
+   - Consistent palette and outline width across all variants
+   - No anti-aliasing on edges, no semi-transparent pixels
+   - Bold silhouettes readable at thumbnail size
+
+   Layout:
+   - One square output image divided into {ROWS×COLS} equal cells
+   - No gridlines, no text labels, no padding text
+   - Background is pure black (we will key it out to transparency in post)
+   - Each subject fits centered within its cell
+
+   After generation, save the file to: $WORK/grid.png
    ```
-3. Invoke:
+3. Invoke the wrapper (it handles the bwrap-in-bwrap workaround
+   automatically — see below):
    ```bash
-   codex exec --sandbox workspace-write --cd "$WORK" --skip-git-repo-check \
-       --output-last-message "$WORK/codex.log" "$PROMPT"
+   bash tools/texture-gen/scripts/codex_generate.sh "$WORK/grid.png" "$WORK/prompt.txt"
    ```
-   If exit non-zero, surface stderr and fall back to `handoff` mode with the
-   user being asked to run the same prompt themselves.
-4. Verify `$WORK/grid.png` exists and dimensions are `(COLS*32)×(ROWS*32)`
-   using Python one-liner. If not, ask Codex to regenerate (max 2 retries).
+   On non-zero exit, surface `$WORK/codex.stderr.log` and fall back to
+   `handoff` mode by asking the user to run the same prompt themselves.
+4. Verify `$WORK/grid.png` exists (`file $WORK/grid.png` should report PNG)
+   and inspect dimensions with a Python one-liner before slicing. Codex
+   often returns square images larger than the literal target
+   (e.g., 1024×1024 or 1254×1254); the downstream `palette_quantize.py`
+   handles arbitrary input sizes via LANCZOS downscale.
+
+#### Why the wrapper is needed
+
+Codex's image-generation tool writes the produced PNG to
+`~/.codex/generated_images/<session_id>/ig_<hash>.png`, then runs a shell
+command to copy it to the user-requested path. When Codex Claude runs
+*inside* an outer bwrap sandbox (as in Claude Code's environment), the
+inner bwrap call fails with `bwrap: Failed to make / slave: Permission
+denied`, so the copy step never runs and the final file appears to be
+missing. `codex_generate.sh` scrapes the session ID from stderr, locates
+the orphaned `ig_*.png` in the session dir, and copies it to the
+requested path. If running outside a nested sandbox, the first attempt
+succeeds and the fallback path is never taken.
 
 ### Step H: Handoff path
 
