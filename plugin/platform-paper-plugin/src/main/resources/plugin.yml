@@ -9,14 +9,10 @@ website: https://github.com/AstarWorks/Astera
 # Phase 1 uses the traditional plugin.yml so that `getCommand()` works without
 # Brigadier wiring. Phase 2+ may migrate to paper-plugin.yml + Lifecycle API.
 #
-# All external Paper plugin dependencies are SOFT-DEPS (ADR-0009): Astera must
-# boot in vanilla Paper without any of these present.
-softdepend:
-  - WeaponMechanics
-  - Oraxen
-  - MythicMobs
-  - ProtocolLib
-  - PlaceholderAPI
+# Per ADR-0015 (external plugin interrogation), Astera does NOT declare any
+# external plugin dependencies. Self-built abstractions cover the needs that
+# WM / Oraxen / MythicMobs / ProtocolLib / PlaceholderAPI provided in RTM.
+# Any future adoption is a new ADR + a new softdepend line.
 
 commands:
   astera:

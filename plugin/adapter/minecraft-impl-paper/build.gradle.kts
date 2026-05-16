@@ -17,6 +17,9 @@ plugins {
 dependencies {
     api(project(":plugin:adapter:minecraft-api"))
 
+    // PaperScheduler uses suspendCancellableCoroutine + CoroutineDispatcher.
+    implementation(libs.kotlinx.coroutines.core)
+
     testImplementation(project(":plugin:test-fixtures"))
     // MockBukkit's Paper 26.x support to be verified at Phase 1 build time;
     // fall back to paper-test if needed. See plan §9.10.

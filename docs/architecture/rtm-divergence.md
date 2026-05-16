@@ -52,7 +52,11 @@ Where RTM made a choice that doesn't meet Astera's cleanliness / decoupling / te
 | i18n: per-file YAML + raw `{key}` substitution | No plural / gender / number formatting; no compile-time key check | **`MessageKey` value class** + ICU MessageFormat (Phase 2 mid extension) | §11 (Result + MessageKey) |
 | ~0 test coverage | Refactoring is terrifying | **`domain` ≥ 90% line cov, `application` ≥ 80%**; test-fixtures module provides reusable fakes | [[testing-strategy]] |
 | JVM 17 + Paper 1.20.4 baseline | Already a year behind Minecraft 1.21+ | **JDK 25 + Paper 26.1.x** + monthly dep-bump discipline | ADR-0003, ADR-0012 |
-| No ADRs / no incident archive | Every design choice has to be re-discovered from `git log` | **13 ADRs** + [[../incidents]] template | [[../README]] |
+| No ADRs / no incident archive | Every design choice has to be re-discovered from `git log` | **16 ADRs** + [[../incidents]] template | [[../README]] |
+| Scheduler: tick-only callback API | Tick-rate assumptions baked into call sites; coroutines unavailable | **Coroutine-first `IScheduler`** (Duration param + `suspend awaitTicks` + `mainDispatcher`/`asyncDispatcher`) | [[adr/0011-phase-1-implementation-deviations]] + 計画書 §14.1 |
+| External plugin dependencies (11 required in RTM) | Each upstream stagnation blocks Astera releases | **Vanilla + self-build first** (0 plugins required) — `IItemRegistry` / `IProjectileService` / `ICommandHandler` Astera-owned | [[adr/0015-external-plugin-interrogation]] |
+| Hand-written JSON Schemas / VSCode hints / AI prompts | Three places drift, no SSoT | **Kotlin `@Serializable` DTO = SSoT**; schemas / hints / prompts are generated artifacts; YAML / TOML / JSON wire formats interchangeable | [[adr/0016-content-schema-ssot]] |
+| Mongo-style "everything is a document" or pure-column SQL extremes | Either no schema or migration-heavy | **Postgres + JSONB hybrid**: real columns for queryability, JSONB for flexibility | [[adr/0014-jsonb-usage-policy]] |
 
 ## Add — modern needs RTM never addressed
 
