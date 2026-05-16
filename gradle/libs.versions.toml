@@ -1,41 +1,43 @@
 [versions]
-# JVM / Kotlin
-kotlin = "2.2.20"
-ksp = "2.2.20-2.0.4"
+# JVM / Kotlin (latest stable as of 2026-05-17)
+kotlin = "2.3.21"               # Kotlin 2.3 supports JVM target 25 natively
+ksp = "2.3.8"                   # KSP2 new numbering (no -kotlin- prefix)
 jdk = "25"
 
 # Paper (Minecraft Java Edition 26.x — requires JDK 25)
 paper = "26.1.2.build.63-stable"
 
 # DI / Config
-koin = "4.0.0"
-koin-annotations = "2.0.0"
-kaml = "0.66.0"
-kotlinx-coroutines = "1.10.1"
+koin = "4.2.1"
+# koin-annotations + koin-ksp-compiler stay on the 2.x stream — the 4.x version
+# of koin-annotations exists but no matching koin-ksp-compiler 4.x is published.
+koin-annotations = "2.3.1"
+kaml = "0.104.0"
+kotlinx-coroutines = "1.11.0"
 
 # Logging
-slf4j = "2.0.16"
-logback = "1.5.12"
+slf4j = "2.0.18"                # 2.1.x still alpha — stay on stable 2.0 line
+logback = "1.5.32"
 
-# Persistence (PostgreSQL + Exposed; aligned with AstarManagement)
-postgresql = "42.7.5"
-exposed = "1.1.1"
-flyway = "11.1.0"
-lettuce = "6.5.3.RELEASE"
+# Persistence (PostgreSQL + Exposed; Astera independent of AstarManagement's 1.1.1)
+postgresql = "42.7.11"
+exposed = "1.3.0"
+flyway = "12.6.1"
+lettuce = "7.5.2.RELEASE"
 
 # Testing
-junit = "5.11.4"
-assertj = "3.27.0"
-testcontainers = "1.20.4"
-mockk = "1.13.13"
-konsist = "0.17.0"
+junit = "6.0.3"                 # JUnit 6 — major bump from 5.x
+junit-platform = "6.0.3"        # JUnit 6 unified platform versioning
+assertj = "3.27.7"              # 4.0 still milestone
+testcontainers = "2.0.5"
+mockk = "1.14.9"
+konsist = "0.17.3"
 
 # Build
-detekt = "1.23.7"
-shadow = "8.3.6"
+detekt = "1.23.8"               # Disabled until 2.x; pinned for re-enable
+shadow = "9.4.1"                # Gradle 9 native
 
-# External Paper plugins (compileOnly, soft-dep) — Phase 1 着手時に確認
-# Set to a sentinel; tasks resolving these dependencies are gated behind module activation.
+# External Paper plugins (compileOnly, soft-dep) — sentinel until Phase 2 mid
 weaponmechanics = "999.999.999"
 oraxen = "999.999.999"
 mythic-dist = "999.999.999"
@@ -76,7 +78,7 @@ lettuce-core = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
 # Testing
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.11.4" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 testcontainers-core = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }

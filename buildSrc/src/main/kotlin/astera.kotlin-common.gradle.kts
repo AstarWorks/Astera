@@ -26,14 +26,13 @@ fun lib(alias: String) = libs.findLibrary(alias).orElseThrow {
     IllegalStateException("Library alias '$alias' not found in version catalog")
 }
 
-// Toolchain: use JDK 25 (required by Paper 26.x at runtime; see ADR-0003).
-// Kotlin output: JVM_24 (Kotlin 2.2.20 ceiling). Java output: JVM 25 (Paper 26
-// publishes JVM 25 bytecode, so consumers must be JVM 25 for variant resolution).
-// This asymmetry is intentional — see gradle.properties for the validation override.
+// Toolchain + bytecode target: JDK 25 native.
+// Kotlin 2.3+ supports JvmTarget.JVM_25 directly, so the asymmetric workaround
+// from ADR-0011 is gone (see ADR-0012). Both Java and Kotlin emit JVM 25 bytecode.
 kotlin {
     jvmToolchain(libs.findVersion("jdk").get().requiredVersion.toInt())
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_24)
+        jvmTarget.set(JvmTarget.JVM_25)
     }
 }
 

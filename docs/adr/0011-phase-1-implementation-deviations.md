@@ -33,21 +33,23 @@ Konsist tests in `:tools:architecture-test`. Detekt config stays at
 `config/detekt/detekt.yml` so re-enabling is a one-line change once a
 JDK-25-aware version ships.
 
-### 2. Kotlin emits **JVM_24** bytecode; Java targets **JVM_25**
+### 2. Kotlin emits **JVM_24** bytecode; Java targets **JVM_25** *(Superseded by ADR-0012, 2026-05-17)*
 
-Kotlin 2.2.20's `JvmTarget` enum stops at `JVM_24`. Paper 26.x publishes
-artifacts marked as JVM 25, so Gradle variant resolution refuses to pair a
+Kotlin 2.2.20's `JvmTarget` enum stopped at `JVM_24`. Paper 26.x publishes
+artifacts marked as JVM 25, so Gradle variant resolution refused to pair a
 JVM 24-targeting consumer with the Paper API.
 
-**Resolution:**
+**Original Phase 1 resolution:**
 - `kotlin.compilerOptions.jvmTarget = JvmTarget.JVM_24`
 - `java.targetCompatibility = JavaVersion.VERSION_25`
 - `kotlin.jvm.target.validation.mode=warning` in `gradle.properties`
 
-Both targets are runtime-compatible (JVM 24 bytecode runs on JDK 25). The
-asymmetry is purely about Gradle's variant matcher.
+Both targets were runtime-compatible (JVM 24 bytecode runs on JDK 25). The
+asymmetry was purely about Gradle's variant matcher.
 
-Revert to a single `JVM_25` target once Kotlin supports it.
+**Update (2026-05-17, [[adr/0012-bump-kotlin-2-3-and-library-refresh]])**: Kotlin
+2.3.0 added `JvmTarget.JVM_25` natively. The asymmetric workaround is gone —
+both Kotlin and Java now emit JVM 25 bytecode, and `validation.mode=error`.
 
 ### 3. Configuration cache is **disabled**
 
