@@ -1,0 +1,7 @@
+# Working artifacts produced by scripts/ — outputs go to content/textures/, not here.
+work/
+out/
+*.tmp.png
+__pycache__/
+*.pyc
+.venv/

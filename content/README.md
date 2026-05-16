@@ -9,8 +9,13 @@ content/
 ├── weapons/        武器定義 (YAML 1 ファイル = 1 武器)
 ├── skills/         スキル / 状態異常 (Phase 2 以降)
 ├── stages/         マップ・ステージ (Phase 3 以降)
+├── textures/       32×32 PNG アセット (items / blocks / entities / animations)
 └── languages/      i18n リソース (ja, en, ...)
 ```
+
+`textures/` 配下の作成は `tools/texture-gen/` の scaffolding 経由が前提。
+詳細は [content/textures/README.md](textures/README.md) と
+[[adr/0018-ai-asset-creation-policy]] を参照。
 
 ## Schema policy
 
