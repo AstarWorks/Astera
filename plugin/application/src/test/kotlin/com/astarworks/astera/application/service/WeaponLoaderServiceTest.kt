@@ -1,5 +1,6 @@
 package com.astarworks.astera.application.service
 
+import com.astarworks.astera.domain.model.i18n.MessageKey
 import com.astarworks.astera.domain.model.weapon.WeaponId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -34,7 +35,7 @@ class WeaponLoaderServiceTest {
         val spec = registry.find(WeaponId("test-sword"))
         assertThat(spec).isNotNull
         requireNotNull(spec)
-        assertThat(spec.displayNameKey).isEqualTo("test.name")
+        assertThat(spec.displayNameKey).isEqualTo(MessageKey("test.name"))
         assertThat(spec.materialKey).isEqualTo("STONE_SWORD")
         assertThat(spec.damage.base).isEqualTo(5.0)
         assertThat(spec.cooldownTicks).isEqualTo(10)

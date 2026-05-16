@@ -3,6 +3,8 @@ package com.astarworks.astera.application.usecase
 import com.astarworks.astera.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.application.port.outbound.IWeaponRegistry
+import com.astarworks.astera.domain.Result
+import com.astarworks.astera.domain.model.i18n.MessageKey
 import com.astarworks.astera.domain.model.player.PlayerId
 import com.astarworks.astera.domain.model.weapon.WeaponId
 import org.slf4j.LoggerFactory
@@ -12,27 +14,33 @@ import org.slf4j.LoggerFactory
  *
  * Phase 1 trusts the caller; permission checks live in the platform's command
  * handler.
+ *
+ * Returns [Result<Unit, GiveWeaponError>]. Each error case carries an
+ * [com.astarworks.astera.domain.model.i18n.MessageKey] so callers can render
+ * a user-friendly message without duplicating the failure→string mapping.
  */
-class GiveWeaponUseCase(
+public class GiveWeaponUseCase(
     private val weapons: IWeaponRegistry,
     private val players: IPlayerGateway,
     private val msg: IMessageRenderer,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    data class Request(val invokerId: PlayerId?, val targetName: String, val weaponIdStr: String)
+    public data class Request(
+        val invokerId: PlayerId?,
+        val targetName: String,
+        val weaponIdStr: String,
+    )
 
-    enum class Outcome { SUCCESS, INVALID_WEAPON_ID, WEAPON_NOT_FOUND, PLAYER_NOT_FOUND }
-
-    fun execute(req: Request): Outcome {
+    public fun execute(req: Request): Result<Unit, GiveWeaponError> {
         val weaponId = runCatching { WeaponId(req.weaponIdStr) }.getOrNull()
-            ?: return notify(req.invokerId, K_NOT_FOUND, weapon = req.weaponIdStr).let { Outcome.INVALID_WEAPON_ID }
+            ?: return fail(req, GiveWeaponError.InvalidWeaponId(req.weaponIdStr))
 
         val spec = weapons.find(weaponId)
-            ?: return notify(req.invokerId, K_NOT_FOUND, weapon = req.weaponIdStr).let { Outcome.WEAPON_NOT_FOUND }
+            ?: return fail(req, GiveWeaponError.WeaponNotFound(req.weaponIdStr))
 
         val target = players.findByName(req.targetName)
-            ?: return notify(req.invokerId, K_USAGE).let { Outcome.PLAYER_NOT_FOUND }
+            ?: return fail(req, GiveWeaponError.PlayerNotFound(req.targetName))
 
         players.giveWeapon(target, spec)
         notify(
@@ -41,23 +49,41 @@ class GiveWeaponUseCase(
             placeholders = mapOf("player" to req.targetName, "weapon" to req.weaponIdStr),
         )
         log.info("Gave weapon {} to {}", req.weaponIdStr, req.targetName)
-        return Outcome.SUCCESS
+        return Result.success(Unit)
     }
 
-    private fun notify(
-        to: PlayerId?,
-        key: String,
-        weapon: String? = null,
-        placeholders: Map<String, String> = emptyMap(),
-    ) {
+    private fun fail(req: Request, error: GiveWeaponError): Result<Unit, GiveWeaponError> {
+        notify(
+            req.invokerId,
+            error.messageKey,
+            placeholders = mapOf("weapon" to req.weaponIdStr, "player" to req.targetName),
+        )
+        return Result.failure(error)
+    }
+
+    private fun notify(to: PlayerId?, key: MessageKey, placeholders: Map<String, String> = emptyMap()) {
         if (to == null) return
-        val merged = placeholders.toMutableMap().apply { if (weapon != null) put("weapon", weapon) }
-        players.sendMessage(to, msg.render(to, key, merged))
+        players.sendMessage(to, msg.render(to, key, placeholders))
     }
 
-    companion object {
-        const val K_SUCCESS = "astera.command.give.success"
-        const val K_NOT_FOUND = "astera.command.give.not_found"
-        const val K_USAGE = "astera.command.give.usage"
+    public companion object {
+        public val K_SUCCESS: MessageKey = MessageKey("astera.command.give.success")
+    }
+}
+
+/** Expected failure modes of [GiveWeaponUseCase.execute]. */
+public sealed class GiveWeaponError {
+    public abstract val messageKey: MessageKey
+
+    public data class InvalidWeaponId(val raw: String) : GiveWeaponError() {
+        override val messageKey: MessageKey = MessageKey("astera.command.give.invalid_id")
+    }
+
+    public data class WeaponNotFound(val raw: String) : GiveWeaponError() {
+        override val messageKey: MessageKey = MessageKey("astera.command.give.not_found")
+    }
+
+    public data class PlayerNotFound(val targetName: String) : GiveWeaponError() {
+        override val messageKey: MessageKey = MessageKey("astera.command.give.player_not_found")
     }
 }

@@ -110,4 +110,48 @@ class ArchitectureTest {
             .files
             .assertFalse { file -> hasBukkitFamilyImport(file) }
     }
+
+    /**
+     * Domain is pure data + rules. No I/O of any kind — file, network, SQL.
+     * `java.util.UUID` is allowed (it's part of stdlib).
+     */
+    @Test
+    fun `domain must not perform any IO`() {
+        Konsist.scopeFromModule("plugin/domain")
+            .files
+            .assertFalse(additionalMessage = "Domain leaked an I/O dependency — move it to application or an adapter.") { file ->
+                file.imports.any { imp ->
+                    imp.name.startsWith("java.io") ||
+                        imp.name.startsWith("java.nio") ||
+                        imp.name.startsWith("java.net")
+                }
+            }
+    }
+
+    /**
+     * Serialization annotations live in `application/config/`, not in domain.
+     * Keeps domain types free of framework attributes.
+     */
+    @Test
+    fun `domain must not import kotlinx serialization`() {
+        Konsist.scopeFromModule("plugin/domain")
+            .files
+            .assertFalse(additionalMessage = "Move @Serializable DTOs to application/config/ and convert to domain types there.") { file ->
+                file.imports.any { imp -> imp.name.startsWith("kotlinx.serialization") }
+            }
+    }
+
+    /**
+     * HTTP / network access is an adapter concern. Application ports describe
+     * the *what*; adapters implement the *how*. If application starts to need
+     * outbound HTTP, that's a sign a new port is missing.
+     */
+    @Test
+    fun `application must not import java net http`() {
+        Konsist.scopeFromModule("plugin/application")
+            .files
+            .assertFalse { file ->
+                file.imports.any { imp -> imp.name.startsWith("java.net.http") }
+            }
+    }
 }

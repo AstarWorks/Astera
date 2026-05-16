@@ -13,6 +13,7 @@ import com.astarworks.astera.application.service.MutableWeaponRegistry
 import com.astarworks.astera.application.service.WeaponLoaderService
 import com.astarworks.astera.application.usecase.FireWeaponUseCase
 import com.astarworks.astera.application.usecase.GiveWeaponUseCase
+import com.astarworks.astera.domain.model.i18n.MessageKey
 import com.astarworks.astera.domain.model.player.PlayerId
 import com.astarworks.astera.domain.model.weapon.WeaponSpec
 import org.bukkit.command.Command
@@ -104,7 +105,7 @@ class AsteraPlugin : JavaPlugin() {
             player.sendMessage(
                 messages.render(
                     player.id,
-                    "astera.weapon.on_cooldown",
+                    MessageKey("astera.weapon.on_cooldown"),
                     mapOf("weapon" to weapon.id.value, "remaining" to remainingSeconds),
                 )
             )

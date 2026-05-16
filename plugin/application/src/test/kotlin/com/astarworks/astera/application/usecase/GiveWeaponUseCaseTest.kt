@@ -24,31 +24,34 @@ class GiveWeaponUseCaseTest {
     fun `success path gives weapon and notifies invoker`() {
         val invokerId = PlayerId(UUID.randomUUID())
 
-        val outcome = uc.execute(
+        val result = uc.execute(
             GiveWeaponUseCase.Request(invokerId = invokerId, targetName = "Alice", weaponIdStr = "example-sword")
         )
 
-        assertThat(outcome).isEqualTo(GiveWeaponUseCase.Outcome.SUCCESS)
+        assertThat(result.isSuccess).isTrue()
         assertThat(players.given).containsExactly(targetId to spec)
         assertThat(players.messages.map { it.first }).containsExactly(invokerId)
     }
 
     @Test
-    fun `unknown weapon yields WEAPON_NOT_FOUND`() {
-        val outcome = uc.execute(GiveWeaponUseCase.Request(null, "Alice", "missing-weapon"))
-        assertThat(outcome).isEqualTo(GiveWeaponUseCase.Outcome.WEAPON_NOT_FOUND)
+    fun `unknown weapon yields WeaponNotFound`() {
+        val result = uc.execute(GiveWeaponUseCase.Request(null, "Alice", "missing-weapon"))
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.errorOrNull()).isEqualTo(GiveWeaponError.WeaponNotFound("missing-weapon"))
         assertThat(players.given).isEmpty()
     }
 
     @Test
-    fun `invalid weapon id (uppercase) yields INVALID_WEAPON_ID`() {
-        val outcome = uc.execute(GiveWeaponUseCase.Request(null, "Alice", "Example-Sword"))
-        assertThat(outcome).isEqualTo(GiveWeaponUseCase.Outcome.INVALID_WEAPON_ID)
+    fun `invalid weapon id (uppercase) yields InvalidWeaponId`() {
+        val result = uc.execute(GiveWeaponUseCase.Request(null, "Alice", "Example-Sword"))
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.errorOrNull()).isEqualTo(GiveWeaponError.InvalidWeaponId("Example-Sword"))
     }
 
     @Test
-    fun `missing player yields PLAYER_NOT_FOUND`() {
-        val outcome = uc.execute(GiveWeaponUseCase.Request(null, "Bob", "example-sword"))
-        assertThat(outcome).isEqualTo(GiveWeaponUseCase.Outcome.PLAYER_NOT_FOUND)
+    fun `missing player yields PlayerNotFound`() {
+        val result = uc.execute(GiveWeaponUseCase.Request(null, "Bob", "example-sword"))
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.errorOrNull()).isEqualTo(GiveWeaponError.PlayerNotFound("Bob"))
     }
 }

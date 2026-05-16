@@ -1,5 +1,6 @@
 package com.astarworks.astera.testfixtures
 
+import com.astarworks.astera.domain.model.i18n.MessageKey
 import com.astarworks.astera.domain.model.weapon.DamageAttribute
 import com.astarworks.astera.domain.model.weapon.DamageProfile
 import com.astarworks.astera.domain.model.weapon.Rarity
@@ -11,10 +12,10 @@ import com.astarworks.astera.domain.model.weapon.WeaponSpec
  * Defaults mirror `content/weapons/example-sword.yaml` so tests can construct
  * a realistic [WeaponSpec] with one call and override only what matters.
  */
-fun weaponSpec(
+public fun weaponSpec(
     id: String = "example-sword",
-    displayNameKey: String = "astera.weapon.$id.name",
-    loreKey: String = "astera.weapon.$id.lore",
+    displayNameKey: MessageKey = MessageKey("astera.weapon.$id.name"),
+    loreKey: MessageKey = MessageKey("astera.weapon.$id.lore"),
     archetype: WeaponArchetype = WeaponArchetype.SWORD,
     rarity: Rarity = Rarity.COMMON,
     levelRequirement: Int = 1,

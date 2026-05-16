@@ -1,9 +1,11 @@
 package com.astarworks.astera.domain.model.weapon
 
-/** High-level weapon family. Phase 2 expands to bow, throwable, etc. */
-enum class WeaponArchetype { SWORD, GUN, WAND }
+import com.astarworks.astera.domain.model.i18n.MessageKey
 
-enum class Rarity { COMMON, UNCOMMON, RARE, EPIC, LEGENDARY }
+/** High-level weapon family. Phase 2 expands to bow, throwable, etc. */
+public enum class WeaponArchetype { SWORD, GUN, WAND }
+
+public enum class Rarity { COMMON, UNCOMMON, RARE, EPIC, LEGENDARY }
 
 /**
  * Immutable weapon definition. The YAML in `content/weapons/` is deserialized
@@ -14,10 +16,10 @@ enum class Rarity { COMMON, UNCOMMON, RARE, EPIC, LEGENDARY }
  * vanilla, `oraxen:my_blade` for Oraxen). The adapter layer resolves it to a
  * concrete item.
  */
-data class WeaponSpec(
+public data class WeaponSpec(
     val id: WeaponId,
-    val displayNameKey: String,
-    val loreKey: String,
+    val displayNameKey: MessageKey,
+    val loreKey: MessageKey,
     val archetype: WeaponArchetype,
     val rarity: Rarity,
     val levelRequirement: Int,

@@ -23,9 +23,9 @@ class FireWeaponUseCaseTest {
 
     @Test
     fun `known weapon publishes WeaponFired with the correct payload`() {
-        val fired = uc.execute(playerId, spec.id, origin)
+        val result = uc.execute(playerId, spec.id, origin)
 
-        assertThat(fired).isTrue()
+        assertThat(result.isSuccess).isTrue()
         assertThat(broadcaster.published).hasSize(1)
         val evt = broadcaster.published.single()
         assertThat(evt).isInstanceOf(WeaponFired::class.java)
@@ -37,9 +37,11 @@ class FireWeaponUseCaseTest {
 
     @Test
     fun `unknown weapon does not publish any event`() {
-        val fired = uc.execute(playerId, WeaponId("missing-weapon"), origin)
+        val missing = WeaponId("missing-weapon")
+        val result = uc.execute(playerId, missing, origin)
 
-        assertThat(fired).isFalse()
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.errorOrNull()).isEqualTo(FireWeaponError.WeaponNotFound(missing))
         assertThat(broadcaster.published).isEmpty()
     }
 }

@@ -1,5 +1,6 @@
 package com.astarworks.astera.application.config
 
+import com.astarworks.astera.domain.model.i18n.MessageKey
 import com.astarworks.astera.domain.model.weapon.DamageAttribute
 import com.astarworks.astera.domain.model.weapon.DamageProfile
 import com.astarworks.astera.domain.model.weapon.Rarity
@@ -30,8 +31,8 @@ data class WeaponYamlConfig(
 ) {
     fun toSpec(): WeaponSpec = WeaponSpec(
         id = WeaponId(id),
-        displayNameKey = displayNameKey,
-        loreKey = loreKey,
+        displayNameKey = MessageKey(displayNameKey),
+        loreKey = MessageKey(loreKey),
         archetype = WeaponArchetype.valueOf(archetype.uppercase()),
         rarity = Rarity.valueOf(rarity.uppercase()),
         levelRequirement = levelRequirement,
