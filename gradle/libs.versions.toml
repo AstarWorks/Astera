@@ -13,7 +13,9 @@ koin = "4.2.1"
 # of koin-annotations exists but no matching koin-ksp-compiler 4.x is published.
 koin-annotations = "2.3.1"
 kaml = "0.104.0"
+ktoml = "0.7.1"                 # Latest stable; 0.6 / 0.7 line drops kotlinx-datetime jvm-only quirks
 kotlinx-coroutines = "1.11.0"
+kotlinx-serialization = "1.9.0" # Pinned to match kaml 0.104 and ktoml 0.7 transitive core (avoid duplicate-class risk)
 
 # Logging
 slf4j = "2.0.18"                # 2.1.x still alpha — stay on stable 2.0 line
@@ -58,6 +60,8 @@ koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref =
 
 # Config / Serialization
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
+ktoml-core = { module = "com.akuleshov7:ktoml-core", version.ref = "ktoml" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 # Logging
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }

@@ -21,6 +21,11 @@ Application defines; adapters implement. Phrased in domain types only.
 | [`IMatchRepository`](../../plugin/application/src/main/kotlin/com/astarworks/astera/application/port/outbound/IMatchRepository.kt) — find active / by phase / containing player | *not yet implemented* | Postgres (Phase 3) |
 | [`IStageRepository`](../../plugin/application/src/main/kotlin/com/astarworks/astera/application/port/outbound/IStageRepository.kt) — Repository<StageId, Stage> | *not yet implemented* | Postgres + schematic file loader (Phase 3) |
 | [`ICurrencyLedger`](../../plugin/application/src/main/kotlin/com/astarworks/astera/application/port/outbound/ICurrencyLedger.kt) — balance / wallet / debit (Result) / credit | *not yet implemented* | Postgres (Phase 4) |
+| [`IContentParser`](../../plugin/application/src/main/kotlin/com/astarworks/astera/application/port/outbound/IContentParser.kt) — text + DTO → parsed instance (ADR-0016 multi-format) | `YamlContentParser` + `TomlContentParser` + `JsonContentParser` (`application/config/parser/`) | new wire formats become new parsers |
+| [`IProjectileService`](../../plugin/application/src/main/kotlin/com/astarworks/astera/application/port/outbound/IProjectileService.kt) — spawn ProjectileSpec at origin/direction with owner; returns IProjectileHandle | *not yet implemented* | `PaperProjectileService` (Phase 2 mid late) — tick loop + raycast |
+| [`ISkillRegistry`](../../plugin/application/src/main/kotlin/com/astarworks/astera/application/port/outbound/ISkillRegistry.kt) — read-only skill lookup | *not yet implemented* | in-memory + ContentLoader<SkillYamlConfig> (Phase 2 mid) |
+| [`IStatusEffectContainer`](../../plugin/application/src/main/kotlin/com/astarworks/astera/application/port/outbound/IStatusEffectContainer.kt) — per-entity status effect lifecycle | *not yet implemented* | in-memory (Phase 2 mid), Postgres-backed (Phase 4) |
+| [`IDamageGateway`](../../plugin/application/src/main/kotlin/com/astarworks/astera/application/port/outbound/IDamageGateway.kt) — apply ResolvedDamage; returns Result<Unit, DamageApplicationError> | *not yet implemented* | `PaperDamageGateway` (Phase 2 mid late) |
 
 ## Test fakes (`plugin/test-fixtures/`)
 

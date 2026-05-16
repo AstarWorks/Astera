@@ -96,6 +96,51 @@ Konsist tests in `:tools:architecture-test` enforce this.
 | `Wallet` | per-currency Long balances. `balance(c)`, `deposit(c, n)`, `withdraw(c, n) → Result<Wallet, WalletError>`. |
 | `WalletError` | sealed; current case: `InsufficientFunds(currency, have, tried)`. Each carries `messageKey`. |
 
+## Skill (Phase 2 mid substrate)
+
+| Type | Purpose |
+|---|---|
+| `SkillId` | lower-kebab-case identifier value class |
+| `SkillArchetype` | enum PROJECTILE / MELEE / AOE / BUFF / TELEPORT / SUMMON |
+| `SkillTrigger` | enum LEFT_CLICK / RIGHT_CLICK / SNEAK_LEFT / SNEAK_RIGHT / HOLD / AUTO |
+| `SkillSpec` | id + display/description keys + archetype + trigger + cooldownTicks + sealed `SkillParams` |
+| `SkillParams` | sealed: `MeleeParams` / `ProjectileParams` / `AoeParams` (with Easing falloff) / `BuffParams` / `TeleportParams` / `SummonParams` |
+
+## Status effect (Phase 2 mid substrate)
+
+| Type | Purpose |
+|---|---|
+| `StatusEffectId` | value class identifier |
+| `StatusKind` | enum mirroring RTM: STAR_GAIN(+_BOOST/_NULL), HEAL_AMP/_REDUCE/_NULL, GRAVITY_UP/_DOWN, CT_RATE_UP/_DOWN/CT_FREEZE, SPEED_UP/_DOWN, PARALYSIS, BURN, JUMP_DISABLED |
+| `StatusEffectSpec` | id + displayNameKey + kind + magnitude + stackable + maxStacks |
+| `StatusEffectInstance` | spec + targetPlayerId + remainingTicks + currentStacks + appliedAtTick |
+
+## Damage (Phase 2 mid substrate)
+
+| Type | Purpose |
+|---|---|
+| `DamageSource` (sealed) | `Environment` / `Weapon(weaponId, attackerId)` / `Skill(skillId, casterId)` / `Fall(distance)` / `Explosion(center, radius)`. **One type with 5 variants — replaces RTM's 8 damage event classes** |
+| `DamageAttempt` | targetId + baseProfile + source + headshot |
+| `ResolvedDamage` | finalAmount + attribute + wasBlocked + wasCritical |
+| `DamageRule.resolve(attempt, headshotMultiplier)` | pure function; Phase 2 mid 後半で IElementMatrix を引数追加 |
+
+## Projectile (Phase 2 mid substrate — **composition over inheritance**)
+
+| Type | Purpose |
+|---|---|
+| `ProjectileId` | UUID-backed identifier |
+| `ProjectileSpec` | composition of 5 axes: motion + hit + lifetime + onHit list + visual |
+| `MotionProfile` (sealed) | `Linear` / `Ballistic(gravity)` / `Homing(turnRate, acquisitionRadius)` / `Curved(Easing, targetOffset)` / `Beam` (instant raycast) |
+| `HitProfile` (sealed) | `Sphere(radius)` / `Box(w,h,d)` / `Sweep(radius)` |
+| `LifetimePolicy` (sealed) | `Ticks(maxTicks)` / `Distance(maxBlocks)` / `UntilHit` |
+| `OnHitEffect` (sealed) | `DealDamage` / `Explode(radius, Easing falloff)` / `InflictStatus(statusId, Duration)` / `SpawnChild(sub ProjectileSpec)` / `PlaySound` / `SpawnParticle` |
+| `ProjectileVisual` (sealed) | `None` / `ParticleTrail(intervalTicks)` / `Display(DisplaySpec)` / `VanillaEntity(VanillaProjectileType)` |
+| `VanillaProjectileType` | enum ARROW / SNOWBALL / TRIDENT / FIREBALL / SMALL_FIREBALL / EGG / EXPERIENCE_BOTTLE |
+| `DisplaySpec` | variant (ITEM/BLOCK/TEXT_DISPLAY) + materialKey + scale Vec3 + BillboardMode |
+| `GunSpec` | ammoCapacity + reloadDuration + shotCooldown + ProjectileSpec |
+
+The runtime "live projectile" never enters domain — it lives behind `IProjectileService` port.
+
 ## Invariants (enforced at construction)
 
 - All `*Id` value classes validate their string format (`^[a-z][a-z0-9-]*$` for kebab-case ids; `^[a-z][a-z0-9_-]*(\.[a-z0-9_-]+)*$` for `MessageKey`).

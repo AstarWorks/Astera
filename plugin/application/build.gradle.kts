@@ -18,9 +18,16 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
 
-    // YAML config parsing. @Serializable DTOs (WeaponYamlConfig etc.) live in
-    // this layer; the domain stays free of serialization annotations.
+    // Multi-format content parsing (ADR-0016). @Serializable DTOs
+    // (WeaponYamlConfig etc.) live in this layer; the domain stays free of
+    // serialization annotations.
+    //
+    // - kaml: YAML 1.2 with native anchor / alias support
+    // - ktoml-core: TOML, type-strict and easy for AI agents to emit
+    // - kotlinx-serialization-json: JSON, lowest-friction for AI agents
     implementation(libs.kaml)
+    implementation(libs.ktoml.core)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(project(":plugin:test-fixtures"))
 }
