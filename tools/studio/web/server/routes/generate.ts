@@ -35,6 +35,20 @@ Style requirements:
 - Consistent palette and outline width across all variants
 - No anti-aliasing on edges, no semi-transparent pixels
 - Bold silhouettes readable at thumbnail size
+- DENSE SUBJECT — each item fills 70%+ of its cell, chunky vanilla
+  Minecraft item style (think iron_sword.png: roughly 12x14 px subject
+  filling a 16x16 canvas). NOT a thin diagonal line with empty space
+  around it. The subject should look "solid", not "sketched".
+- WEAPONS / TOOLS (swords, guns, wands, staves, bows, pickaxes,
+  hammers, etc.): drawn diagonally from LOWER-LEFT to UPPER-RIGHT,
+  matching the vanilla Minecraft iron_sword inventory icon
+  orientation. The "business end" (blade tip, gun barrel, wand
+  crystal, axe head) is at the UPPER-RIGHT corner of the cell. The
+  "grip end" (hilt, pistol grip, wand handle, axe haft) is at the
+  LOWER-LEFT corner. This is the Astera house diagonal — consistent
+  across every weapon.
+- NON-WEAPON items (potions, food, blocks, materials, scrolls, etc.):
+  drawn upright/orthogonal, NOT diagonal. Fill the cell densely.
 
 Layout requirements (CRITICAL — read carefully):
 - One square output image divided into a ${rows}x${cols} grid (${rows * cols} equal cells).
@@ -51,7 +65,8 @@ Layout requirements (CRITICAL — read carefully):
   black. We will key out the black to transparency in post-processing
   and strip the gray border at slice time.
 - No text labels, no numbers, no captions inside the cells.
-- Each subject is centered within its cell's interior.
+- Each subject is centered within its cell's interior AND fills it
+  densely (see Style requirements above).
 - All subjects roughly the same physical size relative to their cell.
 
 After generation, save the file to: ${workDir}/grid.png
