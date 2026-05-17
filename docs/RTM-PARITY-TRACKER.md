@@ -3,7 +3,7 @@
 > Single-page master tracker for "what RTM has" × "what Astera has built" ×
 > "which Wave delivers the rest" × "priority". Updated per wave; living doc.
 
-**Baseline**: commit `25147c8` (Wave 4.5 + 4.6 land — Phase 1 PoC closing + docs realignment).
+**Baseline**: commit `d26f869` (Wave 4.7 master roadmap land) + Wave 4.8 refinement.
 **RTM reference**: [ADR-0029 RTM Empirical Catalog](adr/0029-rtm-empirical-catalog.md) +
 [architecture/rtm-divergence.md](architecture/rtm-divergence.md).
 **Roadmap structure**: [ADR-0028 Roadmap Realignment](adr/0028-roadmap-realignment-paper-as-edge.md).
@@ -74,11 +74,13 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | ~20 | 23% |
-| 🟨 partial | ~6 | 7% |
-| 🔌 port-only | ~6 | 7% |
-| ❌ nothing | ~55 | 63% |
-| **Total tracked** | **~87** | 100% |
+| ✅ full | ~20 | 22% |
+| 🟨 partial | ~6 | 6% |
+| 🔌 port-only | ~6 | 6% |
+| ❌ nothing | ~62 | 66% |
+| **Total tracked** | **~94** | 100% |
+
+(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified)
 
 **Phase parity targets** (cumulative):
 - Wave 4.5 (now): ~15% RTM parity
@@ -211,11 +213,15 @@ adds to `gradle/libs.versions.toml`:
 | **Reward 2-server flow** (game→Redis→lobby、RTM issue #6) | ❌ nothing | **Wave 5e** | P1 | (none — Astera's current flow is single-server in-process) |
 | **Player marketplace** (RTM issue #12) | ❌ nothing | **Wave 5f** | P2 | (none) |
 | **Creator revenue sharing** (RTM issue #12) | ❌ nothing | Wave 5f | P2 | (none) |
-| **Battle pass** (RTM issue #12) | ❌ nothing | Phase 4 | P2 | (none) |
-| **Cosmetics (skin / emote / BGM packs)** (RTM issue #11) | ❌ nothing | Phase 4 | P2 | (none) |
+| **Battle pass** (RTM issue #12) | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | (none) |
+| **Cosmetics (skin / emote / BGM packs)** (RTM issue #11) | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | (none) |
 | **JP regulatory currency compliance** (RTM issue #19: 6mo OR ¥10M cap, non-redeemable, dual-currency) | ❌ nothing | **Wave 5f** | **P2 (legal)** | (none) |
 | Bank / multi-currency account view | ❌ nothing | Phase 4 | P3 | (none) |
-| Gacha / Roll system (50% pull-up per RTM README) | ❌ nothing | Phase 4 | P3 | (none) |
+| **Gacha / Roll system (50% pull-up per RTM README)** | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | (none — RTM README documented "天井確率") |
+| **ShopCategory** (タブ式 / カテゴリ別 browse) | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | Wave 4.5 Shop は flat ShopSpec のみ |
+| **Shop rotation / limited-time offers** | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | `ShopOffer.availableUntil` 不在 |
+| **Multi-currency price** (e.g., 100 STAR + 1 GEM) | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | `ShopPrice` → `MultiPrice(List<ShopPrice>)` sealed 拡張 |
+| **Per-player purchase limits** | ❌ nothing | **Phase 4 (Wave 8e)** | P3 | (none — RTM limited-offer 表現に必要) |
 
 ---
 
@@ -248,7 +254,9 @@ adds to `gradle/libs.versions.toml`:
 | **Friend list / Party** (social) | ❌ nothing | **Wave 5e** | P2 | (none) |
 | **Team chat channel** | ❌ nothing | Wave 5e | P2 | (none) |
 | **Audit log domain + table** | ❌ nothing | **Wave 5e** | P2 | (none) |
-| Ban / Mute lists | ❌ nothing | Phase 4 | P2 | (none) |
+| **Player inventory snapshot save/restore (RTM issue #5)** | ❌ nothing | **Wave 5e (domain + V10)** + **Wave 6b (Paper serializer)** | **P1** | grep `InventorySnapshot|PlayerInventory` → 0 件 |
+| **InventoryActionLock** (load 中 player action 制限、RTM issue #5) | ❌ nothing | **Wave 5e (PlayerSession.Loading state)** + **Wave 6b (Bukkit cancel)** | **P1** | (none) |
+| Ban / Mute lists | ❌ nothing | **Phase 4 (Wave 8f)** | P2 | (none) |
 | Login history table | ❌ nothing | Phase 4 | P3 | (none) |
 
 ---
@@ -352,8 +360,8 @@ adds to `gradle/libs.versions.toml`:
 - Per-match world domain
 - Block restoration after match
 
-### Wave 5e (Session + Social + Tutorial + EnderChest + Reward bridge, Phase A→B 5-6 worker→C, ~5-6h)
-- Player session state (InMatch / Lobby / Spectator / Dead)
+### Wave 5e (Session + Social + Tutorial + EnderChest + Reward bridge + Inventory snapshot, Phase A→B 6 worker→C, ~6h)
+- Player session state (InMatch / Lobby / Spectator / Dead / **Loading** — RTM #5 action-lock)
 - Spectator mode domain
 - Friend list / Party domain
 - Team chat channel domain
@@ -363,6 +371,7 @@ adds to `gradle/libs.versions.toml`:
 - Personal settings DB
 - Reward 2-server flow (game-server side; Redis-bridge spec)
 - Audit log domain + table
+- **PlayerInventorySnapshot domain + V10 + Postgres + Save/Restore use case + 2 listener** (RTM #5)
 
 ### Wave 5f (Marketplace + JP currency + CEL expression, Phase A→B 4-5 worker→C, ~4-5h)
 - Player marketplace + creator revenue share
@@ -382,6 +391,8 @@ adds to `gradle/libs.versions.toml`:
 - BukkitEventAdapter extensions (EntityDamage / EntityDeath / PlayerJoin / PlayerQuit / BlockPlace / BlockBreak / InventoryClick already done)
 - IBroadcaster Redis + Discord real impls
 - Vec3 math (normalize / dot / cross / length)
+- **PaperInventorySnapshotSerializer (Bukkit ↔ JSON via BukkitObjectOutputStream)** + auto save/restore wire (RTM #5)
+- **InventoryActionLockEnforcer** (BukkitEventAdapter で Loading state 中 InventoryClick/PickupItem/Interact cancel)
 - All Paper-side wire-up
 
 ---

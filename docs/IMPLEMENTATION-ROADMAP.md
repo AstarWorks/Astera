@@ -3,8 +3,8 @@
 **Single source of truth** for "what gets built next, in what order, and why."
 Living doc — updated at the end of every wave.
 
-> **Last updated**: 2026-05-17 (Wave 4.6 docs realignment)
-> **Current baseline**: commit `25147c8` (Wave 4.5 + 4.6 land)
+> **Last updated**: 2026-05-17 (Wave 4.8 roadmap refinement — RTM #5 inventory persist + Phase 4-7 detail)
+> **Current baseline**: commit `d26f869` (Wave 4.7 IMPLEMENTATION-ROADMAP.md land) + Wave 4.8 refinement
 > **Current RTM parity**: ~15%
 > **Critical-path target**: Wave 7c (Phase 3 Siege complete) → ~75% parity
 
@@ -103,8 +103,21 @@ IGuiBindingResolver / ADR-0027
 ### Wave 4.6 ✅ — Docs realignment
 
 `25147c8` — ADR-0028 (Roadmap Realignment) + ADR-0029 (RTM Empirical Catalog) +
-RTM-PARITY-TRACKER.md (this master tracker) + rtm-divergence.md 更新 + 7
-sub-wave handoff doc 起草 + 旧 wave-5-handoff deprecated rename
+RTM-PARITY-TRACKER.md + rtm-divergence.md 更新 + 7 sub-wave handoff doc 起草 +
+旧 wave-5-handoff deprecated rename
+
+### Wave 4.7 ✅ — Master roadmap
+
+`d26f869` — `docs/IMPLEMENTATION-ROADMAP.md` (本ドキュメント) 起草、12 tier
+leverage-ordered roadmap + cumulative milestone table + critical path 文書化
+
+### Wave 4.8 ✅ — RTM #5 inventory persist + Phase 4-7 detail expansion
+
+(本セッション) — Wave 5e に `PlayerInventorySnapshot` domain + V10 migration
+追加 (RTM issue #5 永続保存データ)、Wave 6b に `PaperInventorySnapshotSerializer` +
+`InventoryActionLockEnforcer` 追加、Phase 4-7 (Wave 8a-f / 9a-c / 10a-f / 11a-d) を
+各 wave 3-5 bullet detail + 成功基準 + automation rule example で expansion、
+Wave _ops 7 sub-item 詳細化、ADR-0048〜0057 番号予約
 
 ### Wave 5a — Combat depth (Tier 1) — **NEXT SESSION**
 
@@ -195,30 +208,48 @@ skill 30 tick 後発火 + ADR-0030 + `./gradlew check` 緑 + parity tracker 更�
 - `MatchWorld` domain + Create/Destroy use case
 - `RestoreBlocksOnMatchEnded` listener (`MatchEnded` → per-match revert)
 
-### Wave 5e — Session + Social + Tutorial + EnderChest + Reward bridge (Tier 5)
+### Wave 5e — Session + Social + Tutorial + EnderChest + Reward + Inventory snapshot (Tier 5)
 
 | Property | Value |
 |---|---|
 | Depends on | Wave 5d (world for spawn) + Wave 5b (HUD for tutorial UI) |
-| Unlocks | 観戦 / フレンド / Tutorial / Vault / 試合報酬 lobby 配送 |
-| Complexity | 中 (5-6 worker, ~5-6h) |
+| Unlocks | 観戦 / フレンド / Tutorial / Vault / 試合報酬 lobby 配送 / Bukkit インベントリ永続化 |
+| Complexity | 中-大 (6 worker, ~6h) |
 | ADR | 0034 |
-| New migrations | V7 personal_vaults / V8 player_settings / V9 audit_log |
+| New migrations | V7 personal_vaults / V8 player_settings / V9 audit_log / **V10 player_inventory_snapshots** |
+| RTM issues addressed | #3 (EnderChest) / #5 (永続保存データ) / #6 (Reward 2-server) / #15 (個人設定) / #17 (Tutorial) |
 
 **Scope**:
-- `PlayerSession` state (InMatch / Lobby / Spectator / Dead / Disconnected)
-- Spectator mode use case (RTM ADR-0029 issue #17 互換)
+- `PlayerSession` state sealed: InMatch / Lobby / Spectator / Dead / Disconnected /
+  **Loading** (RTM #5 action-lock 用 — `MatchSpawnUseCase` / `RestoreInventoryUseCase`
+  実行中はこの state、Wave 6b で Paper enforce する)
+- Spectator mode use case
 - `Friendship` + `Party` domain + 8 use case (SendRequest / Accept / Decline /
   Remove / Create / Join / Leave / Disband)
 - `ChatChannel` sealed (Global / Team / Party / Private) + `SendChatMessage` event
 - Achievement / Title / Badge domain + 3 milestone listener (kill / damage / match win)
 - TutorialStep sealed (SendMessage / TeleportTo / WaitForAction / GiveItem) +
-  `TutorialScript` runner + 1 example YAML
-- `PersonalVault` + V7 migration + Postgres impl + 1 IT (RTM issue #3)
-- `PlayerSettings` + V8 + Postgres (RTM issue #15)
+  `TutorialScript` runner + 1 example YAML (RTM #17)
+- `PersonalVault` + V7 migration + Postgres impl + 1 IT (RTM #3)
+- `PlayerSettings` + V8 + Postgres (RTM #15)
 - `RewardBundle` + `IRewardBridge` port + In-memory impl + 2 listener
-  (MatchEnded / MissionCompleted) (RTM issue #6)
+  (MatchEnded / MissionCompleted) (RTM #6)
 - `AuditEvent` sealed + V9 + `AuditLogListener` (全 domain event 購読)
+- **`PlayerInventorySnapshot` domain** (RTM #5):
+  - `PlayerInventorySnapshot(playerId, hotbar/main/offhand/armor 各 ItemStack list,
+    version: Int, savedAt: Instant)` immutable value
+  - `IPlayerInventorySnapshotRepository` port + Postgres impl (priority 100) +
+    `InMemoryPlayerInventorySnapshotRepository` (priority 0)
+  - V10 migration `player_inventory_snapshots` (player_id UUID PK, snapshot JSONB,
+    version INT, saved_at TIMESTAMP)
+  - `SaveInventorySnapshotUseCase` + `RestoreInventorySnapshotUseCase`
+  - `SaveInventoryOnMatchEndedListener` (`MatchEnded` event 購読 → 試合参加者全員の
+    snapshot 自動 save)
+  - `RestoreInventoryOnPlayerJoinedListener` (`PlayerJoined` event 購読 →
+    existing snapshot あれば restore + PlayerSession.state=Loading で action lock)
+  - **NOT in scope (Wave 6b)**: Bukkit `Inventory` ↔ JSON serializer + Paper-side
+    action lock enforcement (BukkitEventAdapter で `InventoryClickEvent` /
+    `PlayerPickupItemEvent` / `PlayerInteractEvent` を Loading state 中 cancel)
 
 ### Wave 5f — Economy expansion + Long-tail extensibility (Tier 6)
 
@@ -229,15 +260,15 @@ skill 30 tick 後発火 + ADR-0030 + `./gradlew check` 緑 + parity tracker 更�
 | Complexity | 軽 (4-5 worker, ~4-5h) |
 | ADR | 0035 |
 | Phase A | CEL library dep 決定 (JCEL / proxima / 自前 mini-parser) |
-| New migrations | V10 currency_issuance_log / V11 marketplace_listings / V12 creator_revenue_records |
+| New migrations | V11 currency_issuance_log / V12 marketplace_listings / V13 creator_revenue_records (V10 は Wave 5e で消費) |
 
 **Scope**:
 - `CurrencyPolicy` (JP regulatory compliance: 6ヶ月 expiry OR ¥10M cap、
   non-redeemable、tradable flag, sourceClass sealed: Purchased/Earned/Bonus)
   per RTM issue #19
-- `CurrencyExpired` scheduled task + V10 per-issuance tracking
-- `MarketplaceListing` + V11 + 3 use case (Create / Purchase / Cancel) per RTM #12
-- `CreatorRevenue` share calc + V12
+- `CurrencyExpired` scheduled task + V11 per-issuance tracking
+- `MarketplaceListing` + V12 + 3 use case (Create / Purchase / Cancel) per RTM #12
+- `CreatorRevenue` share calc + V13
 - `CelSkillScript` + `ICelEvaluator` port + Stub impl (real eval は Wave 6 or
   Phase 6 で library 決定後) per RTM #21
 - `ParticleDefinition` domain + content YAML + schema-gen 登録
@@ -285,6 +316,15 @@ skill 30 tick 後発火 + ADR-0030 + `./gradlew check` 緑 + parity tracker 更�
 - `PaperRewardBridge` (In-process default + Redis env 設定時)
 - `IBroadcaster` 拡張 (Lettuce Redis pub/sub real + Discord webhook real)
 - `BukkitEventAdapter` 6 新イベント (EntityDamage/Death/Join/Quit/BlockPlace/BlockBreak)
+- **`PaperInventorySnapshotSerializer`** (Bukkit `PlayerInventory` ↔ JSON via
+  `org.bukkit.util.io.BukkitObjectOutputStream` / `BukkitObjectInputStream`、
+  Base64 wrap、Wave 5e `IPlayerInventorySnapshotRepository` の Paper-side
+  実装) per RTM #5
+- **`PlayerInventoryLifecycleListener`** (PlayerJoin / PlayerQuit / `MatchEnded`
+  hook で auto save/restore wire)
+- **`InventoryActionLockEnforcer`** (`BukkitEventAdapter` で `InventoryClickEvent` /
+  `PlayerPickupItemEvent` / `PlayerInteractEvent` を `PlayerSession.state == Loading`
+  の間 cancel — Wave 5e domain で publish される state を Paper で enforce)
 - 5 plugin onEnable wire
 
 **Phase 1 PoC end-to-end 完成: Wave 6b 終了時点**
@@ -370,16 +410,118 @@ End state: **"1 complete playable Siege map across all 6 game modes"**.
 End state: **"Web admin UI + UGC marketplace + Gacha + Battle pass running on
 production server"**.
 
-| Wave | Scope | Depends on | ADR |
-|---|---|---|---|
-| 8a | Web admin base (Nuxt 4 + REST/WebSocket scaffold) | Wave 6b | 0039 |
-| 8b | REST API + WebSocket events | 8a | 0040 |
-| 8c | UGC marketplace submission flow | 8b + Wave 5f marketplace | 0041 |
-| 8d | Discord intake bot | 8b + Wave 6b broadcaster Discord | 0042 |
-| 8e | Cosmetics + Gacha + Battle pass | Wave 5f marketplace | 0043 |
-| 8f | Ban / Mute / Moderation tooling | 8a + Wave 5e audit log | 0044 |
+### Wave 8a — Web admin base (Tier 9-1)
 
-Complexity 別 effort: 8a 大 (6 worker, ~6h)、8b/8c/8e 中 (5 worker, ~5h)、8d/8f 軽 (3 worker, ~3h)。
+| Property | Value |
+|---|---|
+| Depends on | Wave 6b |
+| Unlocks | 運営 ops の GUI 操作基盤 + UGC review tooling 基盤 |
+| Complexity | 大 (6 worker, ~6h) |
+| ADR | 0039 |
+
+**Scope**:
+- `tools/web-admin/` 新規 Nuxt 4 + Bun (HomePage / AstarManagement と同じ
+  toolchain で staffing leverage)
+- Admin auth: 既存 `IPermissionService` 経由で `astera.webadmin.access` permission
+  key check (RTM では 0 だった、Astera で新規導入)
+- ktor or javalin REST server を `plugin/core/.../adapter/web/` (or 新規 plugin
+  `plugin/web-api/`) で起動 — Phase A で framework 選択
+- WebSocket gateway: player count / match state / live event stream
+- ADR-0039 で framework 選択理由記録 (Nuxt 4 + ktor + WebSocket vs SSE)
+
+### Wave 8b — REST API + WebSocket events (Tier 9-2)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 8a |
+| Unlocks | Web admin + Discord bot + future mobile app の共通 API surface |
+| Complexity | 中 (5 worker, ~5h) |
+| ADR | 0040 |
+
+**Scope**:
+- REST endpoints (read-only first、write は permission gated):
+  `/api/players` / `/api/matches` / `/api/stats` / `/api/permissions` /
+  `/api/audit-log` / `/api/shops` / `/api/inventory-snapshots` (RTM #5 connected)
+- OpenAPI 3 spec auto-gen via Kotlin annotation (`@OpenApi` or similar)
+- WebSocket event types: 既存 DomainEvent stream の Web fan-out
+  (`PlayerJoined` / `PlayerQuit` / `MatchStarted` / `MatchEnded` / `DamageDealt` /
+  `SkillCast`) — `IDomainEventBus.subscribe` → WebSocket frame
+- Token bucket rate limit (per-admin)
+- Error envelope: `{code, message, fields?}` standardize
+
+### Wave 8c — UGC marketplace submission flow (Tier 9-3)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 8b + Wave 5f marketplace |
+| Unlocks | RTM did-not-do: コミュニティが weapon/skill/stage を提案 → 自動 PR |
+| Complexity | 中 (5 worker, ~5h) |
+| ADR | 0041 |
+
+**Scope**:
+- `UgcSubmission` domain (id / author / contentType: Weapon/Skill/StatusEffect/
+  Stage / yamlContent / reviewState / submittedAt)
+- Review queue (Pending → InReview → Approved / Rejected → Merged)
+- Auto-validation: Wave 1 schema-gen schemas を reuse (kaml + json-schema)
+- Moderator review UI (Wave 8a admin panel)
+- Approved submission → `gh pr create` server-side ops automation
+- ADR-0041 で 承認 flow + moderator escalation + reject 理由 transparency policy
+
+### Wave 8d — Discord intake bot (Tier 9-3 並列)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 8b + Wave 6b broadcaster Discord webhook |
+| Unlocks | Discord で UGC 受付 / status query / moderator notify |
+| Complexity | 軽 (3 worker, ~3h) |
+| ADR | 0042 |
+
+**Scope**:
+- Discord webhook subscription + App Commands `/submit` / `/status`
+- `/submit` → `UgcSubmission` (Wave 8c integration)
+- `#ugc-review` channel に moderator notify
+- `/status <id>` で自分の submission state query
+- ADR-0042 で Discord bot lifecycle (token rotation / OAuth scope / rate limit)
+
+### Wave 8e — Cosmetics + Gacha + Battle pass + Shop expansion (Tier 9-4)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 5f marketplace |
+| Unlocks | Monetization 軸 + RTM README documented "50% pull-up gacha" 実装 |
+| Complexity | 中 (5 worker, ~5h) |
+| ADR | 0043 |
+
+**Scope**:
+- `Cosmetic` sealed (WeaponSkin / Emote / BGM / Title / Aura) + equip use case
+  (視覚のみ、damage に影響しない pure aesthetic)
+- `GachaPool` + `GachaRoll` + **50% pull-up algorithm** (RTM README 明記、
+  天井確率 transparency 必須 — RTM #19 と整合)
+- `Season` + `TierProgression` + `RewardTrack` (battle pass)
+- **Shop expansion** (Wave 4.5 shop に以下を後付け、RTM-PARITY-TRACKER Category 6
+  expansion 行に対応):
+  - `ShopCategory` (タブ式 / カテゴリ別 browse)
+  - Shop rotation (`ShopOffer.availableUntil` + scheduler)
+  - Multi-currency price (`ShopPrice` → `MultiPrice(List<ShopPrice>)` sealed expansion)
+  - Per-player purchase limits
+- ADR-0043 で gacha 確率開示 (RTM #19 法令と整合) + battle pass tier 仕様
+
+### Wave 8f — Ban / Mute / Moderation tooling (Tier 9-5)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 8a + Wave 5e audit log |
+| Unlocks | 運営 violation 対応 + RTM didn't-do の cheat 対策基盤 |
+| Complexity | 軽 (3 worker, ~3h) |
+| ADR | 0044 |
+
+**Scope**:
+- `BanRecord` + `MuteRecord` domain (player + duration + reason + issuedBy + issuedAt)
+- Per-player infraction history (Wave 5e audit log と join)
+- Chat filter regex + spam detection (token bucket per-player)
+- Web admin UI: ban panel / report queue / appeal log
+- Audit log viewer (V9 audit_log を時系列 + filter view)
+- ADR-0044 で auto-mod false positive 対策 + appeal SLA
 
 **Phase 4 完成: Wave 8f 終了時点**
 **RTM 機能パリティ: ~85%** (RTM 超え)
@@ -390,13 +532,60 @@ Complexity 別 effort: 8a 大 (6 worker, ~6h)、8b/8c/8e 中 (5 worker, ~5h)、8
 
 End state: **"Persistent player housing + SNS feed + seasonal events"**.
 
-| Wave | Scope | ADR |
-|---|---|---|
-| 9a | Persistent plot + housing domain (Plot / Region permission / building) | 0045 |
-| 9b | SNS + friend feed + notification | 0046 |
-| 9c | Seasonal events automation (rotation + reward distribution) | 0047 |
+### Wave 9a — Persistent plot + housing (Tier 10-1)
 
-**Phase 5 完成: Wave 9c**
+| Property | Value |
+|---|---|
+| Depends on | Wave 8a (web admin for plot management) + Wave 5d (world geometry) |
+| Unlocks | Place / lobby world での persistent player presence |
+| Complexity | 大 (6 worker, ~6h) |
+| ADR | 0045 |
+
+**Scope**:
+- `Plot` domain (id / owner: PlayerId / region: BoundingBox / sizeClass / status:
+  Owned/Leased/Vacant)
+- `PlotTransfer` use case (owner change + audit log + escrow during transfer)
+- `PlotLease` (期間 + 賃料 + 自動退去)
+- Building permission per plot (sealed: Whitelist(List<PlayerId>) / Open / Readonly)
+- Per-plot region rules (Astera 自前 `Plot` + `Region` で WorldGuard 代替、
+  ADR-0015 D path 遵守)
+- 3 size class: Small (16×16) / Medium (32×32) / Large (64×64)
+- ADR-0045 で plot grid layout + permission model + RTM 未着手領域宣言
+
+### Wave 9b — SNS + friend feed (Tier 10-2)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 5e (Friendship domain) |
+| Unlocks | コミュニティ engagement loop + RTM didn't-do の在席感 |
+| Complexity | 中 (5 worker, ~5h) |
+| ADR | 0046 |
+
+**Scope**:
+- `PlayerPost` domain (text + 添付 ItemId / CosmeticId / AchievementId 任意)
+- `FeedTimeline` use case (chronological vs filtered by friendship graph)
+- `Like` / `Comment` / `Share` 3 interaction domain
+- `PlayerNotified` event + in-game popup + email opt-in
+- ADR-0046 で feed algorithm (chronological default、algorithmic は後付け選択肢)
+
+### Wave 9c — Seasonal events automation (Tier 10-3)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 8e (battle pass season concept) |
+| Unlocks | 周年 / holiday auto-rotate、運営手動オペ削減 |
+| Complexity | 軽 (4 worker, ~4h) |
+| ADR | 0047 |
+
+**Scope**:
+- `EventSchedule` (start / end + 自動 reward distribution date)
+- Event scheduler (anniversary / 周年 / Halloween / 正月 auto-rotate)
+- Event content YAML structure (`content/events/spring-2026.yaml`)
+- `RewardDistributionJob` (`RewardBundle` × player list × `IRewardBridge` fan-out)
+- ADR-0047 で event rotation policy + reward fairness + missed-event policy
+
+**Phase 5 完成: Wave 9c 終了時点**
+**RTM 機能パリティ: ~90%**
 
 ---
 
@@ -404,16 +593,110 @@ End state: **"Persistent player housing + SNS feed + seasonal events"**.
 
 End state: **"AI generates textures + sounds + 3D + translates chat + reviews PRs"**.
 
-| Wave | Scope |
-|---|---|
-| 10a | Texture-gen continuation (16+ weapon archetype 横展開) |
-| 10b | Sound-gen skill (ElevenLabs / Suno) |
-| 10c | Model-gen skill (Meshy / Tripo) |
-| 10d | LLM translation real (Wave 5f stub → GPT-4o-mini real per RTM design) |
-| 10e | Weapon-designer agent (YAML + texture + sound 一括生成 agent) |
-| 10f | AI PR review bot (architectural drift catch) |
-
 All Wave 10 items run in **parallel** (each is an independent skill or agent).
+ADR-0010 (Generative AI policy deferred to Phase 6) はこの phase で finalize。
+
+### Wave 10a — Texture-gen continuation (Tier 11-1)
+
+| Property | Value |
+|---|---|
+| Depends on | 既存 `tools/texture-gen/` + Wave 7a content baseline |
+| Unlocks | 100+ in-game weapon texture coverage |
+| Complexity | 中 (3 worker、agent dispatcher 含む、~5h) |
+| ADR | 0048 |
+
+**Scope**:
+- 既存 `tools/texture-gen/` extension で sword / gun / wand / bow / staff
+  archetype 横展開
+- 各 archetype 4-8 rarity × 2-4 element = 16-32 textures/archetype
+- ADR-0018 (AI asset policy) 遵守
+- ADR-0048 で texture pipeline V2 (batch + rarity-aware prompts + leak filter)
+- **成功基準**: 100+ texture が in-game で使用可能、quality acceptable (人間 review pass rate > 80%)
+
+### Wave 10b — Sound-gen skill (Tier 11-2)
+
+| Property | Value |
+|---|---|
+| Depends on | (independent) |
+| Unlocks | 16+ weapon fire/hit/explosion/ambient sound |
+| Complexity | 軽 (2 worker, ~3h) |
+| ADR | 0049 |
+
+**Scope**:
+- `.claude/skills/generate-sounds/` 新規作成
+- API: ElevenLabs (text-to-audio) + Suno (music) — Phase A で provider 選択
+- Output: `.ogg` Minecraft 互換 + `content/sounds/` 配置
+- ADR-0049 で sound asset policy + provider 選択理由
+- **成功基準**: 16+ weapon fire / hit / explosion / ambient sound usable
+
+### Wave 10c — Model-gen skill (Tier 11-3)
+
+| Property | Value |
+|---|---|
+| Depends on | 既存 `.claude/skills/build-model/` extension |
+| Unlocks | 5+ weapon model + 5+ mob model usable |
+| Complexity | 中 (3 worker, ~4h) |
+| ADR | 0050 |
+
+**Scope**:
+- `.claude/skills/generate-models/` 新規 (`build-model` skill 拡張)
+- API: Meshy (text-to-3D) + Tripo
+- Output: `.bbmodel` BlockBench 互換 + `content/models/` 配置
+- ADR-0050 で model asset policy + retopology pipeline
+- **成功基準**: 5+ weapon model + 5+ mob model in-game で表示 + animation valid
+
+### Wave 10d — LLM translation real (Tier 11-4)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 5f `IChatTranslator` stub |
+| Unlocks | Real-time multilingual chat (RTM didn't-do、JP-EN-ZH-KR support) |
+| Complexity | 軽 (2 worker, ~3h) |
+| ADR | 0051 |
+
+**Scope**:
+- `IChatTranslator` real impl: GPT-4o-mini or Claude Haiku integration
+- Real-time chat → 他言語訳出 (en/ja/zh-CN/zh-TW/ko)
+- Cache layer (Postgres `chat_translations` table、同一文 < 24h re-use)
+- Cost budget control (per-message $0.001 max、超過時 fallback to "translation unavailable")
+- ADR-0051 で LLM provider choice + cost ceiling + privacy policy
+
+### Wave 10e — Weapon-designer agent (Tier 11-5)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 10a + Wave 10b (texture + sound pipelines) |
+| Unlocks | 1 prompt で full weapon (YAML + texture + sound + lore) 生成 |
+| Complexity | 中 (3 worker, ~5h) |
+| ADR | 0052 |
+
+**Scope**:
+- `.claude/agents/weapon-designer/` 新規作成
+- Input: 自然言語 (例: "fire sword common, +25% damage, 5s burn") → WeaponSpec YAML +
+  texture + fire sound + lore i18n keys 一括生成
+- 既存 texture-gen / sound-gen / weapon-loader pipeline 統合 dispatcher
+- ADR-0052 で agent orchestration + quality gate (Konsist + schema validation)
+- **成功基準**: 1 prompt で完全動作する weapon が `content/weapons/` に置かれ、
+  in-game で fire できる (failure rate < 30% acceptable)
+
+### Wave 10f — AI PR review bot (Tier 11-6)
+
+| Property | Value |
+|---|---|
+| Depends on | (independent) |
+| Unlocks | Architectural drift 自動検出、ADR-0001/0002 違反早期 catch |
+| Complexity | 軽 (2 worker, ~3h) |
+| ADR | 0053 |
+
+**Scope**:
+- GitHub PR webhook + Claude API review
+- 既存 Konsist rule 違反 + ADR 違反検出 (Paper imports in domain etc.)
+- PR comment で review summary post
+- ADR-0053 で AI review confidence threshold + human override policy
+- **成功基準**: false positive < 10%、true positive > 70% (3 sprint sampling)
+
+**Phase 6 完成: Wave 10f 終了時点**
+**RTM 機能パリティ: ~93%**
 
 ---
 
@@ -421,24 +704,130 @@ All Wave 10 items run in **parallel** (each is an independent skill or agent).
 
 ### Wave _ops (anytime parallel, can run during any of Wave 5-10)
 
-| Item | ADR |
-|---|---|
-| KEDA dynamic Game Pod (matchmaking queue → spawn → scale to 0) | (existing reserved) |
-| Sealed-Secrets vs SOPS 比較 | 0023 (reserved) |
-| Provider 路線 (Oraxen / MythicMobs / WeaponMechanics adapter governance) | 0024 (reserved) |
-| Micrometer + Prometheus + `/metrics` endpoint | new |
-| Structured JSON logs (ECS) | new |
-| Grafana dashboards | new |
-| `make local-e2e` script + kind cluster e2e | new |
+7 sub-item を並列実行可能。各 item は独立した本流 wave に edge from。
+
+#### _ops-1 — KEDA dynamic Game Pod
+
+- KEDA ScaledObject (matchmaking queue depth → game pod spawn → idle → scale to 0)
+- Match end後 N 分で auto-shutdown (Postgres から match state 読み)
+- ADR (existing reserved) — Wave 6b で実機 ready 後に decisive
+- **成功基準**: queue 0 → 0 pod、queue ≥ 1 → 1 pod < 30s spawn
+
+#### _ops-2 — Sealed-Secrets vs SOPS (ADR-0023)
+
+- 比較表 (transport / rotation / drift detection / dev UX)
+- private submodule 内 secrets を gitops で track する選択肢評価
+- ADR-0023 起草、決定後 `private/infra/` 移行
+- **成功基準**: ArgoCD でsync可、`kubectl get secret` 経由で見えない (Sealed)
+  or `kubectl get` で plaintext (SOPS preview only)
+
+#### _ops-3 — Provider 路線 (ADR-0024)
+
+- Oraxen / MythicMobs / WeaponMechanics の `adapter/providers/*` governance
+- soft-dep 検出 timing + missing 時の fallback chain
+- ADR-0024 起草、Provider 採用判断 framework 確定
+- **成功基準**: vanilla Paper boot + provider 全部 missing でも green
+  (ADR-0001 / 0002 遵守 verify)
+
+#### _ops-4 — Micrometer + Prometheus exporter
+
+- `plugin/core/.../adapter/metrics/` で `MeterRegistry` 抱える
+- `/metrics` endpoint (Prometheus scrape format)
+- 標準 metric: jvm / paper tick / match throughput / domain event rate
+- **成功基準**: `kubectl port-forward` で `/metrics` scrape、Grafana ingest 確認
+
+#### _ops-5 — Structured JSON logs (ECS format)
+
+- log4j2 / logback で ECS Elasticsearch Common Schema 出力
+- correlation id (matchId / playerId) を MDC injection
+- **成功基準**: Loki ingest + 検索クエリで matchId filter 動作
+
+#### _ops-6 — Grafana dashboards
+
+- player count timeline / match throughput / error rate / damage distribution
+- alerting rule 5 件 (error spike / pod crashloop / queue stuck / cache miss / latency)
+- **成功基準**: dashboard JSON が `deploy/grafana/` で version-control 可能
+
+#### _ops-7 — `make local-e2e` script
+
+- kind cluster spin-up + Postgres / Redis bootstrap + Astera shadowJar deploy
+- example match smoke test (CI で nightly run)
+- **成功基準**: `make local-e2e` がクリーン VM で < 5 分 green
 
 ### Wave 11 sequence
 
-| Wave | Scope |
+### Wave 11a — release-noter agent (Tier 12-1)
+
+| Property | Value |
 |---|---|
-| 11a | release-noter agent (commits → release notes) |
-| 11b | incident-responder agent (Grafana alert → hypothesis + runbook) |
-| 11c | Voting / affiliate system (community governance) |
-| 11d | RTM 検定後継 (certification / 格付け / 称号 — RTM design rolled forward) |
+| Depends on | Phase 6 AI tooling baseline |
+| Unlocks | 手動 release notes 作成負担削減 |
+| Complexity | 軽 (2 worker, ~2h) |
+| ADR | 0054 |
+
+**Scope**:
+- Commits since last release tag → release notes Markdown
+- 自動 categorize: feat / fix / docs / chore / breaking (conventional commits 経由)
+- ADR への cross-link (commit body の `ADR-XXXX` 参照を build into release notes)
+- ADR-0054 で release cadence (calendar-based vs feature-based) + version bump strategy
+- **成功基準**: 1 tag bump → PR body 自動生成、人間 edit time < 5 分
+
+### Wave 11b — incident-responder agent (Tier 12-2)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave _ops-4 (Prometheus) + _ops-6 (Grafana alerts) |
+| Unlocks | On-call MTTR 削減 |
+| Complexity | 中 (3 worker, ~4h) |
+| ADR | 0055 |
+
+**Scope**:
+- Grafana alert webhook → Claude API hypothesis + runbook 抜粋
+- PagerDuty / Slack `#oncall` integration
+- 自動 enrich (recent commits / matching past incidents / log excerpt)
+- ADR-0055 で incident severity matrix + escalation timer
+- **成功基準**: alert 受信 < 30 秒で initial Slack post (hypothesis + 関連 runbook URL)
+
+### Wave 11c — Voting / affiliate system (Tier 12-3)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 5e audit log + Wave 8a web admin |
+| Unlocks | コミュニティ governance + content creator monetization |
+| Complexity | 中 (4 worker, ~5h) |
+| ADR | 0056 |
+
+**Scope**:
+- 投票 domain (`Proposal` + `Option` + `Vote` + quorum rule)
+- Proposal lifecycle (Drafted → OpenForVote → Closed → Enacted)
+- Affiliate payout tier (`CreatorRevenue` Wave 5f 連動、tier 別 share %)
+- Audit hooks (全 vote / payout を `AuditEvent` で記録)
+- ADR-0056 で governance + payout audit + sybil 対策
+- **automation rule example**: 「creator が当該月の view 上位 10% に入った場合
+  自動で tier 1 → tier 2 promotion」
+
+### Wave 11d — RTM 検定後継 (certification / 格付け / 称号) (Tier 12-4)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 8e (Cosmetics の Title integration) + Wave 7b leaderboard |
+| Unlocks | RTM 検定の Astera 後継、competitive ladder closure |
+| Complexity | 中 (4 worker, ~5h) |
+| ADR | 0057 |
+
+**Scope**:
+- Certification tier (Bronze / Silver / Gold / Platinum / Diamond)
+- Testing criteria per tier (kills / wins / playtime / mode-specific challenge)
+- 称号 (Title) integration with cosmetics system (Wave 8e Title cosmetic 連動)
+- Anti-cheat verification (replay system Wave 7c 連動 + manual review queue)
+- ADR-0057 で certification fairness + anti-cheat + appeal process
+- **automation rule example**: 「3 シーズン連続で Diamond 維持 → 永久 Diamond
+  title 付与 + leaderboard 殿堂入り」
+- **automation rule example**: 「特定 mode で 100 試合勝利 → 専用 称号
+  (例: "BreakCore Master") 自動 award」
+
+**Phase 7 完成: Wave 11d 終了時点**
+**RTM 機能パリティ: ~98%** (RTM 既存機能 + Astera 独自 ops automation)
 
 ---
 
@@ -449,21 +838,23 @@ All Wave 10 items run in **parallel** (each is an independent skill or agent).
 | Phase 0 Infrastructure | 1-4 | ~10% | 4 (✅) |
 | Phase 1 PoC closing (gap fill) | 4.5 | ~12% | 5 (✅) |
 | Phase 1 PoC closing (docs realignment) | 4.6 | ~15% | 6 (✅) |
-| Combat domain depth | 5a | ~22% | 7 |
-| HUD ports | 5b | ~25% | 8 (5a 並列) |
-| Match flow rich | 5c | ~30% | 9 |
-| World geometry | 5d | ~38% | 10 (1-2 sess) |
-| Session + Social | 5e | ~45% | 12 |
-| Economy + extensibility | 5f | ~50% | 13 |
-| Paper Combat | 6a | ~58% | 14 |
-| Paper World + UI | 6b | **~65% (Phase 1 PoC 完了)** | 15 |
-| Siege Warfare content | 7a | ~70% | 16 |
-| Tournament + Leaderboard | 7b | ~73% | 17 |
-| Balance + tooling | 7c | **~75% (Phase 3 完了)** | 18 |
-| Phase 4 UGC + Web | 8a-f | ~85% | 19-24 |
-| Phase 5 Metaverse | 9a-c | ~90% | 25-27 |
-| Phase 6 Gen AI full | 10a-f | ~93% | 28-33 |
-| Phase 7 Ops automation | 11a-d | ~98% | 34-37 |
+| Phase 1 PoC closing (master roadmap) | 4.7 | ~15% | 7 (✅) |
+| Phase 1 PoC closing (RTM #5 + Phase 4-7 detail) | 4.8 | ~15% | 8 (✅) |
+| Combat domain depth | 5a | ~22% | 9 |
+| HUD ports | 5b | ~25% | 10 (5a 並列) |
+| Match flow rich | 5c | ~30% | 11 |
+| World geometry | 5d | ~38% | 12 (1-2 sess) |
+| Session + Social + Inventory snapshot | 5e | ~45% | 14 |
+| Economy + extensibility | 5f | ~50% | 15 |
+| Paper Combat | 6a | ~58% | 16 |
+| Paper World + UI + Inventory | 6b | **~65% (Phase 1 PoC 完了)** | 17 |
+| Siege Warfare content | 7a | ~70% | 18 |
+| Tournament + Leaderboard | 7b | ~73% | 19 |
+| Balance + tooling | 7c | **~75% (Phase 3 完了)** | 20 |
+| Phase 4 UGC + Web + Shop expansion | 8a-f | ~85% | 21-26 |
+| Phase 5 Metaverse | 9a-c | ~90% | 27-29 |
+| Phase 6 Gen AI full | 10a-f | ~93% | 30-35 |
+| Phase 7 Ops automation | 11a-d | ~98% | 36-39 |
 
 Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 
@@ -504,9 +895,19 @@ Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 | 9a | 0045 | Plot + Persistent Housing |
 | 9b | 0046 | SNS + Feed |
 | 9c | 0047 | Seasonal Events Automation |
+| 10a | 0048 | Texture pipeline V2 |
+| 10b | 0049 | Sound asset policy |
+| 10c | 0050 | Model asset policy |
+| 10d | 0051 | LLM translation provider + cost ceiling |
+| 10e | 0052 | Weapon-designer agent orchestration |
+| 10f | 0053 | AI PR review confidence threshold |
+| 11a | 0054 | Release cadence + version bump |
+| 11b | 0055 | Incident severity matrix |
+| 11c | 0056 | Voting + affiliate audit |
+| 11d | 0057 | Certification + anti-cheat |
 | Wave _ops | 0023 / 0024 | Secrets + Provider 路線 |
 
-Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0047 (Wave 5a〜9c).
+Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d).
 
 ---
 
