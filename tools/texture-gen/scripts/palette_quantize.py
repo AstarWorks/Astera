@@ -2,16 +2,22 @@
 """Resize + palette-quantize PNGs for Minecraft texture commit.
 
 Usage:
-    palette_quantize.py FILE [FILE...] --colors N --size W,H --out DIR
-                        [--background remove] [--alpha-threshold T]
+    palette_quantize.py FILE [FILE...] --size W,H --out DIR
+                        [--colors N] [--background keep|remove]
+                        [--dark-max N] [--margin N]
 
 Pipeline per file:
     1. Open as RGBA
-    2. (optional) Remove near-white / near-solid background → transparency
-    3. Resize to (W, H) using NEAREST when downscaling small ratios,
-       LANCZOS when downscaling large ratios (>4x)
-    4. Quantize to N colors preserving alpha
-    5. Save as PNG to DIR
+    2. (if --background remove) threshold-based bg removal:
+       any pixel with R+G+B < --dark-max becomes fully transparent.
+       Robust against PNG compression / grid-line artifacts that broke
+       the previous corner-equality heuristic.
+    3. Detect content bbox via the alpha channel; crop tight.
+       Scale to fit inside (size - 2*margin) preserving aspect ratio
+       (LANCZOS for downscale, NEAREST for upscale).
+       Paste centered onto a fresh transparent RGBA canvas of `size`.
+    4. Quantize to N colors, preserving alpha.
+    5. Save as PNG to DIR.
 
 Boundary: human-run, not part of Astera build/runtime.
 """
@@ -34,58 +40,65 @@ def _parse_size(s: str) -> tuple[int, int]:
         ) from exc
 
 
-def _remove_background(img: Image.Image, threshold: int) -> Image.Image:
-    """Make pixels with alpha < threshold or near-pure-black/white transparent.
+def _remove_background_threshold(img: Image.Image, dark_max: int) -> Image.Image:
+    """Threshold-based bg removal: pixels with R+G+B < dark_max → fully transparent.
 
-    Conservative: only touches pixels at the literal corners' color if they
-    look like a flat fill. Avoids destroying texture pixels.
+    Operates on the input resolution (no resize first) so faint subject edges
+    survive better than they would after downscaling.
     """
-    px = img.load()
+    if img.mode != "RGBA":
+        img = img.convert("RGBA")
     w, h = img.size
-    corner_colors = {px[0, 0], px[w - 1, 0], px[0, h - 1], px[w - 1, h - 1]}
-    # Only act if all four corners agree on a "background color"
-    if len(corner_colors) == 1:
-        bg = next(iter(corner_colors))
-        r, g, b, a = bg
-        # Treat as background if it's near solid (no semi-transparency)
-        if a > 240:
-            new = Image.new("RGBA", (w, h))
-            for y in range(h):
-                for x in range(w):
-                    p = px[x, y]
-                    if (
-                        abs(p[0] - r) < 8
-                        and abs(p[1] - g) < 8
-                        and abs(p[2] - b) < 8
-                    ):
-                        new.putpixel((x, y), (0, 0, 0, 0))
-                    else:
-                        new.putpixel((x, y), p)
-            return new
-    return img
+    out = Image.new("RGBA", (w, h))
+    src_px = img.load()
+    out_px = out.load()
+    for y in range(h):
+        for x in range(w):
+            p = src_px[x, y]
+            if p[0] + p[1] + p[2] < dark_max:
+                out_px[x, y] = (0, 0, 0, 0)
+            else:
+                out_px[x, y] = p
+    return out
 
 
-def _resize(img: Image.Image, target: tuple[int, int]) -> Image.Image:
-    w, h = img.size
+def _fit_centered(
+    img: Image.Image,
+    target: tuple[int, int],
+    margin: int,
+) -> Image.Image:
+    """Crop to content bbox, scale to fit (target - 2*margin) preserving aspect,
+    paste centered onto a fresh transparent canvas of `target` size.
+
+    If `img` has no opaque pixels (entirely transparent), returns a blank
+    transparent canvas.
+    """
+    bbox = img.getbbox()
+    if bbox is None:
+        return Image.new("RGBA", target, (0, 0, 0, 0))
+    cropped = img.crop(bbox)
     tw, th = target
-    if w == tw and h == th:
-        return img
-    ratio = max(w / tw, h / th)
-    # Large downscale → LANCZOS to preserve detail before nearest-snap;
-    # small ratio → NEAREST to keep crisp pixel edges.
-    resample = Image.LANCZOS if ratio > 4 else Image.NEAREST
-    return img.resize(target, resample)
+    inner_w = max(1, tw - 2 * margin)
+    inner_h = max(1, th - 2 * margin)
+    iw, ih = cropped.size
+    scale = min(inner_w / iw, inner_h / ih)
+    new_w = max(1, int(round(iw * scale)))
+    new_h = max(1, int(round(ih * scale)))
+    resample = Image.LANCZOS if scale < 1 else Image.NEAREST
+    resized = cropped.resize((new_w, new_h), resample)
+    canvas = Image.new("RGBA", target, (0, 0, 0, 0))
+    cx = (tw - new_w) // 2
+    cy = (th - new_h) // 2
+    canvas.paste(resized, (cx, cy), resized)
+    return canvas
 
 
 def _quantize(img: Image.Image, n_colors: int) -> Image.Image:
-    # Split alpha; quantize RGB only; recombine.
     if img.mode != "RGBA":
         img = img.convert("RGBA")
     alpha = img.getchannel("A")
     rgb = img.convert("RGB")
-    quantized = rgb.quantize(colors=n_colors, method=Image.MEDIANCUT).convert(
-        "RGBA"
-    )
+    quantized = rgb.quantize(colors=n_colors, method=Image.MEDIANCUT).convert("RGBA")
     quantized.putalpha(alpha)
     return quantized
 
@@ -96,12 +109,13 @@ def process_file(
     size: tuple[int, int],
     colors: int,
     remove_bg: bool,
-    alpha_threshold: int,
+    dark_max: int,
+    margin: int,
 ) -> Path:
     img = Image.open(src).convert("RGBA")
     if remove_bg:
-        img = _remove_background(img, alpha_threshold)
-    img = _resize(img, size)
+        img = _remove_background_threshold(img, dark_max)
+    img = _fit_centered(img, size, margin)
     img = _quantize(img, colors)
     out_path = out_dir / src.name
     img.save(out_path, "PNG", optimize=True)
@@ -109,7 +123,7 @@ def process_file(
 
 
 def main() -> int:
-    p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    p = argparse.ArgumentParser(description=(__doc__ or "").splitlines()[0])
     p.add_argument("files", nargs="+", type=Path, help="input PNG(s)")
     p.add_argument("--colors", type=int, default=32, help="palette size (≤256)")
     p.add_argument(
@@ -123,13 +137,19 @@ def main() -> int:
         "--background",
         choices=["keep", "remove"],
         default="keep",
-        help="remove near-corner-color background as transparency",
+        help="threshold-based background removal (default: keep)",
     )
     p.add_argument(
-        "--alpha-threshold",
+        "--dark-max",
         type=int,
-        default=240,
-        help="corner pixel alpha must exceed this to count as bg (0-255)",
+        default=30,
+        help="when --background=remove, pixels with R+G+B<this become transparent (default 30)",
+    )
+    p.add_argument(
+        "--margin",
+        type=int,
+        default=2,
+        help="px of empty padding inside the target canvas (default 2)",
     )
     args = p.parse_args()
 
@@ -145,7 +165,8 @@ def main() -> int:
             size=args.size,
             colors=args.colors,
             remove_bg=(args.background == "remove"),
-            alpha_threshold=args.alpha_threshold,
+            dark_max=args.dark_max,
+            margin=args.margin,
         )
         print(f"  {src.name} → {out_path}")
 
