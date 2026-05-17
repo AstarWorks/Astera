@@ -67,26 +67,45 @@ def _remove_background_threshold(img: Image.Image, dark_max: int) -> Image.Image
     return out
 
 
-def _keep_largest_blobs(img: Image.Image, n: int) -> Image.Image:
-    """Drop everything except the N largest connected opaque components.
+def _keep_largest_blobs(
+    img: Image.Image,
+    n: int,
+    keep_ratio: float = 0.0,
+) -> Image.Image:
+    """Drop noise blobs while preserving the subject and its decorations.
 
-    Removes noise specks and fragments that bled in from neighboring grid
-    cells. With n=1 (default), only the dominant subject survives.
+    Strategy: always keep the N largest blobs (default 1 — the main
+    subject body). Additionally, keep ANY blob whose size is >= keep_ratio
+    of the largest blob's size. This rescues articulated parts of a
+    decorated subject (flame fragments on a legendary weapon, hilt
+    spikes, glow halos) that the eye reads as part of the silhouette,
+    while still discarding stray noise specks.
+
+    keep_ratio=0 (default) preserves the original strict top-N behavior
+    for backwards compatibility. keep_ratio=0.05 means "keep anything
+    that's at least 5% of the largest blob" — a good default for
+    detailed AI-generated subjects.
     """
-    if n <= 0:
+    if n <= 0 and keep_ratio <= 0:
         return img
     if img.mode != "RGBA":
         img = img.convert("RGBA")
     alpha = np.array(img.getchannel("A"))
     mask = alpha > 0
     labeled, count = cc_label(mask)
-    if count <= n:
+    if count == 0:
         return img
     sizes = np.bincount(labeled.ravel())
     # sizes[0] is background; ignore. Sort labels 1..count by size desc.
     label_sizes = [(i, int(sizes[i])) for i in range(1, count + 1)]
     label_sizes.sort(key=lambda t: t[1], reverse=True)
-    keep = {lab for lab, _ in label_sizes[:n]}
+    largest = label_sizes[0][1] if label_sizes else 0
+    threshold = int(largest * keep_ratio) if keep_ratio > 0 else 0
+    # Keep top-N AND anything above the ratio threshold
+    keep: set[int] = set()
+    for i, (lab, sz) in enumerate(label_sizes):
+        if i < n or sz >= threshold:
+            keep.add(lab)
     # Build a keep-mask and apply it as alpha gate
     keep_mask = np.isin(labeled, list(keep))
     new_alpha = np.where(keep_mask, alpha, 0).astype(np.uint8)
@@ -163,6 +182,28 @@ def _quantize(img: Image.Image, n_colors: int) -> Image.Image:
     return quantized
 
 
+def _strip_outer_pixels(img: Image.Image, width: int) -> Image.Image:
+    """Set the outer `width` pixels of `img` to pure black.
+
+    Use case: tiles sliced from a grid where AI drew a visible gray
+    border around each cell. Zeroing the border BEFORE bg-removal lets
+    the standard threshold pipeline treat it as background.
+    """
+    if width <= 0:
+        return img
+    if img.mode != "RGBA":
+        img = img.convert("RGBA")
+    arr = np.array(img)
+    h, w = arr.shape[:2]
+    if h < 2 * width or w < 2 * width:
+        return img
+    arr[:width, :, :3] = 0
+    arr[-width:, :, :3] = 0
+    arr[:, :width, :3] = 0
+    arr[:, -width:, :3] = 0
+    return Image.fromarray(arr, mode="RGBA")
+
+
 def process_file(
     src: Path,
     out_dir: Path,
@@ -172,12 +213,16 @@ def process_file(
     dark_max: int,
     margin: int,
     keep_blobs: int,
+    keep_ratio: float,
+    strip_border: int,
 ) -> Path:
     img = Image.open(src).convert("RGBA")
+    if strip_border > 0:
+        img = _strip_outer_pixels(img, strip_border)
     if remove_bg:
         img = _remove_background_threshold(img, dark_max)
-    if keep_blobs > 0:
-        img = _keep_largest_blobs(img, keep_blobs)
+    if keep_blobs > 0 or keep_ratio > 0:
+        img = _keep_largest_blobs(img, keep_blobs, keep_ratio)
     img = _fit_centered(img, size, margin)
     img = _quantize(img, colors)
     out_path = out_dir / src.name
@@ -218,7 +263,19 @@ def main() -> int:
         "--keep-blobs",
         type=int,
         default=1,
-        help="keep only the N largest opaque connected components; 0 disables (default 1)",
+        help="keep the N largest opaque connected components; 0 disables (default 1)",
+    )
+    p.add_argument(
+        "--keep-ratio",
+        type=float,
+        default=0.0,
+        help="ALSO keep any blob whose size is >= this fraction of the largest blob, in addition to top-N. Rescues articulated parts of decorated subjects (e.g. flame fragments on a legendary weapon). 0 disables (default). Try 0.05-0.15 for ornate subjects, but tune per case — too liberal lets noise survive.",
+    )
+    p.add_argument(
+        "--strip-border",
+        type=int,
+        default=0,
+        help="zero out the outer N pixels of the input before processing. Use when slicing a grid whose AI drew visible borders around each cell — strips the border so bg-removal handles it as background. Default 0 (no stripping). Typical: 4-8 for 125px cells.",
     )
     args = p.parse_args()
 
@@ -237,6 +294,8 @@ def main() -> int:
             dark_max=args.dark_max,
             margin=args.margin,
             keep_blobs=args.keep_blobs,
+            keep_ratio=args.keep_ratio,
+            strip_border=args.strip_border,
         )
         print(f"  {src.name} → {out_path}")
 
