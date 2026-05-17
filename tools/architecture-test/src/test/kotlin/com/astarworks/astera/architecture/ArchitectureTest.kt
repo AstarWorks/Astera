@@ -592,6 +592,44 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 4 R3: Declarative GUI adapter boundary (ADR-0021) ────────────
+
+    /**
+     * Feature plugins MUST go through the [IGuiAdapter] / [IGuiIntentRouter]
+     * / [IGuiRegistry] ports rather than importing Core's Paper-side GUI
+     * implementation directly. Per ADR-0021 the Paper adapter is an
+     * implementation detail that a future web-admin / headless renderer
+     * needs to be able to swap.
+     *
+     * Paired with the existing `core adapter-api MUST stay vendor-neutral`
+     * rule (which already covers `core.adapter.api.gui` via its package
+     * prefix filter), this completes the boundary: feature plugins see
+     * vendor-neutral ports + adapter-api types; nothing else.
+     */
+    @Test
+    fun `feature plugins must not import core adapter paper gui`() {
+        val featureModules = listOf(
+            "plugin/weapons",
+            "plugin/combat",
+            "plugin/match",
+            "plugin/stats",
+            "plugin/economy",
+            "plugin/persistence",
+        )
+        for (module in featureModules) {
+            Konsist.scopeFromModule(module)
+                .files
+                .assertFalse(
+                    additionalMessage = "$module must not import com.astarworks.astera.core.adapter.paper.gui; " +
+                        "depend on IGuiAdapter / IGuiIntentRouter / IGuiRegistry ports instead (ADR-0021).",
+                ) { file ->
+                    file.imports.any { imp ->
+                        imp.name.startsWith("com.astarworks.astera.core.adapter.paper.gui")
+                    }
+                }
+        }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

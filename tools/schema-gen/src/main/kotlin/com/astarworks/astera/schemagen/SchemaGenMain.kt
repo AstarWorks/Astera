@@ -3,6 +3,7 @@ package com.astarworks.astera.schemagen
 import com.astarworks.astera.combat.application.config.ElementMatrixYamlConfig
 import com.astarworks.astera.combat.application.config.SkillYamlConfig
 import com.astarworks.astera.combat.application.config.StatusEffectYamlConfig
+import com.astarworks.astera.core.application.config.GuiYamlConfig
 import com.astarworks.astera.core.application.config.ItemYamlConfig
 import com.astarworks.astera.match.application.config.StageYamlConfig
 import com.astarworks.astera.stats.application.config.NormaYamlConfig
@@ -62,6 +63,11 @@ fun main(args: Array<String>) {
             name = "norma",
             serializer = serializer<NormaYamlConfig>(),
             schemaId = "https://astera.astarworks.com/schemas/norma.schema.json",
+        ),
+        SchemaEntry(
+            name = "gui",
+            serializer = serializer<GuiYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/gui.schema.json",
         ),
     )
 

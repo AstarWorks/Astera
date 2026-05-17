@@ -1,0 +1,124 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/gui.schema.json",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "title_key": {
+            "type": "string"
+        },
+        "size": {
+            "type": "string"
+        },
+        "slots": {
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "const": "border"
+                            },
+                            "index": {
+                                "type": "integer"
+                            },
+                            "item": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "index",
+                            "item"
+                        ]
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "const": "empty"
+                            },
+                            "index": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "index"
+                        ]
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "const": "reactive"
+                            },
+                            "index": {
+                                "type": "integer"
+                            },
+                            "binding": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "index",
+                            "binding"
+                        ]
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "const": "static"
+                            },
+                            "index": {
+                                "type": "integer"
+                            },
+                            "item": {
+                                "type": "string"
+                            },
+                            "on_click": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string"
+                                    },
+                                    "payload": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "key"
+                                ]
+                            },
+                            "count": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "index",
+                            "item"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "required": [
+        "id",
+        "title_key",
+        "size"
+    ]
+}

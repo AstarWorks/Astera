@@ -20,6 +20,7 @@ astera:
       success: "<green>{player} に <gold>{weapon}</gold> を渡しました</green>"
       not_found: "<red>武器 ID <gold>{weapon}</gold> が見つかりません</red>"
       usage: "<yellow>使い方: /astera give <プレイヤー> <武器ID></yellow>"
+    player-only: "<red>このコマンドはプレイヤーのみ実行できます。</red>"
 
   weapon:
     example-sword:
@@ -50,3 +51,22 @@ astera:
   error:
     internal: "<red>内部エラーが発生しました。詳細はサーバーログを確認してください。</red>"
     permission: "<red>このコマンドを実行する権限がありません</red>"
+
+  # Wave 4 R3 — Declarative GUI demo (ADR-0021).
+  gui:
+    loadout:
+      title: "ロードアウト"
+    button:
+      close: "閉じる"
+
+  weapons:
+    command:
+      # See en.yaml for the rationale on the dotted "gui.loadout" key.
+      gui: "GUI コマンド"
+      "gui.loadout": "ロードアウト GUI を開く"
+      "gui.loadout.player_not_online": "<red>オンラインでないとこの GUI は開けません。</red>"
+      "gui.loadout.not_found": "<red>ロードアウト GUI が登録されていません。</red>"
+      "gui.loadout.open_rejected": "<red>ロードアウト GUI を開けませんでした。</red>"
+    loadout:
+      toggle:
+        ok: "ロードアウトを更新しました。"

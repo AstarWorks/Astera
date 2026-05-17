@@ -1,0 +1,6 @@
+# Wave 4 R3 — close button for content/gui/example-loadout.yaml.
+# Emits the built-in `gui.close` intent when clicked.
+
+id: gui-pane-red
+material: RED_STAINED_GLASS_PANE
+display_name_key: astera.gui.button.close

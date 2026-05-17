@@ -1,0 +1,6 @@
+# Wave 4 R3 — loadout toggle indicator (OFF state, default).
+# Swapped into slot 4 of content/gui/example-loadout.yaml by LoadoutToggleHandler
+# when the per-player toggle flips false.
+
+id: indicator-off
+material: GRAY_DYE

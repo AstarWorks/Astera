@@ -8,7 +8,10 @@ import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
+import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
+import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
+import com.astarworks.astera.core.application.port.outbound.IGuiRegistry
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
@@ -30,6 +33,9 @@ import com.astarworks.astera.weapons.application.service.MutableWeaponRegistry
 import com.astarworks.astera.weapons.application.service.WeaponLoaderService
 import com.astarworks.astera.weapons.application.usecase.FireWeaponUseCase
 import com.astarworks.astera.weapons.application.usecase.GiveWeaponUseCase
+import com.astarworks.astera.weapons.application.usecase.loadout.LoadoutToggleHandler
+import com.astarworks.astera.weapons.application.usecase.loadout.OpenGuiUseCase
+import com.astarworks.astera.weapons.command.guiSubcommand
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -72,6 +78,9 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
         val commandHandler = services.getOrThrow<ICommandHandler>()
         val permService = services.getOrThrow<IPermissionService>()
         val mcServer = services.getOrThrow<IMcServer>()
+        val guiAdapter = services.getOrThrow<IGuiAdapter>()
+        val guiRegistry = services.getOrThrow<IGuiRegistry>()
+        val guiIntentRouter = services.getOrThrow<IGuiIntentRouter>()
 
         // 3. Build Weapons-owned impls -----------------------------------------
         val weaponRegistry = MutableWeaponRegistry()
@@ -107,8 +116,15 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
         val bukkitAdapter = BukkitEventAdapter { event -> weaponClickListener.handle(event) }
         server.pluginManager.registerEvents(bukkitAdapter, this)
 
-        // 7. /astera-weapons give command --------------------------------------
-        commandHandler.register(buildGiveCommandSpec(giveWeapon, permService))
+        // 7. GUI use cases + intent handler (Wave 4 R3, ADR-0021) --------------
+        val openGui = OpenGuiUseCase(adapter = guiAdapter, registry = guiRegistry, server = mcServer)
+        val loadoutToggle = LoadoutToggleHandler(adapter = guiAdapter, registry = guiRegistry)
+        registrations += guiIntentRouter.register("weapons.loadout.") { intent, player ->
+            loadoutToggle.handle(intent, player)
+        }
+
+        // 8. /astera-weapons {give, gui loadout} command -----------------------
+        commandHandler.register(buildRootCommandSpec(giveWeapon, openGui, permService))
 
         logger.info("Astera-Weapons enabled.")
     }
@@ -119,43 +135,46 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
         logger.info("Astera-Weapons disabled.")
     }
 
-    private fun buildGiveCommandSpec(
+    private fun buildRootCommandSpec(
         giveWeapon: GiveWeaponUseCase,
+        openGui: OpenGuiUseCase,
         permService: IPermissionService,
-    ): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-weapons",
-        description = MessageKey("astera.weapons.command.root"),
-        subcommands = listOf(
-            CommandSpec.Literal(
-                name = "give",
-                description = MessageKey("astera.weapons.command.give"),
-                subcommands = listOf(
-                    CommandSpec.Argument(
-                        name = "target",
-                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-                    ),
-                    CommandSpec.Argument(name = "weapon", type = ArgumentType.ItemIdArg),
+    ): CommandSpec.Literal {
+        val giveLiteral = CommandSpec.Literal(
+            name = "give",
+            description = MessageKey("astera.weapons.command.give"),
+            subcommands = listOf(
+                CommandSpec.Argument(
+                    name = "target",
+                    type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
                 ),
-                executor = { ctx ->
-                    val target = ctx.required<String>("target")
-                    val weapon = ctx.required<String>("weapon")
-                    val outcome = giveWeapon.execute(
-                        GiveWeaponUseCase.Request(
-                            invokerId = ctx.sender,
-                            targetName = target,
-                            weaponIdStr = weapon,
-                        ),
-                    )
-                    if (outcome.isSuccess) {
-                        CommandResult.Success
-                    } else {
-                        CommandResult.Failure(MessageKey("astera.weapons.command.give.failed"))
-                    }
-                },
-            ).requirePermission(
-                permissionService = permService,
-                permission = Permission("astera.weapons.give"),
+                CommandSpec.Argument(name = "weapon", type = ArgumentType.ItemIdArg),
             ),
-        ),
-    )
+            executor = { ctx ->
+                val target = ctx.required<String>("target")
+                val weapon = ctx.required<String>("weapon")
+                val outcome = giveWeapon.execute(
+                    GiveWeaponUseCase.Request(
+                        invokerId = ctx.sender,
+                        targetName = target,
+                        weaponIdStr = weapon,
+                    ),
+                )
+                if (outcome.isSuccess) {
+                    CommandResult.Success
+                } else {
+                    CommandResult.Failure(MessageKey("astera.weapons.command.give.failed"))
+                }
+            },
+        ).requirePermission(
+            permissionService = permService,
+            permission = Permission("astera.weapons.give"),
+        )
+
+        return CommandSpec.Literal(
+            name = "astera-weapons",
+            description = MessageKey("astera.weapons.command.root"),
+            subcommands = listOf(giveLiteral, guiSubcommand(openGui, permService)),
+        )
+    }
 }

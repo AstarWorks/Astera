@@ -5,19 +5,28 @@ import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.command.PaperCommandHandler
 import com.astarworks.astera.core.adapter.paper.event.PaperBroadcaster
+import com.astarworks.astera.core.adapter.paper.gui.PaperGuiAdapter
+import com.astarworks.astera.core.adapter.paper.gui.PaperGuiListener
+import com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer
 import com.astarworks.astera.core.adapter.paper.scheduler.PaperScheduler
 import com.astarworks.astera.core.adapter.paper.server.PaperServer
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
 import com.astarworks.astera.core.application.i18n.LanguageLoader
 import com.astarworks.astera.core.application.i18n.SimpleMessageRenderer
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
+import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
+import com.astarworks.astera.core.application.port.outbound.IGuiRegistry
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
+import com.astarworks.astera.core.application.service.GuiLoaderService
+import com.astarworks.astera.core.application.service.InMemoryGuiRegistry
 import com.astarworks.astera.core.application.service.InMemoryPermissionService
 import com.astarworks.astera.core.application.service.MutableItemRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -144,6 +153,27 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<ICommandHandler>(commandHandler)
         services.register<IMcServer>(mcServer)
 
+        // ---- GUI infrastructure (Wave 4 R3, ADR-0021) --------------------
+        val guiRegistry = InMemoryGuiRegistry()
+        val guiLoader = GuiLoaderService(guiRegistry)
+        val guiReport = guiLoader.loadFrom(contentDir.resolve("gui"))
+        logger.info("GUI specs loaded: ${guiReport.loaded} ok, ${guiReport.failed} failed")
+
+        val guiRenderer = PaperItemTemplateRenderer(itemRegistry, messages)
+        val guiAdapter = PaperGuiAdapter(
+            server = mcServer,
+            scheduler = scheduler,
+            renderer = guiRenderer,
+            messages = messages,
+        )
+        val guiIntentRouter: IGuiIntentRouter = DefaultGuiIntentRouter(adapterProvider = { guiAdapter })
+        val guiListener = PaperGuiListener(adapter = guiAdapter, router = guiIntentRouter, server = mcServer)
+        server.pluginManager.registerEvents(guiListener, this)
+
+        services.register<IGuiRegistry>(guiRegistry)
+        services.register<IGuiIntentRouter>(guiIntentRouter)
+        services.register<IGuiAdapter>(guiAdapter)
+
         // ---- Permission service ------------------------------------------
         // Wave 3 (R2): Astera-Persistence (loadbefore: [features]) loads AFTER
         // Astera-Core, so at this point Postgres is never present yet. We
@@ -202,6 +232,9 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IPlayerGateway",
             "ICommandHandler",
             "IMcServer",
+            "IGuiRegistry",
+            "IGuiIntentRouter",
+            "IGuiAdapter",
             "IPermissionService",
         )
     }

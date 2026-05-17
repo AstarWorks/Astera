@@ -1,0 +1,46 @@
+# Wave 4 R3 demo GUI. 9-slot CHEST_9. Demonstrates Border, Static.onClick,
+# weapons.loadout.toggle intent (diff render via index=4 indicator swap), and
+# the built-in gui.close intent handler.
+id: weapons-loadout
+title_key: astera.gui.loadout.title
+size: CHEST_9
+
+slots:
+  - type: border
+    index: 0
+    item: gui-pane-dark
+  - type: static
+    index: 1
+    item: example-sword
+    on_click:
+      key: weapons.loadout.toggle
+      payload: { slot: "MAIN", weapon: "example-sword" }
+  - type: static
+    index: 2
+    item: example-pistol
+    on_click:
+      key: weapons.loadout.toggle
+      payload: { slot: "MAIN", weapon: "example-pistol" }
+  - type: static
+    index: 3
+    item: example-wand
+    on_click:
+      key: weapons.loadout.toggle
+      payload: { slot: "MAIN", weapon: "example-wand" }
+  - type: static
+    index: 4
+    item: indicator-off
+  - type: border
+    index: 5
+    item: gui-pane-dark
+  - type: border
+    index: 6
+    item: gui-pane-dark
+  - type: border
+    index: 7
+    item: gui-pane-dark
+  - type: static
+    index: 8
+    item: gui-pane-red
+    on_click:
+      key: gui.close

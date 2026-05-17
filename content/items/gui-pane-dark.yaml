@@ -1,0 +1,5 @@
+# Wave 4 R3 — decorative GUI border pane (dark variant).
+# Used by content/gui/example-loadout.yaml border slots; non-interactive.
+
+id: gui-pane-dark
+material: GRAY_STAINED_GLASS_PANE
