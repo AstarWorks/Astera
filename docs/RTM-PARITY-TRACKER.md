@@ -3,10 +3,49 @@
 > Single-page master tracker for "what RTM has" × "what Astera has built" ×
 > "which Wave delivers the rest" × "priority". Updated per wave; living doc.
 
-**Baseline**: commit `68cef2e` (Wave 4.5 land — Phase 1 PoC closing).
+**Baseline**: commit `25147c8` (Wave 4.5 + 4.6 land — Phase 1 PoC closing + docs realignment).
 **RTM reference**: [ADR-0029 RTM Empirical Catalog](adr/0029-rtm-empirical-catalog.md) +
 [architecture/rtm-divergence.md](architecture/rtm-divergence.md).
 **Roadmap structure**: [ADR-0028 Roadmap Realignment](adr/0028-roadmap-realignment-paper-as-edge.md).
+**Implementation order (master)**: [IMPLEMENTATION-ROADMAP.md](IMPLEMENTATION-ROADMAP.md) —
+12 tier leverage-ordered, phase-by-phase, with cumulative parity milestones
+and parallelization windows.
+
+> **How to read**: this tracker says **what** is left; IMPLEMENTATION-ROADMAP
+> says **in what order**. Use the master roadmap to decide which wave to
+> trigger next; use this tracker to verify "did the wave land everything in
+> its column".
+
+## Wave 5a Phase A prep — Tier 0 foundational primitives
+
+The next session (Wave 5a Combat depth) folds **Tier 0 foundational primitives**
+into its Phase A (me solo, ~40min before workers spawn):
+
+- `Vec3` / `MutableVec3` math operators: `normalize` / `dot` / `cross` /
+  `length` / `distance` (knockback formula needs these)
+- `IMcEvent` 6 new variants: `PlayerJoined`, `PlayerQuit`, `EntityDamaged`,
+  `EntityDied`, `BlockPlaced`, `BlockBroken` (consumed by Wave 5a damage
+  attribution + Wave 5c game-mode listeners + Wave 5d block tracking)
+
+## Wave 5f Phase A prep — CEL library dependency
+
+Wave 5f introduces CEL (Common Expression Language) for skill extensibility.
+Phase A decides between:
+
+1. **JCEL** (org.projectnessie:cel-jackson + cel-tools) — mature, JVM-friendly
+2. **proxima JCEL** — alternate
+3. **Self-built mini-parser** — domain-fit DSL, no upstream dep risk
+
+Decision recorded in ADR-0035. Library dep added to `gradle/libs.versions.toml`
+in Wave 5f Phase A.
+
+## Wave 6 Phase A prep — Lettuce + HTTP client
+
+Wave 6b extends `IBroadcaster` to real Redis + Discord webhook impls. Phase A
+adds to `gradle/libs.versions.toml`:
+
+- **Lettuce** (Redis client) — for pub/sub fan-out
+- **okhttp3** or `java.net.http.HttpClient` (built-in) — for Discord webhook POST
 
 ## Legend
 
