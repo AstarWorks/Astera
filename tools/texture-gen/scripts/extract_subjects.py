@@ -274,52 +274,23 @@ def extract(
 
     full_mask = _subject_mask(rgb, dark_max, frame_lo, frame_hi, frame_color_tol)
 
-    if rows and cols:
-        # Per-cell CC: walk the math grid, but for each cell apply mask
-        # + CC to find ONLY that cell's subject. No cross-cell merging.
-        # Math grid is the assignment scaffold; subject mask + per-cell
-        # bbox-from-blobs do the actual subject crop.
+    # Pure CC on the whole image. The visible frames between cells
+    # physically separate subjects after frame removal, so each
+    # subject becomes its own connected component. No math-grid
+    # bucketing layer (that layer was the source of mis-assignment).
+    blobs = _detect_blobs(full_mask, min_blob, merge_eps, dilate)
+    if not blobs:
+        return 0
+
+    # Sort in reading order. If --rows hint is given, bucket centroids
+    # by row first (so row order is stable even with slight Y jitter),
+    # then sort by X within each row. Otherwise just top-to-bottom,
+    # left-to-right.
+    if rows:
         row_h = img_h / rows
-        col_w = img_w / cols
-        blobs = []
-        order = []
-        for r_idx in range(rows):
-            for c_idx in range(cols):
-                cy0 = int(r_idx * row_h)
-                cy1 = int((r_idx + 1) * row_h)
-                cx0 = int(c_idx * col_w)
-                cx1 = int((c_idx + 1) * col_w)
-                cell_mask = full_mask[cy0:cy1, cx0:cx1]
-                if dilate > 0:
-                    cell_mask = binary_dilation(cell_mask, iterations=dilate)
-                labeled, count = cc_label(cell_mask)
-                if count == 0:
-                    continue
-                sizes = np.bincount(labeled.ravel())
-                # Use UNION of all blobs >= min_blob within the cell as the
-                # subject bbox (handles articulated subjects without
-                # needing dilation-based merging across the whole image).
-                valid_ids = [i for i in range(1, count + 1) if sizes[i] >= min_blob]
-                if not valid_ids:
-                    continue
-                keep_mask = np.isin(labeled, valid_ids)
-                ys, xs = np.where(keep_mask)
-                if len(xs) == 0:
-                    continue
-                bx0, bx1 = int(xs.min()) + cx0, int(xs.max()) + cx0 + 1
-                by0, by1 = int(ys.min()) + cy0, int(ys.max()) + cy0 + 1
-                cx = float(xs.mean()) + cx0
-                cy = float(ys.mean()) + cy0
-                blobs.append((bx0, by0, bx1, by1, cx, cy))
-                order.append((r_idx, c_idx))
+        blobs.sort(key=lambda b: (int(b[5] // row_h), b[4]))
     else:
-        # No grid hint: fall back to global CC + ordering by position
-        blobs_global = _detect_blobs(full_mask, min_blob, merge_eps, dilate)
-        if not blobs_global:
-            return 0
-        blobs_global.sort(key=lambda b: (b[5], b[4]))
-        blobs = blobs_global
-        order = []
+        blobs.sort(key=lambda b: (b[5], b[4]))
 
     out_dir.mkdir(parents=True, exist_ok=True)
     tw, th = size
@@ -363,12 +334,8 @@ def extract(
         if do_quantize:
             canvas = _quantize(canvas, colors)
 
-        # Name
-        if rows and cols and idx < len(order):
-            r_idx, c_idx = order[idx]
-            name = f"r{r_idx + 1:02}_c{c_idx + 1:02}"
-        else:
-            name = f"subj_{idx + 1:03}"
+        # Name: pure positional. UI / human assigns category on Accept.
+        name = f"subj_{idx + 1:03}"
 
         canvas.save(out_dir / f"{prefix}_{name}.png", "PNG", optimize=True)
 
