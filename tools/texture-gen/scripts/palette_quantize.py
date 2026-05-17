@@ -101,7 +101,16 @@ def _fit_centered(
     margin: int,
 ) -> Image.Image:
     """Crop to content bbox, scale to fit (target - 2*margin) preserving aspect,
-    paste centered onto a fresh transparent canvas of `target` size.
+    paste with the subject's CENTROID at the canvas center.
+
+    Why centroid over bbox-center: asymmetric subjects (diagonal sword,
+    heavy-headed pickaxe, curved bow) have visual mass concentrated off
+    the bbox's geometric midpoint. Centering on bbox makes the eye read
+    the subject as off-center. Centroid (alpha-weighted pixel-mass
+    midpoint) tracks where the eye expects "center" to be.
+
+    Falls back to bbox-center if centroid math degenerates (e.g., empty
+    image or rounding edge cases).
 
     If `img` has no opaque pixels (entirely transparent), returns a blank
     transparent canvas.
@@ -119,10 +128,28 @@ def _fit_centered(
     new_h = max(1, int(round(ih * scale)))
     resample = Image.LANCZOS if scale < 1 else Image.NEAREST
     resized = cropped.resize((new_w, new_h), resample)
+
+    # Compute alpha-weighted centroid of the resized subject
+    alpha_arr = np.array(resized.getchannel("A"))
+    total = float(alpha_arr.sum())
+    if total > 0:
+        ys, xs = np.indices(alpha_arr.shape)
+        cx_subj = float((xs * alpha_arr).sum() / total)
+        cy_subj = float((ys * alpha_arr).sum() / total)
+        # Place subject so its centroid hits canvas center
+        paste_x = int(round(tw / 2 - cx_subj))
+        paste_y = int(round(th / 2 - cy_subj))
+        # Clamp to keep subject inside margins (don't push it off-canvas
+        # if subject is very lopsided)
+        paste_x = max(margin, min(tw - new_w - margin, paste_x))
+        paste_y = max(margin, min(th - new_h - margin, paste_y))
+    else:
+        # degenerate fallback: bbox center
+        paste_x = (tw - new_w) // 2
+        paste_y = (th - new_h) // 2
+
     canvas = Image.new("RGBA", target, (0, 0, 0, 0))
-    cx = (tw - new_w) // 2
-    cy = (th - new_h) // 2
-    canvas.paste(resized, (cx, cy), resized)
+    canvas.paste(resized, (paste_x, paste_y), resized)
     return canvas
 
 
