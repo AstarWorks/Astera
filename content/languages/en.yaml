@@ -36,6 +36,9 @@ astera:
     on_cooldown: "<red>{weapon} is on cooldown ({remaining})</red>"
     none_held: "<gray>No weapon equipped</gray>"
 
+  permission:
+    denied: "<red>You don't have permission: {permission}</red>"
+
   error:
     internal: "<red>An internal error occurred. Check server logs for details.</red>"
     permission: "<red>You do not have permission to run this command</red>"

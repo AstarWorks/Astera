@@ -2,10 +2,11 @@ package com.astarworks.astera.weapons.adapter
 
 import com.astarworks.astera.core.adapter.api.event.IMcEvent
 import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
+import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.weapons.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.weapons.application.port.outbound.IWeaponRegistry
 import com.astarworks.astera.weapons.application.usecase.FireWeaponUseCase
 import com.astarworks.astera.weapons.domain.weapon.WeaponSpec
@@ -50,8 +51,9 @@ public class WeaponClickListener(
             template is IMcItemTemplate.Vanilla && template.material == held
         } ?: return
 
-        if (cooldowns.isOnCooldown(player.id, weapon.id)) {
-            val remainingTicks = cooldowns.remainingTicks(player.id, weapon.id)
+        val cooldownKey = CooldownKey.Weapon(weapon.id.value)
+        if (cooldowns.isCoolingDown(player.id, cooldownKey)) {
+            val remainingTicks = cooldowns.remainingTicks(player.id, cooldownKey)
             val remainingSeconds = "%.1fs".format(remainingTicks / 20.0)
             player.sendMessage(
                 messages.render(
@@ -63,7 +65,7 @@ public class WeaponClickListener(
             return
         }
 
-        cooldowns.start(player.id, weapon.id, weapon.cooldownTicks)
+        cooldowns.start(player.id, cooldownKey, weapon.cooldownTicks.toLong())
         fireWeapon.execute(playerId = player.id, weaponId = weapon.id, at = player.location)
     }
 }

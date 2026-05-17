@@ -14,7 +14,9 @@ import com.astarworks.astera.combat.application.usecase.skill.CastSkillUseCase
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.application.usecase.status.TickCooldownUseCase
 import com.astarworks.astera.combat.domain.rule.IElementMatrix
+import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
@@ -77,13 +79,23 @@ public class AsteraCombatPlugin : JavaPlugin() {
         registrations += services.register<IElementMatrix>(elementMatrix)
 
         // 4. Wire use cases if runtime impls are present -----------------------
-        // IDomainEventBus is always present (Core publishes it).
+        // IDomainEventBus and IScheduler are always present (Core publishes them).
         val eventBus = services.getOrThrow<IDomainEventBus>()
+        val scheduler = services.getOrThrow<IScheduler>()
+
+        // ICooldownTracker is registered by Astera-Weapons. Gracefully degrade if absent.
+        val cooldownTracker = services.get<ICooldownTracker>()
+        if (cooldownTracker == null) {
+            logger.warning(
+                "ICooldownTracker not present — Astera-Weapons may not be loaded. " +
+                    "CastSkillUseCase and TickCooldownUseCase will not be wired.",
+            )
+        }
 
         val damageGateway = services.get<IDamageGateway>()
         val statusContainer = services.get<IStatusEffectContainer>()
 
-        if (damageGateway != null && statusContainer != null) {
+        if (damageGateway != null && statusContainer != null && cooldownTracker != null) {
             val applyDamage = ApplyDamageUseCase(
                 damageGateway = damageGateway,
                 statusContainer = statusContainer,
@@ -94,6 +106,8 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 skillRegistry = skillRegistry,
                 statusContainer = statusContainer,
                 eventBus = eventBus,
+                cooldownTracker = cooldownTracker,
+                scheduler = scheduler,
             )
             val applyStatus = ApplyStatusUseCase(
                 effectRegistry = statusRegistry,
@@ -101,7 +115,10 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 eventBus = eventBus,
             )
             @Suppress("UNUSED_VARIABLE")
-            val tickCooldown = TickCooldownUseCase(statusContainer = statusContainer)
+            val tickCooldown = TickCooldownUseCase(
+                cooldownTracker = cooldownTracker,
+                scheduler = scheduler,
+            )
 
             logger.info(
                 "Astera-Combat use cases wired: " +
@@ -109,9 +126,10 @@ public class AsteraCombatPlugin : JavaPlugin() {
             )
         } else {
             logger.warning(
-                "Damage/Status impl not present; combat use cases unwired until Stage 7-改. " +
+                "Combat use cases unwired until Stage 7-改. " +
                     "(IDamageGateway=${damageGateway != null}, " +
-                    "IStatusEffectContainer=${statusContainer != null})",
+                    "IStatusEffectContainer=${statusContainer != null}, " +
+                    "ICooldownTracker=${cooldownTracker != null})",
             )
         }
 

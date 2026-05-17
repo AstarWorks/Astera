@@ -1,6 +1,7 @@
 package com.astarworks.astera.testfixtures
 
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.SchedulerRegion
 import com.astarworks.astera.core.application.port.outbound.TICK
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -59,6 +60,28 @@ public class FakeScheduler(startTick: Long = 0L) : IScheduler {
         asyncRunner(block)
         return Handle(Scheduled(fireAt = now, periodTicks = null, block = {}, cancelled = true))
     }
+
+    override fun scheduleAt(tickAbsolute: Long, block: () -> Unit): IScheduler.TaskHandle {
+        val s = Scheduled(fireAt = tickAbsolute, periodTicks = null, block = block)
+        queue.add(s)
+        return Handle(s)
+    }
+
+    // Region-aware overloads — region is ignored in deterministic tests (same
+    // semantics as PaperScheduler's Paper-backed path where all tasks run on
+    // the single main thread).
+    override fun runLater(delay: Duration, region: SchedulerRegion, block: () -> Unit): IScheduler.TaskHandle =
+        runLater(delay, block)
+
+    override fun runRepeating(
+        initialDelay: Duration,
+        period: Duration,
+        region: SchedulerRegion,
+        block: () -> Unit,
+    ): IScheduler.TaskHandle = runRepeating(initialDelay, period, block)
+
+    override fun scheduleAt(tickAbsolute: Long, region: SchedulerRegion, block: () -> Unit): IScheduler.TaskHandle =
+        scheduleAt(tickAbsolute, block)
 
     override suspend fun awaitTicks(ticks: Long) {
         if (ticks <= 0) return

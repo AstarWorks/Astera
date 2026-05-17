@@ -6,23 +6,26 @@ import com.astarworks.astera.core.adapter.paper.event.BukkitEventAdapter
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
+import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.weapons.adapter.PaperWeaponDelivery
 import com.astarworks.astera.weapons.adapter.WeaponClickListener
-import com.astarworks.astera.weapons.application.port.outbound.ICooldownTracker
+import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
+import com.astarworks.astera.core.application.service.InMemoryCooldownTracker
 import com.astarworks.astera.weapons.application.port.outbound.IWeaponDelivery
 import com.astarworks.astera.weapons.application.port.outbound.IWeaponRegistry
-import com.astarworks.astera.weapons.application.service.InMemoryCooldownTracker
 import com.astarworks.astera.weapons.application.service.MutableWeaponRegistry
 import com.astarworks.astera.weapons.application.service.WeaponLoaderService
 import com.astarworks.astera.weapons.application.usecase.FireWeaponUseCase
@@ -67,6 +70,7 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
         val itemRegistry = services.getOrThrow<IItemRegistry<IMcItemTemplate>>()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
         val commandHandler = services.getOrThrow<ICommandHandler>()
+        val permService = services.getOrThrow<IPermissionService>()
         val mcServer = services.getOrThrow<IMcServer>()
 
         // 3. Build Weapons-owned impls -----------------------------------------
@@ -104,7 +108,7 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
         server.pluginManager.registerEvents(bukkitAdapter, this)
 
         // 7. /astera-weapons give command --------------------------------------
-        commandHandler.register(buildGiveCommandSpec(giveWeapon))
+        commandHandler.register(buildGiveCommandSpec(giveWeapon, permService))
 
         logger.info("Astera-Weapons enabled.")
     }
@@ -115,7 +119,10 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
         logger.info("Astera-Weapons disabled.")
     }
 
-    private fun buildGiveCommandSpec(giveWeapon: GiveWeaponUseCase): CommandSpec.Literal = CommandSpec.Literal(
+    private fun buildGiveCommandSpec(
+        giveWeapon: GiveWeaponUseCase,
+        permService: IPermissionService,
+    ): CommandSpec.Literal = CommandSpec.Literal(
         name = "astera-weapons",
         description = MessageKey("astera.weapons.command.root"),
         subcommands = listOf(
@@ -145,6 +152,9 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
                         CommandResult.Failure(MessageKey("astera.weapons.command.give.failed"))
                     }
                 },
+            ).requirePermission(
+                permissionService = permService,
+                permission = Permission("astera.weapons.give"),
             ),
         ),
     )

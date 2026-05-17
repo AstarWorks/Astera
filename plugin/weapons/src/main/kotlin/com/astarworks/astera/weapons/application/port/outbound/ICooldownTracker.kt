@@ -1,22 +1,21 @@
+@file:Suppress("DEPRECATION")
+
 package com.astarworks.astera.weapons.application.port.outbound
 
-import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.weapons.domain.weapon.WeaponId
-
 /**
- * Per-(player, weapon) cooldown tracking.
+ * Deprecated alias kept for source compatibility during the R0.c migration.
  *
- * Phase 2 starter granularity: cooldowns key off `WeaponId`. Phase 2 mid
- * adds skill-level granularity (separate cooldowns per trigger / per skill).
+ * All new code should import and use
+ * [com.astarworks.astera.core.application.port.outbound.ICooldownTracker]
+ * with [com.astarworks.astera.core.domain.cooldown.CooldownKey] directly.
+ *
+ * This alias will be removed once all call sites are updated.
  */
-interface ICooldownTracker {
-
-    /** True iff the player still has time remaining on this weapon. */
-    fun isOnCooldown(playerId: PlayerId, weaponId: WeaponId): Boolean
-
-    /** Remaining cooldown in ticks; 0 when not on cooldown. */
-    fun remainingTicks(playerId: PlayerId, weaponId: WeaponId): Long
-
-    /** Start (or restart) a cooldown of [durationTicks] for the given weapon. */
-    fun start(playerId: PlayerId, weaponId: WeaponId, durationTicks: Int)
-}
+@Deprecated(
+    message = "Use com.astarworks.astera.core.application.port.outbound.ICooldownTracker instead.",
+    replaceWith = ReplaceWith(
+        "ICooldownTracker",
+        "com.astarworks.astera.core.application.port.outbound.ICooldownTracker",
+    ),
+)
+public typealias ICooldownTracker = com.astarworks.astera.core.application.port.outbound.ICooldownTracker

@@ -142,6 +142,10 @@ class CommandSpecTest {
         override fun runAsync(
             block: () -> Unit,
         ): com.astarworks.astera.core.application.port.outbound.IScheduler.TaskHandle = error("not used")
+        override fun scheduleAt(
+            tickAbsolute: Long,
+            block: () -> Unit,
+        ): com.astarworks.astera.core.application.port.outbound.IScheduler.TaskHandle = error("not used")
         override suspend fun awaitTicks(ticks: Long) = Unit
         override val mainDispatcher: kotlinx.coroutines.CoroutineDispatcher = kotlinx.coroutines.Dispatchers.Unconfined
         override val asyncDispatcher: kotlinx.coroutines.CoroutineDispatcher = kotlinx.coroutines.Dispatchers.Unconfined

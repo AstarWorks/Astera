@@ -14,6 +14,8 @@ plugins {
 dependencies {
     testImplementation(libs.konsist)
     testImplementation(libs.junit.jupiter)
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.kaml)
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 

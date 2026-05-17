@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/element-matrix.schema.json",
+    "type": "object",
+    "properties": {
+        "matchups": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "number"
+                }
+            }
+        }
+    }
+}

@@ -1,31 +1,33 @@
 package com.astarworks.astera.combat.application.usecase.status
 
-import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
+import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Periodic tick use case invoked by the platform scheduler (Stage 7-改).
+ * Periodic tick use case invoked by the platform scheduler every game tick.
  *
- * For Stage 3-改 this use case is intentionally minimal: it holds a reference
- * to [IStatusEffectContainer] so the platform scheduler can call [execute]
- * on each game tick. Full status-expiry logic (decrementing [remainingTicks],
- * publishing StatusExpired events) is deferred to Stage 7-改 when the Paper
- * adapter and tick-accurate clock are available.
+ * Delegates to [ICooldownTracker.tick] to scan for expired cooldown entries
+ * and returns the set of expired (player, key) pairs. The caller (platform
+ * scheduler wiring in AsteraCombatPlugin) may publish events or perform
+ * follow-up logic for each expired pair.
  *
- * TODO (Stage 7-改): add `fun tick(deltaMs: Long): Set<StatusEffectInstance>` to
- * IStatusEffectContainer, decrement remaining ticks here, and publish
- * `StatusExpired` for each expired instance.
+ * Event publishing (e.g. `CooldownExpired`) is intentionally deferred from
+ * here to keep this use case pure and testable without an event bus. Add
+ * a `CooldownExpired` domain event and inject [IDomainEventBus] when the
+ * platform layer needs to react to individual expirations.
  */
 public class TickCooldownUseCase(
-    private val statusContainer: IStatusEffectContainer,
-    private val trackedPlayers: () -> Set<PlayerId> = { emptySet() },
+    private val cooldownTracker: ICooldownTracker,
+    private val scheduler: IScheduler,
 ) {
     /**
      * Called every game tick from the platform scheduler.
-     * Currently a no-op placeholder; Stage 7-改 will add expiry logic.
+     *
+     * @return the set of (playerId, cooldownKey) pairs whose cooldowns
+     *         expired at the current tick. Empty when nothing expired.
      */
-    public fun execute() {
-        // Stage 7-改: iterate trackedPlayers(), decrement remainingTicks,
-        // call statusContainer.remove() for expired effects, publish StatusExpired.
-    }
+    public fun execute(): Set<Pair<PlayerId, CooldownKey>> =
+        cooldownTracker.tick(scheduler.currentTick())
 }

@@ -1,32 +1,62 @@
 package com.astarworks.astera.combat.testfixtures
 
+import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
+import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.weapons.application.port.outbound.ICooldownTracker
-import com.astarworks.astera.weapons.domain.weapon.WeaponId
 
 /**
  * In-memory [ICooldownTracker] for tests.
  *
- * Set [nextIsCoolingDown] to control [isOnCooldown] return value.
- * All [start] calls are recorded in [started] for assertion.
+ * Stores actual (start, duration) state so that [isCoolingDown] and
+ * [remainingTicks] reflect real cooldown logic based on the virtual tick
+ * ([currentTick]). Advance [currentTick] to simulate time passing.
  *
- * NOTE: [ICooldownTracker] is keyed on [WeaponId] (weapons plugin). Skill-level
- * cooldowns in [com.astarworks.astera.combat.application.usecase.skill.CastSkillUseCase]
- * are tracked independently; this fake is provided for integration tests or
- * future use cases that accept [ICooldownTracker] directly.
+ * [started] records all [start] calls for assertion.
  */
 public class FakeCooldownTracker : ICooldownTracker {
 
-    public var nextIsCoolingDown: Boolean = false
+    /** Virtual current tick — advance in tests to simulate passage of time. */
+    public var currentTick: Long = 0L
 
-    /** Records of (playerId, weaponId, durationTicks) passed to [start]. */
-    public val started: MutableList<Triple<PlayerId, WeaponId, Int>> = mutableListOf()
+    /** Key → absolute expiry tick. */
+    private val expiresAt: MutableMap<Pair<PlayerId, CooldownKey>, Long> = mutableMapOf()
 
-    override fun isOnCooldown(playerId: PlayerId, weaponId: WeaponId): Boolean = nextIsCoolingDown
+    /** Records of (playerId, key, durationTicks) passed to [start]. */
+    public val started: MutableList<Triple<PlayerId, CooldownKey, Long>> = mutableListOf()
 
-    override fun remainingTicks(playerId: PlayerId, weaponId: WeaponId): Long = if (nextIsCoolingDown) 20L else 0L
+    /** Records of [tick] call arguments. */
+    public val ticked: MutableList<Long> = mutableListOf()
 
-    override fun start(playerId: PlayerId, weaponId: WeaponId, durationTicks: Int) {
-        started += Triple(playerId, weaponId, durationTicks)
+    override fun isCoolingDown(playerId: PlayerId, key: CooldownKey): Boolean =
+        remainingTicks(playerId, key) > 0L
+
+    override fun remainingTicks(playerId: PlayerId, key: CooldownKey): Long {
+        val expires = expiresAt[Pair(playerId, key)] ?: return 0L
+        return (expires - currentTick).coerceAtLeast(0L)
     }
+
+    override fun start(playerId: PlayerId, key: CooldownKey, durationTicks: Long) {
+        started += Triple(playerId, key, durationTicks)
+        expiresAt[Pair(playerId, key)] = currentTick + durationTicks
+    }
+
+    override fun reset(playerId: PlayerId, key: CooldownKey) {
+        expiresAt.remove(Pair(playerId, key))
+    }
+
+    override fun tick(currentTick: Long): Set<Pair<PlayerId, CooldownKey>> {
+        ticked += currentTick
+        val expired = expiresAt.entries
+            .filter { it.value <= currentTick }
+            .map { it.key }
+            .toSet()
+        expired.forEach { expiresAt.remove(it) }
+        return expired
+    }
+
+    override fun activeKeysFor(playerId: PlayerId): Set<CooldownKey> =
+        expiresAt.entries
+            .filter { (k, v) -> k.first == playerId && v > currentTick }
+            .map { it.key.second }
+            .toSet()
 }

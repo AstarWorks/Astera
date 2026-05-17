@@ -1,0 +1,210 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/skill.schema.json",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "display_name_key": {
+            "type": "string"
+        },
+        "description_key": {
+            "type": "string"
+        },
+        "archetype": {
+            "type": "string"
+        },
+        "trigger": {
+            "type": "string"
+        },
+        "cooldown_ticks": {
+            "type": "integer"
+        },
+        "params": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "aoe"
+                        },
+                        "radius": {
+                            "type": "number"
+                        },
+                        "damage": {
+                            "type": "object",
+                            "properties": {
+                                "base": {
+                                    "type": "number"
+                                },
+                                "attribute": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "base",
+                                "attribute"
+                            ]
+                        },
+                        "falloff": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "radius",
+                        "damage",
+                        "falloff"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "buff"
+                        },
+                        "status_effect_id": {
+                            "type": "string"
+                        },
+                        "duration_ticks": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "status_effect_id",
+                        "duration_ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "melee"
+                        },
+                        "range": {
+                            "type": "number"
+                        },
+                        "knockback": {
+                            "type": "number"
+                        },
+                        "damage": {
+                            "type": "object",
+                            "properties": {
+                                "base": {
+                                    "type": "number"
+                                },
+                                "attribute": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "base",
+                                "attribute"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "range",
+                        "knockback",
+                        "damage"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "projectile"
+                        },
+                        "launch_speed": {
+                            "type": "number"
+                        },
+                        "max_lifetime_ticks": {
+                            "type": "integer"
+                        },
+                        "damage": {
+                            "type": "object",
+                            "properties": {
+                                "base": {
+                                    "type": "number"
+                                },
+                                "attribute": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "base",
+                                "attribute"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "launch_speed",
+                        "max_lifetime_ticks",
+                        "damage"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "summon"
+                        },
+                        "entity_type_key": {
+                            "type": "string"
+                        },
+                        "count": {
+                            "type": "integer"
+                        },
+                        "lifetime_ticks": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "entity_type_key",
+                        "count",
+                        "lifetime_ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "teleport"
+                        },
+                        "max_distance": {
+                            "type": "number"
+                        },
+                        "requires_line_of_sight": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "max_distance",
+                        "requires_line_of_sight"
+                    ]
+                }
+            ]
+        }
+    },
+    "required": [
+        "id",
+        "display_name_key",
+        "description_key",
+        "archetype",
+        "trigger",
+        "cooldown_ticks",
+        "params"
+    ]
+}

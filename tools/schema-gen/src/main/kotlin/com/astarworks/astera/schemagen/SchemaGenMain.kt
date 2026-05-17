@@ -1,0 +1,70 @@
+package com.astarworks.astera.schemagen
+
+import com.astarworks.astera.combat.application.config.ElementMatrixYamlConfig
+import com.astarworks.astera.combat.application.config.SkillYamlConfig
+import com.astarworks.astera.combat.application.config.StatusEffectYamlConfig
+import com.astarworks.astera.core.application.config.ItemYamlConfig
+import com.astarworks.astera.weapons.application.config.WeaponYamlConfig
+import kotlinx.serialization.serializer
+import java.nio.file.Path
+import kotlin.io.path.createDirectories
+
+/**
+ * CLI entrypoint for schema generation.
+ *
+ * Usage (via Gradle task):
+ *   ./gradlew :tools:schema-gen:generateSchemas
+ *
+ * Or directly:
+ *   java -cp <classpath> com.astarworks.astera.schemagen.SchemaGenMainKt <outputDir>
+ *
+ * The single argument is the path to the output directory (e.g. `content/schemas`).
+ * Each schema file is written as `<outputDir>/<name>.schema.json`.
+ */
+fun main(args: Array<String>) {
+    val outputDir = Path.of(args.firstOrNull() ?: "content/schemas")
+    outputDir.createDirectories()
+
+    val schemas = listOf(
+        SchemaEntry(
+            name = "weapon",
+            serializer = serializer<WeaponYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/weapon.schema.json",
+        ),
+        SchemaEntry(
+            name = "skill",
+            serializer = serializer<SkillYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/skill.schema.json",
+        ),
+        SchemaEntry(
+            name = "status-effect",
+            serializer = serializer<StatusEffectYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/status-effect.schema.json",
+        ),
+        SchemaEntry(
+            name = "item",
+            serializer = serializer<ItemYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/item.schema.json",
+        ),
+        SchemaEntry(
+            name = "element-matrix",
+            serializer = serializer<ElementMatrixYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/element-matrix.schema.json",
+        ),
+    )
+
+    for (entry in schemas) {
+        val outputPath = outputDir.resolve("${entry.name}.schema.json")
+        SchemaGenerator.generate(entry.serializer, outputPath, entry.schemaId)
+        println("Generated: $outputPath")
+    }
+
+    println("Done. ${schemas.size} schema(s) written to $outputDir")
+}
+
+/** Holds one schema generation job. Typed so [SchemaGenerator.generate] stays generic. */
+private data class SchemaEntry<T>(
+    val name: String,
+    val serializer: kotlinx.serialization.KSerializer<T>,
+    val schemaId: String,
+)

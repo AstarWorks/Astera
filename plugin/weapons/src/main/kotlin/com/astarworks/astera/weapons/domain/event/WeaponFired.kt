@@ -4,6 +4,7 @@ import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.weapons.domain.weapon.WeaponId
+import java.time.Instant
 
 /**
  * Emitted by `FireWeaponUseCase` when a weapon's fire action resolves
@@ -19,4 +20,6 @@ public data class WeaponFired(
     val playerId: PlayerId,
     val weaponId: WeaponId,
     val at: Vec3,
+    override val occurredAt: Instant = Instant.now(),
+    override val version: Int = 1,
 ) : DomainEvent

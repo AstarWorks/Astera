@@ -1,9 +1,14 @@
 package com.astarworks.astera.architecture
 
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlMap
+import com.charleskorn.kaml.YamlNode
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.declaration.KoFileDeclaration
 import com.lemonappdev.konsist.api.verify.assertFalse
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.io.File
 
 /**
  * Astera architecture enforcement (multi-plugin layout, ADR-0022).
@@ -424,6 +429,144 @@ class ArchitectureTest {
             }
     }
 
+    // ─── R0.d — Additional preventive rules ─────────────────────────────────
+
+    /**
+     * Application layers across all plugins MUST NOT import raw JVM exception
+     * types (Throwable / Exception / Error / RuntimeException) as part of
+     * their public API surface. Use a sealed error hierarchy and return
+     * Result<T, E> instead (ADR principles §12.2).
+     *
+     * This is an import-level check: if Throwable is imported inside an
+     * application package it leaks into the contract. Catching inside a private
+     * helper body is fine — the helper should not be in application/ if it
+     * needs raw exceptions.
+     */
+    @Test
+    fun `application layers must not import raw JVM throwable types`() {
+        val throwableImports = setOf(
+            "kotlin.Throwable",
+            "java.lang.Throwable",
+            "java.lang.Exception",
+            "java.lang.Error",
+            "java.lang.RuntimeException",
+        )
+        val applicationPackagePrefixes = listOf(
+            "com.astarworks.astera.core.application",
+            "com.astarworks.astera.weapons.application",
+            "com.astarworks.astera.combat.application",
+            "com.astarworks.astera.match.application",
+            "com.astarworks.astera.stats.application",
+            "com.astarworks.astera.economy.application",
+            "com.astarworks.astera.persistence.application",
+        )
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                applicationPackagePrefixes.any { prefix ->
+                    file.packagee?.name?.startsWith(prefix) == true
+                }
+            }
+            .assertFalse(
+                additionalMessage = "ADR principles §12.2: application/ must not expose raw JVM exceptions. " +
+                    "Use a sealed error hierarchy and return Result<T, E> instead of Throwable.",
+            ) { file ->
+                file.imports.any { imp -> imp.name in throwableImports }
+            }
+    }
+
+    /**
+     * Combat domain MUST NOT import Bukkit's projectile API. Projectile physics
+     * is an edge concern; the domain models projectile as a value (e.g.
+     * ProjectileSpec) and delegates collision detection to the Paper adapter.
+     */
+    @Test
+    fun `combat domain must not import bukkit projectile api`() {
+        Konsist.scopeFromModule("plugin/combat")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.combat.domain") == true }
+            .assertFalse(
+                additionalMessage = "Combat domain must stay vendor-neutral. " +
+                    "Bukkit projectile types belong in the Paper adapter layer, not in domain/.",
+            ) { file ->
+                file.imports.any { imp ->
+                    imp.name.startsWith("org.bukkit.entity.Projectile") ||
+                        imp.name == "org.bukkit.projectiles.ProjectileSource" ||
+                        imp.name.startsWith("org.bukkit.entity.AbstractArrow") ||
+                        imp.name.startsWith("org.bukkit.entity.Arrow") ||
+                        imp.name.startsWith("org.bukkit.entity.Fireball")
+                }
+            }
+    }
+
+    /**
+     * GuiSlot sealed variants must not contain lambda-typed fields (silly-knuth §5).
+     *
+     * GUI slot variants are pure data: they describe *what* to show, never
+     * *how* to handle the click. Click behaviour is expressed via [GuiIntent]
+     * value objects. A lambda field would bind a mutable closure into what
+     * should be a serialisable, equality-comparable value object.
+     *
+     * Heuristic: any property whose declared type text contains "->" or begins
+     * with "Function" is a lambda / SAM.
+     */
+    @Test
+    fun `gui slot variants must not contain lambda fields`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name == "com.astarworks.astera.core.domain.gui" }
+            .flatMap { it.classes() }
+            .flatMap { it.properties() }
+            .assertFalse(
+                additionalMessage = "silly-knuth §5: GuiSlot variants are pure value objects. " +
+                    "Click behaviour belongs in GuiIntent, not in a lambda field on the slot. " +
+                    "See GuiSlot.kt for the design rationale.",
+            ) { prop ->
+                val typeName = prop.type?.name ?: ""
+                typeName.contains("->") ||
+                    typeName.startsWith("Function") ||
+                    typeName.startsWith("kotlin.Function") ||
+                    typeName.startsWith("(")
+            }
+    }
+
+    // ─── R0.e — i18n key parity ──────────────────────────────────────────────
+
+    /**
+     * All keys present in `content/languages/en.yaml` must also be present in
+     * `content/languages/ja.yaml`, and vice-versa.
+     *
+     * This catches translation gaps the moment a new MessageKey is added: CI
+     * refuses to go green until both language files are updated.
+     */
+    @Test
+    fun `i18n keys must match across en and ja language files`() {
+        // tools/architecture-test/ → repo root is 2 levels up.
+        val repoRoot = File(".").canonicalFile.let { cwd ->
+            // When run from the module dir the cwd is tools/architecture-test.
+            // When run from repo root the file resolves directly.
+            if (File(cwd, "content/languages").exists()) cwd
+            else cwd.parentFile?.parentFile ?: cwd
+        }
+        val enFile = File(repoRoot, "content/languages/en.yaml")
+        val jaFile = File(repoRoot, "content/languages/ja.yaml")
+        require(enFile.exists()) { "en.yaml not found at ${enFile.canonicalPath}" }
+        require(jaFile.exists()) { "ja.yaml not found at ${jaFile.canonicalPath}" }
+
+        val enKeys = collectDotKeys(Yaml.default.parseToYamlNode(enFile.readText()))
+        val jaKeys = collectDotKeys(Yaml.default.parseToYamlNode(jaFile.readText()))
+
+        val enOnly = enKeys - jaKeys
+        val jaOnly = jaKeys - enKeys
+
+        assertThat(enOnly)
+            .withFailMessage { "Keys present in en.yaml but missing from ja.yaml: $enOnly" }
+            .isEmpty()
+        assertThat(jaOnly)
+            .withFailMessage { "Keys present in ja.yaml but missing from en.yaml: $jaOnly" }
+            .isEmpty()
+    }
+
     // ─── Shared test fixtures ───────────────────────────────────────────────
 
     /**
@@ -447,5 +590,24 @@ class ArchitectureTest {
                             imp.name.startsWith("com.astarworks.astera.persistence")
                     }
             }
+    }
+
+    // ─── Private helpers ─────────────────────────────────────────────────────
+
+    /**
+     * Recursively walk a [YamlNode] tree and collect all leaf paths as
+     * dot-separated strings. Maps contribute their keys; scalars and sequences
+     * are leaves (sequence elements are not individually keyed).
+     */
+    private fun collectDotKeys(node: YamlNode, prefix: String = ""): Set<String> {
+        return when (node) {
+            is YamlMap -> {
+                node.entries.flatMap { (keyNode, valueNode) ->
+                    val key = if (prefix.isEmpty()) keyNode.content else "$prefix.${keyNode.content}"
+                    collectDotKeys(valueNode, key)
+                }.toSet()
+            }
+            else -> setOf(prefix).filter { it.isNotEmpty() }.toSet()
+        }
     }
 }

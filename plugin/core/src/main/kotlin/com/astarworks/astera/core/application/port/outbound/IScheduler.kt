@@ -46,6 +46,37 @@ public interface IScheduler {
     /** Coroutine dispatcher for off-main work (DB / HTTP / file). */
     public val asyncDispatcher: CoroutineDispatcher
 
+    // ---- Region-aware variants (Folia forward-compat) --------------------
+    // PaperScheduler ignores [region]; a future FoliaScheduler routes per region.
+    // Default impls delegate to the non-region overloads — all existing callers
+    // remain source-compatible without any changes.
+
+    /** One-shot callback after [delay] targeted at [region]. */
+    public fun runLater(delay: Duration, region: SchedulerRegion, block: () -> Unit): TaskHandle =
+        runLater(delay, block)
+
+    /** Repeating callback targeted at [region]. */
+    public fun runRepeating(
+        initialDelay: Duration,
+        period: Duration,
+        region: SchedulerRegion,
+        block: () -> Unit,
+    ): TaskHandle = runRepeating(initialDelay, period, block)
+
+    // ---- Absolute-tick scheduling ----------------------------------------
+
+    /**
+     * Schedule [block] to run once at [tickAbsolute] (server tick counter).
+     *
+     * Use [currentTick] + offset to convert relative delays. If [tickAbsolute]
+     * is already in the past the task fires on the next dispatch cycle.
+     */
+    public fun scheduleAt(tickAbsolute: Long, block: () -> Unit): TaskHandle
+
+    /** Absolute-tick scheduling with region hint. */
+    public fun scheduleAt(tickAbsolute: Long, region: SchedulerRegion, block: () -> Unit): TaskHandle =
+        scheduleAt(tickAbsolute, block)
+
     public interface TaskHandle {
         public fun cancel()
         public val isActive: Boolean

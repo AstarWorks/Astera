@@ -52,4 +52,6 @@ include(
     ":plugin:test-fixtures",
     // Architecture enforcement (Konsist)
     ":tools:architecture-test",
+    // JSON Schema generation from @Serializable DTOs (ADR-0016 part 4)
+    ":tools:schema-gen",
 )

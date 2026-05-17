@@ -1,0 +1,128 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/status-effect.schema.json",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "display_name_key": {
+            "type": "string"
+        },
+        "kind": {
+            "type": "string"
+        },
+        "default_duration_ticks": {
+            "type": "integer"
+        },
+        "stackable": {
+            "type": "boolean"
+        },
+        "max_stacks": {
+            "type": "integer"
+        },
+        "params": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "burn"
+                        },
+                        "damage_per_tick": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "damage_per_tick"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "disable"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "heal"
+                        },
+                        "multiplier": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "multiplier"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "rate"
+                        },
+                        "multiplier": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "multiplier"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "speed"
+                        },
+                        "multiplier": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "multiplier"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "star_gain"
+                        },
+                        "amount": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "amount"
+                    ]
+                }
+            ]
+        }
+    },
+    "required": [
+        "id",
+        "display_name_key",
+        "kind",
+        "default_duration_ticks",
+        "params"
+    ]
+}

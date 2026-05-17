@@ -81,6 +81,9 @@ public class AsteraCorePlugin : JavaPlugin() {
     public lateinit var contentDir: Path
         private set
 
+    /** Retained so [onDisable] can call [PaperScheduler.stop]. */
+    private var paperScheduler: PaperScheduler? = null
+
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
 
@@ -90,7 +93,10 @@ public class AsteraCorePlugin : JavaPlugin() {
 
         // ---- Vendor-neutral abstraction over Paper -----------------------
         val mcServer: IMcServer = PaperServer(this.server)
-        val scheduler: IScheduler = PaperScheduler(this)
+        val ps = PaperScheduler(this)
+        ps.start()
+        paperScheduler = ps
+        val scheduler: IScheduler = ps
 
         // ---- i18n --------------------------------------------------------
         val languages = LanguageLoader.loadFrom(contentDir.resolve("languages"))
@@ -155,6 +161,7 @@ public class AsteraCorePlugin : JavaPlugin() {
 
     override fun onDisable() {
         logger.info("Astera-Core disabling.")
+        paperScheduler?.stop()
     }
 
     /**

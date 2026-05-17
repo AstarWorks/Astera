@@ -6,37 +6,33 @@ import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.combat.domain.status.StatusEffectId
+import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Gates a skill cast: looks up the spec, checks silence and per-skill cooldown,
- * records the cooldown, publishes [SkillCast], and returns the spec.
+ * records the cooldown via [ICooldownTracker], publishes [SkillCast], and
+ * returns the spec.
  *
- * NOTE on [ICooldownTracker] (weapons plugin): the Weapons tracker is keyed on
- * [com.astarworks.astera.weapons.domain.weapon.WeaponId]. Skill-level cooldowns
- * are a distinct granularity and are tracked here in an in-memory map for Stage
- * 3-改. A dedicated ISkillCooldownTracker port will be introduced in Stage 7-改
- * when the Paper layer is wired.
+ * Cooldowns are now tracked by [ICooldownTracker] (core port) keyed on
+ * [CooldownKey.Skill]. The old in-module [ConcurrentHashMap] was removed as
+ * part of R0.c (ADR-0022 Phase 3 cleanup).
  *
- * Downstream skill effects (ApplyStatus, ApplyDamage) are triggered by runtime
- * mechanics that subscribe to [SkillCast] — they are not invoked here.
+ * Downstream skill effects (ApplyStatus, ApplyDamage) are triggered by
+ * runtime mechanics that subscribe to [SkillCast] — they are not invoked here.
  */
 public class CastSkillUseCase(
     private val skillRegistry: ISkillRegistry,
     private val statusContainer: IStatusEffectContainer,
     private val eventBus: IDomainEventBus,
+    private val cooldownTracker: ICooldownTracker,
+    private val scheduler: IScheduler,
 ) {
-    /**
-     * In-memory per-(player, skill) cooldown state.
-     * Key: Pair<PlayerId, SkillId> → expiry epoch-ms.
-     */
-    private val cooldowns: MutableMap<Pair<PlayerId, SkillId>, Long> =
-        ConcurrentHashMap()
-
     public fun execute(
         casterId: PlayerId,
         skillId: SkillId,
@@ -51,23 +47,21 @@ public class CastSkillUseCase(
             return Result.failure(CastSkillError.Silenced(casterId))
         }
 
-        // 3. Cooldown check (in-module tracker)
-        val now = System.currentTimeMillis()
-        val key = Pair(casterId, skillId)
-        val expiry = cooldowns[key]
-        if (expiry != null && now < expiry) {
-            val remainingMs = expiry - now
+        // 3. Cooldown check via ICooldownTracker
+        val key = CooldownKey.Skill(skillId.value)
+        if (cooldownTracker.isCoolingDown(casterId, key)) {
+            val remainingTicks = cooldownTracker.remainingTicks(casterId, key)
+            val remainingMs = remainingTicks * TICKS_TO_MS
             return Result.failure(CastSkillError.OnCooldown(skillId, remainingMs))
         }
 
-        // 4. Record cooldown (ticks → ms at 20 tps)
-        val cooldownMs = spec.cooldownTicks * TICKS_TO_MS
-        if (cooldownMs > 0) {
-            cooldowns[key] = now + cooldownMs
+        // 4. Record cooldown
+        if (spec.cooldownTicks > 0) {
+            cooldownTracker.start(casterId, key, spec.cooldownTicks.toLong())
         }
 
         // 5. Publish event
-        val atTick = now / TICKS_TO_MS // approximate game tick
+        val atTick = scheduler.currentTick()
         eventBus.publish(SkillCast(caster = casterId, skillId = skillId, at = at, atTick = atTick))
 
         return Result.success(spec)

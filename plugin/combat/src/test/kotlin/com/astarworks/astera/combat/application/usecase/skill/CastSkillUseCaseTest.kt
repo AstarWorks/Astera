@@ -10,6 +10,7 @@ import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.combat.domain.status.StatusEffectSpec
 import com.astarworks.astera.combat.domain.status.StatusKind
+import com.astarworks.astera.combat.testfixtures.FakeCooldownTracker
 import com.astarworks.astera.combat.testfixtures.FakeSkillRegistry
 import com.astarworks.astera.combat.testfixtures.FakeStatusEffectContainer
 import com.astarworks.astera.core.domain.Result
@@ -17,6 +18,7 @@ import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
+import com.astarworks.astera.testfixtures.FakeScheduler
 import com.astarworks.astera.weapons.domain.weapon.DamageProfile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -31,6 +33,8 @@ class CastSkillUseCaseTest {
     private lateinit var skillRegistry: FakeSkillRegistry
     private lateinit var statusContainer: FakeStatusEffectContainer
     private lateinit var eventBus: FakeDomainEventBus
+    private lateinit var cooldownTracker: FakeCooldownTracker
+    private lateinit var scheduler: FakeScheduler
     private lateinit var useCase: CastSkillUseCase
 
     private val spec = SkillSpec(
@@ -52,10 +56,14 @@ class CastSkillUseCaseTest {
         skillRegistry = FakeSkillRegistry()
         statusContainer = FakeStatusEffectContainer()
         eventBus = FakeDomainEventBus()
+        cooldownTracker = FakeCooldownTracker()
+        scheduler = FakeScheduler(startTick = 0L)
         useCase = CastSkillUseCase(
             skillRegistry = skillRegistry,
             statusContainer = statusContainer,
             eventBus = eventBus,
+            cooldownTracker = cooldownTracker,
+            scheduler = scheduler,
         )
     }
 
@@ -89,9 +97,13 @@ class CastSkillUseCaseTest {
     fun `on cooldown - returns OnCooldown after first cast`() {
         skillRegistry.register(spec)
 
-        // First cast succeeds and starts cooldown
+        // First cast succeeds and starts cooldown (spec.cooldownTicks = 40)
         val first = useCase.execute(casterId, skillId)
         assertThat(first).isInstanceOf(Result.Success::class.java)
+
+        // Advance time by 10 ticks — still within the 40-tick cooldown window
+        scheduler.advanceTicks(10)
+        cooldownTracker.currentTick = scheduler.currentTick()
 
         // Second cast immediately → on cooldown
         val second = useCase.execute(casterId, skillId)
@@ -99,6 +111,7 @@ class CastSkillUseCaseTest {
         val error = (second as Result.Failure).error
         assertThat(error).isInstanceOf(CastSkillError.OnCooldown::class.java)
         assertThat((error as CastSkillError.OnCooldown).skillId).isEqualTo(skillId)
+        // remainingMs = remainingTicks * 50ms (30 ticks left → 1500ms)
         assertThat(error.remainingMs).isPositive()
     }
 

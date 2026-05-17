@@ -44,6 +44,9 @@ astera:
     on_cooldown: "<red>{weapon} はクールダウン中です ({remaining})</red>"
     none_held: "<gray>武器を装備していません</gray>"
 
+  permission:
+    denied: "<red>権限がありません: {permission}</red>"
+
   error:
     internal: "<red>内部エラーが発生しました。詳細はサーバーログを確認してください。</red>"
     permission: "<red>このコマンドを実行する権限がありません</red>"
