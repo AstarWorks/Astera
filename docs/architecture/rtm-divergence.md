@@ -3,11 +3,30 @@
 How Astera relates to [`Y-RyuZU/RyuZUTechnicalMagic`](https://github.com/Y-RyuZU/RyuZUTechnicalMagic) (RTM),
 its predecessor. Policy: **reference, don't follow upstream** ([[adr/0013-rtm-divergence-policy]]).
 
+**RTM is a public repository** (verified 2026-05-17 via WebFetch). Empirical
+RTM data (22 open issues, 6 game modes, 4 Writerside docs, 6-module Gradle
+layout, Paper 1.20.4 baseline) is recorded in [[adr/0029-rtm-empirical-catalog]]
+and cross-indexed into the tables below. Wave assignments per feature live in
+[[../RTM-PARITY-TRACKER]].
+
 Three rules of thumb:
 
 - **Keep**: mechanics, math, intent — carry over verbatim (renamed if needed)
 - **Redesign**: architecture, error handling, DI, dispatch — rebuild on Astera's principles
 - **Add**: anything RTM lacked that modern multi-tenant / OSS / GitOps needs
+
+## RTM repository facts (empirical, 2026-05-17)
+
+| Property | Value |
+|---|---|
+| URL | https://github.com/Y-RyuZU/RyuZUTechnicalMagic |
+| Visibility | Public |
+| Default branch | `master` |
+| Language | Kotlin 99.6%, Paper 1.20.4-R0.1-SNAPSHOT |
+| Module layout (Gradle) | `:modules:api:core`, `:modules:api:minecraft`, `:modules:api:repositories:permanent`, `:modules:api:repositories:temporary`, `:modules:core:impl`, `:modules:minecraft:paper`, `:modules:repositories:permanent:mongo`, `:modules:repositories:temporary:redis` |
+| Open issues | 22 (see ADR-0029 for full catalog) |
+| Game modes (per README) | 6: Battle Loyal / Break Core / Carry TNT / Carry Mini TNT / Capture Wool / Steal Jewelry |
+| Writerside docs | BlockState.md, アイテム管理に関して.md, コンテンツ案一覧.md, タスク.md |
 
 ## Keep — copy from RTM
 
@@ -28,6 +47,18 @@ Mechanics and shapes that RTM got right.
 | YAML-driven content (config-over-code) | `modules/core/impl/src/.../configuration/module/*` | `plugin/application/src/.../config/WeaponYamlConfig.kt`, generalised in Phase 2 mid |
 | Docker download-papermc pattern | `docker/download-papermc.sh` | `docker/Dockerfile` (multi-stage, simplified via `itzg/minecraft-server`) |
 | Writerside docs scaffold | `docs/Writerside/` | `docs/*.md` (Markdown-first, Writerside-compatible) |
+| **6 game modes** (Battle Loyal / Break Core / Carry TNT / Carry Mini TNT / Capture Wool / Steal Jewelry) | RTM README; scattered impl in `modules/api/core/.../game/mode/*` | *Wave 5c* — sealed `GameMode` framework + 6 mode impls in `plugin/match/.../domain/mode/` (Astera RTM-mode-keep, see [[adr/0029-rtm-empirical-catalog]]) |
+| **Block durability + NBT pseudo-recovery** (max 100 HP, timestamp decay, tool-dependent damage) | RTM Writerside `BlockState.md` + issue #9 | *Wave 5d* — `BlockState` domain + `IBlockStateGateway` port + per-match in-memory state |
+| **Barrier system (custom block enclosure + DisplayEntity visual)** | RTM issue #8 | *Wave 5d* — `Barrier` domain (region + DisplayEntity render hooks via `IWorldGateway`) |
+| **Redstone dispenser skill core (custom machine, triggers skill on dispense)** | RTM issue #10 | *Wave 5d* — `SkillCoreMachine` domain (trap / auto-trigger semantics) |
+| **Reward 2-server flow (game-server → Redis bridge → lobby-server distribute)** | RTM issue #6 | *Wave 5e* — `RewardBundle` domain + `IRewardBridge` port + Redis adapter as IBroadcaster channel |
+| **Ender Chest / Personal Vault (UI + page nav + DB persistence)** | RTM issue #3 | *Wave 5e* — `IPersonalVaultService` port + Postgres impl |
+| **Tutorial system (new player onboarding)** | RTM issue #17 | *Wave 5e* — `TutorialStep` domain + scripted runner |
+| **Personal settings (per-player config DB)** | RTM issue #15 | *Wave 5e* — `PlayerSettings` domain + Postgres JSONB |
+| **HUD layout (CT / Star count / Level count in-match)** | RTM issue #14 + Scoreboard Library dep | *Wave 5b + Wave 6* — `IBossBar` / `IScoreboard` ports + Paper impl |
+| **Player-driven marketplace + creator revenue share** | RTM issue #12 (cosmetics + battle pass + custom currency) | *Wave 5f* — `MarketplaceListing` domain + `ICreatorRevenue` port |
+| **CEL expression language for skill extensibility** | RTM issue #21 (post-launch addition) | *Wave 5f* — `CelSkillScript` domain + interpreter port (long-tail, P3) |
+| **Particle definition system** | RTM issue #21 (companion to CEL) | *Wave 5f* — `ParticleSpec` domain + DSL |
 
 ## Redesign — RTM's choices we replace
 
@@ -57,6 +88,9 @@ Where RTM made a choice that doesn't meet Astera's cleanliness / decoupling / te
 | External plugin dependencies (11 required in RTM) | Each upstream stagnation blocks Astera releases | **Vanilla + self-build first** (0 plugins required) — `IItemRegistry` / `IProjectileService` / `ICommandHandler` Astera-owned | [[adr/0015-external-plugin-interrogation]] |
 | Hand-written JSON Schemas / VSCode hints / AI prompts | Three places drift, no SSoT | **Kotlin `@Serializable` DTO = SSoT**; schemas / hints / prompts are generated artifacts; YAML / TOML / JSON wire formats interchangeable | [[adr/0016-content-schema-ssot]] |
 | Mongo-style "everything is a document" or pure-column SQL extremes | Either no schema or migration-heavy | **Postgres + JSONB hybrid**: real columns for queryability, JSONB for flexibility | [[adr/0014-jsonb-usage-policy]] |
+| **Custom currency without legal compliance framing** (RTM issue #19 only flagged this as TODO) | JP 資金決済法: prepaid value must expire within 6 months OR be capped at ¥10M circulation, no real-money refund, transfers treated as reissuance | **Compliance-aware `CurrencyPolicy` domain** (expiry / cap / non-redeemable flags) + audit log | *Wave 5f* — see [[adr/0029-rtm-empirical-catalog]] |
+| **WeaponMechanics as primary combat framework** | RTM bet on WeaponMechanics 3.3.0 as the core; upstream stagnation = server stuck | **Astera self-builds `IProjectileService` + `GunSpec`**; WeaponMechanics is an *optional* adapter only | [[adr/0015-external-plugin-interrogation]] (D = Decline) |
+| **Scoreboard Library 2.1.3 + Inventory Framework 0.10.13 as direct deps** | UI work locked to specific libraries; web admin reuse impossible | **`IGuiAdapter` / `IBossBar` / `IScoreboard` / `ITabList` ports**; libs become Paper impl details | [[adr/0021-declarative-gui-architecture]] + *Wave 5b* |
 
 ## Add — modern needs RTM never addressed
 
@@ -81,6 +115,9 @@ Things RTM didn't have that Astera needs because of its OSS + GitOps + AI-delega
 | Real-time LLM chat translation | RTM mentioned `GPT4o-mini` translation; Astera realizes it | Phase 6 | ❌ |
 | Vector-search subscription product (RTM concept) | Phase 4+ monetisation | Phase 4+ | ❌ |
 | Battle Pass + seasonal event automation | RTM listed; Astera automates rather than hand-runs | Phase 7 | ❌ |
+| **`Paper-as-edge` re-affirmation** (Phase 3 domain ordering) | Wave 5 framing误り (Wave 5 = Paper) was caught at audit; correct order is domain/application/port first, Bukkit last | Wave 5a-5f sequencing | [[adr/0028-roadmap-realignment-paper-as-edge]] |
+| **RTM empirical catalog** (6 game modes + 22 issues + Writerside docs + 6-module gradle layout) | Original ADR-0013 was written assuming RTM was closed-source; WebFetch proved otherwise; empirical capture now documented | Wave 4.5 follow-on | [[adr/0029-rtm-empirical-catalog]] |
+| **Master parity tracker** ([[../RTM-PARITY-TRACKER]]) | Single-page board showing every RTM feature × Astera state × Wave × priority | Living doc updated per wave | (this doc) |
 
 ## What this means for a contributor (human or AI)
 
