@@ -5,8 +5,8 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.stats.application.port.outbound.INormaService
 import com.astarworks.astera.stats.domain.event.MissionCompleted
-import com.astarworks.astera.stats.domain.norma.MissionProgress
-import com.astarworks.astera.stats.domain.norma.NormaId
+import com.astarworks.astera.core.domain.norma.MissionProgress
+import com.astarworks.astera.core.domain.norma.NormaId
 
 /**
  * Manual admin command: mark a norma as completed for a player.

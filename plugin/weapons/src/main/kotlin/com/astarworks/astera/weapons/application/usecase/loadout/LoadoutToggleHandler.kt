@@ -8,6 +8,7 @@ import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.gui.GuiSlot
 import com.astarworks.astera.core.domain.gui.SlotIndex
 import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.player.LoadoutSlot
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
@@ -33,10 +34,21 @@ import java.util.concurrent.ConcurrentHashMap
  * to produce a new spec that swaps the indicator at [SlotIndex] `4`. The
  * adapter runs its own diff between the previous and next spec so only that
  * one slot is patched on the wire.
+ *
+ * Wave 4.5 (R3.5) persistence wire: after the in-memory [toggleState] is
+ * updated and before [IGuiAdapter.update] is called, the toggle result is
+ * persisted through [LoadoutSaveUseCase] so the player's MAIN slot survives
+ * restarts. The use case publishes a `LoadoutChanged` event on the in-process
+ * [com.astarworks.astera.core.application.port.outbound.IDomainEventBus] so
+ * cross-plugin subscribers (Wave 5+ skill recompute) can react. The
+ * in-memory map is *not* dropped — it remains the source of truth for the
+ * GUI's optimistic re-render so click responsiveness doesn't depend on a
+ * round-trip to Postgres.
  */
 public class LoadoutToggleHandler(
     private val adapter: IGuiAdapter,
     private val registry: IGuiRegistry,
+    private val saveUseCase: LoadoutSaveUseCase,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -58,6 +70,15 @@ public class LoadoutToggleHandler(
         }
 
         val indicatorItem = if (next) INDICATOR_ON else INDICATOR_OFF
+
+        // Wave 4.5 persistence: write the toggle's MAIN-slot assignment to
+        // ILoadoutRepository (Postgres when overlay is active, in-memory
+        // otherwise). LoadoutSaveUseCase publishes LoadoutChanged on the
+        // domain event bus for cross-plugin subscribers. The save runs
+        // before the GUI update so a crash between persist and render does
+        // not leave the DB out of sync with what the user saw.
+        saveUseCase.execute(player.id, LoadoutSlot.MAIN, indicatorItem)
+
         val newSpec = baseSpec.withSlot(INDICATOR_SLOT, GuiSlot.Static(indicatorItem))
         adapter.update(player, newSpec)
     }

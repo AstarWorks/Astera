@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory
 public class PaperItemTemplateRenderer(
     private val items: IItemRegistry<IMcItemTemplate>,
     private val messages: IMessageRenderer,
+    private val bindingResolver: com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver,
 ) {
 
     /**
@@ -64,17 +65,18 @@ public class PaperItemTemplateRenderer(
     }
 
     /**
-     * Reactive resolution is the only path that needs defensive guarding:
-     * the binding string may not pass [ItemId]'s kebab-case regex (dots,
-     * underscores) and `GuiDiffEngine` deliberately doesn't pre-validate.
+     * Reactive resolution via [bindingResolver] (Wave 4.5, ADR-0027). Unknown
+     * bindings return null → render BARRIER. Wave 4.5 scope: ItemId-valued
+     * bindings only (e.g. `player.loadout.main`); numeric bindings stay
+     * unsupported until Wave 5+ extends the resolver return type.
      */
     private fun resolveReactive(slot: GuiSlot.Reactive, viewer: PlayerId?): ItemStack {
-        val itemId = try {
-            ItemId(slot.binding.value)
-        } catch (_: IllegalArgumentException) {
+        val itemId = bindingResolver.resolve(slot.binding, viewer)
+        if (itemId == null) {
             log.warn(
-                "Reactive binding '{}' is not a valid ItemId; rendering BARRIER placeholder.",
+                "Reactive binding '{}' did not resolve for viewer={}; rendering BARRIER.",
                 slot.binding.value,
+                viewer,
             )
             return barrier()
         }

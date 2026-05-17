@@ -5,10 +5,16 @@ import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
+import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
+import com.astarworks.astera.core.adapter.api.server.IMcServer
+import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IShopRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
@@ -20,10 +26,16 @@ import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnMis
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnXpListener
 import com.astarworks.astera.economy.application.eventbus.listeners.RewardOnMatchEndedListener
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
+import com.astarworks.astera.economy.application.intent.ShopIntentHandler
 import com.astarworks.astera.economy.application.service.InMemoryCurrencyLedger
+import com.astarworks.astera.economy.application.service.InMemoryShopRegistry
+import com.astarworks.astera.economy.application.service.ShopLoaderService
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
 import com.astarworks.astera.economy.application.usecase.currency.TransferUseCase
 import com.astarworks.astera.economy.application.usecase.currency.WithdrawUseCase
+import com.astarworks.astera.economy.application.usecase.shop.ShopBrowseUseCase
+import com.astarworks.astera.economy.application.usecase.shop.ShopPurchaseUseCase
+import com.astarworks.astera.economy.command.buildShopCommandSpec
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.domain.event.MatchEnded
@@ -103,12 +115,47 @@ public class AsteraEconomyPlugin : JavaPlugin() {
             depositOnMissionCompletedListener.handle(event)
         }
 
+        // ── Shop (Wave 4.5, ADR-0027) ─────────────────────────────────────────
+        val itemRegistry = services.getOrThrow<IItemRegistry<IMcItemTemplate>>()
+        val mcServer = services.getOrThrow<IMcServer>()
+        val guiAdapter = services.getOrThrow<IGuiAdapter>()
+        val intentRouter = services.getOrThrow<IGuiIntentRouter>()
+
+        val shopRegistry = InMemoryShopRegistry()
+        registrations += services.register<IShopRegistry>(shopRegistry, priority = 0)
+
+        val shopsContentDir = core.contentDir.resolve("shops")
+        val shopReport = ShopLoaderService(shopRegistry).loadFrom(shopsContentDir)
+        logger.info("Loaded ${shopReport.loaded} shop(s) from $shopsContentDir (failed: ${shopReport.failed})")
+
+        val shopBrowse = ShopBrowseUseCase(
+            registry = shopRegistry,
+            adapter = guiAdapter,
+            server = mcServer,
+        )
+        val shopPurchase = ShopPurchaseUseCase(
+            registry = shopRegistry,
+            ledger = ledger,
+            itemRegistry = itemRegistry,
+            server = mcServer,
+            eventBus = eventBus,
+        )
+        val shopIntentHandler = ShopIntentHandler(
+            purchase = shopPurchase,
+            messages = msgRenderer,
+            playerGateway = playerGateway,
+        )
+        registrations += intentRouter.register(ShopIntentHandler.INTENT_PREFIX) { intent, player ->
+            shopIntentHandler.handle(intent, player)
+        }
+
         // ── Commands ───────────────────────────────────────────────────────────
         commandHandler.register(
             buildCommandSpec(deposit, withdraw, transfer, ledger, playerGateway, msgRenderer, permService),
         )
+        commandHandler.register(buildShopCommandSpec(shopBrowse, permService))
 
-        logger.info("Astera-Economy enabled. Services published: ICurrencyLedger")
+        logger.info("Astera-Economy enabled. Services published: ICurrencyLedger, IShopRegistry")
     }
 
     override fun onDisable() {

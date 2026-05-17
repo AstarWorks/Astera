@@ -10,7 +10,7 @@ import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeScheduler
-import com.astarworks.astera.match.domain.event.MatchStarted
+import com.astarworks.astera.core.domain.event.MatchStarted
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

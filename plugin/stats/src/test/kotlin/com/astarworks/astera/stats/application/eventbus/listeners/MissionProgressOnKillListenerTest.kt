@@ -6,11 +6,11 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.stats.application.service.InMemoryNormaService
 import com.astarworks.astera.stats.domain.event.MissionCompleted
-import com.astarworks.astera.stats.domain.norma.Norma
-import com.astarworks.astera.stats.domain.norma.NormaId
-import com.astarworks.astera.stats.domain.norma.NormaReward
-import com.astarworks.astera.stats.domain.norma.NormaTarget
-import com.astarworks.astera.stats.domain.norma.PeriodKind
+import com.astarworks.astera.core.domain.norma.Norma
+import com.astarworks.astera.core.domain.norma.NormaId
+import com.astarworks.astera.core.domain.norma.NormaReward
+import com.astarworks.astera.core.domain.norma.NormaTarget
+import com.astarworks.astera.core.domain.norma.PeriodKind
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

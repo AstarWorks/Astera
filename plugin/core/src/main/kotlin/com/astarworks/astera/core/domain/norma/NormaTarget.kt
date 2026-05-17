@@ -1,4 +1,4 @@
-package com.astarworks.astera.stats.domain.norma
+package com.astarworks.astera.core.domain.norma
 
 public sealed class NormaTarget {
     public data class Kills(val count: Long) : NormaTarget()

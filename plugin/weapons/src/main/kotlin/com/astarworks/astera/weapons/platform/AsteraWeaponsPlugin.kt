@@ -10,16 +10,25 @@ import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IGuiRegistry
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
+import com.astarworks.astera.core.domain.event.MatchStarted
+import com.astarworks.astera.weapons.application.service.InMemoryLoadoutRepository
+import com.astarworks.astera.weapons.application.usecase.loadout.LoadoutFetchUseCase
+import com.astarworks.astera.weapons.application.usecase.loadout.LoadoutSaveUseCase
+import com.astarworks.astera.weapons.application.usecase.loadout.MatchStartLoadoutApplyListener
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.platform.AsteraCorePlugin
@@ -81,6 +90,17 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
         val guiAdapter = services.getOrThrow<IGuiAdapter>()
         val guiRegistry = services.getOrThrow<IGuiRegistry>()
         val guiIntentRouter = services.getOrThrow<IGuiIntentRouter>()
+        val eventBus = services.getOrThrow<IDomainEventBus>()
+        // IMatchRepository is softdepend (Astera-Match plugin). Listener wires only when present.
+        val matchRepository: IMatchRepository? = services.get<IMatchRepository>()
+
+        // Wave 4.5: get-or-create the loadout repository. Postgres overlay (priority 100)
+        // wins automatically when Astera-Persistence is loaded.
+        val loadoutRepository: ILoadoutRepository =
+            services.get<ILoadoutRepository>()
+                ?: InMemoryLoadoutRepository().also {
+                    registrations += services.register<ILoadoutRepository>(it, priority = 0)
+                }
 
         // 3. Build Weapons-owned impls -----------------------------------------
         val weaponRegistry = MutableWeaponRegistry()
@@ -116,14 +136,39 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
         val bukkitAdapter = BukkitEventAdapter { event -> weaponClickListener.handle(event) }
         server.pluginManager.registerEvents(bukkitAdapter, this)
 
-        // 7. GUI use cases + intent handler (Wave 4 R3, ADR-0021) --------------
+        // 7. GUI + Loadout use cases (Wave 4 R3 / Wave 4.5 ADR-0027) ----------
         val openGui = OpenGuiUseCase(adapter = guiAdapter, registry = guiRegistry, server = mcServer)
-        val loadoutToggle = LoadoutToggleHandler(adapter = guiAdapter, registry = guiRegistry)
+        val loadoutSave = LoadoutSaveUseCase(repository = loadoutRepository, eventBus = eventBus)
+        val loadoutFetch = LoadoutFetchUseCase(repository = loadoutRepository)
+        val loadoutToggle = LoadoutToggleHandler(
+            adapter = guiAdapter,
+            registry = guiRegistry,
+            saveUseCase = loadoutSave,
+        )
         registrations += guiIntentRouter.register("weapons.loadout.") { intent, player ->
             loadoutToggle.handle(intent, player)
         }
 
-        // 8. /astera-weapons {give, gui loadout} command -----------------------
+        // 8. MatchStartLoadoutApplyListener: apply persisted loadout on match start
+        // Only when Astera-Match is loaded (softdepend); offline-safe otherwise.
+        if (matchRepository != null) {
+            val matchStartListener = MatchStartLoadoutApplyListener(
+                fetch = loadoutFetch,
+                matchRepository = matchRepository,
+                server = mcServer,
+                weaponRegistry = weaponRegistry,
+                delivery = delivery,
+                itemRegistry = itemRegistry,
+            )
+            eventBus.subscribe(MatchStarted::class) { event ->
+                matchStartListener.handle(event)
+            }
+            logger.info("MatchStartLoadoutApplyListener wired (Astera-Match present).")
+        } else {
+            logger.info("Astera-Match not loaded; loadout-on-match-start listener skipped.")
+        }
+
+        // 9. /astera-weapons {give, gui loadout} command ------------------------
         commandHandler.register(buildRootCommandSpec(giveWeapon, openGui, permService))
 
         logger.info("Astera-Weapons enabled.")

@@ -5,8 +5,8 @@ import com.astarworks.astera.stats.domain.event.LeveledUp
 import com.astarworks.astera.stats.domain.event.MissionCompleted
 import com.astarworks.astera.stats.domain.level.Level
 import com.astarworks.astera.stats.domain.level.Xp
-import com.astarworks.astera.stats.domain.norma.NormaId
-import com.astarworks.astera.stats.domain.norma.NormaReward
+import com.astarworks.astera.core.domain.norma.NormaId
+import com.astarworks.astera.core.domain.norma.NormaReward
 import com.astarworks.astera.testfixtures.FakeBroadcaster
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

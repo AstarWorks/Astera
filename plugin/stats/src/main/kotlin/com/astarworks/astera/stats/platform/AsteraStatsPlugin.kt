@@ -8,6 +8,7 @@ import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.INormaProgressRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -31,6 +32,7 @@ import com.astarworks.astera.stats.application.port.outbound.ILevelService
 import com.astarworks.astera.stats.application.port.outbound.INormaService
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.stats.application.service.InMemoryLevelService
+import com.astarworks.astera.stats.application.service.InMemoryNormaProgressRepository
 import com.astarworks.astera.stats.application.service.InMemoryNormaService
 import com.astarworks.astera.stats.application.service.InMemoryPlayerStatsRepository
 import com.astarworks.astera.stats.application.service.NormaLoaderService
@@ -97,7 +99,15 @@ public class AsteraStatsPlugin : JavaPlugin() {
                     registrations += services.register<IPlayerStatsRepository>(it, priority = 0)
                 }
         val levelService = InMemoryLevelService()
-        val normaService = InMemoryNormaService()
+
+        // Wave 4.5 (ADR-0027): Norma progress is now persisted via repository.
+        // Postgres impl overlays at priority 100 when Astera-Persistence is loaded.
+        val normaProgressRepository: INormaProgressRepository =
+            services.get<INormaProgressRepository>()
+                ?: InMemoryNormaProgressRepository().also {
+                    registrations += services.register<INormaProgressRepository>(it, priority = 0)
+                }
+        val normaService = InMemoryNormaService(normaProgressRepository)
 
         // Wave 2 R1.a: load norma definitions from content/norma/ ------------
         val normaContentDir = dataFolder.toPath().resolveSibling("content/norma")

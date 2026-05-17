@@ -1,4 +1,4 @@
-package com.astarworks.astera.stats.domain.norma
+package com.astarworks.astera.core.domain.norma
 
 import com.astarworks.astera.core.domain.player.PlayerId
 import java.time.Instant

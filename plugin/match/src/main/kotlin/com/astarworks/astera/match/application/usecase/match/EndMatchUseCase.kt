@@ -20,6 +20,7 @@ public class EndMatchUseCase(
     private val matches: IMatchRepository,
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
+    private val victoryEvaluator: VictoryConditionEvaluator = VictoryConditionEvaluator(),
 ) {
 
     public fun execute(matchId: MatchId, reason: EndReason): Result<Unit, EndMatchError> {
@@ -45,10 +46,13 @@ public class EndMatchUseCase(
         val ended = match.withPhase(nextPhase)
         matches.save(ended)
 
+        // Wave 4.5: compute winning team via score threshold evaluator (ADR-0027)
+        val winningTeam = victoryEvaluator.evaluate(ended)
+
         eventBus.publish(
             MatchEnded(
                 matchId = matchId,
-                winningTeam = null,
+                winningTeam = winningTeam,
                 atTick = scheduler.currentTick(),
                 reason = reason,
             ),

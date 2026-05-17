@@ -44,12 +44,16 @@ astera:
     internal: "<red>An internal error occurred. Check server logs for details.</red>"
     permission: "<red>You do not have permission to run this command</red>"
 
-  # Wave 4 R3 — Declarative GUI demo (ADR-0021).
+  # Wave 4 R3 — Declarative GUI demo (ADR-0021) + Wave 4.5 bindings (ADR-0027).
   gui:
     loadout:
       title: "Loadout"
     button:
       close: "Close"
+    binding:
+      unknown: "<red>Unknown binding: {binding}</red>"
+      unavailable: "<gray>(binding data not available)</gray>"
+      resolved_to_barrier: "<red>Binding resolution failed (placeholder).</red>"
 
   weapons:
     command:
@@ -67,3 +71,91 @@ astera:
     loadout:
       toggle:
         ok: "Loadout updated."
+
+  # ── Wave 4.5 (ADR-0027): Shop / Loadout persist / Norma / Match / Spawn ──
+  economy:
+    shop:
+      example-shop:
+        title: "Example Shop"
+        offer:
+          sword: "Example Sword"
+          pistol: "Example Pistol"
+          wand: "Example Wand"
+      browse:
+        invalid_id: "<red>Invalid shop id: {shop}</red>"
+        player_not_online: "<red>You must be online to browse the shop.</red>"
+        not_found: "<red>Shop not found: {shop}</red>"
+        open_rejected: "<red>Could not open shop GUI.</red>"
+      purchase:
+        success: "<green>Purchased <gold>{offer}</gold> for {price} {currency}.</green>"
+        failure_generic: "<red>Purchase failed.</red>"
+        player_not_online: "<red>You must be online to purchase.</red>"
+        shop_not_found: "<red>Shop disappeared during purchase.</red>"
+        offer_not_found: "<red>That offer no longer exists.</red>"
+        out_of_stock: "<red>Sold out.</red>"
+        insufficient_funds: "<red>Insufficient {currency} balance.</red>"
+        delivery_failed: "<red>Could not deliver item: {reason}</red>"
+    command:
+      shop:
+        root: "Shop commands"
+        browse: "Browse a shop by id"
+
+  loadout:
+    save:
+      success: "<green>Loadout slot <gold>{slot}</gold> saved.</green>"
+      failed: "<red>Failed to save loadout: {reason}</red>"
+    fetch:
+      success: "<green>Loadout loaded.</green>"
+      empty: "<gray>No loadout configured.</gray>"
+    slot:
+      main: "Main"
+      sub: "Sub"
+      move: "Movement"
+      special: "Special"
+      armor: "Armor"
+      ultimate: "Ultimate"
+    cleared: "<gray>Slot {slot} cleared.</gray>"
+    apply:
+      on_match_start: "<gray>Loadout applied for the match.</gray>"
+
+  norma:
+    progress:
+      updated: "<gray>{norma}: {current}/{target}</gray>"
+    completed: "<green>Mission complete: <gold>{norma}</gold>!</green>"
+    reward:
+      delivered: "<green>Reward: +{amount} {currency} (+{xp} XP)</green>"
+    period:
+      new_started: "<gray>A new {period} period has begun.</gray>"
+
+  match:
+    phase:
+      countdown_start: "<yellow>Match starting in {seconds}s…</yellow>"
+      active_started: "<green>The match has started!</green>"
+      sudden_death: "<gold>Sudden death!</gold>"
+    victory: "<green>Victory! Team {team} wins.</green>"
+    defeat: "<red>Defeat. Team {team} wins.</red>"
+    draw: "<gray>The match ended in a draw.</gray>"
+    score:
+      threshold_reached: "<gold>{team} has reached the score threshold.</gold>"
+    no_winning_team: "<gray>No clear winner.</gray>"
+    spawn:
+      error:
+        match-not-found: "<red>Match not found for spawn.</red>"
+        stage-not-found: "<red>Stage not found for match.</red>"
+        no-spawn-for-kind: "<red>No spawn point of the requested kind.</red>"
+        teleport-failed: "<red>Teleport failed.</red>"
+
+  spawn:
+    teleporting: "<gray>Teleporting to spawn…</gray>"
+    no_spawn_defined: "<red>No spawn point defined for this stage.</red>"
+    spectator: "<gray>Entering spectator spawn.</gray>"
+    lobby: "<gray>Returning to lobby.</gray>"
+
+  armor:
+    # Wave 4.5 placeholder. Real armor domain lands in Phase 3 (Wave 6).
+    unequipped: "<gray>No armor equipped.</gray>"
+    slot:
+      helmet: "Helmet"
+      chestplate: "Chestplate"
+      leggings: "Leggings"
+      boots: "Boots"

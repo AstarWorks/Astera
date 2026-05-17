@@ -5,6 +5,7 @@ import com.astarworks.astera.combat.application.config.SkillYamlConfig
 import com.astarworks.astera.combat.application.config.StatusEffectYamlConfig
 import com.astarworks.astera.core.application.config.GuiYamlConfig
 import com.astarworks.astera.core.application.config.ItemYamlConfig
+import com.astarworks.astera.economy.application.config.ShopYamlConfig
 import com.astarworks.astera.match.application.config.StageYamlConfig
 import com.astarworks.astera.stats.application.config.NormaYamlConfig
 import com.astarworks.astera.weapons.application.config.WeaponYamlConfig
@@ -68,6 +69,11 @@ fun main(args: Array<String>) {
             name = "gui",
             serializer = serializer<GuiYamlConfig>(),
             schemaId = "https://astera.astarworks.com/schemas/gui.schema.json",
+        ),
+        SchemaEntry(
+            name = "shop",
+            serializer = serializer<ShopYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/shop.schema.json",
         ),
     )
 

@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.domain.effect.ParticleSpec
 import com.astarworks.astera.core.domain.effect.SoundSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
 
@@ -17,11 +18,16 @@ public class FakeWorldGateway : IWorldGateway {
     public data class Removal(val world: WorldId, val at: Vec3)
     public data class ParticleEmission(val world: WorldId, val at: Vec3, val particle: ParticleSpec)
     public data class SoundEmission(val world: WorldId, val at: Vec3, val sound: SoundSpec)
+    public data class TeleportCall(val playerId: PlayerId, val at: Vec3, val world: WorldId?)
 
     public val placements: MutableList<Placement> = mutableListOf()
     public val removals: MutableList<Removal> = mutableListOf()
     public val particles: MutableList<ParticleEmission> = mutableListOf()
     public val sounds: MutableList<SoundEmission> = mutableListOf()
+    public val teleports: MutableList<TeleportCall> = mutableListOf()
+
+    /** When non-null, [teleport] returns this value instead of true. Use for failure-path tests. */
+    public var teleportResult: Boolean = true
 
     private val blocks: MutableMap<Pair<WorldId, Vec3>, BlockType> = mutableMapOf()
 
@@ -43,5 +49,10 @@ public class FakeWorldGateway : IWorldGateway {
 
     override fun playSound(world: WorldId, at: Vec3, sound: SoundSpec) {
         sounds += SoundEmission(world, at, sound)
+    }
+
+    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?): Boolean {
+        teleports += TeleportCall(playerId, at, world)
+        return teleportResult
     }
 }

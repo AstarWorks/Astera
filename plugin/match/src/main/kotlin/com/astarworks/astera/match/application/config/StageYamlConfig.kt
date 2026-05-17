@@ -35,18 +35,25 @@ import kotlinx.serialization.Serializable
  *
  * # Phase 3 fields (not yet supported)
  *
- * `schematic`, `spawn`, `core` (see `content/stages/README.md`). They are
- * intentionally omitted from the DTO until the domain supports them — silent
- * omit is forbidden, so an authored YAML carrying them today will fail to
- * parse (strict YAML decode), surfacing the gap.
+ * `schematic`, `core` (see `content/stages/README.md`). They are intentionally
+ * omitted from the DTO until the domain supports them — silent omit is
+ * forbidden, so an authored YAML carrying them today will fail to parse
+ * (strict YAML decode), surfacing the gap.
+ *
+ * # Wave 4.5 addition: `spawn_points`
+ *
+ * Per ADR-0027, the `spawn_points:` block is a list of polymorphic
+ * [SpawnPointYamlConfig] entries (`type: attacker | defender | lobby |
+ * spectator`). It is optional (defaults to empty); a stage with no spawns
+ * simply cannot be used by `MatchSpawnUseCase` until one is authored.
  */
 @Serializable
 public data class StageYamlConfig(
     public val id: String,
     @SerialName("display_name_key") public val displayNameKey: String,
     public val regions: List<RegionYamlConfig> = emptyList(),
+    @SerialName("spawn_points") public val spawnPoints: List<SpawnPointYamlConfig> = emptyList(),
     // TODO(Phase 3): schematic: String? — WorldEdit `.schem` path
-    // TODO(Phase 3): spawn: SpawnYamlConfig — attackers / defenders spawn lists
     // TODO(Phase 3): core: CoreYamlConfig — central objective position + HP
 ) {
     /**
@@ -59,6 +66,7 @@ public data class StageYamlConfig(
         id = StageId(id),
         displayNameKey = MessageKey(displayNameKey),
         regions = regions.map { it.toRegion() },
+        spawnPoints = spawnPoints.map { it.toDomain() },
     )
 }
 

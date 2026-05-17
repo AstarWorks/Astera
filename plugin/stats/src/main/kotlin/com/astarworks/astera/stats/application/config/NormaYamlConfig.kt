@@ -1,11 +1,11 @@
 package com.astarworks.astera.stats.application.config
 
 import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.stats.domain.norma.Norma
-import com.astarworks.astera.stats.domain.norma.NormaId
-import com.astarworks.astera.stats.domain.norma.NormaReward
-import com.astarworks.astera.stats.domain.norma.NormaTarget
-import com.astarworks.astera.stats.domain.norma.PeriodKind
+import com.astarworks.astera.core.domain.norma.Norma
+import com.astarworks.astera.core.domain.norma.NormaId
+import com.astarworks.astera.core.domain.norma.NormaReward
+import com.astarworks.astera.core.domain.norma.NormaTarget
+import com.astarworks.astera.core.domain.norma.PeriodKind
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator

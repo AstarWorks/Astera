@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":plugin:combat"))
     implementation(project(":plugin:match"))
     implementation(project(":plugin:stats"))
+    implementation(project(":plugin:economy"))
 
     implementation(libs.kotlinx.serialization.json)
 

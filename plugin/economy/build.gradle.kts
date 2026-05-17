@@ -18,6 +18,7 @@
 plugins {
     id("astera.kotlin-paper")
     alias(libs.plugins.shadow)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
@@ -25,6 +26,10 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
+
+    // Wave 4.5 (ADR-0027): Shop YAML DTOs use kotlinx.serialization
+    implementation(libs.kaml)
+    implementation(libs.kotlinx.serialization.json)
 
     compileOnly(project(":plugin:stats"))
     compileOnly(project(":plugin:match"))

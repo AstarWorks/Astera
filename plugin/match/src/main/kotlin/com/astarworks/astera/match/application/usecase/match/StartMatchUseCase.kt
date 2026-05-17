@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRepository
-import com.astarworks.astera.match.domain.event.MatchStarted
+import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase

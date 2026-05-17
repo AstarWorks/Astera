@@ -1,7 +1,9 @@
 package com.astarworks.astera.persistence.platform
 
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
+import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.INormaProgressRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRepository
@@ -12,7 +14,9 @@ import com.astarworks.astera.persistence.PersistenceContext
 import com.astarworks.astera.persistence.PostgresConfig
 import com.astarworks.astera.persistence.connectAndMigrate
 import com.astarworks.astera.persistence.repository.PostgresCurrencyLedger
+import com.astarworks.astera.persistence.repository.PostgresLoadoutRepository
 import com.astarworks.astera.persistence.repository.PostgresMatchRepository
+import com.astarworks.astera.persistence.repository.PostgresNormaProgressRepository
 import com.astarworks.astera.persistence.repository.PostgresPermissionService
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRepository
@@ -27,7 +31,7 @@ import org.slf4j.LoggerFactory
  *     skip registration. Each feature plugin then continues with its
  *     in-memory default.
  *  2. Otherwise, bootstrap Hikari + Flyway + Exposed via [connectAndMigrate].
- *  3. Look up Astera-Core's [ServiceRegistry] and register five Postgres impls
+ *  3. Look up Astera-Core's [ServiceRegistry] and register seven Postgres impls
  *     at `priority = 100` so they overlay the in-memory defaults registered
  *     at the default priority by each feature plugin.
  *  4. `loadbefore` in `plugin.yml` guarantees this plugin's `onEnable` runs
@@ -91,11 +95,20 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             PostgresPermissionService(ctx.database),
             priority = 100,
         )
+        registrations += services.register<INormaProgressRepository>(
+            PostgresNormaProgressRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<ILoadoutRepository>(
+            PostgresLoadoutRepository(ctx.database),
+            priority = 100,
+        )
 
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRepository, " +
-                "ICurrencyLedger, IPermissionService.",
+                "ICurrencyLedger, IPermissionService, INormaProgressRepository, " +
+                "ILoadoutRepository.",
         )
     }
 

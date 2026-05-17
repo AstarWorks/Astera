@@ -1,9 +1,9 @@
 package com.astarworks.astera.stats.application.service
 
-import com.astarworks.astera.stats.domain.norma.Norma
-import com.astarworks.astera.stats.domain.norma.NormaId
-import com.astarworks.astera.stats.domain.norma.NormaTarget
-import com.astarworks.astera.stats.domain.norma.PeriodKind
+import com.astarworks.astera.core.domain.norma.Norma
+import com.astarworks.astera.core.domain.norma.NormaId
+import com.astarworks.astera.core.domain.norma.NormaTarget
+import com.astarworks.astera.core.domain.norma.PeriodKind
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir

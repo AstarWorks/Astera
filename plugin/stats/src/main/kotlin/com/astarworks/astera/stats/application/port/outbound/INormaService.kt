@@ -1,10 +1,10 @@
 package com.astarworks.astera.stats.application.port.outbound
 
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.stats.domain.norma.MissionProgress
-import com.astarworks.astera.stats.domain.norma.Norma
-import com.astarworks.astera.stats.domain.norma.NormaId
-import com.astarworks.astera.stats.domain.norma.NormaTarget
+import com.astarworks.astera.core.domain.norma.MissionProgress
+import com.astarworks.astera.core.domain.norma.Norma
+import com.astarworks.astera.core.domain.norma.NormaId
+import com.astarworks.astera.core.domain.norma.NormaTarget
 
 public interface INormaService {
     public fun activeNormasFor(playerId: PlayerId): Collection<Norma>

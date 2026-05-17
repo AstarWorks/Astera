@@ -2,8 +2,8 @@ package com.astarworks.astera.stats.domain.event
 
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.stats.domain.norma.NormaId
-import com.astarworks.astera.stats.domain.norma.NormaReward
+import com.astarworks.astera.core.domain.norma.NormaId
+import com.astarworks.astera.core.domain.norma.NormaReward
 import java.time.Instant
 
 public data class MissionCompleted(

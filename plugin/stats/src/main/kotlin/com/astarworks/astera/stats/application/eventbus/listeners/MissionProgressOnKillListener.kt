@@ -4,7 +4,7 @@ import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.stats.application.port.outbound.INormaService
 import com.astarworks.astera.stats.domain.event.MissionCompleted
-import com.astarworks.astera.stats.domain.norma.NormaTarget
+import com.astarworks.astera.core.domain.norma.NormaTarget
 
 public class MissionProgressOnKillListener(
     private val normaService: INormaService,

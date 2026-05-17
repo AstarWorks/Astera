@@ -1,5 +1,5 @@
-# Phase 1-2 demo stage.
-# Pure metadata — no schematic / spawn / core yet (those land in Phase 3).
+# Phase 1-2 demo stage; spawn_points added in Wave 4.5 (ADR-0027).
+# Still missing schematic / core (those land in Phase 3).
 # Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
 #
 # See content/stages/README.md for the Phase 3 schema sketch.
@@ -19,3 +19,16 @@ regions:
   - name: center-platform
     min: { x: -5.0, y: 64.0, z: -5.0 }
     max: { x:  5.0, y: 66.0, z:  5.0 }
+
+# Role-tagged teleport targets used by MatchSpawnUseCase (Wave 4.5 / ADR-0027).
+# Polymorphic by `type:` — one of attacker | defender | lobby | spectator.
+# Each entry maps 1:1 to a SpawnPoint sealed variant in plugin/core.
+spawn_points:
+  - type: attacker
+    pos: { x: -45.0, y: 64.0, z: 0.0 }
+  - type: defender
+    pos: { x:  45.0, y: 64.0, z: 0.0 }
+  - type: lobby
+    pos: { x:   0.0, y: 80.0, z: 0.0 }
+  - type: spectator
+    pos: { x:   0.0, y: 100.0, z: 0.0 }

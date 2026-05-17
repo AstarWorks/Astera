@@ -1,0 +1,87 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/shop.schema.json",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "display_key": {
+            "type": "string"
+        },
+        "offers": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "item": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "object",
+                        "properties": {
+                            "currency": {
+                                "type": "string"
+                            },
+                            "amount": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "currency",
+                            "amount"
+                        ]
+                    },
+                    "stock": {
+                        "oneOf": [
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "const": "limited"
+                                    },
+                                    "remaining": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "required": [
+                                    "type",
+                                    "remaining"
+                                ]
+                            },
+                            {
+                                "type": "object",
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "const": "unlimited"
+                                    }
+                                },
+                                "required": [
+                                    "type"
+                                ]
+                            }
+                        ]
+                    },
+                    "display_key": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "item",
+                    "price",
+                    "stock"
+                ]
+            }
+        }
+    },
+    "required": [
+        "id",
+        "display_key"
+    ]
+}

@@ -11,6 +11,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
@@ -27,14 +28,20 @@ import com.astarworks.astera.core.application.port.outbound.IStageRepository
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.match.application.service.InMemoryStageRepository
 import com.astarworks.astera.match.application.service.StageLoaderService
+import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.match.application.usecase.match.EndMatchError
 import com.astarworks.astera.match.application.usecase.match.EndMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.EntryGameError
 import com.astarworks.astera.match.application.usecase.match.EntryGameUseCase
+import com.astarworks.astera.match.application.usecase.match.PhaseTimerUseCase
 import com.astarworks.astera.match.application.usecase.match.StartMatchError
 import com.astarworks.astera.match.application.usecase.match.StartMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseError
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase
+import com.astarworks.astera.match.application.usecase.match.VictoryConditionEvaluator
+import com.astarworks.astera.match.application.usecase.spawn.MatchSpawnUseCase
+import com.astarworks.astera.match.application.usecase.spawn.SpawnKind
+import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.match.domain.match.MatchStateMachine
@@ -101,10 +108,40 @@ public class AsteraMatchPlugin : JavaPlugin() {
         val msgRenderer = services.getOrThrow<IMessageRenderer>()
 
         // 3. Construct use cases -----------------------------------------------
+        val victoryEvaluator = VictoryConditionEvaluator()
         val startMatch = StartMatchUseCase(stages, matches, eventBus, scheduler)
-        val endMatch = EndMatchUseCase(matches, eventBus, scheduler)
+        val endMatch = EndMatchUseCase(matches, eventBus, scheduler, victoryEvaluator)
         val entryGame = EntryGameUseCase(matches, eventBus)
         val switchPhase = SwitchPhaseUseCase(matches, eventBus, scheduler)
+
+        // Wave 4.5 (ADR-0027): phase auto-timer + match spawn
+        val phaseTimer = PhaseTimerUseCase(matches, scheduler, switchPhase)
+        scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
+            phaseTimer.tickAll()
+        }
+
+        // IWorldGateway is registered by Astera-Core (Wave 5 lands the Paper impl,
+        // until then the binding might not be present in production; gate on null).
+        val worldGateway = services.get<IWorldGateway>()
+        if (worldGateway != null) {
+            val matchSpawn = MatchSpawnUseCase(
+                matchRepository = matches,
+                stageRepository = stages,
+                worldGateway = worldGateway,
+            )
+            eventBus.subscribe(MatchStarted::class) { event ->
+                val match = matches.findById(event.matchId) ?: return@subscribe
+                match.teams.forEachIndexed { idx, team ->
+                    val kind = if (idx == 0) SpawnKind.ATTACKER else SpawnKind.DEFENDER
+                    team.members.forEach { playerId ->
+                        matchSpawn.spawnPlayer(match.id, playerId, kind)
+                    }
+                }
+            }
+            logger.info("MatchSpawnUseCase wired (IWorldGateway present).")
+        } else {
+            logger.info("IWorldGateway not registered; spawn-on-MatchStarted skipped (lands in Wave 5).")
+        }
 
         // 4. Expose IMatchLifecycle via ServiceRegistry -------------------------
         val facade = object : IMatchLifecycle {

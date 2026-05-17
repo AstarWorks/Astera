@@ -6,7 +6,7 @@ import com.astarworks.astera.core.application.config.parser.YamlContentParser
 import com.astarworks.astera.core.application.port.outbound.IContentParser
 import com.astarworks.astera.core.application.service.ContentLoader
 import com.astarworks.astera.stats.application.config.NormaYamlConfig
-import com.astarworks.astera.stats.domain.norma.Norma
+import com.astarworks.astera.core.domain.norma.Norma
 import java.nio.file.Path
 
 /**

@@ -1,0 +1,31 @@
+# Wave 4.5 R3.5 demo shop. Sells 3 example weapons for STAR / GOLD.
+# offers iterate in YAML order; ShopBrowseUseCase places them at slot index 0, 1, 2 in a CHEST_27 GUI.
+id: example-shop
+display_key: astera.economy.shop.example-shop.title
+
+offers:
+  - id: example-sword
+    item: example-sword
+    price:
+      currency: STAR
+      amount: 100
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.sword
+  - id: example-pistol
+    item: example-pistol
+    price:
+      currency: STAR
+      amount: 200
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.pistol
+  - id: example-wand
+    item: example-wand
+    price:
+      currency: GOLD
+      amount: 500
+    stock:
+      type: limited
+      remaining: 10
+    display_key: astera.economy.shop.example-shop.offer.wand

@@ -18,12 +18,15 @@ import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
+import com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver
 import com.astarworks.astera.core.application.port.outbound.IGuiRegistry
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
 import com.astarworks.astera.core.application.service.GuiLoaderService
 import com.astarworks.astera.core.application.service.InMemoryGuiRegistry
@@ -159,7 +162,20 @@ public class AsteraCorePlugin : JavaPlugin() {
         val guiReport = guiLoader.loadFrom(contentDir.resolve("gui"))
         logger.info("GUI specs loaded: ${guiReport.loaded} ok, ${guiReport.failed} failed")
 
-        val guiRenderer = PaperItemTemplateRenderer(itemRegistry, messages)
+        // Wave 4.5 (ADR-0027): lazy provider since ILoadoutRepository is registered
+        // by Astera-Weapons (priority 0) / Astera-Persistence (priority 100), both of
+        // which load AFTER Astera-Core. Lambda is only invoked at GUI render time.
+        val guiBindingResolver: IGuiBindingResolver = DefaultGuiBindingResolver(
+            loadoutsProvider = {
+                services.get<ILoadoutRepository>()
+                    ?: error(
+                        "ILoadoutRepository not registered before first GUI render. " +
+                            "Check that Astera-Weapons or Astera-Persistence finished onEnable.",
+                    )
+            },
+        )
+
+        val guiRenderer = PaperItemTemplateRenderer(itemRegistry, messages, guiBindingResolver)
         val guiAdapter = PaperGuiAdapter(
             server = mcServer,
             scheduler = scheduler,
@@ -173,6 +189,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<IGuiRegistry>(guiRegistry)
         services.register<IGuiIntentRouter>(guiIntentRouter)
         services.register<IGuiAdapter>(guiAdapter)
+        services.register<IGuiBindingResolver>(guiBindingResolver)
 
         // ---- Permission service ------------------------------------------
         // Wave 3 (R2): Astera-Persistence (loadbefore: [features]) loads AFTER

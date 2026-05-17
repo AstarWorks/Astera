@@ -1,4 +1,4 @@
-package com.astarworks.astera.stats.domain.norma
+package com.astarworks.astera.core.domain.norma
 
 import com.astarworks.astera.core.domain.i18n.MessageKey
 

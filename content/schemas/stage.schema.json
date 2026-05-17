@@ -61,6 +61,141 @@
                     "max"
                 ]
             }
+        },
+        "spawn_points": {
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "const": "attacker"
+                            },
+                            "pos": {
+                                "type": "object",
+                                "properties": {
+                                    "x": {
+                                        "type": "number"
+                                    },
+                                    "y": {
+                                        "type": "number"
+                                    },
+                                    "z": {
+                                        "type": "number"
+                                    }
+                                },
+                                "required": [
+                                    "x",
+                                    "y",
+                                    "z"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "pos"
+                        ]
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "const": "defender"
+                            },
+                            "pos": {
+                                "type": "object",
+                                "properties": {
+                                    "x": {
+                                        "type": "number"
+                                    },
+                                    "y": {
+                                        "type": "number"
+                                    },
+                                    "z": {
+                                        "type": "number"
+                                    }
+                                },
+                                "required": [
+                                    "x",
+                                    "y",
+                                    "z"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "pos"
+                        ]
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "const": "lobby"
+                            },
+                            "pos": {
+                                "type": "object",
+                                "properties": {
+                                    "x": {
+                                        "type": "number"
+                                    },
+                                    "y": {
+                                        "type": "number"
+                                    },
+                                    "z": {
+                                        "type": "number"
+                                    }
+                                },
+                                "required": [
+                                    "x",
+                                    "y",
+                                    "z"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "pos"
+                        ]
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "const": "spectator"
+                            },
+                            "pos": {
+                                "type": "object",
+                                "properties": {
+                                    "x": {
+                                        "type": "number"
+                                    },
+                                    "y": {
+                                        "type": "number"
+                                    },
+                                    "z": {
+                                        "type": "number"
+                                    }
+                                },
+                                "required": [
+                                    "x",
+                                    "y",
+                                    "z"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "pos"
+                        ]
+                    }
+                ]
+            }
         }
     },
     "required": [

@@ -7,8 +7,8 @@ import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.economy.domain.event.CurrencyChanged
 import com.astarworks.astera.stats.domain.event.MissionCompleted
-import com.astarworks.astera.stats.domain.norma.NormaId
-import com.astarworks.astera.stats.domain.norma.NormaReward
+import com.astarworks.astera.core.domain.norma.NormaId
+import com.astarworks.astera.core.domain.norma.NormaReward
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
