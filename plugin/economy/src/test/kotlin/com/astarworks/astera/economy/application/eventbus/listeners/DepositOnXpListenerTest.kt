@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.event.XpSource
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.economy.application.service.InMemoryCurrencyLedger
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
-import com.astarworks.astera.economy.domain.economy.Currency
+import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.economy.domain.event.CurrencyChanged
 import com.astarworks.astera.stats.domain.event.XpGranted
 import com.astarworks.astera.testfixtures.FakeDomainEventBus

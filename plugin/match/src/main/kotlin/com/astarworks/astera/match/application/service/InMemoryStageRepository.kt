@@ -1,8 +1,8 @@
 package com.astarworks.astera.match.application.service
 
-import com.astarworks.astera.match.application.port.outbound.IStageRepository
-import com.astarworks.astera.match.domain.stage.Stage
-import com.astarworks.astera.match.domain.stage.StageId
+import com.astarworks.astera.core.application.port.outbound.IStageRepository
+import com.astarworks.astera.core.domain.stage.Stage
+import com.astarworks.astera.core.domain.stage.StageId
 import java.util.concurrent.ConcurrentHashMap
 
 /**

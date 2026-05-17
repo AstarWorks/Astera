@@ -4,10 +4,10 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.match.application.service.InMemoryStageRepository
-import com.astarworks.astera.match.domain.match.MatchPhase
-import com.astarworks.astera.match.domain.stage.Region
-import com.astarworks.astera.match.domain.stage.Stage
-import com.astarworks.astera.match.domain.stage.StageId
+import com.astarworks.astera.core.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.stage.Region
+import com.astarworks.astera.core.domain.stage.Stage
+import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeScheduler
 import com.astarworks.astera.match.domain.event.MatchStarted

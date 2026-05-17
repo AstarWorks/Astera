@@ -1,8 +1,8 @@
 package com.astarworks.astera.match.domain.event
 
 import com.astarworks.astera.core.domain.event.DomainEvent
-import com.astarworks.astera.match.domain.match.MatchId
-import com.astarworks.astera.match.domain.stage.StageId
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.stage.StageId
 import java.time.Instant
 
 public data class MatchStarted(

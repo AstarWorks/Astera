@@ -1,6 +1,6 @@
 package com.astarworks.astera.stats.application.eventbus.listeners
 
-import com.astarworks.astera.match.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.domain.event.MatchEnded
 import com.astarworks.astera.stats.application.usecase.stats.RecordMatchPlayedUseCase
 import org.slf4j.LoggerFactory
@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 /**
  * On [MatchEnded] increments `matchesPlayed` for every participant of every
  * team in the match. Resolves the participant list by looking the match up in
- * [IMatchRepository] (the event only carries [com.astarworks.astera.match.domain.match.MatchId]).
+ * [IMatchRepository] (the event only carries [com.astarworks.astera.core.domain.match.MatchId]).
  *
  * silly-knuth §5: subscribes to in-process [com.astarworks.astera.core.application.port.outbound.IDomainEventBus],
  * delegates to a use case that publishes [com.astarworks.astera.stats.domain.event.StatsUpdated] on the same bus

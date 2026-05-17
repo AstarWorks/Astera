@@ -4,10 +4,10 @@ import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.match.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.domain.event.PhaseChanged
-import com.astarworks.astera.match.domain.match.MatchId
-import com.astarworks.astera.match.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.match.domain.match.MatchStateMachine
 import com.astarworks.astera.match.domain.match.MatchTransitionError
 

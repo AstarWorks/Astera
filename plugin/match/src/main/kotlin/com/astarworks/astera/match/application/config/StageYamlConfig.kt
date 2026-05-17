@@ -2,9 +2,9 @@ package com.astarworks.astera.match.application.config
 
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.match.domain.stage.Region
-import com.astarworks.astera.match.domain.stage.Stage
-import com.astarworks.astera.match.domain.stage.StageId
+import com.astarworks.astera.core.domain.stage.Region
+import com.astarworks.astera.core.domain.stage.Stage
+import com.astarworks.astera.core.domain.stage.StageId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

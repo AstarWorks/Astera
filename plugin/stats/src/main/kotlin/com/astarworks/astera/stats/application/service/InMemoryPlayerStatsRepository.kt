@@ -1,8 +1,8 @@
 package com.astarworks.astera.stats.application.service
 
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.stats.application.port.outbound.IPlayerStatsRepository
-import com.astarworks.astera.stats.domain.stats.PlayerStats
+import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
+import com.astarworks.astera.core.domain.stats.PlayerStats
 import java.util.concurrent.ConcurrentHashMap
 
 public class InMemoryPlayerStatsRepository : IPlayerStatsRepository {

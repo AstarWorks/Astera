@@ -6,7 +6,7 @@ import com.astarworks.astera.core.application.config.parser.YamlContentParser
 import com.astarworks.astera.core.application.port.outbound.IContentParser
 import com.astarworks.astera.core.application.service.ContentLoader
 import com.astarworks.astera.match.application.config.StageYamlConfig
-import com.astarworks.astera.match.application.port.outbound.IStageRepository
+import com.astarworks.astera.core.application.port.outbound.IStageRepository
 import java.nio.file.Path
 
 /**

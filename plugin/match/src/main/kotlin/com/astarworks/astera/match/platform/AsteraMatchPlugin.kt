@@ -12,6 +12,7 @@ import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.Result
@@ -21,8 +22,8 @@ import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
-import com.astarworks.astera.match.application.port.outbound.IMatchRepository
-import com.astarworks.astera.match.application.port.outbound.IStageRepository
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IStageRepository
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.match.application.service.InMemoryStageRepository
 import com.astarworks.astera.match.application.service.StageLoaderService
@@ -34,11 +35,11 @@ import com.astarworks.astera.match.application.usecase.match.StartMatchError
 import com.astarworks.astera.match.application.usecase.match.StartMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseError
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase
-import com.astarworks.astera.match.domain.match.MatchId
-import com.astarworks.astera.match.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.match.domain.match.MatchStateMachine
-import com.astarworks.astera.match.domain.match.TeamId
-import com.astarworks.astera.match.domain.stage.StageId
+import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.stage.StageId
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -67,11 +68,18 @@ public class AsteraMatchPlugin : JavaPlugin() {
         val services = core.services
 
         // 1. Build match-owned repositories -------------------------------------
-        val matches: IMatchRepository = InMemoryMatchRepository()
-        val stages: IStageRepository = InMemoryStageRepository()
-
-        registrations += services.register<IMatchRepository>(matches)
-        registrations += services.register<IStageRepository>(stages)
+        // Wave 3 (R2): pick up Postgres impls (priority=100) if Astera-Persistence
+        // registered them via loadbefore; otherwise create in-memory at priority=0.
+        val matches: IMatchRepository =
+            services.get<IMatchRepository>()
+                ?: InMemoryMatchRepository().also {
+                    registrations += services.register<IMatchRepository>(it, priority = 0)
+                }
+        val stages: IStageRepository =
+            services.get<IStageRepository>()
+                ?: InMemoryStageRepository().also {
+                    registrations += services.register<IStageRepository>(it, priority = 0)
+                }
 
         // Wave 2 R1.a: load stage definitions from content/stages/ -------------
         val stageLoader = StageLoaderService(stages)

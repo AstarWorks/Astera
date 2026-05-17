@@ -1,10 +1,10 @@
 package com.astarworks.astera.match.application.service
 
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.match.application.port.outbound.IMatchRepository
-import com.astarworks.astera.match.domain.match.Match
-import com.astarworks.astera.match.domain.match.MatchId
-import com.astarworks.astera.match.domain.match.MatchPhase
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.domain.match.Match
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.MatchPhase
 import java.util.concurrent.ConcurrentHashMap
 
 /**

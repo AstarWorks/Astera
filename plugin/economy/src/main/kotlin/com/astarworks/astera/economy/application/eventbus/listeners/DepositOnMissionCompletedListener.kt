@@ -2,7 +2,7 @@ package com.astarworks.astera.economy.application.eventbus.listeners
 
 import com.astarworks.astera.core.domain.event.CurrencyChangeReason
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
-import com.astarworks.astera.economy.domain.economy.Currency
+import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.stats.domain.event.MissionCompleted
 import org.slf4j.LoggerFactory
 

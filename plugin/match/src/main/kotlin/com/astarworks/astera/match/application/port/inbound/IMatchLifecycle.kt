@@ -6,11 +6,11 @@ import com.astarworks.astera.match.application.usecase.match.EndMatchError
 import com.astarworks.astera.match.application.usecase.match.EntryGameError
 import com.astarworks.astera.match.application.usecase.match.StartMatchError
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseError
-import com.astarworks.astera.match.domain.match.MatchId
-import com.astarworks.astera.match.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.match.domain.match.MatchStateMachine
-import com.astarworks.astera.match.domain.match.TeamId
-import com.astarworks.astera.match.domain.stage.StageId
+import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.core.domain.event.EndReason
 
 /**

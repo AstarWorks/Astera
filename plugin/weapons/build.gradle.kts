@@ -52,6 +52,10 @@ tasks.shadowJar {
     archiveBaseName.set("astera-weapons")
     archiveClassifier.set("")
     mergeServiceFiles()
+    // Wave 3 (R2) / ADR-0020 — see Astera-Core comment in plugin/match.
+    dependencies {
+        exclude(project(":plugin:core"))
+    }
 }
 
 tasks.named("build") {

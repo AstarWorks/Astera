@@ -2,7 +2,7 @@ package com.astarworks.astera.match.application.service
 
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.match.domain.stage.StageId
+import com.astarworks.astera.core.domain.stage.StageId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir

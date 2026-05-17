@@ -1,6 +1,6 @@
 package com.astarworks.astera.stats.application.eventbus.listeners
 
-import com.astarworks.astera.match.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.domain.event.MatchEnded
 import com.astarworks.astera.stats.application.usecase.stats.RecordMatchResultUseCase
 import org.slf4j.LoggerFactory
@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory
  * [RecordMatchPlayedOnMatchEndedListener]).
  *
  * Looks the match up in [IMatchRepository] to resolve team rosters; the event
- * itself only carries [com.astarworks.astera.match.domain.match.MatchId] and the
- * winning [com.astarworks.astera.match.domain.match.TeamId].
+ * itself only carries [com.astarworks.astera.core.domain.match.MatchId] and the
+ * winning [com.astarworks.astera.core.domain.match.TeamId].
  *
  * silly-knuth §5: in-process only, no broadcaster.
  */

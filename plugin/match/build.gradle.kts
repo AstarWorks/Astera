@@ -45,6 +45,13 @@ tasks.shadowJar {
     archiveBaseName.set("astera-match")
     archiveClassifier.set("")
     mergeServiceFiles()
+    // Wave 3 (R2) / ADR-0020: Astera-Core's classloader owns plugin/core types
+    // at runtime (Bukkit `depend: [Astera-Core]`). Excluding it from this
+    // shadowJar preserves KClass identity across plugins so ServiceRegistry
+    // and IDomainEventBus lookups match registrations from Astera-Core.
+    dependencies {
+        exclude(project(":plugin:core"))
+    }
 }
 
 tasks.named("build") {

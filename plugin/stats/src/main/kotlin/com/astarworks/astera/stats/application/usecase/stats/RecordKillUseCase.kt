@@ -3,9 +3,9 @@ package com.astarworks.astera.stats.application.usecase.stats
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.stats.application.port.outbound.IPlayerStatsRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.stats.domain.event.StatsUpdated
-import com.astarworks.astera.stats.domain.stats.PlayerStats
+import com.astarworks.astera.core.domain.stats.PlayerStats
 
 public class RecordKillUseCase(
     private val repository: IPlayerStatsRepository,

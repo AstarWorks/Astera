@@ -1,6 +1,7 @@
 package com.astarworks.astera.match.domain.match
 
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.match.MatchPhase
 
 /**
  * Expected failure modes of [MatchStateMachine.transition].

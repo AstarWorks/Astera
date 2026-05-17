@@ -10,6 +10,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -18,13 +19,13 @@ import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnMissionCompletedListener
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnXpListener
 import com.astarworks.astera.economy.application.eventbus.listeners.RewardOnMatchEndedListener
-import com.astarworks.astera.economy.application.port.outbound.ICurrencyLedger
+import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.economy.application.service.InMemoryCurrencyLedger
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
 import com.astarworks.astera.economy.application.usecase.currency.TransferUseCase
 import com.astarworks.astera.economy.application.usecase.currency.WithdrawUseCase
-import com.astarworks.astera.economy.domain.economy.Currency
-import com.astarworks.astera.match.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.domain.economy.Currency
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.domain.event.MatchEnded
 import com.astarworks.astera.stats.domain.event.MissionCompleted
 import com.astarworks.astera.stats.domain.event.XpGranted
@@ -66,8 +67,13 @@ public class AsteraEconomyPlugin : JavaPlugin() {
         val matchRepository = services.getOrThrow<IMatchRepository>()
 
         // ── Economy-owned implementations ──────────────────────────────────────
-        val ledger: ICurrencyLedger = InMemoryCurrencyLedger()
-        registrations += services.register<ICurrencyLedger>(ledger)
+        // Wave 3 (R2): pick up Postgres impl (priority=100) if Astera-Persistence
+        // registered it via loadbefore; otherwise create in-memory at priority=0.
+        val ledger: ICurrencyLedger =
+            services.get<ICurrencyLedger>()
+                ?: InMemoryCurrencyLedger().also {
+                    registrations += services.register<ICurrencyLedger>(it, priority = 0)
+                }
 
         // ── Use cases ──────────────────────────────────────────────────────────
         val deposit = DepositUseCase(ledger, eventBus)

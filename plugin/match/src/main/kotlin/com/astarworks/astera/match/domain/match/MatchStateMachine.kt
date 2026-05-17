@@ -1,6 +1,7 @@
 package com.astarworks.astera.match.domain.match
 
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.match.MatchPhase
 
 /**
  * Pure state machine for [Match] phase transitions.

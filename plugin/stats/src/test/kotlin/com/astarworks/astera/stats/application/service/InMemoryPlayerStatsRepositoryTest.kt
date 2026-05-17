@@ -1,7 +1,7 @@
 package com.astarworks.astera.stats.application.service
 
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.stats.domain.stats.PlayerStats
+import com.astarworks.astera.core.domain.stats.PlayerStats
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

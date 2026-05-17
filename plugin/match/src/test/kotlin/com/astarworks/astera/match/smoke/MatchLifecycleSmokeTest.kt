@@ -13,11 +13,11 @@ import com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase
 import com.astarworks.astera.match.domain.event.MatchEnded
 import com.astarworks.astera.match.domain.event.MatchStarted
 import com.astarworks.astera.match.domain.event.PhaseChanged
-import com.astarworks.astera.match.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.match.domain.match.MatchStateMachine
-import com.astarworks.astera.match.domain.stage.Region
-import com.astarworks.astera.match.domain.stage.Stage
-import com.astarworks.astera.match.domain.stage.StageId
+import com.astarworks.astera.core.domain.stage.Region
+import com.astarworks.astera.core.domain.stage.Stage
+import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeScheduler
 import org.assertj.core.api.Assertions.assertThat

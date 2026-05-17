@@ -12,13 +12,14 @@ import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.event.XpSource
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.platform.AsteraCorePlugin
-import com.astarworks.astera.match.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.domain.event.MatchEnded
 import com.astarworks.astera.stats.application.eventbus.listeners.BroadcastOnLeveledUpListener
 import com.astarworks.astera.stats.application.eventbus.listeners.MissionProgressOnKillListener
@@ -28,7 +29,7 @@ import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnDamage
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnKillListener
 import com.astarworks.astera.stats.application.port.outbound.ILevelService
 import com.astarworks.astera.stats.application.port.outbound.INormaService
-import com.astarworks.astera.stats.application.port.outbound.IPlayerStatsRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.stats.application.service.InMemoryLevelService
 import com.astarworks.astera.stats.application.service.InMemoryNormaService
 import com.astarworks.astera.stats.application.service.InMemoryPlayerStatsRepository
@@ -87,7 +88,14 @@ public class AsteraStatsPlugin : JavaPlugin() {
         val matchRepository = services.getOrThrow<IMatchRepository>()
 
         // 3. Build Stats-owned impls ----------------------------------------
-        val statsRepository = InMemoryPlayerStatsRepository()
+        // Wave 3 (R2): if Astera-Persistence has registered a Postgres impl at
+        // priority=100 (via loadbefore), we pick it up here. Otherwise fall back
+        // to in-memory and register at priority=0 for cross-plugin readers.
+        val statsRepository: IPlayerStatsRepository =
+            services.get<IPlayerStatsRepository>()
+                ?: InMemoryPlayerStatsRepository().also {
+                    registrations += services.register<IPlayerStatsRepository>(it, priority = 0)
+                }
         val levelService = InMemoryLevelService()
         val normaService = InMemoryNormaService()
 
@@ -97,7 +105,7 @@ public class AsteraStatsPlugin : JavaPlugin() {
         logger.info("Loaded ${normaReport.loaded} norma(s) from $normaContentDir (failed: ${normaReport.failed})")
 
         // 4. Register Stats ports onto the shared registry ------------------
-        registrations += services.register<IPlayerStatsRepository>(statsRepository)
+        // Note: statsRepository is already registered (or resolved from Postgres) above.
         registrations += services.register<ILevelService>(levelService)
         registrations += services.register<INormaService>(normaService)
 

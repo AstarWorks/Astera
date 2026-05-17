@@ -1,21 +1,24 @@
 package com.astarworks.astera.economy.application.usecase.currency
 
+import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.economy.Currency
+import com.astarworks.astera.core.domain.economy.WalletError
 import com.astarworks.astera.core.domain.event.CurrencyChangeReason
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.economy.application.port.outbound.ICurrencyLedger
-import com.astarworks.astera.economy.domain.economy.Currency
-import com.astarworks.astera.economy.domain.economy.WalletError
 import com.astarworks.astera.economy.domain.event.CurrencyChanged
 
 /**
  * Transfers a positive amount from [from] to [to] and publishes two [CurrencyChanged] events.
  *
- * Compensating refund logic is a no-op for Stage 3-改 because [ICurrencyLedger.credit]
- * (InMemoryCurrencyLedger) cannot fail. If credit fails in a future Postgres impl,
- * [ledger.credit] should refund [from] — deferred to Stage 4-改.
+ * Wave 3 (R2) / ADR-0022: delegates the atomic balance shuffle to
+ * [ICurrencyLedger.transfer] in a single call. The Postgres impl wraps debit
+ * and credit in one SQL transaction; the in-memory impl uses per-key locks
+ * and cannot fail on the credit side. Either way this use case observes a
+ * single atomic outcome (success-with-both-wallets, or insufficient-funds)
+ * and no longer needs compensating refund logic.
  */
 public class TransferUseCase(
     private val ledger: ICurrencyLedger,
@@ -33,48 +36,40 @@ public class TransferUseCase(
         if (from == to) {
             return Result.failure(TransferError.SameAccount(from))
         }
-        // Debit source
-        val debitResult = ledger.debit(from, currency, amount)
-        if (debitResult is Result.Failure) {
-            val walletErr = debitResult.error
-            return when (walletErr) {
+        return when (val outcome = ledger.transfer(from, to, currency, amount)) {
+            is Result.Failure -> when (val err = outcome.error) {
                 is WalletError.InsufficientFunds -> Result.failure(
                     TransferError.InsufficientFunds(
                         playerId = from,
                         currency = currency,
-                        balance = walletErr.have,
-                        requested = walletErr.tried,
+                        balance = err.have,
+                        requested = err.tried,
                     ),
                 )
             }
+            is Result.Success -> {
+                val (fromWallet, toWallet) = outcome.value
+                eventBus.publish(
+                    CurrencyChanged(
+                        playerId = from,
+                        currency = currency,
+                        delta = -amount,
+                        newBalance = fromWallet.balance(currency),
+                        reason = CurrencyChangeReason.Transfer(counterpartyId = to),
+                    ),
+                )
+                eventBus.publish(
+                    CurrencyChanged(
+                        playerId = to,
+                        currency = currency,
+                        delta = +amount,
+                        newBalance = toWallet.balance(currency),
+                        reason = CurrencyChangeReason.Transfer(counterpartyId = from),
+                    ),
+                )
+                Result.success(Unit)
+            }
         }
-        val fromWallet = (debitResult as Result.Success).value
-
-        // Credit target (cannot fail with InMemoryCurrencyLedger)
-        val toWallet = ledger.credit(to, currency, amount)
-        // Compensating: if credit fails in future impl → ledger.credit(from, currency, amount)
-
-        // Publish debit event for source
-        eventBus.publish(
-            CurrencyChanged(
-                playerId = from,
-                currency = currency,
-                delta = -amount,
-                newBalance = fromWallet.balance(currency),
-                reason = CurrencyChangeReason.Transfer(counterpartyId = to),
-            ),
-        )
-        // Publish credit event for target
-        eventBus.publish(
-            CurrencyChanged(
-                playerId = to,
-                currency = currency,
-                delta = +amount,
-                newBalance = toWallet.balance(currency),
-                reason = CurrencyChangeReason.Transfer(counterpartyId = from),
-            ),
-        )
-        return Result.success(Unit)
     }
 }
 

@@ -21,6 +21,7 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.service.InMemoryPermissionService
 import com.astarworks.astera.core.application.service.MutableItemRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.application.usecase.permission.AssignRoleUseCase
 import com.astarworks.astera.core.application.usecase.permission.CheckPermissionUseCase
@@ -144,9 +145,18 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<IMcServer>(mcServer)
 
         // ---- Permission service ------------------------------------------
-        val permissionService: IPermissionService = InMemoryPermissionService()
-        services.register<IPermissionService>(permissionService)
-        logger.info("Permission service registered with ${DefaultRoles.builtin().size} default roles.")
+        // Wave 3 (R2): Astera-Persistence (loadbefore: [features]) loads AFTER
+        // Astera-Core, so at this point Postgres is never present yet. We
+        // register in-memory at priority=0; if env vars are set, persistence
+        // will overlay at priority=100 before feature plugins look up. Core's
+        // own AssignRoleUseCase keeps the in-memory reference (acceptable
+        // Phase 1 trade-off; revisit in Wave 5 with deferred use-case wiring).
+        val permissionService: IPermissionService =
+            services.get<IPermissionService>()
+                ?: InMemoryPermissionService().also {
+                    services.register<IPermissionService>(it, priority = 0)
+                }
+        logger.info("Permission service registered (in-memory; ${DefaultRoles.builtin().size} default roles).")
 
         // Use cases — constructed here for completeness; no Core command uses them yet.
         @Suppress("UNUSED_VARIABLE")

@@ -2,8 +2,8 @@ package com.astarworks.astera.economy.application.eventbus.listeners
 
 import com.astarworks.astera.core.domain.event.CurrencyChangeReason
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
-import com.astarworks.astera.economy.domain.economy.Currency
-import com.astarworks.astera.match.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.domain.economy.Currency
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.domain.event.MatchEnded
 import org.slf4j.LoggerFactory
 
@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
  * units of [rewardCurrency] via [DepositUseCase].
  *
  * Resolves the team roster via [IMatchRepository] because [MatchEnded] only
- * carries the winning [com.astarworks.astera.match.domain.match.TeamId], not
+ * carries the winning [com.astarworks.astera.core.domain.match.TeamId], not
  * the player list. A draw ([MatchEnded.winningTeam] == null) pays nothing.
  *
  * The reward amount is currently a static constructor parameter; Phase 3

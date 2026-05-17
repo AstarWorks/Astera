@@ -4,10 +4,10 @@ import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.match.application.port.outbound.IMatchRepository
-import com.astarworks.astera.match.domain.match.MatchId
-import com.astarworks.astera.match.domain.match.MatchPhase
-import com.astarworks.astera.match.domain.match.TeamId
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.match.TeamId
 
 /**
  * Registers [playerId] as a participant in [matchId].

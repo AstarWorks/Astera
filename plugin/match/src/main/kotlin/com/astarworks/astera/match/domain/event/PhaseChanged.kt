@@ -1,8 +1,8 @@
 package com.astarworks.astera.match.domain.event
 
 import com.astarworks.astera.core.domain.event.DomainEvent
-import com.astarworks.astera.match.domain.match.MatchId
-import com.astarworks.astera.match.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.MatchPhase
 import java.time.Instant
 
 public data class PhaseChanged(

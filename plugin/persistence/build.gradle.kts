@@ -22,15 +22,31 @@
 plugins {
     id("astera.kotlin-paper")
     alias(libs.plugins.shadow)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
-    implementation(project(":plugin:core"))
+    // plugin/core is on the runtime classloader via Bukkit `depend: [Astera-Core]`.
+    // Use compileOnly so persistence's shadowJar doesn't bundle a duplicate copy
+    // of core types (which would break KClass identity for ServiceRegistry overlays).
+    compileOnly(project(":plugin:core"))
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
 
+    // Persistence stack (Wave 3 / ADR-0020)
+    implementation(libs.bundles.exposed)
+    implementation(libs.postgresql.jdbc)
+    implementation(libs.flyway.core)
+    implementation(libs.flyway.postgresql)
+    implementation(libs.hikari.cp)
+    implementation(libs.kotlinx.serialization.json)
+
+    testImplementation(project(":plugin:core"))
     testImplementation(project(":plugin:test-fixtures"))
+    testImplementation(libs.testcontainers.core)
+    testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.testcontainers.junit.jupiter)
 }
 
 tasks.named<ProcessResources>("processResources") {
