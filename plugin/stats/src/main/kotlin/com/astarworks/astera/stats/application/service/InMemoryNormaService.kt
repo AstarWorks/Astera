@@ -1,23 +1,28 @@
 package com.astarworks.astera.stats.application.service
 
-import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.stats.application.port.outbound.INormaService
 import com.astarworks.astera.stats.domain.norma.MissionProgress
 import com.astarworks.astera.stats.domain.norma.Norma
 import com.astarworks.astera.stats.domain.norma.NormaId
-import com.astarworks.astera.stats.domain.norma.NormaReward
 import com.astarworks.astera.stats.domain.norma.NormaTarget
-import com.astarworks.astera.stats.domain.norma.PeriodKind
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 public class InMemoryNormaService(
-    private val definitions: List<Norma> = defaultNormas(),
+    initialDefinitions: List<Norma> = emptyList(),
 ) : INormaService {
+
+    private val definitions: CopyOnWriteArrayList<Norma> = CopyOnWriteArrayList(initialDefinitions)
 
     /** Key: (PlayerId, NormaId) */
     private val progressStore: ConcurrentHashMap<Pair<PlayerId, NormaId>, MissionProgress> = ConcurrentHashMap()
+
+    /** Add a norma definition. Used by [NormaLoaderService] at plugin startup. */
+    public fun register(norma: Norma) {
+        definitions += norma
+    }
 
     override fun activeNormasFor(playerId: PlayerId): Collection<Norma> = definitions
 
@@ -60,7 +65,6 @@ public class InMemoryNormaService(
     override fun markComplete(playerId: PlayerId, normaId: NormaId): MissionProgress? {
         val key = playerId to normaId
         val existing = progressStore[key] ?: run {
-            // Only mark if this norma is known
             val norma = definitions.find { it.id == normaId } ?: return null
             MissionProgress(playerId, normaId, requiredCount(norma.target), false, null)
         }
@@ -82,17 +86,5 @@ public class InMemoryNormaService(
         is NormaTarget.Damage -> target.amount
         is NormaTarget.MatchWins -> target.count
         is NormaTarget.XpGain -> target.amount
-    }
-
-    public companion object {
-        public fun defaultNormas(): List<Norma> = listOf(
-            Norma(
-                id = NormaId("daily-killer-1"),
-                target = NormaTarget.Kills(5),
-                reward = NormaReward(currencyId = "STAR", currencyAmount = 50, xp = 100),
-                period = PeriodKind.Daily,
-                displayKey = MessageKey("astera.norma.daily-killer-1.name"),
-            ),
-        )
     }
 }

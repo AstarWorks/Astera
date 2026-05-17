@@ -4,6 +4,8 @@ import com.astarworks.astera.combat.application.config.ElementMatrixYamlConfig
 import com.astarworks.astera.combat.application.config.SkillYamlConfig
 import com.astarworks.astera.combat.application.config.StatusEffectYamlConfig
 import com.astarworks.astera.core.application.config.ItemYamlConfig
+import com.astarworks.astera.match.application.config.StageYamlConfig
+import com.astarworks.astera.stats.application.config.NormaYamlConfig
 import com.astarworks.astera.weapons.application.config.WeaponYamlConfig
 import kotlinx.serialization.serializer
 import java.nio.file.Path
@@ -50,6 +52,16 @@ fun main(args: Array<String>) {
             name = "element-matrix",
             serializer = serializer<ElementMatrixYamlConfig>(),
             schemaId = "https://astera.astarworks.com/schemas/element-matrix.schema.json",
+        ),
+        SchemaEntry(
+            name = "stage",
+            serializer = serializer<StageYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/stage.schema.json",
+        ),
+        SchemaEntry(
+            name = "norma",
+            serializer = serializer<NormaYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/norma.schema.json",
         ),
     )
 

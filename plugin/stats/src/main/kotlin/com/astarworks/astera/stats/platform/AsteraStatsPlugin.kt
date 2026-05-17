@@ -3,10 +3,12 @@ package com.astarworks.astera.stats.platform
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
+import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -14,8 +16,14 @@ import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.event.XpSource
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.platform.AsteraCorePlugin
+import com.astarworks.astera.match.application.port.outbound.IMatchRepository
+import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.stats.application.eventbus.listeners.BroadcastOnLeveledUpListener
 import com.astarworks.astera.stats.application.eventbus.listeners.MissionProgressOnKillListener
+import com.astarworks.astera.stats.application.eventbus.listeners.RecordMatchPlayedOnMatchEndedListener
+import com.astarworks.astera.stats.application.eventbus.listeners.RecordMatchResultOnMatchEndedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnDamageListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnKillListener
 import com.astarworks.astera.stats.application.port.outbound.ILevelService
@@ -24,10 +32,14 @@ import com.astarworks.astera.stats.application.port.outbound.IPlayerStatsReposit
 import com.astarworks.astera.stats.application.service.InMemoryLevelService
 import com.astarworks.astera.stats.application.service.InMemoryNormaService
 import com.astarworks.astera.stats.application.service.InMemoryPlayerStatsRepository
+import com.astarworks.astera.stats.application.service.NormaLoaderService
 import com.astarworks.astera.stats.application.usecase.level.GrantXpUseCase
 import com.astarworks.astera.stats.application.usecase.mission.CompleteMissionUseCase
 import com.astarworks.astera.stats.application.usecase.stats.RecordDeathUseCase
 import com.astarworks.astera.stats.application.usecase.stats.RecordKillUseCase
+import com.astarworks.astera.stats.application.usecase.stats.RecordMatchPlayedUseCase
+import com.astarworks.astera.stats.application.usecase.stats.RecordMatchResultUseCase
+import com.astarworks.astera.stats.domain.event.LeveledUp
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import org.bukkit.plugin.java.JavaPlugin
@@ -67,16 +79,22 @@ public class AsteraStatsPlugin : JavaPlugin() {
         val scheduler = services.getOrThrow<IScheduler>()
         @Suppress("UNUSED_VARIABLE")
         val messages = services.getOrThrow<IMessageRenderer>()
-        @Suppress("UNUSED_VARIABLE")
         val broadcaster = services.getOrThrow<IBroadcaster>()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
         val commandHandler = services.getOrThrow<ICommandHandler>()
         val eventBus = services.getOrThrow<IDomainEventBus>()
+        val permService = services.getOrThrow<IPermissionService>()
+        val matchRepository = services.getOrThrow<IMatchRepository>()
 
         // 3. Build Stats-owned impls ----------------------------------------
         val statsRepository = InMemoryPlayerStatsRepository()
         val levelService = InMemoryLevelService()
         val normaService = InMemoryNormaService()
+
+        // Wave 2 R1.a: load norma definitions from content/norma/ ------------
+        val normaContentDir = dataFolder.toPath().resolveSibling("content/norma")
+        val normaReport = NormaLoaderService(register = normaService::register).loadFrom(normaContentDir)
+        logger.info("Loaded ${normaReport.loaded} norma(s) from $normaContentDir (failed: ${normaReport.failed})")
 
         // 4. Register Stats ports onto the shared registry ------------------
         registrations += services.register<IPlayerStatsRepository>(statsRepository)
@@ -87,6 +105,8 @@ public class AsteraStatsPlugin : JavaPlugin() {
         val recordKill = RecordKillUseCase(statsRepository, eventBus)
         val recordDeath = RecordDeathUseCase(statsRepository, eventBus)
         val grantXp = GrantXpUseCase(levelService, eventBus)
+        val recordMatchPlayed = RecordMatchPlayedUseCase(statsRepository, eventBus)
+        val recordMatchResult = RecordMatchResultUseCase(statsRepository, eventBus)
         @Suppress("UNUSED_VARIABLE")
         val completeMission = CompleteMissionUseCase(normaService, eventBus)
 
@@ -94,13 +114,19 @@ public class AsteraStatsPlugin : JavaPlugin() {
         val rewardOnKill = RewardOnKillListener(recordKill, grantXp)
         val rewardOnDamage = RewardOnDamageListener(statsRepository)
         val missionProgressOnKill = MissionProgressOnKillListener(normaService, eventBus)
+        val recordMatchPlayedListener = RecordMatchPlayedOnMatchEndedListener(matchRepository, recordMatchPlayed)
+        val recordMatchResultListener = RecordMatchResultOnMatchEndedListener(matchRepository, recordMatchResult)
+        val broadcastOnLeveledUpListener = BroadcastOnLeveledUpListener(broadcaster)
 
         subscriptions += eventBus.subscribe(PlayerKilled::class) { rewardOnKill.handle(it) }
         subscriptions += eventBus.subscribe(DamageDealt::class) { rewardOnDamage.handle(it) }
         subscriptions += eventBus.subscribe(PlayerKilled::class) { missionProgressOnKill.handle(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchPlayedListener.handle(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchResultListener.handle(it) }
+        subscriptions += eventBus.subscribe(LeveledUp::class) { broadcastOnLeveledUpListener.handle(it) }
 
         // 7. /astera-stats command -----------------------------------------
-        commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway))
+        commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway, permService))
 
         logger.info("Astera-Stats enabled.")
     }
@@ -117,6 +143,7 @@ public class AsteraStatsPlugin : JavaPlugin() {
         grantXp: GrantXpUseCase,
         statsRepository: IPlayerStatsRepository,
         playerGateway: IPlayerGateway,
+        permService: IPermissionService,
     ): CommandSpec.Literal = CommandSpec.Literal(
         name = "astera-stats",
         description = MessageKey("astera.stats.command.root"),
@@ -131,17 +158,30 @@ public class AsteraStatsPlugin : JavaPlugin() {
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
                     ),
                 ),
-                executor = { ctx ->
+                executor = lambda@ { ctx ->
                     val targetName = ctx.required<String>("target")
                     val targetId = playerGateway.findByName(targetName)
-                        ?: return@Literal CommandResult.Failure(
+                        ?: return@lambda CommandResult.Failure(
                             MessageKey("astera.stats.command.show.player-not-found"),
                             mapOf("player" to targetName),
                         )
+                    // R1.c gating: showing your own stats is open to everyone;
+                    // inspecting another player requires astera.stats.show.other
+                    // (console bypasses, matching the framework decorator convention).
+                    val senderForPermCheck = ctx.sender
+                    if (senderForPermCheck != null && senderForPermCheck != targetId) {
+                        val perm = Permission("astera.stats.show.other")
+                        if (!permService.check(senderForPermCheck, perm)) {
+                            return@lambda CommandResult.Failure(
+                                MessageKey("astera.permission.denied"),
+                                mapOf("permission" to perm.id),
+                            )
+                        }
+                    }
                     val stats = statsRepository.find(targetId)
                     if (stats == null) {
                         playerGateway.sendMessage(
-                            ctx.sender ?: return@Literal CommandResult.Failure(
+                            ctx.sender ?: return@lambda CommandResult.Failure(
                                 MessageKey("astera.stats.command.console-not-supported"),
                             ),
                             "[$targetName] No stats recorded yet.",
@@ -151,7 +191,7 @@ public class AsteraStatsPlugin : JavaPlugin() {
                             "KD=${"%.2f".format(stats.kdRatio)} " +
                             "DMG=${stats.damageDealt} Taken=${stats.damageTaken}"
                         playerGateway.sendMessage(
-                            ctx.sender ?: return@Literal CommandResult.Failure(
+                            ctx.sender ?: return@lambda CommandResult.Failure(
                                 MessageKey("astera.stats.command.console-not-supported"),
                             ),
                             msg,
@@ -178,11 +218,11 @@ public class AsteraStatsPlugin : JavaPlugin() {
                                 type = ArgumentType.IntegerArg(min = 1),
                             ),
                         ),
-                        executor = { ctx ->
+                        executor = lambda@ { ctx ->
                             val targetName = ctx.required<String>("target")
                             val amount = ctx.required<Int>("amount").toLong()
                             val targetId = playerGateway.findByName(targetName)
-                                ?: return@Literal CommandResult.Failure(
+                                ?: return@lambda CommandResult.Failure(
                                     MessageKey("astera.stats.command.xp.player-not-found"),
                                     mapOf("player" to targetName),
                                 )
@@ -190,6 +230,9 @@ public class AsteraStatsPlugin : JavaPlugin() {
                             if (result.isSuccess) CommandResult.Success
                             else CommandResult.Failure(MessageKey("astera.stats.command.xp.invalid-amount"))
                         },
+                    ).requirePermission(
+                        permissionService = permService,
+                        permission = Permission("astera.stats.xp.grant"),
                     ),
                 ),
             ),

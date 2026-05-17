@@ -27,8 +27,10 @@ dependencies {
     implementation(libs.slf4j.api)
 
     compileOnly(project(":plugin:stats"))
+    compileOnly(project(":plugin:match"))
     testImplementation(project(":plugin:test-fixtures"))
     testImplementation(project(":plugin:stats"))
+    testImplementation(project(":plugin:match"))
 }
 
 tasks.named<ProcessResources>("processResources") {

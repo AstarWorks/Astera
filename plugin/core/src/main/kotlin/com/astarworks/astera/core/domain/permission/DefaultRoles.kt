@@ -18,6 +18,15 @@ public object DefaultRoles {
             Permission("astera.match.stop"),
             Permission("astera.stats.view"),
             Permission("astera.economy.view"),
+            // R1.c (Wave 2 worker δ) — command gating
+            Permission("astera.economy.currency.deposit"),
+            Permission("astera.economy.currency.withdraw"),
+            Permission("astera.economy.currency.transfer"),
+            Permission("astera.stats.xp.grant"),
+            Permission("astera.stats.show.other"),
+            Permission("astera.match.admin.start"),
+            Permission("astera.match.admin.end"),
+            Permission("astera.match.admin.phase"),
         ),
     )
 

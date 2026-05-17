@@ -17,6 +17,7 @@
 plugins {
     id("astera.kotlin-paper")
     alias(libs.plugins.shadow)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
@@ -24,6 +25,9 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
+
+    implementation(libs.kaml)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(project(":plugin:test-fixtures"))
 }

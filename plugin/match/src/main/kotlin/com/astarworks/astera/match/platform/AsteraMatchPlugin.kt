@@ -3,10 +3,12 @@ package com.astarworks.astera.match.platform
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
+import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -15,6 +17,7 @@ import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
@@ -22,6 +25,7 @@ import com.astarworks.astera.match.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.application.port.outbound.IStageRepository
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.match.application.service.InMemoryStageRepository
+import com.astarworks.astera.match.application.service.StageLoaderService
 import com.astarworks.astera.match.application.usecase.match.EndMatchError
 import com.astarworks.astera.match.application.usecase.match.EndMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.EntryGameError
@@ -69,11 +73,18 @@ public class AsteraMatchPlugin : JavaPlugin() {
         registrations += services.register<IMatchRepository>(matches)
         registrations += services.register<IStageRepository>(stages)
 
+        // Wave 2 R1.a: load stage definitions from content/stages/ -------------
+        val stageLoader = StageLoaderService(stages)
+        val stagesContentDir = dataFolder.toPath().resolveSibling("content/stages")
+        val stageReport = stageLoader.loadFrom(stagesContentDir)
+        logger.info("Loaded ${stageReport.loaded} stage(s) from $stagesContentDir (failed: ${stageReport.failed})")
+
         // 2. Resolve shared core services ---------------------------------------
         val eventBus = services.getOrThrow<IDomainEventBus>()
         val scheduler = services.getOrThrow<IScheduler>()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
         val commandHandler = services.getOrThrow<ICommandHandler>()
+        val permService = services.getOrThrow<IPermissionService>()
 
         @Suppress("UnusedVariable")
         val broadcaster = services.getOrThrow<IBroadcaster>()
@@ -99,7 +110,7 @@ public class AsteraMatchPlugin : JavaPlugin() {
         registrations += services.register<IMatchLifecycle>(facade)
 
         // 5. Register /astera-match command tree --------------------------------
-        commandHandler.register(buildMatchCommandSpec(facade, matches, playerGateway))
+        commandHandler.register(buildMatchCommandSpec(facade, matches, playerGateway, permService))
 
         logger.info("Astera-Match enabled. Services: IMatchRepository, IStageRepository, IMatchLifecycle")
     }
@@ -114,6 +125,7 @@ public class AsteraMatchPlugin : JavaPlugin() {
         lifecycle: IMatchLifecycle,
         matches: IMatchRepository,
         playerGateway: IPlayerGateway,
+        permService: IPermissionService,
     ): CommandSpec.Literal = CommandSpec.Literal(
         name = "astera-match",
         description = MessageKey("astera.match.command.root"),
@@ -146,6 +158,9 @@ public class AsteraMatchPlugin : JavaPlugin() {
                         is Result.Failure -> result.error.toCommandFailure()
                     }
                 },
+            ).requirePermission(
+                permissionService = permService,
+                permission = Permission("astera.match.admin.start"),
             ),
             // astera-match end <matchId>
             CommandSpec.Literal(
@@ -169,6 +184,9 @@ public class AsteraMatchPlugin : JavaPlugin() {
                         is Result.Failure -> result.error.toCommandFailure()
                     }
                 },
+            ).requirePermission(
+                permissionService = permService,
+                permission = Permission("astera.match.admin.end"),
             ),
             // astera-match entry <matchId> <playerName>
             CommandSpec.Literal(
@@ -235,6 +253,9 @@ public class AsteraMatchPlugin : JavaPlugin() {
                         is Result.Failure -> result.error.toCommandFailure()
                     }
                 },
+            ).requirePermission(
+                permissionService = permService,
+                permission = Permission("astera.match.admin.phase"),
             ),
             // astera-match list
             CommandSpec.Literal(

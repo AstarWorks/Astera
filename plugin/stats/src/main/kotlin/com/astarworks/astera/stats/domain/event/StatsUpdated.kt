@@ -16,5 +16,8 @@ public data class StatsUpdated(
         Assist,
         DamageDealt,
         DamageTaken,
+        MatchPlayed,
+        Win,
+        Loss,
     }
 }

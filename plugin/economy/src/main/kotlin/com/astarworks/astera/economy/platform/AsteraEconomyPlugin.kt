@@ -3,22 +3,30 @@ package com.astarworks.astera.economy.platform
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
+import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.platform.AsteraCorePlugin
+import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnMissionCompletedListener
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnXpListener
+import com.astarworks.astera.economy.application.eventbus.listeners.RewardOnMatchEndedListener
 import com.astarworks.astera.economy.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.economy.application.service.InMemoryCurrencyLedger
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
 import com.astarworks.astera.economy.application.usecase.currency.TransferUseCase
 import com.astarworks.astera.economy.application.usecase.currency.WithdrawUseCase
 import com.astarworks.astera.economy.domain.economy.Currency
+import com.astarworks.astera.match.application.port.outbound.IMatchRepository
+import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.stats.domain.event.MissionCompleted
 import com.astarworks.astera.stats.domain.event.XpGranted
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -54,6 +62,8 @@ public class AsteraEconomyPlugin : JavaPlugin() {
         val commandHandler = services.getOrThrow<ICommandHandler>()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
         val msgRenderer = services.getOrThrow<IMessageRenderer>()
+        val permService = services.getOrThrow<IPermissionService>()
+        val matchRepository = services.getOrThrow<IMatchRepository>()
 
         // ── Economy-owned implementations ──────────────────────────────────────
         val ledger: ICurrencyLedger = InMemoryCurrencyLedger()
@@ -66,13 +76,30 @@ public class AsteraEconomyPlugin : JavaPlugin() {
 
         // ── Listeners ──────────────────────────────────────────────────────────
         val depositOnXpListener = DepositOnXpListener(deposit)
+        // Wave 2 R1.b: cross-plugin reward listeners.
+        // rewardAmount is a constructor-fixed default until StageYamlConfig grows a
+        // `win_reward` field (Phase 3); see RewardOnMatchEndedListener kdoc.
+        val rewardOnMatchEndedListener = RewardOnMatchEndedListener(
+            matchRepository = matchRepository,
+            deposit = deposit,
+            rewardAmount = 100L,
+            rewardCurrency = Currency.STAR,
+        )
+        val depositOnMissionCompletedListener = DepositOnMissionCompletedListener(deposit)
+
         subscriptions += eventBus.subscribe(XpGranted::class) { event ->
             depositOnXpListener.handle(event)
+        }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+            rewardOnMatchEndedListener.handle(event)
+        }
+        subscriptions += eventBus.subscribe(MissionCompleted::class) { event ->
+            depositOnMissionCompletedListener.handle(event)
         }
 
         // ── Commands ───────────────────────────────────────────────────────────
         commandHandler.register(
-            buildCommandSpec(deposit, withdraw, transfer, ledger, playerGateway, msgRenderer),
+            buildCommandSpec(deposit, withdraw, transfer, ledger, playerGateway, msgRenderer, permService),
         )
 
         logger.info("Astera-Economy enabled. Services published: ICurrencyLedger")
@@ -94,6 +121,7 @@ public class AsteraEconomyPlugin : JavaPlugin() {
         ledger: ICurrencyLedger,
         players: IPlayerGateway,
         msg: IMessageRenderer,
+        permService: IPermissionService,
     ): CommandSpec.Literal = CommandSpec.Literal(
         name = "astera-economy",
         description = MessageKey("astera.economy.command.root"),
@@ -141,6 +169,9 @@ public class AsteraEconomyPlugin : JavaPlugin() {
                                 onFailure = { CommandResult.Failure(it.messageKey) },
                             )
                         },
+                    ).requirePermission(
+                        permissionService = permService,
+                        permission = Permission("astera.economy.currency.deposit"),
                     ),
                     // /astera-economy currency withdraw <player> <currency> <amount>
                     CommandSpec.Literal(
@@ -181,6 +212,9 @@ public class AsteraEconomyPlugin : JavaPlugin() {
                                 onFailure = { CommandResult.Failure(it.messageKey) },
                             )
                         },
+                    ).requirePermission(
+                        permissionService = permService,
+                        permission = Permission("astera.economy.currency.withdraw"),
                     ),
                     // /astera-economy currency transfer <from> <to> <currency> <amount>
                     CommandSpec.Literal(
@@ -223,6 +257,9 @@ public class AsteraEconomyPlugin : JavaPlugin() {
                                 onFailure = { CommandResult.Failure(it.messageKey) },
                             )
                         },
+                    ).requirePermission(
+                        permissionService = permService,
+                        permission = Permission("astera.economy.currency.transfer"),
                     ),
                     // /astera-economy currency balance <player> [<currency>]
                     CommandSpec.Literal(

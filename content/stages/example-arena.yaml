@@ -1,0 +1,21 @@
+# Phase 1-2 demo stage.
+# Pure metadata — no schematic / spawn / core yet (those land in Phase 3).
+# Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
+#
+# See content/stages/README.md for the Phase 3 schema sketch.
+
+id: example-arena
+
+# i18n keys; actual text in content/languages/{ja,en}.yaml
+display_name_key: astera.stage.example-arena.name
+
+# Axis-aligned bounding boxes. Bounds are inclusive on both ends; min must be
+# componentwise <= max (Region's init block enforces this).
+regions:
+  - name: full-arena
+    min: { x: -50.0, y: 60.0, z: -50.0 }
+    max: { x:  50.0, y: 90.0, z:  50.0 }
+
+  - name: center-platform
+    min: { x: -5.0, y: 64.0, z: -5.0 }
+    max: { x:  5.0, y: 66.0, z:  5.0 }
