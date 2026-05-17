@@ -112,14 +112,28 @@ def _subject_mask(
     return not_bg & ~is_actual_frame
 
 
+# Blob = (x0, y0, x1, y1, cx, cy, blob_mask_within_bbox)
+# blob_mask_within_bbox is a 2D bool array of shape (y1-y0, x1-x0)
+# where True == "this pixel belongs to this specific blob". This is
+# the critical isolation: when cropping the source at (x0..x1, y0..y1),
+# we keep ONLY pixels where the per-blob mask is True. Neighbor blobs
+# whose bboxes overlap this region get filtered out.
+Blob = tuple[int, int, int, int, float, float, np.ndarray]
+
+
 def _detect_blobs(
     mask: np.ndarray,
     min_size: int,
     merge_eps: int,
     dilate: int,
-) -> list[tuple[int, int, int, int, float, float]]:
-    """Return list of (x0, y0, x1, y1, cx, cy) — bbox + centroid for
-    each surviving (and possibly merged) blob.
+) -> list[Blob]:
+    """Return per-blob (bbox + centroid + own-pixel mask) for each
+    surviving (and possibly merged) connected component.
+
+    The returned `blob_mask` is the union of all label-id pixels that
+    belong to this blob, cropped to the bbox region. Used by `extract`
+    to keep ONLY this blob's pixels when cropping the source, so
+    neighbor blobs whose bboxes overlap this one can't leak in.
 
     `dilate` (px): morphological dilation applied to the mask BEFORE
     CC labeling. Closes small internal gaps in a subject (dithering
@@ -137,94 +151,59 @@ def _detect_blobs(
     if not keep_ids:
         return []
 
-    raw: list[tuple[int, int, int, int, float, float]] = []
-    for b in keep_ids:
-        ys, xs = np.where(labeled == b)
+    # Build group membership: which label_ids belong together.
+    # Without merge_eps, each label_id is its own group of one.
+    n = len(keep_ids)
+    if merge_eps > 0:
+        # Compute per-label bbox first for union-find
+        bboxes_pre: list[tuple[int, int, int, int]] = []
+        for b in keep_ids:
+            ys, xs = np.where(labeled == b)
+            bboxes_pre.append((int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1))
+        parent = list(range(n))
+
+        def find(i: int) -> int:
+            while parent[i] != i:
+                parent[i] = parent[parent[i]]
+                i = parent[i]
+            return i
+
+        def union(i: int, j: int) -> None:
+            ri, rj = find(i), find(j)
+            if ri != rj:
+                parent[ri] = rj
+
+        for i in range(n):
+            for j in range(i + 1, n):
+                ax0, ay0, ax1, ay1 = bboxes_pre[i]
+                bx0, by0, bx1, by1 = bboxes_pre[j]
+                dx = max(0, max(bx0 - ax1, ax0 - bx1))
+                dy = max(0, max(by0 - ay1, ay0 - by1))
+                if dx <= merge_eps and dy <= merge_eps:
+                    union(i, j)
+
+        groups: dict[int, list[int]] = {}
+        for i in range(n):
+            groups.setdefault(find(i), []).append(i)
+        group_lists = [[keep_ids[i] for i in members] for members in groups.values()]
+    else:
+        group_lists = [[lid] for lid in keep_ids]
+
+    result: list[Blob] = []
+    for label_ids in group_lists:
+        # Combined mask for this blob (or merged group) across the full image
+        group_mask = np.isin(labeled, label_ids)
+        ys, xs = np.where(group_mask)
+        if len(ys) == 0:
+            continue
         x0, x1 = int(xs.min()), int(xs.max()) + 1
         y0, y1 = int(ys.min()), int(ys.max()) + 1
-        # Centroid weighted by uniform mask presence
         cx = float(xs.mean())
         cy = float(ys.mean())
-        raw.append((x0, y0, x1, y1, cx, cy))
-
-    if merge_eps <= 0:
-        return raw
-
-    # Spatial merge: union-find on bboxes that are close in both dims
-    n = len(raw)
-    parent = list(range(n))
-
-    def find(i: int) -> int:
-        while parent[i] != i:
-            parent[i] = parent[parent[i]]
-            i = parent[i]
-        return i
-
-    def union(i: int, j: int) -> None:
-        ri, rj = find(i), find(j)
-        if ri != rj:
-            parent[ri] = rj
-
-    for i in range(n):
-        for j in range(i + 1, n):
-            ax0, ay0, ax1, ay1, _, _ = raw[i]
-            bx0, by0, bx1, by1, _, _ = raw[j]
-            dx = max(0, max(bx0 - ax1, ax0 - bx1))
-            dy = max(0, max(by0 - ay1, ay0 - by1))
-            if dx <= merge_eps and dy <= merge_eps:
-                union(i, j)
-
-    groups: dict[int, list[int]] = {}
-    for i in range(n):
-        groups.setdefault(find(i), []).append(i)
-
-    merged: list[tuple[int, int, int, int, float, float]] = []
-    for members in groups.values():
-        x0 = min(raw[m][0] for m in members)
-        y0 = min(raw[m][1] for m in members)
-        x1 = max(raw[m][2] for m in members)
-        y1 = max(raw[m][3] for m in members)
-        # Centroid = average of member centroids weighted by member area
-        weights = [(raw[m][2] - raw[m][0]) * (raw[m][3] - raw[m][1]) for m in members]
-        total_w = sum(weights) or 1
-        cx = sum(raw[m][4] * w for m, w in zip(members, weights)) / total_w
-        cy = sum(raw[m][5] * w for m, w in zip(members, weights)) / total_w
-        merged.append((x0, y0, x1, y1, cx, cy))
-    return merged
-
-
-def _square_crop_bounds(
-    cx: float, cy: float,
-    bbox_w: int, bbox_h: int,
-    img_w: int, img_h: int,
-    pad_frac: float,
-) -> tuple[int, int, int, int]:
-    """Square bounds around (cx, cy), side = max(w, h) * (1 + pad_frac),
-    clamped to image. Returns (x0, y0, x1, y1)."""
-    side = int(round(max(bbox_w, bbox_h) * (1.0 + pad_frac)))
-    half = side // 2
-    x0 = int(round(cx)) - half
-    y0 = int(round(cy)) - half
-    x1 = x0 + side
-    y1 = y0 + side
-    # Shift to stay within image; if shifting both sides isn't enough,
-    # clamp (resulting crop is smaller than requested square but still
-    # contains the subject)
-    if x0 < 0:
-        x1 -= x0
-        x0 = 0
-    if y0 < 0:
-        y1 -= y0
-        y0 = 0
-    if x1 > img_w:
-        x0 -= x1 - img_w
-        x1 = img_w
-        x0 = max(0, x0)
-    if y1 > img_h:
-        y0 -= y1 - img_h
-        y1 = img_h
-        y0 = max(0, y0)
-    return x0, y0, x1, y1
+        # Per-blob mask, sliced to bbox region (small + tight)
+        blob_mask = group_mask[y0:y1, x0:x1].copy()
+        result.append((x0, y0, x1, y1, cx, cy, blob_mask))
+    return result
 
 
 def _threshold_bg_remove(img: Image.Image, dark_max: int) -> Image.Image:
@@ -263,7 +242,6 @@ def extract(
     min_blob: int,
     merge_eps: int,
     dilate: int,
-    pad_frac: float,
     colors: int,
     do_quantize: bool,
 ) -> int:
@@ -297,38 +275,45 @@ def extract(
     inner_w = max(1, tw - 2 * margin)
     inner_h = max(1, th - 2 * margin)
 
-    for idx, (x0, y0, x1, y1, cx, cy) in enumerate(blobs):
-        # Square crop around centroid
-        bbox_w = x1 - x0
-        bbox_h = y1 - y0
-        sx0, sy0, sx1, sy1 = _square_crop_bounds(
-            cx, cy, bbox_w, bbox_h, img_w, img_h, pad_frac
-        )
-        # Crop from source AND from mask in the same region — then use
-        # the mask to zero out non-subject pixels (gray frame, etc.)
-        # so they don't survive into the output.
-        crop_rgb = np.array(img.crop((sx0, sy0, sx1, sy1)).convert("RGBA"))
-        crop_mask = full_mask[sy0:sy1, sx0:sx1]
-        crop_rgb[~crop_mask, :3] = 0  # frame / bg → black (then bg-removed)
-        crop_rgb[~crop_mask, 3] = 0   # and alpha 0 directly
-        crop = Image.fromarray(crop_rgb, mode="RGBA")
+    for idx, (x0, y0, x1, y1, cx, cy, blob_mask) in enumerate(blobs):
+        # Tight rectangle crop of the source — exactly the blob bbox,
+        # no source extension. Then apply the PER-BLOB mask to keep
+        # only this blob's pixels (everything else — bg, frame, AND
+        # neighbor blobs whose pixels happen to fall in this bbox —
+        # becomes transparent).
+        crop_arr = np.array(img.crop((x0, y0, x1, y1)).convert("RGBA"))
+        crop_arr[~blob_mask, :3] = 0
+        crop_arr[~blob_mask, 3] = 0
 
-        # Resize subject to fit inside (inner_w, inner_h) preserving aspect
-        cw, ch = crop.size
-        scale = min(inner_w / cw, inner_h / ch)
-        new_w = max(1, int(round(cw * scale)))
-        new_h = max(1, int(round(ch * scale)))
+        bw = x1 - x0
+        bh = y1 - y0
+        # Squarify by transparent padding (NOT by extending into source).
+        # The square canvas is alpha=0 everywhere outside the bbox, so
+        # nothing from neighbors can ever leak in.
+        side = max(bw, bh)
+        square_arr = np.zeros((side, side, 4), dtype=np.uint8)
+        offx = (side - bw) // 2
+        offy = (side - bh) // 2
+        square_arr[offy:offy + bh, offx:offx + bw] = crop_arr
+        square = Image.fromarray(square_arr, mode="RGBA")
+
+        # Downscale the square to (inner_w, inner_h) preserving aspect
+        # (they're equal since the canvas is square)
+        scale = min(inner_w / side, inner_h / side)
+        new_w = max(1, int(round(side * scale)))
+        new_h = max(1, int(round(side * scale)))
         resample = Image.LANCZOS if scale < 1 else Image.NEAREST
-        resized = crop.resize((new_w, new_h), resample)
+        resized = square.resize((new_w, new_h), resample)
 
-        # Paste centered on transparent canvas of `size`
+        # Paste centered on target canvas
         canvas = Image.new("RGBA", size, (0, 0, 0, 0))
         px = (tw - new_w) // 2
         py = (th - new_h) // 2
         canvas.paste(resized, (px, py), resized)
 
-        # Final bg sweep (handles black pixels that LANCZOS may have
-        # introduced at subject edges from anti-aliasing)
+        # Final bg sweep: kills any near-black pixels LANCZOS introduced
+        # at the subject edge via anti-aliasing with the transparent
+        # background. Keeps strict pixel-art crispness.
         canvas = _threshold_bg_remove(canvas, dark_max)
 
         if do_quantize:
@@ -336,7 +321,6 @@ def extract(
 
         # Name: pure positional. UI / human assigns category on Accept.
         name = f"subj_{idx + 1:03}"
-
         canvas.save(out_dir / f"{prefix}_{name}.png", "PNG", optimize=True)
 
     return len(blobs)
@@ -409,12 +393,6 @@ def main() -> int:
         help="morphological dilation iterations before CC. Closes within-subject pixel gaps from dithering. Tune so 2*dilate < between-subject gap (frame width + gutter). Default 2.",
     )
     p.add_argument(
-        "--pad-frac",
-        type=float,
-        default=0.15,
-        help="fraction of subject extent to add as breathing room before resize (default 0.15)",
-    )
-    p.add_argument(
         "--colors",
         type=int,
         default=16,
@@ -446,7 +424,6 @@ def main() -> int:
         min_blob=args.min_blob,
         merge_eps=args.merge_eps,
         dilate=args.dilate,
-        pad_frac=args.pad_frac,
         colors=args.colors,
         do_quantize=not args.no_quantize,
     )
