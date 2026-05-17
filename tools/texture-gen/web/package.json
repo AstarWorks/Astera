@@ -1,0 +1,27 @@
+{
+  "name": "@astera/texture-studio",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Browser UI for Astera texture pipeline (review / accept / regenerate). Dev-only.",
+  "scripts": {
+    "dev": "concurrently -k -n vite,api -c blue,green \"bun run dev:vite\" \"bun run dev:api\"",
+    "dev:vite": "vite",
+    "dev:api": "bun --hot server/index.ts",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "vue": "^3.5.13",
+    "hono": "^4.6.14"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@types/bun": "latest",
+    "concurrently": "^9.1.0",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7",
+    "vue-tsc": "^2.2.0"
+  }
+}

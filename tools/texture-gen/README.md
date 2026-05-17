@@ -87,11 +87,19 @@ tools/texture-gen/
 ├── README.md            (this file)
 ├── recipes/
 │   └── blocks/          *.pxc procedural recipes (committed)
-└── scripts/
-    ├── slice_grid.py    grid sheet → N×M PNGs
-    ├── palette_quantize.py  → reduce colors / resize / dedither
-    └── render.sh        PXC headless wrapper
+├── scripts/
+│   ├── slice_grid.py        grid sheet → N×M PNGs
+│   ├── palette_quantize.py  resize / quantize / bg-remove
+│   ├── codex_generate.sh    Codex CLI wrapper (bwrap-fallback)
+│   ├── regen_single.sh      single-tile regenerate (used by Web UI)
+│   └── render.sh            PXC headless wrapper
+└── web/                 browser review UI (Vite+Vue3+Hono+Bun, dev-only)
+    └── (see web/README.md — `bun install && bun run dev`)
 ```
+
+The Web UI at `web/` is optional but recommended for accept/reject/regen
+ergonomics. Run `cd web && bun install && bun run dev` and open
+http://localhost:5173.
 
 ## See also
 

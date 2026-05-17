@@ -124,6 +124,20 @@ python3 tools/texture-gen/scripts/palette_quantize.py "$WORK/sliced/"*.png \
     --colors 32 --size 32,32 --background remove --out "$WORK/final"
 ```
 
+### Step 2.5: Hand off to Web UI (optional but recommended)
+
+If the user has the Web UI running (`cd tools/texture-gen/web && bun run dev`),
+print:
+
+```
+Open http://localhost:5173/?job=<basename of $WORK>
+for human review.
+```
+
+The UI reads `$WORK/final/` directly, so no upload is needed. The user
+can accept / reject / regenerate from the browser. Skill can stop here
+or proceed with Step 3 for an automated first pass.
+
 ### Step 3: Vision QA loop (Claude)
 
 For each PNG in `$WORK/final/`:

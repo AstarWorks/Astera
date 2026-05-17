@@ -4,7 +4,7 @@
 Usage:
     palette_quantize.py FILE [FILE...] --size W,H --out DIR
                         [--colors N] [--background keep|remove]
-                        [--dark-max N] [--margin N]
+                        [--dark-max N] [--margin N] [--keep-blobs N]
 
 Pipeline per file:
     1. Open as RGBA
@@ -12,12 +12,15 @@ Pipeline per file:
        any pixel with R+G+B < --dark-max becomes fully transparent.
        Robust against PNG compression / grid-line artifacts that broke
        the previous corner-equality heuristic.
-    3. Detect content bbox via the alpha channel; crop tight.
+    3. (if --keep-blobs > 0) connected-component filter: drop everything
+       except the N largest opaque blobs. Removes noise specks and
+       fragments leaked from neighboring grid cells.
+    4. Detect content bbox via the alpha channel; crop tight.
        Scale to fit inside (size - 2*margin) preserving aspect ratio
        (LANCZOS for downscale, NEAREST for upscale).
        Paste centered onto a fresh transparent RGBA canvas of `size`.
-    4. Quantize to N colors, preserving alpha.
-    5. Save as PNG to DIR.
+    5. Quantize to N colors, preserving alpha.
+    6. Save as PNG to DIR.
 
 Boundary: human-run, not part of Astera build/runtime.
 """
@@ -27,7 +30,9 @@ import argparse
 import sys
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
+from scipy.ndimage import label as cc_label
 
 
 def _parse_size(s: str) -> tuple[int, int]:
@@ -59,6 +64,34 @@ def _remove_background_threshold(img: Image.Image, dark_max: int) -> Image.Image
                 out_px[x, y] = (0, 0, 0, 0)
             else:
                 out_px[x, y] = p
+    return out
+
+
+def _keep_largest_blobs(img: Image.Image, n: int) -> Image.Image:
+    """Drop everything except the N largest connected opaque components.
+
+    Removes noise specks and fragments that bled in from neighboring grid
+    cells. With n=1 (default), only the dominant subject survives.
+    """
+    if n <= 0:
+        return img
+    if img.mode != "RGBA":
+        img = img.convert("RGBA")
+    alpha = np.array(img.getchannel("A"))
+    mask = alpha > 0
+    labeled, count = cc_label(mask)
+    if count <= n:
+        return img
+    sizes = np.bincount(labeled.ravel())
+    # sizes[0] is background; ignore. Sort labels 1..count by size desc.
+    label_sizes = [(i, int(sizes[i])) for i in range(1, count + 1)]
+    label_sizes.sort(key=lambda t: t[1], reverse=True)
+    keep = {lab for lab, _ in label_sizes[:n]}
+    # Build a keep-mask and apply it as alpha gate
+    keep_mask = np.isin(labeled, list(keep))
+    new_alpha = np.where(keep_mask, alpha, 0).astype(np.uint8)
+    out = img.copy()
+    out.putalpha(Image.fromarray(new_alpha, mode="L"))
     return out
 
 
@@ -111,10 +144,13 @@ def process_file(
     remove_bg: bool,
     dark_max: int,
     margin: int,
+    keep_blobs: int,
 ) -> Path:
     img = Image.open(src).convert("RGBA")
     if remove_bg:
         img = _remove_background_threshold(img, dark_max)
+    if keep_blobs > 0:
+        img = _keep_largest_blobs(img, keep_blobs)
     img = _fit_centered(img, size, margin)
     img = _quantize(img, colors)
     out_path = out_dir / src.name
@@ -151,6 +187,12 @@ def main() -> int:
         default=2,
         help="px of empty padding inside the target canvas (default 2)",
     )
+    p.add_argument(
+        "--keep-blobs",
+        type=int,
+        default=1,
+        help="keep only the N largest opaque connected components; 0 disables (default 1)",
+    )
     args = p.parse_args()
 
     args.out.mkdir(parents=True, exist_ok=True)
@@ -167,6 +209,7 @@ def main() -> int:
             remove_bg=(args.background == "remove"),
             dark_max=args.dark_max,
             margin=args.margin,
+            keep_blobs=args.keep_blobs,
         )
         print(f"  {src.name} → {out_path}")
 

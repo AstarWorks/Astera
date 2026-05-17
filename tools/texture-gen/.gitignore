@@ -5,3 +5,9 @@ out/
 __pycache__/
 *.pyc
 .venv/
+
+# Web UI build/tooling artifacts (per ADR-0018: web/ is dev-only)
+web/node_modules/
+web/dist/
+web/.bun-cache/
+web/.vite/
