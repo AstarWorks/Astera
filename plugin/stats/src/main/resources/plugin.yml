@@ -7,3 +7,7 @@ description: Astera stats plugin — player stats, leveling, daily/weekly missio
 website: https://github.com/AstarWorks/Astera
 depend: [Astera-Core]
 softdepend: [Astera-Match, Astera-Combat, Astera-Weapons]
+commands:
+  astera-stats:
+    description: Player stats commands.
+    usage: /astera-stats <show|xp> ...

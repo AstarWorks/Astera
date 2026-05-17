@@ -1,0 +1,25 @@
+package com.astarworks.astera.stats.application.port.outbound
+
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.stats.domain.norma.MissionProgress
+import com.astarworks.astera.stats.domain.norma.Norma
+import com.astarworks.astera.stats.domain.norma.NormaId
+import com.astarworks.astera.stats.domain.norma.NormaTarget
+
+public interface INormaService {
+    public fun activeNormasFor(playerId: PlayerId): Collection<Norma>
+    public fun progress(playerId: PlayerId): Collection<MissionProgress>
+
+    /**
+     * Records [delta] progress for all normas matching the type of [target].
+     * Returns the list of [MissionProgress] entries that were newly completed
+     * by this call.
+     */
+    public fun recordProgress(playerId: PlayerId, target: NormaTarget, delta: Long): List<MissionProgress>
+
+    /**
+     * Marks a specific norma as completed for [playerId]. Returns the updated
+     * [MissionProgress] if found, null if the norma is unknown for this player.
+     */
+    public fun markComplete(playerId: PlayerId, normaId: NormaId): MissionProgress?
+}

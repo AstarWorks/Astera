@@ -15,13 +15,19 @@ import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.service.InMemoryPermissionService
 import com.astarworks.astera.core.application.service.MutableItemRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.register
+import com.astarworks.astera.core.application.usecase.permission.AssignRoleUseCase
+import com.astarworks.astera.core.application.usecase.permission.CheckPermissionUseCase
+import com.astarworks.astera.core.application.usecase.permission.RevokeRoleUseCase
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.permission.DefaultRoles
 import org.bukkit.plugin.java.JavaPlugin
 import java.nio.file.Files
 import java.nio.file.Path
@@ -131,6 +137,19 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<ICommandHandler>(commandHandler)
         services.register<IMcServer>(mcServer)
 
+        // ---- Permission service ------------------------------------------
+        val permissionService: IPermissionService = InMemoryPermissionService()
+        services.register<IPermissionService>(permissionService)
+        logger.info("Permission service registered with ${DefaultRoles.builtin().size} default roles.")
+
+        // Use cases — constructed here for completeness; no Core command uses them yet.
+        @Suppress("UNUSED_VARIABLE")
+        val assignRole = AssignRoleUseCase(permissionService)
+        @Suppress("UNUSED_VARIABLE")
+        val checkPermission = CheckPermissionUseCase(permissionService)
+        @Suppress("UNUSED_VARIABLE")
+        val revokeRole = RevokeRoleUseCase(permissionService)
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
@@ -166,6 +185,7 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IPlayerGateway",
             "ICommandHandler",
             "IMcServer",
+            "IPermissionService",
         )
     }
 }

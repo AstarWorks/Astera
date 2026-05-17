@@ -26,7 +26,14 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
 
+    compileOnly(project(":plugin:weapons"))
+    compileOnly(project(":plugin:combat"))
+    compileOnly(project(":plugin:match"))
+
     testImplementation(project(":plugin:test-fixtures"))
+    testImplementation(project(":plugin:weapons"))
+    testImplementation(project(":plugin:combat"))
+    testImplementation(project(":plugin:match"))
 }
 
 tasks.named<ProcessResources>("processResources") {

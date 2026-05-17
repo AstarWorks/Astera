@@ -21,7 +21,7 @@ public interface IDamageGateway {
         target: PlayerId,
         resolved: ResolvedDamage,
         source: DamageSource,
-    ): Result<Unit, DamageApplicationError>
+    ): Result<DamageOutcome, DamageApplicationError>
 }
 
 public sealed class DamageApplicationError {

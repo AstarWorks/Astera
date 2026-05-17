@@ -7,3 +7,7 @@ description: Astera economy plugin — currencies, wallets, future shop / ender-
 website: https://github.com/AstarWorks/Astera
 depend: [Astera-Core]
 softdepend: [Astera-Stats, Astera-Match]
+commands:
+  astera-economy:
+    description: Economy / currency commands.
+    usage: /astera-economy currency <deposit|withdraw|transfer|balance> ...

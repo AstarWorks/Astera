@@ -1,22 +1,198 @@
 package com.astarworks.astera.stats.platform
 
+import com.astarworks.astera.core.application.command.ArgumentType
+import com.astarworks.astera.core.application.command.CommandResult
+import com.astarworks.astera.core.application.command.CommandSpec
+import com.astarworks.astera.core.application.port.inbound.ICommandHandler
+import com.astarworks.astera.core.application.port.outbound.IBroadcaster
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.services.getOrThrow
+import com.astarworks.astera.core.application.services.register
+import com.astarworks.astera.core.domain.event.XpSource
+import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.platform.AsteraCorePlugin
+import com.astarworks.astera.stats.application.eventbus.listeners.MissionProgressOnKillListener
+import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnDamageListener
+import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnKillListener
+import com.astarworks.astera.stats.application.port.outbound.ILevelService
+import com.astarworks.astera.stats.application.port.outbound.INormaService
+import com.astarworks.astera.stats.application.port.outbound.IPlayerStatsRepository
+import com.astarworks.astera.stats.application.service.InMemoryLevelService
+import com.astarworks.astera.stats.application.service.InMemoryNormaService
+import com.astarworks.astera.stats.application.service.InMemoryPlayerStatsRepository
+import com.astarworks.astera.stats.application.usecase.level.GrantXpUseCase
+import com.astarworks.astera.stats.application.usecase.mission.CompleteMissionUseCase
+import com.astarworks.astera.stats.application.usecase.stats.RecordDeathUseCase
+import com.astarworks.astera.stats.application.usecase.stats.RecordKillUseCase
+import com.astarworks.astera.combat.domain.event.DamageDealt
+import com.astarworks.astera.combat.domain.event.PlayerKilled
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
- * Astera-Stats plugin entrypoint (ADR-0022).
+ * Astera-Stats plugin entrypoint (ADR-0022, Stage 3-改).
  *
- * Phase 1 placeholder. Phase 4 introduces the Stats / Level / Norma domain
- * (these are NEW types, not migrated from legacy modules). Stage 3-改
- * adds the use cases and the IDomainEventBus listeners that bridge
- * PlayerKilled / DamageDealt / MatchEnded into stat updates.
+ * Wires the Stats / Level / Norma domain against Core's shared ports and
+ * publishes [IPlayerStatsRepository], [ILevelService], [INormaService] onto the
+ * [ServiceRegistry] so other plugins (e.g. Economy) can resolve them.
+ *
+ * Subscribes to [PlayerKilled] and [DamageDealt] events from the central
+ * [IDomainEventBus] (soft-dep on Astera-Combat; the plugin still boots without
+ * Combat present, subscriptions simply never fire).
+ *
+ * Registers `/astera-stats` command tree.
  */
 public class AsteraStatsPlugin : JavaPlugin() {
 
+    private val registrations = mutableListOf<ServiceRegistry.Registration>()
+    private val subscriptions = mutableListOf<IDomainEventBus.Subscription>()
+
+    @Suppress("UNCHECKED_CAST")
     override fun onEnable() {
-        logger.info("Astera-Stats enabled (Phase 1 skeleton; awaiting Phase 4 migration).")
+        logger.info("Astera-Stats enabling…")
+
+        // 1. Resolve Astera-Core --------------------------------------------
+        val core = (server.pluginManager.getPlugin("Astera-Core") as? AsteraCorePlugin)
+            ?: run {
+                logger.severe("Astera-Core not found; disabling Astera-Stats.")
+                server.pluginManager.disablePlugin(this); return
+            }
+        val services = core.services
+
+        // 2. Get shared services -------------------------------------------
+        @Suppress("UNUSED_VARIABLE")
+        val scheduler = services.getOrThrow<IScheduler>()
+        @Suppress("UNUSED_VARIABLE")
+        val messages = services.getOrThrow<IMessageRenderer>()
+        @Suppress("UNUSED_VARIABLE")
+        val broadcaster = services.getOrThrow<IBroadcaster>()
+        val playerGateway = services.getOrThrow<IPlayerGateway>()
+        val commandHandler = services.getOrThrow<ICommandHandler>()
+        val eventBus = services.getOrThrow<IDomainEventBus>()
+
+        // 3. Build Stats-owned impls ----------------------------------------
+        val statsRepository = InMemoryPlayerStatsRepository()
+        val levelService = InMemoryLevelService()
+        val normaService = InMemoryNormaService()
+
+        // 4. Register Stats ports onto the shared registry ------------------
+        registrations += services.register<IPlayerStatsRepository>(statsRepository)
+        registrations += services.register<ILevelService>(levelService)
+        registrations += services.register<INormaService>(normaService)
+
+        // 5. Use cases ------------------------------------------------------
+        val recordKill = RecordKillUseCase(statsRepository, eventBus)
+        val recordDeath = RecordDeathUseCase(statsRepository, eventBus)
+        val grantXp = GrantXpUseCase(levelService, eventBus)
+        @Suppress("UNUSED_VARIABLE")
+        val completeMission = CompleteMissionUseCase(normaService, eventBus)
+
+        // 6. Event listeners + subscriptions --------------------------------
+        val rewardOnKill = RewardOnKillListener(recordKill, grantXp)
+        val rewardOnDamage = RewardOnDamageListener(statsRepository)
+        val missionProgressOnKill = MissionProgressOnKillListener(normaService, eventBus)
+
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { rewardOnKill.handle(it) }
+        subscriptions += eventBus.subscribe(DamageDealt::class) { rewardOnDamage.handle(it) }
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { missionProgressOnKill.handle(it) }
+
+        // 7. /astera-stats command -----------------------------------------
+        commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway))
+
+        logger.info("Astera-Stats enabled.")
     }
 
     override fun onDisable() {
+        subscriptions.forEach { it.cancel() }
+        subscriptions.clear()
+        registrations.forEach { it.unregister() }
+        registrations.clear()
         logger.info("Astera-Stats disabled.")
     }
+
+    private fun buildCommandSpec(
+        grantXp: GrantXpUseCase,
+        statsRepository: IPlayerStatsRepository,
+        playerGateway: IPlayerGateway,
+    ): CommandSpec.Literal = CommandSpec.Literal(
+        name = "astera-stats",
+        description = MessageKey("astera.stats.command.root"),
+        subcommands = listOf(
+            // /astera-stats show <playerName>
+            CommandSpec.Literal(
+                name = "show",
+                description = MessageKey("astera.stats.command.show"),
+                subcommands = listOf(
+                    CommandSpec.Argument(
+                        name = "target",
+                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                    ),
+                ),
+                executor = { ctx ->
+                    val targetName = ctx.required<String>("target")
+                    val targetId = playerGateway.findByName(targetName)
+                        ?: return@Literal CommandResult.Failure(
+                            MessageKey("astera.stats.command.show.player-not-found"),
+                            mapOf("player" to targetName),
+                        )
+                    val stats = statsRepository.find(targetId)
+                    if (stats == null) {
+                        playerGateway.sendMessage(
+                            ctx.sender ?: return@Literal CommandResult.Failure(
+                                MessageKey("astera.stats.command.console-not-supported"),
+                            ),
+                            "[$targetName] No stats recorded yet.",
+                        )
+                    } else {
+                        val msg = "[$targetName] K=${stats.kills} D=${stats.deaths} " +
+                            "KD=${"%.2f".format(stats.kdRatio)} " +
+                            "DMG=${stats.damageDealt} Taken=${stats.damageTaken}"
+                        playerGateway.sendMessage(
+                            ctx.sender ?: return@Literal CommandResult.Failure(
+                                MessageKey("astera.stats.command.console-not-supported"),
+                            ),
+                            msg,
+                        )
+                    }
+                    CommandResult.Success
+                },
+            ),
+            // /astera-stats xp grant <playerName> <amount>
+            CommandSpec.Literal(
+                name = "xp",
+                description = MessageKey("astera.stats.command.xp"),
+                subcommands = listOf(
+                    CommandSpec.Literal(
+                        name = "grant",
+                        description = MessageKey("astera.stats.command.xp.grant"),
+                        subcommands = listOf(
+                            CommandSpec.Argument(
+                                name = "target",
+                                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                            ),
+                            CommandSpec.Argument(
+                                name = "amount",
+                                type = ArgumentType.IntegerArg(min = 1),
+                            ),
+                        ),
+                        executor = { ctx ->
+                            val targetName = ctx.required<String>("target")
+                            val amount = ctx.required<Int>("amount").toLong()
+                            val targetId = playerGateway.findByName(targetName)
+                                ?: return@Literal CommandResult.Failure(
+                                    MessageKey("astera.stats.command.xp.player-not-found"),
+                                    mapOf("player" to targetName),
+                                )
+                            val result = grantXp.execute(targetId, amount, XpSource.AdminGrant)
+                            if (result.isSuccess) CommandResult.Success
+                            else CommandResult.Failure(MessageKey("astera.stats.command.xp.invalid-amount"))
+                        },
+                    ),
+                ),
+            ),
+        ),
+    )
 }

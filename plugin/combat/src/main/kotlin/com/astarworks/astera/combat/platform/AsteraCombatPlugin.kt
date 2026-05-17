@@ -1,14 +1,23 @@
 package com.astarworks.astera.combat.platform
 
+import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
 import com.astarworks.astera.combat.application.service.MutableSkillRegistry
 import com.astarworks.astera.combat.application.service.MutableStatusRegistry
 import com.astarworks.astera.combat.application.service.SkillLoaderService
 import com.astarworks.astera.combat.application.service.StatusEffectLoaderService
 import com.astarworks.astera.combat.application.service.YamlElementMatrix
+import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
+import com.astarworks.astera.combat.application.usecase.skill.CastSkillUseCase
+import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
+import com.astarworks.astera.combat.application.usecase.status.TickCooldownUseCase
 import com.astarworks.astera.combat.domain.rule.IElementMatrix
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.services.get
+import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import org.bukkit.plugin.java.JavaPlugin
@@ -62,10 +71,49 @@ public class AsteraCombatPlugin : JavaPlugin() {
 
         // 3. Register Combat ports onto the shared registry --------------------
         // IDamageGateway / IStatusEffectContainer impls (Paper-side) land in
-        // Phase 6 — Phase 4 publishes the read-only registries only.
+        // Stage 7-改 — Phase 4 publishes the read-only registries only.
         registrations += services.register<ISkillRegistry>(skillRegistry)
         registrations += services.register<IStatusEffectRegistry>(statusRegistry)
         registrations += services.register<IElementMatrix>(elementMatrix)
+
+        // 4. Wire use cases if runtime impls are present -----------------------
+        // IDomainEventBus is always present (Core publishes it).
+        val eventBus = services.getOrThrow<IDomainEventBus>()
+
+        val damageGateway = services.get<IDamageGateway>()
+        val statusContainer = services.get<IStatusEffectContainer>()
+
+        if (damageGateway != null && statusContainer != null) {
+            val applyDamage = ApplyDamageUseCase(
+                damageGateway = damageGateway,
+                statusContainer = statusContainer,
+                elementMatrix = elementMatrix,
+                eventBus = eventBus,
+            )
+            val castSkill = CastSkillUseCase(
+                skillRegistry = skillRegistry,
+                statusContainer = statusContainer,
+                eventBus = eventBus,
+            )
+            val applyStatus = ApplyStatusUseCase(
+                effectRegistry = statusRegistry,
+                effectContainer = statusContainer,
+                eventBus = eventBus,
+            )
+            @Suppress("UNUSED_VARIABLE")
+            val tickCooldown = TickCooldownUseCase(statusContainer = statusContainer)
+
+            logger.info(
+                "Astera-Combat use cases wired: " +
+                    "ApplyDamage, CastSkill, ApplyStatus, TickCooldown",
+            )
+        } else {
+            logger.warning(
+                "Damage/Status impl not present; combat use cases unwired until Stage 7-改. " +
+                    "(IDamageGateway=${damageGateway != null}, " +
+                    "IStatusEffectContainer=${statusContainer != null})",
+            )
+        }
 
         logger.info(
             "Astera-Combat enabled. Services published: " +

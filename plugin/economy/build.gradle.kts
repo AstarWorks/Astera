@@ -26,7 +26,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
 
+    compileOnly(project(":plugin:stats"))
     testImplementation(project(":plugin:test-fixtures"))
+    testImplementation(project(":plugin:stats"))
 }
 
 tasks.named<ProcessResources>("processResources") {

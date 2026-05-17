@@ -7,3 +7,7 @@ description: Astera match plugin — match lifecycle, state machine, teams, scor
 website: https://github.com/AstarWorks/Astera
 depend: [Astera-Core]
 softdepend: [Astera-Combat]
+commands:
+  astera-match:
+    description: Match lifecycle commands.
+    usage: /astera-match <start|end|entry|phase|list> ...
