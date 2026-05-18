@@ -10,6 +10,62 @@ before generating code or making infrastructure changes.
 - **docs/architecture/principles.md** — the rules below come from here
 - **docs/adr/** — recorded decisions (immutable once Accepted)
 
+## Session bootstrap (read these first when triggered with a "Wave X" prompt)
+
+The roadmap is split across 2 in-repo docs + per-wave handoff docs outside the repo:
+
+1. **`docs/IMPLEMENTATION-ROADMAP.md`** — 12-tier leverage-ordered master roadmap,
+   phase-by-phase, cumulative parity milestones. Single source of truth for
+   ordering.
+2. **`docs/RTM-PARITY-TRACKER.md`** — feature × state × wave-assignment matrix.
+   Single source of truth for "what's left".
+3. **`/home/node/.claude/plans/home-node-claude-plans-radius-roadmap-handoff.md`**
+   — session-level entry point. Lists every wave's trigger phrase and points to
+   the per-wave handoff doc.
+4. **`/home/node/.claude/plans/wave-{N}{x}-handoff.md`** — execution detail for
+   that specific wave (Phase A→B→C plan, worker territory, scope, completion
+   criteria, ADR number). **Read this before spawning any worker.**
+
+When the user says `Wave 5a (Combat depth) を実装して` (or similar), the
+expected flow is:
+
+1. Read `wave-5a-handoff.md` (or whichever wave was triggered) end-to-end.
+2. Cross-reference `IMPLEMENTATION-ROADMAP.md` for the wave's row and any
+   cross-wave dependencies.
+3. Run Phase A (me solo: dep prep, port skeletons, mkdir, TaskCreate).
+4. Spawn Phase B workers in parallel per the handoff's worker table.
+5. Phase C (me): wire plugins, write the ADR, `./gradlew check`, update
+   `RTM-PARITY-TRACKER.md`, single commit.
+
+## Wave-execution conventions (apply to every wave session)
+
+These are not rules CI enforces — they are session protocol. Violating them
+has burned past sessions, so treat them as durable.
+
+- **Single commit per wave.** No commit splitting unless the wave handoff doc
+  explicitly says to split (e.g., Wave 6 may be 6a + 6b).
+- **`push` is never done by Claude.** The user pushes manually after review.
+- **Worker禁則** (workers spawned via `Agent` in Phase B must not):
+  - Run `./gradlew` (gradle daemon contention with the integrator)
+  - Touch another worker's conflict region (create new dirs in Phase A)
+  - Modify `platform/AsteraXxxPlugin.kt` wiring (Phase C / me only)
+  - Write or edit ADRs (Phase C / me only)
+  - Run `git commit` / `git push` / `git branch` / `git checkout`
+- **Existing untracked files are off-limits** unless the wave explicitly owns
+  them. Specifically do not touch:
+  - `tools/texture-gen/` and `.claude/skills/generate-textures/` (asset track)
+  - `tools/studio/`, `tools/model-gen/`, `.claude/skills/build-model/`,
+    `content/models/`
+  - `.playwright-mcp/`
+  - Top-level PNG screenshots (`studio-*.png`, `amethyst-*.png`,
+    `wave2-*.png`, `wave3-*.png`)
+  - `docs/adr/0017-adopt-datadriven-contents-pattern.md` /
+    `docs/adr/0018-ai-asset-creation-policy.md` (separate landing track)
+- **ADR numbers are pre-allocated** in `IMPLEMENTATION-ROADMAP.md` §"ADR
+  allocation per wave". Use that number; do not pick a fresh one.
+- **Konsist must stay green.** New rules may be added; existing rules must not
+  be relaxed. Run `./gradlew check` before committing.
+
 ## Non-negotiable rules (CI enforces all of these)
 
 1. **Minecraft is an edge.** `domain` and `application` modules MUST NOT import
