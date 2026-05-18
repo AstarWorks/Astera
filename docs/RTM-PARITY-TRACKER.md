@@ -74,20 +74,21 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 62 | 48.4% |
+| ✅ full | 71 | 55.5% |
 | 🟨 partial | 2 | 1.6% |
 | 🔌 port-only | 8 | 6.3% |
-| ❌ nothing | 56 | 43.8% |
+| ❌ nothing | 47 | 36.7% |
 | **Total tracked** | **128** | 100% |
 
-(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip)
+(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip)
 
 **Phase parity targets** (cumulative):
 - Wave 4.5: ~15% RTM parity
 - Wave 5a: **~22% RTM parity** (Category 1 Combat 9 行 ❌→✅)
 - Wave 5b: **~28% RTM parity** (Category 4 HUD 5 行 + Category 7 attribute read ❌/📋→🔌/🔌 = +6)
-- Wave 5c (now): **48.4% RTM parity** (Category 2 game modes 3 行 + Category 5 generator/anomaly 4 行 ❌→✅ = +6)
-- Wave 5a-5f complete: ~55% RTM parity (projected)
+- Wave 5c: **48.4% RTM parity** (Category 2 game modes 3 行 + Category 5 generator/anomaly 4 行 ❌→✅ = +6)
+- Wave 5d (now): **55.5% RTM parity** (Category 3 World/Stage 9 行 ❌→✅ = +9)
+- Wave 5a-5f complete: ~60% RTM parity (projected)
 - Wave 6 (Paper Sweep) complete: ~70% RTM parity (Phase 1 PoC end-to-end)
 - Phase 3 Siege Warfare complete (Wave 6 + content): ~80%
 - Phase 4 (UGC + Web + Vault + Gacha): ~90%
@@ -159,15 +160,15 @@ adds to `gradle/libs.versions.toml`:
 | **SpawnPoint** (Attacker / Defender / Lobby / Spectator sealed) | ✅ full (Wave 4.5) | (済) | P0 | `SpawnPoint.kt`, `Stage.spawnPoints` field, `MatchSpawnUseCase.kt` |
 | `IWorldGateway.teleport()` port | ✅ port + Fake (Wave 4.5) | (済 port; impl は **Wave 6**) | P0 | `IWorldGateway.kt`, `FakeWorldGateway.kt` |
 | `IWorldGateway` 残メソッド (placeBlock / removeBlock / blockAt / spawnParticle / playSound) | ✅ port, impl ❌ | **Wave 6** | P0 | `IWorldGateway.kt` |
-| **Block tracking domain** (BlockPlaced / BlockBroken event + per-match state) | ❌ nothing | **Wave 5d** | P1 | (RTM issue #9) |
-| **Block durability** (max 100 HP, tool-dependent damage, NBT-backed) | ❌ nothing | **Wave 5d** | P1 | (RTM `BlockState.md` Writerside doc) |
-| **Block pseudo-recovery** (timestamp decay) | ❌ nothing | Wave 5d | P1 | (same) |
-| **Barrier system** (custom block enclosure + DisplayEntity visual + scheduler status changes) | ❌ nothing | **Wave 5d** | P1 | (RTM issue #8) |
-| **Custom machines (Redstone dispenser + skill core + traps)** | ❌ nothing | Wave 5d | P2 | (RTM issue #10) |
-| Schematic spec / WorldEdit `.schem` loader | ❌ nothing | **Wave 5d** (domain) + **Wave 6** (Paper FAWE adapter) | P1 | `IWorldDirManager.kt` vacant port |
-| Per-match world isolation (slime-world / multiverse-style) | ❌ nothing | **Wave 5d** (domain) + **Wave 6** (Paper) | P1 | (none) |
-| Capture zone / KOTH region type | ❌ nothing | **Wave 5d** | P1 | (no `CaptureZone` domain type) |
-| Block restoration after match end | ❌ nothing | **Wave 5d** | P1 | depends on block tracking |
+| **Block tracking domain** (BlockPlaced / BlockBroken event + per-match state) | ✅ Wave 5d (port + InMemory + journal) | **Wave 5d** | P1 | `plugin/core/.../domain/event/BlockPlaced.kt`, `BlockBroken.kt` (PROMOTED from Wave 5c stub), `IBlockStateGateway`, `InMemoryBlockStateGateway`, `BlockChangeJournal` |
+| **Block durability** (max 100 HP, tool-dependent damage, NBT-backed) | ✅ Wave 5d (formula + YAML; NBT-backed is Wave 6) | **Wave 5d** | P1 | `BlockDurabilityRule.kt`, `ToolType.kt`, `BlockMaterial.kt`, `BlockDurabilityYamlConfig.kt`, `content/balance/block-durability.yaml` |
+| **Block pseudo-recovery** (timestamp decay) | ✅ Wave 5d (BlockRecoveryScheduler @ 10s / +5 HP per cycle) | Wave 5d | P1 | `BlockStateAutoRecoveryUseCase.kt`, `BlockRecoveryScheduler.kt` |
+| **Barrier system** (custom block enclosure + DisplayEntity visual + scheduler status changes) | ✅ Wave 5d (port + Fake; DisplayEntity visual is Wave 6) | **Wave 5d** | P1 | `Barrier.kt`, `BarrierStatus.kt`, `BarrierId.kt` (PROMOTED from Combat), `IBarrierGateway`, `InMemoryBarrierGateway`, `CreateBarrierUseCase`, `DestroyBarrierUseCase`, `BarrierStatusScheduler` |
+| **Custom machines (Redstone dispenser + skill core + traps)** | ✅ Wave 5d (domain types only, P2 minimal — no use case / port / scheduler per handoff) | Wave 5d | P2 | `Machine.kt`, `SkillCoreMachine.kt`, `TrapMachine.kt`, `TriggerCondition.kt`, `TrapEffect.kt` |
+| Schematic spec / WorldEdit `.schem` loader | ✅ Wave 5d (domain + port + Fake; FAWE adapter is Wave 6) | **Wave 5d** (domain) + **Wave 6** (Paper FAWE adapter) | P1 | `plugin/core/.../domain/world/Schematic.kt`, `ISchematicLoader`, `InMemorySchematicLoader` |
+| Per-match world isolation (slime-world / multiverse-style) | ✅ Wave 5d (MatchWorld domain + repository + Create/Destroy use case; Paper world creation Wave 6) | **Wave 5d** (domain) + **Wave 6** (Paper) | P1 | `MatchWorld.kt`, `IMatchWorldRepository`, `InMemoryMatchWorldRepository`, `CreateMatchWorldUseCase`, `DestroyMatchWorldUseCase` |
+| Capture zone / KOTH region type | ✅ Wave 5d (domain + tick use case + scheduler) | **Wave 5d** | P1 | `CaptureZone.kt`, `CaptureZoneId.kt`, `CaptureZoneTickUseCase.kt`, `CaptureZoneScheduler.kt` |
+| Block restoration after match end | ✅ Wave 5d (BlockChangeJournal + RestoreBlocksOnMatchEnded listener; replays on MatchEnded) | **Wave 5d** | P1 | `RestoreBlocksOnMatchEndedUseCase.kt`, `BlockChangeJournal.kt` |
 | Region type variants (protected / buildable / spawn / no-build) | ❌ Region is plain AABB | **Wave 5d** | P1 | `Region.kt` has no type tag |
 
 ---
@@ -356,14 +357,14 @@ adds to `gradle/libs.versions.toml`:
 - Sudden death special mechanics
 
 ### Wave 5d (Stage geometry + Block tracking + Barrier, Phase A→B 6-7 worker→C, ~6-7h)
-- Block tracking domain (BlockPlaced / BlockBroken event + per-match state)
-- Block durability domain (max 100 HP + NBT spec + pseudo-recovery formula)
-- Barrier system domain (custom enclosure + DisplayEntity hooks)
-- Custom machine domain (Redstone dispenser + skill core)
-- Capture zone / KOTH region type domain
-- Schematic spec (vendor-neutral path)
-- Per-match world domain
-- Block restoration after match
+- Block tracking domain (BlockPlaced / BlockBroken events PROMOTED from Wave 5c stub, per-match state via IBlockStateGateway + InMemory impl)
+- Block durability domain (max 100 HP + tool×block matrix YAML + pseudo-recovery scheduler @ 10s / +5 HP)
+- Barrier system domain (custom enclosure + status scheduler, DisplayEntity visual is Wave 6)
+- Custom machine domain (Redstone dispenser + skill core + trap types; P2 minimal — no use case)
+- Capture zone / KOTH region type (domain + tick use case + scheduler)
+- Schematic spec (ISchematicLoader port + InMemory Fake; FAWE adapter is Wave 6)
+- Per-match world isolation (MatchWorld domain + repository + Create/Destroy use cases; Paper world creation is Wave 6)
+- Block restoration after match (BlockChangeJournal + RestoreBlocksOnMatchEnded listener subscribing to MatchEnded)
 
 ### Wave 5e (Session + Social + Tutorial + EnderChest + Reward bridge + Inventory snapshot, Phase A→B 6 worker→C, ~6h)
 - Player session state (InMatch / Lobby / Spectator / Dead / **Loading** — RTM #5 action-lock)

@@ -1,17 +1,21 @@
-package com.astarworks.astera.match.application.config
+package com.astarworks.astera.core.application.config
 
 import com.astarworks.astera.core.domain.i18n.MessageKey
 
 /**
  * Sealed error hierarchy for `application/config/` kaml DTO → domain
- * conversions (Wave 5c+).
+ * conversions (Wave 5c+; promoted from Match to Core in Wave 5d).
  *
  * Per `coding-posture.md` §"Application API surface", application APIs return
- * `Result<T, E>` rather than throwing raw JVM throwables. This is the `E`
- * shared across `GeneratorYamlConfig.toDomain` and
- * `AnomalyYamlConfig.toDescriptor`. `StageYamlConfig.toSpec` (pre-existing
- * Wave 2 code) still throws `IllegalArgumentException`; aligning that file is
- * tracked separately to avoid bundling unrelated changes.
+ * `Result<T, E>` rather than throwing raw JVM throwables. This is the shared
+ * `E` for every DTO that converts to a domain type — `GeneratorYamlConfig`,
+ * `AnomalyYamlConfig`, `BlockDurabilityYamlConfig`, and future loaders.
+ * Wave 5d promoted the type to Core so Core-local DTOs (e.g. block durability)
+ * could use it without depending on Match.
+ *
+ * `StageYamlConfig.toSpec` (pre-existing Wave 2 code) still throws
+ * `IllegalArgumentException`; aligning that file is tracked separately to
+ * avoid bundling unrelated changes.
  *
  * Each variant carries the field name + offending raw value so loaders can
  * surface authoring mistakes with file context.
@@ -27,7 +31,7 @@ public sealed class ConfigError {
         val accepted: List<String>,
     ) : ConfigError() {
         override val messageKey: MessageKey =
-            MessageKey("astera.match.config.error.unknown-enum-value")
+            MessageKey("astera.config.error.unknown-enum-value")
         override val detail: String =
             "Unknown $field value '$rawValue' (expected one of: ${accepted.joinToString()})"
     }
@@ -39,7 +43,7 @@ public sealed class ConfigError {
         val constraint: String,
     ) : ConfigError() {
         override val messageKey: MessageKey =
-            MessageKey("astera.match.config.error.out-of-range")
+            MessageKey("astera.config.error.out-of-range")
         override val detail: String =
             "$field='$rawValue' violates: $constraint"
     }
@@ -50,7 +54,7 @@ public sealed class ConfigError {
         val detailMessage: String,
     ) : ConfigError() {
         override val messageKey: MessageKey =
-            MessageKey("astera.match.config.error.field-shape-mismatch")
+            MessageKey("astera.config.error.field-shape-mismatch")
         override val detail: String = "$field: $detailMessage"
     }
 
@@ -61,7 +65,7 @@ public sealed class ConfigError {
         val constraint: String,
     ) : ConfigError() {
         override val messageKey: MessageKey =
-            MessageKey("astera.match.config.error.invalid-identifier")
+            MessageKey("astera.config.error.invalid-identifier")
         override val detail: String =
             "$field='$rawValue' is not a valid identifier ($constraint)"
     }

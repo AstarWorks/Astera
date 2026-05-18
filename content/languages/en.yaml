@@ -44,6 +44,20 @@ astera:
     internal: "<red>An internal error occurred. Check server logs for details.</red>"
     permission: "<red>You do not have permission to run this command</red>"
 
+  # Wave 5d — Cross-plugin ConfigError messageKeys (ADR-0033).
+  # Promoted from astera.match.config.error.* so Core-side DTOs
+  # (BlockDurabilityYamlConfig, future ParticleDefinitionYamlConfig)
+  # share the same i18n surface as Match-side DTOs.
+  config:
+    error:
+      unknown-enum-value: "<red>Configuration error: unknown {field} value '{value}'. Accepted: {accepted}.</red>"
+      out-of-range: "<red>Configuration error: {field}='{value}' violates {constraint}.</red>"
+      field-shape-mismatch: "<red>Configuration error in {field}: {detail}.</red>"
+      invalid-identifier: "<red>Configuration error: {field}='{value}' is not a valid identifier ({constraint}).</red>"
+      schematic:
+        not-found: "<red>Schematic file not found: {path}.</red>"
+        invalid-version: "<red>Unsupported schematic version {version} at {path}.</red>"
+
   # Wave 4 R3 — Declarative GUI demo (ADR-0021) + Wave 4.5 bindings (ADR-0027).
   gui:
     loadout:
@@ -164,6 +178,26 @@ astera:
       steal-jewelry:
         name: "<gold>Steal Jewelry</gold>"
         description: "<gray>Steal enemy gems back to your deposit. Steal them all to win.</gray>"
+    # Wave 5d — Barrier domain (ADR-0033, RTM issue #8)
+    barrier:
+      created: "<aqua>Barrier deployed at {position} by {player}.</aqua>"
+      destroyed: "<red>Barrier {barrier} has been destroyed.</red>"
+      error:
+        empty-region: "<red>Cannot create a barrier with an empty region.</red>"
+        invalid-slowdown: "<red>Barrier slowdown must be between 0% and 100% (was {value}).</red>"
+        not-found: "<red>Barrier {barrier} not found.</red>"
+    # Wave 5d — Capture zone / KOTH (ADR-0033)
+    zone:
+      captured: "<green>{team} captured zone {zone}.</green>"
+      contested: "<yellow>Zone {zone} is contested.</yellow>"
+    # Wave 5d — Per-match world (ADR-0033)
+    world:
+      created: "<gray>Match world {world} ready.</gray>"
+      create-failed: "<red>Failed to create match world: {detail}.</red>"
+      destroyed: "<gray>Match world {world} torn down.</gray>"
+    # Wave 5d — Block tracking (ADR-0033)
+    block:
+      restored-on-match-end: "<gray>{count} block change(s) restored at match end.</gray>"
 
   spawn:
     teleporting: "<gray>Teleporting to spawn…</gray>"

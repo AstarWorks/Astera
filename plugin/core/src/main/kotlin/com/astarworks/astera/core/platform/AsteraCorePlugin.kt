@@ -18,6 +18,7 @@ import com.astarworks.astera.core.application.i18n.LanguageLoader
 import com.astarworks.astera.core.application.i18n.SimpleMessageRenderer
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
+import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
@@ -29,13 +30,17 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
+import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
 import com.astarworks.astera.core.application.service.GuiLoaderService
+import com.astarworks.astera.core.application.service.InMemoryBlockStateGateway
 import com.astarworks.astera.core.application.service.InMemoryBossBarManager
 import com.astarworks.astera.core.application.service.InMemoryGuiRegistry
 import com.astarworks.astera.core.application.service.InMemoryPermissionService
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
+import com.astarworks.astera.core.application.service.InMemorySchematicLoader
 import com.astarworks.astera.core.application.service.InMemoryTabList
 import com.astarworks.astera.core.application.service.MutableItemRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -47,6 +52,7 @@ import com.astarworks.astera.core.application.usecase.permission.RevokeRoleUseCa
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.permission.DefaultRoles
+import com.astarworks.astera.core.domain.world.BlockDurabilityRule
 import org.bukkit.plugin.java.JavaPlugin
 import java.nio.file.Files
 import java.nio.file.Path
@@ -207,6 +213,24 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<IScoreboardManager>(scoreboardManager, priority = 0)
         services.register<ITabList>(tabList, priority = 0)
 
+        // ---- World geometry ports (Wave 5d, ADR-0033) --------------------
+        // BlockDurabilityRule loaded from content/balance/block-durability.yaml
+        // with fall-soft to defaultMatrix() on missing/malformed file.
+        // InMemoryBlockStateGateway + InMemorySchematicLoader registered at
+        // priority 0; Wave 6 Paper impls land at priority 100
+        // (BlockData + NBT durability / FAWE adapter).
+        val durabilityRule = BlockDurabilityLoader().load(
+            contentDir.resolve("balance/block-durability.yaml"),
+        )
+        val blockStateGateway: IBlockStateGateway = InMemoryBlockStateGateway()
+        val schematicLoader: ISchematicLoader = InMemorySchematicLoader()
+        services.register<IBlockStateGateway>(blockStateGateway, priority = 0)
+        services.register<ISchematicLoader>(schematicLoader, priority = 0)
+        // BlockDurabilityRule is consumed by use cases (e.g. Wave 6 BlockHitListener
+        // computing damageFor(tool, blockType) before calling applyDamage). Published
+        // here so future plugins resolve through the registry rather than re-loading.
+        services.register<BlockDurabilityRule>(durabilityRule, priority = 0)
+
         // ---- Permission service ------------------------------------------
         // Wave 3 (R2): Astera-Persistence (loadbefore: [features]) loads AFTER
         // Astera-Core, so at this point Postgres is never present yet. We
@@ -271,6 +295,9 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IBossBarManager",
             "IScoreboardManager",
             "ITabList",
+            "IBlockStateGateway",
+            "ISchematicLoader",
+            "BlockDurabilityRule",
             "IPermissionService",
         )
     }

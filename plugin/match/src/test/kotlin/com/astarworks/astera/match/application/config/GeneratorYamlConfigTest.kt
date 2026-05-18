@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.config
 
+import com.astarworks.astera.core.application.config.ConfigError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.attribute.AttributeValue
 import com.astarworks.astera.core.domain.economy.Currency

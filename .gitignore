@@ -64,11 +64,12 @@ test-output/
 .mtj.tmp/
 
 # --- Paper / Minecraft server runtime (for local dev) ---
+# Root-anchored so `core/domain/world/` and similar Kotlin packages aren't ignored.
 run/
 plugins/
-world/
-world_nether/
-world_the_end/
+/world/
+/world_nether/
+/world_the_end/
 banned-*.json
 ops.json
 whitelist.json

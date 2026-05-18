@@ -5,12 +5,14 @@ import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
+import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
@@ -26,21 +28,32 @@ import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRepository
 import com.astarworks.astera.match.application.port.outbound.IAnomalyScheduleRepository
+import com.astarworks.astera.match.application.port.outbound.IBarrierGateway
 import com.astarworks.astera.match.application.port.outbound.IGameModeRegistry
 import com.astarworks.astera.match.application.port.outbound.IGeneratorRepository
+import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
 import com.astarworks.astera.match.application.service.AnomalyScheduler
+import com.astarworks.astera.match.application.service.BarrierStatusScheduler
+import com.astarworks.astera.match.application.service.BlockChangeJournal
+import com.astarworks.astera.match.application.service.BlockRecoveryScheduler
 import com.astarworks.astera.match.application.service.InMemoryAnomalyScheduleRepository
+import com.astarworks.astera.match.application.service.InMemoryBarrierGateway
 import com.astarworks.astera.match.application.service.InMemoryGameModeRegistry
 import com.astarworks.astera.match.application.service.InMemoryGeneratorRepository
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
+import com.astarworks.astera.match.application.service.InMemoryMatchWorldRepository
 import com.astarworks.astera.match.application.service.InMemoryStageRepository
 import com.astarworks.astera.match.application.service.StageLoaderService
 import com.astarworks.astera.match.application.service.StarGeneratorScheduler
 import com.astarworks.astera.match.application.usecase.anomaly.ResolveAnomalyEffectUseCase
 import com.astarworks.astera.match.application.usecase.anomaly.TriggerAnomalyUseCase
+import com.astarworks.astera.match.application.usecase.block.BlockStateAutoRecoveryUseCase
 import com.astarworks.astera.match.application.usecase.generator.AdvanceGeneratorChargeUseCase
 import com.astarworks.astera.match.application.usecase.generator.SpawnResourceUseCase
+import com.astarworks.astera.match.application.usecase.match.RestoreBlocksOnMatchEndedUseCase
 import com.astarworks.astera.match.application.usecase.match.SuddenDeathAcceleratorUseCase
+import com.astarworks.astera.match.application.usecase.world.CreateMatchWorldUseCase
+import com.astarworks.astera.match.application.usecase.world.DestroyMatchWorldUseCase
 import com.astarworks.astera.match.application.usecase.mode.BattleLoyalListener
 import com.astarworks.astera.match.application.usecase.mode.BreakCoreListener
 import com.astarworks.astera.match.application.usecase.mode.CaptureWoolListener
@@ -263,6 +276,75 @@ public class AsteraMatchPlugin : JavaPlugin() {
         // checks without depending on Match directly).
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>(
             com.astarworks.astera.match.application.service.MatchRepositoryTeamLookup(matches),
+        )
+
+        // 4.6. Wave 5d — World geometry (Block tracking + Barrier + MatchWorld
+        // + Restoration). Schedulers tick continuously and visit only active
+        // matches. Use cases expose `subscribe(bus)` and are wired here so
+        // onDisable can cancel cleanly.
+        // -----------------------------------------------------------------
+        val blockStateGateway = services.getOrThrow<IBlockStateGateway>()
+        @Suppress("UnusedVariable") // reserved for Wave 6 PaperSchematicLoader integration
+        val schematicLoader = services.getOrThrow<ISchematicLoader>()
+
+        val barrierGateway: IBarrierGateway =
+            services.get<IBarrierGateway>()
+                ?: InMemoryBarrierGateway().also {
+                    registrations += services.register<IBarrierGateway>(it, priority = 0)
+                }
+        val matchWorlds: IMatchWorldRepository =
+            services.get<IMatchWorldRepository>()
+                ?: InMemoryMatchWorldRepository().also {
+                    registrations += services.register<IMatchWorldRepository>(it, priority = 0)
+                }
+
+        // Block pseudo-recovery scheduler — re-uses the BlockStateGateway to
+        // regenerate +5 HP every 10s for blocks past their cool-off window.
+        val blockRecovery = BlockStateAutoRecoveryUseCase(blockStateGateway)
+        val blockRecoveryScheduler = BlockRecoveryScheduler(
+            matchWorlds = matchWorlds,
+            recovery = blockRecovery,
+            scheduler = scheduler,
+        )
+        scheduledTasks += blockRecoveryScheduler.start()
+
+        // Barrier scheduler — heartbeat hook for future per-tick behavior
+        // (Wave 5d ships an active no-op; behavior lands in Wave 6+).
+        val barrierStatusScheduler = BarrierStatusScheduler(
+            gateway = barrierGateway,
+            scheduler = scheduler,
+        )
+        scheduledTasks += barrierStatusScheduler.start()
+
+        // BlockChangeJournal subscribes to BlockPlaced/BlockBroken so the
+        // RestoreBlocksOnMatchEndedUseCase can replay reverts on MatchEnded.
+        val blockJournal = BlockChangeJournal()
+        subscriptions += blockJournal.subscribe(eventBus)
+
+        val restoreOnEnd = RestoreBlocksOnMatchEndedUseCase(
+            gateway = blockStateGateway,
+            journal = blockJournal,
+            matchWorlds = matchWorlds,
+        )
+        subscriptions += restoreOnEnd.subscribe(eventBus)
+
+        // Per-match world lifecycle — Create on MatchStarted, Destroy on MatchEnded.
+        // Wave 5d ships in-memory only; Wave 6 wires PaperWorldGateway-backed
+        // world creation. Soft-fail on schematic miss (logs + saves MatchWorld
+        // record so block tracking + barrier placement still have a target).
+        val createMatchWorld = CreateMatchWorldUseCase(
+            schematicLoader = schematicLoader,
+            matchWorlds = matchWorlds,
+        )
+        subscriptions += createMatchWorld.subscribe(eventBus)
+
+        val destroyMatchWorld = DestroyMatchWorldUseCase(matchWorlds = matchWorlds)
+        subscriptions += destroyMatchWorld.subscribe(eventBus)
+
+        logger.info(
+            "Wave 5d wiring complete: BlockRecoveryScheduler + BarrierStatusScheduler " +
+                "running; BlockChangeJournal + RestoreBlocksOnMatchEnded + Create/" +
+                "DestroyMatchWorld listeners subscribed.",
         )
 
         // 5. Register /astera-match command tree --------------------------------

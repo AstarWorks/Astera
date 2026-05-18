@@ -1,0 +1,55 @@
+# Astera — Block durability rock-paper-scissors damage matrix (Wave 5d)
+#
+# Each cell is "damage per single-hit applied to a 100-HP block":
+#   100 = one-hit break
+#    25 = four-hit break
+#     0 = cannot damage
+#
+# Outer key of `damage_matrix` is a lower-case ToolType
+#   (none / wood / stone / iron / diamond).
+# Inner key is a lower-case BlockMaterial
+#   (wood / stone / soil / other).
+#
+# Missing cells fall back to BlockDurabilityRule.DEFAULT_DAMAGE at lookup
+# time, so authors only need to list the cells that differ from neutral.
+
+materials:
+  "minecraft:oak_log": wood
+  "minecraft:oak_planks": wood
+  "minecraft:spruce_log": wood
+  "minecraft:birch_log": wood
+  "minecraft:stone": stone
+  "minecraft:cobblestone": stone
+  "minecraft:deepslate": stone
+  "minecraft:dirt": soil
+  "minecraft:grass_block": soil
+  "minecraft:sand": soil
+  "astera:core_block": stone
+  "astera:barrier_block": stone
+
+damage_matrix:
+  none:
+    wood: 5
+    stone: 0
+    soil: 10
+    other: 5
+  wood:
+    wood: 100
+    stone: 25
+    soil: 100
+    other: 25
+  stone:
+    wood: 100
+    stone: 100
+    soil: 50
+    other: 50
+  iron:
+    wood: 100
+    stone: 100
+    soil: 100
+    other: 100
+  diamond:
+    wood: 100
+    stone: 100
+    soil: 100
+    other: 100

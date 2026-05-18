@@ -2,6 +2,7 @@ package com.astarworks.astera.combat.domain.damage
 
 import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.status.StatusEffectId
+import com.astarworks.astera.core.domain.barrier.BarrierId
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.weapons.domain.projectile.ProjectileId

@@ -3,6 +3,7 @@ package com.astarworks.astera.schemagen
 import com.astarworks.astera.combat.application.config.ElementMatrixYamlConfig
 import com.astarworks.astera.combat.application.config.SkillYamlConfig
 import com.astarworks.astera.combat.application.config.StatusEffectYamlConfig
+import com.astarworks.astera.core.application.config.BlockDurabilityYamlConfig
 import com.astarworks.astera.core.application.config.GuiYamlConfig
 import com.astarworks.astera.core.application.config.ItemYamlConfig
 import com.astarworks.astera.economy.application.config.ShopYamlConfig
@@ -74,6 +75,11 @@ fun main(args: Array<String>) {
             name = "shop",
             serializer = serializer<ShopYamlConfig>(),
             schemaId = "https://astera.astarworks.com/schemas/shop.schema.json",
+        ),
+        SchemaEntry(
+            name = "block-durability",
+            serializer = serializer<BlockDurabilityYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/block-durability.schema.json",
         ),
     )
 

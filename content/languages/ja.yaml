@@ -52,6 +52,20 @@ astera:
     internal: "<red>内部エラーが発生しました。詳細はサーバーログを確認してください。</red>"
     permission: "<red>このコマンドを実行する権限がありません</red>"
 
+  # Wave 5d — クロスプラグイン ConfigError messageKey (ADR-0033)。
+  # astera.match.config.error.* から昇格。Core 側の DTO
+  # (BlockDurabilityYamlConfig, 将来の ParticleDefinitionYamlConfig 等) も
+  # Match 側 DTO と同じ i18n 表面を共有する。
+  config:
+    error:
+      unknown-enum-value: "<red>設定エラー: {field} の値 '{value}' は不正です。許容値: {accepted}。</red>"
+      out-of-range: "<red>設定エラー: {field}='{value}' は {constraint} に違反しています。</red>"
+      field-shape-mismatch: "<red>{field} の設定エラー: {detail}。</red>"
+      invalid-identifier: "<red>設定エラー: {field}='{value}' は識別子として無効です ({constraint})。</red>"
+      schematic:
+        not-found: "<red>schematic ファイルが見つかりません: {path}。</red>"
+        invalid-version: "<red>{path} の schematic バージョン {version} はサポートされていません。</red>"
+
   # Wave 4 R3 — Declarative GUI demo (ADR-0021) + Wave 4.5 bindings (ADR-0027).
   gui:
     loadout:
@@ -167,6 +181,26 @@ astera:
       steal-jewelry:
         name: "<gold>ジュエリースティール</gold>"
         description: "<gray>敵の宝石を自陣の保管庫へ盗む。全て盗んで勝利。</gray>"
+    # Wave 5d — バリアドメイン (ADR-0033, RTM issue #8)
+    barrier:
+      created: "<aqua>{position} に {player} がバリアを設置しました。</aqua>"
+      destroyed: "<red>バリア {barrier} が破壊されました。</red>"
+      error:
+        empty-region: "<red>空の領域でバリアを作成できません。</red>"
+        invalid-slowdown: "<red>バリアの減衰率は 0% 〜 100% の範囲で指定してください ({value})。</red>"
+        not-found: "<red>バリア {barrier} が見つかりません。</red>"
+    # Wave 5d — キャプチャゾーン / KOTH (ADR-0033)
+    zone:
+      captured: "<green>{team} がゾーン {zone} を占領しました。</green>"
+      contested: "<yellow>ゾーン {zone} は争奪中です。</yellow>"
+    # Wave 5d — マッチ別ワールド (ADR-0033)
+    world:
+      created: "<gray>マッチワールド {world} を準備しました。</gray>"
+      create-failed: "<red>マッチワールドの作成に失敗しました: {detail}。</red>"
+      destroyed: "<gray>マッチワールド {world} を破棄しました。</gray>"
+    # Wave 5d — ブロックトラッキング (ADR-0033)
+    block:
+      restored-on-match-end: "<gray>マッチ終了時に {count} 件のブロック変更を復元しました。</gray>"
 
   spawn:
     teleporting: "<gray>スポーン地点へテレポート中…</gray>"
