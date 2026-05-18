@@ -3,6 +3,36 @@
 Session protocol for Wave-style implementation in Astera. **Not enforced by
 CI** — violating these has burned past sessions, so treat them as durable.
 
+## Parallel waves → separate worktrees
+
+A Wave session may run alongside another Wave session in parallel
+(`docs/IMPLEMENTATION-ROADMAP.md §"Parallelization windows"` lists which
+pairs are roadmap-blessed: Wave 5a + 5b, Wave 8c/d/e/f after 8b,
+Wave 10a–f, Wave _ops + anything). **When two waves share the same
+working tree at the same time, they will produce build breaks and
+commit scope bleed**. Concretely seen in Wave 5b (`078f6e1`): the
+parallel Wave 5c session landed in-progress `plugin/match/` files with
+a KDoc syntax error that broke `./gradlew check` and YAML additions
+that stowed away into Wave 5b's commit.
+
+**Rule**: the moment you launch a second wave alongside an in-flight
+one, the second wave runs in its own `git worktree`:
+
+```
+git worktree add ../astera-wave-{N}{y} -b wave-{N}{y}
+cd ../astera-wave-{N}{y}
+# … run wave-start from here, single tree, isolated check
+```
+
+Single-stream waves (the 90% case) stay in the primary tree — worktree
+is pure overhead there. The `wave-start` skill detects parallel triggers
+and proposes the worktree before reading the four canonical docs.
+
+Why: Claude sessions have no in-band signaling, no shared mental model,
+and no merge tooling between them — so the cost of conflict is higher
+than the human-human parallel-edit case. Isolation by default at the
+filesystem layer is cheaper than reconciling at commit time.
+
 ## Read order on a `Wave X` prompt
 
 When the user says `Wave 5b を実装して` (or similar), read these in this order
