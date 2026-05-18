@@ -21,5 +21,8 @@ dependencies {
     api(project(":plugin:core"))
     // JUnit api is exposed so callers can write @Test directly against fixtures
     api(libs.junit.jupiter.api)
+    // AssertJ api is exposed so cross-module assertion helpers (e.g. helper/BroadcasterHelper)
+    // can ship from this module and downstream test source sets resolve them at compile time.
+    api(libs.assertj.core)
     implementation(libs.kotlinx.coroutines.core)
 }

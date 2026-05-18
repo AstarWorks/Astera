@@ -923,8 +923,12 @@ Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 | 11c | 0056 | Voting + affiliate audit |
 | 11d | 0057 | Certification + anti-cheat |
 | Wave _ops | 0023 / 0024 | Secrets + Provider 路線 |
+| Wave _infra-1 | 0059 | Fake MC Server + Scenario DSL (`AsteraTestHarness`, PDCA harness, no MockBukkit) |
+| Wave _infra-2 | 0060 | DataDriven Contents + Per-Config Reload (supersedes ADR-0017) |
+| Wave _infra-3 | 0061 | Studio /weapons preview route (Three.js read-only viewer, ADR-0018 carve-out extension) |
+| Wave _infra-4 | 0062 | `contentLint` Gradle pipeline (JSON Schema + i18n parity + ref-resolve) |
 
-Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d).
+Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d), 0060-0062 (Wave _infra-2〜4).
 
 ---
 
