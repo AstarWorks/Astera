@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.config
 
+import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.attribute.AttributeValue
 import com.astarworks.astera.core.domain.attribute.SimpleAttributeContainer
 import com.astarworks.astera.core.domain.economy.Currency
@@ -79,40 +80,70 @@ public data class GeneratorYamlConfig(
      * silently no-op (see `AdvanceGeneratorChargeUseCase` kdoc + the
      * matching seed in the test fixtures).
      *
-     * @throws IllegalArgumentException on any kebab / enum / tier violation.
+     * Returns `Result.Failure(ConfigError)` on any kebab / enum / tier
+     * violation per the `coding-posture.md` "no raw JVM throwables in
+     * application API" rule. The `id` / `team_id` value-class constructors
+     * still surface their lexical violations as `IllegalArgumentException`
+     * — those are domain-layer invariants, intentionally not normalized to
+     * `ConfigError` here.
      */
-    public fun toDomain(matchId: MatchId): StarGenerator {
+    public fun toDomain(matchId: MatchId): Result<StarGenerator, ConfigError> {
+        val parsedCurrency = parseCurrency(currency)
+            .onFailure { return Result.failure(it) }
+            .let { (it as Result.Success).value }
+
+        val parsedTier = parseTier(tier)
+            .onFailure { return Result.failure(it) }
+            .let { (it as Result.Success).value }
+
+        val parsedAffiliation = affiliation.toDomain()
+            .onFailure { return Result.failure(it) }
+            .let { (it as Result.Success).value }
+
         val attributes = SimpleAttributeContainer()
         attributes.set(GeneratorAttributes.PERIOD_MULTIPLIER, AttributeValue.NumberValue(1.0))
         attributes.set(GeneratorAttributes.AMOUNT_MULTIPLIER, AttributeValue.NumberValue(1.0))
-        return StarGenerator(
-            id = GeneratorId(id),
-            matchId = matchId,
-            position = position.toVec3(),
-            currency = parseCurrency(currency),
-            period = periodSeconds.seconds,
-            amount = amount,
-            tier = parseTier(tier),
-            affiliation = affiliation.toDomain(),
-            attributes = attributes,
+
+        return Result.success(
+            StarGenerator(
+                id = GeneratorId(id),
+                matchId = matchId,
+                position = position.toVec3(),
+                currency = parsedCurrency,
+                period = periodSeconds.seconds,
+                amount = amount,
+                tier = parsedTier,
+                affiliation = parsedAffiliation,
+                attributes = attributes,
+            ),
         )
     }
 
-    private fun parseCurrency(raw: String): Currency =
-        runCatching { Currency.valueOf(raw) }
-            .getOrElse {
-                throw IllegalArgumentException(
-                    "Unknown currency '$raw' (expected one of ${Currency.entries.joinToString { it.name }})",
+    private fun parseCurrency(raw: String): Result<Currency, ConfigError> =
+        runCatching { Currency.valueOf(raw) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = {
+                Result.failure(
+                    ConfigError.UnknownEnumValue(
+                        field = "currency",
+                        rawValue = raw,
+                        accepted = Currency.entries.map { it.name },
+                    ),
                 )
-            }
+            },
+        )
 
-    private fun parseTier(raw: String): GeneratorTier = when (raw.lowercase()) {
-        "iron" -> GeneratorTier.Iron
-        "gold" -> GeneratorTier.Gold
-        "emerald" -> GeneratorTier.Emerald
-        "diamond" -> GeneratorTier.Diamond
-        else -> throw IllegalArgumentException(
-            "Unknown tier '$raw' (expected: iron | gold | emerald | diamond)",
+    private fun parseTier(raw: String): Result<GeneratorTier, ConfigError> = when (raw.lowercase()) {
+        "iron" -> Result.success(GeneratorTier.Iron)
+        "gold" -> Result.success(GeneratorTier.Gold)
+        "emerald" -> Result.success(GeneratorTier.Emerald)
+        "diamond" -> Result.success(GeneratorTier.Diamond)
+        else -> Result.failure(
+            ConfigError.UnknownEnumValue(
+                field = "tier",
+                rawValue = raw,
+                accepted = listOf("iron", "gold", "emerald", "diamond"),
+            ),
         )
     }
 }
@@ -133,21 +164,37 @@ public data class AffiliationYamlConfig(
     public val kind: String,
     @SerialName("team_id") public val teamId: String? = null,
 ) {
-    public fun toDomain(): Affiliation = when (kind.lowercase()) {
+    public fun toDomain(): Result<Affiliation, ConfigError> = when (kind.lowercase()) {
         "neutral" -> {
-            require(teamId == null) {
-                "affiliation.kind=neutral must not carry team_id (got '$teamId')"
+            if (teamId != null) {
+                Result.failure(
+                    ConfigError.FieldShapeMismatch(
+                        field = "affiliation.team_id",
+                        detailMessage = "kind=neutral must not carry team_id (got '$teamId')",
+                    ),
+                )
+            } else {
+                Result.success(Affiliation.Neutral)
             }
-            Affiliation.Neutral
         }
         "team" -> {
-            val raw = requireNotNull(teamId) {
-                "affiliation.kind=team requires team_id"
+            if (teamId == null) {
+                Result.failure(
+                    ConfigError.FieldShapeMismatch(
+                        field = "affiliation.team_id",
+                        detailMessage = "kind=team requires team_id",
+                    ),
+                )
+            } else {
+                Result.success(Affiliation.Team(TeamId(teamId)))
             }
-            Affiliation.Team(TeamId(raw))
         }
-        else -> throw IllegalArgumentException(
-            "Unknown affiliation kind '$kind' (expected: neutral | team)",
+        else -> Result.failure(
+            ConfigError.UnknownEnumValue(
+                field = "affiliation.kind",
+                rawValue = kind,
+                accepted = listOf("neutral", "team"),
+            ),
         )
     }
 }
