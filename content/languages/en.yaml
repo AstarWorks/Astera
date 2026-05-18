@@ -13,6 +13,9 @@ astera:
       not_found: "<red>Weapon id <gold>{weapon}</gold> not found</red>"
       usage: "<yellow>Usage: /astera give <player> <weapon-id></yellow>"
     player-only: "<red>This command can only be run by a player.</red>"
+    reload:
+      unknown_category: "<red>Unknown reload category. Use tab to see registered content types.</red>"
+      load_failed: "<red>Reload aborted: one or more files failed to parse. Previous state preserved; check server log.</red>"
 
   weapon:
     example-sword:

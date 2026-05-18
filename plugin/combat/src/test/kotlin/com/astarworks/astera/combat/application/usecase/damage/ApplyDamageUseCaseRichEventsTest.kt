@@ -1,6 +1,6 @@
 package com.astarworks.astera.combat.application.usecase.damage
 
-import com.astarworks.astera.combat.application.service.MutableArmorRegistry
+import com.astarworks.astera.combat.application.contents.ArmorContents
 import com.astarworks.astera.combat.domain.armor.ArmorBundle
 import com.astarworks.astera.combat.domain.armor.ArmorId
 import com.astarworks.astera.combat.domain.armor.ArmorSlot
@@ -125,7 +125,7 @@ class ApplyDamageUseCaseRichEventsTest {
 
     @Test
     fun `DamageMitigated - emitted per equipped armor slot`() {
-        val armorRegistry = MutableArmorRegistry()
+        val armorRegistry = ArmorContents()
         val helmet = ArmorSpec(
             id = ArmorId("test-helmet"),
             displayNameKey = MessageKey("test.helmet"),

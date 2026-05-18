@@ -11,6 +11,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.INormaProgressRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
@@ -29,14 +30,15 @@ import com.astarworks.astera.stats.application.eventbus.listeners.RecordMatchPla
 import com.astarworks.astera.stats.application.eventbus.listeners.RecordMatchResultOnMatchEndedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnDamageListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnKillListener
+import com.astarworks.astera.stats.application.contents.NormaContents
 import com.astarworks.astera.stats.application.port.outbound.ILevelService
+import com.astarworks.astera.stats.application.port.outbound.INormaRegistry
 import com.astarworks.astera.stats.application.port.outbound.INormaService
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.stats.application.service.InMemoryLevelService
 import com.astarworks.astera.stats.application.service.InMemoryNormaProgressRepository
 import com.astarworks.astera.stats.application.service.InMemoryNormaService
 import com.astarworks.astera.stats.application.service.InMemoryPlayerStatsRepository
-import com.astarworks.astera.stats.application.service.NormaLoaderService
 import com.astarworks.astera.stats.application.usecase.level.GrantXpUseCase
 import com.astarworks.astera.stats.application.usecase.mission.CompleteMissionUseCase
 import com.astarworks.astera.stats.application.usecase.stats.RecordAssistUseCase
@@ -110,17 +112,27 @@ public class AsteraStatsPlugin : JavaPlugin() {
                 ?: InMemoryNormaProgressRepository().also {
                     registrations += services.register<INormaProgressRepository>(it, priority = 0)
                 }
-        val normaService = InMemoryNormaService(normaProgressRepository)
 
-        // Wave 2 R1.a: load norma definitions from content/norma/ ------------
-        val normaContentDir = dataFolder.toPath().resolveSibling("content/norma")
-        val normaReport = NormaLoaderService(register = normaService::register).loadFrom(normaContentDir)
+        // Wave _infra-2b (ADR-0065): NormaContents replaces the legacy
+        // NormaLoaderService callback pattern. Definitions live in the
+        // INormaRegistry port; progress stays in the per-player progress
+        // repository. The /astera reload normas command routes here via Core's
+        // dispatcher.
+        val normaContentDir = core.contentDir.resolve("norma")
+        val normaContents = NormaContents()
+        val normaReport = normaContents.bootstrap(normaContentDir)
         logger.info("Loaded ${normaReport.loaded} norma(s) from $normaContentDir (failed: ${normaReport.failed})")
+        val normaService = InMemoryNormaService(normaProgressRepository, normaContents)
 
         // 4. Register Stats ports onto the shared registry ------------------
         // Note: statsRepository is already registered (or resolved from Postgres) above.
         registrations += services.register<ILevelService>(levelService)
         registrations += services.register<INormaService>(normaService)
+        registrations += services.register<INormaRegistry>(normaContents, priority = 0)
+
+        // Wave _infra-2b: register norma contents on the /astera reload dispatcher.
+        val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
+        reloadRegistry.register(normaContents, normaContentDir)
 
         // 5. Use cases ------------------------------------------------------
         val recordKill = RecordKillUseCase(statsRepository, eventBus)

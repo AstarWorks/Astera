@@ -4,8 +4,8 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.match.application.contents.StageContents
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
-import com.astarworks.astera.match.application.service.InMemoryStageRepository
 import com.astarworks.astera.match.application.usecase.match.EndMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.EntryGameUseCase
 import com.astarworks.astera.match.application.usecase.match.StartMatchUseCase
@@ -35,13 +35,13 @@ class MatchLifecycleSmokeTest {
 
     @Test
     fun `start entry phase phase end produces expected event stream`() {
-        val stages = InMemoryStageRepository()
+        val stages = StageContents()
         val matches = InMemoryMatchRepository()
         val bus = FakeDomainEventBus()
         val scheduler = FakeScheduler(startTick = 1000L)
 
         val stageId = StageId("smoke-arena")
-        stages.save(
+        stages.register(
             Stage(
                 id = stageId,
                 displayNameKey = MessageKey("astera.stage.smoke-arena"),

@@ -9,7 +9,7 @@
  *  - Damage{Attempt, Rule, Source, ResolvedDamage}, DamageProfile, DamageAttribute
  *  - IElementMatrix + YamlElementMatrix
  *  - IDamageGateway + PaperDamageGateway
- *  - Skill{Spec, Id, Trigger, Archetype}, ISkillRegistry, SkillLoaderService
+ *  - Skill{Spec, Id, Trigger, Archetype}, ISkillRegistry, SkillContents
  *  - StatusEffect{Spec, Instance, Id, Kind}, IStatusEffectRegistry, IStatusEffectContainer
  *  - ApplyDamage / CastSkill / ApplyStatus / TickCooldown use cases
  *

@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory
  *   `GuiDiffEngine` ferries `BindingKey.value` through `ItemId(...)`. Bindings
  *   allow dots (`player.coins`); [ItemId] does not. To stop one typo from
  *   killing the entire render, [render] catches `IllegalArgumentException`
- *   from the `ItemId` constructor / [IItemRegistry.resolveOrNull] and falls
+ *   from the `ItemId` constructor / [IItemRegistry.find] and falls
  *   back to a `Material.BARRIER` placeholder so the slot stays visible and
  *   the failure is grep-able in logs.
  *
@@ -91,7 +91,7 @@ public class PaperItemTemplateRenderer(
      * fatal error (BARRIER placeholder) or expected (Reactive miss).
      */
     private fun resolve(id: ItemId, count: Int, viewer: PlayerId?): ItemStack? {
-        val template = items.resolveOrNull(id) ?: run {
+        val template = items.find(id) ?: run {
             log.warn("GUI slot referenced unknown ItemId '{}'.", id.value)
             return null
         }

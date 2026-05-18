@@ -53,8 +53,8 @@ class MatchStartLoadoutApplyListenerTest {
     )
 
     private object EmptyItemRegistry : IItemRegistry<IMcItemTemplate> {
-        override fun resolveOrNull(id: ItemId): IMcItemTemplate? = null
-        override fun list(): Collection<IMcItemTemplate> = emptyList()
+        override fun find(key: ItemId): IMcItemTemplate? = null
+        override fun all(): Collection<IMcItemTemplate> = emptyList()
     }
 
     /**

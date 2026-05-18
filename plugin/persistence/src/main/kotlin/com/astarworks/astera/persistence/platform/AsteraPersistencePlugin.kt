@@ -6,7 +6,7 @@ import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.INormaProgressRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
-import com.astarworks.astera.core.application.port.outbound.IStageRepository
+import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.platform.AsteraCorePlugin
@@ -19,7 +19,7 @@ import com.astarworks.astera.persistence.repository.PostgresMatchRepository
 import com.astarworks.astera.persistence.repository.PostgresNormaProgressRepository
 import com.astarworks.astera.persistence.repository.PostgresPermissionService
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
-import com.astarworks.astera.persistence.repository.PostgresStageRepository
+import com.astarworks.astera.persistence.repository.PostgresStageRegistry
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
@@ -83,8 +83,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             PostgresMatchRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IStageRepository>(
-            PostgresStageRepository(ctx.database),
+        registrations += services.register<IStageRegistry>(
+            PostgresStageRegistry(ctx.database),
             priority = 100,
         )
         registrations += services.register<ICurrencyLedger>(
@@ -106,7 +106,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
 
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
-                "IPlayerStatsRepository, IMatchRepository, IStageRepository, " +
+                "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
                 "ICurrencyLedger, IPermissionService, INormaProgressRepository, " +
                 "ILoadoutRepository.",
         )

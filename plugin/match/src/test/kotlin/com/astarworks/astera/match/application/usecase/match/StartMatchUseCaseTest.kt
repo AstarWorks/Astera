@@ -2,8 +2,8 @@ package com.astarworks.astera.match.application.usecase.match
 
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.match.application.contents.StageContents
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
-import com.astarworks.astera.match.application.service.InMemoryStageRepository
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.stage.Region
 import com.astarworks.astera.core.domain.stage.Stage
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 
 class StartMatchUseCaseTest {
 
-    private lateinit var stages: InMemoryStageRepository
+    private lateinit var stages: StageContents
     private lateinit var matches: InMemoryMatchRepository
     private lateinit var eventBus: FakeDomainEventBus
     private lateinit var scheduler: FakeScheduler
@@ -27,7 +27,7 @@ class StartMatchUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        stages = InMemoryStageRepository()
+        stages = StageContents()
         matches = InMemoryMatchRepository()
         eventBus = FakeDomainEventBus()
         scheduler = FakeScheduler(startTick = 100L)
@@ -36,7 +36,7 @@ class StartMatchUseCaseTest {
 
     @Test
     fun `happy path - creates match in COUNTDOWN and publishes MatchStarted`() {
-        stages.save(buildStage(stageId))
+        stages.register(stageId, buildStage(stageId))
 
         val result = useCase.execute(stageId)
 
@@ -65,7 +65,7 @@ class StartMatchUseCaseTest {
 
     @Test
     fun `AlreadyActive when active match exists for stage`() {
-        stages.save(buildStage(stageId))
+        stages.register(stageId, buildStage(stageId))
         // Start first match
         useCase.execute(stageId)
 

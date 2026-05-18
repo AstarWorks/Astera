@@ -26,10 +26,16 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
-import com.astarworks.astera.core.application.port.outbound.IStageRepository
+import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
+import com.astarworks.astera.core.application.port.outbound.IStageRegistry
+import com.astarworks.astera.match.application.contents.AnomalyContents
+import com.astarworks.astera.match.application.contents.GeneratorContents
+import com.astarworks.astera.match.application.contents.StageContents
+import com.astarworks.astera.match.application.port.outbound.IAnomalyRegistry
 import com.astarworks.astera.match.application.port.outbound.IAnomalyScheduleRepository
 import com.astarworks.astera.match.application.port.outbound.IBarrierGateway
 import com.astarworks.astera.match.application.port.outbound.IGameModeRegistry
+import com.astarworks.astera.match.application.port.outbound.IGeneratorRegistry
 import com.astarworks.astera.match.application.port.outbound.IGeneratorRepository
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
 import com.astarworks.astera.match.application.service.AnomalyScheduler
@@ -42,8 +48,6 @@ import com.astarworks.astera.match.application.service.InMemoryGameModeRegistry
 import com.astarworks.astera.match.application.service.InMemoryGeneratorRepository
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.match.application.service.InMemoryMatchWorldRepository
-import com.astarworks.astera.match.application.service.InMemoryStageRepository
-import com.astarworks.astera.match.application.service.StageLoaderService
 import com.astarworks.astera.match.application.service.StarGeneratorScheduler
 import com.astarworks.astera.match.application.usecase.anomaly.ResolveAnomalyEffectUseCase
 import com.astarworks.astera.match.application.usecase.anomaly.TriggerAnomalyUseCase
@@ -123,17 +127,35 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 ?: InMemoryMatchRepository().also {
                     registrations += services.register<IMatchRepository>(it, priority = 0)
                 }
-        val stages: IStageRepository =
-            services.get<IStageRepository>()
-                ?: InMemoryStageRepository().also {
-                    registrations += services.register<IStageRepository>(it, priority = 0)
-                }
 
-        // Wave 2 R1.a: load stage definitions from content/stages/ -------------
-        val stageLoader = StageLoaderService(stages)
-        val stagesContentDir = dataFolder.toPath().resolveSibling("content/stages")
-        val stageReport = stageLoader.loadFrom(stagesContentDir)
+        // Wave _infra-2b (ADR-0065): StageContents replaces the legacy
+        // InMemoryStageRepository + StageLoaderService pair. Always create the
+        // YAML-backed contents (it participates in the /astera reload dispatcher),
+        // register at priority 0; a Postgres overlay at priority 100 (if present)
+        // still wins for runtime IStageRegistry lookups, but operators can refresh
+        // YAML state for development via /astera reload stages.
+        val stagesContentDir = core.contentDir.resolve("stages")
+        val stageContents = StageContents()
+        val stageReport = stageContents.bootstrap(stagesContentDir)
         logger.info("Loaded ${stageReport.loaded} stage(s) from $stagesContentDir (failed: ${stageReport.failed})")
+        registrations += services.register<IStageRegistry>(stageContents, priority = 0)
+        val stages: IStageRegistry = services.getOrThrow<IStageRegistry>()
+
+        // Wave _infra-2b (ADR-0065): anomaly + generator template contents.
+        // Both register on the /astera reload dispatcher; the runtime
+        // IAnomalyScheduleRepository / IGeneratorRepository (per-match instances)
+        // are wired separately further down (Wave 5c).
+        val anomalyContentDir = core.contentDir.resolve("anomaly")
+        val anomalyContents = AnomalyContents()
+        val anomalyReport = anomalyContents.bootstrap(anomalyContentDir)
+        logger.info("Loaded ${anomalyReport.loaded} anomaly schedule(s) from $anomalyContentDir (failed: ${anomalyReport.failed})")
+        registrations += services.register<IAnomalyRegistry>(anomalyContents, priority = 0)
+
+        val generatorContentDir = core.contentDir.resolve("generators")
+        val generatorContents = GeneratorContents()
+        val generatorReport = generatorContents.bootstrap(generatorContentDir)
+        logger.info("Loaded ${generatorReport.loaded} generator template(s) from $generatorContentDir (failed: ${generatorReport.failed})")
+        registrations += services.register<IGeneratorRegistry>(generatorContents, priority = 0)
 
         // 2. Resolve shared core services ---------------------------------------
         val eventBus = services.getOrThrow<IDomainEventBus>()
@@ -141,6 +163,13 @@ public class AsteraMatchPlugin : JavaPlugin() {
         val playerGateway = services.getOrThrow<IPlayerGateway>()
         val commandHandler = services.getOrThrow<ICommandHandler>()
         val permService = services.getOrThrow<IPermissionService>()
+        val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
+
+        // Wave _infra-2b: register Match's 3 content types on the dispatcher.
+        // /astera reload {stages, anomaly, generators} now route through Core.
+        reloadRegistry.register(stageContents, stagesContentDir)
+        reloadRegistry.register(anomalyContents, anomalyContentDir)
+        reloadRegistry.register(generatorContents, generatorContentDir)
 
         @Suppress("UnusedVariable")
         val broadcaster = services.getOrThrow<IBroadcaster>()
@@ -167,7 +196,7 @@ public class AsteraMatchPlugin : JavaPlugin() {
         if (worldGateway != null) {
             val matchSpawn = MatchSpawnUseCase(
                 matchRepository = matches,
-                stageRepository = stages,
+                stageRegistry = stages,
                 worldGateway = worldGateway,
             )
             eventBus.subscribe(MatchStarted::class) { event ->
@@ -351,8 +380,8 @@ public class AsteraMatchPlugin : JavaPlugin() {
         commandHandler.register(buildMatchCommandSpec(facade, matches, playerGateway, permService))
 
         logger.info(
-            "Astera-Match enabled. Services: IMatchRepository, IStageRepository, " +
-                "IMatchLifecycle, IMatchTeamLookup",
+            "Astera-Match enabled. Services: IMatchRepository, IStageRegistry, " +
+                "IAnomalyRegistry, IGeneratorRegistry, IMatchLifecycle, IMatchTeamLookup",
         )
     }
 

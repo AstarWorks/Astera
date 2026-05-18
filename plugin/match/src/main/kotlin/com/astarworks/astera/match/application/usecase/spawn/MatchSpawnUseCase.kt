@@ -1,7 +1,7 @@
 package com.astarworks.astera.match.application.usecase.spawn
 
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
-import com.astarworks.astera.core.application.port.outbound.IStageRepository
+import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -35,7 +35,7 @@ import com.astarworks.astera.core.domain.stage.StageId
  */
 public class MatchSpawnUseCase(
     private val matchRepository: IMatchRepository,
-    private val stageRepository: IStageRepository,
+    private val stageRegistry: IStageRegistry,
     private val worldGateway: IWorldGateway,
     private val strategy: SpawnRotationStrategy = RandomSpawnRotationStrategy(),
 ) {
@@ -48,7 +48,7 @@ public class MatchSpawnUseCase(
         val match = matchRepository.findById(matchId)
             ?: return Result.failure(SpawnError.MatchNotFound(matchId))
 
-        val stage = stageRepository.findById(match.stageId)
+        val stage = stageRegistry.find(match.stageId)
             ?: return Result.failure(SpawnError.StageNotFound(match.stageId))
 
         val spawnPoint = strategy.pick(stage.spawnPoints, kind)

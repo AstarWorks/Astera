@@ -13,6 +13,12 @@ import com.astarworks.astera.core.adapter.paper.gui.PaperGuiListener
 import com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer
 import com.astarworks.astera.core.adapter.paper.scheduler.PaperScheduler
 import com.astarworks.astera.core.adapter.paper.server.PaperServer
+import com.astarworks.astera.core.application.command.ArgumentType
+import com.astarworks.astera.core.application.command.CommandResult
+import com.astarworks.astera.core.application.command.CommandSpec
+import com.astarworks.astera.core.application.command.requirePermission
+import com.astarworks.astera.core.application.contents.GuiContents
+import com.astarworks.astera.core.application.contents.ItemContents
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
 import com.astarworks.astera.core.application.i18n.LanguageLoader
 import com.astarworks.astera.core.application.i18n.SimpleMessageRenderer
@@ -29,29 +35,31 @@ import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
+import com.astarworks.astera.core.application.port.outbound.ReloadError
 import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
-import com.astarworks.astera.core.application.service.GuiLoaderService
 import com.astarworks.astera.core.application.service.InMemoryBlockStateGateway
 import com.astarworks.astera.core.application.service.InMemoryBossBarManager
-import com.astarworks.astera.core.application.service.InMemoryGuiRegistry
 import com.astarworks.astera.core.application.service.InMemoryPermissionService
+import com.astarworks.astera.core.application.service.InMemoryReloadableContentsRegistry
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
 import com.astarworks.astera.core.application.service.InMemorySchematicLoader
 import com.astarworks.astera.core.application.service.InMemoryTabList
-import com.astarworks.astera.core.application.service.MutableItemRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.application.usecase.permission.AssignRoleUseCase
 import com.astarworks.astera.core.application.usecase.permission.CheckPermissionUseCase
 import com.astarworks.astera.core.application.usecase.permission.RevokeRoleUseCase
+import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.permission.DefaultRoles
+import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.domain.world.BlockDurabilityRule
 import org.bukkit.plugin.java.JavaPlugin
 import java.nio.file.Files
@@ -130,8 +138,12 @@ public class AsteraCorePlugin : JavaPlugin() {
             localeResolver = { playerId -> playerId?.let { mcServer.findPlayer(it)?.locale } },
         )
 
-        // ---- Item registry (Stage 1 D primary key for every item ref) ----
-        val itemRegistry: MutableItemRegistry<IMcItemTemplate> = MutableItemRegistry(
+        // ---- Item contents (Wave _infra-2b, ADR-0065) --------------------
+        // Stage 1 D primary key for every item ref. ItemContents replaces the
+        // legacy MutableItemRegistry — same generic-over-T mapper, but now
+        // participates in the unified /astera reload <category> dispatcher.
+        val itemsContentDir = contentDir.resolve("items")
+        val itemContents: ItemContents<IMcItemTemplate> = ItemContents(
             mapper = { cfg ->
                 val externalKey = cfg.externalKey
                 if (externalKey != null) {
@@ -148,7 +160,7 @@ public class AsteraCorePlugin : JavaPlugin() {
                 }
             },
         )
-        val itemReport = itemRegistry.loadFrom(contentDir.resolve("items"))
+        val itemReport = itemContents.bootstrap(itemsContentDir)
         logger.info("Items loaded: ${itemReport.loaded} ok, ${itemReport.failed} failed")
 
         // ---- Player gateway, broadcaster, event bus, command handler -----
@@ -163,15 +175,18 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<IMessageRenderer>(messages)
         services.register<IBroadcaster>(broadcaster)
         services.register<IDomainEventBus>(eventBus)
-        services.register<IItemRegistry<IMcItemTemplate>>(itemRegistry)
+        services.register<IItemRegistry<IMcItemTemplate>>(itemContents)
         services.register<IPlayerGateway>(playerGateway)
         services.register<ICommandHandler>(commandHandler)
         services.register<IMcServer>(mcServer)
 
-        // ---- GUI infrastructure (Wave 4 R3, ADR-0021) --------------------
-        val guiRegistry = InMemoryGuiRegistry()
-        val guiLoader = GuiLoaderService(guiRegistry)
-        val guiReport = guiLoader.loadFrom(contentDir.resolve("gui"))
+        // ---- GUI contents (Wave _infra-2b, ADR-0065) ---------------------
+        // GuiContents replaces the legacy InMemoryGuiRegistry + GuiLoaderService
+        // pair, joining the unified Contents substrate (atomic-swap reload,
+        // /astera reload gui via the dispatcher below).
+        val guiContentDir = contentDir.resolve("gui")
+        val guiContents = GuiContents()
+        val guiReport = guiContents.bootstrap(guiContentDir)
         logger.info("GUI specs loaded: ${guiReport.loaded} ok, ${guiReport.failed} failed")
 
         // Wave 4.5 (ADR-0027): lazy provider since ILoadoutRepository is registered
@@ -187,7 +202,7 @@ public class AsteraCorePlugin : JavaPlugin() {
             },
         )
 
-        val guiRenderer = PaperItemTemplateRenderer(itemRegistry, messages, guiBindingResolver)
+        val guiRenderer = PaperItemTemplateRenderer(itemContents, messages, guiBindingResolver)
         val guiAdapter = PaperGuiAdapter(
             server = mcServer,
             scheduler = scheduler,
@@ -198,7 +213,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         val guiListener = PaperGuiListener(adapter = guiAdapter, router = guiIntentRouter, server = mcServer)
         server.pluginManager.registerEvents(guiListener, this)
 
-        services.register<IGuiRegistry>(guiRegistry)
+        services.register<IGuiRegistry>(guiContents)
         services.register<IGuiIntentRouter>(guiIntentRouter)
         services.register<IGuiAdapter>(guiAdapter)
         services.register<IGuiBindingResolver>(guiBindingResolver)
@@ -253,6 +268,72 @@ public class AsteraCorePlugin : JavaPlugin() {
         @Suppress("UNUSED_VARIABLE")
         val revokeRole = RevokeRoleUseCase(permissionService)
 
+        // ---- Reload dispatcher (Wave _infra-2b, ADR-0065) ----------------
+        // Single Core-side registry of every plugin's ReloadableContents, dispatched
+        // via the /astera reload <category> command (Brigadier tab-completed on
+        // registered category names). Each feature plugin's onEnable does
+        // `services.getOrThrow<IReloadableContentsRegistry>().register(<contents>, <dir>)`
+        // so the operator UX is one command for every content type.
+        val reloadRegistry: IReloadableContentsRegistry = InMemoryReloadableContentsRegistry()
+        services.register<IReloadableContentsRegistry>(reloadRegistry)
+
+        // Core's own contents (items, gui) register against the dispatcher with
+        // their resolved on-disk directories.
+        reloadRegistry.register(itemContents, itemsContentDir)
+        reloadRegistry.register(guiContents, guiContentDir)
+
+        // /astera reload <category> — single Brigadier command for every content type.
+        // Permission: astera.reload (admin tier). Argument is a single-word string;
+        // tab-completion suggests every currently-registered category name (computed
+        // at suggest-time so feature plugins that register late are reflected).
+        commandHandler.register(
+            CommandSpec.Literal(
+                name = "astera",
+                description = MessageKey("astera.command.root"),
+                subcommands = listOf(
+                    CommandSpec.Literal(
+                        name = "reload",
+                        description = MessageKey("astera.command.reload"),
+                        subcommands = listOf(
+                            CommandSpec.Argument(
+                                name = "category",
+                                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                                completer = { _ -> reloadRegistry.categories().sorted() },
+                            ),
+                        ),
+                        executor = { ctx ->
+                            val category = ctx.required<String>("category")
+                            when (val outcome = reloadRegistry.reload(category)) {
+                                is Result.Success -> {
+                                    logger.info(
+                                        "/astera reload $category: loaded=${outcome.value.loaded}, " +
+                                            "failed=${outcome.value.failed}",
+                                    )
+                                    CommandResult.Success
+                                }
+                                is Result.Failure -> {
+                                    when (val err = outcome.error) {
+                                        is ReloadError.UnknownCategory ->
+                                            logger.warning("/astera reload: unknown category '${err.name}'")
+                                        is ReloadError.LoadFailed ->
+                                            logger.warning(
+                                                "/astera reload ${err.categoryName}: aborted with " +
+                                                    "loaded=${err.report.loaded}, failed=${err.report.failed} " +
+                                                    "(previous state preserved)",
+                                            )
+                                    }
+                                    CommandResult.Failure(outcome.error.messageKey)
+                                }
+                            }
+                        },
+                    ).requirePermission(
+                        permissionService = permissionService,
+                        permission = Permission("astera.reload"),
+                    ),
+                ),
+            ),
+        )
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
@@ -299,6 +380,7 @@ public class AsteraCorePlugin : JavaPlugin() {
             "ISchematicLoader",
             "BlockDurabilityRule",
             "IPermissionService",
+            "IReloadableContentsRegistry",
         )
     }
 }

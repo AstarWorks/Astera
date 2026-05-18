@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.port.outbound
 
+import com.astarworks.astera.core.application.contents.Contents
 import com.astarworks.astera.core.domain.item.ItemId
 
 /**
@@ -12,17 +13,16 @@ import com.astarworks.astera.core.domain.item.ItemId
  * Generic over [T] so the application layer stays vendor-neutral. Production
  * code wires `IItemRegistry<com.astarworks.astera.core.adapter.api.item.IMcItemTemplate>`,
  * tests can wire `IItemRegistry<TestItem>`; either way the application's
- * use cases only see `T?` and never assume a renderer.
+ * use cases only see `T?` from [Contents.find] and never assume a renderer.
  *
- * Populated at plugin startup by [com.astarworks.astera.core.application.service.MutableItemRegistry]
- * via [com.astarworks.astera.core.application.service.ContentLoader]; Phase 4
- * (UGC marketplace) may swap to a DB-backed implementation without touching
+ * Populated at plugin startup by
+ * [com.astarworks.astera.core.application.contents.ItemContents] via the
+ * substrate's `bootstrap(dir)` / `reload(dir)` (ADR-0065); Phase 4 (UGC
+ * marketplace) may swap to a DB-backed implementation without touching
  * application code.
+ *
+ * Extends [Contents] so the substrate's `find` / `all` contract is shared
+ * with every other content type (weapons, stages, skills, …). The marker
+ * adds no methods of its own.
  */
-public interface IItemRegistry<T : Any> {
-    /** Returns the registered template for [id], or `null` if unknown. */
-    public fun resolveOrNull(id: ItemId): T?
-
-    /** Snapshot of every currently-registered template. */
-    public fun list(): Collection<T>
-}
+public interface IItemRegistry<T : Any> : Contents<ItemId, T>

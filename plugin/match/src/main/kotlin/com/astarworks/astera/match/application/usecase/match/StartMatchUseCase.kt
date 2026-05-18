@@ -5,7 +5,7 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
-import com.astarworks.astera.core.application.port.outbound.IStageRepository
+import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
@@ -24,14 +24,14 @@ import java.util.UUID
  * Publishes [MatchStarted] on success.
  */
 public class StartMatchUseCase(
-    private val stages: IStageRepository,
+    private val stages: IStageRegistry,
     private val matches: IMatchRepository,
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
 ) {
 
     public fun execute(stageId: StageId): Result<MatchId, StartMatchError> {
-        val stage = stages.findById(stageId)
+        val stage = stages.find(stageId)
             ?: return Result.failure(StartMatchError.StageNotFound(stageId))
 
         val activeForStage = matches.findActiveMatches()

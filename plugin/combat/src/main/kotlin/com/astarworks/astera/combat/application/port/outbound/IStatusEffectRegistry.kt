@@ -2,21 +2,22 @@ package com.astarworks.astera.combat.application.port.outbound
 
 import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.combat.domain.status.StatusEffectSpec
+import com.astarworks.astera.core.application.contents.Contents
 
 /**
- * Read-only registry of all known status effect *definitions*.
+ * Outbound port: read-only lookup of all known status effect *definitions*.
  *
- * Mirrors [ISkillRegistry] / `IWeaponRegistry`: populated at startup by a
- * `ContentLoader<StatusEffectYamlConfig>` driven service. Distinct from
- * [IStatusEffectContainer], which holds per-entity *runtime* instances —
- * this port answers "what does effect 'burn' look like" while the container
- * answers "is player X currently burning". The split lets the runtime
- * container stay slim and per-entity while specs live globally.
+ * Distinct from `IStatusEffectContainer`, which holds per-entity *runtime*
+ * instances — this port answers "what does effect 'burn' look like" while the
+ * container answers "is player X currently burning". The split lets the
+ * runtime container stay slim and per-entity while specs live globally.
  *
- * Phase 4 may swap the impl to a DB-backed lookup without touching
+ * Populated at plugin startup by `StatusContents.bootstrap` (Wave _infra-2b,
+ * ADR-0065) and hot-reloaded by the cross-plugin `/astera reload status`
+ * dispatch. Phase 4 may swap the impl to a DB-backed lookup without touching
  * application code.
+ *
+ * Extends [Contents] so the substrate's `find` / `all` contract is shared with
+ * every other content type. Adds no methods of its own.
  */
-public interface IStatusEffectRegistry {
-    public fun find(id: StatusEffectId): StatusEffectSpec?
-    public fun all(): Collection<StatusEffectSpec>
-}
+public interface IStatusEffectRegistry : Contents<StatusEffectId, StatusEffectSpec>

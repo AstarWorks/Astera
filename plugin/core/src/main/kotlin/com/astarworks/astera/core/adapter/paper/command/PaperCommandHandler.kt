@@ -176,7 +176,7 @@ public class PaperCommandHandler(
             is ArgumentType.ItemIdArg ->
                 // Astera content ids are free-form tokens; tab-completion is
                 // attached separately via [attachCompleter] if the spec
-                // supplies a completer (typically `IItemRegistry.list()`).
+                // supplies a completer (typically `IItemRegistry.all()`).
                 Commands.argument(arg.name, StringArgumentType.word())
         }
     }

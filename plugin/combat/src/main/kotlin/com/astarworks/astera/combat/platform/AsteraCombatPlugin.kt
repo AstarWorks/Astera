@@ -1,5 +1,8 @@
 package com.astarworks.astera.combat.platform
 
+import com.astarworks.astera.combat.application.contents.ArmorContents
+import com.astarworks.astera.combat.application.contents.SkillContents
+import com.astarworks.astera.combat.application.contents.StatusContents
 import com.astarworks.astera.combat.application.port.outbound.IArmorEquipmentProvider
 import com.astarworks.astera.combat.application.port.outbound.IArmorRegistry
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
@@ -11,20 +14,15 @@ import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
-import com.astarworks.astera.combat.application.service.ArmorLoaderService
 import com.astarworks.astera.combat.application.service.ChargeTracker
 import com.astarworks.astera.combat.application.service.EmptyNearbyTargetQuery
 import com.astarworks.astera.combat.application.service.InMemoryDamageHistoryService
 import com.astarworks.astera.combat.application.service.InMemoryManaPoolService
 import com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer
-import com.astarworks.astera.combat.application.service.MutableArmorRegistry
-import com.astarworks.astera.combat.application.service.MutableSkillRegistry
-import com.astarworks.astera.combat.application.service.MutableStatusRegistry
 import com.astarworks.astera.combat.application.service.NoOpKnockbackGateway
-import com.astarworks.astera.combat.application.service.SkillLoaderService
-import com.astarworks.astera.combat.application.service.StatusEffectLoaderService
 import com.astarworks.astera.combat.application.service.StubArmorEquipmentProvider
 import com.astarworks.astera.combat.application.service.YamlElementMatrix
+import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
 import com.astarworks.astera.combat.application.usecase.charge.ChargedSkillCastUseCase
 import com.astarworks.astera.combat.application.usecase.cost.ConsumeManaUseCase
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
@@ -95,24 +93,28 @@ public class AsteraCombatPlugin : JavaPlugin() {
         val services = core.services
 
         // 2. Build Combat-owned impls ------------------------------------------
-        val skillRegistry = MutableSkillRegistry()
-        val skillReport = SkillLoaderService(skillRegistry)
-            .loadFrom(core.contentDir.resolve("skills"))
+        // Wave _infra-2b (ADR-0065): SkillContents / StatusContents / ArmorContents
+        // replace the legacy Mutable*Registry + *LoaderService pairs and participate
+        // in the unified /astera reload <category> dispatcher.
+        val skillsContentDir = core.contentDir.resolve("skills")
+        val skillContents = SkillContents()
+        val skillReport = skillContents.bootstrap(skillsContentDir)
         logger.info("Skills loaded: ${skillReport.loaded} ok, ${skillReport.failed} failed")
 
-        val statusRegistry = MutableStatusRegistry()
-        val statusReport = StatusEffectLoaderService(statusRegistry)
-            .loadFrom(core.contentDir.resolve("status"))
+        val statusContentDir = core.contentDir.resolve("status")
+        val statusContents = StatusContents()
+        val statusReport = statusContents.bootstrap(statusContentDir)
         logger.info("Status effects loaded: ${statusReport.loaded} ok, ${statusReport.failed} failed")
 
         val elementMatrix: IElementMatrix = YamlElementMatrix.loadFromFile(
             core.contentDir.resolve("balance").resolve("element-matrix.yaml"),
         )
 
-        // Wave 5a — Armor registry + YAML loader
-        val armorRegistry = MutableArmorRegistry()
-        val armorReport = ArmorLoaderService(armorRegistry)
-            .loadFrom(core.contentDir.resolve("armor"))
+        // Wave 5a — Armor registry. Wave _infra-2b: ArmorContents (dual-store:
+        // pieces + sets, atomic across both maps on reload).
+        val armorContentDir = core.contentDir.resolve("armor")
+        val armorContents = ArmorContents()
+        val armorReport = armorContents.bootstrap(armorContentDir)
         logger.info("Armor specs loaded: ${armorReport.loaded} ok, ${armorReport.failed} failed")
 
         // Wave 5a — Mana pool service (in-memory; Wave 5e adds Postgres persistence)
@@ -125,13 +127,19 @@ public class AsteraCombatPlugin : JavaPlugin() {
         val damageHistory = InMemoryDamageHistoryService()
 
         // 3. Register Combat ports onto the shared registry --------------------
-        registrations += services.register<ISkillRegistry>(skillRegistry)
-        registrations += services.register<IStatusEffectRegistry>(statusRegistry)
+        registrations += services.register<ISkillRegistry>(skillContents)
+        registrations += services.register<IStatusEffectRegistry>(statusContents)
         registrations += services.register<IElementMatrix>(elementMatrix)
-        registrations += services.register<IArmorRegistry>(armorRegistry)
+        registrations += services.register<IArmorRegistry>(armorContents)
         registrations += services.register<IManaPoolService>(manaService)
         registrations += services.register<IDamageRandomizer>(damageRandomizer)
         registrations += services.register<IDamageHistoryService>(damageHistory)
+
+        // Wave _infra-2b: register Combat's 3 content types on the dispatcher.
+        val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
+        reloadRegistry.register(skillContents, skillsContentDir)
+        reloadRegistry.register(statusContents, statusContentDir)
+        reloadRegistry.register(armorContents, armorContentDir)
 
         // 4. Wire use cases if runtime impls are present -----------------------
         val eventBus = services.getOrThrow<IDomainEventBus>()
@@ -161,7 +169,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
             elementMatrix = elementMatrix,
             modifiers = listOf(
                 HeadshotModifier(),
-                ArmorReductionModifier(armorRegistry),
+                ArmorReductionModifier(armorContents),
                 CriticalStrikeModifier(critChance = 0.1, critMultiplier = 2.0),
                 KnockbackModifier(),
             ),
@@ -172,7 +180,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
 
         if (damageGateway != null && statusContainer != null && cooldownTracker != null) {
             val applyStatus = ApplyStatusUseCase(
-                effectRegistry = statusRegistry,
+                effectRegistry = statusContents,
                 effectContainer = statusContainer,
                 eventBus = eventBus,
             )
@@ -188,7 +196,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
             )
             val consumeMana = ConsumeManaUseCase(manaService, eventBus)
             val castSkill = CastSkillUseCase(
-                skillRegistry = skillRegistry,
+                skillRegistry = skillContents,
                 statusContainer = statusContainer,
                 eventBus = eventBus,
                 cooldownTracker = cooldownTracker,
@@ -201,7 +209,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 castSkill = castSkill,
                 chargeTracker = chargeTracker,
                 eventBus = eventBus,
-                skillRegistry = skillRegistry,
+                skillRegistry = skillContents,
                 scheduler = scheduler,
             )
 
@@ -227,7 +235,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
                     }
                 }
             val dispatcher = SkillCastDispatcher(
-                skillRegistry = skillRegistry,
+                skillRegistry = skillContents,
                 applyDamage = applyDamage,
                 applyStatus = applyStatus,
                 worldGateway = worldGateway,

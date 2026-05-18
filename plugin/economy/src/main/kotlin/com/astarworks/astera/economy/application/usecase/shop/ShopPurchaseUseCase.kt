@@ -31,7 +31,7 @@ import com.astarworks.astera.economy.domain.event.CurrencyChanged
  * `economy must not import weapons` Konsist rule (ADR-0022). The use case
  * therefore delivers through the **vendor-neutral** chain:
  *
- *   `IItemRegistry<IMcItemTemplate>.resolveOrNull(itemId)` →
+ *   `IItemRegistry<IMcItemTemplate>.find(itemId)` →
  *   `IMcServer.findPlayer(playerId).giveItem(template, null, emptyList())`
  *
  * For Wave 4.5 the demo offers reference `content/weapons/<id>.yaml` items
@@ -49,7 +49,7 @@ import com.astarworks.astera.economy.domain.event.CurrencyChanged
  * 2. Shop lookup ([IShopRegistry.resolve]).
  * 3. Offer lookup ([com.astarworks.astera.core.domain.shop.ShopSpec.offer]).
  * 4. Stock check (`Limited.remaining > 0`).
- * 5. Item template lookup ([IItemRegistry.resolveOrNull]).
+ * 5. Item template lookup ([IItemRegistry.find]).
  * 6. Debit via [ICurrencyLedger.debit].
  * 7. Deliver via [com.astarworks.astera.core.adapter.api.entity.IMcPlayer.giveItem].
  * 8. Publish [CurrencyChanged] with reason [CurrencyChangeReason.ShopPurchase].
@@ -82,7 +82,7 @@ public class ShopPurchaseUseCase(
             is ShopStock.Unlimited -> Unit
         }
 
-        val template = itemRegistry.resolveOrNull(offer.itemId)
+        val template = itemRegistry.find(offer.itemId)
             ?: return Result.failure(
                 ShopPurchaseError.DeliveryFailed(
                     "Item '${offer.itemId.value}' is not registered (offer=${offerId.value}, shop=${shopId.value})",

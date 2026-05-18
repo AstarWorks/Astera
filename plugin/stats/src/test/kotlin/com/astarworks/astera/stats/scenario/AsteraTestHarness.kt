@@ -1,14 +1,14 @@
 package com.astarworks.astera.stats.scenario
 
-import com.astarworks.astera.combat.application.service.MutableArmorRegistry
-import com.astarworks.astera.combat.application.service.MutableSkillRegistry
-import com.astarworks.astera.combat.application.service.MutableStatusRegistry
+import com.astarworks.astera.combat.application.contents.ArmorContents
+import com.astarworks.astera.combat.application.contents.SkillContents
+import com.astarworks.astera.combat.application.contents.StatusContents
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
+import com.astarworks.astera.core.application.contents.ItemContents
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.service.InMemoryCooldownTracker
 import com.astarworks.astera.core.application.service.InMemoryPermissionService
-import com.astarworks.astera.core.application.service.MutableItemRegistry
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
@@ -20,8 +20,8 @@ import com.astarworks.astera.core.domain.player.PlayerProfile
 import com.astarworks.astera.core.domain.stage.Region
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
+import com.astarworks.astera.match.application.contents.StageContents
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
-import com.astarworks.astera.match.application.service.InMemoryStageRepository
 import com.astarworks.astera.match.application.usecase.match.EndMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.StartMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase
@@ -97,16 +97,18 @@ public class AsteraTestHarness private constructor(
     public val playerRepo: FakePlayerRepository,
     public val matchTeamLookup: FakeMatchTeamLookup,
     public val guiAdapter: FakeGuiAdapter,
-    public val itemRegistry: MutableItemRegistry<TestItemTemplate>,
+    public val itemRegistry: ItemContents<TestItemTemplate>,
     public val weaponRegistry: WeaponContents,
-    public val skillRegistry: MutableSkillRegistry,
-    public val armorRegistry: MutableArmorRegistry,
-    public val statusRegistry: MutableStatusRegistry,
-    public val stageRepo: InMemoryStageRepository,
+    public val skillRegistry: SkillContents,
+    public val armorRegistry: ArmorContents,
+    public val statusRegistry: StatusContents,
+    public val stageRepo: StageContents,
     public val matchRepo: InMemoryMatchRepository,
     public val playerStatsRepo: InMemoryPlayerStatsRepository,
     public val normaProgressRepo: InMemoryNormaProgressRepository,
     public val levelService: InMemoryLevelService,
+    /** Wave _infra-2b: norma definitions live here; the service reads through to this. */
+    public val normaRegistry: com.astarworks.astera.stats.application.contents.NormaContents,
     public val normaService: InMemoryNormaService,
     public val permissionService: InMemoryPermissionService,
     public val cooldownTracker: InMemoryCooldownTracker,
@@ -168,8 +170,8 @@ public class AsteraTestHarness private constructor(
      * enrolled in the match teams (right now we just set [matchTeamLookup]).
      */
     public fun startMatch(stageId: StageId, players: List<IMcPlayer>): MatchId {
-        if (stageRepo.findById(stageId) == null) {
-            stageRepo.save(
+        if (stageRepo.find(stageId) == null) {
+            stageRepo.register(
                 Stage(
                     id = stageId,
                     displayNameKey = MessageKey("astera.stage.${stageId.value}"),
@@ -233,19 +235,20 @@ public class AsteraTestHarness private constructor(
             val playerRepo = FakePlayerRepository()
             val teams = FakeMatchTeamLookup()
             val gui = FakeGuiAdapter()
-            val items = MutableItemRegistry<TestItemTemplate>(mapper = { cfg ->
+            val items = ItemContents<TestItemTemplate>(mapper = { cfg ->
                 TestItemTemplate(ItemId(cfg.id))
             })
             val weaponReg = WeaponContents().also { reg -> weapons.forEach { reg.register(it) } }
-            val skillReg = MutableSkillRegistry()
-            val armorReg = MutableArmorRegistry()
-            val statusReg = MutableStatusRegistry()
-            val stages = InMemoryStageRepository()
+            val skillReg = SkillContents()
+            val armorReg = ArmorContents()
+            val statusReg = StatusContents()
+            val stages = StageContents()
             val matches = InMemoryMatchRepository()
             val statsRepo = InMemoryPlayerStatsRepository()
             val normaProgress = InMemoryNormaProgressRepository()
             val levelService = InMemoryLevelService()
-            val normaService = InMemoryNormaService(normaProgress)
+            val normaReg = com.astarworks.astera.stats.application.contents.NormaContents()
+            val normaService = InMemoryNormaService(normaProgress, normaReg)
             val permissions = InMemoryPermissionService()
             val cooldowns = InMemoryCooldownTracker(scheduler)
             val knockback = NoOpKnockbackGateway()
@@ -293,6 +296,7 @@ public class AsteraTestHarness private constructor(
                 playerStatsRepo = statsRepo,
                 normaProgressRepo = normaProgress,
                 levelService = levelService,
+                normaRegistry = normaReg,
                 normaService = normaService,
                 permissionService = permissions,
                 cooldownTracker = cooldowns,
@@ -310,7 +314,7 @@ public class AsteraTestHarness private constructor(
 }
 
 /**
- * Trivial item-template stand-in used by the harness's `MutableItemRegistry`
+ * Trivial item-template stand-in used by the harness's `ItemContents`
  * generic instantiation. The application layer must not import `IMcItemTemplate`
  * (vendor-neutral discipline), so the harness instantiates with a thin POKO
  * keyed by [ItemId]. Scenarios that need richer item behaviour can extend

@@ -33,7 +33,7 @@ class NormaProgressOnObjectiveScenarioTest {
                 period = PeriodKind.Daily,
                 displayKey = MessageKey("astera.norma.daily-2-kills"),
             )
-            harness.normaService.register(norma)
+            harness.normaRegistry.register(norma)
 
             kills(attacker, target, with = sword)
 

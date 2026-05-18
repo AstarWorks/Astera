@@ -33,7 +33,7 @@ public class PaperWeaponDelivery(
 ) : IWeaponDelivery {
 
     override fun give(target: IMcPlayer, weapon: WeaponSpec): DeliveryResult {
-        val template = itemRegistry.resolveOrNull(weapon.itemId)
+        val template = itemRegistry.find(weapon.itemId)
             ?: return DeliveryResult.UnknownItem(weapon.itemId.value)
 
         // Weapon-level display name / lore overrides take precedence over

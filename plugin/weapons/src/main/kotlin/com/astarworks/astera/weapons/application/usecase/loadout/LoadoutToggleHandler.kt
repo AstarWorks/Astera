@@ -63,7 +63,7 @@ public class LoadoutToggleHandler(
         val next = !current
         toggleState[player.id] = next
 
-        val baseSpec = registry.resolve(LOADOUT_GUI_ID)
+        val baseSpec = registry.find(LOADOUT_GUI_ID)
         if (baseSpec == null) {
             log.warn("Loadout GUI '{}' not registered; cannot render toggle update", LOADOUT_GUI_ID)
             return

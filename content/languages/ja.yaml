@@ -21,6 +21,9 @@ astera:
       not_found: "<red>武器 ID <gold>{weapon}</gold> が見つかりません</red>"
       usage: "<yellow>使い方: /astera give <プレイヤー> <武器ID></yellow>"
     player-only: "<red>このコマンドはプレイヤーのみ実行できます。</red>"
+    reload:
+      unknown_category: "<red>未登録の reload カテゴリです。Tab キーで登録済みコンテンツタイプを表示できます。</red>"
+      load_failed: "<red>reload を中止しました。一部 YAML がパースに失敗しています。直前の状態は保持されています。サーバーログを確認してください。</red>"
 
   weapon:
     example-sword:

@@ -34,7 +34,7 @@ public class OpenGuiUseCase(
     public fun execute(playerId: PlayerId, guiId: GuiId): Result<Unit, OpenGuiError> {
         val player = server.findPlayer(playerId)
             ?: return Result.failure(OpenGuiError.PlayerNotOnline)
-        val spec = registry.resolve(guiId)
+        val spec = registry.find(guiId)
             ?: return Result.failure(OpenGuiError.GuiNotFound(guiId))
         return if (adapter.open(player, spec)) {
             Result.success(Unit)

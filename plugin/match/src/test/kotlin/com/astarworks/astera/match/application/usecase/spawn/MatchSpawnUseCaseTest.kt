@@ -13,8 +13,8 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stage.SpawnPoint
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
+import com.astarworks.astera.match.application.contents.StageContents
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
-import com.astarworks.astera.match.application.service.InMemoryStageRepository
 import com.astarworks.astera.testfixtures.FakeWorldGateway
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -29,7 +29,7 @@ import java.util.UUID
  */
 class MatchSpawnUseCaseTest {
 
-    private lateinit var stages: InMemoryStageRepository
+    private lateinit var stages: StageContents
     private lateinit var matches: InMemoryMatchRepository
     private lateinit var worldGateway: FakeWorldGateway
     private lateinit var useCase: MatchSpawnUseCase
@@ -41,12 +41,12 @@ class MatchSpawnUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        stages = InMemoryStageRepository()
+        stages = StageContents()
         matches = InMemoryMatchRepository()
         worldGateway = FakeWorldGateway()
         useCase = MatchSpawnUseCase(
             matchRepository = matches,
-            stageRepository = stages,
+            stageRegistry = stages,
             worldGateway = worldGateway,
             // RandomSpawnRotationStrategy with a single matching spawn is
             // deterministic — no need to seed the Random for these tests.
@@ -56,7 +56,7 @@ class MatchSpawnUseCaseTest {
 
     @Test
     fun `happy path - teleports player to the matching spawn`() {
-        stages.save(stageWithSpawns(SpawnPoint.Attacker(attackerPos)))
+        stages.register(stageWithSpawns(SpawnPoint.Attacker(attackerPos)))
         matches.save(matchOn(stageId))
 
         val result = useCase.spawnPlayer(matchId, playerId, SpawnKind.ATTACKER)
@@ -72,7 +72,7 @@ class MatchSpawnUseCaseTest {
     @Test
     fun `MatchNotFound when match does not exist`() {
         // Stage exists but no match is saved.
-        stages.save(stageWithSpawns(SpawnPoint.Attacker(attackerPos)))
+        stages.register(stageWithSpawns(SpawnPoint.Attacker(attackerPos)))
 
         val result = useCase.spawnPlayer(matchId, playerId, SpawnKind.ATTACKER)
 
@@ -100,7 +100,7 @@ class MatchSpawnUseCaseTest {
     @Test
     fun `NoSpawnPointForKind when stage has no spawn of the requested kind`() {
         // Stage only has a defender spawn — asking for attacker must fail.
-        stages.save(stageWithSpawns(SpawnPoint.Defender(Vec3(0.0, 64.0, 0.0))))
+        stages.register(stageWithSpawns(SpawnPoint.Defender(Vec3(0.0, 64.0, 0.0))))
         matches.save(matchOn(stageId))
 
         val result = useCase.spawnPlayer(matchId, playerId, SpawnKind.ATTACKER)
@@ -116,7 +116,7 @@ class MatchSpawnUseCaseTest {
 
     @Test
     fun `TeleportFailed when world gateway returns false`() {
-        stages.save(stageWithSpawns(SpawnPoint.Attacker(attackerPos)))
+        stages.register(stageWithSpawns(SpawnPoint.Attacker(attackerPos)))
         matches.save(matchOn(stageId))
         worldGateway.teleportResult = false
 

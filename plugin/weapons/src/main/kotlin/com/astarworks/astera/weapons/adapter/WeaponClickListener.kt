@@ -54,7 +54,7 @@ public class WeaponClickListener(
         val player = event.player
         val held = player.heldItemMaterialKey() ?: return
         val weapon: WeaponSpec = weapons.all().firstOrNull { spec ->
-            val template = itemRegistry.resolveOrNull(spec.itemId)
+            val template = itemRegistry.find(spec.itemId)
             template is IMcItemTemplate.Vanilla && template.material == held
         } ?: return
 
