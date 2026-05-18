@@ -25,27 +25,29 @@ Phase 1 (now) is the **foundation**: a loosely-coupled Clean Architecture plugin
 
 ## Architecture in one breath
 
+Astera ships as **7 independent Paper plugins** (ADR-0022), wired via Core's `ServiceRegistry` + central `IDomainEventBus`. Server admins pick the subset they need — the minimum is just **Core + Weapons** for weapon authoring and test fire.
+
 ```
-domain (pure Kotlin, no Minecraft)
-  └─ application (use cases + ports)
-       └─ adapter-minecraft-api (vendor-neutral)
-            ├─ adapter-minecraft-impl-paper (Paper-specific)
-            ├─ adapter-persistence-postgres
-            ├─ adapter-messaging-redis
-            └─ adapter-providers/{weaponmechanics,oraxen,mythicmobs}
-                 └─ platform-paper-plugin (entrypoint)
+plugin:core         (mandatory base — shared domain, ServiceRegistry, IDomainEventBus)
+  ├─ plugin:weapons      (depend Core)                       — 鯖民最小単位
+  ├─ plugin:combat       (depend Core, softdepend Weapons)
+  ├─ plugin:match        (depend Core, softdepend Combat)
+  ├─ plugin:stats        (depend Core, softdepend Weapons/Combat/Match)
+  ├─ plugin:economy      (depend Core, softdepend Stats/Match)
+  └─ plugin:persistence  (depend Core, softdepend all — Postgres impl override)
 ```
 
-Dependency direction is **enforced at build time by Konsist tests** — domain cannot import Bukkit, and the vendor-neutral MC adapter cannot leak Paper-specific types. Adding Folia / Spigot / Velocity support means adding a sibling `adapter-minecraft-impl-*` module; the inner layers stay untouched.
+Inside every plugin the package layout is `domain` → `application` → `adapter.{api,paper}` → `platform`. **Konsist tests** (`tools/architecture-test/`) enforce both the per-plugin direction (domain cannot import Bukkit) and the cross-plugin sibling-isolation matrix at build time — currently 18 rules including i18n key parity and throwable-free application APIs. Adding Folia / Velocity support means adding a sibling `*.adapter.<vendor>.*` package family; the inner layers stay untouched.
 
-Why: see [`docs/adr/0001-clean-architecture-with-mc-as-edge.md`](docs/adr/0001-clean-architecture-with-mc-as-edge.md) and [`docs/adr/0002-vendor-neutral-mc-adapter-layer.md`](docs/adr/0002-vendor-neutral-mc-adapter-layer.md).
+Why: see [`docs/adr/0022-multi-plugin-portable-architecture.md`](docs/adr/0022-multi-plugin-portable-architecture.md), [`docs/adr/0001-clean-architecture-with-mc-as-edge.md`](docs/adr/0001-clean-architecture-with-mc-as-edge.md), and [`docs/adr/0002-vendor-neutral-mc-adapter-layer.md`](docs/adr/0002-vendor-neutral-mc-adapter-layer.md).
 
 ## Quick start
 
 5-minute setup with Docker Compose — full instructions in [`docker/README.md`](docker/README.md).
 
 ```bash
-./gradlew :plugin:platform-paper-plugin:shadowJar
+# Build all 7 plugin jars (or pick a subset, e.g. :plugin:core :plugin:weapons for 鯖民最小)
+./gradlew shadowJar
 cp docker/.env.example docker/.env
 docker compose -f docker/docker-compose.yml up -d
 # Connect Minecraft Java client (26.1.x) to localhost:25565

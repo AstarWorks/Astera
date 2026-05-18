@@ -90,3 +90,10 @@ versions/
 
 # --- Astera-specific ---
 # (private/ is a git submodule; do NOT ignore it. See .gitmodules.)
+
+# --- Claude Code harness state ---
+# Per-session scratch (konsist-watcher dirty tracking, etc.). Settings,
+# hooks, rules, agents, and skills under .claude/ ARE committed.
+.claude/state/*
+!.claude/state/.gitkeep
+.claude/scheduled_tasks.lock

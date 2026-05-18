@@ -7,7 +7,10 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 - **新しく参加した人へ** → [contributing/getting-started.md](contributing/getting-started.md)
 - **アーキテクチャの全体像** → [architecture/overview.md](architecture/overview.md)
 - **進行中の Phase** → [roadmap.md](roadmap.md)
+- **実装ロードマップ (SSOT)** → [IMPLEMENTATION-ROADMAP.md](IMPLEMENTATION-ROADMAP.md) — 12-tier、leverage-ordered
+- **RTM パリティ追跡** → [RTM-PARITY-TRACKER.md](RTM-PARITY-TRACKER.md) — feature × state × wave 配賦
 - **RTM との設計差** → [architecture/rtm-divergence.md](architecture/rtm-divergence.md)
+- **Wave 実行プロトコル** → [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) + [`.claude/rules/wave-execution.md`](../.claude/rules/wave-execution.md)
 - **インフラ構成** → [infrastructure/overview.md](infrastructure/overview.md)
 - **用語が分からない** → [glossary.md](glossary.md)
 
@@ -15,7 +18,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 
 | ディレクトリ | 内容 |
 |---|---|
-| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0016 |
+| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0030 (gap: 0023, 0024, 0026) |
 | [`architecture/`](architecture/) | 設計の現在地。コードと同期して育てる生きた仕様 |
 | [`infrastructure/`](infrastructure/) | k8s / GitOps / 監視 / スケーリング |
 | [`operations/`](operations/) | 運用 runbook |
