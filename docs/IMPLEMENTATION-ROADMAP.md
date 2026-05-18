@@ -147,22 +147,36 @@ field so `DamageMitigated` events carry which element was resisted.
 — Wave 5b reads, Wave 5e migrates PlayerStats/Wallet/ManaPool + armor
 resists, Wave 5d/6b add mob/item-instance containers.
 
-### Wave 5b — HUD ports (Tier 2) [Wave 5a と並列可]
+### Wave 5b ✅ — HUD ports (Tier 2) [Wave 5a と並列可]
 
-| Property | Value |
-|---|---|
-| Depends on | Wave 4.5 のみ (Tier 1 不要、Wave 5a と完全独立) |
-| Unlocks | 試合 HUD / 戦闘ダメージ表示 / Tutorial actionbar |
-| Complexity | 軽 (4-5 worker, ~3-4h) |
-| ADR | 0031 |
+`078f6e1` — 5 vendor-neutral HUD ports (`IBossBar` / `IBossBarManager`,
+`IScoreboard` / `ITeamScoreboard` / `IScoreboardManager`, `ITabList`) +
+`IMcPlayer.sendActionBar` / `sendTitle` 拡張 + 3 `InMemory*` impls wired
+in `AsteraCorePlugin` (priority 0) + `FakeBossBarManager` / `FakeScoreboardManager` /
+`FakeTabList` in test-fixtures + `FakeMcServer` promotion from weapons
+test to shared test-fixtures.
 
-**Scope**:
-- `IBossBar` / `IBossBarManager` port + `FakeBossBarManager`
-- `IScoreboard` / `ITeamScoreboard` port + `FakeScoreboard`
-- `ITabList` port + `FakeTabList`
-- `IMcPlayer.sendActionBar(messageKey, placeholders)` 追加
-- `IMcPlayer.sendTitle(titleKey, subtitleKey?, fadeIn, stay, fadeOut)` 追加
-- Reference design section: CT / star / level HUD layout (RTM issue #14)
+**ADR-0058 §6 read-path established**: `plugin/core/.../domain/attribute/`
+minimum read API (`AttributeKey` / sealed `AttributeValue` /
+`IAttributeContainer` get/set/remove/keys / `Attributes` registry /
+`number`/`flag`/`ref`/`durationTicks` ext helpers) + `ShimPlayerAttributeContainer`
+in `plugin/combat/.../application/attribute/` wrapping `PlayerStats` +
+`ManaPool`. The no-op-default modifier surface on `IAttributeContainer`
+was layered in by the parallel Wave 5c track (`SimpleAttributeContainer`
+ships in 5c's own commit).
+
+ADR-0031 (HUD Ports) Draft. 6 paired i18n keys reserved under `astera.hud.*`
+(en/ja). 58 new tests green (12 BossBar + 15 Scoreboard + 10 TabList +
+7 IMcPlayerActionBarTitle + 7 AttributeContainer + 7 Shim). RTM parity
+22% → 28%.
+
+**Parallel-wave lesson** (harness commit `6f4f5c6`): Wave 5b ran in the
+same working tree as the parallel Wave 5c session and produced build
+breaks + commit scope bleed. `.claude/rules/wave-execution.md` +
+`.claude/skills/wave-start/SKILL.md` now require `git worktree add ../astera-wave-{N}{y} -b wave-{N}{y}`
+for parallel waves; the wave-start skill detects multiple-wave-ID /
+"並列" / "parallel" triggers in Step 0 and proposes the worktree before
+reading the four canonical docs.
 
 ### Wave 5c — Game modes + Star Generator + Anomaly (Tier 3)
 
@@ -843,7 +857,7 @@ ADR-0010 (Generative AI policy deferred to Phase 6) はこの phase で finalize
 | Phase 1 PoC closing (RTM #5 + Phase 4-7 detail) | 4.8 | ~15% | 8 (✅) |
 | Combat domain depth | 5a | ~22% | 9 (✅ `ca6ddab`) |
 | Damage consolidation + Armor attribute-aware + ADR-0058 | 5a-fix | ~22% | 10 (✅) |
-| HUD ports | 5b | ~25% | 10 (5a 並列) |
+| HUD ports + ADR-0058 read-path shim | 5b | ~28% | 10 (✅ `078f6e1`) |
 | Match flow rich | 5c | ~30% | 11 |
 | World geometry | 5d | ~38% | 12 (1-2 sess) |
 | Session + Social + Inventory snapshot | 5e | ~45% | 14 |
