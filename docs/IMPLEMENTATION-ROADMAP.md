@@ -959,7 +959,7 @@ Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 | 5e (Listener-Service refactor sub-scope) | 0064 | Listener-Service separation pattern (RTM issue #22; ADR-0001 hexagonal の module-internal routing convention) |
 | **Wave _infra-2b** | **0065** | **Per-Category Reload Dispatcher** (Core-side `IReloadableContentsRegistry` + `/astera reload <category>` Brigadier command; consolidates per-plugin reload subcommands introduced in _infra-2a) |
 
-Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d), 0060-0062 (Wave _infra-2〜4).
+Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d), 0062 (Wave _infra-4). Drafted: 0059 (Wave _infra-1), 0060 (Wave _infra-2a, supersedes 0017), 0061 (Wave _infra-3), 0065 (Wave _infra-2b).
 
 ---
 
