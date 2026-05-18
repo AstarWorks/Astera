@@ -1,0 +1,9 @@
+# Wave 5a starter: single armor piece, no set membership.
+# 10% damage reduction when worn in the HELMET slot. ArmorReductionModifier
+# aggregates per-slot reductions additively, then caps total at 80%.
+
+type: piece
+id: example-helmet
+display_name_key: astera.armor.example-helmet.name
+slot: helmet
+damage_reduction: 0.10

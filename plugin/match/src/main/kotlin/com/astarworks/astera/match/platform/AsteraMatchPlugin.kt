@@ -154,10 +154,20 @@ public class AsteraMatchPlugin : JavaPlugin() {
         }
         registrations += services.register<IMatchLifecycle>(facade)
 
+        // Wave 5a — friendly-fire team lookup adapter (Combat plugin resolves
+        // IMatchTeamLookup via the shared registry to perform per-match team
+        // checks without depending on Match directly).
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>(
+            com.astarworks.astera.match.application.service.MatchRepositoryTeamLookup(matches),
+        )
+
         // 5. Register /astera-match command tree --------------------------------
         commandHandler.register(buildMatchCommandSpec(facade, matches, playerGateway, permService))
 
-        logger.info("Astera-Match enabled. Services: IMatchRepository, IStageRepository, IMatchLifecycle")
+        logger.info(
+            "Astera-Match enabled. Services: IMatchRepository, IStageRepository, " +
+                "IMatchLifecycle, IMatchTeamLookup",
+        )
     }
 
     override fun onDisable() {

@@ -1,0 +1,10 @@
+# Wave 5a starter: set-bound piece — opts into the `example-set` for bonus
+# stacking. Wear together with example-set-chestplate / -leggings / -boots to
+# unlock the 4-piece tier defined in example-set.yaml.
+
+type: piece
+id: example-set-helmet
+display_name_key: astera.armor.example-set-helmet.name
+slot: helmet
+damage_reduction: 0.08
+set_key: example-set

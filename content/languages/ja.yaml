@@ -162,3 +162,22 @@ astera:
       chestplate: "チェストプレート"
       leggings: "レギンス"
       boots: "ブーツ"
+    example-helmet:
+      name: "<gray>サンプル ヘルメット</gray>"
+      lore: "<dark_gray>スロット: ヘルメット / 軽減率: 10%</dark_gray>"
+    example-chestplate:
+      name: "<gray>サンプル チェストプレート</gray>"
+      lore: "<dark_gray>スロット: チェストプレート / 軽減率: 25%</dark_gray>"
+
+  combat:
+    damage:
+      mitigated_by_armor: "<gray>(-{amount} 防具軽減)</gray>"
+      critical: "<red><bold>クリティカル！</bold></red>"
+      friendly_fire_blocked: "<yellow>フレンドリーファイアは無効です。</yellow>"
+    mana:
+      insufficient: "<red>マナ不足 ({have}/{tried})。</red>"
+      consumed: "<aqua>-{amount} マナ</aqua>"
+    skill:
+      charge:
+        started: "<yellow>{skill} をチャージ中…</yellow>"
+        cancelled: "<gray>チャージをキャンセルしました。</gray>"

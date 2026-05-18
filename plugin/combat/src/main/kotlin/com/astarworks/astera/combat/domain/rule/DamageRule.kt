@@ -1,55 +1,59 @@
 package com.astarworks.astera.combat.domain.rule
 
+import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
+import com.astarworks.astera.combat.domain.armor.ArmorBundle
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
-import com.astarworks.astera.combat.domain.damage.ResolvedDamage
+import com.astarworks.astera.combat.domain.damage.DamageResolution
 import com.astarworks.astera.core.domain.damage.DamageAttribute
+import com.astarworks.astera.core.domain.match.TeamId
 
 /**
- * Pure resolution of a [DamageAttempt] into a [ResolvedDamage].
+ * Pipeline resolution of a [DamageAttempt] into a [DamageResolution].
+ *
+ * Wave 5a refactors the previous static `object DamageRule.resolve(...)` into
+ * a class with a pluggable list of [DamageModifier]s. Reasoning (ADR-0030):
+ *
+ *  - Worker territories (armor / crit / knockback) all needed to extend the
+ *    rule. A single static function would force every change to land on the
+ *    same file; the pipeline turns each concern into its own modifier file.
+ *  - Element matrix + friendly-fire are pipeline pre-stages (not modifiers)
+ *    because they short-circuit the pipeline rather than mutating damage.
  *
  * Order of operations:
- *   1. Start with `attempt.baseProfile.base`.
- *   2. Multiply by [IElementMatrix.multiplier]`(attackerAttr, defenderAttribute)`
- *      when [defenderAttribute] is supplied (otherwise skipped, leaving the
- *      base untouched — useful for environment/PVE targets without an
- *      element).
- *   3. Multiply by [headshotMultiplier] when `attempt.headshot` is `true`.
- *
- * `wasCritical` is `true` only when the headshot multiplier actually amplified
- * the damage (i.e. headshot && pre-headshot amount > 0 && headshotMultiplier > 1).
- * Element-matrix multipliers do NOT set `wasCritical` — they're balance, not
- * a player-skill signal.
- *
- * Shield mechanics are Phase 3, so `wasBlocked` stays `false`.
- *
- * Keep stateless so the rule remains trivially testable without any Paper
- * harness.
+ *  1. Friendly-fire gate (returns [DamageResolution.blocked] when blocked)
+ *  2. Element matrix → seed [WorkingDamage]
+ *  3. Each [DamageModifier] in registration order (typical order:
+ *     HeadshotModifier → ArmorReductionModifier → CriticalStrikeModifier →
+ *     KnockbackModifier)
+ *  4. Freeze into [DamageResolution]
  */
-public object DamageRule {
-
+public class DamageRule(
+    private val elementMatrix: IElementMatrix,
+    private val modifiers: List<DamageModifier>,
+    private val friendlyFire: FriendlyFirePolicy,
+    private val randomizer: IDamageRandomizer,
+) {
     public fun resolve(
         attempt: DamageAttempt,
         defenderAttribute: DamageAttribute? = null,
-        elementMatrix: IElementMatrix = IElementMatrix.Neutral,
-        headshotMultiplier: Double = 2.0,
-    ): ResolvedDamage {
-        val base = attempt.baseProfile.base
-        val attackerAttr = attempt.baseProfile.attribute
-
-        val afterElement = if (defenderAttribute != null) {
-            base * elementMatrix.multiplier(attackerAttr, defenderAttribute)
-        } else {
-            base
+        defenderArmor: ArmorBundle? = null,
+        attackerTeam: TeamId? = null,
+        defenderTeam: TeamId? = null,
+    ): DamageResolution {
+        // 1. friendly-fire gate
+        if (friendlyFire.shouldBlock(attackerTeam, defenderTeam)) {
+            return DamageResolution.blocked(attempt)
         }
 
-        val finalAmount = if (attempt.headshot) afterElement * headshotMultiplier else afterElement
-        val wasCritical = attempt.headshot && finalAmount > afterElement
+        // 2. base × element → WorkingDamage
+        var working = WorkingDamage.from(attempt, elementMatrix, defenderAttribute)
 
-        return ResolvedDamage(
-            finalAmount = finalAmount,
-            attribute = attackerAttr,
-            wasBlocked = false,
-            wasCritical = wasCritical,
-        )
+        // 3. modifier pipeline
+        for (mod in modifiers) {
+            working = mod.apply(working, attempt, defenderArmor, randomizer)
+        }
+
+        // 4. freeze
+        return working.toResolution()
     }
 }

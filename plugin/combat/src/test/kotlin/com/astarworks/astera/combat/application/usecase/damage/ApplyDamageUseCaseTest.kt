@@ -6,12 +6,18 @@ import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
+import com.astarworks.astera.combat.domain.rule.DamageRule
+import com.astarworks.astera.combat.domain.rule.FriendlyFirePolicy
+import com.astarworks.astera.combat.domain.rule.HeadshotModifier
 import com.astarworks.astera.combat.domain.rule.IElementMatrix
 import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.combat.domain.status.StatusEffectSpec
 import com.astarworks.astera.combat.domain.status.StatusKind
+import com.astarworks.astera.combat.testfixtures.FakeArmorEquipmentProvider
 import com.astarworks.astera.combat.testfixtures.FakeDamageGateway
+import com.astarworks.astera.combat.testfixtures.FakeDamageRandomizer
+import com.astarworks.astera.combat.testfixtures.FakeKnockbackGateway
 import com.astarworks.astera.combat.testfixtures.FakeStatusEffectContainer
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.damage.DamageAttribute
@@ -24,25 +30,45 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
+/**
+ * Wave 5a: ApplyDamageUseCase now consumes [DamageRule] + 3 extra ports.
+ * These 4 legacy tests are kept (signature update only) to lock the contract
+ * preserved across the rewrite. Worker δ adds richer tests covering the new
+ * sub-event emissions (CriticalHit / KnockbackApplied / DamageMitigated /
+ * FriendlyFireBlocked) in a separate file (or extends this one).
+ */
 class ApplyDamageUseCaseTest {
 
     private val targetId = PlayerId(UUID.randomUUID())
     private val attackerId = PlayerId(UUID.randomUUID())
 
     private lateinit var gateway: FakeDamageGateway
+    private lateinit var knockbackGateway: FakeKnockbackGateway
     private lateinit var container: FakeStatusEffectContainer
+    private lateinit var armorProvider: FakeArmorEquipmentProvider
     private lateinit var eventBus: FakeDomainEventBus
     private lateinit var useCase: ApplyDamageUseCase
 
     @BeforeEach
     fun setUp() {
         gateway = FakeDamageGateway()
+        knockbackGateway = FakeKnockbackGateway()
         container = FakeStatusEffectContainer()
+        armorProvider = FakeArmorEquipmentProvider()
         eventBus = FakeDomainEventBus()
+        val rule = DamageRule(
+            elementMatrix = IElementMatrix.Neutral,
+            modifiers = listOf(HeadshotModifier()),
+            friendlyFire = FriendlyFirePolicy.Allow,
+            randomizer = FakeDamageRandomizer(listOf(0.99)), // never crit
+        )
         useCase = ApplyDamageUseCase(
             damageGateway = gateway,
+            knockbackGateway = knockbackGateway,
             statusContainer = container,
-            elementMatrix = IElementMatrix.Neutral,
+            damageRule = rule,
+            armorProvider = armorProvider,
+            teamLookup = null,
             eventBus = eventBus,
         )
     }
@@ -100,10 +126,14 @@ class ApplyDamageUseCaseTest {
     fun `gateway returns Killed outcome - publishes both DamageDealt and PlayerKilled`() {
         gateway.nextOutcome = DamageOutcome.Killed
 
-        val result = useCase.execute(attempt(source = DamageSource.Weapon(
-            weaponId = com.astarworks.astera.weapons.domain.weapon.WeaponId("sword"),
-            attackerId = attackerId,
-        )))
+        val result = useCase.execute(
+            attempt(
+                source = DamageSource.Weapon(
+                    weaponId = com.astarworks.astera.weapons.domain.weapon.WeaponId("sword"),
+                    attackerId = attackerId,
+                ),
+            ),
+        )
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
         assertThat((result as Result.Success).value).isEqualTo(DamageOutcome.Killed)

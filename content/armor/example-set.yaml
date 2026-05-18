@@ -1,0 +1,16 @@
+# Wave 5a starter: named armor set with 2-piece and 4-piece bonuses.
+# ArmorReductionModifier activates `two_piece_bonus` when 2 or 3 pieces from
+# this set are worn, and `four_piece_bonus` when all 4 are equipped. The bonus
+# is additional damage reduction layered on top of each piece's own
+# `damage_reduction`, then the 80% global cap is applied.
+
+type: set
+key: example-set
+display_name_key: astera.armor.set.example-set.name
+pieces:
+  - example-set-helmet
+  - example-set-chestplate
+  - example-set-leggings
+  - example-set-boots
+two_piece_bonus: 0.05    # +5% reduction when 2+ pieces equipped
+four_piece_bonus: 0.20   # +20% reduction (replaces the 2-piece tier) at full set

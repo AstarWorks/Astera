@@ -1,0 +1,23 @@
+# Wave 5a starter: skill with a mana cost.
+# Demonstrates the `mana_cost` field added in Wave 5a — ConsumeManaUseCase
+# debits this amount before SkillCast is published; if the caster's pool is
+# below the cost, the cast fails with InsufficientMana and the cooldown is
+# not started.
+
+id: example-mana-skill
+
+display_name_key: astera.skill.example-mana-skill.name
+description_key: astera.skill.example-mana-skill.lore
+
+archetype: projectile
+trigger: right_click
+cooldown_ticks: 40        # ~2s @ 20 TPS
+mana_cost: 30             # debited from the caster's ManaPool on cast
+
+params:
+  type: projectile
+  launch_speed: 1.6       # blocks/tick
+  max_lifetime_ticks: 60  # ~3s flight time
+  damage:
+    base: 10.0
+    attribute: fire

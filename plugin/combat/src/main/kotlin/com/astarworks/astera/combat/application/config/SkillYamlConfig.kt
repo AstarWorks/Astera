@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.config
 
+import com.astarworks.astera.combat.domain.skill.ChargedSkillVariant
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
@@ -39,6 +40,8 @@ public data class SkillYamlConfig(
     val trigger: String,
     @SerialName("cooldown_ticks") val cooldownTicks: Int,
     val params: SkillParamsYaml,
+    @SerialName("mana_cost") val manaCost: Long? = null,
+    @SerialName("charge_ticks") val chargeTicks: Long? = null,
 ) {
     /**
      * Materialize this DTO into the domain [SkillSpec].
@@ -54,6 +57,9 @@ public data class SkillYamlConfig(
         require(matches(parsedArchetype, domainParams)) {
             "Skill '$id' archetype=$parsedArchetype does not match params=${domainParams::class.simpleName}"
         }
+        val variant = chargeTicks
+            ?.let { ChargedSkillVariant.Charged(it) }
+            ?: ChargedSkillVariant.Instant
         return SkillSpec(
             id = SkillId(id),
             displayNameKey = MessageKey(displayNameKey),
@@ -62,6 +68,8 @@ public data class SkillYamlConfig(
             trigger = parsedTrigger,
             cooldownTicks = cooldownTicks,
             params = domainParams,
+            manaCost = manaCost,
+            chargeVariant = variant,
         )
     }
 

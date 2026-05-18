@@ -3,7 +3,7 @@
 > Single-page master tracker for "what RTM has" × "what Astera has built" ×
 > "which Wave delivers the rest" × "priority". Updated per wave; living doc.
 
-**Baseline**: commit `d26f869` (Wave 4.7 master roadmap land) + Wave 4.8 refinement.
+**Baseline**: Wave 5a (Combat depth) land — SkillCast hollow gap 解消 + Armor + DamageRule pipeline + rich damage events + ADR-0030 Bukkit hijack 方針コミット。
 **RTM reference**: [ADR-0029 RTM Empirical Catalog](adr/0029-rtm-empirical-catalog.md) +
 [architecture/rtm-divergence.md](architecture/rtm-divergence.md).
 **Roadmap structure**: [ADR-0028 Roadmap Realignment](adr/0028-roadmap-realignment-paper-as-edge.md).
@@ -83,7 +83,8 @@ adds to `gradle/libs.versions.toml`:
 (Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified)
 
 **Phase parity targets** (cumulative):
-- Wave 4.5 (now): ~15% RTM parity
+- Wave 4.5: ~15% RTM parity
+- Wave 5a (now): **~22% RTM parity** (Category 1 Combat 9 行 ❌→✅)
 - Wave 5a-5f complete: ~45% RTM parity
 - Wave 6 (Paper Sweep) complete: ~65% RTM parity (Phase 1 PoC end-to-end)
 - Phase 3 Siege Warfare complete (Wave 6 + content): ~75%
@@ -104,6 +105,7 @@ adds to `gradle/libs.versions.toml`:
 | Element matrix (6 種 rock-paper-scissors) | ✅ full | (済) | P0 | `content/balance/element-matrix.yaml` |
 | Damage source sealed (Environment / Weapon / Skill / Fall / Explosion) | ✅ full | (済) | P0 | `plugin/combat/.../domain/damage/DamageSource.kt` |
 | Damage application via `IDamageGateway` | 🔌 port-only | **Wave 6** | P0 | `plugin/combat/.../application/port/outbound/IDamageGateway.kt` (no Paper impl) |
+| **Bukkit damage + death hijack policy (ADR-0030 §8)** | 📋 ADR commitment (Wave 6 impl) | Wave 6 | P0 | ADR-0030 §8 — EntityDamageEvent / PlayerDeathEvent 全 hijack方針 |
 | Status effect kinds (16 enum incl. STAR_GAIN/HEAL_AMP/GRAVITY/CT_RATE/SPEED/PARALYSIS/BURN/JUMP_DISABLED + more) | ✅ enum + spec | (済) for domain | P0 | `plugin/combat/.../domain/status/StatusKind.kt` |
 | StatusEffectInstance | ✅ full | (済) | P0 | `plugin/combat/.../domain/status/StatusEffectInstance.kt` |
 | Status effect application (`IStatusEffectContainer`) | 🔌 port-only | **Wave 6** | P0 | `plugin/combat/.../application/port/outbound/IStatusEffectContainer.kt` |
@@ -111,19 +113,19 @@ adds to `gradle/libs.versions.toml`:
 | Cooldown (per-weapon + per-skill) | ✅ in-memory full | (済) | P0 | `InMemoryCooldownTracker.kt` |
 | `TickCooldownUseCase` scheduler 配線 | 🔌 wired in plugin, scheduler 未起動 | **Wave 6** | P0 | use case exists, `runRepeatingTicks` 未配線 |
 | `CastSkillUseCase` (publish-only) | ✅ publishes `SkillCast` | (済) | P0 | `plugin/combat/.../application/usecase/skill/CastSkillUseCase.kt` |
-| **Skill effect dispatch (`SkillCast` subscriber)** | ❌ **0 subscribers** — hollow event | **Wave 5a** | **P0** | `grep eventBus.subscribe<SkillCast>` → 0 件 |
-| Skill archetype (PROJECTILE/MELEE/AOE/BUFF/TELEPORT/SUMMON) | ✅ enum, impl ❌ | **Wave 5a** (handler) + Wave 6 (Paper) | P0 | `plugin/combat/.../domain/skill/SkillArchetype.kt` |
+| **Skill effect dispatch (`SkillCast` subscriber)** | ✅ full (Wave 5a) — `SkillCastDispatcher` (6 archetype handler) | (済 Wave 5a) | **P0** | `plugin/combat/.../application/usecase/skill/dispatch/SkillCastDispatcher.kt` |
+| Skill archetype (PROJECTILE/MELEE/AOE/BUFF/TELEPORT/SUMMON) | ✅ enum + 5 dispatch impl + 1 stub (SUMMON Wave 6) | (済 Wave 5a; SUMMON Wave 6) | P0 | `plugin/combat/.../application/usecase/skill/dispatch/` |
 | Skill trigger (LEFT_CLICK/RIGHT_CLICK/SNEAK_LEFT/SNEAK_RIGHT/HOLD/AUTO) | ✅ enum | (済) | P0 | `SkillTrigger.kt` |
-| **Armor domain (ArmorSpec / ArmorSlot / damage reduction / set bonus)** | ❌ nothing | **Wave 5a** | **P1** | grep `Armor` → comments only; `content/armor/` 存在せず |
-| **Knockback formula** | ❌ nothing | **Wave 5a** | P1 | (none) |
-| **Critical strike (chance + multiplier)** | ❌ nothing | **Wave 5a** | P1 | (DamageRule has only base × element × headshot) |
-| **Friendly-fire toggle** | ❌ nothing | **Wave 5a** | P1 | (none) |
-| **Skill resource cost (mana / energy)** | ❌ nothing | **Wave 5a** | P2 | (none) |
-| **Charged skill / hold-to-cast** | ❌ nothing | **Wave 5a** | P2 | (none) |
+| **Armor domain (ArmorSpec / ArmorSlot / damage reduction / set bonus)** | ✅ full (Wave 5a) — 4 slot + 加算 stack + 80% cap + set bonus | (済 Wave 5a) | **P1** | `plugin/combat/.../domain/armor/` + `ArmorReductionModifier` |
+| **Knockback formula** | ✅ Wave 5a (`KnockbackModifier` + `IKnockbackGateway` port、Vec3-direction) | (済 Wave 5a; Paper impl Wave 6) | P1 | `plugin/combat/.../domain/rule/KnockbackModifier.kt` |
+| **Critical strike (chance + multiplier)** | ✅ Wave 5a (`CriticalStrikeModifier` + `IDamageRandomizer` deterministic test) | (済 Wave 5a) | P1 | `plugin/combat/.../domain/rule/CriticalStrikeModifier.kt` |
+| **Friendly-fire toggle** | ✅ Wave 5a (`FriendlyFirePolicy` + `IMatchTeamLookup` port) | (済 Wave 5a) | P1 | `plugin/combat/.../domain/rule/FriendlyFirePolicy.kt` |
+| **Skill resource cost (mana / energy)** | ✅ Wave 5a (`ManaPool` domain + `ConsumeManaUseCase` + `SkillSpec.manaCost`) | (済 Wave 5a) | P2 | `plugin/combat/.../domain/resource/ManaPool.kt` |
+| **Charged skill / hold-to-cast** | ✅ Wave 5a (`ChargedSkillVariant` sealed + `ChargedSkillCastUseCase`) | (済 Wave 5a) | P2 | `plugin/combat/.../domain/skill/ChargedSkillVariant.kt` |
 | Projectile motion (5 sealed: Linear / Ballistic / Homing / Curved / Beam) | ✅ enum, impl ❌ | **Wave 6** | P0 | `plugin/weapons/.../domain/projectile/MotionProfile.kt` |
 | Hit profile (3 sealed: Sphere / Box / Sweep) | ✅ enum, impl ❌ | **Wave 6** | P0 | `HitProfile.kt` |
 | OnHitEffect (6 sealed: DealDamage / Explode / InflictStatus / SpawnChild / PlaySound / SpawnParticle) | ✅ enum, dispatch ❌ | **Wave 6** | P0 | `OnHitEffect.kt` |
-| Vec3 math (normalize / dot / cross / length / distance) | ❌ basic ±/× only | **Wave 6** (Phase A) | P0 | `plugin/core/.../domain/geometry/Vec3.kt` |
+| Vec3 math (normalize / dot / cross / length / distance) | ✅ Wave 5a Tier 0 prep + `MutableVec3` in-place 同等 | (済 Wave 5a) | P0 | `plugin/core/.../domain/geometry/Vec3.kt` |
 | **CEL expression language for skill** (RTM issue #21) | ❌ nothing | **Wave 5f** | P3 | (none) |
 | **Particle definition system** (RTM issue #21) | ❌ nothing | **Wave 5f** | P3 | (none) |
 

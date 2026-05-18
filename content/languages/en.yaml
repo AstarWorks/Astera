@@ -159,3 +159,22 @@ astera:
       chestplate: "Chestplate"
       leggings: "Leggings"
       boots: "Boots"
+    example-helmet:
+      name: "<gray>Example Helmet</gray>"
+      lore: "<dark_gray>slot: helmet / reduction: 10%</dark_gray>"
+    example-chestplate:
+      name: "<gray>Example Chestplate</gray>"
+      lore: "<dark_gray>slot: chestplate / reduction: 25%</dark_gray>"
+
+  combat:
+    damage:
+      mitigated_by_armor: "<gray>(-{amount} from armor)</gray>"
+      critical: "<red><bold>CRITICAL!</bold></red>"
+      friendly_fire_blocked: "<yellow>Friendly fire blocked.</yellow>"
+    mana:
+      insufficient: "<red>Insufficient mana ({have}/{tried}).</red>"
+      consumed: "<aqua>-{amount} mana</aqua>"
+    skill:
+      charge:
+        started: "<yellow>Charging {skill}…</yellow>"
+        cancelled: "<gray>Charge cancelled.</gray>"

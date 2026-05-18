@@ -40,6 +40,13 @@ public class WeaponClickListener(
     public fun handle(event: IMcEvent) {
         when (event) {
             is IMcEvent.PlayerLeftClickAir, is IMcEvent.PlayerLeftClickBlock -> handleFire(event)
+            // Wave 5a added PlayerJoined / PlayerQuit / BlockPlaced / BlockBroken
+            // for downstream waves (5d/5e); WeaponClickListener doesn't react.
+            is IMcEvent.PlayerJoined,
+            is IMcEvent.PlayerQuit,
+            is IMcEvent.BlockPlaced,
+            is IMcEvent.BlockBroken,
+            -> Unit
         }
     }
 

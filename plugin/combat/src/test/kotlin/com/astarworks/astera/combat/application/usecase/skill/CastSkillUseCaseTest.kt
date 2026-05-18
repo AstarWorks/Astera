@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.usecase.skill
 
+import com.astarworks.astera.combat.application.usecase.cost.ConsumeManaUseCase
+import com.astarworks.astera.combat.domain.event.ManaConsumed
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillId
@@ -11,9 +13,11 @@ import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.combat.domain.status.StatusEffectSpec
 import com.astarworks.astera.combat.domain.status.StatusKind
 import com.astarworks.astera.combat.testfixtures.FakeCooldownTracker
+import com.astarworks.astera.combat.testfixtures.FakeManaPoolService
 import com.astarworks.astera.combat.testfixtures.FakeSkillRegistry
 import com.astarworks.astera.combat.testfixtures.FakeStatusEffectContainer
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -140,5 +144,71 @@ class CastSkillUseCaseTest {
         assertThat(result).isInstanceOf(Result.Failure::class.java)
         assertThat((result as Result.Failure).error).isInstanceOf(CastSkillError.Silenced::class.java)
         assertThat(eventBus.published).isEmpty()
+    }
+
+    @Test
+    fun `mana cost - sufficient pool consumes mana and publishes both events`() {
+        val manaService = FakeManaPoolService()
+        manaService.init(casterId, max = 100L, regenPerSec = 1.0)
+        val consumeMana = ConsumeManaUseCase(manaService = manaService, eventBus = eventBus)
+        val withCost = CastSkillUseCase(
+            skillRegistry = skillRegistry,
+            statusContainer = statusContainer,
+            eventBus = eventBus,
+            cooldownTracker = cooldownTracker,
+            scheduler = scheduler,
+            consumeMana = consumeMana,
+        )
+        val specWithCost = spec.copy(manaCost = 30L)
+        skillRegistry.register(specWithCost)
+
+        val result = withCost.execute(casterId, skillId)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        // Pool was debited 30.
+        assertThat(manaService.get(casterId)?.current).isEqualTo(70L)
+        // Both events fired: ManaConsumed first (debit), then SkillCast (commit).
+        val consumed = eventBus.publishedOfType<ManaConsumed>()
+        assertThat(consumed).hasSize(1)
+        assertThat(consumed[0].amount).isEqualTo(30L)
+        assertThat(consumed[0].remaining).isEqualTo(70L)
+        val casts = eventBus.publishedOfType<SkillCast>()
+        assertThat(casts).hasSize(1)
+        assertThat(casts[0].caster).isEqualTo(casterId)
+    }
+
+    @Test
+    fun `mana cost - empty pool returns InsufficientMana and SkillCast is not published`() {
+        val manaService = FakeManaPoolService()
+        manaService.init(casterId, max = 10L, regenPerSec = 1.0)
+        val consumeMana = ConsumeManaUseCase(manaService = manaService, eventBus = eventBus)
+        val withCost = CastSkillUseCase(
+            skillRegistry = skillRegistry,
+            statusContainer = statusContainer,
+            eventBus = eventBus,
+            cooldownTracker = cooldownTracker,
+            scheduler = scheduler,
+            consumeMana = consumeMana,
+        )
+        val specWithCost = spec.copy(manaCost = 30L)
+        skillRegistry.register(specWithCost)
+
+        val result = withCost.execute(casterId, skillId)
+
+        assertThat(result).isInstanceOf(Result.Failure::class.java)
+        val error = (result as Result.Failure).error
+        assertThat(error).isInstanceOf(CastSkillError.InsufficientMana::class.java)
+        val insufficient = error as CastSkillError.InsufficientMana
+        assertThat(insufficient.have).isEqualTo(10L)
+        assertThat(insufficient.tried).isEqualTo(30L)
+
+        // Pool unchanged (mana was not debited).
+        assertThat(manaService.get(casterId)?.current).isEqualTo(10L)
+        // No SkillCast → downstream mechanics don't trigger.
+        assertThat(eventBus.publishedOfType<SkillCast>()).isEmpty()
+        // No ManaConsumed either (failure short-circuits before publish).
+        assertThat(eventBus.publishedOfType<ManaConsumed>()).isEmpty()
+        // Cooldown is not started → player can retry once regen catches up.
+        assertThat(cooldownTracker.isCoolingDown(casterId, CooldownKey.Skill(skillId.value))).isFalse()
     }
 }

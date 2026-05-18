@@ -1,0 +1,8 @@
+# Wave 5a starter: standalone chestplate, no set membership.
+# 25% damage reduction — the biggest of the four slots in the example loadout.
+
+type: piece
+id: example-chestplate
+display_name_key: astera.armor.example-chestplate.name
+slot: chestplate
+damage_reduction: 0.25

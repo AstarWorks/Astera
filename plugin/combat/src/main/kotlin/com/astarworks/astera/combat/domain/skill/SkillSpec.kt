@@ -23,8 +23,19 @@ public data class SkillSpec(
     val trigger: SkillTrigger,
     val cooldownTicks: Int,
     val params: SkillParams,
+    /**
+     * Optional mana cost. `null` = free to cast.
+     * Wave 5a: consumed by `ConsumeManaUseCase` before `SkillCast` is published.
+     */
+    val manaCost: Long? = null,
+    /**
+     * Hold-to-cast behavior. Defaults to instant for backward-compatibility
+     * with skills written before Wave 5a.
+     */
+    val chargeVariant: ChargedSkillVariant = ChargedSkillVariant.Instant,
 ) {
     init {
         require(cooldownTicks >= 0) { "cooldownTicks must be >= 0: $cooldownTicks" }
+        manaCost?.let { require(it >= 0) { "manaCost must be >= 0 when set: $it" } }
     }
 }

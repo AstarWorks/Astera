@@ -36,8 +36,39 @@ public class MutableVec3(
 
     public fun add(other: MutableVec3): MutableVec3 = add(other.x, other.y, other.z)
 
+    public fun sub(dx: Double, dy: Double, dz: Double): MutableVec3 {
+        x -= dx; y -= dy; z -= dz
+        return this
+    }
+
     public fun scale(s: Double): MutableVec3 {
         x *= s; y *= s; z *= s
+        return this
+    }
+
+    public fun length(): Double = kotlin.math.sqrt(lengthSquared())
+
+    public fun lengthSquared(): Double = x * x + y * y + z * z
+
+    /** In-place normalize. Zero vector is left untouched (no-op) to avoid NaN. */
+    public fun normalize(): MutableVec3 {
+        val l2 = lengthSquared()
+        if (l2 == 0.0) return this
+        val inv = 1.0 / kotlin.math.sqrt(l2)
+        x *= inv; y *= inv; z *= inv
+        return this
+    }
+
+    public fun dot(other: Vec3): Double = x * other.x + y * other.y + z * other.z
+
+    public fun dot(other: MutableVec3): Double = x * other.x + y * other.y + z * other.z
+
+    /** In-place cross product; uses tmp doubles to handle self-aliasing. */
+    public fun cross(other: Vec3): MutableVec3 {
+        val nx = y * other.z - z * other.y
+        val ny = z * other.x - x * other.z
+        val nz = x * other.y - y * other.x
+        x = nx; y = ny; z = nz
         return this
     }
 
