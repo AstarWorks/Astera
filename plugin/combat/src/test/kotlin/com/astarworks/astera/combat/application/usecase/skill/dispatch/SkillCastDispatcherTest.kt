@@ -97,6 +97,7 @@ class SkillCastDispatcherTest {
             armorProvider = armorProvider,
             teamLookup = null,
             eventBus = eventBus,
+            scheduler = com.astarworks.astera.testfixtures.FakeScheduler(),
         )
         applyStatus = ApplyStatusUseCase(
             effectRegistry = statusRegistry,

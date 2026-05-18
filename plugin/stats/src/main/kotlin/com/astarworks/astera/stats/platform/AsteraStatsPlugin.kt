@@ -24,6 +24,7 @@ import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.domain.event.MatchEnded
 import com.astarworks.astera.stats.application.eventbus.listeners.BroadcastOnLeveledUpListener
 import com.astarworks.astera.stats.application.eventbus.listeners.MissionProgressOnKillListener
+import com.astarworks.astera.stats.application.eventbus.listeners.RecordAssistOnAssistCreditedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RecordMatchPlayedOnMatchEndedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RecordMatchResultOnMatchEndedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnDamageListener
@@ -38,11 +39,13 @@ import com.astarworks.astera.stats.application.service.InMemoryPlayerStatsReposi
 import com.astarworks.astera.stats.application.service.NormaLoaderService
 import com.astarworks.astera.stats.application.usecase.level.GrantXpUseCase
 import com.astarworks.astera.stats.application.usecase.mission.CompleteMissionUseCase
+import com.astarworks.astera.stats.application.usecase.stats.RecordAssistUseCase
 import com.astarworks.astera.stats.application.usecase.stats.RecordDeathUseCase
 import com.astarworks.astera.stats.application.usecase.stats.RecordKillUseCase
 import com.astarworks.astera.stats.application.usecase.stats.RecordMatchPlayedUseCase
 import com.astarworks.astera.stats.application.usecase.stats.RecordMatchResultUseCase
 import com.astarworks.astera.stats.domain.event.LeveledUp
+import com.astarworks.astera.combat.domain.event.AssistCredited
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import org.bukkit.plugin.java.JavaPlugin
@@ -122,6 +125,7 @@ public class AsteraStatsPlugin : JavaPlugin() {
         // 5. Use cases ------------------------------------------------------
         val recordKill = RecordKillUseCase(statsRepository, eventBus)
         val recordDeath = RecordDeathUseCase(statsRepository, eventBus)
+        val recordAssist = RecordAssistUseCase(statsRepository, eventBus)
         val grantXp = GrantXpUseCase(levelService, eventBus)
         val recordMatchPlayed = RecordMatchPlayedUseCase(statsRepository, eventBus)
         val recordMatchResult = RecordMatchResultUseCase(statsRepository, eventBus)
@@ -135,6 +139,7 @@ public class AsteraStatsPlugin : JavaPlugin() {
         val recordMatchPlayedListener = RecordMatchPlayedOnMatchEndedListener(matchRepository, recordMatchPlayed)
         val recordMatchResultListener = RecordMatchResultOnMatchEndedListener(matchRepository, recordMatchResult)
         val broadcastOnLeveledUpListener = BroadcastOnLeveledUpListener(broadcaster)
+        val recordAssistListener = RecordAssistOnAssistCreditedListener(recordAssist)
 
         subscriptions += eventBus.subscribe(PlayerKilled::class) { rewardOnKill.handle(it) }
         subscriptions += eventBus.subscribe(DamageDealt::class) { rewardOnDamage.handle(it) }
@@ -142,6 +147,7 @@ public class AsteraStatsPlugin : JavaPlugin() {
         subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchPlayedListener.handle(it) }
         subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchResultListener.handle(it) }
         subscriptions += eventBus.subscribe(LeveledUp::class) { broadcastOnLeveledUpListener.handle(it) }
+        subscriptions += eventBus.subscribe(AssistCredited::class) { recordAssistListener.handle(it) }
 
         // 7. /astera-stats command -----------------------------------------
         commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway, permService))

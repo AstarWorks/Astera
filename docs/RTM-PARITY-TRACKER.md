@@ -74,13 +74,13 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 71 | 49.3% |
-| 🟨 partial | 4 | 2.8% |
+| ✅ full | 74 | 51.4% |
+| 🟨 partial | 3 | 2.1% |
 | 🔌 port-only | 8 | 5.6% |
-| ❌ nothing | 61 | 42.4% |
+| ❌ nothing | 59 | 41.0% |
 | **Total tracked** | **144** | 100% |
 
-(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配)
+(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅)
 
 **Last audited**: 2026-05-19 (ADR-0029 §"Deep audit (2026-05-19)" methodology — 詳細は ADR 参照)
 
@@ -90,7 +90,7 @@ adds to `gradle/libs.versions.toml`:
 - Wave 5b: **~28% RTM parity** (Category 4 HUD 5 行 + Category 7 attribute read ❌/📋→🔌/🔌 = +6)
 - Wave 5c: **48.4% RTM parity** (Category 2 game modes 3 行 + Category 5 generator/anomaly 4 行 ❌→✅ = +6)
 - Wave 5d: **55.5% RTM parity (pre-saturation denominator)** → **49.3% (post-saturation denominator)** — 同じ 71 ✅ 行、catalog 増えただけ
-- Wave 5a-fix2 (planned): +2 ✅ (DamageHistory + assist counter) + 1 partial → 1 full (SkillTrigger 20値) → ~51% (144 denom)
+- Wave 5a-fix2: **51.4% RTM parity** (Cat 1 +2 ✅ DamageHistory + assist counter, +1 partial→full SkillTrigger 20 値 — total 74/144)
 - Wave 5e (planned): +7 ✅ projected (LevelUpMission / PlayerPin / QuickCast / Control scheme / Particle-hide / Double-jump domain / PortalReady)
 - Wave 6 (Paper Sweep) complete: ~65-70% RTM parity (Phase 1 PoC end-to-end)
 - Phase 3 Siege Warfare complete (Wave 6 + 7a content): ~75-80%
@@ -121,7 +121,7 @@ adds to `gradle/libs.versions.toml`:
 | `CastSkillUseCase` (publish-only) | ✅ publishes `SkillCast` | (済) | P0 | `plugin/combat/.../application/usecase/skill/CastSkillUseCase.kt` |
 | **Skill effect dispatch (`SkillCast` subscriber)** | ✅ full (Wave 5a) — `SkillCastDispatcher` (6 archetype handler) | (済 Wave 5a) | **P0** | `plugin/combat/.../application/usecase/skill/dispatch/SkillCastDispatcher.kt` |
 | Skill archetype (PROJECTILE/MELEE/AOE/BUFF/TELEPORT/SUMMON) | ✅ enum + 5 dispatch impl + 1 stub (SUMMON Wave 6) | (済 Wave 5a; SUMMON Wave 6) | P0 | `plugin/combat/.../application/usecase/skill/dispatch/` |
-| Skill trigger (LEFT_CLICK/RIGHT_CLICK/SNEAK_LEFT/SNEAK_RIGHT/HOLD/AUTO) | ✅ enum | (済) | P0 | `SkillTrigger.kt` |
+| Skill trigger (LEFT_CLICK/RIGHT_CLICK/SNEAK_LEFT/SNEAK_RIGHT/HOLD/AUTO + 14 Wave 5a-fix2 additions) | ✅ enum 20 値 (Wave 5a-fix2) | (済 Wave 5a-fix2; Bukkit handlers Wave 6) | P0 | `SkillTrigger.kt` |
 | **Armor domain (ArmorSpec / ArmorSlot / damage reduction / set bonus)** | ✅ full (Wave 5a) — 4 slot + 加算 stack + 80% cap + set bonus | (済 Wave 5a) | **P1** | `plugin/combat/.../domain/armor/` + `ArmorReductionModifier` |
 | **Knockback formula** | ✅ Wave 5a (`KnockbackModifier` + `IKnockbackGateway` port、Vec3-direction) | (済 Wave 5a; Paper impl Wave 6) | P1 | `plugin/combat/.../domain/rule/KnockbackModifier.kt` |
 | **Critical strike (chance + multiplier)** | ✅ Wave 5a (`CriticalStrikeModifier` + `IDamageRandomizer` deterministic test) | (済 Wave 5a) | P1 | `plugin/combat/.../domain/rule/CriticalStrikeModifier.kt` |
@@ -134,9 +134,9 @@ adds to `gradle/libs.versions.toml`:
 | Vec3 math (normalize / dot / cross / length / distance) | ✅ Wave 5a Tier 0 prep + `MutableVec3` in-place 同等 | (済 Wave 5a) | P0 | `plugin/core/.../domain/geometry/Vec3.kt` |
 | **CEL expression language for skill** (RTM issue #21) | ❌ nothing | **Wave 5f** | P3 | (none) |
 | **Particle definition system** (RTM issue #21) | ❌ nothing | **Wave 5f** | P3 | (none) |
-| **DamageHistoryService** (sliding-window damage attribution + assist credit) | ❌ nothing | **Wave 5a-fix2** | **P1** | RTM `core/impl/.../game/damage/DamageHistoryService.kt` + `DamageHistoryData.kt` (2026-05-19 deep audit) |
-| **assist counter on PlayerStats** (`assists: Long` + V2 migration) | ❌ nothing — `PlayerStats` has K/D but no Assist | **Wave 5a-fix2** | **P1** | RTM `IGamePlayer.ITeamGamePlayer.assist: Int` |
-| **SkillTrigger enum 14 値追加** (RIGHT_CLICK_BLOCK / LEFT_CLICK_BLOCK / SHOOT / BLOCK_BREAK / CONSUME / CROUCH / JUMP / SPRINT / DROP / STACK_DROP / PICKUP / HYPER / ATTACK / SHIELD / DAMAGED / DEATH / SYSTEM) | 🟨 enum only 6 値 — 14 値追加待ち | **Wave 5a-fix2** (enum + dispatcher routing); Paper handlers Wave 6 | P1 | RTM `model/skill/SkillTrigger.kt` (20 values total) |
+| **DamageHistoryService** (sliding-window damage attribution + assist credit) | ✅ full (Wave 5a-fix2) — `IDamageHistoryService` + `InMemoryDamageHistoryService` (ring buffer cap 64, 5-sec default window) + `AssistAttributionUseCase` | (済 Wave 5a-fix2) | **P1** | `plugin/combat/.../application/{port/outbound/IDamageHistoryService.kt,service/InMemoryDamageHistoryService.kt,usecase/damage/AssistAttributionUseCase.kt}` + ADR-0063 |
+| **assist counter on PlayerStats** (`assists: Long` event-source path) | ✅ full (Wave 5a-fix2) — `AssistCredited` event + `RecordAssistOnAssistCreditedListener` + `RecordAssistUseCase`; column / field pre-existed Wave 3 | (済 Wave 5a-fix2) | **P1** | `plugin/combat/.../domain/event/AssistCredited.kt` + `plugin/stats/.../usecase/stats/RecordAssistUseCase.kt` |
+| **SkillTrigger enum 14 値追加** (LEFT_CLICK_BLOCK / RIGHT_CLICK_BLOCK / LEFT_CLICK_AIR / RIGHT_CLICK_AIR / INTERACT / SHOOT / BLOCK_BREAK / CONSUME / CROUCH / JUMP / SPRINT / DROP / STACK_DROP / PICKUP / HYPER / ATTACK / SHIELD / DAMAGED / DEATH / SYSTEM) | ✅ enum 20 値 (Wave 5a-fix2) | (済 Wave 5a-fix2 vocabulary; Bukkit handlers Wave 6) | P1 | RTM `model/skill/SkillTrigger.kt` parity |
 | **Vanilla Potion ↔ custom status unified API** (Bukkit `PotionEffect` と Astera `StatusKind` を 1 model で扱う) | ❌ nothing | **Wave 6** (Paper integration boundary) | P2 | RTM issue #2 body bullets |
 | **Double-jump domain** (`PlayerSettings.doubleJumpEnabled` + jump-count tracking; `JUMP_DISABLED` debuff は既存 enum で逆方向 cover) | ❌ nothing | **Wave 5e** (domain) + **Wave 6a** (Paper jump packet listener) | P2 | RTM README §戦闘システム "デフォルトで二段階ジャンプ" |
 

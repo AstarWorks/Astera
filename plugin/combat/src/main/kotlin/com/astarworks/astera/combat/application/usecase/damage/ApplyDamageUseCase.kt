@@ -18,6 +18,7 @@ import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.combat.domain.rule.DamageRule
 import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.player.PlayerId
 
@@ -52,6 +53,7 @@ public class ApplyDamageUseCase(
     private val armorProvider: IArmorEquipmentProvider,
     private val teamLookup: IMatchTeamLookup?,
     private val eventBus: IDomainEventBus,
+    private val scheduler: IScheduler,
 ) {
     public fun execute(attempt: DamageAttempt): Result<DamageOutcome, ApplyDamageError> {
         // 1. Immunity check
@@ -112,6 +114,7 @@ public class ApplyDamageUseCase(
         }
 
         // 6. Delegate to gateway, then emit main + knockback + death events
+        val atTick = scheduler.currentTick()
         return when (val gw = damageGateway.apply(attempt.targetId, resolution.resolved, attempt.source)) {
             is Result.Success -> {
                 eventBus.publish(
@@ -120,6 +123,7 @@ public class ApplyDamageUseCase(
                         target = attempt.targetId,
                         resolved = resolution.resolved,
                         source = attempt.source,
+                        atTick = atTick,
                     ),
                 )
                 resolution.knockback?.let { impulse ->
@@ -138,7 +142,7 @@ public class ApplyDamageUseCase(
                             victim = attempt.targetId,
                             killer = attackerId,
                             source = attempt.source,
-                            atTick = System.currentTimeMillis(),
+                            atTick = atTick,
                         ),
                     )
                 }

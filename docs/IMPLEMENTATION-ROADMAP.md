@@ -147,24 +147,30 @@ field so `DamageMitigated` events carry which element was resisted.
 — Wave 5b reads, Wave 5e migrates PlayerStats/Wallet/ManaPool + armor
 resists, Wave 5d/6b add mob/item-instance containers.
 
-### Wave 5a-fix2 — Damage attribution + SkillTrigger enum saturation (Pending)
+### Wave 5a-fix2 ✅ — Damage attribution + SkillTrigger enum saturation
 
-| Property | Value |
-|---|---|
-| Depends on | Wave 5a ✅ (Wave 5e と並列可) |
-| Unlocks | Assist-credit reward path / Wave 7a content authoring fidelity (20-trigger taxonomy) |
-| Complexity | 軽 (2-3 worker, ~2-3h、半セッション) |
-| ADR | 0063 (Damage Attribution Window) |
+(本セッション) — `IDamageHistoryService` port + `InMemoryDamageHistoryService`
+(per-target `ArrayDeque` ring buffer, cap 64, 5-second / 100-tick default
+window) + `AssistAttributionUseCase` subscribing to `PlayerKilled` and
+publishing `AssistCredited` for each distinct non-killer recent attacker +
+`RecordDamageHistoryOnDamageDealtListener` recording every PvP
+`DamageDealt`. `DamageDealt` gains `atTick: Long` and `ApplyDamageUseCase`
+injects `IScheduler` to source the tick (fixing the silent
+`System.currentTimeMillis()` bug on the existing `PlayerKilled.atTick`).
 
-**Scope** (2026-05-19 deep RTM audit per ADR-0029 §"Deep audit (2026-05-19)"):
-- `DamageHistoryService` (sliding-window 攻撃元 attribution) + `IDamageHistoryService` port + `InMemoryDamageHistoryService` (RingBuffer per target)
-- `AssistAttributionUseCase` — `PlayerKilled` event 購読 → `recentAttackers` から `AssistCredited` event publish
-- `PlayerStats.assists: Long` field + V2 migration + `PostgresPlayerStatsRepository` 更新
-- `RecordAssistOnAssistCreditedListener` 配線 (stats plugin)
-- `SkillTrigger` enum 6 → 20 (RIGHT_CLICK_BLOCK / LEFT_CLICK_BLOCK / SHOOT / BLOCK_BREAK / CONSUME / CROUCH / JUMP / SPRINT / DROP / etc.) + dispatcher routing
-- ADR-0060 (Damage Attribution Window) Draft
+Stats side: `RecordAssistUseCase` + `RecordAssistOnAssistCreditedListener`
+increment `PlayerStats.assists` (column + field pre-existed Wave 3). Wave
+4.5 audit revealed the assist column was already there waiting for an
+event-source path.
 
-Trigger: 「Wave 5a-fix2 を実装して」
+`SkillTrigger` enum saturates 6 → 20 values matching RTM
+`model/skill/SkillTrigger.kt`. Bukkit handlers for the new 14 triggers land
+in Wave 6; this wave is vocabulary-only — `SkillCastDispatcher` switches on
+`SkillArchetype`, not `SkillTrigger`, so no exhaustive `when` was required.
+
+ADR-0063 (Damage Attribution Window) Draft — addendum to ADR-0030 §1
+(damage path), not a supersede. RTM parity 49.3% → 51.4% (74/144) — Cat 1
+DamageHistoryService + assist counter ❌→✅ and SkillTrigger 🟨→✅.
 
 ### Wave 5b ✅ — HUD ports (Tier 2) [Wave 5a と並列可]
 

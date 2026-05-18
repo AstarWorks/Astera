@@ -30,6 +30,7 @@ class RewardOnDamageListenerTest {
             target = targetId,
             resolved = ResolvedDamage(finalAmount = dmg, attribute = DamageAttribute.PHYSICAL, wasBlocked = false, wasCritical = false),
             source = DamageSource.Environment,
+            atTick = 0L,
         )
 
     @Test

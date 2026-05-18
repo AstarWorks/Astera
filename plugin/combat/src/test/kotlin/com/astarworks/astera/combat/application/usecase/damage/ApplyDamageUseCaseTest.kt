@@ -70,6 +70,7 @@ class ApplyDamageUseCaseTest {
             armorProvider = armorProvider,
             teamLookup = null,
             eventBus = eventBus,
+            scheduler = com.astarworks.astera.testfixtures.FakeScheduler(),
         )
     }
 

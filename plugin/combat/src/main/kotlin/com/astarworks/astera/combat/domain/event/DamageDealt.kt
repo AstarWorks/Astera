@@ -11,6 +11,7 @@ public data class DamageDealt(
     val target: PlayerId,
     val resolved: ResolvedDamage,
     val source: DamageSource,
+    val atTick: Long,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent

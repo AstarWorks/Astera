@@ -90,6 +90,7 @@ class ApplyDamageUseCaseRichEventsTest {
             armorProvider = armor,
             teamLookup = teamLookup,
             eventBus = bus,
+            scheduler = com.astarworks.astera.testfixtures.FakeScheduler(),
         )
         return Scaffold(useCase, gateway, knockbackGw, bus)
     }

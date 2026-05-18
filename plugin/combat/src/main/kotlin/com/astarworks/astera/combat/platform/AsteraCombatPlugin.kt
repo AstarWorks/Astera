@@ -3,6 +3,7 @@ package com.astarworks.astera.combat.platform
 import com.astarworks.astera.combat.application.port.outbound.IArmorEquipmentProvider
 import com.astarworks.astera.combat.application.port.outbound.IArmorRegistry
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
+import com.astarworks.astera.combat.application.port.outbound.IDamageHistoryService
 import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.IManaPoolService
@@ -13,6 +14,7 @@ import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegis
 import com.astarworks.astera.combat.application.service.ArmorLoaderService
 import com.astarworks.astera.combat.application.service.ChargeTracker
 import com.astarworks.astera.combat.application.service.EmptyNearbyTargetQuery
+import com.astarworks.astera.combat.application.service.InMemoryDamageHistoryService
 import com.astarworks.astera.combat.application.service.InMemoryManaPoolService
 import com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer
 import com.astarworks.astera.combat.application.service.MutableArmorRegistry
@@ -26,6 +28,10 @@ import com.astarworks.astera.combat.application.service.YamlElementMatrix
 import com.astarworks.astera.combat.application.usecase.charge.ChargedSkillCastUseCase
 import com.astarworks.astera.combat.application.usecase.cost.ConsumeManaUseCase
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
+import com.astarworks.astera.combat.application.usecase.damage.AssistAttributionUseCase
+import com.astarworks.astera.combat.application.usecase.damage.RecordDamageHistoryOnDamageDealtListener
+import com.astarworks.astera.combat.domain.event.DamageDealt
+import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.combat.application.usecase.skill.CastSkillUseCase
 import com.astarworks.astera.combat.application.usecase.skill.dispatch.SkillCastDispatcher
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
@@ -75,7 +81,7 @@ import org.bukkit.plugin.java.JavaPlugin
 public class AsteraCombatPlugin : JavaPlugin() {
 
     private val registrations = mutableListOf<ServiceRegistry.Registration>()
-    private var dispatcherSubscription: IDomainEventBus.Subscription? = null
+    private val subscriptions = mutableListOf<IDomainEventBus.Subscription>()
 
     override fun onEnable() {
         logger.info("Astera-Combat enabling…")
@@ -115,6 +121,9 @@ public class AsteraCombatPlugin : JavaPlugin() {
         // Wave 5a — Damage randomizer (Wave 6 may swap a tournament-specific seeded impl)
         val damageRandomizer = KotlinRandomDamageRandomizer()
 
+        // Wave 5a-fix2 — sliding-window damage history for assist attribution (ADR-0063)
+        val damageHistory = InMemoryDamageHistoryService()
+
         // 3. Register Combat ports onto the shared registry --------------------
         registrations += services.register<ISkillRegistry>(skillRegistry)
         registrations += services.register<IStatusEffectRegistry>(statusRegistry)
@@ -122,6 +131,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
         registrations += services.register<IArmorRegistry>(armorRegistry)
         registrations += services.register<IManaPoolService>(manaService)
         registrations += services.register<IDamageRandomizer>(damageRandomizer)
+        registrations += services.register<IDamageHistoryService>(damageHistory)
 
         // 4. Wire use cases if runtime impls are present -----------------------
         val eventBus = services.getOrThrow<IDomainEventBus>()
@@ -174,6 +184,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 armorProvider = armorProvider,
                 teamLookup = teamLookup,
                 eventBus = eventBus,
+                scheduler = scheduler,
             )
             val consumeMana = ConsumeManaUseCase(manaService, eventBus)
             val castSkill = CastSkillUseCase(
@@ -224,12 +235,19 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 nearbyQuery = nearbyQuery,
                 eventBus = eventBus,
             )
-            dispatcherSubscription = dispatcher.start()
+            subscriptions += dispatcher.start()
+
+            // Wave 5a-fix2 — assist attribution pipeline (ADR-0063)
+            val damageHistoryListener = RecordDamageHistoryOnDamageDealtListener(damageHistory)
+            val assistAttribution = AssistAttributionUseCase(damageHistory, eventBus)
+            subscriptions += eventBus.subscribe(DamageDealt::class) { damageHistoryListener.handle(it) }
+            subscriptions += eventBus.subscribe(PlayerKilled::class) { assistAttribution.handle(it) }
 
             logger.info(
                 "Astera-Combat use cases wired: " +
                     "ApplyDamage, CastSkill (mana-aware), ApplyStatus, TickCooldown, " +
-                    "ChargedSkillCast, SkillCastDispatcher (6 archetypes)",
+                    "ChargedSkillCast, SkillCastDispatcher (6 archetypes), " +
+                    "DamageHistory + AssistAttribution",
             )
         } else {
             logger.warning(
@@ -243,13 +261,14 @@ public class AsteraCombatPlugin : JavaPlugin() {
         logger.info(
             "Astera-Combat enabled. Services published: " +
                 "ISkillRegistry, IStatusEffectRegistry, IElementMatrix, " +
-                "IArmorRegistry, IManaPoolService, IDamageRandomizer, DamageRule",
+                "IArmorRegistry, IManaPoolService, IDamageRandomizer, " +
+                "IDamageHistoryService, DamageRule",
         )
     }
 
     override fun onDisable() {
-        dispatcherSubscription?.cancel()
-        dispatcherSubscription = null
+        subscriptions.forEach { it.cancel() }
+        subscriptions.clear()
         registrations.forEach { it.unregister() }
         registrations.clear()
         logger.info("Astera-Combat disabled.")
