@@ -13,23 +13,27 @@ import com.astarworks.astera.combat.domain.damage.MitigationReason
  * Aggregates equipped armor reduction (per-slot + set bonuses) and applies it
  * to [WorkingDamage] as a single multiplicative reduction.
  *
- * Design (Wave 5a, worker α):
- *  - Per-slot `damageReduction` values are summed additively, then any active
- *    set bonus (2-piece / 4-piece) is added on top.
- *  - The summed reduction is **capped at 80%** so even maxed-out defenders
- *    can never become invulnerable. The cap is the single multiplicative step
- *    applied to `WorkingDamage`.
- *  - Mitigations are still recorded per-source (one entry per equipped slot
- *    plus one per active set bonus). The total reduction is attributed
- *    proportionally so the sum of `mitigations[].amountReduced` equals the
- *    actual `before - after` damage delta — never more, never less.
- *  - Set bonus is determined by counting pieces from the same [ArmorSetKey].
- *    4 pieces → [com.astarworks.astera.combat.domain.armor.ArmorSet.fourPieceBonus];
- *    2 or 3 pieces → `twoPieceBonus`. Each active set contributes one
- *    `ArmorSet` mitigation entry. Unknown sets (registry returns null) are
- *    silently ignored.
+ * Wave 5a-fix: per-slot reduction is now looked up against
+ * `attempt.baseProfile.attribute` so a fire-resistant chestplate blocks more
+ * fire damage than physical. Each emitted [MitigationReason.Armor] entry
+ * carries the attribute it was resolved for.
  *
- * Constructor takes [IArmorRegistry] for set lookup; pure on its inputs.
+ * Design:
+ *  - Per-slot reductions are summed additively (now per-attribute via
+ *    [com.astarworks.astera.combat.domain.armor.ArmorReduction.forAttribute]),
+ *    then any active set bonus (2-piece / 4-piece) is added on top.
+ *  - The summed reduction is **capped at 80%** so even maxed-out defenders
+ *    can never become invulnerable. The cap is the single multiplicative
+ *    step applied to `WorkingDamage`.
+ *  - Mitigations are recorded per-source. The total reduction is
+ *    attributed proportionally so the sum of `mitigations[].amountReduced`
+ *    equals the actual `before - after` damage delta — never more, never
+ *    less.
+ *  - Set bonus is determined by counting pieces from the same
+ *    [ArmorSetKey]. 4 pieces → `ArmorSet.fourPieceBonus`; 2 or 3 pieces →
+ *    `twoPieceBonus`. Set bonuses are attribute-agnostic in Wave 5a-fix
+ *    (the full per-attribute resist story lives in ADR-0031 §1, Wave 5e).
+ *  - Unknown sets (registry returns null) are silently ignored.
  */
 public class ArmorReductionModifier(
     private val registry: IArmorRegistry,
@@ -51,12 +55,15 @@ public class ArmorReductionModifier(
         val before = working.currentAmount
         if (before <= 0.0) return working
 
-        // Per-slot raw reductions (deterministic iteration order).
+        val attackAttribute = attempt.baseProfile.attribute
+
+        // Per-slot reductions resolved against the attacker's attribute.
         val perSlot = mutableListOf<Pair<ArmorSlot, Double>>()
         var totalReduction = 0.0
         for ((slot, spec) in armor.equipped) {
-            perSlot += slot to spec.damageReduction
-            totalReduction += spec.damageReduction
+            val reduction = spec.reduction.forAttribute(attackAttribute)
+            perSlot += slot to reduction
+            totalReduction += reduction
         }
 
         // Set bonus aggregation: count pieces per setKey, look up active bonus tier.
@@ -89,7 +96,10 @@ public class ArmorReductionModifier(
             if (percent <= 0.0) continue
             val share = (percent / totalReduction) * totalReduced
             working.recordMitigation(
-                MitigationApplied(MitigationReason.Armor(slot, percent), share),
+                MitigationApplied(
+                    MitigationReason.Armor(slot, attackAttribute, percent),
+                    share,
+                ),
             )
         }
         for ((setKey, bonus) in setBonusEntries) {

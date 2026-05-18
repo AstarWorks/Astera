@@ -129,7 +129,7 @@ class ApplyDamageUseCaseRichEventsTest {
             id = ArmorId("test-helmet"),
             displayNameKey = MessageKey("test.helmet"),
             slot = ArmorSlot.HELMET,
-            damageReduction = 0.25,
+            reduction = com.astarworks.astera.combat.domain.armor.ArmorReduction.flat(0.25),
             setKey = null,
         )
         val bundle = ArmorBundle(playerId = targetId, equipped = mapOf(ArmorSlot.HELMET to helmet))

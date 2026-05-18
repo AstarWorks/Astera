@@ -4,7 +4,7 @@ import com.astarworks.astera.combat.domain.armor.ArmorSlot
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 
 /**
- * A single damage-reduction event applied during [DamageRule.resolve].
+ * A single damage-reduction event applied during `DamageRule.resolve`.
  *
  * One [MitigationApplied] is recorded per mitigation source, NOT per damage
  * event — armor with 4 slots equipped emits 4 entries; a 5-piece set bonus
@@ -23,7 +23,17 @@ public data class MitigationApplied(
 
 /** Why a chunk of damage was mitigated. */
 public sealed class MitigationReason {
-    public data class Armor(val slot: ArmorSlot, val percent: Double) : MitigationReason()
+    /**
+     * Per-slot armor reduction. [attribute] is the damage attribute the
+     * reduction was looked up for (Wave 5a-fix added this so analytics
+     * can answer "which element did the helmet resist?").
+     */
+    public data class Armor(
+        val slot: ArmorSlot,
+        val attribute: DamageAttribute,
+        val percent: Double,
+    ) : MitigationReason()
+
     public data class ArmorSet(val setKey: String, val percent: Double) : MitigationReason()
     public data object Block : MitigationReason()
     public data class Resist(val attribute: DamageAttribute, val percent: Double) : MitigationReason()

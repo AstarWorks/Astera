@@ -239,6 +239,7 @@ adds to `gradle/libs.versions.toml`:
 | **Achievement / Title / Badge** (Norma とは別) | ❌ nothing | **Wave 5e** | P2 | (none) |
 | **Tutorial system** (RTM issue #17) | ❌ nothing | **Wave 5e** | P2 | (none) |
 | **Personal settings DB** (RTM issue #15) | ❌ nothing | **Wave 5e** | P2 | (none) |
+| **Universal Attribute Container (ADR-0058)** — Player/Item/Mob 共通 attribute storage | 📋 ADR-0058 commitment (Wave 5a-fix); Wave 5b read shim → Wave 5e migration → Wave 5d/6b mob/item-instance | **Wave 5b** (shim) / **Wave 5e** (本実装+migration) / **Wave 6b** (item-instance PDC) | **P1** | ADR-0058 §5 rollout schedule。`Wallet` / `PlayerStats` / `ManaPool` / `ArmorReduction.perAttribute` を `IAttributeContainer` backing に統合。Wave 5a-fix で commitment 確定、Wave 5e で V14 migration + facade rewrite |
 | Leaderboard ranking | ❌ nothing | Phase 4 | P3 | (none) |
 | **RTM 検定後継 (格付け / 称号)** | ❌ nothing | Phase 7 | P3 | (roadmap.md Phase 7) |
 

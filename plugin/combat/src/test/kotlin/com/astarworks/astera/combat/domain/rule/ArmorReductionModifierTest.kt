@@ -3,6 +3,7 @@ package com.astarworks.astera.combat.domain.rule
 import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.domain.armor.ArmorBundle
 import com.astarworks.astera.combat.domain.armor.ArmorId
+import com.astarworks.astera.combat.domain.armor.ArmorReduction
 import com.astarworks.astera.combat.domain.armor.ArmorSet
 import com.astarworks.astera.combat.domain.armor.ArmorSetKey
 import com.astarworks.astera.combat.domain.armor.ArmorSlot
@@ -41,11 +42,12 @@ class ArmorReductionModifierTest {
         slot: ArmorSlot,
         reduction: Double,
         setKey: String? = null,
+        perAttribute: Map<DamageAttribute, Double> = emptyMap(),
     ): ArmorSpec = ArmorSpec(
         id = ArmorId(id),
         displayNameKey = MessageKey("astera.armor.test-$id.name"),
         slot = slot,
-        damageReduction = reduction,
+        reduction = ArmorReduction(default = reduction, perAttribute = perAttribute),
         setKey = setKey?.let(::ArmorSetKey),
     )
 
@@ -312,5 +314,74 @@ class ArmorReductionModifierTest {
         assertThat(out.currentAmount).isEqualTo(5.0, within(1e-9))
         val sum = out.mitigations.sumOf { it.amountReduced }
         assertThat(sum).isEqualTo(5.0, within(1e-9))
+    }
+
+    // Wave 5a-fix: per-attribute reduction tests --------------------------
+
+    @Test
+    fun `fire-resistant chestplate reduces fire more than physical`() {
+        val modifier = ArmorReductionModifier(FakeArmorRegistry())
+        val fireChest = piece(
+            "fire-chest",
+            ArmorSlot.CHESTPLATE,
+            reduction = 0.2,
+            perAttribute = mapOf(DamageAttribute.FIRE to 0.6),
+        )
+        val bundleWithFireChest = bundle(fireChest)
+
+        // FIRE attack: 60% reduction → final 4.0
+        val fireOut = modifier.apply(
+            working(10.0),
+            DamageAttempt(
+                targetId = targetId,
+                baseProfile = DamageProfile(base = 10.0, attribute = DamageAttribute.FIRE),
+                source = DamageSource.Environment,
+            ),
+            armor = bundleWithFireChest,
+            randomizer = nonRandom,
+        )
+        assertThat(fireOut.currentAmount).isEqualTo(4.0, within(1e-9))
+        val fireReason = fireOut.mitigations.single().reason as MitigationReason.Armor
+        assertThat(fireReason.attribute).isEqualTo(DamageAttribute.FIRE)
+        assertThat(fireReason.percent).isEqualTo(0.6)
+
+        // PHYSICAL attack: 20% reduction (default) → final 8.0
+        val physOut = modifier.apply(
+            working(10.0),
+            attempt(10.0), // PHYSICAL by default
+            armor = bundleWithFireChest,
+            randomizer = nonRandom,
+        )
+        assertThat(physOut.currentAmount).isEqualTo(8.0, within(1e-9))
+        val physReason = physOut.mitigations.single().reason as MitigationReason.Armor
+        assertThat(physReason.attribute).isEqualTo(DamageAttribute.PHYSICAL)
+        assertThat(physReason.percent).isEqualTo(0.2)
+    }
+
+    @Test
+    fun `default reduction applies for attributes not in perAttribute map`() {
+        val modifier = ArmorReductionModifier(FakeArmorRegistry())
+        val partialResist = piece(
+            "partial",
+            ArmorSlot.HELMET,
+            reduction = 0.3,
+            perAttribute = mapOf(DamageAttribute.FIRE to 0.7),
+        )
+
+        // ELECTRIC is not in perAttribute → falls back to default 0.3
+        val electricOut = modifier.apply(
+            working(10.0),
+            DamageAttempt(
+                targetId = targetId,
+                baseProfile = DamageProfile(base = 10.0, attribute = DamageAttribute.ELECTRIC),
+                source = DamageSource.Environment,
+            ),
+            armor = bundle(partialResist),
+            randomizer = nonRandom,
+        )
+        assertThat(electricOut.currentAmount).isEqualTo(7.0, within(1e-9))
+        val reason = electricOut.mitigations.single().reason as MitigationReason.Armor
+        assertThat(reason.attribute).isEqualTo(DamageAttribute.ELECTRIC)
+        assertThat(reason.percent).isEqualTo(0.3)
     }
 }

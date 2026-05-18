@@ -1,8 +1,10 @@
 package com.astarworks.astera.combat.domain.armor
 
+import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.data.Offset
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
@@ -14,17 +16,19 @@ import java.util.UUID
 class ArmorBundleTest {
 
     private val playerId = PlayerId(UUID.randomUUID())
+    private val eps = Offset.offset(1e-9)
 
     private fun piece(
         id: String,
         slot: ArmorSlot,
         reduction: Double,
         setKey: String? = null,
+        perAttribute: Map<DamageAttribute, Double> = emptyMap(),
     ): ArmorSpec = ArmorSpec(
         id = ArmorId(id),
         displayNameKey = MessageKey("astera.armor.test-$id.name"),
         slot = slot,
-        damageReduction = reduction,
+        reduction = ArmorReduction(default = reduction, perAttribute = perAttribute),
         setKey = setKey?.let(::ArmorSetKey),
     )
 
@@ -83,5 +87,36 @@ class ArmorBundleTest {
         org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
             piece("bad", ArmorSlot.HELMET, reduction = 1.5)
         }
+    }
+
+    @Test
+    fun `totalReduction sums per-slot default reductions for the attribute`() {
+        val pieces = mapOf(
+            ArmorSlot.HELMET to piece("h", ArmorSlot.HELMET, 0.1),
+            ArmorSlot.CHESTPLATE to piece("c", ArmorSlot.CHESTPLATE, 0.2),
+        )
+        val bundle = ArmorBundle(playerId, pieces)
+
+        assertThat(bundle.totalReduction(DamageAttribute.PHYSICAL)).isCloseTo(0.3, eps)
+    }
+
+    @Test
+    fun `totalReduction respects per-attribute overrides`() {
+        val fireResistChest = piece(
+            "fire-chest",
+            ArmorSlot.CHESTPLATE,
+            reduction = 0.2,
+            perAttribute = mapOf(DamageAttribute.FIRE to 0.6),
+        )
+        val helmet = piece("h", ArmorSlot.HELMET, 0.1)
+        val bundle = ArmorBundle(playerId, mapOf(
+            ArmorSlot.HELMET to helmet,
+            ArmorSlot.CHESTPLATE to fireResistChest,
+        ))
+
+        // FIRE: helmet 0.10 (default) + chest 0.60 (override) = 0.70
+        assertThat(bundle.totalReduction(DamageAttribute.FIRE)).isCloseTo(0.70, eps)
+        // PHYSICAL: helmet 0.10 + chest 0.20 (default) = 0.30
+        assertThat(bundle.totalReduction(DamageAttribute.PHYSICAL)).isCloseTo(0.30, eps)
     }
 }

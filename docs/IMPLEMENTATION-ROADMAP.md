@@ -119,32 +119,33 @@ leverage-ordered roadmap + cumulative milestone table + critical path 文書化
 各 wave 3-5 bullet detail + 成功基準 + automation rule example で expansion、
 Wave _ops 7 sub-item 詳細化、ADR-0048〜0057 番号予約
 
-### Wave 5a — Combat depth (Tier 1) — **NEXT SESSION**
+### Wave 5a ✅ — Combat depth (Tier 1)
 
-| Property | Value |
-|---|---|
-| Depends on | Wave 4.5 + 4.6 |
-| Unlocks | Meaningful skill effects + balanced combat |
-| Complexity | 中 (6 worker, ~5-6h) |
-| ADR | 0030 |
-| Phase A | Tier 0 prep — Vec3 math (normalize/dot/cross/length/distance) + IMcEvent 6 new variants (PlayerJoined/PlayerQuit/EntityDamaged/EntityDied/BlockPlaced/BlockBroken) |
+`ca6ddab` — SkillCastDispatcher (6 archetype, SUMMON stub) + Armor domain
+(ArmorSpec/Slot/Set/Bundle + 80% cap + set bonus) + DamageRule pipeline
+refactor (HeadshotModifier / ArmorReductionModifier / CriticalStrikeModifier /
+KnockbackModifier pluggable) + DamageResolution rich return type + rich
+sub-events (CriticalHit / KnockbackApplied / DamageMitigated /
+FriendlyFireBlocked / ManaConsumed) + ManaPool combat domain +
+ChargedSkillVariant + ADR-0030 (Combat Depth + Wave 6 Bukkit damage+death
+hijack policy).
 
-**Scope** (Wave 5a):
-- `SkillCastDispatcher` (6 archetype handler: PROJECTILE / MELEE / AOE / BUFF /
-  TELEPORT / SUMMON) — closes "SkillCast subscriber 0" hollow gap
-- `ArmorSpec` + `ArmorSlot` (HELMET / CHESTPLATE / LEGGINGS / BOOTS) + DamageRule
-  armor reduction (per-slot % stacking)
-- Critical strike (chance + multiplier)
-- Knockback formula (uses Vec3.normalize)
-- Friendly-fire toggle
-- Skill resource cost (mana / energy field on SkillSpec)
-- Charged skill variant (sealed: Instant / Charged(chargeTicks))
-- Death attribution → respawn flow
+Tier 0 prep folded in: Vec3 math (normalize/dot/cross/length/distance),
+MutableVec3 in-place equivalents, IMcEvent +4 variants
+(PlayerJoined/PlayerQuit/BlockPlaced/BlockBroken). EntityDamaged/EntityDied
+**deliberately omitted** per ADR-0030 §8 (Wave 6 hijacks vanilla damage events).
 
-**完了基準**: 6 archetype handler unit test + Armor reduction "base 10 × armor
-50% → 5 damage" + Crit 100% chance → 2x damage + Knockback Vec3 direction +
-Friendly-fire flag off → 0 damage + Resource cost InsufficientResource + Charged
-skill 30 tick 後発火 + ADR-0030 + `./gradlew check` 緑 + parity tracker 更新
+### Wave 5a-fix ✅ — Damage path consolidation + Armor attribute-aware + ADR-0058
+
+(本セッション) — `WeaponDamageRule` deleted (single canonical damage path,
+ADR-0030 §1). `ArmorSpec.damageReduction: Double` →
+`reduction: ArmorReduction(default, perAttribute: Map<DamageAttribute, Double>)`
+(per-attribute resist capable; flat form preserved via
+`ArmorReduction.flat(...)`). `MitigationReason.Armor` gains `attribute`
+field so `DamageMitigated` events carry which element was resisted.
+**ADR-0058 (Universal Attribute Container)** drafted as forward commitment
+— Wave 5b reads, Wave 5e migrates PlayerStats/Wallet/ManaPool + armor
+resists, Wave 5d/6b add mob/item-instance containers.
 
 ### Wave 5b — HUD ports (Tier 2) [Wave 5a と並列可]
 
@@ -840,7 +841,8 @@ ADR-0010 (Generative AI policy deferred to Phase 6) はこの phase で finalize
 | Phase 1 PoC closing (docs realignment) | 4.6 | ~15% | 6 (✅) |
 | Phase 1 PoC closing (master roadmap) | 4.7 | ~15% | 7 (✅) |
 | Phase 1 PoC closing (RTM #5 + Phase 4-7 detail) | 4.8 | ~15% | 8 (✅) |
-| Combat domain depth | 5a | ~22% | 9 |
+| Combat domain depth | 5a | ~22% | 9 (✅ `ca6ddab`) |
+| Damage consolidation + Armor attribute-aware + ADR-0058 | 5a-fix | ~22% | 10 (✅) |
 | HUD ports | 5b | ~25% | 10 (5a 並列) |
 | Match flow rich | 5c | ~30% | 11 |
 | World geometry | 5d | ~38% | 12 (1-2 sess) |
@@ -903,6 +905,7 @@ Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 | 10f | 0053 | AI PR review confidence threshold |
 | 11a | 0054 | Release cadence + version bump |
 | 11b | 0055 | Incident severity matrix |
+| 5a-fix | 0058 | Universal Attribute Container (forward commitment; Wave 5b reads, Wave 5e migrates) |
 | 11c | 0056 | Voting + affiliate audit |
 | 11d | 0057 | Certification + anti-cheat |
 | Wave _ops | 0023 / 0024 | Secrets + Provider 路線 |

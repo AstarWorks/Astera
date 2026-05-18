@@ -57,8 +57,41 @@ class ArmorLoaderServiceTest {
         assertThat(spec).isNotNull
         requireNotNull(spec)
         assertThat(spec.slot).isEqualTo(ArmorSlot.HELMET)
-        assertThat(spec.damageReduction).isEqualTo(0.10)
+        assertThat(spec.reduction.default).isEqualTo(0.10)
+        assertThat(spec.reduction.perAttribute).isEmpty()
         assertThat(spec.setKey).isNull()
+    }
+
+    @Test
+    fun `per-attribute reduction overrides parse correctly`(@TempDir dir: Path) {
+        val perAttrYaml = """
+            type: piece
+            id: fire-chest
+            display_name_key: astera.armor.fire-chest.name
+            slot: chestplate
+            damage_reduction: 0.20
+            damage_reduction_attributes:
+              fire: 0.60
+              physical: 0.10
+        """.trimIndent()
+        Files.writeString(dir.resolve("fire-chest.yaml"), perAttrYaml)
+
+        val registry = MutableArmorRegistry()
+        val report = ArmorLoaderService(registry).loadFrom(dir)
+
+        assertThat(report.loaded).isEqualTo(1)
+        val spec = registry.find(ArmorId("fire-chest"))
+        requireNotNull(spec)
+        assertThat(spec.reduction.default).isEqualTo(0.20)
+        assertThat(spec.reduction.forAttribute(
+            com.astarworks.astera.core.domain.damage.DamageAttribute.FIRE,
+        )).isEqualTo(0.60)
+        assertThat(spec.reduction.forAttribute(
+            com.astarworks.astera.core.domain.damage.DamageAttribute.PHYSICAL,
+        )).isEqualTo(0.10)
+        assertThat(spec.reduction.forAttribute(
+            com.astarworks.astera.core.domain.damage.DamageAttribute.ELECTRIC,
+        )).isEqualTo(0.20)  // fallback to default
     }
 
     @Test
