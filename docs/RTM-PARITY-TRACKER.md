@@ -74,25 +74,28 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 71 | 55.5% |
-| 🟨 partial | 2 | 1.6% |
-| 🔌 port-only | 8 | 6.3% |
-| ❌ nothing | 47 | 36.7% |
-| **Total tracked** | **128** | 100% |
+| ✅ full | 71 | 49.3% |
+| 🟨 partial | 4 | 2.8% |
+| 🔌 port-only | 8 | 5.6% |
+| ❌ nothing | 61 | 42.4% |
+| **Total tracked** | **144** | 100% |
 
-(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip)
+(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配)
+
+**Last audited**: 2026-05-19 (ADR-0029 §"Deep audit (2026-05-19)" methodology — 詳細は ADR 参照)
 
 **Phase parity targets** (cumulative):
 - Wave 4.5: ~15% RTM parity
 - Wave 5a: **~22% RTM parity** (Category 1 Combat 9 行 ❌→✅)
 - Wave 5b: **~28% RTM parity** (Category 4 HUD 5 行 + Category 7 attribute read ❌/📋→🔌/🔌 = +6)
 - Wave 5c: **48.4% RTM parity** (Category 2 game modes 3 行 + Category 5 generator/anomaly 4 行 ❌→✅ = +6)
-- Wave 5d (now): **55.5% RTM parity** (Category 3 World/Stage 9 行 ❌→✅ = +9)
-- Wave 5a-5f complete: ~60% RTM parity (projected)
-- Wave 6 (Paper Sweep) complete: ~70% RTM parity (Phase 1 PoC end-to-end)
-- Phase 3 Siege Warfare complete (Wave 6 + content): ~80%
-- Phase 4 (UGC + Web + Vault + Gacha): ~90%
-- Phase 5+ (Metaverse): >100% (Astera adds beyond RTM)
+- Wave 5d: **55.5% RTM parity (pre-saturation denominator)** → **49.3% (post-saturation denominator)** — 同じ 71 ✅ 行、catalog 増えただけ
+- Wave 5a-fix2 (planned): +2 ✅ (DamageHistory + assist counter) + 1 partial → 1 full (SkillTrigger 20値) → ~51% (144 denom)
+- Wave 5e (planned): +7 ✅ projected (LevelUpMission / PlayerPin / QuickCast / Control scheme / Particle-hide / Double-jump domain / PortalReady)
+- Wave 6 (Paper Sweep) complete: ~65-70% RTM parity (Phase 1 PoC end-to-end)
+- Phase 3 Siege Warfare complete (Wave 6 + 7a content): ~75-80%
+- Phase 4 (UGC + Web + Vault + Gacha): ~85-90%
+- Phase 5+ (Metaverse): >95% (Astera adds beyond RTM)
 
 ---
 
@@ -131,6 +134,11 @@ adds to `gradle/libs.versions.toml`:
 | Vec3 math (normalize / dot / cross / length / distance) | ✅ Wave 5a Tier 0 prep + `MutableVec3` in-place 同等 | (済 Wave 5a) | P0 | `plugin/core/.../domain/geometry/Vec3.kt` |
 | **CEL expression language for skill** (RTM issue #21) | ❌ nothing | **Wave 5f** | P3 | (none) |
 | **Particle definition system** (RTM issue #21) | ❌ nothing | **Wave 5f** | P3 | (none) |
+| **DamageHistoryService** (sliding-window damage attribution + assist credit) | ❌ nothing | **Wave 5a-fix2** | **P1** | RTM `core/impl/.../game/damage/DamageHistoryService.kt` + `DamageHistoryData.kt` (2026-05-19 deep audit) |
+| **assist counter on PlayerStats** (`assists: Long` + V2 migration) | ❌ nothing — `PlayerStats` has K/D but no Assist | **Wave 5a-fix2** | **P1** | RTM `IGamePlayer.ITeamGamePlayer.assist: Int` |
+| **SkillTrigger enum 14 値追加** (RIGHT_CLICK_BLOCK / LEFT_CLICK_BLOCK / SHOOT / BLOCK_BREAK / CONSUME / CROUCH / JUMP / SPRINT / DROP / STACK_DROP / PICKUP / HYPER / ATTACK / SHIELD / DAMAGED / DEATH / SYSTEM) | 🟨 enum only 6 値 — 14 値追加待ち | **Wave 5a-fix2** (enum + dispatcher routing); Paper handlers Wave 6 | P1 | RTM `model/skill/SkillTrigger.kt` (20 values total) |
+| **Vanilla Potion ↔ custom status unified API** (Bukkit `PotionEffect` と Astera `StatusKind` を 1 model で扱う) | ❌ nothing | **Wave 6** (Paper integration boundary) | P2 | RTM issue #2 body bullets |
+| **Double-jump domain** (`PlayerSettings.doubleJumpEnabled` + jump-count tracking; `JUMP_DISABLED` debuff は既存 enum で逆方向 cover) | ❌ nothing | **Wave 5e** (domain) + **Wave 6a** (Paper jump packet listener) | P2 | RTM README §戦闘システム "デフォルトで二段階ジャンプ" |
 
 ---
 
@@ -148,6 +156,10 @@ adds to `gradle/libs.versions.toml`:
 | Team domain (Team / TeamId / colorKey / members) | ✅ minimal | (済) | P0 | `Team.kt` |
 | Team auto-balance | ❌ nothing | Wave 5c | P2 | (none) |
 | Match command surface (`/astera-match start/end/entry/phase/list`) | ✅ full | (済) | P0 | `AsteraMatchPlugin.kt` |
+| **7th game mode `BattleRoyale`** (free-for-all, no team) | ❌ nothing | **Wave 7a** (Siege Content Authoring; content-fidelity) | P2 | RTM `GameMode.kt` sealed enum + `IGamePlayer.GamePlayer.BattleRoyalePlayer` sealed variant (2026-05-19 deep audit) |
+| **3rd TNT variant `CarryBigTnt`** (payload — `GuiAction.CHANGE_PAYLOAD`) | ❌ nothing | **Wave 7a** (content-fidelity) | P2 | RTM `GameMode.kt` (3 TNT variants total: Tnt / SmallTnt / BigTnt) |
+| **`ItemGenerator`** (non-Star item-spawning generator) | ❌ nothing | **Wave 7a** (content alongside Wave 5c `StarGenerator`) | P2 | RTM `ConfiguredItemGenerator.kt` alongside `ConfiguredStarGenerator.kt` |
+| **Listener-Service architecture refactor** (per-module event-handler ↔ business-logic separation) | 🟨 partially absorbed by ADR-0001 (Hexagonal) — RTM's per-module split は finer-grained | **Wave 5e** (ADR draft) | P3 | RTM issue #22 body |
 
 ---
 
@@ -170,6 +182,7 @@ adds to `gradle/libs.versions.toml`:
 | Capture zone / KOTH region type | ✅ Wave 5d (domain + tick use case + scheduler) | **Wave 5d** | P1 | `CaptureZone.kt`, `CaptureZoneId.kt`, `CaptureZoneTickUseCase.kt`, `CaptureZoneScheduler.kt` |
 | Block restoration after match end | ✅ Wave 5d (BlockChangeJournal + RestoreBlocksOnMatchEnded listener; replays on MatchEnded) | **Wave 5d** | P1 | `RestoreBlocksOnMatchEndedUseCase.kt`, `BlockChangeJournal.kt` |
 | Region type variants (protected / buildable / spawn / no-build) | ❌ Region is plain AABB | **Wave 5d** | P1 | `Region.kt` has no type tag |
+| **`StructureService`** (runtime structure paste, schematic load とは別 — mid-match terrain transformation) | ❌ nothing | **Wave 6b** (Paper FAWE adapter; existing Wave 5d schematic loader cover match-start のみ) | P2 | RTM `paper/.../structure/StructureService.kt` (2026-05-19 deep audit) |
 
 ---
 
@@ -243,6 +256,9 @@ adds to `gradle/libs.versions.toml`:
 | **Tutorial system** (RTM issue #17) | ❌ nothing | **Wave 5e** | P2 | (none) |
 | **Personal settings DB** (RTM issue #15) | ❌ nothing | **Wave 5e** | P2 | (none) |
 | **Universal Attribute Container (ADR-0058)** — Player/Item/Mob 共通 attribute storage | 🔌 Wave 5b shim done (ShimPlayerAttributeContainer); ADR-0058 commitment (Wave 5a-fix); Wave 5e migration → Wave 5d/6b mob/item-instance | **Wave 5b** (shim) / **Wave 5e** (本実装+migration) / **Wave 6b** (item-instance PDC) | **P1** | ADR-0058 §5 rollout schedule。`Wallet` / `PlayerStats` / `ManaPool` / `ArmorReduction.perAttribute` を `IAttributeContainer` backing に統合。Wave 5b で attribute read API + shim 完成、Wave 5e で V14 migration + facade rewrite |
+| **`LevelUpMission`** (per-level KILL vs STAR choice) | ❌ nothing — `Norma` + `Level` ドメインは別々; bridge 不在 | **Wave 5e** | P1 | RTM `LevelUpMission.kt` enum + `ConfiguredLevelParameter.normaParameter: Map<Int, ConfiguredNormaParameter>` (README §レベルシステム "レベルアップには一定のスター or キル") |
+| **`PlayerPin`** (small/medium/large team-comms markers) | ❌ nothing | **Wave 5e** | P2 | RTM `ConfiguredPlayerPin.kt` |
+| **QuickCast hotbar mapping** (`PlayerSettings.quickCastSlots: Map<Int, SkillId>`) | ❌ nothing | **Wave 5e** (PersonalSettings field) | P2 | RTM issue #15 body checkbox |
 | Leaderboard ranking | ❌ nothing | Phase 4 | P3 | (none) |
 | **RTM 検定後継 (格付け / 称号)** | ❌ nothing | Phase 7 | P3 | (roadmap.md Phase 7) |
 
@@ -262,6 +278,9 @@ adds to `gradle/libs.versions.toml`:
 | **Audit log domain + table** | ❌ nothing | **Wave 5e** | P2 | (none) |
 | **Player inventory snapshot save/restore (RTM issue #5)** | ❌ nothing | **Wave 5e (domain + V10)** + **Wave 6b (Paper serializer)** | **P1** | grep `InventorySnapshot|PlayerInventory` → 0 件 |
 | **InventoryActionLock** (load 中 player action 制限、RTM issue #5) | ❌ nothing | **Wave 5e (PlayerSession.Loading state)** + **Wave 6b (Bukkit cancel)** | **P1** | (none) |
+| **Control scheme PersonalSettings field** (右クリック式 / ボタン式) | ❌ nothing | **Wave 5e** | P2 | RTM README §プレイヤーデータ "操作方法選択" |
+| **Particle-hide visibility setting** (per-viewer team filter on `Server#spawnParticle`) | ❌ nothing | **Wave 5e** (domain `PlayerSettings.particleVisibility`) + **Wave 6a** (Paper packet filter) | P2 | RTM README §戦闘システム + §プレイヤーデータ "パーティクル非表示設定" |
+| **`PlayerPortalReadyEvent`** (lobby↔match server entry/exit signal) | ❌ nothing | **Wave 5e** | P2 | RTM `event/data/PlayerPortalReadyEvent.kt` |
 | Ban / Mute lists | ❌ nothing | **Phase 4 (Wave 8f)** | P2 | (none) |
 | Login history table | ❌ nothing | Phase 4 | P3 | (none) |
 

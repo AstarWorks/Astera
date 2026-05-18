@@ -10,6 +10,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 - **実装ロードマップ (SSOT)** → [IMPLEMENTATION-ROADMAP.md](IMPLEMENTATION-ROADMAP.md) — 12-tier、leverage-ordered
 - **RTM パリティ追跡** → [RTM-PARITY-TRACKER.md](RTM-PARITY-TRACKER.md) — feature × state × wave 配賦
 - **RTM との設計差** → [architecture/rtm-divergence.md](architecture/rtm-divergence.md)
+- **Astera-original Content backlog (Phase 4+ speculative)** → [CONTENT-ROADMAP.md](CONTENT-ROADMAP.md) — RTM パリティ追跡と分離。Writerside `コンテンツ案一覧.md` の Astera 版相当
 - **Wave 実行プロトコル** → [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) + [`.claude/rules/wave-execution.md`](../.claude/rules/wave-execution.md)
 - **インフラ構成** → [infrastructure/overview.md](infrastructure/overview.md)
 - **用語が分からない** → [glossary.md](glossary.md)

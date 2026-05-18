@@ -70,20 +70,30 @@ Comparable to Astera's 7-plugin layout (plugin/core + 6 feature plugins),
 but RTM is a single Gradle build with sub-modules whereas Astera is
 multi-plugin per ADR-0022 (each plugin loads independently on Paper).
 
-### 6 confirmed game modes (per RTM README)
+### 7 confirmed game modes (per RTM `GameMode.kt` enum)
 
-| # | Mode | Goal |
-|---|---|---|
-| 1 | **Battle Loyal** | Small-scale gathered-item arena |
-| 2 | **Break Core** (primary intended mode) | Destroy enemy core |
-| 3 | **Carry TNT** | Transport TNT to enemy base |
-| 4 | **Carry Mini TNT** | Collect 10 mini-TNTs into 1 larger TNT |
-| 5 | **Capture Wool** | Area / region control |
-| 6 | **Steal Jewelry** | Retrieve 3 enemy gems |
+| # | Mode | Goal | Source |
+|---|---|---|---|
+| 1 | **Battle Loyal** | Small-scale gathered-item arena | README + `GameMode.kt` |
+| 2 | **Break Core** (primary intended mode) | Destroy enemy core | README + `GameMode.kt` |
+| 3 | **Carry TNT** | Transport TNT to enemy base | README + `GameMode.kt` (`CarryTnt`) |
+| 4 | **Carry Mini TNT** | Collect 10 mini-TNTs into 1 larger TNT | README + `GameMode.kt` (`CarrySmallTnt`) |
+| 5 | **Carry Big TNT** (payload) | Transport an extra-large single TNT charge (`GuiAction.CHANGE_PAYLOAD`) | `GameMode.kt` (`CarryBigTnt`) — NOT in README |
+| 6 | **Capture Wool** | Area / region control | README + `GameMode.kt` |
+| 7 | **Steal Jewelry** | Retrieve 3 enemy gems | README + `GameMode.kt` (`SteelJewelry`) |
+| + | **Battle Royale** | Free-for-all, no team (distinct `IGamePlayer.GamePlayer.BattleRoyalePlayer` sealed variant) | `GameMode.kt` (`BattleRoyale`) — NOT in README |
 
-Astera's existing roadmap and `rtm-divergence.md` only mentioned "BreakCore
-extension"; the other 5 modes were unaccounted for. They land in
-**Wave 5c** as a sealed `GameMode` framework + 6 mode impls.
+The 2026-05-17 catalog claimed 6 modes from README only. The deep audit
+(2026-05-19) added `CarryBigTnt` (payload, 3rd TNT variant) and
+`BattleRoyale` (no-team mode) from `modules/api/core/.../game/mode/GameMode.kt`
+sealed enum. **Total 8 sealed values** but `Battle Loyal` and `Battle Royale`
+are distinct: the former is small-scale arena (team), the latter is
+free-for-all (no team).
+
+Astera Wave 5c (commit `e9808a2`) shipped 6 modes (`BattleLoyal` /
+`BreakCore` / `CarryTNT` / `CarryMiniTNT` / `CaptureWool` / `StealJewelry`).
+`BattleRoyale` + `CarryBigTnt` deferred to **Wave 7a (Siege Content
+Authoring)** since they're content-fidelity rather than mechanic gaps.
 
 ### 22 open RTM issues (Nov 2024 snapshot)
 
@@ -169,6 +179,102 @@ ADR) captured ~85% of the RTM design surface but missed:
 
 `rtm-divergence.md` has been updated (same commit as this ADR) to absorb
 these additions into the Keep / Redesign / Add tables.
+
+## Deep audit (2026-05-19): source-code + issue-body saturation
+
+**Trigger**: Wave 5b close audit on 2026-05-19. User's instinct ("Phase 1
+が薄すぎないか") prompted a second-pass investigation that went deeper than
+the 2026-05-17 catalog: source-code enum surveys (`GameMode.kt` /
+`AnomalyType.kt` / `SkillTrigger.kt` / `IGamePlayer.kt` / `LevelUpMission.kt`),
+issue **body** TODOs (not just titles — 20 of 22 issues carry checkbox
+sub-TODOs), Writerside topic full reads, and `paper-plugin.yml` /
+`SkillCommandServiceImpl.kt` command surface inspection.
+
+### Newly-discovered Phase 1 items (~15)
+
+These are first-class RTM features missing from the parity tracker as of
+2026-05-19; they sit upstream of Wave 5a-6b scope decisions.
+
+| # | Feature | RTM source | Suggested Astera wave |
+|---|---|---|---|
+| 1 | **`DamageHistoryService`** (sliding-window damage attribution) | `core/impl/.../game/damage/DamageHistoryService.kt` + `DamageHistoryData.kt` + `ConfiguredDamageHistoryParameter` | **Wave 5a-fix2** |
+| 2 | **`assist` counter on player session** | `IGamePlayer.kt` — `ITeamGamePlayer.assist: Int` | **Wave 5a-fix2** |
+| 3 | **`SkillTrigger` enum 6 → 20** (RIGHT_CLICK_BLOCK / LEFT_CLICK_BLOCK / RIGHT_CLICK_AIR / LEFT_CLICK_AIR / INTERACT / SHOOT / BLOCK_BREAK / CONSUME / CROUCH / JUMP / SPRINT / DROP / STACK_DROP / PICKUP / HYPER / ATTACK / SHIELD / DAMAGED / DEATH / SYSTEM) | `model/skill/SkillTrigger.kt` | **Wave 5a-fix2** (enum-only; Bukkit handlers Wave 6) |
+| 4 | **`LevelUpMission`** (per-level KILL vs STAR choice) + `ConfiguredLevelParameter.normaParameter: Map<Int, ConfiguredNormaParameter>` | `LevelUpMission.kt` | **Wave 5e** |
+| 5 | **7th game mode `BattleRoyale`** | `GameMode.kt` (see §"7 confirmed game modes" above) | **Wave 7a** (content fidelity) |
+| 6 | **3rd TNT variant `CarryBigTnt` (payload)** | `GameMode.kt` (see above) | **Wave 7a** (content fidelity) |
+| 7 | **`ItemGenerator`** (non-star item-spawning generator) | `ConfiguredItemGenerator.kt` (alongside `ConfiguredStarGenerator.kt`) | **Wave 7a** (content) |
+| 8 | **`PlayerPin`** (small/medium/large team-comms markers) | `ConfiguredPlayerPin.kt` | **Wave 5e** |
+| 9 | **`StructureService`** (WorldEdit-style runtime structure paste, distinct from schematic load) | `paper/.../structure/StructureService.kt` | **Wave 6b** (Paper-side runtime ops) |
+| 10 | **`PlayerPortalReadyEvent`** (lobby↔match server entry/exit signal) | `event/data/PlayerPortalReadyEvent.kt` | **Wave 5e** |
+| 11 | **Control scheme PersonalSettings** (右クリック式 / ボタン式) | README §プレイヤーデータ | **Wave 5e** |
+| 12 | **Particle-hide visibility setting** (per-viewer team filter) | README §戦闘システム + §プレイヤーデータ | **Wave 5e** (domain) + **Wave 6a** (Paper filter) |
+| 13 | **Double-jump mechanic** (default movement, with `JUMP_DISABLED` debuff opposite) | README §戦闘システム | **Wave 5e** (domain) + **Wave 6a** (Paper packet) |
+| 14 | **QuickCast hotbar mapping** (instant skill cast via hotbar number) | Issue #15 body checkbox | **Wave 5e** (PersonalSettings field) |
+| 15 | **Vanilla Potion ↔ custom status unified API** | Issue #2 body bullets | **Wave 6** (Paper integration boundary) |
+
+### Newly-discovered Phase 4+ backlog items (~13)
+
+These are speculative content-idea entries from Writerside
+`コンテンツ案一覧.md` + issue #12 (寄付系) sub-bullets — Astera adds rather
+than ports.
+
+| # | Feature | RTM source | Category |
+|---|---|---|---|
+| 1 | Sound effect cosmetics (per-kill / respawn / victory / join) | Issue #12 sub-item | Cosmetics (Wave 8e) |
+| 2 | Particle cosmetics beyond standard (kill / respawn / victory / join overlays) | Issue #12 sub-item | Cosmetics (Wave 8e) |
+| 3 | Nickname custom display + chat color codes | Issue #12 sub-items | Cosmetics (Wave 8e) |
+| 4 | Private game mode (exclusive lobby for selected players) | Issue #12 sub-item | Match queue (Wave 8e or new) |
+| 5 | Ranked matchmaking (ELO/TrueSkill) | Writerside `コンテンツ案一覧.md` | Match queue (Wave 7b extension) |
+| 6 | Tournament automation (bracket / round scheduling) | Writerside `コンテンツ案一覧.md` | Match queue (Wave 7b extension) |
+| 7 | Betting 1v1 mode (賭け1v1) | Writerside `コンテンツ案一覧.md` | Match queue (Phase 4+) |
+| 8 | Quick spell assist macro (クイックスペルアシスト) | Writerside `コンテンツ案一覧.md` | Authoring UX (Phase 5+) |
+| 9 | Skill tagging from CEL grammar (自作言語タグ付け) | Writerside `コンテンツ案一覧.md` | Authoring UX (Wave 5f + Wave 10e integration) |
+| 10 | GitHub→Discord patch note auto-notification | Writerside `コンテンツ案一覧.md` | Ops (Wave _ops-8 new) |
+| 11 | Vector search / embedding subscription | Issue #12 sub-item | Speculative infra (Phase 5+ research) |
+| 12 | 分散型ツリー型ホスティング (distributed tree-based world hosting) | Writerside `コンテンツ案一覧.md` | Speculative infra (Phase 5+ research) |
+| 13 | Shop NPC implementation decision (MythicMobs/Citizens) | Issue #4 sub-bullets | Wave 5e/Phase 4 governance ADR |
+
+### Astera-intentional divergences (not gaps)
+
+Per ADR-0013 (RTM divergence policy), Astera intentionally **diverged** on
+the following; they are listed here for clarity:
+
+- **6 Anomaly variants `ResourceSpike` / `StatusBurst` / `SpawnSurge` /
+  `TimeWarp` / `GravityShift` / `FogOfWar`** (Astera Wave 5c) vs RTM's 4
+  `Meteor` / `Freeze` / `Thunder` / `Rain` (`AnomalyType.kt`). Astera's
+  abstraction-level naming buys better composability for ADR-0058's modifier
+  surface; RTM's are concrete weather/event theming. Both are valid; Astera
+  ships the framework Wave 5c and content Wave 7a may layer RTM-flavored
+  themes on top.
+
+### Audit methodology (reproducibility)
+
+For future contributors who want to re-run the saturation:
+
+```bash
+# Issue body deep-scan
+gh api 'repos/Y-RyuZU/RyuZUTechnicalMagic/issues?state=all&per_page=100' \
+  --paginate --jq '.[] | {n: .number, title, body}'
+
+# Source-code enum surveys
+gh api repos/Y-RyuZU/RyuZUTechnicalMagic/contents/modules/api/core/src/main/kotlin/dev/ryuzu/rtm/api/core/game/mode/GameMode.kt
+gh api repos/Y-RyuZU/RyuZUTechnicalMagic/contents/modules/api/core/src/main/kotlin/dev/ryuzu/rtm/api/core/game/player/IGamePlayer.kt
+gh api repos/Y-RyuZU/RyuZUTechnicalMagic/contents/modules/api/core/src/main/kotlin/dev/ryuzu/rtm/api/core/model/skill/SkillTrigger.kt
+gh api repos/Y-RyuZU/RyuZUTechnicalMagic/contents/modules/api/core/src/main/kotlin/dev/ryuzu/rtm/api/core/game/level/LevelUpMission.kt
+gh api repos/Y-RyuZU/RyuZUTechnicalMagic/contents/modules/api/core/src/main/kotlin/dev/ryuzu/rtm/api/core/game/stage/anomaly/AnomalyType.kt
+
+# Writerside topic reads
+gh api repos/Y-RyuZU/RyuZUTechnicalMagic/contents/docs/Writerside/topics/タスク.md
+gh api repos/Y-RyuZU/RyuZUTechnicalMagic/contents/docs/Writerside/topics/コンテンツ案一覧.md
+gh api repos/Y-RyuZU/RyuZUTechnicalMagic/contents/docs/Writerside/topics/BlockState.md
+gh api repos/Y-RyuZU/RyuZUTechnicalMagic/contents/docs/Writerside/topics/アイテム管理に関して.md
+```
+
+The 2026-05-19 saturation pass found ~15 Phase 1 gaps + ~13 Phase 4+
+backlog items. Any subsequent re-audit should target a saturation
+delta < 5 items; if more is found, the current methodology is missing
+a class of source.
 
 ## Consequences
 
