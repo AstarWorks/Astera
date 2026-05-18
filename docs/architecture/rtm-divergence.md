@@ -3,10 +3,12 @@
 How Astera relates to [`Y-RyuZU/RyuZUTechnicalMagic`](https://github.com/Y-RyuZU/RyuZUTechnicalMagic) (RTM),
 its predecessor. Policy: **reference, don't follow upstream** ([[adr/0013-rtm-divergence-policy]]).
 
-**RTM is a public repository** (verified 2026-05-17 via WebFetch). Empirical
-RTM data (22 open issues, 6 game modes, 4 Writerside docs, 6-module Gradle
-layout, Paper 1.20.4 baseline) is recorded in [[adr/0029-rtm-empirical-catalog]]
-and cross-indexed into the tables below. Wave assignments per feature live in
+**RTM is a public repository** (verified 2026-05-17 via WebFetch; deep
+source-code + issue-body re-audit on 2026-05-19). Empirical RTM data
+(22 open issues with checkbox sub-TODOs, **7 sealed game modes** (8 values
+incl. `BattleRoyale`), 4 Writerside docs, 6-module Gradle layout, Paper
+1.20.4 baseline) is recorded in [[adr/0029-rtm-empirical-catalog]] and
+cross-indexed into the tables below. Wave assignments per feature live in
 [[../RTM-PARITY-TRACKER]].
 
 Three rules of thumb:
@@ -24,8 +26,8 @@ Three rules of thumb:
 | Default branch | `master` |
 | Language | Kotlin 99.6%, Paper 1.20.4-R0.1-SNAPSHOT |
 | Module layout (Gradle) | `:modules:api:core`, `:modules:api:minecraft`, `:modules:api:repositories:permanent`, `:modules:api:repositories:temporary`, `:modules:core:impl`, `:modules:minecraft:paper`, `:modules:repositories:permanent:mongo`, `:modules:repositories:temporary:redis` |
-| Open issues | 22 (see ADR-0029 for full catalog) |
-| Game modes (per README) | 6: Battle Loyal / Break Core / Carry TNT / Carry Mini TNT / Capture Wool / Steal Jewelry |
+| Open issues | 22 (20 carry body checkbox sub-TODOs; see ADR-0029 for full catalog + 2026-05-19 saturation) |
+| Game modes (per `GameMode.kt` sealed enum) | **8 values**: Battle Loyal / Break Core / Carry TNT / Carry Mini TNT / **Carry Big TNT (payload)** / Capture Wool / Steal Jewelry / **Battle Royale** — README documents only 6; the 2 starred are source-code-only |
 | Writerside docs | BlockState.md, アイテム管理に関して.md, コンテンツ案一覧.md, タスク.md |
 
 ## Keep — copy from RTM
@@ -59,6 +61,32 @@ Mechanics and shapes that RTM got right.
 | **Player-driven marketplace + creator revenue share** | RTM issue #12 (cosmetics + battle pass + custom currency) | *Wave 5f* — `MarketplaceListing` domain + `ICreatorRevenue` port |
 | **CEL expression language for skill extensibility** | RTM issue #21 (post-launch addition) | *Wave 5f* — `CelSkillScript` domain + interpreter port (long-tail, P3) |
 | **Particle definition system** | RTM issue #21 (companion to CEL) | *Wave 5f* — `ParticleSpec` domain + DSL |
+
+### Saturation pass 2026-05-19 (deep source-code + issue-body audit)
+
+Added after Wave 5b close. Source: deep-scan of RTM `GameMode.kt` / `IGamePlayer.kt` /
+`SkillTrigger.kt` / `LevelUpMission.kt` enums + 22 issue **bodies** (not just titles)
++ Writerside `タスク.md` + README §戦闘システム / §プレイヤーデータ. See
+[[adr/0029-rtm-empirical-catalog]] §"Deep audit (2026-05-19)" for full methodology
+and the complete list.
+
+| Concept | RTM source | Astera location |
+|---|---|---|
+| **`DamageHistoryService`** (sliding-window damage attribution + assist credit) | `core/impl/.../game/damage/DamageHistoryService.kt` + `DamageHistoryData.kt` + `ConfiguredDamageHistoryParameter` | *Wave 5a-fix2* — `IDamageHistoryService` port + `InMemoryDamageHistoryService` (RingBuffer per target) + `AssistAttributionUseCase` |
+| **`assist` counter on player session** | `IGamePlayer.kt` (`ITeamGamePlayer.assist: Int`) | *Wave 5a-fix2* — `PlayerStats.assists: Long` field + V2 migration |
+| **`SkillTrigger` enum 6 → 20** (RIGHT_CLICK_BLOCK / LEFT_CLICK_BLOCK / SHOOT / BLOCK_BREAK / CONSUME / CROUCH / JUMP / SPRINT / DROP / etc.) | `model/skill/SkillTrigger.kt` | *Wave 5a-fix2* — enum expansion + dispatcher routing (Paper handlers Wave 6) |
+| **`LevelUpMission`** (per-level KILL vs STAR choice) | `LevelUpMission.kt` + `ConfiguredLevelParameter.normaParameter: Map<Int, ConfiguredNormaParameter>` | *Wave 5e* — bridge between `Norma` + `Level` domains |
+| **7th game mode `BattleRoyale` (no-team) + 3rd TNT variant `CarryBigTnt` (payload)** | `GameMode.kt` sealed enum (8 values total: 6 covered + these 2) + `IGamePlayer.GamePlayer.BattleRoyalePlayer` sealed variant | *Wave 7a (Siege Content Authoring)* — content-fidelity addition, Wave 5c's 6 modes stand as baseline |
+| **`ItemGenerator`** (item-spawning generator, distinct from Star) | `ConfiguredItemGenerator.kt` (alongside `ConfiguredStarGenerator.kt`) | *Wave 7a* — content alongside Wave 5c's `StarGenerator` |
+| **`PlayerPin`** (small/medium/large team-comms markers) | `ConfiguredPlayerPin.kt` | *Wave 5e* — `PlayerPin` domain + `IPinService` port |
+| **`StructureService`** (WorldEdit-style runtime structure paste, distinct from schematic load at match start) | `paper/.../structure/StructureService.kt` | *Wave 6b* — `IStructurePaste` port + Paper FAWE adapter (existing schematic loader covers match-start paste; this covers mid-match transformation) |
+| **`PlayerPortalReadyEvent`** (lobby↔match server entry/exit signal) | `event/data/PlayerPortalReadyEvent.kt` | *Wave 5e* — `PlayerPortalReady` domain event in `core.domain.event` |
+| **Control scheme PersonalSettings field** (右クリック式 / ボタン式) | README §プレイヤーデータ | *Wave 5e* — `PlayerSettings.controlScheme: ControlScheme` enum field |
+| **Particle-hide visibility setting** (per-viewer team filter) | README §戦闘システム + §プレイヤーデータ "パーティクル非表示設定" | *Wave 5e* (domain `PlayerSettings.particleVisibility`) + *Wave 6a* (Paper packet filter on `spawnParticle`) |
+| **Double-jump default movement** (with `JUMP_DISABLED` debuff as the opposite) | README §戦闘システム "デフォルトで二段階ジャンプ" | *Wave 5e* (domain `PlayerSettings.doubleJumpEnabled` + jump-count tracking) + *Wave 6a* (Paper jump packet listener) |
+| **QuickCast hotbar skill cast** (cast via hotbar number, not right-click) | Issue #15 body checkbox | *Wave 5e* — `PlayerSettings.quickCastSlots: Map<Int, SkillId>` |
+| **Vanilla Potion ↔ custom status unified API** | Issue #2 body bullets | *Wave 6* — `IStatusEffectAdapter` Paper-side reconciles Bukkit `PotionEffect` with Astera `StatusKind` so both flow through one model |
+| **Listener-Service architecture refactor pattern** (per-module event-handler ↔ business-logic separation) | Issue #22 body | *Wave 5e* — ADR draft pending; partially absorbed by existing ADR-0001 (Hexagonal) but RTM's per-module split is finer-grained |
 
 ## Redesign — RTM's choices we replace
 

@@ -147,6 +147,25 @@ field so `DamageMitigated` events carry which element was resisted.
 — Wave 5b reads, Wave 5e migrates PlayerStats/Wallet/ManaPool + armor
 resists, Wave 5d/6b add mob/item-instance containers.
 
+### Wave 5a-fix2 — Damage attribution + SkillTrigger enum saturation (Pending)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 5a ✅ (Wave 5e と並列可) |
+| Unlocks | Assist-credit reward path / Wave 7a content authoring fidelity (20-trigger taxonomy) |
+| Complexity | 軽 (2-3 worker, ~2-3h、半セッション) |
+| ADR | 0063 (Damage Attribution Window) |
+
+**Scope** (2026-05-19 deep RTM audit per ADR-0029 §"Deep audit (2026-05-19)"):
+- `DamageHistoryService` (sliding-window 攻撃元 attribution) + `IDamageHistoryService` port + `InMemoryDamageHistoryService` (RingBuffer per target)
+- `AssistAttributionUseCase` — `PlayerKilled` event 購読 → `recentAttackers` から `AssistCredited` event publish
+- `PlayerStats.assists: Long` field + V2 migration + `PostgresPlayerStatsRepository` 更新
+- `RecordAssistOnAssistCreditedListener` 配線 (stats plugin)
+- `SkillTrigger` enum 6 → 20 (RIGHT_CLICK_BLOCK / LEFT_CLICK_BLOCK / SHOOT / BLOCK_BREAK / CONSUME / CROUCH / JUMP / SPRINT / DROP / etc.) + dispatcher routing
+- ADR-0060 (Damage Attribution Window) Draft
+
+Trigger: 「Wave 5a-fix2 を実装して」
+
 ### Wave 5b ✅ — HUD ports (Tier 2) [Wave 5a と並列可]
 
 `078f6e1` — 5 vendor-neutral HUD ports (`IBossBar` / `IBossBarManager`,
@@ -856,17 +875,20 @@ ADR-0010 (Generative AI policy deferred to Phase 6) はこの phase で finalize
 | Phase 1 PoC closing (master roadmap) | 4.7 | ~15% | 7 (✅) |
 | Phase 1 PoC closing (RTM #5 + Phase 4-7 detail) | 4.8 | ~15% | 8 (✅) |
 | Combat domain depth | 5a | ~22% | 9 (✅ `ca6ddab`) |
-| Damage consolidation + Armor attribute-aware + ADR-0058 | 5a-fix | ~22% | 10 (✅) |
+| Damage consolidation + Armor attribute-aware + ADR-0058 | 5a-fix | ~22% | 10 (✅ `b14c915`) |
 | HUD ports + ADR-0058 read-path shim | 5b | ~28% | 10 (✅ `078f6e1`) |
-| Match flow rich | 5c | ~30% | 11 |
-| World geometry | 5d | ~38% | 12 (1-2 sess) |
-| Session + Social + Inventory snapshot | 5e | ~45% | 14 |
-| Economy + extensibility | 5f | ~50% | 15 |
-| Paper Combat | 6a | ~58% | 16 |
-| Paper World + UI + Inventory | 6b | **~65% (Phase 1 PoC 完了)** | 17 |
-| Siege Warfare content | 7a | ~70% | 18 |
-| Tournament + Leaderboard | 7b | ~73% | 19 |
-| Balance + tooling | 7c | **~75% (Phase 3 完了)** | 20 |
+| Match flow rich + Game modes + Star Generator + Anomaly + Sudden Death | 5c | 48.4% (pre-saturation denom) | 11 (✅ `e9808a2`) |
+| World geometry + Block / Barrier / Schematic / MatchWorld / Restoration | 5d | 55.5% (pre-saturation denom) → 49.3% (post-saturation denom; same 71 ✅, larger catalog) | 11 (✅ `3849446`) |
+| Wave _infra-1 (Fake MC server + Scenario DSL + ADR-0059) | _infra-1 | — | 11 (✅ `a68c9bc`) |
+| **2026-05-19 RTM saturation** (ADR-0029 §"Deep audit" + parity tracker +16 rows + CONTENT-ROADMAP) | docs | denom 128→144 | 12 (✅) |
+| **Damage attribution + SkillTrigger 6→20** (ADR-0060 follow-up to 5a) | **5a-fix2** | +3 rows ✅ projected (~51% post-saturation denom) | 13 (pending、半セッション; Wave 5e と並列可) |
+| Session + Social + Tutorial + Inventory snapshot + Attribute migration + PersonalSettings (4 typed fields) + PlayerPin + LevelUpMission + PortalReady event | 5e | ~60% projected (post-saturation denom) | 14 |
+| Economy + extensibility | 5f | ~63% projected | 15 |
+| Paper Combat (+ double-jump / particle filter / quickcast / status unified API) | 6a | ~68% projected | 16 |
+| Paper World + UI + Inventory + StructureService | 6b | **~75% projected (Phase 1 PoC 完了)** | 17 |
+| Siege Warfare content (+ BattleRoyale + CarryBigTnt + ItemGenerator) | 7a | ~80% projected | 18 |
+| Tournament + Leaderboard | 7b | ~83% | 19 |
+| Balance + tooling | 7c | **~85% (Phase 3 完了 + post-saturation denom)** | 20 |
 | Phase 4 UGC + Web + Shop expansion | 8a-f | ~85% | 21-26 |
 | Phase 5 Metaverse | 9a-c | ~90% | 27-29 |
 | Phase 6 Gen AI full | 10a-f | ~93% | 30-35 |
@@ -927,6 +949,8 @@ Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 | Wave _infra-2 | 0060 | DataDriven Contents + Per-Config Reload (supersedes ADR-0017) |
 | Wave _infra-3 | 0061 | Studio /weapons preview route (Three.js read-only viewer, ADR-0018 carve-out extension) |
 | Wave _infra-4 | 0062 | `contentLint` Gradle pipeline (JSON Schema + i18n parity + ref-resolve) |
+| **5a-fix2** | **0063** | **Damage Attribution Window** (sliding-window damage history + assist credit; ADR-0030 §1 追補) |
+| 5e (Listener-Service refactor sub-scope) | 0064 | Listener-Service separation pattern (RTM issue #22; ADR-0001 hexagonal の module-internal routing convention) |
 
 Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d), 0060-0062 (Wave _infra-2〜4).
 
