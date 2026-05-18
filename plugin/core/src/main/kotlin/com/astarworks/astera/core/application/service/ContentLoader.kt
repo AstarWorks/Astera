@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.application.service
 
+import com.astarworks.astera.core.application.config.parser.JsonContentParser
+import com.astarworks.astera.core.application.config.parser.TomlContentParser
+import com.astarworks.astera.core.application.config.parser.YamlContentParser
 import com.astarworks.astera.core.application.port.outbound.IContentParser
 import kotlinx.serialization.DeserializationStrategy
 import org.slf4j.LoggerFactory
@@ -90,5 +93,20 @@ public class ContentLoader<T : Any>(
     } catch (t: Throwable) {
         log.error("Failed to load content from {}: {}", file, t.message, t)
         false
+    }
+
+    public companion object {
+        /**
+         * Default parser triple — YAML + TOML + JSON per ADR-0016 Phase 2
+         * mid wire-format matrix. Reused by every
+         * [com.astarworks.astera.core.application.contents.YamlDynamicContents]
+         * subclass; previously duplicated in `WeaponLoaderService` /
+         * `MutableItemRegistry` companions and pulled here in Wave _infra-2a.
+         */
+        public val DEFAULT_PARSERS: List<IContentParser> = listOf(
+            YamlContentParser(),
+            TomlContentParser(),
+            JsonContentParser(),
+        )
     }
 }

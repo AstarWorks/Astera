@@ -38,8 +38,7 @@ import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.service.InMemoryCooldownTracker
 import com.astarworks.astera.weapons.application.port.outbound.IWeaponDelivery
 import com.astarworks.astera.weapons.application.port.outbound.IWeaponRegistry
-import com.astarworks.astera.weapons.application.service.MutableWeaponRegistry
-import com.astarworks.astera.weapons.application.service.WeaponLoaderService
+import com.astarworks.astera.weapons.application.service.WeaponContents
 import com.astarworks.astera.weapons.application.usecase.FireWeaponUseCase
 import com.astarworks.astera.weapons.application.usecase.GiveWeaponUseCase
 import com.astarworks.astera.weapons.application.usecase.loadout.LoadoutToggleHandler
@@ -103,9 +102,14 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
                 }
 
         // 3. Build Weapons-owned impls -----------------------------------------
-        val weaponRegistry = MutableWeaponRegistry()
-        val weaponReport = WeaponLoaderService(weaponRegistry).loadFrom(core.contentDir.resolve("weapons"))
+        // Wave _infra-2a: WeaponContents (Contents<WeaponId, WeaponSpec> +
+        // ReloadableContents) replaces the legacy MutableWeaponRegistry +
+        // WeaponLoaderService pair. bootstrap() is best-effort; reload() is
+        // wired via the /astera-weapons reload subcommand below.
+        val weaponContents = WeaponContents()
+        val weaponReport = weaponContents.bootstrap(core.contentDir.resolve("weapons"))
         logger.info("Weapons loaded: ${weaponReport.loaded} ok, ${weaponReport.failed} failed")
+        val weaponRegistry: IWeaponRegistry = weaponContents
 
         val cooldowns = InMemoryCooldownTracker(scheduler)
         val delivery: IWeaponDelivery = PaperWeaponDelivery(itemRegistry)
@@ -168,8 +172,19 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
             logger.info("Astera-Match not loaded; loadout-on-match-start listener skipped.")
         }
 
-        // 9. /astera-weapons {give, gui loadout} command ------------------------
-        commandHandler.register(buildRootCommandSpec(giveWeapon, openGui, permService))
+        // 9. /astera-weapons {give, gui loadout, reload} command ---------------
+        // Wave _infra-2a: `reload` hot-swaps content/weapons/ atomically via
+        // WeaponContents.reload(). Permission: astera.weapons.reload (admin).
+        val weaponsContentDir = core.contentDir.resolve("weapons")
+        commandHandler.register(
+            buildRootCommandSpec(
+                giveWeapon = giveWeapon,
+                openGui = openGui,
+                permService = permService,
+                weaponContents = weaponContents,
+                weaponsContentDir = weaponsContentDir,
+            ),
+        )
 
         logger.info("Astera-Weapons enabled.")
     }
@@ -184,6 +199,8 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
         giveWeapon: GiveWeaponUseCase,
         openGui: OpenGuiUseCase,
         permService: IPermissionService,
+        weaponContents: WeaponContents,
+        weaponsContentDir: java.nio.file.Path,
     ): CommandSpec.Literal {
         val giveLiteral = CommandSpec.Literal(
             name = "give",
@@ -216,10 +233,36 @@ public class AsteraWeaponsPlugin : JavaPlugin() {
             permission = Permission("astera.weapons.give"),
         )
 
+        // Wave _infra-2a: /astera-weapons reload — hot-swap content/weapons/.
+        // All-or-nothing: a single bad YAML keeps the live registry intact and
+        // surfaces the failure count via the command result (CommandResult
+        // currently only carries a MessageKey; the LoadReport is logged for
+        // operator triage. Phase 4 may extend CommandResult with structured
+        // data for richer feedback).
+        val reloadLiteral = CommandSpec.Literal(
+            name = "reload",
+            description = MessageKey("astera.weapons.command.reload"),
+            executor = { _ ->
+                val report = weaponContents.reload(weaponsContentDir)
+                logger.info(
+                    "/astera-weapons reload: loaded=${report.loaded}, " +
+                        "failed=${report.failed} (dir=$weaponsContentDir)",
+                )
+                if (report.failed == 0) {
+                    CommandResult.Success
+                } else {
+                    CommandResult.Failure(MessageKey("astera.weapons.command.reload.failed"))
+                }
+            },
+        ).requirePermission(
+            permissionService = permService,
+            permission = Permission("astera.weapons.reload"),
+        )
+
         return CommandSpec.Literal(
             name = "astera-weapons",
             description = MessageKey("astera.weapons.command.root"),
-            subcommands = listOf(giveLiteral, guiSubcommand(openGui, permService)),
+            subcommands = listOf(giveLiteral, guiSubcommand(openGui, permService), reloadLiteral),
         )
     }
 }

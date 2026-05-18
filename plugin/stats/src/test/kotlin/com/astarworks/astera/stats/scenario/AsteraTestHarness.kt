@@ -54,7 +54,7 @@ import com.astarworks.astera.testfixtures.FakeScheduler
 import com.astarworks.astera.testfixtures.FakeScoreboardManager
 import com.astarworks.astera.testfixtures.FakeTabList
 import com.astarworks.astera.testfixtures.FakeWorldGateway
-import com.astarworks.astera.weapons.application.service.MutableWeaponRegistry
+import com.astarworks.astera.weapons.application.service.WeaponContents
 import com.astarworks.astera.weapons.application.usecase.FireWeaponUseCase
 import com.astarworks.astera.weapons.domain.weapon.WeaponSpec
 import java.util.UUID
@@ -98,7 +98,7 @@ public class AsteraTestHarness private constructor(
     public val matchTeamLookup: FakeMatchTeamLookup,
     public val guiAdapter: FakeGuiAdapter,
     public val itemRegistry: MutableItemRegistry<TestItemTemplate>,
-    public val weaponRegistry: MutableWeaponRegistry,
+    public val weaponRegistry: WeaponContents,
     public val skillRegistry: MutableSkillRegistry,
     public val armorRegistry: MutableArmorRegistry,
     public val statusRegistry: MutableStatusRegistry,
@@ -236,7 +236,7 @@ public class AsteraTestHarness private constructor(
             val items = MutableItemRegistry<TestItemTemplate>(mapper = { cfg ->
                 TestItemTemplate(ItemId(cfg.id))
             })
-            val weaponReg = MutableWeaponRegistry().also { reg -> weapons.forEach { reg.register(it) } }
+            val weaponReg = WeaponContents().also { reg -> weapons.forEach { reg.register(it) } }
             val skillReg = MutableSkillRegistry()
             val armorReg = MutableArmorRegistry()
             val statusReg = MutableStatusRegistry()
