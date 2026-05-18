@@ -1,5 +1,5 @@
 ---
-status: Proposed
+status: Accepted
 date: 2026-05-19
 deciders: ryuzu
 supersedes: null
@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Proposed (Wave _ops Phase C close — flip to Accepted on user approval before push). Supplements [[adr/0015-external-plugin-interrogation]] (per-plugin
+Accepted. Supplements [[adr/0015-external-plugin-interrogation]] (per-plugin
 verdicts) and [[adr/0022-multi-plugin-portable-architecture]] (ServiceRegistry
 priority overlay pattern).
 
