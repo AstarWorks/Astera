@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stats.PlayerStats
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.stats.application.service.InMemoryAchievementRepository
 import com.astarworks.astera.stats.application.service.InMemoryPlayerStatsRepository
 import com.astarworks.astera.stats.application.usecase.achievement.UnlockAchievementUseCase

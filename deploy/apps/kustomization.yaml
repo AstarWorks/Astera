@@ -5,3 +5,4 @@ resources:
   - argocd-apps.yaml
   - minecraft/minecraft-app.yaml
   - platform/platform-app.yaml
+  - keda/keda-app.yaml

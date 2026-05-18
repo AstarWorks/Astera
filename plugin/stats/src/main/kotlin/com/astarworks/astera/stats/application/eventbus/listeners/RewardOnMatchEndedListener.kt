@@ -5,7 +5,7 @@ import com.astarworks.astera.core.application.port.outbound.IRewardBridge
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.reward.RewardBundle
 import com.astarworks.astera.core.domain.reward.RewardBundleId
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import org.slf4j.LoggerFactory
 import java.time.Clock
 

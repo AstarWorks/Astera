@@ -3,7 +3,7 @@ package com.astarworks.astera.stats.scenario
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.stage.StageId
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.weapons.domain.weapon.WeaponId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

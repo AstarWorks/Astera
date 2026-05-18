@@ -13,7 +13,7 @@ import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.match.domain.event.EntityEnteredRegion
 import com.astarworks.astera.match.domain.event.EntityPickedUpItem
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.match.domain.mode.GameModeId
 import com.astarworks.astera.match.domain.mode.StealJewelry
 import com.astarworks.astera.testfixtures.FakeDomainEventBus

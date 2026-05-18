@@ -21,7 +21,7 @@ import com.astarworks.astera.match.domain.match.PhaseTimings
  *   sudden-death rules.
  *
  * Intended integration site: [EndMatchUseCase] will call `evaluate(match)`
- * before publishing [com.astarworks.astera.match.domain.event.MatchEnded] so
+ * before publishing [com.astarworks.astera.core.domain.event.MatchEnded] so
  * the `winningTeam` field is populated for `ScoreThresholdReached` /
  * `SuddenDeathResolved` end reasons. See "WIRE NOTES FOR PHASE C" in the
  * R3.5 plan.

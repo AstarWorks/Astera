@@ -38,7 +38,7 @@ import com.astarworks.astera.economy.application.usecase.shop.ShopPurchaseUseCas
 import com.astarworks.astera.economy.command.buildShopCommandSpec
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.stats.domain.event.MissionCompleted
 import com.astarworks.astera.stats.domain.event.XpGranted
 import org.bukkit.plugin.java.JavaPlugin

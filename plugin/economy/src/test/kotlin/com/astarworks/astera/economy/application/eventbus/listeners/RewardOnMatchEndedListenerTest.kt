@@ -9,7 +9,7 @@ import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.economy.domain.event.CurrencyChanged
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase

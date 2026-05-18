@@ -1,7 +1,7 @@
 package com.astarworks.astera.stats.application.eventbus.listeners
 
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.stats.application.usecase.achievement.AchievementError
 import com.astarworks.astera.stats.application.usecase.achievement.UnlockAchievementUseCase
 import com.astarworks.astera.stats.domain.achievement.AchievementId

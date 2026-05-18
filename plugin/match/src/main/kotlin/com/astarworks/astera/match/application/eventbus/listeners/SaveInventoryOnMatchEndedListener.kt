@@ -3,7 +3,7 @@ package com.astarworks.astera.match.application.eventbus.listeners
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
 import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import java.time.Clock
 
 /**

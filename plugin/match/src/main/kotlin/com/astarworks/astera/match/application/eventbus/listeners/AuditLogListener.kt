@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.audit.AuditEvent
 import com.astarworks.astera.core.domain.audit.AuditEventId
 import com.astarworks.astera.core.domain.event.ChatMessageSent
 import com.astarworks.astera.core.domain.event.MatchStarted
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import java.time.Clock
 
 /**

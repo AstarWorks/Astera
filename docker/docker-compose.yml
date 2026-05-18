@@ -26,6 +26,7 @@ services:
     ports:
       - "25565:25565"   # Minecraft Java client
       - "25575:25575"   # RCON
+      - "9092:9092"     # Astera metrics (Prometheus scrape target)
     environment:
       # The user must accept the Minecraft EULA to run a server.
       # https://www.minecraft.net/en-us/eula
@@ -48,6 +49,9 @@ services:
       ASTERA_DB_PASSWORD: "${POSTGRES_PASSWORD:-astera}"
       ASTERA_REDIS_HOST: "redis"
       ASTERA_REDIS_PORT: "6379"
+      # Metrics surface — Prometheus scrape target on the host at :9092/metrics.
+      ASTERA_METRICS_ENABLED: "true"
+      ASTERA_METRICS_PORT: "9092"
     volumes:
       - paper-data:/data
       # The plugin resolves content from `dataFolder.parentFile.parentFile/content`,

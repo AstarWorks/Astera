@@ -22,7 +22,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.stats.application.eventbus.listeners.BroadcastOnLeveledUpListener
 import com.astarworks.astera.stats.application.eventbus.listeners.MissionProgressOnKillListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RecordAssistOnAssistCreditedListener

@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  # Prometheus scrape config (Phase 1.5 PoC).
+  # - Discovers pods via the Kubernetes API (role: pod).
+  # - Only pods in the `astera` namespace annotated `prometheus.io/scrape: "true"`
+  #   are scraped (set by deploy/minecraft/game/game-deployment.yaml).
+  # - Port is taken from `prometheus.io/port` (default 9092) and path from
+  #   `prometheus.io/path` (default /metrics). This matches the Worker β
+  #   contract: astera_match_active is exposed at :9092/metrics.
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+      - job_name: astera-game
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          # 1. Drop pods outside the `astera` namespace early.
+          - source_labels: [__meta_kubernetes_namespace]
+            action: keep
+            regex: astera
+          # 2. Keep only pods annotated `prometheus.io/scrape: "true"`.
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: "true"
+          # 3. Override the scrape path from annotation (default /metrics).
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          # 4. Override the scrape port from annotation (default 9092).
+          - source_labels:
+              - __address__
+              - __meta_kubernetes_pod_annotation_prometheus_io_port
+            action: replace
+            target_label: __address__
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+          # 5. Surface namespace as a label.
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: namespace
+          # 6. Surface pod name as a label.
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: pod
+          # 7. Surface the `app` label as a target label.
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: replace
+            target_label: app
+          # 8. Surface the container name.
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            action: replace
+            target_label: container

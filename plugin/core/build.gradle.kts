@@ -37,6 +37,11 @@ dependencies {
     // Logging (runtime)
     runtimeOnly(libs.logback.classic)
 
+    // Observability — Micrometer + Prometheus exposition (Wave _ops, ADR pending).
+    // HTTP server is JDK-bundled com.sun.net.httpserver (no extra dep).
+    implementation(libs.micrometer.core)
+    implementation(libs.micrometer.registry.prometheus)
+
     testImplementation(project(":plugin:test-fixtures"))
 }
 

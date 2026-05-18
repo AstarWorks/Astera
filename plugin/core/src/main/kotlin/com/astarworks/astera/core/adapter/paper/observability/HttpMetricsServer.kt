@@ -1,0 +1,96 @@
+package com.astarworks.astera.core.adapter.paper.observability
+
+import com.astarworks.astera.core.application.port.outbound.observability.IMetricsRegistry
+import com.sun.net.httpserver.HttpExchange
+import com.sun.net.httpserver.HttpServer
+import org.slf4j.LoggerFactory
+import java.net.InetSocketAddress
+import java.nio.charset.StandardCharsets
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+
+/**
+ * Minimal HTTP endpoint serving Prometheus scrape requests at `/metrics`.
+ *
+ * Wave _ops (Phase 1.5): we deliberately use the JDK-bundled
+ * [com.sun.net.httpserver.HttpServer] to avoid pulling Jetty / Netty into the
+ * plugin shadow jar. A single-thread executor keeps request handling off the
+ * JDK default (which is `null` and therefore synchronous on the accept thread).
+ *
+ * Lifecycle:
+ *  - [start] binds the configured port and begins serving.
+ *  - [stop] releases the port immediately (`stop(delay = 0)`).
+ *
+ * Pass `port = 0` to bind to an ephemeral port (useful for tests). Query
+ * [boundPort] after [start] to read the actual port.
+ */
+public class HttpMetricsServer(
+    private val port: Int,
+    private val registry: IMetricsRegistry,
+) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    private var server: HttpServer? = null
+    private var executor: ExecutorService? = null
+
+    /** The port the embedded server is actually bound to (valid after [start]). */
+    public val boundPort: Int
+        get() = server?.address?.port ?: port
+
+    /** Whether [start] has been called and [stop] has not. */
+    public val isRunning: Boolean
+        get() = server != null
+
+    public fun start() {
+        check(server == null) { "HttpMetricsServer already started on port $port" }
+
+        val bound = HttpServer.create(InetSocketAddress(port), 0)
+        bound.createContext("/metrics") { exchange -> handleMetrics(exchange) }
+        bound.createContext("/") { exchange -> handleNotFound(exchange) }
+
+        val exec = Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "astera-metrics-http").apply { isDaemon = true }
+        }
+        bound.executor = exec
+        bound.start()
+
+        server = bound
+        executor = exec
+        log.info("Astera metrics endpoint listening on :{}/metrics", bound.address.port)
+    }
+
+    public fun stop() {
+        server?.stop(0)
+        executor?.shutdownNow()
+        server = null
+        executor = null
+    }
+
+    private fun handleMetrics(exchange: HttpExchange) {
+        exchange.use {
+            if (exchange.requestMethod != "GET") {
+                exchange.sendResponseHeaders(HTTP_METHOD_NOT_ALLOWED, -1L)
+                return@use
+            }
+            val body = registry.scrape().toByteArray(StandardCharsets.UTF_8)
+            exchange.responseHeaders["Content-Type"] = listOf("text/plain; version=0.0.4; charset=utf-8")
+            exchange.sendResponseHeaders(HTTP_OK, body.size.toLong())
+            exchange.responseBody.write(body)
+        }
+    }
+
+    private fun handleNotFound(exchange: HttpExchange) {
+        exchange.use {
+            val body = "Not Found: ${exchange.requestURI.path}\n".toByteArray(StandardCharsets.UTF_8)
+            exchange.responseHeaders["Content-Type"] = listOf("text/plain; charset=utf-8")
+            exchange.sendResponseHeaders(HTTP_NOT_FOUND, body.size.toLong())
+            exchange.responseBody.write(body)
+        }
+    }
+
+    private companion object {
+        const val HTTP_OK = 200
+        const val HTTP_NOT_FOUND = 404
+        const val HTTP_METHOD_NOT_ALLOWED = 405
+    }
+}

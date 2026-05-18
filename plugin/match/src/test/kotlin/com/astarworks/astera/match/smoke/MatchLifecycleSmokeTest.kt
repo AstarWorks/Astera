@@ -10,7 +10,7 @@ import com.astarworks.astera.match.application.usecase.match.EndMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.EntryGameUseCase
 import com.astarworks.astera.match.application.usecase.match.StartMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.match.domain.event.PhaseChanged
 import com.astarworks.astera.core.domain.match.MatchPhase

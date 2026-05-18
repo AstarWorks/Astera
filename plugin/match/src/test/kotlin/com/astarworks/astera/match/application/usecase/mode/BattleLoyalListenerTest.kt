@@ -2,7 +2,7 @@ package com.astarworks.astera.match.application.usecase.mode
 
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.match.domain.event.PhaseChanged
 import com.astarworks.astera.match.domain.mode.BattleLoyal
 import com.astarworks.astera.testfixtures.FakeDomainEventBus

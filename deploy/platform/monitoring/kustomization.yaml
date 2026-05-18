@@ -9,3 +9,4 @@ resources:
   - grafana-dashboards.yaml
   - grafana-deployment.yaml
   - grafana-service.yaml
+  - prometheus/

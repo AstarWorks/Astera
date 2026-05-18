@@ -1,0 +1,20 @@
+# Prometheus ClusterIP Service.
+# Contract: must be reachable at http://prometheus.monitoring.svc.cluster.local:9090
+# - grafana-datasources.yaml (Prometheus datasource URL)
+# - Worker α's KEDA ScaledObject (prometheus trigger serverAddress)
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+spec:
+  type: ClusterIP
+  selector:
+    app: prometheus
+  ports:
+    - name: http
+      port: 9090
+      targetPort: 9090
+      protocol: TCP

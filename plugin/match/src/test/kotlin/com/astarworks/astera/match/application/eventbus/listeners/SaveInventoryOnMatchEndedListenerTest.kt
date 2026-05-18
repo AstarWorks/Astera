@@ -13,7 +13,7 @@ import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID

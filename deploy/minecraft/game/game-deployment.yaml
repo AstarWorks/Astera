@@ -18,6 +18,13 @@ spec:
     metadata:
       labels:
         app: astera-game
+      annotations:
+        # Prometheus pod-discovery (see deploy/platform/monitoring/prometheus/configmap.yaml).
+        # Worker β exposes the Astera /metrics endpoint on :9092 via the IMetricsRegistry
+        # Paper adapter; Prometheus relabel rules pick up these annotations.
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9092"
+        prometheus.io/path: "/metrics"
     spec:
       securityContext:
         fsGroup: 1005
@@ -83,12 +90,19 @@ spec:
               value: "survival"
             - name: ALLOW_FLIGHT
               value: "true"
+            - name: ASTERA_METRICS_ENABLED
+              value: "true"
+            - name: ASTERA_METRICS_PORT
+              value: "9092"
           ports:
             - containerPort: 31002
               name: minecraft
               protocol: TCP
             - containerPort: 25575
               name: rcon
+              protocol: TCP
+            - containerPort: 9092
+              name: metrics
               protocol: TCP
           volumeMounts:
             - name: data

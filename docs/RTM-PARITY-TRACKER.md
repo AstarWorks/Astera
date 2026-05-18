@@ -74,13 +74,13 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 94 | 65.3% |
+| ✅ full | 96 | 66.7% |
 | 🟨 partial | 3 | 2.1% |
 | 🔌 port-only | 7 | 4.9% |
-| ❌ nothing | 40 | 27.8% |
+| ❌ nothing | 38 | 26.4% |
 | **Total tracked** | **144** | 100% |
 
-(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅)
+(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability))
 
 **Last audited**: 2026-05-19 (ADR-0029 §"Deep audit (2026-05-19)" methodology — 詳細は ADR 参照)
 
@@ -92,6 +92,7 @@ adds to `gradle/libs.versions.toml`:
 - Wave 5d: **55.5% RTM parity (pre-saturation denominator)** → **49.3% (post-saturation denominator)** — 同じ 71 ✅ 行、catalog 増えただけ
 - Wave 5a-fix2: **51.4% RTM parity** (Cat 1 +2 ✅ DamageHistory + assist counter, +1 partial→full SkillTrigger 20 値 — total 74/144)
 - Wave 5e: **65.3% RTM parity** (Cat 1 double-jump +1, Cat 2 listener-arch refactor +1, Cat 6 ender-chest + reward-bridge +2, Cat 7 achievement/tutorial/settings/UAC-migration/levelupmission/playerpin/quickcast +7, Cat 8 spectator/friend/chat/audit/inventory-snapshot/action-lock/control-scheme/particle-hide/portal-ready +9 — total 94/144)
+- **Wave _ops: 66.7% RTM parity** (Cat 10 +2 ✅ Observability: micrometer + /metrics endpoint — total 96/144)
 - Wave 6 (Paper Sweep) complete: ~65-70% RTM parity (Phase 1 PoC end-to-end)
 - Phase 3 Siege Warfare complete (Wave 6 + 7a content): ~75-80%
 - Phase 4 (UGC + Web + Vault + Gacha): ~85-90%
@@ -305,8 +306,8 @@ adds to `gradle/libs.versions.toml`:
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
 | Structured logs (slf4j) | ✅ partial | (済 baseline) | P1 | `LoggerFactory.getLogger(...)` everywhere |
-| Micrometer / Prometheus export | ❌ nothing | **Wave _ops** | P2 | (planned) |
-| `/metrics` HTTP endpoint | ❌ nothing | Wave _ops | P2 | (planned) |
+| Micrometer / Prometheus export | ✅ Wave _ops (Micrometer 1.14.6 + PrometheusMeterRegistry via IMetricsRegistry port) | (済) | P2 | Micrometer setup in core plugin, `IMetricsRegistry` port + `InMemoryMetricsRegistry` + `PrometheusMetricsAdapter` wire |
+| `/metrics` HTTP endpoint | ✅ Wave _ops (sun.net.httpserver `HttpMetricsServer`, port 9092, env-gated by ASTERA_METRICS_ENABLED) | (済) | P2 | `plugin/core/.../adapter/paper/metrics/HttpMetricsServer.kt` + Paper plugin adapter |
 | Grafana dashboards | ❌ nothing | Wave _ops | P3 | (planned) |
 | Distributed tracing (OpenTelemetry) | ❌ nothing | Phase 1.5+ | P3 | (none) |
 | Audit log emission (cross-plugin) | ❌ nothing | Wave 5e | P2 | (with audit table) |
@@ -443,3 +444,4 @@ specific issue / file needs verification.
 ## Completed waves
 
 - Wave 5e (2026-05-19): Session + Social + Tutorial + EnderChest + Reward bridge + Inventory snapshot V10 + Attribute container migration V14 + ADR-0034 + ADR-0058 → Accepted + ADR-0064 Accepted. 9 worker streams (α/β/γ/δ/ε/ζ/ι/θ1 in Group B1; η/θ2 in Group B2). +5 Flyway migrations, +6 domain event variants, +120 unit tests, +4 Postgres ITs.
+- Wave _ops (2026-05-19): Observability substrate — Micrometer 1.14.6 + Prometheus export via IMetricsRegistry port + HttpMetricsServer (/metrics @ 9092) + KEDA ScaledObject for game pod autoscaling + ADR-0023 Sealed-Secrets + ADR-0024 Provider 路線 (hybrid 事後記録 + Phase 4 governance)

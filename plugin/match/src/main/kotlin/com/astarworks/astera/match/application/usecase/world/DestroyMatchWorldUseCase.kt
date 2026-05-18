@@ -2,7 +2,7 @@ package com.astarworks.astera.match.application.usecase.world
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 
 /**
  * Use case (Wave 5d): on `MatchEnded`, remove the per-match [MatchWorld]

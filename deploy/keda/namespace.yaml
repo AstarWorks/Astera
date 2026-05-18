@@ -1,0 +1,15 @@
+---
+# Namespace for the KEDA operator.
+#
+# The KEDA operator itself (CRDs + controller Deployment) is installed
+# separately via Helm — see `make local-e2e` (Worker δ) which runs
+# `helm upgrade --install keda kedacore/keda --namespace keda`. This file
+# only declares the namespace so ArgoCD can manage the ScaledObject manifest
+# in the `astera` namespace once the operator's CRDs are in place.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keda
+  labels:
+    name: keda
+    app.kubernetes.io/part-of: astera

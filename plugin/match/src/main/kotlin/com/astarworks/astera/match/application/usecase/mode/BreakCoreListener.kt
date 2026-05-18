@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.event.BlockBroken
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.match.domain.mode.BreakCore
 
 /**

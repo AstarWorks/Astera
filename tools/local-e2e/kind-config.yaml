@@ -1,0 +1,28 @@
+# Used by `make local-e2e` for Wave _ops smoke testing.
+# Cluster name: `astera-e2e` (overrideable via KIND_CLUSTER env).
+#
+# Port mappings give the host loopback access to NodePort services without
+# kubectl port-forward gymnastics. The container-side ports correspond to
+# the standard NodePort range (30000-32767) and are wired by the matching
+# Service definitions in deploy/ when applicable.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # Prometheus — exposed as NodePort 30090, reachable at host :9090.
+      - containerPort: 30090
+        hostPort: 9090
+        protocol: TCP
+      # Minecraft — optional NodePort 30900 mapped to the canonical host
+      # port 25565 so a Java client can connect to localhost:25565 once the
+      # astera-game Service is rewritten as type: NodePort.
+      - containerPort: 30900
+        hostPort: 25565
+        protocol: TCP
+      # ArgoCD UI — NodePort 30808 mapped to host :8080 as a proxy entry
+      # point; falls back to `kubectl port-forward` when NodePort is not
+      # configured.
+      - containerPort: 30808
+        hostPort: 8080
+        protocol: TCP

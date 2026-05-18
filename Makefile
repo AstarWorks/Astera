@@ -91,6 +91,14 @@ status: ## Show pod/service state in the astera namespace
 	@echo "--- services ---"
 	@kubectl get svc -n $(NS) 2>/dev/null || true
 
+.PHONY: local-e2e
+local-e2e: ## Boot kind, install KEDA + ArgoCD, sync apps, smoke probe (< 5 min after warm cache)
+	bash scripts/local-e2e.sh
+
+.PHONY: local-e2e-teardown
+local-e2e-teardown: ## Tear down the local-e2e kind cluster
+	bash scripts/local-e2e.sh --teardown
+
 # ----------------------------------------------------------------------------
 # submodule
 # ----------------------------------------------------------------------------

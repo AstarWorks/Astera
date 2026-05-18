@@ -4,7 +4,7 @@ import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
 import com.astarworks.astera.match.application.service.BlockChangeJournal
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import org.slf4j.LoggerFactory
 
 /**

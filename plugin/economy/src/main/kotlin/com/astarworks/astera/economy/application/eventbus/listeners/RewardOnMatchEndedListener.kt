@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.event.CurrencyChangeReason
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import org.slf4j.LoggerFactory
 
 /**

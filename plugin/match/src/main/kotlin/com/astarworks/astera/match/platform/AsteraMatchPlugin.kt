@@ -42,7 +42,7 @@ import com.astarworks.astera.match.application.usecase.pin.PlacePinUseCase
 import com.astarworks.astera.match.application.usecase.pin.RemovePinUseCase
 import com.astarworks.astera.match.application.usecase.spectator.EnterSpectatorUseCase
 import com.astarworks.astera.match.application.usecase.spectator.LeaveSpectatorUseCase
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.match.application.contents.GeneratorContents
 import com.astarworks.astera.match.application.contents.StageContents
 import com.astarworks.astera.match.application.port.outbound.IAnomalyRegistry

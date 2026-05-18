@@ -12,7 +12,7 @@ import com.astarworks.astera.core.domain.world.ToolType
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.port.outbound.IMatchWorldRepository
 import com.astarworks.astera.match.application.service.BlockChangeJournal
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.match.domain.match.MatchWorld
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import org.assertj.core.api.Assertions.assertThat

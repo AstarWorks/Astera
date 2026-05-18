@@ -9,6 +9,10 @@ import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.command.PaperCommandHandler
 import com.astarworks.astera.core.adapter.paper.event.PaperBroadcaster
 import com.astarworks.astera.core.adapter.paper.gui.PaperGuiAdapter
+import com.astarworks.astera.core.adapter.paper.observability.HttpMetricsServer
+import com.astarworks.astera.core.adapter.paper.observability.MatchQueueMetric
+import com.astarworks.astera.core.adapter.paper.observability.MetricsConfig
+import com.astarworks.astera.core.adapter.paper.observability.MicrometerMetricsRegistry
 import com.astarworks.astera.core.adapter.paper.gui.PaperGuiListener
 import com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer
 import com.astarworks.astera.core.adapter.paper.scheduler.PaperScheduler
@@ -41,6 +45,7 @@ import com.astarworks.astera.core.application.port.outbound.IPartyRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
+import com.astarworks.astera.core.application.port.outbound.observability.IMetricsRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
@@ -140,6 +145,10 @@ public class AsteraCorePlugin : JavaPlugin() {
 
     /** Retained so [onDisable] can call [PaperScheduler.stop]. */
     private var paperScheduler: PaperScheduler? = null
+
+    /** Retained so [onDisable] can release the HTTP port (Wave _ops). */
+    private var metricsHttpServer: HttpMetricsServer? = null
+    private var matchQueueMetric: MatchQueueMetric? = null
 
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
@@ -398,11 +407,40 @@ public class AsteraCorePlugin : JavaPlugin() {
             ),
         )
 
+        // ---- Observability (Wave _ops, ADR-0023 + ADR-0024 + deploy/keda/) ----
+        // Opt-in via env. When ASTERA_METRICS_ENABLED=true, exposes Prometheus
+        // exposition at :ASTERA_METRICS_PORT/metrics (default 9092). The KEDA
+        // ScaledObject reads `astera_match_active` (MatchQueueMetric) to
+        // drive game-pod replicas.
+        val metricsConfig = MetricsConfig.fromEnv()
+        if (metricsConfig.enabled) {
+            val metricsRegistry = MicrometerMetricsRegistry()
+            io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics().bindTo(metricsRegistry.delegate)
+            io.micrometer.core.instrument.binder.jvm.JvmGcMetrics().bindTo(metricsRegistry.delegate)
+            io.micrometer.core.instrument.binder.system.ProcessorMetrics().bindTo(metricsRegistry.delegate)
+
+            services.register<IMetricsRegistry>(metricsRegistry, priority = 0)
+
+            val server = HttpMetricsServer(metricsConfig.port, metricsRegistry)
+            server.start()
+            metricsHttpServer = server
+
+            val queueMetric = MatchQueueMetric(eventBus, metricsRegistry)
+            queueMetric.start()
+            matchQueueMetric = queueMetric
+
+            logger.info("Metrics endpoint ENABLED on :${metricsConfig.port}/metrics (gauge=${MatchQueueMetric.GAUGE_NAME}).")
+        } else {
+            logger.info("Metrics endpoint disabled (set ASTERA_METRICS_ENABLED=true to expose Prometheus scrape on :${MetricsConfig.DEFAULT_PORT}/metrics).")
+        }
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
     override fun onDisable() {
         logger.info("Astera-Core disabling.")
+        matchQueueMetric?.stop()
+        metricsHttpServer?.stop()
         paperScheduler?.stop()
     }
 

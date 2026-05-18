@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.service.InMemoryMatchWorldRepository
-import com.astarworks.astera.match.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.match.domain.match.MatchWorld
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import org.assertj.core.api.Assertions.assertThat
