@@ -144,6 +144,26 @@ astera:
         stage-not-found: "<red>Stage not found for match.</red>"
         no-spawn-for-kind: "<red>No spawn point of the requested kind.</red>"
         teleport-failed: "<red>Teleport failed.</red>"
+    # Wave 5c — game mode display strings (ADR-0032)
+    mode:
+      battle-loyal:
+        name: "<gold>Battle Loyal</gold>"
+        description: "<gray>Small-scale free-for-all arena. Score the most kills to win.</gray>"
+      break-core:
+        name: "<gold>Break Core</gold>"
+        description: "<gray>Destroy the enemy team's core block to win.</gray>"
+      carry-tnt:
+        name: "<gold>Carry TNT</gold>"
+        description: "<gray>Carry TNT to the enemy base. First team to {wins} deliveries wins.</gray>"
+      carry-mini-tnt:
+        name: "<gold>Carry Mini TNT</gold>"
+        description: "<gray>Collect {count} mini-TNT pieces, then deliver to the enemy base.</gray>"
+      capture-wool:
+        name: "<gold>Capture Wool</gold>"
+        description: "<gray>Hold control regions to capture them. First team to capture {wins} wins.</gray>"
+      steal-jewelry:
+        name: "<gold>Steal Jewelry</gold>"
+        description: "<gray>Steal enemy gems back to your deposit. Steal them all to win.</gray>"
 
   spawn:
     teleporting: "<gray>Teleporting to spawn…</gray>"
@@ -178,3 +198,53 @@ astera:
       charge:
         started: "<yellow>Charging {skill}…</yellow>"
         cancelled: "<gray>Charge cancelled.</gray>"
+
+  # Wave 5c — Star Generator tier display strings (ADR-0032)
+  generator:
+    tier:
+      iron:
+        name: "<white>Iron Generator</white>"
+      gold:
+        name: "<yellow>Gold Generator</yellow>"
+      emerald:
+        name: "<green>Emerald Generator</green>"
+      diamond:
+        name: "<aqua>Diamond Generator</aqua>"
+    spawned: "<gold>+{amount} {currency}</gold>"
+
+  # Wave 5c — Anomaly display strings (ADR-0032)
+  anomaly:
+    resource_spike:
+      name: "<gold>Resource Spike</gold>"
+      description: "<gray>Generator output is amplified for a short window.</gray>"
+    status_burst:
+      name: "<gold>Status Burst</gold>"
+      description: "<gray>Status effects hit harder for a short window.</gray>"
+    spawn_surge:
+      name: "<gold>Spawn Surge</gold>"
+      description: "<gray>Respawn rate is accelerated.</gray>"
+    time_warp:
+      name: "<gold>Time Warp</gold>"
+      description: "<gray>Match timer pace is altered.</gray>"
+    gravity_shift:
+      name: "<gold>Gravity Shift</gold>"
+      description: "<gray>Movement physics shift.</gray>"
+    fog_of_war:
+      name: "<gold>Fog of War</gold>"
+      description: "<gray>Visibility is reduced.</gray>"
+
+  # Wave 5b HUD reference design (ADR-0031). Keys are reserved here so
+  # Wave 6 Paper impls have a localised string ready when widgets are wired.
+  hud:
+    bossbar:
+      match:
+        phase: "<gold>Phase:</gold> <white>{phase}</white>"
+        time_remaining: "<gold>Time:</gold> <white>{time}</white>"
+    scoreboard:
+      match:
+        title: "<gold><bold>Match</bold></gold>"
+    actionbar:
+      objective: "<yellow>Objective: {objective}</yellow>"
+    title:
+      match_start: "<gold><bold>MATCH START</bold></gold>"
+      match_end: "<red><bold>MATCH END</bold></red>"

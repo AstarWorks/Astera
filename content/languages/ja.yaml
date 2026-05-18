@@ -147,6 +147,26 @@ astera:
         stage-not-found: "<red>試合のステージが見つかりません。</red>"
         no-spawn-for-kind: "<red>指定種別のスポーン地点がありません。</red>"
         teleport-failed: "<red>テレポートに失敗しました。</red>"
+    # Wave 5c — ゲームモード表示文字列 (ADR-0032)
+    mode:
+      battle-loyal:
+        name: "<gold>バトルロイヤル</gold>"
+        description: "<gray>小規模なフリーフォーオール。最多キル数で勝利。</gray>"
+      break-core:
+        name: "<gold>コアブレイク</gold>"
+        description: "<gray>敵チームのコアブロックを破壊して勝利。</gray>"
+      carry-tnt:
+        name: "<gold>TNTキャリー</gold>"
+        description: "<gray>敵拠点へTNTを運ぶ。先に {wins} 回配達したチームの勝ち。</gray>"
+      carry-mini-tnt:
+        name: "<gold>ミニTNTキャリー</gold>"
+        description: "<gray>ミニTNTを {count} 個収集後、敵拠点へ配達する。</gray>"
+      capture-wool:
+        name: "<gold>ウールキャプチャ</gold>"
+        description: "<gray>制圧エリアを保持して占領。先に {wins} 箇所占領で勝利。</gray>"
+      steal-jewelry:
+        name: "<gold>ジュエリースティール</gold>"
+        description: "<gray>敵の宝石を自陣の保管庫へ盗む。全て盗んで勝利。</gray>"
 
   spawn:
     teleporting: "<gray>スポーン地点へテレポート中…</gray>"
@@ -181,3 +201,53 @@ astera:
       charge:
         started: "<yellow>{skill} をチャージ中…</yellow>"
         cancelled: "<gray>チャージをキャンセルしました。</gray>"
+
+  # Wave 5c — スターゼネレータ tier 表示文字列 (ADR-0032)
+  generator:
+    tier:
+      iron:
+        name: "<white>アイアン ゼネレータ</white>"
+      gold:
+        name: "<yellow>ゴールド ゼネレータ</yellow>"
+      emerald:
+        name: "<green>エメラルド ゼネレータ</green>"
+      diamond:
+        name: "<aqua>ダイヤモンド ゼネレータ</aqua>"
+    spawned: "<gold>+{amount} {currency}</gold>"
+
+  # Wave 5c — アノマリー表示文字列 (ADR-0032)
+  anomaly:
+    resource_spike:
+      name: "<gold>リソース スパイク</gold>"
+      description: "<gray>ゼネレータ出力が一定時間ブーストされる。</gray>"
+    status_burst:
+      name: "<gold>ステータス バースト</gold>"
+      description: "<gray>ステータス効果が一定時間強化される。</gray>"
+    spawn_surge:
+      name: "<gold>スポーン サージ</gold>"
+      description: "<gray>リスポーン速度が加速する。</gray>"
+    time_warp:
+      name: "<gold>タイム ワープ</gold>"
+      description: "<gray>試合タイマーのペースが変動する。</gray>"
+    gravity_shift:
+      name: "<gold>グラビティ シフト</gold>"
+      description: "<gray>移動物理が変化する。</gray>"
+    fog_of_war:
+      name: "<gold>戦場の霧</gold>"
+      description: "<gray>視認性が低下する。</gray>"
+
+  # Wave 5b HUD リファレンス設計 (ADR-0031)。Wave 6 Paper 実装が widget を
+  # 配線する際に使えるよう、ここで keys を予約する。
+  hud:
+    bossbar:
+      match:
+        phase: "<gold>フェーズ：</gold> <white>{phase}</white>"
+        time_remaining: "<gold>残り時間：</gold> <white>{time}</white>"
+    scoreboard:
+      match:
+        title: "<gold><bold>試合</bold></gold>"
+    actionbar:
+      objective: "<yellow>目標: {objective}</yellow>"
+    title:
+      match_start: "<gold><bold>試合開始</bold></gold>"
+      match_end: "<red><bold>試合終了</bold></red>"

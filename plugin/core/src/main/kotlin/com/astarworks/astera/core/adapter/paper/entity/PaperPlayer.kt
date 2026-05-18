@@ -3,7 +3,9 @@ package com.astarworks.astera.core.adapter.paper.entity
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
+import kotlin.time.Duration
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -73,6 +75,20 @@ class PaperPlayer(private val bukkit: Player) : IMcPlayer {
     override fun heldItemMaterialKey(): String? {
         val item = bukkit.inventory.itemInMainHand
         return if (item.type.isAir) null else item.type.name
+    }
+
+    override fun sendActionBar(messageKey: MessageKey, placeholders: Map<String, String>) {
+        TODO("Wave 6 で実装 — Adventure API integration per ADR-0031")
+    }
+
+    override fun sendTitle(
+        titleKey: MessageKey,
+        subtitleKey: MessageKey?,
+        fadeIn: Duration,
+        stay: Duration,
+        fadeOut: Duration,
+    ) {
+        TODO("Wave 6 で実装 — Adventure API integration per ADR-0031")
     }
 
     private fun buildVanilla(template: IMcItemTemplate.Vanilla): ItemStack {

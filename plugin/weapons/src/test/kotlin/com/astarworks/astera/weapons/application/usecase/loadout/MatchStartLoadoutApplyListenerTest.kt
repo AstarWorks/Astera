@@ -16,9 +16,9 @@ import com.astarworks.astera.core.domain.player.LoadoutSlot
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.core.domain.event.MatchStarted
+import com.astarworks.astera.testfixtures.FakeMcPlayer
+import com.astarworks.astera.testfixtures.FakeMcServer
 import com.astarworks.astera.weapons.application.service.InMemoryLoadoutRepository
-import com.astarworks.astera.weapons.testfixtures.FakeMcPlayer
-import com.astarworks.astera.weapons.testfixtures.FakeMcServer
 import com.astarworks.astera.weapons.testfixtures.FakeWeaponDelivery
 import com.astarworks.astera.weapons.testfixtures.FakeWeaponRegistry
 import com.astarworks.astera.weapons.testfixtures.weaponSpec

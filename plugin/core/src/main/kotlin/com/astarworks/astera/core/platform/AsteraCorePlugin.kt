@@ -1,6 +1,9 @@
 package com.astarworks.astera.core.platform
 
 import com.astarworks.astera.core.adapter.api.binding.McPlayerGateway
+import com.astarworks.astera.core.adapter.api.hud.IBossBarManager
+import com.astarworks.astera.core.adapter.api.hud.IScoreboardManager
+import com.astarworks.astera.core.adapter.api.hud.ITabList
 import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.command.PaperCommandHandler
@@ -29,8 +32,11 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
 import com.astarworks.astera.core.application.service.GuiLoaderService
+import com.astarworks.astera.core.application.service.InMemoryBossBarManager
 import com.astarworks.astera.core.application.service.InMemoryGuiRegistry
 import com.astarworks.astera.core.application.service.InMemoryPermissionService
+import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
+import com.astarworks.astera.core.application.service.InMemoryTabList
 import com.astarworks.astera.core.application.service.MutableItemRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
@@ -191,6 +197,16 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<IGuiAdapter>(guiAdapter)
         services.register<IGuiBindingResolver>(guiBindingResolver)
 
+        // ---- HUD ports (Wave 5b, ADR-0031) -------------------------------
+        // In-memory defaults at priority 0. Wave 6 Paper impls land at
+        // priority 100 (Adventure-backed BossBar / Scoreboard / TabList).
+        val bossBarManager: IBossBarManager = InMemoryBossBarManager()
+        val scoreboardManager: IScoreboardManager = InMemoryScoreboardManager()
+        val tabList: ITabList = InMemoryTabList()
+        services.register<IBossBarManager>(bossBarManager, priority = 0)
+        services.register<IScoreboardManager>(scoreboardManager, priority = 0)
+        services.register<ITabList>(tabList, priority = 0)
+
         // ---- Permission service ------------------------------------------
         // Wave 3 (R2): Astera-Persistence (loadbefore: [features]) loads AFTER
         // Astera-Core, so at this point Postgres is never present yet. We
@@ -252,6 +268,9 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IGuiRegistry",
             "IGuiIntentRouter",
             "IGuiAdapter",
+            "IBossBarManager",
+            "IScoreboardManager",
+            "ITabList",
             "IPermissionService",
         )
     }

@@ -74,17 +74,18 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | ~20 | 22% |
+| ✅ full | ~21 | 22% |
 | 🟨 partial | ~6 | 6% |
-| 🔌 port-only | ~6 | 6% |
-| ❌ nothing | ~62 | 66% |
+| 🔌 port-only | ~11 | 12% |
+| ❌ nothing | ~56 | 60% |
 | **Total tracked** | **~94** | 100% |
 
-(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified)
+(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip)
 
 **Phase parity targets** (cumulative):
 - Wave 4.5: ~15% RTM parity
-- Wave 5a (now): **~22% RTM parity** (Category 1 Combat 9 行 ❌→✅)
+- Wave 5a: **~22% RTM parity** (Category 1 Combat 9 行 ❌→✅)
+- Wave 5b (now): **~28% RTM parity** (Category 4 HUD 5 行 + Category 7 attribute read ❌/📋→🔌/🔌 = +6)
 - Wave 5a-5f complete: ~45% RTM parity
 - Wave 6 (Paper Sweep) complete: ~65% RTM parity (Phase 1 PoC end-to-end)
 - Phase 3 Siege Warfare complete (Wave 6 + content): ~75%
@@ -174,11 +175,11 @@ adds to `gradle/libs.versions.toml`:
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
-| **`IBossBar` / `IBossBarManager` port** | ❌ nothing | **Wave 5b** | **P1** | grep `IBossBar` → 0 件 |
-| **`IScoreboard` / `ITeamScoreboard` port** | ❌ nothing | **Wave 5b** | P1 | grep `IScoreboard` → 0 件 |
-| **`ITabList` port** | ❌ nothing | Wave 5b | P2 | (none) |
-| **`IMcPlayer.sendActionBar(...)` method** | ❌ nothing | **Wave 5b** | P1 | signature missing in `IMcPlayer.kt` |
-| **`IMcPlayer.sendTitle(...)` method** | ❌ nothing | **Wave 5b** | P1 | same |
+| **`IBossBar` / `IBossBarManager` port** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | **P1** | grep `IBossBar` → core.adapter.api.hud |
+| **`IScoreboard` / `ITeamScoreboard` port** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P1 | core.adapter.api.hud |
+| **`ITabList` port** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P2 | core.adapter.api.hud |
+| **`IMcPlayer.sendActionBar(...)` method** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P1 | signature added, Paper impl Wave 6 |
+| **`IMcPlayer.sendTitle(...)` method** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P1 | signature added, Paper impl Wave 6 |
 | **CT / Star / Level HUD layout** (RTM issue #14) | ❌ nothing | Wave 5b (domain) + **Wave 6** (Paper impl) | P1 | (RTM uses Scoreboard Library 2.1.3) |
 | Scoreboard Library 2.1.3 dep (RTM) | (Astera self-builds via `IScoreboard` port) | Wave 6 (Paper impl chooses library) | P1 | ADR-0015 D path |
 | Inventory Framework 0.10.13 dep (RTM) | (Astera self-builds via `IGuiAdapter`) | ✅ Wave 4 (full) | P0 | ADR-0021 + Wave 4 ✅ |
@@ -239,7 +240,7 @@ adds to `gradle/libs.versions.toml`:
 | **Achievement / Title / Badge** (Norma とは別) | ❌ nothing | **Wave 5e** | P2 | (none) |
 | **Tutorial system** (RTM issue #17) | ❌ nothing | **Wave 5e** | P2 | (none) |
 | **Personal settings DB** (RTM issue #15) | ❌ nothing | **Wave 5e** | P2 | (none) |
-| **Universal Attribute Container (ADR-0058)** — Player/Item/Mob 共通 attribute storage | 📋 ADR-0058 commitment (Wave 5a-fix); Wave 5b read shim → Wave 5e migration → Wave 5d/6b mob/item-instance | **Wave 5b** (shim) / **Wave 5e** (本実装+migration) / **Wave 6b** (item-instance PDC) | **P1** | ADR-0058 §5 rollout schedule。`Wallet` / `PlayerStats` / `ManaPool` / `ArmorReduction.perAttribute` を `IAttributeContainer` backing に統合。Wave 5a-fix で commitment 確定、Wave 5e で V14 migration + facade rewrite |
+| **Universal Attribute Container (ADR-0058)** — Player/Item/Mob 共通 attribute storage | 🔌 Wave 5b shim done (ShimPlayerAttributeContainer); ADR-0058 commitment (Wave 5a-fix); Wave 5e migration → Wave 5d/6b mob/item-instance | **Wave 5b** (shim) / **Wave 5e** (本実装+migration) / **Wave 6b** (item-instance PDC) | **P1** | ADR-0058 §5 rollout schedule。`Wallet` / `PlayerStats` / `ManaPool` / `ArmorReduction.perAttribute` を `IAttributeContainer` backing に統合。Wave 5b で attribute read API + shim 完成、Wave 5e で V14 migration + facade rewrite |
 | Leaderboard ranking | ❌ nothing | Phase 4 | P3 | (none) |
 | **RTM 検定後継 (格付け / 称号)** | ❌ nothing | Phase 7 | P3 | (roadmap.md Phase 7) |
 
