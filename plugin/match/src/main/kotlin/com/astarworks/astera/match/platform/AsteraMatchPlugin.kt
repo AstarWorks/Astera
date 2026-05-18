@@ -25,9 +25,35 @@ import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRepository
+import com.astarworks.astera.match.application.port.outbound.IAnomalyScheduleRepository
+import com.astarworks.astera.match.application.port.outbound.IGameModeRegistry
+import com.astarworks.astera.match.application.port.outbound.IGeneratorRepository
+import com.astarworks.astera.match.application.service.AnomalyScheduler
+import com.astarworks.astera.match.application.service.InMemoryAnomalyScheduleRepository
+import com.astarworks.astera.match.application.service.InMemoryGameModeRegistry
+import com.astarworks.astera.match.application.service.InMemoryGeneratorRepository
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.match.application.service.InMemoryStageRepository
 import com.astarworks.astera.match.application.service.StageLoaderService
+import com.astarworks.astera.match.application.service.StarGeneratorScheduler
+import com.astarworks.astera.match.application.usecase.anomaly.ResolveAnomalyEffectUseCase
+import com.astarworks.astera.match.application.usecase.anomaly.TriggerAnomalyUseCase
+import com.astarworks.astera.match.application.usecase.generator.AdvanceGeneratorChargeUseCase
+import com.astarworks.astera.match.application.usecase.generator.SpawnResourceUseCase
+import com.astarworks.astera.match.application.usecase.match.SuddenDeathAcceleratorUseCase
+import com.astarworks.astera.match.application.usecase.mode.BattleLoyalListener
+import com.astarworks.astera.match.application.usecase.mode.BreakCoreListener
+import com.astarworks.astera.match.application.usecase.mode.CaptureWoolListener
+import com.astarworks.astera.match.application.usecase.mode.CarryMiniTNTListener
+import com.astarworks.astera.match.application.usecase.mode.CarryTNTListener
+import com.astarworks.astera.match.application.usecase.mode.StealJewelryListener
+import com.astarworks.astera.match.domain.mode.BattleLoyal
+import com.astarworks.astera.match.domain.mode.BreakCore
+import com.astarworks.astera.match.domain.mode.CaptureWool
+import com.astarworks.astera.match.domain.mode.CarryMiniTNT
+import com.astarworks.astera.match.domain.mode.CarryTNT
+import com.astarworks.astera.match.domain.mode.GameModeId
+import com.astarworks.astera.match.domain.mode.StealJewelry
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.match.application.usecase.match.EndMatchError
 import com.astarworks.astera.match.application.usecase.match.EndMatchUseCase
@@ -63,6 +89,8 @@ import org.bukkit.plugin.java.JavaPlugin
 public class AsteraMatchPlugin : JavaPlugin() {
 
     private val registrations = mutableListOf<ServiceRegistry.Registration>()
+    private val subscriptions = mutableListOf<IDomainEventBus.Subscription>()
+    private val scheduledTasks = mutableListOf<IScheduler.TaskHandle>()
 
     override fun onEnable() {
         logger.info("Astera-Match enabling…")
@@ -154,6 +182,82 @@ public class AsteraMatchPlugin : JavaPlugin() {
         }
         registrations += services.register<IMatchLifecycle>(facade)
 
+        // 4.5. Wave 5c — Game-mode registry + Star Generator + Anomaly + Sudden Death
+        // -----------------------------------------------------------------
+        // Repositories registered at priority 0 so a future Persistence override
+        // (Wave 5e+) at priority 100 transparently replaces them. The schedulers
+        // tick continuously and visit only the currently active matches.
+
+        val gameModes: IGameModeRegistry =
+            services.get<IGameModeRegistry>()
+                ?: InMemoryGameModeRegistry().also {
+                    registrations += services.register<IGameModeRegistry>(it, priority = 0)
+                }
+        registerDefaultGameModes(gameModes)
+        logger.info("Game mode registry populated with ${gameModes.all().size} mode(s).")
+
+        val generators: IGeneratorRepository =
+            services.get<IGeneratorRepository>()
+                ?: InMemoryGeneratorRepository().also {
+                    registrations += services.register<IGeneratorRepository>(it, priority = 0)
+                }
+
+        val anomalySchedules: IAnomalyScheduleRepository =
+            services.get<IAnomalyScheduleRepository>()
+                ?: InMemoryAnomalyScheduleRepository().also {
+                    registrations += services.register<IAnomalyScheduleRepository>(it, priority = 0)
+                }
+
+        // Star Generator pipeline (ADR-0032 + ADR-0058 §5 — per-instance modifier-aware)
+        val spawnResource = SpawnResourceUseCase(eventBus, scheduler)
+        val advanceCharge = AdvanceGeneratorChargeUseCase(generators, eventBus, scheduler, spawnResource)
+        val starGenScheduler = StarGeneratorScheduler(
+            generators = generators,
+            advance = advanceCharge,
+            spawn = spawnResource,
+            scheduler = scheduler,
+            eventBus = eventBus,
+            matches = matches,
+        )
+        scheduledTasks += starGenScheduler.start()
+
+        // Anomaly pipeline (ADR-0032 weighted-random tick driver)
+        val triggerAnomaly = TriggerAnomalyUseCase(eventBus, scheduler)
+        val resolveAnomaly = ResolveAnomalyEffectUseCase(generators)
+        val anomalyScheduler = AnomalyScheduler(
+            repo = anomalySchedules,
+            trigger = triggerAnomaly,
+            resolve = resolveAnomaly,
+            scheduler = scheduler,
+            matches = matches,
+        )
+        scheduledTasks += anomalyScheduler.start()
+
+        // Sudden Death accelerator — observes phase transitions and overlays a
+        // MULTIPLY 0.5 modifier on every generator's PERIOD_MULTIPLIER while
+        // SUDDEN_DEATH is active, removing it on exit.
+        val suddenDeath = SuddenDeathAcceleratorUseCase(eventBus, generators)
+        subscriptions += suddenDeath.subscribe()
+
+        // Per-mode listeners are constructed lazily per match (Wave 6 stage YAML
+        // wiring). At plugin load only BreakCore subscribes globally because its
+        // BlockBroken trigger is mode-agnostic at the event layer — a server
+        // running BreakCore matches will see the listener react to any matching
+        // core block break.
+        val breakCoreDefault = BreakCore(id = GameModeId("break-core"))
+        val breakCoreListener = BreakCoreListener(
+            eventBus = eventBus,
+            matches = matches,
+            lifecycle = facade,
+            mode = breakCoreDefault,
+        )
+        subscriptions += breakCoreListener.subscribe()
+
+        logger.info(
+            "Wave 5c wiring complete: StarGeneratorScheduler + AnomalyScheduler running, " +
+                "SuddenDeathAccelerator subscribed, BreakCoreListener subscribed.",
+        )
+
         // Wave 5a — friendly-fire team lookup adapter (Combat plugin resolves
         // IMatchTeamLookup via the shared registry to perform per-match team
         // checks without depending on Match directly).
@@ -171,9 +275,64 @@ public class AsteraMatchPlugin : JavaPlugin() {
     }
 
     override fun onDisable() {
+        scheduledTasks.forEach { it.cancel() }
+        scheduledTasks.clear()
+        subscriptions.forEach { it.cancel() }
+        subscriptions.clear()
         registrations.forEach { it.unregister() }
         registrations.clear()
         logger.info("Astera-Match disabled.")
+    }
+
+    /**
+     * Populate [IGameModeRegistry] with the 6 Wave 5c modes (ADR-0032). Per-
+     * match config (region maps, item ids) is left at the data-class defaults
+     * — stage YAML overrides them when matches start in Wave 6.
+     */
+    private fun registerDefaultGameModes(registry: IGameModeRegistry) {
+        registry.register(BattleLoyal(id = GameModeId("battle-loyal")))
+        registry.register(BreakCore(id = GameModeId("break-core")))
+        registry.register(
+            CarryTNT(
+                id = GameModeId("carry-tnt"),
+                displayNameKey = MessageKey("astera.match.mode.carry-tnt.name"),
+                descriptionKey = MessageKey("astera.match.mode.carry-tnt.description"),
+                deliveryRegionIds = mapOf(
+                    TeamId("red") to "blue_base",
+                    TeamId("blue") to "red_base",
+                ),
+            ),
+        )
+        registry.register(
+            CarryMiniTNT(
+                id = GameModeId("carry-mini-tnt"),
+                displayNameKey = MessageKey("astera.match.mode.carry-mini-tnt.name"),
+                descriptionKey = MessageKey("astera.match.mode.carry-mini-tnt.description"),
+                deliveryRegionIds = mapOf(
+                    TeamId("red") to "blue_base",
+                    TeamId("blue") to "red_base",
+                ),
+            ),
+        )
+        registry.register(
+            CaptureWool(
+                id = GameModeId("capture-wool"),
+                displayNameKey = MessageKey("astera.match.mode.capture-wool.name"),
+                descriptionKey = MessageKey("astera.match.mode.capture-wool.description"),
+                controlRegionIds = listOf("wool_a", "wool_b", "wool_c"),
+            ),
+        )
+        registry.register(
+            StealJewelry(
+                id = GameModeId("steal-jewelry"),
+                displayNameKey = MessageKey("astera.match.mode.steal-jewelry.name"),
+                descriptionKey = MessageKey("astera.match.mode.steal-jewelry.description"),
+                depositRegionIds = mapOf(
+                    TeamId("red") to "red_deposit",
+                    TeamId("blue") to "blue_deposit",
+                ),
+            ),
+        )
     }
 
     private fun buildMatchCommandSpec(

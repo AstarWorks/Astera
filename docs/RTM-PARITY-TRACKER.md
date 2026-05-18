@@ -74,22 +74,23 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | ~21 | 22% |
-| 🟨 partial | ~6 | 6% |
-| 🔌 port-only | ~11 | 12% |
-| ❌ nothing | ~56 | 60% |
-| **Total tracked** | **~94** | 100% |
+| ✅ full | 62 | 48.4% |
+| 🟨 partial | 2 | 1.6% |
+| 🔌 port-only | 8 | 6.3% |
+| ❌ nothing | 56 | 43.8% |
+| **Total tracked** | **128** | 100% |
 
-(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip)
+(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip)
 
 **Phase parity targets** (cumulative):
 - Wave 4.5: ~15% RTM parity
 - Wave 5a: **~22% RTM parity** (Category 1 Combat 9 行 ❌→✅)
-- Wave 5b (now): **~28% RTM parity** (Category 4 HUD 5 行 + Category 7 attribute read ❌/📋→🔌/🔌 = +6)
-- Wave 5a-5f complete: ~45% RTM parity
-- Wave 6 (Paper Sweep) complete: ~65% RTM parity (Phase 1 PoC end-to-end)
-- Phase 3 Siege Warfare complete (Wave 6 + content): ~75%
-- Phase 4 (UGC + Web + Vault + Gacha): ~85%
+- Wave 5b: **~28% RTM parity** (Category 4 HUD 5 行 + Category 7 attribute read ❌/📋→🔌/🔌 = +6)
+- Wave 5c (now): **48.4% RTM parity** (Category 2 game modes 3 行 + Category 5 generator/anomaly 4 行 ❌→✅ = +6)
+- Wave 5a-5f complete: ~55% RTM parity (projected)
+- Wave 6 (Paper Sweep) complete: ~70% RTM parity (Phase 1 PoC end-to-end)
+- Phase 3 Siege Warfare complete (Wave 6 + content): ~80%
+- Phase 4 (UGC + Web + Vault + Gacha): ~90%
 - Phase 5+ (Metaverse): >100% (Astera adds beyond RTM)
 
 ---
@@ -140,9 +141,9 @@ adds to `gradle/libs.versions.toml`:
 | Phase auto-timer (COUNTDOWN → ACTIVE @ 30s, etc.) | ✅ full (Wave 4.5) | (済) | P0 | `PhaseTimerUseCase.kt` + `runRepeatingTicks(1, 20)` wire |
 | Victory condition evaluator (score threshold 10) | ✅ full (Wave 4.5) | (済) | P0 | `VictoryConditionEvaluator.kt` |
 | Match domain (Match / MatchId / Score / TeamId) | ✅ full | (済) | P0 | `plugin/core/.../domain/match/` |
-| **6 game modes** (Battle Loyal / Break Core / Carry TNT / Carry Mini TNT / Capture Wool / Steal Jewelry) | ❌ **all nothing** | **Wave 5c** | **P1** | RTM issue + README; grep → 0 件 |
-| Game mode framework (sealed `GameMode` + per-mode listener) | ❌ nothing | **Wave 5c** | P1 | (none) |
-| Sudden death mechanics (accelerated generator / no respawn / forced engagement) | 🟨 phase 名のみ、auto-timer ✅、特殊挙動 ❌ | **Wave 5c** | P1 | only timer transition implemented |
+| **6 game modes** (Battle Loyal / Break Core / Carry TNT / Carry Mini TNT / Capture Wool / Steal Jewelry) | ✅ Wave 5c (6 sealed variants + per-mode listener) | (済) | **P1** | RTM issue + README; grep → 6 listeners + domain |
+| Game mode framework (sealed `GameMode` + per-mode listener) | ✅ Wave 5c | (済) | P1 | `GameMode.kt` sealed + `GameModeId` + `IGameModeRegistry` + listener dispatch |
+| Sudden death mechanics (accelerated generator / no respawn / forced engagement) | 🟨 Wave 5c (generator accelerator ✅); respawn-disabled + zone-shrink Wave 5d/6 | **Wave 5c** (generator); Wave 5d/6 (respawn/zone) | P1 | `SuddenDeathAcceleratorUseCase` (MULTIPLY 0.5 modifier on PERIOD_MULTIPLIER) |
 | Team domain (Team / TeamId / colorKey / members) | ✅ minimal | (済) | P0 | `Team.kt` |
 | Team auto-balance | ❌ nothing | Wave 5c | P2 | (none) |
 | Match command surface (`/astera-match start/end/entry/phase/list`) | ✅ full | (済) | P0 | `AsteraMatchPlugin.kt` |
@@ -193,10 +194,10 @@ adds to `gradle/libs.versions.toml`:
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
-| **Star Generator domain** (BedWars-style spawner, position + currency + period + amount) | ❌ nothing | **Wave 5c** | **P1** | grep `StarGenerator|Generator` → comments only |
-| **Star Generator scheduler** | ❌ nothing | Wave 5c | P1 | (would use existing IScheduler) |
-| **Anomaly type sealed + AnomalyScheduler** | ❌ nothing | **Wave 5c** | **P1** | grep `Anomaly` → 0 件 |
-| Anomaly random in-match events | ❌ nothing | Wave 5c | P1 | (none) |
+| **Star Generator domain** (BedWars-style spawner, position + currency + period + amount) | ✅ Wave 5c (`StarGenerator` + `GeneratorTier` + per-instance `IAttributeContainer`) | (済) | **P1** | `plugin/match/.../domain/generator/` (Vec3 position, Currency, Duration period, Int amount) |
+| **Star Generator scheduler** | ✅ Wave 5c (`StarGeneratorScheduler` via `IScheduler.runRepeating`) | (済) | P1 | `plugin/match/.../application/service/StarGeneratorScheduler.kt` |
+| **Anomaly type sealed + AnomalyScheduler** | ✅ Wave 5c (6 sealed `AnomalyType` variants + `AnomalyScheduler` weighted-random tick) | (済) | **P1** | `plugin/match/.../domain/anomaly/AnomalyType.kt` + `AnomalyScheduler.kt` |
+| Anomaly random in-match events | ✅ Wave 5c (`TriggerAnomalyUseCase` + `ResolveAnomalyEffectUseCase`) | (済) | P1 | `plugin/match/.../application/usecase/anomaly/` |
 | Resource decay (time-based) | ❌ nothing | Wave 5c | P2 | (none) |
 | `IScheduler.runRepeating` (infra) | ✅ full | (済) | P0 | `PaperScheduler.kt`, ADR-0019 |
 

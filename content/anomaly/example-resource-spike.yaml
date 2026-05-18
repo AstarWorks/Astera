@@ -1,0 +1,59 @@
+# Wave 5c Anomaly schedule for the example-arena stage.
+# Mirrors plugin/match/.../application/config/AnomalyYamlConfig.kt.
+#
+# Each entry in `anomalies:` is one pre-registered AnomalyDescriptor; the
+# AnomalyScheduler samples them weighted-randomly per tick. The 6 entries
+# below cover the Wave 5c palette — only `resource_spike` has live wiring
+# today (every generator in the match receives a MULTIPLY 0.5 modifier on
+# generator.period_multiplier); the other five are scaffolded so YAML
+# authoring + descriptor pre-registration lands now, and Wave 6 connects
+# them to player / status / world subjects.
+#
+# `duration_seconds` is converted to ticks (1 tick = 50 ms) at decode time.
+# `operation` is one of: ADD | MULTIPLY | SET.
+# `attribute_key` is the namespaced AttributeKey the resulting
+# AttributeModifier targets.
+
+stage_id: example-arena
+anomalies:
+  - type: resource_spike
+    weight: 5
+    duration_seconds: 30.0
+    attribute_key: generator.period_multiplier
+    operation: MULTIPLY
+    value: 0.5
+
+  - type: status_burst
+    weight: 2
+    duration_seconds: 20.0
+    attribute_key: anomaly.status_intensity
+    operation: MULTIPLY
+    value: 1.5
+
+  - type: spawn_surge
+    weight: 2
+    duration_seconds: 25.0
+    attribute_key: anomaly.spawn_rate
+    operation: MULTIPLY
+    value: 1.5
+
+  - type: time_warp
+    weight: 1
+    duration_seconds: 15.0
+    attribute_key: anomaly.time_warp_factor
+    operation: MULTIPLY
+    value: 0.75
+
+  - type: gravity_shift
+    weight: 1
+    duration_seconds: 20.0
+    attribute_key: anomaly.gravity_factor
+    operation: MULTIPLY
+    value: 0.5
+
+  - type: fog_of_war
+    weight: 1
+    duration_seconds: 20.0
+    attribute_key: anomaly.visibility_reduction
+    operation: SET
+    value: 0.6

@@ -1,0 +1,82 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/generator.schema.json",
+    "title": "Star Generator (Wave 5c)",
+    "description": "On-disk shape of a single Star Generator entry under content/generators/. Mirrors plugin/match/.../application/config/GeneratorYamlConfig.kt.",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "description": "Lower-kebab-case generator id, unique within the match."
+        },
+        "match_stage_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$",
+            "description": "Stage id this generator belongs to (matches a content/stages/ entry)."
+        },
+        "position": {
+            "type": "object",
+            "properties": {
+                "x": { "type": "number" },
+                "y": { "type": "number" },
+                "z": { "type": "number" }
+            },
+            "required": ["x", "y", "z"]
+        },
+        "currency": {
+            "type": "string",
+            "enum": ["STAR", "GOLD", "GEM"],
+            "description": "Currency produced. STAR is match-bound; GOLD / GEM are account-bound."
+        },
+        "period_seconds": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Base spawn interval in wall-clock seconds."
+        },
+        "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Base per-spawn quantity (multiplied by generator.amount_multiplier at runtime)."
+        },
+        "tier": {
+            "type": "string",
+            "enum": ["iron", "gold", "emerald", "diamond"],
+            "description": "Display tier (drives HUD sprite + colour)."
+        },
+        "affiliation": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": { "type": "string", "const": "neutral" }
+                    },
+                    "required": ["kind"],
+                    "additionalProperties": false
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "kind": { "type": "string", "const": "team" },
+                        "team_id": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9-]*$"
+                        }
+                    },
+                    "required": ["kind", "team_id"],
+                    "additionalProperties": false
+                }
+            ]
+        }
+    },
+    "required": [
+        "id",
+        "match_stage_id",
+        "position",
+        "currency",
+        "period_seconds",
+        "amount",
+        "tier",
+        "affiliation"
+    ]
+}
