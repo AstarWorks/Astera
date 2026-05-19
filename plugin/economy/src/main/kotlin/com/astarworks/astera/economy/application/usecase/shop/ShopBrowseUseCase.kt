@@ -92,7 +92,7 @@ public class ShopBrowseUseCase(
                     SlotIndex(index),
                     GuiSlot.Static(
                         itemId = offer.itemId,
-                        onClick = GuiIntent(
+                        onLeftClick = GuiIntent(
                             key = "shop.purchase",
                             payload = mapOf(
                                 "shop_id" to shopSpec.id.value,

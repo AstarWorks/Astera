@@ -31,5 +31,5 @@ slots:
   - type: static
     index: 8
     item: gui-pane-red
-    on_click:
+    on_left:
       key: gui.close

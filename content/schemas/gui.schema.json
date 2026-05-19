@@ -190,22 +190,53 @@
                             "item": {
                                 "type": "string"
                             },
-                            "on_click": {
+                            "on_left": {
                                 "type": "object",
                                 "properties": {
-                                    "key": {
-                                        "type": "string"
-                                    },
+                                    "key": { "type": "string" },
                                     "payload": {
                                         "type": "object",
-                                        "additionalProperties": {
-                                            "type": "string"
-                                        }
+                                        "additionalProperties": { "type": "string" }
                                     }
                                 },
-                                "required": [
-                                    "key"
-                                ]
+                                "required": ["key"]
+                            },
+                            "on_right": {
+                                "type": "object",
+                                "properties": {
+                                    "key": { "type": "string" },
+                                    "payload": {
+                                        "type": "object",
+                                        "additionalProperties": { "type": "string" }
+                                    }
+                                },
+                                "required": ["key"]
+                            },
+                            "on_shift": {
+                                "type": "object",
+                                "properties": {
+                                    "key": { "type": "string" },
+                                    "payload": {
+                                        "type": "object",
+                                        "additionalProperties": { "type": "string" }
+                                    }
+                                },
+                                "required": ["key"]
+                            },
+                            "on_middle": {
+                                "type": "object",
+                                "properties": {
+                                    "key": { "type": "string" },
+                                    "payload": {
+                                        "type": "object",
+                                        "additionalProperties": { "type": "string" }
+                                    }
+                                },
+                                "required": ["key"]
+                            },
+                            "tooltip": {
+                                "type": "array",
+                                "items": { "type": "string" }
                             },
                             "count": {
                                 "type": "integer"

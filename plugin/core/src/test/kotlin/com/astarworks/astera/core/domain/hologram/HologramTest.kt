@@ -213,4 +213,138 @@ class HologramTest {
             .isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("durationTicks")
     }
+
+    // ─── Wave 5h-fix2: dynamic update + viewer query ────────────────────────
+
+    @Test
+    fun `updateVisibility swaps scope from PerPlayer to Everyone`() {
+        val gateway = FakeHologramGateway()
+        val alice = PlayerId(UUID.randomUUID())
+        val handle = (
+            gateway.spawn(
+                Hologram(
+                    id = HologramId.random(),
+                    worldId = worldId,
+                    position = origin,
+                    kind = HologramKind.Text(listOf(MessageKey("astera.test"))),
+                    visibilityScope = HologramVisibilityScope.PerPlayer(setOf(alice)),
+                ),
+            ) as Result.Success
+            ).value
+
+        val r = gateway.updateVisibility(handle, HologramVisibilityScope.Everyone)
+        assertThat(r.isSuccess).isTrue()
+        assertThat(gateway.current(handle)!!.visibilityScope).isEqualTo(HologramVisibilityScope.Everyone)
+    }
+
+    @Test
+    fun `updateBrightness null clears prior brightness override`() {
+        val gateway = FakeHologramGateway()
+        val handle = (
+            gateway.spawn(
+                Hologram(
+                    id = HologramId.random(),
+                    worldId = worldId,
+                    position = origin,
+                    kind = HologramKind.Text(listOf(MessageKey("astera.test"))),
+                    brightness = HologramBrightness(blockLight = 10, skyLight = 5),
+                ),
+            ) as Result.Success
+            ).value
+
+        gateway.updateBrightness(handle, null)
+        assertThat(gateway.current(handle)!!.brightness).isNull()
+    }
+
+    @Test
+    fun `updateInterpolation reflects new durationTicks`() {
+        val gateway = FakeHologramGateway()
+        val handle = (
+            gateway.spawn(
+                Hologram(
+                    id = HologramId.random(),
+                    worldId = worldId,
+                    position = origin,
+                    kind = HologramKind.Text(listOf(MessageKey("astera.test"))),
+                ),
+            ) as Result.Success
+            ).value
+
+        gateway.updateInterpolation(handle, HologramInterpolation(durationTicks = 40, delayTicks = 5))
+        val current = gateway.current(handle)!!
+        assertThat(current.interpolation.durationTicks).isEqualTo(40)
+        assertThat(current.interpolation.delayTicks).isEqualTo(5)
+    }
+
+    @Test
+    fun `updateGlowColor applies and clears override`() {
+        val gateway = FakeHologramGateway()
+        val handle = (
+            gateway.spawn(
+                Hologram(
+                    id = HologramId.random(),
+                    worldId = worldId,
+                    position = origin,
+                    kind = HologramKind.Text(listOf(MessageKey("astera.test"))),
+                ),
+            ) as Result.Success
+            ).value
+
+        gateway.updateGlowColor(handle, HologramColor(red = 255.toByte(), green = 0, blue = 0))
+        assertThat(gateway.current(handle)!!.glowColor).isNotNull
+        gateway.updateGlowColor(handle, null)
+        assertThat(gateway.current(handle)!!.glowColor).isNull()
+    }
+
+    @Test
+    fun `viewers Everyone returns onlinePlayersProvider snapshot`() {
+        val alice = PlayerId(UUID.randomUUID())
+        val bob = PlayerId(UUID.randomUUID())
+        val gateway = FakeHologramGateway(
+            onlinePlayersProvider = { setOf(alice, bob) },
+        )
+        val handle = (
+            gateway.spawn(
+                Hologram(
+                    id = HologramId.random(),
+                    worldId = worldId,
+                    position = origin,
+                    kind = HologramKind.Text(listOf(MessageKey("astera.test"))),
+                    visibilityScope = HologramVisibilityScope.Everyone,
+                ),
+            ) as Result.Success
+            ).value
+
+        assertThat(gateway.viewers(handle)).containsExactlyInAnyOrder(alice, bob)
+    }
+
+    @Test
+    fun `viewers PerPlayer intersects with online set`() {
+        val alice = PlayerId(UUID.randomUUID())
+        val bob = PlayerId(UUID.randomUUID())
+        val charlie = PlayerId(UUID.randomUUID())
+        val gateway = FakeHologramGateway(
+            onlinePlayersProvider = { setOf(alice, charlie) },
+        )
+        val handle = (
+            gateway.spawn(
+                Hologram(
+                    id = HologramId.random(),
+                    worldId = worldId,
+                    position = origin,
+                    kind = HologramKind.Text(listOf(MessageKey("astera.test"))),
+                    visibilityScope = HologramVisibilityScope.PerPlayer(setOf(alice, bob)),
+                ),
+            ) as Result.Success
+            ).value
+
+        // alice is in both scope + online → visible. bob is in scope but offline → filtered.
+        assertThat(gateway.viewers(handle)).containsExactly(alice)
+    }
+
+    @Test
+    fun `viewers on UnknownHandle returns empty list`() {
+        val gateway = FakeHologramGateway()
+        assertThat(gateway.viewers(HologramHandle("never-spawned"))).isEmpty()
+    }
 }

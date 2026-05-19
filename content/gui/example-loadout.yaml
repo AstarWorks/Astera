@@ -12,19 +12,19 @@ slots:
   - type: static
     index: 1
     item: example-sword
-    on_click:
+    on_left:
       key: weapons.loadout.toggle
       payload: { slot: "MAIN", weapon: "example-sword" }
   - type: static
     index: 2
     item: example-pistol
-    on_click:
+    on_left:
       key: weapons.loadout.toggle
       payload: { slot: "MAIN", weapon: "example-pistol" }
   - type: static
     index: 3
     item: example-wand
-    on_click:
+    on_left:
       key: weapons.loadout.toggle
       payload: { slot: "MAIN", weapon: "example-wand" }
   - type: static
@@ -42,5 +42,5 @@ slots:
   - type: static
     index: 8
     item: gui-pane-red
-    on_click:
+    on_left:
       key: gui.close

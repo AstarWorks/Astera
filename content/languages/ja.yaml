@@ -67,6 +67,17 @@ astera:
       unknown: "<red>不明なバインディング: {binding}</red>"
       unavailable: "<gray>(バインディングデータ利用不可)</gray>"
       resolved_to_barrier: "<red>バインディング解決失敗 (プレースホルダ)。</red>"
+    # Wave 5h-fix2: ツールチップ + マルチクリック demo (ADR-0074 §2 拡張)。
+    common:
+      close:
+        tooltip: "<gray>左クリックで閉じます。</gray>"
+    shop:
+      multi-click:
+        title: "<gold>ショップ — 剣</gold>"
+        tooltip:
+          line1: "<gray>左クリック:</gray> <green>1 個購入</green>"
+          line2: "<gray>右クリック:</gray> <yellow>詳細を表示</yellow>"
+          line3: "<gray>シフトクリック:</gray> <aqua>まとめ買い (×64)</aqua>"
 
   weapons:
     command:

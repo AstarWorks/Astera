@@ -4,6 +4,7 @@ import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.entity.PaperPlayer
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
+import com.astarworks.astera.core.domain.gui.GuiClickType
 import com.astarworks.astera.core.domain.gui.GuiSlot
 import com.astarworks.astera.core.domain.gui.SlotIndex
 import org.bukkit.entity.Player
@@ -82,9 +83,29 @@ public class PaperGuiListener(
 
         val rawSlot = SlotIndex(e.rawSlot.coerceAtLeast(0))
         val guiSlot = spec.slotAt(rawSlot)
-        if (guiSlot is GuiSlot.Static && guiSlot.onClick != null) {
-            router.dispatch(player, guiSlot.onClick)
+        if (guiSlot is GuiSlot.Static) {
+            val clickType = mapClickType(e.click) ?: return  // unsupported click variant → no dispatch
+            val intent = guiSlot.intentFor(clickType) ?: return
+            router.dispatch(player, intent)
         }
+    }
+
+    /**
+     * Map Bukkit [org.bukkit.event.inventory.ClickType] to Astera's
+     * vendor-neutral [GuiClickType] subset (Wave 5h-fix2, ADR-0074 §2).
+     *
+     * Returns `null` for click variants Astera deliberately ignores
+     * (NUMBER_KEY / DROP / SWAP_OFFHAND etc) — the [PaperGuiListener.onClick]
+     * already cancelled the event so Bukkit doesn't act on them; we just
+     * don't dispatch an intent.
+     */
+    private fun mapClickType(bukkit: org.bukkit.event.inventory.ClickType): GuiClickType? = when (bukkit) {
+        org.bukkit.event.inventory.ClickType.LEFT -> GuiClickType.LEFT
+        org.bukkit.event.inventory.ClickType.RIGHT -> GuiClickType.RIGHT
+        org.bukkit.event.inventory.ClickType.SHIFT_LEFT -> GuiClickType.SHIFT_LEFT
+        org.bukkit.event.inventory.ClickType.SHIFT_RIGHT -> GuiClickType.SHIFT_RIGHT
+        org.bukkit.event.inventory.ClickType.MIDDLE -> GuiClickType.MIDDLE
+        else -> null
     }
 
     @EventHandler

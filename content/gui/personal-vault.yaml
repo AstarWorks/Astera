@@ -47,7 +47,7 @@ slots:
   - type: static
     index: 13
     item: gui-pane-red
-    on_click:
+    on_left:
       key: gui.close
   - type: border
     index: 14
@@ -61,6 +61,6 @@ slots:
   - type: static
     index: 17
     item: gui-pane-green
-    on_click:
+    on_left:
       key: vault.page.next
       payload: { page: "2" }

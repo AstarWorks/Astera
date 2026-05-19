@@ -84,7 +84,17 @@ Pre-Wave-6 readiness audit (2026-05-19) で **6 つの domain gap** を発見:
 - `TextAlignment` / `ItemDisplayMode` enum (Bukkit mirror)
 - `HologramVisibilityScope` sealed: `Everyone` / `PerPlayer(playerIds: Set<PlayerId>)` / `PerTeam(matchId, teamId)`
 
-新 port: `IHologramGateway` (`spawn / despawn / updateTransform / updateKind / teleport / all`) + `HologramError` sealed (`UnknownWorld / UnknownHandle / InvalidTransform / Storage`)。
+新 port: `IHologramGateway` (`spawn / despawn / updateTransform / updateKind /
+teleport / all` + **Wave 5h-fix2 で `updateVisibility / updateBrightness /
+updateInterpolation / updateGlowColor / viewers` 追加**) + `HologramError`
+sealed (`UnknownWorld / UnknownHandle / InvalidTransform / Storage`)。
+
+**Wave 5h-fix2 (2026-05-20)**: Dynamic update API + viewer query 追加。
+gameplay で「match 中 team 移動 → 既存 PerTeam hologram を新メンバーに
+surface」「boss reveal の段階的 visibility 解除」「anomaly による
+hologram の brightness fade-in/out」「admin dashboard で『誰が見ているか』
+query」を triggerable に。Paper impl (Wave 6b) は per-player packet
+再計算 + per-field `Display` setter 呼び出し。
 
 Wave 5h ships `InMemoryHologramGateway` (priority 0) + `FakeHologramGateway`
 (test-fixtures、operation history)。**Wave 6b で `PaperHologramGateway`** が
@@ -105,6 +115,32 @@ Wave 6a `PaperProjectileService` 実装時に再評価。
 
 `GuiDiffEngine` exhaustive `when` を維持 (compile catch)、`DefaultGuiBindingResolver`
 は pass-through、YAML schema + parser 拡張、example YAML 2 file。
+
+**Wave 5h-fix2 (2026-05-20)**: `GuiSlot.Static` を ClickType union +
+Tooltip に拡張。
+- 新 `GuiClickType` enum (LEFT / RIGHT / SHIFT_LEFT / SHIFT_RIGHT / MIDDLE) —
+  Bukkit `ClickType` の gameplay-relevant subset (DROP / NUMBER_KEY /
+  DOUBLE_CLICK 等 inventory-manipulation 系は GUI が read-only surface の
+  ため除外)
+- `GuiSlot.Static(itemId, onLeftClick?, onRightClick?, onShiftClick?,
+  onMiddleClick?, tooltip: List<MessageKey>, count)` — 旧 `onClick` 削除、
+  4 click handler + tooltip 追加 (forward-only breaking change、Phase 1 PoC
+  closing posture)
+- `GuiSlot.Reactive` + `GuiSlot.Confirmation` に tooltip field 追加
+- `PaperGuiListener.mapClickType(bukkit) -> GuiClickType?` + `intentFor(clickType)`
+  で per-click-type dispatch
+- YAML: `on_click:` → `on_left:` / `on_right:` / `on_shift:` / `on_middle:`
+  + `tooltip:` 全 example YAML 移行 (`example-loadout.yaml`,
+  `personal-vault.yaml`, `personal-vault-page2.yaml`, `example-text-input.yaml`)
+- 新 example: `content/gui/example-multi-click.yaml` (BedWars 風 shop の
+  「左=購入 / 右=詳細 / shift=まとめ買い / middle=お気に入り」demo)
+
+これにより BedWars 風 shop の typical click pattern が 1 slot で表現可能に。
+Drag-and-drop / NUMBER_KEY (hotbar swap) / DOUBLE_CLICK / DROP 系は引き続き
+unconditional cancel (GUI は read-only surface 原則 — ADR-0021 と整合)。
+
+Conditional slot visibility (per-permission hiding) と nested menu stack +
+back button convention は引き続き Phase 4 commitment。
 
 ### §3. Tutorial player flow
 
@@ -282,6 +318,28 @@ IWorldGateway 引数を constructor に追加、Phase C で Core から inject)�
   decision として hardcode、後続 wave で config 化したくなれば ADR 起草
 - **DisplaySpec を Hologram に統合**: 却下、projectile transient lifetime
   vs hologram persistent lifetime で semantic 異なる、coexist が clean
+
+## Phase 4 commitment (Wave 5h-fix2 で deferred 確定)
+
+以下は port 設計の必要性は認識済、Phase 4 (Wave 8 系) で着手:
+
+- **`spectatorTarget` (third-person entity follow)** — `Player.spectatorTarget`
+  を抽象化する `IWorldGateway.spectateEntity(playerId, targetEntityId)` 拡張。
+  kill cam / death cam UX で必要、Phase 4 Wave 8b で検討
+- **`BanScope.ByIp(address)`** — Bukkit `BanList.Type.IP` 相当。abuse
+  prevention 強化時に追加、Wave 5h 時点では OS firewall に逃がす
+- **GUI conditional slot visibility per player** — `GuiSlot.withPermission(role)`
+  / `GuiSlot.withPredicate(viewer -> Boolean)` 系。Wave 8a Web admin で
+  schema 拡張時に検討
+- **GUI nested menu stack + back button convention** — `IGuiAdapter.openStacked()` /
+  breadcrumb pattern。Wave 8a で UX 統一時に検討
+- **GUI multi-field form coordination** — 複数 TextInput を「submit でまとめて
+  validate」する primitive。Wave 8a で settings UI 設計時に検討
+- **Hologram drag-and-drop / hotkey 1-9** — 引き続き block。read-only
+  surface 原則維持
+- **Cross-server reconnect handling** — 現状 game pod 内のみ、Velocity proxy
+  経由は Phase 4 Wave 8c で
+- **Match replay system** — Phase 4 Wave 8b commitment、Wave 5h scope 外
 
 ## References
 

@@ -62,18 +62,45 @@ public sealed class GuiSlotYamlConfig {
 
     public abstract fun toSlotPair(): Pair<SlotIndex, GuiSlot>
 
+    /**
+     * Static slot (Wave 4 ADR-0021, extended Wave 5h-fix2 with ClickType union
+     * + Tooltip). YAML:
+     * ```
+     * - type: static
+     *   index: 4
+     *   item: iron-sword
+     *   on_left:  { key: shop.purchase, payload: { offer_id: "iron-sword" } }
+     *   on_right: { key: shop.preview,  payload: { offer_id: "iron-sword" } }
+     *   on_shift: { key: shop.quick-buy, payload: { offer_id: "iron-sword" } }
+     *   on_middle: { key: shop.favorite, payload: { offer_id: "iron-sword" } }
+     *   tooltip:
+     *     - astera.shop.iron-sword.tooltip.line1
+     *     - astera.shop.iron-sword.tooltip.line2
+     * ```
+     * All click handlers + tooltip are optional. Pre-Wave 5h-fix2 YAML used
+     * `on_click:` (single intent for any click) — forward-only migration:
+     * rename to `on_left:` to preserve behaviour.
+     */
     @Serializable
     @SerialName("static")
     public data class Static(
         override val index: Int,
         val item: String,
-        @SerialName("on_click") val onClick: GuiIntentYamlConfig? = null,
+        @SerialName("on_left") val onLeft: GuiIntentYamlConfig? = null,
+        @SerialName("on_right") val onRight: GuiIntentYamlConfig? = null,
+        @SerialName("on_shift") val onShift: GuiIntentYamlConfig? = null,
+        @SerialName("on_middle") val onMiddle: GuiIntentYamlConfig? = null,
+        val tooltip: List<String> = emptyList(),
         val count: Int = 1,
     ) : GuiSlotYamlConfig() {
         override fun toSlotPair(): Pair<SlotIndex, GuiSlot> =
             SlotIndex(index) to GuiSlot.Static(
                 itemId = ItemId(item),
-                onClick = onClick?.toIntent(),
+                onLeftClick = onLeft?.toIntent(),
+                onRightClick = onRight?.toIntent(),
+                onShiftClick = onShift?.toIntent(),
+                onMiddleClick = onMiddle?.toIntent(),
+                tooltip = tooltip.map { MessageKey(it) },
                 count = count,
             )
     }
@@ -93,9 +120,13 @@ public sealed class GuiSlotYamlConfig {
     public data class Reactive(
         override val index: Int,
         val binding: String,
+        val tooltip: List<String> = emptyList(),
     ) : GuiSlotYamlConfig() {
         override fun toSlotPair(): Pair<SlotIndex, GuiSlot> =
-            SlotIndex(index) to GuiSlot.Reactive(BindingKey(binding))
+            SlotIndex(index) to GuiSlot.Reactive(
+                binding = BindingKey(binding),
+                tooltip = tooltip.map { MessageKey(it) },
+            )
     }
 
     @Serializable
@@ -133,6 +164,7 @@ public sealed class GuiSlotYamlConfig {
         @SerialName("cancel_item") val cancelItem: String,
         val confirm: GuiIntentYamlConfig,
         val cancel: GuiIntentYamlConfig,
+        val tooltip: List<String> = emptyList(),
     ) : GuiSlotYamlConfig() {
         override fun toSlotPair(): Pair<SlotIndex, GuiSlot> =
             SlotIndex(index) to GuiSlot.Confirmation(
@@ -141,6 +173,7 @@ public sealed class GuiSlotYamlConfig {
                 cancelItemId = ItemId(cancelItem),
                 confirmIntent = confirm.toIntent(),
                 cancelIntent = cancel.toIntent(),
+                tooltip = tooltip.map { MessageKey(it) },
             )
     }
 
@@ -177,7 +210,10 @@ public sealed class GuiSlotYamlConfig {
 }
 
 /**
- * YAML-shaped DTO for the `on_click:` block inside a [GuiSlotYamlConfig.Static].
+ * YAML-shaped DTO for the `on_left:` / `on_right:` / `on_shift:` / `on_middle:`
+ * blocks inside [GuiSlotYamlConfig.Static], the `confirm:` / `cancel:` blocks
+ * inside [GuiSlotYamlConfig.Confirmation], and `on_submit:` inside
+ * [GuiSlotYamlConfig.TextInput].
  *
  * Maps 1:1 to the domain [GuiIntent]. Kept separate so the domain stays free of
  * serialization annotations.

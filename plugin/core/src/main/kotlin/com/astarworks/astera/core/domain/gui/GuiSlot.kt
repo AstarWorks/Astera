@@ -20,23 +20,53 @@ public sealed interface GuiSlot {
     /**
      * A fixed item rendered into the slot.
      *
+     * **Click handling** (Wave 5h-fix2): 5 click types are routable
+     * independently via [onLeftClick] / [onRightClick] / [onShiftClick] /
+     * [onMiddleClick] (`null` for any unmapped type → click is cancelled
+     * but no intent dispatched). The Paper adapter inspects
+     * `InventoryClickEvent.click` (Bukkit `ClickType`) and picks the right
+     * handler — `SHIFT_LEFT` and `SHIFT_RIGHT` both map to [onShiftClick].
+     *
      * @property itemId which item to show (resolved via `IItemRegistry`).
-     * @property onClick the intent emitted when the player clicks; `null`
-     *   means the slot is decorative / non-interactive (vanilla click is
-     *   simply cancelled by the adapter).
+     * @property onLeftClick intent emitted on a plain left-click.
+     * @property onRightClick intent emitted on a plain right-click (typical
+     *   use: preview / info display).
+     * @property onShiftClick intent emitted on shift + left-or-right click
+     *   (typical use: bulk action, quick-buy).
+     * @property onMiddleClick intent emitted on middle-click (rarely useful;
+     *   reserve for power-user shortcuts).
+     * @property tooltip extra lore lines rendered below the item's vanilla
+     *   tooltip. Empty list = no tooltip override. Useful for "what does
+     *   this slot do?" hints without baking the help into the item template.
      * @property count how many of the item to show in the stack. Vanilla
-     *   inventory stacks cap at 64, but some items (potions, eggs) cap lower;
-     *   the domain only enforces `1..64` so adapters can clamp further.
+     *   inventory stacks cap at 64; the domain enforces `1..64`.
      */
     public data class Static(
         public val itemId: ItemId,
-        public val onClick: GuiIntent? = null,
+        public val onLeftClick: GuiIntent? = null,
+        public val onRightClick: GuiIntent? = null,
+        public val onShiftClick: GuiIntent? = null,
+        public val onMiddleClick: GuiIntent? = null,
+        public val tooltip: List<MessageKey> = emptyList(),
         public val count: Int = 1,
     ) : GuiSlot {
         init {
             require(count in 1..MAX_STACK) {
                 "GuiSlot.Static.count must be in 1..$MAX_STACK: $count"
             }
+        }
+
+        /**
+         * Returns the [GuiIntent] to dispatch for the given [clickType], or
+         * `null` if no handler is registered for that click. Convenience
+         * over the per-field accessors; `PaperGuiListener` uses this to
+         * keep the `when (e.click)` block minimal.
+         */
+        public fun intentFor(clickType: GuiClickType): GuiIntent? = when (clickType) {
+            GuiClickType.LEFT -> onLeftClick
+            GuiClickType.RIGHT -> onRightClick
+            GuiClickType.SHIFT_LEFT, GuiClickType.SHIFT_RIGHT -> onShiftClick
+            GuiClickType.MIDDLE -> onMiddleClick
         }
 
         public companion object {
@@ -57,6 +87,7 @@ public sealed interface GuiSlot {
      */
     public data class Reactive(
         public val binding: BindingKey,
+        public val tooltip: List<MessageKey> = emptyList(),
     ) : GuiSlot
 
     /**
@@ -100,6 +131,7 @@ public sealed interface GuiSlot {
         public val cancelItemId: ItemId,
         public val confirmIntent: GuiIntent,
         public val cancelIntent: GuiIntent,
+        public val tooltip: List<MessageKey> = emptyList(),
     ) : GuiSlot
 
     /**

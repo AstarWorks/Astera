@@ -5,9 +5,14 @@ import com.astarworks.astera.core.application.port.outbound.IHologramGateway
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.hologram.Hologram
+import com.astarworks.astera.core.domain.hologram.HologramBrightness
+import com.astarworks.astera.core.domain.hologram.HologramColor
 import com.astarworks.astera.core.domain.hologram.HologramHandle
+import com.astarworks.astera.core.domain.hologram.HologramInterpolation
 import com.astarworks.astera.core.domain.hologram.HologramKind
 import com.astarworks.astera.core.domain.hologram.HologramTransform
+import com.astarworks.astera.core.domain.hologram.HologramVisibilityScope
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -83,6 +88,54 @@ public class InMemoryHologramGateway : IHologramGateway {
         )
         return Result.success(Unit)
     }
+
+    override fun updateVisibility(
+        handle: HologramHandle,
+        scope: HologramVisibilityScope,
+    ): Result<Unit, HologramError> {
+        val current = live[handle]
+            ?: return Result.failure(HologramError.UnknownHandle(handle))
+        live[handle] = current.copy(visibilityScope = scope)
+        return Result.success(Unit)
+    }
+
+    override fun updateBrightness(
+        handle: HologramHandle,
+        brightness: HologramBrightness?,
+    ): Result<Unit, HologramError> {
+        val current = live[handle]
+            ?: return Result.failure(HologramError.UnknownHandle(handle))
+        live[handle] = current.copy(brightness = brightness)
+        return Result.success(Unit)
+    }
+
+    override fun updateInterpolation(
+        handle: HologramHandle,
+        interpolation: HologramInterpolation,
+    ): Result<Unit, HologramError> {
+        val current = live[handle]
+            ?: return Result.failure(HologramError.UnknownHandle(handle))
+        live[handle] = current.copy(interpolation = interpolation)
+        return Result.success(Unit)
+    }
+
+    override fun updateGlowColor(
+        handle: HologramHandle,
+        color: HologramColor?,
+    ): Result<Unit, HologramError> {
+        val current = live[handle]
+            ?: return Result.failure(HologramError.UnknownHandle(handle))
+        live[handle] = current.copy(glowColor = color)
+        return Result.success(Unit)
+    }
+
+    /**
+     * In-memory impl returns an empty viewer set. The real population happens
+     * in Wave 6b `PaperHologramGateway` which has access to `Server.onlinePlayers`
+     * and per-match team rosters. Production in-process callers should treat
+     * empty as "no information" rather than "no one viewing".
+     */
+    override fun viewers(handle: HologramHandle): Collection<PlayerId> = emptyList()
 
     override fun all(): Collection<HologramHandle> = live.keys.toList()
 }

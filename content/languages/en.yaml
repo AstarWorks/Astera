@@ -59,6 +59,17 @@ astera:
       unknown: "<red>Unknown binding: {binding}</red>"
       unavailable: "<gray>(binding data not available)</gray>"
       resolved_to_barrier: "<red>Binding resolution failed (placeholder).</red>"
+    # Wave 5h-fix2: tooltips + multi-click demo (ADR-0074 §2 拡張).
+    common:
+      close:
+        tooltip: "<gray>Left-click to close.</gray>"
+    shop:
+      multi-click:
+        title: "<gold>Shop — Sword</gold>"
+        tooltip:
+          line1: "<gray>Left-click:</gray> <green>Buy 1</green>"
+          line2: "<gray>Right-click:</gray> <yellow>Preview details</yellow>"
+          line3: "<gray>Shift-click:</gray> <aqua>Bulk-buy (×64)</aqua>"
 
   weapons:
     command:

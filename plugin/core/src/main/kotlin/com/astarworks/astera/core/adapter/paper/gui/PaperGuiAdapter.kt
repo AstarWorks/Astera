@@ -127,7 +127,7 @@ public class PaperGuiAdapter(
             when (patch) {
                 is SlotPatch.Set -> {
                     val stack = renderer.render(
-                        GuiSlot.Static(patch.itemId, onClick = null, count = patch.count),
+                        GuiSlot.Static(patch.itemId, count = patch.count),
                         player.id,
                     )
                     session.inventory.setItem(patch.index.value, stack)

@@ -1,0 +1,63 @@
+# Wave 5h-fix2 example: ClickType union + Tooltip.
+# Demonstrates the same item routing different intents depending on the
+# click variant — typical BedWars-style shop pattern:
+#   - left-click  → purchase the item
+#   - right-click → open detail/preview dialog
+#   - shift-click → bulk-buy (max stack)
+#   - middle-click → toggle favorite
+# All four are optional. Slot also carries a multi-line tooltip rendered
+# below the vanilla item lore.
+id: example-multi-click
+title_key: astera.gui.shop.multi-click.title
+size: CHEST_9
+
+slots:
+  - type: border
+    index: 0
+    item: gui-pane-dark
+  - type: border
+    index: 1
+    item: gui-pane-dark
+  - type: border
+    index: 2
+    item: gui-pane-dark
+  - type: border
+    index: 3
+    item: gui-pane-dark
+
+  - type: static
+    index: 4
+    item: example-sword
+    on_left:
+      key: shop.purchase
+      payload: { offer_id: "example-sword", qty: "1" }
+    on_right:
+      key: shop.preview
+      payload: { offer_id: "example-sword" }
+    on_shift:
+      key: shop.purchase
+      payload: { offer_id: "example-sword", qty: "64" }
+    on_middle:
+      key: shop.favorite.toggle
+      payload: { offer_id: "example-sword" }
+    tooltip:
+      - astera.gui.shop.multi-click.tooltip.line1
+      - astera.gui.shop.multi-click.tooltip.line2
+      - astera.gui.shop.multi-click.tooltip.line3
+
+  - type: border
+    index: 5
+    item: gui-pane-dark
+  - type: border
+    index: 6
+    item: gui-pane-dark
+  - type: border
+    index: 7
+    item: gui-pane-dark
+  - type: static
+    index: 8
+    item: gui-pane-red
+    on_left:
+      key: gui.close
+    tooltip:
+      - astera.gui.common.close.tooltip

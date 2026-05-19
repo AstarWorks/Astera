@@ -21,14 +21,14 @@ class GuiSpecTest {
 
         val spec = GuiSpec.build(shopId, titleKey, GuiSize.CHEST_27) {
             slot(SlotIndex(0), GuiSlot.Border(border))
-            slot(SlotIndex(13), GuiSlot.Static(sword, onClick = purchase))
+            slot(SlotIndex(13), GuiSlot.Static(sword, onLeftClick = purchase))
         }
 
         assertThat(spec.id).isEqualTo(shopId)
         assertThat(spec.title).isEqualTo(titleKey)
         assertThat(spec.size).isEqualTo(GuiSize.CHEST_27)
         assertThat(spec.slotAt(SlotIndex(0))).isEqualTo(GuiSlot.Border(border))
-        assertThat(spec.slotAt(SlotIndex(13))).isEqualTo(GuiSlot.Static(sword, onClick = purchase))
+        assertThat(spec.slotAt(SlotIndex(13))).isEqualTo(GuiSlot.Static(sword, onLeftClick = purchase))
         assertThat(spec.slotAt(SlotIndex(7))).isEqualTo(GuiSlot.Empty)
         assertThat(spec.slotAt(SlotIndex(26))).isEqualTo(GuiSlot.Empty)
     }
