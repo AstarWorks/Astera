@@ -151,6 +151,9 @@ internal object SchemaMapping {
         SchemaTarget("generator.schema.json", "generators", arrayOfEntries = true),
         SchemaTarget("anomaly.schema.json", "anomaly"),
         SchemaTarget("shop.schema.json", "shops"),
+        // Wave 5f (ADR-0035, RTM #21): particles are per-file definitions
+        // mirroring the weapon / skill shape.
+        SchemaTarget("particle.schema.json", "particles"),
         // element-matrix is a balance singleton, not a directory of authored
         // entries — validate only the one file the schema describes.
         SchemaTarget("element-matrix.schema.json", "balance", singleFile = "element-matrix.yaml"),

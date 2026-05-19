@@ -26,16 +26,31 @@ import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnMis
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnXpListener
 import com.astarworks.astera.economy.application.eventbus.listeners.RewardOnMatchEndedListener
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.economy.application.intent.ShopIntentHandler
+import com.astarworks.astera.economy.application.port.outbound.ICreatorRevenueRepository
+import com.astarworks.astera.economy.application.port.outbound.ICurrencyIssuanceLog
+import com.astarworks.astera.economy.application.port.outbound.IMarketplaceRepository
+import com.astarworks.astera.economy.application.service.CreatorRevenueCalculator
+import com.astarworks.astera.economy.application.service.InMemoryCreatorRevenueRepository
+import com.astarworks.astera.economy.application.service.InMemoryCurrencyIssuanceLog
 import com.astarworks.astera.economy.application.service.InMemoryCurrencyLedger
+import com.astarworks.astera.economy.application.service.InMemoryMarketplaceRepository
 import com.astarworks.astera.economy.application.service.InMemoryShopRegistry
 import com.astarworks.astera.economy.application.service.ShopLoaderService
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
 import com.astarworks.astera.economy.application.usecase.currency.TransferUseCase
 import com.astarworks.astera.economy.application.usecase.currency.WithdrawUseCase
+import com.astarworks.astera.economy.application.usecase.marketplace.CancelListingUseCase
+import com.astarworks.astera.economy.application.usecase.marketplace.CreateListingUseCase
+import com.astarworks.astera.economy.application.usecase.marketplace.PurchaseListingUseCase
+import com.astarworks.astera.economy.application.usecase.policy.EnforceCurrencyPolicyUseCase
+import com.astarworks.astera.economy.application.usecase.policy.ExpireCurrencyUseCase
 import com.astarworks.astera.economy.application.usecase.shop.ShopBrowseUseCase
 import com.astarworks.astera.economy.application.usecase.shop.ShopPurchaseUseCase
 import com.astarworks.astera.economy.command.buildShopCommandSpec
+import com.astarworks.astera.economy.domain.policy.CurrencyPolicies
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.event.MatchEnded
@@ -59,6 +74,7 @@ public class AsteraEconomyPlugin : JavaPlugin() {
 
     private val registrations = mutableListOf<ServiceRegistry.Registration>()
     private val subscriptions = mutableListOf<IDomainEventBus.Subscription>()
+    private val scheduledTasks = mutableListOf<IScheduler.TaskHandle>()
 
     override fun onEnable() {
         logger.info("Astera-Economy enabling…")
@@ -87,10 +103,72 @@ public class AsteraEconomyPlugin : JavaPlugin() {
                     registrations += services.register<ICurrencyLedger>(it, priority = 0)
                 }
 
+        // Wave 5f (ADR-0035): three new economy ports + scheduler hookup.
+        // Each falls back to in-memory if Postgres hasn't registered an overlay.
+        val issuanceLog: ICurrencyIssuanceLog =
+            services.get<ICurrencyIssuanceLog>()
+                ?: InMemoryCurrencyIssuanceLog().also {
+                    registrations += services.register<ICurrencyIssuanceLog>(it, priority = 0)
+                }
+        val marketplace: IMarketplaceRepository =
+            services.get<IMarketplaceRepository>()
+                ?: InMemoryMarketplaceRepository().also {
+                    registrations += services.register<IMarketplaceRepository>(it, priority = 0)
+                }
+        val creatorRevenues: ICreatorRevenueRepository =
+            services.get<ICreatorRevenueRepository>()
+                ?: InMemoryCreatorRevenueRepository().also {
+                    registrations += services.register<ICreatorRevenueRepository>(it, priority = 0)
+                }
+
         // ── Use cases ──────────────────────────────────────────────────────────
         val deposit = DepositUseCase(ledger, eventBus)
         val withdraw = WithdrawUseCase(ledger, eventBus)
         val transfer = TransferUseCase(ledger, eventBus)
+
+        // Wave 5f (ADR-0035, RTM #19/#12) use cases. EnforceCurrencyPolicyUseCase
+        // is registered as a service so future command/GUI flows compose with
+        // Result.flatMap; the existing admin /astera-economy currency transfer
+        // command is intentionally NOT modified in Phase 1 (admin override) —
+        // policy enforcement is documented as a Phase 2 player-initiated flow
+        // integration in ADR-0035 §Consequences.
+        val policyLookup = CurrencyPolicies.lookup()
+        val enforcePolicy = EnforceCurrencyPolicyUseCase(policyLookup, issuanceLog)
+        val expireCurrency = ExpireCurrencyUseCase(
+            issuanceLog = issuanceLog,
+            ledger = ledger,
+            eventBus = eventBus,
+            scheduler = services.getOrThrow<IScheduler>(),
+            policyOf = policyLookup,
+        )
+        registrations += services.register<EnforceCurrencyPolicyUseCase>(enforcePolicy)
+
+        // Daily expiry sweep — 20 ticks/s × 60 s × 60 m × 24 h = 1,728,000 ticks.
+        // Initial delay 20 ticks so onEnable can finish first.
+        scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(
+            initialDelayTicks = 20L,
+            periodTicks = 1_728_000L,
+        ) { expireCurrency.sweep() }
+
+        // Marketplace use cases. PurchaseListingUseCase composes γ's
+        // CreatorRevenueCalculator (10% default platform fee).
+        val itemRegistryForMarketplace = services.getOrThrow<IItemRegistry<IMcItemTemplate>>()
+        val revenueCalc = CreatorRevenueCalculator(creatorRevenues)
+        val createListing = CreateListingUseCase(
+            marketplace = marketplace,
+            items = itemRegistryForMarketplace,
+            eventBus = eventBus,
+        )
+        val purchaseListing = PurchaseListingUseCase(
+            marketplace = marketplace,
+            ledger = ledger,
+            revenueCalc = revenueCalc,
+            eventBus = eventBus,
+        )
+        val cancelListing = CancelListingUseCase(marketplace = marketplace, eventBus = eventBus)
+        registrations += services.register<CreateListingUseCase>(createListing)
+        registrations += services.register<PurchaseListingUseCase>(purchaseListing)
+        registrations += services.register<CancelListingUseCase>(cancelListing)
 
         // ── Listeners ──────────────────────────────────────────────────────────
         val depositOnXpListener = DepositOnXpListener(deposit)
@@ -159,6 +237,8 @@ public class AsteraEconomyPlugin : JavaPlugin() {
     }
 
     override fun onDisable() {
+        scheduledTasks.forEach { it.cancel() }
+        scheduledTasks.clear()
         subscriptions.forEach { it.cancel() }
         subscriptions.clear()
         registrations.forEach { it.unregister() }

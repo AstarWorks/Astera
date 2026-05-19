@@ -30,6 +30,10 @@ dependencies {
     // Use compileOnly so persistence's shadowJar doesn't bundle a duplicate copy
     // of core types (which would break KClass identity for ServiceRegistry overlays).
     compileOnly(project(":plugin:core"))
+    // Wave 5f (ADR-0035): Postgres impls for economy ports (ICurrencyIssuanceLog,
+    // IMarketplaceRepository, ICreatorRevenueRepository) need economy's
+    // domain + port types. compileOnly so we don't bundle a duplicate copy.
+    compileOnly(project(":plugin:economy"))
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
@@ -43,6 +47,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     testImplementation(project(":plugin:core"))
+    testImplementation(project(":plugin:economy"))
     testImplementation(project(":plugin:test-fixtures"))
     testImplementation(libs.testcontainers.core)
     testImplementation(libs.testcontainers.postgresql)

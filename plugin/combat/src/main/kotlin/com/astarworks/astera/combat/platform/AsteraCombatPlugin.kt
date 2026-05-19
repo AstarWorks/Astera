@@ -24,7 +24,9 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeCont
 import com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer
 import com.astarworks.astera.combat.application.service.NoOpKnockbackGateway
 import com.astarworks.astera.combat.application.service.StubArmorEquipmentProvider
+import com.astarworks.astera.combat.application.service.StubCelEvaluator
 import com.astarworks.astera.combat.application.service.YamlElementMatrix
+import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
 import com.astarworks.astera.combat.application.usecase.charge.ChargedSkillCastUseCase
 import com.astarworks.astera.combat.application.usecase.cost.ConsumeManaUseCase
@@ -137,6 +139,11 @@ public class AsteraCombatPlugin : JavaPlugin() {
         registrations += services.register<IManaPoolService>(manaService)
         registrations += services.register<IDamageRandomizer>(damageRandomizer)
         registrations += services.register<IDamageHistoryService>(damageHistory)
+
+        // Wave 5f (ADR-0035, RTM #21): CEL evaluator port + Stub impl. Real
+        // evaluator (JCEL / proxima / DIY) lands in a Phase 6 wave; Phase 1
+        // ships the Stub so port consumers can wire against the surface.
+        registrations += services.register<ICelEvaluator>(StubCelEvaluator())
 
         // Wave _infra-2b: register Combat's 3 content types on the dispatcher.
         val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()

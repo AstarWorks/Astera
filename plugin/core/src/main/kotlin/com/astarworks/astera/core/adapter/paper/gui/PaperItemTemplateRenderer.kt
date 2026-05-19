@@ -4,6 +4,7 @@ import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.gui.GuiSlot
+import com.astarworks.astera.core.domain.gui.ResolvedReactiveSlot
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import net.kyori.adventure.text.minimessage.MiniMessage
@@ -20,6 +21,15 @@ import org.slf4j.LoggerFactory
  * runtime turns `GuiSlot.Static / Border / Reactive` into Bukkit item stacks
  * with i18n-rendered display name + lore and a stable PDC tag identifying the
  * underlying [ItemId]. `GuiSlot.Empty` renders as `null` (i.e. no stack).
+ *
+ * # Wave 5f reactive overrides
+ *
+ * Reactive slots now resolve to [ResolvedReactiveSlot] (RTM #21), which can
+ * override the static template's display name / lore / count. When any
+ * override field is non-null we render the underlying item template, then
+ * patch the resulting `ItemStack` with the override values. A `null` override
+ * means "fall back to whatever the GUI YAML / item template would have
+ * rendered statically".
  *
  * Why the logic is duplicated from `PaperPlayer.giveItem`:
  *   `PaperPlayer` owns "give this item to a player's inventory" (which writes
@@ -65,14 +75,14 @@ public class PaperItemTemplateRenderer(
     }
 
     /**
-     * Reactive resolution via [bindingResolver] (Wave 4.5, ADR-0027). Unknown
-     * bindings return null → render BARRIER. Wave 4.5 scope: ItemId-valued
-     * bindings only (e.g. `player.loadout.main`); numeric bindings stay
-     * unsupported until Wave 5+ extends the resolver return type.
+     * Reactive resolution via [bindingResolver]. Unknown bindings return null
+     * → render BARRIER. Wave 5f returns [ResolvedReactiveSlot] so the resolver
+     * can override display name / lore / count for numeric bindings
+     * (`player.coins.star`, `player.kills`).
      */
     private fun resolveReactive(slot: GuiSlot.Reactive, viewer: PlayerId?): ItemStack {
-        val itemId = bindingResolver.resolve(slot.binding, viewer)
-        if (itemId == null) {
+        val resolved = bindingResolver.resolve(slot.binding, viewer)
+        if (resolved == null) {
             log.warn(
                 "Reactive binding '{}' did not resolve for viewer={}; rendering BARRIER.",
                 slot.binding.value,
@@ -80,9 +90,35 @@ public class PaperItemTemplateRenderer(
             )
             return barrier()
         }
-        return resolve(itemId, count = 1, viewer = viewer) ?: barrier().also {
-            log.warn("Reactive binding '{}' did not resolve to a registered item.", slot.binding.value)
+        val base = resolve(resolved.itemId, count = resolved.countOverride ?: 1, viewer = viewer)
+            ?: return barrier().also {
+                log.warn("Reactive binding '{}' did not resolve to a registered item.", slot.binding.value)
+            }
+        return applyOverrides(base, resolved, viewer)
+    }
+
+    /**
+     * Patch [stack] with any non-null override on [resolved]. The renderer
+     * already set the count when calling [resolve]; this method only touches
+     * meta (display name + lore). Returns the same stack instance (mutated).
+     */
+    private fun applyOverrides(
+        stack: ItemStack,
+        resolved: ResolvedReactiveSlot,
+        viewer: PlayerId?,
+    ): ItemStack {
+        if (resolved.displayOverride == null && resolved.loreOverride == null) {
+            return stack
         }
+        stack.editMeta { meta ->
+            resolved.displayOverride?.let { key ->
+                meta.displayName(MM.deserialize(messages.render(viewer, key)))
+            }
+            resolved.loreOverride?.let { keys ->
+                meta.lore(keys.map { k -> MM.deserialize(messages.render(viewer, k)) })
+            }
+        }
+        return stack
     }
 
     /**

@@ -222,16 +222,19 @@ public class AsteraCorePlugin : JavaPlugin() {
         val guiReport = guiContents.bootstrap(guiContentDir)
         logger.info("GUI specs loaded: ${guiReport.loaded} ok, ${guiReport.failed} failed")
 
-        // Wave 4.5 (ADR-0027): lazy provider since ILoadoutRepository is registered
-        // by Astera-Weapons (priority 0) / Astera-Persistence (priority 100), both of
-        // which load AFTER Astera-Core. Lambda is only invoked at GUI render time.
+        // Wave 4.5 (ADR-0027) + Wave 5f (ADR-0035): lazy providers since these
+        // dependencies are registered by feature plugins (ILoadoutRepository /
+        // ICurrencyLedger) or stats services (IPlayerAttributeContainerStore)
+        // that load AFTER Astera-Core. Lambdas are only invoked at GUI render
+        // time. ResolvedReactiveSlot signature (Wave 5f) lets the resolver
+        // return numeric overrides (display / lore / count) for the new
+        // `player.coins.<currency>` and `player.kills` bindings.
         val guiBindingResolver: IGuiBindingResolver = DefaultGuiBindingResolver(
-            loadoutsProvider = {
-                services.get<ILoadoutRepository>()
-                    ?: error(
-                        "ILoadoutRepository not registered before first GUI render. " +
-                            "Check that Astera-Weapons or Astera-Persistence finished onEnable.",
-                    )
+            loadoutsProvider = { services.get<ILoadoutRepository>() },
+            walletProvider = { services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>() },
+            playerStatsProvider = { playerId ->
+                services.get<com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore>()
+                    ?.containerFor(playerId)
             },
         )
 
@@ -314,6 +317,17 @@ public class AsteraCorePlugin : JavaPlugin() {
         // their resolved on-disk directories.
         reloadRegistry.register(itemContents, itemsContentDir)
         reloadRegistry.register(guiContents, guiContentDir)
+
+        // ---- Particle contents (Wave 5f, ADR-0035, RTM #21) -------------
+        // ParticleDefinition domain + Contents-driven YAML at content/particles/.
+        // Phase 1: domain + registry only — Paper-side spawn (IWorldGateway) is
+        // Wave 6b. /astera reload particles routes here via the dispatcher.
+        val particlesContentDir = contentDir.resolve("particles")
+        val particleContents = com.astarworks.astera.core.application.contents.ParticleContents()
+        val particleReport = particleContents.bootstrap(particlesContentDir)
+        logger.info("Particles loaded: ${particleReport.loaded} ok, ${particleReport.failed} failed")
+        services.register<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>(particleContents, priority = 0)
+        reloadRegistry.register(particleContents, particlesContentDir)
 
         // ---- Wave 5e Session / Social / Vault / Settings / Reward / Audit / Snapshot / Attribute container ----
         // All in-memory at priority 0; persistence overlays at priority 100 when env vars are set.

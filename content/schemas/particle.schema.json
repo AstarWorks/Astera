@@ -1,0 +1,85 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/particle.schema.json",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "shape": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "point",
+                        "line",
+                        "circle",
+                        "sphere",
+                        "burst"
+                    ]
+                },
+                "length_blocks": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                },
+                "radius_blocks": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                },
+                "spread_blocks": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                }
+            },
+            "required": [
+                "kind"
+            ]
+        },
+        "color": {
+            "type": "object",
+            "properties": {
+                "r": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                },
+                "g": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                },
+                "b": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                }
+            },
+            "required": [
+                "r",
+                "g",
+                "b"
+            ]
+        },
+        "count": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+        },
+        "lifetime_ticks": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+        },
+        "display_name_key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]*(\\.[a-z0-9_-]+)*$"
+        }
+    },
+    "required": [
+        "id",
+        "shape",
+        "color",
+        "count",
+        "lifetime_ticks"
+    ]
+}

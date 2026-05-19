@@ -121,6 +121,39 @@ astera:
       shop:
         root: "ショップコマンド"
         browse: "ID 指定でショップを開く"
+    # Wave 5f (ADR-0035, RTM #12/#19): マーケットプレイス + JP 資金決済法 compliance。
+    policy:
+      error:
+        transfer_blocked: "<red>この通貨は譲渡できません (JP 資金決済法準拠)。</red>"
+        cap_exceeded: "<red>発行上限を超えました。時間をおいて再試行してください。</red>"
+        redeem_blocked: "<red>この通貨は現金に換金できません。</red>"
+        expired: "<red>取引前に対象残高が期限切れになりました。</red>"
+    marketplace:
+      error:
+        not_found: "<red>出品が見つかりません。</red>"
+        not_active: "<red>その出品は既に終了しています。</red>"
+        self_purchase: "<red>自分の出品は購入できません。</red>"
+        insufficient_funds: "<red>{currency} の残高が不足しています。</red>"
+        unknown_item: "<red>不明なアイテムです: {item}</red>"
+        invalid_price: "<red>出品価格は正の値である必要があります。</red>"
+        not_seller: "<red>この出品の出品者ではありません。</red>"
+      listing:
+        title: "<gold>マーケットプレイス出品</gold>"
+        sold: "<gray>売却済</gray>"
+        expired: "<gray>期限切れ</gray>"
+
+  # Wave 5f (ADR-0035): GUI リアクティブ数値バインディング + パーティクル定義。
+  gui_binding:
+    coins:
+      value: "<gold>{amount} {currency}</gold>"
+    kills:
+      value: "<aqua>{amount}</aqua>"
+
+  particle:
+    example-burst:
+      name: "<red>火花バースト</red>"
+    example-ring:
+      name: "<aqua>氷の輪</aqua>"
 
   loadout:
     save:
@@ -240,6 +273,13 @@ astera:
       charge:
         started: "<yellow>{skill} をチャージ中…</yellow>"
         cancelled: "<gray>チャージをキャンセルしました。</gray>"
+    # Wave 5f (ADR-0035, RTM #21): CEL スキル式。
+    cel:
+      error:
+        not_yet_implemented: "<gray>(CEL evaluator は未実装 — Phase 6 で導入予定)</gray>"
+        parse: "<red>CEL パースエラー: {message}</red>"
+        eval: "<red>CEL 評価エラー: {message}</red>"
+        attribute_lookup: "<red>CEL 属性参照失敗: {path}</red>"
 
   # Wave 5c — スターゼネレータ tier 表示文字列 (ADR-0032)
   generator:

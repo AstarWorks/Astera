@@ -118,6 +118,39 @@ astera:
       shop:
         root: "Shop commands"
         browse: "Browse a shop by id"
+    # Wave 5f (ADR-0035, RTM #12/#19): marketplace + JP currency policy.
+    policy:
+      error:
+        transfer_blocked: "<red>This currency is non-transferable (JP 資金決済法 compliance).</red>"
+        cap_exceeded: "<red>Issuance cap exceeded — please try again later.</red>"
+        redeem_blocked: "<red>This currency cannot be redeemed for cash.</red>"
+        expired: "<red>That balance expired before this transaction.</red>"
+    marketplace:
+      error:
+        not_found: "<red>Listing not found.</red>"
+        not_active: "<red>That listing is no longer active.</red>"
+        self_purchase: "<red>You cannot purchase your own listing.</red>"
+        insufficient_funds: "<red>Insufficient {currency} balance.</red>"
+        unknown_item: "<red>Unknown item: {item}</red>"
+        invalid_price: "<red>Listing price must be positive.</red>"
+        not_seller: "<red>You are not the seller of this listing.</red>"
+      listing:
+        title: "<gold>Marketplace listing</gold>"
+        sold: "<gray>SOLD</gray>"
+        expired: "<gray>EXPIRED</gray>"
+
+  # Wave 5f (ADR-0035): GUI reactive numeric bindings + Particle definitions.
+  gui_binding:
+    coins:
+      value: "<gold>{amount} {currency}</gold>"
+    kills:
+      value: "<aqua>{amount}</aqua>"
+
+  particle:
+    example-burst:
+      name: "<red>Ember burst</red>"
+    example-ring:
+      name: "<aqua>Frost ring</aqua>"
 
   loadout:
     save:
@@ -237,6 +270,13 @@ astera:
       charge:
         started: "<yellow>Charging {skill}…</yellow>"
         cancelled: "<gray>Charge cancelled.</gray>"
+    # Wave 5f (ADR-0035, RTM #21): CEL skill expressions.
+    cel:
+      error:
+        not_yet_implemented: "<gray>(CEL evaluator not yet available — Phase 6.)</gray>"
+        parse: "<red>CEL parse error: {message}</red>"
+        eval: "<red>CEL evaluation error: {message}</red>"
+        attribute_lookup: "<red>CEL attribute lookup failed: {path}</red>"
 
   # Wave 5c — Star Generator tier display strings (ADR-0032)
   generator:

@@ -15,11 +15,17 @@ import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.platform.AsteraCorePlugin
+import com.astarworks.astera.economy.application.port.outbound.ICreatorRevenueRepository
+import com.astarworks.astera.economy.application.port.outbound.ICurrencyIssuanceLog
+import com.astarworks.astera.economy.application.port.outbound.IMarketplaceRepository
 import com.astarworks.astera.persistence.PersistenceContext
 import com.astarworks.astera.persistence.PostgresConfig
 import com.astarworks.astera.persistence.connectAndMigrate
+import com.astarworks.astera.persistence.repository.PostgresCreatorRevenueRepository
+import com.astarworks.astera.persistence.repository.PostgresCurrencyIssuanceLog
 import com.astarworks.astera.persistence.repository.PostgresCurrencyLedger
 import com.astarworks.astera.persistence.repository.PostgresLoadoutRepository
+import com.astarworks.astera.persistence.repository.PostgresMarketplaceRepository
 import com.astarworks.astera.persistence.repository.PostgresMatchRepository
 import com.astarworks.astera.persistence.repository.PostgresNormaProgressRepository
 import com.astarworks.astera.persistence.repository.PostgresAuditLogRepository
@@ -142,13 +148,28 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 5f (ADR-0035): currency issuance log + marketplace + creator revenue.
+        registrations += services.register<ICurrencyIssuanceLog>(
+            PostgresCurrencyIssuanceLog(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<IMarketplaceRepository>(
+            PostgresMarketplaceRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<ICreatorRevenueRepository>(
+            PostgresCreatorRevenueRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
                 "ICurrencyLedger, IPermissionService, INormaProgressRepository, " +
                 "ILoadoutRepository, IPersonalVaultRepository, " +
                 "IPlayerSettingsRepository, IAuditLogRepository, " +
-                "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore.",
+                "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
+                "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository.",
         )
     }
 
