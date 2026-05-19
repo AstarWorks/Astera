@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.item.EquipSlot
 import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.core.domain.skill.SkillTrigger
+import com.charleskorn.kaml.Yaml
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Test
@@ -158,5 +159,38 @@ class ItemYamlConfigTest {
         val spec = cfg.toSpec()
         assertThat(spec.displayName.byLocale).isEmpty()
         assertThat(spec.lore.byLocale).isEmpty()
+    }
+
+    @Test
+    fun `model key decodes to ItemYamlConfig model and threads through to ItemSpec modelSlug`() {
+        // ADR-0070, Wave _infra-5: optional `model:` slug closes the
+        // item -> model chain for Studio's /items preview + future Paper /
+        // Bedrock adapters. Slug is opaque; no `.model.json` suffix.
+        val yaml = """
+            id: example-sword
+            material: IRON_SWORD
+            model: sword
+        """.trimIndent()
+
+        val cfg = Yaml.default.decodeFromString(ItemYamlConfig.serializer(), yaml)
+
+        assertThat(cfg.model).isEqualTo("sword")
+        assertThat(cfg.toSpec().modelSlug).isEqualTo("sword")
+    }
+
+    @Test
+    fun `omitted model key leaves ItemYamlConfig model and ItemSpec modelSlug null`() {
+        // No `model:` -> defer to vendor default / archetype fallback. Two
+        // sister consumers (Studio, Paper) decide independently what null
+        // means; the YAML loader stays opaque.
+        val yaml = """
+            id: example-sword
+            material: IRON_SWORD
+        """.trimIndent()
+
+        val cfg = Yaml.default.decodeFromString(ItemYamlConfig.serializer(), yaml)
+
+        assertThat(cfg.model).isNull()
+        assertThat(cfg.toSpec().modelSlug).isNull()
     }
 }

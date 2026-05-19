@@ -37,6 +37,7 @@ import kotlinx.serialization.Serializable
  * id: example-sword
  * material: IRON_SWORD
  * custom_model_data: 1001
+ * model: sword
  * name:
  *   en: "Example Sword"
  *   ja: "サンプルソード"
@@ -76,12 +77,20 @@ import kotlinx.serialization.Serializable
  * Pre-release posture (`/IdeaProjects/Astera/.claude/CLAUDE.md §Pre-release`)
  * applies — no dual-decoder for the legacy shape, no `@Deprecated` aliases.
  * Existing YAML must be rewritten to the new schema.
+ *
+ * The optional `model` key (ADR-0070, Wave _infra-5) names the visual model
+ * slug Studio / Paper / Bedrock adapters should resolve. It is opaque — no
+ * `.model.json` suffix, no path — and `null` defers to vendor / archetype
+ * fallback. Sits next to `custom_model_data` because both are render-only
+ * metadata; the slug is the cross-platform replacement, customModelData stays
+ * for vanilla resource-pack workflows.
  */
 @Serializable
 public data class ItemYamlConfig(
     public val id: String,
     public val material: String? = null,
     @SerialName("custom_model_data") public val customModelData: Int? = null,
+    public val model: String? = null,
     @SerialName("external_key") public val externalKey: String? = null,
     public val name: Map<String, String> = emptyMap(),
     public val lore: Map<String, List<String>> = emptyMap(),
@@ -161,6 +170,7 @@ public data class ItemYamlConfig(
             glint = glint,
             skillBindings = skills.map { it.toDomain() },
             pdcTags = pdcTags,
+            modelSlug = model,
         )
     }
 

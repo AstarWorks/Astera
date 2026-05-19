@@ -1,26 +1,38 @@
 /**
- * Astera Studio `/items` backend (Wave _items-1, ADR-0073).
+ * Astera Studio `/items` backend (Wave _items-1, ADR-0073; Wave _infra-5, ADR-0070).
  *
  * Successor to the legacy `/weapons` route. Items are now the first-class
  * authoring unit (ADR-0073) — each `content/items/<id>.yaml` carries the
  * vendor template, inline i18n, PvP attributes, and skill bindings. Studio
  * exposes read-only views over them.
  *
- *  - GET /api/items             — list items from content/items/<id>.yaml
- *  - GET /api/items/load/:slug  — parse a single item YAML
- *  - GET /api/items/model/:archetype — passthrough of an archetype sample
- *                                      model (sword/gun/wand). Phase 1: the
- *                                      "archetype" concept on Item is implicit
- *                                      (read from the first skill binding's
- *                                      archetype via cross-ref, or "sword" by
- *                                      default). Real archetypes will live on
- *                                      the Skill spec in Phase 2.
+ *  - GET /api/items                    — list items from content/items/<id>.yaml
+ *  - GET /api/items/load/:slug         — parse a single item YAML; resolves
+ *                                        `item.model` (ADR-0070) against
+ *                                        content/models/ then samples/ before
+ *                                        falling back to the archetype map.
+ *  - GET /api/items/model/:archetype   — passthrough of an archetype sample
+ *                                        model (sword/gun/wand). Phase 1: the
+ *                                        "archetype" concept on Item is implicit
+ *                                        (read from the first skill binding's
+ *                                        archetype via cross-ref, or "sword" by
+ *                                        default). Real archetypes will live on
+ *                                        the Skill spec in Phase 2.
+ *  - GET /api/items/model/by-slug/:slug — resolve a model slug (ADR-0070) to
+ *                                        the parsed `.model.json`. Tries
+ *                                        content/models/ first, then
+ *                                        tools/model-gen/samples/.
  */
 import { Hono } from 'hono'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import yaml from 'js-yaml'
-import { itemsContentDir as itemsDir, modelSamplesDir as samplesDir } from '../paths'
+import {
+  itemsContentDir as itemsDir,
+  modelSamplesDir as samplesDir,
+  modelsContentDir,
+  repoRoot,
+} from '../paths'
 
 export const items = new Hono()
 
@@ -55,6 +67,13 @@ type ItemYamlConfig = {
   material?: string
   external_key?: string
   custom_model_data?: number | null
+  /**
+   * ADR-0070: opaque model slug (no `.model.json` suffix). When set, Studio
+   * resolves `${modelsContentDir}/${model}.model.json` first, then
+   * `${modelSamplesDir}/${model}.model.json`, before falling back to the
+   * material-derived archetype lookup.
+   */
+  model?: string
   name?: Record<string, string>
   lore?: Record<string, string[]>
   rarity?: string
@@ -83,8 +102,30 @@ type LoadedItem = {
   slug: string
   spec: ItemYamlConfig
   archetypeHint: string
+  /**
+   * Kept for backwards compat with the current frontend caller — it still
+   * reflects the archetype-keyed pick from ARCHETYPE_MODEL. When a slug-based
+   * resolution (ADR-0070) succeeds, `modelSource` / `modelPathRelative`
+   * carry the override; callers that consume the new fields should prefer
+   * those.
+   */
   modelArchetype: string
+  /** Where the resolved model came from (ADR-0070). */
+  modelSource: 'content' | 'samples' | 'archetype'
+  /**
+   * Resolved model path relative to `repoRoot`, or null when the archetype
+   * fallback path is used (the frontend resolves that via `/model/:archetype`).
+   */
+  modelPathRelative: string | null
   modelFallback: boolean
+}
+
+function isFileSafe(p: string): boolean {
+  try {
+    return statSync(p).isFile()
+  } catch {
+    return false
+  }
 }
 
 function parseYamlSafe<T>(filePath: string): T | { __error: string } {
@@ -146,16 +187,75 @@ items.get('/load/:slug', (c) => {
     : material === 'BLAZE_ROD' || material === 'STICK' ? 'wand'
     : 'sword'
   const modelArchetype = archetypeHint in ARCHETYPE_MODEL ? archetypeHint : 'sword'
-  const modelFallback = ARCHETYPE_MODEL[archetypeHint] !== `${archetypeHint}.model.json`
+
+  // ADR-0070: prefer the YAML's explicit `model:` slug. Try content/models/
+  // first, then tools/model-gen/samples/, before falling back to the
+  // archetype-keyed sample lookup.
+  let modelSource: LoadedItem['modelSource'] = 'archetype'
+  let modelPathRelative: string | null = null
+  let modelFallback: boolean
+
+  if (typeof spec.model === 'string' && spec.model.length > 0) {
+    const fromContent = path.join(modelsContentDir, `${spec.model}.model.json`)
+    const fromSamples = path.join(samplesDir, `${spec.model}.model.json`)
+    if (isFileSafe(fromContent)) {
+      modelSource = 'content'
+      modelPathRelative = path.relative(repoRoot, fromContent)
+      modelFallback = false
+    } else if (isFileSafe(fromSamples)) {
+      modelSource = 'samples'
+      modelPathRelative = path.relative(repoRoot, fromSamples)
+      modelFallback = false
+    } else {
+      // Slug declared but unresolvable — silently fall through to archetype
+      // path. Frontend can still spot this via modelSource='archetype' while
+      // spec.model is set.
+      modelFallback = ARCHETYPE_MODEL[archetypeHint] !== `${archetypeHint}.model.json`
+    }
+  } else {
+    modelFallback = ARCHETYPE_MODEL[archetypeHint] !== `${archetypeHint}.model.json`
+  }
 
   const result: LoadedItem = {
     slug,
     spec,
     archetypeHint,
     modelArchetype,
+    modelSource,
+    modelPathRelative,
     modelFallback,
   }
   return c.json(result)
+})
+
+/**
+ * ADR-0070: passthrough of an arbitrary model slug. Resolves
+ * `${modelsContentDir}/${slug}.model.json` first, then
+ * `${modelSamplesDir}/${slug}.model.json`, else 404. Returns the parsed
+ * `McModel` JSON, same shape as `/model/:archetype`.
+ *
+ * Declared before `/model/:archetype` so Hono routes `/model/by-slug/foo`
+ * here instead of treating `by-slug` as the `:archetype` param.
+ */
+items.get('/model/by-slug/:slug', (c) => {
+  const slug = c.req.param('slug')
+  if (!/^[\w./_-]+$/.test(slug)) {
+    return c.json({ error: 'invalid slug' }, 400)
+  }
+  const candidates = [
+    path.join(modelsContentDir, `${slug}.model.json`),
+    path.join(samplesDir, `${slug}.model.json`),
+  ]
+  const resolved = candidates.find(isFileSafe)
+  if (!resolved) {
+    return c.json({ error: 'model not found' }, 404)
+  }
+  try {
+    const raw = readFileSync(resolved, 'utf8')
+    return c.json(JSON.parse(raw))
+  } catch (e) {
+    return c.json({ error: `parse failed: ${(e as Error).message}` }, 500)
+  }
 })
 
 /** Passthrough: the McModel JSON for an archetype's sample model. */

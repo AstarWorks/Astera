@@ -1,5 +1,5 @@
 /**
- * Composable for i18n resolution in /weapons (ADR-0073 Tier I).
+ * Composable for i18n resolution in /items (ADR-0073 Tier I).
  *
  * Loads all `content/languages/<locale>.yaml` files via /api/languages,
  * caches them on first access, and exposes a `resolveKey(key)` lookup

@@ -4,6 +4,7 @@
 id: example-pistol
 
 material: CROSSBOW
+model: example-pistol
 
 name:
   ja: "<aqua>サンプルピストル</aqua>"

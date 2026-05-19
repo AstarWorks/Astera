@@ -10,7 +10,7 @@ import { RouterLink, RouterView } from 'vue-router'
         <RouterLink to="/textures" class="tab">🎨 テクスチャ</RouterLink>
         <RouterLink to="/models" class="tab">🧊 3D モデル</RouterLink>
         <RouterLink to="/effects" class="tab">✨ エフェクト</RouterLink>
-        <RouterLink to="/weapons" class="tab">⚔️ ウェポン</RouterLink>
+        <RouterLink to="/items" class="tab">⚔️ アイテム</RouterLink>
       </nav>
       <div class="spacer"></div>
     </header>

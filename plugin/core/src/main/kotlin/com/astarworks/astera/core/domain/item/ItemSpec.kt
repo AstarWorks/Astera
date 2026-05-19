@@ -37,6 +37,14 @@ import com.astarworks.astera.core.domain.i18n.LocalizedText
  * The `init` block is intentionally minimal — most validation lives in the
  * leaf value objects so they stay safe even when constructed outside
  * `ItemSpec`.
+ *
+ * # Model slug (ADR-0070, Wave _infra-5)
+ *
+ * [modelSlug] is an opaque identifier consumed by Studio's `/items` preview
+ * and by future Paper / Bedrock model-resolution adapters. `null` means
+ * "no override — fall back to the vendor default or archetype-derived model".
+ * The slug has no `.model.json` suffix; resolution semantics are owned by the
+ * consumer.
  */
 public data class ItemSpec(
     val id: ItemId,
@@ -53,6 +61,7 @@ public data class ItemSpec(
     val glint: Boolean?,
     val skillBindings: List<ItemSkillBinding>,
     val pdcTags: Map<String, String>,
+    val modelSlug: String? = null,
 ) {
     init {
         require(levelRequirement >= 1) {

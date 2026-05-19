@@ -33,26 +33,30 @@ export type LoadedEffect = {
   graph: FxGraph
 }
 
-// Wave _infra-3 (ADR-0061): read-only weapon preview types. Field names
-// mirror WeaponYamlConfig.kt + ItemYamlConfig.kt (kaml decodes from
-// snake_case YAML).
-export type WeaponListEntry = {
+// Wave _infra-5 (ADR-0070): read-only item preview types. Field names
+// mirror ItemYamlConfig.kt (kaml decodes from snake_case YAML).
+export type ItemListEntry = {
   slug: string
   path: string
-  archetype: string | null
   rarity: string | null
+  material: string | null
+  skillCount: number
 }
 
-export type WeaponYamlConfig = {
-  id: string
-  display_name_key: string
-  lore_key: string
-  archetype: string
-  rarity: string
-  level_requirement: number
-  item: string
-  damage: { base: number; attribute: string }
-  cooldown_ticks: number
+export type ItemSkillBindingYaml = {
+  trigger: string
+  skill_id: string
+  cooldown_override_ticks?: number | null
+}
+
+export type ItemAttributesYaml = {
+  attack_damage?: number | null
+  attack_speed?: number | null
+  armor?: number | null
+  armor_toughness?: number | null
+  knockback_resistance?: number | null
+  movement_speed_multiplier?: number | null
+  max_health_bonus?: number | null
 }
 
 export type ItemYamlConfig = {
@@ -60,18 +64,30 @@ export type ItemYamlConfig = {
   material?: string
   external_key?: string
   custom_model_data?: number | null
-  display_name_key?: string
-  lore_keys?: string[]
+  model?: string  // NEW (ADR-0070): opaque model slug
+  name?: Record<string, string>
+  lore?: Record<string, string[]>
+  rarity?: string
+  level_requirement?: number
+  attributes?: ItemAttributesYaml
+  equip_slot?: string
+  max_durability?: number | null
+  unbreakable?: boolean
+  drop_on_death?: boolean
+  keep_on_death?: boolean
+  enchantable?: boolean
+  glint?: boolean | null
+  skills?: ItemSkillBindingYaml[]
   pdc_tags?: Record<string, string>
 }
 
-export type LoadedWeapon = {
+export type LoadedItem = {
   slug: string
-  spec: WeaponYamlConfig
-  item: ItemYamlConfig | null
-  itemError: string | null
-  archetype: string
+  spec: ItemYamlConfig
+  archetypeHint: string
   modelArchetype: string
+  modelSource: 'content' | 'samples' | 'archetype'  // NEW (ADR-0070)
+  modelPathRelative: string | null  // NEW (ADR-0070)
   modelFallback: boolean
 }
 
@@ -167,12 +183,13 @@ export const api = {
   models: () => j<ModelListEntry[]>('/api/models'),
   loadModel: (scope: 'samples' | 'content', slug: string) =>
     j<LoadedModel>(`/api/models/load/${scope}/${slug}`),
-  // Wave _infra-3 (ADR-0061): read-only weapons preview.
-  weapons: () => j<WeaponListEntry[]>('/api/weapons'),
-  loadWeapon: (slug: string) => j<LoadedWeapon>(`/api/weapons/load/${slug}`),
-  weaponModel: (archetype: string) =>
-    j<McModel>(`/api/weapons/model/${archetype}`),
-  // Language files for i18n resolution in /weapons (ADR-0073 Tier I).
+  // Wave _infra-5 (ADR-0070): read-only items preview.
+  items: () => j<ItemListEntry[]>('/api/items'),
+  loadItem: (slug: string) => j<LoadedItem>(`/api/items/load/${slug}`),
+  itemModelBySlug: (slug: string) => j<McModel>(`/api/items/model/by-slug/${slug}`),
+  itemModelByArchetype: (archetype: string) =>
+    j<McModel>(`/api/items/model/${archetype}`),
+  // Language files for i18n resolution in /items (ADR-0073 Tier I).
   languages: () => j<string[]>('/api/languages'),
   loadLocale: (locale: string) =>
     j<{ locale: string; entries: Record<string, string | string[]> }>(

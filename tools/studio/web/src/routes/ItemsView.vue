@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { api } from '../api'
-import type { LoadedWeapon, WeaponListEntry } from '../api'
-import WeaponPreview from '../components/WeaponPreview.vue'
+import type { LoadedItem, ItemListEntry } from '../api'
+import ItemPreview from '../components/ItemPreview.vue'
 import { useI18n } from '../lib/i18n'
 
-const list = ref<WeaponListEntry[]>([])
+const list = ref<ItemListEntry[]>([])
 const selectedSlug = ref<string | null>(null)
-const loaded = ref<LoadedWeapon | null>(null)
+const loaded = ref<LoadedItem | null>(null)
 const error = ref<string | null>(null)
 const loadingList = ref(false)
 const loadingDetail = ref(false)
@@ -18,9 +18,9 @@ async function loadList() {
   loadingList.value = true
   error.value = null
   try {
-    list.value = await api.weapons()
+    list.value = await api.items()
     if (!selectedSlug.value && list.value.length > 0) {
-      await pickWeapon(list.value[0].slug)
+      await pickItem(list.value[0].slug)
     }
   } catch (e) {
     error.value = `list load failed: ${(e as Error).message}`
@@ -29,32 +29,30 @@ async function loadList() {
   }
 }
 
-async function pickWeapon(slug: string) {
+async function pickItem(slug: string) {
   if (selectedSlug.value === slug && loaded.value) return
   selectedSlug.value = slug
   loadingDetail.value = true
   error.value = null
   try {
-    loaded.value = await api.loadWeapon(slug)
+    loaded.value = await api.loadItem(slug)
   } catch (e) {
-    error.value = `weapon load failed: ${(e as Error).message}`
+    error.value = `item load failed: ${(e as Error).message}`
     loaded.value = null
   } finally {
     loadingDetail.value = false
   }
 }
 
-function archetypeIcon(a: string | null): string {
-  switch (a?.toLowerCase()) {
-    case 'sword':
-      return '🗡️'
-    case 'gun':
-      return '🔫'
-    case 'wand':
-      return '🪄'
-    default:
-      return '⚔️'
-  }
+function materialIcon(m: string | null): string {
+  const mat = m?.toUpperCase() ?? ''
+  if (mat.includes('CROSSBOW') || mat.includes('BOW')) return '🔫'
+  if (mat.includes('BLAZE_ROD') || mat.includes('STICK')) return '🪄'
+  if (mat.includes('SWORD')) return '🗡️'
+  if (mat.includes('AXE')) return '🪓'
+  if (mat.includes('HELMET') || mat.includes('CHESTPLATE') ||
+      mat.includes('LEGGINGS') || mat.includes('BOOTS')) return '🛡️'
+  return '📦'
 }
 
 function rarityColor(r: string | null): string {
@@ -83,14 +81,14 @@ onMounted(() => {
   <div class="layout">
     <aside class="sidebar">
       <header class="sidebar-header">
-        <h2>ウェポン</h2>
+        <h2>アイテム</h2>
         <div class="header-actions">
           <select
             v-if="locales.length > 0"
             class="locale-select"
             :value="currentLocale"
             @change="setLocale(($event.target as HTMLSelectElement).value)"
-            title="Locale for display_name_key / lore_key resolution"
+            title="Locale for name / lore resolution"
           >
             <option v-for="loc in locales" :key="loc" :value="loc">{{ loc }}</option>
           </select>
@@ -98,42 +96,42 @@ onMounted(() => {
             class="refresh"
             @click="loadList"
             :disabled="loadingList"
-            title="Reload weapon list from content/weapons/"
+            title="Reload item list from content/items/"
           >
             {{ loadingList ? '…' : '↻' }}
           </button>
         </div>
       </header>
       <div v-if="error" class="error-banner">{{ error }}</div>
-      <ul class="weapon-list">
+      <ul class="item-list">
         <li
-          v-for="w in list"
-          :key="w.slug"
-          :class="{ active: selectedSlug === w.slug }"
-          @click="pickWeapon(w.slug)"
+          v-for="it in list"
+          :key="it.slug"
+          :class="{ active: selectedSlug === it.slug }"
+          @click="pickItem(it.slug)"
         >
-          <span class="entry-icon">{{ archetypeIcon(w.archetype) }}</span>
-          <span class="entry-slug">{{ w.slug }}</span>
+          <span class="entry-icon">{{ materialIcon(it.material) }}</span>
+          <span class="entry-slug">{{ it.slug }}</span>
           <span
-            v-if="w.rarity"
+            v-if="it.rarity"
             class="entry-rarity"
-            :style="{ background: rarityColor(w.rarity) }"
-          >{{ w.rarity }}</span>
+            :style="{ background: rarityColor(it.rarity) }"
+          >{{ it.rarity }}</span>
         </li>
         <li v-if="!loadingList && list.length === 0" class="empty">
-          No weapons found in <code>content/weapons/</code>
+          No items found in <code>content/items/</code>
         </li>
       </ul>
       <footer class="sidebar-footer">
         <div class="hint">
-          Read-only preview (ADR-0061). Use <code>/astera reload weapons</code>
-          in-game to hot-swap after editing YAML.
+          Read-only Studio preview (ADR-0073). Edit
+          <code>content/items/*.yaml</code> and refresh.
         </div>
       </footer>
     </aside>
     <main class="main">
-      <div v-if="loadingDetail" class="loading">Loading weapon…</div>
-      <WeaponPreview v-else :loaded="loaded" />
+      <div v-if="loadingDetail" class="loading">Loading item…</div>
+      <ItemPreview v-else :loaded="loaded" />
     </main>
   </div>
 </template>
@@ -209,14 +207,14 @@ onMounted(() => {
   font-size: 12px;
   border-bottom: 1px solid #2a2a2f;
 }
-.weapon-list {
+.item-list {
   list-style: none;
   margin: 0;
   padding: 4px 0;
   overflow-y: auto;
   min-height: 0;
 }
-.weapon-list li {
+.item-list li {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -225,20 +223,20 @@ onMounted(() => {
   border-left: 3px solid transparent;
   transition: background 0.1s;
 }
-.weapon-list li:hover {
+.item-list li:hover {
   background: #1f2937;
 }
-.weapon-list li.active {
+.item-list li.active {
   background: #1e3a8a;
   border-left-color: #3b82f6;
 }
-.weapon-list li.empty {
+.item-list li.empty {
   cursor: default;
   color: #6b7280;
   font-size: 12px;
   font-style: italic;
 }
-.weapon-list li.empty:hover {
+.item-list li.empty:hover {
   background: transparent;
 }
 .entry-icon {
