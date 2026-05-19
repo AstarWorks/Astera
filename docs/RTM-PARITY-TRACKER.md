@@ -80,7 +80,7 @@ adds to `gradle/libs.versions.toml`:
 | ❌ nothing | 38 | 26.4% |
 | **Total tracked** | **144** | 100% |
 
-(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability))
+(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability); Wave _persist-1 で Cat 8 持続化補完 — SessionState/Friendship/Party/RewardBridge の 4 Postgres impl (V11/V12/V13/V15 + ADR-0068 Cross-server persistence boundary))
 
 **Last audited**: 2026-05-19 (ADR-0029 §"Deep audit (2026-05-19)" methodology — 詳細は ADR 参照)
 
@@ -229,7 +229,7 @@ adds to `gradle/libs.versions.toml`:
 | `/astera-shop browse` command + intent dispatch | ✅ full | (済) | P0 | (Wave 4.5) |
 | Reward listeners (kill / match-win / mission → currency) | ✅ full | (済) | P0 | (Wave 1-2) |
 | **Ender Chest / Personal Vault** (RTM issue #3) | ✅ Wave 5e (`IPersonalVaultService` + Postgres) | (済 Wave 5e) | **P1** | grep `EnderChest|PersonalVault` → 0 件 |
-| **Reward 2-server flow** (game→Redis→lobby、RTM issue #6) | ✅ Wave 5e (in-memory; Redis swap = Wave 6) | (済 Wave 5e) | P1 | (none — Astera's current flow is single-server in-process) |
+| **Reward 2-server flow** (game→Redis→lobby、RTM issue #6) | ✅ Wave 5e (in-memory; Redis swap = Wave 6); Wave _persist-1 (V15 RewardBridge outbox durable queue) | (済 Wave 5e) | P1 | `plugin/persistence/.../adapter/repository/PostgresRewardBridgeRepository.kt` (V15 outbox + delivered_at) + ADR-0068 |
 | **Player marketplace** (RTM issue #12) | ❌ nothing | **Wave 5f** | P2 | (none) |
 | **Creator revenue sharing** (RTM issue #12) | ❌ nothing | Wave 5f | P2 | (none) |
 | **Battle pass** (RTM issue #12) | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | (none) |
@@ -272,9 +272,9 @@ adds to `gradle/libs.versions.toml`:
 | RBAC (RoleDefinition / Permission / DefaultRoles) | ✅ full + Postgres | (済) | P0 | `V4__permissions.sql` |
 | Permission keys (14 declared) | ✅ full | (済) | P0 | various `.requirePermission(...)` |
 | Console fallback for commands | ✅ full | (済) | P0 | `CommandPermission.kt` |
-| **Spectator mode** (player session state: InMatch / Lobby / Spectator / Dead) | ✅ Wave 5e (use case domain; GameMode mapping = Wave 6) | (済 Wave 5e) | P2 | (none) |
+| **Spectator mode** (player session state: InMatch / Lobby / Spectator / Dead) | ✅ Wave 5e (use case domain; GameMode mapping = Wave 6); Wave _persist-1 (V11 Postgres-backed SessionState) | (済 Wave 5e) | P2 | `plugin/persistence/.../adapter/repository/PostgresPlayerSessionRepository.kt` (V11) + ADR-0068 |
 | **Vanish / invisibility** (admin tool) | ❌ nothing | Wave 5e | P3 | (none) |
-| **Friend list / Party** (social) | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
+| **Friend list / Party** (social) | ✅ Wave 5e (domain + use case + Fake); Wave _persist-1 (V12/V13 Postgres) | (済 Wave 5e) | P2 | `plugin/persistence/.../adapter/repository/PostgresFriendshipRepository.kt` (V12 canonical-pair) + `PostgresPartyRepository.kt` (V13 party_members FK) + ADR-0068 |
 | **Team chat channel** | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
 | **Audit log domain + table** | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
 | **Player inventory snapshot save/restore (RTM issue #5)** | ✅ Wave 5e (domain + V10; Paper serializer = Wave 6b) | (済 Wave 5e) | **P1** | grep `InventorySnapshot|PlayerInventory` → 0 件 |
@@ -445,3 +445,4 @@ specific issue / file needs verification.
 
 - Wave 5e (2026-05-19): Session + Social + Tutorial + EnderChest + Reward bridge + Inventory snapshot V10 + Attribute container migration V14 + ADR-0034 + ADR-0058 → Accepted + ADR-0064 Accepted. 9 worker streams (α/β/γ/δ/ε/ζ/ι/θ1 in Group B1; η/θ2 in Group B2). +5 Flyway migrations, +6 domain event variants, +120 unit tests, +4 Postgres ITs.
 - Wave _ops (2026-05-19): Observability substrate — Micrometer 1.14.6 + Prometheus export via IMetricsRegistry port + HttpMetricsServer (/metrics @ 9092) + KEDA ScaledObject for game pod autoscaling + ADR-0023 Sealed-Secrets + ADR-0024 Provider 路線 (hybrid 事後記録 + Phase 4 governance)
+- Wave _persist-1 (2026-05-19): Cat 8 persistence closure — 4 Postgres repositories V11/V12/V13/V15 (SessionState/Friendship/Party/RewardBridge outbox) + ADR-0068 Cross-server persistence boundary (Sealed: state holders MUST be Postgres-backed at priority=100, InMemory remains as dev/test fallback)

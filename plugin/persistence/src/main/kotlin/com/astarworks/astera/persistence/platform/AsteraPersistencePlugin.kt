@@ -1,16 +1,20 @@
 package com.astarworks.astera.persistence.platform
 
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
+import com.astarworks.astera.core.application.port.outbound.IFriendshipRepository
 import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.INormaProgressRepository
+import com.astarworks.astera.core.application.port.outbound.IPartyRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
 import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
+import com.astarworks.astera.core.application.port.outbound.IRewardBridge
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.register
@@ -24,17 +28,21 @@ import com.astarworks.astera.persistence.connectAndMigrate
 import com.astarworks.astera.persistence.repository.PostgresCreatorRevenueRepository
 import com.astarworks.astera.persistence.repository.PostgresCurrencyIssuanceLog
 import com.astarworks.astera.persistence.repository.PostgresCurrencyLedger
+import com.astarworks.astera.persistence.repository.PostgresFriendshipRepository
 import com.astarworks.astera.persistence.repository.PostgresLoadoutRepository
 import com.astarworks.astera.persistence.repository.PostgresMarketplaceRepository
 import com.astarworks.astera.persistence.repository.PostgresMatchRepository
 import com.astarworks.astera.persistence.repository.PostgresNormaProgressRepository
 import com.astarworks.astera.persistence.repository.PostgresAuditLogRepository
+import com.astarworks.astera.persistence.repository.PostgresPartyRepository
 import com.astarworks.astera.persistence.repository.PostgresPermissionService
 import com.astarworks.astera.persistence.repository.PostgresPersonalVaultRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerAttributeContainer
 import com.astarworks.astera.persistence.repository.PostgresPlayerInventorySnapshotRepository
+import com.astarworks.astera.persistence.repository.PostgresPlayerSessionRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSettingsRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
+import com.astarworks.astera.persistence.repository.PostgresRewardBridge
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
@@ -147,6 +155,25 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             PostgresPlayerInventorySnapshotRepository(ctx.database),
             priority = 100,
         )
+        // Wave _persist-1: cross-server persistence landmines closed (ADR-0068).
+        // SessionState / Friendship / Party / Reward outbox all DB-backed so
+        // pod kill / cross-server traversal preserves state.
+        registrations += services.register<IPlayerSessionRepository>(
+            PostgresPlayerSessionRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<IFriendshipRepository>(
+            PostgresFriendshipRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<IPartyRepository>(
+            PostgresPartyRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<IRewardBridge>(
+            PostgresRewardBridge(ctx.database),
+            priority = 100,
+        )
 
         // Wave 5f (ADR-0035): currency issuance log + marketplace + creator revenue.
         registrations += services.register<ICurrencyIssuanceLog>(
@@ -169,7 +196,9 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "ILoadoutRepository, IPersonalVaultRepository, " +
                 "IPlayerSettingsRepository, IAuditLogRepository, " +
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
-                "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository.",
+                "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
+                "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
+                "IRewardBridge.",
         )
     }
 
