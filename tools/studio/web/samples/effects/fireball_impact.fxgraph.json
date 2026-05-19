@@ -1,0 +1,118 @@
+{
+  "format_version": "1.0",
+  "name": "fireball_impact",
+  "size": [32, 32],
+  "frames": 16,
+  "frame_time_ticks": 1,
+  "loop": true,
+  "nodes": [
+    {
+      "id": "hot_core",
+      "type": "particle.emitter",
+      "params": {
+        "count": 60,
+        "spawn_origin": [16, 16],
+        "spawn_radius": 1.5,
+        "spawn_mode": "burst",
+        "velocity_min": 0.8,
+        "velocity_max": 3.5,
+        "velocity_direction": "radial",
+        "velocity_angle_deg": 0,
+        "lifetime_frames": 10,
+        "size_start": 3,
+        "size_end": 0.5,
+        "shape": "dot",
+        "gradient": [
+          { "t": 0, "color": "#ffffff" },
+          { "t": 0.2, "color": "#fff5b8" },
+          { "t": 0.5, "color": "#fb923c" },
+          { "t": 0.8, "color": "#b91c1c" },
+          { "t": 1, "color": "#00000000" }
+        ],
+        "seed": 7
+      },
+      "pos": { "x": 40, "y": 40 }
+    },
+    {
+      "id": "debris",
+      "type": "particle.emitter",
+      "params": {
+        "count": 22,
+        "spawn_origin": [16, 16],
+        "spawn_radius": 0.5,
+        "spawn_mode": "burst",
+        "velocity_min": 1.5,
+        "velocity_max": 4.5,
+        "velocity_direction": "radial",
+        "velocity_angle_deg": 0,
+        "lifetime_frames": 14,
+        "size_start": 1.4,
+        "size_end": 0.4,
+        "shape": "dot",
+        "gradient": [
+          { "t": 0, "color": "#7c2d12" },
+          { "t": 0.5, "color": "#3f1d09" },
+          { "t": 1, "color": "#00000000" }
+        ],
+        "seed": 42
+      },
+      "pos": { "x": 40, "y": 260 }
+    },
+    {
+      "id": "shock_ring",
+      "type": "shape.ring",
+      "params": {
+        "cx": 16, "cy": 16, "radius": 3, "thickness": 1, "color": "#fed7aa"
+      },
+      "pos": { "x": 40, "y": 480 }
+    },
+    {
+      "id": "shock_pulse",
+      "type": "anim.scale_ramp",
+      "params": {
+        "from": 0.5,
+        "to": 4.0,
+        "start_frame": 0,
+        "duration_frames": 9,
+        "easing": "ease_out",
+        "after": "fade"
+      },
+      "pos": { "x": 300, "y": 480 }
+    },
+
+    {
+      "id": "fx_combine_a",
+      "type": "composite.add",
+      "params": {},
+      "pos": { "x": 560, "y": 150 }
+    },
+    {
+      "id": "fx_combine_b",
+      "type": "composite.add",
+      "params": {},
+      "pos": { "x": 820, "y": 320 }
+    },
+    {
+      "id": "bloom",
+      "type": "filter.bloom",
+      "params": {
+        "threshold": 0.3, "radius": 3, "intensity": 1.5, "saturation": 1.5,
+        "color": "#ffd28a"
+      },
+      "pos": { "x": 1080, "y": 320 }
+    },
+    { "id": "out", "type": "output", "params": {}, "pos": { "x": 1320, "y": 320 } }
+  ],
+  "edges": [
+    { "from": "hot_core", "to": "fx_combine_a", "in": "a" },
+    { "from": "debris", "to": "fx_combine_a", "in": "b" },
+
+    { "from": "shock_ring", "to": "shock_pulse", "in": "image" },
+
+    { "from": "fx_combine_a", "to": "fx_combine_b", "in": "a" },
+    { "from": "shock_pulse", "to": "fx_combine_b", "in": "b" },
+
+    { "from": "fx_combine_b", "to": "bloom", "in": "image" },
+    { "from": "bloom", "to": "out", "in": "image" }
+  ]
+}

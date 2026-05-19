@@ -1,0 +1,64 @@
+{
+  "_comment": "Astera Shape DSL — longsword template. Load via `bun run studio asdsl load-file <path>` then `asdsl set-var blade_length 14` to actually adjust geometry. All numeric fields below reference @vars so set-var propagates.",
+  "name": "longsword_v1",
+  "params": {
+    "blade_length": 12,
+    "blade_base_width": 2,
+    "blade_base_depth": 1,
+    "blade_tip_width": 0.5,
+    "blade_tip_depth": 0.3,
+    "guard_width": 6,
+    "guard_height": 1.5,
+    "guard_depth": 2,
+    "guard_chamfer": 0.3,
+    "grip_length": 3,
+    "grip_diameter": 1.4,
+    "pommel_diameter": 2.2
+  },
+  "textures": {
+    "blade_body": "minecraft:block/iron_block",
+    "blade_edge": "minecraft:block/diamond_block",
+    "metal_warm": "minecraft:block/gold_block",
+    "wood": "minecraft:block/dark_oak_planks",
+    "gem": "minecraft:block/amethyst_block"
+  },
+  "parts": {
+    "blade": {
+      "kind": "tapered_prism",
+      "axis": "y",
+      "base_size": ["@blade_base_width", "@blade_base_depth"],
+      "tip_size": ["@blade_tip_width", "@blade_tip_depth"],
+      "length": "@blade_length",
+      "tip_style": "pointed_rot",
+      "cross_section": "octagon"
+    },
+    "guard": {
+      "kind": "chamfered_cuboid",
+      "size": ["@guard_width", "@guard_height", "@guard_depth"],
+      "chamfer": "@guard_chamfer",
+      "axis": "y",
+      "relative_to": "blade",
+      "align": "base_center",
+      "delta_y": -1.5
+    },
+    "grip": {
+      "kind": "cylinder",
+      "axis": "y",
+      "length": "@grip_length",
+      "diameter": "@grip_diameter",
+      "relative_to": "guard",
+      "align": "base_center",
+      "delta_y": -3
+    },
+    "pommel": {
+      "kind": "sphere",
+      "diameter": "@pommel_diameter",
+      "relative_to": "grip",
+      "align": "base_center",
+      "delta_y": -2
+    }
+  },
+  "face_overrides": {},
+  "quality": "medium",
+  "display": { "gui_rotation_z": 45, "gui_scale": 0.65 }
+}

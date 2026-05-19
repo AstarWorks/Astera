@@ -1,0 +1,128 @@
+{
+  "format_version": "1.0",
+  "name": "poison_aura",
+  "size": [32, 32],
+  "frames": 24,
+  "frame_time_ticks": 2,
+  "loop": true,
+  "nodes": [
+    {
+      "id": "green_base",
+      "type": "generate.gradient_radial",
+      "params": {
+        "cx": 16, "cy": 16,
+        "inner_radius": 4,
+        "outer_radius": 16,
+        "color_inner": "#bbf7d0",
+        "color_outer": "#14532d"
+      },
+      "pos": { "x": 40, "y": 40 }
+    },
+    {
+      "id": "noise",
+      "type": "noise.perlin",
+      "params": {
+        "scale": 5,
+        "seed": 17,
+        "octaves": 3
+      },
+      "pos": { "x": 40, "y": 220 }
+    },
+    {
+      "id": "tinted_noise",
+      "type": "composite.multiply",
+      "params": {},
+      "pos": { "x": 360, "y": 130 }
+    },
+
+    {
+      "id": "ring_mask",
+      "type": "shape.ring",
+      "params": {
+        "cx": 16, "cy": 16,
+        "radius": 11,
+        "thickness": 8,
+        "color": "#ffffff"
+      },
+      "pos": { "x": 40, "y": 400 }
+    },
+    {
+      "id": "fog_in_ring",
+      "type": "composite.multiply",
+      "params": {},
+      "pos": { "x": 680, "y": 250 }
+    },
+
+    {
+      "id": "bubbles",
+      "type": "particle.emitter",
+      "params": {
+        "count": 12,
+        "spawn_origin": [16, 22],
+        "spawn_radius": 7,
+        "spawn_mode": "continuous",
+        "velocity_min": 0.2,
+        "velocity_max": 0.5,
+        "velocity_direction": "angle",
+        "velocity_angle_deg": -90,
+        "lifetime_frames": 18,
+        "size_start": 1.6,
+        "size_end": 0.4,
+        "shape": "dot",
+        "gradient": [
+          { "t": 0, "color": "#166534" },
+          { "t": 0.4, "color": "#4ade80" },
+          { "t": 0.8, "color": "#bbf7d0" },
+          { "t": 1, "color": "#00000000" }
+        ],
+        "seed": 31
+      },
+      "pos": { "x": 40, "y": 580 }
+    },
+    {
+      "id": "bubbles_trail",
+      "type": "filter.trail",
+      "params": {
+        "decay": 0.85,
+        "mode": "over"
+      },
+      "pos": { "x": 360, "y": 580 }
+    },
+
+    {
+      "id": "fog_with_bubbles",
+      "type": "composite.over",
+      "params": {},
+      "pos": { "x": 1000, "y": 400 }
+    },
+
+    {
+      "id": "bloom",
+      "type": "filter.bloom",
+      "params": {
+        "threshold": 0.5,
+        "radius": 2,
+        "intensity": 0.9,
+        "saturation": 1.4,
+        "color": "#86efac"
+      },
+      "pos": { "x": 1280, "y": 400 }
+    },
+    { "id": "out", "type": "output", "params": {}, "pos": { "x": 1520, "y": 400 } }
+  ],
+  "edges": [
+    { "from": "green_base", "to": "tinted_noise", "in": "a" },
+    { "from": "noise", "to": "tinted_noise", "in": "b" },
+
+    { "from": "tinted_noise", "to": "fog_in_ring", "in": "a" },
+    { "from": "ring_mask", "to": "fog_in_ring", "in": "b" },
+
+    { "from": "bubbles", "to": "bubbles_trail", "in": "image" },
+
+    { "from": "bubbles_trail", "to": "fog_with_bubbles", "in": "a" },
+    { "from": "fog_in_ring", "to": "fog_with_bubbles", "in": "b" },
+
+    { "from": "fog_with_bubbles", "to": "bloom", "in": "image" },
+    { "from": "bloom", "to": "out", "in": "image" }
+  ]
+}

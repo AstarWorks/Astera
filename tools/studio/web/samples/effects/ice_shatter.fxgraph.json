@@ -1,0 +1,120 @@
+{
+  "format_version": "1.0",
+  "name": "ice_shatter",
+  "size": [32, 32],
+  "frames": 16,
+  "frame_time_ticks": 1,
+  "loop": true,
+  "nodes": [
+    {
+      "id": "shard_inner",
+      "type": "shape.polygon",
+      "params": {
+        "cx": 16, "cy": 16,
+        "radius": 4,
+        "sides": 6,
+        "rotation_deg": 0,
+        "color": "#ffffff"
+      },
+      "pos": { "x": 40, "y": 40 }
+    },
+    {
+      "id": "shard_mid",
+      "type": "shape.polygon",
+      "params": {
+        "cx": 16, "cy": 16,
+        "radius": 8,
+        "sides": 5,
+        "rotation_deg": 36,
+        "color": "#bae6fd"
+      },
+      "pos": { "x": 40, "y": 200 }
+    },
+    {
+      "id": "shard_outer",
+      "type": "shape.polygon",
+      "params": {
+        "cx": 16, "cy": 16,
+        "radius": 11,
+        "sides": 3,
+        "rotation_deg": 60,
+        "color": "#7dd3fc"
+      },
+      "pos": { "x": 40, "y": 360 }
+    },
+
+    {
+      "id": "shards_a",
+      "type": "composite.over",
+      "params": {},
+      "pos": { "x": 340, "y": 120 }
+    },
+    {
+      "id": "shards_b",
+      "type": "composite.over",
+      "params": {},
+      "pos": { "x": 600, "y": 240 }
+    },
+
+    {
+      "id": "outline",
+      "type": "filter.outline",
+      "params": {
+        "thickness": 1,
+        "color": "#e0f2fe",
+        "mode": "outside"
+      },
+      "pos": { "x": 860, "y": 240 }
+    },
+
+    {
+      "id": "burst",
+      "type": "anim.scale_ramp",
+      "params": {
+        "from": 0.3,
+        "to": 2.5,
+        "start_frame": 0,
+        "duration_frames": 8,
+        "easing": "ease_out",
+        "after": "fade"
+      },
+      "pos": { "x": 1120, "y": 240 }
+    },
+
+    {
+      "id": "echo",
+      "type": "filter.trail",
+      "params": {
+        "decay": 0.65,
+        "mode": "over"
+      },
+      "pos": { "x": 1380, "y": 240 }
+    },
+
+    {
+      "id": "bloom",
+      "type": "filter.bloom",
+      "params": {
+        "threshold": 0.4,
+        "radius": 3,
+        "intensity": 1.0,
+        "saturation": 1.3,
+        "color": "#bae6fd"
+      },
+      "pos": { "x": 1640, "y": 240 }
+    },
+    { "id": "out", "type": "output", "params": {}, "pos": { "x": 1900, "y": 240 } }
+  ],
+  "edges": [
+    { "from": "shard_inner", "to": "shards_a", "in": "a" },
+    { "from": "shard_mid", "to": "shards_a", "in": "b" },
+    { "from": "shards_a", "to": "shards_b", "in": "a" },
+    { "from": "shard_outer", "to": "shards_b", "in": "b" },
+
+    { "from": "shards_b", "to": "outline", "in": "image" },
+    { "from": "outline", "to": "burst", "in": "image" },
+    { "from": "burst", "to": "echo", "in": "image" },
+    { "from": "echo", "to": "bloom", "in": "image" },
+    { "from": "bloom", "to": "out", "in": "image" }
+  ]
+}

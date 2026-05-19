@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noImplicitAny": true,
+    "jsx": "preserve",
+    "types": ["bun-types"],
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": true,
+    "useDefineForClassFields": true
+  },
+  "include": ["src/**/*", "src/**/*.vue", "server/**/*"]
+}
