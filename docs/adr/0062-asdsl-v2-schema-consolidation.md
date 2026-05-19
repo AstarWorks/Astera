@@ -1,5 +1,5 @@
 ---
-status: Proposed
+status: Accepted
 date: 2026-05-19
 deciders: ryuzu
 supersedes: null
@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
