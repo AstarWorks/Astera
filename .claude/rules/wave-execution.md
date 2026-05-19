@@ -89,16 +89,20 @@ Use the `adr-new` skill to scaffold.
 
 ## Off-limits paths (do not touch in normal waves)
 
-Asset / studio tracks own these. Touching them outside their own waves causes
+Texture-gen still has its own track. Touching it outside its own waves causes
 churn and merge friction:
 
 - `tools/texture-gen/` and `.claude/skills/generate-textures/`
-- `tools/studio/`, `tools/model-gen/`, `.claude/skills/build-model/`
-- `content/models/`
 - `.playwright-mcp/`
-- Top-level PNG screenshots: `studio-*.png`, `amethyst-*.png`, `wave2-*.png`,
-  `wave3-*.png`
-- `docs/adr/0017-adopt-datadriven-contents-pattern.md`,
-  `docs/adr/0018-ai-asset-creation-policy.md` — separate landing track
 
-If a wave's handoff doc explicitly owns one of these, follow the handoff.
+Per [[adr/0066-promote-studio-to-mainline]] (2026-05-19), the following are
+**no longer off-limits**: `tools/studio/`, `tools/model-gen/`,
+`.claude/skills/build-model/`, `content/models/`. Normal waves may modify
+them, subject to keeping `bun run typecheck` and `bun test` green inside
+`tools/studio/web/`.
+
+Top-level iteration PNGs (`studio-*.png`, `amethyst-*.png`, `wave?-*.png`)
+are now gitignored — never commit them.
+
+If a wave's handoff doc explicitly owns a texture-gen path, follow the
+handoff.

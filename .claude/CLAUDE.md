@@ -12,6 +12,30 @@ Load this before generating code or making infrastructure changes inside
 - **`docs/IMPLEMENTATION-ROADMAP.md`** — 12-tier master roadmap (SSOT for ordering).
 - **`docs/RTM-PARITY-TRACKER.md`** — feature × state matrix (SSOT for "what's left").
 
+## Pre-release posture (Phase 1 PoC closing)
+
+Astera は **Phase 1 PoC closing 中** (Wave 5a–5f → Wave 6a–b で end-to-end
+PoC 達成予定)。リリースまで外部利用者は 0 なので、**後方互換性は要求しない**:
+
+- public API の field / method 名はいつでも rename / remove 可
+- YAML schema の field 名・形は freely 破壊的変更 (dual-decoder / fallback
+  shim は書かない)
+- DB migration は up-only (down は不要、テスト DB は wipe-and-rebuild)
+- 既存 ADR の supersede / withdrawal は躊躇しない (ADR Status 仕様内で正規)
+- 既存テストの大規模書き換えは新設計が clean になるなら積極的に
+
+**やらないこと**: `@Deprecated` を残す / 旧 type を fallback shim にする /
+旧 YAML 形を accept する dual-decoder を書く / 「移行期間」を設ける。
+
+**なぜ**: bridge code はリリース後に正解設計を歪める負債。今のうちに**真に
+長期的に効く設計**を選ぶための余裕を作る。Wave 5a-fix が `WeaponDamageRule`
+を一方的に削除し `ArmorSpec.damageReduction: Double` → `reduction:
+ArmorReduction` に置換したのが好例 (ADR-0030/0058 の forward-only commit
+方針と整合)。
+
+**境界**: Phase 1 PoC を脱した時点で本 section を supersede する別 ADR
+(post-release compatibility policy) を起草。それまでは破壊的変更を恐れない。
+
 ## Session bootstrap (Wave protocol)
 
 When the user triggers a `Wave Nx` prompt, read in this order **before**
@@ -62,8 +86,9 @@ SSOT.
   per-plugin internal package structure, "when you touch X" guide.
 - `.claude/rules/coding-posture.md` — Kotlin/JDK versions, DI choice, test
   framework, ADR discipline.
-- `.claude/rules/ai-delegation.md` — Phase 1 AI usage policy + studio/texture
-  carve-out (ADR-0018).
+- `.claude/rules/ai-delegation.md` — Phase 1 AI usage policy. Studio +
+  model-gen + build-model skill are mainline (ADR-0066); texture-gen is
+  still carve-out (ADR-0018).
 
 ## Harness helpers
 

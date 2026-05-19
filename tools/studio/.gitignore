@@ -1,0 +1,14 @@
+# Web UI build / tooling artifacts (per ADR-0066: studio is mainline, but
+# these regenerate from source so they never belong in git).
+web/node_modules/
+web/dist/
+web/.bun-cache/
+web/.vite/
+
+# Vanilla MC asset cache — populated by `bun run fetch:vanilla` from the
+# official Mojang launchermeta. NEVER commit (Mojang asset re-distribution).
+.vanilla-cache/
+
+# Per-run iteration record (screenshots + decisions.md the AI builds up
+# while it iterates on a model). Kept off git so reruns don't churn diffs.
+web/.iter/

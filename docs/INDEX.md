@@ -14,6 +14,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 - **Wave 実行プロトコル** → [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) + [`.claude/rules/wave-execution.md`](../.claude/rules/wave-execution.md)
 - **インフラ構成** → [infrastructure/overview.md](infrastructure/overview.md)
 - **用語が分からない** → [glossary.md](glossary.md)
+- **CAD × LLM サーベイ** → [research/model-gen-llm-survey.md](research/model-gen-llm-survey.md) — 3D 生成 SOTA + Astera 改善ロードマップ
 
 ## セクション
 
@@ -27,6 +28,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 | [`contributing/`](contributing/) | コントリビュータ参加導線 (YAML / Kotlin / Web / Discord) |
 | [`game-design/`](game-design/) | ゲーム企画。Siege / UGC / Place / 武器 / 経済など |
 | [`ai-pipeline/`](ai-pipeline/) | AI 委託パイプライン (Phase 6 で本格化) |
+| [`research/`](research/) | 業界調査 / サーベイ (CAD × LLM, モデル生成手法 等) |
 | [`security/`](security/) | 公開可能な範囲のセキュリティ方針 |
 | [`reference/`](reference/) | 自動生成リファレンス (YAML / port / event) |
 
