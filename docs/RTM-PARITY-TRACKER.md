@@ -74,10 +74,10 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 96 | 66.7% |
+| ✅ full | 102 | 70.8% |
 | 🟨 partial | 3 | 2.1% |
 | 🔌 port-only | 7 | 4.9% |
-| ❌ nothing | 38 | 26.4% |
+| ❌ nothing | 32 | 22.2% |
 | **Total tracked** | **144** | 100% |
 
 (Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability); Wave _persist-1 で Cat 8 持続化補完 — SessionState/Friendship/Party/RewardBridge の 4 Postgres impl (V11/V12/V13/V15 + ADR-0068 Cross-server persistence boundary))
@@ -133,8 +133,8 @@ adds to `gradle/libs.versions.toml`:
 | Hit profile (3 sealed: Sphere / Box / Sweep) | ✅ enum, impl ❌ | **Wave 6** | P0 | `HitProfile.kt` |
 | OnHitEffect (6 sealed: DealDamage / Explode / InflictStatus / SpawnChild / PlaySound / SpawnParticle) | ✅ enum, dispatch ❌ | **Wave 6** | P0 | `OnHitEffect.kt` |
 | Vec3 math (normalize / dot / cross / length / distance) | ✅ Wave 5a Tier 0 prep + `MutableVec3` in-place 同等 | (済 Wave 5a) | P0 | `plugin/core/.../domain/geometry/Vec3.kt` |
-| **CEL expression language for skill** (RTM issue #21) | ❌ nothing | **Wave 5f** | P3 | (none) |
-| **Particle definition system** (RTM issue #21) | ❌ nothing | **Wave 5f** | P3 | (none) |
+| **CEL expression language for skill** (RTM issue #21) | ✅ Wave 5f (`CelSkillScript` + `CelContext` + `ICelEvaluator` port + `StubCelEvaluator` impl + 77 unit tests; ADR-0035) | (済 Wave 5f) | P3 | `plugin/combat/.../domain/skill/expression/` + `plugin/combat/.../application/port/outbound/ICelEvaluator.kt` + `plugin/combat/.../application/service/StubCelEvaluator.kt` |
+| **Particle definition system** (RTM issue #21) | ✅ Wave 5f (`ParticleDefinition` + `ParticleShape` sealed (Point/Sphere/Ring/Line/Cone) + `ParticleContents` + `IParticleRegistry` port + `content/particles/{example-burst,example-ring}.yaml` + `particle.schema.json` + 137 unit tests; ADR-0035) | (済 Wave 5f) | P3 | `plugin/core/.../domain/effect/{ParticleDefinition,ParticleShape}.kt` + `plugin/core/.../application/{config/ParticleYamlConfig,contents/ParticleContents,port/outbound/IParticleRegistry}.kt` |
 | **DamageHistoryService** (sliding-window damage attribution + assist credit) | ✅ full (Wave 5a-fix2) — `IDamageHistoryService` + `InMemoryDamageHistoryService` (ring buffer cap 64, 5-sec default window) + `AssistAttributionUseCase` | (済 Wave 5a-fix2) | **P1** | `plugin/combat/.../application/{port/outbound/IDamageHistoryService.kt,service/InMemoryDamageHistoryService.kt,usecase/damage/AssistAttributionUseCase.kt}` + ADR-0063 |
 | **assist counter on PlayerStats** (`assists: Long` event-source path) | ✅ full (Wave 5a-fix2) — `AssistCredited` event + `RecordAssistOnAssistCreditedListener` + `RecordAssistUseCase`; column / field pre-existed Wave 3 | (済 Wave 5a-fix2) | **P1** | `plugin/combat/.../domain/event/AssistCredited.kt` + `plugin/stats/.../usecase/stats/RecordAssistUseCase.kt` |
 | **SkillTrigger enum 14 値追加** (LEFT_CLICK_BLOCK / RIGHT_CLICK_BLOCK / LEFT_CLICK_AIR / RIGHT_CLICK_AIR / INTERACT / SHOOT / BLOCK_BREAK / CONSUME / CROUCH / JUMP / SPRINT / DROP / STACK_DROP / PICKUP / HYPER / ATTACK / SHIELD / DAMAGED / DEATH / SYSTEM) | ✅ enum 20 値 (Wave 5a-fix2) | (済 Wave 5a-fix2 vocabulary; Bukkit handlers Wave 6) | P1 | RTM `model/skill/SkillTrigger.kt` parity |
@@ -201,7 +201,7 @@ adds to `gradle/libs.versions.toml`:
 | Inventory Framework 0.10.13 dep (RTM) | (Astera self-builds via `IGuiAdapter`) | ✅ Wave 4 (full) | P0 | ADR-0021 + Wave 4 ✅ |
 | Declarative GUI (Wave 4) | ✅ full | (済) | P0 | Wave 4 ✅ |
 | Reactive GUI binding (`player.loadout.main`) | ✅ ItemId 系のみ (Wave 4.5) | (済) | P0 | `DefaultGuiBindingResolver.kt`; 数値 binding は **Wave 5f** で `ResolvedReactiveSlot` 拡張 |
-| Reactive GUI binding (numeric / display override) | ❌ nothing | Wave 5f | P2 | (none) |
+| Reactive GUI binding (numeric / display override) | ✅ Wave 5f (`ResolvedReactiveSlot` data class + numeric/display/count binding via `DefaultGuiBindingResolver` + `PaperItemTemplateRenderer` override application + 255 unit tests; ADR-0035) | (済 Wave 5f) | P2 | `plugin/core/.../domain/gui/ResolvedReactiveSlot.kt` + `plugin/core/.../application/service/DefaultGuiBindingResolver.kt` (expansion) + `plugin/core/.../adapter/paper/gui/PaperItemTemplateRenderer.kt` (expansion) |
 
 ---
 
@@ -230,11 +230,11 @@ adds to `gradle/libs.versions.toml`:
 | Reward listeners (kill / match-win / mission → currency) | ✅ full | (済) | P0 | (Wave 1-2) |
 | **Ender Chest / Personal Vault** (RTM issue #3) | ✅ Wave 5e (`IPersonalVaultService` + Postgres) | (済 Wave 5e) | **P1** | grep `EnderChest|PersonalVault` → 0 件 |
 | **Reward 2-server flow** (game→Redis→lobby、RTM issue #6) | ✅ Wave 5e (in-memory; Redis swap = Wave 6); Wave _persist-1 (V15 RewardBridge outbox durable queue) | (済 Wave 5e) | P1 | `plugin/persistence/.../adapter/repository/PostgresRewardBridgeRepository.kt` (V15 outbox + delivered_at) + ADR-0068 |
-| **Player marketplace** (RTM issue #12) | ❌ nothing | **Wave 5f** | P2 | (none) |
-| **Creator revenue sharing** (RTM issue #12) | ❌ nothing | Wave 5f | P2 | (none) |
+| **Player marketplace** (RTM issue #12) | ✅ Wave 5f (`MarketplaceListing` + `ListingStatus` sealed (Available/Sold/Cancelled) + `IMarketplaceRepository` port + in-memory + Postgres impl (V12) + 3 use cases (Create/Purchase/Cancel) + 137 integration test; ADR-0035) | (済 Wave 5f) | P2 | `plugin/economy/.../domain/marketplace/` + `plugin/economy/.../application/port/outbound/IMarketplaceRepository.kt` + `plugin/economy/.../application/usecase/marketplace/` + `plugin/persistence/.../repository/PostgresMarketplaceRepository.kt` |
+| **Creator revenue sharing** (RTM issue #12) | ✅ Wave 5f (`CreatorRevenue` + `CreatorRevenueCalculator` (post-fee-remainder split: 1000 → 810/90/100 at default 10%/10%) + `ICreatorRevenueRepository` port + in-memory + Postgres impl (V13) + 146 unit tests + 62 integration tests; ADR-0035) | (済 Wave 5f) | P2 | `plugin/economy/.../domain/marketplace/CreatorRevenue.kt` + `plugin/economy/.../application/service/CreatorRevenueCalculator.kt` + `plugin/economy/.../application/port/outbound/ICreatorRevenueRepository.kt` + `plugin/persistence/.../repository/PostgresCreatorRevenueRepository.kt` |
 | **Battle pass** (RTM issue #12) | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | (none) |
 | **Cosmetics (skin / emote / BGM packs)** (RTM issue #11) | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | (none) |
-| **JP regulatory currency compliance** (RTM issue #19: 6mo OR ¥10M cap, non-redeemable, dual-currency) | ❌ nothing | **Wave 5f** | **P2 (legal)** | (none) |
+| **JP regulatory currency compliance** (RTM issue #19: 6mo OR ¥10M cap, non-redeemable, dual-currency) | ✅ Wave 5f (`CurrencyPolicy` 4-axis sealed spec (expirable/circulationCap/redeemable/tradable) + `SourceClass` sealed + `CurrencyPolicies` hardcoded map (STAR/GOLD/GEM, JP 資金決済法 Articles 4/7/13 aligned) + `IEnforceCurrencyPolicyUseCase` + `ExpireCurrencyUseCase` daily sweep + `ICurrencyIssuanceLog` port + in-memory + Postgres impl (V11) + 391 unit tests; ADR-0035) | (済 Wave 5f) | **P2 (legal)** | `plugin/economy/.../domain/policy/{CurrencyPolicy,SourceClass,CurrencyPolicies}.kt` + `plugin/economy/.../application/usecase/policy/{EnforceCurrencyPolicyUseCase,ExpireCurrencyUseCase}.kt` + `plugin/economy/.../application/port/outbound/ICurrencyIssuanceLog.kt` + `plugin/persistence/.../repository/PostgresCurrencyIssuanceLog.kt` |
 | Bank / multi-currency account view | ❌ nothing | Phase 4 | P3 | (none) |
 | **Gacha / Roll system (50% pull-up per RTM README)** | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | (none — RTM README documented "天井確率") |
 | **ShopCategory** (タブ式 / カテゴリ別 browse) | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | Wave 4.5 Shop は flat ShopSpec のみ |
@@ -444,5 +444,6 @@ specific issue / file needs verification.
 ## Completed waves
 
 - Wave 5e (2026-05-19): Session + Social + Tutorial + EnderChest + Reward bridge + Inventory snapshot V10 + Attribute container migration V14 + ADR-0034 + ADR-0058 → Accepted + ADR-0064 Accepted. 9 worker streams (α/β/γ/δ/ε/ζ/ι/θ1 in Group B1; η/θ2 in Group B2). +5 Flyway migrations, +6 domain event variants, +120 unit tests, +4 Postgres ITs.
+- Wave 5f (2026-05-19): Marketplace + JP currency compliance + CEL + particles + reactive GUI binding (6 RTM rows ❌→✅). Marketplace: MarketplaceListing + ListingStatus + 3 use cases (Create/Purchase/Cancel) + Postgres V12 + 137 IT. Creator Revenue: post-fee-remainder split algo + 146 unit + 62 IT. JP Compliance: CurrencyPolicy 4-axis + SourceClass + CurrencyPolicies map (STAR/GOLD/GEM per 資金決済法) + EnforceCurrencyPolicy + ExpireCurrency daily sweep + ICurrencyIssuanceLog port + Postgres V11 + 391 unit. CEL: CelSkillScript + CelContext + ICelEvaluator port + StubCelEvaluator + 77 unit. Particles: ParticleDefinition + ParticleShape sealed + ParticleContents + IParticleRegistry port + 2 example YAML + schema + 137 unit. Reactive GUI: ResolvedReactiveSlot + numeric/display/count binding via DefaultGuiBindingResolver + PaperItemTemplateRenderer override application + 255 unit + 3 Postgres migrations (V11/V12/V13). **Total parity 66.7% → 70.8%** (96→102/144 ✅). ADR-0035 → Accepted.
 - Wave _ops (2026-05-19): Observability substrate — Micrometer 1.14.6 + Prometheus export via IMetricsRegistry port + HttpMetricsServer (/metrics @ 9092) + KEDA ScaledObject for game pod autoscaling + ADR-0023 Sealed-Secrets + ADR-0024 Provider 路線 (hybrid 事後記録 + Phase 4 governance)
 - Wave _persist-1 (2026-05-19): Cat 8 persistence closure — 4 Postgres repositories V11/V12/V13/V15 (SessionState/Friendship/Party/RewardBridge outbox) + ADR-0068 Cross-server persistence boundary (Sealed: state holders MUST be Postgres-backed at priority=100, InMemory remains as dev/test fallback)
