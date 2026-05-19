@@ -10,7 +10,7 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import {
-  repoRoot,
+  modelsContentDir,
   texturesDir,
   vanillaCacheDir,
   latestVanillaVersion,
@@ -20,7 +20,7 @@ export function slugToPath(slug: string): string | null {
   if (slug.startsWith('astera:')) {
     const sub = slug.slice('astera:'.length)
     if (sub.startsWith('models/')) {
-      return path.join(repoRoot, 'content', 'models', `${sub.slice('models/'.length)}.png`)
+      return path.join(modelsContentDir, `${sub.slice('models/'.length)}.png`)
     }
     return path.join(texturesDir, `${sub}.png`)
   }

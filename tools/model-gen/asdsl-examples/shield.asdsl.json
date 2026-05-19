@@ -1,0 +1,47 @@
+{
+  "_comment": "Astera Shape DSL — round shield template (disc_boss family). Flat wooden disc with a metal central boss and a rim ring.",
+  "name": "shield_v1",
+  "params": {
+    "disc_diameter": 14,
+    "disc_thickness": 1,
+    "rim_outer": 14,
+    "rim_inner": 12,
+    "rim_height": 1.4,
+    "rim_resolution": 16,
+    "boss_diameter": 4
+  },
+  "textures": {
+    "wood": "minecraft:block/oak_planks",
+    "rim_metal": "minecraft:block/copper_block",
+    "boss_metal": "minecraft:block/gold_block"
+  },
+  "parts": {
+    "disc": {
+      "kind": "cylinder",
+      "axis": "z",
+      "length": "@disc_thickness",
+      "diameter": "@disc_diameter",
+      "roundness": 3
+    },
+    "rim": {
+      "kind": "ring",
+      "axis": "z",
+      "outer": "@rim_outer",
+      "inner": "@rim_inner",
+      "height": "@rim_height",
+      "resolution": "@rim_resolution",
+      "relative_to": "disc",
+      "align": "center"
+    },
+    "boss": {
+      "kind": "sphere",
+      "diameter": "@boss_diameter",
+      "relative_to": "disc",
+      "align": "front_center",
+      "delta_z": 0.5
+    }
+  },
+  "face_overrides": {},
+  "quality": "medium",
+  "display": { "gui_rotation_z": 0, "gui_scale": 0.55 }
+}

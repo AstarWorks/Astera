@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { api } from '../api'
 import type { LoadedWeapon, WeaponListEntry } from '../api'
 import WeaponPreview from '../components/WeaponPreview.vue'
+import { useI18n } from '../lib/i18n'
 
 const list = ref<WeaponListEntry[]>([])
 const selectedSlug = ref<string | null>(null)
@@ -10,6 +11,8 @@ const loaded = ref<LoadedWeapon | null>(null)
 const error = ref<string | null>(null)
 const loadingList = ref(false)
 const loadingDetail = ref(false)
+
+const { locales, currentLocale, setLocale } = useI18n()
 
 async function loadList() {
   loadingList.value = true
@@ -81,14 +84,25 @@ onMounted(() => {
     <aside class="sidebar">
       <header class="sidebar-header">
         <h2>ウェポン</h2>
-        <button
-          class="refresh"
-          @click="loadList"
-          :disabled="loadingList"
-          title="Reload weapon list from content/weapons/"
-        >
-          {{ loadingList ? '…' : '↻' }}
-        </button>
+        <div class="header-actions">
+          <select
+            v-if="locales.length > 0"
+            class="locale-select"
+            :value="currentLocale"
+            @change="setLocale(($event.target as HTMLSelectElement).value)"
+            title="Locale for display_name_key / lore_key resolution"
+          >
+            <option v-for="loc in locales" :key="loc" :value="loc">{{ loc }}</option>
+          </select>
+          <button
+            class="refresh"
+            @click="loadList"
+            :disabled="loadingList"
+            title="Reload weapon list from content/weapons/"
+          >
+            {{ loadingList ? '…' : '↻' }}
+          </button>
+        </div>
       </header>
       <div v-if="error" class="error-banner">{{ error }}</div>
       <ul class="weapon-list">
@@ -150,6 +164,26 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 600;
   color: #eee;
+}
+.header-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.locale-select {
+  background: #26262b;
+  color: #d1d5db;
+  border: 1px solid #2a2a2f;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.locale-select:hover {
+  background: #3b82f6;
+  color: #fff;
 }
 .refresh {
   background: #26262b;

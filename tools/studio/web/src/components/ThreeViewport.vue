@@ -19,7 +19,15 @@ const emit = defineEmits<{
 
 const canvasContainer = ref<HTMLDivElement | null>(null)
 
-type CameraPreset = 'iso' | 'front' | 'top' | 'side' | 'item_gui'
+type CameraPreset =
+  | 'iso'
+  | 'front'
+  | 'back'
+  | 'top'
+  | 'bottom'
+  | 'side'
+  | 'left'
+  | 'item_gui'
 
 const CAMERA_PRESETS: Record<
   CameraPreset,
@@ -27,8 +35,11 @@ const CAMERA_PRESETS: Record<
 > = {
   iso: { position: [24, 20, 32], target: [8, 8, 8] },
   front: { position: [8, 8, 36], target: [8, 8, 8] },
+  back: { position: [8, 8, -20], target: [8, 8, 8] },
   side: { position: [36, 8, 8], target: [8, 8, 8] },
+  left: { position: [-20, 8, 8], target: [8, 8, 8] },
   top: { position: [8, 36, 8.01], target: [8, 8, 8] },
+  bottom: { position: [8, -20, 8.01], target: [8, 8, 8] },
   item_gui: { position: [8, 8, 32], target: [8, 8, 8], fov: 25 },
 }
 

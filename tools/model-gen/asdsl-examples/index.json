@@ -1,0 +1,35 @@
+{
+  "_comment": "ASDSL exemplar index — survey C6 (LL3M BlenderRAG → Astera adaptation). The build-model skill consults this before vision-decompose to find the nearest archetype. Tag-based lookup for now; embedding-similarity retrieval is a future Pack β/γ item.",
+  "exemplars": [
+    {
+      "slug": "longsword",
+      "kind": "weapon",
+      "shape_family": "blade_pommel",
+      "summary": "Two-handed straight sword with crossguard, cylindrical grip, and gem pommel"
+    },
+    {
+      "slug": "pickaxe",
+      "kind": "tool",
+      "shape_family": "head_handle",
+      "summary": "Mining pickaxe with iron head, copper binding, and dark-oak haft"
+    },
+    {
+      "slug": "axe",
+      "kind": "tool",
+      "shape_family": "head_handle",
+      "summary": "Wide-blade axe with tapered head, leather binding, and oak helve"
+    },
+    {
+      "slug": "wand",
+      "kind": "weapon",
+      "shape_family": "orb_shaft",
+      "summary": "Magical wand with amethyst orb tip, tapered octagonal shaft, and gem pommel"
+    },
+    {
+      "slug": "shield",
+      "kind": "armor",
+      "shape_family": "disc_boss",
+      "summary": "Round wooden shield with copper rim ring and central gold boss"
+    }
+  ]
+}

@@ -9,7 +9,7 @@ import {
 } from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
-import { jobFinalDir, texturesDir, scriptsDir, tmpDir } from '../paths'
+import { jobFinalDir, texturesDir, scriptsDir, resolveJobDir, isValidJobId } from '../paths'
 import { appendEntry } from '../manifest'
 
 export const tiles = new Hono()
@@ -26,7 +26,7 @@ function safeRelPath(rel: string): string {
 tiles.post('/:jobId/tiles/:name/accept', async (c) => {
   const jobId = c.req.param('jobId')
   const name = c.req.param('name')
-  if (!jobId.startsWith('texgen')) return c.json({ error: 'invalid jobId' }, 400)
+  if (!isValidJobId(jobId)) return c.json({ error: 'invalid jobId' }, 400)
   if (!name.endsWith('.png') || name.includes('/')) {
     return c.json({ error: 'invalid tile name' }, 400)
   }
@@ -56,8 +56,11 @@ tiles.post('/:jobId/tiles/:name/accept', async (c) => {
   renameSync(src, dst)
 
   let prompt: string | undefined
-  const pf = path.join(tmpDir, jobId, 'prompt.txt')
-  if (existsSync(pf)) prompt = readFileSync(pf, 'utf8')
+  const jobDir = resolveJobDir(jobId)
+  if (jobDir) {
+    const pf = path.join(jobDir, 'prompt.txt')
+    if (existsSync(pf)) prompt = readFileSync(pf, 'utf8')
+  }
 
   const tileIndex = name.match(/(r\d+_c\d+)/)?.[1]
   const entry = {
@@ -74,7 +77,7 @@ tiles.post('/:jobId/tiles/:name/accept', async (c) => {
 tiles.post('/:jobId/tiles/:name/reject', (c) => {
   const jobId = c.req.param('jobId')
   const name = c.req.param('name')
-  if (!jobId.startsWith('texgen')) return c.json({ error: 'invalid jobId' }, 400)
+  if (!isValidJobId(jobId)) return c.json({ error: 'invalid jobId' }, 400)
   if (!name.endsWith('.png') || name.includes('/')) {
     return c.json({ error: 'invalid tile name' }, 400)
   }
@@ -86,7 +89,7 @@ tiles.post('/:jobId/tiles/:name/reject', (c) => {
 tiles.post('/:jobId/tiles/:name/regenerate', async (c) => {
   const jobId = c.req.param('jobId')
   const name = c.req.param('name')
-  if (!jobId.startsWith('texgen')) return c.json({ error: 'invalid jobId' }, 400)
+  if (!isValidJobId(jobId)) return c.json({ error: 'invalid jobId' }, 400)
   if (!name.endsWith('.png') || name.includes('/')) {
     return c.json({ error: 'invalid tile name' }, 400)
   }

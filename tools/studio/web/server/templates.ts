@@ -9,7 +9,9 @@ import path from 'node:path'
 import type { McModel } from '../src/types'
 import { repoRoot } from './paths'
 
-const TEMPLATES_DIR = path.join(repoRoot, 'tools', 'model-gen', 'templates')
+const TEMPLATES_DIR =
+  process.env.STUDIO_MODEL_TEMPLATES_DIR ??
+  path.join(repoRoot, 'tools/model-gen/templates')
 
 export type TemplateEntry = {
   category: string

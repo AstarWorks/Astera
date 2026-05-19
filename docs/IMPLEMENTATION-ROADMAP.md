@@ -917,6 +917,8 @@ ADR-0010 (Generative AI policy deferred to Phase 6) はこの phase で finalize
 | Match flow rich + Game modes + Star Generator + Anomaly + Sudden Death | 5c | 48.4% (pre-saturation denom) | 11 (✅ `e9808a2`) |
 | World geometry + Block / Barrier / Schematic / MatchWorld / Restoration | 5d | 55.5% (pre-saturation denom) → 49.3% (post-saturation denom; same 71 ✅, larger catalog) | 11 (✅ `3849446`) |
 | Wave _infra-1 (Fake MC server + Scenario DSL + ADR-0059) | _infra-1 | — | 11 (✅ `a68c9bc`) |
+| Studio public release (env overrides + LICENSE + i18n route, ADR-0073) | _public | — | (📋 pending commit — this session) |
+| Wave _infra-5 (weapon→item→model chain, ADR-0070) | _infra-5 | — | (📋 planned, separate session) |
 | **2026-05-19 RTM saturation** (ADR-0029 §"Deep audit" + parity tracker +16 rows + CONTENT-ROADMAP) | docs | denom 128→144 | 12 (✅) |
 | **Damage attribution + SkillTrigger 6→20** (ADR-0060 follow-up to 5a) | **5a-fix2** | +3 rows ✅ projected (~51% post-saturation denom) | 13 (✅ `d65bf13`) |
 | Session + Social + Tutorial + Inventory snapshot + Attribute migration + PersonalSettings (4 typed fields) + PlayerPin + LevelUpMission + PortalReady event | 5e | 65.3% (post-saturation denom; 94 ✅ / 144 rows) | 14 (✅ pending commit — Wave 5e Phase C close) |
@@ -990,8 +992,10 @@ Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 | **5a-fix2** | **0063** | **Damage Attribution Window** (sliding-window damage history + assist credit; ADR-0030 §1 追補) |
 | 5e (Listener-Service refactor sub-scope) | 0064 | Listener-Service separation pattern (RTM issue #22; ADR-0001 hexagonal の module-internal routing convention) |
 | **Wave _infra-2b** | **0065** | **Per-Category Reload Dispatcher** (Core-side `IReloadableContentsRegistry` + `/astera reload <category>` Brigadier command; consolidates per-plugin reload subcommands introduced in _infra-2a) |
+| Studio public release | 0069 | Studio promoted from Astera-internal mainline (ADR-0066) to OSS-publishable; env overrides + LICENSE + dual-audience README + `/api/languages` i18n; `/weapons` kept as Astera-extension reference. Closes ADR-0061 Mismatch B (i18n keys raw). |
+| Wave _infra-5 | 0070 | weapon→item→model chain: extend `ItemYamlConfig.kt` with optional `model:` field, Studio `/weapons` prefers item.model over ARCHETYPE_MODEL fallback. Closes ADR-0061 Mismatch C; A (visual quality of pistol/wand models) remains separate build-model session work. Handoff: `/home/node/.claude/plans/wave-_infra-5-handoff.md` |
 
-Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d). Drafted: 0059 (Wave _infra-1), 0060 (Wave _infra-2a, supersedes 0017), 0061 (Wave _infra-3), 0062 (asdsl-v2 schema-consolidation track, separate from Wave _infra-4), 0063 (5a-fix2), 0064 (5e Listener-Service sub-scope), 0065 (Wave _infra-2b), 0066 (promote-studio-to-mainline track, separate from Wave _infra-4), 0067 (Wave _infra-4 contentLint — originally reserved as 0062, bumped twice due to parallel-track collisions).
+Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d). Drafted: 0059 (Wave _infra-1), 0060 (Wave _infra-2a, supersedes 0017), 0061 (Wave _infra-3), 0062 (asdsl-v2 schema-consolidation track, separate from Wave _infra-4), 0063 (5a-fix2), 0064 (5e Listener-Service sub-scope), 0065 (Wave _infra-2b), 0066 (promote-studio-to-mainline track, separate from Wave _infra-4), 0067 (Wave _infra-4 contentLint — originally reserved as 0062, bumped twice due to parallel-track collisions), 0069 (Studio public release track, parallel to Wave _infra-5), 0070 (Wave _infra-5 weapon→item→model chain).
 
 ---
 

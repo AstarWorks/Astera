@@ -8,9 +8,9 @@
  */
 import { existsSync, readFileSync, mkdirSync, renameSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import { repoRoot } from './paths'
+import { effectsContentDir } from './paths'
 
-export const effectsDir = path.join(repoRoot, 'content', 'effects')
+export const effectsDir = effectsContentDir
 export const effectsManifestPath = path.join(effectsDir, 'manifest.json')
 
 export type EffectsManifestEntry = {

@@ -1,0 +1,57 @@
+{
+  "_comment": "Astera Shape DSL — axe template (head_handle family). Wide-blade axe with leather-bound wooden helve. Tapered blade cross-section gives a chopping edge.",
+  "name": "axe_v1",
+  "params": {
+    "blade_width": 5,
+    "blade_base_height": 4,
+    "blade_base_depth": 0.5,
+    "blade_tip_height": 6,
+    "blade_tip_depth": 0.2,
+    "blade_segments": 4,
+    "binding_width": 2,
+    "binding_height": 1.5,
+    "binding_depth": 2,
+    "binding_chamfer": 0.2,
+    "helve_length": 10,
+    "helve_diameter": 1.5
+  },
+  "textures": {
+    "blade_body": "minecraft:block/iron_block",
+    "blade_edge": "minecraft:block/polished_diorite",
+    "binding": "minecraft:block/brown_terracotta",
+    "wood": "minecraft:block/oak_planks"
+  },
+  "parts": {
+    "blade": {
+      "kind": "tapered_prism",
+      "axis": "x",
+      "base_size": ["@blade_base_height", "@blade_base_depth"],
+      "tip_size": ["@blade_tip_height", "@blade_tip_depth"],
+      "length": "@blade_width",
+      "segments": "@blade_segments",
+      "tip_style": "flat",
+      "cross_section": "rect"
+    },
+    "binding": {
+      "kind": "chamfered_cuboid",
+      "size": ["@binding_width", "@binding_height", "@binding_depth"],
+      "chamfer": "@binding_chamfer",
+      "axis": "y",
+      "relative_to": "blade",
+      "align": "base_center",
+      "delta_y": -1
+    },
+    "helve": {
+      "kind": "cylinder",
+      "axis": "y",
+      "length": "@helve_length",
+      "diameter": "@helve_diameter",
+      "relative_to": "binding",
+      "align": "base_center",
+      "delta_y": -1.5
+    }
+  },
+  "face_overrides": {},
+  "quality": "medium",
+  "display": { "gui_rotation_z": 45, "gui_scale": 0.65 }
+}

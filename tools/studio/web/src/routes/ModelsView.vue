@@ -35,7 +35,15 @@ const gridCols = computed(
 
 const armedTexture = ref<TextureEntry | null>(null)
 
-type CameraPreset = 'iso' | 'front' | 'top' | 'side' | 'item_gui'
+type CameraPreset =
+  | 'iso'
+  | 'front'
+  | 'back'
+  | 'top'
+  | 'bottom'
+  | 'side'
+  | 'left'
+  | 'item_gui'
 const viewportRef = ref<{
   takeScreenshot: (p?: CameraPreset) => ScreenshotPayload
 } | null>(null)

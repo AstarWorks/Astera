@@ -2,8 +2,8 @@ import { Hono } from 'hono'
 import { spawnSync } from 'node:child_process'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
-import os from 'node:os'
-import { scriptsDir } from '../paths'
+import { scriptsDir, jobRoot } from '../paths'
+import { texturePromptTemplate, substitute } from '../prompt-presets'
 
 export const generate = new Hono()
 
@@ -21,56 +21,16 @@ generate.post('/', async (c) => {
   if (!body.prompt?.trim()) return c.json({ error: 'prompt required' }, 400)
 
   const jobId = `texgen-ui.${Math.random().toString(36).slice(2, 8)}`
-  const workDir = path.join(os.tmpdir(), jobId)
+  const workDir = path.join(jobRoot, jobId)
   mkdirSync(workDir, { recursive: true })
 
-  const fullPrompt = `Use your image-generation tool to create a single PNG at ${workDir}/grid.png.
-
-Subject: ${body.prompt}
-
-Style requirements:
-- Classic 32x32 pixel-art aesthetic look (we will downscale)
-- Hard 1-pixel dark outlines around every shape
-- Limited palette: <=16 distinct colors total across all cells
-- Consistent palette and outline width across all variants
-- No anti-aliasing on edges, no semi-transparent pixels
-- Bold silhouettes readable at thumbnail size
-- DENSE SUBJECT — each item fills 70%+ of its cell, chunky vanilla
-  Minecraft item style (think iron_sword.png: roughly 12x14 px subject
-  filling a 16x16 canvas). NOT a thin diagonal line with empty space
-  around it. The subject should look "solid", not "sketched".
-- WEAPONS / TOOLS (swords, guns, wands, staves, bows, pickaxes,
-  hammers, etc.): drawn diagonally from LOWER-LEFT to UPPER-RIGHT,
-  matching the vanilla Minecraft iron_sword inventory icon
-  orientation. The "business end" (blade tip, gun barrel, wand
-  crystal, axe head) is at the UPPER-RIGHT corner of the cell. The
-  "grip end" (hilt, pistol grip, wand handle, axe haft) is at the
-  LOWER-LEFT corner. This is the Astera house diagonal — consistent
-  across every weapon.
-- NON-WEAPON items (potions, food, blocks, materials, scrolls, etc.):
-  drawn upright/orthogonal, NOT diagonal. Fill the cell densely.
-
-Layout requirements (CRITICAL — read carefully):
-- One square output image divided into a ${rows}x${cols} grid (${rows * cols} equal cells).
-- DRAW A VISIBLE 2-PIXEL GRAY INSET BORDER around EACH cell. The border
-  is drawn as actual visible pixels in mid-gray (around RGB 110-130).
-  This border is part of the output image — it is NOT optional and it
-  is NOT a metaphor. Picture each cell as a small framed picture-box.
-- Every subject sits INSIDE its cell's gray border with at least 2 pixels
-  of pure black between the subject's silhouette and the border on
-  every side. The border PHYSICALLY constrains where the subject can go.
-- The gray borders form a continuous grid pattern across the whole image
-  (think of a window with mullions or a contact sheet of framed photos).
-- Background inside each cell (the space around the subject) is pure
-  black. We will key out the black to transparency in post-processing
-  and strip the gray border at slice time.
-- No text labels, no numbers, no captions inside the cells.
-- Each subject is centered within its cell's interior AND fills it
-  densely (see Style requirements above).
-- All subjects roughly the same physical size relative to their cell.
-
-After generation, save the file to: ${workDir}/grid.png
-`
+  const fullPrompt = substitute(texturePromptTemplate(), {
+    workDir,
+    subject: body.prompt,
+    rows,
+    cols,
+    count: rows * cols,
+  })
   writeFileSync(path.join(workDir, 'prompt.txt'), fullPrompt, 'utf8')
 
   // 1. codex generation (with bwrap fallback)

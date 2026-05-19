@@ -32,6 +32,7 @@ import { SCHEMA } from '../../src/effects/schema'
 import { spawnSync } from 'node:child_process'
 import os from 'node:os'
 import { scriptsDir } from '../paths'
+import { effectsPromptTemplate, substitute } from '../prompt-presets'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -167,18 +168,11 @@ effects.post('/ai-image', async (c) => {
   const workDir = path.join(os.tmpdir(), jobId)
   mkdirSync(workDir, { recursive: true })
 
-  const fullPrompt = `Use your image-generation tool to create a single 1024x1024 PNG at ${workDir}/grid.png.
-
-Subject: ${prompt}
-
-Style requirements (Astera Effects):
-- Pixel-art aesthetic that downscales cleanly to 32x32
-- Hard 1-pixel dark outlines
-- Limited palette: <=16 distinct colors
-- Subject centered, no anti-aliased edges
-- Pure-black background (we will key out to transparency)
-- Seed: ${seed}
-`
+  const fullPrompt = substitute(effectsPromptTemplate(), {
+    workDir,
+    prompt,
+    seed,
+  })
   writeFileSync(path.join(workDir, 'prompt.txt'), fullPrompt, 'utf8')
 
   // 1. codex generation

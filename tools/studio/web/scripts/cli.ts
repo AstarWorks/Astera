@@ -23,16 +23,20 @@
  *   selection clear                             POST /api/state/selection (null)
  *   screenshot [<camera>] [<out-path>]          POST /api/screenshot → save PNG
  *                                               (returns rendered_view: {image_id, ...})
+ *   iter-screenshot <run-id> <step-label> [<cam1,cam2>] [--bundle=<preset>]
+ *                                               bundle ∈ {3view, 6view, 6view+iso, silhouette}
  *   crop <image_id> <x0,y0,x1,y1> [<out-path>]  POST /api/screenshot/crop
  *   crop-model-view <view_id> <part> [<out>] [--pad=N]
  *                                               POST /api/screenshot/crop_model_view
+ *   example list                                list ASDSL exemplars
+ *   example show <slug>                         dump tools/model-gen/asdsl-examples/<slug>.asdsl.json
  *   save [<slug>]                               POST /api/state/save
  *   export-bb [<slug>]                          POST /api/state/export-bb
  *   models                                      GET /api/models
  *
  * Used by .claude/skills/build-model/SKILL.md for the structured workflow.
  */
-import { writeFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import os from 'node:os'
 import { randomUUID } from 'node:crypto'
@@ -100,6 +104,30 @@ async function fetchPngBytes(image_id: string): Promise<Buffer> {
     process.exit(1)
   }
   return Buffer.from(await res.arrayBuffer())
+}
+
+/**
+ * Named screenshot camera presets for `iter-screenshot --bundle=<name>`.
+ * Pack α (survey A11 + B12 — flowful-ai §10.1.2 6-view orthographic
+ * inspection). All cameras must be present in
+ * `tools/studio/web/server/routes/screenshot.ts` `VALID_CAMERAS` and
+ * `src/components/ThreeViewport.vue` `CAMERA_PRESETS`.
+ */
+const SCREENSHOT_BUNDLES = {
+  '3view': ['iso', 'item_gui', 'front'],
+  '6view': ['front', 'back', 'left', 'side', 'top', 'bottom'],
+  '6view+iso': ['front', 'back', 'left', 'side', 'top', 'bottom', 'iso'],
+  silhouette: ['front', 'side', 'top'],
+} as const
+
+function resolveBundle(name: string): string[] {
+  const preset = (SCREENSHOT_BUNDLES as Record<string, readonly string[]>)[name]
+  if (!preset) {
+    throw new Error(
+      `unknown bundle "${name}". Available: ${Object.keys(SCREENSHOT_BUNDLES).join(', ')}`,
+    )
+  }
+  return [...preset]
 }
 
 function printJson(v: unknown) {
@@ -543,13 +571,22 @@ async function main() {
     }
 
     case 'iter-screenshot': {
-      // iter-screenshot <run-id> <step-label> [<camera1,camera2,...>]
+      // iter-screenshot <run-id> <step-label> [<cam1,cam2,...>] [--bundle=<preset>]
       // Dumps screenshots to tools/studio/web/.iter/<run-id>/<step-label>-<camera>.png
       // Returns the directory path as the last line so callers can `cd` to it.
+      // Pack α: --bundle=3view|6view|6view+iso|silhouette expands to a preset
+      // camera list (Pack α A11 + B12). Positional cameras override --bundle
+      // when both are given.
       const [runId, label, camerasArg] = positional
       if (!runId || !label)
-        throw new Error('usage: iter-screenshot <run-id> <step-label> [<cam1,cam2>]')
-      const cameras = (camerasArg ?? 'iso,item_gui,front').split(',')
+        throw new Error(
+          'usage: iter-screenshot <run-id> <step-label> [<cam1,cam2>] [--bundle=<preset>]',
+        )
+      const cameras: string[] = camerasArg
+        ? camerasArg.split(',')
+        : flags.bundle
+          ? resolveBundle(flags.bundle)
+          : ['iso', 'item_gui', 'front']
       const iterDir = path.resolve(
         path.dirname(import.meta.dir ?? '.'),
         '.iter',
@@ -631,6 +668,46 @@ async function main() {
       return
     }
 
+    case 'example': {
+      // Pack α C6: asdsl-examples RAG skeleton (survey §3.5c LL3M BlenderRAG).
+      // No HTTP route — read local files directly under tools/model-gen/asdsl-examples/.
+      //   example list             → table of {slug, kind, shape_family, summary}
+      //   example show <slug>      → dump tools/model-gen/asdsl-examples/<slug>.asdsl.json
+      const [sub, slug] = positional
+      const scriptDir = path.dirname(new URL(import.meta.url).pathname)
+      const exemplarsDir = path.resolve(scriptDir, '../../../model-gen/asdsl-examples')
+      if (!sub || sub === 'list') {
+        const indexText = await readFile(path.join(exemplarsDir, 'index.json'), 'utf-8')
+        const index = JSON.parse(indexText) as {
+          exemplars: Array<{
+            slug: string
+            kind: string
+            shape_family: string
+            summary: string
+          }>
+        }
+        console.log('Available ASDSL exemplars (see tools/model-gen/asdsl-examples/):')
+        console.log('')
+        const header = `  ${'slug'.padEnd(12)} ${'kind'.padEnd(8)} ${'family'.padEnd(16)} summary`
+        console.log(header)
+        console.log(`  ${'-'.repeat(12)} ${'-'.repeat(8)} ${'-'.repeat(16)} ${'-'.repeat(40)}`)
+        for (const ex of index.exemplars) {
+          console.log(
+            `  ${ex.slug.padEnd(12)} ${ex.kind.padEnd(8)} ${ex.shape_family.padEnd(16)} ${ex.summary}`,
+          )
+        }
+        return
+      }
+      if (sub === 'show') {
+        if (!slug) throw new Error('usage: example show <slug>')
+        const filePath = path.join(exemplarsDir, `${slug}.asdsl.json`)
+        const text = await readFile(filePath, 'utf-8')
+        console.log(text)
+        return
+      }
+      throw new Error(`unknown example sub-verb: ${sub} (expected list | show)`)
+    }
+
     case 'save': {
       const [slug] = positional
       printJson(await call('POST', '/api/state/save', slug ? { slug } : {}))
@@ -698,16 +775,19 @@ function readUsage(): string {
   list-textures [<scope>] [<filter>] scope ∈ {astera,vanilla,content,all}
   reference <kind> <value>           kind ∈ {path,url,base64}
   selection <i> <face>  |  selection clear
-  screenshot [<camera>] [<out-path>] camera ∈ {iso,front,top,side,item_gui}
+  screenshot [<camera>] [<out-path>] camera ∈ {iso,front,back,top,bottom,side,left,item_gui}
                                      prints path + rendered_view JSON {image_id, ...}
-  iter-screenshot <run-id> <step-label> [<cam1,cam2>]
+  iter-screenshot <run-id> <step-label> [<cam1,cam2>] [--bundle=<preset>]
                                      dump screenshots to .iter/<run-id>/<step>-<cam>.png
                                      JSON output gains image_id + bytes_size per camera
+                                     bundle ∈ {3view, 6view, 6view+iso, silhouette}
   crop <image_id> <x0,y0,x1,y1> [<out-path>]
                                      crop cached image to pixel bbox (no re-render)
   crop-model-view <view_id> <part_name> [<out-path>] [--pad=N]
                                      auto-crop latest cached screenshot to part's
                                      projected bbox; --pad defaults to 4 pixels
+  example list                       list available ASDSL exemplars
+  example show <slug>                dump tools/model-gen/asdsl-examples/<slug>.asdsl.json
   templates                          list available templates
   load-template <category> <name> [<slug>]
                                      start from a curated template

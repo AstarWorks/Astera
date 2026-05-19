@@ -1,9 +1,31 @@
 {
   "name": "@astera/studio",
-  "private": true,
   "version": "0.3.0",
   "type": "module",
-  "description": "Astera Studio — browser UI for texture pipeline (/textures), 3D model editor (/models), and pixel FX studio (/effects). Dev-only.",
+  "description": "Astera Studio — browser UI for texture pipeline (/textures), 3D model editor (/models), pixel FX studio (/effects), and weapon-content preview (/weapons). Dev-only LLM-collaboration IDE for Minecraft content authoring; runs against any project that follows the content/ layout convention.",
+  "license": "MIT",
+  "author": "Astera contributors",
+  "homepage": "https://github.com/AstarWorks/Astera",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AstarWorks/Astera.git",
+    "directory": "tools/studio/web"
+  },
+  "keywords": [
+    "minecraft",
+    "paper",
+    "mcmodel",
+    "texture-editor",
+    "pixel-art",
+    "llm",
+    "claude",
+    "codex",
+    "content-authoring",
+    "vue",
+    "three.js",
+    "hono",
+    "bun"
+  ],
   "scripts": {
     "predev": "bun run scripts/kill-ports.ts",
     "dev": "concurrently -k -n vite,api -c blue,green \"bun run dev:vite\" \"bun run dev:api\"",

@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { readdirSync, statSync, readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
-import { listJobDirs, jobFinalDir, tmpDir } from '../paths'
+import { listJobDirs, jobFinalDir, resolveJobDir, isValidJobId } from '../paths'
 
 export const jobs = new Hono()
 
@@ -26,11 +26,11 @@ jobs.get('/', (c) => {
 
 jobs.get('/:id', (c) => {
   const id = c.req.param('id')
-  if (!id.startsWith('texgen')) {
+  if (!isValidJobId(id)) {
     return c.json({ error: 'invalid job id' }, 400)
   }
-  const dir = path.join(tmpDir, id)
-  if (!existsSync(dir)) return c.json({ error: 'not found' }, 404)
+  const dir = resolveJobDir(id)
+  if (!dir) return c.json({ error: 'not found' }, 404)
 
   const finalDir = jobFinalDir(id)
   let tiles: { name: string; path: string; bytes: number }[] = []

@@ -15,7 +15,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { McModel, SelectedFace } from '../src/types'
-import { repoRoot } from './paths'
+import { repoRoot, modelsContentDir, modelSamplesDir } from './paths'
 import { mcModelToBbmodel } from './bbmodel-export'
 import { persistDebounced, restore } from './persist'
 import { loadTemplateModel } from './templates'
@@ -128,10 +128,7 @@ export function loadModel(
   scope: ModelScope,
   slug: string,
 ): { model: McModel; slug: string; scope: ModelScope } {
-  const baseDir =
-    scope === 'samples'
-      ? path.join(repoRoot, 'tools', 'model-gen', 'samples')
-      : path.join(repoRoot, 'content', 'models')
+  const baseDir = scope === 'samples' ? modelSamplesDir : modelsContentDir
   const norm = path.posix.normalize(slug)
   if (norm.startsWith('../') || norm.includes('/../') || path.isAbsolute(norm)) {
     throw new Error(`invalid slug: ${slug}`)
@@ -391,7 +388,7 @@ export function startNewModel(args?: { parent?: string; slug?: string }): McMode
   return model
 }
 
-const modelsRoot = path.join(repoRoot, 'content', 'models')
+const modelsRoot = modelsContentDir
 const manifestPath = path.join(modelsRoot, 'manifest.json')
 
 type ModelsManifest = {

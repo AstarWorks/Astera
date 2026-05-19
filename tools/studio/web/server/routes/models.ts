@@ -1,12 +1,9 @@
 import { Hono } from 'hono'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
-import { repoRoot } from '../paths'
+import { modelSamplesDir as samplesDir, modelsContentDir as modelsDir } from '../paths'
 
 export const models = new Hono()
-
-const samplesDir = path.join(repoRoot, 'tools', 'model-gen', 'samples')
-const modelsDir = path.join(repoRoot, 'content', 'models')
 
 type ModelEntry = {
   slug: string

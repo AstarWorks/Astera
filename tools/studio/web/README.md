@@ -1,117 +1,187 @@
-# Astera Studio (Web UI)
+# Astera Studio
 
-Browser-side editor that hosts three sub-tools behind one Vite + Hono
-process:
+> LLM-collaboration IDE for Minecraft content authoring.
+> Texture review, 3D model editing, animated effects, and YAML preview —
+> behind one Vite + Hono process.
 
-| Route | Tool | Doc |
-|---|---|---|
-| `/textures` | Codex-driven 32×32 sprite review/accept/regenerate | (this file) |
-| `/models` | Three.js + Claude-as-CAD over `.bbmodel` / MC `.model.json` | (in-progress) |
-| `/effects` | Pixel-Composer-style AI-edited animated FX → MC hologram sheets | [EFFECTS.md](./EFFECTS.md) |
+Astera Studio is the browser tool the Astera project uses for authoring
+Minecraft content with LLM assistance. It runs locally (single user,
+dev-only) and bundles four routes:
 
-**Dev-only.** Per [[adr/0018-ai-asset-creation-policy]], this directory
-must never become a runtime or build dependency of Astera proper.
+| Route | What it does |
+|---|---|
+| `/textures` | Codex-driven 32×32 sprite review: accept / reject / regenerate tiles |
+| `/models` | Three.js editor for `.bbmodel` / MC `.model.json` with Claude-as-CAD via ASDSL |
+| `/effects` | Pixel-Composer-style fxgraph editor → animated hologram texture sheets |
+| `/weapons` | Read-only weapon YAML preview (Astera-flavored — see "Extending" below) |
 
-## Run
+Per [[adr/0018-ai-asset-creation-policy]] and
+[[adr/0066-promote-studio-to-mainline]], Studio is **dev-only**:
+never a runtime or build dependency of the Astera plugin. The Bun process
+talks to the browser via HTTP+WS on a local port, calls a handful of
+shell scripts for image generation, and writes results into your project's
+`content/` tree.
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
+
+## Quick start
 
 ```bash
-cd tools/texture-gen/web
+cd tools/studio/web
 bun install
 bun run dev
 ```
 
-Open http://localhost:3007. Two processes start:
+Open <http://localhost:3007>. Two processes start:
 
-- Vite frontend on **:3007** (override with `TEXTURE_STUDIO_PORT`)
-- Hono backend on **:3008** (override with `TEXTURE_STUDIO_API_PORT`)
+- Vite frontend on `:3007` (override with `TEXTURE_STUDIO_PORT`)
+- Hono backend on `:3008` (override with `TEXTURE_STUDIO_API_PORT`)
 
 Vite proxies `/api/*` and `/files/*` to the Hono backend, so the browser
-only talks to :3007 — no CORS, no manual port juggling.
+only talks to `:3007` — no CORS, no manual port juggling.
 
-The backend invokes:
-- `../scripts/codex_generate.sh` (new generation)
-- `../scripts/regen_single.sh`   (per-tile regenerate)
-- `../scripts/slice_grid.py`     (grid → tiles)
-- `../scripts/palette_quantize.py` (downscale + quantize)
+You will also need:
 
-All of these are synchronous from the API's perspective; expect 30–60s
-blocking per Codex call. Frontend shows a spinner.
+- **Bun** 1.x (`curl -fsSL https://bun.sh/install | bash`)
+- **Codex CLI** + `OPENAI_API_KEY` if you want texture/effects generation
+  (without it, generation routes fail; review-only flows work)
+- **Python 3** with `Pillow`, `numpy`, `scipy` for the image scripts
+- **ffmpeg** if you use the `effects` export pipeline
 
-## What it does
+## Use it on your own project (non-Astera)
 
-| Action | Effect on filesystem |
-|---|---|
-| **List jobs** | Reads `/tmp/texgen-*/` dirs |
-| **Show tile** | Streams PNG from `/tmp/<jobId>/final/<name>.png` |
-| **Accept** | Moves PNG to `content/textures/<targetPath>` + appends to `content/textures/manifest.json` |
-| **Drop** | `unlink` PNG from `/tmp/<jobId>/final/` |
-| **Regen** | Spawns `regen_single.sh`, replaces PNG in place |
-| **New generation** | Spawns `codex_generate.sh` → slice → quantize, creates a new `texgen-ui.*` job |
-
-Nothing is committed to git by the UI. After accepting tiles, run
-`git status` and commit manually:
+Studio is **project-agnostic**. By default it reads from / writes to the
+Astera repo's `content/` layout, but every path is configurable via env
+variables. Point Studio at your project and it will pick up your assets:
 
 ```bash
-git add content/textures/manifest.json content/textures/items/swords/
-git commit -m "feat(textures): N new items/swords"
+STUDIO_REPO_ROOT=/path/to/your/project bun run dev
 ```
 
-## Slug format
+Or finer-grained:
 
-`astera:<dotted-category>.<basename>.<variant>` — Adventure `Key`
-compatible per the intent of [[adr/0017-adopt-datadriven-contents-pattern]].
+| Env var | Default | What it controls |
+|---|---|---|
+| `STUDIO_REPO_ROOT` | enclosing git repo | Root path; all other paths default-relative to it |
+| `STUDIO_CONTENT_ROOT` | `${repo}/content` | Reserved for future use (currently every content-dir is independent) |
+| `STUDIO_TEXTURES_DIR` | `${repo}/content/textures` | Where accepted textures land + listed |
+| `STUDIO_MODELS_DIR` | `${repo}/content/models` | `.model.json` storage |
+| `STUDIO_EFFECTS_DIR` | `${repo}/content/effects` | fxgraph + exports |
+| `STUDIO_LANGUAGES_DIR` | `${repo}/content/languages` | i18n resolution for `/weapons` |
+| `STUDIO_WEAPONS_DIR` | `${repo}/content/weapons` | Weapon YAML inputs (`/weapons` route only) |
+| `STUDIO_ITEMS_DIR` | `${repo}/content/items` | Item YAML inputs (`/weapons` route only) |
+| `STUDIO_MODEL_SAMPLES_DIR` | `${repo}/tools/model-gen/samples` | Read-only "starter" models |
+| `STUDIO_MODEL_TEMPLATES_DIR` | `${repo}/tools/model-gen/templates` | Read-only model templates |
+| `STUDIO_SCRIPTS_DIR` | `${repo}/tools/texture-gen/scripts` | Where the image-pipeline shell scripts live |
+| `STUDIO_JOB_ROOT` | `${repo}/tools/texture-gen/.cache/work` | Where in-flight texture jobs are staged |
+| `STUDIO_VANILLA_CACHE_DIR` | `${repo}/tools/studio/.vanilla-cache` | Vanilla MC asset extraction cache |
+| `STUDIO_TEXTURE_PROMPT_FILE` | (unset → Astera house style) | Plain-text override for the texture generation prompt template |
+| `STUDIO_EFFECTS_PROMPT_FILE` | (unset → Astera house style) | Plain-text override for the effects generation prompt template |
 
-Examples:
-- `items/swords/longsword_v01.png` → `astera:items.swords.longsword.v01`
-- `blocks/stone_v01.png`           → `astera:blocks.stone.v01`
+Prompt templates use `${var}` substitution. See
+`server/prompt-presets.ts` for the default text and supported variables.
 
-Auto-derived from `category` + `basename` + `variant` fields on the Accept
-form; editable in the UI before clicking Accept.
+For a non-Minecraft project you can still drive the `/models` and
+`/effects` routes if your data fits `.model.json` / `.fxgraph.json`
+shapes; you may want to fork `/weapons` (or write your own analogous
+content-preview route) since it's coupled to Astera weapon YAML schema.
+
+## Configuration
+
+### Ports
+
+- Frontend `3007` → `TEXTURE_STUDIO_PORT`
+- Backend `3008` → `TEXTURE_STUDIO_API_PORT`
+
+### Locale (`/weapons` i18n)
+
+The `/weapons` route resolves `display_name_key` / `lore_key` against
+language files under `STUDIO_LANGUAGES_DIR`. Filename = locale code
+(`en.yaml` → `en`, `ja.yaml` → `ja`). The header toggle in `/weapons`
+switches between detected locales.
+
+### Astera Integration Notes
+
+Astera, the canonical user of Studio, uses these defaults and adds:
+
+- Per ADR-0066, `tools/studio/web/`, `tools/model-gen/`,
+  `.claude/skills/build-model/`, `content/models/` are all mainline-tracked.
+- `/astera reload <category>` in-game lets you hot-swap content/<category>/
+  YAML edits without a Paper restart; pair this with Studio's preview.
+- `/weapons` exists as an Astera-specific YAML viewer
+  ([[adr/0061-studio-weapons-preview-route]]). It's a working example
+  of how external users could add their own project-specific routes.
 
 ## Architecture
 
 ```
-Browser (Vite, :5173)
-  ├─ App.vue        layout, state
-  ├─ JobList.vue    sidebar
-  ├─ TileGrid.vue   thumbnail grid
-  └─ TileCard.vue   detail + form + actions
+Browser (Vite :3007)
+  └─ Vue 3 + vue-router + Three.js + @vue-flow
         │
-        │ /api  (proxied)
+        │ /api  (proxied) / /files  (proxied) / /ws  (proxied)
         ▼
-Hono (Bun, :3001)
-  ├─ /api/jobs            list / detail
-  ├─ /api/jobs/:id/tiles  accept / reject / regenerate
-  ├─ /api/generate        new run
+Hono (Bun :3008)
+  ├─ /api/jobs            texture-gen job listing + per-tile actions
+  ├─ /api/tiles           accept / reject / regenerate (texture review)
+  ├─ /api/generate        spawn Codex → extract_subjects → tiles
+  ├─ /api/models          list + load .model.json (samples + content)
+  ├─ /api/state           model editor state machine (ASDSL v2)
+  ├─ /api/paint           model paint operations
+  ├─ /api/cuboids         cuboid CRUD
+  ├─ /api/composite       template composition
+  ├─ /api/asdsl           ASDSL DSL command execution
+  ├─ /api/screenshot      4-view render via WebSocket bridge
+  ├─ /api/effects         fxgraph CRUD + export pipeline
+  ├─ /api/effects/chat    Claude API proxy for effect prompting
+  ├─ /api/textures        catalog browsing
+  ├─ /api/weapons         weapon YAML preview (Astera-specific)
+  ├─ /api/languages       locale list + flat key map
   ├─ /api/manifest        read content/textures/manifest.json
   ├─ /api/categories      walk content/textures/
-  └─ /files/jobs/:id/*    serve PNGs from /tmp/*/final/
-  └─ /files/textures/*    serve PNGs from content/textures/
+  ├─ /files/jobs/:id/*    serve PNGs from texture-gen job dirs
+  ├─ /files/textures/*    serve PNGs from STUDIO_TEXTURES_DIR
+  └─ /files/vanilla/...   serve extracted vanilla MC textures
         │
-        │ spawnSync('bash', '../scripts/...')
+        │ spawnSync('bash', ...)
         ▼
-Codex CLI (image gen) + Pillow scripts
+Codex CLI + Pillow + ffmpeg + scripts under STUDIO_SCRIPTS_DIR
 ```
 
-## v1 limitations
+## Extending: write your own content-preview route
+
+`/weapons` is a 177-line backend + ~250-line Vue view that lists YAML
+files in a directory, parses each, and shows a side-by-side preview.
+Use it as a template if your project has a content type you want to
+review the same way:
+
+1. Add `server/routes/<yourtype>.ts` returning `GET /api/<yourtype>`
+   (list) + `GET /api/<yourtype>/load/:slug` (detail)
+2. Add `src/routes/<YourType>View.vue` for the sidebar+main layout
+3. Register the frontend route in `src/main.ts`, backend route in
+   `server/index.ts`
+4. Add an `STUDIO_<YOURTYPE>_DIR` env override in
+   `server/paths.ts` so external users can repoint
+
+## Limitations
 
 - Local single-user, no auth. Bind to `localhost` only.
-- Sync API (loading spinner). No SSE/WebSocket.
-- Only Codex CLI for generation (PXC integration stays in
-  `/generate-textures` CLI skill).
-- No keyboard shortcuts yet (`j`/`k`/`a`/`r`/`d` planned).
-- No undo. Drop is permanent (file unlinked from `/tmp`).
-
-## URL state
-
-`?job=<id>` selects a job on page load. Useful for linking from CLI:
-```
-echo "open http://localhost:5173/?job=$(basename $WORK)"
-```
+- Sync API for image generation (loading spinner). Expect 30–60s per Codex call.
+- No undo for accept/reject/regenerate operations (filesystem mutation
+  is immediate).
+- The texture-gen scripts are Python + Bash; not yet bundled as a
+  language-agnostic module.
 
 ## See also
 
-- [[adr/0018-ai-asset-creation-policy]] — the policy this dir is built under
-- `../README.md` — overall pipeline README
-- `../../content/textures/README.md` — output-side conventions
-- `../scripts/codex_generate.sh` — the codex invocation wrapper this UI calls
+- [[adr/0018-ai-asset-creation-policy]] — the underlying policy for asset
+  generation tooling
+- [[adr/0061-studio-weapons-preview-route]] — `/weapons` route rationale
+- [[adr/0066-promote-studio-to-mainline]] — Studio mainline status
+- [[adr/0069-studio-public-release]] — this README + LICENSE + public
+  release framing
+- [`tools/texture-gen/README.md`](../../texture-gen/README.md) — sister
+  CLI tool for headless texture generation
+- [`content/textures/README.md`](../../../content/textures/README.md) —
+  output conventions for the texture pipeline

@@ -30,7 +30,16 @@ import { resolve } from '../asdsl/anchor'
 
 export const screenshotRoute = new Hono()
 
-const VALID_CAMERAS = ['iso', 'front', 'top', 'side', 'item_gui'] as const
+const VALID_CAMERAS = [
+  'iso',
+  'front',
+  'back',
+  'top',
+  'bottom',
+  'side',
+  'left',
+  'item_gui',
+] as const
 
 type RenderedView = {
   view_id: string

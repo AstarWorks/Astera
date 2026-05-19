@@ -4,6 +4,7 @@ import { api } from '../api'
 import type { LoadedWeapon } from '../api'
 import type { McModel } from '../types'
 import ThreeViewport from './ThreeViewport.vue'
+import I18nText from './I18nText.vue'
 
 const props = defineProps<{
   loaded: LoadedWeapon | null
@@ -121,12 +122,18 @@ function archetypeIcon(a: string): string {
 
     <section class="stats">
       <div class="row">
-        <span class="label">Display name key</span>
-        <code>{{ loaded.spec.display_name_key }}</code>
+        <span class="label">Display name</span>
+        <span class="value">
+          <I18nText :key-name="loaded.spec.display_name_key" />
+        </span>
+        <code class="muted-key">{{ loaded.spec.display_name_key }}</code>
       </div>
       <div class="row">
-        <span class="label">Lore key</span>
-        <code>{{ loaded.spec.lore_key }}</code>
+        <span class="label">Lore</span>
+        <span class="value">
+          <I18nText :key-name="loaded.spec.lore_key" />
+        </span>
+        <code class="muted-key">{{ loaded.spec.lore_key }}</code>
       </div>
       <div class="row">
         <span class="label">Damage</span>
@@ -296,5 +303,11 @@ code {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.4px;
+}
+code.muted-key {
+  background: transparent;
+  padding: 0;
+  color: #4b5563;
+  font-size: 10px;
 }
 </style>

@@ -172,6 +172,12 @@ export const api = {
   loadWeapon: (slug: string) => j<LoadedWeapon>(`/api/weapons/load/${slug}`),
   weaponModel: (archetype: string) =>
     j<McModel>(`/api/weapons/model/${archetype}`),
+  // Language files for i18n resolution in /weapons (ADR-0073 Tier I).
+  languages: () => j<string[]>('/api/languages'),
+  loadLocale: (locale: string) =>
+    j<{ locale: string; entries: Record<string, string | string[]> }>(
+      `/api/languages/${locale}`,
+    ),
   effects: () => j<EffectListEntry[]>('/api/effects'),
   loadEffect: (scope: 'samples' | 'content', slug: string) =>
     j<LoadedEffect>(`/api/effects/load/${scope}/${slug}`),
