@@ -45,7 +45,7 @@ class KnockbackModifierTest {
         )
         val modifier = KnockbackModifier(baseMagnitude = 0.4)
 
-        val out = modifier.apply(working(), attempt(source), armor = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(source), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
 
         val impulse = out.knockback
         assertThat(impulse).isNotNull
@@ -64,7 +64,7 @@ class KnockbackModifierTest {
         )
         val modifier = KnockbackModifier(baseMagnitude = 0.4)
 
-        val out = modifier.apply(working(), attempt(source), armor = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(source), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
 
         assertThat(out.knockback).isNull()
     }
@@ -78,7 +78,7 @@ class KnockbackModifierTest {
         )
         val modifier = KnockbackModifier(baseMagnitude = 0.5)
 
-        val out = modifier.apply(working(), attempt(source), armor = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(source), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
 
         val impulse = out.knockback!!
         assertThat(impulse.x).isEqualTo(0.0)
@@ -95,7 +95,7 @@ class KnockbackModifierTest {
         )
         val modifier = KnockbackModifier()
 
-        val out = modifier.apply(working(), attempt(source), armor = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(source), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
 
         assertThat(out.knockback).isNull()
     }
@@ -105,7 +105,7 @@ class KnockbackModifierTest {
         val source = DamageSource.Explosion(center = Vec3(2.0, 0.0, 0.0), radius = 4.0)
         val modifier = KnockbackModifier(baseMagnitude = 0.4)
 
-        val out = modifier.apply(working(), attempt(source), armor = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(source), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
 
         val impulse = out.knockback!!
         // direction = -normalize((2,0,0)) * 0.4 = (-0.4, 0, 0)
@@ -117,21 +117,21 @@ class KnockbackModifierTest {
     @Test
     fun `Environment source produces no knockback`() {
         val modifier = KnockbackModifier()
-        val out = modifier.apply(working(), attempt(DamageSource.Environment), armor = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(DamageSource.Environment), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
         assertThat(out.knockback).isNull()
     }
 
     @Test
     fun `Fall source produces no knockback`() {
         val modifier = KnockbackModifier()
-        val out = modifier.apply(working(), attempt(DamageSource.Fall(distance = 6.0)), armor = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(DamageSource.Fall(distance = 6.0)), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
         assertThat(out.knockback).isNull()
     }
 
     @Test
     fun `StatusEffectTick source produces no knockback`() {
         val source = DamageSource.StatusEffectTick(StatusEffectId("burn"), originPlayerId = attacker)
-        val out = KnockbackModifier().apply(working(), attempt(source), armor = null, randomizer = unusedRandomizer)
+        val out = KnockbackModifier().apply(working(), attempt(source), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
         assertThat(out.knockback).isNull()
     }
 
@@ -143,7 +143,7 @@ class KnockbackModifierTest {
             ownerId = attacker,
             origin = ProjectileOrigin.FromWeapon(WeaponId("pistol")),
         )
-        val out = KnockbackModifier().apply(working(), attempt(source), armor = null, randomizer = unusedRandomizer)
+        val out = KnockbackModifier().apply(working(), attempt(source), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
         assertThat(out.knockback).isNull()
     }
 
@@ -156,7 +156,7 @@ class KnockbackModifierTest {
         )
         val modifier = KnockbackModifier(baseMagnitude = 0.4)
 
-        val out = modifier.apply(working(), attempt(source), armor = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(source), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
 
         // Vec3.ZERO.normalize() == ZERO; ZERO * -0.4 == ZERO. Knockback field
         // is set but vector magnitude is 0 (gateway treats as no-op).
@@ -173,7 +173,7 @@ class KnockbackModifierTest {
         )
         val modifier = KnockbackModifier(baseMagnitude = 1.0)
 
-        val out = modifier.apply(working(), attempt(source), armor = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(source), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
 
         val impulse = out.knockback!!
         // direction = -normalize((3,0,4)) = -(0.6, 0, 0.8) = (-0.6, 0, -0.8); magnitude 1.0
@@ -192,7 +192,7 @@ class KnockbackModifierTest {
         )
         val modifier = KnockbackModifier(baseMagnitude = 0.0)
 
-        val out = modifier.apply(working(), attempt(source), armor = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(source), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
 
         assertThat(out.knockback).isNull()
     }

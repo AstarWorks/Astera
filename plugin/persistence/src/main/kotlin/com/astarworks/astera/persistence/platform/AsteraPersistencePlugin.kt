@@ -5,6 +5,11 @@ import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.INormaProgressRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
+import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
+import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
+import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -17,7 +22,12 @@ import com.astarworks.astera.persistence.repository.PostgresCurrencyLedger
 import com.astarworks.astera.persistence.repository.PostgresLoadoutRepository
 import com.astarworks.astera.persistence.repository.PostgresMatchRepository
 import com.astarworks.astera.persistence.repository.PostgresNormaProgressRepository
+import com.astarworks.astera.persistence.repository.PostgresAuditLogRepository
 import com.astarworks.astera.persistence.repository.PostgresPermissionService
+import com.astarworks.astera.persistence.repository.PostgresPersonalVaultRepository
+import com.astarworks.astera.persistence.repository.PostgresPlayerAttributeContainer
+import com.astarworks.astera.persistence.repository.PostgresPlayerInventorySnapshotRepository
+import com.astarworks.astera.persistence.repository.PostgresPlayerSettingsRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
 import org.bukkit.plugin.java.JavaPlugin
@@ -75,8 +85,19 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // Priority 100 overlays the default-priority InMemory* registrations
         // installed by feature plugins. `loadbefore` in plugin.yml ensures we
         // win the lookup race.
+        //
+        // Wave 5e: PostgresPlayerAttributeContainer is the canonical storage
+        // for player resources (Wallet / PlayerStats / ManaPool facades go
+        // through it). PostgresPlayerStatsRepository + PostgresCurrencyLedger
+        // are thin facades over it.
+        val attributeContainerStore: IPlayerAttributeContainerStore =
+            PostgresPlayerAttributeContainer(ctx.database)
+        registrations += services.register<IPlayerAttributeContainerStore>(
+            attributeContainerStore,
+            priority = 100,
+        )
         registrations += services.register<IPlayerStatsRepository>(
-            PostgresPlayerStatsRepository(ctx.database),
+            PostgresPlayerStatsRepository(attributeContainerStore),
             priority = 100,
         )
         registrations += services.register<IMatchRepository>(
@@ -88,7 +109,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
         registrations += services.register<ICurrencyLedger>(
-            PostgresCurrencyLedger(ctx.database),
+            PostgresCurrencyLedger(attributeContainerStore),
             priority = 100,
         )
         registrations += services.register<IPermissionService>(
@@ -103,12 +124,31 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             PostgresLoadoutRepository(ctx.database),
             priority = 100,
         )
+        // Wave 5e: Session + Social + Vault + Settings + Audit + InventorySnapshot.
+        registrations += services.register<IPersonalVaultRepository>(
+            PostgresPersonalVaultRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<IPlayerSettingsRepository>(
+            PostgresPlayerSettingsRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<IAuditLogRepository>(
+            PostgresAuditLogRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<IPlayerInventorySnapshotRepository>(
+            PostgresPlayerInventorySnapshotRepository(ctx.database),
+            priority = 100,
+        )
 
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
                 "ICurrencyLedger, IPermissionService, INormaProgressRepository, " +
-                "ILoadoutRepository.",
+                "ILoadoutRepository, IPersonalVaultRepository, " +
+                "IPlayerSettingsRepository, IAuditLogRepository, " +
+                "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore.",
         )
     }
 

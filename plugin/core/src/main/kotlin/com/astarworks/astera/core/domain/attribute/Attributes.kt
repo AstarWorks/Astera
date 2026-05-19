@@ -32,7 +32,29 @@ public object Attributes {
     public val MANA_CURRENT: AttributeKey = AttributeKey("resource.mana_current")
     public val MANA_MAX: AttributeKey = AttributeKey("resource.mana_max")
     public val MANA_REGEN_PER_SEC: AttributeKey = AttributeKey("resource.mana_regen_per_sec")
+    // Wave 5e: tick counter for the regen cadence — formerly ManaPool.lastRegenTick.
+    public val MANA_LAST_REGEN_TICK: AttributeKey = AttributeKey("resource.mana_last_regen_tick")
 
     // ---- Modifiers -----------------------------------------------------
     public val COOLDOWN_REDUCTION: AttributeKey = AttributeKey("modifier.cooldown_reduction")
+
+    // ---- Player stat keys (Wave 5e migration target) ------------------
+    // PlayerStats fields become computed getters reading these via
+    // `container.effectiveNumber(...)`. The string namespace is what V14
+    // stores in `player_attributes.attributes` JSONB.
+    public val STAT_KILLS: AttributeKey = AttributeKey("stat.kills")
+    public val STAT_DEATHS: AttributeKey = AttributeKey("stat.deaths")
+    public val STAT_ASSISTS: AttributeKey = AttributeKey("stat.assists")
+    public val STAT_DAMAGE_DEALT: AttributeKey = AttributeKey("stat.damage_dealt")
+    public val STAT_DAMAGE_TAKEN: AttributeKey = AttributeKey("stat.damage_taken")
+    public val STAT_PLAYTIME_SEC: AttributeKey = AttributeKey("stat.playtime_sec")
+    public val STAT_MATCHES_PLAYED: AttributeKey = AttributeKey("stat.matches_played")
+    public val STAT_WINS: AttributeKey = AttributeKey("stat.wins")
+    public val STAT_LOSSES: AttributeKey = AttributeKey("stat.losses")
+
+    // ---- Wallet currency keys (Wave 5e migration target) --------------
+    // Wallet.balance(currency) becomes a computed read of these.
+    public val WALLET_STAR: AttributeKey = AttributeKey("wallet.star")
+    public val WALLET_GOLD: AttributeKey = AttributeKey("wallet.gold")
+    public val WALLET_GEM: AttributeKey = AttributeKey("wallet.gem")
 }

@@ -255,8 +255,8 @@ reading the four canonical docs.
 | Depends on | Wave 5d (world for spawn) + Wave 5b (HUD for tutorial UI) |
 | Unlocks | 観戦 / フレンド / Tutorial / Vault / 試合報酬 lobby 配送 / Bukkit インベントリ永続化 |
 | Complexity | 中-大 (6 worker, ~6h) |
-| ADR | 0034 |
-| New migrations | V7 personal_vaults / V8 player_settings / V9 audit_log / **V10 player_inventory_snapshots** |
+| ADR | 0034 (Accepted) + 0058 (Draft→Accepted, ADR-0058 §armor + V14) + 0064 (Listener-Service separation, Accepted) |
+| New migrations | V7 personal_vaults / V8 player_settings / V9 audit_log / **V10 player_inventory_snapshots** / **V14 player_attributes** (ADR-0058) |
 | RTM issues addressed | #3 (EnderChest) / #5 (永続保存データ) / #6 (Reward 2-server) / #15 (個人設定) / #17 (Tutorial) |
 
 **Scope**:
@@ -887,8 +887,8 @@ ADR-0010 (Generative AI policy deferred to Phase 6) はこの phase で finalize
 | World geometry + Block / Barrier / Schematic / MatchWorld / Restoration | 5d | 55.5% (pre-saturation denom) → 49.3% (post-saturation denom; same 71 ✅, larger catalog) | 11 (✅ `3849446`) |
 | Wave _infra-1 (Fake MC server + Scenario DSL + ADR-0059) | _infra-1 | — | 11 (✅ `a68c9bc`) |
 | **2026-05-19 RTM saturation** (ADR-0029 §"Deep audit" + parity tracker +16 rows + CONTENT-ROADMAP) | docs | denom 128→144 | 12 (✅) |
-| **Damage attribution + SkillTrigger 6→20** (ADR-0060 follow-up to 5a) | **5a-fix2** | +3 rows ✅ projected (~51% post-saturation denom) | 13 (pending、半セッション; Wave 5e と並列可) |
-| Session + Social + Tutorial + Inventory snapshot + Attribute migration + PersonalSettings (4 typed fields) + PlayerPin + LevelUpMission + PortalReady event | 5e | ~60% projected (post-saturation denom) | 14 |
+| **Damage attribution + SkillTrigger 6→20** (ADR-0060 follow-up to 5a) | **5a-fix2** | +3 rows ✅ projected (~51% post-saturation denom) | 13 (✅ `d65bf13`) |
+| Session + Social + Tutorial + Inventory snapshot + Attribute migration + PersonalSettings (4 typed fields) + PlayerPin + LevelUpMission + PortalReady event | 5e | 65.3% (post-saturation denom; 94 ✅ / 144 rows) | 14 (✅ pending commit — Wave 5e Phase C close) |
 | Economy + extensibility | 5f | ~63% projected | 15 |
 | Paper Combat (+ double-jump / particle filter / quickcast / status unified API) | 6a | ~68% projected | 16 |
 | Paper World + UI + Inventory + StructureService | 6b | **~75% projected (Phase 1 PoC 完了)** | 17 |
@@ -954,12 +954,12 @@ Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 | Wave _infra-1 | 0059 | Fake MC Server + Scenario DSL (`AsteraTestHarness`, PDCA harness, no MockBukkit) |
 | Wave _infra-2 | 0060 | DataDriven Contents + Per-Config Reload (supersedes ADR-0017) |
 | Wave _infra-3 | 0061 | Studio /weapons preview route (Three.js read-only viewer, ADR-0018 carve-out extension) |
-| Wave _infra-4 | 0062 | `contentLint` Gradle pipeline (JSON Schema + i18n parity + ref-resolve) |
+| Wave _infra-4 | 0067 | `contentLint` Gradle pipeline (JSON Schema validation; i18n parity stays in Konsist, ref-resolve deferred). Originally reserved as 0062 but 0062 was claimed by the asdsl-v2 schema-consolidation track and 0066 by the promote-studio-to-mainline track, both running in parallel; 0067 is the next free slot. |
 | **5a-fix2** | **0063** | **Damage Attribution Window** (sliding-window damage history + assist credit; ADR-0030 §1 追補) |
 | 5e (Listener-Service refactor sub-scope) | 0064 | Listener-Service separation pattern (RTM issue #22; ADR-0001 hexagonal の module-internal routing convention) |
 | **Wave _infra-2b** | **0065** | **Per-Category Reload Dispatcher** (Core-side `IReloadableContentsRegistry` + `/astera reload <category>` Brigadier command; consolidates per-plugin reload subcommands introduced in _infra-2a) |
 
-Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d), 0062 (Wave _infra-4). Drafted: 0059 (Wave _infra-1), 0060 (Wave _infra-2a, supersedes 0017), 0061 (Wave _infra-3), 0065 (Wave _infra-2b).
+Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d). Drafted: 0059 (Wave _infra-1), 0060 (Wave _infra-2a, supersedes 0017), 0061 (Wave _infra-3), 0062 (asdsl-v2 schema-consolidation track, separate from Wave _infra-4), 0063 (5a-fix2), 0064 (5e Listener-Service sub-scope), 0065 (Wave _infra-2b), 0066 (promote-studio-to-mainline track, separate from Wave _infra-4), 0067 (Wave _infra-4 contentLint — originally reserved as 0062, bumped twice due to parallel-track collisions).
 
 ---
 

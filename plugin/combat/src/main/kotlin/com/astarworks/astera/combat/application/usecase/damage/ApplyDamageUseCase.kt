@@ -18,6 +18,7 @@ import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.combat.domain.rule.DamageRule
 import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -54,6 +55,16 @@ public class ApplyDamageUseCase(
     private val teamLookup: IMatchTeamLookup?,
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
+    /**
+     * Wave 5e (ADR-0058 §armor): defender's attribute container is fetched
+     * here and threaded into [DamageRule.resolve] so
+     * [com.astarworks.astera.combat.domain.rule.ArmorReductionModifier]
+     * can read `Attributes.RESIST_*` modifiers (sourced
+     * `"armor:<slot>:<id>"` by `ApplyArmorModifiersUseCase` on
+     * `LoadoutChanged`). Nullable so tests that don't care about resist
+     * lookup can pass null — the modifier then falls back to a spec walk.
+     */
+    private val containerStore: IPlayerAttributeContainerStore? = null,
 ) {
     public fun execute(attempt: DamageAttempt): Result<DamageOutcome, ApplyDamageError> {
         // 1. Immunity check
@@ -66,10 +77,12 @@ public class ApplyDamageUseCase(
         val attackerTeam = attackerId?.let { teamLookup?.teamOf(it) }
         val defenderTeam = teamLookup?.teamOf(attempt.targetId)
         val armor = armorProvider.equippedArmor(attempt.targetId)
+        val defenderContainer = containerStore?.containerFor(attempt.targetId)
 
         val resolution = damageRule.resolve(
             attempt = attempt,
             defenderArmor = armor,
+            defenderContainer = defenderContainer,
             attackerTeam = attackerTeam,
             defenderTeam = defenderTeam,
         )

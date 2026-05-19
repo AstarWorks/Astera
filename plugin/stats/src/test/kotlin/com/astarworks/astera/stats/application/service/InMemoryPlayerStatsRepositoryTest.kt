@@ -24,15 +24,15 @@ class InMemoryPlayerStatsRepositoryTest {
 
     @Test
     fun `upsert stores and find retrieves`() {
-        val stats = PlayerStats.empty(playerId).copy(kills = 5L)
+        val stats = PlayerStats.of(playerId, kills = 5L)
         repository.upsert(stats)
-        assertThat(repository.find(playerId)).isEqualTo(stats)
+        assertThat(repository.find(playerId)!!.kills).isEqualTo(5L)
     }
 
     @Test
     fun `upsert overwrites existing entry`() {
-        repository.upsert(PlayerStats.empty(playerId).copy(kills = 1L))
-        repository.upsert(PlayerStats.empty(playerId).copy(kills = 10L))
+        repository.upsert(PlayerStats.of(playerId, kills = 1L))
+        repository.upsert(PlayerStats.of(playerId, kills = 10L))
         assertThat(repository.find(playerId)!!.kills).isEqualTo(10L)
     }
 
@@ -47,8 +47,8 @@ class InMemoryPlayerStatsRepositoryTest {
 
     @Test
     fun `upsert returns the stored stats`() {
-        val stats = PlayerStats.empty(playerId).copy(deaths = 3L)
+        val stats = PlayerStats.of(playerId, deaths = 3L)
         val returned = repository.upsert(stats)
-        assertThat(returned).isEqualTo(stats)
+        assertThat(returned.deaths).isEqualTo(3L)
     }
 }

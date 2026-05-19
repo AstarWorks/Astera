@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test
  *
  * Verifies that the value-type validation rejects malformed keys and that
  * the read extensions discriminate variant types correctly. The container
- * interface itself is tested via the [ShimPlayerAttributeContainer] in the
- * combat plugin.
+ * interface itself is tested via [SimpleAttributeContainer] in this package
+ * and the Wave 5e Postgres overlay's `WriteThroughContainer`.
  */
 internal class AttributeContainerTest {
 

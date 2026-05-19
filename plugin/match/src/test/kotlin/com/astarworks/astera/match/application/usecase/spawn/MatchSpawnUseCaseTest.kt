@@ -1,6 +1,7 @@
 package com.astarworks.astera.match.application.usecase.spawn
 
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.event.PlayerPortalReady
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.Match
@@ -15,6 +16,7 @@ import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.match.application.contents.StageContents
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
+import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeWorldGateway
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -32,6 +34,7 @@ class MatchSpawnUseCaseTest {
     private lateinit var stages: StageContents
     private lateinit var matches: InMemoryMatchRepository
     private lateinit var worldGateway: FakeWorldGateway
+    private lateinit var eventBus: FakeDomainEventBus
     private lateinit var useCase: MatchSpawnUseCase
 
     private val stageId = StageId("test-arena")
@@ -44,10 +47,12 @@ class MatchSpawnUseCaseTest {
         stages = StageContents()
         matches = InMemoryMatchRepository()
         worldGateway = FakeWorldGateway()
+        eventBus = FakeDomainEventBus()
         useCase = MatchSpawnUseCase(
             matchRepository = matches,
             stageRegistry = stages,
             worldGateway = worldGateway,
+            eventBus = eventBus,
             // RandomSpawnRotationStrategy with a single matching spawn is
             // deterministic — no need to seed the Random for these tests.
             strategy = RandomSpawnRotationStrategy(),
@@ -67,6 +72,11 @@ class MatchSpawnUseCaseTest {
         assertThat(call.playerId).isEqualTo(playerId)
         assertThat(call.at).isEqualTo(attackerPos)
         assertThat(call.world).isNull()
+        // Wave 5e: cross-server portal-ready signal must fire on happy path.
+        val portals = eventBus.publishedOfType<PlayerPortalReady.EntryReady>()
+        assertThat(portals).hasSize(1)
+        assertThat(portals.single().playerId).isEqualTo(playerId)
+        assertThat(portals.single().matchId).isEqualTo(matchId)
     }
 
     @Test
@@ -128,6 +138,8 @@ class MatchSpawnUseCaseTest {
         assertThat((error as SpawnError.TeleportFailed).playerId).isEqualTo(playerId)
         // The teleport was attempted exactly once before failing.
         assertThat(worldGateway.teleports).hasSize(1)
+        // Wave 5e: portal-ready must NOT fire when teleport fails.
+        assertThat(eventBus.publishedOfType<PlayerPortalReady.EntryReady>()).isEmpty()
     }
 
     private fun stageWithSpawns(vararg spawns: SpawnPoint): Stage = Stage(

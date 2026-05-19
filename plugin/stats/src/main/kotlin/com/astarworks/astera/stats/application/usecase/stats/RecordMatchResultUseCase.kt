@@ -1,11 +1,13 @@
 package com.astarworks.astera.stats.application.usecase.stats
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
-import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
-import com.astarworks.astera.stats.domain.event.StatsUpdated
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.attribute.AttributeValue
+import com.astarworks.astera.core.domain.attribute.Attributes
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stats.PlayerStats
+import com.astarworks.astera.stats.domain.event.StatsUpdated
 
 /**
  * Records a match result for a single player. Increments `wins` or `losses`
@@ -15,35 +17,28 @@ import com.astarworks.astera.core.domain.stats.PlayerStats
  * [RecordMatchPlayedUseCase]) so that draws (no winner) still count as a
  * played match without skewing W-L ratios.
  *
- * silly-knuth §5: publishes via [IDomainEventBus] only (in-process). External
- * fan-out (Discord match-result feed, Redis pub/sub) lives in Wave 5 and
- * subscribes to the same event downstream.
+ * Wave 5e (ADR-0058 §5): writes through the container facade instead of
+ * `.copy()` on a value class.
  */
 public class RecordMatchResultUseCase(
     private val repository: IPlayerStatsRepository,
     private val eventBus: IDomainEventBus,
 ) {
 
-    /**
-     * Increment the appropriate counter for [playerId] given [outcome].
-     *
-     * Always succeeds — failure modes are absent because [PlayerStats] is
-     * append-only and the repository is total. Returning [Result] keeps the
-     * signature aligned with sibling stats use cases for future extension.
-     */
     public fun execute(playerId: PlayerId, outcome: Outcome): Result<PlayerStats, Nothing> {
         val current = repository.find(playerId) ?: PlayerStats.empty(playerId)
-        val updated = when (outcome) {
-            Outcome.WIN -> current.copy(wins = current.wins + 1)
-            Outcome.LOSS -> current.copy(losses = current.losses + 1)
+        val (key, currentValue) = when (outcome) {
+            Outcome.WIN -> Attributes.STAT_WINS to current.wins
+            Outcome.LOSS -> Attributes.STAT_LOSSES to current.losses
         }
-        repository.upsert(updated)
+        current.container.set(key, AttributeValue.NumberValue((currentValue + 1).toDouble()))
+        repository.upsert(current)
         val kind = when (outcome) {
             Outcome.WIN -> StatsUpdated.Kind.Win
             Outcome.LOSS -> StatsUpdated.Kind.Loss
         }
         eventBus.publish(StatsUpdated(playerId, kind))
-        return Result.success(updated)
+        return Result.success(current)
     }
 
     /** Per-player outcome of a single match. Draws are recorded by no call to [execute]. */

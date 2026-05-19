@@ -27,8 +27,22 @@ import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
+import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
+import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
+import com.astarworks.astera.core.domain.event.ChatMessageSent
 import com.astarworks.astera.match.application.contents.AnomalyContents
+import com.astarworks.astera.match.application.eventbus.listeners.AuditLogListener
+import com.astarworks.astera.match.application.eventbus.listeners.SaveInventoryOnMatchEndedListener
+import com.astarworks.astera.match.application.port.outbound.IPlayerPinService
+import com.astarworks.astera.match.application.service.InMemoryPlayerPinService
+import com.astarworks.astera.match.application.usecase.pin.PlacePinUseCase
+import com.astarworks.astera.match.application.usecase.pin.RemovePinUseCase
+import com.astarworks.astera.match.application.usecase.spectator.EnterSpectatorUseCase
+import com.astarworks.astera.match.application.usecase.spectator.LeaveSpectatorUseCase
+import com.astarworks.astera.match.domain.event.MatchEnded
 import com.astarworks.astera.match.application.contents.GeneratorContents
 import com.astarworks.astera.match.application.contents.StageContents
 import com.astarworks.astera.match.application.port.outbound.IAnomalyRegistry
@@ -198,6 +212,7 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 matchRepository = matches,
                 stageRegistry = stages,
                 worldGateway = worldGateway,
+                eventBus = eventBus,
             )
             eventBus.subscribe(MatchStarted::class) { event ->
                 val match = matches.findById(event.matchId) ?: return@subscribe
@@ -375,6 +390,34 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 "running; BlockChangeJournal + RestoreBlocksOnMatchEnded + Create/" +
                 "DestroyMatchWorld listeners subscribed.",
         )
+
+        // ---- Wave 5e: Spectator + PlayerPin + Audit + Inventory snapshot save ----
+        val sessionRepo = services.getOrThrow<IPlayerSessionRepository>()
+        @Suppress("UNUSED_VARIABLE")
+        val enterSpectator = EnterSpectatorUseCase(sessionRepo)
+        @Suppress("UNUSED_VARIABLE")
+        val leaveSpectator = LeaveSpectatorUseCase(sessionRepo)
+
+        val pinService = InMemoryPlayerPinService(eventBus)
+        registrations += services.register<IPlayerPinService>(pinService, priority = 0)
+        @Suppress("UNUSED_VARIABLE") val placePin = PlacePinUseCase(pinService)
+        @Suppress("UNUSED_VARIABLE") val removePin = RemovePinUseCase(pinService)
+
+        // Audit log: AuditLogListener handles each event variant via a method per type.
+        val auditRepo = services.getOrThrow<IAuditLogRepository>()
+        val auditListener = AuditLogListener(auditRepo)
+        subscriptions += eventBus.subscribe(ChatMessageSent::class) { auditListener.handleChatMessageSent(it) }
+        subscriptions += eventBus.subscribe(MatchStarted::class) { auditListener.handleMatchStarted(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { auditListener.handleMatchEnded(it) }
+
+        // Inventory snapshot save on MatchEnded (per-participant placeholder; Wave 6b
+        // replaces with a real Bukkit-inventory capture).
+        val snapshotRepo = services.getOrThrow<IPlayerInventorySnapshotRepository>()
+        val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
+        val saveInventoryOnMatchEnded = SaveInventoryOnMatchEndedListener(saveSnapshotUseCase, matches)
+        subscriptions += eventBus.subscribe(MatchEnded::class) { saveInventoryOnMatchEnded.handle(it) }
+
+        logger.info("Wave 5e wiring complete: Spectator + PlayerPin + AuditLog + SaveInventory listeners.")
 
         // 5. Register /astera-match command tree --------------------------------
         commandHandler.register(buildMatchCommandSpec(facade, matches, playerGateway, permService))

@@ -1,0 +1,81 @@
+package com.astarworks.astera.persistence.repository
+
+import com.astarworks.astera.core.domain.player.ControlScheme
+import com.astarworks.astera.core.domain.player.ParticleVisibility
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.player.PlayerSettings
+import com.astarworks.astera.persistence.harness.PostgresIntegrationTestBase
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import java.util.UUID
+
+/**
+ * Round-trip IT for [PostgresPlayerSettingsRepository] (Wave 5e / RTM issue
+ * #15) against real Postgres via Testcontainers. Exercises every sealed
+ * variant of [ControlScheme] / [ParticleVisibility] to confirm the
+ * JSONB sealed-by-key codec round-trips both ways.
+ */
+public class PostgresPlayerSettingsRepositoryIT : PostgresIntegrationTestBase() {
+
+    @Test
+    public fun `round-trips all four typed fields with non-default variants`() {
+        val repo = PostgresPlayerSettingsRepository(db)
+        val id = PlayerId(UUID.randomUUID())
+        val settings = PlayerSettings(
+            playerId = id,
+            controlScheme = ControlScheme.Button,
+            particleVisibility = ParticleVisibility.OwnTeamOnly,
+            doubleJumpEnabled = false,
+            quickCastSlots = mapOf(1 to "astera:fireball", 4 to "astera:dash", 9 to "astera:heal"),
+        )
+
+        repo.upsert(settings)
+        val found = repo.find(id)
+
+        assertThat(found).isNotNull
+        assertThat(found!!.controlScheme).isEqualTo(ControlScheme.Button)
+        assertThat(found.particleVisibility).isEqualTo(ParticleVisibility.OwnTeamOnly)
+        assertThat(found.doubleJumpEnabled).isFalse
+        assertThat(found.quickCastSlots).containsEntry(1, "astera:fireball")
+        assertThat(found.quickCastSlots).containsEntry(4, "astera:dash")
+        assertThat(found.quickCastSlots).containsEntry(9, "astera:heal")
+    }
+
+    @Test
+    public fun `findOrDefault returns the domain default when no row exists`() {
+        val repo = PostgresPlayerSettingsRepository(db)
+        val id = PlayerId(UUID.randomUUID())
+
+        val result = repo.findOrDefault(id)
+
+        assertThat(result).isEqualTo(PlayerSettings.default(id))
+    }
+
+    @Test
+    public fun `ParticleVisibility OwnOnly round-trips`() {
+        val repo = PostgresPlayerSettingsRepository(db)
+        val id = PlayerId(UUID.randomUUID())
+        repo.upsert(PlayerSettings(id, particleVisibility = ParticleVisibility.OwnOnly))
+
+        assertThat(repo.find(id)!!.particleVisibility).isEqualTo(ParticleVisibility.OwnOnly)
+    }
+
+    @Test
+    public fun `ControlScheme RightClick (default) round-trips`() {
+        val repo = PostgresPlayerSettingsRepository(db)
+        val id = PlayerId(UUID.randomUUID())
+        repo.upsert(PlayerSettings(id, controlScheme = ControlScheme.RightClick))
+
+        assertThat(repo.find(id)!!.controlScheme).isEqualTo(ControlScheme.RightClick)
+    }
+
+    @Test
+    public fun `upsert overwrites the prior settings row`() {
+        val repo = PostgresPlayerSettingsRepository(db)
+        val id = PlayerId(UUID.randomUUID())
+        repo.upsert(PlayerSettings(id, doubleJumpEnabled = true))
+        repo.upsert(PlayerSettings(id, doubleJumpEnabled = false))
+
+        assertThat(repo.find(id)!!.doubleJumpEnabled).isFalse
+    }
+}

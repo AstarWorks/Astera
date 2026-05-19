@@ -8,17 +8,18 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 /**
- * Smoke / round-trip IT for [PostgresPlayerStatsRepository] (Worker α territory)
- * against a real Postgres via Testcontainers. Co-owned with the ε bootstrap
- * because the harness wiring is verified end-to-end through this test.
+ * Wave 5e (ADR-0058 §5) rewrite: [PostgresPlayerStatsRepository] is a thin
+ * facade over [PostgresPlayerAttributeContainer]. Round-trip exercises the
+ * V14 JSONB row + the container-store contract.
  */
 public class PostgresPlayerStatsRepositoryIT : PostgresIntegrationTestBase() {
 
     @Test
     public fun `upsert + find round-trips a PlayerStats`() {
-        val repo = PostgresPlayerStatsRepository(db)
+        val containerStore = PostgresPlayerAttributeContainer(db)
+        val repo = PostgresPlayerStatsRepository(containerStore)
         val id = PlayerId(UUID.randomUUID())
-        val stats = PlayerStats(
+        val stats = PlayerStats.of(
             playerId = id,
             kills = 7L,
             deaths = 3L,
@@ -30,42 +31,18 @@ public class PostgresPlayerStatsRepositoryIT : PostgresIntegrationTestBase() {
             wins = 2L,
             losses = 2L,
         )
-        repo.upsert(stats)
+        // Wave 5e: hydrate the Postgres container with the seed values, then
+        // flush via upsert. find() reads through the V14 JSONB row.
+        val target = containerStore.containerFor(id)
+        stats.container.keys().forEach { key ->
+            target.set(key, stats.container.get(key)!!)
+        }
+        repo.upsert(PlayerStats(id, target))
+
         val found = repo.find(id)
         assertThat(found).isNotNull
         assertThat(found!!.kills).isEqualTo(7L)
         assertThat(found.wins).isEqualTo(2L)
         assertThat(found.deaths).isEqualTo(3L)
-    }
-
-    @Test
-    public fun `all() returns inserted rows`() {
-        val repo = PostgresPlayerStatsRepository(db)
-        val before = repo.all().size
-        repo.upsert(
-            PlayerStats(
-                playerId = PlayerId(UUID.randomUUID()),
-                kills = 1L,
-                deaths = 0L,
-                assists = 0L,
-                damageDealt = 0L,
-                damageTaken = 0L,
-                playtimeSec = 0L,
-                matchesPlayed = 0L,
-            ),
-        )
-        repo.upsert(
-            PlayerStats(
-                playerId = PlayerId(UUID.randomUUID()),
-                kills = 2L,
-                deaths = 0L,
-                assists = 0L,
-                damageDealt = 0L,
-                damageTaken = 0L,
-                playtimeSec = 0L,
-                matchesPlayed = 0L,
-            ),
-        )
-        assertThat(repo.all().size).isGreaterThanOrEqualTo(before + 2)
     }
 }

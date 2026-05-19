@@ -1,0 +1,66 @@
+# Personal vault — page 1 of 2 (Wave 5e, RTM issue #3).
+#
+# PoC layout: CHEST_18 (two rows of 9). Top row (slots 0..8) is page-1
+# vault storage; bottom row is navigation (slot 9 = previous page, slot 17
+# = next page, slot 13 = close, padding borders fill).
+#
+# The 18-item capacity is split across two GUI files (page 1 here, page 2
+# in `personal-vault-page2.yaml`) because the GUI schema does not include a
+# pagination primitive yet — the `vault.page.next` / `vault.page.prev`
+# intents will be wired by the Wave 6a vault listener (open the other
+# page's `GuiSpec` via `IGuiAdapter#open`). Saving is keyed off the close
+# intent; the listener flushes the merged `PersonalVault` aggregate on
+# close.
+#
+# Reactive `vault.slot.N` bindings will be added by the Wave 6a vault
+# listener via `IGuiBindingResolver#register`; the slot type stays
+# `reactive` here so the registration call drives the render.
+id: personal-vault-page1
+title_key: astera.gui.personal_vault.title
+size: CHEST_18
+
+slots:
+  # Page-1 storage row (slots 0..8) — backed by reactive bindings the
+  # vault listener registers per player at open time.
+  - { type: reactive, index: 0, binding: vault.slot.0 }
+  - { type: reactive, index: 1, binding: vault.slot.1 }
+  - { type: reactive, index: 2, binding: vault.slot.2 }
+  - { type: reactive, index: 3, binding: vault.slot.3 }
+  - { type: reactive, index: 4, binding: vault.slot.4 }
+  - { type: reactive, index: 5, binding: vault.slot.5 }
+  - { type: reactive, index: 6, binding: vault.slot.6 }
+  - { type: reactive, index: 7, binding: vault.slot.7 }
+  - { type: reactive, index: 8, binding: vault.slot.8 }
+  # Navigation row.
+  - type: static
+    index: 9
+    item: gui-pane-dark
+  - type: border
+    index: 10
+    item: gui-pane-dark
+  - type: border
+    index: 11
+    item: gui-pane-dark
+  - type: border
+    index: 12
+    item: gui-pane-dark
+  - type: static
+    index: 13
+    item: gui-pane-red
+    on_click:
+      key: gui.close
+  - type: border
+    index: 14
+    item: gui-pane-dark
+  - type: border
+    index: 15
+    item: gui-pane-dark
+  - type: border
+    index: 16
+    item: gui-pane-dark
+  - type: static
+    index: 17
+    item: gui-pane-green
+    on_click:
+      key: vault.page.next
+      payload: { page: "2" }

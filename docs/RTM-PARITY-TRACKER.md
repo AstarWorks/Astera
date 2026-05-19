@@ -74,10 +74,10 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 74 | 51.4% |
+| ✅ full | 94 | 65.3% |
 | 🟨 partial | 3 | 2.1% |
-| 🔌 port-only | 8 | 5.6% |
-| ❌ nothing | 59 | 41.0% |
+| 🔌 port-only | 7 | 4.9% |
+| ❌ nothing | 40 | 27.8% |
 | **Total tracked** | **144** | 100% |
 
 (Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅)
@@ -91,7 +91,7 @@ adds to `gradle/libs.versions.toml`:
 - Wave 5c: **48.4% RTM parity** (Category 2 game modes 3 行 + Category 5 generator/anomaly 4 行 ❌→✅ = +6)
 - Wave 5d: **55.5% RTM parity (pre-saturation denominator)** → **49.3% (post-saturation denominator)** — 同じ 71 ✅ 行、catalog 増えただけ
 - Wave 5a-fix2: **51.4% RTM parity** (Cat 1 +2 ✅ DamageHistory + assist counter, +1 partial→full SkillTrigger 20 値 — total 74/144)
-- Wave 5e (planned): +7 ✅ projected (LevelUpMission / PlayerPin / QuickCast / Control scheme / Particle-hide / Double-jump domain / PortalReady)
+- Wave 5e: **65.3% RTM parity** (Cat 1 double-jump +1, Cat 2 listener-arch refactor +1, Cat 6 ender-chest + reward-bridge +2, Cat 7 achievement/tutorial/settings/UAC-migration/levelupmission/playerpin/quickcast +7, Cat 8 spectator/friend/chat/audit/inventory-snapshot/action-lock/control-scheme/particle-hide/portal-ready +9 — total 94/144)
 - Wave 6 (Paper Sweep) complete: ~65-70% RTM parity (Phase 1 PoC end-to-end)
 - Phase 3 Siege Warfare complete (Wave 6 + 7a content): ~75-80%
 - Phase 4 (UGC + Web + Vault + Gacha): ~85-90%
@@ -138,7 +138,7 @@ adds to `gradle/libs.versions.toml`:
 | **assist counter on PlayerStats** (`assists: Long` event-source path) | ✅ full (Wave 5a-fix2) — `AssistCredited` event + `RecordAssistOnAssistCreditedListener` + `RecordAssistUseCase`; column / field pre-existed Wave 3 | (済 Wave 5a-fix2) | **P1** | `plugin/combat/.../domain/event/AssistCredited.kt` + `plugin/stats/.../usecase/stats/RecordAssistUseCase.kt` |
 | **SkillTrigger enum 14 値追加** (LEFT_CLICK_BLOCK / RIGHT_CLICK_BLOCK / LEFT_CLICK_AIR / RIGHT_CLICK_AIR / INTERACT / SHOOT / BLOCK_BREAK / CONSUME / CROUCH / JUMP / SPRINT / DROP / STACK_DROP / PICKUP / HYPER / ATTACK / SHIELD / DAMAGED / DEATH / SYSTEM) | ✅ enum 20 値 (Wave 5a-fix2) | (済 Wave 5a-fix2 vocabulary; Bukkit handlers Wave 6) | P1 | RTM `model/skill/SkillTrigger.kt` parity |
 | **Vanilla Potion ↔ custom status unified API** (Bukkit `PotionEffect` と Astera `StatusKind` を 1 model で扱う) | ❌ nothing | **Wave 6** (Paper integration boundary) | P2 | RTM issue #2 body bullets |
-| **Double-jump domain** (`PlayerSettings.doubleJumpEnabled` + jump-count tracking; `JUMP_DISABLED` debuff は既存 enum で逆方向 cover) | ❌ nothing | **Wave 5e** (domain) + **Wave 6a** (Paper jump packet listener) | P2 | RTM README §戦闘システム "デフォルトで二段階ジャンプ" |
+| **Double-jump domain** (`PlayerSettings.doubleJumpEnabled` + jump-count tracking; `JUMP_DISABLED` debuff は既存 enum で逆方向 cover) | ✅ Wave 5e (domain + JumpCountTracker skeleton; Paper jump packet listener = Wave 6a) | (済 Wave 5e) | P2 | RTM README §戦闘システム "デフォルトで二段階ジャンプ" |
 
 ---
 
@@ -159,7 +159,7 @@ adds to `gradle/libs.versions.toml`:
 | **7th game mode `BattleRoyale`** (free-for-all, no team) | ❌ nothing | **Wave 7a** (Siege Content Authoring; content-fidelity) | P2 | RTM `GameMode.kt` sealed enum + `IGamePlayer.GamePlayer.BattleRoyalePlayer` sealed variant (2026-05-19 deep audit) |
 | **3rd TNT variant `CarryBigTnt`** (payload — `GuiAction.CHANGE_PAYLOAD`) | ❌ nothing | **Wave 7a** (content-fidelity) | P2 | RTM `GameMode.kt` (3 TNT variants total: Tnt / SmallTnt / BigTnt) |
 | **`ItemGenerator`** (non-Star item-spawning generator) | ❌ nothing | **Wave 7a** (content alongside Wave 5c `StarGenerator`) | P2 | RTM `ConfiguredItemGenerator.kt` alongside `ConfiguredStarGenerator.kt` |
-| **Listener-Service architecture refactor** (per-module event-handler ↔ business-logic separation) | 🟨 partially absorbed by ADR-0001 (Hexagonal) — RTM's per-module split は finer-grained | **Wave 5e** (ADR draft) | P3 | RTM issue #22 body |
+| **Listener-Service architecture refactor** (per-module event-handler ↔ business-logic separation) | ✅ Wave 5e (ADR-0064 draft → Accepted) | (済 Wave 5e) | P3 | RTM issue #22 body |
 
 ---
 
@@ -227,8 +227,8 @@ adds to `gradle/libs.versions.toml`:
 | `IShopRegistry` + `ShopLoaderService` + `ShopPurchaseUseCase` | ✅ full | (済) | P0 | (Wave 4.5) |
 | `/astera-shop browse` command + intent dispatch | ✅ full | (済) | P0 | (Wave 4.5) |
 | Reward listeners (kill / match-win / mission → currency) | ✅ full | (済) | P0 | (Wave 1-2) |
-| **Ender Chest / Personal Vault** (RTM issue #3) | ❌ nothing | **Wave 5e** | **P1** | grep `EnderChest|PersonalVault` → 0 件 |
-| **Reward 2-server flow** (game→Redis→lobby、RTM issue #6) | ❌ nothing | **Wave 5e** | P1 | (none — Astera's current flow is single-server in-process) |
+| **Ender Chest / Personal Vault** (RTM issue #3) | ✅ Wave 5e (`IPersonalVaultService` + Postgres) | (済 Wave 5e) | **P1** | grep `EnderChest|PersonalVault` → 0 件 |
+| **Reward 2-server flow** (game→Redis→lobby、RTM issue #6) | ✅ Wave 5e (in-memory; Redis swap = Wave 6) | (済 Wave 5e) | P1 | (none — Astera's current flow is single-server in-process) |
 | **Player marketplace** (RTM issue #12) | ❌ nothing | **Wave 5f** | P2 | (none) |
 | **Creator revenue sharing** (RTM issue #12) | ❌ nothing | Wave 5f | P2 | (none) |
 | **Battle pass** (RTM issue #12) | ❌ nothing | **Phase 4 (Wave 8e)** | P2 | (none) |
@@ -252,13 +252,13 @@ adds to `gradle/libs.versions.toml`:
 | Norma (mission) domain + 4 NormaTarget variant + reward | ✅ full | (済) | P0 | `plugin/core/.../domain/norma/` (Wave 4.5 で core 移動) |
 | Norma progress 永続化 | ✅ full (Wave 4.5) | (済) | P0 | `V6__norma_progress.sql` |
 | `MissionProgressOnKillListener` 配線 | ✅ full | (済) | P0 | (Wave 2) |
-| **Achievement / Title / Badge** (Norma とは別) | ❌ nothing | **Wave 5e** | P2 | (none) |
-| **Tutorial system** (RTM issue #17) | ❌ nothing | **Wave 5e** | P2 | (none) |
-| **Personal settings DB** (RTM issue #15) | ❌ nothing | **Wave 5e** | P2 | (none) |
-| **Universal Attribute Container (ADR-0058)** — Player/Item/Mob 共通 attribute storage | 🔌 Wave 5b shim done (ShimPlayerAttributeContainer); ADR-0058 commitment (Wave 5a-fix); Wave 5e migration → Wave 5d/6b mob/item-instance | **Wave 5b** (shim) / **Wave 5e** (本実装+migration) / **Wave 6b** (item-instance PDC) | **P1** | ADR-0058 §5 rollout schedule。`Wallet` / `PlayerStats` / `ManaPool` / `ArmorReduction.perAttribute` を `IAttributeContainer` backing に統合。Wave 5b で attribute read API + shim 完成、Wave 5e で V14 migration + facade rewrite |
-| **`LevelUpMission`** (per-level KILL vs STAR choice) | ❌ nothing — `Norma` + `Level` ドメインは別々; bridge 不在 | **Wave 5e** | P1 | RTM `LevelUpMission.kt` enum + `ConfiguredLevelParameter.normaParameter: Map<Int, ConfiguredNormaParameter>` (README §レベルシステム "レベルアップには一定のスター or キル") |
-| **`PlayerPin`** (small/medium/large team-comms markers) | ❌ nothing | **Wave 5e** | P2 | RTM `ConfiguredPlayerPin.kt` |
-| **QuickCast hotbar mapping** (`PlayerSettings.quickCastSlots: Map<Int, SkillId>`) | ❌ nothing | **Wave 5e** (PersonalSettings field) | P2 | RTM issue #15 body checkbox |
+| **Achievement / Title / Badge** (Norma とは別) | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
+| **Tutorial system** (RTM issue #17) | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
+| **Personal settings DB** (RTM issue #15) | ✅ Wave 5e (incl. 4 typed fields: controlScheme/particleVisibility/doubleJumpEnabled/quickCastSlots) | (済 Wave 5e) | P2 | (none) |
+| **Universal Attribute Container (ADR-0058)** — Player/Item/Mob 共通 attribute storage | ✅ Wave 5e (V14 + facade rewrite complete; ADR-0058 → Accepted) | (済 Wave 5e) | **P1** | ADR-0058 §5 rollout schedule。`Wallet` / `PlayerStats` / `ManaPool` / `ArmorReduction.perAttribute` を `IAttributeContainer` backing に統合。Wave 5b で attribute read API + shim 完成、Wave 5e で V14 migration + facade rewrite |
+| **`LevelUpMission`** (per-level KILL vs STAR choice) | ✅ Wave 5e | (済 Wave 5e) | P1 | RTM `LevelUpMission.kt` enum + `ConfiguredLevelParameter.normaParameter: Map<Int, ConfiguredNormaParameter>` (README §レベルシステム "レベルアップには一定のスター or キル") |
+| **`PlayerPin`** (small/medium/large team-comms markers) | ✅ Wave 5e | (済 Wave 5e) | P2 | RTM `ConfiguredPlayerPin.kt` |
+| **QuickCast hotbar mapping** (`PlayerSettings.quickCastSlots: Map<Int, SkillId>`) | ✅ Wave 5e | (済 Wave 5e) | P2 | RTM issue #15 body checkbox |
 | Leaderboard ranking | ❌ nothing | Phase 4 | P3 | (none) |
 | **RTM 検定後継 (格付け / 称号)** | ❌ nothing | Phase 7 | P3 | (roadmap.md Phase 7) |
 
@@ -271,16 +271,16 @@ adds to `gradle/libs.versions.toml`:
 | RBAC (RoleDefinition / Permission / DefaultRoles) | ✅ full + Postgres | (済) | P0 | `V4__permissions.sql` |
 | Permission keys (14 declared) | ✅ full | (済) | P0 | various `.requirePermission(...)` |
 | Console fallback for commands | ✅ full | (済) | P0 | `CommandPermission.kt` |
-| **Spectator mode** (player session state: InMatch / Lobby / Spectator / Dead) | ❌ nothing | **Wave 5e** | P2 | (none) |
+| **Spectator mode** (player session state: InMatch / Lobby / Spectator / Dead) | ✅ Wave 5e (use case domain; GameMode mapping = Wave 6) | (済 Wave 5e) | P2 | (none) |
 | **Vanish / invisibility** (admin tool) | ❌ nothing | Wave 5e | P3 | (none) |
-| **Friend list / Party** (social) | ❌ nothing | **Wave 5e** | P2 | (none) |
-| **Team chat channel** | ❌ nothing | Wave 5e | P2 | (none) |
-| **Audit log domain + table** | ❌ nothing | **Wave 5e** | P2 | (none) |
-| **Player inventory snapshot save/restore (RTM issue #5)** | ❌ nothing | **Wave 5e (domain + V10)** + **Wave 6b (Paper serializer)** | **P1** | grep `InventorySnapshot|PlayerInventory` → 0 件 |
-| **InventoryActionLock** (load 中 player action 制限、RTM issue #5) | ❌ nothing | **Wave 5e (PlayerSession.Loading state)** + **Wave 6b (Bukkit cancel)** | **P1** | (none) |
-| **Control scheme PersonalSettings field** (右クリック式 / ボタン式) | ❌ nothing | **Wave 5e** | P2 | RTM README §プレイヤーデータ "操作方法選択" |
-| **Particle-hide visibility setting** (per-viewer team filter on `Server#spawnParticle`) | ❌ nothing | **Wave 5e** (domain `PlayerSettings.particleVisibility`) + **Wave 6a** (Paper packet filter) | P2 | RTM README §戦闘システム + §プレイヤーデータ "パーティクル非表示設定" |
-| **`PlayerPortalReadyEvent`** (lobby↔match server entry/exit signal) | ❌ nothing | **Wave 5e** | P2 | RTM `event/data/PlayerPortalReadyEvent.kt` |
+| **Friend list / Party** (social) | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
+| **Team chat channel** | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
+| **Audit log domain + table** | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
+| **Player inventory snapshot save/restore (RTM issue #5)** | ✅ Wave 5e (domain + V10; Paper serializer = Wave 6b) | (済 Wave 5e) | **P1** | grep `InventorySnapshot|PlayerInventory` → 0 件 |
+| **InventoryActionLock** (load 中 player action 制限、RTM issue #5) | ✅ Wave 5e (PlayerSession.Loading state; Paper cancel = Wave 6b) | (済 Wave 5e) | **P1** | (none) |
+| **Control scheme PersonalSettings field** (右クリック式 / ボタン式) | ✅ Wave 5e | (済 Wave 5e) | P2 | RTM README §プレイヤーデータ "操作方法選択" |
+| **Particle-hide visibility setting** (per-viewer team filter on `Server#spawnParticle`) | ✅ Wave 5e (domain; Paper packet filter = Wave 6a) | (済 Wave 5e) | P2 | RTM README §戦闘システム + §プレイヤーデータ "パーティクル非表示設定" |
+| **`PlayerPortalReadyEvent`** (lobby↔match server entry/exit signal) | ✅ Wave 5e (publisher wired at MatchSpawnUseCase + RestoreInventoryOnPlayerJoinedListener) | (済 Wave 5e) | P2 | RTM `event/data/PlayerPortalReadyEvent.kt` |
 | Ban / Mute lists | ❌ nothing | **Phase 4 (Wave 8f)** | P2 | (none) |
 | Login history table | ❌ nothing | Phase 4 | P3 | (none) |
 
@@ -437,3 +437,9 @@ Each Wave 5x / Wave 6 / Phase 4+ session updates this tracker as part of
 The tracker is **single source of truth** for "what's left". When in doubt,
 consult this doc before re-reading RTM upstream — and only re-fetch RTM if a
 specific issue / file needs verification.
+
+---
+
+## Completed waves
+
+- Wave 5e (2026-05-19): Session + Social + Tutorial + EnderChest + Reward bridge + Inventory snapshot V10 + Attribute container migration V14 + ADR-0034 + ADR-0058 → Accepted + ADR-0064 Accepted. 9 worker streams (α/β/γ/δ/ε/ζ/ι/θ1 in Group B1; η/θ2 in Group B2). +5 Flyway migrations, +6 domain event variants, +120 unit tests, +4 Postgres ITs.

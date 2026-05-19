@@ -32,8 +32,8 @@ package com.astarworks.astera.core.domain.attribute
  * ## Why not use the `IAttributeContainer` defaults?
  *
  * The default modifier methods on [IAttributeContainer] are no-ops so
- * read-only shims (e.g. `ShimPlayerAttributeContainer` in combat) compile.
- * This class overrides them with the real implementation.
+ * read-only adapter shims compile. This class overrides them with the
+ * real implementation.
  */
 public class SimpleAttributeContainer : IAttributeContainer {
 

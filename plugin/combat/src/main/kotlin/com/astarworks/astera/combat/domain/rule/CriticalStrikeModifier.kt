@@ -3,6 +3,7 @@ package com.astarworks.astera.combat.domain.rule
 import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.domain.armor.ArmorBundle
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
+import com.astarworks.astera.core.domain.attribute.IAttributeContainer
 
 /**
  * Random-roll critical strike. On a successful roll the running damage is
@@ -42,6 +43,7 @@ public class CriticalStrikeModifier(
         working: WorkingDamage,
         attempt: DamageAttempt,
         armor: ArmorBundle?,
+        defenderContainer: IAttributeContainer?,
         randomizer: IDamageRandomizer,
     ): WorkingDamage {
         // Fast path: zero chance never rolls.

@@ -17,17 +17,17 @@ package com.astarworks.astera.core.domain.attribute
  * can stack via a single uniform primitive.
  *
  * Default implementations of the modifier methods are **no-op** so read-only
- * shims (e.g. `ShimPlayerAttributeContainer` in combat) keep compiling. Real
+ * adapters (e.g. early Wave 5b HUD prototype) keep compiling. Real
  * implementations override them — see [SimpleAttributeContainer].
  *
  * ## Use sites
  *
- * - **Wave 5b**: HUD shim `ShimPlayerAttributeContainer` (read-only).
- * - **Wave 5c (this wave)**: `SimpleAttributeContainer` per Star Generator
- *   instance — carries `generator.energy` + accepts Sudden Death
- *   `MULTIPLY 0.5` modifier on `generator.period_multiplier`.
- * - **Wave 5e**: `Wallet`, `PlayerStats`, `ManaPool` become facades over
- *   `IPlayerAttributeContainer`. Persistence (V14 JSONB) lands.
+ * - **Wave 5c**: `SimpleAttributeContainer` per Star Generator instance —
+ *   carries `generator.energy` + accepts Sudden Death `MULTIPLY 0.5`
+ *   modifier on `generator.period_multiplier`.
+ * - **Wave 5e (current)**: `Wallet`, `PlayerStats`, `ManaPool` are facades
+ *   over `IAttributeContainer`. Persistence (V14 JSONB) backs every player
+ *   row through `IPlayerAttributeContainerStore`.
  * - **Wave 5d / 6b**: mob and item-instance containers.
  *
  * Implementations are NOT required to be thread-safe; callers serialize

@@ -18,6 +18,9 @@ import com.astarworks.astera.combat.application.service.ChargeTracker
 import com.astarworks.astera.combat.application.service.EmptyNearbyTargetQuery
 import com.astarworks.astera.combat.application.service.InMemoryDamageHistoryService
 import com.astarworks.astera.combat.application.service.InMemoryManaPoolService
+import com.astarworks.astera.combat.application.service.JumpCountTracker
+import com.astarworks.astera.combat.application.usecase.equipment.ApplyArmorModifiersUseCase
+import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer
 import com.astarworks.astera.combat.application.service.NoOpKnockbackGateway
 import com.astarworks.astera.combat.application.service.StubArmorEquipmentProvider
@@ -193,6 +196,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 teamLookup = teamLookup,
                 eventBus = eventBus,
                 scheduler = scheduler,
+                containerStore = services.get<IPlayerAttributeContainerStore>(),
             )
             val consumeMana = ConsumeManaUseCase(manaService, eventBus)
             val castSkill = CastSkillUseCase(
@@ -251,11 +255,24 @@ public class AsteraCombatPlugin : JavaPlugin() {
             subscriptions += eventBus.subscribe(DamageDealt::class) { damageHistoryListener.handle(it) }
             subscriptions += eventBus.subscribe(PlayerKilled::class) { assistAttribution.handle(it) }
 
+            // Wave 5e: ApplyArmorModifiersUseCase + JumpCountTracker.
+            // The use case is instantiated here for future Paper-side equip
+            // wiring (Wave 6b's BukkitEventAdapter publishes LoadoutChanged
+            // with the new full ArmorBundle); Wave 5e exposes it but does
+            // not yet auto-subscribe.
+            val containerStore = services.get<IPlayerAttributeContainerStore>()
+            if (containerStore != null) {
+                @Suppress("UNUSED_VARIABLE")
+                val applyArmorModifiers = ApplyArmorModifiersUseCase(containerStore, armorContents)
+            }
+            @Suppress("UNUSED_VARIABLE") val jumpCountTracker = JumpCountTracker()
+
             logger.info(
                 "Astera-Combat use cases wired: " +
                     "ApplyDamage, CastSkill (mana-aware), ApplyStatus, TickCooldown, " +
                     "ChargedSkillCast, SkillCastDispatcher (6 archetypes), " +
-                    "DamageHistory + AssistAttribution",
+                    "DamageHistory + AssistAttribution, " +
+                    "ApplyArmorModifiers (Wave 5e, ADR-0058), JumpCountTracker (Wave 5e).",
             )
         } else {
             logger.warning(

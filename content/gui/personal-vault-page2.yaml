@@ -1,0 +1,51 @@
+# Personal vault — page 2 of 2 (Wave 5e, RTM issue #3).
+# See `personal-vault.yaml` for the design notes; this is the second page
+# of the same vault. Storage slots here are indexed 9..17 in the domain
+# `PersonalVault.items` ordering and bound via `vault.slot.9` ..
+# `vault.slot.17`.
+id: personal-vault-page2
+title_key: astera.gui.personal_vault.title
+size: CHEST_18
+
+slots:
+  - { type: reactive, index: 0, binding: vault.slot.9 }
+  - { type: reactive, index: 1, binding: vault.slot.10 }
+  - { type: reactive, index: 2, binding: vault.slot.11 }
+  - { type: reactive, index: 3, binding: vault.slot.12 }
+  - { type: reactive, index: 4, binding: vault.slot.13 }
+  - { type: reactive, index: 5, binding: vault.slot.14 }
+  - { type: reactive, index: 6, binding: vault.slot.15 }
+  - { type: reactive, index: 7, binding: vault.slot.16 }
+  - { type: reactive, index: 8, binding: vault.slot.17 }
+  - type: static
+    index: 9
+    item: gui-pane-green
+    on_click:
+      key: vault.page.prev
+      payload: { page: "1" }
+  - type: border
+    index: 10
+    item: gui-pane-dark
+  - type: border
+    index: 11
+    item: gui-pane-dark
+  - type: border
+    index: 12
+    item: gui-pane-dark
+  - type: static
+    index: 13
+    item: gui-pane-red
+    on_click:
+      key: gui.close
+  - type: border
+    index: 14
+    item: gui-pane-dark
+  - type: border
+    index: 15
+    item: gui-pane-dark
+  - type: border
+    index: 16
+    item: gui-pane-dark
+  - type: static
+    index: 17
+    item: gui-pane-dark

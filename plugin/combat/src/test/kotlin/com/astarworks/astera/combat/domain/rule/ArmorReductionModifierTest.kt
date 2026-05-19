@@ -12,6 +12,9 @@ import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.damage.MitigationReason
 import com.astarworks.astera.combat.testfixtures.FakeArmorRegistry
+import com.astarworks.astera.core.domain.attribute.AttributeModifier
+import com.astarworks.astera.core.domain.attribute.Attributes
+import com.astarworks.astera.core.domain.attribute.SimpleAttributeContainer
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -22,12 +25,21 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 /**
- * Behavior tests for [ArmorReductionModifier] (Wave 5a, worker α).
+ * Behavior tests for [ArmorReductionModifier].
+ *
+ * Wave 5e (ADR-0058 §armor): the modifier reads the defender's per-attribute
+ * resist from [com.astarworks.astera.core.domain.attribute.IAttributeContainer]
+ * via `Attributes.RESIST_<attribute>`. Each test seeds a
+ * [SimpleAttributeContainer] with the resist modifiers the
+ * `ApplyArmorModifiersUseCase` would have written at equip time, so the
+ * legacy "what's the damage outcome after armor?" assertions are preserved
+ * while validating the new read path.
  *
  * Covers: single-piece reduction, multi-piece additive stacking, set bonus
  * activation at 2-piece and 4-piece tiers, the 80% global cap (invuln
- * prevention), proportional mitigation attribution, and no-op cases
- * (null bundle, empty bundle, zero base damage).
+ * prevention), proportional mitigation attribution, no-op cases (null
+ * bundle, empty bundle, zero base damage), and per-attribute discrimination
+ * (fire-resistant chestplate blocks fire > physical).
  */
 class ArmorReductionModifierTest {
 
@@ -59,16 +71,56 @@ class ArmorReductionModifierTest {
     private fun working(base: Double): WorkingDamage =
         WorkingDamage(currentAmount = base, attribute = DamageAttribute.PHYSICAL)
 
-    private fun attempt(base: Double): DamageAttempt = DamageAttempt(
+    private fun attempt(
+        base: Double,
+        attribute: DamageAttribute = DamageAttribute.PHYSICAL,
+    ): DamageAttempt = DamageAttempt(
         targetId = targetId,
-        baseProfile = DamageProfile(base = base, attribute = DamageAttribute.PHYSICAL),
+        baseProfile = DamageProfile(base = base, attribute = attribute),
         source = DamageSource.Environment,
     )
+
+    /**
+     * Seed [container] with the resist modifiers `ApplyArmorModifiersUseCase`
+     * would have written for [armor]. Mirrors the equip-time logic so each
+     * test exercises the same read path the runtime uses.
+     */
+    private fun seedResistModifiers(
+        container: SimpleAttributeContainer,
+        armor: ArmorBundle,
+    ) {
+        for ((slot, spec) in armor.equipped) {
+            for (attribute in DamageAttribute.entries) {
+                val value = spec.reduction.forAttribute(attribute)
+                if (value <= 0.0) continue
+                container.addModifier(
+                    AttributeModifier(
+                        key = ArmorReductionModifier.resistKeyFor(attribute),
+                        operation = AttributeModifier.Operation.ADD,
+                        value = value,
+                        sourceId = "armor:${slot.name}:${spec.id.value}",
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun containerFor(armor: ArmorBundle): SimpleAttributeContainer {
+        val c = SimpleAttributeContainer()
+        seedResistModifiers(c, armor)
+        return c
+    }
 
     @Test
     fun `null bundle is a no-op`() {
         val modifier = ArmorReductionModifier(FakeArmorRegistry())
-        val out = modifier.apply(working(10.0), attempt(10.0), armor = null, randomizer = nonRandom)
+        val out = modifier.apply(
+            working(10.0),
+            attempt(10.0),
+            armor = null,
+            defenderContainer = SimpleAttributeContainer(),
+            randomizer = nonRandom,
+        )
 
         assertThat(out.currentAmount).isEqualTo(10.0)
         assertThat(out.mitigations).isEmpty()
@@ -81,6 +133,7 @@ class ArmorReductionModifierTest {
             working(10.0),
             attempt(10.0),
             armor = ArmorBundle.empty(targetId),
+            defenderContainer = SimpleAttributeContainer(),
             randomizer = nonRandom,
         )
 
@@ -91,10 +144,12 @@ class ArmorReductionModifierTest {
     @Test
     fun `helmet with 50 percent reduction halves damage`() {
         val modifier = ArmorReductionModifier(FakeArmorRegistry())
+        val armor = bundle(piece("h50", ArmorSlot.HELMET, 0.5))
         val out = modifier.apply(
             working(10.0),
             attempt(10.0),
-            armor = bundle(piece("h50", ArmorSlot.HELMET, 0.5)),
+            armor = armor,
+            defenderContainer = containerFor(armor),
             randomizer = nonRandom,
         )
 
@@ -111,15 +166,17 @@ class ArmorReductionModifierTest {
     @Test
     fun `four slots stack additively and emit four mitigation entries`() {
         val modifier = ArmorReductionModifier(FakeArmorRegistry())
+        val armor = bundle(
+            piece("h", ArmorSlot.HELMET, 0.1),
+            piece("c", ArmorSlot.CHESTPLATE, 0.2),
+            piece("l", ArmorSlot.LEGGINGS, 0.15),
+            piece("b", ArmorSlot.BOOTS, 0.05),
+        )
         val out = modifier.apply(
             working(10.0),
             attempt(10.0),
-            armor = bundle(
-                piece("h", ArmorSlot.HELMET, 0.1),
-                piece("c", ArmorSlot.CHESTPLATE, 0.2),
-                piece("l", ArmorSlot.LEGGINGS, 0.15),
-                piece("b", ArmorSlot.BOOTS, 0.05),
-            ),
+            armor = armor,
+            defenderContainer = containerFor(armor),
             randomizer = nonRandom,
         )
 
@@ -143,15 +200,17 @@ class ArmorReductionModifierTest {
     fun `eighty percent cap prevents invuln`() {
         val modifier = ArmorReductionModifier(FakeArmorRegistry())
         // Per-slot 0.30 × 4 = 1.20 total reduction; cap at 0.80.
+        val armor = bundle(
+            piece("h", ArmorSlot.HELMET, 0.3),
+            piece("c", ArmorSlot.CHESTPLATE, 0.3),
+            piece("l", ArmorSlot.LEGGINGS, 0.3),
+            piece("b", ArmorSlot.BOOTS, 0.3),
+        )
         val out = modifier.apply(
             working(10.0),
             attempt(10.0),
-            armor = bundle(
-                piece("h", ArmorSlot.HELMET, 0.3),
-                piece("c", ArmorSlot.CHESTPLATE, 0.3),
-                piece("l", ArmorSlot.LEGGINGS, 0.3),
-                piece("b", ArmorSlot.BOOTS, 0.3),
-            ),
+            armor = armor,
+            defenderContainer = containerFor(armor),
             randomizer = nonRandom,
         )
 
@@ -177,15 +236,17 @@ class ArmorReductionModifierTest {
         )
         val modifier = ArmorReductionModifier(registry)
 
+        val armor = bundle(
+            piece("h", ArmorSlot.HELMET, 0.05, setKey),
+            piece("c", ArmorSlot.CHESTPLATE, 0.05, setKey),
+            piece("l", ArmorSlot.LEGGINGS, 0.05, setKey),
+            piece("b", ArmorSlot.BOOTS, 0.05, setKey),
+        )
         val out = modifier.apply(
             working(10.0),
             attempt(10.0),
-            armor = bundle(
-                piece("h", ArmorSlot.HELMET, 0.05, setKey),
-                piece("c", ArmorSlot.CHESTPLATE, 0.05, setKey),
-                piece("l", ArmorSlot.LEGGINGS, 0.05, setKey),
-                piece("b", ArmorSlot.BOOTS, 0.05, setKey),
-            ),
+            armor = armor,
+            defenderContainer = containerFor(armor),
             randomizer = nonRandom,
         )
 
@@ -215,13 +276,15 @@ class ArmorReductionModifierTest {
         )
         val modifier = ArmorReductionModifier(registry)
 
+        val armor = bundle(
+            piece("h", ArmorSlot.HELMET, 0.05, setKey),
+            piece("c", ArmorSlot.CHESTPLATE, 0.05, setKey),
+        )
         val out = modifier.apply(
             working(10.0),
             attempt(10.0),
-            armor = bundle(
-                piece("h", ArmorSlot.HELMET, 0.05, setKey),
-                piece("c", ArmorSlot.CHESTPLATE, 0.05, setKey),
-            ),
+            armor = armor,
+            defenderContainer = containerFor(armor),
             randomizer = nonRandom,
         )
 
@@ -249,10 +312,12 @@ class ArmorReductionModifierTest {
         )
         val modifier = ArmorReductionModifier(registry)
 
+        val armor = bundle(piece("h", ArmorSlot.HELMET, 0.10, setKey))
         val out = modifier.apply(
             working(10.0),
             attempt(10.0),
-            armor = bundle(piece("h", ArmorSlot.HELMET, 0.10, setKey)),
+            armor = armor,
+            defenderContainer = containerFor(armor),
             randomizer = nonRandom,
         )
 
@@ -266,13 +331,15 @@ class ArmorReductionModifierTest {
     fun `unknown setKey is silently ignored`() {
         // Registry has no set, but pieces still reference one.
         val modifier = ArmorReductionModifier(FakeArmorRegistry())
+        val armor = bundle(
+            piece("h", ArmorSlot.HELMET, 0.10, "unknown-set"),
+            piece("c", ArmorSlot.CHESTPLATE, 0.10, "unknown-set"),
+        )
         val out = modifier.apply(
             working(10.0),
             attempt(10.0),
-            armor = bundle(
-                piece("h", ArmorSlot.HELMET, 0.10, "unknown-set"),
-                piece("c", ArmorSlot.CHESTPLATE, 0.10, "unknown-set"),
-            ),
+            armor = armor,
+            defenderContainer = containerFor(armor),
             randomizer = nonRandom,
         )
 
@@ -286,10 +353,12 @@ class ArmorReductionModifierTest {
     @Test
     fun `zero base damage skips processing`() {
         val modifier = ArmorReductionModifier(FakeArmorRegistry())
+        val armor = bundle(piece("h", ArmorSlot.HELMET, 0.5))
         val out = modifier.apply(
             working(0.0),
             attempt(0.0),
-            armor = bundle(piece("h", ArmorSlot.HELMET, 0.5)),
+            armor = armor,
+            defenderContainer = containerFor(armor),
             randomizer = nonRandom,
         )
 
@@ -301,13 +370,15 @@ class ArmorReductionModifierTest {
     fun `custom cap is respected`() {
         val modifier = ArmorReductionModifier(FakeArmorRegistry(), maxReduction = 0.5)
         // Per-slot 0.40 × 2 = 0.80 → capped to 0.50 → final 5.0.
+        val armor = bundle(
+            piece("h", ArmorSlot.HELMET, 0.4),
+            piece("c", ArmorSlot.CHESTPLATE, 0.4),
+        )
         val out = modifier.apply(
             working(10.0),
             attempt(10.0),
-            armor = bundle(
-                piece("h", ArmorSlot.HELMET, 0.4),
-                piece("c", ArmorSlot.CHESTPLATE, 0.4),
-            ),
+            armor = armor,
+            defenderContainer = containerFor(armor),
             randomizer = nonRandom,
         )
 
@@ -328,16 +399,14 @@ class ArmorReductionModifierTest {
             perAttribute = mapOf(DamageAttribute.FIRE to 0.6),
         )
         val bundleWithFireChest = bundle(fireChest)
+        val container = containerFor(bundleWithFireChest)
 
         // FIRE attack: 60% reduction → final 4.0
         val fireOut = modifier.apply(
             working(10.0),
-            DamageAttempt(
-                targetId = targetId,
-                baseProfile = DamageProfile(base = 10.0, attribute = DamageAttribute.FIRE),
-                source = DamageSource.Environment,
-            ),
+            attempt(10.0, attribute = DamageAttribute.FIRE),
             armor = bundleWithFireChest,
+            defenderContainer = container,
             randomizer = nonRandom,
         )
         assertThat(fireOut.currentAmount).isEqualTo(4.0, within(1e-9))
@@ -350,6 +419,7 @@ class ArmorReductionModifierTest {
             working(10.0),
             attempt(10.0), // PHYSICAL by default
             armor = bundleWithFireChest,
+            defenderContainer = container,
             randomizer = nonRandom,
         )
         assertThat(physOut.currentAmount).isEqualTo(8.0, within(1e-9))
@@ -368,20 +438,66 @@ class ArmorReductionModifierTest {
             perAttribute = mapOf(DamageAttribute.FIRE to 0.7),
         )
 
+        val armor = bundle(partialResist)
         // ELECTRIC is not in perAttribute → falls back to default 0.3
         val electricOut = modifier.apply(
             working(10.0),
-            DamageAttempt(
-                targetId = targetId,
-                baseProfile = DamageProfile(base = 10.0, attribute = DamageAttribute.ELECTRIC),
-                source = DamageSource.Environment,
-            ),
-            armor = bundle(partialResist),
+            attempt(10.0, attribute = DamageAttribute.ELECTRIC),
+            armor = armor,
+            defenderContainer = containerFor(armor),
             randomizer = nonRandom,
         )
         assertThat(electricOut.currentAmount).isEqualTo(7.0, within(1e-9))
         val reason = electricOut.mitigations.single().reason as MitigationReason.Armor
         assertThat(reason.attribute).isEqualTo(DamageAttribute.ELECTRIC)
         assertThat(reason.percent).isEqualTo(0.3)
+    }
+
+    // Wave 5e: container-driven read path --------------------------------
+
+    @Test
+    fun `defender container resist drives reduction value`() {
+        // Sanity: even with an empty spec walk, an explicit RESIST_FIRE
+        // modifier on the container is what drives the actual damage cut.
+        val modifier = ArmorReductionModifier(FakeArmorRegistry())
+        val armor = bundle(piece("c", ArmorSlot.CHESTPLATE, 0.0))
+        val container = SimpleAttributeContainer()
+        container.addModifier(
+            AttributeModifier(
+                key = Attributes.RESIST_FIRE,
+                operation = AttributeModifier.Operation.ADD,
+                value = 0.3,
+                sourceId = "armor:CHESTPLATE:c",
+            ),
+        )
+
+        val out = modifier.apply(
+            working(10.0),
+            attempt(10.0, attribute = DamageAttribute.FIRE),
+            armor = armor,
+            defenderContainer = container,
+            randomizer = nonRandom,
+        )
+
+        // 30% reduction → final 7.0
+        assertThat(out.currentAmount).isEqualTo(7.0, within(1e-9))
+    }
+
+    @Test
+    fun `null defenderContainer falls back to spec walk for legacy callers`() {
+        // Phase C wires the container store; until that lands (and for
+        // callers that bypass it intentionally) the modifier should still
+        // function off the bundle alone.
+        val modifier = ArmorReductionModifier(FakeArmorRegistry())
+        val armor = bundle(piece("h", ArmorSlot.HELMET, 0.4))
+        val out = modifier.apply(
+            working(10.0),
+            attempt(10.0),
+            armor = armor,
+            defenderContainer = null,
+            randomizer = nonRandom,
+        )
+
+        assertThat(out.currentAmount).isEqualTo(6.0, within(1e-9))
     }
 }

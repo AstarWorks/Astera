@@ -73,6 +73,8 @@ astera:
   gui:
     loadout:
       title: "ロードアウト"
+    personal_vault:
+      title: "パーソナルヴォルト"
     button:
       close: "閉じる"
     binding:
@@ -288,3 +290,23 @@ astera:
     title:
       match_start: "<gold><bold>試合開始</bold></gold>"
       match_end: "<red><bold>試合終了</bold></red>"
+
+  # Wave 5e — Tutorial 表示文字列 (ADR-0034)。
+  tutorial:
+    getting_started:
+      title: "<gold>はじめに</gold>"
+    welcome: "<aqua>Astera へようこそ！まずは基本操作を覚えましょう。</aqua>"
+    complete: "<green>チュートリアル終了。お楽しみください！</green>"
+
+  # Wave 5e — Achievement の既定名・説明 (ADR-0034)。
+  stats:
+    achievement:
+      kills-10:
+        name: "<gold>初血</gold>"
+        description: "<gray>キル数 10。</gray>"
+      kills-50:
+        name: "<gold>戦士</gold>"
+        description: "<gray>キル数 50。</gray>"
+      kills-100:
+        name: "<gold>英雄</gold>"
+        description: "<gray>キル数 100。</gray>"

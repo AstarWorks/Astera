@@ -1,9 +1,11 @@
 package com.astarworks.astera.match.application.usecase.spawn
 
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.event.PlayerPortalReady
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -37,6 +39,7 @@ public class MatchSpawnUseCase(
     private val matchRepository: IMatchRepository,
     private val stageRegistry: IStageRegistry,
     private val worldGateway: IWorldGateway,
+    private val eventBus: IDomainEventBus,
     private val strategy: SpawnRotationStrategy = RandomSpawnRotationStrategy(),
 ) {
 
@@ -58,6 +61,11 @@ public class MatchSpawnUseCase(
         if (!ok) {
             return Result.failure(SpawnError.TeleportFailed(playerId))
         }
+
+        // Wave 5e: signal cross-server portal-ready on the game-server entry side.
+        // Reward bridge / audit listeners on the lobby side consume this when the
+        // player reconnects after match rotation.
+        eventBus.publish(PlayerPortalReady.EntryReady(playerId = playerId, matchId = matchId))
 
         return Result.success(Unit)
     }

@@ -530,6 +530,43 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5e — ADR-0058 §5 attribute container facade rule ──────────────
+
+    /**
+     * Wave 5e (ADR-0058 §5). `Wallet` / `PlayerStats` / `ManaPool` are
+     * facades over [com.astarworks.astera.core.domain.attribute.IAttributeContainer].
+     * They MUST NOT own parallel state — every numeric field must read
+     * through the container. The only allowed stored properties are the
+     * two identity-bearing fields `playerId` and `container`.
+     *
+     * Heuristic: any property declared on these classes that is a
+     * stored `val` (no custom getter) and whose name is not in the
+     * allow-list is parallel state.
+     */
+    @Test
+    fun `ADR-0058 player resource facades must not own parallel state`() {
+        val facadeClasses = setOf(
+            "com.astarworks.astera.core.domain.economy.Wallet",
+            "com.astarworks.astera.core.domain.stats.PlayerStats",
+            "com.astarworks.astera.combat.domain.resource.ManaPool",
+        )
+        val allowedStored = setOf("playerId", "container")
+        Konsist.scopeFromProject()
+            .classes()
+            .filter { it.fullyQualifiedName in facadeClasses }
+            .flatMap { it.properties() }
+            .assertFalse(
+                additionalMessage = "ADR-0058 §5: Wallet/PlayerStats/ManaPool must back to IAttributeContainer. " +
+                    "Stored fields other than playerId / container are parallel state — convert to " +
+                    "`val foo: Long get() = container.effectiveNumber(Attributes.FOO).toLong()`.",
+            ) { prop ->
+                // Stored val (no custom getter) + not in allow-list = parallel state.
+                prop.hasValModifier &&
+                    prop.name !in allowedStored &&
+                    !prop.hasGetter
+            }
+    }
+
     // ─── R0.e — i18n key parity ──────────────────────────────────────────────
 
     /**

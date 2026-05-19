@@ -29,7 +29,7 @@ class CriticalStrikeModifierTest {
         val modifier = CriticalStrikeModifier(critChance = 1.0, critMultiplier = 2.0)
         val randomizer = FakeDamageRandomizer(listOf(0.5))
 
-        val out = modifier.apply(working(base = 10.0), attempt(), armor = null, randomizer = randomizer)
+        val out = modifier.apply(working(base = 10.0), attempt(), armor = null, defenderContainer = null, randomizer = randomizer)
 
         assertThat(out.currentAmount).isEqualTo(20.0)
         assertThat(out.wasCritical).isTrue()
@@ -41,7 +41,7 @@ class CriticalStrikeModifierTest {
         val modifier = CriticalStrikeModifier(critChance = 0.0, critMultiplier = 2.0)
         val randomizer = FakeDamageRandomizer(listOf(0.0))
 
-        val out = modifier.apply(working(base = 10.0), attempt(), armor = null, randomizer = randomizer)
+        val out = modifier.apply(working(base = 10.0), attempt(), armor = null, defenderContainer = null, randomizer = randomizer)
 
         assertThat(out.currentAmount).isEqualTo(10.0)
         assertThat(out.wasCritical).isFalse()
@@ -53,7 +53,7 @@ class CriticalStrikeModifierTest {
         val modifier = CriticalStrikeModifier(critChance = 0.5, critMultiplier = 3.0)
         val randomizer = FakeDamageRandomizer(listOf(0.0))
 
-        val out = modifier.apply(working(base = 10.0), attempt(), armor = null, randomizer = randomizer)
+        val out = modifier.apply(working(base = 10.0), attempt(), armor = null, defenderContainer = null, randomizer = randomizer)
 
         assertThat(out.currentAmount).isEqualTo(30.0)
         assertThat(out.wasCritical).isTrue()
@@ -65,7 +65,7 @@ class CriticalStrikeModifierTest {
         val modifier = CriticalStrikeModifier(critChance = 0.5, critMultiplier = 3.0)
         val randomizer = FakeDamageRandomizer(listOf(0.99))
 
-        val out = modifier.apply(working(base = 10.0), attempt(), armor = null, randomizer = randomizer)
+        val out = modifier.apply(working(base = 10.0), attempt(), armor = null, defenderContainer = null, randomizer = randomizer)
 
         assertThat(out.currentAmount).isEqualTo(10.0)
         assertThat(out.wasCritical).isFalse()
@@ -81,7 +81,7 @@ class CriticalStrikeModifierTest {
         val modifier = CriticalStrikeModifier(critChance = 1.0, critMultiplier = 2.0)
         val randomizer = FakeDamageRandomizer(listOf(0.0))
 
-        val out = modifier.apply(w, attempt(), armor = null, randomizer = randomizer)
+        val out = modifier.apply(w, attempt(), armor = null, defenderContainer = null, randomizer = randomizer)
 
         // Stacked: 10 * 2 (headshot) * 2 (crit) = 40
         assertThat(out.currentAmount).isEqualTo(40.0)
@@ -118,7 +118,7 @@ class CriticalStrikeModifierTest {
                 called++; return 0.0
             }
         }
-        modifier.apply(working(), attempt(), armor = null, randomizer = randomizer)
+        modifier.apply(working(), attempt(), armor = null, defenderContainer = null, randomizer = randomizer)
         assertThat(randomizer.called).isEqualTo(0)
     }
 }

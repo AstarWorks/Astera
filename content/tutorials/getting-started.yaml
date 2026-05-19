@@ -1,0 +1,25 @@
+# Default Astera onboarding tutorial (Wave 5e, RTM issue #17).
+#
+# Loaded at server start by `TutorialContents.bootstrap(content/tutorials/)`.
+# Started for a player by `RunTutorialUseCase.start(player, TutorialScriptId("getting-started"))`.
+# Wave 6a will subscribe to `TutorialStepEntered` and translate each step
+# into the appropriate IBroadcaster / IPlayerGateway call.
+#
+# Step variants demonstrated:
+#   - send_message   : MiniMessage rendered through IMessageRenderer
+#   - give_item      : ItemId reference into content/items/
+#   - wait_for_action: pauses until the player triggers a script-defined
+#                      action token (here: fires their weapon)
+id: getting-started
+displayKey: astera.tutorial.getting_started.title
+steps:
+  - type: send_message
+    key: astera.tutorial.welcome
+  - type: give_item
+    itemId: astera:example-pistol
+    count: 1
+  - type: wait_for_action
+    actionId: fire_weapon
+    timeoutSec: 60
+  - type: send_message
+    key: astera.tutorial.complete

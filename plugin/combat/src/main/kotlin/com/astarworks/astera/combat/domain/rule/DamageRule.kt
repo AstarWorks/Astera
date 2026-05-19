@@ -4,6 +4,7 @@ import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.domain.armor.ArmorBundle
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageResolution
+import com.astarworks.astera.core.domain.attribute.IAttributeContainer
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.match.TeamId
 
@@ -18,6 +19,12 @@ import com.astarworks.astera.core.domain.match.TeamId
  *    same file; the pipeline turns each concern into its own modifier file.
  *  - Element matrix + friendly-fire are pipeline pre-stages (not modifiers)
  *    because they short-circuit the pipeline rather than mutating damage.
+ *
+ * Wave 5e (ADR-0058 §armor): `resolve` accepts the defender's
+ * [IAttributeContainer]. [ArmorReductionModifier] reads
+ * `Attributes.RESIST_*` from it instead of walking
+ * `defenderArmor.equipped[*].reduction.perAttribute` directly. The bundle
+ * is still threaded for per-slot attribution + set-bonus aggregation.
  *
  * Order of operations:
  *  1. Friendly-fire gate (returns [DamageResolution.blocked] when blocked)
@@ -37,6 +44,7 @@ public class DamageRule(
         attempt: DamageAttempt,
         defenderAttribute: DamageAttribute? = null,
         defenderArmor: ArmorBundle? = null,
+        defenderContainer: IAttributeContainer? = null,
         attackerTeam: TeamId? = null,
         defenderTeam: TeamId? = null,
     ): DamageResolution {
@@ -50,7 +58,7 @@ public class DamageRule(
 
         // 3. modifier pipeline
         for (mod in modifiers) {
-            working = mod.apply(working, attempt, defenderArmor, randomizer)
+            working = mod.apply(working, attempt, defenderArmor, defenderContainer, randomizer)
         }
 
         // 4. freeze

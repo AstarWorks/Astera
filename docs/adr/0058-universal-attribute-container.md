@@ -1,16 +1,66 @@
 ---
-status: Draft
+status: Accepted
 date: 2026-05-19
-deciders: ryuzu
+accepted_date: 2026-05-19
+deciders: ryuzu, orchestrator (Wave 5e)
 supersedes: null
 superseded_by: null
 ---
 
-# ADR-0031: Universal Attribute Container
+# ADR-0058: Universal Attribute Container
 
 ## Status
 
-Draft
+Accepted
+
+## Implementation (Wave 5e land — flip to Accepted)
+
+Wave 5b shipped the read-only shim (`ShimPlayerAttributeContainer` in
+combat); Wave 5e promotes it to canonical storage. Files:
+
+- `plugin/core/.../domain/attribute/{IAttributeContainer,
+  SimpleAttributeContainer, Attributes, AttributeKey, AttributeValue,
+  AttributeModifier}.kt` — base infra (Wave 5b/5c).
+- `plugin/core/.../application/port/outbound/IPlayerAttributeContainerStore.kt`
+  — per-player container lookup.
+- `plugin/core/.../application/service/InMemoryPlayerAttributeContainer.kt`
+  — default impl (priority 0). Wave 5b shim deleted.
+- `plugin/persistence/.../repository/PostgresPlayerAttributeContainer.kt`
+  — write-through impl backed by V14 `player_attributes` JSONB
+  (priority 100).
+- `plugin/persistence/src/main/resources/db/migration/V14__player_attributes.sql`
+  — table + single-pass backfill `INSERT...SELECT jsonb_build_object(...)`
+  from V1 `player_stats` + V3 `wallets`. Old tables remain (drop deferred).
+- `plugin/core/.../domain/economy/Wallet.kt`,
+  `plugin/core/.../domain/stats/PlayerStats.kt`,
+  `plugin/combat/.../domain/resource/ManaPool.kt` — facades over
+  `IAttributeContainer` (fields are computed getters).
+- `plugin/economy/.../application/service/InMemoryCurrencyLedger.kt`,
+  `plugin/persistence/.../repository/PostgresCurrencyLedger.kt`,
+  `plugin/persistence/.../repository/PostgresPlayerStatsRepository.kt`,
+  `plugin/combat/.../application/service/InMemoryManaPoolService.kt`
+  — rewritten to delegate to the container store. External
+  signatures (`balance`, `deposit`, `find`, `spend`, etc.) preserved
+  except for ctor parameters.
+- `plugin/stats/.../application/usecase/stats/RecordKillUseCase.kt`
+  (et al.) — rewritten to `container.set(STAT_KILLS, ...)` instead of
+  `data class .copy(kills=...)`.
+- `plugin/combat/.../domain/rule/ArmorReductionModifier.kt` — read
+  path now `defender.container.effectiveNumber(Attributes.RESIST_*)`.
+- `plugin/combat/.../application/usecase/equipment/ApplyArmorModifiersUseCase.kt`
+  — equip-time pusher of `AttributeModifier(RESIST_*, ADD, value,
+  sourceId="armor:<slot>:<id>")`; Wave 6b wires to Bukkit equipment events.
+- `tools/architecture-test/.../ArchitectureTest.kt` — new Konsist rule
+  `ADR-0058 player resource facades must not own parallel state`
+  forbidding stored fields on Wallet/PlayerStats/ManaPool beyond
+  `playerId` / `container`.
+
+`Attributes` registry extended with `STAT_KILLS / STAT_DEATHS /
+STAT_ASSISTS / STAT_DAMAGE_DEALT / STAT_DAMAGE_TAKEN /
+STAT_PLAYTIME_SEC / STAT_MATCHES_PLAYED / STAT_WINS / STAT_LOSSES` +
+`WALLET_STAR / WALLET_GOLD / WALLET_GEM` + `MANA_LAST_REGEN_TICK`.
+
+## (Original Draft body below)
 
 ## Context
 

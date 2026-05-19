@@ -65,6 +65,8 @@ astera:
   gui:
     loadout:
       title: "Loadout"
+    personal_vault:
+      title: "Personal Vault"
     button:
       close: "Close"
     binding:
@@ -285,3 +287,27 @@ astera:
     title:
       match_start: "<gold><bold>MATCH START</bold></gold>"
       match_end: "<red><bold>MATCH END</bold></red>"
+
+  # Wave 5e — Tutorial display strings (ADR-0034). Renders via `astera.tutorial.*`
+  # MessageKey calls in `TutorialContents` + `content/tutorials/*.yaml`.
+  # Wave 6a wires the Paper-side `TutorialStepEntered` listener that renders.
+  tutorial:
+    getting_started:
+      title: "<gold>Getting Started</gold>"
+    welcome: "<aqua>Welcome to Astera! Let's get you set up.</aqua>"
+    complete: "<green>Tutorial complete. Have fun!</green>"
+
+  # Wave 5e — Achievement default names + descriptions (ADR-0034).
+  # Worker γ exposes 8 milestone achievement IDs; admin-registered catalog
+  # consumes these `MessageKey` refs in Wave 5e. Wave 6a wires UI surfacing.
+  stats:
+    achievement:
+      kills-10:
+        name: "<gold>First Blood</gold>"
+        description: "<gray>10 kills.</gray>"
+      kills-50:
+        name: "<gold>Slayer</gold>"
+        description: "<gray>50 kills.</gray>"
+      kills-100:
+        name: "<gold>Legend</gold>"
+        description: "<gray>100 kills.</gray>"

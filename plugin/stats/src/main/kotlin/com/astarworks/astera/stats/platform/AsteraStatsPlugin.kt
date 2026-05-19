@@ -35,7 +35,18 @@ import com.astarworks.astera.stats.application.port.outbound.ILevelService
 import com.astarworks.astera.stats.application.port.outbound.INormaRegistry
 import com.astarworks.astera.stats.application.port.outbound.INormaService
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
+import com.astarworks.astera.core.application.port.outbound.IRewardBridge
+import com.astarworks.astera.stats.application.eventbus.listeners.AdvanceLevelOnNormaCompletedListener
+import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnMatchEndedListener
+import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnMissionCompletedListener
+import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnDamageMilestoneListener
+import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnKillMilestoneListener
+import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnMatchWinListener
+import com.astarworks.astera.stats.application.port.outbound.IAchievementRepository
+import com.astarworks.astera.stats.application.service.InMemoryAchievementRepository
 import com.astarworks.astera.stats.application.service.InMemoryLevelService
+import com.astarworks.astera.stats.application.usecase.achievement.UnlockAchievementUseCase
+import com.astarworks.astera.stats.domain.event.MissionCompleted
 import com.astarworks.astera.stats.application.service.InMemoryNormaProgressRepository
 import com.astarworks.astera.stats.application.service.InMemoryNormaService
 import com.astarworks.astera.stats.application.service.InMemoryPlayerStatsRepository
@@ -160,6 +171,30 @@ public class AsteraStatsPlugin : JavaPlugin() {
         subscriptions += eventBus.subscribe(MatchEnded::class) { recordMatchResultListener.handle(it) }
         subscriptions += eventBus.subscribe(LeveledUp::class) { broadcastOnLeveledUpListener.handle(it) }
         subscriptions += eventBus.subscribe(AssistCredited::class) { recordAssistListener.handle(it) }
+
+        // ---- Wave 5e Achievement + LevelUpMission + Reward listeners ---------
+        val achievementRepo = InMemoryAchievementRepository()
+        registrations += services.register<IAchievementRepository>(achievementRepo, priority = 0)
+        val unlockAchievement = UnlockAchievementUseCase(achievementRepo, eventBus)
+        val killMilestoneListener = UnlockAchievementOnKillMilestoneListener(unlockAchievement, statsRepository)
+        val damageMilestoneListener = UnlockAchievementOnDamageMilestoneListener(unlockAchievement, statsRepository)
+        val matchWinMilestoneListener = UnlockAchievementOnMatchWinListener(unlockAchievement, statsRepository)
+        val advanceLevelOnNormaListener = AdvanceLevelOnNormaCompletedListener(
+            levelService,
+            grantXp,
+            AdvanceLevelOnNormaCompletedListener.DEFAULT_CRITERION_BY_LEVEL,
+        )
+        // Reward 2-server flow: enqueue bundles on match-end / mission-complete.
+        val rewardBridge = services.getOrThrow<IRewardBridge>()
+        val rewardOnMatchEnded = RewardOnMatchEndedListener(matchRepository, rewardBridge)
+        val rewardOnMissionCompleted = RewardOnMissionCompletedListener(rewardBridge)
+
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { killMilestoneListener.handle(it) }
+        subscriptions += eventBus.subscribe(DamageDealt::class) { damageMilestoneListener.handle(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { matchWinMilestoneListener.handle(it) }
+        subscriptions += eventBus.subscribe(MissionCompleted::class) { advanceLevelOnNormaListener.handle(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { rewardOnMatchEnded.handle(it) }
+        subscriptions += eventBus.subscribe(MissionCompleted::class) { rewardOnMissionCompleted.handle(it) }
 
         // 7. /astera-stats command -----------------------------------------
         commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway, permService))

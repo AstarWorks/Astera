@@ -4,6 +4,7 @@ import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.domain.armor.ArmorBundle
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
+import com.astarworks.astera.core.domain.attribute.IAttributeContainer
 import com.astarworks.astera.core.domain.geometry.Vec3
 
 /**
@@ -54,6 +55,7 @@ public class KnockbackModifier(
         working: WorkingDamage,
         attempt: DamageAttempt,
         armor: ArmorBundle?,
+        defenderContainer: IAttributeContainer?,
         randomizer: IDamageRandomizer,
     ): WorkingDamage {
         if (baseMagnitude == 0.0) return working

@@ -19,6 +19,8 @@ import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.contents.GuiContents
 import com.astarworks.astera.core.application.contents.ItemContents
+import com.astarworks.astera.core.application.contents.TutorialContents
+import com.astarworks.astera.core.application.eventbus.listeners.RestoreInventoryOnPlayerJoinedListener
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
 import com.astarworks.astera.core.application.i18n.LanguageLoader
 import com.astarworks.astera.core.application.i18n.SimpleMessageRenderer
@@ -30,25 +32,47 @@ import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver
 import com.astarworks.astera.core.application.port.outbound.IGuiRegistry
+import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
+import com.astarworks.astera.core.application.port.outbound.IFriendshipRepository
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPartyRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
+import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
+import com.astarworks.astera.core.application.port.outbound.IRewardBridge
+import com.astarworks.astera.core.application.port.outbound.ITutorialRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
 import com.astarworks.astera.core.application.port.outbound.ReloadError
 import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
+import com.astarworks.astera.core.application.service.InMemoryAuditLogRepository
 import com.astarworks.astera.core.application.service.InMemoryBlockStateGateway
 import com.astarworks.astera.core.application.service.InMemoryBossBarManager
+import com.astarworks.astera.core.application.service.InMemoryFriendshipRepository
+import com.astarworks.astera.core.application.service.InMemoryPartyRepository
 import com.astarworks.astera.core.application.service.InMemoryPermissionService
+import com.astarworks.astera.core.application.service.InMemoryPersonalVaultRepository
+import com.astarworks.astera.core.application.service.InMemoryPlayerAttributeContainer
+import com.astarworks.astera.core.application.service.InMemoryPlayerInventorySnapshotRepository
+import com.astarworks.astera.core.application.service.InMemoryPlayerSessionRepository
+import com.astarworks.astera.core.application.service.InMemoryPlayerSettingsRepository
 import com.astarworks.astera.core.application.service.InMemoryReloadableContentsRegistry
+import com.astarworks.astera.core.application.service.InMemoryRewardBridge
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
 import com.astarworks.astera.core.application.service.InMemorySchematicLoader
 import com.astarworks.astera.core.application.service.InMemoryTabList
+import com.astarworks.astera.core.application.usecase.inventory.RestoreInventorySnapshotUseCase
+import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
+import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.register
@@ -281,6 +305,46 @@ public class AsteraCorePlugin : JavaPlugin() {
         // their resolved on-disk directories.
         reloadRegistry.register(itemContents, itemsContentDir)
         reloadRegistry.register(guiContents, guiContentDir)
+
+        // ---- Wave 5e Session / Social / Vault / Settings / Reward / Audit / Snapshot / Attribute container ----
+        // All in-memory at priority 0; persistence overlays at priority 100 when env vars are set.
+        val attributeContainerStore: IPlayerAttributeContainerStore =
+            services.get<IPlayerAttributeContainerStore>() ?: InMemoryPlayerAttributeContainer().also {
+                services.register<IPlayerAttributeContainerStore>(it, priority = 0)
+            }
+        val sessionRepo: IPlayerSessionRepository = InMemoryPlayerSessionRepository()
+        services.register<IPlayerSessionRepository>(sessionRepo, priority = 0)
+        services.register<IFriendshipRepository>(InMemoryFriendshipRepository(), priority = 0)
+        services.register<IPartyRepository>(InMemoryPartyRepository(), priority = 0)
+        val vaultRepo: IPersonalVaultRepository = services.get<IPersonalVaultRepository>()
+            ?: InMemoryPersonalVaultRepository().also { services.register<IPersonalVaultRepository>(it, priority = 0) }
+        val settingsRepo: IPlayerSettingsRepository = services.get<IPlayerSettingsRepository>()
+            ?: InMemoryPlayerSettingsRepository().also { services.register<IPlayerSettingsRepository>(it, priority = 0) }
+        services.register<IRewardBridge>(InMemoryRewardBridge(), priority = 0)
+        val auditRepo: IAuditLogRepository = services.get<IAuditLogRepository>()
+            ?: InMemoryAuditLogRepository().also { services.register<IAuditLogRepository>(it, priority = 0) }
+        val snapshotRepo: IPlayerInventorySnapshotRepository = services.get<IPlayerInventorySnapshotRepository>()
+            ?: InMemoryPlayerInventorySnapshotRepository().also { services.register<IPlayerInventorySnapshotRepository>(it, priority = 0) }
+
+        // Tutorial: Contents-driven YAML at content/tutorials/.
+        val tutorialsContentDir: Path = contentDir.resolve("tutorials")
+        val tutorialContents = TutorialContents()
+        tutorialContents.bootstrap(tutorialsContentDir)
+        services.register<ITutorialRegistry>(tutorialContents, priority = 0)
+        reloadRegistry.register(tutorialContents, tutorialsContentDir)
+
+        // Inventory snapshot use cases + PlayerJoined-side listener.
+        @Suppress("UNUSED_VARIABLE")
+        val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
+        val restoreSnapshotUseCase = RestoreInventorySnapshotUseCase(snapshotRepo, sessionRepo, eventBus)
+        val restoreOnJoin = RestoreInventoryOnPlayerJoinedListener(restoreSnapshotUseCase)
+        eventBus.subscribe(PlayerJoinedServer::class) { restoreOnJoin.handle(it) }
+
+        // Silence unused-var (attributes/vault/settings/audit returned via registry for cross-plugin pickup).
+        @Suppress("UNUSED_VARIABLE") val attrStoreRef = attributeContainerStore
+        @Suppress("UNUSED_VARIABLE") val vaultRef = vaultRepo
+        @Suppress("UNUSED_VARIABLE") val settingsRef = settingsRepo
+        @Suppress("UNUSED_VARIABLE") val auditRef = auditRepo
 
         // /astera reload <category> — single Brigadier command for every content type.
         // Permission: astera.reload (admin tier). Argument is a single-word string;
