@@ -1,16 +1,19 @@
 ---
-status: Proposed
+status: Accepted; Tier I (Studio UI) superseded
 date: 2026-05-19
 deciders: Astera workspace (Wave _items-1)
 supersedes: null
-superseded_by: null
+superseded_by: [[adr/0075]] (Tier I — Studio `/items` UI のみ)
 ---
 
 # ADR-0073: Item-centric content model + multi-skill binding + inline i18n
 
 ## Status
 
-Proposed
+Accepted (2026-05-19, Wave _items-1).
+Tier I (Studio `/items` read-only UI) superseded by [[adr/0075]]
+(2026-05-20) — Tier II/III (data model + multi-skill binding + inline
+i18n) は確定済として残る。
 
 ## Context
 

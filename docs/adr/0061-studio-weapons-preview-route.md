@@ -1,16 +1,21 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-05-19
 deciders: orchestrator (Wave _infra-3)
 supersedes: null
-superseded_by: null
+superseded_by: [[adr/0073]] (route rename `/weapons` → `/items`), [[adr/0075]] (route removed entirely)
 ---
 
 # ADR-0061: Studio `/weapons` Preview Route
 
 ## Status
 
-Accepted
+Superseded.
+- ADR-0073 (2026-05-19) renamed the route to `/items` and absorbed it
+  into the Item-centric content model.
+- ADR-0075 (2026-05-20) removed the route entirely — read-only YAML
+  preview did not justify the implementation cost; the original intent
+  ("MC-less skill preview") is filed as future work (Skill Playground).
 
 ## Context
 

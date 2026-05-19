@@ -29,9 +29,6 @@ const envPath = (envKey: string, fallback: string): string =>
 
 export const texturesDir = envPath('STUDIO_TEXTURES_DIR', 'content/textures')
 export const manifestPath = path.join(texturesDir, 'manifest.json')
-export const languagesDir = envPath('STUDIO_LANGUAGES_DIR', 'content/languages')
-// Wave _items-1 (ADR-0073): content/weapons/ deleted; items first-class.
-export const itemsContentDir = envPath('STUDIO_ITEMS_DIR', 'content/items')
 export const modelsContentDir = envPath('STUDIO_MODELS_DIR', 'content/models')
 export const effectsContentDir = envPath('STUDIO_EFFECTS_DIR', 'content/effects')
 export const scriptsDir = envPath('STUDIO_SCRIPTS_DIR', 'tools/texture-gen/scripts')

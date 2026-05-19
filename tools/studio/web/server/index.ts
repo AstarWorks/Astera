@@ -13,11 +13,9 @@ import { jobs } from './routes/jobs'
 import { tiles } from './routes/tiles'
 import { generate } from './routes/generate'
 import { models } from './routes/models'
-import { items } from './routes/items'
 import { effects } from './routes/effects'
 import { chat as chatRoute } from './routes/chat'
 import { textures as texturesRoute } from './routes/textures'
-import { languages as languagesRoute } from './routes/languages'
 import { stateRoute } from './routes/state'
 import { paintRoute } from './routes/paint'
 import { cuboidsRoute } from './routes/cuboids'
@@ -38,9 +36,7 @@ app.route('/api/jobs', tiles)
 app.route('/api/jobs', jobs)
 app.route('/api/generate', generate)
 app.route('/api/models', models)
-app.route('/api/items', items)
 app.route('/api/textures', texturesRoute)
-app.route('/api/languages', languagesRoute)
 app.route('/api/state', stateRoute)
 app.route('/api/paint', paintRoute)
 app.route('/api/cuboids', cuboidsRoute)

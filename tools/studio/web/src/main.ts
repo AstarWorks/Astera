@@ -8,7 +8,6 @@ import App from './App.vue'
 import TexturesView from './routes/TexturesView.vue'
 import ModelsView from './routes/ModelsView.vue'
 import EffectsView from './routes/EffectsView.vue'
-import ItemsView from './routes/ItemsView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -17,7 +16,6 @@ const router = createRouter({
     { path: '/textures', component: TexturesView },
     { path: '/models', component: ModelsView },
     { path: '/effects', component: EffectsView },
-    { path: '/items', component: ItemsView },
   ],
 })
 

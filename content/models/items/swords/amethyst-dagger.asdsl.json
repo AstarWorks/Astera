@@ -1,0 +1,85 @@
+{
+  "name": "items/swords/amethyst-dagger",
+  "params": {},
+  "parts": {
+    "blade": {
+      "kind": "tapered_prism",
+      "axis": "y",
+      "base_size": [
+        1.6,
+        0.8
+      ],
+      "tip_size": [
+        0.4,
+        0.3
+      ],
+      "length": 8.5,
+      "tip_style": "pointed_rot",
+      "cross_section": "octagon",
+      "delta_y": 7.5
+    },
+    "guard_plate": {
+      "kind": "chamfered_cuboid",
+      "size": [
+        5,
+        1.5,
+        2.2
+      ],
+      "chamfer": 0.3,
+      "axis": "y",
+      "relative_to": "blade",
+      "align": "base_center",
+      "delta_y": -1.5
+    },
+    "guard_spike_right": {
+      "kind": "cylinder",
+      "axis": "x",
+      "length": 2.5,
+      "diameter": 0.6,
+      "roundness": 2,
+      "relative_to": "guard_plate",
+      "align": "right_center"
+    },
+    "guard_spike_left": {
+      "kind": "cylinder",
+      "axis": "x",
+      "length": 2.5,
+      "diameter": 0.6,
+      "roundness": 2,
+      "relative_to": "guard_plate",
+      "align": "left_center",
+      "delta_x": -2.5
+    },
+    "grip": {
+      "kind": "cylinder",
+      "axis": "y",
+      "length": 4.5,
+      "diameter": 1.5,
+      "roundness": 2,
+      "relative_to": "guard_plate",
+      "align": "base_center",
+      "delta_y": -4.5
+    },
+    "pommel": {
+      "kind": "sphere",
+      "diameter": 1.8,
+      "relative_to": "grip",
+      "align": "base_center",
+      "delta_y": -1.5,
+      "layers": 3
+    }
+  },
+  "textures": {
+    "blade_body": "minecraft:block/amethyst_block",
+    "blade_edge": "minecraft:block/amethyst_cluster",
+    "metal_warm": "minecraft:block/copper_block",
+    "wood": "minecraft:block/purpur_block",
+    "gem": "minecraft:block/amethyst_cluster"
+  },
+  "face_overrides": {},
+  "display": {
+    "gui_rotation_z": 45,
+    "gui_scale": 1
+  },
+  "quality": "high"
+}

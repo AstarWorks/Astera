@@ -1,1 +1,10 @@
-{"version":1,"models":{}}
+{
+  "version": 1,
+  "models": {
+    "items/swords/amethyst-dagger": {
+      "path": "content/models/items/swords/amethyst-dagger.model.json",
+      "updated_at": "2026-05-19T23:09:11.150Z",
+      "bbmodel": "content/models/items/swords/amethyst-dagger.bbmodel"
+    }
+  }
+}

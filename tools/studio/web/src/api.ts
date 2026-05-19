@@ -33,64 +33,6 @@ export type LoadedEffect = {
   graph: FxGraph
 }
 
-// Wave _infra-5 (ADR-0070): read-only item preview types. Field names
-// mirror ItemYamlConfig.kt (kaml decodes from snake_case YAML).
-export type ItemListEntry = {
-  slug: string
-  path: string
-  rarity: string | null
-  material: string | null
-  skillCount: number
-}
-
-export type ItemSkillBindingYaml = {
-  trigger: string
-  skill_id: string
-  cooldown_override_ticks?: number | null
-}
-
-export type ItemAttributesYaml = {
-  attack_damage?: number | null
-  attack_speed?: number | null
-  armor?: number | null
-  armor_toughness?: number | null
-  knockback_resistance?: number | null
-  movement_speed_multiplier?: number | null
-  max_health_bonus?: number | null
-}
-
-export type ItemYamlConfig = {
-  id: string
-  material?: string
-  external_key?: string
-  custom_model_data?: number | null
-  model?: string  // NEW (ADR-0070): opaque model slug
-  name?: Record<string, string>
-  lore?: Record<string, string[]>
-  rarity?: string
-  level_requirement?: number
-  attributes?: ItemAttributesYaml
-  equip_slot?: string
-  max_durability?: number | null
-  unbreakable?: boolean
-  drop_on_death?: boolean
-  keep_on_death?: boolean
-  enchantable?: boolean
-  glint?: boolean | null
-  skills?: ItemSkillBindingYaml[]
-  pdc_tags?: Record<string, string>
-}
-
-export type LoadedItem = {
-  slug: string
-  spec: ItemYamlConfig
-  archetypeHint: string
-  modelArchetype: string
-  modelSource: 'content' | 'samples' | 'archetype'  // NEW (ADR-0070)
-  modelPathRelative: string | null  // NEW (ADR-0070)
-  modelFallback: boolean
-}
-
 export type ChatTurn = { role: 'user' | 'assistant'; content: string }
 
 export type JsonPatchOp = {
@@ -183,18 +125,6 @@ export const api = {
   models: () => j<ModelListEntry[]>('/api/models'),
   loadModel: (scope: 'samples' | 'content', slug: string) =>
     j<LoadedModel>(`/api/models/load/${scope}/${slug}`),
-  // Wave _infra-5 (ADR-0070): read-only items preview.
-  items: () => j<ItemListEntry[]>('/api/items'),
-  loadItem: (slug: string) => j<LoadedItem>(`/api/items/load/${slug}`),
-  itemModelBySlug: (slug: string) => j<McModel>(`/api/items/model/by-slug/${slug}`),
-  itemModelByArchetype: (archetype: string) =>
-    j<McModel>(`/api/items/model/${archetype}`),
-  // Language files for i18n resolution in /items (ADR-0073 Tier I).
-  languages: () => j<string[]>('/api/languages'),
-  loadLocale: (locale: string) =>
-    j<{ locale: string; entries: Record<string, string | string[]> }>(
-      `/api/languages/${locale}`,
-    ),
   effects: () => j<EffectListEntry[]>('/api/effects'),
   loadEffect: (scope: 'samples' | 'content', slug: string) =>
     j<LoadedEffect>(`/api/effects/load/${scope}/${slug}`),

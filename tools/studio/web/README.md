@@ -69,9 +69,6 @@ Or finer-grained:
 | `STUDIO_TEXTURES_DIR` | `${repo}/content/textures` | Where accepted textures land + listed |
 | `STUDIO_MODELS_DIR` | `${repo}/content/models` | `.model.json` storage |
 | `STUDIO_EFFECTS_DIR` | `${repo}/content/effects` | fxgraph + exports |
-| `STUDIO_LANGUAGES_DIR` | `${repo}/content/languages` | i18n resolution for `/weapons` |
-| `STUDIO_WEAPONS_DIR` | `${repo}/content/weapons` | Weapon YAML inputs (`/weapons` route only) |
-| `STUDIO_ITEMS_DIR` | `${repo}/content/items` | Item YAML inputs (`/weapons` route only) |
 | `STUDIO_MODEL_SAMPLES_DIR` | `${repo}/tools/model-gen/samples` | Read-only "starter" models |
 | `STUDIO_MODEL_TEMPLATES_DIR` | `${repo}/tools/model-gen/templates` | Read-only model templates |
 | `STUDIO_SCRIPTS_DIR` | `${repo}/tools/texture-gen/scripts` | Where the image-pipeline shell scripts live |
@@ -85,8 +82,8 @@ Prompt templates use `${var}` substitution. See
 
 For a non-Minecraft project you can still drive the `/models` and
 `/effects` routes if your data fits `.model.json` / `.fxgraph.json`
-shapes; you may want to fork `/weapons` (or write your own analogous
-content-preview route) since it's coupled to Astera weapon YAML schema.
+shapes; or write a content-preview route specific to your project's
+YAML schema (see ADR-0075 for why Astera removed its Items preview).
 
 ## Configuration
 
@@ -94,13 +91,6 @@ content-preview route) since it's coupled to Astera weapon YAML schema.
 
 - Frontend `3007` → `TEXTURE_STUDIO_PORT`
 - Backend `3008` → `TEXTURE_STUDIO_API_PORT`
-
-### Locale (`/weapons` i18n)
-
-The `/weapons` route resolves `display_name_key` / `lore_key` against
-language files under `STUDIO_LANGUAGES_DIR`. Filename = locale code
-(`en.yaml` → `en`, `ja.yaml` → `ja`). The header toggle in `/weapons`
-switches between detected locales.
 
 ### Astera Integration Notes
 
@@ -136,8 +126,6 @@ Hono (Bun :3008)
   ├─ /api/effects         fxgraph CRUD + export pipeline
   ├─ /api/effects/chat    Claude API proxy for effect prompting
   ├─ /api/textures        catalog browsing
-  ├─ /api/weapons         weapon YAML preview (Astera-specific)
-  ├─ /api/languages       locale list + flat key map
   ├─ /api/manifest        read content/textures/manifest.json
   ├─ /api/categories      walk content/textures/
   ├─ /files/jobs/:id/*    serve PNGs from texture-gen job dirs
@@ -151,10 +139,7 @@ Codex CLI + Pillow + ffmpeg + scripts under STUDIO_SCRIPTS_DIR
 
 ## Extending: write your own content-preview route
 
-`/weapons` is a 177-line backend + ~250-line Vue view that lists YAML
-files in a directory, parses each, and shows a side-by-side preview.
-Use it as a template if your project has a content type you want to
-review the same way:
+To add a read-only preview for a content type:
 
 1. Add `server/routes/<yourtype>.ts` returning `GET /api/<yourtype>`
    (list) + `GET /api/<yourtype>/load/:slug` (detail)
@@ -163,6 +148,12 @@ review the same way:
    `server/index.ts`
 4. Add an `STUDIO_<YOURTYPE>_DIR` env override in
    `server/paths.ts` so external users can repoint
+
+Note: Astera previously shipped a `/items` preview (Wave _items-1,
+ADR-0073) that was removed in ADR-0075 — read-only YAML inspection
+adds little over editing YAML directly. The interesting design point
+is "MC-less skill preview", which Astera intends to revisit as
+Skill Playground in a future wave.
 
 ## Limitations
 
