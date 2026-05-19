@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.gui
 
+import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 
 /**
@@ -73,4 +74,70 @@ public sealed interface GuiSlot {
     public data class Border(
         public val itemId: ItemId,
     ) : GuiSlot
+
+    /**
+     * Two-button confirmation prompt (Wave 5h, ADR-0074 §2).
+     *
+     * Models the "are you sure?" dialog used by shop purchases, settings
+     * reset, etc. The Paper adapter (Wave 6b) renders this as a 2-item row
+     * (confirm / cancel) with the prompt rendered via [promptKey] in the
+     * title bar; non-Paper adapters are free to render however they like.
+     *
+     * Both [confirmIntent] and [cancelIntent] are routed through the same
+     * `GuiIntentDispatcher` as [Static.onClick] — the adapter simply emits
+     * one or the other based on which item the player clicks.
+     *
+     * @property promptKey i18n key for the prompt text (e.g.
+     *   `astera.gui.shop.confirm-purchase`).
+     * @property confirmItemId item shown for "yes" (e.g. green wool).
+     * @property cancelItemId item shown for "no" (e.g. red wool).
+     * @property confirmIntent intent emitted on confirm click.
+     * @property cancelIntent intent emitted on cancel click.
+     */
+    public data class Confirmation(
+        public val promptKey: MessageKey,
+        public val confirmItemId: ItemId,
+        public val cancelItemId: ItemId,
+        public val confirmIntent: GuiIntent,
+        public val cancelIntent: GuiIntent,
+    ) : GuiSlot
+
+    /**
+     * Free-text input field (Wave 5h, ADR-0074 §2).
+     *
+     * Models a single-line text input — used for shop search, loadout
+     * renaming, report submission, chat alias editing, etc. The submitted
+     * value arrives in the [onSubmitIntent]'s payload under key `"text"`,
+     * preserving the "intents are pure values" invariant from [GuiIntent].
+     *
+     * The Paper adapter (Wave 6b) renders this as an anvil GUI (the only
+     * vanilla container that exposes a text field); non-Paper adapters
+     * may render as an HTML `<input>` or platform-native field.
+     *
+     * @property placeholderKey i18n key for the placeholder shown when the
+     *   field is empty.
+     * @property maxLength clamp on input length. Required `1..128` — the
+     *   upper bound is generous enough for short report text yet short
+     *   enough to keep storage / display predictable. Defaults to 32 to
+     *   match the loadout-name length budget.
+     * @property onSubmitIntent intent emitted when the player confirms the
+     *   input. The submitted text arrives under payload key `"text"`.
+     */
+    public data class TextInput(
+        public val placeholderKey: MessageKey,
+        public val maxLength: Int = 32,
+        public val onSubmitIntent: GuiIntent,
+    ) : GuiSlot {
+        init {
+            require(maxLength in 1..MAX_TEXT_LENGTH) {
+                "GuiSlot.TextInput.maxLength must be in 1..$MAX_TEXT_LENGTH, was $maxLength"
+            }
+        }
+
+        public companion object {
+            /** Upper bound on [maxLength]. Anvil GUI fits ~30 chars comfortably;
+             *  128 leaves room for non-Paper adapters that render wider. */
+            public const val MAX_TEXT_LENGTH: Int = 128
+        }
+    }
 }

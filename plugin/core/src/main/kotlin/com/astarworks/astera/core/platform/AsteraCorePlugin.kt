@@ -34,6 +34,9 @@ import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver
+import com.astarworks.astera.core.application.port.outbound.IHologramGateway
+import com.astarworks.astera.core.application.port.outbound.IModerationService
+import com.astarworks.astera.core.application.port.outbound.IPlayerTutorialStateRepository
 import com.astarworks.astera.core.application.port.outbound.IGuiRegistry
 import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
 import com.astarworks.astera.core.application.port.outbound.IFriendshipRepository
@@ -339,6 +342,24 @@ public class AsteraCorePlugin : JavaPlugin() {
         tutorialContents.bootstrap(tutorialsContentDir)
         services.register<ITutorialRegistry>(tutorialContents, priority = 0)
         reloadRegistry.register(tutorialContents, tutorialsContentDir)
+
+        // Wave 5h (ADR-0074): Hologram / Moderation / PlayerTutorialState
+        // in-memory defaults at priority 0; persistence plugin overlays
+        // moderation + tutorial at priority 100.
+        val hologramGateway: IHologramGateway = services.get<IHologramGateway>()
+            ?: com.astarworks.astera.core.application.service.InMemoryHologramGateway().also {
+                services.register<IHologramGateway>(it, priority = 0)
+            }
+        @Suppress("UNUSED_VARIABLE") val hologramGatewayRef = hologramGateway
+        val moderationService: IModerationService = services.get<IModerationService>()
+            ?: com.astarworks.astera.core.application.service.InMemoryModerationService().also {
+                services.register<IModerationService>(it, priority = 0)
+            }
+        val tutorialStateRepo: IPlayerTutorialStateRepository =
+            services.get<IPlayerTutorialStateRepository>()
+                ?: com.astarworks.astera.core.application.service.InMemoryPlayerTutorialStateRepository()
+                    .also { services.register<IPlayerTutorialStateRepository>(it, priority = 0) }
+        @Suppress("UNUSED_VARIABLE") val tutorialStateRepoRef = tutorialStateRepo
 
         // Inventory snapshot use cases + PlayerJoined-side listener.
         @Suppress("UNUSED_VARIABLE")

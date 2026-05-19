@@ -22,20 +22,32 @@ import com.astarworks.astera.core.domain.item.ItemId
  *
  * Per-slot decision matrix (using δ's `GuiSlot` sealed hierarchy):
  *
- *   | prev → next                          | output                         |
- *   |--------------------------------------|--------------------------------|
- *   | Empty   ↔ Empty                      | (none)                         |
- *   | Empty   → Static(id, count)          | `Set(idx, id, count)`          |
- *   | Empty   → Border(id)                 | `Set(idx, id, 1)`              |
- *   | Empty   → Reactive(b)                | `Set(idx, ItemId(b.value), 1)` |
- *   | Static  ↔ Static (equal)             | (none)                         |
- *   | Static  → Static (diff id/count)     | `Set(idx, id', count')`        |
- *   | Border  ↔ Border (equal)             | (none)                         |
- *   | Border  → Border (diff id)           | `Set(idx, id', 1)`             |
- *   | Reactive ↔ Reactive (equal binding)  | (none)                         |
- *   | Reactive → Reactive (diff binding)   | `Set(idx, ItemId(b'.value), 1)`|
- *   | any non-Empty → Empty                | `Clear(idx)`                   |
- *   | any cross-variant change             | `Set` (treat as replace)       |
+ *   | prev → next                           | output                          |
+ *   |---------------------------------------|---------------------------------|
+ *   | Empty   ↔ Empty                       | (none)                          |
+ *   | Empty   → Static(id, count)           | `Set(idx, id, count)`           |
+ *   | Empty   → Border(id)                  | `Set(idx, id, 1)`               |
+ *   | Empty   → Reactive(b)                 | `Set(idx, ItemId(b.value), 1)`  |
+ *   | Static  ↔ Static (equal)              | (none)                          |
+ *   | Static  → Static (diff id/count)      | `Set(idx, id', count')`         |
+ *   | Border  ↔ Border (equal)              | (none)                          |
+ *   | Border  → Border (diff id)            | `Set(idx, id', 1)`              |
+ *   | Reactive ↔ Reactive (equal binding)   | (none)                          |
+ *   | Reactive → Reactive (diff binding)    | `Set(idx, ItemId(b'.value), 1)` |
+ *   | Confirmation ↔ Confirmation (equal)   | (none)                          |
+ *   | Confirmation → Confirmation (changed) | `Set(idx, confirmItemId, 1)`    |
+ *   | TextInput ↔ TextInput (equal)         | (none)                          |
+ *   | TextInput → TextInput (changed)       | `Set(idx, TEXT_INPUT_SENTINEL,1)`|
+ *   | any non-Empty → Empty                 | `Clear(idx)`                    |
+ *   | any cross-variant change              | `Set` (treat as replace)        |
+ *
+ * Confirmation / TextInput note (Wave 5h): the diff engine treats both like
+ * `Static` for adapter purposes — the rendered representation is a single
+ * primary item (the confirm button for `Confirmation`; a fixed sentinel
+ * item id [TEXT_INPUT_SENTINEL_ITEM] for `TextInput`, since the slot has no
+ * inherent item — the Paper adapter will swap it for the anvil rename-field
+ * at click time in Wave 6b). Click / submit handling is the Paper input-
+ * listener layer's job (Wave 6b), orthogonal to diffing.
  *
  * Reactive caveat: the engine ferries the binding's `value` through [ItemId]
  * for now. This works as long as the binding string also validates against
@@ -45,6 +57,17 @@ import com.astarworks.astera.core.domain.item.ItemId
  * once the Paper adapter lands.
  */
 public object GuiDiffEngine {
+
+    /**
+     * Sentinel item id rendered into a [GuiSlot.TextInput] slot at diff time.
+     *
+     * Wave 5h has no notion of a "text-field item" — the Paper adapter (Wave
+     * 6b) will re-route the slot through an anvil rename-field at click time.
+     * The sentinel keeps the diff output stable (so equal-spec → empty-diff
+     * still holds) while letting the adapter recognise input-shaped slots by
+     * id comparison.
+     */
+    public val TEXT_INPUT_SENTINEL_ITEM: ItemId = ItemId("gui-text-input-placeholder")
 
     /**
      * Returns the patch list to transform [prev] into [next]. The result is
@@ -94,6 +117,16 @@ public object GuiDiffEngine {
                 ItemId(after.binding.value),
                 count = 1,
             )
+            // Wave 5h: render the confirm-button item in the slot; the cancel
+            // item is the Paper input layer's job at click time (Wave 6b).
+            is GuiSlot.Confirmation -> SlotPatch.Set(idx, after.confirmItemId, count = 1)
+            // Wave 5h: emit the sentinel item; the Paper adapter (Wave 6b)
+            // re-routes the slot through an anvil rename-field at click time.
+            // MessageKey allows dots (ItemId does not), so we cannot ferry
+            // `placeholderKey.value` directly the way Reactive ferries
+            // BindingKey — a stable sentinel keeps diffs deterministic
+            // without coupling to a future runtime registry lookup.
+            is GuiSlot.TextInput -> SlotPatch.Set(idx, TEXT_INPUT_SENTINEL_ITEM, count = 1)
         }
     }
 }

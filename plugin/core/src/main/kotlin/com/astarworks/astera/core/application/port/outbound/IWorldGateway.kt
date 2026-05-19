@@ -1,8 +1,10 @@
 package com.astarworks.astera.core.application.port.outbound
 
+import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.ParticleSpec
 import com.astarworks.astera.core.domain.effect.SoundSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
@@ -39,4 +41,32 @@ public interface IWorldGateway {
      * exercises the port through FakeWorldGateway only.
      */
     public fun teleport(playerId: PlayerId, at: Vec3, world: WorldId? = null): Boolean
+
+    /**
+     * Teleport [playerId] to the spectator spawn for [matchId] (Wave 5h,
+     * ADR-0074 §6). Used by `EnterSpectatorUseCase` to drop a player at a
+     * match-defined vantage point (e.g. above the arena center).
+     *
+     * Returns [WorldGatewayError.UnknownMatch] if no spectator spawn is
+     * registered for [matchId], [WorldGatewayError.UnknownPlayer] if the
+     * target is offline, or [WorldGatewayError.Storage] on backend failure.
+     */
+    public fun spectatorSpawn(matchId: MatchId, playerId: PlayerId): Result<Unit, WorldGatewayError>
+
+    /**
+     * Teleport [playerId] to the lobby spawn (Wave 5h, ADR-0074 §6). Used by
+     * `LeaveSpectatorUseCase` and the reconnect-timeout fallback when a
+     * disconnected player exceeds the 3-min ACTIVE reconnect window.
+     *
+     * The lobby spawn is server-global; Paper impl (Wave 6b) reads it from
+     * `world.spawnLocation` or a configured lobby world.
+     */
+    public fun lobbySpawn(playerId: PlayerId): Result<Unit, WorldGatewayError>
+}
+
+/** Sealed failure surface for the spawn / teleport methods added in Wave 5h. */
+public sealed class WorldGatewayError {
+    public data class UnknownMatch(public val matchId: MatchId) : WorldGatewayError()
+    public data class UnknownPlayer(public val playerId: PlayerId) : WorldGatewayError()
+    public data class Storage(public val detail: String) : WorldGatewayError()
 }

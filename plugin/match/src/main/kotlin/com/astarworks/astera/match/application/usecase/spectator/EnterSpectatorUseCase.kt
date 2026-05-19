@@ -1,6 +1,7 @@
 package com.astarworks.astera.match.application.usecase.spectator
 
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
+import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
@@ -10,7 +11,7 @@ import com.astarworks.astera.core.domain.player.SessionState
 
 /**
  * Transition a tracked player into [SessionState.Spectator] for a given match
- * (Wave 5e).
+ * (Wave 5e → wired to [IWorldGateway.spectatorSpawn] in Wave 5h).
  *
  * # Sequence
  * 1. Look up the existing [PlayerSession] via [IPlayerSessionRepository.find]
@@ -20,18 +21,18 @@ import com.astarworks.astera.core.domain.player.SessionState
  *    with [SpectatorError.AlreadySpectator] (idempotency guard).
  * 3. Otherwise [IPlayerSessionRepository.upsert] a new session with
  *    `state = Spectator` and `currentMatch = matchId`.
+ * 4. If [worldGateway] is non-null, call [IWorldGateway.spectatorSpawn] to
+ *    teleport the player to the match's spectator vantage point. Gateway
+ *    failures surface as [SpectatorError.TeleportFailed] but the session
+ *    transition is *not* rolled back — the player is conceptually a spectator
+ *    either way; the platform layer (Wave 6b) retries the teleport.
  *
- * # Deferred to Wave 6
- * The actual teleport to the stage's spectator spawn point is deferred until
- * `IWorldGateway` exposes a spectator-spawn API (Wave 6). For Wave 5e we only
- * update session state — [SpectatorError.TeleportFailed] is reserved so the
- * Wave 6 wiring can return it without breaking the sealed hierarchy.
+ * [worldGateway] is nullable so legacy tests can wire the use case without
+ * the gateway. Production wiring (`AsteraMatchPlugin`) supplies the real impl.
  */
 public class EnterSpectatorUseCase(
     private val sessionRepository: IPlayerSessionRepository,
-    // TODO(Wave 6): inject IWorldGateway once it exposes a spectator-spawn API,
-    //   then teleport the player to the stage's spectator point before returning
-    //   Result.success. Returning SpectatorError.TeleportFailed on gateway false.
+    private val worldGateway: IWorldGateway? = null,
 ) {
 
     public fun enter(playerId: PlayerId, matchId: MatchId): Result<Unit, SpectatorError> {
@@ -45,6 +46,13 @@ public class EnterSpectatorUseCase(
         sessionRepository.upsert(
             current.copy(state = SessionState.Spectator, currentMatch = matchId),
         )
+
+        if (worldGateway != null) {
+            val spawnResult = worldGateway.spectatorSpawn(matchId, playerId)
+            if (spawnResult is Result.Failure) {
+                return Result.failure(SpectatorError.TeleportFailed(spawnResult.error.toString()))
+            }
+        }
 
         return Result.success(Unit)
     }

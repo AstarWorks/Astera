@@ -318,11 +318,45 @@ astera:
       match_end: "<red><bold>試合終了</bold></red>"
 
   # Wave 5e — Tutorial 表示文字列 (ADR-0034)。
+  # Wave 5h で /astera tutorial skip|replay の文字列を追加 (ADR-0074 §3)。
   tutorial:
     getting_started:
       title: "<gold>はじめに</gold>"
     welcome: "<aqua>Astera へようこそ！まずは基本操作を覚えましょう。</aqua>"
     complete: "<green>チュートリアル終了。お楽しみください！</green>"
+    error:
+      not-in-catalog: "<red>該当するチュートリアルが見つかりません。</red>"
+      already-running: "<red>すでにチュートリアルが進行中です。</red>"
+      not-running: "<red>進行中のチュートリアルがありません。</red>"
+    command:
+      root: "<gray>チュートリアル サブコマンド: skip, replay。</gray>"
+      skip: "<gray>自動開始されないようチュートリアルを除外します。</gray>"
+      replay: "<gray>チュートリアルを最初から再生します。</gray>"
+      invalid_id: "<red>不正なチュートリアル ID: <gold>{tutorial-id}</gold></red>"
+
+  # Wave 5h — Chat モデレーション (ADR-0074 §4)。
+  chat:
+    error:
+      muted: "<red>ミュート中のためチャットを送信できません。</red>"
+      rate-limited: "<red>チャットの送信頻度が高すぎます。</red>"
+
+  # Wave 5h — /astera mod サブコマンド + エラーキー (ADR-0074 §4)。
+  mod:
+    command:
+      root: "<gray>モデレーション サブコマンド: mute, kick, ban, ratelimit, lift, history。</gray>"
+      mute: "<gray>プレイヤーのチャットをミュートします。</gray>"
+      kick: "<gray>プレイヤーをサーバから切断します (Wave 6b で実 enforce)。</gray>"
+      ban: "<gray>プレイヤーを BAN します (Wave 6b で login 拒否)。</gray>"
+      ratelimit: "<gray>チャットのレート制限を適用します。</gray>"
+      lift: "<gray>モデレーション処置 ID を指定して解除します。</gray>"
+      history: "<gray>プレイヤーのモデレーション履歴を表示します。</gray>"
+    error:
+      invalid-player: "<red>プレイヤー ID が不正です。</red>"
+      invalid-reason: "<red>理由キーが不正です。</red>"
+      invalid-scope: "<red>BAN スコープが不正です (global または server)。</red>"
+      invalid-action-id: "<red>モデレーション処置 ID が不正です。</red>"
+      storage: "<red>モデレーション保存エラー: <gold>{detail}</gold></red>"
+      unknown-action: "<red>該当のモデレーション処置が見つかりません。</red>"
 
   # Wave 5e — Achievement の既定名・説明 (ADR-0034)。
   stats:

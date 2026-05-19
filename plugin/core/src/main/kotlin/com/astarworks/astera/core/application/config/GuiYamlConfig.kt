@@ -106,6 +106,74 @@ public sealed class GuiSlotYamlConfig {
         override fun toSlotPair(): Pair<SlotIndex, GuiSlot> =
             SlotIndex(index) to GuiSlot.Empty
     }
+
+    /**
+     * Two-button confirmation prompt (Wave 5h, ADR-0074 §2). Mirrors
+     * [GuiSlot.Confirmation]; see that variant's KDoc for the rendering
+     * contract. YAML:
+     * ```
+     * - type: confirmation
+     *   index: 4
+     *   prompt_key: astera.gui.shop.confirm-purchase
+     *   confirm_item: gui-button-confirm
+     *   cancel_item: gui-button-cancel
+     *   confirm:
+     *     key: shop.purchase.confirm
+     *     payload: { itemId: "iron-sword", qty: "1" }
+     *   cancel:
+     *     key: gui.close
+     * ```
+     */
+    @Serializable
+    @SerialName("confirmation")
+    public data class Confirmation(
+        override val index: Int,
+        @SerialName("prompt_key") val promptKey: String,
+        @SerialName("confirm_item") val confirmItem: String,
+        @SerialName("cancel_item") val cancelItem: String,
+        val confirm: GuiIntentYamlConfig,
+        val cancel: GuiIntentYamlConfig,
+    ) : GuiSlotYamlConfig() {
+        override fun toSlotPair(): Pair<SlotIndex, GuiSlot> =
+            SlotIndex(index) to GuiSlot.Confirmation(
+                promptKey = MessageKey(promptKey),
+                confirmItemId = ItemId(confirmItem),
+                cancelItemId = ItemId(cancelItem),
+                confirmIntent = confirm.toIntent(),
+                cancelIntent = cancel.toIntent(),
+            )
+    }
+
+    /**
+     * Free-text input field (Wave 5h, ADR-0074 §2). Mirrors
+     * [GuiSlot.TextInput]; see that variant's KDoc for the rendering
+     * contract. YAML:
+     * ```
+     * - type: text_input
+     *   index: 4
+     *   placeholder_key: astera.gui.loadout.rename-placeholder
+     *   max_length: 24
+     *   on_submit:
+     *     key: loadout.rename
+     *     payload: { loadout_id: "main" }
+     * ```
+     * `max_length` defaults to 32 to match the domain default.
+     */
+    @Serializable
+    @SerialName("text_input")
+    public data class TextInput(
+        override val index: Int,
+        @SerialName("placeholder_key") val placeholderKey: String,
+        @SerialName("max_length") val maxLength: Int = 32,
+        @SerialName("on_submit") val onSubmit: GuiIntentYamlConfig,
+    ) : GuiSlotYamlConfig() {
+        override fun toSlotPair(): Pair<SlotIndex, GuiSlot> =
+            SlotIndex(index) to GuiSlot.TextInput(
+                placeholderKey = MessageKey(placeholderKey),
+                maxLength = maxLength,
+                onSubmitIntent = onSubmit.toIntent(),
+            )
+    }
 }
 
 /**

@@ -41,6 +41,111 @@
                         "properties": {
                             "type": {
                                 "type": "string",
+                                "const": "confirmation"
+                            },
+                            "index": {
+                                "type": "integer"
+                            },
+                            "prompt_key": {
+                                "type": "string"
+                            },
+                            "confirm_item": {
+                                "type": "string"
+                            },
+                            "cancel_item": {
+                                "type": "string"
+                            },
+                            "confirm": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string"
+                                    },
+                                    "payload": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "key"
+                                ]
+                            },
+                            "cancel": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string"
+                                    },
+                                    "payload": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "key"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "index",
+                            "prompt_key",
+                            "confirm_item",
+                            "cancel_item",
+                            "confirm",
+                            "cancel"
+                        ]
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "const": "text_input"
+                            },
+                            "index": {
+                                "type": "integer"
+                            },
+                            "placeholder_key": {
+                                "type": "string"
+                            },
+                            "max_length": {
+                                "type": "integer"
+                            },
+                            "on_submit": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string"
+                                    },
+                                    "payload": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "key"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "index",
+                            "placeholder_key",
+                            "on_submit"
+                        ]
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
                                 "const": "empty"
                             },
                             "index": {

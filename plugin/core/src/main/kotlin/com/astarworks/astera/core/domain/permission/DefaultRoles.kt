@@ -27,6 +27,30 @@ public object DefaultRoles {
             Permission("astera.match.admin.start"),
             Permission("astera.match.admin.end"),
             Permission("astera.match.admin.phase"),
+            // Wave 5h (ADR-0074 §4) — moderation core 4 + lift.
+            // MODERATOR_LITE covers Mute + ChatRateLimit; full MODERATOR
+            // adds Kick / Ban / Lift on top.
+            Permission("astera.mod.mute"),
+            Permission("astera.mod.ratelimit"),
+            Permission("astera.mod.kick"),
+            Permission("astera.mod.ban"),
+            Permission("astera.mod.lift"),
+        ),
+    )
+
+    /**
+     * Wave 5h (ADR-0074 §4) — junior-mod role with only the reversible
+     * moderation tools (mute + ratelimit). Kick / Ban / Lift remain
+     * MODERATOR-only because they're either disruptive (kick) or
+     * lockout-prone (ban). Lift is gated because over-lifting can
+     * silently undo a senior mod's action.
+     */
+    public val MODERATOR_LITE: RoleDefinition = RoleDefinition(
+        id = RoleId("moderator-lite"),
+        displayName = "Moderator (Lite)",
+        permissions = setOf(
+            Permission("astera.mod.mute"),
+            Permission("astera.mod.ratelimit"),
         ),
     )
 
@@ -38,5 +62,5 @@ public object DefaultRoles {
         ),
     )
 
-    public fun builtin(): Set<RoleDefinition> = setOf(ADMIN, MODERATOR, PLAYER)
+    public fun builtin(): Set<RoleDefinition> = setOf(ADMIN, MODERATOR, MODERATOR_LITE, PLAYER)
 }

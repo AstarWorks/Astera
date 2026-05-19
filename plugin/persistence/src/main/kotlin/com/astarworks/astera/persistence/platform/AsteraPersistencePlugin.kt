@@ -15,6 +15,8 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerSessionReposi
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
+import com.astarworks.astera.core.application.port.outbound.IModerationService
+import com.astarworks.astera.core.application.port.outbound.IPlayerTutorialStateRepository
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -44,6 +46,8 @@ import com.astarworks.astera.persistence.repository.PostgresPlayerSessionReposit
 import com.astarworks.astera.persistence.repository.PostgresPlayerSettingsRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
+import com.astarworks.astera.persistence.repository.PostgresModerationService
+import com.astarworks.astera.persistence.repository.PostgresPlayerTutorialStateRepository
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
 import org.bukkit.plugin.java.JavaPlugin
@@ -201,6 +205,20 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 5h (ADR-0074): tutorial state + moderation actions. V20 / V21
+        // migrations add `player_tutorial_state` + `moderation_actions`
+        // tables. Tutorial state is JSONB-heavy (completed/skipped sets);
+        // moderation rows carry a `kind` discriminator + per-variant JSONB
+        // payload.
+        registrations += services.register<IPlayerTutorialStateRepository>(
+            PostgresPlayerTutorialStateRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<IModerationService>(
+            PostgresModerationService(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -210,7 +228,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge, IShopStockRepository.",
+                "IRewardBridge, IShopStockRepository, " +
+                "IPlayerTutorialStateRepository, IModerationService.",
         )
     }
 

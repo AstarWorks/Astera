@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.gui
 
 import com.astarworks.astera.core.domain.gui.BindingKey
 import com.astarworks.astera.core.domain.gui.GuiId
+import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.gui.GuiSize
 import com.astarworks.astera.core.domain.gui.GuiSlot
 import com.astarworks.astera.core.domain.gui.GuiSpec
@@ -93,6 +94,86 @@ class GuiDiffEngineTest {
         val patches = GuiDiffEngine.diff(prev, next)
 
         assertThat(patches).containsExactly(SlotPatch.Clear(SlotIndex(5)))
+    }
+
+    @Test
+    fun `empty to confirmation emits a Set patch carrying the confirm item`() {
+        val prev = GuiSpec(id = id, title = title, size = size)
+        val confirmation = GuiSlot.Confirmation(
+            promptKey = MessageKey("astera.gui.shop.confirm-purchase.prompt"),
+            confirmItemId = ItemId("gui-button-confirm"),
+            cancelItemId = ItemId("gui-button-cancel"),
+            confirmIntent = GuiIntent("shop.purchase.confirm", mapOf("itemId" to "iron-sword")),
+            cancelIntent = GuiIntent("gui.close"),
+        )
+        val next = GuiSpec(
+            id = id,
+            title = title,
+            size = size,
+            slots = persistentMapOf(SlotIndex(4) to confirmation),
+        )
+
+        val patches = GuiDiffEngine.diff(prev, next)
+
+        assertThat(patches).hasSize(1)
+        val patch = patches.single() as SlotPatch.Set
+        assertThat(patch.index).isEqualTo(SlotIndex(4))
+        // Wave 5h: diff emits the confirm item; the Paper input layer (Wave 6b)
+        // handles the second hot-button rendering + click routing.
+        assertThat(patch.itemId).isEqualTo(ItemId("gui-button-confirm"))
+        assertThat(patch.count).isEqualTo(1)
+    }
+
+    @Test
+    fun `text_input slot diffs to the sentinel item id`() {
+        val prev = GuiSpec(id = id, title = title, size = size)
+        val textInput = GuiSlot.TextInput(
+            placeholderKey = MessageKey("astera.gui.loadout.rename.placeholder"),
+            maxLength = 24,
+            onSubmitIntent = GuiIntent("loadout.rename", mapOf("loadout_id" to "main")),
+        )
+        val next = GuiSpec(
+            id = id,
+            title = title,
+            size = size,
+            slots = persistentMapOf(SlotIndex(4) to textInput),
+        )
+
+        val patches = GuiDiffEngine.diff(prev, next)
+
+        assertThat(patches).hasSize(1)
+        val patch = patches.single() as SlotPatch.Set
+        assertThat(patch.index).isEqualTo(SlotIndex(4))
+        // Sentinel keeps the diff free of MessageKey-into-ItemId failure modes
+        // and gives the Paper anvil adapter (Wave 6b) a stable id to swap on.
+        assertThat(patch.itemId).isEqualTo(GuiDiffEngine.TEXT_INPUT_SENTINEL_ITEM)
+        assertThat(patch.count).isEqualTo(1)
+    }
+
+    @Test
+    fun `identical confirmation and text_input slots produce no patches`() {
+        val confirmation = GuiSlot.Confirmation(
+            promptKey = MessageKey("astera.gui.shop.confirm-purchase.prompt"),
+            confirmItemId = ItemId("gui-button-confirm"),
+            cancelItemId = ItemId("gui-button-cancel"),
+            confirmIntent = GuiIntent("shop.purchase.confirm"),
+            cancelIntent = GuiIntent("gui.close"),
+        )
+        val textInput = GuiSlot.TextInput(
+            placeholderKey = MessageKey("astera.gui.loadout.rename.placeholder"),
+            onSubmitIntent = GuiIntent("loadout.rename"),
+        )
+        val spec = GuiSpec(
+            id = id,
+            title = title,
+            size = size,
+            slots = persistentMapOf(
+                SlotIndex(3) to confirmation,
+                SlotIndex(5) to textInput,
+            ),
+        )
+
+        assertThat(GuiDiffEngine.diff(spec, spec)).isEmpty()
     }
 
     @Test

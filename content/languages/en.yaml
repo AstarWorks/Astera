@@ -317,11 +317,46 @@ astera:
   # Wave 5e — Tutorial display strings (ADR-0034). Renders via `astera.tutorial.*`
   # MessageKey calls in `TutorialContents` + `content/tutorials/*.yaml`.
   # Wave 6a wires the Paper-side `TutorialStepEntered` listener that renders.
+  # Wave 5h adds command + error strings for /astera tutorial skip|replay
+  # (ADR-0074 §3).
   tutorial:
     getting_started:
       title: "<gold>Getting Started</gold>"
     welcome: "<aqua>Welcome to Astera! Let's get you set up.</aqua>"
     complete: "<green>Tutorial complete. Have fun!</green>"
+    error:
+      not-in-catalog: "<red>That tutorial doesn't exist.</red>"
+      already-running: "<red>You're already running a tutorial.</red>"
+      not-running: "<red>You don't have a tutorial in progress.</red>"
+    command:
+      root: "<gray>Tutorial subcommands: skip, replay.</gray>"
+      skip: "<gray>Opt out of a tutorial so it won't auto-start again.</gray>"
+      replay: "<gray>Restart a tutorial from the beginning.</gray>"
+      invalid_id: "<red>Invalid tutorial id: <gold>{tutorial-id}</gold></red>"
+
+  # Wave 5h — Chat moderation messages (ADR-0074 §4).
+  chat:
+    error:
+      muted: "<red>You are muted and cannot send chat messages.</red>"
+      rate-limited: "<red>You are sending chat messages too quickly.</red>"
+
+  # Wave 5h — /astera mod subcommands + error keys (ADR-0074 §4).
+  mod:
+    command:
+      root: "<gray>Moderation subcommands: mute, kick, ban, ratelimit, lift, history.</gray>"
+      mute: "<gray>Mute a player from chat.</gray>"
+      kick: "<gray>Kick a player from the server (Wave 6b enforces).</gray>"
+      ban: "<gray>Ban a player (Wave 6b enforces login rejection).</gray>"
+      ratelimit: "<gray>Apply a chat-rate-limit token bucket to a player.</gray>"
+      lift: "<gray>Lift a moderation action by its id.</gray>"
+      history: "<gray>Show moderation history for a player.</gray>"
+    error:
+      invalid-player: "<red>Invalid player id.</red>"
+      invalid-reason: "<red>Invalid reason key.</red>"
+      invalid-scope: "<red>Invalid ban scope (expected global or server).</red>"
+      invalid-action-id: "<red>Invalid moderation action id.</red>"
+      storage: "<red>Moderation storage error: <gold>{detail}</gold></red>"
+      unknown-action: "<red>No such moderation action.</red>"
 
   # Wave 5e — Achievement default names + descriptions (ADR-0034).
   # Worker γ exposes 8 milestone achievement IDs; admin-registered catalog

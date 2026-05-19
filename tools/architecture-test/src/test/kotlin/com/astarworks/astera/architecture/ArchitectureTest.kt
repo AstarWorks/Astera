@@ -800,6 +800,108 @@ class ArchitectureTest {
             .isEmpty()
     }
 
+    // ─── Wave 5h — Hologram domain vendor-neutrality (ADR-0074 §1) ──────────
+
+    /**
+     * Wave 5h, ADR-0074: the Hologram domain (`core.domain.hologram.*`) is
+     * the vendor-neutral mirror of Bukkit's `Display` entity hierarchy. The
+     * Wave 6b `PaperHologramGateway` adapter does the 1:1 mapping to
+     * `org.bukkit.entity.Display` + `org.joml.Quaternionf` at the edge.
+     *
+     * The domain MUST NOT import `org.bukkit.*` (ADR-0002 — Minecraft is the
+     * edge) NOR `org.joml.*` (mirror-via-our-own-Quaternion keeps the math
+     * value class auditable + free of upstream API drift). Domain files use
+     * Astera's [com.astarworks.astera.core.domain.hologram.Quaternion] and
+     * [com.astarworks.astera.core.domain.geometry.Vec3] instead.
+     */
+    @Test
+    fun `Hologram domain must not import Bukkit Display family (ADR-0074)`() {
+        val forbiddenPrefixes = listOf(
+            "org.bukkit.",
+            "io.papermc.",
+            "org.spigotmc.",
+            "com.destroystokyo.paper.",
+            "com.mojang.",
+            "org.joml.",
+        )
+        Konsist.scopeFromProject()
+            .files
+            .filter { it.packagee?.name?.startsWith(
+                "com.astarworks.astera.core.domain.hologram",
+            ) == true }
+            .flatMap { it.imports }
+            .assertFalse(
+                additionalMessage = "ADR-0074 §1: core.domain.hologram.* must stay vendor-neutral " +
+                    "(no Bukkit/Paper/JOML imports). Wave 6b PaperHologramGateway " +
+                    "does the Display+Quaternionf conversion at the edge.",
+            ) { import ->
+                forbiddenPrefixes.any { import.name.startsWith(it) }
+            }
+    }
+
+    // ─── Wave 5h — ModerationAction sealed exhaustiveness (ADR-0074 §4) ─────
+
+    /**
+     * Wave 5h, ADR-0074: `ModerationAction` is sealed (4 variants:
+     * Mute / Kick / Ban / ChatRateLimit). Every `when` over the hierarchy
+     * MUST be exhaustive — adding a 5th variant (e.g. `Warn`) without
+     * updating every handler is a regression the compiler should catch.
+     *
+     * Konsist's static scan checks function bodies in `core.domain.moderation.*`
+     * and `core.application.usecase.moderation.*` + InMemory/Fake/Postgres
+     * service impls for any `when` block referencing `ModerationAction` that
+     * carries an `else` branch.
+     */
+    @Test
+    fun `ModerationAction sealed must remain exhaustive (ADR-0074)`() {
+        val moderationPackagePrefixes = listOf(
+            "com.astarworks.astera.core.domain.moderation",
+            "com.astarworks.astera.core.application.usecase.moderation",
+            "com.astarworks.astera.core.application.service",
+            "com.astarworks.astera.persistence.repository",
+            "com.astarworks.astera.testfixtures",
+        )
+        val files = Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                moderationPackagePrefixes.any {
+                    file.packagee?.name?.startsWith(it) == true
+                }
+            }
+            .filter { it.text.contains("ModerationAction") }
+
+        val offenders = files.filter { file ->
+            // Heuristic: scan only `when` blocks that pattern-match on the
+            // sealed hierarchy directly via `is ModerationAction.<Variant> ->`
+            // arms. Such a `when` MUST be exhaustive (no `else` branch).
+            // String-discriminator `when` blocks (e.g. Postgres
+            // deserialization switching on a `kind: String` column) are
+            // legitimately allowed an `else` for forward-compat fence — they
+            // do not pattern-match the sealed type.
+            val text = file.text
+            val isPatternArm = Regex("\\bis\\s+ModerationAction\\.[A-Z][A-Za-z]+\\b")
+                .containsMatchIn(text)
+            if (!isPatternArm) return@filter false
+            // Walk each `when` block; flag if any `when` body contains an
+            // `is ModerationAction.X ->` arm and also an `else ->` arm.
+            val whenBlocks = Regex("\\bwhen\\s*\\([^)]*\\)\\s*\\{([\\s\\S]*?)\\}").findAll(text)
+            whenBlocks.any { match ->
+                val body = match.groupValues[1]
+                Regex("\\bis\\s+ModerationAction\\.[A-Z]").containsMatchIn(body) &&
+                    Regex("^\\s*else\\s*->", RegexOption.MULTILINE).containsMatchIn(body)
+            }
+        }
+
+        assertThat(offenders.map { it.path })
+            .withFailMessage {
+                "ADR-0074 §4: ModerationAction sealed exhaustiveness — these files " +
+                    "have a `when` over ModerationAction variants with an `else` branch: " +
+                    "${offenders.map { it.path }}. Replace `else` with explicit per-variant " +
+                    "arms so adding a new variant forces every handler to update."
+            }
+            .isEmpty()
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

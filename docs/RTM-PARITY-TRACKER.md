@@ -74,11 +74,11 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 102 | 70.3% |
+| ✅ full | 106 | 72.6% |
 | 🟨 partial | 3 | 2.1% |
-| 🔌 port-only | 9 | 6.2% |
-| ❌ nothing | 31 | 21.4% |
-| **Total tracked** | **145** | 100% |
+| 🔌 port-only | 10 | 6.8% |
+| ❌ nothing | 31 | 21.2% |
+| **Total tracked** | **146** | 100% |
 
 (Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability); Wave _persist-1 で Cat 8 持続化補完 — SessionState/Friendship/Party/RewardBridge の 4 Postgres impl (V11/V12/V13/V15 + ADR-0068 Cross-server persistence boundary))
 
@@ -160,6 +160,8 @@ adds to `gradle/libs.versions.toml`:
 | **7th game mode `BattleRoyale`** (free-for-all, no team) | ❌ nothing | **Wave 7a** (Siege Content Authoring; content-fidelity) | P2 | RTM `GameMode.kt` sealed enum + `IGamePlayer.GamePlayer.BattleRoyalePlayer` sealed variant (2026-05-19 deep audit) |
 | **3rd TNT variant `CarryBigTnt`** (payload — `GuiAction.CHANGE_PAYLOAD`) | ❌ nothing | **Wave 7a** (content-fidelity) | P2 | RTM `GameMode.kt` (3 TNT variants total: Tnt / SmallTnt / BigTnt) |
 | **`ItemGenerator`** (non-Star item-spawning generator) | ❌ nothing | **Wave 7a** (content alongside Wave 5c `StarGenerator`) | P2 | RTM `ConfiguredItemGenerator.kt` alongside `ConfiguredStarGenerator.kt` |
+| **Disconnect / Reconnect during match** (phase-aware: COUNTDOWN kick / ACTIVE 3min reconnect / SUDDEN_DEATH forfeit) | ✅ Wave 5h (`DisconnectDuringMatchListener` + `ReconnectDuringMatchListener` + `ResumeMatchUseCase` domain + use case wired) | (済 Wave 5h) | P2 | `plugin/match/.../application/usecase/match/{Resume,Disconnect,Reconnect}*` |
+| **Spectator API extension** (`IWorldGateway.spectatorSpawn()` / `lobbySpawn()` method + EnterSpectatorUseCase / LeaveSpectatorUseCase TODO closure) | ✅ Wave 5h (port methods + use case wired) | (済 Wave 5h) | P2 | `plugin/core/.../application/port/outbound/IWorldGateway.kt` (spectatorSpawn / lobbySpawn methods added) + `plugin/match/.../application/usecase/spectator/*` |
 | **Listener-Service architecture refactor** (per-module event-handler ↔ business-logic separation) | ✅ Wave 5e (ADR-0064 draft → Accepted) | (済 Wave 5e) | P3 | RTM issue #22 body |
 
 ---
@@ -187,7 +189,7 @@ adds to `gradle/libs.versions.toml`:
 
 ---
 
-## Category 4: HUD ports (Wave 5b + Wave 6 Paper)
+## Category 4: HUD ports (Wave 5b + Wave 5h + Wave 6 Paper)
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
@@ -197,6 +199,7 @@ adds to `gradle/libs.versions.toml`:
 | **`IMcPlayer.sendActionBar(...)` method** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P1 | signature added, Paper impl Wave 6 |
 | **`IMcPlayer.sendTitle(...)` method** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P1 | signature added, Paper impl Wave 6 |
 | **CT / Star / Level HUD layout** (RTM issue #14) | ❌ nothing | Wave 5b (domain) + **Wave 6** (Paper impl) | P1 | (RTM uses Scoreboard Library 2.1.3) |
+| **`GuiSlot.Confirmation` + `GuiSlot.TextInput`** (shop confirm / settings edit / report input) | ✅ Wave 5h (sealed variant, YAML schema + 2 example YAML land) | (済 Wave 5h) | P1 | `plugin/core/.../domain/gui/GuiSlot.kt` (sealed expansion); Paper handler impl Wave 6b |
 | Scoreboard Library 2.1.3 dep (RTM) | (Astera self-builds via `IScoreboard` port) | Wave 6 (Paper impl chooses library) | P1 | ADR-0015 D path |
 | Inventory Framework 0.10.13 dep (RTM) | (Astera self-builds via `IGuiAdapter`) | ✅ Wave 4 (full) | P0 | ADR-0021 + Wave 4 ✅ |
 | Declarative GUI (Wave 4) | ✅ full | (済) | P0 | Wave 4 ✅ |
@@ -255,7 +258,7 @@ adds to `gradle/libs.versions.toml`:
 | Norma progress 永続化 | ✅ full (Wave 4.5) | (済) | P0 | `V6__norma_progress.sql` |
 | `MissionProgressOnKillListener` 配線 | ✅ full | (済) | P0 | (Wave 2) |
 | **Achievement / Title / Badge** (Norma とは別) | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
-| **Tutorial system** (RTM issue #17) | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
+| **Tutorial player flow** (RTM issue #17) — start on first join / skip / replay / advance step | ✅ Wave 5h (`PlayerTutorialState` domain + V20 migration + `StartTutorialOnFirstJoinListener` + 4 use cases (Start / Skip / Replay / AdvanceStep) + `/astera tutorial` command; Paper input handler Wave 6b) | (済 Wave 5h) | P2 | `plugin/core/.../domain/tutorial/PlayerTutorialState.kt` + `plugin/core/.../application/command/TutorialCommandSpec.kt` + `plugin/core/.../application/eventbus/listeners/StartTutorialOnFirstJoinListener.kt` |
 | **Personal settings DB** (RTM issue #15) | ✅ Wave 5e (incl. 4 typed fields: controlScheme/particleVisibility/doubleJumpEnabled/quickCastSlots) | (済 Wave 5e) | P2 | (none) |
 | **Universal Attribute Container (ADR-0058)** — Player/Item/Mob 共通 attribute storage | ✅ Wave 5e (V14 + facade rewrite complete; ADR-0058 → Accepted) | (済 Wave 5e) | **P1** | ADR-0058 §5 rollout schedule。`Wallet` / `PlayerStats` / `ManaPool` / `ArmorReduction.perAttribute` を `IAttributeContainer` backing に統合。Wave 5b で attribute read API + shim 完成、Wave 5e で V14 migration + facade rewrite |
 | **`LevelUpMission`** (per-level KILL vs STAR choice) | ✅ Wave 5e | (済 Wave 5e) | P1 | RTM `LevelUpMission.kt` enum + `ConfiguredLevelParameter.normaParameter: Map<Int, ConfiguredNormaParameter>` (README §レベルシステム "レベルアップには一定のスター or キル") |
@@ -283,12 +286,21 @@ adds to `gradle/libs.versions.toml`:
 | **Control scheme PersonalSettings field** (右クリック式 / ボタン式) | ✅ Wave 5e | (済 Wave 5e) | P2 | RTM README §プレイヤーデータ "操作方法選択" |
 | **Particle-hide visibility setting** (per-viewer team filter on `Server#spawnParticle`) | ✅ Wave 5e (domain; Paper packet filter = Wave 6a) | (済 Wave 5e) | P2 | RTM README §戦闘システム + §プレイヤーデータ "パーティクル非表示設定" |
 | **`PlayerPortalReadyEvent`** (lobby↔match server entry/exit signal) | ✅ Wave 5e (publisher wired at MatchSpawnUseCase + RestoreInventoryOnPlayerJoinedListener) | (済 Wave 5e) | P2 | RTM `event/data/PlayerPortalReadyEvent.kt` |
-| Ban / Mute lists | ❌ nothing | **Phase 4 (Wave 8f)** | P2 | (none) |
+| **Moderation Core 4** (Mute / Kick / Ban / ChatRateLimit) | ✅ Wave 5h (`ModerationAction` sealed 4 variants + `IModerationService` + V21 migration + Postgres impl + permission gating + `SendChatMessageUseCase` mute/rate-limit check wired; Paper enforcement (actual kick/chat cancel) Wave 6b) | (済 Wave 5h) | **P1** | `plugin/core/.../domain/moderation/ModerationAction.kt` + `plugin/core/.../application/port/outbound/IModerationService.kt` + `plugin/core/.../application/command/ModerationCommandSpec.kt` |
+| Ban / Mute lists | ❌ nothing (Core 4 completed, list API deferred) | **Phase 4 (Wave 8f)** | P2 | (separate from Core 4 domain) |
 | Login history table | ❌ nothing | Phase 4 | P3 | (none) |
 
 ---
 
-## Category 9: External / Network / Broadcaster (Wave 6)
+## Category 9: Hologram / Visual effects (Wave 5h + Wave 6b)
+
+| RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
+|---|---|---|---|---|
+| **Hologram domain** (3 DisplayEntity variant: Text / Item / Block + Quaternion rotation + Transformation + Interpolation + Brightness) | ✅ Wave 5h (vendor-neutral domain complete; `IHologramGateway` port + Fake) | (済 Wave 5h) | **P1** | `plugin/core/.../domain/hologram/{Hologram,HologramType,HologramVariant,Transformation,InterpolationMode,DisplayEntityBrightness}.kt` + `plugin/core/.../application/port/outbound/IHologramGateway.kt` + Fake impl; Paper `PaperHologramGateway` Wave 6b |
+
+---
+
+## Category 10: External / Network / Broadcaster (Wave 6)
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
@@ -302,7 +314,7 @@ adds to `gradle/libs.versions.toml`:
 
 ---
 
-## Category 10: Observability (Wave _ops, parallel to 5x)
+## Category 11: Observability (Wave _ops, parallel to 5x)
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
@@ -315,7 +327,7 @@ adds to `gradle/libs.versions.toml`:
 
 ---
 
-## Category 11: External plugin deps (ADR-0015 governance)
+## Category 12: External plugin deps (ADR-0015 governance)
 
 | RTM 必要 plugin | Astera 戦略 | 完成度 | 根拠 |
 |---|---|---|---|
@@ -337,7 +349,7 @@ adds to `gradle/libs.versions.toml`:
 
 ---
 
-## Category 12: i18n / Content authoring (Wave 1 ✅ + ongoing)
+## Category 13: i18n / Content authoring (Wave 1 ✅ + ongoing)
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
@@ -444,6 +456,7 @@ specific issue / file needs verification.
 
 ## Completed waves
 
+- Wave 5h (2026-05-19): Pre-Paper-sweep depth — Hologram domain (3 DisplayEntity variant + Quaternion rotation + Interpolation + Brightness + IHologramGateway port + Fake; Paper impl Wave 6b) + GUI slot expansion (Confirmation + TextInput sealed variants + 2 example YAML) + Tutorial player flow (PlayerTutorialState domain + V20 + 4 use cases + /astera tutorial command) + Moderation Core 4 (ModerationAction sealed 4 variant: Mute/Kick/Ban/ChatRateLimit + IModerationService port + V21 + Postgres + permission gating + SendChatMessageUseCase enforcement wired; Paper impl Wave 6b) + Match disconnect/reconnect (DisconnectDuringMatchListener + ReconnectDuringMatchListener + ResumeMatchUseCase + phase-aware rule) + Spectator API extension (IWorldGateway.spectatorSpawn/lobbySpawn + EnterSpectatorUseCase/LeaveSpectatorUseCase TODO closure) + Konsist +2 rules (Hologram vendor-neutrality + ModerationAction exhaustiveness) → baseline 30 → 32. **Total parity 70.3% → 72.6%** (102→106/145→146 ✅, +1 🔌). ADR-0074 (pending commit — Wave 5h Phase C close).
 - Wave 5e (2026-05-19): Session + Social + Tutorial + EnderChest + Reward bridge + Inventory snapshot V10 + Attribute container migration V14 + ADR-0034 + ADR-0058 → Accepted + ADR-0064 Accepted. 9 worker streams (α/β/γ/δ/ε/ζ/ι/θ1 in Group B1; η/θ2 in Group B2). +5 Flyway migrations, +6 domain event variants, +120 unit tests, +4 Postgres ITs.
 - Wave 5f (2026-05-19): Marketplace + JP currency compliance + CEL + particles + reactive GUI binding (6 RTM rows ❌→✅). Marketplace: MarketplaceListing + ListingStatus + 3 use cases (Create/Purchase/Cancel) + Postgres V12 + 137 IT. Creator Revenue: post-fee-remainder split algo + 146 unit + 62 IT. JP Compliance: CurrencyPolicy 4-axis + SourceClass + CurrencyPolicies map (STAR/GOLD/GEM per 資金決済法) + EnforceCurrencyPolicy + ExpireCurrency daily sweep + ICurrencyIssuanceLog port + Postgres V11 + 391 unit. CEL: CelSkillScript + CelContext + ICelEvaluator port + StubCelEvaluator + 77 unit. Particles: ParticleDefinition + ParticleShape sealed + ParticleContents + IParticleRegistry port + 2 example YAML + schema + 137 unit. Reactive GUI: ResolvedReactiveSlot + numeric/display/count binding via DefaultGuiBindingResolver + PaperItemTemplateRenderer override application + 255 unit + 3 Postgres migrations (V11/V12/V13). **Total parity 66.7% → 70.8%** (96→102/144 ✅). ADR-0035 → Accepted.
 - Wave _ops (2026-05-19): Observability substrate — Micrometer 1.14.6 + Prometheus export via IMetricsRegistry port + HttpMetricsServer (/metrics @ 9092) + KEDA ScaledObject for game pod autoscaling + ADR-0023 Sealed-Secrets + ADR-0024 Provider 路線 (hybrid 事後記録 + Phase 4 governance)

@@ -103,6 +103,7 @@ import com.astarworks.astera.match.application.usecase.match.VictoryConditionEva
 import com.astarworks.astera.match.application.usecase.spawn.MatchSpawnUseCase
 import com.astarworks.astera.match.application.usecase.spawn.SpawnKind
 import com.astarworks.astera.core.domain.event.MatchStarted
+import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.match.domain.match.MatchStateMachine
@@ -411,10 +412,46 @@ public class AsteraMatchPlugin : JavaPlugin() {
 
         // ---- Wave 5e: Spectator + PlayerPin + Audit + Inventory snapshot save ----
         val sessionRepo = services.getOrThrow<IPlayerSessionRepository>()
+        // Wave 5h (ADR-0074 §6): spectator use cases accept a nullable
+        // worldGateway. The earlier `val worldGateway = services.get<IWorldGateway>()`
+        // at line ~214 is the canonical one; reuse it here.
         @Suppress("UNUSED_VARIABLE")
-        val enterSpectator = EnterSpectatorUseCase(sessionRepo)
+        val enterSpectator = EnterSpectatorUseCase(sessionRepo, worldGateway)
         @Suppress("UNUSED_VARIABLE")
-        val leaveSpectator = LeaveSpectatorUseCase(sessionRepo)
+        val leaveSpectator = LeaveSpectatorUseCase(sessionRepo, worldGateway)
+
+        // Wave 5h (ADR-0074 §5): Disconnect/Reconnect listeners. PlayerQuitServer
+        // → phase-aware kick/freeze/forfeit; PlayerJoinedServer → resume in
+        // 3-min window or lobby fallback. Requires non-null IWorldGateway — only
+        // wire if Core registered one (production-side InMemory default exists).
+        if (worldGateway != null) {
+            val removeFromMatch =
+                com.astarworks.astera.match.application.usecase.match.RemoveFromMatchUseCase(
+                    sessionRepo, matches, worldGateway, eventBus, scheduler,
+                )
+            val applyForfeit =
+                com.astarworks.astera.match.application.usecase.match.ApplyForfeitUseCase(
+                    removeFromMatch, eventBus, scheduler,
+                )
+            val resumeMatch =
+                com.astarworks.astera.match.application.usecase.match.ResumeMatchUseCase(
+                    sessionRepo, matches, worldGateway, eventBus, scheduler,
+                )
+            val disconnectListener =
+                com.astarworks.astera.match.application.eventbus.listeners.DisconnectDuringMatchListener(
+                    sessionRepo, matches, removeFromMatch, applyForfeit, eventBus, scheduler,
+                )
+            val reconnectListener =
+                com.astarworks.astera.match.application.eventbus.listeners.ReconnectDuringMatchListener(
+                    sessionRepo, resumeMatch, worldGateway,
+                )
+            subscriptions += eventBus.subscribe(
+                com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
+            ) { disconnectListener.handle(it) }
+            subscriptions += eventBus.subscribe(PlayerJoinedServer::class) {
+                reconnectListener.handle(it)
+            }
+        }
 
         val pinService = InMemoryPlayerPinService(eventBus)
         registrations += services.register<IPlayerPinService>(pinService, priority = 0)

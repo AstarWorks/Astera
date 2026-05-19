@@ -1,6 +1,7 @@
 package com.astarworks.astera.match.application.usecase.spectator
 
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
+import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.SessionState
@@ -8,7 +9,7 @@ import com.astarworks.astera.core.domain.player.SessionState
 /**
  * Reverse of [EnterSpectatorUseCase] — transition a player out of
  * [SessionState.Spectator] back to [SessionState.Lobby] and clear
- * `currentMatch` (Wave 5e).
+ * `currentMatch` (Wave 5e → wired to [IWorldGateway.lobbySpawn] in Wave 5h).
  *
  * # Sequence
  * 1. Look up the current [com.astarworks.astera.core.domain.player.PlayerSession]
@@ -16,14 +17,17 @@ import com.astarworks.astera.core.domain.player.SessionState
  * 2. If the current state is **not** [SessionState.Spectator], return
  *    [SpectatorError.NotSpectator] (idempotency / invariant guard).
  * 3. Otherwise upsert with `state = Lobby` and `currentMatch = null`.
+ * 4. If [worldGateway] is non-null, call [IWorldGateway.lobbySpawn]. Gateway
+ *    failures surface as [SpectatorError.TeleportFailed] but the session
+ *    transition is *not* rolled back — the player is conceptually back in the
+ *    lobby; Wave 6b's Paper adapter retries the teleport.
  *
- * # Deferred to Wave 6
- * The actual teleport back to the lobby spawn is deferred until the lobby
- * world-gateway API lands. For Wave 5e this only updates session state.
+ * [worldGateway] is nullable for legacy tests; production wiring supplies
+ * the real impl.
  */
 public class LeaveSpectatorUseCase(
     private val sessionRepository: IPlayerSessionRepository,
-    // TODO(Wave 6): inject IWorldGateway + teleport back to lobby spawn.
+    private val worldGateway: IWorldGateway? = null,
 ) {
 
     public fun leave(playerId: PlayerId): Result<Unit, SpectatorError> {
@@ -37,6 +41,13 @@ public class LeaveSpectatorUseCase(
         sessionRepository.upsert(
             current.copy(state = SessionState.Lobby, currentMatch = null),
         )
+
+        if (worldGateway != null) {
+            val spawnResult = worldGateway.lobbySpawn(playerId)
+            if (spawnResult is Result.Failure) {
+                return Result.failure(SpectatorError.TeleportFailed(spawnResult.error.toString()))
+            }
+        }
 
         return Result.success(Unit)
     }

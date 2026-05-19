@@ -348,6 +348,39 @@ reading the four canonical docs.
   `IShopStockRepository` priority 100 要件) — baseline 28 → 30
 - **AsteraTestHarness scenario test** (5 anomaly variant end-to-end)
 
+### Wave 5h — Pre-Paper-sweep depth (Tier 6.6)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 5g (port commitments baseline) |
+| Unlocks | Wave 6 を pure-Paper-impl wave に保つ最後の domain gap closure |
+| Complexity | 中-大 (5 worker, ~6-7h) |
+| ADR | 0074 (Pre-Paper-sweep depth) |
+| New migrations | V20__player_tutorial_state.sql + V21__moderation_actions.sql |
+
+**Scope** (6 領域一括 close):
+- **Hologram** — 3 DisplayEntity variant (Text / Item / Block) + Quaternion
+  rotation + Transformation + Interpolation + Brightness を vendor-neutral に
+  domain commit。新 `IHologramGateway` port + Fake、`BillboardMode` を
+  `combat.domain.projectile` → `core.domain.hologram` に移動 (Wave 6b で
+  `PaperHologramGateway`)
+- **GUI slot 拡張** — `GuiSlot` sealed に `Confirmation` + `TextInput` 追加
+  (shop 購入確認 / settings 編集 / report 入力 用)、Paper impl は Wave 6b
+- **Tutorial player flow** — `PlayerTutorialState` domain + V20 + Postgres impl +
+  `StartTutorialOnFirstJoinListener` + skip / replay use cases + `/astera
+  tutorial` command
+- **Moderation Core 4** — `ModerationAction` sealed (Mute / Kick / Ban /
+  ChatRateLimit) + `IModerationService` + V21 + Postgres impl + permission
+  gating + `SendChatMessageUseCase` mute/rate-limit check、Paper enforcement
+  は Wave 6b
+- **Match disconnect / reconnect** — `DisconnectDuringMatchListener` +
+  `ReconnectDuringMatchListener` + `ResumeMatchUseCase` + phase-aware rule
+  (COUNTDOWN kick / ACTIVE 3min reconnect / SUDDEN_DEATH forfeit)
+- **Spectator API extension** — `IWorldGateway.spectatorSpawn` / `lobbySpawn`、
+  `EnterSpectatorUseCase` / `LeaveSpectatorUseCase` の TODO 解消
+- **Konsist +2 rules** (Hologram domain vendor-neutrality + ModerationAction
+  sealed exhaustiveness) — baseline 30 → 32
+
 ### Wave 6a — Paper Sweep, Combat (Tier 7-1)
 
 | Property | Value |
@@ -994,6 +1027,7 @@ Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 | **Wave _infra-2b** | **0065** | **Per-Category Reload Dispatcher** (Core-side `IReloadableContentsRegistry` + `/astera reload <category>` Brigadier command; consolidates per-plugin reload subcommands introduced in _infra-2a) |
 | Studio public release | 0069 | Studio promoted from Astera-internal mainline (ADR-0066) to OSS-publishable; env overrides + LICENSE + dual-audience README + `/api/languages` i18n; `/weapons` kept as Astera-extension reference. Closes ADR-0061 Mismatch B (i18n keys raw). |
 | Wave _infra-5 | 0070 | weapon→item→model chain: extend `ItemYamlConfig.kt` with optional `model:` field, Studio `/weapons` prefers item.model over ARCHETYPE_MODEL fallback. Closes ADR-0061 Mismatch C; A (visual quality of pistol/wand models) remains separate build-model session work. Handoff: `/home/node/.claude/plans/wave-_infra-5-handoff.md` |
+| **5h** | **0074** | **Pre-Paper-sweep depth** — Hologram (3 DisplayEntity + Quaternion Transform) + GUI Confirmation/TextInput + Tutorial player flow + Moderation Core 4 (Mute/Kick/Ban/ChatRateLimit) + Disconnect/Reconnect + Spectator API。Wave 6 直前の domain gap closure。 |
 
 Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d). Drafted: 0059 (Wave _infra-1), 0060 (Wave _infra-2a, supersedes 0017), 0061 (Wave _infra-3), 0062 (asdsl-v2 schema-consolidation track, separate from Wave _infra-4), 0063 (5a-fix2), 0064 (5e Listener-Service sub-scope), 0065 (Wave _infra-2b), 0066 (promote-studio-to-mainline track, separate from Wave _infra-4), 0067 (Wave _infra-4 contentLint — originally reserved as 0062, bumped twice due to parallel-track collisions), 0069 (Studio public release track, parallel to Wave _infra-5), 0070 (Wave _infra-5 weapon→item→model chain).
 

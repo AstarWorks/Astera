@@ -74,6 +74,15 @@ public class PaperItemTemplateRenderer(
         is GuiSlot.Static -> resolve(slot.itemId, slot.count, viewer)
         is GuiSlot.Border -> resolve(slot.itemId, count = 1, viewer = viewer)
         is GuiSlot.Reactive -> resolveReactive(slot, viewer)
+        // Wave 5h: render the confirm-button item; cancel button + prompt
+        // bar are the input-listener layer's job (Wave 6b). Treated like a
+        // Static for now to keep the existing renderer monoline.
+        is GuiSlot.Confirmation -> resolve(slot.confirmItemId, count = 1, viewer = viewer)
+        // Wave 5h: render a BARRIER placeholder. The Paper anvil-input
+        // adapter (Wave 6b) swaps the inventory wholesale before this slot
+        // ever reaches the player; the placeholder only matters if a non-
+        // anvil container is used for testing.
+        is GuiSlot.TextInput -> barrier()
     }
 
     /**
