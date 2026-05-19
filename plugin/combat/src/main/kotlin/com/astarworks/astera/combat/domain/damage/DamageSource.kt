@@ -1,12 +1,12 @@
 package com.astarworks.astera.combat.domain.damage
 
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.barrier.BarrierId
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.weapons.domain.projectile.ProjectileId
-import com.astarworks.astera.weapons.domain.weapon.WeaponId
+import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.combat.domain.projectile.ProjectileId
 
 /**
  * Origin of a [DamageAttempt].
@@ -27,15 +27,17 @@ public sealed class DamageSource {
     public data object Environment : DamageSource()
 
     /**
-     * Direct weapon hit (melee swing or hitscan).
+     * Direct item hit (melee swing or hitscan from an attacker's equipped
+     * item). Renamed from `Weapon` in Wave _items-1 (ADR-0073) — items are
+     * now the first-class abstraction; weapons are one flavour of item.
      *
      * [attackerPosition] is optional but required when the resolved damage
      * should produce knockback (the KnockbackModifier needs an origin
      * vector). Wave 6 BukkitEventAdapter fills it from the attacker's
      * `Location` at the time of the event.
      */
-    public data class Weapon(
-        val weaponId: WeaponId,
+    public data class Item(
+        val itemId: ItemId,
         val attackerId: PlayerId,
         val attackerPosition: Vec3? = null,
     ) : DamageSource()
@@ -43,7 +45,7 @@ public sealed class DamageSource {
     /**
      * Skill-applied damage (melee skill or AOE).
      *
-     * [casterPosition] mirrors [Weapon.attackerPosition] for knockback math.
+     * [casterPosition] mirrors [Item.attackerPosition] for knockback math.
      */
     public data class Skill(
         val skillId: SkillId,
@@ -103,7 +105,7 @@ public sealed class DamageSource {
 
 /** Discriminator for [DamageSource.Projectile.origin]. */
 public sealed class ProjectileOrigin {
-    public data class FromWeapon(val weaponId: WeaponId) : ProjectileOrigin()
+    public data class FromItem(val itemId: ItemId) : ProjectileOrigin()
     public data class FromSkill(val skillId: SkillId) : ProjectileOrigin()
 }
 
@@ -113,7 +115,7 @@ public sealed class ProjectileOrigin {
  * events to an attacker.
  */
 public fun DamageSource.attackerIdOrNull(): PlayerId? = when (this) {
-    is DamageSource.Weapon -> attackerId
+    is DamageSource.Item -> attackerId
     is DamageSource.Skill -> casterId
     is DamageSource.Projectile -> ownerId
     is DamageSource.StatusEffectTick -> originPlayerId

@@ -17,36 +17,22 @@ astera:
 
   command:
     give:
-      success: "<green>{player} に <gold>{weapon}</gold> を渡しました</green>"
-      not_found: "<red>武器 ID <gold>{weapon}</gold> が見つかりません</red>"
-      usage: "<yellow>使い方: /astera give <プレイヤー> <武器ID></yellow>"
+      success: "<green>{player} に <gold>{item}</gold> を渡しました</green>"
+      not_found: "<red>アイテム ID <gold>{item}</gold> が見つかりません</red>"
+      usage: "<yellow>使い方: /astera-items give <プレイヤー> <アイテムID></yellow>"
     player-only: "<red>このコマンドはプレイヤーのみ実行できます。</red>"
     reload:
       unknown_category: "<red>未登録の reload カテゴリです。Tab キーで登録済みコンテンツタイプを表示できます。</red>"
       load_failed: "<red>reload を中止しました。一部 YAML がパースに失敗しています。直前の状態は保持されています。サーバーログを確認してください。</red>"
 
-  weapon:
-    example-sword:
-      name: "<gold>サンプルソード</gold>"
-      lore:
-        - "<gray>Phase 1 のテスト用武器</gray>"
-        - "<gray>左クリックで攻撃</gray>"
-        - "<dark_gray>archetype: sword / rarity: common</dark_gray>"
-    example-pistol:
-      name: "<aqua>サンプルピストル</aqua>"
-      lore:
-        - "<gray>Phase 2 スターター: 銃アーキタイプ</gray>"
-        - "<gray>連射可能 (CD 0.3 秒)</gray>"
-        - "<dark_gray>archetype: gun / rarity: common</dark_gray>"
-    example-wand:
-      name: "<light_purple>サンプルワンド</light_purple>"
-      lore:
-        - "<gray>Phase 2 スターター: 魔法アーキタイプ</gray>"
-        - "<gray>大威力・長 CD (3 秒)</gray>"
-        - "<dark_gray>archetype: wand / rarity: rare</dark_gray>"
-    fired: "<yellow>{player} が <gold>{weapon}</gold> を撃ちました</yellow>"
-    on_cooldown: "<red>{weapon} はクールダウン中です ({remaining})</red>"
-    none_held: "<gray>武器を装備していません</gray>"
+  # Wave _items-1 (ADR-0073): item / weapon の content-specific i18n は
+  # 各 content/items/<id>.yaml 内に inline 化。`weapon:` セクションは
+  # cross-cutting chrome string (on_cooldown / none_held / fired event 通知)
+  # に絞られ、ADR-0073 で `item:` に名前変更。
+  item:
+    fired: "<yellow>{player} が <gold>{item}</gold> を使用しました</yellow>"
+    on_cooldown: "<red>{item} はクールダウン中です ({remaining})</red>"
+    none_held: "<gray>アイテムを装備していません</gray>"
 
   permission:
     denied: "<red>権限がありません: {permission}</red>"

@@ -1,27 +1,36 @@
-# Stage 1 D demo item — mirrors content/weapons/example-sword.yaml so the
-# weapon's `material: IRON_SWORD` can be replaced (at Stage 1 integration)
-# with `item: example-sword` and resolved through IItemRegistry.
-#
-# Vanilla template — Astera materializes this via Material.matchMaterial.
-# See docs/contributing/add-an-item-yaml.md (to be authored in Stage 1 me).
+# Wave _items-1 (ADR-0073) — Item-centric demo definition.
+# 1 file = 1 item. Inline i18n + PvP attributes + skill bindings.
 
 id: example-sword
 
-# Bukkit Material name. Required for vanilla templates; mutually exclusive
-# with `external_key` (Oraxen / ItemAdder / MythicItems).
 material: IRON_SWORD
+# custom_model_data: 1001     # uncomment when resource pack model is added
 
-# Optional. Resource-pack custom_model_data; null means "leave unset".
-# Stage 6 / Phase 6 may auto-allocate these from a manifest.
-# custom_model_data: 1001
+name:
+  ja: "<gold>サンプルソード</gold>"
+  en: "<gold>Example Sword</gold>"
+lore:
+  ja:
+    - "<gray>Phase 1 のテスト用武器</gray>"
+    - "<gray>左クリックで攻撃</gray>"
+    - "<dark_gray>rarity: common / level: 1</dark_gray>"
+  en:
+    - "<gray>Phase 1 demo weapon</gray>"
+    - "<gray>Left-click to attack</gray>"
+    - "<dark_gray>rarity: common / level: 1</dark_gray>"
 
-# i18n keys; actual text in content/languages/{ja,en}.yaml.
-display_name_key: astera.item.example-sword.name
-lore_keys:
-  - astera.item.example-sword.lore
+rarity: common
+level_requirement: 1
 
-# PDC tags written into the materialized ItemStack. Stage 2 H replaces
-# weapon-material matching with PDC lookup; this is where the adapter
-# stamps an `astera:item-id` tag plus anything content authors add.
+attributes:
+  attack_damage: 8.0
+  attack_speed: 1.6
+
+equip_slot: mainhand
+
+skills:
+  - trigger: left_click
+    skill_id: example-charge
+
 pdc_tags:
   astera:rarity: common

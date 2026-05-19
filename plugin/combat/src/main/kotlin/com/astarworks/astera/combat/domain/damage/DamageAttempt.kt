@@ -1,7 +1,7 @@
 package com.astarworks.astera.combat.domain.damage
 
+import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
 
 /**
  * Inbound damage event prior to resolution.

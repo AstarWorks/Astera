@@ -1,6 +1,5 @@
 package com.astarworks.astera.core.adapter.api.item
 
-import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -16,8 +15,8 @@ class IMcItemTemplateTest {
             id = sampleId,
             material = "IRON_SWORD",
             customModelData = 1001,
-            displayName = MessageKey("astera.item.example-sword.name"),
-            lore = listOf(MessageKey("astera.item.example-sword.lore")),
+            displayName = "<gold>Example Sword</gold>",
+            lore = listOf("<gray>A keen blade.</gray>"),
             pdcTags = mapOf("astera:rarity" to "common"),
         )
         assertThat(tpl.id).isEqualTo(sampleId)

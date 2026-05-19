@@ -1,6 +1,5 @@
 package com.astarworks.astera.economy.application.usecase.marketplace
 
-import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.domain.Result
@@ -28,7 +27,7 @@ import java.util.UUID
  */
 public class CreateListingUseCase(
     private val marketplace: IMarketplaceRepository,
-    private val items: IItemRegistry<IMcItemTemplate>,
+    private val items: IItemRegistry,
     @Suppress("unused") private val eventBus: IDomainEventBus,
     private val clock: () -> Instant = Instant::now,
     private val idGen: () -> UUID = UUID::randomUUID,

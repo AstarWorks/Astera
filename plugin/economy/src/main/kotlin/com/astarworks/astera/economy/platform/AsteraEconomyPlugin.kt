@@ -5,7 +5,6 @@ import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
-import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -158,7 +157,7 @@ public class AsteraEconomyPlugin : JavaPlugin() {
 
         // Marketplace use cases. PurchaseListingUseCase composes γ's
         // CreatorRevenueCalculator (10% default platform fee).
-        val itemRegistryForMarketplace = services.getOrThrow<IItemRegistry<IMcItemTemplate>>()
+        val itemRegistryForMarketplace = services.getOrThrow<IItemRegistry>()
         val revenueCalc = CreatorRevenueCalculator(creatorRevenues)
         val createListing = CreateListingUseCase(
             marketplace = marketplace,
@@ -200,7 +199,7 @@ public class AsteraEconomyPlugin : JavaPlugin() {
         }
 
         // ── Shop (Wave 4.5, ADR-0027) ─────────────────────────────────────────
-        val itemRegistry = services.getOrThrow<IItemRegistry<IMcItemTemplate>>()
+        val itemRegistry = services.getOrThrow<IItemRegistry>()
         val mcServer = services.getOrThrow<IMcServer>()
         val guiAdapter = services.getOrThrow<IGuiAdapter>()
         val intentRouter = services.getOrThrow<IGuiIntentRouter>()
@@ -236,6 +235,7 @@ public class AsteraEconomyPlugin : JavaPlugin() {
             registry = shopRegistry,
             ledger = ledger,
             itemRegistry = itemRegistry,
+            messages = msgRenderer,
             server = mcServer,
             eventBus = eventBus,
             stockRepository = shopStockRepository,

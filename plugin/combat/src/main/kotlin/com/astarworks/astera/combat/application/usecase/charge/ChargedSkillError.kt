@@ -1,7 +1,7 @@
 package com.astarworks.astera.combat.application.usecase.charge
 
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.SkillId
 
 /**
  * Expected failure modes of [ChargedSkillCastUseCase].

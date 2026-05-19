@@ -9,4 +9,4 @@ depend: [Astera-Core]
 # loadbefore (not softdepend): persistence must register Postgres impls BEFORE
 # feature plugins look them up via `services.get<X>()` in their onEnable.
 # Wave 3 (R2) — ADR-0020.
-loadbefore: [Astera-Weapons, Astera-Combat, Astera-Match, Astera-Stats, Astera-Economy]
+loadbefore: [Astera-Items, Astera-Combat, Astera-Match, Astera-Stats, Astera-Economy]

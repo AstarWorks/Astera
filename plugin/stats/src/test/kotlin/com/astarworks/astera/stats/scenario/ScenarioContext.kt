@@ -2,7 +2,6 @@ package com.astarworks.astera.stats.scenario
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.domain.match.TeamId
-import com.astarworks.astera.weapons.domain.weapon.WeaponSpec
 
 /**
  * Thin wrapper around [AsteraTestHarness] that holds per-scenario mutable
@@ -19,11 +18,6 @@ public class ScenarioContext internal constructor(
     /** Shortcut: spawn a player by [name], optionally assigning [team]. */
     public fun player(name: String, team: TeamId? = null): IMcPlayer =
         harness.spawnPlayer(name, team)
-
-    /** Shortcut: register [weapon] in the weapon registry mid-scenario. */
-    public fun registerWeapon(weapon: WeaponSpec) {
-        harness.weaponRegistry.register(weapon)
-    }
 
     /** Convenience: advance the deterministic scheduler by [n] ticks. */
     public fun advanceTicks(n: Int) {

@@ -10,7 +10,7 @@ import com.astarworks.astera.combat.domain.skill.params.SkillParams
 /**
  * MELEE archetype handler — finds nearby players within `params.range` of the
  * cast position, excludes the caster, and runs [ApplyDamageUseCase] for each
- * target with the skill's [DamageProfile][com.astarworks.astera.weapons.domain.weapon.DamageProfile].
+ * target with the skill's [DamageProfile][com.astarworks.astera.core.domain.damage.DamageProfile].
  *
  * Wave 5a notes
  * -------------

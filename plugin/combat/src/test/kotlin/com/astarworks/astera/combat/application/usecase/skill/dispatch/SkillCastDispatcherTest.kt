@@ -8,9 +8,7 @@ import com.astarworks.astera.combat.domain.rule.FriendlyFirePolicy
 import com.astarworks.astera.combat.domain.rule.IElementMatrix
 import com.astarworks.astera.combat.domain.skill.ChargedSkillVariant
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
-import com.astarworks.astera.combat.domain.skill.SkillTrigger
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.combat.domain.status.StatusEffectSpec
@@ -26,16 +24,19 @@ import com.astarworks.astera.combat.testfixtures.FakeStatusEffectContainer
 import com.astarworks.astera.combat.testfixtures.FakeStatusEffectRegistry
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.damage.DamageAttribute
+import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.i18n.LocaleCode
+import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeWorldGateway
-import com.astarworks.astera.weapons.domain.projectile.HitProfile
-import com.astarworks.astera.weapons.domain.projectile.LifetimePolicy
-import com.astarworks.astera.weapons.domain.projectile.MotionProfile
-import com.astarworks.astera.weapons.domain.projectile.OnHitEffect
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
+import com.astarworks.astera.combat.domain.projectile.HitProfile
+import com.astarworks.astera.combat.domain.projectile.LifetimePolicy
+import com.astarworks.astera.combat.domain.projectile.MotionProfile
+import com.astarworks.astera.combat.domain.projectile.OnHitEffect
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -125,10 +126,9 @@ class SkillCastDispatcherTest {
         params: SkillParams,
     ): SkillSpec = SkillSpec(
         id = SkillId(id),
-        displayNameKey = MessageKey("test.skill.$id"),
-        descriptionKey = MessageKey("test.skill.$id.desc"),
+        name = LocalizedText(mapOf(LocaleCode.EN to "test skill $id")),
+        description = LocalizedText(mapOf(LocaleCode.EN to "test skill $id desc")),
         archetype = archetype,
-        trigger = SkillTrigger.RIGHT_CLICK,
         cooldownTicks = 0,
         params = params,
         chargeVariant = ChargedSkillVariant.Instant,

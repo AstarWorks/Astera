@@ -2,18 +2,24 @@ package com.astarworks.astera.core.application.port.outbound
 
 import com.astarworks.astera.core.application.contents.Contents
 import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.item.ItemSpec
 
 /**
- * Outbound port: read-only lookup of registered item templates by [ItemId].
+ * Outbound port: read-only lookup of registered item specs by [ItemId].
  *
  * **The single window onto every item Astera knows about.** Per Stage 1 D
- * (Phase 2 mid), every weapon / GUI slot / loadout / shop entry resolves
- * through this registry — `ItemId` is the primary key for item references.
+ * (Phase 2 mid) + ADR-0073, every weapon / GUI slot / loadout / shop entry
+ * resolves through this registry — `ItemId` is the primary key for item
+ * references, [ItemSpec] is the canonical materialized form.
  *
- * Generic over [T] so the application layer stays vendor-neutral. Production
- * code wires `IItemRegistry<com.astarworks.astera.core.adapter.api.item.IMcItemTemplate>`,
- * tests can wire `IItemRegistry<TestItem>`; either way the application's
- * use cases only see `T?` from [Contents.find] and never assume a renderer.
+ * # Wave _items-1 (ADR-0073) change
+ *
+ * Pre-_items-1 this port was generic — `IItemRegistry<T : Any>` — so callers
+ * had to choose between `IMcItemTemplate` (Paper) and a test-only stand-in.
+ * After _items-1, the YAML loader produces an [ItemSpec] directly, and every
+ * caller works on `ItemSpec`. Adapter-side concerns (Material lookup,
+ * `CustomModelData`, NBT) happen at give-time in `:plugin:items`'s adapter
+ * layer.
  *
  * Populated at plugin startup by
  * [com.astarworks.astera.core.application.contents.ItemContents] via the
@@ -25,4 +31,4 @@ import com.astarworks.astera.core.domain.item.ItemId
  * with every other content type (weapons, stages, skills, …). The marker
  * adds no methods of its own.
  */
-public interface IItemRegistry<T : Any> : Contents<ItemId, T>
+public interface IItemRegistry : Contents<ItemId, ItemSpec>

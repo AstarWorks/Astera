@@ -3,10 +3,10 @@ package com.astarworks.astera.combat.application.usecase.cost
 import com.astarworks.astera.combat.domain.event.ManaConsumed
 import com.astarworks.astera.combat.domain.event.ManaConsumptionSource
 import com.astarworks.astera.combat.domain.resource.ManaError
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.testfixtures.FakeManaPoolService
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

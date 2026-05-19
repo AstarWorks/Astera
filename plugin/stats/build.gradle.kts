@@ -30,12 +30,13 @@ dependencies {
     implementation(libs.kaml)
     implementation(libs.kotlinx.serialization.json)
 
-    compileOnly(project(":plugin:weapons"))
+    // Wave _items-1 (ADR-0073): :plugin:weapons renamed to :plugin:items.
+    compileOnly(project(":plugin:items"))
     compileOnly(project(":plugin:combat"))
     compileOnly(project(":plugin:match"))
 
     testImplementation(project(":plugin:test-fixtures"))
-    testImplementation(project(":plugin:weapons"))
+    testImplementation(project(":plugin:items"))
     testImplementation(project(":plugin:combat"))
     testImplementation(project(":plugin:match"))
 }

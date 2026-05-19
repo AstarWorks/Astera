@@ -7,20 +7,20 @@ import com.astarworks.astera.combat.domain.event.SkillChargeCancelled
 import com.astarworks.astera.combat.domain.event.SkillChargeStarted
 import com.astarworks.astera.combat.domain.skill.ChargedSkillVariant
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
-import com.astarworks.astera.combat.domain.skill.SkillTrigger
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.combat.testfixtures.FakeCooldownTracker
 import com.astarworks.astera.combat.testfixtures.FakeSkillRegistry
 import com.astarworks.astera.combat.testfixtures.FakeStatusEffectContainer
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.damage.DamageAttribute
-import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.i18n.LocaleCode
+import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeScheduler
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -43,10 +43,9 @@ class ChargedSkillCastUseCaseTest {
 
     private val chargedSpec = SkillSpec(
         id = chargedId,
-        displayNameKey = MessageKey("test.charged"),
-        descriptionKey = MessageKey("test.charged.desc"),
+        name = LocalizedText(mapOf(LocaleCode.EN to "Charged Blast")),
+        description = LocalizedText(mapOf(LocaleCode.EN to "Charged Blast desc")),
         archetype = SkillArchetype.PROJECTILE,
-        trigger = SkillTrigger.RIGHT_CLICK,
         cooldownTicks = 0,
         params = SkillParams.ProjectileParams(
             launchSpeed = 20.0,
@@ -58,10 +57,9 @@ class ChargedSkillCastUseCaseTest {
 
     private val instantSpec = SkillSpec(
         id = instantId,
-        displayNameKey = MessageKey("test.instant"),
-        descriptionKey = MessageKey("test.instant.desc"),
+        name = LocalizedText(mapOf(LocaleCode.EN to "Instant Zap")),
+        description = LocalizedText(mapOf(LocaleCode.EN to "Instant Zap desc")),
         archetype = SkillArchetype.MELEE,
-        trigger = SkillTrigger.LEFT_CLICK,
         cooldownTicks = 0,
         params = SkillParams.MeleeParams(
             range = 3.0,

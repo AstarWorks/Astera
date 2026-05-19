@@ -1,12 +1,12 @@
 package com.astarworks.astera.stats.scenario
 
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.norma.Norma
 import com.astarworks.astera.core.domain.norma.NormaId
 import com.astarworks.astera.core.domain.norma.NormaReward
 import com.astarworks.astera.core.domain.norma.NormaTarget
 import com.astarworks.astera.core.domain.norma.PeriodKind
-import com.astarworks.astera.weapons.domain.weapon.WeaponId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -21,7 +21,7 @@ class NormaProgressOnObjectiveScenarioTest {
 
     @Test
     fun `kill ticks progress on an active Kills norma`() {
-        val sword = WeaponId("amethyst-sword")
+        val sword = ItemId("amethyst-sword")
         scenario {
             val attacker = player("alice")
             val target = player("bob")

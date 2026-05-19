@@ -35,6 +35,7 @@ import com.astarworks.astera.combat.application.usecase.damage.AssistAttribution
 import com.astarworks.astera.combat.application.usecase.damage.RecordDamageHistoryOnDamageDealtListener
 import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
+import com.astarworks.astera.core.domain.event.SkillCastRequested
 import com.astarworks.astera.combat.application.usecase.skill.CastSkillUseCase
 import com.astarworks.astera.combat.application.usecase.skill.dispatch.SkillCastDispatcher
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
@@ -56,7 +57,7 @@ import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.platform.AsteraCorePlugin
-import com.astarworks.astera.weapons.application.port.outbound.IProjectileService
+import com.astarworks.astera.combat.application.port.outbound.IProjectileService
 import org.bukkit.plugin.java.JavaPlugin
 
 /**
@@ -230,17 +231,30 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 scheduler = scheduler,
             )
 
+            // Wave _items-1 (ADR-0073) — subscribe CastSkillUseCase to the
+            // cross-plugin SkillCastRequested event. Items plugin's binding
+            // dispatcher publishes this event when a bound input fires; we
+            // translate it into a CastSkillUseCase.execute(...) call here so
+            // combat continues to own the silence / cooldown / mana pipeline.
+            subscriptions += eventBus.subscribe(SkillCastRequested::class) { event ->
+                castSkill.execute(
+                    casterId = event.actorId,
+                    skillId = event.skillId,
+                    at = event.origin,
+                )
+            }
+
             // Wave 5a — wire SkillCastDispatcher (subscribes to SkillCast).
             // Falls back to a no-op projectile service when Astera-Weapons isn't
             // loaded; the PROJECTILE handler then logs a warn and drops.
             val effectiveProjectileService = projectileService
                 ?: object : IProjectileService {
                     override fun spawn(
-                        spec: com.astarworks.astera.weapons.domain.projectile.ProjectileSpec,
+                        spec: com.astarworks.astera.combat.domain.projectile.ProjectileSpec,
                         origin: com.astarworks.astera.core.domain.geometry.Vec3,
                         direction: com.astarworks.astera.core.domain.geometry.Vec3,
                         owner: com.astarworks.astera.core.domain.player.PlayerId,
-                    ): com.astarworks.astera.weapons.application.port.outbound.IProjectileHandle {
+                    ): com.astarworks.astera.combat.application.port.outbound.IProjectileHandle {
                         logger.fine("Projectile spawn no-op (Astera-Weapons absent)")
                         return NoOpProjectileHandle
                     }
@@ -307,8 +321,8 @@ public class AsteraCombatPlugin : JavaPlugin() {
     }
 
     private object NoOpProjectileHandle :
-        com.astarworks.astera.weapons.application.port.outbound.IProjectileHandle {
-        override val id = com.astarworks.astera.weapons.domain.projectile.ProjectileId(java.util.UUID(0, 0))
+        com.astarworks.astera.combat.application.port.outbound.IProjectileHandle {
+        override val id = com.astarworks.astera.combat.domain.projectile.ProjectileId(java.util.UUID(0, 0))
         override val isAlive: Boolean = false
         override fun cancel() = Unit
     }

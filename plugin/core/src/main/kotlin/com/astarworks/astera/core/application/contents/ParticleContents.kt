@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.effect.ParticleId
 /**
  * Particle-side `Contents<ParticleId, ParticleDefinition>` (Wave 5f, RTM #22).
  *
- * Mirrors the [com.astarworks.astera.weapons.application.service.WeaponContents]
+ * Mirrors the [com.astarworks.astera.core.application.contents.ItemContents]
  * pattern — subclass of [YamlDynamicContents] that registers as the
  * [IParticleRegistry] port. Inherits:
  *

@@ -34,7 +34,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
  *
  * Source coverage
  * ---------------
- * - [DamageSource.Weapon] / [DamageSource.Skill] / [DamageSource.Explosion]
+ * - [DamageSource.Item] / [DamageSource.Skill] / [DamageSource.Explosion]
  *   produce knockback when an origin position is known.
  * - [DamageSource.Projectile] currently produces no knockback — the impact
  *   position lives on the projectile entity, not the source. Wave 6 will
@@ -71,7 +71,7 @@ public class KnockbackModifier(
     }
 
     private fun originPositionFor(source: DamageSource): Vec3? = when (source) {
-        is DamageSource.Weapon -> source.attackerPosition
+        is DamageSource.Item -> source.attackerPosition
         is DamageSource.Skill -> source.casterPosition
         is DamageSource.Explosion -> source.center
         is DamageSource.Projectile,

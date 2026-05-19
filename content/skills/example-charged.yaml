@@ -4,14 +4,20 @@
 # (default) to `Charged(30)` — the player must hold the trigger for 30 ticks
 # (~1.5s @ 20 TPS) before the projectile is launched. Release / cancel
 # semantics are orchestrated by `ChargedSkillCastUseCase`.
+#
+# Wave _items-1 (ADR-0073): trigger / i18n keys folded into item bindings +
+# inline locale maps.
 
 id: example-charged
 
-display_name_key: astera.skill.example-charged.name
-description_key: astera.skill.example-charged.lore
+name:
+  ja: "溜め炸裂弾"
+  en: "Example Charged Blast"
+description:
+  ja: "長押しで威力を溜めてから発射する強化遠距離スキル。"
+  en: "Charged ranged skill — hold to build up before launching a heavier projectile."
 
 archetype: projectile
-trigger: right_click
 cooldown_ticks: 60         # ~3s @ 20 TPS — slightly longer than instant blast
 charge_ticks: 30           # ~1.5s hold before the projectile launches
 

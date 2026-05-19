@@ -13,10 +13,11 @@ import { jobs } from './routes/jobs'
 import { tiles } from './routes/tiles'
 import { generate } from './routes/generate'
 import { models } from './routes/models'
-import { weapons } from './routes/weapons'
+import { items } from './routes/items'
 import { effects } from './routes/effects'
 import { chat as chatRoute } from './routes/chat'
 import { textures as texturesRoute } from './routes/textures'
+import { languages as languagesRoute } from './routes/languages'
 import { stateRoute } from './routes/state'
 import { paintRoute } from './routes/paint'
 import { cuboidsRoute } from './routes/cuboids'
@@ -25,7 +26,7 @@ import { compositeRoute } from './routes/composite'
 import { asdslRoute } from './routes/asdsl'
 import { wsHandler } from './ws'
 import { readManifest } from './manifest'
-import { repoRoot, tmpDir, texturesDir, vanillaCacheDir } from './paths'
+import { repoRoot, jobRoot, legacyTmpDir, texturesDir, vanillaCacheDir, resolveJobDir, isValidJobId } from './paths'
 
 const app = new Hono()
 
@@ -37,8 +38,9 @@ app.route('/api/jobs', tiles)
 app.route('/api/jobs', jobs)
 app.route('/api/generate', generate)
 app.route('/api/models', models)
-app.route('/api/weapons', weapons)
+app.route('/api/items', items)
 app.route('/api/textures', texturesRoute)
+app.route('/api/languages', languagesRoute)
 app.route('/api/state', stateRoute)
 app.route('/api/paint', paintRoute)
 app.route('/api/cuboids', cuboidsRoute)
@@ -75,11 +77,13 @@ app.get('/api/categories', (c) => {
   return c.json(walk(texturesDir))
 })
 
-// Static-serve /tmp/<jobId>/grid.png (the raw source grid) at /files/jobs/<id>/grid
+// Static-serve <jobRoot>/<jobId>/grid.png (the raw source grid) at /files/jobs/<id>/grid
 app.get('/files/jobs/:jobId/grid', async (c) => {
   const jobId = c.req.param('jobId')
-  if (!jobId.startsWith('texgen')) return c.notFound()
-  const filePath = path.join(tmpDir, jobId, 'grid.png')
+  if (!isValidJobId(jobId)) return c.notFound()
+  const dir = resolveJobDir(jobId)
+  if (!dir) return c.notFound()
+  const filePath = path.join(dir, 'grid.png')
   try {
     if (!statSync(filePath).isFile()) return c.notFound()
   } catch {
@@ -89,14 +93,16 @@ app.get('/files/jobs/:jobId/grid', async (c) => {
   return new Response(file, { headers: { 'Cache-Control': 'no-cache' } })
 })
 
-// Static-serve /tmp/<jobId>/final/<name> as /files/jobs/<id>/<name>
+// Static-serve <jobRoot>/<jobId>/final/<name> as /files/jobs/<id>/<name>
 app.get('/files/jobs/:jobId/:name', async (c) => {
   const jobId = c.req.param('jobId')
   const name = c.req.param('name')
-  if (!jobId.startsWith('texgen') || name.includes('/') || !name.endsWith('.png')) {
+  if (!isValidJobId(jobId) || name.includes('/') || !name.endsWith('.png')) {
     return c.notFound()
   }
-  const filePath = path.join(tmpDir, jobId, 'final', name)
+  const dir = resolveJobDir(jobId)
+  if (!dir) return c.notFound()
+  const filePath = path.join(dir, 'final', name)
   try {
     if (!statSync(filePath).isFile()) return c.notFound()
   } catch {
@@ -181,7 +187,8 @@ const server = Bun.serve({
 })
 
 console.log(`[astera-studio] listening on http://localhost:${server.port}`)
-console.log(`[astera-studio]   repoRoot:    ${repoRoot}`)
-console.log(`[astera-studio]   tmpDir:      ${tmpDir}`)
-console.log(`[astera-studio]   texturesDir: ${texturesDir}`)
-console.log(`[astera-studio]   ws bridge:   ws://localhost:${server.port}/ws`)
+console.log(`[astera-studio]   repoRoot:     ${repoRoot}`)
+console.log(`[astera-studio]   jobRoot:      ${jobRoot}`)
+console.log(`[astera-studio]   legacyTmpDir: ${legacyTmpDir}`)
+console.log(`[astera-studio]   texturesDir:  ${texturesDir}`)
+console.log(`[astera-studio]   ws bridge:    ws://localhost:${server.port}/ws`)

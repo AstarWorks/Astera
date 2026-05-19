@@ -10,7 +10,7 @@ import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
-import com.astarworks.astera.weapons.application.port.outbound.IProjectileService
+import com.astarworks.astera.combat.application.port.outbound.IProjectileService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

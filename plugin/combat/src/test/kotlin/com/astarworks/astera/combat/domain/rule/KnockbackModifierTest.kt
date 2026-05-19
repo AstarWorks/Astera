@@ -4,14 +4,14 @@ import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.damage.ProjectileOrigin
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.damage.DamageAttribute
+import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.weapons.domain.projectile.ProjectileId
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
-import com.astarworks.astera.weapons.domain.weapon.WeaponId
+import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.combat.domain.projectile.ProjectileId
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Test
@@ -37,9 +37,9 @@ class KnockbackModifierTest {
         WorkingDamage(currentAmount = base, attribute = DamageAttribute.PHYSICAL)
 
     @Test
-    fun `Weapon source with attackerPosition produces inverse-direction impulse`() {
-        val source = DamageSource.Weapon(
-            weaponId = WeaponId("test-sword"),
+    fun `Item source with attackerPosition produces inverse-direction impulse`() {
+        val source = DamageSource.Item(
+            itemId = ItemId("test-sword"),
             attackerId = attacker,
             attackerPosition = Vec3(1.0, 0.0, 0.0),
         )
@@ -56,9 +56,9 @@ class KnockbackModifierTest {
     }
 
     @Test
-    fun `Weapon source with null attackerPosition produces no knockback`() {
-        val source = DamageSource.Weapon(
-            weaponId = WeaponId("test-sword"),
+    fun `Item source with null attackerPosition produces no knockback`() {
+        val source = DamageSource.Item(
+            itemId = ItemId("test-sword"),
             attackerId = attacker,
             attackerPosition = null,
         )
@@ -141,7 +141,7 @@ class KnockbackModifierTest {
         val source = DamageSource.Projectile(
             projectileId = ProjectileId(UUID.randomUUID()),
             ownerId = attacker,
-            origin = ProjectileOrigin.FromWeapon(WeaponId("pistol")),
+            origin = ProjectileOrigin.FromItem(ItemId("pistol")),
         )
         val out = KnockbackModifier().apply(working(), attempt(source), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
         assertThat(out.knockback).isNull()
@@ -149,8 +149,8 @@ class KnockbackModifierTest {
 
     @Test
     fun `attackerPosition at ZERO yields zero-vector impulse`() {
-        val source = DamageSource.Weapon(
-            weaponId = WeaponId("test"),
+        val source = DamageSource.Item(
+            itemId = ItemId("test"),
             attackerId = attacker,
             attackerPosition = Vec3.ZERO,
         )
@@ -166,8 +166,8 @@ class KnockbackModifierTest {
 
     @Test
     fun `diagonal attackerPosition is normalized to unit length`() {
-        val source = DamageSource.Weapon(
-            weaponId = WeaponId("test"),
+        val source = DamageSource.Item(
+            itemId = ItemId("test"),
             attackerId = attacker,
             attackerPosition = Vec3(3.0, 0.0, 4.0), // length 5
         )
@@ -185,8 +185,8 @@ class KnockbackModifierTest {
 
     @Test
     fun `baseMagnitude zero short-circuits with no knockback`() {
-        val source = DamageSource.Weapon(
-            weaponId = WeaponId("test"),
+        val source = DamageSource.Item(
+            itemId = ItemId("test"),
             attackerId = attacker,
             attackerPosition = Vec3(1.0, 0.0, 0.0),
         )

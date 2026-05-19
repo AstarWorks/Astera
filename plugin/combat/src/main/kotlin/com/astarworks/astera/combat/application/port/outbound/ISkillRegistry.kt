@@ -1,8 +1,8 @@
 package com.astarworks.astera.combat.application.port.outbound
 
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.core.application.contents.Contents
+import com.astarworks.astera.core.domain.skill.SkillId
 
 /**
  * Outbound port: read-only lookup of registered skills.

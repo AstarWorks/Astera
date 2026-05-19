@@ -135,7 +135,7 @@ class ArchitectureTest {
                 additionalMessage = "ADR-0022 violation: Core cannot depend on feature plugins (creates dependency cycle).",
             ) { file ->
                 file.imports.any { imp ->
-                    imp.name.startsWith("com.astarworks.astera.weapons") ||
+                    imp.name.startsWith("com.astarworks.astera.items") ||
                         imp.name.startsWith("com.astarworks.astera.combat") ||
                         imp.name.startsWith("com.astarworks.astera.match") ||
                         imp.name.startsWith("com.astarworks.astera.stats") ||
@@ -154,7 +154,7 @@ class ArchitectureTest {
     fun `weapons domain must be pure`() {
         Konsist.scopeFromModule("plugin/weapons")
             .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.weapons.domain") == true }
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.items.domain") == true }
             .assertFalse { file ->
                 hasBukkitFamilyImport(file) ||
                     file.imports.any { imp ->
@@ -179,7 +179,7 @@ class ArchitectureTest {
     fun `weapons application must not import Bukkit family`() {
         Konsist.scopeFromModule("plugin/weapons")
             .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.weapons.application") == true }
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.items.application") == true }
             .assertFalse { file -> hasBukkitFamilyImport(file) }
     }
 
@@ -302,7 +302,7 @@ class ArchitectureTest {
                 additionalMessage = "ADR-0022 violation: Match may use Core + (soft-dep) Combat only.",
             ) { file ->
                 file.imports.any { imp ->
-                    imp.name.startsWith("com.astarworks.astera.weapons") ||
+                    imp.name.startsWith("com.astarworks.astera.items") ||
                         imp.name.startsWith("com.astarworks.astera.stats") ||
                         imp.name.startsWith("com.astarworks.astera.economy") ||
                         imp.name.startsWith("com.astarworks.astera.persistence")
@@ -403,7 +403,7 @@ class ArchitectureTest {
                 additionalMessage = "ADR-0022 violation: Economy may use Core + (soft-dep) Stats/Match only.",
             ) { file ->
                 file.imports.any { imp ->
-                    imp.name.startsWith("com.astarworks.astera.weapons") ||
+                    imp.name.startsWith("com.astarworks.astera.items") ||
                         imp.name.startsWith("com.astarworks.astera.combat") ||
                         imp.name.startsWith("com.astarworks.astera.persistence")
                 }
@@ -453,7 +453,7 @@ class ArchitectureTest {
         )
         val applicationPackagePrefixes = listOf(
             "com.astarworks.astera.core.application",
-            "com.astarworks.astera.weapons.application",
+            "com.astarworks.astera.items.application",
             "com.astarworks.astera.combat.application",
             "com.astarworks.astera.match.application",
             "com.astarworks.astera.stats.application",
@@ -619,7 +619,7 @@ class ArchitectureTest {
             .assertFalse { file ->
                 hasBukkitFamilyImport(file) ||
                     file.imports.any { imp ->
-                        imp.name.startsWith("com.astarworks.astera.weapons") ||
+                        imp.name.startsWith("com.astarworks.astera.items") ||
                             imp.name.startsWith("com.astarworks.astera.combat") ||
                             imp.name.startsWith("com.astarworks.astera.match") ||
                             imp.name.startsWith("com.astarworks.astera.stats") ||

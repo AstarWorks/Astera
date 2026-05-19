@@ -38,7 +38,6 @@ import com.astarworks.astera.stats.application.service.InMemoryNormaService
 import com.astarworks.astera.stats.application.service.InMemoryPlayerStatsRepository
 import com.astarworks.astera.stats.application.usecase.level.GrantXpUseCase
 import com.astarworks.astera.stats.application.usecase.stats.RecordKillUseCase
-import com.astarworks.astera.stats.scenario.fake.FakeProjectileService
 import com.astarworks.astera.stats.scenario.fake.SeededDamageRandomizer
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.testfixtures.FakeBossBarManager
@@ -54,17 +53,14 @@ import com.astarworks.astera.testfixtures.FakeScheduler
 import com.astarworks.astera.testfixtures.FakeScoreboardManager
 import com.astarworks.astera.testfixtures.FakeTabList
 import com.astarworks.astera.testfixtures.FakeWorldGateway
-import com.astarworks.astera.weapons.application.service.WeaponContents
-import com.astarworks.astera.weapons.application.usecase.FireWeaponUseCase
-import com.astarworks.astera.weapons.domain.weapon.WeaponSpec
 import java.util.UUID
 
 /**
  * Pre-wired in-memory end-to-end harness for scenario tests (Wave _infra-1 /
- * ADR-0059).
+ * ADR-0059; Wave _items-1 / ADR-0073 dropped weapons-plugin wiring).
  *
  * Bundles every fake + InMemory production repository + use case needed for a
- * weapon-fires → damage → kill → reward flow, mirroring what
+ * kill → reward flow, mirroring what
  * [com.astarworks.astera.stats.smoke.KillRewardChainSmokeTest] and
  * [com.astarworks.astera.match.smoke.MatchLifecycleSmokeTest] assemble by
  * hand. Scenarios reach in via [ScenarioDsl] rather than touching fields
@@ -97,8 +93,7 @@ public class AsteraTestHarness private constructor(
     public val playerRepo: FakePlayerRepository,
     public val matchTeamLookup: FakeMatchTeamLookup,
     public val guiAdapter: FakeGuiAdapter,
-    public val itemRegistry: ItemContents<TestItemTemplate>,
-    public val weaponRegistry: WeaponContents,
+    public val itemRegistry: ItemContents,
     public val skillRegistry: SkillContents,
     public val armorRegistry: ArmorContents,
     public val statusRegistry: StatusContents,
@@ -115,8 +110,6 @@ public class AsteraTestHarness private constructor(
     public val knockbackGateway: NoOpKnockbackGateway,
     public val nearbyTargetQuery: EmptyNearbyTargetQuery,
     public val damageRandomizer: SeededDamageRandomizer,
-    public val projectileService: FakeProjectileService,
-    public val fireWeapon: FireWeaponUseCase,
     public val recordKill: RecordKillUseCase,
     public val grantXp: GrantXpUseCase,
     /**
@@ -215,13 +208,9 @@ public class AsteraTestHarness private constructor(
     public companion object {
 
         /** Empty registries, no players. Most scenarios use this. */
-        public fun newDefault(): AsteraTestHarness = build(weapons = emptyList())
+        public fun newDefault(): AsteraTestHarness = build()
 
-        /** Pre-register [specs] in the weapon registry before returning. */
-        public fun withWeapons(vararg specs: WeaponSpec): AsteraTestHarness =
-            build(weapons = specs.toList())
-
-        private fun build(weapons: List<WeaponSpec>): AsteraTestHarness {
+        private fun build(): AsteraTestHarness {
             val eventBus = InMemoryDomainEventBus()
             val scheduler = FakeScheduler(startTick = 0L)
             val server = FakeMcServer()
@@ -235,10 +224,7 @@ public class AsteraTestHarness private constructor(
             val playerRepo = FakePlayerRepository()
             val teams = FakeMatchTeamLookup()
             val gui = FakeGuiAdapter()
-            val items = ItemContents<TestItemTemplate>(mapper = { cfg ->
-                TestItemTemplate(ItemId(cfg.id))
-            })
-            val weaponReg = WeaponContents().also { reg -> weapons.forEach { reg.register(it) } }
+            val items = ItemContents()
             val skillReg = SkillContents()
             val armorReg = ArmorContents()
             val statusReg = StatusContents()
@@ -254,9 +240,7 @@ public class AsteraTestHarness private constructor(
             val knockback = NoOpKnockbackGateway()
             val nearby = EmptyNearbyTargetQuery()
             val rng = SeededDamageRandomizer(seed = 0L)
-            val projectiles = FakeProjectileService(eventBus)
 
-            val fireWeapon = FireWeaponUseCase(broadcaster, weaponReg)
             val recordKill = RecordKillUseCase(statsRepo, eventBus)
             val grantXp = GrantXpUseCase(levelService, eventBus)
             val rewardOnKill = RewardOnKillListener(recordKill, grantXp)
@@ -287,7 +271,6 @@ public class AsteraTestHarness private constructor(
                 matchTeamLookup = teams,
                 guiAdapter = gui,
                 itemRegistry = items,
-                weaponRegistry = weaponReg,
                 skillRegistry = skillReg,
                 armorRegistry = armorReg,
                 statusRegistry = statusReg,
@@ -303,8 +286,6 @@ public class AsteraTestHarness private constructor(
                 knockbackGateway = knockback,
                 nearbyTargetQuery = nearby,
                 damageRandomizer = rng,
-                projectileService = projectiles,
-                fireWeapon = fireWeapon,
                 recordKill = recordKill,
                 grantXp = grantXp,
                 publishedEvents = publishedEvents,
@@ -314,11 +295,14 @@ public class AsteraTestHarness private constructor(
 }
 
 /**
- * Trivial item-template stand-in used by the harness's `ItemContents`
- * generic instantiation. The application layer must not import `IMcItemTemplate`
- * (vendor-neutral discipline), so the harness instantiates with a thin POKO
- * keyed by [ItemId]. Scenarios that need richer item behaviour can extend
- * this without changing the registry generic.
+ * Trivial item-template stand-in retained for legacy scenario imports.
+ *
+ * Wave _items-1 (ADR-0073): `IItemRegistry` / [com.astarworks.astera.core.application.contents.ItemContents]
+ * are no longer generic — they return [com.astarworks.astera.core.domain.item.ItemSpec]
+ * straight out. Scenarios that previously held a `TestItemTemplate` to satisfy
+ * the registry's generic should switch to `ItemSpec` builders (see
+ * `plugin/items/src/test/.../testfixtures/ItemSpecs.kt` for the canonical
+ * builder). This class remains as a marker only.
  */
 public data class TestItemTemplate(val id: ItemId)
 

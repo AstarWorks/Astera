@@ -3,7 +3,7 @@ package com.astarworks.astera.combat.domain.damage
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
+import com.astarworks.astera.core.domain.damage.DamageProfile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID

@@ -6,7 +6,7 @@ import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
+import com.astarworks.astera.core.domain.damage.DamageProfile
 
 /**
  * AOE archetype handler — like [MeleeHandler] but scaled by

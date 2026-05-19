@@ -2,12 +2,12 @@ package com.astarworks.astera.combat.application.contents
 
 import com.astarworks.astera.combat.domain.skill.ChargedSkillVariant
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
-import com.astarworks.astera.combat.domain.skill.SkillTrigger
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.combat.domain.status.StatusEffectId
-import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.i18n.LocaleCode
+import com.astarworks.astera.core.domain.i18n.LocalizedText
+import com.astarworks.astera.core.domain.skill.SkillId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -22,15 +22,21 @@ import java.nio.file.Path
  * [com.astarworks.astera.core.application.contents.YamlDynamicContents]. The
  * test surface adds reload-semantics checks (Wave _infra-2b goal); the rest of
  * the cases mirror the legacy file 1:1 to keep coverage.
+ *
+ * Wave _items-1 (ADR-0073): YAML schema migrated to inline locale maps for
+ * name / description and `trigger:` removed (binding moved to item YAML).
  */
 class SkillContentsTest {
 
     private val projectileYaml = """
         id: test-blast
-        display_name_key: astera.skill.test-blast.name
-        description_key: astera.skill.test-blast.lore
+        name:
+          ja: テスト炸裂弾
+          en: Test Blast
+        description:
+          ja: テスト用炸裂弾
+          en: Test blast description
         archetype: projectile
-        trigger: right_click
         cooldown_ticks: 40
         params:
           type: projectile
@@ -43,10 +49,13 @@ class SkillContentsTest {
 
     private val buffYaml = """
         id: test-charge
-        display_name_key: astera.skill.test-charge.name
-        description_key: astera.skill.test-charge.lore
+        name:
+          ja: テスト溜め
+          en: Test Charge
+        description:
+          ja: テスト用溜めスキル
+          en: Test charge description
         archetype: buff
-        trigger: hold
         cooldown_ticks: 80
         params:
           type: buff
@@ -67,13 +76,15 @@ class SkillContentsTest {
         assertThat(spec).isNotNull
         requireNotNull(spec)
         assertThat(spec.archetype).isEqualTo(SkillArchetype.PROJECTILE)
-        assertThat(spec.trigger).isEqualTo(SkillTrigger.RIGHT_CLICK)
         assertThat(spec.cooldownTicks).isEqualTo(40)
         assertThat(spec.params).isInstanceOf(SkillParams.ProjectileParams::class.java)
         val params = spec.params as SkillParams.ProjectileParams
         assertThat(params.launchSpeed).isEqualTo(1.8)
         assertThat(params.maxLifetimeTicks).isEqualTo(60)
         assertThat(params.damage.base).isEqualTo(12.0)
+        // Inline i18n round-trips through LocalizedText.
+        assertThat(spec.name.byLocale[LocaleCode.EN]).isEqualTo("Test Blast")
+        assertThat(spec.description.byLocale[LocaleCode.JA]).isEqualTo("テスト用炸裂弾")
     }
 
     @Test
@@ -122,10 +133,11 @@ class SkillContentsTest {
     fun `archetype-params mismatch fails the file but not the batch`(@TempDir dir: Path) {
         val mismatch = """
             id: bad-skill
-            display_name_key: astera.skill.bad.name
-            description_key: astera.skill.bad.lore
+            name:
+              en: Bad Skill
+            description:
+              en: Bad skill description
             archetype: projectile
-            trigger: right_click
             cooldown_ticks: 40
             params:
               type: buff
@@ -190,10 +202,9 @@ class SkillContentsTest {
         val contents = SkillContents()
         val spec = SkillSpec(
             id = SkillId("programmatic"),
-            displayNameKey = MessageKey("test.name"),
-            descriptionKey = MessageKey("test.lore"),
+            name = LocalizedText(mapOf(LocaleCode.EN to "Programmatic")),
+            description = LocalizedText(mapOf(LocaleCode.EN to "Programmatic desc")),
             archetype = SkillArchetype.BUFF,
-            trigger = SkillTrigger.RIGHT_CLICK,
             cooldownTicks = 10,
             params = SkillParams.BuffParams(
                 statusEffectId = StatusEffectId("test-effect"),

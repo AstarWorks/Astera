@@ -4,9 +4,7 @@ import com.astarworks.astera.combat.application.usecase.cost.ConsumeManaUseCase
 import com.astarworks.astera.combat.domain.event.ManaConsumed
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
-import com.astarworks.astera.combat.domain.skill.SkillTrigger
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
@@ -19,11 +17,14 @@ import com.astarworks.astera.combat.testfixtures.FakeStatusEffectContainer
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.damage.DamageAttribute
+import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.i18n.LocaleCode
+import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeScheduler
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -43,10 +44,9 @@ class CastSkillUseCaseTest {
 
     private val spec = SkillSpec(
         id = skillId,
-        displayNameKey = MessageKey("test.fireball"),
-        descriptionKey = MessageKey("test.fireball.desc"),
+        name = LocalizedText(mapOf(LocaleCode.EN to "Fireball")),
+        description = LocalizedText(mapOf(LocaleCode.EN to "Fireball desc")),
         archetype = SkillArchetype.PROJECTILE,
-        trigger = SkillTrigger.RIGHT_CLICK,
         cooldownTicks = 40,
         params = SkillParams.ProjectileParams(
             launchSpeed = 20.0,

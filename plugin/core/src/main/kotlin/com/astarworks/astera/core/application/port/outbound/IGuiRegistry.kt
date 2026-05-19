@@ -7,12 +7,11 @@ import com.astarworks.astera.core.domain.gui.GuiSpec
 /**
  * Outbound port: look up declared [GuiSpec]s by [GuiId].
  *
- * Mirrors [IItemRegistry] / [com.astarworks.astera.weapons.application.port.outbound.IWeaponRegistry]
- * in shape: the application layer asks "what does GUI X look like?" and gets
- * back an immutable spec. Populated at plugin startup by
- * [com.astarworks.astera.core.application.contents.GuiContents] from
- * `content/gui/` (and friends per ADR-0016) the same way items and weapons
- * are loaded.
+ * Mirrors [IItemRegistry] in shape: the application layer asks "what does
+ * GUI X look like?" and gets back an immutable spec. Populated at plugin
+ * startup by [com.astarworks.astera.core.application.contents.GuiContents]
+ * from `content/gui/` (and friends per ADR-0016) the same way items are
+ * loaded.
  *
  * Lives in `plugin/core` so the registry's `KClass` identity is consistent
  * across plugins (per ADR-0020 §"Cross-plugin KClass identity") — any plugin
@@ -21,8 +20,8 @@ import com.astarworks.astera.core.domain.gui.GuiSpec
  * runtime via the impl's `register(spec)` overload).
  *
  * Extends [Contents] so the substrate's `find` / `all` contract is shared
- * with every other content type (weapons, items, stages, …). The marker
- * adds no methods of its own — programmatic registration goes through the
- * impl ([com.astarworks.astera.core.application.contents.GuiContents.register]).
+ * with every other content type (items, stages, …). The marker adds no
+ * methods of its own — programmatic registration goes through the impl
+ * ([com.astarworks.astera.core.application.contents.GuiContents.register]).
  */
 public interface IGuiRegistry : Contents<GuiId, GuiSpec>

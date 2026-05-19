@@ -1,0 +1,13 @@
+name: Astera-Items
+version: '${version}'
+main: com.astarworks.astera.items.platform.AsteraItemsPlugin
+api-version: '1.21'
+authors: [AstarWorks]
+description: Astera items plugin — custom item definitions, /astera-items give, click-to-skill (ADR-0069).
+website: https://github.com/AstarWorks/Astera
+depend: [Astera-Core]
+softdepend: [Astera-Combat, Astera-Match]
+commands:
+  astera-items:
+    description: Astera items commands (give, …)
+    usage: /astera-items <subcommand> [args...]

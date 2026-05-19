@@ -1,14 +1,36 @@
-# Stage 1 D demo item — mirrors content/weapons/example-pistol.yaml.
-# CROSSBOW is the vanilla material used by the matching weapon; Stage 1
-# integration swaps WeaponSpec.materialKey for `item: example-pistol`.
+# Wave _items-1 (ADR-0073) — Item-centric demo definition.
+# Phase 2 starter: gun archetype, rapid fire (0.3s cooldown via binding override).
 
 id: example-pistol
 
 material: CROSSBOW
 
-display_name_key: astera.item.example-pistol.name
-lore_keys:
-  - astera.item.example-pistol.lore
+name:
+  ja: "<aqua>サンプルピストル</aqua>"
+  en: "<aqua>Example Pistol</aqua>"
+lore:
+  ja:
+    - "<gray>Phase 2 スターター: 銃アーキタイプ</gray>"
+    - "<gray>連射可能 (CD 0.3 秒)</gray>"
+    - "<dark_gray>rarity: common / level: 1</dark_gray>"
+  en:
+    - "<gray>Phase 2 starter: gun archetype</gray>"
+    - "<gray>Rapid fire (0.3s cooldown)</gray>"
+    - "<dark_gray>rarity: common / level: 1</dark_gray>"
+
+rarity: common
+level_requirement: 1
+
+attributes:
+  attack_damage: 4.0
+  attack_speed: 4.0
+
+equip_slot: mainhand
+
+skills:
+  - trigger: left_click
+    skill_id: example-blast
+    cooldown_override_ticks: 6    # 0.3s @ 20 TPS
 
 pdc_tags:
   astera:rarity: common

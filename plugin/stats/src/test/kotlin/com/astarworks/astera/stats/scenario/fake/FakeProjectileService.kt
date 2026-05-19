@@ -3,10 +3,10 @@ package com.astarworks.astera.stats.scenario.fake
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.weapons.application.port.outbound.IProjectileHandle
-import com.astarworks.astera.weapons.application.port.outbound.IProjectileService
-import com.astarworks.astera.weapons.domain.projectile.ProjectileId
-import com.astarworks.astera.weapons.domain.projectile.ProjectileSpec
+import com.astarworks.astera.combat.application.port.outbound.IProjectileHandle
+import com.astarworks.astera.combat.application.port.outbound.IProjectileService
+import com.astarworks.astera.combat.domain.projectile.ProjectileId
+import com.astarworks.astera.combat.domain.projectile.ProjectileSpec
 
 /**
  * Test fake for [IProjectileService] with deterministic projectile behaviour.
@@ -21,7 +21,7 @@ import com.astarworks.astera.weapons.domain.projectile.ProjectileSpec
  * cancellation behaviour without standing up the Paper tick loop.
  *
  * Thread-agnostic — tests don't simulate the Paper main-thread requirement
- * called out by the production [com.astarworks.astera.weapons.adapter.PaperProjectileService].
+ * called out by the production [plugin/items adapter (TBD Phase 2)].
  */
 public class FakeProjectileService(
     private val eventBus: IDomainEventBus? = null,

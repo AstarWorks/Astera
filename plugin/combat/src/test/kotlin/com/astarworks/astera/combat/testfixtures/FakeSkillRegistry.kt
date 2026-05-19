@@ -1,8 +1,8 @@
 package com.astarworks.astera.combat.testfixtures
 
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
+import com.astarworks.astera.core.domain.skill.SkillId
 
 /**
  * In-memory [ISkillRegistry] for use case tests.

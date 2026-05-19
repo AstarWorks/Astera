@@ -10,10 +10,10 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * - All [sendMessage] calls are recorded on [messages] so tests can assert
  *   on the exact invocations.
  *
- * ADR-0022 trim: pre-Phase-2 this fake also implemented `giveWeapon(WeaponSpec)`.
- * That capability moved to the Weapons plugin's outbound port; Weapons-specific
- * tests should use a `FakeWeaponDelivery` fixture from the Weapons plugin's
- * own test-fixtures.
+ * ADR-0022 / ADR-0073 trim: pre-Phase-2 this fake also implemented item-give
+ * methods. That capability moved to the Items plugin's outbound port; item-
+ * delivery tests should use a `FakeItemDelivery` fixture from the Items
+ * plugin's own test-fixtures.
  */
 public class FakePlayerGateway : IPlayerGateway {
     public val players: MutableMap<String, PlayerId> = mutableMapOf()

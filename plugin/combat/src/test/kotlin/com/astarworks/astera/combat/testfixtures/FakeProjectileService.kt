@@ -2,10 +2,10 @@ package com.astarworks.astera.combat.testfixtures
 
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.weapons.application.port.outbound.IProjectileHandle
-import com.astarworks.astera.weapons.application.port.outbound.IProjectileService
-import com.astarworks.astera.weapons.domain.projectile.ProjectileId
-import com.astarworks.astera.weapons.domain.projectile.ProjectileSpec
+import com.astarworks.astera.combat.application.port.outbound.IProjectileHandle
+import com.astarworks.astera.combat.application.port.outbound.IProjectileService
+import com.astarworks.astera.combat.domain.projectile.ProjectileId
+import com.astarworks.astera.combat.domain.projectile.ProjectileSpec
 
 /**
  * Test fixture for [IProjectileService] — records every spawn for assertion.

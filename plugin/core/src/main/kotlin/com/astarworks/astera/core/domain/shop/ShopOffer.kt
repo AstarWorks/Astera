@@ -6,14 +6,13 @@ import com.astarworks.astera.core.domain.item.ItemId
 /**
  * One purchasable line item inside a [ShopSpec].
  *
- * Wave 4.5 limits the deliverable to vanilla [ItemId]s resolvable through
- * `IItemRegistry<IMcItemTemplate>` AND `IWeaponRegistry` — i.e. weapons only.
- * Armor / consumables / cosmetics need their own delivery ports first; the
- * purchase use case explicitly fails with `DeliveryFailed` for non-weapon ids.
+ * Resolved via `IItemRegistry` (returns [com.astarworks.astera.core.domain.item.ItemSpec])
+ * — Phase 1 PoC focuses on weapons authored under `content/items/`; future
+ * tiers cover any item with skills. The purchase use case looks up the spec,
+ * converts to an adapter template, and hands it to `IMcPlayer.giveItem`.
  *
  * @property id Stable id unique within the parent [ShopSpec].
- * @property itemId Reference into `content/items/` and `content/weapons/`.
- *   In Wave 4.5 this MUST be a weapon id.
+ * @property itemId Reference into `content/items/`.
  * @property price What the buyer pays.
  * @property stock How many are available.
  * @property displayKey Optional i18n key for a friendly offer name (falls

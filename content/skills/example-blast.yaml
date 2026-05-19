@@ -2,14 +2,21 @@
 # Launches a single projectile with a damage payload. The projectile engine
 # (Phase 2 mid Batch 3) reads launch_speed / max_lifetime_ticks; the damage
 # block is what lands on the first entity the projectile hits.
+#
+# Wave _items-1 (ADR-0073):
+#   - `trigger:` removed — binding is now owned by item YAML (`bindings:`)
+#   - `display_name_key:` / `description_key:` replaced by inline locale maps
 
 id: example-blast
 
-display_name_key: astera.skill.example-blast.name
-description_key: astera.skill.example-blast.lore
+name:
+  ja: "炸裂弾"
+  en: "Example Blast"
+description:
+  ja: "炎属性の弾を発射する基本的な遠距離スキル。"
+  en: "Launches a fire-attribute projectile — the canonical ranged example."
 
 archetype: projectile
-trigger: right_click
 cooldown_ticks: 40        # ~2s @ 20 TPS
 
 params:

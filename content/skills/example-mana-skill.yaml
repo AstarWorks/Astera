@@ -3,14 +3,20 @@
 # debits this amount before SkillCast is published; if the caster's pool is
 # below the cost, the cast fails with InsufficientMana and the cooldown is
 # not started.
+#
+# Wave _items-1 (ADR-0073): trigger / i18n keys folded into item bindings +
+# inline locale maps.
 
 id: example-mana-skill
 
-display_name_key: astera.skill.example-mana-skill.name
-description_key: astera.skill.example-mana-skill.lore
+name:
+  ja: "魔力消費弾"
+  en: "Example Mana Skill"
+description:
+  ja: "発射時に魔力を消費する遠距離スキル。"
+  en: "A ranged skill that debits the caster's mana pool on each fire."
 
 archetype: projectile
-trigger: right_click
 cooldown_ticks: 40        # ~2s @ 20 TPS
 mana_cost: 30             # debited from the caster's ManaPool on cast
 

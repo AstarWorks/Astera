@@ -59,7 +59,7 @@ public sealed interface ArgumentType {
     /**
      * An Astera content item id (e.g. `example-sword`, `mythic:fireball-staff`).
      * Resolves to [String]; the use case re-parses to its strong id type
-     * ([com.astarworks.astera.domain.model.weapon.WeaponId], `ItemId`, ...).
+     * ([com.astarworks.astera.core.domain.item.ItemId], `SkillId`, ...).
      *
      * Keeping the resolved type as `String` here avoids a hard dependency from
      * the command DSL on every individual id value class, and means the

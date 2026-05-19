@@ -6,8 +6,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 /**
  * Outbound port: per-(player, key) cooldown tracking.
  *
- * Generalised from the weapons-local tracker (WeaponId-keyed) to a
- * sealed [CooldownKey] so Weapon, Skill, and Status cooldowns can share
+ * Sealed [CooldownKey] so Weapon, Skill, and Status cooldowns can share
  * one in-memory store and one tick-scan loop.
  *
  * The implementation lives in `core/application/service/InMemoryCooldownTracker`.

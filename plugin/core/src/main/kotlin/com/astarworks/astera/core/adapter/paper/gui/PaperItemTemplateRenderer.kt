@@ -3,6 +3,7 @@ package com.astarworks.astera.core.adapter.paper.gui
 import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.service.toAdapterTemplate
 import com.astarworks.astera.core.domain.gui.GuiSlot
 import com.astarworks.astera.core.domain.gui.ResolvedReactiveSlot
 import com.astarworks.astera.core.domain.item.ItemId
@@ -54,7 +55,7 @@ import org.slf4j.LoggerFactory
  * the surrounding [PaperGuiAdapter]).
  */
 public class PaperItemTemplateRenderer(
-    private val items: IItemRegistry<IMcItemTemplate>,
+    private val items: IItemRegistry,
     private val messages: IMessageRenderer,
     private val bindingResolver: com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver,
 ) {
@@ -125,14 +126,20 @@ public class PaperItemTemplateRenderer(
      * Look up [id] in the item registry and materialize it. Returns `null`
      * when the id is unknown so the caller can decide whether that is a
      * fatal error (BARRIER placeholder) or expected (Reactive miss).
+     *
+     * Per Wave _items-1 (ADR-0073), the registry returns
+     * [com.astarworks.astera.core.domain.item.ItemSpec]; the adapter-boundary
+     * template is produced by [toAdapterTemplate] which resolves the spec's
+     * inline `LocalizedText` / `LocalizedLore` via [messages] before handing
+     * off to the existing Vanilla / External branch.
      */
     private fun resolve(id: ItemId, count: Int, viewer: PlayerId?): ItemStack? {
-        val template = items.find(id) ?: run {
+        val spec = items.find(id) ?: run {
             log.warn("GUI slot referenced unknown ItemId '{}'.", id.value)
             return null
         }
-        return when (template) {
-            is IMcItemTemplate.Vanilla -> buildVanilla(template, count, viewer)
+        return when (val template = spec.toAdapterTemplate(messages, viewer)) {
+            is IMcItemTemplate.Vanilla -> buildVanilla(template, count)
             is IMcItemTemplate.External -> {
                 log.warn(
                     "External item template '{}' (key={}) — provider adapter not wired; falling back to STONE.",
@@ -143,7 +150,7 @@ public class PaperItemTemplateRenderer(
         }
     }
 
-    private fun buildVanilla(template: IMcItemTemplate.Vanilla, count: Int, viewer: PlayerId?): ItemStack {
+    private fun buildVanilla(template: IMcItemTemplate.Vanilla, count: Int): ItemStack {
         val material = Material.matchMaterial(template.material) ?: run {
             log.warn(
                 "Unknown Material '{}' for item id={}; falling back to STONE.",
@@ -153,11 +160,11 @@ public class PaperItemTemplateRenderer(
         }
         val stack = ItemStack(material).also { it.amount = count.coerceIn(1, 64) }
         stack.editMeta { meta ->
-            template.displayName?.let { key ->
-                meta.displayName(MM.deserialize(messages.render(viewer, key)))
+            template.displayName?.let { rendered ->
+                meta.displayName(MM.deserialize(rendered))
             }
             if (template.lore.isNotEmpty()) {
-                meta.lore(template.lore.map { key -> MM.deserialize(messages.render(viewer, key)) })
+                meta.lore(template.lore.map { rendered -> MM.deserialize(rendered) })
             }
             if (template.customModelData != null) {
                 @Suppress("DEPRECATION")

@@ -14,9 +14,8 @@ import java.nio.file.Path
 /**
  * Reload-semantics tests for [ParticleContents] (Wave 5f).
  *
- * Modeled on [com.astarworks.astera.weapons.application.service.WeaponContentsTest]
- * — the substrate is shared (`YamlDynamicContents`) so the three reload
- * guarantees we care about are:
+ * Modeled on the older `WeaponContentsTest` — the substrate is shared
+ * (`YamlDynamicContents`) so the three reload guarantees we care about are:
  *
  *   1. atomic swap on a clean reload
  *   2. abort on any per-file failure (previous state preserved)

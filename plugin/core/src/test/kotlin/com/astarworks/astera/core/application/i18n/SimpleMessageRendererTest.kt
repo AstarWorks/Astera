@@ -1,5 +1,8 @@
 package com.astarworks.astera.core.application.i18n
 
+import com.astarworks.astera.core.domain.i18n.LocaleCode
+import com.astarworks.astera.core.domain.i18n.LocalizedLore
+import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.assertj.core.api.Assertions.assertThat
@@ -93,5 +96,80 @@ class SimpleMessageRendererTest {
     fun `null playerId falls through to default locale`() {
         val out = renderer.render(null, mk("astera.system.welcome"), mapOf("player" to "Dave"))
         assertThat(out).isEqualTo("Hello Dave")
+    }
+
+    // ---- Wave _items-1 (ADR-0073): inline LocalizedText / LocalizedLore -----
+
+    private val helloText = LocalizedText(
+        mapOf(
+            LocaleCode.EN to "Hello {player}",
+            LocaleCode.JA to "ようこそ、{player}！",
+        ),
+    )
+
+    private val onlyEnText = LocalizedText(mapOf(LocaleCode.EN to "english only"))
+
+    private val swordLore = LocalizedLore(
+        mapOf(
+            LocaleCode.EN to listOf("Demo weapon", "Use carefully"),
+            LocaleCode.JA to listOf("<gray>テスト用</gray>", "<gray>左クリック</gray>"),
+        ),
+    )
+
+    @Test
+    fun `renderText picks the player's locale from inline LocalizedText`() {
+        val out = renderer.renderText(jaPlayer, helloText, mapOf("player" to "Alice"))
+        assertThat(out).isEqualTo("ようこそ、Alice！")
+    }
+
+    @Test
+    fun `renderText falls back to default locale when player locale missing`() {
+        // ja player, but text only carries en.
+        val out = renderer.renderText(jaPlayer, onlyEnText)
+        assertThat(out).isEqualTo("english only")
+    }
+
+    @Test
+    fun `renderText normalises ja_jp to ja for inline lookup`() {
+        val out = renderer.renderText(jaJpPlayer, helloText, mapOf("player" to "Bob"))
+        assertThat(out).isEqualTo("ようこそ、Bob！")
+    }
+
+    @Test
+    fun `renderText returns empty string when LocalizedText is fully empty`() {
+        val out = renderer.renderText(jaPlayer, LocalizedText.EMPTY)
+        assertThat(out).isEqualTo("")
+    }
+
+    @Test
+    fun `renderText falls back when resolver returns null`() {
+        val out = renderer.renderText(unknownPlayer, helloText, mapOf("player" to "Carol"))
+        assertThat(out).isEqualTo("Hello Carol")
+    }
+
+    @Test
+    fun `renderLocalizedLore returns the player locale lines`() {
+        val out = renderer.renderLocalizedLore(jaPlayer, swordLore)
+        assertThat(out).containsExactly("<gray>テスト用</gray>", "<gray>左クリック</gray>")
+    }
+
+    @Test
+    fun `renderLocalizedLore falls back to default locale lines`() {
+        val onlyEnLore = LocalizedLore(mapOf(LocaleCode.EN to listOf("only en line")))
+        val out = renderer.renderLocalizedLore(jaPlayer, onlyEnLore)
+        assertThat(out).containsExactly("only en line")
+    }
+
+    @Test
+    fun `renderLocalizedLore returns empty list when lore is fully empty`() {
+        val out = renderer.renderLocalizedLore(jaPlayer, LocalizedLore.EMPTY)
+        assertThat(out).isEmpty()
+    }
+
+    @Test
+    fun `renderLocalizedLore substitutes placeholders per line`() {
+        val lore = LocalizedLore(mapOf(LocaleCode.EN to listOf("hi {name}", "bye {name}")))
+        val out = renderer.renderLocalizedLore(enPlayer, lore, mapOf("name" to "Eve"))
+        assertThat(out).containsExactly("hi Eve", "bye Eve")
     }
 }

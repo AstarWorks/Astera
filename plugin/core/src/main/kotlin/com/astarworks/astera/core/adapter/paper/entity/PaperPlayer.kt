@@ -50,11 +50,23 @@ class PaperPlayer(private val bukkit: Player) : IMcPlayer {
             }
         }
         item.editMeta { meta ->
-            if (displayNameOverride != null) {
-                meta.displayName(MM.deserialize(displayNameOverride))
+            // Wave _items-1 (ADR-0073): the template now carries pre-rendered
+            // MiniMessage strings (resolved from ItemSpec's inline LocalizedText
+            // by the application-side toAdapterTemplate conversion). Override
+            // wins; otherwise fall back to the template's own pre-rendered
+            // value; otherwise leave the Material's default name / no lore.
+            val effectiveDisplay = displayNameOverride
+                ?: (template as? IMcItemTemplate.Vanilla)?.displayName
+            if (effectiveDisplay != null) {
+                meta.displayName(MM.deserialize(effectiveDisplay))
             }
-            if (loreOverride.isNotEmpty()) {
-                meta.lore(loreOverride.map { MM.deserialize(it) })
+            val effectiveLore = if (loreOverride.isNotEmpty()) {
+                loreOverride
+            } else {
+                (template as? IMcItemTemplate.Vanilla)?.lore ?: emptyList()
+            }
+            if (effectiveLore.isNotEmpty()) {
+                meta.lore(effectiveLore.map { MM.deserialize(it) })
             }
             val pdc = meta.persistentDataContainer
             pdc.set(ITEM_ID_KEY, PersistentDataType.STRING, template.id.value)

@@ -3,12 +3,12 @@ package com.astarworks.astera.combat.application.usecase.skill.dispatch
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.core.domain.geometry.Vec3
-import com.astarworks.astera.weapons.application.port.outbound.IProjectileService
-import com.astarworks.astera.weapons.domain.projectile.HitProfile
-import com.astarworks.astera.weapons.domain.projectile.LifetimePolicy
-import com.astarworks.astera.weapons.domain.projectile.MotionProfile
-import com.astarworks.astera.weapons.domain.projectile.OnHitEffect
-import com.astarworks.astera.weapons.domain.projectile.ProjectileSpec
+import com.astarworks.astera.combat.application.port.outbound.IProjectileService
+import com.astarworks.astera.combat.domain.projectile.HitProfile
+import com.astarworks.astera.combat.domain.projectile.LifetimePolicy
+import com.astarworks.astera.combat.domain.projectile.MotionProfile
+import com.astarworks.astera.combat.domain.projectile.OnHitEffect
+import com.astarworks.astera.combat.domain.projectile.ProjectileSpec
 
 /**
  * PROJECTILE archetype handler — synthesizes a [ProjectileSpec] from the

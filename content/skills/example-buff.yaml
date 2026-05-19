@@ -1,14 +1,20 @@
 # Phase 2 starter: BUFF archetype example — short-press defensive buff.
 # Applies a self-targeted heal-amp via the example-heal status; the runtime
 # heal handler (Phase 2 mid Batch 3) reads the multiplier from the spec.
+#
+# Wave _items-1 (ADR-0073): trigger / i18n keys folded into item bindings +
+# inline locale maps.
 
 id: example-buff
 
-display_name_key: astera.skill.example-buff.name
-description_key: astera.skill.example-buff.lore
+name:
+  ja: "回復強化"
+  en: "Example Buff"
+description:
+  ja: "短時間、自分への回復効果を増幅する。"
+  en: "Briefly amplifies healing received by the caster."
 
 archetype: buff
-trigger: sneak_right
 cooldown_ticks: 200       # ~10s @ 20 TPS
 
 params:

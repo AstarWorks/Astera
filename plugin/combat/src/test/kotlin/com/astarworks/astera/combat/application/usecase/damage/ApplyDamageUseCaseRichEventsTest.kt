@@ -27,11 +27,11 @@ import com.astarworks.astera.combat.testfixtures.FakeStatusEffectContainer
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
-import com.astarworks.astera.weapons.domain.weapon.WeaponId
+import com.astarworks.astera.core.domain.damage.DamageProfile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -52,8 +52,8 @@ class ApplyDamageUseCaseRichEventsTest {
     private val targetId = PlayerId(UUID.randomUUID())
     private val attackerId = PlayerId(UUID.randomUUID())
     private val attackerPos = Vec3(10.0, 64.0, 10.0)
-    private val weaponSource = DamageSource.Weapon(
-        weaponId = WeaponId("sword"),
+    private val weaponSource = DamageSource.Item(
+        itemId = ItemId("sword"),
         attackerId = attackerId,
         attackerPosition = attackerPos,
     )

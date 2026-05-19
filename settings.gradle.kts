@@ -39,11 +39,11 @@ include(
     ":plugin:core",
 
     // Feature plugins (each optional, soft-depended where coupled):
-    ":plugin:weapons",     // depend [Core]; minimum + Core for the
-                           //                 server-admin "test a weapon" flow.
-    ":plugin:combat",      // depend [Core], softdepend [Weapons]
+    ":plugin:items",       // depend [Core]; Item-centric content (ADR-0073),
+                           //                 /astera-items give, click → skill bind.
+    ":plugin:combat",      // depend [Core], softdepend [Items]
     ":plugin:match",       // depend [Core], softdepend [Combat]
-    ":plugin:stats",       // depend [Core], softdepend [Match, Combat, Weapons]
+    ":plugin:stats",       // depend [Core], softdepend [Match, Combat, Items]
     ":plugin:economy",     // depend [Core], softdepend [Stats, Match]
     ":plugin:persistence", // depend [Core], softdepend [...]; Postgres impls
                            //                 override in-memory defaults.

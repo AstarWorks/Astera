@@ -1,6 +1,11 @@
 # Wave 4 R3 — close button for content/gui/example-loadout.yaml.
 # Emits the built-in `gui.close` intent when clicked.
+# Wave _items-1 (ADR-0073): migrated to inline i18n (display_name_key removed
+# from ItemYamlConfig); the GUI close button label is content-specific.
 
 id: gui-pane-red
 material: RED_STAINED_GLASS_PANE
-display_name_key: astera.gui.button.close
+
+name:
+  ja: "閉じる"
+  en: "Close"

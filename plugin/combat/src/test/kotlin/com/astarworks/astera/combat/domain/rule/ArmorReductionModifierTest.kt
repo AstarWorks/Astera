@@ -18,7 +18,7 @@ import com.astarworks.astera.core.domain.attribute.SimpleAttributeContainer
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
+import com.astarworks.astera.core.domain.damage.DamageProfile
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Test

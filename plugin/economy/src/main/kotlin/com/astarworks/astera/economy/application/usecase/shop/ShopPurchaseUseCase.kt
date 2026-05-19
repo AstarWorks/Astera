@@ -1,12 +1,13 @@
 package com.astarworks.astera.economy.application.usecase.shop
 
-import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IShopRegistry
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
+import com.astarworks.astera.core.application.service.toAdapterTemplate
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.economy.WalletError
 import com.astarworks.astera.core.domain.event.CurrencyChangeReason
@@ -28,20 +29,17 @@ import com.astarworks.astera.economy.domain.event.CurrencyChanged
  *
  * ## Architectural note (Konsist-compliant delivery)
  *
- * The task brief originally called for delivery via `IWeaponRegistry` /
- * `IWeaponDelivery` from `plugin/weapons`. That violates the
- * `economy must not import weapons` Konsist rule (ADR-0022). The use case
- * therefore delivers through the **vendor-neutral** chain:
+ * The use case delivers through the **vendor-neutral** chain (Wave _items-1 /
+ * ADR-0073 unified items + weapons under `:plugin:items`):
  *
- *   `IItemRegistry<IMcItemTemplate>.find(itemId)` →
+ *   `IItemRegistry.find(itemId)` (returns `ItemSpec`) →
+ *   `spec.toAdapterTemplate(messages, viewer)` →
  *   `IMcServer.findPlayer(playerId).giveItem(template, null, emptyList())`
  *
- * For Wave 4.5 the demo offers reference `content/weapons/<id>.yaml` items
- * which the Weapons plugin already registers into the same shared
- * `IItemRegistry<IMcItemTemplate>` at startup, so the visible behaviour
- * matches "weapon-only delivery" without crossing the plugin boundary. If
- * Phase 4 needs weapon-specific overrides (display name override, custom PDC
- * tags, etc.), Weapons can publish a vendor-neutral `IItemDelivery` port to
+ * `IItemRegistry` is non-generic; the Items plugin (renamed from Weapons by
+ * ADR-0073) seeds it from `content/items/<id>.yaml` at startup. If Phase 4
+ * needs item-class-specific overrides (cosmetic stack count, soulbound PDC
+ * tag, etc.), Items can publish a vendor-neutral `IItemDelivery` port to
  * core and this use case swaps in that port without changing its public
  * contract.
  *
@@ -79,7 +77,8 @@ import com.astarworks.astera.economy.domain.event.CurrencyChanged
 public class ShopPurchaseUseCase(
     private val registry: IShopRegistry,
     private val ledger: ICurrencyLedger,
-    private val itemRegistry: IItemRegistry<IMcItemTemplate>,
+    private val itemRegistry: IItemRegistry,
+    private val messages: IMessageRenderer,
     private val server: IMcServer,
     private val eventBus: IDomainEventBus,
     private val stockRepository: IShopStockRepository,
@@ -105,12 +104,15 @@ public class ShopPurchaseUseCase(
             is ShopStock.Unlimited -> Unit
         }
 
-        val template = itemRegistry.find(offer.itemId)
+        val spec = itemRegistry.find(offer.itemId)
             ?: return Result.failure(
                 ShopPurchaseError.DeliveryFailed(
                     "Item '${offer.itemId.value}' is not registered (offer=${offerId.value}, shop=${shopId.value})",
                 ),
             )
+        // Wave _items-1: ItemSpec → adapter-boundary IMcItemTemplate, resolving
+        // the spec's inline LocalizedText / LocalizedLore for the buyer's locale.
+        val template = spec.toAdapterTemplate(messages, playerId)
 
         val debit = ledger.debit(playerId, offer.price.currency, offer.price.amount)
         return when (debit) {

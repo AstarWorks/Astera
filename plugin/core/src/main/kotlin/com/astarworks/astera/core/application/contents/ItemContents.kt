@@ -5,9 +5,11 @@ import com.astarworks.astera.core.application.port.outbound.IContentParser
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.service.ContentLoader
 import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.item.ItemSpec
 
 /**
- * Item-side `Contents<ItemId, T>` (Wave _infra-2b, ADR-0065).
+ * Item-side `Contents<ItemId, ItemSpec>` (Wave _infra-2b / ADR-0065;
+ * simplified in Wave _items-1 / ADR-0073).
  *
  * Replaces the legacy `MutableItemRegistry`. Inherits from
  * [YamlDynamicContents]:
@@ -15,24 +17,24 @@ import com.astarworks.astera.core.domain.item.ItemId
  *   - `find(id) / all()` from [Contents] (the `IItemRegistry` port surface)
  *   - `bootstrap(dir)` for `onEnable` initial load (best-effort)
  *   - `reload(dir)` for `/astera reload items` (all-or-nothing, atomic swap)
- *   - `register(id, template) / clear()` for tests + the `AsteraTestHarness`
+ *   - `register(id, spec) / clear()` for tests + the `AsteraTestHarness`
  *
- * # Conceptual name
+ * # Wave _items-1 simplification (ADR-0073)
  *
- * Stage 1 D refers to "VanillaItemRegistry"; that's the **default
- * instantiation** where `T` is `IMcItemTemplate` and the [mapper] produces
- * `IMcItemTemplate.Vanilla` from each [ItemYamlConfig]. Other instantiations
- * are legal — tests use `ItemContents<TestItemTemplate>` to avoid pulling in
- * the Minecraft adapter — but the production wiring in `AsteraCorePlugin.kt`
- * builds the vanilla variant.
+ * Pre-_items-1 this class was generic over `T : Any` so the caller could pick
+ * between `IMcItemTemplate` (Paper) and a test stand-in. After _items-1 the
+ * canonical materialized form is [ItemSpec] — which is pure domain, vendor-
+ * neutral, and carries all the per-item state that adapter-flavored templates
+ * used to. The generic + `mapper` lambda are gone; [ItemYamlConfig.toSpec]
+ * handles the mapping inside `toEntry`.
  *
- * # Why generic over T
+ * # Auto-i18n
  *
- * Application layer must not import `IMc*` (vendor-neutral discipline,
- * ADR-0002). Keeping [ItemContents] generic lets the mapping
- * `ItemYamlConfig -> T` happen at the call site (the platform plugin) where
- * `IMcItemTemplate` is visible. The contents itself stays free of any
- * Minecraft type reference.
+ * Each [ItemSpec] carries its [com.astarworks.astera.core.domain.i18n.LocalizedText]
+ * `displayName` and [com.astarworks.astera.core.domain.i18n.LocalizedLore]
+ * `lore` inline — no `MessageKey` lookup against `content/languages/`. The
+ * renderer resolves them via `IMessageRenderer.renderText` /
+ * `IMessageRenderer.renderLocalizedLore`.
  *
  * # Why ContentLoader is reused
  *
@@ -41,45 +43,25 @@ import com.astarworks.astera.core.domain.item.ItemId
  * [YamlDynamicContents] wraps it uniformly across every content type so
  * `content/items/` gets the same "drop a file, it loads" contract as
  * `content/weapons/`.
- *
- * # Wiring example
- *
- * ```kotlin
- * val itemContents = ItemContents<IMcItemTemplate>(
- *     mapper = { cfg ->
- *         if (cfg.externalKey != null) IMcItemTemplate.External(ItemId(cfg.id), cfg.externalKey!!)
- *         else IMcItemTemplate.Vanilla(
- *             id = ItemId(cfg.id),
- *             material = cfg.material!!,
- *             customModelData = cfg.customModelData,
- *             displayName = cfg.displayNameKey?.let(::MessageKey),
- *             lore = cfg.loreKeys.map(::MessageKey),
- *             pdcTags = cfg.pdcTags,
- *         )
- *     },
- * )
- * itemContents.bootstrap(contentDir.resolve("items"))
- * ```
  */
-public class ItemContents<T : Any>(
-    private val mapper: (ItemYamlConfig) -> T,
+public class ItemContents(
     parsers: List<IContentParser> = ContentLoader.DEFAULT_PARSERS,
-) : YamlDynamicContents<ItemId, T, ItemYamlConfig>(
+) : YamlDynamicContents<ItemId, ItemSpec, ItemYamlConfig>(
     categoryName = "items",
     deserializer = ItemYamlConfig.serializer(),
     parsers = parsers,
 ),
-    IItemRegistry<T> {
+    IItemRegistry {
 
     /**
-     * Convert each YAML DTO to its `(ItemId, T)` entry. Delegates to
-     * [ItemYamlConfig.validate] (throws on bad id / material xor external_key
-     * mis-pairing, caught by [ContentLoader] and counted as a failed load)
-     * then to the user-supplied [mapper] for the template materialization.
+     * Convert each YAML DTO to its `(ItemId, ItemSpec)` entry. Delegates to
+     * [ItemYamlConfig.toSpec], which handles id parsing, material xor
+     * external_key validation, and every sub-record materialization. Any
+     * `IllegalArgumentException` is caught by [ContentLoader] and counted as
+     * a failed load.
      */
-    override fun toEntry(config: ItemYamlConfig): Pair<ItemId, T> {
-        val id = config.validate()
-        val template = mapper(config)
-        return id to template
+    override fun toEntry(config: ItemYamlConfig): Pair<ItemId, ItemSpec> {
+        val spec = config.toSpec()
+        return spec.id to spec
     }
 }

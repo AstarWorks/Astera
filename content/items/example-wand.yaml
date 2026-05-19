@@ -1,13 +1,35 @@
-# Stage 1 D demo item — mirrors content/weapons/example-wand.yaml (rare wand).
-# BLAZE_ROD is the vanilla material used by the matching weapon.
+# Wave _items-1 (ADR-0073) — Item-centric demo definition.
+# Phase 2 starter: wand archetype, high damage / long CD.
 
 id: example-wand
 
 material: BLAZE_ROD
 
-display_name_key: astera.item.example-wand.name
-lore_keys:
-  - astera.item.example-wand.lore
+name:
+  ja: "<light_purple>サンプルワンド</light_purple>"
+  en: "<light_purple>Example Wand</light_purple>"
+lore:
+  ja:
+    - "<gray>Phase 2 スターター: 魔法アーキタイプ</gray>"
+    - "<gray>大威力・長 CD (3 秒)</gray>"
+    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
+  en:
+    - "<gray>Phase 2 starter: wand archetype</gray>"
+    - "<gray>High damage, long CD (3s)</gray>"
+    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
+
+rarity: rare
+level_requirement: 3
+
+attributes:
+  attack_damage: 2.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+skills:
+  - trigger: left_click
+    skill_id: example-mana-skill
 
 pdc_tags:
   astera:rarity: rare

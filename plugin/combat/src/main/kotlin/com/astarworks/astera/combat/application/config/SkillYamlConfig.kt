@@ -2,22 +2,21 @@ package com.astarworks.astera.combat.application.config
 
 import com.astarworks.astera.combat.domain.skill.ChargedSkillVariant
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
-import com.astarworks.astera.combat.domain.skill.SkillTrigger
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.damage.DamageAttribute
-import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
+import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.i18n.LocaleCode
+import com.astarworks.astera.core.domain.i18n.LocalizedText
+import com.astarworks.astera.core.domain.skill.SkillId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 
 /**
- * YAML-shaped DTO for `content/skills/` definition files (Stage 1 J of the
- * Phase 2 mid Batch 2 plan).
+ * YAML-shaped DTO for `content/skills/` definition files.
  *
  * Kept separate from [SkillSpec] so the domain stays free of serialization
  * annotations (Konsist enforces this; see `principles.md` §6 and ADR-0016).
@@ -30,14 +29,21 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  * the discriminator key is `type` for kotlinx-JSON and matches kaml's
  * `PolymorphismStyle.Property` configuration so the same DTO works across
  * formats.
+ *
+ * **Wave _items-1 (ADR-0073)**: `trigger` removed (binding is item-side now);
+ * `display_name_key` / `description_key` replaced by inline `name:` /
+ * `description:` maps from locale-code → string. Each skill YAML is now
+ * self-contained — no sibling write into `content/languages/<locale>.yaml` is
+ * required. Unknown locale codes round-trip into [LocalizedText]; the
+ * application's [com.astarworks.astera.core.application.port.outbound.IMessageRenderer]
+ * picks the best match for the requesting player's locale.
  */
 @Serializable
 public data class SkillYamlConfig(
     val id: String,
-    @SerialName("display_name_key") val displayNameKey: String,
-    @SerialName("description_key") val descriptionKey: String,
+    val name: Map<String, String> = emptyMap(),
+    val description: Map<String, String> = emptyMap(),
     val archetype: String,
-    val trigger: String,
     @SerialName("cooldown_ticks") val cooldownTicks: Int,
     val params: SkillParamsYaml,
     @SerialName("mana_cost") val manaCost: Long? = null,
@@ -52,7 +58,6 @@ public data class SkillYamlConfig(
      */
     public fun toSpec(): SkillSpec {
         val parsedArchetype = SkillArchetype.valueOf(archetype.uppercase())
-        val parsedTrigger = SkillTrigger.valueOf(trigger.uppercase())
         val domainParams = params.toDomain()
         require(matches(parsedArchetype, domainParams)) {
             "Skill '$id' archetype=$parsedArchetype does not match params=${domainParams::class.simpleName}"
@@ -62,10 +67,9 @@ public data class SkillYamlConfig(
             ?: ChargedSkillVariant.Instant
         return SkillSpec(
             id = SkillId(id),
-            displayNameKey = MessageKey(displayNameKey),
-            descriptionKey = MessageKey(descriptionKey),
+            name = name.toLocalizedText(),
+            description = description.toLocalizedText(),
             archetype = parsedArchetype,
-            trigger = parsedTrigger,
             cooldownTicks = cooldownTicks,
             params = domainParams,
             manaCost = manaCost,
@@ -81,6 +85,9 @@ public data class SkillYamlConfig(
         SkillArchetype.TELEPORT -> params is SkillParams.TeleportParams
         SkillArchetype.SUMMON -> params is SkillParams.SummonParams
     }
+
+    private fun Map<String, String>.toLocalizedText(): LocalizedText =
+        LocalizedText(mapKeys { (code, _) -> LocaleCode.parse(code) })
 }
 
 /**

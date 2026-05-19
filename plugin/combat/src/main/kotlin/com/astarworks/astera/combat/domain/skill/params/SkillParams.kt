@@ -2,7 +2,7 @@ package com.astarworks.astera.combat.domain.skill.params
 
 import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.animation.Easing
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
+import com.astarworks.astera.core.domain.damage.DamageProfile
 
 /**
  * Typed parameters for a [com.astarworks.astera.combat.domain.skill.SkillSpec].

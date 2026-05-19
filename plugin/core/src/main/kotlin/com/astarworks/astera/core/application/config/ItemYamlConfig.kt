@@ -1,66 +1,115 @@
 package com.astarworks.astera.core.application.config
 
+import com.astarworks.astera.core.domain.i18n.LocaleCode
+import com.astarworks.astera.core.domain.i18n.LocalizedLore
+import com.astarworks.astera.core.domain.i18n.LocalizedText
+import com.astarworks.astera.core.domain.item.DropPolicy
+import com.astarworks.astera.core.domain.item.DurabilityPolicy
+import com.astarworks.astera.core.domain.item.EquipSlot
+import com.astarworks.astera.core.domain.item.ItemAttributes
 import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.item.ItemSkillBinding
+import com.astarworks.astera.core.domain.item.ItemSpec
+import com.astarworks.astera.core.domain.item.ItemTemplate
+import com.astarworks.astera.core.domain.item.Rarity
+import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.core.domain.skill.SkillTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * YAML-shaped DTO for `content/items/` definition files.
+ * YAML-shaped DTO for `content/items/` definition files (Wave _items-1,
+ * ADR-0073 — replaces the pre-_items-1 DTO).
  *
- * Each `content/items/` YAML file is the SSoT for every item Astera registers. Each
- * file becomes one entry in `IItemRegistry`; weapons / GUI slots / loadouts
- * later reference these by [id]. Kept separate from any domain or adapter
- * type so the schema can evolve (e.g. add `external_key` for Oraxen) without
- * pushing serialization annotations into other layers (ADR-0016, Stage 1 D).
+ * Each `content/items/` YAML file is the single SSoT for an Astera item.
+ * Pre-_items-1 the DTO carried just (id, material | external_key,
+ * display_name_key, lore_keys); after _items-1 every per-item concern lives
+ * inline so designers can edit one file instead of mirroring labels in
+ * `content/languages/`.
+ *
+ * Konsist forbids `kotlinx.serialization` annotations from `*.domain.*`, so
+ * this DTO lives in `application.config.*`. [toSpec] converts to the domain
+ * [ItemSpec].
  *
  * # Wire format (vanilla)
  *
  * ```yaml
  * id: example-sword
- * material: IRON_SWORD               # Bukkit Material name; required for vanilla
- * custom_model_data: 1001            # optional, resource-pack visual override
- * display_name_key: astera.item.example-sword.name
- * lore_keys:
- *   - astera.item.example-sword.lore.1
- *   - astera.item.example-sword.lore.2
+ * material: IRON_SWORD
+ * custom_model_data: 1001
+ * name:
+ *   en: "Example Sword"
+ *   ja: "サンプルソード"
+ * lore:
+ *   en:
+ *     - "<gray>A demo sword.</gray>"
+ *   ja:
+ *     - "<gray>テスト用</gray>"
+ * rarity: rare
+ * level_requirement: 5
+ * attributes:
+ *   attack_damage: 7.0
+ *   attack_speed: 1.6
+ * equip_slot: mainhand
+ * max_durability: 250
+ * unbreakable: false
+ * drop_on_death: true
+ * keep_on_death: false
+ * enchantable: true
+ * glint: null
+ * skills:
+ *   - trigger: right_click
+ *     skill_id: fireball
+ *     cooldown_override_ticks: 40
  * pdc_tags:
- *   astera:rarity: common
+ *   astera:family: blade
  * ```
  *
- * # Wire format (external — Oraxen / ItemAdder / MythicItems)
+ * # Wire format (external)
  *
- * ```yaml
- * id: my-special-blade
- * external_key: oraxen:my_blade
- * ```
+ * Replace `material` (+ optional `custom_model_data`) with `external_key`.
+ * Exactly one of (`material`, `external_key`) MUST be set; both / neither is
+ * rejected at parse-time.
  *
- * Exactly one of [material] / [externalKey] must be set; both / neither is
- * rejected at parse-time by [validate]. Adapter modules consume this DTO via
- * `MutableItemRegistry`'s mapper lambda — the application layer itself never
- * constructs `IMcItemTemplate`, keeping it free of `IMc*` references.
+ * # Compatibility
+ *
+ * Pre-release posture (`/IdeaProjects/Astera/.claude/CLAUDE.md §Pre-release`)
+ * applies — no dual-decoder for the legacy shape, no `@Deprecated` aliases.
+ * Existing YAML must be rewritten to the new schema.
  */
 @Serializable
 public data class ItemYamlConfig(
     public val id: String,
     public val material: String? = null,
     @SerialName("custom_model_data") public val customModelData: Int? = null,
-    @SerialName("display_name_key") public val displayNameKey: String? = null,
-    @SerialName("lore_keys") public val loreKeys: List<String> = emptyList(),
-    @SerialName("pdc_tags") public val pdcTags: Map<String, String> = emptyMap(),
     @SerialName("external_key") public val externalKey: String? = null,
+    public val name: Map<String, String> = emptyMap(),
+    public val lore: Map<String, List<String>> = emptyMap(),
+    public val rarity: String = "common",
+    @SerialName("level_requirement") public val levelRequirement: Int = 1,
+    public val attributes: AttributesYaml = AttributesYaml(),
+    @SerialName("equip_slot") public val equipSlot: String = "mainhand",
+    @SerialName("max_durability") public val maxDurability: Int? = null,
+    public val unbreakable: Boolean = false,
+    @SerialName("drop_on_death") public val dropOnDeath: Boolean = true,
+    @SerialName("keep_on_death") public val keepOnDeath: Boolean = false,
+    public val enchantable: Boolean = true,
+    public val glint: Boolean? = null,
+    public val skills: List<ItemSkillBindingYaml> = emptyList(),
+    @SerialName("pdc_tags") public val pdcTags: Map<String, String> = emptyMap(),
 ) {
 
     /**
      * Parse the [id] into a domain [ItemId], surfacing any kebab-case
-     * violation as an `IllegalArgumentException` (ContentLoader logs +
-     * skips). Called early so a malformed id never leaks into the registry.
+     * violation as `IllegalArgumentException` (caught by ContentLoader as a
+     * failed load).
      */
     public fun toItemId(): ItemId = ItemId(id)
 
     /**
-     * Returns the parsed [ItemId] iff this config is well-formed (exactly
-     * one of `material` / `external_key` is set, and the id parses). Throws
-     * `IllegalArgumentException` otherwise — surfaced by ContentLoader.
+     * Validate the bare wire-format invariants (id parses + material xor
+     * external_key). Other invariants live in the domain types' `init`
+     * blocks and surface during [toSpec].
      */
     public fun validate(): ItemId {
         val itemId = toItemId()
@@ -70,5 +119,125 @@ public data class ItemYamlConfig(
             "ItemYamlConfig '$id' must specify exactly one of `material` or `external_key`."
         }
         return itemId
+    }
+
+    /**
+     * Convert this DTO to an [ItemSpec]. Performs every conversion the loader
+     * needs: id parse, template variant pick, locale-key parse for inline
+     * i18n maps, enum lookups for rarity / equip_slot / skill triggers,
+     * sub-record materialization.
+     *
+     * Skill-id existence is NOT checked here — that's enforced at lookup time
+     * by `ISkillRegistry` so this layer stays free of any registry
+     * dependency. A typo in `skill_id` will still produce a well-formed
+     * [ItemSpec] but the cast attempt will log a warning at runtime.
+     */
+    public fun toSpec(): ItemSpec {
+        val itemId = validate()
+        val template: ItemTemplate = if (externalKey != null) {
+            ItemTemplate.External(externalKey)
+        } else {
+            // validate() guarantees material != null here.
+            ItemTemplate.Vanilla(material!!, customModelData)
+        }
+        return ItemSpec(
+            id = itemId,
+            template = template,
+            displayName = name.toLocalizedText(),
+            lore = lore.toLocalizedLore(),
+            rarity = parseRarity(rarity),
+            levelRequirement = levelRequirement,
+            attributes = attributes.toDomain(),
+            equipSlot = parseEquipSlot(equipSlot),
+            durability = DurabilityPolicy(
+                maxDurability = maxDurability,
+                unbreakable = unbreakable,
+            ),
+            dropPolicy = DropPolicy(
+                dropOnDeath = dropOnDeath,
+                keepOnDeath = keepOnDeath,
+            ),
+            enchantable = enchantable,
+            glint = glint,
+            skillBindings = skills.map { it.toDomain() },
+            pdcTags = pdcTags,
+        )
+    }
+
+    private fun Map<String, String>.toLocalizedText(): LocalizedText =
+        if (isEmpty()) LocalizedText.EMPTY
+        else LocalizedText(mapKeys { (k, _) -> LocaleCode.parse(k) })
+
+    private fun Map<String, List<String>>.toLocalizedLore(): LocalizedLore =
+        if (isEmpty()) LocalizedLore.EMPTY
+        else LocalizedLore(mapKeys { (k, _) -> LocaleCode.parse(k) })
+
+    private fun parseRarity(raw: String): Rarity =
+        try {
+            Rarity.valueOf(raw.trim().uppercase())
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("ItemYamlConfig '$id': unknown rarity '$raw' (expected one of ${Rarity.entries.joinToString { it.name.lowercase() }})", e)
+        }
+
+    private fun parseEquipSlot(raw: String): EquipSlot =
+        try {
+            EquipSlot.valueOf(raw.trim().uppercase())
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("ItemYamlConfig '$id': unknown equip_slot '$raw' (expected one of ${EquipSlot.entries.joinToString { it.name.lowercase() }})", e)
+        }
+}
+
+/**
+ * Sub-DTO for inline numeric attributes on an item (Wave _items-1).
+ *
+ * Mirrors [ItemAttributes] one-to-one — every field is optional and rejects
+ * out-of-range values at the domain layer.
+ */
+@Serializable
+public data class AttributesYaml(
+    @SerialName("attack_damage") public val attackDamage: Double? = null,
+    @SerialName("attack_speed") public val attackSpeed: Double? = null,
+    public val armor: Double? = null,
+    @SerialName("armor_toughness") public val armorToughness: Double? = null,
+    @SerialName("knockback_resistance") public val knockbackResistance: Double? = null,
+    @SerialName("movement_speed_multiplier") public val movementSpeedMultiplier: Double? = null,
+    @SerialName("max_health_bonus") public val maxHealthBonus: Double? = null,
+) {
+    public fun toDomain(): ItemAttributes = ItemAttributes(
+        attackDamage = attackDamage,
+        attackSpeed = attackSpeed,
+        armor = armor,
+        armorToughness = armorToughness,
+        knockbackResistance = knockbackResistance,
+        movementSpeedMultiplier = movementSpeedMultiplier,
+        maxHealthBonus = maxHealthBonus,
+    )
+}
+
+/**
+ * Sub-DTO for one trigger → skill binding on an item (Wave _items-1).
+ *
+ * - `trigger` — name of a [SkillTrigger] enum value (case-insensitive).
+ * - `skill_id` — kebab-case skill identifier.
+ * - `cooldown_override_ticks` — optional, see
+ *   [ItemSkillBinding.cooldownOverrideTicks].
+ */
+@Serializable
+public data class ItemSkillBindingYaml(
+    public val trigger: String,
+    @SerialName("skill_id") public val skillId: String,
+    @SerialName("cooldown_override_ticks") public val cooldownOverrideTicks: Int? = null,
+) {
+    public fun toDomain(): ItemSkillBinding {
+        val triggerEnum = try {
+            SkillTrigger.valueOf(trigger.trim().uppercase())
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("ItemSkillBindingYaml: unknown trigger '$trigger'", e)
+        }
+        return ItemSkillBinding(
+            trigger = triggerEnum,
+            skillId = SkillId(skillId),
+            cooldownOverrideTicks = cooldownOverrideTicks,
+        )
     }
 }

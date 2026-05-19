@@ -1,8 +1,8 @@
 package com.astarworks.astera.stats.scenario
 
 import com.astarworks.astera.combat.domain.event.PlayerKilled
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.stats.domain.event.XpGranted
-import com.astarworks.astera.weapons.domain.weapon.WeaponId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -17,7 +17,7 @@ class AmethystSwordKillsTargetScenarioTest {
 
     @Test
     fun `amethyst-sword kill increments stats and grants XP`() {
-        val sword = WeaponId("amethyst-sword")
+        val sword = ItemId("amethyst-sword")
         val ctx = scenario {
             val attacker = player("alice")
             val target = player("bob")

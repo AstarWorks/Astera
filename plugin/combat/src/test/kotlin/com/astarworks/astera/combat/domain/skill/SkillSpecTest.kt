@@ -2,8 +2,10 @@ package com.astarworks.astera.combat.domain.skill
 
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.core.domain.damage.DamageAttribute
-import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.weapons.domain.weapon.DamageProfile
+import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.i18n.LocaleCode
+import com.astarworks.astera.core.domain.i18n.LocalizedText
+import com.astarworks.astera.core.domain.skill.SkillId
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
@@ -16,14 +18,16 @@ class SkillSpecTest {
         damage = DamageProfile(base = 5.0, attribute = DamageAttribute.PHYSICAL),
     )
 
+    private val name = LocalizedText(mapOf(LocaleCode.EN to "Slash"))
+    private val description = LocalizedText(mapOf(LocaleCode.EN to "A basic slash."))
+
     @Test
     fun `accepts non-negative cooldown`() {
         val spec = SkillSpec(
             id = SkillId("slash"),
-            displayNameKey = MessageKey("astera.skill.slash.name"),
-            descriptionKey = MessageKey("astera.skill.slash.desc"),
+            name = name,
+            description = description,
             archetype = SkillArchetype.MELEE,
-            trigger = SkillTrigger.LEFT_CLICK,
             cooldownTicks = 0,
             params = melee,
         )
@@ -35,10 +39,9 @@ class SkillSpecTest {
         assertThatThrownBy {
             SkillSpec(
                 id = SkillId("slash"),
-                displayNameKey = MessageKey("astera.skill.slash.name"),
-                descriptionKey = MessageKey("astera.skill.slash.desc"),
+                name = name,
+                description = description,
                 archetype = SkillArchetype.MELEE,
-                trigger = SkillTrigger.LEFT_CLICK,
                 cooldownTicks = -1,
                 params = melee,
             )

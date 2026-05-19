@@ -27,20 +27,17 @@ plugins {
 dependencies {
     implementation(project(":plugin:core"))
 
-    // Combat references WeaponId / DamageProfile from :plugin:weapons via
-    // DamageSource.Weapon (and SkillParams.damage). Weapons is a soft Bukkit
-    // dep (Astera-Combat works without Astera-Weapons; environment / fall /
-    // explosion sources still fire) but a compile-time dep is required.
-    compileOnly(project(":plugin:weapons"))
-
+    // Wave _items-1 (ADR-0073): :plugin:weapons was deleted; DamageProfile
+    // moved to :plugin:core (core.domain.damage), projectile types relocated
+    // into combat (combat.domain.projectile). DamageSource.Item carries the
+    // ItemId of whatever item caused damage (player held / used). Combat
+    // continues to be a soft Bukkit dep for downstream feature plugins.
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
 
     implementation(libs.kaml)
     implementation(libs.kotlinx.serialization.json)
 
-    // Tests construct WeaponId / DamageProfile concretely.
-    testImplementation(project(":plugin:weapons"))
     testImplementation(project(":plugin:test-fixtures"))
 }
 

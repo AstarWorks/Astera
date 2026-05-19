@@ -4,8 +4,8 @@ package com.astarworks.astera.core.domain.cooldown
  * Opaque key for cooldown tracking. Specific feature plugins wrap their
  * domain IDs as String inside concrete variants.
  *
- * Per Konsist (ADR-0022), core cannot import weapons.WeaponId / combat.SkillId
- * etc. directly — so CooldownKey carries a String payload + a discriminator.
+ * Per Konsist (ADR-0022), core cannot import sibling-plugin domain IDs
+ * directly — so CooldownKey carries a String payload + a discriminator.
  *
  * [raw] is the canonical composite string for map keying and logging.
  */

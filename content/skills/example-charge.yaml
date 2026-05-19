@@ -1,14 +1,20 @@
 # Phase 2 starter: BUFF archetype example — speed boost on hold.
 # The "charge" framing is authoring intent (player builds speed while holding);
 # mechanically it grants a `speed-up` status effect for the listed duration.
+#
+# Wave _items-1 (ADR-0073): trigger / i18n keys folded into item bindings +
+# inline locale maps.
 
 id: example-charge
 
-display_name_key: astera.skill.example-charge.name
-description_key: astera.skill.example-charge.lore
+name:
+  ja: "加速チャージ"
+  en: "Example Charge"
+description:
+  ja: "長押しで一定時間、移動速度が上昇する。"
+  en: "Hold to gain a movement-speed buff for a short window."
 
 archetype: buff
-trigger: hold
 cooldown_ticks: 80        # ~4s @ 20 TPS
 
 params:

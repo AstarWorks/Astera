@@ -12,11 +12,11 @@ If anything below contradicts `settings.gradle.kts` or `ArchitectureTest.kt`,
 
 | Plugin | Role | Paper `depend` | Paper `softdepend` |
 |---|---|---|---|
-| `plugin:core` | base. shared domain, `ServiceRegistry`, `IDomainEventBus`, Paper adapter scaffolding | — | — |
-| `plugin:weapons` | weapon domain, `/astera give`, click→fire listener (鯖民最小単位) | Core | — |
-| `plugin:combat` | damage / skill / status / element matrix | Core | Weapons |
+| `plugin:core` | base. shared domain, `ServiceRegistry`, `IDomainEventBus`, Paper adapter scaffolding. Owns ItemSpec / SkillId / SkillTrigger / DamageProfile vocabulary. | — | — |
+| `plugin:items` | Item-centric content (ADR-0073): paper materializer, click→skill-trigger listener, `/astera-items give`. Renamed from `:plugin:weapons` in Wave _items-1. | Core | — |
+| `plugin:combat` | damage / skill / status / element matrix. Owns projectile types. Subscribes to `SkillCastRequested`. | Core | Items |
 | `plugin:match` | match lifecycle, phases, teams | Core | Combat |
-| `plugin:stats` | XP / levels / norma / mission progress | Core | Weapons, Combat, Match |
+| `plugin:stats` | XP / levels / norma / mission progress | Core | Items, Combat, Match |
 | `plugin:economy` | currency / wallet / ledger; Phase 4 shop/enderchest | Core | Stats, Match |
 | `plugin:persistence` | Postgres impls of any repository port (priority-override of in-memory) | Core | all features |
 
@@ -30,10 +30,10 @@ fails the build on violation.
 
 ```
 Core         ← (nothing; base)
-Weapons      ← Core
-Combat       ← Core, Weapons
+Items        ← Core
+Combat       ← Core, Items
 Match        ← Core, Combat
-Stats        ← Core, Weapons, Combat, Match
+Stats        ← Core, Items, Combat, Match
 Economy      ← Core, Stats, Match
 Persistence  ← Core, every feature (DB-impl override)
 test-fixtures← Core (no feature plugins, no Minecraft)
@@ -74,15 +74,18 @@ Konsist forbids:
 | Paper-specific bindings | `plugin/<plugin>/src/main/kotlin/.../adapter/paper/` |
 | Postgres repositories | `plugin/persistence/src/main/kotlin/.../adapter/` |
 | Plugin entrypoint + DI wiring | `plugin/<plugin>/src/main/kotlin/.../platform/Astera*Plugin.kt` |
-| User-editable content | `content/{weapons,skills,stages,languages}/` |
+| User-editable content | `content/{items,skills,stages,languages,...}/` (Wave _items-1: items replaces weapons) |
 | k8s manifests (public) | `deploy/` |
 | k8s overlays + secrets (private) | `private/` (submodule) |
 | Konsist architecture tests | `tools/architecture-test/` |
 
 ## When you touch X
 
-- **Add a weapon:** drop YAML into `content/weapons/`. See
-  `docs/contributing/add-a-weapon-yaml.md`. No Kotlin needed.
+- **Add an item:** drop YAML into `content/items/`. Item is first-class
+  (ADR-0073) — material + inline i18n + attributes + skill bindings in one
+  file. See `docs/contributing/add-an-item-yaml.md`. No Kotlin needed.
+- **Add a skill:** drop YAML into `content/skills/`. Skill defines an action
+  (archetype + damage + status + effects); item bindings reference it by id.
 - **Add a use case:** define the port in `<plugin>/application/port/outbound/`
   first, then implement use case in `<plugin>/application/usecase/`, then wire
   in `<plugin>/platform/Astera<Plugin>Plugin.kt`. Konsist catches direction
@@ -90,7 +93,7 @@ Konsist forbids:
 - **Add a cross-plugin service:** register at `onEnable` via
   `services.register<IPort>(impl, priority = N)`. Look up via
   `services.get<IPort>()`. Higher priority wins (Persistence's Postgres impls
-  override Weapons' in-memory defaults at priority 100).
+  override Items' in-memory defaults at priority 100).
 - **Add a cross-plugin event:** the sealed `DomainEvent` lives in
   `plugin:core` (`core.domain.event`). Publish via `IDomainEventBus`. Define
   the variant in Core, publish from feature plugin, subscribe in another.

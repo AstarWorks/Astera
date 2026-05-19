@@ -1,10 +1,10 @@
 package com.astarworks.astera.stats.scenario
 
 import com.astarworks.astera.core.domain.event.EndReason
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.core.domain.event.MatchEnded
-import com.astarworks.astera.weapons.domain.weapon.WeaponId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -25,7 +25,7 @@ class MatchEndsOnTeamWipeScenarioTest {
 
     @Test
     fun `team wipe followed by admin end publishes MatchEnded`() {
-        val sword = WeaponId("amethyst-sword")
+        val sword = ItemId("amethyst-sword")
         val ctx = scenario {
             val red = TeamId("red")
             val blue = TeamId("blue")

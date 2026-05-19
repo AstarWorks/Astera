@@ -2,9 +2,9 @@ package com.astarworks.astera.combat.application.contents
 
 import com.astarworks.astera.combat.application.config.SkillYamlConfig
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.core.application.contents.YamlDynamicContents
+import com.astarworks.astera.core.domain.skill.SkillId
 
 /**
  * Skill-side `Contents<SkillId, SkillSpec>` (Wave _infra-2b, ADR-0065).
@@ -24,6 +24,11 @@ import com.astarworks.astera.core.application.contents.YamlDynamicContents
  * Cross-field invariants on the YAML (archetype↔params variant matching) live
  * in [SkillYamlConfig.toSpec] — if a YAML file violates them, `toSpec` throws
  * and `ContentLoader` counts a failed load without breaking the batch.
+ *
+ * **Wave _items-1 (ADR-0073)**: each skill YAML is self-contained — display
+ * name / description ride on the [SkillSpec] as `LocalizedText` (a per-locale
+ * map). No sibling write-back into `content/languages/<locale>.yaml` is performed on
+ * reload, so removing or renaming a skill never leaves orphan i18n keys.
  */
 public class SkillContents : YamlDynamicContents<SkillId, SkillSpec, SkillYamlConfig>(
     categoryName = "skills",

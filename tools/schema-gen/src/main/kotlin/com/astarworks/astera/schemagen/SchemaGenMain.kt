@@ -9,7 +9,6 @@ import com.astarworks.astera.core.application.config.ItemYamlConfig
 import com.astarworks.astera.economy.application.config.ShopYamlConfig
 import com.astarworks.astera.match.application.config.StageYamlConfig
 import com.astarworks.astera.stats.application.config.NormaYamlConfig
-import com.astarworks.astera.weapons.application.config.WeaponYamlConfig
 import kotlinx.serialization.serializer
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
@@ -31,11 +30,8 @@ fun main(args: Array<String>) {
     outputDir.createDirectories()
 
     val schemas = listOf(
-        SchemaEntry(
-            name = "weapon",
-            serializer = serializer<WeaponYamlConfig>(),
-            schemaId = "https://astera.astarworks.com/schemas/weapon.schema.json",
-        ),
+        // Wave _items-1 (ADR-0073): WeaponYamlConfig was removed; Item is the
+        // canonical content type now and carries skill bindings + attributes.
         SchemaEntry(
             name = "skill",
             serializer = serializer<SkillYamlConfig>(),

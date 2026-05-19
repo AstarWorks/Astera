@@ -1,9 +1,9 @@
 package com.astarworks.astera.combat.application.service
 
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.SkillId
 
 /**
  * Per-player in-memory tracker for in-flight `Charged` skill windows.

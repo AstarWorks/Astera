@@ -9,7 +9,7 @@ plugins {
 
 dependencies {
     implementation(project(":plugin:core"))
-    implementation(project(":plugin:weapons"))
+    implementation(project(":plugin:items"))
     implementation(project(":plugin:combat"))
     implementation(project(":plugin:match"))
     implementation(project(":plugin:stats"))

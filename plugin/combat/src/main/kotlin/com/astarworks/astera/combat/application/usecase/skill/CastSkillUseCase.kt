@@ -6,7 +6,6 @@ import com.astarworks.astera.combat.application.usecase.cost.ConsumeManaUseCase
 import com.astarworks.astera.combat.domain.event.ManaConsumptionSource
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.resource.ManaError
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.combat.domain.status.StatusEffectId
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
@@ -16,6 +15,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.SkillId
 
 /**
  * Gates a skill cast: looks up the spec, checks silence and per-skill cooldown,

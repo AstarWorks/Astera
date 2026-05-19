@@ -6,12 +6,12 @@ import com.astarworks.astera.combat.application.usecase.skill.CastSkillUseCase
 import com.astarworks.astera.combat.domain.event.SkillChargeCancelled
 import com.astarworks.astera.combat.domain.event.SkillChargeStarted
 import com.astarworks.astera.combat.domain.skill.ChargedSkillVariant
-import com.astarworks.astera.combat.domain.skill.SkillId
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.SkillId
 
 /**
  * Orchestrates the lifecycle of a hold-to-cast (`ChargedSkillVariant.Charged`)

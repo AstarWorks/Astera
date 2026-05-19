@@ -1,10 +1,18 @@
 package com.astarworks.astera.economy.application.usecase.marketplace
 
-import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.economy.Currency
+import com.astarworks.astera.core.domain.i18n.LocalizedLore
+import com.astarworks.astera.core.domain.i18n.LocalizedText
+import com.astarworks.astera.core.domain.item.DropPolicy
+import com.astarworks.astera.core.domain.item.DurabilityPolicy
+import com.astarworks.astera.core.domain.item.EquipSlot
+import com.astarworks.astera.core.domain.item.ItemAttributes
 import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.item.ItemSpec
+import com.astarworks.astera.core.domain.item.ItemTemplate
+import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.shop.ShopPrice
 import com.astarworks.astera.economy.domain.marketplace.ListingId
@@ -29,7 +37,7 @@ public class CreateListingUseCaseTest {
     private val seller = PlayerId(UUID.randomUUID())
 
     private val items = InMemoryItemRegistry().apply {
-        register(IMcItemTemplate.Vanilla(id = knownItem, material = "IRON_SWORD"))
+        register(simpleItemSpec(knownItem, "IRON_SWORD"))
     }
 
     private val marketplace = InMemoryMarketplaceRepository()
@@ -78,12 +86,33 @@ public class CreateListingUseCaseTest {
 }
 
 /** Minimal in-memory [IItemRegistry] for marketplace unit tests. */
-internal class InMemoryItemRegistry : IItemRegistry<IMcItemTemplate> {
-    private val byId = mutableMapOf<ItemId, IMcItemTemplate>()
-    fun register(template: IMcItemTemplate) { byId[template.id] = template }
-    override fun find(key: ItemId): IMcItemTemplate? = byId[key]
-    override fun all(): Collection<IMcItemTemplate> = byId.values.toList()
+internal class InMemoryItemRegistry : IItemRegistry {
+    private val byId = mutableMapOf<ItemId, ItemSpec>()
+    fun register(spec: ItemSpec) { byId[spec.id] = spec }
+    override fun find(key: ItemId): ItemSpec? = byId[key]
+    override fun all(): Collection<ItemSpec> = byId.values.toList()
 }
+
+/**
+ * Minimal valid [ItemSpec] for tests that only care about registry membership.
+ * Mirrors the production `content/items/example-sword.yaml` defaults.
+ */
+internal fun simpleItemSpec(id: ItemId, material: String): ItemSpec = ItemSpec(
+    id = id,
+    template = ItemTemplate.Vanilla(material = material),
+    displayName = LocalizedText.EMPTY,
+    lore = LocalizedLore.EMPTY,
+    rarity = Rarity.COMMON,
+    levelRequirement = 1,
+    attributes = ItemAttributes.EMPTY,
+    equipSlot = EquipSlot.MAINHAND,
+    durability = DurabilityPolicy.DEFAULT,
+    dropPolicy = DropPolicy.DEFAULT,
+    enchantable = true,
+    glint = false,
+    skillBindings = emptyList(),
+    pdcTags = emptyMap(),
+)
 
 /** Minimal in-memory [com.astarworks.astera.economy.application.port.outbound.IMarketplaceRepository] for use-case tests. */
 internal class InMemoryMarketplaceRepository :

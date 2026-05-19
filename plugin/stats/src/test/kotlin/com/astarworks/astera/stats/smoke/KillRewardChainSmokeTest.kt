@@ -3,6 +3,7 @@ package com.astarworks.astera.stats.smoke
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
+import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.stats.application.eventbus.listeners.MissionProgressOnKillListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnKillListener
@@ -12,7 +13,6 @@ import com.astarworks.astera.stats.application.service.InMemoryPlayerStatsReposi
 import com.astarworks.astera.stats.application.usecase.level.GrantXpUseCase
 import com.astarworks.astera.stats.application.usecase.stats.RecordKillUseCase
 import com.astarworks.astera.stats.domain.event.XpGranted
-import com.astarworks.astera.weapons.domain.weapon.WeaponId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -59,7 +59,7 @@ class KillRewardChainSmokeTest {
             PlayerKilled(
                 victim = victim,
                 killer = attacker,
-                source = DamageSource.Weapon(WeaponId("smoke-sword"), attacker),
+                source = DamageSource.Item(ItemId("smoke-sword"), attacker),
                 atTick = 0L,
             ),
         )

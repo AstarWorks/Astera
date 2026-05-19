@@ -4,7 +4,6 @@ import com.astarworks.astera.core.adapter.api.binding.McPlayerGateway
 import com.astarworks.astera.core.adapter.api.hud.IBossBarManager
 import com.astarworks.astera.core.adapter.api.hud.IScoreboardManager
 import com.astarworks.astera.core.adapter.api.hud.ITabList
-import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.command.PaperCommandHandler
 import com.astarworks.astera.core.adapter.paper.event.PaperBroadcaster
@@ -86,7 +85,6 @@ import com.astarworks.astera.core.application.usecase.permission.CheckPermission
 import com.astarworks.astera.core.application.usecase.permission.RevokeRoleUseCase
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.permission.DefaultRoles
 import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.domain.world.BlockDurabilityRule
@@ -108,7 +106,7 @@ import java.nio.file.Paths
  *  - [IMessageRenderer] (i18n from `content/languages/`)
  *  - [IBroadcaster] (Phase 2: log-only PaperBroadcaster)
  *  - [IDomainEventBus] (in-process)
- *  - [IItemRegistry] of [IMcItemTemplate] (loaded from `content/items/`)
+ *  - [IItemRegistry] (loaded from `content/items/`; returns `ItemSpec`)
  *  - [IPlayerGateway] (vendor-neutral McPlayerGateway over Paper)
  *  - [ICommandHandler] (Paper Brigadier)
  *  - [IMcServer] (vendor-neutral handle for feature plugins that need
@@ -171,28 +169,14 @@ public class AsteraCorePlugin : JavaPlugin() {
             localeResolver = { playerId -> playerId?.let { mcServer.findPlayer(it)?.locale } },
         )
 
-        // ---- Item contents (Wave _infra-2b, ADR-0065) --------------------
-        // Stage 1 D primary key for every item ref. ItemContents replaces the
-        // legacy MutableItemRegistry — same generic-over-T mapper, but now
-        // participates in the unified /astera reload <category> dispatcher.
+        // ---- Item contents (Wave _items-1, ADR-0073) ---------------------
+        // ItemSpec is the canonical materialized form (replaces the legacy
+        // IMcItemTemplate split). The `ItemContents` substrate (ADR-0065)
+        // bootstraps content/items/<id>.yaml into the registry; the Items plugin
+        // (depends on Core) adds Paper-side click→skill-trigger listeners and
+        // the /astera-items give command on top.
         val itemsContentDir = contentDir.resolve("items")
-        val itemContents: ItemContents<IMcItemTemplate> = ItemContents(
-            mapper = { cfg ->
-                val externalKey = cfg.externalKey
-                if (externalKey != null) {
-                    IMcItemTemplate.External(ItemId(cfg.id), externalKey)
-                } else {
-                    IMcItemTemplate.Vanilla(
-                        id = ItemId(cfg.id),
-                        material = cfg.material!!,
-                        customModelData = cfg.customModelData,
-                        displayName = cfg.displayNameKey?.let(::MessageKey),
-                        lore = cfg.loreKeys.map(::MessageKey),
-                        pdcTags = cfg.pdcTags,
-                    )
-                }
-            },
-        )
+        val itemContents = ItemContents()
         val itemReport = itemContents.bootstrap(itemsContentDir)
         logger.info("Items loaded: ${itemReport.loaded} ok, ${itemReport.failed} failed")
 
@@ -208,7 +192,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<IMessageRenderer>(messages)
         services.register<IBroadcaster>(broadcaster)
         services.register<IDomainEventBus>(eventBus)
-        services.register<IItemRegistry<IMcItemTemplate>>(itemContents)
+        services.register<IItemRegistry>(itemContents)
         services.register<IPlayerGateway>(playerGateway)
         services.register<ICommandHandler>(commandHandler)
         services.register<IMcServer>(mcServer)
@@ -482,7 +466,7 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IMessageRenderer",
             "IBroadcaster",
             "IDomainEventBus",
-            "IItemRegistry<IMcItemTemplate>",
+            "IItemRegistry (ItemSpec)",
             "IPlayerGateway",
             "ICommandHandler",
             "IMcServer",

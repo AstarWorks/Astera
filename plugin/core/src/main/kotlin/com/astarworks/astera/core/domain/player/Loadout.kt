@@ -7,10 +7,10 @@ import com.astarworks.astera.core.domain.item.ItemId
  * a new instance via [with]. Slots not present in [slots] are interpreted as
  * empty.
  *
- * ADR-0022 trim: Phase 2 swaps `WeaponId` for [ItemId] so this type stays in
- * Core without pulling Weapons into the dependency closure. The Weapons
- * plugin's domain code can still ask the loadout for an [ItemId] and look up
- * the matching `WeaponSpec` through its own `IWeaponRegistry`.
+ * Wave _items-1 (ADR-0073): every slot resolves to an [ItemId]. The Items
+ * plugin's domain code can ask the loadout for an [ItemId] and look up the
+ * matching [com.astarworks.astera.core.domain.item.ItemSpec] through
+ * `IItemRegistry`.
  */
 public data class Loadout(val slots: Map<LoadoutSlot, ItemId>) {
 
