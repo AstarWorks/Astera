@@ -6,8 +6,10 @@ __pycache__/
 *.pyc
 .venv/
 
-# Web UI build/tooling artifacts (per ADR-0018: web/ is dev-only)
-web/node_modules/
-web/dist/
-web/.bun-cache/
-web/.vite/
+# .cache/ holds resumable job dirs and rejected-tile archives written by
+# the /generate-textures skill. Persistent across sessions but never
+# committed; outputs always land in content/textures/.
+.cache/
+
+# Note: the Web UI moved to tools/studio/web/. Its ignore rules now live in
+# tools/studio/.gitignore.

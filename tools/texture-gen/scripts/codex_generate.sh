@@ -39,13 +39,21 @@ LOG="$WORK/codex.stderr.log"
 # Capture codex stderr so we can fish out the session ID later.
 # Use workspace-write sandbox; if that fails for the actual file write we
 # fall back to scraping the generated_images dir.
+#
+# stdin redirect (< /dev/null): codex reads stdin even when the prompt is
+# provided as a positional argument (per `codex exec --help`: piped stdin
+# is appended as a <stdin> block). In a foreground TTY this happens to
+# EOF immediately, but in background contexts (Bash auto-backgrounded
+# long-timeout calls, scripts piped together) stdin stays open as a pipe
+# that never closes, and codex hangs forever on the initial read.
+# Forcing /dev/null guarantees immediate EOF regardless of how we're invoked.
 set +e
 codex exec \
     --sandbox workspace-write \
     --skip-git-repo-check \
     --cd "$WORK" \
     --output-last-message "$WORK/codex.lastmsg.log" \
-    "$(cat "$PROMPT_FILE")" 2> "$LOG"
+    "$(cat "$PROMPT_FILE")" < /dev/null 2> "$LOG"
 CODEX_RC=$?
 set -e
 
