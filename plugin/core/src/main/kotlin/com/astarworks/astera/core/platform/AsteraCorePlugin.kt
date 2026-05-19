@@ -34,6 +34,7 @@ import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver
+import com.astarworks.astera.core.application.port.outbound.IDialogGateway
 import com.astarworks.astera.core.application.port.outbound.IHologramGateway
 import com.astarworks.astera.core.application.port.outbound.IModerationService
 import com.astarworks.astera.core.application.port.outbound.IPlayerTutorialStateRepository
@@ -360,6 +361,16 @@ public class AsteraCorePlugin : JavaPlugin() {
                 ?: com.astarworks.astera.core.application.service.InMemoryPlayerTutorialStateRepository()
                     .also { services.register<IPlayerTutorialStateRepository>(it, priority = 0) }
         @Suppress("UNUSED_VARIABLE") val tutorialStateRepoRef = tutorialStateRepo
+
+        // Wave 5i (ADR-0096): Dialog gateway (Paper Dialog API, MC 1.21.6+).
+        // No-op in-memory default — Wave 6b PaperDialogGateway shadows at
+        // higher priority and connects to Player.showDialog() / response
+        // callbacks.
+        val dialogGateway: IDialogGateway = services.get<IDialogGateway>()
+            ?: com.astarworks.astera.core.application.service.InMemoryDialogGateway(eventBus).also {
+                services.register<IDialogGateway>(it, priority = 0)
+            }
+        @Suppress("UNUSED_VARIABLE") val dialogGatewayRef = dialogGateway
 
         // Inventory snapshot use cases + PlayerJoined-side listener.
         @Suppress("UNUSED_VARIABLE")

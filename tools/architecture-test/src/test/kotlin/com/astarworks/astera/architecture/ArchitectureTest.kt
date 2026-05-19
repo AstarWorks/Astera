@@ -850,6 +850,44 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5i — Dialog domain vendor-neutrality (ADR-0096 §1) ────────────
+
+    /**
+     * Wave 5i, ADR-0096: the Dialog domain (`core.domain.dialog.*`) is
+     * the vendor-neutral mirror of Paper's `io.papermc.paper.dialog.*` +
+     * `io.papermc.paper.registry.data.dialog.*` API (MC 1.21.6+).
+     *
+     * The Wave 6b `PaperDialogGateway` adapter converts each `DialogSpec`
+     * into Paper `Dialog.create { ... }` builder calls + `DialogActionCallback`
+     * wiring at the edge.
+     *
+     * The domain MUST NOT import `io.papermc.paper.dialog.*` /
+     * `io.papermc.paper.registry.data.dialog.*` (ADR-0002 — Minecraft is
+     * the edge) NOR any other Bukkit/Paper family imports. JOML is allowed
+     * (pure-math, same exception as the Hologram domain).
+     */
+    @Test
+    fun `Dialog domain must not import Paper Dialog API (ADR-0096)`() {
+        val forbiddenPrefixes = listOf(
+            "org.bukkit.",
+            "io.papermc.",
+            "org.spigotmc.",
+            "com.destroystokyo.paper.",
+            "com.mojang.",
+            // org.joml.* deliberately allowed (Wave 5h-fix principle).
+        )
+        Konsist.scopeFromProject()
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.dialog") == true }
+            .flatMap { it.imports }
+            .assertFalse(
+                additionalMessage = "ADR-0096 §1: core.domain.dialog.* must stay vendor-neutral. " +
+                    "Paper Dialog API conversion happens in Wave 6b PaperDialogGateway adapter.",
+            ) { import ->
+                forbiddenPrefixes.any { import.name.startsWith(it) }
+            }
+    }
+
     // ─── Wave 5h — ModerationAction sealed exhaustiveness (ADR-0079 §4) ─────
 
     /**
