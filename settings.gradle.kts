@@ -54,4 +54,6 @@ include(
     ":tools:architecture-test",
     // JSON Schema generation from @Serializable DTOs (ADR-0016 part 4)
     ":tools:schema-gen",
+    // content/ YAML × content/schemas/*.schema.json validator (ADR-0066)
+    ":tools:content-lint",
 )

@@ -41,6 +41,11 @@ konsist = "0.17.3"
 detekt = "1.23.8"               # Disabled until 2.x; pinned for re-enable
 shadow = "9.4.1"                # Gradle 9 native
 
+# tools:content-lint — JSON Schema validation pipeline for content/*.yaml (ADR-0067)
+networknt-json-schema-validator = "1.5.4"   # Active maintenance; supports Draft 07 (matches content/schemas/*) + 2020-12
+snakeyaml = "2.4"                            # YAML 1.1 parser — produces nested Maps/Lists/scalars
+jackson = "2.18.2"                           # ObjectMapper.valueToTree(...) bridges SnakeYAML output → JsonNode for the validator
+
 # External Paper plugins (compileOnly, soft-dep) — sentinel until Phase 2 mid
 weaponmechanics = "999.999.999"
 oraxen = "999.999.999"
@@ -97,6 +102,11 @@ konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 # Build plugin classpaths (referenced from buildSrc convention plugins)
 detekt-gradle-plugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+
+# tools:content-lint
+networknt-json-schema-validator = { module = "com.networknt:json-schema-validator", version.ref = "networknt-json-schema-validator" }
+snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 
 [bundles]
 test-common = ["junit-jupiter", "assertj-core"]
