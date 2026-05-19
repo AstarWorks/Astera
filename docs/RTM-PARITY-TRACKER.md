@@ -74,11 +74,11 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 102 | 70.8% |
+| ✅ full | 102 | 70.3% |
 | 🟨 partial | 3 | 2.1% |
-| 🔌 port-only | 7 | 4.9% |
-| ❌ nothing | 32 | 22.2% |
-| **Total tracked** | **144** | 100% |
+| 🔌 port-only | 9 | 6.2% |
+| ❌ nothing | 31 | 21.4% |
+| **Total tracked** | **145** | 100% |
 
 (Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability); Wave _persist-1 で Cat 8 持続化補完 — SessionState/Friendship/Party/RewardBridge の 4 Postgres impl (V11/V12/V13/V15 + ADR-0068 Cross-server persistence boundary))
 
@@ -183,7 +183,7 @@ adds to `gradle/libs.versions.toml`:
 | Capture zone / KOTH region type | ✅ Wave 5d (domain + tick use case + scheduler) | **Wave 5d** | P1 | `CaptureZone.kt`, `CaptureZoneId.kt`, `CaptureZoneTickUseCase.kt`, `CaptureZoneScheduler.kt` |
 | Block restoration after match end | ✅ Wave 5d (BlockChangeJournal + RestoreBlocksOnMatchEnded listener; replays on MatchEnded) | **Wave 5d** | P1 | `RestoreBlocksOnMatchEndedUseCase.kt`, `BlockChangeJournal.kt` |
 | Region type variants (protected / buildable / spawn / no-build) | ❌ Region is plain AABB | **Wave 5d** | P1 | `Region.kt` has no type tag |
-| **`StructureService`** (runtime structure paste, schematic load とは別 — mid-match terrain transformation) | ❌ nothing | **Wave 6b** (Paper FAWE adapter; existing Wave 5d schematic loader cover match-start のみ) | P2 | RTM `paper/.../structure/StructureService.kt` (2026-05-19 deep audit) |
+| **`StructureService`** (runtime structure paste, schematic load とは別 — mid-match terrain transformation) | 🔌 port skeleton (Wave 5g) — `IStructurePaste` + `PasteHandle` + `StructurePasteError` + `FakeStructurePaste` | **Wave 5g** (port + ADR-0072) + **Wave 6b** (Paper impl over FAWE; existing Wave 5d schematic loader covers match-start のみ) | P2 | RTM `paper/.../structure/StructureService.kt` (2026-05-19 deep audit); `plugin/core/.../application/port/outbound/IStructurePaste.kt` |
 
 ---
 
@@ -212,7 +212,7 @@ adds to `gradle/libs.versions.toml`:
 | **Star Generator domain** (BedWars-style spawner, position + currency + period + amount) | ✅ Wave 5c (`StarGenerator` + `GeneratorTier` + per-instance `IAttributeContainer`) | (済) | **P1** | `plugin/match/.../domain/generator/` (Vec3 position, Currency, Duration period, Int amount) |
 | **Star Generator scheduler** | ✅ Wave 5c (`StarGeneratorScheduler` via `IScheduler.runRepeating`) | (済) | P1 | `plugin/match/.../application/service/StarGeneratorScheduler.kt` |
 | **Anomaly type sealed + AnomalyScheduler** | ✅ Wave 5c (6 sealed `AnomalyType` variants + `AnomalyScheduler` weighted-random tick) | (済) | **P1** | `plugin/match/.../domain/anomaly/AnomalyType.kt` + `AnomalyScheduler.kt` |
-| Anomaly random in-match events | ✅ Wave 5c (`TriggerAnomalyUseCase` + `ResolveAnomalyEffectUseCase`) | (済) | P1 | `plugin/match/.../application/usecase/anomaly/` |
+| Anomaly random in-match events | ✅ Wave 5c (`TriggerAnomalyUseCase` + `ResolveAnomalyEffectUseCase`); **Wave 5g**: 4 new gateway ports (`IMatchTimerService` / `IPlayerMovementGateway` / `IPlayerVisionGateway` / `IStructurePaste`) + Fakes wire all 5 previously-TODO variants (StatusBurst / SpawnSurge / TimeWarp / GravityShift / FogOfWar) Fake-level; Paper impls Wave 6a/6b per ADR-0072 | (済 Wave 5c + Wave 5g) | P1 | `plugin/match/.../application/usecase/anomaly/`; `plugin/match/.../application/port/outbound/IMatchTimerService.kt`; `plugin/core/.../application/port/outbound/I{PlayerMovementGateway,PlayerVisionGateway,StructurePaste}.kt` |
 | Resource decay (time-based) | ❌ nothing | Wave 5c | P2 | (none) |
 | `IScheduler.runRepeating` (infra) | ✅ full | (済) | P0 | `PaperScheduler.kt`, ADR-0019 |
 
@@ -225,7 +225,8 @@ adds to `gradle/libs.versions.toml`:
 | Currency / Wallet / 3 currency (STAR / GOLD / GEM) | ✅ full + Postgres | (済) | P0 | `Currency.kt`, `Wallet.kt`, `V3__wallets.sql` |
 | Deposit / Withdraw / Transfer (atomic) | ✅ full | (済) | P0 | `DepositUseCase.kt`, etc. |
 | Shop domain (`ShopSpec` / `ShopOffer` / `ShopPrice` / `ShopStock`) | ✅ full (Wave 4.5) | (済) | P0 | `plugin/core/.../domain/shop/` |
-| `IShopRegistry` + `ShopLoaderService` + `ShopPurchaseUseCase` | ✅ full | (済) | P0 | (Wave 4.5) |
+| `IShopRegistry` + `ShopLoaderService` + `ShopPurchaseUseCase` | ✅ full; **Wave 5g**: stock-decrement bug fixed — `IShopStockRepository` (priority-100 Postgres overlay + V19 migration `shop_stock`) wired post-`ledger.debit` so `OutOfStock` is reachable again after `Limited(N)` exhausts; `ShopLoaderService` idempotent `seed` at startup | (済 Wave 4.5 + Wave 5g) | P0 | (Wave 4.5); `plugin/core/.../application/port/outbound/IShopStockRepository.kt`; `plugin/persistence/.../repository/PostgresShopStockRepository.kt`; `plugin/persistence/.../resources/db/migration/V19__shop_stock.sql` |
+| Shop access surfaces (NPC vendor / external EC / chat alias) | 🔌 port skeleton + ADR-0071 (Wave 5g) — `IShopVendor` + `IShopReferenceQuery` + `IShopAccessIntent` sealed (`OpenFromCommand / OpenFromNpc / OpenFromChat / OpenFromExternal`) + `ShopAccessIntentRouter` + `InMemoryShopVendorBinding` + `FakeShopVendorBinding` | **Phase 4 Wave 8b** (Paper impls + REST wrap) | P2 | RTM #4; `plugin/economy/.../application/port/{outbound/IShopVendor.kt,outbound/IShopReferenceQuery.kt,inbound/IShopAccessIntent.kt}`; ADR-0071 |
 | `/astera-shop browse` command + intent dispatch | ✅ full | (済) | P0 | (Wave 4.5) |
 | Reward listeners (kill / match-win / mission → currency) | ✅ full | (済) | P0 | (Wave 1-2) |
 | **Ender Chest / Personal Vault** (RTM issue #3) | ✅ Wave 5e (`IPersonalVaultService` + Postgres) | (済 Wave 5e) | **P1** | grep `EnderChest|PersonalVault` → 0 件 |
@@ -447,3 +448,4 @@ specific issue / file needs verification.
 - Wave 5f (2026-05-19): Marketplace + JP currency compliance + CEL + particles + reactive GUI binding (6 RTM rows ❌→✅). Marketplace: MarketplaceListing + ListingStatus + 3 use cases (Create/Purchase/Cancel) + Postgres V12 + 137 IT. Creator Revenue: post-fee-remainder split algo + 146 unit + 62 IT. JP Compliance: CurrencyPolicy 4-axis + SourceClass + CurrencyPolicies map (STAR/GOLD/GEM per 資金決済法) + EnforceCurrencyPolicy + ExpireCurrency daily sweep + ICurrencyIssuanceLog port + Postgres V11 + 391 unit. CEL: CelSkillScript + CelContext + ICelEvaluator port + StubCelEvaluator + 77 unit. Particles: ParticleDefinition + ParticleShape sealed + ParticleContents + IParticleRegistry port + 2 example YAML + schema + 137 unit. Reactive GUI: ResolvedReactiveSlot + numeric/display/count binding via DefaultGuiBindingResolver + PaperItemTemplateRenderer override application + 255 unit + 3 Postgres migrations (V11/V12/V13). **Total parity 66.7% → 70.8%** (96→102/144 ✅). ADR-0035 → Accepted.
 - Wave _ops (2026-05-19): Observability substrate — Micrometer 1.14.6 + Prometheus export via IMetricsRegistry port + HttpMetricsServer (/metrics @ 9092) + KEDA ScaledObject for game pod autoscaling + ADR-0023 Sealed-Secrets + ADR-0024 Provider 路線 (hybrid 事後記録 + Phase 4 governance)
 - Wave _persist-1 (2026-05-19): Cat 8 persistence closure — 4 Postgres repositories V11/V12/V13/V15 (SessionState/Friendship/Party/RewardBridge outbox) + ADR-0068 Cross-server persistence boundary (Sealed: state holders MUST be Postgres-backed at priority=100, InMemory remains as dev/test fallback)
+- Wave 5g (2026-05-19): Core hardening pre-Paper-sweep — Shop stock bug fix (`IShopStockRepository` + V19 migration + `SELECT ... FOR UPDATE` atomic decrement + idempotent seed at startup; existing `OutOfStock` death code is now live) + Shop access surfaces (`IShopVendor` + `IShopReferenceQuery` + `IShopAccessIntent` sealed 4-variant + `ShopAccessIntentRouter` + Default/InMemory/Fake impls + ADR-0071 commitment to Phase 4 Wave 8b) + Pre-Paper-sweep port commitments (`IMatchTimerService` + `IPlayerMovementGateway` + `IPlayerVisionGateway` + `IStructurePaste` + 4 Fakes + `IStatusEffectContainer.applyBulk` default + `PlayerMatchAttributes.RESPAWN_RATE_MULTIPLIER` + ADR-0072) + Anomaly 5 TODO closure (StatusBurst / SpawnSurge / TimeWarp / GravityShift / FogOfWar Fake-level wire via the new gateway ports) + Konsist +2 rules (Wave 6 Paper allow-list + IShopStockRepository priority-100 pin) → baseline 28 → 30. Net catalog +1 row (Shop access surfaces); StructureService ❌→🔌. Vanilla Potion 統一は Wave 6a Paper adapter merge layer に意図的に閉じる (domain には漏らさず、ADR-0030 §8 と整合)。**Total parity 70.8% (102/144) → 70.3% (102/145, same ✅, +2 🔌, −1 ❌)** — parity % decrease is purely catalog growth (new row added). ADR-0071 + ADR-0072 → Accepted.

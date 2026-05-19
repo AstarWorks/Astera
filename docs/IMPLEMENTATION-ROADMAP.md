@@ -317,6 +317,37 @@ reading the four canonical docs.
   数値 binding 対応、`DefaultGuiBindingResolver` 拡張、`PaperItemTemplateRenderer`
   互換維持
 
+### Wave 5g — Core hardening pre-Paper-sweep (Tier 6.5)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave 5f (Economy expansion baseline) |
+| Unlocks | Wave 6 を "Paper impl だけ" に純化 (Core 側 commitment + port skeleton land) |
+| Complexity | 軽-中 (4 worker, ~3-4h) |
+| ADR | 0071 (Shop access surfaces) + 0072 (Pre-Paper-sweep port commitments) |
+| New migrations | V19__shop_stock.sql |
+
+**Scope**:
+- **Shop stock 実バグ fix** (`ShopPurchaseUseCase` の `Limited.remaining`
+  decrement 不在を atomic に wire) — 新 port `IShopStockRepository`
+  (InMemory + Postgres priority 100)、`ShopLoaderService` idempotent seed、
+  既存 i18n `astera.economy.shop.out_of_stock` 流用
+- **Shop access surfaces** (NPC vendor / 外部 EC reference / chat alias
+  概念 commit) — `IShopVendor` + `IShopReferenceQuery` +
+  `IShopAccessIntent` sealed 4 variant + `ShopAccessIntentRouter`、
+  ADR-0071 で Phase 4 (Wave 8b) commitment 明示
+- **Pre-Paper-sweep port commitments** — `IStatusEffectContainer.applyBulk`
+  default method + `GeneratorAttributes.RESPAWN_RATE_MULTIPLIER` +
+  4 新 port (`IMatchTimerService` / `IPlayerMovementGateway` /
+  `IPlayerVisionGateway` / `IStructurePaste`) + Fake、ADR-0072 で signature
+  固定 (Vanilla Potion 統一は Wave 6a `PaperStatusEffectAdapter` 内 merge
+  layer に閉じる)
+- **Anomaly 5 TODO 解消** (StatusBurst / SpawnSurge / TimeWarp / GravityShift
+  / FogOfWar) — 上記新 port 経由で Fake-level 動作
+- **Konsist +2 rules** (Wave 6 Paper impl allow-list +
+  `IShopStockRepository` priority 100 要件) — baseline 28 → 30
+- **AsteraTestHarness scenario test** (5 anomaly variant end-to-end)
+
 ### Wave 6a — Paper Sweep, Combat (Tier 7-1)
 
 | Property | Value |
@@ -926,6 +957,7 @@ Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 | 5d | 0033 | World Geometry (Block / Barrier / Schematic) |
 | 5e | 0034 | Session + Social + Tutorial + EnderChest + Reward bridge |
 | 5f | 0035 | Economy Expansion + JP Compliance + CEL |
+| **5g** | **0071 + 0072** | **Shop Access Surfaces + Pre-Paper-sweep Port Commitments** |
 | 6a / 6b | 0026 | Paper Runtime Topology |
 | 7a | 0036 | Siege Content Authoring |
 | 7b | 0037 | Tournament + Matchmaking |

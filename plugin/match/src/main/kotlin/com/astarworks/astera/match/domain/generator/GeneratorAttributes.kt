@@ -27,6 +27,13 @@ import com.astarworks.astera.core.domain.attribute.AttributeKey
  *
  * Modifiers are written via [AttributeModifier] with `sourceId` tags such as
  * `"sudden-death:<matchId>"` so they can be torn down in bulk at phase exit.
+ *
+ * Note (Wave 5g, ADR-0072): the `SpawnSurge` anomaly's respawn-rate
+ * multiplier intentionally lives on the **player** subject rather than the
+ * generator subject — see
+ * [com.astarworks.astera.match.domain.player.PlayerMatchAttributes.RESPAWN_RATE_MULTIPLIER].
+ * Keeping it out of this object avoids two parallel keys for the same
+ * concept.
  */
 public object GeneratorAttributes {
     public val ENERGY: AttributeKey = AttributeKey("generator.energy")

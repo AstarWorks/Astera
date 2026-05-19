@@ -36,15 +36,7 @@ dependencies {
     implementation(libs.kaml)
     implementation(libs.kotlinx.serialization.json)
 
-    // Wave 4.5 (R3.5) / ADR-0027: MatchStartLoadoutApplyListener subscribes to
-    // MatchStarted, published by :plugin:match. compileOnly because the Match
-    // plugin lives on the runtime classloader via the `softdepend` entry in
-    // plugin.yml — Astera-Weapons must boot fine without Astera-Match (e.g.
-    // weapon admin / give-flow regression test).
-    compileOnly(project(":plugin:match"))
-
     testImplementation(project(":plugin:test-fixtures"))
-    testImplementation(project(":plugin:match"))
 }
 
 tasks.named<ProcessResources>("processResources") {

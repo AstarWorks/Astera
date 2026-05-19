@@ -5,8 +5,12 @@ import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
+import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
+import com.astarworks.astera.core.application.port.outbound.IPlayerMovementGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerVisionGateway
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
@@ -278,9 +282,23 @@ public class AsteraMatchPlugin : JavaPlugin() {
         )
         scheduledTasks += starGenScheduler.start()
 
-        // Anomaly pipeline (ADR-0032 weighted-random tick driver)
+        // Anomaly pipeline (ADR-0032 weighted-random tick driver + ADR-0072
+        // pre-Paper-sweep gateway commitments). The new gateway ports are
+        // resolved opportunistically via `services.get*()`; null branches
+        // make the use case a clean no-op for variants whose impls are
+        // deferred to Wave 6a/6b (Konsist-pinned allow-list).
         val triggerAnomaly = TriggerAnomalyUseCase(eventBus, scheduler)
-        val resolveAnomaly = ResolveAnomalyEffectUseCase(generators)
+        val resolveAnomaly = ResolveAnomalyEffectUseCase(
+            generators = generators,
+            statusEffectContainer = services.get(),
+            matchTimerService = services.get(),
+            playerMovementGateway = services.get(),
+            playerVisionGateway = services.get(),
+            playerAttributeStore = services.get(),
+            matchPlayerListProvider = { mid ->
+                matches.findById(mid)?.teams?.flatMap { it.members } ?: emptyList()
+            },
+        )
         val anomalyScheduler = AnomalyScheduler(
             repo = anomalySchedules,
             trigger = triggerAnomaly,

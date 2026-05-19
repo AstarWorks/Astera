@@ -6,6 +6,7 @@ import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IShopRegistry
+import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.economy.WalletError
 import com.astarworks.astera.core.domain.event.CurrencyChangeReason
@@ -13,6 +14,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.shop.ShopId
 import com.astarworks.astera.core.domain.shop.ShopOfferId
 import com.astarworks.astera.core.domain.shop.ShopStock
+import com.astarworks.astera.core.domain.shop.ShopStockError
 import com.astarworks.astera.economy.domain.event.CurrencyChanged
 
 /**
@@ -48,11 +50,31 @@ import com.astarworks.astera.economy.domain.event.CurrencyChanged
  * 1. Player online check ([IMcServer.findPlayer]).
  * 2. Shop lookup ([IShopRegistry.resolve]).
  * 3. Offer lookup ([com.astarworks.astera.core.domain.shop.ShopSpec.offer]).
- * 4. Stock check (`Limited.remaining > 0`).
+ * 4. Stock pre-check via the spec (`Limited.remaining > 0`) — a fast path
+ *    to short-circuit obviously-sold-out offers before charging the
+ *    wallet. The authoritative serialised check is step 7.
  * 5. Item template lookup ([IItemRegistry.find]).
  * 6. Debit via [ICurrencyLedger.debit].
- * 7. Deliver via [com.astarworks.astera.core.adapter.api.entity.IMcPlayer.giveItem].
- * 8. Publish [CurrencyChanged] with reason [CurrencyChangeReason.ShopPurchase].
+ * 7. **Authoritative stock decrement** via
+ *    [IShopStockRepository.decrementStock] — for [ShopStock.Limited]
+ *    offers this is the atomic gate two concurrent buyers race for.
+ *    On [ShopStockError.OutOfStock] / [ShopStockError.UnknownOffer] /
+ *    [ShopStockError.Storage] the debit is reversed with
+ *    [ICurrencyLedger.credit] and the use case fails.
+ *    [ShopStock.Unlimited] offers skip the decrement.
+ * 8. Deliver via [com.astarworks.astera.core.adapter.api.entity.IMcPlayer.giveItem].
+ * 9. Publish [CurrencyChanged] with reason [CurrencyChangeReason.ShopPurchase].
+ *
+ * ## Why the dual stock check
+ *
+ * Step 4 reads the **spec**'s static `ShopStock.Limited.remaining` (the
+ * YAML-authored initial); step 7 reads the **stock repository**'s
+ * mutable per-offer count. The spec read is a fast user-facing
+ * short-circuit so a sold-out offer doesn't even attempt a debit; the
+ * repository decrement is the atomic gate that serialises concurrent
+ * buyers. Without step 7, two buyers racing on the last unit would both
+ * pass step 4 and both receive the item — the Wave 5g bug this use case
+ * exists to fix.
  */
 public class ShopPurchaseUseCase(
     private val registry: IShopRegistry,
@@ -60,6 +82,7 @@ public class ShopPurchaseUseCase(
     private val itemRegistry: IItemRegistry<IMcItemTemplate>,
     private val server: IMcServer,
     private val eventBus: IDomainEventBus,
+    private val stockRepository: IShopStockRepository,
 ) {
     public fun execute(
         playerId: PlayerId,
@@ -95,6 +118,43 @@ public class ShopPurchaseUseCase(
                 is WalletError.InsufficientFunds -> Result.failure(ShopPurchaseError.InsufficientFunds)
             }
             is Result.Success -> {
+                // Authoritative stock gate. Unlimited offers skip this entirely
+                // (no row was ever seeded; currentStock would return null).
+                if (offer.stock is ShopStock.Limited) {
+                    when (val decrement = stockRepository.decrementStock(shopId, offerId)) {
+                        is Result.Failure -> {
+                            // Reverse the debit — the buyer did not get the
+                            // item, so they must not be charged. credit() is
+                            // total (no failure variant) per the
+                            // ICurrencyLedger contract.
+                            ledger.credit(playerId, offer.price.currency, offer.price.amount)
+                            return when (val stockErr = decrement.error) {
+                                is ShopStockError.OutOfStock ->
+                                    Result.failure(ShopPurchaseError.OutOfStock(shopId, offerId))
+                                is ShopStockError.UnknownOffer ->
+                                    // The spec advertised Limited(N) but no
+                                    // stock row exists — operator misconfig
+                                    // (loader did not seed). Surface as a
+                                    // delivery failure so the player gets a
+                                    // visible error.
+                                    Result.failure(
+                                        ShopPurchaseError.DeliveryFailed(
+                                            "Stock row missing for offer='${offerId.value}' in shop='${shopId.value}' " +
+                                                "(spec says Limited but no seeded row). Operator must re-run loader.",
+                                        ),
+                                    )
+                                is ShopStockError.Storage ->
+                                    Result.failure(
+                                        ShopPurchaseError.DeliveryFailed(
+                                            "Stock backend error: ${stockErr.detail}",
+                                        ),
+                                    )
+                            }
+                        }
+                        is Result.Success -> Unit
+                    }
+                }
+
                 // Deliver — IMcPlayer.giveItem currently returns Unit, so this
                 // arm always succeeds at the contract level. If the platform
                 // adapter detects an unrecoverable failure it logs at WARN; a

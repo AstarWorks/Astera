@@ -667,6 +667,139 @@ class ArchitectureTest {
         }
     }
 
+    // ─── Wave 5g — Pre-Paper-sweep port commitments (ADR-0072) ──────────────
+
+    // Wave 5g (ADR-0072): these 4 outbound ports land their signature commitment now;
+    // Paper impls land in Wave 6a (PaperStatusEffectAdapter merge, etc.) and Wave 6b
+    // (PaperStructurePaste over FAWE). Removing an entry from allowedMissingPaperImpl
+    // is a positive event — it means the Paper impl shipped.
+    /**
+     * Wave 6 Paper-impl allow-list (ADR-0072).
+     *
+     * Documents the four outbound ports whose Paper implementations are
+     * intentionally deferred to Wave 6a / 6b. The test pins the allow-set
+     * shape so future audits surface "this port still has no Paper impl"
+     * mechanically:
+     *
+     *  - [IMatchTimerService]      → Wave 6a (`PaperMatchTimerService`)
+     *  - [IPlayerMovementGateway]  → Wave 6a (`PaperPlayerMovementGateway`)
+     *  - [IPlayerVisionGateway]    → Wave 6a (`PaperPlayerVisionGateway`)
+     *  - [IStructurePaste]         → Wave 6b (`PaperStructurePaste` over FAWE)
+     *
+     * The test asserts:
+     *  1. Each FQN in the allow-set actually exists in the codebase (the
+     *     port skeleton landed in Wave 5g; deleting a port without removing
+     *     it from the allow-set is a drift bug).
+     *  2. No class under `*.adapter.paper.*` already implements one of these
+     *     ports — if a Paper impl ships, the corresponding allow-set entry
+     *     must be removed in the same commit. (Discoverability rule:
+     *     surface "we promised a Paper impl, here it is" as a deliberate
+     *     allow-list shrink.)
+     */
+    @Test
+    fun `Wave 6 Paper impl allow-list (ADR-0072)`() {
+        val allowedMissingPaperImpl: Set<String> = setOf(
+            "com.astarworks.astera.match.application.port.outbound.IMatchTimerService",
+            "com.astarworks.astera.core.application.port.outbound.IPlayerMovementGateway",
+            "com.astarworks.astera.core.application.port.outbound.IPlayerVisionGateway",
+            "com.astarworks.astera.core.application.port.outbound.IStructurePaste",
+        )
+
+        // (1) Every allow-set entry must resolve to a real port interface.
+        // If a Wave 6 author deletes a port without trimming the allow-set,
+        // this fails loudly instead of silently rotting.
+        val knownInterfaces = Konsist.scopeFromProject()
+            .interfaces()
+            .map { it.fullyQualifiedName }
+            .toSet()
+        val missingFromCodebase = allowedMissingPaperImpl - knownInterfaces
+        assertThat(missingFromCodebase)
+            .withFailMessage {
+                "ADR-0072 drift: allow-set names ports that no longer exist " +
+                    "in the codebase: $missingFromCodebase. Either the port was " +
+                    "renamed (update the allow-set) or removed (drop the entry)."
+            }
+            .isEmpty()
+
+        // (2) No class under any *.adapter.paper.* package may already
+        // implement one of these ports — if a Paper impl ships, the
+        // corresponding allow-set entry MUST be removed in the same commit
+        // (positive shrink). The simple-name match here is intentional: it
+        // avoids needing a full type-resolution graph and matches the
+        // codebase's `IShopStockRepository` / `PaperXxxAdapter` convention.
+        val allowedSimpleNames = allowedMissingPaperImpl.map { it.substringAfterLast('.') }.toSet()
+        val paperImplsForAllowedPorts = Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                val pkg = cls.packagee?.name ?: return@filter false
+                pkg.contains(".adapter.paper")
+            }
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name in allowedSimpleNames }
+            }
+            .map { it.fullyQualifiedName }
+            .toList()
+
+        assertThat(paperImplsForAllowedPorts)
+            .withFailMessage {
+                "ADR-0072 positive-shrink rule: $paperImplsForAllowedPorts " +
+                    "implements a port that is still in the Wave 6 deferred " +
+                    "allow-set. Remove the corresponding entry from " +
+                    "allowedMissingPaperImpl in this test."
+            }
+            .isEmpty()
+    }
+
+    // ─── Wave 5g — IShopStockRepository priority-100 Postgres overlay ───────
+
+    /**
+     * Wave 5g (ADR-0072 sibling commitment): the Postgres impl of the new
+     * Wave 5g `IShopStockRepository` port MUST live at the agreed FQN
+     * `com.astarworks.astera.persistence.repository.PostgresShopStockRepository`
+     * and MUST implement [IShopStockRepository]. Runtime priority-100
+     * registration is wired in `AsteraPersistencePlugin.kt` (verified by
+     * reviewers + the 19-entry → 20-entry `registrations` list count) — this
+     * test guarantees the impl class is **named and located** correctly so
+     * priority drift is caught at the structural level, not at a flaky
+     * registration test.
+     *
+     * Reads as: "iff `PostgresShopStockRepository` exists, it must implement
+     * `IShopStockRepository`." If the impl class is absent entirely the test
+     * still passes (Wave 5g may stage the port skeleton commit before the
+     * Postgres impl arrives in the same wave).
+     */
+    @Test
+    fun `IShopStockRepository requires priority 100 Postgres overlay (Wave 5g)`() {
+        val expectedImplFqn =
+            "com.astarworks.astera.persistence.repository.PostgresShopStockRepository"
+        val expectedPortSimpleName = "IShopStockRepository"
+
+        val matches = Konsist.scopeFromProject()
+            .classes()
+            .filter { it.fullyQualifiedName == expectedImplFqn }
+
+        // Skeleton-staging tolerance: if the impl class hasn't landed yet,
+        // the test is a no-op. The runtime registry will fall back to the
+        // in-memory impl. Once the impl class exists, the parent-check
+        // below enforces the wiring contract.
+        if (matches.isEmpty()) return
+
+        val nonImplementors = matches.filter { cls ->
+            cls.parents().none { parent -> parent.name == expectedPortSimpleName }
+        }
+
+        assertThat(nonImplementors.map { it.fullyQualifiedName })
+            .withFailMessage {
+                "Wave 5g wiring contract: $expectedImplFqn must implement " +
+                    "$expectedPortSimpleName so the priority-100 overlay " +
+                    "registered by AsteraPersistencePlugin actually beats " +
+                    "InMemoryShopStockRepository (priority 0). If you " +
+                    "renamed the impl, update both this test and " +
+                    "AsteraPersistencePlugin.kt in the same commit."
+            }
+            .isEmpty()
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

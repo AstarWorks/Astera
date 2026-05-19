@@ -28,6 +28,18 @@ public interface IStatusEffectContainer {
      */
     public fun apply(instance: StatusEffectInstance)
 
+    /**
+     * Apply many instances in one call (Wave 5g, ADR-0072).
+     *
+     * Default impl iterates [apply]; the Wave 6a `PaperStatusEffectAdapter`
+     * may override for a batched packet flush. This is the only Wave 5g
+     * delta to the port — Vanilla potion observation / overwrite logic
+     * stays inside the Wave 6a Paper adapter (ADR-0002 / ADR-0030 §8: the
+     * domain never imports `org.bukkit.potion.*`).
+     */
+    public fun applyBulk(instances: Collection<StatusEffectInstance>): Unit =
+        instances.forEach { apply(it) }
+
     /** Remove a status effect immediately. */
     public fun remove(playerId: PlayerId, effectId: StatusEffectId)
 

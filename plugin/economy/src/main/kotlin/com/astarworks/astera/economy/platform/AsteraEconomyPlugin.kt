@@ -15,6 +15,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IShopRegistry
+import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
@@ -37,7 +38,12 @@ import com.astarworks.astera.economy.application.service.InMemoryCreatorRevenueR
 import com.astarworks.astera.economy.application.service.InMemoryCurrencyIssuanceLog
 import com.astarworks.astera.economy.application.service.InMemoryCurrencyLedger
 import com.astarworks.astera.economy.application.service.InMemoryMarketplaceRepository
+import com.astarworks.astera.economy.application.port.outbound.IShopReferenceQuery
+import com.astarworks.astera.economy.application.port.outbound.IShopVendor
+import com.astarworks.astera.economy.application.service.DefaultShopReferenceQuery
 import com.astarworks.astera.economy.application.service.InMemoryShopRegistry
+import com.astarworks.astera.economy.application.service.InMemoryShopStockRepository
+import com.astarworks.astera.economy.application.service.InMemoryShopVendorBinding
 import com.astarworks.astera.economy.application.service.ShopLoaderService
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
 import com.astarworks.astera.economy.application.usecase.currency.TransferUseCase
@@ -202,8 +208,23 @@ public class AsteraEconomyPlugin : JavaPlugin() {
         val shopRegistry = InMemoryShopRegistry()
         registrations += services.register<IShopRegistry>(shopRegistry, priority = 0)
 
+        // Wave 5g (ADR-0072): stock view is a separate mutable port from the
+        // immutable spec. Persistence plugin registers the Postgres overlay
+        // at priority 100; this in-memory default is the fallback for tests
+        // and Postgres-less runs.
+        val shopStockRepository = InMemoryShopStockRepository()
+        registrations += services.register<IShopStockRepository>(shopStockRepository, priority = 0)
+
+        // Wave 5g (ADR-0071): NPC-vendor / external-EC / chat-alias access
+        // surfaces. Paper impls land in Phase 4 Wave 8b; Wave 5g lands
+        // in-memory defaults so domain-side wiring is complete.
+        val shopVendorBinding = InMemoryShopVendorBinding()
+        registrations += services.register<IShopVendor>(shopVendorBinding, priority = 0)
+        val shopReferenceQuery = DefaultShopReferenceQuery(shopRegistry)
+        registrations += services.register<IShopReferenceQuery>(shopReferenceQuery, priority = 0)
+
         val shopsContentDir = core.contentDir.resolve("shops")
-        val shopReport = ShopLoaderService(shopRegistry).loadFrom(shopsContentDir)
+        val shopReport = ShopLoaderService(shopRegistry, shopStockRepository).loadFrom(shopsContentDir)
         logger.info("Loaded ${shopReport.loaded} shop(s) from $shopsContentDir (failed: ${shopReport.failed})")
 
         val shopBrowse = ShopBrowseUseCase(
@@ -217,6 +238,7 @@ public class AsteraEconomyPlugin : JavaPlugin() {
             itemRegistry = itemRegistry,
             server = mcServer,
             eventBus = eventBus,
+            stockRepository = shopStockRepository,
         )
         val shopIntentHandler = ShopIntentHandler(
             purchase = shopPurchase,

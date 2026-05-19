@@ -29,7 +29,14 @@ dependencies {
     implementation(libs.kaml)
     implementation(libs.kotlinx.serialization.json)
 
+    // Wave 5g: anomaly use cases need IStatusEffectContainer (combat port).
+    // Softdepend (plugin.yml: softdepend: [Astera-Combat]) — compileOnly so
+    // the shadow jar does not pull combat classes; runtime resolution goes
+    // through ServiceRegistry per ADR-0022.
+    compileOnly(project(":plugin:combat"))
+
     testImplementation(project(":plugin:test-fixtures"))
+    testImplementation(project(":plugin:combat"))
 }
 
 tasks.named<ProcessResources>("processResources") {

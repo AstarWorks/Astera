@@ -15,6 +15,7 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerSessionReposi
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
+import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.register
@@ -43,6 +44,7 @@ import com.astarworks.astera.persistence.repository.PostgresPlayerSessionReposit
 import com.astarworks.astera.persistence.repository.PostgresPlayerSettingsRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
+import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
@@ -189,6 +191,16 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 5g (ADR-0072): shop stock decrement bug fix. V19 migration
+        // adds the `shop_stock` table; Postgres impl uses `SELECT ... FOR
+        // UPDATE` so concurrent purchases serialize at the row level
+        // (in-memory overlay at priority 0 in `AsteraEconomyPlugin` is the
+        // Postgres-less fallback).
+        registrations += services.register<IShopStockRepository>(
+            PostgresShopStockRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -198,7 +210,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge.",
+                "IRewardBridge, IShopStockRepository.",
         )
     }
 
