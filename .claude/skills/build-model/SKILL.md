@@ -193,6 +193,42 @@ Onshape MCP × Claude Opus 4.7 study showed plain-English-spec-first beats
 autonomous 1-shot decomposition (1.00 vs 0.53). The semantic layer keeps the
 concrete translation in Step 3 grounded in the reference image.
 
+### User-confirmation gate (A8, survey §9.2.5)
+
+After writing `<ITER_DIR>/spec.md`, **STOP before Phase 1**. Output the
+spec.md content (full file or relevant excerpt) and call `AskUserQuestion`
+to confirm the spec matches the user's intent. Phrase the question
+concretely (e.g., "Does the spec correctly capture the proportions and
+material intent? Any corrections before we translate to ASDSL?").
+
+Do **not** start Step 3 vision-decompose until the user explicitly OKs the
+spec. If the user requests changes, revise spec.md and re-confirm. There is
+no skip flag — this gate is the cheapest place to catch wrong-intent drift
+before iteration spend.
+
+### Consult exemplars before vision-decompose (C6)
+
+ASDSL exemplars live under `tools/model-gen/asdsl-examples/`. They are
+hand-crafted archetypes that demonstrate canonical parts breakdown,
+texture slot assignment, and anchor chains for common shape families
+(`blade_pommel`, `head_handle`, `orb_shaft`, `disc_boss`).
+
+Before writing your vision-decompose:
+
+```bash
+bun run studio example list
+# pick the closest shape_family, then:
+bun run studio example show <slug>
+```
+
+When the exemplar's structure informs a decision (part count, anchor
+chain, kind choice), cite it in the `## Uncertainties` section of
+`spec.md` as `referenced: <slug>` so the next iteration can audit it.
+
+This is a tag-based lookup (not embedding retrieval yet). See
+`docs/research/model-gen-llm-survey.md` §3.5c for the LL3M BlenderRAG
+pattern this is modeled on.
+
 ## Step 3 — Phase 1: VISION-DECOMPOSE (translate `spec.md` to ASDSL-concrete breakdown)
 
 First read `<ITER_DIR>/spec.md` back. Then translate each section to the
@@ -279,7 +315,12 @@ Each iteration (7 steps; A2 + A10 + A13 integrated):
 1. **Think out loud** (A13, Onshape MCP §9.2.5): emit 1-3 sentences saying WHY this call + WHAT you expect to see after compile + iter-screenshot. Plain assistant output, not a tool call.
 2. **ONE tool call** (`place` / `move` / `remove` / `set-var` / `set-tex` / `set-face-tex`).
 3. **Screenshot**: `bun run studio iter-screenshot "$RUN_ID" step-NN-<label>`.
-4. **Read** the 3 PNGs at `.iter/$RUN_ID/step-NN-<label>-{iso,item_gui,front}.png`.
+   Default bundle is `3view` (iso + item_gui + front). For symmetry-critical
+   steps add `--bundle=silhouette` (front + side + top, 3 ortho), for
+   final-step orthographic audit use `--bundle=6view` (front/back/left/side/
+   top/bottom, 6 ortho — survey B12 / flowful-ai §10.1.2).
+4. **Read** the PNGs at `.iter/$RUN_ID/step-NN-<label>-{iso,item_gui,front}.png`
+   (default) or the bundle's expanded camera set.
 5. **Self-critic** (A2, CADCodeVerify §3.6): append a `## Step NN` block to `<ITER_DIR>/critic-report.md` answering 5 validation questions:
    - Symmetry OK (where the reference is symmetric)?
    - Anchors all connected (no floating parts)?
