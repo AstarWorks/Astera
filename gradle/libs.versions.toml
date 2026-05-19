@@ -7,6 +7,13 @@ jdk = "25"
 # Paper (Minecraft Java Edition 26.x — requires JDK 25)
 paper = "26.1.2.build.63-stable"
 
+# JOML (pure-math library — Vector3f / Quaternionf / Matrix4f).
+# Paper API pulls 1.10.8 transitively; we declare it here so `:plugin:core`
+# (and test source) can import directly. ADR-0074 Wave 5h-fix: JOML in
+# `core.domain.hologram.*` is allowed (Bukkit-free domain rule does not
+# extend to pure-math libraries).
+joml = "1.10.8"
+
 # DI / Config
 koin = "4.2.1"
 # koin-annotations + koin-ksp-compiler stay on the 2.x stream — the 4.x version
@@ -63,6 +70,7 @@ kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collec
 
 # Paper
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
+joml = { module = "org.joml:joml", version.ref = "joml" }
 
 # Koin (DI)
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }

@@ -12,6 +12,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.testfixtures.FakeHologramGateway
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.joml.Quaternionf
 import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.math.PI
@@ -39,8 +40,9 @@ class HologramTest {
         val handle = (spawnResult as Result.Success).value
         assertThat(gateway.current(handle)).isEqualTo(hologram)
 
-        // Rotate 90° around X axis via Quaternion
-        val rot = Quaternion.fromAxisAngle(Vec3(1.0, 0.0, 0.0), (PI / 2).toFloat())
+        // Rotate 90° around X axis via JOML Quaternionf (Wave 5h-fix: use
+        // org.joml directly rather than reimplementing Quaternion math).
+        val rot = Quaternionf().fromAxisAngleRad(1f, 0f, 0f, (PI / 2).toFloat())
         val newTransform = HologramTransform(leftRotation = rot)
         val updateResult = gateway.updateTransform(handle, newTransform)
         assertThat(updateResult.isSuccess).isTrue()

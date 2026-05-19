@@ -16,15 +16,15 @@ import com.astarworks.astera.core.domain.world.WorldId
  * lands `PaperHologramGateway` over Bukkit `TextDisplay` / `ItemDisplay` /
  * `BlockDisplay` entities (`org.bukkit.entity.Display` hierarchy).
  *
- * Vendor-neutral by construction: the domain knows about
- * [com.astarworks.astera.core.domain.hologram.Quaternion] /
- * [com.astarworks.astera.core.domain.hologram.HologramTransform], not about
- * `org.joml.Quaternionf` / `org.bukkit.util.Transformation`. The Paper
- * adapter does the conversion at the edge.
+ * Vendor-neutral by construction: the domain uses
+ * [com.astarworks.astera.core.domain.hologram.HologramTransform] which
+ * wraps `org.joml.Quaternionf` (pure-math library, ADR-0074 §1 / 5h-fix).
+ * The Paper adapter unwraps the `Transformation` for `Display.transformation`
+ * — no domain → adapter type translation needed.
  *
  * Per Konsist `Hologram domain must not import Bukkit Display family`, no
- * type referenced from `core.domain.hologram.*` may import `org.bukkit.*` or
- * `org.joml.*` — including indirect references via mirror enums.
+ * type referenced from `core.domain.hologram.*` may import `org.bukkit.*` —
+ * `org.joml.*` is explicitly allowed (pure-math, no Minecraft coupling).
  */
 public interface IHologramGateway {
 

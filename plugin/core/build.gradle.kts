@@ -29,6 +29,13 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.slf4j.api)
 
+    // JOML (Wave 5h-fix, ADR-0074 §1): pure-math library that Bukkit's
+    // `Transformation` uses for rotation. `core.domain.hologram.*` imports
+    // org.joml.Quaternionf directly so the Wave 6b adapter does zero type
+    // conversion. Promoted from transitive (via paper-api compileOnly) to
+    // explicit api() so the test source set picks it up too.
+    api(libs.joml)
+
     // Multi-format content parsing (ADR-0016) — Core hosts ContentLoader.
     implementation(libs.kaml)
     implementation(libs.ktoml.core)

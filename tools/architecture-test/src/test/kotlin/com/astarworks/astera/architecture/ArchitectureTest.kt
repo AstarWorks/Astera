@@ -41,8 +41,15 @@ class ArchitectureTest {
 
     /**
      * Core's `domain/` is pure: only Kotlin stdlib + kotlinx.coroutines +
-     * kotlinx.collections.immutable. No frameworks, no I/O, no Bukkit, no
-     * persistence driver, no logger.
+     * kotlinx.collections.immutable + **pure-math libraries** (org.joml).
+     * No frameworks, no I/O, no Bukkit, no persistence driver, no logger.
+     *
+     * **`org.joml.*` is explicitly allowed** (Wave 5h-fix, ADR-0074 §1):
+     * JOML is a pure-math library (Vector3f / Quaternionf / Matrix4f) with
+     * no Minecraft coupling — treat it like `java.util.UUID` /
+     * `java.time.Instant`. Reimplementing Quaternion math in domain to keep
+     * the import list short is a worse trade-off than using the same value
+     * types Bukkit's `Transformation` already takes.
      */
     @Test
     fun `core domain must not depend on any platform or framework`() {
@@ -52,8 +59,7 @@ class ArchitectureTest {
             .assertFalse { file ->
                 hasBukkitFamilyImport(file) ||
                     file.imports.any { imp ->
-                        imp.name.startsWith("org.joml") ||
-                            imp.name.startsWith("javax.sql") ||
+                        imp.name.startsWith("javax.sql") ||
                             imp.name.startsWith("java.sql") ||
                             imp.name.startsWith("io.lettuce") ||
                             imp.name.startsWith("org.jetbrains.exposed") ||
@@ -63,14 +69,18 @@ class ArchitectureTest {
                             imp.name.startsWith("java.io") ||
                             imp.name.startsWith("java.nio") ||
                             imp.name.startsWith("java.net")
+                        // org.joml.* deliberately NOT forbidden — see KDoc.
                     }
             }
     }
 
     /**
      * Core's `application/` defines ports + use cases in domain language. May
-     * use SLF4J + serialization parsers but no Bukkit and no persistence
-     * driver.
+     * use SLF4J + serialization parsers + pure-math libraries (org.joml) but
+     * no Bukkit and no persistence driver.
+     *
+     * `org.joml.*` is allowed for the same reason as the domain rule (Wave
+     * 5h-fix, ADR-0074 §1): pure-math, no Minecraft coupling.
      */
     @Test
     fun `core application must not import Bukkit family or persistence drivers`() {
@@ -83,8 +93,8 @@ class ArchitectureTest {
                         imp.name.startsWith("org.postgresql") ||
                             imp.name.startsWith("io.lettuce") ||
                             imp.name.startsWith("org.jetbrains.exposed") ||
-                            imp.name.startsWith("org.joml") ||
                             imp.name.startsWith("java.net.http")
+                        // org.joml.* deliberately NOT forbidden — see KDoc.
                     }
             }
     }
@@ -805,14 +815,15 @@ class ArchitectureTest {
     /**
      * Wave 5h, ADR-0079: the Hologram domain (`core.domain.hologram.*`) is
      * the vendor-neutral mirror of Bukkit's `Display` entity hierarchy. The
-     * Wave 6b `PaperHologramGateway` adapter does the 1:1 mapping to
-     * `org.bukkit.entity.Display` + `org.joml.Quaternionf` at the edge.
+     * Wave 6b `PaperHologramGateway` adapter wraps each [Hologram] into a
+     * Bukkit `Display` entity at the edge.
      *
      * The domain MUST NOT import `org.bukkit.*` (ADR-0002 — Minecraft is the
-     * edge) NOR `org.joml.*` (mirror-via-our-own-Quaternion keeps the math
-     * value class auditable + free of upstream API drift). Domain files use
-     * Astera's [com.astarworks.astera.core.domain.hologram.Quaternion] and
-     * [com.astarworks.astera.core.domain.geometry.Vec3] instead.
+     * edge). `org.joml.*` is **explicitly allowed** (Wave 5h-fix): JOML is a
+     * pure math library with no Minecraft coupling — `Quaternionf` /
+     * `Vector3f` live there. Reimplementing Hamilton-product math just to
+     * keep the import list short is a worse trade-off than using the
+     * same value types Bukkit's `Transformation` already takes.
      */
     @Test
     fun `Hologram domain must not import Bukkit Display family (ADR-0074)`() {
@@ -822,7 +833,7 @@ class ArchitectureTest {
             "org.spigotmc.",
             "com.destroystokyo.paper.",
             "com.mojang.",
-            "org.joml.",
+            // org.joml.* is intentionally NOT forbidden — see KDoc.
         )
         Konsist.scopeFromProject()
             .files

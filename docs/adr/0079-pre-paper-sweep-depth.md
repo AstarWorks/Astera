@@ -69,8 +69,14 @@ Pre-Wave-6 readiness audit (2026-05-19) で **6 つの domain gap** を発見:
   - `Item(itemId: ItemId, displayMode: ItemDisplayMode)`
   - `Block(blockKey: String)`
 - `HologramTransform(translation, leftRotation, scale, rightRotation)` — Bukkit
-  `Transformation` field-by-field 1:1
-- **`Quaternion(x, y, z, w)`** 独自 value class + `companion object { IDENTITY; fromAxisAngle(axis, rad) }` + Hamilton product。`org.joml.*` import 禁止 (Konsist enforced)
+  `Transformation` field-by-field 1:1。**`leftRotation` / `rightRotation` の型は
+  `org.joml.Quaternionf` 直接** (Wave 5h-fix、user feedback 2026-05-19):
+  JOML は pure math library、Bukkit 非依存、Paper API が transitively 既に
+  classpath に乗せている。独自 Quaternion 再実装は Hamilton-product math の
+  reimplementation cost + Wave 6b adapter の boundary 変換 glue を生むので却下、
+  Bukkit `Transformation` constructor が直接 `Quaternionf` を取るので domain →
+  adapter は zero-conversion。Konsist の "Bukkit-free domain" rule は
+  `org.bukkit.* / io.papermc.* / etc.` のみ forbid、`org.joml.*` は許容。
 - `HologramInterpolation(durationTicks, delayTicks, teleportDurationTicks)`
 - `HologramBrightness(blockLight, skyLight)` (range 0-15)
 - `HologramColor(red, green, blue, alpha)`
@@ -197,8 +203,8 @@ IWorldGateway 引数を constructor に追加、Phase C で Core から inject)�
 
 1. **`Hologram domain must not import Bukkit Display family (ADR-0074)`**:
    `core.domain.hologram.*` の全 import を scan、`org.bukkit.* / io.papermc.*
-   / org.spigotmc.* / com.destroystokyo.paper.* / com.mojang.* / org.joml.*`
-   prefix を禁止。
+   / org.spigotmc.* / com.destroystokyo.paper.* / com.mojang.*` prefix を禁止。
+   `org.joml.*` は **意図的に許容** (Wave 5h-fix、pure-math library)。
 2. **`ModerationAction sealed must remain exhaustive (ADR-0074)`**: production
    code の `when` block で `is ModerationAction.<Variant> ->` arm を持つ
    ものに `else ->` 分岐があれば fail (Postgres deserialization 等の
@@ -211,10 +217,11 @@ IWorldGateway 引数を constructor に追加、Phase C で Core から inject)�
 
 - **Wave 6a/b は pure-Paper-impl wave に純化**: 6 領域すべて domain commitment
   完了、Paper 側は Bukkit listener + entity 操作だけ書けばよい
-- **Hologram の Bukkit-free domain**: `Quaternion` 独自実装で domain が `org.joml`
-  を知らない、Wave 6b で `org.bukkit.util.Transformation(Vector3f, Quaternionf,
-  Vector3f, Quaternionf)` への変換は edge 1 ヶ所に閉じる (ADR-0002 / ADR-0030
-  §8 と整合)
+- **Hologram の Bukkit-free domain**: `org.bukkit.*` を一切 import せず、
+  rotation は `org.joml.Quaternionf` 直接使用 (Bukkit `Transformation`
+  constructor が同 type を取るので edge での type 変換 glue 不要)。
+  ADR-0002 の精神 (Minecraft が edge) は守りつつ、pure math library は
+  domain で使ってよい (Wave 5h-fix)
 - **Moderation の DB-backed audit trail**: V21 で 4 variant 全て persistence、
   Wave 6b で Paper enforcement 接続するだけで live testing 対応 OK
 - **Tutorial の "first join" UX**: V20 + listener で player onboarding が
@@ -266,8 +273,11 @@ IWorldGateway 引数を constructor に追加、Phase C で Core から inject)�
   却下、player 1 件 = state 1 row で query simple、JSONB Set で十分
 - **Moderation Report 機能を Wave 5h に含む**: 却下、Phase 4 commitment と
   user 確認で決定 (Report は web admin UI の重要 surface、Wave 8 系で land)
-- **Quaternion を `org.joml.Quaternionf` 直 import**: 却下、`Wave 6b` で
-  edge 変換に閉じる方が ADR-0002 と整合、独自 math 30 行で済む
+- **Quaternion 独自実装** (`core.domain.hologram.Quaternion` value class):
+  Wave 5h 初版で採用したが Wave 5h-fix で **撤回** (user feedback、2026-05-19):
+  pure math reimplementation は cost、JOML 直接の方が trade-off 良い。
+  ADR-0002 の "Bukkit-free domain" rule は pure-math library に拡張しない
+  という principle として記録
 - **Disconnect の reconnect window を config 化**: 却下、3 min は domain
   decision として hardcode、後続 wave で config 化したくなれば ADR 起草
 - **DisplaySpec を Hologram に統合**: 却下、projectile transient lifetime
