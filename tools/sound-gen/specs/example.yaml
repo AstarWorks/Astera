@@ -1,0 +1,28 @@
+# Example spec consumed by .claude/skills/generate-sounds/.
+#
+# Each entry produces one OGG Vorbis file at the listed target. The skill
+# loops sequentially (fal.ai favors 1-at-a-time over parallel bursts).
+#
+# Cost reminder: $0.20/clip flat at fal.ai Stable Audio 2.5 (regardless of
+# clip duration). Total cost ≈ $0.20 × len(sounds).
+
+sounds:
+  - prompt: "Single sharp pistol gunshot, indoors, short and punchy"
+    duration: 0.7
+    target: content/sounds/weapons/pistol-fire.ogg
+
+  - prompt: "Magic wand cast, ascending shimmer, fantasy, ethereal"
+    duration: 1.2
+    target: content/sounds/skills/wand-cast.ogg
+
+  - prompt: "Brief electric zap, energy crackle, status effect tick"
+    duration: 0.5
+    target: content/sounds/status/shock-tick.ogg
+
+  - prompt: "Distant chime announcing match phase change, three notes ascending"
+    duration: 1.5
+    target: content/sounds/match/phase-change.ogg
+
+  - prompt: "Soft UI confirmation click, mid-pitch, no reverb"
+    duration: 0.3
+    target: content/sounds/ui/confirm.ogg

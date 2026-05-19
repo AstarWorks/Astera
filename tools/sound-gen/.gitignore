@@ -1,0 +1,9 @@
+# Transient outputs and intermediates — never committed.
+out/
+*.tmp.wav
+*.tmp.ogg
+
+# Local API-key shims (in case someone tries a .env pattern). FAL_KEY
+# should live in shell rc, not on disk in this repo.
+.env
+.env.local
