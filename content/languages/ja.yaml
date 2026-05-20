@@ -24,6 +24,16 @@ astera:
     reload:
       unknown_category: "<red>未登録の reload カテゴリです。Tab キーで登録済みコンテンツタイプを表示できます。</red>"
       load_failed: "<red>reload を中止しました。一部 YAML がパースに失敗しています。直前の状態は保持されています。サーバーログを確認してください。</red>"
+    # Wave 5t (ADR-0086) — admin / GM / player command help.
+    report: "プレイヤー通報・要望を送信。"
+    feedback:
+      _help: "プレイヤー通報を triage (GM)。"
+      list: "通報リストを表示。"
+      triage: "通報ステータスを更新。"
+    slow_query:
+      _help: "スロークエリレポート (admin)。"
+      report: "直近7日のスロークエリダイジェスト。"
+    player_only: "<red>このコマンドはプレイヤー専用です。</red>"
 
   # Wave _items-1 (ADR-0073): item / weapon の content-specific i18n は
   # 各 content/items/<id>.yaml 内に inline 化。`weapon:` セクションは
@@ -36,6 +46,12 @@ astera:
 
   permission:
     denied: "<red>権限がありません: {permission}</red>"
+    # Wave 5t (ADR-0086) — backend selector errors.
+    role_not_found: "<red>ロールが見つかりません。</red>"
+    already_assigned: "<red>既に割り当て済みです。</red>"
+    not_assigned: "<red>割り当てられていません。</red>"
+    backend_unavailable: "<red>権限バックエンドが利用できません。</red>"
+    backend_failure: "<red>権限バックエンドエラー: {reason}</red>"
 
   error:
     internal: "<red>内部エラーが発生しました。詳細はサーバーログを確認してください。</red>"
@@ -336,3 +352,35 @@ astera:
       kills-100:
         name: "<gold>英雄</gold>"
         description: "<gray>キル数 100。</gray>"
+
+  # Wave 5t (ADR-0086) — Admin / Ops + Voice presence + Feedback queue 文字列。
+  role:
+    admin: "<gold>管理者</gold>"
+    gm: "<aqua>GM</aqua>"
+    vip: "<light_purple>VIP</light_purple>"
+    player: "<gray>プレイヤー</gray>"
+
+  admin:
+    config:
+      unknown_category: "<red>未知の config カテゴリです。</red>"
+      path_escaped: "<red>拒否: パスがカテゴリ root を超えています。</red>"
+      io_failed: "<red>config 書き込み I/O 失敗: {reason}</red>"
+      reload_aborted: "<red>reload を中止。直前状態を保持しています。</red>"
+    backup:
+      unsupported_schema: "<red>未対応バックアップスキーマ version: {version}</red>"
+      io_failed: "<red>バックアップ I/O 失敗: {reason}</red>"
+      unknown_shard: "<red>未知のバックアップシャード: {name}</red>"
+    announcement:
+      unknown_id: "<red>未知の announcement id。</red>"
+      duplicate_id: "<red>announcement id が重複しています。</red>"
+      unsupported_trigger: "<red>未対応の announcement trigger。</red>"
+
+  presence:
+    backend_unavailable: "<red>Rich presence バックエンドが利用できません。</red>"
+    publish_failed: "<red>Rich presence 送信失敗: {reason}</red>"
+    unknown_player: "<red>未知のプレイヤー (rich presence)。</red>"
+
+  feedback:
+    unknown_id: "<red>未知の feedback id。</red>"
+    comment_too_long: "<red>コメントが {limit} 文字を超えています。</red>"
+    invalid_transition: "<red>状態遷移不正: {from} → {to}。</red>"

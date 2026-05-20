@@ -16,6 +16,16 @@ astera:
     reload:
       unknown_category: "<red>Unknown reload category. Use tab to see registered content types.</red>"
       load_failed: "<red>Reload aborted: one or more files failed to parse. Previous state preserved; check server log.</red>"
+    # Wave 5t (ADR-0086) — admin / GM / player command help.
+    report: "Submit player report or suggestion."
+    feedback:
+      _help: "Triage player feedback (GM)."
+      list: "List feedback entries."
+      triage: "Update feedback status."
+    slow_query:
+      _help: "Slow query reports (admin)."
+      report: "Show last 7d slow query digest."
+    player_only: "<red>This command must be run by a player.</red>"
 
   # Wave _items-1 (ADR-0073): item / weapon content-specific i18n is now
   # inline in each content/items/<id>.yaml. The `weapon:` section is reduced
@@ -28,6 +38,12 @@ astera:
 
   permission:
     denied: "<red>You don't have permission: {permission}</red>"
+    # Wave 5t (ADR-0086) — backend selector errors + legacy compat keys.
+    role_not_found: "<red>Role not found.</red>"
+    already_assigned: "<red>Role already assigned.</red>"
+    not_assigned: "<red>Role not assigned.</red>"
+    backend_unavailable: "<red>Permission backend unavailable.</red>"
+    backend_failure: "<red>Permission backend failure: {reason}</red>"
 
   error:
     internal: "<red>An internal error occurred. Check server logs for details.</red>"
@@ -337,3 +353,37 @@ astera:
       kills-100:
         name: "<gold>Legend</gold>"
         description: "<gray>100 kills.</gray>"
+
+  # Wave 5t (ADR-0086) — Admin / Ops + Voice presence + Feedback queue strings.
+  # `role:` / `permission:` extensions are merged into their pre-existing
+  # top-level blocks above; the keys below add new top-level domains.
+  role:
+    admin: "<gold>Administrator</gold>"
+    gm: "<aqua>Game Master</aqua>"
+    vip: "<light_purple>VIP</light_purple>"
+    player: "<gray>Player</gray>"
+
+  admin:
+    config:
+      unknown_category: "<red>Unknown config category for live edit.</red>"
+      path_escaped: "<red>Refused: path escaped the category root.</red>"
+      io_failed: "<red>I/O failure writing config: {reason}</red>"
+      reload_aborted: "<red>Reload aborted; previous state preserved.</red>"
+    backup:
+      unsupported_schema: "<red>Unsupported backup schema version: {version}</red>"
+      io_failed: "<red>Backup I/O failed: {reason}</red>"
+      unknown_shard: "<red>Unknown backup shard: {name}</red>"
+    announcement:
+      unknown_id: "<red>Unknown announcement id.</red>"
+      duplicate_id: "<red>Announcement id already scheduled.</red>"
+      unsupported_trigger: "<red>Unsupported announcement trigger.</red>"
+
+  presence:
+    backend_unavailable: "<red>Rich presence backend unavailable.</red>"
+    publish_failed: "<red>Rich presence publish failed: {reason}</red>"
+    unknown_player: "<red>Unknown player for rich presence.</red>"
+
+  feedback:
+    unknown_id: "<red>Unknown feedback id.</red>"
+    comment_too_long: "<red>Feedback comment exceeds {limit} characters.</red>"
+    invalid_transition: "<red>Feedback cannot transition from {from} to {to}.</red>"

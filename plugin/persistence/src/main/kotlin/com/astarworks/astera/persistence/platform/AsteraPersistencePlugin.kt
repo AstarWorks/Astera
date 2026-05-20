@@ -2,6 +2,10 @@ package com.astarworks.astera.persistence.platform
 
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IFriendshipRepository
+import com.astarworks.astera.core.application.port.outbound.feedback.IPlayerFeedbackQueue
+import com.astarworks.astera.core.application.port.outbound.observability.ISlowQueryAuditRepository
+import com.astarworks.astera.core.application.service.permission.IRoleAssignmentRepository
+import com.astarworks.astera.core.domain.observability.SlowQueryThresholdMs
 import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.INormaProgressRepository
@@ -46,6 +50,10 @@ import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepositor
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
+import com.astarworks.astera.persistence.feedback.PostgresPlayerFeedbackQueue
+import com.astarworks.astera.persistence.observability.PostgresSlowQueryAuditRepository
+import com.astarworks.astera.persistence.observability.SlowQueryAuditLogger
+import com.astarworks.astera.persistence.permission.PostgresRoleAssignmentRepository
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
@@ -201,6 +209,48 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // ---- Wave 5t (ADR-0086) Postgres overlays. ----------------------
+        //
+        // V22 — permission_role_assignment    → IRoleAssignmentRepository
+        // V23 — slow_query_audit              → ISlowQueryAuditRepository
+        // V24 — player_feedback               → IPlayerFeedbackQueue
+        //
+        // The slow-query interceptor is registered with Exposed via
+        // `Transaction.globalInterceptors` so every transaction inherits it;
+        // see `SlowQueryAuditLogger` for the threshold rules.
+        registrations += services.register<IRoleAssignmentRepository>(
+            PostgresRoleAssignmentRepository(ctx.database),
+            priority = 100,
+        )
+
+        val slowQueryRepository = PostgresSlowQueryAuditRepository(ctx.database)
+        registrations += services.register<ISlowQueryAuditRepository>(
+            slowQueryRepository,
+            priority = 100,
+        )
+
+        registrations += services.register<IPlayerFeedbackQueue>(
+            PostgresPlayerFeedbackQueue(ctx.database),
+            priority = 100,
+        )
+
+        // The slow-query SqlLogger is committed in this wave; auto-installing
+        // it onto every transaction (so non-Astera plugins' Exposed txns also
+        // route through it) needs Exposed's `DatabaseConfig.sqlLogger` to
+        // be threaded through `connectAndMigrate` — deferred to Phase 2
+        // (`idea-observability-depth.md` §A foundation). For Wave 5t the
+        // logger is available via `SlowQueryAuditLogger(repo, threshold)`
+        // for callers that want per-txn attachment via `addLogger(...)`.
+        val threshold: SlowQueryThresholdMs = SlowQueryAuditLogger.thresholdFromEnv()
+        if (threshold.value > 0L) {
+            logger.info(
+                "Astera-Persistence: slow-query audit READY (threshold=${threshold.value}ms; " +
+                    "use Transaction.addLogger(SlowQueryAuditLogger(...)) to attach).",
+            )
+        } else {
+            logger.info("Astera-Persistence: slow-query audit DISABLED (set ASTERA_SLOW_QUERY_THRESHOLD_MS).")
+        }
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -210,7 +260,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge, IShopStockRepository.",
+                "IRewardBridge, IShopStockRepository, " +
+                "IRoleAssignmentRepository, ISlowQueryAuditRepository, IPlayerFeedbackQueue.",
         )
     }
 
