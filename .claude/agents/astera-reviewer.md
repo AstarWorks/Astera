@@ -38,9 +38,10 @@ quote the failing test name + the additionalMessage. Do not attempt fixes.
 
 Compare `git diff --name-only` against the wave's stated scope and the
 off-limits list in `.claude/rules/wave-execution.md`. Any file outside the
-wave's territory (especially `tools/texture-gen/`, `.claude/skills/{build-model,generate-textures}/`,
-`tools/studio/`, `tools/model-gen/`, `content/models/`, `.playwright-mcp/`,
-top-level PNGs, ADR-0017/0018) → flag.
+wave's territory (especially `.playwright-mcp/`, top-level PNGs, `private/`
+submodule) → flag. Studio + texture-gen + model-gen no longer live in this
+repo per [[adr/0079-extract-studio-to-own-repo]]; if `git diff` touches them
+that's an error (they don't exist here).
 
 ### 3. Application API surface
 

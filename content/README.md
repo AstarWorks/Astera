@@ -48,9 +48,11 @@ content/
 
 ### Textures
 
-`textures/` 配下の作成は `tools/texture-gen/` の scaffolding 経由が前提。
-詳細は [content/textures/README.md](textures/README.md) と
-[[adr/0018-ai-asset-creation-policy]] を参照。
+`textures/` 配下の作成は **AsteraStudio repo** の texture-gen scaffolding 経由
+が前提 (`AsteraStudio/tools/texture-gen/`、`STUDIO_TEXTURES_DIR` で本 repo の
+`content/textures/` に書き込み)。詳細は
+[content/textures/README.md](textures/README.md) と
+[[adr/0079-extract-studio-to-own-repo]] を参照。
 
 ## Schema policy
 

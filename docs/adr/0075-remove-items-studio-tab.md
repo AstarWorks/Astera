@@ -1,5 +1,5 @@
 ---
-status: Accepted
+status: Accepted (Studio extracted to AsteraStudio repo on 2026-05-20 per ADR-0079; this file is preserved here for historical cross-reference, primary copy now lives in AsteraStudio/docs/adr/)
 date: 2026-05-20
 deciders: Astera workspace (post Wave _items-1 retrospective)
 supersedes: [[adr/0061]], [[adr/0073]] (Tier I — Studio UI 部分のみ)

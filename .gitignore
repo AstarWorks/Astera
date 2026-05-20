@@ -92,9 +92,8 @@ versions/
 # --- Astera-specific ---
 # (private/ is a git submodule; do NOT ignore it. See .gitmodules.)
 
-# Top-level iteration PNG artifacts (studio/build-model scratch). Per
-# ADR-0066, these never belong in git — use tools/studio/web/.iter/ for
-# per-run scratch instead.
+# Top-level iteration PNG artifacts (AsteraStudio scratch when it drops
+# screenshots into the project root). Never belong in git.
 /*.png
 
 # Playwright MCP scratch — captured for AI vision review, not source.
