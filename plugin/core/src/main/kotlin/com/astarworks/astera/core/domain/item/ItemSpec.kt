@@ -2,6 +2,7 @@ package com.astarworks.astera.core.domain.item
 
 import com.astarworks.astera.core.domain.i18n.LocalizedLore
 import com.astarworks.astera.core.domain.i18n.LocalizedText
+import com.astarworks.astera.core.domain.resource.ResourceType
 
 /**
  * Materialized item definition (Wave _items-1, ADR-0073).
@@ -45,6 +46,24 @@ import com.astarworks.astera.core.domain.i18n.LocalizedText
  * "no override — fall back to the vendor default or archetype-derived model".
  * The slug has no `.model.json` suffix; resolution semantics are owned by the
  * consumer.
+ *
+ * # Resource pool (Wave 5k, ADR-0080, Annihilation vision)
+ *
+ * Weapons declare a [resourceType] (`Ammo`/`Stamina`/`Mana`) so the
+ * `IResourcePoolService` knows what counter to deplete on skill cast.
+ * Non-weapon items (potions, GUI panes, indicators) leave [resourceType] =
+ * `null` and the remaining resource fields stay at their defaults.
+ *
+ *   - [resourceCostPerUse]: how many units to subtract per cast / swing.
+ *   - [resourceMaxPool]: per-weapon override of the per-type
+ *     [com.astarworks.astera.core.domain.resource.ResourceCap.maxPool]
+ *     default. Non-positive value means "use the type's default cap".
+ *   - [resourceRegenPerSecond]: per-weapon override of the per-type
+ *     [com.astarworks.astera.core.domain.resource.ResourceCap.regenPerSecond]
+ *     default. Negative value means "use the type's default rate".
+ *   - [resourceReloadable]: only meaningful for `Ammo` — gates the
+ *     `IResourcePoolService.reload` call. Other types reject reload
+ *     unconditionally.
  */
 public data class ItemSpec(
     val id: ItemId,
@@ -62,10 +81,19 @@ public data class ItemSpec(
     val skillBindings: List<ItemSkillBinding>,
     val pdcTags: Map<String, String>,
     val modelSlug: String? = null,
+    // ---- Resource pool (Wave 5k, ADR-0080) ----
+    val resourceType: ResourceType? = null,
+    val resourceCostPerUse: Int = 0,
+    val resourceMaxPool: Int = -1,
+    val resourceRegenPerSecond: Double = -1.0,
+    val resourceReloadable: Boolean = false,
 ) {
     init {
         require(levelRequirement >= 1) {
             "ItemSpec.levelRequirement must be >= 1, got $levelRequirement"
+        }
+        require(resourceCostPerUse >= 0) {
+            "ItemSpec.resourceCostPerUse must be >= 0, got $resourceCostPerUse"
         }
     }
 }

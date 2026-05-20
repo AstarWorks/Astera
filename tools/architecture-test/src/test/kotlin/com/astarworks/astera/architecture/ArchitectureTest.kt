@@ -800,6 +800,52 @@ class ArchitectureTest {
             .isEmpty()
     }
 
+    /**
+     * Wave 5k (ADR-0080): the Resource domain (`core.domain.resource.*`)
+     * carries pure runtime resource pool state (ResourceType, PlayerResourcePool,
+     * ResourceCap). It MUST stay Bukkit-free + Adventure-free — the pool is
+     * exercised from `application/` impls only, and any Paper-side render path
+     * goes through the HUD ports (Wave 5j) rather than reaching back here.
+     *
+     * `org.joml.*` is intentionally permitted (Wave 5h-fix precedent: pure
+     * math libraries are OK in domain).
+     */
+    @Test
+    fun `Resource domain must not import Bukkit Paper Adventure (ADR-0080)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.resource") == true }
+            .assertFalse(
+                additionalMessage = "ADR-0080: Resource domain must stay Bukkit-free + Adventure-free. " +
+                    "Add Paper wiring to application/service/ or adapter/paper/ instead.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("net.kyori.adventure")
+                    }
+            }
+    }
+
+    /**
+     * Wave 5k (ADR-0080): the physiology domain
+     * (`core.domain.player.physiology.*`) carries health / speed / food source
+     * variants. Same Bukkit-free invariant as the rest of `core.domain.*`,
+     * called out explicitly here so a fresh contributor sees the constraint
+     * named.
+     */
+    @Test
+    fun `Player physiology domain must not import Bukkit Paper (ADR-0080)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.player.physiology") == true }
+            .assertFalse(
+                additionalMessage = "ADR-0080: physiology source variants must stay pure-domain. " +
+                    "Bukkit attribute / Player wiring lives in adapter/paper/.",
+            ) { file ->
+                hasBukkitFamilyImport(file)
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

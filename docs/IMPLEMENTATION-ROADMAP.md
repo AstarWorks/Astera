@@ -348,6 +348,44 @@ reading the four canonical docs.
   `IShopStockRepository` priority 100 要件) — baseline 28 → 30
 - **AsteraTestHarness scenario test** (5 anomaly variant end-to-end)
 
+### Wave 5k — Player physiology + Resource pool 3 種 (Tier 6.5+)
+
+| Property | Value |
+|---|---|
+| Depends on | Wave _items-1 (`ItemSpec`), Wave 5e (`IDomainEventBus` + PlayerJoined listener) |
+| Unlocks | Annihilation vision Phase 1 commit — 銃 Ammo / 剣 Stamina / 魔法 Mana per-weapon resource. Wave 6a Paper adapter has 3 mutation gateways + resource pool to write through to Bukkit |
+| Complexity | 中-大 (4 worker, ~6-7h) |
+| ADR | 0080 (Player physiology + Resource pool) |
+| New migrations | none (resource pool is runtime-only Phase 1) |
+
+**Scope**:
+- **3 Bukkit runtime mutation gateways** parallel to combat pipeline:
+  - `IPlayerHealthGateway` (setMaxHealth / setHealth / heal / damage with
+    `HealthChangeSource` sealed / setRegenRate with TTL / clearRegen)
+  - `IPlayerSpeedGateway` (setMultiplier per `SpeedAxis.WALK/FLY` with TTL,
+    setAllowFlight / setSprinting / setNoClip)
+  - `IPlayerFoodGateway` (suppressHungerHud for custom-HUD coexist /
+    setHungerAsMana fallback / setFoodLevel / setSaturation)
+- **Resource pool 3 種 (Annihilation vision)**:
+  - `ResourceType` sealed (`Ammo` / `Stamina` / `Mana`) + `PlayerResourcePool`
+    + `ResourceCap` (max + regenPerSecond per type)
+  - `IResourcePoolService` (spendResource / reload / applyRegen / setActiveWeapon)
+  - `IResourceRegenScheduler` (sub-integer accumulator → whole-int flush /
+    tracked-player driven)
+  - `ItemSpec` 拡張: `resourceType / resourceCostPerUse / resourceMaxPool /
+    resourceRegenPerSecond / resourceReloadable`
+- **Domain events**: `PlayerHealthChanged` / `PlayerMaxHealthChanged` /
+  `PlayerRegenRateChanged` / `PlayerSpeedChanged` / `PlayerFlightToggled` /
+  `PlayerSprintingChanged` / `PlayerNoClipChanged` / `PlayerFoodChanged` /
+  `ResourceSpent` / `ResourceRegenned` / `ResourceReloaded` /
+  `PlayerActiveWeaponChanged`
+- **InMemory + Fake (test-fixtures)** for every port; production wired in
+  `AsteraCorePlugin` at priority 0 (Wave 6a Paper adapter overlays at 100)
+- **`content/balance/resource-defaults.yaml`** per-type cap + regen-rate
+  defaults (mirrors `ResourceCap.DEFAULTS`; YAML loader hook deferred to Wave 5n)
+- **Konsist +2 rules** (Resource domain Bukkit-free + Adventure-free /
+  Player physiology domain Bukkit-free) — baseline 30 → 32
+
 ### Wave 6a — Paper Sweep, Combat (Tier 7-1)
 
 | Property | Value |
@@ -994,8 +1032,9 @@ Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 | **Wave _infra-2b** | **0065** | **Per-Category Reload Dispatcher** (Core-side `IReloadableContentsRegistry` + `/astera reload <category>` Brigadier command; consolidates per-plugin reload subcommands introduced in _infra-2a) |
 | Studio public release | 0069 | Studio promoted from Astera-internal mainline (ADR-0066) to OSS-publishable; env overrides + LICENSE + dual-audience README + `/api/languages` i18n; `/weapons` kept as Astera-extension reference. Closes ADR-0061 Mismatch B (i18n keys raw). |
 | Wave _infra-5 | 0070 | weapon→item→model chain: extend `ItemYamlConfig.kt` with optional `model:` field, Studio `/weapons` prefers item.model over ARCHETYPE_MODEL fallback. Closes ADR-0061 Mismatch C; A (visual quality of pistol/wand models) remains separate build-model session work. Handoff: `/home/node/.claude/plans/wave-_infra-5-handoff.md` |
+| **Wave 5k** | **0080** | **Player physiology + Resource pool 3 種 (Annihilation vision)** — 3 Bukkit runtime mutation gateways (`IPlayerHealthGateway` / `IPlayerSpeedGateway` / `IPlayerFoodGateway`) parallel to Wave 5a combat pipeline + Wave 5e attribute container layer. Resource pool 3 種 (`Ammo` / `Stamina` / `Mana`) per-weapon via `ItemSpec` extension + tick-driven regen scheduler. ADR number slot moved from 0079 (reserved to studio-extract track) to 0080. Konsist baseline 30 → 32. |
 
-Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d). Drafted: 0059 (Wave _infra-1), 0060 (Wave _infra-2a, supersedes 0017), 0061 (Wave _infra-3), 0062 (asdsl-v2 schema-consolidation track, separate from Wave _infra-4), 0063 (5a-fix2), 0064 (5e Listener-Service sub-scope), 0065 (Wave _infra-2b), 0066 (promote-studio-to-mainline track, separate from Wave _infra-4), 0067 (Wave _infra-4 contentLint — originally reserved as 0062, bumped twice due to parallel-track collisions), 0069 (Studio public release track, parallel to Wave _infra-5), 0070 (Wave _infra-5 weapon→item→model chain).
+Reserved but not yet drafted: 0026 (Wave 6a/6b), 0030-0057 (Wave 5a〜11d). Drafted: 0059 (Wave _infra-1), 0060 (Wave _infra-2a, supersedes 0017), 0061 (Wave _infra-3), 0062 (asdsl-v2 schema-consolidation track, separate from Wave _infra-4), 0063 (5a-fix2), 0064 (5e Listener-Service sub-scope), 0065 (Wave _infra-2b), 0066 (promote-studio-to-mainline track, separate from Wave _infra-4), 0067 (Wave _infra-4 contentLint — originally reserved as 0062, bumped twice due to parallel-track collisions), 0069 (Studio public release track, parallel to Wave _infra-5), 0070 (Wave _infra-5 weapon→item→model chain), 0080 (Wave 5k player physiology + resource pool, deconflicted from 0079 reserved by parallel studio-extract track).
 
 ---
 
