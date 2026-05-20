@@ -74,11 +74,11 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 102 | 70.3% |
-| 🟨 partial | 3 | 2.1% |
-| 🔌 port-only | 9 | 6.2% |
-| ❌ nothing | 31 | 21.4% |
-| **Total tracked** | **145** | 100% |
+| ✅ full | 107 | 69.5% |
+| 🟨 partial | 4 | 2.6% |
+| 🔌 port-only | 12 | 7.8% |
+| ❌ nothing | 31 | 20.1% |
+| **Total tracked** | **154** | 100% |
 
 (Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability); Wave _persist-1 で Cat 8 持続化補完 — SessionState/Friendship/Party/RewardBridge の 4 Postgres impl (V11/V12/V13/V15 + ADR-0068 Cross-server persistence boundary))
 
@@ -93,6 +93,7 @@ adds to `gradle/libs.versions.toml`:
 - Wave 5a-fix2: **51.4% RTM parity** (Cat 1 +2 ✅ DamageHistory + assist counter, +1 partial→full SkillTrigger 20 値 — total 74/144)
 - Wave 5e: **65.3% RTM parity** (Cat 1 double-jump +1, Cat 2 listener-arch refactor +1, Cat 6 ender-chest + reward-bridge +2, Cat 7 achievement/tutorial/settings/UAC-migration/levelupmission/playerpin/quickcast +7, Cat 8 spectator/friend/chat/audit/inventory-snapshot/action-lock/control-scheme/particle-hide/portal-ready +9 — total 94/144)
 - **Wave _ops: 66.7% RTM parity** (Cat 10 +2 ✅ Observability: micrometer + /metrics endpoint — total 96/144)
+- **Wave 5k: 69.5% RTM parity** (Cat 8b new category +5 ✅ Resource pool 3 種 + ItemSpec resource extension; +3 🔌 port-only physiology gateways; +1 🟨 balance YAML; +0 ❌ — total 107/154, catalog +9)
 - Wave 6 (Paper Sweep) complete: ~65-70% RTM parity (Phase 1 PoC end-to-end)
 - Phase 3 Siege Warfare complete (Wave 6 + 7a content): ~75-80%
 - Phase 4 (UGC + Web + Vault + Gacha): ~85-90%
@@ -285,6 +286,32 @@ adds to `gradle/libs.versions.toml`:
 | **`PlayerPortalReadyEvent`** (lobby↔match server entry/exit signal) | ✅ Wave 5e (publisher wired at MatchSpawnUseCase + RestoreInventoryOnPlayerJoinedListener) | (済 Wave 5e) | P2 | RTM `event/data/PlayerPortalReadyEvent.kt` |
 | Ban / Mute lists | ❌ nothing | **Phase 4 (Wave 8f)** | P2 | (none) |
 | Login history table | ❌ nothing | Phase 4 | P3 | (none) |
+
+---
+
+## Category 8b: Player physiology + Resource pool (Wave 5k, ADR-0080)
+
+Bukkit runtime mutation tier parallel to Wave 5a combat pipeline + Wave 5e
+attribute container. Resource pool 3 種 implements the **Annihilation server
+vision** (per-weapon Ammo / Stamina / Mana) committed in
+`.claude/plans/idea-annihilation-vision.md`.
+
+| RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
+|---|---|---|---|---|
+| `IPlayerHealthGateway` (admin / system / respawn direct mutation outside combat pipeline) | 🔌 port + InMemory + Fake (Wave 5k); Paper adapter writes back to `AttributeInstance.GENERIC_MAX_HEALTH` | **Wave 5k** (port + InMemory) + **Wave 6a** (Paper) | P1 | `plugin/core/.../application/port/outbound/IPlayerHealthGateway.kt`; ADR-0080 §1 |
+| `IPlayerSpeedGateway` (walk / fly / sprint / no-clip with TTL auto-reset) | 🔌 port + InMemory + Fake (Wave 5k) | **Wave 5k** (port + InMemory) + **Wave 6a** (Paper) | P1 | `plugin/core/.../application/port/outbound/IPlayerSpeedGateway.kt`; ADR-0080 §1 |
+| `IPlayerFoodGateway` (suppressHungerHud for custom-HUD coexist + setHungerAsMana fallback) | 🔌 port + InMemory + Fake (Wave 5k) | **Wave 5k** (port + InMemory) + **Wave 6a** (Paper cancels `FoodLevelChangeEvent`) | P1 | `plugin/core/.../application/port/outbound/IPlayerFoodGateway.kt`; ADR-0080 §1 |
+| Resource pool 3 種: `ResourceType` (`Ammo` / `Stamina` / `Mana`) + `PlayerResourcePool` + `ResourceCap` | ✅ Wave 5k (domain) | (済 Wave 5k) | P0 | `plugin/core/.../domain/resource/{ResourceType,PlayerResourcePool,ResourceCap}.kt`; ADR-0080 §2 |
+| `IResourcePoolService` (spendResource / reload / applyRegen / setActiveWeapon) | ✅ Wave 5k (port + InMemory + Fake) | (済 Wave 5k) | P0 | `plugin/core/.../application/port/outbound/IResourcePoolService.kt`; `InMemoryResourcePoolService.kt` |
+| `IResourceRegenScheduler` (sub-integer accumulator + whole-int flush, tick-driven) | ✅ Wave 5k (port + DefaultResourceRegenScheduler) | (済 Wave 5k) | P0 | `plugin/core/.../application/service/DefaultResourceRegenScheduler.kt`; ADR-0080 §2 |
+| `ItemSpec.resourceType` / `resourceCostPerUse` / `resourceMaxPool` / `resourceRegenPerSecond` / `resourceReloadable` | ✅ Wave 5k (`ItemSpec` extension + `ItemYamlConfig` wire) | (済 Wave 5k) | P0 | `plugin/core/.../domain/item/ItemSpec.kt`; `ItemYamlConfig.kt`; ADR-0080 §2 |
+| `content/balance/resource-defaults.yaml` per-type cap + regen rate | 🟨 file landed; loader hook deferred to Wave 5n (per-match balance overlay) | **Wave 5k** (file) + **Wave 5n** (loader) | P2 | `content/balance/resource-defaults.yaml`; `ResourceCap.DEFAULTS` |
+| HUD example for active-weapon resource bar (`WeaponResourceHud.kt` 3 種 swap based on `ItemSpec.resourceType`) | ❌ nothing (deferred to Wave 5j HUD foundation merge) | **Wave 5j-fix** (post-merge) or **Wave 6a** | P2 | Plan v5 §"Wave 5k Cross-cutting integration" |
+
+**Wave 5k summary**: 4 new ports (3 mutation gateways + resource pool service)
++ 1 new scheduler port + 4 new domain types + 12 new domain events. All Konsist
+green; 2 new rules added (baseline 30 → 32). Parity gauge **same ✅ count**
+(catalog +9 entries, including 5 ✅ and 1 partial under this new category).
 
 ---
 
