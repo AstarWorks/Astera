@@ -1,19 +1,9 @@
 /**
- * Prompt presets for the texture and effects generation routes.
+ * Texture-generation prompt preset. Astera house style: 32×32 pixel-art with
+ * LL→UR diagonal weapons orientation. External projects can override the
+ * whole template by pointing STUDIO_TEXTURE_PROMPT_FILE at a plain text file.
  *
- * Defaults bake in the Astera house style (32×32 pixel-art with LL→UR
- * diagonal weapons orientation). External users who pick up Studio for
- * their own project can swap the prompts wholesale by pointing
- * STUDIO_TEXTURE_PROMPT_FILE / STUDIO_EFFECTS_PROMPT_FILE at plaintext
- * files. Templates accept `${VAR}` substitution at runtime.
- *
- * Variable conventions:
- *   texture: ${workDir} ${rows} ${cols} ${count} ${subject}
- *   effects: ${workDir} ${prompt} ${seed}
- *
- * Why files instead of inline JSON: prompts are long multi-line text;
- * a plain .txt file edits cleanly in any editor and survives
- * copy/paste from a Codex playground.
+ * Template variables: ${workDir} ${rows} ${cols} ${count} ${subject}
  */
 import { existsSync, readFileSync } from 'node:fs'
 
@@ -67,37 +57,18 @@ Layout requirements (CRITICAL — read carefully):
 After generation, save the file to: \${workDir}/grid.png
 `
 
-const DEFAULT_EFFECTS_PROMPT_TEMPLATE = `Use your image-generation tool to create a single 1024x1024 PNG at \${workDir}/grid.png.
-
-Subject: \${prompt}
-
-Style requirements (Astera Effects):
-- Pixel-art aesthetic that downscales cleanly to 32x32
-- Hard 1-pixel dark outlines
-- Limited palette: <=16 distinct colors
-- Subject centered, no anti-aliased edges
-- Pure-black background (we will key out to transparency)
-- Seed: \${seed}
-`
-
-function loadOverride(envKey: string): string | null {
-  const filePath = process.env[envKey]
-  if (!filePath) return null
-  if (!existsSync(filePath)) {
-    console.warn(
-      `[prompt-presets] ${envKey}=${filePath} does not exist, falling back to default`,
-    )
-    return null
-  }
-  return readFileSync(filePath, 'utf8')
-}
-
 export function texturePromptTemplate(): string {
-  return loadOverride('STUDIO_TEXTURE_PROMPT_FILE') ?? DEFAULT_TEXTURE_PROMPT_TEMPLATE
-}
-
-export function effectsPromptTemplate(): string {
-  return loadOverride('STUDIO_EFFECTS_PROMPT_FILE') ?? DEFAULT_EFFECTS_PROMPT_TEMPLATE
+  const overridePath = process.env.STUDIO_TEXTURE_PROMPT_FILE
+  if (overridePath) {
+    if (!existsSync(overridePath)) {
+      console.warn(
+        `[prompts] STUDIO_TEXTURE_PROMPT_FILE=${overridePath} does not exist, falling back to default`,
+      )
+    } else {
+      return readFileSync(overridePath, 'utf8')
+    }
+  }
+  return DEFAULT_TEXTURE_PROMPT_TEMPLATE
 }
 
 export function substitute(template: string, vars: Record<string, string | number>): string {
