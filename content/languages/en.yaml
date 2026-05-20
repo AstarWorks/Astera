@@ -182,6 +182,10 @@ astera:
         stage-not-found: "<red>Stage not found for match.</red>"
         no-spawn-for-kind: "<red>No spawn point of the requested kind.</red>"
         teleport-failed: "<red>Teleport failed.</red>"
+    # Wave 5n — Per-match config overlay errors (ADR-0080)
+    config:
+      unknown_match: "<red>Match config: unknown match '{matchId}'.</red>"
+      unknown_world: "<red>Match config: unknown world '{worldId}'.</red>"
     # Wave 5c — game mode display strings (ADR-0032)
     mode:
       battle-loyal:

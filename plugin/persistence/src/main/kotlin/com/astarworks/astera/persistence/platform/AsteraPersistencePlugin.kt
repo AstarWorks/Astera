@@ -15,9 +15,12 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerSessionReposi
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
+import com.astarworks.astera.core.application.port.outbound.IRegionPermissionService
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
+import com.astarworks.astera.core.application.port.outbound.IStageRegionIndex
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.economy.application.port.outbound.ICreatorRevenueRepository
@@ -43,6 +46,7 @@ import com.astarworks.astera.persistence.repository.PostgresPlayerInventorySnaps
 import com.astarworks.astera.persistence.repository.PostgresPlayerSessionRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSettingsRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
+import com.astarworks.astera.persistence.repository.PostgresRegionPermissionService
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
@@ -198,6 +202,19 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // Postgres-less fallback).
         registrations += services.register<IShopStockRepository>(
             PostgresShopStockRepository(ctx.database),
+            priority = 100,
+        )
+
+        // Wave 5n (ADR-0080): per-region permission rules durable across
+        // restarts. V25 migration `region_permission`. The Postgres impl
+        // depends on the in-memory IStageRegionIndex Core registered at
+        // priority 0 — region-to-position resolution is RAM-only because
+        // stage geometry is YAML-authored and rebuilt on startup, but the
+        // permission RULES need to survive restart so we overlay the
+        // service here.
+        val stageRegionIndex = services.getOrThrow<IStageRegionIndex>()
+        registrations += services.register<IRegionPermissionService>(
+            PostgresRegionPermissionService(ctx.database, stageRegionIndex),
             priority = 100,
         )
 

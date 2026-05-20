@@ -800,6 +800,122 @@ class ArchitectureTest {
             .isEmpty()
     }
 
+    // ─── Wave 5n: World env + Per-match config + Spatial index (ADR-0080) ──
+
+    /**
+     * Wave 5n vendor-isolation: the spatial-index package is the
+     * proximity-query backbone for Wave 5a AOE skills, Wave 5c anomaly
+     * spawn, and Wave 5o spawn protection. Bukkit / Paper / Adventure
+     * types here would pull Minecraft coupling into a domain primitive
+     * every plugin reads.
+     *
+     * Even `org.joml` is forbidden here (ADR-0080 §"Konsist") so the
+     * package stays usable by future non-Paper edges (Velocity, REST
+     * admin, BedrockEdition adapter).
+     */
+    @Test
+    fun `core domain geometry spatial must not import Bukkit Paper Adventure`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter {
+                it.packagee?.name?.startsWith(
+                    "com.astarworks.astera.core.domain.geometry.spatial",
+                ) == true
+            }
+            .assertFalse { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("net.kyori.adventure") ||
+                            imp.name.startsWith("org.joml") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.jetbrains.exposed")
+                    }
+            }
+    }
+
+    /**
+     * Wave 5n domain purity: [com.astarworks.astera.core.application.port.outbound.IPlayerLocationQueryService]
+     * is the only proximity-query port. Implementations live in
+     * `plugin/core` (in-memory default) or `plugin/persistence` (future
+     * priority-100 overlay). Feature plugins MUST NOT subclass it
+     * directly — they own their own per-feature ports (e.g. combat
+     * `ITargetingService`) and consume the location service via Core's
+     * `services.getOrThrow<IPlayerLocationQueryService>()`.
+     *
+     * Skeleton-staging tolerance: passes when no impl class exists yet.
+     */
+    @Test
+    fun `IPlayerLocationQueryService implementations must be in plugin core or persistence`() {
+        val portSimpleName = "IPlayerLocationQueryService"
+
+        val impls = Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name == portSimpleName }
+            }
+
+        if (impls.isEmpty()) return
+
+        val nonAllowed = impls.filter { cls ->
+            val pkg = cls.packagee?.name ?: ""
+            !(
+                pkg.startsWith("com.astarworks.astera.core.application.service") ||
+                    pkg.startsWith("com.astarworks.astera.testfixtures") ||
+                    pkg.startsWith("com.astarworks.astera.persistence")
+                )
+        }
+
+        assertThat(nonAllowed.map { it.fullyQualifiedName })
+            .withFailMessage {
+                "Wave 5n (ADR-0080) port-purity contract: $portSimpleName " +
+                    "implementations must live in plugin/core's " +
+                    "application.service.*, plugin/test-fixtures, or " +
+                    "plugin/persistence. Feature plugins must consume the " +
+                    "service via the ServiceRegistry rather than subclassing it. " +
+                    "If you actually need a feature-local proximity port, " +
+                    "introduce a sibling port name rather than weakening this rule."
+            }
+            .isEmpty()
+    }
+
+    /**
+     * Wave 5n MatchConfig immutability: per-match overlay must be a
+     * data class with `val`-only fields. A mutable field would let one
+     * subscriber to [MatchConfigApplied] mutate the broadcast value and
+     * silently change every other subscriber's view. The class is small
+     * (8 fields); defensive copying via `copy(...)` is cheap.
+     *
+     * Skeleton-staging tolerance: passes when MatchConfig has not landed yet.
+     */
+    @Test
+    fun `MatchConfig must be data class without mutable fields`() {
+        val matchConfigFqn = "com.astarworks.astera.core.domain.match.MatchConfig"
+
+        val classes = Konsist.scopeFromProject()
+            .classes()
+            .filter { it.fullyQualifiedName == matchConfigFqn }
+
+        if (classes.isEmpty()) return
+
+        for (cls in classes) {
+            assertThat(cls.hasDataModifier)
+                .withFailMessage {
+                    "Wave 5n (ADR-0080): $matchConfigFqn must be a data class."
+                }
+                .isTrue()
+
+            val mutableProperties = cls.properties().filter { it.hasVarModifier }
+            assertThat(mutableProperties.map { it.name })
+                .withFailMessage {
+                    "Wave 5n (ADR-0080): $matchConfigFqn must have only " +
+                        "`val` properties (no `var`). Mutable fields on the " +
+                        "broadcast overlay would let one subscriber silently " +
+                        "change every other subscriber's view."
+                }
+                .isEmpty()
+        }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

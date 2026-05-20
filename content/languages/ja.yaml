@@ -185,6 +185,10 @@ astera:
         stage-not-found: "<red>試合のステージが見つかりません。</red>"
         no-spawn-for-kind: "<red>指定種別のスポーン地点がありません。</red>"
         teleport-failed: "<red>テレポートに失敗しました。</red>"
+    # Wave 5n — 試合 config オーバーレイ エラー (ADR-0080)
+    config:
+      unknown_match: "<red>試合 config: 不明な試合 ID '{matchId}'。</red>"
+      unknown_world: "<red>試合 config: 不明なワールド '{worldId}'。</red>"
     # Wave 5c — ゲームモード表示文字列 (ADR-0032)
     mode:
       battle-loyal:
