@@ -1,26 +1,26 @@
 # Astera Studio
 
 > LLM-collaboration IDE for Minecraft content authoring.
-> Texture review, 3D model editing, animated effects, and YAML preview —
-> behind one Vite + Hono process.
+> Texture review, 3D model editing, and animated effects — behind one
+> Nuxt 4 process.
 
 Astera Studio is the browser tool the Astera project uses for authoring
 Minecraft content with LLM assistance. It runs locally (single user,
-dev-only) and bundles four routes:
+dev-only) and bundles three routes:
 
 | Route | What it does |
 |---|---|
 | `/textures` | Codex-driven 32×32 sprite review: accept / reject / regenerate tiles |
 | `/models` | Three.js editor for `.bbmodel` / MC `.model.json` with Claude-as-CAD via ASDSL |
 | `/effects` | Pixel-Composer-style fxgraph editor → animated hologram texture sheets |
-| `/weapons` | Read-only weapon YAML preview (Astera-flavored — see "Extending" below) |
 
-Per [[adr/0018-ai-asset-creation-policy]] and
-[[adr/0066-promote-studio-to-mainline]], Studio is **dev-only**:
-never a runtime or build dependency of the Astera plugin. The Bun process
-talks to the browser via HTTP+WS on a local port, calls a handful of
-shell scripts for image generation, and writes results into your project's
-`content/` tree.
+Per [[adr/0018-ai-asset-creation-policy]],
+[[adr/0066-promote-studio-to-mainline]], and
+[[adr/0074-studio-nuxt-migration]], Studio is **dev-only**: never a
+runtime or build dependency of the Astera plugin. The Nuxt dev process
+talks to the browser via HTTP+WS on a single local port, calls a handful
+of shell scripts for image generation, and writes results into your
+project's `content/` tree.
 
 ## License
 
@@ -34,13 +34,8 @@ bun install
 bun run dev
 ```
 
-Open <http://localhost:3007>. Two processes start:
-
-- Vite frontend on `:3007` (override with `TEXTURE_STUDIO_PORT`)
-- Hono backend on `:3008` (override with `TEXTURE_STUDIO_API_PORT`)
-
-Vite proxies `/api/*` and `/files/*` to the Hono backend, so the browser
-only talks to `:3007` — no CORS, no manual port juggling.
+Open <http://localhost:3007>. A single Nuxt process serves both the SPA
+frontend and the Nitro server (no separate API port).
 
 You will also need:
 
@@ -65,32 +60,30 @@ Or finer-grained:
 | Env var | Default | What it controls |
 |---|---|---|
 | `STUDIO_REPO_ROOT` | enclosing git repo | Root path; all other paths default-relative to it |
-| `STUDIO_CONTENT_ROOT` | `${repo}/content` | Reserved for future use (currently every content-dir is independent) |
 | `STUDIO_TEXTURES_DIR` | `${repo}/content/textures` | Where accepted textures land + listed |
 | `STUDIO_MODELS_DIR` | `${repo}/content/models` | `.model.json` storage |
 | `STUDIO_EFFECTS_DIR` | `${repo}/content/effects` | fxgraph + exports |
 | `STUDIO_MODEL_SAMPLES_DIR` | `${repo}/tools/model-gen/samples` | Read-only "starter" models |
-| `STUDIO_MODEL_TEMPLATES_DIR` | `${repo}/tools/model-gen/templates` | Read-only model templates |
+| `STUDIO_EFFECTS_SAMPLES_DIR` | `${repo}/tools/studio/web/samples/effects` | Read-only fxgraph samples |
 | `STUDIO_SCRIPTS_DIR` | `${repo}/tools/texture-gen/scripts` | Where the image-pipeline shell scripts live |
 | `STUDIO_JOB_ROOT` | `${repo}/tools/texture-gen/.cache/work` | Where in-flight texture jobs are staged |
 | `STUDIO_VANILLA_CACHE_DIR` | `${repo}/tools/studio/.vanilla-cache` | Vanilla MC asset extraction cache |
 | `STUDIO_TEXTURE_PROMPT_FILE` | (unset → Astera house style) | Plain-text override for the texture generation prompt template |
 | `STUDIO_EFFECTS_PROMPT_FILE` | (unset → Astera house style) | Plain-text override for the effects generation prompt template |
+| `ASTERA_STUDIO_PORT` | `3007` | Port for the Nuxt dev server (frontend + Nitro) |
 
 Prompt templates use `${var}` substitution. See
-`server/prompt-presets.ts` for the default text and supported variables.
+`server/utils/prompt-presets.ts` for the default text and supported variables.
 
 For a non-Minecraft project you can still drive the `/models` and
-`/effects` routes if your data fits `.model.json` / `.fxgraph.json`
-shapes; or write a content-preview route specific to your project's
-YAML schema (see ADR-0075 for why Astera removed its Items preview).
+`/effects` routes if your data fits `.model.json` / `.fxgraph.json` shapes.
 
 ## Configuration
 
-### Ports
+### Port
 
-- Frontend `3007` → `TEXTURE_STUDIO_PORT`
-- Backend `3008` → `TEXTURE_STUDIO_API_PORT`
+`3007` (Nuxt dev server, frontend + Nitro). Override via `ASTERA_STUDIO_PORT`.
+The pre-Nuxt API port (`3008`) is gone — everything is one process now.
 
 ### Astera Integration Notes
 
@@ -100,21 +93,28 @@ Astera, the canonical user of Studio, uses these defaults and adds:
   `.claude/skills/build-model/`, `content/models/` are all mainline-tracked.
 - `/astera reload <category>` in-game lets you hot-swap content/<category>/
   YAML edits without a Paper restart; pair this with Studio's preview.
-- `/weapons` exists as an Astera-specific YAML viewer
-  ([[adr/0061-studio-weapons-preview-route]]). It's a working example
-  of how external users could add their own project-specific routes.
 
 ## Architecture
 
+Per [[adr/0074-studio-nuxt-migration]], Studio runs as a single Nuxt 4
+SPA + Nitro server on Bun. Hono is mounted inside Nitro for the API
+surface (lean readability over fragmenting 50 handlers into individual
+files).
+
 ```
-Browser (Vite :3007)
-  └─ Vue 3 + vue-router + Three.js + @vue-flow
+Browser (Nuxt :3007, SPA)
+  └─ Vue 3 + Nuxt 4 + Three.js + @vue-flow + CodeMirror
         │
-        │ /api  (proxied) / /files  (proxied) / /ws  (proxied)
+        │  HTTP /api/*  /files/*    WS /ws
         ▼
-Hono (Bun :3008)
+Nitro server (same process, Bun preset)
+  ├─ server/routes/ws.ts            defineWebSocketHandler — state bridge
+  ├─ server/routes/files/...        static PNG serving (createReadStream)
+  └─ server/api/[...path].ts        catch-all → Hono dispatcher
+       │
+       ▼
+Hono (server/hono/app.ts + routes/)
   ├─ /api/jobs            texture-gen job listing + per-tile actions
-  ├─ /api/tiles           accept / reject / regenerate (texture review)
   ├─ /api/generate        spawn Codex → extract_subjects → tiles
   ├─ /api/models          list + load .model.json (samples + content)
   ├─ /api/state           model editor state machine (ASDSL v2)
@@ -127,33 +127,57 @@ Hono (Bun :3008)
   ├─ /api/effects/chat    Claude API proxy for effect prompting
   ├─ /api/textures        catalog browsing
   ├─ /api/manifest        read content/textures/manifest.json
-  ├─ /api/categories      walk content/textures/
-  ├─ /files/jobs/:id/*    serve PNGs from texture-gen job dirs
-  ├─ /files/textures/*    serve PNGs from STUDIO_TEXTURES_DIR
-  └─ /files/vanilla/...   serve extracted vanilla MC textures
+  └─ /api/categories      walk content/textures/
         │
         │ spawnSync('bash', ...)
         ▼
 Codex CLI + Pillow + ffmpeg + scripts under STUDIO_SCRIPTS_DIR
 ```
 
+### Source layout
+
+```
+tools/studio/web/
+├── nuxt.config.ts       # SPA + Bun preset + WebSocket + CSS
+├── package.json         # nuxt + hono + three + vue-flow + anthropic-sdk
+├── app/
+│   ├── app.vue          # root layout (<NuxtLink> + <NuxtPage>)
+│   ├── pages/           # /textures /models /effects (file-based)
+│   ├── components/      # auto-imported (top-level + components/effects/)
+│   ├── composables/useStudioWs.ts   # WS client (auto-import)
+│   └── utils/
+│       ├── api.ts       # typed fetch wrappers (auto-import)
+│       ├── three/       # Three.js helpers (mcmodel-to-three, face-picker)
+│       └── effects/     # fxgraph engine (render, billboard, nodes/, webgl/)
+├── shared/              # frontend ⇄ server shared
+│   ├── types.ts         # Job, Tile, McModel, SelectedFace, ...
+│   └── effects/         # schema.ts (SCHEMA) + types.ts (FxGraph, FxNode)
+├── server/
+│   ├── api/[...path].ts # Nitro catch-all → Hono
+│   ├── hono/
+│   │   ├── app.ts       # Hono root app
+│   │   └── routes/      # per-feature Hono routers (jobs / tiles / ...)
+│   ├── routes/
+│   │   ├── ws.ts        # defineWebSocketHandler at /ws
+│   │   └── files/       # static PNG serving
+│   ├── utils/           # auto-imported: paths, state, manifest, asdsl/, composite/
+│   └── plugins/banner.ts# startup banner
+├── public/              # favicon.svg
+├── samples/effects/     # read-only fxgraph samples
+├── scripts/             # cli.ts, kill-ports.ts, fetch-vanilla.ts, ...
+└── test/render-snapshot.ts  # bun-test CLI for the fxgraph renderer
+```
+
 ## Extending: write your own content-preview route
 
 To add a read-only preview for a content type:
 
-1. Add `server/routes/<yourtype>.ts` returning `GET /api/<yourtype>`
-   (list) + `GET /api/<yourtype>/load/:slug` (detail)
-2. Add `src/routes/<YourType>View.vue` for the sidebar+main layout
-3. Register the frontend route in `src/main.ts`, backend route in
-   `server/index.ts`
-4. Add an `STUDIO_<YOURTYPE>_DIR` env override in
-   `server/paths.ts` so external users can repoint
-
-Note: Astera previously shipped a `/items` preview (Wave _items-1,
-ADR-0073) that was removed in ADR-0075 — read-only YAML inspection
-adds little over editing YAML directly. The interesting design point
-is "MC-less skill preview", which Astera intends to revisit as
-Skill Playground in a future wave.
+1. Add `app/pages/<yourtype>.vue` — Nuxt picks it up automatically as `/<yourtype>`.
+2. Add a Hono router under `server/hono/routes/<yourtype>.ts` and mount
+   it in `server/hono/app.ts` at `/api/<yourtype>`.
+3. Add `STUDIO_<YOURTYPE>_DIR` to `server/utils/paths.ts` so external
+   users can repoint.
+4. Add a `<NuxtLink>` for the tab in `app/app.vue`.
 
 ## Limitations
 
@@ -163,15 +187,18 @@ Skill Playground in a future wave.
   is immediate).
 - The texture-gen scripts are Python + Bash; not yet bundled as a
   language-agnostic module.
+- `Bun.file()` / `Bun.serve()` are not used (Nitro dev mode runs server
+  code under Node-via-Vite even when `bun run dev` is used). Static
+  file handlers use `node:fs.createReadStream` + h3 `sendStream`.
 
 ## See also
 
 - [[adr/0018-ai-asset-creation-policy]] — the underlying policy for asset
   generation tooling
-- [[adr/0061-studio-weapons-preview-route]] — `/weapons` route rationale
 - [[adr/0066-promote-studio-to-mainline]] — Studio mainline status
 - [[adr/0069-studio-public-release]] — this README + LICENSE + public
   release framing
+- [[adr/0074-studio-nuxt-migration]] — Nuxt 4 + Nitro architecture
 - [`tools/texture-gen/README.md`](../../texture-gen/README.md) — sister
   CLI tool for headless texture generation
 - [`content/textures/README.md`](../../../content/textures/README.md) —

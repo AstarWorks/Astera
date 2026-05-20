@@ -4,6 +4,10 @@ web/node_modules/
 web/dist/
 web/.bun-cache/
 web/.vite/
+web/.nuxt/
+web/.output/
+web/.data/
+web/.nitro/
 
 # Vanilla MC asset cache — populated by `bun run fetch:vanilla` from the
 # official Mojang launchermeta. NEVER commit (Mojang asset re-distribution).

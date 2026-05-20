@@ -1,8 +1,9 @@
 {
   "name": "@astera/studio",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
-  "description": "Astera Studio — browser UI for texture pipeline (/textures), 3D model editor (/models), pixel FX studio (/effects), and weapon-content preview (/weapons). Dev-only LLM-collaboration IDE for Minecraft content authoring; runs against any project that follows the content/ layout convention.",
+  "private": true,
+  "description": "Astera Studio — Nuxt 4 SPA + Nitro server on Bun. Browser UI for texture pipeline (/textures), 3D model editor (/models), pixel FX studio (/effects). Dev-only LLM-collaboration IDE for Minecraft content authoring; runs against any project that follows the content/ layout convention.",
   "license": "MIT",
   "author": "Astera contributors",
   "homepage": "https://github.com/AstarWorks/Astera",
@@ -22,23 +23,25 @@
     "codex",
     "content-authoring",
     "vue",
+    "nuxt",
+    "nitro",
     "three.js",
-    "hono",
     "bun"
   ],
   "scripts": {
     "predev": "bun run scripts/kill-ports.ts",
-    "dev": "concurrently -k -n vite,api -c blue,green \"bun run dev:vite\" \"bun run dev:api\"",
-    "dev:vite": "vite",
-    "dev:api": "bun server/index.ts",
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
     "kill-ports": "bun run scripts/kill-ports.ts",
-    "build": "vite build",
-    "preview": "vite preview",
-    "typecheck": "vue-tsc --noEmit",
+    "typecheck": "nuxt typecheck",
     "fetch:vanilla": "bun run scripts/fetch-vanilla.ts",
     "studio": "bun run scripts/cli.ts",
     "verify:wave2": "bun run scripts/verify-wave2.ts",
     "verify:wave3": "bun run scripts/verify-wave3.ts",
+    "test": "bun test server/",
     "test:snapshot": "bun test/render-snapshot.ts"
   },
   "dependencies": {
@@ -61,21 +64,16 @@
     "fast-json-patch": "^3.1.1",
     "hono": "^4.6.14",
     "js-yaml": "^4.1.1",
+    "nuxt": "^4.0.0",
     "three": "^0.184.0",
     "unzipper": "^0.12.3",
-    "vue": "^3.5.13",
-    "vue-router": "^5.0.7",
-    "ws": "^8.20.1"
+    "vue": "^3.5.13"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/three": "^0.184.1",
-    "@types/ws": "^8.18.1",
-    "@vitejs/plugin-vue": "^5.2.1",
-    "concurrently": "^9.1.0",
     "gifenc": "^1.0.3",
     "typescript": "^5.7.2",
-    "vite": "^6.0.7",
     "vue-tsc": "^2.2.0"
   }
 }

@@ -30,8 +30,8 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { resolve, dirname, basename, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { renderFrame } from '../src/effects/render'
-import type { FxGraph } from '../src/effects/types'
+import { renderFrame } from '../app/utils/effects/render'
+import type { FxGraph } from '#shared/effects/types'
 
 // ---------- argv parsing -------------------------------------------------
 
