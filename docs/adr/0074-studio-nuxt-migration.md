@@ -1,16 +1,16 @@
 ---
-status: Accepted
+status: Accepted (Hono-inside-Nitro portion superseded by ADR-0078 on 2026-05-20)
 date: 2026-05-20
 deciders: Studio maintainer
 supersedes: null
-superseded_by: null
+superseded_by: 0078 (partial — Hono → pure Nitro file-based; other decisions stand)
 ---
 
 # ADR-0074: Studio: Nuxt 4 SPA + Nitro server migration
 
 ## Status
 
-Accepted
+Accepted. **Partial supersede**: the "keep Hono inside Nitro" decision was reversed by ADR-0078 on 2026-05-20 in favor of pure Nitro file-based routes. Nuxt 4 SPA + Nitro on Bun + `ssr: false` + `shared/` type sharing + WebSocket via crossws + static files via `createReadStream` + `sendStream` — all unchanged.
 
 ## Context
 

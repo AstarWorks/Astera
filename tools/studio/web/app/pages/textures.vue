@@ -3,9 +3,9 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { api } from '~/utils/api'
 import type { TextureEntry } from '~/utils/api'
 import type { Job, JobDetail, Tile } from '#shared/types'
-import JobList from '../components/JobList.vue'
-import TileGrid from '../components/TileGrid.vue'
-import TileCard from '../components/TileCard.vue'
+import JobList from '../components/textures/JobList.vue'
+import TileGrid from '../components/textures/TileGrid.vue'
+import TileCard from '../components/textures/TileCard.vue'
 
 const jobs = ref<Job[]>([])
 const selectedJobId = ref<string | null>(null)

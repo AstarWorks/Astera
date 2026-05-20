@@ -1,6 +1,6 @@
 import { ref, onUnmounted, shallowRef } from 'vue'
 import type { McModel, SelectedFace } from '#shared/types'
-import type { CameraSnapshot } from '~/components/ThreeViewport.vue'
+import type { CameraSnapshot } from '~/components/models/ThreeViewport.vue'
 
 export type ReferenceImage =
   | { kind: 'path'; value: string }

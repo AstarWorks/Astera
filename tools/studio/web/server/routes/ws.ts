@@ -4,7 +4,7 @@
  *
  * Enable: `nitro.experimental.websocket: true` in nuxt.config.ts.
  */
-import { onPeerOpen, onPeerMessage, onPeerClose } from '../utils/ws-bridge'
+import { onPeerOpen, onPeerMessage, onPeerClose } from '../utils/models/ws-bridge'
 
 export default defineWebSocketHandler({
   open(peer) {

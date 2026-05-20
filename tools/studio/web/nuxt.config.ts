@@ -24,13 +24,18 @@ export default defineNuxtConfig({
     externals: {
       external: ['@napi-rs/canvas'],
     },
-    // Don't auto-import from `utils/asdsl/` — the ASDSL submodule exports
-    // type names (Vec3, Hint, …) that collide with sibling utils. Inside
-    // server/ everything still uses explicit imports.
-    imports: {
-      dirs: ['utils', 'utils/composite'],
-    },
+    // User-code auto-import is disabled — every handler imports its helpers
+    // explicitly. Avoids cross-feature collisions (e.g., both textures and
+    // effects had a `Scope` type; asdsl and project both have `Vec3`).
+    // Nitro's runtime helpers (defineEventHandler, getQuery, ...) are
+    // unaffected — they ship via `#imports`.
+    imports: { dirs: [] },
   },
+
+  // Components live under app/components/{textures,models,effects}/.
+  // pathPrefix: false keeps the tag name short (<JobList>, not <TexturesJobList>),
+  // matching how the components were authored.
+  components: [{ path: '~/components', pathPrefix: false }],
 
   css: [
     '@vue-flow/core/dist/style.css',
