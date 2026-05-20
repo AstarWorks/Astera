@@ -1,0 +1,42 @@
+# First-time login starter grant (Wave 5e-fix).
+#
+# Applied by `InMemoryPlayerProfileService.createFirstTime` when a brand-new
+# player joins the server for the first time. Returning players go through
+# `RestoreInventoryOnPlayerJoinedListener` instead (Wave 5e).
+#
+# Fail-soft semantics — see `StarterGrantLoader`:
+#   - missing file       → empty grant (no items, no wallet, no tutorial).
+#   - YAML parse error   → empty grant + WARN log.
+#   - validation error   → empty grant + WARN log with detail.
+#   - registry miss on `default_loadout` item id → that one item skipped +
+#     surfaced in `ProfileError.PartialGrant.failedSteps`.
+
+# Items every new player starts with. Resolved against `IItemRegistry`; ids
+# that aren't registered are skipped (the profile is still created). Order
+# matters when the Wave 6b inventory adapter consumes the grant — slot 0
+# wins the player's hand.
+default_loadout:
+  - example-sword
+  - example-wand
+
+# Per-currency initial balance. Currency keys must match `Currency` enum
+# constants (STAR / GOLD / GEM); values are 64-bit non-negative integers.
+# Zero entries are dropped at apply-time so the audit log stays readable.
+wallet_grants:
+  GOLD: 100
+  STAR: 0
+  GEM: 0
+
+# Tutorial auto-enrollment. When `auto_enroll: true`, the new profile is
+# recorded as enrolled in `tutorial.script_id`. The script must be registered
+# in `content/tutorials/`; otherwise the enrollment is skipped + folded into
+# `failedSteps` (the join still completes).
+tutorial:
+  auto_enroll: true
+  script_id: getting-started
+
+# Welcome dialog shown on first join. Resolution is deferred to a later wave
+# when `IDialogGateway` lands in core; today the id is captured + queryable
+# via `InMemoryPlayerProfileService.findWelcomeDialog(playerId)` so adapters
+# can stage the show when the gateway becomes available.
+welcome_dialog_id: astera-welcome

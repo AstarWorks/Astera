@@ -23,6 +23,7 @@ import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.contents.GuiContents
 import com.astarworks.astera.core.application.contents.ItemContents
 import com.astarworks.astera.core.application.contents.TutorialContents
+import com.astarworks.astera.core.application.eventbus.listeners.CreateFirstTimeProfileOnPlayerJoinedListener
 import com.astarworks.astera.core.application.eventbus.listeners.RestoreInventoryOnPlayerJoinedListener
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
 import com.astarworks.astera.core.application.i18n.LanguageLoader
@@ -47,6 +48,7 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeCont
 import com.astarworks.astera.core.application.port.outbound.observability.IMetricsRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerProfileService
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
@@ -67,6 +69,7 @@ import com.astarworks.astera.core.application.service.InMemoryPermissionService
 import com.astarworks.astera.core.application.service.InMemoryPersonalVaultRepository
 import com.astarworks.astera.core.application.service.InMemoryPlayerAttributeContainer
 import com.astarworks.astera.core.application.service.InMemoryPlayerInventorySnapshotRepository
+import com.astarworks.astera.core.application.service.InMemoryPlayerProfileService
 import com.astarworks.astera.core.application.service.InMemoryPlayerSessionRepository
 import com.astarworks.astera.core.application.service.InMemoryPlayerSettingsRepository
 import com.astarworks.astera.core.application.service.InMemoryReloadableContentsRegistry
@@ -74,6 +77,7 @@ import com.astarworks.astera.core.application.service.InMemoryRewardBridge
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
 import com.astarworks.astera.core.application.service.InMemorySchematicLoader
 import com.astarworks.astera.core.application.service.InMemoryTabList
+import com.astarworks.astera.core.application.service.StarterGrantLoader
 import com.astarworks.astera.core.application.usecase.inventory.RestoreInventorySnapshotUseCase
 import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
@@ -340,6 +344,39 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<ITutorialRegistry>(tutorialContents, priority = 0)
         reloadRegistry.register(tutorialContents, tutorialsContentDir)
 
+        // ---- Wave 5e-fix: first-time profile creation ---------------------
+        // StarterGrantLoader walks content/balance/starter-grant.yaml; missing
+        // / malformed file degrades to StarterGrant.EMPTY (the join still
+        // completes — see the loader KDoc).
+        val starterGrant = StarterGrantLoader().load(
+            contentDir.resolve("balance/starter-grant.yaml"),
+        )
+        logger.info(
+            "Starter grant loaded: ${starterGrant.defaultLoadout.size} loadout item(s), " +
+                "${starterGrant.walletGrants.size} wallet entr(y/ies), " +
+                "tutorial=${starterGrant.tutorialAutoEnroll}, " +
+                "welcome_dialog=${starterGrant.welcomeDialogId ?: "none"}",
+        )
+
+        val playerProfileService: IPlayerProfileService = InMemoryPlayerProfileService(
+            starterGrant = starterGrant,
+            itemRegistry = itemContents,
+            // ICurrencyLedger lives on the economy plugin (loaded AFTER core);
+            // lazy lookup matches DefaultGuiBindingResolver's `walletProvider`.
+            ledgerProvider = { services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>() },
+            tutorialRegistry = tutorialContents,
+        )
+        services.register<IPlayerProfileService>(playerProfileService, priority = 0)
+
+        val createFirstTimeOnJoin = CreateFirstTimeProfileOnPlayerJoinedListener(
+            profileService = playerProfileService,
+            sessionRepo = sessionRepo,
+        )
+        // Subscribe first-time-profile listener BEFORE the inventory restore
+        // listener so a fresh player's profile + starter grant land first.
+        // The in-memory event bus dispatches subscribers in registration order.
+        eventBus.subscribe(PlayerJoinedServer::class) { createFirstTimeOnJoin.handle(it) }
+
         // Inventory snapshot use cases + PlayerJoined-side listener.
         @Suppress("UNUSED_VARIABLE")
         val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
@@ -481,6 +518,7 @@ public class AsteraCorePlugin : JavaPlugin() {
             "BlockDurabilityRule",
             "IPermissionService",
             "IReloadableContentsRegistry",
+            "IPlayerProfileService",
         )
     }
 }
