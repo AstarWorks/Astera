@@ -41,10 +41,12 @@ ArmorReduction` に置換したのが好例 (ADR-0030/0058 の forward-only comm
 When the user triggers a `Wave Nx` prompt, read in this order **before**
 spawning any worker:
 
-1. `/home/node/.claude/plans/home-node-claude-plans-radius-roadmap-handoff.md`
-2. `/home/node/.claude/plans/wave-{N}{x}-handoff.md`
-3. `docs/IMPLEMENTATION-ROADMAP.md` (this wave's row + cross-deps)
-4. `docs/RTM-PARITY-TRACKER.md` (this wave's row)
+1. The wave-specific handoff plan if user provided its path (otherwise skip)
+   — note: previously hard-coded as `/home/node/.claude/plans/...-handoff.md`, but
+   those are session-scoped and not persistent across runs. The current wave's
+   handoff path should come from the user's prompt or be regenerated as needed.
+2. `docs/IMPLEMENTATION-ROADMAP.md` (this wave's row + cross-deps)
+3. `docs/RTM-PARITY-TRACKER.md` (this wave's row)
 
 Then run Phase A (orchestrator solo: dep prep, mkdir, TaskCreate) → spawn
 Phase B workers in parallel per the handoff's worker table → Phase C
@@ -87,8 +89,9 @@ SSOT.
 - `.claude/rules/coding-posture.md` — Kotlin/JDK versions, DI choice, test
   framework, ADR discipline.
 - `.claude/rules/ai-delegation.md` — Phase 1 AI usage policy. Studio +
-  model-gen + build-model skill are mainline (ADR-0066); texture-gen is
-  still carve-out (ADR-0018).
+  content authoring tools moved to a separate repo
+  ([[adr/0079-extract-studio-to-own-repo]]); plugin-side invariants
+  (no AI/ML SDK in `:plugin:*`) are unchanged.
 
 ## Harness helpers
 
@@ -109,6 +112,7 @@ SSOT.
 
 | Path | Why it matters |
 |---|---|
+| `/IdeaProjects/AsteraStudio` | Content authoring IDE (Nuxt 4 + Nitro on Bun). Edits this repo's `content/{textures,models,effects}/` via `STUDIO_REPO_ROOT`. See [[adr/0079-extract-studio-to-own-repo]]. |
 | `/IdeaProjects/AstarWorks` | Company hub (sales, team, strategy). |
 | `/IdeaProjects/AstarManagement` | Main product (Spring Boot + Nuxt 4). Package convention `com.astarworks.astarmanagement.*`; Astera mirrors with `com.astarworks.astera.*`. **Check its Exposed setup first** when designing persistence. |
 | `/IdeaProjects/HomePage` | Public homepage (Nuxt 3). |

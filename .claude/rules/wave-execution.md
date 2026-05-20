@@ -89,20 +89,14 @@ Use the `adr-new` skill to scaffold.
 
 ## Off-limits paths (do not touch in normal waves)
 
-Texture-gen still has its own track. Touching it outside its own waves causes
-churn and merge friction:
+- `.playwright-mcp/` — ephemeral browser-automation state.
+- `private/` — submodule with env-specific overlays.
 
-- `tools/texture-gen/` and `.claude/skills/generate-textures/`
-- `.playwright-mcp/`
-
-Per [[adr/0066-promote-studio-to-mainline]] (2026-05-19), the following are
-**no longer off-limits**: `tools/studio/`, `tools/model-gen/`,
-`.claude/skills/build-model/`, `content/models/`. Normal waves may modify
-them, subject to keeping `bun run typecheck` and `bun test` green inside
-`tools/studio/web/`.
+Studio, texture-gen, model-gen, and their `.claude/skills/` (build-model,
+generate-textures) were extracted to a separate repo in 2026-05; see
+[[adr/0079-extract-studio-to-own-repo]]. They no longer live in this repo.
+Astera content (`content/textures/`, `content/models/`, `content/effects/`)
+still lives here but is authored from AsteraStudio (sibling clone).
 
 Top-level iteration PNGs (`studio-*.png`, `amethyst-*.png`, `wave?-*.png`)
-are now gitignored — never commit them.
-
-If a wave's handoff doc explicitly owns a texture-gen path, follow the
-handoff.
+are gitignored — never commit them.

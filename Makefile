@@ -100,6 +100,12 @@ local-e2e-teardown: ## Tear down the local-e2e kind cluster
 	bash scripts/local-e2e.sh --teardown
 
 # ----------------------------------------------------------------------------
+# Content authoring tools (Astera Studio + texture-gen + model-gen) live in
+# their own repo: https://github.com/AstarWorks/AsteraStudio. Clone it as a
+# sibling and run `bun run dev` there to author content into Astera/content/.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
 # submodule
 # ----------------------------------------------------------------------------
 

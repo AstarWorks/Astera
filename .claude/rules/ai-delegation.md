@@ -12,31 +12,32 @@
 - **Default: deferred to Phase 6** per [ADR-0010](../../docs/adr/0010-postpone-generative-ai-to-phase-6.md).
   Do not introduce new image / audio generation pipelines into the runtime
   or build graph.
-- **Texture carve-out (ADR-0018):** AI image generators (Codex CLI, PXC,
-  spritecook.ai, …) are permitted as designer-side authoring tools, with
-  outputs committed as static `*.png` under `content/textures/`. Scaffolding
-  lives under `tools/texture-gen/` + `.claude/skills/generate-textures/`.
-  Nothing in those paths may be referenced from any `:plugin:*` runtime
-  module or from the Gradle build graph.
+- **No `:plugin:*` runtime module** imports the Anthropic SDK, OpenAI SDK,
+  or any ML library. No path under `:plugin:*` calls out to AI services
+  at request-handling time.
 
-### Studio / model-gen / build-model — mainline tracks (ADR-0066)
+## Content authoring tools moved to AsteraStudio
 
-Per [[adr/0066-promote-studio-to-mainline]] (2026-05-19), the following
-paths are **first-class mainline tracked code**, not carve-out:
+The Studio (Nuxt 4 IDE), texture-gen scripts, model-gen samples, and the
+`.claude/skills/build-model` + `.claude/skills/generate-textures` skills
+were extracted into a separate repo in 2026-05 per
+[[adr/0079-extract-studio-to-own-repo]]. They are no longer part of this
+repo's source tree, build graph, or `.claude/` ecosystem.
 
-- `tools/studio/` (Vite + Vue 3 + Hono + Bun + Three.js dev server)
-- `tools/model-gen/` (ASDSL samples, benchmark, templates)
-- `.claude/skills/build-model/` (LLM iteration skill)
-- `content/models/` (committed model JSON / BBModel outputs)
+What stays here:
 
-They are subject to normal wave discipline: changes ship in commits, keep
-`bun run typecheck` and `bun test` green inside `tools/studio/web/`, and
-add tests when adding features.
+- `content/{items,skills,languages,stages}/` — plugin-runtime YAML
+- `content/{textures,models,effects}/` — output sinks for AsteraStudio
+  (authored externally; this repo treats them as committed artifacts)
 
-ADR-0010's runtime/build invariant still applies: no `:plugin:*` runtime
-module imports the Anthropic SDK or any ML library. The studio's use of
-the Anthropic SDK is in a separate Node.js dev-server process not in the
-Gradle build graph.
+What's in AsteraStudio:
+
+- `tools/texture-gen/` + texture-gen skill
+- `tools/model-gen/` + build-model skill
+- `tools/studio/web/` → now the AsteraStudio repo root
+
+Astera plugin's invariants are unchanged: no AI/ML SDK in `:plugin:*`,
+no AI tool called from Gradle build, no runtime dependency on Studio.
 
 ## What "Phase 1" means here
 
@@ -44,8 +45,6 @@ Gradle build graph.
   (ADR-0022 / IMPLEMENTATION-ROADMAP Phase 1).
 - Texture pipelines stay intentionally minimal — enough to demo, not enough
   to ship — until ADR-0010 is revisited.
-- The studio + ASDSL track has accelerated past "minimal demo" and now ships
-  as mainline (ADR-0066).
 
-When Phase 6 lands and ADR-0010 is superseded, the texture-side policy will
-be rewritten; studio mainline status is unaffected.
+When Phase 6 lands and ADR-0010 is superseded, the texture-side policy
+will be rewritten.

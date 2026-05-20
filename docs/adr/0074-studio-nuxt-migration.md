@@ -1,5 +1,5 @@
 ---
-status: Accepted (Hono-inside-Nitro portion superseded by ADR-0078 on 2026-05-20)
+status: Accepted (Studio extracted to AsteraStudio repo on 2026-05-20 per ADR-0079; this file is preserved here for historical cross-reference, primary copy now lives in AsteraStudio/docs/adr/)
 date: 2026-05-20
 deciders: Studio maintainer
 supersedes: null
