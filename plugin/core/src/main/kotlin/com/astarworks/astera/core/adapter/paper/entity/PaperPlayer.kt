@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import kotlin.time.Duration
 import net.kyori.adventure.text.minimessage.MiniMessage
+import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
@@ -35,7 +36,7 @@ class PaperPlayer(private val bukkit: Player) : IMcPlayer {
     override val locale: String? get() = bukkit.locale().toString()
 
     override fun sendMessage(rendered: String) {
-        bukkit.sendMessage(MM.deserialize(rendered))
+        bukkit.sendMessage(AsteraTextDeserializer.deserialize(rendered))
     }
 
     override fun giveItem(template: IMcItemTemplate, displayNameOverride: String?, loreOverride: List<String>) {
@@ -58,7 +59,7 @@ class PaperPlayer(private val bukkit: Player) : IMcPlayer {
             val effectiveDisplay = displayNameOverride
                 ?: (template as? IMcItemTemplate.Vanilla)?.displayName
             if (effectiveDisplay != null) {
-                meta.displayName(MM.deserialize(effectiveDisplay))
+                meta.displayName(AsteraTextDeserializer.deserialize(effectiveDisplay))
             }
             val effectiveLore = if (loreOverride.isNotEmpty()) {
                 loreOverride
@@ -66,7 +67,7 @@ class PaperPlayer(private val bukkit: Player) : IMcPlayer {
                 (template as? IMcItemTemplate.Vanilla)?.lore ?: emptyList()
             }
             if (effectiveLore.isNotEmpty()) {
-                meta.lore(effectiveLore.map { MM.deserialize(it) })
+                meta.lore(effectiveLore.map { AsteraTextDeserializer.deserialize(it) })
             }
             val pdc = meta.persistentDataContainer
             pdc.set(ITEM_ID_KEY, PersistentDataType.STRING, template.id.value)

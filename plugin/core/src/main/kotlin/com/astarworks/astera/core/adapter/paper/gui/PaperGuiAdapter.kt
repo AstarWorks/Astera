@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.gui.GuiSlot
 import com.astarworks.astera.core.domain.gui.GuiSpec
 import com.astarworks.astera.core.domain.player.PlayerId
 import net.kyori.adventure.text.minimessage.MiniMessage
+import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import org.bukkit.Bukkit
 import org.bukkit.inventory.Inventory
 import org.slf4j.LoggerFactory
@@ -174,7 +175,7 @@ public class PaperGuiAdapter(
         uuid: UUID,
     ): Inventory {
         val titleStr = messages.render(uuidToPlayerIdOrNull(uuid), spec.title)
-        val titleComponent = MM.deserialize(titleStr)
+        val titleComponent = AsteraTextDeserializer.deserialize(titleStr)
         val holder = PaperInventoryHolder(spec.id)
         val inv = Bukkit.createInventory(holder, spec.size.slotCount, titleComponent)
         holder.boundInventory = inv

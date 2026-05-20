@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.player.PlayerId
 import net.kyori.adventure.text.minimessage.MiniMessage
+import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
@@ -117,11 +118,11 @@ public class PaperItemMaterializer(
             // pipeline as MessageKey-based labels).
             val displayName = messages.renderText(viewerId, spec.displayName)
             if (displayName.isNotBlank()) {
-                meta.displayName(MM.deserialize(displayName))
+                meta.displayName(AsteraTextDeserializer.deserialize(displayName))
             }
             val lore = messages.renderLocalizedLore(viewerId, spec.lore)
             if (lore.isNotEmpty()) {
-                meta.lore(lore.map { MM.deserialize(it) })
+                meta.lore(lore.map { AsteraTextDeserializer.deserialize(it) })
             }
             // viewer locale is consulted inside the renderer; kept here for
             // forward-compat with any local fallback we may need pre-render.

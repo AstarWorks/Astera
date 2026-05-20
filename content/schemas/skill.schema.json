@@ -6,16 +6,19 @@
         "id": {
             "type": "string"
         },
-        "display_name_key": {
-            "type": "string"
+        "name": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
         },
-        "description_key": {
-            "type": "string"
+        "description": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
         },
         "archetype": {
-            "type": "string"
-        },
-        "trigger": {
             "type": "string"
         },
         "cooldown_ticks": {
@@ -196,14 +199,17 @@
                     ]
                 }
             ]
+        },
+        "mana_cost": {
+            "type": "integer"
+        },
+        "charge_ticks": {
+            "type": "integer"
         }
     },
     "required": [
         "id",
-        "display_name_key",
-        "description_key",
         "archetype",
-        "trigger",
         "cooldown_ticks",
         "params"
     ]

@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.gui.ResolvedReactiveSlot
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import net.kyori.adventure.text.minimessage.MiniMessage
+import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
@@ -113,10 +114,10 @@ public class PaperItemTemplateRenderer(
         }
         stack.editMeta { meta ->
             resolved.displayOverride?.let { key ->
-                meta.displayName(MM.deserialize(messages.render(viewer, key)))
+                meta.displayName(AsteraTextDeserializer.deserialize(messages.render(viewer, key)))
             }
             resolved.loreOverride?.let { keys ->
-                meta.lore(keys.map { k -> MM.deserialize(messages.render(viewer, k)) })
+                meta.lore(keys.map { k -> AsteraTextDeserializer.deserialize(messages.render(viewer, k)) })
             }
         }
         return stack
@@ -161,10 +162,10 @@ public class PaperItemTemplateRenderer(
         val stack = ItemStack(material).also { it.amount = count.coerceIn(1, 64) }
         stack.editMeta { meta ->
             template.displayName?.let { rendered ->
-                meta.displayName(MM.deserialize(rendered))
+                meta.displayName(AsteraTextDeserializer.deserialize(rendered))
             }
             if (template.lore.isNotEmpty()) {
-                meta.lore(template.lore.map { rendered -> MM.deserialize(rendered) })
+                meta.lore(template.lore.map { rendered -> AsteraTextDeserializer.deserialize(rendered) })
             }
             if (template.customModelData != null) {
                 @Suppress("DEPRECATION")

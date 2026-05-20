@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/block-durability.schema.json",
+    "type": "object",
+    "properties": {
+        "materials": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "damage_matrix": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

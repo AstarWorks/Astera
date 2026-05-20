@@ -12,13 +12,99 @@
         "custom_model_data": {
             "type": "integer"
         },
-        "display_name_key": {
+        "model": {
             "type": "string"
         },
-        "lore_keys": {
+        "external_key": {
+            "type": "string"
+        },
+        "name": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "lore": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "rarity": {
+            "type": "string"
+        },
+        "level_requirement": {
+            "type": "integer"
+        },
+        "attributes": {
+            "type": "object",
+            "properties": {
+                "attack_damage": {
+                    "type": "number"
+                },
+                "attack_speed": {
+                    "type": "number"
+                },
+                "armor": {
+                    "type": "number"
+                },
+                "armor_toughness": {
+                    "type": "number"
+                },
+                "knockback_resistance": {
+                    "type": "number"
+                },
+                "movement_speed_multiplier": {
+                    "type": "number"
+                },
+                "max_health_bonus": {
+                    "type": "number"
+                }
+            }
+        },
+        "equip_slot": {
+            "type": "string"
+        },
+        "max_durability": {
+            "type": "integer"
+        },
+        "unbreakable": {
+            "type": "boolean"
+        },
+        "drop_on_death": {
+            "type": "boolean"
+        },
+        "keep_on_death": {
+            "type": "boolean"
+        },
+        "enchantable": {
+            "type": "boolean"
+        },
+        "glint": {
+            "type": "boolean"
+        },
+        "skills": {
             "type": "array",
             "items": {
-                "type": "string"
+                "type": "object",
+                "properties": {
+                    "trigger": {
+                        "type": "string"
+                    },
+                    "skill_id": {
+                        "type": "string"
+                    },
+                    "cooldown_override_ticks": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "trigger",
+                    "skill_id"
+                ]
             }
         },
         "pdc_tags": {
@@ -26,9 +112,6 @@
             "additionalProperties": {
                 "type": "string"
             }
-        },
-        "external_key": {
-            "type": "string"
         }
     },
     "required": [

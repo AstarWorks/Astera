@@ -10,6 +10,7 @@
     "content/schemas/norma.schema.json": "content/norma/*.yaml",
     "content/schemas/gui.schema.json": "content/gui/*.yaml",
     "content/schemas/anomaly.schema.json": "content/anomaly/*.yaml",
-    "content/schemas/generator.schema.json": "content/generators/*.yaml"
+    "content/schemas/generator.schema.json": "content/generators/*.yaml",
+    "content/schemas/block-durability.schema.json": "content/balance/block-durability.yaml"
   }
 }
