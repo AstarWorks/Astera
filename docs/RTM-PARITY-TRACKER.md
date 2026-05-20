@@ -76,8 +76,8 @@ adds to `gradle/libs.versions.toml`:
 |---|---|---|
 | ✅ full | 106 | 72.6% |
 | 🟨 partial | 3 | 2.1% |
-| 🔌 port-only | 10 | 6.8% |
-| ❌ nothing | 31 | 21.2% |
+| 🔌 port-only | 11 | 7.5% |
+| ❌ nothing | 30 | 20.5% |
 | **Total tracked** | **146** | 100% |
 
 (Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability); Wave _persist-1 で Cat 8 持続化補完 — SessionState/Friendship/Party/RewardBridge の 4 Postgres impl (V11/V12/V13/V15 + ADR-0068 Cross-server persistence boundary))
@@ -189,7 +189,7 @@ adds to `gradle/libs.versions.toml`:
 
 ---
 
-## Category 4: HUD ports (Wave 5b + Wave 5h + Wave 6 Paper)
+## Category 4: HUD ports (Wave 5b + Wave 5h + Wave 5j + Wave 6 Paper)
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
@@ -198,7 +198,7 @@ adds to `gradle/libs.versions.toml`:
 | **`ITabList` port** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P2 | core.adapter.api.hud |
 | **`IMcPlayer.sendActionBar(...)` method** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P1 | signature added, Paper impl Wave 6 |
 | **`IMcPlayer.sendTitle(...)` method** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P1 | signature added, Paper impl Wave 6 |
-| **CT / Star / Level HUD layout** (RTM issue #14) | ❌ nothing | Wave 5b (domain) + **Wave 6** (Paper impl) | P1 | (RTM uses Scoreboard Library 2.1.3) |
+| **Custom HUD foundation** (texture font + Resource Pack push, RTM issue #14) | 🔌 port-only (Wave 5j) | **✅ Wave 5j** | P1 | `core.domain.hud.*` (HudComponent/HudLayout/HudGlyph/HudColor/ResourcePackSpec sealed) + `IHudGateway`/`ICustomFontRegistry` ports + InMemory/Fake impls + HudRenderer + HudLayoutBuilder Kotlin DSL + content/hud/ (mana-bar.json/star-counter.json + examples) + ADR-0097; Paper impl Wave 6b |
 | **`GuiSlot.Confirmation` + `GuiSlot.TextInput`** (shop confirm / settings edit / report input) | ✅ Wave 5h (sealed variant, YAML schema + 2 example YAML land) | (済 Wave 5h) | P1 | `plugin/core/.../domain/gui/GuiSlot.kt` (sealed expansion); Paper handler impl Wave 6b |
 | Scoreboard Library 2.1.3 dep (RTM) | (Astera self-builds via `IScoreboard` port) | Wave 6 (Paper impl chooses library) | P1 | ADR-0015 D path |
 | Inventory Framework 0.10.13 dep (RTM) | (Astera self-builds via `IGuiAdapter`) | ✅ Wave 4 (full) | P0 | ADR-0021 + Wave 4 ✅ |
@@ -456,6 +456,7 @@ specific issue / file needs verification.
 
 ## Completed waves
 
+- Wave 5j (2026-05-20): Custom HUD foundation (texture font + Resource Pack push, RTM issue #14) — core.domain.hud.* sealed tree (HudComponent: Text/Glyph/ProgressBar/Composite/Spacer with negative-widthPx allowed + HudLayout: ActionBar/BossBarSlot-1-4/Sidebar/TabList/Subtitle + HudGlyph PUA U+E000..F8FF with nextAvailableUnicodeChar factory + HudGlyphRef value class with regex validation + HudColor Byte-backed RGBA with 17 palette constants + HudHandle value class + HudRegion enum 9-region + ResourcePackSpec url/sha1Hash/required/promptKey) + IHudGateway port (show/update/clear/pushResourcePack/activeFor → Result<T, HudError> sealed) + ICustomFontRegistry port (lookup/all/register with duplicate-reject) + InMemoryHudGateway (TTL auto-clear via scheduler + 4 DomainEvents: HudShown/Updated/Cleared/ResourcePackPushRequested) + InMemoryCustomFontRegistry + HudRenderer (HudComponent → Adventure Component with ASTERA_FONT_KEY) + HudLayoutBuilder Kotlin DSL (@HudDsl) + FakeHudGateway/FakeCustomFontRegistry (test-fixtures) + 2 example layouts (ManaBarHud BossBar slot 1 BLUE NOTCHED_10 + StarCounterHud ActionBar TTL 20) + content/hud/mana-bar.json + content/hud/star-counter.json + Konsist +1 rule (HUD domain Bukkit-free, JOML allowed) → baseline 32 → 33. **Total parity 72.6% → 72.6%** (same 106/146 ✅, +1 🔌, −1 ❌). ADR-0097 → Accepted. Paper impl Wave 6b.
 - Wave 5h (2026-05-19): Pre-Paper-sweep depth — Hologram domain (3 DisplayEntity variant + Quaternion rotation + Interpolation + Brightness + IHologramGateway port + Fake; Paper impl Wave 6b) + GUI slot expansion (Confirmation + TextInput sealed variants + 2 example YAML) + Tutorial player flow (PlayerTutorialState domain + V20 + 4 use cases + /astera tutorial command) + Moderation Core 4 (ModerationAction sealed 4 variant: Mute/Kick/Ban/ChatRateLimit + IModerationService port + V21 + Postgres + permission gating + SendChatMessageUseCase enforcement wired; Paper impl Wave 6b) + Match disconnect/reconnect (DisconnectDuringMatchListener + ReconnectDuringMatchListener + ResumeMatchUseCase + phase-aware rule) + Spectator API extension (IWorldGateway.spectatorSpawn/lobbySpawn + EnterSpectatorUseCase/LeaveSpectatorUseCase TODO closure) + Konsist +2 rules (Hologram vendor-neutrality + ModerationAction exhaustiveness) → baseline 30 → 32. **Total parity 70.3% → 72.6%** (102→106/145→146 ✅, +1 🔌). ADR-0074 (pending commit — Wave 5h Phase C close).
 - Wave 5e (2026-05-19): Session + Social + Tutorial + EnderChest + Reward bridge + Inventory snapshot V10 + Attribute container migration V14 + ADR-0034 + ADR-0058 → Accepted + ADR-0064 Accepted. 9 worker streams (α/β/γ/δ/ε/ζ/ι/θ1 in Group B1; η/θ2 in Group B2). +5 Flyway migrations, +6 domain event variants, +120 unit tests, +4 Postgres ITs.
 - Wave 5f (2026-05-19): Marketplace + JP currency compliance + CEL + particles + reactive GUI binding (6 RTM rows ❌→✅). Marketplace: MarketplaceListing + ListingStatus + 3 use cases (Create/Purchase/Cancel) + Postgres V12 + 137 IT. Creator Revenue: post-fee-remainder split algo + 146 unit + 62 IT. JP Compliance: CurrencyPolicy 4-axis + SourceClass + CurrencyPolicies map (STAR/GOLD/GEM per 資金決済法) + EnforceCurrencyPolicy + ExpireCurrency daily sweep + ICurrencyIssuanceLog port + Postgres V11 + 391 unit. CEL: CelSkillScript + CelContext + ICelEvaluator port + StubCelEvaluator + 77 unit. Particles: ParticleDefinition + ParticleShape sealed + ParticleContents + IParticleRegistry port + 2 example YAML + schema + 137 unit. Reactive GUI: ResolvedReactiveSlot + numeric/display/count binding via DefaultGuiBindingResolver + PaperItemTemplateRenderer override application + 255 unit + 3 Postgres migrations (V11/V12/V13). **Total parity 66.7% → 70.8%** (96→102/144 ✅). ADR-0035 → Accepted.

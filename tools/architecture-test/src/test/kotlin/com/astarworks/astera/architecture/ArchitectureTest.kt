@@ -850,6 +850,47 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5j — HUD domain vendor-neutrality (ADR-0097 §1) ──────────────
+
+    /**
+     * Wave 5j, ADR-0097: the HUD domain (`core.domain.hud.*`) is the
+     * vendor-neutral mirror of Bukkit/Adventure HUD surfaces (Action Bar /
+     * BossBar / Sidebar / TabList / Title-Subtitle). The Wave 6b
+     * `PaperHudGateway` adapter converts each [HudComponent] / [HudLayout]
+     * to an Adventure `Component` via `HudRenderer` (application layer).
+     *
+     * The domain MUST NOT import `org.bukkit.*` / `io.papermc.*` /
+     * `kyori.adventure.*`. `org.joml.*` is explicitly allowed per the
+     * Wave 5h-fix principle (pure-math, no Minecraft coupling).
+     *
+     * `HudRenderer` lives in `core.application.gui.hud.*` and DOES import
+     * Adventure — that's the edge of the vendor-neutral boundary, not
+     * inside `core.domain.hud.*`.
+     */
+    @Test
+    fun `HUD domain must not import Bukkit Paper Adventure (ADR-0097)`() {
+        val forbiddenPrefixes = listOf(
+            "org.bukkit.",
+            "io.papermc.",
+            "org.spigotmc.",
+            "com.destroystokyo.paper.",
+            "com.mojang.",
+            "net.kyori.adventure.",  // HUD domain stays Adventure-free; renderer crosses
+            // org.joml.* deliberately allowed per Wave 5h-fix.
+        )
+        Konsist.scopeFromProject()
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.hud") == true }
+            .flatMap { it.imports }
+            .assertFalse(
+                additionalMessage = "ADR-0097 §1: core.domain.hud.* must stay vendor-neutral. " +
+                    "Adventure conversion happens in HudRenderer (application layer); " +
+                    "PaperHudGateway adapter (Wave 6b) does the Bukkit BossBar / TabList wiring.",
+            ) { import ->
+                forbiddenPrefixes.any { import.name.startsWith(it) }
+            }
+    }
+
     // ─── Wave 5i — Dialog domain vendor-neutrality (ADR-0096 §1) ────────────
 
     /**

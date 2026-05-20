@@ -34,8 +34,10 @@ import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver
+import com.astarworks.astera.core.application.port.outbound.ICustomFontRegistry
 import com.astarworks.astera.core.application.port.outbound.IDialogGateway
 import com.astarworks.astera.core.application.port.outbound.IHologramGateway
+import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IModerationService
 import com.astarworks.astera.core.application.port.outbound.IPlayerTutorialStateRepository
 import com.astarworks.astera.core.application.port.outbound.IGuiRegistry

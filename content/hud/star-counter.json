@@ -1,0 +1,14 @@
+{
+  "_comment": "Star counter custom-font providers (Wave 5j, ADR-0097). Wave 6b PaperHudGateway merges every content/hud/*.json into the generated resource pack's assets/astera/font/default.json. PUA range: E010-E01F reserved for currency family.",
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "astera:hud/currency/star-icon.png",
+      "ascent": 7,
+      "height": 10,
+      "chars": [
+        ""
+      ]
+    }
+  ]
+}

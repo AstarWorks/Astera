@@ -50,6 +50,13 @@ dependencies {
     implementation(libs.micrometer.registry.prometheus)
 
     testImplementation(project(":plugin:test-fixtures"))
+
+    // Wave 5j Worker γ (HudRenderer): tests assert against Adventure
+    // `Component` / `TextColor` / `Key`. Adventure types ship transitively
+    // with paper-api, but since paper-api is `compileOnly` (production
+    // injects it at runtime via Paper), the test source set needs an
+    // explicit pull onto the test compile classpath.
+    testImplementation(libs.paper.api)
 }
 
 // Expand ${version} into plugin.yml at processResources (Bukkit/Paper standard).
