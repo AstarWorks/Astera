@@ -750,6 +750,65 @@ class ArchitectureTest {
             .isEmpty()
     }
 
+    // ─── Wave 5u — OpenTelemetry import containment (ADR-0087) ──────────────
+
+    /**
+     * Wave 5u (ADR-0087): `io.opentelemetry.api.*` and `io.opentelemetry.sdk.*`
+     * are allowed only in `core.adapter.paper.tracing.*`. Domain stays pure
+     * (no tracing library), application defines the vendor-neutral
+     * [com.astarworks.astera.core.application.port.outbound.tracing.ITraceContextPropagator]
+     * port without importing the SDK.
+     *
+     * Catches "I'll just sprinkle a `Span.current()` here" drift before the
+     * Konsist baseline (currently green at this rule) goes red.
+     */
+    @Test
+    fun `OpenTelemetry imports allowed only in core adapter paper tracing (Wave 5u, ADR-0087)`() {
+        val allowedPrefix = "com.astarworks.astera.core.adapter.paper.tracing"
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                file.imports.any { imp -> imp.name.startsWith("io.opentelemetry") }
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0087: io.opentelemetry.* imports must live in " +
+                    "core.adapter.paper.tracing.*. domain/* and application/* talk to " +
+                    "tracing via ITraceContextPropagator only.",
+            ) { file ->
+                val pkg = file.packagee?.name ?: ""
+                !pkg.startsWith(allowedPrefix)
+            }
+    }
+
+    // ─── Wave 5u — @Profiled annotation layer placement (ADR-0087) ──────────
+
+    /**
+     * Wave 5u (ADR-0087): the
+     * [com.astarworks.astera.core.application.profiling.Profiled] annotation
+     * is intended for hot-path methods in `application/` or `adapter/`. Domain
+     * code stays pure (no instrumentation hooks); a `@Profiled` mark on a
+     * domain function is a layering smell that this test surfaces.
+     */
+    @Test
+    fun `@Profiled annotation forbidden in domain layer (Wave 5u, ADR-0087)`() {
+        val profiledFqn = "com.astarworks.astera.core.application.profiling.Profiled"
+        Konsist.scopeFromProject()
+            .functions()
+            .filter { func ->
+                func.annotations.any { ann ->
+                    ann.name == "Profiled" || ann.fullyQualifiedName == profiledFqn
+                }
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0087: @Profiled belongs in application/ or adapter/, " +
+                    "never in domain/. Domain is pure game rules; profiling is an " +
+                    "observability concern.",
+            ) { func ->
+                val containingPkg = func.packagee?.name ?: ""
+                containingPkg.contains(".domain.")
+            }
+    }
+
     // ─── Wave 5g — IShopStockRepository priority-100 Postgres overlay ───────
 
     /**

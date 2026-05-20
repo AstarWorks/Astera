@@ -8,10 +8,14 @@ import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.command.PaperCommandHandler
 import com.astarworks.astera.core.adapter.paper.event.PaperBroadcaster
 import com.astarworks.astera.core.adapter.paper.gui.PaperGuiAdapter
+import com.astarworks.astera.core.adapter.paper.analytics.MicrometerAnalyticsExporter
 import com.astarworks.astera.core.adapter.paper.observability.HttpMetricsServer
 import com.astarworks.astera.core.adapter.paper.observability.MatchQueueMetric
 import com.astarworks.astera.core.adapter.paper.observability.MetricsConfig
 import com.astarworks.astera.core.adapter.paper.observability.MicrometerMetricsRegistry
+import com.astarworks.astera.core.adapter.paper.tracing.OpenTelemetryTraceContextPropagator
+import com.astarworks.astera.core.adapter.paper.tracing.TracingBootstrap
+import com.astarworks.astera.core.adapter.paper.tracing.TracingConfig
 import com.astarworks.astera.core.adapter.paper.gui.PaperGuiListener
 import com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer
 import com.astarworks.astera.core.adapter.paper.scheduler.PaperScheduler
@@ -44,7 +48,13 @@ import com.astarworks.astera.core.application.port.outbound.IPartyRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
+import com.astarworks.astera.core.application.analytics.AnalyticsEventListener
+import com.astarworks.astera.core.application.port.outbound.analytics.IAnalyticsExporter
 import com.astarworks.astera.core.application.port.outbound.observability.IMetricsRegistry
+import com.astarworks.astera.core.application.port.outbound.profiling.IProfilingCollector
+import com.astarworks.astera.core.application.port.outbound.tracing.ITraceContextPropagator
+import com.astarworks.astera.core.application.profiling.InMemoryProfilingCollector
+import com.astarworks.astera.core.application.profiling.ProfilingExportService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
@@ -147,6 +157,9 @@ public class AsteraCorePlugin : JavaPlugin() {
     /** Retained so [onDisable] can release the HTTP port (Wave _ops). */
     private var metricsHttpServer: HttpMetricsServer? = null
     private var matchQueueMetric: MatchQueueMetric? = null
+
+    /** Retained so [onDisable] can flush the analytics listener subscriptions (Wave 5u). */
+    private var analyticsEventListener: AnalyticsEventListener? = null
 
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
@@ -427,16 +440,69 @@ public class AsteraCorePlugin : JavaPlugin() {
             queueMetric.start()
             matchQueueMetric = queueMetric
 
-            logger.info("Metrics endpoint ENABLED on :${metricsConfig.port}/metrics (gauge=${MatchQueueMetric.GAUGE_NAME}).")
+            // Wave 5u (ADR-0087): business-KPI analytics ride on the same
+            // MeterRegistry so KPI dashboards + KEDA share one source of truth.
+            val analyticsExporter = MicrometerAnalyticsExporter(metricsRegistry.meterRegistry)
+            services.register<IAnalyticsExporter>(analyticsExporter, priority = 0)
+            val analyticsListener = AnalyticsEventListener(eventBus, analyticsExporter)
+            analyticsListener.start()
+            analyticsEventListener = analyticsListener
+
+            logger.info("Metrics endpoint ENABLED on :${metricsConfig.port}/metrics (gauge=${MatchQueueMetric.GAUGE_NAME}). Business-KPI analytics wired.")
         } else {
             logger.info("Metrics endpoint disabled (set ASTERA_METRICS_ENABLED=true to expose Prometheus scrape on :${MetricsConfig.DEFAULT_PORT}/metrics).")
         }
+
+        // ---- Distributed tracing (Wave 5u, ADR-0087) ---------------------
+        // OpenTelemetry SDK. Default backend is the in-process logging exporter
+        // so spans surface in the server log without infra; operators flip to
+        // OTLP/Jaeger via ASTERA_TRACING_BACKEND=otlp + ASTERA_TRACING_OTLP_ENDPOINT.
+        // When ASTERA_TRACING_ENABLED is false (default), buildOpenTelemetry
+        // returns OpenTelemetry.noop() so propagator calls cost ~nothing.
+        val tracingConfig = TracingConfig.fromEnv()
+        val openTelemetry = TracingBootstrap.buildOpenTelemetry(tracingConfig)
+        val traceContextPropagator: ITraceContextPropagator =
+            OpenTelemetryTraceContextPropagator(openTelemetry)
+        services.register<ITraceContextPropagator>(traceContextPropagator, priority = 0)
+
+        // ---- Profiling hook (Wave 5u, ADR-0087) --------------------------
+        // In-memory IProfilingCollector + ProfilingExportService for the
+        // `/astera profiling export` admin command. spark plugin adapter is
+        // Phase 2 (.claude/plans/idea-observability-depth.md §A).
+        val profilingCollector: IProfilingCollector = InMemoryProfilingCollector()
+        services.register<IProfilingCollector>(profilingCollector, priority = 0)
+        val profilingExport = ProfilingExportService(
+            collector = profilingCollector,
+            outputDir = dataFolder.toPath().resolve("profiling"),
+        )
+
+        commandHandler.register(
+            CommandSpec.Literal(
+                name = "astera-profiling",
+                description = MessageKey("astera.command.profiling.root"),
+                subcommands = listOf(
+                    CommandSpec.Literal(
+                        name = "export",
+                        description = MessageKey("astera.command.profiling.export"),
+                        executor = { _ ->
+                            val file = profilingExport.export(reset = false)
+                            logger.info("/astera-profiling export -> $file")
+                            CommandResult.Success
+                        },
+                    ).requirePermission(
+                        permissionService = permissionService,
+                        permission = Permission("astera.profiling.export"),
+                    ),
+                ),
+            ),
+        )
 
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
     override fun onDisable() {
         logger.info("Astera-Core disabling.")
+        analyticsEventListener?.stop()
         matchQueueMetric?.stop()
         metricsHttpServer?.stop()
         paperScheduler?.stop()
@@ -481,6 +547,9 @@ public class AsteraCorePlugin : JavaPlugin() {
             "BlockDurabilityRule",
             "IPermissionService",
             "IReloadableContentsRegistry",
+            "IAnalyticsExporter (Wave 5u — env-gated by ASTERA_METRICS_ENABLED)",
+            "ITraceContextPropagator (Wave 5u)",
+            "IProfilingCollector (Wave 5u)",
         )
     }
 }

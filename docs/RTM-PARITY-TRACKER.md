@@ -310,7 +310,12 @@ adds to `gradle/libs.versions.toml`:
 | Micrometer / Prometheus export | ✅ Wave _ops (Micrometer 1.14.6 + PrometheusMeterRegistry via IMetricsRegistry port) | (済) | P2 | Micrometer setup in core plugin, `IMetricsRegistry` port + `InMemoryMetricsRegistry` + `PrometheusMetricsAdapter` wire |
 | `/metrics` HTTP endpoint | ✅ Wave _ops (sun.net.httpserver `HttpMetricsServer`, port 9092, env-gated by ASTERA_METRICS_ENABLED) | (済) | P2 | `plugin/core/.../adapter/paper/metrics/HttpMetricsServer.kt` + Paper plugin adapter |
 | Grafana dashboards | ❌ nothing | Wave _ops | P3 | (planned) |
-| Distributed tracing (OpenTelemetry) | ❌ nothing | Phase 1.5+ | P3 | (none) |
+| Distributed tracing (OpenTelemetry) | ✅ Wave 5u (OpenTelemetry SDK 1.42 + `ITraceContextPropagator` + `OpenTelemetryTraceContextPropagator` + cross-server `X-Astera-Trace-Id` header; W3C TraceContext propagation; OTLP / console exporters env-switchable) | (済) | P3 | ADR-0087, `plugin/core/.../adapter/paper/tracing/` |
+| Business-KPI metrics (per-match / per-player / per-skill / per-currency) | ✅ Wave 5u (`IAnalyticsExporter` + `MicrometerAnalyticsExporter` + `AnalyticsEventListener` for MatchStarted/Ended/SkillCastRequested/PlayerJoinedServer; metric manifest at `content/observability/metric-definitions.yaml`) | (済) | P2 | ADR-0087, `plugin/core/.../application/analytics/` |
+| Profiling hook (`@Profiled` + flamegraph export) | ✅ Wave 5u (`@Profiled` annotation + `ProfiledRunner.run` + `InMemoryProfilingCollector` + `ProfilingExportService` + `/astera-profiling export` Brigadier admin command + Brendan Gregg collapsed format) | (済) | P3 | ADR-0087, `plugin/core/.../application/profiling/` |
+| spark plugin adapter | ❌ nothing | Phase 2 (Wave 8-x.1) | P3 | `idea-observability-depth.md` §A |
+| Chunk-level tracing | ❌ nothing | Phase 2-3 (Wave 8-x.2) | P3 | `idea-observability-depth.md` §B |
+| Live admin observability dashboard | ❌ nothing | Phase 4 (Wave 8a-x) | P3 | `idea-observability-depth.md` §C |
 | Audit log emission (cross-plugin) | ❌ nothing | Wave 5e | P2 | (with audit table) |
 
 ---

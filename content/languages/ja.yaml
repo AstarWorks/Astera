@@ -24,6 +24,10 @@ astera:
     reload:
       unknown_category: "<red>未登録の reload カテゴリです。Tab キーで登録済みコンテンツタイプを表示できます。</red>"
       load_failed: "<red>reload を中止しました。一部 YAML がパースに失敗しています。直前の状態は保持されています。サーバーログを確認してください。</red>"
+    # Wave 5u (ADR-0087): /astera-profiling export — flamegraph snapshot dump.
+    profiling:
+      root: "<gray>プロファイリング診断コマンド（管理者専用）。</gray>"
+      export: "<green>プロファイリング snapshot を flamegraph 形式 (Brendan Gregg collapsed) で書き出します。</green>"
 
   # Wave _items-1 (ADR-0073): item / weapon の content-specific i18n は
   # 各 content/items/<id>.yaml 内に inline 化。`weapon:` セクションは
