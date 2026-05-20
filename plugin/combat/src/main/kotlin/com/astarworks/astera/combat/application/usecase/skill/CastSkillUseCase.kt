@@ -3,17 +3,19 @@ package com.astarworks.astera.combat.application.usecase.skill
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.usecase.cost.ConsumeManaUseCase
+import com.astarworks.astera.combat.application.usecase.skill.dispatch.SkillCastDispatcher
 import com.astarworks.astera.combat.domain.event.ManaConsumptionSource
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.resource.ManaError
 import com.astarworks.astera.combat.domain.skill.SkillSpec
-import com.astarworks.astera.combat.domain.status.StatusEffectId
+import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.item.PhaseOverrides
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
 
@@ -47,11 +49,29 @@ public class CastSkillUseCase(
     private val cooldownTracker: ICooldownTracker,
     private val scheduler: IScheduler,
     private val consumeMana: ConsumeManaUseCase? = null,
+    /**
+     * Optional reference to the runtime [SkillCastDispatcher] (Wave _skills-2,
+     * ADR-0077) so we can stash per-cast [PhaseOverrides] before publishing
+     * [SkillCast]. `null` in unit tests that don't exercise overrides. The
+     * dispatcher consumes (and removes) the entry on the same SkillCast event.
+     *
+     * Plugin wiring sets this via [bindSkillCastDispatcher] after both this
+     * use case and the dispatcher exist (the dispatcher chain ultimately
+     * loops back here via `MechanicDispatcher.setCastSkillInvoker`, so we
+     * can't constructor-inject without a forward declaration).
+     */
+    private var skillCastDispatcher: SkillCastDispatcher? = null,
 ) {
+
+    public fun bindSkillCastDispatcher(dispatcher: SkillCastDispatcher) {
+        this.skillCastDispatcher = dispatcher
+    }
+
     public fun execute(
         casterId: PlayerId,
         skillId: SkillId,
         at: Vec3 = Vec3.ZERO,
+        phaseOverrides: PhaseOverrides = PhaseOverrides.EMPTY,
     ): Result<SkillSpec, CastSkillError> {
         // 1. Look up spec
         val spec = skillRegistry.find(skillId)
@@ -98,7 +118,13 @@ public class CastSkillUseCase(
             cooldownTracker.start(casterId, key, spec.cooldownTicks.toLong())
         }
 
-        // 6. Publish event
+        // 6. Stash phase overrides for the dispatcher to consume on the same event.
+        skillCastDispatcher?.setPendingOverrides(
+            SkillCastDispatcher.OverrideKey(casterId, skillId),
+            phaseOverrides,
+        )
+
+        // 7. Publish event
         val atTick = scheduler.currentTick()
         eventBus.publish(SkillCast(caster = casterId, skillId = skillId, at = at, atTick = atTick))
 

@@ -6,7 +6,7 @@ import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
-import com.astarworks.astera.combat.domain.status.StatusEffectId
+import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.combat.domain.status.StatusEffectSpec
 import com.astarworks.astera.combat.domain.status.StatusKind
@@ -51,8 +51,9 @@ class CastSkillUseCaseTest {
         params = SkillParams.ProjectileParams(
             launchSpeed = 20.0,
             maxLifetimeTicks = 60,
-            damage = DamageProfile(base = 8.0, attribute = DamageAttribute.FIRE),
+            damage = DamageProfile.single(8.0, DamageAttribute.FIRE),
         ),
+        phases = com.astarworks.astera.core.domain.skill.phase.PhaseMechanics.Projectile(),
     )
 
     @BeforeEach

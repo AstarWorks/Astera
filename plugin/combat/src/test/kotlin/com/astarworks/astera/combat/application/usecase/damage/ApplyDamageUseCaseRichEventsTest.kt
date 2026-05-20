@@ -60,7 +60,7 @@ class ApplyDamageUseCaseRichEventsTest {
 
     private fun attempt(source: DamageSource = weaponSource) = DamageAttempt(
         targetId = targetId,
-        baseProfile = DamageProfile(base = 10.0, attribute = DamageAttribute.PHYSICAL),
+        baseProfile = DamageProfile.single(10.0, DamageAttribute.PHYSICAL),
         source = source,
         headshot = false,
     )

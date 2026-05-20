@@ -50,8 +50,9 @@ class ChargedSkillCastUseCaseTest {
         params = SkillParams.ProjectileParams(
             launchSpeed = 20.0,
             maxLifetimeTicks = 60,
-            damage = DamageProfile(base = 8.0, attribute = DamageAttribute.FIRE),
+            damage = DamageProfile.single(8.0, DamageAttribute.FIRE),
         ),
+        phases = com.astarworks.astera.core.domain.skill.phase.PhaseMechanics.Projectile(),
         chargeVariant = ChargedSkillVariant.Charged(chargeTicks = 30),
     )
 
@@ -64,8 +65,9 @@ class ChargedSkillCastUseCaseTest {
         params = SkillParams.MeleeParams(
             range = 3.0,
             knockback = 0.5,
-            damage = DamageProfile(base = 5.0, attribute = DamageAttribute.PHYSICAL),
+            damage = DamageProfile.single(5.0, DamageAttribute.PHYSICAL),
         ),
+        phases = com.astarworks.astera.core.domain.skill.phase.PhaseMechanics.Melee(),
     )
 
     @BeforeEach

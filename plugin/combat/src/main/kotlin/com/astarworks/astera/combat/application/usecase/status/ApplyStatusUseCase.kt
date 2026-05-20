@@ -3,7 +3,7 @@ package com.astarworks.astera.combat.application.usecase.status
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
 import com.astarworks.astera.combat.domain.event.StatusApplied
-import com.astarworks.astera.combat.domain.status.StatusEffectId
+import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.Result

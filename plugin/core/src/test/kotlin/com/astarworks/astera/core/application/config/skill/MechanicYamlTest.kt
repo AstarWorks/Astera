@@ -1,0 +1,94 @@
+package com.astarworks.astera.core.application.config.skill
+
+import com.astarworks.astera.core.domain.damage.DamageAttribute
+import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
+import com.astarworks.astera.core.domain.skill.targeter.DirectionRef
+import com.astarworks.astera.core.domain.skill.value.BoolValue
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+/**
+ * Round-trip tests for [MechanicYaml] → [Mechanic] conversion. Hammers a
+ * representative slice from each thematic category: damage / movement /
+ * visual / control-flow.
+ */
+class MechanicYamlTest {
+
+    @Test
+    fun `damage with multi-component compound damage`() {
+        val dto = MechanicYaml.Damage(
+            targets = TargeterYaml.Target,
+            components = listOf(
+                DamageComponentYaml(
+                    base = NumericValueYaml.Literal(8.0),
+                    attribute = "physical",
+                ),
+                DamageComponentYaml(
+                    base = NumericValueYaml.Literal(3.0),
+                    attribute = "fire",
+                    multiplier = NumericValueYaml.Literal(1.5),
+                ),
+            ),
+            ignoreArmor = BoolValueYaml.Literal(true),
+        )
+        val domain = dto.toDomain() as Mechanic.Damage
+        assertThat(domain.components).hasSize(2)
+        assertThat(domain.components[0].attribute).isEqualTo(DamageAttribute.PHYSICAL)
+        assertThat(domain.components[1].attribute).isEqualTo(DamageAttribute.FIRE)
+        assertThat(domain.ignoreArmor).isEqualTo(BoolValue.Literal(true))
+    }
+
+    @Test
+    fun `knockback with from-hit-normal direction`() {
+        val dto = MechanicYaml.Knockback(
+            targets = TargeterYaml.Target,
+            direction = DirectionRefYaml.FromHitNormal,
+            strength = NumericValueYaml.Literal(1.2),
+        )
+        val domain = dto.toDomain() as Mechanic.Knockback
+        assertThat(domain.direction).isSameAs(DirectionRef.FromHitNormal)
+    }
+
+    @Test
+    fun `spawn particle with timing - per tick trail`() {
+        val dto = MechanicYaml.SpawnParticle(
+            targets = TargeterYaml.ProjectilePosition,
+            particleId = "trail-blue",
+            count = IntValueYaml.Literal(4),
+            periodTicks = IntValueYaml.Literal(1),
+        )
+        val domain = dto.toDomain() as Mechanic.SpawnParticle
+        assertThat(domain.particleId.value).isEqualTo("trail-blue")
+        assertThat(domain.count.toString()).contains("4")
+        assertThat((domain.periodTicks as com.astarworks.astera.core.domain.skill.value.IntValue.Literal).value)
+            .isEqualTo(1)
+    }
+
+    @Test
+    fun `if-then with nested then branch`() {
+        val dto = MechanicYaml.IfThen(
+            predicate = ConditionYaml.HealthBelow(
+                targets = TargeterYaml.Target,
+                fraction = NumericValueYaml.Literal(0.5),
+            ),
+            then_ = listOf(
+                MechanicYaml.Heal(
+                    targets = TargeterYaml.Target,
+                    amount = NumericValueYaml.Literal(5.0),
+                ),
+            ),
+        )
+        val domain = dto.toDomain() as Mechanic.IfThen
+        assertThat(domain.then_).hasSize(1)
+        assertThat(domain.then_.first()).isInstanceOf(Mechanic.Heal::class.java)
+        assertThat(domain.else_).isEmpty()
+    }
+
+    @Test
+    fun `cast skill defaults to caster targeter`() {
+        val dto = MechanicYaml.CastSkill(skillId = "fireball")
+        val domain = dto.toDomain() as Mechanic.CastSkill
+        assertThat(domain.skillId.value).isEqualTo("fireball")
+        assertThat(domain.targets).isSameAs(com.astarworks.astera.core.domain.skill.targeter.Targeter.Caster)
+    }
+}

@@ -32,6 +32,15 @@ skills:
   - trigger: left_click
     skill_id: example-blast
     cooldown_override_ticks: 6    # 0.3s @ 20 TPS
+    # Wave _skills-2 (ADR-0077) demo: the pistol piles on a short ignite
+    # against any victim of example-blast's hit_entity phase, so the
+    # base skill stays usable from other bindings without the burn.
+    phase_overrides:
+      hit_entity_append:
+        - type: apply_status
+          targets: { kind: target }
+          status_id: example-burn
+          effect_duration_ticks: { kind: literal, value: 40 }
 
 pdc_tags:
   astera:rarity: common

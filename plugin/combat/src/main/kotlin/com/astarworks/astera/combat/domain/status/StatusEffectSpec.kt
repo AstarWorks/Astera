@@ -1,6 +1,7 @@
 package com.astarworks.astera.combat.domain.status
 
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.status.StatusEffectId
 
 /**
  * Immutable status-effect definition.

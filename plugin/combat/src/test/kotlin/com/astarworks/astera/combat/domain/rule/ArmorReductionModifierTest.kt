@@ -76,7 +76,7 @@ class ArmorReductionModifierTest {
         attribute: DamageAttribute = DamageAttribute.PHYSICAL,
     ): DamageAttempt = DamageAttempt(
         targetId = targetId,
-        baseProfile = DamageProfile(base = base, attribute = attribute),
+        baseProfile = DamageProfile.single(base, attribute),
         source = DamageSource.Environment,
     )
 

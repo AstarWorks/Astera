@@ -10,7 +10,7 @@ import com.astarworks.astera.combat.domain.rule.DamageRule
 import com.astarworks.astera.combat.domain.rule.FriendlyFirePolicy
 import com.astarworks.astera.combat.domain.rule.HeadshotModifier
 import com.astarworks.astera.combat.domain.rule.IElementMatrix
-import com.astarworks.astera.combat.domain.status.StatusEffectId
+import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.combat.domain.status.StatusEffectSpec
 import com.astarworks.astera.combat.domain.status.StatusKind
@@ -77,7 +77,7 @@ class ApplyDamageUseCaseTest {
 
     private fun attempt(source: DamageSource = DamageSource.Environment) = DamageAttempt(
         targetId = targetId,
-        baseProfile = DamageProfile(base = 10.0, attribute = DamageAttribute.PHYSICAL),
+        baseProfile = DamageProfile.single(10.0, DamageAttribute.PHYSICAL),
         source = source,
         headshot = false,
     )

@@ -1,11 +1,8 @@
-# Phase 2 starter: PROJECTILE archetype example.
-# Launches a single projectile with a damage payload. The projectile engine
-# (Phase 2 mid Batch 3) reads launch_speed / max_lifetime_ticks; the damage
-# block is what lands on the first entity the projectile hits.
+# Wave _skills-2 / ADR-0077: PROJECTILE archetype with phase mechanics.
 #
-# Wave _items-1 (ADR-0073):
-#   - `trigger:` removed — binding is now owned by item YAML (`bindings:`)
-#   - `display_name_key:` / `description_key:` replaced by inline locale maps
+# `params` controls the projectile's macro shape (speed, lifetime, baseline
+# damage list). `phases` carries declarative mechanics fired at lifecycle
+# events — cast (launch), hit_entity / hit_block (impact), miss, expire.
 
 id: example-blast
 
@@ -17,12 +14,47 @@ description:
   en: "Launches a fire-attribute projectile — the canonical ranged example."
 
 archetype: projectile
-cooldown_ticks: 40        # ~2s @ 20 TPS
+cooldown_ticks: 40
+tags: [ ranged, fire-family ]
 
 params:
   type: projectile
-  launch_speed: 1.8       # blocks/tick
-  max_lifetime_ticks: 60  # ~3s flight time before despawn
+  launch_speed: 1.8
+  max_lifetime_ticks: 60
   damage:
-    base: 12.0
-    attribute: fire
+    - base: { kind: literal, value: 8.0 }
+      attribute: fire
+    - base: { kind: literal, value: 3.0 }
+      attribute: electric
+
+phases:
+  archetype: projectile
+  cast:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/blast-cast
+    - type: spawn_particle
+      targets: { kind: caster_offset, offset: { kind: literal, value: { x: 0.0, y: 1.5, z: 0.5 } } }
+      particle_id: example-burst
+  hit_entity:
+    - type: damage
+      targets: { kind: target }
+      components:
+        - base: { kind: literal, value: 8.0 }
+          attribute: fire
+        - base: { kind: literal, value: 3.0 }
+          attribute: electric
+    - type: apply_status
+      targets: { kind: target }
+      status_id: example-burn
+      effect_duration_ticks: { kind: literal, value: 60 }
+      chance: { kind: literal, value: 0.4 }
+  hit_block:
+    - type: spawn_particle
+      targets: { kind: hit_location }
+      particle_id: example-burst
+  miss:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/whiff
+  expire: []

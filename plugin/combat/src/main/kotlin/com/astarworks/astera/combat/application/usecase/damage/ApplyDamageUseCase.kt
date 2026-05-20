@@ -16,7 +16,7 @@ import com.astarworks.astera.combat.domain.event.FriendlyFireBlocked
 import com.astarworks.astera.combat.domain.event.KnockbackApplied
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.combat.domain.rule.DamageRule
-import com.astarworks.astera.combat.domain.status.StatusEffectId
+import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IScheduler

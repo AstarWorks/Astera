@@ -1,12 +1,9 @@
-# Wave 5a starter: PROJECTILE archetype with a hold-to-cast charge phase.
+# Wave _skills-2 / ADR-0077: PROJECTILE with charge phase.
 #
-# The `charge_ticks` field elevates this from `ChargedSkillVariant.Instant`
-# (default) to `Charged(30)` — the player must hold the trigger for 30 ticks
-# (~1.5s @ 20 TPS) before the projectile is launched. Release / cancel
-# semantics are orchestrated by `ChargedSkillCastUseCase`.
-#
-# Wave _items-1 (ADR-0073): trigger / i18n keys folded into item bindings +
-# inline locale maps.
+# `charge_ticks` puts this on ChargedSkillVariant.Charged(30) — the player
+# must hold the trigger for 30 ticks (~1.5s) before the projectile is
+# launched. Once charged, the cast / hit_entity / hit_block / miss / expire
+# phases dispatch as normal.
 
 id: example-charged
 
@@ -18,13 +15,38 @@ description:
   en: "Charged ranged skill — hold to build up before launching a heavier projectile."
 
 archetype: projectile
-cooldown_ticks: 60         # ~3s @ 20 TPS — slightly longer than instant blast
-charge_ticks: 30           # ~1.5s hold before the projectile launches
+cooldown_ticks: 60
+charge_ticks: 30
+tags: [ ranged, fire-family, charged ]
 
 params:
   type: projectile
-  launch_speed: 2.4        # blocks/tick — slightly faster than example-blast
-  max_lifetime_ticks: 80   # ~4s flight time before despawn
+  launch_speed: 2.4
+  max_lifetime_ticks: 80
   damage:
-    base: 18.0             # heavier hit than example-blast to reward the hold
-    attribute: fire
+    - base: { kind: literal, value: 18.0 }
+      attribute: fire
+
+phases:
+  archetype: projectile
+  cast:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/charged-release
+  hit_entity:
+    - type: damage
+      targets: { kind: target }
+      components:
+        - base: { kind: literal, value: 18.0 }
+          attribute: fire
+    - type: apply_status
+      targets: { kind: target }
+      status_id: example-burn
+      effect_duration_ticks: { kind: literal, value: 100 }
+      chance: { kind: literal, value: 0.7 }
+  hit_block:
+    - type: spawn_particle
+      targets: { kind: hit_location }
+      particle_id: example-burst
+  miss: []
+  expire: []

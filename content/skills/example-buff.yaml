@@ -1,9 +1,8 @@
-# Phase 2 starter: BUFF archetype example — short-press defensive buff.
-# Applies a self-targeted heal-amp via the example-heal status; the runtime
-# heal handler (Phase 2 mid Batch 3) reads the multiplier from the spec.
+# Wave _skills-2 / ADR-0077: BUFF archetype with phase mechanics.
 #
-# Wave _items-1 (ADR-0073): trigger / i18n keys folded into item bindings +
-# inline locale maps.
+# Self-buff that grants `example-heal-amp` for the duration. The `cast` phase
+# fires the buff-on sound; `expire` plays the buff-off sound when the duration
+# elapses (BuffHandler schedules the expire dispatch via IScheduler).
 
 id: example-buff
 
@@ -15,9 +14,22 @@ description:
   en: "Briefly amplifies healing received by the caster."
 
 archetype: buff
-cooldown_ticks: 200       # ~10s @ 20 TPS
+cooldown_ticks: 200
+tags: [ buff, heal-amp ]
 
 params:
   type: buff
   status_effect_id: example-heal-amp
-  duration_ticks: 60      # ~3s window of amplified healing
+  duration_ticks: 60
+
+phases:
+  archetype: buff
+  cast:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/buff-on
+  expire:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/buff-off
+  removed: []

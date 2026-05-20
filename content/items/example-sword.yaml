@@ -31,6 +31,16 @@ equip_slot: mainhand
 skills:
   - trigger: left_click
     skill_id: example-charge
+    # Wave _skills-2 (ADR-0077) demo: this binding appends an extra
+    # particle burst to the buff's cast phase. The skill itself emits one
+    # particle; the item-bound override piggybacks a second on top so the
+    # sword's authoring choice (more glow) doesn't require editing the
+    # shared skill YAML.
+    phase_overrides:
+      cast_append:
+        - type: spawn_particle
+          targets: { kind: caster }
+          particle_id: example-burst
 
 pdc_tags:
   astera:rarity: common

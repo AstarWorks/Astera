@@ -1,11 +1,7 @@
-# Wave 5a starter: skill with a mana cost.
-# Demonstrates the `mana_cost` field added in Wave 5a — ConsumeManaUseCase
-# debits this amount before SkillCast is published; if the caster's pool is
-# below the cost, the cast fails with InsufficientMana and the cooldown is
-# not started.
-#
-# Wave _items-1 (ADR-0073): trigger / i18n keys folded into item bindings +
-# inline locale maps.
+# Wave _skills-2 / ADR-0077: PROJECTILE with mana cost.
+# Demonstrates `mana_cost`: ConsumeManaUseCase debits 30 mana before the cast
+# commits. On insufficient mana the cast fails (InsufficientMana) and no
+# cooldown / SkillCast is published.
 
 id: example-mana-skill
 
@@ -17,13 +13,30 @@ description:
   en: "A ranged skill that debits the caster's mana pool on each fire."
 
 archetype: projectile
-cooldown_ticks: 40        # ~2s @ 20 TPS
-mana_cost: 30             # debited from the caster's ManaPool on cast
+cooldown_ticks: 40
+mana_cost: 30
+tags: [ ranged, fire-family, mana-cost ]
 
 params:
   type: projectile
-  launch_speed: 1.6       # blocks/tick
-  max_lifetime_ticks: 60  # ~3s flight time
+  launch_speed: 1.6
+  max_lifetime_ticks: 60
   damage:
-    base: 10.0
-    attribute: fire
+    - base: { kind: literal, value: 10.0 }
+      attribute: fire
+
+phases:
+  archetype: projectile
+  cast:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/mana-cast
+  hit_entity:
+    - type: damage
+      targets: { kind: target }
+      components:
+        - base: { kind: literal, value: 10.0 }
+          attribute: fire
+  hit_block: []
+  miss: []
+  expire: []

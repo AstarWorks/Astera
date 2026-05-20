@@ -28,6 +28,7 @@ import com.astarworks.astera.combat.application.service.StubCelEvaluator
 import com.astarworks.astera.combat.application.service.YamlElementMatrix
 import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
+import com.astarworks.astera.combat.application.service.MechanicDispatcher
 import com.astarworks.astera.combat.application.usecase.charge.ChargedSkillCastUseCase
 import com.astarworks.astera.combat.application.usecase.cost.ConsumeManaUseCase
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
@@ -37,9 +38,16 @@ import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.domain.event.SkillCastRequested
 import com.astarworks.astera.combat.application.usecase.skill.CastSkillUseCase
+import com.astarworks.astera.combat.application.usecase.skill.dispatch.AoeHandler
+import com.astarworks.astera.combat.application.usecase.skill.dispatch.BuffHandler
+import com.astarworks.astera.combat.application.usecase.skill.dispatch.MeleeHandler
+import com.astarworks.astera.combat.application.usecase.skill.dispatch.ProjectileHandler
 import com.astarworks.astera.combat.application.usecase.skill.dispatch.SkillCastDispatcher
+import com.astarworks.astera.combat.application.usecase.skill.dispatch.SummonHandler
+import com.astarworks.astera.combat.application.usecase.skill.dispatch.TeleportHandler
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.application.usecase.status.TickCooldownUseCase
+import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.combat.domain.rule.ArmorReductionModifier
 import com.astarworks.astera.combat.domain.rule.CriticalStrikeModifier
 import com.astarworks.astera.combat.domain.rule.DamageRule
@@ -207,6 +215,25 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 containerStore = services.get<IPlayerAttributeContainerStore>(),
             )
             val consumeMana = ConsumeManaUseCase(manaService, eventBus)
+
+            // Wave _skills-2 (ADR-0077): MechanicDispatcher is the central
+            // runtime for the Mechanic-Targeter-Phase architecture. Each
+            // archetype handler routes per-phase mechanic lists through it.
+            val celEvaluator = services.getOrThrow<ICelEvaluator>()
+            val broadcaster = services.get<IBroadcaster>()
+            val mechanicDispatcher = MechanicDispatcher(
+                applyDamage = applyDamage,
+                applyStatus = applyStatus,
+                worldGateway = worldGateway,
+                knockbackGateway = knockbackGateway,
+                nearbyQuery = nearbyQuery,
+                broadcaster = broadcaster,
+                celEvaluator = celEvaluator,
+                scheduler = scheduler,
+                eventBus = eventBus,
+            )
+            registrations += services.register<MechanicDispatcher>(mechanicDispatcher)
+
             val castSkill = CastSkillUseCase(
                 skillRegistry = skillContents,
                 statusContainer = statusContainer,
@@ -214,6 +241,9 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 cooldownTracker = cooldownTracker,
                 scheduler = scheduler,
                 consumeMana = consumeMana,
+                // skillCastDispatcher injected after construction below to
+                // break the wiring cycle (dispatcher needs ProjectileHandler
+                // which needs the projectile service which we resolve next).
             )
             val chargeTracker = ChargeTracker(scheduler)
             @Suppress("UNUSED_VARIABLE")
@@ -231,22 +261,9 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 scheduler = scheduler,
             )
 
-            // Wave _items-1 (ADR-0073) — subscribe CastSkillUseCase to the
-            // cross-plugin SkillCastRequested event. Items plugin's binding
-            // dispatcher publishes this event when a bound input fires; we
-            // translate it into a CastSkillUseCase.execute(...) call here so
-            // combat continues to own the silence / cooldown / mana pipeline.
-            subscriptions += eventBus.subscribe(SkillCastRequested::class) { event ->
-                castSkill.execute(
-                    casterId = event.actorId,
-                    skillId = event.skillId,
-                    at = event.origin,
-                )
-            }
-
-            // Wave 5a — wire SkillCastDispatcher (subscribes to SkillCast).
-            // Falls back to a no-op projectile service when Astera-Weapons isn't
-            // loaded; the PROJECTILE handler then logs a warn and drops.
+            // Wave _skills-2 (ADR-0077) — archetype handlers, each holding a
+            // reference to the shared MechanicDispatcher. Falls back to a
+            // no-op projectile service when Astera-Weapons isn't loaded.
             val effectiveProjectileService = projectileService
                 ?: object : IProjectileService {
                     override fun spawn(
@@ -259,16 +276,51 @@ public class AsteraCombatPlugin : JavaPlugin() {
                         return NoOpProjectileHandle
                     }
                 }
+            val projectileHandler = ProjectileHandler(effectiveProjectileService, mechanicDispatcher)
+            val meleeHandler = MeleeHandler(nearbyQuery, applyDamage, mechanicDispatcher)
+            val aoeHandler = AoeHandler(nearbyQuery, applyDamage, mechanicDispatcher)
+            val buffHandler = BuffHandler(applyStatus, scheduler, mechanicDispatcher)
+            val teleportHandler = TeleportHandler(worldGateway, mechanicDispatcher)
+            val summonHandler = SummonHandler(mechanicDispatcher)
+
             val dispatcher = SkillCastDispatcher(
                 skillRegistry = skillContents,
-                applyDamage = applyDamage,
-                applyStatus = applyStatus,
-                worldGateway = worldGateway,
-                projectileService = effectiveProjectileService,
-                nearbyQuery = nearbyQuery,
+                projectileHandler = projectileHandler,
+                meleeHandler = meleeHandler,
+                aoeHandler = aoeHandler,
+                buffHandler = buffHandler,
+                teleportHandler = teleportHandler,
+                summonHandler = summonHandler,
                 eventBus = eventBus,
             )
             subscriptions += dispatcher.start()
+
+            // Wire CastSkillUseCase ↔ SkillCastDispatcher for PhaseOverrides
+            // hand-off + MechanicDispatcher ↔ CastSkillUseCase for
+            // Mechanic.CastSkill recursion (closing the loop).
+            castSkill.bindSkillCastDispatcher(dispatcher)
+            mechanicDispatcher.setCastSkillInvoker { invokedSkillId, _, ctx ->
+                castSkill.execute(
+                    casterId = ctx.actorId,
+                    skillId = invokedSkillId,
+                    at = ctx.origin,
+                )
+            }
+
+            // Wave _items-1 (ADR-0073) — subscribe CastSkillUseCase to the
+            // cross-plugin SkillCastRequested event. Items publishes this
+            // when a bound input fires; we translate it into a
+            // CastSkillUseCase.execute(...) call so combat continues to own
+            // the silence / cooldown / mana pipeline. Wave _skills-2 carries
+            // phase_overrides through.
+            subscriptions += eventBus.subscribe(SkillCastRequested::class) { event ->
+                castSkill.execute(
+                    casterId = event.actorId,
+                    skillId = event.skillId,
+                    at = event.origin,
+                    phaseOverrides = event.phaseOverrides,
+                )
+            }
 
             // Wave 5a-fix2 — assist attribution pipeline (ADR-0063)
             val damageHistoryListener = RecordDamageHistoryOnDamageDealtListener(damageHistory)

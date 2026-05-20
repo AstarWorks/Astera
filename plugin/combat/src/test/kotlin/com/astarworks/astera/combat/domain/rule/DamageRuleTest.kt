@@ -35,7 +35,7 @@ class DamageRuleTest {
 
     private fun attempt(base: Double, headshot: Boolean): DamageAttempt = DamageAttempt(
         targetId = target,
-        baseProfile = DamageProfile(base = base, attribute = DamageAttribute.PHYSICAL),
+        baseProfile = DamageProfile.single(base, DamageAttribute.PHYSICAL),
         source = DamageSource.Environment,
         headshot = headshot,
     )

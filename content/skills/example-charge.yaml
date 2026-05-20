@@ -1,9 +1,6 @@
-# Phase 2 starter: BUFF archetype example — speed boost on hold.
-# The "charge" framing is authoring intent (player builds speed while holding);
-# mechanically it grants a `speed-up` status effect for the listed duration.
-#
-# Wave _items-1 (ADR-0073): trigger / i18n keys folded into item bindings +
-# inline locale maps.
+# Wave _skills-2 / ADR-0077: BUFF archetype — speed boost on hold.
+# Mechanically a `example-speed` status applied for `duration_ticks`. The
+# cast / expire phases bookend with sound + minor particles.
 
 id: example-charge
 
@@ -15,9 +12,25 @@ description:
   en: "Hold to gain a movement-speed buff for a short window."
 
 archetype: buff
-cooldown_ticks: 80        # ~4s @ 20 TPS
+cooldown_ticks: 80
+tags: [ buff, movement ]
 
 params:
   type: buff
   status_effect_id: example-speed
-  duration_ticks: 100     # ~5s of speed
+  duration_ticks: 100
+
+phases:
+  archetype: buff
+  cast:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/charge-on
+    - type: spawn_particle
+      targets: { kind: caster }
+      particle_id: example-burst
+  expire:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/charge-off
+  removed: []

@@ -17,7 +17,7 @@ class CriticalStrikeModifierTest {
 
     private fun attempt(base: Double = 10.0): DamageAttempt = DamageAttempt(
         targetId = target,
-        baseProfile = DamageProfile(base = base, attribute = DamageAttribute.PHYSICAL),
+        baseProfile = DamageProfile.single(base, DamageAttribute.PHYSICAL),
         source = DamageSource.Environment,
     )
 

@@ -1,6 +1,6 @@
 package com.astarworks.astera.combat.application.port.outbound
 
-import com.astarworks.astera.combat.domain.status.StatusEffectId
+import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.core.domain.player.PlayerId
 

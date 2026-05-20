@@ -1,69 +1,96 @@
 package com.astarworks.astera.combat.application.usecase.skill.dispatch
 
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
+import com.astarworks.astera.combat.application.service.MechanicContext
+import com.astarworks.astera.combat.application.service.MechanicDispatcher
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
+import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
+import com.astarworks.astera.core.domain.skill.value.NumericValue
 
 /**
- * AOE archetype handler — like [MeleeHandler] but scaled by
- * [SkillParams.AoeParams.falloff] across the radius.
+ * AOE archetype handler — Wave _skills-2 / ADR-0077 rewrite.
  *
- * Wave 5a simplification
- * ----------------------
- * [INearbyTargetQuery] returns only `PlayerId`s — it does not surface
- * per-target distances. Until Wave 6 adds a richer query response (or until
- * we accept a `Pair<PlayerId, Vec3>`), every target inside the radius is
- * treated as if it were at `t = AOE_AVERAGE_DISTANCE_RATIO` of the radius —
- * a uniform mid-range falloff approximation. The structure (apply easing on
- * a `t` parameter, scale base damage) is preserved so Wave 6 can swap in the
- * real `distance / radius` ratio per target without touching this file's
- * public shape.
+ * Fires the `cast` phase, finds nearby players, applies the scaled baseline
+ * damage (via the legacy `params.damage` + `params.falloff` sweep), then
+ * dispatches `hit_entity` mechanics for each target. Finally fires `expire`
+ * once the sweep finishes (Phase 1: immediately; Phase 6 will schedule it
+ * after the AOE's lingering duration).
+ *
+ * The Wave 5a "uniform falloff at AOE_AVERAGE_DISTANCE_RATIO" approximation
+ * is preserved — Phase 6 will surface per-target distances and apply
+ * `params.falloff` accurately.
  */
 public class AoeHandler(
     private val nearbyQuery: INearbyTargetQuery,
     private val applyDamage: ApplyDamageUseCase,
+    private val dispatcher: MechanicDispatcher,
 ) {
-    public fun handle(event: SkillCast, params: SkillParams.AoeParams) {
+    public fun handle(
+        event: SkillCast,
+        params: SkillParams.AoeParams,
+        phases: PhaseMechanics.Aoe,
+    ) {
+        val baseCtx = MechanicContext(
+            actorId = event.caster,
+            origin = event.at,
+            castedSkills = setOf(event.skillId),
+        )
+
+        dispatcher.dispatch(phases.cast, baseCtx)
+
         val candidates = nearbyQuery.findInRadius(event.at, params.radius)
-        if (candidates.isEmpty()) return
+            .filter { it != event.caster }
 
-        val source = DamageSource.Skill(
-            skillId = event.skillId,
-            casterId = event.caster,
-            casterPosition = event.at,
-        )
-
-        // Wave 5a: uniform falloff at AOE_AVERAGE_DISTANCE_RATIO. See class kdoc.
-        val falloffMultiplier = (1.0 - params.falloff.apply(AOE_AVERAGE_DISTANCE_RATIO))
-            .coerceAtLeast(0.0)
-        val scaledBase = params.damage.base * falloffMultiplier
-        val scaledProfile = DamageProfile(
-            base = scaledBase,
-            attribute = params.damage.attribute,
-        )
-
-        for (target in candidates) {
-            if (target == event.caster) continue
-            applyDamage.execute(
-                DamageAttempt(
-                    targetId = target,
-                    baseProfile = scaledProfile,
-                    source = source,
-                ),
+        if (candidates.isNotEmpty()) {
+            val source = DamageSource.Skill(
+                skillId = event.skillId,
+                casterId = event.caster,
+                casterPosition = event.at,
             )
+            val falloffMultiplier = (1.0 - params.falloff.apply(AOE_AVERAGE_DISTANCE_RATIO))
+                .coerceAtLeast(0.0)
+            val scaledProfile = scaleProfile(params.damage, falloffMultiplier)
+
+            for (target in candidates) {
+                applyDamage.execute(
+                    DamageAttempt(
+                        targetId = target,
+                        baseProfile = scaledProfile,
+                        source = source,
+                    ),
+                )
+                dispatcher.dispatch(phases.hitEntity, baseCtx.copy(targetId = target))
+            }
         }
+
+        // Phase 1: AOE has no lingering duration plumbing; fire expire now.
+        dispatcher.dispatch(phases.expire, baseCtx)
+    }
+
+    private fun scaleProfile(profile: DamageProfile, multiplier: Double): DamageProfile {
+        if (multiplier == 1.0) return profile
+        return DamageProfile(
+            profile.components.map { component ->
+                val scaled = when (val b = component.base) {
+                    is NumericValue.Literal -> NumericValue.Literal(b.value * multiplier)
+                    is NumericValue.Cel -> b // Phase 1 keeps CEL untouched; evaluator handles scaling later.
+                }
+                DamageComponent(base = scaled, attribute = component.attribute, multiplier = component.multiplier)
+            },
+        )
     }
 
     public companion object {
         /**
          * Uniform falloff parameter used until per-target distances are
-         * surfaced (Wave 6). Picked at `0.5` so the easing curve is sampled
-         * at the midpoint of its domain — a reasonable expectation value
-         * across a roughly uniform target distribution inside the radius.
+         * surfaced (Phase 6). Picked at `0.5` so the easing curve is sampled
+         * at the midpoint of its domain.
          */
         public const val AOE_AVERAGE_DISTANCE_RATIO: Double = 0.5
     }

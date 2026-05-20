@@ -4,7 +4,7 @@ import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.damage.ProjectileOrigin
-import com.astarworks.astera.combat.domain.status.StatusEffectId
+import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -29,7 +29,7 @@ class KnockbackModifierTest {
 
     private fun attempt(source: DamageSource, base: Double = 10.0): DamageAttempt = DamageAttempt(
         targetId = target,
-        baseProfile = DamageProfile(base = base, attribute = DamageAttribute.PHYSICAL),
+        baseProfile = DamageProfile.single(base, DamageAttribute.PHYSICAL),
         source = source,
     )
 
