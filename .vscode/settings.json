@@ -1,9 +1,15 @@
 {
   "yaml.schemas": {
-    "content/schemas/weapon.schema.json": "content/weapons/*.yaml",
     "content/schemas/skill.schema.json": "content/skills/*.yaml",
     "content/schemas/status-effect.schema.json": "content/status/*.yaml",
     "content/schemas/item.schema.json": "content/items/*.yaml",
-    "content/schemas/element-matrix.schema.json": "content/balance/element-matrix.yaml"
+    "content/schemas/element-matrix.schema.json": "content/balance/element-matrix.yaml",
+    "content/schemas/particle.schema.json": "content/particles/*.yaml",
+    "content/schemas/stage.schema.json": "content/stages/*.yaml",
+    "content/schemas/shop.schema.json": "content/shops/*.yaml",
+    "content/schemas/norma.schema.json": "content/norma/*.yaml",
+    "content/schemas/gui.schema.json": "content/gui/*.yaml",
+    "content/schemas/anomaly.schema.json": "content/anomaly/*.yaml",
+    "content/schemas/generator.schema.json": "content/generators/*.yaml"
   }
 }
