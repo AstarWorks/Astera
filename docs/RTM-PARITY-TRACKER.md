@@ -74,11 +74,11 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 102 | 70.3% |
-| 🟨 partial | 3 | 2.1% |
-| 🔌 port-only | 9 | 6.2% |
-| ❌ nothing | 31 | 21.4% |
-| **Total tracked** | **145** | 100% |
+| ✅ full | 107 | 69.5% |
+| 🟨 partial | 4 | 2.6% |
+| 🔌 port-only | 12 | 7.8% |
+| ❌ nothing | 31 | 20.1% |
+| **Total tracked** | **154** | 100% |
 
 (Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability); Wave _persist-1 で Cat 8 持続化補完 — SessionState/Friendship/Party/RewardBridge の 4 Postgres impl (V11/V12/V13/V15 + ADR-0068 Cross-server persistence boundary))
 
@@ -93,7 +93,7 @@ adds to `gradle/libs.versions.toml`:
 - Wave 5a-fix2: **51.4% RTM parity** (Cat 1 +2 ✅ DamageHistory + assist counter, +1 partial→full SkillTrigger 20 値 — total 74/144)
 - Wave 5e: **65.3% RTM parity** (Cat 1 double-jump +1, Cat 2 listener-arch refactor +1, Cat 6 ender-chest + reward-bridge +2, Cat 7 achievement/tutorial/settings/UAC-migration/levelupmission/playerpin/quickcast +7, Cat 8 spectator/friend/chat/audit/inventory-snapshot/action-lock/control-scheme/particle-hide/portal-ready +9 — total 94/144)
 - **Wave _ops: 66.7% RTM parity** (Cat 10 +2 ✅ Observability: micrometer + /metrics endpoint — total 96/144)
-- **Wave 5e-fix (2026-05-20): 70.5% RTM parity** (Cat 8 first-time-profile creation +1 ✅; denominator +1 row catalog growth — total 103/146 — applied against the Wave 5g 102/145 baseline)
+- **Wave 5k: 69.5% RTM parity** (Cat 8b new category +5 ✅ Resource pool 3 種 + ItemSpec resource extension; +3 🔌 port-only physiology gateways; +1 🟨 balance YAML; +0 ❌ — total 107/154, catalog +9)
 - Wave 6 (Paper Sweep) complete: ~65-70% RTM parity (Phase 1 PoC end-to-end)
 - Phase 3 Siege Warfare complete (Wave 6 + 7a content): ~75-80%
 - Phase 4 (UGC + Web + Vault + Gacha): ~85-90%
@@ -284,9 +284,34 @@ adds to `gradle/libs.versions.toml`:
 | **Control scheme PersonalSettings field** (右クリック式 / ボタン式) | ✅ Wave 5e | (済 Wave 5e) | P2 | RTM README §プレイヤーデータ "操作方法選択" |
 | **Particle-hide visibility setting** (per-viewer team filter on `Server#spawnParticle`) | ✅ Wave 5e (domain; Paper packet filter = Wave 6a) | (済 Wave 5e) | P2 | RTM README §戦闘システム + §プレイヤーデータ "パーティクル非表示設定" |
 | **`PlayerPortalReadyEvent`** (lobby↔match server entry/exit signal) | ✅ Wave 5e (publisher wired at MatchSpawnUseCase + RestoreInventoryOnPlayerJoinedListener) | (済 Wave 5e) | P2 | RTM `event/data/PlayerPortalReadyEvent.kt` |
-| **First-time profile creation** (default loadout + wallet seed + tutorial auto-enroll + welcome dialog) | ✅ Wave 5e-fix (`IPlayerProfileService` + `CreateFirstTimeProfileOnPlayerJoinedListener` + `content/balance/starter-grant.yaml` + StarterGrantLoader; partial-grant tolerated, ledger lookup lazy) | (済 Wave 5e-fix) | **P1** | grep `IPlayerProfileService\|StarterGrant` → 0 件 (gap discovered post-Wave 5e in Plan v5 audit) |
 | Ban / Mute lists | ❌ nothing | **Phase 4 (Wave 8f)** | P2 | (none) |
 | Login history table | ❌ nothing | Phase 4 | P3 | (none) |
+
+---
+
+## Category 8b: Player physiology + Resource pool (Wave 5k, ADR-0080)
+
+Bukkit runtime mutation tier parallel to Wave 5a combat pipeline + Wave 5e
+attribute container. Resource pool 3 種 implements the **Annihilation server
+vision** (per-weapon Ammo / Stamina / Mana) committed in
+`.claude/plans/idea-annihilation-vision.md`.
+
+| RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
+|---|---|---|---|---|
+| `IPlayerHealthGateway` (admin / system / respawn direct mutation outside combat pipeline) | 🔌 port + InMemory + Fake (Wave 5k); Paper adapter writes back to `AttributeInstance.GENERIC_MAX_HEALTH` | **Wave 5k** (port + InMemory) + **Wave 6a** (Paper) | P1 | `plugin/core/.../application/port/outbound/IPlayerHealthGateway.kt`; ADR-0080 §1 |
+| `IPlayerSpeedGateway` (walk / fly / sprint / no-clip with TTL auto-reset) | 🔌 port + InMemory + Fake (Wave 5k) | **Wave 5k** (port + InMemory) + **Wave 6a** (Paper) | P1 | `plugin/core/.../application/port/outbound/IPlayerSpeedGateway.kt`; ADR-0080 §1 |
+| `IPlayerFoodGateway` (suppressHungerHud for custom-HUD coexist + setHungerAsMana fallback) | 🔌 port + InMemory + Fake (Wave 5k) | **Wave 5k** (port + InMemory) + **Wave 6a** (Paper cancels `FoodLevelChangeEvent`) | P1 | `plugin/core/.../application/port/outbound/IPlayerFoodGateway.kt`; ADR-0080 §1 |
+| Resource pool 3 種: `ResourceType` (`Ammo` / `Stamina` / `Mana`) + `PlayerResourcePool` + `ResourceCap` | ✅ Wave 5k (domain) | (済 Wave 5k) | P0 | `plugin/core/.../domain/resource/{ResourceType,PlayerResourcePool,ResourceCap}.kt`; ADR-0080 §2 |
+| `IResourcePoolService` (spendResource / reload / applyRegen / setActiveWeapon) | ✅ Wave 5k (port + InMemory + Fake) | (済 Wave 5k) | P0 | `plugin/core/.../application/port/outbound/IResourcePoolService.kt`; `InMemoryResourcePoolService.kt` |
+| `IResourceRegenScheduler` (sub-integer accumulator + whole-int flush, tick-driven) | ✅ Wave 5k (port + DefaultResourceRegenScheduler) | (済 Wave 5k) | P0 | `plugin/core/.../application/service/DefaultResourceRegenScheduler.kt`; ADR-0080 §2 |
+| `ItemSpec.resourceType` / `resourceCostPerUse` / `resourceMaxPool` / `resourceRegenPerSecond` / `resourceReloadable` | ✅ Wave 5k (`ItemSpec` extension + `ItemYamlConfig` wire) | (済 Wave 5k) | P0 | `plugin/core/.../domain/item/ItemSpec.kt`; `ItemYamlConfig.kt`; ADR-0080 §2 |
+| `content/balance/resource-defaults.yaml` per-type cap + regen rate | 🟨 file landed; loader hook deferred to Wave 5n (per-match balance overlay) | **Wave 5k** (file) + **Wave 5n** (loader) | P2 | `content/balance/resource-defaults.yaml`; `ResourceCap.DEFAULTS` |
+| HUD example for active-weapon resource bar (`WeaponResourceHud.kt` 3 種 swap based on `ItemSpec.resourceType`) | ❌ nothing (deferred to Wave 5j HUD foundation merge) | **Wave 5j-fix** (post-merge) or **Wave 6a** | P2 | Plan v5 §"Wave 5k Cross-cutting integration" |
+
+**Wave 5k summary**: 4 new ports (3 mutation gateways + resource pool service)
++ 1 new scheduler port + 4 new domain types + 12 new domain events. All Konsist
+green; 2 new rules added (baseline 30 → 32). Parity gauge **same ✅ count**
+(catalog +9 entries, including 5 ✅ and 1 partial under this new category).
 
 ---
 
@@ -453,4 +478,3 @@ specific issue / file needs verification.
 - Wave 5g (2026-05-19): Core hardening pre-Paper-sweep — Shop stock bug fix (`IShopStockRepository` + V19 migration + `SELECT ... FOR UPDATE` atomic decrement + idempotent seed at startup; existing `OutOfStock` death code is now live) + Shop access surfaces (`IShopVendor` + `IShopReferenceQuery` + `IShopAccessIntent` sealed 4-variant + `ShopAccessIntentRouter` + Default/InMemory/Fake impls + ADR-0071 commitment to Phase 4 Wave 8b) + Pre-Paper-sweep port commitments (`IMatchTimerService` + `IPlayerMovementGateway` + `IPlayerVisionGateway` + `IStructurePaste` + 4 Fakes + `IStatusEffectContainer.applyBulk` default + `PlayerMatchAttributes.RESPAWN_RATE_MULTIPLIER` + ADR-0072) + Anomaly 5 TODO closure (StatusBurst / SpawnSurge / TimeWarp / GravityShift / FogOfWar Fake-level wire via the new gateway ports) + Konsist +2 rules (Wave 6 Paper allow-list + IShopStockRepository priority-100 pin) → baseline 28 → 30. Net catalog +1 row (Shop access surfaces); StructureService ❌→🔌. Vanilla Potion 統一は Wave 6a Paper adapter merge layer に意図的に閉じる (domain には漏らさず、ADR-0030 §8 と整合)。**Total parity 70.8% (102/144) → 70.3% (102/145, same ✅, +2 🔌, −1 ❌)** — parity % decrease is purely catalog growth (new row added). ADR-0071 + ADR-0072 → Accepted.
 - Wave _items-1 (2026-05-19): Item-centric content model + Skill multi-binding + inline i18n — `plugin/weapons` → `plugin/items` rename (ADR-0073 Accepted). Item schema: material xor external_key + inline i18n name/lore (ja/en) + rarity + level_requirement + vanilla AttributeModifier support (attack_damage/attack_speed/armor/armor_toughness/knockback_resistance/movement_speed_multiplier/max_health_bonus) + equip_slot (mainhand/offhand/helmet/chestplate/leggings/boots) + behavior flags (max_durability/unbreakable/drop_on_death/keep_on_death/enchantable/glint) + `skills: List<ItemSkillBinding>` multi-skill binding. Skill schema: trigger field deleted (moved to binding), inline i18n name/description (ja/en). Domain event `SkillCastRequested` added to core. `SkillTrigger`/`SkillId`/`DamageProfile` promoted to core from combat. Konsist rule: Items ← Core (not Combat). sibling-isolation matrix updated (ADR-0022). `SkillCast` event chain + `IDamageGateway` path unchanged. No RTM rows flipped (domain/design work). ADR-0073 → Accepted.
 - Wave _infra-5 (2026-05-19): weapon→item→model chain closed + Studio frontend `/weapons` → `/items` migration (ADR-0070 Accepted). Kotlin: `ItemYamlConfig.model: String?` + `ItemSpec.modelSlug: String?` (opaque slug — no `.model.json` suffix, null defers to vendor/archetype fallback). Studio backend `/api/items/load/:slug`: priority resolution content dir → samples dir → archetype map, exposes `modelSource: 'content'|'samples'|'archetype'` + `modelPathRelative`. New endpoint `GET /api/items/model/by-slug/:slug`. Studio frontend: `WeaponsView.vue`/`WeaponPreview.vue` deleted, `ItemsView.vue`/`ItemPreview.vue` created consuming `/api/items` + new `LoadedItem` (incl. `modelSource`). `src/api.ts` rewritten — `WeaponListEntry`/`WeaponYamlConfig`/`LoadedWeapon`/`api.weapons`/`api.loadWeapon`/`api.weaponModel` removed; `ItemListEntry`/`ItemYamlConfig` (incl. `model?: string`)/`ItemSkillBindingYaml`/`ItemAttributesYaml`/`LoadedItem`/`api.items`/`api.loadItem`/`api.itemModelBySlug`/`api.itemModelByArchetype` added. Router `/weapons` → `/items`, nav tab `ウェポン` → `アイテム`. FALLBACK chip narrowed to `modelSource === 'archetype' && modelFallback`. Sample content: `content/items/example-pistol.yaml` declares `model: example-pistol`, `content/models/example-pistol.model.json` seeded from `tools/model-gen/samples/sword.model.json` (placeholder — visual fidelity is ADR-0061 Mismatch A, separate `build-model` track). Konsist 22 rules green; `./gradlew check` green; Studio `bun run typecheck && bun test` green. ADR-0070 → Accepted (references ADR-0061 + ADR-0073, supersedes neither). No RTM rows flipped (structural plumbing). ADR-0061 Mismatch C resolved; Mismatch A remains open.
-- Wave 5e-fix (2026-05-20): First-time login profile creation patch — Plan v5 audit gap closure for Wave 5e. `IPlayerProfileService` port + sealed `ProfileError` (AlreadyExists / PartialGrant) + `StarterGrant` domain value + `StarterGrantYamlConfig` kaml DTO + `StarterGrantLoader` (fail-soft to `StarterGrant.EMPTY`) + `InMemoryPlayerProfileService` (idempotent, lazy `ICurrencyLedger` lookup) + `CreateFirstTimeProfileOnPlayerJoinedListener` (thin adapter per ADR-0064, subscribes before `RestoreInventoryOnPlayerJoinedListener`) + `content/balance/starter-grant.yaml` example (`example-sword` + `example-wand` loadout / GOLD 100 / `getting-started` tutorial / `astera-welcome` dialog) + `FakePlayerProfileService` test-fixture + 26 unit tests across 5 files (StarterGrant + StarterGrantYamlConfig + StarterGrantLoader + InMemoryPlayerProfileService + CreateFirstTimeProfileOnPlayerJoinedListener). Wired in `AsteraCorePlugin.onEnable` at priority 0 between TutorialContents bootstrap and inventory listener subscription. No new ADR — Wave 5e ADR-0058 (UAC) + ADR-0064 (listener-service separation) carry the design; PoC posture per CLAUDE.md §Pre-release allows forward-only port commit without compat shim. Wallet credit / tutorial enrollment / welcome-dialog show all degrade gracefully when their adapters are absent (`PartialGrant.failedSteps` surfaces what was skipped for operator audit; the join always completes). **Total parity 70.3% (102/145) → 70.5% (103/146)** — net +1 ✅ in Cat 8, denominator +1 (catalog growth). Konsist 22 rules green; `./gradlew check` + `shadowJar` all 7 plugins green.
