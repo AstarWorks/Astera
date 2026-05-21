@@ -52,15 +52,19 @@ import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.observability.IMetricsRegistry
+import com.astarworks.astera.core.application.port.outbound.IPlayerFoodGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
-import com.astarworks.astera.core.application.port.outbound.IPlayerLocationQueryService
+import com.astarworks.astera.core.application.port.outbound.IPlayerSpeedGateway
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
-import com.astarworks.astera.core.application.port.outbound.IRegionPermissionService
+import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
+import com.astarworks.astera.core.application.port.outbound.IResourceRegenScheduler
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
-import com.astarworks.astera.core.application.port.outbound.IStageRegionIndex
+import com.astarworks.astera.core.application.port.outbound.IPlayerPvpStateService
+import com.astarworks.astera.core.application.port.outbound.ISpawnProtectionGateway
 import com.astarworks.astera.core.application.port.outbound.ITutorialRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
@@ -69,6 +73,7 @@ import com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway
 import com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway
 import com.astarworks.astera.core.application.port.outbound.IWorldWeatherGateway
 import com.astarworks.astera.core.application.port.outbound.ReloadError
+import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
@@ -86,10 +91,17 @@ import com.astarworks.astera.core.application.service.InMemoryPartyRepository
 import com.astarworks.astera.core.application.service.InMemoryPermissionService
 import com.astarworks.astera.core.application.service.InMemoryPersonalVaultRepository
 import com.astarworks.astera.core.application.service.InMemoryPlayerAttributeContainer
+import com.astarworks.astera.core.application.service.DefaultResourceRegenScheduler
+import com.astarworks.astera.core.application.service.InMemoryPlayerFoodGateway
+import com.astarworks.astera.core.application.service.InMemoryPlayerHealthGateway
 import com.astarworks.astera.core.application.service.InMemoryPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.service.InMemoryPlayerSessionRepository
 import com.astarworks.astera.core.application.service.InMemoryPlayerSettingsRepository
+import com.astarworks.astera.core.application.service.InMemoryPlayerSpeedGateway
+import com.astarworks.astera.core.application.service.InMemoryPlayerPvpStateService
+import com.astarworks.astera.core.application.service.InMemoryResourcePoolService
 import com.astarworks.astera.core.application.service.InMemoryReloadableContentsRegistry
+import com.astarworks.astera.core.application.service.InMemorySpawnProtectionGateway
 import com.astarworks.astera.core.application.service.InMemoryRewardBridge
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
 import com.astarworks.astera.core.application.service.InMemorySchematicLoader
@@ -447,6 +459,66 @@ public class AsteraCorePlugin : JavaPlugin() {
         @Suppress("UNUSED_VARIABLE") val settingsRef = settingsRepo
         @Suppress("UNUSED_VARIABLE") val auditRef = auditRepo
 
+        // ---- Wave 5k (ADR-0080) Player physiology + Resource pool 3 種 ----
+        // Three Bukkit-runtime mutation gateways (health / speed / food) parallel to
+        // Wave 5a's IDamageGateway combat pipeline + Wave 5e's IAttributeContainer
+        // domain attribute layer. Resource pool service tracks per-weapon Ammo /
+        // Stamina / Mana with a tick-driven regen scheduler (Annihilation vision).
+        // All InMemory defaults at priority 0; Wave 6a Paper adapters overlay at
+        // priority 100 to write through to vanilla `AttributeInstance` /
+        // `Player.walkSpeed` / `Player.foodLevel`.
+        val playerHealthGateway: IPlayerHealthGateway =
+            InMemoryPlayerHealthGateway(scheduler, eventBus)
+        services.register<IPlayerHealthGateway>(playerHealthGateway, priority = 0)
+
+        val playerSpeedGateway: IPlayerSpeedGateway =
+            InMemoryPlayerSpeedGateway(scheduler, eventBus)
+        services.register<IPlayerSpeedGateway>(playerSpeedGateway, priority = 0)
+
+        val playerFoodGateway: IPlayerFoodGateway =
+            InMemoryPlayerFoodGateway(scheduler, eventBus)
+        services.register<IPlayerFoodGateway>(playerFoodGateway, priority = 0)
+
+        val resourcePool: IResourcePoolService =
+            InMemoryResourcePoolService(scheduler, eventBus, itemContents)
+        services.register<IResourcePoolService>(resourcePool, priority = 0)
+
+        val resourceRegen = DefaultResourceRegenScheduler(resourcePool, eventBus)
+        services.register<IResourceRegenScheduler>(resourceRegen, priority = 0)
+        // Drive the regen pool at server-tick cadence. Per-tick visit walks the
+        // tracked player set only — empty cost when no Annihilation match is live.
+        scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) {
+            resourceRegen.tick(scheduler.currentTick())
+        }
+        // Initialise the resource pool whenever a player joins, mirroring the
+        // existing Wave 5e RestoreInventorySnapshot subscribe pattern.
+        eventBus.subscribe(PlayerJoinedServer::class) { event ->
+            resourcePool.initialiseFor(event.playerId)
+            resourceRegen.trackPlayer(event.playerId)
+        }
+
+        // ---- Wave 5o (ADR-0081) Respawn / Spawn protection / PvP toggle -----
+        // ISpawnProtectionGateway: per-player invulnerability window with TTL
+        // and PlayerProtectionGranted / PlayerProtectionExpired events.
+        // IPlayerPvpStateService: per-player on/off flag + the canonical
+        // can-damage resolver consulted by combat-side code before applying
+        // damage between two players. Safe-zone predicate is wired to "no
+        // safe zones" until Wave 5n region-permission service lands; the
+        // service then re-registers the same port at priority 100 with the
+        // region overlay attached.
+        val spawnProtection: ISpawnProtectionGateway =
+            InMemorySpawnProtectionGateway(scheduler, eventBus)
+        services.register<ISpawnProtectionGateway>(spawnProtection, priority = 0)
+
+        val pvpStateService: IPlayerPvpStateService =
+            InMemoryPlayerPvpStateService(
+                scheduler = scheduler,
+                eventBus = eventBus,
+                protectionGateway = spawnProtection,
+                safeZonePredicate = { false }, // Wave 5n region service supplies the real predicate later
+            )
+        services.register<IPlayerPvpStateService>(pvpStateService, priority = 0)
+
         // /astera reload <category> — single Brigadier command for every content type.
         // Permission: astera.reload (admin tier). Argument is a single-word string;
         // tab-completion suggests every currently-registered category name (computed
@@ -608,10 +680,13 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IMatchConfigService",
             "IPermissionService",
             "IReloadableContentsRegistry",
-            "IEntityRegistry",
-            "INpcAdapter (minimal+citizens)",
-            "INpcInteractionRouter",
-            "IEntitySpawner",
+            "IPlayerHealthGateway (Wave 5k)",
+            "IPlayerSpeedGateway (Wave 5k)",
+            "IPlayerFoodGateway (Wave 5k)",
+            "IResourcePoolService (Wave 5k)",
+            "IResourceRegenScheduler (Wave 5k)",
+            "ISpawnProtectionGateway (Wave 5o)",
+            "IPlayerPvpStateService (Wave 5o)",
         )
     }
 }

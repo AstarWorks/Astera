@@ -12,8 +12,11 @@ import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.IManaPoolService
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
+import com.astarworks.astera.combat.application.config.StatusEffectInteractionLoader
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectInteractionRule
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
+import com.astarworks.astera.combat.application.service.YamlStatusEffectInteractionRule
 import com.astarworks.astera.combat.application.service.ChargeTracker
 import com.astarworks.astera.combat.application.service.EmptyNearbyTargetQuery
 import com.astarworks.astera.combat.application.service.InMemoryDamageHistoryService
@@ -140,6 +143,20 @@ public class AsteraCombatPlugin : JavaPlugin() {
         // Wave 5a-fix2 — sliding-window damage history for assist attribution (ADR-0063)
         val damageHistory = InMemoryDamageHistoryService()
 
+        // Wave 5o (ADR-0081) — status-effect interaction matrix.
+        // YAML at content/balance/status-effect-interactions.yaml is loaded
+        // through a tolerant loader (missing file → empty config → resolver
+        // returns StatusInteraction.Pass for everything). Malformed YAML
+        // throws at enable so the operator sees the problem immediately.
+        val interactionConfig = StatusEffectInteractionLoader.load(
+            core.contentDir.resolve("balance").resolve("status-effect-interactions.yaml"),
+        )
+        val statusInteractionRule: IStatusEffectInteractionRule =
+            YamlStatusEffectInteractionRule(interactionConfig)
+        logger.info(
+            "Status-effect interaction rules loaded: ${interactionConfig.rules.size} rule(s).",
+        )
+
         // 3. Register Combat ports onto the shared registry --------------------
         registrations += services.register<ISkillRegistry>(skillContents)
         registrations += services.register<IStatusEffectRegistry>(statusContents)
@@ -148,6 +165,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
         registrations += services.register<IManaPoolService>(manaService)
         registrations += services.register<IDamageRandomizer>(damageRandomizer)
         registrations += services.register<IDamageHistoryService>(damageHistory)
+        registrations += services.register<IStatusEffectInteractionRule>(statusInteractionRule)
 
         // Wave 5f (ADR-0035, RTM #21): CEL evaluator port + Stub impl. Real
         // evaluator (JCEL / proxima / DIY) lands in a Phase 6 wave; Phase 1

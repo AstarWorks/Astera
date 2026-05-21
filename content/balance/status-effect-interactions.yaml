@@ -1,0 +1,49 @@
+# Wave 5o (ADR-0081): status-effect interaction matrix.
+#
+# Each rule is evaluated in declaration order against the (incoming, existing)
+# pair when a new status effect application is about to land. The first match
+# wins; subsequent rules do not run.
+#
+# Schema mirrors plugin/combat/.../application/config/StatusEffectInteractionConfig.kt.
+# Authors:
+#   trigger.incoming    — the StatusEffectId of the incoming application (required)
+#   trigger.existing    — list of StatusEffectIds that must ALL be present
+#                          on the target (empty = always fire for this incoming)
+#   action.cancel       — StatusEffectId to remove + drop the incoming
+#   action.suppress     — { effect: StatusEffectId, duration_ticks: Int>0 }
+#                          drop incoming, prevent re-application for N ticks
+#   action.amplify      — { effect: StatusEffectId, multiplier: Double>0 }
+#                          keep incoming, scale existing effect's magnitude
+#
+# Exactly ONE action must be set per rule (load-time error otherwise).
+
+rules:
+  # Annihilation: fire beats frost. Applying burn cancels an existing freeze
+  # and the burn itself does not stick (both sides clear).
+  - id: fire-cancels-frost
+    when:
+      incoming: burn
+      existing: [freeze]
+    do:
+      cancel: freeze
+
+  # After thawing (burn → freeze), brief freeze immunity so a chained freeze
+  # cast cannot re-lock the player immediately.
+  - id: post-thaw-freeze-immunity
+    when:
+      incoming: freeze
+      existing: [burn]
+    do:
+      suppress:
+        effect: freeze
+        duration_ticks: 60
+
+  # Wet + lightning = doubled slow (wet's speed-down magnitude amplifies 2x).
+  - id: shock-amplifies-wet
+    when:
+      incoming: shock
+      existing: [wet]
+    do:
+      amplify:
+        effect: wet
+        multiplier: 2.0

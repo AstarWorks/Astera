@@ -12,11 +12,14 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeCont
 import com.astarworks.astera.core.application.port.outbound.IPlayerMovementGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerVisionGateway
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
+import com.astarworks.astera.core.application.port.outbound.ISpawnProtectionGateway
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
@@ -64,8 +67,11 @@ import com.astarworks.astera.match.application.service.InMemoryAnomalyScheduleRe
 import com.astarworks.astera.match.application.service.InMemoryBarrierGateway
 import com.astarworks.astera.match.application.service.InMemoryGameModeRegistry
 import com.astarworks.astera.match.application.service.InMemoryGeneratorRepository
+import com.astarworks.astera.match.application.service.DefaultSpawnSelector
+import com.astarworks.astera.match.application.service.ISpawnSelector
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.match.application.service.InMemoryMatchWorldRepository
+import com.astarworks.astera.match.application.usecase.respawn.RespawnUseCase
 import com.astarworks.astera.match.application.service.StarGeneratorScheduler
 import com.astarworks.astera.match.application.usecase.anomaly.ResolveAnomalyEffectUseCase
 import com.astarworks.astera.match.application.usecase.anomaly.TriggerAnomalyUseCase
@@ -486,92 +492,55 @@ public class AsteraMatchPlugin : JavaPlugin() {
 
         logger.info("Wave 5e wiring complete: Spectator + PlayerPin + AuditLog + SaveInventory listeners.")
 
-        // ---- Wave 5w (ADR-0089 δ + γ) — IMatchmaker + Lobby HUD + MatchFoundUseCase ----
-        // IMatchmaker: in-memory FIFO + party-aware at priority 0. Phase 2
-        // Wave 7b swaps in a rating-aware impl (Elo / Glicko2).
-        val matchmaker: IMatchmaker =
-            services.get<IMatchmaker>()
-                ?: InMemoryMatchmaker(
-                    eventBus = eventBus,
-                    scheduler = scheduler,
-                ).also {
-                    registrations += services.register<IMatchmaker>(it, priority = 0)
-                }
-        // MatchFoundUseCase: bridge from queue → StartMatchUseCase. The default
-        // stage is read from the registry's first stage; admin tooling may
-        // configure per-mode stage selection in Wave 7b.
-        val defaultStageProvider: (MatchmakingMode) -> com.astarworks.astera.core.domain.stage.StageId = { _ ->
-            stages.all().firstOrNull()?.id
-                ?: com.astarworks.astera.core.domain.stage.StageId("default")
-        }
-        @Suppress("UNUSED_VARIABLE")
-        val matchFoundUseCase = MatchFoundUseCase(
-            matchmaker = matchmaker,
-            lifecycle = facade,
-            eventBus = eventBus,
-            defaultStageProvider = defaultStageProvider,
-        )
+        // ---- Wave 5o (ADR-0081) — Respawn flow + ISpawnSelector --------------
+        // RespawnUseCase composes IPlayerHealthGateway (Wave 5k), IWorldGateway,
+        // ISpawnProtectionGateway (Wave 5o), IItemRegistry, and the optional
+        // IStatusEffectContainer (combat) into a single "teleport + heal +
+        // protect + kit + effects + publish PlayerRespawned" sequence.
+        //
+        // ISpawnSelector replaces the legacy SpawnRotationStrategy as the
+        // strategy boundary for the new respawn flow; legacy MatchSpawnUseCase
+        // keeps SpawnRotationStrategy for backward source-compat on its own
+        // entry path. DefaultSpawnSelector resolves the player's faction via
+        // IMatchTeamLookup (already wired above) + the canonical
+        // red/blue/attacker/defender team-id → faction map.
+        val healthGateway = services.get<IPlayerHealthGateway>()
+        val spawnProtection = services.get<ISpawnProtectionGateway>()
+        val itemRegistry = services.get<IItemRegistry>()
+        if (worldGateway != null && healthGateway != null && spawnProtection != null && itemRegistry != null) {
+            val matchTeamLookup = services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()
+            val statusContainer = services.get<IStatusEffectContainer>()
+            val spawnSelector: ISpawnSelector = DefaultSpawnSelector(
+                matchTeamLookup = matchTeamLookup,
+                enemyPositionsProvider = { _, _ -> emptyList() },
+            )
+            registrations += services.register<ISpawnSelector>(spawnSelector, priority = 0)
 
-        // Lobby waiting-room HUD: composes Wave 5b BossBar/Scoreboard primitives.
-        val bossBars = services.getOrThrow<IBossBarManager>()
-        val scoreboards = services.getOrThrow<IScoreboardManager>()
-        val mcServer = services.getOrThrow<IMcServer>()
-        val lobbyHud = LobbyWaitingRoomHud(
-            matchmaker = matchmaker,
-            bossBars = bossBars,
-            scoreboards = scoreboards,
-            mcServer = mcServer,
-            eventBus = eventBus,
-            scheduler = scheduler,
-        )
-        lobbyHud.subscribe()
-        subscriptions += object : IDomainEventBus.Subscription {
-            override fun cancel() { lobbyHud.unsubscribe() }
-            override val isActive: Boolean = true
-        }
-        // Tick the HUD once per second so the ETA countdown updates.
-        scheduledTasks += scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
-            for (p in lobbyHud.trackedPlayers()) lobbyHud.refresh(p)
-        }
-
-        // Lifecycle hook: register a Match-owned listener that drains in-flight
-        // matches during ShutdownPhase.SaveInFlightMatches. The bootstrapper
-        // walks every phase in order regardless of how many listeners are
-        // registered.
-        val bootstrapper = services.get<IServerBootstrapper>()
-        if (bootstrapper != null) {
-            val saveInFlightListener = object : IServerLifecycleListener {
-                override val priority: Int = 50 // mid-tier: fires before persistence close, after stop-accepting.
-                override fun onShutdownPhase(phase: ShutdownPhase, reason: ShutdownReason) {
-                    if (phase == ShutdownPhase.SaveInFlightMatches) {
-                        val active = matches.findActiveMatches()
-                        if (active.isNotEmpty()) {
-                            logger.info(
-                                "[lifecycle] SaveInFlightMatches: ${active.size} active match(es) recorded for shutdown",
-                            )
-                        }
-                        // Phase 1 PoC: the InMemoryMatchRepository preserves
-                        // active matches across the boot; the persistence
-                        // overlay (Wave _persist-1) flushes via its own
-                        // listener registered from Astera-Persistence.
-                    }
-                }
-            }
-            val lifecycleReg = bootstrapper.register(saveInFlightListener)
-            // Stuff the Registration into our cleanup list; the wrapper below
-            // adapts IServerBootstrapper.Registration to our subscription list.
-            subscriptions += object : IDomainEventBus.Subscription {
-                override fun cancel() { lifecycleReg.unregister() }
-                override val isActive: Boolean get() = lifecycleReg.isActive
-            }
+            @Suppress("UNUSED_VARIABLE")
+            val respawn = RespawnUseCase(
+                healthGateway = healthGateway,
+                worldGateway = worldGateway,
+                itemRegistry = itemRegistry,
+                protectionGateway = spawnProtection,
+                eventBus = eventBus,
+                scheduler = scheduler,
+                statusEffectContainer = statusContainer,
+            )
+            logger.info(
+                "Wave 5o wiring complete: RespawnUseCase + DefaultSpawnSelector wired " +
+                    "(status-effect container=${statusContainer != null}).",
+            )
+        } else {
+            logger.info(
+                "Wave 5o RespawnUseCase not wired " +
+                    "(IWorldGateway=${worldGateway != null}, " +
+                    "IPlayerHealthGateway=${healthGateway != null}, " +
+                    "ISpawnProtectionGateway=${spawnProtection != null}, " +
+                    "IItemRegistry=${itemRegistry != null}).",
+            )
         }
 
-        logger.info(
-            "Wave 5w wiring complete: InMemoryMatchmaker + LobbyWaitingRoomHud + " +
-                "MatchFoundUseCase + lifecycle SaveInFlightMatches listener.",
-        )
-
-        // 5. Register /astera-match command tree + /astera queue tree -----------
+        // 5. Register /astera-match command tree --------------------------------
         commandHandler.register(buildMatchCommandSpec(facade, matches, playerGateway, permService))
         commandHandler.register(
             buildQueueCommandSpec(

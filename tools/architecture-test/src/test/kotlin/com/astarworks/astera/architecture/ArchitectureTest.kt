@@ -800,120 +800,80 @@ class ArchitectureTest {
             .isEmpty()
     }
 
-    // ─── Wave 5n: World env + Per-match config + Spatial index (ADR-0080) ──
-
     /**
-     * Wave 5n vendor-isolation: the spatial-index package is the
-     * proximity-query backbone for Wave 5a AOE skills, Wave 5c anomaly
-     * spawn, and Wave 5o spawn protection. Bukkit / Paper / Adventure
-     * types here would pull Minecraft coupling into a domain primitive
-     * every plugin reads.
+     * Wave 5k (ADR-0080): the Resource domain (`core.domain.resource.*`)
+     * carries pure runtime resource pool state (ResourceType, PlayerResourcePool,
+     * ResourceCap). It MUST stay Bukkit-free + Adventure-free — the pool is
+     * exercised from `application/` impls only, and any Paper-side render path
+     * goes through the HUD ports (Wave 5j) rather than reaching back here.
      *
-     * Even `org.joml` is forbidden here (ADR-0080 §"Konsist") so the
-     * package stays usable by future non-Paper edges (Velocity, REST
-     * admin, BedrockEdition adapter).
+     * `org.joml.*` is intentionally permitted (Wave 5h-fix precedent: pure
+     * math libraries are OK in domain).
      */
     @Test
-    fun `core domain geometry spatial must not import Bukkit Paper Adventure`() {
+    fun `Resource domain must not import Bukkit Paper Adventure (ADR-0080)`() {
         Konsist.scopeFromModule("plugin/core")
             .files
-            .filter {
-                it.packagee?.name?.startsWith(
-                    "com.astarworks.astera.core.domain.geometry.spatial",
-                ) == true
-            }
-            .assertFalse { file ->
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.resource") == true }
+            .assertFalse(
+                additionalMessage = "ADR-0080: Resource domain must stay Bukkit-free + Adventure-free. " +
+                    "Add Paper wiring to application/service/ or adapter/paper/ instead.",
+            ) { file ->
                 hasBukkitFamilyImport(file) ||
                     file.imports.any { imp ->
-                        imp.name.startsWith("net.kyori.adventure") ||
-                            imp.name.startsWith("org.joml") ||
-                            imp.name.startsWith("io.lettuce") ||
-                            imp.name.startsWith("org.jetbrains.exposed")
+                        imp.name.startsWith("net.kyori.adventure")
                     }
             }
     }
 
     /**
-     * Wave 5n domain purity: [com.astarworks.astera.core.application.port.outbound.IPlayerLocationQueryService]
-     * is the only proximity-query port. Implementations live in
-     * `plugin/core` (in-memory default) or `plugin/persistence` (future
-     * priority-100 overlay). Feature plugins MUST NOT subclass it
-     * directly — they own their own per-feature ports (e.g. combat
-     * `ITargetingService`) and consume the location service via Core's
-     * `services.getOrThrow<IPlayerLocationQueryService>()`.
-     *
-     * Skeleton-staging tolerance: passes when no impl class exists yet.
+     * Wave 5k (ADR-0080): the physiology domain
+     * (`core.domain.player.physiology.*`) carries health / speed / food source
+     * variants. Same Bukkit-free invariant as the rest of `core.domain.*`,
+     * called out explicitly here so a fresh contributor sees the constraint
+     * named.
      */
     @Test
-    fun `IPlayerLocationQueryService implementations must be in plugin core or persistence`() {
-        val portSimpleName = "IPlayerLocationQueryService"
-
-        val impls = Konsist.scopeFromProject()
-            .classes()
-            .filter { cls ->
-                cls.parents().any { parent -> parent.name == portSimpleName }
+    fun `Player physiology domain must not import Bukkit Paper (ADR-0080)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.player.physiology") == true }
+            .assertFalse(
+                additionalMessage = "ADR-0080: physiology source variants must stay pure-domain. " +
+                    "Bukkit attribute / Player wiring lives in adapter/paper/.",
+            ) { file ->
+                hasBukkitFamilyImport(file)
             }
-
-        if (impls.isEmpty()) return
-
-        val nonAllowed = impls.filter { cls ->
-            val pkg = cls.packagee?.name ?: ""
-            !(
-                pkg.startsWith("com.astarworks.astera.core.application.service") ||
-                    pkg.startsWith("com.astarworks.astera.testfixtures") ||
-                    pkg.startsWith("com.astarworks.astera.persistence")
-                )
-        }
-
-        assertThat(nonAllowed.map { it.fullyQualifiedName })
-            .withFailMessage {
-                "Wave 5n (ADR-0080) port-purity contract: $portSimpleName " +
-                    "implementations must live in plugin/core's " +
-                    "application.service.*, plugin/test-fixtures, or " +
-                    "plugin/persistence. Feature plugins must consume the " +
-                    "service via the ServiceRegistry rather than subclassing it. " +
-                    "If you actually need a feature-local proximity port, " +
-                    "introduce a sibling port name rather than weakening this rule."
-            }
-            .isEmpty()
     }
 
     /**
-     * Wave 5n MatchConfig immutability: per-match overlay must be a
-     * data class with `val`-only fields. A mutable field would let one
-     * subscriber to [MatchConfigApplied] mutate the broadcast value and
-     * silently change every other subscriber's view. The class is small
-     * (8 fields); defensive copying via `copy(...)` is cheap.
+     * Wave 5o (ADR-0081): the spawn-selector strategy
+     * (`match.application.service.ISpawnSelector` + implementations such as
+     * [DefaultSpawnSelector]) is a pure-domain selection algorithm. The
+     * selector resolves `SpawnPoint` instances by faction + strategy from
+     * the stage's own `SpawnPoint` list, and the player→faction lookup is
+     * delegated to the vendor-neutral `IMatchTeamLookup` port. Bukkit
+     * imports here would mean the selector is reaching back to the Paper
+     * layer for player / world info — instead, all such data must be
+     * threaded through the port surface.
      *
-     * Skeleton-staging tolerance: passes when MatchConfig has not landed yet.
+     * This rule pins both the interface file and every implementation that
+     * lives in `match.application.service/` whose filename starts with
+     * `*SpawnSelector*`.
      */
     @Test
-    fun `MatchConfig must be data class without mutable fields`() {
-        val matchConfigFqn = "com.astarworks.astera.core.domain.match.MatchConfig"
-
-        val classes = Konsist.scopeFromProject()
-            .classes()
-            .filter { it.fullyQualifiedName == matchConfigFqn }
-
-        if (classes.isEmpty()) return
-
-        for (cls in classes) {
-            assertThat(cls.hasDataModifier)
-                .withFailMessage {
-                    "Wave 5n (ADR-0080): $matchConfigFqn must be a data class."
-                }
-                .isTrue()
-
-            val mutableProperties = cls.properties().filter { it.hasVarModifier }
-            assertThat(mutableProperties.map { it.name })
-                .withFailMessage {
-                    "Wave 5n (ADR-0080): $matchConfigFqn must have only " +
-                        "`val` properties (no `var`). Mutable fields on the " +
-                        "broadcast overlay would let one subscriber silently " +
-                        "change every other subscriber's view."
-                }
-                .isEmpty()
-        }
+    fun `ISpawnSelector implementations must not import Bukkit Paper (ADR-0081)`() {
+        Konsist.scopeFromModule("plugin/match")
+            .files
+            .filter { it.packagee?.name == "com.astarworks.astera.match.application.service" }
+            .filter { it.name.contains("SpawnSelector") }
+            .assertFalse(
+                additionalMessage = "ADR-0081: ISpawnSelector + implementations must stay " +
+                    "Bukkit-free. Resolve player → faction via IMatchTeamLookup, world geometry " +
+                    "via SpawnPoint's world/position fields — never reach back to org.bukkit.*.",
+            ) { file ->
+                hasBukkitFamilyImport(file)
+            }
     }
 
     // ─── Private helpers ─────────────────────────────────────────────────────
