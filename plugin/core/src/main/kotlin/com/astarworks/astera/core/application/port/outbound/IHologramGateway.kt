@@ -23,7 +23,7 @@ import com.astarworks.astera.core.domain.world.WorldId
  *
  * Vendor-neutral by construction: the domain uses
  * [com.astarworks.astera.core.domain.hologram.HologramTransform] which
- * wraps `org.joml.Quaternionf` (pure-math library, ADR-0074 §1 / 5h-fix).
+ * wraps `org.joml.Quaternionf` (pure-math library, ADR-0079 §1 / 5h-fix).
  * The Paper adapter unwraps the `Transformation` for `Display.transformation`
  * — no domain → adapter type translation needed.
  *

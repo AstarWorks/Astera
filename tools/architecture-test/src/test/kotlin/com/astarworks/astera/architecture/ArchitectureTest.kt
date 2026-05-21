@@ -44,7 +44,7 @@ class ArchitectureTest {
      * kotlinx.collections.immutable + **pure-math libraries** (org.joml).
      * No frameworks, no I/O, no Bukkit, no persistence driver, no logger.
      *
-     * **`org.joml.*` is explicitly allowed** (Wave 5h-fix, ADR-0074 §1):
+     * **`org.joml.*` is explicitly allowed** (Wave 5h-fix, ADR-0079 §1):
      * JOML is a pure-math library (Vector3f / Quaternionf / Matrix4f) with
      * no Minecraft coupling — treat it like `java.util.UUID` /
      * `java.time.Instant`. Reimplementing Quaternion math in domain to keep
@@ -80,7 +80,7 @@ class ArchitectureTest {
      * no Bukkit and no persistence driver.
      *
      * `org.joml.*` is allowed for the same reason as the domain rule (Wave
-     * 5h-fix, ADR-0074 §1): pure-math, no Minecraft coupling.
+     * 5h-fix, ADR-0079 §1): pure-math, no Minecraft coupling.
      */
     @Test
     fun `core application must not import Bukkit family or persistence drivers`() {

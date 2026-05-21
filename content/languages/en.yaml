@@ -59,7 +59,7 @@ astera:
       unknown: "<red>Unknown binding: {binding}</red>"
       unavailable: "<gray>(binding data not available)</gray>"
       resolved_to_barrier: "<red>Binding resolution failed (placeholder).</red>"
-    # Wave 5h-fix2: tooltips + multi-click demo (ADR-0074 §2 拡張).
+    # Wave 5h-fix2: tooltips + multi-click demo (ADR-0079 §2 拡張).
     common:
       close:
         tooltip: "<gray>Left-click to close.</gray>"

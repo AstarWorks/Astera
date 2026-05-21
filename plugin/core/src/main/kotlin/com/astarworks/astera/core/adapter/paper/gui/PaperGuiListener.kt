@@ -92,7 +92,7 @@ public class PaperGuiListener(
 
     /**
      * Map Bukkit [org.bukkit.event.inventory.ClickType] to Astera's
-     * vendor-neutral [GuiClickType] subset (Wave 5h-fix2, ADR-0074 §2).
+     * vendor-neutral [GuiClickType] subset (Wave 5h-fix2, ADR-0079 §2).
      *
      * Returns `null` for click variants Astera deliberately ignores
      * (NUMBER_KEY / DROP / SWAP_OFFHAND etc) — the [PaperGuiListener.onClick]

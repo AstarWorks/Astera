@@ -67,7 +67,7 @@ astera:
       unknown: "<red>不明なバインディング: {binding}</red>"
       unavailable: "<gray>(バインディングデータ利用不可)</gray>"
       resolved_to_barrier: "<red>バインディング解決失敗 (プレースホルダ)。</red>"
-    # Wave 5h-fix2: ツールチップ + マルチクリック demo (ADR-0074 §2 拡張)。
+    # Wave 5h-fix2: ツールチップ + マルチクリック demo (ADR-0079 §2 拡張)。
     common:
       close:
         tooltip: "<gray>左クリックで閉じます。</gray>"

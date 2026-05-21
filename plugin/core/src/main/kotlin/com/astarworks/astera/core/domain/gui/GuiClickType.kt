@@ -2,7 +2,7 @@ package com.astarworks.astera.core.domain.gui
 
 /**
  * Vendor-neutral subset of Bukkit `org.bukkit.event.inventory.ClickType`
- * (Wave 5h-fix2, ADR-0074 §2 拡張).
+ * (Wave 5h-fix2, ADR-0079 §2 拡張).
  *
  * 5 variants — gameplay-relevant click distinctions:
  *
