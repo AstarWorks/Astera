@@ -74,11 +74,11 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 106 | 72.6% |
+| ✅ full | 102 | 70.3% |
 | 🟨 partial | 3 | 2.1% |
-| 🔌 port-only | 11 | 7.5% |
-| ❌ nothing | 30 | 20.5% |
-| **Total tracked** | **146** | 100% |
+| 🔌 port-only | 9 | 6.2% |
+| ❌ nothing | 31 | 21.4% |
+| **Total tracked** | **145** | 100% |
 
 (Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability); Wave _persist-1 で Cat 8 持続化補完 — SessionState/Friendship/Party/RewardBridge の 4 Postgres impl (V11/V12/V13/V15 + ADR-0068 Cross-server persistence boundary))
 
@@ -93,6 +93,7 @@ adds to `gradle/libs.versions.toml`:
 - Wave 5a-fix2: **51.4% RTM parity** (Cat 1 +2 ✅ DamageHistory + assist counter, +1 partial→full SkillTrigger 20 値 — total 74/144)
 - Wave 5e: **65.3% RTM parity** (Cat 1 double-jump +1, Cat 2 listener-arch refactor +1, Cat 6 ender-chest + reward-bridge +2, Cat 7 achievement/tutorial/settings/UAC-migration/levelupmission/playerpin/quickcast +7, Cat 8 spectator/friend/chat/audit/inventory-snapshot/action-lock/control-scheme/particle-hide/portal-ready +9 — total 94/144)
 - **Wave _ops: 66.7% RTM parity** (Cat 10 +2 ✅ Observability: micrometer + /metrics endpoint — total 96/144)
+- **Wave 5e-fix (2026-05-20): 70.5% RTM parity** (Cat 8 first-time-profile creation +1 ✅; denominator +1 row catalog growth — total 103/146 — applied against the Wave 5g 102/145 baseline)
 - Wave 6 (Paper Sweep) complete: ~65-70% RTM parity (Phase 1 PoC end-to-end)
 - Phase 3 Siege Warfare complete (Wave 6 + 7a content): ~75-80%
 - Phase 4 (UGC + Web + Vault + Gacha): ~85-90%
@@ -160,8 +161,6 @@ adds to `gradle/libs.versions.toml`:
 | **7th game mode `BattleRoyale`** (free-for-all, no team) | ❌ nothing | **Wave 7a** (Siege Content Authoring; content-fidelity) | P2 | RTM `GameMode.kt` sealed enum + `IGamePlayer.GamePlayer.BattleRoyalePlayer` sealed variant (2026-05-19 deep audit) |
 | **3rd TNT variant `CarryBigTnt`** (payload — `GuiAction.CHANGE_PAYLOAD`) | ❌ nothing | **Wave 7a** (content-fidelity) | P2 | RTM `GameMode.kt` (3 TNT variants total: Tnt / SmallTnt / BigTnt) |
 | **`ItemGenerator`** (non-Star item-spawning generator) | ❌ nothing | **Wave 7a** (content alongside Wave 5c `StarGenerator`) | P2 | RTM `ConfiguredItemGenerator.kt` alongside `ConfiguredStarGenerator.kt` |
-| **Disconnect / Reconnect during match** (phase-aware: COUNTDOWN kick / ACTIVE 3min reconnect / SUDDEN_DEATH forfeit) | ✅ Wave 5h (`DisconnectDuringMatchListener` + `ReconnectDuringMatchListener` + `ResumeMatchUseCase` domain + use case wired) | (済 Wave 5h) | P2 | `plugin/match/.../application/usecase/match/{Resume,Disconnect,Reconnect}*` |
-| **Spectator API extension** (`IWorldGateway.spectatorSpawn()` / `lobbySpawn()` method + EnterSpectatorUseCase / LeaveSpectatorUseCase TODO closure) | ✅ Wave 5h (port methods + use case wired) | (済 Wave 5h) | P2 | `plugin/core/.../application/port/outbound/IWorldGateway.kt` (spectatorSpawn / lobbySpawn methods added) + `plugin/match/.../application/usecase/spectator/*` |
 | **Listener-Service architecture refactor** (per-module event-handler ↔ business-logic separation) | ✅ Wave 5e (ADR-0064 draft → Accepted) | (済 Wave 5e) | P3 | RTM issue #22 body |
 
 ---
@@ -189,7 +188,7 @@ adds to `gradle/libs.versions.toml`:
 
 ---
 
-## Category 4: HUD ports (Wave 5b + Wave 5h + Wave 5j + Wave 6 Paper)
+## Category 4: HUD ports (Wave 5b + Wave 6 Paper)
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
@@ -198,8 +197,7 @@ adds to `gradle/libs.versions.toml`:
 | **`ITabList` port** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P2 | core.adapter.api.hud |
 | **`IMcPlayer.sendActionBar(...)` method** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P1 | signature added, Paper impl Wave 6 |
 | **`IMcPlayer.sendTitle(...)` method** | 🔌 port-only (Wave 5b) | **✅ Wave 5b** | P1 | signature added, Paper impl Wave 6 |
-| **Custom HUD foundation** (texture font + Resource Pack push, RTM issue #14) | 🔌 port-only (Wave 5j) | **✅ Wave 5j** | P1 | `core.domain.hud.*` (HudComponent/HudLayout/HudGlyph/HudColor/ResourcePackSpec sealed) + `IHudGateway`/`ICustomFontRegistry` ports + InMemory/Fake impls + HudRenderer + HudLayoutBuilder Kotlin DSL + content/hud/ (mana-bar.json/star-counter.json + examples) + ADR-0097; Paper impl Wave 6b |
-| **`GuiSlot.Confirmation` + `GuiSlot.TextInput`** (shop confirm / settings edit / report input) | ✅ Wave 5h (sealed variant, YAML schema + 2 example YAML land) | (済 Wave 5h) | P1 | `plugin/core/.../domain/gui/GuiSlot.kt` (sealed expansion); Paper handler impl Wave 6b |
+| **CT / Star / Level HUD layout** (RTM issue #14) | ❌ nothing | Wave 5b (domain) + **Wave 6** (Paper impl) | P1 | (RTM uses Scoreboard Library 2.1.3) |
 | Scoreboard Library 2.1.3 dep (RTM) | (Astera self-builds via `IScoreboard` port) | Wave 6 (Paper impl chooses library) | P1 | ADR-0015 D path |
 | Inventory Framework 0.10.13 dep (RTM) | (Astera self-builds via `IGuiAdapter`) | ✅ Wave 4 (full) | P0 | ADR-0021 + Wave 4 ✅ |
 | Declarative GUI (Wave 4) | ✅ full | (済) | P0 | Wave 4 ✅ |
@@ -258,7 +256,7 @@ adds to `gradle/libs.versions.toml`:
 | Norma progress 永続化 | ✅ full (Wave 4.5) | (済) | P0 | `V6__norma_progress.sql` |
 | `MissionProgressOnKillListener` 配線 | ✅ full | (済) | P0 | (Wave 2) |
 | **Achievement / Title / Badge** (Norma とは別) | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
-| **Tutorial player flow** (RTM issue #17) — start on first join / skip / replay / advance step | ✅ Wave 5h (`PlayerTutorialState` domain + V20 migration + `StartTutorialOnFirstJoinListener` + 4 use cases (Start / Skip / Replay / AdvanceStep) + `/astera tutorial` command; Paper input handler Wave 6b) | (済 Wave 5h) | P2 | `plugin/core/.../domain/tutorial/PlayerTutorialState.kt` + `plugin/core/.../application/command/TutorialCommandSpec.kt` + `plugin/core/.../application/eventbus/listeners/StartTutorialOnFirstJoinListener.kt` |
+| **Tutorial system** (RTM issue #17) | ✅ Wave 5e | (済 Wave 5e) | P2 | (none) |
 | **Personal settings DB** (RTM issue #15) | ✅ Wave 5e (incl. 4 typed fields: controlScheme/particleVisibility/doubleJumpEnabled/quickCastSlots) | (済 Wave 5e) | P2 | (none) |
 | **Universal Attribute Container (ADR-0058)** — Player/Item/Mob 共通 attribute storage | ✅ Wave 5e (V14 + facade rewrite complete; ADR-0058 → Accepted) | (済 Wave 5e) | **P1** | ADR-0058 §5 rollout schedule。`Wallet` / `PlayerStats` / `ManaPool` / `ArmorReduction.perAttribute` を `IAttributeContainer` backing に統合。Wave 5b で attribute read API + shim 完成、Wave 5e で V14 migration + facade rewrite |
 | **`LevelUpMission`** (per-level KILL vs STAR choice) | ✅ Wave 5e | (済 Wave 5e) | P1 | RTM `LevelUpMission.kt` enum + `ConfiguredLevelParameter.normaParameter: Map<Int, ConfiguredNormaParameter>` (README §レベルシステム "レベルアップには一定のスター or キル") |
@@ -286,21 +284,13 @@ adds to `gradle/libs.versions.toml`:
 | **Control scheme PersonalSettings field** (右クリック式 / ボタン式) | ✅ Wave 5e | (済 Wave 5e) | P2 | RTM README §プレイヤーデータ "操作方法選択" |
 | **Particle-hide visibility setting** (per-viewer team filter on `Server#spawnParticle`) | ✅ Wave 5e (domain; Paper packet filter = Wave 6a) | (済 Wave 5e) | P2 | RTM README §戦闘システム + §プレイヤーデータ "パーティクル非表示設定" |
 | **`PlayerPortalReadyEvent`** (lobby↔match server entry/exit signal) | ✅ Wave 5e (publisher wired at MatchSpawnUseCase + RestoreInventoryOnPlayerJoinedListener) | (済 Wave 5e) | P2 | RTM `event/data/PlayerPortalReadyEvent.kt` |
-| **Moderation Core 4** (Mute / Kick / Ban / ChatRateLimit) | ✅ Wave 5h (`ModerationAction` sealed 4 variants + `IModerationService` + V21 migration + Postgres impl + permission gating + `SendChatMessageUseCase` mute/rate-limit check wired; Paper enforcement (actual kick/chat cancel) Wave 6b) | (済 Wave 5h) | **P1** | `plugin/core/.../domain/moderation/ModerationAction.kt` + `plugin/core/.../application/port/outbound/IModerationService.kt` + `plugin/core/.../application/command/ModerationCommandSpec.kt` |
-| Ban / Mute lists | ❌ nothing (Core 4 completed, list API deferred) | **Phase 4 (Wave 8f)** | P2 | (separate from Core 4 domain) |
+| **First-time profile creation** (default loadout + wallet seed + tutorial auto-enroll + welcome dialog) | ✅ Wave 5e-fix (`IPlayerProfileService` + `CreateFirstTimeProfileOnPlayerJoinedListener` + `content/balance/starter-grant.yaml` + StarterGrantLoader; partial-grant tolerated, ledger lookup lazy) | (済 Wave 5e-fix) | **P1** | grep `IPlayerProfileService\|StarterGrant` → 0 件 (gap discovered post-Wave 5e in Plan v5 audit) |
+| Ban / Mute lists | ❌ nothing | **Phase 4 (Wave 8f)** | P2 | (none) |
 | Login history table | ❌ nothing | Phase 4 | P3 | (none) |
 
 ---
 
-## Category 9: Hologram / Visual effects (Wave 5h + Wave 6b)
-
-| RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
-|---|---|---|---|---|
-| **Hologram domain** (3 DisplayEntity variant: Text / Item / Block + Quaternion rotation + Transformation + Interpolation + Brightness) | ✅ Wave 5h (vendor-neutral domain complete; `IHologramGateway` port + Fake) | (済 Wave 5h) | **P1** | `plugin/core/.../domain/hologram/{Hologram,HologramType,HologramVariant,Transformation,InterpolationMode,DisplayEntityBrightness}.kt` + `plugin/core/.../application/port/outbound/IHologramGateway.kt` + Fake impl; Paper `PaperHologramGateway` Wave 6b |
-
----
-
-## Category 10: External / Network / Broadcaster (Wave 6)
+## Category 9: External / Network / Broadcaster (Wave 6)
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
@@ -314,7 +304,7 @@ adds to `gradle/libs.versions.toml`:
 
 ---
 
-## Category 11: Observability (Wave _ops, parallel to 5x)
+## Category 10: Observability (Wave _ops, parallel to 5x)
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
@@ -327,7 +317,7 @@ adds to `gradle/libs.versions.toml`:
 
 ---
 
-## Category 12: External plugin deps (ADR-0015 governance)
+## Category 11: External plugin deps (ADR-0015 governance)
 
 | RTM 必要 plugin | Astera 戦略 | 完成度 | 根拠 |
 |---|---|---|---|
@@ -349,7 +339,7 @@ adds to `gradle/libs.versions.toml`:
 
 ---
 
-## Category 13: i18n / Content authoring (Wave 1 ✅ + ongoing)
+## Category 12: i18n / Content authoring (Wave 1 ✅ + ongoing)
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
@@ -456,8 +446,6 @@ specific issue / file needs verification.
 
 ## Completed waves
 
-- Wave 5j (2026-05-20): Custom HUD foundation (texture font + Resource Pack push, RTM issue #14) — core.domain.hud.* sealed tree (HudComponent: Text/Glyph/ProgressBar/Composite/Spacer with negative-widthPx allowed + HudLayout: ActionBar/BossBarSlot-1-4/Sidebar/TabList/Subtitle + HudGlyph PUA U+E000..F8FF with nextAvailableUnicodeChar factory + HudGlyphRef value class with regex validation + HudColor Byte-backed RGBA with 17 palette constants + HudHandle value class + HudRegion enum 9-region + ResourcePackSpec url/sha1Hash/required/promptKey) + IHudGateway port (show/update/clear/pushResourcePack/activeFor → Result<T, HudError> sealed) + ICustomFontRegistry port (lookup/all/register with duplicate-reject) + InMemoryHudGateway (TTL auto-clear via scheduler + 4 DomainEvents: HudShown/Updated/Cleared/ResourcePackPushRequested) + InMemoryCustomFontRegistry + HudRenderer (HudComponent → Adventure Component with ASTERA_FONT_KEY) + HudLayoutBuilder Kotlin DSL (@HudDsl) + FakeHudGateway/FakeCustomFontRegistry (test-fixtures) + 2 example layouts (ManaBarHud BossBar slot 1 BLUE NOTCHED_10 + StarCounterHud ActionBar TTL 20) + content/hud/mana-bar.json + content/hud/star-counter.json + Konsist +1 rule (HUD domain Bukkit-free, JOML allowed) → baseline 32 → 33. **Total parity 72.6% → 72.6%** (same 106/146 ✅, +1 🔌, −1 ❌). ADR-0097 → Accepted. Paper impl Wave 6b.
-- Wave 5h (2026-05-19): Pre-Paper-sweep depth — Hologram domain (3 DisplayEntity variant + Quaternion rotation + Interpolation + Brightness + IHologramGateway port + Fake; Paper impl Wave 6b) + GUI slot expansion (Confirmation + TextInput sealed variants + 2 example YAML) + Tutorial player flow (PlayerTutorialState domain + V20 + 4 use cases + /astera tutorial command) + Moderation Core 4 (ModerationAction sealed 4 variant: Mute/Kick/Ban/ChatRateLimit + IModerationService port + V21 + Postgres + permission gating + SendChatMessageUseCase enforcement wired; Paper impl Wave 6b) + Match disconnect/reconnect (DisconnectDuringMatchListener + ReconnectDuringMatchListener + ResumeMatchUseCase + phase-aware rule) + Spectator API extension (IWorldGateway.spectatorSpawn/lobbySpawn + EnterSpectatorUseCase/LeaveSpectatorUseCase TODO closure) + Konsist +2 rules (Hologram vendor-neutrality + ModerationAction exhaustiveness) → baseline 30 → 32. **Total parity 70.3% → 72.6%** (102→106/145→146 ✅, +1 🔌). ADR-0074 (pending commit — Wave 5h Phase C close).
 - Wave 5e (2026-05-19): Session + Social + Tutorial + EnderChest + Reward bridge + Inventory snapshot V10 + Attribute container migration V14 + ADR-0034 + ADR-0058 → Accepted + ADR-0064 Accepted. 9 worker streams (α/β/γ/δ/ε/ζ/ι/θ1 in Group B1; η/θ2 in Group B2). +5 Flyway migrations, +6 domain event variants, +120 unit tests, +4 Postgres ITs.
 - Wave 5f (2026-05-19): Marketplace + JP currency compliance + CEL + particles + reactive GUI binding (6 RTM rows ❌→✅). Marketplace: MarketplaceListing + ListingStatus + 3 use cases (Create/Purchase/Cancel) + Postgres V12 + 137 IT. Creator Revenue: post-fee-remainder split algo + 146 unit + 62 IT. JP Compliance: CurrencyPolicy 4-axis + SourceClass + CurrencyPolicies map (STAR/GOLD/GEM per 資金決済法) + EnforceCurrencyPolicy + ExpireCurrency daily sweep + ICurrencyIssuanceLog port + Postgres V11 + 391 unit. CEL: CelSkillScript + CelContext + ICelEvaluator port + StubCelEvaluator + 77 unit. Particles: ParticleDefinition + ParticleShape sealed + ParticleContents + IParticleRegistry port + 2 example YAML + schema + 137 unit. Reactive GUI: ResolvedReactiveSlot + numeric/display/count binding via DefaultGuiBindingResolver + PaperItemTemplateRenderer override application + 255 unit + 3 Postgres migrations (V11/V12/V13). **Total parity 66.7% → 70.8%** (96→102/144 ✅). ADR-0035 → Accepted.
 - Wave _ops (2026-05-19): Observability substrate — Micrometer 1.14.6 + Prometheus export via IMetricsRegistry port + HttpMetricsServer (/metrics @ 9092) + KEDA ScaledObject for game pod autoscaling + ADR-0023 Sealed-Secrets + ADR-0024 Provider 路線 (hybrid 事後記録 + Phase 4 governance)
@@ -465,3 +453,4 @@ specific issue / file needs verification.
 - Wave 5g (2026-05-19): Core hardening pre-Paper-sweep — Shop stock bug fix (`IShopStockRepository` + V19 migration + `SELECT ... FOR UPDATE` atomic decrement + idempotent seed at startup; existing `OutOfStock` death code is now live) + Shop access surfaces (`IShopVendor` + `IShopReferenceQuery` + `IShopAccessIntent` sealed 4-variant + `ShopAccessIntentRouter` + Default/InMemory/Fake impls + ADR-0071 commitment to Phase 4 Wave 8b) + Pre-Paper-sweep port commitments (`IMatchTimerService` + `IPlayerMovementGateway` + `IPlayerVisionGateway` + `IStructurePaste` + 4 Fakes + `IStatusEffectContainer.applyBulk` default + `PlayerMatchAttributes.RESPAWN_RATE_MULTIPLIER` + ADR-0072) + Anomaly 5 TODO closure (StatusBurst / SpawnSurge / TimeWarp / GravityShift / FogOfWar Fake-level wire via the new gateway ports) + Konsist +2 rules (Wave 6 Paper allow-list + IShopStockRepository priority-100 pin) → baseline 28 → 30. Net catalog +1 row (Shop access surfaces); StructureService ❌→🔌. Vanilla Potion 統一は Wave 6a Paper adapter merge layer に意図的に閉じる (domain には漏らさず、ADR-0030 §8 と整合)。**Total parity 70.8% (102/144) → 70.3% (102/145, same ✅, +2 🔌, −1 ❌)** — parity % decrease is purely catalog growth (new row added). ADR-0071 + ADR-0072 → Accepted.
 - Wave _items-1 (2026-05-19): Item-centric content model + Skill multi-binding + inline i18n — `plugin/weapons` → `plugin/items` rename (ADR-0073 Accepted). Item schema: material xor external_key + inline i18n name/lore (ja/en) + rarity + level_requirement + vanilla AttributeModifier support (attack_damage/attack_speed/armor/armor_toughness/knockback_resistance/movement_speed_multiplier/max_health_bonus) + equip_slot (mainhand/offhand/helmet/chestplate/leggings/boots) + behavior flags (max_durability/unbreakable/drop_on_death/keep_on_death/enchantable/glint) + `skills: List<ItemSkillBinding>` multi-skill binding. Skill schema: trigger field deleted (moved to binding), inline i18n name/description (ja/en). Domain event `SkillCastRequested` added to core. `SkillTrigger`/`SkillId`/`DamageProfile` promoted to core from combat. Konsist rule: Items ← Core (not Combat). sibling-isolation matrix updated (ADR-0022). `SkillCast` event chain + `IDamageGateway` path unchanged. No RTM rows flipped (domain/design work). ADR-0073 → Accepted.
 - Wave _infra-5 (2026-05-19): weapon→item→model chain closed + Studio frontend `/weapons` → `/items` migration (ADR-0070 Accepted). Kotlin: `ItemYamlConfig.model: String?` + `ItemSpec.modelSlug: String?` (opaque slug — no `.model.json` suffix, null defers to vendor/archetype fallback). Studio backend `/api/items/load/:slug`: priority resolution content dir → samples dir → archetype map, exposes `modelSource: 'content'|'samples'|'archetype'` + `modelPathRelative`. New endpoint `GET /api/items/model/by-slug/:slug`. Studio frontend: `WeaponsView.vue`/`WeaponPreview.vue` deleted, `ItemsView.vue`/`ItemPreview.vue` created consuming `/api/items` + new `LoadedItem` (incl. `modelSource`). `src/api.ts` rewritten — `WeaponListEntry`/`WeaponYamlConfig`/`LoadedWeapon`/`api.weapons`/`api.loadWeapon`/`api.weaponModel` removed; `ItemListEntry`/`ItemYamlConfig` (incl. `model?: string`)/`ItemSkillBindingYaml`/`ItemAttributesYaml`/`LoadedItem`/`api.items`/`api.loadItem`/`api.itemModelBySlug`/`api.itemModelByArchetype` added. Router `/weapons` → `/items`, nav tab `ウェポン` → `アイテム`. FALLBACK chip narrowed to `modelSource === 'archetype' && modelFallback`. Sample content: `content/items/example-pistol.yaml` declares `model: example-pistol`, `content/models/example-pistol.model.json` seeded from `tools/model-gen/samples/sword.model.json` (placeholder — visual fidelity is ADR-0061 Mismatch A, separate `build-model` track). Konsist 22 rules green; `./gradlew check` green; Studio `bun run typecheck && bun test` green. ADR-0070 → Accepted (references ADR-0061 + ADR-0073, supersedes neither). No RTM rows flipped (structural plumbing). ADR-0061 Mismatch C resolved; Mismatch A remains open.
+- Wave 5e-fix (2026-05-20): First-time login profile creation patch — Plan v5 audit gap closure for Wave 5e. `IPlayerProfileService` port + sealed `ProfileError` (AlreadyExists / PartialGrant) + `StarterGrant` domain value + `StarterGrantYamlConfig` kaml DTO + `StarterGrantLoader` (fail-soft to `StarterGrant.EMPTY`) + `InMemoryPlayerProfileService` (idempotent, lazy `ICurrencyLedger` lookup) + `CreateFirstTimeProfileOnPlayerJoinedListener` (thin adapter per ADR-0064, subscribes before `RestoreInventoryOnPlayerJoinedListener`) + `content/balance/starter-grant.yaml` example (`example-sword` + `example-wand` loadout / GOLD 100 / `getting-started` tutorial / `astera-welcome` dialog) + `FakePlayerProfileService` test-fixture + 26 unit tests across 5 files (StarterGrant + StarterGrantYamlConfig + StarterGrantLoader + InMemoryPlayerProfileService + CreateFirstTimeProfileOnPlayerJoinedListener). Wired in `AsteraCorePlugin.onEnable` at priority 0 between TutorialContents bootstrap and inventory listener subscription. No new ADR — Wave 5e ADR-0058 (UAC) + ADR-0064 (listener-service separation) carry the design; PoC posture per CLAUDE.md §Pre-release allows forward-only port commit without compat shim. Wallet credit / tutorial enrollment / welcome-dialog show all degrade gracefully when their adapters are absent (`PartialGrant.failedSteps` surfaces what was skipped for operator audit; the join always completes). **Total parity 70.3% (102/145) → 70.5% (103/146)** — net +1 ✅ in Cat 8, denominator +1 (catalog growth). Konsist 22 rules green; `./gradlew check` + `shadowJar` all 7 plugins green.
