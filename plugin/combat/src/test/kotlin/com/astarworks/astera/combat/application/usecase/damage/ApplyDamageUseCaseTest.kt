@@ -75,7 +75,7 @@ class ApplyDamageUseCaseTest {
         )
     }
 
-    private fun attempt(source: DamageSource = DamageSource.Environment) = DamageAttempt(
+    private fun attempt(source: DamageSource = DamageSource.Environment.Generic) = DamageAttempt(
         targetId = targetId,
         baseProfile = DamageProfile.single(10.0, DamageAttribute.PHYSICAL),
         source = source,

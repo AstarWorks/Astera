@@ -16,7 +16,7 @@ class FriendlyFireBlockedTest {
 
     private val attacker = PlayerId(UUID.randomUUID())
     private val target = PlayerId(UUID.randomUUID())
-    private val source = DamageSource.Environment
+    private val source = DamageSource.Environment.Generic
 
     @Test
     fun `data class retains attacker intendedTarget and source`() {

@@ -77,9 +77,8 @@ public class KnockbackModifier(
         is DamageSource.Block -> source.position
         is DamageSource.Projectile,
         is DamageSource.StatusEffectTick,
-        is DamageSource.Fall,
         is DamageSource.Barrier,
-        DamageSource.Environment,
+        is DamageSource.Environment,
         -> null
     }
 }

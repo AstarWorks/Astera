@@ -27,10 +27,8 @@ class DamageSourceTest {
         val player = PlayerId(UUID.randomUUID())
         val projectileId = ProjectileId(UUID.randomUUID())
         val sources: List<DamageSource> = listOf(
-            DamageSource.Environment,
             DamageSource.Item(ItemId("example-sword"), player),
             DamageSource.Skill(SkillId("fireball"), player),
-            DamageSource.Fall(distance = 4.0),
             DamageSource.Explosion(center = Vec3.ZERO, radius = 3.0),
             DamageSource.StatusEffectTick(StatusEffectId("burn"), originPlayerId = player),
             DamageSource.Projectile(
@@ -39,41 +37,51 @@ class DamageSourceTest {
                 origin = ProjectileOrigin.FromItem(ItemId("example-pistol")),
             ),
             DamageSource.Barrier(BarrierId("test-barrier")),
-            DamageSource.Block(
-                world = WorldId("test-world"),
-                position = Vec3.ZERO,
-                blockType = BlockType("astera:hardened_soil"),
-                tool = ToolType.IRON_PICKAXE,
-                attackerId = player,
-            ),
+            DamageSource.Environment.Generic,
+            DamageSource.Environment.Fall(distance = 4.0),
+            DamageSource.Environment.Drown(remainingAir = 5),
+            DamageSource.Environment.Fire(ticksOnFire = 20),
+            DamageSource.Environment.Lightning,
+            DamageSource.Environment.Void,
+            DamageSource.Environment.Suffocation,
         )
 
         val tags = sources.map { source ->
             when (source) {
-                is DamageSource.Environment -> "env"
                 is DamageSource.Item -> "item"
                 is DamageSource.Skill -> "skill"
-                is DamageSource.Fall -> "fall"
                 is DamageSource.Explosion -> "explosion"
                 is DamageSource.StatusEffectTick -> "status-tick"
                 is DamageSource.Projectile -> "projectile"
                 is DamageSource.Barrier -> "barrier"
-                is DamageSource.Block -> "block"
+                is DamageSource.Environment.Generic -> "env"
+                is DamageSource.Environment.Fall -> "fall"
+                is DamageSource.Environment.Drown -> "drown"
+                is DamageSource.Environment.Fire -> "fire"
+                is DamageSource.Environment.Lightning -> "lightning"
+                is DamageSource.Environment.Void -> "void"
+                is DamageSource.Environment.Suffocation -> "suffocation"
             }
         }
 
         assertThat(tags).containsExactly(
-            "env", "item", "skill", "fall", "explosion", "status-tick", "projectile", "barrier", "block",
+            "item", "skill", "explosion", "status-tick", "projectile", "barrier",
+            "env", "fall", "drown", "fire", "lightning", "void", "suffocation",
         )
     }
 
     @Test
     fun `attackerIdOrNull derives attacker from each source kind`() {
         val player = PlayerId(UUID.randomUUID())
-        assertThat(DamageSource.Environment.attackerIdOrNull()).isNull()
+        assertThat(DamageSource.Environment.Generic.attackerIdOrNull()).isNull()
+        assertThat(DamageSource.Environment.Drown(remainingAir = 0).attackerIdOrNull()).isNull()
+        assertThat(DamageSource.Environment.Fire(ticksOnFire = 10).attackerIdOrNull()).isNull()
+        assertThat(DamageSource.Environment.Lightning.attackerIdOrNull()).isNull()
+        assertThat(DamageSource.Environment.Void.attackerIdOrNull()).isNull()
+        assertThat(DamageSource.Environment.Suffocation.attackerIdOrNull()).isNull()
         assertThat(DamageSource.Item(ItemId("sword"), player).attackerIdOrNull()).isEqualTo(player)
         assertThat(DamageSource.Skill(SkillId("fireball"), player).attackerIdOrNull()).isEqualTo(player)
-        assertThat(DamageSource.Fall(distance = 4.0).attackerIdOrNull()).isNull()
+        assertThat(DamageSource.Environment.Fall(distance = 4.0).attackerIdOrNull()).isNull()
         assertThat(DamageSource.Explosion(center = Vec3.ZERO, radius = 3.0).attackerIdOrNull()).isNull()
         assertThat(DamageSource.StatusEffectTick(StatusEffectId("burn"), player).attackerIdOrNull()).isEqualTo(player)
         assertThat(DamageSource.StatusEffectTick(StatusEffectId("burn"), null).attackerIdOrNull()).isNull()
