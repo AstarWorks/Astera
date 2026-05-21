@@ -83,6 +83,27 @@ import com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway
 import com.astarworks.astera.core.application.port.outbound.IWorldWeatherGateway
 import com.astarworks.astera.core.application.port.outbound.ReloadError
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
+import com.astarworks.astera.core.application.port.outbound.admin.ILiveConfigEditor
+import com.astarworks.astera.core.application.port.outbound.admin.IScheduledAnnouncementSystem
+import com.astarworks.astera.core.application.port.outbound.admin.IServerBackupGateway
+import com.astarworks.astera.core.application.port.outbound.admin.IServerHealthCheck
+import com.astarworks.astera.core.application.port.outbound.feedback.IPlayerFeedbackQueue
+import com.astarworks.astera.core.application.port.outbound.observability.ISlowQueryAuditRepository
+import com.astarworks.astera.core.application.port.outbound.permission.IPermissionBackend
+import com.astarworks.astera.core.application.port.outbound.permission.IRoleRegistry
+import com.astarworks.astera.core.application.port.outbound.presence.IRichPresenceGateway
+import com.astarworks.astera.core.application.port.outbound.afk.IAfkDetector
+import com.astarworks.astera.core.application.port.outbound.anticheat.IDamageRateValidator
+import com.astarworks.astera.core.application.port.outbound.anticheat.IExternalAnticheatBridge
+import com.astarworks.astera.core.application.port.outbound.anticheat.IInteractValidator
+import com.astarworks.astera.core.application.port.outbound.anticheat.IMovementValidator
+import com.astarworks.astera.core.application.service.afk.AfkSweepScheduler
+import com.astarworks.astera.core.application.service.afk.InMemoryAfkDetector
+import com.astarworks.astera.core.application.service.anticheat.AnticheatOrchestrator
+import com.astarworks.astera.core.application.service.anticheat.DefaultMovementValidator
+import com.astarworks.astera.core.application.service.anticheat.NoopExternalAnticheatBridge
+import com.astarworks.astera.core.application.service.anticheat.SlidingWindowDamageRateValidator
+import com.astarworks.astera.core.application.service.anticheat.SlidingWindowInteractValidator
 import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
@@ -196,6 +217,9 @@ public class AsteraCorePlugin : JavaPlugin() {
     /** Retained so [onDisable] can release the HTTP port (Wave _ops). */
     private var metricsHttpServer: HttpMetricsServer? = null
     private var matchQueueMetric: MatchQueueMetric? = null
+
+    /** Wave 5q (ADR-0083): retained so [onDisable] can cancel the AFK sweep loop. */
+    private var afkSweepHandle: IScheduler.TaskHandle? = null
 
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
@@ -691,6 +715,155 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<INpcInteractionRouter>(npcInteractionRouter, priority = 0)
         services.register<IEntitySpawner>(entitySpawner, priority = 0)
 
+        // ---- Wave 5t (ADR-0086) Admin/Ops + Role/Permission two-tier +
+        // Voice rich presence + Slow query log + Player feedback. -----------
+        //
+        // Order: register the richer Wave 5t surfaces alongside the existing
+        // Wave 3 ones (they coexist; ADR-0086 §"Persistence shape" explains
+        // why both stay).
+        //
+        // 1. Wave 5t Role Registry — `content/permissions.yaml` driven.
+        val permissionsContentDir: Path = contentDir
+        val roleContents = RoleContents()
+        val roleReport = roleContents.bootstrap(permissionsContentDir)
+        logger.info(
+            "Permissions roles loaded: ${roleReport.loaded} ok, ${roleReport.failed} failed",
+        )
+        services.register<IRoleRegistry>(roleContents, priority = 0)
+        reloadRegistry.register(roleContents, permissionsContentDir)
+
+        // 2. Minimal + LuckPerms backends + selector.
+        val roleAssignments: IRoleAssignmentRepository =
+            services.get<IRoleAssignmentRepository>()
+                ?: InMemoryRoleAssignmentRepository().also {
+                    services.register<IRoleAssignmentRepository>(it, priority = 0)
+                }
+        val minimalBackend = MinimalPermissionBackend(roleContents, roleAssignments)
+        val luckPermsBackend = LuckPermsPermissionBackend(available = { false })
+        services.register<IPermissionBackend>(luckPermsBackend, priority = 100)
+        services.register<IPermissionBackend>(minimalBackend, priority = 0)
+        val defaultPermissionService = DefaultPermissionService(
+            backends = listOf(luckPermsBackend, minimalBackend),
+            broadcaster = broadcaster,
+            tickProvider = { scheduler.currentTick() },
+        )
+        services.register<DefaultPermissionService>(defaultPermissionService, priority = 0)
+        logger.info(
+            "Wave 5t permission selector active. Default backend: " +
+                defaultPermissionService.activeBackendId(),
+        )
+
+        // 3. Voice rich presence — Log default + Discord skeleton (Wave 6b).
+        val richPresence: IRichPresenceGateway =
+            services.get<IRichPresenceGateway>()
+                ?: run {
+                    val discordSkeleton = DiscordRichPresenceGateway()
+                    val logFallback = LoggingRichPresenceGateway()
+                    services.register<IRichPresenceGateway>(discordSkeleton, priority = 50)
+                    services.register<IRichPresenceGateway>(logFallback, priority = 0)
+                    if (discordSkeleton.isAvailable()) discordSkeleton else logFallback
+                }
+        val richPresenceListener = SessionLifecycleRichPresenceListener(richPresence)
+        richPresenceListener.bind(eventBus)
+        @Suppress("UNUSED_VARIABLE") val richPresenceListenerRef = richPresenceListener
+        logger.info("Wave 5t rich presence wired (backend=${richPresence.backendId()}).")
+
+        // 4. Admin/Ops 4-port suite (Live config editor, Backup gateway,
+        // Scheduled announcements, Health check).
+        val liveConfigEditor: ILiveConfigEditor = InMemoryLiveConfigEditor(reloadRegistry)
+        // Bind already-known category roots so the editor's path-escape
+        // validation works for items / gui / particles / tutorials /
+        // permissions out of the box.
+        (liveConfigEditor as InMemoryLiveConfigEditor).bindCategoryRoot("items", itemsContentDir)
+        liveConfigEditor.bindCategoryRoot("gui", guiContentDir)
+        liveConfigEditor.bindCategoryRoot("particles", particlesContentDir)
+        liveConfigEditor.bindCategoryRoot("tutorials", tutorialsContentDir)
+        liveConfigEditor.bindCategoryRoot("permissions", permissionsContentDir)
+        services.register<ILiveConfigEditor>(liveConfigEditor, priority = 0)
+
+        val backupGateway: IServerBackupGateway = InMemoryServerBackupGateway()
+        services.register<IServerBackupGateway>(backupGateway, priority = 0)
+
+        val announcementSystem: IScheduledAnnouncementSystem =
+            InMemoryScheduledAnnouncementSystem(scheduler, eventBus, broadcaster)
+        services.register<IScheduledAnnouncementSystem>(announcementSystem, priority = 0)
+
+        val healthCheck: IServerHealthCheck = InMemoryServerHealthCheck()
+        services.register<IServerHealthCheck>(healthCheck, priority = 0)
+
+        // 5. Slow query audit + Player feedback.
+        val slowQueryRepo: ISlowQueryAuditRepository =
+            services.get<ISlowQueryAuditRepository>()
+                ?: InMemorySlowQueryAuditRepository().also {
+                    services.register<ISlowQueryAuditRepository>(it, priority = 0)
+                }
+        val feedbackQueue: IPlayerFeedbackQueue =
+            services.get<IPlayerFeedbackQueue>()
+                ?: InMemoryPlayerFeedbackQueue().also {
+                    services.register<IPlayerFeedbackQueue>(it, priority = 0)
+                }
+        val submitFeedback = SubmitFeedbackUseCase(
+            queue = feedbackQueue,
+            broadcaster = broadcaster,
+            tickProvider = { scheduler.currentTick() },
+        )
+
+        // 6. Brigadier admin commands.
+        Wave5tAdminCommands.build(
+            permissionService = permissionService,
+            submitFeedback = submitFeedback,
+            feedbackQueue = feedbackQueue,
+            slowQueryRepository = slowQueryRepo,
+        ).forEach { commandHandler.register(it) }
+        logger.info("Wave 5t admin commands registered (/astera report, feedback, slow-query).")
+
+        // ---- Anti-cheat + Anti-AFK (Wave 5q, ADR-0083) -----------------
+        // Three light validators (movement / damage-rate / interact) +
+        // pluggable external bridge (Noop by default; Wave 6b ships a
+        // Spartan / Negativity / Vulcan adapter once Wave 8f picks one).
+        // The orchestrator routes flags into AnticheatFlagRaised /
+        // AnticheatActionTaken events; admins holding
+        // astera.anticheat.bypass skip both flag emission and action.
+        val movementValidator: IMovementValidator = DefaultMovementValidator()
+        val damageRateValidator: IDamageRateValidator = SlidingWindowDamageRateValidator()
+        val interactValidator: IInteractValidator = SlidingWindowInteractValidator()
+        services.register<IMovementValidator>(movementValidator, priority = 0)
+        services.register<IDamageRateValidator>(damageRateValidator, priority = 0)
+        services.register<IInteractValidator>(interactValidator, priority = 0)
+
+        val externalAnticheatBridge: IExternalAnticheatBridge =
+            services.get<IExternalAnticheatBridge>() ?: NoopExternalAnticheatBridge().also {
+                services.register<IExternalAnticheatBridge>(it, priority = 0)
+            }
+
+        val anticheatOrchestrator = AnticheatOrchestrator(
+            externalBridge = externalAnticheatBridge,
+            permissionService = permissionService,
+            eventBus = eventBus,
+        )
+        services.register<AnticheatOrchestrator>(anticheatOrchestrator, priority = 0)
+        logger.info(
+            "Wave 5q anti-cheat wired (external bridge: ${externalAnticheatBridge.backendId()}; " +
+                "available=${externalAnticheatBridge.isAvailable()}).",
+        )
+
+        // Anti-AFK detector: 30s warning, 2 min kick. Sweeper publishes
+        // PlayerAfkWarned / PlayerAfkKicked once per second across every
+        // tracked session (Wave _persist-1 + Wave 5e session repo).
+        val afkDetector: IAfkDetector =
+            services.get<IAfkDetector>() ?: InMemoryAfkDetector(tickProvider = { scheduler.currentTick() }).also {
+                services.register<IAfkDetector>(it, priority = 0)
+            }
+        val afkSweeper = AfkSweepScheduler(
+            detector = afkDetector,
+            eventBus = eventBus,
+            scheduler = scheduler,
+            tickProvider = { scheduler.currentTick() },
+            playerSnapshot = { sessionRepo.all().map { it.playerId } },
+        )
+        afkSweepHandle = afkSweeper.start()
+        logger.info("Wave 5q anti-AFK detector wired (warning=30s, kick=2min, sweep=1s).")
+
         // ---- Observability (Wave _ops, ADR-0023 + ADR-0024 + deploy/keda/) ----
         // Opt-in via env. When ASTERA_METRICS_ENABLED=true, exposes Prometheus
         // exposition at :ASTERA_METRICS_PORT/metrics (default 9092). The KEDA
@@ -723,6 +896,7 @@ public class AsteraCorePlugin : JavaPlugin() {
 
     override fun onDisable() {
         logger.info("Astera-Core disabling.")
+        afkSweepHandle?.cancel()
         matchQueueMetric?.stop()
         metricsHttpServer?.stop()
         paperScheduler?.stop()
@@ -779,8 +953,27 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IPlayerFoodGateway (Wave 5k)",
             "IResourcePoolService (Wave 5k)",
             "IResourceRegenScheduler (Wave 5k)",
-            "ISpawnProtectionGateway (Wave 5o)",
-            "IPlayerPvpStateService (Wave 5o)",
+            "IEntityRegistry",
+            "INpcAdapter (minimal+citizens)",
+            "INpcInteractionRouter",
+            "IEntitySpawner",
+            // Wave 5t (ADR-0086)
+            "IRoleRegistry",
+            "IPermissionBackend (Minimal + LuckPerms skeleton)",
+            "IRichPresenceGateway",
+            "ILiveConfigEditor",
+            "IServerBackupGateway",
+            "IScheduledAnnouncementSystem",
+            "IServerHealthCheck",
+            "ISlowQueryAuditRepository",
+            "IPlayerFeedbackQueue",
+            // Wave 5q (ADR-0083)
+            "IMovementValidator",
+            "IDamageRateValidator",
+            "IInteractValidator",
+            "IExternalAnticheatBridge (noop default)",
+            "AnticheatOrchestrator",
+            "IAfkDetector + AfkSweepScheduler",
         )
     }
 }

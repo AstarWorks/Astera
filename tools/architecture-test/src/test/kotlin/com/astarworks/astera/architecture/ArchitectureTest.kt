@@ -826,6 +826,97 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5l — INpcAdapter uniqueness + Citizens isolation (ADR-0082) ───
+
+    /**
+     * ADR-0082 (Entity spawning + NPC two-tier strategy): every concrete
+     * `INpcAdapter` implementation MUST return a unique [backendId] value.
+     * The runtime `RouterEntitySpawner` selects adapters by priority and
+     * uses `EntityHandle.backendId` to route despawns back to the owning
+     * adapter — colliding backend ids would silently route handles to the
+     * wrong adapter.
+     *
+     * Konsist can't inspect method bodies, so this test enforces uniqueness
+     * **by convention**: every `INpcAdapter` implementation must declare a
+     * `companion object` containing a `public val BACKEND_ID: NpcBackendId =
+     * NpcBackendId.X` referencing one of the named constants on
+     * [NpcBackendId.Companion]. The test scans the source for those `val`
+     * declarations and asserts no two adapters reference the same constant.
+     */
+    @Test
+    fun `INpcAdapter implementations must declare backendId() uniquely (ADR-0082)`() {
+        val portSimpleName = "INpcAdapter"
+
+        // Every class that directly implements INpcAdapter.
+        val adapters = Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name == portSimpleName }
+            }
+
+        // We expect at least both Wave 5l adapters present (Minimal +
+        // Citizens skeleton). If neither is present the Wave never landed.
+        assertThat(adapters.map { it.fullyQualifiedName })
+            .withFailMessage {
+                "ADR-0082 expects at least one INpcAdapter implementation. " +
+                    "Found: ${adapters.map { it.fullyQualifiedName }}"
+            }
+            .isNotEmpty
+
+        // Each adapter must declare a `BACKEND_ID` property somewhere in its
+        // file (typically inside a companion object). The property's
+        // initializer text encodes the backend identity; we collect all
+        // such tokens and assert uniqueness across adapters.
+        val backendIdTokens: Map<String, String> = adapters.associate { cls ->
+            val file = cls.containingFile
+            val backendIdLine: String? = file.text.lineSequence()
+                .map { it.trim() }
+                .firstOrNull { it.startsWith("public val BACKEND_ID") || it.startsWith("val BACKEND_ID") }
+            requireNotNull(backendIdLine) {
+                "ADR-0082: ${cls.fullyQualifiedName} implements INpcAdapter but " +
+                    "declares no `BACKEND_ID` constant. Add one referencing " +
+                    "NpcBackendId.MINIMAL / NpcBackendId.CITIZENS / a new constant."
+            }
+            cls.fullyQualifiedName!! to backendIdLine
+        }
+
+        val tokensByValue: Map<String, List<String>> = backendIdTokens
+            .entries
+            .groupBy(
+                keySelector = { entry -> entry.value.substringAfter("=").trim() },
+                valueTransform = { entry -> entry.key },
+            )
+
+        val collisions = tokensByValue.filter { (_, owners) -> owners.size > 1 }
+        assertThat(collisions)
+            .withFailMessage {
+                "ADR-0082 backend-id collision: " +
+                    "${collisions.map { (id, owners) -> "$id is claimed by $owners" }}. " +
+                    "Each INpcAdapter implementation must own a distinct NpcBackendId."
+            }
+            .isEmpty()
+    }
+
+    /**
+     * ADR-0082: Citizens is a soft-dep. Core's domain model must never
+     * import the Citizens API (`net.citizensnpcs.api.*`) — that lives only
+     * in the future Wave 6b Paper adapter (`plugin/items/.../adapter/paper/`).
+     *
+     * If a Citizens import appears in `core.domain.entity.*`, the
+     * "Citizens-not-installed" smoke environment (CI, headless tests)
+     * will fail to load Core. This test catches the regression at compile-
+     * test time instead of at server boot.
+     */
+    @Test
+    fun `core domain entity must not import Citizens API (ADR-0082)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.entity") == true }
+            .assertFalse { file ->
+                file.imports.any { imp -> imp.name.startsWith("net.citizensnpcs") }
+            }
+    }
+
     /**
      * Wave 5k (ADR-0080): the physiology domain
      * (`core.domain.player.physiology.*`) carries health / speed / food source
@@ -841,36 +932,6 @@ class ArchitectureTest {
             .assertFalse(
                 additionalMessage = "ADR-0080: physiology source variants must stay pure-domain. " +
                     "Bukkit attribute / Player wiring lives in adapter/paper/.",
-            ) { file ->
-                hasBukkitFamilyImport(file)
-            }
-    }
-
-    /**
-     * Wave 5o (ADR-0081): the spawn-selector strategy
-     * (`match.application.service.ISpawnSelector` + implementations such as
-     * [DefaultSpawnSelector]) is a pure-domain selection algorithm. The
-     * selector resolves `SpawnPoint` instances by faction + strategy from
-     * the stage's own `SpawnPoint` list, and the player→faction lookup is
-     * delegated to the vendor-neutral `IMatchTeamLookup` port. Bukkit
-     * imports here would mean the selector is reaching back to the Paper
-     * layer for player / world info — instead, all such data must be
-     * threaded through the port surface.
-     *
-     * This rule pins both the interface file and every implementation that
-     * lives in `match.application.service/` whose filename starts with
-     * `*SpawnSelector*`.
-     */
-    @Test
-    fun `ISpawnSelector implementations must not import Bukkit Paper (ADR-0081)`() {
-        Konsist.scopeFromModule("plugin/match")
-            .files
-            .filter { it.packagee?.name == "com.astarworks.astera.match.application.service" }
-            .filter { it.name.contains("SpawnSelector") }
-            .assertFalse(
-                additionalMessage = "ADR-0081: ISpawnSelector + implementations must stay " +
-                    "Bukkit-free. Resolve player → faction via IMatchTeamLookup, world geometry " +
-                    "via SpawnPoint's world/position fields — never reach back to org.bukkit.*.",
             ) { file ->
                 hasBukkitFamilyImport(file)
             }
@@ -911,6 +972,63 @@ class ArchitectureTest {
                     "their domain types must stay vendor-neutral. Move any Bukkit-touching " +
                     "code to combat.adapter.paper.*.",
             ) { file -> hasBukkitFamilyImport(file) }
+    }
+
+    // ─── Wave 5q — Anti-cheat + Anti-AFK isolation (ADR-0083) ─────────
+
+    /**
+     * ADR-0083: the anti-cheat domain (`core.domain.anticheat.*`) carries
+     * the validator-result sealed hierarchies plus the cross-plugin
+     * suspicion / action vocabulary. Must stay Bukkit-free — Paper-side
+     * listeners that emit these surfaces live in adapter/paper/ (Wave 6b)
+     * and external plugin bridges arrive through
+     * [com.astarworks.astera.core.application.port.outbound.anticheat.IExternalAnticheatBridge].
+     *
+     * The Konsist rule mirrors the physiology / resource-pool guard from
+     * Wave 5k (ADR-0080) — same vendor isolation, different package.
+     */
+    @Test
+    fun `Anti-cheat domain must not import Bukkit Paper (ADR-0083)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.anticheat") == true }
+            .assertFalse(
+                additionalMessage = "ADR-0083: anti-cheat domain must stay Bukkit-free. " +
+                    "Move Paper-side wiring to core.adapter.paper.* (or feature plugins' " +
+                    "adapter/paper/).",
+            ) { file -> hasBukkitFamilyImport(file) }
+    }
+
+    /**
+     * ADR-0083: every concrete [com.astarworks.astera.core.application.port.outbound.afk.IAfkDetector]
+     * implementation MUST live in either `application/service/afk/`
+     * (vendor-neutral / Postgres overlay) or in a `<plugin>/adapter/paper/...`
+     * package. Bukkit imports in the application-layer impl would force
+     * the detector onto the Paper main thread for every tick scan, which
+     * the [AfkSweepScheduler] is supposed to keep optional.
+     *
+     * In practice this assertion narrows to "any class implementing
+     * IAfkDetector under the `core.application.*` package must not import
+     * Bukkit." Wave 6b can subclass with a Paper-backed `IPlayerGateway`
+     * lookup as long as that impl lives under `<plugin>.adapter.paper.*`.
+     */
+    @Test
+    fun `IAfkDetector application-layer implementations must not import Bukkit Paper (ADR-0083)`() {
+        val portSimpleName = "IAfkDetector"
+        Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name == portSimpleName } &&
+                    cls.packagee?.name?.contains(".application.") == true
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0083: IAfkDetector application-layer impls must stay " +
+                    "Bukkit-free. Move Paper wiring to *.adapter.paper.* instead.",
+            ) { cls ->
+                cls.containingFile.imports.any { imp ->
+                    bukkitFamily.any { prefix -> imp.name.startsWith(prefix) }
+                }
+            }
     }
 
     // ─── Private helpers ─────────────────────────────────────────────────────

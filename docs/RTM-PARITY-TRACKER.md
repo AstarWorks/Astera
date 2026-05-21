@@ -341,32 +341,36 @@ green; 2 new rules added (baseline 30 → 32). Parity gauge **same ✅ count**
 
 ---
 
-## Category 8c: Respawn + PvP + Spawn selector + Status interaction (Wave 5o, ADR-0081)
+## Category 8c: Anti-cheat + Anti-AFK (Wave 5q, ADR-0083)
 
-Death → respawn → temporary invulnerability → re-fight loop on top of the
-Wave 5k physiology layer. Adds the spawn-protection / PvP-toggle /
-status-interaction matrix services Annihilation gameplay needs.
+Lightweight in-process validators + external anti-cheat plugin bridge +
+per-player AFK detection. Wave 5q dropped the original anti-grief rollback
+scope (covered by Wave 5n region permissions + Wave 5w restic backups) and
+added anti-AFK detection so match plumbing has a tick-event source for the
+leaver-penalty path.
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
 |---|---|---|---|---|
-| `RespawnUseCase` (teleport + heal + protect + kit + status + publish) | ✅ Wave 5o (use case + RespawnSpec + PreFillKit + RespawnError) | (済 Wave 5o) | P0 | `plugin/match/.../application/usecase/respawn/RespawnUseCase.kt`; ADR-0081 §3 |
-| `SpawnPoint` flat reshape (world + position + yaw + pitch + faction enum) | ✅ Wave 5o (sealed → flat data class + `SpawnFaction` enum) | (済 Wave 5o) | P0 | `plugin/core/.../domain/stage/SpawnPoint.kt`; ADR-0081 §1 |
-| `ISpawnSelector` + 4 strategies (FirstAvailable / Random / CycleRotation / FurthestFromEnemies) | ✅ Wave 5o (port + `DefaultSpawnSelector`) | (済 Wave 5o) | P0 | `plugin/match/.../application/service/{ISpawnSelector,SpawnStrategy,DefaultSpawnSelector}.kt`; ADR-0081 §2 |
-| `IStatusEffectInteractionRule` + matrix (Cancel / Suppress / Amplify / Pass) | ✅ Wave 5o (port + `YamlStatusEffectInteractionRule`) | (済 Wave 5o) | P1 | `plugin/combat/.../application/port/outbound/IStatusEffectInteractionRule.kt`; `YamlStatusEffectInteractionRule.kt`; ADR-0081 §6 |
-| `ISpawnProtectionGateway` (TTL-based post-respawn invulnerability) | 🔌 port + `InMemorySpawnProtectionGateway` + `FakeSpawnProtectionGateway` | **Wave 5o** (port + InMemory) + **Wave 6a** (Adventure title / glint hooks) | P0 | `plugin/core/.../application/port/outbound/ISpawnProtectionGateway.kt`; ADR-0081 §4 |
-| `IPlayerPvpStateService` (per-player toggle + canonical `resolveCanDamage`) | 🔌 port + `InMemoryPlayerPvpStateService` (combat-pipeline integration in Wave 5q anti-cheat) | **Wave 5o** (port + InMemory) + **Wave 5q** (combat wiring) | P0 | `plugin/core/.../application/port/outbound/IPlayerPvpStateService.kt`; ADR-0081 §5 |
-| `PvpDisableReason` sealed (SpawnProtection / SafeZone / NewPlayer / AdminOverride) | 🔌 domain (Wave 5o) — NewPlayer variant unused until grace tracker lands | **Wave 5o** (domain) + later wave (NewPlayer tracker) | P1 | `plugin/core/.../domain/pvp/PvpDisableReason.kt`; ADR-0081 §5 |
-| Domain events: PlayerRespawned / PlayerProtectionGranted / PlayerProtectionExpired / PvpDamageBlocked / StatusEffectCancelled | ✅ Wave 5o (5 new events) | (済 Wave 5o) | P0 | `plugin/core/.../domain/event/`; ADR-0081 |
-| `content/balance/status-effect-interactions.yaml` matrix authoring file | 🟨 file landed with 3 sample rules (fire-cancels-frost / post-thaw-freeze-immunity / shock-amplifies-wet); operator tuning later | **Wave 5o** (file + 3 rules) + later balance pass | P2 | `content/balance/status-effect-interactions.yaml`; ADR-0081 §6 |
-| Spawn-faction → team-id mapping (red/blue/attacker/defender → SpawnFaction) | ✅ Wave 5o (`DefaultSpawnSelector.DEFAULT_TEAM_FACTION_MAP`, caller-overridable) | (済 Wave 5o) | P1 | `DefaultSpawnSelector.kt`; ADR-0081 §2 |
+| `IMovementValidator` + `MovementValidation` sealed (`Ok / Suspicious / Reject`) + `MovementSuspicion` sealed (`HighSpeed / VerticalAnomaly / WallClipping`) + `MovementRejection` sealed (`Teleport / NoClip`) | ✅ Wave 5q (port + `DefaultMovementValidator` O(1) hard-cap impl) | (済 Wave 5q) | P0 | `plugin/core/.../{domain/anticheat/MovementValidation.kt,domain/anticheat/MovementSuspicion.kt,domain/anticheat/MovementRejection.kt,application/port/outbound/anticheat/IMovementValidator.kt,application/service/anticheat/DefaultMovementValidator.kt}`; ADR-0083 §α |
+| `IDamageRateValidator` + `DamageRateValidation` sealed (`Ok / TooFast`) | ✅ Wave 5q (port + `SlidingWindowDamageRateValidator`); Wave 5a damage pipeline calls `record()` before `validate()` on next hit | (済 Wave 5q) | P1 | `plugin/core/.../{application/port/outbound/anticheat/IDamageRateValidator.kt,application/service/anticheat/SlidingWindowDamageRateValidator.kt}`; ADR-0083 §α |
+| `IInteractValidator` + `InteractValidation` sealed (`Ok / RateExceeded`) + `InteractAction` sealed (`ContainerOpen / BlockClick / ItemUse`) | ✅ Wave 5q (port + `SlidingWindowInteractValidator` per `(playerId, actionKind)` bucket) | (済 Wave 5q) | P1 | `plugin/core/.../{domain/anticheat/InteractAction.kt,domain/anticheat/InteractValidation.kt,application/port/outbound/anticheat/IInteractValidator.kt,application/service/anticheat/SlidingWindowInteractValidator.kt}`; ADR-0083 §α |
+| `IExternalAnticheatBridge` (Astera ↔ external plugin) + `AnticheatSuspicion` sealed (`Movement / DamageRate / Interact / CustomFlag`) + `AnticheatAction` sealed (`Kick / Ban / Notify / Quiet`) | ✅ Wave 5q (port + `NoopExternalAnticheatBridge` default; Spartan / Negativity / Vulcan adapter at **Wave 6b** once **Wave 8f** picks the plugin) | **Wave 5q** (port + Noop) + **Wave 6b** (Paper adapter) + **Wave 8f** (plugin choice ADR) | P1 | `plugin/core/.../{domain/anticheat/AnticheatSuspicion.kt,domain/anticheat/AnticheatAction.kt,application/port/outbound/anticheat/IExternalAnticheatBridge.kt,application/service/anticheat/NoopExternalAnticheatBridge.kt}`; ADR-0083 §β |
+| `AnticheatOrchestrator` (validators → bridge → permission check → events) + `AnticheatActionPolicy` fun interface | ✅ Wave 5q (orchestrator + `DefaultAnticheatActionPolicy` severity-based decision tree); admins / GMs with `astera.anticheat.bypass` skip both flag and action | (済 Wave 5q) | P0 | `plugin/core/.../application/service/anticheat/AnticheatOrchestrator.kt`; ADR-0083 §β + Wave 5t (ADR-0086) bypass permission |
+| `IAfkDetector` + `ActivityKind` sealed (`Movement / Click / Chat / SkillCast`) + `AfkStatus` sealed (`Active / Warning(secondsBeforeKick) / Afk(sinceTick)`) + `AfkRecord` | ✅ Wave 5q (port + `InMemoryAfkDetector` warning=30s / kick=2min defaults; tick-agnostic via `tickProvider`) | (済 Wave 5q) | P0 | `plugin/core/.../{domain/afk/ActivityKind.kt,domain/afk/AfkStatus.kt,domain/afk/AfkRecord.kt,application/port/outbound/afk/IAfkDetector.kt,application/service/afk/InMemoryAfkDetector.kt}`; ADR-0083 §γ |
+| `AfkSweepScheduler` (periodic sweeper, edge-triggered events, 1s sweep default) | ✅ Wave 5q (`IScheduler.runRepeatingTicks` + per-player de-dup bucket) | (済 Wave 5q) | P0 | `plugin/core/.../application/service/afk/AfkSweepScheduler.kt`; ADR-0083 §γ |
+| 4 domain events: `AnticheatFlagRaised` / `AnticheatActionTaken` / `PlayerAfkWarned` / `PlayerAfkKicked` | ✅ Wave 5q | (済 Wave 5q) | P0 | `plugin/core/.../domain/event/{AnticheatFlagRaised,AnticheatActionTaken,PlayerAfkWarned,PlayerAfkKicked}.kt`; ADR-0083 |
+| Match queue / leaver-penalty hookup on `PlayerAfkKicked` | ❌ deferred to **Wave 5w** (`MatchFoundUseCase` already plans `IPlayerAfkKicked` subscriber for queue-cooldown) | **Wave 5w** | P1 | RTM gap; ADR-0083 §γ Decision |
+| Paper-side activity listeners (PlayerMoveEvent / Click / AsyncChat / SkillCastRequested) feeding `IAfkDetector.recordActivity` | ❌ deferred to **Wave 6b** (Paper adapter layer) | **Wave 6b** | P1 | ADR-0083 §γ Consequences |
+| Paper-side hookup `IMovementValidator` → `PlayerMoveEvent` cancel + `IDamageRateValidator` → Wave 5a `ApplyDamage` pipeline + `IInteractValidator` → click listener | ❌ deferred to **Wave 6b** (Paper adapter layer) | **Wave 6b** | P1 | ADR-0083 §β Decision |
 
-**Wave 5o summary**: 3 new ports (`ISpawnProtectionGateway` +
-`IPlayerPvpStateService` + `IStatusEffectInteractionRule`) + 2 new domain
-types (`SpawnFaction` + `PvpDisableReason`) + 4 strategies + 1 status
-interaction sealed + 1 use case + 5 new domain events + 1 new Konsist rule
-(baseline 32 → 33). `SpawnPoint` shape reshape is a pre-release breaking
-change (CLAUDE.md §Pre-release posture). All Konsist green; full `./gradlew
-check` green.
+**Wave 5q summary**: 3 new ports (validator triad) + 1 bridge port + 1
+orchestrator + 1 AFK port + 1 AFK sweeper + 4 new domain events. 2 new
+Konsist rules (Anti-cheat domain Bukkit isolation + `IAfkDetector`
+application-layer Bukkit isolation). Catalog **+11 entries**, ✅ +9
+(orchestrator wires through `IPermissionService` for Wave 5t-style
+`astera.anticheat.bypass` escape hatch). Anti-grief rollback ❌
+*intentionally not delivered*: covered by Wave 5n region permissions
+(ADR-0081) + Wave 5w restic backups (ADR-0089) instead.
 
 ---
 
