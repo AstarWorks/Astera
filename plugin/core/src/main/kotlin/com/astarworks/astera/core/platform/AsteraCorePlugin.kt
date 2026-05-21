@@ -23,6 +23,7 @@ import com.astarworks.astera.core.application.command.Wave5tAdminCommands
 import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.contents.GuiContents
 import com.astarworks.astera.core.application.contents.ItemContents
+import com.astarworks.astera.core.application.contents.MobContents
 import com.astarworks.astera.core.application.contents.RoleContents
 import com.astarworks.astera.core.application.contents.TutorialContents
 import com.astarworks.astera.core.application.eventbus.listeners.RestoreInventoryOnPlayerJoinedListener
@@ -38,6 +39,12 @@ import com.astarworks.astera.core.application.port.outbound.entity.IEntityRegist
 import com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner
 import com.astarworks.astera.core.application.port.outbound.entity.INpcAdapter
 import com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter
+import com.astarworks.astera.core.application.port.outbound.mob.IMobAdapter
+import com.astarworks.astera.core.application.port.outbound.mob.IMobRegistry
+import com.astarworks.astera.core.application.port.outbound.mob.IMobSpawnLadder
+import com.astarworks.astera.core.application.port.outbound.mob.IMobSpawner
+import com.astarworks.astera.core.application.port.outbound.mob.IPveLootDistributor
+import com.astarworks.astera.core.application.port.outbound.mob.IPveXpDistributor
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver
 import com.astarworks.astera.core.application.port.outbound.IGuiRegistry
@@ -96,6 +103,12 @@ import com.astarworks.astera.core.application.service.entity.InMemoryEntityRegis
 import com.astarworks.astera.core.application.service.entity.InMemoryNpcInteractionRouter
 import com.astarworks.astera.core.application.service.entity.MinimalNpcAdapter
 import com.astarworks.astera.core.application.service.entity.RouterEntitySpawner
+import com.astarworks.astera.core.application.service.mob.MinimalMobAdapter
+import com.astarworks.astera.core.application.service.mob.MobSpawnerRouter
+import com.astarworks.astera.core.application.service.mob.MythicMobsMobAdapter
+import com.astarworks.astera.core.application.service.mob.NoopPveLootDistributor
+import com.astarworks.astera.core.application.service.mob.NoopPveXpDistributor
+import com.astarworks.astera.core.application.service.mob.StaticMobSpawnLadder
 import com.astarworks.astera.core.application.service.InMemoryAuditLogRepository
 import com.astarworks.astera.core.application.service.InMemoryBlockStateGateway
 import com.astarworks.astera.core.application.service.InMemoryBossBarManager
@@ -530,6 +543,41 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<INpcInteractionRouter>(npcInteractionRouter, priority = 0)
         services.register<IEntitySpawner>(entitySpawner, priority = 0)
 
+        // ---- PvE mob foundation (Wave 5pve, ADR-0085) --------------------
+        // Two-tier strategy: MinimalMobAdapter (always available) +
+        // MythicMobsMobAdapter (Phase 1 skeleton, Wave 6b activates with
+        // MythicMobs plugin detection). MobSpawnerRouter picks the
+        // highest-priority *available* adapter; MythicMobs listed first so
+        // Wave 6b's enabled subclass takes precedence without re-ordering.
+        //
+        // Pve loot + xp distributors are Noop in Phase 1 — Phase 4 supersedes
+        // via priority-100 service registration once content/loot/ + the XP
+        // yield table land.
+        val mobsContentDir = contentDir.resolve("mobs")
+        val mobContents = MobContents()
+        val mobReport = mobContents.bootstrap(mobsContentDir)
+        logger.info("Mobs loaded: ${mobReport.loaded} ok, ${mobReport.failed} failed")
+        services.register<IMobRegistry>(mobContents, priority = 0)
+        reloadRegistry.register(mobContents, mobsContentDir)
+
+        val minimalMobAdapter = MinimalMobAdapter(eventBus, scheduler)
+        val mythicMobsMobAdapter = MythicMobsMobAdapter()
+        services.register<IMobAdapter>(mythicMobsMobAdapter, priority = 10)
+        services.register<IMobAdapter>(minimalMobAdapter, priority = 0)
+        val mobSpawner: IMobSpawner = MobSpawnerRouter(
+            adapters = listOf(mythicMobsMobAdapter, minimalMobAdapter),
+            registry = mobContents,
+            eventBus = eventBus,
+            scheduler = scheduler,
+        )
+        services.register<IMobSpawner>(mobSpawner, priority = 0)
+        services.register<IMobSpawnLadder>(StaticMobSpawnLadder(), priority = 0)
+        services.register<IPveLootDistributor>(NoopPveLootDistributor(), priority = 0)
+        services.register<IPveXpDistributor>(NoopPveXpDistributor(), priority = 0)
+        logger.info(
+            "Wave 5pve mob foundation wired (active backend=${mobSpawner.activeBackendId()?.value ?: "none"}).",
+        )
+
         // ---- Wave 5t (ADR-0086) Admin/Ops + Role/Permission two-tier +
         // Voice rich presence + Slow query log + Player feedback. -----------
         //
@@ -765,6 +813,13 @@ public class AsteraCorePlugin : JavaPlugin() {
             "INpcAdapter (minimal+citizens)",
             "INpcInteractionRouter",
             "IEntitySpawner",
+            // Wave 5pve (ADR-0085)
+            "IMobRegistry",
+            "IMobAdapter (minimal+mythicmobs skeleton)",
+            "IMobSpawner",
+            "IMobSpawnLadder",
+            "IPveLootDistributor (noop)",
+            "IPveXpDistributor (noop)",
             // Wave 5t (ADR-0086)
             "IRoleRegistry",
             "IPermissionBackend (Minimal + LuckPerms skeleton)",

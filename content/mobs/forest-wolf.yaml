@@ -1,0 +1,49 @@
+# Wave 5pve (ADR-0085) — Demo PvE mob.
+# Open-world hunting target spawning in forest biomes during daytime.
+# Skill bindings demonstrate the Astera SkillId reuse pattern: a wolf bite
+# and a player sword swing both route through the same SkillCastRequested
+# → ISkillRegistry pipeline (mob side via MobSkillTriggered → combat).
+
+id: astera:forest-wolf
+
+display_name:
+  en: "<gray>Forest Wolf</gray>"
+  ja: "<gray>森狼</gray>"
+
+base_entity_type: MOB
+
+attributes:
+  mob.max_hp: 25.0
+  mob.damage: 4.0
+  mob.speed: 1.2
+
+appearance:
+  custom_name_visible: true
+  name_tag_color:
+    r: 200
+    g: 200
+    b: 200
+  glowing: false
+
+equipment: []
+
+skill_bindings:
+  - type: on_player_near
+    skill_id: wolf-bite
+    range: 5.0
+    cooldown_ticks: 40
+  - type: on_hp_threshold
+    skill_id: wolf-howl
+    percent: 0.3
+
+loot_table: astera:forest-wolf-drops
+
+spawn_conditions:
+  biome_keys:
+    - "minecraft:forest"
+    - "minecraft:dark_forest"
+  time_of_day_range:
+    - 0
+    - 14000
+
+ai: pathfind

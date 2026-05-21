@@ -1073,6 +1073,92 @@ class ArchitectureTest {
             ) { file -> hasBukkitFamilyImport(file) }
     }
 
+    // ─── Wave 5pve — IMobAdapter uniqueness + MythicMobs vendor isolation (ADR-0085) ───
+
+    /**
+     * ADR-0085 (PvE mob foundation, two-tier `IMobAdapter`): every concrete
+     * `IMobAdapter` implementation MUST return a unique [backendId] value.
+     * The runtime `MobSpawnerRouter` selects adapters by registration order
+     * and routes despawn calls back via `EntityHandle.backendId` — colliding
+     * backend ids would silently route handles to the wrong adapter.
+     *
+     * Same convention as ADR-0082 (`INpcAdapter`): every implementation must
+     * declare a `public val BACKEND_ID: MobBackendId = MobBackendId.X` in a
+     * companion object. The test scans the source for those declarations
+     * and asserts no two adapters reference the same constant.
+     */
+    @Test
+    fun `IMobAdapter implementations must declare backendId() uniquely (ADR-0085)`() {
+        val portSimpleName = "IMobAdapter"
+
+        val adapters = Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name == portSimpleName }
+            }
+
+        assertThat(adapters.map { it.fullyQualifiedName })
+            .withFailMessage {
+                "ADR-0085 expects at least one IMobAdapter implementation. " +
+                    "Found: ${adapters.map { it.fullyQualifiedName }}"
+            }
+            .isNotEmpty
+
+        val backendIdTokens: Map<String, String> = adapters.associate { cls ->
+            val file = cls.containingFile
+            val backendIdLine: String? = file.text.lineSequence()
+                .map { it.trim() }
+                .firstOrNull { it.startsWith("public val BACKEND_ID") || it.startsWith("val BACKEND_ID") }
+            requireNotNull(backendIdLine) {
+                "ADR-0085: ${cls.fullyQualifiedName} implements IMobAdapter but " +
+                    "declares no `BACKEND_ID` constant. Add one referencing " +
+                    "MobBackendId.MINIMAL / MobBackendId.MYTHICMOBS / a new constant."
+            }
+            cls.fullyQualifiedName!! to backendIdLine
+        }
+
+        val tokensByValue: Map<String, List<String>> = backendIdTokens
+            .entries
+            .groupBy(
+                keySelector = { entry -> entry.value.substringAfter("=").trim() },
+                valueTransform = { entry -> entry.key },
+            )
+
+        val collisions = tokensByValue.filter { (_, owners) -> owners.size > 1 }
+        assertThat(collisions)
+            .withFailMessage {
+                "ADR-0085 backend-id collision: " +
+                    "${collisions.map { (id, owners) -> "$id is claimed by $owners" }}. " +
+                    "Each IMobAdapter implementation must own a distinct MobBackendId."
+            }
+            .isEmpty()
+    }
+
+    /**
+     * ADR-0085: MythicMobs is a soft-dep. Core's mob domain must never
+     * import the MythicMobs API (`io.lumine.mythic.*`) — that lives only
+     * in the future Wave 6b Paper adapter under
+     * `plugin/.../adapter/paper/mob/`.
+     *
+     * If a MythicMobs import appears in `core.domain.mob.*`, the
+     * "MythicMobs-not-installed" smoke environment (CI, headless tests)
+     * will fail to load Core. This test catches the regression at
+     * compile-test time instead of at server boot.
+     */
+    @Test
+    fun `core domain mob must not import MythicMobs API (ADR-0085)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.mob") == true }
+            .assertFalse(
+                additionalMessage = "ADR-0085 vendor isolation: core.domain.mob.* must not " +
+                    "import io.lumine.mythic.*. MythicMobs API wrap lives only in " +
+                    "the Wave 6b Paper adapter (plugin/.../adapter/paper/mob/).",
+            ) { file ->
+                file.imports.any { imp -> imp.name.startsWith("io.lumine.mythic") }
+            }
+    }
+
     // ─── Wave 5q — Anti-cheat + Anti-AFK isolation (ADR-0083) ─────────
 
     /**

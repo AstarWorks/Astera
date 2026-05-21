@@ -1,0 +1,42 @@
+# Wave 5pve (ADR-0085) — Demo PvE mob.
+# Stationary cave ambusher. Demonstrates the MinimalMobAdapter AI fallback:
+# `ai: stationary` is supported natively, so the Minimal adapter renders the
+# spawn without engaging vanilla pathfinding.
+
+id: astera:cave-skeleton
+
+display_name:
+  en: "<dark_gray>Cave Skeleton</dark_gray>"
+  ja: "<dark_gray>洞窟の骸骨</dark_gray>"
+
+base_entity_type: MOB
+
+attributes:
+  mob.max_hp: 30.0
+  mob.damage: 5.5
+  mob.armor: 2.0
+  mob.speed: 0.0
+
+appearance:
+  custom_name_visible: false
+  glowing: true
+
+equipment: []
+
+skill_bindings:
+  - type: on_damaged
+    skill_id: bone-spike
+    trigger_chance: 0.5
+  - type: on_death
+    skill_id: bone-burst
+
+loot_table: astera:cave-skeleton-drops
+
+spawn_conditions:
+  max_light_level: 7
+  biome_keys:
+    - "minecraft:deep_dark"
+    - "minecraft:dripstone_caves"
+    - "minecraft:lush_caves"
+
+ai: stationary
