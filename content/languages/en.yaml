@@ -339,11 +339,22 @@ astera:
   # Wave 5e — Tutorial display strings (ADR-0034). Renders via `astera.tutorial.*`
   # MessageKey calls in `TutorialContents` + `content/tutorials/*.yaml`.
   # Wave 6a wires the Paper-side `TutorialStepEntered` listener that renders.
+  # Wave 5p (ADR-0088) adds sequencer subkeys here (single tutorial: section).
   tutorial:
     getting_started:
       title: "<gold>Getting Started</gold>"
     welcome: "<aqua>Welcome to Astera! Let's get you set up.</aqua>"
     complete: "<green>Tutorial complete. Have fun!</green>"
+    sequencer:
+      error:
+        not-in-catalog: "<red>Unknown tutorial script.</red>"
+        already-running: "<yellow>Already in a tutorial.</yellow>"
+        not-running: "<yellow>No tutorial is active.</yellow>"
+        predicate-failure: "<red>Tutorial condition could not be evaluated.</red>"
+        illegal-step: "<red>Tutorial step misconfigured; check server log.</red>"
+    getting_started_v2:
+      title: "<gold>Getting Started (v2)</gold>"
+    after_predicate: "<aqua>Great work — let's continue.</aqua>"
 
   # Wave 5e — Achievement default names + descriptions (ADR-0034).
   # Worker γ exposes 8 milestone achievement IDs; admin-registered catalog
@@ -360,33 +371,31 @@ astera:
         name: "<gold>Legend</gold>"
         description: "<gray>100 kills.</gray>"
 
-  # Wave 5w — Lobby waiting-room HUD + queue command + backup admin (ADR-0089).
-  lobby:
-    queue-status: "<yellow>Queue:</yellow> <white>{mode}</white> <gray>(#</gray><gold>{position}</gold><gray>, ETA </gray><gold>{eta}s</gold><gray>)</gray>"
-    not-queued: "<gray>You are not in a queue. Use <yellow>/astera queue join &lt;mode&gt;</yellow>.</gray>"
-    match-found: "<green><bold>Match found! Teleporting…</bold></green>"
-    bossbar:
-      title: "<yellow>Waiting for match…</yellow>"
-    scoreboard:
-      title: "<gold><bold>Lobby</bold></gold>"
-      mode: "<gray>Mode:</gray> <white>{mode}</white>"
-      position: "<gray>#</gray> <white>{position}</white>"
-      eta: "<gray>ETA:</gray> <white>{eta}s</white>"
-      cancel-hint: "<dark_gray>Use <yellow>/astera queue leave</yellow> to cancel</dark_gray>"
-      not-queued: "<gray>Not queued.</gray>"
-  server:
-    backup:
-      run:
-        success: "<green>Backup snapshot created: <gold>{snapshot}</gold></green>"
-        failure: "<red>Backup failed: {reason}</red>"
-      list:
-        empty: "<gray>No snapshots found.</gray>"
-        line: "<yellow>{id}</yellow> <gray>(</gray><white>{target}</white><gray>, taken </gray><white>{takenAt}</white><gray>)</gray>"
-      restore:
-        success: "<green>Restored from snapshot <gold>{snapshot}</gold> ({files} files).</green>"
-        not-found: "<red>Snapshot <gold>{snapshot}</gold> not found.</red>"
-        failure: "<red>Restore failed: {reason}</red>"
-    lifecycle:
-      shutdown:
-        starting: "<yellow>Server is shutting down ({reason}). New joins refused.</yellow>"
-        completed: "<gray>Shutdown completed in {phases} phases.</gray>"
+  # Wave 5p (ADR-0088): Custom Advancement + NPC Dialog + Tutorial Sequencer.
+  advancement:
+    error:
+      not-in-catalog: "<red>Unknown advancement.</red>"
+      invalid-increment: "<red>Invalid advancement progress increment.</red>"
+      criteria-shape: "<red>Advancement criteria misconfigured; check server log.</red>"
+    first_kill:
+      title: "<gold>First Kill</gold>"
+      description: "<gray>Defeat an opponent.</gray>"
+    master_of_blades:
+      title: "<gold><bold>Master of Blades</bold></gold>"
+      description: "<gray>50 kills + 5 match wins.</gray>"
+
+  dialog:
+    error:
+      tree-not-in-catalog: "<red>Unknown dialog tree.</red>"
+      node-not-in-tree: "<red>Dialog node not found; please report.</red>"
+      already-running: "<yellow>You are already in a dialog.</yellow>"
+      not-running: "<yellow>No dialog is active.</yellow>"
+      choice-index-out-of-range: "<red>Invalid choice.</red>"
+      illegal-advance: "<red>Cannot advance dialog from this step.</red>"
+    shopkeeper:
+      greet: "<aqua>Hello, traveler!</aqua>"
+      ask_purpose: "<aqua>What brings you here?</aqua>"
+      option:
+        shop: "<green>Browse wares</green>"
+        leave: "<gray>Just passing through</gray>"
+

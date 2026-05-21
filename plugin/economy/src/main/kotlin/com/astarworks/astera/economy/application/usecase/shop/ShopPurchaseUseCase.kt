@@ -16,7 +16,7 @@ import com.astarworks.astera.core.domain.shop.ShopId
 import com.astarworks.astera.core.domain.shop.ShopOfferId
 import com.astarworks.astera.core.domain.shop.ShopStock
 import com.astarworks.astera.core.domain.shop.ShopStockError
-import com.astarworks.astera.economy.domain.event.CurrencyChanged
+import com.astarworks.astera.core.domain.event.CurrencyChanged
 
 /**
  * Atomically purchases one [com.astarworks.astera.core.domain.shop.ShopOffer]:

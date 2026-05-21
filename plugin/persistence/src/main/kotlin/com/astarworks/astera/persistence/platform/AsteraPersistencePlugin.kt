@@ -11,6 +11,7 @@ import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
 import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
+import com.astarworks.astera.core.application.port.outbound.IPlayerAdvancementProgressRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
@@ -44,6 +45,7 @@ import com.astarworks.astera.persistence.repository.PostgresPartyRepository
 import com.astarworks.astera.persistence.repository.PostgresPermissionService
 import com.astarworks.astera.persistence.repository.PostgresPersonalVaultRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerAttributeContainer
+import com.astarworks.astera.persistence.repository.PostgresPlayerAdvancementProgressRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerInventorySnapshotRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSessionRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSettingsRepository
@@ -207,16 +209,11 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
-        // Wave 5n (ADR-0080): per-region permission rules durable across
-        // restarts. V25 migration `region_permission`. The Postgres impl
-        // depends on the in-memory IStageRegionIndex Core registered at
-        // priority 0 — region-to-position resolution is RAM-only because
-        // stage geometry is YAML-authored and rebuilt on startup, but the
-        // permission RULES need to survive restart so we overlay the
-        // service here.
-        val stageRegionIndex = services.getOrThrow<IStageRegionIndex>()
-        registrations += services.register<IRegionPermissionService>(
-            PostgresRegionPermissionService(ctx.database, stageRegionIndex),
+        // Wave 5p (ADR-0088): advancement progress overlay. V26 migration
+        // adds `player_advancement_progress`; the in-memory default is
+        // installed by `AsteraCorePlugin` at priority=0.
+        registrations += services.register<IPlayerAdvancementProgressRepository>(
+            PostgresPlayerAdvancementProgressRepository(ctx.database),
             priority = 100,
         )
 
@@ -229,7 +226,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge, IShopStockRepository, IBlockDurabilityRepository.",
+                "IRewardBridge, IShopStockRepository, IPlayerAdvancementProgressRepository.",
         )
     }
 

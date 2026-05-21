@@ -9,7 +9,7 @@ import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.economy.Wallet
 import com.astarworks.astera.core.domain.economy.WalletError
-import com.astarworks.astera.economy.domain.event.CurrencyChanged
+import com.astarworks.astera.core.domain.event.CurrencyChanged
 
 /**
  * Debits a positive amount from a player's wallet and publishes [CurrencyChanged].

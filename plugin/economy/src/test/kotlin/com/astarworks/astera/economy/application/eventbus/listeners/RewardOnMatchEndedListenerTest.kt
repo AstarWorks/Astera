@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.economy.application.service.InMemoryCurrencyLedger
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
 import com.astarworks.astera.core.domain.economy.Currency
-import com.astarworks.astera.economy.domain.event.CurrencyChanged
+import com.astarworks.astera.core.domain.event.CurrencyChanged
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.match.Match

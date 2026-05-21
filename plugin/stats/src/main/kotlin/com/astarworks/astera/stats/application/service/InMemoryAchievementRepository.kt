@@ -3,7 +3,7 @@ package com.astarworks.astera.stats.application.service
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.stats.application.port.outbound.IAchievementRepository
 import com.astarworks.astera.stats.domain.achievement.Achievement
-import com.astarworks.astera.stats.domain.achievement.AchievementId
+import com.astarworks.astera.core.domain.achievement.AchievementId
 import com.astarworks.astera.stats.domain.achievement.PlayerAchievement
 import java.util.concurrent.ConcurrentHashMap
 

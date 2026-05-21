@@ -196,6 +196,27 @@ public class AsteraStatsPlugin : JavaPlugin() {
         subscriptions += eventBus.subscribe(MatchEnded::class) { rewardOnMatchEnded.handle(it) }
         subscriptions += eventBus.subscribe(MissionCompleted::class) { rewardOnMissionCompleted.handle(it) }
 
+        // ---- Wave 5p Advancement progress fan-out (ADR-0088) ------------
+        // Bridges combat / economy / match / items events into core's
+        // IAdvancementService. Core owns the catalog + use case; stats hosts
+        // the listener because it's the deepest plugin that depends on
+        // combat + match + core (per ADR-0022 sibling-isolation matrix).
+        val advancementService = services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IAdvancementService>()
+        val advancementRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IAdvancementRegistry>()
+        val trackAdvancement = com.astarworks.astera.stats.application.eventbus.listeners.advancement.TrackAdvancementProgressListener(
+            service = advancementService,
+            registry = advancementRegistry,
+            matchRepository = matchRepository,
+        )
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { trackAdvancement.handle(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { trackAdvancement.handle(it) }
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.CurrencyChanged::class,
+        ) { trackAdvancement.handle(it) }
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.ItemAcquired::class,
+        ) { trackAdvancement.handle(it) }
+
         // 7. /astera-stats command -----------------------------------------
         commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway, permService))
 

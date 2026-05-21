@@ -1,0 +1,13 @@
+id: first-kill
+title_key: astera.advancement.first_kill.title
+description_key: astera.advancement.first_kill.description
+icon_item: example-sword
+frame: TASK
+hidden: false
+criteria:
+  type: kill_count
+  target: 1
+rewards:
+  - type: grant_currency
+    currency: GOLD
+    amount: 100

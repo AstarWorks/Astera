@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory
  * `AsteraEconomyPlugin.onEnable`).
  *
  * silly-knuth §5: subscribes to in-process [com.astarworks.astera.core.application.port.outbound.IDomainEventBus]
- * and delegates to a use case that publishes [com.astarworks.astera.economy.domain.event.CurrencyChanged] on the
+ * and delegates to a use case that publishes [com.astarworks.astera.core.domain.event.CurrencyChanged] on the
  * same in-process bus (no external fan-out from this listener).
  */
 public class RewardOnMatchEndedListener(

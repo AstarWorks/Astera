@@ -1,0 +1,18 @@
+id: master-of-blades
+title_key: astera.advancement.master_of_blades.title
+description_key: astera.advancement.master_of_blades.description
+icon_item: example-sword
+frame: CHALLENGE
+hidden: false
+parent: first-kill
+criteria:
+  type: all_of
+  children:
+    - { type: kill_count, target: 50 }
+    - { type: matches_won, count: 5 }
+rewards:
+  - type: grant_currency
+    currency: GOLD
+    amount: 1000
+  - type: grant_title
+    title_id: blade-master

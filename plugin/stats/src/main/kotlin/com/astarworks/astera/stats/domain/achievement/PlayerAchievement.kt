@@ -1,5 +1,6 @@
 package com.astarworks.astera.stats.domain.achievement
 
+import com.astarworks.astera.core.domain.achievement.AchievementId
 import com.astarworks.astera.core.domain.player.PlayerId
 import java.time.Instant
 

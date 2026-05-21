@@ -3,7 +3,7 @@ package com.astarworks.astera.stats.application.service
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.stats.domain.achievement.Achievement
-import com.astarworks.astera.stats.domain.achievement.AchievementId
+import com.astarworks.astera.core.domain.achievement.AchievementId
 import com.astarworks.astera.stats.domain.achievement.PlayerAchievement
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

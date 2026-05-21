@@ -1,5 +1,6 @@
 package com.astarworks.astera.stats.domain.achievement
 
+import com.astarworks.astera.core.domain.achievement.AchievementId
 import com.astarworks.astera.core.domain.i18n.MessageKey
 
 @JvmInline
