@@ -1,7 +1,14 @@
 package com.astarworks.astera.core.application.config
 
+import com.astarworks.astera.core.domain.advancement.AdvancementId
+import com.astarworks.astera.core.domain.dialog.DialogTreeId
+import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.permission.Permission
+import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.core.domain.tutorial.TutorialPredicate
 import com.astarworks.astera.core.domain.tutorial.TutorialScript
 import com.astarworks.astera.core.domain.tutorial.TutorialScriptId
 import com.astarworks.astera.core.domain.tutorial.TutorialStep
@@ -110,6 +117,103 @@ public sealed class TutorialStepDto {
     ) : TutorialStepDto() {
         override fun toDomain(): TutorialStep =
             TutorialStep.GiveItem(itemId = itemId, count = count)
+    }
+
+    // ─── Wave 5p sequencer extensions (ADR-0088) ─────────────────────────
+
+    @Serializable
+    @SerialName("show_dialog")
+    public data class ShowDialog(@SerialName("tree_id") val treeId: String) : TutorialStepDto() {
+        override fun toDomain(): TutorialStep =
+            TutorialStep.ShowDialog(DialogTreeId(treeId))
+    }
+
+    @Serializable
+    @SerialName("await_interaction")
+    public data class AwaitInteraction(
+        @SerialName("interaction_tag") val interactionTag: String,
+        @SerialName("timeout_sec") val timeoutSec: Long? = null,
+    ) : TutorialStepDto() {
+        override fun toDomain(): TutorialStep =
+            TutorialStep.AwaitInteraction(interactionTag, timeoutSec)
+    }
+
+    @Serializable
+    @SerialName("await_movement")
+    public data class AwaitMovement(
+        val target: TutorialVec3YamlConfig,
+        val radius: Double,
+        @SerialName("timeout_sec") val timeoutSec: Long? = null,
+    ) : TutorialStepDto() {
+        override fun toDomain(): TutorialStep =
+            TutorialStep.AwaitMovement(target.toVec3(), radius, timeoutSec)
+    }
+
+    @Serializable
+    @SerialName("await_skill_cast")
+    public data class AwaitSkillCast(
+        @SerialName("skill_id") val skillId: String,
+        @SerialName("timeout_sec") val timeoutSec: Long? = null,
+    ) : TutorialStepDto() {
+        override fun toDomain(): TutorialStep =
+            TutorialStep.AwaitSkillCast(SkillId(skillId), timeoutSec)
+    }
+
+    @Serializable
+    @SerialName("grant_item")
+    public data class GrantItem(
+        @SerialName("item_id") val itemId: String,
+        val count: Int = 1,
+    ) : TutorialStepDto() {
+        override fun toDomain(): TutorialStep =
+            TutorialStep.GrantItem(ItemId(itemId), count)
+    }
+
+    @Serializable
+    @SerialName("await_predicate")
+    public data class AwaitPredicate(val predicate: TutorialPredicateDto) : TutorialStepDto() {
+        override fun toDomain(): TutorialStep =
+            TutorialStep.AwaitPredicate(predicate.toDomain())
+    }
+}
+
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+@JsonClassDiscriminator("type")
+@Serializable
+public sealed class TutorialPredicateDto {
+    public abstract fun toDomain(): TutorialPredicate
+
+    @Serializable
+    @SerialName("has_item")
+    public data class HasItem(
+        @SerialName("item_id") val itemId: String,
+        val count: Int = 1,
+    ) : TutorialPredicateDto() {
+        override fun toDomain(): TutorialPredicate =
+            TutorialPredicate.HasItem(ItemId(itemId), count)
+    }
+
+    @Serializable
+    @SerialName("has_currency")
+    public data class HasCurrency(val currency: Currency, val amount: Long) : TutorialPredicateDto() {
+        override fun toDomain(): TutorialPredicate =
+            TutorialPredicate.HasCurrency(currency, amount)
+    }
+
+    @Serializable
+    @SerialName("has_advancement")
+    public data class HasAdvancement(
+        @SerialName("advancement_id") val advancementId: String,
+    ) : TutorialPredicateDto() {
+        override fun toDomain(): TutorialPredicate =
+            TutorialPredicate.HasAdvancement(AdvancementId(advancementId))
+    }
+
+    @Serializable
+    @SerialName("permission_check")
+    public data class PermissionCheck(val permission: String) : TutorialPredicateDto() {
+        override fun toDomain(): TutorialPredicate =
+            TutorialPredicate.PermissionCheck(Permission(permission))
     }
 }
 

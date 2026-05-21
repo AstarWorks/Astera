@@ -4,7 +4,7 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerStatsReposito
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.stats.application.usecase.achievement.AchievementError
 import com.astarworks.astera.stats.application.usecase.achievement.UnlockAchievementUseCase
-import com.astarworks.astera.stats.domain.achievement.AchievementId
+import com.astarworks.astera.core.domain.achievement.AchievementId
 import org.slf4j.LoggerFactory
 
 /**

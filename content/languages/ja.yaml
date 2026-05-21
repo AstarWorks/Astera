@@ -318,11 +318,22 @@ astera:
       match_end: "<red><bold>試合終了</bold></red>"
 
   # Wave 5e — Tutorial 表示文字列 (ADR-0034)。
+  # Wave 5p (ADR-0088): sequencer subkeys are nested here (single tutorial: section)。
   tutorial:
     getting_started:
       title: "<gold>はじめに</gold>"
     welcome: "<aqua>Astera へようこそ！まずは基本操作を覚えましょう。</aqua>"
     complete: "<green>チュートリアル終了。お楽しみください！</green>"
+    sequencer:
+      error:
+        not-in-catalog: "<red>未知のチュートリアルスクリプトです。</red>"
+        already-running: "<yellow>すでにチュートリアル進行中です。</yellow>"
+        not-running: "<yellow>チュートリアルは進行していません。</yellow>"
+        predicate-failure: "<red>チュートリアル条件を評価できませんでした。</red>"
+        illegal-step: "<red>チュートリアルステップが不正です。ログを確認してください。</red>"
+    getting_started_v2:
+      title: "<gold>はじめに (v2)</gold>"
+    after_predicate: "<aqua>素晴らしい、続きを進めましょう。</aqua>"
 
   # Wave 5e — Achievement の既定名・説明 (ADR-0034)。
   stats:
@@ -336,3 +347,32 @@ astera:
       kills-100:
         name: "<gold>英雄</gold>"
         description: "<gray>キル数 100。</gray>"
+
+  # Wave 5p (ADR-0088): Custom Advancement + NPC Dialog + Tutorial Sequencer。
+  advancement:
+    error:
+      not-in-catalog: "<red>未知のアドバンスメントです。</red>"
+      invalid-increment: "<red>進行度の増加値が不正です。</red>"
+      criteria-shape: "<red>アドバンスメント条件の定義が不正です。ログを確認してください。</red>"
+    first_kill:
+      title: "<gold>初撃破</gold>"
+      description: "<gray>敵を倒しましょう。</gray>"
+    master_of_blades:
+      title: "<gold><bold>剣の達人</bold></gold>"
+      description: "<gray>50 キル + 5 勝利。</gray>"
+
+  dialog:
+    error:
+      tree-not-in-catalog: "<red>未知の会話ツリーです。</red>"
+      node-not-in-tree: "<red>会話ノードが見つかりません。報告してください。</red>"
+      already-running: "<yellow>すでに会話中です。</yellow>"
+      not-running: "<yellow>会話は進行していません。</yellow>"
+      choice-index-out-of-range: "<red>無効な選択です。</red>"
+      illegal-advance: "<red>このステップから進めません。</red>"
+    shopkeeper:
+      greet: "<aqua>こんにちは、旅人！</aqua>"
+      ask_purpose: "<aqua>どうしましたか？</aqua>"
+      option:
+        shop: "<green>商品を見る</green>"
+        leave: "<gray>通りすがりです</gray>"
+

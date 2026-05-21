@@ -1,0 +1,23 @@
+id: getting-started-v2
+displayKey: astera.tutorial.getting_started_v2.title
+steps:
+  - type: send_message
+    key: astera.tutorial.welcome
+  - type: grant_item
+    item_id: example-sword
+    count: 1
+  - type: await_skill_cast
+    skill_id: example-strike
+    timeout_sec: 60
+  - type: await_movement
+    target: { x: 0.0, y: 64.0, z: 0.0 }
+    radius: 3.0
+    timeout_sec: 30
+  - type: show_dialog
+    tree_id: shopkeeper-greeting
+  - type: await_predicate
+    predicate:
+      type: has_advancement
+      advancement_id: first-kill
+  - type: send_message
+    key: astera.tutorial.complete

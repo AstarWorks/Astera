@@ -23,7 +23,7 @@ import com.astarworks.astera.core.domain.shop.ShopSpec
 import com.astarworks.astera.core.domain.shop.ShopStock
 import com.astarworks.astera.economy.application.service.InMemoryCurrencyLedger
 import com.astarworks.astera.economy.application.service.InMemoryShopRegistry
-import com.astarworks.astera.economy.domain.event.CurrencyChanged
+import com.astarworks.astera.core.domain.event.CurrencyChanged
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeMcPlayer
 import com.astarworks.astera.testfixtures.FakeMcServer

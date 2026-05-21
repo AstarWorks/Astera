@@ -1,0 +1,25 @@
+id: shopkeeper-greeting
+root_node: greet
+nodes:
+  greet:
+    type: text
+    message_key: astera.dialog.shopkeeper.greet
+    next_node: ask_purpose
+  ask_purpose:
+    type: choice
+    prompt_key: astera.dialog.shopkeeper.ask_purpose
+    options:
+      - label_key: astera.dialog.shopkeeper.option.shop
+        next_node: open_shop
+      - label_key: astera.dialog.shopkeeper.option.leave
+        next_node: end_polite
+  open_shop:
+    type: intent
+    intent:
+      key: shop.open
+      payload:
+        shop_id: example-shop
+    next_node: end_polite
+  end_polite:
+    type: end
+    reason: COMPLETED

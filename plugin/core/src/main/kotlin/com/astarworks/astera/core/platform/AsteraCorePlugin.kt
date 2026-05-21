@@ -20,15 +20,20 @@ import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
+import com.astarworks.astera.core.application.contents.AdvancementContents
 import com.astarworks.astera.core.application.contents.GuiContents
 import com.astarworks.astera.core.application.contents.ItemContents
+import com.astarworks.astera.core.application.contents.NpcDialogContents
 import com.astarworks.astera.core.application.contents.TutorialContents
 import com.astarworks.astera.core.application.eventbus.listeners.RestoreInventoryOnPlayerJoinedListener
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
 import com.astarworks.astera.core.application.i18n.LanguageLoader
 import com.astarworks.astera.core.application.i18n.SimpleMessageRenderer
+import com.astarworks.astera.core.application.port.inbound.IAdvancementService
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
+import com.astarworks.astera.core.application.port.inbound.INpcDialogService
+import com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -53,6 +58,12 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
+import com.astarworks.astera.core.application.port.outbound.IAdvancementRegistry
+import com.astarworks.astera.core.application.port.outbound.IDialogPredicateEvaluator
+import com.astarworks.astera.core.application.port.outbound.INpcDialogBinding
+import com.astarworks.astera.core.application.port.outbound.INpcDialogRegistry
+import com.astarworks.astera.core.application.port.outbound.IPlayerAdvancementProgressRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerTutorialStateRepository
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
 import com.astarworks.astera.core.application.port.outbound.ITutorialRegistry
@@ -80,11 +91,19 @@ import com.astarworks.astera.core.application.service.InMemoryPlayerSessionRepos
 import com.astarworks.astera.core.application.service.InMemoryPlayerSettingsRepository
 import com.astarworks.astera.core.application.service.InMemoryReloadableContentsRegistry
 import com.astarworks.astera.core.application.service.InMemoryRewardBridge
+import com.astarworks.astera.core.application.service.advancement.InMemoryPlayerAdvancementProgressRepository
+import com.astarworks.astera.core.application.service.dialog.DefaultDialogPredicateEvaluator
+import com.astarworks.astera.core.application.service.dialog.InMemoryNpcDialogBinding
+import com.astarworks.astera.core.application.service.tutorial.InMemoryPlayerTutorialStateRepository
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
 import com.astarworks.astera.core.application.service.InMemorySchematicLoader
 import com.astarworks.astera.core.application.service.InMemoryTabList
+import com.astarworks.astera.core.application.usecase.advancement.GrantAdvancementRewardUseCase
+import com.astarworks.astera.core.application.usecase.advancement.ProgressAdvancementUseCase
+import com.astarworks.astera.core.application.usecase.dialog.RunNpcDialogUseCase
 import com.astarworks.astera.core.application.usecase.inventory.RestoreInventorySnapshotUseCase
 import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
+import com.astarworks.astera.core.application.usecase.tutorial.RunTutorialSequencerUseCase
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
@@ -348,6 +367,90 @@ public class AsteraCorePlugin : JavaPlugin() {
         tutorialContents.bootstrap(tutorialsContentDir)
         services.register<ITutorialRegistry>(tutorialContents, priority = 0)
         reloadRegistry.register(tutorialContents, tutorialsContentDir)
+
+        // ---- Wave 5p (ADR-0088): Custom Advancement + NPC Dialog + Tutorial Sequencer ----
+        // All three Contents-driven YAML categories under `content/<category>/`,
+        // registered against the cross-plugin reload dispatcher so
+        // `/astera reload advancements|dialogs|tutorials` works uniformly.
+
+        // α. Advancement registry + per-player progress repo + use cases.
+        val advancementsContentDir: Path = contentDir.resolve("advancements")
+        val advancementContents = AdvancementContents()
+        val advancementReport = advancementContents.bootstrap(advancementsContentDir)
+        logger.info(
+            "Advancements loaded: ${advancementReport.loaded} ok, " +
+                "${advancementReport.failed} failed",
+        )
+        services.register<IAdvancementRegistry>(advancementContents, priority = 0)
+        reloadRegistry.register(advancementContents, advancementsContentDir)
+
+        val advancementProgressRepo: IPlayerAdvancementProgressRepository =
+            services.get<IPlayerAdvancementProgressRepository>()
+                ?: InMemoryPlayerAdvancementProgressRepository().also {
+                    services.register<IPlayerAdvancementProgressRepository>(it, priority = 0)
+                }
+
+        val ledgerProvider: () -> com.astarworks.astera.core.application.port.outbound.ICurrencyLedger? = {
+            services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>()
+        }
+        val grantRewardUseCase = GrantAdvancementRewardUseCase(
+            ledgerProvider = ledgerProvider,
+            events = eventBus,
+            scheduler = scheduler,
+        )
+        val advancementService: IAdvancementService = ProgressAdvancementUseCase(
+            registry = advancementContents,
+            repository = advancementProgressRepo,
+            rewardGrant = grantRewardUseCase,
+            events = eventBus,
+            scheduler = scheduler,
+        )
+        services.register<IAdvancementService>(advancementService, priority = 0)
+
+        // β. NPC dialog registry + binding + runner.
+        val dialogsContentDir: Path = contentDir.resolve("dialogs")
+        val dialogContents = NpcDialogContents()
+        val dialogReport = dialogContents.bootstrap(dialogsContentDir)
+        logger.info(
+            "Dialogs loaded: ${dialogReport.loaded} ok, ${dialogReport.failed} failed",
+        )
+        services.register<INpcDialogRegistry>(dialogContents, priority = 0)
+        reloadRegistry.register(dialogContents, dialogsContentDir)
+
+        val dialogBinding: INpcDialogBinding = InMemoryNpcDialogBinding()
+        services.register<INpcDialogBinding>(dialogBinding, priority = 0)
+
+        val dialogPredicateEvaluator: IDialogPredicateEvaluator = DefaultDialogPredicateEvaluator(
+            ledgerProvider = ledgerProvider,
+            advancementRepo = advancementProgressRepo,
+            permissions = permissionService,
+        )
+        services.register<IDialogPredicateEvaluator>(dialogPredicateEvaluator, priority = 0)
+
+        val dialogService: INpcDialogService = RunNpcDialogUseCase(
+            registry = dialogContents,
+            intentRouter = guiIntentRouter,
+            predicateEvaluator = dialogPredicateEvaluator,
+            events = eventBus,
+            scheduler = scheduler,
+            server = mcServer,
+        )
+        services.register<INpcDialogService>(dialogService, priority = 0)
+
+        // γ. Tutorial sequencer (Wave 5p extensions on top of Wave 5e registry).
+        val tutorialStateRepo: IPlayerTutorialStateRepository =
+            services.get<IPlayerTutorialStateRepository>()
+                ?: InMemoryPlayerTutorialStateRepository().also {
+                    services.register<IPlayerTutorialStateRepository>(it, priority = 0)
+                }
+        val tutorialSequencer: ITutorialSequencerService = RunTutorialSequencerUseCase(
+            registry = tutorialContents,
+            stateRepo = tutorialStateRepo,
+            events = eventBus,
+            scheduler = scheduler,
+            predicateEvaluator = dialogPredicateEvaluator,
+        )
+        services.register<ITutorialSequencerService>(tutorialSequencer, priority = 0)
 
         // Inventory snapshot use cases + PlayerJoined-side listener.
         @Suppress("UNUSED_VARIABLE")

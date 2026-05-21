@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.stats.application.port.outbound.IAchievementRepository
-import com.astarworks.astera.stats.domain.achievement.AchievementId
+import com.astarworks.astera.core.domain.achievement.AchievementId
 import com.astarworks.astera.stats.domain.achievement.PlayerAchievement
 import com.astarworks.astera.stats.domain.event.AchievementUnlocked
 import java.time.Clock

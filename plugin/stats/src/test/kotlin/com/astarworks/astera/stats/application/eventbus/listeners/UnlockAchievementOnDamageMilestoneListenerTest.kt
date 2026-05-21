@@ -11,7 +11,7 @@ import com.astarworks.astera.stats.application.service.InMemoryAchievementReposi
 import com.astarworks.astera.stats.application.service.InMemoryPlayerStatsRepository
 import com.astarworks.astera.stats.application.usecase.achievement.UnlockAchievementUseCase
 import com.astarworks.astera.stats.domain.achievement.Achievement
-import com.astarworks.astera.stats.domain.achievement.AchievementId
+import com.astarworks.astera.core.domain.achievement.AchievementId
 import com.astarworks.astera.stats.domain.event.AchievementUnlocked
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import org.assertj.core.api.Assertions.assertThat
