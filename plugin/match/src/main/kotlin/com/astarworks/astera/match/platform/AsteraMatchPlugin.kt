@@ -90,6 +90,18 @@ import com.astarworks.astera.match.domain.mode.CarryTNT
 import com.astarworks.astera.match.domain.mode.GameModeId
 import com.astarworks.astera.match.domain.mode.StealJewelry
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
+import com.astarworks.astera.core.adapter.api.hud.IBossBarManager
+import com.astarworks.astera.core.adapter.api.hud.IScoreboardManager
+import com.astarworks.astera.core.adapter.api.server.IMcServer
+import com.astarworks.astera.core.application.port.outbound.lifecycle.IServerBootstrapper
+import com.astarworks.astera.core.application.port.outbound.lifecycle.IServerLifecycleListener
+import com.astarworks.astera.core.domain.lifecycle.ShutdownPhase
+import com.astarworks.astera.core.domain.lifecycle.ShutdownReason
+import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
+import com.astarworks.astera.match.application.service.hud.LobbyWaitingRoomHud
+import com.astarworks.astera.match.application.service.matchmaking.InMemoryMatchmaker
+import com.astarworks.astera.match.application.usecase.matchmaking.MatchFoundUseCase
+import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.application.usecase.match.EndMatchError
 import com.astarworks.astera.match.application.usecase.match.EndMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.EntryGameError
@@ -437,8 +449,100 @@ public class AsteraMatchPlugin : JavaPlugin() {
 
         logger.info("Wave 5e wiring complete: Spectator + PlayerPin + AuditLog + SaveInventory listeners.")
 
-        // 5. Register /astera-match command tree --------------------------------
+        // ---- Wave 5w (ADR-0089 δ + γ) — IMatchmaker + Lobby HUD + MatchFoundUseCase ----
+        // IMatchmaker: in-memory FIFO + party-aware at priority 0. Phase 2
+        // Wave 7b swaps in a rating-aware impl (Elo / Glicko2).
+        val matchmaker: IMatchmaker =
+            services.get<IMatchmaker>()
+                ?: InMemoryMatchmaker(
+                    eventBus = eventBus,
+                    scheduler = scheduler,
+                ).also {
+                    registrations += services.register<IMatchmaker>(it, priority = 0)
+                }
+        // MatchFoundUseCase: bridge from queue → StartMatchUseCase. The default
+        // stage is read from the registry's first stage; admin tooling may
+        // configure per-mode stage selection in Wave 7b.
+        val defaultStageProvider: (MatchmakingMode) -> com.astarworks.astera.core.domain.stage.StageId = { _ ->
+            stages.all().firstOrNull()?.id
+                ?: com.astarworks.astera.core.domain.stage.StageId("default")
+        }
+        @Suppress("UNUSED_VARIABLE")
+        val matchFoundUseCase = MatchFoundUseCase(
+            matchmaker = matchmaker,
+            lifecycle = facade,
+            eventBus = eventBus,
+            defaultStageProvider = defaultStageProvider,
+        )
+
+        // Lobby waiting-room HUD: composes Wave 5b BossBar/Scoreboard primitives.
+        val bossBars = services.getOrThrow<IBossBarManager>()
+        val scoreboards = services.getOrThrow<IScoreboardManager>()
+        val mcServer = services.getOrThrow<IMcServer>()
+        val lobbyHud = LobbyWaitingRoomHud(
+            matchmaker = matchmaker,
+            bossBars = bossBars,
+            scoreboards = scoreboards,
+            mcServer = mcServer,
+            eventBus = eventBus,
+            scheduler = scheduler,
+        )
+        lobbyHud.subscribe()
+        subscriptions += object : IDomainEventBus.Subscription {
+            override fun cancel() { lobbyHud.unsubscribe() }
+            override val isActive: Boolean = true
+        }
+        // Tick the HUD once per second so the ETA countdown updates.
+        scheduledTasks += scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
+            for (p in lobbyHud.trackedPlayers()) lobbyHud.refresh(p)
+        }
+
+        // Lifecycle hook: register a Match-owned listener that drains in-flight
+        // matches during ShutdownPhase.SaveInFlightMatches. The bootstrapper
+        // walks every phase in order regardless of how many listeners are
+        // registered.
+        val bootstrapper = services.get<IServerBootstrapper>()
+        if (bootstrapper != null) {
+            val saveInFlightListener = object : IServerLifecycleListener {
+                override val priority: Int = 50 // mid-tier: fires before persistence close, after stop-accepting.
+                override fun onShutdownPhase(phase: ShutdownPhase, reason: ShutdownReason) {
+                    if (phase == ShutdownPhase.SaveInFlightMatches) {
+                        val active = matches.findActiveMatches()
+                        if (active.isNotEmpty()) {
+                            logger.info(
+                                "[lifecycle] SaveInFlightMatches: ${active.size} active match(es) recorded for shutdown",
+                            )
+                        }
+                        // Phase 1 PoC: the InMemoryMatchRepository preserves
+                        // active matches across the boot; the persistence
+                        // overlay (Wave _persist-1) flushes via its own
+                        // listener registered from Astera-Persistence.
+                    }
+                }
+            }
+            val lifecycleReg = bootstrapper.register(saveInFlightListener)
+            // Stuff the Registration into our cleanup list; the wrapper below
+            // adapts IServerBootstrapper.Registration to our subscription list.
+            subscriptions += object : IDomainEventBus.Subscription {
+                override fun cancel() { lifecycleReg.unregister() }
+                override val isActive: Boolean get() = lifecycleReg.isActive
+            }
+        }
+
+        logger.info(
+            "Wave 5w wiring complete: InMemoryMatchmaker + LobbyWaitingRoomHud + " +
+                "MatchFoundUseCase + lifecycle SaveInFlightMatches listener.",
+        )
+
+        // 5. Register /astera-match command tree + /astera queue tree -----------
         commandHandler.register(buildMatchCommandSpec(facade, matches, playerGateway, permService))
+        commandHandler.register(
+            buildQueueCommandSpec(
+                matchmaker = matchmaker,
+                playerGateway = playerGateway,
+                permService = permService,
+            ),
+        )
 
         logger.info(
             "Astera-Match enabled. Services: IMatchRepository, IStageRegistry, " +
@@ -505,6 +609,114 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 ),
             ),
         )
+    }
+
+    /**
+     * Wave 5w (ADR-0089 δ): `/astera queue join <mode>` / `leave` / `status`.
+     *
+     * The mode argument accepts:
+     *   - `norma` — `MatchmakingMode.Norma`
+     *   - `custom:<game-mode-id>` — `MatchmakingMode.Custom`
+     *   - `tournament:<id>` — `MatchmakingMode.Tournament`
+     *
+     * Wave 7b (ADR-0037) replaces this with a richer subcommand tree once
+     * tournament brackets and rating-based modes land.
+     */
+    private fun buildQueueCommandSpec(
+        matchmaker: IMatchmaker,
+        playerGateway: IPlayerGateway,
+        permService: IPermissionService,
+    ): CommandSpec.Literal = CommandSpec.Literal(
+        name = "astera-queue",
+        description = MessageKey("astera.match.matchmaking.enqueue.success"),
+        subcommands = listOf(
+            CommandSpec.Literal(
+                name = "join",
+                description = MessageKey("astera.match.matchmaking.enqueue.success"),
+                subcommands = listOf(
+                    CommandSpec.Argument(
+                        name = "mode",
+                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                    ),
+                ),
+                executor = { ctx ->
+                    val senderId = ctx.sender
+                        ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
+                    val modeStr = ctx.required<String>("mode")
+                    val mode = parseMatchmakingMode(modeStr)
+                        ?: return@Literal CommandResult.Failure(
+                            MessageKey("astera.match.matchmaking.enqueue.invalid-mode"),
+                            mapOf("mode" to modeStr),
+                        )
+                    when (val res = matchmaker.enqueue(senderId, mode, partyId = null)) {
+                        is Result.Success -> {
+                            playerGateway.sendMessage(senderId, "Joined queue: $modeStr")
+                            CommandResult.Success
+                        }
+                        is Result.Failure -> {
+                            val key = when (res.error) {
+                                is com.astarworks.astera.match.domain.matchmaking.QueueError.AlreadyEnqueued ->
+                                    MessageKey("astera.match.matchmaking.enqueue.already-enqueued")
+                                is com.astarworks.astera.match.domain.matchmaking.QueueError.ModeClosed ->
+                                    MessageKey("astera.match.matchmaking.enqueue.mode-closed")
+                                else -> MessageKey("astera.match.matchmaking.queue-failure")
+                            }
+                            CommandResult.Failure(key)
+                        }
+                    }
+                },
+            ),
+            CommandSpec.Literal(
+                name = "leave",
+                description = MessageKey("astera.match.matchmaking.dequeue.success"),
+                executor = { ctx ->
+                    val senderId = ctx.sender
+                        ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
+                    when (val res = matchmaker.dequeue(senderId)) {
+                        is Result.Success -> {
+                            playerGateway.sendMessage(senderId, "Left the queue.")
+                            CommandResult.Success
+                        }
+                        is Result.Failure -> CommandResult.Failure(
+                            MessageKey("astera.match.matchmaking.dequeue.not-enqueued"),
+                        )
+                    }
+                },
+            ),
+            CommandSpec.Literal(
+                name = "status",
+                description = MessageKey("astera.match.matchmaking.status.line"),
+                executor = { ctx ->
+                    val senderId = ctx.sender
+                        ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
+                    val status = matchmaker.queueStatus(senderId)
+                    if (status == null) {
+                        CommandResult.Failure(MessageKey("astera.match.matchmaking.status.none"))
+                    } else {
+                        playerGateway.sendMessage(senderId, "In queue: ${status.mode}")
+                        CommandResult.Success
+                    }
+                },
+            ),
+        ),
+    ).requirePermission(
+        permissionService = permService,
+        permission = Permission("astera.match.queue"),
+    )
+
+    /** Parse `"norma"` / `"custom:break-core"` / `"tournament:cup-2026"` into [MatchmakingMode]. */
+    private fun parseMatchmakingMode(raw: String): MatchmakingMode? {
+        val lower = raw.lowercase()
+        if (lower == "norma") return MatchmakingMode.Norma
+        if (lower.startsWith("custom:")) {
+            val gmId = raw.substringAfter(":").takeIf { it.isNotBlank() } ?: return null
+            return runCatching { MatchmakingMode.Custom(GameModeId(gmId)) }.getOrNull()
+        }
+        if (lower.startsWith("tournament:")) {
+            val tid = raw.substringAfter(":").takeIf { it.isNotBlank() } ?: return null
+            return runCatching { MatchmakingMode.Tournament(tid) }.getOrNull()
+        }
+        return null
     }
 
     private fun buildMatchCommandSpec(

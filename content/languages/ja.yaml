@@ -225,6 +225,20 @@ astera:
     # Wave 5d — ブロックトラッキング (ADR-0033)
     block:
       restored-on-match-end: "<gray>マッチ終了時に {count} 件のブロック変更を復元しました。</gray>"
+    # Wave 5w — マッチメイキング キュー (ADR-0089)
+    matchmaking:
+      queue-failure: "<red>キュー処理が失敗しました。</red>"
+      enqueue:
+        success: "<green>キューに参加: <gold>{mode}</gold></green>"
+        already-enqueued: "<red>既にキューに入っています。</red>"
+        mode-closed: "<red>そのモードは閉鎖中です。</red>"
+        invalid-mode: "<red>未知のマッチメイク モード <gold>{mode}</gold></red>"
+      dequeue:
+        success: "<green>キューを離脱しました。</green>"
+        not-enqueued: "<red>キューに参加していません。</red>"
+      status:
+        none: "<gray>キューには参加していません。</gray>"
+        line: "<yellow>キュー:</yellow> <white>{mode}</white> <gray>(#</gray><gold>{position}</gold><gray>)</gray>"
 
   spawn:
     teleporting: "<gray>スポーン地点へテレポート中…</gray>"
@@ -336,3 +350,34 @@ astera:
       kills-100:
         name: "<gold>英雄</gold>"
         description: "<gray>キル数 100。</gray>"
+
+  # Wave 5w — ロビー待機 HUD + queue コマンド + backup 管理者操作 (ADR-0089)。
+  lobby:
+    queue-status: "<yellow>キュー:</yellow> <white>{mode}</white> <gray>(#</gray><gold>{position}</gold><gray>、待ち時間 </gray><gold>{eta}秒</gold><gray>)</gray>"
+    not-queued: "<gray>キュー外です。<yellow>/astera queue join &lt;mode&gt;</yellow> を実行してください。</gray>"
+    match-found: "<green><bold>マッチが見つかりました！転送中…</bold></green>"
+    bossbar:
+      title: "<yellow>マッチ待機中…</yellow>"
+    scoreboard:
+      title: "<gold><bold>ロビー</bold></gold>"
+      mode: "<gray>モード:</gray> <white>{mode}</white>"
+      position: "<gray>#</gray> <white>{position}</white>"
+      eta: "<gray>ETA:</gray> <white>{eta}秒</white>"
+      cancel-hint: "<dark_gray><yellow>/astera queue leave</yellow> でキャンセル</dark_gray>"
+      not-queued: "<gray>キュー外</gray>"
+  server:
+    backup:
+      run:
+        success: "<green>スナップショットを作成しました: <gold>{snapshot}</gold></green>"
+        failure: "<red>バックアップ失敗: {reason}</red>"
+      list:
+        empty: "<gray>スナップショットは見つかりませんでした。</gray>"
+        line: "<yellow>{id}</yellow> <gray>(</gray><white>{target}</white><gray>、取得 </gray><white>{takenAt}</white><gray>)</gray>"
+      restore:
+        success: "<green>スナップショット <gold>{snapshot}</gold> から復元 ({files} ファイル)。</green>"
+        not-found: "<red>スナップショット <gold>{snapshot}</gold> が見つかりません。</red>"
+        failure: "<red>復元失敗: {reason}</red>"
+    lifecycle:
+      shutdown:
+        starting: "<yellow>サーバを停止中 ({reason})。新規参加は拒否されます。</yellow>"
+        completed: "<gray>停止が {phases} フェーズで完了しました。</gray>"

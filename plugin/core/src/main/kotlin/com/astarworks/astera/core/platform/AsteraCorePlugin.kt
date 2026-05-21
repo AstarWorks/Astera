@@ -55,6 +55,13 @@ import com.astarworks.astera.core.application.port.outbound.ITutorialRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
 import com.astarworks.astera.core.application.port.outbound.ReloadError
+import com.astarworks.astera.core.application.port.outbound.backup.IServerBackupGateway
+import com.astarworks.astera.core.application.port.outbound.lifecycle.IServerBootstrapper
+import com.astarworks.astera.core.application.service.backup.InMemoryServerBackupGateway
+import com.astarworks.astera.core.application.service.lifecycle.InMemoryServerBootstrapper
+import com.astarworks.astera.core.domain.backup.BackupTarget
+import com.astarworks.astera.core.domain.backup.RestoreOptions
+import com.astarworks.astera.core.domain.lifecycle.ShutdownReason
 import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
@@ -147,6 +154,10 @@ public class AsteraCorePlugin : JavaPlugin() {
     /** Retained so [onDisable] can release the HTTP port (Wave _ops). */
     private var metricsHttpServer: HttpMetricsServer? = null
     private var matchQueueMetric: MatchQueueMetric? = null
+
+    /** Retained so [onDisable] can drive graceful shutdown (Wave 5w / ADR-0089). */
+    private var serverBootstrapper: IServerBootstrapper? = null
+    private var serverBackupGateway: IServerBackupGateway? = null
 
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
@@ -353,7 +364,24 @@ public class AsteraCorePlugin : JavaPlugin() {
         @Suppress("UNUSED_VARIABLE") val settingsRef = settingsRepo
         @Suppress("UNUSED_VARIABLE") val auditRef = auditRepo
 
+        // ---- Wave 5w (ADR-0089) — Server lifecycle + restic backup gateway ---
+        // IServerBootstrapper drives onBoot/onReady/onShutdown hooks for every
+        // feature plugin's IServerLifecycleListener (registered via Core's
+        // ServiceRegistry). Phase 1 PoC ships in-memory (no real JVM signal
+        // handler); Wave 6a wraps with a PaperServerBootstrapper.
+        val bootstrapper: IServerBootstrapper = InMemoryServerBootstrapper(eventBus)
+        services.register<IServerBootstrapper>(bootstrapper, priority = 0)
+
+        // IServerBackupGateway: in-memory at priority 0; Wave 6b's
+        // ResticBackupGateway lands at priority 100. The `/astera backup`
+        // command tree below works against either impl transparently.
+        val backupGateway: IServerBackupGateway = InMemoryServerBackupGateway()
+        services.register<IServerBackupGateway>(backupGateway, priority = 0)
+        serverBackupGateway = backupGateway
+        serverBootstrapper = bootstrapper
+
         // /astera reload <category> — single Brigadier command for every content type.
+        // /astera backup <run|list|restore> — Wave 5w admin tree (ADR-0089 §β).
         // Permission: astera.reload (admin tier). Argument is a single-word string;
         // tab-completion suggests every currently-registered category name (computed
         // at suggest-time so feature plugins that register late are reflected).
@@ -401,9 +429,92 @@ public class AsteraCorePlugin : JavaPlugin() {
                         permissionService = permissionService,
                         permission = Permission("astera.reload"),
                     ),
+                    // /astera backup run — take a fresh full snapshot (Postgres).
+                    CommandSpec.Literal(
+                        name = "backup",
+                        description = MessageKey("astera.server.backup.run.success"),
+                        subcommands = listOf(
+                            CommandSpec.Literal(
+                                name = "run",
+                                description = MessageKey("astera.server.backup.run.success"),
+                                executor = { _ ->
+                                    when (val res = backupGateway.runFullBackup(BackupTarget.Postgres)) {
+                                        is Result.Success -> {
+                                            logger.info("/astera backup run: snapshot ${res.value.id} created.")
+                                            CommandResult.Success
+                                        }
+                                        is Result.Failure -> {
+                                            logger.warning("/astera backup run failed: ${res.error}")
+                                            CommandResult.Failure(MessageKey("astera.server.backup.run.failure"))
+                                        }
+                                    }
+                                },
+                            ).requirePermission(
+                                permissionService = permissionService,
+                                permission = Permission("astera.server.backup.run"),
+                            ),
+                            CommandSpec.Literal(
+                                name = "list",
+                                description = MessageKey("astera.server.backup.list.empty"),
+                                executor = { _ ->
+                                    val snapshots = backupGateway.listSnapshots(BackupTarget.Postgres)
+                                    if (snapshots.isEmpty()) {
+                                        logger.info("/astera backup list: no snapshots.")
+                                    } else {
+                                        snapshots.forEach { snap ->
+                                            logger.info("/astera backup list: ${snap.id} target=${snap.target} takenAt=${snap.takenAt}")
+                                        }
+                                    }
+                                    CommandResult.Success
+                                },
+                            ).requirePermission(
+                                permissionService = permissionService,
+                                permission = Permission("astera.server.backup.list"),
+                            ),
+                            CommandSpec.Literal(
+                                name = "restore",
+                                description = MessageKey("astera.server.backup.restore.success"),
+                                subcommands = listOf(
+                                    CommandSpec.Argument(
+                                        name = "snapshot-id",
+                                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                                    ),
+                                ),
+                                executor = { ctx ->
+                                    val snapId = ctx.required<String>("snapshot-id")
+                                    val snap = backupGateway.listSnapshots(BackupTarget.Postgres)
+                                        .firstOrNull { it.id == snapId }
+                                    if (snap == null) {
+                                        logger.warning("/astera backup restore $snapId: not found.")
+                                        CommandResult.Failure(MessageKey("astera.server.backup.restore.not-found"))
+                                    } else {
+                                        when (val res = backupGateway.restoreFromSnapshot(snap, RestoreOptions())) {
+                                            is Result.Success -> {
+                                                logger.info("/astera backup restore $snapId: ${res.value.filesRestored} files.")
+                                                CommandResult.Success
+                                            }
+                                            is Result.Failure -> {
+                                                logger.warning("/astera backup restore $snapId failed: ${res.error}")
+                                                CommandResult.Failure(MessageKey("astera.server.backup.restore.failure"))
+                                            }
+                                        }
+                                    }
+                                },
+                            ).requirePermission(
+                                permissionService = permissionService,
+                                permission = Permission("astera.server.backup.restore"),
+                            ),
+                        ),
+                    ),
                 ),
             ),
         )
+
+        // Fire boot hook — every IServerLifecycleListener registered on the
+        // ServiceRegistry sees onBoot(). markReady() is invoked by the operator
+        // (or a later wave's `/astera server ready` hook) once feature plugins
+        // have finished their own onEnable.
+        bootstrapper.boot()
 
         // ---- Observability (Wave _ops, ADR-0023 + ADR-0024 + deploy/keda/) ----
         // Opt-in via env. When ASTERA_METRICS_ENABLED=true, exposes Prometheus
@@ -437,6 +548,12 @@ public class AsteraCorePlugin : JavaPlugin() {
 
     override fun onDisable() {
         logger.info("Astera-Core disabling.")
+        // Wave 5w (ADR-0089): drive graceful shutdown across registered
+        // IServerLifecycleListener instances before any infrastructure
+        // teardown so feature plugins get a chance to save in-flight state.
+        // The bootstrapper catches listener exceptions and continues — Core's
+        // own infra (scheduler / metrics) tears down regardless.
+        serverBootstrapper?.shutdown(ShutdownReason.Planned)
         matchQueueMetric?.stop()
         metricsHttpServer?.stop()
         paperScheduler?.stop()
