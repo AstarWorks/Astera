@@ -56,11 +56,18 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerLocationQueryService
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
+import com.astarworks.astera.core.application.port.outbound.IRegionPermissionService
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
+import com.astarworks.astera.core.application.port.outbound.IStageRegionIndex
 import com.astarworks.astera.core.application.port.outbound.ITutorialRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
+import com.astarworks.astera.core.application.port.outbound.IMatchConfigService
+import com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway
+import com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway
+import com.astarworks.astera.core.application.port.outbound.IWorldWeatherGateway
 import com.astarworks.astera.core.application.port.outbound.ReloadError
 import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
@@ -87,6 +94,13 @@ import com.astarworks.astera.core.application.service.InMemoryRewardBridge
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
 import com.astarworks.astera.core.application.service.InMemorySchematicLoader
 import com.astarworks.astera.core.application.service.InMemoryTabList
+import com.astarworks.astera.core.application.service.match.InMemoryMatchConfigService
+import com.astarworks.astera.core.application.service.region.InMemoryRegionPermissionService
+import com.astarworks.astera.core.application.service.spatial.InMemoryPlayerLocationQueryService
+import com.astarworks.astera.core.application.service.spatial.InMemoryStageRegionIndex
+import com.astarworks.astera.core.application.service.world.InMemoryWorldRulesGateway
+import com.astarworks.astera.core.application.service.world.InMemoryWorldTimeGateway
+import com.astarworks.astera.core.application.service.world.InMemoryWorldWeatherGateway
 import com.astarworks.astera.core.application.usecase.inventory.RestoreInventorySnapshotUseCase
 import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
@@ -303,6 +317,46 @@ public class AsteraCorePlugin : JavaPlugin() {
         // computing damageFor(tool, blockType) before calling applyDamage). Published
         // here so future plugins resolve through the registry rather than re-loading.
         services.register<BlockDurabilityRule>(durabilityRule, priority = 0)
+
+        // ---- World environment + Per-match config + Spatial index (Wave 5n, ADR-0080) ----
+        // In-memory defaults at priority 0. Wave 6b Paper adapter overlays at
+        // priority 100 (World.setTime / setStorm / setGameRule / setPVP). The
+        // spatial-index + region-permission ports stay in-memory in PoC; the
+        // Postgres `region_permission` overlay (V25) is wired by Astera-Persistence
+        // at priority 100 if the env vars are set.
+        val worldTimeGateway: IWorldTimeGateway = InMemoryWorldTimeGateway()
+        val worldWeatherGateway: IWorldWeatherGateway = InMemoryWorldWeatherGateway()
+        val worldRulesGateway: IWorldRulesGateway = InMemoryWorldRulesGateway()
+        services.register<IWorldTimeGateway>(worldTimeGateway, priority = 0)
+        services.register<IWorldWeatherGateway>(worldWeatherGateway, priority = 0)
+        services.register<IWorldRulesGateway>(worldRulesGateway, priority = 0)
+
+        val stageRegionIndex: IStageRegionIndex = InMemoryStageRegionIndex()
+        services.register<IStageRegionIndex>(stageRegionIndex, priority = 0)
+
+        // Region permission: the in-memory default consults the in-memory
+        // stage-region index. Persistence overlays this at priority 100 via
+        // PostgresRegionPermissionService(db, services.getOrThrow<IStageRegionIndex>()).
+        val regionPermissionService: IRegionPermissionService =
+            services.get<IRegionPermissionService>()
+                ?: InMemoryRegionPermissionService(stageRegionIndex).also {
+                    services.register<IRegionPermissionService>(it, priority = 0)
+                }
+        @Suppress("UNUSED_VARIABLE") val regionPermissionRef = regionPermissionService
+
+        val playerLocationQueryService: IPlayerLocationQueryService =
+            InMemoryPlayerLocationQueryService()
+        services.register<IPlayerLocationQueryService>(playerLocationQueryService, priority = 0)
+
+        // Per-match config service (Wave 5c bridge): apply/reset overlay at
+        // match start/end. Uses the just-registered world gateways.
+        val matchConfigService: IMatchConfigService = InMemoryMatchConfigService(
+            worldRules = worldRulesGateway,
+            worldTime = worldTimeGateway,
+            worldWeather = worldWeatherGateway,
+            eventBus = eventBus,
+        )
+        services.register<IMatchConfigService>(matchConfigService, priority = 0)
 
         // ---- Permission service ------------------------------------------
         // Wave 3 (R2): Astera-Persistence (loadbefore: [features]) loads AFTER
@@ -545,8 +599,13 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IBlockStateGateway",
             "ISchematicLoader",
             "BlockDurabilityRule",
-            "ICustomBlockRegistry",
-            "IBlockDurabilityRepository",
+            "IWorldTimeGateway",
+            "IWorldWeatherGateway",
+            "IWorldRulesGateway",
+            "IStageRegionIndex",
+            "IRegionPermissionService",
+            "IPlayerLocationQueryService",
+            "IMatchConfigService",
             "IPermissionService",
             "IReloadableContentsRegistry",
             "IEntityRegistry",

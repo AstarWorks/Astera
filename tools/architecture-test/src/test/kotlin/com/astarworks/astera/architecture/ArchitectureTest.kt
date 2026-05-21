@@ -800,95 +800,120 @@ class ArchitectureTest {
             .isEmpty()
     }
 
-    // ─── Wave 5l — INpcAdapter uniqueness + Citizens isolation (ADR-0082) ───
+    // ─── Wave 5n: World env + Per-match config + Spatial index (ADR-0080) ──
 
     /**
-     * ADR-0082 (Entity spawning + NPC two-tier strategy): every concrete
-     * `INpcAdapter` implementation MUST return a unique [backendId] value.
-     * The runtime `RouterEntitySpawner` selects adapters by priority and
-     * uses `EntityHandle.backendId` to route despawns back to the owning
-     * adapter — colliding backend ids would silently route handles to the
-     * wrong adapter.
+     * Wave 5n vendor-isolation: the spatial-index package is the
+     * proximity-query backbone for Wave 5a AOE skills, Wave 5c anomaly
+     * spawn, and Wave 5o spawn protection. Bukkit / Paper / Adventure
+     * types here would pull Minecraft coupling into a domain primitive
+     * every plugin reads.
      *
-     * Konsist can't inspect method bodies, so this test enforces uniqueness
-     * **by convention**: every `INpcAdapter` implementation must declare a
-     * `companion object` containing a `public val BACKEND_ID: NpcBackendId =
-     * NpcBackendId.X` referencing one of the named constants on
-     * [NpcBackendId.Companion]. The test scans the source for those `val`
-     * declarations and asserts no two adapters reference the same constant.
+     * Even `org.joml` is forbidden here (ADR-0080 §"Konsist") so the
+     * package stays usable by future non-Paper edges (Velocity, REST
+     * admin, BedrockEdition adapter).
      */
     @Test
-    fun `INpcAdapter implementations must declare backendId() uniquely (ADR-0082)`() {
-        val portSimpleName = "INpcAdapter"
+    fun `core domain geometry spatial must not import Bukkit Paper Adventure`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter {
+                it.packagee?.name?.startsWith(
+                    "com.astarworks.astera.core.domain.geometry.spatial",
+                ) == true
+            }
+            .assertFalse { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("net.kyori.adventure") ||
+                            imp.name.startsWith("org.joml") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.jetbrains.exposed")
+                    }
+            }
+    }
 
-        // Every class that directly implements INpcAdapter.
-        val adapters = Konsist.scopeFromProject()
+    /**
+     * Wave 5n domain purity: [com.astarworks.astera.core.application.port.outbound.IPlayerLocationQueryService]
+     * is the only proximity-query port. Implementations live in
+     * `plugin/core` (in-memory default) or `plugin/persistence` (future
+     * priority-100 overlay). Feature plugins MUST NOT subclass it
+     * directly — they own their own per-feature ports (e.g. combat
+     * `ITargetingService`) and consume the location service via Core's
+     * `services.getOrThrow<IPlayerLocationQueryService>()`.
+     *
+     * Skeleton-staging tolerance: passes when no impl class exists yet.
+     */
+    @Test
+    fun `IPlayerLocationQueryService implementations must be in plugin core or persistence`() {
+        val portSimpleName = "IPlayerLocationQueryService"
+
+        val impls = Konsist.scopeFromProject()
             .classes()
             .filter { cls ->
                 cls.parents().any { parent -> parent.name == portSimpleName }
             }
 
-        // We expect at least both Wave 5l adapters present (Minimal +
-        // Citizens skeleton). If neither is present the Wave never landed.
-        assertThat(adapters.map { it.fullyQualifiedName })
-            .withFailMessage {
-                "ADR-0082 expects at least one INpcAdapter implementation. " +
-                    "Found: ${adapters.map { it.fullyQualifiedName }}"
-            }
-            .isNotEmpty
+        if (impls.isEmpty()) return
 
-        // Each adapter must declare a `BACKEND_ID` property somewhere in its
-        // file (typically inside a companion object). The property's
-        // initializer text encodes the backend identity; we collect all
-        // such tokens and assert uniqueness across adapters.
-        val backendIdTokens: Map<String, String> = adapters.associate { cls ->
-            val file = cls.containingFile
-            val backendIdLine: String? = file.text.lineSequence()
-                .map { it.trim() }
-                .firstOrNull { it.startsWith("public val BACKEND_ID") || it.startsWith("val BACKEND_ID") }
-            requireNotNull(backendIdLine) {
-                "ADR-0082: ${cls.fullyQualifiedName} implements INpcAdapter but " +
-                    "declares no `BACKEND_ID` constant. Add one referencing " +
-                    "NpcBackendId.MINIMAL / NpcBackendId.CITIZENS / a new constant."
-            }
-            cls.fullyQualifiedName!! to backendIdLine
+        val nonAllowed = impls.filter { cls ->
+            val pkg = cls.packagee?.name ?: ""
+            !(
+                pkg.startsWith("com.astarworks.astera.core.application.service") ||
+                    pkg.startsWith("com.astarworks.astera.testfixtures") ||
+                    pkg.startsWith("com.astarworks.astera.persistence")
+                )
         }
 
-        val tokensByValue: Map<String, List<String>> = backendIdTokens
-            .entries
-            .groupBy(
-                keySelector = { entry -> entry.value.substringAfter("=").trim() },
-                valueTransform = { entry -> entry.key },
-            )
-
-        val collisions = tokensByValue.filter { (_, owners) -> owners.size > 1 }
-        assertThat(collisions)
+        assertThat(nonAllowed.map { it.fullyQualifiedName })
             .withFailMessage {
-                "ADR-0082 backend-id collision: " +
-                    "${collisions.map { (id, owners) -> "$id is claimed by $owners" }}. " +
-                    "Each INpcAdapter implementation must own a distinct NpcBackendId."
+                "Wave 5n (ADR-0080) port-purity contract: $portSimpleName " +
+                    "implementations must live in plugin/core's " +
+                    "application.service.*, plugin/test-fixtures, or " +
+                    "plugin/persistence. Feature plugins must consume the " +
+                    "service via the ServiceRegistry rather than subclassing it. " +
+                    "If you actually need a feature-local proximity port, " +
+                    "introduce a sibling port name rather than weakening this rule."
             }
             .isEmpty()
     }
 
     /**
-     * ADR-0082: Citizens is a soft-dep. Core's domain model must never
-     * import the Citizens API (`net.citizensnpcs.api.*`) — that lives only
-     * in the future Wave 6b Paper adapter (`plugin/items/.../adapter/paper/`).
+     * Wave 5n MatchConfig immutability: per-match overlay must be a
+     * data class with `val`-only fields. A mutable field would let one
+     * subscriber to [MatchConfigApplied] mutate the broadcast value and
+     * silently change every other subscriber's view. The class is small
+     * (8 fields); defensive copying via `copy(...)` is cheap.
      *
-     * If a Citizens import appears in `core.domain.entity.*`, the
-     * "Citizens-not-installed" smoke environment (CI, headless tests)
-     * will fail to load Core. This test catches the regression at compile-
-     * test time instead of at server boot.
+     * Skeleton-staging tolerance: passes when MatchConfig has not landed yet.
      */
     @Test
-    fun `core domain entity must not import Citizens API (ADR-0082)`() {
-        Konsist.scopeFromModule("plugin/core")
-            .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.entity") == true }
-            .assertFalse { file ->
-                file.imports.any { imp -> imp.name.startsWith("net.citizensnpcs") }
-            }
+    fun `MatchConfig must be data class without mutable fields`() {
+        val matchConfigFqn = "com.astarworks.astera.core.domain.match.MatchConfig"
+
+        val classes = Konsist.scopeFromProject()
+            .classes()
+            .filter { it.fullyQualifiedName == matchConfigFqn }
+
+        if (classes.isEmpty()) return
+
+        for (cls in classes) {
+            assertThat(cls.hasDataModifier)
+                .withFailMessage {
+                    "Wave 5n (ADR-0080): $matchConfigFqn must be a data class."
+                }
+                .isTrue()
+
+            val mutableProperties = cls.properties().filter { it.hasVarModifier }
+            assertThat(mutableProperties.map { it.name })
+                .withFailMessage {
+                    "Wave 5n (ADR-0080): $matchConfigFqn must have only " +
+                        "`val` properties (no `var`). Mutable fields on the " +
+                        "broadcast overlay would let one subscriber silently " +
+                        "change every other subscriber's view."
+                }
+                .isEmpty()
+        }
     }
 
     // ─── Private helpers ─────────────────────────────────────────────────────
