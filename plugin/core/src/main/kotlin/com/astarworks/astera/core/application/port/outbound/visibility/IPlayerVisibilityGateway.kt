@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.visibility.VisibilityError
 
 /**
- * Outbound port — per-viewer entity and player visibility (Wave 5y, ADR-0090).
+ * Outbound port — per-viewer entity and player visibility (Wave 5y, ADR-0095).
  *
  * Where [com.astarworks.astera.core.application.port.outbound.IPlayerGateway]
  * answers "is this player online?" globally, this gateway answers "is this

@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.visibility
 
 /**
- * Vendor-neutral error surface for the packet backend (Wave 5y, ADR-0090).
+ * Vendor-neutral error surface for the packet backend (Wave 5y, ADR-0095).
  *
  * Wraps the failure modes that any packet-manipulation library — PacketEvents
  * in the chosen Phase 1 backend — can report up to use cases. Surfaced through
@@ -11,7 +11,7 @@ package com.astarworks.astera.core.domain.visibility
  * Keeping this in `core.domain` (not `adapter.api`) is intentional: the
  * orchestrator wiring + tests need to pattern-match on the failure, and
  * forcing them through an adapter type would couple `core.application` to
- * Paper/PacketEvents loading order. ADR-0090's type-erasure rule still
+ * Paper/PacketEvents loading order. ADR-0095's type-erasure rule still
  * applies — no PacketEvents import lands here.
  */
 public sealed interface PacketBackendError {

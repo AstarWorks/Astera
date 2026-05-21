@@ -18,7 +18,7 @@ import com.astarworks.astera.core.domain.world.WorldId
  * gateway accepts values in `[0, 24000)`; out-of-range values are clamped /
  * modulo'd by the Paper-side impl (vanilla behaviour).
  *
- * Wave 5n (ADR-0080).
+ * Wave 5n (ADR-0092).
  */
 public interface IWorldTimeGateway {
 

@@ -8,7 +8,7 @@ import kotlin.math.min
 /**
  * AABB-tree backed [SpatialIndex] for arbitrary value types [T].
  *
- * Wave 5n (ADR-0080) — Phase 1 ships a **flat-list** implementation under
+ * Wave 5n (ADR-0092) — Phase 1 ships a **flat-list** implementation under
  * the `AabbTree` name so the public surface and Konsist rules are stable
  * from day one. Real bounding-volume-hierarchy refinement (top-down BVH,
  * incremental SAH insertion, etc.) is deferred until profiling shows the

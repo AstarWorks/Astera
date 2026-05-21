@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.permission.Permission
 
 /**
- * Point-in-time predicate for [TutorialStep.AwaitPredicate] (Wave 5p, ADR-0088).
+ * Point-in-time predicate for [TutorialStep.AwaitPredicate] (Wave 5p, ADR-0093).
  *
  * # Parallel definition with [com.astarworks.astera.core.domain.dialog.DialogPredicate]
  *

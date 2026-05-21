@@ -10,7 +10,7 @@ import com.astarworks.astera.core.domain.skill.SkillId
 
 /**
  * One in-match observation captured by [com.astarworks.astera.match.application
- * .port.inbound.IMatchRecorder] (Wave 5v, ADR-0088).
+ * .port.inbound.IMatchRecorder] (Wave 5v, ADR-0094).
  *
  * Each variant is **a pure data class over primitives + value classes** —
  * that purity is mechanically enforced by `ArchitectureTest.\`Wave 5v

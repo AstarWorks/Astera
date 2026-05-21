@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.dialog
 
 /**
- * Stable identifier for a node within an [NpcDialogTree] (Wave 5p, ADR-0088).
+ * Stable identifier for a node within an [NpcDialogTree] (Wave 5p, ADR-0093).
  *
  * Scoped to the enclosing tree — `("intro", "branch-a")` and
  * `("epilogue", "branch-a")` are distinct nodes that happen to share a

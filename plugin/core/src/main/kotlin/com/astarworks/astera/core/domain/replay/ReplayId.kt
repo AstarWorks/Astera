@@ -3,7 +3,7 @@ package com.astarworks.astera.core.domain.replay
 import java.util.UUID
 
 /**
- * Unique identifier for a [RecordedReplay] (Wave 5v, ADR-0088).
+ * Unique identifier for a [RecordedReplay] (Wave 5v, ADR-0094).
  *
  * One-to-one with `MatchId` for "current recording in progress" but the
  * persisted row has its own UUID so a single match can — in principle —

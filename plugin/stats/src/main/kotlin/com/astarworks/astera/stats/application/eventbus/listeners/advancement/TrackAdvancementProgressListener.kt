@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 
 /**
  * Routes cross-plugin domain events to the Wave 5p advancement progress
- * service (ADR-0088).
+ * service (ADR-0093).
  *
  * # Why one fan-out class
  *

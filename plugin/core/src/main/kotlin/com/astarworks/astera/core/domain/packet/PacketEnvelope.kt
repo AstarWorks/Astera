@@ -3,7 +3,7 @@ package com.astarworks.astera.core.domain.packet
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Vendor-neutral packet observation envelope (Wave 5y, ADR-0090).
+ * Vendor-neutral packet observation envelope (Wave 5y, ADR-0095).
  *
  * Designed for the **type-erasure boundary** between `core.domain` and the
  * Wave 6b PacketEvents adapter. The adapter unpacks a `PacketWrapper<*>` into

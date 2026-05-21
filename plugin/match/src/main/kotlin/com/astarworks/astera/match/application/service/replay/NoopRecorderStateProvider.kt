@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.replay.Vec3Snapshot
 import com.astarworks.astera.match.application.port.outbound.IRecorderStateProvider
 
 /**
- * Default [IRecorderStateProvider] for Phase 1 PoC (Wave 5v, ADR-0088).
+ * Default [IRecorderStateProvider] for Phase 1 PoC (Wave 5v, ADR-0094).
  *
  * Returns no participants and null for every state query, so key frames
  * generated against it carry empty maps. The `ReplayCaptureEngine` still

@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 
 /**
  * Finalised capture produced by `IMatchRecorder.stopRecording` (Wave 5v,
- * ADR-0088).
+ * ADR-0094).
  *
  * Immutable; the recorder hands one of these off to
  * `IMatchReplayRepository.save` and then drops its in-memory buffer.

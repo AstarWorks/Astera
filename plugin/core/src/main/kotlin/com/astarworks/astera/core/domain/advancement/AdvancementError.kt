@@ -3,7 +3,7 @@ package com.astarworks.astera.core.domain.advancement
 import com.astarworks.astera.core.domain.i18n.MessageKey
 
 /**
- * Expected failure modes of advancement use cases (Wave 5p, ADR-0088).
+ * Expected failure modes of advancement use cases (Wave 5p, ADR-0093).
  *
  * Each variant carries an i18n [messageKey] so commands / event listeners can
  * surface a localized message via `IMessageRenderer` without leaking domain

@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0080: World environment + Per-match config + Spatial index + Player position query
+# ADR-0092: World environment + Per-match config + Spatial index + Player position query
 
 ## Status
 

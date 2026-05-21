@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.advancement
 
 /**
- * Visual presentation tier for a [CustomAdvancement] (Wave 5p, ADR-0088).
+ * Visual presentation tier for a [CustomAdvancement] (Wave 5p, ADR-0093).
  *
  * Mirrors Vanilla's `frame` field (Task / Goal / Challenge) but evaluated by
  * Astera's own HUD adapter — no Bukkit advancement API is used at runtime.

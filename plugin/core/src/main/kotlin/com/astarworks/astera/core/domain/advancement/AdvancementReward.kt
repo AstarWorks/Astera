@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.item.ItemId
 
 /**
- * Reward granted on advancement completion (Wave 5p, ADR-0088).
+ * Reward granted on advancement completion (Wave 5p, ADR-0093).
  *
  * # Why ids only, not domain objects
  *
@@ -49,6 +49,6 @@ public sealed interface AdvancementReward {
     /** Unlock [titleId] on the player (`IPlayerTitleRepository` in stats). */
     public data class GrantTitle(public val titleId: TitleId) : AdvancementReward
 
-    /** Unlock [achievementId] (separate vocabulary from advancement; see ADR-0088). */
+    /** Unlock [achievementId] (separate vocabulary from advancement; see ADR-0093). */
     public data class GrantAchievement(public val achievementId: AchievementId) : AdvancementReward
 }

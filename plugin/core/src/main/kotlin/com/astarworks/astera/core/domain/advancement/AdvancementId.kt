@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.advancement
 
 /**
- * Stable identifier for a [CustomAdvancement] (Wave 5p, ADR-0088).
+ * Stable identifier for a [CustomAdvancement] (Wave 5p, ADR-0093).
  *
  * Replaces Vanilla Minecraft's advancement system end-to-end: Astera ships
  * its own progression UI, criteria evaluation, and reward dispatch so the

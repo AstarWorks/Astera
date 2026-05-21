@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Expected failure modes of the Wave 5p tutorial sequencer (ADR-0088).
+ * Expected failure modes of the Wave 5p tutorial sequencer (ADR-0093).
  *
  * Mirrors [TutorialError]'s shape — separate from Wave 5e's `TutorialError`
  * because the sequencer surface adds a few new variants that don't apply to

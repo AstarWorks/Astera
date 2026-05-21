@@ -2,7 +2,7 @@ package com.astarworks.astera.core.domain.visibility
 
 /**
  * Outcome failure surface for [com.astarworks.astera.core.application.port.outbound.visibility.IPlayerVisibilityGateway]
- * (Wave 5y, ADR-0090).
+ * (Wave 5y, ADR-0095).
  *
  * Per-viewer entity / player hide / show is a packet-level operation; failure
  * paths fall into:

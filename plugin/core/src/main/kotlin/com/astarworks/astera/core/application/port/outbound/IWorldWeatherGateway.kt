@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.world.WorldId
  * state via a `MutableMap<WorldId, WeatherState>` so per-match config
  * overlay tests can assert weather lock without a Paper server.
  *
- * Wave 5n (ADR-0080).
+ * Wave 5n (ADR-0092).
  */
 public interface IWorldWeatherGateway {
 

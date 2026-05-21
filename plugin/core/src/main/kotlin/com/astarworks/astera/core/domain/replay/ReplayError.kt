@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 
 /**
  * Sealed error returned by `IMatchRecorder.stopRecording` /
- * `IMatchReplayRepository` (Wave 5v, ADR-0088).
+ * `IMatchReplayRepository` (Wave 5v, ADR-0094).
  *
  * Per Astera coding-posture (`Result<T, E>` + sealed error hierarchies, no
  * raw JVM throwables in application APIs), every replay-pipeline call site

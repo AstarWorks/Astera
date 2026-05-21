@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.packet.PacketKind
 
 /**
  * Outbound port — server-side packet interception with curated surface
- * (Wave 5y, ADR-0090).
+ * (Wave 5y, ADR-0095).
  *
  * The Wave 6b adapter is implemented on top of
  * [PacketEvents](https://github.com/retrooper/packetevents) (soft-dep,

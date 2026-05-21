@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.replay.ReplayId
 import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
 
 /**
- * Postgres-less default for [IMatchReplayRepository] (Wave 5v, ADR-0088).
+ * Postgres-less default for [IMatchReplayRepository] (Wave 5v, ADR-0094).
  *
  * Registered by `AsteraMatchPlugin` at priority 0; `AsteraPersistencePlugin`
  * overlays a `PostgresMatchReplayRepository` at priority 100 when env vars

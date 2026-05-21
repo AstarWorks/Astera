@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.tutorial
 
 /**
- * Per-player sequencer cursor for [TutorialScript] (Wave 5p, ADR-0088).
+ * Per-player sequencer cursor for [TutorialScript] (Wave 5p, ADR-0093).
  *
  * Persisted via [com.astarworks.astera.core.application.port.outbound.IPlayerTutorialStateRepository]
  * so a tutorial in flight survives a server restart (Phase 1 PoC) or a

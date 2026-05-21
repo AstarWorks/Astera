@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 
 /**
  * Quantised position snapshot for [KeyFrame] / [ReplayEvent.PlayerMoved]
- * (Wave 5v, ADR-0088).
+ * (Wave 5v, ADR-0094).
  *
  * Stored as three `Float`s rather than `Double`s to halve the per-coord JSONB
  * footprint at the cost of ~7 decimal digits of precision — well beyond what

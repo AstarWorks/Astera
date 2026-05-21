@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 /**
  * Outbound port: per-match [MatchConfig] overlay.
  *
- * Wave 5n (ADR-0080) — the bridge between the Wave 5c match mode framework
+ * Wave 5n (ADR-0092) — the bridge between the Wave 5c match mode framework
  * and the world-environment ports introduced in this wave. Match start use
  * cases call [apply] to push the config onto the underlying world; match
  * end calls [resetToDefault] to lift the overlay.
@@ -56,7 +56,7 @@ public interface IMatchConfigService {
 /**
  * Failure modes for [IMatchConfigService.apply].
  *
- * Wave 5n (ADR-0080).
+ * Wave 5n (ADR-0092).
  */
 public sealed class MatchConfigError {
     public abstract val messageKey: MessageKey

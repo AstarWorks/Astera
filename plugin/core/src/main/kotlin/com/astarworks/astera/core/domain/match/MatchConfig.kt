@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.world.WorldDifficulty
  * - `null` values leave the world's existing setting untouched (the match
  *   does not care about that axis).
  *
- * Wave 5n (ADR-0080) — bridges the Wave 5c match mode framework with the
+ * Wave 5n (ADR-0092) — bridges the Wave 5c match mode framework with the
  * world-environment ports introduced in this wave.
  *
  * **Immutable**: All fields are `val` (data-class). Konsist test

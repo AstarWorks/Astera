@@ -4,7 +4,7 @@ import java.time.Instant
 
 /**
  * Per-player snapshot of progress against a single [CustomAdvancement]
- * (Wave 5p, ADR-0088).
+ * (Wave 5p, ADR-0093).
  *
  * Stored row-per-(player, advancement) in `player_advancement_progress`
  * (V26 migration).

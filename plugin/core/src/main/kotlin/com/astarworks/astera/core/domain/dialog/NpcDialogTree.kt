@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.dialog
 
 /**
- * Conversation tree played by an NPC against a player (Wave 5p, ADR-0088).
+ * Conversation tree played by an NPC against a player (Wave 5p, ADR-0093).
  *
  * # Lifecycle
  *

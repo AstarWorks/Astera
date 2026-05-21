@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
  * Full per-tick world snapshot taken every `ReplayFormat.EventLogKeyFrame.
- * keyFramePer` ticks (Wave 5v, ADR-0088).
+ * keyFramePer` ticks (Wave 5v, ADR-0094).
  *
  * Between key frames, [ReplayEvent.PlayerMoved] carries delta-encoded
  * displacement so playback can interpolate. Each key frame **anchors the

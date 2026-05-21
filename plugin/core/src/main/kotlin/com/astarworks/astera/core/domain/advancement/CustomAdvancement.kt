@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 
 /**
- * Astera's vanilla-Minecraft-advancement replacement (Wave 5p, ADR-0088).
+ * Astera's vanilla-Minecraft-advancement replacement (Wave 5p, ADR-0093).
  *
  * # Why replace Vanilla
  *

@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.skill.SkillId
 /**
  * One step of a tutorial script (Wave 5e initial; Wave 5p sequencer extensions).
  *
- * # Wave 5p extensions (ADR-0088)
+ * # Wave 5p extensions (ADR-0093)
  *
  * The sequencer adds new step variants for guided UX:
  *
@@ -58,7 +58,7 @@ public sealed interface TutorialStep {
     /** Give an item by content-id (e.g., `astera:example-pistol`). Legacy string form. */
     public data class GiveItem(val itemId: String, val count: Int = 1) : TutorialStep
 
-    // ─── Wave 5p sequencer extensions (ADR-0088) ─────────────────────────
+    // ─── Wave 5p sequencer extensions (ADR-0093) ─────────────────────────
 
     /** Open a designer-authored dialog tree mid-tutorial. The tutorial sequencer
      *  pauses until the dialog ends, then auto-advances. */

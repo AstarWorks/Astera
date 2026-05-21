@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.item.ItemId
  * Used by [com.astarworks.astera.core.application.port.outbound.IRegionPermissionService]
  * to gate player actions inside a [com.astarworks.astera.core.domain.stage.Region].
  *
- * Wave 5n (ADR-0080): the primary grief-prevention mechanism per
+ * Wave 5n (ADR-0092): the primary grief-prevention mechanism per
  * `.claude/plans/idea-anti-grief-policy.md`. Per-region rules take
  * precedence over per-player overrides; Wave 5o introduces an orthogonal
  * per-player PvP toggle via `IPlayerPvpStateService`.

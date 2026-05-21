@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.packet
 
 /**
- * Limited, Astera-curated enumeration of packet kinds (Wave 5y, ADR-0090).
+ * Limited, Astera-curated enumeration of packet kinds (Wave 5y, ADR-0095).
  *
  * The full PacketEvents `PacketType` surface is hundreds of entries; Astera's
  * application layer only needs the kinds that map to its existing domain

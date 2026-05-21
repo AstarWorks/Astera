@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.permission.Permission
 
 /**
  * Point-in-time predicate evaluated against a player's current state to
- * choose a [DialogNode.Condition] branch (Wave 5p, ADR-0088).
+ * choose a [DialogNode.Condition] branch (Wave 5p, ADR-0093).
  *
  * # Distinct from [com.astarworks.astera.core.domain.advancement.AdvancementCriteria]
  *

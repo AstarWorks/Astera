@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 
 /**
  * Outbound port: per-region permission service. The grief-prevention primary
- * mechanism per `.claude/plans/idea-anti-grief-policy.md` (Wave 5n / ADR-0080).
+ * mechanism per `.claude/plans/idea-anti-grief-policy.md` (Wave 5n / ADR-0092).
  *
  * Combines two pieces of state:
  * - The set of [RegionRule]s authored against each [RegionId] (via

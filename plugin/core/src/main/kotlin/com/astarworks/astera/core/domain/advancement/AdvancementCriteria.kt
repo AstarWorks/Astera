@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.item.ItemId
 
 /**
  * Predicate evaluated against per-player progress counters to determine
- * whether an advancement has been earned (Wave 5p, ADR-0088).
+ * whether an advancement has been earned (Wave 5p, ADR-0093).
  *
  * # Composable shape
  *

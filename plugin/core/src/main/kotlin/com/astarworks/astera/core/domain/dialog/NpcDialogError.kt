@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Expected failure modes of the NPC dialog runner (Wave 5p, ADR-0088).
+ * Expected failure modes of the NPC dialog runner (Wave 5p, ADR-0093).
  *
  * Mirrors [com.astarworks.astera.core.domain.tutorial.TutorialError]'s
  * shape — each variant carries an i18n key so the calling listener / command

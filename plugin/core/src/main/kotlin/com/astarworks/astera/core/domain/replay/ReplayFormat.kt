@@ -2,7 +2,7 @@ package com.astarworks.astera.core.domain.replay
 
 /**
  * Capture-time configuration for [com.astarworks.astera.match.application
- * .port.inbound.IMatchRecorder] (Wave 5v, ADR-0088).
+ * .port.inbound.IMatchRecorder] (Wave 5v, ADR-0094).
  *
  * Two encodings are committed. [EventLogKeyFrame] is the default and the
  * shape Wave 5v's 4×1h≈5MB budget assumes; [FullPerTick] exists for

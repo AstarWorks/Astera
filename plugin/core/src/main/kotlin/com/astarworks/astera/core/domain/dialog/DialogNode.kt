@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.i18n.MessageKey
 
 /**
- * One node in an [NpcDialogTree] (Wave 5p, ADR-0088).
+ * One node in an [NpcDialogTree] (Wave 5p, ADR-0093).
  *
  * # Variant catalog (Phase 1 PoC)
  *

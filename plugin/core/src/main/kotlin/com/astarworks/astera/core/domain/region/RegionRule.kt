@@ -24,7 +24,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
  *    deny is required to block actions; Wave 5o's spawn-protection layer
  *    sits on top of this for per-player overrides).
  *
- * Wave 5n (ADR-0080).
+ * Wave 5n (ADR-0092).
  */
 public data class RegionRule(
     val regionId: RegionId,

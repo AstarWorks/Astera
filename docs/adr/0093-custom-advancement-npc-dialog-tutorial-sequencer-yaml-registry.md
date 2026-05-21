@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0088: Custom Advancement + NPC Dialog Tree + Tutorial Sequencer (YAML registry unified)
+# ADR-0093: Custom Advancement + NPC Dialog Tree + Tutorial Sequencer (YAML registry unified)
 
 ## Status
 

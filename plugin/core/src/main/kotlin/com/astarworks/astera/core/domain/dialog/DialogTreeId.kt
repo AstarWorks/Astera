@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.dialog
 
 /**
- * Stable identifier for an [NpcDialogTree] (Wave 5p, ADR-0088).
+ * Stable identifier for an [NpcDialogTree] (Wave 5p, ADR-0093).
  *
  * Distinct from any "player dialog" or chat-message id — this is the YAML
  * registry key for an interactive NPC conversation tree.

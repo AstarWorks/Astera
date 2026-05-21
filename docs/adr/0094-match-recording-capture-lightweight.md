@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0088: Match recording capture — event log + key frame, playback deferred to Phase 4
+# ADR-0094: Match recording capture — event log + key frame, playback deferred to Phase 4
 
 ## Status
 

@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 /**
  * Outbound port: vendor-neutral player-position spatial query service.
  *
- * Wave 5n (ADR-0080) — the proximity primitive underpinning:
+ * Wave 5n (ADR-0092) — the proximity primitive underpinning:
  * - Wave 5a proximity-based skill (AOE / blast radius / aura).
  * - Wave 5c anomaly spawn (e.g. "spawn entity at the location of a random
  *   nearby player").

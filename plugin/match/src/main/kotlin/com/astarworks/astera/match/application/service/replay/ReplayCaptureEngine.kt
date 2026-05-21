@@ -27,7 +27,7 @@ import com.astarworks.astera.match.domain.event.PhaseChanged
 import org.slf4j.LoggerFactory
 
 /**
- * Default [IMatchRecorder] (Wave 5v, ADR-0088).
+ * Default [IMatchRecorder] (Wave 5v, ADR-0094).
  *
  * Subscribes to the published domain events on [bus] at construction time,
  * converts each into a [ReplayEvent], and appends to the buffer of every

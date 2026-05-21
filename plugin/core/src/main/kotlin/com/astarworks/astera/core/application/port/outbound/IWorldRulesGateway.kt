@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.world.WorldId
  * treated as "world unknown, no-op" which is the same vanilla behaviour as
  * `/gamerule` on an unloaded world.
  *
- * Wave 5n (ADR-0080).
+ * Wave 5n (ADR-0092).
  */
 public interface IWorldRulesGateway {
 

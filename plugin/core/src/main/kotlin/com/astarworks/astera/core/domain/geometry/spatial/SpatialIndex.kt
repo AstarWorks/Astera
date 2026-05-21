@@ -18,7 +18,7 @@ import com.astarworks.astera.core.domain.stage.Region
  * Bukkit / no JOML / no JDBC) and the package is constrained by Konsist
  * test `core domain geometry spatial must not import Bukkit Paper Adventure`.
  *
- * Wave 5n (ADR-0080) — backing store for [com.astarworks.astera.core.application.port.outbound.IStageRegionIndex]
+ * Wave 5n (ADR-0092) — backing store for [com.astarworks.astera.core.application.port.outbound.IStageRegionIndex]
  * and [com.astarworks.astera.core.application.port.outbound.IPlayerLocationQueryService].
  */
 public interface SpatialIndex<T : Any> {

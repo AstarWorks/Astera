@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0090: Packet system adoption (PacketEvents) + per-viewer visibility gateway
+# ADR-0095: Packet system adoption (PacketEvents) + per-viewer visibility gateway
 
 ## Status
 

@@ -19,7 +19,7 @@ import com.astarworks.astera.core.domain.world.WorldId
  * for unit tests the in-memory impl iterates a list, which is fine for the
  * stage sizes Phase 1 PoC ships (≤ 32 regions per stage).
  *
- * Wave 5n (ADR-0080).
+ * Wave 5n (ADR-0092).
  */
 public interface IStageRegionIndex {
 

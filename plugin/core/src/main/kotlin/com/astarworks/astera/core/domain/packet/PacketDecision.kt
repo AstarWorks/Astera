@@ -2,7 +2,7 @@ package com.astarworks.astera.core.domain.packet
 
 /**
  * Decision returned by an [com.astarworks.astera.core.application.port.outbound.packet.IPacketInterceptor]
- * listener (Wave 5y, ADR-0090).
+ * listener (Wave 5y, ADR-0095).
  *
  * Three-state on purpose:
  *

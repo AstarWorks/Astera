@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.dialog
 
 /**
- * Why an [NpcDialogTree] walk terminated (Wave 5p, ADR-0088).
+ * Why an [NpcDialogTree] walk terminated (Wave 5p, ADR-0093).
  *
  * Reported via [com.astarworks.astera.core.domain.event.NpcDialogEnded] so
  * subscribers (analytics, tutorial sequencer, quest gating) can distinguish
