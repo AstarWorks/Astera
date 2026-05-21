@@ -880,6 +880,72 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5y — Packet system + per-viewer visibility (ADR-0090) ───────
+
+    /**
+     * ADR-0090: the type-erasure boundary. `core.domain.*` MUST NOT see
+     * `com.github.retrooper.packetevents.*` — PacketEvents' wrapper surface
+     * reshuffles on every Minecraft version bump, and a domain coupling
+     * would either decay on every adapter update or force an Astera-internal
+     * mirror that dedupes nothing.
+     *
+     * The Wave 6b PacketEvents adapter lives in `core.adapter.paper.packet.*`
+     * (or, when the Paper packet surface bleeds into other plugins, that
+     * plugin's `adapter.paper.*`). Interception is mediated entirely through
+     * `IPacketInterceptor` + `PacketEnvelope(payloadView: Map<String, Any>)`.
+     */
+    @Test
+    fun `core domain must not import PacketEvents (ADR-0090)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain") == true }
+            .assertFalse(
+                additionalMessage = "ADR-0090: core.domain.* must stay vendor-neutral. " +
+                    "Move PacketEvents wrapper handling to *.adapter.paper.packet.* and " +
+                    "marshal into PacketEnvelope.payloadView before crossing into domain.",
+            ) { file ->
+                file.imports.any { imp ->
+                    imp.name.startsWith("com.github.retrooper.packetevents") ||
+                        imp.name.startsWith("io.github.retrooper.packetevents")
+                }
+            }
+    }
+
+    /**
+     * ADR-0090: every concrete [com.astarworks.astera.core.application.port.outbound.packet.IPacketInterceptor]
+     * or [com.astarworks.astera.core.application.port.outbound.visibility.IPlayerVisibilityGateway]
+     * implementation MUST live in either `application/service/packet/` /
+     * `application/service/visibility/` (vendor-neutral / in-memory default)
+     * or in a `<plugin>/adapter/paper/...` package (Wave 6b PacketEvents
+     * adapter). Bukkit imports in the application-layer impl would force
+     * packet handling onto the Paper main thread, defeating the Netty-side
+     * dispatch the production adapter is supposed to use.
+     *
+     * Mirrors the Wave 5q `IAfkDetector` rule (ADR-0083) — same vendor
+     * isolation, different ports. Together they keep the entire packet +
+     * visibility surface either neutral or explicitly Paper-scoped.
+     */
+    @Test
+    fun `IPacketInterceptor and IPlayerVisibilityGateway application impls must not import Bukkit Paper (ADR-0090)`() {
+        val portSimpleNames = setOf("IPacketInterceptor", "IPlayerVisibilityGateway")
+        Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name in portSimpleNames } &&
+                    cls.packagee?.name?.contains(".application.") == true
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0090: IPacketInterceptor / IPlayerVisibilityGateway " +
+                    "application-layer impls must stay Bukkit-free. Move Paper wiring (the " +
+                    "PacketEvents.getAPI().isLoaded() check, the `Player.hidePlayer` fallback) " +
+                    "into *.adapter.paper.*.",
+            ) { cls ->
+                cls.containingFile.imports.any { imp ->
+                    bukkitFamily.any { prefix -> imp.name.startsWith(prefix) }
+                }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

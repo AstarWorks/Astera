@@ -107,9 +107,15 @@ import com.astarworks.astera.core.application.service.afk.AfkSweepScheduler
 import com.astarworks.astera.core.application.service.afk.InMemoryAfkDetector
 import com.astarworks.astera.core.application.service.anticheat.AnticheatOrchestrator
 import com.astarworks.astera.core.application.service.anticheat.DefaultMovementValidator
+import com.astarworks.astera.core.application.service.anticheat.MovementValidatorPacketBridge
 import com.astarworks.astera.core.application.service.anticheat.NoopExternalAnticheatBridge
 import com.astarworks.astera.core.application.service.anticheat.SlidingWindowDamageRateValidator
 import com.astarworks.astera.core.application.service.anticheat.SlidingWindowInteractValidator
+import com.astarworks.astera.core.application.port.outbound.packet.IPacketInterceptor
+import com.astarworks.astera.core.application.port.outbound.visibility.IPlayerVisibilityGateway
+import com.astarworks.astera.core.application.service.packet.InMemoryPacketInterceptor
+import com.astarworks.astera.core.application.service.visibility.InMemoryPlayerVisibilityGateway
+import com.astarworks.astera.core.domain.packet.InterceptorSubscription
 import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
@@ -231,6 +237,13 @@ public class AsteraCorePlugin : JavaPlugin() {
 
     /** Wave 5q (ADR-0083): retained so [onDisable] can cancel the AFK sweep loop. */
     private var afkSweepHandle: IScheduler.TaskHandle? = null
+
+    /**
+     * Wave 5y (ADR-0090): retained so [onDisable] can cancel the
+     * MovementValidatorPacketBridge subscription before the underlying
+     * interceptor is torn down.
+     */
+    private var movementPacketBridgeSub: InterceptorSubscription? = null
 
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
@@ -937,6 +950,33 @@ public class AsteraCorePlugin : JavaPlugin() {
         afkSweepHandle = afkSweeper.start()
         logger.info("Wave 5q anti-AFK detector wired (warning=30s, kick=2min, sweep=1s).")
 
+        // ---- Packet system + per-viewer visibility (Wave 5y, ADR-0090) ----
+        // ADR-0015 supersede (PacketEvents section only): the deferred-to-Phase 3+
+        // posture is replaced with Phase 1 adoption + a type-erased boundary so
+        // core.domain stays packet-library-agnostic. The InMemory implementations
+        // ship in Phase 1; the Wave 6b Paper adapter swaps them for
+        // PacketEvents-backed variants at priority 100 once the soft-dep is
+        // confirmed loaded.
+        val packetInterceptor: IPacketInterceptor =
+            services.get<IPacketInterceptor>() ?: InMemoryPacketInterceptor().also {
+                services.register<IPacketInterceptor>(it, priority = 0)
+            }
+        val visibilityGateway: IPlayerVisibilityGateway =
+            services.get<IPlayerVisibilityGateway>() ?: InMemoryPlayerVisibilityGateway(eventBus = eventBus).also {
+                services.register<IPlayerVisibilityGateway>(it, priority = 0)
+            }
+        val movementPacketBridge = MovementValidatorPacketBridge(
+            movementValidator = movementValidator,
+            orchestrator = anticheatOrchestrator,
+            tickProvider = { scheduler.currentTick() },
+        )
+        movementPacketBridgeSub = movementPacketBridge.attach(packetInterceptor)
+        logger.info(
+            "Wave 5y packet system wired (interceptor=${packetInterceptor::class.simpleName}, " +
+                "visibility=${visibilityGateway::class.simpleName}, " +
+                "movement bridge -> MovementServerbound).",
+        )
+
         // ---- Observability (Wave _ops, ADR-0023 + ADR-0024 + deploy/keda/) ----
         // Opt-in via env. When ASTERA_METRICS_ENABLED=true, exposes Prometheus
         // exposition at :ASTERA_METRICS_PORT/metrics (default 9092). The KEDA
@@ -969,6 +1009,7 @@ public class AsteraCorePlugin : JavaPlugin() {
 
     override fun onDisable() {
         logger.info("Astera-Core disabling.")
+        movementPacketBridgeSub?.cancel()
         afkSweepHandle?.cancel()
         matchQueueMetric?.stop()
         metricsHttpServer?.stop()
@@ -1030,10 +1071,27 @@ public class AsteraCorePlugin : JavaPlugin() {
             "INpcAdapter (minimal+citizens)",
             "INpcInteractionRouter",
             "IEntitySpawner",
-            "ICraftingRecipeRegistry",
-            "IQuestChainRegistry",
-            "IPlayerQuestProgressRepository",
-            "IQuestService",
+            // Wave 5t (ADR-0086)
+            "IRoleRegistry",
+            "IPermissionBackend (Minimal + LuckPerms skeleton)",
+            "IRichPresenceGateway",
+            "ILiveConfigEditor",
+            "IServerBackupGateway",
+            "IScheduledAnnouncementSystem",
+            "IServerHealthCheck",
+            "ISlowQueryAuditRepository",
+            "IPlayerFeedbackQueue",
+            // Wave 5q (ADR-0083)
+            "IMovementValidator",
+            "IDamageRateValidator",
+            "IInteractValidator",
+            "IExternalAnticheatBridge (noop default)",
+            "AnticheatOrchestrator",
+            "IAfkDetector + AfkSweepScheduler",
+            // Wave 5y (ADR-0090)
+            "IPacketInterceptor (InMemory default; Wave 6b PacketEvents override)",
+            "IPlayerVisibilityGateway (InMemory default; Wave 6b packet-drop override)",
+            "MovementValidatorPacketBridge -> PacketKind.MovementServerbound",
         )
     }
 }
