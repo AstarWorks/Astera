@@ -383,3 +383,17 @@ astera:
       kills-100:
         name: "<gold>Legend</gold>"
         description: "<gray>100 kills.</gray>"
+
+  # Wave 5r (ADR-0084): Cross-server proxy + transfer flow.
+  proxy:
+    no_connection: "<red>No proxy is currently bridging this server.</red>"
+    unknown_server: "<red>Unknown target server: {server}.</red>"
+    serialization_failure: "<red>Failed to encode the proxy payload: {reason}.</red>"
+  transfer:
+    permission_denied: "<red>You do not have permission to transfer to {server}.</red>"
+    target_offline: "<red>Target server {server} is currently offline.</red>"
+    queue_full: "<red>The transfer queue is full. Try again in a moment.</red>"
+    reason:
+      match_found: "<green>Matchmaking found you a game; moving you now.</green>"
+      lobby_return: "<yellow>Returning you to the lobby.</yellow>"
+      admin_move: "<gray>An operator moved you to another server.</gray>"

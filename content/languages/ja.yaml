@@ -381,3 +381,17 @@ astera:
       kills-100:
         name: "<gold>英雄</gold>"
         description: "<gray>キル数 100。</gray>"
+
+  # Wave 5r (ADR-0084): クロスサーバープロキシ + 転送フロー。
+  proxy:
+    no_connection: "<red>このサーバーには現在プロキシが接続されていません。</red>"
+    unknown_server: "<red>不明な転送先サーバー: {server}。</red>"
+    serialization_failure: "<red>プロキシペイロードのエンコードに失敗しました: {reason}。</red>"
+  transfer:
+    permission_denied: "<red>{server} への転送権限がありません。</red>"
+    target_offline: "<red>転送先サーバー {server} は現在オフラインです。</red>"
+    queue_full: "<red>転送キューが満杯です。しばらくしてから再試行してください。</red>"
+    reason:
+      match_found: "<green>マッチングが成立しました。サーバーを切り替えます。</green>"
+      lobby_return: "<yellow>ロビーに戻ります。</yellow>"
+      admin_move: "<gray>管理者により別のサーバーへ移動されました。</gray>"
