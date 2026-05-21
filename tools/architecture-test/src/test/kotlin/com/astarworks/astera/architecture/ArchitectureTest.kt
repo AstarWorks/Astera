@@ -891,6 +891,43 @@ class ArchitectureTest {
             }
     }
 
+    /**
+     * Wave 5m / ADR-0088: Combat AOE port implementations (Explosion /
+     * AreaEffect / Lightning / FireSpread) MUST NOT import the Bukkit
+     * family in their **application-layer** location.
+     *
+     * The port interfaces live under
+     * `com.astarworks.astera.combat.application.port.outbound.aoe.*` and
+     * their default in-memory impls live under
+     * `com.astarworks.astera.combat.application.service.aoe.*`. Both
+     * packages are part of the application layer (per ADR-0001 §4) and
+     * therefore stay vendor-neutral: Wave 6a Paper impls live in
+     * `combat.adapter.paper.*` instead and that location can freely
+     * import Bukkit.
+     *
+     * This rule duplicates "combat application must not import Bukkit
+     * family" intentionally — keeping a dedicated AOE-scoped assertion
+     * makes the Wave 5m boundary easy to find in CI failures and gives
+     * future ports added under `.aoe.*` an explicit hook.
+     */
+    @Test
+    fun `IExplosionGateway and IAreaEffectGateway implementations must not import Bukkit Paper (ADR-0088)`() {
+        Konsist.scopeFromModule("plugin/combat")
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.combat.application.port.outbound.aoe") ||
+                    pkg.startsWith("com.astarworks.astera.combat.application.service.aoe") ||
+                    pkg.startsWith("com.astarworks.astera.combat.domain.aoe") ||
+                    pkg.startsWith("com.astarworks.astera.combat.domain.event.aoe")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0088 violation: Wave 5m Combat AOE port impls + " +
+                    "their domain types must stay vendor-neutral. Move any Bukkit-touching " +
+                    "code to combat.adapter.paper.*.",
+            ) { file -> hasBukkitFamilyImport(file) }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

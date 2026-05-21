@@ -13,7 +13,7 @@ class DamageResolutionTest {
     private fun attempt(base: Double = 10.0, attr: DamageAttribute = DamageAttribute.PHYSICAL) = DamageAttempt(
         targetId = PlayerId(UUID.randomUUID()),
         baseProfile = DamageProfile.single(base, attr),
-        source = DamageSource.Environment,
+        source = DamageSource.Environment.Generic,
     )
 
     @Test

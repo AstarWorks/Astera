@@ -117,14 +117,14 @@ class KnockbackModifierTest {
     @Test
     fun `Environment source produces no knockback`() {
         val modifier = KnockbackModifier()
-        val out = modifier.apply(working(), attempt(DamageSource.Environment), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(DamageSource.Environment.Generic), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
         assertThat(out.knockback).isNull()
     }
 
     @Test
     fun `Fall source produces no knockback`() {
         val modifier = KnockbackModifier()
-        val out = modifier.apply(working(), attempt(DamageSource.Fall(distance = 6.0)), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
+        val out = modifier.apply(working(), attempt(DamageSource.Environment.Fall(distance = 6.0)), armor = null, defenderContainer = null, randomizer = unusedRandomizer)
         assertThat(out.knockback).isNull()
     }
 
