@@ -24,6 +24,8 @@ import com.astarworks.astera.core.application.contents.AdvancementContents
 import com.astarworks.astera.core.application.contents.GuiContents
 import com.astarworks.astera.core.application.contents.ItemContents
 import com.astarworks.astera.core.application.contents.NpcDialogContents
+import com.astarworks.astera.core.application.contents.QuestChainContents
+import com.astarworks.astera.core.application.contents.RecipeContents
 import com.astarworks.astera.core.application.contents.TutorialContents
 import com.astarworks.astera.core.application.eventbus.listeners.RestoreInventoryOnPlayerJoinedListener
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
@@ -33,6 +35,7 @@ import com.astarworks.astera.core.application.port.inbound.IAdvancementService
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.inbound.INpcDialogService
+import com.astarworks.astera.core.application.port.inbound.IQuestService
 import com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
@@ -62,8 +65,11 @@ import com.astarworks.astera.core.application.port.outbound.IAdvancementRegistry
 import com.astarworks.astera.core.application.port.outbound.IDialogPredicateEvaluator
 import com.astarworks.astera.core.application.port.outbound.INpcDialogBinding
 import com.astarworks.astera.core.application.port.outbound.INpcDialogRegistry
+import com.astarworks.astera.core.application.port.outbound.ICraftingRecipeRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerAdvancementProgressRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerQuestProgressRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerTutorialStateRepository
+import com.astarworks.astera.core.application.port.outbound.IQuestChainRegistry
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
 import com.astarworks.astera.core.application.port.outbound.ITutorialRegistry
@@ -94,6 +100,7 @@ import com.astarworks.astera.core.application.service.InMemoryRewardBridge
 import com.astarworks.astera.core.application.service.advancement.InMemoryPlayerAdvancementProgressRepository
 import com.astarworks.astera.core.application.service.dialog.DefaultDialogPredicateEvaluator
 import com.astarworks.astera.core.application.service.dialog.InMemoryNpcDialogBinding
+import com.astarworks.astera.core.application.service.quest.InMemoryPlayerQuestProgressRepository
 import com.astarworks.astera.core.application.service.tutorial.InMemoryPlayerTutorialStateRepository
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
 import com.astarworks.astera.core.application.service.InMemorySchematicLoader
@@ -103,6 +110,10 @@ import com.astarworks.astera.core.application.usecase.advancement.ProgressAdvanc
 import com.astarworks.astera.core.application.usecase.dialog.RunNpcDialogUseCase
 import com.astarworks.astera.core.application.usecase.inventory.RestoreInventorySnapshotUseCase
 import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
+import com.astarworks.astera.core.application.usecase.quest.GrantQuestRewardUseCase
+import com.astarworks.astera.core.application.usecase.quest.ProgressQuestUseCase
+import com.astarworks.astera.core.application.usecase.quest.StartQuestChainUseCase
+import com.astarworks.astera.core.application.usecase.recipe.CraftRecipeUseCase
 import com.astarworks.astera.core.application.usecase.tutorial.RunTutorialSequencerUseCase
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -452,6 +463,68 @@ public class AsteraCorePlugin : JavaPlugin() {
         )
         services.register<ITutorialSequencerService>(tutorialSequencer, priority = 0)
 
+        // ---- Wave 5s (ADR-0091): Crafting recipes + Quest chains ----
+        // Two more YAML-driven Contents categories on top of the Wave _infra-2b
+        // substrate, plus a dedicated per-player progress repo for quest chains
+        // (V27 migration; recipes are content-only so no repo needed).
+
+        // α. Recipe registry (Contents) + craft use case.
+        val recipesContentDir: Path = contentDir.resolve("recipes")
+        val recipeContents = RecipeContents()
+        val recipeReport = recipeContents.bootstrap(recipesContentDir)
+        logger.info(
+            "Recipes loaded: ${recipeReport.loaded} ok, ${recipeReport.failed} failed",
+        )
+        services.register<ICraftingRecipeRegistry>(recipeContents, priority = 0)
+        reloadRegistry.register(recipeContents, recipesContentDir)
+
+        @Suppress("UNUSED_VARIABLE")
+        val craftRecipeUseCase = CraftRecipeUseCase(
+            recipes = recipeContents,
+            snapshots = snapshotRepo,
+            items = itemContents,
+            advancementService = advancementService,
+            events = eventBus,
+            scheduler = scheduler,
+        )
+
+        // β. Quest registry (Contents) + per-player progress repo + use cases.
+        val questsContentDir: Path = contentDir.resolve("quests")
+        val questContents = QuestChainContents()
+        val questReport = questContents.bootstrap(questsContentDir)
+        logger.info(
+            "Quests loaded: ${questReport.loaded} ok, ${questReport.failed} failed",
+        )
+        services.register<IQuestChainRegistry>(questContents, priority = 0)
+        reloadRegistry.register(questContents, questsContentDir)
+
+        val questProgressRepo: IPlayerQuestProgressRepository =
+            services.get<IPlayerQuestProgressRepository>()
+                ?: InMemoryPlayerQuestProgressRepository().also {
+                    services.register<IPlayerQuestProgressRepository>(it, priority = 0)
+                }
+
+        val grantQuestRewardUseCase = GrantQuestRewardUseCase(
+            ledgerProvider = ledgerProvider,
+            events = eventBus,
+            scheduler = scheduler,
+        )
+        val startQuestChainUseCase = StartQuestChainUseCase(
+            registry = questContents,
+            repository = questProgressRepo,
+            events = eventBus,
+            scheduler = scheduler,
+        )
+        val questService: IQuestService = ProgressQuestUseCase(
+            registry = questContents,
+            repository = questProgressRepo,
+            rewardGrant = grantQuestRewardUseCase,
+            startChainUseCase = startQuestChainUseCase,
+            events = eventBus,
+            scheduler = scheduler,
+        )
+        services.register<IQuestService>(questService, priority = 0)
+
         // Inventory snapshot use cases + PlayerJoined-side listener.
         @Suppress("UNUSED_VARIABLE")
         val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
@@ -623,6 +696,10 @@ public class AsteraCorePlugin : JavaPlugin() {
             "INpcAdapter (minimal+citizens)",
             "INpcInteractionRouter",
             "IEntitySpawner",
+            "ICraftingRecipeRegistry",
+            "IQuestChainRegistry",
+            "IPlayerQuestProgressRepository",
+            "IQuestService",
         )
     }
 }

@@ -891,6 +891,38 @@ class ArchitectureTest {
             }
     }
 
+    /**
+     * Recipe + Quest domains (Wave 5s, ADR-0091) carry pure data + invariants
+     * only — same constraint as every other `core.domain.*` package, but
+     * called out explicitly here so a future change cannot accidentally pull
+     * Bukkit / Paper / Citizens / Postgres / serialization into recipe or
+     * quest types without tripping a dedicated assertion.
+     */
+    @Test
+    fun `recipe and quest domains must stay pure (Wave 5s, ADR-0091)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter {
+                val pkg = it.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.core.domain.recipe") ||
+                    pkg.startsWith("com.astarworks.astera.core.domain.quest")
+            }
+            .assertFalse(additionalMessage = "ADR-0091 violation: Recipe/Quest domain leaked a forbidden import.") { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("net.citizensnpcs") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.slf4j") ||
+                            imp.name.startsWith("java.io") ||
+                            imp.name.startsWith("java.nio") ||
+                            imp.name.startsWith("java.net")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

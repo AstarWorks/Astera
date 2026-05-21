@@ -377,3 +377,38 @@ astera:
         shop: "<green>Browse wares</green>"
         leave: "<gray>Just passing through</gray>"
 
+  # Wave 5s (ADR-0091): Crafting recipes + Quest chains.
+  recipe:
+    error:
+      unknown: "<red>Unknown recipe.</red>"
+      locked: "<yellow>You haven't unlocked this recipe yet.</yellow>"
+      insufficient: "<yellow>You don't have enough ingredients.</yellow>"
+      wrong-station: "<yellow>Use the correct crafting station.</yellow>"
+      no-inventory: "<red>Your inventory snapshot is unavailable.</red>"
+  quest:
+    error:
+      unknown-chain: "<red>Unknown quest.</red>"
+      not-started: "<yellow>You haven't started this quest yet.</yellow>"
+      already-started: "<yellow>You're already on this quest.</yellow>"
+      already-completed: "<gray>You've already finished this quest.</gray>"
+      invalid-increment: "<red>Invalid quest progress increment.</red>"
+      stage-missing: "<red>Quest stage missing; please report.</red>"
+    tutorial-chain:
+      title: "<gold>Tutorial Quest</gold>"
+      kill-monsters:
+        title: "<yellow>Kill 5 Monsters</yellow>"
+        description: "<gray>Defeat 5 monsters to earn gold.</gray>"
+      win-match:
+        title: "<yellow>Win a Match</yellow>"
+        description: "<gray>Win a single match to earn a title.</gray>"
+    compound:
+      title: "<gold>Compound Quest</gold>"
+      a:
+        title: "<yellow>Composite Stage</yellow>"
+        desc: "<gray>Kill + win at the same time.</gray>"
+    solo:
+      title: "<gold>Solo Quest</gold>"
+      a:
+        title: "<yellow>Solo Stage</yellow>"
+        desc: "<gray>Single stage.</gray>"
+

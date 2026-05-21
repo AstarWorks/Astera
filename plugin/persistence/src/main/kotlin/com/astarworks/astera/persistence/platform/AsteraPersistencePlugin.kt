@@ -12,6 +12,7 @@ import com.astarworks.astera.core.application.port.outbound.IPersonalVaultReposi
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IPlayerAdvancementProgressRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerQuestProgressRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
@@ -42,6 +43,7 @@ import com.astarworks.astera.persistence.repository.PostgresPersonalVaultReposit
 import com.astarworks.astera.persistence.repository.PostgresPlayerAttributeContainer
 import com.astarworks.astera.persistence.repository.PostgresPlayerAdvancementProgressRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerInventorySnapshotRepository
+import com.astarworks.astera.persistence.repository.PostgresPlayerQuestProgressRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSessionRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSettingsRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
@@ -211,6 +213,14 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 5s (ADR-0091): quest chain progress overlay. V27 migration
+        // adds `player_quest_progress`; the in-memory default is installed
+        // by `AsteraCorePlugin` at priority=0.
+        registrations += services.register<IPlayerQuestProgressRepository>(
+            PostgresPlayerQuestProgressRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -220,7 +230,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge, IShopStockRepository, IPlayerAdvancementProgressRepository.",
+                "IRewardBridge, IShopStockRepository, IPlayerAdvancementProgressRepository, " +
+                "IPlayerQuestProgressRepository.",
         )
     }
 

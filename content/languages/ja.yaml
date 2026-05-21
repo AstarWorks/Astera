@@ -376,3 +376,38 @@ astera:
         shop: "<green>商品を見る</green>"
         leave: "<gray>通りすがりです</gray>"
 
+  # Wave 5s (ADR-0091): クラフトレシピ + クエストチェーン
+  recipe:
+    error:
+      unknown: "<red>未知のレシピです。</red>"
+      locked: "<yellow>このレシピはまだ解放されていません。</yellow>"
+      insufficient: "<yellow>素材が足りません。</yellow>"
+      wrong-station: "<yellow>適切なクラフト台を使ってください。</yellow>"
+      no-inventory: "<red>インベントリのスナップショットが利用できません。</red>"
+  quest:
+    error:
+      unknown-chain: "<red>未知のクエストです。</red>"
+      not-started: "<yellow>まだこのクエストを始めていません。</yellow>"
+      already-started: "<yellow>すでにこのクエストを進行中です。</yellow>"
+      already-completed: "<gray>このクエストはすでに完了しています。</gray>"
+      invalid-increment: "<red>不正なクエスト進行値です。</red>"
+      stage-missing: "<red>クエスト段階が見つかりません。報告してください。</red>"
+    tutorial-chain:
+      title: "<gold>チュートリアルクエスト</gold>"
+      kill-monsters:
+        title: "<yellow>モンスターを5体倒す</yellow>"
+        description: "<gray>モンスターを5体倒してゴールドを獲得しよう。</gray>"
+      win-match:
+        title: "<yellow>マッチに勝利する</yellow>"
+        description: "<gray>1回マッチに勝利して称号を獲得しよう。</gray>"
+    compound:
+      title: "<gold>複合クエスト</gold>"
+      a:
+        title: "<yellow>複合ステージ</yellow>"
+        desc: "<gray>キル + 勝利を同時に。</gray>"
+    solo:
+      title: "<gold>単独クエスト</gold>"
+      a:
+        title: "<yellow>単独ステージ</yellow>"
+        desc: "<gray>単一段階のみ。</gray>"
+
