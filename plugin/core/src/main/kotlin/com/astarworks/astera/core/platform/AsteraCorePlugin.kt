@@ -56,6 +56,8 @@ import com.astarworks.astera.core.application.port.outbound.IReloadableContentsR
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IResourceRegenScheduler
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
+import com.astarworks.astera.core.application.port.outbound.IPlayerPvpStateService
+import com.astarworks.astera.core.application.port.outbound.ISpawnProtectionGateway
 import com.astarworks.astera.core.application.port.outbound.ITutorialRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
@@ -79,8 +81,10 @@ import com.astarworks.astera.core.application.service.InMemoryPlayerInventorySna
 import com.astarworks.astera.core.application.service.InMemoryPlayerSessionRepository
 import com.astarworks.astera.core.application.service.InMemoryPlayerSettingsRepository
 import com.astarworks.astera.core.application.service.InMemoryPlayerSpeedGateway
+import com.astarworks.astera.core.application.service.InMemoryPlayerPvpStateService
 import com.astarworks.astera.core.application.service.InMemoryResourcePoolService
 import com.astarworks.astera.core.application.service.InMemoryReloadableContentsRegistry
+import com.astarworks.astera.core.application.service.InMemorySpawnProtectionGateway
 import com.astarworks.astera.core.application.service.InMemoryRewardBridge
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
 import com.astarworks.astera.core.application.service.InMemorySchematicLoader
@@ -402,6 +406,28 @@ public class AsteraCorePlugin : JavaPlugin() {
             resourceRegen.trackPlayer(event.playerId)
         }
 
+        // ---- Wave 5o (ADR-0081) Respawn / Spawn protection / PvP toggle -----
+        // ISpawnProtectionGateway: per-player invulnerability window with TTL
+        // and PlayerProtectionGranted / PlayerProtectionExpired events.
+        // IPlayerPvpStateService: per-player on/off flag + the canonical
+        // can-damage resolver consulted by combat-side code before applying
+        // damage between two players. Safe-zone predicate is wired to "no
+        // safe zones" until Wave 5n region-permission service lands; the
+        // service then re-registers the same port at priority 100 with the
+        // region overlay attached.
+        val spawnProtection: ISpawnProtectionGateway =
+            InMemorySpawnProtectionGateway(scheduler, eventBus)
+        services.register<ISpawnProtectionGateway>(spawnProtection, priority = 0)
+
+        val pvpStateService: IPlayerPvpStateService =
+            InMemoryPlayerPvpStateService(
+                scheduler = scheduler,
+                eventBus = eventBus,
+                protectionGateway = spawnProtection,
+                safeZonePredicate = { false }, // Wave 5n region service supplies the real predicate later
+            )
+        services.register<IPlayerPvpStateService>(pvpStateService, priority = 0)
+
         // /astera reload <category> — single Brigadier command for every content type.
         // Permission: astera.reload (admin tier). Argument is a single-word string;
         // tab-completion suggests every currently-registered category name (computed
@@ -535,6 +561,8 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IPlayerFoodGateway (Wave 5k)",
             "IResourcePoolService (Wave 5k)",
             "IResourceRegenScheduler (Wave 5k)",
+            "ISpawnProtectionGateway (Wave 5o)",
+            "IPlayerPvpStateService (Wave 5o)",
         )
     }
 }

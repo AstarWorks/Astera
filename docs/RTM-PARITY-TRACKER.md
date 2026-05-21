@@ -94,6 +94,7 @@ adds to `gradle/libs.versions.toml`:
 - Wave 5e: **65.3% RTM parity** (Cat 1 double-jump +1, Cat 2 listener-arch refactor +1, Cat 6 ender-chest + reward-bridge +2, Cat 7 achievement/tutorial/settings/UAC-migration/levelupmission/playerpin/quickcast +7, Cat 8 spectator/friend/chat/audit/inventory-snapshot/action-lock/control-scheme/particle-hide/portal-ready +9 — total 94/144)
 - **Wave _ops: 66.7% RTM parity** (Cat 10 +2 ✅ Observability: micrometer + /metrics endpoint — total 96/144)
 - **Wave 5k: 69.5% RTM parity** (Cat 8b new category +5 ✅ Resource pool 3 種 + ItemSpec resource extension; +3 🔌 port-only physiology gateways; +1 🟨 balance YAML; +0 ❌ — total 107/154, catalog +9)
+- **Wave 5o: 71.2% RTM parity** (Cat 8c new category +4 ✅ Respawn flow + SpawnPoint reshape + ISpawnSelector + 4 strategies; +3 🔌 port-only ISpawnProtectionGateway + IPlayerPvpStateService + IStatusEffectInteractionRule; +1 🟨 status-interactions YAML — total 114/160, catalog +6)
 - Wave 6 (Paper Sweep) complete: ~65-70% RTM parity (Phase 1 PoC end-to-end)
 - Phase 3 Siege Warfare complete (Wave 6 + 7a content): ~75-80%
 - Phase 4 (UGC + Web + Vault + Gacha): ~85-90%
@@ -312,6 +313,35 @@ vision** (per-weapon Ammo / Stamina / Mana) committed in
 + 1 new scheduler port + 4 new domain types + 12 new domain events. All Konsist
 green; 2 new rules added (baseline 30 → 32). Parity gauge **same ✅ count**
 (catalog +9 entries, including 5 ✅ and 1 partial under this new category).
+
+---
+
+## Category 8c: Respawn + PvP + Spawn selector + Status interaction (Wave 5o, ADR-0081)
+
+Death → respawn → temporary invulnerability → re-fight loop on top of the
+Wave 5k physiology layer. Adds the spawn-protection / PvP-toggle /
+status-interaction matrix services Annihilation gameplay needs.
+
+| RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
+|---|---|---|---|---|
+| `RespawnUseCase` (teleport + heal + protect + kit + status + publish) | ✅ Wave 5o (use case + RespawnSpec + PreFillKit + RespawnError) | (済 Wave 5o) | P0 | `plugin/match/.../application/usecase/respawn/RespawnUseCase.kt`; ADR-0081 §3 |
+| `SpawnPoint` flat reshape (world + position + yaw + pitch + faction enum) | ✅ Wave 5o (sealed → flat data class + `SpawnFaction` enum) | (済 Wave 5o) | P0 | `plugin/core/.../domain/stage/SpawnPoint.kt`; ADR-0081 §1 |
+| `ISpawnSelector` + 4 strategies (FirstAvailable / Random / CycleRotation / FurthestFromEnemies) | ✅ Wave 5o (port + `DefaultSpawnSelector`) | (済 Wave 5o) | P0 | `plugin/match/.../application/service/{ISpawnSelector,SpawnStrategy,DefaultSpawnSelector}.kt`; ADR-0081 §2 |
+| `IStatusEffectInteractionRule` + matrix (Cancel / Suppress / Amplify / Pass) | ✅ Wave 5o (port + `YamlStatusEffectInteractionRule`) | (済 Wave 5o) | P1 | `plugin/combat/.../application/port/outbound/IStatusEffectInteractionRule.kt`; `YamlStatusEffectInteractionRule.kt`; ADR-0081 §6 |
+| `ISpawnProtectionGateway` (TTL-based post-respawn invulnerability) | 🔌 port + `InMemorySpawnProtectionGateway` + `FakeSpawnProtectionGateway` | **Wave 5o** (port + InMemory) + **Wave 6a** (Adventure title / glint hooks) | P0 | `plugin/core/.../application/port/outbound/ISpawnProtectionGateway.kt`; ADR-0081 §4 |
+| `IPlayerPvpStateService` (per-player toggle + canonical `resolveCanDamage`) | 🔌 port + `InMemoryPlayerPvpStateService` (combat-pipeline integration in Wave 5q anti-cheat) | **Wave 5o** (port + InMemory) + **Wave 5q** (combat wiring) | P0 | `plugin/core/.../application/port/outbound/IPlayerPvpStateService.kt`; ADR-0081 §5 |
+| `PvpDisableReason` sealed (SpawnProtection / SafeZone / NewPlayer / AdminOverride) | 🔌 domain (Wave 5o) — NewPlayer variant unused until grace tracker lands | **Wave 5o** (domain) + later wave (NewPlayer tracker) | P1 | `plugin/core/.../domain/pvp/PvpDisableReason.kt`; ADR-0081 §5 |
+| Domain events: PlayerRespawned / PlayerProtectionGranted / PlayerProtectionExpired / PvpDamageBlocked / StatusEffectCancelled | ✅ Wave 5o (5 new events) | (済 Wave 5o) | P0 | `plugin/core/.../domain/event/`; ADR-0081 |
+| `content/balance/status-effect-interactions.yaml` matrix authoring file | 🟨 file landed with 3 sample rules (fire-cancels-frost / post-thaw-freeze-immunity / shock-amplifies-wet); operator tuning later | **Wave 5o** (file + 3 rules) + later balance pass | P2 | `content/balance/status-effect-interactions.yaml`; ADR-0081 §6 |
+| Spawn-faction → team-id mapping (red/blue/attacker/defender → SpawnFaction) | ✅ Wave 5o (`DefaultSpawnSelector.DEFAULT_TEAM_FACTION_MAP`, caller-overridable) | (済 Wave 5o) | P1 | `DefaultSpawnSelector.kt`; ADR-0081 §2 |
+
+**Wave 5o summary**: 3 new ports (`ISpawnProtectionGateway` +
+`IPlayerPvpStateService` + `IStatusEffectInteractionRule`) + 2 new domain
+types (`SpawnFaction` + `PvpDisableReason`) + 4 strategies + 1 status
+interaction sealed + 1 use case + 5 new domain events + 1 new Konsist rule
+(baseline 32 → 33). `SpawnPoint` shape reshape is a pre-release breaking
+change (CLAUDE.md §Pre-release posture). All Konsist green; full `./gradlew
+check` green.
 
 ---
 

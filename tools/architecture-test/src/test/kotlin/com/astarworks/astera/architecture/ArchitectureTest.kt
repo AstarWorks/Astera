@@ -846,6 +846,36 @@ class ArchitectureTest {
             }
     }
 
+    /**
+     * Wave 5o (ADR-0081): the spawn-selector strategy
+     * (`match.application.service.ISpawnSelector` + implementations such as
+     * [DefaultSpawnSelector]) is a pure-domain selection algorithm. The
+     * selector resolves `SpawnPoint` instances by faction + strategy from
+     * the stage's own `SpawnPoint` list, and the player→faction lookup is
+     * delegated to the vendor-neutral `IMatchTeamLookup` port. Bukkit
+     * imports here would mean the selector is reaching back to the Paper
+     * layer for player / world info — instead, all such data must be
+     * threaded through the port surface.
+     *
+     * This rule pins both the interface file and every implementation that
+     * lives in `match.application.service/` whose filename starts with
+     * `*SpawnSelector*`.
+     */
+    @Test
+    fun `ISpawnSelector implementations must not import Bukkit Paper (ADR-0081)`() {
+        Konsist.scopeFromModule("plugin/match")
+            .files
+            .filter { it.packagee?.name == "com.astarworks.astera.match.application.service" }
+            .filter { it.name.contains("SpawnSelector") }
+            .assertFalse(
+                additionalMessage = "ADR-0081: ISpawnSelector + implementations must stay " +
+                    "Bukkit-free. Resolve player → faction via IMatchTeamLookup, world geometry " +
+                    "via SpawnPoint's world/position fields — never reach back to org.bukkit.*.",
+            ) { file ->
+                hasBukkitFamilyImport(file)
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

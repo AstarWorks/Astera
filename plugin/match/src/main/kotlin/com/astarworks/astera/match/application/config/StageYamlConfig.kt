@@ -66,6 +66,10 @@ public data class StageYamlConfig(
         id = StageId(id),
         displayNameKey = MessageKey(displayNameKey),
         regions = regions.map { it.toRegion() },
+        // Wave 5o (ADR-0081): SpawnPoint is now a flat data class carrying
+        // (world, position, yaw, pitch, faction). Default world id falls back
+        // to the loader's "world" constant — Wave 5d MatchWorld passes the
+        // per-match world id at construction in the future.
         spawnPoints = spawnPoints.map { it.toDomain() },
     )
 }

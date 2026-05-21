@@ -12,11 +12,14 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeCont
 import com.astarworks.astera.core.application.port.outbound.IPlayerMovementGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerVisionGateway
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
+import com.astarworks.astera.core.application.port.outbound.ISpawnProtectionGateway
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
@@ -64,8 +67,11 @@ import com.astarworks.astera.match.application.service.InMemoryAnomalyScheduleRe
 import com.astarworks.astera.match.application.service.InMemoryBarrierGateway
 import com.astarworks.astera.match.application.service.InMemoryGameModeRegistry
 import com.astarworks.astera.match.application.service.InMemoryGeneratorRepository
+import com.astarworks.astera.match.application.service.DefaultSpawnSelector
+import com.astarworks.astera.match.application.service.ISpawnSelector
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.match.application.service.InMemoryMatchWorldRepository
+import com.astarworks.astera.match.application.usecase.respawn.RespawnUseCase
 import com.astarworks.astera.match.application.service.StarGeneratorScheduler
 import com.astarworks.astera.match.application.usecase.anomaly.ResolveAnomalyEffectUseCase
 import com.astarworks.astera.match.application.usecase.anomaly.TriggerAnomalyUseCase
@@ -436,6 +442,54 @@ public class AsteraMatchPlugin : JavaPlugin() {
         subscriptions += eventBus.subscribe(MatchEnded::class) { saveInventoryOnMatchEnded.handle(it) }
 
         logger.info("Wave 5e wiring complete: Spectator + PlayerPin + AuditLog + SaveInventory listeners.")
+
+        // ---- Wave 5o (ADR-0081) — Respawn flow + ISpawnSelector --------------
+        // RespawnUseCase composes IPlayerHealthGateway (Wave 5k), IWorldGateway,
+        // ISpawnProtectionGateway (Wave 5o), IItemRegistry, and the optional
+        // IStatusEffectContainer (combat) into a single "teleport + heal +
+        // protect + kit + effects + publish PlayerRespawned" sequence.
+        //
+        // ISpawnSelector replaces the legacy SpawnRotationStrategy as the
+        // strategy boundary for the new respawn flow; legacy MatchSpawnUseCase
+        // keeps SpawnRotationStrategy for backward source-compat on its own
+        // entry path. DefaultSpawnSelector resolves the player's faction via
+        // IMatchTeamLookup (already wired above) + the canonical
+        // red/blue/attacker/defender team-id → faction map.
+        val healthGateway = services.get<IPlayerHealthGateway>()
+        val spawnProtection = services.get<ISpawnProtectionGateway>()
+        val itemRegistry = services.get<IItemRegistry>()
+        if (worldGateway != null && healthGateway != null && spawnProtection != null && itemRegistry != null) {
+            val matchTeamLookup = services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()
+            val statusContainer = services.get<IStatusEffectContainer>()
+            val spawnSelector: ISpawnSelector = DefaultSpawnSelector(
+                matchTeamLookup = matchTeamLookup,
+                enemyPositionsProvider = { _, _ -> emptyList() },
+            )
+            registrations += services.register<ISpawnSelector>(spawnSelector, priority = 0)
+
+            @Suppress("UNUSED_VARIABLE")
+            val respawn = RespawnUseCase(
+                healthGateway = healthGateway,
+                worldGateway = worldGateway,
+                itemRegistry = itemRegistry,
+                protectionGateway = spawnProtection,
+                eventBus = eventBus,
+                scheduler = scheduler,
+                statusEffectContainer = statusContainer,
+            )
+            logger.info(
+                "Wave 5o wiring complete: RespawnUseCase + DefaultSpawnSelector wired " +
+                    "(status-effect container=${statusContainer != null}).",
+            )
+        } else {
+            logger.info(
+                "Wave 5o RespawnUseCase not wired " +
+                    "(IWorldGateway=${worldGateway != null}, " +
+                    "IPlayerHealthGateway=${healthGateway != null}, " +
+                    "ISpawnProtectionGateway=${spawnProtection != null}, " +
+                    "IItemRegistry=${itemRegistry != null}).",
+            )
+        }
 
         // 5. Register /astera-match command tree --------------------------------
         commandHandler.register(buildMatchCommandSpec(facade, matches, playerGateway, permService))
