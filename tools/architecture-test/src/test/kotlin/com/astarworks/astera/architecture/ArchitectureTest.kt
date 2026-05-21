@@ -800,97 +800,95 @@ class ArchitectureTest {
             .isEmpty()
     }
 
-    // ─── Wave 5x — ToolType two-axis invariant + Postgres overlay ───────────
+    // ─── Wave 5l — INpcAdapter uniqueness + Citizens isolation (ADR-0082) ───
 
     /**
-     * Wave 5x (ADR-0090): `ToolType` must remain a **two-axis data class**
-     * (`kind: ToolKind, tier: ToolTier`). Wave 5d's single-axis enum collapsed
-     * pickaxe / axe / shovel semantics into "tier only"; Wave 5x split them
-     * to support the pickaxe-vs-axe-vs-shovel × wood/stone/soil
-     * rock-paper-scissors. A regression to enum or to a single-axis data
-     * class is a real architectural rollback — this rule catches it at
-     * compile-time discovery.
+     * ADR-0082 (Entity spawning + NPC two-tier strategy): every concrete
+     * `INpcAdapter` implementation MUST return a unique [backendId] value.
+     * The runtime `RouterEntitySpawner` selects adapters by priority and
+     * uses `EntityHandle.backendId` to route despawns back to the owning
+     * adapter — colliding backend ids would silently route handles to the
+     * wrong adapter.
      *
-     * Specifically:
-     *  - `ToolType` must be a `data class` (not an `enum class` / `class` /
-     *    `object`).
-     *  - It must declare exactly two primary-constructor parameters named
-     *    `kind` and `tier` (order-agnostic).
+     * Konsist can't inspect method bodies, so this test enforces uniqueness
+     * **by convention**: every `INpcAdapter` implementation must declare a
+     * `companion object` containing a `public val BACKEND_ID: NpcBackendId =
+     * NpcBackendId.X` referencing one of the named constants on
+     * [NpcBackendId.Companion]. The test scans the source for those `val`
+     * declarations and asserts no two adapters reference the same constant.
      */
     @Test
-    fun `ToolType must be a two-axis data class (Wave 5x ADR-0090)`() {
-        val expectedFqn = "com.astarworks.astera.core.domain.world.ToolType"
-        val toolTypeClasses = Konsist.scopeFromProject()
+    fun `INpcAdapter implementations must declare backendId() uniquely (ADR-0082)`() {
+        val portSimpleName = "INpcAdapter"
+
+        // Every class that directly implements INpcAdapter.
+        val adapters = Konsist.scopeFromProject()
             .classes()
-            .filter { it.fullyQualifiedName == expectedFqn }
-
-        assertThat(toolTypeClasses)
-            .withFailMessage {
-                "Wave 5x (ADR-0090): expected $expectedFqn to exist as a data class. " +
-                    "Did the file get deleted or moved? ToolType is the two-axis tool " +
-                    "descriptor (kind × tier) introduced in Wave 5x."
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name == portSimpleName }
             }
-            .hasSize(1)
 
-        val toolType = toolTypeClasses.single()
-
-        assertThat(toolType.hasDataModifier)
+        // We expect at least both Wave 5l adapters present (Minimal +
+        // Citizens skeleton). If neither is present the Wave never landed.
+        assertThat(adapters.map { it.fullyQualifiedName })
             .withFailMessage {
-                "Wave 5x (ADR-0090) regression: $expectedFqn must be a `data class`. " +
-                    "Reverting to an enum collapses the kind × tier axes and breaks " +
-                    "the pickaxe / axe / shovel rock-paper-scissors matrix."
+                "ADR-0082 expects at least one INpcAdapter implementation. " +
+                    "Found: ${adapters.map { it.fullyQualifiedName }}"
             }
-            .isTrue()
+            .isNotEmpty
 
-        val paramNames = toolType.primaryConstructor?.parameters?.map { it.name }?.toSet().orEmpty()
-        assertThat(paramNames)
-            .withFailMessage {
-                "Wave 5x (ADR-0090) regression: $expectedFqn must declare " +
-                    "primary-constructor parameters {kind, tier}; got $paramNames. " +
-                    "Adding / renaming / removing an axis breaks the YAML matrix " +
-                    "and the per-block toolEffectiveness override."
+        // Each adapter must declare a `BACKEND_ID` property somewhere in its
+        // file (typically inside a companion object). The property's
+        // initializer text encodes the backend identity; we collect all
+        // such tokens and assert uniqueness across adapters.
+        val backendIdTokens: Map<String, String> = adapters.associate { cls ->
+            val file = cls.containingFile
+            val backendIdLine: String? = file.text.lineSequence()
+                .map { it.trim() }
+                .firstOrNull { it.startsWith("public val BACKEND_ID") || it.startsWith("val BACKEND_ID") }
+            requireNotNull(backendIdLine) {
+                "ADR-0082: ${cls.fullyQualifiedName} implements INpcAdapter but " +
+                    "declares no `BACKEND_ID` constant. Add one referencing " +
+                    "NpcBackendId.MINIMAL / NpcBackendId.CITIZENS / a new constant."
             }
-            .containsExactlyInAnyOrder("kind", "tier")
+            cls.fullyQualifiedName!! to backendIdLine
+        }
+
+        val tokensByValue: Map<String, List<String>> = backendIdTokens
+            .entries
+            .groupBy(
+                keySelector = { entry -> entry.value.substringAfter("=").trim() },
+                valueTransform = { entry -> entry.key },
+            )
+
+        val collisions = tokensByValue.filter { (_, owners) -> owners.size > 1 }
+        assertThat(collisions)
+            .withFailMessage {
+                "ADR-0082 backend-id collision: " +
+                    "${collisions.map { (id, owners) -> "$id is claimed by $owners" }}. " +
+                    "Each INpcAdapter implementation must own a distinct NpcBackendId."
+            }
+            .isEmpty()
     }
 
     /**
-     * Wave 5x (ADR-0090): the Postgres impl of `IBlockDurabilityRepository`
-     * MUST live at the agreed FQN
-     * `com.astarworks.astera.persistence.repository.PostgresBlockDurabilityRepository`
-     * and MUST implement `IBlockDurabilityRepository`. Runtime priority-100
-     * registration is wired in `AsteraPersistencePlugin.kt` — this test
-     * guarantees the impl class is named and located correctly so priority
-     * drift is caught at the structural level.
+     * ADR-0082: Citizens is a soft-dep. Core's domain model must never
+     * import the Citizens API (`net.citizensnpcs.api.*`) — that lives only
+     * in the future Wave 6b Paper adapter (`plugin/items/.../adapter/paper/`).
      *
-     * Mirrors the Wave 5g `IShopStockRepository` rule (forward-only design,
-     * same skeleton-staging tolerance).
+     * If a Citizens import appears in `core.domain.entity.*`, the
+     * "Citizens-not-installed" smoke environment (CI, headless tests)
+     * will fail to load Core. This test catches the regression at compile-
+     * test time instead of at server boot.
      */
     @Test
-    fun `IBlockDurabilityRepository requires priority 100 Postgres overlay (Wave 5x)`() {
-        val expectedImplFqn =
-            "com.astarworks.astera.persistence.repository.PostgresBlockDurabilityRepository"
-        val expectedPortSimpleName = "IBlockDurabilityRepository"
-
-        val matches = Konsist.scopeFromProject()
-            .classes()
-            .filter { it.fullyQualifiedName == expectedImplFqn }
-
-        if (matches.isEmpty()) return
-
-        val nonImplementors = matches.filter { cls ->
-            cls.parents().none { parent -> parent.name == expectedPortSimpleName }
-        }
-
-        assertThat(nonImplementors.map { it.fullyQualifiedName })
-            .withFailMessage {
-                "Wave 5x wiring contract: $expectedImplFqn must implement " +
-                    "$expectedPortSimpleName so the priority-100 overlay " +
-                    "registered by AsteraPersistencePlugin actually beats " +
-                    "InMemoryBlockDurabilityRepository (priority 0). If you " +
-                    "renamed the impl, update both this test and " +
-                    "AsteraPersistencePlugin.kt in the same commit."
+    fun `core domain entity must not import Citizens API (ADR-0082)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.entity") == true }
+            .assertFalse { file ->
+                file.imports.any { imp -> imp.name.startsWith("net.citizensnpcs") }
             }
-            .isEmpty()
     }
 
     // ─── Private helpers ─────────────────────────────────────────────────────

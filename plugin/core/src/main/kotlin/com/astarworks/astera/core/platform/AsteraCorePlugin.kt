@@ -35,6 +35,10 @@ import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.entity.IEntityRegistry
+import com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner
+import com.astarworks.astera.core.application.port.outbound.entity.INpcAdapter
+import com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver
 import com.astarworks.astera.core.application.port.outbound.IGuiRegistry
@@ -61,6 +65,11 @@ import com.astarworks.astera.core.application.port.outbound.ReloadError
 import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
+import com.astarworks.astera.core.application.service.entity.CitizensNpcAdapter
+import com.astarworks.astera.core.application.service.entity.InMemoryEntityRegistry
+import com.astarworks.astera.core.application.service.entity.InMemoryNpcInteractionRouter
+import com.astarworks.astera.core.application.service.entity.MinimalNpcAdapter
+import com.astarworks.astera.core.application.service.entity.RouterEntitySpawner
 import com.astarworks.astera.core.application.service.InMemoryAuditLogRepository
 import com.astarworks.astera.core.application.service.InMemoryBlockDurabilityRepository
 import com.astarworks.astera.core.application.service.InMemoryBlockStateGateway
@@ -436,6 +445,32 @@ public class AsteraCorePlugin : JavaPlugin() {
             ),
         )
 
+        // ---- Entity spawning + NPC two-tier (Wave 5l, ADR-0082) ----------
+        // Two-tier strategy: MinimalNpcAdapter (always available, backs
+        // ArmorStandNpc + DisplayNpc) + CitizensNpcAdapter (Wave 5l ships
+        // skeleton only; Wave 6b Paper subclass enables full feature set
+        // when Citizens is loaded). RouterEntitySpawner picks the highest-
+        // priority adapter that supports each SpawnSpec; Citizens-only
+        // specs fall through to NoSpawnableBackend without Citizens.
+        val entityRegistry: IEntityRegistry = InMemoryEntityRegistry()
+        val minimalNpcAdapter = MinimalNpcAdapter()
+        val citizensNpcAdapter = CitizensNpcAdapter() // Wave 5l skeleton (isAvailable=false)
+        val npcInteractionRouter: INpcInteractionRouter = InMemoryNpcInteractionRouter()
+        val entitySpawner: IEntitySpawner = RouterEntitySpawner(
+            // Citizens listed first so the router tries it before Minimal
+            // (skeleton's supports()=false so it cleanly falls through).
+            npcAdapters = listOf(citizensNpcAdapter, minimalNpcAdapter),
+            eventBus = eventBus,
+            scheduler = scheduler,
+            registry = entityRegistry,
+            interactionRouter = npcInteractionRouter,
+        )
+        services.register<IEntityRegistry>(entityRegistry, priority = 0)
+        services.register<INpcAdapter>(minimalNpcAdapter, priority = 0)
+        services.register<INpcAdapter>(citizensNpcAdapter, priority = 10) // edge tier ranks above minimal
+        services.register<INpcInteractionRouter>(npcInteractionRouter, priority = 0)
+        services.register<IEntitySpawner>(entitySpawner, priority = 0)
+
         // ---- Observability (Wave _ops, ADR-0023 + ADR-0024 + deploy/keda/) ----
         // Opt-in via env. When ASTERA_METRICS_ENABLED=true, exposes Prometheus
         // exposition at :ASTERA_METRICS_PORT/metrics (default 9092). The KEDA
@@ -514,6 +549,10 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IBlockDurabilityRepository",
             "IPermissionService",
             "IReloadableContentsRegistry",
+            "IEntityRegistry",
+            "INpcAdapter (minimal+citizens)",
+            "INpcInteractionRouter",
+            "IEntitySpawner",
         )
     }
 }
