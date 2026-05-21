@@ -42,6 +42,8 @@ import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPartyRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
+import com.astarworks.astera.core.application.port.outbound.IProxyMessenger
+import com.astarworks.astera.core.application.port.outbound.IServerTransferGateway
 import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.observability.IMetricsRegistry
@@ -65,6 +67,8 @@ import com.astarworks.astera.core.application.service.InMemoryFriendshipReposito
 import com.astarworks.astera.core.application.service.InMemoryPartyRepository
 import com.astarworks.astera.core.application.service.InMemoryPermissionService
 import com.astarworks.astera.core.application.service.InMemoryPersonalVaultRepository
+import com.astarworks.astera.core.application.service.InMemoryProxyMessenger
+import com.astarworks.astera.core.application.service.InMemoryServerTransferGateway
 import com.astarworks.astera.core.application.service.InMemoryPlayerAttributeContainer
 import com.astarworks.astera.core.application.service.InMemoryPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.service.InMemoryPlayerSessionRepository
@@ -288,6 +292,31 @@ public class AsteraCorePlugin : JavaPlugin() {
         @Suppress("UNUSED_VARIABLE")
         val revokeRole = RevokeRoleUseCase(permissionService)
 
+        // ---- Cross-server proxy (Wave 5r, ADR-0084) ---------------------
+        // InMemory defaults at priority 0. Wave 6b lands the real
+        // VelocityProxyMessenger + VelocityServerTransferGateway at
+        // priority 100. The InMemory messenger treats the current server
+        // as a single-node topology (no neighbors), so single-server dev
+        // returns ProxyError.UnknownTargetServer for any non-local target —
+        // the gateway wraps that into TransferError.TargetServerOffline so
+        // callers get a localizable message without leaking the SDK shape.
+        // Both register under names readable in SERVICE_NAMES below.
+        val proxyMessenger: IProxyMessenger =
+            services.get<IProxyMessenger>() ?: InMemoryProxyMessenger().also {
+                services.register<IProxyMessenger>(it, priority = 0)
+            }
+        val transferGateway: IServerTransferGateway =
+            services.get<IServerTransferGateway>() ?: InMemoryServerTransferGateway(
+                messenger = proxyMessenger,
+                eventBus = eventBus,
+                permissionService = permissionService,
+            ).also {
+                services.register<IServerTransferGateway>(it, priority = 0)
+            }
+        // Silence unused-var: gateway holds its own bus subscriptions in init.
+        @Suppress("UNUSED_VARIABLE") val transferGatewayRef = transferGateway
+        logger.info("Proxy + transfer gateway registered (in-memory; Wave 6b lands Velocity adapter at priority 100).")
+
         // ---- Reload dispatcher (Wave _infra-2b, ADR-0065) ----------------
         // Single Core-side registry of every plugin's ReloadableContents, dispatched
         // via the /astera reload <category> command (Brigadier tab-completed on
@@ -480,6 +509,8 @@ public class AsteraCorePlugin : JavaPlugin() {
             "ISchematicLoader",
             "BlockDurabilityRule",
             "IPermissionService",
+            "IProxyMessenger",
+            "IServerTransferGateway",
             "IReloadableContentsRegistry",
         )
     }

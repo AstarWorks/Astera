@@ -500,6 +500,39 @@ class ArchitectureTest {
     }
 
     /**
+     * Core's `core.domain.proxy.*` (ADR-0084, Wave 5r) is the vendor-neutral
+     * cross-server messaging vocabulary (ProxyChannel / ProxyMessage / ServerName /
+     * ProxyError / TransferReason / TransferWhen / TransferError).
+     *
+     * It MUST NOT import any concrete proxy SDK — Velocity (`com.velocitypowered.api.*`)
+     * or BungeeCord (`net.md_5.bungee.api.*`). Those bindings belong to
+     * Wave 6b's `VelocityProxyMessenger` / `BungeeProxyMessenger` adapters,
+     * which live in the Paper adapter layer.
+     *
+     * Justification: domain types must be testable + JVM-portable without
+     * pulling proxy SDKs onto the classpath. A `Wave 5r → Wave 6b` ordering
+     * regression (e.g. a future tweak that imports `com.velocitypowered.api.proxy.Player`
+     * into [com.astarworks.astera.core.domain.proxy.ServerName] for "type
+     * convenience") would silently bind every Astera plugin to the Velocity
+     * jar; this rule catches it at build time.
+     */
+    @Test
+    fun `core domain proxy must not import velocity or bungee SDK`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.proxy") == true }
+            .assertFalse(
+                additionalMessage = "ADR-0084: core.domain.proxy must stay vendor-neutral; " +
+                    "Velocity / BungeeCord bindings belong in Wave 6b's Paper adapter layer.",
+            ) { file ->
+                file.imports.any { imp ->
+                    imp.name.startsWith("com.velocitypowered.api") ||
+                        imp.name.startsWith("net.md_5.bungee.api")
+                }
+            }
+    }
+
+    /**
      * GuiSlot sealed variants must not contain lambda-typed fields (silly-knuth §5).
      *
      * GUI slot variants are pure data: they describe *what* to show, never
