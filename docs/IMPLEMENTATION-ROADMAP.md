@@ -960,6 +960,7 @@ Wave _ops は並列 (any time after Wave 4.6)、Wave _assets は継続中。
 | 5e | 0034 | Session + Social + Tutorial + EnderChest + Reward bridge |
 | 5f | 0035 | Economy Expansion + JP Compliance + CEL |
 | **5g** | **0071 + 0072** | **Shop Access Surfaces + Pre-Paper-sweep Port Commitments** |
+| **5x** | **0090** | **Custom block extension (two-axis ToolType ToolKind × ToolTier, per-block maxHp, content/blocks/ registry, ItemSpec.placeableAs, Postgres durability V20)** |
 | 6a / 6b | 0026 | Paper Runtime Topology |
 | 7a | 0036 | Siege Content Authoring |
 | 7b | 0037 | Tournament + Matchmaking |

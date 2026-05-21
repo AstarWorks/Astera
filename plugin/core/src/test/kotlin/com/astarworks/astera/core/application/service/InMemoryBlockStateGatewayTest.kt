@@ -36,14 +36,14 @@ class InMemoryBlockStateGatewayTest {
 
     @Test
     fun `getDurability reflects damage after applyDamage`() {
-        gateway.applyDamage(world, pos, amount = 30, tool = ToolType.IRON)
+        gateway.applyDamage(world, pos, amount = 30, tool = ToolType.IRON_PICKAXE)
 
         assertThat(gateway.getDurability(world, pos)).isEqualTo(70)
     }
 
     @Test
     fun `getDurability is per-world`() {
-        gateway.applyDamage(world, pos, amount = 40, tool = ToolType.IRON)
+        gateway.applyDamage(world, pos, amount = 40, tool = ToolType.IRON_PICKAXE)
 
         // same position in a different world is still at MAX
         assertThat(gateway.getDurability(otherWorld, pos)).isEqualTo(BlockState.MAX_DURABILITY)
@@ -55,7 +55,7 @@ class InMemoryBlockStateGatewayTest {
 
     @Test
     fun `applyDamage on untracked position seeds at MAX then deducts`() {
-        val state = gateway.applyDamage(world, pos, amount = 25, tool = ToolType.STONE)
+        val state = gateway.applyDamage(world, pos, amount = 25, tool = ToolType.STONE_PICKAXE)
 
         assertThat(state.durability).isEqualTo(75)
         assertThat(state.lastDamagedTick).isEqualTo(0L)
@@ -64,8 +64,8 @@ class InMemoryBlockStateGatewayTest {
 
     @Test
     fun `applyDamage clamps durability at 0 (no negative)`() {
-        gateway.applyDamage(world, pos, amount = 80, tool = ToolType.DIAMOND)
-        val state = gateway.applyDamage(world, pos, amount = 999, tool = ToolType.DIAMOND)
+        gateway.applyDamage(world, pos, amount = 80, tool = ToolType.DIAMOND_PICKAXE)
+        val state = gateway.applyDamage(world, pos, amount = 999, tool = ToolType.DIAMOND_PICKAXE)
 
         assertThat(state.durability).isEqualTo(0)
         assertThat(state.isBroken).isTrue()
@@ -73,8 +73,8 @@ class InMemoryBlockStateGatewayTest {
 
     @Test
     fun `applyDamage with negative amount is clamped to 0 damage (no heal)`() {
-        gateway.applyDamage(world, pos, amount = 30, tool = ToolType.IRON)
-        val state = gateway.applyDamage(world, pos, amount = -10, tool = ToolType.IRON)
+        gateway.applyDamage(world, pos, amount = 30, tool = ToolType.IRON_PICKAXE)
+        val state = gateway.applyDamage(world, pos, amount = -10, tool = ToolType.IRON_PICKAXE)
 
         // durability unchanged — negative damage must not heal
         assertThat(state.durability).isEqualTo(70)
@@ -83,7 +83,7 @@ class InMemoryBlockStateGatewayTest {
     @Test
     fun `applyDamage stamps initialTick into lastDamagedTick`() {
         clock = 1234L
-        val state = gateway.applyDamage(world, pos, amount = 10, tool = ToolType.WOOD)
+        val state = gateway.applyDamage(world, pos, amount = 10, tool = ToolType.WOODEN_PICKAXE)
 
         assertThat(state.lastDamagedTick).isEqualTo(1234L)
     }
@@ -91,10 +91,10 @@ class InMemoryBlockStateGatewayTest {
     @Test
     fun `applyDamage updates lastDamagedTick on subsequent hits`() {
         clock = 100L
-        gateway.applyDamage(world, pos, amount = 10, tool = ToolType.WOOD)
+        gateway.applyDamage(world, pos, amount = 10, tool = ToolType.WOODEN_PICKAXE)
 
         clock = 500L
-        val state = gateway.applyDamage(world, pos, amount = 10, tool = ToolType.WOOD)
+        val state = gateway.applyDamage(world, pos, amount = 10, tool = ToolType.WOODEN_PICKAXE)
 
         assertThat(state.lastDamagedTick).isEqualTo(500L)
         assertThat(state.durability).isEqualTo(80)
@@ -106,7 +106,7 @@ class InMemoryBlockStateGatewayTest {
 
     @Test
     fun `restore brings tracked block back to MAX_DURABILITY`() {
-        gateway.applyDamage(world, pos, amount = 60, tool = ToolType.IRON)
+        gateway.applyDamage(world, pos, amount = 60, tool = ToolType.IRON_PICKAXE)
 
         gateway.restore(world, pos)
 
@@ -186,8 +186,8 @@ class InMemoryBlockStateGatewayTest {
 
     @Test
     fun `tracked returns all positions for a world`() {
-        gateway.applyDamage(world, pos, amount = 10, tool = ToolType.IRON)
-        gateway.applyDamage(world, otherPos, amount = 20, tool = ToolType.IRON)
+        gateway.applyDamage(world, pos, amount = 10, tool = ToolType.IRON_PICKAXE)
+        gateway.applyDamage(world, otherPos, amount = 20, tool = ToolType.IRON_PICKAXE)
 
         val snapshot = gateway.tracked(world)
 
@@ -198,10 +198,10 @@ class InMemoryBlockStateGatewayTest {
 
     @Test
     fun `tracked snapshot is independent of subsequent mutations`() {
-        gateway.applyDamage(world, pos, amount = 10, tool = ToolType.IRON)
+        gateway.applyDamage(world, pos, amount = 10, tool = ToolType.IRON_PICKAXE)
         val snapshot = gateway.tracked(world)
 
-        gateway.applyDamage(world, pos, amount = 50, tool = ToolType.IRON)
+        gateway.applyDamage(world, pos, amount = 50, tool = ToolType.IRON_PICKAXE)
 
         // snapshot reflects state at the moment of the tracked() call
         assertThat(snapshot[pos]?.durability).isEqualTo(90)
@@ -211,8 +211,8 @@ class InMemoryBlockStateGatewayTest {
 
     @Test
     fun `tracked is scoped to one world`() {
-        gateway.applyDamage(world, pos, amount = 10, tool = ToolType.IRON)
-        gateway.applyDamage(otherWorld, otherPos, amount = 20, tool = ToolType.IRON)
+        gateway.applyDamage(world, pos, amount = 10, tool = ToolType.IRON_PICKAXE)
+        gateway.applyDamage(otherWorld, otherPos, amount = 20, tool = ToolType.IRON_PICKAXE)
 
         assertThat(gateway.tracked(world)).hasSize(1).containsKey(pos)
         assertThat(gateway.tracked(otherWorld)).hasSize(1).containsKey(otherPos)

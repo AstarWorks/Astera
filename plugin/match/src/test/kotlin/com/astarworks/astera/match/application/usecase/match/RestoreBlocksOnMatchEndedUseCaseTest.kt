@@ -208,6 +208,27 @@ internal class RestoreBlocksOnMatchEndedUseCaseTest {
         override fun applyDamage(world: WorldId, pos: Vec3, amount: Int, tool: ToolType): BlockState =
             error("RecordingGateway.applyDamage not expected in this test")
 
+        override fun applyDamageFromSkill(
+            world: WorldId,
+            pos: Vec3,
+            skillId: com.astarworks.astera.core.domain.skill.SkillId,
+            attackerId: com.astarworks.astera.core.domain.player.PlayerId,
+            profile: com.astarworks.astera.core.domain.block.BlockDamageProfile,
+        ): com.astarworks.astera.core.domain.Result<
+            com.astarworks.astera.core.domain.block.BlockDamageOutcome,
+            com.astarworks.astera.core.domain.block.BlockGatewayError,
+        > = error("RecordingGateway.applyDamageFromSkill not expected in this test")
+
+        override fun placeCustomBlock(
+            world: WorldId,
+            pos: Vec3,
+            spec: com.astarworks.astera.core.domain.block.CustomBlockSpec,
+            placedBy: com.astarworks.astera.core.domain.player.PlayerId,
+        ): com.astarworks.astera.core.domain.Result<
+            BlockState,
+            com.astarworks.astera.core.domain.block.BlockGatewayError,
+        > = error("RecordingGateway.placeCustomBlock not expected in this test")
+
         override fun restore(world: WorldId, pos: Vec3) {
             restoreCalls += RestoreCall(world, pos)
         }

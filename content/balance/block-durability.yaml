@@ -1,17 +1,26 @@
-# Astera — Block durability rock-paper-scissors damage matrix (Wave 5d)
+# Astera — Block durability rock-paper-scissors damage matrix (Wave 5d → Wave 5x).
 #
 # Each cell is "damage per single-hit applied to a 100-HP block":
 #   100 = one-hit break
 #    25 = four-hit break
 #     0 = cannot damage
 #
-# Outer key of `damage_matrix` is a lower-case ToolType
-#   (none / wood / stone / iron / diamond).
-# Inner key is a lower-case BlockMaterial
-#   (wood / stone / soil / other).
+# Outer key of `damage_matrix` is a ToolType.serialKey():
+#   - "NONE"             — empty-hand / non-tool
+#   - "<KIND>/<TIER>"    — e.g. "PICKAXE/IRON", "AXE/DIAMOND", "SHOVEL/WOOD"
+#   - KIND ∈ {PICKAXE, AXE, SHOVEL}, TIER ∈ {WOOD, STONE, IRON, DIAMOND, NETHERITE}
+#
+# Inner key is a lower-case BlockMaterial (wood / stone / soil / other).
 #
 # Missing cells fall back to BlockDurabilityRule.DEFAULT_DAMAGE at lookup
 # time, so authors only need to list the cells that differ from neutral.
+#
+# # Wave 5x rock-paper-scissors commitment (ADR-0090)
+#
+# - PICKAXE excels at STONE, mediocre at WOOD, ineffective at SOIL
+# - AXE     excels at WOOD,  mediocre at STONE, ineffective at SOIL
+# - SHOVEL  excels at SOIL,  ineffective at WOOD / STONE
+# - NONE    chips SOIL / WOOD lightly, useless on STONE
 
 materials:
   "minecraft:oak_log": wood
@@ -26,30 +35,89 @@ materials:
   "minecraft:sand": soil
   "astera:core_block": stone
   "astera:barrier_block": stone
+  "astera:hardened_soil": soil
 
 damage_matrix:
-  none:
+  "NONE":
     wood: 5
     stone: 0
     soil: 10
     other: 5
-  wood:
+
+  "PICKAXE/WOOD":
+    stone: 25
+    wood: 5
+    soil: 0
+    other: 25
+  "PICKAXE/STONE":
+    stone: 50
+    wood: 10
+    soil: 0
+    other: 50
+  "PICKAXE/IRON":
+    stone: 100
+    wood: 25
+    soil: 0
+    other: 100
+  "PICKAXE/DIAMOND":
+    stone: 200
+    wood: 50
+    soil: 0
+    other: 200
+  "PICKAXE/NETHERITE":
+    stone: 400
+    wood: 100
+    soil: 0
+    other: 400
+
+  "AXE/WOOD":
+    wood: 25
+    stone: 5
+    soil: 0
+    other: 25
+  "AXE/STONE":
+    wood: 50
+    stone: 10
+    soil: 0
+    other: 50
+  "AXE/IRON":
     wood: 100
     stone: 25
-    soil: 100
-    other: 25
-  stone:
-    wood: 100
-    stone: 100
-    soil: 50
-    other: 50
-  iron:
-    wood: 100
-    stone: 100
-    soil: 100
+    soil: 0
     other: 100
-  diamond:
-    wood: 100
+  "AXE/DIAMOND":
+    wood: 200
+    stone: 50
+    soil: 0
+    other: 200
+  "AXE/NETHERITE":
+    wood: 400
     stone: 100
+    soil: 0
+    other: 400
+
+  "SHOVEL/WOOD":
+    soil: 25
+    wood: 0
+    stone: 0
+    other: 5
+  "SHOVEL/STONE":
+    soil: 50
+    wood: 0
+    stone: 0
+    other: 10
+  "SHOVEL/IRON":
     soil: 100
+    wood: 0
+    stone: 0
+    other: 25
+  "SHOVEL/DIAMOND":
+    soil: 200
+    wood: 0
+    stone: 0
+    other: 50
+  "SHOVEL/NETHERITE":
+    soil: 400
+    wood: 0
+    stone: 0
     other: 100

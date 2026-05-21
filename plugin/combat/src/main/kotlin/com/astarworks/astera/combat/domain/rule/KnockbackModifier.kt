@@ -74,6 +74,7 @@ public class KnockbackModifier(
         is DamageSource.Item -> source.attackerPosition
         is DamageSource.Skill -> source.casterPosition
         is DamageSource.Explosion -> source.center
+        is DamageSource.Block -> source.position
         is DamageSource.Projectile,
         is DamageSource.StatusEffectTick,
         is DamageSource.Fall,

@@ -1,11 +1,8 @@
 package com.astarworks.astera.persistence.platform
 
+import com.astarworks.astera.core.application.port.outbound.IBlockDurabilityRepository
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IFriendshipRepository
-import com.astarworks.astera.core.application.port.outbound.feedback.IPlayerFeedbackQueue
-import com.astarworks.astera.core.application.port.outbound.observability.ISlowQueryAuditRepository
-import com.astarworks.astera.core.application.service.permission.IRoleAssignmentRepository
-import com.astarworks.astera.core.domain.observability.SlowQueryThresholdMs
 import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.INormaProgressRepository
@@ -19,8 +16,6 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerSessionReposi
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
-import com.astarworks.astera.core.application.port.outbound.IModerationService
-import com.astarworks.astera.core.application.port.outbound.IPlayerTutorialStateRepository
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -41,6 +36,7 @@ import com.astarworks.astera.persistence.repository.PostgresMarketplaceRepositor
 import com.astarworks.astera.persistence.repository.PostgresMatchRepository
 import com.astarworks.astera.persistence.repository.PostgresNormaProgressRepository
 import com.astarworks.astera.persistence.repository.PostgresAuditLogRepository
+import com.astarworks.astera.persistence.repository.PostgresBlockDurabilityRepository
 import com.astarworks.astera.persistence.repository.PostgresPartyRepository
 import com.astarworks.astera.persistence.repository.PostgresPermissionService
 import com.astarworks.astera.persistence.repository.PostgresPersonalVaultRepository
@@ -50,14 +46,8 @@ import com.astarworks.astera.persistence.repository.PostgresPlayerSessionReposit
 import com.astarworks.astera.persistence.repository.PostgresPlayerSettingsRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
-import com.astarworks.astera.persistence.repository.PostgresModerationService
-import com.astarworks.astera.persistence.repository.PostgresPlayerTutorialStateRepository
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
-import com.astarworks.astera.persistence.feedback.PostgresPlayerFeedbackQueue
-import com.astarworks.astera.persistence.observability.PostgresSlowQueryAuditRepository
-import com.astarworks.astera.persistence.observability.SlowQueryAuditLogger
-import com.astarworks.astera.persistence.permission.PostgresRoleAssignmentRepository
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
@@ -213,61 +203,15 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
-        // Wave 5h (ADR-0079): tutorial state + moderation actions. V20 / V21
-        // migrations add `player_tutorial_state` + `moderation_actions`
-        // tables. Tutorial state is JSONB-heavy (completed/skipped sets);
-        // moderation rows carry a `kind` discriminator + per-variant JSONB
-        // payload.
-        registrations += services.register<IPlayerTutorialStateRepository>(
-            PostgresPlayerTutorialStateRepository(ctx.database),
+        // Wave 5x (ADR-0090): cross-restart custom-block durability. V20
+        // migration adds `block_durability`; the in-memory tracker in
+        // InMemoryBlockStateGateway flushes through this overlay on
+        // ServerLifecycleListener.onShutdown (Wave 5w) so custom blocks
+        // survive a pod kill.
+        registrations += services.register<IBlockDurabilityRepository>(
+            PostgresBlockDurabilityRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IModerationService>(
-            PostgresModerationService(ctx.database),
-            priority = 100,
-        )
-
-        // ---- Wave 5t (ADR-0086) Postgres overlays. ----------------------
-        //
-        // V22 — permission_role_assignment    → IRoleAssignmentRepository
-        // V23 — slow_query_audit              → ISlowQueryAuditRepository
-        // V24 — player_feedback               → IPlayerFeedbackQueue
-        //
-        // The slow-query interceptor is registered with Exposed via
-        // `Transaction.globalInterceptors` so every transaction inherits it;
-        // see `SlowQueryAuditLogger` for the threshold rules.
-        registrations += services.register<IRoleAssignmentRepository>(
-            PostgresRoleAssignmentRepository(ctx.database),
-            priority = 100,
-        )
-
-        val slowQueryRepository = PostgresSlowQueryAuditRepository(ctx.database)
-        registrations += services.register<ISlowQueryAuditRepository>(
-            slowQueryRepository,
-            priority = 100,
-        )
-
-        registrations += services.register<IPlayerFeedbackQueue>(
-            PostgresPlayerFeedbackQueue(ctx.database),
-            priority = 100,
-        )
-
-        // The slow-query SqlLogger is committed in this wave; auto-installing
-        // it onto every transaction (so non-Astera plugins' Exposed txns also
-        // route through it) needs Exposed's `DatabaseConfig.sqlLogger` to
-        // be threaded through `connectAndMigrate` — deferred to Phase 2
-        // (`idea-observability-depth.md` §A foundation). For Wave 5t the
-        // logger is available via `SlowQueryAuditLogger(repo, threshold)`
-        // for callers that want per-txn attachment via `addLogger(...)`.
-        val threshold: SlowQueryThresholdMs = SlowQueryAuditLogger.thresholdFromEnv()
-        if (threshold.value > 0L) {
-            logger.info(
-                "Astera-Persistence: slow-query audit READY (threshold=${threshold.value}ms; " +
-                    "use Transaction.addLogger(SlowQueryAuditLogger(...)) to attach).",
-            )
-        } else {
-            logger.info("Astera-Persistence: slow-query audit DISABLED (set ASTERA_SLOW_QUERY_THRESHOLD_MS).")
-        }
 
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
@@ -278,9 +222,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge, IShopStockRepository, " +
-                "IPlayerTutorialStateRepository, IModerationService, " +
-                "IRoleAssignmentRepository, ISlowQueryAuditRepository, IPlayerFeedbackQueue.",
+                "IRewardBridge, IShopStockRepository, IBlockDurabilityRepository.",
         )
     }
 

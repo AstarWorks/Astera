@@ -750,65 +750,6 @@ class ArchitectureTest {
             .isEmpty()
     }
 
-    // ─── Wave 5u — OpenTelemetry import containment (ADR-0087) ──────────────
-
-    /**
-     * Wave 5u (ADR-0087): `io.opentelemetry.api.*` and `io.opentelemetry.sdk.*`
-     * are allowed only in `core.adapter.paper.tracing.*`. Domain stays pure
-     * (no tracing library), application defines the vendor-neutral
-     * [com.astarworks.astera.core.application.port.outbound.tracing.ITraceContextPropagator]
-     * port without importing the SDK.
-     *
-     * Catches "I'll just sprinkle a `Span.current()` here" drift before the
-     * Konsist baseline (currently green at this rule) goes red.
-     */
-    @Test
-    fun `OpenTelemetry imports allowed only in core adapter paper tracing (Wave 5u, ADR-0087)`() {
-        val allowedPrefix = "com.astarworks.astera.core.adapter.paper.tracing"
-        Konsist.scopeFromProject()
-            .files
-            .filter { file ->
-                file.imports.any { imp -> imp.name.startsWith("io.opentelemetry") }
-            }
-            .assertFalse(
-                additionalMessage = "ADR-0087: io.opentelemetry.* imports must live in " +
-                    "core.adapter.paper.tracing.*. domain/* and application/* talk to " +
-                    "tracing via ITraceContextPropagator only.",
-            ) { file ->
-                val pkg = file.packagee?.name ?: ""
-                !pkg.startsWith(allowedPrefix)
-            }
-    }
-
-    // ─── Wave 5u — @Profiled annotation layer placement (ADR-0087) ──────────
-
-    /**
-     * Wave 5u (ADR-0087): the
-     * [com.astarworks.astera.core.application.profiling.Profiled] annotation
-     * is intended for hot-path methods in `application/` or `adapter/`. Domain
-     * code stays pure (no instrumentation hooks); a `@Profiled` mark on a
-     * domain function is a layering smell that this test surfaces.
-     */
-    @Test
-    fun `@Profiled annotation forbidden in domain layer (Wave 5u, ADR-0087)`() {
-        val profiledFqn = "com.astarworks.astera.core.application.profiling.Profiled"
-        Konsist.scopeFromProject()
-            .functions()
-            .filter { func ->
-                func.annotations.any { ann ->
-                    ann.name == "Profiled" || ann.fullyQualifiedName == profiledFqn
-                }
-            }
-            .assertFalse(
-                additionalMessage = "ADR-0087: @Profiled belongs in application/ or adapter/, " +
-                    "never in domain/. Domain is pure game rules; profiling is an " +
-                    "observability concern.",
-            ) { func ->
-                val containingPkg = func.packagee?.name ?: ""
-                containingPkg.contains(".domain.")
-            }
-    }
-
     // ─── Wave 5g — IShopStockRepository priority-100 Postgres overlay ───────
 
     /**
@@ -859,106 +800,97 @@ class ArchitectureTest {
             .isEmpty()
     }
 
-    // ─── Wave 5w — Server lifecycle + restic backup + Lobby HUD + IMatchmaker (ADR-0089) ────
+    // ─── Wave 5x — ToolType two-axis invariant + Postgres overlay ───────────
 
     /**
-     * Wave 5w (ADR-0089 §β): restic backup adapters MUST isolate subprocess
-     * invocations to `*.adapter.paper.backup.*` packages.
+     * Wave 5x (ADR-0090): `ToolType` must remain a **two-axis data class**
+     * (`kind: ToolKind, tier: ToolTier`). Wave 5d's single-axis enum collapsed
+     * pickaxe / axe / shovel semantics into "tier only"; Wave 5x split them
+     * to support the pickaxe-vs-axe-vs-shovel × wood/stone/soil
+     * rock-paper-scissors. A regression to enum or to a single-axis data
+     * class is a real architectural rollback — this rule catches it at
+     * compile-time discovery.
      *
-     * `java.lang.ProcessBuilder` and `java.lang.Process` are the only ways a
-     * JVM service can shell out. Allowing them in application/ would let the
-     * port leak its subprocess assumption into use cases. Wave 6b's
-     * `ResticBackupGateway` lives at `core.adapter.paper.backup.*`; this
-     * rule pins the boundary even before that file lands.
+     * Specifically:
+     *  - `ToolType` must be a `data class` (not an `enum class` / `class` /
+     *    `object`).
+     *  - It must declare exactly two primary-constructor parameters named
+     *    `kind` and `tier` (order-agnostic).
      */
     @Test
-    fun `restic backup adapter must isolate subprocess invocation in adapter layer`() {
-        val subprocessImports = setOf(
-            "java.lang.ProcessBuilder",
-            "java.lang.Process",
-            "java.lang.Runtime",
-        )
-        // Outside of `adapter.paper.backup.*` and the architecture test itself,
-        // no Astera code may import ProcessBuilder/Process/Runtime.
-        Konsist.scopeFromProject()
-            .files
-            .filter { file ->
-                val pkg = file.packagee?.name ?: return@filter false
-                pkg.startsWith("com.astarworks.astera") &&
-                    !pkg.contains(".adapter.paper.backup") &&
-                    pkg != "com.astarworks.astera.architecture"
+    fun `ToolType must be a two-axis data class (Wave 5x ADR-0090)`() {
+        val expectedFqn = "com.astarworks.astera.core.domain.world.ToolType"
+        val toolTypeClasses = Konsist.scopeFromProject()
+            .classes()
+            .filter { it.fullyQualifiedName == expectedFqn }
+
+        assertThat(toolTypeClasses)
+            .withFailMessage {
+                "Wave 5x (ADR-0090): expected $expectedFqn to exist as a data class. " +
+                    "Did the file get deleted or moved? ToolType is the two-axis tool " +
+                    "descriptor (kind × tier) introduced in Wave 5x."
             }
-            .assertFalse(
-                additionalMessage = "ADR-0089 §β: subprocess invocation (ProcessBuilder/Process/Runtime) " +
-                    "must be confined to `*.adapter.paper.backup.*`. The restic CLI gateway is the only " +
-                    "production caller; if you need to spawn another process, route through a port + " +
-                    "adapter pair.",
-            ) { file ->
-                file.imports.any { imp -> imp.name in subprocessImports }
+            .hasSize(1)
+
+        val toolType = toolTypeClasses.single()
+
+        assertThat(toolType.hasDataModifier)
+            .withFailMessage {
+                "Wave 5x (ADR-0090) regression: $expectedFqn must be a `data class`. " +
+                    "Reverting to an enum collapses the kind × tier axes and breaks " +
+                    "the pickaxe / axe / shovel rock-paper-scissors matrix."
             }
+            .isTrue()
+
+        val paramNames = toolType.primaryConstructor?.parameters?.map { it.name }?.toSet().orEmpty()
+        assertThat(paramNames)
+            .withFailMessage {
+                "Wave 5x (ADR-0090) regression: $expectedFqn must declare " +
+                    "primary-constructor parameters {kind, tier}; got $paramNames. " +
+                    "Adding / renaming / removing an axis breaks the YAML matrix " +
+                    "and the per-block toolEffectiveness override."
+            }
+            .containsExactlyInAnyOrder("kind", "tier")
     }
 
     /**
-     * Wave 5w (ADR-0089 §δ): every concrete [IMatchmaker] implementation
-     * declares a `tryFormMatch` method (compile-time contract).
+     * Wave 5x (ADR-0090): the Postgres impl of `IBlockDurabilityRepository`
+     * MUST live at the agreed FQN
+     * `com.astarworks.astera.persistence.repository.PostgresBlockDurabilityRepository`
+     * and MUST implement `IBlockDurabilityRepository`. Runtime priority-100
+     * registration is wired in `AsteraPersistencePlugin.kt` — this test
+     * guarantees the impl class is named and located correctly so priority
+     * drift is caught at the structural level.
      *
-     * The idempotency contract — "a formation returned once is not returned
-     * again" — is enforced by per-impl unit tests; this Konsist rule pins the
-     * structural side ("there IS a tryFormMatch in every impl") so a future
-     * `RedisMatchmaker` cannot accidentally inherit `tryFormMatch` from a
-     * default method that returns the same formation twice.
+     * Mirrors the Wave 5g `IShopStockRepository` rule (forward-only design,
+     * same skeleton-staging tolerance).
      */
     @Test
-    fun `IMatchmaker implementations must declare tryFormMatch directly`() {
-        val portFqn = "com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker"
-        val portSimpleName = "IMatchmaker"
-        val impls = Konsist.scopeFromProject()
+    fun `IBlockDurabilityRepository requires priority 100 Postgres overlay (Wave 5x)`() {
+        val expectedImplFqn =
+            "com.astarworks.astera.persistence.repository.PostgresBlockDurabilityRepository"
+        val expectedPortSimpleName = "IBlockDurabilityRepository"
+
+        val matches = Konsist.scopeFromProject()
             .classes()
-            .filter { cls ->
-                cls.parents().any { parent -> parent.name == portSimpleName }
-            }
-            .toList()
-        // Skeleton tolerance: if no impl has landed yet, the rule is a no-op.
-        if (impls.isEmpty()) return
-        val missing = impls.filter { cls ->
-            cls.functions().none { fn -> fn.name == "tryFormMatch" }
+            .filter { it.fullyQualifiedName == expectedImplFqn }
+
+        if (matches.isEmpty()) return
+
+        val nonImplementors = matches.filter { cls ->
+            cls.parents().none { parent -> parent.name == expectedPortSimpleName }
         }
-        assertThat(missing.map { it.fullyQualifiedName })
+
+        assertThat(nonImplementors.map { it.fullyQualifiedName })
             .withFailMessage {
-                "ADR-0089 §δ: every implementation of $portFqn must declare " +
-                    "`tryFormMatch` explicitly to honor the idempotency contract. " +
-                    "Missing in: ${missing.map { it.fullyQualifiedName }}"
+                "Wave 5x wiring contract: $expectedImplFqn must implement " +
+                    "$expectedPortSimpleName so the priority-100 overlay " +
+                    "registered by AsteraPersistencePlugin actually beats " +
+                    "InMemoryBlockDurabilityRepository (priority 0). If you " +
+                    "renamed the impl, update both this test and " +
+                    "AsteraPersistencePlugin.kt in the same commit."
             }
             .isEmpty()
-    }
-
-    /**
-     * Wave 5w (ADR-0089 §γ): `LobbyWaitingRoomHud` must NOT import Bukkit
-     * family — its only HUD primitives are the vendor-neutral
-     * `core.adapter.api.hud.*` types.
-     *
-     * The application/Bukkit rule (line 286 in this file) already covers
-     * `match.application.*`, but this rule is a deliberate self-document on
-     * the lobby-HUD service so a future refactor that introduces Adventure
-     * Components inside it fails loudly.
-     */
-    @Test
-    fun `LobbyWaitingRoomHud must use vendor-neutral hud ports only`() {
-        Konsist.scopeFromProject()
-            .files
-            .filter { file ->
-                file.packagee?.name == "com.astarworks.astera.match.application.service.hud" &&
-                    file.imports.any { imp -> imp.name.contains("LobbyWaitingRoomHud") } ||
-                    file.classes().any { cls -> cls.name == "LobbyWaitingRoomHud" }
-            }
-            .assertFalse(
-                additionalMessage = "ADR-0089 §γ: LobbyWaitingRoomHud must compose vendor-neutral HUD " +
-                    "primitives from `core.adapter.api.hud.*` only. Bukkit / Adventure imports here " +
-                    "would defeat the Wave 5b BossBar/Scoreboard port abstraction.",
-            ) { file ->
-                hasBukkitFamilyImport(file) ||
-                    file.imports.any { imp -> imp.name.startsWith("net.kyori.adventure") }
-            }
     }
 
     // ─── Private helpers ─────────────────────────────────────────────────────

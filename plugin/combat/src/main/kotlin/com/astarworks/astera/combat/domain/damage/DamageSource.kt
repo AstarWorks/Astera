@@ -6,6 +6,9 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.core.domain.world.BlockType
+import com.astarworks.astera.core.domain.world.ToolType
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.combat.domain.projectile.ProjectileId
 
 /**
@@ -101,6 +104,24 @@ public sealed class DamageSource {
      * over DamageSource without revision later.
      */
     public data class Barrier(val barrierId: BarrierId) : DamageSource()
+
+    /**
+     * Damage dealt **by** a damaged block (Wave 5x, ADR-0090).
+     *
+     * Asymmetric companion to the skill→block flow: when the block damage
+     * pipeline causes back-damage on a player (e.g. crumbling overhead
+     * stone landing on the entity below), the resulting `DamageAttempt`
+     * carries this source variant so the FF / knockback math can credit
+     * the original [attackerId] and origin coordinates without re-running
+     * the gateway resolver.
+     */
+    public data class Block(
+        val world: WorldId,
+        val position: Vec3,
+        val blockType: BlockType,
+        val tool: ToolType,
+        val attackerId: PlayerId?,
+    ) : DamageSource()
 }
 
 /** Discriminator for [DamageSource.Projectile.origin]. */
@@ -119,6 +140,7 @@ public fun DamageSource.attackerIdOrNull(): PlayerId? = when (this) {
     is DamageSource.Skill -> casterId
     is DamageSource.Projectile -> ownerId
     is DamageSource.StatusEffectTick -> originPlayerId
+    is DamageSource.Block -> attackerId
     DamageSource.Environment,
     is DamageSource.Fall,
     is DamageSource.Explosion,

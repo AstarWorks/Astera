@@ -13,11 +13,12 @@ import com.astarworks.astera.core.domain.world.WorldId
  *
  * A tracked block that hasn't taken damage for [coolOffTicks] starts
  * regaining durability at [regenPerCycle] HP each time [tick] is invoked.
- * Fully restored blocks (`durability == MAX_DURABILITY`) and broken blocks
- * (`durability == 0`) are skipped — the former have nothing to regen, the
- * latter need an explicit [com.astarworks.astera.core.domain.event.BlockBroken]
- * + restoration flow (handled by the BreakCore listener + post-match
- * `BlockChangeJournal` rewind).
+ * Fully restored blocks (`durability == state.maxHp`, Wave 5x per-block
+ * max) and broken blocks (`durability == 0`) are skipped — the former have
+ * nothing to regen, the latter need an explicit
+ * [com.astarworks.astera.core.domain.event.BlockBroken] + restoration flow
+ * (handled by the BreakCore listener + post-match `BlockChangeJournal`
+ * rewind).
  *
  * The scheduler ([BlockRecoveryScheduler]) drives the cycle period — this
  * use case is stateless and called once per cycle. Splitting the cool-off
@@ -53,7 +54,7 @@ public class BlockStateAutoRecoveryUseCase(
      * Regenerate eligible blocks in [world]. Returns the count of blocks
      * that received regen this cycle (useful for tests + future metrics).
      *
-     * Eligibility: `0 < durability < MAX_DURABILITY` and
+     * Eligibility: `0 < durability < state.maxHp` (per-block maximum) and
      * `lastDamagedTick + coolOffTicks <= currentTick`.
      */
     public fun tick(world: WorldId, currentTick: Long): Int {
@@ -63,11 +64,11 @@ public class BlockStateAutoRecoveryUseCase(
         // return a live view.
         val snapshot = gateway.tracked(world)
         for ((pos, state) in snapshot) {
-            if (state.durability >= BlockState.MAX_DURABILITY) continue
+            if (state.durability >= state.maxHp) continue
             if (state.durability <= 0) continue
             if (state.lastDamagedTick + coolOffTicks > currentTick) continue
             val nextDurability = (state.durability + regenPerCycle)
-                .coerceAtMost(BlockState.MAX_DURABILITY)
+                .coerceAtMost(state.maxHp)
             gateway.track(world, pos, state.copy(durability = nextDurability))
             regenerated++
         }

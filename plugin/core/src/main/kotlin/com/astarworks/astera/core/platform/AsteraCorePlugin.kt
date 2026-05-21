@@ -8,14 +8,10 @@ import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.command.PaperCommandHandler
 import com.astarworks.astera.core.adapter.paper.event.PaperBroadcaster
 import com.astarworks.astera.core.adapter.paper.gui.PaperGuiAdapter
-import com.astarworks.astera.core.adapter.paper.analytics.MicrometerAnalyticsExporter
 import com.astarworks.astera.core.adapter.paper.observability.HttpMetricsServer
 import com.astarworks.astera.core.adapter.paper.observability.MatchQueueMetric
 import com.astarworks.astera.core.adapter.paper.observability.MetricsConfig
 import com.astarworks.astera.core.adapter.paper.observability.MicrometerMetricsRegistry
-import com.astarworks.astera.core.adapter.paper.tracing.OpenTelemetryTraceContextPropagator
-import com.astarworks.astera.core.adapter.paper.tracing.TracingBootstrap
-import com.astarworks.astera.core.adapter.paper.tracing.TracingConfig
 import com.astarworks.astera.core.adapter.paper.gui.PaperGuiListener
 import com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer
 import com.astarworks.astera.core.adapter.paper.scheduler.PaperScheduler
@@ -23,30 +19,24 @@ import com.astarworks.astera.core.adapter.paper.server.PaperServer
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
-import com.astarworks.astera.core.application.command.Wave5tAdminCommands
 import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.contents.GuiContents
 import com.astarworks.astera.core.application.contents.ItemContents
-import com.astarworks.astera.core.application.contents.RoleContents
 import com.astarworks.astera.core.application.contents.TutorialContents
-import com.astarworks.astera.core.application.eventbus.listeners.CreateFirstTimeProfileOnPlayerJoinedListener
+import com.astarworks.astera.core.application.contents.block.CustomBlockContents
 import com.astarworks.astera.core.application.eventbus.listeners.RestoreInventoryOnPlayerJoinedListener
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
 import com.astarworks.astera.core.application.i18n.LanguageLoader
 import com.astarworks.astera.core.application.i18n.SimpleMessageRenderer
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
+import com.astarworks.astera.core.application.port.outbound.IBlockDurabilityRepository
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
+import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver
-import com.astarworks.astera.core.application.port.outbound.ICustomFontRegistry
-import com.astarworks.astera.core.application.port.outbound.IDialogGateway
-import com.astarworks.astera.core.application.port.outbound.IHologramGateway
-import com.astarworks.astera.core.application.port.outbound.IHudGateway
-import com.astarworks.astera.core.application.port.outbound.IModerationService
-import com.astarworks.astera.core.application.port.outbound.IPlayerTutorialStateRepository
 import com.astarworks.astera.core.application.port.outbound.IGuiRegistry
 import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
 import com.astarworks.astera.core.application.port.outbound.IFriendshipRepository
@@ -55,86 +45,39 @@ import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPartyRepository
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
-import com.astarworks.astera.core.application.port.outbound.IProxyMessenger
-import com.astarworks.astera.core.application.port.outbound.IServerTransferGateway
 import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
-import com.astarworks.astera.core.application.analytics.AnalyticsEventListener
-import com.astarworks.astera.core.application.port.outbound.analytics.IAnalyticsExporter
 import com.astarworks.astera.core.application.port.outbound.observability.IMetricsRegistry
-import com.astarworks.astera.core.application.port.outbound.IPlayerFoodGateway
-import com.astarworks.astera.core.application.port.outbound.profiling.IProfilingCollector
-import com.astarworks.astera.core.application.port.outbound.tracing.ITraceContextPropagator
-import com.astarworks.astera.core.application.profiling.InMemoryProfilingCollector
-import com.astarworks.astera.core.application.profiling.ProfilingExportService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
-import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
-import com.astarworks.astera.core.application.port.outbound.IPlayerProfileService
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository
-import com.astarworks.astera.core.application.port.outbound.IPlayerSpeedGateway
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
-import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
-import com.astarworks.astera.core.application.port.outbound.IResourceRegenScheduler
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
 import com.astarworks.astera.core.application.port.outbound.ITutorialRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISchematicLoader
 import com.astarworks.astera.core.application.port.outbound.ReloadError
-import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
-import com.astarworks.astera.core.application.port.outbound.admin.ILiveConfigEditor
-import com.astarworks.astera.core.application.port.outbound.admin.IScheduledAnnouncementSystem
-import com.astarworks.astera.core.application.port.outbound.admin.IServerBackupGateway
-import com.astarworks.astera.core.application.port.outbound.admin.IServerHealthCheck
-import com.astarworks.astera.core.application.port.outbound.feedback.IPlayerFeedbackQueue
-import com.astarworks.astera.core.application.port.outbound.observability.ISlowQueryAuditRepository
-import com.astarworks.astera.core.application.port.outbound.permission.IPermissionBackend
-import com.astarworks.astera.core.application.port.outbound.permission.IRoleRegistry
-import com.astarworks.astera.core.application.port.outbound.presence.IRichPresenceGateway
 import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
 import com.astarworks.astera.core.application.service.InMemoryAuditLogRepository
+import com.astarworks.astera.core.application.service.InMemoryBlockDurabilityRepository
 import com.astarworks.astera.core.application.service.InMemoryBlockStateGateway
 import com.astarworks.astera.core.application.service.InMemoryBossBarManager
 import com.astarworks.astera.core.application.service.InMemoryFriendshipRepository
 import com.astarworks.astera.core.application.service.InMemoryPartyRepository
 import com.astarworks.astera.core.application.service.InMemoryPermissionService
 import com.astarworks.astera.core.application.service.InMemoryPersonalVaultRepository
-import com.astarworks.astera.core.application.service.InMemoryProxyMessenger
-import com.astarworks.astera.core.application.service.InMemoryServerTransferGateway
 import com.astarworks.astera.core.application.service.InMemoryPlayerAttributeContainer
-import com.astarworks.astera.core.application.service.DefaultResourceRegenScheduler
-import com.astarworks.astera.core.application.service.InMemoryPlayerFoodGateway
-import com.astarworks.astera.core.application.service.InMemoryPlayerHealthGateway
 import com.astarworks.astera.core.application.service.InMemoryPlayerInventorySnapshotRepository
-import com.astarworks.astera.core.application.service.InMemoryPlayerProfileService
 import com.astarworks.astera.core.application.service.InMemoryPlayerSessionRepository
 import com.astarworks.astera.core.application.service.InMemoryPlayerSettingsRepository
-import com.astarworks.astera.core.application.service.InMemoryPlayerSpeedGateway
-import com.astarworks.astera.core.application.service.InMemoryResourcePoolService
 import com.astarworks.astera.core.application.service.InMemoryReloadableContentsRegistry
 import com.astarworks.astera.core.application.service.InMemoryRewardBridge
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
 import com.astarworks.astera.core.application.service.InMemorySchematicLoader
 import com.astarworks.astera.core.application.service.InMemoryTabList
-import com.astarworks.astera.core.application.service.StarterGrantLoader
-import com.astarworks.astera.core.application.service.admin.InMemoryLiveConfigEditor
-import com.astarworks.astera.core.application.service.admin.InMemoryScheduledAnnouncementSystem
-import com.astarworks.astera.core.application.service.admin.InMemoryServerBackupGateway
-import com.astarworks.astera.core.application.service.admin.InMemoryServerHealthCheck
-import com.astarworks.astera.core.application.service.feedback.InMemoryPlayerFeedbackQueue
-import com.astarworks.astera.core.application.service.observability.InMemorySlowQueryAuditRepository
-import com.astarworks.astera.core.application.service.permission.DefaultPermissionService
-import com.astarworks.astera.core.application.service.permission.InMemoryRoleAssignmentRepository
-import com.astarworks.astera.core.application.service.permission.IRoleAssignmentRepository
-import com.astarworks.astera.core.application.service.permission.LuckPermsPermissionBackend
-import com.astarworks.astera.core.application.service.permission.MinimalPermissionBackend
-import com.astarworks.astera.core.application.service.presence.DiscordRichPresenceGateway
-import com.astarworks.astera.core.application.service.presence.LoggingRichPresenceGateway
-import com.astarworks.astera.core.application.service.presence.SessionLifecycleRichPresenceListener
-import com.astarworks.astera.core.application.usecase.feedback.SubmitFeedbackUseCase
 import com.astarworks.astera.core.application.usecase.inventory.RestoreInventorySnapshotUseCase
 import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
@@ -208,9 +151,6 @@ public class AsteraCorePlugin : JavaPlugin() {
     /** Retained so [onDisable] can release the HTTP port (Wave _ops). */
     private var metricsHttpServer: HttpMetricsServer? = null
     private var matchQueueMetric: MatchQueueMetric? = null
-
-    /** Retained so [onDisable] can flush the analytics listener subscriptions (Wave 5u). */
-    private var analyticsEventListener: AnalyticsEventListener? = null
 
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
@@ -321,7 +261,32 @@ public class AsteraCorePlugin : JavaPlugin() {
         val durabilityRule = BlockDurabilityLoader().load(
             contentDir.resolve("balance/block-durability.yaml"),
         )
-        val blockStateGateway: IBlockStateGateway = InMemoryBlockStateGateway()
+        // Wave 5x (ADR-0090): Custom-block registry, loaded from
+        // content/blocks/<id>.yaml. The InMemoryBlockStateGateway holds a
+        // reference so applyDamageFromSkill can resolve per-block tool
+        // effectiveness + drops without an extra registry lookup at every
+        // hit. Hot-reload via /astera reload blocks.
+        val customBlocksContentDir = contentDir.resolve("blocks")
+        val customBlockContents = CustomBlockContents()
+        val customBlockReport = customBlockContents.bootstrap(customBlocksContentDir)
+        logger.info(
+            "Custom blocks loaded: ${customBlockReport.loaded} ok, ${customBlockReport.failed} failed",
+        )
+        services.register<ICustomBlockRegistry>(customBlockContents, priority = 0)
+
+        // Wave 5x (ADR-0090): Postgres-backed block durability repository
+        // (in-memory default at priority 0; Persistence overlays at 100).
+        val blockDurabilityRepository: IBlockDurabilityRepository =
+            services.get<IBlockDurabilityRepository>() ?: InMemoryBlockDurabilityRepository().also {
+                services.register<IBlockDurabilityRepository>(it, priority = 0)
+            }
+        @Suppress("UNUSED_VARIABLE") val blockDurabilityRepositoryRef = blockDurabilityRepository
+
+        val blockStateGateway: IBlockStateGateway = InMemoryBlockStateGateway(
+            eventBus = eventBus,
+            customBlockRegistry = customBlockContents,
+            durabilityRule = durabilityRule,
+        )
         val schematicLoader: ISchematicLoader = InMemorySchematicLoader()
         services.register<IBlockStateGateway>(blockStateGateway, priority = 0)
         services.register<ISchematicLoader>(schematicLoader, priority = 0)
@@ -352,31 +317,6 @@ public class AsteraCorePlugin : JavaPlugin() {
         @Suppress("UNUSED_VARIABLE")
         val revokeRole = RevokeRoleUseCase(permissionService)
 
-        // ---- Cross-server proxy (Wave 5r, ADR-0084) ---------------------
-        // InMemory defaults at priority 0. Wave 6b lands the real
-        // VelocityProxyMessenger + VelocityServerTransferGateway at
-        // priority 100. The InMemory messenger treats the current server
-        // as a single-node topology (no neighbors), so single-server dev
-        // returns ProxyError.UnknownTargetServer for any non-local target —
-        // the gateway wraps that into TransferError.TargetServerOffline so
-        // callers get a localizable message without leaking the SDK shape.
-        // Both register under names readable in SERVICE_NAMES below.
-        val proxyMessenger: IProxyMessenger =
-            services.get<IProxyMessenger>() ?: InMemoryProxyMessenger().also {
-                services.register<IProxyMessenger>(it, priority = 0)
-            }
-        val transferGateway: IServerTransferGateway =
-            services.get<IServerTransferGateway>() ?: InMemoryServerTransferGateway(
-                messenger = proxyMessenger,
-                eventBus = eventBus,
-                permissionService = permissionService,
-            ).also {
-                services.register<IServerTransferGateway>(it, priority = 0)
-            }
-        // Silence unused-var: gateway holds its own bus subscriptions in init.
-        @Suppress("UNUSED_VARIABLE") val transferGatewayRef = transferGateway
-        logger.info("Proxy + transfer gateway registered (in-memory; Wave 6b lands Velocity adapter at priority 100).")
-
         // ---- Reload dispatcher (Wave _infra-2b, ADR-0065) ----------------
         // Single Core-side registry of every plugin's ReloadableContents, dispatched
         // via the /astera reload <category> command (Brigadier tab-completed on
@@ -390,6 +330,8 @@ public class AsteraCorePlugin : JavaPlugin() {
         // their resolved on-disk directories.
         reloadRegistry.register(itemContents, itemsContentDir)
         reloadRegistry.register(guiContents, guiContentDir)
+        // Wave 5x (ADR-0090): custom blocks reload via /astera reload blocks.
+        reloadRegistry.register(customBlockContents, customBlocksContentDir)
 
         // ---- Particle contents (Wave 5f, ADR-0035, RTM #21) -------------
         // ParticleDefinition domain + Contents-driven YAML at content/particles/.
@@ -429,67 +371,6 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<ITutorialRegistry>(tutorialContents, priority = 0)
         reloadRegistry.register(tutorialContents, tutorialsContentDir)
 
-        // Wave 5h (ADR-0079): Hologram / Moderation / PlayerTutorialState
-        // in-memory defaults at priority 0; persistence plugin overlays
-        // moderation + tutorial at priority 100.
-        val hologramGateway: IHologramGateway = services.get<IHologramGateway>()
-            ?: com.astarworks.astera.core.application.service.InMemoryHologramGateway().also {
-                services.register<IHologramGateway>(it, priority = 0)
-            }
-        @Suppress("UNUSED_VARIABLE") val hologramGatewayRef = hologramGateway
-        val moderationService: IModerationService = services.get<IModerationService>()
-            ?: com.astarworks.astera.core.application.service.InMemoryModerationService().also {
-                services.register<IModerationService>(it, priority = 0)
-            }
-        val tutorialStateRepo: IPlayerTutorialStateRepository =
-            services.get<IPlayerTutorialStateRepository>()
-                ?: com.astarworks.astera.core.application.service.InMemoryPlayerTutorialStateRepository()
-                    .also { services.register<IPlayerTutorialStateRepository>(it, priority = 0) }
-        @Suppress("UNUSED_VARIABLE") val tutorialStateRepoRef = tutorialStateRepo
-
-        // Wave 5i (ADR-0096): Dialog gateway (Paper Dialog API, MC 1.21.6+).
-        // No-op in-memory default — Wave 6b PaperDialogGateway shadows at
-        // higher priority and connects to Player.showDialog() / response
-        // callbacks.
-        val dialogGateway: IDialogGateway = services.get<IDialogGateway>()
-            ?: com.astarworks.astera.core.application.service.InMemoryDialogGateway(eventBus).also {
-                services.register<IDialogGateway>(it, priority = 0)
-            }
-        @Suppress("UNUSED_VARIABLE") val dialogGatewayRef = dialogGateway
-
-        // ---- Wave 5e-fix: first-time profile creation ---------------------
-        // StarterGrantLoader walks content/balance/starter-grant.yaml; missing
-        // / malformed file degrades to StarterGrant.EMPTY (the join still
-        // completes — see the loader KDoc).
-        val starterGrant = StarterGrantLoader().load(
-            contentDir.resolve("balance/starter-grant.yaml"),
-        )
-        logger.info(
-            "Starter grant loaded: ${starterGrant.defaultLoadout.size} loadout item(s), " +
-                "${starterGrant.walletGrants.size} wallet entr(y/ies), " +
-                "tutorial=${starterGrant.tutorialAutoEnroll}, " +
-                "welcome_dialog=${starterGrant.welcomeDialogId ?: "none"}",
-        )
-
-        val playerProfileService: IPlayerProfileService = InMemoryPlayerProfileService(
-            starterGrant = starterGrant,
-            itemRegistry = itemContents,
-            // ICurrencyLedger lives on the economy plugin (loaded AFTER core);
-            // lazy lookup matches DefaultGuiBindingResolver's `walletProvider`.
-            ledgerProvider = { services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>() },
-            tutorialRegistry = tutorialContents,
-        )
-        services.register<IPlayerProfileService>(playerProfileService, priority = 0)
-
-        val createFirstTimeOnJoin = CreateFirstTimeProfileOnPlayerJoinedListener(
-            profileService = playerProfileService,
-            sessionRepo = sessionRepo,
-        )
-        // Subscribe first-time-profile listener BEFORE the inventory restore
-        // listener so a fresh player's profile + starter grant land first.
-        // The in-memory event bus dispatches subscribers in registration order.
-        eventBus.subscribe(PlayerJoinedServer::class) { createFirstTimeOnJoin.handle(it) }
-
         // Inventory snapshot use cases + PlayerJoined-side listener.
         @Suppress("UNUSED_VARIABLE")
         val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
@@ -502,44 +383,6 @@ public class AsteraCorePlugin : JavaPlugin() {
         @Suppress("UNUSED_VARIABLE") val vaultRef = vaultRepo
         @Suppress("UNUSED_VARIABLE") val settingsRef = settingsRepo
         @Suppress("UNUSED_VARIABLE") val auditRef = auditRepo
-
-        // ---- Wave 5k (ADR-0080) Player physiology + Resource pool 3 種 ----
-        // Three Bukkit-runtime mutation gateways (health / speed / food) parallel to
-        // Wave 5a's IDamageGateway combat pipeline + Wave 5e's IAttributeContainer
-        // domain attribute layer. Resource pool service tracks per-weapon Ammo /
-        // Stamina / Mana with a tick-driven regen scheduler (Annihilation vision).
-        // All InMemory defaults at priority 0; Wave 6a Paper adapters overlay at
-        // priority 100 to write through to vanilla `AttributeInstance` /
-        // `Player.walkSpeed` / `Player.foodLevel`.
-        val playerHealthGateway: IPlayerHealthGateway =
-            InMemoryPlayerHealthGateway(scheduler, eventBus)
-        services.register<IPlayerHealthGateway>(playerHealthGateway, priority = 0)
-
-        val playerSpeedGateway: IPlayerSpeedGateway =
-            InMemoryPlayerSpeedGateway(scheduler, eventBus)
-        services.register<IPlayerSpeedGateway>(playerSpeedGateway, priority = 0)
-
-        val playerFoodGateway: IPlayerFoodGateway =
-            InMemoryPlayerFoodGateway(scheduler, eventBus)
-        services.register<IPlayerFoodGateway>(playerFoodGateway, priority = 0)
-
-        val resourcePool: IResourcePoolService =
-            InMemoryResourcePoolService(scheduler, eventBus, itemContents)
-        services.register<IResourcePoolService>(resourcePool, priority = 0)
-
-        val resourceRegen = DefaultResourceRegenScheduler(resourcePool, eventBus)
-        services.register<IResourceRegenScheduler>(resourceRegen, priority = 0)
-        // Drive the regen pool at server-tick cadence. Per-tick visit walks the
-        // tracked player set only — empty cost when no Annihilation match is live.
-        scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) {
-            resourceRegen.tick(scheduler.currentTick())
-        }
-        // Initialise the resource pool whenever a player joins, mirroring the
-        // existing Wave 5e RestoreInventorySnapshot subscribe pattern.
-        eventBus.subscribe(PlayerJoinedServer::class) { event ->
-            resourcePool.initialiseFor(event.playerId)
-            resourceRegen.trackPlayer(event.playerId)
-        }
 
         // /astera reload <category> — single Brigadier command for every content type.
         // Permission: astera.reload (admin tier). Argument is a single-word string;
@@ -593,108 +436,6 @@ public class AsteraCorePlugin : JavaPlugin() {
             ),
         )
 
-        // ---- Wave 5t (ADR-0086) Admin/Ops + Role/Permission two-tier +
-        // Voice rich presence + Slow query log + Player feedback. -----------
-        //
-        // Order: register the richer Wave 5t surfaces alongside the existing
-        // Wave 3 ones (they coexist; ADR-0086 §"Persistence shape" explains
-        // why both stay).
-        //
-        // 1. Wave 5t Role Registry — `content/permissions.yaml` driven.
-        val permissionsContentDir: Path = contentDir
-        val roleContents = RoleContents()
-        val roleReport = roleContents.bootstrap(permissionsContentDir)
-        logger.info(
-            "Permissions roles loaded: ${roleReport.loaded} ok, ${roleReport.failed} failed",
-        )
-        services.register<IRoleRegistry>(roleContents, priority = 0)
-        reloadRegistry.register(roleContents, permissionsContentDir)
-
-        // 2. Minimal + LuckPerms backends + selector.
-        val roleAssignments: IRoleAssignmentRepository =
-            services.get<IRoleAssignmentRepository>()
-                ?: InMemoryRoleAssignmentRepository().also {
-                    services.register<IRoleAssignmentRepository>(it, priority = 0)
-                }
-        val minimalBackend = MinimalPermissionBackend(roleContents, roleAssignments)
-        val luckPermsBackend = LuckPermsPermissionBackend(available = { false })
-        services.register<IPermissionBackend>(luckPermsBackend, priority = 100)
-        services.register<IPermissionBackend>(minimalBackend, priority = 0)
-        val defaultPermissionService = DefaultPermissionService(
-            backends = listOf(luckPermsBackend, minimalBackend),
-            broadcaster = broadcaster,
-            tickProvider = { scheduler.currentTick() },
-        )
-        services.register<DefaultPermissionService>(defaultPermissionService, priority = 0)
-        logger.info(
-            "Wave 5t permission selector active. Default backend: " +
-                defaultPermissionService.activeBackendId(),
-        )
-
-        // 3. Voice rich presence — Log default + Discord skeleton (Wave 6b).
-        val richPresence: IRichPresenceGateway =
-            services.get<IRichPresenceGateway>()
-                ?: run {
-                    val discordSkeleton = DiscordRichPresenceGateway()
-                    val logFallback = LoggingRichPresenceGateway()
-                    services.register<IRichPresenceGateway>(discordSkeleton, priority = 50)
-                    services.register<IRichPresenceGateway>(logFallback, priority = 0)
-                    if (discordSkeleton.isAvailable()) discordSkeleton else logFallback
-                }
-        val richPresenceListener = SessionLifecycleRichPresenceListener(richPresence)
-        richPresenceListener.bind(eventBus)
-        @Suppress("UNUSED_VARIABLE") val richPresenceListenerRef = richPresenceListener
-        logger.info("Wave 5t rich presence wired (backend=${richPresence.backendId()}).")
-
-        // 4. Admin/Ops 4-port suite (Live config editor, Backup gateway,
-        // Scheduled announcements, Health check).
-        val liveConfigEditor: ILiveConfigEditor = InMemoryLiveConfigEditor(reloadRegistry)
-        // Bind already-known category roots so the editor's path-escape
-        // validation works for items / gui / particles / tutorials /
-        // permissions out of the box.
-        (liveConfigEditor as InMemoryLiveConfigEditor).bindCategoryRoot("items", itemsContentDir)
-        liveConfigEditor.bindCategoryRoot("gui", guiContentDir)
-        liveConfigEditor.bindCategoryRoot("particles", particlesContentDir)
-        liveConfigEditor.bindCategoryRoot("tutorials", tutorialsContentDir)
-        liveConfigEditor.bindCategoryRoot("permissions", permissionsContentDir)
-        services.register<ILiveConfigEditor>(liveConfigEditor, priority = 0)
-
-        val backupGateway: IServerBackupGateway = InMemoryServerBackupGateway()
-        services.register<IServerBackupGateway>(backupGateway, priority = 0)
-
-        val announcementSystem: IScheduledAnnouncementSystem =
-            InMemoryScheduledAnnouncementSystem(scheduler, eventBus, broadcaster)
-        services.register<IScheduledAnnouncementSystem>(announcementSystem, priority = 0)
-
-        val healthCheck: IServerHealthCheck = InMemoryServerHealthCheck()
-        services.register<IServerHealthCheck>(healthCheck, priority = 0)
-
-        // 5. Slow query audit + Player feedback.
-        val slowQueryRepo: ISlowQueryAuditRepository =
-            services.get<ISlowQueryAuditRepository>()
-                ?: InMemorySlowQueryAuditRepository().also {
-                    services.register<ISlowQueryAuditRepository>(it, priority = 0)
-                }
-        val feedbackQueue: IPlayerFeedbackQueue =
-            services.get<IPlayerFeedbackQueue>()
-                ?: InMemoryPlayerFeedbackQueue().also {
-                    services.register<IPlayerFeedbackQueue>(it, priority = 0)
-                }
-        val submitFeedback = SubmitFeedbackUseCase(
-            queue = feedbackQueue,
-            broadcaster = broadcaster,
-            tickProvider = { scheduler.currentTick() },
-        )
-
-        // 6. Brigadier admin commands.
-        Wave5tAdminCommands.build(
-            permissionService = permissionService,
-            submitFeedback = submitFeedback,
-            feedbackQueue = feedbackQueue,
-            slowQueryRepository = slowQueryRepo,
-        ).forEach { commandHandler.register(it) }
-        logger.info("Wave 5t admin commands registered (/astera report, feedback, slow-query).")
-
         // ---- Observability (Wave _ops, ADR-0023 + ADR-0024 + deploy/keda/) ----
         // Opt-in via env. When ASTERA_METRICS_ENABLED=true, exposes Prometheus
         // exposition at :ASTERA_METRICS_PORT/metrics (default 9092). The KEDA
@@ -717,69 +458,16 @@ public class AsteraCorePlugin : JavaPlugin() {
             queueMetric.start()
             matchQueueMetric = queueMetric
 
-            // Wave 5u (ADR-0087): business-KPI analytics ride on the same
-            // MeterRegistry so KPI dashboards + KEDA share one source of truth.
-            val analyticsExporter = MicrometerAnalyticsExporter(metricsRegistry.meterRegistry)
-            services.register<IAnalyticsExporter>(analyticsExporter, priority = 0)
-            val analyticsListener = AnalyticsEventListener(eventBus, analyticsExporter)
-            analyticsListener.start()
-            analyticsEventListener = analyticsListener
-
-            logger.info("Metrics endpoint ENABLED on :${metricsConfig.port}/metrics (gauge=${MatchQueueMetric.GAUGE_NAME}). Business-KPI analytics wired.")
+            logger.info("Metrics endpoint ENABLED on :${metricsConfig.port}/metrics (gauge=${MatchQueueMetric.GAUGE_NAME}).")
         } else {
             logger.info("Metrics endpoint disabled (set ASTERA_METRICS_ENABLED=true to expose Prometheus scrape on :${MetricsConfig.DEFAULT_PORT}/metrics).")
         }
-
-        // ---- Distributed tracing (Wave 5u, ADR-0087) ---------------------
-        // OpenTelemetry SDK. Default backend is the in-process logging exporter
-        // so spans surface in the server log without infra; operators flip to
-        // OTLP/Jaeger via ASTERA_TRACING_BACKEND=otlp + ASTERA_TRACING_OTLP_ENDPOINT.
-        // When ASTERA_TRACING_ENABLED is false (default), buildOpenTelemetry
-        // returns OpenTelemetry.noop() so propagator calls cost ~nothing.
-        val tracingConfig = TracingConfig.fromEnv()
-        val openTelemetry = TracingBootstrap.buildOpenTelemetry(tracingConfig)
-        val traceContextPropagator: ITraceContextPropagator =
-            OpenTelemetryTraceContextPropagator(openTelemetry)
-        services.register<ITraceContextPropagator>(traceContextPropagator, priority = 0)
-
-        // ---- Profiling hook (Wave 5u, ADR-0087) --------------------------
-        // In-memory IProfilingCollector + ProfilingExportService for the
-        // `/astera profiling export` admin command. spark plugin adapter is
-        // Phase 2 (.claude/plans/idea-observability-depth.md §A).
-        val profilingCollector: IProfilingCollector = InMemoryProfilingCollector()
-        services.register<IProfilingCollector>(profilingCollector, priority = 0)
-        val profilingExport = ProfilingExportService(
-            collector = profilingCollector,
-            outputDir = dataFolder.toPath().resolve("profiling"),
-        )
-
-        commandHandler.register(
-            CommandSpec.Literal(
-                name = "astera-profiling",
-                description = MessageKey("astera.command.profiling.root"),
-                subcommands = listOf(
-                    CommandSpec.Literal(
-                        name = "export",
-                        description = MessageKey("astera.command.profiling.export"),
-                        executor = { _ ->
-                            val file = profilingExport.export(reset = false)
-                            logger.info("/astera-profiling export -> $file")
-                            CommandResult.Success
-                        },
-                    ).requirePermission(
-                        permissionService = permissionService,
-                        permission = Permission("astera.profiling.export"),
-                    ),
-                ),
-            ),
-        )
 
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
     override fun onDisable() {
         logger.info("Astera-Core disabling.")
-        analyticsEventListener?.stop()
         matchQueueMetric?.stop()
         metricsHttpServer?.stop()
         paperScheduler?.stop()
@@ -822,29 +510,10 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IBlockStateGateway",
             "ISchematicLoader",
             "BlockDurabilityRule",
+            "ICustomBlockRegistry",
+            "IBlockDurabilityRepository",
             "IPermissionService",
-            "IProxyMessenger",
-            "IServerTransferGateway",
             "IReloadableContentsRegistry",
-            "IPlayerProfileService",
-            "IPlayerHealthGateway (Wave 5k)",
-            "IPlayerSpeedGateway (Wave 5k)",
-            "IPlayerFoodGateway (Wave 5k)",
-            "IResourcePoolService (Wave 5k)",
-            "IResourceRegenScheduler (Wave 5k)",
-            // Wave 5t (ADR-0086)
-            "IRoleRegistry",
-            "IPermissionBackend (Minimal + LuckPerms skeleton)",
-            "IRichPresenceGateway",
-            "ILiveConfigEditor",
-            "IServerBackupGateway",
-            "IScheduledAnnouncementSystem",
-            "IServerHealthCheck",
-            "ISlowQueryAuditRepository",
-            "IPlayerFeedbackQueue",
-            "IAnalyticsExporter (Wave 5u — env-gated by ASTERA_METRICS_ENABLED)",
-            "ITraceContextPropagator (Wave 5u)",
-            "IProfilingCollector (Wave 5u)",
         )
     }
 }

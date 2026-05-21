@@ -61,7 +61,7 @@ class BlockStateAutoRecoveryUseCaseTest {
     @Test
     fun `block damaged at tick 0 is not regenerated at tick 599`() {
         clock = 0L
-        gateway.applyDamage(world, pos, amount = 20, tool = ToolType.IRON) // dur=80
+        gateway.applyDamage(world, pos, amount = 20, tool = ToolType.IRON_PICKAXE) // dur=80
 
         val regen = sut.tick(world, currentTick = 599L)
 
@@ -72,7 +72,7 @@ class BlockStateAutoRecoveryUseCaseTest {
     @Test
     fun `block damaged at tick 0 regenerates by 5 at tick 600`() {
         clock = 0L
-        gateway.applyDamage(world, pos, amount = 20, tool = ToolType.IRON) // dur=80
+        gateway.applyDamage(world, pos, amount = 20, tool = ToolType.IRON_PICKAXE) // dur=80
 
         val regen = sut.tick(world, currentTick = 600L)
 
@@ -83,7 +83,7 @@ class BlockStateAutoRecoveryUseCaseTest {
     @Test
     fun `block damaged later uses its own lastDamagedTick for cool-off`() {
         clock = 100L
-        gateway.applyDamage(world, pos, amount = 30, tool = ToolType.IRON) // dur=70 at tick 100
+        gateway.applyDamage(world, pos, amount = 30, tool = ToolType.IRON_PICKAXE) // dur=70 at tick 100
 
         // tick 699 = 599 ticks since damage → still inside cool-off
         assertThat(sut.tick(world, currentTick = 699L)).isEqualTo(0)
@@ -99,7 +99,7 @@ class BlockStateAutoRecoveryUseCaseTest {
     @Test
     fun `broken blocks (durability == 0) are NOT regenerated`() {
         clock = 0L
-        gateway.applyDamage(world, pos, amount = 100, tool = ToolType.DIAMOND) // dur=0
+        gateway.applyDamage(world, pos, amount = 100, tool = ToolType.DIAMOND_PICKAXE) // dur=0
 
         val regen = sut.tick(world, currentTick = 10_000L)
 
@@ -154,12 +154,12 @@ class BlockStateAutoRecoveryUseCaseTest {
     fun `mixed population — only eligible blocks regenerate, count is correct`() {
         clock = 0L
         // pos: eligible (damaged, past cool-off, > 0, < MAX)
-        gateway.applyDamage(world, pos, amount = 40, tool = ToolType.IRON) // dur=60
+        gateway.applyDamage(world, pos, amount = 40, tool = ToolType.IRON_PICKAXE) // dur=60
         // pos2: broken — skipped
-        gateway.applyDamage(world, pos2, amount = 100, tool = ToolType.IRON) // dur=0
+        gateway.applyDamage(world, pos2, amount = 100, tool = ToolType.IRON_PICKAXE) // dur=0
         // pos3: damaged but inside cool-off — skipped at current tick
         clock = 500L
-        gateway.applyDamage(world, pos3, amount = 20, tool = ToolType.IRON) // dur=80, lastDamagedTick=500
+        gateway.applyDamage(world, pos3, amount = 20, tool = ToolType.IRON_PICKAXE) // dur=80, lastDamagedTick=500
 
         val regen = sut.tick(world, currentTick = 600L)
 
@@ -174,7 +174,7 @@ class BlockStateAutoRecoveryUseCaseTest {
     @Test
     fun `multiple cycles progressively heal a damaged block back toward MAX`() {
         clock = 0L
-        gateway.applyDamage(world, pos, amount = 50, tool = ToolType.IRON) // dur=50
+        gateway.applyDamage(world, pos, amount = 50, tool = ToolType.IRON_PICKAXE) // dur=50
 
         // First eligible cycle
         sut.tick(world, currentTick = 600L)
@@ -197,7 +197,7 @@ class BlockStateAutoRecoveryUseCaseTest {
     @Test
     fun `tick on a different world does not regenerate this world`() {
         clock = 0L
-        gateway.applyDamage(world, pos, amount = 30, tool = ToolType.IRON) // dur=70
+        gateway.applyDamage(world, pos, amount = 30, tool = ToolType.IRON_PICKAXE) // dur=70
 
         val otherWorld = WorldId("arena-2")
         val regen = sut.tick(otherWorld, currentTick = 10_000L)

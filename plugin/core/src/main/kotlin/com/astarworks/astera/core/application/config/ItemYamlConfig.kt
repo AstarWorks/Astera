@@ -13,7 +13,6 @@ import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.core.application.config.skill.PhaseOverridesYaml
-import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skill.SkillTrigger
 import kotlinx.serialization.SerialName
@@ -108,15 +107,7 @@ public data class ItemYamlConfig(
     public val glint: Boolean? = null,
     public val skills: List<ItemSkillBindingYaml> = emptyList(),
     @SerialName("pdc_tags") public val pdcTags: Map<String, String> = emptyMap(),
-    // ---- Resource pool (Wave 5k, ADR-0080) ----
-    /** Lowercase serial name of the resource type (`ammo` / `stamina` / `mana`); omit for non-weapon items. */
-    @SerialName("resource_type") public val resourceType: String? = null,
-    @SerialName("resource_cost_per_use") public val resourceCostPerUse: Int = 0,
-    /** -1 (default) means "use the type's [com.astarworks.astera.core.domain.resource.ResourceCap] default cap". */
-    @SerialName("resource_max_pool") public val resourceMaxPool: Int = -1,
-    /** -1 (default) means "use the type's [com.astarworks.astera.core.domain.resource.ResourceCap] default rate". */
-    @SerialName("resource_regen_per_second") public val resourceRegenPerSecond: Double = -1.0,
-    @SerialName("resource_reloadable") public val resourceReloadable: Boolean = false,
+    @SerialName("placeable_as") public val placeableAs: String? = null,
 ) {
 
     /**
@@ -182,17 +173,7 @@ public data class ItemYamlConfig(
             skillBindings = skills.map { it.toDomain() },
             pdcTags = pdcTags,
             modelSlug = model,
-            resourceType = resourceType?.let {
-                ResourceType.fromKey(it)
-                    ?: throw IllegalArgumentException(
-                        "ItemYamlConfig '$id': unknown resource_type '$it' " +
-                            "(expected ammo / stamina / mana).",
-                    )
-            },
-            resourceCostPerUse = resourceCostPerUse,
-            resourceMaxPool = resourceMaxPool,
-            resourceRegenPerSecond = resourceRegenPerSecond,
-            resourceReloadable = resourceReloadable,
+            placeableAs = placeableAs?.let { com.astarworks.astera.core.domain.world.BlockType(it) },
         )
     }
 
