@@ -1,0 +1,55 @@
+# Wave 5t (ADR-0086) — Astera Minimal role tree.
+#
+# This file is the source-of-truth for the Minimal permission backend
+# (backendId = "minimal"). When LuckPerms is installed the LuckPerms
+# backend takes over via the DefaultPermissionService selector; this file
+# is then **fallback / development** definition.
+#
+# Wildcards:
+#   - "*"               matches everything
+#   - "astera.*"        matches every node starting with "astera."
+#   - "astera.foo.bar"  exact match
+#
+# Conflict resolution (Phase 1 PoC):
+#   - Within a role's rule list, the FIRST matching rule wins (declaration
+#     order). Author Deny before broader Allow when you want the specific
+#     revocation to override.
+#   - Across roles, the HIGHEST-priority role's rules are scanned first.
+# Phase 2 / ADR-0086 follow-up may switch to "most-specific match wins"
+# once we align with LuckPerms semantics.
+#
+# Reload with `/astera reload permissions` (Wave _infra-2b dispatcher).
+
+roles:
+  - id: astera:admin
+    titleKey: astera.role.admin
+    priority: 100
+    permissions:
+      - allow: "astera.*"
+
+  - id: astera:gm
+    titleKey: astera.role.gm
+    priority: 80
+    permissions:
+      - allow: "astera.moderation.*"
+      - allow: "astera.match.start"
+      - allow: "astera.match.end"
+      - allow: "astera.feedback.triage"
+      - allow: "astera.slow_query.report"
+      - allow: "astera.announcement.*"
+
+  - id: astera:vip
+    titleKey: astera.role.vip
+    priority: 50
+    permissions:
+      - allow: "astera.cosmetic.*"
+      - allow: "astera.shop.purchase"
+
+  - id: astera:player
+    titleKey: astera.role.player
+    priority: 10
+    permissions:
+      # Default-deny baseline; in-game actions are gated by other rules
+      # (region permission, match phase, etc.). VIP / GM stack on top.
+      - allow: "astera.feedback.submit"
+      - allow: "astera.stats.show.self"

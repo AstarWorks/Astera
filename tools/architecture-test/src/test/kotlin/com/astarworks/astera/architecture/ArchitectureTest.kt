@@ -793,6 +793,105 @@ class ArchitectureTest {
             .isEmpty()
     }
 
+    // ─── Wave 5t — Role/Permission two-tier + Voice presence (ADR-0086) ────
+
+    /**
+     * Wave 5t (ADR-0086) — every [IPermissionBackend] implementation must
+     * declare a unique `backendId()` so the [DefaultPermissionService]
+     * selector can dispatch without ambiguity.
+     *
+     * Implementations live under `application.service.permission.*`
+     * (Minimal, LuckPerms skeleton) + Wave 6b adapters under
+     * `core.adapter.paper.permission.*`. The Konsist check scans every
+     * Kotlin class that implements the port and asserts each declares the
+     * `BACKEND_ID` companion constant (we use the constant rather than
+     * runtime probing because Konsist operates at the source level).
+     */
+    @Test
+    fun `IPermissionBackend implementations declare a unique backendId (Wave 5t ADR-0086)`() {
+        val expectedPortSimpleName = "IPermissionBackend"
+
+        val impls = Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name == expectedPortSimpleName }
+            }
+
+        val backendIds = impls.mapNotNull { cls ->
+            cls.declarations()
+                .filterIsInstance<com.lemonappdev.konsist.api.declaration.KoObjectDeclaration>()
+                .firstOrNull { it.hasNameContaining("Companion") }
+                ?.properties()
+                ?.firstOrNull { it.name == "BACKEND_ID" }
+                ?.value
+                ?.removeSurrounding("\"")
+        }
+
+        val duplicates = backendIds.groupingBy { it }.eachCount().filter { it.value > 1 }
+        assertThat(duplicates)
+            .withFailMessage {
+                "Wave 5t / ADR-0086: IPermissionBackend impls must declare " +
+                    "unique BACKEND_ID. Duplicates: $duplicates."
+            }
+            .isEmpty()
+    }
+
+    /**
+     * Wave 5t (ADR-0086) — `core.domain.permission.*` MUST NOT import
+     * `net.luckperms.api.*` (vendor isolation). The LuckPerms adapter
+     * lives in `core.adapter.paper.permission.*` (Wave 6b).
+     */
+    @Test
+    fun `core domain permission must not import LuckPerms (Wave 5t ADR-0086)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.permission") == true }
+            .assertFalse(
+                additionalMessage =
+                "ADR-0086 vendor isolation: core.domain.permission.* must not " +
+                    "import net.luckperms.api.*. Use core.adapter.paper.permission.* " +
+                    "for the LuckPerms wrap (Wave 6b).",
+            ) { file ->
+                file.imports.any { imp -> imp.name.startsWith("net.luckperms") }
+            }
+    }
+
+    /**
+     * Wave 5t (ADR-0086) — every [IRichPresenceGateway] implementation
+     * must declare a unique `backendId()` so the rich-presence selector
+     * can dispatch without ambiguity. Same shape as the permission backend
+     * rule above; ensures Wave 6b's `PaperDiscordRichPresenceGateway`
+     * lands without colliding with the Phase 1 skeleton.
+     */
+    @Test
+    fun `IRichPresenceGateway implementations declare a unique backendId (Wave 5t ADR-0086)`() {
+        val expectedPortSimpleName = "IRichPresenceGateway"
+
+        val impls = Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name == expectedPortSimpleName }
+            }
+
+        val backendIds = impls.mapNotNull { cls ->
+            cls.declarations()
+                .filterIsInstance<com.lemonappdev.konsist.api.declaration.KoObjectDeclaration>()
+                .firstOrNull { it.hasNameContaining("Companion") }
+                ?.properties()
+                ?.firstOrNull { it.name == "BACKEND_ID" }
+                ?.value
+                ?.removeSurrounding("\"")
+        }
+
+        val duplicates = backendIds.groupingBy { it }.eachCount().filter { it.value > 1 }
+        assertThat(duplicates)
+            .withFailMessage {
+                "Wave 5t / ADR-0086: IRichPresenceGateway impls must declare " +
+                    "unique BACKEND_ID. Duplicates: $duplicates."
+            }
+            .isEmpty()
+    }
+
     // ─── Wave 5g — IShopStockRepository priority-100 Postgres overlay ───────
 
     /**

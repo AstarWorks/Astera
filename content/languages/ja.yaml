@@ -24,6 +24,16 @@ astera:
     reload:
       unknown_category: "<red>未登録の reload カテゴリです。Tab キーで登録済みコンテンツタイプを表示できます。</red>"
       load_failed: "<red>reload を中止しました。一部 YAML がパースに失敗しています。直前の状態は保持されています。サーバーログを確認してください。</red>"
+    # Wave 5t (ADR-0086) — admin / GM / player command help.
+    report: "プレイヤー通報・要望を送信。"
+    feedback:
+      _help: "プレイヤー通報を triage (GM)。"
+      list: "通報リストを表示。"
+      triage: "通報ステータスを更新。"
+    slow_query:
+      _help: "スロークエリレポート (admin)。"
+      report: "直近7日のスロークエリダイジェスト。"
+    player_only: "<red>このコマンドはプレイヤー専用です。</red>"
 
   # Wave _items-1 (ADR-0073): item / weapon の content-specific i18n は
   # 各 content/items/<id>.yaml 内に inline 化。`weapon:` セクションは
@@ -36,6 +46,12 @@ astera:
 
   permission:
     denied: "<red>権限がありません: {permission}</red>"
+    # Wave 5t (ADR-0086) — backend selector errors.
+    role_not_found: "<red>ロールが見つかりません。</red>"
+    already_assigned: "<red>既に割り当て済みです。</red>"
+    not_assigned: "<red>割り当てられていません。</red>"
+    backend_unavailable: "<red>権限バックエンドが利用できません。</red>"
+    backend_failure: "<red>権限バックエンドエラー: {reason}</red>"
 
   error:
     internal: "<red>内部エラーが発生しました。詳細はサーバーログを確認してください。</red>"
@@ -67,17 +83,6 @@ astera:
       unknown: "<red>不明なバインディング: {binding}</red>"
       unavailable: "<gray>(バインディングデータ利用不可)</gray>"
       resolved_to_barrier: "<red>バインディング解決失敗 (プレースホルダ)。</red>"
-    # Wave 5h-fix2: ツールチップ + マルチクリック demo (ADR-0079 §2 拡張)。
-    common:
-      close:
-        tooltip: "<gray>左クリックで閉じます。</gray>"
-    shop:
-      multi-click:
-        title: "<gold>ショップ — 剣</gold>"
-        tooltip:
-          line1: "<gray>左クリック:</gray> <green>1 個購入</green>"
-          line2: "<gray>右クリック:</gray> <yellow>詳細を表示</yellow>"
-          line3: "<gray>シフトクリック:</gray> <aqua>まとめ買い (×64)</aqua>"
 
   weapons:
     command:
@@ -329,45 +334,11 @@ astera:
       match_end: "<red><bold>試合終了</bold></red>"
 
   # Wave 5e — Tutorial 表示文字列 (ADR-0034)。
-  # Wave 5h で /astera tutorial skip|replay の文字列を追加 (ADR-0079 §3)。
   tutorial:
     getting_started:
       title: "<gold>はじめに</gold>"
     welcome: "<aqua>Astera へようこそ！まずは基本操作を覚えましょう。</aqua>"
     complete: "<green>チュートリアル終了。お楽しみください！</green>"
-    error:
-      not-in-catalog: "<red>該当するチュートリアルが見つかりません。</red>"
-      already-running: "<red>すでにチュートリアルが進行中です。</red>"
-      not-running: "<red>進行中のチュートリアルがありません。</red>"
-    command:
-      root: "<gray>チュートリアル サブコマンド: skip, replay。</gray>"
-      skip: "<gray>自動開始されないようチュートリアルを除外します。</gray>"
-      replay: "<gray>チュートリアルを最初から再生します。</gray>"
-      invalid_id: "<red>不正なチュートリアル ID: <gold>{tutorial-id}</gold></red>"
-
-  # Wave 5h — Chat モデレーション (ADR-0079 §4)。
-  chat:
-    error:
-      muted: "<red>ミュート中のためチャットを送信できません。</red>"
-      rate-limited: "<red>チャットの送信頻度が高すぎます。</red>"
-
-  # Wave 5h — /astera mod サブコマンド + エラーキー (ADR-0079 §4)。
-  mod:
-    command:
-      root: "<gray>モデレーション サブコマンド: mute, kick, ban, ratelimit, lift, history。</gray>"
-      mute: "<gray>プレイヤーのチャットをミュートします。</gray>"
-      kick: "<gray>プレイヤーをサーバから切断します (Wave 6b で実 enforce)。</gray>"
-      ban: "<gray>プレイヤーを BAN します (Wave 6b で login 拒否)。</gray>"
-      ratelimit: "<gray>チャットのレート制限を適用します。</gray>"
-      lift: "<gray>モデレーション処置 ID を指定して解除します。</gray>"
-      history: "<gray>プレイヤーのモデレーション履歴を表示します。</gray>"
-    error:
-      invalid-player: "<red>プレイヤー ID が不正です。</red>"
-      invalid-reason: "<red>理由キーが不正です。</red>"
-      invalid-scope: "<red>BAN スコープが不正です (global または server)。</red>"
-      invalid-action-id: "<red>モデレーション処置 ID が不正です。</red>"
-      storage: "<red>モデレーション保存エラー: <gold>{detail}</gold></red>"
-      unknown-action: "<red>該当のモデレーション処置が見つかりません。</red>"
 
   # Wave 5e — Achievement の既定名・説明 (ADR-0034)。
   stats:
@@ -382,16 +353,34 @@ astera:
         name: "<gold>英雄</gold>"
         description: "<gray>キル数 100。</gray>"
 
-  # Wave 5r (ADR-0084): クロスサーバープロキシ + 転送フロー。
-  proxy:
-    no_connection: "<red>このサーバーには現在プロキシが接続されていません。</red>"
-    unknown_server: "<red>不明な転送先サーバー: {server}。</red>"
-    serialization_failure: "<red>プロキシペイロードのエンコードに失敗しました: {reason}。</red>"
-  transfer:
-    permission_denied: "<red>{server} への転送権限がありません。</red>"
-    target_offline: "<red>転送先サーバー {server} は現在オフラインです。</red>"
-    queue_full: "<red>転送キューが満杯です。しばらくしてから再試行してください。</red>"
-    reason:
-      match_found: "<green>マッチングが成立しました。サーバーを切り替えます。</green>"
-      lobby_return: "<yellow>ロビーに戻ります。</yellow>"
-      admin_move: "<gray>管理者により別のサーバーへ移動されました。</gray>"
+  # Wave 5t (ADR-0086) — Admin / Ops + Voice presence + Feedback queue 文字列。
+  role:
+    admin: "<gold>管理者</gold>"
+    gm: "<aqua>GM</aqua>"
+    vip: "<light_purple>VIP</light_purple>"
+    player: "<gray>プレイヤー</gray>"
+
+  admin:
+    config:
+      unknown_category: "<red>未知の config カテゴリです。</red>"
+      path_escaped: "<red>拒否: パスがカテゴリ root を超えています。</red>"
+      io_failed: "<red>config 書き込み I/O 失敗: {reason}</red>"
+      reload_aborted: "<red>reload を中止。直前状態を保持しています。</red>"
+    backup:
+      unsupported_schema: "<red>未対応バックアップスキーマ version: {version}</red>"
+      io_failed: "<red>バックアップ I/O 失敗: {reason}</red>"
+      unknown_shard: "<red>未知のバックアップシャード: {name}</red>"
+    announcement:
+      unknown_id: "<red>未知の announcement id。</red>"
+      duplicate_id: "<red>announcement id が重複しています。</red>"
+      unsupported_trigger: "<red>未対応の announcement trigger。</red>"
+
+  presence:
+    backend_unavailable: "<red>Rich presence バックエンドが利用できません。</red>"
+    publish_failed: "<red>Rich presence 送信失敗: {reason}</red>"
+    unknown_player: "<red>未知のプレイヤー (rich presence)。</red>"
+
+  feedback:
+    unknown_id: "<red>未知の feedback id。</red>"
+    comment_too_long: "<red>コメントが {limit} 文字を超えています。</red>"
+    invalid_transition: "<red>状態遷移不正: {from} → {to}。</red>"
