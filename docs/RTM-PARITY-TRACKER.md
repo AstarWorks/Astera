@@ -67,6 +67,7 @@ adds to `gradle/libs.versions.toml`:
   - **5d** = Stage geometry + Block tracking + Barrier + Schematic
   - **5e** = Session + Social + Tutorial + EnderChest + Reward bridge
   - **5f** = Marketplace + JP currency compliance + CEL expression
+  - **5v** = Match recording capture (event log + key frame; playback Phase 4)
   - **6** = Paper Sweep (all Bukkit impls at once)
   - **Phase 4+** = post-Siege roadmap
 
@@ -74,13 +75,13 @@ adds to `gradle/libs.versions.toml`:
 
 | Status | Count | % |
 |---|---|---|
-| ✅ full | 102 | 70.3% |
-| 🟨 partial | 3 | 2.1% |
-| 🔌 port-only | 9 | 6.2% |
-| ❌ nothing | 31 | 21.4% |
-| **Total tracked** | **145** | 100% |
+| ✅ full | 105 | 70.5% |
+| 🟨 partial | 3 | 2.0% |
+| 🔌 port-only | 9 | 6.0% |
+| ❌ nothing | 32 | 21.5% |
+| **Total tracked** | **149** | 100% |
 
-(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability); Wave _persist-1 で Cat 8 持続化補完 — SessionState/Friendship/Party/RewardBridge の 4 Postgres impl (V11/V12/V13/V15 + ADR-0068 Cross-server persistence boundary))
+(Wave 4.8 で +7 行追加: Inventory snapshot 2 + Shop expansion 4 + Gacha 1 reclassified; Wave 5b で +6 行 port-only flip; Wave 5c で +6 行 full flip; Wave 5d で +9 行 full flip; **2026-05-19 saturation で +16 行 catalog 補完** — Cat 1 combat +5 / Cat 2 match +4 / Cat 3 world +1 / Cat 7 stats +3 / Cat 8 session +3、いずれも RTM source-code + issue body deep audit 由来、Wave 5a-fix2 / 5e / 6a / 6b / 7a に分配; Wave 5a-fix2 で Cat 1 の DamageHistoryService + assist counter ❌→✅ + SkillTrigger 14 値 🟨→✅ で +3 ✅; Wave _ops で Cat 10 +2 ✅ (Observability); Wave _persist-1 で Cat 8 持続化補完 — SessionState/Friendship/Party/RewardBridge の 4 Postgres impl (V11/V12/V13/V15 + ADR-0068 Cross-server persistence boundary); **Wave 5v で +4 行 Cat 2 — Match recording capture 3 ✅ + Playback UI 1 ❌ Phase 4、ADR-0088**)
 
 **Last audited**: 2026-05-19 (ADR-0029 §"Deep audit (2026-05-19)" methodology — 詳細は ADR 参照)
 
@@ -93,6 +94,7 @@ adds to `gradle/libs.versions.toml`:
 - Wave 5a-fix2: **51.4% RTM parity** (Cat 1 +2 ✅ DamageHistory + assist counter, +1 partial→full SkillTrigger 20 値 — total 74/144)
 - Wave 5e: **65.3% RTM parity** (Cat 1 double-jump +1, Cat 2 listener-arch refactor +1, Cat 6 ender-chest + reward-bridge +2, Cat 7 achievement/tutorial/settings/UAC-migration/levelupmission/playerpin/quickcast +7, Cat 8 spectator/friend/chat/audit/inventory-snapshot/action-lock/control-scheme/particle-hide/portal-ready +9 — total 94/144)
 - **Wave _ops: 66.7% RTM parity** (Cat 10 +2 ✅ Observability: micrometer + /metrics endpoint — total 96/144)
+- **Wave 5v: 66.4% RTM parity** (Cat 2 +3 ✅ Match recording capture: IMatchRecorder + .replay.json export + Postgres V20; +1 ❌ playback UI Phase 4 deferred — total 99/149; denominator +4 due to catalog augmentation, ✅ +3 net positive)
 - Wave 6 (Paper Sweep) complete: ~65-70% RTM parity (Phase 1 PoC end-to-end)
 - Phase 3 Siege Warfare complete (Wave 6 + 7a content): ~75-80%
 - Phase 4 (UGC + Web + Vault + Gacha): ~85-90%
@@ -161,6 +163,10 @@ adds to `gradle/libs.versions.toml`:
 | **3rd TNT variant `CarryBigTnt`** (payload — `GuiAction.CHANGE_PAYLOAD`) | ❌ nothing | **Wave 7a** (content-fidelity) | P2 | RTM `GameMode.kt` (3 TNT variants total: Tnt / SmallTnt / BigTnt) |
 | **`ItemGenerator`** (non-Star item-spawning generator) | ❌ nothing | **Wave 7a** (content alongside Wave 5c `StarGenerator`) | P2 | RTM `ConfiguredItemGenerator.kt` alongside `ConfiguredStarGenerator.kt` |
 | **Listener-Service architecture refactor** (per-module event-handler ↔ business-logic separation) | ✅ Wave 5e (ADR-0064 draft → Accepted) | (済 Wave 5e) | P3 | RTM issue #22 body |
+| **Match recording capture** (`IMatchRecorder` + `ReplayCaptureEngine` + V20 `match_replays` Postgres JSONB + 9 ReplayEvent variants + key-frame snapshotting via `IRecorderStateProvider`) | ✅ Wave 5v (capture only — playback Phase 4 Wave 8) | (済 Wave 5v) | P2 | `plugin/match/.../application/{port/inbound/IMatchRecorder.kt, port/outbound/IMatchReplayRepository.kt, port/outbound/IRecorderStateProvider.kt, service/replay/ReplayCaptureEngine.kt}` + `plugin/core/.../domain/replay/` + `plugin/persistence/.../{repository/PostgresMatchReplayRepository.kt,table/MatchReplaysTable.kt}` + V20 migration + ADR-0088 |
+| **`/astera-match replay` admin command tree** (`start / stop / export <matchId>`) | ✅ Wave 5v | (済 Wave 5v) | P2 | `AsteraMatchPlugin.buildReplayCommandSpec` + 3 permission keys |
+| **`.replay.json` export envelope** (Phase 4 playback consumer wire shape) | ✅ Wave 5v (`ReplayExportEnvelope` + sealed-by-key `ReplayEventJson`; mirrors Postgres JSONB shape) | (済 Wave 5v) | P2 | `plugin/match/.../application/replay/json/MatchReplayJson.kt` + `ReplayExportEnvelope.kt` |
+| **Match playback UI** (web 3D viewer / clip share / scrub bar) | ❌ nothing | **Phase 4 Wave 8** | P2 | deferred per ADR-0088 §Decision |
 
 ---
 
@@ -407,6 +413,18 @@ adds to `gradle/libs.versions.toml`:
 - Particle definition system
 - Reactive GUI binding (`ResolvedReactiveSlot` extension for numeric / display override)
 
+### Wave 5v (Match recording capture, Phase A→B 3 territory→C, ~4h)
+- `IMatchRecorder` inbound port + `IMatchReplayRepository` outbound port + `IRecorderStateProvider` outbound port
+- `ReplayCaptureEngine`: IDomainEventBus subscriber (5 event types: DamageDealt / PlayerKilled / SkillCast / ChatMessageSent / PhaseChanged), key-frame ticker (IScheduler), 12 MB hard cap
+- 9-variant `ReplayEvent` sealed (PlayerMoved / DamageDealt / PlayerKilled / PlayerRespawned / ItemUsed / SkillCast / ChatSent / MatchPhaseChanged / PillarCaptured) — all flat data classes over primitives + value classes (Konsist-enforced)
+- 2-variant `ReplayFormat` sealed (`EventLogKeyFrame` default + `FullPerTick` forensic)
+- V20 `match_replays` Flyway migration (Postgres JSONB for events / key-frames / format + columnar start_tick / end_tick / size_bytes)
+- `PostgresMatchReplayRepository` + `InMemoryMatchReplayRepository` + `NoopRecorderStateProvider` (Wave 6a `PaperRecorderStateProvider` overlay later)
+- `/astera-match replay <start|stop|export> <matchId>` admin commands + 3 new permissions
+- `.replay.json` export envelope (`ReplayExportEnvelope` + sealed-by-key `ReplayEventJson`) — Phase 4 web UI consumer wire shape
+- 2 new Konsist rules + ADR-0088
+- 2 new domain events (`MatchRecordingStarted` / `MatchRecordingStopped`) on `core.domain.event`
+
 ### Wave 6 (Paper Sweep, Phase A→B 8+ worker→C, 1-2 sessions)
 - PaperDamageGateway
 - PaperStatusEffectContainer + tick loop
@@ -451,3 +469,4 @@ specific issue / file needs verification.
 - Wave 5g (2026-05-19): Core hardening pre-Paper-sweep — Shop stock bug fix (`IShopStockRepository` + V19 migration + `SELECT ... FOR UPDATE` atomic decrement + idempotent seed at startup; existing `OutOfStock` death code is now live) + Shop access surfaces (`IShopVendor` + `IShopReferenceQuery` + `IShopAccessIntent` sealed 4-variant + `ShopAccessIntentRouter` + Default/InMemory/Fake impls + ADR-0071 commitment to Phase 4 Wave 8b) + Pre-Paper-sweep port commitments (`IMatchTimerService` + `IPlayerMovementGateway` + `IPlayerVisionGateway` + `IStructurePaste` + 4 Fakes + `IStatusEffectContainer.applyBulk` default + `PlayerMatchAttributes.RESPAWN_RATE_MULTIPLIER` + ADR-0072) + Anomaly 5 TODO closure (StatusBurst / SpawnSurge / TimeWarp / GravityShift / FogOfWar Fake-level wire via the new gateway ports) + Konsist +2 rules (Wave 6 Paper allow-list + IShopStockRepository priority-100 pin) → baseline 28 → 30. Net catalog +1 row (Shop access surfaces); StructureService ❌→🔌. Vanilla Potion 統一は Wave 6a Paper adapter merge layer に意図的に閉じる (domain には漏らさず、ADR-0030 §8 と整合)。**Total parity 70.8% (102/144) → 70.3% (102/145, same ✅, +2 🔌, −1 ❌)** — parity % decrease is purely catalog growth (new row added). ADR-0071 + ADR-0072 → Accepted.
 - Wave _items-1 (2026-05-19): Item-centric content model + Skill multi-binding + inline i18n — `plugin/weapons` → `plugin/items` rename (ADR-0073 Accepted). Item schema: material xor external_key + inline i18n name/lore (ja/en) + rarity + level_requirement + vanilla AttributeModifier support (attack_damage/attack_speed/armor/armor_toughness/knockback_resistance/movement_speed_multiplier/max_health_bonus) + equip_slot (mainhand/offhand/helmet/chestplate/leggings/boots) + behavior flags (max_durability/unbreakable/drop_on_death/keep_on_death/enchantable/glint) + `skills: List<ItemSkillBinding>` multi-skill binding. Skill schema: trigger field deleted (moved to binding), inline i18n name/description (ja/en). Domain event `SkillCastRequested` added to core. `SkillTrigger`/`SkillId`/`DamageProfile` promoted to core from combat. Konsist rule: Items ← Core (not Combat). sibling-isolation matrix updated (ADR-0022). `SkillCast` event chain + `IDamageGateway` path unchanged. No RTM rows flipped (domain/design work). ADR-0073 → Accepted.
 - Wave _infra-5 (2026-05-19): weapon→item→model chain closed + Studio frontend `/weapons` → `/items` migration (ADR-0070 Accepted). Kotlin: `ItemYamlConfig.model: String?` + `ItemSpec.modelSlug: String?` (opaque slug — no `.model.json` suffix, null defers to vendor/archetype fallback). Studio backend `/api/items/load/:slug`: priority resolution content dir → samples dir → archetype map, exposes `modelSource: 'content'|'samples'|'archetype'` + `modelPathRelative`. New endpoint `GET /api/items/model/by-slug/:slug`. Studio frontend: `WeaponsView.vue`/`WeaponPreview.vue` deleted, `ItemsView.vue`/`ItemPreview.vue` created consuming `/api/items` + new `LoadedItem` (incl. `modelSource`). `src/api.ts` rewritten — `WeaponListEntry`/`WeaponYamlConfig`/`LoadedWeapon`/`api.weapons`/`api.loadWeapon`/`api.weaponModel` removed; `ItemListEntry`/`ItemYamlConfig` (incl. `model?: string`)/`ItemSkillBindingYaml`/`ItemAttributesYaml`/`LoadedItem`/`api.items`/`api.loadItem`/`api.itemModelBySlug`/`api.itemModelByArchetype` added. Router `/weapons` → `/items`, nav tab `ウェポン` → `アイテム`. FALLBACK chip narrowed to `modelSource === 'archetype' && modelFallback`. Sample content: `content/items/example-pistol.yaml` declares `model: example-pistol`, `content/models/example-pistol.model.json` seeded from `tools/model-gen/samples/sword.model.json` (placeholder — visual fidelity is ADR-0061 Mismatch A, separate `build-model` track). Konsist 22 rules green; `./gradlew check` green; Studio `bun run typecheck && bun test` green. ADR-0070 → Accepted (references ADR-0061 + ADR-0073, supersedes neither). No RTM rows flipped (structural plumbing). ADR-0061 Mismatch C resolved; Mismatch A remains open.
+- Wave 5v (2026-05-21): Match recording capture (lightweight, event log + key frame; playback Phase 4) — Domain: `ReplayId` value class + `RecordedReplay` + 9-variant `ReplayEvent` sealed + `KeyFrame` + 2-variant `ReplayFormat` sealed (`EventLogKeyFrame` default keyFramePer=100 / `FullPerTick` forensic) + `ReplayError` sealed + `Vec3Snapshot` Float-triplet + `DamageSourceKind` 8-enum + 2 core domain events (`MatchRecordingStarted` / `MatchRecordingStopped`). Ports: `IMatchRecorder` (inbound) + `IMatchReplayRepository` (outbound) + `IRecorderStateProvider` (outbound). Application: `ReplayCaptureEngine` subscribes 5 event types (DamageDealt / PlayerKilled / SkillCast / ChatMessageSent / PhaseChanged), key-frame ticker via IScheduler every 20 ticks, 12 MB hard cap with FIFO-preserving warn-then-drop + `InMemoryMatchReplayRepository` (priority 0) + `NoopRecorderStateProvider` (priority 0). Persistence: V20 `match_replays` table (UUID `replay_id` + columnar `start_tick` / `end_tick` / `size_bytes` + 3 JSONB columns `format` / `key_frames` / `events`) + `PostgresMatchReplayRepository` (priority 100, upsert on `match_id`) + JSONB DTOs `MatchReplayJson` (sealed-by-key discriminator `type: event-log-keyframe / full-per-tick / damage-dealt / player-killed / ...`) in `:plugin:match.application.replay.json`. Commands: `/astera-match replay <start|stop|export> <matchId>` + 3 permissions + `<dataFolder>/replays/<matchId>.replay.json` writer via `ReplayExportEnvelope` (same wire shape as DB row). Konsist +2 rules (30→32): `Wave 5v ReplayEvent variants must contain only primitive or value-class types` + `Wave 5v IMatchRecorder must not import Bukkit Paper`. RTM +4 rows (Cat 2: Match recording capture ✅ + `/astera-match replay` admin command ✅ + `.replay.json` export envelope ✅ + Match playback UI ❌ Phase 4). +3 unit test classes (`ReplayCaptureEngineTest` + `InMemoryMatchReplayRepositoryTest` + `RecordedReplayInvariantTest`) + 1 Postgres IT (`PostgresMatchReplayRepositoryIT`). ADR-0088 → Accepted. **Total parity 70.3% (102/145) → 70.5% (105/149) — +3 ✅, +1 ❌, denominator +4 catalog growth**.

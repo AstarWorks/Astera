@@ -42,10 +42,12 @@ import com.astarworks.astera.persistence.repository.PostgresPlayerAttributeConta
 import com.astarworks.astera.persistence.repository.PostgresPlayerInventorySnapshotRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSessionRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSettingsRepository
+import com.astarworks.astera.persistence.repository.PostgresMatchReplayRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
+import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
@@ -201,6 +203,16 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 5v (ADR-0088): match recording capture persistence. V20
+        // migration adds the `match_replays` table; Postgres impl mirrors
+        // the in-memory shape with JSONB columns for events / key frames /
+        // format. AsteraMatchPlugin's InMemoryMatchReplayRepository (priority
+        // 0) is the Postgres-less fallback.
+        registrations += services.register<IMatchReplayRepository>(
+            PostgresMatchReplayRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -210,7 +222,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge, IShopStockRepository.",
+                "IRewardBridge, IShopStockRepository, IMatchReplayRepository.",
         )
     }
 

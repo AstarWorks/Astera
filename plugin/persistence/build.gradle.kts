@@ -34,6 +34,13 @@ dependencies {
     // IMarketplaceRepository, ICreatorRevenueRepository) need economy's
     // domain + port types. compileOnly so we don't bundle a duplicate copy.
     compileOnly(project(":plugin:economy"))
+    // Wave 5v (ADR-0088): PostgresMatchReplayRepository implements
+    // :plugin:match's IMatchReplayRepository. compileOnly mirrors the
+    // economy pattern — the port type lives on Match's classloader at
+    // runtime; persistence loads first via `loadbefore` but resolves the
+    // port via ServiceRegistry, so a shared class identity is required
+    // (which `compileOnly` preserves by not bundling a duplicate).
+    compileOnly(project(":plugin:match"))
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
@@ -48,6 +55,7 @@ dependencies {
 
     testImplementation(project(":plugin:core"))
     testImplementation(project(":plugin:economy"))
+    testImplementation(project(":plugin:match"))
     testImplementation(project(":plugin:test-fixtures"))
     testImplementation(libs.testcontainers.core)
     testImplementation(libs.testcontainers.postgresql)

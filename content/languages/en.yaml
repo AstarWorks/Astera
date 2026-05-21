@@ -223,6 +223,22 @@ astera:
     block:
       restored-on-match-end: "<gray>{count} block change(s) restored at match end.</gray>"
 
+    # Wave 5v — Match recording capture (ADR-0088)
+    replay:
+      error:
+        not-recording: "<red>No active recording for this match.</red>"
+        empty: "<red>Recording is empty (no events nor key frames).</red>"
+        storage: "<red>Replay storage error: {reason}</red>"
+        cap-hit: "<yellow>Recording hit the size cap at tick {cappedAtTick}; later events dropped.</yellow>"
+    command:
+      replay: "Replay capture commands"
+      "replay.start": "Start recording a match"
+      "replay.stop": "Stop recording and persist"
+      "replay.export": "Export the latest recording to a .replay.json file"
+      "replay.invalid-id": "<red>Invalid match id: {match}</red>"
+      "replay.not-found": "<red>No replay stored for match {match}.</red>"
+      "replay.export-failed": "<red>Replay export failed for {match}: {reason}</red>"
+
   spawn:
     teleporting: "<gray>Teleporting to spawn…</gray>"
     no_spawn_defined: "<red>No spawn point defined for this stage.</red>"

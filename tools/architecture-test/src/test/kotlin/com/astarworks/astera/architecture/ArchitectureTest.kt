@@ -800,6 +800,86 @@ class ArchitectureTest {
             .isEmpty()
     }
 
+    // ─── Wave 5v — Match recording capture (ADR-0088) ───────────────────────
+
+    /**
+     * Wave 5v: every [ReplayEvent] variant is a flat `data class` over
+     * primitives + value classes. Nesting another sealed (e.g. inlining
+     * combat's `DamageSource`) here would make the JSONB encoder schema
+     * non-deterministic and bloat the 4×1h≈5MB capture budget.
+     *
+     * Heuristic: walk every property declared on every direct subtype of
+     * `ReplayEvent`; the property's declared type-text must reduce to one
+     * of an allow-list of primitive / value-class / enum / `MessageKey` /
+     * `MatchPhase` simple names. Maps, lists, sealed nested types fail.
+     */
+    @Test
+    fun `Wave 5v ReplayEvent variants must contain only primitive or value-class types`() {
+        val allowed = setOf(
+            // Primitives
+            "Long", "Int", "Short", "Byte", "Float", "Double", "Boolean", "String",
+            // Value classes + identity types used by replay
+            "PlayerId", "MatchId", "ItemId", "SkillId", "TeamId", "MessageKey",
+            // Domain enums materialised inside ReplayEvent
+            "MatchPhase", "DamageSourceKind",
+        )
+
+        val variantClasses = Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                cls.parents().any { parent ->
+                    parent.name == "ReplayEvent"
+                }
+            }
+
+        // Skeleton tolerance: if the sealed has no variants yet, no-op. Once
+        // a variant exists the rule fires for every declared property.
+        if (variantClasses.isEmpty()) return
+
+        val offenders = variantClasses.flatMap { cls ->
+            cls.properties().filter { prop ->
+                val typeName = prop.type?.name ?: return@filter false
+                // Strip nullable marker; drop generic arms entirely (they
+                // indicate a List / Map / Set wrapper, which is forbidden).
+                if (typeName.contains("<") || typeName.contains("[")) return@filter true
+                val bare = typeName.removeSuffix("?")
+                bare !in allowed
+            }.map { prop -> "${cls.fullyQualifiedName}.${prop.name}: ${prop.type?.name}" }
+        }
+
+        assertThat(offenders)
+            .withFailMessage {
+                "Wave 5v / ADR-0088: ReplayEvent variants must contain only primitive + " +
+                    "value-class fields (so the JSONB encoder shape stays deterministic and " +
+                    "the 4×1h≈5MB capture budget holds). Offending properties: ${offenders.joinToString()}"
+            }
+            .isEmpty()
+    }
+
+    /**
+     * Wave 5v: [IMatchRecorder] is a domain-language inbound port; per
+     * ADR-0001 / ADR-0002 it MUST NOT import Bukkit/Paper. The Paper
+     * adapter (Wave 6a `PaperRecorderStateProvider`) reads `Bukkit.getOnline
+     * Players()` and friends, but the **port** stays vendor-neutral so the
+     * Fake-MC tests and the future Folia impl can both wire through it.
+     */
+    @Test
+    fun `Wave 5v IMatchRecorder must not import Bukkit Paper`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                file.name.removeSuffix(".kt") == "IMatchRecorder" &&
+                    file.packagee?.name == "com.astarworks.astera.match.application.port.inbound"
+            }
+            .assertFalse(
+                additionalMessage = "Wave 5v / ADR-0088: IMatchRecorder is the vendor-neutral " +
+                    "inbound port for replay capture; Paper imports belong in the Wave 6a " +
+                    "PaperRecorderStateProvider adapter, not on the port itself.",
+            ) { file ->
+                hasBukkitFamilyImport(file)
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
