@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.moderation.ModerationAction
 import com.astarworks.astera.core.domain.permission.Permission
 
 /**
- * Apply a moderation action against a player (Wave 5h, ADR-0074 §4).
+ * Apply a moderation action against a player (Wave 5h, ADR-0079 §4).
  *
  * Permission gating per variant (the actor is `action.issuedBy`):
  *
@@ -26,7 +26,7 @@ import com.astarworks.astera.core.domain.permission.Permission
  * doesn't know about permissions.
  *
  * The `when` over [ModerationAction] is exhaustive and MUST NOT carry an
- * `else` branch (Konsist enforces; per ADR-0074 §4).
+ * `else` branch (Konsist enforces; per ADR-0079 §4).
  */
 public class ApplyModerationActionUseCase(
     private val service: IModerationService,

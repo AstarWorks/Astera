@@ -412,7 +412,7 @@ public class AsteraMatchPlugin : JavaPlugin() {
 
         // ---- Wave 5e: Spectator + PlayerPin + Audit + Inventory snapshot save ----
         val sessionRepo = services.getOrThrow<IPlayerSessionRepository>()
-        // Wave 5h (ADR-0074 §6): spectator use cases accept a nullable
+        // Wave 5h (ADR-0079 §6): spectator use cases accept a nullable
         // worldGateway. The earlier `val worldGateway = services.get<IWorldGateway>()`
         // at line ~214 is the canonical one; reuse it here.
         @Suppress("UNUSED_VARIABLE")
@@ -420,7 +420,7 @@ public class AsteraMatchPlugin : JavaPlugin() {
         @Suppress("UNUSED_VARIABLE")
         val leaveSpectator = LeaveSpectatorUseCase(sessionRepo, worldGateway)
 
-        // Wave 5h (ADR-0074 §5): Disconnect/Reconnect listeners. PlayerQuitServer
+        // Wave 5h (ADR-0079 §5): Disconnect/Reconnect listeners. PlayerQuitServer
         // → phase-aware kick/freeze/forfeit; PlayerJoinedServer → resume in
         // 3-min window or lobby fallback. Requires non-null IWorldGateway — only
         // wire if Core registered one (production-side InMemory default exists).

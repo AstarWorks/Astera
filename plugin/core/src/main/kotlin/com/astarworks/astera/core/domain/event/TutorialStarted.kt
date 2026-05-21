@@ -6,7 +6,7 @@ import java.time.Instant
 
 /**
  * Emitted when a tutorial transitions a player from "not running" to
- * "running step 0" (Wave 5h, ADR-0074 §3).
+ * "running step 0" (Wave 5h, ADR-0079 §3).
  *
  * Distinct from [TutorialStepEntered], which fires for every step (including
  * step 0). [TutorialStarted] is the higher-level lifecycle signal: analytics

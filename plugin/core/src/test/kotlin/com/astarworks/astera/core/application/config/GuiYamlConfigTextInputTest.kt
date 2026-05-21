@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * Validates the `text_input` slot DTO ([GuiSlotYamlConfig.TextInput])
- * round-trips YAML → domain ([GuiSlot.TextInput]) per Wave 5h / ADR-0074 §2.
+ * round-trips YAML → domain ([GuiSlot.TextInput]) per Wave 5h / ADR-0079 §2.
  */
 class GuiYamlConfigTextInputTest {
 

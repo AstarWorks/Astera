@@ -29,7 +29,7 @@ import java.time.Clock
 import java.time.Instant
 
 /**
- * Postgres-backed [IModerationService] (Wave 5h, ADR-0074 §4 / V21
+ * Postgres-backed [IModerationService] (Wave 5h, ADR-0079 §4 / V21
  * migration).
  *
  * Registered by `AsteraPersistencePlugin` at priority=100 (Phase C wiring);

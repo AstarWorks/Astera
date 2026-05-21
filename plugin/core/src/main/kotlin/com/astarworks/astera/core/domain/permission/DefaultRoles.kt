@@ -27,7 +27,7 @@ public object DefaultRoles {
             Permission("astera.match.admin.start"),
             Permission("astera.match.admin.end"),
             Permission("astera.match.admin.phase"),
-            // Wave 5h (ADR-0074 §4) — moderation core 4 + lift.
+            // Wave 5h (ADR-0079 §4) — moderation core 4 + lift.
             // MODERATOR_LITE covers Mute + ChatRateLimit; full MODERATOR
             // adds Kick / Ban / Lift on top.
             Permission("astera.mod.mute"),
@@ -39,7 +39,7 @@ public object DefaultRoles {
     )
 
     /**
-     * Wave 5h (ADR-0074 §4) — junior-mod role with only the reversible
+     * Wave 5h (ADR-0079 §4) — junior-mod role with only the reversible
      * moderation tools (mute + ratelimit). Kick / Ban / Lift remain
      * MODERATOR-only because they're either disruptive (kick) or
      * lockout-prone (ban). Lift is gated because over-lifting can

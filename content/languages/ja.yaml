@@ -318,7 +318,7 @@ astera:
       match_end: "<red><bold>試合終了</bold></red>"
 
   # Wave 5e — Tutorial 表示文字列 (ADR-0034)。
-  # Wave 5h で /astera tutorial skip|replay の文字列を追加 (ADR-0074 §3)。
+  # Wave 5h で /astera tutorial skip|replay の文字列を追加 (ADR-0079 §3)。
   tutorial:
     getting_started:
       title: "<gold>はじめに</gold>"
@@ -334,13 +334,13 @@ astera:
       replay: "<gray>チュートリアルを最初から再生します。</gray>"
       invalid_id: "<red>不正なチュートリアル ID: <gold>{tutorial-id}</gold></red>"
 
-  # Wave 5h — Chat モデレーション (ADR-0074 §4)。
+  # Wave 5h — Chat モデレーション (ADR-0079 §4)。
   chat:
     error:
       muted: "<red>ミュート中のためチャットを送信できません。</red>"
       rate-limited: "<red>チャットの送信頻度が高すぎます。</red>"
 
-  # Wave 5h — /astera mod サブコマンド + エラーキー (ADR-0074 §4)。
+  # Wave 5h — /astera mod サブコマンド + エラーキー (ADR-0079 §4)。
   mod:
     command:
       root: "<gray>モデレーション サブコマンド: mute, kick, ban, ratelimit, lift, history。</gray>"

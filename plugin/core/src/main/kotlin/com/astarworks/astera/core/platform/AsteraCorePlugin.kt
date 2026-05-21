@@ -343,7 +343,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<ITutorialRegistry>(tutorialContents, priority = 0)
         reloadRegistry.register(tutorialContents, tutorialsContentDir)
 
-        // Wave 5h (ADR-0074): Hologram / Moderation / PlayerTutorialState
+        // Wave 5h (ADR-0079): Hologram / Moderation / PlayerTutorialState
         // in-memory defaults at priority 0; persistence plugin overlays
         // moderation + tutorial at priority 100.
         val hologramGateway: IHologramGateway = services.get<IHologramGateway>()

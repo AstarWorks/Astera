@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0074: Pre-Paper-sweep depth — close 6 domain gaps before Wave 6
+# ADR-0079: Pre-Paper-sweep depth — close 6 domain gaps before Wave 6
 
 ## Status
 

@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.tutorial.PlayerTutorialState
 
 /**
- * Outbound port: per-player tutorial completion state (Wave 5h, ADR-0074 §3).
+ * Outbound port: per-player tutorial completion state (Wave 5h, ADR-0079 §3).
  *
  * Wave 5h ships `InMemoryPlayerTutorialStateRepository` (priority 0) +
  * `PostgresPlayerTutorialStateRepository` (priority 100, V20 migration) +

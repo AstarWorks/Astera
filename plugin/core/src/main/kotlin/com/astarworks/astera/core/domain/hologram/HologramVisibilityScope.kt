@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Who can see this hologram (Wave 5h, ADR-0074 §1).
+ * Who can see this hologram (Wave 5h, ADR-0079 §1).
  *
  * Paper adapter (Wave 6b) consults this on `spawn` to decide which players
  * receive the entity-create packet.

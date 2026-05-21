@@ -13,7 +13,7 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Default in-memory [IHologramGateway] (Wave 5h, ADR-0074 §1).
+ * Default in-memory [IHologramGateway] (Wave 5h, ADR-0079 §1).
  *
  * Wired by `AsteraCorePlugin` at priority 0 — Wave 6b's
  * `PaperHologramGateway` will register at higher priority and shadow this

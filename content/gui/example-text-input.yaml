@@ -1,6 +1,6 @@
 # Wave 5h demo GUI. Text-input prompt for renaming a loadout. CHEST_9 layout:
 # border padding around a single centred text input. Demonstrates the
-# `text_input` slot variant from ADR-0074 §2.
+# `text_input` slot variant from ADR-0079 §2.
 id: example-loadout-rename
 title_key: astera.gui.loadout.rename.title
 size: CHEST_9

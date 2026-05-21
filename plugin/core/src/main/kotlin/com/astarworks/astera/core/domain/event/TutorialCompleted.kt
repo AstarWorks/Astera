@@ -6,7 +6,7 @@ import java.time.Instant
 
 /**
  * Emitted when a player walks through the final step of a tutorial (Wave 5h,
- * ADR-0074 §3).
+ * ADR-0079 §3).
  *
  * Published by `AdvanceTutorialStepUseCase` when its `++currentStepIndex` lands
  * past the last step in the script. The use case also moves the id into

@@ -22,7 +22,7 @@ import java.time.Instant
  *
  * [MatchPhase.SUDDEN_DEATH] does not surface this event directly — the
  * disconnect listener short-circuits straight to [PlayerForfeited] to avoid
- * a reconnect window during the final stretch (ADR-0074 §6).
+ * a reconnect window during the final stretch (ADR-0079 §6).
  */
 public data class PlayerDisconnectedFromMatch(
     val playerId: PlayerId,

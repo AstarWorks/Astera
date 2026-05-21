@@ -15,7 +15,7 @@ import com.astarworks.astera.match.domain.event.PlayerForfeited
  *
  * Used by `DisconnectDuringMatchListener` to short-circuit the reconnect
  * window during [com.astarworks.astera.core.domain.match.MatchPhase.SUDDEN_DEATH]
- * (ADR-0074 §6), and by `/astera forfeit` commands once the Wave 6 command
+ * (ADR-0079 §6), and by `/astera forfeit` commands once the Wave 6 command
  * surface lands.
  *
  * The remove-side failure short-circuits the publish (no forfeit event if the

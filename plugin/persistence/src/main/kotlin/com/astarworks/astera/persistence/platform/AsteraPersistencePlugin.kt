@@ -205,7 +205,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
-        // Wave 5h (ADR-0074): tutorial state + moderation actions. V20 / V21
+        // Wave 5h (ADR-0079): tutorial state + moderation actions. V20 / V21
         // migrations add `player_tutorial_state` + `moderation_actions`
         // tables. Tutorial state is JSONB-heavy (completed/skipped sets);
         // moderation rows carry a `kind` discriminator + per-variant JSONB

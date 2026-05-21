@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
  * Read currently-active moderation actions for a player (Wave 5h,
- * ADR-0074 §4). No permission gate at the use case level — the chat
+ * ADR-0079 §4). No permission gate at the use case level — the chat
  * gateway and command spec query freely. If a future moderator dashboard
  * needs a viewer-only gate, layer a `astera.mod.view` check at the
  * command spec, not here.

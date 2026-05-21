@@ -27,7 +27,7 @@ import java.time.ZoneOffset
 import java.util.UUID
 
 /**
- * Wave 5h (ADR-0074 §4) — moderation core 4 + chat integration test surface.
+ * Wave 5h (ADR-0079 §4) — moderation core 4 + chat integration test surface.
  *
  * Eight tests covering:
  * 1. Apply each of the four variants → activeFor returns them

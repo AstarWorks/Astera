@@ -12,7 +12,7 @@ import java.time.Instant
  * Distinct from [PlayerDisconnectedFromMatch]:
  * - Disconnect is "pending — may rejoin"; forfeit is "permanent, counts as loss".
  * - The disconnect listener escalates straight to forfeit during
- *   [com.astarworks.astera.core.domain.match.MatchPhase.SUDDEN_DEATH] (ADR-0074 §6).
+ *   [com.astarworks.astera.core.domain.match.MatchPhase.SUDDEN_DEATH] (ADR-0079 §6).
  *
  * Stats / Economy subscribe to this so the player's per-match record reflects
  * a loss-by-forfeit rather than a regular DNF. Stage 5 may also penalise rating.

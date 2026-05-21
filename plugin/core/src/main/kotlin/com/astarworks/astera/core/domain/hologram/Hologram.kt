@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 
 /**
  * Vendor-neutral aggregate for a Bukkit `Display`-entity-backed hologram
- * (Wave 5h, ADR-0074 §1).
+ * (Wave 5h, ADR-0079 §1).
  *
  * Fields mirror Bukkit's `Display` API field-for-field so the Wave 6b
  * `PaperHologramGateway` is a positional translation, not a re-design:

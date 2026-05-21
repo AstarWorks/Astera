@@ -10,7 +10,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 
 /**
  * Outbound port: spawn / despawn / update Display-entity-backed holograms
- * (Wave 5h, ADR-0074 §1).
+ * (Wave 5h, ADR-0079 §1).
  *
  * Wave 5h ships `InMemoryHologramGateway` + `FakeHologramGateway`. Wave 6b
  * lands `PaperHologramGateway` over Bukkit `TextDisplay` / `ItemDisplay` /

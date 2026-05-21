@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 
 /**
  * Auto-start the configured default tutorial on a player's first join (Wave
- * 5h, ADR-0074 §3).
+ * 5h, ADR-0079 §3).
  *
  * Trigger rule (intentionally narrow so re-joins don't re-prompt):
  *

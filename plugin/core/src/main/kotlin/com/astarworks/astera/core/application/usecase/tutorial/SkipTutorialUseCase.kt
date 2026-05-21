@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.tutorial.PlayerTutorialState
 import com.astarworks.astera.core.domain.tutorial.TutorialScriptId
 
 /**
- * Mark [tutorialId] as skipped for [playerId] (Wave 5h, ADR-0074 §3).
+ * Mark [tutorialId] as skipped for [playerId] (Wave 5h, ADR-0079 §3).
  *
  * Backs `/astera tutorial skip <tutorialId>`. After skipping:
  *

@@ -6,7 +6,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
- * Vendor-neutral unit quaternion for 3D rotations (Wave 5h, ADR-0074 §1).
+ * Vendor-neutral unit quaternion for 3D rotations (Wave 5h, ADR-0079 §1).
  *
  * Mirrors `org.joml.Quaternionf` field-for-field (`x, y, z, w`) so the
  * Wave 6b Paper adapter can do a trivial conversion at the edge. The domain

@@ -1,6 +1,6 @@
 # Wave 5h demo GUI. Confirmation prompt for shop purchase. CHEST_9 layout:
 # border padding around a centred confirm/prompt/cancel triplet. Demonstrates
-# the `confirmation` slot variant from ADR-0074 §2.
+# the `confirmation` slot variant from ADR-0079 §2.
 id: example-shop-confirm-purchase
 title_key: astera.gui.shop.confirm-purchase.title
 size: CHEST_9

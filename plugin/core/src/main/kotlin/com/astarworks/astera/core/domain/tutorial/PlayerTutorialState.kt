@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import java.time.Instant
 
 /**
- * Per-player tutorial completion / skip / current-step state (Wave 5h, ADR-0074
+ * Per-player tutorial completion / skip / current-step state (Wave 5h, ADR-0079
  * §3). Persisted in `player_tutorial_state` (V20 migration).
  *
  * The aggregate carries three logical slices:

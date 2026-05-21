@@ -76,7 +76,7 @@ public sealed interface GuiSlot {
     ) : GuiSlot
 
     /**
-     * Two-button confirmation prompt (Wave 5h, ADR-0074 §2).
+     * Two-button confirmation prompt (Wave 5h, ADR-0079 §2).
      *
      * Models the "are you sure?" dialog used by shop purchases, settings
      * reset, etc. The Paper adapter (Wave 6b) renders this as a 2-item row
@@ -103,7 +103,7 @@ public sealed interface GuiSlot {
     ) : GuiSlot
 
     /**
-     * Free-text input field (Wave 5h, ADR-0074 §2).
+     * Free-text input field (Wave 5h, ADR-0079 §2).
      *
      * Models a single-line text input — used for shop search, loadout
      * renaming, report submission, chat alias editing, etc. The submitted

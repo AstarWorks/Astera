@@ -9,7 +9,7 @@ import org.postgresql.util.PGobject
 
 /**
  * `moderation_actions` table — server-wide moderation records (Wave 5h /
- * ADR-0074 §4, V21 migration). One row per applied action. `kind` is the
+ * ADR-0079 §4, V21 migration). One row per applied action. `kind` is the
  * `ModerationAction` sealed-variant discriminator (snake_case); `payload`
  * JSONB carries variant-specific fields (BanScope for Ban, ratePerSecond +
  * burstSize for ChatRateLimit) so additive variant fields don't require

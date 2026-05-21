@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.hologram
 
 /**
- * Per-Display lighting override (Wave 5h, ADR-0074 §1).
+ * Per-Display lighting override (Wave 5h, ADR-0079 §1).
  *
  * Mirrors Bukkit `Display.brightness` (`Display.Brightness(blockLight,
  * skyLight)`). When non-null on [Hologram], overrides the location's

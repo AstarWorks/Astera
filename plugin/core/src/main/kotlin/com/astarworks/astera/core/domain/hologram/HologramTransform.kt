@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 
 /**
  * Vendor-neutral mirror of Bukkit `org.bukkit.util.Transformation` (Wave 5h,
- * ADR-0074 §1).
+ * ADR-0079 §1).
  *
  * Field order matches Bukkit's `Transformation(translation, leftRotation,
  * scale, rightRotation)` so the Wave 6b adapter is a positional translation:

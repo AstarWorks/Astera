@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.hologram
 
 /**
- * Vendor-neutral RGBA color for holograms (Wave 5h, ADR-0074 §1).
+ * Vendor-neutral RGBA color for holograms (Wave 5h, ADR-0079 §1).
  *
  * Bytes (`-128..127`) match Bukkit's `Color` accessor surface — Bukkit
  * `TextDisplay.setBackgroundColor` and `Display.setGlowColorOverride` take

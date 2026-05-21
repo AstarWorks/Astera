@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.domain.tutorial.TutorialScriptId
 
 /**
- * Wave 5h (ADR-0074 §3) — builds the `astera tutorial` subcommand tree.
+ * Wave 5h (ADR-0079 §3) — builds the `astera tutorial` subcommand tree.
  *
  * Two subcommands ship in Phase 1:
  *

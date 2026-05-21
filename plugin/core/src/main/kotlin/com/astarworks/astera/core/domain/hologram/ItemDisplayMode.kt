@@ -2,7 +2,7 @@ package com.astarworks.astera.core.domain.hologram
 
 /**
  * Vendor-neutral mirror of Bukkit
- * `org.bukkit.entity.ItemDisplay.ItemDisplayTransform` (Wave 5h, ADR-0074 §1).
+ * `org.bukkit.entity.ItemDisplay.ItemDisplayTransform` (Wave 5h, ADR-0079 §1).
  *
  * Selects which vanilla item-model perspective the ItemDisplay renders with.
  * `FIXED` is the conventional default for static holograms (item floats

@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
  * Outbound port: server-wide moderation actions on players
- * (Wave 5h, ADR-0074 §4).
+ * (Wave 5h, ADR-0079 §4).
  *
  * Wave 5h ships `InMemoryModerationService` (priority 0) +
  * `PostgresModerationService` (priority 100, V21 migration) +

@@ -15,7 +15,7 @@ import kotlin.math.min
 
 /**
  * Publish a [ChatMessageSent] domain event after light content validation
- * (Wave 5e) + moderation gating (Wave 5h, ADR-0074 §4).
+ * (Wave 5e) + moderation gating (Wave 5h, ADR-0079 §4).
  *
  * Chat is fire-and-forget through the event bus — there is no chat
  * repository. Wave 5e's `AuditLogListener` (Worker ζ) subscribes and
@@ -131,7 +131,7 @@ public class SendChatMessageUseCase(
 
 /**
  * Expected failure modes of [SendChatMessageUseCase]. Phase 1 added
- * [Muted] and [RateLimited] in Wave 5h (ADR-0074 §4); permission denial
+ * [Muted] and [RateLimited] in Wave 5h (ADR-0079 §4); permission denial
  * lives at the command layer.
  */
 public sealed class ChatError {

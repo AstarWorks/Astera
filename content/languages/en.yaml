@@ -318,7 +318,7 @@ astera:
   # MessageKey calls in `TutorialContents` + `content/tutorials/*.yaml`.
   # Wave 6a wires the Paper-side `TutorialStepEntered` listener that renders.
   # Wave 5h adds command + error strings for /astera tutorial skip|replay
-  # (ADR-0074 §3).
+  # (ADR-0079 §3).
   tutorial:
     getting_started:
       title: "<gold>Getting Started</gold>"
@@ -334,13 +334,13 @@ astera:
       replay: "<gray>Restart a tutorial from the beginning.</gray>"
       invalid_id: "<red>Invalid tutorial id: <gold>{tutorial-id}</gold></red>"
 
-  # Wave 5h — Chat moderation messages (ADR-0074 §4).
+  # Wave 5h — Chat moderation messages (ADR-0079 §4).
   chat:
     error:
       muted: "<red>You are muted and cannot send chat messages.</red>"
       rate-limited: "<red>You are sending chat messages too quickly.</red>"
 
-  # Wave 5h — /astera mod subcommands + error keys (ADR-0074 §4).
+  # Wave 5h — /astera mod subcommands + error keys (ADR-0079 §4).
   mod:
     command:
       root: "<gray>Moderation subcommands: mute, kick, ban, ratelimit, lift, history.</gray>"

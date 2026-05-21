@@ -21,7 +21,7 @@ class InMemoryPermissionServiceTest {
         assertThat(ids).containsExactlyInAnyOrder(
             DefaultRoles.ADMIN.id,
             DefaultRoles.MODERATOR.id,
-            // Wave 5h (ADR-0074 §4) — junior-mod role for reversible mod tools only.
+            // Wave 5h (ADR-0079 §4) — junior-mod role for reversible mod tools only.
             DefaultRoles.MODERATOR_LITE.id,
             DefaultRoles.PLAYER.id,
         )

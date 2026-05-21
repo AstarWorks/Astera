@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import java.time.Instant
 
 /**
- * Server-wide moderation action against a player (Wave 5h, ADR-0074 §4).
+ * Server-wide moderation action against a player (Wave 5h, ADR-0079 §4).
  *
  * Closed hierarchy of four variants:
  *
@@ -21,7 +21,7 @@ import java.time.Instant
  *   tied to ([ratePerSecond], [burstSize]) is exhausted. Bucket lives on
  *   the chat use case side; this record carries only the configuration.
  *
- * Per ADR-0074 §4 / Konsist `ModerationAction sealed must remain
+ * Per ADR-0079 §4 / Konsist `ModerationAction sealed must remain
  * exhaustive`, every `when` over this hierarchy must enumerate all four
  * variants and MUST NOT carry an `else` branch.
  *

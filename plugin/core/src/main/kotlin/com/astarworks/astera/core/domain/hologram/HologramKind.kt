@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.item.ItemId
 
 /**
  * Vendor-neutral payload for a Display-entity-backed hologram (Wave 5h,
- * ADR-0074 §1). Three variants align 1:1 with Bukkit's Display hierarchy:
+ * ADR-0079 §1). Three variants align 1:1 with Bukkit's Display hierarchy:
  *
  * - [Text]  ↔ `org.bukkit.entity.TextDisplay`
  * - [Item]  ↔ `org.bukkit.entity.ItemDisplay`

@@ -1,4 +1,4 @@
--- Wave 5h / ADR-0074 §3: per-player tutorial completion / skip / cursor state.
+-- Wave 5h / ADR-0079 §3: per-player tutorial completion / skip / cursor state.
 -- One row per player; latest-write-wins (no history). The two `*_tutorials`
 -- JSONB columns each carry a JSON array of TutorialScriptId strings
 -- (lower-kebab-case). `current_tutorial` + `current_step` are the in-flight

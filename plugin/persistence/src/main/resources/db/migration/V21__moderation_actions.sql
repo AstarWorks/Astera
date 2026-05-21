@@ -1,4 +1,4 @@
--- Wave 5h / ADR-0074 §4: server-wide moderation actions (Mute / Kick / Ban /
+-- Wave 5h / ADR-0079 §4: server-wide moderation actions (Mute / Kick / Ban /
 -- ChatRateLimit). One row per applied action; lift is in-place via the
 -- `lifted_at` column (no separate `lifts` table). `kind` carries the variant
 -- discriminator (matches `ModerationAction` sealed variants); `payload` JSONB

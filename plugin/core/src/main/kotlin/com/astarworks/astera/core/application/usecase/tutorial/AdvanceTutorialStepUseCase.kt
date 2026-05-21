@@ -10,7 +10,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.tutorial.TutorialScriptId
 
 /**
- * Advance the in-flight tutorial cursor by one step (Wave 5h, ADR-0074 §3).
+ * Advance the in-flight tutorial cursor by one step (Wave 5h, ADR-0079 §3).
  *
  * Persisted-state mirror of `RunTutorialUseCase.advance`. Where `RunTutorialUseCase`
  * maintains the in-process `RunnerState` map and publishes

@@ -44,7 +44,7 @@ public interface IWorldGateway {
 
     /**
      * Teleport [playerId] to the spectator spawn for [matchId] (Wave 5h,
-     * ADR-0074 §6). Used by `EnterSpectatorUseCase` to drop a player at a
+     * ADR-0079 §6). Used by `EnterSpectatorUseCase` to drop a player at a
      * match-defined vantage point (e.g. above the arena center).
      *
      * Returns [WorldGatewayError.UnknownMatch] if no spectator spawn is
@@ -54,7 +54,7 @@ public interface IWorldGateway {
     public fun spectatorSpawn(matchId: MatchId, playerId: PlayerId): Result<Unit, WorldGatewayError>
 
     /**
-     * Teleport [playerId] to the lobby spawn (Wave 5h, ADR-0074 §6). Used by
+     * Teleport [playerId] to the lobby spawn (Wave 5h, ADR-0079 §6). Used by
      * `LeaveSpectatorUseCase` and the reconnect-timeout fallback when a
      * disconnected player exceeds the 3-min ACTIVE reconnect window.
      *

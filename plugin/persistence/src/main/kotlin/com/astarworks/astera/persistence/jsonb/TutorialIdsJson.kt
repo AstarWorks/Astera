@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.tutorial.TutorialScriptId
 import kotlinx.serialization.Serializable
 
 /**
- * JSONB wrapper for `Set<TutorialScriptId>` (Wave 5h, ADR-0074 §3).
+ * JSONB wrapper for `Set<TutorialScriptId>` (Wave 5h, ADR-0079 §3).
  *
  * Used twice on `player_tutorial_state`: one column each for completed and
  * skipped script ids. Mirrors [PermissionsJson] in shape — the domain type is a

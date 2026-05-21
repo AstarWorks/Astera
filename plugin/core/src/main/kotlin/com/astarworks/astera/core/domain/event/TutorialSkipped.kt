@@ -6,7 +6,7 @@ import java.time.Instant
 
 /**
  * Emitted when a player explicitly skips a tutorial via
- * `/astera tutorial skip <id>` (Wave 5h, ADR-0074 §3).
+ * `/astera tutorial skip <id>` (Wave 5h, ADR-0079 §3).
  *
  * Published by `SkipTutorialUseCase` after the id is added to
  * `PlayerTutorialState.skippedTutorialScriptIds`. The first-join listener

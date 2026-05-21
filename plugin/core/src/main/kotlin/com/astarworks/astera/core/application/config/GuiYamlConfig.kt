@@ -108,7 +108,7 @@ public sealed class GuiSlotYamlConfig {
     }
 
     /**
-     * Two-button confirmation prompt (Wave 5h, ADR-0074 §2). Mirrors
+     * Two-button confirmation prompt (Wave 5h, ADR-0079 §2). Mirrors
      * [GuiSlot.Confirmation]; see that variant's KDoc for the rendering
      * contract. YAML:
      * ```
@@ -145,7 +145,7 @@ public sealed class GuiSlotYamlConfig {
     }
 
     /**
-     * Free-text input field (Wave 5h, ADR-0074 §2). Mirrors
+     * Free-text input field (Wave 5h, ADR-0079 §2). Mirrors
      * [GuiSlot.TextInput]; see that variant's KDoc for the rendering
      * contract. YAML:
      * ```

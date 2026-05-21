@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 
 /**
  * Validates the `confirmation` slot DTO ([GuiSlotYamlConfig.Confirmation])
- * round-trips YAML → domain ([GuiSlot.Confirmation]) per Wave 5h / ADR-0074 §2.
+ * round-trips YAML → domain ([GuiSlot.Confirmation]) per Wave 5h / ADR-0079 §2.
  *
  * Mirrors the shape of [GuiYamlConfigTextInputTest]; both are kept narrow
  * so a regression in the polymorphic discriminator or one variant's field

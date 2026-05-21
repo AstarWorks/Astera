@@ -12,7 +12,7 @@ import com.astarworks.astera.core.domain.hologram.BillboardMode
  * brightness override) live on [com.astarworks.astera.core.domain.hologram.Hologram]
  * — projectiles use the slimmer DisplaySpec for in-flight visuals; static
  * holograms use the full [com.astarworks.astera.core.domain.hologram.Hologram]
- * aggregate (ADR-0074 §1).
+ * aggregate (ADR-0079 §1).
  *
  * Wave 5h: [BillboardMode] moved to `core.domain.hologram` so the same enum
  * serves both projectile visuals and hologram displays.

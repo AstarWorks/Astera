@@ -800,10 +800,10 @@ class ArchitectureTest {
             .isEmpty()
     }
 
-    // ─── Wave 5h — Hologram domain vendor-neutrality (ADR-0074 §1) ──────────
+    // ─── Wave 5h — Hologram domain vendor-neutrality (ADR-0079 §1) ──────────
 
     /**
-     * Wave 5h, ADR-0074: the Hologram domain (`core.domain.hologram.*`) is
+     * Wave 5h, ADR-0079: the Hologram domain (`core.domain.hologram.*`) is
      * the vendor-neutral mirror of Bukkit's `Display` entity hierarchy. The
      * Wave 6b `PaperHologramGateway` adapter does the 1:1 mapping to
      * `org.bukkit.entity.Display` + `org.joml.Quaternionf` at the edge.
@@ -831,7 +831,7 @@ class ArchitectureTest {
             ) == true }
             .flatMap { it.imports }
             .assertFalse(
-                additionalMessage = "ADR-0074 §1: core.domain.hologram.* must stay vendor-neutral " +
+                additionalMessage = "ADR-0079 §1: core.domain.hologram.* must stay vendor-neutral " +
                     "(no Bukkit/Paper/JOML imports). Wave 6b PaperHologramGateway " +
                     "does the Display+Quaternionf conversion at the edge.",
             ) { import ->
@@ -839,10 +839,10 @@ class ArchitectureTest {
             }
     }
 
-    // ─── Wave 5h — ModerationAction sealed exhaustiveness (ADR-0074 §4) ─────
+    // ─── Wave 5h — ModerationAction sealed exhaustiveness (ADR-0079 §4) ─────
 
     /**
-     * Wave 5h, ADR-0074: `ModerationAction` is sealed (4 variants:
+     * Wave 5h, ADR-0079: `ModerationAction` is sealed (4 variants:
      * Mute / Kick / Ban / ChatRateLimit). Every `when` over the hierarchy
      * MUST be exhaustive — adding a 5th variant (e.g. `Warn`) without
      * updating every handler is a regression the compiler should catch.
@@ -894,7 +894,7 @@ class ArchitectureTest {
 
         assertThat(offenders.map { it.path })
             .withFailMessage {
-                "ADR-0074 §4: ModerationAction sealed exhaustiveness — these files " +
+                "ADR-0079 §4: ModerationAction sealed exhaustiveness — these files " +
                     "have a `when` over ModerationAction variants with an `else` branch: " +
                     "${offenders.map { it.path }}. Replace `else` with explicit per-variant " +
                     "arms so adding a new variant forces every handler to update."

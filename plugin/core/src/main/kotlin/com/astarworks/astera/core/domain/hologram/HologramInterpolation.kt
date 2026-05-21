@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.hologram
 
 /**
- * Smooth-animation settings for a Display entity (Wave 5h, ADR-0074 §1).
+ * Smooth-animation settings for a Display entity (Wave 5h, ADR-0079 §1).
  *
  * Mirrors Bukkit `Display.interpolationDuration` /
  * `Display.interpolationDelay` / `Display.teleportDuration`. When

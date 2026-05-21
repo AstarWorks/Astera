@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 
 /**
  * Reacts to [PlayerQuitServer] for participants of an in-flight match
- * (Wave 5h, ADR-0074 §6).
+ * (Wave 5h, ADR-0079 §6).
  *
  * Per-phase policy:
  *
@@ -127,7 +127,7 @@ public class DisconnectDuringMatchListener(
     }
 
     private companion object {
-        /** 3 minutes @ 20 tps = 3600 ticks. ADR-0074 §6 reconnect window. */
+        /** 3 minutes @ 20 tps = 3600 ticks. ADR-0079 §6 reconnect window. */
         const val RECONNECT_WINDOW_TICKS: Long = 3600L
     }
 }

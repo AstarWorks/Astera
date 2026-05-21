@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Lift a previously-applied moderation action (Wave 5h, ADR-0074 §4).
+ * Lift a previously-applied moderation action (Wave 5h, ADR-0079 §4).
  *
  * Requires `astera.mod.lift` from [liftedBy]. Idempotent: lifting an
  * unknown / already-lifted id is a Success no-op per

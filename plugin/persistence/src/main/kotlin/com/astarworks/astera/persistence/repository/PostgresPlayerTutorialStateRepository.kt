@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
 /**
- * Postgres-backed [IPlayerTutorialStateRepository] (Wave 5h, ADR-0074 §3).
+ * Postgres-backed [IPlayerTutorialStateRepository] (Wave 5h, ADR-0079 §3).
  *
  * Registered by `AsteraPersistencePlugin` at priority=100; overlays the
  * in-memory default the core plugin registers. The two id sets are encoded as

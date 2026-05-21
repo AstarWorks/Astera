@@ -10,7 +10,7 @@ import java.time.Clock
 import java.time.Instant
 
 /**
- * Test-fixture [IModerationService] (Wave 5h, ADR-0074 §4).
+ * Test-fixture [IModerationService] (Wave 5h, ADR-0079 §4).
  *
  * Mirrors [com.astarworks.astera.core.application.service.InMemoryModerationService]
  * but exposes [appliedActions] + [liftedIds] for assertions in cross-plugin

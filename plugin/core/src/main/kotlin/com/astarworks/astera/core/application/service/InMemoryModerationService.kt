@@ -10,7 +10,7 @@ import java.time.Clock
 import java.time.Instant
 
 /**
- * In-memory [IModerationService] (Wave 5h, ADR-0074 §4) backing the
+ * In-memory [IModerationService] (Wave 5h, ADR-0079 §4) backing the
  * Postgres-less default. Postgres overlay
  * ([com.astarworks.astera.persistence.repository.PostgresModerationService])
  * is registered at priority 100 by `AsteraPersistencePlugin`; this default

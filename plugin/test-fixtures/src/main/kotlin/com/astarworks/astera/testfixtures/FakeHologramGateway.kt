@@ -13,7 +13,7 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * In-memory [IHologramGateway] for use case tests (Wave 5h, ADR-0074 §1).
+ * In-memory [IHologramGateway] for use case tests (Wave 5h, ADR-0079 §1).
  *
  * Beyond storing live holograms in a [ConcurrentHashMap], every operation
  * is appended to [operations] as a [HologramOp] so tests can assert on the

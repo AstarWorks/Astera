@@ -17,7 +17,7 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * Wave 5h (ADR-0074 §4) — builds the `astera mod` subcommand tree.
+ * Wave 5h (ADR-0079 §4) — builds the `astera mod` subcommand tree.
  *
  * Six subcommands ship:
  *

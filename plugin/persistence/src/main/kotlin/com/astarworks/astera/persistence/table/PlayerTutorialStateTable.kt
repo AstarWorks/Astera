@@ -8,7 +8,7 @@ import org.jetbrains.exposed.v1.javatime.timestamp
 
 /**
  * `player_tutorial_state` table — per-player tutorial completion / skip /
- * cursor state (Wave 5h, ADR-0074 §3, V20 migration).
+ * cursor state (Wave 5h, ADR-0079 §3, V20 migration).
  *
  * One row per player; latest-write-wins (no history). The two JSONB columns
  * each carry a sorted array of [com.astarworks.astera.core.domain.tutorial.TutorialScriptId]
