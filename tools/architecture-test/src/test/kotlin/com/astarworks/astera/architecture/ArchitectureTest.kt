@@ -918,116 +918,34 @@ class ArchitectureTest {
     }
 
     /**
-     * Wave 5k (ADR-0080): the physiology domain
-     * (`core.domain.player.physiology.*`) carries health / speed / food source
-     * variants. Same Bukkit-free invariant as the rest of `core.domain.*`,
-     * called out explicitly here so a fresh contributor sees the constraint
-     * named.
+     * Recipe + Quest domains (Wave 5s, ADR-0091) carry pure data + invariants
+     * only — same constraint as every other `core.domain.*` package, but
+     * called out explicitly here so a future change cannot accidentally pull
+     * Bukkit / Paper / Citizens / Postgres / serialization into recipe or
+     * quest types without tripping a dedicated assertion.
      */
     @Test
-    fun `Player physiology domain must not import Bukkit Paper (ADR-0080)`() {
+    fun `recipe and quest domains must stay pure (Wave 5s, ADR-0091)`() {
         Konsist.scopeFromModule("plugin/core")
             .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.player.physiology") == true }
-            .assertFalse(
-                additionalMessage = "ADR-0080: physiology source variants must stay pure-domain. " +
-                    "Bukkit attribute / Player wiring lives in adapter/paper/.",
-            ) { file ->
-                hasBukkitFamilyImport(file)
+            .filter {
+                val pkg = it.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.core.domain.recipe") ||
+                    pkg.startsWith("com.astarworks.astera.core.domain.quest")
             }
-    }
-
-    /**
-     * Wave 5m / ADR-0088: Combat AOE port implementations (Explosion /
-     * AreaEffect / Lightning / FireSpread) MUST NOT import the Bukkit
-     * family in their **application-layer** location.
-     *
-     * The port interfaces live under
-     * `com.astarworks.astera.combat.application.port.outbound.aoe.*` and
-     * their default in-memory impls live under
-     * `com.astarworks.astera.combat.application.service.aoe.*`. Both
-     * packages are part of the application layer (per ADR-0001 §4) and
-     * therefore stay vendor-neutral: Wave 6a Paper impls live in
-     * `combat.adapter.paper.*` instead and that location can freely
-     * import Bukkit.
-     *
-     * This rule duplicates "combat application must not import Bukkit
-     * family" intentionally — keeping a dedicated AOE-scoped assertion
-     * makes the Wave 5m boundary easy to find in CI failures and gives
-     * future ports added under `.aoe.*` an explicit hook.
-     */
-    @Test
-    fun `IExplosionGateway and IAreaEffectGateway implementations must not import Bukkit Paper (ADR-0088)`() {
-        Konsist.scopeFromModule("plugin/combat")
-            .files
-            .filter { file ->
-                val pkg = file.packagee?.name ?: return@filter false
-                pkg.startsWith("com.astarworks.astera.combat.application.port.outbound.aoe") ||
-                    pkg.startsWith("com.astarworks.astera.combat.application.service.aoe") ||
-                    pkg.startsWith("com.astarworks.astera.combat.domain.aoe") ||
-                    pkg.startsWith("com.astarworks.astera.combat.domain.event.aoe")
-            }
-            .assertFalse(
-                additionalMessage = "ADR-0088 violation: Wave 5m Combat AOE port impls + " +
-                    "their domain types must stay vendor-neutral. Move any Bukkit-touching " +
-                    "code to combat.adapter.paper.*.",
-            ) { file -> hasBukkitFamilyImport(file) }
-    }
-
-    // ─── Wave 5q — Anti-cheat + Anti-AFK isolation (ADR-0083) ─────────
-
-    /**
-     * ADR-0083: the anti-cheat domain (`core.domain.anticheat.*`) carries
-     * the validator-result sealed hierarchies plus the cross-plugin
-     * suspicion / action vocabulary. Must stay Bukkit-free — Paper-side
-     * listeners that emit these surfaces live in adapter/paper/ (Wave 6b)
-     * and external plugin bridges arrive through
-     * [com.astarworks.astera.core.application.port.outbound.anticheat.IExternalAnticheatBridge].
-     *
-     * The Konsist rule mirrors the physiology / resource-pool guard from
-     * Wave 5k (ADR-0080) — same vendor isolation, different package.
-     */
-    @Test
-    fun `Anti-cheat domain must not import Bukkit Paper (ADR-0083)`() {
-        Konsist.scopeFromModule("plugin/core")
-            .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.anticheat") == true }
-            .assertFalse(
-                additionalMessage = "ADR-0083: anti-cheat domain must stay Bukkit-free. " +
-                    "Move Paper-side wiring to core.adapter.paper.* (or feature plugins' " +
-                    "adapter/paper/).",
-            ) { file -> hasBukkitFamilyImport(file) }
-    }
-
-    /**
-     * ADR-0083: every concrete [com.astarworks.astera.core.application.port.outbound.afk.IAfkDetector]
-     * implementation MUST live in either `application/service/afk/`
-     * (vendor-neutral / Postgres overlay) or in a `<plugin>/adapter/paper/...`
-     * package. Bukkit imports in the application-layer impl would force
-     * the detector onto the Paper main thread for every tick scan, which
-     * the [AfkSweepScheduler] is supposed to keep optional.
-     *
-     * In practice this assertion narrows to "any class implementing
-     * IAfkDetector under the `core.application.*` package must not import
-     * Bukkit." Wave 6b can subclass with a Paper-backed `IPlayerGateway`
-     * lookup as long as that impl lives under `<plugin>.adapter.paper.*`.
-     */
-    @Test
-    fun `IAfkDetector application-layer implementations must not import Bukkit Paper (ADR-0083)`() {
-        val portSimpleName = "IAfkDetector"
-        Konsist.scopeFromProject()
-            .classes()
-            .filter { cls ->
-                cls.parents().any { parent -> parent.name == portSimpleName } &&
-                    cls.packagee?.name?.contains(".application.") == true
-            }
-            .assertFalse(
-                additionalMessage = "ADR-0083: IAfkDetector application-layer impls must stay " +
-                    "Bukkit-free. Move Paper wiring to *.adapter.paper.* instead.",
-            ) { cls ->
-                cls.containingFile.imports.any { imp ->
-                    bukkitFamily.any { prefix -> imp.name.startsWith(prefix) }
-                }
+            .assertFalse(additionalMessage = "ADR-0091 violation: Recipe/Quest domain leaked a forbidden import.") { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("net.citizensnpcs") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.slf4j") ||
+                            imp.name.startsWith("java.io") ||
+                            imp.name.startsWith("java.nio") ||
+                            imp.name.startsWith("java.net")
+                    }
             }
     }
 

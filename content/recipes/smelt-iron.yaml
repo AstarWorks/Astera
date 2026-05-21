@@ -1,0 +1,11 @@
+# Wave 5s (ADR-0091): canonical conversion recipe sample.
+# 1 iron-ore → 1 iron-ingot at the Astera furnace surface.
+id: smelt-iron
+output_item: iron-ingot
+output_count: 1
+crafting_station: AsteraFurnace
+ingredients:
+  type: conversion
+  from: iron-ore
+  to: iron-ingot
+  ratio: 1

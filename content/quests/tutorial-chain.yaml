@@ -1,0 +1,26 @@
+# Wave 5s (ADR-0091): canonical 2-stage quest chain sample.
+# Stage 1: kill 5 monsters → 50 GOLD reward → auto-advances to Stage 2.
+# Stage 2: win 1 match → grant the "rookie" title → chain complete.
+id: tutorial-chain
+title_key: astera.quest.tutorial-chain.title
+stages:
+  - id: kill-monsters
+    title_key: astera.quest.tutorial-chain.kill-monsters.title
+    description_key: astera.quest.tutorial-chain.kill-monsters.description
+    criteria:
+      type: kill_count
+      target: 5
+    rewards:
+      - type: grant_currency
+        currency: GOLD
+        amount: 50
+    following_stage_id: win-match
+  - id: win-match
+    title_key: astera.quest.tutorial-chain.win-match.title
+    description_key: astera.quest.tutorial-chain.win-match.description
+    criteria:
+      type: matches_won
+      count: 1
+    rewards:
+      - type: grant_title
+        title_id: rookie
