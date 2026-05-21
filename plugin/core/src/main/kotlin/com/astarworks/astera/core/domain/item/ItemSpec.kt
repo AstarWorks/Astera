@@ -2,6 +2,7 @@ package com.astarworks.astera.core.domain.item
 
 import com.astarworks.astera.core.domain.i18n.LocalizedLore
 import com.astarworks.astera.core.domain.i18n.LocalizedText
+import com.astarworks.astera.core.domain.world.BlockType
 
 /**
  * Materialized item definition (Wave _items-1, ADR-0073).
@@ -45,6 +46,15 @@ import com.astarworks.astera.core.domain.i18n.LocalizedText
  * "no override — fall back to the vendor default or archetype-derived model".
  * The slug has no `.model.json` suffix; resolution semantics are owned by the
  * consumer.
+ *
+ * # Placeable as custom block (Wave 5x, ADR-0090)
+ *
+ * [placeableAs] turns an item into a placement source for a
+ * [com.astarworks.astera.core.domain.block.CustomBlockSpec]. When set, the
+ * Paper place-handler (Wave 6b) looks up the spec via
+ * `ICustomBlockRegistry.resolve(placeableAs)` and routes to
+ * `IBlockStateGateway.placeCustomBlock`. `null` keeps the item non-placeable
+ * (vanilla item behavior).
  */
 public data class ItemSpec(
     val id: ItemId,
@@ -62,6 +72,7 @@ public data class ItemSpec(
     val skillBindings: List<ItemSkillBinding>,
     val pdcTags: Map<String, String>,
     val modelSlug: String? = null,
+    val placeableAs: BlockType? = null,
 ) {
     init {
         require(levelRequirement >= 1) {

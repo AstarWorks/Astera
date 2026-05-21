@@ -800,6 +800,99 @@ class ArchitectureTest {
             .isEmpty()
     }
 
+    // ─── Wave 5x — ToolType two-axis invariant + Postgres overlay ───────────
+
+    /**
+     * Wave 5x (ADR-0090): `ToolType` must remain a **two-axis data class**
+     * (`kind: ToolKind, tier: ToolTier`). Wave 5d's single-axis enum collapsed
+     * pickaxe / axe / shovel semantics into "tier only"; Wave 5x split them
+     * to support the pickaxe-vs-axe-vs-shovel × wood/stone/soil
+     * rock-paper-scissors. A regression to enum or to a single-axis data
+     * class is a real architectural rollback — this rule catches it at
+     * compile-time discovery.
+     *
+     * Specifically:
+     *  - `ToolType` must be a `data class` (not an `enum class` / `class` /
+     *    `object`).
+     *  - It must declare exactly two primary-constructor parameters named
+     *    `kind` and `tier` (order-agnostic).
+     */
+    @Test
+    fun `ToolType must be a two-axis data class (Wave 5x ADR-0090)`() {
+        val expectedFqn = "com.astarworks.astera.core.domain.world.ToolType"
+        val toolTypeClasses = Konsist.scopeFromProject()
+            .classes()
+            .filter { it.fullyQualifiedName == expectedFqn }
+
+        assertThat(toolTypeClasses)
+            .withFailMessage {
+                "Wave 5x (ADR-0090): expected $expectedFqn to exist as a data class. " +
+                    "Did the file get deleted or moved? ToolType is the two-axis tool " +
+                    "descriptor (kind × tier) introduced in Wave 5x."
+            }
+            .hasSize(1)
+
+        val toolType = toolTypeClasses.single()
+
+        assertThat(toolType.hasDataModifier)
+            .withFailMessage {
+                "Wave 5x (ADR-0090) regression: $expectedFqn must be a `data class`. " +
+                    "Reverting to an enum collapses the kind × tier axes and breaks " +
+                    "the pickaxe / axe / shovel rock-paper-scissors matrix."
+            }
+            .isTrue()
+
+        val paramNames = toolType.primaryConstructor?.parameters?.map { it.name }?.toSet().orEmpty()
+        assertThat(paramNames)
+            .withFailMessage {
+                "Wave 5x (ADR-0090) regression: $expectedFqn must declare " +
+                    "primary-constructor parameters {kind, tier}; got $paramNames. " +
+                    "Adding / renaming / removing an axis breaks the YAML matrix " +
+                    "and the per-block toolEffectiveness override."
+            }
+            .containsExactlyInAnyOrder("kind", "tier")
+    }
+
+    /**
+     * Wave 5x (ADR-0090): the Postgres impl of `IBlockDurabilityRepository`
+     * MUST live at the agreed FQN
+     * `com.astarworks.astera.persistence.repository.PostgresBlockDurabilityRepository`
+     * and MUST implement `IBlockDurabilityRepository`. Runtime priority-100
+     * registration is wired in `AsteraPersistencePlugin.kt` — this test
+     * guarantees the impl class is named and located correctly so priority
+     * drift is caught at the structural level.
+     *
+     * Mirrors the Wave 5g `IShopStockRepository` rule (forward-only design,
+     * same skeleton-staging tolerance).
+     */
+    @Test
+    fun `IBlockDurabilityRepository requires priority 100 Postgres overlay (Wave 5x)`() {
+        val expectedImplFqn =
+            "com.astarworks.astera.persistence.repository.PostgresBlockDurabilityRepository"
+        val expectedPortSimpleName = "IBlockDurabilityRepository"
+
+        val matches = Konsist.scopeFromProject()
+            .classes()
+            .filter { it.fullyQualifiedName == expectedImplFqn }
+
+        if (matches.isEmpty()) return
+
+        val nonImplementors = matches.filter { cls ->
+            cls.parents().none { parent -> parent.name == expectedPortSimpleName }
+        }
+
+        assertThat(nonImplementors.map { it.fullyQualifiedName })
+            .withFailMessage {
+                "Wave 5x wiring contract: $expectedImplFqn must implement " +
+                    "$expectedPortSimpleName so the priority-100 overlay " +
+                    "registered by AsteraPersistencePlugin actually beats " +
+                    "InMemoryBlockDurabilityRepository (priority 0). If you " +
+                    "renamed the impl, update both this test and " +
+                    "AsteraPersistencePlugin.kt in the same commit."
+            }
+            .isEmpty()
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

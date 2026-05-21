@@ -1,0 +1,67 @@
+package com.astarworks.astera.core.domain.block
+
+import com.astarworks.astera.core.domain.i18n.LocalizedText
+import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.world.BlockMaterial
+import com.astarworks.astera.core.domain.world.BlockType
+import com.astarworks.astera.core.domain.world.ToolType
+
+/**
+ * Authored definition of a custom Astera block (Wave 5x, ADR-0090).
+ *
+ * Replaces the pre-Wave-5x ad-hoc hardcoding of `astera:core_block` /
+ * `astera:barrier_block` with a YAML-driven registry: drop a file in
+ * `content/blocks/<id>.yaml` and the block becomes placeable, durable, and
+ * lootable end-to-end.
+ *
+ * # Fields
+ *
+ * - [id] — namespaced [BlockType] (`astera:hardened_soil`).
+ * - [displayName] — inline en/ja `LocalizedText`; renderer resolves at
+ *   query time.
+ * - [baseBukkitMaterial] — vanilla `Material` name used as the placed
+ *   block's visual base (`DIRT`, `OBSIDIAN`, …). The Paper adapter resolves
+ *   this to `org.bukkit.Material` at I/O time so the domain stays
+ *   vendor-neutral.
+ * - [material] — coarse [BlockMaterial] used as the right axis of the
+ *   damage matrix when [toolEffectiveness] doesn't cover a cell.
+ * - [baseDurability] — initial + max HP of the block. Custom blocks may set
+ *   this far above the vanilla 100 default (e.g. 5000 for obsidian-grade
+ *   hardness).
+ * - [toolEffectiveness] — optional per-block matrix override. Keyed by
+ *   `ToolType.serialKey()` ("PICKAXE/IRON", "NONE", …). The gateway
+ *   consults this first; on miss it falls through to the global
+ *   `BlockDurabilityRule`.
+ * - [drops] — what the block yields when broken, with per-drop tool gates
+ *   + chance rolls (see [BlockDrop]).
+ * - [placedFrom] — optional [ItemId] of the placement item. The gateway
+ *   uses this with `ItemSpec.placeableAs` to short-circuit the inverse
+ *   lookup ("what custom block does this item place?").
+ * - [immuneTo] — set of [BlockMaterial]s the block is fully immune to.
+ *   A skill profile whose `effectiveTool.material` lookup lands in this
+ *   set produces [IneffectiveReason.ImmuneByMaterial].
+ * - [texture] — opaque texture reference (HUD glyph slug or texture asset
+ *   id). The texture-gen + HUD glyph registry (Wave 5j) resolve to the
+ *   actual asset at render time.
+ */
+public data class CustomBlockSpec(
+    val id: BlockType,
+    val displayName: LocalizedText,
+    val baseBukkitMaterial: String,
+    val material: BlockMaterial,
+    val baseDurability: Int,
+    val toolEffectiveness: Map<ToolType, Int>? = null,
+    val drops: List<BlockDrop> = emptyList(),
+    val placedFrom: ItemId? = null,
+    val immuneTo: Set<BlockMaterial> = emptySet(),
+    val texture: String? = null,
+) {
+    init {
+        require(baseDurability >= 1) {
+            "CustomBlockSpec.baseDurability must be >= 1, got $baseDurability"
+        }
+        require(baseBukkitMaterial.isNotBlank()) {
+            "CustomBlockSpec.baseBukkitMaterial must not be blank"
+        }
+    }
+}

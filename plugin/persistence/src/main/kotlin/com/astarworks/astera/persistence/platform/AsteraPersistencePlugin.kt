@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.platform
 
+import com.astarworks.astera.core.application.port.outbound.IBlockDurabilityRepository
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IFriendshipRepository
 import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
@@ -35,6 +36,7 @@ import com.astarworks.astera.persistence.repository.PostgresMarketplaceRepositor
 import com.astarworks.astera.persistence.repository.PostgresMatchRepository
 import com.astarworks.astera.persistence.repository.PostgresNormaProgressRepository
 import com.astarworks.astera.persistence.repository.PostgresAuditLogRepository
+import com.astarworks.astera.persistence.repository.PostgresBlockDurabilityRepository
 import com.astarworks.astera.persistence.repository.PostgresPartyRepository
 import com.astarworks.astera.persistence.repository.PostgresPermissionService
 import com.astarworks.astera.persistence.repository.PostgresPersonalVaultRepository
@@ -201,6 +203,16 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 5x (ADR-0090): cross-restart custom-block durability. V20
+        // migration adds `block_durability`; the in-memory tracker in
+        // InMemoryBlockStateGateway flushes through this overlay on
+        // ServerLifecycleListener.onShutdown (Wave 5w) so custom blocks
+        // survive a pod kill.
+        registrations += services.register<IBlockDurabilityRepository>(
+            PostgresBlockDurabilityRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -210,7 +222,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge, IShopStockRepository.",
+                "IRewardBridge, IShopStockRepository, IBlockDurabilityRepository.",
         )
     }
 

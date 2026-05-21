@@ -107,6 +107,7 @@ public data class ItemYamlConfig(
     public val glint: Boolean? = null,
     public val skills: List<ItemSkillBindingYaml> = emptyList(),
     @SerialName("pdc_tags") public val pdcTags: Map<String, String> = emptyMap(),
+    @SerialName("placeable_as") public val placeableAs: String? = null,
 ) {
 
     /**
@@ -172,6 +173,7 @@ public data class ItemYamlConfig(
             skillBindings = skills.map { it.toDomain() },
             pdcTags = pdcTags,
             modelSlug = model,
+            placeableAs = placeableAs?.let { com.astarworks.astera.core.domain.world.BlockType(it) },
         )
     }
 

@@ -48,7 +48,7 @@ class BlockRecoverySchedulerTest {
         )
 
         // tick 0: damage. dur = 80.
-        gateway.applyDamage(world, pos, amount = 20, tool = ToolType.IRON)
+        gateway.applyDamage(world, pos, amount = 20, tool = ToolType.IRON_PICKAXE)
         val handle = sut.start()
 
         // First cycle fires at tick 200 (initialDelay = period = 200).
@@ -97,7 +97,7 @@ class BlockRecoverySchedulerTest {
             scheduler = scheduler,
             cyclePeriodTicks = 100L,
         )
-        gateway.applyDamage(world, pos, amount = 50, tool = ToolType.IRON) // dur=50
+        gateway.applyDamage(world, pos, amount = 50, tool = ToolType.IRON_PICKAXE) // dur=50
         val handle = sut.start()
 
         // One cycle at tick 100 → +1 = 51.

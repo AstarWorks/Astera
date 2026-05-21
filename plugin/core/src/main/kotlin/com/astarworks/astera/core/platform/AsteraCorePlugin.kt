@@ -23,14 +23,17 @@ import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.contents.GuiContents
 import com.astarworks.astera.core.application.contents.ItemContents
 import com.astarworks.astera.core.application.contents.TutorialContents
+import com.astarworks.astera.core.application.contents.block.CustomBlockContents
 import com.astarworks.astera.core.application.eventbus.listeners.RestoreInventoryOnPlayerJoinedListener
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
 import com.astarworks.astera.core.application.i18n.LanguageLoader
 import com.astarworks.astera.core.application.i18n.SimpleMessageRenderer
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
+import com.astarworks.astera.core.application.port.outbound.IBlockDurabilityRepository
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
+import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver
@@ -59,6 +62,7 @@ import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
 import com.astarworks.astera.core.application.service.InMemoryAuditLogRepository
+import com.astarworks.astera.core.application.service.InMemoryBlockDurabilityRepository
 import com.astarworks.astera.core.application.service.InMemoryBlockStateGateway
 import com.astarworks.astera.core.application.service.InMemoryBossBarManager
 import com.astarworks.astera.core.application.service.InMemoryFriendshipRepository
@@ -257,7 +261,32 @@ public class AsteraCorePlugin : JavaPlugin() {
         val durabilityRule = BlockDurabilityLoader().load(
             contentDir.resolve("balance/block-durability.yaml"),
         )
-        val blockStateGateway: IBlockStateGateway = InMemoryBlockStateGateway()
+        // Wave 5x (ADR-0090): Custom-block registry, loaded from
+        // content/blocks/<id>.yaml. The InMemoryBlockStateGateway holds a
+        // reference so applyDamageFromSkill can resolve per-block tool
+        // effectiveness + drops without an extra registry lookup at every
+        // hit. Hot-reload via /astera reload blocks.
+        val customBlocksContentDir = contentDir.resolve("blocks")
+        val customBlockContents = CustomBlockContents()
+        val customBlockReport = customBlockContents.bootstrap(customBlocksContentDir)
+        logger.info(
+            "Custom blocks loaded: ${customBlockReport.loaded} ok, ${customBlockReport.failed} failed",
+        )
+        services.register<ICustomBlockRegistry>(customBlockContents, priority = 0)
+
+        // Wave 5x (ADR-0090): Postgres-backed block durability repository
+        // (in-memory default at priority 0; Persistence overlays at 100).
+        val blockDurabilityRepository: IBlockDurabilityRepository =
+            services.get<IBlockDurabilityRepository>() ?: InMemoryBlockDurabilityRepository().also {
+                services.register<IBlockDurabilityRepository>(it, priority = 0)
+            }
+        @Suppress("UNUSED_VARIABLE") val blockDurabilityRepositoryRef = blockDurabilityRepository
+
+        val blockStateGateway: IBlockStateGateway = InMemoryBlockStateGateway(
+            eventBus = eventBus,
+            customBlockRegistry = customBlockContents,
+            durabilityRule = durabilityRule,
+        )
         val schematicLoader: ISchematicLoader = InMemorySchematicLoader()
         services.register<IBlockStateGateway>(blockStateGateway, priority = 0)
         services.register<ISchematicLoader>(schematicLoader, priority = 0)
@@ -301,6 +330,8 @@ public class AsteraCorePlugin : JavaPlugin() {
         // their resolved on-disk directories.
         reloadRegistry.register(itemContents, itemsContentDir)
         reloadRegistry.register(guiContents, guiContentDir)
+        // Wave 5x (ADR-0090): custom blocks reload via /astera reload blocks.
+        reloadRegistry.register(customBlockContents, customBlocksContentDir)
 
         // ---- Particle contents (Wave 5f, ADR-0035, RTM #21) -------------
         // ParticleDefinition domain + Contents-driven YAML at content/particles/.
@@ -479,6 +510,8 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IBlockStateGateway",
             "ISchematicLoader",
             "BlockDurabilityRule",
+            "ICustomBlockRegistry",
+            "IBlockDurabilityRepository",
             "IPermissionService",
             "IReloadableContentsRegistry",
         )

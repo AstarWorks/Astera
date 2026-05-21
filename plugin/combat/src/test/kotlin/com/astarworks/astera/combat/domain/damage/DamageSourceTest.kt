@@ -6,6 +6,9 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.core.domain.world.BlockType
+import com.astarworks.astera.core.domain.world.ToolType
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.combat.domain.projectile.ProjectileId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -36,6 +39,13 @@ class DamageSourceTest {
                 origin = ProjectileOrigin.FromItem(ItemId("example-pistol")),
             ),
             DamageSource.Barrier(BarrierId("test-barrier")),
+            DamageSource.Block(
+                world = WorldId("test-world"),
+                position = Vec3.ZERO,
+                blockType = BlockType("astera:hardened_soil"),
+                tool = ToolType.IRON_PICKAXE,
+                attackerId = player,
+            ),
         )
 
         val tags = sources.map { source ->
@@ -48,11 +58,12 @@ class DamageSourceTest {
                 is DamageSource.StatusEffectTick -> "status-tick"
                 is DamageSource.Projectile -> "projectile"
                 is DamageSource.Barrier -> "barrier"
+                is DamageSource.Block -> "block"
             }
         }
 
         assertThat(tags).containsExactly(
-            "env", "item", "skill", "fall", "explosion", "status-tick", "projectile", "barrier",
+            "env", "item", "skill", "fall", "explosion", "status-tick", "projectile", "barrier", "block",
         )
     }
 
@@ -74,5 +85,23 @@ class DamageSourceTest {
             ).attackerIdOrNull(),
         ).isEqualTo(player)
         assertThat(DamageSource.Barrier(BarrierId("test")).attackerIdOrNull()).isNull()
+        assertThat(
+            DamageSource.Block(
+                world = WorldId("test"),
+                position = Vec3.ZERO,
+                blockType = BlockType("astera:hardened_soil"),
+                tool = ToolType.IRON_PICKAXE,
+                attackerId = player,
+            ).attackerIdOrNull(),
+        ).isEqualTo(player)
+        assertThat(
+            DamageSource.Block(
+                world = WorldId("test"),
+                position = Vec3.ZERO,
+                blockType = BlockType("astera:hardened_soil"),
+                tool = ToolType.IRON_PICKAXE,
+                attackerId = null,
+            ).attackerIdOrNull(),
+        ).isNull()
     }
 }
