@@ -162,6 +162,8 @@ adds to `gradle/libs.versions.toml`:
 | **3rd TNT variant `CarryBigTnt`** (payload — `GuiAction.CHANGE_PAYLOAD`) | ❌ nothing | **Wave 7a** (content-fidelity) | P2 | RTM `GameMode.kt` (3 TNT variants total: Tnt / SmallTnt / BigTnt) |
 | **`ItemGenerator`** (non-Star item-spawning generator) | ❌ nothing | **Wave 7a** (content alongside Wave 5c `StarGenerator`) | P2 | RTM `ConfiguredItemGenerator.kt` alongside `ConfiguredStarGenerator.kt` |
 | **Listener-Service architecture refactor** (per-module event-handler ↔ business-logic separation) | ✅ Wave 5e (ADR-0064 draft → Accepted) | (済 Wave 5e) | P3 | RTM issue #22 body |
+| **Matchmaking queue foundation** (`IMatchmaker` port + FIFO + party-aware + `MatchmakingMode` sealed + `MatchFoundUseCase` + `/astera queue join/leave/status`) | ✅ Wave 5w (`InMemoryMatchmaker` priority 0; Elo / Glicko2 = Phase 2 Wave 7b) | (済 Wave 5w) | **P1** | `plugin/match/.../domain/matchmaking/`, `IMatchmaker`, `InMemoryMatchmaker`, `MatchFoundUseCase`, `MatchQueueJoined`/`MatchQueueLeft`/`MatchFormed` events, ADR-0089 §δ |
+| **Lobby waiting-room HUD (Hypixel-style)** (`ILobbyHudCoordinator` + queue position / ETA / mode / cancel hint over Wave 5b BossBar+Scoreboard) | ✅ Wave 5w (`LobbyWaitingRoomHud` vendor-neutral; `content/hud/lobby-waiting.json`; Konsist hud-only rule) | (済 Wave 5w) | P1 | `plugin/match/.../application/service/hud/LobbyWaitingRoomHud.kt` + `ILobbyHudCoordinator.kt` + ADR-0089 §γ |
 
 ---
 
@@ -349,6 +351,8 @@ green; 2 new rules added (baseline 30 → 32). Parity gauge **same ✅ count**
 | Chunk-level tracing | ❌ nothing | Phase 2-3 (Wave 8-x.2) | P3 | `idea-observability-depth.md` §B |
 | Live admin observability dashboard | ❌ nothing | Phase 4 (Wave 8a-x) | P3 | `idea-observability-depth.md` §C |
 | Audit log emission (cross-plugin) | ❌ nothing | Wave 5e | P2 | (with audit table) |
+| **Server lifecycle / Graceful shutdown** (`IServerLifecycleListener` + `IServerBootstrapper` + 5-phase shutdown order: StopAcceptingPlayers → SaveInFlightMatches → FlushRewardOutbox → CloseDatabase → DisablePlugins) | ✅ Wave 5w (port + `InMemoryServerBootstrapper`; `PaperServerBootstrapper` = Wave 6a) | (済 Wave 5w) | **P1** | `plugin/core/.../application/port/outbound/lifecycle/`, `core.domain.lifecycle.{ShutdownPhase,ShutdownReason,LifecycleStateSnapshot,LifecycleError}`, `ServerBooted`/`ServerReady`/`ServerShutdownStarted`/`ServerShutdownCompleted` events, ADR-0089 §α |
+| **Server-scoped backup gateway (restic-style 24h hot retention + daily + weekly)** | 🔌 port + InMemory stub (Wave 5w) — `ResticBackupGateway` Paper subprocess + S3 endpoint = Wave 6b | Wave 5w (port + admin Brigadier) + **Wave 6b** (restic impl) | **P1** | `IServerBackupGateway` + `BackupTarget` sealed + `BackupRetentionPolicy` + `content/balance/backup-policy.yaml` + `/astera backup run/list/restore` + Konsist subprocess-isolation rule, ADR-0089 §β + `idea-anti-grief-policy.md` §(b) |
 
 ---
 

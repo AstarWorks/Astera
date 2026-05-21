@@ -226,6 +226,20 @@ astera:
     # Wave 5d — Block tracking (ADR-0033)
     block:
       restored-on-match-end: "<gray>{count} block change(s) restored at match end.</gray>"
+    # Wave 5w — Matchmaking queue (ADR-0089)
+    matchmaking:
+      queue-failure: "<red>Queue rejected the request.</red>"
+      enqueue:
+        success: "<green>Joined queue: <gold>{mode}</gold></green>"
+        already-enqueued: "<red>You are already queued.</red>"
+        mode-closed: "<red>That mode is closed.</red>"
+        invalid-mode: "<red>Unknown matchmaking mode <gold>{mode}</gold>.</red>"
+      dequeue:
+        success: "<green>Left the queue.</green>"
+        not-enqueued: "<red>You are not currently queued.</red>"
+      status:
+        none: "<gray>You are not currently queued.</gray>"
+        line: "<yellow>Queue:</yellow> <white>{mode}</white> <gray>(#</gray><gold>{position}</gold><gray>)</gray>"
 
   spawn:
     teleporting: "<gray>Teleporting to spawn…</gray>"
@@ -341,3 +355,34 @@ astera:
       kills-100:
         name: "<gold>Legend</gold>"
         description: "<gray>100 kills.</gray>"
+
+  # Wave 5w — Lobby waiting-room HUD + queue command + backup admin (ADR-0089).
+  lobby:
+    queue-status: "<yellow>Queue:</yellow> <white>{mode}</white> <gray>(#</gray><gold>{position}</gold><gray>, ETA </gray><gold>{eta}s</gold><gray>)</gray>"
+    not-queued: "<gray>You are not in a queue. Use <yellow>/astera queue join &lt;mode&gt;</yellow>.</gray>"
+    match-found: "<green><bold>Match found! Teleporting…</bold></green>"
+    bossbar:
+      title: "<yellow>Waiting for match…</yellow>"
+    scoreboard:
+      title: "<gold><bold>Lobby</bold></gold>"
+      mode: "<gray>Mode:</gray> <white>{mode}</white>"
+      position: "<gray>#</gray> <white>{position}</white>"
+      eta: "<gray>ETA:</gray> <white>{eta}s</white>"
+      cancel-hint: "<dark_gray>Use <yellow>/astera queue leave</yellow> to cancel</dark_gray>"
+      not-queued: "<gray>Not queued.</gray>"
+  server:
+    backup:
+      run:
+        success: "<green>Backup snapshot created: <gold>{snapshot}</gold></green>"
+        failure: "<red>Backup failed: {reason}</red>"
+      list:
+        empty: "<gray>No snapshots found.</gray>"
+        line: "<yellow>{id}</yellow> <gray>(</gray><white>{target}</white><gray>, taken </gray><white>{takenAt}</white><gray>)</gray>"
+      restore:
+        success: "<green>Restored from snapshot <gold>{snapshot}</gold> ({files} files).</green>"
+        not-found: "<red>Snapshot <gold>{snapshot}</gold> not found.</red>"
+        failure: "<red>Restore failed: {reason}</red>"
+    lifecycle:
+      shutdown:
+        starting: "<yellow>Server is shutting down ({reason}). New joins refused.</yellow>"
+        completed: "<gray>Shutdown completed in {phases} phases.</gray>"

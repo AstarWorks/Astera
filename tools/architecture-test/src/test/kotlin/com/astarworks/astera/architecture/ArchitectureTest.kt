@@ -859,6 +859,108 @@ class ArchitectureTest {
             .isEmpty()
     }
 
+    // ─── Wave 5w — Server lifecycle + restic backup + Lobby HUD + IMatchmaker (ADR-0089) ────
+
+    /**
+     * Wave 5w (ADR-0089 §β): restic backup adapters MUST isolate subprocess
+     * invocations to `*.adapter.paper.backup.*` packages.
+     *
+     * `java.lang.ProcessBuilder` and `java.lang.Process` are the only ways a
+     * JVM service can shell out. Allowing them in application/ would let the
+     * port leak its subprocess assumption into use cases. Wave 6b's
+     * `ResticBackupGateway` lives at `core.adapter.paper.backup.*`; this
+     * rule pins the boundary even before that file lands.
+     */
+    @Test
+    fun `restic backup adapter must isolate subprocess invocation in adapter layer`() {
+        val subprocessImports = setOf(
+            "java.lang.ProcessBuilder",
+            "java.lang.Process",
+            "java.lang.Runtime",
+        )
+        // Outside of `adapter.paper.backup.*` and the architecture test itself,
+        // no Astera code may import ProcessBuilder/Process/Runtime.
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera") &&
+                    !pkg.contains(".adapter.paper.backup") &&
+                    pkg != "com.astarworks.astera.architecture"
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0089 §β: subprocess invocation (ProcessBuilder/Process/Runtime) " +
+                    "must be confined to `*.adapter.paper.backup.*`. The restic CLI gateway is the only " +
+                    "production caller; if you need to spawn another process, route through a port + " +
+                    "adapter pair.",
+            ) { file ->
+                file.imports.any { imp -> imp.name in subprocessImports }
+            }
+    }
+
+    /**
+     * Wave 5w (ADR-0089 §δ): every concrete [IMatchmaker] implementation
+     * declares a `tryFormMatch` method (compile-time contract).
+     *
+     * The idempotency contract — "a formation returned once is not returned
+     * again" — is enforced by per-impl unit tests; this Konsist rule pins the
+     * structural side ("there IS a tryFormMatch in every impl") so a future
+     * `RedisMatchmaker` cannot accidentally inherit `tryFormMatch` from a
+     * default method that returns the same formation twice.
+     */
+    @Test
+    fun `IMatchmaker implementations must declare tryFormMatch directly`() {
+        val portFqn = "com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker"
+        val portSimpleName = "IMatchmaker"
+        val impls = Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name == portSimpleName }
+            }
+            .toList()
+        // Skeleton tolerance: if no impl has landed yet, the rule is a no-op.
+        if (impls.isEmpty()) return
+        val missing = impls.filter { cls ->
+            cls.functions().none { fn -> fn.name == "tryFormMatch" }
+        }
+        assertThat(missing.map { it.fullyQualifiedName })
+            .withFailMessage {
+                "ADR-0089 §δ: every implementation of $portFqn must declare " +
+                    "`tryFormMatch` explicitly to honor the idempotency contract. " +
+                    "Missing in: ${missing.map { it.fullyQualifiedName }}"
+            }
+            .isEmpty()
+    }
+
+    /**
+     * Wave 5w (ADR-0089 §γ): `LobbyWaitingRoomHud` must NOT import Bukkit
+     * family — its only HUD primitives are the vendor-neutral
+     * `core.adapter.api.hud.*` types.
+     *
+     * The application/Bukkit rule (line 286 in this file) already covers
+     * `match.application.*`, but this rule is a deliberate self-document on
+     * the lobby-HUD service so a future refactor that introduces Adventure
+     * Components inside it fails loudly.
+     */
+    @Test
+    fun `LobbyWaitingRoomHud must use vendor-neutral hud ports only`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                file.packagee?.name == "com.astarworks.astera.match.application.service.hud" &&
+                    file.imports.any { imp -> imp.name.contains("LobbyWaitingRoomHud") } ||
+                    file.classes().any { cls -> cls.name == "LobbyWaitingRoomHud" }
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0089 §γ: LobbyWaitingRoomHud must compose vendor-neutral HUD " +
+                    "primitives from `core.adapter.api.hud.*` only. Bukkit / Adventure imports here " +
+                    "would defeat the Wave 5b BossBar/Scoreboard port abstraction.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp -> imp.name.startsWith("net.kyori.adventure") }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

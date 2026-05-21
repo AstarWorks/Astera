@@ -1,0 +1,16 @@
+{
+  "_comment": "Astera — lobby waiting-room HUD config (Wave 5w / ADR-0089 γ).",
+  "_docs": [
+    "Consumed by LobbyWaitingRoomHud (plugin/match/.../application/service/hud/).",
+    "tickPeriodTicks: how often the HUD refreshes per player. 20 = 1s.",
+    "Phase 1 PoC: minimal config; Wave 5j / 6a may add font registry refs + glyph mapping."
+  ],
+  "tickPeriodTicks": 20,
+  "actionBarKeys": {
+    "queueStatus": "astera.lobby.queue-status",
+    "notQueued": "astera.lobby.not-queued",
+    "matchFound": "astera.lobby.match-found"
+  },
+  "scoreboardTitleKey": "astera.lobby.scoreboard.title",
+  "bossbarTitleKey": "astera.lobby.bossbar.title"
+}
