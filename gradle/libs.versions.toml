@@ -32,6 +32,11 @@ logback = "1.5.32"
 # Observability (Wave _ops — Phase 1.5)
 micrometer = "1.14.6"           # Current stable LTS line (1.13 EOL Oct 2025)
 
+# Distributed tracing (Wave 5u — ADR-0087)
+# OpenTelemetry — CNCF graduated, Jaeger / Zipkin both supported through OTLP.
+# 1.42 ships against API/SDK with stable cross-cutting context propagators.
+opentelemetry = "1.42.1"
+
 # Persistence (PostgreSQL + Exposed; Astera independent of AstarManagement's 1.1.1)
 postgresql = "42.7.11"
 exposed = "1.3.0"
@@ -89,6 +94,17 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 # Observability — Micrometer (Prometheus exposition + JVM metrics)
 micrometer-core = { module = "io.micrometer:micrometer-core", version.ref = "micrometer" }
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }
+
+# Distributed tracing — OpenTelemetry (Wave 5u, ADR-0087)
+#  - api: vendor-neutral Tracer / Span / Context (application port impl uses this)
+#  - sdk: backbone tracer impl + TracerProvider builder
+#  - exporter-otlp: OTLP/gRPC + OTLP/HTTP exporters — pluggable to Jaeger 1.50+ and Zipkin via collector
+#  - context: explicit dep so `Context.current()` works without sdk wired
+opentelemetry-api = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
+opentelemetry-sdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
+opentelemetry-context = { module = "io.opentelemetry:opentelemetry-context", version.ref = "opentelemetry" }
+opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
+opentelemetry-exporter-logging = { module = "io.opentelemetry:opentelemetry-exporter-logging", version.ref = "opentelemetry" }
 
 # Persistence
 postgresql-jdbc = { module = "org.postgresql:postgresql", version.ref = "postgresql" }

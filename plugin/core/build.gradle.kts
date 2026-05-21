@@ -49,6 +49,16 @@ dependencies {
     implementation(libs.micrometer.core)
     implementation(libs.micrometer.registry.prometheus)
 
+    // Distributed tracing — OpenTelemetry (Wave 5u, ADR-0087).
+    // api + context: vendor-neutral types used by ITraceContextPropagator + adapter.
+    // sdk + logging exporter: default backend exports spans to console (no infra needed).
+    // OTLP exporter ships in the jar so operators flip to Jaeger / Zipkin via env without rebuild.
+    implementation(libs.opentelemetry.api)
+    implementation(libs.opentelemetry.context)
+    implementation(libs.opentelemetry.sdk)
+    implementation(libs.opentelemetry.exporter.logging)
+    implementation(libs.opentelemetry.exporter.otlp)
+
     testImplementation(project(":plugin:test-fixtures"))
 
     // Wave 5j Worker γ (HudRenderer): tests assert against Adventure

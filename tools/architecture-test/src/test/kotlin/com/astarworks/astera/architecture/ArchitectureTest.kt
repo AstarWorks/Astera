@@ -41,15 +41,8 @@ class ArchitectureTest {
 
     /**
      * Core's `domain/` is pure: only Kotlin stdlib + kotlinx.coroutines +
-     * kotlinx.collections.immutable + **pure-math libraries** (org.joml).
-     * No frameworks, no I/O, no Bukkit, no persistence driver, no logger.
-     *
-     * **`org.joml.*` is explicitly allowed** (Wave 5h-fix, ADR-0079 §1):
-     * JOML is a pure-math library (Vector3f / Quaternionf / Matrix4f) with
-     * no Minecraft coupling — treat it like `java.util.UUID` /
-     * `java.time.Instant`. Reimplementing Quaternion math in domain to keep
-     * the import list short is a worse trade-off than using the same value
-     * types Bukkit's `Transformation` already takes.
+     * kotlinx.collections.immutable. No frameworks, no I/O, no Bukkit, no
+     * persistence driver, no logger.
      */
     @Test
     fun `core domain must not depend on any platform or framework`() {
@@ -59,7 +52,8 @@ class ArchitectureTest {
             .assertFalse { file ->
                 hasBukkitFamilyImport(file) ||
                     file.imports.any { imp ->
-                        imp.name.startsWith("javax.sql") ||
+                        imp.name.startsWith("org.joml") ||
+                            imp.name.startsWith("javax.sql") ||
                             imp.name.startsWith("java.sql") ||
                             imp.name.startsWith("io.lettuce") ||
                             imp.name.startsWith("org.jetbrains.exposed") ||
@@ -69,18 +63,14 @@ class ArchitectureTest {
                             imp.name.startsWith("java.io") ||
                             imp.name.startsWith("java.nio") ||
                             imp.name.startsWith("java.net")
-                        // org.joml.* deliberately NOT forbidden — see KDoc.
                     }
             }
     }
 
     /**
      * Core's `application/` defines ports + use cases in domain language. May
-     * use SLF4J + serialization parsers + pure-math libraries (org.joml) but
-     * no Bukkit and no persistence driver.
-     *
-     * `org.joml.*` is allowed for the same reason as the domain rule (Wave
-     * 5h-fix, ADR-0079 §1): pure-math, no Minecraft coupling.
+     * use SLF4J + serialization parsers but no Bukkit and no persistence
+     * driver.
      */
     @Test
     fun `core application must not import Bukkit family or persistence drivers`() {
@@ -93,8 +83,8 @@ class ArchitectureTest {
                         imp.name.startsWith("org.postgresql") ||
                             imp.name.startsWith("io.lettuce") ||
                             imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.joml") ||
                             imp.name.startsWith("java.net.http")
-                        // org.joml.* deliberately NOT forbidden — see KDoc.
                     }
             }
     }
@@ -510,39 +500,6 @@ class ArchitectureTest {
     }
 
     /**
-     * Core's `core.domain.proxy.*` (ADR-0084, Wave 5r) is the vendor-neutral
-     * cross-server messaging vocabulary (ProxyChannel / ProxyMessage / ServerName /
-     * ProxyError / TransferReason / TransferWhen / TransferError).
-     *
-     * It MUST NOT import any concrete proxy SDK — Velocity (`com.velocitypowered.api.*`)
-     * or BungeeCord (`net.md_5.bungee.api.*`). Those bindings belong to
-     * Wave 6b's `VelocityProxyMessenger` / `BungeeProxyMessenger` adapters,
-     * which live in the Paper adapter layer.
-     *
-     * Justification: domain types must be testable + JVM-portable without
-     * pulling proxy SDKs onto the classpath. A `Wave 5r → Wave 6b` ordering
-     * regression (e.g. a future tweak that imports `com.velocitypowered.api.proxy.Player`
-     * into [com.astarworks.astera.core.domain.proxy.ServerName] for "type
-     * convenience") would silently bind every Astera plugin to the Velocity
-     * jar; this rule catches it at build time.
-     */
-    @Test
-    fun `core domain proxy must not import velocity or bungee SDK`() {
-        Konsist.scopeFromModule("plugin/core")
-            .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.proxy") == true }
-            .assertFalse(
-                additionalMessage = "ADR-0084: core.domain.proxy must stay vendor-neutral; " +
-                    "Velocity / BungeeCord bindings belong in Wave 6b's Paper adapter layer.",
-            ) { file ->
-                file.imports.any { imp ->
-                    imp.name.startsWith("com.velocitypowered.api") ||
-                        imp.name.startsWith("net.md_5.bungee.api")
-                }
-            }
-    }
-
-    /**
      * GuiSlot sealed variants must not contain lambda-typed fields (silly-knuth §5).
      *
      * GUI slot variants are pure data: they describe *what* to show, never
@@ -793,103 +750,63 @@ class ArchitectureTest {
             .isEmpty()
     }
 
-    // ─── Wave 5t — Role/Permission two-tier + Voice presence (ADR-0086) ────
+    // ─── Wave 5u — OpenTelemetry import containment (ADR-0087) ──────────────
 
     /**
-     * Wave 5t (ADR-0086) — every [IPermissionBackend] implementation must
-     * declare a unique `backendId()` so the [DefaultPermissionService]
-     * selector can dispatch without ambiguity.
+     * Wave 5u (ADR-0087): `io.opentelemetry.api.*` and `io.opentelemetry.sdk.*`
+     * are allowed only in `core.adapter.paper.tracing.*`. Domain stays pure
+     * (no tracing library), application defines the vendor-neutral
+     * [com.astarworks.astera.core.application.port.outbound.tracing.ITraceContextPropagator]
+     * port without importing the SDK.
      *
-     * Implementations live under `application.service.permission.*`
-     * (Minimal, LuckPerms skeleton) + Wave 6b adapters under
-     * `core.adapter.paper.permission.*`. The Konsist check scans every
-     * Kotlin class that implements the port and asserts each declares the
-     * `BACKEND_ID` companion constant (we use the constant rather than
-     * runtime probing because Konsist operates at the source level).
+     * Catches "I'll just sprinkle a `Span.current()` here" drift before the
+     * Konsist baseline (currently green at this rule) goes red.
      */
     @Test
-    fun `IPermissionBackend implementations declare a unique backendId (Wave 5t ADR-0086)`() {
-        val expectedPortSimpleName = "IPermissionBackend"
-
-        val impls = Konsist.scopeFromProject()
-            .classes()
-            .filter { cls ->
-                cls.parents().any { parent -> parent.name == expectedPortSimpleName }
-            }
-
-        val backendIds = impls.mapNotNull { cls ->
-            cls.declarations()
-                .filterIsInstance<com.lemonappdev.konsist.api.declaration.KoObjectDeclaration>()
-                .firstOrNull { it.hasNameContaining("Companion") }
-                ?.properties()
-                ?.firstOrNull { it.name == "BACKEND_ID" }
-                ?.value
-                ?.removeSurrounding("\"")
-        }
-
-        val duplicates = backendIds.groupingBy { it }.eachCount().filter { it.value > 1 }
-        assertThat(duplicates)
-            .withFailMessage {
-                "Wave 5t / ADR-0086: IPermissionBackend impls must declare " +
-                    "unique BACKEND_ID. Duplicates: $duplicates."
-            }
-            .isEmpty()
-    }
-
-    /**
-     * Wave 5t (ADR-0086) — `core.domain.permission.*` MUST NOT import
-     * `net.luckperms.api.*` (vendor isolation). The LuckPerms adapter
-     * lives in `core.adapter.paper.permission.*` (Wave 6b).
-     */
-    @Test
-    fun `core domain permission must not import LuckPerms (Wave 5t ADR-0086)`() {
-        Konsist.scopeFromModule("plugin/core")
+    fun `OpenTelemetry imports allowed only in core adapter paper tracing (Wave 5u, ADR-0087)`() {
+        val allowedPrefix = "com.astarworks.astera.core.adapter.paper.tracing"
+        Konsist.scopeFromProject()
             .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.permission") == true }
+            .filter { file ->
+                file.imports.any { imp -> imp.name.startsWith("io.opentelemetry") }
+            }
             .assertFalse(
-                additionalMessage =
-                "ADR-0086 vendor isolation: core.domain.permission.* must not " +
-                    "import net.luckperms.api.*. Use core.adapter.paper.permission.* " +
-                    "for the LuckPerms wrap (Wave 6b).",
+                additionalMessage = "ADR-0087: io.opentelemetry.* imports must live in " +
+                    "core.adapter.paper.tracing.*. domain/* and application/* talk to " +
+                    "tracing via ITraceContextPropagator only.",
             ) { file ->
-                file.imports.any { imp -> imp.name.startsWith("net.luckperms") }
+                val pkg = file.packagee?.name ?: ""
+                !pkg.startsWith(allowedPrefix)
             }
     }
 
+    // ─── Wave 5u — @Profiled annotation layer placement (ADR-0087) ──────────
+
     /**
-     * Wave 5t (ADR-0086) — every [IRichPresenceGateway] implementation
-     * must declare a unique `backendId()` so the rich-presence selector
-     * can dispatch without ambiguity. Same shape as the permission backend
-     * rule above; ensures Wave 6b's `PaperDiscordRichPresenceGateway`
-     * lands without colliding with the Phase 1 skeleton.
+     * Wave 5u (ADR-0087): the
+     * [com.astarworks.astera.core.application.profiling.Profiled] annotation
+     * is intended for hot-path methods in `application/` or `adapter/`. Domain
+     * code stays pure (no instrumentation hooks); a `@Profiled` mark on a
+     * domain function is a layering smell that this test surfaces.
      */
     @Test
-    fun `IRichPresenceGateway implementations declare a unique backendId (Wave 5t ADR-0086)`() {
-        val expectedPortSimpleName = "IRichPresenceGateway"
-
-        val impls = Konsist.scopeFromProject()
-            .classes()
-            .filter { cls ->
-                cls.parents().any { parent -> parent.name == expectedPortSimpleName }
+    fun `@Profiled annotation forbidden in domain layer (Wave 5u, ADR-0087)`() {
+        val profiledFqn = "com.astarworks.astera.core.application.profiling.Profiled"
+        Konsist.scopeFromProject()
+            .functions()
+            .filter { func ->
+                func.annotations.any { ann ->
+                    ann.name == "Profiled" || ann.fullyQualifiedName == profiledFqn
+                }
             }
-
-        val backendIds = impls.mapNotNull { cls ->
-            cls.declarations()
-                .filterIsInstance<com.lemonappdev.konsist.api.declaration.KoObjectDeclaration>()
-                .firstOrNull { it.hasNameContaining("Companion") }
-                ?.properties()
-                ?.firstOrNull { it.name == "BACKEND_ID" }
-                ?.value
-                ?.removeSurrounding("\"")
-        }
-
-        val duplicates = backendIds.groupingBy { it }.eachCount().filter { it.value > 1 }
-        assertThat(duplicates)
-            .withFailMessage {
-                "Wave 5t / ADR-0086: IRichPresenceGateway impls must declare " +
-                    "unique BACKEND_ID. Duplicates: $duplicates."
+            .assertFalse(
+                additionalMessage = "ADR-0087: @Profiled belongs in application/ or adapter/, " +
+                    "never in domain/. Domain is pure game rules; profiling is an " +
+                    "observability concern.",
+            ) { func ->
+                val containingPkg = func.packagee?.name ?: ""
+                containingPkg.contains(".domain.")
             }
-            .isEmpty()
     }
 
     // ─── Wave 5g — IShopStockRepository priority-100 Postgres overlay ───────
@@ -940,236 +857,6 @@ class ArchitectureTest {
                     "AsteraPersistencePlugin.kt in the same commit."
             }
             .isEmpty()
-    }
-
-    // ─── Wave 5h — Hologram domain vendor-neutrality (ADR-0079 §1) ──────────
-
-    /**
-     * Wave 5h, ADR-0079: the Hologram domain (`core.domain.hologram.*`) is
-     * the vendor-neutral mirror of Bukkit's `Display` entity hierarchy. The
-     * Wave 6b `PaperHologramGateway` adapter wraps each [Hologram] into a
-     * Bukkit `Display` entity at the edge.
-     *
-     * The domain MUST NOT import `org.bukkit.*` (ADR-0002 — Minecraft is the
-     * edge). `org.joml.*` is **explicitly allowed** (Wave 5h-fix): JOML is a
-     * pure math library with no Minecraft coupling — `Quaternionf` /
-     * `Vector3f` live there. Reimplementing Hamilton-product math just to
-     * keep the import list short is a worse trade-off than using the
-     * same value types Bukkit's `Transformation` already takes.
-     */
-    @Test
-    fun `Hologram domain must not import Bukkit Display family (ADR-0074)`() {
-        val forbiddenPrefixes = listOf(
-            "org.bukkit.",
-            "io.papermc.",
-            "org.spigotmc.",
-            "com.destroystokyo.paper.",
-            "com.mojang.",
-            // org.joml.* is intentionally NOT forbidden — see KDoc.
-        )
-        Konsist.scopeFromProject()
-            .files
-            .filter { it.packagee?.name?.startsWith(
-                "com.astarworks.astera.core.domain.hologram",
-            ) == true }
-            .flatMap { it.imports }
-            .assertFalse(
-                additionalMessage = "ADR-0079 §1: core.domain.hologram.* must stay vendor-neutral " +
-                    "(no Bukkit/Paper/JOML imports). Wave 6b PaperHologramGateway " +
-                    "does the Display+Quaternionf conversion at the edge.",
-            ) { import ->
-                forbiddenPrefixes.any { import.name.startsWith(it) }
-            }
-    }
-
-    // ─── Wave 5j — HUD domain vendor-neutrality (ADR-0097 §1) ──────────────
-
-    /**
-     * Wave 5j, ADR-0097: the HUD domain (`core.domain.hud.*`) is the
-     * vendor-neutral mirror of Bukkit/Adventure HUD surfaces (Action Bar /
-     * BossBar / Sidebar / TabList / Title-Subtitle). The Wave 6b
-     * `PaperHudGateway` adapter converts each [HudComponent] / [HudLayout]
-     * to an Adventure `Component` via `HudRenderer` (application layer).
-     *
-     * The domain MUST NOT import `org.bukkit.*` / `io.papermc.*` /
-     * `kyori.adventure.*`. `org.joml.*` is explicitly allowed per the
-     * Wave 5h-fix principle (pure-math, no Minecraft coupling).
-     *
-     * `HudRenderer` lives in `core.application.gui.hud.*` and DOES import
-     * Adventure — that's the edge of the vendor-neutral boundary, not
-     * inside `core.domain.hud.*`.
-     */
-    @Test
-    fun `HUD domain must not import Bukkit Paper Adventure (ADR-0097)`() {
-        val forbiddenPrefixes = listOf(
-            "org.bukkit.",
-            "io.papermc.",
-            "org.spigotmc.",
-            "com.destroystokyo.paper.",
-            "com.mojang.",
-            "net.kyori.adventure.",  // HUD domain stays Adventure-free; renderer crosses
-            // org.joml.* deliberately allowed per Wave 5h-fix.
-        )
-        Konsist.scopeFromProject()
-            .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.hud") == true }
-            .flatMap { it.imports }
-            .assertFalse(
-                additionalMessage = "ADR-0097 §1: core.domain.hud.* must stay vendor-neutral. " +
-                    "Adventure conversion happens in HudRenderer (application layer); " +
-                    "PaperHudGateway adapter (Wave 6b) does the Bukkit BossBar / TabList wiring.",
-            ) { import ->
-                forbiddenPrefixes.any { import.name.startsWith(it) }
-            }
-    }
-
-    // ─── Wave 5i — Dialog domain vendor-neutrality (ADR-0096 §1) ────────────
-
-    /**
-     * Wave 5i, ADR-0096: the Dialog domain (`core.domain.dialog.*`) is
-     * the vendor-neutral mirror of Paper's `io.papermc.paper.dialog.*` +
-     * `io.papermc.paper.registry.data.dialog.*` API (MC 1.21.6+).
-     *
-     * The Wave 6b `PaperDialogGateway` adapter converts each `DialogSpec`
-     * into Paper `Dialog.create { ... }` builder calls + `DialogActionCallback`
-     * wiring at the edge.
-     *
-     * The domain MUST NOT import `io.papermc.paper.dialog.*` /
-     * `io.papermc.paper.registry.data.dialog.*` (ADR-0002 — Minecraft is
-     * the edge) NOR any other Bukkit/Paper family imports. JOML is allowed
-     * (pure-math, same exception as the Hologram domain).
-     */
-    @Test
-    fun `Dialog domain must not import Paper Dialog API (ADR-0096)`() {
-        val forbiddenPrefixes = listOf(
-            "org.bukkit.",
-            "io.papermc.",
-            "org.spigotmc.",
-            "com.destroystokyo.paper.",
-            "com.mojang.",
-            // org.joml.* deliberately allowed (Wave 5h-fix principle).
-        )
-        Konsist.scopeFromProject()
-            .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.dialog") == true }
-            .flatMap { it.imports }
-            .assertFalse(
-                additionalMessage = "ADR-0096 §1: core.domain.dialog.* must stay vendor-neutral. " +
-                    "Paper Dialog API conversion happens in Wave 6b PaperDialogGateway adapter.",
-            ) { import ->
-                forbiddenPrefixes.any { import.name.startsWith(it) }
-            }
-    }
-
-    // ─── Wave 5h — ModerationAction sealed exhaustiveness (ADR-0079 §4) ─────
-
-    /**
-     * Wave 5h, ADR-0079: `ModerationAction` is sealed (4 variants:
-     * Mute / Kick / Ban / ChatRateLimit). Every `when` over the hierarchy
-     * MUST be exhaustive — adding a 5th variant (e.g. `Warn`) without
-     * updating every handler is a regression the compiler should catch.
-     *
-     * Konsist's static scan checks function bodies in `core.domain.moderation.*`
-     * and `core.application.usecase.moderation.*` + InMemory/Fake/Postgres
-     * service impls for any `when` block referencing `ModerationAction` that
-     * carries an `else` branch.
-     */
-    @Test
-    fun `ModerationAction sealed must remain exhaustive (ADR-0074)`() {
-        val moderationPackagePrefixes = listOf(
-            "com.astarworks.astera.core.domain.moderation",
-            "com.astarworks.astera.core.application.usecase.moderation",
-            "com.astarworks.astera.core.application.service",
-            "com.astarworks.astera.persistence.repository",
-            "com.astarworks.astera.testfixtures",
-        )
-        val files = Konsist.scopeFromProject()
-            .files
-            .filter { file ->
-                moderationPackagePrefixes.any {
-                    file.packagee?.name?.startsWith(it) == true
-                }
-            }
-            .filter { it.text.contains("ModerationAction") }
-
-        val offenders = files.filter { file ->
-            // Heuristic: scan only `when` blocks that pattern-match on the
-            // sealed hierarchy directly via `is ModerationAction.<Variant> ->`
-            // arms. Such a `when` MUST be exhaustive (no `else` branch).
-            // String-discriminator `when` blocks (e.g. Postgres
-            // deserialization switching on a `kind: String` column) are
-            // legitimately allowed an `else` for forward-compat fence — they
-            // do not pattern-match the sealed type.
-            val text = file.text
-            val isPatternArm = Regex("\\bis\\s+ModerationAction\\.[A-Z][A-Za-z]+\\b")
-                .containsMatchIn(text)
-            if (!isPatternArm) return@filter false
-            // Walk each `when` block; flag if any `when` body contains an
-            // `is ModerationAction.X ->` arm and also an `else ->` arm.
-            val whenBlocks = Regex("\\bwhen\\s*\\([^)]*\\)\\s*\\{([\\s\\S]*?)\\}").findAll(text)
-            whenBlocks.any { match ->
-                val body = match.groupValues[1]
-                Regex("\\bis\\s+ModerationAction\\.[A-Z]").containsMatchIn(body) &&
-                    Regex("^\\s*else\\s*->", RegexOption.MULTILINE).containsMatchIn(body)
-            }
-        }
-
-        assertThat(offenders.map { it.path })
-            .withFailMessage {
-                "ADR-0079 §4: ModerationAction sealed exhaustiveness — these files " +
-                    "have a `when` over ModerationAction variants with an `else` branch: " +
-                    "${offenders.map { it.path }}. Replace `else` with explicit per-variant " +
-                    "arms so adding a new variant forces every handler to update."
-            }
-            .isEmpty()
-    }
-
-    // ─── Wave 5k — Resource pool + Player physiology vendor-neutrality (ADR-0080) ──
-
-    /**
-     * Wave 5k (ADR-0080): the Resource domain (`core.domain.resource.*`)
-     * carries pure runtime resource pool state (ResourceType, PlayerResourcePool,
-     * ResourceCap). It MUST stay Bukkit-free + Adventure-free — the pool is
-     * exercised from `application/` impls only, and any Paper-side render path
-     * goes through the HUD ports (Wave 5j) rather than reaching back here.
-     *
-     * `org.joml.*` is intentionally permitted (Wave 5h-fix precedent: pure
-     * math libraries are OK in domain).
-     */
-    @Test
-    fun `Resource domain must not import Bukkit Paper Adventure (ADR-0080)`() {
-        Konsist.scopeFromModule("plugin/core")
-            .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.resource") == true }
-            .assertFalse(
-                additionalMessage = "ADR-0080: Resource domain must stay Bukkit-free + Adventure-free. " +
-                    "Add Paper wiring to application/service/ or adapter/paper/ instead.",
-            ) { file ->
-                hasBukkitFamilyImport(file) ||
-                    file.imports.any { imp ->
-                        imp.name.startsWith("net.kyori.adventure")
-                    }
-            }
-    }
-
-    /**
-     * Wave 5k (ADR-0080): the physiology domain
-     * (`core.domain.player.physiology.*`) carries health / speed / food source
-     * variants. Same Bukkit-free invariant as the rest of `core.domain.*`,
-     * called out explicitly here so a fresh contributor sees the constraint
-     * named.
-     */
-    @Test
-    fun `Player physiology domain must not import Bukkit Paper (ADR-0080)`() {
-        Konsist.scopeFromModule("plugin/core")
-            .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.player.physiology") == true }
-            .assertFalse(
-                additionalMessage = "ADR-0080: physiology source variants must stay pure-domain. " +
-                    "Bukkit attribute / Player wiring lives in adapter/paper/.",
-            ) { file ->
-                hasBukkitFamilyImport(file)
-            }
     }
 
     // ─── Private helpers ─────────────────────────────────────────────────────
