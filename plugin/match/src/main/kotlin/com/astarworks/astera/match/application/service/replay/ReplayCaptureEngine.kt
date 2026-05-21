@@ -380,14 +380,15 @@ public class ReplayCaptureEngine(
 /** Map combat's full `DamageSource` sealed onto the coarser [DamageSourceKind]. */
 internal fun com.astarworks.astera.combat.domain.damage.DamageSource.toReplayKind(): DamageSourceKind =
     when (this) {
-        com.astarworks.astera.combat.domain.damage.DamageSource.Environment ->
-            DamageSourceKind.ENVIRONMENT
+        is com.astarworks.astera.combat.domain.damage.DamageSource.Environment ->
+            when (this) {
+                is com.astarworks.astera.combat.domain.damage.DamageSource.Environment.Fall -> DamageSourceKind.FALL
+                else -> DamageSourceKind.ENVIRONMENT
+            }
         is com.astarworks.astera.combat.domain.damage.DamageSource.Item ->
             DamageSourceKind.ITEM
         is com.astarworks.astera.combat.domain.damage.DamageSource.Skill ->
             DamageSourceKind.SKILL
-        is com.astarworks.astera.combat.domain.damage.DamageSource.Fall ->
-            DamageSourceKind.FALL
         is com.astarworks.astera.combat.domain.damage.DamageSource.Explosion ->
             DamageSourceKind.EXPLOSION
         is com.astarworks.astera.combat.domain.damage.DamageSource.StatusEffectTick ->
@@ -396,6 +397,8 @@ internal fun com.astarworks.astera.combat.domain.damage.DamageSource.toReplayKin
             DamageSourceKind.PROJECTILE
         is com.astarworks.astera.combat.domain.damage.DamageSource.Barrier ->
             DamageSourceKind.BARRIER
+        is com.astarworks.astera.combat.domain.damage.DamageSource.Block ->
+            DamageSourceKind.BARRIER // closest match; Wave 5x added Block variant
     }
 
 /** Stable string discriminator for [MatchRecordingStarted.formatDescriptor]. */

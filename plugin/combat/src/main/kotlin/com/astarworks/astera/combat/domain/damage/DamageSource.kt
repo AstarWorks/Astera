@@ -99,6 +99,18 @@ public sealed class DamageSource {
     public data class Barrier(val barrierId: BarrierId) : DamageSource()
 
     /**
+     * Damage applied to a block (Wave 5x, ADR-0090). Skill engine routes
+     * block damage through `IBlockStateGateway.applyDamageFromSkill`.
+     */
+    public data class Block(
+        val world: WorldId,
+        val position: Vec3,
+        val blockType: BlockType,
+        val tool: ToolType,
+        val attackerId: PlayerId?,
+    ) : DamageSource()
+
+    /**
      * Non-actor damage hierarchy (Wave 5m / ADR-0088).
      *
      * Wave 6a `BukkitEventAdapter` will translate Bukkit's
@@ -179,6 +191,7 @@ public fun DamageSource.attackerIdOrNull(): PlayerId? = when (this) {
     is DamageSource.Skill -> casterId
     is DamageSource.Projectile -> ownerId
     is DamageSource.StatusEffectTick -> originPlayerId
+    is DamageSource.Block -> attackerId
     is DamageSource.Explosion,
     is DamageSource.Barrier,
     is DamageSource.Environment,

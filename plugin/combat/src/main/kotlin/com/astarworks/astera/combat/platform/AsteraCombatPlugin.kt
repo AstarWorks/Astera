@@ -13,6 +13,7 @@ import com.astarworks.astera.combat.application.port.outbound.IManaPoolService
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.application.config.StatusEffectInteractionLoader
+import com.astarworks.astera.combat.application.service.YamlStatusEffectInteractionRule
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectInteractionRule
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
