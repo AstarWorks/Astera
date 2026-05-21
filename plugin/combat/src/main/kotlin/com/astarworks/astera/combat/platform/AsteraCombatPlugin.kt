@@ -14,6 +14,10 @@ import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
+import com.astarworks.astera.combat.application.port.outbound.aoe.IAreaEffectGateway
+import com.astarworks.astera.combat.application.port.outbound.aoe.IExplosionGateway
+import com.astarworks.astera.combat.application.port.outbound.aoe.IFireSpreadController
+import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGateway
 import com.astarworks.astera.combat.application.service.ChargeTracker
 import com.astarworks.astera.combat.application.service.EmptyNearbyTargetQuery
 import com.astarworks.astera.combat.application.service.InMemoryDamageHistoryService
@@ -24,6 +28,10 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeCont
 import com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer
 import com.astarworks.astera.combat.application.service.NoOpKnockbackGateway
 import com.astarworks.astera.combat.application.service.StubArmorEquipmentProvider
+import com.astarworks.astera.combat.application.service.aoe.InMemoryAreaEffectGateway
+import com.astarworks.astera.combat.application.service.aoe.InMemoryExplosionGateway
+import com.astarworks.astera.combat.application.service.aoe.InMemoryFireSpreadController
+import com.astarworks.astera.combat.application.service.aoe.InMemoryLightningGateway
 import com.astarworks.astera.combat.application.service.StubCelEvaluator
 import com.astarworks.astera.combat.application.service.YamlElementMatrix
 import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
@@ -153,6 +161,31 @@ public class AsteraCombatPlugin : JavaPlugin() {
         // evaluator (JCEL / proxima / DIY) lands in a Phase 6 wave; Phase 1
         // ships the Stub so port consumers can wire against the surface.
         registrations += services.register<ICelEvaluator>(StubCelEvaluator())
+
+        // Wave 5m (ADR-0088): Combat AOE + environment damage source.
+        // Register InMemory defaults; Wave 6a `PaperExplosionGateway` /
+        // `PaperAreaEffectGateway` / `PaperLightningGateway` /
+        // `PaperFireSpreadController` overlay each at priority 100 to wire
+        // the real Bukkit calls.
+        val explosionGateway = InMemoryExplosionGateway(
+            nearbyQuery = services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery(),
+            knockbackGateway = services.get<IKnockbackGateway>() ?: NoOpKnockbackGateway(),
+            eventBus = services.getOrThrow<IDomainEventBus>(),
+            scheduler = services.getOrThrow<IScheduler>(),
+        )
+        val areaEffectGateway = InMemoryAreaEffectGateway(
+            scheduler = services.getOrThrow<IScheduler>(),
+            eventBus = services.getOrThrow<IDomainEventBus>(),
+        )
+        val lightningGateway = InMemoryLightningGateway(
+            eventBus = services.getOrThrow<IDomainEventBus>(),
+            scheduler = services.getOrThrow<IScheduler>(),
+        )
+        val fireSpread = InMemoryFireSpreadController()
+        registrations += services.register<IExplosionGateway>(explosionGateway)
+        registrations += services.register<IAreaEffectGateway>(areaEffectGateway)
+        registrations += services.register<ILightningGateway>(lightningGateway)
+        registrations += services.register<IFireSpreadController>(fireSpread)
 
         // Wave _infra-2b: register Combat's 3 content types on the dispatcher.
         val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
@@ -360,7 +393,9 @@ public class AsteraCombatPlugin : JavaPlugin() {
             "Astera-Combat enabled. Services published: " +
                 "ISkillRegistry, IStatusEffectRegistry, IElementMatrix, " +
                 "IArmorRegistry, IManaPoolService, IDamageRandomizer, " +
-                "IDamageHistoryService, DamageRule",
+                "IDamageHistoryService, DamageRule, " +
+                "IExplosionGateway, IAreaEffectGateway, ILightningGateway, " +
+                "IFireSpreadController (Wave 5m / ADR-0088)",
         )
     }
 

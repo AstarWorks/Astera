@@ -20,11 +20,14 @@ import com.astarworks.astera.combat.domain.projectile.ProjectileId
  * EntityDamageEvent / EntityDamageByEntityEvent / PlayerDeathEvent /
  * EntityDeathEvent and route through here — after Wave 6 every damage and
  * death event in Astera carries a fully-typed DamageSource.
+ *
+ * Wave 5m (ADR-0088) widened the `Environment` arm from a singleton into a
+ * nested sealed class hosting the named environmental causes
+ * (Fall / Drown / Fire / Lightning / Void / Suffocation / Generic). The
+ * top-level `DamageSource.Fall` was hoisted under `Environment` as part of
+ * the same change (pre-release breaking rename — no compat shim).
  */
 public sealed class DamageSource {
-
-    /** Non-actor damage: drowning, suffocation, generic environmental. */
-    public data object Environment : DamageSource()
 
     /**
      * Direct item hit (melee swing or hitscan from an attacker's equipped
@@ -52,16 +55,6 @@ public sealed class DamageSource {
         val casterId: PlayerId,
         val casterPosition: Vec3? = null,
     ) : DamageSource()
-
-    /**
-     * Fall damage. Distinct from [Environment] because the damage rule needs
-     * fall distance to compute magnitude.
-     */
-    public data class Fall(val distance: Double) : DamageSource() {
-        init {
-            require(distance >= 0.0) { "Fall.distance must be >= 0: $distance" }
-        }
-    }
 
     public data class Explosion(
         val center: Vec3,
@@ -101,6 +94,70 @@ public sealed class DamageSource {
      * over DamageSource without revision later.
      */
     public data class Barrier(val barrierId: BarrierId) : DamageSource()
+
+    /**
+     * Non-actor damage hierarchy (Wave 5m / ADR-0088).
+     *
+     * Wave 6a `BukkitEventAdapter` will translate Bukkit's
+     * `EntityDamageEvent.DamageCause` to one of these variants. Wave 5m
+     * commits the surface so combat code can `when`-exhaustively over the
+     * full environmental catalogue ahead of the Paper hijack.
+     *
+     * Use [Generic] for damage causes that do not match a named variant
+     * (custom datapacks, magic, etc.); previously this was a top-level
+     * `DamageSource.Environment` singleton.
+     */
+    public sealed class Environment : DamageSource() {
+
+        /**
+         * Fall damage. Carries fall [distance] so the damage rule can
+         * compute magnitude. Hoisted from top-level `DamageSource.Fall`
+         * by Wave 5m (ADR-0088).
+         */
+        public data class Fall(public val distance: Double) : Environment() {
+            init {
+                require(distance >= 0.0) { "Environment.Fall.distance must be >= 0: $distance" }
+            }
+        }
+
+        /** Drowning damage. [remainingAir] is the player's air supply at hit time. */
+        public data class Drown(public val remainingAir: Int) : Environment() {
+            init {
+                require(remainingAir >= 0) {
+                    "Environment.Drown.remainingAir must be >= 0: $remainingAir"
+                }
+            }
+        }
+
+        /**
+         * Fire / lava damage. [ticksOnFire] = how many ticks the entity has
+         * been burning at the time of this tick (0 for the initial hit).
+         */
+        public data class Fire(public val ticksOnFire: Int) : Environment() {
+            init {
+                require(ticksOnFire >= 0) {
+                    "Environment.Fire.ticksOnFire must be >= 0: $ticksOnFire"
+                }
+            }
+        }
+
+        /** Lightning strike damage (vanilla `EntityDamageEvent.DamageCause.LIGHTNING`). */
+        public data object Lightning : Environment()
+
+        /** Falling below the world's minimum build limit. */
+        public data object Void : Environment()
+
+        /** Suffocation inside a block (head stuck in solid). */
+        public data object Suffocation : Environment()
+
+        /**
+         * Any non-actor damage cause that does not match a named variant.
+         * Replaces the legacy top-level `DamageSource.Environment`
+         * singleton; callers that previously wrote `DamageSource.Environment`
+         * should write `DamageSource.Environment.Generic`.
+         */
+        public data object Generic : Environment()
+    }
 }
 
 /** Discriminator for [DamageSource.Projectile.origin]. */
@@ -119,9 +176,8 @@ public fun DamageSource.attackerIdOrNull(): PlayerId? = when (this) {
     is DamageSource.Skill -> casterId
     is DamageSource.Projectile -> ownerId
     is DamageSource.StatusEffectTick -> originPlayerId
-    DamageSource.Environment,
-    is DamageSource.Fall,
     is DamageSource.Explosion,
     is DamageSource.Barrier,
+    is DamageSource.Environment,
     -> null
 }

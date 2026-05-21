@@ -826,6 +826,97 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5l — INpcAdapter uniqueness + Citizens isolation (ADR-0082) ───
+
+    /**
+     * ADR-0082 (Entity spawning + NPC two-tier strategy): every concrete
+     * `INpcAdapter` implementation MUST return a unique [backendId] value.
+     * The runtime `RouterEntitySpawner` selects adapters by priority and
+     * uses `EntityHandle.backendId` to route despawns back to the owning
+     * adapter — colliding backend ids would silently route handles to the
+     * wrong adapter.
+     *
+     * Konsist can't inspect method bodies, so this test enforces uniqueness
+     * **by convention**: every `INpcAdapter` implementation must declare a
+     * `companion object` containing a `public val BACKEND_ID: NpcBackendId =
+     * NpcBackendId.X` referencing one of the named constants on
+     * [NpcBackendId.Companion]. The test scans the source for those `val`
+     * declarations and asserts no two adapters reference the same constant.
+     */
+    @Test
+    fun `INpcAdapter implementations must declare backendId() uniquely (ADR-0082)`() {
+        val portSimpleName = "INpcAdapter"
+
+        // Every class that directly implements INpcAdapter.
+        val adapters = Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name == portSimpleName }
+            }
+
+        // We expect at least both Wave 5l adapters present (Minimal +
+        // Citizens skeleton). If neither is present the Wave never landed.
+        assertThat(adapters.map { it.fullyQualifiedName })
+            .withFailMessage {
+                "ADR-0082 expects at least one INpcAdapter implementation. " +
+                    "Found: ${adapters.map { it.fullyQualifiedName }}"
+            }
+            .isNotEmpty
+
+        // Each adapter must declare a `BACKEND_ID` property somewhere in its
+        // file (typically inside a companion object). The property's
+        // initializer text encodes the backend identity; we collect all
+        // such tokens and assert uniqueness across adapters.
+        val backendIdTokens: Map<String, String> = adapters.associate { cls ->
+            val file = cls.containingFile
+            val backendIdLine: String? = file.text.lineSequence()
+                .map { it.trim() }
+                .firstOrNull { it.startsWith("public val BACKEND_ID") || it.startsWith("val BACKEND_ID") }
+            requireNotNull(backendIdLine) {
+                "ADR-0082: ${cls.fullyQualifiedName} implements INpcAdapter but " +
+                    "declares no `BACKEND_ID` constant. Add one referencing " +
+                    "NpcBackendId.MINIMAL / NpcBackendId.CITIZENS / a new constant."
+            }
+            cls.fullyQualifiedName!! to backendIdLine
+        }
+
+        val tokensByValue: Map<String, List<String>> = backendIdTokens
+            .entries
+            .groupBy(
+                keySelector = { entry -> entry.value.substringAfter("=").trim() },
+                valueTransform = { entry -> entry.key },
+            )
+
+        val collisions = tokensByValue.filter { (_, owners) -> owners.size > 1 }
+        assertThat(collisions)
+            .withFailMessage {
+                "ADR-0082 backend-id collision: " +
+                    "${collisions.map { (id, owners) -> "$id is claimed by $owners" }}. " +
+                    "Each INpcAdapter implementation must own a distinct NpcBackendId."
+            }
+            .isEmpty()
+    }
+
+    /**
+     * ADR-0082: Citizens is a soft-dep. Core's domain model must never
+     * import the Citizens API (`net.citizensnpcs.api.*`) — that lives only
+     * in the future Wave 6b Paper adapter (`plugin/items/.../adapter/paper/`).
+     *
+     * If a Citizens import appears in `core.domain.entity.*`, the
+     * "Citizens-not-installed" smoke environment (CI, headless tests)
+     * will fail to load Core. This test catches the regression at compile-
+     * test time instead of at server boot.
+     */
+    @Test
+    fun `core domain entity must not import Citizens API (ADR-0082)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.entity") == true }
+            .assertFalse { file ->
+                file.imports.any { imp -> imp.name.startsWith("net.citizensnpcs") }
+            }
+    }
+
     /**
      * Wave 5k (ADR-0080): the physiology domain
      * (`core.domain.player.physiology.*`) carries health / speed / food source
@@ -844,6 +935,43 @@ class ArchitectureTest {
             ) { file ->
                 hasBukkitFamilyImport(file)
             }
+    }
+
+    /**
+     * Wave 5m / ADR-0088: Combat AOE port implementations (Explosion /
+     * AreaEffect / Lightning / FireSpread) MUST NOT import the Bukkit
+     * family in their **application-layer** location.
+     *
+     * The port interfaces live under
+     * `com.astarworks.astera.combat.application.port.outbound.aoe.*` and
+     * their default in-memory impls live under
+     * `com.astarworks.astera.combat.application.service.aoe.*`. Both
+     * packages are part of the application layer (per ADR-0001 §4) and
+     * therefore stay vendor-neutral: Wave 6a Paper impls live in
+     * `combat.adapter.paper.*` instead and that location can freely
+     * import Bukkit.
+     *
+     * This rule duplicates "combat application must not import Bukkit
+     * family" intentionally — keeping a dedicated AOE-scoped assertion
+     * makes the Wave 5m boundary easy to find in CI failures and gives
+     * future ports added under `.aoe.*` an explicit hook.
+     */
+    @Test
+    fun `IExplosionGateway and IAreaEffectGateway implementations must not import Bukkit Paper (ADR-0088)`() {
+        Konsist.scopeFromModule("plugin/combat")
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.combat.application.port.outbound.aoe") ||
+                    pkg.startsWith("com.astarworks.astera.combat.application.service.aoe") ||
+                    pkg.startsWith("com.astarworks.astera.combat.domain.aoe") ||
+                    pkg.startsWith("com.astarworks.astera.combat.domain.event.aoe")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0088 violation: Wave 5m Combat AOE port impls + " +
+                    "their domain types must stay vendor-neutral. Move any Bukkit-touching " +
+                    "code to combat.adapter.paper.*.",
+            ) { file -> hasBukkitFamilyImport(file) }
     }
 
     // ─── Private helpers ─────────────────────────────────────────────────────

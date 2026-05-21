@@ -56,7 +56,7 @@ class UnlockAchievementOnKillMilestoneListenerTest {
     private fun killEvent(k: PlayerId? = killer) = PlayerKilled(
         victim = victim,
         killer = k,
-        source = DamageSource.Environment,
+        source = DamageSource.Environment.Generic,
         atTick = 1L,
     )
 

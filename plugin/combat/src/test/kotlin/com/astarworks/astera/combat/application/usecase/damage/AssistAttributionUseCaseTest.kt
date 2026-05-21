@@ -22,7 +22,7 @@ class AssistAttributionUseCaseTest {
     private fun kill(atTick: Long = 100L) = PlayerKilled(
         victim = victim,
         killer = killer,
-        source = DamageSource.Environment,
+        source = DamageSource.Environment.Generic,
         atTick = atTick,
     )
 

@@ -63,7 +63,7 @@ class UnlockAchievementOnDamageMilestoneListenerTest {
             wasBlocked = false,
             wasCritical = false,
         ),
-        source = DamageSource.Environment,
+        source = DamageSource.Environment.Generic,
         atTick = 1L,
     )
 

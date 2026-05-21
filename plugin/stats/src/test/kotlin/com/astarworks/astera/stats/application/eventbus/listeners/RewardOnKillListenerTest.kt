@@ -34,7 +34,7 @@ class RewardOnKillListenerTest {
     }
 
     private fun makeKillEvent(killer: PlayerId? = killerId): PlayerKilled =
-        PlayerKilled(victim = victimId, killer = killer, source = DamageSource.Environment, atTick = 1L)
+        PlayerKilled(victim = victimId, killer = killer, source = DamageSource.Environment.Generic, atTick = 1L)
 
     @Test
     fun `handle increments killer stats`() {
