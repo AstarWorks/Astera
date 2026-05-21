@@ -2,6 +2,8 @@
 status: Accepted
 date: 2026-05-17
 deciders: ryuzu
+supersedes: null
+superseded_by: 0090 (packet section only)
 ---
 
 # ADR-0015: External plugin interrogation — vanilla + self-build by default
@@ -11,6 +13,13 @@ deciders: ryuzu
 Accepted. Supplements [[adr/0009-soft-dep-only-paper-plugin-yml]] (which made
 all external plugins soft-dep). ADR-0015 goes further: it asks whether each
 plugin should be a dependency at all.
+
+**Packet section partially superseded by
+[[adr/0090-packet-system-and-per-viewer-visibility]]** (Wave 5y, 2026-05-21).
+The "ProtocolLib → PacketEvents — Adoption deferred to Phase 3+" clause is
+replaced with Phase 1 adoption + a type-erased `IPacketInterceptor` boundary.
+The rest of ADR-0015 (the other ten external-plugin verdicts) stays Accepted
+unchanged.
 
 ## Context
 
