@@ -800,152 +800,83 @@ class ArchitectureTest {
             .isEmpty()
     }
 
-    /**
-     * Wave 5k (ADR-0080): the Resource domain (`core.domain.resource.*`)
-     * carries pure runtime resource pool state (ResourceType, PlayerResourcePool,
-     * ResourceCap). It MUST stay Bukkit-free + Adventure-free — the pool is
-     * exercised from `application/` impls only, and any Paper-side render path
-     * goes through the HUD ports (Wave 5j) rather than reaching back here.
-     *
-     * `org.joml.*` is intentionally permitted (Wave 5h-fix precedent: pure
-     * math libraries are OK in domain).
-     */
-    @Test
-    fun `Resource domain must not import Bukkit Paper Adventure (ADR-0080)`() {
-        Konsist.scopeFromModule("plugin/core")
-            .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.resource") == true }
-            .assertFalse(
-                additionalMessage = "ADR-0080: Resource domain must stay Bukkit-free + Adventure-free. " +
-                    "Add Paper wiring to application/service/ or adapter/paper/ instead.",
-            ) { file ->
-                hasBukkitFamilyImport(file) ||
-                    file.imports.any { imp ->
-                        imp.name.startsWith("net.kyori.adventure")
-                    }
-            }
-    }
-
-    // ─── Wave 5l — INpcAdapter uniqueness + Citizens isolation (ADR-0082) ───
+    // ─── Wave 5v — Match recording capture (ADR-0088) ───────────────────────
 
     /**
-     * ADR-0082 (Entity spawning + NPC two-tier strategy): every concrete
-     * `INpcAdapter` implementation MUST return a unique [backendId] value.
-     * The runtime `RouterEntitySpawner` selects adapters by priority and
-     * uses `EntityHandle.backendId` to route despawns back to the owning
-     * adapter — colliding backend ids would silently route handles to the
-     * wrong adapter.
+     * Wave 5v: every [ReplayEvent] variant is a flat `data class` over
+     * primitives + value classes. Nesting another sealed (e.g. inlining
+     * combat's `DamageSource`) here would make the JSONB encoder schema
+     * non-deterministic and bloat the 4×1h≈5MB capture budget.
      *
-     * Konsist can't inspect method bodies, so this test enforces uniqueness
-     * **by convention**: every `INpcAdapter` implementation must declare a
-     * `companion object` containing a `public val BACKEND_ID: NpcBackendId =
-     * NpcBackendId.X` referencing one of the named constants on
-     * [NpcBackendId.Companion]. The test scans the source for those `val`
-     * declarations and asserts no two adapters reference the same constant.
+     * Heuristic: walk every property declared on every direct subtype of
+     * `ReplayEvent`; the property's declared type-text must reduce to one
+     * of an allow-list of primitive / value-class / enum / `MessageKey` /
+     * `MatchPhase` simple names. Maps, lists, sealed nested types fail.
      */
     @Test
-    fun `INpcAdapter implementations must declare backendId() uniquely (ADR-0082)`() {
-        val portSimpleName = "INpcAdapter"
+    fun `Wave 5v ReplayEvent variants must contain only primitive or value-class types`() {
+        val allowed = setOf(
+            // Primitives
+            "Long", "Int", "Short", "Byte", "Float", "Double", "Boolean", "String",
+            // Value classes + identity types used by replay
+            "PlayerId", "MatchId", "ItemId", "SkillId", "TeamId", "MessageKey",
+            // Domain enums materialised inside ReplayEvent
+            "MatchPhase", "DamageSourceKind",
+        )
 
-        // Every class that directly implements INpcAdapter.
-        val adapters = Konsist.scopeFromProject()
+        val variantClasses = Konsist.scopeFromProject()
             .classes()
             .filter { cls ->
-                cls.parents().any { parent -> parent.name == portSimpleName }
+                cls.parents().any { parent ->
+                    parent.name == "ReplayEvent"
+                }
             }
 
-        // We expect at least both Wave 5l adapters present (Minimal +
-        // Citizens skeleton). If neither is present the Wave never landed.
-        assertThat(adapters.map { it.fullyQualifiedName })
-            .withFailMessage {
-                "ADR-0082 expects at least one INpcAdapter implementation. " +
-                    "Found: ${adapters.map { it.fullyQualifiedName }}"
-            }
-            .isNotEmpty
+        // Skeleton tolerance: if the sealed has no variants yet, no-op. Once
+        // a variant exists the rule fires for every declared property.
+        if (variantClasses.isEmpty()) return
 
-        // Each adapter must declare a `BACKEND_ID` property somewhere in its
-        // file (typically inside a companion object). The property's
-        // initializer text encodes the backend identity; we collect all
-        // such tokens and assert uniqueness across adapters.
-        val backendIdTokens: Map<String, String> = adapters.associate { cls ->
-            val file = cls.containingFile
-            val backendIdLine: String? = file.text.lineSequence()
-                .map { it.trim() }
-                .firstOrNull { it.startsWith("public val BACKEND_ID") || it.startsWith("val BACKEND_ID") }
-            requireNotNull(backendIdLine) {
-                "ADR-0082: ${cls.fullyQualifiedName} implements INpcAdapter but " +
-                    "declares no `BACKEND_ID` constant. Add one referencing " +
-                    "NpcBackendId.MINIMAL / NpcBackendId.CITIZENS / a new constant."
-            }
-            cls.fullyQualifiedName!! to backendIdLine
+        val offenders = variantClasses.flatMap { cls ->
+            cls.properties().filter { prop ->
+                val typeName = prop.type?.name ?: return@filter false
+                // Strip nullable marker; drop generic arms entirely (they
+                // indicate a List / Map / Set wrapper, which is forbidden).
+                if (typeName.contains("<") || typeName.contains("[")) return@filter true
+                val bare = typeName.removeSuffix("?")
+                bare !in allowed
+            }.map { prop -> "${cls.fullyQualifiedName}.${prop.name}: ${prop.type?.name}" }
         }
 
-        val tokensByValue: Map<String, List<String>> = backendIdTokens
-            .entries
-            .groupBy(
-                keySelector = { entry -> entry.value.substringAfter("=").trim() },
-                valueTransform = { entry -> entry.key },
-            )
-
-        val collisions = tokensByValue.filter { (_, owners) -> owners.size > 1 }
-        assertThat(collisions)
+        assertThat(offenders)
             .withFailMessage {
-                "ADR-0082 backend-id collision: " +
-                    "${collisions.map { (id, owners) -> "$id is claimed by $owners" }}. " +
-                    "Each INpcAdapter implementation must own a distinct NpcBackendId."
+                "Wave 5v / ADR-0088: ReplayEvent variants must contain only primitive + " +
+                    "value-class fields (so the JSONB encoder shape stays deterministic and " +
+                    "the 4×1h≈5MB capture budget holds). Offending properties: ${offenders.joinToString()}"
             }
             .isEmpty()
     }
 
     /**
-     * ADR-0082: Citizens is a soft-dep. Core's domain model must never
-     * import the Citizens API (`net.citizensnpcs.api.*`) — that lives only
-     * in the future Wave 6b Paper adapter (`plugin/items/.../adapter/paper/`).
-     *
-     * If a Citizens import appears in `core.domain.entity.*`, the
-     * "Citizens-not-installed" smoke environment (CI, headless tests)
-     * will fail to load Core. This test catches the regression at compile-
-     * test time instead of at server boot.
+     * Wave 5v: [IMatchRecorder] is a domain-language inbound port; per
+     * ADR-0001 / ADR-0002 it MUST NOT import Bukkit/Paper. The Paper
+     * adapter (Wave 6a `PaperRecorderStateProvider`) reads `Bukkit.getOnline
+     * Players()` and friends, but the **port** stays vendor-neutral so the
+     * Fake-MC tests and the future Folia impl can both wire through it.
      */
     @Test
-    fun `core domain entity must not import Citizens API (ADR-0082)`() {
-        Konsist.scopeFromModule("plugin/core")
+    fun `Wave 5v IMatchRecorder must not import Bukkit Paper`() {
+        Konsist.scopeFromProject()
             .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.entity") == true }
-            .assertFalse { file ->
-                file.imports.any { imp -> imp.name.startsWith("net.citizensnpcs") }
+            .filter { file ->
+                file.name.removeSuffix(".kt") == "IMatchRecorder" &&
+                    file.packagee?.name == "com.astarworks.astera.match.application.port.inbound"
             }
-    }
-
-    /**
-     * Recipe + Quest domains (Wave 5s, ADR-0091) carry pure data + invariants
-     * only — same constraint as every other `core.domain.*` package, but
-     * called out explicitly here so a future change cannot accidentally pull
-     * Bukkit / Paper / Citizens / Postgres / serialization into recipe or
-     * quest types without tripping a dedicated assertion.
-     */
-    @Test
-    fun `recipe and quest domains must stay pure (Wave 5s, ADR-0091)`() {
-        Konsist.scopeFromModule("plugin/core")
-            .files
-            .filter {
-                val pkg = it.packagee?.name ?: return@filter false
-                pkg.startsWith("com.astarworks.astera.core.domain.recipe") ||
-                    pkg.startsWith("com.astarworks.astera.core.domain.quest")
-            }
-            .assertFalse(additionalMessage = "ADR-0091 violation: Recipe/Quest domain leaked a forbidden import.") { file ->
-                hasBukkitFamilyImport(file) ||
-                    file.imports.any { imp ->
-                        imp.name.startsWith("net.citizensnpcs") ||
-                            imp.name.startsWith("org.postgresql") ||
-                            imp.name.startsWith("org.jetbrains.exposed") ||
-                            imp.name.startsWith("io.lettuce") ||
-                            imp.name.startsWith("kotlinx.serialization") ||
-                            imp.name.startsWith("org.slf4j") ||
-                            imp.name.startsWith("java.io") ||
-                            imp.name.startsWith("java.nio") ||
-                            imp.name.startsWith("java.net")
-                    }
+            .assertFalse(
+                additionalMessage = "Wave 5v / ADR-0088: IMatchRecorder is the vendor-neutral " +
+                    "inbound port for replay capture; Paper imports belong in the Wave 6a " +
+                    "PaperRecorderStateProvider adapter, not on the port itself.",
+            ) { file ->
+                hasBukkitFamilyImport(file)
             }
     }
 

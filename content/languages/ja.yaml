@@ -248,6 +248,22 @@ astera:
         none: "<gray>キューには参加していません。</gray>"
         line: "<yellow>キュー:</yellow> <white>{mode}</white> <gray>(#</gray><gold>{position}</gold><gray>)</gray>"
 
+    # Wave 5v — マッチ録画キャプチャ (ADR-0088)
+    replay:
+      error:
+        not-recording: "<red>このマッチは現在録画されていません。</red>"
+        empty: "<red>録画にイベントもキーフレームもありません。</red>"
+        storage: "<red>リプレイ保存エラー: {reason}</red>"
+        cap-hit: "<yellow>tick {cappedAtTick} で録画サイズ上限に達しました。以降のイベントは破棄されています。</yellow>"
+    command:
+      replay: "リプレイキャプチャコマンド"
+      "replay.start": "マッチの録画を開始"
+      "replay.stop": "録画を停止して保存"
+      "replay.export": "最新録画を .replay.json に書き出し"
+      "replay.invalid-id": "<red>マッチ ID が不正です: {match}</red>"
+      "replay.not-found": "<red>マッチ {match} の録画は保存されていません。</red>"
+      "replay.export-failed": "<red>マッチ {match} の書き出しに失敗: {reason}</red>"
+
   spawn:
     teleporting: "<gray>スポーン地点へテレポート中…</gray>"
     no_spawn_defined: "<red>このステージにはスポーン地点が定義されていません。</red>"

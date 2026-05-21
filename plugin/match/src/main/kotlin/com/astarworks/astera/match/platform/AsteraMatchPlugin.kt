@@ -43,8 +43,14 @@ import com.astarworks.astera.core.domain.event.ChatMessageSent
 import com.astarworks.astera.match.application.contents.AnomalyContents
 import com.astarworks.astera.match.application.eventbus.listeners.AuditLogListener
 import com.astarworks.astera.match.application.eventbus.listeners.SaveInventoryOnMatchEndedListener
+import com.astarworks.astera.match.application.port.inbound.IMatchRecorder
+import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
 import com.astarworks.astera.match.application.port.outbound.IPlayerPinService
+import com.astarworks.astera.match.application.port.outbound.IRecorderStateProvider
 import com.astarworks.astera.match.application.service.InMemoryPlayerPinService
+import com.astarworks.astera.match.application.service.replay.InMemoryMatchReplayRepository
+import com.astarworks.astera.match.application.service.replay.NoopRecorderStateProvider
+import com.astarworks.astera.match.application.service.replay.ReplayCaptureEngine
 import com.astarworks.astera.match.application.usecase.pin.PlacePinUseCase
 import com.astarworks.astera.match.application.usecase.pin.RemovePinUseCase
 import com.astarworks.astera.match.application.usecase.spectator.EnterSpectatorUseCase
@@ -126,8 +132,14 @@ import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.match.domain.match.MatchStateMachine
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.replay.ReplayFormat
 import com.astarworks.astera.core.domain.stage.StageId
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.bukkit.plugin.java.JavaPlugin
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 
 /**
  * Astera-Match plugin entrypoint (ADR-0022 Phase 4 / Stage 3-改).
@@ -145,6 +157,7 @@ public class AsteraMatchPlugin : JavaPlugin() {
     private val registrations = mutableListOf<ServiceRegistry.Registration>()
     private val subscriptions = mutableListOf<IDomainEventBus.Subscription>()
     private val scheduledTasks = mutableListOf<IScheduler.TaskHandle>()
+    private var replayRecorder: ReplayCaptureEngine? = null
 
     override fun onEnable() {
         logger.info("Astera-Match enabling…")
@@ -492,71 +505,64 @@ public class AsteraMatchPlugin : JavaPlugin() {
 
         logger.info("Wave 5e wiring complete: Spectator + PlayerPin + AuditLog + SaveInventory listeners.")
 
-        // ---- Wave 5o (ADR-0081) — Respawn flow + ISpawnSelector --------------
-        // RespawnUseCase composes IPlayerHealthGateway (Wave 5k), IWorldGateway,
-        // ISpawnProtectionGateway (Wave 5o), IItemRegistry, and the optional
-        // IStatusEffectContainer (combat) into a single "teleport + heal +
-        // protect + kit + effects + publish PlayerRespawned" sequence.
-        //
-        // ISpawnSelector replaces the legacy SpawnRotationStrategy as the
-        // strategy boundary for the new respawn flow; legacy MatchSpawnUseCase
-        // keeps SpawnRotationStrategy for backward source-compat on its own
-        // entry path. DefaultSpawnSelector resolves the player's faction via
-        // IMatchTeamLookup (already wired above) + the canonical
-        // red/blue/attacker/defender team-id → faction map.
-        val healthGateway = services.get<IPlayerHealthGateway>()
-        val spawnProtection = services.get<ISpawnProtectionGateway>()
-        val itemRegistry = services.get<IItemRegistry>()
-        if (worldGateway != null && healthGateway != null && spawnProtection != null && itemRegistry != null) {
-            val matchTeamLookup = services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()
-            val statusContainer = services.get<IStatusEffectContainer>()
-            val spawnSelector: ISpawnSelector = DefaultSpawnSelector(
-                matchTeamLookup = matchTeamLookup,
-                enemyPositionsProvider = { _, _ -> emptyList() },
-            )
-            registrations += services.register<ISpawnSelector>(spawnSelector, priority = 0)
+        // ---- Wave 5v: Match recording capture (ADR-0088) --------------------
+        // Repository: registered at priority 0 (in-memory) so an absent
+        // Astera-Persistence plugin still produces well-formed RecordedReplay
+        // objects (just lost on shutdown). Postgres impl overlays at
+        // priority 100 from AsteraPersistencePlugin.
+        val replayRepo: IMatchReplayRepository =
+            services.get<IMatchReplayRepository>()
+                ?: InMemoryMatchReplayRepository().also {
+                    registrations += services.register<IMatchReplayRepository>(it, priority = 0)
+                }
 
-            @Suppress("UNUSED_VARIABLE")
-            val respawn = RespawnUseCase(
-                healthGateway = healthGateway,
-                worldGateway = worldGateway,
-                itemRegistry = itemRegistry,
-                protectionGateway = spawnProtection,
-                eventBus = eventBus,
-                scheduler = scheduler,
-                statusEffectContainer = statusContainer,
-            )
-            logger.info(
-                "Wave 5o wiring complete: RespawnUseCase + DefaultSpawnSelector wired " +
-                    "(status-effect container=${statusContainer != null}).",
-            )
-        } else {
-            logger.info(
-                "Wave 5o RespawnUseCase not wired " +
-                    "(IWorldGateway=${worldGateway != null}, " +
-                    "IPlayerHealthGateway=${healthGateway != null}, " +
-                    "ISpawnProtectionGateway=${spawnProtection != null}, " +
-                    "IItemRegistry=${itemRegistry != null}).",
-            )
-        }
+        // State provider: registered at priority 0 (Noop). Wave 6a's
+        // PaperRecorderStateProvider overlays at priority 100; in absence,
+        // key frames carry empty per-player maps (still well-formed).
+        val recorderStateProvider: IRecorderStateProvider =
+            services.get<IRecorderStateProvider>()
+                ?: NoopRecorderStateProvider().also {
+                    registrations += services.register<IRecorderStateProvider>(it, priority = 0)
+                }
+
+        val recorder = ReplayCaptureEngine(
+            bus = eventBus,
+            scheduler = scheduler,
+            repository = replayRepo,
+            stateProvider = recorderStateProvider,
+        )
+        recorder.bootstrap()
+        registrations += services.register<IMatchRecorder>(recorder)
+        // onDisable hook: shutdown subscriptions + scheduled tasks owned by
+        // the engine (its own list, distinct from this plugin's `subscriptions` /
+        // `scheduledTasks` collections so disable order stays predictable).
+        replayRecorder = recorder
+
+        logger.info("Wave 5v wiring complete: ReplayCaptureEngine registered as IMatchRecorder.")
 
         // 5. Register /astera-match command tree --------------------------------
-        commandHandler.register(buildMatchCommandSpec(facade, matches, playerGateway, permService))
         commandHandler.register(
-            buildQueueCommandSpec(
-                matchmaker = matchmaker,
+            buildMatchCommandSpec(
+                lifecycle = facade,
+                matches = matches,
                 playerGateway = playerGateway,
                 permService = permService,
+                recorder = recorder,
+                replayRepo = replayRepo,
+                exportRoot = core.dataFolder.toPath().resolve("replays"),
             ),
         )
 
         logger.info(
             "Astera-Match enabled. Services: IMatchRepository, IStageRegistry, " +
-                "IAnomalyRegistry, IGeneratorRegistry, IMatchLifecycle, IMatchTeamLookup",
+                "IAnomalyRegistry, IGeneratorRegistry, IMatchLifecycle, IMatchTeamLookup, " +
+                "IMatchRecorder, IMatchReplayRepository, IRecorderStateProvider",
         )
     }
 
     override fun onDisable() {
+        replayRecorder?.shutdown()
+        replayRecorder = null
         scheduledTasks.forEach { it.cancel() }
         scheduledTasks.clear()
         subscriptions.forEach { it.cancel() }
@@ -730,6 +736,9 @@ public class AsteraMatchPlugin : JavaPlugin() {
         matches: IMatchRepository,
         playerGateway: IPlayerGateway,
         permService: IPermissionService,
+        recorder: IMatchRecorder,
+        replayRepo: IMatchReplayRepository,
+        exportRoot: Path,
     ): CommandSpec.Literal = CommandSpec.Literal(
         name = "astera-match",
         description = MessageKey("astera.match.command.root"),
@@ -881,8 +890,174 @@ public class AsteraMatchPlugin : JavaPlugin() {
                     }
                 },
             ),
+            // astera-match replay <start|stop|export> <matchId> (Wave 5v / ADR-0088)
+            buildReplayCommandSpec(recorder, replayRepo, permService, exportRoot, playerGateway),
         ),
     )
+
+    /**
+     * Wave 5v: `/astera-match replay <subcommand>` admin commands. Three
+     * subcommands: `start <matchId>` begins capture under the default
+     * `EventLogKeyFrame` format; `stop <matchId>` finalises and persists;
+     * `export <matchId>` writes the most recent persisted replay for the
+     * match to a `.replay.json` file under the plugin's data folder.
+     *
+     * Permissions:
+     *  - `astera.match.admin.replay.start`
+     *  - `astera.match.admin.replay.stop`
+     *  - `astera.match.admin.replay.export`
+     */
+    private fun buildReplayCommandSpec(
+        recorder: IMatchRecorder,
+        replayRepo: IMatchReplayRepository,
+        permService: IPermissionService,
+        exportRoot: Path,
+        playerGateway: IPlayerGateway,
+    ): CommandSpec.Literal = CommandSpec.Literal(
+        name = "replay",
+        description = MessageKey("astera.match.command.replay"),
+        subcommands = listOf(
+            CommandSpec.Literal(
+                name = "start",
+                description = MessageKey("astera.match.command.replay.start"),
+                subcommands = listOf(
+                    CommandSpec.Argument(
+                        name = "match-id",
+                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                    ),
+                ),
+                executor = { ctx ->
+                    val matchIdStr = ctx.required<String>("match-id")
+                    val matchId = runCatching { MatchId(matchIdStr) }.getOrNull()
+                        ?: return@Literal CommandResult.Failure(
+                            MessageKey("astera.match.command.replay.invalid-id"),
+                            mapOf("match" to matchIdStr),
+                        )
+                    recorder.startRecording(matchId, ReplayFormat.EventLogKeyFrame())
+                    val senderId = ctx.sender
+                    if (senderId != null) {
+                        playerGateway.sendMessage(senderId, "Recording started for $matchIdStr")
+                    }
+                    CommandResult.Success
+                },
+            ).requirePermission(
+                permissionService = permService,
+                permission = Permission("astera.match.admin.replay.start"),
+            ),
+            CommandSpec.Literal(
+                name = "stop",
+                description = MessageKey("astera.match.command.replay.stop"),
+                subcommands = listOf(
+                    CommandSpec.Argument(
+                        name = "match-id",
+                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                    ),
+                ),
+                executor = { ctx ->
+                    val matchIdStr = ctx.required<String>("match-id")
+                    val matchId = runCatching { MatchId(matchIdStr) }.getOrNull()
+                        ?: return@Literal CommandResult.Failure(
+                            MessageKey("astera.match.command.replay.invalid-id"),
+                            mapOf("match" to matchIdStr),
+                        )
+                    when (val result = recorder.stopRecording(matchId)) {
+                        is Result.Success -> {
+                            val senderId = ctx.sender
+                            if (senderId != null) {
+                                playerGateway.sendMessage(
+                                    senderId,
+                                    "Recording stopped: events=${result.value.events.size} " +
+                                        "keyFrames=${result.value.keyFrames.size} " +
+                                        "sizeBytes=${result.value.sizeBytes}",
+                                )
+                            }
+                            CommandResult.Success
+                        }
+                        is Result.Failure -> CommandResult.Failure(result.error.messageKey)
+                    }
+                },
+            ).requirePermission(
+                permissionService = permService,
+                permission = Permission("astera.match.admin.replay.stop"),
+            ),
+            CommandSpec.Literal(
+                name = "export",
+                description = MessageKey("astera.match.command.replay.export"),
+                subcommands = listOf(
+                    CommandSpec.Argument(
+                        name = "match-id",
+                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                    ),
+                ),
+                executor = { ctx ->
+                    val matchIdStr = ctx.required<String>("match-id")
+                    val matchId = runCatching { MatchId(matchIdStr) }.getOrNull()
+                        ?: return@Literal CommandResult.Failure(
+                            MessageKey("astera.match.command.replay.invalid-id"),
+                            mapOf("match" to matchIdStr),
+                        )
+                    val replay = replayRepo.findByMatchId(matchId)
+                        ?: return@Literal CommandResult.Failure(
+                            MessageKey("astera.match.command.replay.not-found"),
+                            mapOf("match" to matchIdStr),
+                        )
+                    val outPath = try {
+                        exportReplayToFile(replay, exportRoot)
+                    } catch (t: Throwable) {
+                        logger.severe("Replay export failed for $matchIdStr: ${t.message}")
+                        return@Literal CommandResult.Failure(
+                            MessageKey("astera.match.command.replay.export-failed"),
+                            mapOf("match" to matchIdStr, "reason" to (t.message ?: "unknown")),
+                        )
+                    }
+                    val senderId = ctx.sender
+                    if (senderId != null) {
+                        playerGateway.sendMessage(senderId, "Replay exported to $outPath")
+                    }
+                    CommandResult.Success
+                },
+            ).requirePermission(
+                permissionService = permService,
+                permission = Permission("astera.match.admin.replay.export"),
+            ),
+        ),
+    )
+
+    /**
+     * Serialise [replay] into the stable `MatchReplayJson` wire shape and
+     * write it under [exportRoot] as `<matchId>.replay.json`. Returns the
+     * absolute path written.
+     */
+    private fun exportReplayToFile(
+        replay: com.astarworks.astera.core.domain.replay.RecordedReplay,
+        exportRoot: Path,
+    ): Path {
+        Files.createDirectories(exportRoot)
+        val outFile = exportRoot.resolve("${replay.matchId.value}.replay.json")
+        val exportEnvelope = com.astarworks.astera.match.application.replay.json.ReplayExportEnvelope(
+            id = replay.id.uuid.toString(),
+            matchId = replay.matchId.value,
+            startTick = replay.startTick,
+            endTick = replay.endTick,
+            sizeBytes = replay.sizeBytes,
+            format = com.astarworks.astera.match.application.replay.json.ReplayFormatJson.fromDomain(replay.format),
+            keyFrames = com.astarworks.astera.match.application.replay.json.KeyFramesJson.fromDomain(replay.keyFrames),
+            events = com.astarworks.astera.match.application.replay.json.ReplayEventsJson.fromDomain(replay.events),
+        )
+        val json = Json {
+            prettyPrint = false
+            encodeDefaults = true
+            classDiscriminator = "type"
+        }
+        val payload = json.encodeToString(exportEnvelope)
+        Files.write(
+            outFile,
+            payload.toByteArray(Charsets.UTF_8),
+            StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING,
+        )
+        return outFile.toAbsolutePath()
+    }
 
     private fun parseTrigger(name: String): MatchStateMachine.TransitionTrigger? =
         when (name.lowercase()) {

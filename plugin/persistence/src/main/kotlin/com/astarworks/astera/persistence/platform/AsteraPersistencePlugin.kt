@@ -51,11 +51,13 @@ import com.astarworks.astera.persistence.repository.PostgresPlayerInventorySnaps
 import com.astarworks.astera.persistence.repository.PostgresPlayerQuestProgressRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSessionRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSettingsRepository
+import com.astarworks.astera.persistence.repository.PostgresMatchReplayRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
 import com.astarworks.astera.persistence.repository.PostgresRegionPermissionService
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
+import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
@@ -211,19 +213,13 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
-        // Wave 5p (ADR-0088): advancement progress overlay. V26 migration
-        // adds `player_advancement_progress`; the in-memory default is
-        // installed by `AsteraCorePlugin` at priority=0.
-        registrations += services.register<IPlayerAdvancementProgressRepository>(
-            PostgresPlayerAdvancementProgressRepository(ctx.database),
-            priority = 100,
-        )
-
-        // Wave 5s (ADR-0091): quest chain progress overlay. V27 migration
-        // adds `player_quest_progress`; the in-memory default is installed
-        // by `AsteraCorePlugin` at priority=0.
-        registrations += services.register<IPlayerQuestProgressRepository>(
-            PostgresPlayerQuestProgressRepository(ctx.database),
+        // Wave 5v (ADR-0088): match recording capture persistence. V20
+        // migration adds the `match_replays` table; Postgres impl mirrors
+        // the in-memory shape with JSONB columns for events / key frames /
+        // format. AsteraMatchPlugin's InMemoryMatchReplayRepository (priority
+        // 0) is the Postgres-less fallback.
+        registrations += services.register<IMatchReplayRepository>(
+            PostgresMatchReplayRepository(ctx.database),
             priority = 100,
         )
 
@@ -236,8 +232,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge, IShopStockRepository, IPlayerAdvancementProgressRepository, " +
-                "IPlayerQuestProgressRepository.",
+                "IRewardBridge, IShopStockRepository, IMatchReplayRepository.",
         )
     }
 
