@@ -76,6 +76,18 @@ import com.astarworks.astera.core.application.port.outbound.observability.ISlowQ
 import com.astarworks.astera.core.application.port.outbound.permission.IPermissionBackend
 import com.astarworks.astera.core.application.port.outbound.permission.IRoleRegistry
 import com.astarworks.astera.core.application.port.outbound.presence.IRichPresenceGateway
+import com.astarworks.astera.core.application.port.outbound.afk.IAfkDetector
+import com.astarworks.astera.core.application.port.outbound.anticheat.IDamageRateValidator
+import com.astarworks.astera.core.application.port.outbound.anticheat.IExternalAnticheatBridge
+import com.astarworks.astera.core.application.port.outbound.anticheat.IInteractValidator
+import com.astarworks.astera.core.application.port.outbound.anticheat.IMovementValidator
+import com.astarworks.astera.core.application.service.afk.AfkSweepScheduler
+import com.astarworks.astera.core.application.service.afk.InMemoryAfkDetector
+import com.astarworks.astera.core.application.service.anticheat.AnticheatOrchestrator
+import com.astarworks.astera.core.application.service.anticheat.DefaultMovementValidator
+import com.astarworks.astera.core.application.service.anticheat.NoopExternalAnticheatBridge
+import com.astarworks.astera.core.application.service.anticheat.SlidingWindowDamageRateValidator
+import com.astarworks.astera.core.application.service.anticheat.SlidingWindowInteractValidator
 import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.DefaultGuiBindingResolver
 import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
@@ -193,6 +205,9 @@ public class AsteraCorePlugin : JavaPlugin() {
     /** Retained so [onDisable] can release the HTTP port (Wave _ops). */
     private var metricsHttpServer: HttpMetricsServer? = null
     private var matchQueueMetric: MatchQueueMetric? = null
+
+    /** Wave 5q (ADR-0083): retained so [onDisable] can cancel the AFK sweep loop. */
+    private var afkSweepHandle: IScheduler.TaskHandle? = null
 
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
@@ -617,6 +632,53 @@ public class AsteraCorePlugin : JavaPlugin() {
         ).forEach { commandHandler.register(it) }
         logger.info("Wave 5t admin commands registered (/astera report, feedback, slow-query).")
 
+        // ---- Anti-cheat + Anti-AFK (Wave 5q, ADR-0083) -----------------
+        // Three light validators (movement / damage-rate / interact) +
+        // pluggable external bridge (Noop by default; Wave 6b ships a
+        // Spartan / Negativity / Vulcan adapter once Wave 8f picks one).
+        // The orchestrator routes flags into AnticheatFlagRaised /
+        // AnticheatActionTaken events; admins holding
+        // astera.anticheat.bypass skip both flag emission and action.
+        val movementValidator: IMovementValidator = DefaultMovementValidator()
+        val damageRateValidator: IDamageRateValidator = SlidingWindowDamageRateValidator()
+        val interactValidator: IInteractValidator = SlidingWindowInteractValidator()
+        services.register<IMovementValidator>(movementValidator, priority = 0)
+        services.register<IDamageRateValidator>(damageRateValidator, priority = 0)
+        services.register<IInteractValidator>(interactValidator, priority = 0)
+
+        val externalAnticheatBridge: IExternalAnticheatBridge =
+            services.get<IExternalAnticheatBridge>() ?: NoopExternalAnticheatBridge().also {
+                services.register<IExternalAnticheatBridge>(it, priority = 0)
+            }
+
+        val anticheatOrchestrator = AnticheatOrchestrator(
+            externalBridge = externalAnticheatBridge,
+            permissionService = permissionService,
+            eventBus = eventBus,
+        )
+        services.register<AnticheatOrchestrator>(anticheatOrchestrator, priority = 0)
+        logger.info(
+            "Wave 5q anti-cheat wired (external bridge: ${externalAnticheatBridge.backendId()}; " +
+                "available=${externalAnticheatBridge.isAvailable()}).",
+        )
+
+        // Anti-AFK detector: 30s warning, 2 min kick. Sweeper publishes
+        // PlayerAfkWarned / PlayerAfkKicked once per second across every
+        // tracked session (Wave _persist-1 + Wave 5e session repo).
+        val afkDetector: IAfkDetector =
+            services.get<IAfkDetector>() ?: InMemoryAfkDetector(tickProvider = { scheduler.currentTick() }).also {
+                services.register<IAfkDetector>(it, priority = 0)
+            }
+        val afkSweeper = AfkSweepScheduler(
+            detector = afkDetector,
+            eventBus = eventBus,
+            scheduler = scheduler,
+            tickProvider = { scheduler.currentTick() },
+            playerSnapshot = { sessionRepo.all().map { it.playerId } },
+        )
+        afkSweepHandle = afkSweeper.start()
+        logger.info("Wave 5q anti-AFK detector wired (warning=30s, kick=2min, sweep=1s).")
+
         // ---- Observability (Wave _ops, ADR-0023 + ADR-0024 + deploy/keda/) ----
         // Opt-in via env. When ASTERA_METRICS_ENABLED=true, exposes Prometheus
         // exposition at :ASTERA_METRICS_PORT/metrics (default 9092). The KEDA
@@ -649,6 +711,7 @@ public class AsteraCorePlugin : JavaPlugin() {
 
     override fun onDisable() {
         logger.info("Astera-Core disabling.")
+        afkSweepHandle?.cancel()
         matchQueueMetric?.stop()
         metricsHttpServer?.stop()
         paperScheduler?.stop()
@@ -712,6 +775,13 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IServerHealthCheck",
             "ISlowQueryAuditRepository",
             "IPlayerFeedbackQueue",
+            // Wave 5q (ADR-0083)
+            "IMovementValidator",
+            "IDamageRateValidator",
+            "IInteractValidator",
+            "IExternalAnticheatBridge (noop default)",
+            "AnticheatOrchestrator",
+            "IAfkDetector + AfkSweepScheduler",
         )
     }
 }

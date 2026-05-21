@@ -1073,6 +1073,63 @@ class ArchitectureTest {
             ) { file -> hasBukkitFamilyImport(file) }
     }
 
+    // ─── Wave 5q — Anti-cheat + Anti-AFK isolation (ADR-0083) ─────────
+
+    /**
+     * ADR-0083: the anti-cheat domain (`core.domain.anticheat.*`) carries
+     * the validator-result sealed hierarchies plus the cross-plugin
+     * suspicion / action vocabulary. Must stay Bukkit-free — Paper-side
+     * listeners that emit these surfaces live in adapter/paper/ (Wave 6b)
+     * and external plugin bridges arrive through
+     * [com.astarworks.astera.core.application.port.outbound.anticheat.IExternalAnticheatBridge].
+     *
+     * The Konsist rule mirrors the physiology / resource-pool guard from
+     * Wave 5k (ADR-0080) — same vendor isolation, different package.
+     */
+    @Test
+    fun `Anti-cheat domain must not import Bukkit Paper (ADR-0083)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.anticheat") == true }
+            .assertFalse(
+                additionalMessage = "ADR-0083: anti-cheat domain must stay Bukkit-free. " +
+                    "Move Paper-side wiring to core.adapter.paper.* (or feature plugins' " +
+                    "adapter/paper/).",
+            ) { file -> hasBukkitFamilyImport(file) }
+    }
+
+    /**
+     * ADR-0083: every concrete [com.astarworks.astera.core.application.port.outbound.afk.IAfkDetector]
+     * implementation MUST live in either `application/service/afk/`
+     * (vendor-neutral / Postgres overlay) or in a `<plugin>/adapter/paper/...`
+     * package. Bukkit imports in the application-layer impl would force
+     * the detector onto the Paper main thread for every tick scan, which
+     * the [AfkSweepScheduler] is supposed to keep optional.
+     *
+     * In practice this assertion narrows to "any class implementing
+     * IAfkDetector under the `core.application.*` package must not import
+     * Bukkit." Wave 6b can subclass with a Paper-backed `IPlayerGateway`
+     * lookup as long as that impl lives under `<plugin>.adapter.paper.*`.
+     */
+    @Test
+    fun `IAfkDetector application-layer implementations must not import Bukkit Paper (ADR-0083)`() {
+        val portSimpleName = "IAfkDetector"
+        Konsist.scopeFromProject()
+            .classes()
+            .filter { cls ->
+                cls.parents().any { parent -> parent.name == portSimpleName } &&
+                    cls.packagee?.name?.contains(".application.") == true
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0083: IAfkDetector application-layer impls must stay " +
+                    "Bukkit-free. Move Paper wiring to *.adapter.paper.* instead.",
+            ) { cls ->
+                cls.containingFile.imports.any { imp ->
+                    bukkitFamily.any { prefix -> imp.name.startsWith(prefix) }
+                }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

@@ -321,6 +321,39 @@ green; 2 new rules added (baseline 30 → 32). Parity gauge **same ✅ count**
 
 ---
 
+## Category 8c: Anti-cheat + Anti-AFK (Wave 5q, ADR-0083)
+
+Lightweight in-process validators + external anti-cheat plugin bridge +
+per-player AFK detection. Wave 5q dropped the original anti-grief rollback
+scope (covered by Wave 5n region permissions + Wave 5w restic backups) and
+added anti-AFK detection so match plumbing has a tick-event source for the
+leaver-penalty path.
+
+| RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
+|---|---|---|---|---|
+| `IMovementValidator` + `MovementValidation` sealed (`Ok / Suspicious / Reject`) + `MovementSuspicion` sealed (`HighSpeed / VerticalAnomaly / WallClipping`) + `MovementRejection` sealed (`Teleport / NoClip`) | ✅ Wave 5q (port + `DefaultMovementValidator` O(1) hard-cap impl) | (済 Wave 5q) | P0 | `plugin/core/.../{domain/anticheat/MovementValidation.kt,domain/anticheat/MovementSuspicion.kt,domain/anticheat/MovementRejection.kt,application/port/outbound/anticheat/IMovementValidator.kt,application/service/anticheat/DefaultMovementValidator.kt}`; ADR-0083 §α |
+| `IDamageRateValidator` + `DamageRateValidation` sealed (`Ok / TooFast`) | ✅ Wave 5q (port + `SlidingWindowDamageRateValidator`); Wave 5a damage pipeline calls `record()` before `validate()` on next hit | (済 Wave 5q) | P1 | `plugin/core/.../{application/port/outbound/anticheat/IDamageRateValidator.kt,application/service/anticheat/SlidingWindowDamageRateValidator.kt}`; ADR-0083 §α |
+| `IInteractValidator` + `InteractValidation` sealed (`Ok / RateExceeded`) + `InteractAction` sealed (`ContainerOpen / BlockClick / ItemUse`) | ✅ Wave 5q (port + `SlidingWindowInteractValidator` per `(playerId, actionKind)` bucket) | (済 Wave 5q) | P1 | `plugin/core/.../{domain/anticheat/InteractAction.kt,domain/anticheat/InteractValidation.kt,application/port/outbound/anticheat/IInteractValidator.kt,application/service/anticheat/SlidingWindowInteractValidator.kt}`; ADR-0083 §α |
+| `IExternalAnticheatBridge` (Astera ↔ external plugin) + `AnticheatSuspicion` sealed (`Movement / DamageRate / Interact / CustomFlag`) + `AnticheatAction` sealed (`Kick / Ban / Notify / Quiet`) | ✅ Wave 5q (port + `NoopExternalAnticheatBridge` default; Spartan / Negativity / Vulcan adapter at **Wave 6b** once **Wave 8f** picks the plugin) | **Wave 5q** (port + Noop) + **Wave 6b** (Paper adapter) + **Wave 8f** (plugin choice ADR) | P1 | `plugin/core/.../{domain/anticheat/AnticheatSuspicion.kt,domain/anticheat/AnticheatAction.kt,application/port/outbound/anticheat/IExternalAnticheatBridge.kt,application/service/anticheat/NoopExternalAnticheatBridge.kt}`; ADR-0083 §β |
+| `AnticheatOrchestrator` (validators → bridge → permission check → events) + `AnticheatActionPolicy` fun interface | ✅ Wave 5q (orchestrator + `DefaultAnticheatActionPolicy` severity-based decision tree); admins / GMs with `astera.anticheat.bypass` skip both flag and action | (済 Wave 5q) | P0 | `plugin/core/.../application/service/anticheat/AnticheatOrchestrator.kt`; ADR-0083 §β + Wave 5t (ADR-0086) bypass permission |
+| `IAfkDetector` + `ActivityKind` sealed (`Movement / Click / Chat / SkillCast`) + `AfkStatus` sealed (`Active / Warning(secondsBeforeKick) / Afk(sinceTick)`) + `AfkRecord` | ✅ Wave 5q (port + `InMemoryAfkDetector` warning=30s / kick=2min defaults; tick-agnostic via `tickProvider`) | (済 Wave 5q) | P0 | `plugin/core/.../{domain/afk/ActivityKind.kt,domain/afk/AfkStatus.kt,domain/afk/AfkRecord.kt,application/port/outbound/afk/IAfkDetector.kt,application/service/afk/InMemoryAfkDetector.kt}`; ADR-0083 §γ |
+| `AfkSweepScheduler` (periodic sweeper, edge-triggered events, 1s sweep default) | ✅ Wave 5q (`IScheduler.runRepeatingTicks` + per-player de-dup bucket) | (済 Wave 5q) | P0 | `plugin/core/.../application/service/afk/AfkSweepScheduler.kt`; ADR-0083 §γ |
+| 4 domain events: `AnticheatFlagRaised` / `AnticheatActionTaken` / `PlayerAfkWarned` / `PlayerAfkKicked` | ✅ Wave 5q | (済 Wave 5q) | P0 | `plugin/core/.../domain/event/{AnticheatFlagRaised,AnticheatActionTaken,PlayerAfkWarned,PlayerAfkKicked}.kt`; ADR-0083 |
+| Match queue / leaver-penalty hookup on `PlayerAfkKicked` | ❌ deferred to **Wave 5w** (`MatchFoundUseCase` already plans `IPlayerAfkKicked` subscriber for queue-cooldown) | **Wave 5w** | P1 | RTM gap; ADR-0083 §γ Decision |
+| Paper-side activity listeners (PlayerMoveEvent / Click / AsyncChat / SkillCastRequested) feeding `IAfkDetector.recordActivity` | ❌ deferred to **Wave 6b** (Paper adapter layer) | **Wave 6b** | P1 | ADR-0083 §γ Consequences |
+| Paper-side hookup `IMovementValidator` → `PlayerMoveEvent` cancel + `IDamageRateValidator` → Wave 5a `ApplyDamage` pipeline + `IInteractValidator` → click listener | ❌ deferred to **Wave 6b** (Paper adapter layer) | **Wave 6b** | P1 | ADR-0083 §β Decision |
+
+**Wave 5q summary**: 3 new ports (validator triad) + 1 bridge port + 1
+orchestrator + 1 AFK port + 1 AFK sweeper + 4 new domain events. 2 new
+Konsist rules (Anti-cheat domain Bukkit isolation + `IAfkDetector`
+application-layer Bukkit isolation). Catalog **+11 entries**, ✅ +9
+(orchestrator wires through `IPermissionService` for Wave 5t-style
+`astera.anticheat.bypass` escape hatch). Anti-grief rollback ❌
+*intentionally not delivered*: covered by Wave 5n region permissions
+(ADR-0081) + Wave 5w restic backups (ADR-0089) instead.
+
+---
+
 ## Category 9: External / Network / Broadcaster (Wave 6)
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
