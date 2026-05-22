@@ -54,6 +54,7 @@ class DamageSourceTest {
                 is DamageSource.StatusEffectTick -> "status-tick"
                 is DamageSource.Projectile -> "projectile"
                 is DamageSource.Barrier -> "barrier"
+                is DamageSource.Block -> "block"
                 is DamageSource.Environment.Generic -> "env"
                 is DamageSource.Environment.Fall -> "fall"
                 is DamageSource.Environment.Drown -> "drown"

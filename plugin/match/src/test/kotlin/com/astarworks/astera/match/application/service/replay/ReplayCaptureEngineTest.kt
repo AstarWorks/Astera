@@ -99,7 +99,7 @@ class ReplayCaptureEngineTest {
         bus.publish(
             PlayerKilled(
                 victim = victim, killer = attacker,
-                source = DamageSource.Environment, atTick = 5L,
+                source = DamageSource.Environment.Generic, atTick = 5L,
             ),
         )
         bus.publish(SkillCast(caster = attacker, skillId = SkillId("fireball"), at = Vec3.ZERO, atTick = 6L))
@@ -136,7 +136,7 @@ class ReplayCaptureEngineTest {
         bus.publish(
             PlayerKilled(
                 victim = victim, killer = null,
-                source = DamageSource.Fall(5.0), atTick = 1L,
+                source = DamageSource.Environment.Fall(5.0), atTick = 1L,
             ),
         )
         scheduler.advanceTicks(100L)
@@ -194,7 +194,7 @@ class ReplayCaptureEngineTest {
         engine.shutdown()
 
         bus.publish(
-            PlayerKilled(victim, attacker, DamageSource.Environment, atTick = 1L),
+            PlayerKilled(victim, attacker, DamageSource.Environment.Generic, atTick = 1L),
         )
         // The buffer was cleared by shutdown; isRecording is false.
         assertThat(engine.isRecording(matchId)).isFalse
@@ -203,12 +203,12 @@ class ReplayCaptureEngineTest {
     @Test
     fun `re-recording the same match overwrites the prior row in the repository`() {
         engine.startRecording(matchId, ReplayFormat.EventLogKeyFrame())
-        bus.publish(PlayerKilled(victim, attacker, DamageSource.Environment, atTick = 1L))
+        bus.publish(PlayerKilled(victim, attacker, DamageSource.Environment.Generic, atTick = 1L))
         val firstResult = engine.stopRecording(matchId) as Result.Success
         val firstId = firstResult.value.id
 
         engine.startRecording(matchId, ReplayFormat.EventLogKeyFrame())
-        bus.publish(PlayerKilled(victim, attacker, DamageSource.Environment, atTick = 50L))
+        bus.publish(PlayerKilled(victim, attacker, DamageSource.Environment.Generic, atTick = 50L))
         val secondResult = engine.stopRecording(matchId) as Result.Success
         val secondId = secondResult.value.id
 

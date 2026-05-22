@@ -110,7 +110,7 @@ class TrackAdvancementProgressListenerTest {
             PlayerKilled(
                 victim = victim,
                 killer = killer,
-                source = DamageSource.Environment,
+                source = DamageSource.Environment.Generic,
                 atTick = 100L,
             ),
         )
@@ -123,7 +123,7 @@ class TrackAdvancementProgressListenerTest {
             PlayerKilled(
                 victim = victim,
                 killer = null,
-                source = DamageSource.Environment,
+                source = DamageSource.Environment.Generic,
                 atTick = 100L,
             ),
         )
