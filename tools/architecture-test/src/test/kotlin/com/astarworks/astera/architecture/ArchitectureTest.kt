@@ -52,8 +52,10 @@ class ArchitectureTest {
             .assertFalse { file ->
                 hasBukkitFamilyImport(file) ||
                     file.imports.any { imp ->
-                        imp.name.startsWith("org.joml") ||
-                            imp.name.startsWith("javax.sql") ||
+                        // org.joml.* deliberately NOT forbidden — Wave 5h-fix:
+                        // JOML is a pure-math library (Vector3f / Quaternionf)
+                        // with no Minecraft coupling; treat like java.util.UUID.
+                        imp.name.startsWith("javax.sql") ||
                             imp.name.startsWith("java.sql") ||
                             imp.name.startsWith("io.lettuce") ||
                             imp.name.startsWith("org.jetbrains.exposed") ||
