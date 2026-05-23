@@ -139,5 +139,9 @@ class AnalyticsEventListenerTest {
         override fun recordShopRevenue(currency: String, amount: Long) = Unit
         override fun setMarketplaceListingCount(count: Long) = Unit
         override fun setMatchPlayerCount(matchId: String, count: Int) = Unit
+        // Wave 5engage additions
+        override fun setPlayerEngagementScore(playerId: String, score: Double) = Unit
+        override fun setDauWauMau(dau: Long, wau: Long, mau: Long) = Unit
+        override fun setRetentionCohort(cohort: String, day: String, rate: Double) = Unit
     }
 }

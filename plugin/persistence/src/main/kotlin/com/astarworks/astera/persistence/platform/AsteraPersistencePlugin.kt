@@ -51,12 +51,14 @@ import com.astarworks.astera.persistence.repository.PostgresPlayerInventorySnaps
 import com.astarworks.astera.persistence.repository.PostgresPlayerQuestProgressRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSessionRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerSettingsRepository
+import com.astarworks.astera.persistence.repository.PostgresEngagementSnapshotRepository
 import com.astarworks.astera.persistence.repository.PostgresMatchReplayRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
 import com.astarworks.astera.persistence.repository.PostgresRegionPermissionService
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
+import com.astarworks.astera.core.application.port.outbound.engagement.IEngagementSnapshotRepository
 import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
@@ -223,6 +225,14 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 5engage (ADR-0104): per-player engagement snapshot persistence.
+        // V30 migration adds `player_engagement_snapshots`; the Postgres impl
+        // overlays Core's InMemoryEngagementSnapshotRepository at priority 100.
+        registrations += services.register<IEngagementSnapshotRepository>(
+            PostgresEngagementSnapshotRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -232,7 +242,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge, IShopStockRepository, IMatchReplayRepository.",
+                "IRewardBridge, IShopStockRepository, IMatchReplayRepository, " +
+                "IEngagementSnapshotRepository.",
         )
     }
 

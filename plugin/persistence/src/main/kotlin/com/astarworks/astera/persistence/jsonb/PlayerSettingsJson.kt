@@ -29,6 +29,10 @@ public data class PlayerSettingsJson(
     val particleVisibility: ParticleVisibilityJson = ParticleVisibilityJson.All,
     val doubleJumpEnabled: Boolean = true,
     val quickCastSlots: Map<String, String> = emptyMap(),
+    // Wave 5engage / ADR-0104 §Privacy: opt-in public profile flag. Default
+    // false (privacy-by-default). ignoreUnknownKeys is on, so older rows
+    // without this field round-trip as default-disabled.
+    val publicProfileEnabled: Boolean = false,
 ) {
 
     public fun toDomain(playerId: PlayerId): PlayerSettings = PlayerSettings(
@@ -37,6 +41,7 @@ public data class PlayerSettingsJson(
         particleVisibility = particleVisibility.toDomain(),
         doubleJumpEnabled = doubleJumpEnabled,
         quickCastSlots = quickCastSlots.mapKeys { (k, _) -> k.toInt() },
+        publicProfileEnabled = publicProfileEnabled,
     )
 
     public companion object {
@@ -45,6 +50,7 @@ public data class PlayerSettingsJson(
             particleVisibility = ParticleVisibilityJson.fromDomain(settings.particleVisibility),
             doubleJumpEnabled = settings.doubleJumpEnabled,
             quickCastSlots = settings.quickCastSlots.mapKeys { (k, _) -> k.toString() },
+            publicProfileEnabled = settings.publicProfileEnabled,
         )
     }
 }

@@ -1,16 +1,16 @@
 ---
-status: Draft
+status: Accepted
 date: 2026-05-21
 deciders: ryuzu
 supersedes: null
 superseded_by: null
 ---
 
-# ADR-0086: Player Engagement Dashboard
+# ADR-0104: Player Engagement Dashboard
 
 ## Status
 
-Draft
+Accepted (Wave 5engage delivery, 2026-05-23)
 
 ## Context
 
@@ -35,7 +35,37 @@ HoYoLAB profile / OSRS hiscore.runescape.com の Astera 版。
 
 ## Decision
 
-Wave 12g で以下を land する:
+Phase 1 implementation lands in **Wave 5engage** (this commit); the REST /
+Web admin surface remains a Wave 12g concern (depends on Wave 8a/8b). Wave
+5engage delivers the **engagement scoring domain + dashboard service +
+Prometheus surface** so the REST handler in Wave 12g consumes a stable
+contract.
+
+### Wave 5engage delivery (2026-05-23)
+
+- Domain (`plugin/core/src/main/kotlin/.../core/domain/engagement/`):
+  `EngagementScore`, `EngagementSnapshot`, `EngagementDashboardSnapshot`,
+  `RetentionCohort`, `RetentionDay`, `RetentionRate`, `DauWauMau`.
+- Domain event: `EngagementSnapshotComputed` (fires after each compute pass).
+- Outbound port: `IEngagementSnapshotRepository` (InMemory + Postgres impl
+  at priority 100).
+- Service: `EngagementDashboardService` (`recordPlayerActivity` writer +
+  `compute()` aggregate; reuses Wave 5u `IAnalyticsExporter` for gauges).
+- Scoring policy: `EngagementScoringPolicy` (playtime 0.35 + streak 0.25 +
+  skill diversity 0.20 + recency 0.20, all clamped + capped per ADR).
+- Persistence: V30 migration (`player_engagement_snapshots` + JSONB) +
+  Exposed table + JSONB DTO + IT round-trip test.
+- IAnalyticsExporter extended with `setPlayerEngagementScore` +
+  `setDauWauMau` + `setRetentionCohort`; Micrometer adapter publishes
+  bounded per-player gauges (top-N cap) + cohort-keyed retention gauges.
+- PlayerSettings: `publicProfileEnabled: Boolean = false` (privacy-by-default,
+  consumed by Wave 12g `/api/players/<id>/profile`).
+- Konsist: new rule blocks Micrometer / serialization / Exposed / SLF4J in
+  `core.domain.engagement.*`.
+
+### Wave 12g follow-up (deferred)
+
+Wave 12g で以下を land する (REST endpoint contract unchanged):
 
 ### REST endpoint (Wave 8b 拡張)
 
