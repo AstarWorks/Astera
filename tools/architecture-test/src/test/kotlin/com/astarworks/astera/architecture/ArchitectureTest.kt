@@ -1122,42 +1122,41 @@ class ArchitectureTest {
             }
     }
 
-    // ─── Wave 5engage — Engagement dashboard isolation (ADR-0104) ──────
+    // ─── Wave 5refine — Item refinement layer isolation (ADR-0100) ─────
 
     /**
-     * ADR-0104: `core.domain.engagement.*` is the dashboard's value-vocabulary
-     * (engagement score, retention cohort, DAU/WAU/MAU). It MUST stay free of:
+     * ADR-0100 §"新規 domain": `items.domain.refinement.*` is pure-Kotlin
+     * domain that composes via the existing
+     * [com.astarworks.astera.core.domain.attribute.IAttributeContainer]
+     * primitive. It MUST NOT import Bukkit (per ADR-0022 domain isolation),
+     * persistence drivers, or `kotlinx.serialization` (the YAML DTO lives in
+     * `items.application.config.refinement.*`).
      *
-     *  - Bukkit family (the dashboard sits in core/, not in an adapter)
-     *  - Micrometer (gauge publishing belongs to `adapter/paper/analytics/`)
-     *  - kotlinx.serialization (JSONB DTO lives in `persistence/jsonb/`)
-     *  - JDBC / Exposed (persistence is via the outbound port, not domain)
-     *  - SLF4J (domain types should not log; service layer does)
-     *
-     * The general "core domain must not depend on platform/framework" rule
-     * (test above) covers most of these, but micrometer specifically is not
-     * a Bukkit family member and would slip through — this rule pins it
-     * explicitly so the cardinality-control discipline lives at the domain
-     * boundary, not as ad-hoc reviewer judgement.
+     * The companion `items.application.usecase.refinement.*` MUST stay
+     * Bukkit-free for the same reason; persistence + RNG are injected as
+     * outbound ports per the universal application-layer rule.
      */
     @Test
-    fun `core engagement domain must not import Micrometer or analytics adapters (ADR-0104)`() {
-        Konsist.scopeFromModule("plugin/core")
+    fun `items refinement domain stays pure (ADR-0100)`() {
+        Konsist.scopeFromProject()
             .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.engagement") == true }
+            .filter {
+                it.packagee?.name?.startsWith("com.astarworks.astera.items.domain.refinement") == true
+            }
             .assertFalse(
-                additionalMessage = "ADR-0104 violation: core.domain.engagement.* must be vendor-neutral. " +
-                    "Move Micrometer publishing to core.adapter.paper.analytics.* (or the engagement-specific " +
-                    "publisher), persistence DTOs to plugin/persistence/jsonb/, and never log from domain.",
+                additionalMessage = "ADR-0100: items.domain.refinement.* must stay pure Kotlin " +
+                    "domain. Move Bukkit / persistence / kotlinx.serialization couplings into " +
+                    "items.application.config.refinement.* (DTOs) or items.adapter.paper.* (Paper sinks).",
             ) { file ->
                 hasBukkitFamilyImport(file) ||
                     file.imports.any { imp ->
-                        imp.name.startsWith("io.micrometer") ||
-                            imp.name.startsWith("kotlinx.serialization") ||
+                        imp.name.startsWith("kotlinx.serialization") ||
                             imp.name.startsWith("org.jetbrains.exposed") ||
-                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("org.postgresql") ||
                             imp.name.startsWith("javax.sql") ||
-                            imp.name.startsWith("org.slf4j")
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin")
                     }
             }
     }

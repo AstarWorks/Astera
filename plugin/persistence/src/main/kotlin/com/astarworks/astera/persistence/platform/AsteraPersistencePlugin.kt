@@ -60,8 +60,9 @@ import com.astarworks.astera.persistence.repository.PostgresSkillProgressionRepo
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
-import com.astarworks.astera.core.application.port.outbound.engagement.IEngagementSnapshotRepository
+import com.astarworks.astera.items.application.port.outbound.IItemInstanceRepository
 import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
+import com.astarworks.astera.persistence.repository.PostgresItemInstanceRepository
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
@@ -227,12 +228,13 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
-        // Wave 5multi-skill (ADR-0101 / V30): per-player, per-axis skill
-        // progression. AsteraStatsPlugin's InMemorySkillProgressionRepository
-        // (priority 0) is the Postgres-less fallback; this overlay wins at
-        // priority 100 whenever ASTERA_PG_* env vars are set.
-        registrations += services.register<ISkillProgressionRepository>(
-            PostgresSkillProgressionRepository(ctx.database),
+        // Wave 5refine (ADR-0100): per-player ItemInstance persistence. V30
+        // migration adds the `item_instances` table; Postgres impl carries
+        // the polymorphic Refinement layers + 原神 sub-stat rolls as JSONB.
+        // AsteraItemsPlugin's InMemoryItemInstanceRepository (priority 0) is
+        // the Postgres-less fallback.
+        registrations += services.register<IItemInstanceRepository>(
+            PostgresItemInstanceRepository(ctx.database),
             priority = 100,
         )
 
@@ -246,7 +248,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
                 "IRewardBridge, IShopStockRepository, IMatchReplayRepository, " +
-                "ISkillProgressionRepository.",
+                "IItemInstanceRepository.",
         )
     }
 
