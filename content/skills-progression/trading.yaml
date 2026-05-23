@@ -1,0 +1,22 @@
+# Wave 5multi-skill (ADR-0101): Trading progression axis.
+# XP source: CurrencyChanged (reason = ShopPurchase) proxy until Wave 12c.
+skill: trading
+curve:
+  base: 75
+  factor: 1.11
+  max_level: 100
+perks:
+  - id: trading-shop-discount-1
+    level: 15
+    display_name_key: astera.progression.trading.shop_discount_1
+    effect:
+      type: stat_additive
+      stat: shop_discount
+      additive: 0.03
+  - id: trading-marketplace-fee-1
+    level: 30
+    display_name_key: astera.progression.trading.marketplace_fee_1
+    effect:
+      type: stat_additive
+      stat: marketplace_fee_discount
+      additive: 0.05

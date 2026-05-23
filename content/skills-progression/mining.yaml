@@ -1,0 +1,29 @@
+# Wave 5multi-skill (ADR-0101): Mining progression axis.
+# XP source: BlockBroken (vanilla pickaxe) + BlockBrokenBySkill (skill cast).
+skill: mining
+curve:
+  base: 50
+  factor: 1.10
+  max_level: 100
+perks:
+  - id: mining-yield-1
+    level: 10
+    display_name_key: astera.progression.mining.yield_1
+    effect:
+      type: stat_multiplier
+      stat: mining_drop_count
+      multiplier: 1.10
+  - id: mining-speed-1
+    level: 20
+    display_name_key: astera.progression.mining.speed_1
+    effect:
+      type: stat_additive
+      stat: mining_speed
+      additive: 0.15
+  - id: mining-fortune-1
+    level: 40
+    display_name_key: astera.progression.mining.fortune_1
+    effect:
+      type: stat_additive
+      stat: mining_fortune_chance
+      additive: 0.05

@@ -450,3 +450,21 @@ astera:
         title: "<yellow>Solo Stage</yellow>"
         desc: "<gray>Single stage.</gray>"
 
+  # Wave 5multi-skill (ADR-0101): multi-axis skill progression perks.
+  progression:
+    combat:
+      damage_1: "<yellow>Combat Mastery I</yellow>"
+      damage_2: "<yellow>Combat Mastery II</yellow>"
+      crit_chance_1: "<gold>Critical Edge I</gold>"
+      crit_chance_2: "<gold>Critical Edge II</gold>"
+    mining:
+      yield_1: "<aqua>Quarry Hand I</aqua>"
+      speed_1: "<aqua>Quick Pick I</aqua>"
+      fortune_1: "<aqua>Lucky Vein I</aqua>"
+    boss_slayer:
+      damage_1: "<red>Slayer's Edge I</red>"
+      loot_1: "<gold>Greater Spoils I</gold>"
+    trading:
+      shop_discount_1: "<green>Haggler I</green>"
+      marketplace_fee_1: "<green>Merchant Guild I</green>"
+

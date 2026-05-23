@@ -1,0 +1,36 @@
+# Wave 5multi-skill (ADR-0101): Combat progression axis.
+# XP source: PvP DamageDealt + MatchEnded (winning team).
+skill: combat
+curve:
+  base: 100
+  factor: 1.12
+  max_level: 100
+perks:
+  - id: combat-damage-1
+    level: 5
+    display_name_key: astera.progression.combat.damage_1
+    effect:
+      type: stat_multiplier
+      stat: damage
+      multiplier: 1.05
+  - id: combat-crit-chance-1
+    level: 15
+    display_name_key: astera.progression.combat.crit_chance_1
+    effect:
+      type: stat_additive
+      stat: crit_chance
+      additive: 0.05
+  - id: combat-damage-2
+    level: 25
+    display_name_key: astera.progression.combat.damage_2
+    effect:
+      type: stat_multiplier
+      stat: damage
+      multiplier: 1.10
+  - id: combat-crit-chance-2
+    level: 50
+    display_name_key: astera.progression.combat.crit_chance_2
+    effect:
+      type: stat_additive
+      stat: crit_chance
+      additive: 0.10

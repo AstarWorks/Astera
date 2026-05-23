@@ -13,6 +13,9 @@ import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.ISkillPerkRegistry
+import com.astarworks.astera.core.application.port.outbound.ISkillProgressionRepository
+import com.astarworks.astera.core.application.port.outbound.ISkillXpCurveRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
@@ -23,6 +26,11 @@ import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.BlockBroken
+import com.astarworks.astera.core.domain.event.BlockBrokenBySkill
+import com.astarworks.astera.core.domain.event.CurrencyChanged
+import com.astarworks.astera.core.domain.event.MobKilled
+import com.astarworks.astera.core.domain.event.SkillLevelUp
 import com.astarworks.astera.stats.application.eventbus.listeners.BroadcastOnLeveledUpListener
 import com.astarworks.astera.stats.application.eventbus.listeners.MissionProgressOnKillListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RecordAssistOnAssistCreditedListener
@@ -31,6 +39,16 @@ import com.astarworks.astera.stats.application.eventbus.listeners.RecordMatchRes
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnDamageListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnKillListener
 import com.astarworks.astera.stats.application.contents.NormaContents
+import com.astarworks.astera.stats.application.contents.SkillProgressionContents
+import com.astarworks.astera.stats.application.eventbus.listeners.progression.AwardBossSlayerXpOnMobKilledListener
+import com.astarworks.astera.stats.application.eventbus.listeners.progression.AwardCombatXpOnDamageDealtListener
+import com.astarworks.astera.stats.application.eventbus.listeners.progression.AwardCombatXpOnMatchEndedListener
+import com.astarworks.astera.stats.application.eventbus.listeners.progression.AwardMiningXpOnBlockBrokenListener
+import com.astarworks.astera.stats.application.eventbus.listeners.progression.AwardTradingXpOnCurrencyChangedListener
+import com.astarworks.astera.stats.application.eventbus.listeners.progression.BroadcastOnSkillLevelUpListener
+import com.astarworks.astera.stats.application.eventbus.listeners.progression.GrantPerksOnSkillLevelUpListener
+import com.astarworks.astera.stats.application.service.progression.InMemorySkillProgressionRepository
+import com.astarworks.astera.stats.application.usecase.progression.AwardSkillXpUseCase
 import com.astarworks.astera.stats.application.port.outbound.ILevelService
 import com.astarworks.astera.stats.application.port.outbound.INormaRegistry
 import com.astarworks.astera.stats.application.port.outbound.INormaService
@@ -216,6 +234,43 @@ public class AsteraStatsPlugin : JavaPlugin() {
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.core.domain.event.ItemAcquired::class,
         ) { trackAdvancement.handle(it) }
+
+        // ---- Wave 5multi-skill (ADR-0101): multi-axis skill progression -----
+        // Repository: Postgres overlay at priority=100 wins when persistence is loaded.
+        val skillProgressionRepo: ISkillProgressionRepository =
+            services.get<ISkillProgressionRepository>()
+                ?: InMemorySkillProgressionRepository().also {
+                    registrations += services.register<ISkillProgressionRepository>(it, priority = 0)
+                }
+        // Content registry doubles as ISkillXpCurveRegistry + ISkillPerkRegistry.
+        val skillProgressionContentDir = core.contentDir.resolve("skills-progression")
+        val skillProgressionContents = SkillProgressionContents()
+        val skillProgressionReport = skillProgressionContents.bootstrap(skillProgressionContentDir)
+        logger.info(
+            "Loaded ${skillProgressionReport.loaded} skill-progression axis/axes from " +
+                "$skillProgressionContentDir (failed: ${skillProgressionReport.failed})",
+        )
+        registrations += services.register<ISkillXpCurveRegistry>(skillProgressionContents, priority = 0)
+        registrations += services.register<ISkillPerkRegistry>(skillProgressionContents, priority = 0)
+        reloadRegistry.register(skillProgressionContents, skillProgressionContentDir)
+
+        val awardSkillXp = AwardSkillXpUseCase(skillProgressionRepo, skillProgressionContents, eventBus)
+        val combatXpOnDamage = AwardCombatXpOnDamageDealtListener(awardSkillXp)
+        val combatXpOnMatchEnded = AwardCombatXpOnMatchEndedListener(matchRepository, awardSkillXp)
+        val bossSlayerXpOnKill = AwardBossSlayerXpOnMobKilledListener(awardSkillXp)
+        val miningXpOnBlockBroken = AwardMiningXpOnBlockBrokenListener(awardSkillXp)
+        val tradingXpOnCurrency = AwardTradingXpOnCurrencyChangedListener(awardSkillXp)
+        val broadcastSkillLevelUp = BroadcastOnSkillLevelUpListener(broadcaster)
+        val grantPerksOnLevelUp = GrantPerksOnSkillLevelUpListener(skillProgressionContents, eventBus, broadcaster)
+
+        subscriptions += eventBus.subscribe(DamageDealt::class) { combatXpOnDamage.handle(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { combatXpOnMatchEnded.handle(it) }
+        subscriptions += eventBus.subscribe(MobKilled::class) { bossSlayerXpOnKill.handle(it) }
+        subscriptions += eventBus.subscribe(BlockBroken::class) { miningXpOnBlockBroken.onPickaxeBreak(it) }
+        subscriptions += eventBus.subscribe(BlockBrokenBySkill::class) { miningXpOnBlockBroken.onSkillBreak(it) }
+        subscriptions += eventBus.subscribe(CurrencyChanged::class) { tradingXpOnCurrency.handle(it) }
+        subscriptions += eventBus.subscribe(SkillLevelUp::class) { broadcastSkillLevelUp.handle(it) }
+        subscriptions += eventBus.subscribe(SkillLevelUp::class) { grantPerksOnLevelUp.handle(it) }
 
         // 7. /astera-stats command -----------------------------------------
         commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway, permService))

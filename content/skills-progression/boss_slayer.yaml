@@ -1,0 +1,22 @@
+# Wave 5multi-skill (ADR-0101): BossSlayer progression axis.
+# XP source: MobKilled (Phase 1 — all mobs; gated on boss flag once Wave 12a lands).
+skill: boss_slayer
+curve:
+  base: 200
+  factor: 1.15
+  max_level: 100
+perks:
+  - id: boss-slayer-damage-1
+    level: 10
+    display_name_key: astera.progression.boss_slayer.damage_1
+    effect:
+      type: stat_multiplier
+      stat: damage_vs_mob
+      multiplier: 1.05
+  - id: boss-slayer-loot-1
+    level: 25
+    display_name_key: astera.progression.boss_slayer.loot_1
+    effect:
+      type: stat_additive
+      stat: boss_loot_chance
+      additive: 0.05
