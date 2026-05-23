@@ -386,6 +386,27 @@ astera:
         name: "<gold>英雄</gold>"
         description: "<gray>キル数 100。</gray>"
 
+    # Wave 5flex (ADR-0102) — マッチネームプレートのマイルストーン表示。
+    milestone:
+      kills-10: "<gold>キル 10</gold>"
+      kills-50: "<gold>キル 50</gold>"
+      kills-100: "<gold>キル 100</gold>"
+      kills-1000: "<gold>キル 1000</gold>"
+      boss-defeats-100: "<red>ボス討伐 100</red>"
+
+    # Wave 5flex (ADR-0102) — ネームプレートのバッジテンプレート + タイトル。
+    nameplate:
+      badge: "[{title}] {milestone} {name} ⚜{tier} ⛁{power}"
+    title:
+      champion: "<gold>チャンピオン</gold>"
+      veteran: "<gold>古参</gold>"
+
+  # Wave 5flex (ADR-0102) — Flex レイヤー共通文字列。
+  flex:
+    profile:
+      private: "<gray>このプロフィールは非公開です。</gray>"
+      not-found: "<red>プロフィールが見つかりません。</red>"
+
   # Wave 5p (ADR-0088): Custom Advancement + NPC Dialog + Tutorial Sequencer。
   advancement:
     error:

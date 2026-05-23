@@ -1226,6 +1226,29 @@ public class AsteraCorePlugin : JavaPlugin() {
         ) { engagementService.compute() }
         logger.info("Wave 5engage dashboard service wired (repo=${engagementRepo::class.simpleName}, recompute every 5 min).")
 
+        // ── Wave 5flex (ADR-0102) — Public profile card surface ─────────
+        // In-memory default; AsteraPersistencePlugin overlays the Postgres
+        // impl at priority=100 via V35.
+        val profileCardService: com.astarworks.astera.core.application.port.outbound.IProfileCardService =
+            services.get<com.astarworks.astera.core.application.port.outbound.IProfileCardService>()
+                ?: com.astarworks.astera.core.application.profile.InMemoryProfileCardService().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.IProfileCardService>(it, priority = 0)
+                }
+        // Recompute use case — display name resolves through IPlayerProfileService.
+        // Other providers stay default (empty summaries / zero index); Phase B
+        // follow-up waves wire stats / items / economy via feature plugins.
+        val profileNameProvider: (com.astarworks.astera.core.domain.player.PlayerId) -> String? = { pid ->
+            services.get<com.astarworks.astera.core.application.port.outbound.IPlayerProfileService>()
+                ?.find(pid)
+                ?.displayName
+        }
+        val recomputeProfileCard = com.astarworks.astera.core.application.profile.RecomputeProfileCardUseCase(
+            cards = profileCardService,
+            displayNameProvider = profileNameProvider,
+        )
+        services.register<com.astarworks.astera.core.application.profile.RecomputeProfileCardUseCase>(recomputeProfileCard, priority = 0)
+        logger.info("Wave 5flex profile card service wired (impl=${profileCardService::class.simpleName}).")
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 

@@ -26,14 +26,20 @@ import com.astarworks.astera.items.adapter.paper.ItemSkillTriggerListener
 import com.astarworks.astera.items.adapter.paper.PaperItemDelivery
 import com.astarworks.astera.items.adapter.paper.PaperItemIdResolver
 import com.astarworks.astera.items.adapter.paper.PaperItemMaterializer
+import com.astarworks.astera.items.application.config.glow.GlowProfileFileYaml
 import com.astarworks.astera.items.application.port.outbound.IItemDelivery
 import com.astarworks.astera.items.application.port.outbound.IItemInstanceRepository
+import com.astarworks.astera.items.application.port.outbound.IItemRenderer
 import com.astarworks.astera.items.application.port.outbound.IRefinementRandomizer
+import com.astarworks.astera.items.application.service.glow.InMemoryGlowProfileRegistry
+import com.astarworks.astera.items.application.service.glow.RecordingItemRenderer
 import com.astarworks.astera.items.application.service.refinement.InMemoryItemInstanceRepository
 import com.astarworks.astera.items.application.service.refinement.KotlinRandomRefinementRandomizer
 import com.astarworks.astera.items.application.service.refinement.RefinementProfileRegistry
+import com.astarworks.astera.items.application.usecase.ApplyHeldItemGlowUseCase
 import com.astarworks.astera.items.application.usecase.GiveItemUseCase
 import com.astarworks.astera.items.application.usecase.HandleItemTriggerUseCase
+import com.charleskorn.kaml.Yaml
 import com.astarworks.astera.items.application.usecase.refinement.ApplyRefinementUseCase
 import com.astarworks.astera.items.application.usecase.refinement.RerollSubStatsUseCase
 import com.astarworks.astera.items.command.giveItemSubcommand
@@ -175,6 +181,39 @@ public class AsteraItemsPlugin : JavaPlugin() {
 
         // Enchant-gate + keep-on-death listener (Bukkit-native).
         server.pluginManager.registerEvents(EnchantmentGateListener(this), this)
+
+        // ── Wave 5flex (ADR-0102 surface #1) — Item rarity glow ─────────
+        // YAML-tunable per-rarity glow profile registry + in-memory
+        // RecordingItemRenderer (Paper-side renderer overlays at higher
+        // priority when ADR-0102 §1 Paper adapter lands in a follow-up wave).
+        val glowProfiles = InMemoryGlowProfileRegistry()
+        val glowFile = core.contentDir.resolve("flex").resolve("glow-profile.yaml")
+        if (glowFile.toFile().exists()) {
+            runCatching {
+                val parsed = Yaml.default.decodeFromString(
+                    GlowProfileFileYaml.serializer(),
+                    glowFile.toFile().readText(Charsets.UTF_8),
+                )
+                glowProfiles.registerAll(parsed.toDomain())
+                logger.info("Astera-Items: glow-profile.yaml loaded with ${parsed.profiles.size} override(s).")
+            }.onFailure { t ->
+                logger.warning("Astera-Items: glow-profile.yaml parse failed (${t.message}); using defaults.")
+            }
+        } else {
+            logger.info("Astera-Items: glow-profile.yaml not found; using GlowProfile.DEFAULTS.")
+        }
+        registrations += services.register(glowProfiles, priority = 0)
+        val itemRenderer: IItemRenderer =
+            services.get<IItemRenderer>()
+                ?: RecordingItemRenderer().also {
+                    registrations += services.register<IItemRenderer>(it, priority = 0)
+                }
+        val applyHeldGlow = ApplyHeldItemGlowUseCase(
+            items = itemRegistry,
+            renderer = itemRenderer,
+            profiles = glowProfiles,
+        )
+        registrations += services.register(applyHeldGlow, priority = 0)
 
         // Command tree.
         commandHandler.register(

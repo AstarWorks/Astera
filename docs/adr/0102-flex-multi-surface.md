@@ -1,16 +1,64 @@
 ---
-status: Draft
+status: Accepted
 date: 2026-05-21
 deciders: ryuzu
 supersedes: null
 superseded_by: null
 ---
 
-# ADR-0084: 承認欲求 Multi-surface (Flex Layer)
+# ADR-0102: 承認欲求 Multi-surface (Flex Layer)
 
 ## Status
 
-Draft
+Accepted (Wave 5flex landed 2026-05-24)
+
+## Wave 5flex landing notes (2026-05-24)
+
+Implementation surfaces landed:
+
+1. **Item rarity glow** — `IItemRenderer` outbound port +
+   `GlowProfile(rarity, particleTickPeriod, particleCount, glintOverride,
+   visibleFromBlocks)` domain in `items.domain.glow` + per-rarity tunable
+   `InMemoryGlowProfileRegistry` + `RecordingItemRenderer` (priority 0,
+   Paper-side overlay land in a follow-up wave) + `ApplyHeldItemGlowUseCase`
+   + `content/flex/glow-profile.yaml` registry.
+2. **Nameplate badge** — `NameplateBadge(playerId, titleId,
+   titleDisplayKey, certificationTier, powerIndexTotal, milestoneKey)`
+   domain in `stats.domain.nameplate` + `NameplateBadgeRegistry`
+   in-memory cache + `RecomputeNameplateBadgeUseCase` (lambda providers
+   per ADR-0022 sibling-isolation) +
+   `RefreshNameplateOnAchievementUnlockedListener` (subscribes
+   `AchievementUnlocked`).
+3. **Public profile card** — `PublicProfileCard(equipment, titles,
+   cosmetics, powerIndexTotal, visibility)` domain in
+   `core.domain.profile` + `IProfileCardService` outbound +
+   `InMemoryProfileCardService` + `RecomputeProfileCardUseCase`
+   (lambda providers).
+4. **Power Index** — `PowerIndex(equipmentValue, vaultValue,
+   walletValue, marketplaceListingValue, total saturating)` domain in
+   `economy.domain.power` + `IPowerIndexRepository` outbound +
+   `RecalculatePowerIndexUseCase` (CurrencyLedger + Marketplace +
+   `IPlayerInventoryValuator` null-default) + `PowerIndexComputed`
+   event.
+5. **Match nameplate milestone** — implemented as listener
+   `RefreshNameplateOnAchievementUnlockedListener` (#2 above) +
+   `INameplateMilestoneRepository` for the persisted current
+   milestone (Postgres V37).
+
+Persistence overlays at priority=100:
+
+- V35 `power_index_snapshots` + `PostgresPowerIndexRepository`
+- V36 `profile_card_snapshots` + `PostgresProfileCardService`
+- V37 `nameplate_milestones` + `PostgresNameplateMilestoneRepository`
+
+Konsist rule added: `flex multi-surface domains stay pure (ADR-0102)`
+covers `items.domain.glow.*`, `economy.domain.power.*`,
+`core.domain.profile.*`, `stats.domain.nameplate.*` — same purity
+discipline as ADR-0100 §refinement.
+
+i18n keys added (en + ja parity): `astera.stats.milestone.*`,
+`astera.stats.nameplate.badge`, `astera.stats.title.*`,
+`astera.flex.profile.*`.
 
 ## Context
 

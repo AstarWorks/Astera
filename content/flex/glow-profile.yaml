@@ -1,0 +1,32 @@
+# Wave 5flex / ADR-0102 surface #1 — per-rarity glow tuning.
+#
+# Each entry overrides the matching tier inside
+# `GlowProfile.DEFAULTS`; missing tiers keep the default values.
+# Ops may hot-tune per server. Wave _ops-4 Prometheus measures
+# per-tick particle render time so adjustment is data-driven.
+profiles:
+  - rarity: COMMON
+    particle_tick_period: 0
+    particle_count: 0
+    glint_override: false
+    visible_from_blocks: 0
+  - rarity: UNCOMMON
+    particle_tick_period: 40
+    particle_count: 1
+    glint_override: false
+    visible_from_blocks: 4
+  - rarity: RARE
+    particle_tick_period: 30
+    particle_count: 2
+    glint_override: false
+    visible_from_blocks: 6
+  - rarity: EPIC
+    particle_tick_period: 20
+    particle_count: 3
+    glint_override: true
+    visible_from_blocks: 10
+  - rarity: LEGENDARY
+    particle_tick_period: 10
+    particle_count: 4
+    glint_override: true
+    visible_from_blocks: 16

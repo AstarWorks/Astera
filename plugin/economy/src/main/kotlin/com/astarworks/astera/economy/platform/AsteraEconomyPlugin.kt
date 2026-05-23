@@ -50,8 +50,13 @@ import com.astarworks.astera.economy.application.usecase.currency.WithdrawUseCas
 import com.astarworks.astera.economy.application.usecase.marketplace.CancelListingUseCase
 import com.astarworks.astera.economy.application.usecase.marketplace.CreateListingUseCase
 import com.astarworks.astera.economy.application.usecase.marketplace.PurchaseListingUseCase
+import com.astarworks.astera.economy.application.port.outbound.IPlayerInventoryValuator
+import com.astarworks.astera.economy.application.port.outbound.IPowerIndexRepository
+import com.astarworks.astera.economy.application.port.outbound.NullInventoryValuator
+import com.astarworks.astera.economy.application.service.power.InMemoryPowerIndexRepository
 import com.astarworks.astera.economy.application.usecase.policy.EnforceCurrencyPolicyUseCase
 import com.astarworks.astera.economy.application.usecase.policy.ExpireCurrencyUseCase
+import com.astarworks.astera.economy.application.usecase.power.RecalculatePowerIndexUseCase
 import com.astarworks.astera.economy.application.usecase.shop.ShopBrowseUseCase
 import com.astarworks.astera.economy.application.usecase.shop.ShopPurchaseUseCase
 import com.astarworks.astera.economy.command.buildShopCommandSpec
@@ -248,6 +253,30 @@ public class AsteraEconomyPlugin : JavaPlugin() {
         registrations += intentRouter.register(ShopIntentHandler.INTENT_PREFIX) { intent, player ->
             shopIntentHandler.handle(intent, player)
         }
+
+        // ── Wave 5flex (ADR-0102) — PowerIndex aggregate ───────────────────
+        // Snapshot repo: Postgres overlay (V34) wins at priority=100 once
+        // AsteraPersistencePlugin loads. Inventory valuator defaults to
+        // null (returns 0); Items plugin (Wave 5flex follow-up) registers a
+        // real valuator if loaded.
+        val powerIndexRepo: IPowerIndexRepository =
+            services.get<IPowerIndexRepository>()
+                ?: InMemoryPowerIndexRepository().also {
+                    registrations += services.register<IPowerIndexRepository>(it, priority = 0)
+                }
+        val inventoryValuator: IPlayerInventoryValuator =
+            services.get<IPlayerInventoryValuator>()
+                ?: NullInventoryValuator().also {
+                    registrations += services.register<IPlayerInventoryValuator>(it, priority = 0)
+                }
+        val recalculatePowerIndex = RecalculatePowerIndexUseCase(
+            valuator = inventoryValuator,
+            ledger = ledger,
+            marketplace = marketplace,
+            repo = powerIndexRepo,
+            eventBus = eventBus,
+        )
+        registrations += services.register(recalculatePowerIndex, priority = 0)
 
         // ── Commands ───────────────────────────────────────────────────────────
         commandHandler.register(

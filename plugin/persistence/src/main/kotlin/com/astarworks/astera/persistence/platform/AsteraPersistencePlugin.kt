@@ -27,9 +27,12 @@ import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.platform.AsteraCorePlugin
+import com.astarworks.astera.core.application.port.outbound.IProfileCardService
 import com.astarworks.astera.economy.application.port.outbound.ICreatorRevenueRepository
 import com.astarworks.astera.economy.application.port.outbound.ICurrencyIssuanceLog
 import com.astarworks.astera.economy.application.port.outbound.IMarketplaceRepository
+import com.astarworks.astera.economy.application.port.outbound.IPowerIndexRepository
+import com.astarworks.astera.stats.application.port.outbound.INameplateMilestoneRepository
 import com.astarworks.astera.persistence.PersistenceContext
 import com.astarworks.astera.persistence.PostgresConfig
 import com.astarworks.astera.persistence.connectAndMigrate
@@ -63,6 +66,9 @@ import com.astarworks.astera.persistence.repository.PostgresStageRegistry
 import com.astarworks.astera.items.application.port.outbound.IItemInstanceRepository
 import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
 import com.astarworks.astera.persistence.repository.PostgresItemInstanceRepository
+import com.astarworks.astera.persistence.repository.PostgresNameplateMilestoneRepository
+import com.astarworks.astera.persistence.repository.PostgresPowerIndexRepository
+import com.astarworks.astera.persistence.repository.PostgresProfileCardService
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
@@ -238,6 +244,23 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // ── Wave 5flex (ADR-0102) — multi-surface flex layer overlays ─────
+        // V34: power_index_snapshots (Networth aggregate).
+        // V35: profile_card_snapshots (out-of-game public profile).
+        // V36: nameplate_milestones (current display milestone).
+        registrations += services.register<IPowerIndexRepository>(
+            PostgresPowerIndexRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<IProfileCardService>(
+            PostgresProfileCardService(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<INameplateMilestoneRepository>(
+            PostgresNameplateMilestoneRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -248,7 +271,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
                 "IRewardBridge, IShopStockRepository, IMatchReplayRepository, " +
-                "IItemInstanceRepository.",
+                "IItemInstanceRepository, IPowerIndexRepository, IProfileCardService, " +
+                "INameplateMilestoneRepository.",
         )
     }
 

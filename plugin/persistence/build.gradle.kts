@@ -46,6 +46,11 @@ dependencies {
     // marketplace / match — the Items-domain types are on Items' classloader
     // at runtime, persistence resolves the port via ServiceRegistry overlay.
     compileOnly(project(":plugin:items"))
+    // Wave 5flex (ADR-0102): PostgresNameplateMilestoneRepository implements
+    // :plugin:stats's INameplateMilestoneRepository (and PostgresPowerIndex /
+    // PostgresProfileCard implement economy / core ports, already covered).
+    // compileOnly mirrors the marketplace / match / items pattern.
+    compileOnly(project(":plugin:stats"))
 
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.slf4j.api)
@@ -62,6 +67,7 @@ dependencies {
     testImplementation(project(":plugin:economy"))
     testImplementation(project(":plugin:match"))
     testImplementation(project(":plugin:items"))
+    testImplementation(project(":plugin:stats"))
     testImplementation(project(":plugin:test-fixtures"))
     testImplementation(libs.testcontainers.core)
     testImplementation(libs.testcontainers.postgresql)
