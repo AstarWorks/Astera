@@ -63,3 +63,29 @@ metrics:
     type: counter
     description: "Cumulative skill casts, labeled by skill id."
     labels: ["skill_id"]
+
+  # ── Engagement scope (Wave 5engage, ADR-0104) ──────────────────────────
+  - name: astera_player_engagement_score
+    type: gauge
+    description: "Per-player engagement scalar (0..1). Cardinality bounded by dashboard top-N."
+    labels: ["player_id"]
+
+  - name: astera_dau
+    type: gauge
+    description: "Daily active users (distinct players seen in trailing 24 h)."
+    labels: []
+
+  - name: astera_wau
+    type: gauge
+    description: "Weekly active users (distinct players seen in trailing 7 d)."
+    labels: []
+
+  - name: astera_mau
+    type: gauge
+    description: "Monthly active users (distinct players seen in trailing 30 d)."
+    labels: []
+
+  - name: astera_retention_cohort
+    type: gauge
+    description: "Per-(cohort, day) retention rate (0..1). Cohort = ISO-8601 first-session date; day ∈ {d1, d7, d30}."
+    labels: ["cohort", "day"]

@@ -65,4 +65,30 @@ public interface IAnalyticsExporter {
 
     /** Per-match active player count gauge update. */
     public fun setMatchPlayerCount(matchId: String, count: Int)
+
+    // ─── Wave 5engage (ADR-0104) — engagement dashboard metrics ──────────
+
+    /**
+     * Per-player engagement scalar (0.0..1.0). High cardinality on `playerId`;
+     * the dashboard service samples the top-N players (default 100) per
+     * compute pass and only re-publishes those gauges, so the steady-state
+     * cardinality is bounded.
+     */
+    public fun setPlayerEngagementScore(playerId: String, score: Double)
+
+    /**
+     * Stickiness gauges: Daily / Weekly / Monthly active users at the latest
+     * dashboard compute. Three separate gauges so PromQL can compute the
+     * stickiness ratio directly (`astera_dau / astera_mau`).
+     */
+    public fun setDauWauMau(dau: Long, wau: Long, mau: Long)
+
+    /**
+     * Retention rate for a (cohort, day) bin (0.0..1.0). `cohort` is the
+     * ISO-8601 first-session date (`2026-05-20`); `day` is the standard bin
+     * label (`d1` / `d7` / `d30`). Cardinality is bounded by (server uptime
+     * in days × number of bins) — for a 1-year-old server with the standard
+     * 3 bins, that's ~1100 timeseries, well within Prometheus comfort zone.
+     */
+    public fun setRetentionCohort(cohort: String, day: String, rate: Double)
 }

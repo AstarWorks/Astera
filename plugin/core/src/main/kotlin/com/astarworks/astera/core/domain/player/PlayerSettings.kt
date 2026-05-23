@@ -52,6 +52,13 @@ public data class PlayerSettings(
     val particleVisibility: ParticleVisibility = ParticleVisibility.All,
     val doubleJumpEnabled: Boolean = true,
     val quickCastSlots: Map<Int, String> = emptyMap(),
+    /**
+     * Wave 5engage / ADR-0104 §Privacy: opt-in flag for the public profile
+     * REST endpoint (`/api/players/<id>/profile`). Default `false` —
+     * privacy-by-default. The Wave 12g handler must check this flag before
+     * returning equipment / cosmetic visibility.
+     */
+    val publicProfileEnabled: Boolean = false,
 ) {
     init {
         quickCastSlots.keys.forEach { slot ->

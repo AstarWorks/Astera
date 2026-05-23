@@ -49,10 +49,39 @@ public class MicrometerAnalyticsExporter(
 
     private val marketplaceListingCount = AtomicLong(0)
 
+    // Wave 5engage — DAU/WAU/MAU gauge holders. AtomicLong + supplier-pattern
+    // (Gauge.builder reads on scrape) so updates from the dashboard service
+    // thread land atomically without registering new meters.
+    private val dauHolder = AtomicLong(0)
+    private val wauHolder = AtomicLong(0)
+    private val mauHolder = AtomicLong(0)
+
+    // Wave 5engage — per-player score gauge bookkeeping. Same shape as
+    // matchPlayerCounts: AtomicLong per player; computeIfAbsent registers the
+    // Micrometer gauge once. The dashboard service is expected to call this
+    // only for the top-N players to bound cardinality (see ADR-0104 §Privacy).
+    private val playerEngagementScores: MutableMap<String, AtomicLong> = ConcurrentHashMap()
+
+    // Wave 5engage — retention cohort gauge bookkeeping (cohort_iso × day_label → AtomicLong).
+    // Key encodes (cohort, day) — the gauge is registered once per pair.
+    // AtomicLong stores the score scaled by 10_000 because AtomicLong is integral;
+    // the gauge supplier divides back to a 0.0..1.0 double on scrape.
+    private val retentionCohorts: MutableMap<String, AtomicLong> = ConcurrentHashMap()
+
     init {
         // Register the marketplace listing gauge once, supplier reads the AtomicLong.
         io.micrometer.core.instrument.Gauge.builder(METRIC_MARKETPLACE_LISTING_COUNT) {
             marketplaceListingCount.get().toDouble()
+        }.register(registry)
+        // Wave 5engage gauges — DAU/WAU/MAU are registered once and read on scrape.
+        io.micrometer.core.instrument.Gauge.builder(METRIC_DAU) {
+            dauHolder.get().toDouble()
+        }.register(registry)
+        io.micrometer.core.instrument.Gauge.builder(METRIC_WAU) {
+            wauHolder.get().toDouble()
+        }.register(registry)
+        io.micrometer.core.instrument.Gauge.builder(METRIC_MAU) {
+            mauHolder.get().toDouble()
         }.register(registry)
         log.debug("MicrometerAnalyticsExporter initialised")
     }
@@ -138,6 +167,44 @@ public class MicrometerAnalyticsExporter(
         holder.set(count.toLong())
     }
 
+    // ─── Wave 5engage (ADR-0104) ───
+
+    override fun setPlayerEngagementScore(playerId: String, score: Double) {
+        val holder = playerEngagementScores.computeIfAbsent(playerId) {
+            val al = AtomicLong(0)
+            io.micrometer.core.instrument.Gauge.builder(METRIC_PLAYER_ENGAGEMENT_SCORE) {
+                // Stored ×10_000 so the AtomicLong holds an int-shaped value;
+                // divide on read to recover the 0.0..1.0 gauge value.
+                al.get() / 10_000.0
+            }
+                .tag("player_id", playerId)
+                .register(registry)
+            al
+        }
+        holder.set((score.coerceIn(0.0, 1.0) * 10_000.0).toLong())
+    }
+
+    override fun setDauWauMau(dau: Long, wau: Long, mau: Long) {
+        dauHolder.set(dau)
+        wauHolder.set(wau)
+        mauHolder.set(mau)
+    }
+
+    override fun setRetentionCohort(cohort: String, day: String, rate: Double) {
+        val key = "$cohort|$day"
+        val holder = retentionCohorts.computeIfAbsent(key) {
+            val al = AtomicLong(0)
+            io.micrometer.core.instrument.Gauge.builder(METRIC_RETENTION_COHORT) {
+                al.get() / 10_000.0
+            }
+                .tag("cohort", cohort)
+                .tag("day", day)
+                .register(registry)
+            al
+        }
+        holder.set((rate.coerceIn(0.0, 1.0) * 10_000.0).toLong())
+    }
+
     public companion object {
         public const val METRIC_MATCH_DURATION_SECONDS: String = "astera_match_duration_seconds"
         public const val METRIC_MATCH_KILL_COUNT_TOTAL: String = "astera_match_kill_count"
@@ -148,5 +215,12 @@ public class MicrometerAnalyticsExporter(
         public const val METRIC_SHOP_REVENUE_TOTAL: String = "astera_shop_revenue"
         public const val METRIC_MARKETPLACE_LISTING_COUNT: String = "astera_marketplace_listing_count"
         public const val METRIC_SKILL_CAST_TOTAL: String = "astera_skill_cast"
+
+        // Wave 5engage (ADR-0104)
+        public const val METRIC_PLAYER_ENGAGEMENT_SCORE: String = "astera_player_engagement_score"
+        public const val METRIC_DAU: String = "astera_dau"
+        public const val METRIC_WAU: String = "astera_wau"
+        public const val METRIC_MAU: String = "astera_mau"
+        public const val METRIC_RETENTION_COHORT: String = "astera_retention_cohort"
     }
 }

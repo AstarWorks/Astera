@@ -1071,6 +1071,46 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5engage — Engagement dashboard isolation (ADR-0104) ──────
+
+    /**
+     * ADR-0104: `core.domain.engagement.*` is the dashboard's value-vocabulary
+     * (engagement score, retention cohort, DAU/WAU/MAU). It MUST stay free of:
+     *
+     *  - Bukkit family (the dashboard sits in core/, not in an adapter)
+     *  - Micrometer (gauge publishing belongs to `adapter/paper/analytics/`)
+     *  - kotlinx.serialization (JSONB DTO lives in `persistence/jsonb/`)
+     *  - JDBC / Exposed (persistence is via the outbound port, not domain)
+     *  - SLF4J (domain types should not log; service layer does)
+     *
+     * The general "core domain must not depend on platform/framework" rule
+     * (test above) covers most of these, but micrometer specifically is not
+     * a Bukkit family member and would slip through — this rule pins it
+     * explicitly so the cardinality-control discipline lives at the domain
+     * boundary, not as ad-hoc reviewer judgement.
+     */
+    @Test
+    fun `core engagement domain must not import Micrometer or analytics adapters (ADR-0104)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.engagement") == true }
+            .assertFalse(
+                additionalMessage = "ADR-0104 violation: core.domain.engagement.* must be vendor-neutral. " +
+                    "Move Micrometer publishing to core.adapter.paper.analytics.* (or the engagement-specific " +
+                    "publisher), persistence DTOs to plugin/persistence/jsonb/, and never log from domain.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("io.micrometer") ||
+                            imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("org.slf4j")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

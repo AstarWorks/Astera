@@ -28,6 +28,7 @@ import com.astarworks.astera.core.application.contents.RoleContents
 import com.astarworks.astera.core.application.contents.TutorialContents
 import com.astarworks.astera.core.application.contents.block.CustomBlockContents
 import com.astarworks.astera.core.application.eventbus.listeners.RestoreInventoryOnPlayerJoinedListener
+import com.astarworks.astera.core.application.analytics.NoopAnalyticsExporter
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
 import com.astarworks.astera.core.application.i18n.LanguageLoader
 import com.astarworks.astera.core.application.i18n.SimpleMessageRenderer
@@ -281,6 +282,12 @@ public class AsteraCorePlugin : JavaPlugin() {
 
     /** Wave 5q (ADR-0083): retained so [onDisable] can cancel the AFK sweep loop. */
     private var afkSweepHandle: IScheduler.TaskHandle? = null
+
+    /** Wave 5u (ADR-0087) listener — retained so [onDisable] can unsubscribe cleanly. */
+    private var analyticsEventListener: com.astarworks.astera.core.application.analytics.AnalyticsEventListener? = null
+
+    /** Wave 5engage (ADR-0104): retained so [onDisable] can cancel the recompute loop. */
+    private var engagementDashboardHandle: IScheduler.TaskHandle? = null
 
     /**
      * Wave 5y (ADR-0090): retained so [onDisable] can cancel the
@@ -1090,11 +1097,58 @@ public class AsteraCorePlugin : JavaPlugin() {
             logger.info("Metrics endpoint disabled (set ASTERA_METRICS_ENABLED=true to expose Prometheus scrape on :${MetricsConfig.DEFAULT_PORT}/metrics).")
         }
 
+        // ---- Wave 5u analytics (ADR-0087) + Wave 5engage dashboard (ADR-0104) ----
+        // The exporter forwards to the same MeterRegistry the Wave _ops scrape uses
+        // when metrics are enabled; otherwise the no-op exporter keeps the listener
+        // / dashboard service operational without leaking metrics nowhere visible.
+        val analyticsExporter: com.astarworks.astera.core.application.port.outbound.analytics.IAnalyticsExporter =
+            metricsHttpServer?.let { _ ->
+                // metrics enabled → reuse the registered IMetricsRegistry's underlying Micrometer registry.
+                val registered = services.get<IMetricsRegistry>()
+                if (registered is MicrometerMetricsRegistry) {
+                    com.astarworks.astera.core.adapter.paper.analytics.MicrometerAnalyticsExporter(registered.delegate)
+                } else {
+                    NoopAnalyticsExporter
+                }
+            } ?: NoopAnalyticsExporter
+        services.register<com.astarworks.astera.core.application.port.outbound.analytics.IAnalyticsExporter>(analyticsExporter, priority = 0)
+
+        val analyticsListener = com.astarworks.astera.core.application.analytics.AnalyticsEventListener(
+            eventBus = eventBus,
+            exporter = analyticsExporter,
+        )
+        analyticsListener.start()
+        analyticsEventListener = analyticsListener
+        logger.info("Wave 5u analytics listener wired (exporter=${analyticsExporter::class.simpleName}).")
+
+        // Wave 5engage dashboard service — InMemory repo at priority 0, Postgres
+        // overlay at priority 100 via AsteraPersistencePlugin. The recompute loop
+        // ticks every ~5 min (6000 ticks @ 20 TPS); first compute fires 1 min in
+        // so initial gauges populate without waiting a full window.
+        val engagementRepo: com.astarworks.astera.core.application.port.outbound.engagement.IEngagementSnapshotRepository =
+            services.get<com.astarworks.astera.core.application.port.outbound.engagement.IEngagementSnapshotRepository>()
+                ?: com.astarworks.astera.core.application.service.engagement.InMemoryEngagementSnapshotRepository().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.engagement.IEngagementSnapshotRepository>(it, priority = 0)
+                }
+        val engagementService = com.astarworks.astera.core.application.service.engagement.EngagementDashboardService(
+            repository = engagementRepo,
+            exporter = analyticsExporter,
+            eventBus = eventBus,
+        )
+        services.register<com.astarworks.astera.core.application.service.engagement.EngagementDashboardService>(engagementService, priority = 0)
+        engagementDashboardHandle = scheduler.runRepeatingTicks(
+            initialDelayTicks = 1200L, // 1 min warmup
+            periodTicks = 6000L, // 5 min cadence
+        ) { engagementService.compute() }
+        logger.info("Wave 5engage dashboard service wired (repo=${engagementRepo::class.simpleName}, recompute every 5 min).")
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
     override fun onDisable() {
         logger.info("Astera-Core disabling.")
+        engagementDashboardHandle?.cancel()
+        analyticsEventListener?.stop()
         movementPacketBridgeSub?.cancel()
         afkSweepHandle?.cancel()
         matchQueueMetric?.stop()
@@ -1185,6 +1239,11 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IPacketInterceptor (InMemory default; Wave 6b PacketEvents override)",
             "IPlayerVisibilityGateway (InMemory default; Wave 6b packet-drop override)",
             "MovementValidatorPacketBridge -> PacketKind.MovementServerbound",
+            // Wave 5u (ADR-0087) + Wave 5engage (ADR-0104)
+            "IAnalyticsExporter (Micrometer when metrics enabled; Noop otherwise)",
+            "AnalyticsEventListener (subscribes MatchStarted/MatchEnded/SkillCastRequested/PlayerJoinedServer)",
+            "IEngagementSnapshotRepository (InMemory default; Postgres overlay at priority 100)",
+            "EngagementDashboardService (recomputes every 5 min, publishes EngagementSnapshotComputed)",
         )
     }
 }
