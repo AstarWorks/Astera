@@ -1,6 +1,6 @@
 package com.astarworks.astera.core.application.service.backup
 
-import com.astarworks.astera.core.application.port.outbound.backup.IServerBackupGateway
+import com.astarworks.astera.core.application.port.outbound.backup.IServerResticBackupGateway
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.backup.BackupError
 import com.astarworks.astera.core.domain.backup.BackupSnapshotRef
@@ -11,7 +11,7 @@ import java.time.Instant
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * In-memory stand-in for the restic-backed [IServerBackupGateway]
+ * In-memory stand-in for the restic-backed [IServerResticBackupGateway]
  * (Wave 5w / ADR-0089).
  *
  * Records every "snapshot" and "restore" so the `/astera backup` Brigadier
@@ -21,10 +21,10 @@ import java.util.concurrent.atomic.AtomicInteger
  * **All state is in-memory and lost on plugin disable** — that is by design;
  * production runs always have the priority-100 restic overlay active.
  */
-public class InMemoryServerBackupGateway(
+public class InMemoryServerResticBackupGateway(
     private val hostname: String = "in-memory",
     private val clock: () -> Instant = { Instant.now() },
-) : IServerBackupGateway {
+) : IServerResticBackupGateway {
 
     private val snapshots: MutableList<BackupSnapshotRef> = mutableListOf()
     private val idCounter = AtomicInteger(0)

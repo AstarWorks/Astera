@@ -11,10 +11,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
-class InMemoryServerBackupGatewayTest {
+class InMemoryServerResticBackupGatewayTest {
 
     private val fixedNow = Instant.parse("2026-05-20T00:00:00Z")
-    private fun makeGateway() = InMemoryServerBackupGateway(hostname = "test", clock = { fixedNow })
+    private fun makeGateway() = InMemoryServerResticBackupGateway(hostname = "test", clock = { fixedNow })
 
     @Test
     fun `runFullBackup returns a snapshot tagged with the target and hostname`() {

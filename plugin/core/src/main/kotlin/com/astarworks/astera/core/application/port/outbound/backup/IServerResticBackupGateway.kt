@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.backup.RestoreReport
  * data portability is a separate concern owned by Wave 5t's
  * `IPlayerDataExportGateway`.
  *
- * Phase 1 PoC ships `InMemoryServerBackupGateway` (priority 0 in-memory
+ * Phase 1 PoC ships `InMemoryServerResticBackupGateway` (priority 0 in-memory
  * stub) and a `/astera backup` Brigadier command tree. Wave 6b lands the
  * `ResticBackupGateway` (Paper adapter, subprocess over restic CLI, S3
  * endpoint config) at priority 100. ADR-0089 §β documents the carve-out.
@@ -24,7 +24,7 @@ import com.astarworks.astera.core.domain.backup.RestoreReport
  * isolate `java.lang.ProcessBuilder` / `java.lang.Process` invocations to
  * `*.adapter.paper.backup.*`. Application/ stays subprocess-free.
  */
-public interface IServerBackupGateway {
+public interface IServerResticBackupGateway {
 
     /** Take a fresh snapshot of [target]. */
     public fun runFullBackup(target: BackupTarget): Result<BackupSnapshotRef, BackupError>

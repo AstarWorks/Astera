@@ -97,6 +97,8 @@ import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.port.outbound.admin.ILiveConfigEditor
 import com.astarworks.astera.core.application.port.outbound.admin.IScheduledAnnouncementSystem
 import com.astarworks.astera.core.application.port.outbound.admin.IServerBackupGateway
+import com.astarworks.astera.core.application.port.outbound.backup.IServerResticBackupGateway
+import com.astarworks.astera.core.application.service.backup.InMemoryServerResticBackupGateway
 import com.astarworks.astera.core.application.port.outbound.admin.IServerHealthCheck
 import com.astarworks.astera.core.application.port.outbound.feedback.IPlayerFeedbackQueue
 import com.astarworks.astera.core.application.port.outbound.observability.ISlowQueryAuditRepository
@@ -946,6 +948,13 @@ public class AsteraCorePlugin : JavaPlugin() {
 
         val backupGateway: IServerBackupGateway = InMemoryServerBackupGateway()
         services.register<IServerBackupGateway>(backupGateway, priority = 0)
+
+        // Wave 5w (ADR-0089): server-scoped restic backup gateway (separate
+        // from Wave 5t's IServerBackupGateway which is player-scoped JSON
+        // export). Wave 6b will provide ResticBackupGateway impl via Paper
+        // subprocess wrapper.
+        val resticBackupGateway: IServerResticBackupGateway = InMemoryServerResticBackupGateway()
+        services.register<IServerResticBackupGateway>(resticBackupGateway, priority = 0)
 
         val announcementSystem: IScheduledAnnouncementSystem =
             InMemoryScheduledAnnouncementSystem(scheduler, eventBus, broadcaster)
