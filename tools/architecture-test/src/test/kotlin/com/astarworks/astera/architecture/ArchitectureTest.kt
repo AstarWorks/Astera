@@ -1056,6 +1056,56 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5pve-content — PvE content YAML DTO isolation (ADR-0099) ─
+
+    /**
+     * ADR-0099: the PvE content YAML DTOs (`core.application.config.mob.pve`)
+     * are the boundary between operator-authored
+     * `content/pve/{encounters,drop-tables,bosses}/<id>.yaml` and the domain
+     * `MobSpec` / `EncounterZone` / `BossSpec` / `LootDrop` types. These DTOs
+     * carry `kotlinx.serialization` annotations (per ADR-0022 "no serialization
+     * in domain") and convert to domain types via `toEntry()` / `toDomain()`.
+     *
+     * Two guards beyond the general "config DTOs stay light":
+     *
+     *  1. **No Bukkit family imports.** The DTOs are pure data — every
+     *     Minecraft-side concern (entity spawn, world position) is the
+     *     responsibility of the lifecycle service / Paper adapter, not the
+     *     YAML layer.
+     *  2. **No JDBC / Exposed / `java.util.concurrent.*` imports.** Same
+     *     rationale as the ADR-0098 domain rule — the DTOs are loaded once
+     *     at boot from disk; persistence + threading concerns belong in
+     *     adapter / service layers.
+     *
+     * Without this rule, an "easy" mistake would be reaching into a Paper
+     * `Location` from `EncounterZoneYamlConfig.toEntry()` to validate a
+     * world boundary — which would couple the YAML layer to Bukkit and
+     * break the headless test contract.
+     */
+    @Test
+    fun `pve content yaml DTOs must stay platform-free (ADR-0099)`() {
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg == "com.astarworks.astera.core.application.config.mob.pve"
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0099: core.application.config.mob.pve.* DTOs " +
+                    "must not import Bukkit family / JDBC / Exposed / java.util.concurrent. " +
+                    "The YAML layer is pure data + conversion to domain; Minecraft-side, " +
+                    "persistence, and threading concerns belong in service / adapter layers.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("java.util.concurrent")
+                    }
+            }
+    }
+
     // ─── Wave 5q — Anti-cheat + Anti-AFK isolation (ADR-0083) ─────────
 
     /**

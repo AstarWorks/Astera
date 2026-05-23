@@ -1,0 +1,43 @@
+# Wave 5pve-content (ADR-0099) — Blazing Pit zone roamer.
+# Tier-2 hostile mob with a periodic howl that pulls nearby jackals into a
+# loose pack. Slightly higher HP / damage than Ember Imp to add variety.
+
+id: astera:flame-jackal
+
+display_name:
+  en: "<red>Flame Jackal</red>"
+  ja: "<red>炎のジャッカル</red>"
+
+base_entity_type: MOB
+
+attributes:
+  mob.max_hp: 64.0
+  mob.damage: 7.0
+  mob.speed: 1.25
+
+appearance:
+  custom_name_visible: true
+  name_tag_color:
+    r: 240
+    g: 100
+    b: 30
+  glowing: false
+
+equipment: []
+
+skill_bindings:
+  - type: periodic
+    skill_id: flame-jackal-howl
+    interval_ticks: 200
+  - type: on_player_near
+    skill_id: flame-jackal-pounce
+    range: 4.0
+    cooldown_ticks: 60
+
+loot_table: astera:flame-jackal-loot
+
+spawn_conditions:
+  biome_keys:
+    - "minecraft:nether_wastes"
+
+ai: pathfind

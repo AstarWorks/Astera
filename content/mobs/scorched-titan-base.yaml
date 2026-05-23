@@ -1,0 +1,40 @@
+# Wave 5pve-content (ADR-0099) — Scorched Titan base mob template.
+# Forms the underlying body for the `astera:scorched-titan` boss spec
+# (see content/pve/bosses/scorched-titan.yaml). The boss spec layers phase
+# transitions + raid lock + dedicated loot table on top of this base.
+#
+# Per ADR-0098: BossSpec composes a MobSpec via `base_mob_type` rather
+# than duplicating attribute / appearance fields. Boss-specific behaviour
+# (phase skills, transition cast) lives in the boss YAML.
+
+id: astera:scorched-titan-base
+
+display_name:
+  en: "<dark_red><bold>Scorched Titan</bold></dark_red>"
+  ja: "<dark_red><bold>焦熱の巨人</bold></dark_red>"
+
+base_entity_type: MOB
+
+attributes:
+  mob.max_hp: 2400.0
+  mob.damage: 18.0
+  mob.speed: 0.85
+
+appearance:
+  custom_name_visible: true
+  name_tag_color:
+    r: 200
+    g: 30
+    b: 0
+  glowing: true
+
+equipment: []
+
+# No skill bindings here — phase skills live on the BossSpec (content/pve/bosses/).
+skill_bindings: []
+
+loot_table: astera:empty
+
+spawn_conditions: {}
+
+ai: pathfind

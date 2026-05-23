@@ -1,0 +1,37 @@
+# Wave 5pve-content (ADR-0099) — Blazing Pit raid zone.
+#
+# Annihilation PoC raid content: party-locked encounter zone with a
+# dedicated boss anchor. Mid-tier difficulty curve scales mob HP/damage
+# by ~10% per encounter level above the pivot. Item-drop-on-death penalty
+# enforces the high-stakes raid posture (HSB Slayer tier-4 equivalent).
+#
+# Mob pool: 70/30 weighted spawn of Ember Imp (basic) vs Flame Jackal
+# (slightly tougher, periodic pack-howl). Cap 12 concurrent mobs in zone.
+
+id: astera:blazing-pit
+
+display_name:
+  en: "<dark_red>Blazing Pit</dark_red>"
+  ja: "<dark_red>燃え盛る坑道</dark_red>"
+
+region: blazing-pit
+
+mob_pool:
+  - mob_type_id: astera:ember-imp
+    weight: 70
+  - mob_type_id: astera:flame-jackal
+    weight: 30
+
+max_concurrent: 12
+
+difficulty:
+  type: polynomial
+  slope: 0.1
+  pivot: 1
+  exponent: 1.0
+
+boss: astera:scorched-titan
+
+death_penalty:
+  type: item_drop
+  grace_ticks: 600

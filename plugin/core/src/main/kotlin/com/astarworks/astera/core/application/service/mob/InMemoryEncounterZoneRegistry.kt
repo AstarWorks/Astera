@@ -23,7 +23,7 @@ public class InMemoryEncounterZoneRegistry : IEncounterZoneRegistry {
 
     override fun get(id: EncounterZoneId): EncounterZone? = zones[id]
 
-    override fun all(): List<EncounterZone> = zones.values.toList()
+    override fun all(): Collection<EncounterZone> = zones.values.toList()
 
     override fun size(): Int = zones.size
 }

@@ -1,0 +1,33 @@
+# Wave 5pve-content (ADR-0099) — Scorched Titan dedicated loot table.
+#
+# Drop chance tier reference (ADR-0099 §"確率帯"):
+#   Tier 1 (common):       0.5 (1/2)    — currency / always-drop
+#   Tier 2 (uncommon):     0.1 (1/10)   — material
+#   Tier 3 (rare):         0.02 (1/50)  — fang / shard
+#   Tier 4 (very rare):    0.005 (1/200)
+#   Tier 5 (ultra rare):   0.0005 (1/2000) — pet / cosmetic; ADR-0099 cap
+#
+# Rows are rolled independently per kill — a kill can drop none / one /
+# multiple items. See DeterministicLootRollService for replay semantics.
+
+id: astera:scorched-titan-loot
+
+drops:
+  - item_id: dust-of-ember
+    chance: 1.0
+    min_count: 5
+    max_count: 10
+
+  - item_id: titan-fang
+    chance: 0.5
+    min_count: 1
+    max_count: 2
+
+  - item_id: molten-scale
+    chance: 0.1
+
+  - item_id: scorched-heart
+    chance: 0.005
+
+  - item_id: miniature-titan-pet
+    chance: 0.0005

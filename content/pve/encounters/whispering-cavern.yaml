@@ -1,0 +1,28 @@
+# Wave 5pve-content (ADR-0099) — Whispering Cavern intro zone.
+#
+# HSB Slayer tier-1 equivalent: open access (no raid lock implied — the
+# zone itself has no boss anchor), safe death penalty (tutorial-friendly),
+# flat difficulty curve, single mob type (Forest Wolf reused from the
+# Wave 5pve mob foundation). Cap 8 concurrent mobs.
+
+id: astera:whispering-cavern
+
+display_name:
+  en: "<gray>Whispering Cavern</gray>"
+  ja: "<gray>囁きの洞窟</gray>"
+
+region: whispering-cavern
+
+mob_pool:
+  - mob_type_id: astera:forest-wolf
+    weight: 100
+
+max_concurrent: 8
+
+difficulty:
+  type: flat
+
+# No boss — pure mob grinder zone.
+
+death_penalty:
+  type: safe
