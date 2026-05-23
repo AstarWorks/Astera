@@ -43,13 +43,13 @@ Implementation surfaces landed:
 5. **Match nameplate milestone** — implemented as listener
    `RefreshNameplateOnAchievementUnlockedListener` (#2 above) +
    `INameplateMilestoneRepository` for the persisted current
-   milestone (Postgres V36).
+   milestone (Postgres V37).
 
 Persistence overlays at priority=100:
 
-- V34 `power_index_snapshots` + `PostgresPowerIndexRepository`
-- V35 `profile_card_snapshots` + `PostgresProfileCardService`
-- V36 `nameplate_milestones` + `PostgresNameplateMilestoneRepository`
+- V35 `power_index_snapshots` + `PostgresPowerIndexRepository`
+- V36 `profile_card_snapshots` + `PostgresProfileCardService`
+- V37 `nameplate_milestones` + `PostgresNameplateMilestoneRepository`
 
 Konsist rule added: `flex multi-surface domains stay pure (ADR-0102)`
 covers `items.domain.glow.*`, `economy.domain.power.*`,
