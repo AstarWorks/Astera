@@ -146,6 +146,13 @@ Things RTM didn't have that Astera needs because of its OSS + GitOps + AI-delega
 | **`Paper-as-edge` re-affirmation** (Phase 3 domain ordering) | Wave 5 framing误り (Wave 5 = Paper) was caught at audit; correct order is domain/application/port first, Bukkit last | Wave 5a-5f sequencing | [[adr/0028-roadmap-realignment-paper-as-edge]] |
 | **RTM empirical catalog** (6 game modes + 22 issues + Writerside docs + 6-module gradle layout) | Original ADR-0013 was written assuming RTM was closed-source; WebFetch proved otherwise; empirical capture now documented | Wave 4.5 follow-on | [[adr/0029-rtm-empirical-catalog]] |
 | **Master parity tracker** ([[../RTM-PARITY-TRACKER]]) | Single-page board showing every RTM feature × Astera state × Wave × priority | Living doc updated per wave | (this doc) |
+| **PvE Mob/Boss Foundation** (RTM は PvP arena only。武器 PvP/PvE 共用基盤) | Content lifecycle 延長 + 武器 base の流用。HSB Slayer / 原神 World Boss 等の long-lived retention 軸 | Phase 8 Wave 12a | ❌ [[adr/0080]] |
+| **PvE Content** (encounter zones + drop tables + boss mechanic) | 1+ playable PvE zone (HSB Slayer Tier 風 + group raid 風) | Phase 8 Wave 12b | ❌ [[adr/0081]] |
+| **Item Refinement Layer** (gemstone slot / reforge / sub-stat roll / upgrade material) | HSB / 原神聖遺物 / Warframe Riven / MH charm レベルの厳選乗算を ADR-0073 item-centric model に乗せる。長期 retention の最重要軸 | Phase 8 Wave 12c | ❌ [[adr/0082]] |
+| **多軸 skill progression** (HSB 12-skill 並走 / OSRS 23-skill の Astera 版) | 単一線形 (`PlayerStats` + `Level`) → 並走化。PvP 苦手層も grind に engaged | Phase 8 Wave 12d | ❌ [[adr/0083]] |
+| **承認欲求 multi-surface** (rarity glow / nameplate badge / public profile / networth) | HSB Networth / 原神 戦闘力 / OSRS hiscore 級の "見える資産" 散らばし。辞めない理由を多層化 | Phase 8 Wave 12e | ❌ [[adr/0084]] |
+| **1v1 Betting Match** (RTM `コンテンツ案一覧.md` 由来、ADR-0029 backlog 具体化) | ADR-0029 で Phase 4+ backlog 化、具体 Wave 未割当だったものを Wave 化 | Phase 8 Wave 12f | ❌ [[adr/0085]] |
+| **Player Engagement Dashboard** (per-player engagement / balance heatmap / retention) | data-driven balance + per-player insight。Wave 7c balance.csv + Wave _ops Prometheus + Wave 8b REST の cross-cut | Phase 8 Wave 12g | ❌ [[adr/0086]] |
 
 ## What this means for a contributor (human or AI)
 

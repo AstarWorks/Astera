@@ -474,6 +474,26 @@ superseded by ADR-0090. `./gradlew check` + `:plugin:core:shadowJar`
 
 ---
 
+## Category Add: Phase 8 PvE Retention (ADR-0013 §Add, RTM 由来でない)
+
+**注**: 本カテゴリは RTM divergence policy [[adr/0013-rtm-divergence-policy]] §Add
+範囲。RTM には存在せず、Astera が独自に追加する retention 軸。リサーチ根拠は
+`docs/competitive-analysis/` (HSB / 原神 / PoE / OSRS / Warframe / MH 横断分析)。
+**Parity 数字には算入しない** (RTM 由来でないため "RTM parity" の denominator
+には載らない、Add は別軸の指標)。
+
+| Astera 追加機能 | 現状 | Wave 割当 | 優先度 | 根拠 |
+|---|---|---|---|---|
+| **PvE Mob/Boss Foundation** (`Mob` domain + `IMobSpawnService` + `EncounterZone` + `LootDrop` + 4 new core events) | ❌ nothing | **Wave 12a** | **P2** (Phase 8) | ADR-0080 reserved; `docs/competitive-analysis/01-hypixel-skyblock.md` Slayer/Dungeon analysis |
+| **PvE Content** (encounter zone YAML + drop table YAML + boss mechanic primitive + group raid lock + death penalty rule) | ❌ nothing | **Wave 12b** | P2 | ADR-0081 reserved; Wave 7a content authoring pattern 流用 |
+| **Item Refinement Layer** (`ItemYamlConfig.refinement:` block + `ItemInstance` + `Refinement` sealed + V20 migration + `IItemInstanceRepository` priority 100) | ❌ nothing | **Wave 12c** | P2 | ADR-0082 reserved; `docs/competitive-analysis/02-genshin-hsr.md` 聖遺物 + `06-monster-hunter.md` charm 厳選分析 |
+| **多軸 skill progression** (`SkillKind` sealed 10軸 + `SkillProgression` + V21 migration + `AwardSkillXpUseCase` + perk tree YAML) | ❌ nothing | **Wave 12d** [Wave 8e 並列可] | P2 | ADR-0083 reserved; `docs/competitive-analysis/01-hypixel-skyblock.md` 12-skill + `04-osrs.md` 23-skill 分析 |
+| **承認欲求 multi-surface** (item rarity glow + nameplate badge + profile REST + Networth/Power Index + match nameplate milestone) | ❌ nothing | **Wave 12e** [Wave 8 系並列可] | P2 | ADR-0084 reserved; `docs/competitive-analysis/07-cross-cutting.md` 承認欲求 layer matrix |
+| **1v1 Betting Match** (`BettingMatch` + `BettingPolicy` cap/cooldown/loss-streak + audit log + JP CurrencyPolicy 整合 + ELO 整合) | ❌ nothing | **Wave 12f** [Wave 7b 後並列可] | P2 | ADR-0085 reserved; RTM Writerside `コンテンツ案一覧.md` 由来、ADR-0029 backlog 具体化 |
+| **Player Engagement Dashboard** (REST `/api/players/<id>/engagement` + `/api/balance/heatmap` + `/api/retention` + Web admin drill-down + Prometheus + Grafana 1 dashboard) | ❌ nothing | **Wave 12g** | P2 | ADR-0086 reserved; Wave 7c balance.csv + Wave _ops-4 Prometheus + Wave 8b REST cross-cut |
+
+---
+
 ## Category 12: i18n / Content authoring (Wave 1 ✅ + ongoing)
 
 | RTM 機能 | Astera 現状 | Wave 割当 | 優先度 | 根拠 |
