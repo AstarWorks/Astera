@@ -27,8 +27,15 @@ import com.astarworks.astera.items.adapter.paper.PaperItemDelivery
 import com.astarworks.astera.items.adapter.paper.PaperItemIdResolver
 import com.astarworks.astera.items.adapter.paper.PaperItemMaterializer
 import com.astarworks.astera.items.application.port.outbound.IItemDelivery
+import com.astarworks.astera.items.application.port.outbound.IItemInstanceRepository
+import com.astarworks.astera.items.application.port.outbound.IRefinementRandomizer
+import com.astarworks.astera.items.application.service.refinement.InMemoryItemInstanceRepository
+import com.astarworks.astera.items.application.service.refinement.KotlinRandomRefinementRandomizer
+import com.astarworks.astera.items.application.service.refinement.RefinementProfileRegistry
 import com.astarworks.astera.items.application.usecase.GiveItemUseCase
 import com.astarworks.astera.items.application.usecase.HandleItemTriggerUseCase
+import com.astarworks.astera.items.application.usecase.refinement.ApplyRefinementUseCase
+import com.astarworks.astera.items.application.usecase.refinement.RerollSubStatsUseCase
 import com.astarworks.astera.items.command.giveItemSubcommand
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -103,6 +110,46 @@ public class AsteraItemsPlugin : JavaPlugin() {
         registrations += services.register<IItemRegistry>(itemRegistry, priority = 10)
         registrations += services.register<IItemDelivery>(itemDelivery)
         registrations += services.register<IPaperItemIdResolver>(itemIdResolver)
+
+        // ── Wave 5refine / ADR-0100 — Item Refinement Layer ──────────────
+        // Per-instance state + per-item profile registry. Persistence will
+        // overlay the in-memory repository at priority 100 via the V30
+        // `item_instances` migration (Wave 3 / ADR-0020 pattern).
+        val instanceRepo: IItemInstanceRepository =
+            services.get<IItemInstanceRepository>()
+                ?: InMemoryItemInstanceRepository().also {
+                    registrations += services.register<IItemInstanceRepository>(it, priority = 0)
+                }
+        val refinementRandomizer: IRefinementRandomizer =
+            services.get<IRefinementRandomizer>()
+                ?: KotlinRandomRefinementRandomizer().also {
+                    registrations += services.register<IRefinementRandomizer>(it, priority = 0)
+                }
+        val refinementProfiles = RefinementProfileRegistry()
+        registrations += services.register(refinementProfiles, priority = 0)
+        // The refinement use cases are exposed as services so the Wave 6
+        // inspect-GUI subcommand (item-refine / item-reroll) can resolve
+        // them without re-wiring. Phase 1: instances are constructed here;
+        // the GUI will look them up via `services.get(...)`.
+        val applyRefinement = ApplyRefinementUseCase(
+            items = itemRegistry,
+            instances = instanceRepo,
+            eventBus = eventBus,
+            refinementSpecResolver = refinementProfiles::resolve,
+        )
+        val rerollSubStats = RerollSubStatsUseCase(
+            items = itemRegistry,
+            instances = instanceRepo,
+            randomizer = refinementRandomizer,
+            eventBus = eventBus,
+            refinementSpecResolver = refinementProfiles::resolve,
+        )
+        registrations += services.register(applyRefinement, priority = 0)
+        registrations += services.register(rerollSubStats, priority = 0)
+        logger.info(
+            "Astera-Items: refinement wiring up (instance repo from " +
+                "${if (services.get<IItemInstanceRepository>()?.javaClass?.simpleName == "PostgresItemInstanceRepository") "Postgres overlay" else "in-memory default"}).",
+        )
 
         // Use cases.
         val giveItem = GiveItemUseCase(

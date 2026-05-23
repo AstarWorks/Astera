@@ -1071,6 +1071,45 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5refine — Item refinement layer isolation (ADR-0100) ─────
+
+    /**
+     * ADR-0100 §"新規 domain": `items.domain.refinement.*` is pure-Kotlin
+     * domain that composes via the existing
+     * [com.astarworks.astera.core.domain.attribute.IAttributeContainer]
+     * primitive. It MUST NOT import Bukkit (per ADR-0022 domain isolation),
+     * persistence drivers, or `kotlinx.serialization` (the YAML DTO lives in
+     * `items.application.config.refinement.*`).
+     *
+     * The companion `items.application.usecase.refinement.*` MUST stay
+     * Bukkit-free for the same reason; persistence + RNG are injected as
+     * outbound ports per the universal application-layer rule.
+     */
+    @Test
+    fun `items refinement domain stays pure (ADR-0100)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter {
+                it.packagee?.name?.startsWith("com.astarworks.astera.items.domain.refinement") == true
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0100: items.domain.refinement.* must stay pure Kotlin " +
+                    "domain. Move Bukkit / persistence / kotlinx.serialization couplings into " +
+                    "items.application.config.refinement.* (DTOs) or items.adapter.paper.* (Paper sinks).",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

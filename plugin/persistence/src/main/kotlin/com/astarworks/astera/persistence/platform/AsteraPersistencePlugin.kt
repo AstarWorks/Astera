@@ -57,7 +57,9 @@ import com.astarworks.astera.persistence.repository.PostgresRegionPermissionServ
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
+import com.astarworks.astera.items.application.port.outbound.IItemInstanceRepository
 import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
+import com.astarworks.astera.persistence.repository.PostgresItemInstanceRepository
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
@@ -223,6 +225,16 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 5refine (ADR-0100): per-player ItemInstance persistence. V30
+        // migration adds the `item_instances` table; Postgres impl carries
+        // the polymorphic Refinement layers + 原神 sub-stat rolls as JSONB.
+        // AsteraItemsPlugin's InMemoryItemInstanceRepository (priority 0) is
+        // the Postgres-less fallback.
+        registrations += services.register<IItemInstanceRepository>(
+            PostgresItemInstanceRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -232,7 +244,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge, IShopStockRepository, IMatchReplayRepository.",
+                "IRewardBridge, IShopStockRepository, IMatchReplayRepository, " +
+                "IItemInstanceRepository.",
         )
     }
 
