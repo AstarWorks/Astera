@@ -1161,6 +1161,57 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5flex — Multi-surface flex layer isolation (ADR-0102) ────
+
+    /**
+     * ADR-0102 §"Reuse first (新 plugin 不要)": Wave 5flex introduces four
+     * new flex-layer domain packages, each scoped to the plugin that owns
+     * the underlying signal:
+     *
+     *  - `items.domain.glow.*` (surface #1, Item rarity glow)
+     *  - `economy.domain.power.*` (surface #4, Power Index / Networth)
+     *  - `core.domain.profile.*` (surface #3, Public profile card)
+     *  - `stats.domain.nameplate.*` (surface #2 + #5, Nameplate badge)
+     *
+     * Every one of them MUST stay pure Kotlin per ADR-0022 domain
+     * isolation — no Bukkit, no persistence drivers, no
+     * `kotlinx.serialization`. YAML DTOs live in
+     * `*.application.config.*`; Paper sinks live in `*.adapter.paper.*`.
+     */
+    @Test
+    fun `flex multi-surface domains stay pure (ADR-0102)`() {
+        val flexDomainPrefixes = listOf(
+            "com.astarworks.astera.items.domain.glow",
+            "com.astarworks.astera.economy.domain.power",
+            "com.astarworks.astera.core.domain.profile",
+            "com.astarworks.astera.stats.domain.nameplate",
+        )
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                flexDomainPrefixes.any { pkg.startsWith(it) }
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0102: Wave 5flex multi-surface domains " +
+                    "(items.domain.glow / economy.domain.power / core.domain.profile / " +
+                    "stats.domain.nameplate) must stay pure Kotlin. Move Bukkit / " +
+                    "persistence / kotlinx.serialization couplings into the matching " +
+                    "*.application.config.* DTOs or *.adapter.paper.* sinks.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

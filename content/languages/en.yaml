@@ -387,6 +387,28 @@ astera:
         name: "<gold>Legend</gold>"
         description: "<gray>100 kills.</gray>"
 
+    # Wave 5flex (ADR-0102) — match-nameplate milestone labels. Keyed by
+    # achievement id; the listener prefixes with `astera.stats.milestone.`.
+    milestone:
+      kills-10: "<gold>10 kills</gold>"
+      kills-50: "<gold>50 kills</gold>"
+      kills-100: "<gold>100 kills</gold>"
+      kills-1000: "<gold>1000 kills</gold>"
+      boss-defeats-100: "<red>100 bosses</red>"
+
+    # Wave 5flex (ADR-0102) — nameplate badge template + title labels.
+    nameplate:
+      badge: "[{title}] {milestone} {name} ⚜{tier} ⛁{power}"
+    title:
+      champion: "<gold>Champion</gold>"
+      veteran: "<gold>Veteran</gold>"
+
+  # Wave 5flex (ADR-0102) — flex layer cross-cutting strings.
+  flex:
+    profile:
+      private: "<gray>This profile is private.</gray>"
+      not-found: "<red>Profile not found.</red>"
+
   # Wave 5p (ADR-0088): Custom Advancement + NPC Dialog + Tutorial Sequencer.
   advancement:
     error:

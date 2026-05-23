@@ -60,8 +60,14 @@ import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnMissio
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnDamageMilestoneListener
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnKillMilestoneListener
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnMatchWinListener
+import com.astarworks.astera.stats.application.eventbus.listeners.RefreshNameplateOnAchievementUnlockedListener
 import com.astarworks.astera.stats.application.port.outbound.IAchievementRepository
+import com.astarworks.astera.stats.application.port.outbound.INameplateMilestoneRepository
 import com.astarworks.astera.stats.application.service.InMemoryAchievementRepository
+import com.astarworks.astera.stats.application.service.nameplate.InMemoryNameplateMilestoneRepository
+import com.astarworks.astera.stats.application.service.nameplate.NameplateBadgeRegistry
+import com.astarworks.astera.stats.application.usecase.nameplate.RecomputeNameplateBadgeUseCase
+import com.astarworks.astera.stats.domain.event.AchievementUnlocked
 import com.astarworks.astera.stats.application.service.InMemoryLevelService
 import com.astarworks.astera.stats.application.usecase.achievement.UnlockAchievementUseCase
 import com.astarworks.astera.stats.domain.event.MissionCompleted
@@ -271,6 +277,39 @@ public class AsteraStatsPlugin : JavaPlugin() {
         subscriptions += eventBus.subscribe(CurrencyChanged::class) { tradingXpOnCurrency.handle(it) }
         subscriptions += eventBus.subscribe(SkillLevelUp::class) { broadcastSkillLevelUp.handle(it) }
         subscriptions += eventBus.subscribe(SkillLevelUp::class) { grantPerksOnLevelUp.handle(it) }
+
+        // ---- Wave 5flex (ADR-0102): nameplate badge surface ------------
+        // In-memory badge cache + recomputation use case. The milestone
+        // repo overlay (Postgres V36) wins at priority=100 via
+        // AsteraPersistencePlugin; the cache stays in-memory because it
+        // is a rebuilt projection on every PowerIndexComputed /
+        // AchievementUnlocked event.
+        val nameplateCache = NameplateBadgeRegistry()
+        registrations += services.register(nameplateCache, priority = 0)
+        // Resolve the milestone repo (in-memory fallback if Postgres overlay
+        // is absent). Phase 1: registered but not yet consumed inline — the
+        // join-listener that re-injects the persisted milestone into the
+        // cache lands as part of the Paper-side wiring in a follow-up.
+        services.get<INameplateMilestoneRepository>()
+            ?: InMemoryNameplateMilestoneRepository().also {
+                registrations += services.register<INameplateMilestoneRepository>(it, priority = 0)
+            }
+        // Phase 1: Stats-only providers are wired. Title equip + PowerIndex
+        // hooks land in later flex follow-up waves (Wave 11d for cert tier,
+        // post-Wave 6 for title equip command). PowerIndex bridge uses the
+        // economy plugin's snapshot repo via ServiceRegistry.
+        val nameplateRecompute = RecomputeNameplateBadgeUseCase(
+            cache = nameplateCache,
+            equippedTitleProvider = { null },
+        )
+        registrations += services.register(nameplateRecompute, priority = 0)
+        val nameplateRefreshOnUnlock = RefreshNameplateOnAchievementUnlockedListener(
+            cache = nameplateCache,
+            recompute = nameplateRecompute,
+        )
+        subscriptions += eventBus.subscribe(AchievementUnlocked::class) {
+            nameplateRefreshOnUnlock.handle(it)
+        }
 
         // 7. /astera-stats command -----------------------------------------
         commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway, permService))
