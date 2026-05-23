@@ -20,6 +20,7 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerStatsReposito
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
 import com.astarworks.astera.core.application.port.outbound.IRegionPermissionService
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
+import com.astarworks.astera.core.application.port.outbound.ISkillProgressionRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRegionIndex
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -55,6 +56,7 @@ import com.astarworks.astera.persistence.repository.PostgresEngagementSnapshotRe
 import com.astarworks.astera.persistence.repository.PostgresMatchReplayRepository
 import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepository
 import com.astarworks.astera.persistence.repository.PostgresRegionPermissionService
+import com.astarworks.astera.persistence.repository.PostgresSkillProgressionRepository
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
@@ -225,11 +227,12 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
-        // Wave 5engage (ADR-0104): per-player engagement snapshot persistence.
-        // V30 migration adds `player_engagement_snapshots`; the Postgres impl
-        // overlays Core's InMemoryEngagementSnapshotRepository at priority 100.
-        registrations += services.register<IEngagementSnapshotRepository>(
-            PostgresEngagementSnapshotRepository(ctx.database),
+        // Wave 5multi-skill (ADR-0101 / V30): per-player, per-axis skill
+        // progression. AsteraStatsPlugin's InMemorySkillProgressionRepository
+        // (priority 0) is the Postgres-less fallback; this overlay wins at
+        // priority 100 whenever ASTERA_PG_* env vars are set.
+        registrations += services.register<ISkillProgressionRepository>(
+            PostgresSkillProgressionRepository(ctx.database),
             priority = 100,
         )
 
@@ -243,7 +246,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
                 "IRewardBridge, IShopStockRepository, IMatchReplayRepository, " +
-                "IEngagementSnapshotRepository.",
+                "ISkillProgressionRepository.",
         )
     }
 

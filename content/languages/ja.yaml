@@ -449,3 +449,21 @@ astera:
         title: "<yellow>単独ステージ</yellow>"
         desc: "<gray>単一段階のみ。</gray>"
 
+  # Wave 5multi-skill (ADR-0101): 多軸スキル進行のパーク表示。
+  progression:
+    combat:
+      damage_1: "<yellow>戦闘熟達 I</yellow>"
+      damage_2: "<yellow>戦闘熟達 II</yellow>"
+      crit_chance_1: "<gold>会心の刃 I</gold>"
+      crit_chance_2: "<gold>会心の刃 II</gold>"
+    mining:
+      yield_1: "<aqua>採掘の腕前 I</aqua>"
+      speed_1: "<aqua>素早い採掘 I</aqua>"
+      fortune_1: "<aqua>幸運の鉱脈 I</aqua>"
+    boss_slayer:
+      damage_1: "<red>討伐の刃 I</red>"
+      loot_1: "<gold>豊穣な戦利品 I</gold>"
+    trading:
+      shop_discount_1: "<green>交渉人 I</green>"
+      marketplace_fee_1: "<green>商業ギルド I</green>"
+
