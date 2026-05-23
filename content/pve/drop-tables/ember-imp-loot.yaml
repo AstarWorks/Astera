@@ -1,0 +1,16 @@
+# Wave 5pve-content (ADR-0099) — Ember Imp basic mob loot.
+# Per-kill: guaranteed small dust drop + uncommon material + rare shard.
+
+id: astera:ember-imp-loot
+
+drops:
+  - item_id: dust-of-ember
+    chance: 1.0
+    min_count: 1
+    max_count: 2
+
+  - item_id: imp-claw
+    chance: 0.15
+
+  - item_id: burning-shard
+    chance: 0.01

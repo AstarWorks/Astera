@@ -24,6 +24,8 @@ import com.astarworks.astera.core.application.contents.AdvancementContents
 import com.astarworks.astera.core.application.contents.GuiContents
 import com.astarworks.astera.core.application.contents.ItemContents
 import com.astarworks.astera.core.application.contents.MobContents
+import com.astarworks.astera.core.application.contents.pve.BossSpecContents
+import com.astarworks.astera.core.application.contents.pve.EncounterZoneContents
 import com.astarworks.astera.core.application.contents.RoleContents
 import com.astarworks.astera.core.application.contents.TutorialContents
 import com.astarworks.astera.core.application.contents.block.CustomBlockContents
@@ -48,6 +50,8 @@ import com.astarworks.astera.core.application.port.outbound.entity.INpcAdapter
 import com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter
 import com.astarworks.astera.core.application.port.outbound.mob.IBossKillAuditWriter
 import com.astarworks.astera.core.application.port.outbound.mob.IBossLifecycleService
+import com.astarworks.astera.core.application.port.outbound.mob.IBossSpecRegistry
+import com.astarworks.astera.core.application.port.outbound.mob.IDeathPenaltyPolicy
 import com.astarworks.astera.core.application.port.outbound.mob.IEncounterZoneRegistry
 import com.astarworks.astera.core.application.port.outbound.mob.ILootRollService
 import com.astarworks.astera.core.application.port.outbound.mob.IMobAdapter
@@ -139,7 +143,9 @@ import com.astarworks.astera.core.application.service.entity.RouterEntitySpawner
 import com.astarworks.astera.core.application.service.mob.DeterministicLootRollService
 import com.astarworks.astera.core.application.service.mob.InMemoryBossKillAuditWriter
 import com.astarworks.astera.core.application.service.mob.InMemoryBossLifecycleService
-import com.astarworks.astera.core.application.service.mob.InMemoryEncounterZoneRegistry
+import com.astarworks.astera.core.application.service.mob.pve.BossDefeatedLootRoller
+import com.astarworks.astera.core.application.service.mob.pve.LootTableLoaderService
+import com.astarworks.astera.core.application.service.mob.pve.ZoneScopedDeathPenaltyPolicy
 import com.astarworks.astera.core.application.service.mob.MinimalMobAdapter
 import com.astarworks.astera.core.application.service.mob.MobSpawnerRouter
 import com.astarworks.astera.core.application.service.mob.MythicMobsMobAdapter
@@ -900,16 +906,40 @@ public class AsteraCorePlugin : JavaPlugin() {
         // Layered on top of Wave 5pve: the boss lifecycle service drives
         // raid-locked encounters with phase transitions + V30 audit. The
         // deterministic loot roll service uses seeded RNG so replay (Wave 5v)
-        // can reproduce kills bit-exact. The encounter zone registry is
-        // populated by Phase 4 YAML (content/encounters/) once that lands;
-        // Phase 1 ships the in-memory registry empty.
+        // can reproduce kills bit-exact.
+        //
+        // Wave 5pve-content (ADR-0099) replaces the empty in-memory
+        // encounter registry with the YAML-backed EncounterZoneContents
+        // (loads `content/pve/encounters/*.yaml`) and adds a BossSpecContents
+        // (loads `content/pve/bosses/*.yaml`) + LootTableLoaderService
+        // (loads `content/pve/drop-tables/*.yaml`). YAML-loaded boss specs
+        // are forwarded into the lifecycle service via registerSpec(), and a
+        // BossDefeatedLootRoller composes spec lookup + ILootRollService.roll.
         //
         // Boss kill audit: Phase 1 in-memory writer; persistence plugin will
         // overlay PostgresBossKillAuditWriter at priority 100 in Wave 6c.
-        val encounterRegistry = InMemoryEncounterZoneRegistry()
-        services.register<IEncounterZoneRegistry>(encounterRegistry, priority = 0)
+        val pveContentDir = contentDir.resolve("pve")
+
+        val encounterZoneContents = EncounterZoneContents()
+        val encounterReport = encounterZoneContents.bootstrap(pveContentDir.resolve("encounters"))
+        logger.info(
+            "PvE encounter zones loaded: ${encounterReport.loaded} ok, ${encounterReport.failed} failed",
+        )
+        services.register<IEncounterZoneRegistry>(encounterZoneContents, priority = 0)
+        reloadRegistry.register(encounterZoneContents, pveContentDir.resolve("encounters"))
+
         val lootRollService = DeterministicLootRollService(eventBus)
         services.register<ILootRollService>(lootRollService, priority = 0)
+
+        val lootTableLoader = LootTableLoaderService()
+        val lootReport = lootTableLoader.bootstrap(
+            pveContentDir.resolve("drop-tables"),
+            lootRollService,
+        )
+        logger.info(
+            "PvE loot tables loaded: ${lootReport.loaded} ok, ${lootReport.failed} failed",
+        )
+
         val bossAuditWriter = InMemoryBossKillAuditWriter()
         services.register<IBossKillAuditWriter>(bossAuditWriter, priority = 0)
         val bossLifecycle = InMemoryBossLifecycleService(
@@ -918,7 +948,28 @@ public class AsteraCorePlugin : JavaPlugin() {
             auditWriter = bossAuditWriter,
         )
         services.register<IBossLifecycleService>(bossLifecycle, priority = 0)
-        logger.info("Wave 5pve-boss foundation wired (in-memory boss lifecycle + deterministic loot roll).")
+
+        val bossSpecContents = BossSpecContents()
+        val bossReport = bossSpecContents.bootstrap(pveContentDir.resolve("bosses"))
+        logger.info("PvE boss specs loaded: ${bossReport.loaded} ok, ${bossReport.failed} failed")
+        // Forward every YAML-loaded boss into the lifecycle service so it can
+        // resolve BossId at spawn / damage / death time without holding two
+        // separate spec maps. New specs registered later (admin command,
+        // reload) are handled by re-bootstrap in Wave 5pve-fix.
+        bossSpecContents.all().forEach { spec -> bossLifecycle.registerSpec(spec) }
+        services.register<IBossSpecRegistry>(bossSpecContents, priority = 0)
+        reloadRegistry.register(bossSpecContents, pveContentDir.resolve("bosses"))
+
+        val deathPenaltyPolicy = ZoneScopedDeathPenaltyPolicy(encounterZoneContents)
+        services.register<IDeathPenaltyPolicy>(deathPenaltyPolicy, priority = 0)
+
+        val bossLootRoller = BossDefeatedLootRoller(bossSpecContents, lootRollService)
+        bossLootRoller.wire(eventBus)
+
+        logger.info(
+            "Wave 5pve-content wired (encounters=${encounterReport.loaded}, " +
+                "bosses=${bossReport.loaded}, loot-tables=${lootReport.loaded}).",
+        )
 
         // ---- Wave 5t (ADR-0086) Admin/Ops + Role/Permission two-tier +
         // Voice rich presence + Slow query log + Player feedback. -----------
@@ -1252,10 +1303,13 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IPveLootDistributor (noop)",
             "IPveXpDistributor (noop)",
             // Wave 5pve-boss (ADR-0098)
-            "IEncounterZoneRegistry (in-memory)",
             "ILootRollService (deterministic seeded)",
             "IBossKillAuditWriter (in-memory; persistence overlays at p=100)",
             "IBossLifecycleService (in-memory)",
+            // Wave 5pve-content (ADR-0099)
+            "IEncounterZoneRegistry (YAML-backed EncounterZoneContents)",
+            "IBossSpecRegistry (YAML-backed BossSpecContents)",
+            "IDeathPenaltyPolicy (zone-scoped)",
             // Wave 5t (ADR-0086)
             "IRoleRegistry",
             "IPermissionBackend (Minimal + LuckPerms skeleton)",

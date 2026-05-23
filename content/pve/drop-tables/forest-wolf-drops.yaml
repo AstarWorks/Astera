@@ -1,0 +1,15 @@
+# Wave 5pve-content (ADR-0099) — Forest Wolf basic loot table.
+# Backs the Whispering Cavern intro zone (re-uses Wave 5pve forest-wolf mob).
+# Low-tier intro loot: dust-of-fur (guaranteed) + tooth (uncommon).
+
+id: astera:forest-wolf-drops
+
+drops:
+  - item_id: dust-of-fur
+    chance: 1.0
+
+  - item_id: wolf-tooth
+    chance: 0.15
+
+  - item_id: cavern-shard
+    chance: 0.005

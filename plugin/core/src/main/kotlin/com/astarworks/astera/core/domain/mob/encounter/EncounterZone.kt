@@ -42,6 +42,9 @@ import com.astarworks.astera.core.domain.mob.boss.BossId
  * @property boss Optional boss anchored to this zone. Spawn trigger is
  *   decided by the lifecycle service (Phase 1: on-demand admin spawn;
  *   Phase 4: weekly reset / quest step / first-clear gate).
+ * @property deathPenalty Rule applied when a player dies inside the zone
+ *   (Wave 5pve-content, ADR-0099). Defaults to [DeathPenaltyRule.SafeDeath]
+ *   so existing pre-ADR-0099 zones keep their previous behaviour.
  */
 public data class EncounterZone(
     public val id: EncounterZoneId,
@@ -51,6 +54,7 @@ public data class EncounterZone(
     public val maxConcurrent: Int,
     public val difficulty: DifficultyCurve = DifficultyCurve.Flat,
     public val boss: BossId? = null,
+    public val deathPenalty: DeathPenaltyRule = DeathPenaltyRule.SafeDeath,
 ) {
     init {
         require(maxConcurrent >= 0) {

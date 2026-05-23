@@ -1,0 +1,41 @@
+# Wave 5pve-content (ADR-0099) — Blazing Pit zone basic spawn.
+# Tier-1 hostile mob for the Blazing Pit PvE raid zone. Single-target melee
+# with a small chance to retaliate when damaged. Underpins encounter
+# polynomial scaling at base_level=1.
+
+id: astera:ember-imp
+
+display_name:
+  en: "<red>Ember Imp</red>"
+  ja: "<red>炎の小鬼</red>"
+
+base_entity_type: MOB
+
+attributes:
+  mob.max_hp: 36.0
+  mob.damage: 5.5
+  mob.speed: 1.1
+
+appearance:
+  custom_name_visible: true
+  name_tag_color:
+    r: 220
+    g: 80
+    b: 40
+  glowing: false
+
+equipment: []
+
+skill_bindings:
+  - type: on_damaged
+    skill_id: ember-imp-retaliate
+    trigger_chance: 0.25
+
+loot_table: astera:ember-imp-loot
+
+spawn_conditions:
+  biome_keys:
+    - "minecraft:nether_wastes"
+    - "minecraft:basalt_deltas"
+
+ai: pathfind

@@ -1,0 +1,19 @@
+# Wave 5pve-content (ADR-0099) — Flame Jackal mid-tier mob loot.
+# Slightly better drop tier than Ember Imp (higher HP / damage = more reward).
+
+id: astera:flame-jackal-loot
+
+drops:
+  - item_id: dust-of-ember
+    chance: 1.0
+    min_count: 2
+    max_count: 4
+
+  - item_id: jackal-pelt
+    chance: 0.25
+
+  - item_id: burning-shard
+    chance: 0.02
+
+  - item_id: flame-rune
+    chance: 0.001

@@ -32,8 +32,16 @@ public interface IEncounterZoneRegistry {
     /** Look up a zone by id, or null if not registered. */
     public fun get(id: EncounterZoneId): EncounterZone?
 
-    /** All registered zones. Iteration order is insertion order. */
-    public fun all(): List<EncounterZone>
+    /**
+     * All registered zones. Iteration order is insertion order.
+     *
+     * Returns [Collection] rather than [List] so YAML-backed implementations
+     * sharing the [com.astarworks.astera.core.application.contents.YamlDynamicContents]
+     * substrate (Wave 5pve-content [EncounterZoneContents]) can satisfy this
+     * port without a defensive copy. ADR-0099 widened the return type from
+     * `List`; callers that need ordered random-access should `.toList()`.
+     */
+    public fun all(): Collection<EncounterZone>
 
     /** Number of registered zones. */
     public fun size(): Int

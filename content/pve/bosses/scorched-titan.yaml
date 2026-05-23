@@ -1,0 +1,48 @@
+# Wave 5pve-content (ADR-0099) — Scorched Titan boss spec.
+#
+# Annihilation PoC raid boss anchored to the Blazing Pit zone. Two-phase
+# fight (phase 0 baseline → phase 1 enraged at 50% HP). Phase 1 enables
+# meteor periodic skill + counter-attack on hit + 3s immunity window
+# during the transition cast.
+#
+# Raid lock: party-lock cap 4 (Astera convention per
+# RaidLockPolicy.PartyLock invariant). Dedicated loot table — see
+# content/pve/drop-tables/scorched-titan-loot.yaml.
+
+id: astera:scorched-titan
+
+display_name:
+  en: "<dark_red><bold>Scorched Titan</bold></dark_red>"
+  ja: "<dark_red><bold>焦熱の巨人</bold></dark_red>"
+
+base_mob_type: astera:scorched-titan-base
+
+phases:
+  - index: 0
+    name_key: boss.scorched_titan.phase.molten
+    periodic_skills:
+      - titan-stomp
+
+  - index: 1
+    name_key: boss.scorched_titan.phase.enraged
+    immunity_ticks: 60
+    transition_cast: titan-roar
+    periodic_skills:
+      - titan-stomp
+      - titan-meteor
+    on_hit_skills:
+      - titan-counter
+
+transitions:
+  - type: hp_threshold
+    from_phase: 0
+    to_phase: 1
+    hp_fraction: 0.5
+
+raid_lock:
+  type: party_lock
+  max_party_size: 4
+
+loot_table: astera:scorched-titan-loot
+
+record_kill: true
