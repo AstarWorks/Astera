@@ -25,6 +25,25 @@ import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnMissionCompletedListener
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnXpListener
 import com.astarworks.astera.economy.application.eventbus.listeners.RewardOnMatchEndedListener
+import com.astarworks.astera.economy.application.eventbus.listeners.betting.DistributeBettingPayoutOnResolvedListener
+import com.astarworks.astera.economy.application.eventbus.listeners.betting.ResolveBettingOnMatchEndedListener
+import com.astarworks.astera.economy.application.contents.betting.BettingPolicyContents
+import com.astarworks.astera.economy.application.port.outbound.betting.IBettingEscrowService
+import com.astarworks.astera.economy.application.port.outbound.betting.IBettingHistoryService
+import com.astarworks.astera.economy.application.port.outbound.betting.IBettingMatchRepository
+import com.astarworks.astera.economy.application.port.outbound.betting.IBettingOptInProvider
+import com.astarworks.astera.economy.application.port.outbound.betting.IBettingPolicyRegistry
+import com.astarworks.astera.economy.application.service.betting.InMemoryBettingEscrowService
+import com.astarworks.astera.economy.application.service.betting.InMemoryBettingHistoryService
+import com.astarworks.astera.economy.application.service.betting.InMemoryBettingMatchRepository
+import com.astarworks.astera.economy.application.service.betting.InMemoryBettingOptInProvider
+import com.astarworks.astera.economy.application.usecase.betting.AcceptBettingChallengeUseCase
+import com.astarworks.astera.economy.application.usecase.betting.DeclineBettingChallengeUseCase
+import com.astarworks.astera.economy.application.usecase.betting.ExpirePendingBettingChallengesUseCase
+import com.astarworks.astera.economy.application.usecase.betting.InitiateBettingChallengeUseCase
+import com.astarworks.astera.economy.domain.betting.BettingPolicy
+import com.astarworks.astera.economy.domain.betting.BettingPolicyId
+import com.astarworks.astera.core.domain.event.BettingMatchResolved
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
@@ -277,6 +296,103 @@ public class AsteraEconomyPlugin : JavaPlugin() {
             eventBus = eventBus,
         )
         registrations += services.register(recalculatePowerIndex, priority = 0)
+
+        // ── Wave 5bet (ADR-0103) — 1v1 Betting ────────────────────────────
+        // Postgres overlays (V38 / V39) win at priority=100; in-memory defaults
+        // here are the fallback for tests + Postgres-less runs.
+        val bettingMatchRepo: IBettingMatchRepository =
+            services.get<IBettingMatchRepository>()
+                ?: InMemoryBettingMatchRepository().also {
+                    registrations += services.register<IBettingMatchRepository>(it, priority = 0)
+                }
+        val bettingEscrow: IBettingEscrowService =
+            services.get<IBettingEscrowService>()
+                ?: InMemoryBettingEscrowService(ledger).also {
+                    registrations += services.register<IBettingEscrowService>(it, priority = 0)
+                }
+        // History is keyed off the configured default policy's cooldown for the
+        // in-memory impl. The Postgres overlay does its own per-row aggregation
+        // and uses the same cooldown only for its in-process recordResolution
+        // cache — see PostgresBettingHistoryService for the rationale.
+        val defaultPolicyId = BettingPolicyId("default")
+        val bootstrapPolicyForCooldown = BettingPolicy.DEFAULT
+        val bettingHistory: IBettingHistoryService =
+            services.get<IBettingHistoryService>()
+                ?: InMemoryBettingHistoryService(
+                    matches = bettingMatchRepo,
+                    cooldownAfterMatchMs = bootstrapPolicyForCooldown.cooldownAfterMatch.inWholeMilliseconds,
+                ).also {
+                    registrations += services.register<IBettingHistoryService>(it, priority = 0)
+                }
+        val bettingOptIn: IBettingOptInProvider =
+            services.get<IBettingOptInProvider>()
+                ?: InMemoryBettingOptInProvider().also {
+                    registrations += services.register<IBettingOptInProvider>(it, priority = 0)
+                }
+
+        // Policy registry: YAML-backed Contents replaces any in-memory default.
+        val bettingPolicies = BettingPolicyContents().also {
+            // Seed the conservative default so a Postgres-less server still has
+            // a working policy even before the YAML file is loaded.
+            it.register(BettingPolicy.DEFAULT)
+        }
+        val betPoliciesContentDir = core.contentDir.resolve("bet-policies")
+        val bettingPoliciesReport = bettingPolicies.bootstrap(betPoliciesContentDir)
+        logger.info(
+            "Loaded ${bettingPoliciesReport.loaded} bet-policy(ies) from " +
+                "$betPoliciesContentDir (failed: ${bettingPoliciesReport.failed})",
+        )
+        registrations += services.register<IBettingPolicyRegistry>(bettingPolicies, priority = 0)
+
+        val initiateBetting = InitiateBettingChallengeUseCase(
+            matches = bettingMatchRepo,
+            policies = bettingPolicies,
+            history = bettingHistory,
+            optIn = bettingOptIn,
+            eventBus = eventBus,
+        )
+        val acceptBetting = AcceptBettingChallengeUseCase(
+            matches = bettingMatchRepo,
+            escrow = bettingEscrow,
+            optIn = bettingOptIn,
+            ledger = ledger,
+            eventBus = eventBus,
+        )
+        val declineBetting = DeclineBettingChallengeUseCase(matches = bettingMatchRepo)
+        val expireBetting = ExpirePendingBettingChallengesUseCase(matches = bettingMatchRepo)
+        registrations += services.register(initiateBetting, priority = 0)
+        registrations += services.register(acceptBetting, priority = 0)
+        registrations += services.register(declineBetting, priority = 0)
+        registrations += services.register(expireBetting, priority = 0)
+        // ignored: defaultPolicyId — reserved for future `/astera-bet` command surface.
+        @Suppress("UNUSED_VARIABLE") val unusedPolicyId = defaultPolicyId
+
+        val resolveBettingOnMatchEnded = ResolveBettingOnMatchEndedListener(
+            bettingMatches = bettingMatchRepo,
+            matchRepository = matchRepository,
+            eventBus = eventBus,
+        )
+        val distributePayoutOnResolved = DistributeBettingPayoutOnResolvedListener(
+            bettingMatches = bettingMatchRepo,
+            escrow = bettingEscrow,
+            history = bettingHistory,
+            policies = bettingPolicies,
+            ledger = ledger,
+            eventBus = eventBus,
+        )
+        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+            resolveBettingOnMatchEnded.handle(event)
+        }
+        subscriptions += eventBus.subscribe(BettingMatchResolved::class) { event ->
+            distributePayoutOnResolved.handle(event)
+        }
+
+        // Per-minute expiry sweep for pending challenges past their deadline
+        // (acceptanceTimeout in BettingPolicy). 20 ticks/s × 60 s = 1,200 ticks.
+        scheduledTasks += services.getOrThrow<IScheduler>().runRepeatingTicks(
+            initialDelayTicks = 60L,
+            periodTicks = 1_200L,
+        ) { expireBetting.execute() }
 
         // ── Commands ───────────────────────────────────────────────────────────
         commandHandler.register(

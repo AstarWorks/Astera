@@ -132,6 +132,25 @@ astera:
         sold: "<gray>売却済</gray>"
         expired: "<gray>期限切れ</gray>"
 
+  # Wave 5bet (ADR-0103): 1v1 賭けマッチのユーザ向けエラー。
+  betting:
+    unknown_policy: "<red>賭けポリシーが未設定です。</red>"
+    currency_not_allowed: "<red>その通貨は賭けに使用できません。</red>"
+    stake_exceeds_cap: "<red>1 試合あたりの上限を超えています。</red>"
+    daily_cap_exceeded: "<red>本日の賭け上限に達しました。</red>"
+    cooldown_active: "<red>直前の賭けからのクールダウン中です。</red>"
+    loss_streak_limit: "<red>連敗クールダウン中です。</red>"
+    self_betting_forbidden: "<red>自分自身を相手に賭けることはできません。</red>"
+    player_opted_out: "<red>その対戦相手は賭けを許可していません。</red>"
+    unknown_match: "<red>賭けが見つかりません。</red>"
+    not_pending: "<red>その賭けは受諾待ち状態ではありません。</red>"
+    not_active: "<red>その賭けは進行中ではありません。</red>"
+    acceptance_expired: "<red>この申請は有効期限切れです。</red>"
+    not_invited: "<red>あなたはこの賭けの当事者ではありません。</red>"
+    escrow_debit_failed: "<red>賭け金を確保するには残高が不足しています。</red>"
+    already_escrowed: "<red>この賭けは既に賭け金が確保されています。</red>"
+    escrow_missing: "<red>この賭けのエスクロー記録が見つかりません。</red>"
+
   # Wave 5f (ADR-0035): GUI リアクティブ数値バインディング + パーティクル定義。
   gui_binding:
     coins:
