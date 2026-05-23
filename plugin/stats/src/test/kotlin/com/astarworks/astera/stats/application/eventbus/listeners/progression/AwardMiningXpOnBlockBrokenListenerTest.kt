@@ -41,7 +41,7 @@ class AwardMiningXpOnBlockBrokenListenerTest {
     @Test
     fun `BlockBroken from pickaxe awards Mining XP`() {
         val event = BlockBroken(
-            matchId = MatchId(UUID.randomUUID().toString()),
+            matchId = MatchId("test-match-mining"),
             playerId = playerId,
             position = Vec3(0.0, 0.0, 0.0),
             blockId = "minecraft:stone",
