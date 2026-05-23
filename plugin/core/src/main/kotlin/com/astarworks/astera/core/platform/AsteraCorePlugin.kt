@@ -45,6 +45,10 @@ import com.astarworks.astera.core.application.port.outbound.entity.IEntityRegist
 import com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner
 import com.astarworks.astera.core.application.port.outbound.entity.INpcAdapter
 import com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter
+import com.astarworks.astera.core.application.port.outbound.mob.IBossKillAuditWriter
+import com.astarworks.astera.core.application.port.outbound.mob.IBossLifecycleService
+import com.astarworks.astera.core.application.port.outbound.mob.IEncounterZoneRegistry
+import com.astarworks.astera.core.application.port.outbound.mob.ILootRollService
 import com.astarworks.astera.core.application.port.outbound.mob.IMobAdapter
 import com.astarworks.astera.core.application.port.outbound.mob.IMobRegistry
 import com.astarworks.astera.core.application.port.outbound.mob.IMobSpawnLadder
@@ -131,6 +135,10 @@ import com.astarworks.astera.core.application.service.entity.InMemoryEntityRegis
 import com.astarworks.astera.core.application.service.entity.InMemoryNpcInteractionRouter
 import com.astarworks.astera.core.application.service.entity.MinimalNpcAdapter
 import com.astarworks.astera.core.application.service.entity.RouterEntitySpawner
+import com.astarworks.astera.core.application.service.mob.DeterministicLootRollService
+import com.astarworks.astera.core.application.service.mob.InMemoryBossKillAuditWriter
+import com.astarworks.astera.core.application.service.mob.InMemoryBossLifecycleService
+import com.astarworks.astera.core.application.service.mob.InMemoryEncounterZoneRegistry
 import com.astarworks.astera.core.application.service.mob.MinimalMobAdapter
 import com.astarworks.astera.core.application.service.mob.MobSpawnerRouter
 import com.astarworks.astera.core.application.service.mob.MythicMobsMobAdapter
@@ -880,6 +888,31 @@ public class AsteraCorePlugin : JavaPlugin() {
             "Wave 5pve mob foundation wired (active backend=${mobSpawner.activeBackendId()?.value ?: "none"}).",
         )
 
+        // ---- Wave 5pve-boss (ADR-0098) Boss + Encounter + Loot foundation ----
+        //
+        // Layered on top of Wave 5pve: the boss lifecycle service drives
+        // raid-locked encounters with phase transitions + V30 audit. The
+        // deterministic loot roll service uses seeded RNG so replay (Wave 5v)
+        // can reproduce kills bit-exact. The encounter zone registry is
+        // populated by Phase 4 YAML (content/encounters/) once that lands;
+        // Phase 1 ships the in-memory registry empty.
+        //
+        // Boss kill audit: Phase 1 in-memory writer; persistence plugin will
+        // overlay PostgresBossKillAuditWriter at priority 100 in Wave 6c.
+        val encounterRegistry = InMemoryEncounterZoneRegistry()
+        services.register<IEncounterZoneRegistry>(encounterRegistry, priority = 0)
+        val lootRollService = DeterministicLootRollService(eventBus)
+        services.register<ILootRollService>(lootRollService, priority = 0)
+        val bossAuditWriter = InMemoryBossKillAuditWriter()
+        services.register<IBossKillAuditWriter>(bossAuditWriter, priority = 0)
+        val bossLifecycle = InMemoryBossLifecycleService(
+            spawner = mobSpawner,
+            eventBus = eventBus,
+            auditWriter = bossAuditWriter,
+        )
+        services.register<IBossLifecycleService>(bossLifecycle, priority = 0)
+        logger.info("Wave 5pve-boss foundation wired (in-memory boss lifecycle + deterministic loot roll).")
+
         // ---- Wave 5t (ADR-0086) Admin/Ops + Role/Permission two-tier +
         // Voice rich presence + Slow query log + Player feedback. -----------
         //
@@ -1164,6 +1197,11 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IMobSpawnLadder",
             "IPveLootDistributor (noop)",
             "IPveXpDistributor (noop)",
+            // Wave 5pve-boss (ADR-0098)
+            "IEncounterZoneRegistry (in-memory)",
+            "ILootRollService (deterministic seeded)",
+            "IBossKillAuditWriter (in-memory; persistence overlays at p=100)",
+            "IBossLifecycleService (in-memory)",
             // Wave 5t (ADR-0086)
             "IRoleRegistry",
             "IPermissionBackend (Minimal + LuckPerms skeleton)",

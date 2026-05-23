@@ -1,16 +1,16 @@
 ---
-status: Draft
-date: 2026-05-21
-deciders: ryuzu
+status: Accepted
+date: 2026-05-23
+deciders: orchestrator (Wave 5pve-boss)
 supersedes: null
 superseded_by: null
 ---
 
-# ADR-0080: PvE Mob/Boss Foundation (Phase 8 §Add)
+# ADR-0098: PvE Mob/Boss Foundation (Phase 8 §Add)
 
 ## Status
 
-Draft
+Accepted
 
 ## Context
 
@@ -29,25 +29,107 @@ container で扱える** ので、新 plugin は作らず既存 `plugin/combat` 
 
 ## Decision
 
-Wave 12a で以下を land する:
+Wave 5pve-boss で **ADR-0085 の Mob foundation を拡張** する形で
+land する (新 plugin は作らず `plugin/core` に bolt-on)。基本 Mob /
+MobSpec / IMobAdapter / IMobSpawner / IMobRegistry は既に ADR-0085
+で commit 済み — 本 ADR は boss / encounter / loot / raid layer を
+追加する:
 
-- `Mob` domain (id / archetype sealed / level / maxHp / `IAttributeContainer`)
-- `IMobSpawnService` port (inbound + outbound), InMemory + Paper (Bukkit
-  `World.spawnEntity`) 2 impl
-- `EncounterZone` domain (region + spawn rule + difficulty curve)
-- `LootDrop` domain (item ref + drop chance + RNG)
-- 4 new domain events in `core.domain.event`:
-  - `MobSpawned(mobId, archetype, location, atTick)`
-  - `MobKilled(mobId, killerId?, atTick)`
-  - `BossDefeated(bossId, partyId?, atTick)`
-  - `LootDropped(mobId, items, atTick)`
-- 既存 `IDamageGateway` + `ApplyDamageUseCase` を mob target に流用 (PvP 武器の
-  attack profile を mob にもそのまま適用)
-- `MatchKind` (PvP / PvE) parameter を `ApplyDamageUseCase` に追加し、damage
-  formula 内で reduction modifier を切替 (PvE: full damage / PvP: ~70-90% reduced)
+### Domain types (新規、すべて `core.domain.mob.*` 配下)
 
-Konsist 整合: `Mob` は `core.domain` に置き sealed、`plugin/combat` と
-`plugin/match` から参照可。sibling-isolation matrix (ADR-0022) と整合。
+- `boss/BossId` (namespaced lower-kebab-case value class)
+- `boss/BossPhase` (index + i18n nameKey + immunityTicks + transitionCast +
+  periodic / onHit skill list)
+- `boss/BossPhaseTransition` (sealed; Phase 1 ships `HpThreshold` variant)
+- `boss/BossSpec` (id + display + baseMobType reference + phases +
+  transitions + raidLock + lootTable + recordKill flag)
+- `boss/BossError` (sealed; UnknownBoss / UnknownMob / RaidLocked /
+  PartyRequired / WrongPhase / BackendError)
+- `encounter/EncounterZoneId` + `encounter/EncounterZone` +
+  `encounter/EncounterMobEntry`
+- `encounter/DifficultyCurve` (sealed; Flat / Polynomial)
+- `loot/LootDrop` (itemId + chance + minCount + maxCount)
+- `loot/LootRollContext` (tableId + killer + mob/boss/zone refs +
+  partyMemberIds + encounterLevel)
+- `loot/LootRoll` (drops + seed for replay)
+- `raid/RaidLockPolicy` (sealed; Open / PartyLock)
+- `raid/RaidClaim` (mobId + partyId + firstHitter + claimedAt)
+- `runtime/MobId` (runtime UUID-wrapping value class, distinct from
+  template-level `MobTypeId`)
+
+### Outbound ports (新規、`core.application.port.outbound.mob.*`)
+
+- `IBossLifecycleService` — register spec / spawn / instanceOf / onDamage /
+  onDeath、`BossInstance` 読取値も同 file
+- `IEncounterZoneRegistry` — register / get / all / size
+- `ILootRollService` — registerTable / tableOf / roll(context, seed, atTick)
+- `IBossKillAuditWriter` — record(BossDefeated) idempotent / count
+
+### In-core service impls (`core.application.service.mob.*`)
+
+- `InMemoryEncounterZoneRegistry` — LinkedHashMap insertion order
+- `InMemoryBossKillAuditWriter` — Phase 1 default; persistence plugin が
+  Wave 6c で `PostgresBossKillAuditWriter` を priority 100 で overlay
+- `DeterministicLootRollService` — `kotlin.random.Random` を seeded、
+  `(seed XOR tableHash XOR mobHash XOR killerUuidBits XOR bossHash?)` で
+  per-call mixing。`LootDropped` 公開
+- `InMemoryBossLifecycleService` — spawn / damage / death の単 thread
+  orchestration、HpThreshold transition を declaration order で評価、
+  PartyLock claim 自動付与、recordKill=true のとき audit writer 呼び出し
+
+### Domain events (新規、`core.domain.event.*`)
+
+- `BossSpawned(mobId, handle, bossId, zoneId?, world, position, atTick)`
+- `BossPhaseChanged(mobId, bossId, fromPhase, toPhase, trigger, atTick)`
+- `BossDefeated(mobId, bossId, killerId?, partyId?, fightDurationTicks,
+  finalPhase, atTick)`
+- `LootDropped(mobId, bossId?, tableId, killerId, drops, seed, atTick)`
+
+### Persistence (V30 migration)
+
+`plugin/persistence/src/main/resources/db/migration/V30__boss_kills.sql`:
+- `boss_kills` table (`id` UUID PK + `mob_id` VARCHAR(64) UNIQUE +
+  `boss_id` VARCHAR(128) + `killer_id` UUID nullable + `party_id`
+  VARCHAR(64) nullable + `final_phase` SMALLINT + `fight_duration_ticks`
+  BIGINT + `killed_at` TIMESTAMP + `at_tick` BIGINT)
+- 3 indexes: `boss_recent (boss_id, fight_duration_ticks, killed_at)` for
+  leaderboard / speedrun query、partial `party (party_id, killed_at)` for
+  weekly raid clears、partial `killer (killer_id, killed_at)` for first-
+  clear history
+- Idempotency via `mob_id UNIQUE` + impl-side `INSERT ON CONFLICT DO
+  NOTHING` (Phase 1 in-memory writer is naturally idempotent on duplicate
+  `mob_id`)
+
+### Konsist 強化 (+1 rule)
+
+- `core domain mob boss encounter loot raid runtime must stay platform-free
+  (ADR-0098)` — boss / encounter / loot / raid / runtime 5 subpackage が
+  Bukkit family / JDBC / Exposed / `java.util.concurrent.*` を import しない
+  ことを保証 (`java.util.concurrent.*` は boss state が Paper main thread
+  single-threaded である invariant を守るため)
+
+### Skill cast / damage flow 流用
+
+既存 `ApplyDamageUseCase` には触らない (PvE damage routing は Wave 5pve-fix /
+Wave 6b の damage hijack layer で対応予定 — `MatchKind` parameter の追加は
+本 ADR scope 外、後続 ADR で扱う)。Boss は通常の mob 同様 `MobKilled` /
+`MobSpawned` を ADR-0085 経路で発火しつつ、追加で boss-specific 4 events を
+発火する duplex 構造。
+
+### Wave 6b / Phase 4 担当 (本 ADR が commit する port skeleton の実装)
+
+- `PaperBossLifecycleService` (Wave 6b) — real ArmorStand boss bar + HP
+  listener + phase transition timer 駆動
+- `PostgresBossKillAuditWriter` (Wave 6c, persistence plugin) — priority
+  100 で in-core impl を overlay
+- `ContentLootRollService` (Phase 4) — `content/loot-tables/*.yaml` 読み込み、
+  priority 100 で deterministic impl を overlay
+- Encounter zone YAML registry (Phase 4) — `content/encounters/*.yaml` →
+  `IEncounterZoneRegistry` impl swap
+
+Konsist 整合: 全 boss / encounter / loot / raid 型は `core.domain.mob.*`
+subpackage に置き、`plugin/combat` `plugin/match` `plugin/stats` から参照可。
+sibling-isolation matrix (ADR-0022) と整合。
 
 ## Consequences
 

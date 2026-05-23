@@ -1005,6 +1005,57 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5pve-boss — Boss + Encounter + Loot subdomain purity (ADR-0098) ───
+
+    /**
+     * ADR-0098: the boss / encounter / loot / raid / runtime subpackages of
+     * `core.domain.mob.*` carry zero adapter coupling. They define
+     * encounter-level vocabulary (`BossSpec`, `BossPhase`, `EncounterZone`,
+     * `LootDrop`, `RaidLockPolicy`, `MobId`) that both the in-core
+     * lifecycle service and the Wave 6b Paper subclass consume.
+     *
+     * The general "core domain must be platform-free" rule already covers
+     * Bukkit; this rule adds two ADR-0098-specific guards:
+     *
+     *  1. No JDBC / Exposed imports (the V30 `boss_kills` audit table is
+     *     written through `IBossKillAuditWriter`, never inline in domain).
+     *  2. No `java.util.concurrent.*` (boss state is single-threaded on
+     *     Paper main thread; concurrent constructs in domain would invite
+     *     consistency bugs and confuse the threading contract).
+     *
+     * Failure surfaces this test, not at server boot.
+     */
+    @Test
+    fun `core domain mob boss encounter loot raid runtime must stay platform-free (ADR-0098)`() {
+        val adrSubpackages = setOf(
+            "com.astarworks.astera.core.domain.mob.boss",
+            "com.astarworks.astera.core.domain.mob.encounter",
+            "com.astarworks.astera.core.domain.mob.loot",
+            "com.astarworks.astera.core.domain.mob.raid",
+            "com.astarworks.astera.core.domain.mob.runtime",
+        )
+        Konsist.scopeFromModule("plugin/core")
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                adrSubpackages.any { pkg == it }
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0098: ${'$'}{adrSubpackages.joinToString(\" / \")} " +
+                    "must not import JDBC / Exposed / java.util.concurrent — the V30 boss_kills " +
+                    "audit table is written through IBossKillAuditWriter, never inline in " +
+                    "domain. Boss lifecycle state is single-threaded on Paper main thread.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("java.util.concurrent")
+                    }
+            }
+    }
+
     // ─── Wave 5q — Anti-cheat + Anti-AFK isolation (ADR-0083) ─────────
 
     /**
