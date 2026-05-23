@@ -25,4 +25,21 @@ public sealed interface CurrencyChangeReason {
         val shopId: ShopId,
         val offerId: ShopOfferId,
     ) : CurrencyChangeReason
+
+    /**
+     * Wave 5bet (ADR-0103): a 1v1 betting flow currency movement. One variant
+     * covers all three movements (escrow debit / winner payout / refund) —
+     * the [kind] is carried separately so analytics can split the three
+     * series cleanly.
+     *
+     * [bettingMatchUuid] is the raw UUID of the underlying
+     * `com.astarworks.astera.economy.domain.betting.BettingMatchId` —
+     * Core does NOT depend on the Economy plugin per ADR-0022.
+     *
+     * [kind] is one of `"escrow_debit"` / `"winner_payout"` / `"refund"`.
+     */
+    public data class Betting(
+        val bettingMatchUuid: java.util.UUID,
+        val kind: String,
+    ) : CurrencyChangeReason
 }

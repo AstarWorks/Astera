@@ -1262,6 +1262,58 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5bet — 1v1 Betting domain isolation (ADR-0103) ───────────
+
+    /**
+     * ADR-0103 §"Decision": Wave 5bet introduces the
+     * `economy.domain.betting.*` subpackage carrying [BettingMatch] /
+     * [BettingPolicy] / [BettingEscrow] / [LossStreakState] / [BetStake]
+     * / [BettingError]. The audit-grade nature of betting (it touches
+     * wallets via the escrow service, and the audit log is the SSOT for
+     * JP regulatory compliance per ADR-0035) makes platform purity
+     * particularly important: ANY drift into JDBC / Bukkit / serialization
+     * inside the domain layer would put the wrong invariants in the wrong
+     * layer.
+     *
+     * Forbidden imports inside `economy.domain.betting.*`:
+     *
+     *   - Bukkit family (`hasBukkitFamilyImport`)
+     *   - kotlinx.serialization annotations (YAML DTOs live in
+     *     `economy.application.config.betting.*`)
+     *   - JDBC / Exposed / postgres / lettuce (persistence belongs in
+     *     `:plugin:persistence`)
+     *   - Koin (Phase 1 manual DI)
+     *
+     * Same scope-from-project pattern as ADR-0100 / ADR-0102 — picks up the
+     * package as it migrates between plugin modules without rewriting the rule.
+     */
+    @Test
+    fun `betting domain stays pure (ADR-0103)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.economy.domain.betting")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0103: economy.domain.betting.* must stay pure Kotlin. " +
+                    "Move Bukkit / kotlinx.serialization / persistence / koin couplings into " +
+                    "economy.application.config.betting.* DTOs, economy.application.service.betting.* " +
+                    "InMemory impls, or persistence-side Postgres overlays.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

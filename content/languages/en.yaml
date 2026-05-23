@@ -129,6 +129,25 @@ astera:
         sold: "<gray>SOLD</gray>"
         expired: "<gray>EXPIRED</gray>"
 
+  # Wave 5bet (ADR-0103): 1v1 betting match user-facing errors.
+  betting:
+    unknown_policy: "<red>Betting policy not configured.</red>"
+    currency_not_allowed: "<red>That currency cannot be wagered.</red>"
+    stake_exceeds_cap: "<red>Stake exceeds the per-match cap.</red>"
+    daily_cap_exceeded: "<red>You have reached today's betting cap.</red>"
+    cooldown_active: "<red>You are still cooling down from a recent bet.</red>"
+    loss_streak_limit: "<red>Loss-streak cooldown is active.</red>"
+    self_betting_forbidden: "<red>You cannot bet against yourself.</red>"
+    player_opted_out: "<red>That player has not opted into betting.</red>"
+    unknown_match: "<red>Bet not found.</red>"
+    not_pending: "<red>That bet is no longer awaiting acceptance.</red>"
+    not_active: "<red>That bet is not in progress.</red>"
+    acceptance_expired: "<red>This challenge has expired.</red>"
+    not_invited: "<red>You are not a participant in this bet.</red>"
+    escrow_debit_failed: "<red>Insufficient balance to cover the stake.</red>"
+    already_escrowed: "<red>This bet has already been escrowed.</red>"
+    escrow_missing: "<red>Escrow record is missing for this bet.</red>"
+
   # Wave 5f (ADR-0035): GUI reactive numeric bindings + Particle definitions.
   gui_binding:
     coins:

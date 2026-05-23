@@ -32,6 +32,10 @@ import com.astarworks.astera.economy.application.port.outbound.ICreatorRevenueRe
 import com.astarworks.astera.economy.application.port.outbound.ICurrencyIssuanceLog
 import com.astarworks.astera.economy.application.port.outbound.IMarketplaceRepository
 import com.astarworks.astera.economy.application.port.outbound.IPowerIndexRepository
+import com.astarworks.astera.economy.application.port.outbound.betting.IBettingEscrowService
+import com.astarworks.astera.economy.application.port.outbound.betting.IBettingHistoryService
+import com.astarworks.astera.economy.application.port.outbound.betting.IBettingMatchRepository
+import com.astarworks.astera.economy.domain.betting.BettingPolicy
 import com.astarworks.astera.stats.application.port.outbound.INameplateMilestoneRepository
 import com.astarworks.astera.persistence.PersistenceContext
 import com.astarworks.astera.persistence.PostgresConfig
@@ -69,6 +73,9 @@ import com.astarworks.astera.persistence.repository.PostgresItemInstanceReposito
 import com.astarworks.astera.persistence.repository.PostgresNameplateMilestoneRepository
 import com.astarworks.astera.persistence.repository.PostgresPowerIndexRepository
 import com.astarworks.astera.persistence.repository.PostgresProfileCardService
+import com.astarworks.astera.persistence.repository.PostgresBettingEscrowService
+import com.astarworks.astera.persistence.repository.PostgresBettingHistoryService
+import com.astarworks.astera.persistence.repository.PostgresBettingMatchRepository
 import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
@@ -261,6 +268,30 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // ── Wave 5bet (ADR-0103) — 1v1 Betting Postgres overlays ─────────
+        // V38: betting_matches (per-record lifecycle + audit trail).
+        // V39: bet_escrows (per-bet escrow held / paid / refunded record).
+        // EconomyPlugin's in-memory defaults (priority 0) are the Postgres-less
+        // fallback. The escrow service depends on ICurrencyLedger — by this
+        // point our priority-100 PostgresCurrencyLedger has already won, so the
+        // injection is end-to-end transactional.
+        val pgLedger = services.getOrThrow<ICurrencyLedger>()
+        registrations += services.register<IBettingMatchRepository>(
+            PostgresBettingMatchRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<IBettingEscrowService>(
+            PostgresBettingEscrowService(ctx.database, pgLedger),
+            priority = 100,
+        )
+        registrations += services.register<IBettingHistoryService>(
+            PostgresBettingHistoryService(
+                db = ctx.database,
+                cooldownAfterMatchMs = BettingPolicy.DEFAULT.cooldownAfterMatch.inWholeMilliseconds,
+            ),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -272,7 +303,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
                 "IRewardBridge, IShopStockRepository, IMatchReplayRepository, " +
                 "IItemInstanceRepository, IPowerIndexRepository, IProfileCardService, " +
-                "INameplateMilestoneRepository.",
+                "INameplateMilestoneRepository, IBettingMatchRepository, " +
+                "IBettingEscrowService, IBettingHistoryService.",
         )
     }
 
