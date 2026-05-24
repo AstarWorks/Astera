@@ -1,0 +1,24 @@
+# Wave 5pve-survival / ADR-0107: sample mining spot.
+#
+# An iron ore node. Pickaxe-swing harvest. 8 s cooldown per-spot.
+id: iron-vein
+display_name:
+  en: "Iron Vein"
+  ja: "鉄鉱石"
+kind: mining
+trigger: pickaxe_swing
+world: survival-default
+position:
+  x: -55.5
+  y: 32.0
+  z: 18.0
+cooldown_ticks: 160
+yields:
+  - item_id: example-sword
+    weight: 70
+    min_count: 1
+    max_count: 2
+  - item_id: example-wand
+    weight: 30
+    min_count: 1
+    max_count: 1

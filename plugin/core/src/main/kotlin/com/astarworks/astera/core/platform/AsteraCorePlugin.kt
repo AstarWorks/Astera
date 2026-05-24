@@ -225,6 +225,7 @@ import com.astarworks.astera.core.application.usecase.tutorial.RunTutorialSequen
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
+import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.application.usecase.permission.AssignRoleUseCase
 import com.astarworks.astera.core.application.usecase.permission.CheckPermissionUseCase
@@ -561,6 +562,91 @@ public class AsteraCorePlugin : JavaPlugin() {
             ?: InMemoryAuditLogRepository().also { services.register<IAuditLogRepository>(it, priority = 0) }
         val snapshotRepo: IPlayerInventorySnapshotRepository = services.get<IPlayerInventorySnapshotRepository>()
             ?: InMemoryPlayerInventorySnapshotRepository().also { services.register<IPlayerInventorySnapshotRepository>(it, priority = 0) }
+
+        // ---- Wave 5pve-survival (ADR-0107): Skyblock party-shared instance foundation ----
+        //
+        // Six ports + a YAML-loaded gathering registry. Persistence plugin
+        // overlays the three repositories (party island, plot, gathering
+        // progress) at priority=100; the manager / persistence / yield-roller
+        // / invitation impls stay in-Core (Phase 4 grafts a Postgres island
+        // snapshot store on top of IIslandPersistence).
+        val partyIslandRepo: com.astarworks.astera.core.application.port.outbound.survival.IPartyIslandRepository =
+            services.get<com.astarworks.astera.core.application.port.outbound.survival.IPartyIslandRepository>()
+                ?: com.astarworks.astera.core.application.service.survival.InMemoryPartyIslandRepository().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.survival.IPartyIslandRepository>(it, priority = 0)
+                }
+        val islandPlotRepo: com.astarworks.astera.core.application.port.outbound.survival.IIslandPlotRepository =
+            services.get<com.astarworks.astera.core.application.port.outbound.survival.IIslandPlotRepository>()
+                ?: com.astarworks.astera.core.application.service.survival.InMemoryIslandPlotRepository().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.survival.IIslandPlotRepository>(it, priority = 0)
+                }
+        val gatheringProgressRepo: com.astarworks.astera.core.application.port.outbound.survival.IGatheringProgressRepository =
+            services.get<com.astarworks.astera.core.application.port.outbound.survival.IGatheringProgressRepository>()
+                ?: com.astarworks.astera.core.application.service.survival.InMemoryGatheringProgressRepository().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.survival.IGatheringProgressRepository>(it, priority = 0)
+                }
+        val partyInvitationRepo = com.astarworks.astera.core.application.service.survival.InMemoryPartyInvitationRepository()
+        services.register<com.astarworks.astera.core.application.port.outbound.survival.IPartyInvitationRepository>(partyInvitationRepo, priority = 0)
+        val islandTemplateRegistry = com.astarworks.astera.core.application.service.survival.InMemoryIslandTemplateRegistry()
+        services.register<com.astarworks.astera.core.application.port.outbound.survival.IIslandTemplateRegistry>(islandTemplateRegistry, priority = 0)
+        val islandPersistence: com.astarworks.astera.core.application.port.outbound.survival.IIslandPersistence =
+            services.get<com.astarworks.astera.core.application.port.outbound.survival.IIslandPersistence>()
+                ?: com.astarworks.astera.core.application.service.survival.InMemoryIslandPersistence(schematicLoader).also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.survival.IIslandPersistence>(it, priority = 0)
+                }
+        val inventoryShareGuard: com.astarworks.astera.core.application.port.outbound.survival.IInventoryShareGuard =
+            com.astarworks.astera.core.application.service.survival.InMemoryInventoryShareGuard()
+        services.register<com.astarworks.astera.core.application.port.outbound.survival.IInventoryShareGuard>(inventoryShareGuard, priority = 0)
+        val gatheringYieldRoller: com.astarworks.astera.core.application.port.outbound.survival.IGatheringYieldRoller =
+            com.astarworks.astera.core.application.service.survival.UniformGatheringYieldRoller()
+        services.register<com.astarworks.astera.core.application.port.outbound.survival.IGatheringYieldRoller>(gatheringYieldRoller, priority = 0)
+        // Gathering spot registry — YAML-loaded, joins the reload dispatcher.
+        val gatheringContentDir: Path = contentDir.resolve("gathering")
+        val gatheringContents = com.astarworks.astera.core.application.contents.survival.GatheringSpotContents()
+        val gatheringReport = gatheringContents.bootstrap(gatheringContentDir)
+        logger.info("Gathering spots loaded: ${gatheringReport.loaded} ok, ${gatheringReport.failed} failed")
+        services.register<com.astarworks.astera.core.application.port.outbound.survival.IGatheringSpotRegistry>(gatheringContents, priority = 0)
+        reloadRegistry.register(gatheringContents, gatheringContentDir)
+        // Lifecycle use cases + façade managers — wired with the eventBus +
+        // schematic loader picked up earlier in onEnable.
+        val createPartyIslandUseCase = com.astarworks.astera.core.application.usecase.survival.CreatePartyIslandUseCase(
+            partyRepository = services.getOrThrow<IPartyRepository>(),
+            islandRepository = partyIslandRepo,
+            templateRegistry = islandTemplateRegistry,
+            eventBus = eventBus,
+        )
+        val unloadPartyIslandUseCase = com.astarworks.astera.core.application.usecase.survival.UnloadPartyIslandUseCase(
+            islandRepository = partyIslandRepo,
+            persistence = islandPersistence,
+            eventBus = eventBus,
+        )
+        val loadPartyIslandUseCase = com.astarworks.astera.core.application.usecase.survival.LoadPartyIslandUseCase(
+            islandRepository = partyIslandRepo,
+            templateRegistry = islandTemplateRegistry,
+            persistence = islandPersistence,
+        )
+        val visitPartyIslandUseCase = com.astarworks.astera.core.application.usecase.survival.VisitPartyIslandUseCase(
+            islandRepository = partyIslandRepo,
+            partyRepository = services.getOrThrow<IPartyRepository>(),
+        )
+        val partyIslandManager = com.astarworks.astera.core.application.service.survival.DefaultPartyIslandManager(
+            createUseCase = createPartyIslandUseCase,
+            loadUseCase = loadPartyIslandUseCase,
+            unloadUseCase = unloadPartyIslandUseCase,
+            visitUseCase = visitPartyIslandUseCase,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.survival.IPartyIslandManager>(partyIslandManager, priority = 0)
+        val assignPlotUseCase = com.astarworks.astera.core.application.usecase.survival.AssignIslandPlotUseCase(
+            islandRepository = partyIslandRepo,
+            plotRepository = islandPlotRepo,
+            partyRepository = services.getOrThrow<IPartyRepository>(),
+            templateRegistry = islandTemplateRegistry,
+        )
+        val islandPlotManager = com.astarworks.astera.core.application.service.survival.DefaultIslandPlotManager(
+            plotRepository = islandPlotRepo,
+            assignUseCase = assignPlotUseCase,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.survival.IIslandPlotManager>(islandPlotManager, priority = 0)
 
         // Tutorial: Contents-driven YAML at content/tutorials/.
         val tutorialsContentDir: Path = contentDir.resolve("tutorials")

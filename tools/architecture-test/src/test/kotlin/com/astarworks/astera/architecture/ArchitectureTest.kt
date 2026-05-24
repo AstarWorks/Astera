@@ -1390,82 +1390,54 @@ class ArchitectureTest {
             }
     }
 
-    // ─── Wave 5annihilation — 3-pillar Nexus + Annihilation game mode (ADR-0108) ─
+    // ─── Wave 5pve-survival — Skyblock party-shared instance (ADR-0107) ─
 
     /**
-     * ADR-0108: the Annihilation mode's two domain surfaces — `core.domain.nexus.*`
-     * (the Nexus value object + phase enum + INexusEntity port) and
-     * `match.domain.gamemode.annihilation.*` (per-match state + scoring + phase
-     * rules + win-condition resolver) — must stay pure and route through the
-     * Wave 5gamemode IGameMode framework.
+     * ADR-0107 §"Decision": Wave 5pve-survival introduces the
+     * `core.domain.survival.*` subpackage carrying the party-island
+     * lifecycle vocabulary ([PartyIsland] / [IslandPlot] / [GatheringSpot]
+     * / [GatheringSkillTrigger] / [GameModeContext] / [PartyInvitation] /
+     * [GatheringProgress]).
      *
-     * Two guards:
+     * The same purity rules as ADR-0100 / ADR-0102 / ADR-0103 apply: the
+     * survival domain is exercised by the future Paper-side gathering
+     * listener (Wave 6) which lives in `core.adapter.paper.*` — letting
+     * Bukkit / Exposed / kotlinx.serialization leak into the domain would
+     * couple persistence + RNG + platform decisions to the rules, exactly
+     * what `IGatheringYieldRoller` + `IGatheringProgressRepository` +
+     * `IIslandPersistence` ports were created to avoid.
      *
-     *  1. **`core.domain.nexus.*` stays pure**: no Bukkit, no persistence
-     *     drivers, no kotlinx.serialization, no I/O. Same baseline as every
-     *     other core domain subpackage; this rule is the ADR-0108-specific
-     *     guarantee that future Nexus additions don't drift into bus-coupled
-     *     or YAML-coupled territory.
-     *  2. **`match.domain.gamemode.annihilation.*` stays pure AND uses the
-     *     framework**: per the wave handoff "ad-hoc 実装禁止 — IGameMode
-     *     framework を必ず使う". The Annihilation domain may NOT define its
-     *     own behavioural framework (sealed IGameMode-replacement, registry
-     *     port, etc.); the actual `AnnihilationGameMode` impl lives in
-     *     `application/` and references the existing Wave 5gamemode
-     *     interfaces.
-     *
-     * The pre-existing `match domain gamemode must be pure ...` rule already
-     * covers the parent `match.domain.gamemode` package; this rule adds the
-     * ADR-0108-specific Annihilation-domain guard so a future refactor that
-     * accidentally pulls Bukkit / persistence into the Annihilation domain
-     * surfaces here with a clear ADR-0108 attribution.
+     * Forbidden imports inside `core.domain.survival.*`:
+     *   - Bukkit family (`hasBukkitFamilyImport`)
+     *   - kotlinx.serialization annotations (YAML DTOs live in
+     *     `core.application.config.survival.*`)
+     *   - JDBC / Exposed / postgres / lettuce (persistence belongs in
+     *     `:plugin:persistence`)
+     *   - Koin (Phase 1 manual DI)
      */
     @Test
-    fun `annihilation domain stays pure and routes through IGameMode framework (ADR-0108)`() {
-        // 1. core.domain.nexus.* purity.
+    fun `survival domain stays pure (ADR-0107)`() {
         Konsist.scopeFromProject()
             .files
-            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.nexus") == true }
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.core.domain.survival")
+            }
             .assertFalse(
-                additionalMessage = "ADR-0108: core.domain.nexus.* must stay pure. " +
-                    "No Bukkit / persistence drivers / kotlinx.serialization / I/O imports. " +
-                    "Wave 6 Paper-backed INexusEntity impl lives in match.adapter.paper.*.",
+                additionalMessage = "ADR-0107: core.domain.survival.* must stay pure Kotlin. " +
+                    "Move Bukkit / kotlinx.serialization / persistence / koin couplings into " +
+                    "core.application.config.survival.* DTOs, core.application.service.survival.* " +
+                    "InMemory impls, or persistence-side Postgres overlays.",
             ) { file ->
                 hasBukkitFamilyImport(file) ||
                     file.imports.any { imp ->
-                        imp.name.startsWith("javax.sql") ||
-                            imp.name.startsWith("java.sql") ||
+                        imp.name.startsWith("kotlinx.serialization") ||
                             imp.name.startsWith("org.jetbrains.exposed") ||
-                            imp.name.startsWith("org.koin") ||
-                            imp.name.startsWith("kotlinx.serialization") ||
-                            imp.name.startsWith("java.io") ||
-                            imp.name.startsWith("java.nio") ||
-                            imp.name.startsWith("java.net")
-                    }
-            }
-
-        // 2. match.domain.gamemode.annihilation.* purity + framework discipline.
-        Konsist.scopeFromProject()
-            .files
-            .filter {
-                it.packagee?.name?.startsWith("com.astarworks.astera.match.domain.gamemode.annihilation") == true
-            }
-            .assertFalse(
-                additionalMessage = "ADR-0108: match.domain.gamemode.annihilation.* must stay pure AND " +
-                    "must not define its own behavioural framework. AnnihilationGameMode implements the " +
-                    "Wave 5gamemode IGameMode interface and lives in match.application.gamemode.annihilation.*.",
-            ) { file ->
-                hasBukkitFamilyImport(file) ||
-                    file.imports.any { imp ->
-                        imp.name.startsWith("org.joml") ||
+                            imp.name.startsWith("org.postgresql") ||
                             imp.name.startsWith("javax.sql") ||
                             imp.name.startsWith("java.sql") ||
-                            imp.name.startsWith("org.jetbrains.exposed") ||
-                            imp.name.startsWith("org.koin") ||
-                            imp.name.startsWith("kotlinx.serialization") ||
-                            imp.name.startsWith("java.io") ||
-                            imp.name.startsWith("java.nio") ||
-                            imp.name.startsWith("java.net")
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin")
                     }
             }
     }

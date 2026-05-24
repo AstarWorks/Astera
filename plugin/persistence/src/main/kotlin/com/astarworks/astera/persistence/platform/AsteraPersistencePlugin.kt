@@ -292,6 +292,21 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 5pve-survival (ADR-0107): Skyblock party-shared island repositories.
+        // V40 party_islands + V41 island_plots + V42 gathering_progress.
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.survival.IPartyIslandRepository>(
+            com.astarworks.astera.persistence.repository.survival.PostgresPartyIslandRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.survival.IIslandPlotRepository>(
+            com.astarworks.astera.persistence.repository.survival.PostgresIslandPlotRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.survival.IGatheringProgressRepository>(
+            com.astarworks.astera.persistence.repository.survival.PostgresGatheringProgressRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -304,7 +319,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IRewardBridge, IShopStockRepository, IMatchReplayRepository, " +
                 "IItemInstanceRepository, IPowerIndexRepository, IProfileCardService, " +
                 "INameplateMilestoneRepository, IBettingMatchRepository, " +
-                "IBettingEscrowService, IBettingHistoryService.",
+                "IBettingEscrowService, IBettingHistoryService, " +
+                "IPartyIslandRepository, IIslandPlotRepository, IGatheringProgressRepository.",
         )
     }
 

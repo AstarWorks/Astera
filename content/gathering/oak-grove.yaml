@@ -1,0 +1,26 @@
+# Wave 5pve-survival / ADR-0107: sample logging spot.
+#
+# An oak tree node placed in the default survival world. Axe-swing harvest
+# yields mostly logs with a chance of saplings. Cooldown 10 s per-spot;
+# per-player cooldown layered on top by HarvestGatheringSpotUseCase.
+id: oak-grove
+display_name:
+  en: "Oak Grove"
+  ja: "オークの森"
+kind: logging
+trigger: axe_swing
+world: survival-default
+position:
+  x: 100.5
+  y: 64.0
+  z: -42.5
+cooldown_ticks: 200
+yields:
+  - item_id: example-sword
+    weight: 80
+    min_count: 1
+    max_count: 3
+  - item_id: example-wand
+    weight: 20
+    min_count: 1
+    max_count: 1

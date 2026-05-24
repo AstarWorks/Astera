@@ -540,3 +540,51 @@ astera:
         team_eliminated: "<dark_red>{team} has been eliminated!</dark_red>"
         phase_transitioned: "<gold>Annihilation: {old} → {new}</gold>"
 
+  # Wave 5e (ADR-0040): Party / friendship social aggregate user-facing errors.
+  # Originally landed without i18n; Wave 5pve-survival (ADR-0107) wires the
+  # dangling MessageKey values referenced by PartyError into the language file
+  # so localized rendering works end-to-end.
+  social:
+    party:
+      error:
+        already-in-party: "<red>You are already in a party.</red>"
+        not-in-party: "<red>You are not in a party.</red>"
+        party-full: "<red>That party is full.</red>"
+        not-leader: "<red>Only the party leader can do this.</red>"
+        not-found: "<red>Party not found.</red>"
+    # Wave 5pve-survival (ADR-0107): Skyblock party island user-facing errors.
+    island:
+      error:
+        party-already-owns: "<red>Your party already owns an island.</red>"
+        unknown-template: "<red>That island template is not configured.</red>"
+        not-found: "<red>Island not found.</red>"
+        leader-offline: "<red>Cannot enter — the party leader is offline.</red>"
+        not-permitted-to-visit: "<red>You are not permitted to visit this island.</red>"
+        wrong-status: "<red>Island is not in a loadable state.</red>"
+        platform-failure: "<red>Island operation failed: please retry.</red>"
+      plot:
+        error:
+          island-not-found: "<red>Island not found.</red>"
+          not-a-member: "<red>You are not a party member of this island.</red>"
+          already-owns-plot: "<red>You already own a plot here.</red>"
+          no-free-region: "<red>No free region available for a new plot.</red>"
+      invite:
+        error:
+          inviter-not-in-party: "<red>Only party members can invite.</red>"
+          already-in-party: "<red>That player is already in the party.</red>"
+          party-full: "<red>The party is full.</red>"
+          not-found: "<red>Invitation not found or already consumed.</red>"
+          not-the-invitee: "<red>That invitation is not addressed to you.</red>"
+          expired: "<red>That invitation has expired.</red>"
+          duplicate: "<red>That player already has a pending invitation.</red>"
+          cannot-invite-self: "<red>You cannot invite yourself.</red>"
+
+  # Wave 5pve-survival (ADR-0107): Gathering spot / harvest user-facing errors.
+  survival:
+    gathering:
+      error:
+        unknown-spot: "<red>That gathering spot is not configured.</red>"
+        wrong-trigger: "<red>That tool cannot harvest this spot.</red>"
+        spot-on-cooldown: "<red>This spot is regenerating, try again shortly.</red>"
+        player-on-cooldown: "<red>You are still recovering from your last harvest.</red>"
+
