@@ -507,3 +507,11 @@ astera:
       shop_discount_1: "<green>交渉人 I</green>"
       marketplace_fee_1: "<green>商業ギルド I</green>"
 
+  # Wave 5gamemode (ADR-0106): IGameMode フレームワーク登録名。Wave 5c の
+  # `match.mode.*` (各モード設定の表示文字列) とは別系統で、マッチ全体が
+  # どのフレームワークモードで走っているかを示す。
+  gamemode:
+    norma:
+      title: "<gold>ノルマ</gold>"
+      description: "<gray>制圧目標 + スターゲネレーター + サドンデス。</gray>"
+

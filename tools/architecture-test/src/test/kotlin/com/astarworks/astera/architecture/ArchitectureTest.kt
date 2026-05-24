@@ -293,6 +293,44 @@ class ArchitectureTest {
     }
 
     /**
+     * Wave 5gamemode (ADR-0106): the `match.domain.gamemode` package is the
+     * framework-side IGameMode contract. It must stay pure (no Bukkit, no
+     * persistence, no I/O) **and** must not import the legacy mode-config
+     * package `match.domain.mode.*` *except* for `GameModeId` (the one type
+     * the framework reuses across both registries — see IGameMode kdoc).
+     *
+     * The legacy direction (`match.application.usecase.mode.*` reading from
+     * the framework) is allowed and expected once Phase 3 lands.
+     */
+    @Test
+    fun `match domain gamemode must be pure and avoid legacy mode coupling`() {
+        Konsist.scopeFromModule("plugin/match")
+            .files
+            .filter { it.packagee?.name?.startsWith("com.astarworks.astera.match.domain.gamemode") == true }
+            .assertFalse(
+                additionalMessage = "ADR-0106 violation: match.domain.gamemode must stay pure and " +
+                    "must not import legacy match.domain.mode.* (except GameModeId).",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("org.joml") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.koin") ||
+                            imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("java.io") ||
+                            imp.name.startsWith("java.nio") ||
+                            imp.name.startsWith("java.net") ||
+                            (
+                                imp.name.startsWith("com.astarworks.astera.match.domain.mode") &&
+                                    !imp.name.startsWith("com.astarworks.astera.match.domain.mode.GameModeId")
+                                )
+                    }
+            }
+    }
+
+    /**
      * Match may soft-depend on Combat (e.g. MatchEnded subscribers in Combat).
      * It MUST NOT reach into Weapons / Stats / Economy / Persistence.
      */
