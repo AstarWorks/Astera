@@ -517,4 +517,26 @@ astera:
     norma:
       title: "<gold>Norma</gold>"
       description: "<gray>Control objectives + Star Generator + Sudden Death.</gray>"
+    # Wave 5annihilation (ADR-0108) — Astera Annihilation mode (3-pillar Nexus
+    # hybrid). Astera's core-identity game mode: 銃/剣/魔法 hybrid combat +
+    # graceful-degradation defensive Nexus.
+    annihilation:
+      title: "<red>Annihilation</red>"
+      description: "<gray>3-pillar Nexus hybrid: hold your tier, fall the enemy's.</gray>"
+      template:
+        default: "<gray>Default 3-pillar layout</gray>"
+      phase:
+        build: "<aqua>Build</aqua>"
+        engage: "<yellow>Engage</yellow>"
+        tier3: "<gold>Tier 3 unlocked</gold>"
+        sudden_death: "<red>Sudden Death</red>"
+      pillar:
+        tier_1: "<gray>Tier 1 (outer)</gray>"
+        tier_2: "<yellow>Tier 2 (middle)</yellow>"
+        tier_3: "<red>Tier 3 (Nexus)</red>"
+      event:
+        nexus_damaged: "<red>{team} Nexus tier {tier} took {damage} damage ({hp}/{max} HP)</red>"
+        nexus_destroyed: "<red>{team} Nexus tier {tier} DESTROYED!</red>"
+        team_eliminated: "<dark_red>{team} has been eliminated!</dark_red>"
+        phase_transitioned: "<gold>Annihilation: {old} → {new}</gold>"
 

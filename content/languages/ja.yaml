@@ -514,4 +514,26 @@ astera:
     norma:
       title: "<gold>ノルマ</gold>"
       description: "<gray>制圧目標 + スターゲネレーター + サドンデス。</gray>"
+    # Wave 5annihilation (ADR-0108) — Astera Annihilation モード (3-pillar Nexus
+    # ハイブリッド)。Astera のコアアイデンティティ: 銃/剣/魔法 ハイブリッド戦闘 +
+    # 段階的防御 Nexus。
+    annihilation:
+      title: "<red>アナイアレーション</red>"
+      description: "<gray>3 柱 Nexus ハイブリッド: 自陣を守り、敵陣を落とせ。</gray>"
+      template:
+        default: "<gray>標準 3 柱配置</gray>"
+      phase:
+        build: "<aqua>準備フェーズ</aqua>"
+        engage: "<yellow>戦闘フェーズ</yellow>"
+        tier3: "<gold>Tier 3 解放</gold>"
+        sudden_death: "<red>サドンデス</red>"
+      pillar:
+        tier_1: "<gray>Tier 1 (外周)</gray>"
+        tier_2: "<yellow>Tier 2 (中段)</yellow>"
+        tier_3: "<red>Tier 3 (本体)</red>"
+      event:
+        nexus_damaged: "<red>{team} の Nexus tier {tier} に {damage} ダメージ ({hp}/{max} HP)</red>"
+        nexus_destroyed: "<red>{team} の Nexus tier {tier} 破壊！</red>"
+        team_eliminated: "<dark_red>{team} は脱落しました！</dark_red>"
+        phase_transitioned: "<gold>アナイアレーション: {old} → {new}</gold>"
 
