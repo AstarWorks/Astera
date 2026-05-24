@@ -1,0 +1,13 @@
+# Wave 5combat-depth (ADR-0105) — example combo route (TimingWindow variant).
+#
+# Demonstrates the TimingWindow pattern: land 3 hits in 20 ticks (~1s) for
+# a "true combo" reward.
+
+id: example-quick-strike
+weapon_id: example-dagger
+pattern:
+  type: timing_window
+  hits: 3
+  window_ticks: 20
+finisher: example-flurry
+bonus_damage_multiplier: 1.25

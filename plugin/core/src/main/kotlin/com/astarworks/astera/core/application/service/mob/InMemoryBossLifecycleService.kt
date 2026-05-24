@@ -133,13 +133,25 @@ public class InMemoryBossLifecycleService(
         // 3. Update HP fraction
         val clampedHp = newHpFraction.coerceIn(0.0, 1.0)
 
-        // 4. Re-evaluate transitions
+        // 4. Re-evaluate transitions.
+        //
+        // Phase 1 lifecycle evaluates only HpThreshold inline. Wave 5combat-
+        // depth (ADR-0105) widens BossPhaseTransition with TimerExpired /
+        // MultiPlayerThreshold / MechanicCompleted / AllOf; the lifecycle
+        // service silently skips those until Wave 6b switches this loop to
+        // BossPhaseTransitionEvaluator.fires(...). The non-HP cases are
+        // intentionally a no-op here so existing HP-only specs keep firing
+        // unchanged.
         var phase = claimed.currentPhase
         var firedTransition: BossPhaseTransition? = null
         for (t in spec.transitions) {
             if (t.fromPhase != phase) continue
             val fires = when (t) {
                 is BossPhaseTransition.HpThreshold -> clampedHp <= t.hpFraction
+                is BossPhaseTransition.TimerExpired -> false
+                is BossPhaseTransition.MultiPlayerThreshold -> false
+                is BossPhaseTransition.MechanicCompleted -> false
+                is BossPhaseTransition.AllOf -> false
             }
             if (fires) {
                 firedTransition = t

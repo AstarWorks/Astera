@@ -1,0 +1,19 @@
+# Wave 5combat-depth (ADR-0105) — example combo route.
+#
+# Demonstrates the HitCount pattern: after 5 hits with `example-sword`,
+# the combo completes and the player's next strike casts
+# `example-uppercut` while applying a 1.5x damage multiplier.
+#
+# Authoring notes:
+#   - `id` is registry-unique (lower-kebab-case).
+#   - `weapon_id` must reference a registered ItemId. Switching weapons
+#     mid-combo resets the chain.
+#   - `bonus_damage_multiplier` is capped at 5.0 (see ComboRoute).
+
+id: example-sword-finisher
+weapon_id: example-sword
+pattern:
+  type: hit_count
+  target: 5
+finisher: example-uppercut
+bonus_damage_multiplier: 1.5

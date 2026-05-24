@@ -1,10 +1,14 @@
 package com.astarworks.astera.combat.platform
 
 import com.astarworks.astera.combat.application.contents.ArmorContents
+import com.astarworks.astera.combat.application.contents.ComboRouteContents
 import com.astarworks.astera.combat.application.contents.SkillContents
 import com.astarworks.astera.combat.application.contents.StatusContents
 import com.astarworks.astera.combat.application.port.outbound.IArmorEquipmentProvider
 import com.astarworks.astera.combat.application.port.outbound.IArmorRegistry
+import com.astarworks.astera.combat.application.port.outbound.IComboTracker
+import com.astarworks.astera.combat.application.port.outbound.IFocusFireTracker
+import com.astarworks.astera.combat.application.port.outbound.ITargetLockController
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IDamageHistoryService
 import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
@@ -35,6 +39,9 @@ import com.astarworks.astera.combat.application.service.aoe.InMemoryAreaEffectGa
 import com.astarworks.astera.combat.application.service.aoe.InMemoryExplosionGateway
 import com.astarworks.astera.combat.application.service.aoe.InMemoryFireSpreadController
 import com.astarworks.astera.combat.application.service.aoe.InMemoryLightningGateway
+import com.astarworks.astera.combat.application.service.combo.InMemoryComboTracker
+import com.astarworks.astera.combat.application.service.focus.InMemoryFocusFireTracker
+import com.astarworks.astera.combat.application.service.targetlock.InMemoryTargetLockController
 import com.astarworks.astera.combat.application.service.StubCelEvaluator
 import com.astarworks.astera.combat.application.service.YamlElementMatrix
 import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
@@ -210,6 +217,35 @@ public class AsteraCombatPlugin : JavaPlugin() {
         reloadRegistry.register(skillContents, skillsContentDir)
         reloadRegistry.register(statusContents, statusContentDir)
         reloadRegistry.register(armorContents, armorContentDir)
+
+        // ---- Wave 5combat-depth (ADR-0105) Combat Depth Foundation ----------
+        //
+        // Three session-scoped trackers + one YAML-backed combo registry:
+        //   - IComboTracker: per-player combo timeline + route matching.
+        //   - IFocusFireTracker: team-coordination damage windows.
+        //   - ITargetLockController: ranged "lock-on" mechanic.
+        //
+        // None of the three persist (ADR-0105 §"No persistence"). Boss DSL
+        // extensions (TimerExpired / MultiPlayerThreshold / MechanicCompleted
+        // / AllOf) live in :plugin:core and are decodable from YAML today;
+        // the lifecycle service learns to evaluate them in Wave 6b via
+        // BossPhaseTransitionEvaluator (already wired by AsteraCorePlugin).
+        val depthEventBus = services.getOrThrow<IDomainEventBus>()
+        val comboRouteContents = ComboRouteContents()
+        val comboContentDir = core.contentDir.resolve("combat-depth/combos")
+        val comboReport = comboRouteContents.bootstrap(comboContentDir)
+        logger.info("Combo routes loaded: ${comboReport.loaded} ok, ${comboReport.failed} failed")
+
+        val comboTracker = InMemoryComboTracker(depthEventBus)
+        comboRouteContents.all().forEach { comboTracker.registerRoute(it) }
+        registrations += services.register<IComboTracker>(comboTracker)
+        reloadRegistry.register(comboRouteContents, comboContentDir)
+
+        val focusFireTracker = InMemoryFocusFireTracker(depthEventBus)
+        registrations += services.register<IFocusFireTracker>(focusFireTracker)
+
+        val targetLockController = InMemoryTargetLockController(depthEventBus)
+        registrations += services.register<ITargetLockController>(targetLockController)
 
         // 4. Wire use cases if runtime impls are present -----------------------
         val eventBus = services.getOrThrow<IDomainEventBus>()
@@ -413,7 +449,9 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 "IArmorRegistry, IManaPoolService, IDamageRandomizer, " +
                 "IDamageHistoryService, DamageRule, " +
                 "IExplosionGateway, IAreaEffectGateway, ILightningGateway, " +
-                "IFireSpreadController (Wave 5m / ADR-0088)",
+                "IFireSpreadController (Wave 5m / ADR-0088), " +
+                "IComboTracker, IFocusFireTracker, ITargetLockController " +
+                "(Wave 5combat-depth / ADR-0105)",
         )
     }
 

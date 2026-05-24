@@ -971,6 +971,22 @@ public class AsteraCorePlugin : JavaPlugin() {
                 "bosses=${bossReport.loaded}, loot-tables=${lootReport.loaded}).",
         )
 
+        // ---- Wave 5combat-depth (ADR-0105) Boss DSL extensions --------------
+        //
+        // The new BossPhaseTransition variants (TimerExpired /
+        // MultiPlayerThreshold / MechanicCompleted / AllOf) are decodable from
+        // YAML today via the extended BossYamlConfig. The lifecycle service
+        // currently only evaluates HpThreshold; Wave 6b will switch its
+        // evaluation path to use BossPhaseTransitionEvaluator (already
+        // available as a pure object — no wiring needed beyond logging that
+        // the surface exists). Until then, non-HP triggers on a YAML boss are
+        // accepted at registration time and silently skipped at runtime.
+        logger.info(
+            "Wave 5combat-depth Boss DSL extensions available (TimerExpired, " +
+                "MultiPlayerThreshold, MechanicCompleted, AllOf). " +
+                "BossPhaseTransitionEvaluator wired for Wave 6b lifecycle adoption.",
+        )
+
         // ---- Wave 5t (ADR-0086) Admin/Ops + Role/Permission two-tier +
         // Voice rich presence + Slow query log + Player feedback. -----------
         //

@@ -1,0 +1,82 @@
+# Wave 5combat-depth (ADR-0105) — example boss spec exercising the new
+# BossPhaseTransition variants (TimerExpired / MultiPlayerThreshold /
+# MechanicCompleted / AllOf).
+#
+# This file is NOT loaded by the Phase 1 lifecycle service — it lives here
+# as the authoring example for the YAML schema that ships with ADR-0105.
+# Authors targeting the new variants can copy this file into
+# `content/pve/bosses/` once Wave 6b teaches the lifecycle service to
+# evaluate the new triggers via BossPhaseTransitionEvaluator.
+#
+# The directory `content/combat-depth/boss-extensions/` is reserved for
+# these forward-looking samples and is intentionally not on the bootstrap
+# path (avoiding "this boss does nothing in Phase 1" surprises in PvE).
+
+id: astera:example-extended-boss
+
+display_name:
+  en: "<gold>Example Extended Boss</gold>"
+  ja: "<gold>拡張ボス サンプル</gold>"
+
+base_mob_type: astera:scorched-titan-base
+
+phases:
+  - index: 0
+    name_key: boss.example_extended.phase.opening
+    periodic_skills:
+      - titan-stomp
+
+  - index: 1
+    name_key: boss.example_extended.phase.escalation
+    immunity_ticks: 40
+    transition_cast: titan-roar
+    periodic_skills:
+      - titan-stomp
+      - titan-meteor
+
+  - index: 2
+    name_key: boss.example_extended.phase.enrage
+    immunity_ticks: 60
+    transition_cast: titan-roar
+    periodic_skills:
+      - titan-meteor
+    on_hit_skills:
+      - titan-counter
+
+transitions:
+  # 0 → 1 when 90s have elapsed in phase 0 (TimerExpired).
+  - type: timer_expired
+    from_phase: 0
+    to_phase: 1
+    elapsed_ticks: 1800
+
+  # 0 → 1 alternative: at least 5 players are engaged (MultiPlayerThreshold).
+  # The lifecycle service short-circuits on first match, so whichever fires
+  # first wins.
+  - type: multi_player_threshold
+    from_phase: 0
+    to_phase: 1
+    min_players: 5
+
+  # 1 → 2 only when BOTH conditions hold: HP <= 30% AND raid has completed the
+  # `titan-vulnerability` mechanic (a player-cast skill expected by the script).
+  - type: all_of
+    from_phase: 1
+    to_phase: 2
+    children:
+      - type: hp_threshold
+        from_phase: 1
+        to_phase: 2
+        hp_fraction: 0.3
+      - type: mechanic_completed
+        from_phase: 1
+        to_phase: 2
+        mechanic_skill_id: titan-vulnerability
+
+raid_lock:
+  type: party_lock
+  max_party_size: 4
+
+loot_table: astera:scorched-titan-loot
+
+record_kill: true
