@@ -43,6 +43,8 @@ import com.astarworks.astera.core.domain.event.ChatMessageSent
 import com.astarworks.astera.match.application.contents.AnomalyContents
 import com.astarworks.astera.match.application.contents.GameModeContents
 import com.astarworks.astera.match.application.gamemode.NormaGameMode
+import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationGameMode
+import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationMatchTracker
 import com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry
 import com.astarworks.astera.match.application.port.outbound.IGameModeScheduler
 import com.astarworks.astera.match.application.service.DefaultGameModeScheduler
@@ -417,6 +419,29 @@ public class AsteraMatchPlugin : JavaPlugin() {
             // bus-wired one so framework events actually publish in prod.
             gameModeFrameworkRegistry.register(NormaGameMode(eventBus = eventBus))
         }
+
+        // Wave 5annihilation (ADR-0108) — Astera Annihilation mode foundation.
+        // AnnihilationGameMode owns its own AnnihilationMatchTracker; unlike
+        // NormaGameMode (a façade over the Wave 5c global pipeline), the
+        // tracker is the only writer of Annihilation match state and the
+        // mode's onTick drives phase advances + sudden-death DoT.
+        //
+        // Replace the reflection-built (tracker-less + bus-less) instance with
+        // a fully-wired one so framework events and tracker mutations actually
+        // happen in production. Mirrors the Norma "replace YAML-resolved with
+        // bus-wired" pattern above.
+        val annihilationTracker = AnnihilationMatchTracker(eventBus)
+        gameModeFrameworkRegistry.register(
+            AnnihilationGameMode(
+                tracker = annihilationTracker,
+                eventBus = eventBus,
+            ),
+        )
+        logger.info(
+            "Wave 5annihilation wiring: AnnihilationGameMode + AnnihilationMatchTracker " +
+                "registered into IGameModeFrameworkRegistry.",
+        )
+
         reloadRegistry.register(gameModeContents, gameModeContentDir)
         logger.info(
             "Wave 5gamemode wiring complete: IGameModeFrameworkRegistry populated with " +
