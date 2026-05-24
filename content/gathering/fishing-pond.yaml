@@ -1,0 +1,24 @@
+# Wave 5pve-survival / ADR-0107: sample fishing spot.
+#
+# A small pond. Rod-cast harvest. 5 s cooldown per-spot.
+id: fishing-pond
+display_name:
+  en: "Fishing Pond"
+  ja: "釣り場"
+kind: fishing
+trigger: fishing_rod_cast
+world: survival-default
+position:
+  x: 12.5
+  y: 63.0
+  z: 24.5
+cooldown_ticks: 100
+yields:
+  - item_id: example-sword
+    weight: 60
+    min_count: 1
+    max_count: 1
+  - item_id: example-wand
+    weight: 40
+    min_count: 1
+    max_count: 1

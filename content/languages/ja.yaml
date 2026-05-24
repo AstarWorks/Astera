@@ -515,3 +515,49 @@ astera:
       title: "<gold>ノルマ</gold>"
       description: "<gray>制圧目標 + スターゲネレーター + サドンデス。</gray>"
 
+  # Wave 5e (ADR-0040): パーティ / フレンドの社交集合エラー文言。Wave 5pve-survival
+  # (ADR-0107) で PartyError が参照していた MessageKey を i18n に接続。
+  social:
+    party:
+      error:
+        already-in-party: "<red>すでにパーティに参加しています。</red>"
+        not-in-party: "<red>パーティに参加していません。</red>"
+        party-full: "<red>パーティが満員です。</red>"
+        not-leader: "<red>パーティリーダーのみ実行できます。</red>"
+        not-found: "<red>パーティが見つかりません。</red>"
+    # Wave 5pve-survival (ADR-0107): スカイブロック型パーティ島のエラー文言。
+    island:
+      error:
+        party-already-owns: "<red>あなたのパーティはすでに島を所有しています。</red>"
+        unknown-template: "<red>その島テンプレートは設定されていません。</red>"
+        not-found: "<red>島が見つかりません。</red>"
+        leader-offline: "<red>リーダーがオフラインのため入島できません。</red>"
+        not-permitted-to-visit: "<red>この島を訪問する権限がありません。</red>"
+        wrong-status: "<red>島が読み込み可能な状態ではありません。</red>"
+        platform-failure: "<red>島操作に失敗しました。再試行してください。</red>"
+      plot:
+        error:
+          island-not-found: "<red>島が見つかりません。</red>"
+          not-a-member: "<red>この島のパーティメンバーではありません。</red>"
+          already-owns-plot: "<red>すでにこの島で区画を所有しています。</red>"
+          no-free-region: "<red>新規区画用の空き領域がありません。</red>"
+      invite:
+        error:
+          inviter-not-in-party: "<red>パーティメンバーのみ招待できます。</red>"
+          already-in-party: "<red>その人はすでにパーティ参加中です。</red>"
+          party-full: "<red>パーティが満員です。</red>"
+          not-found: "<red>招待が見つからないか、すでに使用済みです。</red>"
+          not-the-invitee: "<red>この招待はあなた宛てではありません。</red>"
+          expired: "<red>招待の有効期限が切れています。</red>"
+          duplicate: "<red>その人にはすでに招待中です。</red>"
+          cannot-invite-self: "<red>自分自身は招待できません。</red>"
+
+  # Wave 5pve-survival (ADR-0107): 採取スポット / 収穫エラー文言。
+  survival:
+    gathering:
+      error:
+        unknown-spot: "<red>その採取スポットは設定されていません。</red>"
+        wrong-trigger: "<red>その道具ではこのスポットを採取できません。</red>"
+        spot-on-cooldown: "<red>スポット再生中。しばらく待ってください。</red>"
+        player-on-cooldown: "<red>連続採取クールタイム中です。</red>"
+

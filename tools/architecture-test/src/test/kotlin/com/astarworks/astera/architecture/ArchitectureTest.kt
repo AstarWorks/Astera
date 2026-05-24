@@ -1390,6 +1390,58 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5pve-survival — Skyblock party-shared instance (ADR-0107) ─
+
+    /**
+     * ADR-0107 §"Decision": Wave 5pve-survival introduces the
+     * `core.domain.survival.*` subpackage carrying the party-island
+     * lifecycle vocabulary ([PartyIsland] / [IslandPlot] / [GatheringSpot]
+     * / [GatheringSkillTrigger] / [GameModeContext] / [PartyInvitation] /
+     * [GatheringProgress]).
+     *
+     * The same purity rules as ADR-0100 / ADR-0102 / ADR-0103 apply: the
+     * survival domain is exercised by the future Paper-side gathering
+     * listener (Wave 6) which lives in `core.adapter.paper.*` — letting
+     * Bukkit / Exposed / kotlinx.serialization leak into the domain would
+     * couple persistence + RNG + platform decisions to the rules, exactly
+     * what `IGatheringYieldRoller` + `IGatheringProgressRepository` +
+     * `IIslandPersistence` ports were created to avoid.
+     *
+     * Forbidden imports inside `core.domain.survival.*`:
+     *   - Bukkit family (`hasBukkitFamilyImport`)
+     *   - kotlinx.serialization annotations (YAML DTOs live in
+     *     `core.application.config.survival.*`)
+     *   - JDBC / Exposed / postgres / lettuce (persistence belongs in
+     *     `:plugin:persistence`)
+     *   - Koin (Phase 1 manual DI)
+     */
+    @Test
+    fun `survival domain stays pure (ADR-0107)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.core.domain.survival")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0107: core.domain.survival.* must stay pure Kotlin. " +
+                    "Move Bukkit / kotlinx.serialization / persistence / koin couplings into " +
+                    "core.application.config.survival.* DTOs, core.application.service.survival.* " +
+                    "InMemory impls, or persistence-side Postgres overlays.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
