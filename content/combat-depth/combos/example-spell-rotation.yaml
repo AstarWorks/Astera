@@ -1,0 +1,17 @@
+# Wave 5combat-depth (ADR-0105) — example combo route (SkillSequence variant).
+#
+# Demonstrates the SkillSequence pattern: cast `example-blast` →
+# `example-buff` → `example-charge` in that exact tail order while
+# wielding `example-staff`, and the combo completes with `example-meteor`
+# at 2.0x damage.
+
+id: example-spell-rotation
+weapon_id: example-staff
+pattern:
+  type: skill_sequence
+  skills:
+    - example-blast
+    - example-buff
+    - example-charge
+finisher: example-meteor
+bonus_damage_multiplier: 2.0

@@ -540,6 +540,44 @@ class ArchitectureTest {
     }
 
     /**
+     * Wave 5combat-depth (ADR-0105): the three combat-depth domain packages
+     * (`combo`, `focus`, `targetlock`) carry pure state — combo timeline,
+     * focus-fire window, target-lock acquisition. They MUST stay free of
+     * Bukkit, scheduling, IO, and persistence. Any of those concerns belong
+     * in the application-side `InMemory*Tracker` / `InMemory*Controller`
+     * services or in a Wave 6 Paper adapter.
+     *
+     * The general "combat domain must be pure" rule above catches Bukkit
+     * + serialization leaks. This dedicated rule additionally forbids
+     * `IDomainEventBus` / `IBroadcaster` imports so the domain types stay
+     * un-orchestrated value records.
+     */
+    @Test
+    fun `combat depth domain must not import event bus or broadcaster`() {
+        Konsist.scopeFromModule("plugin/combat")
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.combat.domain.combo") ||
+                    pkg.startsWith("com.astarworks.astera.combat.domain.focus") ||
+                    pkg.startsWith("com.astarworks.astera.combat.domain.targetlock")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0105: combat-depth domain packages (combo/, focus/, targetlock/) " +
+                    "must stay pure. Publishing belongs in application-side trackers " +
+                    "(InMemoryComboTracker / InMemoryFocusFireTracker / InMemoryTargetLockController). " +
+                    "Subscribing belongs in application/eventbus/listeners/.",
+            ) { file ->
+                file.imports.any { imp ->
+                    imp.name.endsWith(".IDomainEventBus") ||
+                        imp.name.endsWith(".IBroadcaster") ||
+                        imp.name.startsWith("org.slf4j") ||
+                        imp.name.startsWith("kotlinx.serialization")
+                }
+            }
+    }
+
+    /**
      * GuiSlot sealed variants must not contain lambda-typed fields (silly-knuth §5).
      *
      * GUI slot variants are pure data: they describe *what* to show, never

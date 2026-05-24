@@ -119,13 +119,29 @@ public data class BossPhaseYaml(
     )
 }
 
-/** Discriminated-union DTO for [BossPhaseTransition]. `type` selects the variant. */
+/**
+ * Discriminated-union DTO for [BossPhaseTransition]. `type` selects the
+ * variant.
+ *
+ * Phase 1 (Wave 5pve-boss, ADR-0098) shipped only `hp_threshold`. Wave
+ * 5combat-depth (ADR-0105) widens the surface with `timer_expired`,
+ * `multi_player_threshold`, `mechanic_completed`, and `all_of`. The
+ * lifecycle service evaluates them via
+ * [com.astarworks.astera.core.domain.mob.boss.BossPhaseTransitionEvaluator]
+ * once Wave 6b switches `onDamage` to the evaluator; YAML authors can
+ * use the new types today (registration succeeds, the lifecycle silently
+ * skips non-HP triggers until then).
+ */
 @Serializable
 public data class BossPhaseTransitionYaml(
     public val type: String,
     @SerialName("from_phase") public val fromPhase: Int,
     @SerialName("to_phase") public val toPhase: Int,
     @SerialName("hp_fraction") public val hpFraction: Double? = null,
+    @SerialName("elapsed_ticks") public val elapsedTicks: Long? = null,
+    @SerialName("min_players") public val minPlayers: Int? = null,
+    @SerialName("mechanic_skill_id") public val mechanicSkillId: String? = null,
+    public val children: List<BossPhaseTransitionYaml>? = null,
 ) {
     public fun toDomain(bossId: BossId): BossPhaseTransition {
         return when (type.lowercase()) {
@@ -136,9 +152,54 @@ public data class BossPhaseTransitionYaml(
                     "BossYamlConfig(${bossId.value}).transitions.hp_threshold requires hp_fraction"
                 },
             )
+
+            "timer_expired" -> BossPhaseTransition.TimerExpired(
+                fromPhase = fromPhase,
+                toPhase = toPhase,
+                elapsedTicks = requireNotNull(elapsedTicks) {
+                    "BossYamlConfig(${bossId.value}).transitions.timer_expired requires elapsed_ticks"
+                },
+            )
+
+            "multi_player_threshold" -> BossPhaseTransition.MultiPlayerThreshold(
+                fromPhase = fromPhase,
+                toPhase = toPhase,
+                minPlayers = requireNotNull(minPlayers) {
+                    "BossYamlConfig(${bossId.value}).transitions.multi_player_threshold requires min_players"
+                },
+            )
+
+            "mechanic_completed" -> BossPhaseTransition.MechanicCompleted(
+                fromPhase = fromPhase,
+                toPhase = toPhase,
+                mechanicSkillId = SkillId(
+                    requireNotNull(mechanicSkillId) {
+                        "BossYamlConfig(${bossId.value}).transitions.mechanic_completed requires mechanic_skill_id"
+                    },
+                ),
+            )
+
+            "all_of" -> {
+                val kids = requireNotNull(children) {
+                    "BossYamlConfig(${bossId.value}).transitions.all_of requires children"
+                }
+                require(kids.size >= 2) {
+                    "BossYamlConfig(${bossId.value}).transitions.all_of.children must have >= 2 entries: ${kids.size}"
+                }
+                BossPhaseTransition.AllOf(
+                    fromPhase = fromPhase,
+                    toPhase = toPhase,
+                    // Children always inherit from_phase / to_phase from the parent so
+                    // YAML authors don't have to repeat them on every child.
+                    children = kids.map {
+                        it.copy(fromPhase = fromPhase, toPhase = toPhase).toDomain(bossId)
+                    },
+                )
+            }
+
             else -> throw IllegalArgumentException(
                 "BossYamlConfig(${bossId.value}).transitions.type='$type' unknown; " +
-                    "expected hp_threshold.",
+                    "expected hp_threshold / timer_expired / multi_player_threshold / mechanic_completed / all_of.",
             )
         }
     }
