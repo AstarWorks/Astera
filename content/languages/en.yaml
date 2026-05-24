@@ -509,3 +509,12 @@ astera:
       shop_discount_1: "<green>Haggler I</green>"
       marketplace_fee_1: "<green>Merchant Guild I</green>"
 
+  # Wave 5gamemode (ADR-0106): IGameMode framework — registry titles. Distinct
+  # from the legacy `match.mode.*` config strings (which describe per-mode
+  # tunables for the Wave 5c sealed `GameMode` carriers); these describe the
+  # framework-level mode the entire match runs under.
+  gamemode:
+    norma:
+      title: "<gold>Norma</gold>"
+      description: "<gray>Control objectives + Star Generator + Sudden Death.</gray>"
+

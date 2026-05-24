@@ -41,6 +41,14 @@ import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
 import com.astarworks.astera.core.domain.event.ChatMessageSent
 import com.astarworks.astera.match.application.contents.AnomalyContents
+import com.astarworks.astera.match.application.contents.GameModeContents
+import com.astarworks.astera.match.application.gamemode.NormaGameMode
+import com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry
+import com.astarworks.astera.match.application.port.outbound.IGameModeScheduler
+import com.astarworks.astera.match.application.service.DefaultGameModeScheduler
+import com.astarworks.astera.match.application.service.InMemoryGameModeFrameworkRegistry
+import com.astarworks.astera.match.domain.gamemode.GameModeContext as FrameworkGameModeContext
+import com.astarworks.astera.match.domain.gamemode.IGameModePhase
 import com.astarworks.astera.match.application.eventbus.listeners.AuditLogListener
 import com.astarworks.astera.match.application.eventbus.listeners.SaveInventoryOnMatchEndedListener
 import com.astarworks.astera.match.application.port.inbound.IMatchRecorder
@@ -364,6 +372,91 @@ public class AsteraMatchPlugin : JavaPlugin() {
             "Wave 5c wiring complete: StarGeneratorScheduler + AnomalyScheduler running, " +
                 "SuddenDeathAccelerator subscribed, BreakCoreListener subscribed.",
         )
+
+        // 4.5.bis Wave 5gamemode (ADR-0106) — IGameMode framework foundation.
+        // ---------------------------------------------------------------
+        // The Wave 5c global pipeline (StarGenerator + Anomaly + SuddenDeath)
+        // remains unchanged. This block adds the framework registry +
+        // scheduler + NormaGameMode façade so Phase 3 (Siege, Deathmatch,
+        // TDM, CTF) can be added as a YAML drop + new IGameMode impl with
+        // zero changes here.
+        val gameModeFrameworkRegistry: IGameModeFrameworkRegistry =
+            services.get<IGameModeFrameworkRegistry>()
+                ?: InMemoryGameModeFrameworkRegistry().also {
+                    registrations += services.register<IGameModeFrameworkRegistry>(it, priority = 0)
+                }
+
+        val gameModeScheduler: IGameModeScheduler =
+            services.get<IGameModeScheduler>()
+                ?: DefaultGameModeScheduler(scheduler).also {
+                    registrations += services.register<IGameModeScheduler>(it, priority = 0)
+                }
+
+        val gameModeContentDir = core.contentDir.resolve("game-modes")
+        val gameModeContents = GameModeContents()
+        val gameModeReport = gameModeContents.bootstrap(gameModeContentDir)
+        logger.info(
+            "Loaded ${gameModeReport.loaded} game-mode spec(s) from $gameModeContentDir " +
+                "(failed: ${gameModeReport.failed})",
+        )
+        // Reflective impl resolution (Phase 1 PoC; Koin replaces this in
+        // Phase 3 per ADR-0106). Each spec whose impl_class resolves to a
+        // concrete IGameMode singleton becomes available via the registry.
+        val registered = gameModeContents.registerInto(gameModeFrameworkRegistry) { msg: String ->
+            logger.warning(msg)
+        }
+        // Fallback: if YAML bootstrap missed Norma (file deleted, bad YAML,
+        // etc.) register it programmatically so Phase 1 PoC still ships a
+        // working "norma" mode. The eventBus binding is wired in here so
+        // lifecycle hooks publish framework events.
+        if (gameModeFrameworkRegistry.get(NormaGameMode.ID) == null) {
+            gameModeFrameworkRegistry.register(NormaGameMode(eventBus = eventBus))
+            logger.info("game-modes: NormaGameMode programmatically registered (YAML fallback).")
+        } else {
+            // Replace the reflection-built (eventBus-less) instance with the
+            // bus-wired one so framework events actually publish in prod.
+            gameModeFrameworkRegistry.register(NormaGameMode(eventBus = eventBus))
+        }
+        reloadRegistry.register(gameModeContents, gameModeContentDir)
+        logger.info(
+            "Wave 5gamemode wiring complete: IGameModeFrameworkRegistry populated with " +
+                "${gameModeFrameworkRegistry.all().size} mode(s) (YAML-resolved: " +
+                "${registered.size}). DefaultGameModeScheduler registered.",
+        )
+
+        // Bridge: when a MatchStarted fires, resolve the match's mode (Phase 1
+        // PoC: every match runs in Norma) and dispatch through the framework
+        // hooks. This is the wiring seam Phase 3 Siege will reuse — change
+        // "the match's mode" resolution to read from the match config instead
+        // of hard-coding Norma, and Siege joins the framework with zero
+        // additional plumbing.
+        subscriptions += eventBus.subscribe(MatchStarted::class) { event ->
+            val mode = gameModeFrameworkRegistry.get(NormaGameMode.ID) ?: return@subscribe
+            val match = matches.findById(event.matchId)
+            val participants = match?.teams?.flatMap { it.members } ?: emptyList()
+            val ctx = FrameworkGameModeContext(
+                matchId = event.matchId,
+                modeId = mode.id(),
+                participants = participants,
+            )
+            mode.onMatchStarted(ctx)
+            gameModeScheduler.register(event.matchId, mode, ctx)
+        }
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.match.domain.event.PhaseChanged::class,
+        ) { event ->
+            val mode = gameModeFrameworkRegistry.get(NormaGameMode.ID) ?: return@subscribe
+            val ctx = FrameworkGameModeContext(matchId = event.matchId, modeId = mode.id())
+            val old = IGameModePhase.fromCore(event.from)
+            val next = IGameModePhase.fromCore(event.to)
+            mode.onPhaseChanged(ctx, old, next)
+        }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+            val mode = gameModeFrameworkRegistry.get(NormaGameMode.ID) ?: return@subscribe
+            val ctx = FrameworkGameModeContext(matchId = event.matchId, modeId = mode.id())
+            mode.onMatchEnded(ctx)
+            gameModeScheduler.unregister(event.matchId)
+        }
 
         // Wave 5a — friendly-fire team lookup adapter (Combat plugin resolves
         // IMatchTeamLookup via the shared registry to perform per-match team
