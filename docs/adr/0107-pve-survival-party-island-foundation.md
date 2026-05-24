@@ -186,18 +186,18 @@ PlotError / InvitationError / GatheringError`)。Konsist が application 層
 
 ### Persistence (`:plugin:persistence`)
 
-- **V40** `party_islands` — `island_id PK / party_id (unique) / world_id /
+- **V41** `party_islands` — `island_id PK / party_id (unique) / world_id /
   template_id / max_members CHECK (1..10) / visibility_kind +
   visibility_payload JSONB / status CHECK (Active/Unloaded/Archived) /
   created_at / last_active_at CHECK >= created_at`。Visibility 分割
   (discriminator + JSONB allow-list) は ADR-0014 hybrid 規則に従う
   (discriminator は頻繁に query、friend list は visit 時のみ scan)。
-- **V41** `island_plots` — `plot_id PK / island_id FK CASCADE / owner_id /
+- **V42** `island_plots` — `plot_id PK / island_id FK CASCADE / owner_id /
   6 column min/max bounds / build_allowed JSONB` + UNIQUE `(island_id,
   owner_id)`。Cuboid bounds を flat column にしたのは position-to-plot
   lookup を B-tree range index で効かせるため (JSONB だと SQL function
   必要)。
-- **V42** `gathering_progress` — composite PK `(player_id, spot_id)` +
+- **V43** `gathering_progress` — composite PK `(player_id, spot_id)` +
   `last_harvested_at` + `total_harvests >= 0`。`gathering_spots` への FK は
   **意図的に張らない** — YAML が SSOT で、孤立 progress 行は無害。
 - Exposed tables `PartyIslandsTable / IslandPlotsTable /
