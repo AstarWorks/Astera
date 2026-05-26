@@ -714,6 +714,45 @@ public class AsteraCorePlugin : JavaPlugin() {
         )
         services.register<com.astarworks.astera.core.application.port.outbound.survival.IIslandPlotManager>(islandPlotManager, priority = 0)
 
+        // ---- Wave 5world-events (ADR-0111): World event ports + Inventory mutation primitives ----
+        //
+        // Two foundation ports + their in-memory Phase 1 impls. The Wave 6 Paper
+        // adapter swaps in Bukkit-backed impls via the standard
+        // ServiceRegistry priority-override pattern; the in-memory defaults keep
+        // every use-case test headless and let the bulk inventory ops fire
+        // InventoryTransferred without booting Paper.
+        //
+        //   - IInventoryMutator    : low-level give/take/clear/swap/setSlot/count primitives.
+        //   - IBulkInventoryOps    : loot-table apply + kit issuance on top of mutator.
+        //   - IRegionEventFilter   : per-region event subscription (Wave 5n routing).
+        //
+        // Loot table / kit lookups are seeded empty in Phase 1 — the registries
+        // land with Wave 5pve-content (loot tables) and Wave 5e (kits); wiring
+        // them is a single-line swap at that point.
+        val inventoryMutator: com.astarworks.astera.core.application.port.outbound.inventory.IInventoryMutator =
+            services.get<com.astarworks.astera.core.application.port.outbound.inventory.IInventoryMutator>()
+                ?: com.astarworks.astera.core.application.service.inventory.InMemoryInventoryMutator().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.inventory.IInventoryMutator>(it, priority = 0)
+                }
+        val bulkInventoryOps: com.astarworks.astera.core.application.port.outbound.inventory.IBulkInventoryOps =
+            services.get<com.astarworks.astera.core.application.port.outbound.inventory.IBulkInventoryOps>()
+                ?: com.astarworks.astera.core.application.service.inventory.InMemoryBulkInventoryOps(
+                    mutator = inventoryMutator,
+                    eventBus = eventBus,
+                    lootTableResolver = { _ -> null },
+                    kitResolver = { _ -> null },
+                    tickProvider = { scheduler.currentTick() },
+                ).also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.inventory.IBulkInventoryOps>(it, priority = 0)
+                }
+        val regionEventFilter: com.astarworks.astera.core.application.port.outbound.world.IRegionEventFilter =
+            services.get<com.astarworks.astera.core.application.port.outbound.world.IRegionEventFilter>()
+                ?: com.astarworks.astera.core.application.service.world.InMemoryRegionEventFilter(
+                    eventBus = eventBus,
+                ).also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.world.IRegionEventFilter>(it, priority = 0)
+                }
+
         // Tutorial: Contents-driven YAML at content/tutorials/.
         val tutorialsContentDir: Path = contentDir.resolve("tutorials")
         val tutorialContents = TutorialContents()
