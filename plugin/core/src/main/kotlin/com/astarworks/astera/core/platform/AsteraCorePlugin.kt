@@ -311,6 +311,13 @@ public class AsteraCorePlugin : JavaPlugin() {
      */
     private var movementPacketBridgeSub: InterceptorSubscription? = null
 
+    /**
+     * Wave 5y-ext (ADR-0112): retained so [onDisable] can cancel the
+     * PlayerQuitServer subscriber that auto-clears per-viewer overrides
+     * across the three new state gateways (NPC + Block + GUI).
+     */
+    private var perViewerQuitSub: IDomainEventBus.Subscription? = null
+
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
 
@@ -1503,6 +1510,41 @@ public class AsteraCorePlugin : JavaPlugin() {
         )
         logger.info("Wave 5cinematic camera + music gateways wired (tracks loaded=${musicReport.loaded}).")
 
+        // ── Wave 5y-ext (ADR-0112) — Per-viewer state extension ──────────────────
+        // Foundation only: three new per-viewer state gateways (NPC packet skin /
+        // name / equipment / attribute overrides + custom block per-viewer
+        // type/texture/hide overrides + GUI per-viewer slot/title overrides),
+        // plus an auto-clear subscriber wired to PlayerQuitServer so a
+        // disconnecting viewer's overrides do not leak. Wave 6 will swap each
+        // in-memory impl with a PacketEvents-backed override at priority 100.
+        val perViewerNpcGateway = com.astarworks.astera.core.application.service.perviewer
+            .InMemoryPerViewerNpcStateGateway(eventBus = eventBus)
+        val perViewerBlockGateway = com.astarworks.astera.core.application.service.perviewer
+            .InMemoryPerViewerBlockStateGateway(eventBus = eventBus)
+        val perViewerGuiGateway = com.astarworks.astera.core.application.service.perviewer
+            .InMemoryPerViewerGuiStateGateway(eventBus = eventBus)
+        services.register<com.astarworks.astera.core.application.port.outbound.perviewer.npc.IPerViewerNpcStateGateway>(
+            perViewerNpcGateway, priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.perviewer.block.IPerViewerBlockStateGateway>(
+            perViewerBlockGateway, priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.perviewer.gui.IPerViewerGuiStateGateway>(
+            perViewerGuiGateway, priority = 0,
+        )
+        // PlayerQuitServer → sweep every viewer-keyed override on the three
+        // gateways. The block + npc gateways expose `untrackViewer(viewer)`
+        // (which sweeps + publishes PerViewerOverridesCleared); the GUI
+        // gateway exposes `sweepOnQuit(viewer)` for the same purpose.
+        perViewerQuitSub = eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
+        ) { quit ->
+            perViewerNpcGateway.untrackViewer(quit.playerId)
+            perViewerBlockGateway.untrackViewer(quit.playerId)
+            perViewerGuiGateway.sweepOnQuit(quit.playerId)
+        }
+        logger.info("Wave 5y-ext per-viewer state gateways wired (NPC + Block + GUI + PlayerQuit auto-clear).")
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
@@ -1511,6 +1553,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         engagementDashboardHandle?.cancel()
         analyticsEventListener?.stop()
         movementPacketBridgeSub?.cancel()
+        perViewerQuitSub?.cancel()
         afkSweepHandle?.cancel()
         matchQueueMetric?.stop()
         metricsHttpServer?.stop()
@@ -1622,6 +1665,10 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IMusicGateway (InMemory default; Wave 6 Paper playSound override)",
             "IPerMatchBgmService (in-memory; publishes MatchMusicChanged)",
             "IAdaptiveBgmService (in-memory; publishes AdaptiveMusicTriggered)",
+            // Wave 5y-ext (ADR-0112)
+            "IPerViewerNpcStateGateway (InMemory default; Wave 6 PacketEvents PlayerInfoUpdate / EntityMetadata override)",
+            "IPerViewerBlockStateGateway (InMemory default; Wave 6 PacketEvents BlockChange-per-viewer override)",
+            "IPerViewerGuiStateGateway (InMemory default; Wave 6 Paper Inventory-mutation-per-viewer override)",
         )
     }
 }
