@@ -1503,6 +1503,30 @@ public class AsteraCorePlugin : JavaPlugin() {
         )
         logger.info("Wave 5cinematic camera + music gateways wired (tracks loaded=${musicReport.loaded}).")
 
+        // ── Wave 5gui-depth (ADR-0114) — GUI animation + Modal + Tooltip foundation ─
+        //
+        // 3 priority-0 ports + InMemory defaults. Wave 6 lands:
+        //  - PaperGuiAnimationController over EntityMetadata / armor-stand display entities
+        //  - PaperGuiModalGateway over anvil-prompt + boss-bar + custom overlay packets
+        //  - (Tooltip registry stays in-memory; Paper-side just calls lookup at render time)
+        //
+        // Tooltip rarity / categories resolvers seeded with `{ null }` / `{ emptyList() }`
+        // lambdas — single-line swap when Wave 5refine / Wave 5flex / Wave 5pve-survival
+        // wire `IItemRegistry` lookups for ByRarity / ByCategory scope evaluation.
+        services.register<com.astarworks.astera.core.application.port.outbound.guidepth.IGuiAnimationController>(
+            com.astarworks.astera.core.application.service.guidepth.InMemoryGuiAnimationController(eventBus),
+            priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.guidepth.IGuiModalGateway>(
+            com.astarworks.astera.core.application.service.guidepth.InMemoryGuiModalGateway(eventBus),
+            priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.guidepth.ITooltipRegistry>(
+            com.astarworks.astera.core.application.service.guidepth.InMemoryTooltipRegistry(),
+            priority = 0,
+        )
+        logger.info("Wave 5gui-depth GUI animation + modal + tooltip-extension ports wired.")
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
@@ -1622,6 +1646,10 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IMusicGateway (InMemory default; Wave 6 Paper playSound override)",
             "IPerMatchBgmService (in-memory; publishes MatchMusicChanged)",
             "IAdaptiveBgmService (in-memory; publishes AdaptiveMusicTriggered)",
+            // Wave 5gui-depth (ADR-0114)
+            "IGuiAnimationController (InMemory default; Wave 6 Paper EntityMetadata/armor-stand override)",
+            "IGuiModalGateway (InMemory default; Wave 6 Paper anvil/boss-bar/overlay-packet override)",
+            "ITooltipRegistry (InMemory default; null/empty resolvers until Wave 5refine/Wave 5flex/Wave 5pve-survival wire rarity+category lookups)",
         )
     }
 }
