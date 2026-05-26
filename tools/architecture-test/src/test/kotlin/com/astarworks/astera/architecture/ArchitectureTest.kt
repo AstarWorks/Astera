@@ -1582,6 +1582,76 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5y-ext — Per-viewer state extension isolation (ADR-0112) ───────
+
+    /**
+     * ADR-0112 §"Decision": Wave 5y-ext introduces two new package zones that
+     * MUST stay pure Kotlin:
+     *
+     *  - `core.domain.perviewer.*` — `NpcAttributeKind` sealed (Scale /
+     *    Glowing / Invisible / NameVisible), `NpcViewerOverride` snapshot,
+     *    `PerViewerOverrideError` sealed, `GuiHandle` value, `ClearReason`
+     *    sealed.
+     *  - `core.application.port.outbound.perviewer.{npc,block,gui}.*` —
+     *    `IPerViewerNpcStateGateway`, `IPerViewerBlockStateGateway`,
+     *    `IPerViewerGuiStateGateway`.
+     *
+     * Same purity rules as ADR-0107 / ADR-0109 / ADR-0110 / ADR-0111 —
+     * these gateways are the vocabulary the Wave 6 PacketEvents adapter
+     * will exercise (PlayerInfoUpdate + EntityMetadata + EntityEquipment +
+     * BlockChange-per-viewer + Inventory-mutation-per-viewer). Letting
+     * Bukkit / Exposed / kotlinx.serialization leak in would couple platform
+     * decisions to the per-viewer override rules, exactly what the new ports
+     * were created to avoid.
+     *
+     * The companion `core.domain.event.{NpcOverrideApplied,
+     * BlockOverrideApplied, GuiOverrideApplied, PerViewerOverridesCleared}`
+     * events are covered by the existing "core domain stays pure" /
+     * "core.domain.event" suite — no additional rule needed since events
+     * live under `core.domain.*` which is globally blocked from Bukkit.
+     *
+     * Forbidden imports inside both package zones:
+     *   - Bukkit family (`hasBukkitFamilyImport`)
+     *   - kotlinx.serialization annotations
+     *   - JDBC / Exposed / postgres / lettuce
+     *   - Koin (Phase 1 manual DI)
+     */
+    @Test
+    fun `per-viewer state domain stays pure (ADR-0112)`() {
+        val zonePackages = setOf(
+            "com.astarworks.astera.core.domain.perviewer",
+            "com.astarworks.astera.core.application.port.outbound.perviewer",
+        )
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                zonePackages.any { pkg == it || pkg.startsWith("$it.") }
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0112: core.domain.perviewer.* + " +
+                    "core.application.port.outbound.perviewer.{npc,block,gui}.* must " +
+                    "stay pure Kotlin. NpcAttributeKind / NpcViewerOverride / " +
+                    "PerViewerOverrideError / GuiHandle / ClearReason + the three " +
+                    "IPerViewer*StateGateway interfaces are the per-viewer override " +
+                    "vocabulary the Wave 6 PacketEvents adapter will exercise. Move " +
+                    "Bukkit / kotlinx.serialization / persistence / koin couplings " +
+                    "into core.application.service.perviewer.* InMemory impls or, " +
+                    "eventually, a *.adapter.paper.* Wave 6 sink.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
