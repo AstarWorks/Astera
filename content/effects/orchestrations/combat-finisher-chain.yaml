@@ -1,0 +1,46 @@
+# Wave 5combat-depth / Wave 5effects (ADR-0109) demo orchestration.
+#
+# Combat finisher chain: triple particle hit + crescendo sound sequence
+# + a single damage application on the target. Models the "finisher
+# move" pattern Wave 5combat-depth's combo system will trigger after a
+# qualifying route completes.
+id: combat-finisher-chain
+description: Combat finisher — staggered particle / sound / damage chain.
+chain:
+  sequence:
+    - emit:
+        kind: particle
+        particle:
+          key: "minecraft:crit"
+          count: 16
+    - delay_ticks: 3
+    - emit:
+        kind: sound
+        sound:
+          key: "astera:combat/finisher/hit-1"
+          volume: 1.0
+          pitch: 1.0
+    - delay_ticks: 4
+    - emit:
+        kind: particle
+        particle:
+          key: "minecraft:crit_magic"
+          count: 24
+    - emit:
+        kind: sound
+        sound:
+          key: "astera:combat/finisher/hit-2"
+          volume: 1.0
+          pitch: 1.1
+    - delay_ticks: 6
+    - emit:
+        kind: sound
+        sound:
+          key: "astera:combat/finisher/hit-3"
+          volume: 1.2
+          pitch: 1.2
+    - emit:
+        kind: damage
+        components:
+          - base: 14.0
+            attribute: PHYSICAL

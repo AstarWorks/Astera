@@ -1416,6 +1416,38 @@ class ArchitectureTest {
      *   - Koin (Phase 1 manual DI)
      */
     @Test
+    fun `effect domain stays pure (ADR-0109)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.core.domain.effect")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0109: core.domain.effect.* (incl. scheduler/, chain/, " +
+                    "sound/, timer/, ratelimit/ subpackages) must stay pure Kotlin. The " +
+                    "tick-based ParticleScheduler / SoundScheduler / EffectOrchestrator / " +
+                    "CountdownTimer / RateLimiter sealed specs all live here, and any " +
+                    "Bukkit / kotlinx.serialization / persistence / koin coupling would " +
+                    "force every plugin that constructs an EffectChain to drag the same " +
+                    "edge dependencies into its domain layer. YAML DTOs belong in " +
+                    "core.application.config.effect.*; InMemory impls belong in " +
+                    "core.application.service.effect.*.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin")
+                    }
+            }
+    }
+
+    @Test
     fun `survival domain stays pure (ADR-0107)`() {
         Konsist.scopeFromProject()
             .files

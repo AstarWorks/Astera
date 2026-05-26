@@ -161,6 +161,17 @@ astera:
     example-ring:
       name: "<aqua>Frost ring</aqua>"
 
+  # Wave 5effects (ADR-0109): sound registry entries authored under
+  # content/sounds/<category>/. Display names surface in /astera-sounds
+  # admin listings and tooltip popovers.
+  sound:
+    match:
+      phase-transition:
+        name: "<gold>Match phase transition</gold>"
+    skill:
+      fireball-cast:
+        name: "<red>Fireball cast</red>"
+
   loadout:
     save:
       success: "<green>Loadout slot <gold>{slot}</gold> saved.</green>"

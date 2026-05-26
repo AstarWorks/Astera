@@ -11,14 +11,20 @@ import com.astarworks.astera.combat.domain.skill.expression.CelContext
 import com.astarworks.astera.combat.domain.skill.expression.CelSkillScript
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IParticleRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
+import com.astarworks.astera.core.application.port.outbound.effect.IParticleScheduler
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.attribute.SimpleAttributeContainer
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.effect.ParticleSpec
+import com.astarworks.astera.core.domain.effect.SoundSpec
+import com.astarworks.astera.core.domain.effect.scheduler.ScheduledParticleSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -80,6 +86,29 @@ public class MechanicDispatcher(
     private val celEvaluator: ICelEvaluator,
     private val scheduler: IScheduler,
     @Suppress("unused") private val eventBus: IDomainEventBus,
+    /**
+     * Wave 5effects (ADR-0109): tick-scheduled emission engine. When wired
+     * `Mechanic.SpawnParticle` produces a real emission (single-tick burst
+     * routed through the scheduler so it shares cancellation infrastructure
+     * with `EffectChain` / `Pulse` / `RingExpansion`). When null, the
+     * mechanic warn-logs and continues (same posture as the other
+     * deferred-port mechanics).
+     */
+    private val particleScheduler: IParticleScheduler? = null,
+    /**
+     * Wave 5effects (ADR-0109): catalog of [com.astarworks.astera.core.domain.effect.ParticleDefinition]s
+     * loaded from `content/particles/`. Resolves a `Mechanic.SpawnParticle.particleId`
+     * to a vendor-neutral particle key; without the registry the dispatcher
+     * falls back to the id's `value` as the key (best-effort, matches the
+     * pre-5effects behaviour).
+     */
+    private val particleRegistry: IParticleRegistry? = null,
+    /**
+     * Wave 5effects (ADR-0109): catalog of [com.astarworks.astera.core.domain.effect.sound.SoundDefinition]s
+     * loaded from `content/sounds/`. Resolves a `Mechanic.PlaySound.soundId`
+     * to a default volume / pitch when the mechanic does not override them.
+     */
+    private val soundRegistry: ISoundRegistry? = null,
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
 ) {
 
@@ -311,21 +340,57 @@ public class MechanicDispatcher(
             is Mechanic.SpawnParticle -> {
                 val locations = targeterResolver.resolveLocations(mechanic.targets, ctx)
                 if (locations.isEmpty()) return
-                // Phase 1: ParticleId → ParticleSpec lookup is Phase 6 work
-                // (the runtime catalog wires a ParticleSpec registry then).
-                log.debug(
-                    "SpawnParticle {} at {} locations (ParticleSpec lookup deferred to Phase 6)",
-                    mechanic.particleId, locations.size,
-                )
+                val count = resolveInt(mechanic.count, ctx).coerceAtLeast(1)
+                val definition = particleRegistry?.find(mechanic.particleId)
+                // Wave 5effects: route through IParticleScheduler if wired;
+                // otherwise fall through to IWorldGateway.spawnParticle (which
+                // itself may be a no-op until Wave 6).
+                val particleKey = definition?.id?.value ?: mechanic.particleId.value
+                val spec = ParticleSpec(key = particleKey, count = count)
+                val ps = particleScheduler
+                if (ps != null && ctx.worldId != null) {
+                    for (loc in locations) {
+                        ps.schedule(
+                            ScheduledParticleSpec.EmitOnce(
+                                particle = spec,
+                                position = loc,
+                                atTick = scheduler.currentTick(),
+                                world = ctx.worldId,
+                            ),
+                        )
+                    }
+                } else {
+                    if (ctx.worldId == null) {
+                        log.debug("SpawnParticle {} dropped: ctx.worldId is null", mechanic.particleId)
+                        return
+                    }
+                    for (loc in locations) {
+                        worldGateway.spawnParticle(ctx.worldId, loc, spec)
+                    }
+                }
             }
 
             is Mechanic.PlaySound -> {
                 val locations = targeterResolver.resolveLocations(mechanic.targets, ctx)
                 if (locations.isEmpty()) return
-                log.debug(
-                    "PlaySound {} at {} locations (SoundSpec lookup deferred to Phase 6)",
-                    mechanic.soundId, locations.size,
+                if (ctx.worldId == null) {
+                    log.debug("PlaySound {} dropped: ctx.worldId is null", mechanic.soundId)
+                    return
+                }
+                val definition = soundRegistry?.find(mechanic.soundId)
+                val volume = resolveDouble(mechanic.volume, ctx)
+                    .takeIf { it > 0.0 } ?: (definition?.defaultVolume ?: 1.0)
+                val pitch = resolveDouble(mechanic.pitch, ctx)
+                    .takeIf { it > 0.0 } ?: (definition?.defaultPitch ?: 1.0)
+                val key = definition?.resourceKey ?: mechanic.soundId.value
+                val spec = SoundSpec(
+                    key = key,
+                    volume = volume.coerceIn(0.0, SoundSpec.PRACTICAL_MAX_VOLUME),
+                    pitch = pitch.coerceIn(SoundSpec.MIN_PITCH, SoundSpec.MAX_PITCH),
                 )
+                for (loc in locations) {
+                    worldGateway.playSound(ctx.worldId, loc, spec)
+                }
             }
 
             is Mechanic.SpawnDisplay -> {

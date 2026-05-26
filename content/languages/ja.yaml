@@ -164,6 +164,16 @@ astera:
     example-ring:
       name: "<aqua>氷の輪</aqua>"
 
+  # Wave 5effects (ADR-0109): content/sounds/<category>/ で登録された
+  # サウンドの表示名。/astera-sounds 管理リストとツールチップに出る。
+  sound:
+    match:
+      phase-transition:
+        name: "<gold>マッチフェーズ遷移</gold>"
+    skill:
+      fireball-cast:
+        name: "<red>ファイアボール詠唱</red>"
+
   loadout:
     save:
       success: "<green>ロードアウトの <gold>{slot}</gold> スロットを保存しました。</green>"
