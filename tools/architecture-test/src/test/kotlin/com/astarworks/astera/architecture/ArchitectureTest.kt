@@ -1442,6 +1442,114 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5world-events — World event + Inventory mutation isolation (ADR-0111) ─
+
+    /**
+     * ADR-0111 §"Decision": Wave 5world-events introduces two new domain
+     * subpackages that MUST stay pure Kotlin:
+     *
+     *  - `core.domain.inventory.*` — `ClearScope`, `SlotTypeLockRule`,
+     *    `InventoryError`, `InventoryTransferTarget`, `KitId`, `KitError`,
+     *    `LootApplied`, `LootError`.
+     *  - `core.domain.world.*` additions — `TeleportReason`,
+     *    `BlockInteractAction`, `ChunkUnloadReason`, `TimeChangeReason`
+     *    (alongside the already-existing world value types).
+     *
+     * Plus the new world event variants in `core.domain.event.*`
+     * (`PlayerMoved`, `PlayerTeleported`, `PlayerInteractedBlock`,
+     * `ChunkLoaded`, `ChunkUnloaded`, `WeatherChanged`, `TimeChanged`,
+     * `InventoryTransferred`).
+     *
+     * Same purity rules as ADR-0100 / ADR-0102 / ADR-0107 — these are the
+     * vocabulary the Wave 6 Paper adapter will exercise; letting Bukkit /
+     * Exposed / kotlinx.serialization leak in would couple platform decisions
+     * to the rules, exactly what the new `IInventoryMutator` /
+     * `IBulkInventoryOps` / `IRegionEventFilter` ports were created to avoid.
+     *
+     * Forbidden imports inside `core.domain.inventory.*`:
+     *   - Bukkit family (`hasBukkitFamilyImport`)
+     *   - kotlinx.serialization annotations
+     *   - JDBC / Exposed / postgres / lettuce
+     *   - Koin (Phase 1 manual DI)
+     */
+    @Test
+    fun `inventory domain stays pure (ADR-0111)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.core.domain.inventory")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0111: core.domain.inventory.* must stay pure Kotlin. " +
+                    "ClearScope / SlotTypeLockRule / InventoryError / InventoryTransferTarget / " +
+                    "KitId / KitError / LootApplied / LootError are the inventory mutation " +
+                    "vocabulary. Move Bukkit / kotlinx.serialization / persistence / koin " +
+                    "couplings into core.application.config.inventory.* DTOs, " +
+                    "core.application.service.inventory.* InMemory impls, or persistence-side " +
+                    "Postgres overlays.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin")
+                    }
+            }
+    }
+
+    /**
+     * ADR-0111 §"Decision": the Wave 5world-events outbound ports
+     * (`IInventoryMutator`, `IBulkInventoryOps`, `IRegionEventFilter`) live
+     * in `core.application.port.outbound.inventory.*` and
+     * `core.application.port.outbound.world.*`. They are vendor-neutral
+     * interfaces — letting Bukkit leak in would defeat the entire point of
+     * having ports separate from adapter impls.
+     *
+     * Forbidden imports inside both port packages:
+     *   - Bukkit family — would force the port itself to depend on Paper.
+     *   - Persistence drivers — same vendor-neutrality argument.
+     *   - kotlinx.serialization — config DTOs live in `application/config/`.
+     *
+     * `kotlin.reflect.KClass` IS allowed (used by `IRegionEventFilter` for
+     * type-dispatched subscription, mirroring `IDomainEventBus`).
+     */
+    @Test
+    fun `inventory and world ports stay vendor-neutral (ADR-0111)`() {
+        val portPackages = setOf(
+            "com.astarworks.astera.core.application.port.outbound.inventory",
+            "com.astarworks.astera.core.application.port.outbound.world",
+        )
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                portPackages.any { pkg == it || pkg.startsWith("$it.") }
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0111: IInventoryMutator / IBulkInventoryOps / " +
+                    "IRegionEventFilter must stay vendor-neutral. Move any Bukkit / " +
+                    "persistence / kotlinx.serialization coupling into " +
+                    "core.application.service.inventory.* or core.application.service.world.* " +
+                    "impl files (or, eventually, a *.adapter.paper.* Wave 6 sink).",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
