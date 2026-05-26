@@ -1474,6 +1474,53 @@ class ArchitectureTest {
             }
     }
 
+    /**
+     * Wave 5cinematic / ADR-0110: cinematic + music domain purity.
+     *
+     * Forbidden imports inside `core.domain.cinematic.*` and
+     * `core.domain.music.*`:
+     *   - Bukkit family (`hasBukkitFamilyImport`) — Camera packets / FOV /
+     *     Player.playSound all live in `adapter/paper/`.
+     *   - kotlinx.serialization annotations — YAML DTOs live in
+     *     `core.application.config.music.*` (only music has YAML; cinematic
+     *     is fully runtime-shaped today).
+     *   - JDBC / Exposed / Postgres — cinematic + music are session-scoped
+     *     (Wave 5cinematic ships no migration); any future persistence
+     *     belongs in `:plugin:persistence`.
+     *   - Koin — Phase 1 manual DI.
+     *   - JOML — animation math reuses Wave 5h `Easing` (pure Kotlin doubles)
+     *     directly; we deliberately do NOT pull JOML into cinematic domain
+     *     to keep the easing surface minimal.
+     */
+    @Test
+    fun `cinematic and music domain stays pure (ADR-0110)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.core.domain.cinematic") ||
+                    pkg.startsWith("com.astarworks.astera.core.domain.music")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0110: core.domain.{cinematic,music}.* must stay pure Kotlin. " +
+                    "Move Bukkit / kotlinx.serialization / persistence / koin / JOML couplings into " +
+                    "core.application.config.music.* DTOs, core.application.service.{cinematic,music}.* " +
+                    "InMemory impls, or persistence-side Postgres overlays.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin") ||
+                            imp.name.startsWith("org.joml")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
