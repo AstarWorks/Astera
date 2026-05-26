@@ -1582,62 +1582,42 @@ class ArchitectureTest {
             }
     }
 
-    // ─── Wave 5y-ext — Per-viewer state extension isolation (ADR-0112) ───────
+    // ─── Wave 5animation — Player / Entity / Block animation purity (ADR-0113) ─
 
     /**
-     * ADR-0112 §"Decision": Wave 5y-ext introduces two new package zones that
-     * MUST stay pure Kotlin:
+     * ADR-0113 §"Decision": Wave 5animation introduces a new domain
+     * subpackage `core.domain.animation.*` (with `player/`, `entity/`,
+     * `block/`, `mining/` sub-packages) plus the matching events in
+     * `core.domain.event.*`. All of it MUST stay pure Kotlin: the gateways
+     * cross plugin lines (Combat, PVE-boss, World, Stats all subscribe),
+     * so any Bukkit / Exposed / kotlinx.serialization leak here would
+     * pollute every downstream subscriber too.
      *
-     *  - `core.domain.perviewer.*` — `NpcAttributeKind` sealed (Scale /
-     *    Glowing / Invisible / NameVisible), `NpcViewerOverride` snapshot,
-     *    `PerViewerOverrideError` sealed, `GuiHandle` value, `ClearReason`
-     *    sealed.
-     *  - `core.application.port.outbound.perviewer.{npc,block,gui}.*` —
-     *    `IPerViewerNpcStateGateway`, `IPerViewerBlockStateGateway`,
-     *    `IPerViewerGuiStateGateway`.
-     *
-     * Same purity rules as ADR-0107 / ADR-0109 / ADR-0110 / ADR-0111 —
-     * these gateways are the vocabulary the Wave 6 PacketEvents adapter
-     * will exercise (PlayerInfoUpdate + EntityMetadata + EntityEquipment +
-     * BlockChange-per-viewer + Inventory-mutation-per-viewer). Letting
-     * Bukkit / Exposed / kotlinx.serialization leak in would couple platform
-     * decisions to the per-viewer override rules, exactly what the new ports
-     * were created to avoid.
-     *
-     * The companion `core.domain.event.{NpcOverrideApplied,
-     * BlockOverrideApplied, GuiOverrideApplied, PerViewerOverridesCleared}`
-     * events are covered by the existing "core domain stays pure" /
-     * "core.domain.event" suite — no additional rule needed since events
-     * live under `core.domain.*` which is globally blocked from Bukkit.
-     *
-     * Forbidden imports inside both package zones:
-     *   - Bukkit family (`hasBukkitFamilyImport`)
-     *   - kotlinx.serialization annotations
-     *   - JDBC / Exposed / postgres / lettuce
-     *   - Koin (Phase 1 manual DI)
+     * Same purity rules as ADR-0100 / ADR-0109 / ADR-0111. Bukkit-family
+     * imports + the persistence / koin / kotlinx.serialization family are
+     * the canonical block list. `org.joml.*` IS allowed per CLAUDE.md
+     * "JOML in domain OK" memory entry (we don't currently use it here
+     * but the rule shouldn't ban math libs across the board).
      */
     @Test
-    fun `per-viewer state domain stays pure (ADR-0112)`() {
-        val zonePackages = setOf(
-            "com.astarworks.astera.core.domain.perviewer",
-            "com.astarworks.astera.core.application.port.outbound.perviewer",
-        )
+    fun `animation domain stays pure (ADR-0113)`() {
         Konsist.scopeFromProject()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
-                zonePackages.any { pkg == it || pkg.startsWith("$it.") }
+                pkg.startsWith("com.astarworks.astera.core.domain.animation")
             }
             .assertFalse(
-                additionalMessage = "ADR-0112: core.domain.perviewer.* + " +
-                    "core.application.port.outbound.perviewer.{npc,block,gui}.* must " +
-                    "stay pure Kotlin. NpcAttributeKind / NpcViewerOverride / " +
-                    "PerViewerOverrideError / GuiHandle / ClearReason + the three " +
-                    "IPerViewer*StateGateway interfaces are the per-viewer override " +
-                    "vocabulary the Wave 6 PacketEvents adapter will exercise. Move " +
-                    "Bukkit / kotlinx.serialization / persistence / koin couplings " +
-                    "into core.application.service.perviewer.* InMemory impls or, " +
-                    "eventually, a *.adapter.paper.* Wave 6 sink.",
+                additionalMessage = "ADR-0113: core.domain.animation.* (incl. player/, entity/, " +
+                    "block/, mining/ subpackages) must stay pure Kotlin. PlayerHand / SitTarget / " +
+                    "CustomAnimationId / PlayerAnimationError / MobAnimationKind / EntityAnimationError / " +
+                    "BlockBreakStage / BlockBreakAnimationError / MiningProgressContext / " +
+                    "MiningCancelReason are the cross-plugin animation vocabulary. Letting Bukkit / " +
+                    "kotlinx.serialization / Exposed / postgres / koin couple in would force every " +
+                    "subscriber plugin (Combat, PVE-boss, World, Stats) to drag the same edge " +
+                    "dependencies into its domain layer. Move couplings into " +
+                    "core.application.service.animation.* InMemory impls or future " +
+                    "*.adapter.paper.* Wave 6 sinks.",
             ) { file ->
                 hasBukkitFamilyImport(file) ||
                     file.imports.any { imp ->

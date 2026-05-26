@@ -1510,40 +1510,39 @@ public class AsteraCorePlugin : JavaPlugin() {
         )
         logger.info("Wave 5cinematic camera + music gateways wired (tracks loaded=${musicReport.loaded}).")
 
-        // ── Wave 5y-ext (ADR-0112) — Per-viewer state extension ──────────────────
-        // Foundation only: three new per-viewer state gateways (NPC packet skin /
-        // name / equipment / attribute overrides + custom block per-viewer
-        // type/texture/hide overrides + GUI per-viewer slot/title overrides),
-        // plus an auto-clear subscriber wired to PlayerQuitServer so a
-        // disconnecting viewer's overrides do not leak. Wave 6 will swap each
-        // in-memory impl with a PacketEvents-backed override at priority 100.
-        val perViewerNpcGateway = com.astarworks.astera.core.application.service.perviewer
-            .InMemoryPerViewerNpcStateGateway(eventBus = eventBus)
-        val perViewerBlockGateway = com.astarworks.astera.core.application.service.perviewer
-            .InMemoryPerViewerBlockStateGateway(eventBus = eventBus)
-        val perViewerGuiGateway = com.astarworks.astera.core.application.service.perviewer
-            .InMemoryPerViewerGuiStateGateway(eventBus = eventBus)
-        services.register<com.astarworks.astera.core.application.port.outbound.perviewer.npc.IPerViewerNpcStateGateway>(
-            perViewerNpcGateway, priority = 0,
+        // ── Wave 5animation (ADR-0113) — Player + Entity + Block animation foundation ─
+        // Foundation only: 4 outbound ports + 4 in-memory impls. Wave 6 lands
+        // PaperPlayerAnimationGateway / PaperEntityAnimationGateway /
+        // PaperBlockBreakAnimationGateway / PaperMiningProgressDriver over
+        // Bukkit swing/pose calls + BlockBreakAnimationPacket at priority=100.
+        val playerAnimationGateway =
+            com.astarworks.astera.core.application.service.animation.InMemoryPlayerAnimationGateway(eventBus)
+        services.register<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>(
+            playerAnimationGateway,
+            priority = 0,
         )
-        services.register<com.astarworks.astera.core.application.port.outbound.perviewer.block.IPerViewerBlockStateGateway>(
-            perViewerBlockGateway, priority = 0,
+        services.register<com.astarworks.astera.core.application.port.outbound.animation.IEntityAnimationGateway>(
+            com.astarworks.astera.core.application.service.animation.InMemoryEntityAnimationGateway(eventBus),
+            priority = 0,
         )
-        services.register<com.astarworks.astera.core.application.port.outbound.perviewer.gui.IPerViewerGuiStateGateway>(
-            perViewerGuiGateway, priority = 0,
+        services.register<com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway>(
+            com.astarworks.astera.core.application.service.animation.InMemoryBlockBreakAnimationGateway(eventBus),
+            priority = 0,
         )
-        // PlayerQuitServer → sweep every viewer-keyed override on the three
-        // gateways. The block + npc gateways expose `untrackViewer(viewer)`
-        // (which sweeps + publishes PerViewerOverridesCleared); the GUI
-        // gateway exposes `sweepOnQuit(viewer)` for the same purpose.
-        perViewerQuitSub = eventBus.subscribe(
-            com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
-        ) { quit ->
-            perViewerNpcGateway.untrackViewer(quit.playerId)
-            perViewerBlockGateway.untrackViewer(quit.playerId)
-            perViewerGuiGateway.sweepOnQuit(quit.playerId)
-        }
-        logger.info("Wave 5y-ext per-viewer state gateways wired (NPC + Block + GUI + PlayerQuit auto-clear).")
+        // Mining progress display thin-wraps Wave 5j IHudGateway. Lazy
+        // lookup: register IHudGateway eagerly (in-memory no-op default)
+        // if no higher-priority impl has claimed it yet, then wire the
+        // mining display on top so callers always see a non-null port.
+        // Wave 6b PaperHudGateway lands at priority 100 and shadows.
+        val hudGateway = services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+            ?: com.astarworks.astera.core.application.service.InMemoryHudGateway(eventBus).also {
+                services.register<com.astarworks.astera.core.application.port.outbound.IHudGateway>(it, priority = 0)
+            }
+        services.register<com.astarworks.astera.core.application.port.outbound.animation.IMiningProgressDisplay>(
+            com.astarworks.astera.core.application.service.animation.InMemoryMiningProgressDisplay(hudGateway),
+            priority = 0,
+        )
+        logger.info("Wave 5animation player/entity/block animation gateways wired.")
 
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
@@ -1665,10 +1664,12 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IMusicGateway (InMemory default; Wave 6 Paper playSound override)",
             "IPerMatchBgmService (in-memory; publishes MatchMusicChanged)",
             "IAdaptiveBgmService (in-memory; publishes AdaptiveMusicTriggered)",
-            // Wave 5y-ext (ADR-0112)
-            "IPerViewerNpcStateGateway (InMemory default; Wave 6 PacketEvents PlayerInfoUpdate / EntityMetadata override)",
-            "IPerViewerBlockStateGateway (InMemory default; Wave 6 PacketEvents BlockChange-per-viewer override)",
-            "IPerViewerGuiStateGateway (InMemory default; Wave 6 Paper Inventory-mutation-per-viewer override)",
+            // Wave 5animation (ADR-0113)
+            "IPlayerAnimationGateway (InMemory default; Wave 6 Paper swing/pose override)",
+            "IEntityAnimationGateway (InMemory default; Wave 6 Paper mob animation packet override)",
+            "IBlockBreakAnimationGateway (InMemory default; Wave 6 Paper BlockBreakAnimationPacket override)",
+            "IHudGateway (InMemory default; Wave 6b Paper ActionBar/BossBar override)",
+            "IMiningProgressDisplay (InMemory default thin-wraps IHudGateway)",
         )
     }
 }
