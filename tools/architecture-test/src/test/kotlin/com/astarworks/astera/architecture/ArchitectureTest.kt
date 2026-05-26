@@ -1582,6 +1582,56 @@ class ArchitectureTest {
             }
     }
 
+    // ─── Wave 5animation — Player / Entity / Block animation purity (ADR-0113) ─
+
+    /**
+     * ADR-0113 §"Decision": Wave 5animation introduces a new domain
+     * subpackage `core.domain.animation.*` (with `player/`, `entity/`,
+     * `block/`, `mining/` sub-packages) plus the matching events in
+     * `core.domain.event.*`. All of it MUST stay pure Kotlin: the gateways
+     * cross plugin lines (Combat, PVE-boss, World, Stats all subscribe),
+     * so any Bukkit / Exposed / kotlinx.serialization leak here would
+     * pollute every downstream subscriber too.
+     *
+     * Same purity rules as ADR-0100 / ADR-0109 / ADR-0111. Bukkit-family
+     * imports + the persistence / koin / kotlinx.serialization family are
+     * the canonical block list. `org.joml.*` IS allowed per CLAUDE.md
+     * "JOML in domain OK" memory entry (we don't currently use it here
+     * but the rule shouldn't ban math libs across the board).
+     */
+    @Test
+    fun `animation domain stays pure (ADR-0113)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.core.domain.animation")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0113: core.domain.animation.* (incl. player/, entity/, " +
+                    "block/, mining/ subpackages) must stay pure Kotlin. PlayerHand / SitTarget / " +
+                    "CustomAnimationId / PlayerAnimationError / MobAnimationKind / EntityAnimationError / " +
+                    "BlockBreakStage / BlockBreakAnimationError / MiningProgressContext / " +
+                    "MiningCancelReason are the cross-plugin animation vocabulary. Letting Bukkit / " +
+                    "kotlinx.serialization / Exposed / postgres / koin couple in would force every " +
+                    "subscriber plugin (Combat, PVE-boss, World, Stats) to drag the same edge " +
+                    "dependencies into its domain layer. Move couplings into " +
+                    "core.application.service.animation.* InMemory impls or future " +
+                    "*.adapter.paper.* Wave 6 sinks.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
