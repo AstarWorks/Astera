@@ -1351,6 +1351,53 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<com.astarworks.astera.core.application.profile.RecomputeProfileCardUseCase>(recomputeProfileCard, priority = 0)
         logger.info("Wave 5flex profile card service wired (impl=${profileCardService::class.simpleName}).")
 
+        // ── Wave 5cinematic (ADR-0110) — Camera + Music gateway foundation ────────
+        // Foundation only: ports + in-memory impls + YAML music track registry.
+        // Wave 6 lands PaperCameraGateway / PaperCinematicPathPlayer /
+        // PaperScreenEffectGateway / PaperMusicGateway over packet primitives
+        // at higher priority.
+        services.register<com.astarworks.astera.core.application.port.outbound.cinematic.ICameraGateway>(
+            com.astarworks.astera.core.application.service.cinematic.InMemoryCameraGateway(eventBus),
+            priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.cinematic.ICinematicPathPlayer>(
+            com.astarworks.astera.core.application.service.cinematic.InMemoryCinematicPathPlayer(eventBus),
+            priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.cinematic.IFreelookGateway>(
+            com.astarworks.astera.core.application.service.cinematic.InMemoryFreelookGateway(),
+            priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.cinematic.IScreenEffectGateway>(
+            com.astarworks.astera.core.application.service.cinematic.InMemoryScreenEffectGateway(),
+            priority = 0,
+        )
+        // Music track registry — YAML-loaded, joins the reload dispatcher.
+        val musicContentDir: Path = contentDir.resolve("music")
+        val musicContents = com.astarworks.astera.core.application.contents.music.MusicTrackContents()
+        val musicReport = musicContents.bootstrap(musicContentDir)
+        logger.info("Music tracks loaded: ${musicReport.loaded} ok, ${musicReport.failed} failed")
+        services.register<com.astarworks.astera.core.application.port.outbound.music.IMusicTrackRegistry>(musicContents, priority = 0)
+        reloadRegistry.register(musicContents, musicContentDir)
+        services.register<com.astarworks.astera.core.application.port.outbound.music.IMusicGateway>(
+            com.astarworks.astera.core.application.service.music.InMemoryMusicGateway(musicContents),
+            priority = 0,
+        )
+        val perMatchBgm = com.astarworks.astera.core.application.service.music.InMemoryPerMatchBgmService(
+            tracks = musicContents,
+            eventBus = eventBus,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.music.IPerMatchBgmService>(perMatchBgm, priority = 0)
+        services.register<com.astarworks.astera.core.application.port.outbound.music.IAdaptiveBgmService>(
+            com.astarworks.astera.core.application.service.music.InMemoryAdaptiveBgmService(
+                tracks = musicContents,
+                perMatch = perMatchBgm,
+                eventBus = eventBus,
+            ),
+            priority = 0,
+        )
+        logger.info("Wave 5cinematic camera + music gateways wired (tracks loaded=${musicReport.loaded}).")
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
@@ -1461,6 +1508,15 @@ public class AsteraCorePlugin : JavaPlugin() {
             "AnalyticsEventListener (subscribes MatchStarted/MatchEnded/SkillCastRequested/PlayerJoinedServer)",
             "IEngagementSnapshotRepository (InMemory default; Postgres overlay at priority 100)",
             "EngagementDashboardService (recomputes every 5 min, publishes EngagementSnapshotComputed)",
+            // Wave 5cinematic (ADR-0110)
+            "ICameraGateway (InMemory default; Wave 6 Paper camera-packet override)",
+            "ICinematicPathPlayer (InMemory default; Wave 6 Paper waypoint scheduler)",
+            "IFreelookGateway (InMemory default; Wave 6 Paper movement-listener override)",
+            "IScreenEffectGateway (InMemory default; Wave 6 Paper overlay packet override)",
+            "IMusicTrackRegistry (YAML-backed MusicTrackContents)",
+            "IMusicGateway (InMemory default; Wave 6 Paper playSound override)",
+            "IPerMatchBgmService (in-memory; publishes MatchMusicChanged)",
+            "IAdaptiveBgmService (in-memory; publishes AdaptiveMusicTriggered)",
         )
     }
 }

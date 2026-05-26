@@ -1,0 +1,12 @@
+id: lobby-loop
+display_name: "Lobby Loop"
+source:
+  kind: resource_pack
+  path: "astera:music/lobby-loop"
+license:
+  kind: royalty_free
+  attribution: "Astera Phase 1 placeholder (CC0)"
+mood: lobby
+default_volume: 0.5
+loop: true
+duration_ticks: 2400

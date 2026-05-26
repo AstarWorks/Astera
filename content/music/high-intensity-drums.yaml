@@ -1,0 +1,12 @@
+id: high-intensity-drums
+display_name: "High Intensity Drums"
+source:
+  kind: resource_pack
+  path: "astera:music/high-intensity-drums"
+license:
+  kind: royalty_free
+  attribution: "Astera Phase 1 placeholder (CC0)"
+mood: high_intensity
+default_volume: 0.85
+loop: true
+duration_ticks: 3600

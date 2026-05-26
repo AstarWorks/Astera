@@ -1,0 +1,12 @@
+id: match-default
+display_name: "Match Default"
+source:
+  kind: resource_pack
+  path: "astera:music/match-default"
+license:
+  kind: royalty_free
+  attribution: "Astera Phase 1 placeholder (CC0)"
+mood: match
+default_volume: 0.7
+loop: true
+duration_ticks: 4800
