@@ -1510,39 +1510,29 @@ public class AsteraCorePlugin : JavaPlugin() {
         )
         logger.info("Wave 5cinematic camera + music gateways wired (tracks loaded=${musicReport.loaded}).")
 
-        // ── Wave 5animation (ADR-0113) — Player + Entity + Block animation foundation ─
-        // Foundation only: 4 outbound ports + 4 in-memory impls. Wave 6 lands
-        // PaperPlayerAnimationGateway / PaperEntityAnimationGateway /
-        // PaperBlockBreakAnimationGateway / PaperMiningProgressDriver over
-        // Bukkit swing/pose calls + BlockBreakAnimationPacket at priority=100.
-        val playerAnimationGateway =
-            com.astarworks.astera.core.application.service.animation.InMemoryPlayerAnimationGateway(eventBus)
-        services.register<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>(
-            playerAnimationGateway,
+        // ── Wave 5gui-depth (ADR-0114) — GUI animation + Modal + Tooltip foundation ─
+        //
+        // 3 priority-0 ports + InMemory defaults. Wave 6 lands:
+        //  - PaperGuiAnimationController over EntityMetadata / armor-stand display entities
+        //  - PaperGuiModalGateway over anvil-prompt + boss-bar + custom overlay packets
+        //  - (Tooltip registry stays in-memory; Paper-side just calls lookup at render time)
+        //
+        // Tooltip rarity / categories resolvers seeded with `{ null }` / `{ emptyList() }`
+        // lambdas — single-line swap when Wave 5refine / Wave 5flex / Wave 5pve-survival
+        // wire `IItemRegistry` lookups for ByRarity / ByCategory scope evaluation.
+        services.register<com.astarworks.astera.core.application.port.outbound.guidepth.IGuiAnimationController>(
+            com.astarworks.astera.core.application.service.guidepth.InMemoryGuiAnimationController(eventBus),
             priority = 0,
         )
-        services.register<com.astarworks.astera.core.application.port.outbound.animation.IEntityAnimationGateway>(
-            com.astarworks.astera.core.application.service.animation.InMemoryEntityAnimationGateway(eventBus),
+        services.register<com.astarworks.astera.core.application.port.outbound.guidepth.IGuiModalGateway>(
+            com.astarworks.astera.core.application.service.guidepth.InMemoryGuiModalGateway(eventBus),
             priority = 0,
         )
-        services.register<com.astarworks.astera.core.application.port.outbound.block.IBlockBreakAnimationGateway>(
-            com.astarworks.astera.core.application.service.animation.InMemoryBlockBreakAnimationGateway(eventBus),
+        services.register<com.astarworks.astera.core.application.port.outbound.guidepth.ITooltipRegistry>(
+            com.astarworks.astera.core.application.service.guidepth.InMemoryTooltipRegistry(),
             priority = 0,
         )
-        // Mining progress display thin-wraps Wave 5j IHudGateway. Lazy
-        // lookup: register IHudGateway eagerly (in-memory no-op default)
-        // if no higher-priority impl has claimed it yet, then wire the
-        // mining display on top so callers always see a non-null port.
-        // Wave 6b PaperHudGateway lands at priority 100 and shadows.
-        val hudGateway = services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
-            ?: com.astarworks.astera.core.application.service.InMemoryHudGateway(eventBus).also {
-                services.register<com.astarworks.astera.core.application.port.outbound.IHudGateway>(it, priority = 0)
-            }
-        services.register<com.astarworks.astera.core.application.port.outbound.animation.IMiningProgressDisplay>(
-            com.astarworks.astera.core.application.service.animation.InMemoryMiningProgressDisplay(hudGateway),
-            priority = 0,
-        )
-        logger.info("Wave 5animation player/entity/block animation gateways wired.")
+        logger.info("Wave 5gui-depth GUI animation + modal + tooltip-extension ports wired.")
 
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
@@ -1664,12 +1654,10 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IMusicGateway (InMemory default; Wave 6 Paper playSound override)",
             "IPerMatchBgmService (in-memory; publishes MatchMusicChanged)",
             "IAdaptiveBgmService (in-memory; publishes AdaptiveMusicTriggered)",
-            // Wave 5animation (ADR-0113)
-            "IPlayerAnimationGateway (InMemory default; Wave 6 Paper swing/pose override)",
-            "IEntityAnimationGateway (InMemory default; Wave 6 Paper mob animation packet override)",
-            "IBlockBreakAnimationGateway (InMemory default; Wave 6 Paper BlockBreakAnimationPacket override)",
-            "IHudGateway (InMemory default; Wave 6b Paper ActionBar/BossBar override)",
-            "IMiningProgressDisplay (InMemory default thin-wraps IHudGateway)",
+            // Wave 5gui-depth (ADR-0114)
+            "IGuiAnimationController (InMemory default; Wave 6 Paper EntityMetadata/armor-stand override)",
+            "IGuiModalGateway (InMemory default; Wave 6 Paper anvil/boss-bar/overlay-packet override)",
+            "ITooltipRegistry (InMemory default; null/empty resolvers until Wave 5refine/Wave 5flex/Wave 5pve-survival wire rarity+category lookups)",
         )
     }
 }

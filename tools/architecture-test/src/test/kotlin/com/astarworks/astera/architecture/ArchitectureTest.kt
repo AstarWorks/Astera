@@ -1582,41 +1582,63 @@ class ArchitectureTest {
             }
     }
 
-    // ─── Wave 5animation — Player / Entity / Block animation purity (ADR-0113) ─
+    // ─── Wave 5gui-depth — GUI animation + Modal + Tooltip isolation (ADR-0114) ─
 
     /**
-     * ADR-0113 §"Decision": Wave 5animation introduces a new domain
-     * subpackage `core.domain.animation.*` (with `player/`, `entity/`,
-     * `block/`, `mining/` sub-packages) plus the matching events in
-     * `core.domain.event.*`. All of it MUST stay pure Kotlin: the gateways
-     * cross plugin lines (Combat, PVE-boss, World, Stats all subscribe),
-     * so any Bukkit / Exposed / kotlinx.serialization leak here would
-     * pollute every downstream subscriber too.
+     * ADR-0114 §"Decision": Wave 5gui-depth introduces `core.domain.guidepth.*`
+     * carrying the GUI animation / modal / tooltip vocabulary
+     * (`AnimationHandle`, `SlotAnimation` sealed, `HoverAnimation` sealed,
+     * `ModalHandle`, `GuiModalSpec` sealed, `AnchorPosition` sealed,
+     * `TooltipLine` sealed, `TooltipContent`, `TooltipScope` sealed,
+     * `ItemCategory`).
      *
-     * Same purity rules as ADR-0100 / ADR-0109 / ADR-0111. Bukkit-family
-     * imports + the persistence / koin / kotlinx.serialization family are
-     * the canonical block list. `org.joml.*` IS allowed per CLAUDE.md
-     * "JOML in domain OK" memory entry (we don't currently use it here
-     * but the rule shouldn't ban math libs across the board).
+     * Plus the new 5 cross-plugin events in `core.domain.event.*`
+     * (`SlotAnimationStarted` / `SlotAnimationCompleted` /
+     * `SlotAnimationCancelled` / `ModalShown` / `ModalDismissed`).
+     *
+     * The same purity rules as ADR-0109 / ADR-0110 / ADR-0111 apply:
+     * gui-depth is the vocabulary the future Paper-side animation +
+     * anvil/boss-bar/overlay-packet adapters (Wave 6) will exercise;
+     * letting Bukkit / Exposed / kotlinx.serialization leak in would
+     * couple platform decisions to the rules, exactly what
+     * `IGuiAnimationController` / `IGuiModalGateway` / `ITooltipRegistry` +
+     * `ITooltipExtensionProvider` ports were created to avoid.
+     *
+     * The Wave 5h `Easing` enum (32 standard curves) is reused — `SlotAnimation`
+     * / `HoverAnimation` / `IGuiAnimationController.animateScroll` all import
+     * `core.domain.animation.Easing`, which is itself a pure-Kotlin enum.
+     * The Wave 5j `HudGlyphRef` + `HudColor` types are reused for
+     * `TooltipLine.Image` / `TooltipLine.Text` / `TooltipLine.ProgressBar` —
+     * also pure-Kotlin domain primitives.
+     *
+     * Forbidden imports inside `core.domain.guidepth.*`:
+     *   - Bukkit family (`hasBukkitFamilyImport`)
+     *   - kotlinx.serialization annotations (DTOs would live in
+     *     `core.application.config.guidepth.*` if Phase 4 ever needs YAML for
+     *     modals; the in-memory wiring of Phase 1 keeps modal specs in code)
+     *   - JDBC / Exposed / postgres / lettuce (gui-depth is session-scoped)
+     *   - Koin (Phase 1 manual DI)
+     *
+     * JOML deliberately allowed: future hover / scroll math might want
+     * `Vector2f` if a Phase 4 web admin renderer materialises (Wave 5h-fix
+     * precedent — JOML is pure-math, no Minecraft coupling).
      */
     @Test
-    fun `animation domain stays pure (ADR-0113)`() {
+    fun `gui-depth domain stays pure (ADR-0114)`() {
         Konsist.scopeFromProject()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
-                pkg.startsWith("com.astarworks.astera.core.domain.animation")
+                pkg.startsWith("com.astarworks.astera.core.domain.guidepth")
             }
             .assertFalse(
-                additionalMessage = "ADR-0113: core.domain.animation.* (incl. player/, entity/, " +
-                    "block/, mining/ subpackages) must stay pure Kotlin. PlayerHand / SitTarget / " +
-                    "CustomAnimationId / PlayerAnimationError / MobAnimationKind / EntityAnimationError / " +
-                    "BlockBreakStage / BlockBreakAnimationError / MiningProgressContext / " +
-                    "MiningCancelReason are the cross-plugin animation vocabulary. Letting Bukkit / " +
-                    "kotlinx.serialization / Exposed / postgres / koin couple in would force every " +
-                    "subscriber plugin (Combat, PVE-boss, World, Stats) to drag the same edge " +
-                    "dependencies into its domain layer. Move couplings into " +
-                    "core.application.service.animation.* InMemory impls or future " +
+                additionalMessage = "ADR-0114: core.domain.guidepth.* must stay pure Kotlin. " +
+                    "AnimationHandle / SlotAnimation / HoverAnimation / ModalHandle / " +
+                    "GuiModalSpec / AnchorPosition / TooltipLine / TooltipContent / " +
+                    "TooltipScope / ItemCategory are the gui-depth vocabulary. Move " +
+                    "Bukkit / kotlinx.serialization / persistence / koin couplings into " +
+                    "core.application.config.guidepth.* DTOs (if ever needed), " +
+                    "core.application.service.guidepth.* InMemory impls, or " +
                     "*.adapter.paper.* Wave 6 sinks.",
             ) { file ->
                 hasBukkitFamilyImport(file) ||
