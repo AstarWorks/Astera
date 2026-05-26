@@ -543,6 +543,72 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>(particleContents, priority = 0)
         reloadRegistry.register(particleContents, particlesContentDir)
 
+        // ---- Sound contents (Wave 5effects, ADR-0109) -------------------
+        // SoundDefinition domain + Contents-driven YAML at content/sounds/.
+        // Walks the per-category subdirectories (skills/, combat/, match/, ...)
+        // recursively because authors drop one YAML per sound entry.
+        val soundsContentDir = contentDir.resolve("sounds")
+        val soundContents = com.astarworks.astera.core.application.contents.effect.SoundContents()
+        val soundReport = soundContents.bootstrapRecursive(soundsContentDir)
+        logger.info("Sounds loaded: ${soundReport.loaded} ok, ${soundReport.failed} failed")
+        services.register<com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry>(soundContents, priority = 0)
+        reloadRegistry.register(soundContents, soundsContentDir)
+
+        // ---- Effect schedulers + orchestrator (Wave 5effects, ADR-0109) -
+        // The in-memory schedulers compose IScheduler + IWorldGateway. The
+        // Paper-side IWorldGateway lands in Wave 6 (currently not in the
+        // service registry); when absent we register an inert no-op gateway
+        // so the schedulers stay invokable. Cross-plugin appliers
+        // (IStatusEffectApplier / IDamageApplier) get no-op defaults at
+        // priority 0; combat registers real impls at priority 100.
+        val effectsWorldGateway: com.astarworks.astera.core.application.port.outbound.IWorldGateway =
+            services.get<com.astarworks.astera.core.application.port.outbound.IWorldGateway>()
+                ?: com.astarworks.astera.core.application.service.effect.NoopWorldGatewayForEffects()
+        val noopStatusApplier = com.astarworks.astera.core.application.service.effect.NoopStatusEffectApplier()
+        val noopDamageApplier = com.astarworks.astera.core.application.service.effect.NoopDamageApplier()
+        services.register<com.astarworks.astera.core.application.port.outbound.effect.IStatusEffectApplier>(
+            noopStatusApplier, priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.effect.IDamageApplier>(
+            noopDamageApplier, priority = 0,
+        )
+        val particleScheduler = com.astarworks.astera.core.application.service.effect.InMemoryParticleScheduler(
+            scheduler, effectsWorldGateway,
+        )
+        val soundScheduler = com.astarworks.astera.core.application.service.effect.InMemorySoundScheduler(
+            scheduler, effectsWorldGateway,
+        )
+        val effectOrchestrator = com.astarworks.astera.core.application.service.effect.InMemoryEffectOrchestrator(
+            scheduler, effectsWorldGateway,
+            // Resolve through services so combat's higher-priority impls win when registered.
+            statusApplier = services.get<com.astarworks.astera.core.application.port.outbound.effect.IStatusEffectApplier>()
+                ?: noopStatusApplier,
+            damageApplier = services.get<com.astarworks.astera.core.application.port.outbound.effect.IDamageApplier>()
+                ?: noopDamageApplier,
+        )
+        val countdownTimer = com.astarworks.astera.core.application.service.effect.InMemoryCountdownTimer(scheduler)
+        val rateLimiter = com.astarworks.astera.core.application.service.effect.InMemoryRateLimiter(scheduler)
+        val playerSoundGateway = com.astarworks.astera.core.application.service.effect.LoggingPlayerSoundGateway()
+        services.register<com.astarworks.astera.core.application.port.outbound.effect.IParticleScheduler>(
+            particleScheduler, priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>(
+            soundScheduler, priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.effect.IEffectOrchestrator>(
+            effectOrchestrator, priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.effect.ICountdownTimer>(
+            countdownTimer, priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.effect.IRateLimiter>(
+            rateLimiter, priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>(
+            playerSoundGateway, priority = 0,
+        )
+        logger.info("Wave 5effects (ADR-0109) ports wired: ParticleScheduler / SoundScheduler / EffectOrchestrator / CountdownTimer / RateLimiter / PlayerSoundGateway")
+
         // ---- Wave 5e Session / Social / Vault / Settings / Reward / Audit / Snapshot / Attribute container ----
         // All in-memory at priority 0; persistence overlays at priority 100 when env vars are set.
         val attributeContainerStore: IPlayerAttributeContainerStore =

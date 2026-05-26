@@ -308,6 +308,15 @@ public class AsteraCombatPlugin : JavaPlugin() {
             // archetype handler routes per-phase mechanic lists through it.
             val celEvaluator = services.getOrThrow<ICelEvaluator>()
             val broadcaster = services.get<IBroadcaster>()
+            // Wave 5effects (ADR-0109): optional pull-through of Core's
+            // particle/sound infra so Mechanic.SpawnParticle + PlaySound stop
+            // warn-logging and route through the real scheduler + registry.
+            val particleScheduler =
+                services.get<com.astarworks.astera.core.application.port.outbound.effect.IParticleScheduler>()
+            val particleRegistry =
+                services.get<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>()
+            val soundRegistry =
+                services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry>()
             val mechanicDispatcher = MechanicDispatcher(
                 applyDamage = applyDamage,
                 applyStatus = applyStatus,
@@ -318,6 +327,9 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 celEvaluator = celEvaluator,
                 scheduler = scheduler,
                 eventBus = eventBus,
+                particleScheduler = particleScheduler,
+                particleRegistry = particleRegistry,
+                soundRegistry = soundRegistry,
             )
             registrations += services.register<MechanicDispatcher>(mechanicDispatcher)
 
