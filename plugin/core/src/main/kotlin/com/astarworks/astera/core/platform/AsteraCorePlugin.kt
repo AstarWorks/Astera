@@ -318,6 +318,15 @@ public class AsteraCorePlugin : JavaPlugin() {
      */
     private var perViewerQuitSub: IDomainEventBus.Subscription? = null
 
+    /**
+     * Wave 5transitions (ADR-0115): retained so [onDisable] can call
+     * `shutdown()` which cancels the per-tick task and publishes
+     * `HologramTransitionCancelled(reasonKind = "scheduler_shutdown")` for
+     * every in-flight transition.
+     */
+    private var holoTransitionController:
+        com.astarworks.astera.core.application.service.hologram.InMemoryHologramTransitionController? = null
+
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
 
@@ -1534,6 +1543,40 @@ public class AsteraCorePlugin : JavaPlugin() {
         )
         logger.info("Wave 5gui-depth GUI animation + modal + tooltip-extension ports wired.")
 
+        // ── Wave 5transitions (ADR-0115) — DisplayEntity transition foundation ─
+        //
+        // Wave 5h shipped `IHologramGateway` as a write-only surface but did
+        // not register an InMemory default — feature plugins that wanted a
+        // hologram couldn't get one in tests. Wave 5transitions both wires
+        // the gateway (so PoC tooling has one out of the box) and lands its
+        // transition controller (so Wave 5h's reactive binding pipeline can
+        // tween per-field, including the 16 new per-type updaters).
+        //
+        // The controller subscribes to its own repeating tick task at
+        // construction; the explicit `holoTransitionController` reference is
+        // retained so [onDisable] can call `shutdown()` which cancels the
+        // tick task AND publishes `HologramTransitionCancelled(reasonKind =
+        // "scheduler_shutdown")` for every in-flight transition (no silent
+        // leak on plugin reload).
+        services.register<com.astarworks.astera.core.application.port.outbound.IHologramGateway>(
+            com.astarworks.astera.core.application.service.InMemoryHologramGateway(),
+            priority = 0,
+        )
+        val holoGateway = services
+            .getOrThrow<com.astarworks.astera.core.application.port.outbound.IHologramGateway>()
+        val holoTransitionController =
+            com.astarworks.astera.core.application.service.hologram.InMemoryHologramTransitionController(
+                gateway = holoGateway,
+                scheduler = scheduler,
+                eventBus = eventBus,
+            )
+        services.register<com.astarworks.astera.core.application.port.outbound.hologram.IHologramTransitionController>(
+            holoTransitionController,
+            priority = 0,
+        )
+        this.holoTransitionController = holoTransitionController
+        logger.info("Wave 5transitions hologram gateway + transition controller wired.")
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
@@ -1546,6 +1589,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         afkSweepHandle?.cancel()
         matchQueueMetric?.stop()
         metricsHttpServer?.stop()
+        holoTransitionController?.shutdown()
         paperScheduler?.stop()
     }
 
@@ -1658,6 +1702,9 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IGuiAnimationController (InMemory default; Wave 6 Paper EntityMetadata/armor-stand override)",
             "IGuiModalGateway (InMemory default; Wave 6 Paper anvil/boss-bar/overlay-packet override)",
             "ITooltipRegistry (InMemory default; null/empty resolvers until Wave 5refine/Wave 5flex/Wave 5pve-survival wire rarity+category lookups)",
+            // Wave 5transitions (ADR-0115)
+            "IHologramGateway (InMemory default; Wave 6b PaperHologramGateway over Display entities; 16 new per-type updaters)",
+            "IHologramTransitionController (InMemory default; tick-stepped tween with Composite + Timeline + LoopMode + 32 Easing curves)",
         )
     }
 }

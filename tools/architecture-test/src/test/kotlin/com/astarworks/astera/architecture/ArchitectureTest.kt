@@ -1654,6 +1654,73 @@ class ArchitectureTest {
             }
     }
 
+    /**
+     * Wave 5transitions, ADR-0115 §H: `core.domain.hologram.transition.*`
+     * stays pure-Kotlin (plus JOML for the rotation interpolator). The
+     * package holds the `HologramTransition` sealed hierarchy + `HologramTimeline`
+     * + `LoopMode` + interpolator helpers + the transition handle value
+     * class — none of which may know about Bukkit, persistence, an event
+     * bus, a scheduler, or the gateway port they animate against.
+     *
+     * The same JOML carve-out as `HologramTransform` applies (Wave 5h-fix
+     * precedent — JOML is pure-math, no Minecraft coupling). The transition
+     * interpolators wrap `Quaternionf.slerp(other, factor)` to keep the
+     * controller free of JOML direct calls — that wrapping belongs in
+     * `core.domain.hologram.transition.HologramRotationInterpolator` and
+     * deliberately stays in domain (per `feedback_joml_in_domain` memory).
+     *
+     * Explicitly forbidden:
+     *  - Bukkit family (org.bukkit / io.papermc / org.spigotmc /
+     *    com.destroystokyo.paper / com.mojang) — adapter sinks live in
+     *    `*.adapter.paper.*`
+     *  - kotlinx.serialization — YAML / JSON shaping belongs in
+     *    `core.application.config.hologram.*` DTOs (if introduced)
+     *  - Persistence drivers (Exposed / Postgres / SQL / Lettuce) —
+     *    transitions are ephemeral; no Wave 5transitions migration
+     *  - `IDomainEventBus` / `IBroadcaster` — these are application-layer
+     *    ports; the controller publishes events, not the transition value
+     *  - `IScheduler` — tick stepping is the controller's responsibility,
+     *    not the transition value's
+     *  - `IHologramGateway` — the controller (in application/) holds the
+     *    gateway reference, not the transition value
+     *  - Koin — Phase 1 manual DI; the controller is wired in
+     *    `AsteraCorePlugin.onEnable`
+     */
+    @Test
+    fun `hologram transition domain stays pure (ADR-0115)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.core.domain.hologram.transition")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0115 violation: core.domain.hologram.transition.* must " +
+                    "stay pure Kotlin (+ JOML for rotation interpolation). " +
+                    "HologramTransition / HologramTimeline / LoopMode / HologramTransitionHandle " +
+                    "/ HologramRotationInterpolator / HologramColorInterpolator are the transition " +
+                    "vocabulary. Move Bukkit / kotlinx.serialization / persistence / koin / " +
+                    "IDomainEventBus / IBroadcaster / IScheduler / IHologramGateway couplings into " +
+                    "core.application.service.hologram.* InMemory impl, or *.adapter.paper.* " +
+                    "Wave 6 sinks.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin") ||
+                            imp.name.endsWith(".IDomainEventBus") ||
+                            imp.name.endsWith(".IBroadcaster") ||
+                            imp.name.endsWith(".IScheduler") ||
+                            imp.name.endsWith(".IHologramGateway")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
