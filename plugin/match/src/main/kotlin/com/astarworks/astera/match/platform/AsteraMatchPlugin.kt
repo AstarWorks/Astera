@@ -808,6 +808,34 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 "/astera-match {abort,cancel,restart} sub-commands registered.",
         )
 
+        // ── Wave 5lobby-content (ADR-0119) — `lobby.queue.*` intent bridge ─
+        // Lobby compass tile / queue NPC right-click emits `lobby.queue.show`
+        // (open mode-list sub-menu) or `lobby.queue.join` with
+        // `payload[modeKey] = "norma" | "custom:<id>" | "tournament:<id>"`.
+        // The handler resolves the player's party via IPartyRepository for
+        // party-aware enqueue (Wave 5w contract).
+        val lobbyQueueIntentHandler =
+            com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler(
+                matchmaker = matchmaker,
+                parties = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPartyRepository>(),
+                guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
+                mcServer = services.getOrThrow<IMcServer>(),
+                messages = services.getOrThrow<IMessageRenderer>(),
+                playerGateway = playerGateway,
+            )
+        val lobbyQueueIntentRouter =
+            services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>()
+        registrations += lobbyQueueIntentRouter.register(
+            com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler.INTENT_PREFIX,
+        ) { intent, player ->
+            lobbyQueueIntentHandler.handle(intent, player)
+        }
+
+        logger.info(
+            "Wave 5lobby-content wired: LobbyQueueIntentHandler registered on " +
+                "'lobby.queue.' prefix.",
+        )
+
         logger.info(
             "Astera-Match enabled. Services: IMatchRepository, IStageRegistry, " +
                 "IAnomalyRegistry, IGeneratorRegistry, IMatchLifecycle, IMatchTeamLookup, " +

@@ -1,0 +1,35 @@
+# Wave 5lobby-content (ADR-0119) — friends list (Phase 1 skeleton).
+#
+# Reload-aware via Wave 5h `/astera reload gui`. The Kotlin
+# `FriendsListGuiSpec` is the runtime fallback when no YAML is present;
+# this YAML override wins once loaded.
+#
+# Per-friend tile rendering arrives in a future wave once
+# `player.friends.*` IGuiBindingResolver keys land.
+
+id: friends-list
+title_key: astera.gui.friends-list.title
+size: CHEST_54
+
+slots:
+  - type: static
+    index: 45
+    item: gui-tile-friends
+    on_left:
+      key: lobby.friends.add
+    tooltip:
+      - astera.gui.friends-list.add.tooltip
+  - type: static
+    index: 49
+    item: gui-pane-red
+    on_left:
+      key: gui.close
+    tooltip:
+      - astera.gui.button.close
+  - type: static
+    index: 53
+    item: gui-tile-friends
+    on_left:
+      key: lobby.friends.pending
+    tooltip:
+      - astera.gui.friends-list.pending.tooltip

@@ -1,0 +1,49 @@
+# Wave 5lobby-content (ADR-0119) — party manager (Phase 1 skeleton).
+#
+# Reload-aware via Wave 5h `/astera reload gui`. The Kotlin
+# `PartyManagerGuiSpec` is the runtime fallback when no YAML is present;
+# this YAML override wins once loaded.
+#
+# Member-tile rendering lands when `player.party.members`
+# IGuiBindingResolver keys arrive in a future wave.
+
+id: party-manager
+title_key: astera.gui.party-manager.title
+size: CHEST_27
+
+slots:
+  - type: static
+    index: 18
+    item: gui-tile-party
+    on_left:
+      key: lobby.party.invite
+    tooltip:
+      - astera.gui.party-manager.invite.tooltip
+  - type: static
+    index: 20
+    item: gui-tile-party
+    on_left:
+      key: lobby.party.transfer-leader
+    tooltip:
+      - astera.gui.party-manager.transfer-leader.tooltip
+  - type: static
+    index: 22
+    item: gui-pane-red
+    on_left:
+      key: gui.close
+    tooltip:
+      - astera.gui.button.close
+  - type: static
+    index: 24
+    item: gui-tile-party
+    on_left:
+      key: lobby.party.kick
+    tooltip:
+      - astera.gui.party-manager.kick.tooltip
+  - type: static
+    index: 26
+    item: gui-tile-party
+    on_left:
+      key: lobby.party.leave
+    tooltip:
+      - astera.gui.party-manager.leave.tooltip

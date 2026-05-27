@@ -1845,6 +1845,105 @@ public class AsteraCorePlugin : JavaPlugin() {
                 "ban,tempban,unban,warn,chat,announce} commands registered.",
         )
 
+        // ── Wave 5lobby-content (ADR-0119) ──────────────────────────────
+        //
+        // Lobby UX wireup: register the six core-side lobby intent handlers
+        // on IGuiIntentRouter (each claiming its own `lobby.<area>.` prefix),
+        // subscribe the BindCompass listener to PlayerJoinedServer +
+        // PlayerReturnedToLobby, and subscribe the OpenMainMenu listener to
+        // SkillCastRequested (filtered by sourceItemId == menu-compass).
+        //
+        // Match-side (lobby.queue.*) + Economy-side (lobby.shop.open) intent
+        // handlers register themselves in their own plugin's onEnable —
+        // ADR-0022 sibling-isolation forbids Core from referencing Match /
+        // Economy use cases.
+        val lobbyTravelHandler = com.astarworks.astera.core.application.gui.lobby.intent
+            .LobbyTravelShowIntentHandler(
+                travelToPve = travelToPve,
+                travelToSurvival = travelToSurvival,
+                returnToLobby = returnToLobby,
+                guiAdapter = guiAdapter,
+                mcServer = mcServer,
+                messages = messages,
+                playerGateway = playerGateway,
+            )
+        val lobbyCustomizeHandler = com.astarworks.astera.core.application.gui.lobby.intent
+            .LobbyCustomizeShowIntentHandler(
+                guiAdapter = guiAdapter,
+                mcServer = mcServer,
+                messages = messages,
+                playerGateway = playerGateway,
+            )
+        val lobbyProfileHandler = com.astarworks.astera.core.application.gui.lobby.intent
+            .LobbyProfileShowIntentHandler(
+                guiAdapter = guiAdapter,
+                mcServer = mcServer,
+                messages = messages,
+                playerGateway = playerGateway,
+            )
+        val lobbyFriendsHandler = com.astarworks.astera.core.application.gui.lobby.intent
+            .LobbyFriendsShowIntentHandler(
+                guiAdapter = guiAdapter,
+                mcServer = mcServer,
+                messages = messages,
+                playerGateway = playerGateway,
+            )
+        val lobbyPartyHandler = com.astarworks.astera.core.application.gui.lobby.intent
+            .LobbyPartyShowIntentHandler(
+                guiAdapter = guiAdapter,
+                mcServer = mcServer,
+                messages = messages,
+                playerGateway = playerGateway,
+            )
+        val lobbySettingsHandler = com.astarworks.astera.core.application.gui.lobby.intent
+            .LobbySettingsShowIntentHandler(
+                guiAdapter = guiAdapter,
+                mcServer = mcServer,
+                messages = messages,
+                playerGateway = playerGateway,
+            )
+        guiIntentRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyTravelShowIntentHandler.INTENT_PREFIX,
+        ) { intent, player -> lobbyTravelHandler.handle(intent, player) }
+        guiIntentRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyCustomizeShowIntentHandler.INTENT_PREFIX,
+        ) { intent, player -> lobbyCustomizeHandler.handle(intent, player) }
+        guiIntentRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyProfileShowIntentHandler.INTENT_PREFIX,
+        ) { intent, player -> lobbyProfileHandler.handle(intent, player) }
+        guiIntentRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendsShowIntentHandler.INTENT_PREFIX,
+        ) { intent, player -> lobbyFriendsHandler.handle(intent, player) }
+        guiIntentRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyShowIntentHandler.INTENT_PREFIX,
+        ) { intent, player -> lobbyPartyHandler.handle(intent, player) }
+        guiIntentRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsShowIntentHandler.INTENT_PREFIX,
+        ) { intent, player -> lobbySettingsHandler.handle(intent, player) }
+
+        val bindCompassListener = com.astarworks.astera.core.application.eventbus.listeners.lobby
+            .BindCompassOnLobbyJoinListener(inventoryMutator = inventoryMutator)
+        eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { event ->
+            bindCompassListener.handleJoin(event)
+        }
+        eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerReturnedToLobby::class) { event ->
+            bindCompassListener.handleReturn(event)
+        }
+        val openMainMenuListener = com.astarworks.astera.core.application.eventbus.listeners.lobby
+            .OpenMainMenuOnCompassClickListener(
+                mcServer = mcServer,
+                guiAdapter = guiAdapter,
+            )
+        eventBus.subscribe(com.astarworks.astera.core.domain.event.SkillCastRequested::class) { event ->
+            openMainMenuListener.handle(event)
+        }
+
+        logger.info(
+            "Wave 5lobby-content wired: 6 lobby intent handlers " +
+                "(travel/customize/profile/friends/party/settings) registered; " +
+                "BindCompassOnLobbyJoin + OpenMainMenuOnCompassClick subscribed.",
+        )
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 

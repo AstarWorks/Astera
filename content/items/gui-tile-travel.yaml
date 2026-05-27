@@ -1,0 +1,7 @@
+# Wave 5lobby-content (ADR-0119) — placeholder tile icon for travel.
+
+id: gui-tile-travel
+material: ENDER_PEARL
+name:
+  ja: "<gold>移動</gold>"
+  en: "<gold>Travel</gold>"

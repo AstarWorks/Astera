@@ -21,6 +21,9 @@ astera:
       not_found: "<red>アイテム ID <gold>{item}</gold> が見つかりません</red>"
       usage: "<yellow>使い方: /astera-items give <プレイヤー> <アイテムID></yellow>"
     player-only: "<red>このコマンドはプレイヤーのみ実行できます。</red>"
+    player-offline: "<red>このコマンドはオンライン中のみ実行できます。</red>"
+    menu:
+      root: "<gray>メインメニューを開きます。</gray>"
     reload:
       unknown_category: "<red>未登録の reload カテゴリです。Tab キーで登録済みコンテンツタイプを表示できます。</red>"
       load_failed: "<red>reload を中止しました。一部 YAML がパースに失敗しています。直前の状態は保持されています。サーバーログを確認してください。</red>"
@@ -71,6 +74,77 @@ astera:
       unknown: "<red>不明なバインディング: {binding}</red>"
       unavailable: "<gray>(バインディングデータ利用不可)</gray>"
       resolved_to_barrier: "<red>バインディング解決失敗 (プレースホルダ)。</red>"
+    error:
+      open-rejected: "<red>メニューを開けませんでした。</red>"
+    # Wave 5lobby-content (ADR-0119) — ロビー GUI タイトル + タイル tooltip.
+    main-menu:
+      title: "<gold>メインメニュー</gold>"
+      queue:
+        tooltip: "<gray>クリックでマッチキューに参加。</gray>"
+      shop:
+        tooltip: "<gray>クリックでロビーショップを開く。</gray>"
+      refinement:
+        tooltip: "<gray>クリックでアイテムを強化。</gray>"
+      customize:
+        tooltip: "<gray>クリックでロードアウトを編集。</gray>"
+      travel:
+        tooltip: "<gray>クリックで PvE / サバイバル / ロビーへ移動。</gray>"
+      profile:
+        tooltip: "<gray>クリックでプロフィールを表示。</gray>"
+    travel-menu:
+      title: "<gold>移動</gold>"
+      pve:
+        tooltip: "<gray>PvE オープンワールドへ。</gray>"
+      survival:
+        tooltip: "<gray>パーティのサバイバルアイランドへ。</gray>"
+      lobby:
+        tooltip: "<gray>ロビーに戻る。</gray>"
+    customize-menu:
+      title: "<gold>カスタマイズ</gold>"
+      loadout:
+        tooltip: "<gray>装備中のロードアウトを編集。</gray>"
+      refinement:
+        tooltip: "<gray>アイテムに強化を適用。</gray>"
+      profile:
+        tooltip: "<gray>プロフィールカードを表示。</gray>"
+    profile-card:
+      title: "<gold>プロフィール</gold>"
+      head:
+        tooltip: "<gray>自分のアバター。</gray>"
+      power-index:
+        tooltip: "<gray>パワー指数。</gray>"
+      currency:
+        tooltip: "<gray>通貨残高。</gray>"
+      recent-matches:
+        tooltip: "<gray>最近のマッチ。</gray>"
+    friends-list:
+      title: "<gold>フレンド</gold>"
+      add:
+        tooltip: "<gray>フレンド申請を送信。</gray>"
+      pending:
+        tooltip: "<gray>受信中のフレンド申請。</gray>"
+    party-manager:
+      title: "<gold>パーティ</gold>"
+      invite:
+        tooltip: "<gray>プレイヤーをパーティに招待。</gray>"
+      transfer-leader:
+        tooltip: "<gray>リーダー権限を委譲。</gray>"
+      kick:
+        tooltip: "<gray>メンバーをパーティから外す。</gray>"
+      leave:
+        tooltip: "<gray>パーティを抜ける。</gray>"
+    settings:
+      title: "<gold>設定</gold>"
+      locale:
+        tooltip: "<gray>表示言語を切り替え。</gray>"
+      volume:
+        tooltip: "<gray>音量を調整。</gray>"
+      controls:
+        tooltip: "<gray>操作スキームを切り替え。</gray>"
+    queue-mode-list:
+      title: "<gold>マッチキュー</gold>"
+      norma:
+        tooltip: "<gray>クリックで Norma ローテーションキューに参加。</gray>"
 
   weapons:
     command:
@@ -270,6 +344,15 @@ astera:
         already-enqueued: "<red>既にキューに入っています。</red>"
         mode-closed: "<red>そのモードは閉鎖中です。</red>"
         invalid-mode: "<red>未知のマッチメイク モード <gold>{mode}</gold></red>"
+    # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
+    queue:
+      unknown-mode: "<red>未知のキューモードです。</red>"
+      join:
+        success: "<green><gold>{mode}</gold> キューに参加しました。</green>"
+        already-queued: "<red>既にキューに参加しています。</red>"
+        not-queued: "<red>キューに参加していません。</red>"
+        mode-closed: "<red>そのキューモードは現在閉鎖中です。</red>"
+        party-too-large: "<red>パーティが選択モードに対して大きすぎます。</red>"
       dequeue:
         success: "<green>キューを離脱しました。</green>"
         not-enqueued: "<red>キューに参加していません。</red>"
@@ -656,3 +739,33 @@ astera:
       root: "<gray>管理者アナウンス配信をスケジュールします。</gray>"
     error:
       invalid-kind: "<red>無効な配信種別: {kind} (chat/actionbar/title のいずれか)。</red>"
+
+  # Wave 5lobby-content (ADR-0119) — ロビー intent + GUI surface.
+  travel:
+    success:
+      pve: "<green>PvE オープンワールドへ移動中。</green>"
+      survival: "<green>サバイバルアイランドへ移動中。</green>"
+      lobby: "<green>ロビーへ戻ります。</green>"
+    error:
+      teleport-failed: "<red>テレポートに失敗しました。</red>"
+      no-party: "<red>パーティに参加していません。サバイバルアイランドへ行く前にパーティに参加してください。</red>"
+      island-load-failed: "<red>サバイバルアイランドの読み込みに失敗しました ({detail})。</red>"
+
+  lobby:
+    npc:
+      queue:
+        name: "キューマスター"
+      shop:
+        name: "ロビー商人"
+      travel:
+        name: "旅の案内人"
+      refinement:
+        name: "強化師"
+      loadout:
+        name: "ロードアウトテーラー"
+      profile:
+        name: "プロフィールキーパー"
+      settings:
+        name: "設定スチュワード"
+      party:
+        name: "パーティコーディネーター"

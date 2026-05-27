@@ -1,0 +1,7 @@
+# Wave 5lobby-content (ADR-0119) — placeholder tile icon for customize/loadout.
+
+id: gui-tile-customize
+material: IRON_CHESTPLATE
+name:
+  ja: "<gold>カスタマイズ</gold>"
+  en: "<gold>Customize</gold>"
