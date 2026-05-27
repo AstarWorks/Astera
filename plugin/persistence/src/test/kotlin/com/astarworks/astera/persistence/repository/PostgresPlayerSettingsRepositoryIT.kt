@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.repository
 
+import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.player.ControlScheme
 import com.astarworks.astera.core.domain.player.ParticleVisibility
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -77,5 +78,42 @@ public class PostgresPlayerSettingsRepositoryIT : PostgresIntegrationTestBase() 
         repo.upsert(PlayerSettings(id, doubleJumpEnabled = false))
 
         assertThat(repo.find(id)!!.doubleJumpEnabled).isFalse
+    }
+
+    // ── Wave G 5player-prefs-social (ADR-0124) — locale + per-channel volume ──
+
+    @Test
+    public fun `locale and per-channel volume round-trip`() {
+        val repo = PostgresPlayerSettingsRepository(db)
+        val id = PlayerId(UUID.randomUUID())
+        val settings = PlayerSettings(
+            playerId = id,
+            locale = LocaleCode.JA,
+            musicVolume = 25,
+            soundVolume = 50,
+            voiceVolume = 0,
+        )
+
+        repo.upsert(settings)
+        val found = repo.find(id)
+
+        assertThat(found).isNotNull
+        assertThat(found!!.locale).isEqualTo(LocaleCode.JA)
+        assertThat(found.musicVolume).isEqualTo(25)
+        assertThat(found.soundVolume).isEqualTo(50)
+        assertThat(found.voiceVolume).isEqualTo(0)
+    }
+
+    @Test
+    public fun `default locale is EN and default volumes are 100`() {
+        val repo = PostgresPlayerSettingsRepository(db)
+        val id = PlayerId(UUID.randomUUID())
+        repo.upsert(PlayerSettings(id))
+
+        val found = repo.find(id)!!
+        assertThat(found.locale).isEqualTo(LocaleCode.EN)
+        assertThat(found.musicVolume).isEqualTo(100)
+        assertThat(found.soundVolume).isEqualTo(100)
+        assertThat(found.voiceVolume).isEqualTo(100)
     }
 }

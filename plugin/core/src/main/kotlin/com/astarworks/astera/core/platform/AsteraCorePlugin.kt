@@ -339,6 +339,14 @@ public class AsteraCorePlugin : JavaPlugin() {
 
     private var locationTracker: com.astarworks.astera.core.application.service.PlayerMovedLocationTracker? = null
 
+    /**
+     * Wave G 5player-prefs-social (ADR-0124): IGuiIntentRouter registrations
+     * for the Settings / Friends / Party intent handlers. Retained so
+     * [onDisable] can release classloader retention per IGuiIntentRouter's
+     * caller contract.
+     */
+    private var waveGIntentRegistrations: List<com.astarworks.astera.core.application.services.ServiceRegistry.Registration>? = null
+
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
 
@@ -938,7 +946,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         @Suppress("UNUSED_VARIABLE")
         val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
         val restoreSnapshotUseCase = RestoreInventorySnapshotUseCase(snapshotRepo, sessionRepo, eventBus)
-        val restoreOnJoin = RestoreInventoryOnPlayerJoinedListener(restoreSnapshotUseCase)
+        val restoreOnJoin = RestoreInventoryOnPlayerJoinedListener(restoreSnapshotUseCase, sessionRepo)
         wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { restoreOnJoin.handle(it) }
 
         // Silence unused-var (attributes/vault/settings/audit returned via registry for cross-plugin pickup).
@@ -2063,6 +2071,209 @@ public class AsteraCorePlugin : JavaPlugin() {
                 "attached to IServerBootstrapper (mode=Lenient).",
         )
 
+        // ── Wave G 5player-prefs-social (ADR-0124) — settings + friends + party ──
+        //
+        // Wires the player-self preference + social GUI surface end-to-end:
+        //  - 2 new setter use cases (SetLocaleUseCase / SetVolumeUseCase)
+        //  - 2 new party use cases (KickPartyMemberUseCase / TransferPartyLeaderUseCase)
+        //  - 9 lobby intent handlers (3 settings, 4 friends, 4 party)
+        //  - the show handlers already shipped by Wave 5lobby-content but
+        //    never wired — we wire those here too so the GUI surface is
+        //    end-to-end live (settings/friends/party show + close from main menu)
+        //  - 4 Brigadier command families (`/astera-language`, `/astera-volume`,
+        //    `/astera-friend-*`, `/astera-party-*`)
+        //
+        // Settings/Friends/Party share the same IGuiIntentRouter — registrations
+        // collect into `waveGRegistrations` so onDisable can release classloader
+        // retention per IGuiIntentRouter contract.
+        val setLocale = com.astarworks.astera.core.application.usecase.settings.SetLocaleUseCase(settingsRepo)
+        val setVolume = com.astarworks.astera.core.application.usecase.settings.SetVolumeUseCase(settingsRepo)
+        val setControlScheme = com.astarworks.astera.core.application.usecase.settings.SetControlSchemeUseCase(settingsRepo)
+        val friendshipRepo = services.getOrThrow<IFriendshipRepository>()
+        val partyRepoForWaveG = services.getOrThrow<IPartyRepository>()
+        val sendFriendRequest = com.astarworks.astera.core.application.usecase.social.SendFriendRequestUseCase(friendshipRepo)
+        val acceptFriendRequest = com.astarworks.astera.core.application.usecase.social.AcceptFriendRequestUseCase(friendshipRepo)
+        val removeFriend = com.astarworks.astera.core.application.usecase.social.RemoveFriendUseCase(friendshipRepo)
+        val createParty = com.astarworks.astera.core.application.usecase.social.CreatePartyUseCase(partyRepoForWaveG)
+        val joinParty = com.astarworks.astera.core.application.usecase.social.JoinPartyUseCase(partyRepoForWaveG)
+        val leaveParty = com.astarworks.astera.core.application.usecase.social.LeavePartyUseCase(partyRepoForWaveG)
+        val kickPartyMember = com.astarworks.astera.core.application.usecase.social.KickPartyMemberUseCase(partyRepoForWaveG)
+        val transferPartyLeader = com.astarworks.astera.core.application.usecase.social.TransferPartyLeaderUseCase(partyRepoForWaveG)
+
+        val waveGRegistrations = mutableListOf<com.astarworks.astera.core.application.services.ServiceRegistry.Registration>()
+        val waveGRouter = services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>()
+
+        // Settings — show + 3 application handlers
+        val settingsShowHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsShowIntentHandler(
+            guiAdapter = guiAdapter,
+            mcServer = mcServer,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        val settingsLocaleHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsLocaleIntentHandler(
+            setLocale = setLocale,
+            settings = settingsRepo,
+            guiAdapter = guiAdapter,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        val settingsVolumeHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsVolumeIntentHandler(
+            setVolume = setVolume,
+            settings = settingsRepo,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        val settingsControlsHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsControlsIntentHandler(
+            setControlScheme = setControlScheme,
+            settings = settingsRepo,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsShowIntentHandler.INTENT_SHOW,
+        ) { intent, player -> settingsShowHandler.handle(intent, player) }
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsLocaleIntentHandler.INTENT_CYCLE,
+        ) { intent, player -> settingsLocaleHandler.handle(intent, player) }
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsVolumeIntentHandler.INTENT_ADJUST,
+        ) { intent, player -> settingsVolumeHandler.handle(intent, player) }
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsControlsIntentHandler.INTENT_CYCLE,
+        ) { intent, player -> settingsControlsHandler.handle(intent, player) }
+
+        // Friends — show + 4 application handlers
+        val friendsShowHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendsShowIntentHandler(
+            guiAdapter = guiAdapter,
+            mcServer = mcServer,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        val friendAddHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendAddIntentHandler(
+            sendFriendRequest = sendFriendRequest,
+            guiAdapter = guiAdapter,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        val friendAcceptHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendAcceptIntentHandler(
+            acceptFriendRequest = acceptFriendRequest,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        val friendRemoveHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendRemoveIntentHandler(
+            removeFriend = removeFriend,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        val friendsPendingHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendsPendingIntentHandler(
+            friendships = friendshipRepo,
+            mcServer = mcServer,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendsShowIntentHandler.INTENT_SHOW,
+        ) { intent, player -> friendsShowHandler.handle(intent, player) }
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendAddIntentHandler.INTENT_ADD,
+        ) { intent, player -> friendAddHandler.handle(intent, player) }
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendAcceptIntentHandler.INTENT_ACCEPT,
+        ) { intent, player -> friendAcceptHandler.handle(intent, player) }
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendRemoveIntentHandler.INTENT_REMOVE,
+        ) { intent, player -> friendRemoveHandler.handle(intent, player) }
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendsPendingIntentHandler.INTENT_PENDING,
+        ) { intent, player -> friendsPendingHandler.handle(intent, player) }
+
+        // Party — show + 4 application handlers
+        val partyShowHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyShowIntentHandler(
+            guiAdapter = guiAdapter,
+            mcServer = mcServer,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        val partyInviteHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyInviteIntentHandler(
+            joinParty = joinParty,
+            parties = partyRepoForWaveG,
+            guiAdapter = guiAdapter,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        val partyKickHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyKickIntentHandler(
+            kickPartyMember = kickPartyMember,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        val partyTransferLeaderHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyTransferLeaderIntentHandler(
+            transferLeader = transferPartyLeader,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        val partyLeaveHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyLeaveIntentHandler(
+            leaveParty = leaveParty,
+            guiAdapter = guiAdapter,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyShowIntentHandler.INTENT_SHOW,
+        ) { intent, player -> partyShowHandler.handle(intent, player) }
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyInviteIntentHandler.INTENT_INVITE,
+        ) { intent, player -> partyInviteHandler.handle(intent, player) }
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyKickIntentHandler.INTENT_KICK,
+        ) { intent, player -> partyKickHandler.handle(intent, player) }
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyTransferLeaderIntentHandler.INTENT_TRANSFER,
+        ) { intent, player -> partyTransferLeaderHandler.handle(intent, player) }
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyLeaveIntentHandler.INTENT_LEAVE,
+        ) { intent, player -> partyLeaveHandler.handle(intent, player) }
+
+        waveGIntentRegistrations = waveGRegistrations
+
+        // Brigadier command families.
+        val playerPrefsCommands = com.astarworks.astera.core.application.command.PlayerPrefsCommands(
+            setLocale = setLocale,
+            setVolume = setVolume,
+            permissionService = permissionService,
+        )
+        playerPrefsCommands.build().forEach { commandHandler.register(it) }
+
+        val friendCommands = com.astarworks.astera.core.application.command.FriendCommands(
+            sendFriendRequest = sendFriendRequest,
+            acceptFriendRequest = acceptFriendRequest,
+            removeFriend = removeFriend,
+            friendships = friendshipRepo,
+            playerGateway = playerGateway,
+            mcServer = mcServer,
+            permissionService = permissionService,
+        )
+        friendCommands.build().forEach { commandHandler.register(it) }
+
+        val partyCommands = com.astarworks.astera.core.application.command.PartyCommands(
+            createParty = createParty,
+            joinParty = joinParty,
+            leaveParty = leaveParty,
+            kickPartyMember = kickPartyMember,
+            transferLeader = transferPartyLeader,
+            parties = partyRepoForWaveG,
+            playerGateway = playerGateway,
+            mcServer = mcServer,
+            permissionService = permissionService,
+        )
+        partyCommands.build().forEach { commandHandler.register(it) }
+
+        logger.info(
+            "Wave G 5player-prefs-social wired: 9 lobby intent handlers " +
+                "(settings/friends/party) + 4 Brigadier command families " +
+                "(/astera-language, /astera-volume, /astera-friend-*, /astera-party-*); " +
+                "${waveGRegistrations.size} intent registrations recorded for onDisable cleanup.",
+        )
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
@@ -2070,6 +2281,11 @@ public class AsteraCorePlugin : JavaPlugin() {
         logger.info("Astera-Core disabling.")
         wave5completeSubs.forEach { it.cancel() }
         wave5completeSubs.clear()
+        // Wave G 5player-prefs-social (ADR-0124) — release IGuiIntentRouter
+        // registrations so the router doesn't retain Wave-G handler lambdas
+        // (and their captured services) after a /reload.
+        waveGIntentRegistrations?.forEach { it.unregister() }
+        waveGIntentRegistrations = null
         locationTracker?.stop()
         locationTracker = null
         engagementDashboardHandle?.cancel()
