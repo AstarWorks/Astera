@@ -553,6 +553,20 @@ astera:
     getting_started_v2:
       title: "<gold>Getting Started (v2)</gold>"
     after_predicate: "<aqua>Great work — let's continue.</aqua>"
+    # Wave H 5content-depth (ADR-0125) — combat / skill tutorial scripts.
+    combat_tutorial:
+      title: "<gold>Advanced Combat</gold>"
+    combat:
+      intro: "<aqua>Welcome to combat tutorial. Cast each element to continue.</aqua>"
+      fire_done: "<gold>Fire cast confirmed. Try ice next.</gold>"
+      ice_done: "<aqua>Ice cast confirmed. Try lightning next.</aqua>"
+      complete: "<green>Combat tutorial complete!</green>"
+    skill_tutorial:
+      title: "<gold>Skill Basics</gold>"
+    skill:
+      intro: "<aqua>Welcome to skill tutorial. Cast a blast to begin.</aqua>"
+      first_cast: "<gold>First cast — well done. Try a buff next.</gold>"
+      complete: "<green>Skill tutorial complete!</green>"
 
   # Wave 5e — Achievement default names + descriptions (ADR-0034).
   # Worker γ exposes 8 milestone achievement IDs; admin-registered catalog
@@ -603,6 +617,25 @@ astera:
     master_of_blades:
       title: "<gold><bold>Master of Blades</bold></gold>"
       description: "<gray>50 kills + 5 match wins.</gray>"
+    # Wave H 5content-depth (ADR-0125) — content-baseline expansion.
+    first_mob_kill:
+      title: "<gold>First Mob Kill</gold>"
+      description: "<gray>Defeat your first PvE mob.</gray>"
+    kills_100:
+      title: "<gold>Centurion</gold>"
+      description: "<gray>Defeat 100 opponents.</gray>"
+    boss_defeat:
+      title: "<gold><bold>Boss Slayer</bold></gold>"
+      description: "<gray>Defeat the boss after 100 kills + 3 match wins.</gray>"
+
+  # Wave H 5content-depth (ADR-0125) — NotifyOnAchievementUnlockedListener keys.
+  # Distinct from `astera.advancement.*` (display catalog) and
+  # `astera.stats.achievement.*` (Wave 5e milestone labels). This namespace
+  # is the chat / HUD surface fired the moment an unlock lands.
+  achievement:
+    unlocked:
+      chat: "<gold>Achievement unlocked: <yellow>{achievement}</yellow></gold>"
+      subtitle: "<gold>Achievement: {achievement}</gold>"
 
   dialog:
     error:
@@ -627,6 +660,10 @@ astera:
       insufficient: "<yellow>You don't have enough ingredients.</yellow>"
       wrong-station: "<yellow>Use the correct crafting station.</yellow>"
       no-inventory: "<red>Your inventory snapshot is unavailable.</red>"
+    # Wave H 5content-depth (ADR-0125) — NotifyOnRecipeCraftedListener keys.
+    crafted:
+      chat: "<green>You crafted <gold>{count}× {item}</gold> ({recipe}).</green>"
+      subtitle: "<green>Crafted: {item}</green>"
   quest:
     error:
       unknown-chain: "<red>Unknown quest.</red>"
@@ -653,6 +690,24 @@ astera:
       a:
         title: "<yellow>Solo Stage</yellow>"
         desc: "<gray>Single stage.</gray>"
+    # Wave H 5content-depth (ADR-0125) — new quest chains.
+    forest-exploration:
+      title: "<gold>Forest Exploration</gold>"
+      hunt-forest-mobs:
+        title: "<yellow>Hunt 10 Forest Mobs</yellow>"
+        description: "<gray>Defeat 10 mobs in the forest biome to earn gold.</gray>"
+      prove-prowess:
+        title: "<yellow>Prove Your Prowess</yellow>"
+        description: "<gray>Win a single match to earn the Forest Ranger title.</gray>"
+    item-collection:
+      title: "<gold>Item Collection</gold>"
+      gather-iron:
+        title: "<yellow>Gather Iron Ingots</yellow>"
+        description: "<gray>Acquire iron ingots from any source.</gray>"
+    # UpdateQuestProgressOnQuestStageCompletedListener keys.
+    progress:
+      stage-completed: "<gold>Quest stage cleared!</gold>"
+      chain-completed: "<gold>Quest complete!</gold>"
 
   # Wave 5multi-skill (ADR-0101): multi-axis skill progression perks.
   progression:

@@ -1,0 +1,35 @@
+# Wave H 5content-depth (ADR-0125): boss-fight stage.
+#
+# Compact circular arena with a raised boss-spawn platform.
+# Designed to host the Wave 5pve-boss encounter pipeline (scorched-titan).
+# Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
+
+id: boss-arena
+
+display_name_key: astera.stage.boss-arena.name
+
+regions:
+  - name: full-arena
+    min: { x: -40.0, y: 64.0, z: -40.0 }
+    max: { x:  40.0, y: 90.0, z:  40.0 }
+
+  - name: boss-platform
+    min: { x:  -8.0, y: 68.0, z:  -8.0 }
+    max: { x:   8.0, y: 70.0, z:   8.0 }
+
+  - name: player-ring
+    min: { x: -30.0, y: 64.0, z: -30.0 }
+    max: { x:  30.0, y: 66.0, z:  30.0 }
+
+spawn_points:
+  - faction: attacker
+    position: { x: -25.0, y: 65.0, z: 0.0 }
+    yaw: 90.0
+  - faction: defender
+    position: { x:  25.0, y: 65.0, z: 0.0 }
+    yaw: 270.0
+  - faction: lobby
+    position: { x:   0.0, y: 75.0, z: 0.0 }
+  - faction: spectator
+    position: { x:   0.0, y: 90.0, z: 0.0 }
+    pitch: 75.0

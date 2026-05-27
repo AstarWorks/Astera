@@ -564,6 +564,9 @@ public class AdminOpsCommands(
             event.sender == playerId
         is com.astarworks.astera.core.domain.audit.AuditEvent.MatchStarted -> false
         is com.astarworks.astera.core.domain.audit.AuditEvent.MatchEnded -> false
+        // Wave H 5content-depth: preexisting exhaustiveness hole from
+        // Wave 5server-harden — ServerErrorReported has no player linkage.
+        is com.astarworks.astera.core.domain.audit.AuditEvent.ServerErrorReported -> false
     }
 
     private fun configErrorPlaceholders(

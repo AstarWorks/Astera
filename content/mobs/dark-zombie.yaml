@@ -1,0 +1,40 @@
+# Wave H 5content-depth (ADR-0125): cave-dweller low-HP melee mob.
+#
+# Designed as the canonical "fodder" mob for forest / overworld PvE
+# encounters: pathfinding AI, low HP, modest damage, no skill bindings
+# (so the MinimalMobAdapter ships it with vanilla melee behavior).
+
+id: astera:dark-zombie
+
+display_name:
+  en: "<dark_purple>Dark Zombie</dark_purple>"
+  ja: "<dark_purple>闇のゾンビ</dark_purple>"
+
+base_entity_type: MOB
+
+attributes:
+  mob.max_hp: 18.0
+  mob.damage: 3.5
+  mob.speed: 0.9
+
+appearance:
+  custom_name_visible: true
+  name_tag_color:
+    r: 120
+    g: 80
+    b: 160
+  glowing: false
+
+equipment: []
+
+skill_bindings: []
+
+loot_table: astera:dark-zombie-drops
+
+spawn_conditions:
+  max_light_level: 7
+  biome_keys:
+    - "minecraft:dark_forest"
+    - "minecraft:deep_dark"
+
+ai: pathfind

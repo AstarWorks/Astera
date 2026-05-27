@@ -1,0 +1,56 @@
+# Wave H 5content-depth (ADR-0125): ice-family single-target projectile.
+#
+# Pairs frost (ice) attribute damage with a freeze status that slows the
+# target's movement. Lower cooldown + lower damage than fire spells —
+# the kit's reliable poke option.
+
+id: frost-shard
+
+name:
+  ja: "氷の刃"
+  en: "Frost Shard"
+description:
+  ja: "氷属性の鋭い破片を放ち、対象の動きを鈍らせる。"
+  en: "Hurls a piercing shard of ice that chills its target on impact."
+
+archetype: projectile
+cooldown_ticks: 30
+tags: [ ranged, ice-family, slow ]
+
+params:
+  type: projectile
+  launch_speed: 2.2
+  max_lifetime_ticks: 50
+  damage:
+    - base: { kind: literal, value: 6.0 }
+      attribute: ice
+
+phases:
+  archetype: projectile
+  cast:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/blast-cast
+    - type: spawn_particle
+      targets: { kind: caster_offset, offset: { kind: literal, value: { x: 0.0, y: 1.5, z: 0.3 } } }
+      particle_id: example-burst
+  hit_entity:
+    - type: damage
+      targets: { kind: target }
+      components:
+        - base: { kind: literal, value: 6.0 }
+          attribute: ice
+    - type: apply_status
+      targets: { kind: target }
+      status_id: freeze
+      effect_duration_ticks: { kind: literal, value: 60 }
+      chance: { kind: literal, value: 0.70 }
+  hit_block:
+    - type: spawn_particle
+      targets: { kind: hit_location }
+      particle_id: example-burst
+  miss:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/whiff
+  expire: []

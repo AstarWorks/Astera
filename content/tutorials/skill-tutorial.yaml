@@ -1,0 +1,23 @@
+# Wave H 5content-depth (ADR-0125): skill-cast onboarding script.
+#
+# Narrow skill-only flow — no item grants beyond the test wand,
+# just the cast → cooldown → recast loop. Designed as the precondition
+# tutorial for combat-tutorial.
+id: skill-tutorial
+displayKey: astera.tutorial.skill_tutorial.title
+steps:
+  - type: send_message
+    key: astera.tutorial.skill.intro
+  - type: grant_item
+    item_id: example-wand
+    count: 1
+  - type: await_skill_cast
+    skill_id: example-blast
+    timeout_sec: 60
+  - type: send_message
+    key: astera.tutorial.skill.first_cast
+  - type: await_skill_cast
+    skill_id: example-buff
+    timeout_sec: 60
+  - type: send_message
+    key: astera.tutorial.skill.complete

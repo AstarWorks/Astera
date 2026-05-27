@@ -1,0 +1,16 @@
+# Wave H 5content-depth (ADR-0125): shaped consumable recipe.
+# Apple at center, gold ingots in the 8 surrounding cells (vanilla pattern).
+# Workbench-station so the consumable upgrade path stays uniform.
+id: golden-apple
+output_item: golden-apple
+output_count: 1
+crafting_station: AsteraWorkbench
+ingredients:
+  type: shaped
+  pattern:
+    - "GGG"
+    - "GAG"
+    - "GGG"
+  key:
+    'G': gold-ingot
+    'A': apple

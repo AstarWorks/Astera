@@ -1,0 +1,56 @@
+# Wave H 5content-depth (ADR-0125): electric-family burst projectile.
+#
+# Electric single-target with high damage + paralysis chance — the
+# "high-risk high-reward" answer to frost-shard's reliable slow.
+# Long cooldown discourages spam.
+
+id: lightning-bolt
+
+name:
+  ja: "稲妻"
+  en: "Lightning Bolt"
+description:
+  ja: "電撃の閃光を一直線に放ち、対象を麻痺させる。"
+  en: "Hurls a crackling bolt of lightning that can paralyze the target."
+
+archetype: projectile
+cooldown_ticks: 120
+tags: [ ranged, electric-family, stun ]
+
+params:
+  type: projectile
+  launch_speed: 3.0
+  max_lifetime_ticks: 40
+  damage:
+    - base: { kind: literal, value: 16.0 }
+      attribute: electric
+
+phases:
+  archetype: projectile
+  cast:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/blast-cast
+    - type: spawn_particle
+      targets: { kind: caster_offset, offset: { kind: literal, value: { x: 0.0, y: 1.7, z: 0.5 } } }
+      particle_id: example-burst
+  hit_entity:
+    - type: damage
+      targets: { kind: target }
+      components:
+        - base: { kind: literal, value: 16.0 }
+          attribute: electric
+    - type: apply_status
+      targets: { kind: target }
+      status_id: example-paralysis
+      effect_duration_ticks: { kind: literal, value: 40 }
+      chance: { kind: literal, value: 0.50 }
+  hit_block:
+    - type: spawn_particle
+      targets: { kind: hit_location }
+      particle_id: example-burst
+  miss:
+    - type: play_sound
+      targets: { kind: caster }
+      sound_id: skills/whiff
+  expire: []

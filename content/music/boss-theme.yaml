@@ -1,0 +1,12 @@
+id: boss-theme
+display_name: "Boss Theme"
+source:
+  kind: resource_pack
+  path: "astera:music/boss-theme"
+license:
+  kind: royalty_free
+  attribution: "Astera Phase 1 placeholder (CC0)"
+mood: high_intensity
+default_volume: 0.85
+loop: true
+duration_ticks: 3600

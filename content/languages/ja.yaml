@@ -553,6 +553,20 @@ astera:
     getting_started_v2:
       title: "<gold>はじめに (v2)</gold>"
     after_predicate: "<aqua>素晴らしい、続きを進めましょう。</aqua>"
+    # Wave H 5content-depth (ADR-0125) — 戦闘 / スキル チュートリアル。
+    combat_tutorial:
+      title: "<gold>高度な戦闘</gold>"
+    combat:
+      intro: "<aqua>戦闘チュートリアルへようこそ。各属性を順に唱えましょう。</aqua>"
+      fire_done: "<gold>炎の詠唱を確認。次は氷を試しましょう。</gold>"
+      ice_done: "<aqua>氷の詠唱を確認。次は雷を試しましょう。</aqua>"
+      complete: "<green>戦闘チュートリアル完了！</green>"
+    skill_tutorial:
+      title: "<gold>スキル基本</gold>"
+    skill:
+      intro: "<aqua>スキルチュートリアルへようこそ。まずは爆発を唱えましょう。</aqua>"
+      first_cast: "<gold>初詠唱、お見事。次はバフを試しましょう。</gold>"
+      complete: "<green>スキルチュートリアル完了！</green>"
 
   # Wave 5e — Achievement の既定名・説明 (ADR-0034)。
   stats:
@@ -600,6 +614,22 @@ astera:
     master_of_blades:
       title: "<gold><bold>剣の達人</bold></gold>"
       description: "<gray>50 キル + 5 勝利。</gray>"
+    # Wave H 5content-depth (ADR-0125) — content-baseline expansion。
+    first_mob_kill:
+      title: "<gold>初のモブ撃破</gold>"
+      description: "<gray>最初の PvE モブを倒しましょう。</gray>"
+    kills_100:
+      title: "<gold>百人斬り</gold>"
+      description: "<gray>100 人の敵を倒しましょう。</gray>"
+    boss_defeat:
+      title: "<gold><bold>ボススレイヤー</bold></gold>"
+      description: "<gray>100 キル + 3 勝利の後にボスを討伐しましょう。</gray>"
+
+  # Wave H 5content-depth (ADR-0125) — NotifyOnAchievementUnlockedListener 用のキー。
+  achievement:
+    unlocked:
+      chat: "<gold>実績解除: <yellow>{achievement}</yellow></gold>"
+      subtitle: "<gold>実績: {achievement}</gold>"
 
   dialog:
     error:
@@ -624,6 +654,10 @@ astera:
       insufficient: "<yellow>素材が足りません。</yellow>"
       wrong-station: "<yellow>適切なクラフト台を使ってください。</yellow>"
       no-inventory: "<red>インベントリのスナップショットが利用できません。</red>"
+    # Wave H 5content-depth (ADR-0125) — NotifyOnRecipeCraftedListener 用のキー。
+    crafted:
+      chat: "<green><gold>{count}× {item}</gold> をクラフトしました ({recipe})。</green>"
+      subtitle: "<green>クラフト: {item}</green>"
   quest:
     error:
       unknown-chain: "<red>未知のクエストです。</red>"
@@ -650,6 +684,24 @@ astera:
       a:
         title: "<yellow>単独ステージ</yellow>"
         desc: "<gray>単一段階のみ。</gray>"
+    # Wave H 5content-depth (ADR-0125) — 新クエストチェーン。
+    forest-exploration:
+      title: "<gold>森の探索</gold>"
+      hunt-forest-mobs:
+        title: "<yellow>森のモブを10体倒す</yellow>"
+        description: "<gray>森林バイオームでモブを10体倒してゴールドを獲得しましょう。</gray>"
+      prove-prowess:
+        title: "<yellow>実力を示せ</yellow>"
+        description: "<gray>マッチに1回勝利してフォレストレンジャー称号を獲得しましょう。</gray>"
+    item-collection:
+      title: "<gold>アイテム収集</gold>"
+      gather-iron:
+        title: "<yellow>鉄インゴットを集める</yellow>"
+        description: "<gray>あらゆる手段で鉄インゴットを入手しましょう。</gray>"
+    # UpdateQuestProgressOnQuestStageCompletedListener 用のキー。
+    progress:
+      stage-completed: "<gold>クエスト段階クリア！</gold>"
+      chain-completed: "<gold>クエスト完了！</gold>"
 
   # Wave 5multi-skill (ADR-0101): 多軸スキル進行のパーク表示。
   progression:

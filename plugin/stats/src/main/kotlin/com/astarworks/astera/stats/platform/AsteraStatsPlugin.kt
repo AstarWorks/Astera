@@ -60,6 +60,7 @@ import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnMissio
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnDamageMilestoneListener
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnKillMilestoneListener
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnMatchWinListener
+import com.astarworks.astera.stats.application.eventbus.listeners.NotifyOnAchievementUnlockedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RefreshNameplateOnAchievementUnlockedListener
 import com.astarworks.astera.stats.application.port.outbound.IAchievementRepository
 import com.astarworks.astera.stats.application.port.outbound.INameplateMilestoneRepository
@@ -120,7 +121,6 @@ public class AsteraStatsPlugin : JavaPlugin() {
         // 2. Get shared services -------------------------------------------
         @Suppress("UNUSED_VARIABLE")
         val scheduler = services.getOrThrow<IScheduler>()
-        @Suppress("UNUSED_VARIABLE")
         val messages = services.getOrThrow<IMessageRenderer>()
         val broadcaster = services.getOrThrow<IBroadcaster>()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
@@ -318,6 +318,19 @@ public class AsteraStatsPlugin : JavaPlugin() {
         )
         subscriptions += eventBus.subscribe(AchievementUnlocked::class) {
             nameplateRefreshOnUnlock.handle(it)
+        }
+
+        // Wave H 5content-depth (ADR-0125) — second AchievementUnlocked
+        // subscriber. Distinct concern from RefreshNameplateOnAchievementUnlocked
+        // (which rebuilds the nameplate badge projection): this listener
+        // surfaces the unlock to the player via chat + a Subtitle HUD stub.
+        val notifyOnUnlock = NotifyOnAchievementUnlockedListener(
+            playerGateway = playerGateway,
+            messages = messages,
+            hudGateway = hudGateway,
+        )
+        subscriptions += eventBus.subscribe(AchievementUnlocked::class) {
+            notifyOnUnlock.handle(it)
         }
 
         // 7. /astera-stats command -----------------------------------------

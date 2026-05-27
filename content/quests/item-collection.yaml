@@ -1,0 +1,18 @@
+# Wave H 5content-depth (ADR-0125): single-stage gathering quest chain.
+# One stage: acquire iron-ingot via any source 50 times → 250 GOLD reward.
+# Demonstrates a non-chained quest with `item_acquired` criterion.
+id: item-collection
+title_key: astera.quest.item-collection.title
+stages:
+  - id: gather-iron
+    title_key: astera.quest.item-collection.gather-iron.title
+    description_key: astera.quest.item-collection.gather-iron.description
+    criteria:
+      type: item_acquired
+      item_id: iron-ingot
+    rewards:
+      - type: grant_currency
+        currency: GOLD
+        amount: 250
+      - type: grant_title
+        title_id: gatherer

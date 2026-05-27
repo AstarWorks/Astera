@@ -1,0 +1,18 @@
+# Wave H 5content-depth (ADR-0125): poison DoT.
+# Mechanically identical kind to burn (BURN family is the canonical
+# tick-damage carrier), but with lower per-tick damage and longer
+# duration so the two read distinctly in the kit balance sheet.
+
+id: poison
+
+display_name_key: astera.status.poison.name
+
+kind: burn
+default_duration_ticks: 200   # 10s of DoT damage @ 20 TPS
+
+stackable: true
+max_stacks: 4
+
+params:
+  type: burn
+  damage_per_tick: 0.8
