@@ -21,8 +21,18 @@ import com.astarworks.astera.core.domain.event.EndReason
  */
 public interface IMatchLifecycle {
 
-    /** Creates a match for [stageId] and starts the countdown. */
-    public fun start(stageId: StageId): Result<MatchId, StartMatchError>
+    /**
+     * Creates a match for [stageId] and starts the countdown.
+     *
+     * @param modeKey optional [com.astarworks.astera.match.domain.mode.GameModeId.value]
+     *   selecting the match's mode. `null` keeps the legacy 2-team Norma path
+     *   (every existing caller). `"annihilation"` triggers the 3-team
+     *   formation + Annihilation game-mode dispatch (Wave 5wireup §G16).
+     */
+    public fun start(
+        stageId: StageId,
+        modeKey: String? = null,
+    ): Result<MatchId, StartMatchError>
 
     /** Ends [matchId] for the given [reason]. */
     public fun end(matchId: MatchId, reason: EndReason): Result<Unit, EndMatchError>

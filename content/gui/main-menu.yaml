@@ -1,0 +1,58 @@
+# Lobby main menu — six navigation tiles in a 9-slot single-row chest
+# (Wave 5wireup, ADR-0116 §G17).
+#
+# Tiles are placed at slots 1/2/3/5/6/7 (skipping 0/4/8 so the row reads
+# centred). Each `on_left` intent is routed by the application-layer
+# IGuiIntentRouter — adding a new intent means extending the router, not
+# editing this file.
+#
+# Item ids are placeholder `gui-tile-*` references. Wave 6 inventory
+# adapter (gui-tile texture pack) supplies the actual visuals; for now
+# the items render through whatever the InMemoryItemRegistry returns.
+id: main-menu
+title_key: astera.gui.main-menu.title
+size: CHEST_9
+
+slots:
+  - type: static
+    index: 1
+    item: gui-tile-queue
+    on_left:
+      key: lobby.queue.show
+    tooltip:
+      - astera.gui.main-menu.queue.tooltip
+  - type: static
+    index: 2
+    item: gui-tile-shop
+    on_left:
+      key: lobby.shop.open
+    tooltip:
+      - astera.gui.main-menu.shop.tooltip
+  - type: static
+    index: 3
+    item: gui-tile-refinement
+    on_left:
+      key: lobby.refinement.open
+    tooltip:
+      - astera.gui.main-menu.refinement.tooltip
+  - type: static
+    index: 5
+    item: gui-tile-customize
+    on_left:
+      key: lobby.customize.open
+    tooltip:
+      - astera.gui.main-menu.customize.tooltip
+  - type: static
+    index: 6
+    item: gui-tile-travel
+    on_left:
+      key: lobby.travel.show
+    tooltip:
+      - astera.gui.main-menu.travel.tooltip
+  - type: static
+    index: 7
+    item: gui-tile-profile
+    on_left:
+      key: lobby.profile.show
+    tooltip:
+      - astera.gui.main-menu.profile.tooltip

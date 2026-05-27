@@ -196,6 +196,15 @@ public class AsteraStatsPlugin : JavaPlugin() {
         subscriptions += eventBus.subscribe(LeveledUp::class) { broadcastOnLeveledUpListener.handle(it) }
         subscriptions += eventBus.subscribe(AssistCredited::class) { recordAssistListener.handle(it) }
 
+        // Wave 5wireup §G7 — HUD listener for LeveledUp lives in stats per
+        // ADR-0022 sibling isolation (LeveledUp is owned by stats; Core
+        // cannot import it). The InMemory HUD gateway records the call only
+        // until Wave 6b's Paper renderer lands.
+        val hudGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+        val hudLeveledUpListener = com.astarworks.astera.stats.application.eventbus.listeners.hud
+            .HudUpdateOnLeveledUpListener(hudGateway)
+        subscriptions += eventBus.subscribe(LeveledUp::class) { hudLeveledUpListener.handle(it) }
+
         // ---- Wave 5e Achievement + LevelUpMission + Reward listeners ---------
         val achievementRepo = InMemoryAchievementRepository()
         registrations += services.register<IAchievementRepository>(achievementRepo, priority = 0)

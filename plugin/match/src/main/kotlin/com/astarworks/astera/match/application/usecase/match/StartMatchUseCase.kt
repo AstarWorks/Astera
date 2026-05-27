@@ -22,6 +22,29 @@ import java.util.UUID
  * Creates a new match for [stageId] and transitions it from WAITING → COUNTDOWN.
  *
  * Publishes [MatchStarted] on success.
+ *
+ * # Mode-aware team formation (Wave 5wireup, ADR-0116 §G16)
+ *
+ * Optional [execute] parameters let callers select the match's mode:
+ *
+ *  - `modeKey = null` (default) → 2-team formation (`red` / `blue`). Phase 1
+ *    Norma + every existing test path uses this.
+ *  - `modeKey = "annihilation"` → 3-team formation (`red` / `blue` /
+ *    `yellow`). The wiring layer in `AsteraMatchPlugin` reads the modeKey
+ *    off [MatchStarted] to dispatch `AnnihilationGameMode.onMatchStarted`
+ *    and seed `GameModeContext.scoringState["annihilation.teams"]` with the
+ *    team ids.
+ *
+ * `teamIds` is exposed for callers that want an explicit team set (testing,
+ * Wave 6+ custom mode wiring). When `null`, the team list is derived from
+ * the modeKey:
+ *
+ *  - `"annihilation"` → [DEFAULT_ANNIHILATION_TEAMS] = `[red, blue, yellow]`
+ *  - everything else → [DEFAULT_TEAMS] = `[red, blue]`
+ *
+ * `MessageKey` lookups for team names use a `astera.match.team.<id>`
+ * pattern so new team ids slot into the i18n catalogue without code
+ * changes.
  */
 public class StartMatchUseCase(
     private val stages: IStageRegistry,
@@ -30,7 +53,11 @@ public class StartMatchUseCase(
     private val scheduler: IScheduler,
 ) {
 
-    public fun execute(stageId: StageId): Result<MatchId, StartMatchError> {
+    public fun execute(
+        stageId: StageId,
+        modeKey: String? = null,
+        teamIds: List<TeamId>? = null,
+    ): Result<MatchId, StartMatchError> {
         val stage = stages.find(stageId)
             ?: return Result.failure(StartMatchError.StageNotFound(stageId))
 
@@ -40,21 +67,19 @@ public class StartMatchUseCase(
             return Result.failure(StartMatchError.AlreadyActive(stageId))
         }
 
+        val resolvedTeamIds: List<TeamId> = teamIds
+            ?: defaultTeamIdsFor(modeKey)
+        require(resolvedTeamIds.isNotEmpty()) { "StartMatchUseCase requires at least one team id" }
+
         val matchId = MatchId("match-${UUID.randomUUID().toString().take(8)}")
-        val initialTeams = listOf(
+        val initialTeams = resolvedTeamIds.map { teamId ->
             Team(
-                id = TeamId("red"),
-                displayNameKey = MessageKey("astera.match.team.red"),
-                colorKey = MessageKey("astera.match.team.red.color"),
+                id = teamId,
+                displayNameKey = MessageKey("astera.match.team.${teamId.value}"),
+                colorKey = MessageKey("astera.match.team.${teamId.value}.color"),
                 members = emptySet(),
-            ),
-            Team(
-                id = TeamId("blue"),
-                displayNameKey = MessageKey("astera.match.team.blue"),
-                colorKey = MessageKey("astera.match.team.blue.color"),
-                members = emptySet(),
-            ),
-        )
+            )
+        }
         val currentTick = scheduler.currentTick()
         val match = Match(
             id = matchId,
@@ -84,10 +109,27 @@ public class StartMatchUseCase(
                 matchId = matchId,
                 stageId = stageId,
                 atTick = currentTick,
+                modeKey = modeKey,
             ),
         )
 
         return Result.success(matchId)
+    }
+
+    private fun defaultTeamIdsFor(modeKey: String?): List<TeamId> = when (modeKey) {
+        MODE_KEY_ANNIHILATION -> DEFAULT_ANNIHILATION_TEAMS
+        else -> DEFAULT_TEAMS
+    }
+
+    public companion object {
+        public const val MODE_KEY_ANNIHILATION: String = "annihilation"
+
+        /** Two-team default used by every Phase 1 mode except Annihilation. */
+        public val DEFAULT_TEAMS: List<TeamId> = listOf(TeamId("red"), TeamId("blue"))
+
+        /** Three-team default required by Annihilation's nexus topology. */
+        public val DEFAULT_ANNIHILATION_TEAMS: List<TeamId> =
+            listOf(TeamId("red"), TeamId("blue"), TeamId("yellow"))
     }
 }
 

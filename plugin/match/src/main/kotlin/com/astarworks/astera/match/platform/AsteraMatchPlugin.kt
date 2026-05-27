@@ -276,7 +276,8 @@ public class AsteraMatchPlugin : JavaPlugin() {
 
         // 4. Expose IMatchLifecycle via ServiceRegistry -------------------------
         val facade = object : IMatchLifecycle {
-            override fun start(stageId: StageId) = startMatch.execute(stageId)
+            override fun start(stageId: StageId, modeKey: String?) =
+                startMatch.execute(stageId, modeKey = modeKey)
             override fun end(matchId: MatchId, reason: EndReason) = endMatch.execute(matchId, reason)
             override fun entry(matchId: MatchId, playerId: PlayerId, teamId: TeamId?) =
                 entryGame.execute(matchId, playerId, teamId)
@@ -449,27 +450,43 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 "${registered.size}). DefaultGameModeScheduler registered.",
         )
 
-        // Bridge: when a MatchStarted fires, resolve the match's mode (Phase 1
-        // PoC: every match runs in Norma) and dispatch through the framework
-        // hooks. This is the wiring seam Phase 3 Siege will reuse — change
-        // "the match's mode" resolution to read from the match config instead
-        // of hard-coding Norma, and Siege joins the framework with zero
-        // additional plumbing.
+        // Bridge: when a MatchStarted fires, resolve the match's mode via
+        // [MatchStarted.modeKey] (Wave 5wireup §G16) and dispatch through
+        // the framework hooks. `modeKey == null` keeps the legacy Norma
+        // path — every existing caller (admin `/astera-match start`,
+        // MatchFoundUseCase) defaults to Norma until they opt in.
+        //
+        // For Annihilation, the wiring pre-seeds `scoringState["annihilation.teams"]`
+        // with the Match's team ids so AnnihilationGameMode.inferTeams (which
+        // reads exactly that key) seeds the tracker with non-empty pillar
+        // teams. Without this seed, AnnihilationMatchTracker.register()
+        // creates an empty pillar set and the match cannot win-condition.
         subscriptions += eventBus.subscribe(MatchStarted::class) { event ->
-            val mode = gameModeFrameworkRegistry.get(NormaGameMode.ID) ?: return@subscribe
+            val modeId = resolveModeId(event.modeKey)
+            val mode = gameModeFrameworkRegistry.get(modeId) ?: return@subscribe
             val match = matches.findById(event.matchId)
             val participants = match?.teams?.flatMap { it.members } ?: emptyList()
-            val ctx = FrameworkGameModeContext(
+            val teamIds = match?.teams?.map { it.id }?.toSet() ?: emptySet()
+
+            var ctx = FrameworkGameModeContext(
                 matchId = event.matchId,
                 modeId = mode.id(),
                 participants = participants,
             )
+            // Annihilation reads team ids from this key — seed it before
+            // onMatchStarted fires so the tracker pillars are non-empty.
+            if (modeId == AnnihilationGameMode.ID && teamIds.isNotEmpty()) {
+                ctx = ctx.withState(AnnihilationGameMode.TEAMS_STATE_KEY, teamIds)
+            }
+
             mode.onMatchStarted(ctx)
             gameModeScheduler.register(event.matchId, mode, ctx)
         }
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.match.domain.event.PhaseChanged::class,
         ) { event ->
+            // PhaseChanged carries no modeKey — fall back to Norma (Phase 1
+            // PoC default; Wave 6 lands a per-match mode lookup on the event).
             val mode = gameModeFrameworkRegistry.get(NormaGameMode.ID) ?: return@subscribe
             val ctx = FrameworkGameModeContext(matchId = event.matchId, modeId = mode.id())
             val old = IGameModePhase.fromCore(event.from)
@@ -477,9 +494,14 @@ public class AsteraMatchPlugin : JavaPlugin() {
             mode.onPhaseChanged(ctx, old, next)
         }
         subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
-            val mode = gameModeFrameworkRegistry.get(NormaGameMode.ID) ?: return@subscribe
-            val ctx = FrameworkGameModeContext(matchId = event.matchId, modeId = mode.id())
-            mode.onMatchEnded(ctx)
+            // MatchEnded carries no modeKey. Dispatch through every registered
+            // mode so each mode gets its onMatchEnded hook (cheap because
+            // bus-less variants no-op). Wave 5wireup safer than hard-coding
+            // Norma — Annihilation would silently skip cleanup otherwise.
+            for (mode in gameModeFrameworkRegistry.all()) {
+                val ctx = FrameworkGameModeContext(matchId = event.matchId, modeId = mode.id())
+                mode.onMatchEnded(ctx)
+            }
             gameModeScheduler.unregister(event.matchId)
         }
 
@@ -671,6 +693,69 @@ public class AsteraMatchPlugin : JavaPlugin() {
             ),
         )
 
+        // ── Wave 5wireup (ADR-0116) ──────────────────────────────────────
+        //
+        // G9: register the queue command spec defined above but never wired.
+        //     Includes instantiating + registering the matchmaker itself —
+        //     Wave 5w defined `InMemoryMatchmaker` but no production wiring
+        //     used it (tests only). Phase 1 PoC defaults: 2 teams, 1 player
+        //     per team minimum (= 2 players total).
+        // G4: subscribe RespawnOnPlayerKilledListener.
+        // G5: subscribe TeleportToLobbyOnMatchEndedListener.
+        val matchmaker: IMatchmaker =
+            services.get<IMatchmaker>()
+                ?: InMemoryMatchmaker(eventBus = eventBus, scheduler = scheduler).also {
+                    registrations += services.register<IMatchmaker>(it, priority = 0)
+                }
+        commandHandler.register(
+            buildQueueCommandSpec(
+                matchmaker = matchmaker,
+                playerGateway = playerGateway,
+                permService = permService,
+            ),
+        )
+
+        val respawnUseCase = com.astarworks.astera.match.application.usecase.respawn.RespawnUseCase(
+            healthGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>(),
+            worldGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(),
+            itemRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
+            protectionGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ISpawnProtectionGateway>(),
+            eventBus = eventBus,
+            scheduler = scheduler,
+            statusEffectContainer = services.get<com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer>(),
+        )
+        val respawnSelectorPort: com.astarworks.astera.match.application.service.ISpawnSelector =
+            services.get<com.astarworks.astera.match.application.service.ISpawnSelector>()
+                ?: com.astarworks.astera.match.application.service.DefaultSpawnSelector().also {
+                    registrations += services.register<com.astarworks.astera.match.application.service.ISpawnSelector>(it, priority = 0)
+                }
+        val respawnOnKilled = com.astarworks.astera.match.application.eventbus.listeners.respawn
+            .RespawnOnPlayerKilledListener(
+                matches = matches,
+                stages = stages,
+                spawnSelector = respawnSelectorPort,
+                respawnUseCase = respawnUseCase,
+            )
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
+        ) { event -> respawnOnKilled.handle(event) }
+
+        val teleportLobbyListener = com.astarworks.astera.match.application.eventbus.listeners.lobby
+            .TeleportToLobbyOnMatchEndedListener(
+                matches = matches,
+                worldGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(),
+                eventBus = eventBus,
+                scheduler = scheduler,
+            )
+        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+            teleportLobbyListener.handle(event)
+        }
+
+        logger.info(
+            "Wave 5wireup wired: /astera-queue command registered; " +
+                "RespawnOnPlayerKilled + TeleportToLobbyOnMatchEnded subscribed.",
+        )
+
         logger.info(
             "Astera-Match enabled. Services: IMatchRepository, IStageRegistry, " +
                 "IAnomalyRegistry, IGeneratorRegistry, IMatchLifecycle, IMatchTeamLookup, " +
@@ -695,6 +780,24 @@ public class AsteraMatchPlugin : JavaPlugin() {
      * match config (region maps, item ids) is left at the data-class defaults
      * — stage YAML overrides them when matches start in Wave 6.
      */
+    /**
+     * Resolve the `MatchStarted.modeKey` string into the framework
+     * [com.astarworks.astera.match.domain.mode.GameModeId] used by
+     * [gameModeFrameworkRegistry] (Wave 5wireup §G16).
+     *
+     * `null` / empty / unknown → fall back to [NormaGameMode.ID] so any
+     * call site that ships without a mode key keeps the Phase 1 PoC Norma
+     * behaviour. Recognised keys today: `"annihilation"`, `"norma"`. New
+     * modes register their key here when they join the framework.
+     */
+    private fun resolveModeId(
+        modeKey: String?,
+    ): com.astarworks.astera.match.domain.mode.GameModeId = when (modeKey) {
+        AnnihilationGameMode.ID.value -> AnnihilationGameMode.ID
+        NormaGameMode.ID.value, null, "" -> NormaGameMode.ID
+        else -> NormaGameMode.ID
+    }
+
     private fun registerDefaultGameModes(registry: IGameModeRegistry) {
         registry.register(BattleLoyal(id = GameModeId("battle-loyal")))
         registry.register(BreakCore(id = GameModeId("break-core")))

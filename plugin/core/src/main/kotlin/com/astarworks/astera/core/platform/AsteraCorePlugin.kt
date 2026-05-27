@@ -1577,6 +1577,151 @@ public class AsteraCorePlugin : JavaPlugin() {
         this.holoTransitionController = holoTransitionController
         logger.info("Wave 5transitions hologram gateway + transition controller wired.")
 
+        // ── Wave 5wireup (ADR-0116) — E2E gameplay loop wireup ────────────
+        //
+        // Foundations that prior waves shipped but never wired:
+        //   - InMemoryPlayerProfileService (5e-fix)
+        //   - InMemoryDialogGateway (5i)
+        //   - InMemoryHudGateway (5j)
+        // Listeners that prior waves authored but never subscribed:
+        //   - CreateFirstTimeProfileOnPlayerJoinedListener (5e-fix, G1)
+        //   - StartTutorialOnFirstTimeProfileCreatedListener (G2)
+        //   - ShowWelcomeDialogOnFirstTimeProfileCreatedListener (G3)
+        //   - HudUpdateOnCurrencyChangedListener (G6)
+        // Use cases + commands that did not exist before this wave:
+        //   - TravelToPveWorldUseCase / TravelToSurvivalIslandUseCase /
+        //     ReturnToLobbyUseCase (G13/G14/G15)
+        //   - /astera travel / /astera menu / /astera help (G10/G11/G12)
+        // Plus QueueCommandSpec (5w) which `AsteraMatchPlugin` defines but
+        // never registers — wired alongside the lifecycle facade lookup on
+        // the match plugin side.
+        //
+        // Wave 6 + Postgres overlay swaps the InMemory defaults later (same
+        // pattern as every other Astera port).
+
+        // 1. Foundation: InMemory gateways the listeners depend on.
+        val dialogGateway: com.astarworks.astera.core.application.port.outbound.IDialogGateway =
+            services.get<com.astarworks.astera.core.application.port.outbound.IDialogGateway>()
+                ?: com.astarworks.astera.core.application.service.InMemoryDialogGateway(eventBus).also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.IDialogGateway>(it, priority = 0)
+                }
+        val hudGateway: com.astarworks.astera.core.application.port.outbound.IHudGateway =
+            services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+                ?: com.astarworks.astera.core.application.service.InMemoryHudGateway(eventBus, scheduler).also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.IHudGateway>(it, priority = 0)
+                }
+
+        // 2. Player profile service. The starter grant is read from
+        //    `content/balance/starter-grant.yaml` if present; otherwise the
+        //    listener still works with an empty grant (no loadout / wallet
+        //    credit / tutorial / dialog) and the join completes silently.
+        val starterGrantPath = contentDir.resolve("balance").resolve("starter-grant.yaml")
+        val starterGrant = com.astarworks.astera.core.application.service
+            .StarterGrantLoader()
+            .load(starterGrantPath)
+        val profileService: com.astarworks.astera.core.application.service.InMemoryPlayerProfileService =
+            com.astarworks.astera.core.application.service.InMemoryPlayerProfileService(
+                starterGrant = starterGrant,
+                itemRegistry = itemContents,
+                ledgerProvider = ledgerProvider,
+                tutorialRegistry = tutorialContents,
+            )
+        services.register<com.astarworks.astera.core.application.port.outbound.IPlayerProfileService>(
+            profileService,
+            priority = 0,
+        )
+
+        // 3. Onboarding listeners (G1 subscribe + G2 + G3).
+        val createFirstTimeListener = com.astarworks.astera.core.application.eventbus.listeners
+            .CreateFirstTimeProfileOnPlayerJoinedListener(
+                profileService = profileService,
+                sessionRepo = sessionRepo,
+                eventBus = eventBus,
+                scheduler = scheduler,
+            )
+        eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { event ->
+            createFirstTimeListener.handle(event)
+        }
+        val startTutorialListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
+            .StartTutorialOnFirstTimeProfileCreatedListener(
+                profileService = profileService,
+                sequencer = tutorialSequencer,
+            )
+        eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class) { event ->
+            startTutorialListener.handle(event)
+        }
+        val welcomeDialogListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
+            .ShowWelcomeDialogOnFirstTimeProfileCreatedListener(
+                profileService = profileService,
+                dialogGateway = dialogGateway,
+            )
+        eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class) { event ->
+            welcomeDialogListener.handle(event)
+        }
+
+        // 4. HUD listener (G6 — Currency lives in core; the LeveledUp + Combo
+        //    HUD listeners are wired by their respective plugins per ADR-0022
+        //    sibling isolation).
+        val hudCurrencyListener = com.astarworks.astera.core.application.eventbus.listeners.hud
+            .HudUpdateOnCurrencyChangedListener(hudGateway)
+        eventBus.subscribe(com.astarworks.astera.core.domain.event.CurrencyChanged::class) { event ->
+            hudCurrencyListener.handle(event)
+        }
+
+        // 5. Travel use cases (G13/G14/G15).
+        val travelToPve = com.astarworks.astera.core.application.usecase.travel
+            .TravelToPveWorldUseCase(
+                worldGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(),
+                eventBus = eventBus,
+                scheduler = scheduler,
+            )
+        val travelToSurvival = com.astarworks.astera.core.application.usecase.travel
+            .TravelToSurvivalIslandUseCase(
+                parties = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPartyRepository>(),
+                islands = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.survival.IPartyIslandRepository>(),
+                islandManager = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.survival.IPartyIslandManager>(),
+                worldGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(),
+                eventBus = eventBus,
+                scheduler = scheduler,
+            )
+        val returnToLobby = com.astarworks.astera.core.application.usecase.travel
+            .ReturnToLobbyUseCase(
+                worldGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(),
+                eventBus = eventBus,
+                scheduler = scheduler,
+            )
+
+        // 6. Commands (G9 register left to Match plugin; G10 + G11 + G12 here).
+        //    Each builder returns a Literal whose name (`travel` / `menu` /
+        //    `help`) becomes the top-level command. Mirrors the way
+        //    `astera-match` / `astera-queue` register under their own
+        //    top-level names in `AsteraMatchPlugin`. The `astera-` prefix is
+        //    rewritten so they appear under one player-facing namespace.
+        commandHandler.register(
+            com.astarworks.astera.core.application.command.buildTravelCommandSpec(
+                travelToPve = travelToPve,
+                travelToSurvival = travelToSurvival,
+                returnToLobby = returnToLobby,
+            ).copy(name = "astera-travel"),
+        )
+        commandHandler.register(
+            com.astarworks.astera.core.application.command.buildMainMenuCommandSpec(
+                guiAdapter = guiAdapter,
+                mcServer = mcServer,
+            ).copy(name = "astera-menu"),
+        )
+        commandHandler.register(
+            com.astarworks.astera.core.application.command.buildHelpCommandSpec()
+                .copy(name = "astera-help"),
+        )
+
+        logger.info(
+            "Wave 5wireup wired: IPlayerProfileService + IDialogGateway + " +
+                "IHudGateway registered; CreateFirstTimeProfile / StartTutorial / " +
+                "ShowWelcomeDialog / HudUpdateOnCurrencyChanged subscribed; " +
+                "/astera-travel + /astera-menu + /astera-help commands registered.",
+        )
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
