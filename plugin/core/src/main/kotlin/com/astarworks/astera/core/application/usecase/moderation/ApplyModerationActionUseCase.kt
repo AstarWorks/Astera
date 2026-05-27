@@ -18,6 +18,7 @@ import com.astarworks.astera.core.domain.permission.Permission
  * | [ModerationAction.Kick]          | `astera.mod.kick`         |
  * | [ModerationAction.Ban]           | `astera.mod.ban`          |
  * | [ModerationAction.ChatRateLimit] | `astera.mod.ratelimit`    |
+ * | [ModerationAction.Warn]          | `astera.mod.warn`         |
  *
  * Permission denial returns [ModerationError.Storage] with a stable
  * `permission_denied` prefix — callers (command spec) translate to a
@@ -48,6 +49,7 @@ public class ApplyModerationActionUseCase(
         is ModerationAction.Kick -> Permission(PERM_KICK)
         is ModerationAction.Ban -> Permission(PERM_BAN)
         is ModerationAction.ChatRateLimit -> Permission(PERM_RATELIMIT)
+        is ModerationAction.Warn -> Permission(PERM_WARN)
     }
 
     public companion object {
@@ -55,6 +57,7 @@ public class ApplyModerationActionUseCase(
         public const val PERM_KICK: String = "astera.mod.kick"
         public const val PERM_BAN: String = "astera.mod.ban"
         public const val PERM_RATELIMIT: String = "astera.mod.ratelimit"
+        public const val PERM_WARN: String = "astera.mod.warn"
 
         /**
          * Stable prefix on [ModerationError.Storage.detail] when the actor

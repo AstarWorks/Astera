@@ -292,6 +292,17 @@ astera:
       "replay.invalid-id": "<red>マッチ ID が不正です: {match}</red>"
       "replay.not-found": "<red>マッチ {match} の録画は保存されていません。</red>"
       "replay.export-failed": "<red>マッチ {match} の書き出しに失敗: {reason}</red>"
+      # Wave 5complete (ADR-0117 §Axis 3) — フラット管理サブコマンド。
+      abort: "<gray>マッチを即座に中止します (AdminEnded)。</gray>"
+      cancel: "<gray>マッチをキャンセルします (勝者なし)。</gray>"
+      restart: "<gray>現在のマッチを終了し、同じステージで新たに開始します。</gray>"
+    # Wave 5complete (ADR-0117 §Axis 4) — マッチごとのサイドバー表示。
+    sidebar:
+      title: "<gold><bold>マッチスコア</bold></gold>"
+      team-line: "<gray>チーム {team}: <white>{score}</white></gray>"
+      empty: "<gray>チームなし。</gray>"
+    error:
+      match-not-found: "<red>マッチが見つかりません。</red>"
 
   spawn:
     teleporting: "<gray>スポーン地点へテレポート中…</gray>"
@@ -593,3 +604,55 @@ astera:
         spot-on-cooldown: "<red>スポット再生中。しばらく待ってください。</red>"
         player-on-cooldown: "<red>連続採取クールタイム中です。</red>"
 
+
+  # Wave 5complete (ADR-0117) — orthogonal axes 2-6 完了: chat / moderation /
+  # killfeed / item-entity / announcement / match-admin / AFK-kick / sidebar.
+  mod:
+    command:
+      kick: "<gray>プレイヤーをサーバーから追放します。</gray>"
+      mute: "<gray>プレイヤーのチャットをミュートします。</gray>"
+      unmute: "<gray>プレイヤーの直近のアクティブなミュートを解除します。</gray>"
+      ban: "<gray>プレイヤーを恒久的に BAN します。</gray>"
+      tempban: "<gray>プレイヤーを期間付きで BAN します。</gray>"
+      unban: "<gray>プレイヤーの直近のアクティブな BAN を解除します。</gray>"
+      warn: "<gray>プレイヤーに警告を記録します。</gray>"
+    error:
+      invalid-player: "<red>そのプレイヤーはオンラインではありません。</red>"
+      invalid-reason: "<red>無効な理由キーです。</red>"
+      no-active-action: "<red>そのプレイヤーには該当する有効なアクションがありません。</red>"
+      storage: "<red>モデレーション保存エラー: {detail}</red>"
+    reason:
+      afk-auto-kick: "<gray>AFK 自動キック (システム)。</gray>"
+
+  chat:
+    command:
+      root: "<gray>プレイヤー向けチャットチャンネル。</gray>"
+      say: "<gray>グローバルチャンネルに発言します。</gray>"
+      team: "<gray>マッチチームに発言します。</gray>"
+      party: "<gray>パーティに発言します。</gray>"
+      msg: "<gray>プレイヤーに個人メッセージを送ります。</gray>"
+    error:
+      blank-message: "<red>メッセージが空です。</red>"
+      muted: "<red>現在ミュートされています。</red>"
+      rate-limited: "<red>メッセージ送信が速すぎます。</red>"
+      no-team: "<red>マッチチームに所属していません。</red>"
+      no-party: "<red>パーティに所属していません。</red>"
+      unknown-player: "<red>そのプレイヤーはオンラインではありません: {player}</red>"
+
+  killfeed:
+    victim: "<red>戦闘で倒されました。</red>"
+    killer: "<gold>敵を倒しました。</gold>"
+    entry: "<yellow>プレイヤーが倒されました。</yellow>"
+
+  item-entity:
+    error:
+      unknown-world: "<red>アイテムエンティティのワールドが不明です。</red>"
+      unknown-handle: "<red>アイテムエンティティのハンドルが不明です。</red>"
+      invalid-count: "<red>アイテム個数は 0 以上必須です。</red>"
+      world-gateway: "<red>ワールドゲートウェイエラー: アイテムスポーン失敗。</red>"
+
+  announce:
+    command:
+      root: "<gray>管理者アナウンス配信をスケジュールします。</gray>"
+    error:
+      invalid-kind: "<red>無効な配信種別: {kind} (chat/actionbar/title のいずれか)。</red>"

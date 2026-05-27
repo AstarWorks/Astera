@@ -327,6 +327,15 @@ public class AsteraCorePlugin : JavaPlugin() {
     private var holoTransitionController:
         com.astarworks.astera.core.application.service.hologram.InMemoryHologramTransitionController? = null
 
+    /**
+     * Wave 5complete (ADR-0117): per-listener subscriptions retained so
+     * [onDisable] can cancel cleanly. The four entries cover the AFK kick
+     * bridge + the two item-lifecycle subscribers + the location tracker.
+     */
+    private val wave5completeSubs: MutableList<IDomainEventBus.Subscription> = mutableListOf()
+
+    private var locationTracker: com.astarworks.astera.core.application.service.PlayerMovedLocationTracker? = null
+
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
 
@@ -1722,11 +1731,129 @@ public class AsteraCorePlugin : JavaPlugin() {
                 "/astera-travel + /astera-menu + /astera-help commands registered.",
         )
 
+        // ── Wave 5complete (ADR-0117) ─────────────────────────────────────
+        //
+        // PvP server completeness — 6-axis MECE close on top of the
+        // single-axis state machine the Wave 5wireup audit revealed.
+        //
+        //   Axis 2 (Communication) — register `/astera-chat` + `/astera-announce`
+        //                            commands on top of Wave 5e ChatChannel +
+        //                            Wave 5t IScheduledAnnouncementSystem.
+        //   Axis 3 (Moderation)    — flat /astera-{kick,mute,unmute,ban,tempban,
+        //                            unban,warn} commands + AFK auto-kick bridge.
+        //                            Wires IModerationService default + sealed
+        //                            +Warn variant landed in this wave.
+        //   Axis 5 (System)        — uses the existing Wave 5q IAfkDetector + sweep
+        //                            scheduler; only the kick-event subscriber is
+        //                            new.
+        //   Axis 6 (Item lifecycle)— register IItemEntityGateway default +
+        //                            subscribe SpawnItemEntityOnLootDropped +
+        //                            AutoPickupOnPlayerMoved; PlayerMovedLocationTracker
+        //                            keeps the killer's last-known position so the
+        //                            spawn listener has a position seed.
+        //
+        // Axes 1 (player main state) + 4 (UI overlay) — Match-side, wired
+        // by AsteraMatchPlugin.
+        val moderationService: com.astarworks.astera.core.application.port.outbound.IModerationService =
+            services.get<com.astarworks.astera.core.application.port.outbound.IModerationService>()
+                ?: com.astarworks.astera.core.application.service.InMemoryModerationService().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.IModerationService>(it, priority = 0)
+                }
+
+        val locationTrackerImpl = com.astarworks.astera.core.application.service.PlayerMovedLocationTracker(eventBus)
+        services.register<com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>(locationTrackerImpl, priority = 0)
+        wave5completeSubs += locationTrackerImpl.start()
+        locationTracker = locationTrackerImpl
+
+        val itemEntityGateway: com.astarworks.astera.core.application.port.outbound.item.IItemEntityGateway =
+            services.get<com.astarworks.astera.core.application.port.outbound.item.IItemEntityGateway>()
+                ?: com.astarworks.astera.core.application.service.item.InMemoryItemEntityGateway(scheduler).also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.item.IItemEntityGateway>(it, priority = 0)
+                }
+
+        val spawnOnLoot = com.astarworks.astera.core.application.eventbus.listeners.item
+            .SpawnItemEntityOnLootDroppedListener(
+                itemEntityGateway = itemEntityGateway,
+                locationLookup = locationTrackerImpl,
+            )
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.LootDropped::class,
+        ) { spawnOnLoot.handle(it) }
+
+        val autoPickup = com.astarworks.astera.core.application.eventbus.listeners.item
+            .AutoPickupOnPlayerMovedListener(
+                itemEntityGateway = itemEntityGateway,
+                inventoryMutator = inventoryMutator,
+                eventBus = eventBus,
+            )
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerMoved::class,
+        ) { autoPickup.handle(it) }
+
+        val kickOnAfk = com.astarworks.astera.core.application.eventbus.listeners.afk
+            .KickPlayerOnAfkKickedListener(moderationService)
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerAfkKicked::class,
+        ) { kickOnAfk.handle(it) }
+
+        // Apply / Lift use cases (shared by flat commands + the existing
+        // /astera mod tree if Wave 5h later wires it up).
+        val applyMod = com.astarworks.astera.core.application.usecase.moderation
+            .ApplyModerationActionUseCase(moderationService, permissionService)
+        val liftMod = com.astarworks.astera.core.application.usecase.moderation
+            .LiftModerationActionUseCase(moderationService, permissionService)
+
+        val flatModCommands = com.astarworks.astera.core.application.command.buildModerationFlatCommands(
+            apply = applyMod,
+            lift = liftMod,
+            service = moderationService,
+            playerResolver = playerGateway,
+            permService = permissionService,
+        )
+        flatModCommands.kick.copy(name = "astera-kick").let { commandHandler.register(it) }
+        flatModCommands.mute.copy(name = "astera-mute").let { commandHandler.register(it) }
+        flatModCommands.unmute.copy(name = "astera-unmute").let { commandHandler.register(it) }
+        flatModCommands.ban.copy(name = "astera-ban").let { commandHandler.register(it) }
+        flatModCommands.tempban.copy(name = "astera-tempban").let { commandHandler.register(it) }
+        flatModCommands.unban.copy(name = "astera-unban").let { commandHandler.register(it) }
+        flatModCommands.warn.copy(name = "astera-warn").let { commandHandler.register(it) }
+
+        commandHandler.register(
+            com.astarworks.astera.core.application.command.buildChatCommandSpec(
+                sendChat = com.astarworks.astera.core.application.usecase.chat.SendChatMessageUseCase(
+                    eventBus = eventBus,
+                    moderationService = moderationService,
+                ),
+                teamLookup = { services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>() },
+                partyRepository = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPartyRepository>(),
+                playerResolver = playerGateway,
+            ).copy(name = "astera-chat"),
+        )
+
+        commandHandler.register(
+            com.astarworks.astera.core.application.command.buildAnnouncementCommandSpec(
+                announcer = announcementSystem,
+                permissionService = permissionService,
+            ).copy(name = "astera-announce"),
+        )
+
+        logger.info(
+            "Wave 5complete wired: IModerationService + IItemEntityGateway + " +
+                "IPlayerLocationLookup registered; KickPlayerOnAfkKicked + " +
+                "SpawnItemEntityOnLootDropped + AutoPickupOnPlayerMoved + " +
+                "PlayerMovedLocationTracker subscribed; /astera-{kick,mute,unmute," +
+                "ban,tempban,unban,warn,chat,announce} commands registered.",
+        )
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
     override fun onDisable() {
         logger.info("Astera-Core disabling.")
+        wave5completeSubs.forEach { it.cancel() }
+        wave5completeSubs.clear()
+        locationTracker?.stop()
+        locationTracker = null
         engagementDashboardHandle?.cancel()
         analyticsEventListener?.stop()
         movementPacketBridgeSub?.cancel()

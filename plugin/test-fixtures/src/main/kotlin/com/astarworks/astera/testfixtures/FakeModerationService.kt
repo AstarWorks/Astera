@@ -78,5 +78,6 @@ public class FakeModerationService(
         is ModerationAction.Kick -> action.copy(liftedAt = now)
         is ModerationAction.Ban -> action.copy(liftedAt = now)
         is ModerationAction.ChatRateLimit -> action.copy(liftedAt = now)
+        is ModerationAction.Warn -> action.copy(liftedAt = now)
     }
 }

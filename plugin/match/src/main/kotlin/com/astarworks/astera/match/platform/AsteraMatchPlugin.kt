@@ -756,6 +756,58 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 "RespawnOnPlayerKilled + TeleportToLobbyOnMatchEnded subscribed.",
         )
 
+        // ── Wave 5complete (ADR-0117 §Axis 4 + Axis 5) ──────────────────
+        //
+        //   UpdateMatchSidebarListener           — pushes per-team scoreboard
+        //                                          on MatchStarted + EntityPickedUpItem
+        //   KillfeedOnPlayerKilledListener       — surfaces kill ticks via
+        //                                          HUD (victim actionbar, killer
+        //                                          subtitle, broadcast actionbar)
+        //   NormaVictoryConditionEvaluatorListener — auto-fires
+        //                                          ScoreThresholdReached when
+        //                                          VictoryConditionEvaluator finds
+        //                                          a unique winner; eliminates the
+        //                                          admin-manual /astera-match phase
+        //                                          step from the Norma win path.
+        //
+        // Sidebar + killfeed talk to the Core IHudGateway (Phase 1 in-memory
+        // by default; Wave 6b PaperHudGateway overlays at priority 100).
+        val hudGateway: com.astarworks.astera.core.application.port.outbound.IHudGateway =
+            services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+        val sidebarListener = com.astarworks.astera.match.application.eventbus.listeners.hud
+            .UpdateMatchSidebarListener(matches = matches, hudGateway = hudGateway)
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.MatchStarted::class,
+        ) { sidebarListener.onMatchStarted(it) }
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.match.domain.event.EntityPickedUpItem::class,
+        ) { sidebarListener.onItemPickedUp(it) }
+
+        val killfeedListener = com.astarworks.astera.match.application.eventbus.listeners.killfeed
+            .KillfeedOnPlayerKilledListener(matches = matches, hudGateway = hudGateway)
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
+        ) { killfeedListener.handle(it) }
+
+        val normaVictoryListener = com.astarworks.astera.match.application.eventbus.listeners.victory
+            .NormaVictoryConditionEvaluatorListener(
+                matches = matches,
+                switchPhase = com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase(
+                    matches = matches,
+                    eventBus = eventBus,
+                    scheduler = scheduler,
+                ),
+            )
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.match.domain.event.EntityPickedUpItem::class,
+        ) { normaVictoryListener.handle(it) }
+
+        logger.info(
+            "Wave 5complete wired: UpdateMatchSidebar + KillfeedOnPlayerKilled + " +
+                "NormaVictoryConditionEvaluator subscribed; " +
+                "/astera-match {abort,cancel,restart} sub-commands registered.",
+        )
+
         logger.info(
             "Astera-Match enabled. Services: IMatchRepository, IStageRegistry, " +
                 "IAnomalyRegistry, IGeneratorRegistry, IMatchLifecycle, IMatchTeamLookup, " +
@@ -1110,6 +1162,100 @@ public class AsteraMatchPlugin : JavaPlugin() {
                         CommandResult.Success
                     }
                 },
+            ),
+            // astera-match abort <matchId> [reason]  (Wave 5complete, ADR-0117 §Axis 3)
+            //   AdminEnded the match immediately. Reason is free-form for
+            //   audit (defaults to "abort").
+            CommandSpec.Literal(
+                name = "abort",
+                description = MessageKey("astera.match.command.abort"),
+                subcommands = listOf(
+                    CommandSpec.Argument(
+                        name = "match-id",
+                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                    ),
+                ),
+                executor = { ctx ->
+                    val matchIdStr = ctx.required<String>("match-id")
+                    val matchId = runCatching { MatchId(matchIdStr) }.getOrNull()
+                        ?: return@Literal CommandResult.Failure(
+                            MessageKey("astera.match.command.end.invalid-id"),
+                            mapOf("match" to matchIdStr),
+                        )
+                    when (val result = lifecycle.end(matchId, EndReason.AdminEnded)) {
+                        is Result.Success -> CommandResult.Success
+                        is Result.Failure -> result.error.toCommandFailure()
+                    }
+                },
+            ).requirePermission(
+                permissionService = permService,
+                permission = Permission("astera.match.admin.abort"),
+            ),
+            // astera-match cancel <matchId>  (Wave 5complete, ADR-0117 §Axis 3)
+            //   End the match with a Cancelled reason so reward distribution +
+            //   audit can branch on "this match never had a winner".
+            CommandSpec.Literal(
+                name = "cancel",
+                description = MessageKey("astera.match.command.cancel"),
+                subcommands = listOf(
+                    CommandSpec.Argument(
+                        name = "match-id",
+                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                    ),
+                ),
+                executor = { ctx ->
+                    val matchIdStr = ctx.required<String>("match-id")
+                    val matchId = runCatching { MatchId(matchIdStr) }.getOrNull()
+                        ?: return@Literal CommandResult.Failure(
+                            MessageKey("astera.match.command.end.invalid-id"),
+                            mapOf("match" to matchIdStr),
+                        )
+                    when (val result = lifecycle.end(matchId, EndReason.Cancelled("admin-cancel"))) {
+                        is Result.Success -> CommandResult.Success
+                        is Result.Failure -> result.error.toCommandFailure()
+                    }
+                },
+            ).requirePermission(
+                permissionService = permService,
+                permission = Permission("astera.match.admin.cancel"),
+            ),
+            // astera-match restart <matchId>  (Wave 5complete, ADR-0117 §Axis 3)
+            //   End the current match + start a new one on the same stage.
+            //   The two-step is best-effort: if start fails the players are
+            //   already booted from the prior match (TeleportToLobbyOnMatchEnded
+            //   handles teleport-out), so they land in lobby and can re-queue.
+            CommandSpec.Literal(
+                name = "restart",
+                description = MessageKey("astera.match.command.restart"),
+                subcommands = listOf(
+                    CommandSpec.Argument(
+                        name = "match-id",
+                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                    ),
+                ),
+                executor = { ctx ->
+                    val matchIdStr = ctx.required<String>("match-id")
+                    val matchId = runCatching { MatchId(matchIdStr) }.getOrNull()
+                        ?: return@Literal CommandResult.Failure(
+                            MessageKey("astera.match.command.end.invalid-id"),
+                            mapOf("match" to matchIdStr),
+                        )
+                    val match = matches.findById(matchId)
+                        ?: return@Literal CommandResult.Failure(
+                            MessageKey("astera.match.error.match-not-found"),
+                            mapOf("match" to matchIdStr),
+                        )
+                    val savedStage = match.stageId
+                    val endOutcome = lifecycle.end(matchId, EndReason.AdminEnded)
+                    if (endOutcome is Result.Failure) return@Literal endOutcome.error.toCommandFailure()
+                    when (val startOutcome = lifecycle.start(savedStage)) {
+                        is Result.Success -> CommandResult.Success
+                        is Result.Failure -> startOutcome.error.toCommandFailure()
+                    }
+                },
+            ).requirePermission(
+                permissionService = permService,
+                permission = Permission("astera.match.admin.restart"),
             ),
             // astera-match replay <start|stop|export> <matchId> (Wave 5v / ADR-0088)
             buildReplayCommandSpec(recorder, replayRepo, permService, exportRoot, playerGateway),
