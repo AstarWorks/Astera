@@ -394,6 +394,33 @@ astera:
     title:
       match_start: "<gold><bold>試合開始</bold></gold>"
       match_end: "<red><bold>試合終了</bold></red>"
+    # Wave 5match-hud (ADR-0118) — 9 listener wireup。
+    cooldown:
+      summary: "<aqua>クールダウン中:</aqua> <white>{count} 件</white>"
+    resource:
+      mana:
+        label: "<aqua>マナ:</aqua> <white>{remaining}/{max}</white>"
+      stamina:
+        label: "<yellow>スタミナ:</yellow> <white>{remaining}/{max}</white>"
+      ammo:
+        label: "<white>弾薬:</white> <white>{remaining}/{max}</white>"
+    status:
+      title: "<gold>付与中エフェクト</gold>"
+      line: "<white>{effect} ({stacks})</white>"
+      none: "<gray>(エフェクトなし)</gray>"
+    phase:
+      waiting: "<gray>フェーズ: 待機中</gray>"
+      countdown: "<yellow>フェーズ: カウントダウン</yellow>"
+      active: "<green>フェーズ: 対戦中</green>"
+      sudden-death: "<red>フェーズ: サドンデス！</red>"
+      ended: "<dark_gray>フェーズ: 終了</dark_gray>"
+    match:
+      timer: "<white>残り時間: {time}</white>"
+    tablist:
+      team-header: "<white>チーム {team}</white>"
+      team-footer: "<gray>Astera PvP</gray>"
+    respawn:
+      countdown: "<yellow>{seconds} 秒後にリスポーン…</yellow>"
 
   # Wave 5e — Tutorial 表示文字列 (ADR-0034)。
   # Wave 5p (ADR-0088): sequencer subkeys are nested here (single tutorial: section)。
@@ -643,6 +670,11 @@ astera:
     victim: "<red>戦闘で倒されました。</red>"
     killer: "<gold>敵を倒しました。</gold>"
     entry: "<yellow>プレイヤーが倒されました。</yellow>"
+    # Wave 5match-hud (ADR-0118 §8) — 武器詳細バリアント。
+    weapon:
+      item: "<yellow>{killer} が {item-name} で {victim} を倒した</yellow>"
+      skill: "<yellow>{killer} が {skill-id} で {victim} を倒した</yellow>"
+      generic: "<yellow>{killer} が {victim} を倒した</yellow>"
 
   item-entity:
     error:

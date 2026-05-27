@@ -392,6 +392,33 @@ astera:
     title:
       match_start: "<gold><bold>MATCH START</bold></gold>"
       match_end: "<red><bold>MATCH END</bold></red>"
+    # Wave 5match-hud (ADR-0118) — 9 listener wireup.
+    cooldown:
+      summary: "<aqua>Cooldowns:</aqua> <white>{count} active</white>"
+    resource:
+      mana:
+        label: "<aqua>Mana:</aqua> <white>{remaining}/{max}</white>"
+      stamina:
+        label: "<yellow>Stamina:</yellow> <white>{remaining}/{max}</white>"
+      ammo:
+        label: "<white>Ammo:</white> <white>{remaining}/{max}</white>"
+    status:
+      title: "<gold>Active Effects</gold>"
+      line: "<white>{effect} ({stacks})</white>"
+      none: "<gray>(no active effects)</gray>"
+    phase:
+      waiting: "<gray>Phase: Waiting</gray>"
+      countdown: "<yellow>Phase: Countdown</yellow>"
+      active: "<green>Phase: Active</green>"
+      sudden-death: "<red>Phase: Sudden Death!</red>"
+      ended: "<dark_gray>Phase: Ended</dark_gray>"
+    match:
+      timer: "<white>Time remaining: {time}</white>"
+    tablist:
+      team-header: "<white>Team {team}</white>"
+      team-footer: "<gray>Astera PvP</gray>"
+    respawn:
+      countdown: "<yellow>Respawning in {seconds}…</yellow>"
 
   # Wave 5e — Tutorial display strings (ADR-0034). Renders via `astera.tutorial.*`
   # MessageKey calls in `TutorialContents` + `content/tutorials/*.yaml`.
@@ -649,6 +676,11 @@ astera:
     victim: "<red>You were killed in combat.</red>"
     killer: "<gold>You eliminated an opponent.</gold>"
     entry: "<yellow>A player was eliminated.</yellow>"
+    # Wave 5match-hud (ADR-0118 §8) — weapon-detail variants.
+    weapon:
+      item: "<yellow>{killer} killed {victim} with {item-name}</yellow>"
+      skill: "<yellow>{killer} killed {victim} with {skill-id}</yellow>"
+      generic: "<yellow>{killer} killed {victim}</yellow>"
 
   item-entity:
     error:

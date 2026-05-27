@@ -1677,6 +1677,23 @@ public class AsteraCorePlugin : JavaPlugin() {
             hudCurrencyListener.handle(event)
         }
 
+        // 4.1 Wave 5match-hud (ADR-0118 §2) — ResourcePool HUD readout.
+        //     Subscribes to ResourceSpent / ResourceReloaded / ResourceRegenned
+        //     (Wave 5k / ADR-0080) and pushes a BossBarSlot per resource type
+        //     (mana / stamina / ammo). Pure listener — no scheduler / no extra
+        //     state, so it lives next to the Currency listener.
+        val hudResourceListener = com.astarworks.astera.core.application.eventbus.listeners.hud
+            .HudUpdateOnResourcePoolChangedListener(hudGateway)
+        eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceSpent::class) { event ->
+            hudResourceListener.onSpent(event)
+        }
+        eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceReloaded::class) { event ->
+            hudResourceListener.onReloaded(event)
+        }
+        eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceRegenned::class) { event ->
+            hudResourceListener.onRegenned(event)
+        }
+
         // 5. Travel use cases (G13/G14/G15).
         val travelToPve = com.astarworks.astera.core.application.usecase.travel
             .TravelToPveWorldUseCase(
@@ -1843,6 +1860,11 @@ public class AsteraCorePlugin : JavaPlugin() {
                 "SpawnItemEntityOnLootDropped + AutoPickupOnPlayerMoved + " +
                 "PlayerMovedLocationTracker subscribed; /astera-{kick,mute,unmute," +
                 "ban,tempban,unban,warn,chat,announce} commands registered.",
+        )
+
+        logger.info(
+            "Wave 5match-hud (ADR-0118 §2) wired: HudUpdateOnResourcePoolChanged " +
+                "subscribed (ResourceSpent / ResourceReloaded / ResourceRegenned).",
         )
 
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
