@@ -1,0 +1,45 @@
+# Wave H 5content-depth (ADR-0125): nether ranged fireball mob.
+#
+# High HP, low ground speed; engages with a periodic flame-burst skill
+# (defined in this wave). The on_hp_threshold binding pumps out a panic
+# lightning-bolt when low.
+
+id: astera:nether-ghast
+
+display_name:
+  en: "<red>Nether Ghast</red>"
+  ja: "<red>ネザーガスト</red>"
+
+base_entity_type: MOB
+
+attributes:
+  mob.max_hp: 90.0
+  mob.damage: 6.0
+  mob.speed: 0.4
+
+appearance:
+  custom_name_visible: true
+  name_tag_color:
+    r: 220
+    g: 90
+    b: 90
+  glowing: true
+
+equipment: []
+
+skill_bindings:
+  - type: periodic
+    skill_id: flame-burst
+    interval_ticks: 140
+  - type: on_hp_threshold
+    skill_id: lightning-bolt
+    percent: 0.25
+
+loot_table: astera:nether-ghast-drops
+
+spawn_conditions:
+  biome_keys:
+    - "minecraft:nether_wastes"
+    - "minecraft:soul_sand_valley"
+
+ai: pathfind

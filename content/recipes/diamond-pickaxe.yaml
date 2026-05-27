@@ -1,0 +1,16 @@
+# Wave H 5content-depth (ADR-0125): shaped tier-3 tool recipe.
+# Three diamonds across the top + two sticks vertically (mirror of vanilla
+# pickaxe pattern). Workbench-station so the upgrade path stays predictable.
+id: diamond-pickaxe
+output_item: diamond-pickaxe
+output_count: 1
+crafting_station: AsteraWorkbench
+ingredients:
+  type: shaped
+  pattern:
+    - "DDD"
+    - " S "
+    - " S "
+  key:
+    'D': diamond
+    'S': stick

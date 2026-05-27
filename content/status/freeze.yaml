@@ -1,0 +1,17 @@
+# Wave H 5content-depth (ADR-0125): freeze slow effect.
+# StatusKind has no FREEZE family — we ride SPEED_DOWN with a 0.3
+# multiplier (≈70% slow). Skills like frost-shard use this status_id.
+
+id: freeze
+
+display_name_key: astera.status.freeze.name
+
+kind: speed_down
+default_duration_ticks: 60   # 3s of movement slow @ 20 TPS
+
+stackable: false
+max_stacks: 1
+
+params:
+  type: speed
+  multiplier: 0.3

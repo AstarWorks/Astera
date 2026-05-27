@@ -1,0 +1,26 @@
+# Wave H 5content-depth (ADR-0125): 2-stage forest hunt quest chain.
+# Stage 1: kill 10 forest mobs → 100 GOLD → auto-advances.
+# Stage 2: win 1 match → grant the "forest-ranger" title → chain complete.
+id: forest-exploration
+title_key: astera.quest.forest-exploration.title
+stages:
+  - id: hunt-forest-mobs
+    title_key: astera.quest.forest-exploration.hunt-forest-mobs.title
+    description_key: astera.quest.forest-exploration.hunt-forest-mobs.description
+    criteria:
+      type: kill_count
+      target: 10
+    rewards:
+      - type: grant_currency
+        currency: GOLD
+        amount: 100
+    following_stage_id: prove-prowess
+  - id: prove-prowess
+    title_key: astera.quest.forest-exploration.prove-prowess.title
+    description_key: astera.quest.forest-exploration.prove-prowess.description
+    criteria:
+      type: matches_won
+      count: 1
+    rewards:
+      - type: grant_title
+        title_id: forest-ranger

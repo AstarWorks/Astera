@@ -1,0 +1,30 @@
+# Wave H 5content-depth (ADR-0125): advanced combat onboarding script.
+#
+# Builds on getting-started-v2 (basic moves) by chaining a sequence of
+# skill casts + dialog explainer that introduces the multi-element
+# (fire/ice/electric) kit added in this wave.
+id: combat-tutorial
+displayKey: astera.tutorial.combat_tutorial.title
+steps:
+  - type: send_message
+    key: astera.tutorial.combat.intro
+  - type: grant_item
+    item_id: example-sword
+    count: 1
+  - type: await_skill_cast
+    skill_id: flame-burst
+    timeout_sec: 90
+  - type: send_message
+    key: astera.tutorial.combat.fire_done
+  - type: await_skill_cast
+    skill_id: frost-shard
+    timeout_sec: 90
+  - type: send_message
+    key: astera.tutorial.combat.ice_done
+  - type: await_skill_cast
+    skill_id: lightning-bolt
+    timeout_sec: 90
+  - type: show_dialog
+    tree_id: shopkeeper-greeting
+  - type: send_message
+    key: astera.tutorial.combat.complete

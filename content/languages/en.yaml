@@ -621,7 +621,7 @@ astera:
     first_mob_kill:
       title: "<gold>First Mob Kill</gold>"
       description: "<gray>Defeat your first PvE mob.</gray>"
-    100_kills:
+    kills_100:
       title: "<gold>Centurion</gold>"
       description: "<gray>Defeat 100 opponents.</gray>"
     boss_defeat:

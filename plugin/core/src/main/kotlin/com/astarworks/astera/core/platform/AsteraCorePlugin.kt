@@ -946,6 +946,9 @@ public class AsteraCorePlugin : JavaPlugin() {
         @Suppress("UNUSED_VARIABLE")
         val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
         val restoreSnapshotUseCase = RestoreInventorySnapshotUseCase(snapshotRepo, sessionRepo, eventBus)
+        // Wave H 5content-depth: preexisting bug from Wave E 5admin-ops —
+        // RestoreInventoryOnPlayerJoinedListener gained `sessionRepo` for the
+        // double-join idempotency guard but the caller wasn't updated.
         val restoreOnJoin = RestoreInventoryOnPlayerJoinedListener(restoreSnapshotUseCase, sessionRepo)
         wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { restoreOnJoin.handle(it) }
 
@@ -1732,6 +1735,30 @@ public class AsteraCorePlugin : JavaPlugin() {
         wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceRegenned::class) { event ->
             hudResourceListener.onRegenned(event)
         }
+
+        // 4.2 Wave H 5content-depth (ADR-0125) — Quest + Recipe listener wiring.
+        //     Phase 1 PoC closing: `QuestStageCompleted` (Wave 5s) and
+        //     `RecipeCrafted` (Wave 5s) published events with no subscriber,
+        //     leaving each stage / craft as a silent drop. These two listeners
+        //     surface them via the same IHudGateway / IPlayerGateway / IMessageRenderer
+        //     ports the Currency listener already uses. The Achievement-side
+        //     equivalent (`AchievementUnlocked`) lives in `:plugin:stats` and
+        //     wires inside `AsteraStatsPlugin` per ADR-0022 sibling isolation.
+        val questProgressListener = com.astarworks.astera.core.application.eventbus.listeners.quest
+            .UpdateQuestProgressOnQuestStageCompletedListener(hudGateway)
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.QuestStageCompleted::class,
+        ) { event -> questProgressListener.handle(event) }
+
+        val recipeNotifyListener = com.astarworks.astera.core.application.eventbus.listeners.recipe
+            .NotifyOnRecipeCraftedListener(
+                playerGateway = playerGateway,
+                messages = messages,
+                hudGateway = hudGateway,
+            )
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.RecipeCrafted::class,
+        ) { event -> recipeNotifyListener.handle(event) }
 
         // 5. Travel use cases (G13/G14/G15).
         val travelToPve = com.astarworks.astera.core.application.usecase.travel

@@ -1,0 +1,31 @@
+# Wave H 5content-depth (ADR-0125): GOLD-tier merchant.
+# Iron tier — entry-level gear paid in GOLD (Astera Currency enum has no
+# IRON currency, so GOLD plays the role of the "common" coin).
+id: iron-merchant
+display_key: astera.economy.shop.iron-merchant.title
+
+offers:
+  - id: iron-sword
+    item: iron-sword
+    price:
+      currency: GOLD
+      amount: 50
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.iron-merchant.offer.sword
+  - id: iron-helmet
+    item: iron-helmet
+    price:
+      currency: GOLD
+      amount: 40
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.iron-merchant.offer.helmet
+  - id: iron-ingot
+    item: iron-ingot
+    price:
+      currency: GOLD
+      amount: 5
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.iron-merchant.offer.ingot

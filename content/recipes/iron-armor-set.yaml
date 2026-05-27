@@ -1,0 +1,20 @@
+# Wave H 5content-depth (ADR-0125): canonical armor-set recipe sample.
+#
+# RecipeYamlConfig is one-recipe-per-file (see plugin/core/.../RecipeYamlConfig.kt),
+# so this file ships the helmet recipe as the set's representative entry.
+# Chestplate / leggings / boots follow the same 8-ingot/5-ingot/4-ingot
+# patterns from vanilla Minecraft — designers extend with sibling files
+# (iron-chestplate.yaml etc.) when the set is fleshed out.
+
+id: iron-helmet
+output_item: iron-helmet
+output_count: 1
+crafting_station: AsteraWorkbench
+ingredients:
+  type: shaped
+  pattern:
+    - "AAA"
+    - "A A"
+    - "   "
+  key:
+    'A': iron-ingot

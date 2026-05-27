@@ -1,0 +1,44 @@
+# Wave H 5content-depth (ADR-0125): poison-bite cave mob.
+#
+# Smaller HP pool than dark-zombie but its on_player_near bite has a
+# chance to apply poison via the `poison` status. Demonstrates the
+# poison-style DoT pairing — same BURN domain kind, different content.
+
+id: astera:cave-spider
+
+display_name:
+  en: "<dark_green>Cave Spider</dark_green>"
+  ja: "<dark_green>洞窟蜘蛛</dark_green>"
+
+base_entity_type: MOB
+
+attributes:
+  mob.max_hp: 14.0
+  mob.damage: 3.0
+  mob.speed: 1.3
+
+appearance:
+  custom_name_visible: true
+  name_tag_color:
+    r: 60
+    g: 130
+    b: 60
+  glowing: false
+
+equipment: []
+
+skill_bindings:
+  - type: on_player_near
+    skill_id: frost-shard
+    range: 3.5
+    cooldown_ticks: 50
+
+loot_table: astera:cave-spider-drops
+
+spawn_conditions:
+  max_light_level: 5
+  biome_keys:
+    - "minecraft:lush_caves"
+    - "minecraft:dripstone_caves"
+
+ai: pathfind

@@ -1,0 +1,18 @@
+# Wave H 5content-depth (ADR-0125): standard burn DoT.
+# Stronger per-tick damage than example-burn (the prototype) so skill
+# authors have a "real" burn id to apply when ignition lasts longer
+# than a tick or two.
+
+id: burn
+
+display_name_key: astera.status.burn.name
+
+kind: burn
+default_duration_ticks: 100   # 5s of fire-tick damage @ 20 TPS
+
+stackable: true
+max_stacks: 5
+
+params:
+  type: burn
+  damage_per_tick: 2.0

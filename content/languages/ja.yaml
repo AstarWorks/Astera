@@ -618,7 +618,7 @@ astera:
     first_mob_kill:
       title: "<gold>初のモブ撃破</gold>"
       description: "<gray>最初の PvE モブを倒しましょう。</gray>"
-    100_kills:
+    kills_100:
       title: "<gold>百人斬り</gold>"
       description: "<gray>100 人の敵を倒しましょう。</gray>"
     boss_defeat:

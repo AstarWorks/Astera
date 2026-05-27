@@ -1,0 +1,12 @@
+id: victory-fanfare
+display_name: "Victory Fanfare"
+source:
+  kind: resource_pack
+  path: "astera:music/victory-fanfare"
+license:
+  kind: royalty_free
+  attribution: "Astera Phase 1 placeholder (CC0)"
+mood: victory
+default_volume: 0.9
+loop: false
+duration_ticks: 200

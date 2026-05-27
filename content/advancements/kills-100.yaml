@@ -1,0 +1,21 @@
+# Wave H 5content-depth (ADR-0125): mid-tier kill milestone.
+# Parent: first-kill. Chains the kill-progression tree.
+# Id is `kills-100` (leading alpha) to honor AdvancementId's
+# `^[a-z][a-z0-9-]*$` regex; the wave-handoff label "100 kills" is preserved
+# in i18n display text.
+id: kills-100
+title_key: astera.advancement.kills_100.title
+description_key: astera.advancement.kills_100.description
+icon_item: example-sword
+frame: GOAL
+hidden: false
+parent: first-kill
+criteria:
+  type: kill_count
+  target: 100
+rewards:
+  - type: grant_currency
+    currency: GOLD
+    amount: 500
+  - type: grant_title
+    title_id: centurion
