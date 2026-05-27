@@ -323,6 +323,15 @@ public class AsteraStatsPlugin : JavaPlugin() {
         // 7. /astera-stats command -----------------------------------------
         commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway, permService))
 
+        // Wave E 5admin-ops (ADR-0122) — `/astera-grant-xp` flat admin command.
+        commandHandler.register(
+            com.astarworks.astera.stats.command.admin.AdminGrantXpCommandSpec(
+                grantXp = grantXp,
+                playerGateway = playerGateway,
+                permissionService = permService,
+            ).build(),
+        )
+
         logger.info("Astera-Stats enabled.")
     }
 

@@ -78,6 +78,41 @@ class CreateFirstTimeProfileOnPlayerJoinedListenerTest {
     }
 
     @Test
+    fun `handle skips createFirstTime under ADR-0122 idempotency for a live spectator session`() {
+        // Wave E 5admin-ops (ADR-0122 §C): a non-Disconnected session means
+        // the player is already tracked (e.g. earlier in this server's life);
+        // a second PlayerJoinedServer is a duplicate dispatch.
+        val profileService = FakePlayerProfileService()
+        val sessionRepo = InMemoryPlayerSessionRepository().also {
+            it.upsert(PlayerSession(playerId, SessionState.Spectator))
+        }
+        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(profileService, sessionRepo, eventBus, scheduler)
+
+        listener.handle(PlayerJoinedServer(playerId))
+
+        assertThat(profileService.calls).isEmpty()
+    }
+
+    @Test
+    fun `handle still skips when session exists but state is Disconnected (returning reconnect)`() {
+        // Wave E 5admin-ops (ADR-0122 §C) §"reconnect"  — Disconnected
+        // session = clean quit pending reconnect. The pre-Wave-E behaviour
+        // skipped (existing session = returning player); that survives
+        // unchanged. The new behaviour adds a stricter WARN log for the
+        // non-Disconnected case (covered by the previous test). Either way:
+        // for a session-exists-at-all player, the profile is not re-created.
+        val profileService = FakePlayerProfileService()
+        val sessionRepo = InMemoryPlayerSessionRepository().also {
+            it.upsert(PlayerSession(playerId, SessionState.Disconnected))
+        }
+        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(profileService, sessionRepo, eventBus, scheduler)
+
+        listener.handle(PlayerJoinedServer(playerId))
+
+        assertThat(profileService.calls).isEmpty()
+    }
+
+    @Test
     fun `handle does not rethrow when the profile service throws`() {
         val throwing = object : IPlayerProfileService {
             override fun find(playerId: PlayerId): PlayerProfile? = null

@@ -8,6 +8,8 @@ import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.event.PlayerPortalReady
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
+import com.astarworks.astera.core.domain.player.PlayerSession
+import com.astarworks.astera.core.domain.player.SessionState
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -25,7 +27,7 @@ class RestoreInventoryOnPlayerJoinedListenerTest {
         val sessionRepo = InMemoryPlayerSessionRepository()
         val eventBus = FakeDomainEventBus()
         val restoreUC = RestoreInventorySnapshotUseCase(snapRepo, sessionRepo, eventBus)
-        val listener = RestoreInventoryOnPlayerJoinedListener(restoreUC)
+        val listener = RestoreInventoryOnPlayerJoinedListener(restoreUC, sessionRepo)
 
         listener.handle(PlayerJoinedServer(playerId))
 
@@ -49,12 +51,53 @@ class RestoreInventoryOnPlayerJoinedListenerTest {
         val sessionRepo = InMemoryPlayerSessionRepository()
         val eventBus = FakeDomainEventBus()
         val restoreUC = RestoreInventorySnapshotUseCase(throwing, sessionRepo, eventBus)
-        val listener = RestoreInventoryOnPlayerJoinedListener(restoreUC)
+        val listener = RestoreInventoryOnPlayerJoinedListener(restoreUC, sessionRepo)
 
         // Should not throw; failure path is logged + swallowed.
         listener.handle(PlayerJoinedServer(playerId))
 
         // No ExitReady should have been published on the failure path.
         assertThat(eventBus.publishedOfType<PlayerPortalReady.ExitReady>()).isEmpty()
+    }
+
+    // ─── Wave E 5admin-ops (ADR-0122 §C) — double-join idempotency ────────
+
+    @Test
+    fun `handle skips restore when an active session already exists`() {
+        val snapRepo = InMemoryPlayerInventorySnapshotRepository().also {
+            it.save(PlayerInventorySnapshot.empty(playerId))
+        }
+        val sessionRepo = InMemoryPlayerSessionRepository().also {
+            it.upsert(PlayerSession(playerId, SessionState.Lobby))
+        }
+        val eventBus = FakeDomainEventBus()
+        val restoreUC = RestoreInventorySnapshotUseCase(snapRepo, sessionRepo, eventBus)
+        val listener = RestoreInventoryOnPlayerJoinedListener(restoreUC, sessionRepo)
+
+        listener.handle(PlayerJoinedServer(playerId))
+
+        // No ExitReady — restore was short-circuited because the player was
+        // already tracked as live (state = Lobby).
+        assertThat(eventBus.publishedOfType<PlayerPortalReady.ExitReady>()).isEmpty()
+    }
+
+    @Test
+    fun `handle still runs restore for a session in Disconnected state (reconnect)`() {
+        val snapRepo = InMemoryPlayerInventorySnapshotRepository().also {
+            it.save(PlayerInventorySnapshot.empty(playerId))
+        }
+        val sessionRepo = InMemoryPlayerSessionRepository().also {
+            it.upsert(PlayerSession(playerId, SessionState.Disconnected))
+        }
+        val eventBus = FakeDomainEventBus()
+        val restoreUC = RestoreInventorySnapshotUseCase(snapRepo, sessionRepo, eventBus)
+        val listener = RestoreInventoryOnPlayerJoinedListener(restoreUC, sessionRepo)
+
+        listener.handle(PlayerJoinedServer(playerId))
+
+        // Disconnected = clean quit; the join is a reconnect, restore must run.
+        val published = eventBus.publishedOfType<PlayerPortalReady.ExitReady>()
+        assertThat(published).hasSize(1)
+        assertThat(published.first().playerId).isEqualTo(playerId)
     }
 }

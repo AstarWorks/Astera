@@ -224,6 +224,11 @@ public class AsteraItemsPlugin : JavaPlugin() {
             ),
         )
 
+        // Wave E 5admin-ops (ADR-0122) — `/astera-give` flat top-level alias.
+        commandHandler.register(
+            com.astarworks.astera.items.command.admin.adminGiveItemFlatCommand(giveItem, permService),
+        )
+
         logger.info("Astera-Items enabled.")
     }
 

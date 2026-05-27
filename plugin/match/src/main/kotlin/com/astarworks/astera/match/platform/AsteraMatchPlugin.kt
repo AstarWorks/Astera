@@ -874,82 +874,39 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 "'lobby.queue.' prefix.",
         )
 
-        // ── Wave 5game-complete (ADR-0121) — game-system completion ────────
-        //   §A: AnnihilationWinConditionListener wires
-        //       AnnihilationMatchTracker → IMatchLifecycle.end so Annihilation
-        //       matches actually end via win-condition + sudden-death timer.
-        //   §C: MatchCountdownListener pushes "5..4..3..2..1" subtitle.
-        //   §D: MatchEndSummaryListener pushes per-player verdict subtitle +
-        //       chat summary lines.
-        //   §E: ApplyPvpDeathPolicyListener clears inventory per per-match
-        //       PvpDeathRule resolved by DefaultPvpDeathPolicyResolver.
-        //
-        // §F (min-player guard) is in SwitchPhaseUseCase above; the modeRegistry
-        //    mirror lives in the MatchStarted/MatchEnded subscribers.
-        val annihilationWinCondition =
-            com.astarworks.astera.match.application.eventbus.listeners.victory.AnnihilationWinConditionListener(
-                tracker = annihilationTracker,
-                lifecycle = facade,
-                scheduler = scheduler,
-                eventBus = eventBus,
-            )
-        subscriptions += annihilationWinCondition.subscribe()
-
-        val countdownListener =
-            com.astarworks.astera.match.application.eventbus.listeners.match.MatchCountdownListener(
-                matches = matches,
-                hudGateway = hudGateway,
-                scheduler = scheduler,
-            )
-        subscriptions += eventBus.subscribe(MatchStarted::class) { countdownListener.handle(it) }
-
-        val endSummaryListener =
-            com.astarworks.astera.match.application.eventbus.listeners.match.MatchEndSummaryListener(
-                matches = matches,
-                hudGateway = hudGateway,
-                messages = services.getOrThrow<IMessageRenderer>(),
-                playerGateway = playerGateway,
-            )
-        subscriptions += eventBus.subscribe(MatchEnded::class) { endSummaryListener.handle(it) }
-
-        // PvP death policy resolver — registered at priority 0 so a future
-        // Persistence-backed variant can overlay. Wires
-        // DefaultPvpDeathPolicyResolver against the modeRegistry + matchRepo.
-        val pvpDeathResolver: com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver =
-            services.get<com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver>()
-                ?: com.astarworks.astera.match.application.service.death.DefaultPvpDeathPolicyResolver(
-                    matchRepo = matches,
-                    modeRegistry = matchModeRegistry,
-                ).also {
-                    registrations += services.register<com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver>(
-                        it, priority = 0,
-                    )
-                }
-
-        val inventoryMutator = services.get<com.astarworks.astera.core.application.port.outbound.inventory.IInventoryMutator>()
-        if (inventoryMutator != null) {
-            val applyPvpDeath =
-                com.astarworks.astera.match.application.eventbus.listeners.death.ApplyPvpDeathPolicyListener(
-                    matches = matches,
-                    resolver = pvpDeathResolver,
-                    inventoryMutator = inventoryMutator,
+        // ── Wave E 5admin-ops (ADR-0122) — admin commands ───────────────────
+        // `/astera-stage <list|select>` for stage catalog visibility +
+        // `/astera-validate [category]` for cross-content reference integrity.
+        // Validate is skipped when Combat isn't loaded (softdepend): without
+        // ISkillRegistry the item→skill check has no skill table to consult.
+        commandHandler.register(
+            com.astarworks.astera.match.command.admin.AdminStageCommandSpec(
+                stageRegistry = stages,
+                permissionService = permService,
+            ).build(),
+        )
+        val skillRegistry = services.get<com.astarworks.astera.combat.application.port.outbound.ISkillRegistry>()
+        if (skillRegistry != null) {
+            val itemRegistry =
+                services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()
+            val validateUseCase =
+                com.astarworks.astera.match.application.usecase.validate.ValidateContentReferencesUseCase(
+                    items = itemRegistry,
+                    skills = skillRegistry,
                 )
-            subscriptions += eventBus.subscribe(
-                com.astarworks.astera.combat.domain.event.PlayerKilled::class,
-            ) { applyPvpDeath.handle(it) }
-            logger.info("Wave 5game-complete: ApplyPvpDeathPolicyListener subscribed.")
+            commandHandler.register(
+                com.astarworks.astera.match.command.admin.AdminValidateCommandSpec(
+                    validate = validateUseCase,
+                    permissionService = permService,
+                ).build(),
+            )
+            logger.info("Wave E 5admin-ops: /astera-stage + /astera-validate registered.")
         } else {
             logger.info(
-                "Wave 5game-complete: IInventoryMutator not present; " +
-                    "ApplyPvpDeathPolicyListener wiring skipped (Phase 1 PoC tolerated).",
+                "Wave E 5admin-ops: /astera-stage registered. " +
+                    "/astera-validate skipped (Astera-Combat not loaded; ISkillRegistry unavailable).",
             )
         }
-
-        logger.info(
-            "Wave 5game-complete wired: AnnihilationWinCondition + MatchCountdown + " +
-                "MatchEndSummary listeners subscribed; min-player guard active on COUNTDOWN→ACTIVE; " +
-                "IPvpDeathPolicyResolver registered.",
-        )
 
         logger.info(
             "Astera-Match enabled. Services: IMatchRepository, IStageRegistry, " +

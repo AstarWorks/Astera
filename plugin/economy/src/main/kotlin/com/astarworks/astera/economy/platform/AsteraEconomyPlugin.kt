@@ -416,6 +416,16 @@ public class AsteraEconomyPlugin : JavaPlugin() {
         )
         commandHandler.register(buildShopCommandSpec(shopBrowse, permService))
 
+        // Wave E 5admin-ops (ADR-0122) — `/astera-grant-currency` flat admin
+        // command. Wired here (not Core) because ICurrencyLedger is Economy-owned.
+        commandHandler.register(
+            com.astarworks.astera.economy.command.admin.AdminGrantCurrencyCommandSpec(
+                ledger = ledger,
+                playerGateway = playerGateway,
+                permissionService = permService,
+            ).build(),
+        )
+
         logger.info("Astera-Economy enabled. Services published: ICurrencyLedger, IShopRegistry")
     }
 

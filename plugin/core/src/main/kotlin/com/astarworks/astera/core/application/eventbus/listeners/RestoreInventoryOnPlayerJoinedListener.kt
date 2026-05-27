@@ -1,7 +1,9 @@
 package com.astarworks.astera.core.application.eventbus.listeners
 
+import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.usecase.inventory.RestoreInventorySnapshotUseCase
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
+import com.astarworks.astera.core.domain.player.SessionState
 import org.slf4j.LoggerFactory
 
 /**
@@ -15,17 +17,40 @@ import org.slf4j.LoggerFactory
  * Bukkit imports — the same ``application/`` Konsist rule that bans Paper from
  * the use cases applies here.
  *
+ * # Double-join idempotency (Wave E 5admin-ops, ADR-0122 §C)
+ *
+ * Two `PlayerJoinedServer` events for the same player within a single
+ * session lifetime indicate a duplicate dispatch (cross-server race, retry,
+ * test bug). When the existing session's state is not `Disconnected`, the
+ * inventory restore is skipped — re-running [RestoreInventorySnapshotUseCase]
+ * for a live player would overwrite their current inventory with the last
+ * persisted snapshot. A `Disconnected` session (clean quit pending
+ * reconnect) is the expected reconnect path; the restore must still run.
+ *
+ * # Failure mode
+ *
  * Restore failures are logged at WARN and swallowed: a player joining the
  * lobby with a broken snapshot row should still complete the join (the
  * `RestoreFailed` path already unwinds the `Loading` state before bailing).
  */
 public class RestoreInventoryOnPlayerJoinedListener(
     private val restoreSnapshot: RestoreInventorySnapshotUseCase,
+    private val sessionRepo: IPlayerSessionRepository,
 ) {
 
     private val log = LoggerFactory.getLogger(RestoreInventoryOnPlayerJoinedListener::class.java)
 
     public fun handle(event: PlayerJoinedServer) {
+        val existing = sessionRepo.find(event.playerId)
+        if (existing != null && existing.state !is SessionState.Disconnected) {
+            log.warn(
+                "Duplicate PlayerJoinedServer for {} (state={}); skipping inventory restore.",
+                event.playerId,
+                existing.state::class.simpleName,
+            )
+            return
+        }
+
         val result = restoreSnapshot.restore(event.playerId)
         result.onFailure { err ->
             log.warn("Inventory restore failed for {}: {}", event.playerId, err)

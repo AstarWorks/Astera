@@ -838,3 +838,69 @@ astera:
         name: "Settings Steward"
       party:
         name: "Party Coordinator"
+
+  # Wave E 5admin-ops (ADR-0122) — flat /astera-<verb> admin commands.
+  # Every key maps to one of the 15 commands wired across Core / Items /
+  # Economy / Stats / Match plugins. Keys are flat per command so the
+  # Konsist i18n parity test compares them 1:1 with ja.yaml.
+  admin:
+    maintenance:
+      root: "<gray>Toggle server maintenance mode (admin only).</gray>"
+      unknown_action: "<red>Unknown maintenance action '{action}'. Use on / off / status.</red>"
+    teleport:
+      root: "<gray>Teleport a player to a world coordinate.</gray>"
+      player_not_found: "<red>Player '{player}' is offline or unknown.</red>"
+      failed: "<red>Teleport failed for '{player}' to world '{world}'.</red>"
+    reload:
+      root: "<gray>Reload a content category from disk.</gray>"
+    audit:
+      root: "<gray>Inspect recent audit events for a player.</gray>"
+      player_not_found: "<red>Player '{player}' is offline or unknown.</red>"
+    promote:
+      root: "<gray>Assign a role to a player.</gray>"
+      player_not_found: "<red>Player '{player}' is offline or unknown.</red>"
+    demote:
+      root: "<gray>Revoke a role from a player.</gray>"
+      player_not_found: "<red>Player '{player}' is offline or unknown.</red>"
+    config:
+      root: "<gray>Read or edit a content YAML file at runtime.</gray>"
+      missing_value: "<red>Config 'set' requires a value argument.</red>"
+      unknown_action: "<red>Unknown config action '{action}'. Use get / set.</red>"
+      unknown_category: "<red>Unknown config category '{name}'.</red>"
+      path_escaped: "<red>Path escapes its category root '{root}'.</red>"
+      io_failed: "<red>Config I/O failed: {reason}.</red>"
+      reload_aborted: "<red>Reload of category '{name}' aborted; previous state preserved.</red>"
+    health:
+      root: "<gray>Report aggregated server health.</gray>"
+    spawn_mob:
+      root: "<gray>Spawn a registered mob at coordinates.</gray>"
+      unknown_type: "<red>Unknown mob type '{mob}'.</red>"
+      no_adapter: "<red>No mob adapter currently available.</red>"
+      backend_error: "<red>Mob spawn failed in the backend (spawned {spawned} of requested before abort).</red>"
+      skill_binding_missing: "<red>A mob skill binding references an unknown skill.</red>"
+    backup:
+      root: "<gray>Player-scoped backup / restore (Wave 5t player export).</gray>"
+      unknown_action: "<red>Unknown backup action '{action}'. Use now / list / restore.</red>"
+      missing_target: "<red>Backup command requires a target player.</red>"
+      player_not_found: "<red>Player '{player}' is offline or unknown.</red>"
+      unsupported_schema: "<red>Backup envelope schema version {version} is not understood by this server.</red>"
+      io_failed: "<red>Backup I/O failed: {reason}.</red>"
+      unknown_shard: "<red>Backup envelope references an unknown shard '{shard}'.</red>"
+    grant_currency:
+      root: "<gray>Credit a currency balance to a player.</gray>"
+      player_not_found: "<red>Player '{player}' is offline or unknown.</red>"
+      unknown_currency: "<red>Unknown currency '{currency}'. Use star / gold / gem.</red>"
+    grant_xp:
+      root: "<gray>Grant XP to a player.</gray>"
+      player_not_found: "<red>Player '{player}' is offline or unknown.</red>"
+      invalid_amount: "<red>Invalid XP amount '{amount}' for '{player}'.</red>"
+    stage:
+      root: "<gray>List or select a registered stage.</gray>"
+      missing_id: "<red>'select' requires a stage-id argument.</red>"
+      unknown: "<red>No stage registered with id '{stage}'.</red>"
+      unknown_action: "<red>Unknown stage action '{action}'. Use list / select.</red>"
+    validate:
+      root: "<gray>Scan authored content for missing references.</gray>"
+    give:
+      root: "<gray>Give an Astera item to a player (admin alias for /astera-items give).</gray>"
+      failed: "<red>Give item failed.</red>"
