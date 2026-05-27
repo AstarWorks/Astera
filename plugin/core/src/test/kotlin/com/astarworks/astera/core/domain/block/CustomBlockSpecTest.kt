@@ -77,4 +77,17 @@ internal class CustomBlockSpecTest {
         )
         assertThat(drop.requiresTool).isEqualTo(ToolType.IRON_PICKAXE)
     }
+
+    @Test
+    fun `onRightClick defaults to null and accepts a GuiIntent`() {
+        // Wave 5block-embed (ADR-0120): existing call sites with no
+        // onRightClick arg continue to compile (defaults to null).
+        val noClick = spec()
+        assertThat(noClick.onRightClick).isNull()
+
+        val clickable = spec().copy(
+            onRightClick = com.astarworks.astera.core.domain.gui.GuiIntent("shop.open"),
+        )
+        assertThat(clickable.onRightClick?.key).isEqualTo("shop.open")
+    }
 }

@@ -127,4 +127,36 @@ internal class CustomBlockYamlConfigTest {
         val spec = valid().copy(immuneTo = listOf("WOOD", "OTHER")).toSpec()
         assertThat(spec.immuneTo).containsExactlyInAnyOrder(BlockMaterial.WOOD, BlockMaterial.OTHER)
     }
+
+    @Test
+    fun `null on_right_click stays null on the spec (backward-compatible default)`() {
+        // Wave 5block-embed (ADR-0120): existing YAML without the
+        // new field continues to load — defaults flow through.
+        val spec = valid().toSpec()
+        assertThat(spec.onRightClick).isNull()
+    }
+
+    @Test
+    fun `on_right_click DTO converts to GuiIntent on the spec`() {
+        val dto = valid().copy(
+            onRightClick = OnRightClickYamlConfig(
+                key = "shop.open",
+                payload = mapOf("shop_id" to "lobby-main"),
+            ),
+        )
+        val spec = dto.toSpec()
+        assertThat(spec.onRightClick).isNotNull
+        assertThat(spec.onRightClick?.key).isEqualTo("shop.open")
+        assertThat(spec.onRightClick?.payload).containsEntry("shop_id", "lobby-main")
+    }
+
+    @Test
+    fun `invalid on_right_click key throws with the block id in the message`() {
+        val dto = valid().copy(
+            onRightClick = OnRightClickYamlConfig(key = "UPPER.bad"),
+        )
+        assertThatThrownBy { dto.toSpec() }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("on_right_click")
+    }
 }

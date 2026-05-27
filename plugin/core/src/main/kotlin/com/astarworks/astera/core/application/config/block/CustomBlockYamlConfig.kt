@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.config.block
 
 import com.astarworks.astera.core.domain.block.BlockDrop
 import com.astarworks.astera.core.domain.block.CustomBlockSpec
+import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.item.ItemId
@@ -58,6 +59,20 @@ public data class CustomBlockYamlConfig(
     @SerialName("placed_from") public val placedFrom: String? = null,
     @SerialName("immune_to") public val immuneTo: List<String> = emptyList(),
     public val texture: String? = null,
+    /**
+     * Wave 5block-embed (ADR-0120): optional `on_right_click` intent.
+     * `key` is the dot-prefixed intent name; `payload` is the parameter
+     * map handed to whichever `IGuiIntentRouter` handler claims the
+     * matching prefix.
+     *
+     * ```yaml
+     * on_right_click:
+     *   key: shop.open
+     *   payload:
+     *     shop_id: "lobby-main"
+     * ```
+     */
+    @SerialName("on_right_click") public val onRightClick: OnRightClickYamlConfig? = null,
 ) {
     /**
      * Convert the DTO into a [CustomBlockSpec]. Throws
@@ -88,6 +103,7 @@ public data class CustomBlockYamlConfig(
             }
         val immune = immuneTo.map { parseMaterial(it, field = "immune_to[$it]") }.toSet()
         val dropSpecs = drops.map { it.toDomain(blockType) }
+        val intent = onRightClick?.toDomain(blockType)
         return CustomBlockSpec(
             id = blockType,
             displayName = displayName.toLocalizedText(),
@@ -99,6 +115,7 @@ public data class CustomBlockYamlConfig(
             placedFrom = placedFrom?.let { ItemId(it) },
             immuneTo = immune,
             texture = texture,
+            onRightClick = intent,
         )
     }
 
@@ -201,4 +218,35 @@ public data class BlockDropYamlConfig(
         }
         return min..max
     }
+}
+
+/**
+ * Sub-DTO for [CustomBlockYamlConfig.onRightClick] (Wave 5block-embed,
+ * ADR-0120).
+ *
+ * Wire shape (subset of the GuiIntent value class):
+ *
+ * ```yaml
+ * on_right_click:
+ *   key: shop.open
+ *   payload:
+ *     shop_id: lobby-main
+ * ```
+ *
+ * `key` is validated against [GuiIntent]'s constructor rules; malformed
+ * keys surface as `IllegalArgumentException` at load time (ContentLoader
+ * counts the failure).
+ */
+@Serializable
+public data class OnRightClickYamlConfig(
+    public val key: String,
+    public val payload: Map<String, String> = emptyMap(),
+) {
+    public fun toDomain(parent: BlockType): GuiIntent =
+        runCatching { GuiIntent(key = key, payload = payload) }.getOrElse { cause ->
+            throw IllegalArgumentException(
+                "CustomBlockYamlConfig[$parent].on_right_click: invalid intent (${cause.message})",
+                cause,
+            )
+        }
 }

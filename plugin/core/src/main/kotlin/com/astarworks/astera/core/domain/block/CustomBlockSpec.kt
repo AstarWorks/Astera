@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.block
 
+import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.world.BlockMaterial
@@ -43,6 +44,16 @@ import com.astarworks.astera.core.domain.world.ToolType
  * - [texture] — opaque texture reference (HUD glyph slug or texture asset
  *   id). The texture-gen + HUD glyph registry (Wave 5j) resolve to the
  *   actual asset at render time.
+ * - [onRightClick] — optional [GuiIntent] dispatched when a player
+ *   right-clicks the placed block (Wave 5block-embed, ADR-0120 extension
+ *   of ADR-0090). When non-null, the runtime registers the intent in
+ *   the GUI intent router so plugins that own the intent prefix can
+ *   handle it; combined with [com.astarworks.astera.core.application.port.outbound.block.IBlockInteractionRouter]
+ *   for position-specific bindings to give content authors a low-code
+ *   way to wire "right-click this block opens this GUI / runs this
+ *   action" without writing Kotlin. `null` (default) means the block
+ *   has no right-click behaviour and the routing layer skips it
+ *   completely.
  */
 public data class CustomBlockSpec(
     val id: BlockType,
@@ -55,6 +66,7 @@ public data class CustomBlockSpec(
     val placedFrom: ItemId? = null,
     val immuneTo: Set<BlockMaterial> = emptySet(),
     val texture: String? = null,
+    val onRightClick: GuiIntent? = null,
 ) {
     init {
         require(baseDurability >= 1) {

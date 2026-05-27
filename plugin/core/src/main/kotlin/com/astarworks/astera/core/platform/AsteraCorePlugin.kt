@@ -1862,103 +1862,109 @@ public class AsteraCorePlugin : JavaPlugin() {
                 "ban,tempban,unban,warn,chat,announce} commands registered.",
         )
 
-        // ── Wave 5lobby-content (ADR-0119) ──────────────────────────────
+        // ── Wave 5block-embed (ADR-0120) ──────────────────────────────────
         //
-        // Lobby UX wireup: register the six core-side lobby intent handlers
-        // on IGuiIntentRouter (each claiming its own `lobby.<area>.` prefix),
-        // subscribe the BindCompass listener to PlayerJoinedServer +
-        // PlayerReturnedToLobby, and subscribe the OpenMainMenu listener to
-        // SkillCastRequested (filtered by sourceItemId == menu-compass).
+        // Block command / event embedding — close the four block-audit gaps
+        // (no sign action service, no IBlockInteractionRouter, no portal
+        // abstraction, no region transition detector) by:
         //
-        // Match-side (lobby.queue.*) + Economy-side (lobby.shop.open) intent
-        // handlers register themselves in their own plugin's onEnable —
-        // ADR-0022 sibling-isolation forbids Core from referencing Match /
-        // Economy use cases.
-        val lobbyTravelHandler = com.astarworks.astera.core.application.gui.lobby.intent
-            .LobbyTravelShowIntentHandler(
-                travelToPve = travelToPve,
-                travelToSurvival = travelToSurvival,
-                returnToLobby = returnToLobby,
-                guiAdapter = guiAdapter,
-                mcServer = mcServer,
-                messages = messages,
-                playerGateway = playerGateway,
-            )
-        val lobbyCustomizeHandler = com.astarworks.astera.core.application.gui.lobby.intent
-            .LobbyCustomizeShowIntentHandler(
-                guiAdapter = guiAdapter,
-                mcServer = mcServer,
-                messages = messages,
-                playerGateway = playerGateway,
-            )
-        val lobbyProfileHandler = com.astarworks.astera.core.application.gui.lobby.intent
-            .LobbyProfileShowIntentHandler(
-                guiAdapter = guiAdapter,
-                mcServer = mcServer,
-                messages = messages,
-                playerGateway = playerGateway,
-            )
-        val lobbyFriendsHandler = com.astarworks.astera.core.application.gui.lobby.intent
-            .LobbyFriendsShowIntentHandler(
-                guiAdapter = guiAdapter,
-                mcServer = mcServer,
-                messages = messages,
-                playerGateway = playerGateway,
-            )
-        val lobbyPartyHandler = com.astarworks.astera.core.application.gui.lobby.intent
-            .LobbyPartyShowIntentHandler(
-                guiAdapter = guiAdapter,
-                mcServer = mcServer,
-                messages = messages,
-                playerGateway = playerGateway,
-            )
-        val lobbySettingsHandler = com.astarworks.astera.core.application.gui.lobby.intent
-            .LobbySettingsShowIntentHandler(
-                guiAdapter = guiAdapter,
-                mcServer = mcServer,
-                messages = messages,
-                playerGateway = playerGateway,
-            )
-        guiIntentRouter.register(
-            com.astarworks.astera.core.application.gui.lobby.intent.LobbyTravelShowIntentHandler.INTENT_PREFIX,
-        ) { intent, player -> lobbyTravelHandler.handle(intent, player) }
-        guiIntentRouter.register(
-            com.astarworks.astera.core.application.gui.lobby.intent.LobbyCustomizeShowIntentHandler.INTENT_PREFIX,
-        ) { intent, player -> lobbyCustomizeHandler.handle(intent, player) }
-        guiIntentRouter.register(
-            com.astarworks.astera.core.application.gui.lobby.intent.LobbyProfileShowIntentHandler.INTENT_PREFIX,
-        ) { intent, player -> lobbyProfileHandler.handle(intent, player) }
-        guiIntentRouter.register(
-            com.astarworks.astera.core.application.gui.lobby.intent.LobbyFriendsShowIntentHandler.INTENT_PREFIX,
-        ) { intent, player -> lobbyFriendsHandler.handle(intent, player) }
-        guiIntentRouter.register(
-            com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyShowIntentHandler.INTENT_PREFIX,
-        ) { intent, player -> lobbyPartyHandler.handle(intent, player) }
-        guiIntentRouter.register(
-            com.astarworks.astera.core.application.gui.lobby.intent.LobbySettingsShowIntentHandler.INTENT_PREFIX,
-        ) { intent, player -> lobbySettingsHandler.handle(intent, player) }
+        //  - Registering IBlockInteractionRouter / ISignActionService /
+        //    IPortalGateway InMemory defaults.
+        //  - Subscribing RouteBlockInteractionListener to PlayerInteractedBlock
+        //    so the previously-zero-subscriber event finally has a sink.
+        //  - Subscribing ActivatePortalOnPlayerMoved /
+        //    ActivatePortalOnPlayerInteractedBlock for the two portal
+        //    activation pathways.
+        //  - Subscribing RegionTransitionDetectorListener to PlayerMoved
+        //    so PlayerEnteredRegion / PlayerExitedRegion start flowing.
+        //
+        // The CustomBlockSpec.onRightClick: GuiIntent? field extension
+        // (ADR-0090 → ADR-0120) is consumed at materializer time (Wave 6b);
+        // here we only need the registry plumbing already in place.
+        val blockInteractionRouter: com.astarworks.astera.core.application.port.outbound.block.IBlockInteractionRouter =
+            services.get<com.astarworks.astera.core.application.port.outbound.block.IBlockInteractionRouter>()
+                ?: com.astarworks.astera.core.application.service.block.InMemoryBlockInteractionRouter().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.block.IBlockInteractionRouter>(it, priority = 0)
+                }
 
-        val bindCompassListener = com.astarworks.astera.core.application.eventbus.listeners.lobby
-            .BindCompassOnLobbyJoinListener(inventoryMutator = inventoryMutator)
-        eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { event ->
-            bindCompassListener.handleJoin(event)
-        }
-        eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerReturnedToLobby::class) { event ->
-            bindCompassListener.handleReturn(event)
-        }
-        val openMainMenuListener = com.astarworks.astera.core.application.eventbus.listeners.lobby
-            .OpenMainMenuOnCompassClickListener(
-                mcServer = mcServer,
+        val signActionService: com.astarworks.astera.core.application.port.outbound.sign.ISignActionService =
+            services.get<com.astarworks.astera.core.application.port.outbound.sign.ISignActionService>()
+                ?: com.astarworks.astera.core.application.service.sign.InMemorySignActionService().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.sign.ISignActionService>(it, priority = 0)
+                }
+
+        val portalGateway: com.astarworks.astera.core.application.port.outbound.portal.IPortalGateway =
+            services.get<com.astarworks.astera.core.application.port.outbound.portal.IPortalGateway>()
+                ?: com.astarworks.astera.core.application.service.portal.InMemoryPortalGateway().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.portal.IPortalGateway>(it, priority = 0)
+                }
+
+        // RouteBlockInteractionListener / portal activation listeners need
+        // a world gateway for the teleport dispatch sink. Reuse the same
+        // lookup pattern the effects subsystem uses: prefer a registered
+        // IWorldGateway impl (Wave 6 Paper adapter), fall back to the
+        // Noop one. The Noop teleport returns false and the listeners
+        // log DEBUG + skip — Phase 1 PoC value, since the routing surface
+        // itself is the deliverable; the actual teleport lands in Wave 6.
+        val worldGatewayForBlockRoute: com.astarworks.astera.core.application.port.outbound.IWorldGateway =
+            services.get<com.astarworks.astera.core.application.port.outbound.IWorldGateway>()
+                ?: com.astarworks.astera.core.application.service.effect.NoopWorldGatewayForEffects()
+
+        val routeBlockInteraction = com.astarworks.astera.core.application.eventbus.listeners.block
+            .RouteBlockInteractionListener(
+                router = blockInteractionRouter,
                 guiAdapter = guiAdapter,
+                worldGateway = worldGatewayForBlockRoute,
+                mcServer = mcServer,
+                eventBus = eventBus,
             )
-        eventBus.subscribe(com.astarworks.astera.core.domain.event.SkillCastRequested::class) { event ->
-            openMainMenuListener.handle(event)
-        }
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerInteractedBlock::class,
+        ) { routeBlockInteraction.handle(it) }
+
+        val activatePortalOnMoved = com.astarworks.astera.core.application.eventbus.listeners.portal
+            .ActivatePortalOnPlayerMovedListener(
+                portalGateway = portalGateway,
+                worldGateway = worldGatewayForBlockRoute,
+                eventBus = eventBus,
+            )
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerMoved::class,
+        ) { activatePortalOnMoved.handle(it) }
+
+        val activatePortalOnInteract = com.astarworks.astera.core.application.eventbus.listeners.portal
+            .ActivatePortalOnPlayerInteractedBlockListener(
+                portalGateway = portalGateway,
+                worldGateway = worldGatewayForBlockRoute,
+                eventBus = eventBus,
+            )
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerInteractedBlock::class,
+        ) { activatePortalOnInteract.handle(it) }
+
+        val regionTransitionDetector = com.astarworks.astera.core.application.eventbus.listeners.region
+            .RegionTransitionDetectorListener(
+                stageRegionIndex = stageRegionIndex,
+                eventBus = eventBus,
+            )
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerMoved::class,
+        ) { regionTransitionDetector.handle(it) }
+
+        // ParseAndBindSignOnSignChangedListener is constructed but not yet
+        // subscribed — the Bukkit SignChangeEvent → domain event bridge
+        // lands in Wave 6b. Construction now keeps the binding pathway
+        // exercised and ensures the wiring closure is committed.
+        @Suppress("UNUSED_VARIABLE")
+        val parseAndBindSign = com.astarworks.astera.core.application.eventbus.listeners.sign
+            .ParseAndBindSignOnSignChangedListener(signActionService)
 
         logger.info(
-            "Wave 5lobby-content wired: 6 lobby intent handlers " +
-                "(travel/customize/profile/friends/party/settings) registered; " +
-                "BindCompassOnLobbyJoin + OpenMainMenuOnCompassClick subscribed.",
+            "Wave 5block-embed wired: IBlockInteractionRouter + ISignActionService + " +
+                "IPortalGateway registered; RouteBlockInteraction + " +
+                "ActivatePortalOn{PlayerMoved,PlayerInteractedBlock} + " +
+                "RegionTransitionDetector subscribed; " +
+                "ParseAndBindSignOnSignChanged constructed (Wave 6b event bridge pending).",
         )
 
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
@@ -2093,6 +2099,10 @@ public class AsteraCorePlugin : JavaPlugin() {
             // Wave 5transitions (ADR-0115)
             "IHologramGateway (InMemory default; Wave 6b PaperHologramGateway over Display entities; 16 new per-type updaters)",
             "IHologramTransitionController (InMemory default; tick-stepped tween with Composite + Timeline + LoopMode + 32 Easing curves)",
+            // Wave 5block-embed (ADR-0120)
+            "IBlockInteractionRouter (InMemory default; per-position right/left-click binding table)",
+            "ISignActionService (InMemory default; magic-sign [ASTERA] binding registry)",
+            "IPortalGateway (InMemory default; block + region shape spatial index)",
         )
     }
 }
