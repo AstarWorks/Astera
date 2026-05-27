@@ -938,8 +938,8 @@ public class AsteraCorePlugin : JavaPlugin() {
         @Suppress("UNUSED_VARIABLE")
         val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
         val restoreSnapshotUseCase = RestoreInventorySnapshotUseCase(snapshotRepo, sessionRepo, eventBus)
-        val restoreOnJoin = RestoreInventoryOnPlayerJoinedListener(restoreSnapshotUseCase, sessionRepo)
-        eventBus.subscribe(PlayerJoinedServer::class) { restoreOnJoin.handle(it) }
+        val restoreOnJoin = RestoreInventoryOnPlayerJoinedListener(restoreSnapshotUseCase)
+        wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { restoreOnJoin.handle(it) }
 
         // Silence unused-var (attributes/vault/settings/audit returned via registry for cross-plugin pickup).
         @Suppress("UNUSED_VARIABLE") val attrStoreRef = attributeContainerStore
@@ -980,7 +980,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         }
         // Initialise the resource pool whenever a player joins, mirroring the
         // existing Wave 5e RestoreInventorySnapshot subscribe pattern.
-        eventBus.subscribe(PlayerJoinedServer::class) { event ->
+        wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { event ->
             resourcePool.initialiseFor(event.playerId)
             resourceRegen.trackPlayer(event.playerId)
         }
@@ -1679,7 +1679,7 @@ public class AsteraCorePlugin : JavaPlugin() {
                 eventBus = eventBus,
                 scheduler = scheduler,
             )
-        eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { event ->
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { event ->
             createFirstTimeListener.handle(event)
         }
         val startTutorialListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
@@ -1687,7 +1687,7 @@ public class AsteraCorePlugin : JavaPlugin() {
                 profileService = profileService,
                 sequencer = tutorialSequencer,
             )
-        eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class) { event ->
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class) { event ->
             startTutorialListener.handle(event)
         }
         val welcomeDialogListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
@@ -1695,7 +1695,7 @@ public class AsteraCorePlugin : JavaPlugin() {
                 profileService = profileService,
                 dialogGateway = dialogGateway,
             )
-        eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class) { event ->
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class) { event ->
             welcomeDialogListener.handle(event)
         }
 
@@ -1704,7 +1704,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         //    sibling isolation).
         val hudCurrencyListener = com.astarworks.astera.core.application.eventbus.listeners.hud
             .HudUpdateOnCurrencyChangedListener(hudGateway)
-        eventBus.subscribe(com.astarworks.astera.core.domain.event.CurrencyChanged::class) { event ->
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.CurrencyChanged::class) { event ->
             hudCurrencyListener.handle(event)
         }
 
@@ -1715,13 +1715,13 @@ public class AsteraCorePlugin : JavaPlugin() {
         //     state, so it lives next to the Currency listener.
         val hudResourceListener = com.astarworks.astera.core.application.eventbus.listeners.hud
             .HudUpdateOnResourcePoolChangedListener(hudGateway)
-        eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceSpent::class) { event ->
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceSpent::class) { event ->
             hudResourceListener.onSpent(event)
         }
-        eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceReloaded::class) { event ->
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceReloaded::class) { event ->
             hudResourceListener.onReloaded(event)
         }
-        eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceRegenned::class) { event ->
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceRegenned::class) { event ->
             hudResourceListener.onRegenned(event)
         }
 
@@ -1996,6 +1996,71 @@ public class AsteraCorePlugin : JavaPlugin() {
                 "ActivatePortalOn{PlayerMoved,PlayerInteractedBlock} + " +
                 "RegionTransitionDetector subscribed; " +
                 "ParseAndBindSignOnSignChanged constructed (Wave 6b event bridge pending).",
+        )
+
+        // ── Wave 5server-harden (ADR-0123) — server hardening + safety ────
+        // Three substrates land here:
+        //  1. IContentValidator: boot-time cross-content reference walk +
+        //     mode-gated abort on Critical (Lenient default; flip to Strict
+        //     once content/ is stable).
+        //  2. IErrorReporter: structured fan-out to audit log + admin
+        //     broadcast for Critical.
+        //  3. IVanillaFeatureSuppressor: pluggable register the Wave 6b
+        //     Paper adapter consumes to actually cancel vanilla events.
+        // The boot lifecycle listener for the validator is registered with
+        // the InMemoryServerBootstrapper so it fires on onReady() (after
+        // every plugin's onEnable, before scheduler-driven tasks start).
+        val contentValidator: com.astarworks.astera.core.application.port.outbound.validation.IContentValidator =
+            com.astarworks.astera.core.application.service.validation.ContentValidatorService()
+        services.register<com.astarworks.astera.core.application.port.outbound.validation.IContentValidator>(
+            contentValidator,
+            priority = 0,
+        )
+
+        val auditRepoForReporter = services.get<com.astarworks.astera.core.application.port.outbound.IAuditLogRepository>()
+        val errorReporter: com.astarworks.astera.core.application.port.outbound.error.IErrorReporter =
+            if (auditRepoForReporter != null) {
+                com.astarworks.astera.core.application.service.error.InMemoryErrorReporter(auditRepoForReporter)
+            } else {
+                com.astarworks.astera.core.application.service.error.InMemoryErrorReporter(auditRepo)
+            }
+        services.register<com.astarworks.astera.core.application.port.outbound.error.IErrorReporter>(
+            errorReporter,
+            priority = 0,
+        )
+
+        val vanillaSuppressor:
+            com.astarworks.astera.core.application.port.outbound.vanilla.IVanillaFeatureSuppressor =
+            com.astarworks.astera.core.application.service.vanilla.InMemoryVanillaFeatureSuppressor()
+        services.register<com.astarworks.astera.core.application.port.outbound.vanilla.IVanillaFeatureSuppressor>(
+            vanillaSuppressor,
+            priority = 0,
+        )
+
+        // Wire the bootstrapper if a feature plugin or Wave 6a Paper adapter
+        // hasn't pre-registered one. The boot-time validate listener attaches
+        // to the bootstrapper so onReady() drives validateAll().
+        val bootstrapper: com.astarworks.astera.core.application.port.outbound.lifecycle.IServerBootstrapper =
+            services.get<com.astarworks.astera.core.application.port.outbound.lifecycle.IServerBootstrapper>()
+                ?: com.astarworks.astera.core.application.service.lifecycle.InMemoryServerBootstrapper(eventBus)
+                    .also {
+                        services.register<com.astarworks.astera.core.application.port.outbound.lifecycle.IServerBootstrapper>(
+                            it,
+                            priority = 0,
+                        )
+                    }
+        val bootValidateListener =
+            com.astarworks.astera.core.application.service.validation.BootValidateContentLifecycleListener(
+                validator = contentValidator,
+                mode = com.astarworks.astera.core.application.service.validation
+                    .BootValidateContentLifecycleListener.Mode.Lenient,
+            )
+        bootstrapper.register(bootValidateListener)
+
+        logger.info(
+            "Wave 5server-harden wired: IContentValidator + IErrorReporter + " +
+                "IVanillaFeatureSuppressor registered; BootValidateContentLifecycleListener " +
+                "attached to IServerBootstrapper (mode=Lenient).",
         )
 
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
