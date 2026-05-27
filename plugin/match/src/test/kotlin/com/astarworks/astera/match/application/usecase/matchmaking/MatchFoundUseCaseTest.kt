@@ -28,7 +28,7 @@ class MatchFoundUseCaseTest {
     ) : IMatchLifecycle {
         val starts: MutableList<StageId> = mutableListOf()
         val entries: MutableList<Triple<MatchId, PlayerId, com.astarworks.astera.core.domain.match.TeamId?>> = mutableListOf()
-        override fun start(stageId: StageId): Result<MatchId, StartMatchError> {
+        override fun start(stageId: StageId, modeKey: String?): Result<MatchId, StartMatchError> {
             starts += stageId
             return startResult
         }

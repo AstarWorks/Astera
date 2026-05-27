@@ -455,6 +455,25 @@ public class AsteraCombatPlugin : JavaPlugin() {
             )
         }
 
+        // Wave 5wireup §G8 — HUD listener for ComboStepRecorded lives in
+        // combat per ADR-0022 sibling isolation (ComboStepRecorded is owned
+        // by combat; Core cannot import it). The InMemory HUD gateway
+        // records the call only until Wave 6b's Paper renderer lands.
+        val hudGatewayOrNull = services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+        if (hudGatewayOrNull != null) {
+            val hudComboListener = com.astarworks.astera.combat.application.eventbus.listeners.hud
+                .HudUpdateOnComboStepRecordedListener(hudGatewayOrNull)
+            subscriptions += eventBus.subscribe(
+                com.astarworks.astera.combat.domain.event.ComboStepRecorded::class,
+            ) { event -> hudComboListener.handle(event) }
+            logger.info("Wave 5wireup §G8 wired: HudUpdateOnComboStepRecorded subscribed.")
+        } else {
+            logger.warning(
+                "IHudGateway not registered; HudUpdateOnComboStepRecordedListener skipped " +
+                    "(astera-core must enable before astera-combat).",
+            )
+        }
+
         logger.info(
             "Astera-Combat enabled. Services published: " +
                 "ISkillRegistry, IStatusEffectRegistry, IElementMatrix, " +

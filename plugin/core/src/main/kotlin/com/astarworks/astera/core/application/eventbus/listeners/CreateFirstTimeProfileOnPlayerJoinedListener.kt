@@ -1,9 +1,12 @@
 package com.astarworks.astera.core.application.eventbus.listeners
 
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerProfileService
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
+import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ProfileError
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.event.FirstTimeProfileCreated
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import org.slf4j.LoggerFactory
 
@@ -63,6 +66,8 @@ import org.slf4j.LoggerFactory
 public class CreateFirstTimeProfileOnPlayerJoinedListener(
     private val profileService: IPlayerProfileService,
     private val sessionRepo: IPlayerSessionRepository,
+    private val eventBus: IDomainEventBus,
+    private val scheduler: IScheduler,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -97,6 +102,15 @@ public class CreateFirstTimeProfileOnPlayerJoinedListener(
                     "First-time profile created for {} (joinedAt={}ms)",
                     playerId,
                     outcome.value.joinedAtEpochMs,
+                )
+                // Wave 5wireup §G1 close: publish a narrow event so
+                // tutorial-auto-start + welcome-dialog listeners can subscribe
+                // to "once-per-account" rather than "every join".
+                eventBus.publish(
+                    FirstTimeProfileCreated(
+                        playerId = playerId,
+                        atTick = scheduler.currentTick(),
+                    ),
                 )
             }
             is Result.Failure -> when (val err = outcome.error) {

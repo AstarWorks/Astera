@@ -9,7 +9,9 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerProfile
 import com.astarworks.astera.core.domain.player.PlayerSession
 import com.astarworks.astera.core.domain.player.SessionState
+import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakePlayerProfileService
+import com.astarworks.astera.testfixtures.FakeScheduler
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -17,12 +19,14 @@ import java.util.UUID
 class CreateFirstTimeProfileOnPlayerJoinedListenerTest {
 
     private val playerId = PlayerId(UUID.randomUUID())
+    private val eventBus = FakeDomainEventBus()
+    private val scheduler = FakeScheduler()
 
     @Test
     fun `handle calls createFirstTime for a fresh player`() {
         val profileService = FakePlayerProfileService(nowEpochMs = { 42L })
         val sessionRepo = InMemoryPlayerSessionRepository()
-        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(profileService, sessionRepo)
+        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(profileService, sessionRepo, eventBus, scheduler)
 
         listener.handle(PlayerJoinedServer(playerId))
 
@@ -37,7 +41,7 @@ class CreateFirstTimeProfileOnPlayerJoinedListenerTest {
         val sessionRepo = InMemoryPlayerSessionRepository().also {
             it.upsert(PlayerSession(playerId, SessionState.Lobby))
         }
-        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(profileService, sessionRepo)
+        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(profileService, sessionRepo, eventBus, scheduler)
 
         listener.handle(PlayerJoinedServer(playerId))
 
@@ -51,7 +55,7 @@ class CreateFirstTimeProfileOnPlayerJoinedListenerTest {
             ProfileError.PartialGrant(playerId, listOf("default_loadout:missing")),
         )
         val sessionRepo = InMemoryPlayerSessionRepository()
-        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(profileService, sessionRepo)
+        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(profileService, sessionRepo, eventBus, scheduler)
 
         // Should not throw — listener swallows + logs.
         listener.handle(PlayerJoinedServer(playerId))
@@ -66,7 +70,7 @@ class CreateFirstTimeProfileOnPlayerJoinedListenerTest {
         val profileService = FakePlayerProfileService()
         profileService.nextOutcome = Result.failure(ProfileError.AlreadyExists(playerId))
         val sessionRepo = InMemoryPlayerSessionRepository()
-        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(profileService, sessionRepo)
+        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(profileService, sessionRepo, eventBus, scheduler)
 
         listener.handle(PlayerJoinedServer(playerId))
 
@@ -84,7 +88,7 @@ class CreateFirstTimeProfileOnPlayerJoinedListenerTest {
             ): Result<PlayerProfile, ProfileError> = throw RuntimeException("service exploded")
         }
         val sessionRepo = InMemoryPlayerSessionRepository()
-        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(throwing, sessionRepo)
+        val listener = CreateFirstTimeProfileOnPlayerJoinedListener(throwing, sessionRepo, eventBus, scheduler)
 
         // Should not throw — listener catches + logs to keep the join alive.
         listener.handle(PlayerJoinedServer(playerId))
