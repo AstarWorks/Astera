@@ -1,0 +1,7 @@
+# Wave 5lobby-content (ADR-0119) — placeholder tile icon for profile.
+
+id: gui-tile-profile
+material: PLAYER_HEAD
+name:
+  ja: "<gold>プロフィール</gold>"
+  en: "<gold>Profile</gold>"

@@ -1,0 +1,7 @@
+# Wave 5lobby-content (ADR-0119) — placeholder tile icon for shop.
+
+id: gui-tile-shop
+material: EMERALD
+name:
+  ja: "<gold>ショップ</gold>"
+  en: "<gold>Shop</gold>"

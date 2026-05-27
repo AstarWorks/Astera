@@ -273,6 +273,22 @@ public class AsteraEconomyPlugin : JavaPlugin() {
             shopIntentHandler.handle(intent, player)
         }
 
+        // ── Wave 5lobby-content (ADR-0119) — `lobby.shop.open` bridge ───
+        // Lobby compass tile / shop NPC right-click emits `lobby.shop.open`
+        // (no payload by default → opens DEFAULT_LOBBY_SHOP_ID =
+        // `example-shop`). Payload override `shop_id=<id>` switches target.
+        val lobbyShopOpenIntentHandler =
+            com.astarworks.astera.economy.application.intent.LobbyShopOpenIntentHandler(
+                browse = shopBrowse,
+                messages = msgRenderer,
+                playerGateway = playerGateway,
+            )
+        registrations += intentRouter.register(
+            com.astarworks.astera.economy.application.intent.LobbyShopOpenIntentHandler.INTENT_PREFIX,
+        ) { intent, player ->
+            lobbyShopOpenIntentHandler.handle(intent, player)
+        }
+
         // ── Wave 5flex (ADR-0102) — PowerIndex aggregate ───────────────────
         // Snapshot repo: Postgres overlay (V34) wins at priority=100 once
         // AsteraPersistencePlugin loads. Inventory valuator defaults to

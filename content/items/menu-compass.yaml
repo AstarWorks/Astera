@@ -1,0 +1,26 @@
+# Wave 5lobby-content (ADR-0119) — lobby hotbar menu compass.
+#
+# Placed in hotbar slot 0 on lobby (re-)join by
+# `BindCompassOnLobbyJoinListener`. Today the user opens the MainMenu via
+# `/astera-menu` (Wave 5wireup §G11); Wave 6b will wire a right-click on
+# this item to the same GUI via `OpenMainMenuOnCompassClickListener` once
+# the BukkitEventAdapter learns to emit the matching event.
+#
+# Intentionally has no `skills:` block — see the listener's KDoc for why.
+
+id: menu-compass
+
+material: COMPASS
+
+name:
+  ja: "<gold>メニュー</gold>"
+  en: "<gold>Menu</gold>"
+lore:
+  ja:
+    - "<gray>右クリックでメインメニューを開く</gray>"
+    - "<dark_gray>(コマンド: /astera-menu)</dark_gray>"
+  en:
+    - "<gray>Right-click to open the main menu</gray>"
+    - "<dark_gray>(command: /astera-menu)</dark_gray>"
+
+rarity: common

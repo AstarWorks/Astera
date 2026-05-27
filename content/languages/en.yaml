@@ -13,6 +13,9 @@ astera:
       not_found: "<red>Item id <gold>{item}</gold> not found</red>"
       usage: "<yellow>Usage: /astera-items give <player> <item-id></yellow>"
     player-only: "<red>This command can only be run by a player.</red>"
+    player-offline: "<red>You must be online to run that command.</red>"
+    menu:
+      root: "<gray>Open the main menu.</gray>"
     reload:
       unknown_category: "<red>Unknown reload category. Use tab to see registered content types.</red>"
       load_failed: "<red>Reload aborted: one or more files failed to parse. Previous state preserved; check server log.</red>"
@@ -63,6 +66,77 @@ astera:
       unknown: "<red>Unknown binding: {binding}</red>"
       unavailable: "<gray>(binding data not available)</gray>"
       resolved_to_barrier: "<red>Binding resolution failed (placeholder).</red>"
+    error:
+      open-rejected: "<red>Could not open that menu.</red>"
+    # Wave 5lobby-content (ADR-0119) — lobby GUI titles + tile tooltips.
+    main-menu:
+      title: "<gold>Main Menu</gold>"
+      queue:
+        tooltip: "<gray>Click to join a match queue.</gray>"
+      shop:
+        tooltip: "<gray>Click to browse the lobby shop.</gray>"
+      refinement:
+        tooltip: "<gray>Click to refine your items.</gray>"
+      customize:
+        tooltip: "<gray>Click to customize your loadout.</gray>"
+      travel:
+        tooltip: "<gray>Click to travel to PvE / Survival / Lobby.</gray>"
+      profile:
+        tooltip: "<gray>Click to view your profile.</gray>"
+    travel-menu:
+      title: "<gold>Travel</gold>"
+      pve:
+        tooltip: "<gray>Open the PvE adventure world.</gray>"
+      survival:
+        tooltip: "<gray>Travel to your party's survival island.</gray>"
+      lobby:
+        tooltip: "<gray>Return to the lobby.</gray>"
+    customize-menu:
+      title: "<gold>Customize</gold>"
+      loadout:
+        tooltip: "<gray>Edit your equipped loadout.</gray>"
+      refinement:
+        tooltip: "<gray>Apply refinement to your items.</gray>"
+      profile:
+        tooltip: "<gray>View your profile card.</gray>"
+    profile-card:
+      title: "<gold>Profile</gold>"
+      head:
+        tooltip: "<gray>Your avatar.</gray>"
+      power-index:
+        tooltip: "<gray>Your Power Index.</gray>"
+      currency:
+        tooltip: "<gray>Your currency balance.</gray>"
+      recent-matches:
+        tooltip: "<gray>Recent matches.</gray>"
+    friends-list:
+      title: "<gold>Friends</gold>"
+      add:
+        tooltip: "<gray>Send a friend request.</gray>"
+      pending:
+        tooltip: "<gray>View pending friend requests.</gray>"
+    party-manager:
+      title: "<gold>Party</gold>"
+      invite:
+        tooltip: "<gray>Invite a player to your party.</gray>"
+      transfer-leader:
+        tooltip: "<gray>Transfer party leadership.</gray>"
+      kick:
+        tooltip: "<gray>Kick a member from your party.</gray>"
+      leave:
+        tooltip: "<gray>Leave the party.</gray>"
+    settings:
+      title: "<gold>Settings</gold>"
+      locale:
+        tooltip: "<gray>Cycle your locale.</gray>"
+      volume:
+        tooltip: "<gray>Adjust audio volume.</gray>"
+      controls:
+        tooltip: "<gray>Cycle the control scheme.</gray>"
+    queue-mode-list:
+      title: "<gold>Match Queue</gold>"
+      norma:
+        tooltip: "<gray>Click to join the Norma rotation queue.</gray>"
 
   weapons:
     command:
@@ -268,6 +342,15 @@ astera:
         already-enqueued: "<red>You are already queued.</red>"
         mode-closed: "<red>That mode is closed.</red>"
         invalid-mode: "<red>Unknown matchmaking mode <gold>{mode}</gold>.</red>"
+    # Wave 5lobby-content (ADR-0119) — lobby `lobby.queue.*` GuiIntent surface.
+    queue:
+      unknown-mode: "<red>Unknown queue mode.</red>"
+      join:
+        success: "<green>Joined the <gold>{mode}</gold> queue.</green>"
+        already-queued: "<red>You are already in a queue.</red>"
+        not-queued: "<red>You are not in a queue.</red>"
+        mode-closed: "<red>That queue mode is currently closed.</red>"
+        party-too-large: "<red>Your party is too large for the chosen mode.</red>"
       dequeue:
         success: "<green>Left the queue.</green>"
         not-enqueued: "<red>You are not currently queued.</red>"
@@ -694,3 +777,33 @@ astera:
       root: "<gray>Schedule an admin announcement broadcast.</gray>"
     error:
       invalid-kind: "<red>Invalid broadcast kind: {kind} (expected chat/actionbar/title).</red>"
+
+  # Wave 5lobby-content (ADR-0119) — Lobby intent + GUI surfaces.
+  travel:
+    success:
+      pve: "<green>Traveling to the PvE open world.</green>"
+      survival: "<green>Traveling to your survival island.</green>"
+      lobby: "<green>Returning to the lobby.</green>"
+    error:
+      teleport-failed: "<red>Teleport failed.</red>"
+      no-party: "<red>You are not in a party. Join one before traveling to a survival island.</red>"
+      island-load-failed: "<red>Failed to load your party's survival island ({detail}).</red>"
+
+  lobby:
+    npc:
+      queue:
+        name: "Queue Master"
+      shop:
+        name: "Lobby Merchant"
+      travel:
+        name: "Travel Guide"
+      refinement:
+        name: "Refiner"
+      loadout:
+        name: "Loadout Tailor"
+      profile:
+        name: "Profile Keeper"
+      settings:
+        name: "Settings Steward"
+      party:
+        name: "Party Coordinator"

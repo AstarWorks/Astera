@@ -1,0 +1,17 @@
+# Wave 5lobby-content (ADR-0119) — profile NPC. See queue-npc.yaml for schema.
+
+id: profile-npc
+display_name: astera.lobby.npc.profile.name
+
+type: display_entity
+
+spawn:
+  world: lobby
+  x: 5.5
+  y: 64.0
+  z: 0.5
+  yaw: 90.0
+  pitch: 0.0
+
+interaction:
+  right_click_intent: lobby.profile.show

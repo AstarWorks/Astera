@@ -827,107 +827,32 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 "/astera-match {abort,cancel,restart} sub-commands registered.",
         )
 
-        // ── Wave 5match-hud (ADR-0118) ────────────────────────────────────
-        //
-        // 9 HUD listeners; this block wires the 6 that live in :plugin:match.
-        // (#1 cooldown + #3 status live in :plugin:combat; #2 resource pool
-        // lives in :plugin:core.)
-        //
-        //   §4 HudUpdateOnMatchPhaseChanged   — PhaseChanged → ActionBar per team member
-        //   §5 HudUpdateOnMatchTick           — 20-tick poll → ActionBar timer per active match
-        //   §6 HudUpdateOnTeamColorAssigned   — MatchStarted → TabList color per participant
-        //   §7 HudUpdateOnRespawnScheduled    — PlayerKilled → 5-tick action-bar countdown (cancel on PlayerRespawned)
-        //   §8 KillfeedWeaponDetail           — PlayerKilled → per-source-type message key broadcast
-        //   §9 SpectatorCameraControl         — PlayerEnteredSpectator → IFreelookGateway.enableFreelook
-        //
-        // All six rely on the same hudGateway used by the Wave 5complete
-        // listeners above. Phase 1 InMemoryHudGateway records calls only;
-        // Wave 6b PaperHudGateway materialises on screen.
-
-        // §4 Match phase HUD.
-        val phaseHudListener = com.astarworks.astera.match.application.eventbus.listeners.hud
-            .HudUpdateOnMatchPhaseChangedListener(matches = matches, hudGateway = hudGateway)
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.match.domain.event.PhaseChanged::class,
-        ) { phaseHudListener.handle(it) }
-
-        // §5 Match-timer HUD (owns its own poll scheduler).
-        val matchTickHudListener = com.astarworks.astera.match.application.eventbus.listeners.hud
-            .HudUpdateOnMatchTickListener(
-                matches = matches,
-                hudGateway = hudGateway,
-                scheduler = scheduler,
+        // ── Wave 5lobby-content (ADR-0119) — `lobby.queue.*` intent bridge ─
+        // Lobby compass tile / queue NPC right-click emits `lobby.queue.show`
+        // (open mode-list sub-menu) or `lobby.queue.join` with
+        // `payload[modeKey] = "norma" | "custom:<id>" | "tournament:<id>"`.
+        // The handler resolves the player's party via IPartyRepository for
+        // party-aware enqueue (Wave 5w contract).
+        val lobbyQueueIntentHandler =
+            com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler(
+                matchmaker = matchmaker,
+                parties = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPartyRepository>(),
+                guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
+                mcServer = services.getOrThrow<IMcServer>(),
+                messages = services.getOrThrow<IMessageRenderer>(),
+                playerGateway = playerGateway,
             )
-        matchTickHudHandle = matchTickHudListener
-
-        // §6 Team-color tab list.
-        val teamColorHudListener = com.astarworks.astera.match.application.eventbus.listeners.hud
-            .HudUpdateOnTeamColorAssignedListener(matches = matches, hudGateway = hudGateway)
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.core.domain.event.MatchStarted::class,
-        ) { teamColorHudListener.handle(it) }
-
-        // §7 Respawn countdown (subscribes to PlayerKilled + PlayerRespawned).
-        val respawnHudListener = com.astarworks.astera.match.application.eventbus.listeners.hud
-            .HudUpdateOnRespawnScheduledListener(
-                hudGateway = hudGateway,
-                scheduler = scheduler,
-            )
-        respawnHudHandle = respawnHudListener
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
-        ) { respawnHudListener.onKilled(it) }
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.core.domain.event.PlayerRespawned::class,
-        ) { respawnHudListener.onRespawned(it) }
-
-        // §8 Killfeed weapon detail (depends on IItemRegistry).
-        val itemRegistryForKillfeed = services.get<
-            com.astarworks.astera.core.application.port.outbound.IItemRegistry>()
-        if (itemRegistryForKillfeed != null) {
-            val killfeedWeaponListener = com.astarworks.astera.match.application.eventbus.listeners.killfeed
-                .KillfeedWeaponDetailListener(
-                    matches = matches,
-                    hudGateway = hudGateway,
-                    itemRegistry = itemRegistryForKillfeed,
-                )
-            subscriptions += eventBus.subscribe(
-                com.astarworks.astera.combat.domain.event.PlayerKilled::class,
-            ) { killfeedWeaponListener.handle(it) }
-        } else {
-            logger.warning(
-                "KillfeedWeaponDetailListener skipped — IItemRegistry not present.",
-            )
-        }
-
-        // §9 Spectator camera control (depends on IFreelookGateway +
-        //     IPlayerLocationLookup, both registered by AsteraCorePlugin).
-        val freelookGateway = services.get<
-            com.astarworks.astera.core.application.port.outbound.cinematic.IFreelookGateway>()
-        val locationLookup = services.get<
-            com.astarworks.astera.core.application.port.outbound.IPlayerLocationLookup>()
-        if (freelookGateway != null && locationLookup != null) {
-            val spectatorCameraListener = com.astarworks.astera.match.application.eventbus.listeners.spectator
-                .SpectatorCameraControlListener(
-                    freelookGateway = freelookGateway,
-                    locationLookup = locationLookup,
-                )
-            subscriptions += eventBus.subscribe(
-                com.astarworks.astera.match.domain.event.PlayerEnteredSpectator::class,
-            ) { spectatorCameraListener.handle(it) }
-        } else {
-            logger.warning(
-                "SpectatorCameraControlListener skipped — IFreelookGateway=${freelookGateway != null}, " +
-                    "IPlayerLocationLookup=${locationLookup != null}.",
-            )
+        val lobbyQueueIntentRouter =
+            services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>()
+        registrations += lobbyQueueIntentRouter.register(
+            com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler.INTENT_PREFIX,
+        ) { intent, player ->
+            lobbyQueueIntentHandler.handle(intent, player)
         }
 
         logger.info(
-            "Wave 5match-hud (ADR-0118) wired: HudUpdateOnMatchPhaseChanged + " +
-                "HudUpdateOnMatchTick (poll) + HudUpdateOnTeamColorAssigned + " +
-                "HudUpdateOnRespawnScheduled + KillfeedWeaponDetail + " +
-                "SpectatorCameraControl subscribed; EnterSpectatorUseCase " +
-                "now publishes PlayerEnteredSpectator.",
+            "Wave 5lobby-content wired: LobbyQueueIntentHandler registered on " +
+                "'lobby.queue.' prefix.",
         )
 
         logger.info(

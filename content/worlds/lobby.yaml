@@ -1,0 +1,42 @@
+# Wave 5lobby-content (ADR-0119) — lobby world definition.
+#
+# Forward-looking content artifact: no loader is wired in this wave (the
+# `content/worlds/` directory schema lands alongside Wave 6b's
+# `IWorldRegistry`). The Wave 5n `IWorldRulesGateway` /
+# `IWorldTimeGateway` / `IWorldWeatherGateway` will be driven from this
+# spec at world-bootstrap time once the loader is wired.
+#
+# The schema mirrors the in-memory defaults the Wave 5wireup
+# `IWorldGateway.lobbySpawn` already uses (`world=lobby`, near
+# `(0.5, 64.0, 0.5)`) — committing it here pins the canonical lobby
+# coordinates that every "return to lobby" code path resolves through.
+
+id: lobby
+display_name: "Astera Lobby"
+
+default_spawn:
+  world: lobby
+  x: 0.5
+  y: 64.0
+  z: 0.5
+  yaw: 0.0
+  pitch: 0.0
+
+# Weather is locked to clear sky — the lobby never rains / snows.
+# Loader maps to IWorldWeatherGateway.lockClear(WorldId("lobby")).
+weather: clear_fixed
+
+# Noon, ticks-of-day. Loader maps to IWorldTimeGateway.setTime(WorldId, 6000)
+# with the "frozen" flag = true.
+time_of_day: 6000
+time_frozen: true
+
+# Lobby is PvP-disabled and build-disabled.
+# Loader maps to IWorldRulesGateway.setPvp(WorldId, false) +
+# IRegionPermissionService grant of BUILD = deny for everyone except admins.
+pvp_enabled: false
+build_enabled: false
+
+# Wave 5cinematic (ADR-0110) MusicTrackId reference — the lobby ambient
+# loop. content/music/lobby-loop.yaml ships in Wave 5cinematic.
+ambient_music: lobby-loop

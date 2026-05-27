@@ -1,0 +1,39 @@
+# Wave 5lobby-content (ADR-0119) — settings (Phase 1 skeleton).
+#
+# Reload-aware via Wave 5h `/astera reload gui`. Settings application
+# handlers (`settings.locale.cycle` / `settings.volume.adjust` /
+# `settings.controls.cycle`) land in Wave G; tiles no-op until then.
+
+id: settings
+title_key: astera.gui.settings.title
+size: CHEST_9
+
+slots:
+  - type: static
+    index: 2
+    item: gui-tile-settings
+    on_left:
+      key: settings.locale.cycle
+    tooltip:
+      - astera.gui.settings.locale.tooltip
+  - type: static
+    index: 4
+    item: gui-tile-settings
+    on_left:
+      key: settings.volume.adjust
+    tooltip:
+      - astera.gui.settings.volume.tooltip
+  - type: static
+    index: 6
+    item: gui-tile-settings
+    on_left:
+      key: settings.controls.cycle
+    tooltip:
+      - astera.gui.settings.controls.tooltip
+  - type: static
+    index: 8
+    item: gui-pane-red
+    on_left:
+      key: gui.close
+    tooltip:
+      - astera.gui.button.close
