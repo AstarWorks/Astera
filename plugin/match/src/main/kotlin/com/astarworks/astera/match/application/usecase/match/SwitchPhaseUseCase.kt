@@ -5,9 +5,11 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.match.application.port.outbound.IMatchModeRegistry
 import com.astarworks.astera.match.domain.event.PhaseChanged
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
+import com.astarworks.astera.match.domain.match.MatchMinPlayerPolicy
 import com.astarworks.astera.match.domain.match.MatchStateMachine
 import com.astarworks.astera.match.domain.match.MatchTransitionError
 
@@ -15,11 +17,29 @@ import com.astarworks.astera.match.domain.match.MatchTransitionError
  * Admin / scheduler override to advance a match's phase via a [MatchStateMachine.TransitionTrigger].
  *
  * Publishes [PhaseChanged] on success.
+ *
+ * # Min-player guard (Wave 5game-complete, ADR-0121 §F)
+ *
+ * On a [MatchStateMachine.TransitionTrigger.CountdownComplete] trigger
+ * (COUNTDOWN → ACTIVE) the use case consults
+ * [MatchMinPlayerPolicy] before applying the transition. If the match's
+ * roster is below the mode's floor (Norma: 2, Annihilation: 3, Bet 1v1: 2)
+ * the transition is rejected with [SwitchPhaseError.InsufficientPlayers]
+ * so the caller can keep the match in COUNTDOWN (queue still filling)
+ * instead of crashing into an empty ACTIVE phase.
+ *
+ * `modeKey` resolution goes through [IMatchModeRegistry]; the registry
+ * is populated by `AsteraMatchPlugin`'s `MatchStarted` subscriber. If the
+ * registry has no entry for [matchId] (unit-test paths that never
+ * publish `MatchStarted`, or persistence-restart corner case) the policy
+ * defaults to the Norma 2-player floor — same intent as the registry's
+ * `null` modeKey contract.
  */
 public class SwitchPhaseUseCase(
     private val matches: IMatchRepository,
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
+    private val modeRegistry: IMatchModeRegistry? = null,
 ) {
 
     public fun execute(
@@ -28,6 +48,21 @@ public class SwitchPhaseUseCase(
     ): Result<MatchPhase, SwitchPhaseError> {
         val match = matches.findById(matchId)
             ?: return Result.failure(SwitchPhaseError.MatchNotFound(matchId))
+
+        if (trigger == MatchStateMachine.TransitionTrigger.CountdownComplete) {
+            val modeKey = modeRegistry?.modeKeyOf(matchId)
+            when (val gate = MatchMinPlayerPolicy.check(modeKey, match)) {
+                MatchMinPlayerPolicy.Outcome.Ok -> Unit
+                is MatchMinPlayerPolicy.Outcome.Insufficient ->
+                    return Result.failure(
+                        SwitchPhaseError.InsufficientPlayers(
+                            matchId = matchId,
+                            required = gate.required,
+                            actual = gate.actual,
+                        ),
+                    )
+            }
+        }
 
         val old = match.phase
         val transitionResult = MatchStateMachine.transition(old, trigger)
@@ -64,5 +99,17 @@ public sealed class SwitchPhaseError {
 
     public data class TransitionFailed(val cause: MatchTransitionError) : SwitchPhaseError() {
         override val messageKey: MessageKey = cause.messageKey
+    }
+
+    /**
+     * Wave 5game-complete (ADR-0121 §F): COUNTDOWN→ACTIVE rejected
+     * because the roster is below the mode's minimum.
+     */
+    public data class InsufficientPlayers(
+        val matchId: MatchId,
+        val required: Int,
+        val actual: Int,
+    ) : SwitchPhaseError() {
+        override val messageKey: MessageKey = MessageKey("astera.match.error.insufficient-players")
     }
 }

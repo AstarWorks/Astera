@@ -15,9 +15,9 @@ import com.astarworks.astera.core.domain.item.ItemId
  * Opened by `lobby.customize.show` / `lobby.customize.open`. Three tiles in
  * a single 9-slot row:
  *
- *  - Slot 2: Loadout → emits `weapons.gui.loadout.open` (Wave 4 R3 loadout
- *    intent claimed by the items plugin's loadout intent handler when present;
- *    no-op otherwise).
+ *  - Slot 2: Loadout → emits `loadout.selector.show` (Wave 5game-complete
+ *    [LoadoutSelectorGuiSpec]; legacy `weapons.gui.loadout.open` is gone
+ *    with the items-plugin rename).
  *  - Slot 4: Refinement → emits `lobby.refinement.open` (Wave 5refine intent
  *    bridge — currently a placeholder until the items plugin lands the
  *    matching handler).
@@ -40,7 +40,12 @@ public object CustomizeMenuGuiSpec {
             SlotIndex(2),
             GuiSlot.Static(
                 itemId = ItemId("gui-tile-customize"),
-                onLeftClick = GuiIntent("weapons.gui.loadout.open"),
+                // Wave 5game-complete (ADR-0121 §B): repoint loadout tile from
+                // legacy weapons-plugin intent (`weapons.gui.loadout.open`) to
+                // the new 9-slot LoadoutSelectorGuiSpec entry point. The
+                // legacy intent is gone with the items-plugin rename and the
+                // selector is now the canonical authoring surface.
+                onLeftClick = GuiIntent(LoadoutSelectorGuiSpec.INTENT_SHOW),
                 tooltip = listOf(MessageKey("astera.gui.customize-menu.loadout.tooltip")),
             ),
         )

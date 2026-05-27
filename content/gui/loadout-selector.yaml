@@ -1,0 +1,98 @@
+# Wave 5game-complete (ADR-0121 §B) — 9-slot loadout selector.
+#
+# Single CHEST_9 row, slot N → loadout N. Each tile carries four click
+# routes per LoadoutSelectorGuiSpec contract:
+#
+#   left   → loadout.selector.activate   (switch active loadout to slot)
+#   right  → loadout.selector.rename     (open rename prompt — Wave 6 GUI)
+#   shift  → loadout.selector.reset      (clear slot contents)
+#   middle → loadout.selector.save       (save current Items inventory → slot)
+#
+# The `mode` payload on the save intent lets per-mode loadouts share the
+# same selector (Norma / Annihilation / Bet 1v1). Phase 1 PoC defaults to
+# `norma`; the items plugin's intent handler picks the live match's mode
+# when the player is in queue.
+#
+# This YAML is reload-aware via the Wave 5h reload dispatcher — edit + run
+# `/astera reload gui` to push changes without a server restart.
+id: loadout-selector
+title_key: astera.gui.loadout-selector.title
+size: CHEST_9
+
+slots:
+  - type: static
+    index: 0
+    item: gui-tile-loadout
+    on_left:   { key: loadout.selector.activate, payload: { slot: "1" } }
+    on_right:  { key: loadout.selector.rename,   payload: { slot: "1" } }
+    on_shift:  { key: loadout.selector.reset,    payload: { slot: "1" } }
+    on_middle: { key: loadout.selector.save,     payload: { slot: "1", mode: "norma" } }
+    tooltip:
+      - astera.gui.loadout-selector.slot.tooltip.activate
+      - astera.gui.loadout-selector.slot.tooltip.rename
+      - astera.gui.loadout-selector.slot.tooltip.reset
+      - astera.gui.loadout-selector.slot.tooltip.save
+
+  - type: static
+    index: 1
+    item: gui-tile-loadout
+    on_left:   { key: loadout.selector.activate, payload: { slot: "2" } }
+    on_right:  { key: loadout.selector.rename,   payload: { slot: "2" } }
+    on_shift:  { key: loadout.selector.reset,    payload: { slot: "2" } }
+    on_middle: { key: loadout.selector.save,     payload: { slot: "2", mode: "norma" } }
+
+  - type: static
+    index: 2
+    item: gui-tile-loadout
+    on_left:   { key: loadout.selector.activate, payload: { slot: "3" } }
+    on_right:  { key: loadout.selector.rename,   payload: { slot: "3" } }
+    on_shift:  { key: loadout.selector.reset,    payload: { slot: "3" } }
+    on_middle: { key: loadout.selector.save,     payload: { slot: "3", mode: "norma" } }
+
+  - type: static
+    index: 3
+    item: gui-tile-loadout
+    on_left:   { key: loadout.selector.activate, payload: { slot: "4" } }
+    on_right:  { key: loadout.selector.rename,   payload: { slot: "4" } }
+    on_shift:  { key: loadout.selector.reset,    payload: { slot: "4" } }
+    on_middle: { key: loadout.selector.save,     payload: { slot: "4", mode: "norma" } }
+
+  - type: static
+    index: 4
+    item: gui-tile-loadout
+    on_left:   { key: loadout.selector.activate, payload: { slot: "5" } }
+    on_right:  { key: loadout.selector.rename,   payload: { slot: "5" } }
+    on_shift:  { key: loadout.selector.reset,    payload: { slot: "5" } }
+    on_middle: { key: loadout.selector.save,     payload: { slot: "5", mode: "annihilation" } }
+
+  - type: static
+    index: 5
+    item: gui-tile-loadout
+    on_left:   { key: loadout.selector.activate, payload: { slot: "6" } }
+    on_right:  { key: loadout.selector.rename,   payload: { slot: "6" } }
+    on_shift:  { key: loadout.selector.reset,    payload: { slot: "6" } }
+    on_middle: { key: loadout.selector.save,     payload: { slot: "6", mode: "annihilation" } }
+
+  - type: static
+    index: 6
+    item: gui-tile-loadout
+    on_left:   { key: loadout.selector.activate, payload: { slot: "7" } }
+    on_right:  { key: loadout.selector.rename,   payload: { slot: "7" } }
+    on_shift:  { key: loadout.selector.reset,    payload: { slot: "7" } }
+    on_middle: { key: loadout.selector.save,     payload: { slot: "7", mode: "annihilation" } }
+
+  - type: static
+    index: 7
+    item: gui-tile-loadout
+    on_left:   { key: loadout.selector.activate, payload: { slot: "8" } }
+    on_right:  { key: loadout.selector.rename,   payload: { slot: "8" } }
+    on_shift:  { key: loadout.selector.reset,    payload: { slot: "8" } }
+    on_middle: { key: loadout.selector.save,     payload: { slot: "8", mode: "bet-1v1" } }
+
+  - type: static
+    index: 8
+    item: gui-tile-loadout
+    on_left:   { key: loadout.selector.activate, payload: { slot: "9" } }
+    on_right:  { key: loadout.selector.rename,   payload: { slot: "9" } }
+    on_shift:  { key: loadout.selector.reset,    payload: { slot: "9" } }
+    on_middle: { key: loadout.selector.save,     payload: { slot: "9", mode: "bet-1v1" } }

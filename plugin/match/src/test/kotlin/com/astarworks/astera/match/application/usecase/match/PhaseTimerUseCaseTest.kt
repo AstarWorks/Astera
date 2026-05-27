@@ -141,19 +141,29 @@ class PhaseTimerUseCaseTest {
     }
 
     private fun buildMatch(id: MatchId, phase: MatchPhase, startedAtTick: Long): Match {
-        val teamId = TeamId("red")
+        val red = TeamId("red")
+        val blue = TeamId("blue")
+        // Wave 5game-complete (ADR-0121 §F): min-player guard checks
+        // total players >= 2 on CountdownComplete; seed one per team so
+        // the timer-driven COUNTDOWN→ACTIVE path keeps working.
         return Match(
             id = id,
             phase = phase,
             teams = listOf(
                 Team(
-                    id = teamId,
+                    id = red,
                     displayNameKey = MessageKey("astera.match.team.red"),
                     colorKey = MessageKey("astera.match.team.red.color"),
-                    members = emptySet(),
+                    members = setOf(com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())),
+                ),
+                Team(
+                    id = blue,
+                    displayNameKey = MessageKey("astera.match.team.blue"),
+                    colorKey = MessageKey("astera.match.team.blue.color"),
+                    members = setOf(com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())),
                 ),
             ),
-            score = Score(mapOf(teamId to 0)),
+            score = Score(mapOf(red to 0, blue to 0)),
             stageId = StageId("test-arena"),
             startedAtTick = startedAtTick,
         )

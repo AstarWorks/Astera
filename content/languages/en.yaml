@@ -99,6 +99,15 @@ astera:
         tooltip: "<gray>Apply refinement to your items.</gray>"
       profile:
         tooltip: "<gray>View your profile card.</gray>"
+    # Wave 5game-complete (ADR-0121 §B) — 9-slot loadout selector.
+    loadout-selector:
+      title: "<aqua>Loadout Selector</aqua>"
+      slot:
+        tooltip:
+          activate: "<gray>Left-click: activate this loadout</gray>"
+          rename: "<gray>Right-click: rename</gray>"
+          reset: "<gray>Shift-click: clear</gray>"
+          save: "<gray>Middle-click: save current inventory</gray>"
     profile-card:
       title: "<gold>Profile</gold>"
       head:
@@ -384,6 +393,28 @@ astera:
       empty: "<gray>No teams.</gray>"
     error:
       match-not-found: "<red>Match not found.</red>"
+      # Wave 5game-complete (ADR-0121 §F) — min-player guard rejection.
+      insufficient-players: "<red>Not enough players to start (need {required}, have {actual}).</red>"
+    # Wave 5game-complete (ADR-0121 §C) — 5-second match-start countdown.
+    countdown:
+      "1": "<red><bold>1</bold></red>"
+      "2": "<gold><bold>2</bold></gold>"
+      "3": "<yellow><bold>3</bold></yellow>"
+      "4": "<green><bold>4</bold></green>"
+      "5": "<aqua><bold>5</bold></aqua>"
+    # Wave 5game-complete (ADR-0121 §D) — per-player verdict + chat header.
+    summary:
+      victory: "<gold><bold>Victory!</bold></gold>"
+      defeat: "<dark_red><bold>Defeat</bold></dark_red>"
+      draw: "<gray><bold>Draw</bold></gray>"
+      header: "<dark_aqua>== Match Summary ==</dark_aqua>"
+      reason:
+        score-threshold: "<gray>Ended by reaching the score threshold.</gray>"
+        timer-expired: "<gray>Ended by timer expiry.</gray>"
+        admin: "<gray>Ended by an administrator.</gray>"
+        sudden-death: "<gray>Resolved in sudden death.</gray>"
+        objective: "<gray>Ended by objective completion.</gray>"
+        cancelled: "<gray>Match was cancelled.</gray>"
 
   spawn:
     teleporting: "<gray>Teleporting to spawn…</gray>"
