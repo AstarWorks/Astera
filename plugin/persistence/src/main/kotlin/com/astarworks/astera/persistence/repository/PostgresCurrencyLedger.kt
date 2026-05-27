@@ -8,6 +8,7 @@ import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.economy.Wallet
 import com.astarworks.astera.core.domain.economy.WalletError
 import com.astarworks.astera.core.domain.player.PlayerId
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Postgres-backed [ICurrencyLedger]. Wave 5e (ADR-0058 §5) shrank this to a
@@ -17,18 +18,37 @@ import com.astarworks.astera.core.domain.player.PlayerId
  *   owns the V14 `player_attributes` JSONB row.
  * - This class wraps `containerFor(playerId)` with the [Wallet] facade so the
  *   ICurrencyLedger contract still composes through the same domain type.
- * - Atomicity: per-call container writes are upserts into the JSONB row;
- *   each `deposit`/`withdraw` is its own transaction inside the container
- *   write path. Transfer's two-step is debit-then-credit — same shape as
- *   the in-memory version, and good enough for Phase 1 (insufficient-funds
- *   on debit short-circuits the credit).
  *
- * If the legacy V3 `wallets` table is ever read from again, that's a sign
- * something missed the Wave 5e migration — file an ADR-0058 §5 superseder.
+ * # Wave 5server-harden (ADR-0123): atomic debit guarantee
+ *
+ * Per-player lock striping (single [java.util.concurrent.ConcurrentHashMap]
+ * of `Any` monitors) serialises every read-then-write op on the same player
+ * so concurrent `debit` from two threads can no longer double-spend a single
+ * balance — the loser sees [WalletError.InsufficientFunds]. Lock striping
+ * sits at the ledger layer (not the container layer) because:
+ *
+ *  1. The race lives in the `balance → set` window inside `Wallet.withdraw`,
+ *     which the ledger composes per-call.
+ *  2. The container is shared with non-currency attributes (level, mana,
+ *     skill xp) where wider locking would unnecessarily serialise unrelated
+ *     reads.
+ *  3. Postgres `SERIALIZABLE` would also fix the race, but in Phase 1
+ *     Astera runs single-server so a JVM-local monitor is sufficient and
+ *     observable in tests without leaning on Testcontainers-side isolation
+ *     levels.
+ *
+ * Phase 6+ multi-server: the monitor approach must be replaced with
+ * `SELECT ... FOR UPDATE` (or an advisory lock) — tracked as a follow-up
+ * ADR.
  */
 public class PostgresCurrencyLedger(
     private val containerStore: IPlayerAttributeContainerStore,
 ) : ICurrencyLedger {
+
+    private val playerLocks = ConcurrentHashMap<PlayerId, Any>()
+
+    private fun lockFor(playerId: PlayerId): Any =
+        playerLocks.computeIfAbsent(playerId) { Any() }
 
     private fun walletFor(playerId: PlayerId): Wallet =
         Wallet(containerStore.containerFor(playerId))
@@ -44,12 +64,16 @@ public class PostgresCurrencyLedger(
         amount: Long,
     ): Result<Wallet, WalletError> {
         require(amount >= 0L) { "debit amount must be >= 0, got $amount" }
-        return walletFor(playerId).withdraw(currency, amount)
+        return synchronized(lockFor(playerId)) {
+            walletFor(playerId).withdraw(currency, amount)
+        }
     }
 
     override fun credit(playerId: PlayerId, currency: Currency, amount: Long): Wallet {
         require(amount >= 0L) { "credit amount must be >= 0, got $amount" }
-        return walletFor(playerId).deposit(currency, amount)
+        return synchronized(lockFor(playerId)) {
+            walletFor(playerId).deposit(currency, amount)
+        }
     }
 
     override fun transfer(
@@ -59,12 +83,25 @@ public class PostgresCurrencyLedger(
         amount: Long,
     ): Result<TransferResult, WalletError> {
         require(amount >= 0L) { "transfer amount must be >= 0, got $amount" }
-        val fromWallet = walletFor(from)
-        return when (val debit = fromWallet.withdraw(currency, amount)) {
-            is Result.Failure -> Result.failure(debit.error)
-            is Result.Success -> {
-                val toWallet = walletFor(to).deposit(currency, amount)
-                Result.success(TransferResult(fromWallet = fromWallet, toWallet = toWallet))
+        // Acquire the two locks in id-order so two transfers in opposite
+        // directions on the same pair cannot deadlock.
+        val first = lockFor(from)
+        val second = lockFor(to)
+        val (a, b) = if (System.identityHashCode(first) <= System.identityHashCode(second)) {
+            first to second
+        } else {
+            second to first
+        }
+        return synchronized(a) {
+            synchronized(b) {
+                val fromWallet = walletFor(from)
+                when (val debit = fromWallet.withdraw(currency, amount)) {
+                    is Result.Failure -> Result.failure(debit.error)
+                    is Result.Success -> {
+                        val toWallet = walletFor(to).deposit(currency, amount)
+                        Result.success(TransferResult(fromWallet = fromWallet, toWallet = toWallet))
+                    }
+                }
             }
         }
     }

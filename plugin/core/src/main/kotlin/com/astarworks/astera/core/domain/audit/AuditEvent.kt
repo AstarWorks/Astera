@@ -68,4 +68,18 @@ public sealed interface AuditEvent {
         val content: String,
         override val occurredAt: Instant,
     ) : AuditEvent
+
+    /**
+     * Wave 5server-harden (ADR-0123): forensic record of a [ServerError]
+     * published through [com.astarworks.astera.core.application.port.outbound.error.IErrorReporter].
+     * `severity` is the string form of [com.astarworks.astera.core.domain.error.ServerError.Severity]
+     * so audit consumers can filter without re-importing the sealed class.
+     */
+    public data class ServerErrorReported(
+        override val id: AuditEventId,
+        val severity: String,
+        val summary: String,
+        val sourceIdentifier: String,
+        override val occurredAt: Instant,
+    ) : AuditEvent
 }

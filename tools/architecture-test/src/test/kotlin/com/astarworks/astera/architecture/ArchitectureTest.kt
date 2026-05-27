@@ -1826,6 +1826,70 @@ class ArchitectureTest {
             }
     }
 
+    /**
+     * Wave 5server-harden / ADR-0123: every `eventBus.subscribe(...)` call
+     * inside a `platform/Astera*Plugin.kt` MUST be assigned into a
+     * subscription holder list (so `onDisable` can cancel it).
+     *
+     * Accepted prefixes (case-insensitive, leading whitespace ignored):
+     *
+     *  - `subscriptions += eventBus.subscribe(...)` — canonical Phase-1 holder
+     *  - `<name>Subs += eventBus.subscribe(...)` — per-wave bucket (e.g.
+     *    `wave5completeSubs`); useful when a plugin wants to cancel a subset
+     *    on demand.
+     *
+     * A bare `eventBus.subscribe(...)` (no `+=` assignment) is a leak: when
+     * the plugin re-enables (e.g. `/reload` or hot-swap), the handler stays
+     * subscribed and fires twice. The rule is enforced only over
+     * `platform/Astera*Plugin.kt` because in-application listeners typically
+     * receive an `IDomainEventBus` and store the subscription internally
+     * (e.g. `block.application.service.LocationTracker.start`) — that path
+     * is checked by the listener's own test, not Konsist.
+     *
+     * # Hard fail message
+     *
+     * The failure points at the file + line and reminds the author of the
+     * `subscriptions += eventBus.subscribe(...)` + `subscriptions.forEach { it.cancel() }`
+     * pattern documented in `.claude/rules/wave-execution.md` and ADR-0123.
+     */
+    @Test
+    fun `every plugin onEnable subscribe must be assigned into a subscription holder (ADR-0123)`() {
+        val violators = Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val path = file.path
+                path.contains("/platform/") &&
+                    file.name.startsWith("Astera") &&
+                    file.name.endsWith("Plugin.kt")
+            }
+            .flatMap { file ->
+                file.text.lineSequence().withIndex().mapNotNull { (idx, raw) ->
+                    val line = raw.trim()
+                    val mentionsSubscribe = line.contains("eventBus.subscribe(")
+                    if (!mentionsSubscribe) return@mapNotNull null
+                    // Comments / KDoc lines are not subscriptions.
+                    if (line.startsWith("//") || line.startsWith("*") || line.startsWith("/*")) {
+                        return@mapNotNull null
+                    }
+                    // Accepted assignment: `xxx += eventBus.subscribe(`
+                    val assigns = line.contains("+= eventBus.subscribe(") ||
+                        line.contains(":= eventBus.subscribe(")
+                    if (assigns) null else "${file.path}:${idx + 1}: $line"
+                }
+            }
+
+        assertThat(violators)
+            .withFailMessage {
+                "ADR-0123 violation: ${violators.size} unassigned eventBus.subscribe(...) call(s) " +
+                    "inside plugin platform/Astera*Plugin.kt:\n" +
+                    violators.joinToString("\n") { "  $it" } +
+                    "\n\nAll subscribes inside *Plugin.onEnable must be assigned to a subscription " +
+                    "holder list (e.g. `subscriptions += eventBus.subscribe(...)`) so onDisable can " +
+                    "cancel them. See .claude/rules/wave-execution.md §Listener cleanup contract."
+            }
+            .isEmpty()
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

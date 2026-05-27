@@ -274,7 +274,7 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 worldGateway = worldGateway,
                 eventBus = eventBus,
             )
-            eventBus.subscribe(MatchStarted::class) { event ->
+            subscriptions += eventBus.subscribe(MatchStarted::class) { event ->
                 val match = matches.findById(event.matchId) ?: return@subscribe
                 match.teams.forEachIndexed { idx, team ->
                     val kind = if (idx == 0) SpawnKind.ATTACKER else SpawnKind.DEFENDER

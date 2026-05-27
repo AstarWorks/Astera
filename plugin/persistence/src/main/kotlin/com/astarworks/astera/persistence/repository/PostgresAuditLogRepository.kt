@@ -127,6 +127,15 @@ public class PostgresAuditLogRepository(private val db: Database) : IAuditLogRep
                 content = event.content,
             ),
         )
+
+        is AuditEvent.ServerErrorReported -> KIND_SERVER_ERROR_REPORTED to json.encodeToString(
+            ServerErrorReportedJson.serializer(),
+            ServerErrorReportedJson(
+                severity = event.severity,
+                summary = event.summary,
+                sourceIdentifier = event.sourceIdentifier,
+            ),
+        )
     }
 
     // ─── decode ─────────────────────────────────────────────────────────────
@@ -181,6 +190,16 @@ public class PostgresAuditLogRepository(private val db: Database) : IAuditLogRep
                     occurredAt = occurredAt,
                 )
             }
+            KIND_SERVER_ERROR_REPORTED -> {
+                val dto = json.decodeFromString(ServerErrorReportedJson.serializer(), raw)
+                AuditEvent.ServerErrorReported(
+                    id = id,
+                    severity = dto.severity,
+                    summary = dto.summary,
+                    sourceIdentifier = dto.sourceIdentifier,
+                    occurredAt = occurredAt,
+                )
+            }
             else -> error("PostgresAuditLogRepository: unknown audit kind='$k' id=$id (forward-compat fence)")
         }
     }
@@ -191,6 +210,7 @@ public class PostgresAuditLogRepository(private val db: Database) : IAuditLogRep
         public const val KIND_MATCH_STARTED: String = "match_started"
         public const val KIND_MATCH_ENDED: String = "match_ended"
         public const val KIND_CHAT_MESSAGE_RECORDED: String = "chat_message_recorded"
+        public const val KIND_SERVER_ERROR_REPORTED: String = "server_error_reported"
     }
 }
 
@@ -223,6 +243,13 @@ private data class ChatMessageRecordedJson(
     val sender: String,
     val channel: ChannelJson,
     val content: String,
+)
+
+@Serializable
+private data class ServerErrorReportedJson(
+    val severity: String,
+    val summary: String,
+    val sourceIdentifier: String,
 )
 
 /**

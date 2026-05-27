@@ -105,6 +105,14 @@ public class AsteraEconomyPlugin : JavaPlugin() {
     private val subscriptions = mutableListOf<IDomainEventBus.Subscription>()
     private val scheduledTasks = mutableListOf<IScheduler.TaskHandle>()
 
+    /**
+     * Wave 5server-harden / ADR-0123: ContentReferenceCheck registrations
+     * retained so onDisable can unregister cleanly across plugin hot-swap.
+     */
+    private val validationRegistrations = mutableListOf<
+        com.astarworks.astera.core.application.port.outbound.validation.IContentValidator.Registration,
+        >()
+
     override fun onEnable() {
         logger.info("Astera-Economy enabling…")
 
@@ -416,6 +424,21 @@ public class AsteraEconomyPlugin : JavaPlugin() {
         )
         commandHandler.register(buildShopCommandSpec(shopBrowse, permService))
 
+        // Wave 5server-harden (ADR-0123): register the ShopReferencesItemCheck
+        // with the optional IContentValidator. If Core hasn't published one
+        // (legacy boot path), the check is silently skipped — every plugin's
+        // checks are opt-in subscriptions, not a hard dependency.
+        services.get<com.astarworks.astera.core.application.port.outbound.validation.IContentValidator>()
+            ?.let { validator ->
+                val itemRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()
+                validationRegistrations +=
+                    validator.register(
+                        com.astarworks.astera.economy.application.service.validation
+                            .ShopReferencesItemCheck(shopRegistry, itemRegistry),
+                    )
+                logger.info("Wave 5server-harden: ShopReferencesItemCheck registered with IContentValidator.")
+            }
+
         logger.info("Astera-Economy enabled. Services published: ICurrencyLedger, IShopRegistry")
     }
 
@@ -424,6 +447,8 @@ public class AsteraEconomyPlugin : JavaPlugin() {
         scheduledTasks.clear()
         subscriptions.forEach { it.cancel() }
         subscriptions.clear()
+        validationRegistrations.forEach { it.unregister() }
+        validationRegistrations.clear()
         registrations.forEach { it.unregister() }
         registrations.clear()
         logger.info("Astera-Economy disabled.")
