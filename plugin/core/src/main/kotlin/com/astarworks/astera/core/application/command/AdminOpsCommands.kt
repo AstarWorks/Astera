@@ -564,6 +564,10 @@ public class AdminOpsCommands(
             event.sender == playerId
         is com.astarworks.astera.core.domain.audit.AuditEvent.MatchStarted -> false
         is com.astarworks.astera.core.domain.audit.AuditEvent.MatchEnded -> false
+        // Wave 5server-harden (ADR-0123) added ServerErrorReported; server
+        // errors aren't player-attributed so they never match here. Wave G
+        // closes the exhaustive-when gap that landed silently with ADR-0123.
+        is com.astarworks.astera.core.domain.audit.AuditEvent.ServerErrorReported -> false
     }
 
     private fun configErrorPlaceholders(

@@ -1,5 +1,6 @@
 package com.astarworks.astera.persistence.jsonb
 
+import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.player.ControlScheme
 import com.astarworks.astera.core.domain.player.ParticleVisibility
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -22,6 +23,13 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  * The default `JsonbColumnType` has `ignoreUnknownKeys = true`, so adding a
  * new field to the domain record + DTO does not break reads of existing
  * rows that lack the new key.
+ *
+ * # Wave G 5player-prefs-social (ADR-0124)
+ *
+ * Three new fields landed: [locale] (raw string for `en` / `ja`), and the
+ * three per-channel volumes ([musicVolume] / [soundVolume] / [voiceVolume]).
+ * Defaults match the domain — older rows decode with `ignoreUnknownKeys`
+ * and the defaults below kick in, so no DB migration is needed.
  */
 @Serializable
 public data class PlayerSettingsJson(
@@ -33,6 +41,15 @@ public data class PlayerSettingsJson(
     // false (privacy-by-default). ignoreUnknownKeys is on, so older rows
     // without this field round-trip as default-disabled.
     val publicProfileEnabled: Boolean = false,
+    // Wave G ADR-0124: preferred UI locale. Stored as raw string (`"en"` /
+    // `"ja"`); the domain wraps with LocaleCode. Older rows missing this
+    // key default to "en" via ignoreUnknownKeys + the default below.
+    val locale: String = LocaleCode.EN.code,
+    // Wave G ADR-0124: per-channel volume in 0..100 (percent). Defaults to
+    // 100 (unattenuated) on missing-key rows.
+    val musicVolume: Int = PlayerSettings.DEFAULT_VOLUME,
+    val soundVolume: Int = PlayerSettings.DEFAULT_VOLUME,
+    val voiceVolume: Int = PlayerSettings.DEFAULT_VOLUME,
 ) {
 
     public fun toDomain(playerId: PlayerId): PlayerSettings = PlayerSettings(
@@ -42,6 +59,18 @@ public data class PlayerSettingsJson(
         doubleJumpEnabled = doubleJumpEnabled,
         quickCastSlots = quickCastSlots.mapKeys { (k, _) -> k.toInt() },
         publicProfileEnabled = publicProfileEnabled,
+        locale = LocaleCode.parse(locale).let { parsed ->
+            // Defensive fallback: a row persisted with an unrecognised locale
+            // (manual edit, future locale not yet supported on this server)
+            // falls back to EN at decode time. Domain `init` would otherwise
+            // happily accept any LocaleCode; the SUPPORTED_LOCALES filter
+            // lives on the use-case side, so we just normalise here so the
+            // GUI / chat renders cleanly.
+            if (parsed in PlayerSettings.SUPPORTED_LOCALES) parsed else LocaleCode.EN
+        },
+        musicVolume = musicVolume.coerceIn(PlayerSettings.VOLUME_RANGE),
+        soundVolume = soundVolume.coerceIn(PlayerSettings.VOLUME_RANGE),
+        voiceVolume = voiceVolume.coerceIn(PlayerSettings.VOLUME_RANGE),
     )
 
     public companion object {
@@ -51,6 +80,10 @@ public data class PlayerSettingsJson(
             doubleJumpEnabled = settings.doubleJumpEnabled,
             quickCastSlots = settings.quickCastSlots.mapKeys { (k, _) -> k.toString() },
             publicProfileEnabled = settings.publicProfileEnabled,
+            locale = settings.locale.code,
+            musicVolume = settings.musicVolume,
+            soundVolume = settings.soundVolume,
+            voiceVolume = settings.voiceVolume,
         )
     }
 }
