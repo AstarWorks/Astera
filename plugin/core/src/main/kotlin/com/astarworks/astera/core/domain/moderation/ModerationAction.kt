@@ -5,9 +5,10 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import java.time.Instant
 
 /**
- * Server-wide moderation action against a player (Wave 5h, ADR-0079 §4).
+ * Server-wide moderation action against a player (Wave 5h, ADR-0079 §4;
+ * Wave 5complete added [Warn], ADR-0117 §Axis 3).
  *
- * Closed hierarchy of four variants:
+ * Closed hierarchy of five variants:
  *
  * - [Mute] — silences chat output until [expiresAt] or [liftedAt]. `null`
  *   [expiresAt] means permanent.
@@ -20,9 +21,14 @@ import java.time.Instant
  * - [ChatRateLimit] — silent suppression once the in-memory token bucket
  *   tied to ([ratePerSecond], [burstSize]) is exhausted. Bucket lives on
  *   the chat use case side; this record carries only the configuration.
+ * - [Warn] — record-only warning (Wave 5complete). No automatic
+ *   chat/connection effect; the row exists so moderators can build
+ *   strike-count history and so audit subscribers can render a notice to
+ *   the warned player. [expiresAt] is forced to `null` because warnings
+ *   accumulate until the moderator explicitly lifts them.
  *
  * Per ADR-0079 §4 / Konsist `ModerationAction sealed must remain
- * exhaustive`, every `when` over this hierarchy must enumerate all four
+ * exhaustive`, every `when` over this hierarchy must enumerate all five
  * variants and MUST NOT carry an `else` branch.
  *
  * Wave 5h scope = domain decision only. Paper-side enforcement
@@ -87,5 +93,17 @@ public sealed interface ModerationAction {
             require(ratePerSecond > 0.0) { "ratePerSecond must be > 0" }
             require(burstSize > 0) { "burstSize must be > 0" }
         }
+    }
+
+    public data class Warn(
+        public override val id: ModerationActionId,
+        public override val playerId: PlayerId,
+        public override val issuedBy: PlayerId,
+        public override val reasonKey: MessageKey,
+        public override val issuedAt: Instant,
+        public override val liftedAt: Instant? = null,
+    ) : ModerationAction {
+        // Warnings accumulate without duration; no expiry concept.
+        public override val expiresAt: Instant? = null
     }
 }

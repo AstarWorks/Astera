@@ -1721,6 +1721,57 @@ class ArchitectureTest {
             }
     }
 
+    /**
+     * Wave 5complete (ADR-0117 §Axis 6) — `core.domain.item.*` (i.e.
+     * the `ItemId` + `ItemEntityHandle` value classes that anchor the
+     * item-entity gateway port) must stay free of:
+     *
+     *   - Bukkit / Paper / Adventure (vendor-neutral; adapter layer maps
+     *     [ItemEntityHandle] → Bukkit `Item` entity uuid)
+     *   - Persistence drivers (no JDBC / Exposed / Postgres)
+     *   - kotlinx.serialization (DTOs live in application/config/)
+     *   - Koin (Phase 1 manual DI)
+     *   - IDomainEventBus / IBroadcaster / IScheduler / IItemEntityGateway
+     *     (application-layer ports; the handle is a passive value class)
+     *
+     * This guards the Phase 1 PoC posture that the item-entity *handle*
+     * value class is symbolic — the adapter holds the (handle → entity)
+     * mapping and the gateway holds the lifetime scheduler; the domain
+     * type itself stays a pure UUID wrapper.
+     */
+    @Test
+    fun `item entity domain stays pure (ADR-0117)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.core.domain.item")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0117 violation: core.domain.item.* must stay pure Kotlin. " +
+                    "ItemId / ItemEntityHandle are vocabulary value classes; move Bukkit / " +
+                    "kotlinx.serialization / persistence / koin / IDomainEventBus / " +
+                    "IBroadcaster / IScheduler / IItemEntityGateway couplings into " +
+                    "core.application.service.item.* (Phase 1 in-memory) or " +
+                    "*.adapter.paper.* (Wave 6b sinks).",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin") ||
+                            imp.name.endsWith(".IDomainEventBus") ||
+                            imp.name.endsWith(".IBroadcaster") ||
+                            imp.name.endsWith(".IScheduler") ||
+                            imp.name.endsWith(".IItemEntityGateway")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

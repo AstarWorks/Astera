@@ -290,6 +290,17 @@ astera:
       "replay.invalid-id": "<red>Invalid match id: {match}</red>"
       "replay.not-found": "<red>No replay stored for match {match}.</red>"
       "replay.export-failed": "<red>Replay export failed for {match}: {reason}</red>"
+      # Wave 5complete (ADR-0117 §Axis 3) — flat admin sub-commands.
+      abort: "<gray>Abort a match immediately (AdminEnded).</gray>"
+      cancel: "<gray>Cancel a match (no winner recorded).</gray>"
+      restart: "<gray>End the current match and start a fresh one on the same stage.</gray>"
+    # Wave 5complete (ADR-0117 §Axis 4) — per-match sidebar lines.
+    sidebar:
+      title: "<gold><bold>Match Score</bold></gold>"
+      team-line: "<gray>Team {team}: <white>{score}</white></gray>"
+      empty: "<gray>No teams.</gray>"
+    error:
+      match-not-found: "<red>Match not found.</red>"
 
   spawn:
     teleporting: "<gray>Teleporting to spawn…</gray>"
@@ -599,3 +610,55 @@ astera:
         spot-on-cooldown: "<red>This spot is regenerating, try again shortly.</red>"
         player-on-cooldown: "<red>You are still recovering from your last harvest.</red>"
 
+
+  # Wave 5complete (ADR-0117) — orthogonal axes 2-6 close: chat / moderation /
+  # killfeed / item-entity / announcement / match-admin / AFK-kick / sidebar.
+  mod:
+    command:
+      kick: "<gray>Kick a player from the server.</gray>"
+      mute: "<gray>Mute a player's chat output.</gray>"
+      unmute: "<gray>Lift a player's most-recent active mute.</gray>"
+      ban: "<gray>Permanently ban a player.</gray>"
+      tempban: "<gray>Ban a player for a time-bound duration.</gray>"
+      unban: "<gray>Lift a player's most-recent active ban.</gray>"
+      warn: "<gray>Record a warning against a player.</gray>"
+    error:
+      invalid-player: "<red>That player is not online.</red>"
+      invalid-reason: "<red>Invalid reason key.</red>"
+      no-active-action: "<red>That player has no active action of the requested kind.</red>"
+      storage: "<red>Moderation storage error: {detail}</red>"
+    reason:
+      afk-auto-kick: "<gray>Auto-kicked for AFK (system).</gray>"
+
+  chat:
+    command:
+      root: "<gray>Player-facing chat channels.</gray>"
+      say: "<gray>Send a message in the global channel.</gray>"
+      team: "<gray>Send a message to your match team.</gray>"
+      party: "<gray>Send a message to your party.</gray>"
+      msg: "<gray>Whisper a player privately.</gray>"
+    error:
+      blank-message: "<red>Your message is empty.</red>"
+      muted: "<red>You are currently muted.</red>"
+      rate-limited: "<red>You are sending messages too quickly.</red>"
+      no-team: "<red>You are not in any match team.</red>"
+      no-party: "<red>You are not in a party.</red>"
+      unknown-player: "<red>That player is not online: {player}</red>"
+
+  killfeed:
+    victim: "<red>You were killed in combat.</red>"
+    killer: "<gold>You eliminated an opponent.</gold>"
+    entry: "<yellow>A player was eliminated.</yellow>"
+
+  item-entity:
+    error:
+      unknown-world: "<red>Unknown world for item entity.</red>"
+      unknown-handle: "<red>Unknown item entity handle.</red>"
+      invalid-count: "<red>Item entity count must be > 0.</red>"
+      world-gateway: "<red>World gateway error: item entity spawn failed.</red>"
+
+  announce:
+    command:
+      root: "<gray>Schedule an admin announcement broadcast.</gray>"
+    error:
+      invalid-kind: "<red>Invalid broadcast kind: {kind} (expected chat/actionbar/title).</red>"

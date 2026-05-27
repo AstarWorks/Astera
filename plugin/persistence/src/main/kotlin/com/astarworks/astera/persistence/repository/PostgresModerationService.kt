@@ -166,6 +166,8 @@ public class PostgresModerationService(
                 burstSize = action.burstSize,
             ),
         )
+
+        is ModerationAction.Warn -> KIND_WARN to EMPTY_PAYLOAD
     }
 
     // ─── decode ─────────────────────────────────────────────────────────────
@@ -234,6 +236,15 @@ public class PostgresModerationService(
                 )
             }
 
+            KIND_WARN -> ModerationAction.Warn(
+                id = id,
+                playerId = playerId,
+                issuedBy = issuedBy,
+                reasonKey = reasonKey,
+                issuedAt = issuedAt,
+                liftedAt = liftedAt,
+            )
+
             else -> error("PostgresModerationService: unknown kind='$k' id=$id (forward-compat fence)")
         }
     }
@@ -243,6 +254,7 @@ public class PostgresModerationService(
         public const val KIND_KICK: String = "kick"
         public const val KIND_BAN: String = "ban"
         public const val KIND_CHAT_RATE_LIMIT: String = "chat_rate_limit"
+        public const val KIND_WARN: String = "warn"
 
         /** Sentinel payload for variants without extra fields (Mute / Kick). */
         internal const val EMPTY_PAYLOAD: String = "{}"
