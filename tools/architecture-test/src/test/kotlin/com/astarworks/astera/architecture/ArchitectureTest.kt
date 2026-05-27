@@ -1772,6 +1772,60 @@ class ArchitectureTest {
             }
     }
 
+    /**
+     * Wave 5block-embed (ADR-0120) — `core.domain.{block,portal,sign}.*` must
+     * stay pure value vocabulary. The block interaction router + sign action
+     * service + portal gateway live in `core.application.*`; the **domain**
+     * (CustomBlockSpec / Portal / SignAction / PortalActivationRule / …)
+     * carries only value types and references to other pure domain types.
+     *
+     * Forbidden imports per CLAUDE.md §"Non-negotiable rules" + the
+     * block-embed scope:
+     *
+     *  - Bukkit / Paper / Adventure family (vendor-neutral)
+     *  - kotlinx.serialization (DTOs live in application/config/)
+     *  - Persistence drivers (JDBC / Exposed / Postgres / Lettuce)
+     *  - Koin (Phase 1 manual DI)
+     *  - IDomainEventBus / IBroadcaster (cross-cutting ports — domain is
+     *    side-effect-free; publishing happens in application/eventbus/)
+     *
+     * Note: `core.domain.gui.GuiIntent` is allowed (it's another pure
+     * domain value class; CustomBlockSpec.onRightClick references it).
+     * `core.application.command.CommandSpec` is allowed because the
+     * sign domain references it as a port-style declarative value
+     * (no behaviour leak).
+     */
+    @Test
+    fun `block interaction and portal domain stays pure (ADR-0120)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                val pkg = file.packagee?.name ?: return@filter false
+                pkg.startsWith("com.astarworks.astera.core.domain.block") ||
+                    pkg.startsWith("com.astarworks.astera.core.domain.portal") ||
+                    pkg.startsWith("com.astarworks.astera.core.domain.sign")
+            }
+            .assertFalse(
+                additionalMessage = "ADR-0120 violation: core.domain.{block,portal,sign}.* must stay pure Kotlin. " +
+                    "Routing tables and dispatch listeners live in core.application.{service,eventbus}.*; " +
+                    "domain types are value-only. Move Bukkit / kotlinx.serialization / persistence / " +
+                    "koin / IDomainEventBus / IBroadcaster couplings into the application layer.",
+            ) { file ->
+                hasBukkitFamilyImport(file) ||
+                    file.imports.any { imp ->
+                        imp.name.startsWith("kotlinx.serialization") ||
+                            imp.name.startsWith("org.jetbrains.exposed") ||
+                            imp.name.startsWith("org.postgresql") ||
+                            imp.name.startsWith("javax.sql") ||
+                            imp.name.startsWith("java.sql") ||
+                            imp.name.startsWith("io.lettuce") ||
+                            imp.name.startsWith("org.koin") ||
+                            imp.name.endsWith(".IDomainEventBus") ||
+                            imp.name.endsWith(".IBroadcaster")
+                    }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
