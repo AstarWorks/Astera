@@ -251,12 +251,24 @@ public class AsteraMatchPlugin : JavaPlugin() {
         @Suppress("UnusedVariable")
         val msgRenderer = services.getOrThrow<IMessageRenderer>()
 
+        // Wave 5game-complete (ADR-0121 §F + §E): mode registry mirrors
+        // MatchStarted.modeKey into a lookup table that SwitchPhaseUseCase
+        // (min-player guard) and DefaultPvpDeathPolicyResolver consume.
+        // Registered at priority 0; an overlay impl may replace it later.
+        val matchModeRegistry: com.astarworks.astera.match.application.port.outbound.IMatchModeRegistry =
+            services.get<com.astarworks.astera.match.application.port.outbound.IMatchModeRegistry>()
+                ?: com.astarworks.astera.match.application.service.InMemoryMatchModeRegistry().also {
+                    registrations += services.register<com.astarworks.astera.match.application.port.outbound.IMatchModeRegistry>(
+                        it, priority = 0,
+                    )
+                }
+
         // 3. Construct use cases -----------------------------------------------
         val victoryEvaluator = VictoryConditionEvaluator()
         val startMatch = StartMatchUseCase(stages, matches, eventBus, scheduler)
         val endMatch = EndMatchUseCase(matches, eventBus, scheduler, victoryEvaluator)
         val entryGame = EntryGameUseCase(matches, eventBus)
-        val switchPhase = SwitchPhaseUseCase(matches, eventBus, scheduler)
+        val switchPhase = SwitchPhaseUseCase(matches, eventBus, scheduler, matchModeRegistry)
 
         // Wave 4.5 (ADR-0027): phase auto-timer + match spawn
         val phaseTimer = PhaseTimerUseCase(matches, scheduler, switchPhase)
@@ -476,6 +488,10 @@ public class AsteraMatchPlugin : JavaPlugin() {
         // teams. Without this seed, AnnihilationMatchTracker.register()
         // creates an empty pillar set and the match cannot win-condition.
         subscriptions += eventBus.subscribe(MatchStarted::class) { event ->
+            // Wave 5game-complete (ADR-0121 §F+§E): mirror modeKey for
+            // SwitchPhase's min-player guard + PvP death-policy resolver.
+            matchModeRegistry.register(event.matchId, event.modeKey)
+
             val modeId = resolveModeId(event.modeKey)
             val mode = gameModeFrameworkRegistry.get(modeId) ?: return@subscribe
             val match = matches.findById(event.matchId)
@@ -508,6 +524,9 @@ public class AsteraMatchPlugin : JavaPlugin() {
             mode.onPhaseChanged(ctx, old, next)
         }
         subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+            // Wave 5game-complete (ADR-0121): forget per-match modeKey;
+            // any post-end lookup falls back to KeepInventory / default.
+            matchModeRegistry.unregister(event.matchId)
             // MatchEnded carries no modeKey. Dispatch through every registered
             // mode so each mode gets its onMatchEnded hook (cheap because
             // bus-less variants no-op). Wave 5wireup safer than hard-coding
@@ -855,9 +874,87 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 "'lobby.queue.' prefix.",
         )
 
+        // ── Wave 5game-complete (ADR-0121) — game-system completion ────────
+        //   §A: AnnihilationWinConditionListener wires
+        //       AnnihilationMatchTracker → IMatchLifecycle.end so Annihilation
+        //       matches actually end via win-condition + sudden-death timer.
+        //   §C: MatchCountdownListener pushes "5..4..3..2..1" subtitle.
+        //   §D: MatchEndSummaryListener pushes per-player verdict subtitle +
+        //       chat summary lines.
+        //   §E: ApplyPvpDeathPolicyListener clears inventory per per-match
+        //       PvpDeathRule resolved by DefaultPvpDeathPolicyResolver.
+        //
+        // §F (min-player guard) is in SwitchPhaseUseCase above; the modeRegistry
+        //    mirror lives in the MatchStarted/MatchEnded subscribers.
+        val annihilationWinCondition =
+            com.astarworks.astera.match.application.eventbus.listeners.victory.AnnihilationWinConditionListener(
+                tracker = annihilationTracker,
+                lifecycle = facade,
+                scheduler = scheduler,
+                eventBus = eventBus,
+            )
+        subscriptions += annihilationWinCondition.subscribe()
+
+        val countdownListener =
+            com.astarworks.astera.match.application.eventbus.listeners.match.MatchCountdownListener(
+                matches = matches,
+                hudGateway = hudGateway,
+                scheduler = scheduler,
+            )
+        subscriptions += eventBus.subscribe(MatchStarted::class) { countdownListener.handle(it) }
+
+        val endSummaryListener =
+            com.astarworks.astera.match.application.eventbus.listeners.match.MatchEndSummaryListener(
+                matches = matches,
+                hudGateway = hudGateway,
+                messages = services.getOrThrow<IMessageRenderer>(),
+                playerGateway = playerGateway,
+            )
+        subscriptions += eventBus.subscribe(MatchEnded::class) { endSummaryListener.handle(it) }
+
+        // PvP death policy resolver — registered at priority 0 so a future
+        // Persistence-backed variant can overlay. Wires
+        // DefaultPvpDeathPolicyResolver against the modeRegistry + matchRepo.
+        val pvpDeathResolver: com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver =
+            services.get<com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver>()
+                ?: com.astarworks.astera.match.application.service.death.DefaultPvpDeathPolicyResolver(
+                    matchRepo = matches,
+                    modeRegistry = matchModeRegistry,
+                ).also {
+                    registrations += services.register<com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver>(
+                        it, priority = 0,
+                    )
+                }
+
+        val inventoryMutator = services.get<com.astarworks.astera.core.application.port.outbound.inventory.IInventoryMutator>()
+        if (inventoryMutator != null) {
+            val applyPvpDeath =
+                com.astarworks.astera.match.application.eventbus.listeners.death.ApplyPvpDeathPolicyListener(
+                    matches = matches,
+                    resolver = pvpDeathResolver,
+                    inventoryMutator = inventoryMutator,
+                )
+            subscriptions += eventBus.subscribe(
+                com.astarworks.astera.combat.domain.event.PlayerKilled::class,
+            ) { applyPvpDeath.handle(it) }
+            logger.info("Wave 5game-complete: ApplyPvpDeathPolicyListener subscribed.")
+        } else {
+            logger.info(
+                "Wave 5game-complete: IInventoryMutator not present; " +
+                    "ApplyPvpDeathPolicyListener wiring skipped (Phase 1 PoC tolerated).",
+            )
+        }
+
+        logger.info(
+            "Wave 5game-complete wired: AnnihilationWinCondition + MatchCountdown + " +
+                "MatchEndSummary listeners subscribed; min-player guard active on COUNTDOWN→ACTIVE; " +
+                "IPvpDeathPolicyResolver registered.",
+        )
+
         logger.info(
             "Astera-Match enabled. Services: IMatchRepository, IStageRegistry, " +
                 "IAnomalyRegistry, IGeneratorRegistry, IMatchLifecycle, IMatchTeamLookup, " +
+                "IMatchModeRegistry, IPvpDeathPolicyResolver, " +
                 "IMatchRecorder, IMatchReplayRepository, IRecorderStateProvider",
         )
     }

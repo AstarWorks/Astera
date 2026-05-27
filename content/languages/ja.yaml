@@ -107,6 +107,15 @@ astera:
         tooltip: "<gray>アイテムに強化を適用。</gray>"
       profile:
         tooltip: "<gray>プロフィールカードを表示。</gray>"
+    # Wave 5game-complete (ADR-0121 §B) — 9 枠ロードアウトセレクター。
+    loadout-selector:
+      title: "<aqua>ロードアウト選択</aqua>"
+      slot:
+        tooltip:
+          activate: "<gray>左クリック: このロードアウトを有効化</gray>"
+          rename: "<gray>右クリック: 名前を変更</gray>"
+          reset: "<gray>シフトクリック: 内容をクリア</gray>"
+          save: "<gray>中クリック: 現在の装備を保存</gray>"
     profile-card:
       title: "<gold>プロフィール</gold>"
       head:
@@ -386,6 +395,28 @@ astera:
       empty: "<gray>チームなし。</gray>"
     error:
       match-not-found: "<red>マッチが見つかりません。</red>"
+      # Wave 5game-complete (ADR-0121 §F) — 最小プレイヤー数 guard.
+      insufficient-players: "<red>マッチ開始に必要な人数が足りません（必要 {required} 人、現在 {actual} 人）。</red>"
+    # Wave 5game-complete (ADR-0121 §C) — マッチ開始 5 秒カウントダウン。
+    countdown:
+      "1": "<red><bold>1</bold></red>"
+      "2": "<gold><bold>2</bold></gold>"
+      "3": "<yellow><bold>3</bold></yellow>"
+      "4": "<green><bold>4</bold></green>"
+      "5": "<aqua><bold>5</bold></aqua>"
+    # Wave 5game-complete (ADR-0121 §D) — プレイヤーごとの結果表示。
+    summary:
+      victory: "<gold><bold>勝利！</bold></gold>"
+      defeat: "<dark_red><bold>敗北</bold></dark_red>"
+      draw: "<gray><bold>引き分け</bold></gray>"
+      header: "<dark_aqua>== マッチ結果 ==</dark_aqua>"
+      reason:
+        score-threshold: "<gray>スコア閾値到達により終了。</gray>"
+        timer-expired: "<gray>タイマー終了により終了。</gray>"
+        admin: "<gray>管理者により終了。</gray>"
+        sudden-death: "<gray>サドンデスで決着。</gray>"
+        objective: "<gray>目標達成により終了。</gray>"
+        cancelled: "<gray>マッチがキャンセルされました。</gray>"
 
   spawn:
     teleporting: "<gray>スポーン地点へテレポート中…</gray>"

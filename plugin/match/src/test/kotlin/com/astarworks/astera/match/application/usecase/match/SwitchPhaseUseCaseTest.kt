@@ -77,19 +77,30 @@ class SwitchPhaseUseCaseTest {
     }
 
     private fun buildMatch(id: MatchId, phase: MatchPhase): Match {
-        val teamId = TeamId("red")
+        val red = TeamId("red")
+        val blue = TeamId("blue")
+        // Wave 5game-complete (ADR-0121 §F): min-player guard checks
+        // total players >= 2 on CountdownComplete, so seed two members
+        // (1 per team) so the COUNTDOWN→ACTIVE happy path keeps working
+        // without a modeRegistry wired into the use case.
         return Match(
             id = id,
             phase = phase,
             teams = listOf(
                 Team(
-                    id = teamId,
+                    id = red,
                     displayNameKey = MessageKey("astera.match.team.red"),
                     colorKey = MessageKey("astera.match.team.red.color"),
-                    members = emptySet(),
+                    members = setOf(com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())),
+                ),
+                Team(
+                    id = blue,
+                    displayNameKey = MessageKey("astera.match.team.blue"),
+                    colorKey = MessageKey("astera.match.team.blue.color"),
+                    members = setOf(com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())),
                 ),
             ),
-            score = Score(mapOf(teamId to 0)),
+            score = Score(mapOf(red to 0, blue to 0)),
             stageId = StageId("test-arena"),
             startedAtTick = 0L,
         )
