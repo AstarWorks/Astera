@@ -1826,6 +1826,46 @@ class ArchitectureTest {
             }
     }
 
+    @Test
+    fun `admin commands must declare a permission gate (ADR-0122)`() {
+        // Wave E 5admin-ops invariant: every file that *declares* a
+        // top-level flat admin command (a `CommandSpec.Literal` whose `name`
+        // is one of the known `astera-<verb>` admin literals) MUST also call
+        // `requirePermission(...)` in the same file. A literal without the
+        // gate would silently let any player run it.
+        //
+        // The check is structural (file text + name match), not semantic:
+        // we do not verify the permission node matches the verb — that's
+        // an operator concern owned by `content/permission/roles.yaml`.
+        //
+        // Excluded literals: player-facing (`astera-travel`, `astera-menu`,
+        // `astera-help`, `astera-chat`, `astera-announce`), moderation
+        // (`astera-kick` … `astera-warn` — gated inside
+        // `ModerationFlatCommandSpec.kt` via `requirePermission` on the
+        // resolveTarget path), and the Items-side nested `astera-items`
+        // root which delegates to its own gated `giveItemSubcommand`.
+        val adminVerbPattern = Regex(
+            "name\\s*=\\s*\"(astera-(?:" +
+                "maintenance|teleport|reload|audit|promote|demote|config|health|" +
+                "spawn-mob|backup|grant-currency|grant-xp|stage|validate|give" +
+                "))\"",
+        )
+        Konsist.scopeFromProject()
+            .files
+            .filter { it.name.endsWith(".kt") && it.text.contains("CommandSpec.Literal(") }
+            .filter { adminVerbPattern.containsMatchIn(it.text) }
+            .assertFalse(
+                additionalMessage = "ADR-0122 violation: a file declares a flat admin command " +
+                    "literal (name = \"astera-<verb>\") but does not call " +
+                    "`requirePermission(...)` in the same file. Every admin command must wrap " +
+                    "its executor through `requirePermission(permissionService, Permission(\"astera.admin.*\"))` " +
+                    "so an unprivileged sender cannot run it. " +
+                    "Example: see `ModerationFlatCommandSpec.kt` or `AdminOpsCommands.kt`.",
+            ) { file ->
+                !file.text.contains("requirePermission(")
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**

@@ -181,7 +181,10 @@ import com.astarworks.astera.core.application.service.tutorial.InMemoryPlayerTut
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
 import com.astarworks.astera.core.application.service.InMemorySchematicLoader
 import com.astarworks.astera.core.application.service.InMemoryTabList
+import com.astarworks.astera.core.application.command.AdminOpsCommands
 import com.astarworks.astera.core.application.command.Wave5tAdminCommands
+import com.astarworks.astera.core.application.port.outbound.maintenance.IMaintenanceModeService
+import com.astarworks.astera.core.application.service.maintenance.InMemoryMaintenanceModeService
 import com.astarworks.astera.core.application.service.admin.InMemoryLiveConfigEditor
 import com.astarworks.astera.core.application.service.admin.InMemoryScheduledAnnouncementSystem
 import com.astarworks.astera.core.application.service.admin.InMemoryServerBackupGateway
@@ -935,7 +938,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         @Suppress("UNUSED_VARIABLE")
         val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
         val restoreSnapshotUseCase = RestoreInventorySnapshotUseCase(snapshotRepo, sessionRepo, eventBus)
-        val restoreOnJoin = RestoreInventoryOnPlayerJoinedListener(restoreSnapshotUseCase)
+        val restoreOnJoin = RestoreInventoryOnPlayerJoinedListener(restoreSnapshotUseCase, sessionRepo)
         eventBus.subscribe(PlayerJoinedServer::class) { restoreOnJoin.handle(it) }
 
         // Silence unused-var (attributes/vault/settings/audit returned via registry for cross-plugin pickup).
@@ -1286,6 +1289,12 @@ public class AsteraCorePlugin : JavaPlugin() {
         val healthCheck: IServerHealthCheck = InMemoryServerHealthCheck()
         services.register<IServerHealthCheck>(healthCheck, priority = 0)
 
+        // Wave E 5admin-ops (ADR-0122): Maintenance mode state. In-memory
+        // only — Phase 1 PoC; the login-gate listener that consumes it
+        // lands in Wave 6b's BukkitEventAdapter.
+        val maintenanceMode: IMaintenanceModeService = InMemoryMaintenanceModeService()
+        services.register<IMaintenanceModeService>(maintenanceMode, priority = 0)
+
         // 5. Slow query audit + Player feedback.
         val slowQueryRepo: ISlowQueryAuditRepository =
             services.get<ISlowQueryAuditRepository>()
@@ -1311,6 +1320,28 @@ public class AsteraCorePlugin : JavaPlugin() {
             slowQueryRepository = slowQueryRepo,
         ).forEach { commandHandler.register(it) }
         logger.info("Wave 5t admin commands registered (/astera report, feedback, slow-query).")
+
+        // Wave E 5admin-ops (ADR-0122) — 10 flat admin commands. Each one
+        // routes through an already-wired port; the AdminOpsCommands builder
+        // is just the chat surface. Konsist rule
+        // `admin commands must declare a permission gate (ADR-0122)`
+        // verifies every literal here calls `requirePermission(...)`.
+        val adminOpsWorldGateway = services.get<com.astarworks.astera.core.application.port.outbound.IWorldGateway>()
+            ?: com.astarworks.astera.core.application.service.effect.NoopWorldGatewayForEffects()
+        val adminOpsCommands = AdminOpsCommands(
+            maintenance = maintenanceMode,
+            worldGateway = adminOpsWorldGateway,
+            reloadRegistry = reloadRegistry,
+            auditRepo = auditRepo,
+            permissionService = permissionService,
+            playerGateway = playerGateway,
+            liveConfigEditor = liveConfigEditor,
+            healthCheck = healthCheck,
+            mobSpawner = mobSpawner,
+            backupGateway = backupGateway,
+        )
+        val adminOpsCount = AdminOpsCommands.registerAll(commandHandler, adminOpsCommands)
+        logger.info("Wave E 5admin-ops: registered $adminOpsCount flat admin commands.")
 
         // ---- Anti-cheat + Anti-AFK (Wave 5q, ADR-0083) -----------------
         // Three light validators (movement / damage-rate / interact) +

@@ -801,3 +801,66 @@ astera:
         name: "設定スチュワード"
       party:
         name: "パーティコーディネーター"
+
+  # Wave E 5admin-ops (ADR-0122) — /astera-<verb> 管理者コマンド群。
+  admin:
+    maintenance:
+      root: "<gray>サーバーメンテナンスモードを切り替える（管理者専用）。</gray>"
+      unknown_action: "<red>不明なアクション '{action}' です。on / off / status を指定してください。</red>"
+    teleport:
+      root: "<gray>プレイヤーを指定したワールド座標へテレポートします。</gray>"
+      player_not_found: "<red>プレイヤー '{player}' はオフラインか存在しません。</red>"
+      failed: "<red>'{player}' のワールド '{world}' へのテレポートに失敗しました。</red>"
+    reload:
+      root: "<gray>コンテンツカテゴリをディスクから再読み込みします。</gray>"
+    audit:
+      root: "<gray>プレイヤーの監査ログを参照します。</gray>"
+      player_not_found: "<red>プレイヤー '{player}' はオフラインか存在しません。</red>"
+    promote:
+      root: "<gray>プレイヤーにロールを付与します。</gray>"
+      player_not_found: "<red>プレイヤー '{player}' はオフラインか存在しません。</red>"
+    demote:
+      root: "<gray>プレイヤーからロールを剥奪します。</gray>"
+      player_not_found: "<red>プレイヤー '{player}' はオフラインか存在しません。</red>"
+    config:
+      root: "<gray>コンテンツ YAML をランタイムで読み書きします。</gray>"
+      missing_value: "<red>'set' には value 引数が必要です。</red>"
+      unknown_action: "<red>不明な config アクション '{action}' です。get / set を指定してください。</red>"
+      unknown_category: "<red>不明な config カテゴリ '{name}' です。</red>"
+      path_escaped: "<red>パスがカテゴリルート '{root}' を逸脱しています。</red>"
+      io_failed: "<red>Config I/O 失敗: {reason}。</red>"
+      reload_aborted: "<red>カテゴリ '{name}' のリロードが中断されました。直前の状態は保持されています。</red>"
+    health:
+      root: "<gray>サーバー全体のヘルス状況を表示します。</gray>"
+    spawn_mob:
+      root: "<gray>登録済みの mob を指定座標にスポーンします。</gray>"
+      unknown_type: "<red>mob タイプ '{mob}' は未登録です。</red>"
+      no_adapter: "<red>利用可能な mob アダプタがありません。</red>"
+      backend_error: "<red>mob スポーンが backend で失敗しました (中断前に {spawned} 体スポーン)。</red>"
+      skill_binding_missing: "<red>mob のスキルバインディングが未登録のスキルを参照しています。</red>"
+    backup:
+      root: "<gray>プレイヤー単位のバックアップ / リストア（Wave 5t エクスポート）。</gray>"
+      unknown_action: "<red>不明な backup アクション '{action}' です。now / list / restore を指定してください。</red>"
+      missing_target: "<red>backup コマンドには対象プレイヤーが必要です。</red>"
+      player_not_found: "<red>プレイヤー '{player}' はオフラインか存在しません。</red>"
+      unsupported_schema: "<red>backup エンベロープ schema version {version} はこのサーバーでは未対応です。</red>"
+      io_failed: "<red>Backup I/O 失敗: {reason}。</red>"
+      unknown_shard: "<red>backup エンベロープが未知のシャード '{shard}' を参照しています。</red>"
+    grant_currency:
+      root: "<gray>プレイヤーに通貨残高をクレジットします。</gray>"
+      player_not_found: "<red>プレイヤー '{player}' はオフラインか存在しません。</red>"
+      unknown_currency: "<red>不明な通貨 '{currency}' です。star / gold / gem を指定してください。</red>"
+    grant_xp:
+      root: "<gray>プレイヤーに XP を付与します。</gray>"
+      player_not_found: "<red>プレイヤー '{player}' はオフラインか存在しません。</red>"
+      invalid_amount: "<red>不正な XP 量 '{amount}' (対象: '{player}')。</red>"
+    stage:
+      root: "<gray>登録済みステージを一覧表示 / 選択します。</gray>"
+      missing_id: "<red>'select' には stage-id 引数が必要です。</red>"
+      unknown: "<red>id '{stage}' のステージは登録されていません。</red>"
+      unknown_action: "<red>不明な stage アクション '{action}' です。list / select を指定してください。</red>"
+    validate:
+      root: "<gray>編集済みコンテンツの参照整合性をチェックします。</gray>"
+    give:
+      root: "<gray>Astera アイテムをプレイヤーへ付与します (/astera-items give の管理者エイリアス)。</gray>"
+      failed: "<red>アイテム付与に失敗しました。</red>"

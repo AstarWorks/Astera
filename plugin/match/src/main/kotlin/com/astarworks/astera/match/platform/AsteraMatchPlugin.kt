@@ -855,6 +855,40 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 "'lobby.queue.' prefix.",
         )
 
+        // ── Wave E 5admin-ops (ADR-0122) — admin commands ───────────────────
+        // `/astera-stage <list|select>` for stage catalog visibility +
+        // `/astera-validate [category]` for cross-content reference integrity.
+        // Validate is skipped when Combat isn't loaded (softdepend): without
+        // ISkillRegistry the item→skill check has no skill table to consult.
+        commandHandler.register(
+            com.astarworks.astera.match.command.admin.AdminStageCommandSpec(
+                stageRegistry = stages,
+                permissionService = permService,
+            ).build(),
+        )
+        val skillRegistry = services.get<com.astarworks.astera.combat.application.port.outbound.ISkillRegistry>()
+        if (skillRegistry != null) {
+            val itemRegistry =
+                services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()
+            val validateUseCase =
+                com.astarworks.astera.match.application.usecase.validate.ValidateContentReferencesUseCase(
+                    items = itemRegistry,
+                    skills = skillRegistry,
+                )
+            commandHandler.register(
+                com.astarworks.astera.match.command.admin.AdminValidateCommandSpec(
+                    validate = validateUseCase,
+                    permissionService = permService,
+                ).build(),
+            )
+            logger.info("Wave E 5admin-ops: /astera-stage + /astera-validate registered.")
+        } else {
+            logger.info(
+                "Wave E 5admin-ops: /astera-stage registered. " +
+                    "/astera-validate skipped (Astera-Combat not loaded; ISkillRegistry unavailable).",
+            )
+        }
+
         logger.info(
             "Astera-Match enabled. Services: IMatchRepository, IStageRegistry, " +
                 "IAnomalyRegistry, IGeneratorRegistry, IMatchLifecycle, IMatchTeamLookup, " +

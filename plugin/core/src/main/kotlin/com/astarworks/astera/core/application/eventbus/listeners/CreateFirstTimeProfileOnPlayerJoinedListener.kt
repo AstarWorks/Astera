@@ -8,6 +8,7 @@ import com.astarworks.astera.core.application.port.outbound.ProfileError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.FirstTimeProfileCreated
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
+import com.astarworks.astera.core.domain.player.SessionState
 import org.slf4j.LoggerFactory
 
 /**
@@ -75,10 +76,22 @@ public class CreateFirstTimeProfileOnPlayerJoinedListener(
     public fun handle(event: PlayerJoinedServer) {
         val playerId = event.playerId
 
-        // Cheap pre-filter: an existing session row = returning player on
-        // this server's lifetime. Profile service still has the
-        // authoritative check.
-        if (sessionRepo.find(playerId) != null) {
+        // Double-join idempotency (Wave E 5admin-ops, ADR-0122 §C):
+        // a live (non-Disconnected) session = the player is already tracked
+        // on this server, so a second PlayerJoinedServer is a duplicate
+        // dispatch — skip with a WARN. A Disconnected session = the player
+        // quit cleanly and is reconnecting; treat as returning player and
+        // fall through to the existing-session DEBUG branch.
+        val existing = sessionRepo.find(playerId)
+        if (existing != null) {
+            if (existing.state !is SessionState.Disconnected) {
+                log.warn(
+                    "Duplicate PlayerJoinedServer for {} (state={}); skipping first-time profile creation.",
+                    playerId,
+                    existing.state::class.simpleName,
+                )
+                return
+            }
             log.debug("Player {} has an existing session; skipping first-time profile creation.", playerId)
             return
         }
