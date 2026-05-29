@@ -1,0 +1,12 @@
+# Wave J 5server-content-ops (ADR-0127) — Changelog sample.
+#
+# First Phase 1 PoC cut. Highlights surface as bullet lines in `/astera-patch`;
+# `full` is shown when the player runs `/astera-patch 0.1.0`.
+
+version: "0.1.0"
+released_at: '2026-05-28T00:00:00Z'
+highlights:
+  - astera.changelog.0_1_0.highlight.1
+  - astera.changelog.0_1_0.highlight.2
+  - astera.changelog.0_1_0.highlight.3
+full: astera.changelog.0_1_0.full

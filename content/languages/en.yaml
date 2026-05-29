@@ -959,3 +959,60 @@ astera:
     give:
       root: "<gray>Give an Astera item to a player (admin alias for /astera-items give).</gray>"
       failed: "<red>Give item failed.</red>"
+
+  # Wave J 5server-content-ops (ADR-0127) — Server ops + news/changelog/login bonus.
+  restart:
+    command:
+      root: "<gray>Schedule a graceful server restart in N minutes (admin only).</gray>"
+    default-reason: "<gray>scheduled maintenance</gray>"
+    error:
+      out_of_range: "<red>Restart minutes must be {min}-{max} (got {minutes}).</red>"
+    announcement:
+      chat: "<yellow>The server will restart shortly for maintenance.</yellow>"
+      title_30s: "<gold><bold>Restart in 30s</bold></gold>"
+      title_10s: "<gold><bold>Restart in 10s</bold></gold>"
+      title_3s: "<red><bold>Restart in 3s</bold></red>"
+      title_1s: "<red><bold>Restart NOW</bold></red>"
+
+  news:
+    command:
+      root: "<gray>Show the latest server news.</gray>"
+    empty: "<gray>No news to report. Check back later.</gray>"
+    header: "<gold><bold>Astera News</bold></gold>"
+    footer: "<gray>— end of news ({count} shown). Use /astera-patch for changelog. —</gray>"
+    entry:
+      title: "<yellow>[{severity}]</yellow> <bold>{title}</bold>"
+      body: "<gray>{body}</gray>"
+    welcome-to-phase-1:
+      title: "Welcome to Astera Phase 1"
+      body: "Phase 1 PoC is now playable. Combat, skills, matches, and crafting are live; expect rough edges and weekly resets."
+    wave-6-incoming:
+      title: "Wave 6 Paper Sweep Incoming"
+      body: "The Bukkit/Paper rendering pass lands next week. Resource packs may flip; please re-download if textures look stale."
+
+  patch:
+    command:
+      root: "<gray>Show release notes (latest by default, or pass a version).</gray>"
+    header: "<gold><bold>Astera {version}</bold></gold> <gray>(released {released})</gray>"
+    highlight: "<gray>* {text}</gray>"
+    footer:
+      latest: "<gray>Use /astera-patch {version} to read the full notes.</gray>"
+      full: "<white>{text}</white>"
+    error:
+      no_entries: "<red>No changelog entries are registered.</red>"
+      invalid_version: "<red>Invalid version '{version}'. Expected MAJOR.MINOR.PATCH (e.g. 0.1.0).</red>"
+      unknown_version: "<red>No changelog entry for version '{version}'.</red>"
+
+  changelog:
+    "0_1_0":
+      highlight:
+        "1": "First playable PvP match loop (start, score, end, reward)."
+        "2": "Crafting recipes + quest chains + advancements landed."
+        "3": "Admin ops commands + scheduled announcements + maintenance mode."
+      full: "Phase 1 PoC release: see RTM-PARITY-TRACKER.md for the full feature × state matrix."
+
+  loginbonus:
+    error:
+      not_implemented: "<red>Daily login bonus claim is not yet wired (Phase 2).</red>"
+      already_claimed_today: "<yellow>You have already claimed today's bonus.</yellow>"
+      no_reward_for_day: "<red>No reward configured for day {day}.</red>"
