@@ -415,6 +415,25 @@ astera:
         sudden-death: "<gray>Resolved in sudden death.</gray>"
         objective: "<gray>Ended by objective completion.</gray>"
         cancelled: "<gray>Match was cancelled.</gray>"
+    # Wave I 5match-wireup-fix (ADR-0126 §C) — reconnect-window countdown
+    # ActionBar shown while a disconnected participant is held in the seat.
+    reconnect:
+      countdown:
+        long: "<yellow>Reconnect window: 2+ min remaining</yellow>"
+        medium: "<yellow>Reconnect window: ~1 min remaining</yellow>"
+        short: "<red>Reconnect window: under 1 min remaining</red>"
+      expired: "<dark_red>Reconnect window expired.</dark_red>"
+    # Wave I 5match-wireup-fix (ADR-0126 §D) — AFK warning ActionBar
+    # shown ~60 s before the auto-kick fires.
+    afk:
+      warning: "<gold>You will be kicked soon for inactivity. Move to reset.</gold>"
+    # Wave I 5match-wireup-fix (ADR-0126 §E) — cross-world loading
+    # subtitle placeholder (Phase 1 PoC: static text per destination;
+    # 0–100 % progress lands in Wave 6b alongside PaperWorldGateway).
+    loading:
+      pve-world: "<aqua>Entering the open world…</aqua>"
+      island: "<aqua>Arriving at your island…</aqua>"
+      lobby: "<aqua>Returning to lobby…</aqua>"
 
   spawn:
     teleporting: "<gray>Teleporting to spawn…</gray>"

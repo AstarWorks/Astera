@@ -248,7 +248,8 @@ public class AsteraMatchPlugin : JavaPlugin() {
         @Suppress("UnusedVariable")
         val broadcaster = services.getOrThrow<IBroadcaster>()
 
-        @Suppress("UnusedVariable")
+        // Wave I 5match-wireup-fix (ADR-0126): MatchEndSummaryListener consumes
+        // IMessageRenderer for the per-player chat header / reason lines.
         val msgRenderer = services.getOrThrow<IMessageRenderer>()
 
         // Wave 5game-complete (ADR-0121 §F + §E): mode registry mirrors
@@ -844,6 +845,108 @@ public class AsteraMatchPlugin : JavaPlugin() {
             "Wave 5complete wired: UpdateMatchSidebar + KillfeedOnPlayerKilled + " +
                 "NormaVictoryConditionEvaluator subscribed; " +
                 "/astera-match {abort,cancel,restart} sub-commands registered.",
+        )
+
+        // ── Wave I 5match-wireup-fix (ADR-0126) ─────────────────────────────
+        //
+        // Round 10 Wave D 5game-complete (ADR-0121) created 4 listener
+        // classes (MatchCountdownListener, MatchEndSummaryListener,
+        // ApplyPvpDeathPolicyListener, AnnihilationWinConditionListener)
+        // but never wired their `eventBus.subscribe` calls. The Round 13
+        // audit (commit 6229f0c) caught the gap by failing to end an
+        // Annihilation match even after every enemy nexus was broken —
+        // AnnihilationMatchTracker.evaluateWinCondition was observable
+        // by no one. This block restores the 4 subscriptions, mirroring
+        // the cancel-on-disable pattern (Wave 5server-harden ADR-0123 §4).
+        //
+        // DefaultPvpDeathPolicyResolver is registered here too because
+        // ApplyPvpDeathPolicyListener depends on it and no earlier wave
+        // landed the registration. Stage YAML overrides remain empty
+        // (Wave 5persist will populate via the stage loader).
+
+        val pvpDeathResolver: com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver =
+            services.get<com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver>()
+                ?: com.astarworks.astera.match.application.service.death.DefaultPvpDeathPolicyResolver(
+                    matchRepo = matches,
+                    modeRegistry = matchModeRegistry,
+                ).also {
+                    registrations += services.register<
+                        com.astarworks.astera.match.application.port.outbound.IPvpDeathPolicyResolver,
+                    >(it, priority = 0)
+                }
+
+        val inventoryMutator =
+            services.getOrThrow<com.astarworks.astera.core.application.port.outbound.inventory.IInventoryMutator>()
+
+        val matchCountdownListener =
+            com.astarworks.astera.match.application.eventbus.listeners.match
+                .MatchCountdownListener(
+                    matches = matches,
+                    hudGateway = hudGateway,
+                    scheduler = scheduler,
+                )
+        subscriptions += eventBus.subscribe(MatchStarted::class) {
+            matchCountdownListener.handle(it)
+        }
+
+        val matchEndSummaryListener =
+            com.astarworks.astera.match.application.eventbus.listeners.match
+                .MatchEndSummaryListener(
+                    matches = matches,
+                    hudGateway = hudGateway,
+                    messages = msgRenderer,
+                    playerGateway = playerGateway,
+                )
+        subscriptions += eventBus.subscribe(MatchEnded::class) {
+            matchEndSummaryListener.handle(it)
+        }
+
+        val applyPvpDeathPolicyListener =
+            com.astarworks.astera.match.application.eventbus.listeners.death
+                .ApplyPvpDeathPolicyListener(
+                    matches = matches,
+                    resolver = pvpDeathResolver,
+                    inventoryMutator = inventoryMutator,
+                )
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
+        ) { applyPvpDeathPolicyListener.handle(it) }
+
+        val annihilationWinConditionListener =
+            com.astarworks.astera.match.application.eventbus.listeners.victory
+                .AnnihilationWinConditionListener(
+                    tracker = annihilationTracker,
+                    lifecycle = facade,
+                    scheduler = scheduler,
+                    eventBus = eventBus,
+                )
+        // AnnihilationWinConditionListener owns its own `subscribe()` helper
+        // that returns both TeamEliminated + AnnihilationPhaseTransitioned
+        // subscriptions. Add all returned handles to the cancel list so
+        // /reload (Wave 5server-harden ADR-0123 §4) cleans both paths.
+        subscriptions += annihilationWinConditionListener.subscribe()
+
+        // ── Reconnect countdown HUD listener (private-beta blocker) ──
+        // Subscribes to PlayerDisconnectedFromMatch and per-second ticks
+        // an ActionBar showing "Reconnect window: 2:45 left" until either
+        // the timeout elapses or PlayerReconnectedToMatch fires.
+        val reconnectCountdownHudListener =
+            com.astarworks.astera.match.application.eventbus.listeners.hud
+                .ReconnectCountdownHudListener(
+                    hudGateway = hudGateway,
+                    scheduler = scheduler,
+                )
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.match.domain.event.PlayerDisconnectedFromMatch::class,
+        ) { reconnectCountdownHudListener.onDisconnected(it) }
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.match.domain.event.PlayerReconnectedToMatch::class,
+        ) { reconnectCountdownHudListener.onReconnected(it) }
+
+        logger.info(
+            "Wave I 5match-wireup-fix wired: MatchCountdown + MatchEndSummary + " +
+                "ApplyPvpDeathPolicy + AnnihilationWinCondition + ReconnectCountdownHud " +
+                "subscribed; DefaultPvpDeathPolicyResolver registered.",
         )
 
         // ── Wave 5lobby-content (ADR-0119) — `lobby.queue.*` intent bridge ─
