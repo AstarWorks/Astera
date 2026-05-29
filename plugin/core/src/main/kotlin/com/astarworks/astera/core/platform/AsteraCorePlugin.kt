@@ -1879,6 +1879,34 @@ public class AsteraCorePlugin : JavaPlugin() {
             com.astarworks.astera.core.domain.event.PlayerAfkKicked::class,
         ) { kickOnAfk.handle(it) }
 
+        // ── Wave I 5match-wireup-fix (ADR-0126 §D + §E) ──────────────────
+        // AFK warning ActionBar + cross-world loading subtitle. Both are
+        // private-beta blockers — playtesters could not tell the AFK
+        // sweeper was about to kick them, nor whether a teleport had
+        // actually completed. Wired here next to KickPlayerOnAfkKicked
+        // because both consume the same AFK domain events; the loading
+        // listener subscribes to the Round 8 travel events.
+        val afkWarningHud = com.astarworks.astera.core.application.eventbus.listeners.afk
+            .AfkWarningHudListener(hudGateway)
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerAfkWarned::class,
+        ) { afkWarningHud.onWarned(it) }
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerAfkKicked::class,
+        ) { afkWarningHud.onKicked(it) }
+
+        val loadingProgress = com.astarworks.astera.core.application.eventbus.listeners.loading
+            .LoadingProgressListener(hudGateway)
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerTraveledToPveWorld::class,
+        ) { loadingProgress.onTraveledToPve(it) }
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerArrivedAtIsland::class,
+        ) { loadingProgress.onArrivedAtIsland(it) }
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerReturnedToLobby::class,
+        ) { loadingProgress.onReturnedToLobby(it) }
+
         // Apply / Lift use cases (shared by flat commands + the existing
         // /astera mod tree if Wave 5h later wires it up).
         val applyMod = com.astarworks.astera.core.application.usecase.moderation
@@ -2259,6 +2287,28 @@ public class AsteraCorePlugin : JavaPlugin() {
         waveGRegistrations += waveGRouter.register(
             com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyLeaveIntentHandler.INTENT_LEAVE,
         ) { intent, player -> partyLeaveHandler.handle(intent, player) }
+
+        // ── Wave I 5match-wireup-fix (ADR-0126 §B) ─────────────────────
+        // LoadoutSelectorShowIntentHandler: Round 10 Wave D 5game-complete
+        // (ADR-0121 §B) shipped the handler class + the
+        // CustomizeMenuGuiSpec slot that emits `loadout.selector.show`, but
+        // the router registration was deferred. Pre-Wave-I, clicking the
+        // loadout tile in the customize menu silently no-op'd. We wire it
+        // onto the shared IGuiIntentRouter via the existing `loadout.selector.`
+        // prefix; the registration joins `waveGRegistrations` so onDisable
+        // releases the captured handler lambda along with the Wave G
+        // handlers (single cleanup path).
+        val loadoutSelectorShowHandler = com.astarworks.astera.core.application.gui.lobby.intent
+            .LoadoutSelectorShowIntentHandler(
+                guiAdapter = guiAdapter,
+                mcServer = mcServer,
+                messages = messages,
+                playerGateway = playerGateway,
+            )
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent
+                .LoadoutSelectorShowIntentHandler.INTENT_PREFIX,
+        ) { intent, player -> loadoutSelectorShowHandler.handle(intent, player) }
 
         waveGIntentRegistrations = waveGRegistrations
 

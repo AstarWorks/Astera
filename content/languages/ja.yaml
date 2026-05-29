@@ -417,6 +417,25 @@ astera:
         sudden-death: "<gray>サドンデスで決着。</gray>"
         objective: "<gray>目標達成により終了。</gray>"
         cancelled: "<gray>マッチがキャンセルされました。</gray>"
+    # Wave I 5match-wireup-fix (ADR-0126 §C) — 切断保留中の再接続猶予
+    # ActionBar カウントダウン。
+    reconnect:
+      countdown:
+        long: "<yellow>再接続猶予: 残り 2 分以上</yellow>"
+        medium: "<yellow>再接続猶予: 残り 1 分前後</yellow>"
+        short: "<red>再接続猶予: 残り 1 分未満</red>"
+      expired: "<dark_red>再接続猶予が切れました。</dark_red>"
+    # Wave I 5match-wireup-fix (ADR-0126 §D) — 自動キック直前の AFK 警告
+    # ActionBar (キックの約 60 秒前に表示)。
+    afk:
+      warning: "<gold>放置によりまもなくキックされます。動いてリセットしてください。</gold>"
+    # Wave I 5match-wireup-fix (ADR-0126 §E) — ワールド遷移のローディング
+    # サブタイトル (Phase 1 PoC: 行き先別の静的テキストのみ、0–100%
+    # 進捗は Wave 6b の PaperWorldGateway で対応)。
+    loading:
+      pve-world: "<aqua>オープンワールドへ進入中…</aqua>"
+      island: "<aqua>あなたの島に到着中…</aqua>"
+      lobby: "<aqua>ロビーへ戻っています…</aqua>"
 
   spawn:
     teleporting: "<gray>スポーン地点へテレポート中…</gray>"
