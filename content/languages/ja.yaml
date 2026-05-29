@@ -966,3 +966,60 @@ astera:
     give:
       root: "<gray>Astera アイテムをプレイヤーへ付与します (/astera-items give の管理者エイリアス)。</gray>"
       failed: "<red>アイテム付与に失敗しました。</red>"
+
+  # Wave J 5server-content-ops (ADR-0127) — サーバー運用 + ニュース/changelog/ログインボーナス。
+  restart:
+    command:
+      root: "<gray>N 分後にサーバーを安全に再起動します（管理者専用）。</gray>"
+    default-reason: "<gray>定期メンテナンス</gray>"
+    error:
+      out_of_range: "<red>再起動分数は {min}-{max} の範囲で指定してください（指定値: {minutes}）。</red>"
+    announcement:
+      chat: "<yellow>サーバーは間もなくメンテナンスのため再起動します。</yellow>"
+      title_30s: "<gold><bold>30秒後に再起動</bold></gold>"
+      title_10s: "<gold><bold>10秒後に再起動</bold></gold>"
+      title_3s: "<red><bold>3秒後に再起動</bold></red>"
+      title_1s: "<red><bold>再起動します</bold></red>"
+
+  news:
+    command:
+      root: "<gray>最新のサーバーニュースを表示します。</gray>"
+    empty: "<gray>現在ニュースはありません。</gray>"
+    header: "<gold><bold>Astera ニュース</bold></gold>"
+    footer: "<gray>— ニュース終了（{count} 件表示）。changelog は /astera-patch を参照。 —</gray>"
+    entry:
+      title: "<yellow>[{severity}]</yellow> <bold>{title}</bold>"
+      body: "<gray>{body}</gray>"
+    welcome-to-phase-1:
+      title: "Astera Phase 1 へようこそ"
+      body: "Phase 1 PoC が遊べるようになりました。戦闘・スキル・マッチ・クラフトが利用可能。粗削りな点・週次リセットがあります。"
+    wave-6-incoming:
+      title: "Wave 6 Paper Sweep 予告"
+      body: "Bukkit/Paper レンダリングパスが来週着地します。リソースパックが切り替わるため、テクスチャが古い場合は再ダウンロードしてください。"
+
+  patch:
+    command:
+      root: "<gray>リリースノートを表示します（無指定で最新、または version 指定）。</gray>"
+    header: "<gold><bold>Astera {version}</bold></gold> <gray>（リリース日: {released}）</gray>"
+    highlight: "<gray>* {text}</gray>"
+    footer:
+      latest: "<gray>詳細は /astera-patch {version} で確認できます。</gray>"
+      full: "<white>{text}</white>"
+    error:
+      no_entries: "<red>changelog エントリが登録されていません。</red>"
+      invalid_version: "<red>不正な version '{version}'。MAJOR.MINOR.PATCH 形式で指定してください（例: 0.1.0）。</red>"
+      unknown_version: "<red>version '{version}' の changelog エントリは存在しません。</red>"
+
+  changelog:
+    "0_1_0":
+      highlight:
+        "1": "初の遊べる PvP マッチループ（開始・スコア・終了・報酬）。"
+        "2": "クラフトレシピ + クエストチェーン + advancement 着地。"
+        "3": "管理者コマンド + スケジュールアナウンス + メンテナンスモード。"
+      full: "Phase 1 PoC リリース: 全機能 × 状態マトリックスは RTM-PARITY-TRACKER.md を参照。"
+
+  loginbonus:
+    error:
+      not_implemented: "<red>デイリーログインボーナスの取得は未実装です（Phase 2 で対応）。</red>"
+      already_claimed_today: "<yellow>本日のボーナスは既に取得済みです。</yellow>"
+      no_reward_for_day: "<red>日 {day} に対応する報酬が設定されていません。</red>"

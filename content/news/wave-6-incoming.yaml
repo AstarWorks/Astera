@@ -1,0 +1,11 @@
+# Wave J 5server-content-ops (ADR-0127) — News sample 2.
+#
+# Telegraphs the upcoming Wave 6 Paper sweep so private-beta players are not
+# surprised when the renderer / packs flip. Severity Important so the chat
+# adapter can colour it distinctly from Info-level posts.
+
+id: wave-6-incoming
+title_key: astera.news.wave-6-incoming.title
+body_key: astera.news.wave-6-incoming.body
+published_at: '2026-05-29T00:00:00Z'
+severity: Important

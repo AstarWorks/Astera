@@ -2351,6 +2351,91 @@ public class AsteraCorePlugin : JavaPlugin() {
                 "${waveGRegistrations.size} intent registrations recorded for onDisable cleanup.",
         )
 
+        // ── Wave J 5server-content-ops (ADR-0127) ─────────────────────────
+        //
+        // Three additions, all pure command + content scaffold (no new ports,
+        // no Konsist rule, no DB migration):
+        //
+        //  - `/astera-restart <minutes> [reason]` — graceful, announced restart
+        //    via the existing Wave 5t IScheduledAnnouncementSystem (chat at
+        //    now, Title waypoints at -30s/-10s/-3s/-1s) + Wave 5w
+        //    IServerBootstrapper.shutdown(Restart) scheduled at -1s.
+        //  - `/astera-news [limit]` — top-N non-expired NewsEntry, surfaced
+        //    from content/news/*.yaml via NewsContents (YamlDynamicContents
+        //    substrate).
+        //  - `/astera-patch [version]` — latest or version-specific
+        //    ChangelogEntry, from content/changelog/*.yaml.
+        //  - Login bonus skeleton — LoginBonusContents +
+        //    InMemoryLoginStreakRepository + DefaultLoginBonusService (returns
+        //    NotImplemented in Phase 1). Phase 2 will fill in claim flow +
+        //    Postgres migration; surface is registered now so caller code
+        //    written this wave (e.g. GUI) compiles without scaffold churn.
+        val newsContentDir: Path = contentDir.resolve("news")
+        val newsContents = com.astarworks.astera.core.application.contents.NewsContents()
+        val newsReport = newsContents.bootstrap(newsContentDir)
+        logger.info("News loaded: ${newsReport.loaded} ok, ${newsReport.failed} failed")
+        services.register<com.astarworks.astera.core.application.port.outbound.news.INewsRegistry>(newsContents, priority = 0)
+        reloadRegistry.register(newsContents, newsContentDir)
+
+        val changelogContentDir: Path = contentDir.resolve("changelog")
+        val changelogContents = com.astarworks.astera.core.application.contents.ChangelogContents()
+        val changelogReport = changelogContents.bootstrap(changelogContentDir)
+        logger.info("Changelog loaded: ${changelogReport.loaded} ok, ${changelogReport.failed} failed")
+        services.register<com.astarworks.astera.core.application.port.outbound.changelog.IChangelogRegistry>(changelogContents, priority = 0)
+        reloadRegistry.register(changelogContents, changelogContentDir)
+
+        val loginBonusContentDir: Path = contentDir.resolve("login-bonus")
+        val loginBonusContents = com.astarworks.astera.core.application.contents.LoginBonusContents()
+        val loginBonusReport = loginBonusContents.bootstrap(loginBonusContentDir)
+        logger.info("Login bonus loaded: ${loginBonusReport.loaded} ok, ${loginBonusReport.failed} failed")
+        services.register<com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginBonusRegistry>(loginBonusContents, priority = 0)
+        reloadRegistry.register(loginBonusContents, loginBonusContentDir)
+
+        val loginStreakRepo: com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginStreakRepository =
+            services.get<com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginStreakRepository>()
+                ?: com.astarworks.astera.core.application.service.loginbonus.InMemoryLoginStreakRepository().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginStreakRepository>(it, priority = 0)
+                }
+
+        val loginBonusService: com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginBonusService =
+            com.astarworks.astera.core.application.service.loginbonus.DefaultLoginBonusService(
+                registry = loginBonusContents,
+                streakRepo = loginStreakRepo,
+            )
+        services.register<com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginBonusService>(loginBonusService, priority = 0)
+
+        // Bootstrapper for /astera-restart — reuse the InMemoryServerBootstrapper
+        // already provisioned at the lifecycle wiring block above; the local
+        // `bootstrapper` val is in scope.
+        commandHandler.register(
+            com.astarworks.astera.core.application.command.admin.buildAsteraRestartCommandSpec(
+                announcer = announcementSystem,
+                bootstrapper = bootstrapper,
+                scheduler = scheduler,
+                permissionService = permissionService,
+            ),
+        )
+        commandHandler.register(
+            com.astarworks.astera.core.application.command.buildAsteraNewsCommandSpec(
+                registry = newsContents,
+                messages = messages,
+                playerGateway = playerGateway,
+            ),
+        )
+        commandHandler.register(
+            com.astarworks.astera.core.application.command.buildAsteraPatchCommandSpec(
+                registry = changelogContents,
+                messages = messages,
+                playerGateway = playerGateway,
+            ),
+        )
+
+        logger.info(
+            "Wave J 5server-content-ops wired: INewsRegistry + IChangelogRegistry " +
+                "+ ILoginBonusRegistry + ILoginBonusService + ILoginStreakRepository " +
+                "registered; /astera-restart, /astera-news, /astera-patch commands registered.",
+        )
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
@@ -2492,6 +2577,12 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IBlockInteractionRouter (InMemory default; per-position right/left-click binding table)",
             "ISignActionService (InMemory default; magic-sign [ASTERA] binding registry)",
             "IPortalGateway (InMemory default; block + region shape spatial index)",
+            // Wave J 5server-content-ops (ADR-0127)
+            "INewsRegistry (YAML-backed NewsContents)",
+            "IChangelogRegistry (YAML-backed ChangelogContents)",
+            "ILoginBonusRegistry (YAML-backed LoginBonusContents)",
+            "ILoginStreakRepository (InMemory default; Phase 2 Postgres overlay)",
+            "ILoginBonusService (Phase 1 skeleton; claimDaily returns NotImplemented)",
         )
     }
 }
