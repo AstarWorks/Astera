@@ -643,6 +643,14 @@ astera:
     boss_defeat:
       title: "<gold><bold>ボススレイヤー</bold></gold>"
       description: "<gray>100 キル + 3 勝利の後にボスを討伐しましょう。</gray>"
+    # Wave K 5integration-wire (ADR-0128) — オンボーディングループ閉鎖。
+    tutorial_graduate:
+      title: "<aqua>チュートリアル修了</aqua>"
+      description: "<gray>すべてのチュートリアルステップを一度は通過しましょう。</gray>"
+    # Wave K 5integration-wire (ADR-0128) — 森林探索クエスト連携。
+    explorer:
+      title: "<green>探検家</green>"
+      description: "<gray>森林探索クエストチェーンをクリアしましょう。</gray>"
 
   # Wave H 5content-depth (ADR-0125) — NotifyOnAchievementUnlockedListener 用のキー。
   achievement:

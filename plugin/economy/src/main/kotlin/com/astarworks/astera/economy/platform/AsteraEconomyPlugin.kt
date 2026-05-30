@@ -25,6 +25,7 @@ import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnMissionCompletedListener
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnXpListener
 import com.astarworks.astera.economy.application.eventbus.listeners.RewardOnMatchEndedListener
+import com.astarworks.astera.economy.application.eventbus.listeners.onboarding.GrantRewardOnTutorialCompletedListener
 import com.astarworks.astera.economy.application.eventbus.listeners.betting.DistributeBettingPayoutOnResolvedListener
 import com.astarworks.astera.economy.application.eventbus.listeners.betting.ResolveBettingOnMatchEndedListener
 import com.astarworks.astera.economy.application.contents.betting.BettingPolicyContents
@@ -83,6 +84,7 @@ import com.astarworks.astera.economy.domain.policy.CurrencyPolicies
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.TutorialCompleted
 import com.astarworks.astera.stats.domain.event.MissionCompleted
 import com.astarworks.astera.stats.domain.event.XpGranted
 import org.bukkit.plugin.java.JavaPlugin
@@ -229,6 +231,22 @@ public class AsteraEconomyPlugin : JavaPlugin() {
         subscriptions += eventBus.subscribe(MissionCompleted::class) { event ->
             depositOnMissionCompletedListener.handle(event)
         }
+
+        // ── Wave K 5integration-wire (ADR-0128) ──────────────────────────────
+        //   TutorialCompleted → DepositUseCase(STAR, 50, TutorialReward).
+        //   Closes the onboarding loop on the economy side; the achievement
+        //   side is wired in AsteraStatsPlugin
+        //   (GrantAchievementOnTutorialCompletedListener). Both subscribers
+        //   are independent — either firing without the other is still a
+        //   valid (partial) close.
+        val grantRewardOnTutorial = GrantRewardOnTutorialCompletedListener(deposit)
+        subscriptions += eventBus.subscribe(TutorialCompleted::class) { event ->
+            grantRewardOnTutorial.handle(event)
+        }
+        logger.info(
+            "Wave K 5integration-wire (ADR-0128) wired: " +
+                "GrantRewardOnTutorialCompleted subscribed.",
+        )
 
         // ── Shop (Wave 4.5, ADR-0027) ─────────────────────────────────────────
         val itemRegistry = services.getOrThrow<IItemRegistry>()

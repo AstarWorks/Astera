@@ -1,0 +1,17 @@
+# Wave K 5integration-wire (ADR-0128): onboarding loop closer.
+#
+# Unlocked by GrantAchievementOnTutorialCompletedListener (:plugin:stats) on
+# the TutorialCompleted core event. The `criteria` field is a placeholder
+# (the listener bypasses criteria evaluation and calls
+# UnlockAchievementUseCase.unlock directly); kept here so the YAML loads
+# cleanly under the existing schema.
+id: tutorial-graduate
+title_key: astera.advancement.tutorial_graduate.title
+description_key: astera.advancement.tutorial_graduate.description
+icon_item: example-sword
+frame: TASK
+hidden: false
+criteria:
+  type: kill_count
+  target: 1
+rewards: []

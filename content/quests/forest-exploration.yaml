@@ -24,3 +24,6 @@ stages:
     rewards:
       - type: grant_title
         title_id: forest-ranger
+    # Wave K 5integration-wire (ADR-0128): chain completion unlocks the
+    # Explorer achievement via UpdateAchievementProgressOnQuestStageCompletedListener.
+    linked_achievement_id: explorer

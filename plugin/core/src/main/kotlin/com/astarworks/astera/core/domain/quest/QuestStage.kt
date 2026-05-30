@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.quest
 
+import com.astarworks.astera.core.domain.achievement.AchievementId
 import com.astarworks.astera.core.domain.advancement.AdvancementCriteria
 import com.astarworks.astera.core.domain.advancement.AdvancementReward
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -28,6 +29,14 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
  * @property rewards Granted on completion (before [followingStageId] is started).
  * @property followingStageId Next stage's id; `null` marks this stage as the
  *  final stage of the chain.
+ * @property linkedAchievementId Optional achievement this stage's completion
+ *  contributes a progress tick towards (Wave K 5integration-wire, ADR-0128).
+ *  When non-null, `UpdateAchievementProgressOnQuestStageCompletedListener`
+ *  unlocks the linked achievement on stage completion — Phase 1 PoC has no
+ *  multi-tick achievement progress counter, so one stage completion =
+ *  one unlock attempt. Future waves may swap to incremental counters
+ *  without breaking the YAML schema (the field still just names the
+ *  target).
  */
 public data class QuestStage(
     public val id: QuestStageId,
@@ -36,4 +45,5 @@ public data class QuestStage(
     public val criteria: AdvancementCriteria,
     public val rewards: List<AdvancementReward> = emptyList(),
     public val followingStageId: QuestStageId? = null,
+    public val linkedAchievementId: AchievementId? = null,
 )

@@ -17,6 +17,14 @@ public sealed interface CurrencyChangeReason {
     public data object AdminGrant : CurrencyChangeReason
 
     /**
+     * Currency credited as part of the onboarding loop closing reward
+     * (Wave K 5integration-wire, ADR-0128). Fired by
+     * `GrantRewardOnTutorialCompletedListener` (`:plugin:economy`) on
+     * the `TutorialCompleted` domain event.
+     */
+    public data object TutorialReward : CurrencyChangeReason
+
+    /**
      * Wave 4.5 (R3.5, ADR-0027): a shop purchase debit. Carries the addressing
      * pair `(ShopId, ShopOfferId)` so analytics / audit can correlate the
      * balance change back to the offer the player redeemed.
