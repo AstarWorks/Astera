@@ -554,6 +554,45 @@ public class AsteraCombatPlugin : JavaPlugin() {
             )
         }
 
+        // ── Wave M 5polish-quickwin (ADR-0130 §C) — quickbar bind UI ─────
+        // Wires the core-side BindQuickbarSlotIntentHandler with combat's
+        // SkillContents as the skill-id provider. Lives here (not core
+        // onEnable) because core cannot import combat — Konsist
+        // sibling-isolation. The provider lambda re-reads `skillContents`
+        // on every call so hot-reloaded skills surface immediately.
+        val intentRouter = services.get<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>()
+        val modalGateway = services.get<com.astarworks.astera.core.application.port.outbound.guidepth.IGuiModalGateway>()
+        val settingsRepo = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepository>()
+        val playerGatewayForBind = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>()
+        val messageRendererForBind = services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()
+        if (intentRouter != null && modalGateway != null && settingsRepo != null &&
+            playerGatewayForBind != null && messageRendererForBind != null
+        ) {
+            val bindHandler = com.astarworks.astera.core.application.gui.lobby.intent
+                .BindQuickbarSlotIntentHandler(
+                    modalGateway = modalGateway,
+                    settings = settingsRepo,
+                    skillIdsProvider = { skillContents.all().map { it.id.value } },
+                    playerGateway = playerGatewayForBind,
+                    messages = messageRendererForBind,
+                )
+            registrations += intentRouter.register(
+                com.astarworks.astera.core.application.gui.lobby.intent
+                    .BindQuickbarSlotIntentHandler.INTENT_PREFIX,
+            ) { intent, player -> bindHandler.handle(intent, player) }
+            logger.info(
+                "Wave M 5polish-quickwin (ADR-0130 §C) wired: " +
+                    "BindQuickbarSlotIntentHandler registered under prefix " +
+                    "${com.astarworks.astera.core.application.gui.lobby.intent.BindQuickbarSlotIntentHandler.INTENT_PREFIX}.",
+            )
+        } else {
+            logger.warning(
+                "Wave M 5polish-quickwin (ADR-0130 §C) skipped: " +
+                    "one of IGuiIntentRouter / IGuiModalGateway / IPlayerSettingsRepository / " +
+                    "IPlayerGateway / IMessageRenderer is not registered yet.",
+            )
+        }
+
         logger.info(
             "Astera-Combat enabled. Services published: " +
                 "ISkillRegistry, IStatusEffectRegistry, IElementMatrix, " +

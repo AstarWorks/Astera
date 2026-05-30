@@ -124,6 +124,8 @@ astera:
         tooltip: "<gray>Send a friend request.</gray>"
       pending:
         tooltip: "<gray>View pending friend requests.</gray>"
+      tile:
+        tooltip: "<gray>Friend.</gray>"
     party-manager:
       title: "<gold>Party</gold>"
       invite:
@@ -1050,3 +1052,34 @@ astera:
       not_implemented: "<red>Daily login bonus claim is not yet wired (Phase 2).</red>"
       already_claimed_today: "<yellow>You have already claimed today's bonus.</yellow>"
       no_reward_for_day: "<red>No reward configured for day {day}.</red>"
+
+  # Wave M 5polish-quickwin (ADR-0130) — polish quick wins.
+  # `astera.gui.binding.friend.*` — Friend tile dynamic binding (§A).
+  # `astera.gui.achievement-viewer.*` — Achievement viewer GUI (§B).
+  # `astera.tooltip.rarity.*` / `astera.tooltip.refinement.*` — Tooltip providers (§D).
+  # `astera.population.online.*` — Server population HUD sidebar (§E).
+  # `astera.hotbar.bind.*` — Quickbar selector modal (§C).
+  "gui.binding.friend.online": "<green>Friend (online)</green>"
+  "gui.binding.friend.offline": "<gray>Friend (offline)</gray>"
+  "gui.binding.friend.pending": "<yellow>Friend (pending)</yellow>"
+  "gui.achievement-viewer.title": "<gold>Achievements</gold>"
+  "gui.achievement-viewer.tile.tooltip": "<gray>Achievement detail.</gray>"
+  tooltip:
+    rarity:
+      common: "<white>⭐ Common</white>"
+      uncommon: "<green>⭐⭐ Uncommon</green>"
+      rare: "<aqua>⭐⭐⭐ Rare</aqua>"
+      epic: "<light_purple>⭐⭐⭐⭐ Epic</light_purple>"
+      legendary: "<gold>⭐⭐⭐⭐⭐ Legendary</gold>"
+    refinement:
+      tier: "<light_purple>Refinement tier active</light_purple>"
+  population:
+    online:
+      title: "<gold>Astera</gold>"
+      line: "<gray>{count} players online</gray>"
+  hotbar:
+    bind:
+      no-skills: "<red>No skills available to bind.</red>"
+      commit-ok: "<green>Slot {slot} bound to {skill}.</green>"
+      skill:
+        tooltip: "<gray>Bind this skill.</gray>"

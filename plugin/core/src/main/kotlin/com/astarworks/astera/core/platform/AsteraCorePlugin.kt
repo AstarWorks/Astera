@@ -423,7 +423,7 @@ public class AsteraCorePlugin : JavaPlugin() {
         // time. ResolvedReactiveSlot signature (Wave 5f) lets the resolver
         // return numeric overrides (display / lore / count) for the new
         // `player.coins.<currency>` and `player.kills` bindings.
-        val guiBindingResolver: IGuiBindingResolver = DefaultGuiBindingResolver(
+        val defaultGuiBindingResolver: IGuiBindingResolver = DefaultGuiBindingResolver(
             loadoutsProvider = { services.get<ILoadoutRepository>() },
             walletProvider = { services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>() },
             playerStatsProvider = { playerId ->
@@ -431,6 +431,25 @@ public class AsteraCorePlugin : JavaPlugin() {
                     ?.containerFor(playerId)
             },
         )
+        // Wave M 5polish-quickwin (ADR-0130 §A): stack the friend-list
+        // resolver in front of the default via the new composite. Friend +
+        // session repositories load later in onEnable, so the providers stay
+        // lazy and read through `services.get(...)` at render time.
+        val friendListResolver = com.astarworks.astera.core.application.gui.binding
+            .PlayerFriendsListGuiBindingResolver(
+                friendshipsProvider = { services.get<IFriendshipRepository>() },
+                sessionsProvider = { services.get<IPlayerSessionRepository>() },
+            )
+        // Wave M §B: achievement list resolver from :plugin:stats lands at
+        // Stats onEnable through the mutable composite's addDelegate hook —
+        // Stats looks up CompositeGuiBindingResolver via services.get and
+        // appends its own resolver in front of the default.
+        val compositeBindingResolver =
+            com.astarworks.astera.core.application.gui.binding.CompositeGuiBindingResolver(
+                friendListResolver,
+                defaultGuiBindingResolver,
+            )
+        val guiBindingResolver: IGuiBindingResolver = compositeBindingResolver
 
         val guiRenderer = PaperItemTemplateRenderer(itemContents, messages, guiBindingResolver)
         val guiAdapter = PaperGuiAdapter(
@@ -447,6 +466,12 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<IGuiIntentRouter>(guiIntentRouter)
         services.register<IGuiAdapter>(guiAdapter)
         services.register<IGuiBindingResolver>(guiBindingResolver)
+        // Wave M 5polish-quickwin (ADR-0130) — also expose the concrete
+        // composite so feature plugins can extend the delegate chain at
+        // their own onEnable.
+        services.register<com.astarworks.astera.core.application.gui.binding.CompositeGuiBindingResolver>(
+            compositeBindingResolver,
+        )
 
         // ---- HUD ports (Wave 5b, ADR-0031) -------------------------------
         // In-memory defaults at priority 0. Wave 6 Paper impls land at
@@ -1918,6 +1943,25 @@ public class AsteraCorePlugin : JavaPlugin() {
             com.astarworks.astera.core.domain.event.PlayerReturnedToLobby::class,
         ) { loadingProgress.onReturnedToLobby(it) }
 
+        // ── Wave M 5polish-quickwin (ADR-0130 §E) ────────────────────────
+        // Server-population sidebar HUD listeners. Decoupled from Wave 5w
+        // LobbyWaitingRoomHud (queue concern); these subscribers redraw the
+        // population count for every lobby player on join/quit. Lobby-state
+        // filtering happens inside the listener so in-match HUDs are not
+        // clobbered.
+        val populationJoinedListener = com.astarworks.astera.core.application.eventbus.listeners.hud
+            .UpdatePopulationHudOnPlayerJoinedListener(sessionRepo, hudGateway)
+        val populationQuitListener = com.astarworks.astera.core.application.eventbus.listeners.hud
+            .UpdatePopulationHudOnPlayerQuitListener(sessionRepo, hudGateway)
+        wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { event ->
+            populationJoinedListener.handle(event)
+        }
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
+        ) { event ->
+            populationQuitListener.handle(event)
+        }
+
         // Apply / Lift use cases (shared by flat commands + the existing
         // /astera mod tree if Wave 5h later wires it up).
         val applyMod = com.astarworks.astera.core.application.usecase.moderation
@@ -2357,6 +2401,25 @@ public class AsteraCorePlugin : JavaPlugin() {
             com.astarworks.astera.core.application.gui.lobby.intent
                 .LoadoutSelectorShowIntentHandler.INTENT_PREFIX,
         ) { intent, player -> loadoutSelectorShowHandler.handle(intent, player) }
+
+        // ── Wave M 5polish-quickwin (ADR-0130 §B) ──────────────────────
+        // Achievement viewer GUI intent handler. The GUI spec lives in core
+        // (declarative only); the per-tile binding resolver lives in
+        // :plugin:stats (sibling-isolation kept) and registers itself onto
+        // the composite resolver at AsteraStatsPlugin.onEnable. Same router
+        // family as the other lobby intent handlers; cleanup folds into
+        // waveGRegistrations.
+        val achievementShowHandler = com.astarworks.astera.core.application.gui.lobby.intent
+            .LobbyAchievementShowIntentHandler(
+                guiAdapter = guiAdapter,
+                mcServer = mcServer,
+                messages = messages,
+                playerGateway = playerGateway,
+            )
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent
+                .LobbyAchievementShowIntentHandler.INTENT_PREFIX,
+        ) { intent, player -> achievementShowHandler.handle(intent, player) }
 
         waveGIntentRegistrations = waveGRegistrations
 
