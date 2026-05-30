@@ -978,6 +978,13 @@ astera:
     give:
       root: "<gray>Give an Astera item to a player (admin alias for /astera-items give).</gray>"
       failed: "<red>Give item failed.</red>"
+    # Wave L 5hardening-complete (ADR-0129) — IErrorReporter critical
+    # broadcast lane. Operator points at console / `/astera-audit` for
+    # the full structured detail (placeholder propagation is a follow-
+    # up: AnnouncementSpec.placeholders not yet on Wave 5complete).
+    error:
+      critical:
+        broadcast: "<dark_red><bold>[Astera Critical]</bold></dark_red> <red>A server-side critical error was reported. Inspect the console or /astera-audit.</red>"
 
   # Wave J 5server-content-ops (ADR-0127) — Server ops + news/changelog/login bonus.
   restart:

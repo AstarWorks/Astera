@@ -53,6 +53,8 @@ import com.astarworks.astera.match.domain.gamemode.GameModeContext as FrameworkG
 import com.astarworks.astera.match.domain.gamemode.IGameModePhase
 import com.astarworks.astera.match.application.eventbus.listeners.AuditLogListener
 import com.astarworks.astera.match.application.eventbus.listeners.SaveInventoryOnMatchEndedListener
+import com.astarworks.astera.match.application.eventbus.listeners.world.EndMatchOnWorldUnloadListener
+import com.astarworks.astera.core.domain.event.WorldUnloading
 import com.astarworks.astera.match.application.port.inbound.IMatchRecorder
 import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
 import com.astarworks.astera.match.application.port.outbound.IPlayerPinService
@@ -192,6 +194,29 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 server.pluginManager.disablePlugin(this); return
             }
         val services = core.services
+
+        // Wave L 5hardening-complete (ADR-0129): structured fan-out for
+        // plugin onEnable failure. We do not wrap the whole onEnable in a
+        // try-catch (Bukkit's own dispatcher already handles unhandled
+        // throws by force-disabling the plugin); instead we expose a
+        // helper closure that downstream blocks can wrap around their
+        // risky bootstrap step (loadbefore Persistence missing, content
+        // dir not writable, etc.) and report a Critical to the central
+        // reporter when the cause is known structural.
+        @Suppress("UNUSED_VARIABLE")
+        val reportBootFailure: (String, Throwable) -> Unit = { phase, t ->
+            services.get<com.astarworks.astera.core.application.port.outbound.error.IErrorReporter>()?.report(
+                com.astarworks.astera.core.domain.error.ServerError.Critical(
+                    occurredAt = java.time.Instant.now(),
+                    summary = "AsteraMatchPlugin.onEnable failed in phase=$phase",
+                    source = com.astarworks.astera.core.domain.error.ErrorSource.Lifecycle(
+                        pluginName = "Astera-Match",
+                        phase = phase,
+                    ),
+                    causeShortDescription = "${t::class.simpleName}: ${t.message ?: "<no message>"}",
+                ),
+            )
+        }
 
         // 1. Build match-owned repositories -------------------------------------
         // Wave 3 (R2): pick up Postgres impls (priority=100) if Astera-Persistence
@@ -609,10 +634,21 @@ public class AsteraMatchPlugin : JavaPlugin() {
         val destroyMatchWorld = DestroyMatchWorldUseCase(matchWorlds = matchWorlds)
         subscriptions += destroyMatchWorld.subscribe(eventBus)
 
+        // Wave L 5hardening-complete (ADR-0129): end every match in an
+        // unloaded world. Dormant in production until Wave 6b's
+        // PaperWorldUnloadAdapter publishes WorldUnloading; in-process
+        // tests can fire the event directly.
+        val endMatchOnWorldUnload = EndMatchOnWorldUnloadListener(
+            matchWorlds = matchWorlds,
+            matchLifecycle = facade,
+        )
+        subscriptions += eventBus.subscribe(WorldUnloading::class) { endMatchOnWorldUnload.handle(it) }
+
         logger.info(
             "Wave 5d wiring complete: BlockRecoveryScheduler + BarrierStatusScheduler " +
                 "running; BlockChangeJournal + RestoreBlocksOnMatchEnded + Create/" +
-                "DestroyMatchWorld listeners subscribed.",
+                "DestroyMatchWorld listeners subscribed. " +
+                "Wave L (ADR-0129): EndMatchOnWorldUnload subscribed.",
         )
 
         // ---- Wave 5e: Spectator + PlayerPin + Audit + Inventory snapshot save ----

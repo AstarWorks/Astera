@@ -134,6 +134,10 @@ public class MatchEndSummaryListener(
             com.astarworks.astera.core.domain.event.EndReason.AdminEnded -> "admin"
             com.astarworks.astera.core.domain.event.EndReason.SuddenDeathResolved -> "sudden-death"
             com.astarworks.astera.core.domain.event.EndReason.ObjectiveCompleted -> "objective"
+            // Wave L 5hardening-complete (ADR-0129): WorldUnloaded distinct
+            // from Cancelled so summary GUIs can branch on it (e.g. skip
+            // the per-player teleport step because the world is gone).
+            com.astarworks.astera.core.domain.event.EndReason.WorldUnloaded -> "world-unloaded"
             is com.astarworks.astera.core.domain.event.EndReason.Cancelled -> "cancelled"
         }
 

@@ -966,6 +966,13 @@ astera:
     give:
       root: "<gray>Astera アイテムをプレイヤーへ付与します (/astera-items give の管理者エイリアス)。</gray>"
       failed: "<red>アイテム付与に失敗しました。</red>"
+    # Wave L 5hardening-complete (ADR-0129) — IErrorReporter 重大エラー
+    # 配信レーン。詳細はコンソール / `/astera-audit` を参照してください
+    # (placeholder 伝播は follow-up 待ち: AnnouncementSpec.placeholders は
+    # Wave 5complete 時点では未実装)。
+    error:
+      critical:
+        broadcast: "<dark_red><bold>[Astera Critical]</bold></dark_red> <red>サーバー側で重大なエラーが発生しました。コンソールまたは /astera-audit を確認してください。</red>"
 
   # Wave J 5server-content-ops (ADR-0127) — サーバー運用 + ニュース/changelog/ログインボーナス。
   restart:
