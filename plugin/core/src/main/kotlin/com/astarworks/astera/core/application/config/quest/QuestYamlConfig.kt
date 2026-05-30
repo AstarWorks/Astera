@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.config.quest
 
 import com.astarworks.astera.core.application.config.advancement.AdvancementCriteriaDto
 import com.astarworks.astera.core.application.config.advancement.AdvancementRewardDto
+import com.astarworks.astera.core.domain.achievement.AchievementId
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.quest.QuestChain
 import com.astarworks.astera.core.domain.quest.QuestChainId
@@ -73,6 +74,14 @@ public data class QuestStageDto(
     public val criteria: AdvancementCriteriaDto,
     public val rewards: List<AdvancementRewardDto> = emptyList(),
     @SerialName("following_stage_id") public val followingStageId: String? = null,
+    /**
+     * Optional achievement id this stage's completion links to (Wave K
+     * 5integration-wire, ADR-0128). When present,
+     * `UpdateAchievementProgressOnQuestStageCompletedListener` unlocks the
+     * named achievement on stage completion. Default `null` keeps the
+     * field backward-blank-compatible with pre-Wave-K quest YAML.
+     */
+    @SerialName("linked_achievement_id") public val linkedAchievementId: String? = null,
 ) {
     public fun toDomain(): QuestStage = QuestStage(
         id = QuestStageId(id),
@@ -81,5 +90,6 @@ public data class QuestStageDto(
         criteria = criteria.toDomain(),
         rewards = rewards.map { it.toDomain() },
         followingStageId = followingStageId?.let { QuestStageId(it) },
+        linkedAchievementId = linkedAchievementId?.let { AchievementId(it) },
     )
 }

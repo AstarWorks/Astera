@@ -1,0 +1,17 @@
+# Wave K 5integration-wire (ADR-0128): forest-exploration quest companion.
+#
+# Unlocked via UpdateAchievementProgressOnQuestStageCompletedListener when
+# the forest-exploration quest's `prove-prowess` stage completes (linked
+# via `linked_achievement_id` in content/quests/forest-exploration.yaml).
+# Criteria field is a placeholder — the listener bypasses criteria
+# evaluation and unlocks directly.
+id: explorer
+title_key: astera.advancement.explorer.title
+description_key: astera.advancement.explorer.description
+icon_item: example-sword
+frame: TASK
+hidden: false
+criteria:
+  type: matches_won
+  count: 1
+rewards: []

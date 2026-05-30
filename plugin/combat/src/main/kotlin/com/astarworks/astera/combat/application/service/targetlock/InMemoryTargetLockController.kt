@@ -34,6 +34,17 @@ public class InMemoryTargetLockController(
     /** (playerId, target.id) keyed map; value true = bonus armed, awaiting consumption. */
     private val armedBonuses: MutableMap<Pair<PlayerId, EntityHandle>, Boolean> = HashMap()
 
+    /**
+     * (attackerId, victimId) keyed map for the `PlayerId`-keyed consume path
+     * (Wave K 5integration-wire, ADR-0128). Populated by [armAgainstPlayer]
+     * after Wave 6b resolves the `EntityHandle → Player`. Cleared on
+     * consumption by the `PlayerId` variant of [consumeBonusFor]. Empty
+     * by default — Phase 1 PoC seeds it directly from tests; production
+     * Paper adapter will call [armAgainstPlayer] from the player-resolver
+     * branch of `tickAim`.
+     */
+    private val armedAgainstPlayer: MutableMap<Pair<PlayerId, PlayerId>, Boolean> = HashMap()
+
     override fun configure(config: TargetLockConfig) {
         this.cfg = config
     }
@@ -135,6 +146,41 @@ public class InMemoryTargetLockController(
         return cfg.damageBonusMultiplier
     }
 
+    override fun consumeBonusFor(
+        attackerId: PlayerId,
+        victimId: PlayerId,
+        nowTick: Long,
+    ): Double {
+        // Player-keyed path: the EntityHandle binding lives in
+        // [armedAgainstPlayer]. The lock state must still be active
+        // (else a Released event already happened); we check that via
+        // [stateOf] but accept any current lock as evidence that the
+        // bonus binding is still valid — single-target invariant means
+        // there's at most one binding per attacker anyway.
+        val state = stateOf(attackerId, nowTick) ?: return 1.0
+        if (!state.isLocked) return 1.0
+        val key = attackerId to victimId
+        val armed = armedAgainstPlayer[key] == true
+        if (!armed) return 1.0
+        armedAgainstPlayer.remove(key)
+        return cfg.damageBonusMultiplier
+    }
+
+    override fun armAgainstPlayer(
+        attackerId: PlayerId,
+        victimId: PlayerId,
+        atTick: Long,
+    ) {
+        // No-op if the attacker doesn't actually hold a lock — keeps the
+        // contract that "armed" implies the controller has already
+        // acquired a lock for this attacker. The Paper adapter (Wave 6b)
+        // calls this from inside its acquisition handler; tests may call
+        // it after pre-acquiring via tickAim + a stub EntityHandle.
+        val state = stateOf(attackerId, atTick) ?: return
+        if (!state.isLocked) return
+        armedAgainstPlayer[attackerId to victimId] = true
+    }
+
     // ─── internals ──────────────────────────────────────────────────────────
 
     private fun maybeAcquire(playerId: PlayerId, atTick: Long) {
@@ -163,6 +209,9 @@ public class InMemoryTargetLockController(
     ) {
         states.remove(playerId)
         armedBonuses.remove(playerId to state.target)
+        // Wave K 5integration-wire (ADR-0128): drop every player-keyed
+        // arming this attacker holds — the lock that armed them is gone.
+        armedAgainstPlayer.keys.removeAll { it.first == playerId }
         if (state.isLocked) {
             eventBus.publish(
                 TargetLockReleased(

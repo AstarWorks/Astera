@@ -102,6 +102,61 @@ public class EngagementDashboardService(
     }
 
     /**
+     * Refresh a single player's snapshot by re-stamping their `lastSeenAt`
+     * + score against the **current clock** (Wave K 5integration-wire,
+     * ADR-0128).
+     *
+     * Triggered by `RecomputeEngagementSnapshotOnMatchEndedListener` for
+     * every participant when a match concludes. We can't reach raw
+     * `totalPlaytime` / `loginStreakDays` / `skillsExercisedCount` from
+     * the MatchEnded event alone, but those inputs are owned by the
+     * snapshot itself — preserving them and only bumping `lastSeenAt`
+     * + recomputing the score is the right semantics: "this player was
+     * active just now; recompute their freshness-weighted score."
+     *
+     * Behavior:
+     *
+     *  - No-op (debug-logged) when the player has never had a snapshot
+     *    (`repository.find` returns null) — match participation by an
+     *    unrecorded player isn't an error, it just means
+     *    `recordPlayerActivity` hasn't run for them yet.
+     *  - Otherwise: replays the score formula against `(stored inputs,
+     *    now)` and persists the result via [IEngagementSnapshotRepository.upsert].
+     *  - Republishes the per-player gauge if the player now ranks in the
+     *    top-N.
+     *
+     * Idempotent: calling it twice in quick succession produces the same
+     * snapshot (the score depends on `now - lastSeenAt`, which is ~0 right
+     * after the first call).
+     */
+    public fun recomputeForPlayer(playerId: PlayerId) {
+        val existing = repository.find(playerId)
+        if (existing == null) {
+            log.debug(
+                "recomputeForPlayer({}): no prior snapshot — call recordPlayerActivity first",
+                playerId,
+            )
+            return
+        }
+        val now = clock()
+        val newScore = EngagementScoringPolicy.score(
+            totalPlaytime = existing.totalPlaytime,
+            loginStreakDays = existing.loginStreakDays,
+            skillsExercisedCount = existing.skillsExercisedCount,
+            lastSeenAt = now,
+            now = now,
+        )
+        repository.upsert(
+            existing.copy(
+                lastSeenAt = now,
+                score = newScore,
+                computedAt = now,
+            ),
+        )
+        publishTopNGauges()
+    }
+
+    /**
      * Assemble the server-wide [EngagementDashboardSnapshot] from the
      * persisted per-player snapshots. Pure function of repository state +
      * current clock; safe to call from any thread the dashboard scheduler chooses.

@@ -3,11 +3,13 @@ package com.astarworks.astera.combat.application.usecase.damage
 import com.astarworks.astera.combat.application.port.outbound.DamageApplicationError
 import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.IArmorEquipmentProvider
+import com.astarworks.astera.combat.application.port.outbound.IDamageBonusSource
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
+import com.astarworks.astera.combat.domain.damage.ResolvedDamage
 import com.astarworks.astera.combat.domain.damage.attackerIdOrNull
 import com.astarworks.astera.combat.domain.event.CriticalHit
 import com.astarworks.astera.combat.domain.event.DamageDealt
@@ -65,6 +67,20 @@ public class ApplyDamageUseCase(
      * lookup can pass null — the modifier then falls back to a spec walk.
      */
     private val containerStore: IPlayerAttributeContainerStore? = null,
+    /**
+     * Wave K 5integration-wire (ADR-0128): per-attempt damage bonus
+     * contributors consulted after [DamageRule.resolve] returns but before
+     * the gateway applies the hit. Empty by default — Wave 5combat-depth's
+     * combo / focus-fire / target-lock trackers register their
+     * [IDamageBonusSource] impls in `AsteraCombatPlugin` and the use case
+     * picks them up at Phase C wiring time.
+     *
+     * Multipliers are applied in registration order (left to right). Order
+     * is observable only when two sources are "armed" simultaneously (the
+     * leftmost source consumes its bonus first); the final magnitude is
+     * the product regardless.
+     */
+    private val bonusSources: List<IDamageBonusSource> = emptyList(),
 ) {
     public fun execute(attempt: DamageAttempt): Result<DamageOutcome, ApplyDamageError> {
         // 1. Immunity check
@@ -126,15 +142,43 @@ public class ApplyDamageUseCase(
             )
         }
 
-        // 6. Delegate to gateway, then emit main + knockback + death events
+        // 5b. Damage-bonus sources (Wave K 5integration-wire, ADR-0128).
+        //     Folded *after* the rule has resolved so combat-depth trackers
+        //     (combo / focus-fire / target-lock) amplify the *post-armor*
+        //     damage — multiplying *before* armor would let bonuses turn a
+        //     hit that should have been fully absorbed into a chip hit.
+        //     Bonus sources may consume internal state (combo one-shot,
+        //     target-lock single-use); they are called exactly once per
+        //     attempt in registration order.
         val atTick = scheduler.currentTick()
-        return when (val gw = damageGateway.apply(attempt.targetId, resolution.resolved, attempt.source)) {
+        val ruleAmount = resolution.resolved.finalAmount
+        var bonusFactor = 1.0
+        for (src in bonusSources) {
+            val m = src.bonusFor(attempt, atTick)
+            require(m.isFinite() && m >= 0.0) {
+                "IDamageBonusSource.${src::class.simpleName} returned non-finite or negative multiplier: $m"
+            }
+            bonusFactor *= m
+        }
+        val boostedResolved = if (bonusFactor == 1.0) {
+            resolution.resolved
+        } else {
+            ResolvedDamage(
+                finalAmount = (ruleAmount * bonusFactor).coerceAtLeast(0.0),
+                attribute = resolution.resolved.attribute,
+                wasBlocked = resolution.resolved.wasBlocked,
+                wasCritical = resolution.resolved.wasCritical,
+            )
+        }
+
+        // 6. Delegate to gateway, then emit main + knockback + death events
+        return when (val gw = damageGateway.apply(attempt.targetId, boostedResolved, attempt.source)) {
             is Result.Success -> {
                 eventBus.publish(
                     DamageDealt(
                         attacker = attackerId,
                         target = attempt.targetId,
-                        resolved = resolution.resolved,
+                        resolved = boostedResolved,
                         source = attempt.source,
                         atTick = atTick,
                     ),

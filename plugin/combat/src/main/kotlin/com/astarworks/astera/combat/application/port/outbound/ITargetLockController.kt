@@ -86,4 +86,40 @@ public interface ITargetLockController {
         target: EntityHandle,
         nowTick: Long,
     ): Double
+
+    /**
+     * `PlayerId`-keyed convenience over [consumeBonusFor] (Wave K
+     * 5integration-wire, ADR-0128).
+     *
+     * `ApplyDamageUseCase` only knows the victim by `PlayerId`, not by the
+     * `EntityHandle` the controller stores in [TargetLockState]. The Paper
+     * adapter (Wave 6b) will provide an `EntityHandle ↔ PlayerId` resolver
+     * via the `armAgainstPlayer` companion so this call can route to the
+     * existing arm map; Phase 1 PoC ships an in-memory binding seeded
+     * directly by the test helper [armAgainstPlayer].
+     *
+     * Returns `1.0` when [attackerId] holds no armed bonus against
+     * [victimId]. Single-use, same semantics as [consumeBonusFor].
+     */
+    public fun consumeBonusFor(
+        attackerId: PlayerId,
+        victimId: PlayerId,
+        nowTick: Long,
+    ): Double
+
+    /**
+     * Bind an active lock's bonus to a victim `PlayerId` (Wave K
+     * 5integration-wire, ADR-0128).
+     *
+     * Wave 6b's Paper adapter will call this after resolving
+     * `EntityHandle → Player`; Phase 1 PoC tests call it directly to seed
+     * the player-keyed consume path without going through `tickAim` /
+     * acquisition. The binding is cleared by [consumeBonusFor]'s
+     * `PlayerId` variant on consumption.
+     */
+    public fun armAgainstPlayer(
+        attackerId: PlayerId,
+        victimId: PlayerId,
+        atTick: Long,
+    )
 }

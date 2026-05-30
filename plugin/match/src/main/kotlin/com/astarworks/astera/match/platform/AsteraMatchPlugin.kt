@@ -795,6 +795,29 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 "RespawnOnPlayerKilled + TeleportToLobbyOnMatchEnded subscribed.",
         )
 
+        // ── Wave K 5integration-wire (ADR-0128) ─────────────────────────────
+        //
+        //   RecomputeEngagementSnapshotOnMatchEndedListener — refreshes the
+        //   per-player engagement snapshot for every participant when a
+        //   match ends. Closes the freshness drift between match
+        //   conclusion and the 5-minute dashboard scheduler tick.
+        val engagementService = services.getOrThrow<
+            com.astarworks.astera.core.application.service.engagement.EngagementDashboardService,
+        >()
+        val recomputeEngagementOnMatchEnded =
+            com.astarworks.astera.match.application.eventbus.listeners.engagement
+                .RecomputeEngagementSnapshotOnMatchEndedListener(
+                    matchRepository = matches,
+                    engagement = engagementService,
+                )
+        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+            recomputeEngagementOnMatchEnded.handle(event)
+        }
+        logger.info(
+            "Wave K 5integration-wire (ADR-0128) wired: " +
+                "RecomputeEngagementSnapshotOnMatchEnded subscribed.",
+        )
+
         // ── Wave 5complete (ADR-0117 §Axis 4 + Axis 5) ──────────────────
         //
         //   UpdateMatchSidebarListener           — pushes per-team scoreboard

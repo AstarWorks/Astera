@@ -40,6 +40,9 @@ import com.astarworks.astera.combat.application.service.aoe.InMemoryExplosionGat
 import com.astarworks.astera.combat.application.service.aoe.InMemoryFireSpreadController
 import com.astarworks.astera.combat.application.service.aoe.InMemoryLightningGateway
 import com.astarworks.astera.combat.application.service.combo.InMemoryComboTracker
+import com.astarworks.astera.combat.application.service.damagebonus.ComboBonusSource
+import com.astarworks.astera.combat.application.service.damagebonus.FocusFireBonusSource
+import com.astarworks.astera.combat.application.service.damagebonus.TargetLockBonusSource
 import com.astarworks.astera.combat.application.service.focus.InMemoryFocusFireTracker
 import com.astarworks.astera.combat.application.service.targetlock.InMemoryTargetLockController
 import com.astarworks.astera.combat.application.service.StubCelEvaluator
@@ -297,6 +300,17 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 effectContainer = statusContainer,
                 eventBus = eventBus,
             )
+            // Wave K 5integration-wire (ADR-0128): the three combat-depth
+            // trackers contribute IDamageBonusSource impls consulted by
+            // ApplyDamageUseCase after rule resolution. Registration order
+            // = consume order (combo first, then focus-fire, then
+            // target-lock). The ComboBonusSource subscribes to
+            // ComboRouteCompleted on construction; its subscription is
+            // tracked here so onDisable can cancel it.
+            val comboBonusSource = ComboBonusSource(eventBus)
+            subscriptions += comboBonusSource.subscription
+            val focusFireBonusSource = FocusFireBonusSource(focusFireTracker)
+            val targetLockBonusSource = TargetLockBonusSource(targetLockController)
             val applyDamage = ApplyDamageUseCase(
                 damageGateway = damageGateway,
                 knockbackGateway = knockbackGateway,
@@ -307,6 +321,11 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 eventBus = eventBus,
                 scheduler = scheduler,
                 containerStore = services.get<IPlayerAttributeContainerStore>(),
+                bonusSources = listOf(
+                    comboBonusSource,
+                    focusFireBonusSource,
+                    targetLockBonusSource,
+                ),
             )
             val consumeMana = ConsumeManaUseCase(manaService, eventBus)
 

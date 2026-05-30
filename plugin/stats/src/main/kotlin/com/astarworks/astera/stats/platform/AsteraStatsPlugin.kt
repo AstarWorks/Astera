@@ -25,7 +25,11 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IQuestChainRegistry
+import com.astarworks.astera.core.application.profile.RecomputeProfileCardUseCase
 import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.QuestStageCompleted
+import com.astarworks.astera.core.domain.event.TutorialCompleted
 import com.astarworks.astera.core.domain.event.BlockBroken
 import com.astarworks.astera.core.domain.event.BlockBrokenBySkill
 import com.astarworks.astera.core.domain.event.CurrencyChanged
@@ -62,6 +66,9 @@ import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievem
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnMatchWinListener
 import com.astarworks.astera.stats.application.eventbus.listeners.NotifyOnAchievementUnlockedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RefreshNameplateOnAchievementUnlockedListener
+import com.astarworks.astera.stats.application.eventbus.listeners.flex.RecomputeProfileCardOnAchievementUnlockedListener
+import com.astarworks.astera.stats.application.eventbus.listeners.onboarding.GrantAchievementOnTutorialCompletedListener
+import com.astarworks.astera.stats.application.eventbus.listeners.quest.UpdateAchievementProgressOnQuestStageCompletedListener
 import com.astarworks.astera.stats.application.port.outbound.IAchievementRepository
 import com.astarworks.astera.stats.application.port.outbound.INameplateMilestoneRepository
 import com.astarworks.astera.stats.application.service.InMemoryAchievementRepository
@@ -332,6 +339,44 @@ public class AsteraStatsPlugin : JavaPlugin() {
         subscriptions += eventBus.subscribe(AchievementUnlocked::class) {
             notifyOnUnlock.handle(it)
         }
+
+        // ---- Wave K 5integration-wire (ADR-0128) — 3 cross-feature wires ---
+        //
+        // 1. Tutorial → Achievement: TutorialCompleted unlocks the
+        //    tutorial-graduate achievement so the onboarding loop has a
+        //    closing milestone the player can see in their badge wall.
+        // 2. Quest → Achievement: QuestStageCompleted unlocks the stage's
+        //    `linked_achievement_id` (Wave K added the field to
+        //    QuestStage). Stages without a link no-op.
+        // 3. AchievementUnlocked → ProfileCard: refresh the long-lived
+        //    public profile card cache so the unlock shows up on web /
+        //    Discord embed without waiting for a scheduler tick.
+        val grantAchievementOnTutorial = GrantAchievementOnTutorialCompletedListener(unlockAchievement)
+        subscriptions += eventBus.subscribe(TutorialCompleted::class) {
+            grantAchievementOnTutorial.handle(it)
+        }
+
+        val questChainRegistry = services.getOrThrow<IQuestChainRegistry>()
+        val updateAchievementOnQuestStage = UpdateAchievementProgressOnQuestStageCompletedListener(
+            chains = questChainRegistry,
+            unlockAchievement = unlockAchievement,
+        )
+        subscriptions += eventBus.subscribe(QuestStageCompleted::class) {
+            updateAchievementOnQuestStage.handle(it)
+        }
+
+        val recomputeProfileCard = services.getOrThrow<RecomputeProfileCardUseCase>()
+        val recomputeProfileCardOnAchievementUnlocked =
+            RecomputeProfileCardOnAchievementUnlockedListener(recomputeProfileCard)
+        subscriptions += eventBus.subscribe(AchievementUnlocked::class) {
+            recomputeProfileCardOnAchievementUnlocked.handle(it)
+        }
+        logger.info(
+            "Wave K 5integration-wire (ADR-0128) wired: " +
+                "GrantAchievementOnTutorialCompleted, " +
+                "UpdateAchievementProgressOnQuestStageCompleted, " +
+                "RecomputeProfileCardOnAchievementUnlocked subscribed.",
+        )
 
         // 7. /astera-stats command -----------------------------------------
         commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway, permService))

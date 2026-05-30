@@ -646,6 +646,14 @@ astera:
     boss_defeat:
       title: "<gold><bold>Boss Slayer</bold></gold>"
       description: "<gray>Defeat the boss after 100 kills + 3 match wins.</gray>"
+    # Wave K 5integration-wire (ADR-0128) — onboarding loop closer.
+    tutorial_graduate:
+      title: "<aqua>Tutorial Graduate</aqua>"
+      description: "<gray>Walk every tutorial step at least once.</gray>"
+    # Wave K 5integration-wire (ADR-0128) — forest-exploration quest link.
+    explorer:
+      title: "<green>Explorer</green>"
+      description: "<gray>Finish the forest-exploration quest chain.</gray>"
 
   # Wave H 5content-depth (ADR-0125) — NotifyOnAchievementUnlockedListener keys.
   # Distinct from `astera.advancement.*` (display catalog) and
