@@ -1,9 +1,13 @@
 package com.astarworks.astera.core.application.service.validation
 
+import com.astarworks.astera.core.application.port.outbound.error.IErrorReporter
 import com.astarworks.astera.core.application.port.outbound.validation.ContentReferenceCheck
 import com.astarworks.astera.core.application.port.outbound.validation.IContentValidator
+import com.astarworks.astera.core.domain.error.ErrorSource
+import com.astarworks.astera.core.domain.error.ServerError
 import com.astarworks.astera.core.domain.validation.ContentValidationError
 import com.astarworks.astera.core.domain.validation.ContentValidationReport
+import java.time.Instant
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
@@ -29,8 +33,23 @@ import java.util.concurrent.CopyOnWriteArrayList
  * Operators flip strict / lenient at the bootstrap hook layer
  * ([com.astarworks.astera.core.application.service.validation.BootValidateContentLifecycleListener])
  * — this service does not gate the boot itself.
+ *
+ * # Wave L 5hardening-complete (ADR-0129) — error fan-out
+ *
+ * An optional [IErrorReporter] dependency lets the service forward a
+ * structured [ServerError.Critical] when a check throws (the per-check
+ * `try/catch` arm). Without a reporter, the throw is still captured as a
+ * `ContentValidationError.InvalidSchema` and rolled into the report (no
+ * behavior change vs the pre-Wave-L contract); with a reporter, admin
+ * broadcast / audit log fan-out happens immediately, before the boot
+ * lifecycle listener sees the report. The reporter is parameter-optional
+ * for backwards source-compatibility with the Wave 5server-harden test
+ * suite (which constructs the service without one).
  */
-public class ContentValidatorService : IContentValidator {
+public class ContentValidatorService(
+    private val errorReporter: IErrorReporter? = null,
+    private val clock: () -> Instant = { Instant.now() },
+) : IContentValidator {
 
     private val checks = CopyOnWriteArrayList<ContentReferenceCheck>()
 
@@ -46,9 +65,22 @@ public class ContentValidatorService : IContentValidator {
             } catch (
                 @Suppress("TooGenericExceptionCaught") e: RuntimeException,
             ) {
+                // Wave L (ADR-0129): a thrown check is structurally a
+                // Critical content-loader failure. Report it before
+                // synthesising the InvalidSchema entry so operator broadcast
+                // happens even if the caller never inspects the report.
+                val sourceName = check::class.simpleName ?: "<anonymous-check>"
+                errorReporter?.report(
+                    ServerError.Critical(
+                        occurredAt = clock(),
+                        summary = "ContentReferenceCheck '$sourceName' threw during validateAll",
+                        source = ErrorSource.Content(category = sourceName),
+                        causeShortDescription = "${e::class.simpleName}: ${e.message ?: "<no message>"}",
+                    ),
+                )
                 listOf(
                     ContentValidationError.InvalidSchema(
-                        sourceId = check::class.simpleName ?: "<anonymous-check>",
+                        sourceId = sourceName,
                         reason = "check threw: ${e.message ?: e::class.simpleName}",
                     ),
                 )

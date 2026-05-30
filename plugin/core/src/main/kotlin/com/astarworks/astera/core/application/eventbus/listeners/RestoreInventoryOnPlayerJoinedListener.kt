@@ -1,10 +1,14 @@
 package com.astarworks.astera.core.application.eventbus.listeners
 
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
+import com.astarworks.astera.core.application.port.outbound.error.IErrorReporter
 import com.astarworks.astera.core.application.usecase.inventory.RestoreInventorySnapshotUseCase
+import com.astarworks.astera.core.domain.error.ErrorSource
+import com.astarworks.astera.core.domain.error.ServerError
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.player.SessionState
 import org.slf4j.LoggerFactory
+import java.time.Instant
 
 /**
  * On [PlayerJoinedServer], trigger [RestoreInventorySnapshotUseCase] (Wave 5e
@@ -36,6 +40,8 @@ import org.slf4j.LoggerFactory
 public class RestoreInventoryOnPlayerJoinedListener(
     private val restoreSnapshot: RestoreInventorySnapshotUseCase,
     private val sessionRepo: IPlayerSessionRepository,
+    private val errorReporter: IErrorReporter? = null,
+    private val clock: () -> Instant = { Instant.now() },
 ) {
 
     private val log = LoggerFactory.getLogger(RestoreInventoryOnPlayerJoinedListener::class.java)
@@ -54,6 +60,19 @@ public class RestoreInventoryOnPlayerJoinedListener(
         val result = restoreSnapshot.restore(event.playerId)
         result.onFailure { err ->
             log.warn("Inventory restore failed for {}: {}", event.playerId, err)
+            // Wave L 5hardening-complete (ADR-0129): structured fan-out for
+            // session-restore failure (a "match state corruption" signal —
+            // the player's snapshot row is broken or the repo NPE'd).
+            // Critical because the join completes with an empty inventory
+            // and the operator must inspect the audit row to recover.
+            errorReporter?.report(
+                ServerError.Critical(
+                    occurredAt = clock(),
+                    summary = "Inventory restore failed on PlayerJoinedServer (player=${event.playerId})",
+                    source = ErrorSource.UseCase(name = "RestoreInventorySnapshotUseCase"),
+                    causeShortDescription = err::class.simpleName,
+                ),
+            )
         }
     }
 }

@@ -24,6 +24,7 @@ import com.astarworks.astera.core.application.port.outbound.ISkillProgressionRep
 import com.astarworks.astera.core.application.port.outbound.IStageRegionIndex
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.platform.AsteraCorePlugin
@@ -124,6 +125,20 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             connectAndMigrate(config, LoggerFactory.getLogger(javaClass))
         } catch (t: Throwable) {
             logger.severe("Astera-Persistence: bootstrap failed: ${t.message}")
+            // Wave L 5hardening-complete (ADR-0129): structured fan-out for
+            // operator-visible DB connection failure. The reporter MUST NOT
+            // throw — InMemoryErrorReporter swallows internal errors at WARN
+            // (see InMemoryErrorReporter.writeAuditSafe + CriticalSub.invokeSafe).
+            services.get<com.astarworks.astera.core.application.port.outbound.error.IErrorReporter>()?.report(
+                com.astarworks.astera.core.domain.error.ServerError.Critical(
+                    occurredAt = java.time.Instant.now(),
+                    summary = "Postgres bootstrap failed (connectAndMigrate threw)",
+                    source = com.astarworks.astera.core.domain.error.ErrorSource.Persistence(
+                        repositoryName = "AsteraPersistencePlugin/connectAndMigrate",
+                    ),
+                    causeShortDescription = "${t::class.simpleName}: ${t.message ?: "<no message>"}",
+                ),
+            )
             server.pluginManager.disablePlugin(this); return
         }
         persistence = ctx

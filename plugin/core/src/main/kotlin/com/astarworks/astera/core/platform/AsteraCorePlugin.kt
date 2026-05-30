@@ -337,6 +337,17 @@ public class AsteraCorePlugin : JavaPlugin() {
      */
     private val wave5completeSubs: MutableList<IDomainEventBus.Subscription> = mutableListOf()
 
+    /**
+     * Wave L 5hardening-complete (ADR-0129): retained so [onDisable] can
+     * cancel the [com.astarworks.astera.core.application.port.outbound.error.IErrorReporter.Subscription]
+     * for the critical-error → admin-broadcast bridge. The reporter's
+     * Subscription type is *not* an `IDomainEventBus.Subscription` (it
+     * lives on `IErrorReporter.Subscription`) so it cannot ride on the
+     * `wave5completeSubs` holder list; held standalone.
+     */
+    private var broadcastCriticalErrorSub:
+        com.astarworks.astera.core.application.port.outbound.error.IErrorReporter.Subscription? = null
+
     private var locationTracker: com.astarworks.astera.core.application.service.PlayerMovedLocationTracker? = null
 
     /**
@@ -2117,13 +2128,50 @@ public class AsteraCorePlugin : JavaPlugin() {
                 validator = contentValidator,
                 mode = com.astarworks.astera.core.application.service.validation
                     .BootValidateContentLifecycleListener.Mode.Lenient,
+                // Wave L (ADR-0129): fan-out boot validation criticals via
+                // the error reporter (admin broadcast + audit row).
+                errorReporter = errorReporter,
             )
         bootstrapper.register(bootValidateListener)
+
+        // ── Wave L 5hardening-complete (ADR-0129) — wire the dormant ports ──
+        // The three Wave 5server-harden ports (IContentValidator /
+        // IErrorReporter / IVanillaFeatureSuppressor) shipped but had **0**
+        // call sites in production. Wave L closes the gap.
+        //
+        // (1) Default-suppress vanilla features on ServerReady. Subscribes via
+        //     the in-process event bus so cancel-on-disable matches the rest
+        //     of the listener fleet (ADR-0123 §D contract).
+        val suppressVanillaListener =
+            com.astarworks.astera.core.application.eventbus.listeners.lifecycle
+                .SuppressVanillaFeaturesOnServerBootListener(vanillaSuppressor)
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.lifecycle.ServerReady::class,
+        ) { suppressVanillaListener.handle(it) }
+
+        // (2) Broadcast Critical errors via the announcement system to admin
+        //     chat. announcementSystem was created earlier (Wave 5t block) so
+        //     it's in scope here.
+        val broadcastCriticalErrorListener =
+            com.astarworks.astera.core.application.eventbus.listeners.error
+                .BroadcastCriticalErrorListener(
+                    errorReporter = errorReporter,
+                    announcer = announcementSystem,
+                )
+        // The listener owns its own subscription handle (mirrors the
+        // Wave I AnnihilationWinConditionListener pattern); we retain it
+        // as a dedicated field because IErrorReporter.Subscription is a
+        // distinct type from IDomainEventBus.Subscription (the
+        // wave5completeSubs list element type).
+        broadcastCriticalErrorSub = broadcastCriticalErrorListener.subscribe()
 
         logger.info(
             "Wave 5server-harden wired: IContentValidator + IErrorReporter + " +
                 "IVanillaFeatureSuppressor registered; BootValidateContentLifecycleListener " +
-                "attached to IServerBootstrapper (mode=Lenient).",
+                "attached to IServerBootstrapper (mode=Lenient) with errorReporter fan-out. " +
+                "Wave L (ADR-0129): SuppressVanillaFeaturesOnServerBootListener subscribed " +
+                "(seeds ${com.astarworks.astera.core.application.eventbus.listeners.lifecycle
+                    .SuppressVanillaFeaturesOnServerBootListener.DEFAULT_SUPPRESSED.size} default-suppress features).",
         )
 
         // ── Wave G 5player-prefs-social (ADR-0124) — settings + friends + party ──
@@ -2443,6 +2491,12 @@ public class AsteraCorePlugin : JavaPlugin() {
         logger.info("Astera-Core disabling.")
         wave5completeSubs.forEach { it.cancel() }
         wave5completeSubs.clear()
+        // Wave L 5hardening-complete (ADR-0129): release the critical-
+        // error → admin-broadcast subscription on disable. Distinct
+        // type from IDomainEventBus.Subscription so it lives outside
+        // wave5completeSubs.
+        broadcastCriticalErrorSub?.cancel()
+        broadcastCriticalErrorSub = null
         // Wave G 5player-prefs-social (ADR-0124) — release IGuiIntentRouter
         // registrations so the router doesn't retain Wave-G handler lambdas
         // (and their captured services) after a /reload.
