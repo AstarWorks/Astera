@@ -229,6 +229,49 @@ public class AsteraItemsPlugin : JavaPlugin() {
             com.astarworks.astera.items.command.admin.adminGiveItemFlatCommand(giveItem, permService),
         )
 
+        // ── Wave M 5polish-quickwin (ADR-0130 §D) ────────────────────────
+        // Sample tooltip providers:
+        //  (1) RarityGlowTooltipProvider — every item, rarity badge line.
+        //  (2) RefinementTierTooltipProvider — Rare/Epic/Legendary only,
+        //      surfaces the viewer's highest refinement layer count.
+        // Both register against Core's ITooltipRegistry, which fires the
+        // matching scope per item / viewer on every tooltip render.
+        val tooltipRegistry = services.get<
+            com.astarworks.astera.core.application.port.outbound.guidepth.ITooltipRegistry,
+            >()
+        if (tooltipRegistry != null) {
+            val rarityGlow = com.astarworks.astera.items.application.service.tooltip
+                .RarityGlowTooltipProvider(itemRegistry)
+            tooltipRegistry.register(
+                com.astarworks.astera.core.domain.guidepth.TooltipScope.AllItems,
+                rarityGlow,
+            )
+
+            val refinementTier = com.astarworks.astera.items.application.service.tooltip
+                .RefinementTierTooltipProvider(instanceRepo)
+            // Rare-and-up: register once per qualifying rarity tier.
+            for (rare in listOf(
+                com.astarworks.astera.core.domain.item.Rarity.RARE,
+                com.astarworks.astera.core.domain.item.Rarity.EPIC,
+                com.astarworks.astera.core.domain.item.Rarity.LEGENDARY,
+            )) {
+                tooltipRegistry.register(
+                    com.astarworks.astera.core.domain.guidepth.TooltipScope.ByRarity(rare),
+                    refinementTier,
+                )
+            }
+            logger.info(
+                "Wave M 5polish-quickwin (ADR-0130 §D) wired: " +
+                    "RarityGlowTooltipProvider (AllItems) + " +
+                    "RefinementTierTooltipProvider (Rare/Epic/Legendary).",
+            )
+        } else {
+            logger.warning(
+                "Wave M 5polish-quickwin (ADR-0130 §D) skipped: " +
+                    "ITooltipRegistry not registered in core.",
+            )
+        }
+
         logger.info("Astera-Items enabled.")
     }
 

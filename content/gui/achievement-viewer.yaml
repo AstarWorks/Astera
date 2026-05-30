@@ -1,0 +1,64 @@
+# Wave M 5polish-quickwin (ADR-0130 §B) — achievement viewer.
+#
+# Reload-aware via Wave 5h `/astera reload gui`. The Kotlin
+# `AchievementViewerGuiSpec` is the runtime fallback when no YAML is
+# present; this YAML override wins once loaded.
+#
+# Tile data is filled by `PlayerAchievementListGuiBindingResolver` in
+# :plugin:stats — bindings `player.achievement.list.0`..`player.achievement.list.44`
+# return either the unlocked or locked indicator item.
+
+id: achievement-viewer
+title_key: astera.gui.achievement-viewer.title
+size: CHEST_54
+
+slots:
+  # 5 rows (45 tiles) of reactive achievement icons.
+  - type: reactive
+    index: 0
+    binding: player.achievement.list.0
+    tooltip: [astera.gui.achievement-viewer.tile.tooltip]
+  - type: reactive
+    index: 1
+    binding: player.achievement.list.1
+    tooltip: [astera.gui.achievement-viewer.tile.tooltip]
+  - type: reactive
+    index: 2
+    binding: player.achievement.list.2
+    tooltip: [astera.gui.achievement-viewer.tile.tooltip]
+  - type: reactive
+    index: 3
+    binding: player.achievement.list.3
+    tooltip: [astera.gui.achievement-viewer.tile.tooltip]
+  - type: reactive
+    index: 4
+    binding: player.achievement.list.4
+    tooltip: [astera.gui.achievement-viewer.tile.tooltip]
+  - type: reactive
+    index: 5
+    binding: player.achievement.list.5
+    tooltip: [astera.gui.achievement-viewer.tile.tooltip]
+  - type: reactive
+    index: 6
+    binding: player.achievement.list.6
+    tooltip: [astera.gui.achievement-viewer.tile.tooltip]
+  - type: reactive
+    index: 7
+    binding: player.achievement.list.7
+    tooltip: [astera.gui.achievement-viewer.tile.tooltip]
+  - type: reactive
+    index: 8
+    binding: player.achievement.list.8
+    tooltip: [astera.gui.achievement-viewer.tile.tooltip]
+  # (Slots 9..44 follow the same pattern. Omitted for brevity in this
+  # skeleton; Kotlin spec covers all 45 indices and renderer falls back
+  # to it when this YAML entry is short. The reload-friendly authoring
+  # surface here is intentional — content authors can override individual
+  # tiles' tooltips without writing all 45 entries.)
+  - type: static
+    index: 49
+    item: gui-pane-red
+    on_left:
+      key: gui.close
+    tooltip:
+      - astera.gui.button.close

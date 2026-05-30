@@ -208,6 +208,29 @@ public class AsteraStatsPlugin : JavaPlugin() {
         // ---- Wave 5e Achievement + LevelUpMission + Reward listeners ---------
         val achievementRepo = InMemoryAchievementRepository()
         registrations += services.register<IAchievementRepository>(achievementRepo, priority = 0)
+
+        // ── Wave M 5polish-quickwin (ADR-0130 §B) ────────────────────────
+        // PlayerAchievementListGuiBindingResolver projects the achievement
+        // catalog into `player.achievement.list.<n>` reactive bindings
+        // consumed by AchievementViewerGuiSpec. Appended to Core's mutable
+        // composite resolver so the renderer picks it up without re-wiring.
+        val compositeBindingResolverForStats = services.get<
+            com.astarworks.astera.core.application.gui.binding.CompositeGuiBindingResolver,
+            >()
+        if (compositeBindingResolverForStats != null) {
+            val achievementListResolver = com.astarworks.astera.stats.application.service.gui
+                .PlayerAchievementListGuiBindingResolver({ achievementRepo })
+            compositeBindingResolverForStats.addDelegate(achievementListResolver)
+            logger.info(
+                "Wave M 5polish-quickwin (ADR-0130 §B) wired: " +
+                    "PlayerAchievementListGuiBindingResolver appended to composite resolver.",
+            )
+        } else {
+            logger.warning(
+                "Wave M 5polish-quickwin (ADR-0130 §B) skipped: " +
+                    "CompositeGuiBindingResolver not registered in core.",
+            )
+        }
         val unlockAchievement = UnlockAchievementUseCase(achievementRepo, eventBus)
         val killMilestoneListener = UnlockAchievementOnKillMilestoneListener(unlockAchievement, statsRepository)
         val damageMilestoneListener = UnlockAchievementOnDamageMilestoneListener(unlockAchievement, statsRepository)

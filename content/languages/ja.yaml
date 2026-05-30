@@ -132,6 +132,8 @@ astera:
         tooltip: "<gray>フレンド申請を送信。</gray>"
       pending:
         tooltip: "<gray>受信中のフレンド申請。</gray>"
+      tile:
+        tooltip: "<gray>フレンド。</gray>"
     party-manager:
       title: "<gold>パーティ</gold>"
       invite:
@@ -1023,3 +1025,29 @@ astera:
       not_implemented: "<red>デイリーログインボーナスの取得は未実装です（Phase 2 で対応）。</red>"
       already_claimed_today: "<yellow>本日のボーナスは既に取得済みです。</yellow>"
       no_reward_for_day: "<red>日 {day} に対応する報酬が設定されていません。</red>"
+
+  # Wave M 5polish-quickwin (ADR-0130) — ポリッシュ最終仕上げ。
+  "gui.binding.friend.online": "<green>フレンド (オンライン)</green>"
+  "gui.binding.friend.offline": "<gray>フレンド (オフライン)</gray>"
+  "gui.binding.friend.pending": "<yellow>フレンド (保留中)</yellow>"
+  "gui.achievement-viewer.title": "<gold>実績</gold>"
+  "gui.achievement-viewer.tile.tooltip": "<gray>実績の詳細。</gray>"
+  tooltip:
+    rarity:
+      common: "<white>⭐ コモン</white>"
+      uncommon: "<green>⭐⭐ アンコモン</green>"
+      rare: "<aqua>⭐⭐⭐ レア</aqua>"
+      epic: "<light_purple>⭐⭐⭐⭐ エピック</light_purple>"
+      legendary: "<gold>⭐⭐⭐⭐⭐ レジェンダリー</gold>"
+    refinement:
+      tier: "<light_purple>厳選 tier 適用中</light_purple>"
+  population:
+    online:
+      title: "<gold>Astera</gold>"
+      line: "<gray>{count} 人が接続中</gray>"
+  hotbar:
+    bind:
+      no-skills: "<red>バインドできるスキルがありません。</red>"
+      commit-ok: "<green>スロット {slot} を {skill} にバインドしました。</green>"
+      skill:
+        tooltip: "<gray>このスキルをバインドします。</gray>"
