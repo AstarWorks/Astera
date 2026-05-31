@@ -988,6 +988,34 @@ public class AsteraCorePlugin : JavaPlugin() {
         val restoreOnJoin = RestoreInventoryOnPlayerJoinedListener(restoreSnapshotUseCase, sessionRepo)
         wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { restoreOnJoin.handle(it) }
 
+        // Wave O 5cross-server-wire (ADR-0132): close audit α#4 silent-drop —
+        // PlayerArrivedOnServer / PlayerTransferRequested / ProxyHeartbeat
+        // were published (by InMemoryServerTransferGateway and Wave 6b's
+        // VelocityProxyMessenger) with 0 subscribers. Phase 1 PoC stubs log
+        // the events so they are observable; richer consumers (inventory
+        // restore on proxy arrival, lobby HUD, server-browser) land in later
+        // waves once persistence + UI adapters ship.
+        val proxyArrivedListener =
+            com.astarworks.astera.core.application.eventbus.listeners.proxy
+                .LogOnlyPlayerArrivedOnServerListener()
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class,
+        ) { proxyArrivedListener.handle(it) }
+
+        val proxyTransferRequestedListener =
+            com.astarworks.astera.core.application.eventbus.listeners.proxy
+                .LogOnlyPlayerTransferRequestedListener()
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerTransferRequested::class,
+        ) { proxyTransferRequestedListener.handle(it) }
+
+        val proxyHeartbeatListener =
+            com.astarworks.astera.core.application.eventbus.listeners.proxy
+                .LogOnlyProxyHeartbeatListener()
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.ProxyHeartbeat::class,
+        ) { proxyHeartbeatListener.handle(it) }
+
         // Silence unused-var (attributes/vault/settings/audit returned via registry for cross-plugin pickup).
         @Suppress("UNUSED_VARIABLE") val attrStoreRef = attributeContainerStore
         @Suppress("UNUSED_VARIABLE") val vaultRef = vaultRepo
