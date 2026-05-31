@@ -104,6 +104,27 @@ spec:
             - containerPort: 9092
               name: metrics
               protocol: TCP
+          # Wave AF 5operator-observability (ADR-0142): k8s probes wired to
+          # HttpMetricsServer endpoints /healthz + /readyz. Health source =
+          # IServerHealthCheck.snapshot() (Wave 5t / ADR-0086). Pre-Wave-AF
+          # the probes were absent — rolling restart would silently strand
+          # players or kick them mid-match.
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: metrics
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: metrics
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           volumeMounts:
             - name: data
               mountPath: /data
