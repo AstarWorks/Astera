@@ -322,6 +322,18 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave Q 5port-fill (ADR-0133): audit γ Round 16 finding —
+        // PostgresBlockDurabilityRepository (Wave 5x / ADR-0090, V20) class
+        // was imported but never registered, leaving block-durability
+        // persistence as in-memory-only despite the Postgres impl being
+        // shipped + V20 migration applied. KDoc on the repo explicitly
+        // promises "Registered by AsteraPersistencePlugin at priority=100";
+        // this fills the missing wiring.
+        registrations += services.register<IBlockDurabilityRepository>(
+            PostgresBlockDurabilityRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
@@ -335,7 +347,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
                 "IItemInstanceRepository, IPowerIndexRepository, IProfileCardService, " +
                 "INameplateMilestoneRepository, IBettingMatchRepository, " +
                 "IBettingEscrowService, IBettingHistoryService, " +
-                "IPartyIslandRepository, IIslandPlotRepository, IGatheringProgressRepository.",
+                "IPartyIslandRepository, IIslandPlotRepository, IGatheringProgressRepository, " +
+                "IBlockDurabilityRepository.",
         )
     }
 
