@@ -6,7 +6,9 @@ import com.astarworks.astera.persistence.table.SlowQueryAuditTable
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -80,6 +82,10 @@ public class PostgresSlowQueryAuditRepository(private val db: Database) : ISlowQ
 
     override fun count(): Long = transaction(db) {
         SlowQueryAuditTable.selectAll().count()
+    }
+
+    override fun deleteOlderThan(cutoff: Instant): Int = transaction(db) {
+        SlowQueryAuditTable.deleteWhere { capturedAt less cutoff }
     }
 
     private companion object {

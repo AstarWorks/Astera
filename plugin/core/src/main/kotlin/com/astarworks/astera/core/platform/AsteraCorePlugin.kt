@@ -1405,6 +1405,16 @@ public class AsteraCorePlugin : JavaPlugin() {
                 ?: InMemorySlowQueryAuditRepository().also {
                     services.register<ISlowQueryAuditRepository>(it, priority = 0)
                 }
+
+        // Wave AG 5operator-data-integrity (ADR-0143): retention scheduler
+        // that purges slow_query_audit rows older than 30 days, sweep every
+        // 7 days, first run after 1h initial delay. Closes the unbounded-
+        // table growth gap Round 18 audit γ surfaced (ISlowQueryAuditRepository
+        // previously had no archival method; V23 table grew without TTL).
+        val slowQueryRetention =
+            com.astarworks.astera.core.application.service.observability
+                .SlowQueryRetentionScheduler(slowQueryRepo, scheduler)
+        slowQueryRetention.start()
         val feedbackQueue: IPlayerFeedbackQueue =
             services.get<IPlayerFeedbackQueue>()
                 ?: InMemoryPlayerFeedbackQueue().also {

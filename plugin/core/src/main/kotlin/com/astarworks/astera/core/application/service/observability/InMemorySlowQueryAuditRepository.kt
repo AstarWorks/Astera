@@ -45,6 +45,19 @@ public class InMemorySlowQueryAuditRepository(
 
     override fun count(): Long = counter.get()
 
+    override fun deleteOlderThan(cutoff: Instant): Int {
+        var removed = 0
+        val iterator = entries.iterator()
+        while (iterator.hasNext()) {
+            val record = iterator.next()
+            if (record.capturedAt.isBefore(cutoff)) {
+                iterator.remove()
+                removed++
+            }
+        }
+        return removed
+    }
+
     public companion object {
         public const val DEFAULT_MAX_ENTRIES: Int = 10_000
     }

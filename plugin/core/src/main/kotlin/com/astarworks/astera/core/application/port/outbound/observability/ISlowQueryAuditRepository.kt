@@ -33,4 +33,18 @@ public interface ISlowQueryAuditRepository {
 
     /** Snapshot total recorded count (for the digest header). */
     public fun count(): Long
+
+    /**
+     * Delete every record with [SlowQueryRecord.capturedAt] strictly before
+     * [cutoff]. Returns the number of rows removed (0 if the table was
+     * already clean past [cutoff]).
+     *
+     * Wave AG 5operator-data-integrity (ADR-0143): backs the
+     * `SlowQueryRetentionListener` scheduled task that runs weekly to keep
+     * the audit table bounded. Operators using `/astera slow-query report`
+     * still get the last N days of digests; older detail is rolled off.
+     * The default retention window is 30 days (configurable via the
+     * scheduler that calls this).
+     */
+    public fun deleteOlderThan(cutoff: Instant): Int
 }
