@@ -2029,6 +2029,31 @@ public class AsteraCorePlugin : JavaPlugin() {
             hintListener.handle(event)
         }
 
+        // Wave AB 5lobby-ux-complete (ADR-0138): chat display + tab list
+        // refresh. Pre-Wave-AB ChatMessageSent had only audit + replay
+        // subscribers (no UX path); chat sent was invisible to other
+        // players. ITabList registered at priority 0 but no listener
+        // populated entries on join/quit (vanilla MC default fallback).
+        // Both closed here using Core-only ports (IPlayerGateway +
+        // IPlayerProfileService + IPlayerSessionRepository + ITabList).
+        val chatDisplayListener = com.astarworks.astera.core.application.eventbus.listeners.chat
+            .ChatDisplayListener(playerGateway, sessionRepo, profileService)
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.ChatMessageSent::class,
+        ) { event ->
+            chatDisplayListener.handle(event)
+        }
+        val tabListRefreshListener = com.astarworks.astera.core.application.eventbus.listeners.hud
+            .UpdateTabListOnPlayerJoinedListener(tabList, sessionRepo, profileService)
+        wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { event ->
+            tabListRefreshListener.handle(event)
+        }
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
+        ) { event ->
+            tabListRefreshListener.handle(event)
+        }
+
         // Apply / Lift use cases (shared by flat commands + the existing
         // /astera mod tree if Wave 5h later wires it up).
         val applyMod = com.astarworks.astera.core.application.usecase.moderation
