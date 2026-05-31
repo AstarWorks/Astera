@@ -1083,3 +1083,10 @@ astera:
       commit-ok: "<green>Slot {slot} bound to {skill}.</green>"
       skill:
         tooltip: "<gray>Bind this skill.</gray>"
+  tip:
+    "1": "<aqua>💡 Tip:</aqua> <gray>Open the lobby menu with the Compass to queue, edit loadouts, or browse the shop.</gray>"
+    "2": "<aqua>💡 Tip:</aqua> <gray>Press F to cast your bound skill — bind skills via the Hotbar tile in the menu.</gray>"
+    "3": "<aqua>💡 Tip:</aqua> <gray>Form a party to queue together — invite friends with <yellow>/party invite &lt;name&gt;</yellow>.</gray>"
+    "4": "<aqua>💡 Tip:</aqua> <gray>Track your achievements from the Profile tile — every milestone counts.</gray>"
+    "5": "<aqua>💡 Tip:</aqua> <gray>Refining items raises their rarity tier and unlocks per-tier perks. Visit the Refinement tile.</gray>"
+    "6": "<aqua>💡 Tip:</aqua> <gray>Survival Islands let you build with your party — open the Travel tile to visit yours.</gray>"

@@ -1066,3 +1066,10 @@ astera:
       commit-ok: "<green>スロット {slot} を {skill} にバインドしました。</green>"
       skill:
         tooltip: "<gray>このスキルをバインドします。</gray>"
+  tip:
+    "1": "<aqua>💡 ヒント:</aqua> <gray>コンパスでロビーメニューを開き、キュー・ロードアウト編集・ショップ閲覧ができます。</gray>"
+    "2": "<aqua>💡 ヒント:</aqua> <gray>F キーでバインドしたスキルを発動。メニューの Hotbar タイルからスキルをバインドできます。</gray>"
+    "3": "<aqua>💡 ヒント:</aqua> <gray>パーティを組んで一緒にキュー: <yellow>/party invite &lt;名前&gt;</yellow> で招待。</gray>"
+    "4": "<aqua>💡 ヒント:</aqua> <gray>プロフィールタイルでアチーブメントを追跡 — 全ての達成が記録されます。</gray>"
+    "5": "<aqua>💡 ヒント:</aqua> <gray>アイテムの厳選でレア度ティアが上がり、ティア別パークが解放されます。Refinement タイルから。</gray>"
+    "6": "<aqua>💡 ヒント:</aqua> <gray>サバイバルアイランドでパーティと建築 — Travel タイルから自分のアイランドへ。</gray>"

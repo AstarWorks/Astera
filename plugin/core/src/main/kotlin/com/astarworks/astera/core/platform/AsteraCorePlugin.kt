@@ -2019,6 +2019,16 @@ public class AsteraCorePlugin : JavaPlugin() {
             populationQuitListener.handle(event)
         }
 
+        // Wave AC 5onboarding-flow (ADR-0139): rotating tip on every join.
+        // Sibling to FirstTimeProfileCreated listeners (welcome dialog +
+        // tutorial auto-start) which fire only once-per-account; this
+        // listener fires on every PlayerJoinedServer for ongoing discovery.
+        val hintListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
+            .HintOnPlayerJoinedListener(playerGateway, messages)
+        wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { event ->
+            hintListener.handle(event)
+        }
+
         // Apply / Lift use cases (shared by flat commands + the existing
         // /astera mod tree if Wave 5h later wires it up).
         val applyMod = com.astarworks.astera.core.application.usecase.moderation
