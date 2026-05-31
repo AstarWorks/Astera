@@ -1,0 +1,87 @@
+# ADR-0134 deferred-events allowlist (publisher-side)
+#
+# DomainEvent FQNs listed here are exempt from the "publisher must exist"
+# check. Use only when the publisher is intentionally deferred to a later
+# wave (Wave 6 Paper adapter / Phase 2+ feature) or when the event is
+# confirmed dead and pending removal.
+#
+# Format: 1 FQN per line. Blank lines and lines beginning with `#` are
+# ignored. Each section header documents the deferral category so future
+# authors can verify each entry is still legitimate.
+#
+# Annual hygiene: review every entry once per release cycle and remove
+# entries whose deferral is no longer load-bearing. A line removed from
+# this file is a positive event — it means the publisher shipped.
+
+# ─── Wave 6a — Bukkit event → DomainEvent adapter translation ────────────────
+# These events will be published by BukkitEventAdapter (or sibling adapters)
+# in Wave 6a once the Paper-side event-translation layer ships. Each maps to
+# a specific Bukkit event listed inline.
+
+# Bukkit PlayerJoinEvent → publishes after JoinFinished (Wave 6a)
+com.astarworks.astera.core.domain.event.PlayerJoinedServer
+# Bukkit PlayerQuitEvent → publishes after PostQuit (Wave 6a)
+com.astarworks.astera.core.domain.event.PlayerQuitServer
+# Bukkit PlayerInteractEvent (RIGHT_CLICK_BLOCK / LEFT_CLICK_BLOCK) (Wave 6a)
+com.astarworks.astera.core.domain.event.PlayerInteractedBlock
+# Bukkit PlayerTeleportEvent (Wave 6a — distinct from cross-server PlayerArrivedOnServer)
+com.astarworks.astera.core.domain.event.PlayerTeleported
+# Bukkit ChunkLoadEvent (Wave 6a — for replay capture / mob spawning gates)
+com.astarworks.astera.core.domain.event.ChunkLoaded
+# Bukkit ChunkUnloadEvent (Wave 6a — pair with ChunkLoaded)
+com.astarworks.astera.core.domain.event.ChunkUnloaded
+# Bukkit WorldUnloadEvent → publishes BEFORE world removal (Wave 6a;
+# subscriber `EndMatchOnWorldUnload` already wired by Wave L 5hardening-complete
+# / ADR-0129, awaiting the Paper-side publisher to fire)
+com.astarworks.astera.core.domain.event.WorldUnloading
+# Bukkit WeatherChangeEvent (Wave 6a — ambience / lightning skill gates)
+com.astarworks.astera.core.domain.event.WeatherChanged
+# Bukkit world.fullTime polling (Wave 6a — match timer / phase scheduler)
+com.astarworks.astera.core.domain.event.TimeChanged
+# Bukkit EntityDeathEvent (PaperMobAdapter — Wave 6a; player kills handled by combat plugin)
+com.astarworks.astera.core.domain.event.MobKilled
+# Custom region tracker over PlayerMoveEvent (Wave 6a — match zones / safe areas)
+com.astarworks.astera.match.domain.event.EntityEnteredRegion
+# Custom region tracker over PlayerMoveEvent (Wave 6a — pair with Entered)
+com.astarworks.astera.match.domain.event.EntityLeftRegion
+# Bukkit EntityPickupItemEvent → match resource pickup (Wave 6a — CarryTNT/CarryMiniTNT mode listeners already subscribe)
+com.astarworks.astera.match.domain.event.EntityPickedUpItem
+# Environmental damage source resolution over EntityDamageEvent.DamageCause
+# (LAVA / FIRE / CACTUS / FALL) — Wave 6a, used by combat status/effects
+com.astarworks.astera.combat.domain.event.aoe.EnvironmentDamageApplied
+
+# ─── Wave 6b — Velocity proxy adapter ────────────────────────────────────────
+# These events will be published by VelocityProxyMessenger in Wave 6b once the
+# proxy-side adapter ships (subscriber-side stubs already wired by Wave O
+# 5cross-server-wire / ADR-0132).
+
+# Velocity inbound `astera.transfer` channel arrival (Wave 6b)
+com.astarworks.astera.core.domain.event.PlayerArrivedOnServer
+# Velocity periodic peer roster broadcast (Wave 6b, default 30s interval)
+com.astarworks.astera.core.domain.event.ProxyHeartbeat
+
+# ─── Phase 2+ — Feature waves not yet on the roadmap ─────────────────────────
+# These events were scaffolded for future feature waves but the publishers
+# (and their containing use cases) are deferred to Phase 2 per ADR-0010 +
+# IMPLEMENTATION-ROADMAP. Re-evaluate at Phase 2 planning.
+
+# Mining feature (Phase 2 — Wave 7+ if/when Astera adds gathering loops)
+com.astarworks.astera.core.domain.event.MiningStarted
+com.astarworks.astera.core.domain.event.MiningCompleted
+com.astarworks.astera.core.domain.event.MiningCancelled
+# NPC system (Phase 2 — beyond Wave 5q tutorial NPC stub)
+com.astarworks.astera.core.domain.event.NpcInteracted
+com.astarworks.astera.core.domain.event.NpcBackendSwitched
+# Tutorial extension (Phase 2 — Wave 5q published `TutorialStepEntered` only;
+# full lifecycle events Started/Completed/Skipped deferred)
+com.astarworks.astera.core.domain.event.TutorialStarted
+com.astarworks.astera.core.domain.event.TutorialCompleted
+com.astarworks.astera.core.domain.event.TutorialSkipped
+# Portal feature (Phase 2 — Wave 5j hub portals don't publish lifecycle events)
+com.astarworks.astera.core.domain.event.PortalRegistered
+com.astarworks.astera.core.domain.event.PortalUnregistered
+# PvE reward system (Phase 2 — Wave 5pve-content uses different events)
+com.astarworks.astera.core.domain.event.PveLootDistributed
+com.astarworks.astera.core.domain.event.PveXpGranted
+# Permission expiry (Phase 2 — Wave 5q has role grant/revoke only)
+com.astarworks.astera.core.domain.event.RoleExpired
