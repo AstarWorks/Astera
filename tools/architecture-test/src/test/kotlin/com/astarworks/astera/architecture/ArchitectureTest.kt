@@ -1857,10 +1857,15 @@ class ArchitectureTest {
         val violators = Konsist.scopeFromProject()
             .files
             .filter { file ->
+                // KoFile.name is the basename WITHOUT extension (e.g.
+                // "AsteraCorePlugin", not "AsteraCorePlugin.kt"). The previous
+                // .endsWith("Plugin.kt") check matched 0 files; ADR-0131 work
+                // discovered this and corrected the filter.
                 val path = file.path
                 path.contains("/platform/") &&
                     file.name.startsWith("Astera") &&
-                    file.name.endsWith("Plugin.kt")
+                    file.name.endsWith("Plugin") &&
+                    !path.contains("/test/")
             }
             .flatMap { file ->
                 file.text.lineSequence().withIndex().mapNotNull { (idx, raw) ->
@@ -1890,6 +1895,94 @@ class ArchitectureTest {
             .isEmpty()
     }
 
+    // ─── ADR-0131 — Listener wiring leak prevention (Wave I) ───────────────
+
+    /**
+     * ADR-0131 — Every `val xxxListener = ...` declaration inside an
+     * `Astera*Plugin.kt` must reference `xxxListener` at least once more
+     * later in the same file. The wiring may take any of the forms used
+     * across Astera plugins:
+     *
+     *  - `xxxListener.subscribe(...)` — self-subscribe helper
+     *  - `eventBus.subscribe(EvtType::class) { xxxListener.handle(it) }`
+     *  - `eventBus.subscribe(EvtType::class) { xxxListener.onXxx(it) }`
+     *    (event-specific handler convention used by HUD/sidebar listeners)
+     *  - `xxxListener.bind(eventBus)` / `xxxListener.start()` / similar
+     *    lifecycle invocation
+     *  - `server.pluginManager.registerEvents(xxxListener, this)` — Bukkit
+     *    Listener registered via Paper API
+     *  - `someField = xxxListener` — assigned to a class field for later
+     *    `onDisable` access (cancellation pattern)
+     *  - `someRegistry.register(xxxListener)` — handed to a registry that
+     *    owns wiring (e.g. `bootstrapper.register(...)`)
+     *
+     * The invariant the rule actually enforces is simpler than the list
+     * above: a `val xxxListener = ...` that is **never referenced again**
+     * is dead code, and Wave I 5match-wireup-fix (ADR-0126 §A) proved that
+     * the dead-code form is indistinguishable from a wiring bug at unit-test
+     * time — `AnnihilationWinConditionListener` was constructed but the
+     * `subscriptions += annihilationWinConditionListener.subscribe()` line
+     * was never added, and every `Annihilation` match silently no-op'd for
+     * 50+ commits. By demanding at least one subsequent reference, the
+     * rule rejects that class of wiring leak without committing to any
+     * single wiring convention.
+     *
+     * Out-of-scope (acknowledged limitation): listeners declared as
+     * `private var xxxListener: T? = null` and assigned later in `onEnable`
+     * are not checked — they are rare (currently 2 cases in Match plugin)
+     * and follow a separate cancel-via-`stop()` lifecycle.
+     */
+    @Test
+    fun `every plugin val xxxListener must be referenced after declaration (ADR-0131)`() {
+        val declRegex = Regex("\\bval\\s+([a-z][A-Za-z0-9]*Listener)\\b")
+        val violators = Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                // KoFile.name is the basename WITHOUT extension (e.g.
+                // "AsteraCorePlugin", not "AsteraCorePlugin.kt").
+                file.path.contains("/platform/") &&
+                    file.name.startsWith("Astera") &&
+                    file.name.endsWith("Plugin") &&
+                    !file.path.contains("/test/")
+            }
+            .flatMap { file ->
+                val text = file.text
+                declRegex.findAll(text).mapNotNull { match ->
+                    val varName = match.groupValues[1]
+                    val tailStart = match.range.last + 1
+                    val tail = text.substring(tailStart)
+                    // Case-sensitive word boundary match: `triggerListener`
+                    // (varName) won't collide with `TriggerListener` (class
+                    // name) because Kotlin identifiers are case-sensitive.
+                    val referenced = Regex("\\b${Regex.escape(varName)}\\b")
+                    if (referenced.containsMatchIn(tail)) {
+                        null
+                    } else {
+                        val line = text.substring(0, match.range.first).count { it == '\n' } + 1
+                        "${file.path}:$line: val $varName = ... (never referenced after declaration)"
+                    }
+                }
+            }
+
+        assertThat(violators)
+            .withFailMessage {
+                "ADR-0131 violation: ${violators.size} unwired listener variable(s) " +
+                    "in Astera*Plugin.kt:\n" +
+                    violators.joinToString("\n") { "  $it" } +
+                    "\n\nEvery `val xxxListener = ...` inside *Plugin.kt must be " +
+                    "referenced at least once more later in the same file (subscribe, " +
+                    "handle, on*, bind, start, register, field assignment — any of " +
+                    "these counts). A declaration with no subsequent reference is dead " +
+                    "code, and Wave I 5match-wireup-fix (ADR-0126) proved that the " +
+                    "dead-code form is indistinguishable from a wiring bug at " +
+                    "unit-test time — AnnihilationWinConditionListener was constructed " +
+                    "but the `subscriptions += xxx.subscribe()` line was never added, " +
+                    "and every Annihilation match silently no-op'd for 50+ commits. " +
+                    "See ADR-0131."
+            }
+            .isEmpty()
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
@@ -1908,4 +2001,5 @@ class ArchitectureTest {
             else -> setOf(prefix).filter { it.isNotEmpty() }.toSet()
         }
     }
+
 }
