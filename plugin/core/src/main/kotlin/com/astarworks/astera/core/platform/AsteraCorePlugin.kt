@@ -1545,7 +1545,11 @@ public class AsteraCorePlugin : JavaPlugin() {
 
             services.register<IMetricsRegistry>(metricsRegistry, priority = 0)
 
-            val server = HttpMetricsServer(metricsConfig.port, metricsRegistry)
+            // Wave AF 5operator-observability (ADR-0142): pass IServerHealthCheck
+            // so /healthz + /readyz endpoints answer per Wave 5t / ADR-0086
+            // k8s probe contract. Without this, k8s rolling restarts had no
+            // signal source (audit γ blocker).
+            val server = HttpMetricsServer(metricsConfig.port, metricsRegistry, healthCheck)
             server.start()
             metricsHttpServer = server
 

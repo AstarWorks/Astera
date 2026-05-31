@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.observability
 
+import com.astarworks.astera.core.application.port.outbound.admin.HealthState
+import com.astarworks.astera.core.application.port.outbound.admin.IServerHealthCheck
 import com.astarworks.astera.core.application.port.outbound.observability.IMetricsRegistry
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
@@ -27,6 +29,7 @@ import java.util.concurrent.Executors
 public class HttpMetricsServer(
     private val port: Int,
     private val registry: IMetricsRegistry,
+    private val healthCheck: IServerHealthCheck? = null,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -46,6 +49,15 @@ public class HttpMetricsServer(
 
         val bound = HttpServer.create(InetSocketAddress(port), 0)
         bound.createContext("/metrics") { exchange -> handleMetrics(exchange) }
+        // Wave AF 5operator-observability (ADR-0142): k8s probe endpoints.
+        // Mapping per IServerHealthCheck KDoc (Wave 5t / ADR-0086):
+        //   /healthz → overall == Healthy   (liveness — restart pod on failure)
+        //   /readyz  → overall != Down      (readiness — drain traffic on failure)
+        // When healthCheck is null (unit-test / pre-Wave-5t boot), both
+        // endpoints return 200 OK with body "no health check registered" so
+        // probes still pass and the pod doesn't restart-loop.
+        bound.createContext("/healthz") { exchange -> handleHealthz(exchange) }
+        bound.createContext("/readyz") { exchange -> handleReadyz(exchange) }
         bound.createContext("/") { exchange -> handleNotFound(exchange) }
 
         val exec = Executors.newSingleThreadExecutor { runnable ->
@@ -88,9 +100,54 @@ public class HttpMetricsServer(
         }
     }
 
+    private fun handleHealthz(exchange: HttpExchange) {
+        exchange.use {
+            if (exchange.requestMethod != "GET") {
+                exchange.sendResponseHeaders(HTTP_METHOD_NOT_ALLOWED, -1L)
+                return@use
+            }
+            val (status, body) = when (val check = healthCheck) {
+                null -> HTTP_OK to "no health check registered\n"
+                else -> {
+                    val report = check.snapshot()
+                    val ok = report.overall == HealthState.Healthy
+                    val httpCode = if (ok) HTTP_OK else HTTP_SERVICE_UNAVAILABLE
+                    httpCode to "${report.overall}: ${report.individuals}\n"
+                }
+            }
+            val bodyBytes = body.toByteArray(StandardCharsets.UTF_8)
+            exchange.responseHeaders["Content-Type"] = listOf("text/plain; charset=utf-8")
+            exchange.sendResponseHeaders(status, bodyBytes.size.toLong())
+            exchange.responseBody.write(bodyBytes)
+        }
+    }
+
+    private fun handleReadyz(exchange: HttpExchange) {
+        exchange.use {
+            if (exchange.requestMethod != "GET") {
+                exchange.sendResponseHeaders(HTTP_METHOD_NOT_ALLOWED, -1L)
+                return@use
+            }
+            val (status, body) = when (val check = healthCheck) {
+                null -> HTTP_OK to "no health check registered\n"
+                else -> {
+                    val report = check.snapshot()
+                    val ready = report.overall != HealthState.Down
+                    val httpCode = if (ready) HTTP_OK else HTTP_SERVICE_UNAVAILABLE
+                    httpCode to "${report.overall}: ${report.individuals}\n"
+                }
+            }
+            val bodyBytes = body.toByteArray(StandardCharsets.UTF_8)
+            exchange.responseHeaders["Content-Type"] = listOf("text/plain; charset=utf-8")
+            exchange.sendResponseHeaders(status, bodyBytes.size.toLong())
+            exchange.responseBody.write(bodyBytes)
+        }
+    }
+
     private companion object {
         const val HTTP_OK = 200
         const val HTTP_NOT_FOUND = 404
         const val HTTP_METHOD_NOT_ALLOWED = 405
+        const val HTTP_SERVICE_UNAVAILABLE = 503
     }
 }
