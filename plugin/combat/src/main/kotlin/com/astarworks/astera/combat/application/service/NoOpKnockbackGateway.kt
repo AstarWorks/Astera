@@ -12,6 +12,13 @@ import org.slf4j.LoggerFactory
  *
  * Logs at DEBUG so unit-test runs stay quiet by default but the impulse
  * stream remains inspectable when needed.
+ *
+ * ADR-0136: exempt from the knockback-resistance contract documented on
+ * [IKnockbackGateway.applyImpulse]. The contract applies only to
+ * implementations that perform a physical write (e.g. `Player.setVelocity`
+ * in `PaperKnockbackGateway`). NoOp logs the raw pre-resistance impulse so
+ * unit tests can assert against the domain pipeline output directly
+ * without simulating Bukkit's `Attribute.KNOCKBACK_RESISTANCE` aggregation.
  */
 public class NoOpKnockbackGateway : IKnockbackGateway {
 

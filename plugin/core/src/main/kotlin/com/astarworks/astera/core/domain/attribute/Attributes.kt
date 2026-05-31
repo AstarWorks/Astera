@@ -28,6 +28,16 @@ public object Attributes {
     public val RESIST_WATER: AttributeKey = AttributeKey("resist.water")
     public val RESIST_EARTH: AttributeKey = AttributeKey("resist.earth")
 
+    // Wave S 5knockback-resistance (ADR-0136): knockback impulse resistance
+    // (0..1 fraction). Forward-compat key — Phase 1 sources resistance from
+    // Bukkit's GENERIC_KNOCKBACK_RESISTANCE attribute (populated by
+    // PaperItemMaterializer when items with `knockback_resistance` are
+    // equipped). Future waves may sync ItemAttributes.knockbackResistance
+    // directly into this container key for an Astera-side authoritative
+    // value (parallels Wave 5e RESIST_PHYSICAL/etc. equip-sync pattern via
+    // ApplyArmorModifiersUseCase).
+    public val RESIST_KNOCKBACK: AttributeKey = AttributeKey("resist.knockback")
+
     // ---- Resources -----------------------------------------------------
     public val MANA_CURRENT: AttributeKey = AttributeKey("resource.mana_current")
     public val MANA_MAX: AttributeKey = AttributeKey("resource.mana_max")
