@@ -1983,6 +1983,69 @@ class ArchitectureTest {
             .isEmpty()
     }
 
+    // ─── ADR-0134 — DomainEvent publisher-exists check (Wave K prevention) ──
+
+    /**
+     * ADR-0134 — Every concrete class implementing [DomainEvent] must have at
+     * least one publisher: a constructor call `XxxEvent(` in main source
+     * outside the event's own defining file.
+     *
+     * Subscriber side is intentionally NOT checked: Astera's
+     * [com.astarworks.astera.core.application.service.admin.InMemoryScheduledAnnouncementSystem]
+     * holds a wildcard `eventBus.subscribe(DomainEvent::class)` (Wave 5b
+     * analytics consumer) that polymorphically catches every DomainEvent
+     * subtype, so a per-type subscriber check would either be vacuously
+     * true (current state) or require a 149-entry baseline allowlist
+     * (Round 15 Wave N trial — too brittle for Phase 1 PoC closing).
+     * See ADR-0131 §Alternatives §Alt A for the scope-shrink rationale.
+     *
+     * Motivating incident: Wave K 5integration-wire (ADR-0128) had to
+     * backfill 7 cross-cutting events whose subscribers were missing —
+     * but the symmetric class of bug, **an event whose publisher is
+     * missing**, is exactly what this rule catches. Such an event is dead
+     * code waiting for someone to remember to add the publisher; the
+     * subscriber waits forever. Same silent-drop shape as Wave I (listener
+     * waiting for an `eventBus.subscribe` line that was forgotten).
+     *
+     * Allowlist:
+     * `tools/architecture-test/src/test/resources/konsist-allowlist/deferred-events.txt`
+     * (one FQN per line, `#` starts a comment, blank lines ignored). Use
+     * for events whose publisher is intentionally deferred to a later wave
+     * (Wave 6 Paper adapter, Phase 2+ feature) or for events confirmed
+     * dead and pending removal.
+     */
+    @Test
+    fun `every DomainEvent must have a publisher (ADR-0134)`() {
+        val allowlist = readAdr0134Allowlist()
+        val events = collectDomainEventImpls(allowlist)
+        val corpus = collectMainSourceCorpus()
+
+        val violators = events.mapNotNull { (fqn, simple, ownPath) ->
+            val ctor = Regex("\\b${Regex.escape(simple)}\\(")
+            var publisherFound = false
+            for ((path, text) in corpus) {
+                if (path != ownPath && ctor.containsMatchIn(text)) {
+                    publisherFound = true
+                    break
+                }
+            }
+            if (publisherFound) null else fqn
+        }
+
+        assertThat(violators)
+            .withFailMessage {
+                "ADR-0134 violation: ${violators.size} DomainEvent class(es) lack " +
+                    "any publisher (constructor call site outside their own file):\n" +
+                    violators.joinToString("\n") { "  $it" } +
+                    "\n\nEvery DomainEvent must be published from at least one " +
+                    "non-defining file. To intentionally defer an event (Wave 6 " +
+                    "Paper adapter / Phase 2+ feature), add its FQN to " +
+                    "tools/architecture-test/src/test/resources/konsist-allowlist/" +
+                    "deferred-events.txt. See ADR-0134."
+            }
+            .isEmpty()
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
@@ -2002,4 +2065,58 @@ class ArchitectureTest {
         }
     }
 
+    // ─── ADR-0134 helpers ─────────────────────────────────────────────────────
+
+    private data class DomainEventImpl(
+        val fqn: String,
+        val simpleName: String,
+        val definingFilePath: String,
+    )
+
+    private fun collectDomainEventImpls(allowlist: Set<String>): List<DomainEventImpl> =
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                file.path.contains("/src/main/kotlin/") &&
+                    !file.path.contains("/test/") &&
+                    !file.path.contains("/tools/architecture-test/")
+            }
+            .flatMap { file ->
+                file.classes(includeNested = false)
+                    .filter { cls ->
+                        !cls.hasAbstractModifier &&
+                            !cls.hasSealedModifier &&
+                            cls.parents().any { it.name == "DomainEvent" }
+                    }
+                    .mapNotNull { cls ->
+                        val fqn = cls.fullyQualifiedName ?: return@mapNotNull null
+                        if (fqn in allowlist) null
+                        else DomainEventImpl(fqn, cls.name, file.path)
+                    }
+            }
+
+    private fun collectMainSourceCorpus(): List<Pair<String, String>> =
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                file.path.contains("/src/main/kotlin/") &&
+                    !file.path.contains("/tools/architecture-test/")
+            }
+            .map { it.path to it.text }
+
+    private fun readAdr0134Allowlist(): Set<String> {
+        val repoRoot = File(".").canonicalFile.let { cwd ->
+            if (File(cwd, "content/languages").exists()) cwd
+            else cwd.parentFile?.parentFile ?: cwd
+        }
+        val file = File(
+            repoRoot,
+            "tools/architecture-test/src/test/resources/konsist-allowlist/deferred-events.txt",
+        )
+        if (!file.exists()) return emptySet()
+        return file.readLines()
+            .map { it.trim() }
+            .filter { it.isNotEmpty() && !it.startsWith("#") }
+            .toSet()
+    }
 }
