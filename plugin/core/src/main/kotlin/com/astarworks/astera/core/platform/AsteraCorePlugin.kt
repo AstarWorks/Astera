@@ -580,6 +580,35 @@ public class AsteraCorePlugin : JavaPlugin() {
                 }
         logger.info("Permission service registered (in-memory; ${DefaultRoles.builtin().size} default roles).")
 
+        // Wave R 5proxy-impl-wire (ADR-0135): register InMemory proxy backends
+        // at priority 0. Same family of silent-drop as Wave Q 5port-fill
+        // (ADR-0133 §A) — impl classes shipped by Wave 5r (ADR-0084) but
+        // their registration in AsteraCorePlugin was forgotten, meaning live
+        // server had no IProxyMessenger / IServerTransferGateway at all and
+        // any `services.get<IProxyMessenger>()` returned null. Wave 6b's
+        // VelocityProxyMessenger / VelocityServerTransferGateway will overlay
+        // at priority 100; the Phase 1 self-loopback InMemory impls provide
+        // the baseline so the priority-overlay convention works.
+        val proxyMessenger: com.astarworks.astera.core.application.port.outbound.IProxyMessenger =
+            com.astarworks.astera.core.application.service.InMemoryProxyMessenger(
+                localServer = com.astarworks.astera.core.domain.proxy.ServerName("astera-local"),
+            )
+        services.register<com.astarworks.astera.core.application.port.outbound.IProxyMessenger>(
+            proxyMessenger,
+            priority = 0,
+        )
+        val serverTransferGateway: com.astarworks.astera.core.application.port.outbound.IServerTransferGateway =
+            com.astarworks.astera.core.application.service.InMemoryServerTransferGateway(
+                messenger = proxyMessenger,
+                eventBus = eventBus,
+                permissionService = permissionService,
+            )
+        services.register<com.astarworks.astera.core.application.port.outbound.IServerTransferGateway>(
+            serverTransferGateway,
+            priority = 0,
+        )
+        logger.info("Proxy InMemory backends registered (localServer=astera-local, priority=0; Wave 6b Velocity adapters will overlay at priority 100).")
+
         // Use cases — constructed here for completeness; no Core command uses them yet.
         @Suppress("UNUSED_VARIABLE")
         val assignRole = AssignRoleUseCase(permissionService)
