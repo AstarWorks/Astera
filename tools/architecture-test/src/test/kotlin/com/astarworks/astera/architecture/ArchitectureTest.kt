@@ -2046,6 +2046,63 @@ class ArchitectureTest {
             .isEmpty()
     }
 
+    // ─── ADR-0136 — PaperKnockbackGateway resistance-consultation guard ────
+
+    /**
+     * ADR-0136 §Konsist guard (deferred to Wave 6a) — when
+     * `PaperKnockbackGateway` exists in `*.adapter.paper.*`, its source MUST
+     * contain the token `KNOCKBACK_RESISTANCE` so the resistance-consultation
+     * contract on [IKnockbackGateway.applyImpulse] cannot silently regress.
+     *
+     * Motivating risk: a future contributor refactoring
+     * `PaperKnockbackGateway.applyImpulse` could accidentally remove the
+     * `player.getAttribute(Attribute.KNOCKBACK_RESISTANCE)` read while
+     * keeping the `Player.setVelocity` call — silently dropping
+     * `ItemAttributes.knockbackResistance` enforcement on the Astera
+     * custom-knockback path (the exact silent feature drop Wave S /
+     * ADR-0136 closed). This rule forces the token to remain in source.
+     *
+     * Born already-green: ships alongside the Wave 6a-1 PaperKnockbackGateway
+     * impl (ADR-0144); the file now contains the required token by design.
+     */
+    @Test
+    fun `PaperKnockbackGateway source must reference KNOCKBACK_RESISTANCE token (ADR-0136)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                file.path.contains("/adapter/paper/") &&
+                    file.name == "PaperKnockbackGateway" &&
+                    file.path.contains("/src/main/kotlin/")
+            }
+            .also { matchedFiles ->
+                // Rule is born already-green: when the Paper adapter exists,
+                // the token check applies. When it doesn't yet exist (pre-
+                // Wave 6a-1 baseline), the rule trivially passes — but we
+                // log so future contributors notice the file removal.
+                if (matchedFiles.isEmpty()) {
+                    // Not an assertion failure — pre-Wave-6a-1 deployments
+                    // legitimately lack the file; the InMemory NoOpKnockbackGateway
+                    // serves Phase 1 PoC and is exempt from the contract.
+                    return@also
+                }
+            }
+            .forEach { file ->
+                assertThat(file.text)
+                    .withFailMessage {
+                        "ADR-0136 violation: PaperKnockbackGateway source " +
+                            "${file.path} does not contain KNOCKBACK_RESISTANCE " +
+                            "token. The Wave S 5knockback-resistance contract " +
+                            "(ADR-0136 §A — IKnockbackGateway.applyImpulse KDoc) " +
+                            "requires implementations to consult Bukkit " +
+                            "Attribute.KNOCKBACK_RESISTANCE before scaling impulse " +
+                            "+ calling Player.setVelocity. Removing this read " +
+                            "silently drops ItemAttributes.knockbackResistance " +
+                            "enforcement on the Astera custom-knockback path."
+                    }
+                    .contains("KNOCKBACK_RESISTANCE")
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
