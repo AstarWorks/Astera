@@ -1079,6 +1079,16 @@ public class AsteraCorePlugin : JavaPlugin() {
             InMemoryPlayerSpeedGateway(scheduler, eventBus)
         services.register<IPlayerSpeedGateway>(playerSpeedGateway, priority = 0)
 
+        // Wave 6a-4 5paper-sweep-speed (ADR-0147): Paper adapter overlays
+        // InMemory at priority 100. Writes back to Player.walkSpeed /
+        // flySpeed (baseline-scaled), allowFlight, isSprinting, isCollidable
+        // (no-clip approximation per IPlayerSpeedGateway KDoc).
+        services.register<IPlayerSpeedGateway>(
+            com.astarworks.astera.core.adapter.paper.physiology
+                .PaperPlayerSpeedGateway(server, scheduler, eventBus),
+            priority = 100,
+        )
+
         val playerFoodGateway: IPlayerFoodGateway =
             InMemoryPlayerFoodGateway(scheduler, eventBus)
         services.register<IPlayerFoodGateway>(playerFoodGateway, priority = 0)
