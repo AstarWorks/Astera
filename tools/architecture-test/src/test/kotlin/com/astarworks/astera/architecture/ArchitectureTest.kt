@@ -2103,6 +2103,60 @@ class ArchitectureTest {
             }
     }
 
+    // ─── ADR-0137 — PaperDamageGateway death-cycle marker guard ──────────
+
+    /**
+     * ADR-0137 §Konsist guard (deferred to Wave 6a) — when
+     * `PaperDamageGateway` exists in `*.adapter.paper.*`, its source MUST
+     * contain both `appliedThisTick` AND `isDead` tokens so the death-
+     * cycle Path 1 contract on [IDamageGateway.apply] cannot silently
+     * regress.
+     *
+     * Motivating risks (per ADR-0137 §PaperDamageGateway impl):
+     *  - Removing `appliedThisTick.add(target)` breaks Wave 6a-6
+     *    BukkitEventAdapter.onPlayerDeath's Path 1 vs Path 2 detection
+     *    → PlayerKilled double-fire → AssistAttributionUseCase double-pay.
+     *  - Removing the `player.isDead` short-circuit lets Damageable.damage
+     *    fire on a corpse (Bukkit no-ops) while the gateway still returns
+     *    HpReduced(0.0) — wrong semantic per ADR-0137 §Alt C.
+     *
+     * Born already-green: ships alongside Wave 6a-3 PaperDamageGateway
+     * (ADR-0146).
+     */
+    @Test
+    fun `PaperDamageGateway source must reference appliedThisTick and isDead tokens (ADR-0137)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                file.path.contains("/adapter/paper/") &&
+                    file.name == "PaperDamageGateway" &&
+                    file.path.contains("/src/main/kotlin/")
+            }
+            .forEach { file ->
+                assertThat(file.text)
+                    .withFailMessage {
+                        "ADR-0137 violation: PaperDamageGateway source " +
+                            "${file.path} does not contain `appliedThisTick` " +
+                            "token. Wave T 5damage-deathcycle-adr (ADR-0137) " +
+                            "requires the marker so Wave 6a-6 BukkitEventAdapter.\n" +
+                            "onPlayerDeath can distinguish Path 1 (Astera combat) " +
+                            "from Path 2 (vanilla) — preventing PlayerKilled " +
+                            "double-fire + AssistAttributionUseCase double-pay."
+                    }
+                    .contains("appliedThisTick")
+                assertThat(file.text)
+                    .withFailMessage {
+                        "ADR-0137 violation: PaperDamageGateway source " +
+                            "${file.path} does not contain `isDead` token. " +
+                            "Wave T 5damage-deathcycle-adr (ADR-0137) requires " +
+                            "the dead-target short-circuit so Damageable.damage " +
+                            "is not called on a corpse (Bukkit no-op + wrong " +
+                            "HpReduced(0.0) semantic per ADR-0137 §Alt C)."
+                    }
+                    .contains("isDead")
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
