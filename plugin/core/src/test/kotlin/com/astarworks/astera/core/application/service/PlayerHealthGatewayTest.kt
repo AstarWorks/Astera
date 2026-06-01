@@ -22,6 +22,7 @@ class PlayerHealthGatewayTest {
 
     private lateinit var scheduler: FakeScheduler
     private lateinit var eventBus: InMemoryDomainEventBus
+    private lateinit var containerStore: InMemoryPlayerAttributeContainer
     private lateinit var gateway: InMemoryPlayerHealthGateway
 
     private val pid: PlayerId = PlayerId(UUID.randomUUID())
@@ -30,7 +31,11 @@ class PlayerHealthGatewayTest {
     fun setUp() {
         scheduler = FakeScheduler()
         eventBus = InMemoryDomainEventBus()
-        gateway = InMemoryPlayerHealthGateway(scheduler, eventBus)
+        // Wave 6a-redesign Step 2 (ADR-0150): gateway routes HP through
+        // IAttributeContainer; test injects the same InMemory store used
+        // in production wiring.
+        containerStore = InMemoryPlayerAttributeContainer()
+        gateway = InMemoryPlayerHealthGateway(containerStore, scheduler, eventBus)
     }
 
     @Test

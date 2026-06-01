@@ -1059,8 +1059,14 @@ public class AsteraCorePlugin : JavaPlugin() {
         // All InMemory defaults at priority 0; Wave 6a Paper adapters overlay at
         // priority 100 to write through to vanilla `AttributeInstance` /
         // `Player.walkSpeed` / `Player.foodLevel`.
+        // Wave 6a-redesign Step 2 (ADR-0150): IPlayerHealthGateway now reads
+        // / writes through IAttributeContainer.CURRENT_HP / MAX_HP per
+        // ADR-0149 §A. The internal MutableMap that pre-dated Wave 5e's
+        // universal-attribute-container migration is gone; the container
+        // IS the storage. PaperPlayerHealthGateway (Step 3 / ADR-0151) will
+        // overlay at priority 100 as UI mirror only.
         val playerHealthGateway: IPlayerHealthGateway =
-            InMemoryPlayerHealthGateway(scheduler, eventBus)
+            InMemoryPlayerHealthGateway(attributeContainerStore, scheduler, eventBus)
         services.register<IPlayerHealthGateway>(playerHealthGateway, priority = 0)
 
         // Wave 6a-2 5paper-sweep-health (ADR-0145): Paper adapter overlays

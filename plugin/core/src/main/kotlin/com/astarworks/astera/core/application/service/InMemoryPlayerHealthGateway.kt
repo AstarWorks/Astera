@@ -2,11 +2,15 @@ package com.astarworks.astera.core.application.service
 
 import com.astarworks.astera.core.application.port.outbound.HealthMutationError
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
-import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
+import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.attribute.AttributeValue
+import com.astarworks.astera.core.domain.attribute.Attributes
+import com.astarworks.astera.core.domain.attribute.IAttributeContainer
 import com.astarworks.astera.core.domain.event.PlayerHealthChanged
 import com.astarworks.astera.core.domain.event.PlayerMaxHealthChanged
 import com.astarworks.astera.core.domain.event.PlayerRegenRateChanged
@@ -14,22 +18,41 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 
 /**
- * In-memory [IPlayerHealthGateway] (Wave 5k, ADR-0080).
+ * In-memory [IPlayerHealthGateway] (Wave 5k / ADR-0080 + Wave 6a-redesign
+ * Step 2 / ADR-0150 — Astera-internal HP via [IAttributeContainer]).
  *
- * Single-JVM default; Wave 6a `PaperPlayerHealthGateway` overlays at priority
- * 100 to write back to Bukkit attributes. Tests and Phase 1 PoC use this
- * impl directly.
+ * # Storage model (post-ADR-0149)
  *
- * Not thread-safe by contract — Astera dispatches on the Paper main thread.
+ * HP source of truth = per-player [IAttributeContainer] under the two
+ * canonical keys [Attributes.CURRENT_HP] and [Attributes.MAX_HP]
+ * (reserved in `Attributes.kt:16-17` since Wave 5e for exactly this
+ * migration). No internal map for HP/max — the container IS the storage.
+ *
+ * `IPlayerAttributeContainerStore.containerFor(playerId)` lazy-creates
+ * the container; reads return `null` (absent) until the first write
+ * (matching the prior internal-map "no value recorded" semantic that
+ * [getCurrentHealth] / [getMaxHealth] expose). Pre-Step-2 baseline:
+ * the gateway held two private maps (keyed by PlayerId, valued as
+ * Double) for current/max HP — that storage pattern is now forbidden
+ * by Konsist Rule ADR-0150 §B.
  *
  * # Regen scheduling
  *
- * [setRegenRate] starts a repeating tick task (period = 1 tick) that adds
- * `hpPerSecond / 20.0` HP per tick. A separate one-shot task at `ttlTicks`
- * cancels the regen and emits a final "regen cleared" event. For
- * `ttlTicks = Int.MAX_VALUE` no expiry task is scheduled.
+ * Unchanged: a repeating tick task adds `hpPerSecond / 20.0` per tick.
+ * The per-tick callback now routes through [heal] → container write.
+ * Wave 6a-redesign Step 3 will mirror the container value to Bukkit
+ * `player.health` (clamped ≥ `MIRROR_MIN_HP = 1.0` so vanilla
+ * `PlayerDeathEvent` never fires).
+ *
+ * # Thread-safety
+ *
+ * Not thread-safe by contract — Astera dispatches on Paper main thread.
+ * Same as the prior implementation.
+ *
+ * Wave 6a-redesign Step 2 (ADR-0150).
  */
 public class InMemoryPlayerHealthGateway(
+    private val containerStore: IPlayerAttributeContainerStore,
     private val scheduler: IScheduler,
     private val eventBus: IDomainEventBus,
     private val defaultMaxHp: Double = 20.0,
@@ -42,20 +65,19 @@ public class InMemoryPlayerHealthGateway(
         val expiryHandle: IScheduler.TaskHandle?,
     )
 
-    private val health: MutableMap<PlayerId, Double> = mutableMapOf()
-    private val maxHealth: MutableMap<PlayerId, Double> = mutableMapOf()
     private val regen: MutableMap<PlayerId, RegenSlot> = mutableMapOf()
 
     override fun setMaxHealth(playerId: PlayerId, maxHp: Double): Result<Unit, HealthMutationError> {
         if (!maxHp.isFinite() || maxHp <= 0.0) {
             return Result.failure(HealthMutationError.InvalidValue("maxHp", maxHp))
         }
-        val previous = maxHealth[playerId]
-        maxHealth[playerId] = maxHp
+        val container = containerStore.containerFor(playerId)
+        val previous = readNumber(container, Attributes.MAX_HP)
+        writeNumber(container, Attributes.MAX_HP, maxHp)
         // Re-clamp current HP if it now exceeds the new max.
-        health[playerId]?.let { current ->
+        readNumber(container, Attributes.CURRENT_HP)?.let { current ->
             if (current > maxHp) {
-                health[playerId] = maxHp
+                writeNumber(container, Attributes.CURRENT_HP, maxHp)
                 eventBus.publish(
                     PlayerHealthChanged(
                         playerId = playerId,
@@ -86,14 +108,13 @@ public class InMemoryPlayerHealthGateway(
         if (!hp.isFinite() || hp < 0.0) {
             return Result.failure(HealthMutationError.InvalidValue("hp", hp))
         }
-        val effectiveMax = maxHealth[playerId] ?: defaultMaxHp
+        val container = containerStore.containerFor(playerId)
+        val effectiveMax = readNumber(container, Attributes.MAX_HP) ?: defaultMaxHp
         val clamped = hp.coerceAtMost(effectiveMax)
-        val recordedPrevious = health[playerId]
-        health[playerId] = clamped
+        val recordedPrevious = readNumber(container, Attributes.CURRENT_HP)
+        writeNumber(container, Attributes.CURRENT_HP, clamped)
         // Publish whenever either (a) value changed against the recorded prior
-        // or (b) this is the first explicit write (no prior recorded). The
-        // second case still informs listeners that an admin/system mutation
-        // happened, distinct from the implicit vanilla default.
+        // or (b) this is the first explicit write (no prior recorded).
         if (recordedPrevious == null || recordedPrevious != clamped) {
             eventBus.publish(
                 PlayerHealthChanged(
@@ -116,8 +137,9 @@ public class InMemoryPlayerHealthGateway(
         if (!amount.isFinite() || amount < 0.0) {
             return Result.failure(HealthMutationError.InvalidValue("amount", amount))
         }
-        val effectiveMax = maxHealth[playerId] ?: defaultMaxHp
-        val current = health[playerId] ?: effectiveMax
+        val container = containerStore.containerFor(playerId)
+        val effectiveMax = readNumber(container, Attributes.MAX_HP) ?: defaultMaxHp
+        val current = readNumber(container, Attributes.CURRENT_HP) ?: effectiveMax
         return setHealth(playerId, current + amount, source)
     }
 
@@ -129,8 +151,9 @@ public class InMemoryPlayerHealthGateway(
         if (!amount.isFinite() || amount < 0.0) {
             return Result.failure(HealthMutationError.InvalidValue("amount", amount))
         }
-        val effectiveMax = maxHealth[playerId] ?: defaultMaxHp
-        val current = health[playerId] ?: effectiveMax
+        val container = containerStore.containerFor(playerId)
+        val effectiveMax = readNumber(container, Attributes.MAX_HP) ?: defaultMaxHp
+        val current = readNumber(container, Attributes.CURRENT_HP) ?: effectiveMax
         val next = (current - amount).coerceAtLeast(0.0)
         return setHealth(playerId, next, source)
     }
@@ -201,13 +224,36 @@ public class InMemoryPlayerHealthGateway(
         )
     }
 
-    override fun getCurrentHealth(playerId: PlayerId): Double? = health[playerId]
+    override fun getCurrentHealth(playerId: PlayerId): Double? =
+        readNumber(containerStore.containerFor(playerId), Attributes.CURRENT_HP)
 
-    override fun getMaxHealth(playerId: PlayerId): Double? = maxHealth[playerId]
+    override fun getMaxHealth(playerId: PlayerId): Double? =
+        readNumber(containerStore.containerFor(playerId), Attributes.MAX_HP)
 
     /** Test-only: is regen currently active for [playerId]. */
     public fun hasActiveRegen(playerId: PlayerId): Boolean = regen.containsKey(playerId)
 
     /** Test-only: configured regen rate (HP/s), or `null` if not active. */
     public fun currentRegenRate(playerId: PlayerId): Double? = regen[playerId]?.hpPerSecond
+
+    // ---- Container helpers ────────────────────────────────────────────
+
+    /**
+     * Read a numeric attribute from [container]. Returns `null` when the
+     * key is absent (preserves the "no value recorded" semantic that
+     * [getCurrentHealth] / [getMaxHealth] expose).
+     */
+    private fun readNumber(
+        container: IAttributeContainer,
+        key: com.astarworks.astera.core.domain.attribute.AttributeKey,
+    ): Double? = (container.get(key) as? AttributeValue.NumberValue)?.value
+
+    /** Write a numeric attribute by replacing any prior value. */
+    private fun writeNumber(
+        container: IAttributeContainer,
+        key: com.astarworks.astera.core.domain.attribute.AttributeKey,
+        value: Double,
+    ) {
+        container.set(key, AttributeValue.NumberValue(value))
+    }
 }
