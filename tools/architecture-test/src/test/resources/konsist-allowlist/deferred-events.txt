@@ -13,41 +13,27 @@
 # entries whose deferral is no longer load-bearing. A line removed from
 # this file is a positive event — it means the publisher shipped.
 
-# ─── Wave 6a — Bukkit event → DomainEvent adapter translation ────────────────
-# These events will be published by BukkitEventAdapter (or sibling adapters)
-# in Wave 6a once the Paper-side event-translation layer ships. Each maps to
-# a specific Bukkit event listed inline.
+# ─── Wave 6a-N — Remaining sibling-plugin Paper adapters ─────────────────────
+# Wave 6a-6 (ADR-0153) closed 10 of the original 14 Wave-6a entries by
+# shipping the Core BukkitEventAdapter. The 4 entries below remain because
+# their DomainEvents live in sibling plugins (match / combat) and ADR-0022
+# sibling-isolation forbids Core's BukkitEventAdapter from importing them.
+# Each will close when the listed Wave 6a-N sibling adapter ships.
 
-# Bukkit PlayerJoinEvent → publishes after JoinFinished (Wave 6a)
-com.astarworks.astera.core.domain.event.PlayerJoinedServer
-# Bukkit PlayerQuitEvent → publishes after PostQuit (Wave 6a)
-com.astarworks.astera.core.domain.event.PlayerQuitServer
-# Bukkit PlayerInteractEvent (RIGHT_CLICK_BLOCK / LEFT_CLICK_BLOCK) (Wave 6a)
-com.astarworks.astera.core.domain.event.PlayerInteractedBlock
-# Bukkit PlayerTeleportEvent (Wave 6a — distinct from cross-server PlayerArrivedOnServer)
-com.astarworks.astera.core.domain.event.PlayerTeleported
-# Bukkit ChunkLoadEvent (Wave 6a — for replay capture / mob spawning gates)
-com.astarworks.astera.core.domain.event.ChunkLoaded
-# Bukkit ChunkUnloadEvent (Wave 6a — pair with ChunkLoaded)
-com.astarworks.astera.core.domain.event.ChunkUnloaded
-# Bukkit WorldUnloadEvent → publishes BEFORE world removal (Wave 6a;
-# subscriber `EndMatchOnWorldUnload` already wired by Wave L 5hardening-complete
-# / ADR-0129, awaiting the Paper-side publisher to fire)
-com.astarworks.astera.core.domain.event.WorldUnloading
-# Bukkit WeatherChangeEvent (Wave 6a — ambience / lightning skill gates)
-com.astarworks.astera.core.domain.event.WeatherChanged
-# Bukkit world.fullTime polling (Wave 6a — match timer / phase scheduler)
-com.astarworks.astera.core.domain.event.TimeChanged
-# Bukkit EntityDeathEvent (PaperMobAdapter — Wave 6a; player kills handled by combat plugin)
-com.astarworks.astera.core.domain.event.MobKilled
-# Custom region tracker over PlayerMoveEvent (Wave 6a — match zones / safe areas)
+# Custom region tracker over PlayerMoveEvent — sibling Match-plugin adapter
+# (Wave 6a-N PaperRegionTracker, pending IRegionRegistry which isn't shipped)
 com.astarworks.astera.match.domain.event.EntityEnteredRegion
-# Custom region tracker over PlayerMoveEvent (Wave 6a — pair with Entered)
+# Pair with Entered
 com.astarworks.astera.match.domain.event.EntityLeftRegion
-# Bukkit EntityPickupItemEvent → match resource pickup (Wave 6a — CarryTNT/CarryMiniTNT mode listeners already subscribe)
+# Bukkit EntityPickupItemEvent → match resource pickup — sibling Match-plugin
+# adapter (Wave 6a-N PaperItemPickupAdapter; Core's BukkitEventAdapter cannot
+# publish match-domain events per ADR-0022 sibling-isolation)
 com.astarworks.astera.match.domain.event.EntityPickedUpItem
-# Environmental damage source resolution over EntityDamageEvent.DamageCause
-# (LAVA / FIRE / CACTUS / FALL) — Wave 6a, used by combat status/effects
+# Environmental damage source resolution — sibling Combat-plugin adapter
+# (Wave 6a-N PaperEnvironmentDamagePublisher; Core's BukkitEventAdapter
+# already cancels + re-routes vanilla EntityDamageEvent through
+# IPlayerHealthGateway per ADR-0149 §D, but the combat-domain publish
+# itself is deferred per ADR-0022 sibling-isolation)
 com.astarworks.astera.combat.domain.event.aoe.EnvironmentDamageApplied
 
 # ─── Wave 6b — Velocity proxy adapter ────────────────────────────────────────

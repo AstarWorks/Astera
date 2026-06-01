@@ -760,9 +760,10 @@ class ArchitectureTest {
      * mechanically:
      *
      *  - [IMatchTimerService]      → Wave 6a (`PaperMatchTimerService`)
-     *  - [IPlayerMovementGateway]  → Wave 6a (`PaperPlayerMovementGateway`)
-     *  - [IPlayerVisionGateway]    → Wave 6a (`PaperPlayerVisionGateway`)
      *  - [IStructurePaste]         → Wave 6b (`PaperStructurePaste` over FAWE)
+     *
+     * (Wave 6a-7 / ADR-0152 §B shipped `PaperPlayerMovementGateway` +
+     * `PaperPlayerVisionGateway`; those two ports left the allow-set.)
      *
      * The test asserts:
      *  1. Each FQN in the allow-set actually exists in the codebase (the
@@ -778,8 +779,9 @@ class ArchitectureTest {
     fun `Wave 6 Paper impl allow-list (ADR-0072)`() {
         val allowedMissingPaperImpl: Set<String> = setOf(
             "com.astarworks.astera.match.application.port.outbound.IMatchTimerService",
-            "com.astarworks.astera.core.application.port.outbound.IPlayerMovementGateway",
-            "com.astarworks.astera.core.application.port.outbound.IPlayerVisionGateway",
+            // Wave 6a-7 (ADR-0152 §B) closed IPlayerMovementGateway +
+            // IPlayerVisionGateway. Their Paper concretes ship at
+            // priority 100 in plugin/core/.../adapter/paper/physiology/.
             "com.astarworks.astera.core.application.port.outbound.IStructurePaste",
         )
 
