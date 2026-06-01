@@ -57,7 +57,11 @@ class RespawnUseCaseTest {
         scheduler = FakeScheduler(startTick = 1000L)
         eventBus = FakeDomainEventBus()
         worldGateway = FakeWorldGateway()
-        healthGateway = InMemoryPlayerHealthGateway(scheduler, eventBus)
+        healthGateway = InMemoryPlayerHealthGateway(
+            com.astarworks.astera.core.application.service.InMemoryPlayerAttributeContainer(),
+            scheduler,
+            eventBus,
+        )
         protectionGateway = FakeSpawnProtectionGateway()
         itemRegistry = StubItemRegistry()
         useCase = RespawnUseCase(

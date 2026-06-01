@@ -2157,6 +2157,65 @@ class ArchitectureTest {
             }
     }
 
+    // ─── ADR-0150 — InMemoryPlayerHealthGateway must use IAttributeContainer ─
+
+    /**
+     * ADR-0150 §B / ADR-0149 §A — `InMemoryPlayerHealthGateway` MUST route
+     * HP reads / writes through `IAttributeContainer` (via the
+     * `containerStore` constructor parameter); it MUST NOT regress to a
+     * private `MutableMap<PlayerId, Double>` storing HP / max-health.
+     *
+     * Motivating risk: Wave 5e ADR-0058 established the universal
+     * attribute container substrate, but `InMemoryPlayerHealthGateway`
+     * predated the migration and held an internal HP map until ADR-0150
+     * (Wave 6a-redesign Step 2). A future refactor that re-introduces an
+     * internal map would diverge from `Attributes.CURRENT_HP` / `MAX_HP`
+     * (the canonical Astera HP location) — the same stalled-migration
+     * drift Wave 5e was designed to prevent.
+     *
+     * Born already-green: ships alongside the Step 2 refactor; the file
+     * now contains the required `containerStore` token and lacks the
+     * forbidden `MutableMap<PlayerId, Double>` patterns by design.
+     */
+    @Test
+    fun `InMemoryPlayerHealthGateway must use IAttributeContainer (ADR-0150)`() {
+        Konsist.scopeFromProject()
+            .files
+            .filter { file ->
+                file.path.contains("/src/main/kotlin/") &&
+                    file.name == "InMemoryPlayerHealthGateway"
+            }
+            .forEach { file ->
+                assertThat(file.text)
+                    .withFailMessage {
+                        "ADR-0150 violation: InMemoryPlayerHealthGateway source " +
+                            "${file.path} does not reference `containerStore`. " +
+                            "Per ADR-0149 §A + ADR-0150 §B, HP reads/writes MUST " +
+                            "route through `IAttributeContainer.CURRENT_HP / MAX_HP` " +
+                            "via the IPlayerAttributeContainerStore constructor " +
+                            "parameter. The internal MutableMap<PlayerId, Double> " +
+                            "that pre-dated Wave 5e ADR-0058 is permanently retired."
+                    }
+                    .contains("containerStore")
+                listOf(
+                    "MutableMap<PlayerId, Double>",
+                    "mutableMapOf<PlayerId, Double>",
+                ).forEach { forbidden ->
+                    assertThat(file.text)
+                        .withFailMessage {
+                            "ADR-0150 violation: InMemoryPlayerHealthGateway source " +
+                                "${file.path} contains forbidden HP-storage pattern " +
+                                "`$forbidden`. Per ADR-0149 §A, HP source of truth is " +
+                                "`IAttributeContainer.CURRENT_HP / MAX_HP` (Wave 5e " +
+                                "ADR-0058 universal container). Internal HP maps " +
+                                "create a parallel source of truth that diverges from " +
+                                "the container's modifier-aware reads."
+                        }
+                        .doesNotContain(forbidden)
+                }
+            }
+    }
+
     // ─── Private helpers ─────────────────────────────────────────────────────
 
     /**
