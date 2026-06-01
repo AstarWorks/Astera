@@ -8,7 +8,11 @@ import com.astarworks.astera.items.application.usecase.HandleItemTriggerUseCase
  * Vendor-neutral click-to-skill sink (Wave _items-1, ADR-0073).
  *
  * Replaces the legacy weapons-side `WeaponClickListener`. Receives
- * [IMcEvent] from Core's `BukkitEventAdapter`, resolves the player's held
+ * [IMcEvent] from Core's `PaperClickEventBridge` (renamed from
+ * `BukkitEventAdapter` in Wave 6a-6 — the larger
+ * `BukkitEventAdapter` now owns DomainEvent translation + Role 2
+ * defensive cancellation per ADR-0152, so the click-sink listener got
+ * the narrower name), resolves the player's held
  * Astera item by reading the `astera:item_id` PDC tag (via
  * [IPaperItemIdResolver]), and dispatches the matching [SkillTrigger] to
  * [HandleItemTriggerUseCase] for binding-resolution + event publish.
@@ -32,15 +36,19 @@ public class ItemSkillTriggerListener(
     private val itemIdResolver: IPaperItemIdResolver,
 ) {
 
-    /** Single entrypoint passed to `BukkitEventAdapter { event -> handle(event) }`. */
+    /** Single entrypoint passed to `PaperClickEventBridge { event -> handle(event) }`. */
     public fun handle(event: IMcEvent) {
         val trigger: SkillTrigger = when (event) {
             is IMcEvent.PlayerLeftClickAir -> SkillTrigger.LEFT_CLICK_AIR
             is IMcEvent.PlayerLeftClickBlock -> SkillTrigger.LEFT_CLICK_BLOCK
             // Right-click + the long tail of triggers (HOLD / AUTO / SYSTEM /
-            // ATTACK / DAMAGED / DEATH / …) are not yet emitted by
-            // BukkitEventAdapter. Wave 6 wires the remaining mappings; until
-            // then we no-op so a future event variant addition stays
+            // ATTACK / DAMAGED / DEATH / …) are not yet emitted by the
+            // PaperClickEventBridge — its remit is narrowly the left-click
+            // air/block pair so a single Bukkit Listener stays trivially
+            // unit-testable. Wave 6+ may extend the bridge or move the
+            // wider trigger family into another bridge (e.g. one driven by
+            // PlayerSwapHandItemsEvent + PlayerSwingEvent); until then we
+            // no-op so a future event variant addition stays
             // forward-compatible.
             is IMcEvent.PlayerJoined,
             is IMcEvent.PlayerQuit,

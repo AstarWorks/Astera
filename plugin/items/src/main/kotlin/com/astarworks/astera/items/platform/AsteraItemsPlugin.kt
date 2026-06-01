@@ -1,7 +1,7 @@
 package com.astarworks.astera.items.platform
 
 import com.astarworks.astera.core.adapter.api.server.IMcServer
-import com.astarworks.astera.core.adapter.paper.event.BukkitEventAdapter
+import com.astarworks.astera.core.adapter.paper.event.PaperClickEventBridge
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.contents.ItemContents
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
@@ -176,8 +176,8 @@ public class AsteraItemsPlugin : JavaPlugin() {
             handleTrigger = handleTrigger,
             itemIdResolver = itemIdResolver,
         )
-        val bukkitAdapter = BukkitEventAdapter { event -> triggerListener.handle(event) }
-        server.pluginManager.registerEvents(bukkitAdapter, this)
+        val clickBridge = PaperClickEventBridge { event -> triggerListener.handle(event) }
+        server.pluginManager.registerEvents(clickBridge, this)
 
         // Enchant-gate + keep-on-death listener (Bukkit-native).
         server.pluginManager.registerEvents(EnchantmentGateListener(this), this)

@@ -293,6 +293,10 @@ public class AsteraCorePlugin : JavaPlugin() {
 
     /** Retained so [onDisable] can call [PaperScheduler.stop]. */
     private var paperScheduler: PaperScheduler? = null
+    // Wave 6a-6 (ADR-0153): handle to BukkitEventAdapter's time-polling task
+    // so onDisable can cancel it. Bukkit listener un-registration happens
+    // automatically via HandlerList.unregisterAll(this) on plugin teardown.
+    private var bukkitEventAdapterTimeTaskHandle: IScheduler.TaskHandle? = null
 
     /** Retained so [onDisable] can release the HTTP port (Wave _ops). */
     private var metricsHttpServer: HttpMetricsServer? = null
@@ -1099,6 +1103,32 @@ public class AsteraCorePlugin : JavaPlugin() {
             InMemoryPlayerFoodGateway(scheduler, eventBus)
         services.register<IPlayerFoodGateway>(playerFoodGateway, priority = 0)
 
+        // Wave 6a-5 (ADR-0152): Paper food gateway overlays InMemory at
+        // priority 100. Writes through to player.foodLevel / player.saturation
+        // and registers a Bukkit Listener for FoodLevelChangeEvent so
+        // suppressHungerHud(true) cancels vanilla hunger drain (first
+        // Paper-adapter-implements-Listener pattern in Astera; see ADR-0152
+        // §A for design + sibling-vs-PaperPlayerSpeedGateway divergence).
+        val paperPlayerFoodGateway = com.astarworks.astera.core.adapter.paper.physiology
+            .PaperPlayerFoodGateway(server, scheduler, eventBus)
+        paperPlayerFoodGateway.start(this)
+        services.register<IPlayerFoodGateway>(paperPlayerFoodGateway, priority = 100)
+
+        // Wave 6a-7 (ADR-0152 §B): movement + vision Paper gateways. No
+        // priority-0 InMemory exists for either port (these adapters are
+        // the first impl); registered at priority 100 for consistency with
+        // the Wave 6a-1..6a-4 pattern.
+        services.register<com.astarworks.astera.core.application.port.outbound.IPlayerMovementGateway>(
+            com.astarworks.astera.core.adapter.paper.physiology
+                .PaperPlayerMovementGateway(server, scheduler),
+            priority = 100,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.IPlayerVisionGateway>(
+            com.astarworks.astera.core.adapter.paper.physiology
+                .PaperPlayerVisionGateway(server, scheduler),
+            priority = 100,
+        )
+
         val resourcePool: IResourcePoolService =
             InMemoryResourcePoolService(scheduler, eventBus, itemContents)
         services.register<IResourcePoolService>(resourcePool, priority = 0)
@@ -1667,6 +1697,14 @@ public class AsteraCorePlugin : JavaPlugin() {
             com.astarworks.astera.core.application.service.cinematic.InMemoryCameraGateway(eventBus),
             priority = 0,
         )
+        // Wave 6a-7 (ADR-0152 §B): PaperCameraGateway overlays InMemory at
+        // priority 100. Bukkit `setSpectatorTarget` powers entity-targeted
+        // locks + auto-release-on-freeze; pan / shake / zoom / Position-
+        // target lock are Phase 1 stubs awaiting Wave 6b packet adapter.
+        services.register<com.astarworks.astera.core.application.port.outbound.cinematic.ICameraGateway>(
+            com.astarworks.astera.core.adapter.paper.cinematic.PaperCameraGateway(server, scheduler, eventBus),
+            priority = 100,
+        )
         services.register<com.astarworks.astera.core.application.port.outbound.cinematic.ICinematicPathPlayer>(
             com.astarworks.astera.core.application.service.cinematic.InMemoryCinematicPathPlayer(eventBus),
             priority = 0,
@@ -2176,6 +2214,15 @@ public class AsteraCorePlugin : JavaPlugin() {
                     services.register<com.astarworks.astera.core.application.port.outbound.sign.ISignActionService>(it, priority = 0)
                 }
 
+        // Wave 6a-7 (ADR-0152 §B): PaperSignActionService overlays InMemory
+        // at priority 100. Adds advisory Bukkit Sign blockstate validation
+        // at bind time (DEBUG log on world-unloaded / non-sign block —
+        // binding still recorded; preserves YAML-preload flow).
+        services.register<com.astarworks.astera.core.application.port.outbound.sign.ISignActionService>(
+            com.astarworks.astera.core.adapter.paper.sign.PaperSignActionService(server),
+            priority = 100,
+        )
+
         val portalGateway: com.astarworks.astera.core.application.port.outbound.portal.IPortalGateway =
             services.get<com.astarworks.astera.core.application.port.outbound.portal.IPortalGateway>()
                 ?: com.astarworks.astera.core.application.service.portal.InMemoryPortalGateway().also {
@@ -2681,6 +2728,33 @@ public class AsteraCorePlugin : JavaPlugin() {
                 "registered; /astera-restart, /astera-news, /astera-patch commands registered.",
         )
 
+        // ── Wave 6a-6 (ADR-0153) — Bukkit → DomainEvent adapter ────────────
+        // Single Bukkit Listener that:
+        //   Role 1 — translates 9 Bukkit events into Core DomainEvents
+        //            (closes 10 of the 14 Wave-6a entries in ADR-0134
+        //            allowlist; cross-plugin events deferred to sibling
+        //            Paper adapters per ADR-0022 sibling-isolation).
+        //   Role 2 — defensive cancellation of vanilla EntityDamageEvent
+        //            (vanilla-intrusion causes) + PlayerDeathEvent (the
+        //            ADR-0149 §C MIRROR_MIN_HP=1.0 floor should prevent
+        //            this from ever firing; if it does, log WARN + revive).
+        // Wired last so it sees all priority-100 Paper adapters registered
+        // first — including the PaperPlayerHealthGateway it routes vanilla
+        // damage through.
+        val highestPriorityPlayerHealthGateway: IPlayerHealthGateway =
+            services.get<IPlayerHealthGateway>() ?: playerHealthGateway
+        val bukkitEventAdapter = com.astarworks.astera.core.adapter.paper.event.BukkitEventAdapter(
+            eventBus = eventBus,
+            playerHealthGateway = highestPriorityPlayerHealthGateway,
+            scheduler = scheduler,
+        )
+        bukkitEventAdapterTimeTaskHandle = bukkitEventAdapter.start(this)
+        logger.info(
+            "Wave 6a-6 BukkitEventAdapter wired (Role 1: 9 event translations; " +
+                "Role 2: EntityDamageEvent + PlayerDeathEvent defensive cancellation " +
+                "per ADR-0149 §D).",
+        )
+
         logger.info("Astera-Core enabled. Services published: ${SERVICE_NAMES.joinToString(", ")}")
     }
 
@@ -2709,6 +2783,11 @@ public class AsteraCorePlugin : JavaPlugin() {
         matchQueueMetric?.stop()
         metricsHttpServer?.stop()
         holoTransitionController?.shutdown()
+        // Wave 6a-6 (ADR-0153): cancel BukkitEventAdapter time-polling task.
+        // Bukkit's HandlerList.unregisterAll(this) handles the Listener
+        // un-registration automatically on plugin disable.
+        bukkitEventAdapterTimeTaskHandle?.cancel()
+        bukkitEventAdapterTimeTaskHandle = null
         paperScheduler?.stop()
     }
 
