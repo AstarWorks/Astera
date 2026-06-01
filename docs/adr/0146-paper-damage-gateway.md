@@ -1,16 +1,22 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-05-31
 deciders: Astera core
 supersedes: null
-superseded_by: null
+superseded_by: 0149
 ---
 
 # ADR-0146: PaperDamageGateway — Wave 6a-3
 
 ## Status
 
-Accepted
+**Superseded by [[adr/0149-astera-internal-hp-death-model]]** (2026-06-02).
+Body below preserved per Astera ADR convention (body immutable post-merge);
+do not act on the design described here. See ADR-0149 §E for the
+replacement `PaperDamageGateway` design (Astera-internal HP, no
+`player.damage()` call, no vanilla math).
+
+Originally: Accepted
 
 ## Context
 
