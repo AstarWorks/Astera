@@ -1,16 +1,40 @@
 ---
-status: Accepted
+status: Accepted (partially superseded — see §Status)
 date: 2026-05-20
 deciders: Wave 5k orchestrator
 supersedes: null
-superseded_by: null
+superseded_by: 0149
 ---
 
 # ADR-0080: Player physiology layer + Resource pool 3 種 (Annihilation vision)
 
 ## Status
 
-Accepted
+Accepted (HP / two-tier mutation framing **partially superseded by
+[[adr/0149-astera-internal-hp-death-model]]** as of 2026-06-02).
+
+**Still Accepted (unchanged):**
+- `IPlayerSpeedGateway` design + 5-knob locomotion interface.
+- `IPlayerFoodGateway` design + hunger-suppression / hunger-as-mana mode.
+- `IResourcePoolService` 3-resource architecture (Ammo / Stamina / Mana).
+
+**Superseded by ADR-0149:**
+- §1 "two-tier delineation" framing of `IPlayerHealthGateway` as
+  "Bukkit runtime mutation layer" that "writes back to vanilla
+  `AttributeInstance.GENERIC_MAX_HEALTH`". Per user directive 2026-06-02,
+  vanilla is not a co-author of game logic; Bukkit `player.health` is a
+  UI mirror only. Astera HP source of truth is
+  `IAttributeContainer.CURRENT_HP / MAX_HP`. Vanilla `PlayerDeathEvent`
+  is never triggered under Astera management.
+- §2 "Bukkit runtime mutation layer" intent for HP specifically. The
+  same intent for Speed / Food remains valid (they don't suffer from
+  vanilla-math-doubling or vanilla-death problems).
+
+See ADR-0149 §A-G for the corrected HP / damage / death model. ADR-0080
+body below preserved per Astera ADR convention (body immutable
+post-merge).
+
+Originally: Accepted
 
 ## Context
 
