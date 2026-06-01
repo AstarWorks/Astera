@@ -271,15 +271,32 @@ public class AsteraCombatPlugin : JavaPlugin() {
         }
 
         // Wave Q 5port-fill (ADR-0133 §B): Phase 1 PoC InMemory default for
-        // IDamageGateway. Returns TargetOffline for all calls; Wave 6a
-        // PaperDamageGateway overlays at priority 100. Pre-stub state
-        // null-guarded the entire ApplyDamageUseCase construction (line
-        // ~297 below), leaving the combo / focus-fire / target-lock damage
-        // bonus chain (Wave K / ADR-0128) dead in Phase 1 dev sessions.
+        // IDamageGateway. Returns TargetOffline for all calls; Wave 6a-3
+        // PaperDamageGateway overlays at priority 100 below. Pre-stub
+        // state null-guarded the entire ApplyDamageUseCase construction
+        // (line ~297 below), leaving the combo / focus-fire / target-lock
+        // damage bonus chain (Wave K / ADR-0128) dead in Phase 1 dev
+        // sessions.
         registrations += services.register<IDamageGateway>(
             com.astarworks.astera.combat.application.service.InMemoryDamageGateway(),
             priority = 0,
         )
+
+        // Wave 6a-3 5paper-sweep-damage (ADR-0146): Paper damage adapter
+        // closes ADR-0137 Path 1 contract. Player.damage + appliedThisTick
+        // marker + post-HP outcome. Wave 6a-6 BukkitEventAdapter.onPlayerDeath
+        // will consume the marker for Path 2 vanilla-death routing.
+        // start() schedules the per-tick clear task on IScheduler; handle is
+        // owned by Core's IScheduler lifecycle (auto-cancels when Core
+        // disables / plugin unloads).
+        val paperDamageGateway = com.astarworks.astera.combat.adapter.paper
+            .PaperDamageGateway(server, scheduler)
+        paperDamageGateway.start()
+        registrations += services.register<IDamageGateway>(
+            paperDamageGateway,
+            priority = 100,
+        )
+
         val damageGateway = services.get<IDamageGateway>()
         val statusContainer = services.get<IStatusEffectContainer>()
 
