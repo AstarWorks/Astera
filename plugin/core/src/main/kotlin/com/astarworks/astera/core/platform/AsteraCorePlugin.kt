@@ -1063,6 +1063,18 @@ public class AsteraCorePlugin : JavaPlugin() {
             InMemoryPlayerHealthGateway(scheduler, eventBus)
         services.register<IPlayerHealthGateway>(playerHealthGateway, priority = 0)
 
+        // Wave 6a-2 5paper-sweep-health (ADR-0145): Paper adapter overlays
+        // InMemoryPlayerHealthGateway at priority 100. Writes back to
+        // Bukkit Player.health + Attribute.MAX_HEALTH (Paper 1.21+ no
+        // GENERIC_ prefix). Regen via IScheduler.runRepeatingTicks identical
+        // to InMemory shape so subscribers (HUD / achievements / analytics)
+        // are impl-agnostic.
+        services.register<IPlayerHealthGateway>(
+            com.astarworks.astera.core.adapter.paper.physiology
+                .PaperPlayerHealthGateway(server, scheduler, eventBus),
+            priority = 100,
+        )
+
         val playerSpeedGateway: IPlayerSpeedGateway =
             InMemoryPlayerSpeedGateway(scheduler, eventBus)
         services.register<IPlayerSpeedGateway>(playerSpeedGateway, priority = 0)
