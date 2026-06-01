@@ -2103,28 +2103,33 @@ class ArchitectureTest {
             }
     }
 
-    // ─── ADR-0137 — PaperDamageGateway death-cycle marker guard ──────────
+    // ─── ADR-0137 + ADR-0149 — PaperDamageGateway death-cycle + container guard ─
 
     /**
-     * ADR-0137 §Konsist guard (deferred to Wave 6a) — when
+     * ADR-0137 + ADR-0149 / ADR-0151 strengthened guard — when
      * `PaperDamageGateway` exists in `*.adapter.paper.*`, its source MUST
-     * contain both `appliedThisTick` AND `isDead` tokens so the death-
-     * cycle Path 1 contract on [IDamageGateway.apply] cannot silently
-     * regress.
+     * contain all tokens proving Astera owns the damage math, AND
+     * MUST NOT contain vanilla-coupling escape hatches.
      *
-     * Motivating risks (per ADR-0137 §PaperDamageGateway impl):
-     *  - Removing `appliedThisTick.add(target)` breaks Wave 6a-6
-     *    BukkitEventAdapter.onPlayerDeath's Path 1 vs Path 2 detection
-     *    → PlayerKilled double-fire → AssistAttributionUseCase double-pay.
-     *  - Removing the `player.isDead` short-circuit lets Damageable.damage
-     *    fire on a corpse (Bukkit no-ops) while the gateway still returns
-     *    HpReduced(0.0) — wrong semantic per ADR-0137 §Alt C.
+     * Required tokens:
+     *  - `appliedThisTick` (ADR-0137 §PaperDamageGateway) — Wave 6a-6
+     *    Path 1 vs Path 2 coordination marker.
+     *  - `isDead` (ADR-0137 §Alt C) — dead-target short-circuit.
+     *  - `Attributes.CURRENT_HP` (ADR-0149 §A / ADR-0151 §E) — container
+     *    reads are authoritative HP source.
      *
-     * Born already-green: ships alongside Wave 6a-3 PaperDamageGateway
-     * (ADR-0146).
+     * Forbidden patterns (ADR-0149 §G strengthening, landed in Step 3):
+     *  - `player.damage(` — invokes vanilla Damageable.damage math,
+     *    double-counts Astera's ArmorReductionModifier.
+     *  - `player.health = 0` (any whitespace pattern) — fires vanilla
+     *    PlayerDeathEvent, bypassing Astera's PlayerKilled lifecycle.
+     *
+     * Born already-green (Step 3 rewrite). Future refactor that
+     * re-introduces either forbidden pattern fails CI with fail message
+     * citing ADR-0149 §C/§E.
      */
     @Test
-    fun `PaperDamageGateway source must reference appliedThisTick and isDead tokens (ADR-0137)`() {
+    fun `PaperDamageGateway source must use container + forbid vanilla damage and zero health (ADR-0137 + ADR-0149)`() {
         Konsist.scopeFromProject()
             .files
             .filter { file ->
@@ -2133,27 +2138,52 @@ class ArchitectureTest {
                     file.path.contains("/src/main/kotlin/")
             }
             .forEach { file ->
+                listOf(
+                    "appliedThisTick" to "ADR-0137 §PaperDamageGateway — Wave 6a-6 Path 1 vs Path 2 marker",
+                    "isDead" to "ADR-0137 §Alt C — dead-target short-circuit",
+                    "Attributes.CURRENT_HP" to "ADR-0149 §A — container reads are authoritative HP",
+                ).forEach { (token, rationale) ->
+                    assertThat(file.text)
+                        .withFailMessage {
+                            "ADR-0137 + ADR-0149 violation: PaperDamageGateway " +
+                                "source ${file.path} does not contain required " +
+                                "token `$token` ($rationale)."
+                        }
+                        .contains(token)
+                }
+                // Forbidden vanilla-math escape: invokes Damageable.damage
+                // which double-counts vanilla armor / Protection / Resistance.
                 assertThat(file.text)
                     .withFailMessage {
-                        "ADR-0137 violation: PaperDamageGateway source " +
-                            "${file.path} does not contain `appliedThisTick` " +
-                            "token. Wave T 5damage-deathcycle-adr (ADR-0137) " +
-                            "requires the marker so Wave 6a-6 BukkitEventAdapter.\n" +
-                            "onPlayerDeath can distinguish Path 1 (Astera combat) " +
-                            "from Path 2 (vanilla) — preventing PlayerKilled " +
-                            "double-fire + AssistAttributionUseCase double-pay."
+                        "ADR-0149 §E violation: PaperDamageGateway source " +
+                            "${file.path} contains forbidden `player.damage(` " +
+                            "call. Per ADR-0149 §E, the Paper adapter MUST NOT " +
+                            "invoke Bukkit's Damageable.damage() — it would " +
+                            "double-count vanilla armor / Protection / Resistance " +
+                            "/ Absorption against Astera's already-resolved " +
+                            "finalAmount. Write container CURRENT_HP directly + " +
+                            "mirror to player.health (clamped ≥ MIRROR_MIN_HP=1.0)."
                     }
-                    .contains("appliedThisTick")
-                assertThat(file.text)
-                    .withFailMessage {
-                        "ADR-0137 violation: PaperDamageGateway source " +
-                            "${file.path} does not contain `isDead` token. " +
-                            "Wave T 5damage-deathcycle-adr (ADR-0137) requires " +
-                            "the dead-target short-circuit so Damageable.damage " +
-                            "is not called on a corpse (Bukkit no-op + wrong " +
-                            "HpReduced(0.0) semantic per ADR-0137 §Alt C)."
-                    }
-                    .contains("isDead")
+                    .doesNotContain("player.damage(")
+                // Forbidden zero-HP write: fires vanilla PlayerDeathEvent
+                // synchronously, bypassing PlayerKilled domain event flow.
+                listOf(
+                    "player.health = 0",
+                    "player.health=0",
+                ).forEach { forbidden ->
+                    assertThat(file.text)
+                        .withFailMessage {
+                            "ADR-0149 §C violation: PaperDamageGateway source " +
+                                "${file.path} contains forbidden zero-HP write " +
+                                "`$forbidden`. Vanilla PlayerDeathEvent fires at " +
+                                "player.health ≤ 0; ADR-0149 §C requires the " +
+                                "MIRROR_MIN_HP=1.0 floor on every mirror write. " +
+                                "Astera death is via PlayerKilled domain event " +
+                                "(ApplyDamageUseCase publishes on " +
+                                "DamageOutcome.Killed)."
+                        }
+                        .doesNotContain(forbidden)
+                }
             }
     }
 

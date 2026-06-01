@@ -5,83 +5,93 @@ import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.damage.ResolvedDamage
+import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.attribute.AttributeValue
+import com.astarworks.astera.core.domain.attribute.Attributes
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.Server
+import org.bukkit.attribute.Attribute
 import org.slf4j.LoggerFactory
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Paper concrete of [IDamageGateway] (Wave 6a-3, ADR-0146) — closes the
- * ADR-0137 damage/death-cycle Path 1 contract.
+ * Paper concrete of [IDamageGateway] (Wave 6a-redesign Step 3 / ADR-0151
+ * — supersedes the original Wave 6a-3 / ADR-0146 design).
  *
- * # Path 1 (Astera combat death) per ADR-0137
+ * # New shape (post-ADR-0149)
  *
- * Flow:
+ * Astera owns the damage math entirely:
  *
- *  1. `ApplyDamageUseCase.execute(attempt)` calls
- *     `damageGateway.apply(target, resolved, source)` here.
- *  2. We `getPlayer(target.uuid)` → null = `TargetOffline`.
- *  3. `player.isDead` → return `TargetAlreadyDead`.
- *  4. `player.noDamageTicks > 0` → return `Immune` (Bukkit invulnerability
- *     frames after a recent hit).
- *  5. Add `target` to [appliedThisTick] marker so a future Wave 6a-6
- *     `BukkitEventAdapter.onPlayerDeath` handler can detect that this
- *     death came from Path 1 (Astera combat) and SKIP the Path 2
- *     vanilla-death PlayerKilled publish — preventing the double-fire
- *     that would otherwise pollute `AssistAttributionUseCase`.
- *  6. `player.damage(resolved.finalAmount)` — Bukkit fires
- *     `EntityDamageEvent` (vanilla particles + sound) and, if HP→0,
- *     `PlayerDeathEvent` synchronously inside this call.
- *  7. Read post-damage `player.health` → return
- *     `HpReduced(remainingHp)` or `Killed`.
- *  8. `ApplyDamageUseCase` publishes `PlayerKilled` on
- *     `DamageOutcome.Killed` (existing line ~196-205).
+ *  1. Read Astera HP from `IAttributeContainer.CURRENT_HP` (Step 2 / ADR-0150).
+ *  2. Compute `newHp = (currentHp - resolved.finalAmount).coerceAtLeast(0.0)`
+ *     — pure Kotlin arithmetic. NO vanilla armor / Protection / Resistance /
+ *     Absorption math.
+ *  3. Write the new HP back to the container.
+ *  4. Update Bukkit `player.health` as a UI mirror with `MIRROR_MIN_HP = 1.0`
+ *     floor (ADR-0149 §C) so vanilla `PlayerDeathEvent` NEVER fires.
+ *  5. Trigger `player.playHurtAnimation(0f)` for vanilla red-flash +
+ *     hurt-sound feedback (no damage applied by this call).
+ *  6. Set `player.noDamageTicks = player.maximumNoDamageTicks` so subsequent
+ *     rapid hits respect Bukkit i-frame semantics.
+ *  7. Return `Killed` if newHp ≤ 0.0 else `HpReduced(newHp)`.
  *
- * # Path 2 (vanilla/non-combat death) — NOT in this wave
+ * `ApplyDamageUseCase` publishes `PlayerKilled` on `DamageOutcome.Killed`
+ * unchanged (line ~196-205). The combat-bonus chain (Wave K / ADR-0128)
+ * runs end-to-end because `finalAmount` is consumed by Astera's container
+ * write without vanilla math layered on top.
  *
- * ADR-0137 §Path 2 design assigns vanilla-death routing
- * (suicide / void / fall / `/kill`) to a future Wave 6a-6
- * `BukkitEventAdapter.onPlayerDeath` handler that consults
- * [appliedThisTick] to distinguish Path 1 (skip) from Path 2 (synthesize
- * `DamageSource.Environment.<cause>` from `EntityDamageEvent.DamageCause`
- * + publish `PlayerKilled(killer = null, source = synthesized)`).
+ * # Critical anti-patterns (Konsist Rule 57 forbids)
  *
- * This wave ships ONLY Path 1. Vanilla deaths in Phase 1 PoC remain
- * untracked by Astera (they fire vanilla death message + drops via
- * Bukkit's default path); the [appliedThisTick] marker is wired so
- * Wave 6a-6 can ship Path 2 without changing this gateway.
+ * This impl MUST NOT contain calls to Bukkit's Damageable
+ * `damage(amount)` method (invokes vanilla armor / Protection /
+ * Resistance / Absorption math — double-counts Astera's
+ * ArmorReductionModifier), and MUST NOT write the Bukkit `health`
+ * property to the literal zero value (fires vanilla `PlayerDeathEvent` —
+ * Astera death is via `PlayerKilled` domain event instead).
  *
- * # `appliedThisTick` lifecycle
+ * MUST contain:
+ *  - `appliedThisTick` — Wave 6a-6 BukkitEventAdapter Path 2 vs Path 1
+ *    coordination marker
+ *  - `isDead` — dead-target short-circuit
+ *  - `Attributes.CURRENT_HP` — container reads are authoritative
  *
- * Cleared by a 1-tick scheduler task started in [start]; held by a
- * `ConcurrentHashMap`-backed `Set<PlayerId>`. Bounded by "max players
- * receiving damage in a single tick" — typically <10 even on busy
- * servers. The clear runs on the main thread (matching
- * `Player.damage` ordering); the data structure is concurrent only as a
- * defensive choice in case future off-main consumers (Wave 6a-6
- * adapter) read it.
+ * # Path 1 (Astera combat death) / Path 2 (vanilla / non-combat death)
+ *
+ * Per ADR-0137 (still load-bearing despite ADR-0149 supersede of ADR-0146):
+ *
+ *  - Path 1: this gateway → container write → mirror clamp at 1.0 → no
+ *    vanilla death. ApplyDamageUseCase publishes PlayerKilled.
+ *  - Path 2 (vanilla / non-combat): Wave 6a-6 `BukkitEventAdapter` cancels
+ *    vanilla `EntityDamageEvent` (fall / lava / void / drown / cactus)
+ *    and re-routes through `IPlayerHealthGateway.damage()`. Defensive
+ *    `PlayerDeathEvent` cancellation as belt-and-suspenders (should never
+ *    fire under Astera management given the MIRROR_MIN_HP=1.0 floor).
+ *
+ * The [appliedThisTick] marker (kept from ADR-0146) signals to Wave 6a-6
+ * "this target was damaged by Path 1 this tick; skip Path 2 PlayerKilled
+ * publish" — preventing double-fire of `AssistAttributionUseCase`.
  *
  * # Threading
  *
- * `Player.damage` MUST run on main. `ApplyDamageUseCase.execute` is
- * called from event handlers (Wave 6a-6 BukkitEventAdapter) and combat
- * use cases that already run on main. Off-main callers MUST round-trip
- * through `scheduler.runLater(Duration.ZERO, ...)`.
+ * Bukkit `player.health` / `player.playHurtAnimation` MUST run on main.
+ * `ApplyDamageUseCase` is invoked from event handlers + combat use cases
+ * that already run on main. Off-main callers MUST route through
+ * `scheduler.runLater(Duration.ZERO, ...)`.
  *
  * # Registration
  *
- * Registered at priority 100 in `AsteraCombatPlugin.onEnable` (overlays
- * `InMemoryDamageGateway` priority 0 from Wave Q / ADR-0133). Caller
- * must invoke [start] right after construction to wire the 1-tick clear
- * task; the returned `TaskHandle` is held by the plugin's subscription
- * list for `onDisable` cancellation per ADR-0123.
+ * Priority 100 in `AsteraCombatPlugin.onEnable` (overlays
+ * `InMemoryDamageGateway` priority 0 from Wave Q / ADR-0133). Caller must
+ * invoke [start] right after construction to wire the 1-tick clear task
+ * for [appliedThisTick].
  */
 public class PaperDamageGateway(
     private val server: Server,
     private val scheduler: IScheduler,
+    private val containerStore: IPlayerAttributeContainerStore,
 ) : IDamageGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -90,18 +100,14 @@ public class PaperDamageGateway(
      * Per-tick marker: players whose damage was applied via Path 1
      * (this gateway). Read by Wave 6a-6 BukkitEventAdapter.onPlayerDeath
      * to skip Path 2 (vanilla-death) handler. Cleared by [start]'s 1-tick
-     * scheduler task.
-     *
-     * Public + concurrent so Wave 6a-6 can read across tick boundaries
-     * defensively. ADR-0137 §PaperDamageGateway code sketch.
+     * scheduler task. ADR-0137 §PaperDamageGateway code sketch (still
+     * load-bearing post-ADR-0149).
      */
     public val appliedThisTick: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
 
     /**
      * Wire the 1-tick clear task. Returns the handle so the plugin can
-     * cancel on `onDisable`. Idempotent within a single instance — calling
-     * twice schedules two clear tasks (which is harmless but wasteful;
-     * the second clear no-ops on an already-empty set).
+     * cancel on `onDisable`.
      */
     public fun start(): IScheduler.TaskHandle =
         scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) {
@@ -121,15 +127,55 @@ public class PaperDamageGateway(
         if (player.noDamageTicks > 0) {
             return Result.failure(DamageApplicationError.Immune(target))
         }
-        // Mark BEFORE calling Bukkit damage so Bukkit's synchronous
-        // PlayerDeathEvent firing inside damage() sees the marker.
+
+        val container = containerStore.containerFor(target)
+        val currentHp = (container.get(Attributes.CURRENT_HP) as? AttributeValue.NumberValue)?.value
+            ?: ((container.get(Attributes.MAX_HP) as? AttributeValue.NumberValue)?.value
+                ?: VANILLA_DEFAULT_MAX_HP)
+        val asteraMax = (container.get(Attributes.MAX_HP) as? AttributeValue.NumberValue)?.value
+            ?: VANILLA_DEFAULT_MAX_HP
+
+        // Mark BEFORE the container write so Wave 6a-6 BukkitEventAdapter
+        // sees the marker if any synchronous event chain inspects it.
         appliedThisTick.add(target)
-        player.damage(resolved.finalAmount)
-        val postHp = player.health
-        return if (postHp <= 0.0) {
+
+        val newHp = (currentHp - resolved.finalAmount).coerceAtLeast(0.0)
+        container.set(Attributes.CURRENT_HP, AttributeValue.NumberValue(newHp))
+
+        // UI mirror per ADR-0149 §C: clamp ≥ MIRROR_MIN_HP to prevent
+        // vanilla PlayerDeathEvent. Visual hearts ≈ proportional with
+        // 0.5-heart floor at Astera HP = 0.
+        val bukkitMax = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: VANILLA_DEFAULT_MAX_HP
+        val mirror = ((newHp / asteraMax) * bukkitMax)
+            .coerceAtLeast(MIRROR_MIN_HP)
+            .coerceAtMost(bukkitMax)
+        player.health = mirror
+
+        // Vanilla feedback (red flash + hurt sound) — no damage applied
+        // by this call (it just plays the animation per Paper API).
+        player.playHurtAnimation(0f)
+
+        // Bukkit i-frame reset so subsequent rapid Astera hits respect
+        // the same invulnerability window vanilla uses.
+        player.noDamageTicks = player.maximumNoDamageTicks
+
+        return if (newHp <= 0.0) {
             Result.success(DamageOutcome.Killed)
         } else {
-            Result.success(DamageOutcome.HpReduced(remainingHp = postHp))
+            Result.success(DamageOutcome.HpReduced(remainingHp = newHp))
         }
+    }
+
+    public companion object {
+        /**
+         * Mirrors [com.astarworks.astera.core.adapter.paper.physiology.PaperPlayerHealthGateway.MIRROR_MIN_HP].
+         * Duplicated here to keep the combat gateway independent of the
+         * physiology gateway type at compile time (sibling-isolation rule
+         * ADR-0022 — combat plugin should not import core/adapter/paper).
+         */
+        public const val MIRROR_MIN_HP: Double = 1.0
+
+        /** Vanilla Bukkit max-health default. */
+        public const val VANILLA_DEFAULT_MAX_HP: Double = 20.0
     }
 }
