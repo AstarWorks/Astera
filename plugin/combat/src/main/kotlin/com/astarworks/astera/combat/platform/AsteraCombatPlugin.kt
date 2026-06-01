@@ -283,6 +283,18 @@ public class AsteraCombatPlugin : JavaPlugin() {
         val damageGateway = services.get<IDamageGateway>()
         val statusContainer = services.get<IStatusEffectContainer>()
 
+        // Wave 6a-1 5paper-sweep-knockback (ADR-0144): Paper knockback
+        // adapter overlays NoOpKnockbackGateway at priority 100. Reads
+        // Bukkit Attribute.KNOCKBACK_RESISTANCE per ADR-0136 §A
+        // gateway-boundary contract before scaling impulse + calling
+        // setVelocity. NoOp at priority 0 remains as the unit-test /
+        // non-Paper fallback (exempt from resistance contract per ADR-0136
+        // §Exemption — no physical write).
+        registrations += services.register<IKnockbackGateway>(
+            com.astarworks.astera.combat.adapter.paper.PaperKnockbackGateway(server),
+            priority = 100,
+        )
+
         // Wave 5a — DamageRule pipeline construction.
         // Critical strike defaults: 10% chance, 2.0× multiplier (Wave 7c will
         // load these from `content/balance/critical.yaml`).
