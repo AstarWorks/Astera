@@ -213,14 +213,27 @@ public class PaperItemMaterializer(
         }
 
         // Paper 1.21+ dropped the GENERIC_ prefix on Attribute enum values.
-        attrs.attackDamage?.let { addModifier(Attribute.ATTACK_DAMAGE, it, "astera.attack_damage") }
-        attrs.attackSpeed?.let { addModifier(Attribute.ATTACK_SPEED, it, "astera.attack_speed") }
-        attrs.armor?.let { addModifier(Attribute.ARMOR, it, "astera.armor") }
-        attrs.armorToughness?.let { addModifier(Attribute.ARMOR_TOUGHNESS, it, "astera.armor_toughness") }
+        //
+        // Wave 6a-redesign Step 3 (ADR-0151): the 5 combat-math vanilla
+        // AttributeModifier writes (ATTACK_DAMAGE / ATTACK_SPEED / ARMOR /
+        // ARMOR_TOUGHNESS / MAX_HEALTH) are REMOVED per ADR-0149 §F.
+        // Astera owns damage / armor / HP math entirely — vanilla
+        // AttributeModifier writes would feed vanilla Damageable.damage
+        // math + Attribute.MAX_HEALTH which Astera's PaperDamageGateway /
+        // PaperPlayerHealthGateway already supersede via container-backed
+        // computation. Astera lore renderer surfaces the values as text
+        // for player visibility (no vanilla MC tooltip dependency).
+        //
+        // KEPT modifiers:
+        //  - KNOCKBACK_RESISTANCE: Wave 6a-1 ADR-0144 intentional
+        //    data-channel; PaperKnockbackGateway reads back the aggregated
+        //    Bukkit attribute value before scaling impulse.
+        //  - MOVEMENT_SPEED: Astera setMultiplier (Wave 6a-4) last-writer-
+        //    wins acceptable Phase 1 PoC; revisit if equip-time mods
+        //    conflict with active gateway state.
         attrs.knockbackResistance?.let {
             addModifier(Attribute.KNOCKBACK_RESISTANCE, it, "astera.knockback_resistance")
         }
-        attrs.maxHealthBonus?.let { addModifier(Attribute.MAX_HEALTH, it, "astera.max_health") }
         attrs.movementSpeedMultiplier?.let { mult ->
             val modifier = AttributeModifier(
                 UUID.randomUUID(),

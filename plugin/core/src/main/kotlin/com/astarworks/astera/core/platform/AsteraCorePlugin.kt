@@ -1069,15 +1069,15 @@ public class AsteraCorePlugin : JavaPlugin() {
             InMemoryPlayerHealthGateway(attributeContainerStore, scheduler, eventBus)
         services.register<IPlayerHealthGateway>(playerHealthGateway, priority = 0)
 
-        // Wave 6a-2 5paper-sweep-health (ADR-0145): Paper adapter overlays
-        // InMemoryPlayerHealthGateway at priority 100. Writes back to
-        // Bukkit Player.health + Attribute.MAX_HEALTH (Paper 1.21+ no
-        // GENERIC_ prefix). Regen via IScheduler.runRepeatingTicks identical
-        // to InMemory shape so subscribers (HUD / achievements / analytics)
-        // are impl-agnostic.
+        // Wave 6a-redesign Step 3 (ADR-0151, supersedes ADR-0145):
+        // PaperPlayerHealthGateway is now a thin wrapper over the
+        // container-backed InMemory gateway (Step 2 / ADR-0150). Bukkit
+        // player.health is UI mirror only, clamped ≥ MIRROR_MIN_HP=1.0
+        // per ADR-0149 §C to prevent vanilla PlayerDeathEvent from ever
+        // firing under Astera control.
         services.register<IPlayerHealthGateway>(
             com.astarworks.astera.core.adapter.paper.physiology
-                .PaperPlayerHealthGateway(server, scheduler, eventBus),
+                .PaperPlayerHealthGateway(attributeContainerStore, server, scheduler, eventBus),
             priority = 100,
         )
 

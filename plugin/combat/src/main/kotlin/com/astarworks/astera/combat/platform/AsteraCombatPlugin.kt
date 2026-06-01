@@ -282,15 +282,17 @@ public class AsteraCombatPlugin : JavaPlugin() {
             priority = 0,
         )
 
-        // Wave 6a-3 5paper-sweep-damage (ADR-0146): Paper damage adapter
-        // closes ADR-0137 Path 1 contract. Player.damage + appliedThisTick
-        // marker + post-HP outcome. Wave 6a-6 BukkitEventAdapter.onPlayerDeath
-        // will consume the marker for Path 2 vanilla-death routing.
-        // start() schedules the per-tick clear task on IScheduler; handle is
-        // owned by Core's IScheduler lifecycle (auto-cancels when Core
-        // disables / plugin unloads).
+        // Wave 6a-redesign Step 3 (ADR-0151, supersedes ADR-0146): Paper
+        // damage adapter now Astera-owns the math. Reads container CURRENT_HP,
+        // subtracts finalAmount in Kotlin, writes back to container, mirrors
+        // to Bukkit player.health clamped ≥ MIRROR_MIN_HP=1.0. NO call to
+        // player.damage() (would double-count vanilla armor). NO setHealth(0)
+        // (would fire vanilla PlayerDeathEvent). appliedThisTick marker
+        // preserved for Wave 6a-6 BukkitEventAdapter Path 2 coordination.
+        val attributeContainerStore =
+            services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore>()
         val paperDamageGateway = com.astarworks.astera.combat.adapter.paper
-            .PaperDamageGateway(server, scheduler)
+            .PaperDamageGateway(server, scheduler, attributeContainerStore)
         paperDamageGateway.start()
         registrations += services.register<IDamageGateway>(
             paperDamageGateway,

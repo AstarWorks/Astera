@@ -1,16 +1,23 @@
 ---
-status: Accepted
+status: Superseded
 date: 2026-05-31
 deciders: Astera core
 supersedes: null
-superseded_by: null
+superseded_by: 0151
 ---
 
 # ADR-0145: PaperPlayerHealthGateway — Wave 6a-2
 
 ## Status
 
-Accepted
+**Superseded by [[adr/0151-paper-adapter-rewrite-astera-owns-damage]]**
+(2026-06-02). Body below preserved per Astera ADR convention (body
+immutable post-merge); do not act on the design described here. See
+ADR-0151 §A for the replacement `PaperPlayerHealthGateway` design (thin
+wrapper over container-backed InMemoryPlayerHealthGateway + Bukkit UI
+mirror with `MIRROR_MIN_HP = 1.0` floor).
+
+Originally: Accepted
 
 ## Context
 
