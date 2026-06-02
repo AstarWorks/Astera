@@ -444,6 +444,11 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 services.get<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>()
             val soundRegistry =
                 services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry>()
+            val soundScheduler =
+                services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>()
+            val particleSchedulerNonNull =
+                particleScheduler
+                    ?: error("IParticleScheduler not registered — required by ProjectileHitListener (ADR-0109)")
             val mechanicDispatcher = MechanicDispatcher(
                 applyDamage = applyDamage,
                 applyStatus = applyStatus,
@@ -507,6 +512,8 @@ public class AsteraCombatPlugin : JavaPlugin() {
                     applyDamageUseCase = applyDamage,
                     applyStatusUseCase = applyStatus,
                     scheduler = scheduler,
+                    particleScheduler = particleSchedulerNonNull,
+                    soundScheduler = soundScheduler,
                 )
             projectileHitListener.start(this)
 

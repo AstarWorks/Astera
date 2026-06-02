@@ -8,6 +8,8 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Operator-visibility [IBroadcaster] that posts [DomainEvent] summaries to a
@@ -38,12 +40,20 @@ import java.time.Duration
  *    application code.
  *  - This adapter never throws from [publish]; callers can ignore failure.
  *
- * Phase 1 PoC limitations (Wave 6b-3):
- *  - No rate-limit guard. Discord caps webhooks at 30 req/min per channel;
- *    busy waves (many `DamageDealt` per second) will hit 429s. Wiring is
- *    expected to install an event filter so high-frequency events never
- *    reach this adapter. Wave 6c will add a token-bucket guard + per-channel
- *    queue (see ADR-0158 §4 "discord rate-limit").
+ * Rate-limit guard (Wave 6c / ADR-0160):
+ *  - Token-bucket sized to Discord's per-channel quota: capacity 30, refill
+ *    30 tokens per minute (one token every 2000 ms). Tokens are refilled
+ *    lazily on each [publish] call from the elapsed-time delta — no
+ *    background scheduler. When the bucket is empty the event is dropped
+ *    with a WARN log (with a running drop counter for visibility); the
+ *    calling thread is never blocked.
+ *  - Discord 429 responses still flow through the existing async-response
+ *    handler below; the token bucket is a pre-emptive guard so the typical
+ *    busy match never reaches the 429 path. A 5xx outage that lasts long
+ *    enough to drain queued requests would tick tokens back to capacity
+ *    via elapsed-time refill, so the broadcaster self-recovers.
+ *
+ * Phase 1 PoC limitations:
  *  - Message body is the bare `event.toString()` (Kotlin data-class default).
  *    Adequate for operator visibility; Wave 6c will introduce a
  *    `DiscordEventRenderer` that formats per-variant embeds.
@@ -65,6 +75,7 @@ public class DiscordWebhookBroadcaster(
     private val httpClient: HttpClient = HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(5))
         .build(),
+    private val nowNanos: () -> Long = { System.nanoTime() },
 ) : IBroadcaster {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -78,8 +89,30 @@ public class DiscordWebhookBroadcaster(
         }
         .getOrNull()
 
+    /**
+     * Available token count, in [0, RATE_LIMIT_CAPACITY]. Decremented per
+     * accepted publish; refilled lazily by [tryAcquireToken] based on the
+     * delta between [nowNanos] and [lastRefillNanos].
+     */
+    private val tokens: AtomicInteger = AtomicInteger(RATE_LIMIT_CAPACITY)
+
+    /** Last clock reading used to credit refill tokens. */
+    private val lastRefillNanos: AtomicLong = AtomicLong(nowNanos())
+
+    /** Running count of events dropped because the bucket was empty. */
+    private val droppedCount: AtomicLong = AtomicLong(0L)
+
     override fun publish(event: DomainEvent) {
         val uri = webhookUri ?: return
+        if (!tryAcquireToken()) {
+            val drops = droppedCount.incrementAndGet()
+            log.warn(
+                "Discord webhook rate-limit guard dropped {} (bucket empty; total drops since start={})",
+                event::class.simpleName,
+                drops,
+            )
+            return
+        }
         val payload = renderPayload(event)
         val request = HttpRequest.newBuilder()
             .uri(uri)
@@ -159,9 +192,56 @@ public class DiscordWebhookBroadcaster(
         return sb.toString()
     }
 
+    /**
+     * Attempt to consume one token. Refills the bucket lazily based on
+     * elapsed `nowNanos()` time before the check, so a long idle period
+     * fully replenishes capacity without a background scheduler.
+     *
+     * Concurrency: refill uses [AtomicLong.compareAndSet] so only one
+     * concurrent caller commits the refill computation per window;
+     * decrement uses [AtomicInteger.compareAndSet] for the same reason.
+     * A failed CAS retries the read-modify-write cycle.
+     */
+    private fun tryAcquireToken(): Boolean {
+        refillIfDue()
+        while (true) {
+            val current = tokens.get()
+            if (current <= 0) return false
+            if (tokens.compareAndSet(current, current - 1)) return true
+        }
+    }
+
+    private fun refillIfDue() {
+        val now = nowNanos()
+        val last = lastRefillNanos.get()
+        val elapsedNanos = now - last
+        if (elapsedNanos < REFILL_INTERVAL_NANOS) return
+        val newTokens = (elapsedNanos / REFILL_INTERVAL_NANOS).toInt()
+        if (newTokens <= 0) return
+        val nextLast = last + newTokens * REFILL_INTERVAL_NANOS
+        if (!lastRefillNanos.compareAndSet(last, nextLast)) {
+            // Another thread committed the refill; let it credit the bucket.
+            return
+        }
+        while (true) {
+            val current = tokens.get()
+            val target = (current + newTokens).coerceAtMost(RATE_LIMIT_CAPACITY)
+            if (current == target) return
+            if (tokens.compareAndSet(current, target)) return
+        }
+    }
+
     public companion object {
         private const val USER_AGENT: String = "Astera-DiscordWebhookBroadcaster/1.0"
         private const val MAX_CONTENT_LEN: Int = 2000
         private const val TRUNCATION_MARK: String = "...[truncated]"
+
+        /** Discord's per-channel webhook quota (30 req / minute). */
+        public const val RATE_LIMIT_CAPACITY: Int = 30
+
+        /** Refill cadence: 1 token every 2000 ms = 30 tokens / minute. */
+        public const val REFILL_INTERVAL_MS: Long = 2_000L
+
+        private const val REFILL_INTERVAL_NANOS: Long = REFILL_INTERVAL_MS * 1_000_000L
     }
 }

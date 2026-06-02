@@ -64,6 +64,15 @@ dependencies {
     // Discord webhook impl uses JDK java.net.http.HttpClient — no dep.
     implementation(libs.lettuce.core)
 
+    // Wave 6c (ADR-0160): Jackson + Kotlin module for the polymorphic
+    // BroadcastEventJsonCodec. jackson-databind already on the catalog
+    // (tools:content-lint uses it); jackson-module-kotlin lets it round-trip
+    // Kotlin data classes (incl. value classes, default args, sealed events)
+    // without ad-hoc reflection. Confined to core.adapter.paper.broadcast.
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.datatype.jsr310)
+
     testImplementation(project(":plugin:test-fixtures"))
 
     // Wave 5j Worker γ (HudRenderer): tests assert against Adventure

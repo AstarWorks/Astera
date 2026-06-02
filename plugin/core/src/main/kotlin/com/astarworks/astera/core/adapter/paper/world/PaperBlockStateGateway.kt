@@ -1,9 +1,11 @@
 package com.astarworks.astera.core.adapter.paper.world
 
+import com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.service.InMemoryBlockChangeJournalRepository
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.block.BlockDamageOutcome
 import com.astarworks.astera.core.domain.block.BlockDamageProfile
@@ -18,6 +20,7 @@ import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.world.BlockChange
+import com.astarworks.astera.core.domain.world.BlockKey
 import com.astarworks.astera.core.domain.world.BlockDurabilityRule
 import com.astarworks.astera.core.domain.world.BlockMaterial
 import com.astarworks.astera.core.domain.world.BlockState
@@ -62,15 +65,15 @@ import kotlin.random.Random
  * `BlockData` API (`blockData.asString()`) only stores vanilla block-state
  * properties (e.g. `waterlogged=true`, `facing=north`); we cannot extend it.
  *
- * Phase 1 PoC workaround: every tracked position lives in [tracker], keyed by
- * `(worldId, blockX, blockY, blockZ)`. The map is server-process-local — a
- * `/restart` wipes mid-match block HP. Acceptable for PoC closing where
- * matches start fresh on each boot. Wave 6b-2 / 6c (per
- * `IMPLEMENTATION-ROADMAP.md` §"persistence layer") routes the tracker
- * through `IBlockChangeJournalRepository` (Postgres-backed) so HP survives
- * restarts; until then, [tracker] is the authoritative source for everything
- * the in-memory impl tracks. The TileState PDC path (signs as marker blocks
- * for indestructible match objects) is a Wave 6c discussion, not Wave 6b-1.
+ * Wave 6c (ADR-0160) write-through journal: every tracked position lives
+ * in [tracker], keyed by `(worldId, blockX, blockY, blockZ)`. The
+ * [tracker] mutations are mirrored to [journal] ([IBlockChangeJournalRepository])
+ * so state survives `/restart`. Operators who set `ASTERA_PG_URL` get the
+ * Postgres-backed journal at priority 100 (`PostgresBlockChangeJournalRepository`,
+ * V45 migration); the default is the process-local in-memory journal, which
+ * matches the pre-6c behaviour. The TileState PDC path (signs as marker
+ * blocks for indestructible match objects) is a separate concern, not
+ * addressed here.
  *
  * # ADR-0149 §C invariant
  *
@@ -120,6 +123,7 @@ public class PaperBlockStateGateway(
     private val customBlockRegistry: ICustomBlockRegistry? = null,
     private val durabilityRule: BlockDurabilityRule = BlockDurabilityRule.defaultMatrix(),
     private val random: Random = Random.Default,
+    private val journal: IBlockChangeJournalRepository = InMemoryBlockChangeJournalRepository(),
 ) : IBlockStateGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -131,6 +135,62 @@ public class PaperBlockStateGateway(
      * are normalized out (Bukkit blocks are integer-coord cells).
      */
     private val tracker: MutableMap<BlockKey, BlockState> = ConcurrentHashMap()
+
+    /**
+     * Hydrate [tracker] from the persistent [journal] for [world] (Wave 6c,
+     * ADR-0160). Call once per loaded world from `AsteraCorePlugin.onEnable`
+     * after the gateway is registered. Calling twice for the same world
+     * overwrites tracker entries with whatever the journal currently holds
+     * (the journal is the source of truth — the in-memory tracker is a hot
+     * cache).
+     *
+     * On [JournalError.Storage] the warm-up logs WARN and continues — the
+     * gateway falls back to the seeded-default tracker behaviour. A
+     * subsequent damage event re-saves the state.
+     */
+    public fun warmUp(world: WorldId) {
+        when (val result = journal.loadAll(world)) {
+            is Result.Success -> {
+                tracker.putAll(result.value)
+                if (log.isDebugEnabled) {
+                    log.debug(
+                        "PaperBlockStateGateway.warmUp: hydrated {} tracker entries for world={}",
+                        result.value.size,
+                        world.value,
+                    )
+                }
+            }
+            is Result.Failure -> {
+                log.warn(
+                    "PaperBlockStateGateway.warmUp: journal.loadAll failed for world={} — {}",
+                    world.value,
+                    result.error,
+                )
+            }
+        }
+    }
+
+    private fun journalSave(key: BlockKey, state: BlockState) {
+        val outcome = journal.save(key, state)
+        if (outcome is Result.Failure) {
+            log.warn(
+                "PaperBlockStateGateway: journal.save best-effort failure for key={} — {}",
+                key,
+                outcome.error,
+            )
+        }
+    }
+
+    private fun journalDelete(key: BlockKey) {
+        val outcome = journal.delete(key)
+        if (outcome is Result.Failure) {
+            log.warn(
+                "PaperBlockStateGateway: journal.delete best-effort failure for key={} — {}",
+                key,
+                outcome.error,
+            )
+        }
+    }
 
     override fun getDurability(world: WorldId, pos: Vec3): Int =
         tracker[BlockKey.of(world, pos)]?.durability ?: BlockState.DEFAULT_MAX_DURABILITY
@@ -152,6 +212,7 @@ public class PaperBlockStateGateway(
             lastDamagedTick = scheduler.currentTick(),
         )
         tracker[key] = nextState
+        journalSave(key, nextState)
         @Suppress("UNUSED_PARAMETER") tool
         return nextState
     }
@@ -212,6 +273,7 @@ public class PaperBlockStateGateway(
             damagedBy = attackerId,
         )
         tracker[key] = nextState
+        journalSave(key, nextState)
 
         return if (nextHp == 0) {
             val drops = resolveDrops(customSpec, profile.effectiveTool)
@@ -223,6 +285,7 @@ public class PaperBlockStateGateway(
             // would resurrect it at full HP without a placement event,
             // which is incorrect.
             tracker.remove(key)
+            journalDelete(key)
             val change = BlockChange.Broken(
                 position = pos,
                 prevBlockType = seeded.blockType,
@@ -261,13 +324,15 @@ public class PaperBlockStateGateway(
     override fun restore(world: WorldId, pos: Vec3) {
         val key = BlockKey.of(world, pos)
         val existing = tracker[key] ?: return
-        tracker[key] = existing.copy(
-            durability = existing.maxHp,
-        )
+        val restored = existing.copy(durability = existing.maxHp)
+        tracker[key] = restored
+        journalSave(key, restored)
     }
 
     override fun track(world: WorldId, pos: Vec3, state: BlockState) {
-        tracker[BlockKey.of(world, pos)] = state
+        val key = BlockKey.of(world, pos)
+        tracker[key] = state
+        journalSave(key, state)
     }
 
     override fun placeCustomBlock(
@@ -298,7 +363,9 @@ public class PaperBlockStateGateway(
             damagedBy = null,
             maxHp = spec.baseDurability,
         )
-        tracker[BlockKey.of(world, pos)] = state
+        val placedKey = BlockKey.of(world, pos)
+        tracker[placedKey] = state
+        journalSave(placedKey, state)
         eventBus.publish(
             CustomBlockPlaced(
                 world = world,
@@ -403,28 +470,6 @@ public class PaperBlockStateGateway(
     private fun bukkitBlockTypeOf(block: Block): BlockType {
         val keyed = block.type.key.toString()
         return runCatching { BlockType(keyed) }.getOrElse { UNKNOWN_BLOCK_TYPE }
-    }
-
-    /**
-     * Composite key for [tracker]. Integer block coords so two ticks of
-     * the same physical position always collide regardless of the caller's
-     * fractional Vec3 (e.g. an entity at `(3.7, 64.0, 5.2)` and a click at
-     * `(3.1, 64.4, 5.9)` both resolve to the same block cell).
-     */
-    private data class BlockKey(
-        val worldId: String,
-        val x: Int,
-        val y: Int,
-        val z: Int,
-    ) {
-        public companion object {
-            public fun of(world: WorldId, pos: Vec3): BlockKey = BlockKey(
-                worldId = world.value,
-                x = floor(pos.x).toInt(),
-                y = floor(pos.y).toInt(),
-                z = floor(pos.z).toInt(),
-            )
-        }
     }
 
     private companion object {

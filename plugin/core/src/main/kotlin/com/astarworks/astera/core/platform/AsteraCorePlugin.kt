@@ -574,6 +574,21 @@ public class AsteraCorePlugin : JavaPlugin() {
             }
         @Suppress("UNUSED_VARIABLE") val blockDurabilityRepositoryRef = blockDurabilityRepository
 
+        // Wave 6c (ADR-0160): write-through block change journal
+        // (in-memory default at priority 0; Persistence overlays Postgres at
+        // 100 when ASTERA_PG_URL is set). Hot path: PaperBlockStateGateway
+        // calls save()/delete() per mutation; loadAll() drives warm-up at
+        // plugin enable.
+        val blockChangeJournal: com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository =
+            services.get<com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository>()
+                ?: com.astarworks.astera.core.application.service.InMemoryBlockChangeJournalRepository().also {
+                    services.register<com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository>(
+                        it,
+                        priority = 0,
+                    )
+                }
+        @Suppress("UNUSED_VARIABLE") val blockChangeJournalRef = blockChangeJournal
+
         val blockStateGateway: IBlockStateGateway = InMemoryBlockStateGateway(
             eventBus = eventBus,
             customBlockRegistry = customBlockContents,

@@ -89,6 +89,7 @@ class InMemoryBarrierGatewayTest {
         slowdownPercent: Double = 0.25,
     ): Barrier = Barrier(
         id = BarrierId(id),
+        worldId = TEST_WORLD_ID,
         region = Region(
             min = Vec3(0.0, 64.0, 0.0),
             max = Vec3(4.0, 68.0, 4.0),
@@ -99,4 +100,10 @@ class InMemoryBarrierGatewayTest {
         slowdownPercent = slowdownPercent,
         detectionEnabled = true,
     )
+
+    private companion object {
+        private val TEST_WORLD_ID = com.astarworks.astera.core.domain.world.WorldId(
+            "00000000-0000-0000-0000-0000000000aa",
+        )
+    }
 }

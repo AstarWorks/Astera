@@ -1,8 +1,10 @@
 package com.astarworks.astera.core.adapter.paper.inventory
 
+import com.astarworks.astera.core.application.port.outbound.item.IContentItemRegistryLookup
 import com.astarworks.astera.core.domain.player.InventoryItemSlot
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.io.BukkitObjectInputStream
@@ -44,9 +46,12 @@ import java.util.Base64
  * count) is **not** produced by this codec. ContentItem is the
  * Studio-authored path used by tests + admin reset; round-tripping vanilla
  * Bukkit state through it would lose NBT, so the Paper codec consistently
- * uses [InventoryItemSlot.SerializedBukkit]. Restore handles both variants
- * — ContentItem deserialization is a no-op (logged WARN) until a future
- * wave lands an item-id resolver.
+ * uses [InventoryItemSlot.SerializedBukkit]. Restore handles both variants:
+ * Wave 6c §C (ADR-0160) wired [IContentItemRegistryLookup] so the decode
+ * path resolves a content-pack id → material key → vanilla `ItemStack`
+ * with the right base material + count. Custom NBT / display-name /
+ * attribute restoration on the ContentItem branch is left for a follow-up
+ * wave — slot ends up the correct material, not lost.
  *
  * # Threading
  *
@@ -68,7 +73,9 @@ import java.util.Base64
  * @see InventoryActionLockEnforcer for the action-lock that fires while
  *      [com.astarworks.astera.core.domain.player.SessionState.Loading].
  */
-public class PaperInventorySnapshotSerializer {
+public class PaperInventorySnapshotSerializer(
+    private val itemLookup: IContentItemRegistryLookup? = null,
+) {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -206,13 +213,37 @@ public class PaperInventorySnapshotSerializer {
                 }
             }
             is InventoryItemSlot.ContentItem -> {
-                log.warn(
-                    "PaperInventorySnapshotSerializer.decodeSlot: {} carries ContentItem(id={}, count={}) which Core cannot resolve without an item registry; slot restored as empty",
-                    where,
-                    slot.itemId,
-                    slot.count,
-                )
-                null
+                val lookup = itemLookup
+                if (lookup == null) {
+                    log.warn(
+                        "PaperInventorySnapshotSerializer.decodeSlot: {} carries ContentItem(id={}, count={}) but no IContentItemRegistryLookup wired; slot restored as empty",
+                        where,
+                        slot.itemId,
+                        slot.count,
+                    )
+                    return null
+                }
+                val materialKey = lookup.bukkitMaterialKeyFor(slot.itemId)
+                    ?: run {
+                        log.warn(
+                            "PaperInventorySnapshotSerializer.decodeSlot: {} carries ContentItem(id={}, count={}) — registry resolved no material; slot restored as empty",
+                            where,
+                            slot.itemId,
+                            slot.count,
+                        )
+                        return null
+                    }
+                val material = Material.matchMaterial(materialKey)
+                    ?: run {
+                        log.warn(
+                            "PaperInventorySnapshotSerializer.decodeSlot: {} resolved id={} -> materialKey={} which Material.matchMaterial returned null; slot restored as empty",
+                            where,
+                            slot.itemId,
+                            materialKey,
+                        )
+                        return null
+                    }
+                ItemStack(material, slot.count.coerceAtLeast(1))
             }
         }
     }

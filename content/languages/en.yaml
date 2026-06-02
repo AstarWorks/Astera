@@ -301,6 +301,14 @@ astera:
         stage-not-found: "<red>Stage not found for match.</red>"
         no-spawn-for-kind: "<red>No spawn point of the requested kind.</red>"
         teleport-failed: "<red>Teleport failed.</red>"
+    # Wave 6c — ISpectator gateway error keys (ADR-0160)
+    spectator:
+      gateway:
+        error:
+          viewer-not-online: "<red>Spectator: viewer is not online.</red>"
+          target-not-online: "<red>Spectator: camera target is not online.</red>"
+          target-not-spectatable: "<red>Spectator: target cannot be observed right now.</red>"
+          unsupported: "<red>Spectator operation rejected by the server.</red>"
     # Wave 5n — Per-match config overlay errors (ADR-0080)
     config:
       unknown_match: "<red>Match config: unknown match '{matchId}'.</red>"
