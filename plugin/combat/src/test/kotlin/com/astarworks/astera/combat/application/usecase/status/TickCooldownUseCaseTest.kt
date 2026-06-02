@@ -1,8 +1,10 @@
 package com.astarworks.astera.combat.application.usecase.status
 
+import com.astarworks.astera.combat.domain.event.CooldownExpired
 import com.astarworks.astera.combat.testfixtures.FakeCooldownTracker
 import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeScheduler
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -15,15 +17,18 @@ class TickCooldownUseCaseTest {
 
     private lateinit var cooldownTracker: FakeCooldownTracker
     private lateinit var scheduler: FakeScheduler
+    private lateinit var eventBus: FakeDomainEventBus
     private lateinit var useCase: TickCooldownUseCase
 
     @BeforeEach
     fun setUp() {
         cooldownTracker = FakeCooldownTracker()
         scheduler = FakeScheduler(startTick = 0L)
+        eventBus = FakeDomainEventBus()
         useCase = TickCooldownUseCase(
             cooldownTracker = cooldownTracker,
             scheduler = scheduler,
+            eventBus = eventBus,
         )
     }
 
@@ -31,6 +36,7 @@ class TickCooldownUseCaseTest {
     fun `execute returns empty when no cooldowns active`() {
         val expired = useCase.execute()
         assertThat(expired).isEmpty()
+        assertThat(eventBus.publishedOfType<CooldownExpired>()).isEmpty()
     }
 
     @Test
@@ -54,6 +60,25 @@ class TickCooldownUseCaseTest {
     }
 
     @Test
+    fun `execute publishes CooldownExpired event per expired pair`() {
+        val skillKey = CooldownKey.Skill("fireball")
+        val weaponKey = CooldownKey.Weapon("iron-sword")
+        cooldownTracker.start(playerId, skillKey, 5L)
+        cooldownTracker.start(playerId, weaponKey, 5L)
+
+        cooldownTracker.currentTick = 5L
+        scheduler.advanceTicks(5)
+
+        useCase.execute()
+
+        val events = eventBus.publishedOfType<CooldownExpired>()
+        assertThat(events).hasSize(2)
+        assertThat(events.map { it.playerId }).containsOnly(playerId)
+        assertThat(events.map { it.cooldownKey }).containsExactlyInAnyOrder(skillKey, weaponKey)
+        assertThat(events.map { it.expiredAtTick }).containsOnly(5L)
+    }
+
+    @Test
     fun `execute returns empty when cooldowns not yet expired`() {
         val key = CooldownKey.Weapon("iron-sword")
         cooldownTracker.start(playerId, key, 20L)   // expires at tick 20
@@ -63,6 +88,7 @@ class TickCooldownUseCaseTest {
 
         val expired = useCase.execute()
         assertThat(expired).isEmpty()
+        assertThat(eventBus.publishedOfType<CooldownExpired>()).isEmpty()
     }
 
     @Test
