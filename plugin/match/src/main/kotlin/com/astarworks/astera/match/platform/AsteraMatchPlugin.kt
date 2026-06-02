@@ -590,11 +590,24 @@ public class AsteraMatchPlugin : JavaPlugin() {
         @Suppress("UnusedVariable") // reserved for Wave 6 PaperSchematicLoader integration
         val schematicLoader = services.getOrThrow<ISchematicLoader>()
 
-        val barrierGateway: IBarrierGateway =
-            services.get<IBarrierGateway>()
-                ?: InMemoryBarrierGateway().also {
-                    registrations += services.register<IBarrierGateway>(it, priority = 0)
-                }
+        // Wave 6b-1 (ADR-0156): PaperBarrierGateway overlays InMemory at
+        // priority 100. Bukkit BlockDisplay-backed visual; Phase 1 limits
+        // documented in ADR-0156 §C (visual-only — no server-side collision
+        // until Wave 6b-2 WorldGuard region adapter; single-world picks
+        // server.worlds.first() until Barrier.worldId field added).
+        services.get<IBarrierGateway>()
+            ?: InMemoryBarrierGateway().also {
+                registrations += services.register<IBarrierGateway>(it, priority = 0)
+            }
+        registrations += services.register<IBarrierGateway>(
+            com.astarworks.astera.match.adapter.paper.PaperBarrierGateway(
+                server = server,
+                scheduler = scheduler,
+                eventBus = eventBus,
+            ),
+            priority = 100,
+        )
+        val barrierGateway: IBarrierGateway = services.getOrThrow<IBarrierGateway>()
         val matchWorlds: IMatchWorldRepository =
             services.get<IMatchWorldRepository>()
                 ?: InMemoryMatchWorldRepository().also {

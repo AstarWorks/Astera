@@ -525,6 +525,30 @@ public class AsteraCorePlugin : JavaPlugin() {
         val schematicLoader: ISchematicLoader = InMemorySchematicLoader()
         services.register<IBlockStateGateway>(blockStateGateway, priority = 0)
         services.register<ISchematicLoader>(schematicLoader, priority = 0)
+
+        // Wave 6b-1 (ADR-0156): Paper world + block adapters overlay InMemory
+        // at priority 100. Bukkit-backed everywhere with Phase-1 stubs documented
+        // in ADR-0156 §A (PaperWorldGateway.spectatorSpawn falls back to
+        // lobbySpawn; PaperBlockStateGateway uses in-memory durability for
+        // non-TileState blocks until Wave 6b-2 Postgres journal lands).
+        services.register<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(
+            com.astarworks.astera.core.adapter.paper.world.PaperWorldGateway(
+                server = server,
+                scheduler = scheduler,
+                eventBus = eventBus,
+            ),
+            priority = 100,
+        )
+        services.register<IBlockStateGateway>(
+            com.astarworks.astera.core.adapter.paper.world.PaperBlockStateGateway(
+                server = server,
+                scheduler = scheduler,
+                eventBus = eventBus,
+                customBlockRegistry = customBlockContents,
+                durabilityRule = durabilityRule,
+            ),
+            priority = 100,
+        )
         // BlockDurabilityRule is consumed by use cases (e.g. Wave 6 BlockHitListener
         // computing damageFor(tool, blockType) before calling applyDamage). Published
         // here so future plugins resolve through the registry rather than re-loading.

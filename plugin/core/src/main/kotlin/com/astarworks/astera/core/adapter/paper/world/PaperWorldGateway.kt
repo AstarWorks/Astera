@@ -1,0 +1,240 @@
+package com.astarworks.astera.core.adapter.paper.world
+
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.IWorldGateway
+import com.astarworks.astera.core.application.port.outbound.WorldGatewayError
+import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.effect.ParticleSpec
+import com.astarworks.astera.core.domain.effect.SoundSpec
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.world.BlockType
+import com.astarworks.astera.core.domain.world.WorldId
+import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.NamespacedKey
+import org.bukkit.Particle
+import org.bukkit.Registry
+import org.bukkit.Server
+import org.bukkit.Sound
+import org.bukkit.World
+import org.bukkit.entity.Player
+import org.slf4j.LoggerFactory
+
+/**
+ * Paper concrete of [IWorldGateway] (Wave 6b-1, ADR-0156) — overlays
+ * [com.astarworks.astera.core.application.service.effect.NoopWorldGatewayForEffects]
+ * at priority 100 once registered in `AsteraCorePlugin.onEnable`.
+ *
+ * # Bukkit mapping
+ *
+ *  - [placeBlock] → `world.getBlockAt(x, y, z).type = Material.matchMaterial(type.key)`.
+ *    Resolves the [BlockType.key] (`namespace:identifier`) through the same
+ *    `Material.matchMaterial` lookup used by [com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer]
+ *    and [com.astarworks.astera.core.adapter.paper.entity.PaperPlayer] so
+ *    `minecraft:` / vendor prefixes work identically across adapters.
+ *  - [removeBlock] → set the block to [Material.AIR]. No block-update event
+ *    is suppressed; physics neighbours retick as in vanilla.
+ *  - [blockAt] → reads `world.getBlockAt(x, y, z).type` and rebuilds a
+ *    [BlockType] from `material.key.asString()`. Returns `null` when the
+ *    world is unknown (offline / unloaded) per the port contract; an `AIR`
+ *    block still round-trips as `BlockType("minecraft:air")`.
+ *  - [spawnParticle] → `world.spawnParticle(particle, loc, count, offsetX,
+ *    offsetY, offsetZ)` where `particle` is resolved by stripping the
+ *    `minecraft:` namespace and `Particle.valueOf(name.uppercase())`. Offset
+ *    comes from [ParticleSpec.offset]; the `extra` parameter is fixed at
+ *    `0.0` (per-particle speed multiplier — only meaningful for
+ *    velocity-bearing particles, none currently authored).
+ *  - [playSound] → resolves through `Registry.SOUNDS.get(NamespacedKey)`
+ *    because `Sound` migrated to the Bukkit Registry pattern in 1.21.
+ *    Falls back to silent no-op (DEBUG-logged) when the sound key is
+ *    unknown so authoring typos do not crash the call site.
+ *  - [teleport] → uses Bukkit `Player.teleport(Location)` directly; this is
+ *    the boolean-returning Wave 4.5 variant. The Wave 5h Result-returning
+ *    variants ([spectatorSpawn] / [lobbySpawn]) below wrap the same call.
+ *  - [spectatorSpawn] → Phase 1 stub. No `IMatchSpawnRegistry` port exists
+ *    yet (the use cases that call this — [com.astarworks.astera.match.application.usecase.spectator.EnterSpectatorUseCase],
+ *    [com.astarworks.astera.match.application.usecase.match.ResumeMatchUseCase] —
+ *    have always been gated by the placeholder no-op). For now we delegate
+ *    to [lobbySpawn] so the player at least lands somewhere safe; a follow-up
+ *    Wave (post Wave 6b inventory bridges) introduces the per-match spawn
+ *    registry and rewires this to read the arena center.
+ *  - [lobbySpawn] → reads the lobby world's `world.spawnLocation`. The
+ *    lobby world is `server.worlds.first()` (vanilla Paper guarantees the
+ *    main world is index 0). Wave 6b follow-up may add a configurable
+ *    `lobby.world` content key; KDoc on [IWorldGateway.lobbySpawn] already
+ *    flagged this as an open knob.
+ *
+ * # ADR-0149 §C invariant
+ *
+ * This gateway never sets player HP, ticks damage, or fires
+ * `EntityDamageEvent`. Teleport is a position write only (Bukkit's
+ * `Player.teleport` does not trigger damage). Block writes use the
+ * vanilla setter so any falling-block / liquid physics is Paper-owned,
+ * not gateway-owned.
+ *
+ * # Threading
+ *
+ * Every Bukkit setter touched here (block edits, particle spawn, sound
+ * play, teleport) requires the main thread. Callers from off-main paths
+ * round-trip through [IScheduler.runLater] with `Duration.ZERO` — same
+ * contract as ADR-0144 through ADR-0147. This gateway does not internally
+ * dispatch to main because the in-memory sibling (`NoopWorldGatewayForEffects`)
+ * is synchronous and the application layer treats both impls identically;
+ * adding a hidden dispatch here would diverge the contracts.
+ *
+ * # Offline / unloaded world semantics
+ *
+ *  - Unknown world ([Server.getWorld] returns `null`): unit-returning
+ *    methods log DEBUG and drop; [blockAt] returns `null`; the Wave 5h
+ *    Result methods return [WorldGatewayError.Storage] with a
+ *    `world not loaded` detail (the sealed surface lacks a dedicated
+ *    `WorldNotFound` variant — see [WorldGatewayError]).
+ *  - Offline player on [teleport]: returns `false` per port contract.
+ *  - Offline player on [spectatorSpawn] / [lobbySpawn]: returns
+ *    [WorldGatewayError.UnknownPlayer].
+ *
+ * # Registration
+ *
+ * Priority 100 in `AsteraCorePlugin.onEnable` (overlays
+ * `NoopWorldGatewayForEffects` priority 0). See Phase C wiring snippet in
+ * ADR-0156.
+ */
+public class PaperWorldGateway(
+    private val server: Server,
+    @Suppress("UnusedPrivateProperty")
+    private val scheduler: IScheduler,
+    @Suppress("UnusedPrivateProperty")
+    private val eventBus: IDomainEventBus,
+) : IWorldGateway {
+
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    override fun placeBlock(world: WorldId, at: Vec3, type: BlockType) {
+        val w = resolveWorld(world) ?: run {
+            log.debug("PaperWorldGateway.placeBlock: world {} not loaded", world)
+            return
+        }
+        val material = Material.matchMaterial(type.key) ?: run {
+            log.debug("PaperWorldGateway.placeBlock: unknown material {}", type.key)
+            return
+        }
+        w.getBlockAt(at.x.toInt(), at.y.toInt(), at.z.toInt()).type = material
+    }
+
+    override fun removeBlock(world: WorldId, at: Vec3) {
+        val w = resolveWorld(world) ?: run {
+            log.debug("PaperWorldGateway.removeBlock: world {} not loaded", world)
+            return
+        }
+        w.getBlockAt(at.x.toInt(), at.y.toInt(), at.z.toInt()).type = Material.AIR
+    }
+
+    override fun blockAt(world: WorldId, at: Vec3): BlockType? {
+        val w = resolveWorld(world) ?: return null
+        val mat = w.getBlockAt(at.x.toInt(), at.y.toInt(), at.z.toInt()).type
+        return BlockType(mat.key.asString())
+    }
+
+    override fun spawnParticle(world: WorldId, at: Vec3, particle: ParticleSpec) {
+        val w = resolveWorld(world) ?: run {
+            log.debug("PaperWorldGateway.spawnParticle: world {} not loaded", world)
+            return
+        }
+        val bukkitParticle = resolveParticle(particle.key) ?: run {
+            log.debug("PaperWorldGateway.spawnParticle: unknown particle {}", particle.key)
+            return
+        }
+        val loc = toLocation(w, at)
+        w.spawnParticle(
+            bukkitParticle,
+            loc,
+            particle.count,
+            particle.offset.x,
+            particle.offset.y,
+            particle.offset.z,
+        )
+    }
+
+    override fun playSound(world: WorldId, at: Vec3, sound: SoundSpec) {
+        val w = resolveWorld(world) ?: run {
+            log.debug("PaperWorldGateway.playSound: world {} not loaded", world)
+            return
+        }
+        val bukkitSound = resolveSound(sound.key) ?: run {
+            log.debug("PaperWorldGateway.playSound: unknown sound {}", sound.key)
+            return
+        }
+        val loc = toLocation(w, at)
+        w.playSound(loc, bukkitSound, sound.volume.toFloat(), sound.pitch.toFloat())
+    }
+
+    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?): Boolean {
+        val player = onlinePlayer(playerId) ?: return false
+        val targetWorld = world?.let { resolveWorld(it) } ?: player.world
+        return player.teleport(toLocation(targetWorld, at))
+    }
+
+    override fun spectatorSpawn(
+        matchId: MatchId,
+        playerId: PlayerId,
+    ): Result<Unit, WorldGatewayError> {
+        // Phase 1 stub — no per-match spawn registry yet. Fall back to
+        // lobby spawn so the player lands somewhere safe; follow-up wave
+        // introduces IMatchSpawnRegistry and rewires this to read the
+        // arena-center spectator vantage point.
+        log.debug(
+            "PaperWorldGateway.spectatorSpawn: no match-spawn registry yet, falling back to lobbySpawn for match={} player={}",
+            matchId,
+            playerId,
+        )
+        return lobbySpawn(playerId)
+    }
+
+    override fun lobbySpawn(playerId: PlayerId): Result<Unit, WorldGatewayError> {
+        val player = onlinePlayer(playerId)
+            ?: return Result.failure(WorldGatewayError.UnknownPlayer(playerId))
+        val lobby = server.worlds.firstOrNull()
+            ?: return Result.failure(WorldGatewayError.Storage("no worlds loaded"))
+        val ok = player.teleport(lobby.spawnLocation)
+        return if (ok) {
+            Result.success(Unit)
+        } else {
+            Result.failure(WorldGatewayError.Storage("teleport rejected by paper"))
+        }
+    }
+
+    // ---- helpers --------------------------------------------------------
+
+    private fun resolveWorld(worldId: WorldId): World? = server.getWorld(worldId.value)
+
+    private fun toLocation(world: World, vec: Vec3): Location =
+        Location(world, vec.x, vec.y, vec.z)
+
+    private fun onlinePlayer(playerId: PlayerId): Player? = server.getPlayer(playerId.uuid)
+
+    /**
+     * Resolve a vendor-neutral particle key (`minecraft:flame`) to a Bukkit
+     * [Particle]. Strips the namespace and looks the identifier up in the
+     * enum; Paper 1.21 still exposes `Particle` as an enum (unlike `Sound`
+     * which migrated to Registry).
+     */
+    private fun resolveParticle(key: String): Particle? {
+        val identifier = key.substringAfter(':', missingDelimiterValue = key)
+        return runCatching { Particle.valueOf(identifier.uppercase()) }.getOrNull()
+    }
+
+    /**
+     * Resolve a sound key (`minecraft:entity.lightning_bolt.thunder`) to a
+     * Bukkit [Sound] through `Registry.SOUNDS.get(NamespacedKey)`. `Sound`
+     * migrated from an enum to a Registry-backed interface in Paper 1.21,
+     * so `Sound.valueOf` is no longer the canonical lookup. Returns `null`
+     * on malformed or unknown key.
+     */
+    private fun resolveSound(key: String): Sound? {
+        val nk = NamespacedKey.fromString(key) ?: return null
+        return Registry.SOUNDS.get(nk)
+    }
+}
