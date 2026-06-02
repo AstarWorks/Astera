@@ -297,7 +297,17 @@ public class AsteraMatchPlugin : JavaPlugin() {
         val switchPhase = SwitchPhaseUseCase(matches, eventBus, scheduler, matchModeRegistry)
 
         // Wave 4.5 (ADR-0027): phase auto-timer + match spawn
-        val phaseTimer = PhaseTimerUseCase(matches, scheduler, switchPhase)
+        // Wave 6a-N1 (ADR-0154): MatchTimerService is the production
+        // IMatchTimerService impl. Registered at priority 0 (no overlay
+        // exists). PhaseTimerUseCase consults its per-match shift
+        // accumulator when computing transition thresholds; ResolveAnomalyEffect
+        // calls shiftPhaseTimer to extend / shorten the in-flight phase.
+        val matchTimer = com.astarworks.astera.match.application.service.MatchTimerService(matches)
+        registrations += services.register<com.astarworks.astera.match.application.port.outbound.IMatchTimerService>(
+            matchTimer,
+            priority = 0,
+        )
+        val phaseTimer = PhaseTimerUseCase(matches, scheduler, switchPhase, matchTimer)
         scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
             phaseTimer.tickAll()
         }
