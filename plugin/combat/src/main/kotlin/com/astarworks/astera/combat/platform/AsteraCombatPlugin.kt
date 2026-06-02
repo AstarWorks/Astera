@@ -705,6 +705,17 @@ public class AsteraCombatPlugin : JavaPlugin() {
             )
         }
 
+        // Wave 6a-N3 (ADR-0159): combat-side publisher for vanilla-intrusion
+        // EnvironmentDamageApplied. Core BukkitEventAdapter (ADR-0153) Role 2
+        // cancels + reroutes the EntityDamageEvent at EventPriority.LOW; this
+        // publisher at LOWEST runs first and emits the combat-domain event
+        // (Core cannot publish combat.* per ADR-0022 sibling-isolation).
+        // Closes the last ADR-0134 deferred-events allowlist entry.
+        com.astarworks.astera.combat.adapter.paper.PaperEnvironmentDamagePublisher(
+            eventBus = eventBus,
+            scheduler = scheduler,
+        ).start(this)
+
         logger.info(
             "Astera-Combat enabled. Services published: " +
                 "ISkillRegistry, IStatusEffectRegistry, IElementMatrix, " +

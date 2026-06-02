@@ -759,12 +759,16 @@ class ArchitectureTest {
      * shape so future audits surface "this port still has no Paper impl"
      * mechanically:
      *
-     *  - [IStructurePaste]         → Wave 6b (`PaperStructurePaste` over FAWE)
+     *  (allow-set is empty after Wave 6a-N3 — every Wave-6 deferred port
+     *  has a production impl, see history note below.)
      *
      * (Wave 6a-7 / ADR-0152 §B shipped `PaperPlayerMovementGateway` +
      * `PaperPlayerVisionGateway`; Wave 6a-N1 / ADR-0154 shipped
      * `MatchTimerService` in `application/service/` — the contract is pure
-     * Kotlin so the impl doesn't live in `adapter/paper/`.)
+     * Kotlin so the impl doesn't live in `adapter/paper/`. Wave 6a-N3 /
+     * ADR-0159 shipped `InMemoryStructurePaste` in `application/service/`
+     * as Phase 1 stub; the Wave 6b+ FAWE adapter `PaperStructurePaste`
+     * will overlay at priority 100 when shipped.)
      *
      * The test asserts:
      *  1. Each FQN in the allow-set actually exists in the codebase (the
@@ -780,12 +784,15 @@ class ArchitectureTest {
     fun `Wave 6 Paper impl allow-list (ADR-0072)`() {
         val allowedMissingPaperImpl: Set<String> = setOf(
             // Wave 6a-7 (ADR-0152 §B) closed IPlayerMovementGateway +
-            // IPlayerVisionGateway. Their Paper concretes ship at
-            // priority 100 in plugin/core/.../adapter/paper/physiology/.
+            // IPlayerVisionGateway.
             // Wave 6a-N1 (ADR-0154) closed IMatchTimerService — impl is in
-            // plugin/match/.../application/service/MatchTimerService.kt
-            // (no Bukkit imports needed).
-            "com.astarworks.astera.core.application.port.outbound.IStructurePaste",
+            // plugin/match/.../application/service/MatchTimerService.kt.
+            // Wave 6a-N3 (ADR-0159) closed IStructurePaste — impl is in
+            // plugin/core/.../application/service/InMemoryStructurePaste.kt
+            // (Phase 1 stub; Wave 6b+ FAWE adapter `PaperStructurePaste`
+            // overlays at priority 100 when shipped).
+            // Allow-set intentionally empty; restore an entry only when
+            // a NEW Wave-6 deferred port is introduced.
         )
 
         // (1) Every allow-set entry must resolve to a real port interface.

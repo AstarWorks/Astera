@@ -582,6 +582,15 @@ public class AsteraCorePlugin : JavaPlugin() {
         val schematicLoader: ISchematicLoader = InMemorySchematicLoader()
         services.register<IBlockStateGateway>(blockStateGateway, priority = 0)
         services.register<ISchematicLoader>(schematicLoader, priority = 0)
+        // Wave 6a-N3 (ADR-0159): InMemoryStructurePaste — Phase 1 stub for
+        // IStructurePaste. Wave 6b+ FAWE adapter (`PaperStructurePaste`)
+        // will overlay at priority 100; until then this in-memory delta
+        // capture satisfies anomaly-spawned-structure use cases
+        // (paste-then-undo round trip with no real world I/O).
+        services.register<com.astarworks.astera.core.application.port.outbound.IStructurePaste>(
+            com.astarworks.astera.core.application.service.InMemoryStructurePaste(),
+            priority = 0,
+        )
 
         // Wave 6b-1 (ADR-0156): Paper world + block adapters overlay InMemory
         // at priority 100. Bukkit-backed everywhere with Phase-1 stubs documented
