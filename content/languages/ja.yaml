@@ -779,6 +779,21 @@ astera:
         nexus_destroyed: "<red>{team} の Nexus tier {tier} 破壊！</red>"
         team_eliminated: "<dark_red>{team} は脱落しました！</dark_red>"
         phase_transitioned: "<gold>アナイアレーション: {old} → {new}</gold>"
+    # Wave 5c-N1 (ADR-0165): Wave 5c 6 モードの IGameMode façade タイトル。
+    # ふるまい本体は `*Listener` 群 (Wave 5c) に存在、ここはフレームワーク階層
+    # のモード名 (HUD / キュー / スコアボード用) のみ。
+    battle-loyal:
+      title: "<gold>バトルロイヤル</gold>"
+    break-core:
+      title: "<gold>コアブレイク</gold>"
+    carry-tnt:
+      title: "<gold>TNT 輸送</gold>"
+    carry-mini-tnt:
+      title: "<gold>ミニ TNT 収集</gold>"
+    capture-wool:
+      title: "<gold>ウール制圧</gold>"
+    steal-jewelry:
+      title: "<gold>宝石強奪</gold>"
 
   # Wave 5e (ADR-0040): パーティ / フレンドの社交集合エラー文言。Wave 5pve-survival
   # (ADR-0107) で PartyError が参照していた MessageKey を i18n に接続。

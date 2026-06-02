@@ -786,6 +786,21 @@ astera:
         nexus_destroyed: "<red>{team} Nexus tier {tier} DESTROYED!</red>"
         team_eliminated: "<dark_red>{team} has been eliminated!</dark_red>"
         phase_transitioned: "<gold>Annihilation: {old} → {new}</gold>"
+    # Wave 5c-N1 (ADR-0165): IGameMode framework façades over the legacy
+    # Wave 5c modes. Behaviour stays in `*Listener` globals — these strings
+    # surface the registry-level mode title to HUD / queue / scoreboard.
+    battle-loyal:
+      title: "<gold>Battle Loyal</gold>"
+    break-core:
+      title: "<gold>Break Core</gold>"
+    carry-tnt:
+      title: "<gold>Carry TNT</gold>"
+    carry-mini-tnt:
+      title: "<gold>Carry Mini TNT</gold>"
+    capture-wool:
+      title: "<gold>Capture Wool</gold>"
+    steal-jewelry:
+      title: "<gold>Steal Jewelry</gold>"
 
   # Wave 5e (ADR-0040): Party / friendship social aggregate user-facing errors.
   # Originally landed without i18n; Wave 5pve-survival (ADR-0107) wires the
