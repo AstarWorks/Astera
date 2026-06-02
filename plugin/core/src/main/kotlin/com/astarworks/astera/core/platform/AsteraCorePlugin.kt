@@ -487,6 +487,22 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<IScoreboardManager>(scoreboardManager, priority = 0)
         services.register<ITabList>(tabList, priority = 0)
 
+        // Wave 6b-2 (ADR-0157): Paper HUD adapters overlay InMemory at
+        // priority 100. Adventure API (Paper-bundled) is the rendering
+        // substrate. PaperHudGateway is wired later (after messages
+        // resolution) since it depends on PaperBossBarManager + eventBus.
+        val paperBossBarManager = com.astarworks.astera.core.adapter.paper.hud
+            .PaperBossBarManager(server, scheduler)
+        services.register<IBossBarManager>(paperBossBarManager, priority = 100)
+        services.register<IScoreboardManager>(
+            com.astarworks.astera.core.adapter.paper.hud.PaperScoreboardManager(server),
+            priority = 100,
+        )
+        services.register<ITabList>(
+            com.astarworks.astera.core.adapter.paper.hud.PaperTabList(server),
+            priority = 100,
+        )
+
         // ---- World geometry ports (Wave 5d, ADR-0033) --------------------
         // BlockDurabilityRule loaded from content/balance/block-durability.yaml
         // with fall-soft to defaultMatrix() on missing/malformed file.
@@ -1853,11 +1869,27 @@ public class AsteraCorePlugin : JavaPlugin() {
                 ?: com.astarworks.astera.core.application.service.InMemoryDialogGateway(eventBus).also {
                     services.register<com.astarworks.astera.core.application.port.outbound.IDialogGateway>(it, priority = 0)
                 }
+        // Wave 6b-2 (ADR-0157): PaperHudGateway overlays InMemoryHudGateway
+        // at priority 100. Routes ActionBar / Subtitle / BossBarSlot through
+        // Adventure API (Player.sendActionBar / showTitle / via
+        // IBossBarManager); Sidebar / TabList layouts log-once and route
+        // through their dedicated managers wired earlier.
+        services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+            ?: com.astarworks.astera.core.application.service.InMemoryHudGateway(eventBus, scheduler).also {
+                services.register<com.astarworks.astera.core.application.port.outbound.IHudGateway>(it, priority = 0)
+            }
+        services.register<com.astarworks.astera.core.application.port.outbound.IHudGateway>(
+            com.astarworks.astera.core.adapter.paper.hud.PaperHudGateway(
+                server = server,
+                messageRenderer = messages,
+                scheduler = scheduler,
+                bossBarManager = paperBossBarManager,
+                eventBus = eventBus,
+            ),
+            priority = 100,
+        )
         val hudGateway: com.astarworks.astera.core.application.port.outbound.IHudGateway =
-            services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
-                ?: com.astarworks.astera.core.application.service.InMemoryHudGateway(eventBus, scheduler).also {
-                    services.register<com.astarworks.astera.core.application.port.outbound.IHudGateway>(it, priority = 0)
-                }
+            services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
 
         // 2. Player profile service. The starter grant is read from
         //    `content/balance/starter-grant.yaml` if present; otherwise the
