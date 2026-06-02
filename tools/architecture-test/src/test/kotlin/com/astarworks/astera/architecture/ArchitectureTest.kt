@@ -759,11 +759,12 @@ class ArchitectureTest {
      * shape so future audits surface "this port still has no Paper impl"
      * mechanically:
      *
-     *  - [IMatchTimerService]      → Wave 6a (`PaperMatchTimerService`)
      *  - [IStructurePaste]         → Wave 6b (`PaperStructurePaste` over FAWE)
      *
      * (Wave 6a-7 / ADR-0152 §B shipped `PaperPlayerMovementGateway` +
-     * `PaperPlayerVisionGateway`; those two ports left the allow-set.)
+     * `PaperPlayerVisionGateway`; Wave 6a-N1 / ADR-0154 shipped
+     * `MatchTimerService` in `application/service/` — the contract is pure
+     * Kotlin so the impl doesn't live in `adapter/paper/`.)
      *
      * The test asserts:
      *  1. Each FQN in the allow-set actually exists in the codebase (the
@@ -778,10 +779,12 @@ class ArchitectureTest {
     @Test
     fun `Wave 6 Paper impl allow-list (ADR-0072)`() {
         val allowedMissingPaperImpl: Set<String> = setOf(
-            "com.astarworks.astera.match.application.port.outbound.IMatchTimerService",
             // Wave 6a-7 (ADR-0152 §B) closed IPlayerMovementGateway +
             // IPlayerVisionGateway. Their Paper concretes ship at
             // priority 100 in plugin/core/.../adapter/paper/physiology/.
+            // Wave 6a-N1 (ADR-0154) closed IMatchTimerService — impl is in
+            // plugin/match/.../application/service/MatchTimerService.kt
+            // (no Bukkit imports needed).
             "com.astarworks.astera.core.application.port.outbound.IStructurePaste",
         )
 

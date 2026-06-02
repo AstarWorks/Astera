@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
+import com.astarworks.astera.match.application.service.MatchTimerService
 import com.astarworks.astera.match.domain.match.MatchStateMachine
 import com.astarworks.astera.match.domain.match.PhaseTimings
 import java.util.concurrent.ConcurrentHashMap
@@ -38,6 +39,13 @@ public class PhaseTimerUseCase(
     private val matchRepository: IMatchRepository,
     private val scheduler: IScheduler,
     private val switchPhase: SwitchPhaseUseCase,
+    /**
+     * Wave 6a-N1 (ADR-0154): optional shift accumulator consulted when
+     * computing elapsed-vs-threshold for COUNTDOWN / SUDDEN_DEATH
+     * transitions. Null = no shifts applied (legacy / test paths that
+     * predate the `IMatchTimerService` impl).
+     */
+    private val matchTimer: MatchTimerService? = null,
 ) {
 
     /**
@@ -66,23 +74,31 @@ public class PhaseTimerUseCase(
         val active = matchRepository.findActiveMatches()
 
         for (match in active) {
+            // Wave 6a-N1 (ADR-0154): MatchTimerService accumulates per-match
+            // tick shifts (positive = phase extended by anomaly; negative =
+            // phase shortened). Added to the phase threshold so positive
+            // shift makes the transition fire later.
+            val shift = matchTimer?.accumulatedShiftFor(match.id) ?: 0
+
             when (match.phase) {
                 MatchPhase.COUNTDOWN -> {
-                    if (now - match.startedAtTick >= PhaseTimings.COUNTDOWN_TICKS) {
+                    if (now - match.startedAtTick >= PhaseTimings.COUNTDOWN_TICKS + shift) {
                         switchPhase.execute(
                             match.id,
                             MatchStateMachine.TransitionTrigger.CountdownComplete,
                         )
+                        matchTimer?.clearShiftsFor(match.id)
                     }
                 }
 
                 MatchPhase.SUDDEN_DEATH -> {
                     val enteredAt = suddenDeathEnteredAt.getOrPut(match.id) { now }
-                    if (now - enteredAt >= PhaseTimings.SUDDEN_DEATH_TICKS) {
+                    if (now - enteredAt >= PhaseTimings.SUDDEN_DEATH_TICKS + shift) {
                         switchPhase.execute(
                             match.id,
                             MatchStateMachine.TransitionTrigger.SuddenDeathTimer,
                         )
+                        matchTimer?.clearShiftsFor(match.id)
                     }
                 }
 
@@ -94,6 +110,7 @@ public class PhaseTimerUseCase(
                     // Drop any stale SUDDEN_DEATH tracking if the match left
                     // that phase via a non-timer trigger (admin end, etc.).
                     suddenDeathEnteredAt.remove(match.id)
+                    matchTimer?.clearShiftsFor(match.id)
                 }
             }
         }
