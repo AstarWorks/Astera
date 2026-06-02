@@ -80,6 +80,7 @@ import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
@@ -122,6 +123,16 @@ public class AsteraCombatPlugin : JavaPlugin() {
      */
     private var cooldownHudHandle:
         com.astarworks.astera.combat.application.eventbus.listeners.hud.HudUpdateOnCooldownTickListener? = null
+
+    /**
+     * Wave 6a-N2 (ADR-0155) — task handles for the three scheduler-driven
+     * components: PaperStatusEffectContainer's mirror sweep, the per-tick
+     * cooldown expiry pump, and PaperProjectileService's tracking watchdog.
+     * Cancelled in [onDisable].
+     */
+    private var statusTickHandle: com.astarworks.astera.core.application.port.outbound.IScheduler.TaskHandle? = null
+    private var tickCooldownHandle: com.astarworks.astera.core.application.port.outbound.IScheduler.TaskHandle? = null
+    private var paperProjectileService: com.astarworks.astera.combat.adapter.paper.PaperProjectileService? = null
 
     override fun onEnable() {
         logger.info("Astera-Combat enabling…")
@@ -299,6 +310,43 @@ public class AsteraCombatPlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 6a-N2 (ADR-0155) — PaperStatusEffectContainer overlays InMemory
+        // at priority 100. Bukkit PotionEffect is UI mirror only per
+        // ADR-0149 §C — Astera-internal map is source of truth. The companion
+        // StatusEffectTickListener (constructed below the use-case wiring)
+        // drives per-tick DoT/regen application + vanilla potion removal
+        // translation.
+        val paperStatusContainer = com.astarworks.astera.combat.adapter.paper
+            .PaperStatusEffectContainer(
+                server = server,
+                scheduler = scheduler,
+                eventBus = eventBus,
+                statusEffectRegistry = statusContents,
+            )
+        registrations += services.register<IStatusEffectContainer>(
+            paperStatusContainer,
+            priority = 100,
+        )
+
+        // Wave 6a-N2 (ADR-0155) — StatusEffectTickListener drives Astera-side
+        // tick effects (DoT damage / regen) + translates vanilla potion
+        // removal (e.g. milk bucket) into Astera StatusRemoved events.
+        // Started after PaperStatusEffectContainer is registered so the
+        // listener's container ref + the registry resolution are stable.
+        // The IPlayerHealthGateway is resolved via the registry — Core's
+        // priority-100 Paper impl (ADR-0151) wins automatically.
+        val playerHealthGatewayForTicks =
+            services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>()
+        val statusTickListener = com.astarworks.astera.combat.adapter.paper
+            .StatusEffectTickListener(
+                server = server,
+                scheduler = scheduler,
+                eventBus = eventBus,
+                container = paperStatusContainer,
+                playerHealthGateway = playerHealthGatewayForTicks,
+            )
+        statusTickHandle = statusTickListener.start(this)
+
         val damageGateway = services.get<IDamageGateway>()
         val statusContainer = services.get<IStatusEffectContainer>()
 
@@ -320,7 +368,19 @@ public class AsteraCombatPlugin : JavaPlugin() {
         val knockbackGateway = services.get<IKnockbackGateway>() ?: NoOpKnockbackGateway()
         val armorProvider = services.get<IArmorEquipmentProvider>() ?: StubArmorEquipmentProvider()
         val nearbyQuery = services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery()
-        val projectileService = services.get<IProjectileService>()
+
+        // Wave 6a-N2 (ADR-0155) — PaperProjectileService. Spawns vanilla
+        // Bukkit projectile entities as visual carriers; damage resolution
+        // is routed through ApplyDamageUseCase by ProjectileHitListener
+        // (wired below) per ADR-0149 §C. No InMemory equivalent exists for
+        // this port — Paper is the first impl; registered at priority 100
+        // for consistency with the Wave 6a Paper sweep pattern.
+        val paperProjectile = com.astarworks.astera.combat.adapter.paper
+            .PaperProjectileService(server, scheduler)
+        paperProjectile.start()
+        paperProjectileService = paperProjectile
+        registrations += services.register<IProjectileService>(paperProjectile, priority = 100)
+        val projectileService: IProjectileService = paperProjectile
         val teamLookup = services.get<IMatchTeamLookup>()
         val damageRule = DamageRule(
             elementMatrix = elementMatrix,
@@ -421,27 +481,38 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 scheduler = scheduler,
             )
 
-            @Suppress("UNUSED_VARIABLE")
+            // Wave 6a-N2 (ADR-0155) — TickCooldownUseCase now publishes
+            // CooldownExpired per expired (playerId, key) pair. Driven by
+            // the per-tick scheduler so HUD / sound / skill-readiness
+            // subscribers react without polling.
             val tickCooldown = TickCooldownUseCase(
                 cooldownTracker = cooldownTracker,
                 scheduler = scheduler,
+                eventBus = eventBus,
             )
+            tickCooldownHandle = scheduler.runRepeatingTicks(
+                initialDelayTicks = 1L,
+                periodTicks = 1L,
+            ) { tickCooldown.execute() }
+
+            // Wave 6a-N2 (ADR-0155): ProjectileHitListener bridges Bukkit
+            // ProjectileHitEvent + EntityDamageByEntityEvent into the Astera
+            // damage / status pipeline. Cancels vanilla EntityDamageByEntity
+            // when damager is an Astera-tracked projectile (ADR-0149 §C —
+            // prevents double-counting); non-Astera projectiles fall through
+            // to Core's BukkitEventAdapter Role 2 vanilla-intrusion handler.
+            val projectileHitListener = com.astarworks.astera.combat.adapter.paper
+                .ProjectileHitListener(
+                    projectileService = paperProjectile,
+                    applyDamageUseCase = applyDamage,
+                    applyStatusUseCase = applyStatus,
+                    scheduler = scheduler,
+                )
+            projectileHitListener.start(this)
 
             // Wave _skills-2 (ADR-0077) — archetype handlers, each holding a
-            // reference to the shared MechanicDispatcher. Falls back to a
-            // no-op projectile service when Astera-Weapons isn't loaded.
-            val effectiveProjectileService = projectileService
-                ?: object : IProjectileService {
-                    override fun spawn(
-                        spec: com.astarworks.astera.combat.domain.projectile.ProjectileSpec,
-                        origin: com.astarworks.astera.core.domain.geometry.Vec3,
-                        direction: com.astarworks.astera.core.domain.geometry.Vec3,
-                        owner: com.astarworks.astera.core.domain.player.PlayerId,
-                    ): com.astarworks.astera.combat.application.port.outbound.IProjectileHandle {
-                        logger.fine("Projectile spawn no-op (Astera-Weapons absent)")
-                        return NoOpProjectileHandle
-                    }
-                }
+            // reference to the shared MechanicDispatcher.
+            val effectiveProjectileService: IProjectileService = projectileService
             val projectileHandler = ProjectileHandler(effectiveProjectileService, mechanicDispatcher)
             val meleeHandler = MeleeHandler(nearbyQuery, applyDamage, mechanicDispatcher)
             val aoeHandler = AoeHandler(nearbyQuery, applyDamage, mechanicDispatcher)
@@ -649,6 +720,15 @@ public class AsteraCombatPlugin : JavaPlugin() {
     override fun onDisable() {
         cooldownHudHandle?.stop()
         cooldownHudHandle = null
+        // Wave 6a-N2 (ADR-0155) — cancel the three scheduler-driven Paper
+        // components. Bukkit reclaims the Listener registrations
+        // automatically via HandlerList.unregisterAll(this).
+        statusTickHandle?.cancel()
+        statusTickHandle = null
+        tickCooldownHandle?.cancel()
+        tickCooldownHandle = null
+        paperProjectileService?.stop()
+        paperProjectileService = null
         subscriptions.forEach { it.cancel() }
         subscriptions.clear()
         registrations.forEach { it.unregister() }
