@@ -102,6 +102,85 @@ SSOT.
 - `.claude/hooks/konsist-watcher.sh` — PostToolUse, records dirty modules in
   `.claude/state/konsist-dirty.txt`, never blocks.
 
+## Session handoff (auto-baton)
+
+**Always write `.claude/state/handoff.md` before ending a session** when any
+substantive work happened this session (≥1 commit, ≥1 wave shipped, or any
+non-trivial decision recorded). The user explicitly does not want to manually
+hand context between sessions — this file IS the baton.
+
+Trigger automatically:
+- After the last commit/merge of a wave when no further work is planned this turn.
+- Before responding "残り次回" / "let's stop here" / similar.
+- When the user types `/handoff` (write it then; don't end the session).
+
+**Do NOT write it for**:
+- Conversational turns (questions answered without code change).
+- Read-only exploration that produced no commit and no decision.
+- Mid-wave pauses where the work obviously continues next message.
+
+### File location
+
+Single file, **overwritten** each handoff: `.claude/state/handoff.md`.
+
+(No git-track. `.claude/state/` is already gitignored per Astera convention.
+History lives in commits + ADRs; handoff is a moving snapshot for the *next*
+session's entry point, not an archive.)
+
+### Required sections (keep tight — this gets pasted as a prompt)
+
+```markdown
+# Session handoff — <ISO date>
+
+## Where we left off
+- main HEAD: `<short-sha>` "<commit subject>"
+- Unpushed: N commits (user pushes manually)
+- Build: ./gradlew check <green | failing on X>
+- Konsist: N rules <green | failing>
+
+## What shipped this session
+- Wave Nx (ADR-NNNN) — 1-line summary
+- Wave Ny (ADR-NNNN) — 1-line summary
+(one bullet per merged wave; link to ADR; no LOC, no diff)
+
+## Live decisions / posture changes
+- Any rule shift, ADR supersede, naming convention divergence,
+  policy decision the user made mid-session. None ⇒ skip section.
+
+## Pending — ranked
+1. <highest-priority next work> — why it matters + the one or two
+   files / ports / allowlist entries it touches
+2. <next> — same shape
+3. <next> — same shape
+(3-7 items. Pulled from ADR-0072 / ADR-0134 allowlists + IMPLEMENTATION-
+ROADMAP cross-deps + any user-stated future intent this session.)
+
+## Resume prompt
+Paste-ready, one paragraph, addressed to next-session Claude:
+
+> 前 session で <X / Y / Z> を ship 済み (main HEAD `<sha>`)。
+> 残り priority: <#1 from Pending>。<one-line context the next session
+> needs to act without re-reading: which ports / which ADR allowlist
+> entry / which plugin>. `.claude/CLAUDE.md` の Session bootstrap +
+> Wave protocol を読んで Phase A から始めて。
+```
+
+The "Resume prompt" section is the load-bearing one — the user copies that
+verbatim into the next session's first message. Keep it self-contained
+(absolute file paths, ADR numbers, commit SHAs) so the next session can
+act with zero re-discovery.
+
+### What NOT to put in the handoff
+
+- Code snippets (commit + ADR have them).
+- Verbose explanations of why each wave was done (commit message has them).
+- "Things I learned" / "things I tried" (memory system handles those).
+- Pending items the user has explicitly deferred to Phase 2+ unless they
+  unblock the immediate next priority.
+
+Write tight. Under 80 lines total. If a section needs more, it belongs in
+an ADR, not the handoff.
+
 ## What to use
 
 - `make help` — every common operation (build / docker / kind / argocd).

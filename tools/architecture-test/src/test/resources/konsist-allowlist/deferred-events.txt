@@ -13,28 +13,11 @@
 # entries whose deferral is no longer load-bearing. A line removed from
 # this file is a positive event — it means the publisher shipped.
 
-# ─── Wave 6a-N — Remaining sibling-plugin Paper adapters ─────────────────────
-# Wave 6a-6 (ADR-0153) closed 10 of the original 14 Wave-6a entries by
-# shipping the Core BukkitEventAdapter. The 4 entries below remain because
-# their DomainEvents live in sibling plugins (match / combat) and ADR-0022
-# sibling-isolation forbids Core's BukkitEventAdapter from importing them.
-# Each will close when the listed Wave 6a-N sibling adapter ships.
-
-# Custom region tracker over PlayerMoveEvent — sibling Match-plugin adapter
-# (Wave 6a-N PaperRegionTracker, pending IRegionRegistry which isn't shipped)
-com.astarworks.astera.match.domain.event.EntityEnteredRegion
-# Pair with Entered
-com.astarworks.astera.match.domain.event.EntityLeftRegion
-# Bukkit EntityPickupItemEvent → match resource pickup — sibling Match-plugin
-# adapter (Wave 6a-N PaperItemPickupAdapter; Core's BukkitEventAdapter cannot
-# publish match-domain events per ADR-0022 sibling-isolation)
-com.astarworks.astera.match.domain.event.EntityPickedUpItem
-# Environmental damage source resolution — sibling Combat-plugin adapter
-# (Wave 6a-N PaperEnvironmentDamagePublisher; Core's BukkitEventAdapter
-# already cancels + re-routes vanilla EntityDamageEvent through
-# IPlayerHealthGateway per ADR-0149 §D, but the combat-domain publish
-# itself is deferred per ADR-0022 sibling-isolation)
-com.astarworks.astera.combat.domain.event.aoe.EnvironmentDamageApplied
+# Wave 6a-6 (ADR-0153) shipped Core BukkitEventAdapter closing 10 entries.
+# Wave 6a-N3 (ADR-0159) shipped the 4 sibling-plugin adapters
+# (RegionTransitionRelayListener / PaperItemPickupAdapter /
+# PaperEnvironmentDamagePublisher) closing the remaining 4 entries from
+# the original Wave-6a band. No remaining Wave-6a deferred events.
 
 # ─── Wave 6b — Velocity proxy adapter ────────────────────────────────────────
 # These events will be published by VelocityProxyMessenger in Wave 6b once the

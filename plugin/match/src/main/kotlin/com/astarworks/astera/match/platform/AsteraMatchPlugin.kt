@@ -608,6 +608,24 @@ public class AsteraMatchPlugin : JavaPlugin() {
             priority = 100,
         )
         val barrierGateway: IBarrierGateway = services.getOrThrow<IBarrierGateway>()
+
+        // Wave 6a-N3 (ADR-0159): match-side sibling adapters that Core's
+        // BukkitEventAdapter cannot publish per ADR-0022 sibling-isolation.
+        // Closes 3 of the 4 ADR-0134 deferred-events allowlist entries.
+        //  - RegionTransitionRelayListener: core.PlayerEnteredRegion /
+        //    PlayerExitedRegion → match.EntityEnteredRegion / EntityLeftRegion
+        //    (resolves playerId → matchId via IMatchRepository.findMatchOf).
+        //  - PaperItemPickupAdapter: Bukkit EntityPickupItemEvent →
+        //    match.EntityPickedUpItem (PDC astera:item_id read with
+        //    bukkit:<material> fallback).
+        subscriptions += com.astarworks.astera.match.application.eventbus.listeners.region
+            .RegionTransitionRelayListener(eventBus = eventBus, matches = matches)
+            .subscribe()
+        com.astarworks.astera.match.adapter.paper.PaperItemPickupAdapter(
+            matchRepository = matches,
+            eventBus = eventBus,
+            scheduler = scheduler,
+        ).start(this)
         val matchWorlds: IMatchWorldRepository =
             services.get<IMatchWorldRepository>()
                 ?: InMemoryMatchWorldRepository().also {
