@@ -297,6 +297,10 @@ public class AsteraCorePlugin : JavaPlugin() {
     // so onDisable can cancel it. Bukkit listener un-registration happens
     // automatically via HandlerList.unregisterAll(this) on plugin teardown.
     private var bukkitEventAdapterTimeTaskHandle: IScheduler.TaskHandle? = null
+    // Wave 6b-3 (ADR-0158): LettuceRedisBroadcaster instance held for
+    // onDisable.stop() so the Lettuce connection drains cleanly.
+    private var lettuceBroadcaster: com.astarworks.astera.core.adapter.paper.broadcast
+        .LettuceRedisBroadcaster? = null
 
     /** Retained so [onDisable] can release the HTTP port (Wave _ops). */
     private var metricsHttpServer: HttpMetricsServer? = null
@@ -396,7 +400,44 @@ public class AsteraCorePlugin : JavaPlugin() {
 
         // ---- Player gateway, broadcaster, event bus, command handler -----
         val playerGateway: IPlayerGateway = McPlayerGateway(mcServer)
-        val broadcaster: IBroadcaster = PaperBroadcaster()
+        // Wave 6b-3 (ADR-0158): IBroadcaster fans out across PaperBroadcaster
+        // (always on; in-process Adventure log) + env-var-gated Lettuce Redis
+        // pub/sub + Discord webhook. Composite uses Kotlin SAM conversion
+        // since IBroadcaster.publish is a single method. Lettuce/Discord
+        // failures stay isolated to their own publish() — the composite
+        // never propagates exceptions.
+        val baseBroadcaster = PaperBroadcaster()
+        val extraBroadcasters: MutableList<IBroadcaster> = mutableListOf()
+        System.getenv("ASTERA_REDIS_URI")?.let { uri ->
+            try {
+                val redis = com.astarworks.astera.core.adapter.paper.broadcast
+                    .LettuceRedisBroadcaster(
+                        redisUri = io.lettuce.core.RedisURI.create(uri),
+                        scheduler = scheduler,
+                    )
+                redis.start()
+                extraBroadcasters += redis
+                lettuceBroadcaster = redis
+                logger.info("Wave 6b-3: LettuceRedisBroadcaster wired (uri=$uri).")
+            } catch (ex: RuntimeException) {
+                logger.warning("Wave 6b-3: LettuceRedisBroadcaster init failed (${ex.message}); skipping.")
+            }
+        }
+        System.getenv("ASTERA_DISCORD_WEBHOOK_URL")?.let { url ->
+            extraBroadcasters += com.astarworks.astera.core.adapter.paper.broadcast
+                .DiscordWebhookBroadcaster(webhookUrl = url)
+            logger.info("Wave 6b-3: DiscordWebhookBroadcaster wired.")
+        }
+        val broadcaster: IBroadcaster = if (extraBroadcasters.isEmpty()) baseBroadcaster else object : IBroadcaster {
+            override fun publish(event: com.astarworks.astera.core.domain.event.DomainEvent) {
+                baseBroadcaster.publish(event)
+                extraBroadcasters.forEach { sink ->
+                    try { sink.publish(event) } catch (ex: RuntimeException) {
+                        logger.warning("Broadcaster sink ${sink::class.simpleName} threw on publish: ${ex.message}")
+                    }
+                }
+            }
+        }
         val eventBus: IDomainEventBus = InMemoryDomainEventBus()
         val commandHandler: ICommandHandler = PaperCommandHandler(this, scheduler)
 
@@ -773,6 +814,29 @@ public class AsteraCorePlugin : JavaPlugin() {
             ?: InMemoryAuditLogRepository().also { services.register<IAuditLogRepository>(it, priority = 0) }
         val snapshotRepo: IPlayerInventorySnapshotRepository = services.get<IPlayerInventorySnapshotRepository>()
             ?: InMemoryPlayerInventorySnapshotRepository().also { services.register<IPlayerInventorySnapshotRepository>(it, priority = 0) }
+
+        // Wave 6b-3 (ADR-0158): Paper inventory subsystem — serializer (pure
+        // codec) + lifecycle Listener (save on quit / restore on join /
+        // save on MatchEnded) + action-lock enforcer (cancel inventory
+        // events while PlayerSession.state == Loading). Closes Phase 1 PoC
+        // smoke-test item #3 (re-login → loadout 復元).
+        val paperInventorySerializer = com.astarworks.astera.core.adapter.paper.inventory
+            .PaperInventorySnapshotSerializer()
+        com.astarworks.astera.core.adapter.paper.inventory
+            .PlayerInventoryLifecycleListener(
+                server = server,
+                snapshotRepo = snapshotRepo,
+                serializer = paperInventorySerializer,
+                sessions = sessionRepo,
+                scheduler = scheduler,
+                eventBus = eventBus,
+            ).start(this)
+        com.astarworks.astera.core.adapter.paper.inventory
+            .InventoryActionLockEnforcer(
+                sessions = sessionRepo,
+                scheduler = scheduler,
+            ).start(this)
+        logger.info("Wave 6b-3: Paper inventory lifecycle + action-lock listeners wired.")
 
         // ---- Wave 5pve-survival (ADR-0107): Skyblock party-shared instance foundation ----
         //
@@ -2844,6 +2908,9 @@ public class AsteraCorePlugin : JavaPlugin() {
         // un-registration automatically on plugin disable.
         bukkitEventAdapterTimeTaskHandle?.cancel()
         bukkitEventAdapterTimeTaskHandle = null
+        // Wave 6b-3 (ADR-0158): drain the Lettuce Redis connection.
+        lettuceBroadcaster?.stop()
+        lettuceBroadcaster = null
         paperScheduler?.stop()
     }
 

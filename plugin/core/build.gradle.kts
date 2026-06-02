@@ -59,6 +59,11 @@ dependencies {
     implementation(libs.opentelemetry.exporter.logging)
     implementation(libs.opentelemetry.exporter.otlp)
 
+    // Wave 6b-3 (ADR-0158): Lettuce Redis client for the
+    // LettuceRedisBroadcaster cross-server pub/sub IBroadcaster impl.
+    // Discord webhook impl uses JDK java.net.http.HttpClient — no dep.
+    implementation(libs.lettuce.core)
+
     testImplementation(project(":plugin:test-fixtures"))
 
     // Wave 5j Worker γ (HudRenderer): tests assert against Adventure
