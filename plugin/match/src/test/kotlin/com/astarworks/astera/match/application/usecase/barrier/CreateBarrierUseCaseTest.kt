@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.barrier.BarrierId
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stage.Region
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.service.InMemoryBarrierGateway
 import com.astarworks.astera.match.domain.barrier.BarrierStatus
 import com.astarworks.astera.testfixtures.FakeScheduler
@@ -20,6 +21,7 @@ class CreateBarrierUseCaseTest {
         min = Vec3(0.0, 64.0, 0.0),
         max = Vec3(4.0, 68.0, 4.0),
     )
+    private val testWorldId = WorldId("00000000-0000-0000-0000-0000000000aa")
 
     @Test
     fun `happy path spawns the barrier and stamps createdAtTick from the scheduler`() {
@@ -29,6 +31,7 @@ class CreateBarrierUseCaseTest {
 
         val result = useCase.execute(
             id = BarrierId("b1"),
+            worldId = testWorldId,
             region = validRegion,
             origin = origin,
             creator = creator,
@@ -59,6 +62,7 @@ class CreateBarrierUseCaseTest {
 
         val result = useCase.execute(
             id = BarrierId("b1"),
+            worldId = testWorldId,
             region = validRegion,
             origin = origin,
             creator = creator,
@@ -80,6 +84,7 @@ class CreateBarrierUseCaseTest {
 
         val result = useCase.execute(
             id = BarrierId("b1"),
+            worldId = testWorldId,
             region = pointRegion,
             origin = origin,
             creator = creator,
@@ -101,6 +106,7 @@ class CreateBarrierUseCaseTest {
 
         val result = useCase.execute(
             id = BarrierId("b1"),
+            worldId = testWorldId,
             region = validRegion,
             origin = origin,
             creator = creator,
@@ -122,6 +128,7 @@ class CreateBarrierUseCaseTest {
 
         val result = useCase.execute(
             id = BarrierId("b1"),
+            worldId = testWorldId,
             region = validRegion,
             origin = origin,
             creator = creator,
@@ -141,12 +148,14 @@ class CreateBarrierUseCaseTest {
 
         val emptyResult = useCase.execute(
             id = BarrierId("b1"),
+            worldId = testWorldId,
             region = Region(min = origin, max = origin),
             origin = origin,
             creator = creator,
         )
         val invalidResult = useCase.execute(
             id = BarrierId("b2"),
+            worldId = testWorldId,
             region = validRegion,
             origin = origin,
             creator = creator,

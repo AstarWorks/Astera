@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stage.Region
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.port.outbound.IBarrierGateway
 import com.astarworks.astera.match.domain.barrier.Barrier
 
@@ -52,6 +53,7 @@ public class CreateBarrierUseCase(
 
     public fun execute(
         id: BarrierId,
+        worldId: WorldId,
         region: Region,
         origin: Vec3,
         creator: PlayerId,
@@ -67,6 +69,7 @@ public class CreateBarrierUseCase(
 
         val barrier = Barrier(
             id = id,
+            worldId = worldId,
             region = region,
             origin = origin,
             creator = creator,

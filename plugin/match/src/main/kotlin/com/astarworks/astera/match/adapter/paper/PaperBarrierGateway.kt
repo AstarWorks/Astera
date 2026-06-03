@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.barrier.BarrierId
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.port.outbound.IBarrierGateway
 import com.astarworks.astera.match.domain.barrier.Barrier
 import com.astarworks.astera.match.domain.barrier.BarrierStatus
@@ -66,12 +67,15 @@ import java.util.concurrent.ConcurrentHashMap
  *    this Phase 1 PoC. The damage-absorption gameplay rule is still
  *    enforced by Combat using the [Barrier] aggregate's region check; the
  *    visual is purely informational.
- *  - **No world selection.** [Barrier] does not carry a `WorldId` (the
- *    domain treats the active match world as implicit). This gateway
- *    resolves the target world as `server.worlds.firstOrNull()` — the
- *    default overworld in the standard Astera deploy. A multi-world match
- *    setup will need a `Barrier.worldId` field plus a port-level rename;
- *    that is a Wave 6b-fix or Phase 1 closing concern, not Wave 6b-1.
+ *  - **Multi-world by `Barrier.worldId`.** Each [Barrier] carries its own
+ *    [WorldId] (Wave 6c, ADR-0160). This gateway resolves the target
+ *    Bukkit world via `server.getWorld(barrier.worldId.value)`. If that
+ *    world is not currently loaded, [spawn] tracks the aggregate without
+ *    a visual entity (logged at DEBUG); [despawn] / [updateStatus] are
+ *    no-ops for the entity side while still mutating the in-memory state.
+ *    Two concurrent matches in different worlds can hold barriers at the
+ *    same `x/y/z` anchor without cross-world collision because each
+ *    `BlockDisplay` is spawned inside its barrier's own world.
  *  - **Single BlockDisplay per barrier.** Phase 1 PoC does not subdivide
  *    the region into per-block visuals; a sub-region "carve" feature
  *    (matching the BARRIER-grid that a survival player would see if the

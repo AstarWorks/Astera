@@ -44,11 +44,11 @@ import java.util.concurrent.atomic.AtomicBoolean
  *  - No retry / circuit-breaker — a flaky Redis silently drops events after
  *    initial connect succeeds. Wave 6c will add reconnect handling using
  *    Lettuce's built-in `ClientOptions.reconnect`.
- *  - Wire format is `event.toString()` (Kotlin data-class default). Adequate
- *    for human-readable cross-server logging; not adequate for binary-stable
- *    cross-version replication. Wave 6c will replace with a polymorphic JSON
- *    codec once a wire-format ADR exists (see ADR-0158 §3 "wire format
- *    deferred").
+ *  - Wire format upgraded in Wave 6c (ADR-0160) from `event.toString()` to a
+ *    polymorphic JSON envelope (`{"type":"<simpleName>","payload":{...}}`)
+ *    via [BroadcastEventJsonCodec]. Stable across data-class field
+ *    additions thanks to Jackson's `FAIL_ON_UNKNOWN_PROPERTIES = false`
+ *    on the decode side.
  *  - Subscribe side intentionally not implemented here: this is the publisher.
  *    A separate `RedisBroadcastSubscriber` (Wave 6c) drains the channel and
  *    re-emits via `IDomainEventBus`. Keeping pub and sub split lets operators
@@ -66,11 +66,16 @@ import java.util.concurrent.atomic.AtomicBoolean
  * @param channel Redis pub/sub channel name. Defaults to
  *   `astera.broadcast.events`; multi-tenant deployments may suffix with
  *   server-group identifiers.
+ * @param codec Wave 6c — polymorphic JSON codec for the wire payload.
+ *   Injectable so tests can swap a stricter mapper or assert the encoded
+ *   shape directly. Defaults to a fresh [BroadcastEventJsonCodec] with the
+ *   standard kotlin + java-time module configuration.
  */
 public class LettuceRedisBroadcaster(
     private val redisUri: RedisURI,
     private val scheduler: IScheduler,
     private val channel: String = DEFAULT_CHANNEL,
+    private val codec: BroadcastEventJsonCodec = BroadcastEventJsonCodec(),
 ) : IBroadcaster {
     private val log = LoggerFactory.getLogger(javaClass)
 

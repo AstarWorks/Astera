@@ -334,6 +334,15 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 6c (ADR-0160, V45): write-through block change journal
+        // overlays the core-default InMemoryBlockChangeJournalRepository.
+        // PaperBlockStateGateway calls save()/delete() per mutation;
+        // loadAll() drives plugin-enable warm-up.
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository>(
+            com.astarworks.astera.persistence.repository.PostgresBlockChangeJournalRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +

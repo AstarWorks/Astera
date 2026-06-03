@@ -303,6 +303,14 @@ astera:
         stage-not-found: "<red>試合のステージが見つかりません。</red>"
         no-spawn-for-kind: "<red>指定種別のスポーン地点がありません。</red>"
         teleport-failed: "<red>テレポートに失敗しました。</red>"
+    # Wave 6c — ISpectator gateway エラーキー (ADR-0160)
+    spectator:
+      gateway:
+        error:
+          viewer-not-online: "<red>観戦: 観戦者がオンラインではありません。</red>"
+          target-not-online: "<red>観戦: カメラ追従先がオンラインではありません。</red>"
+          target-not-spectatable: "<red>観戦: 対象を現在観戦できません。</red>"
+          unsupported: "<red>観戦操作はサーバーに拒否されました。</red>"
     # Wave 5n — 試合 config オーバーレイ エラー (ADR-0080)
     config:
       unknown_match: "<red>試合 config: 不明な試合 ID '{matchId}'。</red>"

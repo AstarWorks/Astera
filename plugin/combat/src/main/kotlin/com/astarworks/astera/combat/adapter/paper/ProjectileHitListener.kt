@@ -8,6 +8,10 @@ import com.astarworks.astera.combat.domain.damage.ProjectileOrigin
 import com.astarworks.astera.combat.domain.projectile.OnHitEffect
 import com.astarworks.astera.combat.domain.projectile.ProjectileSpec
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.effect.IParticleScheduler
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler
+import com.astarworks.astera.core.domain.effect.scheduler.ScheduledParticleSpec
+import com.astarworks.astera.core.domain.effect.sound.ScheduledSoundSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -70,10 +74,14 @@ import org.slf4j.LoggerFactory
  *    falloff against `INearbyTargetQuery` snapshot).
  *  - [OnHitEffect.SpawnChild] — Phase 6 (requires direction inheritance from
  *    the parent projectile's velocity at impact tick).
- *  - [OnHitEffect.PlaySound] / [OnHitEffect.SpawnParticle] — Phase 6 (needs
- *    Core's `IParticleScheduler` / `ISoundRegistry` injection through this
- *    listener; Phase 1 logs at debug so YAML authors can validate spec
- *    parsing without a renderer).
+ *  - [OnHitEffect.PlaySound] / [OnHitEffect.SpawnParticle] — wired end-to-end
+ *    via Core's [com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler]
+ *    + [com.astarworks.astera.core.application.port.outbound.effect.IParticleScheduler]
+ *    (ADR-0109 effect orchestration). The dispatch site schedules a
+ *    `ScheduledSoundSpec.EmitOnce` / `ScheduledParticleSpec.EmitOnce` at the
+ *    current server tick targeting the impact position; the scheduler
+ *    implementations route to Paper-side adapters that play to all clients
+ *    in audible range. Wave 6c (ADR-0160) closed the gap left by Wave 6a-N2.
  *
  * # Threading
  *
@@ -94,6 +102,8 @@ public class ProjectileHitListener(
     private val applyDamageUseCase: ApplyDamageUseCase,
     private val applyStatusUseCase: ApplyStatusUseCase,
     private val scheduler: IScheduler,
+    private val particleScheduler: IParticleScheduler,
+    private val soundScheduler: ISoundScheduler,
 ) : Listener {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -242,21 +252,22 @@ public class ProjectileHitListener(
                     val _phase6 = unused
                 }
                 is OnHitEffect.PlaySound -> {
-                    if (log.isDebugEnabled) {
-                        log.debug(
-                            "ProjectileHitListener.dispatchOnHit: PlaySound effect held for Phase 6 (projectile={})",
-                            tracking.id,
-                        )
-                    }
+                    soundScheduler.schedule(
+                        ScheduledSoundSpec.EmitOnce(
+                            sound = effect.sound,
+                            position = impactPos,
+                            atTick = scheduler.currentTick(),
+                        ),
+                    )
                 }
                 is OnHitEffect.SpawnParticle -> {
-                    if (log.isDebugEnabled) {
-                        log.debug(
-                            "ProjectileHitListener.dispatchOnHit: SpawnParticle effect held for Phase 6 (projectile={} at={})",
-                            tracking.id,
-                            impactPos,
-                        )
-                    }
+                    particleScheduler.schedule(
+                        ScheduledParticleSpec.EmitOnce(
+                            particle = effect.particle,
+                            position = impactPos,
+                            atTick = scheduler.currentTick(),
+                        ),
+                    )
                 }
             }
         }
