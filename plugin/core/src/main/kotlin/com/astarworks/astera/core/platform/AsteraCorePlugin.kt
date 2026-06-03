@@ -238,6 +238,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.DefaultRoles
 import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.domain.world.BlockDurabilityRule
+import com.astarworks.astera.core.domain.world.WorldId
 import org.bukkit.plugin.java.JavaPlugin
 import java.nio.file.Files
 import java.nio.file.Path
@@ -620,15 +621,27 @@ public class AsteraCorePlugin : JavaPlugin() {
             ),
             priority = 100,
         )
-        services.register<IBlockStateGateway>(
-            com.astarworks.astera.core.adapter.paper.world.PaperBlockStateGateway(
-                server = server,
-                scheduler = scheduler,
-                eventBus = eventBus,
-                customBlockRegistry = customBlockContents,
-                durabilityRule = durabilityRule,
-            ),
-            priority = 100,
+        val paperBlockStateGateway = com.astarworks.astera.core.adapter.paper.world.PaperBlockStateGateway(
+            server = server,
+            scheduler = scheduler,
+            eventBus = eventBus,
+            customBlockRegistry = customBlockContents,
+            durabilityRule = durabilityRule,
+        )
+        services.register<IBlockStateGateway>(paperBlockStateGateway, priority = 100)
+        // Wave 6c §B (ADR-0160) introduced PaperBlockStateGateway.warmUp(WorldId)
+        // to rehydrate the in-memory tracker from the persistent
+        // IBlockChangeJournalRepository so explosion-broken blocks survive
+        // `/restart`. Wave 6d-stub-warmup (ADR-0166) wires the driver: for
+        // every world loaded at plugin enable, hydrate the tracker once.
+        // Worlds loaded later (multiverse / dynamic load) re-warm on first
+        // damage event via the journalSave path, so this loop only needs
+        // to cover the boot-time roster.
+        server.worlds.forEach { world ->
+            paperBlockStateGateway.warmUp(WorldId(world.name))
+        }
+        logger.info(
+            "Wave 6d-stub-warmup: PaperBlockStateGateway tracker hydrated for ${server.worlds.size} loaded world(s).",
         )
         // BlockDurabilityRule is consumed by use cases (e.g. Wave 6 BlockHitListener
         // computing damageFor(tool, blockType) before calling applyDamage). Published
