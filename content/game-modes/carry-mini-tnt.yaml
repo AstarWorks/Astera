@@ -1,0 +1,17 @@
+# Carry Mini TNT — Wave 5c original 6 modes (ADR-0167 Wave 7a-N1).
+#
+# Collect 10 mini-TNT drops scattered on the map, converge them into one
+# full-size TNT, deliver to the enemy delivery region. `CarryMiniTNTListener`
+# (wired globally in AsteraMatchPlugin.onEnable) keeps the 10-mini collection
+# counter via `EntityPickedUpItem` (ADR-0159 §B) and routes the final
+# converged TNT through the same `EntityEnteredRegion` delivery path as
+# `carry-tnt.yaml`.
+#
+# `impl_class` resolves to a Wave 5c-N1 façade (ADR-0165) — same façade
+# contract (`onTick` no-op, framework events only).
+
+id: carry-mini-tnt
+title_key: astera.gamemode.carry-mini-tnt.title
+impl_class: com.astarworks.astera.match.application.gamemode.CarryMiniTntGameMode
+tick_period_ticks: 20
+default_config: {}

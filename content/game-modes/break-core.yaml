@@ -1,0 +1,17 @@
+# Break Core — Wave 5c original 6 modes / primary RTM mode (ADR-0167 Wave 7a-N1).
+#
+# Destroy the enemy team's core block to win. The legacy `BreakCoreListener`
+# subscribes globally to `BlockBroken` events and resolves the targeted
+# block against the active match's `match.domain.mode.BreakCore.coreBlockId`
+# (stage-YAML scoped); `VictoryConditionEvaluator` (ADR-0027) issues the win
+# the moment the core block is broken by an enemy.
+#
+# `impl_class` resolves to a Wave 5c-N1 façade (ADR-0165). See README for
+# `battle-loyal.yaml` — same façade contract, `onTick` no-op, framework
+# event publication only.
+
+id: break-core
+title_key: astera.gamemode.break-core.title
+impl_class: com.astarworks.astera.match.application.gamemode.BreakCoreGameMode
+tick_period_ticks: 20
+default_config: {}

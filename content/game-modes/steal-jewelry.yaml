@@ -1,0 +1,18 @@
+# Steal Jewelry — Wave 5c original 6 modes (ADR-0167 Wave 7a-N1).
+#
+# Break into the enemy vault, steal 3 jewel items, return to base to score.
+# `StealJewelryListener` (wired globally in AsteraMatchPlugin.onEnable)
+# counts pickups via `EntityPickedUpItem` (ADR-0159 §B) up to the 3-jewel
+# threshold and watches the carrier's return-base transition via
+# `EntityEnteredRegion` (ADR-0159 §A). Stage-YAML supplies the legacy
+# `match.domain.mode.StealJewelry.jewelryItemIds` + return-zone runtime
+# config.
+#
+# `impl_class` resolves to a Wave 5c-N1 façade (ADR-0165) — same façade
+# contract (`onTick` no-op, framework events only).
+
+id: steal-jewelry
+title_key: astera.gamemode.steal-jewelry.title
+impl_class: com.astarworks.astera.match.application.gamemode.StealJewelryGameMode
+tick_period_ticks: 20
+default_config: {}

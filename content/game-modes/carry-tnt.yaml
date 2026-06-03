@@ -1,0 +1,17 @@
+# Carry TNT — Wave 5c original 6 modes (ADR-0167 Wave 7a-N1).
+#
+# Pick up a TNT entity, carry it to the enemy team's delivery region, deliver.
+# `CarryTNTListener` (wired globally in AsteraMatchPlugin.onEnable) consumes
+# `EntityPickedUpItem` (Wave 6a-N3 PaperItemPickupAdapter — ADR-0159 §B) and
+# `EntityEnteredRegion` (Wave 6a-N3 RegionTransitionRelayListener — ADR-0159
+# §A) to track carrier + delivery. Stage-YAML supplies the legacy
+# `match.domain.mode.CarryTNT.deliveryRegionIds` runtime list.
+#
+# `impl_class` resolves to a Wave 5c-N1 façade (ADR-0165) — same façade
+# contract (`onTick` no-op, framework events only).
+
+id: carry-tnt
+title_key: astera.gamemode.carry-tnt.title
+impl_class: com.astarworks.astera.match.application.gamemode.CarryTntGameMode
+tick_period_ticks: 20
+default_config: {}

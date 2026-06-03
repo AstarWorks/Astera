@@ -1,0 +1,19 @@
+# Battle Loyal — Wave 5c original 6 modes (ADR-0167 Wave 7a-N1).
+#
+# Small-scale free-for-all arena: first team / player to a score threshold
+# wins. Per-mode runtime tunables (scoreThreshold, etc.) live on the legacy
+# `match.domain.mode.BattleLoyal` data class — they are stage-YAML scoped, not
+# game-mode-YAML scoped, so `default_config` here stays empty. The legacy
+# `BattleLoyalListener` (wired globally in AsteraMatchPlugin.onEnable) and
+# `VictoryConditionEvaluator` (ADR-0027) drive win evaluation.
+#
+# `impl_class` resolves to a Wave 5c-N1 façade (ADR-0165) that publishes
+# framework `GameModeEvent.*` lifecycle events for HUD / queue / audit
+# consumers. `onTick` is a no-op because the legacy listener is the only
+# writer of mode state.
+
+id: battle-loyal
+title_key: astera.gamemode.battle-loyal.title
+impl_class: com.astarworks.astera.match.application.gamemode.BattleLoyalGameMode
+tick_period_ticks: 20
+default_config: {}
