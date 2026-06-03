@@ -31,9 +31,15 @@ import org.bukkit.Material
 import org.bukkit.Server
 import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
+import org.bukkit.entity.Entity
 import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.TextDisplay
+import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.util.Transformation
 import org.joml.Vector3f
 import org.slf4j.LoggerFactory
@@ -108,21 +114,31 @@ import java.util.concurrent.ConcurrentHashMap
  *    and never touch a Bukkit entity, so they're thread-safe and never
  *    return [HologramError.Storage].
  *
- * # Visibility filtering (Wave 5h-fix2)
+ * # Visibility filtering (Wave 5h-fix2 + Wave 6g, ADR-0168)
  *
- * [HologramVisibilityScope.Everyone] is enforced implicitly — Bukkit spawns
- * the entity for every tracker by default. [HologramVisibilityScope.PerPlayer]
- * and [HologramVisibilityScope.PerTeam] require packet-level
- * `Player.hideEntity` / `showEntity` calls keyed against the spawning plugin
- * — that's the dedicated [com.astarworks.astera.core.application.port.outbound.visibility.IPlayerVisibilityGateway]
- * surface (Wave 5perviewer). This adapter **stubs** the per-scope hide step
- * (logs INFO at first PerPlayer / PerTeam spawn) and records the scope in
- * the shadow map; the wiring layer will compose with
- * [com.astarworks.astera.core.application.port.outbound.visibility.IPlayerVisibilityGateway]
- * once Wave 6g lands the per-viewer packet pipeline. [viewers] is honest:
- * it returns the resolved set per the scope; what actually receives the
- * entity-create packet is "Everyone who's tracking" until the visibility
- * gateway composes in.
+ * [HologramVisibilityScope.Everyone] is enforced implicitly — `isVisibleByDefault`
+ * stays `true` (Bukkit spawn default) so every tracker receives the entity.
+ *
+ * [HologramVisibilityScope.PerPlayer] is implemented end-to-end via Paper-
+ * native APIs ([Entity.setVisibleByDefault]`(false)` + [Player.showEntity]
+ * per listed online player). Carves out the per-viewer-visibility clause of
+ * ADR-0095's PacketEvents strategy — Paper 1.20+ exposes the per-viewer
+ * spawn-suppression directly, so no external packet library is required for
+ * this surface. Bukkit's `Player.showEntity` state is per-session, so
+ * [JoinReapplyListener] re-applies on [PlayerJoinEvent] for offline-at-spawn
+ * players. ADR-0095's other clauses (inbound movement interception, replay
+ * coordinate masking) remain genuine PacketEvents adoption targets and are
+ * unaffected.
+ *
+ * [HologramVisibilityScope.PerTeam] still stubs (ADR-0168 §C): resolving
+ * `(matchId, teamId) → Set<PlayerId>` requires importing
+ * `:plugin:match` types into `:plugin:core` which ADR-0022 forbids. A
+ * follow-up wave introduces an `ITeamRosterLookup`-shaped Core port + a
+ * Match-side in-memory impl, after which `applyVisibility` for PerTeam
+ * mirrors the PerPlayer path.
+ *
+ * [viewers] is honest: it returns the resolved set per the scope; PerTeam
+ * still returns empty until the resolver lands.
  *
  * # JOML usage
  *
@@ -169,9 +185,16 @@ public class PaperHologramGateway(
     /** [HologramHandle] → spawned Bukkit entity UUID. */
     private val entities: ConcurrentHashMap<HologramHandle, UUID> = ConcurrentHashMap()
 
-    private var perPlayerScopeStubLogged: Boolean = false
     private var perTeamScopeStubLogged: Boolean = false
     private var itemFallbackStoneLogged: Boolean = false
+
+    /**
+     * Held after [start]. Required for [Player.showEntity]/[Player.hideEntity]
+     * — both Bukkit methods take a `Plugin` so the visibility scope unbinds
+     * if the plugin disables. Also passed to [PluginManager.registerEvents]
+     * for the [JoinReapplyListener].
+     */
+    private var plugin: JavaPlugin? = null
 
     // ─── Lifecycle ────────────────────────────────────────────────────────
 
@@ -210,10 +233,7 @@ public class PaperHologramGateway(
         live[handle] = hologram
         entities[handle] = spawned.uniqueId
 
-        // PerPlayer / PerTeam packet-level hide is deferred to Wave 6g
-        // (composes with IPlayerVisibilityGateway). Log once per server
-        // lifetime so the limitation surfaces in ops.
-        logScopeStub(hologram.visibilityScope)
+        applyVisibility(spawned, hologram.visibilityScope)
 
         return Result.success(handle)
     }
@@ -291,9 +311,20 @@ public class PaperHologramGateway(
     ): Result<Unit, HologramError> {
         val current = live[handle]
             ?: return Result.failure(HologramError.UnknownHandle(handle))
+        if (!server.isPrimaryThread) {
+            // Visibility re-apply touches Bukkit Entity + Player APIs
+            // (`isVisibleByDefault`, `showEntity`, `hideEntity`) which are
+            // main-thread only. Same posture as the other mutators here:
+            // off-main signals a caller bug worth surfacing rather than
+            // silent auto-defer.
+            return Result.failure(HologramError.Storage("off-main: updateVisibility"))
+        }
         live[handle] = current.copy(visibilityScope = scope)
-        // No Bukkit-side mutation — see class KDoc § "Visibility filtering".
-        logScopeStub(scope)
+        val entityId = entities[handle]
+        val entity = entityId?.let { server.getEntity(it) }
+        if (entity != null) {
+            applyVisibility(entity, scope)
+        }
         return Result.success(Unit)
     }
 
@@ -727,24 +758,107 @@ public class PaperHologramGateway(
         }
     }
 
-    private fun logScopeStub(scope: HologramVisibilityScope) {
+    /**
+     * Wave 6g-visibility (ADR-0168) — Paper-native per-viewer entity
+     * visibility via `Entity.setVisibleByDefault` + `Player.showEntity` /
+     * `Player.hideEntity`. No external packet library required (carves out
+     * the per-viewer-visibility clause of ADR-0095's PacketEvents strategy).
+     *
+     * Per-scope behaviour:
+     *  - [HologramVisibilityScope.Everyone] — no-op. `isVisibleByDefault`
+     *    stays `true` (Bukkit spawn default) so every tracker receives the
+     *    entity. Used to clear a prior PerPlayer / PerTeam scope.
+     *  - [HologramVisibilityScope.PerPlayer] — `isVisibleByDefault = false`,
+     *    then `showEntity(plugin, entity)` per listed online player. Offline
+     *    players in the set are tracked in `live[handle]` and get
+     *    `showEntity` on next `PlayerJoinEvent` ([JoinReapplyListener]).
+     *  - [HologramVisibilityScope.PerTeam] — still stubbed (ADR-0168 §C).
+     *    Team-roster resolution lives in `:plugin:match` which `:plugin:core`
+     *    cannot import (ADR-0022). Implementation lands in a follow-up wave
+     *    that introduces an `ITeamRosterLookup`-shaped port + a Match-side
+     *    in-memory impl.
+     *
+     * `plugin` may be null in tests / pre-`start` use. PerPlayer falls back
+     * to logging at WARN (the visibility intent is recorded in `live[handle]`
+     * for later resync once `start` is called); the InMemory variant offers
+     * the same diagnostic and tests against it cover the contract.
+     */
+    private fun applyVisibility(entity: Entity, scope: HologramVisibilityScope) {
         when (scope) {
-            is HologramVisibilityScope.Everyone -> Unit
-            is HologramVisibilityScope.PerPlayer -> if (!perPlayerScopeStubLogged) {
-                log.info(
-                    "PaperHologramGateway: HologramVisibilityScope.PerPlayer recorded but per-viewer " +
-                        "hide packets are deferred to Wave 6g (composes with IPlayerVisibilityGateway). " +
-                        "Until then every tracker receives the spawn packet (ADR-0163 §visibility-stub).",
-                )
-                perPlayerScopeStubLogged = true
+            is HologramVisibilityScope.Everyone -> {
+                // Reset to "spawn for everyone" — re-applies after a prior
+                // PerPlayer / PerTeam swap so the new tracker default works.
+                entity.isVisibleByDefault = true
+            }
+            is HologramVisibilityScope.PerPlayer -> {
+                val plugin = this.plugin
+                if (plugin == null) {
+                    log.warn(
+                        "PaperHologramGateway: applyVisibility(PerPlayer) before start() — " +
+                            "entity {} stays globally visible until plugin reference is wired",
+                        entity.uniqueId,
+                    )
+                    return
+                }
+                entity.isVisibleByDefault = false
+                scope.playerIds.forEach { id ->
+                    server.getPlayer(id.uuid)?.showEntity(plugin, entity)
+                }
             }
             is HologramVisibilityScope.PerTeam -> if (!perTeamScopeStubLogged) {
+                // Carve-out: ADR-0168 §C defers PerTeam until the cross-plugin
+                // roster resolver lands. PerPlayer is fully implemented here.
                 log.info(
                     "PaperHologramGateway: HologramVisibilityScope.PerTeam recorded but team-roster " +
-                        "viewer resolution + per-viewer hide packets are deferred to Wave 6g " +
-                        "(composes with IMatchService + IPlayerVisibilityGateway) (ADR-0163 §visibility-stub).",
+                        "viewer resolution still requires a cross-plugin lookup port (ADR-0168 §C). " +
+                        "Every tracker receives the spawn packet until the follow-up wave wires it.",
                 )
                 perTeamScopeStubLogged = true
+            }
+        }
+    }
+
+    /**
+     * Wire the [JavaPlugin] reference used by [Player.showEntity] /
+     * [Player.hideEntity] and register the [JoinReapplyListener] (Wave 6g,
+     * ADR-0168). Must be called once from `AsteraCorePlugin.onEnable` after
+     * the gateway is constructed. Calling twice replaces the previous
+     * registration but Bukkit will keep both Listener instances unless
+     * `HandlerList.unregisterAll(plugin)` runs first — production code
+     * should call this once and trust `onDisable` to clean up.
+     */
+    public fun start(plugin: JavaPlugin) {
+        this.plugin = plugin
+        plugin.server.pluginManager.registerEvents(JoinReapplyListener(), plugin)
+    }
+
+    /**
+     * Re-apply [HologramVisibilityScope.PerPlayer] visibility on player join.
+     * Bukkit's `Player.showEntity` state is per-session; without this
+     * listener a player who reconnects sees every hologram (including those
+     * that should be hidden from them).
+     *
+     * Runs `MONITOR` priority — purely additive, never cancels. Walks the
+     * live shadow map filtering to PerPlayer scopes containing the joining
+     * player; for each match, looks up the spawned entity (skipping any
+     * that despawned mid-flight) and re-applies the visibility tag.
+     *
+     * PerTeam scopes are not handled here — they fall under the same
+     * cross-plugin resolver gap that [applyVisibility] documents.
+     */
+    private inner class JoinReapplyListener : Listener {
+
+        @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+        public fun onJoin(event: PlayerJoinEvent) {
+            val plugin = this@PaperHologramGateway.plugin ?: return
+            val playerId = PlayerId(event.player.uniqueId)
+            live.forEach { (handle, hologram) ->
+                val scope = hologram.visibilityScope
+                if (scope !is HologramVisibilityScope.PerPlayer) return@forEach
+                if (playerId !in scope.playerIds) return@forEach
+                val entityId = entities[handle] ?: return@forEach
+                val entity = server.getEntity(entityId) ?: return@forEach
+                event.player.showEntity(plugin, entity)
             }
         }
     }

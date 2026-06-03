@@ -1980,16 +1980,22 @@ public class AsteraCorePlugin : JavaPlugin() {
         // should be driven by the transition controller which runs main-thread).
         // Registered BEFORE `getOrThrow<IHologramGateway>()` so the
         // transition controller below tweens against the live Paper impl.
+        val paperHologramGateway = com.astarworks.astera.core.adapter.paper.hologram.PaperHologramGateway(
+            server = server,
+            scheduler = scheduler,
+            eventBus = eventBus,
+            itemRegistry = services.getOrThrow<IItemRegistry>(),
+            messageRenderer = services.getOrThrow<IMessageRenderer>(),
+        )
         services.register<com.astarworks.astera.core.application.port.outbound.IHologramGateway>(
-            com.astarworks.astera.core.adapter.paper.hologram.PaperHologramGateway(
-                server = server,
-                scheduler = scheduler,
-                eventBus = eventBus,
-                itemRegistry = services.getOrThrow<IItemRegistry>(),
-                messageRenderer = services.getOrThrow<IMessageRenderer>(),
-            ),
+            paperHologramGateway,
             priority = 100,
         )
+        // Wave 6g-visibility (ADR-0168) — bind the plugin reference for
+        // Player.showEntity / Player.hideEntity calls and register the
+        // JoinReapplyListener that re-applies PerPlayer visibility on
+        // reconnect (Bukkit's per-viewer visibility state is per-session).
+        paperHologramGateway.start(this)
         val holoGateway = services
             .getOrThrow<com.astarworks.astera.core.application.port.outbound.IHologramGateway>()
         val holoTransitionController =
