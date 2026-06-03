@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.port.outbound.HologramError
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IHologramGateway
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
@@ -130,15 +131,20 @@ import java.util.concurrent.ConcurrentHashMap
  * coordinate masking) remain genuine PacketEvents adoption targets and are
  * unaffected.
  *
- * [HologramVisibilityScope.PerTeam] still stubs (ADR-0168 §C): resolving
- * `(matchId, teamId) → Set<PlayerId>` requires importing
- * `:plugin:match` types into `:plugin:core` which ADR-0022 forbids. A
- * follow-up wave introduces an `ITeamRosterLookup`-shaped Core port + a
- * Match-side in-memory impl, after which `applyVisibility` for PerTeam
- * mirrors the PerPlayer path.
+ * [HologramVisibilityScope.PerTeam] is implemented end-to-end via Wave
+ * 6g-PerTeam (ADR-0169): a lazy `matchRepositoryLookup: () -> IMatchRepository?`
+ * (default `{ null }`) resolves `(matchId, teamId) → Match.teams[i].members`
+ * at `applyVisibility` time. Lazy because the Match plugin (which registers
+ * the repo impl) loads AFTER the Core plugin that constructs this gateway;
+ * a constructor-time resolve would race. When the resolver is unwired or
+ * returns null (test mode, stale match), the gateway logs INFO and falls
+ * back to globally visible — same posture as the pre-`start` PerPlayer
+ * branch, so the visibility *intent* is recorded in the shadow map and a
+ * later `updateVisibility(scope)` after wiring resyncs.
  *
- * [viewers] is honest: it returns the resolved set per the scope; PerTeam
- * still returns empty until the resolver lands.
+ * [viewers] is honest: it returns the resolved set per the scope. PerTeam
+ * resolves via the same `matchRepositoryLookup`; when null, returns empty
+ * (matches the [InMemoryHologramGateway] contract).
  *
  * # JOML usage
  *
@@ -170,6 +176,18 @@ public class PaperHologramGateway(
     @Suppress("unused") private val eventBus: IDomainEventBus,
     private val itemRegistry: IItemRegistry? = null,
     private val messageRenderer: IMessageRenderer? = null,
+    /**
+     * Wave 6g-PerTeam (ADR-0169) — lazy lookup for `IMatchRepository` so
+     * `HologramVisibilityScope.PerTeam` can resolve `(matchId, teamId) →
+     * Set<PlayerId>` via `Match.teams[i].members`. Lazy because the Match
+     * plugin (which registers the repo impl) loads AFTER the Core plugin
+     * that constructs this gateway; a constructor-time resolve would race.
+     *
+     * Default `{ null }` keeps PerTeam stubbing behaviour (single INFO log
+     * + globally visible). Test fixtures may pass `{ fakeMatchRepo }` for
+     * a deterministic roster.
+     */
+    private val matchRepositoryLookup: () -> IMatchRepository? = { null },
 ) : IHologramGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -500,13 +518,14 @@ public class PaperHologramGateway(
                 server.onlinePlayers.map { PlayerId(it.uniqueId) }
             is HologramVisibilityScope.PerPlayer ->
                 scope.playerIds.filter { id -> server.getPlayer(id.uuid) != null }
-            // PerTeam viewer set requires `IMatchService` lookup which lives in
-            // :plugin:match. Per ADR-0022 sibling-isolation, :plugin:core can
-            // not import match types. The PerTeam set is resolved by the
-            // wiring layer (Wave 6g packet adapter) when it composes with
-            // IPlayerVisibilityGateway. Until then, return empty — InMemory
-            // returns empty too, so this stays contract-aligned.
-            is HologramVisibilityScope.PerTeam -> emptyList()
+            // Wave 6g-PerTeam (ADR-0169) — resolve roster via the lazy
+            // IMatchRepository lookup. Returns empty when the resolver
+            // isn't wired (test / pre-Match-load); matches the InMemory
+            // variant's behaviour for that case.
+            is HologramVisibilityScope.PerTeam ->
+                resolveTeamRoster(scope)
+                    ?.filter { id -> server.getPlayer(id.uuid) != null }
+                    ?: emptyList()
         }
     }
 
@@ -805,17 +824,53 @@ public class PaperHologramGateway(
                     server.getPlayer(id.uuid)?.showEntity(plugin, entity)
                 }
             }
-            is HologramVisibilityScope.PerTeam -> if (!perTeamScopeStubLogged) {
-                // Carve-out: ADR-0168 §C defers PerTeam until the cross-plugin
-                // roster resolver lands. PerPlayer is fully implemented here.
-                log.info(
-                    "PaperHologramGateway: HologramVisibilityScope.PerTeam recorded but team-roster " +
-                        "viewer resolution still requires a cross-plugin lookup port (ADR-0168 §C). " +
-                        "Every tracker receives the spawn packet until the follow-up wave wires it.",
-                )
-                perTeamScopeStubLogged = true
+            is HologramVisibilityScope.PerTeam -> {
+                val plugin = this.plugin
+                if (plugin == null) {
+                    log.warn(
+                        "PaperHologramGateway: applyVisibility(PerTeam) before start() — " +
+                            "entity {} stays globally visible until plugin reference is wired",
+                        entity.uniqueId,
+                    )
+                    return
+                }
+                val roster = resolveTeamRoster(scope)
+                if (roster == null) {
+                    // Resolver returned null — either the IMatchRepository isn't
+                    // registered yet (test mode) or the match/team id is stale.
+                    // Same posture as the pre-start branch: log + keep visible.
+                    if (!perTeamScopeStubLogged) {
+                        log.info(
+                            "PaperHologramGateway: HologramVisibilityScope.PerTeam(matchId={}, teamId={}) " +
+                                "could not be resolved — IMatchRepository unavailable or match/team not found. " +
+                                "Entity stays globally visible (ADR-0169 fallback).",
+                            scope.matchId.value,
+                            scope.teamId.value,
+                        )
+                        perTeamScopeStubLogged = true
+                    }
+                    return
+                }
+                entity.isVisibleByDefault = false
+                roster.forEach { id ->
+                    server.getPlayer(id.uuid)?.showEntity(plugin, entity)
+                }
             }
         }
+    }
+
+    /**
+     * Resolve `(matchId, teamId) → Set<PlayerId>` via [matchRepositoryLookup].
+     * Returns `null` if the resolver isn't wired, the match doesn't exist,
+     * or the team is unknown — caller treats `null` as "visibility intent
+     * recorded but unenforced". Returns an empty set if the team exists but
+     * has zero members (valid: visibility intent is "nobody sees it").
+     */
+    private fun resolveTeamRoster(scope: HologramVisibilityScope.PerTeam): Set<PlayerId>? {
+        val matchRepo = matchRepositoryLookup() ?: return null
+        val match = matchRepo.findById(scope.matchId) ?: return null
+        val team = match.teams.firstOrNull { it.id == scope.teamId } ?: return null
+        return team.members
     }
 
     /**
@@ -853,9 +908,17 @@ public class PaperHologramGateway(
             val plugin = this@PaperHologramGateway.plugin ?: return
             val playerId = PlayerId(event.player.uniqueId)
             live.forEach { (handle, hologram) ->
-                val scope = hologram.visibilityScope
-                if (scope !is HologramVisibilityScope.PerPlayer) return@forEach
-                if (playerId !in scope.playerIds) return@forEach
+                val isViewer = when (val scope = hologram.visibilityScope) {
+                    is HologramVisibilityScope.Everyone -> false
+                    is HologramVisibilityScope.PerPlayer -> playerId in scope.playerIds
+                    // Wave 6g-PerTeam (ADR-0169) — resolve via the lazy
+                    // matchRepositoryLookup; null roster (resolver not
+                    // wired, match gone) treats the player as not-a-viewer
+                    // so the global default-visibility holds.
+                    is HologramVisibilityScope.PerTeam ->
+                        resolveTeamRoster(scope)?.contains(playerId) ?: false
+                }
+                if (!isViewer) return@forEach
                 val entityId = entities[handle] ?: return@forEach
                 val entity = server.getEntity(entityId) ?: return@forEach
                 event.player.showEntity(plugin, entity)

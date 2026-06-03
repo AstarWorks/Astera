@@ -1986,6 +1986,13 @@ public class AsteraCorePlugin : JavaPlugin() {
             eventBus = eventBus,
             itemRegistry = services.getOrThrow<IItemRegistry>(),
             messageRenderer = services.getOrThrow<IMessageRenderer>(),
+            // Wave 6g-PerTeam (ADR-0169) — lazy thunk; Match plugin
+            // registers the IMatchRepository impl in its own onEnable,
+            // which runs after this Core onEnable. Resolving at
+            // applyVisibility time is correct.
+            matchRepositoryLookup = {
+                services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>()
+            },
         )
         services.register<com.astarworks.astera.core.application.port.outbound.IHologramGateway>(
             paperHologramGateway,
