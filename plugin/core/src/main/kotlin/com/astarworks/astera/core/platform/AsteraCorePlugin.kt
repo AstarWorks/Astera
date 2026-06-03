@@ -1960,6 +1960,23 @@ public class AsteraCorePlugin : JavaPlugin() {
             com.astarworks.astera.core.application.service.InMemoryHologramGateway(),
             priority = 0,
         )
+        // Wave 6f (ADR-0163): Paper overlay routes through Bukkit Display
+        // Entity API (TextDisplay / ItemDisplay / BlockDisplay). 28 methods
+        // per ADR-0115; shadow-map for snapshot read-back; main-thread guard
+        // with off-main writes returning Storage("off-main: <op>") (callers
+        // should be driven by the transition controller which runs main-thread).
+        // Registered BEFORE `getOrThrow<IHologramGateway>()` so the
+        // transition controller below tweens against the live Paper impl.
+        services.register<com.astarworks.astera.core.application.port.outbound.IHologramGateway>(
+            com.astarworks.astera.core.adapter.paper.hologram.PaperHologramGateway(
+                server = server,
+                scheduler = scheduler,
+                eventBus = eventBus,
+                itemRegistry = services.getOrThrow<IItemRegistry>(),
+                messageRenderer = services.getOrThrow<IMessageRenderer>(),
+            ),
+            priority = 100,
+        )
         val holoGateway = services
             .getOrThrow<com.astarworks.astera.core.application.port.outbound.IHologramGateway>()
         val holoTransitionController =
