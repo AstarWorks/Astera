@@ -260,18 +260,11 @@ public class AsteraCombatPlugin : JavaPlugin() {
         // IStatusEffectApplier SPI (registered by AsteraCorePlugin) + emits
         // particles via IWorldGateway.spawnParticle.
         val coreServices = services
-        registrations += services.register<IExplosionGateway>(
-            com.astarworks.astera.combat.adapter.paper.aoe.PaperExplosionGateway(
-                server = server,
-                scheduler = services.getOrThrow<IScheduler>(),
-                eventBus = services.getOrThrow<IDomainEventBus>(),
-                nearbyQuery = services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery(),
-                knockbackGateway = services.get<IKnockbackGateway>() ?: NoOpKnockbackGateway(),
-                blockStateGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IBlockStateGateway>(),
-                damageApplier = com.astarworks.astera.combat.application.service.aoe.ExplosionDamageApplier.None,
-            ),
-            priority = 100,
-        )
+        // PaperExplosionGateway registration deferred until after
+        // ApplyDamageUseCase is constructed (below) so the real
+        // ExplosionDamageApplier can route entity damage through the full
+        // modifier pipeline (Wave 6e-N1 / ADR-0164). Without this deferral
+        // we'd be stuck with ExplosionDamageApplier.None (identity).
         registrations += services.register<IAreaEffectGateway>(
             com.astarworks.astera.combat.adapter.paper.aoe.PaperAreaEffectGateway(
                 server = server,
@@ -482,6 +475,26 @@ public class AsteraCombatPlugin : JavaPlugin() {
                 ),
             )
             val consumeMana = ConsumeManaUseCase(manaService, eventBus)
+
+            // Wave 6e-N1 (ADR-0164): PaperExplosionGateway now wired with
+            // ApplyDamageExplosionDamageApplier so explosion entity damage
+            // flows through the full Astera modifier pipeline (armor / crit /
+            // friendly-fire / combo / focus-fire). Replaces the placeholder
+            // ExplosionDamageApplier.None that Wave 6e shipped at Phase C.
+            val explosionDamageApplier =
+                com.astarworks.astera.combat.application.service.aoe.ApplyDamageExplosionDamageApplier(applyDamage)
+            registrations += services.register<IExplosionGateway>(
+                com.astarworks.astera.combat.adapter.paper.aoe.PaperExplosionGateway(
+                    server = server,
+                    scheduler = services.getOrThrow<IScheduler>(),
+                    eventBus = services.getOrThrow<IDomainEventBus>(),
+                    nearbyQuery = services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery(),
+                    knockbackGateway = services.get<IKnockbackGateway>() ?: NoOpKnockbackGateway(),
+                    blockStateGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IBlockStateGateway>(),
+                    damageApplier = explosionDamageApplier,
+                ),
+                priority = 100,
+            )
 
             // Wave _skills-2 (ADR-0077): MechanicDispatcher is the central
             // runtime for the Mechanic-Targeter-Phase architecture. Each
