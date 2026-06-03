@@ -251,6 +251,41 @@ public class AsteraCombatPlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 6e (ADR-0162): Paper overlays for Explosion + AreaEffect at
+        // priority 100. PaperExplosionGateway uses `World.createExplosion`
+        // for the visual blast + INearbyTargetQuery for Astera-owned entity
+        // damage (vanilla damage cancelled by BukkitEventAdapter per ADR-0149 §C).
+        // PaperAreaEffectGateway tick-drives shape-bound entity queries +
+        // routes damage/status via the cross-plugin IDamageApplier /
+        // IStatusEffectApplier SPI (registered by AsteraCorePlugin) + emits
+        // particles via IWorldGateway.spawnParticle.
+        val coreServices = services
+        registrations += services.register<IExplosionGateway>(
+            com.astarworks.astera.combat.adapter.paper.aoe.PaperExplosionGateway(
+                server = server,
+                scheduler = services.getOrThrow<IScheduler>(),
+                eventBus = services.getOrThrow<IDomainEventBus>(),
+                nearbyQuery = services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery(),
+                knockbackGateway = services.get<IKnockbackGateway>() ?: NoOpKnockbackGateway(),
+                blockStateGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IBlockStateGateway>(),
+                damageApplier = com.astarworks.astera.combat.application.service.aoe.ExplosionDamageApplier.None,
+            ),
+            priority = 100,
+        )
+        registrations += services.register<IAreaEffectGateway>(
+            com.astarworks.astera.combat.adapter.paper.aoe.PaperAreaEffectGateway(
+                server = server,
+                scheduler = services.getOrThrow<IScheduler>(),
+                eventBus = services.getOrThrow<IDomainEventBus>(),
+                nearbyQuery = services.get<INearbyTargetQuery>() ?: EmptyNearbyTargetQuery(),
+                damageApplier = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.IDamageApplier>(),
+                statusApplier = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.IStatusEffectApplier>(),
+                worldGateway = services.getOrThrow<IWorldGateway>(),
+            ),
+            priority = 100,
+        )
+        @Suppress("UNUSED_VARIABLE") val coreServicesRef = coreServices
+
         // Wave _infra-2b: register Combat's 3 content types on the dispatcher.
         val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
         reloadRegistry.register(skillContents, skillsContentDir)
