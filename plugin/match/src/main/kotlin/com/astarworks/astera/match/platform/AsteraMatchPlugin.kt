@@ -42,7 +42,13 @@ import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySna
 import com.astarworks.astera.core.domain.event.ChatMessageSent
 import com.astarworks.astera.match.application.contents.AnomalyContents
 import com.astarworks.astera.match.application.contents.GameModeContents
+import com.astarworks.astera.match.application.gamemode.BattleLoyalGameMode
+import com.astarworks.astera.match.application.gamemode.BreakCoreGameMode
+import com.astarworks.astera.match.application.gamemode.CaptureWoolGameMode
+import com.astarworks.astera.match.application.gamemode.CarryMiniTntGameMode
+import com.astarworks.astera.match.application.gamemode.CarryTntGameMode
 import com.astarworks.astera.match.application.gamemode.NormaGameMode
+import com.astarworks.astera.match.application.gamemode.StealJewelryGameMode
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationGameMode
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationMatchTracker
 import com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry
@@ -503,6 +509,28 @@ public class AsteraMatchPlugin : JavaPlugin() {
         logger.info(
             "Wave 5annihilation wiring: AnnihilationGameMode + AnnihilationMatchTracker " +
                 "registered into IGameModeFrameworkRegistry.",
+        )
+
+        // Wave 5c-N1 (ADR-0165) — six thin-façade IGameMode impls over the
+        // legacy Wave 5c modes. Each façade publishes framework events on
+        // lifecycle boundaries and otherwise no-ops (the `*Listener` classes
+        // wired earlier in this onEnable carry the actual win-condition
+        // logic). Programmatic registration follows the Norma fallback
+        // pattern above — Wave 7a-N1 will land matching `content/game-modes/`
+        // YAML, after which `register(...)` here overwrites the reflection-
+        // built (bus-less) instances with these bus-wired ones.
+        listOf(
+            BattleLoyalGameMode(eventBus = eventBus),
+            BreakCoreGameMode(eventBus = eventBus),
+            CarryTntGameMode(eventBus = eventBus),
+            CarryMiniTntGameMode(eventBus = eventBus),
+            CaptureWoolGameMode(eventBus = eventBus),
+            StealJewelryGameMode(eventBus = eventBus),
+        ).forEach { gameModeFrameworkRegistry.register(it) }
+        logger.info(
+            "Wave 5c-N1 wiring: 6 IGameMode façades (battle-loyal / break-core / " +
+                "carry-tnt / carry-mini-tnt / capture-wool / steal-jewelry) registered " +
+                "into IGameModeFrameworkRegistry.",
         )
 
         reloadRegistry.register(gameModeContents, gameModeContentDir)
