@@ -648,6 +648,23 @@ public class AsteraCorePlugin : JavaPlugin() {
         services.register<IWorldWeatherGateway>(worldWeatherGateway, priority = 0)
         services.register<IWorldRulesGateway>(worldRulesGateway, priority = 0)
 
+        // Wave 6d (ADR-0161): Paper overlays at priority 100. Live `World.setTime`
+        // / `setStorm` / `setGameRule` / `setDifficulty` / `setPVP` against
+        // `Bukkit.getServer().getWorld(worldId)`. InMemory @ p=0 still satisfies
+        // the port when running outside Paper (tests / ScenarioDsl).
+        services.register<IWorldTimeGateway>(
+            com.astarworks.astera.core.adapter.paper.world.PaperWorldTimeGateway(server),
+            priority = 100,
+        )
+        services.register<IWorldWeatherGateway>(
+            com.astarworks.astera.core.adapter.paper.world.PaperWorldWeatherGateway(server),
+            priority = 100,
+        )
+        services.register<IWorldRulesGateway>(
+            com.astarworks.astera.core.adapter.paper.world.PaperWorldRulesGateway(server),
+            priority = 100,
+        )
+
         val stageRegionIndex: IStageRegionIndex = InMemoryStageRegionIndex()
         services.register<IStageRegionIndex>(stageRegionIndex, priority = 0)
 
@@ -816,6 +833,11 @@ public class AsteraCorePlugin : JavaPlugin() {
         )
         services.register<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>(
             playerSoundGateway, priority = 0,
+        )
+        // Wave 6d (ADR-0161): Paper overlay — `Player.playSound(Location, key, MASTER, vol, pitch)`.
+        services.register<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>(
+            com.astarworks.astera.core.adapter.paper.effect.PaperPlayerSoundGateway(server),
+            priority = 100,
         )
         logger.info("Wave 5effects (ADR-0109) ports wired: ParticleScheduler / SoundScheduler / EffectOrchestrator / CountdownTimer / RateLimiter / PlayerSoundGateway")
 
@@ -1894,6 +1916,30 @@ public class AsteraCorePlugin : JavaPlugin() {
             priority = 0,
         )
         logger.info("Wave 5gui-depth GUI animation + modal + tooltip-extension ports wired.")
+
+        // ── Wave 5animation (ADR-0113) — Player animation gateway ──
+        //
+        // The InMemory default was shipped but never registered (Wave 5animation
+        // pre-empted Wave 6 — Paper impl was deferred). Wave 6d (ADR-0161)
+        // closes the loop: register the InMemory at p=0 + PaperPlayerAnimationGateway
+        // at p=100. `tickClock = scheduler::currentTick` so published animation
+        // events carry real server ticks.
+        services.register<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>(
+            com.astarworks.astera.core.application.service.animation.InMemoryPlayerAnimationGateway(
+                eventBus = eventBus,
+                tickClock = scheduler::currentTick,
+            ),
+            priority = 0,
+        )
+        services.register<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>(
+            com.astarworks.astera.core.adapter.paper.animation.PaperPlayerAnimationGateway(
+                server = server,
+                eventBus = eventBus,
+                tickClock = scheduler::currentTick,
+            ),
+            priority = 100,
+        )
+        logger.info("Wave 5animation (ADR-0113) PlayerAnimation port wired (InMemory @ p=0, Paper @ p=100 via ADR-0161).")
 
         // ── Wave 5transitions (ADR-0115) — DisplayEntity transition foundation ─
         //

@@ -233,6 +233,24 @@ public class AsteraCombatPlugin : JavaPlugin() {
         registrations += services.register<ILightningGateway>(lightningGateway)
         registrations += services.register<IFireSpreadController>(fireSpread)
 
+        // Wave 6d (ADR-0161): Paper overlays at priority 100. PaperLightningGateway
+        // routes to `World.strikeLightning` (lethal) / `strikeLightningEffect`
+        // (visual-only) per `damageEntities` flag. PaperFireSpreadController
+        // toggles the DO_FIRE_TICK gamerule + walks block radius for spreadFire
+        // (RADIUS_MAX=16, AIR-only ignition).
+        registrations += services.register<ILightningGateway>(
+            com.astarworks.astera.combat.adapter.paper.aoe.PaperLightningGateway(
+                server = server,
+                eventBus = services.getOrThrow<IDomainEventBus>(),
+                scheduler = services.getOrThrow<IScheduler>(),
+            ),
+            priority = 100,
+        )
+        registrations += services.register<IFireSpreadController>(
+            com.astarworks.astera.combat.adapter.paper.aoe.PaperFireSpreadController(server),
+            priority = 100,
+        )
+
         // Wave _infra-2b: register Combat's 3 content types on the dispatcher.
         val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
         reloadRegistry.register(skillContents, skillsContentDir)
