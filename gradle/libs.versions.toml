@@ -66,6 +66,13 @@ weaponmechanics = "999.999.999"
 oraxen = "999.999.999"
 mythic-dist = "999.999.999"
 
+# PacketEvents (Wave 6c-stub-packetevents, ADR-0170) — softdepend.
+# 2.12.x supports Minecraft 26.1; CodeMC repo (declared in settings.gradle.kts).
+# Astera boots in vanilla Paper without it (CLAUDE.md §4 invariant); the
+# Paper adapter performs a runtime `Bukkit.getPluginManager().getPlugin(...)`
+# check and stays on the InMemory IPacketInterceptor when absent.
+packetevents = "2.12.2"
+
 [libraries]
 # Kotlin / kotlinx
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -76,6 +83,11 @@ kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collec
 # Paper
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 joml = { module = "org.joml:joml", version.ref = "joml" }
+
+# PacketEvents (Wave 6c-stub-packetevents, ADR-0170) — softdepend.
+# `packetevents-spigot` is the canonical artifact for Paper/Spigot (no
+# `-paper` variant exists in 2.x). Distributed via CodeMC repo.
+packetevents-spigot = { module = "com.github.retrooper:packetevents-spigot", version.ref = "packetevents" }
 
 # Koin (DI)
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }

@@ -14,6 +14,8 @@ import com.astarworks.astera.core.adapter.paper.observability.MetricsConfig
 import com.astarworks.astera.core.adapter.paper.observability.MicrometerMetricsRegistry
 import com.astarworks.astera.core.adapter.paper.gui.PaperGuiListener
 import com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer
+import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsBootstrap
+import com.astarworks.astera.core.adapter.paper.packetevents.PaperPacketInterceptor
 import com.astarworks.astera.core.adapter.paper.scheduler.PaperScheduler
 import com.astarworks.astera.core.adapter.paper.server.PaperServer
 import com.astarworks.astera.core.application.command.ArgumentType
@@ -294,6 +296,15 @@ public class AsteraCorePlugin : JavaPlugin() {
 
     /** Retained so [onDisable] can call [PaperScheduler.stop]. */
     private var paperScheduler: PaperScheduler? = null
+
+    /**
+     * Wave 6c-stub-packetevents (ADR-0170) — set in `onLoad` if the PacketEvents
+     * plugin is installed on the target server. Retained so `onDisable` knows
+     * whether it should call `PacketEvents.getAPI().terminate()`. Stays `false`
+     * when PacketEvents is absent — Astera continues with `InMemoryPacketInterceptor`
+     * at priority 0 (CLAUDE.md §4 invariant: boots vanilla).
+     */
+    private var packetEventsInstalled: Boolean = false
     // Wave 6a-6 (ADR-0153): handle to BukkitEventAdapter's time-polling task
     // so onDisable can cancel it. Bukkit listener un-registration happens
     // automatically via HandlerList.unregisterAll(this) on plugin teardown.
@@ -366,6 +377,29 @@ public class AsteraCorePlugin : JavaPlugin() {
      * caller contract.
      */
     private var waveGIntentRegistrations: List<com.astarworks.astera.core.application.services.ServiceRegistry.Registration>? = null
+
+    override fun onLoad() {
+        // Wave 6c-stub-packetevents (ADR-0170) — PacketEvents 2.x lifecycle phase 1.
+        // Called once at plugin load, before onEnable, while every plugin is in
+        // a "loaded but not yet enabled" state. PE requires `setAPI + load`
+        // here so `onEnable.init()` can hand the now-initialised API to its
+        // Netty interceptors. The runtime presence check is intentionally
+        // outside `PacketEventsBootstrap` (which references PE classes) so
+        // class loading stays lazy: when PacketEvents is absent on the target
+        // server, `PacketEventsBootstrap` is never resolved and the
+        // `com.github.retrooper.packetevents.*` symbols never load (avoiding
+        // NoClassDefFoundError per JLS §5.3.4).
+        if (PacketEventsBootstrap.isInstalled(this)) {
+            packetEventsInstalled = true
+            PacketEventsBootstrap.load(this)
+            logger.info("Wave 6c-stub-packetevents: PacketEvents loaded (lifecycle phase 1/3).")
+        } else {
+            logger.info(
+                "Wave 6c-stub-packetevents: PacketEvents plugin not installed — staying on " +
+                    "InMemoryPacketInterceptor (Astera boots vanilla per CLAUDE.md §4).",
+            )
+        }
+    }
 
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
@@ -1729,9 +1763,22 @@ public class AsteraCorePlugin : JavaPlugin() {
         // ADR-0015 supersede (PacketEvents section only): the deferred-to-Phase 3+
         // posture is replaced with Phase 1 adoption + a type-erased boundary so
         // core.domain stays packet-library-agnostic. The InMemory implementations
-        // ship in Phase 1; the Wave 6b Paper adapter swaps them for
-        // PacketEvents-backed variants at priority 100 once the soft-dep is
-        // confirmed loaded.
+        // ship in Phase 1; the Wave 6c-stub-packetevents Paper adapter swaps
+        // them for PacketEvents-backed variants at priority 100 once the
+        // soft-dep is confirmed loaded.
+        if (packetEventsInstalled) {
+            // Wave 6c-stub-packetevents (ADR-0170) — PE 2.x lifecycle phase 2
+            // (init) + register PaperPacketInterceptor at priority 100 so the
+            // `services.get<IPacketInterceptor>()` lookup below resolves to
+            // the Paper variant. Wraps the PE Netty pipeline; listeners
+            // registered through IPacketInterceptor.register run on PE's
+            // Netty thread per the existing ADR-0090 contract.
+            PacketEventsBootstrap.init()
+            val paperPacketInterceptor = PaperPacketInterceptor(tickProvider = { scheduler.currentTick() })
+            paperPacketInterceptor.start()
+            services.register<IPacketInterceptor>(paperPacketInterceptor, priority = 100)
+            logger.info("Wave 6c-stub-packetevents: PaperPacketInterceptor registered at priority 100.")
+        }
         val packetInterceptor: IPacketInterceptor =
             services.get<IPacketInterceptor>() ?: InMemoryPacketInterceptor().also {
                 services.register<IPacketInterceptor>(it, priority = 0)
@@ -3024,6 +3071,14 @@ public class AsteraCorePlugin : JavaPlugin() {
         // Wave 6b-3 (ADR-0158): drain the Lettuce Redis connection.
         lettuceBroadcaster?.stop()
         lettuceBroadcaster = null
+        // Wave 6c-stub-packetevents (ADR-0170) — PE 2.x lifecycle phase 3
+        // (terminate). Mirrors the `onLoad`-gated entry: only call when the
+        // PacketEvents plugin was confirmed installed at load time. Skipped
+        // otherwise so we never resolve `PacketEvents.getAPI()` on a server
+        // without the lib.
+        if (packetEventsInstalled) {
+            PacketEventsBootstrap.terminate()
+        }
         paperScheduler?.stop()
     }
 

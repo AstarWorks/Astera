@@ -73,6 +73,19 @@ dependencies {
     implementation(libs.jackson.module.kotlin)
     implementation(libs.jackson.datatype.jsr310)
 
+    // Wave 6c-stub-packetevents (ADR-0170): PacketEvents 2.x softdepend for
+    // genuine packet interception scope (anti-cheat MovementValidatorPacketBridge
+    // wired to inbound move packets, per-viewer scoreboard / tablist
+    // packet sends). `compileOnly` because the runtime jar is supplied by the
+    // user-installed PacketEvents plugin — Astera must boot vanilla without
+    // it (CLAUDE.md §4 invariant). All imports are confined to
+    // `core.adapter.paper.packetevents.*`; the rest of the codebase keeps
+    // referring to the vendor-neutral `IPacketInterceptor` / `PacketEnvelope`
+    // / `PacketDecision` shapes from `core.domain.packet.*`. GPL-3.0 license
+    // does not infect MIT codebase under softdepend + no-shading per the
+    // standard interpretation.
+    compileOnly(libs.packetevents.spigot)
+
     testImplementation(project(":plugin:test-fixtures"))
 
     // Wave 5j Worker γ (HudRenderer): tests assert against Adventure
