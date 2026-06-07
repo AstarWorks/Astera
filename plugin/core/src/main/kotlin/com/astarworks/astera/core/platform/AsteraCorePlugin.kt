@@ -14,7 +14,9 @@ import com.astarworks.astera.core.adapter.paper.observability.MetricsConfig
 import com.astarworks.astera.core.adapter.paper.observability.MicrometerMetricsRegistry
 import com.astarworks.astera.core.adapter.paper.gui.PaperGuiListener
 import com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer
+import com.astarworks.astera.core.adapter.paper.packetevents.ITeamPacketSender
 import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsBootstrap
+import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsTeamPacketSender
 import com.astarworks.astera.core.adapter.paper.packetevents.PaperPacketInterceptor
 import com.astarworks.astera.core.adapter.paper.scheduler.PaperScheduler
 import com.astarworks.astera.core.adapter.paper.server.PaperServer
@@ -570,8 +572,20 @@ public class AsteraCorePlugin : JavaPlugin() {
         val paperBossBarManager = com.astarworks.astera.core.adapter.paper.hud
             .PaperBossBarManager(server, scheduler)
         services.register<IBossBarManager>(paperBossBarManager, priority = 100)
+        // Wave 6c-stub-packetevents-B (ADR-0171): per-viewer scoreboard
+        // locale. The PE-backed sender is constructed strictly inside the
+        // packetEventsInstalled gate — same JLS §5.3.4 lazy-resolution
+        // pattern as PaperPacketInterceptor below — so vanilla Paper never
+        // resolves a PacketEvents symbol. Without PE the scoreboards get
+        // null and keep the shared default-locale baseline.
+        val teamPacketSender: ITeamPacketSender? =
+            if (packetEventsInstalled) PacketEventsTeamPacketSender() else null
         services.register<IScoreboardManager>(
-            com.astarworks.astera.core.adapter.paper.hud.PaperScoreboardManager(server),
+            com.astarworks.astera.core.adapter.paper.hud.PaperScoreboardManager(
+                server,
+                messages,
+                teamPacketSender,
+            ),
             priority = 100,
         )
         services.register<ITabList>(

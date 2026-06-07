@@ -4,6 +4,7 @@ import com.astarworks.astera.core.adapter.api.hud.IScoreboard
 import com.astarworks.astera.core.adapter.api.hud.IScoreboardManager
 import com.astarworks.astera.core.adapter.api.hud.ITeamScoreboard
 import com.astarworks.astera.core.adapter.api.hud.ScoreboardId
+import com.astarworks.astera.core.adapter.paper.packetevents.ITeamPacketSender
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -23,12 +24,19 @@ import org.bukkit.Server
  * `mainScoreboard` is never mutated — restoring viewers via [hide]
  * reassigns them to the main scoreboard so they revert to baseline.
  *
+ * Wave 6c-stub-packetevents-B (ADR-0171): [messageRenderer] +
+ * [teamPacketSender] are threaded into every created board so each viewer
+ * can be served their own locale via per-viewer team UPDATE packets.
+ * [teamPacketSender] is null on vanilla Paper (no PacketEvents) — boards
+ * then keep the shared default-locale baseline.
+ *
  * Threading: same constraint as `PaperScoreboard` — mutating methods run
  * on the main server thread.
  */
 public class PaperScoreboardManager(
     private val server: Server,
     private val messageRenderer: IMessageRenderer? = null,
+    private val teamPacketSender: ITeamPacketSender? = null,
 ) : IScoreboardManager {
 
     private val lineBoards: MutableMap<ScoreboardId, PaperScoreboard> = linkedMapOf()
@@ -60,7 +68,7 @@ public class PaperScoreboardManager(
                 "Server.scoreboardManager is null — cannot create scoreboard '$id'. " +
                     "This happens before the first world is loaded; create boards on onEnable or later.",
             )
-        val created = PaperScoreboard(id, title, vanilla, server, messageRenderer)
+        val created = PaperScoreboard(id, title, vanilla, server, messageRenderer, teamPacketSender)
         lineBoards[id] = created
         return created
     }
@@ -79,7 +87,7 @@ public class PaperScoreboardManager(
                 "Server.scoreboardManager is null — cannot create team scoreboard '$id'. " +
                     "This happens before the first world is loaded; create boards on onEnable or later.",
             )
-        val created = PaperTeamScoreboard(id, title, vanilla, server, messageRenderer)
+        val created = PaperTeamScoreboard(id, title, vanilla, server, messageRenderer, teamPacketSender)
         teamBoards[id] = created
         return created
     }
