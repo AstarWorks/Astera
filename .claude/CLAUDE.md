@@ -104,13 +104,31 @@ SSOT.
 
 ## Session handoff (auto-baton)
 
-**Always write `.claude/state/handoff.md` before ending a session** when any
-substantive work happened this session (≥1 commit, ≥1 wave shipped, or any
-non-trivial decision recorded). The user explicitly does not want to manually
-hand context between sessions — this file IS the baton.
+**Hand off, don't ask to hand off.** When you checkpoint / pause / hit an
+incomplete or blocked state — or whenever you'd ask the user "should I
+continue or stop / fresh-session this?" or "残りも進める？" — **do not
+ask**. Refresh `.claude/state/handoff.md` immediately so the user has a
+paste-ready next-session prompt, then state what shipped and what's next
+in chat. Asking about **requirements / intent** is right; making the
+user instruct a mechanical next-action you can just produce (the handoff,
+the continue/stop call) is not. Never leave the user as the thing that
+has to act next when you can produce the artifact. (Mirrors AstarManagement
+CLAUDE.md §"Hand off, don't ask to hand off".)
+
+**Always write `.claude/state/handoff.md`** when any substantive work
+happened this session (≥1 commit, ≥1 wave shipped, ≥1 non-trivial
+decision, or significant state change like a push / merge / branch
+cleanup). The user explicitly does not want to manually hand context
+between sessions — this file IS the baton.
 
 Trigger automatically:
 - After the last commit/merge of a wave when no further work is planned this turn.
+- After a meaningful state change the next session must know about
+  (push to `origin/main`, branch deletes, worktree removes, dep adoption,
+  posture-shift ADR landing).
+- Whenever you would otherwise ask "続けるか止めるか" / "次の session 行く？" /
+  "should we continue / split / stop?" — write/refresh handoff first,
+  THEN report; the user can act on the artifact.
 - Before responding "残り次回" / "let's stop here" / similar.
 - When the user types `/handoff` (write it then; don't end the session).
 
