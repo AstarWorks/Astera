@@ -2,6 +2,7 @@ package com.astarworks.astera.core.adapter.paper.hud
 
 import com.astarworks.astera.core.adapter.api.hud.ITabList
 import com.astarworks.astera.core.adapter.api.hud.TabListEntry
+import com.astarworks.astera.core.adapter.paper.packetevents.ITabListPacketSender
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -20,28 +21,40 @@ import org.bukkit.entity.Player
  * matches an online player — this is the only per-row override the
  * Paper-bundled Adventure API supports without packet-level work.
  *
- * Phase 1 PoC limits:
- *  - Adding **non-online-player** entries (e.g. synthetic NPC rows,
- *    custom server-info badges) is **not supported** by vanilla / Paper
- *    Bukkit. Such entries are silently dropped from the per-row push and
- *    recorded only in the snapshot returned by [currentEntries]. Wave
- *    6b-stub introduces PacketEvents-based fake-entry injection, at
- *    which point this class will be superseded or its `setPlayerEntries`
- *    will gain a packet fan-out branch.
- *  - [TabListEntry.pingMs] is recorded in the snapshot but **not pushed**
- *    — vanilla `Player.setPlayerListName` does not expose the ping
- *    badge. Same dep on PacketEvents.
+ * # Per-viewer rendering (Wave 6c-stub-packetevents-C, ADR-0172)
+ *
+ * When the optional [tabListPacketSender] is wired (PacketEvents
+ * installed), [setPlayerEntries] fans a per-viewer
+ * `WrapperPlayServerPlayerInfoUpdate` out to the requesting viewer so
+ * **each player sees their own locale-rendered display names + ping
+ * badges** for the listed online subjects. The server-wide
+ * `Player.playerListName` is left untouched in this branch, so other
+ * viewers continue to see whatever the shared Player List packet last
+ * broadcast — no leak. When [tabListPacketSender] is `null` (vanilla
+ * Paper, no PE), `setPlayerEntries` falls back to the original
+ * Wave 6b behaviour (server-wide `Player.playerListName` for online
+ * subjects, offline / synthetic rows silently dropped).
+ *
+ * Phase 1 PoC limits (still present with the sender wired):
+ *  - Adding **non-online-player** entries (synthetic NPC rows, custom
+ *    server-info badges) requires phantom `UserProfile` UUIDs with
+ *    their own lifecycle (ADD_PLAYER on first sight, REMOVE on diff)
+ *    and is deferred to a follow-up wave (ADR-0172 §carve-outs).
+ *    Offline / synthetic rows continue to be dropped silently — only
+ *    recorded in the snapshot returned by [currentEntries].
  *  - Header / footer rendering uses [IMessageRenderer] per-viewer when
- *    supplied. Without a renderer, the raw [MessageKey] value is used
- *    with in-process `{name}` substitution so dev-time use still works.
+ *    supplied (existing). Without a renderer the raw [MessageKey]
+ *    value is used with in-process `{name}` substitution.
  *
  * Threading: mutating methods (setHeader / setFooter / clear* /
  * setPlayerEntries / [refresh]) must run on the main server thread.
- * State maps are not synchronized.
+ * State maps are not synchronized. The packet send path itself is
+ * thread-safe (`User.sendPacket` ends in a Netty `writeAndFlush`).
  */
 public class PaperTabList(
     private val server: Server,
     private val messageRenderer: IMessageRenderer? = null,
+    private val tabListPacketSender: ITabListPacketSender? = null,
 ) : ITabList {
 
     private val headerKeys: MutableMap<PlayerId, RenderedRecord> = mutableMapOf()
@@ -104,11 +117,17 @@ public class PaperTabList(
     }
 
     private fun pushEntriesForOnlineSubjects(playerId: PlayerId, list: List<TabListEntry>) {
-        // The vanilla Player List packet is server-global per *subject*
-        // (the player whose row is being edited), not per-viewer. We can
-        // only set the display name of subjects that are online; entries
-        // for offline players / synthetic rows are skipped (recorded in
-        // the snapshot only). True per-viewer rows need PacketEvents.
+        // Wave 6c-stub-packetevents-C (ADR-0172): when the per-viewer
+        // packet sender is wired, route through it so each viewer gets
+        // its own UPDATE_DISPLAY_NAME / UPDATE_LATENCY packets and
+        // server-wide `Player.playerListName` is left untouched (no
+        // leak to other viewers). When the sender is null (vanilla
+        // Paper, PacketEvents absent), fall back to the original
+        // server-global `playerListName` set so dev-time / non-PE
+        // deployments still work — at the cost of one viewer's
+        // rename leaking to everyone, the known limitation.
+        val sender = tabListPacketSender
+        val viewer: Player? = sender?.let { server.getPlayer(playerId.uuid) }
         for (entry in list) {
             val subject: Player = server.getPlayerExact(entry.name) ?: continue
             val displayKey = entry.displayName
@@ -117,7 +136,12 @@ public class PaperTabList(
             } else {
                 entry.name
             }
-            subject.playerListName(Component.text(displayText))
+            if (sender != null && viewer != null) {
+                sender.sendDisplayNameUpdate(viewer, subject.uniqueId, Component.text(displayText))
+                sender.sendLatencyUpdate(viewer, subject.uniqueId, entry.pingMs)
+            } else {
+                subject.playerListName(Component.text(displayText))
+            }
         }
     }
 

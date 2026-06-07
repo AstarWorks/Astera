@@ -14,8 +14,10 @@ import com.astarworks.astera.core.adapter.paper.observability.MetricsConfig
 import com.astarworks.astera.core.adapter.paper.observability.MicrometerMetricsRegistry
 import com.astarworks.astera.core.adapter.paper.gui.PaperGuiListener
 import com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer
+import com.astarworks.astera.core.adapter.paper.packetevents.ITabListPacketSender
 import com.astarworks.astera.core.adapter.paper.packetevents.ITeamPacketSender
 import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsBootstrap
+import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsTabListPacketSender
 import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsTeamPacketSender
 import com.astarworks.astera.core.adapter.paper.packetevents.PaperPacketInterceptor
 import com.astarworks.astera.core.adapter.paper.scheduler.PaperScheduler
@@ -580,6 +582,13 @@ public class AsteraCorePlugin : JavaPlugin() {
         // null and keep the shared default-locale baseline.
         val teamPacketSender: ITeamPacketSender? =
             if (packetEventsInstalled) PacketEventsTeamPacketSender() else null
+        // Wave 6c-stub-packetevents-C (ADR-0172): per-viewer tab-list
+        // locale + ping badge. Same isolation pattern as the team sender
+        // above — constructed strictly inside the packetEventsInstalled
+        // gate. Without PE the tab list gets null and falls back to
+        // server-wide `Player.playerListName` (the known leaky path).
+        val tabListPacketSender: ITabListPacketSender? =
+            if (packetEventsInstalled) PacketEventsTabListPacketSender() else null
         services.register<IScoreboardManager>(
             com.astarworks.astera.core.adapter.paper.hud.PaperScoreboardManager(
                 server,
@@ -589,7 +598,11 @@ public class AsteraCorePlugin : JavaPlugin() {
             priority = 100,
         )
         services.register<ITabList>(
-            com.astarworks.astera.core.adapter.paper.hud.PaperTabList(server),
+            com.astarworks.astera.core.adapter.paper.hud.PaperTabList(
+                server,
+                messages,
+                tabListPacketSender,
+            ),
             priority = 100,
         )
 
