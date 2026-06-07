@@ -29,15 +29,23 @@ import java.util.UUID
  * `Player.playerListName` continues to serve as the server-wide
  * fallback.
  *
- * ## Why only existing subjects
+ * ## Two surfaces: online overrides + synthetic rows
  *
- * The Phase 1 PoC scope here covers per-viewer display-name + latency
- * overrides for subjects the viewer **already has** in their tab list
- * (i.e. online players the server-side Player List packet already
- * spawned a row for). Injecting *synthetic* tab-list rows for offline /
- * NPC subjects requires phantom `UserProfile` UUIDs with their own
- * lifecycle (ADD_PLAYER on first sight, REMOVE on `setPlayerEntries`
- * diff) and is deferred to a follow-up wave per ADR-0172 §carve-outs.
+ * - **Online subjects** ([sendDisplayNameUpdate] / [sendLatencyUpdate],
+ *   ADR-0172): per-viewer display-name + latency overrides for subjects
+ *   the viewer **already has** in their tab list (online players the
+ *   shared Player List packet already spawned a row for). The real
+ *   `UserProfile` UUID is reused — these UPDATE the existing row.
+ * - **Synthetic / offline subjects** ([sendAddEntry] / [sendRemoveEntry],
+ *   ADR-0173 Wave 6c-stub-packetevents-D): rows the viewer's client has
+ *   **no** baseline for (NPC rows, server-info badges, offline players).
+ *   These need a **phantom** `UserProfile` UUID injected with its own
+ *   lifecycle — ADD_PLAYER (+ UPDATE_LISTED) on (re)push, REMOVE when the
+ *   row drops out of the next `setPlayerEntries` diff. The phantom UUID
+ *   is caller-derived and **per-viewer** (so one viewer's phantom row
+ *   never collides with another's): `PaperTabList` uses
+ *   `UUID.nameUUIDFromBytes("$viewerUuid:$entryName")`. Never pass a real
+ *   player's UUID to [sendAddEntry] / [sendRemoveEntry].
  *
  * ## Threading
  *
@@ -70,4 +78,35 @@ public interface ITabListPacketSender {
      * connecting" at 0 latency).
      */
     public fun sendLatencyUpdate(viewer: Player, subjectUuid: UUID, latencyMs: Int)
+
+    /**
+     * Inject (or refresh) a **synthetic** tab-list row for [viewer]
+     * only — a row the viewer's client has no baseline for (NPC rows,
+     * server-info badges, offline players). [entryUuid] must be a
+     * caller-derived **phantom** UUID, unique per (viewer, row); never a
+     * real player's UUID. [name] is the profile name, [displayName] the
+     * rendered row text the viewer sees, [latencyMs] the ping badge
+     * (negative coerced to 0).
+     *
+     * Idempotent: re-invoking for the same [entryUuid] updates the
+     * existing phantom row in place (the underlying ADD_PLAYER carries
+     * the current display name + latency). The synthetic profile has no
+     * skin, so the row shows the default (steve/alex) head — acceptable
+     * for the Phase 1 PoC.
+     */
+    public fun sendAddEntry(
+        viewer: Player,
+        entryUuid: UUID,
+        name: String,
+        displayName: Component,
+        latencyMs: Int,
+    )
+
+    /**
+     * Remove a phantom row previously injected via [sendAddEntry] from
+     * [viewer]'s tab list. [entryUuid] is the same caller-derived
+     * phantom UUID. No-op from the client's perspective if the viewer
+     * never held that row.
+     */
+    public fun sendRemoveEntry(viewer: Player, entryUuid: UUID)
 }

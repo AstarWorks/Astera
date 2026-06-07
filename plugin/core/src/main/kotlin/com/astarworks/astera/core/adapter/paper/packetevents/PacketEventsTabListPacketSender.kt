@@ -3,6 +3,7 @@ package com.astarworks.astera.core.adapter.paper.packetevents
 import com.github.retrooper.packetevents.PacketEvents
 import com.github.retrooper.packetevents.protocol.player.GameMode
 import com.github.retrooper.packetevents.protocol.player.UserProfile
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfoRemove
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerInfoUpdate
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
@@ -17,6 +18,15 @@ import java.util.UUID
  * client sees its own display-name + latency badge for the listed
  * subjects — while the shared Player List packet keeps broadcasting the
  * default-locale / no-badge baseline to everyone else.
+ *
+ * For **synthetic / offline** subjects (ADR-0173 Wave 6c-stub-D) the
+ * client has no baseline row, so [sendAddEntry] injects a phantom one via
+ * `WrapperPlayServerPlayerInfoUpdate` with the `ADD_PLAYER` +
+ * `UPDATE_LISTED` actions (a `listed = true` ADD is what makes the row
+ * actually render), and [sendRemoveEntry] tears it down with
+ * `WrapperPlayServerPlayerInfoRemove` when it drops out of the viewer's
+ * entry-set diff. The phantom `UserProfile` carries no skin property, so
+ * the row renders with the default (steve/alex) head.
  *
  * ## Isolation contract (mirror of [PacketEventsTeamPacketSender])
  *
@@ -83,6 +93,42 @@ public class PacketEventsTabListPacketSender : ITabListPacketSender {
             EnumSet.of(WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LATENCY),
             listOf(info),
         )
+        PacketEvents.getAPI().playerManager.getUser(viewer).sendPacket(packet)
+    }
+
+    override fun sendAddEntry(
+        viewer: Player,
+        entryUuid: UUID,
+        name: String,
+        displayName: Component,
+        latencyMs: Int,
+    ) {
+        val info = WrapperPlayServerPlayerInfoUpdate.PlayerInfo(
+            UserProfile(entryUuid, name),
+            true,                       // listed — required for the row to render
+            latencyMs.coerceAtLeast(0), // ping badge
+            GameMode.SURVIVAL,          // gameMode — not surfaced for a phantom row
+            displayName,                // the viewer-visible row text
+            null,                       // chatSession
+            0,                          // listOrder
+        )
+        // ADD_PLAYER spawns the row; UPDATE_LISTED marks it visible;
+        // UPDATE_DISPLAY_NAME / UPDATE_LATENCY make the same packet carry
+        // the current text + ping so re-sends refresh in place (idempotent).
+        val packet = WrapperPlayServerPlayerInfoUpdate(
+            EnumSet.of(
+                WrapperPlayServerPlayerInfoUpdate.Action.ADD_PLAYER,
+                WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LISTED,
+                WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_DISPLAY_NAME,
+                WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LATENCY,
+            ),
+            listOf(info),
+        )
+        PacketEvents.getAPI().playerManager.getUser(viewer).sendPacket(packet)
+    }
+
+    override fun sendRemoveEntry(viewer: Player, entryUuid: UUID) {
+        val packet = WrapperPlayServerPlayerInfoRemove(entryUuid)
         PacketEvents.getAPI().playerManager.getUser(viewer).sendPacket(packet)
     }
 }

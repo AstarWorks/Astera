@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import net.kyori.adventure.text.Component
 import org.bukkit.Server
 import org.bukkit.entity.Player
+import java.util.UUID
 
 /**
  * Wave 6b Paper [ITabList] registered at priority 100, replacing the
@@ -35,13 +36,21 @@ import org.bukkit.entity.Player
  * Wave 6b behaviour (server-wide `Player.playerListName` for online
  * subjects, offline / synthetic rows silently dropped).
  *
+ * # Synthetic / offline rows (Wave 6c-stub-packetevents-D, ADR-0173)
+ *
+ * With the sender wired, an entry whose [TabListEntry.name] is **not** an
+ * online player is injected as a **phantom** tab-list row for the
+ * requesting viewer only: a per-viewer phantom UUID
+ * ([phantomTabListUuid]) is ADD_PLAYER'd carrying the viewer's
+ * locale-rendered display name + ping badge. Phantom UUIDs that drop out
+ * of a later `setPlayerEntries` push are REMOVE'd. The phantom row has no
+ * skin (default steve/alex head). Without the sender (vanilla Paper, no
+ * PE) synthetic rows are still dropped — there is no client baseline to
+ * override.
+ *
  * Phase 1 PoC limits (still present with the sender wired):
- *  - Adding **non-online-player** entries (synthetic NPC rows, custom
- *    server-info badges) requires phantom `UserProfile` UUIDs with
- *    their own lifecycle (ADD_PLAYER on first sight, REMOVE on diff)
- *    and is deferred to a follow-up wave (ADR-0172 §carve-outs).
- *    Offline / synthetic rows continue to be dropped silently — only
- *    recorded in the snapshot returned by [currentEntries].
+ *  - Duplicate offline entries sharing the same [TabListEntry.name]
+ *    collapse to one phantom row (the derived UUID is name-scoped).
  *  - Header / footer rendering uses [IMessageRenderer] per-viewer when
  *    supplied (existing). Without a renderer the raw [MessageKey]
  *    value is used with in-process `{name}` substitution.
@@ -60,6 +69,12 @@ public class PaperTabList(
     private val headerKeys: MutableMap<PlayerId, RenderedRecord> = mutableMapOf()
     private val footerKeys: MutableMap<PlayerId, RenderedRecord> = mutableMapOf()
     private val entries: MutableMap<PlayerId, List<TabListEntry>> = mutableMapOf()
+
+    // Wave 6c-stub-packetevents-D (ADR-0173): phantom tab-list-row UUIDs
+    // currently injected for each viewer, so the next push can REMOVE the
+    // ones that dropped out of the entry-set. Only populated when the
+    // packet sender is wired (vanilla Paper can't inject synthetic rows).
+    private val phantomUuids: MutableMap<PlayerId, Set<UUID>> = mutableMapOf()
 
     override fun setHeader(playerId: PlayerId, header: MessageKey, placeholders: Map<String, String>) {
         val rendered = render(playerId, header, placeholders)
@@ -85,7 +100,7 @@ public class PaperTabList(
 
     override fun setPlayerEntries(playerId: PlayerId, entries: List<TabListEntry>) {
         this.entries[playerId] = entries.toList()
-        pushEntriesForOnlineSubjects(playerId, entries)
+        pushEntries(playerId, entries)
     }
 
     override fun currentHeader(playerId: PlayerId): String? = headerKeys[playerId]?.rendered
@@ -113,35 +128,62 @@ public class PaperTabList(
             footerKeys[playerId] = rec.copy(rendered = rendered)
             server.getPlayer(playerId.uuid)?.sendPlayerListFooter(Component.text(rendered))
         }
-        entries.forEach { (playerId, list) -> pushEntriesForOnlineSubjects(playerId, list) }
+        entries.forEach { (playerId, list) -> pushEntries(playerId, list) }
     }
 
-    private fun pushEntriesForOnlineSubjects(playerId: PlayerId, list: List<TabListEntry>) {
+    private fun pushEntries(playerId: PlayerId, list: List<TabListEntry>) {
         // Wave 6c-stub-packetevents-C (ADR-0172): when the per-viewer
-        // packet sender is wired, route through it so each viewer gets
-        // its own UPDATE_DISPLAY_NAME / UPDATE_LATENCY packets and
-        // server-wide `Player.playerListName` is left untouched (no
-        // leak to other viewers). When the sender is null (vanilla
-        // Paper, PacketEvents absent), fall back to the original
+        // packet sender is wired, route online subjects through it so
+        // each viewer gets its own UPDATE_DISPLAY_NAME / UPDATE_LATENCY
+        // packets and server-wide `Player.playerListName` is left
+        // untouched (no leak to other viewers). When the sender is null
+        // (vanilla Paper, PacketEvents absent), fall back to the
         // server-global `playerListName` set so dev-time / non-PE
-        // deployments still work — at the cost of one viewer's
-        // rename leaking to everyone, the known limitation.
+        // deployments still work — at the cost of one viewer's rename
+        // leaking to everyone, the known limitation.
+        //
+        // Wave 6c-stub-packetevents-D (ADR-0173): offline / synthetic
+        // subjects (no online `Player`, no client baseline row) are
+        // injected as per-viewer phantom rows via ADD_PLAYER, and the
+        // phantom UUIDs that drop out of the entry-set are REMOVE'd. This
+        // needs the packet sender — vanilla Paper still drops them.
         val sender = tabListPacketSender
         val viewer: Player? = sender?.let { server.getPlayer(playerId.uuid) }
+        val desiredPhantoms = mutableSetOf<UUID>()
         for (entry in list) {
-            val subject: Player = server.getPlayerExact(entry.name) ?: continue
-            val displayKey = entry.displayName
-            val displayText = if (displayKey != null) {
-                render(playerId, displayKey, emptyMap())
-            } else {
-                entry.name
+            val displayText = entry.displayName?.let { render(playerId, it, emptyMap()) } ?: entry.name
+            val subject: Player? = server.getPlayerExact(entry.name)
+            when {
+                // Online subject: override its existing tab-list row.
+                subject != null -> {
+                    if (sender != null && viewer != null) {
+                        sender.sendDisplayNameUpdate(viewer, subject.uniqueId, Component.text(displayText))
+                        sender.sendLatencyUpdate(viewer, subject.uniqueId, entry.pingMs)
+                    } else {
+                        subject.playerListName(Component.text(displayText))
+                    }
+                }
+                // Offline / synthetic subject: inject a per-viewer phantom
+                // row. Impossible without the sender (the client has no
+                // baseline to override), so vanilla Paper drops it.
+                sender != null && viewer != null -> {
+                    val phantom = phantomTabListUuid(viewer.uniqueId, entry.name)
+                    sender.sendAddEntry(viewer, phantom, entry.name, Component.text(displayText), entry.pingMs)
+                    desiredPhantoms += phantom
+                }
             }
-            if (sender != null && viewer != null) {
-                sender.sendDisplayNameUpdate(viewer, subject.uniqueId, Component.text(displayText))
-                sender.sendLatencyUpdate(viewer, subject.uniqueId, entry.pingMs)
-            } else {
-                subject.playerListName(Component.text(displayText))
+        }
+        // Reconcile phantom rows: REMOVE any injected on a prior push that
+        // are no longer desired. ADD is re-sent above every push (idempotent
+        // refresh), so the tracked set drives removals only. Skip when the
+        // viewer is offline — nothing to send; the set is reconciled on the
+        // next push after they (re)connect.
+        if (sender != null && viewer != null) {
+            val previous = phantomUuids[playerId].orEmpty()
+            for (stale in previous - desiredPhantoms) {
+                sender.sendRemoveEntry(viewer, stale)
             }
+            phantomUuids[playerId] = desiredPhantoms
         }
     }
 
@@ -162,3 +204,20 @@ public class PaperTabList(
         val rendered: String,
     )
 }
+
+/**
+ * Stable per-viewer phantom UUID for a synthetic tab-list row
+ * (Wave 6c-stub-packetevents-D, ADR-0173).
+ *
+ * Derived from the viewer UUID + row name so that:
+ *  - the same row keeps the same UUID across pushes — ADD is idempotent
+ *    and REMOVE targets exactly the row it spawned;
+ *  - two viewers' phantom rows never collide — one viewer's REMOVE can
+ *    never tear down another viewer's row.
+ *
+ * A type-3 (name-based) UUID over a viewer-scoped string; it does not
+ * collide with a real player's type-4 UUID in practice. Pure — no Bukkit,
+ * unit-tested directly.
+ */
+internal fun phantomTabListUuid(viewerUuid: UUID, name: String): UUID =
+    UUID.nameUUIDFromBytes("$viewerUuid:$name".toByteArray())
