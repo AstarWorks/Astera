@@ -401,8 +401,40 @@ public class AsteraStatsPlugin : JavaPlugin() {
                 "RecomputeProfileCardOnAchievementUnlocked subscribed.",
         )
 
+        // ── Wave 7b (ADR-0037): competitive leaderboard + season ────────────
+        // Season repo seeds a default active season ("season-1") so the
+        // leaderboard works without manual setup; Postgres overlays both at
+        // priority 100 (V48 seasons / leaderboard_rankings). The listener
+        // materialises rankings from Match's PlayerRatingUpdated events.
+        val seasonRepository: com.astarworks.astera.stats.application.port.outbound.ISeasonRepository =
+            services.get<com.astarworks.astera.stats.application.port.outbound.ISeasonRepository>()
+                ?: com.astarworks.astera.stats.application.service.season.InMemorySeasonRepository().also {
+                    registrations += services.register<com.astarworks.astera.stats.application.port.outbound.ISeasonRepository>(it, priority = 0)
+                }
+        val leaderboardRepository: com.astarworks.astera.stats.application.port.outbound.ILeaderboardRepository =
+            services.get<com.astarworks.astera.stats.application.port.outbound.ILeaderboardRepository>()
+                ?: com.astarworks.astera.stats.application.service.leaderboard.InMemoryLeaderboardRepository().also {
+                    registrations += services.register<com.astarworks.astera.stats.application.port.outbound.ILeaderboardRepository>(it, priority = 0)
+                }
+        val recordRatingListener = com.astarworks.astera.stats.application.eventbus.listeners
+            .RecordRatingOnPlayerRatingUpdatedListener(seasonRepository, leaderboardRepository)
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerRatingUpdated::class,
+        ) { recordRatingListener.handle(it) }
+
+        val queryLeaderboard = com.astarworks.astera.stats.application.usecase.leaderboard
+            .QueryLeaderboardUseCase(leaderboardRepository, seasonRepository)
+        registrations += services.register(queryLeaderboard, priority = 0)
+        registrations += services.register(
+            com.astarworks.astera.stats.application.usecase.season.ResetSeasonUseCase(seasonRepository),
+            priority = 0,
+        )
+
         // 7. /astera-stats command -----------------------------------------
         commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway, permService))
+
+        // Wave 7b: /astera-leaderboard [n] — top-N of the current season.
+        commandHandler.register(buildLeaderboardCommandSpec(queryLeaderboard, playerGateway))
 
         // Wave E 5admin-ops (ADR-0122) — `/astera-grant-xp` flat admin command.
         commandHandler.register(
@@ -523,4 +555,59 @@ public class AsteraStatsPlugin : JavaPlugin() {
             ),
         ),
     )
+
+    /**
+     * `/astera-leaderboard [n]` — print the top-N players of the current
+     * competitive season (default 10), highest Elo first (Wave 7b, ADR-0037).
+     * Read-only and open to everyone; rendering is a plain message line per
+     * entry (name resolution / GUI is Wave 7c polish).
+     */
+    private fun buildLeaderboardCommandSpec(
+        queryLeaderboard: com.astarworks.astera.stats.application.usecase.leaderboard.QueryLeaderboardUseCase,
+        playerGateway: IPlayerGateway,
+    ): CommandSpec.Literal {
+        fun render(sender: com.astarworks.astera.core.domain.player.PlayerId?, limit: Int): CommandResult {
+            if (sender == null) return CommandResult.Failure(MessageKey("astera.stats.command.console-not-supported"))
+            return queryLeaderboard.execute(limit).fold(
+                onSuccess = { entries ->
+                    if (entries.isEmpty()) {
+                        playerGateway.sendMessage(sender, "[Leaderboard] No ranked games played yet this season.")
+                    } else {
+                        playerGateway.sendMessage(sender, "[Leaderboard] Top ${entries.size} this season:")
+                        entries.forEachIndexed { i, e ->
+                            playerGateway.sendMessage(
+                                sender,
+                                "#${i + 1} ${e.playerId.uuid.toString().take(8)} " +
+                                    "rating=${e.rating} ${e.wins}W-${e.losses}L (${"%.0f".format(e.winRate * 100)}%)",
+                            )
+                        }
+                    }
+                    CommandResult.Success
+                },
+                onFailure = { CommandResult.Failure(MessageKey("astera.leaderboard.unavailable")) },
+            )
+        }
+        return CommandSpec.Literal(
+            name = "astera-leaderboard",
+            description = MessageKey("astera.leaderboard.command.root"),
+            executor = { ctx -> render(ctx.sender, DEFAULT_LEADERBOARD_LIMIT) },
+            subcommands = listOf(
+                CommandSpec.Literal(
+                    name = "top",
+                    description = MessageKey("astera.leaderboard.command.top"),
+                    subcommands = listOf(
+                        CommandSpec.Argument(
+                            name = "n",
+                            type = ArgumentType.IntegerArg(min = 1, max = 100),
+                        ),
+                    ),
+                    executor = { ctx -> render(ctx.sender, ctx.required<Int>("n")) },
+                ),
+            ),
+        )
+    }
+
+    private companion object {
+        private const val DEFAULT_LEADERBOARD_LIMIT = 10
+    }
 }

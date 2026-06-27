@@ -6,8 +6,10 @@ import com.astarworks.astera.core.domain.event.MatchQueueJoined
 import com.astarworks.astera.core.domain.event.MatchQueueLeft
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.social.PartyId
+import com.astarworks.astera.match.domain.matchmaking.MatchSizeSpec
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.domain.matchmaking.QueueError
+import com.astarworks.astera.match.domain.rating.Rating
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeScheduler
 import org.assertj.core.api.Assertions.assertThat
@@ -192,6 +194,52 @@ class InMemoryMatchmakerTest {
         mm.enqueue(pid(), MatchmakingMode.Tournament("cup-2026-fall"))
         assertThat(mm.pendingByMode(MatchmakingMode.Tournament("cup-2026-spring"))).hasSize(1)
         assertThat(mm.pendingByMode(MatchmakingMode.Tournament("cup-2026-fall"))).hasSize(1)
+    }
+
+    @Test
+    fun `per-mode sizing forms a 2v2 only once four players queue`() {
+        val bus = FakeDomainEventBus()
+        val mm = InMemoryMatchmaker(
+            eventBus = bus,
+            scheduler = FakeScheduler(),
+            clock = { baseClock },
+            sizeByMode = { MatchSizeSpec.TWO_V_TWO },
+        )
+        repeat(3) { mm.enqueue(pid(), MatchmakingMode.Norma) }
+        assertThat(mm.tryFormMatch(MatchmakingMode.Norma).getOrNull()).isNull()
+
+        mm.enqueue(pid(), MatchmakingMode.Norma)
+        val formation = mm.tryFormMatch(MatchmakingMode.Norma).getOrNull()!!
+        assertThat(formation.players).hasSize(4)
+        assertThat(formation.teams).hasSize(2)
+        assertThat(formation.teams).allSatisfy { assertThat(it).hasSize(2) }
+    }
+
+    @Test
+    fun `solos are balanced across teams by rating`() {
+        val ratings = mutableMapOf<PlayerId, Rating>()
+        val mm = InMemoryMatchmaker(
+            eventBus = FakeDomainEventBus(),
+            scheduler = FakeScheduler(),
+            clock = { baseClock },
+            ratingLookup = { ratings[it] ?: Rating.DEFAULT },
+            sizeByMode = { MatchSizeSpec.TWO_V_TWO },
+        )
+        val strong1 = pid(); val strong2 = pid(); val weak1 = pid(); val weak2 = pid()
+        ratings[strong1] = Rating(1600)
+        ratings[strong2] = Rating(1500)
+        ratings[weak1] = Rating(1000)
+        ratings[weak2] = Rating(900)
+        listOf(strong1, strong2, weak1, weak2).forEach { mm.enqueue(it, MatchmakingMode.Norma) }
+
+        val formation = mm.tryFormMatch(MatchmakingMode.Norma).getOrNull()!!
+        fun teamAverage(team: Set<PlayerId>) = team.map { ratings.getValue(it).value }.average()
+        val averages = formation.teams.map { teamAverage(it) }
+        // Snake-draft splits the strong pair across the two teams.
+        assertThat(kotlin.math.abs(averages[0] - averages[1])).isLessThanOrEqualTo(150.0)
+        // Sanity: the two top-rated players are not stacked on one team.
+        val strongTeam = formation.teams.first { strong1 in it }
+        assertThat(strongTeam).doesNotContain(strong2)
     }
 
     @Test

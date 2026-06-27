@@ -10,9 +10,11 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.social.PartyId
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.domain.matchmaking.MatchFormation
+import com.astarworks.astera.match.domain.matchmaking.MatchSizeSpec
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.domain.matchmaking.QueueEntry
 import com.astarworks.astera.match.domain.matchmaking.QueueError
+import com.astarworks.astera.match.domain.rating.Rating
 import java.time.Instant
 
 /**
@@ -22,10 +24,15 @@ import java.time.Instant
  * party-aware grouping (all members of the same [PartyId] land on the same
  * team in the resulting [MatchFormation]).
  *
- * **Match size**: target is `2 teams × 1 player = 2 players` minimum so the
- * skeleton fits the Wave 5c demo. Real per-mode sizing arrives in Wave 7b
- * (ADR-0037 Tournament + Matchmaking expansion); for Phase 1 PoC a fixed
- * 2-player floor is sufficient to exercise the queue → match → spawn loop.
+ * **Match size**: per-mode via [sizeByMode] (Wave 7b, ADR-0037). The
+ * constructor `teamCount` / `minPlayersPerTeam` seed the default
+ * [MatchSizeSpec] for callers that want a single fixed floor (the Wave 5c
+ * demo path); a wave that needs 1v1 / 2v2 / … lanes passes a real
+ * `sizeByMode` lookup.
+ *
+ * **Rating balance** (ADR-0037): solo players are dealt across teams by
+ * descending [Rating] (snake-draft / lowest-average-first), so team average
+ * ratings stay close. [ratingLookup] supplies each player's Elo at enqueue.
  *
  * **Idempotency** (ADR-0089 §"IMatchmaker simple FIFO Phase 1 PoC"):
  * `tryFormMatch` removes consumed entries from the pending list before
@@ -40,6 +47,10 @@ public class InMemoryMatchmaker(
     private val clock: () -> Instant = { Instant.now() },
     private val minPlayersPerTeam: Int = 1,
     private val teamCount: Int = 2,
+    private val ratingLookup: (PlayerId) -> Rating = { Rating.DEFAULT },
+    private val sizeByMode: (MatchmakingMode) -> MatchSizeSpec = {
+        MatchSizeSpec(teamCount = teamCount, playersPerTeam = minPlayersPerTeam)
+    },
 ) : IMatchmaker {
 
     init {
@@ -50,8 +61,6 @@ public class InMemoryMatchmaker(
     /** Mode keyed to a FIFO list of entries (no extraction of `playerId` to its own index — n is small in Phase 1). */
     private val pending: MutableMap<ModeKey, MutableList<QueueEntry>> = mutableMapOf()
     private val closedModes: MutableSet<ModeKey> = mutableSetOf()
-
-    private val targetPlayers: Int = teamCount * minPlayersPerTeam
 
     override fun enqueue(
         playerId: PlayerId,
@@ -72,6 +81,7 @@ public class InMemoryMatchmaker(
             enqueuedAt = clock(),
             estimatedWaitSec = estimateWaitSec(modeKey),
             partyId = partyId,
+            rating = ratingLookup(playerId),
         )
         pending.getOrPut(modeKey) { mutableListOf() }.add(entry)
         eventBus.publish(
@@ -121,55 +131,66 @@ public class InMemoryMatchmaker(
         if (modeKey in closedModes) {
             return Result.Failure(QueueError.ModeClosed(mode))
         }
+        val spec = sizeByMode(mode)
+        val perTeam = spec.playersPerTeam
         val list = pending[modeKey] ?: return Result.Success(null)
-        if (list.size < targetPlayers) return Result.Success(null)
+        if (list.size < spec.targetPlayers) return Result.Success(null)
 
         // FIFO + party-aware. Group entries by partyId; null = solo.
         val sorted = list.sortedBy { it.enqueuedAt }
-        val pickedEntries: MutableList<QueueEntry> = mutableListOf()
         val grouped: MutableMap<PartyId, MutableList<QueueEntry>> = mutableMapOf()
         val solos: MutableList<QueueEntry> = mutableListOf()
         for (e in sorted) {
-            if (pickedEntries.size >= targetPlayers) break
             if (e.partyId == null) {
                 solos += e
             } else {
                 grouped.getOrPut(e.partyId) { mutableListOf() }.add(e)
             }
         }
-        // Greedy fill: first put parties on teams (in arrival order of the
-        // earliest member), then top up with solos. Per-team cap is
-        // `minPlayersPerTeam` in Phase 1; an oversized party falls back to
-        // PartyTooLargeForMode.
-        val teams: MutableList<MutableSet<PlayerId>> = MutableList(teamCount) { mutableSetOf() }
-        // Sort parties by their earliest enqueuedAt to keep FIFO between parties.
-        val partyOrdered = grouped.values.sortedBy { it.minOf { entry -> entry.enqueuedAt } }
+        // Rating of every candidate (Rating.DEFAULT when the entry has none) so
+        // team-average comparisons during the solo draft are cheap.
+        val ratingByPlayer: Map<PlayerId, Rating> =
+            sorted.associate { it.playerId to (it.rating ?: Rating.DEFAULT) }
+        fun teamAverage(team: Set<PlayerId>): Double =
+            if (team.isEmpty()) 0.0
+            else team.map { (ratingByPlayer[it] ?: Rating.DEFAULT).value }.average()
+
+        val pickedEntries: MutableList<QueueEntry> = mutableListOf()
+        val teams: MutableList<MutableSet<PlayerId>> = MutableList(spec.teamCount) { mutableSetOf() }
+        // Parties first, in FIFO order of their earliest member, so a full party
+        // claims a team slot before solos top up. Per-team cap is `perTeam`; an
+        // oversized party falls back to PartyTooLargeForMode.
+        val partyOrdered = grouped.values.sortedBy { party -> party.minOf { entry -> entry.enqueuedAt } }
         for (party in partyOrdered) {
-            if (party.size > minPlayersPerTeam) {
+            if (party.size > perTeam) {
                 return Result.Failure(
                     QueueError.PartyTooLargeForMode(
                         mode = mode,
                         partySize = party.size,
-                        perTeamCap = minPlayersPerTeam,
+                        perTeamCap = perTeam,
                     ),
                 )
             }
-            val teamIdx = teams.indexOfFirst { it.size + party.size <= minPlayersPerTeam }
+            val teamIdx = teams.indexOfFirst { it.size + party.size <= perTeam }
             if (teamIdx < 0) continue
             teams[teamIdx].addAll(party.map { it.playerId })
             pickedEntries += party
         }
-        // Then solos (FIFO).
-        for (solo in solos) {
-            if (pickedEntries.size + teams.sumOf { it.size } - pickedEntries.size >= targetPlayers) break
-            val teamIdx = teams.indexOfFirst { it.size < minPlayersPerTeam }
-            if (teamIdx < 0) break
-            teams[teamIdx].add(solo.playerId)
+        // Solos: snake-draft by rating (desc). Each pick goes to the team with a
+        // free slot and the lowest current average rating, so the strongest free
+        // agents are spread across teams and the team averages stay close.
+        val rankedSolos = solos.sortedByDescending { (it.rating ?: Rating.DEFAULT).value }
+        for (solo in rankedSolos) {
+            val target = teams.withIndex()
+                .filter { (_, team) -> team.size < perTeam }
+                .minByOrNull { (_, team) -> teamAverage(team) }
+                ?: break
+            teams[target.index].add(solo.playerId)
             pickedEntries += solo
-            if (teams.all { it.size >= minPlayersPerTeam }) break
+            if (teams.all { it.size >= perTeam }) break
         }
-        // Final check: every team meets the floor.
-        if (teams.any { it.size < minPlayersPerTeam }) {
+        // Final check: every team meets the per-mode size.
+        if (teams.any { it.size < perTeam }) {
             return Result.Success(null)
         }
 

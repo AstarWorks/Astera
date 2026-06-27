@@ -343,6 +343,25 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // Wave 7b (ADR-0037): Tournament + ranked rating + season leaderboard.
+        // V46 tournaments / V47 player_ratings / V48 seasons + leaderboard_rankings.
+        registrations += services.register<com.astarworks.astera.match.application.port.outbound.tournament.ITournamentRepository>(
+            com.astarworks.astera.persistence.repository.PostgresTournamentRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<com.astarworks.astera.match.application.port.outbound.rating.IPlayerRatingRepository>(
+            com.astarworks.astera.persistence.repository.PostgresPlayerRatingRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<com.astarworks.astera.stats.application.port.outbound.ISeasonRepository>(
+            com.astarworks.astera.persistence.repository.PostgresSeasonRepository(ctx.database),
+            priority = 100,
+        )
+        registrations += services.register<com.astarworks.astera.stats.application.port.outbound.ILeaderboardRepository>(
+            com.astarworks.astera.persistence.repository.PostgresLeaderboardRepository(ctx.database),
+            priority = 100,
+        )
+
         logger.info(
             "Astera-Persistence enabled. Postgres overlays registered: " +
                 "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +

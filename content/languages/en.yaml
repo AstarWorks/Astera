@@ -628,6 +628,13 @@ astera:
       champion: "<gold>Champion</gold>"
       veteran: "<gold>Veteran</gold>"
 
+  # Wave 7b (ADR-0037) — competitive leaderboard command strings.
+  leaderboard:
+    command:
+      root: "<gray>View the season leaderboard.</gray>"
+      top: "<gray>Show the top N players this season.</gray>"
+    unavailable: "<red>Leaderboard unavailable.</red>"
+
   # Wave 5flex (ADR-0102) — flex layer cross-cutting strings.
   flex:
     profile:

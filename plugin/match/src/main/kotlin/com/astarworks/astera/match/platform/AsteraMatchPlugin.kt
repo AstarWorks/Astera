@@ -846,9 +846,28 @@ public class AsteraMatchPlugin : JavaPlugin() {
         //     per team minimum (= 2 players total).
         // G4: subscribe RespawnOnPlayerKilledListener.
         // G5: subscribe TeleportToLobbyOnMatchEndedListener.
+        // ── Wave 7b (ADR-0037): per-player Elo rating + tournament repos ─────
+        // Rating drives ranked matchmaking team-balancing (ratingLookup below)
+        // and is updated on MatchEnded. Postgres overlays both repos at
+        // priority 100 (V47 player_ratings / V46 tournaments).
+        val ratingRepository: com.astarworks.astera.match.application.port.outbound.rating.IPlayerRatingRepository =
+            services.get<com.astarworks.astera.match.application.port.outbound.rating.IPlayerRatingRepository>()
+                ?: com.astarworks.astera.match.application.service.rating.InMemoryPlayerRatingRepository().also {
+                    registrations += services.register<com.astarworks.astera.match.application.port.outbound.rating.IPlayerRatingRepository>(it, priority = 0)
+                }
+        val tournamentRepository: com.astarworks.astera.match.application.port.outbound.tournament.ITournamentRepository =
+            services.get<com.astarworks.astera.match.application.port.outbound.tournament.ITournamentRepository>()
+                ?: com.astarworks.astera.match.application.service.tournament.InMemoryTournamentRepository().also {
+                    registrations += services.register<com.astarworks.astera.match.application.port.outbound.tournament.ITournamentRepository>(it, priority = 0)
+                }
+
         val matchmaker: IMatchmaker =
             services.get<IMatchmaker>()
-                ?: InMemoryMatchmaker(eventBus = eventBus, scheduler = scheduler).also {
+                ?: InMemoryMatchmaker(
+                    eventBus = eventBus,
+                    scheduler = scheduler,
+                    ratingLookup = { ratingRepository.ratingOf(it) },
+                ).also {
                     registrations += services.register<IMatchmaker>(it, priority = 0)
                 }
         commandHandler.register(
@@ -857,6 +876,30 @@ public class AsteraMatchPlugin : JavaPlugin() {
                 playerGateway = playerGateway,
                 permService = permService,
             ),
+        )
+
+        // ── Wave 7b (ADR-0037): ranked rating update + tournament use cases ──
+        // On MatchEnded, recompute each participant's Elo (winner ↑ / loser ↓
+        // against the opposing team average) and publish PlayerRatingUpdated;
+        // Stats subscribes that to materialise the leaderboard. Draws no-op.
+        val updateRatingOnMatchEnded = com.astarworks.astera.match.application.usecase.rating.UpdateRatingOnMatchEndedUseCase(
+            matchRepository = matches,
+            ratingRepository = ratingRepository,
+            eventBus = eventBus,
+        )
+        val updateRatingListener = com.astarworks.astera.match.application.eventbus.listeners.UpdateRatingOnMatchEndedListener(updateRatingOnMatchEnded)
+        subscriptions += eventBus.subscribe(MatchEnded::class) { updateRatingListener.handle(it) }
+
+        // Tournament bracket use cases registered for cross-plugin / web / admin
+        // command use. In-game admin command surface lands in Wave 7c content
+        // tooling; the domain + persistence + events ship here.
+        registrations += services.register(
+            com.astarworks.astera.match.application.usecase.tournament.CreateTournamentUseCase(tournamentRepository, eventBus),
+            priority = 0,
+        )
+        registrations += services.register(
+            com.astarworks.astera.match.application.usecase.tournament.ReportMatchResultUseCase(tournamentRepository, eventBus),
+            priority = 0,
         )
 
         val respawnUseCase = com.astarworks.astera.match.application.usecase.respawn.RespawnUseCase(

@@ -625,6 +625,13 @@ astera:
       champion: "<gold>チャンピオン</gold>"
       veteran: "<gold>古参</gold>"
 
+  # Wave 7b (ADR-0037) — 競技リーダーボードのコマンド文字列。
+  leaderboard:
+    command:
+      root: "<gray>シーズンのリーダーボードを表示します。</gray>"
+      top: "<gray>今シーズンの上位 N 人を表示します。</gray>"
+    unavailable: "<red>リーダーボードを取得できません。</red>"
+
   # Wave 5flex (ADR-0102) — Flex レイヤー共通文字列。
   flex:
     profile:
