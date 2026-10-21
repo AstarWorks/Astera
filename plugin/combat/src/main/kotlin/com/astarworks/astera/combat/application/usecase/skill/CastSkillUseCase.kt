@@ -11,6 +11,7 @@ import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.cooldown.CooldownKey
@@ -61,6 +62,13 @@ public class CastSkillUseCase(
      * can't constructor-inject without a forward declaration).
      */
     private var skillCastDispatcher: SkillCastDispatcher? = null,
+    /**
+     * ADR-0174: source of the caster's world / eye / look direction. Stamped
+     * onto [SkillCast.pose] so handlers can aim projectiles and set
+     * `MechanicContext.worldId`. `null` keeps the pre-0174 behaviour (no
+     * facing, no world => particles / sounds drop).
+     */
+    private val poseLookup: IPlayerPoseLookup? = null,
 ) {
 
     public fun bindSkillCastDispatcher(dispatcher: SkillCastDispatcher) {
@@ -126,7 +134,12 @@ public class CastSkillUseCase(
 
         // 7. Publish event
         val atTick = scheduler.currentTick()
-        eventBus.publish(SkillCast(caster = casterId, skillId = skillId, at = at, atTick = atTick))
+        val pose = poseLookup?.poseOf(casterId)
+        // Callers without a position (charged casts) pass Vec3.ZERO — use the live feet position.
+        val origin = if (at == Vec3.ZERO && pose != null) pose.position else at
+        eventBus.publish(
+            SkillCast(caster = casterId, skillId = skillId, at = origin, atTick = atTick, pose = pose),
+        )
 
         return Result.success(spec)
     }

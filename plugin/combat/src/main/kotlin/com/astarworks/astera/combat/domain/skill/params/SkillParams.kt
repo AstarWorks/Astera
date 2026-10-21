@@ -33,12 +33,19 @@ public sealed class SkillParams {
         val launchSpeed: Double,
         val maxLifetimeTicks: Int,
         val damage: DamageProfile,
+        /** Projectile hit-test sphere radius in blocks (ADR-0174). */
+        val hitRadius: Double = DEFAULT_HIT_RADIUS,
     ) : SkillParams() {
         init {
+            require(hitRadius > 0.0) { "ProjectileParams.hitRadius must be > 0: $hitRadius" }
             require(launchSpeed >= 0.0) { "ProjectileParams.launchSpeed must be >= 0: $launchSpeed" }
             require(maxLifetimeTicks >= 0) {
                 "ProjectileParams.maxLifetimeTicks must be >= 0: $maxLifetimeTicks"
             }
+        }
+
+        public companion object {
+            public const val DEFAULT_HIT_RADIUS: Double = 0.5
         }
     }
 

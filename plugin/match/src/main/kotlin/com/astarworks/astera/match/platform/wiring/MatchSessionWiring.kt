@@ -1,0 +1,168 @@
+package com.astarworks.astera.match.platform.wiring
+
+import com.astarworks.astera.core.application.services.get
+import com.astarworks.astera.core.application.services.getOrThrow
+import com.astarworks.astera.core.application.services.register
+import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
+import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
+import com.astarworks.astera.core.domain.event.ChatMessageSent
+import com.astarworks.astera.match.application.eventbus.listeners.AuditLogListener
+import com.astarworks.astera.match.application.eventbus.listeners.SaveInventoryOnMatchEndedListener
+import com.astarworks.astera.match.application.port.inbound.IMatchRecorder
+import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
+import com.astarworks.astera.match.application.port.outbound.IPlayerPinService
+import com.astarworks.astera.match.application.port.outbound.IRecorderStateProvider
+import com.astarworks.astera.match.application.service.InMemoryPlayerPinService
+import com.astarworks.astera.match.application.service.replay.InMemoryMatchReplayRepository
+import com.astarworks.astera.match.application.service.replay.NoopRecorderStateProvider
+import com.astarworks.astera.match.application.service.replay.ReplayCaptureEngine
+import com.astarworks.astera.match.application.usecase.pin.PlacePinUseCase
+import com.astarworks.astera.match.application.usecase.pin.RemovePinUseCase
+import com.astarworks.astera.match.application.usecase.spectator.EnterSpectatorUseCase
+import com.astarworks.astera.match.application.usecase.spectator.LeaveSpectatorUseCase
+import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.application.port.outbound.IWorldGateway
+import com.astarworks.astera.core.domain.event.MatchStarted
+import com.astarworks.astera.core.domain.event.PlayerJoinedServer
+
+/** Spectator, disconnect/reconnect, pins, audit, snapshot save, replay recording + `/astera-match` (original Wave 5e / 5v). */
+internal object MatchSessionWiring {
+
+    fun install(env: MatchWiringEnv) {
+        val services = env.ctx.services
+        val logger = env.ctx.logger
+        val registrations = env.ctx.registrations
+        val subscriptions = env.ctx.subscriptions
+        val scheduledTasks = env.scheduledTasks
+        val shutdownHooks = env.shutdownHooks
+        val matches = env.matches
+        val eventBus = env.eventBus
+        val scheduler = env.scheduler
+        val playerGateway = env.playerGateway
+        val commandHandler = env.commandHandler
+        val permService = env.permService
+        val facade = env.facade
+        val worldGateway = env.worldGateway
+        val ports = env.ports
+
+        // ---- Wave 5e: Spectator + PlayerPin + Audit + Inventory snapshot save ----
+        val sessionRepo = services.getOrThrow<IPlayerSessionRepository>()
+        // Wave 5h (ADR-0079 §6): spectator use cases accept a nullable
+        // worldGateway. The earlier `val worldGateway = services.get<IWorldGateway>()`
+        // at line ~214 is the canonical one; reuse it here.
+        @Suppress("UNUSED_VARIABLE")
+        val enterSpectator = EnterSpectatorUseCase(
+            sessionRepository = sessionRepo,
+            worldGateway = worldGateway,
+            eventBus = eventBus,
+            scheduler = scheduler,
+        )
+        @Suppress("UNUSED_VARIABLE")
+        val leaveSpectator = LeaveSpectatorUseCase(sessionRepo, worldGateway)
+
+        // Wave 5h (ADR-0079 §5): Disconnect/Reconnect listeners. PlayerQuitServer
+        // → phase-aware kick/freeze/forfeit; PlayerJoinedServer → resume in
+        // 3-min window or lobby fallback. Requires non-null IWorldGateway — only
+        // wire if Core registered one (production-side InMemory default exists).
+        if (worldGateway != null) {
+            val removeFromMatch =
+                com.astarworks.astera.match.application.usecase.match.RemoveFromMatchUseCase(
+                    sessionRepo, matches, worldGateway, eventBus, scheduler,
+                )
+            val applyForfeit =
+                com.astarworks.astera.match.application.usecase.match.ApplyForfeitUseCase(
+                    removeFromMatch, eventBus, scheduler,
+                )
+            val resumeMatch =
+                com.astarworks.astera.match.application.usecase.match.ResumeMatchUseCase(
+                    sessionRepo, matches, worldGateway, eventBus, scheduler,
+                )
+            val disconnectListener =
+                com.astarworks.astera.match.application.eventbus.listeners.DisconnectDuringMatchListener(
+                    sessionRepo, matches, removeFromMatch, applyForfeit, eventBus, scheduler,
+                )
+            val reconnectListener =
+                com.astarworks.astera.match.application.eventbus.listeners.ReconnectDuringMatchListener(
+                    sessionRepo, resumeMatch, worldGateway,
+                )
+            subscriptions += eventBus.subscribe(
+                com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
+            ) { disconnectListener.handle(it) }
+            subscriptions += eventBus.subscribe(PlayerJoinedServer::class) {
+                reconnectListener.handle(it)
+            }
+        }
+
+        val pinService = InMemoryPlayerPinService(eventBus)
+        registrations += services.register<IPlayerPinService>(pinService, priority = 0)
+        @Suppress("UNUSED_VARIABLE") val placePin = PlacePinUseCase(pinService)
+        @Suppress("UNUSED_VARIABLE") val removePin = RemovePinUseCase(pinService)
+
+        // Audit log: AuditLogListener handles each event variant via a method per type.
+        val auditRepo = services.getOrThrow<IAuditLogRepository>()
+        val auditListener = AuditLogListener(auditRepo)
+        subscriptions += eventBus.subscribe(ChatMessageSent::class) { auditListener.handleChatMessageSent(it) }
+        subscriptions += eventBus.subscribe(MatchStarted::class) { auditListener.handleMatchStarted(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { auditListener.handleMatchEnded(it) }
+
+        // Inventory snapshot save on MatchEnded (per-participant placeholder; Wave 6b
+        // replaces with a real Bukkit-inventory capture).
+        val snapshotRepo = services.getOrThrow<IPlayerInventorySnapshotRepository>()
+        val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
+        val saveInventoryOnMatchEnded = SaveInventoryOnMatchEndedListener(saveSnapshotUseCase, matches)
+        subscriptions += eventBus.subscribe(MatchEnded::class) { saveInventoryOnMatchEnded.handle(it) }
+
+        logger.info("Wave 5e wiring complete: Spectator + PlayerPin + AuditLog + SaveInventory listeners.")
+
+        // ---- Wave 5v: Match recording capture (ADR-0088) --------------------
+        // Repository: registered at priority 0 (in-memory) so an absent
+        // Astera-Persistence plugin still produces well-formed RecordedReplay
+        // objects (just lost on shutdown). Postgres impl overlays at
+        // priority 100 from AsteraPersistencePlugin.
+        val replayRepo: IMatchReplayRepository =
+            services.get<IMatchReplayRepository>()
+                ?: InMemoryMatchReplayRepository().also {
+                    registrations += services.register<IMatchReplayRepository>(it, priority = 0)
+                }
+
+        // State provider: registered at priority 0 (Noop). Wave 6a's
+        // PaperRecorderStateProvider overlays at priority 100; in absence,
+        // key frames carry empty per-player maps (still well-formed).
+        val recorderStateProvider: IRecorderStateProvider =
+            services.get<IRecorderStateProvider>()
+                ?: NoopRecorderStateProvider().also {
+                    registrations += services.register<IRecorderStateProvider>(it, priority = 0)
+                }
+
+        val recorder = ReplayCaptureEngine(
+            bus = eventBus,
+            scheduler = scheduler,
+            repository = replayRepo,
+            stateProvider = recorderStateProvider,
+        )
+        recorder.bootstrap()
+        registrations += services.register<IMatchRecorder>(recorder)
+        // onDisable hook: shutdown subscriptions + scheduled tasks owned by
+        // the engine (its own list, distinct from this plugin's `subscriptions` /
+        // `scheduledTasks` collections so disable order stays predictable).
+        shutdownHooks += { recorder.shutdown() }
+
+        logger.info("Wave 5v wiring complete: ReplayCaptureEngine registered as IMatchRecorder.")
+
+        // 5. Register /astera-match command tree --------------------------------
+        commandHandler.register(
+            MatchCommandSpecs.buildMatchCommandSpec(
+                lifecycle = facade,
+                matches = matches,
+                playerGateway = playerGateway,
+                permService = permService,
+                recorder = recorder,
+                replayRepo = replayRepo,
+                exportRoot = ports.replayExportRoot,
+                logger = logger,
+            ),
+        )
+    }
+}

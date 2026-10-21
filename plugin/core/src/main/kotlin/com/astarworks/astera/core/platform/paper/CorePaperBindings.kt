@@ -1,0 +1,447 @@
+package com.astarworks.astera.core.platform.paper
+
+import com.astarworks.astera.core.adapter.api.server.IMcServer
+import com.astarworks.astera.core.adapter.paper.command.PaperCommandHandler
+import com.astarworks.astera.core.adapter.paper.event.BukkitEventAdapter
+import com.astarworks.astera.core.adapter.paper.event.PaperBroadcaster
+import com.astarworks.astera.core.adapter.paper.gui.PaperGuiAdapter
+import com.astarworks.astera.core.adapter.paper.gui.PaperGuiListener
+import com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer
+import com.astarworks.astera.core.adapter.paper.observability.HttpMetricsServer
+import com.astarworks.astera.core.adapter.paper.observability.MatchQueueMetric
+import com.astarworks.astera.core.adapter.paper.observability.MetricsConfig
+import com.astarworks.astera.core.adapter.paper.observability.MicrometerMetricsRegistry
+import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsBootstrap
+import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsTabListPacketSender
+import com.astarworks.astera.core.adapter.paper.packetevents.PacketEventsTeamPacketSender
+import com.astarworks.astera.core.adapter.paper.packetevents.PaperPacketInterceptor
+import com.astarworks.astera.core.adapter.paper.scheduler.PaperScheduler
+import com.astarworks.astera.core.adapter.paper.server.PaperServer
+import com.astarworks.astera.core.application.port.outbound.IBroadcaster
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
+import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
+import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.admin.IServerHealthCheck
+import com.astarworks.astera.core.application.port.outbound.observability.IMetricsRegistry
+import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.services.get
+import com.astarworks.astera.core.application.services.getOrThrow
+import com.astarworks.astera.core.application.services.register
+import com.astarworks.astera.core.domain.event.DomainEvent
+import com.astarworks.astera.core.domain.world.WorldId
+import com.astarworks.astera.core.platform.wiring.CorePlatformPorts
+import com.astarworks.astera.core.platform.wiring.CoreWiringResult
+import com.astarworks.astera.core.platform.wiring.GuiAdapterFactory
+import com.astarworks.astera.core.platform.wiring.WiringContext
+import org.bukkit.plugin.java.JavaPlugin
+
+/**
+ * Paper half of Core's enable sequence (ADR-0174): builds the
+ * [CorePlatformPorts] from Paper adapters, and after the host-neutral
+ * `CoreWiring.install` registers the Bukkit listeners / starts the services
+ * that need the [JavaPlugin].
+ *
+ * Every Paper object that the former monolithic `onEnable` built mid-wiring is
+ * built here, inside a port factory the wiring invokes at the same point, so
+ * construction order against the in-memory registrations is unchanged.
+ */
+internal class CorePaperBindings(
+    private val plugin: JavaPlugin,
+    /**
+     * Wave 6c-stub-packetevents (ADR-0170): whether `onLoad` confirmed the
+     * PacketEvents plugin. PE symbols are only resolved strictly behind this
+     * gate (JLS §5.3.4 lazy resolution keeps vanilla Paper bootable).
+     */
+    private val packetEventsInstalled: Boolean,
+) {
+    private val server = plugin.server
+    private val logger = plugin.logger
+
+    private lateinit var mcServer: IMcServer
+    private lateinit var scheduler: IScheduler
+
+    /** Retained so [shutdown] can call [PaperScheduler.stop]. */
+    private var paperScheduler: PaperScheduler? = null
+
+    /** Wave 6b-3 (ADR-0158): drained on [shutdown]. */
+    private var lettuceBroadcaster: com.astarworks.astera.core.adapter.paper.broadcast.LettuceRedisBroadcaster? = null
+
+    /** Retained so [shutdown] can release the HTTP port (Wave _ops). */
+    private var metricsHttpServer: HttpMetricsServer? = null
+    private var matchQueueMetric: MatchQueueMetric? = null
+
+    /** Wave 6a-6 (ADR-0153): BukkitEventAdapter's time-polling task. */
+    private var bukkitEventAdapterTimeTaskHandle: IScheduler.TaskHandle? = null
+
+    /** Set by the GUI factory; the Paper listener needs the concrete adapter. */
+    private var paperGuiAdapter: PaperGuiAdapter? = null
+
+    fun buildPorts(): CorePlatformPorts {
+        // ---- Vendor-neutral abstraction over Paper -----------------------
+        val mcServer: IMcServer = PaperServer(server)
+        this.mcServer = mcServer
+        val ps = PaperScheduler(plugin)
+        ps.start()
+        paperScheduler = ps
+        val scheduler: IScheduler = ps
+        this.scheduler = scheduler
+
+        val broadcaster = buildBroadcaster(scheduler)
+        val commandHandler = PaperCommandHandler(plugin, scheduler)
+
+        // Wave 6b-2 (ADR-0157): Adventure API (Paper-bundled) is the rendering
+        // substrate of the HUD adapters. PaperHudGateway shares this manager.
+        val paperBossBarManager = com.astarworks.astera.core.adapter.paper.hud
+            .PaperBossBarManager(server, scheduler)
+
+        return CorePlatformPorts(
+            mcServer = mcServer,
+            scheduler = scheduler,
+            broadcaster = broadcaster,
+            commandHandler = commandHandler,
+            guiAdapter = GuiAdapterFactory { items, messages, bindingResolver ->
+                val guiRenderer = PaperItemTemplateRenderer(items, messages, bindingResolver)
+                PaperGuiAdapter(
+                    server = mcServer,
+                    scheduler = scheduler,
+                    renderer = guiRenderer,
+                    messages = messages,
+                ).also { paperGuiAdapter = it }
+            },
+            bossBarManager = paperBossBarManager,
+            // Wave 6c-stub-packetevents-B (ADR-0171): per-viewer scoreboard locale.
+            // The PE-backed sender is constructed strictly inside the
+            // packetEventsInstalled gate; without PE the scoreboards get null and
+            // keep the shared default-locale baseline.
+            scoreboardManager = { services ->
+                val teamPacketSender: com.astarworks.astera.core.adapter.paper.packetevents.ITeamPacketSender? =
+                    if (packetEventsInstalled) PacketEventsTeamPacketSender() else null
+                com.astarworks.astera.core.adapter.paper.hud.PaperScoreboardManager(
+                    server,
+                    services.getOrThrow<IMessageRenderer>(),
+                    teamPacketSender,
+                )
+            },
+            // Wave 6c-stub-packetevents-C (ADR-0172): per-viewer tab-list locale +
+            // ping badge. Without PE the tab list falls back to server-wide
+            // `Player.playerListName` (the known leaky path).
+            tabList = { services ->
+                val tabListPacketSender: com.astarworks.astera.core.adapter.paper.packetevents.ITabListPacketSender? =
+                    if (packetEventsInstalled) PacketEventsTabListPacketSender() else null
+                com.astarworks.astera.core.adapter.paper.hud.PaperTabList(
+                    server,
+                    services.getOrThrow<IMessageRenderer>(),
+                    tabListPacketSender,
+                )
+            },
+            hudGateway = { services ->
+                com.astarworks.astera.core.adapter.paper.hud.PaperHudGateway(
+                    server = server,
+                    messageRenderer = services.getOrThrow<IMessageRenderer>(),
+                    scheduler = scheduler,
+                    bossBarManager = paperBossBarManager,
+                    eventBus = services.getOrThrow<IDomainEventBus>(),
+                )
+            },
+            worldGateway = { services ->
+                com.astarworks.astera.core.adapter.paper.world.PaperWorldGateway(
+                    server = server,
+                    scheduler = scheduler,
+                    eventBus = services.getOrThrow<IDomainEventBus>(),
+                )
+            },
+            blockStateGateway = { deps ->
+                val paperBlockStateGateway = com.astarworks.astera.core.adapter.paper.world.PaperBlockStateGateway(
+                    server = server,
+                    scheduler = scheduler,
+                    eventBus = deps.services.getOrThrow<IDomainEventBus>(),
+                    customBlockRegistry = deps.customBlocks,
+                    durabilityRule = deps.durabilityRule,
+                )
+                // Wave 6c §B (ADR-0160) introduced PaperBlockStateGateway.warmUp(WorldId)
+                // to rehydrate the in-memory tracker from the persistent
+                // IBlockChangeJournalRepository so explosion-broken blocks survive
+                // `/restart`. Wave 6d-stub-warmup (ADR-0166) wires the driver: for
+                // every world loaded at plugin enable, hydrate the tracker once.
+                // Worlds loaded later (multiverse / dynamic load) re-warm on first
+                // damage event via the journalSave path, so this loop only needs
+                // to cover the boot-time roster.
+                server.worlds.forEach { world ->
+                    paperBlockStateGateway.warmUp(WorldId(world.name))
+                }
+                logger.info(
+                    "Wave 6d-stub-warmup: PaperBlockStateGateway tracker hydrated for ${server.worlds.size} loaded world(s).",
+                )
+                paperBlockStateGateway
+            },
+            // Wave 6d (ADR-0161): live `World.setTime` / `setStorm` / `setGameRule` /
+            // `setDifficulty` / `setPVP` against the Bukkit world.
+            worldTimeGateway = com.astarworks.astera.core.adapter.paper.world.PaperWorldTimeGateway(server),
+            worldWeatherGateway = com.astarworks.astera.core.adapter.paper.world.PaperWorldWeatherGateway(server),
+            worldRulesGateway = com.astarworks.astera.core.adapter.paper.world.PaperWorldRulesGateway(server),
+            signActionService = com.astarworks.astera.core.adapter.paper.sign.PaperSignActionService(server),
+            hologramGateway = { services ->
+                // Wave 6f (ADR-0163): Paper overlay routes through Bukkit Display
+                // Entity API (TextDisplay / ItemDisplay / BlockDisplay).
+                val paperHologramGateway = com.astarworks.astera.core.adapter.paper.hologram.PaperHologramGateway(
+                    server = server,
+                    scheduler = scheduler,
+                    eventBus = services.getOrThrow<IDomainEventBus>(),
+                    itemRegistry = services.getOrThrow<IItemRegistry>(),
+                    messageRenderer = services.getOrThrow<IMessageRenderer>(),
+                    // Wave 6g-PerTeam (ADR-0169) — lazy thunk; Match plugin
+                    // registers the IMatchRepository impl in its own onEnable,
+                    // which runs after this Core onEnable. Resolving at
+                    // applyVisibility time is correct.
+                    matchRepositoryLookup = { services.get<IMatchRepository>() },
+                )
+                // Wave 6g-visibility (ADR-0168) — bind the plugin reference for
+                // Player.showEntity / Player.hideEntity calls and register the
+                // JoinReapplyListener that re-applies PerPlayer visibility on
+                // reconnect (Bukkit's per-viewer visibility state is per-session).
+                paperHologramGateway.start(plugin)
+                paperHologramGateway
+            },
+            playerSoundGateway = com.astarworks.astera.core.adapter.paper.effect.PaperPlayerSoundGateway(server),
+            playerHealthGateway = { services ->
+                com.astarworks.astera.core.adapter.paper.physiology.PaperPlayerHealthGateway(
+                    services.getOrThrow<IPlayerAttributeContainerStore>(),
+                    server,
+                    scheduler,
+                    services.getOrThrow<IDomainEventBus>(),
+                )
+            },
+            playerSpeedGateway = { services ->
+                com.astarworks.astera.core.adapter.paper.physiology.PaperPlayerSpeedGateway(
+                    server,
+                    scheduler,
+                    services.getOrThrow<IDomainEventBus>(),
+                )
+            },
+            playerFoodGateway = { services ->
+                // Wave 6a-5 (ADR-0152): registers a Bukkit Listener for FoodLevelChangeEvent
+                // so suppressHungerHud(true) cancels vanilla hunger drain.
+                val paperPlayerFoodGateway = com.astarworks.astera.core.adapter.paper.physiology
+                    .PaperPlayerFoodGateway(server, scheduler, services.getOrThrow<IDomainEventBus>())
+                paperPlayerFoodGateway.start(plugin)
+                paperPlayerFoodGateway
+            },
+            playerMovementGateway = com.astarworks.astera.core.adapter.paper.physiology
+                .PaperPlayerMovementGateway(server, scheduler),
+            playerVisionGateway = com.astarworks.astera.core.adapter.paper.physiology
+                .PaperPlayerVisionGateway(server, scheduler),
+            playerAnimationGateway = { services ->
+                com.astarworks.astera.core.adapter.paper.animation.PaperPlayerAnimationGateway(
+                    server = server,
+                    eventBus = services.getOrThrow<IDomainEventBus>(),
+                    tickClock = scheduler::currentTick,
+                )
+            },
+            cameraGateway = { services ->
+                com.astarworks.astera.core.adapter.paper.cinematic.PaperCameraGateway(
+                    server,
+                    scheduler,
+                    services.getOrThrow<IDomainEventBus>(),
+                )
+            },
+            inventoryLifecycle = { services ->
+                // Wave 6b-3 (ADR-0158): Paper inventory subsystem — serializer (pure
+                // codec) + lifecycle Listener (save on quit / restore on join /
+                // save on MatchEnded) + action-lock enforcer (cancel inventory
+                // events while PlayerSession.state == Loading). Closes Phase 1 PoC
+                // smoke-test item #3 (re-login → loadout 復元).
+                val sessions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository>()
+                val paperInventorySerializer = com.astarworks.astera.core.adapter.paper.inventory
+                    .PaperInventorySnapshotSerializer()
+                com.astarworks.astera.core.adapter.paper.inventory
+                    .PlayerInventoryLifecycleListener(
+                        server = server,
+                        snapshotRepo = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository>(),
+                        serializer = paperInventorySerializer,
+                        sessions = sessions,
+                        scheduler = scheduler,
+                        eventBus = services.getOrThrow<IDomainEventBus>(),
+                    ).start(plugin)
+                com.astarworks.astera.core.adapter.paper.inventory
+                    .InventoryActionLockEnforcer(
+                        sessions = sessions,
+                        scheduler = scheduler,
+                    ).start(plugin)
+                logger.info("Wave 6b-3: Paper inventory lifecycle + action-lock listeners wired.")
+            },
+            packetInterceptor = if (packetEventsInstalled) {
+                {
+                    // Wave 6c-stub-packetevents (ADR-0170) — PE 2.x lifecycle phase 2
+                    // (init). Wraps the PE Netty pipeline; listeners registered
+                    // through IPacketInterceptor.register run on PE's Netty thread
+                    // per the existing ADR-0090 contract.
+                    PacketEventsBootstrap.init()
+                    val paperPacketInterceptor = PaperPacketInterceptor(tickProvider = { scheduler.currentTick() })
+                    paperPacketInterceptor.start()
+                    paperPacketInterceptor
+                }
+            } else {
+                null
+            },
+            metrics = { services -> bootstrapMetrics(services) },
+        )
+    }
+
+    /**
+     * Runs after `CoreWiring.install`: registers the Bukkit listeners and
+     * starts the Paper services that need the [JavaPlugin].
+     */
+    fun afterWiring(ctx: WiringContext, result: CoreWiringResult) {
+        // Caster pose (world / eye / look) for skill casts; the simulator
+        // registers its own position-backed impl.
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>(
+            com.astarworks.astera.core.adapter.paper.entity.PaperPlayerPoseLookup(server),
+            priority = 100,
+        )
+        val guiAdapter = checkNotNull(paperGuiAdapter) { "GuiAdapterFactory was not invoked by CoreWiring.install" }
+        val guiListener = PaperGuiListener(adapter = guiAdapter, router = result.guiIntentRouter, server = mcServer)
+        server.pluginManager.registerEvents(guiListener, plugin)
+
+        // ── Wave 6a-6 (ADR-0153) — Bukkit → DomainEvent adapter ────────────
+        // Single Bukkit Listener that:
+        //   Role 1 — translates 9 Bukkit events into Core DomainEvents
+        //            (closes 10 of the 14 Wave-6a entries in ADR-0134
+        //            allowlist; cross-plugin events deferred to sibling
+        //            Paper adapters per ADR-0022 sibling-isolation).
+        //   Role 2 — defensive cancellation of vanilla EntityDamageEvent
+        //            (vanilla-intrusion causes) + PlayerDeathEvent (the
+        //            ADR-0149 §C MIRROR_MIN_HP=1.0 floor should prevent
+        //            this from ever firing; if it does, log WARN + revive).
+        // Wired last so it sees all priority-100 Paper adapters registered
+        // first — including the PaperPlayerHealthGateway it routes vanilla
+        // damage through.
+        val highestPriorityPlayerHealthGateway: IPlayerHealthGateway =
+            ctx.services.get<IPlayerHealthGateway>() ?: result.playerHealthGateway
+        val bukkitEventAdapter = BukkitEventAdapter(
+            eventBus = result.eventBus,
+            playerHealthGateway = highestPriorityPlayerHealthGateway,
+            scheduler = scheduler,
+        )
+        bukkitEventAdapterTimeTaskHandle = bukkitEventAdapter.start(plugin)
+        logger.info(
+            "Wave 6a-6 BukkitEventAdapter wired (Role 1: 9 event translations; " +
+                "Role 2: EntityDamageEvent + PlayerDeathEvent defensive cancellation " +
+                "per ADR-0149 §D).",
+        )
+    }
+
+    /** Paper-side teardown; the host-neutral wiring tears down via `WiringContext.close()` + `CoreWiringResult.shutdown()`. */
+    fun shutdown() {
+        matchQueueMetric?.stop()
+        metricsHttpServer?.stop()
+        // Wave 6a-6 (ADR-0153): cancel BukkitEventAdapter time-polling task.
+        // Bukkit's HandlerList.unregisterAll(this) handles the Listener
+        // un-registration automatically on plugin disable.
+        bukkitEventAdapterTimeTaskHandle?.cancel()
+        bukkitEventAdapterTimeTaskHandle = null
+        // Wave 6b-3 (ADR-0158): drain the Lettuce Redis connection.
+        lettuceBroadcaster?.stop()
+        lettuceBroadcaster = null
+        // Wave 6c-stub-packetevents (ADR-0170) — PE 2.x lifecycle phase 3
+        // (terminate). Mirrors the `onLoad`-gated entry: only call when the
+        // PacketEvents plugin was confirmed installed at load time. Skipped
+        // otherwise so we never resolve `PacketEvents.getAPI()` on a server
+        // without the lib.
+        if (packetEventsInstalled) {
+            PacketEventsBootstrap.terminate()
+        }
+        paperScheduler?.stop()
+    }
+
+    /**
+     * Wave 6b-3 (ADR-0158): IBroadcaster fans out across PaperBroadcaster
+     * (always on; in-process Adventure log) + env-var-gated Lettuce Redis
+     * pub/sub + Discord webhook. Composite uses Kotlin SAM conversion
+     * since IBroadcaster.publish is a single method. Lettuce/Discord
+     * failures stay isolated to their own publish() — the composite
+     * never propagates exceptions.
+     */
+    private fun buildBroadcaster(scheduler: IScheduler): IBroadcaster {
+        val baseBroadcaster = PaperBroadcaster()
+        val extraBroadcasters: MutableList<IBroadcaster> = mutableListOf()
+        System.getenv("ASTERA_REDIS_URI")?.let { uri ->
+            try {
+                val redis = com.astarworks.astera.core.adapter.paper.broadcast
+                    .LettuceRedisBroadcaster(
+                        redisUri = io.lettuce.core.RedisURI.create(uri),
+                        scheduler = scheduler,
+                    )
+                redis.start()
+                extraBroadcasters += redis
+                lettuceBroadcaster = redis
+                logger.info("Wave 6b-3: LettuceRedisBroadcaster wired (uri=$uri).")
+            } catch (ex: RuntimeException) {
+                logger.warning("Wave 6b-3: LettuceRedisBroadcaster init failed (${ex.message}); skipping.")
+            }
+        }
+        System.getenv("ASTERA_DISCORD_WEBHOOK_URL")?.let { url ->
+            extraBroadcasters += com.astarworks.astera.core.adapter.paper.broadcast
+                .DiscordWebhookBroadcaster(webhookUrl = url)
+            logger.info("Wave 6b-3: DiscordWebhookBroadcaster wired.")
+        }
+        return if (extraBroadcasters.isEmpty()) baseBroadcaster else object : IBroadcaster {
+            override fun publish(event: DomainEvent) {
+                baseBroadcaster.publish(event)
+                extraBroadcasters.forEach { sink ->
+                    try { sink.publish(event) } catch (ex: RuntimeException) {
+                        logger.warning("Broadcaster sink ${sink::class.simpleName} threw on publish: ${ex.message}")
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Observability (Wave _ops, ADR-0023 + ADR-0024 + deploy/keda/).
+     * Opt-in via env. When ASTERA_METRICS_ENABLED=true, exposes Prometheus
+     * exposition at :ASTERA_METRICS_PORT/metrics (default 9092). The KEDA
+     * ScaledObject reads `astera_match_active` (MatchQueueMetric) to
+     * drive game-pod replicas.
+     *
+     * Returns the analytics exporter that forwards to the same MeterRegistry
+     * (Wave 5u, ADR-0087), or null so the wiring falls back to the no-op exporter.
+     */
+    private fun bootstrapMetrics(
+        services: ServiceRegistry,
+    ): com.astarworks.astera.core.application.port.outbound.analytics.IAnalyticsExporter? {
+        val metricsConfig = MetricsConfig.fromEnv()
+        if (!metricsConfig.enabled) {
+            logger.info("Metrics endpoint disabled (set ASTERA_METRICS_ENABLED=true to expose Prometheus scrape on :${MetricsConfig.DEFAULT_PORT}/metrics).")
+            return null
+        }
+        val metricsRegistry = MicrometerMetricsRegistry()
+        io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics().bindTo(metricsRegistry.delegate)
+        io.micrometer.core.instrument.binder.jvm.JvmGcMetrics().bindTo(metricsRegistry.delegate)
+        io.micrometer.core.instrument.binder.system.ProcessorMetrics().bindTo(metricsRegistry.delegate)
+
+        services.register<IMetricsRegistry>(metricsRegistry, priority = 0)
+
+        // Wave AF 5operator-observability (ADR-0142): pass IServerHealthCheck
+        // so /healthz + /readyz endpoints answer per Wave 5t / ADR-0086
+        // k8s probe contract. Without this, k8s rolling restarts had no
+        // signal source (audit γ blocker).
+        val httpServer = HttpMetricsServer(
+            metricsConfig.port,
+            metricsRegistry,
+            services.getOrThrow<IServerHealthCheck>(),
+        )
+        httpServer.start()
+        metricsHttpServer = httpServer
+
+        val queueMetric = MatchQueueMetric(services.getOrThrow<IDomainEventBus>(), metricsRegistry)
+        queueMetric.start()
+        matchQueueMetric = queueMetric
+
+        logger.info("Metrics endpoint ENABLED on :${metricsConfig.port}/metrics (gauge=${MatchQueueMetric.GAUGE_NAME}).")
+        return com.astarworks.astera.core.adapter.paper.analytics.MicrometerAnalyticsExporter(metricsRegistry.delegate)
+    }
+}

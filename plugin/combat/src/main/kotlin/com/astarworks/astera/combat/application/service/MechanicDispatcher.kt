@@ -11,10 +11,13 @@ import com.astarworks.astera.combat.domain.skill.expression.CelContext
 import com.astarworks.astera.combat.domain.skill.expression.CelSkillScript
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IParticleRegistry
+import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.effect.IParticleScheduler
+import com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler
 import com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
@@ -25,9 +28,11 @@ import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.effect.ParticleSpec
 import com.astarworks.astera.core.domain.effect.SoundSpec
 import com.astarworks.astera.core.domain.effect.scheduler.ScheduledParticleSpec
+import com.astarworks.astera.core.domain.effect.sound.ScheduledSoundSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.player.PlayerPose
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skill.condition.Condition
 import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
@@ -109,6 +114,16 @@ public class MechanicDispatcher(
      * to a default volume / pitch when the mechanic does not override them.
      */
     private val soundRegistry: ISoundRegistry? = null,
+    /**
+     * ADR-0174: when wired, `Mechanic.PlaySound` goes through the sound
+     * scheduler (same path as particles) instead of calling
+     * [IWorldGateway.playSound] directly, so the simulator can stamp it.
+     */
+    private val soundScheduler: ISoundScheduler? = null,
+    /** ADR-0174: live positions for ForwardRay / Cone / per-target locations. */
+    private val poseLookup: IPlayerPoseLookup? = null,
+    /** ADR-0174: team membership for Enemies / Allies targeters (null = no team info). */
+    private val teamLookup: IMatchTeamLookup? = null,
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
 ) {
 
@@ -132,7 +147,7 @@ public class MechanicDispatcher(
         this.castSkillInvoker = invoker
     }
 
-    internal val targeterResolver: TargeterResolver = TargeterResolver(nearbyQuery, log)
+    internal val targeterResolver: TargeterResolver = TargeterResolver(nearbyQuery, log, poseLookup, teamLookup)
 
     /**
      * Dispatch each mechanic in [mechanics] against [ctx]. Used by archetype
@@ -388,8 +403,20 @@ public class MechanicDispatcher(
                     volume = volume.coerceIn(0.0, SoundSpec.PRACTICAL_MAX_VOLUME),
                     pitch = pitch.coerceIn(SoundSpec.MIN_PITCH, SoundSpec.MAX_PITCH),
                 )
+                val ss = soundScheduler
                 for (loc in locations) {
-                    worldGateway.playSound(ctx.worldId, loc, spec)
+                    if (ss != null) {
+                        ss.schedule(
+                            ScheduledSoundSpec.EmitOnce(
+                                sound = spec,
+                                position = loc,
+                                atTick = scheduler.currentTick(),
+                                world = ctx.worldId,
+                            ),
+                        )
+                    } else {
+                        worldGateway.playSound(ctx.worldId, loc, spec)
+                    }
                 }
             }
 
@@ -521,12 +548,8 @@ public class MechanicDispatcher(
     )
 
     private fun resolveDirection(direction: DirectionRef, ctx: MechanicContext): Vec3 = when (direction) {
-        DirectionRef.FromCaster -> {
-            // Phase 1: no look-vector source; default to +X (matches
-            // ProjectileHandler.DEFAULT_DIRECTION). Phase 6 will surface
-            // the caster's look vector through MechanicContext.
-            Vec3(1.0, 0.0, 0.0)
-        }
+        // ADR-0174: caster look vector from MechanicContext.pose; +X when unknown.
+        DirectionRef.FromCaster -> ctx.pose?.direction ?: Vec3(1.0, 0.0, 0.0)
         DirectionRef.FromHitNormal -> Vec3(1.0, 0.0, 0.0) // Phase 1 placeholder
         DirectionRef.Up -> Vec3(0.0, 1.0, 0.0)
         is DirectionRef.Custom -> resolveVec3(direction.vector, ctx)
@@ -534,7 +557,7 @@ public class MechanicDispatcher(
 
     private fun resolveLocation(location: LocationRef, ctx: MechanicContext): ResolvedLocation? = when (location) {
         LocationRef.Caster, LocationRef.Origin -> ResolvedLocation(ctx.origin, ctx.worldId)
-        LocationRef.Target -> ctx.targetId?.let { ResolvedLocation(ctx.origin, ctx.worldId) }
+        LocationRef.Target -> ctx.targetId?.let { ResolvedLocation(targeterResolver.targetLocation(ctx), ctx.worldId) }
         is LocationRef.Absolute -> ResolvedLocation(location.position, location.world)
         is LocationRef.Offset -> {
             val base = resolveLocation(location.from, ctx) ?: return null
@@ -590,88 +613,14 @@ public data class MechanicContext(
     public val castedSkills: Set<SkillId> = emptySet(),
     public val sourceItemId: ItemId? = null,
     public val tickIndex: Long = 0,
+    /**
+     * Caster pose at cast time (ADR-0174): look direction for `FromCaster`
+     * direction / ForwardRay / Cone, eye position for ray origins.
+     */
+    public val pose: PlayerPose? = null,
+    /**
+     * Impact point for projectile hit / miss / expire phases. `HitLocation`,
+     * `ProjectilePosition` and their offsets anchor here; falls back to [origin].
+     */
+    public val hitLocation: Vec3? = null,
 )
-
-/**
- * Resolves a [Targeter] to a concrete `List<PlayerId>` (for damage / status /
- * knockback) or a concrete `List<Vec3>` (for particle / sound spawn points).
- *
- * Phase 1: the basic targeters (Caster / Target / Origin / HitLocation /
- * ProjectilePosition / *Offset) resolve directly from [MechanicContext];
- * the area targeters (NearbyEntities / ForwardRay / Cone) go through
- * [INearbyTargetQuery] when populated, else warn-log and return empty.
- */
-internal class TargeterResolver(
-    private val nearbyQuery: INearbyTargetQuery,
-    private val log: Logger,
-) {
-    fun resolvePlayers(targeter: Targeter, ctx: MechanicContext): List<PlayerId> = when (targeter) {
-        Targeter.Caster -> listOf(ctx.actorId)
-        Targeter.Target -> ctx.targetId?.let { listOf(it) } ?: emptyList()
-        Targeter.Origin, Targeter.HitLocation, Targeter.ProjectilePosition ->
-            emptyList() // Location-only targeters; no player resolution.
-        is Targeter.CasterOffset, is Targeter.TargetOffset,
-        is Targeter.ProjectileOffset, is Targeter.HitOffset ->
-            emptyList()
-        is Targeter.NearbyEntities -> {
-            val center = resolveLocationOnly(targeter.center, ctx) ?: return emptyList()
-            val radius = when (val r = targeter.radius) {
-                is NumericValue.Literal -> r.value
-                is NumericValue.Cel -> 0.0
-            }
-            val found = nearbyQuery.findInRadius(center, radius, ctx.worldId)
-            if (targeter.excludeCaster) found.filter { it != ctx.actorId } else found
-        }
-        is Targeter.ForwardRay, is Targeter.Cone -> {
-            log.debug(
-                "{} targeter Phase 1: returning empty (Phase 6 wire)",
-                targeter::class.simpleName,
-            )
-            emptyList()
-        }
-        is Targeter.Enemies, is Targeter.Allies -> {
-            log.debug("Team-filter targeter Phase 1: returning empty (team service deferred)")
-            emptyList()
-        }
-        is Targeter.Filter -> resolvePlayers(targeter.base, ctx)
-        is Targeter.Random -> {
-            val base = resolvePlayers(targeter.from, ctx)
-            val n = when (val c = targeter.count) {
-                is IntValue.Literal -> c.value
-                is IntValue.Cel -> 0
-            }
-            base.shuffled().take(n)
-        }
-    }
-
-    fun resolveLocations(targeter: Targeter, ctx: MechanicContext): List<Vec3> {
-        return when (targeter) {
-            Targeter.Caster, Targeter.Origin -> listOf(ctx.origin)
-            Targeter.Target, Targeter.HitLocation, Targeter.ProjectilePosition -> listOf(ctx.origin)
-            is Targeter.CasterOffset -> listOf(ctx.origin + literalVec(targeter.offset))
-            is Targeter.TargetOffset -> listOf(ctx.origin + literalVec(targeter.offset))
-            is Targeter.ProjectileOffset -> listOf(ctx.origin + literalVec(targeter.offset))
-            is Targeter.HitOffset -> listOf(ctx.origin + literalVec(targeter.offset))
-            is Targeter.NearbyEntities,
-            is Targeter.ForwardRay,
-            is Targeter.Cone,
-            is Targeter.Enemies,
-            is Targeter.Allies,
-            is Targeter.Filter,
-            is Targeter.Random -> {
-                // Resolve players → map to ctx.origin (Phase 1: no per-target
-                // location plumbing; Phase 6 will surface PlayerPosition lookup).
-                val players = resolvePlayers(targeter, ctx)
-                if (players.isEmpty()) emptyList() else players.map { ctx.origin }
-            }
-        }
-    }
-
-    private fun resolveLocationOnly(targeter: Targeter, ctx: MechanicContext): Vec3? =
-        resolveLocations(targeter, ctx).firstOrNull()
-
-    private fun literalVec(v: VectorValue): Vec3 = when (v) {
-        is VectorValue.Literal -> v.value
-        is VectorValue.Cel -> Vec3.ZERO
-    }
-}

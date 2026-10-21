@@ -14,6 +14,6 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * deployment without Match plugin). Returning `null` for a particular
  * player → that player is not currently in a match.
  */
-public interface IMatchTeamLookup {
+public fun interface IMatchTeamLookup {
     public fun teamOf(playerId: PlayerId): TeamId?
 }

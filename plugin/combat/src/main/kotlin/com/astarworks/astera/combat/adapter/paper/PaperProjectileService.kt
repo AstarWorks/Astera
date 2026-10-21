@@ -2,6 +2,7 @@ package com.astarworks.astera.combat.adapter.paper
 
 import com.astarworks.astera.combat.application.port.outbound.IProjectileHandle
 import com.astarworks.astera.combat.application.port.outbound.IProjectileService
+import com.astarworks.astera.combat.application.service.ProjectileImpactResolver
 import com.astarworks.astera.combat.domain.projectile.HitProfile
 import com.astarworks.astera.combat.domain.projectile.LifetimePolicy
 import com.astarworks.astera.combat.domain.projectile.MotionProfile
@@ -150,6 +151,18 @@ public class PaperProjectileService(
     private val byBukkitUuid: MutableMap<UUID, ProjectileId> = ConcurrentHashMap()
 
     private var watchdogHandle: IScheduler.TaskHandle? = null
+
+    /**
+     * Host-neutral impact logic (ADR-0174). Bound after construction because
+     * the resolver is built from the combat use cases, which are wired after
+     * this service. `null` => lifetime expiry just untracks (pre-0174 behaviour).
+     */
+    private var impactResolver: ProjectileImpactResolver? = null
+
+    /** Bind the resolver that runs `expire` / `miss` phases on lifetime end. */
+    public fun bindImpactResolver(resolver: ProjectileImpactResolver) {
+        impactResolver = resolver
+    }
 
     /**
      * Wire the lifetime watchdog. Returns the handle so the plugin can cancel
@@ -319,6 +332,11 @@ public class PaperProjectileService(
                 is LifetimePolicy.UntilHit -> false // dies on impact via listener
             }
             if (expired) {
+                try {
+                    impactResolver?.onExpire(entry.toFlight(), curPos)
+                } catch (t: Throwable) {
+                    log.warn("PaperProjectileService: expire dispatch failed for projectile={}", entry.id, t)
+                }
                 untrack(entry.id)
                 continue
             }
@@ -496,7 +514,11 @@ public class PaperProjectileService(
         @get:JvmName("getLastKnownPosition")
         public var lastKnownPosition: Vec3,
         public val curveStartTick: Long,
-    )
+    ) {
+        /** Host-neutral view handed to [ProjectileImpactResolver]. */
+        public fun toFlight(): ProjectileImpactResolver.Flight =
+            ProjectileImpactResolver.Flight(id = id, owner = ownerId, spec = spec)
+    }
 
     /**
      * Handle returned from [spawn]. Resolves liveness from [tracking] so a

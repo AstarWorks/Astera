@@ -1,6 +1,5 @@
 package com.astarworks.astera.combat.application.usecase.skill.dispatch
 
-import com.astarworks.astera.combat.application.service.MechanicContext
 import com.astarworks.astera.combat.application.service.MechanicDispatcher
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
@@ -24,11 +23,7 @@ public class SummonHandler(
         params: SkillParams.SummonParams,
         phases: PhaseMechanics.Summon,
     ) {
-        val ctx = MechanicContext(
-            actorId = event.caster,
-            origin = event.at,
-            castedSkills = setOf(event.skillId),
-        )
+        val ctx = event.toMechanicContext()
 
         dispatcher.dispatch(phases.cast, ctx)
 

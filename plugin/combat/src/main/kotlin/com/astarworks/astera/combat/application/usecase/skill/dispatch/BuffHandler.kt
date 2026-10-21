@@ -1,6 +1,5 @@
 package com.astarworks.astera.combat.application.usecase.skill.dispatch
 
-import com.astarworks.astera.combat.application.service.MechanicContext
 import com.astarworks.astera.combat.application.service.MechanicDispatcher
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.domain.event.SkillCast
@@ -30,11 +29,7 @@ public class BuffHandler(
         params: SkillParams.BuffParams,
         phases: PhaseMechanics.Buff,
     ) {
-        val ctx = MechanicContext(
-            actorId = event.caster,
-            origin = event.at,
-            castedSkills = setOf(event.skillId),
-        )
+        val ctx = event.toMechanicContext()
 
         // 1. Apply the legacy status payload.
         applyStatus.execute(

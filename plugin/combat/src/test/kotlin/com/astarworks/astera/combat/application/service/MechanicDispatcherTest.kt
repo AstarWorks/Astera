@@ -240,7 +240,7 @@ private class NoOpKnockback : IKnockbackGateway {
     override fun applyImpulse(target: PlayerId, impulse: Vec3) = Unit
 }
 
-private class StubArmorEquipmentProvider :
+internal class StubArmorEquipmentProvider :
     com.astarworks.astera.combat.application.port.outbound.IArmorEquipmentProvider {
     override fun equippedArmor(playerId: PlayerId):
         com.astarworks.astera.combat.domain.armor.ArmorBundle =

@@ -171,11 +171,13 @@ public sealed class SkillParamsYaml {
         @SerialName("launch_speed") public val launchSpeed: Double,
         @SerialName("max_lifetime_ticks") public val maxLifetimeTicks: Int,
         public val damage: List<DamageComponentYaml>,
+        @SerialName("hit_radius") public val hitRadius: Double? = null,
     ) : SkillParamsYaml() {
         override fun toDomain(): SkillParams = SkillParams.ProjectileParams(
             launchSpeed = launchSpeed,
             maxLifetimeTicks = maxLifetimeTicks,
             damage = damage.toDamageProfile(),
+            hitRadius = hitRadius ?: SkillParams.ProjectileParams.DEFAULT_HIT_RADIUS,
         )
     }
 

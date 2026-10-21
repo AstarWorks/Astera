@@ -1,7 +1,6 @@
 package com.astarworks.astera.combat.application.usecase.skill.dispatch
 
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
-import com.astarworks.astera.combat.application.service.MechanicContext
 import com.astarworks.astera.combat.application.service.MechanicDispatcher
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
@@ -33,11 +32,7 @@ public class MeleeHandler(
         params: SkillParams.MeleeParams,
         phases: PhaseMechanics.Melee,
     ) {
-        val baseCtx = MechanicContext(
-            actorId = event.caster,
-            origin = event.at,
-            castedSkills = setOf(event.skillId),
-        )
+        val baseCtx = event.toMechanicContext()
 
         // 1. Fire the cast phase (swing sound, ground particle, etc.).
         dispatcher.dispatch(phases.cast, baseCtx)

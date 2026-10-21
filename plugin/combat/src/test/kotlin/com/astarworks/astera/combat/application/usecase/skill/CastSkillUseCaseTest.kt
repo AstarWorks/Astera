@@ -212,4 +212,30 @@ class CastSkillUseCaseTest {
         // Cooldown is not started → player can retry once regen catches up.
         assertThat(cooldownTracker.isCoolingDown(casterId, CooldownKey.Skill(skillId.value))).isFalse()
     }
+
+    @Test
+    fun `pose lookup stamps world and facing on SkillCast and fills a missing position`() {
+        skillRegistry.register(spec)
+        val poses = com.astarworks.astera.testfixtures.FakePlayerPoseLookup().apply {
+            place(
+                casterId,
+                com.astarworks.astera.core.domain.geometry.Vec3(3.0, 70.0, 4.0),
+                com.astarworks.astera.core.domain.geometry.Vec3(0.0, 0.0, 1.0),
+            )
+        }
+        val withPose = CastSkillUseCase(
+            skillRegistry = skillRegistry,
+            statusContainer = statusContainer,
+            eventBus = eventBus,
+            cooldownTracker = cooldownTracker,
+            scheduler = scheduler,
+            poseLookup = poses,
+        )
+
+        withPose.execute(casterId, skillId) // at defaults to Vec3.ZERO
+
+        val cast = eventBus.publishedOfType<SkillCast>().single()
+        assertThat(cast.pose).isEqualTo(poses.poseOf(casterId))
+        assertThat(cast.at).isEqualTo(com.astarworks.astera.core.domain.geometry.Vec3(3.0, 70.0, 4.0))
+    }
 }
