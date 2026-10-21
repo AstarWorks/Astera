@@ -46,7 +46,15 @@ public class ContentLoader<T : Any>(
     private val log = LoggerFactory.getLogger(javaClass)
 
     /** Outcome of a [loadFrom] invocation. */
-    public data class LoadReport(val loaded: Int, val failed: Int)
+    public data class LoadReport(
+        val loaded: Int,
+        val failed: Int,
+        /** One entry per failed file (path + cause message), for diagnostics and content-guard tests. */
+        val failures: List<LoadFailure> = emptyList(),
+    )
+
+    /** A single file that failed to parse or map into a domain entry. */
+    public data class LoadFailure(val file: Path, val message: String)
 
     /**
      * Walks [dir] non-recursively, parses each file whose extension matches a
@@ -64,6 +72,7 @@ public class ContentLoader<T : Any>(
         }
         var loaded = 0
         var failed = 0
+        val failures = mutableListOf<LoadFailure>()
         Files.list(dir).use { stream ->
             stream
                 .filter { it.isRegularFile() }
@@ -73,26 +82,33 @@ public class ContentLoader<T : Any>(
                         // Not an error — unknown extensions are silently ignored.
                         return@forEach
                     }
-                    if (loadFile(file, parser, onLoaded)) loaded++ else failed++
+                    val error = loadFile(file, parser, onLoaded)
+                    if (error == null) {
+                        loaded++
+                    } else {
+                        failed++
+                        failures += LoadFailure(file, error)
+                    }
                 }
         }
         log.info("Content load complete: {} ok, {} failed (dir={})", loaded, failed, dir)
-        return LoadReport(loaded, failed)
+        return LoadReport(loaded, failed, failures)
     }
 
     private fun parserFor(extension: String): IContentParser? =
         parsers.firstOrNull { it.supports(extension) }
 
-    private fun loadFile(file: Path, parser: IContentParser, onLoaded: (T) -> Unit): Boolean = try {
+    /** Returns `null` on success, otherwise the failure message. */
+    private fun loadFile(file: Path, parser: IContentParser, onLoaded: (T) -> Unit): String? = try {
         val rawText = Files.readString(file)
         val resolvedText = refResolver.resolve(rawText, file.parent ?: file)
         val value = parser.parse(resolvedText, deserializer)
         onLoaded(value)
         log.info("Loaded content file: {}", file.name)
-        true
+        null
     } catch (t: Throwable) {
         log.error("Failed to load content from {}: {}", file, t.message, t)
-        false
+        "${t::class.simpleName}: ${t.message}"
     }
 
     public companion object {

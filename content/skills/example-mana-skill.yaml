@@ -22,20 +22,20 @@ params:
   launch_speed: 1.6
   max_lifetime_ticks: 60
   damage:
-    - base: { kind: literal, value: 10.0 }
+    - base: { type: literal, value: 10.0 }
       attribute: fire
 
 phases:
-  archetype: projectile
+  type: projectile
   cast:
     - type: play_sound
-      targets: { kind: caster }
-      sound_id: skills/mana-cast
+      targets: { type: caster }
+      sound_id: entity.evoker.cast_spell
   hit_entity:
     - type: damage
-      targets: { kind: target }
+      targets: { type: target }
       components:
-        - base: { kind: literal, value: 10.0 }
+        - base: { type: literal, value: 10.0 }
           attribute: fire
   hit_block: []
   miss: []

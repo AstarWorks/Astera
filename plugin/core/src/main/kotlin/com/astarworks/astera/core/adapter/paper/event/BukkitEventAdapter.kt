@@ -316,23 +316,49 @@ public class BukkitEventAdapter(
 
     // ── Role 2 — Vanilla intrusion defensive cancellation (ADR-0149 §D) ──
 
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public fun onEntityDamage(event: EntityDamageEvent) {
         val entity = event.entity
         if (entity !is Player) return
         when (event.cause) {
-            // Combat-pipeline causes: ApplyDamageUseCase / PaperDamageGateway
-            // Path 1 has already resolved + applied final damage. Leave the
-            // event un-cancelled so any non-Astera spectator listeners on
-            // higher priorities see a coherent vanilla event chain — but
-            // PaperDamageGateway's i-frame + mirror write already protect
-            // the canonical Astera HP from double-counting.
+            // Combat causes. Astera-originated combat damage (skill melee /
+            // AoE / tracked projectiles / Astera explosions) never reaches
+            // here un-cancelled: it is applied through IDamageGateway and the
+            // owning combat listeners cancel the vanilla copy at LOWEST
+            // (this handler is ignoreCancelled). Whatever remains is genuinely
+            // vanilla (mob melee, mob arrows, player fists / vanilla swords),
+            // and left un-cancelled it would lower Bukkit `health` directly,
+            // bypassing the Astera HP container (HP bar desync, vanilla armor
+            // math, vanilla death). Re-route it through the container once.
             EntityDamageEvent.DamageCause.ENTITY_ATTACK,
             EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK,
             EntityDamageEvent.DamageCause.PROJECTILE,
             EntityDamageEvent.DamageCause.MAGIC,
             EntityDamageEvent.DamageCause.ENTITY_EXPLOSION,
-            -> return
+            -> {
+                event.isCancelled = true
+                // Honour vanilla i-frames: the event still fires during the
+                // invulnerability window; only the portion above the last hit
+                // would apply. Astera has no partial-hit model, so drop it.
+                if (entity.noDamageTicks > entity.maximumNoDamageTicks / 2) return
+                val playerId = PlayerId(entity.uniqueId)
+                val outcome = playerHealthGateway.damage(
+                    playerId,
+                    event.finalDamage,
+                    synthesizeHealthChangeSource(event.cause),
+                )
+                if (outcome is com.astarworks.astera.core.domain.Result.Failure) {
+                    log.warn(
+                        "BukkitEventAdapter.onEntityDamage: combat re-route failed for {} cause={} error={}",
+                        playerId,
+                        event.cause,
+                        outcome.error,
+                    )
+                    return
+                }
+                entity.noDamageTicks = entity.maximumNoDamageTicks
+                entity.playHurtAnimation(0f)
+            }
 
             // Vanilla environment causes: not yet resolved by Astera; cancel
             // the vanilla path and re-route through IPlayerHealthGateway so

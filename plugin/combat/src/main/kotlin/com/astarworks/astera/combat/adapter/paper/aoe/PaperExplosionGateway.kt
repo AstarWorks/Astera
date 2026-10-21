@@ -21,6 +21,10 @@ import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.world.ToolType
 import org.bukkit.Location
 import org.bukkit.Server
+import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
+import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityDamageEvent
 import org.slf4j.LoggerFactory
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -136,9 +140,36 @@ public class PaperExplosionGateway(
     private val blockStateGateway: IBlockStateGateway,
     private val damageApplier: ExplosionDamageApplier = ExplosionDamageApplier.None,
     private val radiusCap: Double? = null,
-) : IExplosionGateway {
+) : IExplosionGateway, Listener {
 
     private val log = LoggerFactory.getLogger(javaClass)
+
+    /**
+     * True only while this gateway's own synchronous `World.createExplosion`
+     * call is on the stack. Vanilla entity damage dispatched from inside that
+     * call is the visual blast's side effect; Astera applies its own damage
+     * via [damageApplier], so [onVanillaBlastDamage] cancels the vanilla copy.
+     * Without it core's BukkitEventAdapter would re-route the BLOCK_EXPLOSION
+     * damage into IPlayerHealthGateway on top of the Astera hit (double damage).
+     * Main-thread only.
+     */
+    private var inVisualBlast: Boolean = false
+
+    /**
+     * Cancels vanilla damage caused by this gateway's visual blast. Must be
+     * registered as a Bukkit listener by the plugin; runs at LOWEST so it
+     * precedes core's BukkitEventAdapter (LOW, ignoreCancelled).
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    public fun onVanillaBlastDamage(event: EntityDamageEvent) {
+        if (!inVisualBlast) return
+        when (event.cause) {
+            EntityDamageEvent.DamageCause.BLOCK_EXPLOSION,
+            EntityDamageEvent.DamageCause.ENTITY_EXPLOSION,
+            -> event.isCancelled = true
+            else -> Unit
+        }
+    }
 
     override fun trigger(spec: ExplosionSpec): Result<ExplosionResult, ExplosionError> {
         radiusCap?.let { cap ->
@@ -174,6 +205,7 @@ public class PaperExplosionGateway(
         //    expected to be cancelled by Wave 6a-6's BukkitEventAdapter;
         //    we never rely on it as the source of player damage.
         val breakVanillaBlocks = spec.blockDamage is BlockDamagePolicy.Vanilla
+        inVisualBlast = true
         runCatching {
             world.createExplosion(
                 location,
@@ -181,7 +213,7 @@ public class PaperExplosionGateway(
                 /* setFire = */ false,
                 /* breakBlocks = */ breakVanillaBlocks,
             )
-        }.onFailure { t ->
+        }.also { inVisualBlast = false }.onFailure { t ->
             // Bukkit can throw on bizarre worlds (e.g. y outside build limits
             // on certain server forks). We continue with the damage path —
             // the visual is cosmetic.

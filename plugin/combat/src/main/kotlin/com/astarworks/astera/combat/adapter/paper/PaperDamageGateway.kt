@@ -134,6 +134,11 @@ public class PaperDamageGateway(
                 ?: VANILLA_DEFAULT_MAX_HP)
         val asteraMax = (container.get(Attributes.MAX_HP) as? AttributeValue.NumberValue)?.value
             ?: VANILLA_DEFAULT_MAX_HP
+        // Astera-dead (HP 0, mirror held at 1.0 so Bukkit isDead is false):
+        // reject so ApplyDamageUseCase does not re-publish PlayerKilled per hit.
+        if (currentHp <= 0.0) {
+            return Result.failure(DamageApplicationError.TargetAlreadyDead(target))
+        }
 
         // Mark BEFORE the container write so Wave 6a-6 BukkitEventAdapter
         // sees the marker if any synchronous event chain inspects it.

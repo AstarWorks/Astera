@@ -21,7 +21,7 @@ import kotlinx.serialization.Serializable
  *   - day: 1
  *     reward: { currency: STAR, amount: 10 }
  *   - day: 7
- *     reward: { currency: STAR, amount: 100, items: [astera:welcome-pack] }
+ *     reward: { currency: STAR, amount: 100, items: [welcome-pack] }
  * ```
  */
 @Serializable

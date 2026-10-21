@@ -23,13 +23,13 @@ params:
   duration_ticks: 60
 
 phases:
-  archetype: buff
+  type: buff
   cast:
     - type: play_sound
-      targets: { kind: caster }
-      sound_id: skills/buff-on
+      targets: { type: caster }
+      sound_id: block.beacon.activate
   expire:
     - type: play_sound
-      targets: { kind: caster }
-      sound_id: skills/buff-off
+      targets: { type: caster }
+      sound_id: block.beacon.deactivate
   removed: []

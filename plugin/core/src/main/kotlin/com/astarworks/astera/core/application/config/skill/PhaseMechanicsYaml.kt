@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 
 /**
- * Wire shape for [PhaseMechanics]. Polymorphic by `archetype:` discriminator
+ * Wire shape for [PhaseMechanics]. Polymorphic by `type:` discriminator (kaml polymorphismPropertyName)
  * (matches `SkillYamlConfig.archetype` string).
  *
  * Each variant exposes the phases its archetype supports; absent phases
@@ -16,7 +16,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  * Wave _skills-2 / ADR-0077.
  */
 @OptIn(ExperimentalSerializationApi::class)
-@JsonClassDiscriminator("archetype")
+@JsonClassDiscriminator("type")
 @Serializable
 public sealed class PhaseMechanicsYaml {
 

@@ -15,6 +15,7 @@
  */
 
 plugins {
+    id("astera.core-provided")
     id("astera.kotlin-paper")
     alias(libs.plugins.shadow)
     alias(libs.plugins.kotlin.serialization)
@@ -58,6 +59,7 @@ tasks.shadowJar {
     // and IDomainEventBus lookups match registrations from Astera-Core.
     dependencies {
         exclude(project(":plugin:core"))
+        exclude { "${it.moduleGroup}:${it.moduleName}" in project.coreProvidedModules() }
     }
 }
 

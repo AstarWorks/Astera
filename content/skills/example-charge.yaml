@@ -21,16 +21,16 @@ params:
   duration_ticks: 100
 
 phases:
-  archetype: buff
+  type: buff
   cast:
     - type: play_sound
-      targets: { kind: caster }
-      sound_id: skills/charge-on
+      targets: { type: caster }
+      sound_id: entity.player.levelup
     - type: spawn_particle
-      targets: { kind: caster }
+      targets: { type: caster }
       particle_id: example-burst
   expire:
     - type: play_sound
-      targets: { kind: caster }
-      sound_id: skills/charge-off
+      targets: { type: caster }
+      sound_id: block.fire.extinguish
   removed: []

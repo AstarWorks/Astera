@@ -57,10 +57,14 @@ public class ShopLoaderService(
                 }
             }
         }
-        return LoadReport(loaded = report.loaded, failed = report.failed)
+        return LoadReport(loaded = report.loaded, failed = report.failed, failures = report.failures)
     }
 
-    public data class LoadReport(val loaded: Int, val failed: Int)
+    public data class LoadReport(
+        val loaded: Int,
+        val failed: Int,
+        val failures: List<ContentLoader.LoadFailure> = emptyList(),
+    )
 
     public companion object {
         /**

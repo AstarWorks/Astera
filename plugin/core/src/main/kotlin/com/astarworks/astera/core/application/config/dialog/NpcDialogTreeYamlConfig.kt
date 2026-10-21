@@ -29,20 +29,20 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  *   greet:
  *     type: text
  *     message_key: astera.dialog.shopkeeper.greet
- *     next_node: ask_purpose
- *   ask_purpose:
+ *     next_node: ask-purpose
+ *   ask-purpose:
  *     type: choice
  *     prompt_key: astera.dialog.shopkeeper.ask_purpose
  *     options:
- *       - { label_key: astera.dialog.shopkeeper.option.shop, next_node: open_shop }
- *       - { label_key: astera.dialog.shopkeeper.option.leave, next_node: end_polite }
- *   open_shop:
+ *       - { label_key: astera.dialog.shopkeeper.option.shop, next_node: open-shop }
+ *       - { label_key: astera.dialog.shopkeeper.option.leave, next_node: end-polite }
+ *   open-shop:
  *     type: intent
  *     intent:
  *       key: shop.open
  *       payload: { shop_id: example-shop }
- *     next_node: end_polite
- *   end_polite:
+ *     next_node: end-polite
+ *   end-polite:
  *     type: end
  *     reason: COMPLETED
  * ```

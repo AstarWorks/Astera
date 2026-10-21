@@ -35,4 +35,4 @@ days:
       currency: STAR
       amount: 100
       items:
-        - astera:welcome-pack
+        - welcome-pack

@@ -10,7 +10,10 @@ plugins {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
+    // PREFER_SETTINGS (not FAIL_ON_PROJECT_REPOS): dev boxes may inject a
+    // Maven Central mirror into every project via a Gradle init script;
+    // project-level repos are ignored either way.
+    repositoriesMode = RepositoriesMode.PREFER_SETTINGS
     repositories {
         mavenCentral()
         // Paper / Minecraft ecosystem

@@ -16,6 +16,7 @@
  */
 
 plugins {
+    id("astera.core-provided")
     id("astera.kotlin-paper")
     alias(libs.plugins.shadow)
     alias(libs.plugins.kotlin.serialization)
@@ -54,6 +55,7 @@ tasks.shadowJar {
     // Wave 3 (R2) / ADR-0020 — see Astera-Core comment in plugin/match.
     dependencies {
         exclude(project(":plugin:core"))
+        exclude { "${it.moduleGroup}:${it.moduleName}" in project.coreProvidedModules() }
     }
 }
 

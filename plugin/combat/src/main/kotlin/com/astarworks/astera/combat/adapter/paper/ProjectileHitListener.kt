@@ -146,7 +146,9 @@ public class ProjectileHitListener(
 
     // ── Role 2: vanilla EntityDamageByEntity cancellation for Astera projectiles ──
 
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    // LOWEST so the cancel lands before core's BukkitEventAdapter (LOW), which
+    // re-routes un-cancelled PROJECTILE damage into IPlayerHealthGateway.
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public fun onEntityDamageByEntity(event: EntityDamageByEntityEvent) {
         val damager = event.damager
         if (damager !is Projectile) return
@@ -157,7 +159,12 @@ public class ProjectileHitListener(
         // vanilla armor / Protection enchantment math — both of which
         // double-count against Astera's PaperDamageGateway + ArmorReductionModifier
         // pipeline (ADR-0149 §C: Astera-internal HP is source of truth).
-        if (projectileService.trackingForBukkitEntity(damager.uniqueId) != null) {
+        //
+        // Only Player victims: Astera's IDamageGateway is player-keyed, so
+        // dispatchOnHit skips non-player targets. Cancelling for a mob would
+        // make the hit deal zero damage; leave the vanilla hit (applied once)
+        // until a mob damage port exists.
+        if (event.entity is Player && projectileService.trackingForBukkitEntity(damager.uniqueId) != null) {
             event.isCancelled = true
             return
         }

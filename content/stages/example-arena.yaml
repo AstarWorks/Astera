@@ -1,5 +1,7 @@
 # Phase 1-2 demo stage; spawn_points added in Wave 4.5 (ADR-0027).
 # Still missing schematic / core (those land in Phase 3).
+# Y coordinates target the docker playtest superflat world: grass top is y=-61,
+# players stand at y=-60 (see docs/contributing/playtest.md).
 # Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
 #
 # See content/stages/README.md for the Phase 3 schema sketch.
@@ -13,12 +15,12 @@ display_name_key: astera.stage.example-arena.name
 # componentwise <= max (Region's init block enforces this).
 regions:
   - name: full-arena
-    min: { x: -50.0, y: 60.0, z: -50.0 }
-    max: { x:  50.0, y: 90.0, z:  50.0 }
+    min: { x: -50.0, y: -60.0, z: -50.0 }
+    max: { x:  50.0, y: -30.0, z:  50.0 }
 
   - name: center-platform
-    min: { x: -5.0, y: 64.0, z: -5.0 }
-    max: { x:  5.0, y: 66.0, z:  5.0 }
+    min: { x: -5.0, y: -60.0, z: -5.0 }
+    max: { x:  5.0, y: -58.0, z:  5.0 }
 
 # Role-tagged teleport targets used by MatchSpawnUseCase + RespawnUseCase
 # (Wave 5o / ADR-0081).
@@ -31,13 +33,13 @@ regions:
 #   world:    "<world-id>" (optional, default "world")
 spawn_points:
   - faction: attacker
-    position: { x: -45.0, y: 64.0, z: 0.0 }
+    position: { x: -45.0, y: -60.0, z: 0.0 }
     yaw: 90.0
   - faction: defender
-    position: { x:  45.0, y: 64.0, z: 0.0 }
+    position: { x:  45.0, y: -60.0, z: 0.0 }
     yaw: 270.0
   - faction: lobby
-    position: { x:   0.0, y: 80.0, z: 0.0 }
+    position: { x:   0.0, y: -60.0, z: 0.0 }
   - faction: spectator
-    position: { x:   0.0, y: 100.0, z: 0.0 }
+    position: { x:   0.0, y: -50.0, z: 0.0 }
     pitch: 45.0

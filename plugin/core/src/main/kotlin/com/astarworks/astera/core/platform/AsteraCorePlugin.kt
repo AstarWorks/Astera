@@ -1291,8 +1291,8 @@ public class AsteraCorePlugin : JavaPlugin() {
         // / writes through IAttributeContainer.CURRENT_HP / MAX_HP per
         // ADR-0149 §A. The internal MutableMap that pre-dated Wave 5e's
         // universal-attribute-container migration is gone; the container
-        // IS the storage. PaperPlayerHealthGateway (Step 3 / ADR-0151) will
-        // overlay at priority 100 as UI mirror only.
+        // IS the storage. PaperPlayerHealthGateway (ADR-0151) overlays
+        // at priority 100 as UI mirror only.
         val playerHealthGateway: IPlayerHealthGateway =
             InMemoryPlayerHealthGateway(attributeContainerStore, scheduler, eventBus)
         services.register<IPlayerHealthGateway>(playerHealthGateway, priority = 0)
@@ -2909,6 +2909,21 @@ public class AsteraCorePlugin : JavaPlugin() {
                 .LobbyAchievementShowIntentHandler.INTENT_PREFIX,
         ) { intent, player -> achievementShowHandler.handle(intent, player) }
 
+        // Main menu `lobby.travel.show` tile → travel destination sub-menu.
+        val travelShowHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyTravelShowIntentHandler(
+            travelToPve = travelToPve,
+            travelToSurvival = travelToSurvival,
+            returnToLobby = returnToLobby,
+            guiAdapter = guiAdapter,
+            mcServer = mcServer,
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+        waveGRegistrations += waveGRouter.register(
+            com.astarworks.astera.core.application.gui.lobby.intent
+                .LobbyTravelShowIntentHandler.INTENT_PREFIX,
+        ) { intent, player -> travelShowHandler.handle(intent, player) }
+
         waveGIntentRegistrations = waveGRegistrations
 
         // Brigadier command families.
@@ -3118,13 +3133,18 @@ public class AsteraCorePlugin : JavaPlugin() {
      *  3. `<dataFolder>/content/` — last-resort default that ships with the jar.
      */
     private fun resolveContentDir(): Path {
-        val workspaceCandidate = Paths.get(dataFolder.parentFile.parentFile.absolutePath, "content")
-        if (Files.isDirectory(workspaceCandidate)) return workspaceCandidate
+        // Paper hands out a relative dataFolder (`plugins/Astera-Core`), so
+        // resolve it to absolute before walking up to the server root.
+        val pluginData = dataFolder.toPath().toAbsolutePath().normalize()
+        val serverRoot = pluginData.parent?.parent
 
-        val serverCandidate = Paths.get(dataFolder.parentFile.parentFile.absolutePath).resolve("content")
-        if (Files.isDirectory(serverCandidate)) return serverCandidate
+        val workspaceCandidate = serverRoot?.parent?.resolve("content")
+        if (workspaceCandidate != null && Files.isDirectory(workspaceCandidate)) return workspaceCandidate
 
-        return dataFolder.toPath().resolve("content")
+        val serverCandidate = serverRoot?.resolve("content")
+        if (serverCandidate != null && Files.isDirectory(serverCandidate)) return serverCandidate
+
+        return pluginData.resolve("content")
     }
 
     private companion object {

@@ -564,6 +564,7 @@ astera:
       team-footer: "<gray>Astera PvP</gray>"
     respawn:
       countdown: "<yellow>{seconds} 秒後にリスポーン…</yellow>"
+      out-of-match: "<yellow>倒されました。ロビーに戻ります。</yellow>"
 
   # Wave 5e — Tutorial 表示文字列 (ADR-0034)。
   # Wave 5p (ADR-0088): sequencer subkeys are nested here (single tutorial: section)。

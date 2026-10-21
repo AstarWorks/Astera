@@ -49,7 +49,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * [bukkitPotionTypeFor] returns a vanilla `PotionEffectType` for the
  * subset of [StatusKind]s that have a 1:1 vanilla analogue (BURN → harm
- * tick is delivered by tick listener, vanilla type used for HUD icon;
+ * tick is delivered by tick listener, cosmetic vanilla type used for HUD icon;
  * SPEED_UP → SPEED; PARALYSIS → SLOWNESS at amplifier high enough to
  * stand-still; etc.). Astera-specific kinds (STAR_GAIN, CT_FREEZE,
  * GRAVITY_UP, …) have no vanilla counterpart and skip the mirror write
@@ -250,17 +250,18 @@ public class PaperStatusEffectContainer(
      * Astera-specific kinds (STAR_GAIN family, CT_* family, GRAVITY_*,
      * JUMP_DISABLED) return null and the mirror write is skipped.
      *
-     * BURN maps to vanilla `WITHER` (a darker-than-poison HUD tint) rather
-     * than `POISON` so a separate Astera POISON-like kind (future) can take
-     * the literal vanilla `POISON` slot. The tick damage itself is delivered
-     * by [StatusEffectTickListener]; the Bukkit potion is icon-only.
+     * BURN maps to vanilla `UNLUCK` (a purely cosmetic HUD icon). It must NOT
+     * map to a damaging vanilla potion (`WITHER` / `POISON`): those deal real
+     * damage that BukkitEventAdapter re-routes into IPlayerHealthGateway, on
+     * top of the tick damage delivered by [StatusEffectTickListener] (double
+     * DoT). The Bukkit potion is icon-only.
      */
     private fun bukkitPotionTypeFor(kind: StatusKind): PotionEffectType? = when (kind) {
         StatusKind.SPEED_UP -> PotionEffectType.SPEED
         StatusKind.SPEED_DOWN -> PotionEffectType.SLOWNESS
         StatusKind.PARALYSIS -> PotionEffectType.SLOWNESS // applied at high amplifier; HUD only
         StatusKind.JUMP_DISABLED -> PotionEffectType.JUMP_BOOST // negative amplifier in vanilla; HUD-icon proxy
-        StatusKind.BURN -> PotionEffectType.WITHER
+        StatusKind.BURN -> PotionEffectType.UNLUCK
         StatusKind.HEAL_AMP,
         StatusKind.HEAL_REDUCE,
         StatusKind.HEAL_NULL,

@@ -562,6 +562,7 @@ astera:
       team-footer: "<gray>Astera PvP</gray>"
     respawn:
       countdown: "<yellow>Respawning in {seconds}…</yellow>"
+      out-of-match: "<yellow>You were defeated. Returning to the lobby.</yellow>"
 
   # Wave 5e — Tutorial display strings (ADR-0034). Renders via `astera.tutorial.*`
   # MessageKey calls in `TutorialContents` + `content/tutorials/*.yaml`.

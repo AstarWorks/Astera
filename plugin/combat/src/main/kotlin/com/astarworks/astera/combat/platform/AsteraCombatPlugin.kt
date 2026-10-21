@@ -483,7 +483,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
             // ExplosionDamageApplier.None that Wave 6e shipped at Phase C.
             val explosionDamageApplier =
                 com.astarworks.astera.combat.application.service.aoe.ApplyDamageExplosionDamageApplier(applyDamage)
-            registrations += services.register<IExplosionGateway>(
+            val paperExplosionGateway =
                 com.astarworks.astera.combat.adapter.paper.aoe.PaperExplosionGateway(
                     server = server,
                     scheduler = services.getOrThrow<IScheduler>(),
@@ -492,9 +492,11 @@ public class AsteraCombatPlugin : JavaPlugin() {
                     knockbackGateway = services.get<IKnockbackGateway>() ?: NoOpKnockbackGateway(),
                     blockStateGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IBlockStateGateway>(),
                     damageApplier = explosionDamageApplier,
-                ),
-                priority = 100,
-            )
+                )
+            registrations += services.register<IExplosionGateway>(paperExplosionGateway, priority = 100)
+            // Cancels the vanilla BLOCK/ENTITY_EXPLOSION damage raised by its own
+            // createExplosion call so explosion damage lands once (Astera path only).
+            server.pluginManager.registerEvents(paperExplosionGateway, this)
 
             // Wave _skills-2 (ADR-0077): MechanicDispatcher is the central
             // runtime for the Mechanic-Targeter-Phase architecture. Each
@@ -785,6 +787,14 @@ public class AsteraCombatPlugin : JavaPlugin() {
         // (Core cannot publish combat.* per ADR-0022 sibling-isolation).
         // Closes the last ADR-0134 deferred-events allowlist entry.
         com.astarworks.astera.combat.adapter.paper.PaperEnvironmentDamagePublisher(
+            eventBus = eventBus,
+            scheduler = scheduler,
+        ).start(this)
+
+        // Rerouted vanilla damage (melee / mob / environment / DoT) only moves
+        // the Astera HP container; this publisher turns the >0 → <=0 edge of
+        // PlayerHealthChanged into exactly one PlayerKilled.
+        subscriptions += com.astarworks.astera.combat.adapter.paper.PaperVanillaKillPublisher(
             eventBus = eventBus,
             scheduler = scheduler,
         ).start(this)

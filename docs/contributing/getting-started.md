@@ -29,19 +29,22 @@ git submodule update --init --recursive   # private/ は権限がある人のみ
 ## 3. ローカル起動 (Docker Compose)
 
 ```bash
-docker compose up -d
+cp docker/.env.example docker/.env   # OPS=<your Minecraft name> を設定
+make docker-up
 ```
 
-これで以下が立ち上がります:
-- Paper 26.x サーバー (Astera プラグイン付き) — port 25565
+これで以下が立ち上がります (イメージ build 時に 7 plugin jar と `content/` を焼き込み):
+- Paper 26.x サーバー (Astera 7 plugin 付き, superflat) — port 25565
 - PostgreSQL — port 5432
 - Redis — port 6379
 
 Minecraft クライアント (Java Edition 26.1.x) で `localhost` に接続できれば成功です。
+武器の入手〜マッチ開始までは [`playtest.md`](playtest.md) を参照。
+YAML (`content/`) を変えたら `make docker-up` で再 build が必要です。
 
-## 4. 武器を追加してみる
+## 4. アイテムを追加してみる
 
-[`add-a-weapon-yaml.md`](add-a-weapon-yaml.md) を参照。`content/weapons/` に YAML を 1 枚置くだけ。
+[`add-an-item-yaml.md`](add-an-item-yaml.md) を参照。`content/items/` に YAML を 1 枚置くだけ。
 
 ## 5. (Kotlin 開発の場合) ビルド
 
@@ -57,10 +60,11 @@ Minecraft クライアント (Java Edition 26.1.x) で `localhost` に接続で�
 が走ります。失敗したら PR は通りません。
 
 ```bash
-./gradlew :plugin:platform-paper-plugin:shadowJar
+make build   # 7 plugin の shadowJar
 ```
 
-成果物は `plugin/platform-paper-plugin/build/libs/astera-paper-*.jar` に出力されます。これを上記 docker compose の `plugins/` にマウントすると最新ビルドで試せます。
+成果物は `plugin/<name>/build/libs/astera-<name>-*.jar` に出力されます (`make docker-up` は
+Docker 内で同じものを build するので手動配置は不要)。
 
 ## 6. PR を出す
 

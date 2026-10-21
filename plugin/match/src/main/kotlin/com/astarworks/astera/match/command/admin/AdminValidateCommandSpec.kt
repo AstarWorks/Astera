@@ -61,6 +61,11 @@ public class AdminValidateCommandSpec(
                         issue.itemId.value,
                         issue.missingSkillId.value,
                     )
+                    is ValidationIssue.UnsupportedContent -> log.warn(
+                        "  {} → {}",
+                        issue.owner,
+                        issue.problem,
+                    )
                 }
             }
             if (report.unknownCategories.isNotEmpty()) {

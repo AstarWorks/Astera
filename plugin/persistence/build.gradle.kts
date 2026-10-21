@@ -20,6 +20,7 @@
  */
 
 plugins {
+    id("astera.core-provided")
     id("astera.kotlin-paper")
     alias(libs.plugins.shadow)
     alias(libs.plugins.kotlin.serialization)
@@ -87,6 +88,9 @@ tasks.shadowJar {
     archiveBaseName.set("astera-persistence")
     archiveClassifier.set("")
     mergeServiceFiles()
+    dependencies {
+        exclude { "${it.moduleGroup}:${it.moduleName}" in project.coreProvidedModules() }
+    }
 }
 
 tasks.named("build") {

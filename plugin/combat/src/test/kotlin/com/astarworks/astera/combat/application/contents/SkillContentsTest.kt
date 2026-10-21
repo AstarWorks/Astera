@@ -26,13 +26,6 @@ import java.nio.file.Path
  * Wave _items-1 (ADR-0073): YAML schema migrated to inline locale maps for
  * name / description and `trigger:` removed (binding moved to item YAML).
  */
-@org.junit.jupiter.api.Disabled(
-    "TODO Wave _skills-2 follow-up: embedded YAML strings need migration to " +
-        "the new SkillYamlConfig schema (compound damage list, phases block, " +
-        "type:-discriminated NumericValueYaml). The 2 non-YAML tests " +
-        "(`register adds...`, `missing directory...`) still pass via direct " +
-        "SkillSpec construction. Track in Phase C close-out task.",
-)
 class SkillContentsTest {
 
     private val projectileYaml = """
@@ -55,7 +48,7 @@ class SkillContentsTest {
                 value: 12.0
               attribute: fire
         phases:
-          archetype: projectile
+          type: projectile
     """.trimIndent()
 
     private val buffYaml = """
@@ -73,7 +66,7 @@ class SkillContentsTest {
           status_effect_id: example-speed
           duration_ticks: 100
         phases:
-          archetype: buff
+          type: buff
     """.trimIndent()
 
     @Test
@@ -156,6 +149,8 @@ class SkillContentsTest {
               type: buff
               status_effect_id: nope
               duration_ticks: 20
+            phases:
+              type: projectile
         """.trimIndent()
         Files.writeString(dir.resolve("bad.yaml"), mismatch)
         Files.writeString(dir.resolve("good.yaml"), projectileYaml)

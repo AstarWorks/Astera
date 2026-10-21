@@ -926,6 +926,20 @@ public class AsteraMatchPlugin : JavaPlugin() {
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,
         ) { event -> respawnOnKilled.handle(event) }
+        // Out-of-match deaths (lobby PvP / fall / mob) restore HP and return
+        // the player to lobby spawn; in-match deaths stay with respawnOnKilled.
+        val returnToLobbyOnDeath = com.astarworks.astera.match.application.eventbus.listeners.respawn
+            .ReturnToLobbyOnOutOfMatchDeathListener(
+                matches = matches,
+                healthGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>(),
+                worldGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(),
+                playerGateway = playerGateway,
+                messages = msgRenderer,
+                statusEffects = services.get<com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer>(),
+            )
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
+        ) { event -> returnToLobbyOnDeath.handle(event) }
 
         val teleportLobbyListener = com.astarworks.astera.match.application.eventbus.listeners.lobby
             .TeleportToLobbyOnMatchEndedListener(
@@ -1168,6 +1182,9 @@ public class AsteraMatchPlugin : JavaPlugin() {
                     items = itemRegistry,
                     skills = skillRegistry,
                 )
+            // Broken / unsupported content fails loudly at boot instead of
+            // silently no-op'ing in game.
+            validateUseCase.validate().issues.forEach { logger.severe("Content validation: $it") }
             commandHandler.register(
                 com.astarworks.astera.match.command.admin.AdminValidateCommandSpec(
                     validate = validateUseCase,

@@ -59,10 +59,12 @@ public class SoundContents : YamlDynamicContents<SoundId, SoundDefinition, Sound
     public fun bootstrapRecursive(root: Path): ContentLoader.LoadReport {
         var loaded = 0
         var failed = 0
+        val failures = mutableListOf<ContentLoader.LoadFailure>()
         if (!Files.isDirectory(root)) return ContentLoader.LoadReport(loaded = 0, failed = 0)
         val rootReport = bootstrap(root)
         loaded += rootReport.loaded
         failed += rootReport.failed
+        failures += rootReport.failures
         Files.list(root).use { stream ->
             stream
                 .filter { it.isDirectory() }
@@ -70,8 +72,9 @@ public class SoundContents : YamlDynamicContents<SoundId, SoundDefinition, Sound
                     val subReport = bootstrap(sub)
                     loaded += subReport.loaded
                     failed += subReport.failed
+                    failures += subReport.failures
                 }
         }
-        return ContentLoader.LoadReport(loaded = loaded, failed = failed)
+        return ContentLoader.LoadReport(loaded = loaded, failed = failed, failures = failures)
     }
 }

@@ -1,28 +1,19 @@
 # Astera local dev — Docker
 
-Paper 26.1.x with the Astera plugin pre-installed, plus Postgres and Redis.
-
-## Prerequisites
-- Docker 24+ and Docker Compose v2
-- Minecraft Java Edition client matching `VERSION` (default **26.1.2**)
-
-## First-time setup
-```bash
-# From the repo root
-./gradlew :plugin:platform-paper-plugin:shadowJar   # optional: warms Gradle cache
-cp docker/.env.example docker/.env                  # adjust passwords if desired
-```
+Paper 26.1.x with the 7 Astera plugins and `content/` baked in, plus Postgres
+and Redis. Superflat survival world, PvP on, offline mode.
 
 ## Run
 ```bash
-docker compose -f docker/docker-compose.yml up -d
-docker compose -f docker/docker-compose.yml logs -f paper
+cp docker/.env.example docker/.env && $EDITOR docker/.env   # set OPS=YourMinecraftName
+make docker-up      # rebuilds the image (jars + content) and starts the stack
+make docker-logs    # tail Paper logs
 ```
 
-## Verify
-1. Launch Minecraft Java Edition 26.1.x.
-2. Multiplayer → Direct Connect → `localhost:25565`.
-3. In-game, run `/astera give @p example-sword`.
-4. You should receive an Iron Sword named **サンプルソード** (ja) or **Example Sword** (en).
+Content or code changes need `make docker-up` again (content is baked into the
+image; do not bind-mount `../content` — the Docker daemon may be remote/shared).
 
-Stop with `docker compose -f docker/docker-compose.yml down` (`-v` also wipes volumes).
+Connect with Minecraft Java 26.1.x to `localhost:25565`. Step-by-step play
+instructions: [`docs/contributing/playtest.md`](../docs/contributing/playtest.md).
+
+Stop with `make docker-down` (`make docker-nuke` also wipes volumes/world).

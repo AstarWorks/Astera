@@ -1,0 +1,22 @@
+# Wave 5c Star Generator placements for the example-arena stage.
+# Mirrors plugin/match/.../application/config/GeneratorYamlConfig.kt.
+#
+# `match_stage_id` ties each generator to a stage definition in content/stages/.
+# At match start a use case (Phase C wiring) materializes a StarGenerator per
+# entry under the active MatchId.
+#
+# `period_seconds` is wall-clock seconds; the runtime converts to ticks
+# (1 tick = 50 ms) internally.
+#
+# `amount` is the base per-spawn quantity. Anomalies / boons that overlay the
+# generator.amount_multiplier attribute scale it at runtime.
+
+id: arena-south
+match_stage_id: example-arena
+position: { x: 0.0, y: 64.0, z: 40.0 }
+currency: STAR
+period_seconds: 30.0
+amount: 1
+tier: iron
+affiliation:
+  kind: neutral

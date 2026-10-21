@@ -37,11 +37,11 @@ skills:
     phase_overrides:
       cast_append:
         - type: spawn_particle
-          targets: { kind: caster_offset, offset: { kind: literal, value: { x: 0.0, y: 1.4, z: 0.3 } } }
+          targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 1.4, z: 0.3 } } }
           particle_id: example-burst
       hit_entity_append:
         - type: spawn_particle
-          targets: { kind: hit_location }
+          targets: { type: hit_location }
           particle_id: example-burst
 
 pdc_tags:

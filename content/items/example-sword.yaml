@@ -39,7 +39,7 @@ skills:
     phase_overrides:
       cast_append:
         - type: spawn_particle
-          targets: { kind: caster }
+          targets: { type: caster }
           particle_id: example-burst
 
 pdc_tags:

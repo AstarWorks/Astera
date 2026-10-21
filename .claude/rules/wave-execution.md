@@ -55,6 +55,10 @@ When the user says `Wave 5b を実装して` (or similar), read these in this or
   directories so workers don't race, TaskCreate for the wave.
 - **Phase B — workers in parallel.** Spawn one `Agent` per worker-territory
   row in the handoff doc. Each worker gets its own task list + scope.
+  Workers run as `subagent_type: astera-worker` (**Sonnet**); purely
+  mechanical territories (bulk delete / rename / YAML rewrite) may pass
+  `model: haiku`. Opus stays orchestrator-only (Phase A/C: planning,
+  wiring, ADR, check, commit) — do not implement Phase B territory on Opus.
 - **Phase C — orchestrator solo.** Wire plugins
   (`plugin/<module>/src/main/kotlin/.../platform/Astera*Plugin.kt`), write the
   ADR, run `./gradlew check`, update `docs/RTM-PARITY-TRACKER.md` (use

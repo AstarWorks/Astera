@@ -23,8 +23,8 @@ help: ## Show this help
 # ----------------------------------------------------------------------------
 
 .PHONY: build
-build: ## Build the Astera shadowJar
-	$(GRADLEW) :plugin:platform-paper-plugin:shadowJar
+build: ## Build the 7 Astera plugin shadow jars (plugin/*/build/libs/astera-*.jar)
+	$(GRADLEW) $(foreach p,core items combat match stats economy persistence,:plugin:$(p):shadowJar)
 
 .PHONY: check
 check: ## Run unit tests + Konsist architecture tests
@@ -39,9 +39,9 @@ clean: ## Clean Gradle build outputs
 # ----------------------------------------------------------------------------
 
 .PHONY: docker-up
-docker-up: build ## Start local Paper + Postgres + Redis
+docker-up: ## (Re)build image (jars + content baked in) and start Paper + Postgres + Redis
 	@test -f docker/.env || cp docker/.env.example docker/.env
-	$(DOCKER_COMPOSE) up -d
+	$(DOCKER_COMPOSE) up -d --build
 
 .PHONY: docker-down
 docker-down: ## Stop local stack (keeps volumes)

@@ -22,35 +22,35 @@ params:
   launch_speed: 2.2
   max_lifetime_ticks: 50
   damage:
-    - base: { kind: literal, value: 6.0 }
-      attribute: ice
+    - base: { type: literal, value: 6.0 }
+      attribute: water
 
 phases:
-  archetype: projectile
+  type: projectile
   cast:
     - type: play_sound
-      targets: { kind: caster }
-      sound_id: skills/blast-cast
+      targets: { type: caster }
+      sound_id: entity.blaze.shoot
     - type: spawn_particle
-      targets: { kind: caster_offset, offset: { kind: literal, value: { x: 0.0, y: 1.5, z: 0.3 } } }
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 1.5, z: 0.3 } } }
       particle_id: example-burst
   hit_entity:
     - type: damage
-      targets: { kind: target }
+      targets: { type: target }
       components:
-        - base: { kind: literal, value: 6.0 }
-          attribute: ice
+        - base: { type: literal, value: 6.0 }
+          attribute: water
     - type: apply_status
-      targets: { kind: target }
+      targets: { type: target }
       status_id: freeze
-      effect_duration_ticks: { kind: literal, value: 60 }
-      chance: { kind: literal, value: 0.70 }
+      effect_duration_ticks: { type: literal, value: 60 }
+      chance: { type: literal, value: 0.70 }
   hit_block:
     - type: spawn_particle
-      targets: { kind: hit_location }
+      targets: { type: hit_location }
       particle_id: example-burst
   miss:
     - type: play_sound
-      targets: { kind: caster }
-      sound_id: skills/whiff
+      targets: { type: caster }
+      sound_id: entity.player.attack.sweep
   expire: []

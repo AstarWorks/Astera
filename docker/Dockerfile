@@ -3,8 +3,8 @@
 # Astera Minecraft server image.
 #
 # Two stages:
-#   1. `builder`  — Gradle + JDK 25, produces the shaded plugin jar.
-#   2. `runtime`  — itzg/minecraft-server:java25 with the plugin jar baked in.
+#   1. `builder`  — Gradle + JDK 25, produces the 7 shaded plugin jars.
+#   2. `runtime`  — itzg/minecraft-server:java25 with plugin jars + content baked in.
 #
 # Build context is the *repository root* (one level up from this Dockerfile),
 # so the plugin sources can be copied into the builder stage. Example:
@@ -24,16 +24,29 @@ WORKDIR /workspace
 COPY settings.gradle.kts build.gradle.kts gradle.properties /workspace/
 COPY gradle /workspace/gradle/
 COPY buildSrc /workspace/buildSrc/
+COPY config /workspace/config/
 COPY tools /workspace/tools/
 
 # Now copy plugin sources. Anything not relevant (build/, .gradle/, IDE files)
-# is excluded via .dockerignore.
+# is excluded via Dockerfile.dockerignore.
 COPY plugin /workspace/plugin/
+# schema-gen / content-lint reference content/ from the root project.
+COPY content /workspace/content/
 
-# Build the shaded jar. We skip tests here because CI runs `./gradlew check`
-# separately; the Dockerfile's job is just to produce the runtime artifact.
+# Build the 7 shaded plugin jars (ADR-0022). Tests are skipped here because CI
+# runs `./gradlew check` separately. plugin:test-fixtures is NOT shipped.
 RUN --mount=type=cache,target=/home/gradle/.gradle \
-    gradle --no-daemon :plugin:platform-paper-plugin:shadowJar -x test
+    gradle --no-daemon -x test \
+        :plugin:core:shadowJar \
+        :plugin:items:shadowJar \
+        :plugin:combat:shadowJar \
+        :plugin:match:shadowJar \
+        :plugin:stats:shadowJar \
+        :plugin:economy:shadowJar \
+        :plugin:persistence:shadowJar \
+ && mkdir /out \
+ && cp plugin/*/build/libs/astera-*.jar /out/ \
+ && test "$(ls /out | wc -l)" -eq 7
 
 # ---------- Stage 2: itzg/minecraft-server runtime ----------
 FROM itzg/minecraft-server:java25 AS runtime
@@ -43,6 +56,8 @@ FROM itzg/minecraft-server:java25 AS runtime
 # EULA is intentionally left FALSE; the operator must opt in via env or the
 # docker-compose file. This keeps the base image redistribution-safe.
 ENV EULA=FALSE \
+    SYNC_SKIP_NEWER_IN_DESTINATION=false \
+    COPY_CONFIG_DEST=/data \
     TYPE=PAPER \
     VERSION=26.1.2 \
     MEMORY=4G \
@@ -53,11 +68,16 @@ ENV EULA=FALSE \
     ENABLE_RCON=true \
     RCON_PORT=25575
 
-# Drop the shaded plugin jar into the plugins directory. itzg's entrypoint
-# will copy /plugins -> /data/plugins on first boot.
-COPY --from=builder \
-    /workspace/plugin/platform-paper-plugin/build/libs/astera-paper-*.jar \
-    /plugins/astera.jar
+# Plugin jars: itzg copies /plugins -> /data/plugins on every start.
+COPY --from=builder /out/ /plugins/
+
+# Content: the core plugin resolves `<server root>/content` = /data/content.
+# The Docker daemon is shared with the host, so a bind mount of ../content
+# would appear empty; bake it into the image instead. itzg syncs /config ->
+# $COPY_CONFIG_DEST (set to /data above; default is /data/config) on every
+# start; SYNC_SKIP_NEWER_IN_DESTINATION=false makes a rebuilt image overwrite
+# stale copies in the /data volume.
+COPY content /config/content/
 
 # 25565 = Minecraft Java, 25575 = RCON. World/config volume is /data.
 EXPOSE 25565 25575

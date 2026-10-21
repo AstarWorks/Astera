@@ -1,15 +1,14 @@
 # Astera local development stack.
 #
-# Usage (from repo root):
-#     ./gradlew :plugin:platform-paper-plugin:shadowJar    # optional pre-build
-#     cp docker/.env.example docker/.env
-#     docker compose -f docker/docker-compose.yml up -d
+# Usage (from repo root):  make docker-up
+#   (= cp docker/.env.example docker/.env; docker compose up -d --build)
 #
-# The Paper server image is built from ../docker/Dockerfile using the repo
-# root as the build context, so the multi-stage build can compile the plugin
-# from source. Once built, the container reads runtime YAML (weapons,
-# languages) from a read-only bind mount of `../content`, which means content
-# changes don't require an image rebuild — just restart the container.
+# The Paper server image is built from docker/Dockerfile using the repo root as
+# the build context: the multi-stage build compiles the 7 plugin jars AND bakes
+# `content/` into the image (/config/content -> /data/content). The Docker
+# daemon is shared with the host, so a bind mount of ../content would be empty
+# in the container. Content/code changes therefore need `make docker-up`
+# (rebuilds the image). See docs/contributing/playtest.md.
 
 name: astera-dev
 
@@ -38,6 +37,16 @@ services:
       MAX_PLAYERS: "20"
       ONLINE_MODE: "FALSE"
       MOTD: "Astera dev"
+      # Playtest world: superflat (surface block y=-61, stand at y=-60), so
+      # content/stages/example-arena.yaml coordinates sit on ground. Only
+      # applies when the world is first created (see playtest.md "reset").
+      LEVEL_TYPE: "FLAT"
+      MODE: "survival"
+      DIFFICULTY: "normal"
+      PVP: "true"
+      SPAWN_PROTECTION: "0"
+      ALLOW_FLIGHT: "true"
+      OPS: "${OPS:-}"
       ENABLE_RCON: "true"
       RCON_PORT: "25575"
       RCON_PASSWORD: "${RCON_PASSWORD:-astera}"
@@ -54,10 +63,7 @@ services:
       ASTERA_METRICS_PORT: "9092"
     volumes:
       - paper-data:/data
-      # The plugin resolves content from `dataFolder.parentFile.parentFile/content`,
-      # which inside the container is `/data/content`. Mounting the repo's
-      # content directory here lets us iterate on YAML without rebuilding.
-      - ../content:/data/content:ro
+      # /data/content comes from the image (baked in, see Dockerfile).
     depends_on:
       postgres:
         condition: service_healthy

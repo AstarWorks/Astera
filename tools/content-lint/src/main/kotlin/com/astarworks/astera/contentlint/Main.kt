@@ -197,8 +197,48 @@ internal class LintRunner(private val cli: CliArgs) {
             }
         }
 
+        results += semanticResults()
+
         return LintReport(results, missingSchemas)
     }
+
+    /**
+     * Runtime-support and cross-reference checks for skills + items (see
+     * [SemanticChecks]). Reported as a separate result per file so schema
+     * and semantic failures are both visible.
+     */
+    private fun semanticResults(): List<FileResult> {
+        val known = SemanticChecks.KnownIds(
+            skills = idsIn("skills"),
+            statuses = idsIn("status"),
+            particles = idsIn("particles"),
+        )
+        val out = mutableListOf<FileResult>()
+        for (dir in listOf("skills", "items")) {
+            for (yaml in yamlFilesIn(dir)) {
+                val node = try {
+                    yaml.reader().use { YamlToJson.parse(it) }
+                } catch (_: Exception) {
+                    continue // already reported by the schema pass
+                }
+                val errors = SemanticChecks.check(node, known)
+                if (errors.isNotEmpty()) out += FileResult(file = yaml, errors = errors)
+            }
+        }
+        return out
+    }
+
+    private fun yamlFilesIn(dir: String): List<Path> {
+        val d = cli.contentDir.resolve(dir)
+        if (!d.isDirectory()) return emptyList()
+        return d.listDirectoryEntries()
+            .filter { it.isRegularFile() && (it.name.endsWith(".yaml") || it.name.endsWith(".yml")) }
+            .sortedBy { it.name }
+    }
+
+    private fun idsIn(dir: String): Set<String> = yamlFilesIn(dir).mapNotNull { f ->
+        runCatching { f.reader().use { YamlToJson.parse(it) }.get("id")?.asText() }.getOrNull()
+    }.toSet()
 
     private fun loadSchema(path: Path): JsonSchema {
         // Read schema as a raw JSON string; networknt resolves $ref's

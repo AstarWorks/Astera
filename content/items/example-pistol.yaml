@@ -38,9 +38,9 @@ skills:
     phase_overrides:
       hit_entity_append:
         - type: apply_status
-          targets: { kind: target }
+          targets: { type: target }
           status_id: example-burn
-          effect_duration_ticks: { kind: literal, value: 40 }
+          effect_duration_ticks: { type: literal, value: 40 }
 
 pdc_tags:
   astera:rarity: common
