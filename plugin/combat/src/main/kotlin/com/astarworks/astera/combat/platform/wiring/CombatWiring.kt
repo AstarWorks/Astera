@@ -684,7 +684,7 @@ public object CombatWiring {
             // the silence / cooldown / resource pipeline. Wave _skills-2 carries
             // phase_overrides through.
             subscriptions += eventBus.subscribe(SkillCastRequested::class) { event ->
-                castSkill.execute(
+                val dbg = castSkill.execute(
                     casterId = event.actorId,
                     skillId = event.skillId,
                     at = event.origin,
@@ -693,6 +693,7 @@ public object CombatWiring {
                     cooldownOverrideTicks = event.cooldownOverrideTicks,
                     trigger = event.trigger,
                 )
+                logger.fine("cast ${event.skillId} by ${event.actorId} -> $dbg")
             }
 
             // WP2 — player-facing feedback when a cast is refused (empty

@@ -62,8 +62,7 @@ interface IMcPlayer {
      * the previous action-bar text (vanilla Minecraft fades it out after
      * ~2 seconds).
      *
-     * Paper impl arrives in Wave 6 (ADR-0031). Until then [com.astarworks.astera.core.adapter.paper.entity.PaperPlayer]
-     * throws via `TODO(...)`.
+     * Paper impl: Adventure via PaperPlayer (renderer-resolved keys).
      */
     fun sendActionBar(messageKey: MessageKey, placeholders: Map<String, String> = emptyMap())
 
@@ -75,7 +74,7 @@ interface IMcPlayer {
      * the i18n catalog at the Paper-impl layer. Vanilla defaults are
      * fadeIn=500ms / stay=3500ms / fadeOut=1000ms.
      *
-     * Paper impl arrives in Wave 6 (ADR-0031).
+     * Paper impl: Adventure via PaperPlayer.
      */
     fun sendTitle(
         titleKey: MessageKey,

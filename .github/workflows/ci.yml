@@ -96,7 +96,7 @@ jobs:
         if: failure()
         run: |
           mkdir -p build
-          for c in $(docker ps -a --format '{{.Names}}' | grep astera-e2e); do docker logs --tail 300 "$c" > "build/docker-$c.log" 2>&1 || true; done
+          for c in $(docker ps -a --format '{{.Names}}' | grep astera-e2e); do docker logs --tail 20000 "$c" > "build/docker-$c.log" 2>&1 || true; done
 
       - name: Upload backend logs (on failure)
         if: failure()

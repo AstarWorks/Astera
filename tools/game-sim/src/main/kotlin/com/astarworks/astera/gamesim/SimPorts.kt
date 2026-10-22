@@ -8,6 +8,7 @@ import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.domain.damage.DamageSource
+import com.astarworks.astera.combat.domain.damage.InvulnerabilityFrames
 import com.astarworks.astera.combat.domain.damage.ResolvedDamage
 import com.astarworks.astera.combat.domain.event.StatusExpired
 import com.astarworks.astera.combat.domain.event.StatusRemoved
@@ -167,7 +168,7 @@ public class SimDamageGateway(
     private val invulnerabilityTicks: Long = DEFAULT_INVULNERABILITY_TICKS,
 ) : IDamageGateway {
 
-    private val lastHitTick: MutableMap<PlayerId, Long> = ConcurrentHashMap()
+    private val frames = InvulnerabilityFrames(invulnerabilityTicks)
 
     override fun apply(
         target: PlayerId,
@@ -182,15 +183,12 @@ public class SimDamageGateway(
         val currentHp = (container.get(Attributes.CURRENT_HP) as? AttributeValue.NumberValue)?.value ?: maxHp
         if (currentHp <= 0.0) return Result.failure(DamageApplicationError.TargetAlreadyDead(target))
 
-        val now = scheduler.currentTick()
-        val last = lastHitTick[target]
-        if (!ignoreInvulnerability && last != null && now - last < invulnerabilityTicks) {
+        if (!frames.tryEnter(target, scheduler.currentTick(), ignoreInvulnerability)) {
             return Result.failure(DamageApplicationError.Immune(target))
         }
 
         val newHp = (currentHp - resolved.finalAmount).coerceAtLeast(0.0)
         container.set(Attributes.CURRENT_HP, AttributeValue.NumberValue(newHp))
-        lastHitTick[target] = now
 
         return if (newHp <= 0.0) {
             Result.success(DamageOutcome.Killed)
