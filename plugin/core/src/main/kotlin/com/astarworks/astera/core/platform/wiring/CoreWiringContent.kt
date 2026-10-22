@@ -58,14 +58,16 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     // VelocityProxyMessenger / VelocityServerTransferGateway will overlay
     // at priority 100; the Phase 1 self-loopback InMemory impls provide
     // the baseline so the priority-overlay convention works.
+    val remoteMessenger = ports.proxyMessenger?.invoke(ctx)
     val proxyMessenger: com.astarworks.astera.core.application.port.outbound.IProxyMessenger =
-        com.astarworks.astera.core.application.service.InMemoryProxyMessenger(
-            localServer = com.astarworks.astera.core.domain.proxy.ServerName("astera-local"),
-        )
+        remoteMessenger
+            ?: com.astarworks.astera.core.application.service.InMemoryProxyMessenger(localServer = ctx.serverName)
     services.register<com.astarworks.astera.core.application.port.outbound.IProxyMessenger>(
         proxyMessenger,
-        priority = 0,
+        priority = if (remoteMessenger != null) 100 else 0,
     )
+    // The gateway (permission check, PlayerTransferRequested, deferred queues) is
+    // the same over either messenger; only `sendToServer` differs (ADR-0179).
     val serverTransferGateway: com.astarworks.astera.core.application.port.outbound.IServerTransferGateway =
         com.astarworks.astera.core.application.service.InMemoryServerTransferGateway(
             messenger = proxyMessenger,
@@ -74,9 +76,12 @@ internal fun CoreWiringState.wireContentAndRepositories() {
         )
     services.register<com.astarworks.astera.core.application.port.outbound.IServerTransferGateway>(
         serverTransferGateway,
-        priority = 0,
+        priority = if (remoteMessenger != null) 100 else 0,
     )
-    logger.info("Proxy InMemory backends registered (localServer=astera-local, priority=0; Wave 6b Velocity adapters will overlay at priority 100).")
+    logger.info(
+        "Proxy messenger registered (${if (remoteMessenger != null) "redis+velocity" else "in-memory"}, " +
+            "localServer=${ctx.serverName}, role=${ctx.serverRole}).",
+    )
 
     // Use cases — constructed here for completeness; no Core command uses them yet.
     @Suppress("UNUSED_VARIABLE")

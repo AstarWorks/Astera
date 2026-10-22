@@ -380,19 +380,24 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     // INpcInteractionRouter and (Paper only) gives it a clickable body. The
     // intent handlers (e.g. Economy's `lobby.shop.open`) register in their own
     // plugins; dispatch happens at click time, so enable order does not matter.
-    val lobbyNpcBodies = ports.npcBodies?.invoke(services)
+    // A game-only backend has no lobby (ADR-0179): no NPC bodies, no NPC content.
+    val lobbyNpcBodies = if (ctx.serverRole.hostsLobby) ports.npcBodies?.invoke(services) else null
     if (lobbyNpcBodies != null) {
         services.register<com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer>(
             lobbyNpcBodies,
             priority = 100,
         )
     }
-    val lobbyNpcReport = com.astarworks.astera.core.application.service.entity.LobbyNpcLoaderService(
-        spawner = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner>(),
-        interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
-        bodies = lobbyNpcBodies,
-    ).loadFrom(contentDir.resolve("lobby-npcs"))
-    logger.info("Lobby NPCs loaded: ${lobbyNpcReport.loaded} ok, ${lobbyNpcReport.failed} failed")
+    if (ctx.serverRole.hostsLobby) {
+        val lobbyNpcReport = com.astarworks.astera.core.application.service.entity.LobbyNpcLoaderService(
+            spawner = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner>(),
+            interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
+            bodies = lobbyNpcBodies,
+        ).loadFrom(contentDir.resolve("lobby-npcs"))
+        logger.info("Lobby NPCs loaded: ${lobbyNpcReport.loaded} ok, ${lobbyNpcReport.failed} failed")
+    } else {
+        logger.info("Lobby NPCs skipped (server role ${ctx.serverRole}).")
+    }
 
     // ── Wave J 5server-content-ops (ADR-0127) ─────────────────────────
     //

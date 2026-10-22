@@ -80,7 +80,7 @@ class InMemoryServerTransferGatewayTest {
         val (gateway, messenger, _) = fixture(permissions = perms)
         val player = playerId()
 
-        val outcome = gateway.transfer(player, game1, TransferReason.MatchFound)
+        val outcome = gateway.transfer(player, game1, TransferReason.AdminMove)
 
         assertThat(outcome).isInstanceOf(Result.Failure::class.java)
         val err = (outcome as Result.Failure).error
@@ -88,6 +88,16 @@ class InMemoryServerTransferGatewayTest {
         assertThat((err as TransferError.PermissionDenied).permissionNode)
             .isEqualTo("astera.transfer.game-1")
         assertThat(messenger.transfersRecorded()).isEmpty()
+    }
+
+    @Test
+    fun `system-initiated hops skip the permission check`() {
+        val (gateway, messenger, _) = fixture(permissions = InMemoryPermissionService())
+        val player = playerId()
+
+        assertThat(gateway.transfer(player, game1, TransferReason.MatchFound)).isInstanceOf(Result.Success::class.java)
+        assertThat(gateway.transfer(player, game1, TransferReason.LobbyReturn)).isInstanceOf(Result.Success::class.java)
+        assertThat(messenger.transfersRecorded()).hasSize(2)
     }
 
     @Test

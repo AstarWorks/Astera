@@ -34,6 +34,10 @@ public value class ProxyChannel(public val name: String) {
         public val HEARTBEAT: ProxyChannel = ProxyChannel("astera.heartbeat")
 
         /** Reserved channel for match-found notifications. */
+        /** Lobby to game: a formed match to host (match assignment frame, ADR-0179). */
         public val MATCH_FOUND: ProxyChannel = ProxyChannel("astera.match.found")
+
+        /** Game to lobby: accepted / rejected / ended answers to an assignment (ADR-0179). */
+        public val MATCH_STATUS: ProxyChannel = ProxyChannel("astera.match.status")
     }
 }

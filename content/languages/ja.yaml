@@ -363,6 +363,10 @@ astera:
       stage-busy: "<gray>アリーナ使用中です。空き次第マッチが始まります。</gray>"
       match-found: "<green>マッチ成立！ <gold>{stage}</gold> へ移動します（チーム <gold>{team}</gold>）。</green>"
       start-failed: "<red>マッチを開始できませんでした。キューに戻しました。</red>"
+      # ADR-0179 — ロビー/ゲームサーバー分離
+      transferring: "<green>マッチ成立！ アリーナサーバーへ移動します…</green>"
+      dispatch-failure: "<red>アリーナサーバーが応答しませんでした。キューに戻しました。</red>"
+      wrong-server: "<gray>このサーバーはマッチ専用です。ロビーに戻します…</gray>"
     # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
     queue:
       unknown-mode: "<red>未知のキューモードです。</red>"

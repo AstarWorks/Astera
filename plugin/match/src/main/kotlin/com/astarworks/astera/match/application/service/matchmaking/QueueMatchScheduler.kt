@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueNotifier
-import com.astarworks.astera.match.application.usecase.matchmaking.MatchFoundUseCase
+import com.astarworks.astera.match.application.usecase.matchmaking.MatchFormer
 import com.astarworks.astera.match.domain.matchmaking.QueueLane
 import com.astarworks.astera.match.domain.matchmaking.QueueSettings
 import org.slf4j.LoggerFactory
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory
  */
 public class QueueMatchScheduler(
     private val matchmaker: IMatchmaker,
-    private val matchFound: MatchFoundUseCase,
+    private val matchFound: MatchFormer,
     private val notifier: IQueueNotifier,
     private val scheduler: IScheduler,
     private val settings: () -> QueueSettings,

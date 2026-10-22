@@ -1,79 +1,128 @@
-# Astera local development stack.
+# Astera local development stack (ADR-0179).
+#
+#   players --25565--> velocity (online-mode, Mojang auth, modern forwarding)
+#                         |-- lobby  (Paper, ASTERA_SERVER_ROLE=lobby: queue, shop, vault)
+#                         `-- game   (Paper, ASTERA_SERVER_ROLE=game:  matches only)
+#   lobby + game --> postgres (persisted state) + redis (assignments / pub-sub)
 #
 # Usage (from repo root):  make docker-up
-#   (= cp docker/.env.example docker/.env; docker compose up -d --build)
+#   (= create docker/.env + a forwarding secret if absent; docker compose up -d --build)
 #
-# The Paper server image is built from docker/Dockerfile using the repo root as
-# the build context: the multi-stage build compiles the 7 plugin jars AND bakes
+# Only `velocity` publishes the Minecraft port. The backends run with
+# ONLINE_MODE=FALSE and accept only connections signed with the forwarding
+# secret (Paper `proxies.velocity`, applied by docker/paper-patches), so nobody
+# can join a backend directly or pose as another player.
+#
+# The Paper image is built from docker/Dockerfile using the repo root as the
+# build context: the multi-stage build compiles the 7 plugin jars AND bakes
 # `content/` into the image at /content (outside the /data volume). The Docker
 # daemon is shared with the host, so a bind mount of ../content would be empty
 # in the container. Content/code changes therefore need `make docker-up`
 # (rebuilds the image). See docs/contributing/playtest.md.
+#
+# Host ports are overridable (ASTERA_PORT, POSTGRES_PORT, REDIS_PORT) and there
+# are no pinned container names, so a second stack can run with
+# `docker compose -p <other-name>`.
 
 name: astera-dev
 
+x-astera-backend: &astera-backend
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  image: astera/minecraft-server:dev
+  restart: unless-stopped
+  stdin_open: true
+  tty: true
+  environment: &astera-backend-env
+    # The user must accept the Minecraft EULA to run a server.
+    # https://www.minecraft.net/en-us/eula
+    EULA: "TRUE"
+    TYPE: "PAPER"
+    VERSION: "26.3"
+    USE_AIKAR_FLAGS: "true"
+    MAX_PLAYERS: "20"
+    # Authentication happens on Velocity; the backend only trusts the proxy.
+    ONLINE_MODE: "FALSE"
+    PATCH_DEFINITIONS: "/patches"
+    CFG_VELOCITY_SECRET: "${VELOCITY_FORWARDING_SECRET:?VELOCITY_FORWARDING_SECRET is empty: run `make docker-up` (it generates one in docker/.env)}"
+    # Playtest world: superflat (surface block y=-61, stand at y=-60), so
+    # content/stages/example-arena.yaml coordinates sit on ground. Only
+    # applies when the world is first created (see playtest.md "reset").
+    LEVEL_TYPE: "FLAT"
+    MODE: "survival"
+    DIFFICULTY: "normal"
+    PVP: "true"
+    SPAWN_PROTECTION: "0"
+    ALLOW_FLIGHT: "true"
+    OPS: "${OPS:-}"
+    ENABLE_RCON: "true"
+    RCON_PORT: "25575"
+    RCON_PASSWORD: "${RCON_PASSWORD:-astera}"
+    # Postgres datasource read by Astera-Persistence (PersistenceModule).
+    ASTERA_PG_URL: "jdbc:postgresql://postgres:5432/astera"
+    ASTERA_PG_USER: "astera"
+    ASTERA_PG_PASSWORD: "${POSTGRES_PASSWORD:-astera}"
+    # Redis: cross-server assignments (RedisProxyMessenger) + event broadcast.
+    ASTERA_REDIS_URI: "redis://redis:6379"
+    # Names in the Velocity [servers] table (docker/velocity/velocity.toml).
+    ASTERA_LOBBY_SERVER: "lobby"
+    ASTERA_GAME_SERVER: "game"
+    # Metrics surface (scraped inside the network; not published to the host).
+    ASTERA_METRICS_ENABLED: "true"
+    ASTERA_METRICS_PORT: "9092"
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
 services:
-  paper:
+  velocity:
     build:
-      context: ..
-      dockerfile: docker/Dockerfile
-    image: astera/minecraft-server:dev
-    container_name: astera-paper
+      context: ./velocity
+    image: astera/velocity:dev
     restart: unless-stopped
-    stdin_open: true
-    tty: true
     ports:
-      - "25565:25565"   # Minecraft Java client
-      - "25575:25575"   # RCON
-      - "9092:9092"     # Astera metrics (Prometheus scrape target)
+      - "${ASTERA_PORT:-25565}:25565"   # Minecraft Java client: the ONLY published game port
     environment:
-      # The user must accept the Minecraft EULA to run a server.
-      # https://www.minecraft.net/en-us/eula
-      EULA: "TRUE"
-      TYPE: "PAPER"
-      VERSION: "26.3"
-      MEMORY: "4G"
-      USE_AIKAR_FLAGS: "true"
-      MAX_PLAYERS: "20"
-      ONLINE_MODE: "FALSE"
-      MOTD: "Astera dev"
-      # Playtest world: superflat (surface block y=-61, stand at y=-60), so
-      # content/stages/example-arena.yaml coordinates sit on ground. Only
-      # applies when the world is first created (see playtest.md "reset").
-      LEVEL_TYPE: "FLAT"
-      MODE: "survival"
-      DIFFICULTY: "normal"
-      PVP: "true"
-      SPAWN_PROTECTION: "0"
-      ALLOW_FLIGHT: "true"
-      OPS: "${OPS:-}"
-      ENABLE_RCON: "true"
-      RCON_PORT: "25575"
-      RCON_PASSWORD: "${RCON_PASSWORD:-astera}"
-      # Postgres datasource read by Astera-Persistence (PersistenceModule).
-      ASTERA_PG_URL: "jdbc:postgresql://postgres:5432/astera"
-      ASTERA_PG_USER: "astera"
-      ASTERA_PG_PASSWORD: "${POSTGRES_PASSWORD:-astera}"
-      ASTERA_REDIS_HOST: "redis"
-      ASTERA_REDIS_PORT: "6379"
-      # Metrics surface — Prometheus scrape target on the host at :9092/metrics.
-      ASTERA_METRICS_ENABLED: "true"
-      ASTERA_METRICS_PORT: "9092"
+      TYPE: "VELOCITY"
+      MEMORY: "512M"
+      VELOCITY_FORWARDING_SECRET: "${VELOCITY_FORWARDING_SECRET:?VELOCITY_FORWARDING_SECRET is empty: run `make docker-up` (it generates one in docker/.env)}"
     volumes:
-      - paper-data:/data
-      # /content comes from the image (baked in, see Dockerfile).
+      - velocity-data:/server
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - lobby
+      - game
+
+  lobby:
+    <<: *astera-backend
+    environment:
+      <<: *astera-backend-env
+      MEMORY: "3G"
+      MOTD: "Astera lobby"
+      ASTERA_SERVER_ROLE: "lobby"
+      ASTERA_SERVER_NAME: "lobby"
+    volumes:
+      - lobby-data:/data
+      # /content comes from the image (baked in, see Dockerfile).
+
+  game:
+    <<: *astera-backend
+    environment:
+      <<: *astera-backend-env
+      MEMORY: "3G"
+      MOTD: "Astera game"
+      ASTERA_SERVER_ROLE: "game"
+      ASTERA_SERVER_NAME: "game"
+    volumes:
+      - game-data:/data
 
   postgres:
     image: postgres:17-alpine
-    container_name: astera-postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: "astera"
       POSTGRES_DB: "astera"
@@ -88,10 +137,9 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: astera-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis-data:/data
     healthcheck:
@@ -101,6 +149,8 @@ services:
       retries: 10
 
 volumes:
-  paper-data:
+  velocity-data:
+  lobby-data:
+  game-data:
   postgres-data:
   redis-data:

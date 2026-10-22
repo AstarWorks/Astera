@@ -289,10 +289,13 @@ public object EconomyWiring {
                 messages = msgRenderer,
                 playerGateway = playerGateway,
             )
-        registrations += intentRouter.register(
-            com.astarworks.astera.economy.application.intent.LobbyShopOpenIntentHandler.INTENT_PREFIX,
-        ) { intent, player ->
-            lobbyShopOpenIntentHandler.handle(intent, player)
+        // The shop NPC / compass tile exist only in the lobby (ADR-0179).
+        if (ctx.serverRole.hostsLobby) {
+            registrations += intentRouter.register(
+                com.astarworks.astera.economy.application.intent.LobbyShopOpenIntentHandler.INTENT_PREFIX,
+            ) { intent, player ->
+                lobbyShopOpenIntentHandler.handle(intent, player)
+            }
         }
 
         // ── Wave 5flex (ADR-0102) — PowerIndex aggregate ───────────────────

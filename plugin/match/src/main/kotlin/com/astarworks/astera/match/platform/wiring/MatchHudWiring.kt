@@ -72,6 +72,7 @@ internal object MatchHudWiring {
         subscriptions += eventBus.subscribe(MatchEnded::class) { matchSidebar.release(it.matchId) }
         subscriptions += eventBus.subscribe(CurrencyChanged::class) { matchSidebar.refreshPlayer(it.playerId) }
 
+        if (!env.ctx.serverRole.hostsLobby) return // no lobby on a game-only backend (ADR-0179)
         if (sessions == null) {
             env.ctx.logger.warning("Lobby sidebar skipped — IPlayerSessionRepository is not registered.")
             return

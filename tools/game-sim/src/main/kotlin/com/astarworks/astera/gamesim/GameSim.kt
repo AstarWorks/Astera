@@ -78,6 +78,9 @@ public class GameSim private constructor(
     public val broadcaster: FakeBroadcaster,
     private val contexts: List<WiringContext>,
 ) {
+    /** Commands the wiring registered (the simulator has no chat to run them from). */
+    public val commands: RecordingCommandHandler = RecordingCommandHandler()
+
     /** Action bars / titles sent by mechanics (WP4). */
     public val feedback: SimPlayerFeedbackGateway = SimPlayerFeedbackGateway(recorder) { scheduler.currentTick() }
 
@@ -123,6 +126,25 @@ public class GameSim private constructor(
         val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team))
         recorder.registerEntity(entity)
         if (join) eventBus.publish(PlayerJoinedServer(playerId = entity.id))
+        return entity
+    }
+
+    /**
+     * A player leaves this server through the proxy: removed from the world and
+     * announced like the Bukkit adapter would ([PlayerQuitServer]). Returns the entity, or `null`.
+     */
+    public fun detachPlayer(id: PlayerId): SimEntity? {
+        val entity = world.find(id) ?: return null
+        world.remove(id)
+        eventBus.publish(com.astarworks.astera.core.domain.event.PlayerQuitServer(playerId = id))
+        return entity
+    }
+
+    /** A player arrives through the proxy under their existing id, standing at the origin, and joins. */
+    public fun attachPlayer(id: PlayerId, name: String): SimEntity {
+        val entity = world.add(SimEntity(id, name, SimEntityKind.PLAYER, Vec3(0.0, world.groundY, 0.0), Vec3(0.0, 0.0, 1.0), null))
+        recorder.registerEntity(entity)
+        eventBus.publish(PlayerJoinedServer(playerId = id))
         return entity
     }
 
@@ -324,6 +346,11 @@ public class GameSim private constructor(
             annihilation: com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig? = null,
             /** Seed of the one random source behind crits, status chances and weighted branches. */
             seed: Long = DEFAULT_SEED,
+            /** Which half of a lobby / game split this server is (ADR-0179); `ALL` = single server. */
+            role: com.astarworks.astera.core.domain.proxy.ServerRole = com.astarworks.astera.core.domain.proxy.ServerRole.ALL,
+            serverName: com.astarworks.astera.core.domain.proxy.ServerName = com.astarworks.astera.core.platform.wiring.ServerEnvironment.DEFAULT_NAME,
+            /** The messenger connecting this server to its peers; `null` keeps the in-memory loopback. */
+            proxy: com.astarworks.astera.core.application.port.outbound.IProxyMessenger? = null,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
@@ -337,7 +364,7 @@ public class GameSim private constructor(
             val mcServer = SimMcServer(world)
             val broadcaster = FakeBroadcaster()
             val contexts = mutableListOf<WiringContext>()
-            fun context(): WiringContext = WiringContext(services, contentDir, logger).also { contexts += it }
+            fun context(): WiringContext = WiringContext(services, contentDir, logger, role, serverName).also { contexts += it }
 
             // Late-bound: the liveness test reads the attribute store Core registers.
             lateinit var sim: GameSim
@@ -367,9 +394,10 @@ public class GameSim private constructor(
                 mcServer = mcServer,
                 scheduler = scheduler,
                 broadcaster = broadcaster,
-                commandHandler = RecordingCommandHandler(),
+                commandHandler = sim.commands,
                 guiAdapter = GuiAdapterFactory { _, _, _ -> FakeGuiAdapter() },
                 worldGateway = { worldGateway },
+                proxyMessenger = proxy?.let { messenger -> { _ -> messenger } },
             )
             val coreCtx = context()
             sim.core = CoreWiring.install(coreCtx, corePorts)
