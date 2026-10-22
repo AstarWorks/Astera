@@ -280,7 +280,7 @@ class Renderer(private val camera: Camera, private val label: String) {
         out += Drawable(camera.depth(t.center) - 0.0005) { g ->
             val old = g.transform
             g.transform(tx)
-            val font = Fonts.glyph(t.styled.bold).deriveFont(8f)
+            val font = Fonts.glyph(t.styled.bold, t.styled.text).deriveFont(8f)
             val gv = font.createGlyphVector(g.fontRenderContext, t.styled.text)
             val b = gv.visualBounds
             val shape = AffineTransform.getTranslateInstance(-b.centerX, -b.centerY).createTransformedShape(gv.outline)
@@ -371,5 +371,14 @@ object Fonts {
             ?: Font.DIALOG
     }
 
-    fun glyph(bold: Boolean): Font = Font(family, if (bold) Font.BOLD else Font.PLAIN, 12)
+    private val symbolFamilies = listOf("DejaVu Sans", "Noto Sans Symbols 2", "Noto Sans Symbols", Font.DIALOG)
+
+    /** Picks the CJK family, or a symbol-capable one when it cannot draw [text] (e.g. ✦ ★ ☸). */
+    fun glyph(bold: Boolean, text: String = ""): Font {
+        val style = if (bold) Font.BOLD else Font.PLAIN
+        return (listOf(family) + symbolFamilies)
+            .map { Font(it, style, 12) }
+            .firstOrNull { it.canDisplayUpTo(text) == -1 }
+            ?: Font(family, style, 12)
+    }
 }
