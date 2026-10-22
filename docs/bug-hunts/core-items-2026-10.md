@@ -24,4 +24,10 @@ Verification: no local builds or tests run, per task constraints. Regression tes
 - Evidence: `ApplyRefinementUseCase.kt:73` looked up only by UUID, without checking owner or item template; `RerollSubStatsUseCase.kt:79` likewise ignored owner. A caller could mutate another player's item or apply a permissive template's rules to another template.
 - Fix: require the requested owner/template on lookup before mutation, cost or event publication. Return the existing UnknownInstance error for inaccessible instances.
 - Tests: two apply regressions (foreign owner / mismatched template) and one reroll regression (no charge, no roll, no mutation/event for a foreign owner).
+- Fix commit: `21c4d9be`.
+
+## 5. Refinement profiles never load at startup
+- Evidence: `ItemsWiring.kt:131` constructed an empty RefinementProfileRegistry, immediately handing its resolver to both use cases. No production caller invoked register/registerFromYaml, despite the documented `content/refinement/<id>.yaml` contract.
+- Fix: use the existing multi-format ContentLoader to populate that registry before constructing consumers; malformed profiles are logged and skipped through the standard loader.
+- Test: `RefinementContentScenarioTest` boots real wiring with a valid profile and malformed sibling, then actually applies the configured refinement. Its temporary content tree links the existing categories and owns only refinement.
 - Fix commit: pending.
