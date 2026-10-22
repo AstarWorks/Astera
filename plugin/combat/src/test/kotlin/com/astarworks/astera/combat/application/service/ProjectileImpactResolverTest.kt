@@ -82,7 +82,7 @@ class ProjectileImpactResolverTest {
     private val applyStatus = ApplyStatusUseCase(
         effectRegistry = FakeStatusEffectRegistry(),
         effectContainer = statusContainer,
-        eventBus = bus,
+        scheduler = scheduler,
     )
     private val dispatcher = MechanicDispatcher(
         applyDamage = applyDamage,

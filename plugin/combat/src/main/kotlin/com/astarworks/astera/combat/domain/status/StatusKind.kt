@@ -8,21 +8,27 @@ package com.astarworks.astera.combat.domain.status
  * `magnitude` on [StatusEffectSpec] interprets per-kind (e.g. multiplier for
  * `SPEED_UP`, absolute amount for `STAR_GAIN`).
  */
-public enum class StatusKind {
-    STAR_GAIN,
-    STAR_GAIN_BOOST,
-    STAR_GAIN_NULL,
-    HEAL_AMP,
-    HEAL_REDUCE,
-    HEAL_NULL,
-    GRAVITY_UP,
-    GRAVITY_DOWN,
-    CT_RATE_UP,
-    CT_RATE_DOWN,
-    CT_FREEZE,
-    SPEED_UP,
-    SPEED_DOWN,
-    PARALYSIS,
-    BURN,
-    JUMP_DISABLED,
+public enum class StatusKind(
+    /** Debuff: removed by `Cleanse(onlyHarmful = true)`. */
+    public val harmful: Boolean,
+) {
+    STAR_GAIN(false),
+    STAR_GAIN_BOOST(false),
+    STAR_GAIN_NULL(true),
+    HEAL_AMP(false),
+    HEAL_REDUCE(true),
+    HEAL_NULL(true),
+    GRAVITY_UP(true),
+    GRAVITY_DOWN(false),
+    CT_RATE_UP(false),
+    CT_RATE_DOWN(true),
+    CT_FREEZE(true),
+    SPEED_UP(false),
+    SPEED_DOWN(true),
+    PARALYSIS(true),
+    BURN(true),
+    JUMP_DISABLED(true),
+
+    /** Cannot cast skills (`CastSkillUseCase` checks the `silence` status id). */
+    SILENCE(true),
 }

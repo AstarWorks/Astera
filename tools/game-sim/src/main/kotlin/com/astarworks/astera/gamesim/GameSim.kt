@@ -12,6 +12,7 @@ import com.astarworks.astera.combat.platform.wiring.CombatWiringResult
 import com.astarworks.astera.combat.application.service.VanillaKillResolver
 import com.astarworks.astera.core.adapter.api.event.IMcEvent
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
@@ -77,6 +78,9 @@ public class GameSim private constructor(
     public val broadcaster: FakeBroadcaster,
     private val contexts: List<WiringContext>,
 ) {
+    /** Action bars / titles sent by mechanics (WP4). */
+    public val feedback: SimPlayerFeedbackGateway = SimPlayerFeedbackGateway()
+
     public lateinit var core: CoreWiringResult
         private set
     public lateinit var items: ItemsWiringResult
@@ -281,6 +285,7 @@ public class GameSim private constructor(
             )
 
             sim = GameSim(scenarioName, world, scheduler, services, recorder, mcServer, projectiles, broadcaster, contexts)
+            val feedback = sim.feedback
 
             // ---- Core -----------------------------------------------------
             val corePorts = CorePlatformPorts(
@@ -299,6 +304,13 @@ public class GameSim private constructor(
             coreCtx.registrations += services.register<IPlayerPoseLookup>(SimPoseLookup(world), priority = 100)
             coreCtx.registrations += services.register<com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery>(
                 SimNearbyTargetQuery(world, alive),
+                priority = 100,
+            )
+
+            // Teams as declared on the simulated entities (Match registers its own, match-bound
+            // lookup later; scenarios that never start a match still need ally / enemy answers).
+            coreCtx.registrations += services.register<IMatchTeamLookup>(
+                IMatchTeamLookup { id -> world.find(id)?.team },
                 priority = 100,
             )
 
@@ -327,6 +339,8 @@ public class GameSim private constructor(
                         SimDamageGateway(world, svc.getOrThrow<IPlayerAttributeContainerStore>(), scheduler)
                     },
                     statusEffectContainer = { statusContainer.value },
+                    entityEffectsGateway = { SimEntityEffectsGateway(world) },
+                    playerFeedbackGateway = { feedback },
                 ),
             )
             // Post-wiring host step (CombatPaperPlatform.bind): tick loops and the

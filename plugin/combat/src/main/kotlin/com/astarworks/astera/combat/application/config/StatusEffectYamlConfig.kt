@@ -162,7 +162,7 @@ public sealed class StatusEffectParamsYaml {
 
     /**
      * Action-disabling state with no scalar payload: `PARALYSIS`, `CT_FREEZE`,
-     * `JUMP_DISABLED`. `magnitude()` returns 0.0 (ignored by the domain spec
+     * `JUMP_DISABLED`, `SILENCE`. `magnitude()` returns 0.0 (ignored by the domain spec
      * per [StatusKind] semantics).
      */
     @Serializable
@@ -170,7 +170,7 @@ public sealed class StatusEffectParamsYaml {
     public class DisableParamsYaml : StatusEffectParamsYaml() {
         override fun magnitude(): Double = 0.0
         override fun matches(kind: StatusKind): Boolean = when (kind) {
-            StatusKind.PARALYSIS, StatusKind.CT_FREEZE, StatusKind.JUMP_DISABLED -> true
+            StatusKind.PARALYSIS, StatusKind.CT_FREEZE, StatusKind.JUMP_DISABLED, StatusKind.SILENCE -> true
             else -> false
         }
 

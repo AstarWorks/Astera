@@ -188,6 +188,7 @@ public class StatusEffectTickListener(
             StatusKind.STAR_GAIN_NULL,
             StatusKind.HEAL_REDUCE,
             StatusKind.HEAL_NULL,
+            StatusKind.SILENCE,
             -> Unit
         }
     }
@@ -306,6 +307,7 @@ public class StatusEffectTickListener(
         StatusKind.CT_RATE_UP,
         StatusKind.CT_RATE_DOWN,
         StatusKind.CT_FREEZE,
+        StatusKind.SILENCE,
         -> null
     }
 

@@ -67,7 +67,7 @@ class SemanticChecksTest {
     }
 
     @Test
-    fun `always-false condition and empty targeter are errors`() {
+    fun `entity-state conditions team targeters and WP4 mechanics pass`() {
         val node = parse(
             """
             phases:
@@ -75,10 +75,21 @@ class SemanticChecksTest {
                 - type: if_then
                   targets: { type: enemies, center: { type: caster } }
                   predicate: { type: health_below, targets: { type: caster }, fraction: { type: literal, value: 0.5 } }
-                  then: []
+                  then:
+                    - type: cleanse
+                      targets: { type: caster }
+                    - type: freeze
+                      targets: { type: target }
+                      ticks: { type: literal, value: 40 }
+                    - type: leap
+                      targets: { type: caster }
+                      destination: { type: target }
+                    - type: send_title
+                      targets: { type: caster }
+                      title: { en: "Hi" }
             """,
         )
-        assertThat(SemanticChecks.check(node, known)).hasSize(2)
+        assertThat(SemanticChecks.check(node, known)).isEmpty()
     }
 
     @Test

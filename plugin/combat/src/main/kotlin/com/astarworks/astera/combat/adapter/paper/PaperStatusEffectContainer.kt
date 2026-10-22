@@ -273,6 +273,7 @@ public class PaperStatusEffectContainer(
         StatusKind.CT_RATE_UP,
         StatusKind.CT_RATE_DOWN,
         StatusKind.CT_FREEZE,
+        StatusKind.SILENCE,
         -> null
     }
 }

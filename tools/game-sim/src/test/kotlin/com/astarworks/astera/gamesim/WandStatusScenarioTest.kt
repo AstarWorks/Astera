@@ -37,6 +37,11 @@ class WandStatusScenarioTest {
                 advance(85) // > the skill's 80-tick cooldown; the hit lands on the next tick
             }
             assertThat(burnApplied()).isTrue()
+            // One hit lands one StatusApplied (not two) and one burn stack, stamped with the sim tick.
+            val applied = eventsOf<StatusApplied>().filter { it.target == target.id && it.effect.spec.id == burn }
+            assertThat(applied).hasSize(1)
+            assertThat(applied.single().effect.currentStacks).isEqualTo(1)
+            assertThat(applied.single().atTick).isLessThanOrEqualTo(sim.tick)
             assertThat(eventsOf<DamageDealt>().filter { it.target == target.id }).isNotEmpty()
 
             // Burn ticks through the health gateway (rerouted DoT) every 20 ticks, then expires.
@@ -47,6 +52,25 @@ class WandStatusScenarioTest {
             assertThat(dotTicks).isNotEmpty()
             assertThat(eventsOf<StatusExpired>().any { it.target == target.id && it.effectId == burn }).isTrue()
             assertThat(container.has(target.id, burn)).isFalse()
+        }
+    }
+
+    @Test
+    fun `a victim killed by the hit gets no status applied`() {
+        scenario("wand-kill-skips-status") {
+            val caster = player("caster", team = "red")
+            val target = mob("dummy", at = Vec3(0.0, groundY, 8.0), team = "blue")
+            caster.holds("example-wand")
+            caster.faces(target)
+            sim.setMaxHealth(target, 1.0) // the 12-damage hit kills it before apply_status runs
+
+            repeat(4) {
+                caster.cast("flame-burst")
+                advance(85)
+            }
+
+            assertThat(eventsOf<DamageDealt>().filter { it.target == target.id }).isNotEmpty()
+            assertThat(eventsOf<StatusApplied>().filter { it.target == target.id }).isEmpty()
         }
     }
 }

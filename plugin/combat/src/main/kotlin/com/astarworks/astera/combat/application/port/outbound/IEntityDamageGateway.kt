@@ -30,4 +30,10 @@ public interface IEntityDamageGateway {
         resolved: ResolvedDamage,
         source: DamageSource,
     ): Result<DamageOutcome, DamageApplicationError>
+
+    /** Current hit points of a mob target, or `null` when unknown. */
+    public fun hitPoints(target: PlayerId): Double? = null
+
+    /** Maximum hit points of a mob target, or `null` when unknown. */
+    public fun maxHitPoints(target: PlayerId): Double? = null
 }

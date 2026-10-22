@@ -65,7 +65,7 @@ class MechanicDispatcherTest {
     private val applyStatus = ApplyStatusUseCase(
         effectRegistry = statusRegistry,
         effectContainer = statusContainer,
-        eventBus = eventBus,
+        scheduler = scheduler,
     )
 
     private fun dispatcher(): MechanicDispatcher = MechanicDispatcher(
