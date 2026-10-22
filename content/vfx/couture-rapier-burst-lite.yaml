@@ -1,0 +1,56 @@
+# Couturier's Rapier light-hit flower: the small version of couture-rapier-burst for the flicker of a
+# string (four splinters, four rays, one ✦). Several of these overlap within a few ticks, so it
+# stays under ten displays; the full burst is kept for the first and last beat of a skill.
+
+id: couture-rapier-burst-lite
+duration_ticks: 8
+orient: look
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: splinter
+    kind: { type: item, item: prismarine_shard, display_mode: fixed }
+    brightness: 15
+    glow_color: "#3ff0ff"
+    start_tick: 0
+    end_tick: 7
+    count: 4
+    formation:
+      curve: { type: circle, radius: 0.12 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.2, 0.4]
+      align: outward
+    jitter: { position: 0.05, rotation_deg: 25, scale: 0.2 }
+    keyframes:
+      - { t: 0, scale: [0.1, 0.1, 0.1] }
+      - { t: 2, translate: [0.0, 0.0, 0.7], rotate: [0, 0, 160], scale: [0.5, 0.5, 0.5], ease: out_expo }
+      - { t: 6, translate: [0.0, 0.0, 1.3], rotate: [0, 0, 300], scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: ray
+    kind: { type: block, block: cyan_stained_glass }
+    brightness: 15
+    glow_color: "#3ff0ff"
+    start_tick: 0
+    end_tick: 6
+    count: 4
+    formation:
+      curve: { type: circle, radius: 0.25 }
+      tilt: { yaw: 45, pitch: 90, roll: 0 }
+      offset: [0.0, 1.2, 0.4]
+      align: outward
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.04, 0.04, 0.1] }
+      - { t: 2, translate: [0.0, 0.0, 0.5], scale: [0.05, 0.05, 0.7], ease: out_expo }
+      - { t: 5, translate: [0.0, 0.0, 1.1], scale: [0.0, 0.0, 0.7], ease: in_quad }
+
+  - id: flash
+    kind: { type: text, text: "<#ffffff><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 5
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.4], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [3.5, 3.5, 3.5], ease: out_back }
+      - { t: 4, scale: [0.0, 0.0, 0.0], ease: in_quad }

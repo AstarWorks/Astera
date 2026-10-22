@@ -1,0 +1,71 @@
+# Gossamer Katana DEF (sneak + left-click): spun ward. A sidestep back under the `evasive` sprint while
+# threads wind up around the caster; anything within 2.8 blocks is snagged -- webbed, one bleed stack and
+# a 6-tick hit-stop, which is the opening to get away or to punish.
+
+id: gossamer-katana-def
+
+name:
+  ja: "糸結界"
+  en: "Spun Ward"
+description:
+  ja: "後ろへ跳びつつ糸を張り、近くの敵を絡め取って出血と短い硬直を与える。"
+  en: "A hop back that spins a ward: nearby enemies are snagged, bled once and held for a moment."
+
+archetype: buff
+cooldown_ticks: 80
+resource_cost: 12
+tags: [ buff, movement, defense, bleed ]
+
+params:
+  type: buff
+  status_effect_id: evasive
+  duration_ticks: 14
+
+phases:
+  type: buff
+  cast:
+    - type: propel
+      targets: { type: caster }
+      direction: { type: from_caster }
+      strength: { type: literal, value: -0.9 }
+    - type: propel
+      targets: { type: caster }
+      direction: { type: up }
+      strength: { type: literal, value: 0.25 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: gossamer-katana-guard
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.tripwire.attach
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 1.2 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.sweep
+      pitch: { type: literal, value: 1.6 }
+    # snagged enemies
+    - type: apply_status
+      targets:
+        type: nearby_entities
+        center: { type: caster }
+        radius: { type: literal, value: 2.8 }
+        exclude_caster: true
+      status_id: bleed
+      effect_duration_ticks: { type: literal, value: 100 }
+    - type: hit_stop
+      targets:
+        type: nearby_entities
+        center: { type: caster }
+        radius: { type: literal, value: 2.8 }
+        exclude_caster: true
+      ticks: 6
+    - type: play_vfx
+      targets:
+        type: nearby_entities
+        center: { type: caster }
+        radius: { type: literal, value: 2.8 }
+        exclude_caster: true
+      vfx_id: gossamer-katana-web
+  expire: []
+  removed: []

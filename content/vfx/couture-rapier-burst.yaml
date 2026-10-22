@@ -1,0 +1,58 @@
+# Couturier's Rapier impact flower: prismarine splinters flung radially from the point of impact,
+# a ring of radial rays, and a white ✦ core flash. Anchored on the struck entity; `scale` shrinks it for
+# the light hits of a combo. Circle formations sit in the XY plane (tilt pitch 90) so the flower
+# faces the attacker.
+
+id: couture-rapier-burst
+duration_ticks: 11
+orient: look
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: splinter
+    kind: { type: item, item: prismarine_shard, display_mode: fixed }
+    brightness: 15
+    glow_color: "#3ff0ff"
+    start_tick: 0
+    end_tick: 10
+    count: 6
+    formation:
+      curve: { type: circle, radius: 0.15 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.2, 0.4]
+      align: outward
+    jitter: { position: 0.05, rotation_deg: 25, scale: 0.2 }
+    keyframes:
+      - { t: 0, scale: [0.1, 0.1, 0.1] }
+      - { t: 2, translate: [0.0, 0.0, 0.9], rotate: [0, 0, 180], scale: [0.6, 0.6, 0.6], ease: out_expo }
+      - { t: 10, translate: [0.0, 0.0, 1.7], rotate: [0, 0, 360], scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: ray
+    kind: { type: block, block: cyan_stained_glass }
+    brightness: 15
+    glow_color: "#3ff0ff"
+    start_tick: 0
+    end_tick: 7
+    count: 8
+    formation:
+      curve: { type: circle, radius: 0.3 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.2, 0.4]
+      align: outward
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.04, 0.04, 0.1] }
+      - { t: 2, translate: [0.0, 0.0, 0.6], scale: [0.05, 0.05, 0.8], ease: out_expo }
+      - { t: 4, block: white_stained_glass }
+      - { t: 8, translate: [0.0, 0.0, 1.5], scale: [0.0, 0.0, 0.8], ease: in_quad }
+
+  - id: flash
+    kind: { type: text, text: "<#ffffff><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 6
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.4], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [4.5, 4.5, 4.5], ease: out_back }
+      - { t: 5, scale: [0.0, 0.0, 0.0], ease: in_quad }
