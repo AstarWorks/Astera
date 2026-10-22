@@ -1,0 +1,853 @@
+{
+  "item": "ember-gauntlet",
+  "round": 5,
+  "validation": {
+    "valid": true,
+    "elements": 145,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999407,
+      2.0000000000000355
+    ],
+    "rotated_bounds": [
+      [
+        3.7,
+        0.45,
+        3.825
+      ],
+      [
+        14.913389622622834,
+        18.54,
+        12.174999999999999
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        97,
+        89,
+        176,
+        216
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        98,
+        89,
+        157,
+        216
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        97,
+        98,
+        176,
+        157
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        92,
+        88,
+        172,
+        222
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        57,
+        38,
+        211,
+        233
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        99,
+        101,
+        169,
+        159
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        106,
+        98,
+        163,
+        141
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        98,
+        101,
+        161,
+        159
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        106,
+        98,
+        163,
+        141
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        114,
+        99,
+        149,
+        124
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        89,
+        77,
+        151,
+        177
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "05df210c332b79a6553aa08176a4e9fed4007a028c70e2868a92396a5a528752",
+  "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used.",
+  "rounds": [
+    {
+      "item": "ember-gauntlet",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 3,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.0,
+          2.0
+        ],
+        "rotated_bounds": [
+          [
+            3.5,
+            0.5,
+            4.5
+          ],
+          [
+            14.5,
+            17.5,
+            11.5
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            96,
+            96,
+            173,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            103,
+            96,
+            152,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            96,
+            103,
+            173,
+            152
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            90,
+            86,
+            172,
+            222
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            53,
+            32,
+            215,
+            234
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            100,
+            95,
+            167,
+            159
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            105,
+            102,
+            161,
+            137
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            93,
+            95,
+            162,
+            159
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            105,
+            102,
+            161,
+            137
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            114,
+            101,
+            148,
+            122
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            92,
+            83,
+            152,
+            177
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "05df210c332b79a6553aa08176a4e9fed4007a028c70e2868a92396a5a528752",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "ember-gauntlet",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 48,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999938,
+          2.000000000000016
+        ],
+        "rotated_bounds": [
+          [
+            3.7,
+            0.5,
+            4.0249999999999995
+          ],
+          [
+            14.913389622622834,
+            18.3,
+            11.975
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            97,
+            90,
+            176,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            100,
+            90,
+            155,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            97,
+            100,
+            176,
+            155
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            92,
+            88,
+            172,
+            220
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            60,
+            38,
+            211,
+            230
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            100,
+            101,
+            169,
+            158
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            106,
+            99,
+            163,
+            140
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            98,
+            101,
+            161,
+            158
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            106,
+            99,
+            163,
+            140
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            114,
+            99,
+            149,
+            124
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            89,
+            78,
+            151,
+            177
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "05df210c332b79a6553aa08176a4e9fed4007a028c70e2868a92396a5a528752",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "ember-gauntlet",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 94,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999871,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            3.7,
+            0.5,
+            4.0249999999999995
+          ],
+          [
+            14.913389622622834,
+            18.450000000000003,
+            11.975
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            97,
+            89,
+            176,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            100,
+            89,
+            155,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            97,
+            100,
+            176,
+            155
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            92,
+            88,
+            172,
+            220
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            60,
+            38,
+            211,
+            230
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            100,
+            101,
+            169,
+            158
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            106,
+            99,
+            163,
+            140
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            98,
+            101,
+            161,
+            158
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            106,
+            99,
+            163,
+            140
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            114,
+            99,
+            149,
+            124
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            89,
+            77,
+            151,
+            177
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "05df210c332b79a6553aa08176a4e9fed4007a028c70e2868a92396a5a528752",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "ember-gauntlet",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 120,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999762,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            3.7,
+            0.5,
+            4.0249999999999995
+          ],
+          [
+            14.913389622622834,
+            18.450000000000003,
+            11.975
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            97,
+            89,
+            176,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            100,
+            89,
+            155,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            97,
+            100,
+            176,
+            155
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            92,
+            88,
+            172,
+            220
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            60,
+            38,
+            211,
+            230
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            100,
+            101,
+            169,
+            159
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            106,
+            99,
+            163,
+            140
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            98,
+            101,
+            161,
+            159
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            106,
+            99,
+            163,
+            140
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            114,
+            99,
+            149,
+            124
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            89,
+            77,
+            151,
+            177
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "05df210c332b79a6553aa08176a4e9fed4007a028c70e2868a92396a5a528752",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "ember-gauntlet",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 145,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999407,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            3.7,
+            0.45,
+            3.825
+          ],
+          [
+            14.913389622622834,
+            18.54,
+            12.174999999999999
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            97,
+            89,
+            176,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            98,
+            89,
+            157,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            97,
+            98,
+            176,
+            157
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            92,
+            88,
+            172,
+            222
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            57,
+            38,
+            211,
+            233
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            99,
+            101,
+            169,
+            159
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            106,
+            98,
+            163,
+            141
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            98,
+            101,
+            161,
+            159
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            106,
+            98,
+            163,
+            141
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            114,
+            99,
+            149,
+            124
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            89,
+            77,
+            151,
+            177
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "05df210c332b79a6553aa08176a4e9fed4007a028c70e2868a92396a5a528752",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    }
+  ],
+  "sha256": {
+    "content/models/items/ember-gauntlet.model.json": "54f1abe400e644f0ee6264699c300f4f81e968941c634900f8602d436253052a",
+    "content/textures/items/ember-gauntlet.png": "f1929209757ddde02dd9a4e78dab256e1f4a43945b618329a56d170b89eb495e",
+    "tools/model-forge/work/ember-gauntlet/ai-target/concept.png": "05df210c332b79a6553aa08176a4e9fed4007a028c70e2868a92396a5a528752"
+  }
+}

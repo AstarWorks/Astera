@@ -1,0 +1,34 @@
+{
+  "valid": true,
+  "elements": 161,
+  "budget": 250,
+  "errors": [],
+  "warnings": [],
+  "density_range": [
+    1.9999999999999898,
+    2.0000000000000355
+  ],
+  "rotated_bounds": [
+    [
+      -0.15000000000000036,
+      -0.75,
+      3.4250000000000007
+    ],
+    [
+      16.150000000000002,
+      27.0,
+      12.575
+    ]
+  ],
+  "asset_sha256": {
+    "content/models/items/verdict-hammer.model.json": "826566bdae7dd42360b474c62bf5391d6fb9c48bea953b2ba53cb5d97ce08fd8",
+    "content/textures/items/verdict-hammer.png": "8c1e30ecaf6e8c4f15983ce43ff644b13a03ea57a0c29fa001a06362537ab18b"
+  },
+  "texture_shape": [
+    128,
+    128,
+    4
+  ],
+  "required_hands_present": true,
+  "correct_texture_reference": true
+}

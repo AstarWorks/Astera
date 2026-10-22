@@ -1,0 +1,908 @@
+{
+  "item": "greatsword",
+  "round": 5,
+  "validation": {
+    "valid": true,
+    "elements": 96,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      2.9999999999999765,
+      3.000000000000064
+    ],
+    "rotated_bounds": [
+      [
+        2.4499999999999993,
+        -1.9499999999999993,
+        6.1499999999999995
+      ],
+      [
+        13.55,
+        28.2,
+        9.850000000000001
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        77,
+        17,
+        146,
+        204
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        100,
+        17,
+        123,
+        204
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        77,
+        100,
+        146,
+        123
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        78,
+        22,
+        145,
+        201
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        36,
+        57,
+        151,
+        208
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        92,
+        22,
+        145,
+        167
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        97,
+        12,
+        126,
+        135
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        92,
+        22,
+        145,
+        167
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        97,
+        12,
+        126,
+        135
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        100,
+        49,
+        123,
+        111
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        89,
+        48,
+        134,
+        174
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "target_sha256": "9a498d36f7b54b9e8b883d47d08fb1f50164bae268d6a737878c042b3b1ef598",
+  "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+  "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+  "production_validation": {
+    "valid": true,
+    "elements": 96,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      2.9999999999999765,
+      3.000000000000064
+    ],
+    "rotated_bounds": [
+      [
+        2.4499999999999993,
+        -1.9499999999999993,
+        6.1499999999999995
+      ],
+      [
+        13.55,
+        28.2,
+        9.850000000000001
+      ]
+    ]
+  },
+  "rounds": [
+    {
+      "item": "greatsword",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 3,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999982,
+          3.0000000000000018
+        ],
+        "rotated_bounds": [
+          [
+            3.0,
+            -0.5,
+            6.7
+          ],
+          [
+            13.0,
+            25.25,
+            9.3
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            81,
+            36,
+            142,
+            195
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            104,
+            36,
+            119,
+            195
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            81,
+            104,
+            142,
+            119
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            81,
+            36,
+            142,
+            193
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            43,
+            61,
+            150,
+            200
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            93,
+            34,
+            143,
+            160
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            98,
+            23,
+            124,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            94,
+            34,
+            144,
+            160
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            99,
+            23,
+            125,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            101,
+            55,
+            122,
+            108
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            91,
+            61,
+            132,
+            168
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "9a498d36f7b54b9e8b883d47d08fb1f50164bae268d6a737878c042b3b1ef598",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "202deaf7675383930120bfd976c60bb75441a5842b18db7d05a6fc247811cad1",
+        "texture.png": "f90a472e0a3ac6e2c92c9473333515fe0517f618da7ba88460a993aa2615d968",
+        "comparison.png": "ae94df9e772758ff482a270d250bffd29fc08aa913db2b51f2664d289a1eeaca"
+      }
+    },
+    {
+      "item": "greatsword",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 36,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.999999999999987,
+          3.000000000000022
+        ],
+        "rotated_bounds": [
+          [
+            2.4499999999999993,
+            -1.9499999999999993,
+            6.55
+          ],
+          [
+            13.55,
+            28.2,
+            9.45
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            77,
+            17,
+            146,
+            204
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            103,
+            17,
+            120,
+            204
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            77,
+            103,
+            146,
+            120
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            78,
+            22,
+            145,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            36,
+            57,
+            151,
+            208
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            92,
+            22,
+            145,
+            167
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            97,
+            12,
+            126,
+            135
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            92,
+            22,
+            145,
+            167
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            97,
+            12,
+            126,
+            135
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            100,
+            49,
+            123,
+            111
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            89,
+            48,
+            134,
+            174
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "9a498d36f7b54b9e8b883d47d08fb1f50164bae268d6a737878c042b3b1ef598",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "72e77c311c6600cfe85e75ee1e48052bb535cb4a93ebbd0c832eccd12952e165",
+        "texture.png": "f90a472e0a3ac6e2c92c9473333515fe0517f618da7ba88460a993aa2615d968",
+        "comparison.png": "a7b498a37aac7ae5734413dfe8a6f3c673e7ec0262f0ac5a4e5e891de2a52857"
+      }
+    },
+    {
+      "item": "greatsword",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 68,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999822,
+          3.000000000000022
+        ],
+        "rotated_bounds": [
+          [
+            2.4499999999999993,
+            -1.9499999999999993,
+            6.1499999999999995
+          ],
+          [
+            13.55,
+            28.2,
+            9.850000000000001
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            77,
+            17,
+            146,
+            204
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            100,
+            17,
+            123,
+            204
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            77,
+            100,
+            146,
+            123
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            78,
+            22,
+            145,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            36,
+            57,
+            151,
+            208
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            92,
+            22,
+            145,
+            167
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            97,
+            12,
+            126,
+            135
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            92,
+            22,
+            145,
+            167
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            97,
+            12,
+            126,
+            135
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            100,
+            49,
+            123,
+            111
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            89,
+            48,
+            134,
+            174
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "9a498d36f7b54b9e8b883d47d08fb1f50164bae268d6a737878c042b3b1ef598",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "cd988461575c6eef246c01d6a60b66de84864f78d6f11ca9a7887a8a4f9efc21",
+        "texture.png": "f90a472e0a3ac6e2c92c9473333515fe0517f618da7ba88460a993aa2615d968",
+        "comparison.png": "a7cd91abd8bf2b8adf926df5bee5a1b2c65018ecdd79dc841e8618ec1bde285a"
+      }
+    },
+    {
+      "item": "greatsword",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 84,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999765,
+          3.000000000000028
+        ],
+        "rotated_bounds": [
+          [
+            2.4499999999999993,
+            -1.9499999999999993,
+            6.1499999999999995
+          ],
+          [
+            13.55,
+            28.2,
+            9.850000000000001
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            77,
+            17,
+            146,
+            204
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            100,
+            17,
+            123,
+            204
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            77,
+            100,
+            146,
+            123
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            78,
+            22,
+            145,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            36,
+            57,
+            151,
+            208
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            92,
+            22,
+            145,
+            167
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            97,
+            12,
+            126,
+            135
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            92,
+            22,
+            145,
+            167
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            97,
+            12,
+            126,
+            135
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            100,
+            49,
+            123,
+            111
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            89,
+            48,
+            134,
+            174
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "9a498d36f7b54b9e8b883d47d08fb1f50164bae268d6a737878c042b3b1ef598",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "0775ec12223738ab69881df23f3308cb954d96e136ba7e89bc85a289f243a754",
+        "texture.png": "6ab1e9504ccb37a8907fc97583499a7b752fd3fe442db553367ba686b0387f77",
+        "comparison.png": "dcc9ed3b1cfa60ef925db122ef72d544b5e477c2f5fae665636c2d13f45dd96c"
+      }
+    },
+    {
+      "item": "greatsword",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 96,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999765,
+          3.000000000000064
+        ],
+        "rotated_bounds": [
+          [
+            2.4499999999999993,
+            -1.9499999999999993,
+            6.1499999999999995
+          ],
+          [
+            13.55,
+            28.2,
+            9.850000000000001
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            77,
+            17,
+            146,
+            204
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            100,
+            17,
+            123,
+            204
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            77,
+            100,
+            146,
+            123
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            78,
+            22,
+            145,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            36,
+            57,
+            151,
+            208
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            92,
+            22,
+            145,
+            167
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            97,
+            12,
+            126,
+            135
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            92,
+            22,
+            145,
+            167
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            97,
+            12,
+            126,
+            135
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            100,
+            49,
+            123,
+            111
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            89,
+            48,
+            134,
+            174
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "9a498d36f7b54b9e8b883d47d08fb1f50164bae268d6a737878c042b3b1ef598",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "04f42663f1e623fdcf297ce2f1ed26e6599e6f1c2a425fd8a50b0126248258e2",
+        "texture.png": "60937c51ace88241702ba4689bea5c5e1ebc05e0ffc8fa401c99fbdba2f29bb4",
+        "comparison.png": "4b6d14e9264b0592004fadcf0ee70650a86025492bad46598186c288385da513"
+      }
+    }
+  ],
+  "sha256": {
+    "content/models/items/greatsword.model.json": "04f42663f1e623fdcf297ce2f1ed26e6599e6f1c2a425fd8a50b0126248258e2",
+    "content/textures/items/greatsword.png": "60937c51ace88241702ba4689bea5c5e1ebc05e0ffc8fa401c99fbdba2f29bb4",
+    "tools/model-forge/work/greatsword/ai-target.png": "9a498d36f7b54b9e8b883d47d08fb1f50164bae268d6a737878c042b3b1ef598",
+    "tools/model-forge/work/greatsword/final-sheet.png": "4b6d14e9264b0592004fadcf0ee70650a86025492bad46598186c288385da513"
+  }
+}

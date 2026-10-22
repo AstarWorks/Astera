@@ -1,0 +1,5 @@
+Tool: built-in image_gen.imagegen; transparent_background=false.
+Reference: content/textures/sources/sheets/weapons-v1.png; cell ordering from content/textures/sources/items.yaml.
+Item brief: content/items/crimson-chain-axe.yaml and tools/item-art/sheets/weapons-v1.yaml.
+
+Create one premium Blockbench fantasy weapon concept turnaround for CRIMSON CHAIN AXE from reference first row third cell. Long black/red haft wrapped in chunky steel chain links; two large asymmetric hooked crimson crescent axe blades, bright pale cutting bevels, black iron central socket, small white four-point star crest. Menacing blood red rupture weapon. Exactly FOUR panels: front, narrow side, TOP END-ON camera above tip looking down haft (foreshortened, no full length shaft), and three-quarter. Same scale, flat pure magenta background. Detailed stepped pixel painted bevels, rivets and linked chain, no particles or other weapons.

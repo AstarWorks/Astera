@@ -1,0 +1,7 @@
+# Edict blade
+Built-in generated target from source cell 4 and white/black dueling-blade YAML. Gold guard and blue gems follow source art; top remains slightly tilted in AI sheet.
+1. Blockout: white blade, gold guard and navy grip establish palette, but squared tip and gap above grip need correction. Next: continuous tang, pointed blade, stepped bevels, fuller, gold collars and faceted sapphires.
+2. Shape: long silver blade and dark channel read correctly; target's guard terminals and grip need more volume. Pommel has a small gap below collar. Next: gold pommel neck, faceted terminals, diagonal wrap seams and guard rivets.
+3. Detail: pommel is connected, guard has faceted terminals, grip has a diagonal rhythm. Compared with target, ricasso is blank and material surfaces are too uniform. Next: small gold crest inlays and five-tone painted atlas; keep blade white and fuller dark.
+4. Texture: blade/fuller contrast survives 32px, gold ricasso crest is visible in larger views. Gem is too cyan relative to the requested blue identity and the channel has no raised lip. Next: sapphire ramp, narrow fuller lips and gem claws.
+5. Polish: sapphire and navy grip distinguish the hilt, raised fuller lips give the blade depth without clutter. Pass local review: 86 elements, 128px atlas, 3 texels/unit, eleven unclipped views. Weaknesses: fine ricasso engraving and claws disappear at inventory scale, AI top is slightly tilted; real-client grip/glint/FOV unverified.

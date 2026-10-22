@@ -1,0 +1,34 @@
+{
+  "valid": true,
+  "elements": 82,
+  "budget": 250,
+  "errors": [],
+  "warnings": [],
+  "density_range": [
+    1.9999999999999762,
+    2.0000000000000355
+  ],
+  "rotated_bounds": [
+    [
+      -0.6393103130992261,
+      5.149543642127379,
+      5.874999999999999
+    ],
+    [
+      16.625,
+      17.5,
+      10.125
+    ]
+  ],
+  "asset_sha256": {
+    "content/models/items/pistol.model.json": "14ec6c938881ee556f05ab14dce11a72f0aa1026013fef65a13c2c954b28e68b",
+    "content/textures/items/pistol.png": "b017b1858adc0582fc3cf991c788df378b7ce7f718d4f947c77b1c79dd7beea8"
+  },
+  "texture_shape": [
+    128,
+    128,
+    4
+  ],
+  "required_hands_present": true,
+  "correct_texture_reference": true
+}

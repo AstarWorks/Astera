@@ -1,0 +1,908 @@
+{
+  "item": "gossamer-katana",
+  "round": 5,
+  "validation": {
+    "valid": true,
+    "elements": 148,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      2.9999999999998983,
+      3.0000000000000475
+    ],
+    "rotated_bounds": [
+      [
+        6.074999999999999,
+        -0.8499999999999996,
+        6.475
+      ],
+      [
+        11.290803893804421,
+        28.02309556591083,
+        9.525
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        100,
+        19,
+        131,
+        197
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        103,
+        19,
+        120,
+        197
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        100,
+        103,
+        131,
+        120
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        99,
+        27,
+        129,
+        194
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        44,
+        72,
+        161,
+        200
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        108,
+        20,
+        131,
+        161
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        104,
+        15,
+        124,
+        130
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        106,
+        26,
+        148,
+        161
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        104,
+        11,
+        119,
+        130
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        108,
+        49,
+        118,
+        109
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        98,
+        49,
+        119,
+        169
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "target_sha256": "a3a87b30faa6384de346c892a5373c1b18bd25603b68846ccef8859b58e3ef94",
+  "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+  "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+  "production_validation": {
+    "valid": true,
+    "elements": 148,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      2.9999999999998983,
+      3.0000000000000475
+    ],
+    "rotated_bounds": [
+      [
+        6.074999999999999,
+        -0.8499999999999996,
+        6.475
+      ],
+      [
+        11.290803893804421,
+        28.02309556591083,
+        9.525
+      ]
+    ]
+  },
+  "rounds": [
+    {
+      "item": "gossamer-katana",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 3,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.999999999999998,
+          3.000000000000005
+        ],
+        "rotated_bounds": [
+          [
+            6.3,
+            0.0,
+            6.7
+          ],
+          [
+            9.7,
+            28.25,
+            9.3
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            101,
+            17,
+            122,
+            192
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            104,
+            17,
+            119,
+            192
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            101,
+            104,
+            122,
+            119
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            99,
+            21,
+            124,
+            189
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            47,
+            55,
+            150,
+            197
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            98,
+            21,
+            130,
+            157
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            104,
+            12,
+            120,
+            127
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            107,
+            21,
+            139,
+            157
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            103,
+            12,
+            119,
+            127
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            108,
+            48,
+            115,
+            107
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            105,
+            48,
+            118,
+            166
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "a3a87b30faa6384de346c892a5373c1b18bd25603b68846ccef8859b58e3ef94",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "c7bbe248752cf198cd5cf3852b0485b626a46f0b0faf112f422951d5fa695011",
+        "texture.png": "a8513f63853adba95723a1faded1e22678ce124fa77c1015b1871325fa1132db",
+        "comparison.png": "0cded3fc2408ef0fe34abecf53770a29ec0c2aef0948f6d186c6a8d3d8c05ba3"
+      }
+    },
+    {
+      "item": "gossamer-katana",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 71,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999925,
+          3.0000000000000395
+        ],
+        "rotated_bounds": [
+          [
+            6.074999999999999,
+            -0.8499999999999996,
+            6.475
+          ],
+          [
+            11.059999999999999,
+            27.975,
+            9.525
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            100,
+            19,
+            130,
+            197
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            103,
+            19,
+            120,
+            197
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            100,
+            103,
+            130,
+            120
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            99,
+            26,
+            128,
+            194
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            44,
+            71,
+            160,
+            200
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            108,
+            20,
+            131,
+            161
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            104,
+            15,
+            123,
+            130
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            106,
+            26,
+            147,
+            161
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            104,
+            11,
+            119,
+            130
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            108,
+            49,
+            117,
+            109
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            99,
+            49,
+            119,
+            169
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "a3a87b30faa6384de346c892a5373c1b18bd25603b68846ccef8859b58e3ef94",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "d0a2be852764a630043d062bd8fa9ee0df5a785196e5642934ecf1ee698cb25c",
+        "texture.png": "a8513f63853adba95723a1faded1e22678ce124fa77c1015b1871325fa1132db",
+        "comparison.png": "1f2be3a443229c038a873ffde9f4838e57746b79ebd5c135301f437614d2dc2d"
+      }
+    },
+    {
+      "item": "gossamer-katana",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 107,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.999999999999988,
+          3.0000000000000475
+        ],
+        "rotated_bounds": [
+          [
+            6.074999999999999,
+            -0.8499999999999996,
+            6.475
+          ],
+          [
+            11.059999999999999,
+            27.975,
+            9.525
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            100,
+            19,
+            130,
+            197
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            103,
+            19,
+            120,
+            197
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            100,
+            103,
+            130,
+            120
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            99,
+            26,
+            128,
+            194
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            44,
+            71,
+            160,
+            200
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            108,
+            20,
+            131,
+            161
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            104,
+            15,
+            123,
+            130
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            106,
+            26,
+            147,
+            161
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            104,
+            11,
+            119,
+            130
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            108,
+            49,
+            117,
+            109
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            99,
+            49,
+            119,
+            169
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "a3a87b30faa6384de346c892a5373c1b18bd25603b68846ccef8859b58e3ef94",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "7412025d9fcc51352e7be51621f586c1e16aac9ccbca4eec89901c2bc8e87d36",
+        "texture.png": "a8513f63853adba95723a1faded1e22678ce124fa77c1015b1871325fa1132db",
+        "comparison.png": "ebc0fbe109f4bb93e8197c0c1995f6dd60c2dc68da0c5c3a88cd814b7276e8f5"
+      }
+    },
+    {
+      "item": "gossamer-katana",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 135,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.999999999999923,
+          3.0000000000000475
+        ],
+        "rotated_bounds": [
+          [
+            6.074999999999999,
+            -0.8499999999999996,
+            6.475
+          ],
+          [
+            11.059999999999999,
+            27.975,
+            9.525
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            100,
+            19,
+            130,
+            197
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            103,
+            19,
+            120,
+            197
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            100,
+            103,
+            130,
+            120
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            99,
+            26,
+            128,
+            194
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            44,
+            71,
+            160,
+            200
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            108,
+            20,
+            131,
+            161
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            104,
+            15,
+            123,
+            130
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            106,
+            26,
+            147,
+            161
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            104,
+            11,
+            119,
+            130
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            108,
+            49,
+            117,
+            109
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            99,
+            49,
+            119,
+            169
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "a3a87b30faa6384de346c892a5373c1b18bd25603b68846ccef8859b58e3ef94",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "46c334d5d7ac9de2e7d3cd9eb41209e15e4fd7fed4b97d55ee35273e1de3d226",
+        "texture.png": "299d74aee0d953143d17e484e9693a94032a659f068b1bc513745b20c0239f98",
+        "comparison.png": "8aeac2a1bd29c371c609e6d145f28ee68f91577b2b5a4f237b69b8a0a6159497"
+      }
+    },
+    {
+      "item": "gossamer-katana",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 148,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999998983,
+          3.0000000000000475
+        ],
+        "rotated_bounds": [
+          [
+            6.074999999999999,
+            -0.8499999999999996,
+            6.475
+          ],
+          [
+            11.290803893804421,
+            28.02309556591083,
+            9.525
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            100,
+            19,
+            131,
+            197
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            103,
+            19,
+            120,
+            197
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            100,
+            103,
+            131,
+            120
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            99,
+            27,
+            129,
+            194
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            44,
+            72,
+            161,
+            200
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            108,
+            20,
+            131,
+            161
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            104,
+            15,
+            124,
+            130
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            106,
+            26,
+            148,
+            161
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            104,
+            11,
+            119,
+            130
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            108,
+            49,
+            118,
+            109
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            98,
+            49,
+            119,
+            169
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "a3a87b30faa6384de346c892a5373c1b18bd25603b68846ccef8859b58e3ef94",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "7834087be15cfe90ff37bdf81c589fbf695b3cfe83d8046a753dd918fa2ef0e8",
+        "texture.png": "d2b09a9d4ed2e22b11962ad5868be57fb31a9403330a5fd73d5de5558db61773",
+        "comparison.png": "d8a6b4a99457701b675bf94907f39a09a5842fcbcf78d4f6adf098f5ce644f99"
+      }
+    }
+  ],
+  "sha256": {
+    "content/models/items/gossamer-katana.model.json": "7834087be15cfe90ff37bdf81c589fbf695b3cfe83d8046a753dd918fa2ef0e8",
+    "content/textures/items/gossamer-katana.png": "d2b09a9d4ed2e22b11962ad5868be57fb31a9403330a5fd73d5de5558db61773",
+    "tools/model-forge/work/gossamer-katana/ai-target.png": "a3a87b30faa6384de346c892a5373c1b18bd25603b68846ccef8859b58e3ef94",
+    "tools/model-forge/work/gossamer-katana/final-sheet.png": "d8a6b4a99457701b675bf94907f39a09a5842fcbcf78d4f6adf098f5ce644f99"
+  }
+}
