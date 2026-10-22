@@ -1,7 +1,7 @@
 """Deterministic, orthographic Java cuboid preview; adapted from the forge seed."""
 import math
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 
 VIEWS = {'front': [0,0,0], 'side': [0,-90,0], 'top': [90,0,0], 'iso': [20,-30,0]}
 CENTER = np.array([8,13,8])
@@ -44,7 +44,7 @@ def default_uv(e, face):
             'west':[z,16-Y,Z,16-y], 'east':[16-Z,16-Y,16-z,16-y]}[face]
 
 
-def render(model, textures, view, size=256, clay=False):
+def render(model, textures, view, size=256, clay=False, camera=None, mode='textured', highlight=(), overlay=()):
     """Return RGBA, silhouette and diagnostics. Fixed cameras, never auto-fit."""
     d=model.get('display',{}).get(view,{})
     R=display_matrix(VIEWS.get(view,d.get('rotation',[0,0,0])))
@@ -52,9 +52,12 @@ def render(model, textures, view, size=256, clay=False):
     T=np.array(d.get('translation',[0,0,0])) if view not in VIEWS else np.zeros(3)
     center=CENTER if view in VIEWS else np.full(3,8)
     span=SPAN if view in VIEWS else 16 if view=='gui' else 32
+    if camera:
+        R=display_matrix([camera.get('pitch',0),camera.get('yaw',0),0])
+        center=np.array(camera.get('center',center)); span=float(camera.get('ortho',span))
     out=np.zeros((size,size,4),dtype=np.uint8)
     depth=np.full((size,size),-np.inf)
-    projected=[]
+    projected=[]; lines=[]; labels=[]
     for e in model['elements']:
         for face,(points,_) in faces(e).items():
             if face not in e['faces']: continue
@@ -63,7 +66,9 @@ def render(model, textures, view, size=256, clay=False):
             # Vertex winding is clockwise as seen from outside.
             normal=-normal
             length=np.linalg.norm(normal)
-            if length<1e-10 or normal[2]<=1e-10: continue
+            if length<1e-10: continue
+            visible=normal[2]>1e-10
+            if not visible and mode not in ('wireframe','xray'): continue
             normal/=length
             f=e['faces'][face]
             u,v,U,V=f.get('uv',default_uv(e,face))
@@ -73,6 +78,9 @@ def render(model, textures, view, size=256, clay=False):
             shade=1 if not e.get('shade',True) else .72+.28*max(0,float(normal@np.array([-.3,.5,.8124])))
             p=p.copy();p[:,:2]=p[:,:2]*[size/span,-size/span]+size/2
             projected.extend(p[:,:2].tolist())
+            lines.append((p[:,:2].tolist(), e.get('id') in highlight))
+            if 'ids' in overlay: labels.append((p[:,:2].mean(0).tolist(),e.get('id','?')))
+            if mode=='wireframe' or not visible: continue
             for ids in [(0,1,2),(0,2,3)]:
                 q=p[list(ids)];tex=uv[list(ids)]
                 xmin,ymin=np.maximum(0,np.floor(q[:,:2].min(0)).astype(int))
@@ -90,7 +98,8 @@ def render(model, textures, view, size=256, clay=False):
                 tx=np.clip(np.floor(coords[:,:,0]*atlas.shape[1]).astype(int),0,atlas.shape[1]-1)
                 ty=np.clip(np.floor(coords[:,:,1]*atlas.shape[0]).astype(int),0,atlas.shape[0]-1)
                 color=atlas[ty,tx].copy();hit&=color[:,:,3]>=128
-                if clay: color[:,:,:3]=[178,190,204]
+                if clay or mode=='solid': color[:,:,:3]=[178,190,204]
+                if e.get('id') in highlight: color[:,:,:3]=[255,186,58]
                 color[:,:,:3]=np.rint(color[:,:,:3]*shade).clip(0,255).astype(np.uint8)
                 color[:,:,3]=255
                 out[ymin:ymax+1,xmin:xmax+1][hit]=color[hit];target[hit]=z[hit]
@@ -100,4 +109,24 @@ def render(model, textures, view, size=256, clay=False):
         y,x=np.where(mask);bounds=[int(x.min()),int(y.min()),int(x.max()),int(y.max())]
     pts=np.array(projected)
     clipped=bool(len(pts) and ((pts<0).any() or (pts>size).any()))
-    return Image.fromarray(out), mask, {'bounds':bounds,'clipped':clipped,'span':span}
+    im=Image.fromarray(out)
+    if mode in ('wireframe','xray') or overlay:
+        if mode=='xray':
+            out[:,:,3]=np.where(mask,90,0); im=Image.fromarray(out)
+        draw=ImageDraw.Draw(im)
+        if 'grid' in overlay:
+            for n in range(0,size,max(1,int(size/span))):
+                draw.line([(n,0),(n,size)],fill=(65,80,95,110)); draw.line([(0,n),(size,n)],fill=(65,80,95,110))
+        if mode in ('wireframe','xray'):
+            for points,selected in lines: draw.line([tuple(p) for p in points+[points[0]]],fill='#ffba3a' if selected else '#a5cde6',width=1)
+        if 'ids' in overlay:
+            seen=set()
+            for p,id in labels:
+                if id not in seen: draw.text(tuple(p),id,fill='white'); seen.add(id)
+        if 'bbox' in overlay and bounds: draw.rectangle(bounds,outline='#ffba3a')
+        if 'axes' in overlay:
+            origin=np.array([size*.12,size*.88])
+            for i,color in enumerate(('red','lime','cyan')):
+                end=origin+R[:2,i]*[size*.10,-size*.10]
+                draw.line([tuple(origin),tuple(end)],fill=color,width=2); draw.text(tuple(end),'XYZ'[i],fill=color)
+    return im, mask, {'bounds':bounds,'clipped':clipped,'span':span}
