@@ -102,4 +102,23 @@ class CombatMatchBugHuntScenarioTest {
                 .isInstanceOf(com.astarworks.astera.core.domain.Result.Success::class.java)
         }
     }
+    @Test
+    fun `match shutdown cancels phase and game mode tickers`() {
+        scenario("bug-hunt-match-shutdown") {
+            val red = player("red")
+            val blue = player("blue")
+            val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
+            val started = lifecycle.start(com.astarworks.astera.core.domain.stage.StageId("siege-flat"), "norma")
+            check(started is com.astarworks.astera.core.domain.Result.Success)
+            lifecycle.entry(started.value, red.id, com.astarworks.astera.core.domain.match.TeamId("red"))
+            lifecycle.entry(started.value, blue.id, com.astarworks.astera.core.domain.match.TeamId("blue"))
+            val modes = sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.IGameModeScheduler>()
+            assertThat(modes.activeMatches()).contains(started.value)
+            sim.match.shutdown()
+            sim.scheduler.advanceTicks(1000)
+            assertThat(sim.match.matches.findById(started.value)?.phase)
+                .isEqualTo(com.astarworks.astera.core.domain.match.MatchPhase.COUNTDOWN)
+            assertThat(modes.activeMatches()).isEmpty()
+        }
+    }
 }

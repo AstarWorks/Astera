@@ -299,7 +299,7 @@ public object MatchWiring {
             matches, scheduler, switchPhase, matchTimer,
             countdownTicks = { queueSettings.current().matchCountdownSeconds * 20L },
         )
-        scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
+        scheduledTasks += scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
             phaseTimer.tickAll()
         }
 
@@ -397,6 +397,7 @@ public object MatchWiring {
                     registrations += services.register<IGameModeScheduler>(it, priority = 0)
                 }
 
+        shutdownHooks += { gameModeScheduler.activeMatches().toList().forEach(gameModeScheduler::unregister) }
         val gameModeContentDir = ctx.contentDir.resolve("game-modes")
         val gameModeContents = GameModeContents()
         val gameModeReport = gameModeContents.bootstrap(gameModeContentDir)
