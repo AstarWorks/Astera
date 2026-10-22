@@ -94,6 +94,13 @@ public class GameSim private constructor(
     /** Displays spawned by SpawnDisplay (WP5). */
     public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder)
 
+    /** Bodies of the lobby training dummies (F3-11). */
+    public val trainingShells: SimTrainingShells = SimTrainingShells(world, recorder)
+
+    /** Stacks given by the lobby training weapon rack (F3-11); the rack frames it asked for. */
+    public val itemDelivery: SimItemDelivery = SimItemDelivery()
+    public val trainingRack: SimTrainingRackGateway = SimTrainingRackGateway()
+
     /** This server's hotbar when booted with a shared snapshot store (F3-6); `null` otherwise. */
     public var inventory: SimInventoryGateway? = null
         private set
@@ -521,8 +528,10 @@ public class GameSim private constructor(
             sim.items = ItemsWiring.install(
                 context(),
                 ItemsPlatformPorts(
-                    itemDelivery = { SimItemDelivery() },
+                    itemDelivery = { sim.itemDelivery },
                     itemIdResolver = SimItemIdResolver(world),
+                    trainingRack = { sim.trainingRack },
+                    trainingInventory = { SimTrainingInventory(sim.itemDelivery) },
                     itemCooldownSweep = sim.sweeps,
                 ),
             )
@@ -546,6 +555,7 @@ public class GameSim private constructor(
                     entityEffectsGateway = { SimEntityEffectsGateway(world, recorder) { scheduler.currentTick() } },
                     playerFeedbackGateway = { feedback },
                     displayEntityGateway = { sim.displays },
+                    trainingDummyShells = { sim.trainingShells },
                     summonGateway = { SimSummonGateway(world, scheduler, recorder) },
                     explosionGateway = { svc, applier ->
                         SimExplosionGateway(
