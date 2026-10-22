@@ -7,15 +7,10 @@ import com.astarworks.astera.core.domain.gui.GuiIntent
 /**
  * Outbound port: maps NPC handle + click → [GuiIntent].
  *
- * Wave 5g introduced `IShopVendor` (VendorId → ShopId binding) for the
- * **shop-specific** case. This router generalises that pattern so any
- * NPC can be bound to any GuiIntent — shop, loadout edit, tutorial step,
- * tournament queue, etc.
- *
- * Per ADR-0082: Wave 5g's `IShopVendor` is intentionally kept as a thin
- * specialisation (shop intent only) rather than refactored to use this
- * router; the two coexist while the broader GuiIntent surface (Wave 5o)
- * stabilises. Once stable, `IShopVendor` becomes a derived view.
+ * Any NPC can be bound to any GuiIntent — shop (`lobby.shop.open`), loadout
+ * edit, tutorial step, tournament queue, etc. The shop NPC is just an NPC in
+ * `content/lobby-npcs/` whose right click is bound to `lobby.shop.open`
+ * (WP13 removed the shop-specific `IShopVendor` binding).
  *
  * # Click model
  *

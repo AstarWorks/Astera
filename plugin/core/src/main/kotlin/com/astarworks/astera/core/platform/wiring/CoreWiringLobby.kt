@@ -375,6 +375,25 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             "${waveGRegistrations.size} intent registrations recorded for onDisable cleanup.",
     )
 
+    // ── Lobby NPCs (WP13) — content/lobby-npcs/*.yaml ──────────────────
+    // Spawns each NPC through IEntitySpawner, binds its click intents on
+    // INpcInteractionRouter and (Paper only) gives it a clickable body. The
+    // intent handlers (e.g. Economy's `lobby.shop.open`) register in their own
+    // plugins; dispatch happens at click time, so enable order does not matter.
+    val lobbyNpcBodies = ports.npcBodies?.invoke(services)
+    if (lobbyNpcBodies != null) {
+        services.register<com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer>(
+            lobbyNpcBodies,
+            priority = 100,
+        )
+    }
+    val lobbyNpcReport = com.astarworks.astera.core.application.service.entity.LobbyNpcLoaderService(
+        spawner = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner>(),
+        interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
+        bodies = lobbyNpcBodies,
+    ).loadFrom(contentDir.resolve("lobby-npcs"))
+    logger.info("Lobby NPCs loaded: ${lobbyNpcReport.loaded} ok, ${lobbyNpcReport.failed} failed")
+
     // ── Wave J 5server-content-ops (ADR-0127) ─────────────────────────
     //
     // Three additions, all pure command + content scaffold (no new ports,

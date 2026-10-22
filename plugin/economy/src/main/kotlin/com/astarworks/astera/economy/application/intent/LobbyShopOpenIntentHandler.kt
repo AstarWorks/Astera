@@ -15,9 +15,7 @@ import org.slf4j.LoggerFactory
  * Wave 5lobby-content (ADR-0119) — routes `lobby.shop.open` [GuiIntent] to
  * [ShopBrowseUseCase].
  *
- * Lives in `:plugin:economy` because [ShopBrowseUseCase] +
- * [com.astarworks.astera.economy.application.port.outbound.IShopVendor] live
- * in Economy. ADR-0022 forbids `:plugin:core` from importing Economy types;
+ * Lives in `:plugin:economy` because [ShopBrowseUseCase] lives in Economy. ADR-0022 forbids `:plugin:core` from importing Economy types;
  * keeping the handler here preserves the boundary.
  *
  * # Default lobby shop

@@ -9,11 +9,13 @@ import com.astarworks.astera.core.application.port.outbound.IShopRegistry
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.application.service.toAdapterTemplate
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.economy.WalletError
 import com.astarworks.astera.core.domain.event.CurrencyChangeReason
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.shop.ShopId
 import com.astarworks.astera.core.domain.shop.ShopOfferId
+import com.astarworks.astera.core.domain.shop.ShopPrice
 import com.astarworks.astera.core.domain.shop.ShopStock
 import com.astarworks.astera.core.domain.shop.ShopStockError
 import com.astarworks.astera.core.domain.event.CurrencyChanged
@@ -87,7 +89,7 @@ public class ShopPurchaseUseCase(
         playerId: PlayerId,
         shopId: ShopId,
         offerId: ShopOfferId,
-    ): Result<Unit, ShopPurchaseError> {
+    ): Result<ShopPurchaseReceipt, ShopPurchaseError> {
         val player = server.findPlayer(playerId)
             ?: return Result.failure(ShopPurchaseError.PlayerNotOnline)
 
@@ -117,7 +119,8 @@ public class ShopPurchaseUseCase(
         val debit = ledger.debit(playerId, offer.price.currency, offer.price.amount)
         return when (debit) {
             is Result.Failure -> when (debit.error) {
-                is WalletError.InsufficientFunds -> Result.failure(ShopPurchaseError.InsufficientFunds)
+                is WalletError.InsufficientFunds ->
+                    Result.failure(ShopPurchaseError.InsufficientFunds(offer.price.currency))
             }
             is Result.Success -> {
                 // Authoritative stock gate. Unlimited offers skip this entirely
@@ -174,7 +177,13 @@ public class ShopPurchaseUseCase(
                         reason = CurrencyChangeReason.ShopPurchase(shopId, offerId),
                     ),
                 )
-                Result.success(Unit)
+                Result.success(
+                    ShopPurchaseReceipt(
+                        itemName = messages.renderText(playerId, spec.displayName),
+                        price = offer.price,
+                        newBalance = newBalance,
+                    ),
+                )
             }
         }
     }
@@ -202,7 +211,8 @@ public sealed class ShopPurchaseError {
     ) : ShopPurchaseError()
 
     /** The buyer lacks the required currency for this offer's price. */
-    public data object InsufficientFunds : ShopPurchaseError()
+    /** Wallet could not cover the price; [currency] is the one that fell short. */
+    public data class InsufficientFunds(public val currency: Currency) : ShopPurchaseError()
 
     /**
      * The offer's item could not be delivered. Carries a human-readable
@@ -211,3 +221,10 @@ public sealed class ShopPurchaseError {
      */
     public data class DeliveryFailed(public val reason: String) : ShopPurchaseError()
 }
+
+/** What a successful purchase tells the buyer: the item (rendered in their locale), what it cost, what is left. */
+public data class ShopPurchaseReceipt(
+    public val itemName: String,
+    public val price: ShopPrice,
+    public val newBalance: Long,
+)

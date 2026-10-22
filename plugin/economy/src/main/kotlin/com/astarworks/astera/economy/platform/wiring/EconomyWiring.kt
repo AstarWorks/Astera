@@ -55,12 +55,8 @@ import com.astarworks.astera.economy.application.service.InMemoryCreatorRevenueR
 import com.astarworks.astera.economy.application.service.InMemoryCurrencyIssuanceLog
 import com.astarworks.astera.economy.application.service.InMemoryCurrencyLedger
 import com.astarworks.astera.economy.application.service.InMemoryMarketplaceRepository
-import com.astarworks.astera.economy.application.port.outbound.IShopReferenceQuery
-import com.astarworks.astera.economy.application.port.outbound.IShopVendor
-import com.astarworks.astera.economy.application.service.DefaultShopReferenceQuery
 import com.astarworks.astera.economy.application.service.InMemoryShopRegistry
 import com.astarworks.astera.economy.application.service.InMemoryShopStockRepository
-import com.astarworks.astera.economy.application.service.InMemoryShopVendorBinding
 import com.astarworks.astera.economy.application.service.ShopLoaderService
 import com.astarworks.astera.economy.application.usecase.currency.DepositUseCase
 import com.astarworks.astera.economy.application.usecase.currency.TransferUseCase
@@ -255,14 +251,6 @@ public object EconomyWiring {
         // and Postgres-less runs.
         val shopStockRepository = InMemoryShopStockRepository()
         registrations += services.register<IShopStockRepository>(shopStockRepository, priority = 0)
-
-        // Wave 5g (ADR-0071): NPC-vendor / external-EC / chat-alias access
-        // surfaces. Paper impls land in Phase 4 Wave 8b; Wave 5g lands
-        // in-memory defaults so domain-side wiring is complete.
-        val shopVendorBinding = InMemoryShopVendorBinding()
-        registrations += services.register<IShopVendor>(shopVendorBinding, priority = 0)
-        val shopReferenceQuery = DefaultShopReferenceQuery(shopRegistry)
-        registrations += services.register<IShopReferenceQuery>(shopReferenceQuery, priority = 0)
 
         val shopsContentDir = ctx.contentDir.resolve("shops")
         val shopReport = ShopLoaderService(shopRegistry, shopStockRepository).loadFrom(shopsContentDir)
