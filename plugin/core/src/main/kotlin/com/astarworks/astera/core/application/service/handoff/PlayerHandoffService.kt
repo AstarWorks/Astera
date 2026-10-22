@@ -185,7 +185,7 @@ public class PlayerHandoffService(
         val expired = scheduler.currentTick() >= entry.deadlineTick
         if (token != null) {
             val snapshot = loadLatest(playerId)
-            val fresh = snapshot == null || snapshot.savedAt.toEpochMilli() >= token.version
+            val fresh = snapshot != null && snapshot.savedAt.toEpochMilli() >= token.version
             if (fresh) {
                 waiting.remove(playerId)
                 finish(playerId, applySnapshot(playerId, snapshot), token.fromServer)

@@ -48,4 +48,10 @@ Verification: no local builds or tests run, per task constraints. Regression tes
 - Evidence: `CoreWiringWorld.kt:225` passed local in-memory rules/time/weather instances to InMemoryMatchConfigService after registering host overlays above. Applying a match config reported success but never changed the Paper world.
 - Fix: resolve the three final gateways from the registry when constructing the service.
 - Test: `MatchConfigWiringTest` supplies host gateways to the production wiring stage and checks apply/reset reach those exact gateways (PvP, difficulty, inventory, time, weather).
+- Fix commit: `e1f6b2b7`.
+
+## 9. Missing hand-off snapshot is treated as up-to-date
+- Evidence: `PlayerHandoffService.kt:190` used `snapshot == null || ... >= token.version`; a missing/read-failed snapshot immediately unlocked arrival instead of waiting for the source version. Match entry could then capture the default inventory over the saved inventory.
+- Fix: a token requires a non-null snapshot at least its version; missing reads retry within the existing bounded wait.
+- Test: `PlayerHandoffServiceTest.a handoff token waits for a snapshot that is not visible yet` delays visibility and checks Loading/no arrival until the inventory is actually restored.
 - Fix commit: pending.

@@ -194,6 +194,32 @@ class PlayerHandoffServiceTest {
     }
 
     @Test
+    fun `a handoff token waits for a snapshot that is not visible yet`() {
+        val repo = InMemoryPlayerInventorySnapshotRepository()
+        var visible = false
+        val lagging = object : IPlayerInventorySnapshotRepository {
+            override fun save(snapshot: PlayerInventorySnapshot) = repo.save(snapshot)
+            override fun findLatest(playerId: PlayerId) = if (visible) repo.findLatest(playerId) else null
+            override fun delete(playerId: PlayerId) = repo.delete(playerId)
+        }
+        val source = Server(lobby, awaitToken = true, repo) { now }
+        val target = Server(game, awaitToken = true, lagging) { now }
+        source.inventory.items = sword
+        source.service.onTransferRequested(player, game)
+        target.service.onJoin(player)
+        target.messenger.deliver(tokenFrom(source, game))
+        target.scheduler.advanceTicks(10)
+
+        assertThat(target.arrivals).isEmpty()
+        assertThat(target.sessions.find(player)!!.state).isEqualTo(SessionState.Loading)
+        assertThat(target.inventory.applied).isZero()
+        visible = true
+        target.scheduler.advanceTicks(4)
+        assertThat(target.inventory.items).isEqualTo(sword)
+        assertThat(target.arrivals).hasSize(1)
+    }
+
+    @Test
     fun `no token within the bound restores the latest snapshot anyway`() {
         val repo = InMemoryPlayerInventorySnapshotRepository()
         repo.save(PlayerInventorySnapshot.empty(player).copy(hotbar = sword))
