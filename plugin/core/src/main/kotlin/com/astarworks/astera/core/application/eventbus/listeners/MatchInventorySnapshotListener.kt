@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerInventoryGate
 import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
+import com.astarworks.astera.core.domain.event.PlayerEnteredMatch
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerInventorySnapshot
@@ -14,7 +15,8 @@ import org.slf4j.LoggerFactory
 /**
  * Per-match inventory snapshot (WP12): **save on entry, restore on exit**.
  *
- *  - [MatchStarted]: every participant's current inventory is captured and
+ *  - [PlayerEnteredMatch] (and [MatchStarted] for pre-populated teams): the
+ *    participant's current inventory is captured and
  *    persisted through [SaveInventorySnapshotUseCase] (so a crash or a
  *    mid-match disconnect still restores the pre-match inventory on the next
  *    join) and remembered in memory.
@@ -25,8 +27,8 @@ import org.slf4j.LoggerFactory
  * While a player is held ([isHeld]) the quit handler must NOT overwrite the
  * persisted snapshot with the match inventory.
  *
- * Participants come from [IMatchRepository] at start; at end the remembered
- * set is used because the match aggregate may already be torn down.
+ * Lobby kit items are filtered by the Paper serializer (`MenuKitTag`), so they
+ * never enter a snapshot. At end the remembered set is used because the match aggregate may already be torn down.
  */
 public class MatchInventorySnapshotListener(
     private val gateway: () -> IPlayerInventoryGateway?,
@@ -36,21 +38,28 @@ public class MatchInventorySnapshotListener(
 
     private val log = LoggerFactory.getLogger(MatchInventorySnapshotListener::class.java)
 
-    private val held: ConcurrentHashMap<MatchId, Map<PlayerId, PlayerInventorySnapshot>> = ConcurrentHashMap()
+    private val held: ConcurrentHashMap<MatchId, MutableMap<PlayerId, PlayerInventorySnapshot>> = ConcurrentHashMap()
 
     /** `true` while [playerId] has an entry snapshot of a running match outstanding. */
     public fun isHeld(playerId: PlayerId): Boolean = held.values.any { playerId in it }
 
+    /** A match that already has members at start (admin paths) is captured here; later entries go through [handleEntered]. */
     public fun handleStarted(event: MatchStarted) {
         val match = matches()?.findById(event.matchId) ?: return
-        val participants = match.teams.flatMap { it.members }.toSet()
-        val captured = LinkedHashMap<PlayerId, PlayerInventorySnapshot>()
-        for (playerId in participants) {
-            val snapshot = gateway()?.capture(playerId) ?: continue
-            saveSnapshot.save(snapshot)
-            captured[playerId] = snapshot
-        }
-        held[event.matchId] = captured
+        match.teams.flatMap { it.members }.toSet().forEach { capture(event.matchId, it) }
+    }
+
+    /** F3-12: players join after [MatchStarted], so the snapshot is taken when they enter. */
+    public fun handleEntered(event: PlayerEnteredMatch) {
+        capture(event.matchId, event.playerId)
+    }
+
+    private fun capture(matchId: MatchId, playerId: PlayerId) {
+        val perMatch = held.computeIfAbsent(matchId) { ConcurrentHashMap() }
+        if (playerId in perMatch) return
+        val snapshot = gateway()?.capture(playerId) ?: return
+        saveSnapshot.save(snapshot)
+        perMatch[playerId] = snapshot
     }
 
     public fun handleEnded(event: MatchEnded) {

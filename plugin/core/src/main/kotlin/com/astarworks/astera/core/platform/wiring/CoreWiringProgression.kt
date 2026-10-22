@@ -267,6 +267,7 @@ internal fun CoreWiringState.wireProgression() {
     )
     services.register<MatchInventorySnapshotListener>(matchSnapshots, priority = 0)
     wave5completeSubs += eventBus.subscribe(MatchStarted::class) { matchSnapshots.handleStarted(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerEnteredMatch::class) { matchSnapshots.handleEntered(it) }
     wave5completeSubs += eventBus.subscribe(MatchEnded::class) { matchSnapshots.handleEnded(it) }
 
     // WP12: personal vault (= ender chest) — `/astera vault` and the ender chest block
