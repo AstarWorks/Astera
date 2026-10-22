@@ -433,6 +433,20 @@ internal class CorePaperBindings(
             ),
             plugin,
         )
+        // ADR-0233: chat-backed text prompt for the admin panel + sneak+F quick access (no hotbar item).
+        val adminPrompt = com.astarworks.astera.core.adapter.paper.admin.PaperAdminTextPrompt(plugin)
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.admin.IAdminTextPrompt>(
+            adminPrompt,
+            priority = 100,
+        )
+        server.pluginManager.registerEvents(adminPrompt, plugin)
+        server.pluginManager.registerEvents(
+            com.astarworks.astera.core.adapter.paper.admin.PaperAdminQuickAccessListener(
+                guard = { ctx.services.get<com.astarworks.astera.core.application.admin.panel.AdminPanelGuard>() },
+                open = { ctx.services.get<com.astarworks.astera.core.application.admin.panel.OpenAdminPanelUseCase>() },
+            ),
+            plugin,
+        )
         logger.info(
             "Wave 6a-6 BukkitEventAdapter wired (Role 1: 9 event translations; " +
                 "Role 2: EntityDamageEvent + PlayerDeathEvent defensive cancellation " +
@@ -516,6 +530,21 @@ internal class CorePaperBindings(
                 }
             },
             plugin,
+        )
+        // ADR-0233: the admin panel can rebuild the lobby in place (clear + paste the plan again).
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.admin.ILobbyRepaster>(
+            object : com.astarworks.astera.core.application.port.outbound.admin.ILobbyRepaster {
+                override fun repaste(): Boolean = try {
+                    val lanes = ctx.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneCatalog>()
+                        ?.laneIds().orEmpty()
+                    val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(config, lanes)
+                    lobby.install(config, plan, force = true) != null
+                } catch (t: Throwable) {
+                    logger.log(java.util.logging.Level.WARNING, "Lobby repaste failed", t)
+                    false
+                }
+            },
+            priority = 100,
         )
         val created = java.util.concurrent.atomic.AtomicBoolean(false)
         val attempts = java.util.concurrent.atomic.AtomicInteger(0)
