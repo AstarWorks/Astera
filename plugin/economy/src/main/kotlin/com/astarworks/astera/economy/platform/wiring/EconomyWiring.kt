@@ -273,6 +273,19 @@ public object EconomyWiring {
         val shopReport = ShopLoaderService(shopRegistry, shopStockRepository).loadFrom(shopsContentDir)
         logger.info("Loaded ${shopReport.loaded} shop(s) from $shopsContentDir (failed: ${shopReport.failed})")
 
+        // ADR-0211: ownership ledger + player-facing history. Postgres overlays this at priority 100.
+        val shopPurchases: com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository =
+            services.get<com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository>()
+                ?: com.astarworks.astera.economy.application.service.InMemoryShopPurchaseRepository().also {
+                    registrations += services.register<
+                        com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository,
+                        >(it, priority = 0)
+                }
+        val carriedItems: (com.astarworks.astera.core.domain.player.PlayerId) -> List<com.astarworks.astera.core.domain.item.ItemId> =
+            { playerId ->
+                services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>()
+                    ?.itemIds(playerId) ?: emptyList()
+            }
         val shopBrowse = ShopBrowseUseCase(
             registry = shopRegistry,
             adapter = guiAdapter,
@@ -280,6 +293,8 @@ public object EconomyWiring {
             ledger = ledger,
             stock = shopStockRepository,
             messages = msgRenderer,
+            purchases = shopPurchases,
+            carried = carriedItems,
         )
         val shopPurchase = ShopPurchaseUseCase(
             registry = shopRegistry,
@@ -294,6 +309,8 @@ public object EconomyWiring {
                 services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
                     ?.isHeld(playerId) ?: false
             },
+            purchases = shopPurchases,
+            carried = carriedItems,
         )
         val shopIntentHandler = ShopIntentHandler(
             purchase = shopPurchase,
@@ -404,7 +421,7 @@ public object EconomyWiring {
                 "$betPoliciesContentDir (failed: ${bettingPoliciesReport.failed})",
         )
         registrations += services.register<IBettingPolicyRegistry>(bettingPolicies, priority = 0)
-        // F3-9 (ADR-0201): `/astera admin reload bet-policies`; `reload all` picks it up too.
+        // F3-9 (ADR-0224): `/astera admin reload bet-policies`; `reload all` picks it up too.
         services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
             .register(bettingPolicies, betPoliciesContentDir)
 

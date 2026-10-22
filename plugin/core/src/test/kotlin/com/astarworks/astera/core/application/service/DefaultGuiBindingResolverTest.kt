@@ -1,7 +1,6 @@
 package com.astarworks.astera.core.application.service
 
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
-import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.TransferResult
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.attribute.AttributeKey
@@ -15,8 +14,6 @@ import com.astarworks.astera.core.domain.gui.BindingKey
 import com.astarworks.astera.core.domain.gui.ResolvedReactiveSlot
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
-import com.astarworks.astera.core.domain.player.Loadout
-import com.astarworks.astera.core.domain.player.LoadoutSlot
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -32,20 +29,6 @@ import java.util.UUID
  * - graceful degradation when providers return null (publishing plugin not loaded yet)
  */
 class DefaultGuiBindingResolverTest {
-
-    /** Inline fake of [ILoadoutRepository]; backed by a mutable map. */
-    private class FakeLoadoutRepo : ILoadoutRepository {
-        private val store: MutableMap<PlayerId, Loadout> = mutableMapOf()
-
-        override fun find(playerId: PlayerId): Loadout? = store[playerId]
-
-        override fun save(playerId: PlayerId, loadout: Loadout) {
-            store[playerId] = loadout
-        }
-
-        override fun all(): Collection<Pair<PlayerId, Loadout>> =
-            store.entries.map { it.key to it.value }
-    }
 
     /** Inline fake of [ICurrencyLedger] sufficient for `balance` reads. */
     private class FakeLedger(private val balances: Map<Pair<PlayerId, Currency>, Long>) : ICurrencyLedger {
@@ -85,146 +68,13 @@ class DefaultGuiBindingResolverTest {
 
     private fun playerId(): PlayerId = PlayerId(UUID.randomUUID())
 
-    // ----- player.loadout.<slot> (regression) -------------------------------
-
-    @Test
-    fun `resolve player_loadout_main returns the configured ItemId wrapped in ResolvedReactiveSlot`() {
-        val repo = FakeLoadoutRepo()
-        val player = playerId()
-        repo.save(player, Loadout(mapOf(LoadoutSlot.MAIN to ItemId("example-sword"))))
-
-        val resolver = DefaultGuiBindingResolver(loadouts = repo)
-
-        val result = resolver.resolve(BindingKey("player.loadout.main"), player)
-
-        assertThat(result).isEqualTo(ResolvedReactiveSlot(itemId = ItemId("example-sword")))
-        // Numeric overrides remain null — loadout bindings only pick an icon
-        assertThat(result?.displayOverride).isNull()
-        assertThat(result?.loreOverride).isNull()
-        assertThat(result?.countOverride).isNull()
-    }
-
-    @Test
-    fun `resolve player_loadout_sub returns null when slot is empty`() {
-        val repo = FakeLoadoutRepo()
-        val player = playerId()
-        repo.save(player, Loadout(mapOf(LoadoutSlot.MAIN to ItemId("example-sword"))))
-
-        val resolver = DefaultGuiBindingResolver(loadouts = repo)
-
-        assertThat(resolver.resolve(BindingKey("player.loadout.sub"), player)).isNull()
-    }
-
-    @Test
-    fun `resolve when viewer is null returns null`() {
-        val repo = FakeLoadoutRepo()
-        repo.save(playerId(), Loadout(mapOf(LoadoutSlot.MAIN to ItemId("example-sword"))))
-
-        val resolver = DefaultGuiBindingResolver(loadouts = repo)
-
-        assertThat(resolver.resolve(BindingKey("player.loadout.main"), viewer = null)).isNull()
-    }
-
-    @Test
-    fun `resolve when loadout repo has no entry returns null`() {
-        val repo = FakeLoadoutRepo() // empty
-        val resolver = DefaultGuiBindingResolver(loadouts = repo)
-
-        assertThat(resolver.resolve(BindingKey("player.loadout.main"), playerId())).isNull()
-    }
-
-    @Test
-    fun `resolve unknown slot token returns null`() {
-        val repo = FakeLoadoutRepo()
-        val player = playerId()
-        repo.save(player, Loadout(mapOf(LoadoutSlot.MAIN to ItemId("example-sword"))))
-
-        val resolver = DefaultGuiBindingResolver(loadouts = repo)
-
-        assertThat(resolver.resolve(BindingKey("player.loadout.invalid"), player)).isNull()
-    }
-
-    @Test
-    fun `every LoadoutSlot variant is resolvable via its lowercase token`() {
-        val repo = FakeLoadoutRepo()
-        val player = playerId()
-
-        val pins: Map<LoadoutSlot, ItemId> = LoadoutSlot.entries
-            .associateWith { ItemId("pin-${it.name.lowercase()}") }
-        repo.save(player, Loadout(pins))
-
-        val resolver = DefaultGuiBindingResolver(loadouts = repo)
-
-        LoadoutSlot.entries.forEach { slot ->
-            val key = BindingKey("player.loadout.${slot.name.lowercase()}")
-            val resolved = resolver.resolve(key, player)
-            assertThat(resolved?.itemId)
-                .describedAs("slot %s should resolve via token %s", slot, slot.name.lowercase())
-                .isEqualTo(ItemId("pin-${slot.name.lowercase()}"))
-        }
-    }
-
-    @Test
-    fun `lazy provider variant defers loadout repo lookup until resolve is called`() {
-        val repo = FakeLoadoutRepo()
-        val player = playerId()
-        repo.save(player, Loadout(mapOf(LoadoutSlot.ULTIMATE to ItemId("nova-blade"))))
-
-        var providerCalls = 0
-        val resolver = DefaultGuiBindingResolver(
-            loadoutsProvider = {
-                providerCalls += 1
-                repo
-            },
-        )
-
-        assertThat(providerCalls).isZero()
-
-        val result = resolver.resolve(BindingKey("player.loadout.ultimate"), player)
-
-        assertThat(result?.itemId).isEqualTo(ItemId("nova-blade"))
-        assertThat(providerCalls).isEqualTo(1)
-    }
-
-    @Test
-    fun `lazy provider is not called when viewer is null`() {
-        var providerCalls = 0
-        val resolver = DefaultGuiBindingResolver(
-            loadoutsProvider = {
-                providerCalls += 1
-                FakeLoadoutRepo()
-            },
-        )
-
-        val result = resolver.resolve(BindingKey("player.loadout.main"), viewer = null)
-
-        assertThat(result).isNull()
-        assertThat(providerCalls).isZero()
-    }
-
-    @Test
-    fun `lazy provider is not called for unknown slot tokens`() {
-        var providerCalls = 0
-        val resolver = DefaultGuiBindingResolver(
-            loadoutsProvider = {
-                providerCalls += 1
-                FakeLoadoutRepo()
-            },
-        )
-
-        val result = resolver.resolve(BindingKey("player.loadout.invalid"), playerId())
-
-        assertThat(result).isNull()
-        assertThat(providerCalls).isZero()
-    }
-
     // ----- player.coins.<currency> (Wave 5f new) ----------------------------
 
     @Test
     fun `resolve player_coins_star returns indicator-coin-star with balance count`() {
         val player = playerId()
         val ledger = FakeLedger(mapOf((player to Currency.STAR) to 7L))
-        val resolver = DefaultGuiBindingResolver(loadouts = null, wallet = ledger)
+        val resolver = DefaultGuiBindingResolver(wallet = ledger)
 
         val result = resolver.resolve(BindingKey("player.coins.star"), player)
 
@@ -239,7 +89,7 @@ class DefaultGuiBindingResolverTest {
     fun `resolve player_coins_gold clamps zero balance to 1`() {
         val player = playerId()
         val ledger = FakeLedger(emptyMap()) // balance returns 0
-        val resolver = DefaultGuiBindingResolver(loadouts = null, wallet = ledger)
+        val resolver = DefaultGuiBindingResolver(wallet = ledger)
 
         val result = resolver.resolve(BindingKey("player.coins.gold"), player)
 
@@ -252,7 +102,7 @@ class DefaultGuiBindingResolverTest {
     fun `resolve player_coins_gem clamps very large balance to 64`() {
         val player = playerId()
         val ledger = FakeLedger(mapOf((player to Currency.GEM) to 9_999_999L))
-        val resolver = DefaultGuiBindingResolver(loadouts = null, wallet = ledger)
+        val resolver = DefaultGuiBindingResolver(wallet = ledger)
 
         val result = resolver.resolve(BindingKey("player.coins.gem"), player)
 
@@ -263,7 +113,7 @@ class DefaultGuiBindingResolverTest {
     fun `resolve unknown currency token returns null`() {
         val player = playerId()
         val ledger = FakeLedger(emptyMap())
-        val resolver = DefaultGuiBindingResolver(loadouts = null, wallet = ledger)
+        val resolver = DefaultGuiBindingResolver(wallet = ledger)
 
         assertThat(resolver.resolve(BindingKey("player.coins.dogecoin"), player)).isNull()
     }
@@ -272,7 +122,6 @@ class DefaultGuiBindingResolverTest {
     fun `resolve player_coins_star degrades to null when wallet provider returns null`() {
         // Economy plugin not yet loaded → walletProvider returns null
         val resolver = DefaultGuiBindingResolver(
-            loadoutsProvider = { null },
             walletProvider = { null },
         )
 
@@ -290,7 +139,6 @@ class DefaultGuiBindingResolverTest {
         container.set(Attributes.STAT_KILLS, AttributeValue.NumberValue(12.0))
 
         val resolver = DefaultGuiBindingResolver(
-            loadouts = null,
             stats = { p -> if (p == player) container else null },
         )
 
@@ -309,7 +157,6 @@ class DefaultGuiBindingResolverTest {
         val container = FakeContainer() // STAT_KILLS unset → effectiveNumber == 0
 
         val resolver = DefaultGuiBindingResolver(
-            loadouts = null,
             stats = { container },
         )
 
@@ -325,7 +172,6 @@ class DefaultGuiBindingResolverTest {
         container.set(Attributes.STAT_KILLS, AttributeValue.NumberValue(999.0))
 
         val resolver = DefaultGuiBindingResolver(
-            loadouts = null,
             stats = { container },
         )
 
@@ -337,7 +183,6 @@ class DefaultGuiBindingResolverTest {
     @Test
     fun `resolve player_kills degrades to null when stats provider returns null`() {
         val resolver = DefaultGuiBindingResolver(
-            loadoutsProvider = { null },
             playerStatsProvider = { null },
         )
 
@@ -351,8 +196,7 @@ class DefaultGuiBindingResolverTest {
     @Test
     fun `resolve unsupported binding prefix returns null`() {
         val resolver = DefaultGuiBindingResolver(
-            loadoutsProvider = { FakeLoadoutRepo() },
-            walletProvider = { FakeLedger(emptyMap()) },
+                        walletProvider = { FakeLedger(emptyMap()) },
             playerStatsProvider = { FakeContainer() },
         )
 

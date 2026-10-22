@@ -13,11 +13,9 @@ lore:
   ja:
     - "<gray>右クリック: 射撃</gray>"
     - "<gray>Q: リロード</gray>"
-    - "<dark_gray>rarity: common / level: 1</dark_gray>"
   en:
     - "<gray>Right-click: shoot</gray>"
     - "<gray>Q: reload</gray>"
-    - "<dark_gray>rarity: common / level: 1</dark_gray>"
 
 rarity: common
 level_requirement: 1

@@ -3,6 +3,7 @@ package com.astarworks.astera.core.application.service.lobby
 import com.astarworks.astera.core.application.config.LobbyMenuKitEntryYaml
 import com.astarworks.astera.core.application.config.LobbyMenuKitYamlConfig
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.lobby.HotbarLayout
 import com.astarworks.astera.core.domain.lobby.KitArea
 import com.astarworks.astera.core.domain.lobby.LobbyMenuKit
 import com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy
@@ -26,8 +27,8 @@ class LobbyMenuKitTest {
         LobbyMenuKitContent.build(LobbyMenuKitYamlConfig(entries.toList()))
 
     @Test
-    fun `shipped kit has the compass in hotbar slot 0 opening the main menu`() {
-        val compass = kit.at(KitArea.HOTBAR, 0)!!
+    fun `shipped kit has the compass in hotbar slot 8 opening the main menu`() {
+        val compass = kit.at(KitArea.HOTBAR, 8)!!
         assertThat(compass.itemId.value).isEqualTo("menu-compass")
         assertThat(compass.intent.key).isEqualTo("gui.open")
         assertThat(compass.intent.payload).containsEntry("gui", "main-menu")
@@ -63,19 +64,40 @@ class LobbyMenuKitTest {
     }
 
     @Test
+    fun `shipped hotbar kit is compact and leaves the weapon zone free`() {
+        val slots = kit.entries(KitArea.HOTBAR).map { it.slot }
+        assertThat(slots).isSubsetOf(*HotbarLayout.KIT_SLOTS.toList().toTypedArray())
+        assertThat(slots.size).isLessThanOrEqualTo(4)
+    }
+
+    @Test
+    fun `a kit entry in the weapon zone is rejected`() {
+        assertThat(build(yaml("a", "hotbar", 0))).isInstanceOf(Result.Failure::class.java)
+        assertThat(build(yaml("a", "hotbar", 4))).isInstanceOf(Result.Failure::class.java)
+    }
+
+    @Test
+    fun `weapons take the first free weapon-zone slot while the kit is active, any slot in a match`() {
+        assertThat(HotbarLayout.firstFreeSlot(setOf(0, 1, 5, 6, 7, 8), kitActive = true)).isEqualTo(2)
+        assertThat(HotbarLayout.firstFreeSlot(setOf(0, 1, 2, 3, 4, 5, 6, 7, 8), kitActive = true)).isNull()
+        assertThat(HotbarLayout.firstFreeSlot(setOf(0, 1, 2, 3, 4), kitActive = true)).isNull()
+        assertThat(HotbarLayout.firstFreeSlot(setOf(0, 1, 2, 3, 4), kitActive = false)).isEqualTo(5)
+    }
+
+    @Test
     fun `hotbar slots stay in 0 to 8 and every slot is used once`() {
         assertThat(build(yaml("a", "hotbar", 9))).isInstanceOf(Result.Failure::class.java)
-        assertThat(build(yaml("a", "hotbar", 1), yaml("b", "hotbar", 1))).isInstanceOf(Result.Failure::class.java)
-        assertThat(build(yaml("a", "hotbar", 1), yaml("a", "hotbar", 2))).isInstanceOf(Result.Failure::class.java)
+        assertThat(build(yaml("a", "hotbar", 6), yaml("b", "hotbar", 6))).isInstanceOf(Result.Failure::class.java)
+        assertThat(build(yaml("a", "hotbar", 6), yaml("a", "hotbar", 7))).isInstanceOf(Result.Failure::class.java)
         assertThat(build(yaml("a", "crafting_grid", 4))).isInstanceOf(Result.Failure::class.java)
         assertThat(build(yaml("a", "crafting_result", 1))).isInstanceOf(Result.Failure::class.java)
         assertThat(build(yaml("a", "sideways", 0))).isInstanceOf(Result.Failure::class.java)
-        assertThat(build(yaml("a", "hotbar", 1), yaml("b", "crafting_grid", 1))).isInstanceOf(Result.Success::class.java)
+        assertThat(build(yaml("a", "hotbar", 6), yaml("b", "crafting_grid", 1))).isInstanceOf(Result.Success::class.java)
     }
 
     @Test
     fun `a malformed intent key is reported, not thrown`() {
-        assertThat(build(yaml("a", "hotbar", 0, intent = "Bad Key"))).isInstanceOf(Result.Failure::class.java)
+        assertThat(build(yaml("a", "hotbar", 5, intent = "Bad Key"))).isInstanceOf(Result.Failure::class.java)
     }
 
     @Test

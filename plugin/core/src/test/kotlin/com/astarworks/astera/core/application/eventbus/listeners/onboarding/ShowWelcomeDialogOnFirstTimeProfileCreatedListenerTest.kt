@@ -24,7 +24,7 @@ class ShowWelcomeDialogOnFirstTimeProfileCreatedListenerTest {
     private fun makeProfileService(welcomeId: String?): InMemoryPlayerProfileService {
         return InMemoryPlayerProfileService(
             starterGrant = StarterGrant(
-                defaultLoadout = emptyList(),
+                starterItems = emptyList(),
                 walletGrants = emptyMap(),
                 tutorialAutoEnroll = false,
                 tutorialScriptId = null,

@@ -3,6 +3,7 @@ package com.astarworks.astera.economy.application.config
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.shop.PurchaseLimit
 import com.astarworks.astera.core.domain.shop.ShopId
 import com.astarworks.astera.core.domain.shop.ShopOffer
 import com.astarworks.astera.core.domain.shop.ShopOfferId
@@ -58,6 +59,9 @@ public data class ShopOfferYamlConfig(
     val price: PriceYamlConfig,
     val stock: StockYamlConfig,
     @SerialName("display_key") val displayKey: String? = null,
+    /** `once` (default: an unlock, paid once) or `unlimited` (consumable). */
+    val limit: String = "once",
+    val category: String? = null,
 ) {
     public fun toDomain(): ShopOffer = ShopOffer(
         id = ShopOfferId(id),
@@ -65,6 +69,8 @@ public data class ShopOfferYamlConfig(
         price = price.toDomain(),
         stock = stock.toDomain(),
         displayKey = displayKey?.let { MessageKey(it) },
+        limit = PurchaseLimit.valueOf(limit.uppercase()),
+        category = category,
     )
 }
 

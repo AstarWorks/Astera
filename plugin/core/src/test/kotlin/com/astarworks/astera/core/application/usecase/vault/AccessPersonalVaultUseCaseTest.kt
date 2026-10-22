@@ -26,7 +26,7 @@ class AccessPersonalVaultUseCaseTest {
         val shown = mutableListOf<PersonalVault>()
         var onClose: (PlayerId) -> Unit = {}
         override fun closeFor(playerId: PlayerId) = onClose(playerId)
-        override fun show(vault: PersonalVault): Boolean {
+        override fun show(vault: PersonalVault, page: Int): Boolean {
             shown += vault
             return accept
         }
@@ -129,7 +129,7 @@ class AccessPersonalVaultUseCaseTest {
     @Test
     fun `save rejects a slot outside the chest and the aggregate rejects duplicate slots`() {
         // Construction guards the slot range; the use case is the second line of defence for hosts.
-        assertThatThrownBy { PersonalVault.VaultItem(slot = PersonalVault.SLOT_COUNT, itemId = "x", count = 1) }
+        assertThatThrownBy { PersonalVault.VaultItem(slot = PersonalVault.CAPACITY, itemId = "x", count = 1) }
             .isInstanceOf(IllegalArgumentException::class.java)
         assertThatThrownBy {
             PersonalVault(

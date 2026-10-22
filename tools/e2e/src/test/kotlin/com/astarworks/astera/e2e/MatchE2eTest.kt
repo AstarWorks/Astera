@@ -48,7 +48,11 @@ class MatchE2eTest : E2eBase() {
             val hb = b.hotbar()
             val server = serverSlots(b)
             E2eReport.notes += "Match: server-side inventory ids of ${b.name} during the match: $server; client worlds=${b.worldHistory}"
-            assertThat(hb.filter { it != -1 }).describedAs("hotbar still holds items in match: $hb (lobby hotbar was $lobbyHotbar)").isEmpty()
+            // HotbarLayout (ADR-0211): the lobby kit lives in slots 5..8; in a match none of those items may remain
+            // (weapons - owned or the loaner kit - are fine).
+            val lobbyKitIds = (5..8).map { lobbyHotbar[it] }.filter { it != -1 }.toSet()
+            assertThat(lobbyKitIds).describedAs("lobby had no kit in 5..8: $lobbyHotbar").isNotEmpty()
+            assertThat(hb.filter { it in lobbyKitIds }).describedAs("lobby kit items still in match hotbar: $hb (lobby hotbar was $lobbyHotbar)").isEmpty()
             "hotbar in lobby=$lobbyHotbar; in match=$hb; crafting area=${b.craftingArea()}; server-side: $server; client worlds=${b.worldHistory}"
         }
 
@@ -70,12 +74,12 @@ class MatchE2eTest : E2eBase() {
         val endReply = b.chatSince(endBefore)
         val back = b.waitUntil(30_000) { b.positionPackets.get() > posAtEnd || b.worldHistory.size > worldsAtEnd }
         b.waitUntil(5_000) { b.sidebarLines() != matchLines }
-        b.waitUntil(5_000) { b.hotbar().any { it != -1 } }
+        b.waitUntil(5_000) { (5..8).all { b.hotbar()[it] != -1 } }
         E2eReport.check(suite, "/astera match end returns the bot to the lobby", "SystemChat + sidebar + inventory") {
             assertThat(matchId).describedAs("no match id").isNotNull()
             assertThat(rawKeys(endReply)).describedAs("raw i18n keys").isEmpty()
             assertThat(back).describedAs("no teleport back to the lobby within 30s after match end; sidebar now='${b.sidebarTitle()}' ${b.sidebarLines()}; end reply=$endReply").isTrue()
-            assertThat(b.hotbar().any { it != -1 }).describedAs("lobby kit did not come back: ${b.hotbar()}").isTrue()
+            assertThat((5..8).all { b.hotbar()[it] != -1 }).describedAs("lobby kit did not come back in slots 5..8: ${b.hotbar()}").isTrue()
             "end reply:\n${quote(endReply)}\nsidebar='${b.sidebarTitle()}' world=${b.worldName} (lobby world was $lobbyWorld); hotbar=${b.hotbar()}"
         }
     }

@@ -1,0 +1,15 @@
+{
+  "name": "astera-skill-viewer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Static three.js replay viewer + headless frame renderer for :tools:game-sim traces (ADR-0225)",
+  "scripts": {
+    "build": "bun build src/main.js --outfile dist/viewer.js --target browser --minify && cp src/index.html dist/index.html",
+    "render": "bun scripts/render.mjs"
+  },
+  "dependencies": {
+    "three": "0.170.0",
+    "playwright-core": "1.58.2"
+  }
+}

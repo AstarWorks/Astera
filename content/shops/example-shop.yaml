@@ -8,13 +8,17 @@
 # A new player starts with 150 STAR (content/balance/starter-grant.yaml): the cheapest offer is
 # affordable at once, everything else has to be earned.
 # Offers priced at >= 100 need a confirming second click in the GUI (ShopIntentHandler.CONFIRM_AT).
-# offers iterate in YAML order, 9 per GUI row (max 45), footer row = wallet.
+# Offers iterate in YAML order, 9 per GUI row, 45 per page; the footer row holds paging, the category
+# cycle (when offers declare `category:`), the wallet and the purchase history (ADR-0211).
+# `limit: once` (default) = an unlock paid once, re-claimable for free if the item is lost;
+# `limit: unlimited` = a consumable, paid on every purchase.
 id: example-shop
 display_key: astera.economy.shop.example-shop.title
 
 offers:
   - id: pistol
     item: pistol
+    category: gun
     price:
       currency: STAR
       amount: 120
@@ -23,6 +27,7 @@ offers:
     display_key: astera.economy.shop.example-shop.offer.pistol-basic
   - id: knight-sword
     item: knight-sword
+    category: sword
     price:
       currency: STAR
       amount: 100
@@ -31,6 +36,7 @@ offers:
     display_key: astera.economy.shop.example-shop.offer.knight-sword
   - id: dagger
     item: dagger
+    category: sword
     price:
       currency: STAR
       amount: 140
@@ -39,6 +45,7 @@ offers:
     display_key: astera.economy.shop.example-shop.offer.dagger
   - id: frost-staff
     item: frost-staff
+    category: staff
     price:
       currency: STAR
       amount: 150
@@ -47,6 +54,7 @@ offers:
     display_key: astera.economy.shop.example-shop.offer.frost-staff
   - id: fire-staff
     item: fire-staff
+    category: staff
     price:
       currency: STAR
       amount: 200
@@ -55,6 +63,7 @@ offers:
     display_key: astera.economy.shop.example-shop.offer.fire-staff
   - id: shotgun
     item: shotgun
+    category: gun
     price:
       currency: STAR
       amount: 260
@@ -63,6 +72,7 @@ offers:
     display_key: astera.economy.shop.example-shop.offer.shotgun
   - id: rifle
     item: rifle
+    category: gun
     price:
       currency: STAR
       amount: 300
@@ -71,6 +81,7 @@ offers:
     display_key: astera.economy.shop.example-shop.offer.rifle
   - id: verdant-staff
     item: verdant-staff
+    category: staff
     price:
       currency: STAR
       amount: 320
@@ -79,6 +90,7 @@ offers:
     display_key: astera.economy.shop.example-shop.offer.verdant-staff
   - id: greatsword
     item: greatsword
+    category: sword
     price:
       currency: GOLD
       amount: 120
@@ -87,6 +99,7 @@ offers:
     display_key: astera.economy.shop.example-shop.offer.greatsword
   - id: thunder-staff
     item: thunder-staff
+    category: staff
     price:
       currency: GOLD
       amount: 150

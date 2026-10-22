@@ -27,6 +27,15 @@ help: ## Show this help
 build: ## Build the 7 Astera plugin shadow jars (plugin/*/build/libs/astera-*.jar)
 	$(GRADLEW) $(foreach p,core items combat match stats economy persistence,:plugin:$(p):shadowJar)
 
+.PHONY: skill-frames
+skill-frames: ## Render PNG frames + contact sheet + GIF for one skill: make skill-frames SKILL=simple-shoot
+	@test -n "$(SKILL)" || { echo "usage: make skill-frames SKILL=<skill id>"; exit 2; }
+	$(GRADLEW) :tools:skill-viewer:render -Pscenario=$(SKILL)
+
+.PHONY: skill-frames-all
+skill-frames-all: ## Contact sheets for every skill (tools/skill-viewer/build/skill-frames/<skill>/sheet.png)
+	$(GRADLEW) :tools:skill-viewer:render
+
 .PHONY: check
 check: ## Run unit tests + Konsist architecture tests
 	$(GRADLEW) check
@@ -144,7 +153,7 @@ private-update: ## Pull the latest commit from the private/ submodule
 	git submodule update --remote private
 
 # ----------------------------------------------------------------------------
-# in-game E2E with protocol bots (QA-1, ADR-0186) - needs docker, not part of `check`
+# in-game E2E with protocol bots (QA-1, ADR-0222) - needs docker, not part of `check`
 # ----------------------------------------------------------------------------
 
 .PHONY: e2e
@@ -154,3 +163,11 @@ e2e: ## Boot the offline e2e backend, run the MCProtocolLib bot suite, write bui
 .PHONY: e2e-down
 e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, volumes, images)
 	bash scripts/e2e.sh down
+
+# ----------------------------------------------------------------------------
+# bots inside the LIVE stack (QA-2, ADR-0221) - Velocity modern forwarding, needs the astera-dev stack
+# ----------------------------------------------------------------------------
+
+.PHONY: live-bots
+live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=smoke|weapons|match|all (report: build/live-report.md)
+	bash scripts/live-bots.sh $(or $(SCENARIO),all)

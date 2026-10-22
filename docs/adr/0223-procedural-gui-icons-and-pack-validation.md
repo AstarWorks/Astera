@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0199: Procedural GUI / kit / skill-kind icons and pack validation
+# ADR-0223: Procedural GUI / kit / skill-kind icons and pack validation
 
 ## Status
 

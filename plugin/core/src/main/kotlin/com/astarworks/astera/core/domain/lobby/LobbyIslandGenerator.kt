@@ -19,7 +19,7 @@ import kotlin.random.Random
  * Layout (offsets from the plaza/fountain centre, +x east, +z south):
  *  - main island r27 with the plaza (r10), fountain, benches, lamp posts, signposts,
  *    a stream that falls off the west rim, trees and flowers; spawn 6 blocks south of the fountain.
- *  - market island east (47, 0): shop and loadout stalls.
+ *  - market island east (47, 0): shop and gear-keeper stalls.
  *  - queue island south (0, 50): one pad + sign board per queue lane ([LobbyLanePadLayout]), queue master.
  *  - garden island west (-44, 0): pond and a waterfall over the rim.
  *  - pavilion island north (0, -42): gazebo viewpoint.
@@ -50,7 +50,7 @@ public object LobbyIslandGenerator {
             r * (1.0 + 0.09 * sin(2 * theta + p1) + 0.06 * sin(3 * theta + p2) + 0.04 * sin(5 * theta + p3))
     }
 
-    private enum class Stall { SHOP, LOADOUT }
+    private enum class Stall { SHOP, GEAR }
 
     private class Builder(val seed: Long, val cx: Int, val cz: Int, val s: Int, val lanes: List<String>) {
         private val blocks = HashMap<LobbyBlockPos, String>(80_000)
@@ -385,7 +385,7 @@ public object LobbyIslandGenerator {
                 set(mx + px, s, mz + pz, "minecraft:coarse_dirt")
             }
             stall(mx, mz - 6, 0, 1, Stall.SHOP, "shop-npc")
-            stall(mx, mz + 6, 0, -1, Stall.LOADOUT, "loadout-npc")
+            stall(mx, mz + 6, 0, -1, Stall.GEAR, "gear-keeper-npc")
         }
 
         /** Market stall: NPC at (nx, nz), customers approach from direction (dx, dz). */
@@ -401,14 +401,14 @@ public object LobbyIslandGenerator {
             }
             val (roofA, roofB) = when (kind) {
                 Stall.SHOP -> "minecraft:red_wool" to "minecraft:white_wool"
-                Stall.LOADOUT -> "minecraft:blue_wool" to "minecraft:white_wool"
+                Stall.GEAR -> "minecraft:blue_wool" to "minecraft:white_wool"
             }
             for (u in -3..3) {
                 for (v in -2..2) w(u, v, s + 4, if (u and 1 == 0) roofA else roofB)
                 // back wall
                 val wall = when (kind) {
                     Stall.SHOP -> "minecraft:oak_planks"
-                    Stall.LOADOUT -> "minecraft:spruce_planks"
+                    Stall.GEAR -> "minecraft:spruce_planks"
                 }
                 for (y in 1..3) w(u, -2, s + y, if (u == -3 || u == 3) "minecraft:stripped_oak_log[axis=y]" else wall)
             }
@@ -420,7 +420,7 @@ public object LobbyIslandGenerator {
                 if (u == -2 || u == 2) w(u, 1, s + 2, "minecraft:lantern[hanging=false]")
                 when (kind) {
                     Stall.SHOP -> w(u, -2, s + 2, if (u and 1 == 0) "minecraft:bookshelf" else "minecraft:oak_planks")
-                    Stall.LOADOUT -> if (u == 0) w(u, -2, s + 1, "minecraft:cartography_table")
+                    Stall.GEAR -> if (u == 0) w(u, -2, s + 1, "minecraft:cartography_table")
                 }
             }
             npcSpots[npcId] = LobbyNpcSpot(
@@ -431,7 +431,7 @@ public object LobbyIslandGenerator {
 
         private fun counterBlock(kind: Stall, u: Int, face: String): String = when (kind) {
             Stall.SHOP -> if (u == -2 || u == 2) "minecraft:barrel[facing=up]" else "minecraft:oak_planks"
-            Stall.LOADOUT -> when (u) {
+            Stall.GEAR -> when (u) {
                 -1, 1 -> "minecraft:loom[facing=$face]"
                 0 -> "minecraft:spruce_planks"
                 else -> "minecraft:barrel[facing=up]"

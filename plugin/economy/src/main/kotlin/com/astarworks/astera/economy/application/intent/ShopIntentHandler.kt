@@ -67,6 +67,16 @@ public class ShopIntentHandler(
     public fun handle(intent: GuiIntent, player: IMcPlayer) {
         when (intent.key) {
             INTENT_PURCHASE -> handlePurchase(intent, player)
+            ShopBrowseUseCase.INTENT_PAGE -> handleBrowse(intent, player) { shopId ->
+                browse.execute(
+                    player.id,
+                    shopId,
+                    page = intent.payload["page"]?.toIntOrNull() ?: 0,
+                    category = intent.payload["category"]?.takeIf { it.isNotBlank() },
+                )
+            }
+            ShopBrowseUseCase.INTENT_HISTORY -> handleBrowse(intent, player) { browse.history(player.id, it) }
+            ShopBrowseUseCase.INTENT_OPEN -> handleBrowse(intent, player) { browse.execute(player.id, it, page = 0) }
             else -> log.warn(
                 "Unknown shop intent '{}' from player {} — payload={}",
                 intent.key,
@@ -74,6 +84,20 @@ public class ShopIntentHandler(
                 intent.payload,
             )
         }
+    }
+
+    private fun handleBrowse(
+        intent: GuiIntent,
+        player: IMcPlayer,
+        action: (ShopId) -> Result<Unit, *>,
+    ) {
+        val shopId = intent.payload[PAYLOAD_SHOP_ID]?.let { runCatching { ShopId(it) }.getOrNull() }
+        if (shopId == null) {
+            log.warn("{} intent without a valid shop_id from player {}: {}", intent.key, player.id, intent.payload)
+            send(player, MSG_FAILURE_GENERIC, emptyMap())
+            return
+        }
+        if (action(shopId) is Result.Failure) send(player, MSG_FAILURE_GENERIC, emptyMap())
     }
 
     private fun handlePurchase(intent: GuiIntent, player: IMcPlayer) {
@@ -106,6 +130,7 @@ public class ShopIntentHandler(
 
         val offer = registry.resolve(shopId)?.offer(offerId)
         if (offer != null && offer.price.amount >= CONFIRM_AT &&
+            !purchase.owns(player.id, shopId, offerId) &&
             ledger.balance(player.id, offer.price.currency) >= offer.price.amount
         ) {
             val now = clock.millis()
@@ -132,7 +157,7 @@ public class ShopIntentHandler(
                 val receipt = result.value
                 send(
                     player,
-                    MSG_SUCCESS,
+                    if (receipt.claimed) MSG_CLAIMED else MSG_SUCCESS,
                     mapOf(
                         "shop_id" to shopId.value,
                         "offer_id" to offerId.value,
@@ -184,6 +209,8 @@ public class ShopIntentHandler(
                         "have" to have.toString(),
                         "short" to (need - have).toString(),
                     ))
+            is ShopPurchaseError.AlreadyCarrying ->
+                MessageKey("astera.economy.shop.purchase.already_carrying") to base
             is ShopPurchaseError.BlockedInMatch ->
                 MessageKey("astera.economy.shop.purchase.blocked_in_match") to base
             is ShopPurchaseError.DeliveryFailed ->
@@ -203,6 +230,7 @@ public class ShopIntentHandler(
         public const val PAYLOAD_OFFER_ID: String = "offer_id"
 
         private val MSG_SUCCESS = MessageKey("astera.economy.shop.purchase.success")
+        private val MSG_CLAIMED = MessageKey("astera.economy.shop.purchase.claimed")
         private val MSG_CONFIRM = MessageKey("astera.economy.shop.purchase.confirm")
         private val MSG_FAILURE_GENERIC = MessageKey("astera.economy.shop.purchase.failure_generic")
     }

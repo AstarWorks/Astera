@@ -11,10 +11,8 @@ name:
 lore:
   ja:
     - "<gray>左クリック: 薙ぎ払い（広範囲・大ノックバック）</gray>"
-    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
   en:
     - "<gray>Left-click: cleave (wide arc, heavy knockback)</gray>"
-    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
 
 rarity: rare
 level_requirement: 3

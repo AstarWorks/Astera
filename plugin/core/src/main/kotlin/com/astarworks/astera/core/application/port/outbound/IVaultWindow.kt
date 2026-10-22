@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.vault.PersonalVault
  */
 public interface IVaultWindow {
     /** @return `true` if the window was shown, `false` if the owner is offline / refused. */
-    public fun show(vault: PersonalVault): Boolean
+    public fun show(vault: PersonalVault, page: Int = 0): Boolean
 
     /**
      * Closes [playerId]'s open vault window, if any, which persists its contents. Called before the

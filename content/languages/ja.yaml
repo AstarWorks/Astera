@@ -334,7 +334,12 @@ astera:
 
   # WP12: personal vault (= ender chest), /vault + vanilla ender chest block.
   vault:
-    title: "パーソナルヴォルト"
+    title: "個人ヴォルト ({page}/{pages})"
+    nav:
+      prev: "<yellow>前のページ <gray>({page}/{pages})</gray></yellow>"
+      next: "<yellow>次のページ <gray>({page}/{pages})</gray></yellow>"
+      sort: "<gold>このページを整理</gold> <gray>(スタックを統合し、種類順に並べ替え)</gray>"
+      page: "<white>{page} / {pages} ページ</white>"
     blocked-in-match: "<red>試合中はヴォルトを開けません。</red>"
     unavailable: "<red>ヴォルトを開けませんでした。</red>"
 
@@ -346,6 +351,25 @@ astera:
     fired: "<yellow>{player} が <gold>{item}</gold> を使用しました</yellow>"
     on_cooldown: "<red>{item} はクールダウン中です ({remaining})</red>"
     none_held: "<gray>アイテムを装備していません</gray>"
+    tooltip:
+      header: "{rarity} <dark_gray>- Lv.{level}</dark_gray>"
+      rarity:
+        common: "<white>コモン</white>"
+        uncommon: "<green>アンコモン</green>"
+        rare: "<aqua>レア</aqua>"
+        epic: "<light_purple>エピック</light_purple>"
+        legendary: "<gold>レジェンダリー</gold>"
+      stat:
+        attack_damage: "<gray>ダメージ: <white>{value}</white></gray>"
+        attack_speed: "<gray>攻撃速度: <white>{value}</white></gray>"
+        armor: "<gray>防御: <white>{value}</white></gray>"
+        armor_toughness: "<gray>強靭: <white>{value}</white></gray>"
+        max_health: "<gray>最大体力: <white>+{value}</white></gray>"
+        knockback_resistance: "<gray>ノックバック耐性: <white>{value}%</white></gray>"
+        move_speed: "<gray>移動速度: <white>{value}%</white></gray>"
+        magazine: "<gray>装弾数: <white>{value}</white></gray>"
+        cost_ammo: "<gray>1発の消費弾数: <white>{value}</white></gray>"
+        cost_energy: "<gray>1回の消費エネルギー: <white>{value}</white></gray>"
 
   permission:
     denied: "<red>権限がありません: {permission}</red>"
@@ -391,6 +415,8 @@ astera:
         tooltip: "<gray>クリックで PvE / サバイバル / ロビーへ移動。</gray>"
       profile:
         tooltip: "<gray>クリックでプロフィールを表示。</gray>"
+      training:
+        tooltip: "<gray>クリックで訓練場へ移動（全武器を無料で試せます）。</gray>"
     travel-menu:
       title: "<gold>移動</gold>"
       pve:
@@ -459,19 +485,8 @@ astera:
       norma:
         tooltip: "<gray>クリックで Norma ローテーションキューに参加。</gray>"
 
-  weapons:
-    command:
-      # See en.yaml for the rationale on the dotted "gui.loadout" key.
-      gui: "GUI コマンド"
-      "gui.loadout": "ロードアウト GUI を開く"
-      "gui.loadout.player_not_online": "<red>オンラインでないとこの GUI は開けません。</red>"
-      "gui.loadout.not_found": "<red>ロードアウト GUI が登録されていません。</red>"
-      "gui.loadout.open_rejected": "<red>ロードアウト GUI を開けませんでした。</red>"
-    loadout:
-      toggle:
-        ok: "ロードアウトを更新しました。"
 
-  # ── Wave 4.5 (ADR-0027): Shop / Loadout 永続化 / Norma / Match / Spawn ──
+  # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
   economy:
     currency:
       star: "<yellow>STAR</yellow>"
@@ -510,15 +525,40 @@ astera:
           confirm: "<gold><bold>もう一度クリックで購入確定！</bold></gold>"
           short: "<red>{currency} があと {missing} 足りません</red>"
           sold_out: "<dark_red>売り切れ</dark_red>"
+          carrying: "<green>所持中です</green>"
+          take_copy: "<yellow>クリックでもう1本受け取る（無料）</yellow>"
+        owned: "<green>購入済み <dark_gray>(一度買えば永久にあなたのもの)</dark_gray></green>"
+        page:
+          prev: "<yellow>前のページ <gray>({page}/{pages})</gray></yellow>"
+          next: "<yellow>次のページ <gray>({page}/{pages})</gray></yellow>"
+        category:
+          title: "<gold>カテゴリ: <white>{category}</white></gold>"
+          next: "<gray>クリックで切替: <white>{category}</white></gray>"
+        history:
+          title: "<gold>購入履歴</gold>"
+          hint: "<gray>クリックで購入した品を確認。</gray>"
+          gui_title: "購入履歴"
+          line: "<gray>{when} - <white>{amount}</white> {currency} で購入</gray>"
+          back: "<yellow>ショップに戻る</yellow>"
         wallet:
           title: "<gold>所持金</gold>"
           line: "<gray>{currency}: <white>{amount}</white></gray>"
+      category:
+        all: "すべて"
+        weapon: "武器"
+        gun: "銃"
+        sword: "剣"
+        staff: "杖"
+        armor: "防具"
+        consumable: "消耗品"
       browse:
         invalid_id: "<red>不正なショップ ID: {shop}</red>"
         player_not_online: "<red>ショップを開くにはオンラインである必要があります。</red>"
         not_found: "<red>ショップが見つかりません: {shop}</red>"
         open_rejected: "<red>ショップ GUI を開けませんでした。</red>"
       purchase:
+        claimed: "<green><gold>{offer}</gold> を受け取りました - 購入済みのため無料です。</green>"
+        already_carrying: "<yellow>そのアイテムは既に所持しています。</yellow>"
         success: "<green><gold>{offer}</gold> を {price} {currency} で購入しました。</green>"
         failure_generic: "<red>購入に失敗しました。</red>"
         player_not_online: "<red>購入にはオンラインである必要があります。</red>"
@@ -596,23 +636,6 @@ astera:
       fireball-cast:
         name: "<red>ファイアボール詠唱</red>"
 
-  loadout:
-    save:
-      success: "<green>ロードアウトの <gold>{slot}</gold> スロットを保存しました。</green>"
-      failed: "<red>ロードアウトの保存に失敗: {reason}</red>"
-    fetch:
-      success: "<green>ロードアウトを読み込みました。</green>"
-      empty: "<gray>ロードアウト未設定。</gray>"
-    slot:
-      main: "メイン"
-      sub: "サブ"
-      move: "移動"
-      special: "スペシャル"
-      armor: "防具"
-      ultimate: "アルティメット"
-    cleared: "<gray>{slot} スロットをクリアしました。</gray>"
-    apply:
-      on_match_start: "<gray>試合用のロードアウトを適用しました。</gray>"
 
   norma:
     toast: "<gold>ミッション達成</gold>"
@@ -1464,8 +1487,8 @@ astera:
         name: "旅の案内人"
       refinement:
         name: "強化師"
-      loadout:
-        name: "ロードアウトテーラー"
+      gear-keeper:
+        name: "装備キーパー"
       profile:
         name: "プロフィールキーパー"
       settings:
@@ -1898,7 +1921,7 @@ astera:
       skill:
         tooltip: "<gray>このスキルをバインドします。</gray>"
   tip:
-    "1": "<aqua>💡 ヒント:</aqua> <gray>コンパスでロビーメニューを開き、キュー・ロードアウト編集・ショップ閲覧ができます。</gray>"
+    "1": "<aqua>💡 ヒント:</aqua> <gray>コンパスでロビーメニューを開き、キュー・保管庫・ショップ閲覧ができます。</gray>"
     "2": "<aqua>💡 ヒント:</aqua> <gray>F キーでバインドしたスキルを発動。メニューの Hotbar タイルからスキルをバインドできます。</gray>"
     "3": "<aqua>💡 ヒント:</aqua> <gray>パーティを組んで一緒にキュー: <yellow>/party invite &lt;名前&gt;</yellow> で招待。</gray>"
     "4": "<aqua>💡 ヒント:</aqua> <gray>プロフィールタイルでアチーブメントを追跡 — 全ての達成が記録されます。</gray>"

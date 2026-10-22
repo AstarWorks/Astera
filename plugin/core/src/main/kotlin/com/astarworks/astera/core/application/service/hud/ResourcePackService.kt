@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicReference
 
 /**
- * The resource pack this server pushes, re-readable at runtime (F3-9, ADR-0201).
+ * The resource pack this server pushes, re-readable at runtime (F3-9, ADR-0224).
  *
  * The pack spec used to be read from the environment once at boot, so a rebuilt
  * pack (new sha1) needed a backend restart. [reload] runs [loader] again (the

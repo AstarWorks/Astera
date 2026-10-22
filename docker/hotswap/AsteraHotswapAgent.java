@@ -31,7 +31,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * DEV-ONLY hot code swap for the Astera plugins (F3-9, ADR-0201). Loaded with
+ * DEV-ONLY hot code swap for the Astera plugins (F3-9, ADR-0224). Loaded with
  * {@code -javaagent:/opt/astera-dev/hotswap-agent.jar} on a JetBrains Runtime started with
  * {@code -XX:+AllowEnhancedClassRedefinition}; never part of the production image.
  *

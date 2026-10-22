@@ -51,9 +51,9 @@ class ReportWriter : LauncherSessionListener {
         val results = E2eReport.results.toList()
         val sb = StringBuilder()
         val passed = results.count { it.passed }
-        sb.append("# Astera E2E report\n\n")
+        sb.append("# ${System.getProperty("astera.e2e.reportTitle", "Astera E2E report")}\n\n")
         sb.append("- generated: ${Instant.now()}\n")
-        sb.append("- backend: ${E2eEnv.host}:${E2eEnv.port} (docker compose profile `e2e`, ASTERA_SERVER_ROLE=all, offline mode)\n")
+        sb.append("- backend: ${System.getProperty("astera.e2e.backendDesc") ?: "${E2eEnv.host}:${E2eEnv.port} (docker compose profile `e2e`, ASTERA_SERVER_ROLE=all, offline mode)"}\n")
         sb.append("- result: **$passed / ${results.size} checks passed**, ${results.size - passed} failed\n\n")
         sb.append("| Suite | Check | Channel | Result |\n|---|---|---|---|\n")
         for (r in results) {

@@ -68,4 +68,31 @@ class ShopScenarioTest {
             }
         }
     }
+
+    @Test
+    fun `an owned unlock is never charged twice and the purchase shows up in the player history`() {
+        scenario("shop-ownership") {
+            val ledger = sim.services.getOrThrow<ICurrencyLedger>()
+            val buyer = player("owner")
+            advance(1)
+            dispatch(buyer, "lobby.shop.open")
+            buyClick(buyer, "knight-sword")
+            buyClick(buyer, "knight-sword") // confirming click: bought for 100
+            assertThat(ledger.balance(buyer.id, Currency.STAR)).isEqualTo(50L)
+
+            buyClick(buyer, "knight-sword") // owned: free replica or "already carrying", never a second charge
+            buyClick(buyer, "knight-sword")
+            assertThat(ledger.balance(buyer.id, Currency.STAR)).isEqualTo(50L)
+
+            dispatch(buyer, "shop.history", "shop_id" to "example-shop")
+            val view = checkNotNull(sim.server.view(buyer.id))
+            val spec = checkNotNull(sim.services.getOrThrow<IGuiAdapter>().currentSpec(view))
+            assertThat(spec.id.value).isEqualTo("shop-history")
+            assertThat((spec.slotAt(SlotIndex(0)) as GuiSlot.Static).itemId.value).isEqualTo("knight-sword")
+            assertThat(spec.slotAt(SlotIndex(1))).isNotInstanceOf(GuiSlot.Static::class.java)
+
+            dispatch(buyer, "shop.open", "shop_id" to "example-shop")
+            assertThat(checkNotNull(sim.services.getOrThrow<IGuiAdapter>().currentSpec(view)).id.value).isEqualTo("shop-example-shop")
+        }
+    }
 }
