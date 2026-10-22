@@ -33,6 +33,11 @@ public class InMemoryEntityDamageGateway : IEntityDamageGateway {
 
     override fun maxHitPoints(target: PlayerId): Double? = maxHp[target]
 
+    override fun heal(target: PlayerId, amount: Double) {
+        val current = hp[target]?.takeIf { it > 0.0 } ?: return
+        hp[target] = (current + amount).coerceAtMost(maxHp[target] ?: (current + amount))
+    }
+
     override fun isEntityTarget(target: PlayerId): Boolean = hp.containsKey(target)
 
     override fun apply(

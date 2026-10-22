@@ -23,9 +23,9 @@ class MechanicSupportTest {
     }
 
     @Test
-    fun `Heal is reported as not implemented`() {
-        val heal = Mechanic.Heal(Targeter.Caster, NumericValue.Literal(5.0))
-        assertThat(MechanicSupport.problemsOf(heal)).anyMatch { "Heal" in it && "not implemented" in it }
+    fun `Resurrect is reported as not implemented`() {
+        val heal = Mechanic.Resurrect(Targeter.Caster, NumericValue.Literal(0.5))
+        assertThat(MechanicSupport.problemsOf(heal)).anyMatch { "Resurrect" in it && "not implemented" in it }
     }
 
     @Test
@@ -74,8 +74,8 @@ class MechanicSupportTest {
 
     @Test
     fun `unsupported mechanic nested in a control-flow child is found`() {
-        val heal = Mechanic.Heal(Targeter.Caster, NumericValue.Literal(5.0))
+        val heal = Mechanic.Resurrect(Targeter.Caster, NumericValue.Literal(0.5))
         val loop = Mechanic.Loop(Targeter.Caster, count = com.astarworks.astera.core.domain.skill.value.IntValue.Literal(2), mechanics = listOf(sound, heal))
-        assertThat(MechanicSupport.problemsOf(loop)).anyMatch { "Heal" in it }
+        assertThat(MechanicSupport.problemsOf(loop)).anyMatch { "Resurrect" in it }
     }
 }

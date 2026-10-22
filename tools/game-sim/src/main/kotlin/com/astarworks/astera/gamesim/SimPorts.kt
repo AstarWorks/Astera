@@ -65,9 +65,15 @@ public class RecordingWorldGateway(
     private val spectatorSpawn: Vec3,
 ) : IWorldGateway {
 
-    override fun placeBlock(world: WorldId, at: Vec3, type: BlockType) = this.world.placeBlock(world, at, type)
+    override fun placeBlock(world: WorldId, at: Vec3, type: BlockType) {
+        this.world.placeBlock(world, at, type)
+        recorder.recordEffect(scheduler.currentTick(), "block_place", at, type.key)
+    }
 
-    override fun removeBlock(world: WorldId, at: Vec3) = this.world.removeBlock(world, at)
+    override fun removeBlock(world: WorldId, at: Vec3) {
+        this.world.removeBlock(world, at)
+        recorder.recordEffect(scheduler.currentTick(), "block_remove", at, "air")
+    }
 
     override fun blockAt(world: WorldId, at: Vec3): BlockType? = this.world.blockAt(world, at)
 
@@ -268,7 +274,17 @@ public class SimStatusEffectContainer(
 }
 
 /** [IEntityEffectsGateway] writing straight onto the [SimEntity] (velocity is recorded, not integrated). */
-public class SimEntityEffectsGateway(private val world: SimWorld) : IEntityEffectsGateway {
+public class SimEntityEffectsGateway(
+    private val world: SimWorld,
+    private val recorder: TraceRecorder? = null,
+    private val clock: () -> Long = { 0L },
+) : IEntityEffectsGateway {
+    override fun setGlowing(target: PlayerId, glowing: Boolean) {
+        val entity = world.find(target) ?: return
+        entity.glowing = glowing
+        recorder?.recordEffect(clock(), "glow", entity.position, "${entity.name} ${if (glowing) "on" else "off"}")
+    }
+
     override fun setVelocity(target: PlayerId, velocity: Vec3) {
         world.find(target)?.velocity = velocity
     }
@@ -291,8 +307,20 @@ public class SimEntityEffectsGateway(private val world: SimWorld) : IEntityEffec
 }
 
 /** [IPlayerFeedbackGateway] that records action bars and titles per player for assertions. */
-public class SimPlayerFeedbackGateway : IPlayerFeedbackGateway {
+public class SimPlayerFeedbackGateway(
+    private val recorder: TraceRecorder? = null,
+    private val clock: () -> Long = { 0L },
+) : IPlayerFeedbackGateway {
     public data class Title(val target: PlayerId, val title: String, val subtitle: String?)
+    public data class Kick(val target: PlayerId, val intensity: Double, val tick: Long)
+
+    /** Camera jolts sent by CameraShake. */
+    public val kicks: MutableList<Kick> = mutableListOf()
+
+    override fun cameraKick(target: PlayerId, intensity: Double) {
+        kicks += Kick(target, intensity, clock())
+        recorder?.recordEffect(clock(), "camera_shake", null, "${target.uuid} intensity=${"%.2f".format(intensity)}")
+    }
 
     public val actionBars: MutableList<Pair<PlayerId, String>> = mutableListOf()
     public val titles: MutableList<Title> = mutableListOf()

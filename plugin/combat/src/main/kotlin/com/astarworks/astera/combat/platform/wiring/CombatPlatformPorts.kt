@@ -1,6 +1,9 @@
 package com.astarworks.astera.combat.platform.wiring
 
+import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
+import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
+import com.astarworks.astera.combat.application.port.outbound.ISummonGateway
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
 import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
 import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
@@ -37,6 +40,9 @@ import com.astarworks.astera.core.application.services.ServiceRegistry
  * @property entityDamageGateway non-player (mob) damage; null = mobs are not damageable (WP3).
  * @property entityEffectsGateway velocity / fire / freeze for players and mobs (WP4); null = those mechanics warn and drop.
  * @property playerFeedbackGateway action bar / title output (WP4); null = those mechanics warn and drop.
+ * @property displayEntityGateway SpawnDisplay output (WP5); null = the mechanic warns and drops.
+ * @property summonGateway Summon mob spawning (WP5); null = the mechanic warns and drops.
+ * @property blockEditGuard overrides the default arena-only terrain-edit guard (WP5); null = `ArenaBlockEditGuard`.
  * @property explosionGateway receives the full-pipeline damage applier built
  *   from `ApplyDamageUseCase` (Wave 6e-N1 / ADR-0164), so it is a 2-arg factory.
  */
@@ -53,4 +59,7 @@ public class CombatPlatformPorts(
     public val entityDamageGateway: ((ServiceRegistry) -> IEntityDamageGateway)? = null,
     public val entityEffectsGateway: ((ServiceRegistry) -> IEntityEffectsGateway)? = null,
     public val playerFeedbackGateway: ((ServiceRegistry) -> IPlayerFeedbackGateway)? = null,
+    public val displayEntityGateway: ((ServiceRegistry) -> IDisplayEntityGateway)? = null,
+    public val summonGateway: ((ServiceRegistry) -> ISummonGateway)? = null,
+    public val blockEditGuard: ((ServiceRegistry) -> IBlockEditGuard)? = null,
 )

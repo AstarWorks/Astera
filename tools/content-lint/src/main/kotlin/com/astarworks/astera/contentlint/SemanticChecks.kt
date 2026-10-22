@@ -16,12 +16,12 @@ internal object SemanticChecks {
     /**
      * Mechanic `type:` values whose dispatcher branch only logs. WP4 batch A
      * (cleanse/ignite/freeze/silence, set_velocity/propel/leap, send_*,
-     * set_cooldown, modify_attribute, remove_status) is implemented.
+     * set_cooldown, modify_attribute, remove_status) and WP5 batch B (heal, explode,
+     * summon_lightning, summon, set_block, remove_block, spawn_display, glow,
+     * camera_shake) are implemented.
      */
     val NO_OP_MECHANICS: Set<String> = setOf(
-        "heal", "resurrect", "summon_lightning", "summon", "set_block",
-        "remove_block", "explode", "give_item", "consume_item",
-        "spawn_display", "schedule_particle_animation", "glow", "camera_shake",
+        "resurrect", "give_item", "consume_item", "schedule_particle_animation",
     )
 
     /** Condition `type:` values that always evaluate to false at runtime (none: all entity-state conditions are implemented). */

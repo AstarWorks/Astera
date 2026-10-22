@@ -1,0 +1,60 @@
+# WP5 demo: exercises the batch-B mechanics (explode, summon_lightning, glow,
+# camera_shake, heal, set_block, spawn_display) in one skill. Not bound to any
+# item; cast it with `sim.cast(...)` in the simulator. WP7 owns the real roster.
+
+id: mechanics-demo-quake
+
+name:
+  ja: "デモ・クエイク"
+  en: "Demo Quake"
+description:
+  ja: "爆発・落雷・発光・画面揺れ・回復・一時ブロックを一度に見せるデモ。"
+  en: "Shows explode, lightning, glow, camera shake, heal and a temporary block at once."
+
+archetype: aoe
+cooldown_ticks: 100
+tags: [ demo, aoe ]
+
+params:
+  type: aoe
+  radius: 6.0
+  falloff: linear
+  damage:
+    - base: { type: literal, value: 1.0 }
+      attribute: physical
+
+phases:
+  type: aoe
+  cast:
+    - type: explode
+      targets: { type: caster }
+      power: { type: literal, value: 3.0 }
+      radius: { type: literal, value: 6.0 }
+      break_blocks: { type: literal, value: false }
+      components:
+        - base: { type: literal, value: 8.0 }
+          attribute: fire
+    - type: summon_lightning
+      targets: { type: caster }
+      visual_only: { type: literal, value: true }
+    - type: glow
+      targets: { type: enemies, center: { type: caster } }
+      ticks: { type: literal, value: 60 }
+    - type: camera_shake
+      targets: { type: enemies, center: { type: caster } }
+      intensity: { type: literal, value: 0.6 }
+      ticks: { type: literal, value: 10 }
+    - type: heal
+      targets: { type: caster }
+      amount: { type: literal, value: 4.0 }
+    - type: set_block
+      targets: { type: caster }
+      block_key: minecraft:ice
+      revert_after_ticks: { type: literal, value: 40 }
+    - type: spawn_display
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 2.5, z: 0.0 } } }
+      display:
+        kind: { type: text, lines: [ { en: "Quake!", ja: "クエイク！" } ] }
+        lifetime_ticks: 40
+  hit_entity: []
+  expire: []

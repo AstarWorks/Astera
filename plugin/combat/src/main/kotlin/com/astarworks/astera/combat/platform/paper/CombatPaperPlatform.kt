@@ -2,7 +2,11 @@ package com.astarworks.astera.combat.platform.paper
 
 import com.astarworks.astera.combat.adapter.paper.PaperDamageGateway
 import com.astarworks.astera.combat.adapter.paper.PaperEnvironmentDamagePublisher
+import com.astarworks.astera.combat.adapter.paper.PaperDisplayEntityGateway
 import com.astarworks.astera.combat.adapter.paper.PaperEntityDamageGateway
+import com.astarworks.astera.combat.adapter.paper.PaperSummonGateway
+import com.astarworks.astera.combat.adapter.paper.SummonAllegianceListener
+import com.astarworks.astera.combat.application.service.SummonRegistry
 import com.astarworks.astera.combat.adapter.paper.PaperEntityEffectsGateway
 import com.astarworks.astera.combat.adapter.paper.PaperPlayerFeedbackGateway
 import com.astarworks.astera.combat.adapter.paper.PaperKnockbackGateway
@@ -67,6 +71,8 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             gateway
         },
         entityEffectsGateway = { PaperEntityEffectsGateway(plugin.server) },
+        displayEntityGateway = { PaperDisplayEntityGateway(plugin.server) },
+        summonGateway = { PaperSummonGateway(plugin.server) },
         playerFeedbackGateway = { PaperPlayerFeedbackGateway(plugin.server) },
         projectileService = { services ->
             // Wave 6a-N2 (ADR-0155) — PaperProjectileService. Spawns vanilla
@@ -176,6 +182,9 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
                 impactResolver = impactResolver,
             ).start(plugin)
         }
+
+        // WP5: summons never target or hurt their owner's side.
+        services.get<SummonRegistry>()?.let { SummonAllegianceListener(it).start(plugin) }
 
         // WP3: cancel the vanilla copy of a melee hit from an Astera item so it
         // never double-applies next to the melee skill (ADR-0149).

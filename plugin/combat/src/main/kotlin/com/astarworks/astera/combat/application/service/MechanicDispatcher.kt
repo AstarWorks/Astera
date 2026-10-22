@@ -2,6 +2,11 @@ package com.astarworks.astera.combat.application.service
 
 import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
+import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
+import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway
+import com.astarworks.astera.combat.application.port.outbound.ISummonGateway
+import com.astarworks.astera.combat.application.port.outbound.aoe.IExplosionGateway
+import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGateway
 import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
 import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
@@ -158,6 +163,18 @@ public class MechanicDispatcher(
     private val playerHealth: (() -> IPlayerHealthGateway?)? = null,
     /** WP4: lazily resolved mob HP (HealthBelow, dead-target skip). */
     private val entityHealth: (() -> IEntityDamageGateway?)? = null,
+    /** WP5: lazily resolved explosion gateway (registered after the damage pipeline exists). */
+    private val explosionGateway: (() -> IExplosionGateway?)? = null,
+    /** WP5: lazily resolved lightning gateway. */
+    private val lightningGateway: (() -> ILightningGateway?)? = null,
+    /** WP5: gate for SetBlock / RemoveBlock / block-breaking Explode; null = terrain is never edited. */
+    private val blockEditGuard: IBlockEditGuard? = null,
+    /** WP5: SpawnDisplay. */
+    private val displayGateway: IDisplayEntityGateway? = null,
+    /** WP5: Summon. */
+    private val summonGateway: ISummonGateway? = null,
+    /** WP5: summon ownership / allegiance bookkeeping, shared with the host's targeting guard. */
+    private val summonRegistry: SummonRegistry = SummonRegistry { teamLookup },
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
 ) {
 
@@ -197,6 +214,33 @@ public class MechanicDispatcher(
         vitals = vitals,
         resolveDouble = { value, c -> resolveDouble(value, c) },
     )
+
+    /** WP5 mechanics batch B (explode, lightning, blocks, display, summon, heal, glow, shake). */
+    private val worldMechanics = WorldMechanics(
+        host = this,
+        targeters = targeterResolver,
+        scheduler = scheduler,
+        worldGateway = worldGateway,
+        explosion = { explosionGateway?.invoke() },
+        lightning = { lightningGateway?.invoke() },
+        blockGuard = blockEditGuard,
+        displays = displayGateway,
+        summons = summonGateway,
+        summonRegistry = summonRegistry,
+        effects = entityEffects,
+        feedback = feedback,
+        messageRenderer = messageRenderer,
+        teamLookup = teamLookup,
+        playerHealth = { playerHealth?.invoke() },
+        entityHealth = { entityHealth?.invoke() },
+        living = ::living,
+        log = log,
+    )
+
+    /** Undoes every temporary world change batch B made (blocks, displays, summons, glow). */
+    public fun shutdown() {
+        worldMechanics.shutdown()
+    }
 
     /**
      * Drops targets that are already dead: a victim killed by an earlier
@@ -308,13 +352,7 @@ public class MechanicDispatcher(
                 }
             }
 
-            is Mechanic.Heal -> {
-                val amount = resolveDouble(mechanic.amount, ctx)
-                log.info(
-                    "Heal mechanic for {} targets, amount={} (impl deferred to Phase 6)",
-                    targeterResolver.resolvePlayers(mechanic.targets, ctx).size, amount,
-                )
-            }
+            is Mechanic.Heal -> worldMechanics.heal(mechanic, ctx)
 
             is Mechanic.Resurrect -> {
                 log.warn("Resurrect mechanic deferred to Phase 6 (no port wired)")
@@ -447,16 +485,11 @@ public class MechanicDispatcher(
             }
 
             // ===== World ==============================================
-            is Mechanic.SummonLightning,
-            is Mechanic.Summon,
-            is Mechanic.SetBlock,
-            is Mechanic.RemoveBlock,
-            is Mechanic.Explode -> {
-                log.info(
-                    "{} mechanic dispatched (world port deferred to Phase 6)",
-                    mechanic::class.simpleName,
-                )
-            }
+            is Mechanic.SummonLightning -> worldMechanics.lightning(mechanic, ctx)
+            is Mechanic.Summon -> worldMechanics.summon(mechanic, ctx)
+            is Mechanic.SetBlock -> worldMechanics.setBlock(mechanic, ctx)
+            is Mechanic.RemoveBlock -> worldMechanics.removeBlock(mechanic, ctx)
+            is Mechanic.Explode -> worldMechanics.explode(mechanic, ctx)
 
             // ===== Item / inventory ===================================
             is Mechanic.GiveItem,
@@ -565,14 +598,12 @@ public class MechanicDispatcher(
                 }
             }
 
-            is Mechanic.SpawnDisplay -> {
-                log.debug("SpawnDisplay mechanic (DisplaySpec lookup deferred to Phase 6)")
-            }
+            is Mechanic.SpawnDisplay -> worldMechanics.display(mechanic, ctx)
+            is Mechanic.Glow -> worldMechanics.glow(mechanic, ctx)
+            is Mechanic.CameraShake -> worldMechanics.cameraShake(mechanic, ctx)
 
-            is Mechanic.ScheduleParticleAnimation,
-            is Mechanic.Glow,
-            is Mechanic.CameraShake -> {
-                log.debug("{} mechanic dispatched (Phase 6 port wire)", mechanic::class.simpleName)
+            is Mechanic.ScheduleParticleAnimation -> {
+                log.debug("ScheduleParticleAnimation mechanic dispatched (Phase 6 port wire)")
             }
 
             // ===== Messages ===========================================

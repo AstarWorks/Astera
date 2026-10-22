@@ -45,6 +45,7 @@ else is reachable through `sim` (`GameSim`): `sim.services`, `sim.match`, ...
 | `IDamageGateway` | `SimDamageGateway` | ADR-0149/0151: reads/writes `CURRENT_HP` in the attribute container, `Killed` at 0, Bukkit-style 20-tick invulnerability frames |
 | `IStatusEffectContainer` | `SimStatusEffectContainer` | + the 20-tick DoT / expiry loop of Paper's `StatusEffectTickListener` |
 | Core ports (`IMcServer`, GUI, broadcaster, commands) | `SimMcServer`, `FakeGuiAdapter`, `FakeBroadcaster`, `RecordingCommandHandler` | |
+| `IExplosionGateway`, `ISummonGateway`, `IDisplayEntityGateway` (WP5) | `SimExplosionGateway`, `SimSummonGateway`, `SimDisplayGateway` | explosion: linear falloff damage through the production `ApplyDamageUseCase` (armor / friendly fire apply), radial velocity, terrain *not* simulated (policy is recorded); summon: an inert `SimEntity` mob carrying the owner's team; display: record only. All write `effects` into the trace. Temporary blocks go through `RecordingWorldGateway` (`block_place` / `block_remove`), lightning is taken from the `LightningStrike` event |
 | `IItemDelivery`, `IPaperItemIdResolver` | `SimItemDelivery`, `SimItemIdResolver` | first item given is the held (main-hand) item |
 
 The post-wiring "Paper step" is replicated for Combat only (projectile stepper,
@@ -94,6 +95,8 @@ scenario end). Positions are world coordinates in blocks; ids are UUID strings.
                         "stacks": 1 /* applied only */, "remainingTicks": 80 /* applied only */ } ],
       "deaths":     [ { "victim": "…", "killer": "…"/*null*/, "source": "Skill" } ],
       "teleports":  [ { "id": "…", "world": "world", "x": 0, "y": 0, "z": 0 } ],
+      "effects":    [ { "kind": "explosion|lightning|block_place|block_remove|display_spawn|display_remove|summon|despawn|glow|camera_shake",
+                        "detail": "radius=5.0 damage=10.0 hit=2 blocks=None", "x": 0, "y": 0, "z": 0 /* absent for camera_shake */ } ],
       "events":     [ { "type": "MatchStarted", "summary": "MatchStarted(…)" } ]
                                     // every other DomainEvent (HUD / regen chatter filtered out); summary = toString, truncated
     }

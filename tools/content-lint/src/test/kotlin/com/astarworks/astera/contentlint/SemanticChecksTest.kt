@@ -44,12 +44,46 @@ class SemanticChecksTest {
             """
             phases:
               cast:
+                - type: resurrect
+                  targets: { type: caster }
+                  heal_fraction: { type: literal, value: 0.5 }
+            """,
+        )
+        assertThat(SemanticChecks.check(node, known)).singleElement().asString().contains("'resurrect'")
+    }
+
+    @Test
+    fun `WP5 batch B mechanics pass`() {
+        val node = parse(
+            """
+            phases:
+              cast:
                 - type: heal
                   targets: { type: caster }
                   amount: { type: literal, value: 5.0 }
+                - type: explode
+                  targets: { type: caster }
+                  power: { type: literal, value: 3.0 }
+                - type: summon_lightning
+                  targets: { type: caster }
+                - type: summon
+                  targets: { type: caster }
+                  entity_type_key: ZOMBIE
+                - type: set_block
+                  targets: { type: caster }
+                  block_key: minecraft:ice
+                - type: remove_block
+                  targets: { type: caster }
+                - type: glow
+                  targets: { type: caster }
+                  ticks: { type: literal, value: 40 }
+                - type: camera_shake
+                  targets: { type: caster }
+                  intensity: { type: literal, value: 0.5 }
+                  ticks: { type: literal, value: 10 }
             """,
         )
-        assertThat(SemanticChecks.check(node, known)).singleElement().asString().contains("'heal'")
+        assertThat(SemanticChecks.check(node, known)).isEmpty()
     }
 
     @Test
