@@ -48,7 +48,7 @@ internal class PaperLobbyWorld(
     /** Creates / loads the world, pastes the build when needed and applies the world rules. */
     fun install(config: LobbyWorldYamlConfig, plan: LobbyBuildPlan): World? {
         val marker = markerPath()
-        val expected = markerText(config)
+        val expected = markerText(config, plan)
         val previous = if (Files.isRegularFile(marker)) Files.readString(marker) else null
 
         val world = server.getWorld(config.id) ?: server.createWorld(creator(config)) ?: run {
@@ -115,7 +115,7 @@ internal class PaperLobbyWorld(
             val state = block.state as? Sign ?: continue
             val side = state.getSide(Side.FRONT)
             sign.lines.forEachIndexed { i, key ->
-                side.line(i, if (key == null) mm.deserialize("") else mm.deserialize(messages.render(null, key)))
+                side.line(i, if (key == null) mm.deserialize("") else mm.deserialize(messages.render(null, key, sign.placeholders)))
             }
             state.isWaxed = true
             state.update(true, false)
@@ -137,8 +137,10 @@ internal class PaperLobbyWorld(
 
     private fun markerPath(): Path = plugin.dataFolder.toPath().toAbsolutePath().resolve("lobby-world.marker")
 
-    private fun markerText(c: LobbyWorldYamlConfig): String =
-        "version=${c.markerVersion} seed=${c.seed} center=${c.center.x},${c.center.z} surfaceY=${c.surfaceY}"
+    /** The lane list is part of the marker: adding / removing a queue lane repastes the queue island. */
+    private fun markerText(c: LobbyWorldYamlConfig, plan: LobbyBuildPlan): String =
+        "version=${c.markerVersion} seed=${c.seed} center=${c.center.x},${c.center.z} surfaceY=${c.surfaceY} " +
+            "lanes=${plan.lanePads.keys.joinToString(",")}"
 
     /** Empty chunks; the build is pasted afterwards. */
     private class VoidGenerator(private val config: LobbyWorldYamlConfig) : ChunkGenerator() {

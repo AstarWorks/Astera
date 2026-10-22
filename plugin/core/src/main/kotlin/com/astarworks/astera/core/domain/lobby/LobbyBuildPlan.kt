@@ -15,6 +15,8 @@ public data class LobbySign(
     val pos: LobbyBlockPos,
     val state: String,
     val lines: List<MessageKey?>,
+    /** Placeholders for rendering [lines] (e.g. `lane`). */
+    val placeholders: Map<String, String> = emptyMap(),
 )
 
 /** Where an NPC should stand (feet position, block centre) and which way it faces. */
