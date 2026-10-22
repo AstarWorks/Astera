@@ -12,7 +12,7 @@ import kotlin.math.ceil
 /**
  * Replays a skill's `params.trail` animation at a projectile every tick while it
  * flies (RTM `SimpleShoot`: the `Projectile` particle set was spawned at every
- * sub-step of the shot, ADR-0187).
+ * sub-step of the shot, ADR-0194).
  *
  * Each tick the follower reads [IProjectileHandle.position], and plays the animation at
  * the new position, or, with `spacing > 0`, at every `spacing` blocks along the segment

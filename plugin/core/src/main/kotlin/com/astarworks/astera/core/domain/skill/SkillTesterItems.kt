@@ -3,7 +3,7 @@ package com.astarworks.astera.core.domain.skill
 import com.astarworks.astera.core.domain.item.ItemId
 
 /**
- * Naming scheme of "skill tester" items (F2-5, ADR-0187): an admin item that casts
+ * Naming scheme of "skill tester" items (F2-5, ADR-0194): an admin item that casts
  * one arbitrary skill on right-click. There is no content file per skill. The item
  * carries the id `skill-tester-<skill-id>` in its `astera:item_id` PDC, and the items
  * plugin turns a right-click on such an id into a cast of `<skill-id>`.

@@ -105,7 +105,7 @@ public object ItemsWiring {
         // Items-owned ports.
         registrations += services.register<IItemRegistry>(itemRegistry, priority = 10)
         registrations += services.register<IItemDelivery>(itemDelivery)
-        // F2-5 (ADR-0187): the combat plugin's admin Skills page hands out skill testers through this.
+        // F2-5 (ADR-0194): the combat plugin's admin Skills page hands out skill testers through this.
         registrations += services.register<com.astarworks.astera.core.application.port.outbound.ISkillTesterDelivery>(
             com.astarworks.astera.items.application.admin.SkillTesterDelivery(itemRegistry, itemDelivery),
         )

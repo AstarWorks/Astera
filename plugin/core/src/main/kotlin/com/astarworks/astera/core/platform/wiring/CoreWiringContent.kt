@@ -180,7 +180,7 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     services.register<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>(
         soundScheduler, priority = 0,
     )
-    // ADR-0187: time-animated particle patterns (RTM ParticleScheduler port).
+    // ADR-0194: time-animated particle patterns (RTM ParticleScheduler port).
     services.register<com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator>(
         com.astarworks.astera.core.application.service.effect.SchedulerParticleAnimator(scheduler, effectsWorldGateway),
         priority = 0,

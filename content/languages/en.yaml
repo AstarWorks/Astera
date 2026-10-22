@@ -366,10 +366,8 @@ astera:
         tooltip: "<gray>Click to join a match queue.</gray>"
       shop:
         tooltip: "<gray>Click to browse the lobby shop.</gray>"
-      refinement:
-        tooltip: "<gray>Click to refine your items.</gray>"
       customize:
-        tooltip: "<gray>Click to customize your loadout.</gray>"
+        tooltip: "<gray>Click for your vault, profile and settings.</gray>"
       travel:
         tooltip: "<gray>Click to travel to PvE / Survival / Lobby.</gray>"
       profile:
@@ -384,31 +382,33 @@ astera:
         tooltip: "<gray>Return to the lobby.</gray>"
     customize-menu:
       title: "<gold>Customize</gold>"
-      loadout:
-        tooltip: "<gray>Edit your equipped loadout.</gray>"
-      refinement:
-        tooltip: "<gray>Apply refinement to your items.</gray>"
+      vault:
+        tooltip: "<gray>Open your personal vault (ender chest storage).</gray>"
       profile:
         tooltip: "<gray>View your profile card.</gray>"
-    # Wave 5game-complete (ADR-0121 §B) — 9-slot loadout selector.
-    loadout-selector:
-      title: "<aqua>Loadout Selector</aqua>"
-      slot:
-        tooltip:
-          activate: "<gray>Left-click: activate this loadout</gray>"
-          rename: "<gray>Right-click: rename</gray>"
-          reset: "<gray>Shift-click: clear</gray>"
-          save: "<gray>Middle-click: save current inventory</gray>"
+      settings:
+        tooltip: "<gray>Open your settings.</gray>"
     profile-card:
       title: "<gold>Profile</gold>"
-      head:
-        tooltip: "<gray>Your avatar.</gray>"
-      power-index:
-        tooltip: "<gray>Your Power Index.</gray>"
-      currency:
-        tooltip: "<gray>Your currency balance.</gray>"
-      recent-matches:
-        tooltip: "<gray>Recent matches.</gray>"
+      level:
+        name: "<gold>Level {level}</gold>"
+        xp: "<gray>Total XP: <white>{xp}</white></gray>"
+      combat:
+        name: "<gold>Combat</gold>"
+        kills: "<gray>Kills: <white>{kills}</white></gray>"
+        deaths: "<gray>Deaths: <white>{deaths}</white></gray>"
+        assists: "<gray>Assists: <white>{assists}</white></gray>"
+      matches:
+        name: "<gold>Matches</gold>"
+        played: "<gray>Played: <white>{played}</white></gray>"
+        wins: "<gray>Wins: <white>{wins}</white></gray>"
+        losses: "<gray>Losses: <white>{losses}</white></gray>"
+        rate: "<gray>Win rate: <white>{rate}%</white></gray>"
+      wallet:
+        name: "<gold>Wallet</gold>"
+        star: "<gray>Star: <white>{amount}</white></gray>"
+        gold: "<gray>Gold: <white>{amount}</white></gray>"
+        gem: "<gray>Gem: <white>{amount}</white></gray>"
     friends-list:
       title: "<gold>Friends</gold>"
       add:
@@ -646,6 +646,7 @@ astera:
       countdown: "<yellow>Match starts in <gold>{seconds}</gold>s <gray>({players} queued)</gray></yellow>"
       countdown-cancelled: "<gray>Not enough players ({players}/{required}); waiting for more.</gray>"
       stage-busy: "<gray>The arena is in use. Your match starts as soon as it is free.</gray>"
+      server-down: "<red>The arena server is down. The queue is on hold until it is back.</red>"
       match-found: "<green>Match found! Teleporting to <gold>{stage}</gold> on team <gold>{team}</gold>.</green>"
       start-failed: "<red>The match could not start; you were put back in the queue.</red>"
       # ADR-0179 — lobby/game server split
@@ -845,7 +846,7 @@ astera:
     combo:
       streak: "<gold>Combo x{streak}</gold>"
     leveled-up:
-      announce: "<yellow><bold>Level up!</bold></yellow> <white>Lv.{level}</white>"
+      title: "<yellow><bold>Level {level}!</bold></yellow>"
     mana:
       value: "<aqua>{mana}</aqua>"
     star:
@@ -920,7 +921,6 @@ astera:
       team-header: "<white>Team {team}</white>"
       team-footer: "<gray>Astera PvP</gray>"
     respawn:
-      countdown: "<yellow>Respawning in {seconds}…</yellow>"
       out-of-match: "<yellow>You were defeated. Returning to the lobby.</yellow>"
 
   # Wave 5e — Tutorial display strings (ADR-0034). Renders via `astera.tutorial.*`
@@ -1267,6 +1267,20 @@ astera:
       no-party: "<red>You are not in a party.</red>"
       unknown-player: "<red>That player is not online: {player}</red>"
 
+  death:
+    title: "<red><bold>You died</bold></red>"
+    subtitle:
+      weapon: "<gray>Killed by <white>{killer}</white> with <yellow>{weapon}</yellow></gray>"
+      killer: "<gray>Killed by <white>{killer}</white></gray>"
+      generic: "<gray>You were defeated</gray>"
+    countdown: "<yellow>Respawning in {seconds}</yellow> <dark_gray>|</dark_gray> <gray>click: switch view</gray>"
+    eliminated:
+      title: "<red><bold>Your team is eliminated</bold></red>"
+      subtitle: "<gray>Spectating until the match ends - click to switch view</gray>"
+
+  spectate:
+    target: "<gray>Spectating</gray> <white>{player}</white>"
+
   killfeed:
     victim: "<red>You were killed in combat.</red>"
     killer: "<gold>You eliminated an opponent.</gold>"
@@ -1300,6 +1314,13 @@ astera:
       teleport-failed: "<red>Teleport failed.</red>"
       no-party: "<red>You are not in a party. Join one before traveling to a survival island.</red>"
       island-load-failed: "<red>Failed to load your party's survival island ({detail}).</red>"
+
+  # F3-6 (ADR-0194) — server hand-off
+  proxy:
+    transfer:
+      title: "<gold>Moving servers…</gold>"
+      subtitle: "<gray>Your inventory travels with you.</gray>"
+      actionbar: "<gray>Moving to <white>{server}</white>…</gray>"
 
   # ADR-0185 — lobby hotbar kit + crafting-grid menu buttons.
   lobby-kit:
@@ -1703,3 +1724,74 @@ astera:
       name: "Regenerating"
     evasive:
       name: "Evasive"
+
+  # F3-2: message keys referenced from Kotlin (MessageKey / labelKey / button / text literals).
+  damage.target_offline: "<red>The target player is offline.</red>"
+  damage.target_already_dead: "<red>The target is already dead.</red>"
+  damage.target_immune: "<red>The target is immune to damage.</red>"
+  dialog.welcome.ok: "Got it"
+  gui.binding.coins.value: "<gold>Coins</gold>"
+  gui.binding.kills.value: "<red>Kills</red>"
+  items.refinement.unknown_item: "<red>That item is not registered.</red>"
+  items.refinement.not_refinable: "<red>This item cannot be refined.</red>"
+  items.refinement.layer_not_allowed: "<red>That refinement layer is not allowed for this item.</red>"
+  items.refinement.sub_stat_not_candidate: "<red>That sub-stat cannot be refined on this item.</red>"
+  items.refinement.insufficient_funds: "<red>Insufficient funds for this refinement.</red>"
+  items.refinement.unknown_instance: "<red>That item instance no longer exists.</red>"
+  match.remove.error.illegal-phase: "<red>You cannot leave the match in its current phase.</red>"
+  match.remove.error.match-not-found: "<red>That match could not be found.</red>"
+  match.remove.error.session-not-found: "<red>You are not in an active match session.</red>"
+  match.remove.error.teleport-failed: "<red>Could not teleport you out of the match.</red>"
+  match.resume.error.match-mismatch: "<red>That match does not match your saved session.</red>"
+  match.resume.error.match-not-found: "<red>That match could not be found.</red>"
+  match.resume.error.not-disconnected: "<red>You are not disconnected from a match.</red>"
+  match.resume.error.phase-not-resumable: "<red>The match can no longer be resumed in its current phase.</red>"
+  match.resume.error.session-not-found: "<red>No saved match session to resume.</red>"
+  match.resume.error.teleport-failed: "<red>Could not teleport you back into the match.</red>"
+  match.spectator.error.already-spectator: "<red>You are already spectating.</red>"
+  match.spectator.error.not-spectator: "<red>You are not spectating a match.</red>"
+  match.spectator.error.session-not-found: "<red>No active match session to spectate.</red>"
+  match.spectator.error.teleport-failed: "<red>Could not teleport you to the spectator position.</red>"
+  match.tournament.error.already-concluded: "<red>That tournament has already concluded.</red>"
+  match.tournament.error.already-decided: "<red>That match result has already been decided.</red>"
+  match.tournament.error.duplicate-seed: "<red>A player is seeded more than once.</red>"
+  match.tournament.error.not-found: "<red>That tournament could not be found.</red>"
+  match.tournament.error.player-not-in-current-round: "<red>That player is not in the current round.</red>"
+  match.tournament.error.too-few-seeds: "<red>A tournament needs more seeded players to start.</red>"
+  presence.backend_unavailable: "<red>Rich presence is unavailable right now.</red>"
+  presence.publish_failed: "<red>Could not update your rich presence.</red>"
+  presence.unknown_player: "<red>Unknown player for rich presence.</red>"
+  profile.error.already-exists: "<red>A profile already exists for this player.</red>"
+  profile.error.partial-grant: "<red>The profile was created, but some starting rewards could not be granted.</red>"
+  proxy.no_connection: "<red>Not connected to the proxy.</red>"
+  proxy.serialization_failure: "<red>Could not encode the proxy message.</red>"
+  proxy.unknown_server: "<red>Unknown destination server.</red>"
+  respawn.error.teleport-failed: "<red>Could not teleport you back to the spawn point.</red>"
+  respawn.error.unknown-kit-item: "<red>A starting kit item could not be found.</red>"
+  settings.cancel: "Cancel"
+  settings.controls.changed: "<green>Control scheme changed to <gold>{scheme}</gold>.</green>"
+  settings.display-name: "Display name"
+  settings.hud-scale: "HUD scale"
+  settings.intro: "Adjust your personal settings below, then press Save."
+  settings.lang.en: "English"
+  settings.lang.ja: "Japanese"
+  settings.language: "Language"
+  settings.particles: "Particles"
+  settings.save: "Save"
+  settings.title: "Settings"
+  shop.confirm.buy-button: "Buy"
+  shop.confirm.buy-tooltip: "<gray>Buy the selected quantity.</gray>"
+  shop.confirm.cancel-button: "Cancel"
+  shop.confirm.prompt: "Are you sure you want to make this purchase?"
+  shop.confirm.quantity-label: "Quantity"
+  shop.confirm.save-recent: "Remember this quantity"
+  shop.confirm.title: "Confirm purchase"
+  stats.achievement.error.already-unlocked: "<red>That achievement is already unlocked.</red>"
+  stats.achievement.error.not-in-catalog: "<red>That achievement is not in the catalog.</red>"
+  status.silence.name: "Silenced"
+  transfer.permission_denied: "<red>You do not have permission to transfer servers.</red>"
+  transfer.queue_full: "<red>The destination server's queue is full. Try again shortly.</red>"
+  transfer.reason.admin_move: "<gray>Moved by an administrator.</gray>"
+  transfer.reason.lobby_return: "<gray>Returning to the lobby.</gray>"
+  transfer.reason.match_found: "<gray>Match found.</gray>"
+  transfer.target_offline: "<red>The target player is offline.</red>"

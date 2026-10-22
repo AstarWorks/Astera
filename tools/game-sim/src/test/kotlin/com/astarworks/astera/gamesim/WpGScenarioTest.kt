@@ -41,6 +41,7 @@ class WpGScenarioTest {
                 ),
             )
             advance(100)
+            advance(120) // respawn countdown (5 s)
 
             val kill = eventsOf<PlayerKilled>().first { it.victim == blue.id }
             assertThat(kill.killer).`as`("DoT kill is credited to the status applier").isEqualTo(red.id)
@@ -96,7 +97,7 @@ class WpGScenarioTest {
 
             // A surviving team still respawns.
             health.damage(red.id, 1000.0, HealthChangeSource.AdminCommand)
-            advance(20)
+            advance(120) // respawn countdown (5 s)
             assertThat(eventsOf<PlayerRespawned>().any { it.playerId == red.id }).isTrue()
         }
     }

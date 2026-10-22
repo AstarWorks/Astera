@@ -43,7 +43,7 @@ public class QueueMatchScheduler(
         var countdownStartTick: Long? = null
         var lastAnnouncedSeconds: Int? = null
         var lastQueued: Int = 0
-        var busyNotified: Boolean = false
+        var heldNotice: String? = null
 
         fun reset() {
             countdownStartTick = null
@@ -80,18 +80,19 @@ public class QueueMatchScheduler(
                 queued.forEach { notify(it, "countdown-cancelled", lane, queued.size) }
             }
             state.reset()
-            state.busyNotified = false
+            state.heldNotice = null
             return
         }
         if (matchFound.isStageBusy(mode)) {
-            if (!state.busyNotified) {
-                queued.forEach { notify(it, "stage-busy", lane, queued.size) }
-                state.busyNotified = true
+            val notice = matchFound.holdNotice(mode)
+            if (state.heldNotice != notice) {
+                queued.forEach { notify(it, notice, lane, queued.size) }
+                state.heldNotice = notice
             }
             state.reset()
             return
         }
-        state.busyNotified = false
+        state.heldNotice = null
 
         if (state.countdownStartTick != null && queued.size < previousQueued) {
             state.reset() // somebody left: restart the countdown

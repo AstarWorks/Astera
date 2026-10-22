@@ -716,7 +716,7 @@ public object CombatWiring {
             mcServer = services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
         ).install(services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>())
 
-        // ── F2-5 (ADR-0187) — cast any skill directly: `/astera skill ...` + admin panel Skills page ──
+        // ── F2-5 (ADR-0194) — cast any skill directly: `/astera skill ...` + admin panel Skills page ──
         val adminSkillCaster = com.astarworks.astera.combat.application.admin.AdminSkillCaster(
             skills = skillContents,
             castSkill = castSkillOut,

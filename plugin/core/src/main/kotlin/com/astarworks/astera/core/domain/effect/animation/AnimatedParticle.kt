@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.effect.ParticleSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 
 /**
- * One particle emitted by an [AnimatedShape] (RTM `IConfiguredParticle`, ADR-0187).
+ * One particle emitted by an [AnimatedShape] (RTM `IConfiguredParticle`, ADR-0194).
  *
  * [key] is the Bukkit particle name in lower case (`flame`, `dust`, `end_rod`).
  * [count] / [extra] / [offset] have vanilla `spawnParticle` meaning (see

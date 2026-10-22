@@ -374,10 +374,8 @@ astera:
         tooltip: "<gray>クリックでマッチキューに参加。</gray>"
       shop:
         tooltip: "<gray>クリックでロビーショップを開く。</gray>"
-      refinement:
-        tooltip: "<gray>クリックでアイテムを強化。</gray>"
       customize:
-        tooltip: "<gray>クリックでロードアウトを編集。</gray>"
+        tooltip: "<gray>クリックで金庫・プロフィール・設定を開く。</gray>"
       travel:
         tooltip: "<gray>クリックで PvE / サバイバル / ロビーへ移動。</gray>"
       profile:
@@ -392,31 +390,33 @@ astera:
         tooltip: "<gray>ロビーに戻る。</gray>"
     customize-menu:
       title: "<gold>カスタマイズ</gold>"
-      loadout:
-        tooltip: "<gray>装備中のロードアウトを編集。</gray>"
-      refinement:
-        tooltip: "<gray>アイテムに強化を適用。</gray>"
+      vault:
+        tooltip: "<gray>個人金庫（エンダーチェスト）を開く。</gray>"
       profile:
         tooltip: "<gray>プロフィールカードを表示。</gray>"
-    # Wave 5game-complete (ADR-0121 §B) — 9 枠ロードアウトセレクター。
-    loadout-selector:
-      title: "<aqua>ロードアウト選択</aqua>"
-      slot:
-        tooltip:
-          activate: "<gray>左クリック: このロードアウトを有効化</gray>"
-          rename: "<gray>右クリック: 名前を変更</gray>"
-          reset: "<gray>シフトクリック: 内容をクリア</gray>"
-          save: "<gray>中クリック: 現在の装備を保存</gray>"
+      settings:
+        tooltip: "<gray>設定を開く。</gray>"
     profile-card:
       title: "<gold>プロフィール</gold>"
-      head:
-        tooltip: "<gray>自分のアバター。</gray>"
-      power-index:
-        tooltip: "<gray>パワー指数。</gray>"
-      currency:
-        tooltip: "<gray>通貨残高。</gray>"
-      recent-matches:
-        tooltip: "<gray>最近のマッチ。</gray>"
+      level:
+        name: "<gold>レベル {level}</gold>"
+        xp: "<gray>累計 XP: <white>{xp}</white></gray>"
+      combat:
+        name: "<gold>戦績</gold>"
+        kills: "<gray>キル: <white>{kills}</white></gray>"
+        deaths: "<gray>デス: <white>{deaths}</white></gray>"
+        assists: "<gray>アシスト: <white>{assists}</white></gray>"
+      matches:
+        name: "<gold>マッチ</gold>"
+        played: "<gray>プレイ数: <white>{played}</white></gray>"
+        wins: "<gray>勝利: <white>{wins}</white></gray>"
+        losses: "<gray>敗北: <white>{losses}</white></gray>"
+        rate: "<gray>勝率: <white>{rate}%</white></gray>"
+      wallet:
+        name: "<gold>ウォレット</gold>"
+        star: "<gray>スター: <white>{amount}</white></gray>"
+        gold: "<gray>ゴールド: <white>{amount}</white></gray>"
+        gem: "<gray>ジェム: <white>{amount}</white></gray>"
     friends-list:
       title: "<gold>フレンド</gold>"
       add:
@@ -648,6 +648,7 @@ astera:
       countdown: "<yellow>マッチ開始まで <gold>{seconds}</gold> 秒 <gray>（キュー {players} 人）</gray></yellow>"
       countdown-cancelled: "<gray>人数が足りません（{players}/{required}）。参加者を待っています。</gray>"
       stage-busy: "<gray>アリーナ使用中です。空き次第マッチが始まります。</gray>"
+      server-down: "<red>アリーナサーバーが停止中です。復旧までキューを保留します。</red>"
       match-found: "<green>マッチ成立！ <gold>{stage}</gold> へ移動します（チーム <gold>{team}</gold>）。</green>"
       start-failed: "<red>マッチを開始できませんでした。キューに戻しました。</red>"
       # ADR-0179 — ロビー/ゲームサーバー分離
@@ -847,7 +848,7 @@ astera:
     combo:
       streak: "<gold>コンボ x{streak}</gold>"
     leveled-up:
-      announce: "<yellow><bold>レベルアップ！</bold></yellow> <white>Lv.{level}</white>"
+      title: "<yellow><bold>レベル{level}！</bold></yellow>"
     mana:
       value: "<aqua>{mana}</aqua>"
     star:
@@ -922,7 +923,6 @@ astera:
       team-header: "<white>チーム {team}</white>"
       team-footer: "<gray>Astera PvP</gray>"
     respawn:
-      countdown: "<yellow>{seconds} 秒後にリスポーン…</yellow>"
       out-of-match: "<yellow>倒されました。ロビーに戻ります。</yellow>"
 
   # Wave 5e — Tutorial 表示文字列 (ADR-0034)。
@@ -1258,6 +1258,20 @@ astera:
       no-party: "<red>パーティに所属していません。</red>"
       unknown-player: "<red>そのプレイヤーはオンラインではありません: {player}</red>"
 
+  death:
+    title: "<red><bold>倒されました</bold></red>"
+    subtitle:
+      weapon: "<gray><white>{killer}</white> の <yellow>{weapon}</yellow> に倒された</gray>"
+      killer: "<gray><white>{killer}</white> に倒された</gray>"
+      generic: "<gray>戦闘不能になりました</gray>"
+    countdown: "<yellow>{seconds} 秒後にリスポーン</yellow> <dark_gray>|</dark_gray> <gray>クリック: 視点切替</gray>"
+    eliminated:
+      title: "<red><bold>チームが全滅しました</bold></red>"
+      subtitle: "<gray>試合終了まで観戦します - クリックで視点切替</gray>"
+
+  spectate:
+    target: "<gray>観戦中</gray> <white>{player}</white>"
+
   killfeed:
     victim: "<red>戦闘で倒されました。</red>"
     killer: "<gold>敵を倒しました。</gold>"
@@ -1291,6 +1305,13 @@ astera:
       teleport-failed: "<red>テレポートに失敗しました。</red>"
       no-party: "<red>パーティに参加していません。サバイバルアイランドへ行く前にパーティに参加してください。</red>"
       island-load-failed: "<red>サバイバルアイランドの読み込みに失敗しました ({detail})。</red>"
+
+  # F3-6 (ADR-0194) — server hand-off
+  proxy:
+    transfer:
+      title: "<gold>サーバー移動中…</gold>"
+      subtitle: "<gray>インベントリは引き継がれます。</gray>"
+      actionbar: "<gray><white>{server}</white> へ移動しています…</gray>"
 
   # ADR-0185 — lobby hotbar kit + crafting-grid menu buttons.
   lobby-kit:
@@ -1687,3 +1708,74 @@ astera:
       name: "再生"
     evasive:
       name: "回避"
+
+  # F3-2: message keys referenced from Kotlin (MessageKey / labelKey / button / text literals).
+  damage.target_offline: "<red>対象のプレイヤーはオフラインです。</red>"
+  damage.target_already_dead: "<red>対象はすでに倒れています。</red>"
+  damage.target_immune: "<red>対象はダメージを受けません。</red>"
+  dialog.welcome.ok: "わかった"
+  gui.binding.coins.value: "<gold>コイン</gold>"
+  gui.binding.kills.value: "<red>キル数</red>"
+  items.refinement.unknown_item: "<red>そのアイテムは登録されていません。</red>"
+  items.refinement.not_refinable: "<red>このアイテムは強化できません。</red>"
+  items.refinement.layer_not_allowed: "<red>このアイテムにはその強化レイヤーを適用できません。</red>"
+  items.refinement.sub_stat_not_candidate: "<red>このアイテムではそのサブステータスを強化できません。</red>"
+  items.refinement.insufficient_funds: "<red>この強化に必要な残高が足りません。</red>"
+  items.refinement.unknown_instance: "<red>そのアイテムの実体が見つかりません。</red>"
+  match.remove.error.illegal-phase: "<red>現在のフェーズではマッチから離脱できません。</red>"
+  match.remove.error.match-not-found: "<red>そのマッチが見つかりません。</red>"
+  match.remove.error.session-not-found: "<red>進行中のマッチセッションに参加していません。</red>"
+  match.remove.error.teleport-failed: "<red>マッチからの移動に失敗しました。</red>"
+  match.resume.error.match-mismatch: "<red>保存されたセッションと一致しないマッチです。</red>"
+  match.resume.error.match-not-found: "<red>そのマッチが見つかりません。</red>"
+  match.resume.error.not-disconnected: "<red>マッチから切断された状態ではありません。</red>"
+  match.resume.error.phase-not-resumable: "<red>このマッチは現在のフェーズでは再開できません。</red>"
+  match.resume.error.session-not-found: "<red>再開できる保存済みのマッチセッションがありません。</red>"
+  match.resume.error.teleport-failed: "<red>マッチへの復帰に失敗しました。</red>"
+  match.spectator.error.already-spectator: "<red>すでに観戦中です。</red>"
+  match.spectator.error.not-spectator: "<red>マッチを観戦していません。</red>"
+  match.spectator.error.session-not-found: "<red>観戦できる進行中のマッチセッションがありません。</red>"
+  match.spectator.error.teleport-failed: "<red>観戦位置へ移動できませんでした。</red>"
+  match.tournament.error.already-concluded: "<red>そのトーナメントは終了しています。</red>"
+  match.tournament.error.already-decided: "<red>その試合の結果はすでに確定しています。</red>"
+  match.tournament.error.duplicate-seed: "<red>同じプレイヤーが複数回シード登録されています。</red>"
+  match.tournament.error.not-found: "<red>そのトーナメントが見つかりません。</red>"
+  match.tournament.error.player-not-in-current-round: "<red>そのプレイヤーは現在のラウンドに含まれていません。</red>"
+  match.tournament.error.too-few-seeds: "<red>トーナメントを開始するにはシード数が不足しています。</red>"
+  presence.backend_unavailable: "<red>リッチプレゼンスは現在利用できません。</red>"
+  presence.publish_failed: "<red>リッチプレゼンスを更新できませんでした。</red>"
+  presence.unknown_player: "<red>リッチプレゼンスの対象プレイヤーが不明です。</red>"
+  profile.error.already-exists: "<red>このプレイヤーのプロフィールは既に存在します。</red>"
+  profile.error.partial-grant: "<red>プロフィールは作成されましたが、初期報酬の一部を付与できませんでした。</red>"
+  proxy.no_connection: "<red>プロキシに接続されていません。</red>"
+  proxy.serialization_failure: "<red>プロキシメッセージの変換に失敗しました。</red>"
+  proxy.unknown_server: "<red>転送先のサーバーが不明です。</red>"
+  respawn.error.teleport-failed: "<red>リスポーン地点へ移動できませんでした。</red>"
+  respawn.error.unknown-kit-item: "<red>初期装備のアイテムが見つかりません。</red>"
+  settings.cancel: "キャンセル"
+  settings.controls.changed: "<green>操作方式を <gold>{scheme}</gold> に変更しました。</green>"
+  settings.display-name: "表示名"
+  settings.hud-scale: "HUDの大きさ"
+  settings.intro: "以下で個人設定を変更し、保存を押してください。"
+  settings.lang.en: "英語"
+  settings.lang.ja: "日本語"
+  settings.language: "言語"
+  settings.particles: "パーティクル"
+  settings.save: "保存"
+  settings.title: "設定"
+  shop.confirm.buy-button: "購入"
+  shop.confirm.buy-tooltip: "<gray>選択した数量で購入します。</gray>"
+  shop.confirm.cancel-button: "キャンセル"
+  shop.confirm.prompt: "この購入を確定しますか？"
+  shop.confirm.quantity-label: "数量"
+  shop.confirm.save-recent: "この数量を次回も使う"
+  shop.confirm.title: "購入の確認"
+  stats.achievement.error.already-unlocked: "<red>その実績はすでに解除されています。</red>"
+  stats.achievement.error.not-in-catalog: "<red>その実績はカタログに登録されていません。</red>"
+  status.silence.name: "沈黙"
+  transfer.permission_denied: "<red>サーバー間の移動に必要な権限がありません。</red>"
+  transfer.queue_full: "<red>転送先サーバーの待機列が満員です。しばらくしてから再度お試しください。</red>"
+  transfer.reason.admin_move: "<gray>管理者により移動されました。</gray>"
+  transfer.reason.lobby_return: "<gray>ロビーに戻ります。</gray>"
+  transfer.reason.match_found: "<gray>マッチが見つかりました。</gray>"
+  transfer.target_offline: "<red>対象のプレイヤーはオフラインです。</red>"

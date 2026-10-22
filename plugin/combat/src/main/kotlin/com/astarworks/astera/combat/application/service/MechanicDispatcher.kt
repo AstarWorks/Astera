@@ -120,7 +120,7 @@ public class MechanicDispatcher(
      * deferred-port mechanics).
      */
     private val particleScheduler: IParticleScheduler? = null,
-    /** ADR-0187: plays `schedule_particle_animation`; `null` in unit tests that do not need it. */
+    /** ADR-0194: plays `schedule_particle_animation`; `null` in unit tests that do not need it. */
     private val particleAnimator: com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator? = null,
     /**
      * Wave 5effects (ADR-0109): catalog of [com.astarworks.astera.core.domain.effect.ParticleDefinition]s

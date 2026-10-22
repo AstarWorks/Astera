@@ -46,7 +46,7 @@ public sealed class SkillParams {
         val hitRadius: Double = DEFAULT_HIT_RADIUS,
         /**
          * Particle pattern replayed at the projectile every tick while it flies
-         * (RTM `Effect.Particles.Projectile`, ADR-0187). `null` = no trail.
+         * (RTM `Effect.Particles.Projectile`, ADR-0194). `null` = no trail.
          */
         val trail: com.astarworks.astera.core.domain.effect.animation.ParticleAnimation? = null,
         /**

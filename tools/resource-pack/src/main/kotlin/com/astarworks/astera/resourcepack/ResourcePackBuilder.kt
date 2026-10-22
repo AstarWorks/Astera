@@ -96,6 +96,27 @@ public class ResourcePackBuilder(private val contentDir: Path) {
                     json(mapOf("model" to mapOf("type" to "minecraft:model", "model" to "$NAMESPACE:$id"))).toByteArray()
             }
         }
+        addGeneratedItemDefinitions(files)
+    }
+
+    /**
+     * Procedural icons (`:tools:item-art`, ADR-0193): each `models/generated/items/<id>` gets the item
+     * definition `astera:<id>` (the id the item materializer puts in `item_model`). A Studio-authored
+     * model whose last path segment is the item id (`models/items/swords/dagger` for `dagger`)
+     * overrides the generated icon: the definition for that id then points at the Studio model.
+     */
+    private fun addGeneratedItemDefinitions(files: MutableMap<String, ByteArray>) {
+        val prefix = "assets/$NAMESPACE/models/$GENERATED_ITEM_DIR/"
+        val studio = files.keys
+            .filter { it.startsWith("assets/$NAMESPACE/models/items/") && it.endsWith(".json") }
+            .associateBy { it.substringAfterLast('/').removeSuffix(".json") }
+        for (path in files.keys.filter { it.startsWith(prefix) && it.endsWith(".json") }.toList()) {
+            val id = path.removePrefix(prefix).removeSuffix(".json")
+            val model = studio[id]?.removePrefix("assets/$NAMESPACE/models/")?.removeSuffix(".json")
+                ?: "$GENERATED_ITEM_DIR/$id"
+            files["assets/$NAMESPACE/items/$id.json"] =
+                json(mapOf("model" to mapOf("type" to "minecraft:model", "model" to "$NAMESPACE:$model"))).toByteArray()
+        }
     }
 
     private fun addSounds(files: MutableMap<String, ByteArray>) {
@@ -177,6 +198,9 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         public const val NAMESPACE: String = "astera"
         public const val ZIP_NAME: String = "astera.zip"
         public const val SPRITE_SIZE: Int = 9
+
+        /** Model directory (under `models/`) that `:tools:item-art` writes. */
+        public const val GENERATED_ITEM_DIR: String = "generated/items"
 
         /**
          * Pack format window, `[major, minor]` pairs (26.x versions resource packs

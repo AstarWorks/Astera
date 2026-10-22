@@ -11,7 +11,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
 
 /**
- * Casts any registered skill for a player, as if from an item (F2-5, ADR-0187): the
+ * Casts any registered skill for a player, as if from an item (F2-5, ADR-0194): the
  * regular [CastSkillUseCase] pipeline (silence, cooldown, phases, dispatcher), minus the
  * resource spend. `force` clears the skill's cooldown first. Shared by `/astera skill
  * cast` and the admin panel's Skills page.

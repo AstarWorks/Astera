@@ -1,4 +1,4 @@
-# F2-5 (ADR-0187): template for admin "skill tester" items. The admin panel's Skills page
+# F2-5 (ADR-0194): template for admin "skill tester" items. The admin panel's Skills page
 # (shift-click) re-templates this per skill: id `skill-tester-<skill-id>`, right-click casts
 # that skill. Not meant to be given as is (hidden from the item catalog).
 

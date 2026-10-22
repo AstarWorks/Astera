@@ -91,6 +91,13 @@ public class GameSim private constructor(
     /** Displays spawned by SpawnDisplay (WP5). */
     public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder)
 
+    /** This server's hotbar when booted with a shared snapshot store (F3-6); `null` otherwise. */
+    public var inventory: SimInventoryGateway? = null
+        private set
+
+    private val handoff: com.astarworks.astera.core.application.service.handoff.PlayerHandoffService?
+        get() = services.get<com.astarworks.astera.core.application.service.handoff.PlayerHandoffService>()
+
     public lateinit var core: CoreWiringResult
         private set
     public lateinit var items: ItemsWiringResult
@@ -99,6 +106,8 @@ public class GameSim private constructor(
         private set
     public lateinit var match: MatchWiringResult
         private set
+    /** Spectator-mode recorder behind the `ISpectator` port (death cam / eliminated teams). */
+    public val spectator: SimSpectator = SimSpectator()
     public lateinit var stats: StatsWiringResult
         private set
     public lateinit var economy: EconomyWiringResult
@@ -176,7 +185,10 @@ public class GameSim private constructor(
     ): SimEntity {
         val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team))
         recorder.registerEntity(entity)
-        if (join) eventBus.publish(PlayerJoinedServer(playerId = entity.id))
+        if (join) {
+            handoff?.onJoin(entity.id)
+            eventBus.publish(PlayerJoinedServer(playerId = entity.id))
+        }
         return entity
     }
 
@@ -188,6 +200,8 @@ public class GameSim private constructor(
         val entity = world.find(id) ?: return null
         world.remove(id)
         eventBus.publish(com.astarworks.astera.core.domain.event.PlayerQuitServer(playerId = id))
+        handoff?.onQuit(id)
+        inventory?.clear(id)
         return entity
     }
 
@@ -195,6 +209,7 @@ public class GameSim private constructor(
     public fun attachPlayer(id: PlayerId, name: String): SimEntity {
         val entity = world.add(SimEntity(id, name, SimEntityKind.PLAYER, Vec3(0.0, world.groundY, 0.0), Vec3(0.0, 0.0, 1.0), null))
         recorder.registerEntity(entity)
+        handoff?.onJoin(id)
         eventBus.publish(PlayerJoinedServer(playerId = id))
         return entity
     }
@@ -402,6 +417,8 @@ public class GameSim private constructor(
             serverName: com.astarworks.astera.core.domain.proxy.ServerName = com.astarworks.astera.core.platform.wiring.ServerEnvironment.DEFAULT_NAME,
             /** The messenger connecting this server to its peers; `null` keeps the in-memory loopback. */
             proxy: com.astarworks.astera.core.application.port.outbound.IProxyMessenger? = null,
+            /** The snapshot store shared by every server of a network (the Postgres all backends use); `null` = this server's own in-memory one. */
+            snapshots: com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository? = null,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
@@ -451,6 +468,12 @@ public class GameSim private constructor(
             )
             val coreCtx = context()
             sim.core = CoreWiring.install(coreCtx, corePorts)
+            if (snapshots != null) {
+                val inventory = SimInventoryGateway()
+                sim.inventory = inventory
+                coreCtx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository>(snapshots, priority = 100)
+                coreCtx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventoryGateway>(inventory, priority = 100)
+            }
 
             // What AsteraCorePlugin.afterWiring registers on Paper (PaperPlayerPoseLookup),
             // plus the nearby-target query no Paper adapter registers yet.
@@ -520,7 +543,7 @@ public class GameSim private constructor(
 
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
-            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation))
+            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }))
             sim.stats = StatsWiring.install(context(), StatsPlatformPorts())
             sim.economy = EconomyWiring.install(context(), EconomyPlatformPorts())
 

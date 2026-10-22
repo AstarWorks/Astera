@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 
 /**
- * Pure catalog logic of the admin panel's "Skills" page (F2-5, ADR-0187): every
+ * Pure catalog logic of the admin panel's "Skills" page (F2-5, ADR-0194): every
  * registered skill as an icon (by archetype), click = cast, shift-click = give a
  * skill tester item. Callers pass the live skills so a content reload shows up on
  * the next open.

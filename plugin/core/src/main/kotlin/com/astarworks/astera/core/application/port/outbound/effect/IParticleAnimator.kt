@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
 
 /**
- * Outbound port: plays a time-animated [ParticleAnimation] (ADR-0187; the particle
+ * Outbound port: plays a time-animated [ParticleAnimation] (ADR-0194; the particle
  * scheduler ADR-0077 deferred). Backs `Mechanic.ScheduleParticleAnimation` and the
  * per-tick projectile trail.
  *

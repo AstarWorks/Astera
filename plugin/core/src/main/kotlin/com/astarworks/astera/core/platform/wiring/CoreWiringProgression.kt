@@ -47,6 +47,7 @@ import com.astarworks.astera.core.application.usecase.tutorial.RunTutorialSequen
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
+import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import java.nio.file.Path
 
@@ -288,33 +289,48 @@ internal fun CoreWiringState.wireProgression() {
         ),
     )
 
-    // Wave O 5cross-server-wire (ADR-0132): close audit α#4 silent-drop —
-    // PlayerArrivedOnServer / PlayerTransferRequested / ProxyHeartbeat
-    // were published (by InMemoryServerTransferGateway and Wave 6b's
-    // VelocityProxyMessenger) with 0 subscribers. Phase 1 PoC stubs log
-    // the events so they are observable; richer consumers (inventory
-    // restore on proxy arrival, lobby HUD, server-browser) land in later
-    // waves once persistence + UI adapters ship.
-    val proxyArrivedListener =
-        com.astarworks.astera.core.application.eventbus.listeners.proxy
-            .LogOnlyPlayerArrivedOnServerListener()
-    wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class,
-    ) { proxyArrivedListener.handle(it) }
-
-    val proxyTransferRequestedListener =
-        com.astarworks.astera.core.application.eventbus.listeners.proxy
-            .LogOnlyPlayerTransferRequestedListener()
+    // F3-6 (ADR-0187): reliable server hand-off. Transfer request -> "moving"
+    // notice, state saved and a hand-off token published BEFORE the proxy
+    // Connect; arrival -> wait for the token, restore, announce. Heartbeats
+    // give the lobby the game server's liveness. Only a lobby / game backend
+    // (non-ALL role) has peers; a single server restores on join directly.
+    val networked = ctx.serverRole != com.astarworks.astera.core.domain.proxy.ServerRole.ALL
+    val proxyMessenger = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IProxyMessenger>()
+    val handoff = com.astarworks.astera.core.application.service.handoff.PlayerHandoffService(
+        localServer = ctx.serverName,
+        awaitToken = networked,
+        messenger = proxyMessenger,
+        snapshots = liveSnapshots,
+        inventory = { services.get<IPlayerInventoryGateway>() },
+        sessions = sessionRepo,
+        scheduler = scheduler,
+        eventBus = eventBus,
+        isHeld = matchSnapshots::isHeld,
+    )
+    ctx.registrations += services.register<com.astarworks.astera.core.application.service.handoff.PlayerHandoffService>(handoff, priority = 0)
+    val transferNotice = com.astarworks.astera.core.application.eventbus.listeners.proxy.TransferNoticeListener(mcServer)
     wave5completeSubs += eventBus.subscribe(
         com.astarworks.astera.core.domain.event.PlayerTransferRequested::class,
-    ) { proxyTransferRequestedListener.handle(it) }
-
-    val proxyHeartbeatListener =
-        com.astarworks.astera.core.application.eventbus.listeners.proxy
-            .LogOnlyProxyHeartbeatListener()
-    wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.ProxyHeartbeat::class,
-    ) { proxyHeartbeatListener.handle(it) }
+    ) { event ->
+        transferNotice.handle(event)
+        handoff.onTransferRequested(event.playerId, event.targetServer)
+    }
+    if (networked) {
+        handoff.start()
+        shutdownHooks += handoff::stop
+        val heartbeat = com.astarworks.astera.core.application.service.ServerHeartbeatService(
+            localServer = ctx.serverName,
+            messenger = proxyMessenger,
+            scheduler = scheduler,
+            eventBus = eventBus,
+        )
+        heartbeat.start()
+        shutdownHooks += heartbeat::stop
+        ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IServerLiveness>(
+            heartbeat,
+            priority = 0,
+        )
+    }
 
     // Silence unused-var (attributes/vault/settings/audit returned via registry for cross-plugin pickup).
     @Suppress("UNUSED_VARIABLE") val attrStoreRef = attributeContainerStore

@@ -23,6 +23,8 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.WorldGatewayError
+import com.astarworks.astera.core.application.port.outbound.spectator.ISpectator
+import com.astarworks.astera.core.application.port.outbound.spectator.SpectatorError
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.attribute.AttributeValue
@@ -363,4 +365,45 @@ public class SimItemDelivery : IItemDelivery {
 /** [IPaperItemIdResolver] reading the entity's held item (PDC on Paper). */
 public class SimItemIdResolver(private val world: SimWorld) : IPaperItemIdResolver {
     override fun heldItemId(playerId: PlayerId): ItemId? = world.find(playerId)?.heldItem
+}
+
+/**
+ * [ISpectator] for the simulator: tracks who is in spectator mode and whose camera is attached to
+ * whom. Every player is "online"; the transition log lets scenarios assert the order of events.
+ */
+public class SimSpectator : ISpectator {
+    private val spectating: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
+    private val targets: MutableMap<PlayerId, PlayerId> = ConcurrentHashMap()
+
+    /** `"start:<id>"`, `"stop:<id>"`, `"watch:<viewer>-><target>"`, `"release:<id>"` in order. */
+    public val log: MutableList<String> = java.util.concurrent.CopyOnWriteArrayList()
+
+    override fun startSpectating(viewer: PlayerId): Result<Unit, SpectatorError> {
+        if (spectating.add(viewer)) log += "start:$viewer"
+        return Result.success(Unit)
+    }
+
+    override fun stopSpectating(viewer: PlayerId): Result<Unit, SpectatorError> {
+        if (spectating.remove(viewer)) log += "stop:$viewer"
+        targets.remove(viewer)
+        return Result.success(Unit)
+    }
+
+    override fun setCameraTarget(viewer: PlayerId, target: PlayerId): Result<Unit, SpectatorError> {
+        if (viewer !in spectating) return Result.failure(SpectatorError.Unsupported("viewer-not-spectating"))
+        if (target in spectating) return Result.failure(SpectatorError.TargetNotSpectatable(target, "target-is-spectator"))
+        targets[viewer] = target
+        log += "watch:$viewer->$target"
+        return Result.success(Unit)
+    }
+
+    override fun releaseCameraTarget(viewer: PlayerId): Result<Unit, SpectatorError> {
+        if (targets.remove(viewer) != null) log += "release:$viewer"
+        return Result.success(Unit)
+    }
+
+    override fun isSpectating(viewer: PlayerId): Boolean = viewer in spectating
+
+    /** The player [viewer]'s camera is attached to, or null (free-cam / not spectating). */
+    public fun cameraTargetOf(viewer: PlayerId): PlayerId? = targets[viewer]
 }

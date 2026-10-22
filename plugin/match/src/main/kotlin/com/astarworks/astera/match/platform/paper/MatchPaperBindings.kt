@@ -8,6 +8,8 @@ import com.astarworks.astera.match.adapter.paper.PaperBarrierGateway
 import com.astarworks.astera.match.adapter.paper.PaperItemPickupAdapter
 import com.astarworks.astera.match.adapter.paper.PaperMatchWorldInputAdapter
 import com.astarworks.astera.match.adapter.paper.PaperPillarBlockListener
+import com.astarworks.astera.match.adapter.paper.spectator.PaperSpectator
+import com.astarworks.astera.match.adapter.paper.spectator.PaperSpectatorInputListener
 import com.astarworks.astera.match.platform.wiring.MatchPlatformPorts
 import com.astarworks.astera.match.platform.wiring.MatchWiringResult
 import org.bukkit.plugin.java.JavaPlugin
@@ -35,6 +37,8 @@ internal object MatchPaperBindings {
                 eventBus = services.getOrThrow<IDomainEventBus>(),
             )
         },
+        // F3-5: death cam + eliminated-team spectating use Bukkit spectator mode.
+        spectator = { services -> PaperSpectator(plugin.server, services.getOrThrow<IScheduler>()) },
     )
 
     fun bind(plugin: JavaPlugin, ctx: WiringContext, wired: MatchWiringResult) {
@@ -57,5 +61,7 @@ internal object MatchPaperBindings {
         ).start(plugin)
         // WP10: enemy block breaks on Annihilation pillar blocks damage the pillar.
         PaperPillarBlockListener(wired.pillarTargets).start(plugin)
+        // F3-5: spectators cannot interact / damage / pick up; clicks cycle the camera.
+        PaperSpectatorInputListener(wired.spectatorCycler).start(plugin)
     }
 }

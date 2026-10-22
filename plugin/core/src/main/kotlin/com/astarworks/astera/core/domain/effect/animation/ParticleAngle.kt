@@ -5,7 +5,7 @@ import kotlin.random.Random
 
 /**
  * How an [AnimatedShape] orients itself relative to the animation's direction
- * (RTM `ParticleAngle`, ADR-0187).
+ * (RTM `ParticleAngle`, ADR-0194).
  *
  *  - [RAW]: the given direction as is.
  *  - [HORIZONTAL]: the direction flattened onto the XZ plane; a direction with no

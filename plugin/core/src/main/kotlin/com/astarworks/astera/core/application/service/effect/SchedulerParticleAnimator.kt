@@ -13,7 +13,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 import kotlin.random.Random
 
 /**
- * Default [IParticleAnimator] (ADR-0187): expands the animation through
+ * Default [IParticleAnimator] (ADR-0194): expands the animation through
  * [ParticleAnimationSession] and spawns each [PlannedEmission] through
  * [IWorldGateway.spawnParticle], one scheduler task per distinct tick (a 60-point
  * ring is 2 tasks, not 60). Offset-0 emissions fire synchronously so a cast burst

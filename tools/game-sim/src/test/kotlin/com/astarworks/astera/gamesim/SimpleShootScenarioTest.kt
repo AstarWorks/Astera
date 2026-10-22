@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.Path
 
-/** F2-5 (ADR-0187): RTM SimpleShoot through the real wiring, plus direct skill casting. */
+/** F2-5 (ADR-0194): RTM SimpleShoot through the real wiring, plus direct skill casting. */
 class SimpleShootScenarioTest {
 
     private data class Seen(val tick: Long, val key: String, val count: Int, val p: JsonObject)

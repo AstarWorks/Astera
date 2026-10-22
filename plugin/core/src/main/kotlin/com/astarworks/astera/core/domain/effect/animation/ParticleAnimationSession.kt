@@ -12,7 +12,7 @@ public data class PlannedEmission(
 )
 
 /**
- * Pure expansion of a [ParticleAnimation] into timed spawns (ADR-0187; the timing
+ * Pure expansion of a [ParticleAnimation] into timed spawns (ADR-0194; the timing
  * semantics of RTM's `ParticleServiceImpl.processParticleSet` + `AbstractSimpleScheduler`).
  *
  * A session owns the per-instance [CircleCursor]s, keyed by `(shape, instance)` like

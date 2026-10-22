@@ -16,7 +16,7 @@ import com.astarworks.astera.items.application.port.outbound.DeliveryResult
 import com.astarworks.astera.items.application.port.outbound.IItemDelivery
 
 /**
- * Hands an admin a "skill tester" (F2-5, ADR-0187): the content item
+ * Hands an admin a "skill tester" (F2-5, ADR-0194): the content item
  * `skill-tester` re-templated with the id `skill-tester-<skill>` and a right-click
  * binding to that skill. The spec is built on the fly and never enters the item
  * registry; [HandleItemTriggerUseCase] recognises the id when it is clicked.

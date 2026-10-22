@@ -44,7 +44,7 @@ public class HandleItemTriggerUseCase(
     }
 
     /**
-     * `skill-tester-<skill>` items (F2-5, ADR-0187) are not in the registry: the id itself
+     * `skill-tester-<skill>` items (F2-5, ADR-0194) are not in the registry: the id itself
      * names the skill, bound to right click.
      */
     private fun castSkillTester(playerId: PlayerId, itemId: ItemId, trigger: SkillTrigger, origin: Vec3): Boolean {

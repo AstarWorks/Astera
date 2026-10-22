@@ -162,6 +162,14 @@ public object StatsWiring {
         // 4. Register Stats ports onto the shared registry ------------------
         // Note: statsRepository is already registered (or resolved from Postgres) above.
         registrations += services.register<ILevelService>(levelService)
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerLevelView>(
+            object : com.astarworks.astera.core.application.port.outbound.IPlayerLevelView {
+                override fun levelOf(playerId: com.astarworks.astera.core.domain.player.PlayerId): Int =
+                    levelService.currentLevel(playerId).value
+                override fun totalXpOf(playerId: com.astarworks.astera.core.domain.player.PlayerId): Long =
+                    levelService.totalXp(playerId).value
+            },
+        )
         registrations += services.register<INormaService>(normaService)
         registrations += services.register<INormaRegistry>(normaContents, priority = 0)
 
@@ -201,8 +209,9 @@ public object StatsWiring {
         // cannot import it). The InMemory HUD gateway records the call only
         // until Wave 6b's Paper renderer lands.
         val hudGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+        val playerSoundGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>()
         val hudLeveledUpListener = com.astarworks.astera.stats.application.eventbus.listeners.hud
-            .HudUpdateOnLeveledUpListener(hudGateway)
+            .HudUpdateOnLeveledUpListener(hudGateway, playerSoundGateway)
         subscriptions += eventBus.subscribe(LeveledUp::class) { hudLeveledUpListener.handle(it) }
 
         // ---- Wave 5e Achievement + LevelUpMission + Reward listeners ---------
@@ -351,6 +360,7 @@ public object StatsWiring {
             playerGateway = playerGateway,
             messages = messages,
             hudGateway = hudGateway,
+            achievements = achievementRepo,
         )
         subscriptions += eventBus.subscribe(AchievementUnlocked::class) {
             notifyOnUnlock.handle(it)

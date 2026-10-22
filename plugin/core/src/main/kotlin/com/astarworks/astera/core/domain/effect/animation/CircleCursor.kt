@@ -8,7 +8,7 @@ import kotlin.random.Random
 
 /**
  * Mutable per-instance state of an [AnimatedShape.Circle] (RTM `CircleParticleSetData`
- * + `OrthonormalBasis`, ADR-0187). Created once per instance and kept advancing across
+ * + `OrthonormalBasis`, ADR-0194). Created once per instance and kept advancing across
  * every sampled point, so a repeatedly re-played animation (a projectile trail)
  * continues the orbit instead of restarting it.
  */
@@ -37,7 +37,7 @@ public class CircleCursor(private val shape: AnimatedShape.Circle, direction: Ve
         if (shape.repeatRadiusAcceleration) {
             radius += shape.radiusAcceleration * radiusSign
             // RTM reflects with `max - (min - radius)`, which pushes the radius further
-            // out of range; the intended mirror image is used here (deviation, ADR-0187).
+            // out of range; the intended mirror image is used here (deviation, ADR-0194).
             if (radius >= max) {
                 radius = max - (radius - max)
                 radiusSign = -radiusSign

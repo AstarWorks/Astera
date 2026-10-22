@@ -100,6 +100,8 @@ public sealed interface HudLayout {
      * @property fadeInTicks ticks the title fades in over.
      * @property stayTicks ticks the title is fully visible.
      * @property fadeOutTicks ticks the title fades out over.
+     * @property title optional large main-title line shown above [component]
+     *   (the death screen's "You died"); `null` renders an empty main title.
      *
      * The Wave 6b adapter calls
      * `Player.showTitle(Title.title(empty, sub, Title.Times.times(...)))`.
@@ -111,6 +113,7 @@ public sealed interface HudLayout {
         public val fadeInTicks: Int = 10,
         public val stayTicks: Int = 60,
         public val fadeOutTicks: Int = 10,
+        public val title: HudComponent? = null,
     ) : HudLayout {
         init {
             require(fadeInTicks >= 0) { "Subtitle.fadeInTicks must be >= 0, was $fadeInTicks" }

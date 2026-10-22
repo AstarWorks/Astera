@@ -33,7 +33,7 @@ import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
 public class ProjectileHandler(
     private val projectileService: IProjectileService,
     private val dispatcher: MechanicDispatcher,
-    /** ADR-0187: replays `params.trail` at the projectile each tick; `null` disables trails. */
+    /** ADR-0194: replays `params.trail` at the projectile each tick; `null` disables trails. */
     private val trailFollower: com.astarworks.astera.combat.application.service.ProjectileTrailFollower? = null,
 ) {
     /**

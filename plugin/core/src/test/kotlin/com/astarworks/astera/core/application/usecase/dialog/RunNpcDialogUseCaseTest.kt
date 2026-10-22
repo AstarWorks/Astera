@@ -241,6 +241,7 @@ class RunNpcDialogUseCaseTest {
         override fun dispatch(player: IMcPlayer, intent: GuiIntent) {
             recorded.add(player to intent)
         }
+        override fun hasHandler(key: String): Boolean = true
         override fun register(
             prefix: String,
             handler: (GuiIntent, IMcPlayer) -> Unit,

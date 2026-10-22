@@ -184,7 +184,7 @@ public sealed class SkillParamsYaml {
         @SerialName("launch_speed") public val launchSpeed: Double,
         @SerialName("max_lifetime_ticks") public val maxLifetimeTicks: Int,
         @SerialName("hit_radius") public val hitRadius: Double? = null,
-        /** Particle shapes replayed at the projectile each tick (ADR-0187). */
+        /** Particle shapes replayed at the projectile each tick (ADR-0194). */
         public val trail: List<com.astarworks.astera.core.application.config.skill.AnimatedShapeYaml>? = null,
         @SerialName("trail_spacing") public val trailSpacing: Double = 0.0,
     ) : SkillParamsYaml() {

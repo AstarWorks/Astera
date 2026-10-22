@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.effect.animation
 
 /**
- * A time-animated particle pattern (ADR-0187; port of RTM's `IConfiguredParticleSet`).
+ * A time-animated particle pattern (ADR-0194; port of RTM's `IConfiguredParticleSet`).
  *
  * Every shape is `amount` independent instances; each instance orients itself by
  * [angle] once. [delayTicks] is the shape's offset from the animation start, added to

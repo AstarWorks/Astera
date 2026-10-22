@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.skill.SkillId
 
 /**
  * `/astera skill list` and `/astera skill cast <skill-id> [target] [--force]`
- * (F2-5, ADR-0187; mounted by `CombatWiring` under the ADR-0184 command registry).
+ * (F2-5, ADR-0194; mounted by `CombatWiring` under the ADR-0184 command registry).
  *
  * `cast` runs the skill for [target] (default: the sender) through the regular cast
  * pipeline without spending resources; the skill's own cooldown applies unless

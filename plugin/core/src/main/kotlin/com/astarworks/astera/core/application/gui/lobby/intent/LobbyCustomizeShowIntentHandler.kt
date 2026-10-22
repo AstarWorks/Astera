@@ -15,23 +15,14 @@ import org.slf4j.LoggerFactory
  * response to the `lobby.customize.show` and `lobby.customize.open` intents.
  *
  * The Wave 5wireup [com.astarworks.astera.core.application.gui.lobby.MainMenuGuiSpec]
- * emits `lobby.customize.open` from its sixth tile; the wave-5lobby-content
+ * emits `lobby.customize.open` from its customize tile; the wave-5lobby-content
  * NPC YAML (`content/lobby-npcs/loadout-npc.yaml`) uses `lobby.customize.show`
  * for symmetry with the other show-the-sub-menu intents. Both keys land here
  * and open the same sub-menu — the user-facing distinction is purely the
  * upstream entry point (compass tile vs NPC).
  *
- * The customize sub-menu itself is a thin navigation surface that links to:
- *
- *  - the existing Wave 4 R3 loadout GUI (`weapons:loadout` or its successor),
- *  - the Wave 5refine refinement application GUI, and
- *  - the Wave 5flex profile / power-index card.
- *
- * Phase 1 PoC keeps the sub-menu purely declarative — clicking a tile emits
- * one of the `lobby.refinement.open` / `lobby.profile.show` /
- * `loadout.*` intents whose handlers were already wired by their owning
- * waves. Future waves can swap in a richer presentation (loadout selector
- * with previews etc.) without touching this handler.
+ * The sub-menu links to the personal vault, the profile card and settings
+ * (see [CustomizeMenuGuiSpec]).
  */
 public class LobbyCustomizeShowIntentHandler(
     private val guiAdapter: IGuiAdapter,

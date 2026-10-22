@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import kotlin.math.abs
 import kotlin.random.Random
 
-/** The RTM math and timing (ADR-0187), checked against RTM's formulas, not against our own output. */
+/** The RTM math and timing (ADR-0194), checked against RTM's formulas, not against our own output. */
 class ParticleAnimationSessionTest {
 
     private val orange = ParticleColor(255, 100, 20)

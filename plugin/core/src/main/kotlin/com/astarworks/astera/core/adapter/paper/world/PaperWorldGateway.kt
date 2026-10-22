@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory
  *    offsetY, offsetZ, extra, data)` where `particle` is resolved by stripping the
  *    `minecraft:` namespace and `Particle.valueOf(name.uppercase())`. Offset and
  *    extra come from [ParticleSpec]; `dust` gets `DustOptions(color, scale)`
- *    (ADR-0187). `count == 0` is vanilla's directional form (offset = velocity).
+ *    (ADR-0194). `count == 0` is vanilla's directional form (offset = velocity).
  *  - [playSound] → resolves through `Registry.SOUNDS.get(NamespacedKey)`
  *    because `Sound` migrated to the Bukkit Registry pattern in 1.21.
  *    Falls back to silent no-op (DEBUG-logged) when the sound key is
@@ -146,7 +146,7 @@ public class PaperWorldGateway(
             return
         }
         val loc = toLocation(w, at)
-        // ADR-0187: dust carries its colour/size as DustOptions; data-less particles pass
+        // ADR-0194: dust carries its colour/size as DustOptions; data-less particles pass
         // null. Particles that need data we cannot supply (block, item, ...) are dropped.
         val data: Any? = when (bukkitParticle.dataType) {
             Particle.DustOptions::class.java ->

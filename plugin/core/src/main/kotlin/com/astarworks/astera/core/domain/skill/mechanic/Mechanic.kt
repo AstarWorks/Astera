@@ -376,7 +376,7 @@ public sealed class Mechanic {
     ) : Mechanic()
 
     /**
-     * Play a time-animated particle pattern (ADR-0187) at each resolved location.
+     * Play a time-animated particle pattern (ADR-0194) at each resolved location.
      * Direction is the caster's look direction. Pair with `delay_ticks` /
      * `period_ticks` / `duration_ticks` to repeat it.
      */

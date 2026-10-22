@@ -22,7 +22,7 @@ import com.astarworks.astera.core.domain.skill.SkillId
 import org.slf4j.LoggerFactory
 
 /**
- * Combat's "Skills" page of the `/astera admin panel` (F2-5, ADR-0187; ADR-0183
+ * Combat's "Skills" page of the `/astera admin panel` (F2-5, ADR-0194; ADR-0183
  * registry): every skill as an icon; click casts it as the clicker, shift-click hands
  * out a skill tester item. Contributes the hub tile and owns the `admin.skills.` prefix.
  */

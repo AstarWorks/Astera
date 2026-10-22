@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 
 /**
- * Wire shape of one animated particle pattern (ADR-0187), inlined under
+ * Wire shape of one animated particle pattern (ADR-0194), inlined under
  * `schedule_particle_animation.animation` and a projectile skill's `params.trail`.
  *
  * ```yaml
