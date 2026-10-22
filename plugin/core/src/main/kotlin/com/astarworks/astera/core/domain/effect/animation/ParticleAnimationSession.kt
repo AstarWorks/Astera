@@ -70,7 +70,7 @@ public class ParticleAnimationSession(
             for (i in 0 until shape.points) {
                 val rad = phase + 2 * PI * i / shape.points
                 val outward = basis.a * cos(rad) + basis.b * sin(rad)
-                val position = origin + outward * radius
+                val position = origin + outward * radius + basis.axis * (shape.rise * t)
                 for (p in shape.particles) {
                     out += PlannedEmission(shape.delayTicks + p.delayTicks + step, position, p.toSpec(outward))
                 }

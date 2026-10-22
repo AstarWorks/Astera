@@ -30,7 +30,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  *     particles: [ { id: dust, color: { r: 255, g: 100, b: 20 }, scale: 2 } ]
  * ```
  *
- * Astera additions: `type: ring` (expanding ring: `period_ticks`, `points`, `start_radius`, `end_radius`, default
+ * Astera additions: `type: ring` (expanding ring: `period_ticks`, `points`, `start_radius`, `end_radius`, `rise`, default
  * `angle: vertical` = flat on the ground) and `type: line` (jagged polyline: `length`, `segments`, `jitter`,
  * `points_per_segment`, along `angle`; `down` = sky to ground).
  */
@@ -97,6 +97,7 @@ public sealed class AnimatedShapeYaml {
         public val points: Int = 16,
         @SerialName("start_radius") public val startRadius: Double = 0.0,
         @SerialName("end_radius") public val endRadius: Double = 1.0,
+        public val rise: Double = 0.0,
     ) : AnimatedShapeYaml() {
         override fun toDomain(): AnimatedShape = AnimatedShape.Ring(
             delayTicks = delayTicks,
@@ -107,6 +108,7 @@ public sealed class AnimatedShapeYaml {
             points = points,
             startRadius = startRadius,
             endRadius = endRadius,
+            rise = rise,
         )
     }
 

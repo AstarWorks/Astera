@@ -473,6 +473,9 @@
                         },
                         "end_radius": {
                             "type": "number"
+                        },
+                        "rise": {
+                            "type": "number"
                         }
                     },
                     "required": [

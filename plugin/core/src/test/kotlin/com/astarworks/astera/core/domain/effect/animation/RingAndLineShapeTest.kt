@@ -48,6 +48,15 @@ class RingAndLineShapeTest {
     }
 
     @Test
+    fun `ring rise lifts the ring along the axis over the period`() {
+        val plan = plan(AnimatedShape.Ring(particles = spark, periodTicks = 5, points = 6, startRadius = 1.0, endRadius = 1.0, rise = 2.0))
+        plan.forEach {
+            assertThat(it.position.y).isCloseTo(origin.y + 2.0 * it.tickOffset / 4.0, eps)
+            assertThat(hypot(it.position.x - origin.x, it.position.z - origin.z)).isCloseTo(1.0, eps)
+        }
+    }
+
+    @Test
     fun `ring delay shifts every tick`() {
         val plan = plan(AnimatedShape.Ring(particles = spark, delayTicks = 3, periodTicks = 2, points = 2))
         assertThat(plan.map { it.tickOffset }.toSet()).containsExactlyInAnyOrder(3, 4)

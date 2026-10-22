@@ -64,7 +64,7 @@ public sealed class AnimatedShape {
      * An expanding ring (not in RTM): over [periodTicks] ticks, each tick drops [points] points evenly spaced on a
      * circle whose radius grows linearly from [startRadius] to [endRadius]. The ring lies in the plane
      * perpendicular to the (angle-resolved) axis, so the default [ParticleAngle.VERTICAL] gives a flat ground ring
-     * (a shockwave). Each instance starts at a random phase. Directional particles (`count: 0`) fly outward.
+     * (a shockwave). [rise] lifts the ring along the axis by that many blocks over the period (a rising halo). Each instance starts at a random phase. Directional particles (`count: 0`) fly outward.
      * Budget: `amount * periodTicks * points * particles.size` spawns.
      */
     public data class Ring(
@@ -76,6 +76,7 @@ public sealed class AnimatedShape {
         val points: Int = 16,
         val startRadius: Double = 0.0,
         val endRadius: Double = 1.0,
+        val rise: Double = 0.0,
     ) : AnimatedShape() {
         init {
             validateCommon(delayTicks, amount, particles)
