@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Server
 import org.bukkit.entity.Player
 import java.util.UUID
@@ -79,13 +80,13 @@ public class PaperTabList(
     override fun setHeader(playerId: PlayerId, header: MessageKey, placeholders: Map<String, String>) {
         val rendered = render(playerId, header, placeholders)
         headerKeys[playerId] = RenderedRecord(header, placeholders, rendered)
-        server.getPlayer(playerId.uuid)?.sendPlayerListHeader(Component.text(rendered))
+        server.getPlayer(playerId.uuid)?.sendPlayerListHeader(toComponent(rendered))
     }
 
     override fun setFooter(playerId: PlayerId, footer: MessageKey, placeholders: Map<String, String>) {
         val rendered = render(playerId, footer, placeholders)
         footerKeys[playerId] = RenderedRecord(footer, placeholders, rendered)
-        server.getPlayer(playerId.uuid)?.sendPlayerListFooter(Component.text(rendered))
+        server.getPlayer(playerId.uuid)?.sendPlayerListFooter(toComponent(rendered))
     }
 
     override fun clearHeader(playerId: PlayerId) {
@@ -121,12 +122,12 @@ public class PaperTabList(
         headerKeys.forEach { (playerId, rec) ->
             val rendered = render(playerId, rec.key, rec.placeholders)
             headerKeys[playerId] = rec.copy(rendered = rendered)
-            server.getPlayer(playerId.uuid)?.sendPlayerListHeader(Component.text(rendered))
+            server.getPlayer(playerId.uuid)?.sendPlayerListHeader(toComponent(rendered))
         }
         footerKeys.forEach { (playerId, rec) ->
             val rendered = render(playerId, rec.key, rec.placeholders)
             footerKeys[playerId] = rec.copy(rendered = rendered)
-            server.getPlayer(playerId.uuid)?.sendPlayerListFooter(Component.text(rendered))
+            server.getPlayer(playerId.uuid)?.sendPlayerListFooter(toComponent(rendered))
         }
         entries.forEach { (playerId, list) -> pushEntries(playerId, list) }
     }
@@ -157,10 +158,10 @@ public class PaperTabList(
                 // Online subject: override its existing tab-list row.
                 subject != null -> {
                     if (sender != null && viewer != null) {
-                        sender.sendDisplayNameUpdate(viewer, subject.uniqueId, Component.text(displayText))
+                        sender.sendDisplayNameUpdate(viewer, subject.uniqueId, toComponent(displayText))
                         sender.sendLatencyUpdate(viewer, subject.uniqueId, entry.pingMs)
                     } else {
-                        subject.playerListName(Component.text(displayText))
+                        subject.playerListName(toComponent(displayText))
                     }
                 }
                 // Offline / synthetic subject: inject a per-viewer phantom
@@ -168,7 +169,7 @@ public class PaperTabList(
                 // baseline to override), so vanilla Paper drops it.
                 sender != null && viewer != null -> {
                     val phantom = phantomTabListUuid(viewer.uniqueId, entry.name)
-                    sender.sendAddEntry(viewer, phantom, entry.name, Component.text(displayText), entry.pingMs)
+                    sender.sendAddEntry(viewer, phantom, entry.name, toComponent(displayText), entry.pingMs)
                     desiredPhantoms += phantom
                 }
             }
@@ -187,6 +188,9 @@ public class PaperTabList(
         }
     }
 
+    /** Rendered catalogue text carries MiniMessage tags (`<gold>..`), like every other HUD surface. */
+    private fun toComponent(rendered: String): Component = MINI.deserialize(rendered)
+
     private fun render(playerId: PlayerId?, key: MessageKey, placeholders: Map<String, String>): String =
         messageRenderer?.render(playerId, key, placeholders)
             ?: naiveRender(key, placeholders)
@@ -196,6 +200,10 @@ public class PaperTabList(
         var out = key.value
         for ((name, value) in placeholders) out = out.replace("{$name}", value)
         return out
+    }
+
+    private companion object {
+        val MINI: MiniMessage = MiniMessage.miniMessage()
     }
 
     private data class RenderedRecord(
