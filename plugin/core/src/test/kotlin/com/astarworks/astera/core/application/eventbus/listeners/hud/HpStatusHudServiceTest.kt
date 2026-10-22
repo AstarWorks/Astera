@@ -23,6 +23,9 @@ import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.core.domain.resource.ResourceType
+import com.astarworks.astera.core.application.port.outbound.ICooldownIconSource
+import com.astarworks.astera.core.domain.hud.status.CooldownHudLayout
+import com.astarworks.astera.core.domain.skill.SkillTrigger
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.testfixtures.FakeHudGateway
@@ -270,5 +273,40 @@ class HpStatusHudServiceTest {
         assertThat(line.component).isEqualTo(expected)
         assertThat((line.component as HudComponent.FontText).text).contains(StatusHudGlyphs.AMMO.toString())
         assertThat(line.anchorLeftPx).isEqualTo(HpBarLayout.HEARTS_LEFT_PX)
+    }
+
+    // ---- ADR-0197: per-binding cooldown icons ------------------------------------
+
+    private val cooldowns = mutableListOf<CooldownHudLayout.Entry>()
+    private val withIcons = HpStatusHudService(health, hud, pools, items, scheduler, cooldownIcons = { ICooldownIconSource { cooldowns.toList() } })
+
+    @Test
+    fun `with the pack loaded the cooldown row rides the glyph line and follows the clock`() {
+        setHp(alice, 100.0)
+        withIcons.onJoined(PlayerJoinedServer(alice))
+        withIcons.onPackStatus(ResourcePackStatusChanged(alice, ResourcePackStatus.LOADED))
+        cooldowns += CooldownHudLayout.Entry(SkillTrigger.RIGHT_CLICK, 65)
+        scheduler.advanceTicks(2)
+
+        val block = HpBarLayout.render(100.0, 200.0)
+        val line = lastLine(alice)
+        assertThat(line.component).isEqualTo(CooldownHudLayout.overlay(block, cooldowns))
+        assertThat(line.anchorLeftPx).isEqualTo(HpBarLayout.HEARTS_LEFT_PX)
+
+        cooldowns.clear()
+        cooldowns += CooldownHudLayout.Entry(SkillTrigger.RIGHT_CLICK, 0)
+        scheduler.advanceTicks(2)
+        assertThat(lastLine(alice).component).isEqualTo(CooldownHudLayout.overlay(block, cooldowns))
+    }
+
+    @Test
+    fun `without the pack the cooldowns are text next to the HP text`() {
+        setHp(alice, 100.0)
+        withIcons.onJoined(PlayerJoinedServer(alice))
+        cooldowns += CooldownHudLayout.Entry(SkillTrigger.LEFT_CLICK, 40)
+        scheduler.advanceTicks(2)
+
+        val parts = (lastLine(alice).component as HudComponent.Composite).parts.map { (it as HudComponent.Text).messageKey.value }
+        assertThat(parts).containsExactly("astera.hud.status.hp", "astera.hud.cooldown.lc.waiting")
     }
 }

@@ -143,7 +143,6 @@ internal class CorePaperBindings(
                 )
             },
             resourcePack = com.astarworks.astera.core.platform.wiring.ResourcePackEnv.load(logger = logger),
-            itemCooldownGateway = { com.astarworks.astera.core.adapter.paper.hud.PaperItemCooldownGateway(server) },
             hudGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.hud.PaperHudGateway(
                     server = server,

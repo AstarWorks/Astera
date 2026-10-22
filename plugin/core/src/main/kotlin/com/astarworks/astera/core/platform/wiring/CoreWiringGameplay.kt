@@ -135,7 +135,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
     val starterGrant = com.astarworks.astera.core.application.service
         .StarterGrantLoader()
         .load(starterGrantPath)
-    // ADR-0195: the "already onboarded" fact is durable (Persistence overlay, V49) so a
+    // ADR-0197: the "already onboarded" fact is durable (Persistence overlay, V49) so a
     // restart does not re-run the first-time starter grant.
     val profileRepository = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>()
         ?: com.astarworks.astera.core.application.service.InMemoryPlayerProfileRepository().also {
@@ -211,18 +211,6 @@ internal fun CoreWiringState.wireGameplayLoop() {
             com.astarworks.astera.core.domain.event.PlayerActiveWeaponChanged::class,
         ) { energyFoodBar.onActiveWeaponChanged(it) }
     }
-    val itemCooldownGateway: com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway =
-        services.get<com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway>()
-            ?: com.astarworks.astera.core.application.service.InMemoryItemCooldownGateway().also {
-                services.register<com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway>(it, priority = 0)
-            }
-    ports.itemCooldownGateway?.let {
-        services.register<com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway>(it(services), priority = 100)
-    }
-    val reloadOverlay = com.astarworks.astera.core.application.eventbus.listeners.hud.ReloadCooldownOverlayListener(
-        services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway>(),
-    )
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceReloadStarted::class) { reloadOverlay.onReloadStarted(it) }
 
     // 4.15 ADR-0182 — status line (exact HP bar) and the resource pack it needs.
     //      HpStatusHudService owns the status-line channel: glyph bar once the
@@ -235,6 +223,8 @@ internal fun CoreWiringState.wireGameplayLoop() {
             pools = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>(),
             items = itemContents,
             scheduler = scheduler,
+            // ADR-0197: the combat plugin registers the cooldown icons later; look them up per flush.
+            cooldownIcons = { services.get<com.astarworks.astera.core.application.port.outbound.ICooldownIconSource>() },
         )
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hpStatusHud.onJoined(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hpStatusHud.onQuit(it) }

@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.eventbus.listeners.hud
 
 import com.astarworks.astera.core.application.port.outbound.HudError
+import com.astarworks.astera.core.application.port.outbound.ICooldownIconSource
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
@@ -15,6 +16,7 @@ import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.hud.status.AmmoReadoutLayout
+import com.astarworks.astera.core.domain.hud.status.CooldownHudLayout
 import com.astarworks.astera.core.domain.hud.status.HpBarLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -64,6 +66,7 @@ public class HpStatusHudService(
     private val items: IItemRegistry,
     scheduler: IScheduler,
     flushPeriodTicks: Long = FLUSH_PERIOD_TICKS,
+    private val cooldownIcons: () -> ICooldownIconSource? = { null },
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -128,10 +131,12 @@ public class HpStatusHudService(
         val max = health.getMaxHealth(playerId) ?: DEFAULT_MAX_HP
         val hp = health.getCurrentHealth(playerId) ?: max
         val ammo = heldAmmo(playerId)
+        // ADR-0197: one icon per bound input of the held item, over the HP bar / after the HP text.
+        val cooldowns = cooldownIcons()?.entriesFor(playerId).orEmpty()
         if (playerId in packLoaded) {
             val bar = HpBarLayout.render(hp, max)
             val block = if (ammo == null) bar else AmmoReadoutLayout.appendTo(bar, AmmoReadoutLayout.render(ammo.first, ammo.second))
-            return HudLayout.StatusLine(block, anchorLeftPx = HpBarLayout.HEARTS_LEFT_PX)
+            return HudLayout.StatusLine(CooldownHudLayout.overlay(block, cooldowns), anchorLeftPx = HpBarLayout.HEARTS_LEFT_PX)
         }
         val maxInt = max.roundToInt().coerceAtLeast(1)
         val placeholders = mutableMapOf(
@@ -142,12 +147,14 @@ public class HpStatusHudService(
             placeholders["ammo"] = ammo.first.toString()
             placeholders["ammoMax"] = ammo.second.toString()
         }
+        val hpText = HudComponent.Text(
+            messageKey = if (ammo == null) KEY_HP else KEY_HP_AMMO,
+            color = HudColor.WHITE,
+            placeholders = placeholders,
+        )
+        val cooldownText = CooldownHudLayout.textParts(cooldowns)
         return HudLayout.StatusLine(
-            HudComponent.Text(
-                messageKey = if (ammo == null) KEY_HP else KEY_HP_AMMO,
-                color = HudColor.WHITE,
-                placeholders = placeholders,
-            ),
+            if (cooldownText.isEmpty()) hpText else HudComponent.Composite(listOf(hpText) + cooldownText, spacing = 2),
         )
     }
 

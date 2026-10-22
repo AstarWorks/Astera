@@ -31,7 +31,9 @@ import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.resource.ResourceType
+import com.astarworks.astera.core.domain.event.SkillCooldownStarted
 import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.core.domain.skill.SkillTrigger
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeScheduler
 import org.assertj.core.api.Assertions.assertThat
@@ -218,6 +220,28 @@ class CastSkillUseCaseTest {
         val again = useCase.execute(casterId, skillId, cooldownOverrideTicks = 6)
         assertThat(again).isInstanceOf(Result.Success::class.java)
         assertThat(eventBus.publishedOfType<SkillCast>()).hasSize(2)
+    }
+
+    @Test
+    fun `starting a cooldown publishes SkillCooldownStarted with the effective length and the input`() {
+        skillRegistry.register(spec) // cooldown_ticks = 40
+        val item = ItemId("wand")
+
+        useCase.execute(casterId, skillId, sourceItemId = item, cooldownOverrideTicks = 6, trigger = SkillTrigger.RIGHT_CLICK)
+
+        val started = eventBus.publishedOfType<SkillCooldownStarted>().single()
+        assertThat(started.playerId).isEqualTo(casterId)
+        assertThat(started.sourceItemId).isEqualTo(item)
+        assertThat(started.trigger).isEqualTo(SkillTrigger.RIGHT_CLICK)
+        assertThat(started.durationTicks).isEqualTo(6)
+        assertThat(started.reloadTicks).isNull()
+    }
+
+    @Test
+    fun `a skill without cooldown publishes no SkillCooldownStarted`() {
+        skillRegistry.register(spec.copy(cooldownTicks = 0))
+        useCase.execute(casterId, skillId)
+        assertThat(eventBus.publishedOfType<SkillCooldownStarted>()).isEmpty()
     }
 
     @Test

@@ -33,6 +33,8 @@ import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
  *  - [reloadTicks] — non-null marks a reload skill: [reloadTicks] after the cast
  *    the source item's ammo is refilled, and ammo casts are rejected meanwhile.
  *  - [chargeVariant] — hold-to-cast behaviour.
+ *  - [readyCue] — play the "ready again" cue when the cooldown ends (ADR-0197);
+ *    `null` = automatic (cooldowns of 3 s or more).
  *
  * Per the Phase 1 pre-release posture, this is a hard break: no
  * `@Deprecated` alias of the old shape.
@@ -50,6 +52,7 @@ public data class SkillSpec(
     val resourceCost: Int? = null,
     val reloadTicks: Int? = null,
     val chargeVariant: ChargedSkillVariant = ChargedSkillVariant.Instant,
+    val readyCue: Boolean? = null,
 ) {
     init {
         require(cooldownTicks >= 0) { "cooldownTicks must be >= 0: $cooldownTicks" }

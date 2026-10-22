@@ -633,6 +633,7 @@ public object CombatWiring {
                     phaseOverrides = event.phaseOverrides,
                     sourceItemId = event.sourceItemId,
                     cooldownOverrideTicks = event.cooldownOverrideTicks,
+                    trigger = event.trigger,
                 )
             }
 

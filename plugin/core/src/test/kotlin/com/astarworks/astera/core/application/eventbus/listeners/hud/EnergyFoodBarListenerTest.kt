@@ -2,7 +2,6 @@ package com.astarworks.astera.core.application.eventbus.listeners.hud
 
 import com.astarworks.astera.core.application.contents.ItemContents
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
-import com.astarworks.astera.core.application.service.InMemoryItemCooldownGateway
 import com.astarworks.astera.core.application.service.InMemoryResourcePoolService
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
@@ -88,15 +87,5 @@ class EnergyFoodBarListenerTest {
         val before = food.calls.size
         scheduler.advanceTicks(EnergyFoodBarListener.RESYNC_PERIOD_TICKS)
         assertThat(food.calls.size).isEqualTo(before)
-    }
-
-    @Test
-    fun `a reload start draws the cooldown sweep for the reload time`() {
-        val cooldowns = InMemoryItemCooldownGateway()
-        val overlay = ReloadCooldownOverlayListener(cooldowns)
-
-        overlay.onReloadStarted(ResourceReloadStarted(alice, ItemId("pistol"), durationTicks = 30, atTick = 0))
-
-        assertThat(cooldowns.sweeps).containsExactly(InMemoryItemCooldownGateway.Sweep(alice, 30))
     }
 }

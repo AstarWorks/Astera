@@ -94,10 +94,11 @@ and puts HP and ammo in the same glance.
 
 ### 4. Reload progress is the item cooldown sweep
 
-`ResourceReloadStarted` -> `ReloadCooldownOverlayListener` ->
-`IItemCooldownGateway.showHeldItemCooldown(player, reloadTicks)`; the Paper adapter calls
-`Player.setCooldown(heldStack, ticks)`, which the client draws as the native sweep over the
-item. (`InMemoryItemCooldownGateway` records sweeps for the simulator.)
+A reload skill's cooldown event (`SkillCooldownStarted` with `reloadTicks`) drives the native
+item cooldown sweep over the held item for the reload time. The sweep path is ADR-0197's
+`use_cooldown` group (`SweepItemOnSkillCooldownUseCase`); the interim F2-2
+`ReloadCooldownOverlayListener` / `IItemCooldownGateway` were removed when F3-8 merged, so there
+is exactly one sweep path.
 
 ### 5. Boss bars are removed from the HUD
 
@@ -113,7 +114,7 @@ is visible.
 ### Simulator
 
 `SimHudRecorder.statusAmmo(player)` reads the ammo from the status line (glyph or text form);
-`GameSim.foodLevel(entity)` and `cooldownSweeps()` expose the food bar and the reload sweeps;
+`GameSim.foodLevel(entity)` and `cooldownSweeps()` (ADR-0197's recorder) expose the food bar and the reload sweeps;
 `bossBarLayoutsRecorded` counts boss-bar regions ever recorded (the type no longer exists, so
 it is always 0).
 

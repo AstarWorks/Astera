@@ -58,7 +58,6 @@ public class CorePlatformPorts(
     /** Required: GUI rendering has no in-memory default. Built before the wiring registers [IGuiBindingResolver]. */
     public val guiAdapter: GuiAdapterFactory,
     // ---- HUD ------------------------------------------------------------
-    public val itemCooldownGateway: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway)? = null,
     public val scoreboardManager: ((ServiceRegistry) -> IScoreboardManager)? = null,
     public val tabList: ((ServiceRegistry) -> ITabList)? = null,
     public val hudGateway: ((ServiceRegistry) -> IHudGateway)? = null,

@@ -65,7 +65,7 @@ public class InMemoryPlayerProfileService(
     private val ledgerProvider: () -> ICurrencyLedger?,
     private val tutorialRegistry: ITutorialRegistry,
     private val nowEpochMs: () -> Long = { System.currentTimeMillis() },
-    /** Durable "already onboarded" store; Persistence overlays it (ADR-0195). */
+    /** Durable "already onboarded" store; Persistence overlays it (ADR-0197). */
     private val repository: IPlayerProfileRepository = InMemoryPlayerProfileRepository(),
 ) : IPlayerProfileService {
 

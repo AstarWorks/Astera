@@ -879,10 +879,25 @@ astera:
     mining:
       progress: "<gray>Mining...</gray>"
     # WP14 (ADR-0177) — one owner per HUD channel (see docs/adr/0177-*).
-    #   action bar : combat readout (cooldowns + status effects), toasts on top
+    #   action bar : combat readout (status effects), toasts on top
+    #   cooldown icons ride the status line (ADR-0197)
     #   food bar   : energy (F2-2, ADR-0194)   status line : HP + ammo   sidebar : match / lobby
     cooldown:
-      summary: "<aqua>Cooldown:</aqua> <white>{count} ({seconds}s)</white>"
+      lc:
+        waiting: "<gray>LC</gray> <white>{seconds}s</white>"
+        ready: "<green>LC OK</green>"
+      rc:
+        waiting: "<gray>RC</gray> <white>{seconds}s</white>"
+        ready: "<green>RC OK</green>"
+      sneak-lc:
+        waiting: "<gray>Sneak+LC</gray> <white>{seconds}s</white>"
+        ready: "<green>Sneak+LC OK</green>"
+      sneak-rc:
+        waiting: "<gray>Sneak+RC</gray> <white>{seconds}s</white>"
+        ready: "<green>Sneak+RC OK</green>"
+      q:
+        waiting: "<gray>Q</gray> <white>{seconds}s</white>"
+        ready: "<green>Q OK</green>"
     currency:
       summary: "<gold>{delta} {currency}</gold> <gray>({balance})</gray>"
     status:

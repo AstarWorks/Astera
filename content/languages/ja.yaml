@@ -881,10 +881,24 @@ astera:
     mining:
       progress: "<gray>採掘中...</gray>"
     # WP14 (ADR-0177) — HUD チャンネルは 1 つにつき持ち主 1 つ (docs/adr/0177-*)。
-    #   アクションバー: 戦闘表示 (クールダウン + 状態異常)、通知が優先
+    #   アクションバー: 戦闘表示 (状態異常; クールダウンアイコンはステータス行 (ADR-0197))、通知が優先
     #   満腹度バー: エネルギー (F2-2, ADR-0194)   ステータス行: HP + 弾薬   サイドバー: 試合 / ロビー
     cooldown:
-      summary: "<aqua>クールダウン:</aqua> <white>{count} 件 ({seconds}秒)</white>"
+      lc:
+        waiting: "<gray>左</gray> <white>{seconds}秒</white>"
+        ready: "<green>左 可</green>"
+      rc:
+        waiting: "<gray>右</gray> <white>{seconds}秒</white>"
+        ready: "<green>右 可</green>"
+      sneak-lc:
+        waiting: "<gray>スニーク+左</gray> <white>{seconds}秒</white>"
+        ready: "<green>スニーク+左 可</green>"
+      sneak-rc:
+        waiting: "<gray>スニーク+右</gray> <white>{seconds}秒</white>"
+        ready: "<green>スニーク+右 可</green>"
+      q:
+        waiting: "<gray>Q</gray> <white>{seconds}秒</white>"
+        ready: "<green>Q 可</green>"
     currency:
       summary: "<gold>{delta} {currency}</gold> <gray>(所持 {balance})</gray>"
     status:

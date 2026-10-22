@@ -86,6 +86,7 @@ public class HandleItemTriggerUseCase(
                     sourceItemId = itemId,
                     cooldownOverrideTicks = binding.cooldownOverrideTicks,
                     phaseOverrides = binding.phaseOverrides,
+                    trigger = binding.trigger,
                 ),
             )
         }

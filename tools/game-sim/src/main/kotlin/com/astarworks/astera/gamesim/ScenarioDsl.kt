@@ -97,8 +97,8 @@ public class ScenarioScope(public val sim: GameSim) {
     /** The vanilla food level (the energy bar) shown for [entity], or `null` before the first write. */
     public fun foodLevel(entity: SimEntity): Int? = sim.foodLevel(entity)
 
-    /** Item cooldown sweeps (reload progress) drawn so far. */
-    public fun cooldownSweeps(): List<com.astarworks.astera.core.application.service.InMemoryItemCooldownGateway.Sweep> = sim.cooldownSweeps()
+    /** Native hotbar cooldown sweeps (reload / primary-binding cooldown) drawn so far. */
+    public fun cooldownSweeps(): List<SimItemCooldownSweep.Sweep> = sim.sweeps.sweeps
 
     public fun energy(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.energy
 

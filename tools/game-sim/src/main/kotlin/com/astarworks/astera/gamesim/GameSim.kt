@@ -88,6 +88,9 @@ public class GameSim private constructor(
     /** What every HUD channel currently shows per player, and every show / update / clear (WP14). */
     public val hud: SimHudRecorder = SimHudRecorder(recorder) { scheduler.currentTick() }
 
+    /** Native hotbar cooldown sweeps the item side asked for (ADR-0197). */
+    public val sweeps: SimItemCooldownSweep = SimItemCooldownSweep { scheduler.currentTick() }
+
     /** Displays spawned by SpawnDisplay (WP5). */
     public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder)
 
@@ -263,10 +266,6 @@ public class GameSim private constructor(
     public fun foodLevel(entity: SimEntity): Int? =
         services.get<com.astarworks.astera.core.application.port.outbound.IPlayerFoodGateway>()?.getFoodLevel(entity.id)
 
-    /** Item cooldown sweeps (reload progress) the HUD asked the client to draw, in order (F2-2, ADR-0194). */
-    public fun cooldownSweeps(): List<com.astarworks.astera.core.application.service.InMemoryItemCooldownGateway.Sweep> =
-        (services.get<com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway>()
-            as? com.astarworks.astera.core.application.service.InMemoryItemCooldownGateway)?.sweeps.orEmpty()
 
     /** Feeds one input with the held item into the same sink `PaperItemInputListener` feeds. */
     public fun input(entity: SimEntity, kind: IMcEvent.InputKind, sneaking: Boolean = false): Boolean {
@@ -524,6 +523,7 @@ public class GameSim private constructor(
                 ItemsPlatformPorts(
                     itemDelivery = { SimItemDelivery() },
                     itemIdResolver = SimItemIdResolver(world),
+                    itemCooldownSweep = sim.sweeps,
                 ),
             )
 

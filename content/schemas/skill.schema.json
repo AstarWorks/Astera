@@ -42,6 +42,9 @@
         "charge_ticks": {
             "type": "integer"
         },
+        "ready_cue": {
+            "type": "boolean"
+        },
         "tags": {
             "type": "array",
             "items": {

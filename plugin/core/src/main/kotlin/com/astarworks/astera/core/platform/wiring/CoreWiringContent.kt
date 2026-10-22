@@ -209,7 +209,7 @@ internal fun CoreWiringState.wireContentAndRepositories() {
         services.get<IPlayerAttributeContainerStore>() ?: InMemoryPlayerAttributeContainer().also {
             services.register<IPlayerAttributeContainerStore>(it, priority = 0)
         }
-    // Persistence registers its overlays in onLoad (ADR-0195), so `get` already
+    // Persistence registers its overlays in onLoad (ADR-0197), so `get` already
     // returns the final implementation; the in-memory default is only the fallback.
     sessionRepo = services.get<IPlayerSessionRepository>()
         ?: InMemoryPlayerSessionRepository().also { services.register<IPlayerSessionRepository>(it, priority = 0) }

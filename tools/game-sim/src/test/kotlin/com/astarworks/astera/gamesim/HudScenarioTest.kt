@@ -186,7 +186,7 @@ class HudScenarioTest {
             assertThat(cooldownSweeps()).isEmpty()
             shooter.drop()
             advance(2)
-            assertThat(cooldownSweeps().map { it.ticks }).containsExactly(30)
+            assertThat(cooldownSweeps().map { it.ticks }).contains(30)
             advance(32)
             assertThat(sim.hud.statusAmmo(shooter.id)).isEqualTo("12/12")
 
@@ -208,14 +208,14 @@ class HudScenarioTest {
     // ---- action bar ----------------------------------------------------------
 
     @Test
-    fun `the action bar shows the cooldown readout and a currency toast is not erased by it`() {
+    fun `a cooldown no longer writes to the action bar and a currency toast stays up`() {
         scenario("hud-action-bar-owner") {
             val shooter = player("shooter", team = "red")
             shooter.cast("flame-burst") // long cooldown
             advance(12)
 
-            val readout = checkNotNull(sim.hud.actionBar(shooter.id)) { "no cooldown readout" }
-            assertThat(readout.priority).isEqualTo(0)
+            // ADR-0197: cooldowns live on the status line; the action bar only carries status effects and toasts.
+            assertThat(sim.hud.actionBar(shooter.id)).isNull()
 
             sim.eventBus.publish(
                 CurrencyChanged(shooter.id, Currency.STAR, delta = 5, newBalance = 30, reason = CurrencyChangeReason.MatchReward),
@@ -225,7 +225,7 @@ class HudScenarioTest {
             assertThat(toast.priority).isEqualTo(1)
             assertThat((toast.component as HudComponent.Text).placeholders).containsEntry("delta", "+5")
 
-            // The readout keeps polling while the toast is up; the toast stays until it expires.
+            // The effects readout keeps polling while the toast is up; the toast stays until it expires.
             advance(20)
             assertThat(checkNotNull(sim.hud.actionBar(shooter.id)).priority).isEqualTo(1)
         }
