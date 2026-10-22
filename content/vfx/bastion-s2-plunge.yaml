@@ -22,6 +22,7 @@ elements:
       curve: { type: circle, radius: 3.4 }
       offset: [0.0, 0.05, 0.0]
       align: tangent
+    group_keyframes: [ { t: 0 }, { t: 14, rotate: [60, 0, 0] } ]
     keyframes:
       - { t: 0, scale: [0.0, 0.03, 0.0] }
       - { t: 3, scale: [0.16, 0.03, 0.75], ease: out_back }

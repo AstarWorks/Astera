@@ -33,6 +33,7 @@ elements:
     glow_color: "#ffd23a"
     start_tick: 7
     end_tick: 17
+    slot_lifetime_ticks: 10
     count: 6
     formation:
       curve: { type: arc, radius: 3.3, from_deg: -85, to_deg: -28 }
@@ -53,6 +54,7 @@ elements:
     glow_color: "#ffd23a"
     start_tick: 8
     end_tick: 18
+    slot_lifetime_ticks: 10
     count: 6
     formation:
       curve: { type: arc, radius: 3.3, from_deg: -28, to_deg: 28 }
@@ -73,6 +75,7 @@ elements:
     glow_color: "#ffd23a"
     start_tick: 9
     end_tick: 19
+    slot_lifetime_ticks: 10
     count: 6
     formation:
       curve: { type: arc, radius: 3.3, from_deg: 28, to_deg: 85 }
@@ -94,6 +97,7 @@ elements:
     glow_color: "#ff9a2a"
     start_tick: 8
     end_tick: 17
+    slot_lifetime_ticks: 9
     count: 9
     formation:
       curve: { type: arc, radius: 2.6, from_deg: -75, to_deg: 75 }

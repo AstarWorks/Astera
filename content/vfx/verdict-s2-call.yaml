@@ -29,6 +29,7 @@ elements:
     glow_color: "#3fe0e0"
     start_tick: 0
     end_tick: 12
+    slot_lifetime_ticks: 12
     count: 6
     formation:
       curve: { type: lightning, from: [1.5, 0.1, 0.3], to: [1.5, 3.0, 0.3], segments: 5, amplitude: 0.35, seed: 3 }
@@ -47,6 +48,7 @@ elements:
     glow_color: "#3fe0e0"
     start_tick: 0
     end_tick: 12
+    slot_lifetime_ticks: 12
     count: 6
     formation:
       curve: { type: lightning, from: [-1.5, 0.1, 0.3], to: [-1.5, 3.0, 0.3], segments: 5, amplitude: 0.35, seed: 11 }
