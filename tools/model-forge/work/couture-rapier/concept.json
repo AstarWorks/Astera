@@ -1,0 +1,217 @@
+{
+  "parts": [
+    {
+      "polygon": [
+        [
+          7.4,
+          0
+        ],
+        [
+          8.6,
+          0
+        ],
+        [
+          8.6,
+          7.5
+        ],
+        [
+          7.4,
+          7.5
+        ]
+      ],
+      "depth": 1.5,
+      "z": 8,
+      "color": "#233e53"
+    },
+    {
+      "polygon": [
+        [
+          7.4,
+          8
+        ],
+        [
+          8.6,
+          8
+        ],
+        [
+          8.5,
+          26
+        ],
+        [
+          8,
+          29
+        ],
+        [
+          7.5,
+          26
+        ]
+      ],
+      "depth": 0.75,
+      "z": 8,
+      "color": "#92f6fa"
+    },
+    {
+      "polygon": [
+        [
+          4.5,
+          7
+        ],
+        [
+          5,
+          8.3
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          11.2,
+          8
+        ],
+        [
+          11.5,
+          6.8
+        ],
+        [
+          8,
+          7.6
+        ]
+      ],
+      "depth": 2,
+      "z": 8,
+      "color": "#d4e4ee"
+    },
+    {
+      "polygon": [
+        [
+          4.5,
+          7.3
+        ],
+        [
+          3.5,
+          5.5
+        ],
+        [
+          3.5,
+          2.5
+        ],
+        [
+          5.5,
+          0.3
+        ],
+        [
+          7.8,
+          0.3
+        ],
+        [
+          7.8,
+          1.1
+        ],
+        [
+          5.8,
+          1.1
+        ],
+        [
+          4.3,
+          2.8
+        ],
+        [
+          4.3,
+          5.3
+        ],
+        [
+          5.2,
+          6.9
+        ]
+      ],
+      "depth": 1,
+      "z": 8,
+      "color": "#c2d9e8"
+    },
+    {
+      "polygon": [
+        [
+          8,
+          6.3
+        ],
+        [
+          9.1,
+          7.4
+        ],
+        [
+          8,
+          8.5
+        ],
+        [
+          6.9,
+          7.4
+        ]
+      ],
+      "depth": 2.8,
+      "z": 8,
+      "color": "#46cedf"
+    },
+    {
+      "polygon": [
+        [
+          7,
+          -0.6
+        ],
+        [
+          9,
+          -0.6
+        ],
+        [
+          9,
+          0.5
+        ],
+        [
+          7,
+          0.5
+        ]
+      ],
+      "depth": 2,
+      "z": 8,
+      "color": "#8cdef0"
+    }
+  ],
+  "item": "couture-rapier",
+  "brief": "Astera: bold silhouette, top-left pixel highlights, readable held prop. Preserve the source weapon identity; use true volume and restrained material trims.",
+  "source_sha256": "759e3921f1b65924c2c39a4325c47f61dac41534555ac46b1e3d6dc28e560f3a",
+  "provenance": "Codex-authored polygon construction drawing from existing AI sheet; no model render input",
+  "camera": {
+    "center": [
+      8,
+      13,
+      8
+    ],
+    "span": 36,
+    "views": {
+      "front": [
+        0,
+        0,
+        0
+      ],
+      "side": [
+        0,
+        -90,
+        0
+      ],
+      "top": [
+        90,
+        0,
+        0
+      ],
+      "iso": [
+        20,
+        -30,
+        0
+      ]
+    }
+  },
+  "key": [
+    255,
+    0,
+    255
+  ]
+}
