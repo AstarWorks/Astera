@@ -17,6 +17,8 @@ ping-passthrough = "DISABLED"
 [servers]
 lobby = "lobby:25565"
 game = "game:25565"
-try = ["lobby"]
+# Fallback order: new logins and players kicked from a backend land on the lobby, or on game while
+# the lobby is down (ADR-0186).
+try = ["lobby", "game"]
 
 [forced-hosts]
