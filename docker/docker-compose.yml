@@ -49,7 +49,11 @@ x-astera-backend: &astera-backend
     # Playtest world: superflat (surface block y=-61, stand at y=-60), so
     # content/stages/example-arena.yaml coordinates sit on ground. Only
     # applies when the world is first created (see playtest.md "reset").
-    LEVEL_TYPE: "FLAT"
+    LEVEL_TYPE: "minecraft:flat"
+    # 26.3 rejects empty flat settings ("No key layers in MapLike[{}]"), so spell the vanilla
+    # default out: bedrock y=-64, dirt -63..-62, grass -61 (stand at y=-60). Lobby backend: the
+    # main world is idle, the lobby lives in the generated `lobby` world (ADR-0180).
+    GENERATOR_SETTINGS: '{"biome":"minecraft:plains","features":false,"lakes":false,"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"structure_overrides":[]}'
     MODE: "survival"
     DIFFICULTY: "normal"
     PVP: "true"

@@ -410,7 +410,9 @@ internal class CorePaperBindings(
             playerHealthGateway = highestPriorityPlayerHealthGateway,
             scheduler = scheduler,
         )
-        installLobbyWorld(ctx)
+        // Never let the lobby world fail Core's onEnable (it would disable every Astera plugin).
+        runCatching { installLobbyWorld(ctx) }
+            .onFailure { logger.log(java.util.logging.Level.SEVERE, "Lobby world setup failed; lobby stays on the main world.", it) }
         bukkitEventAdapterTimeTaskHandle = bukkitEventAdapter.start(plugin)
         logger.info(
             "Wave 6a-6 BukkitEventAdapter wired (Role 1: 9 event translations; " +
@@ -439,18 +441,63 @@ internal class CorePaperBindings(
             }
         }
         val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(config)
-        val world = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyWorld(
+        val lobby = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyWorld(
             plugin = plugin,
             messages = ctx.services.getOrThrow<IMessageRenderer>(),
             rules = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway>(),
             time = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway>(),
             weather = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldWeatherGateway>(),
-        ).install(config, plan) ?: return
-        val spawn = org.bukkit.Location(world, config.spawn.x, config.spawn.y, config.spawn.z, config.spawn.yaw, config.spawn.pitch)
+        )
+        // Core enables at STARTUP, where Paper forbids createWorld (IllegalStateException). Only
+        // register here; the world is created from ServerLoadEvent / the first tick. Until it exists
+        // the spawn supplier is null: joins stay on the main world, lobbySpawn falls back to it.
+        npcBodyService?.awaitedWorlds = setOf(config.id)
         server.pluginManager.registerEvents(
-            com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(config.id, config.rules) { spawn.clone() },
+            com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(config.id, config.rules) {
+                server.getWorld(config.id)?.let {
+                    org.bukkit.Location(it, config.spawn.x, config.spawn.y, config.spawn.z, config.spawn.yaw, config.spawn.pitch)
+                }
+            },
             plugin,
         )
+        val created = java.util.concurrent.atomic.AtomicBoolean(false)
+        val attempts = java.util.concurrent.atomic.AtomicInteger(0)
+        lateinit var create: Runnable
+        create = Runnable {
+            if (!created.compareAndSet(false, true)) return@Runnable
+            var done = true
+            try {
+                lobby.install(config, plan)
+            } catch (t: Throwable) {
+                if (attempts.incrementAndGet() < MAX_LOBBY_WORLD_ATTEMPTS) {
+                    // Paper may still consider the server "starting"; retry a bit later.
+                    logger.warning("Lobby world creation failed (${t.message}); retrying in 1s.")
+                    created.set(false)
+                    server.scheduler.runTaskLater(plugin, create, 20L)
+                    done = false
+                } else {
+                    logger.log(java.util.logging.Level.SEVERE, "Lobby world creation failed; lobby stays on the main world.", t)
+                }
+            } finally {
+                if (done) {
+                    npcBodyService?.awaitedWorlds = emptySet()
+                    npcBodyService?.flush()
+                }
+            }
+        }
+        server.pluginManager.registerEvents(
+            object : org.bukkit.event.Listener {
+                @org.bukkit.event.EventHandler
+                fun onServerLoad(event: org.bukkit.event.server.ServerLoadEvent) = create.run()
+            },
+            plugin,
+        )
+        // /reload: ServerLoadEvent never fires again, so also try on the next tick.
+        server.scheduler.runTask(plugin, create)
+    }
+
+    private companion object {
+        const val MAX_LOBBY_WORLD_ATTEMPTS = 5
     }
 
     /** Paper-side teardown; the host-neutral wiring tears down via `WiringContext.close()` + `CoreWiringResult.shutdown()`. */
