@@ -92,6 +92,9 @@ public class FakeHologramGateway(
     private val ops: MutableList<HologramOp> = mutableListOf()
 
     override fun spawn(hologram: Hologram): Result<HologramHandle, HologramError> {
+        hologram.ownerKey?.let { key ->
+            live.entries.firstOrNull { it.value.ownerKey == key }?.let { return Result.success(it.key) }
+        }
         val handle = HologramHandle(UUID.randomUUID().toString())
         live[handle] = hologram
         ops += HologramOp.Spawned(handle, hologram)

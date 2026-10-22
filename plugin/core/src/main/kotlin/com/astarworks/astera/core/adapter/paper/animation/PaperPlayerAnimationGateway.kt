@@ -240,6 +240,7 @@ public class PaperPlayerAnimationGateway(
                 val world = player.world
                 val loc = Location(world, target.position.x, target.position.y, target.position.z)
                 val stand = world.spawn(loc, ArmorStand::class.java).apply {
+                    com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(this, "sit:${playerId.uuid}")
                     isInvisible = true
                     isMarker = true
                     isSmall = true

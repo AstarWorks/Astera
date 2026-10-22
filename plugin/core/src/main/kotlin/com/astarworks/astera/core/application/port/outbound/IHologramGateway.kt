@@ -69,6 +69,9 @@ public interface IHologramGateway {
      * Spawn [hologram] in the world at its declared position. Returns an
      * opaque [HologramHandle] callers store for later [despawn] /
      * [updateTransform] / [updateKind] / [teleport].
+     *
+     * Idempotent per [Hologram.ownerKey]: when the key is set and a live hologram already carries it,
+     * the existing handle is returned and nothing new is spawned.
      */
     public fun spawn(hologram: Hologram): Result<HologramHandle, HologramError>
 

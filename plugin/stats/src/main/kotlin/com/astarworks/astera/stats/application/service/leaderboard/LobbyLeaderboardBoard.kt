@@ -65,6 +65,7 @@ public class LobbyLeaderboardBoard(
             kind = HologramKind.Text(lines = keys, lineWidth = 260, defaultBackground = true),
             billboard = BillboardMode.CENTER,
             viewRangeBlocks = 48f,
+            ownerKey = "leaderboard:${world.value}:${position.x},${position.y},${position.z}",
         )
         when (val result = holograms.spawn(hologram)) {
             is Result.Success -> handle = result.value

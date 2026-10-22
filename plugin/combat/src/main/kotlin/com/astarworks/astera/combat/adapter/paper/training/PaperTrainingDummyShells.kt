@@ -41,7 +41,7 @@ internal class PaperTrainingDummyShells(plugin: JavaPlugin) : ITrainingDummyShel
         val loc = Location(bukkitWorld, at.x, at.y, at.z, spot.yaw, 0f)
         bukkitWorld.getChunkAt(loc).load()
         val body = bukkitWorld.spawn(loc, Mannequin::class.java) { m ->
-            m.isPersistent = false
+            com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(m, "training-dummy")
             m.isSilent = true
             m.setGravity(false)
             m.isInvulnerable = false // targeting skips invulnerable entities; vanilla damage is cancelled instead

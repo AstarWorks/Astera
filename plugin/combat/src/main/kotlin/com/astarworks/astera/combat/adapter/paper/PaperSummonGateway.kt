@@ -42,7 +42,7 @@ public class PaperSummonGateway(
             log.warn("Summon: '{}' is not a mob", request.entityTypeKey)
             return null
         }
-        entity.isPersistent = false
+        com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(entity, "summon")
         entity.removeWhenFarAway = true
         return PlayerId(entity.uniqueId)
     }

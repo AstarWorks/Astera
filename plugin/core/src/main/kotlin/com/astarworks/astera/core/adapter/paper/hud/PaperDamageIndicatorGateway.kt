@@ -42,7 +42,7 @@ public class PaperDamageIndicatorGateway(
 
         val display = at.world.spawn(at, TextDisplay::class.java) { entity ->
             entity.isVisibleByDefault = false
-            entity.isPersistent = false
+            com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(entity, "damage-indicator")
             entity.billboard = Display.Billboard.CENTER
             entity.text(label(amount, style))
             entity.isShadowed = true

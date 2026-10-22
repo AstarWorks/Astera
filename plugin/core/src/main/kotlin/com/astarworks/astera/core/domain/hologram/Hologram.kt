@@ -45,4 +45,10 @@ public data class Hologram(
     public val displayWidth: Float = 0f,
     public val displayHeight: Float = 0f,
     public val glowColor: HologramColor? = null,
+    /**
+     * Stable identity of the feature that owns this hologram (e.g. `"leaderboard:lobby:0,70,0"`).
+     * Spawning a hologram whose [ownerKey] already has a live one returns the existing handle instead
+     * of creating a second entity, so per-join / per-refresh / per-boot spawns cannot multiply.
+     */
+    public val ownerKey: String? = null,
 )

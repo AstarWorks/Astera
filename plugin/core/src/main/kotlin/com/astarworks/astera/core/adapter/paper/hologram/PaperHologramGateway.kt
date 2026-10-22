@@ -1,7 +1,10 @@
 package com.astarworks.astera.core.adapter.paper.hologram
 
 import com.astarworks.astera.core.application.port.outbound.HologramError
+import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities
+import com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntityJanitor
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry
 import com.astarworks.astera.core.application.port.outbound.IHologramGateway
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -188,6 +191,10 @@ public class PaperHologramGateway(
      * a deterministic roster.
      */
     private val matchRepositoryLookup: () -> IMatchRepository? = { null },
+    /** Shared registry of managed entities; `null` in tests that do not need owner idempotency. */
+    private val managed: IManagedEntityRegistry? = null,
+    /** Sweeps legacy (pre-fix, chunk-saved) duplicates around owned holograms; `null` = no sweep. */
+    private val janitor: PaperManagedEntityJanitor? = null,
 ) : IHologramGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -214,6 +221,14 @@ public class PaperHologramGateway(
      */
     private var plugin: JavaPlugin? = null
 
+    /** ownerKey → handle of the live hologram of that owner. */
+    private val owners: MutableMap<String, HologramHandle> = HashMap()
+
+    private companion object {
+        /** Blocks around an owned hologram within which untagged legacy text displays are removed. */
+        const val LEGACY_SWEEP_RADIUS: Double = 2.0
+    }
+
     // ─── Lifecycle ────────────────────────────────────────────────────────
 
     override fun spawn(hologram: Hologram): Result<HologramHandle, HologramError> {
@@ -223,6 +238,20 @@ public class PaperHologramGateway(
         val world = server.getWorld(hologram.worldId.value)
             ?: return Result.failure(HologramError.UnknownWorld(hologram.worldId))
         val loc = Location(world, hologram.position.x, hologram.position.y, hologram.position.z)
+
+        // Once per owner per server lifetime: a live, valid entity for this owner is reused.
+        val ownerKey = hologram.ownerKey
+        if (ownerKey != null) {
+            val existing = owners[ownerKey]
+            if (existing != null && entities[existing]?.let { server.getEntity(it)?.isValid } == true) {
+                return Result.success(existing)
+            }
+            existing?.let { live.remove(it); entities.remove(it) }
+            // Entities saved into the chunk by builds that did not mark them non-persistent.
+            janitor?.addLegacyZone(
+                PaperManagedEntityJanitor.LegacyZone(hologram.worldId, hologram.position, LEGACY_SWEEP_RADIUS),
+            )
+        }
 
         val entityClass = when (hologram.kind) {
             is HologramKind.Text -> TextDisplay::class.java
@@ -250,6 +279,10 @@ public class PaperHologramGateway(
         val handle = HologramHandle(UUID.randomUUID().toString())
         live[handle] = hologram
         entities[handle] = spawned.uniqueId
+        val claimKey = ownerKey ?: "hologram:${handle.value}"
+        PaperManagedEntities.mark(spawned, claimKey)
+        managed?.claim(claimKey, spawned.uniqueId)
+        if (ownerKey != null) owners[ownerKey] = handle
 
         applyVisibility(spawned, hologram.visibilityScope)
 
@@ -258,13 +291,21 @@ public class PaperHologramGateway(
 
     override fun despawn(handle: HologramHandle): Result<Unit, HologramError> {
         // Idempotent per port KDoc — unknown handle returns Success.
-        live.remove(handle)
+        val removed = live.remove(handle)
+        val claimKey = removed?.ownerKey ?: "hologram:${handle.value}"
+        managed?.release(claimKey)
+        removed?.ownerKey?.let { owners.remove(it) }
         val entityId = entities.remove(handle) ?: return Result.success(Unit)
         if (!server.isPrimaryThread) {
             return Result.failure(HologramError.Storage("off-main: despawn"))
         }
         server.getEntity(entityId)?.remove()
         return Result.success(Unit)
+    }
+
+    /** Removes every hologram this gateway spawned (plugin disable). Main thread. */
+    public fun despawnAll() {
+        for (handle in live.keys.toList()) despawn(handle)
     }
 
     // ─── Full-payload updaters (Wave 5h) ──────────────────────────────────

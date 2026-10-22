@@ -65,7 +65,7 @@ internal class PaperTrainingRackGateway(
             val icon = itemIcon(frame.itemId) ?: continue
             bukkitWorld.spawn(loc, ItemFrame::class.java) { f ->
                 f.setFacingDirection(face, true)
-                f.isPersistent = false
+                com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(f, "training-rack")
                 f.isFixed = true
                 f.isInvulnerable = true
                 f.setItem(icon, false)

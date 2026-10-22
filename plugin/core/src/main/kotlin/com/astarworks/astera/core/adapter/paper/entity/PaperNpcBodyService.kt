@@ -123,7 +123,7 @@ internal class PaperNpcBodyService(
             v.setAI(false)
             v.isInvulnerable = true
             v.isSilent = true
-            v.isPersistent = false
+            PaperManagedEntities.mark(v, "npc:${req.handle.id}")
             v.removeWhenFarAway = false
             v.customName(name)
             v.isCustomNameVisible = true

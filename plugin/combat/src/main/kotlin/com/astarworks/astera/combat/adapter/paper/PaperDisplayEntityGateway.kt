@@ -67,7 +67,7 @@ public class PaperDisplayEntityGateway(
                 kind.textRgb?.let { text.text(text.text().color(TextColor.color(it))) }
             }
         }
-        display.isPersistent = false
+        com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(display, "display-entity")
         display.billboard = when (spec.billboard) {
             DisplayBillboard.FIXED -> Display.Billboard.FIXED
             DisplayBillboard.VERTICAL -> Display.Billboard.VERTICAL

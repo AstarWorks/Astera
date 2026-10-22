@@ -50,6 +50,9 @@ public class InMemoryHologramGateway : IHologramGateway {
     private val live: ConcurrentHashMap<HologramHandle, Hologram> = ConcurrentHashMap()
 
     override fun spawn(hologram: Hologram): Result<HologramHandle, HologramError> {
+        hologram.ownerKey?.let { key ->
+            live.entries.firstOrNull { it.value.ownerKey == key }?.let { return Result.success(it.key) }
+        }
         val handle = HologramHandle(UUID.randomUUID().toString())
         live[handle] = hologram
         return Result.success(handle)
