@@ -57,13 +57,13 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "頭上の三枚の旋回→斜め整列→下降を実機確認。白い弧は短く細く、腕の挙上・花飾り・移動標的への追尾・第一第三接触演出は未一致。"
+    "reason": "頭上旋回を230度の専用白弧へ更新し、実機・通常右クリックで確認。発光の柔らかさ、弧の重なり、腕の挙上、花飾り、移動標的への追尾、第一第三接触演出は未一致。"
   },
   "weapon": "couture-rapier",
   "identity": "The Alteration Shop Rodion",
   "videoTitle": "The Alteration Shop Rodion — skill showcase",
-  "iterations": 7,
+  "iterations": 9,
   "report": "/report/couture-rapier",
   "referenceRevision": "2a0c71b6bf925c5522f4a1fd6d83a77e400ca197ab4467f06d1696e98bbc47ff",
-  "contentRevision": "7abe00f1f232469e57f79fd94000ffd6583eb51b3fe4f9d3fc49469150285298"
+  "contentRevision": "a199dae3730bc7fa81e5682ff073c8b47190dd0d0831488f7f102b12cb17c8a4"
 }
