@@ -4,6 +4,8 @@ import com.astarworks.astera.items.adapter.paper.EnchantmentGateListener
 import com.astarworks.astera.items.adapter.paper.PaperItemIdResolver
 import com.astarworks.astera.items.adapter.paper.PaperHeldItemListener
 import com.astarworks.astera.items.adapter.paper.PaperItemInputListener
+import com.astarworks.astera.items.adapter.paper.PaperTrainingRackGateway
+import com.astarworks.astera.items.adapter.paper.PaperTrainingRackListener
 import com.astarworks.astera.items.platform.wiring.ItemsWiringResult
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -14,7 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin
  */
 internal object ItemsPaperBindings {
 
-    fun register(plugin: JavaPlugin, wired: ItemsWiringResult) {
+    fun register(plugin: JavaPlugin, wired: ItemsWiringResult, rackFrames: PaperTrainingRackGateway, rangeWorld: () -> String?) {
         // Input → trigger sink (vendor-neutral listener behind a Paper bridge).
         val inputListener = PaperItemInputListener(
             itemIdResolver = PaperItemIdResolver(plugin, plugin.server),
@@ -30,5 +32,10 @@ internal object ItemsPaperBindings {
 
         // Enchant-gate + keep-on-death listener (Bukkit-native).
         plugin.server.pluginManager.registerEvents(EnchantmentGateListener(plugin), plugin)
+
+        // F3-11: weapon rack interaction + lobby-only guarantees for its stacks.
+        wired.trainingRack?.let { rack ->
+            plugin.server.pluginManager.registerEvents(PaperTrainingRackListener(rack, rackFrames, rangeWorld), plugin)
+        }
     }
 }

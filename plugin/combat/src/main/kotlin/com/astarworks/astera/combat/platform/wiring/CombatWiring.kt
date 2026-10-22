@@ -101,6 +101,8 @@ public class CombatWiringResult(
     public val applyStatus: ApplyStatusUseCase?,
     public val castSkill: CastSkillUseCase?,
     public val mechanicDispatcher: MechanicDispatcher?,
+    /** F3-11: keeps the lobby training dummies alive; `null` when the host supplied no dummy bodies. */
+    public val trainingRange: com.astarworks.astera.combat.application.service.training.TrainingRangeService?,
     private val shutdownHooks: List<() -> Unit>,
 ) {
     /**
@@ -194,12 +196,22 @@ public object CombatWiring {
         // WP3: host spatial query (players + mobs) before anything captures it.
         // WP10: wrapped so world structures (Annihilation pillars, IStructureTargets,
         // registered by Match later) are targets too.
+        // F3-11: players inside the lobby training range are never offered as targets (no PvP there).
+        val trainingDummies = com.astarworks.astera.combat.application.service.training.TrainingDummyRegistry()
+        val trainingProtection = com.astarworks.astera.combat.application.service.training.TrainingRangeProtection(
+            range = { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>() },
+            dummies = trainingDummies,
+            poses = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>() },
+        )
         val baseNearbyQuery = ports.nearbyTargetQuery?.invoke(services)
             ?: services.get<INearbyTargetQuery>()
             ?: EmptyNearbyTargetQuery()
         registrations += services.register<INearbyTargetQuery>(
             com.astarworks.astera.combat.application.service.StructureAwareNearbyTargetQuery(
-                base = baseNearbyQuery,
+                base = com.astarworks.astera.combat.application.service.training.ProtectionAwareNearbyTargetQuery(
+                    baseNearbyQuery,
+                    trainingProtection,
+                ),
                 structures = { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() },
             ),
             priority = 100,
@@ -341,9 +353,29 @@ public object CombatWiring {
         // WP3: non-player (mob) damage. Optional: without a host impl mobs are
         // simply not damageable (ApplyDamageUseCase never takes the entity path).
         // WP10: always wrapped so structure ids (pillars) are damageable even without a host mob gateway.
+        // F3-11: lobby training dummies take Astera damage on their own HP model (never die, regenerate).
+        val trainingShells = ports.trainingDummyShells?.invoke(services)
+        val trainingService = trainingShells?.let { shells ->
+            com.astarworks.astera.combat.application.service.training.TrainingRangeService(
+                range = { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>() },
+                dummies = trainingDummies,
+                shells = shells,
+                displays = ports.displayEntityGateway?.invoke(services),
+                scheduler = services.getOrThrow<IScheduler>(),
+                messages = services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
+            ).also { service ->
+                service.start()
+                shutdownHooks += { service.stop() }
+            }
+        }
         registrations += services.register<IEntityDamageGateway>(
             com.astarworks.astera.combat.application.service.StructureAwareEntityDamageGateway(
-                base = ports.entityDamageGateway?.invoke(services) ?: services.get<IEntityDamageGateway>(),
+                base = com.astarworks.astera.combat.application.service.training.TrainingDummyEntityDamageGateway(
+                    base = ports.entityDamageGateway?.invoke(services) ?: services.get<IEntityDamageGateway>(),
+                    dummies = trainingDummies,
+                    now = { services.getOrThrow<IScheduler>().currentTick() },
+                    onHit = { dummy, resolved, source -> trainingService?.onHit(dummy, resolved, source) },
+                ),
                 structures = { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() },
             ),
             priority = 100,
@@ -439,6 +471,7 @@ public object CombatWiring {
                 ),
                 entityDamageGateway = entityDamageGateway,
                 godMode = godModeService,
+                protection = trainingProtection,
             )
 
             // Wave 6e-N1 (ADR-0164): the explosion overlay is wired with
@@ -721,6 +754,7 @@ public object CombatWiring {
             applyStatus = applyStatusOut,
             castSkill = castSkillOut,
             mechanicDispatcher = mechanicDispatcherOut,
+            trainingRange = trainingService,
             shutdownHooks = shutdownHooks.toList(),
         )
     }

@@ -8,6 +8,11 @@ import com.astarworks.astera.items.adapter.paper.PaperItemDelivery
 import com.astarworks.astera.items.adapter.paper.PaperItemIdResolver
 import com.astarworks.astera.items.adapter.paper.ItemModelCatalog
 import com.astarworks.astera.items.adapter.paper.PaperItemMaterializer
+import com.astarworks.astera.items.adapter.paper.PaperTrainingInventory
+import com.astarworks.astera.items.adapter.paper.PaperTrainingRackGateway
+import com.astarworks.astera.items.platform.wiring.ItemsWiringResult
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.items.platform.paper.ItemsPaperBindings
 import com.astarworks.astera.items.platform.wiring.ItemsPlatformPorts
 import com.astarworks.astera.items.platform.wiring.ItemsWiring
@@ -32,6 +37,7 @@ import org.bukkit.plugin.java.JavaPlugin
 public class AsteraItemsPlugin : JavaPlugin() {
 
     private var wiringContext: WiringContext? = null
+    private var itemsResult: ItemsWiringResult? = null
 
     override fun onEnable() {
         logger.info("Astera-Items enabling…")
@@ -46,25 +52,37 @@ public class AsteraItemsPlugin : JavaPlugin() {
         wiringContext = ctx
 
         // Paper-side item adapters (ADR-0174: injected into the host-neutral wiring).
+        var materializer: PaperItemMaterializer? = null
+        var rackFrames: PaperTrainingRackGateway? = null
         val ports = ItemsPlatformPorts(
             itemDelivery = { services ->
-                val materializer = PaperItemMaterializer(
+                val built = PaperItemMaterializer(
                     plugin = this,
                     messages = services.getOrThrow<IMessageRenderer>(),
                     itemModels = ItemModelCatalog.fromContentDir(core.contentDir),
                 )
-                PaperItemDelivery(materializer, server)
+                materializer = built
+                PaperItemDelivery(built, server)
             },
             itemIdResolver = PaperItemIdResolver(this, server),
+            trainingRack = { services ->
+                val registry = services.getOrThrow<IItemRegistry>()
+                PaperTrainingRackGateway(this) { id -> registry.find(id)?.let { spec -> materializer?.buildFor(spec, null, null, 1) } }
+                    .also { rackFrames = it }
+            },
+            trainingInventory = { PaperTrainingInventory(server) },
         )
 
         val wired = ItemsWiring.install(ctx, ports)
-        ItemsPaperBindings.register(this, wired)
+        itemsResult = wired
+        ItemsPaperBindings.register(this, wired, checkNotNull(rackFrames), { core.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>()?.world?.value })
 
         logger.info("Astera-Items enabled.")
     }
 
     override fun onDisable() {
+        itemsResult?.shutdown()
+        itemsResult = null
         wiringContext?.close()
         wiringContext = null
         logger.info("Astera-Items disabled.")
