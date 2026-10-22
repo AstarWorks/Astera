@@ -295,6 +295,15 @@ public class GameSim private constructor(
         public fun defaultContentDir(): Path =
             Paths.get(System.getProperty("astera.sim.contentDir") ?: "content").toAbsolutePath().normalize()
 
+        /**
+         * Plugin names in the order [boot] installs them. `PluginLoadOrderTest`
+         * asserts this is a valid topological order of the real `plugin.yml`
+         * depend/softdepend graph, so a load-order bug cannot hide in the sim.
+         */
+        public val WIRING_ORDER: List<String> = listOf(
+            "Astera-Core", "Astera-Items", "Astera-Combat", "Astera-Match", "Astera-Stats", "Astera-Economy",
+        )
+
         public fun defaultTraceDir(): Path =
             Paths.get(System.getProperty("astera.sim.traceDir") ?: "build/sim-traces").toAbsolutePath().normalize()
 
@@ -303,6 +312,8 @@ public class GameSim private constructor(
             scenarioName: String,
             contentDir: Path = defaultContentDir(),
             groundY: Double = SimWorld.DEFAULT_GROUND_Y,
+            annihilation: com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig =
+                com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig.DEFAULT,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
@@ -405,7 +416,7 @@ public class GameSim private constructor(
 
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
-            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot))
+            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation))
             sim.stats = StatsWiring.install(context(), StatsPlatformPorts())
             sim.economy = EconomyWiring.install(context(), EconomyPlatformPorts())
 

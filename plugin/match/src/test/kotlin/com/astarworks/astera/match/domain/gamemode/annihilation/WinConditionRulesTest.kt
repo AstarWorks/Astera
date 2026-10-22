@@ -103,4 +103,22 @@ class WinConditionRulesTest {
             ),
         ).isEqualTo(WinConditionRules.Outcome.InProgress)
     }
+
+    @Test
+    fun `a single-team match (solo playtest) has no winner by elimination`() {
+        val solo = AnnihilationMatchState.seed(matchId, config, listOf(red))
+            .enterPhase(NexusPhase.Phase3Tier3, atTick = 0L)
+        assertThat(WinConditionRules.evaluate(solo, currentTick = 5000L))
+            .isEqualTo(WinConditionRules.Outcome.InProgress)
+    }
+
+    @Test
+    fun `vacant opposing teams still have pillars to fall before the player wins`() {
+        // 1 player on red, blue + yellow vacant: red wins only once both vacant Nexuses are down.
+        val state = seed().enterPhase(NexusPhase.Phase3Tier3, atTick = 0L)
+        val afterBlue = eliminateTier3(state, blue)
+        assertThat(WinConditionRules.evaluate(afterBlue, 100L)).isEqualTo(WinConditionRules.Outcome.InProgress)
+        val afterGreen = eliminateTier3(afterBlue, green)
+        assertThat(WinConditionRules.evaluate(afterGreen, 100L)).isEqualTo(WinConditionRules.Outcome.Winner(red))
+    }
 }

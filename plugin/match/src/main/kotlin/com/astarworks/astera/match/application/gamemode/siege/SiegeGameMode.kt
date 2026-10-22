@@ -68,7 +68,7 @@ public open class SiegeRun(public val matchId: MatchId, public val stage: Stage)
  * `PlayerMoved`), [BlockBroken] and [PlayerKilled] — over the **named regions
  * of the match's stage** (`core-<team>`, `base-<team>`, `wool-*`, ...; see
  * `content/stages/README.md`). It owns its per-match state, declares the
- * winner through [IMatchLifecycle.endWithWinner], and never touches Bukkit.
+ * winner through [EndReason.TeamVictory], and never touches Bukkit.
  *
  * Hooks run only for matches that started under this mode, so several modes
  * can be registered side by side.
@@ -191,7 +191,7 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         val e = env ?: return
         if (run.ended) return
         run.ended = true
-        e.lifecycle.endWithWinner(run.matchId, EndReason.ObjectiveCompleted, winner)
+        e.lifecycle.end(run.matchId, EndReason.TeamVictory(winner))
     }
 
     /** Sends [key] to every current member of the match. */

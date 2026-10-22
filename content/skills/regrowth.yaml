@@ -1,0 +1,37 @@
+# WP7: verdant staff sneak + right-click. Support: the caster and allies within
+# ~10 blocks lose harmful statuses and regenerate 1.5 HP/s for 8s.
+# (A direct heal mechanic is still held back; heal-over-time rides the regen status.)
+
+id: regrowth
+
+name:
+  ja: "再生の風"
+  en: "Regrowth"
+description:
+  ja: "自分と周囲の味方の状態異常を浄化し、しばらく体力を回復し続ける。"
+  en: "Cleanses you and nearby allies and heals them over time."
+
+archetype: buff
+cooldown_ticks: 240
+resource_cost: 35              # mana
+tags: [ magic, earth-family, support, heal ]
+
+params:
+  type: buff
+  status_effect_id: regen
+  duration_ticks: 160
+
+phases:
+  type: buff
+  cast:
+    - type: cleanse
+      targets: { type: allies, center: { type: caster }, include_self: true }
+    - type: apply_status
+      targets: { type: allies, center: { type: caster } }
+      status_id: regen
+      effect_duration_ticks: { type: literal, value: 160 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.beacon.activate
+  expire: []
+  removed: []

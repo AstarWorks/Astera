@@ -1,0 +1,16 @@
+# WP7: electric stun. Applied by lightning-bolt; locks the target out of actions
+# for 1.5s (PARALYSIS = action-disable, no scalar). Pairs with the existing
+# status-effect-interactions rule "shock-amplifies-wet".
+
+id: shock
+
+display_name_key: astera.status.shock.name
+
+kind: paralysis
+default_duration_ticks: 30   # 1.5s @ 20 TPS
+
+stackable: false
+max_stacks: 1
+
+params:
+  type: disable

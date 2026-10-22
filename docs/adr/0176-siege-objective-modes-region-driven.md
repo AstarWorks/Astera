@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0175: Siege (objective) modes are region-driven per-match `IGameMode`s
+# ADR-0176: Siege (objective) modes are region-driven per-match `IGameMode`s
 
 ## Status
 
@@ -40,7 +40,7 @@ time. None of them could win a match:
    base in `match/application/gamemode/siege/`): it reacts only to events of
    its own matches (`EntityEnteredRegion/LeftRegion`, `BlockBroken`,
    `PlayerKilled`, a 1 Hz tick), declares the winner through the new
-   `IMatchLifecycle.endWithWinner`, and places / removes its marker blocks via
+   `EndReason.TeamVictory(winner)` (WP10 mechanism), and places / removes its marker blocks via
    `IWorldGateway`. Tunables come from `content/game-modes/<id>.yaml`
    `default_config`.
 3. **Region transitions are derived from the match's own stage**

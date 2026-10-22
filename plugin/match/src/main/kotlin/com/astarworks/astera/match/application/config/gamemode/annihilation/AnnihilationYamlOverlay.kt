@@ -19,6 +19,7 @@ import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConf
  * ```yaml
  * default_config:
  *   pillar_hp: 500                           # int
+ *   pillar_break_damage: 25                  # int, damage of one enemy block break on a pillar
  *   build_phase_ticks: 6000                  # long (= 5 min @ 20 tps)
  *   engage_phase_ticks: 12000                # long
  *   tier3_phase_ticks: 6000                  # long
@@ -53,6 +54,7 @@ public object AnnihilationYamlOverlay {
         val warnings = mutableListOf<String>()
 
         val pillarHp = parseInt(raw, "pillar_hp", defaults.pillarHp, warnings)
+        val breakDamage = parseInt(raw, "pillar_break_damage", defaults.pillarBreakDamage, warnings)
         val buildTicks = parseLong(raw, "build_phase_ticks", defaults.buildPhaseTicks, warnings)
         val engageTicks = parseLong(raw, "engage_phase_ticks", defaults.engagePhaseTicks, warnings)
         val tier3Ticks = parseLong(raw, "tier3_phase_ticks", defaults.tier3PhaseTicks, warnings)
@@ -69,6 +71,7 @@ public object AnnihilationYamlOverlay {
             AnnihilationConfig(
                 pillarCount = defaults.pillarCount,
                 pillarHp = pillarHp,
+                pillarBreakDamage = breakDamage,
                 buildPhaseTicks = buildTicks,
                 engagePhaseTicks = engageTicks,
                 tier3PhaseTicks = tier3Ticks,

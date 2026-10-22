@@ -139,6 +139,7 @@ public class MatchEndSummaryListener(
             // the per-player teleport step because the world is gone).
             com.astarworks.astera.core.domain.event.EndReason.WorldUnloaded -> "world-unloaded"
             is com.astarworks.astera.core.domain.event.EndReason.Cancelled -> "cancelled"
+            is com.astarworks.astera.core.domain.event.EndReason.TeamVictory -> "objective"
         }
 
     public companion object {

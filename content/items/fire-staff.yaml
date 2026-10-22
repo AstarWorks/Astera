@@ -1,0 +1,38 @@
+# WP7 staff roster: fire burst. Right-click = flame burst (12 fire + burn DoT).
+# Fire melts frost (status-effect-interactions: burn cancels freeze).
+
+id: fire-staff
+
+material: BLAZE_ROD
+
+name:
+  ja: "<red>ファイアスタッフ</red>"
+  en: "<red>Fire Staff</red>"
+lore:
+  ja:
+    - "<gray>右クリック: 炎の爆発（燃焼）</gray>"
+    - "<dark_gray>rarity: uncommon / level: 2</dark_gray>"
+  en:
+    - "<gray>Right-click: flame burst (burn)</gray>"
+    - "<dark_gray>rarity: uncommon / level: 2</dark_gray>"
+
+rarity: uncommon
+level_requirement: 2
+
+attributes:
+  attack_damage: 2.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: mana
+resource_cost_per_use: 25
+resource_max_pool: 100
+resource_regen_per_second: 6.0
+
+skills:
+  - trigger: right_click
+    skill_id: flame-burst
+
+pdc_tags:
+  astera:rarity: uncommon

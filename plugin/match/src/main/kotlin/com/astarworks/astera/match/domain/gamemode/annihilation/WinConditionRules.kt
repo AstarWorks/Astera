@@ -51,6 +51,9 @@ public object WinConditionRules {
      * Resolve the current outcome from [state] at [currentTick].
      */
     public fun evaluate(state: AnnihilationMatchState, currentTick: Long): Outcome {
+        // A single-team match (solo playtest, min_players 1 with the other teams
+        // vacated) has nobody to beat: there is no winner by elimination.
+        if (state.allTeams.size < 2) return Outcome.InProgress
         val survivors = state.survivingTeams
         // Elimination — only one team has a Tier 3 left.
         if (survivors.size == 1) return Outcome.Winner(survivors.single())

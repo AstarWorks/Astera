@@ -186,9 +186,18 @@ public object CombatWiring {
         registrations += services.register<ICelEvaluator>(StubCelEvaluator())
 
         // WP3: host spatial query (players + mobs) before anything captures it.
-        ports.nearbyTargetQuery?.let {
-            registrations += services.register<INearbyTargetQuery>(it(services), priority = 100)
-        }
+        // WP10: wrapped so world structures (Annihilation pillars, IStructureTargets,
+        // registered by Match later) are targets too.
+        val baseNearbyQuery = ports.nearbyTargetQuery?.invoke(services)
+            ?: services.get<INearbyTargetQuery>()
+            ?: EmptyNearbyTargetQuery()
+        registrations += services.register<INearbyTargetQuery>(
+            com.astarworks.astera.combat.application.service.StructureAwareNearbyTargetQuery(
+                base = baseNearbyQuery,
+                structures = { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() },
+            ),
+            priority = 100,
+        )
 
         // Wave 5m (ADR-0088): Combat AOE + environment damage source.
         // Register InMemory defaults; Wave 6a `PaperExplosionGateway` /
@@ -325,9 +334,14 @@ public object CombatWiring {
 
         // WP3: non-player (mob) damage. Optional: without a host impl mobs are
         // simply not damageable (ApplyDamageUseCase never takes the entity path).
-        ports.entityDamageGateway?.let {
-            registrations += services.register<IEntityDamageGateway>(it(services), priority = 100)
-        }
+        // WP10: always wrapped so structure ids (pillars) are damageable even without a host mob gateway.
+        registrations += services.register<IEntityDamageGateway>(
+            com.astarworks.astera.combat.application.service.StructureAwareEntityDamageGateway(
+                base = ports.entityDamageGateway?.invoke(services) ?: services.get<IEntityDamageGateway>(),
+                structures = { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() },
+            ),
+            priority = 100,
+        )
         val entityDamageGateway = services.get<IEntityDamageGateway>()
 
         val damageGateway = services.get<IDamageGateway>()
@@ -487,6 +501,7 @@ public object CombatWiring {
                         scheduler = scheduler,
                         particleScheduler = particleSchedulerForImpacts,
                         soundScheduler = soundSchedulerForImpacts,
+                        structures = { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() },
                     ),
                 )
             }

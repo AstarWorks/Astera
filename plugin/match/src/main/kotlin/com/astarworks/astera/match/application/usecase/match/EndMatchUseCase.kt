@@ -9,7 +9,6 @@ import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
-import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.match.domain.match.MatchStateMachine
 
 /**
@@ -24,15 +23,7 @@ public class EndMatchUseCase(
     private val victoryEvaluator: VictoryConditionEvaluator = VictoryConditionEvaluator(),
 ) {
 
-    /**
-     * @param winningTeam the winner an objective mode already decided; `null`
-     *   lets the score-threshold evaluator pick (draw when nobody qualifies).
-     */
-    public fun execute(
-        matchId: MatchId,
-        reason: EndReason,
-        winningTeam: TeamId? = null,
-    ): Result<Unit, EndMatchError> {
+    public fun execute(matchId: MatchId, reason: EndReason): Result<Unit, EndMatchError> {
         val match = matches.findById(matchId)
             ?: return Result.failure(EndMatchError.MatchNotFound(matchId))
 
@@ -56,12 +47,13 @@ public class EndMatchUseCase(
         matches.save(ended)
 
         // Wave 4.5: compute winning team via score threshold evaluator (ADR-0027)
-        val winner = winningTeam ?: victoryEvaluator.evaluate(ended)
+        // A mode that decided the match itself (WP10 Annihilation) carries its winner.
+        val winningTeam = if (reason is EndReason.TeamVictory) reason.winner else victoryEvaluator.evaluate(ended)
 
         eventBus.publish(
             MatchEnded(
                 matchId = matchId,
-                winningTeam = winner,
+                winningTeam = winningTeam,
                 atTick = scheduler.currentTick(),
                 reason = reason,
             ),

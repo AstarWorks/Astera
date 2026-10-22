@@ -1,0 +1,38 @@
+# WP7 sword roster: slow, wide, heavy. Left-click = cleave (13 dmg, 150 degree arc,
+# big knockback). No mobility: it trades dash for reach and burst.
+
+id: greatsword
+
+material: NETHERITE_SWORD
+
+name:
+  ja: "<dark_red>大剣</dark_red>"
+  en: "<dark_red>Greatsword</dark_red>"
+lore:
+  ja:
+    - "<gray>左クリック: 薙ぎ払い（広範囲・大ノックバック）</gray>"
+    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
+  en:
+    - "<gray>Left-click: cleave (wide arc, heavy knockback)</gray>"
+    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
+
+rarity: rare
+level_requirement: 3
+
+attributes:
+  attack_damage: 9.0
+  attack_speed: 0.8
+
+equip_slot: mainhand
+
+resource_type: stamina
+resource_cost_per_use: 35
+resource_max_pool: 100
+resource_regen_per_second: 15.0
+
+skills:
+  - trigger: left_click
+    skill_id: greatsword-cleave
+
+pdc_tags:
+  astera:rarity: rare

@@ -22,14 +22,38 @@ You must be op (`OPS=` in `docker/.env`, or run `op <name>` in the server consol
 ## 3. Get weapons
 
 ```
-/astera-items give <yourName> pistol         # right-click shoot (12 rounds), Q reload
-/astera-items give <yourName> knight-sword   # left-click slash, sneak+right-click dash
-/astera-items give <yourName> frost-staff    # right-click frost shard, sneak+right-click frost nova (mana)
+/astera-items give <yourName> <item-id>      # any id in the table below
 ```
 
 Or buy them: right-click the "Lobby Merchant" villager near spawn, or `/astera-shop`
-(new players start with 100 GOLD). `/vault` or an ender chest opens your personal vault.
-Skill damage also hits mobs (`/summon zombie` to test).
+(new players start with 100 GOLD; prices below). `/vault` or an ender chest opens your personal vault.
+Skill damage also hits mobs (`/summon zombie` to test). `Q` reloads any gun.
+
+### Weapon roster (WP7)
+
+| Item | Class | Right-click | Sneak + right-click | Left-click | GOLD | Crit-free TTK on 20 HP |
+|---|---|---|---|---|---|---|
+| `pistol` | gun | shot (7 phys, 12 rounds) | | | 60 | 2.6 s |
+| `rifle` | gun | long-range shot (8 phys, 20 rounds) | backstep (hop + sprint) | | 120 | 3.0 s |
+| `shotgun` | gun | cone blast (13 phys, knockback, 6 shells) | backstep | | 110 | 1.4 s |
+| `knight-sword` | sword | | dash (lunge) | slash (8 phys arc) | 50 | 2.1 s |
+| `greatsword` | sword | | | cleave (13 phys, wide, heavy knockback) | 140 | 1.5 s |
+| `dagger` | sword | | dash (lunge) | stab (5 phys + bleed DoT) | 70 | 2.5 - 3.0 s |
+| `frost-staff` | magic (water) | frost shard (slow + wet) | frost nova (AoE slow) | | 90 | 4.7 s |
+| `fire-staff` | magic (fire) | flame burst (burn DoT) | | | 100 | 4.0 s |
+| `thunder-staff` | magic (electric) | lightning bolt (shock stun) | | | 160 | 3.7 s |
+| `verdant-staff` | support (earth) | thorn bolt (poison) | regrowth (cleanse + heal-over-time for you and allies within 10 blocks) | | 130 | 3.8 s |
+
+Statuses: `burn`, `freeze`, `wet`, `shock`, `poison`, `bleed`, `regen`, `dash`, `evasive`, `reloading`
+(`content/status/`). Interactions (`content/balance/status-effect-interactions.yaml`): burn cancels
+freeze, a shock on a `wet` target doubles the wet slow. Element loop: fire > wind > earth > electric > water > fire.
+
+TTK numbers come from `./gradlew :tools:game-sim:test --tests '*WeaponRosterTtk*'`
+(spam the primary input at a stationary 20-HP player; the test asserts every weapon lands in 1 to 6 s).
+Players have 20-tick invulnerability frames, so a direct hit lands at most once a second whatever the
+fire rate; a critical (10 percent, x2) can shorten any of these (shotgun / greatsword can one-shot).
+The older `example-*` items (`example-sword`, `example-pistol`, `example-wand`) are still shipped
+(tutorials, starter grant, recipes reference them) and sit in the shop too.
 
 ## 4. Run a match (queue)
 

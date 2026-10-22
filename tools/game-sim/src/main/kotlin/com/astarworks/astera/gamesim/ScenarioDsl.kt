@@ -23,8 +23,13 @@ import java.nio.file.Path
  * }
  * ```
  */
-public fun scenario(name: String, block: ScenarioScope.() -> Unit): Path {
-    val sim = GameSim.boot(name)
+public fun scenario(
+    name: String,
+    annihilation: com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig =
+        com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig.DEFAULT,
+    block: ScenarioScope.() -> Unit,
+): Path {
+    val sim = GameSim.boot(name, annihilation = annihilation)
     var trace: Path? = null
     try {
         ScenarioScope(sim).block()

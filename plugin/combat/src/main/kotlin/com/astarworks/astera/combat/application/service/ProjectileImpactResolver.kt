@@ -9,6 +9,7 @@ import com.astarworks.astera.combat.domain.projectile.OnHitEffect
 import com.astarworks.astera.combat.domain.projectile.ProjectileId
 import com.astarworks.astera.combat.domain.projectile.ProjectileSpec
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.IStructureTargets
 import com.astarworks.astera.core.application.port.outbound.effect.IParticleScheduler
 import com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler
 import com.astarworks.astera.core.domain.Result
@@ -55,6 +56,8 @@ public class ProjectileImpactResolver(
     private val scheduler: IScheduler,
     private val particleScheduler: IParticleScheduler,
     private val soundScheduler: ISoundScheduler,
+    /** WP10: world structures (pillars); a projectile that lands on one hits it like an entity. Lazy: Match registers it later. */
+    private val structures: () -> IStructureTargets? = { null },
     private val log: Logger = LoggerFactory.getLogger(ProjectileImpactResolver::class.java),
 ) {
 
@@ -77,6 +80,8 @@ public class ProjectileImpactResolver(
 
     /** The projectile struck a block at [at]. */
     public fun onHitBlock(flight: Flight, at: Vec3) {
+        // WP10: landing on (or touching) a damageable structure block is an entity hit on it.
+        structureNear(flight, at)?.let { return onHitEntity(flight, it, at) }
         runOnHitEffects(flight, null, at)
         runPhase(flight, at, null) { it.hitBlock }
         runPhase(flight, at, null) { it.miss }
@@ -87,6 +92,9 @@ public class ProjectileImpactResolver(
         runPhase(flight, at, null) { it.expire }
         runPhase(flight, at, null) { it.miss }
     }
+
+    private fun structureNear(flight: Flight, at: Vec3): PlayerId? =
+        structures()?.findInRadius(at, STRUCTURE_HIT_RADIUS, flight.spec.skill?.worldId)?.minByOrNull { it.position.distanceSquared(at) }?.id
 
     private fun runPhase(
         flight: Flight,
@@ -185,6 +193,9 @@ public class ProjectileImpactResolver(
     public companion object {
         /** Ticks are 50 ms (matches `IScheduler`). */
         public const val TICK_MS: Long = 50L
+
+        /** A block hit within this distance of a structure block's centre counts as hitting it. */
+        public const val STRUCTURE_HIT_RADIUS: Double = 1.2
 
         /** Origin skill id for projectiles that carry no [ProjectileSpec.skill] binding. */
         public val PROJECTILE_FALLBACK_SKILL_ID: SkillId = SkillId("projectile")

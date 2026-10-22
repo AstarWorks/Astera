@@ -97,7 +97,7 @@ class SiegeModesScenarioTest {
             val end = ended()
             assertThat(end.matchId).isEqualTo(matchId)
             assertThat(end.winningTeam).isEqualTo(TeamId("red"))
-            assertThat(end.reason).isEqualTo(EndReason.ObjectiveCompleted)
+            assertThat(end.reason).isEqualTo(EndReason.TeamVictory(TeamId("red")))
             assertThat(phaseOf(matchId)).isEqualTo(MatchPhase.ENDED)
             assertThat(blockAt(redCore)).`as`("core markers are removed at match end").isNotEqualTo("minecraft:emerald_block")
             assertThat(blockAt(blueCore)).isNotEqualTo("minecraft:emerald_block")
@@ -240,7 +240,7 @@ class SiegeModesScenarioTest {
             assertThat(previous).isEqualTo(5)
             val end = ended()
             assertThat(end.winningTeam).isEqualTo(TeamId("red"))
-            assertThat(end.reason).isEqualTo(EndReason.ObjectiveCompleted)
+            assertThat(end.reason).isEqualTo(EndReason.TeamVictory(TeamId("red")))
         }
     }
 

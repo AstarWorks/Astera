@@ -17,6 +17,7 @@ public data class Stage(
     val regions: List<Region>,
     val spawnPoints: List<SpawnPoint> = emptyList(),
     val world: WorldId = WorldId(DEFAULT_WORLD),
+    val pillars: List<StagePillar> = emptyList(),
 ) {
     /** The region the stage YAML named [name], or `null`. */
     public fun region(name: String): Region? = regions.firstOrNull { it.name == name }
@@ -24,6 +25,10 @@ public data class Stage(
     /** Every named region whose name starts with [prefix] (e.g. `wool-`), in declaration order. */
     public fun regionsWithPrefix(prefix: String): List<Region> =
         regions.filter { it.name?.startsWith(prefix) == true }
+    init {
+        val keys = pillars.map { it.team to it.tier }
+        require(keys.size == keys.toSet().size) { "Stage '${id.value}' declares a pillar (team, tier) twice" }
+    }
 
     public companion object {
         /** The server's default level name. */

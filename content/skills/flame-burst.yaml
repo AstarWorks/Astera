@@ -1,6 +1,6 @@
 # Wave H 5content-depth (ADR-0125): fire-family AOE projectile.
 #
-# Designed as the second canonical fire skill (paired with example-blast).
+# Designed as the second canonical fire skill (burst role: heavy hit + burn DoT).
 # Wider hit_entity damage list + higher chance burn application — the
 # archetypal "AOE that leaves a DoT" pattern.
 
@@ -15,6 +15,7 @@ description:
 
 archetype: projectile
 cooldown_ticks: 80
+resource_cost: 25              # mana
 tags: [ ranged, fire-family, aoe ]
 
 params:

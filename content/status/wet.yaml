@@ -1,0 +1,16 @@
+# WP7: soaked. Mild slow; shock-amplifies-wet (content/balance/status-effect-interactions.yaml)
+# doubles its magnitude when a shock lands on a wet target. Water-element hits apply it.
+
+id: wet
+
+display_name_key: astera.status.wet.name
+
+kind: speed_down
+default_duration_ticks: 100   # 5s @ 20 TPS
+
+stackable: false
+max_stacks: 1
+
+params:
+  type: speed
+  multiplier: 0.85
