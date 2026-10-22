@@ -476,6 +476,18 @@
                         },
                         "every_ticks": {
                             "type": "integer"
+                        },
+                        "along_path": {
+                            "type": "boolean"
+                        },
+                        "step_blocks": {
+                            "type": "number"
+                        },
+                        "trail_to": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
                         }
                     },
                     "required": [

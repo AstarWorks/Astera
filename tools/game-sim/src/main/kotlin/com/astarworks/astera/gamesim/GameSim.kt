@@ -285,8 +285,9 @@ public class GameSim private constructor(
     public fun rightClick(entity: SimEntity, sneaking: Boolean = false): Boolean =
         input(entity, IMcEvent.InputKind.RIGHT_CLICK, sneaking)
 
-    /** The drop key (Q): bound to reload on guns. */
-    public fun drop(entity: SimEntity): Boolean = input(entity, IMcEvent.InputKind.DROP)
+    /** The drop key (Q = E.G.O slot; Shift+Q = reload on guns). */
+    public fun drop(entity: SimEntity, sneaking: Boolean = false): Boolean =
+        input(entity, IMcEvent.InputKind.DROP, sneaking)
 
     /**
      * Requests a skill cast the way an item binding does: publishes the

@@ -61,6 +61,13 @@ public data class ParticleDefinition(
     public val speed: Double = 0.0,
     /** Dust size; only meaningful for `dust` / `dust_color_transition`. */
     public val size: Double = 1.0,
+    /** Typed particle data (block / item / trail / dust transition ...); `null` = legacy `color` + `size` dust. */
+    public val data: ParticleData? = null,
+    /** Directed-particle motion (`count = 0` trick); `null` = scatter by the shape's spread. */
+    public val velocity: ParticleVelocity? = null,
+    /** Long-distance render so opponents see skill VFX. */
+    public val force: Boolean = true,
+    public val viewers: ParticleViewers = ParticleViewers.ALL,
 ) {
     init {
         require(count > 0) { "count must be positive: $count" }
@@ -72,7 +79,8 @@ public data class ParticleDefinition(
     /**
      * The emission descriptor for this definition. [countOverride] (a mechanic's explicit `count`)
      * replaces [count] when given. Definitions without a [vanillaParticle] keep the legacy mapping
-     * (key = id), which the Paper gateway cannot resolve.
+     * (key = id), which the Paper gateway cannot resolve. Sampled shapes and [velocity] need a context:
+     * use [ParticleEmitter.plan] for those.
      */
     public fun toParticleSpec(countOverride: Int? = null): ParticleSpec {
         val spread = when (val s = shape) {
@@ -80,7 +88,7 @@ public data class ParticleDefinition(
             is ParticleShape.Sphere -> Vec3(s.radiusBlocks, s.radiusBlocks, s.radiusBlocks)
             is ParticleShape.Circle -> Vec3(s.radiusBlocks, FLAT_SPREAD, s.radiusBlocks)
             is ParticleShape.Line -> Vec3(s.lengthBlocks, FLAT_SPREAD, FLAT_SPREAD)
-            ParticleShape.Point -> Vec3.ZERO
+            is ParticleShape.Ring, is ParticleShape.Arc, is ParticleShape.Helix, ParticleShape.Point -> Vec3.ZERO
         }
         return ParticleSpec(
             key = vanillaParticle ?: id.value,
@@ -89,6 +97,9 @@ public data class ParticleDefinition(
             extra = speed,
             color = color,
             scale = size.toFloat(),
+            data = data,
+            force = force,
+            viewers = viewers,
         )
     }
 

@@ -30,6 +30,8 @@ import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
  *    resource pool (ammo / energy). `resourceType == null` means "the
  *    resource of the item the cast comes from"; `resourceCost == null` means
  *    "the item's `resource_cost_per_use`"; an explicit `0` is free.
+ *  - [egoCost] — E.G.O gauge points (`0..100`) the cast consumes (ADR-0231); the
+ *    cast is refused when the gauge holds less. `null` / `0` = free.
  *  - [reloadTicks] — non-null marks a reload skill: [reloadTicks] after the cast
  *    the source item's ammo is refilled, and ammo casts are rejected meanwhile.
  *  - [chargeVariant] — hold-to-cast behaviour.
@@ -53,10 +55,12 @@ public data class SkillSpec(
     val reloadTicks: Int? = null,
     val chargeVariant: ChargedSkillVariant = ChargedSkillVariant.Instant,
     val readyCue: Boolean? = null,
+    val egoCost: Int? = null,
 ) {
     init {
         require(cooldownTicks >= 0) { "cooldownTicks must be >= 0: $cooldownTicks" }
         resourceCost?.let { require(it >= 0) { "resourceCost must be >= 0 when set: $it" } }
+        egoCost?.let { require(it >= 0) { "egoCost must be >= 0 when set: $it" } }
         reloadTicks?.let { require(it > 0) { "reloadTicks must be > 0 when set: $it" } }
     }
 }

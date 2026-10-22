@@ -1,6 +1,10 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.domain.effect.ParticleColor
+import com.astarworks.astera.core.domain.effect.ParticleData
 import com.astarworks.astera.core.domain.effect.ParticleSpec
+import com.astarworks.astera.core.domain.effect.ParticleTarget
+import com.astarworks.astera.core.domain.effect.ParticleViewers
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import kotlinx.serialization.json.Json
@@ -73,6 +77,14 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
             spec?.color?.let { put("color", buildJsonObject { put("r", it.r); put("g", it.g); put("b", it.b) }) }
             spec?.takeIf { it.color != null }?.let { put("scale", it.scale.toDouble()) }
             spec?.takeIf { it.extra != 0.0 }?.let { put("extra", it.extra) }
+            // Directed (count = 0) particles: offset is the unit direction, extra the speed.
+            spec?.takeIf { it.count == 0 }?.let {
+                put("velocity", buildJsonObject { vec(it.offset) })
+                put("speed", it.extra)
+            }
+            spec?.data?.let { put("data", particleData(it)) }
+            spec?.takeIf { it.force }?.let { put("force", true) }
+            spec?.takeIf { it.viewers != ParticleViewers.ALL }?.let { put("viewers", it.viewers.name.lowercase()) }
             put("world", world)
             vec(at)
         }
@@ -268,6 +280,37 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         val target = dir.resolve("$scenario.json")
         Files.writeString(target, PRETTY.encodeToString(JsonElement.serializer(), toJson()))
         return target
+    }
+
+    private fun JsonObjectBuilder.rgb(key: String, c: ParticleColor) {
+        put(key, buildJsonObject { put("r", c.r); put("g", c.g); put("b", c.b) })
+    }
+
+    private fun JsonObjectBuilder.target(key: String, t: ParticleTarget) {
+        // Planned specs carry absolute targets; an unresolved one (should not reach a gateway) is recorded by kind.
+        if (t is ParticleTarget.Absolute) put(key, buildJsonObject { vec(t.position) }) else put(key, t::class.simpleName!!.lowercase())
+    }
+
+    private fun particleData(d: ParticleData): JsonElement = buildJsonObject {
+        when (d) {
+            is ParticleData.Dust -> { put("kind", "dust"); rgb("color", d.color); put("scale", d.scale.toDouble()) }
+            is ParticleData.DustTransition -> {
+                put("kind", "dust_color_transition"); rgb("from", d.from); rgb("to", d.to); put("scale", d.scale.toDouble())
+            }
+            is ParticleData.Tint -> { put("kind", "tint"); rgb("color", d.color) }
+            is ParticleData.Spell -> { put("kind", "spell"); rgb("color", d.color); put("power", d.power.toDouble()) }
+            is ParticleData.Block -> { put("kind", "block"); put("block", d.blockKey) }
+            is ParticleData.Item -> { put("kind", "item"); put("item", d.materialKey) }
+            is ParticleData.Trail -> {
+                put("kind", "trail"); target("target", d.target); rgb("color", d.color); put("duration_ticks", d.durationTicks)
+            }
+            is ParticleData.SculkCharge -> { put("kind", "sculk_charge"); put("roll", d.roll.toDouble()) }
+            is ParticleData.Shriek -> { put("kind", "shriek"); put("delay", d.delayTicks) }
+            is ParticleData.Vibration -> {
+                put("kind", "vibration"); target("target", d.destination); put("arrival_ticks", d.arrivalTicks)
+            }
+            is ParticleData.Power -> { put("kind", "power"); put("power", d.value.toDouble()) }
+        }
     }
 
     private fun JsonObjectBuilder.vec(v: Vec3) {

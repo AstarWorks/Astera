@@ -62,7 +62,7 @@ class VfxContentsTest {
             kind: { type: item, item: netherite_sword, display_mode: head }
             keyframes: [ { t: 0 } ]
           - id: sparks
-            kind: { type: particle, particle_id: hit-spark, every_ticks: 2 }
+            kind: { type: particle, particle_id: hit-spark, every_ticks: 2, along_path: true, step_blocks: 0.25, trail_to: [0, 1, 0] }
             keyframes: [ { t: 0 } ]
     """.trimIndent()
 
@@ -119,6 +119,9 @@ class VfxContentsTest {
         val particle = def.elements[3].kind as VfxElementKind.Particle
         assertThat(particle.particleId.value).isEqualTo("hit-spark")
         assertThat(particle.everyTicks).isEqualTo(2)
+        assertThat(particle.alongPath).isTrue()
+        assertThat(particle.stepBlocks).isEqualTo(0.25)
+        assertThat(particle.trailTo).isEqualTo(Vec3(0.0, 1.0, 0.0))
     }
 
     @Test
