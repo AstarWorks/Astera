@@ -8,7 +8,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * V-1 (ADR-0211): one clean "showcase" trace per skill in `content/skills`, for the
+ * V-1 (ADR-0225): one clean "showcase" trace per skill in `content/skills`, for the
  * `:tools:skill-viewer` contact sheets. The caster stands at the origin, a dummy target
  * (a mob, so no match setup) stands in front; the skill is cast once and the sim runs 100 ticks.
  * Output: `build/sim-traces/showcase-<skill id>.json`. The assertion is only that the trace exists.

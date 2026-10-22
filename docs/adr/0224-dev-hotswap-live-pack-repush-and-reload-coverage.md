@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0201: Dev hotswap on JBR, live resource-pack re-push, reload coverage
+# ADR-0224: Dev hotswap on JBR, live resource-pack re-push, reload coverage
 
 ## Status
 

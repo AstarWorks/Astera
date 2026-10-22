@@ -1,6 +1,6 @@
 /*
  * :tools:skill-viewer - static three.js replay viewer + headless frame renderer for :tools:game-sim traces
- * (ADR-0211). NOT shipped and NOT part of `check` (needs bun + a Chromium).
+ * (ADR-0225). NOT shipped and NOT part of `check` (needs bun + a Chromium).
  *
  *   ./gradlew :tools:skill-viewer:render -Pscenario=simple-shoot   -> build/skill-frames/simple-shoot/{sheet.png,anim.gif,...}
  *   ./gradlew :tools:skill-viewer:render                           -> every skill

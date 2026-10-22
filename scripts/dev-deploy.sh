@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Fast redeploy into the running docker dev stack (F1-I, ADR-0186; hotswap and pack: F3-9, ADR-0201).
+# Fast redeploy into the running docker dev stack (F1-I, ADR-0186; hotswap and pack: F3-9, ADR-0224).
 #
 #   scripts/dev-deploy.sh plugins   build the 7 shadow jars, restart only the backends whose jars changed
 #   scripts/dev-deploy.sh hotswap   build the 7 shadow jars and apply the changed classes to the RUNNING
@@ -150,7 +150,7 @@ plugins() {
   log "total: $(elapsed "$t0")"
 }
 
-# ---- hot code swap (F3-9, ADR-0201) ------------------------------------------------------------------
+# ---- hot code swap (F3-9, ADR-0224) ------------------------------------------------------------------
 # The agent in the backend JVM (docker/hotswap/AsteraHotswapAgent.java, loopback port inside the container)
 # diffs the running jar (/plugins/<jar>) against the new one and redefines the changed classes in place.
 HOTSWAP_PORT=${HOTSWAP_PORT:-5006}

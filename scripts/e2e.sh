@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# QA-1 (ADR-0186) + QA-3: boot the offline-mode `e2e` backend, run the protocol-bot suite inside
+# QA-1 (ADR-0222) + QA-3: boot the offline-mode `e2e` backend, run the protocol-bot suite inside
 # the compose network, copy build/e2e-report.md out, stop the backend. Exit code = suite result.
 #
 #   scripts/e2e.sh              # fresh world every run

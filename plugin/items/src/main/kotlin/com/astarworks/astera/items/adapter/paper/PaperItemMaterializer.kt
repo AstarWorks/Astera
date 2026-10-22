@@ -99,7 +99,7 @@ public class PaperItemMaterializer(
 
     /**
      * Re-apply the visual half of [spec] (display name, lore, `item_model`, custom model data) to an
-     * existing stack in place (F3-9, ADR-0201). Everything per-instance (refinement, enchants,
+     * existing stack in place (F3-9, ADR-0224). Everything per-instance (refinement, enchants,
      * damage, PDC state) and the base material stay untouched, so a held item picks up an edited
      * item YAML text or new art without being re-given. Returns whether anything changed.
      */

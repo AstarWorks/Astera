@@ -172,7 +172,7 @@ public object CombatWiring {
         val interactionConfig = StatusEffectInteractionLoader.load(
             ctx.contentDir.resolve("balance").resolve("status-effect-interactions.yaml"),
         )
-        // F3-9 (ADR-0201): both balance files are one reloadable category; consumers hold its stable views.
+        // F3-9 (ADR-0224): both balance files are one reloadable category; consumers hold its stable views.
         val balanceContents = CombatBalanceContents(
             initialMatrix = initialElementMatrix,
             initialRule = YamlStatusEffectInteractionRule(interactionConfig),

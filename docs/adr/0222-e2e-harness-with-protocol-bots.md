@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0186: In-game E2E harness with real protocol bots (`make e2e`)
+# ADR-0222: In-game E2E harness with real protocol bots (`make e2e`)
 
 ## Status
 
