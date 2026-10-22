@@ -73,6 +73,11 @@ public fun connectAndMigrate(config: PostgresConfig, logger: Logger): Persistenc
     }
     val ds = HikariDataSource(hikari)
 
+    return migrateAndConnect(ds, logger)
+}
+
+/** Owns the pool until a complete context can be handed to the plugin. */
+internal fun migrateAndConnect(ds: HikariDataSource, logger: Logger): PersistenceContext = try {
     // Flyway scans via the classloader it is given; the default is the thread context
     // loader, which on Paper is the server loader and cannot see this plugin's jar
     // ("No migrations found"). Pin it to the loader that loaded this plugin's classes.
@@ -83,7 +88,6 @@ public fun connectAndMigrate(config: PostgresConfig, logger: Logger): Persistenc
         .load()
     val discovered = flyway.info().all().size
     if (discovered == 0) {
-        ds.close()
         error("Astera-Persistence: Flyway resolved 0 migrations from $MIGRATION_LOCATION (classloader scan failed)")
     }
     logger.info("Astera-Persistence: Flyway resolved $discovered migrations")
@@ -91,5 +95,8 @@ public fun connectAndMigrate(config: PostgresConfig, logger: Logger): Persistenc
 
     val db = Database.connect(ds)
     logger.info("Astera-Persistence: Flyway migrations applied, Exposed connected")
-    return PersistenceContext(ds, db)
+    PersistenceContext(ds, db)
+} catch (failure: Throwable) {
+    ds.close()
+    throw failure
 }
