@@ -1,0 +1,134 @@
+id: sigil-rifle-s2-rig
+duration_ticks: 70
+orient: yaw
+follow: true
+sample_ticks: 1
+rigs:
+- id: rifle
+  pivot:
+  - -0.28
+  - 1.25
+  - 0.25
+  rest:
+  - 0
+  - 90
+  - 0
+  respect_hit_stop: false
+  end_tick: 70
+  parts:
+  - id: stock
+    block: black_concrete
+    offset:
+    - 0
+    - -0.2278
+    - 0
+    size:
+    - 0.2
+    - 0.7289
+    - 0.25
+    brightness: 10
+  - id: receiver
+    block: gray_concrete
+    offset:
+    - 0
+    - 0.3644
+    - 0
+    size:
+    - 0.18
+    - 0.6378
+    - 0.18
+    brightness: 10
+  - id: barrel
+    block: black_concrete
+    offset:
+    - 0
+    - 1.0478
+    - 0
+    size:
+    - 0.09
+    - 0.82
+    - 0.09
+    brightness: 10
+  - id: rail
+    block: light_gray_concrete
+    offset:
+    - -0.1
+    - 0.7289
+    - 0
+    size:
+    - 0.025
+    - 1.1844
+    - 0.035
+    brightness: 10
+  - id: sight
+    block: black_concrete
+    offset:
+    - 0
+    - 1.4122
+    - -0.09
+    size:
+    - 0.09
+    - 0.0729
+    - 0.1
+    brightness: 10
+  swing:
+  - t: 0
+    rotate:
+    - 0
+    - -75
+    - 0
+    ease: out_quad
+  - t: 5
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 18
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 20
+    rotate:
+    - 0
+    - -12
+    - 0
+    ease: out_quad
+  - t: 24
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 40
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 54
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 56
+    rotate:
+    - 0
+    - -16
+    - 0
+    ease: out_quad
+  - t: 61
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 69
+    rotate:
+    - 0
+    - -25
+    - 0
+    ease: out_quad

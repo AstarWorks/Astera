@@ -1,0 +1,42 @@
+{
+  "id": "vendetta-rifle-def",
+  "rev": 2,
+  "videoId": "wbu2viInM3w",
+  "start_s": 0,
+  "end_s": 3.0,
+  "skill": {
+    "name": "鉄の構え",
+    "coins": 2,
+    "asteraSkillId": "vendetta-rifle-def"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
+  "editLog": [],
+  "status": "from-wiki",
+  "verification": {
+    "status": "unverified",
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 200.0f（回数の測定ではない）",
+    "evidence": "/evidence/vendetta-rifle-def.png"
+  },
+  "weapon": "vendetta-rifle",
+  "identity": "The Thumb East Soldato II Sinclair",
+  "videoTitle": "The Thumb East Soldato II Sinclair — skill showcase",
+  "iterations": 1,
+  "report": "/report/vendetta-rifle",
+  "referenceRevision": "4da8532b47aedf501b07ed359fa008f7f5cb08e650b5275ca53198fca7f49588",
+  "contentRevision": "4998a4c505f7f0d93d4faf679c023fbfad1c7a5b2e6f245c341fa7d57ead2693"
+}

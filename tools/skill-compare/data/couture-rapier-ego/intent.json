@@ -1,0 +1,222 @@
+{
+  "title": "Couturier ego \u2014 measured source intent",
+  "source": {
+    "video": "GIe7Fna5LD4",
+    "start_s": 47.3,
+    "frames": "frame_%05d.jpg",
+    "fps": 29.97
+  },
+  "units": "blocks; x = toward enemy, y = up, z = toward side camera",
+  "duration_ticks": 144,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        0.0,
+        2.01,
+        3.9
+      ],
+      "target": [
+        0,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 14,
+      "pos": [
+        2.6,
+        2.79,
+        8.45
+      ],
+      "target": [
+        2.6,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 45,
+      "pos": [
+        4.0,
+        4.5,
+        10.5
+      ],
+      "target": [
+        4,
+        3.8,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 60,
+      "pos": [
+        5.2,
+        2.195,
+        3.9
+      ],
+      "target": [
+        5.2,
+        2,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 70,
+      "pos": [
+        4.0,
+        4.5,
+        10.5
+      ],
+      "target": [
+        4,
+        3.8,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 106,
+      "pos": [
+        5.1,
+        2.13,
+        3.9
+      ],
+      "target": [
+        5.1,
+        2,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 122,
+      "pos": [
+        2.7,
+        2.975,
+        8.45
+      ],
+      "target": [
+        2.7,
+        2,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#332B25",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#982E24",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            5.4,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 2.7,
+    "width": 0.08,
+    "color": "#EEE1C8",
+    "keys": [
+      {
+        "t": 0,
+        "angle": -25
+      },
+      {
+        "t": 55,
+        "angle": 110
+      },
+      {
+        "t": 60,
+        "angle": 0
+      },
+      {
+        "t": 65,
+        "angle": -30
+      },
+      {
+        "t": 105,
+        "angle": 110
+      },
+      {
+        "t": 110,
+        "angle": 0
+      },
+      {
+        "t": 115,
+        "angle": -30
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 60,
+      "at": [
+        5.4,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "hit",
+      "t": 110,
+      "at": [
+        5.4,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "pillar",
+      "t0": 90,
+      "t1": 119,
+      "at": [
+        5,
+        1.4,
+        0
+      ],
+      "height": 4.5,
+      "width": 0.12,
+      "color": "#FFF1EA",
+      "note": "Paired scissors blades; renderer pillar approximation"
+    }
+  ]
+}

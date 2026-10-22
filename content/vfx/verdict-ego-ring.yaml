@@ -1,0 +1,30 @@
+id: verdict-ego-ring
+duration_ticks: 16
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: ring
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 0
+  end_tick: 16
+  keyframes:
+  - t: 0
+    scale: [0.035, 0.025, 0.8]
+  - t: 8
+    scale: [0.035, 0.025, 0.8]
+    block: yellow_stained_glass
+  - t: 16
+    scale: [0, 0, 0]
+    ease: in_quad
+  count: 8
+  formation:
+    curve: {type: circle, radius: 1.0}
+    offset: [0, 0.15, 0]
+    align: tangent
+  group_keyframes:
+  - {t: 0, scale: 0.3}
+  - {t: 6, scale: 5.8, ease: out_cubic}
+  - {t: 16, scale: 6.1}
+rigs: []

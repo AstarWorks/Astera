@@ -1,0 +1,319 @@
+{
+  "title": "crimson-chain-axe s1 measured intent (provisional kit mapping)",
+  "source": {
+    "video": "Gpj-lvOnAgs",
+    "start_s": 89.1,
+    "fps": 29.97,
+    "frames": "frame_%05d.jpg"
+  },
+  "units": "blocks; x = toward enemy, y = up, z = toward side camera",
+  "duration_ticks": 64,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        2,
+        3.3,
+        9
+      ],
+      "target": [
+        2,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 5,
+      "pos": [
+        1,
+        2.2,
+        6
+      ],
+      "target": [
+        1,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 9,
+      "pos": [
+        2,
+        3.3,
+        10
+      ],
+      "target": [
+        2,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 16,
+      "pos": [
+        2,
+        2.2,
+        6.5
+      ],
+      "target": [
+        2,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 27,
+      "pos": [
+        2,
+        2.2,
+        8
+      ],
+      "target": [
+        2,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 34,
+      "pos": [
+        0.9,
+        1.6,
+        0.25
+      ],
+      "target": [
+        0,
+        1.6,
+        0
+      ],
+      "fov": 40,
+      "note": "Face cut-in: frontal camera; source face/coat cannot be reproduced by default player skin."
+    },
+    {
+      "t": 36,
+      "pos": [
+        2.5,
+        2.2,
+        7
+      ],
+      "target": [
+        2.5,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 48,
+      "pos": [
+        2.5,
+        3.3,
+        10
+      ],
+      "target": [
+        2.5,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#8C1227",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#282029",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            4.5,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 4,
+    "width": 0.35,
+    "color": "#F2DDD1",
+    "keys": [
+      {
+        "t": 0,
+        "angle": 190
+      },
+      {
+        "t": 5,
+        "angle": 125
+      },
+      {
+        "t": 9,
+        "angle": -95,
+        "ease": "out_quad"
+      },
+      {
+        "t": 12,
+        "angle": -105
+      },
+      {
+        "t": 13,
+        "angle": 125
+      },
+      {
+        "t": 17,
+        "angle": -95,
+        "ease": "out_quad"
+      },
+      {
+        "t": 20,
+        "angle": -105
+      },
+      {
+        "t": 32,
+        "angle": 125
+      },
+      {
+        "t": 36,
+        "angle": -95,
+        "ease": "out_quad"
+      },
+      {
+        "t": 39,
+        "angle": -105
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 9,
+      "at": [
+        4.5,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "crescent_ring",
+      "id": "arc-0",
+      "t0": 5,
+      "t1": 21,
+      "center": [
+        0,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 25,
+      "radius": 4,
+      "start_deg": 110,
+      "sweep_deg": 220,
+      "draw_ticks": 4,
+      "width": 0.35,
+      "layers": [
+        {
+          "color": "#E52240",
+          "width": 0.35,
+          "alpha": 0.9
+        },
+        {
+          "color": "#FFF1DB",
+          "width": 0.05
+        }
+      ]
+    },
+    {
+      "type": "hit",
+      "t": 17,
+      "at": [
+        4.5,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "crescent_ring",
+      "id": "arc-1",
+      "t0": 13,
+      "t1": 29,
+      "center": [
+        0,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": -35,
+      "radius": 4,
+      "start_deg": 110,
+      "sweep_deg": 220,
+      "draw_ticks": 4,
+      "width": 0.35,
+      "layers": [
+        {
+          "color": "#E52240",
+          "width": 0.35,
+          "alpha": 0.9
+        },
+        {
+          "color": "#FFF1DB",
+          "width": 0.05
+        }
+      ]
+    },
+    {
+      "type": "hit",
+      "t": 36,
+      "at": [
+        4.5,
+        1.1,
+        0
+      ],
+      "coin": 3
+    },
+    {
+      "type": "hbar",
+      "t0": 36,
+      "t1": 54,
+      "center": [
+        2.5,
+        1.1,
+        0
+      ],
+      "length": 5,
+      "thickness": 0.22,
+      "color": "#E52240"
+    }
+  ]
+}

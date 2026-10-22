@@ -93,6 +93,61 @@ class MultiHitEngineScenarioTest {
     }
 
     @Test
+    fun `nearby target limit applies after excluding caster and zero selects nobody`() {
+        scenario("nearby-target-limit") {
+            val caster = player("caster", team = "red")
+            val first = player("first", at = Vec3(2.0, groundY, 0.0), team = "blue")
+            val second = player("second", at = Vec3(3.0, groundY, 0.0), team = "blue")
+            val nearby = Targeter.NearbyEntities(
+                Targeter.Caster, NumericValue.Literal(10.0), maxCount = IntValue.Literal(1), excludeCaster = true,
+            )
+            run(caster, null, Mechanic.Ignite(nearby, IntValue.Literal(40)))
+            assertThat(caster.fireTicks).isZero()
+            assertThat(listOf(first.fireTicks, second.fireTicks).count { it == 40 }).isEqualTo(1)
+            run(caster, null, Mechanic.Ignite(nearby.copy(maxCount = IntValue.Literal(0)), IntValue.Literal(80)))
+            assertThat(listOf(caster.fireTicks, first.fireTicks, second.fireTicks)).doesNotContain(80)
+        }
+    }
+
+    @Test
+    fun `limited cone consistently chooses the nearest candidate for a beat`() {
+        scenario("cone-target-limit") {
+            val caster = player("caster", team = "red")
+            val far = mob("far", Vec3(0.0, groundY, 3.0), team = "blue")
+            val near = mob("near", Vec3(0.0, groundY, 2.0), team = "blue")
+            val cone = Targeter.Cone(
+                Targeter.Caster, DirectionRef.FromCaster, NumericValue.Literal(75.0),
+                NumericValue.Literal(4.0), maxCount = 1,
+            )
+            run(caster, null, hit(0, true, cone), Mechanic.Ignite(cone, IntValue.Literal(40)))
+            assertThat(hp(near)).isEqualTo(18.0)
+            assertThat(near.fireTicks).isEqualTo(40)
+            assertThat(hp(far)).isEqualTo(20.0)
+            assertThat(far.fireTicks).isZero()
+            run(caster, null, hit(0, true, cone.copy(maxCount = 0)))
+            assertThat(hp(near)).isEqualTo(18.0)
+        }
+    }
+
+    @Test
+    fun `approach dash stops before a close target without extending its empty range`() {
+        for (targetZ in listOf(2.5, 8.0, -2.0)) {
+            scenario("approach-dash-$targetZ") {
+                val caster = player("caster", team = "red")
+                mob("target", Vec3(0.0, groundY, targetZ), team = "blue")
+                run(caster, null, Mechanic.DashStrike(
+                    distance = NumericValue.Literal(5.0), ticks = IntValue.Literal(5),
+                    invulnerable = BoolValue.Literal(false), stopBeforeTarget = 1.8,
+                ))
+                advance(10)
+                assertThat(caster.position.z).isCloseTo(
+                    if (targetZ == 2.5) 0.7 else 5.0, org.assertj.core.data.Offset.offset(0.0001),
+                )
+            }
+        }
+    }
+
+    @Test
     fun `away_from_caster pushes each target radially and toward_caster pulls`() {
         scenario("radial-propel") {
             val caster = player("caster", team = "red")

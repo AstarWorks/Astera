@@ -1,0 +1,64 @@
+{
+  "id": "ember-gauntlet-s1",
+  "rev": 2,
+  "videoId": "vBob-jTmlnc",
+  "start_s": 35.8,
+  "end_s": 38.833333,
+  "skill": {
+    "name": "炎拳と噴射",
+    "coins": 2,
+    "asteraSkillId": "ember-gauntlet-s1"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "S1",
+      "start_s": 35.8,
+      "end_s": 38.833333
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "接触 1",
+      "t_s": 36.133333,
+      "notes": "astra2 source frame 1084; dash_melee; game tick 7. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "接触 2",
+      "t_s": 36.933333,
+      "notes": "astra2 source frame 1108; beam; game tick 23. Coin grouping uncertainty remains in reference analysis."
+    }
+  ],
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/ember-gauntlet/s1.json を参照。",
+  "editLog": [],
+  "status": "captured",
+  "verification": {
+    "status": "failed",
+    "reason": "身体のひねり・腕の構え、炎の連続した面、カメラの追従と瞬間的な寄りが不足。防御の反撃は被弾条件ではなく観測時刻に沿う固定発動。",
+    "normalInput": "実入力撮影あり。標的HP 182.288f（回数の測定ではない）",
+    "evidence": "/evidence/ember-gauntlet-s1.png"
+  },
+  "weapon": "ember-gauntlet",
+  "identity": "Firefist Gregor",
+  "videoTitle": "Firefist Gregor — skill showcase",
+  "iterations": 2,
+  "report": "/report/ember-gauntlet",
+  "referenceRevision": "521af31d47a1370dc3e3df1cd69a06b84f465e98e9fbaab1b5253d121293e0c5",
+  "contentRevision": "dd1729607103822993863ded2b10d28ba00ada7ce385b42d730d08c60d3cadf0"
+}

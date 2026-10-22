@@ -1,0 +1,613 @@
+{
+  "metadata": {
+    "video_id": "Gpj-lvOnAgs",
+    "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+    "source_fps": "30000/1001",
+    "frame_convention": "Zero-based decoded source frame; time_s = frame * 1001 / 30000. End frames exclusive. Native source is 29.970 fps, not exactly 30.",
+    "units": "BH = visible standing body height of caster in same shot, excluding halo/cape spread. Distances are screen-plane estimates, not calibrated world coordinates.",
+    "precision": "Native-window events identify individual frames. Other boundaries from 6/15 fps are explicitly approximate (usually +/-2 frames for 15 fps, +/-5 for 6 fps). Flash-obscured contact is bracketed; no invisible collision or coin boundary is asserted.",
+    "colors": "Hex values are visual approximations under bloom/compression, not sampled material albedos.",
+    "mapping_policy": "Supplied kit is the authority for names, Pierce type and coin counts. No skill-name/coin UI is readable; mapping confidence is separate from visual confidence. Repeated VFX pulses are not counted automatically as coins.",
+    "kit_source": "../../wiki/Gpj-lvOnAgs.md",
+    "native_index": "native/index.json"
+  },
+  "slot": "s2",
+  "variants": [
+    {
+      "candidate_name": "L'Appétit (enemy mode)",
+      "official_attack_type": "Pierce",
+      "official_coins": 2,
+      "mapping_confidence": "med",
+      "mapping_evidence": "Two independent shots match2 coins; La Demande2 is alternative.",
+      "weapon": {
+        "type": "Bare-hand/orb casting; no held firearm or edged weapon visible",
+        "size_BH": "Hand-sized emission .15–.3; suspended red orb cluster .3–.6",
+        "holding": "One hand extended toward recipient; two arms raise for barrage; no shouldering/grip",
+        "parts_colors": "Pale hand; olive/gold cape #A58B43; white/pink clothes #F4DFDA. Red spell nodes #EF2445, cream cores #FFF0DC."
+      },
+      "occurrences": [
+        {
+          "id": "base-double-shot",
+          "start_s": 30.53,
+          "end_s": 34.268,
+          "start_frame": 915,
+          "end_frame_exclusive": 1027,
+          "mapping_confidence": "med",
+          "repeat_of": null,
+          "official_coins": 2,
+          "hits_vs_coins": "2 separated firing/contact groups / 2 coins",
+          "hits": [
+            {
+              "frame": 961,
+              "time_s": 32.065367,
+              "contact": "First bolt target flare at right edge",
+              "range_class": "ranged_projectile",
+              "caster_target_distance_BH": "3–5",
+              "coin_index": 1,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 1
+            },
+            {
+              "frame": 1002,
+              "time_s": 33.4334,
+              "contact": "Second detached bolt target flare",
+              "range_class": "ranged_projectile",
+              "caster_target_distance_BH": "3–5",
+              "coin_index": 2,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 0
+            }
+          ],
+          "beats": [
+            {
+              "start_s": 30.53,
+              "end_s": 31.999,
+              "description": "Forward glide, settle, red triangular node/hand windup"
+            },
+            {
+              "start_s": 31.999,
+              "end_s": 32.065,
+              "description": "First firing and edge-of-frame contact"
+            },
+            {
+              "start_s": 32.065,
+              "end_s": 33.333,
+              "description": "Recoil, gather second red light"
+            },
+            {
+              "start_s": 33.333,
+              "end_s": 33.443,
+              "description": "Second firing/contact"
+            },
+            {
+              "start_s": 33.443,
+              "end_s": 34.268,
+              "description": "Fade and return to formation"
+            }
+          ],
+          "camera": [
+            {
+              "start_s": 30.53,
+              "end_s": 31.999,
+              "shot": "wide to medium caster",
+              "framing": "Caster left, distant target right"
+            },
+            {
+              "start_s": 31.999,
+              "end_s": 32.1,
+              "shot": "release punch then wide",
+              "framing": "Rightmost target partially cropped; contact bracket f960–961"
+            },
+            {
+              "start_s": 33.333,
+              "end_s": 33.55,
+              "shot": "release punch then wide",
+              "framing": "Keep red ray path visible"
+            },
+            {
+              "start_s": 33.55,
+              "end_s": 34.268,
+              "shot": "wide recovery",
+              "framing": "Team reset"
+            }
+          ],
+          "effects": [
+            {
+              "start_s": 31.8,
+              "end_s": 32.65,
+              "shape_layering": "Red node and slim cream-core bolt; pointed target impact; dotted red/gold residual trail",
+              "size_BH": ".3 node,.6–1 impact,3–5 trail",
+              "position": "Caster to enemy",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Fast rightward flight, flare fades"
+            },
+            {
+              "start_s": 33.2,
+              "end_s": 34,
+              "shape_layering": "Second same emission/impact",
+              "size_BH": ".3 node,.6–1 impact",
+              "position": "Caster to enemy",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Rightward flight then dissolve"
+            }
+          ],
+          "props": [
+            {
+              "object": "Two emitted bolts",
+              "count": 2,
+              "origin": "hand/red nodes",
+              "path": "left-to-right straight",
+              "size_BH": ".2–.5 projectile; long luminous tail",
+              "time_s": [
+                31.999,
+                33.443
+              ]
+            }
+          ],
+          "caster_motion": [
+            {
+              "time_s": [
+                30.53,
+                31.5
+              ],
+              "motion": "glide forward",
+              "distance_BH": "1–2"
+            },
+            {
+              "time_s": [
+                31.5,
+                34.268
+              ],
+              "motion": "stationary casting twice",
+              "distance_BH": "less than.5"
+            }
+          ],
+          "contact_sheets": [
+            "sheets/native_02.jpg",
+            "sheets/native_03.jpg",
+            "sheets/base_10.jpg",
+            "sheets/base_11.jpg",
+            "sheets/base_12.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "candidate_name": "L'Appétit (ally mode)",
+      "official_attack_type": "Pierce",
+      "official_coins": 2,
+      "mapping_confidence": "med",
+      "mapping_evidence": "Multi-ally effect matches buff motif; cannot recover two mechanical coin events.",
+      "weapon": {
+        "type": "Bare-hand/orb casting; no held firearm or edged weapon visible",
+        "size_BH": "Hand-sized emission .15–.3; suspended red orb cluster .3–.6",
+        "holding": "One hand extended toward recipient; two arms raise for barrage; no shouldering/grip",
+        "parts_colors": "Pale hand; olive/gold cape #A58B43; white/pink clothes #F4DFDA. Red spell nodes #EF2445, cream cores #FFF0DC."
+      },
+      "occurrences": [
+        {
+          "id": "base-buff",
+          "start_s": 35.33,
+          "end_s": 37.538,
+          "start_frame": 1059,
+          "end_frame_exclusive": 1125,
+          "mapping_confidence": "med",
+          "repeat_of": null,
+          "official_coins": 2,
+          "hits_vs_coins": "1 continuous visible support episode across multiple allies / 2 kit coins; second coin timing unresolved",
+          "hits": [
+            {
+              "frame": 1098,
+              "time_s": 36.6366,
+              "contact": "Red patches appear at allied feet; support activation",
+              "range_class": "aoe_at_target",
+              "caster_target_distance_BH": "2–5",
+              "coin_index": null,
+              "coin_index_status": "not independently resolved",
+              "uncertainty_frames": 0
+            }
+          ],
+          "beats": [
+            {
+              "start_s": 35.33,
+              "end_s": 36.637,
+              "description": "Turn/gesture toward allies; camera widens"
+            },
+            {
+              "start_s": 36.637,
+              "end_s": 37.1,
+              "description": "Three allied areas glow red with particles"
+            },
+            {
+              "start_s": 37.1,
+              "end_s": 37.538,
+              "description": "Fade/reset"
+            }
+          ],
+          "camera": [
+            {
+              "start_s": 35.33,
+              "end_s": 37.538,
+              "shot": "wide group shot",
+              "framing": "Show caster at left and three recipient positions; no close melee contact"
+            }
+          ],
+          "effects": [
+            {
+              "start_s": 36.637,
+              "end_s": 37.3,
+              "shape_layering": "Small crimson ground glows under allies with rising flecks",
+              "size_BH": ".5–1 each",
+              "position": "Allied feet",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Appears locally, rises/fades"
+            }
+          ],
+          "props": [],
+          "caster_motion": [
+            {
+              "time_s": [
+                35.33,
+                36.2
+              ],
+              "motion": "short glide/gesture",
+              "distance_BH": "1–2"
+            },
+            {
+              "time_s": [
+                36.2,
+                37.538
+              ],
+              "motion": "stand",
+              "distance_BH": "0"
+            }
+          ],
+          "contact_sheets": [
+            "sheets/native_03.jpg",
+            "sheets/base_13.jpg",
+            "sheets/base_14.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "candidate_name": "Je m'abjecte",
+      "official_attack_type": "Pierce",
+      "official_coins": 3,
+      "mapping_confidence": "med",
+      "mapping_evidence": "Three target groups and prior ally interaction fit3-coin/ally-consumption kit; mapping not UI-confirmed.",
+      "weapon": {
+        "type": "Flexible chain carrying repeating paired crescent/axe-shaped links; skeletal claw gauntlet",
+        "size_BH": "Gauntlet forearm/claws .5–.8; link .15–.3; deployed chain typically3–5; cape/ribs enlarge apparent silhouette",
+        "holding": "Chain curves from hand/arm area; mostly one-arm lash with other arm extended. Some grip is hidden by cape. No rigid two-handed greatsword swing established.",
+        "parts_colors": "Ivory/pink edged paired crescents #E4CDD0, dark central chain #3C1521, red inner facets #9D1832; skeletal ivory claw fingers over red glove, black/red ribbed cloak."
+      },
+      "occurrences": [
+        {
+          "id": "needle-chain-combo",
+          "start_s": 95.262,
+          "end_s": 101.602,
+          "start_frame": 2855,
+          "end_frame_exclusive": 3045,
+          "mapping_confidence": "med",
+          "repeat_of": null,
+          "official_coins": 3,
+          "hits_vs_coins": "3 separated target-contact groups / 3 coins; the99.232 self flash is excluded",
+          "hits": [
+            {
+              "frame": 2922,
+              "time_s": 97.4974,
+              "contact": "Detached needle rays converge on right target; first clear target burst",
+              "range_class": "ranged_projectile",
+              "caster_target_distance_BH": "3–4",
+              "coin_index": 1,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 1
+            },
+            {
+              "frame": 2960,
+              "time_s": 98.765333,
+              "contact": "Chain swing reaches target after link close-up",
+              "range_class": "melee",
+              "caster_target_distance_BH": "2–3",
+              "coin_index": 2,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 1
+            },
+            {
+              "frame": 2998,
+              "time_s": 100.033267,
+              "contact": "Airborne chain/claw-associated downward strike; white-red star at target",
+              "range_class": "dash_melee",
+              "caster_target_distance_BH": "1–2 horizontal;1–2 vertical",
+              "coin_index": 3,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 0
+            }
+          ],
+          "beats": [
+            {
+              "start_s": 95.262,
+              "end_s": 95.963,
+              "description": "Low approach then upright"
+            },
+            {
+              "start_s": 95.963,
+              "end_s": 96.196,
+              "description": "Thin pale needles appear around caster"
+            },
+            {
+              "start_s": 96.196,
+              "end_s": 97.331,
+              "description": "Spokes spread/rotate in red thread loops"
+            },
+            {
+              "start_s": 97.364,
+              "end_s": 97.497,
+              "description": "Camera jumps toward upper origin; red needle streaks travel diagonally to target"
+            },
+            {
+              "start_s": 97.497,
+              "end_s": 98.332,
+              "description": "Sustained red target rosette and embedded pale shafts"
+            },
+            {
+              "start_s": 98.699,
+              "end_s": 98.799,
+              "description": "One-frame chain-link close-up f2958; return and lash"
+            },
+            {
+              "start_s": 99.232,
+              "end_s": 99.366,
+              "description": "Self-centered launch flash, not a target contact"
+            },
+            {
+              "start_s": 99.4,
+              "end_s": 99.933,
+              "description": "Leap/float up with chain"
+            },
+            {
+              "start_s": 99.933,
+              "end_s": 100.033,
+              "description": "Dark frame f2995; face f2996; torso f2997"
+            },
+            {
+              "start_s": 100.033,
+              "end_s": 100.3,
+              "description": "Final downward chain contact and crescent"
+            },
+            {
+              "start_s": 100.3,
+              "end_s": 101.602,
+              "description": "Hover/retract, cut to idle"
+            }
+          ],
+          "camera": [
+            {
+              "start_s": 95.262,
+              "end_s": 96.196,
+              "shot": "medium",
+              "framing": "Caster left; enemy right"
+            },
+            {
+              "start_s": 96.196,
+              "end_s": 97.331,
+              "shot": "pullback wide",
+              "framing": "Fit radial spokes, caster center-left"
+            },
+            {
+              "start_s": 97.364,
+              "end_s": 97.497,
+              "shot": "rapid origin-to-target pan",
+              "framing": "Upper-left diagonal needles to lower-right target"
+            },
+            {
+              "start_s": 97.497,
+              "end_s": 98.332,
+              "shot": "wide then medium target",
+              "framing": "Target rosette and needles remain distinguishable"
+            },
+            {
+              "start_s": 98.699,
+              "end_s": 98.732,
+              "shot": "one-frame extreme link close-up",
+              "framing": "f2958"
+            },
+            {
+              "start_s": 99.232,
+              "end_s": 99.933,
+              "shot": "wide elevated",
+              "framing": "Follow airborne caster without moving target"
+            },
+            {
+              "start_s": 99.933,
+              "end_s": 100.033,
+              "shot": "dark/face/torso inserts",
+              "framing": "1 frame each"
+            },
+            {
+              "start_s": 100.033,
+              "end_s": 101.602,
+              "shot": "impact medium then wide",
+              "framing": "Target below/right of caster; return formation"
+            }
+          ],
+          "effects": [
+            {
+              "start_s": 96.196,
+              "end_s": 97.364,
+              "shape_layering": "Thin red orbiting threads behind pale radial needles",
+              "size_BH": "2–3 diameter",
+              "position": "Around/above caster",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Rotate and widen"
+            },
+            {
+              "start_s": 97.397,
+              "end_s": 98.332,
+              "shape_layering": "Parallel narrow red rays with white cores; target red rosette rim and dark center",
+              "size_BH": "ray3–5; rosette.7–1.2",
+              "position": "Upper-left to target right",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Rapid linear firing, pulsing glow then embedded shafts remain"
+            },
+            {
+              "start_s": 98.799,
+              "end_s": 99.2,
+              "shape_layering": "Red crescent and white target star",
+              "size_BH": "arc3–4,star.5",
+              "position": "Caster to target",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Sweeps right, flakes decay"
+            },
+            {
+              "start_s": 99.232,
+              "end_s": 99.366,
+              "shape_layering": "White four-point flare inside red glow",
+              "size_BH": ".8–1.5",
+              "position": "Caster, not target",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Brief expansion and fade"
+            },
+            {
+              "start_s": 100.033,
+              "end_s": 100.5,
+              "shape_layering": "Red-white target star and sweeping arc",
+              "size_BH": "star.7–1;arc3–4",
+              "position": "Below/right caster",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Impact then arc dissipates"
+            }
+          ],
+          "props": [
+            {
+              "object": "Thin needle/stake shafts",
+              "count": "Approximately8 spokes visible; overlaps prevent exact inventory",
+              "origin": "Around/above caster, not a gun muzzle",
+              "path": "Radial arrangement then diagonal upper-left to target; shafts remain across target",
+              "size_BH": "1–2 per shaft",
+              "time_s": [
+                95.963,
+                98.332
+              ]
+            }
+          ],
+          "caster_motion": [
+            {
+              "time_s": [
+                95.262,
+                95.963
+              ],
+              "motion": "low dash",
+              "distance_BH": "1–2"
+            },
+            {
+              "time_s": [
+                95.963,
+                99.2
+              ],
+              "motion": "stand/cast and low chain lunge",
+              "distance_BH": "less than1"
+            },
+            {
+              "time_s": [
+                99.232,
+                100.033
+              ],
+              "motion": "leap/float",
+              "distance_BH": "1–2 upward; about1 forward"
+            },
+            {
+              "time_s": [
+                100.033,
+                101.602
+              ],
+              "motion": "hover recovery",
+              "distance_BH": "about1 downward"
+            }
+          ],
+          "contact_sheets": [
+            "sheets/native_15.jpg",
+            "sheets/native_16.jpg",
+            "sheets/native_17.jpg",
+            "sheets/detail_13.jpg",
+            "sheets/detail_14.jpg",
+            "sheets/detail_15.jpg",
+            "sheets/detail_16.jpg"
+          ]
+        }
+      ]
+    }
+  ],
+  "unobserved_or_unresolved_variants": [
+    {
+      "name": "La Demande",
+      "coins": 2,
+      "status": "Could be base-double-shot; supplied kit itself has slot ambiguity. No separate confident occurrence."
+    }
+  ]
+}

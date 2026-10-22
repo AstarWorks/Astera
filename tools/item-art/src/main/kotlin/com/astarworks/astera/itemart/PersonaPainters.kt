@@ -2,9 +2,9 @@ package com.astarworks.astera.itemart
 
 /** Hand-drawn silhouettes of the persona weapons (ADR-0221): one painter per [PersonaArt]. */
 internal enum class PersonaArt(val style: ModelStyle) {
-    RAPIER(ModelStyle.HANDHELD), KATANA(ModelStyle.HANDHELD), VENDETTA_RIFLE(ModelStyle.GENERATED),
+    SHEARS(ModelStyle.HANDHELD), KATANA(ModelStyle.HANDHELD), VENDETTA_RIFLE(ModelStyle.GENERATED),
     GAUNTLET(ModelStyle.GENERATED), HAMMER(ModelStyle.HANDHELD), CHAIN_AXE(ModelStyle.HANDHELD),
-    SIGIL_RIFLE(ModelStyle.GENERATED), ORRERY(ModelStyle.HANDHELD), EDICT(ModelStyle.HANDHELD),
+    SIGIL_RIFLE(ModelStyle.GENERATED), ORRERY(ModelStyle.HANDHELD), EDICT(ModelStyle.GENERATED),
 }
 
 private const val R2 = 0.70710678118
@@ -23,7 +23,7 @@ private val GOLD = ramp(0xFF7A4E08, 0xFFD39A18, 0xFFFFCC40, 0xFFFFF0A0)
 
 internal object PersonaPainter {
     fun paint(s: Sprite, art: PersonaArt) = when (art) {
-        PersonaArt.RAPIER -> rapier(s)
+        PersonaArt.SHEARS -> shears(s)
         PersonaArt.KATANA -> katana(s)
         PersonaArt.VENDETTA_RIFLE -> vendettaRifle(s)
         PersonaArt.GAUNTLET -> gauntlet(s)
@@ -53,27 +53,22 @@ internal object PersonaPainter {
         s.poly(pts, id)
     }
 
-    private fun rapier(s: Sprite) {
-        val grip = s.ramp(DARK)
-        val silver = s.ramp(ramp(0xFF3C4658, 0xFF8E9AB0, 0xFFD0D8E8, 0xFFFFFFFF))
-        val cyan = s.ramp(ramp(0xFF0E7C8C, 0xFF1FC4D8, 0xFF3FF0FF, 0xFFB8FFFF))
-        val blade = s.ramp(WHITE_STEEL)
-        val edge = s.ramp(flat(0xFF3FF0FF))
-        s.line(at(0.0, 0.0), at(4.5, 0.0), 1.6, grip)
-        val pc = at(-0.8, 0.0)
-        s.disc(pc.x, pc.y, 1.5, cyan)
-        strip(s, 6.0, 28.0, 0.75, 0.45, 0.0, blade)
-        s.line(at(7.0, 0.0), at(26.0, 0.0), 0.5, edge)
-        // swept cup hilt: crossbar, a bowl in front of the grip and knuckle arcs
-        s.line(at(5.2, -4.4), at(5.2, 4.4), 1.1, silver)
-        val bowl = at(5.8, 0.0)
-        s.disc(bowl.x, bowl.y, 2.9, silver)
-        s.disc(bowl.x + 0.2, bowl.y - 0.2, 1.9, cyan)
-        s.line(at(4.6, 3.4), at(1.4, 2.2), 0.9, silver)
-        s.line(at(4.6, -3.4), at(1.4, -2.2), 0.9, silver)
-        s.glow(at(18.0, 0.0).x, at(18.0, 0.0).y, 11.0, 0xFF3FF0FF.toInt(), alpha = 60)
-        val g = at(30.5, 1.8)
-        s.spark(g.x.toInt(), g.y.toInt(), 0xFFFFFFFF.toInt())
+    private fun shears(s: Sprite) {
+        val dark = s.ramp(DARK)
+        val steel = s.ramp(WHITE_STEEL)
+        val flower = s.ramp(ramp(0xFF8F7C85, 0xFFD5C1CB, 0xFFF2E6EC, 0xFFFFFFFF))
+        // Two visibly separate tapered blades share a flower-shaped pivot.
+        s.poly(listOf(P(14.0, 17.0), P(17.0, 15.0), P(27.0, 2.0), P(19.0, 16.0)), steel)
+        s.poly(listOf(P(14.0, 17.0), P(13.0, 13.0), P(10.0, 1.0), P(17.0, 15.0)), steel)
+        s.line(P(16.0, 16.0), P(25.5, 4.0), 1.0, dark)
+        s.line(P(15.0, 15.0), P(11.0, 3.0), 1.0, dark)
+        // Open angular handle loops, outlined rather than filled circles.
+        for (pts in listOf(
+            listOf(P(14.0, 17.0), P(9.0, 18.0), P(3.0, 25.0), P(7.0, 29.0), P(13.0, 23.0)),
+            listOf(P(16.0, 17.0), P(20.0, 19.0), P(22.0, 27.0), P(17.0, 29.0), P(14.0, 23.0)),
+        )) for (i in pts.indices) s.line(pts[i], pts[(i + 1) % pts.size], 1.6, dark)
+        for ((x, y) in listOf(14.0 to 15.0, 17.0 to 15.0, 14.0 to 18.0, 17.0 to 18.0)) s.disc(x, y, 1.7, flower)
+        s.disc(15.5, 16.5, 1.1, dark)
     }
 
     private fun katana(s: Sprite) {
@@ -257,24 +252,24 @@ internal object PersonaPainter {
     }
 
     private fun edict(s: Sprite) {
-        val grip = s.ramp(DARK)
-        val guard = s.ramp(DARK)
-        val blade = s.ramp(WHITE_STEEL)
-        val star = s.ramp(flat(0xFF3A8CFF))
-        val fuller = s.ramp(flat(0xFFB4C0D8))
-        s.line(at(0.0, 0.0), at(4.5, 0.0), 2.0, grip)
-        val pc = at(-0.9, 0.0)
-        s.disc(pc.x, pc.y, 1.6, guard)
-        strip(s, 6.4, 29.0, 1.7, 1.4, 0.0, blade)
-        s.line(at(7.5, 0.0), at(27.0, 0.0), 0.6, fuller)
-        s.poly(listOf(at(4.5, -3.4), at(6.4, -3.4), at(6.4, 3.4), at(4.5, 3.4)), guard)
-        // small blue star on the guard
-        val c = at(5.45, 0.0)
-        val cx = c.x.toInt()
-        val cy = c.y.toInt()
-        for ((dx, dy) in listOf(0 to 0, 1 to 0, -1 to 0, 0 to 1, 0 to -1)) s.pixel(cx + dx, cy + dy, star)
-        s.glow(at(18.0, 0.0).x, at(18.0, 0.0).y, 11.0, 0xFFFFFFFF.toInt(), alpha = 50)
-        val g = at(31.5, 2.0)
-        s.spark(g.x.toInt(), g.y.toInt(), 0xFFFFFFFF.toInt())
+        val metal = s.ramp(ramp(0xFF514A36, 0xFF938A65, 0xFFC5BD96, 0xFFF1E6B8))
+        val glove = s.ramp(WHITE_STEEL)
+        val dark = s.ramp(DARK)
+        // Paired closed white fists emerging from broad rectangular restraints.
+        for (x in listOf(5.0, 18.0)) {
+            s.rect(x, 15.0, x + 8.0, 25.0, dark)
+            s.rect(x + 1.0, 16.0, x + 7.0, 23.0, metal)
+            s.rect(x + 1.0, 7.0, x + 7.0, 16.0, glove)
+            s.rect(x - 1.0, 11.0, x + 2.0, 16.0, glove)
+            for (finger in 1..2) s.line(P(x + 1.0 + finger * 2, 7.0), P(x + 1.0 + finger * 2, 10.0), 0.7, dark)
+            s.rect(x + 2.0, 19.0, x + 6.0, 21.0, dark)
+        }
+        // Three visible chain links connect the cuffs; no blade or crossguard.
+        for ((x, y) in listOf(11.5 to 25.0, 15.5 to 27.0, 19.5 to 25.0)) {
+            s.line(P(x - 2, y), P(x, y - 2), 1.0, metal)
+            s.line(P(x, y - 2), P(x + 2, y), 1.0, metal)
+            s.line(P(x + 2, y), P(x, y + 2), 1.0, metal)
+            s.line(P(x, y + 2), P(x - 2, y), 1.0, metal)
+        }
     }
 }

@@ -1,120 +1,180 @@
-# Crimson Chain-Axe S3 (sneak + right-click) "Blade Forest": the caster plants (rooted 34 ticks) while a
-# floor ring, spokes and three tilted rings telegraph a 7-block danger zone. Tick 34 the shockwave
-# staggers every enemy in range (radial knock-back + hit-stop, no damage). Tick 40 a forest of axes erupts:
-# 6 + 1.5 per Rupture stack, consuming them all. Tick 60 a diagonal finishing slash lands (6, hit-stop,
-# shake). No stacks ~12 phys; 10 stacks ~27. 15 ticks between the two damage beats are NOT i-frame-proof
-# against players, so both are `ignore_invulnerability`.
-
 id: crimson-chain-axe-s3
-
 name:
-  ja: "刃の森"
-  en: "Blade Forest"
+  ja: 緋針の雨
+  en: Needle Rain
 description:
-  ja: "足を止めて紅い魔法陣を張り、衝撃波で敵を浮かせたのち、地面から斧の森を突き上げる。裂傷が多いほど威力が増し、すべて消費する。"
-  en: "Plant, telegraph a red zone, stagger everyone with a shockwave, then erupt a forest of axes. Scales with and consumes Rupture."
-
+  ja: 緋針の雨
+  en: Needle Rain
 archetype: sequence
-cooldown_ticks: 300
-resource_cost: 60              # energy
-tags: [ aoe, physical, finisher, rupture ]
-
+cooldown_ticks: 165
+resource_cost: 23
 params:
   type: sequence
-
 phases:
   type: sequence
   cast:
-    # -- telegraph (0-34) --
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: crimson-chain-axe-charge
-    - type: hit_stop
-      targets: { type: caster }
-      ticks: 34
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.beacon.activate
-      pitch: { type: literal, value: 0.6 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.beacon.power_select
-      pitch: { type: literal, value: 0.5 }
-      delay_ticks: { type: literal, value: 16 }
-    # -- shockwave (34) --
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: crimson-chain-axe-quake
-      delay_ticks: { type: literal, value: 34 }
-    - type: knockback
-      targets: { type: enemies, center: { type: caster }, radius: { type: literal, value: 9.0 } }
-      direction: { type: away_from_caster, vertical: 0.45 }
-      strength: { type: literal, value: 0.9 }
-      delay_ticks: { type: literal, value: 34 }
-    - type: hit_stop
-      targets: { type: enemies, center: { type: caster }, radius: { type: literal, value: 9.0 } }
-      ticks: 6
-      delay_ticks: { type: literal, value: 34 }
-    - type: camera_shake
-      targets: { type: enemies, center: { type: caster }, radius: { type: literal, value: 9.0 } }
-      intensity: { type: literal, value: 0.7 }
-      ticks: { type: literal, value: 8 }
-      delay_ticks: { type: literal, value: 34 }
-    - type: camera_shake
-      targets: { type: caster }
-      intensity: { type: literal, value: 0.5 }
-      ticks: { type: literal, value: 8 }
-      delay_ticks: { type: literal, value: 34 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.wither.spawn
-      volume: { type: literal, value: 0.7 }
-      pitch: { type: literal, value: 0.6 }
-      delay_ticks: { type: literal, value: 34 }
-    # -- forest: axes start erupting outward at 36, the stack-scaled blow lands at 40 --
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: crimson-chain-axe-forest
-      delay_ticks: { type: literal, value: 36 }
-    - type: damage
-      targets: { type: enemies, center: { type: caster }, radius: { type: literal, value: 9.0 } }
-      ignore_invulnerability: { type: literal, value: true }
-      delay_ticks: { type: literal, value: 40 }
-      components:
-        - base: { type: literal, value: 6.0 }
-          attribute: physical
-          per_stack: { status_id: rupture, amount: 1.5, on: target, consume: true }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.anvil.land
-      volume: { type: literal, value: 0.7 }
-      pitch: { type: literal, value: 0.6 }
-      delay_ticks: { type: literal, value: 40 }
-    # -- finishing slash (60) --
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: crimson-chain-axe-finish
-      delay_ticks: { type: literal, value: 56 }
-    - type: damage
-      targets: { type: enemies, center: { type: caster }, radius: { type: literal, value: 9.0 } }
-      ignore_invulnerability: { type: literal, value: true }
-      delay_ticks: { type: literal, value: 60 }
-      components:
-        - base: { type: literal, value: 6.0 }
-          attribute: physical
-    - type: hit_stop
-      targets: { type: enemies, center: { type: caster }, radius: { type: literal, value: 9.0 } }
-      ticks: 3
-      include_caster: true
-      delay_ticks: { type: literal, value: 60 }
-    - type: camera_shake
-      targets: { type: enemies, center: { type: caster }, radius: { type: literal, value: 9.0 } }
-      intensity: { type: literal, value: 0.8 }
-      ticks: { type: literal, value: 8 }
-      delay_ticks: { type: literal, value: 60 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.crit
-      volume: { type: literal, value: 1.0 }
-      pitch: { type: literal, value: 0.7 }
-      delay_ticks: { type: literal, value: 60 }
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: crimson-chain-axe-charge
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: crimson-hand-nodes
+    delay_ticks:
+      type: literal
+      value: 51
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-projectile
+    delay_ticks:
+      type: literal
+      value: 54
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: crimson-hand-nodes
+    delay_ticks:
+      type: literal
+      value: 64
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-projectile
+    delay_ticks:
+      type: literal
+      value: 67
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: crimson-hand-nodes
+    delay_ticks:
+      type: literal
+      value: 82
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-projectile
+    delay_ticks:
+      type: literal
+      value: 85
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 56
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 58
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 60
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 62
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 64
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 66
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 68
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 70
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 72
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 74
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 76
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 78
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 80
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 82
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 84
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 86
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: crimson-needle-visual
+    delay_ticks:
+      type: literal
+      value: 88

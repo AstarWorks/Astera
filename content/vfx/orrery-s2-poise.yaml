@@ -1,0 +1,83 @@
+id: orrery-s2-poise
+duration_ticks: 60
+orient: yaw
+follow: false
+sample_ticks: 1
+rigs:
+- id: staff
+  pivot:
+  - -0.3
+  - 1.1
+  - 0.3
+  rest:
+  - 0
+  - 0
+  - 0
+  tilt:
+  - 0
+  - 0
+  - 20
+  end_tick: 59
+  respect_hit_stop: true
+  parts:
+  - id: shaft
+    block: black_concrete
+    offset:
+    - 0
+    - 0.5
+    - 0
+    size:
+    - 0.11
+    - 2.0
+    - 0.11
+  - id: collar
+    block: gold_block
+    offset:
+    - 0
+    - 1.4
+    - 0
+    size:
+    - 0.3
+    - 0.3
+    - 0.3
+    brightness: 15
+  - id: orb
+    block: yellow_concrete
+    offset:
+    - 0
+    - 1.65
+    - 0
+    size:
+    - 0.35
+    - 0.35
+    - 0.35
+    brightness: 15
+  swing:
+  - t: 0
+    rotate:
+    - 0
+    - 25
+    - 0
+    ease: out_quad
+  - t: 8
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 59
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  trails: []
+  emitters:
+  - id: embers
+    particle_id: orrery-ember
+    point:
+    - 0
+    - 1.65
+    - 0
+    start_t: 0
+    end_t: 22

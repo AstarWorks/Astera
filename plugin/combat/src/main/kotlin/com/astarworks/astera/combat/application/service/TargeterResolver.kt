@@ -49,7 +49,15 @@ internal class TargeterResolver(
             val center = resolveLocationOnly(targeter.center, ctx) ?: return emptyList()
             val radius = literal(targeter.radius)
             val found = nearbyQuery.findInRadius(center, radius, ctx.worldId)
-            if (targeter.excludeCaster) found.filter { it != ctx.actorId } else found
+            val limit = when (val count = targeter.maxCount) {
+                is IntValue.Literal -> count.value.coerceAtLeast(0)
+                is IntValue.Cel -> 0
+            }
+            found.asSequence()
+                .filter { !targeter.excludeCaster || it != ctx.actorId }
+                .distinct()
+                .take(limit)
+                .toList()
         }
         is Targeter.ForwardRay -> resolveForwardRay(targeter, ctx)
         is Targeter.Cone -> resolveCone(targeter, ctx)
@@ -200,7 +208,7 @@ internal class TargeterResolver(
             range = distance,
             angleDegrees = literal(t.angleDegrees),
             candidates = nearbyTargets(origin, distance, ctx),
-        ).map { it.id }
+        ).map { it.id }.let { ids -> t.maxCount?.let { ids.take(it.coerceAtLeast(0)) } ?: ids }
     }
 
     private fun resolveEnemies(t: Targeter.Enemies, ctx: MechanicContext): List<PlayerId> {

@@ -1,0 +1,690 @@
+{
+  "title": "verdict-hammer-ego measured intent",
+  "source": {
+    "video": "Hc6CJXJrzME",
+    "start_s": 54.3,
+    "fps": 29.97
+  },
+  "units": "blocks; x toward enemy, y up, z toward side camera",
+  "duration_ticks": 218,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        5,
+        3.0,
+        9
+      ],
+      "target": [
+        5,
+        1.2,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    },
+    {
+      "t": 48,
+      "pos": [
+        4,
+        2.6,
+        5
+      ],
+      "target": [
+        4,
+        1.6,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    },
+    {
+      "t": 72,
+      "pos": [
+        8,
+        4.5,
+        12.65
+      ],
+      "target": [
+        8,
+        1.5,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    },
+    {
+      "t": 101,
+      "pos": [
+        8,
+        3.0,
+        7
+      ],
+      "target": [
+        8,
+        1.2,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    },
+    {
+      "t": 126,
+      "pos": [
+        6,
+        3.0,
+        6.6000000000000005
+      ],
+      "target": [
+        6,
+        1.2,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    },
+    {
+      "t": 136,
+      "pos": [
+        6,
+        1.7,
+        2.75
+      ],
+      "target": [
+        6,
+        1.2,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    },
+    {
+      "t": 166,
+      "pos": [
+        8,
+        3.0,
+        13.200000000000001
+      ],
+      "target": [
+        8,
+        1.2,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    },
+    {
+      "t": 192,
+      "pos": [
+        8,
+        3.0,
+        13.200000000000001
+      ],
+      "target": [
+        8,
+        1.2,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#29231D",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 8,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 16,
+          "pos": [
+            3,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 93,
+          "pos": [
+            3,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 101,
+          "pos": [
+            6,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#A42A23",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            8,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 2.35,
+    "width": 1.2,
+    "color": "#30291F",
+    "keys": [
+      {
+        "t": 0,
+        "angle": 180
+      },
+      {
+        "t": 63,
+        "angle": 110
+      },
+      {
+        "t": 72,
+        "angle": -20
+      },
+      {
+        "t": 76,
+        "angle": -35
+      },
+      {
+        "t": 94,
+        "angle": 110
+      },
+      {
+        "t": 103,
+        "angle": -20
+      },
+      {
+        "t": 107,
+        "angle": -35
+      },
+      {
+        "t": 119,
+        "angle": 110
+      },
+      {
+        "t": 128,
+        "angle": -20
+      },
+      {
+        "t": 132,
+        "angle": -35
+      },
+      {
+        "t": 183,
+        "angle": 110
+      },
+      {
+        "t": 192,
+        "angle": -20
+      },
+      {
+        "t": 196,
+        "angle": -35
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 71,
+      "at": [
+        8,
+        1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "sparks",
+      "t0": 71,
+      "t1": 84,
+      "emitter": [
+        8,
+        1,
+        0
+      ],
+      "count": 24,
+      "color": "#FFF1AB",
+      "speed": 4,
+      "life": 8
+    },
+    {
+      "type": "crescent_ring",
+      "id": "arc0",
+      "t0": 68,
+      "t1": 81,
+      "center": [
+        6,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 22,
+      "radius": 2.5,
+      "start_deg": 125,
+      "sweep_deg": 270,
+      "draw_ticks": 4,
+      "width": 0.8,
+      "color": "#FFF1AB"
+    },
+    {
+      "type": "hit",
+      "t": 102,
+      "at": [
+        8,
+        1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "sparks",
+      "t0": 102,
+      "t1": 115,
+      "emitter": [
+        8,
+        1,
+        0
+      ],
+      "count": 24,
+      "color": "#FFF1AB",
+      "speed": 4,
+      "life": 8
+    },
+    {
+      "type": "crescent_ring",
+      "id": "arc1",
+      "t0": 99,
+      "t1": 112,
+      "center": [
+        6,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 22,
+      "radius": 2.5,
+      "start_deg": 125,
+      "sweep_deg": 270,
+      "draw_ticks": 4,
+      "width": 0.8,
+      "color": "#FFF1AB"
+    },
+    {
+      "type": "hit",
+      "t": 128,
+      "at": [
+        8,
+        1,
+        0
+      ],
+      "coin": 3
+    },
+    {
+      "type": "sparks",
+      "t0": 128,
+      "t1": 140,
+      "emitter": [
+        8,
+        1,
+        0
+      ],
+      "count": 24,
+      "color": "#FFF1AB",
+      "speed": 4,
+      "life": 8
+    },
+    {
+      "type": "crescent_ring",
+      "id": "arc2",
+      "t0": 124,
+      "t1": 137,
+      "center": [
+        6,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 22,
+      "radius": 2.5,
+      "start_deg": 125,
+      "sweep_deg": 270,
+      "draw_ticks": 4,
+      "width": 0.8,
+      "color": "#FFF1AB"
+    },
+    {
+      "type": "hit",
+      "t": 191,
+      "at": [
+        8,
+        1,
+        0
+      ],
+      "coin": 4
+    },
+    {
+      "type": "sparks",
+      "t0": 191,
+      "t1": 204,
+      "emitter": [
+        8,
+        1,
+        0
+      ],
+      "count": 24,
+      "color": "#FFF1AB",
+      "speed": 4,
+      "life": 8
+    },
+    {
+      "type": "crescent_ring",
+      "id": "arc3",
+      "t0": 188,
+      "t1": 201,
+      "center": [
+        6,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 22,
+      "radius": 2.5,
+      "start_deg": 125,
+      "sweep_deg": 270,
+      "draw_ticks": 4,
+      "width": 0.8,
+      "color": "#FFF1AB"
+    },
+    {
+      "type": "pillar",
+      "t0": 48,
+      "t1": 208,
+      "at": [
+        10.0,
+        0,
+        0.0
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 49,
+      "t1": 208,
+      "at": [
+        6.017703407710204,
+        0,
+        1.81581200490836
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 50,
+      "t1": 208,
+      "at": [
+        8.260163223525158,
+        0,
+        -2.961924648824803
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 51,
+      "t1": 208,
+      "at": [
+        9.941905529569434,
+        0,
+        2.533450617486112
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 52,
+      "t1": 208,
+      "at": [
+        4.6752069659891085,
+        0,
+        -0.5886134011313358
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 48,
+      "t1": 208,
+      "at": [
+        10.986371758436327,
+        0,
+        -1.898914133276283
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 49,
+      "t1": 208,
+      "at": [
+        7.042351038594048,
+        0,
+        3.559274023345799
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 50,
+      "t1": 208,
+      "at": [
+        6.239778933806845,
+        0,
+        -3.3913323363859003
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 51,
+      "t1": 208,
+      "at": [
+        11.706780606146868,
+        0,
+        1.354946285422631
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 52,
+      "t1": 208,
+      "at": [
+        4.242261114010866,
+        0,
+        1.5496847352936691
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 48,
+      "t1": 208,
+      "at": [
+        9.771553401528688,
+        0,
+        -3.782083506761244
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 49,
+      "t1": 208,
+      "at": [
+        9.2800774293992,
+        0,
+        4.086876437276321
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 50,
+      "t1": 208,
+      "at": [
+        4.207747475366983,
+        0,
+        -2.199923700176578
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 51,
+      "t1": 208,
+      "at": [
+        12.37744228520178,
+        0,
+        -0.9601750251863713
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 52,
+      "t1": 208,
+      "at": [
+        5.366749955409877,
+        0,
+        3.7414320858973187
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 48,
+      "t1": 208,
+      "at": [
+        7.402976454994014,
+        0,
+        -4.627213615586262
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 49,
+      "t1": 208,
+      "at": [
+        11.632565420933295,
+        0,
+        3.065186953001027
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 50,
+      "t1": 208,
+      "at": [
+        3.1662912373346437,
+        0,
+        0.19686241846155048
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 51,
+      "t1": 208,
+      "at": [
+        11.489726708311352,
+        0,
+        -3.4681501715160787
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    },
+    {
+      "type": "pillar",
+      "t0": 52,
+      "t1": 208,
+      "at": [
+        7.765553379764785,
+        0,
+        4.994500453725105
+      ],
+      "height": 2.7,
+      "width": 0.12,
+      "color": "#FFE69B"
+    }
+  ]
+}

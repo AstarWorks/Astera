@@ -1,0 +1,78 @@
+{
+  "id": "orrery-staff-s3",
+  "rev": 2,
+  "videoId": "0DYvUxa24wo",
+  "start_s": 23.5235,
+  "end_s": 33.7337,
+  "skill": {
+    "name": "四連の光束",
+    "coins": 4,
+    "asteraSkillId": "orrery-s3"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "S3",
+      "start_s": 23.5235,
+      "end_s": 33.7337
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "接触 1",
+      "t_s": 25.792433,
+      "notes": "astra2 source frame 773; beam; game tick 45. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "接触 2",
+      "t_s": 26.5265,
+      "notes": "astra2 source frame 795; beam; game tick 60. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit3",
+      "kind": "hit",
+      "label": "接触 3",
+      "t_s": 27.1271,
+      "notes": "astra2 source frame 813; beam; game tick 72. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit4",
+      "kind": "hit",
+      "label": "接触 4",
+      "t_s": 30.663967,
+      "notes": "astra2 source frame 919; beam; game tick 143. Coin grouping uncertainty remains in reference analysis."
+    }
+  ],
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/orrery-staff/s3.json を参照。",
+  "editLog": [],
+  "status": "captured",
+  "verification": {
+    "status": "failed",
+    "reason": "ロッド先端の構え、輪の密度と重なり、ビーム発光と発砲時刻の実機表示遅延、カメラ寄りが未一致。",
+    "normalInput": "実入力撮影あり。標的HP 155.72f（回数の測定ではない）",
+    "evidence": "/evidence/orrery-staff-s3.png"
+  },
+  "weapon": "orrery-staff",
+  "identity": "R Corp. 4th Pack Reindeer Rodion",
+  "videoTitle": "R Corp. 4th Pack Reindeer Rodion — skill showcase",
+  "iterations": 1,
+  "report": "/report/orrery-staff",
+  "referenceRevision": "37cecbf269279ceeb30fc8758063b98bfd2b4119e0e80d61007e51ec20da4f94",
+  "contentRevision": "150dc0c1f8c1db32debd54a0928a9a57e2c6d10fbd915b86f7e3d03e42932f26"
+}

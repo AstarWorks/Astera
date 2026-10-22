@@ -88,7 +88,9 @@ public class GameSim private constructor(
     public val feedback: SimPlayerFeedbackGateway = SimPlayerFeedbackGateway(recorder) { scheduler.currentTick() }
 
     /** What every HUD channel currently shows per player, and every show / update / clear (WP14). */
-    public val hud: SimHudRecorder = SimHudRecorder(recorder, services.getOrThrow<IMessageRenderer>()) { scheduler.currentTick() }
+    public val hud: SimHudRecorder by lazy {
+        SimHudRecorder(recorder, services.getOrThrow<IMessageRenderer>()) { scheduler.currentTick() }
+    }
 
     /** Native hotbar cooldown sweeps the item side asked for (ADR-0197). */
     public val sweeps: SimItemCooldownSweep = SimItemCooldownSweep { scheduler.currentTick() }

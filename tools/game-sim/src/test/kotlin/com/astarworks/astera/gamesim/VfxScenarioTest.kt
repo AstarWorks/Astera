@@ -1,6 +1,8 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.domain.effect.DisplayKind
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import org.assertj.core.api.Assertions.assertThat
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -9,6 +11,22 @@ import org.junit.jupiter.api.Test
 
 /** ADR-0220: `play_vfx` end to end -- YAML skill, YAML choreography, real wiring, sim display gateway. */
 class VfxScenarioTest {
+
+    @Test
+    fun `camera facing flash keeps its face and world position when caster turns east`() {
+        scenario("vfx-billboard-east") {
+            val caster = player("caster", team = "red", facing = Vec3(1.0, 0.0, 0.0))
+            caster.cast("vfx-demo-quad-sparks")
+            val flash = sim.displays.spawned.single {
+                (it.spec.kind as? DisplayKind.Text)?.textRgb == 0xFFF2B0
+            }
+            assertThat(flash.spec.transform.rotation).isEqualTo(Quaternion.IDENTITY)
+            advance(12)
+            assertThat(sim.displays.updates.filter { it.handle == flash.handle }).allSatisfy {
+                assertThat(it.transform.rotation).isEqualTo(Quaternion.IDENTITY)
+            }
+        }
+    }
 
     @Test
     fun `the demo cross skill spawns, animates, swaps and removes its displays on schedule`() {

@@ -1,5 +1,7 @@
 # VFX art direction — which part reproduces what
 
+制作全体の順序・比較方法・合格条件は [統一手順書](limbus-skill-reproduction.md) を参照。このページは演出の部品選びと表現基準。
+
 Limbus Company 風の 2D 演出を Minecraft で再現するときの「部品選び」の正本。
 Display entity (block / item / text) と particle は役割が違う。**形と面は Display、動きと粒立ちは particle**。
 どちらか片方だけで作らない。
@@ -122,8 +124,8 @@ ItemDisplay はほぼ使わない。
 
 vanilla particle には色・サイズ・透明度が無い。`kind: quad` は TextDisplay の背景色 (ARGB の alpha が効く) で
 **単色の半透明の板**を作る。`size` / `scale` は **ブロック単位** (1 = 1x1 ブロック)。
-較正 (text 1 px = 0.025 block, 空白 1 文字の背景箱 = 0.125 x 0.25 block, 中心は原点の 0.1 下):
-`scale = (w*8, h*4, 1)`、位置は entity 位置に置いて箱の中心を合わせる (`VfxQuad` KDoc)。
+較正 (text 1 px = 0.025 block, 空白 1 文字の背景箱 = 0.125 x 0.25 block, 中心は原点の X +0.0125 / Y +0.125):
+`scale = (w*8, h*4, 1)`、位置は entity 位置に置き、変換に `[-0.0125*scale.x, -0.125*scale.y, 0]` を回転して加え、箱の中心を合わせる (`VfxQuad` KDoc)。
 glyph 版は `scale = size*5` (1 セル = 8 px = 0.2 block)、色は text colour + `text_opacity` (4 未満は不透明扱いなので下限 4)。
 クライアントは色を補間しないので、色 / alpha の変化は `sample_ticks` ごとの更新で送る。
 粒子は entity 位置を teleport (`teleport_duration`) で動かす (transformation の translation は billboard 相対になるため)。

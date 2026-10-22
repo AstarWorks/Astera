@@ -1,0 +1,426 @@
+{
+  "video_id": "0DYvUxa24wo",
+  "identity": "R Corp. 4th Pack Reindeer Rodion",
+  "source_video": "../../vid/0DYvUxa24wo.mp4",
+  "official_kit": "../../wiki/0DYvUxa24wo.md",
+  "fps": "30000/1001",
+  "frame_indexing": "Zero-based decoded source frames. Intervals are [start,end); source is 29.97003 fps, not exactly 30.",
+  "method": "Entire video inspected at 6 fps; every source frame 360–1364 inspected in 34 sheets. Full-resolution selected frames and intro/outro boundaries inspected separately. No hit count inferred from audio peaks.",
+  "measurement_limits": "Body heights and hex colors are visual estimates, not world coordinates or sampled material values. Camera zoom changes pixel distances. No combat HUD or skill title labels; kit mapping is inferred.",
+  "palette_approximate": {
+    "core": "#FFF39A",
+    "gold": "#FFD338",
+    "glow": "#FF9B12",
+    "orange_edge": "#F27316",
+    "dark_accents": "#6A3519",
+    "target_violet": "#7954C9",
+    "green": "#44EC36",
+    "red": "#F02B29",
+    "afterimage": "#596575"
+  },
+  "frame_count": 1828,
+  "duration_s": 60.994267,
+  "segments": [
+    {
+      "id": "warning",
+      "start_frame": 0,
+      "end_frame_exclusive": 60,
+      "start_s": 0.0,
+      "end_s": 2.002,
+      "kind": "intro",
+      "mapping": "none",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 59,
+          "time_s": 1.968633,
+          "observation": "Warning card ends before frame 60.",
+          "sheet": "sheets/boundaries_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "identity_card",
+      "start_frame": 60,
+      "end_frame_exclusive": 120,
+      "start_s": 2.002,
+      "end_s": 4.004,
+      "kind": "intro",
+      "mapping": "identity promotional card",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 60,
+          "time_s": 2.002,
+          "observation": "Motion-blurred card arrives at 2.002.",
+          "sheet": "sheets/boundaries_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "room_vignette",
+      "start_frame": 120,
+      "end_frame_exclusive": 215,
+      "start_s": 4.004,
+      "end_s": 7.173833,
+      "kind": "cutscene",
+      "mapping": "none",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 120,
+          "time_s": 4.004,
+          "observation": "Chibi room vignette starts; helmet removed, festive room appears.",
+          "sheet": "sheets/boundaries_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "portrait_vignette",
+      "start_frame": 215,
+      "end_frame_exclusive": 345,
+      "start_s": 7.173833,
+      "end_s": 11.5115,
+      "kind": "cutscene",
+      "mapping": "none",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 215,
+          "time_s": 7.173833,
+          "observation": "Diagonal wipe starts at 7.174; portrait reframe at 8.508; white flash at 10.010.",
+          "sheet": "sheets/boundaries_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "battle_dissolve",
+      "start_frame": 345,
+      "end_frame_exclusive": 350,
+      "start_s": 11.5115,
+      "end_s": 11.678333,
+      "kind": "transition",
+      "mapping": "none",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 345,
+          "time_s": 11.5115,
+          "observation": "Portrait dissolves into arena from 11.5115; clear battle by 11.6783.",
+          "sheet": "sheets/boundaries_02.jpg"
+        }
+      ]
+    },
+    {
+      "id": "idle_1",
+      "start_frame": 350,
+      "end_frame_exclusive": 366,
+      "start_s": 11.678333,
+      "end_s": 12.2122,
+      "kind": "idle",
+      "mapping": "none",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 360,
+          "time_s": 12.012,
+          "observation": "Rodion and one armored target stand apart.",
+          "sheet": "sheets/detail_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "attack_A",
+      "start_frame": 366,
+      "end_frame_exclusive": 497,
+      "start_s": 12.2122,
+      "end_s": 16.583233,
+      "kind": "attack",
+      "mapping": "s1",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 366,
+          "time_s": 12.2122,
+          "observation": "First lowered forward movement/afterimage, preceding frame upright.",
+          "sheet": "sheets/detail_01.jpg"
+        },
+        {
+          "frame": 402,
+          "time_s": 13.4134,
+          "observation": "First visible ring on target.",
+          "sheet": "sheets/detail_02.jpg"
+        },
+        {
+          "frame": 448,
+          "time_s": 14.948267,
+          "observation": "Second visible impact after two-frame weapon close-up.",
+          "sheet": "sheets/detail_03.jpg"
+        },
+        {
+          "frame": 497,
+          "time_s": 16.583233,
+          "observation": "Cut to wide resets both poses.",
+          "sheet": "sheets/detail_05.jpg"
+        }
+      ]
+    },
+    {
+      "id": "idle_2",
+      "start_frame": 497,
+      "end_frame_exclusive": 516,
+      "start_s": 16.583233,
+      "end_s": 17.2172,
+      "kind": "idle",
+      "mapping": "none",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 510,
+          "time_s": 17.017,
+          "observation": "Wide neutral two-shot before next approach.",
+          "sheet": "sheets/detail_06.jpg"
+        }
+      ]
+    },
+    {
+      "id": "attack_B",
+      "start_frame": 516,
+      "end_frame_exclusive": 676,
+      "start_s": 17.2172,
+      "end_s": 22.555867,
+      "kind": "attack",
+      "mapping": "s2",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "frame": 516,
+          "time_s": 17.2172,
+          "observation": "First forward approach.",
+          "sheet": "sheets/detail_06.jpg"
+        },
+        {
+          "frame": 569,
+          "time_s": 18.985633,
+          "observation": "First target-centered energy impact.",
+          "sheet": "sheets/detail_07.jpg"
+        },
+        {
+          "frame": 607,
+          "time_s": 20.253567,
+          "observation": "Second target impact after large rotating foreground arc.",
+          "sheet": "sheets/detail_09.jpg"
+        },
+        {
+          "frame": 676,
+          "time_s": 22.555867,
+          "observation": "Wide group cut ends held overhead pose.",
+          "sheet": "sheets/detail_11.jpg"
+        }
+      ]
+    },
+    {
+      "id": "idle_group",
+      "start_frame": 676,
+      "end_frame_exclusive": 705,
+      "start_s": 22.555867,
+      "end_s": 23.5235,
+      "kind": "idle",
+      "mapping": "none",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 680,
+          "time_s": 22.689333,
+          "observation": "Three allies at left and three armored opponents at right; no separate attack.",
+          "sheet": "sheets/detail_11.jpg"
+        }
+      ]
+    },
+    {
+      "id": "attack_C",
+      "start_frame": 705,
+      "end_frame_exclusive": 1011,
+      "start_s": 23.5235,
+      "end_s": 33.7337,
+      "kind": "attack",
+      "mapping": "s3; possible Unfocused Volley presentation",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "frame": 705,
+          "time_s": 23.5235,
+          "observation": "First movement/camera follows Rodion out of formation.",
+          "sheet": "sheets/detail_12.jpg"
+        },
+        {
+          "frame": 773,
+          "time_s": 25.792433,
+          "observation": "First visible beam impact, another antlered ally remains nearby.",
+          "sheet": "sheets/detail_14.jpg"
+        },
+        {
+          "frame": 795,
+          "time_s": 26.5265,
+          "observation": "Second and third beam launches are distinct; later channel is fourth coin.",
+          "sheet": "sheets/detail_15.jpg"
+        },
+        {
+          "frame": 1011,
+          "time_s": 33.7337,
+          "observation": "Cut returns to single-opponent wide layout.",
+          "sheet": "sheets/detail_22.jpg"
+        }
+      ]
+    },
+    {
+      "id": "idle_3",
+      "start_frame": 1011,
+      "end_frame_exclusive": 1025,
+      "start_s": 33.7337,
+      "end_s": 34.200833,
+      "kind": "idle",
+      "mapping": "none",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1015,
+          "time_s": 33.867167,
+          "observation": "Single-opponent wide shot; faint charge sparks.",
+          "sheet": "sheets/detail_22.jpg"
+        }
+      ]
+    },
+    {
+      "id": "attack_D",
+      "start_frame": 1025,
+      "end_frame_exclusive": 1362,
+      "start_s": 34.200833,
+      "end_s": 45.4454,
+      "kind": "attack",
+      "mapping": "extra-1: repeated s3, alternate visible charge state",
+      "confidence": "high for S3 repetition; low for exact Charge threshold",
+      "evidence": [
+        {
+          "frame": 1025,
+          "time_s": 34.200833,
+          "observation": "First forward lowered stance.",
+          "sheet": "sheets/detail_23.jpg"
+        },
+        {
+          "frame": 1085,
+          "time_s": 36.202833,
+          "observation": "First beam target impact.",
+          "sheet": "sheets/detail_25.jpg"
+        },
+        {
+          "frame": 1164,
+          "time_s": 38.8388,
+          "observation": "Two-frame torso punch reveals green luminous panel.",
+          "sheet": "sheets/detail_27.jpg"
+        },
+        {
+          "frame": 1362,
+          "time_s": 45.4454,
+          "observation": "White flash cuts to promotional artwork.",
+          "sheet": "sheets/detail_34.jpg"
+        }
+      ]
+    },
+    {
+      "id": "outro_art",
+      "start_frame": 1362,
+      "end_frame_exclusive": 1714,
+      "start_s": 45.4454,
+      "end_s": 57.190467,
+      "kind": "outro",
+      "mapping": "identity illustration; not demonstrated E.G.O",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1362,
+          "time_s": 45.4454,
+          "observation": "White flash then red-faced helmeted identity artwork; no gameplay action.",
+          "sheet": "sheets/detail_34.jpg"
+        }
+      ]
+    },
+    {
+      "id": "logo",
+      "start_frame": 1714,
+      "end_frame_exclusive": 1828,
+      "start_s": 57.190467,
+      "end_s": 60.994267,
+      "kind": "outro",
+      "mapping": "Project Moon logo and fade",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1714,
+          "time_s": 57.190467,
+          "observation": "Black/logo transition at 57.1905.",
+          "sheet": "sheets/boundaries_02.jpg"
+        }
+      ]
+    }
+  ],
+  "coverage": "Contiguous whole-video coverage. Attack intervals include final held recovery until the editorial reset/cut, since a neutral pose is not visibly resumed earlier.",
+  "not_observed": [
+    "Defense activation",
+    "E.G.O gameplay",
+    "independently identifiable passive activation",
+    "separate attack performed by another character"
+  ],
+  "contact_sheets": [
+    "sheets/overview_01.jpg",
+    "sheets/overview_02.jpg",
+    "sheets/overview_03.jpg",
+    "sheets/overview_04.jpg",
+    "sheets/overview_05.jpg",
+    "sheets/overview_06.jpg",
+    "sheets/overview_07.jpg",
+    "sheets/overview_08.jpg",
+    "sheets/overview_09.jpg",
+    "sheets/overview_10.jpg",
+    "sheets/overview_11.jpg",
+    "sheets/overview_12.jpg",
+    "sheets/overview_13.jpg",
+    "sheets/detail_01.jpg",
+    "sheets/detail_02.jpg",
+    "sheets/detail_03.jpg",
+    "sheets/detail_04.jpg",
+    "sheets/detail_05.jpg",
+    "sheets/detail_06.jpg",
+    "sheets/detail_07.jpg",
+    "sheets/detail_08.jpg",
+    "sheets/detail_09.jpg",
+    "sheets/detail_10.jpg",
+    "sheets/detail_11.jpg",
+    "sheets/detail_12.jpg",
+    "sheets/detail_13.jpg",
+    "sheets/detail_14.jpg",
+    "sheets/detail_15.jpg",
+    "sheets/detail_16.jpg",
+    "sheets/detail_17.jpg",
+    "sheets/detail_18.jpg",
+    "sheets/detail_19.jpg",
+    "sheets/detail_20.jpg",
+    "sheets/detail_21.jpg",
+    "sheets/detail_22.jpg",
+    "sheets/detail_23.jpg",
+    "sheets/detail_24.jpg",
+    "sheets/detail_25.jpg",
+    "sheets/detail_26.jpg",
+    "sheets/detail_27.jpg",
+    "sheets/detail_28.jpg",
+    "sheets/detail_29.jpg",
+    "sheets/detail_30.jpg",
+    "sheets/detail_31.jpg",
+    "sheets/detail_32.jpg",
+    "sheets/detail_33.jpg",
+    "sheets/detail_34.jpg",
+    "sheets/weapon_contacts.jpg",
+    "sheets/boundaries_01.jpg",
+    "sheets/boundaries_02.jpg"
+  ]
+}

@@ -1,0 +1,750 @@
+{
+  "slot": "gregor-s1",
+  "name": "Flamethrow",
+  "status": "observed",
+  "official_attack_type": "blunt",
+  "official_coins": 2,
+  "sequence": {
+    "start": {
+      "frame": 1074,
+      "time_s": 35.8
+    },
+    "end_exclusive": {
+      "frame": 1165,
+      "time_s": 38.833333
+    }
+  },
+  "mapping": {
+    "confidence": "med",
+    "evidence": "Two beats: fire-assisted close sweep then sustained emitted flame. Second occurrence 39.000–41.933 repeats jet-finisher structure but opens with straight punch; treat as animation variant, fuel cause unproven."
+  },
+  "weapon": {
+    "type": "bulky forearm-mounted mechanical fist/flamethrower gauntlet with backpack and flexible hoses",
+    "size_relative_to_body_height": "forearm assembly ~0.35–0.5 H long, ~0.2 H thick; backpack ~0.6 H tall",
+    "held": "worn on one forearm, aimed/punched one-handed; opposite arm balances; not shouldered and not a two-handed gun",
+    "parts_and_colors": "segmented bronze/olive plates #75613B, dark metal #302D24, black hoses #18191A, dark tank pack #292B24; orange ignition #FF8A00 at hand",
+    "evidence": "36.733–36.900 and 40.000–40.100 extended device with backpack hose loop; 56.900 one-frame close-up of plated mechanism; details.jpg",
+    "confidence": "high for arm-mounted device, medium for mechanical parts hidden by sprite scale"
+  },
+  "props": [],
+  "caster_motion": [
+    {
+      "start": {
+        "frame": 1074,
+        "time_s": 35.8
+      },
+      "end_exclusive": {
+        "frame": 1081,
+        "time_s": 36.033333
+      },
+      "motion": "step",
+      "distance_body_heights_estimate": [
+        0,
+        0.3
+      ],
+      "description": "Lower stance, device prepared."
+    },
+    {
+      "start": {
+        "frame": 1081,
+        "time_s": 36.033333
+      },
+      "end_exclusive": {
+        "frame": 1084,
+        "time_s": 36.133333
+      },
+      "motion": "dash",
+      "distance_body_heights_estimate": [
+        2,
+        3.5
+      ],
+      "description": "Close rightward before sweeping gauntlet."
+    },
+    {
+      "start": {
+        "frame": 1084,
+        "time_s": 36.133333
+      },
+      "end_exclusive": {
+        "frame": 1102,
+        "time_s": 36.733333
+      },
+      "motion": "step",
+      "distance_body_heights_estimate": [
+        0,
+        0.4
+      ],
+      "description": "Sweep and recoil; target pushed right."
+    },
+    {
+      "start": {
+        "frame": 1102,
+        "time_s": 36.733333
+      },
+      "end_exclusive": {
+        "frame": 1123,
+        "time_s": 37.433333
+      },
+      "motion": "idle",
+      "distance_body_heights_estimate": [
+        0,
+        0.2
+      ],
+      "description": "Extend arm horizontally, plant feet and spray fire."
+    },
+    {
+      "start": {
+        "frame": 1123,
+        "time_s": 37.433333
+      },
+      "end_exclusive": {
+        "frame": 1165,
+        "time_s": 38.833333
+      },
+      "motion": "idle",
+      "distance_body_heights_estimate": [
+        0,
+        0
+      ],
+      "description": "Hold aimed recovery while smoke rises; scene cuts before neutral reset."
+    }
+  ],
+  "hits": [
+    {
+      "coin_candidate": 1,
+      "contact": {
+        "frame": 1084,
+        "time_s": 36.133333
+      },
+      "contact_uncertainty_frames": 1,
+      "contact_object": "fire-assisted gauntlet sweep / flame arc at target",
+      "range_class": "dash_melee",
+      "caster_target_distance_body_heights_estimate": [
+        0.8,
+        1.6
+      ],
+      "evidence": "Dash 36.033; arc appears 36.067, target starburst 36.133. Fist itself is obscured, so direct metal contact not proved.",
+      "coin_assignment": "inferred from grouped animation and supplied kit; no visible combat UI"
+    },
+    {
+      "coin_candidate": 2,
+      "contact": {
+        "frame": 1108,
+        "time_s": 36.933333
+      },
+      "contact_uncertainty_frames": 1,
+      "contact_object": "emitted flame reaching target across a visible gap",
+      "range_class": "beam",
+      "caster_target_distance_body_heights_estimate": [
+        1.5,
+        2.5
+      ],
+      "evidence": "Ignition at muzzle and target 36.933, plume grows by 37.033. Continuous jet is one coin group, not per-frame hits.",
+      "coin_assignment": "inferred from grouped animation and supplied kit; no visible combat UI"
+    }
+  ],
+  "beats": [
+    {
+      "start": {
+        "frame": 1074,
+        "time_s": 35.8
+      },
+      "end_exclusive": {
+        "frame": 1081,
+        "time_s": 36.033333
+      },
+      "description": "Wind-up."
+    },
+    {
+      "start": {
+        "frame": 1081,
+        "time_s": 36.033333
+      },
+      "end_exclusive": {
+        "frame": 1084,
+        "time_s": 36.133333
+      },
+      "description": "Dash, horizontal fiery hook/sweep."
+    },
+    {
+      "start": {
+        "frame": 1084,
+        "time_s": 36.133333
+      },
+      "end_exclusive": {
+        "frame": 1102,
+        "time_s": 36.733333
+      },
+      "description": "Coin 1 flare, arc breaks into embers."
+    },
+    {
+      "start": {
+        "frame": 1102,
+        "time_s": 36.733333
+      },
+      "end_exclusive": {
+        "frame": 1108,
+        "time_s": 36.933333
+      },
+      "description": "Arm extends to aim."
+    },
+    {
+      "start": {
+        "frame": 1108,
+        "time_s": 36.933333
+      },
+      "end_exclusive": {
+        "frame": 1123,
+        "time_s": 37.433333
+      },
+      "description": "Coin 2 continuous flame spray; short impact zoom."
+    },
+    {
+      "start": {
+        "frame": 1123,
+        "time_s": 37.433333
+      },
+      "end_exclusive": {
+        "frame": 1165,
+        "time_s": 38.833333
+      },
+      "description": "Jet collapses into ember cloud and black smoke; aimed recovery held until cut."
+    }
+  ],
+  "effects": [
+    {
+      "start": {
+        "frame": 1082,
+        "time_s": 36.066667
+      },
+      "end_exclusive": {
+        "frame": 1103,
+        "time_s": 36.766667
+      },
+      "shape": "horizontal hooked fire crescent and impact star",
+      "size_body_heights_estimate": [
+        1,
+        3
+      ],
+      "position": "arc around caster at chest height, star at target",
+      "colors_hex_approximate": [
+        "#FFF86B",
+        "#FFCC00",
+        "#FF7A00",
+        "#B12C10"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "sweep left-to-right, target burst expands",
+      "fade": "flame breaks into embers"
+    },
+    {
+      "start": {
+        "frame": 1108,
+        "time_s": 36.933333
+      },
+      "end_exclusive": {
+        "frame": 1129,
+        "time_s": 37.633333
+      },
+      "shape": "continuous ragged flame cone",
+      "size_body_heights_estimate": [
+        1,
+        3
+      ],
+      "position": "from gauntlet muzzle to target",
+      "colors_hex_approximate": [
+        "#FFF649",
+        "#FFB900",
+        "#FF6514"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "extends right, turbulent tongues along top edge; target glows",
+      "fade": "narrows into scattered fragments"
+    },
+    {
+      "start": {
+        "frame": 1123,
+        "time_s": 37.433333
+      },
+      "end_exclusive": {
+        "frame": 1165,
+        "time_s": 38.833333
+      },
+      "shape": "embers and dark smoke",
+      "size_body_heights_estimate": [
+        0.1,
+        2
+      ],
+      "position": "between caster and target",
+      "colors_hex_approximate": [
+        "#FFC332",
+        "#EC7611",
+        "#272725"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "embers rise, smoke expands upward",
+      "fade": "embers extinguish, smoke persists into cut"
+    }
+  ],
+  "camera": [
+    {
+      "start": {
+        "frame": 1074,
+        "time_s": 35.8
+      },
+      "end_exclusive": {
+        "frame": 1081,
+        "time_s": 36.033333
+      },
+      "shot": "wide to medium",
+      "framing": "Push towards crouched caster.",
+      "caster_height_fraction_of_frame_estimate": 0.3
+    },
+    {
+      "start": {
+        "frame": 1081,
+        "time_s": 36.033333
+      },
+      "end_exclusive": {
+        "frame": 1090,
+        "time_s": 36.333333
+      },
+      "shot": "tracking impact shot",
+      "framing": "Fast right pan; first bloom at right edge, pull back.",
+      "caster_height_fraction_of_frame_estimate": 0.4
+    },
+    {
+      "start": {
+        "frame": 1090,
+        "time_s": 36.333333
+      },
+      "end_exclusive": {
+        "frame": 1108,
+        "time_s": 36.933333
+      },
+      "shot": "medium two-shot",
+      "framing": "Both fighters visible, arm extended.",
+      "caster_height_fraction_of_frame_estimate": 0.4
+    },
+    {
+      "start": {
+        "frame": 1108,
+        "time_s": 36.933333
+      },
+      "end_exclusive": {
+        "frame": 1118,
+        "time_s": 37.266667
+      },
+      "shot": "medium push",
+      "framing": "Follow growing flame into gap.",
+      "caster_height_fraction_of_frame_estimate": 0.4
+    },
+    {
+      "start": {
+        "frame": 1118,
+        "time_s": 37.266667
+      },
+      "end_exclusive": {
+        "frame": 1121,
+        "time_s": 37.366667
+      },
+      "shot": "three-frame close impact punch",
+      "framing": "Flame and target dominate crop; max zoom 37.300–37.333.",
+      "caster_height_fraction_of_frame_estimate": 0.8
+    },
+    {
+      "start": {
+        "frame": 1121,
+        "time_s": 37.366667
+      },
+      "end_exclusive": {
+        "frame": 1165,
+        "time_s": 38.833333
+      },
+      "shot": "medium to wide",
+      "framing": "Widen for residual smoke; hard stage change at 38.833.",
+      "caster_height_fraction_of_frame_estimate": 0.3
+    }
+  ],
+  "camera_baseline": "Side-on 2.5D battle plane, caster left facing right, target right facing left. Slight elevated view of floor. Reproduce with locked yaw and short dolly/pan changes, not orbiting camera. Gold border and subtitles are presentation overlays.",
+  "contact_sheets": [
+    "sheets/gregor-a_001.jpg",
+    "sheets/gregor-a_002.jpg",
+    "sheets/gregor-a_003.jpg",
+    "sheets/gregor-a_004.jpg",
+    "sheets/gregor-a_005.jpg",
+    "sheets/gregor-a_006.jpg",
+    "sheets/gregor-a_007.jpg",
+    "sheets/details.jpg"
+  ],
+  "limitations": [
+    "Frame numbers identify visible changes, not hidden game damage ticks. Occluded contacts have explicit uncertainty. Coin groupings are hypotheses without UI. Noncombat montage transitions reviewed at 6 fps have up to 5-frame uncertainty.",
+    "H = standing caster body height in the same shot, excluding VFX. Distances are approximate projected centre-to-centre separation, not calibrated 3D distances. Camera zoom/knockback is not caster travel. Hex colours are visual approximations, not sampled material colours."
+  ],
+  "occurrences": [
+    {
+      "id": "gregor-s1-a",
+      "sequence": {
+        "start": {
+          "frame": 1074,
+          "time_s": 35.8
+        },
+        "end_exclusive": {
+          "frame": 1165,
+          "time_s": 38.833333
+        }
+      },
+      "hits": [
+        {
+          "coin_candidate": 1,
+          "contact": {
+            "frame": 1084,
+            "time_s": 36.133333
+          },
+          "contact_uncertainty_frames": 1,
+          "contact_object": "fire-assisted gauntlet sweep / flame arc at target",
+          "range_class": "dash_melee",
+          "caster_target_distance_body_heights_estimate": [
+            0.8,
+            1.6
+          ],
+          "evidence": "Dash 36.033; arc appears 36.067, target starburst 36.133. Fist itself is obscured, so direct metal contact not proved.",
+          "coin_assignment": "inferred from grouped animation and supplied kit; no visible combat UI"
+        },
+        {
+          "coin_candidate": 2,
+          "contact": {
+            "frame": 1108,
+            "time_s": 36.933333
+          },
+          "contact_uncertainty_frames": 1,
+          "contact_object": "emitted flame reaching target across a visible gap",
+          "range_class": "beam",
+          "caster_target_distance_body_heights_estimate": [
+            1.5,
+            2.5
+          ],
+          "evidence": "Ignition at muzzle and target 36.933, plume grows by 37.033. Continuous jet is one coin group, not per-frame hits.",
+          "coin_assignment": "inferred from grouped animation and supplied kit; no visible combat UI"
+        }
+      ]
+    },
+    {
+      "id": "gregor-s1-b",
+      "sequence": {
+        "start": {
+          "frame": 1170,
+          "time_s": 39.0
+        },
+        "end_exclusive": {
+          "frame": 1258,
+          "time_s": 41.933333
+        }
+      },
+      "confidence": "med",
+      "relationship": "same two-beat fire-jet family, alternate first punch; no evidence proving fuel/uptie variant",
+      "weapon": {
+        "type": "bulky forearm-mounted mechanical fist/flamethrower gauntlet with backpack and flexible hoses",
+        "size_relative_to_body_height": "forearm assembly ~0.35–0.5 H long, ~0.2 H thick; backpack ~0.6 H tall",
+        "held": "worn on one forearm, aimed/punched one-handed; opposite arm balances; not shouldered and not a two-handed gun",
+        "parts_and_colors": "segmented bronze/olive plates #75613B, dark metal #302D24, black hoses #18191A, dark tank pack #292B24; orange ignition #FF8A00 at hand",
+        "evidence": "36.733–36.900 and 40.000–40.100 extended device with backpack hose loop; 56.900 one-frame close-up of plated mechanism; details.jpg",
+        "confidence": "high for arm-mounted device, medium for mechanical parts hidden by sprite scale"
+      },
+      "hits": [
+        {
+          "coin_candidate": 1,
+          "contact": {
+            "frame": 1177,
+            "time_s": 39.233333
+          },
+          "contact_uncertainty_frames": 1,
+          "contact_object": "straight fire-assisted fist with upright flame pressure ring",
+          "range_class": "dash_melee",
+          "caster_target_distance_body_heights_estimate": [
+            0.8,
+            1.5
+          ],
+          "evidence": "Burst follows dash; ring remains in front of arm.",
+          "coin_assignment": "inferred from grouped animation and supplied kit; no visible combat UI"
+        },
+        {
+          "coin_candidate": 2,
+          "contact": {
+            "frame": 1204,
+            "time_s": 40.133333
+          },
+          "contact_uncertainty_frames": 1,
+          "contact_object": "continuous emitted flame jet",
+          "range_class": "beam",
+          "caster_target_distance_body_heights_estimate": [
+            1.5,
+            2.5
+          ],
+          "evidence": "Muzzle ignition and target horizontal flare begin 40.133.",
+          "coin_assignment": "inferred from grouped animation and supplied kit; no visible combat UI"
+        }
+      ],
+      "caster_motion": [
+        {
+          "start": {
+            "frame": 1170,
+            "time_s": 39.0
+          },
+          "end_exclusive": {
+            "frame": 1177,
+            "time_s": 39.233333
+          },
+          "motion": "dash",
+          "distance_body_heights_estimate": [
+            2,
+            3
+          ],
+          "description": "Crouch then burst right."
+        },
+        {
+          "start": {
+            "frame": 1177,
+            "time_s": 39.233333
+          },
+          "end_exclusive": {
+            "frame": 1204,
+            "time_s": 40.133333
+          },
+          "motion": "step",
+          "distance_body_heights_estimate": [
+            0,
+            0.5
+          ],
+          "description": "Draw back, extend arm."
+        },
+        {
+          "start": {
+            "frame": 1204,
+            "time_s": 40.133333
+          },
+          "end_exclusive": {
+            "frame": 1258,
+            "time_s": 41.933333
+          },
+          "motion": "idle",
+          "distance_body_heights_estimate": [
+            0,
+            0.2
+          ],
+          "description": "Spray then aimed recovery; wide reset at 41.933."
+        }
+      ],
+      "beats": [
+        {
+          "start": {
+            "frame": 1170,
+            "time_s": 39.0
+          },
+          "end_exclusive": {
+            "frame": 1175,
+            "time_s": 39.166667
+          },
+          "description": "Crouched wind-up."
+        },
+        {
+          "start": {
+            "frame": 1175,
+            "time_s": 39.166667
+          },
+          "end_exclusive": {
+            "frame": 1177,
+            "time_s": 39.233333
+          },
+          "description": "Rightward dash."
+        },
+        {
+          "start": {
+            "frame": 1177,
+            "time_s": 39.233333
+          },
+          "end_exclusive": {
+            "frame": 1192,
+            "time_s": 39.733333
+          },
+          "description": "Straight fire punch and one vertical pressure ring."
+        },
+        {
+          "start": {
+            "frame": 1192,
+            "time_s": 39.733333
+          },
+          "end_exclusive": {
+            "frame": 1204,
+            "time_s": 40.133333
+          },
+          "description": "Re-aim."
+        },
+        {
+          "start": {
+            "frame": 1204,
+            "time_s": 40.133333
+          },
+          "end_exclusive": {
+            "frame": 1227,
+            "time_s": 40.9
+          },
+          "description": "Jet, strong camera punch 40.633–40.733."
+        },
+        {
+          "start": {
+            "frame": 1227,
+            "time_s": 40.9
+          },
+          "end_exclusive": {
+            "frame": 1258,
+            "time_s": 41.933333
+          },
+          "description": "Smoke/embers and recovery."
+        }
+      ],
+      "effects": [
+        {
+          "start": {
+            "frame": 1176,
+            "time_s": 39.2
+          },
+          "end_exclusive": {
+            "frame": 1197,
+            "time_s": 39.9
+          },
+          "shape": "straight flame thrust, upright hoop and starburst",
+          "size_body_heights_estimate": [
+            1,
+            2
+          ],
+          "position": "arm front and target",
+          "colors_hex_approximate": [
+            "#FFF967",
+            "#FFB600",
+            "#F66B0F"
+          ],
+          "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+          "motion": "short forward push, hoop expands",
+          "fade": "fragments into sparks"
+        },
+        {
+          "start": {
+            "frame": 1204,
+            "time_s": 40.133333
+          },
+          "end_exclusive": {
+            "frame": 1237,
+            "time_s": 41.233333
+          },
+          "shape": "flame cone then floating embers",
+          "size_body_heights_estimate": [
+            1,
+            3
+          ],
+          "position": "muzzle to target",
+          "colors_hex_approximate": [
+            "#FFFF55",
+            "#FFBF00",
+            "#FF6D0A"
+          ],
+          "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+          "motion": "steady rightward spray; fluctuating tongues",
+          "fade": "breaks apart after 40.8"
+        },
+        {
+          "start": {
+            "frame": 1233,
+            "time_s": 41.1
+          },
+          "end_exclusive": {
+            "frame": 1258,
+            "time_s": 41.933333
+          },
+          "shape": "dark expanding smoke",
+          "size_body_heights_estimate": [
+            1,
+            2
+          ],
+          "position": "gap between fighters",
+          "colors_hex_approximate": [
+            "#262627",
+            "#48403A"
+          ],
+          "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+          "motion": "rises",
+          "fade": "cleared by wide reset"
+        }
+      ],
+      "camera": [
+        {
+          "start": {
+            "frame": 1170,
+            "time_s": 39.0
+          },
+          "end_exclusive": {
+            "frame": 1175,
+            "time_s": 39.166667
+          },
+          "shot": "medium push",
+          "framing": "Caster left target right.",
+          "caster_height_fraction_of_frame_estimate": 0.3
+        },
+        {
+          "start": {
+            "frame": 1175,
+            "time_s": 39.166667
+          },
+          "end_exclusive": {
+            "frame": 1177,
+            "time_s": 39.233333
+          },
+          "shot": "two-frame floor/wake crop",
+          "framing": "Fast dash pan.",
+          "caster_height_fraction_of_frame_estimate": 0.6
+        },
+        {
+          "start": {
+            "frame": 1177,
+            "time_s": 39.233333
+          },
+          "end_exclusive": {
+            "frame": 1219,
+            "time_s": 40.633333
+          },
+          "shot": "medium two-shot",
+          "framing": "Follow punch then aim/spray.",
+          "caster_height_fraction_of_frame_estimate": 0.35
+        },
+        {
+          "start": {
+            "frame": 1219,
+            "time_s": 40.633333
+          },
+          "end_exclusive": {
+            "frame": 1222,
+            "time_s": 40.733333
+          },
+          "shot": "three-frame extreme flame close-up",
+          "framing": "Yellow plume fills much of screen.",
+          "caster_height_fraction_of_frame_estimate": 0.9
+        },
+        {
+          "start": {
+            "frame": 1222,
+            "time_s": 40.733333
+          },
+          "end_exclusive": {
+            "frame": 1258,
+            "time_s": 41.933333
+          },
+          "shot": "medium widening",
+          "framing": "Both fighters and smoke.",
+          "caster_height_fraction_of_frame_estimate": 0.3
+        }
+      ]
+    }
+  ],
+  "observed_damage_groups": 2,
+  "coin_count_comparison": "2 grouped damage events / 2 kit coins; grouping is inferred, not combat-UI verified"
+}

@@ -2,6 +2,7 @@ package com.astarworks.astera.core.domain.effect.vfx
 
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.effect.DisplayTransform
+import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Curve
 import com.astarworks.astera.core.domain.geometry.math.Frame
@@ -308,7 +309,10 @@ public object VfxTimeline {
             val (position, slotRotation, groupScale) = placed(u)
             val s = scale * geometry.scaleFactor * groupScale
             val sc = Vec3(local.scale.x * s, local.scale.y * s, local.scale.z * s)
-            val rotation = slotRotation * Quaternion.fromEulerDegrees(local.euler.x, local.euler.y, local.euler.z)
+            // CENTER already receives the camera rotation on the client. Applying the caster/formation
+            // rotation again turns flashes edge-on when the caster faces east/west. Placement stays world-relative.
+            val facing = if (el.kind is VfxElementKind.Quad && el.billboard == DisplayBillboard.CENTER) Quaternion.IDENTITY else slotRotation
+            val rotation = facing * Quaternion.fromEulerDegrees(local.euler.x, local.euler.y, local.euler.z)
             if (el.kind is VfxElementKind.Quad) return VfxQuad.transform(el.kind, rotation, sc)
             var translation = position + slotRotation.rotate(local.translate * scale * groupScale)
             if (el.kind is VfxElementKind.Block) translation -= rotation.rotate(sc * 0.5)

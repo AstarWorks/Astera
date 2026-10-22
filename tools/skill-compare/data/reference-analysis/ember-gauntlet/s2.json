@@ -1,0 +1,357 @@
+{
+  "slot": "gregor-s2",
+  "name": "I'll burn away every last drop of your filthy blood",
+  "status": "observed",
+  "official_attack_type": "blunt",
+  "official_coins": 2,
+  "sequence": {
+    "start": {
+      "frame": 1282,
+      "time_s": 42.733333
+    },
+    "end_exclusive": {
+      "frame": 1350,
+      "time_s": 45.0
+    }
+  },
+  "mapping": {
+    "confidence": "med",
+    "evidence": "Separate two-contact sequence after neutral reset: two straight fire-assisted punches, second much larger; no sustained flamethrower ending. Distinct from S1 variant and counter."
+  },
+  "weapon": {
+    "type": "bulky forearm-mounted mechanical fist/flamethrower gauntlet with backpack and flexible hoses",
+    "size_relative_to_body_height": "forearm assembly ~0.35–0.5 H long, ~0.2 H thick; backpack ~0.6 H tall",
+    "held": "worn on one forearm, aimed/punched one-handed; opposite arm balances; not shouldered and not a two-handed gun",
+    "parts_and_colors": "segmented bronze/olive plates #75613B, dark metal #302D24, black hoses #18191A, dark tank pack #292B24; orange ignition #FF8A00 at hand",
+    "evidence": "36.733–36.900 and 40.000–40.100 extended device with backpack hose loop; 56.900 one-frame close-up of plated mechanism; details.jpg",
+    "confidence": "high for arm-mounted device, medium for mechanical parts hidden by sprite scale"
+  },
+  "props": [],
+  "caster_motion": [
+    {
+      "start": {
+        "frame": 1282,
+        "time_s": 42.733333
+      },
+      "end_exclusive": {
+        "frame": 1287,
+        "time_s": 42.9
+      },
+      "motion": "step",
+      "distance_body_heights_estimate": [
+        0,
+        0.2
+      ],
+      "description": "Crouch wind-up."
+    },
+    {
+      "start": {
+        "frame": 1287,
+        "time_s": 42.9
+      },
+      "end_exclusive": {
+        "frame": 1289,
+        "time_s": 42.966667
+      },
+      "motion": "dash",
+      "distance_body_heights_estimate": [
+        2,
+        3
+      ],
+      "description": "Rush right."
+    },
+    {
+      "start": {
+        "frame": 1298,
+        "time_s": 43.266667
+      },
+      "end_exclusive": {
+        "frame": 1312,
+        "time_s": 43.733333
+      },
+      "motion": "step",
+      "distance_body_heights_estimate": [
+        0.3,
+        0.7
+      ],
+      "description": "Retract arm/rock back then step into second punch."
+    },
+    {
+      "start": {
+        "frame": 1313,
+        "time_s": 43.766667
+      },
+      "end_exclusive": {
+        "frame": 1337,
+        "time_s": 44.566667
+      },
+      "motion": "backstep",
+      "distance_body_heights_estimate": [
+        0.3,
+        0.8
+      ],
+      "description": "Recoil left as enemy is knocked right ~1–2 H."
+    },
+    {
+      "start": {
+        "frame": 1337,
+        "time_s": 44.566667
+      },
+      "end_exclusive": {
+        "frame": 1350,
+        "time_s": 45.0
+      },
+      "motion": "idle",
+      "distance_body_heights_estimate": [
+        0,
+        0
+      ],
+      "description": "Hunched recovery until arena cut."
+    }
+  ],
+  "hits": [
+    {
+      "coin_candidate": 1,
+      "contact": {
+        "frame": 1289,
+        "time_s": 42.966667
+      },
+      "contact_uncertainty_frames": 1,
+      "contact_object": "gauntlet straight punch with forward flame thrust",
+      "range_class": "dash_melee",
+      "caster_target_distance_body_heights_estimate": [
+        0.7,
+        1.3
+      ],
+      "evidence": "Dash crop at 42.900; starburst visible 42.967.",
+      "coin_assignment": "inferred from grouped animation and supplied kit; no visible combat UI"
+    },
+    {
+      "coin_candidate": 2,
+      "contact": {
+        "frame": 1313,
+        "time_s": 43.766667
+      },
+      "contact_uncertainty_frames": 1,
+      "contact_object": "second gauntlet/fire punch and pressure wave",
+      "range_class": "melee",
+      "caster_target_distance_body_heights_estimate": [
+        0.6,
+        1.2
+      ],
+      "evidence": "New compact target starburst 43.767 precedes huge camera punch at 43.833. Separation grows after contact.",
+      "coin_assignment": "inferred from grouped animation and supplied kit; no visible combat UI"
+    }
+  ],
+  "beats": [
+    {
+      "start": {
+        "frame": 1282,
+        "time_s": 42.733333
+      },
+      "end_exclusive": {
+        "frame": 1289,
+        "time_s": 42.966667
+      },
+      "description": "Crouch and dash."
+    },
+    {
+      "start": {
+        "frame": 1289,
+        "time_s": 42.966667
+      },
+      "end_exclusive": {
+        "frame": 1303,
+        "time_s": 43.433333
+      },
+      "description": "Coin 1 straight flare, smoke streak."
+    },
+    {
+      "start": {
+        "frame": 1303,
+        "time_s": 43.433333
+      },
+      "end_exclusive": {
+        "frame": 1313,
+        "time_s": 43.766667
+      },
+      "description": "Arm recoils and re-chambers."
+    },
+    {
+      "start": {
+        "frame": 1313,
+        "time_s": 43.766667
+      },
+      "end_exclusive": {
+        "frame": 1332,
+        "time_s": 44.4
+      },
+      "description": "Coin 2 starburst, close zoom, grey shock crescent and knockback."
+    },
+    {
+      "start": {
+        "frame": 1332,
+        "time_s": 44.4
+      },
+      "end_exclusive": {
+        "frame": 1350,
+        "time_s": 45.0
+      },
+      "description": "Horizontal trail thins into smoke; recover."
+    }
+  ],
+  "effects": [
+    {
+      "start": {
+        "frame": 1288,
+        "time_s": 42.933333
+      },
+      "end_exclusive": {
+        "frame": 1305,
+        "time_s": 43.5
+      },
+      "shape": "orange flame thrust and yellow spiky star",
+      "size_body_heights_estimate": [
+        0.8,
+        2
+      ],
+      "position": "arm axis and target torso",
+      "colors_hex_approximate": [
+        "#FFFF83",
+        "#FFBC00",
+        "#FF7114"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "straight thrust, sparks radiate",
+      "fade": "smoke replaces tail"
+    },
+    {
+      "start": {
+        "frame": 1313,
+        "time_s": 43.766667
+      },
+      "end_exclusive": {
+        "frame": 1337,
+        "time_s": 44.566667
+      },
+      "shape": "larger yellow star, long orange wedge and grey pressure crescent",
+      "size_body_heights_estimate": [
+        1.5,
+        3
+      ],
+      "position": "contact front of gauntlet and retreating target",
+      "colors_hex_approximate": [
+        "#FFFF8C",
+        "#FFB800",
+        "#F56B13",
+        "#DDD7CB"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "expands at hit; long left-facing tail behind caster, grey arc travels outward",
+      "fade": "star becomes target flames; tail loses saturation"
+    },
+    {
+      "start": {
+        "frame": 1300,
+        "time_s": 43.333333
+      },
+      "end_exclusive": {
+        "frame": 1350,
+        "time_s": 45.0
+      },
+      "shape": "black smoke and target flames",
+      "size_body_heights_estimate": [
+        0.3,
+        1.5
+      ],
+      "position": "caster wake and target body",
+      "colors_hex_approximate": [
+        "#252525",
+        "#FF930C"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "smoke drifts left; flames flicker upward",
+      "fade": "small embers persist into cut"
+    }
+  ],
+  "camera": [
+    {
+      "start": {
+        "frame": 1282,
+        "time_s": 42.733333
+      },
+      "end_exclusive": {
+        "frame": 1287,
+        "time_s": 42.9
+      },
+      "shot": "wide push",
+      "framing": "Caster low left, target right.",
+      "caster_height_fraction_of_frame_estimate": 0.3
+    },
+    {
+      "start": {
+        "frame": 1287,
+        "time_s": 42.9
+      },
+      "end_exclusive": {
+        "frame": 1289,
+        "time_s": 42.966667
+      },
+      "shot": "two-frame cropped pan",
+      "framing": "Floor and orange wake, then impact.",
+      "caster_height_fraction_of_frame_estimate": 0.6
+    },
+    {
+      "start": {
+        "frame": 1289,
+        "time_s": 42.966667
+      },
+      "end_exclusive": {
+        "frame": 1313,
+        "time_s": 43.766667
+      },
+      "shot": "medium two-shot",
+      "framing": "Both fighters close together.",
+      "caster_height_fraction_of_frame_estimate": 0.35
+    },
+    {
+      "start": {
+        "frame": 1315,
+        "time_s": 43.833333
+      },
+      "end_exclusive": {
+        "frame": 1323,
+        "time_s": 44.1
+      },
+      "shot": "close impact shot",
+      "framing": "Large orange burst fills right; caster silhouette left.",
+      "caster_height_fraction_of_frame_estimate": 0.65
+    },
+    {
+      "start": {
+        "frame": 1323,
+        "time_s": 44.1
+      },
+      "end_exclusive": {
+        "frame": 1350,
+        "time_s": 45.0
+      },
+      "shot": "medium widening",
+      "framing": "Follow target knockback; no new hit.",
+      "caster_height_fraction_of_frame_estimate": 0.3
+    }
+  ],
+  "camera_baseline": "Side-on 2.5D battle plane, caster left facing right, target right facing left. Slight elevated view of floor. Reproduce with locked yaw and short dolly/pan changes, not orbiting camera. Gold border and subtitles are presentation overlays.",
+  "contact_sheets": [
+    "sheets/gregor-a_007.jpg",
+    "sheets/gregor-a_008.jpg",
+    "sheets/gregor-a_009.jpg",
+    "sheets/gregor-a_010.jpg"
+  ],
+  "limitations": [
+    "Frame numbers identify visible changes, not hidden game damage ticks. Occluded contacts have explicit uncertainty. Coin groupings are hypotheses without UI. Noncombat montage transitions reviewed at 6 fps have up to 5-frame uncertainty.",
+    "H = standing caster body height in the same shot, excluding VFX. Distances are approximate projected centre-to-centre separation, not calibrated 3D distances. Camera zoom/knockback is not caster travel. Hex colours are visual approximations, not sampled material colours."
+  ],
+  "observed_damage_groups": 2,
+  "coin_count_comparison": "2 grouped damage events / 2 kit coins; grouping is inferred, not combat-UI verified"
+}

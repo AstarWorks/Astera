@@ -1295,6 +1295,10 @@
                         },
                         "snapshot_pose": {
                             "type": "boolean"
+                        },
+                        "stop_before_target": {
+                            "type": "number",
+                            "minimum": 0
                         }
                     },
                     "required": [
@@ -3006,6 +3010,10 @@
                         },
                         "distance": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "max_count": {
+                            "type": "integer",
+                            "minimum": 0
                         }
                     },
                     "required": [

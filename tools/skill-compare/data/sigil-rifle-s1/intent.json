@@ -1,0 +1,213 @@
+{
+  "title": "Sigil Rifle s1 \u2014 frame-measured intent",
+  "source": {
+    "video": "-pOx9fo6A7M",
+    "start_s": 12.7,
+    "fps": 24,
+    "frames": "frame_%05d.jpg"
+  },
+  "units": "blocks; x = toward enemy, y = up, z = toward side camera",
+  "duration_ticks": 44,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        0,
+        1.7,
+        7
+      ],
+      "target": [
+        0,
+        1.0,
+        0
+      ],
+      "fov": 40
+    },
+    {
+      "t": 5,
+      "pos": [
+        0,
+        1.5,
+        6.5
+      ],
+      "target": [
+        0,
+        1,
+        0
+      ],
+      "fov": 40
+    },
+    {
+      "t": 17,
+      "pos": [
+        1.5,
+        1.4,
+        4
+      ],
+      "target": [
+        1.5,
+        1,
+        0
+      ],
+      "fov": 40
+    },
+    {
+      "t": 21,
+      "pos": [
+        3,
+        1.4,
+        4
+      ],
+      "target": [
+        3,
+        1,
+        0
+      ],
+      "fov": 40
+    },
+    {
+      "t": 24,
+      "pos": [
+        3,
+        1.8,
+        7
+      ],
+      "target": [
+        3,
+        1,
+        0
+      ],
+      "fov": 40
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#211A1A",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 17,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 20,
+          "pos": [
+            2.6,
+            0,
+            0
+          ],
+          "ease": "out_cubic"
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#62594E",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            4.2,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 2.05,
+    "width": 0.18,
+    "color": "#292323",
+    "keys": [
+      {
+        "t": 0,
+        "angle": 75
+      },
+      {
+        "t": 5,
+        "angle": 130
+      },
+      {
+        "t": 9,
+        "angle": -40
+      },
+      {
+        "t": 16,
+        "angle": -40
+      },
+      {
+        "t": 20,
+        "angle": 100
+      },
+      {
+        "t": 23,
+        "angle": -35
+      },
+      {
+        "t": 28,
+        "angle": -20
+      },
+      {
+        "t": 43,
+        "angle": 0
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 21,
+      "at": [
+        4.2,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "id": "rifle-fan",
+      "type": "crescent_ring",
+      "t0": 5,
+      "t1": 15,
+      "center": [
+        0,
+        1.25,
+        0
+      ],
+      "plane": "vertical",
+      "radius": 1.65,
+      "start_deg": -80,
+      "sweep_deg": 180,
+      "draw_ticks": 4,
+      "width": 0.35,
+      "layers": [
+        {
+          "color": "#F52A13",
+          "width": 0.3,
+          "alpha": 0.9
+        },
+        {
+          "color": "#260808",
+          "width": 0.1,
+          "alpha": 1
+        }
+      ]
+    }
+  ]
+}

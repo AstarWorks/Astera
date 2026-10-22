@@ -1,137 +1,79 @@
-# Gossamer Katana S3 (sneak + right-click): web cyclone. A 12-tick telegraph (six blue blades close in,
-# everything within reach glows), then a 34-tick spin in place: a 24-bar helix cyclone, a red web laid
-# under every enemy within 3.8 blocks, five real pulses of 1.0 each with a bleed stack, and at tick 34
-# the scar -- a single diagonal that spends every bleed stack (3.0 + 1.5 per stack, max 3 stacks = 7.5).
-# Every hit is its own damage event ignoring i-frames. Total 5 + 7.5 = 12.5 with full bleed. Cooldown 14 s.
-
 id: gossamer-katana-s3
-
 name:
-  ja: "巣廻し・旋"
-  en: "Web Cyclone"
+  ja: 一線の傷
+  en: Single Scar
 description:
-  ja: "溜めの後、旋風で周囲に糸を張り出血を重ね、最後の一閃で出血をすべて断ち切って爆ぜさせる。"
-  en: "A spin that webs and bleeds everything near, ended by one cut that spends every bleed stack."
-
+  ja: 一線の傷
+  en: Single Scar
 archetype: sequence
-cooldown_ticks: 280
-resource_cost: 45
-tags: [ melee, aoe, physical, finisher, bleed ]
-
+cooldown_ticks: 120
+resource_cost: 25
 params:
   type: sequence
-
 phases:
   type: sequence
   cast:
-    # --- telegraph (ticks 0-12) ---
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.beacon.activate
-      volume: { type: literal, value: 0.5 }
-      pitch: { type: literal, value: 1.5 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: gossamer-katana-swords
-    - type: hit_stop
-      targets: { type: caster }
-      ticks: 38
-    - type: glow
-      targets:
-        type: enemies
-        center: { type: caster }
-        radius: { type: literal, value: 4.2 }
-      ticks: { type: literal, value: 14 }
-    # --- the spin (ticks 12-46) ---
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.sweep
-      pitch: { type: literal, value: 0.6 }
-      delay_ticks: { type: literal, value: 12 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: gossamer-katana-cyclone
-      delay_ticks: { type: literal, value: 12 }
-    - type: play_vfx
-      targets:
-        type: enemies
-        center: { type: caster }
-        radius: { type: literal, value: 3.8 }
-      vfx_id: gossamer-katana-web
-      delay_ticks: { type: literal, value: 13 }
-    - type: loop
-      targets: { type: caster }
-      count: { type: literal, value: 5 }
-      stride_ticks: { type: literal, value: 3 }
-      delay_ticks: { type: literal, value: 13 }
-      mechanics:
-        - type: damage
-          targets:
-            type: enemies
-            center: { type: caster }
-            radius: { type: literal, value: 3.8 }
-          components:
-            - base: { type: literal, value: 1.0 }
-              attribute: physical
-          ignore_invulnerability: { type: literal, value: true }
-        - type: apply_status
-          targets:
-            type: enemies
-            center: { type: caster }
-            radius: { type: literal, value: 3.8 }
-          status_id: bleed
-          effect_duration_ticks: { type: literal, value: 140 }
-        - type: play_sound
-          targets: { type: caster }
-          sound_id: entity.player.attack.sweep
-          volume: { type: literal, value: 0.6 }
-          pitch: { type: literal, value: 1.3 }
-    # --- the scar (tick 34) ---
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: gossamer-katana-scar
-      delay_ticks: { type: literal, value: 34 }
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: gossamer-katana-draw
+  - type: dash_strike
+    distance: 6
+    ticks: 4
+    radius: 0.8
+    hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    on_hit:
     - type: damage
       targets:
-        type: enemies
-        center: { type: caster }
-        radius: { type: literal, value: 3.8 }
+        type: target
+      ignore_invulnerability:
+        type: literal
+        value: true
       components:
-        - base: { type: literal, value: 3.0 }
-          attribute: physical
-          per_stack: { status_id: bleed, amount: 1.5, on: target, consume: true }
-      ignore_invulnerability: { type: literal, value: true }
-      delay_ticks: { type: literal, value: 34 }
-    - type: hit_stop
+      - base:
+          type: literal
+          value: 20
+        attribute: physical
+    - type: play_vfx
       targets:
-        type: enemies
-        center: { type: caster }
-        radius: { type: literal, value: 3.8 }
-      ticks: 4
-      delay_ticks: { type: literal, value: 34 }
-    - type: camera_shake
-      targets:
-        type: nearby_entities
-        center: { type: caster }
-        radius: { type: literal, value: 5.0 }
-        exclude_caster: false
-      intensity: { type: literal, value: 0.6 }
-      ticks: { type: literal, value: 8 }
-      delay_ticks: { type: literal, value: 34 }
-    - type: knockup
-      targets:
-        type: enemies
-        center: { type: caster }
-        radius: { type: literal, value: 3.8 }
-      strength: { type: literal, value: 0.3 }
-      delay_ticks: { type: literal, value: 35 }
+        type: target
+      vfx_id: gossamer-katana-scar
     - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.firework_rocket.blast
-      pitch: { type: literal, value: 1.2 }
-      delay_ticks: { type: literal, value: 34 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.knockback
-      pitch: { type: literal, value: 0.8 }
-      delay_ticks: { type: literal, value: 34 }
+      targets:
+        type: target
+      sound_id: entity.player.attack.strong
+      volume:
+        type: literal
+        value: 0.7
+      pitch:
+        type: literal
+        value: 1.1
+    delay_ticks:
+      type: literal
+      value: 4
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: gossamer-katana-iaido-line
+    delay_ticks:
+      type: literal
+      value: 5
+  - type: screen_flash
+    targets:
+      type: caster
+    overlay: vignette
+    color: '#08080a'
+    fade_in:
+      type: literal
+      value: 0
+    stay:
+      type: literal
+      value: 1
+    fade_out:
+      type: literal
+      value: 2
+    delay_ticks:
+      type: literal
+      value: 6

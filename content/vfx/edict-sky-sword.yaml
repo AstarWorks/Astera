@@ -12,7 +12,6 @@ elements:
   - id: blade
     kind: { type: block, block: quartz_block }
     brightness: 15
-    glow_color: "#8fb8ff"
     start_tick: 0
     end_tick: 34
     keyframes:
@@ -27,7 +26,6 @@ elements:
 
   - id: guard
     kind: { type: block, block: black_concrete }
-    glow_color: "#d01030"
     start_tick: 0
     end_tick: 34
     keyframes:

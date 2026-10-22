@@ -1,0 +1,111 @@
+id: ember-sweep
+duration_ticks: 16
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: embers
+  kind: {type: particle, particle_id: ember-fine-spark, every_ticks: 4}
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 1.1, 2.2]
+- id: impact-spokes
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  count: 8
+  end_tick: 11
+  formation:
+    curve: {type: sphere, radius: 0.12}
+    offset: [0, 1.1, 2.5]
+    align: outward
+  keyframes:
+  - t: 0
+    scale: [0.06, 0.06, 0.12]
+  - t: 1
+    scale: [0.12, 0.12, 0.85]
+    ease: out_expo
+  - {t: 4, block: orange_concrete}
+  - t: 8
+    scale: [0.02, 0.02, 0.1]
+  start_tick: 2
+- id: impact-core
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate: [-0.12, 0.98, 2.38]
+    scale: [0.24, 0.24, 0.24]
+  - t: 3
+    scale: [0, 0, 0]
+  start_tick: 2
+- id: impact-flare
+  kind: {type: text, text: <#FFF1A0>✦, background: '#00000000', shadow: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 2
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0, 1.1, 2.5]
+    scale: [0, 0, 0]
+  - t: 1
+    translate: [0, 0.1, 2.5]
+    scale: [8, 8, 8]
+    ease: out_expo
+  - t: 4
+    translate: [0, 0.1, 2.5]
+    scale: [8, 8, 8]
+  - t: 8
+    translate: [0, 1.1, 2.5]
+    scale: [0, 0, 0]
+rigs:
+- id: gauntlet
+  pivot: [-0.35, 1.05, 0.25]
+  rest: [0, 90, 0]
+  tilt: [0, 0, 8]
+  end_tick: 14
+  parts:
+  - id: cuff
+    block: black_concrete
+    offset: [0, 0.18, 0]
+    size: [0.38, 0.45, 0.38]
+  - id: fist
+    block: gray_concrete
+    offset: [0, 0.56, 0]
+    size: [0.45, 0.4, 0.42]
+  - id: nozzle
+    block: gold_block
+    offset: [0, 0.8, 0]
+    size: [0.25, 0.14, 0.25]
+    brightness: 15
+  swing:
+  - t: 0
+    rotate: [100, -25, 0]
+  - t: 3
+    rotate: [-130, 0, 0]
+    ease: out_quad
+  - t: 7
+    rotate: [-145, 0, 0]
+  - t: 13
+    rotate: [0, -35, 0]
+    ease: in_out_quad
+  trails:
+  - id: flame-fan
+    from: [0, 1.95, 0]
+    to: [0, 2.65, 0]
+    start_t: 0
+    end_t: 3
+    life_ticks: 9
+    step_deg: 36
+    style: both
+    bands:
+    - {from: 0, to: 1, color: '#A0FF8F18', color_to: '#10E04D08', block: yellow_concrete}
+    dark_rim: {color: '#B02A170C', width: 0.08}
+  emitters:
+  - id: fire
+    particle_id: ember-fine-spark
+    point: [0, 2.65, 0]
+    start_t: 0
+    end_t: 8

@@ -1,0 +1,41 @@
+{
+  "id": "gossamer-katana-ego",
+  "start_s": 0,
+  "end_s": 5.0,
+  "skill": {
+    "name": "静寂の織機",
+    "asteraSkillId": "gossamer-katana-ego"
+  },
+  "editLog": [],
+  "weapon": "gossamer-katana",
+  "identity": "Spider Blade Ryoshu",
+  "videoTitle": "Spider Blade Ryoshu — skill showcase",
+  "status": "from-wiki",
+  "iterations": 2,
+  "report": "/report/gossamer-katana",
+  "referenceRevision": "b3ab19bb18fe8bb6fb3ac55f20ebecb0e64ed12cdb6c0e0a14d3de5617e57ce7",
+  "verification": {
+    "status": "unverified",
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 152.768f（回数の測定ではない）",
+    "evidence": "/evidence/gossamer-katana-ego.png"
+  },
+  "rev": 1,
+  "focus": {
+    "factor": 0.2,
+    "windowMs": 150,
+    "enabled": false
+  },
+  "videoId": "LkLhzmoJZ6Y",
+  "mc": {
+    "source": "vfx-compare",
+    "castTickInTrace": 5,
+    "offset_ms": 0
+  },
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "contentRevision": "2e735f9f3c68042768d13b192b847cf3af3cc4c9fa4c7a6a157d1d8efee93bec"
+}

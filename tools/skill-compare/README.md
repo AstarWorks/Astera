@@ -1,5 +1,7 @@
 # skill-compare
 
+制作・修正の統一手順と合格条件: [Limbus参照武器スキルの制作・修正手順](../../docs/contributing/limbus-skill-reproduction.md)。撮影済み・反復回数到達は再現合格を意味しない。
+
 Local web app (Bun + three.js 0.170, same stack as `tools/skill-viewer`): a reference video at **native fps**, my
 "intent" render of it, and Astera's Minecraft frames, on one millisecond clock with an editable timeline.
 Not shipped, not in `check`. Needs `bun`, and for fetching `yt-dlp`, `ffmpeg`, `python3` + `numpy`.
@@ -76,9 +78,21 @@ The index lists the persona weapons (`content/items/*.yaml` with ADR-0230 bindin
 (左クリック S1 / 右クリック S2 / スニーク+右 S3 / スニーク+左 DEF / Q) with skill name, range type, coins vs implemented hits, video+MC thumbnails at the first hit,
 status chip (未着手 / 分析済 / 実装済 / 撮影済), `N回目`, REPORT link and last update. Weapons without cases stay in the list, greyed. `GET /api/index` is the JSON.
 
-Every request re-scans main + `.claude/worktrees/*/tools/skill-compare/data/*/case.json` (+ their `build/vfx-shot/`), plus `SKILL_COMPARE_DATA_DIRS` / `SKILL_COMPARE_MEDIA_DIRS`.
+Case discovery is cached for one second and scans main + `.claude/worktrees/*/tools/skill-compare/data/*/case.json` (+ their `build/vfx-shot/`), plus `SKILL_COMPARE_DATA_DIRS` / `SKILL_COMPARE_MEDIA_DIRS`.
 Duplicate ids: the highest `rev` wins, then the newest `case.json` (an identical copy in main never loses to a worktree checkout). Each row shows which branch it came from.
 Saving a case writes the winning copy (in whichever worktree it lives).
 
 Optional case.json fields read by the index (the page preserves them on save): `identity` (character/source), `weapon` (item id), `videoTitle`,
 `status` (`analysed` default, `built` when the skill is authored; `captured` is derived from the existence of `compare` frames), `iterations` (number), `report` (URL or `/path`).
+
+
+### Round 2 playback and provenance
+
+`SKILL_COMPARE_CANONICAL=1 bun server.mjs` prioritizes the serving checkout's cases over older worktrees. `SKILL_COMPARE_WORKTREE_ROOT` can point to another checkout's `.claude/worktrees` for shared reference caches. Native-fps reference caches must match the case's video and exact interval. Cases with `status: from-wiki` do not borrow footage of another skill.
+
+Round 2 captures require matching `referenceRevision` and `contentRevision` in the case and capture `meta.json`. Changed content requires recapture. The player bounds image concurrency and memory, waits for both columns before advancing, and exposes loading/errors/retry. Automatic focus slow motion defaults off. Missing traces are shown as unmeasured rather than zero hits.
+
+
+Frames use WebP previews when the full preview sequence exists; PNG remains the measurement source and fallback. Frame URLs include capture metadata modification time, so recapturing the same case does not display stale cached images. `captureQuality.invalid: true` excludes a confirmed stalled capture; repeated idle frames alone do not prove a stall.
+
+The Minecraft selector separates forced comparison shots (`compare/`) from real key/mouse recordings (`input/`). Both require current reference/content hashes. Normal-input setup and trigger are recorded in metadata; having a recording is not proof that the requested skill was accepted. `/report/<weapon>`, `/reference/<weapon>/<file>`, and `/evidence/<case>.png` expose the review record, source analysis, and same-time image pairs.

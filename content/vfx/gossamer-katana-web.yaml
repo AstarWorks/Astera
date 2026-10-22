@@ -13,7 +13,6 @@ elements:
   - id: ring
     kind: { type: block, block: red_stained_glass }
     brightness: 15
-    glow_color: "#d01030"
     start_tick: 0
     slot_lifetime_ticks: 26
     count: 12
@@ -32,7 +31,6 @@ elements:
   - id: spoke
     kind: { type: block, block: red_stained_glass }
     brightness: 15
-    glow_color: "#d01030"
     start_tick: 2
     end_tick: 26
     count: 6
@@ -50,7 +48,6 @@ elements:
   - id: thread
     kind: { type: block, block: red_concrete }
     brightness: 15
-    glow_color: "#8a0b1a"
     start_tick: 0
     end_tick: 24
     count: 3

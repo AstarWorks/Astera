@@ -1,50 +1,88 @@
-# Crimson Chain-Axe S3 "Blade Forest" (tick 38): 20 giant iron axes erupt from the floor at scattered radii,
-# staggered outward one per tick, stand upright (blade up), jolt and bounce, then sink away.
-# Six blood-crystal spikes rise between them. Fits the 60-display cap with room to spare.
-# Local axes: x = left, y = up, z = forward.
-
+# Measured reference: tools/skill-compare/data/crimson-chain-axe-REPORT.md
 id: crimson-chain-axe-forest
-duration_ticks: 44
+duration_ticks: 48
 orient: yaw
 follow: false
 sample_ticks: 2
-
 elements:
-  - id: axe
-    kind: { type: item, item: iron_axe, display_mode: fixed }
-    brightness: 15
-    glow_color: "#c0102a"
-    start_tick: 0
-    slot_lifetime_ticks: 22
-    count: 20
-    formation:
-      curve: { type: spiral, start_radius: 2.0, end_radius: 9.0, turns: 2.5 }
-      align: none
-      stagger_ticks: 1
-    jitter: { position: 0.9, rotation_deg: 6, scale: 0.2 }
-    keyframes:
-      - { t: 0, translate: [0.0, -1.6, 0.0], rotate: [0, 0, 45], scale: [0.3, 0.3, 0.3] }
-      - { t: 3, translate: [0.0, 1.9, 0.0], scale: [2.8, 2.8, 2.8], ease: out_expo }
-      - { t: 5, translate: [0.0, 1.5, 0.0], ease: out_bounce }
-      - { t: 8, translate: [0.0, 1.8, 0.0], ease: out_quad }
-      - { t: 11, translate: [0.0, 1.5, 0.0], ease: in_out_quad }
-      - { t: 14, translate: [0.0, 1.7, 0.0], ease: in_out_quad }
-      - { t: 22, translate: [0.0, -1.5, 0.0], scale: [0.4, 0.4, 0.4], ease: in_cubic }
-    oscillate: { axis: scale_xyz, amplitude: 0.1, period_ticks: 2 }
-
-  - id: crystal
-    kind: { type: block, block: red_concrete }
-    brightness: 15
-    start_tick: 2
-    slot_lifetime_ticks: 18
-    count: 6
-    formation:
-      curve: { type: spiral, start_radius: 3.0, end_radius: 8.5, turns: 1.5, start_deg: 40 }
-      align: none
-      stagger_ticks: 2
-    jitter: { position: 1.0, rotation_deg: 10, scale: 0.3 }
-    keyframes:
-      - { t: 0, translate: [0.0, -0.5, 0.0], scale: [0.2, 0.1, 0.2] }
-      - { t: 3, translate: [0.0, 1.1, 0.0], scale: [0.35, 2.4, 0.35], ease: out_expo }
-      - { t: 9, block: red_stained_glass }
-      - { t: 18, translate: [0.0, -0.3, 0.0], scale: [0.0, 0.5, 0.0], ease: in_quad }
+- id: axe
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 0
+  slot_lifetime_ticks: 30
+  count: 18
+  formation:
+    curve:
+      type: spiral
+      start_radius: 1
+      end_radius: 5.4
+      turns: 2.5
+    align: none
+    stagger_ticks: 1
+  keyframes:
+  - t: 0
+    translate: [0, -1, 0]
+    scale: [0.15, 0.1, 0.22]
+  - t: 2
+    translate: [0, 2.4, 0]
+    scale: [0.15, 4.8, 0.22]
+    ease: out_expo
+  - t: 24
+    scale: [0.15, 4.8, 0.22]
+  - t: 30
+    translate: [0, -2, 0]
+    scale: [0, 2, 0]
+    ease: in_cubic
+- id: ground-rim
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  slot_lifetime_ticks: 30
+  count: 12
+  formation:
+    curve:
+      type: circle
+      radius: 5
+    offset: [0, 0.03, 0]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.45, 0.06, 2.65]
+  - t: 20
+    block: red_stained_glass
+  - t: 29
+    scale: [0, 0.01, 2.65]
+- id: axe-heads
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 0
+  slot_lifetime_ticks: 30
+  count: 18
+  formation:
+    curve:
+      type: spiral
+      start_radius: 1
+      end_radius: 5.4
+      turns: 2.5
+    align: none
+    stagger_ticks: 1
+  keyframes:
+  - t: 0
+    translate: [0, -1, 0]
+    scale: [0.1, 0.1, 0.1]
+  - t: 2
+    translate: [0, 4.4, 0]
+    scale: [0.18, 0.3, 0.8]
+    ease: out_expo
+  - t: 24
+    scale: [0.18, 0.3, 0.8]
+  - t: 30
+    translate: [0, -1, 0]
+    scale: [0, 0, 0]
+    ease: in_cubic

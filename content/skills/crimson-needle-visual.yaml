@@ -1,0 +1,39 @@
+id: crimson-needle-visual
+name:
+  ja: 緋針の軌跡
+  en: Crimson needle trail
+description:
+  ja: 連射表現専用。追加ダメージなし。
+  en: Visual barrage projectile; no additional damage.
+archetype: projectile
+cooldown_ticks: 0
+resource_cost: 0
+tags:
+- ranged
+params:
+  type: projectile
+  launch_speed: 3
+  max_lifetime_ticks: 12
+  visual:
+    trail_spacing: 0.2
+    trail:
+    - type: point
+      particles:
+      - id: dust
+        count: 1
+        color:
+          r: 240
+          g: 35
+          b: 65
+        scale: 0.65
+    display:
+      variant: item
+      material: minecraft:redstone
+      scale: 0.35
+phases:
+  type: projectile
+  cast: []
+  hit_entity: []
+  hit_block: []
+  miss: []
+  expire: []

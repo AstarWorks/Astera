@@ -1,0 +1,546 @@
+{
+  "title": "落下の鉄拳 — astra2に基づく形状・接触の設計図（調整中）",
+  "source": {
+    "video": "x6sc9JkW77c",
+    "start_s": 19.753067,
+    "fps": 29.97002997002997
+  },
+  "units": "blocks; body height 1.8. Camera cuts follow source; unmeasured scale and body poses remain provisional.",
+  "duration_ticks": 90,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        0.35,
+        1.344,
+        3.672
+      ],
+      "target": [
+        0.35,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 19.753067s / medium; Don left-center, marked target right"
+    },
+    {
+      "t": 6,
+      "pos": [
+        1.25,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.25,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 20.053367s / close moving shot; impact clipped right"
+    },
+    {
+      "t": 8,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 20.153467s / medium to wide; both actors; recoil opens gap"
+    },
+    {
+      "t": 29,
+      "pos": [
+        1.55,
+        1.344,
+        3.672
+      ],
+      "target": [
+        1.55,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 21.187833s / medium; rising Don"
+    },
+    {
+      "t": 30,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 21.254567s / close crop; upper body sometimes above frame; floor below"
+    },
+    {
+      "t": 33,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 21.388033s / wide two-shot; Don high-left, target low-right"
+    },
+    {
+      "t": 45,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 21.988633s / rolled wide; battle floor rotates through near-inverted and near-vertical views"
+    },
+    {
+      "t": 49,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 22.188833s / wide; diving pose left-above target"
+    },
+    {
+      "t": 57,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 22.622600s / medium to close impact; landing/target occupy center-right"
+    },
+    {
+      "t": 59,
+      "pos": [
+        1.55,
+        1.371,
+        1.512
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.85; source 22.689333s / extreme close; cape and white impact fill most of view, arena still at edges"
+    },
+    {
+      "t": 61,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 22.822800s / close impact; floor ellipse spans screen, Don obscured in star"
+    },
+    {
+      "t": 68,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 23.156467s / medium to wide; low Don at impact floor, target rebounds right"
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#66889A",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 3,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 7,
+          "pos": [
+            1.2000000000000002,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 45,
+          "pos": [
+            1.2000000000000002,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 51,
+          "pos": [
+            1.2000000000000002,
+            2,
+            0
+          ]
+        },
+        {
+          "t": 57,
+          "pos": [
+            1.2000000000000002,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#8E3440",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            3,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 1.8,
+    "width": 0.12,
+    "color": "#CCCCCC",
+    "parts": [
+      {
+        "size": [
+          0.3,
+          0.28,
+          0.24
+        ],
+        "pos": [
+          0.35,
+          0,
+          -0.16
+        ],
+        "color": "#F0F3EF"
+      },
+      {
+        "size": [
+          0.3,
+          0.28,
+          0.24
+        ],
+        "pos": [
+          0.35,
+          0,
+          0.16
+        ],
+        "color": "#F0F3EF"
+      },
+      {
+        "size": [
+          0.18,
+          0.34,
+          0.3
+        ],
+        "pos": [
+          0.1,
+          0,
+          -0.16
+        ],
+        "color": "#A49A73"
+      },
+      {
+        "size": [
+          0.18,
+          0.34,
+          0.3
+        ],
+        "pos": [
+          0.1,
+          0,
+          0.16
+        ],
+        "color": "#A49A73"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          -0.18
+        ],
+        "color": "#B1AF96"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          -0.10999999999999999
+        ],
+        "color": "#B1AF96"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          -0.03999999999999998
+        ],
+        "color": "#B1AF96"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          0.030000000000000027
+        ],
+        "color": "#B1AF96"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          0.10000000000000003
+        ],
+        "color": "#B1AF96"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          0.17000000000000004
+        ],
+        "color": "#B1AF96"
+      }
+    ],
+    "keys": [
+      {
+        "t": 0,
+        "angle": 0
+      },
+      {
+        "t": 2,
+        "angle": 65
+      },
+      {
+        "t": 7,
+        "angle": -15
+      },
+      {
+        "t": 12,
+        "angle": 0
+      },
+      {
+        "t": 52,
+        "angle": 65
+      },
+      {
+        "t": 57,
+        "angle": -15
+      },
+      {
+        "t": 62,
+        "angle": 0
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 7,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "spike_star",
+      "t0": 7,
+      "t1": 15,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#DCEAFF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 5,
+      "t1": 16,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#DCEAFF",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    },
+    {
+      "type": "hit",
+      "t": 57,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "spike_star",
+      "t0": 57,
+      "t1": 65,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#DCEAFF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 55,
+      "t1": 66,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#DCEAFF",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    }
+  ]
+}

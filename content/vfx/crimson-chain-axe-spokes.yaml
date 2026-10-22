@@ -1,0 +1,1647 @@
+id: crimson-chain-axe-spokes
+duration_ticks: 28
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: spoke-0
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 4.3
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.035
+    - 4.8
+    - 0.035
+  - t: 26
+    scale:
+    - 0
+    - 4.8
+    - 0
+- id: spoke-1
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 4.3
+    - 0
+    rotate:
+    - 0
+    - 45
+    - 0
+    scale:
+    - 0.035
+    - 4.8
+    - 0.035
+  - t: 26
+    scale:
+    - 0
+    - 4.8
+    - 0
+- id: spoke-2
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 4.3
+    - 0
+    rotate:
+    - 0
+    - 90
+    - 0
+    scale:
+    - 0.035
+    - 4.8
+    - 0.035
+  - t: 26
+    scale:
+    - 0
+    - 4.8
+    - 0
+- id: spoke-3
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 4.3
+    - 0
+    rotate:
+    - 0
+    - 135
+    - 0
+    scale:
+    - 0.035
+    - 4.8
+    - 0.035
+  - t: 26
+    scale:
+    - 0
+    - 4.8
+    - 0
+- id: coil-black_concrete-0
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.5
+    - 7.9779
+    - 0.7316
+    rotate:
+    - 0
+    - 101.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-1
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.4583
+    - 7.418
+    - 2.0834
+    rotate:
+    - 0
+    - 123.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-2
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.4167
+    - 6.3834
+    - 3.118
+    rotate:
+    - 0
+    - 146.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-3
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.375
+    - 5.0316
+    - 3.6779
+    rotate:
+    - 0
+    - 168.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-4
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3333
+    - 3.5684
+    - 3.6779
+    rotate:
+    - 0
+    - 191.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-5
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.2917
+    - 2.2166
+    - 3.118
+    rotate:
+    - 0
+    - 213.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-6
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.25
+    - 1.182
+    - 2.0834
+    rotate:
+    - 0
+    - 236.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-7
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.2083
+    - 0.6221
+    - 0.7316
+    rotate:
+    - 0
+    - 258.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-8
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.1667
+    - 0.6221
+    - -0.7316
+    rotate:
+    - 0
+    - 281.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-9
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.125
+    - 1.182
+    - -2.0834
+    rotate:
+    - 0
+    - 303.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-10
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.0833
+    - 2.2166
+    - -3.118
+    rotate:
+    - 0
+    - 326.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-11
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.0417
+    - 3.5684
+    - -3.6779
+    rotate:
+    - 0
+    - 348.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-12
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 5.0316
+    - -3.6779
+    rotate:
+    - 0
+    - 371.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-13
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0417
+    - 6.3834
+    - -3.118
+    rotate:
+    - 0
+    - 393.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-14
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0833
+    - 7.418
+    - -2.0834
+    rotate:
+    - 0
+    - 416.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-15
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.125
+    - 7.9779
+    - -0.7316
+    rotate:
+    - 0
+    - 438.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-16
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.1667
+    - 7.9779
+    - 0.7316
+    rotate:
+    - 0
+    - 461.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-17
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.2083
+    - 7.418
+    - 2.0834
+    rotate:
+    - 0
+    - 483.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-18
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.25
+    - 6.3834
+    - 3.118
+    rotate:
+    - 0
+    - 506.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-19
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.2917
+    - 5.0316
+    - 3.6779
+    rotate:
+    - 0
+    - 528.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-20
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3333
+    - 3.5684
+    - 3.6779
+    rotate:
+    - 0
+    - 551.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-21
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.375
+    - 2.2166
+    - 3.118
+    rotate:
+    - 0
+    - 573.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-22
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.4167
+    - 1.182
+    - 2.0834
+    rotate:
+    - 0
+    - 596.25
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-black_concrete-23
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.4583
+    - 0.6221
+    - 0.7316
+    rotate:
+    - 0
+    - 618.75
+    - 0
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 24
+    scale:
+    - 0.05
+    - 1.5
+    - 0.05
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-0
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.5
+    - 7.8308
+    - 0.7023
+    rotate:
+    - 0
+    - 101.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-1
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.4583
+    - 7.2933
+    - 2.0001
+    rotate:
+    - 0
+    - 123.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-2
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.4167
+    - 6.3001
+    - 2.9933
+    rotate:
+    - 0
+    - 146.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-3
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.375
+    - 5.0023
+    - 3.5308
+    rotate:
+    - 0
+    - 168.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-4
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3333
+    - 3.5977
+    - 3.5308
+    rotate:
+    - 0
+    - 191.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-5
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.2917
+    - 2.2999
+    - 2.9933
+    rotate:
+    - 0
+    - 213.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-6
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.25
+    - 1.3067
+    - 2.0001
+    rotate:
+    - 0
+    - 236.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-7
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.2083
+    - 0.7692
+    - 0.7023
+    rotate:
+    - 0
+    - 258.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-8
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.1667
+    - 0.7692
+    - -0.7023
+    rotate:
+    - 0
+    - 281.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-9
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.125
+    - 1.3067
+    - -2.0001
+    rotate:
+    - 0
+    - 303.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-10
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.0833
+    - 2.2999
+    - -2.9933
+    rotate:
+    - 0
+    - 326.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-11
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - -0.0417
+    - 3.5977
+    - -3.5308
+    rotate:
+    - 0
+    - 348.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-12
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 5.0023
+    - -3.5308
+    rotate:
+    - 0
+    - 371.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-13
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0417
+    - 6.3001
+    - -2.9933
+    rotate:
+    - 0
+    - 393.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-14
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0833
+    - 7.2933
+    - -2.0001
+    rotate:
+    - 0
+    - 416.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-15
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.125
+    - 7.8308
+    - -0.7023
+    rotate:
+    - 0
+    - 438.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-16
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.1667
+    - 7.8308
+    - 0.7023
+    rotate:
+    - 0
+    - 461.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-17
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.2083
+    - 7.2933
+    - 2.0001
+    rotate:
+    - 0
+    - 483.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-18
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.25
+    - 6.3001
+    - 2.9933
+    rotate:
+    - 0
+    - 506.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-19
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.2917
+    - 5.0023
+    - 3.5308
+    rotate:
+    - 0
+    - 528.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-20
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3333
+    - 3.5977
+    - 3.5308
+    rotate:
+    - 0
+    - 551.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-21
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.375
+    - 2.2999
+    - 2.9933
+    rotate:
+    - 0
+    - 573.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-22
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.4167
+    - 1.3067
+    - 2.0001
+    rotate:
+    - 0
+    - 596.25
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+- id: coil-red_concrete-23
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 27
+  keyframes:
+  - t: 0
+    translate:
+    - 0.4583
+    - 0.7692
+    - 0.7023
+    rotate:
+    - 0
+    - 618.75
+    - 0
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 24
+    scale:
+    - 0.085
+    - 1.5
+    - 0.085
+  - t: 27
+    scale:
+    - 0
+    - 1.5
+    - 0
+    ease: in_quad
+rigs: []

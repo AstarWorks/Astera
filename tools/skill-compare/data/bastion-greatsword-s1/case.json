@@ -1,0 +1,64 @@
+{
+  "id": "bastion-greatsword-s1",
+  "rev": 4,
+  "videoId": "Svaaq9F7Ty8",
+  "start_s": 11.633,
+  "end_s": 14.233,
+  "identity": "Zwei West Section 3 Ishmael",
+  "weapon": "bastion-greatsword",
+  "status": "captured",
+  "iterations": 2,
+  "report": "/report/bastion-greatsword",
+  "skill": {
+    "name": "月輪の薙ぎ",
+    "coins": 2,
+    "asteraSkillId": "bastion-greatsword-s1"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 6
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "S1",
+      "start_s": 11.633,
+      "end_s": 14.233
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "接触 1",
+      "t_s": 11.967,
+      "notes": "astra2 source frame 359; melee; game tick 7. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "接触 2",
+      "t_s": 13.2,
+      "notes": "astra2 source frame 396; melee; game tick 31. Coin grouping uncertainty remains in reference analysis."
+    }
+  ],
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/s1.json を参照。",
+  "editLog": [],
+  "verification": {
+    "status": "failed",
+    "reason": "身体の低い踏み込み・両手の上段姿勢・原動画の極端な寄りを再現できていない。斬撃と柱の輪郭、光量にも差がある。",
+    "normalInput": "実入力撮影あり。標的HP 184.256f（回数の測定ではない）",
+    "evidence": "/evidence/bastion-greatsword-s1.png"
+  },
+  "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
+  "referenceRevision": "9a9b8b2062d3b702777cdc0b7abe0fe9c2c5987e676d581d992ca3640125bb5e",
+  "focus": {
+    "factor": 0.2,
+    "windowMs": 150,
+    "enabled": false
+  },
+  "contentRevision": "065058aa6fee8b39a0d31d59aca98e4012cf8023a457b8aef074866deb8f20c6"
+}

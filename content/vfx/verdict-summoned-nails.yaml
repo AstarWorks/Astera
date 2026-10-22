@@ -1,0 +1,312 @@
+id: verdict-summoned-nails
+duration_ticks: 36
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: nail--1-shaft
+  kind:
+    type: block
+    block: iron_block
+  start_tick: 0
+  end_tick: 35
+  keyframes:
+  - t: 0
+    translate:
+    - -0.55
+    - 5
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -12
+    scale:
+    - 0.12
+    - 2.3
+    - 0.12
+  - t: 15
+    translate:
+    - -0.3
+    - 1.1
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -12
+    scale:
+    - 0.12
+    - 2.3
+    - 0.12
+  - t: 27
+    translate:
+    - -0.3
+    - 1.1
+    - 0
+    scale:
+    - 0.12
+    - 2.3
+    - 0.12
+  - t: 34
+    translate:
+    - -0.3
+    - 1.1
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+- id: nail--1-tip
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 35
+  keyframes:
+  - t: 0
+    translate:
+    - -0.55
+    - 3.8
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -12
+    scale:
+    - 0.06
+    - 0.5
+    - 0.06
+  - t: 15
+    translate:
+    - -0.3
+    - -0.09999999999999987
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -12
+    scale:
+    - 0.06
+    - 0.5
+    - 0.06
+  - t: 27
+    translate:
+    - -0.3
+    - -0.09999999999999987
+    - 0
+    scale:
+    - 0.06
+    - 0.5
+    - 0.06
+  - t: 34
+    translate:
+    - -0.3
+    - -0.09999999999999987
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+- id: nail--1-head
+  kind:
+    type: block
+    block: yellow_concrete
+  start_tick: 0
+  end_tick: 35
+  keyframes:
+  - t: 0
+    translate:
+    - -0.55
+    - 6.2
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -12
+    scale:
+    - 0.45
+    - 0.18
+    - 0.45
+  - t: 15
+    translate:
+    - -0.3
+    - 2.3
+    - 0
+    rotate:
+    - 0
+    - 0
+    - -12
+    scale:
+    - 0.45
+    - 0.18
+    - 0.45
+  - t: 27
+    translate:
+    - -0.3
+    - 2.3
+    - 0
+    scale:
+    - 0.45
+    - 0.18
+    - 0.45
+  - t: 34
+    translate:
+    - -0.3
+    - 2.3
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+- id: nail-1-shaft
+  kind:
+    type: block
+    block: iron_block
+  start_tick: 0
+  end_tick: 35
+  keyframes:
+  - t: 0
+    translate:
+    - 0.55
+    - 5
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 12
+    scale:
+    - 0.12
+    - 2.3
+    - 0.12
+  - t: 15
+    translate:
+    - 0.3
+    - 1.1
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 12
+    scale:
+    - 0.12
+    - 2.3
+    - 0.12
+  - t: 27
+    translate:
+    - 0.3
+    - 1.1
+    - 0
+    scale:
+    - 0.12
+    - 2.3
+    - 0.12
+  - t: 34
+    translate:
+    - 0.3
+    - 1.1
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+- id: nail-1-tip
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 35
+  keyframes:
+  - t: 0
+    translate:
+    - 0.55
+    - 3.8
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 12
+    scale:
+    - 0.06
+    - 0.5
+    - 0.06
+  - t: 15
+    translate:
+    - 0.3
+    - -0.09999999999999987
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 12
+    scale:
+    - 0.06
+    - 0.5
+    - 0.06
+  - t: 27
+    translate:
+    - 0.3
+    - -0.09999999999999987
+    - 0
+    scale:
+    - 0.06
+    - 0.5
+    - 0.06
+  - t: 34
+    translate:
+    - 0.3
+    - -0.09999999999999987
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+- id: nail-1-head
+  kind:
+    type: block
+    block: yellow_concrete
+  start_tick: 0
+  end_tick: 35
+  keyframes:
+  - t: 0
+    translate:
+    - 0.55
+    - 6.2
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 12
+    scale:
+    - 0.45
+    - 0.18
+    - 0.45
+  - t: 15
+    translate:
+    - 0.3
+    - 2.3
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 12
+    scale:
+    - 0.45
+    - 0.18
+    - 0.45
+  - t: 27
+    translate:
+    - 0.3
+    - 2.3
+    - 0
+    scale:
+    - 0.45
+    - 0.18
+    - 0.45
+  - t: 34
+    translate:
+    - 0.3
+    - 2.3
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0

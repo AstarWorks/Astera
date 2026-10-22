@@ -12,7 +12,6 @@ elements:
   - id: line-a
     kind: { type: block, block: white_concrete }
     brightness: 15
-    glow_color: "#8fb8ff"
     start_tick: 0
     end_tick: 13
     keyframes:
@@ -25,7 +24,6 @@ elements:
   - id: line-b
     kind: { type: block, block: white_concrete }
     brightness: 15
-    glow_color: "#8fb8ff"
     start_tick: 1
     end_tick: 13
     keyframes:

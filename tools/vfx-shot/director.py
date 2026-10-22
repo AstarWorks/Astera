@@ -36,11 +36,12 @@ def recv(sock):
 
 def run(sock, command):
     send(sock, 2, 2, command)
-    send(sock, 3, 0, "")
+    # Cast and teleport replies fit in one packet. The one-shot client's empty
+    # probe is unsuitable here: this connection must survive subsequent cuts.
     while True:
-        rid, _k, _b = recv(sock)
-        if rid == 3:
-            return
+        rid, _k, body = recv(sock)
+        if rid == 2:
+            return body
 
 
 def main():
@@ -59,7 +60,7 @@ def main():
             return 2
         t0 = time.time()
         print("STAMP %.3f" % t0, file=sys.stderr, flush=True)
-        run(sock, cast)
+        print(run(sock, cast), flush=True)
         for t_ms, cmd in steps:
             wait = t0 + t_ms / 1000.0 - time.time()
             if wait > 0:

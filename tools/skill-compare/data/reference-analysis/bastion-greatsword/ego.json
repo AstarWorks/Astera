@@ -1,0 +1,21 @@
+{
+  "video_id": "Svaaq9F7Ty8",
+  "slot": "ego",
+  "observed": false,
+  "confidence": "high",
+  "start_s": null,
+  "end_s": null,
+  "weapon": null,
+  "props": [],
+  "caster_motion": [],
+  "hits": [],
+  "beats": [],
+  "effects": [],
+  "camera": [],
+  "reason": "No E.G.O gameplay sequence identifiable. 31.767–44.733 is a sustained identity illustration used as outro, not a skill cut-in.",
+  "contact_sheets": [
+    "sheets/overview_06.jpg",
+    "sheets/overview_07.jpg",
+    "sheets/overview_08.jpg"
+  ]
+}

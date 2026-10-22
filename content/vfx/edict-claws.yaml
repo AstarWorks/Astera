@@ -11,7 +11,6 @@ elements:
   - id: lines
     kind: { type: block, block: white_concrete }
     brightness: 15
-    glow_color: "#8fb8ff"
     count: 8
     start_tick: 0
     end_tick: 12

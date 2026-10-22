@@ -1,0 +1,702 @@
+{
+  "metadata": {
+    "video_id": "Gpj-lvOnAgs",
+    "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+    "source_fps": "30000/1001",
+    "frame_convention": "Zero-based decoded source frame; time_s = frame * 1001 / 30000. End frames exclusive. Native source is 29.970 fps, not exactly 30.",
+    "units": "BH = visible standing body height of caster in same shot, excluding halo/cape spread. Distances are screen-plane estimates, not calibrated world coordinates.",
+    "precision": "Native-window events identify individual frames. Other boundaries from 6/15 fps are explicitly approximate (usually +/-2 frames for 15 fps, +/-5 for 6 fps). Flash-obscured contact is bracketed; no invisible collision or coin boundary is asserted.",
+    "colors": "Hex values are visual approximations under bloom/compression, not sampled material albedos.",
+    "mapping_policy": "Supplied kit is the authority for names, Pierce type and coin counts. No skill-name/coin UI is readable; mapping confidence is separate from visual confidence. Repeated VFX pulses are not counted automatically as coins.",
+    "kit_source": "../../wiki/Gpj-lvOnAgs.md",
+    "native_index": "native/index.json"
+  },
+  "slot": "s1",
+  "variants": [
+    {
+      "candidate_name": "La Pulsion (enemy mode)",
+      "official_attack_type": "Pierce",
+      "official_coins": 1,
+      "mapping_confidence": "med",
+      "mapping_evidence": "One projectile contact; base form; kit has one-coin ranged-compatible Pierce action.",
+      "weapon": {
+        "type": "Bare-hand/orb casting; no held firearm or edged weapon visible",
+        "size_BH": "Hand-sized emission .15–.3; suspended red orb cluster .3–.6",
+        "holding": "One hand extended toward recipient; two arms raise for barrage; no shouldering/grip",
+        "parts_colors": "Pale hand; olive/gold cape #A58B43; white/pink clothes #F4DFDA. Red spell nodes #EF2445, cream cores #FFF0DC."
+      },
+      "occurrences": [
+        {
+          "id": "base-shot-1",
+          "start_s": 11.144,
+          "end_s": 13.28,
+          "start_frame": 334,
+          "end_frame_exclusive": 398,
+          "mapping_confidence": "med",
+          "repeat_of": null,
+          "official_coins": 1,
+          "hits_vs_coins": "1 separated target contact / 1 coin",
+          "hits": [
+            {
+              "frame": 374,
+              "time_s": 12.479133,
+              "contact": "Detached red needle/bolt reaches distant enemy; cream/red starburst",
+              "range_class": "ranged_projectile",
+              "caster_target_distance_BH": "3–5",
+              "coin_index": 1,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 0
+            }
+          ],
+          "beats": [
+            {
+              "start_s": 11.144,
+              "end_s": 12.1624,
+              "description": "Short forward glide; plants feet, hand raised; red nodes gather"
+            },
+            {
+              "start_s": 12.1624,
+              "end_s": 12.4124,
+              "description": "Red emission near hand/upper body; camera punches in"
+            },
+            {
+              "start_s": 12.4124,
+              "end_s": 12.479133,
+              "description": "Shot travels horizontally right; caster stays left"
+            },
+            {
+              "start_s": 12.479133,
+              "end_s": 13.28,
+              "description": "Target flare and dotted red/gold trail decay; caster returns to idle; formation cut"
+            }
+          ],
+          "camera": [
+            {
+              "start_s": 11.144,
+              "end_s": 12.4124,
+              "shot": "wide to caster close",
+              "framing": "Side-on; caster left third, target right; torso occupies nearly full height at release"
+            },
+            {
+              "start_s": 12.4124,
+              "end_s": 12.579132999999999,
+              "shot": "rapid pullback",
+              "framing": "At second occurrence f629 extreme close, f630 medium, f632 impact wide"
+            },
+            {
+              "start_s": 12.579132999999999,
+              "end_s": 13.28,
+              "shot": "wide",
+              "framing": "Keep both actor and distant target; restore team view"
+            }
+          ],
+          "effects": [
+            {
+              "start_s": 12.1124,
+              "end_s": 12.929132999999998,
+              "shape_layering": "Small red suspended nodes, bright needle streak; pointed white/yellow target star, red outer glow and trailing beads",
+              "size_BH": ".2–.6 nodes; .5–1 impact; trail3–5",
+              "position": "Hand to target",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Fast linear rightward shot; star contracts; beads fade"
+            }
+          ],
+          "props": [
+            {
+              "object": "Emitted red needle/bolt",
+              "count": "1 visible firing episode; tiny bead count unresolved",
+              "origin": "hand/upper-body red cluster",
+              "path": "horizontal to right target",
+              "size_BH": ".2–.5 long with multi-BH trail",
+              "time_s": [
+                12.4124,
+                12.479133
+              ]
+            }
+          ],
+          "caster_motion": [
+            {
+              "time_s": [
+                11.144,
+                12.1124
+              ],
+              "motion": "glide/step forward",
+              "distance_BH": "about1–2"
+            },
+            {
+              "time_s": [
+                12.1124,
+                13.28
+              ],
+              "motion": "stand and cast, small recoil; camera movement is not a dash",
+              "distance_BH": "less than.5"
+            }
+          ],
+          "contact_sheets": [
+            "sheets/native_01.jpg",
+            "sheets/base_01.jpg",
+            "sheets/base_02.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "candidate_name": "Je vous aide OR repeated La Pulsion",
+      "official_attack_type": "Pierce",
+      "official_coins": 1,
+      "mapping_confidence": "low",
+      "mapping_evidence": "One contact; visuals alone do not establish Unclashable or distinguish these names.",
+      "weapon": {
+        "type": "Bare-hand/orb casting; no held firearm or edged weapon visible",
+        "size_BH": "Hand-sized emission .15–.3; suspended red orb cluster .3–.6",
+        "holding": "One hand extended toward recipient; two arms raise for barrage; no shouldering/grip",
+        "parts_colors": "Pale hand; olive/gold cape #A58B43; white/pink clothes #F4DFDA. Red spell nodes #EF2445, cream cores #FFF0DC."
+      },
+      "occurrences": [
+        {
+          "id": "base-shot-2",
+          "start_s": 19.8,
+          "end_s": 21.822,
+          "start_frame": 593,
+          "end_frame_exclusive": 654,
+          "mapping_confidence": "low",
+          "repeat_of": null,
+          "official_coins": 1,
+          "hits_vs_coins": "1 separated target contact / 1 coin",
+          "hits": [
+            {
+              "frame": 632,
+              "time_s": 21.087733,
+              "contact": "Detached red needle/bolt reaches distant enemy; cream/red starburst",
+              "range_class": "ranged_projectile",
+              "caster_target_distance_BH": "3–5",
+              "coin_index": 1,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 0
+            }
+          ],
+          "beats": [
+            {
+              "start_s": 19.8,
+              "end_s": 20.737633333333335,
+              "description": "Short forward glide; plants feet, hand raised; red nodes gather"
+            },
+            {
+              "start_s": 20.737633333333335,
+              "end_s": 20.987633,
+              "description": "Red emission near hand/upper body; camera punches in"
+            },
+            {
+              "start_s": 20.987633,
+              "end_s": 21.087733,
+              "description": "Shot travels horizontally right; caster stays left"
+            },
+            {
+              "start_s": 21.087733,
+              "end_s": 21.822,
+              "description": "Target flare and dotted red/gold trail decay; caster returns to idle; formation cut"
+            }
+          ],
+          "camera": [
+            {
+              "start_s": 19.8,
+              "end_s": 20.987633,
+              "shot": "wide to caster close",
+              "framing": "Side-on; caster left third, target right; torso occupies nearly full height at release"
+            },
+            {
+              "start_s": 20.987633,
+              "end_s": 21.187733,
+              "shot": "rapid pullback",
+              "framing": "At second occurrence f629 extreme close, f630 medium, f632 impact wide"
+            },
+            {
+              "start_s": 21.187733,
+              "end_s": 21.822,
+              "shot": "wide",
+              "framing": "Keep both actor and distant target; restore team view"
+            }
+          ],
+          "effects": [
+            {
+              "start_s": 20.687632999999998,
+              "end_s": 21.537733,
+              "shape_layering": "Small red suspended nodes, bright needle streak; pointed white/yellow target star, red outer glow and trailing beads",
+              "size_BH": ".2–.6 nodes; .5–1 impact; trail3–5",
+              "position": "Hand to target",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Fast linear rightward shot; star contracts; beads fade"
+            }
+          ],
+          "props": [
+            {
+              "object": "Emitted red needle/bolt",
+              "count": "1 visible firing episode; tiny bead count unresolved",
+              "origin": "hand/upper-body red cluster",
+              "path": "horizontal to right target",
+              "size_BH": ".2–.5 long with multi-BH trail",
+              "time_s": [
+                20.987633,
+                21.087733
+              ]
+            }
+          ],
+          "caster_motion": [
+            {
+              "time_s": [
+                19.8,
+                20.687632999999998
+              ],
+              "motion": "glide/step forward",
+              "distance_BH": "about1–2"
+            },
+            {
+              "time_s": [
+                20.687632999999998,
+                21.822
+              ],
+              "motion": "stand and cast, small recoil; camera movement is not a dash",
+              "distance_BH": "less than.5"
+            }
+          ],
+          "contact_sheets": [
+            "sheets/native_02.jpg",
+            "sheets/base_05.jpg",
+            "sheets/base_06.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "candidate_name": "La Pulsion (ally mode)",
+      "official_attack_type": "Pierce",
+      "official_coins": 1,
+      "mapping_confidence": "med",
+      "mapping_evidence": "Single gold ally effect repeated; kit explicitly allows ally healing.",
+      "weapon": {
+        "type": "Bare-hand/orb casting; no held firearm or edged weapon visible",
+        "size_BH": "Hand-sized emission .15–.3; suspended red orb cluster .3–.6",
+        "holding": "One hand extended toward recipient; two arms raise for barrage; no shouldering/grip",
+        "parts_colors": "Pale hand; olive/gold cape #A58B43; white/pink clothes #F4DFDA. Red spell nodes #EF2445, cream cores #FFF0DC."
+      },
+      "occurrences": [
+        {
+          "id": "base-support-1",
+          "start_s": 13.747,
+          "end_s": 15.949,
+          "start_frame": 412,
+          "end_frame_exclusive": 478,
+          "mapping_confidence": "med",
+          "repeat_of": null,
+          "official_coins": 1,
+          "hits_vs_coins": "1 support activation / 1 coin; 0 confirmed damage hits",
+          "hits": [
+            {
+              "frame": 449,
+              "time_s": 14.981633,
+              "contact": "Gold/cream light appears directly around ally; no damaging contact proven",
+              "range_class": "aoe_at_target",
+              "caster_target_distance_BH": "2–4",
+              "coin_index": 1,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 0
+            }
+          ],
+          "beats": [
+            {
+              "start_s": 13.747,
+              "end_s": 14.681633,
+              "description": "Glide, turn/present hand toward ally"
+            },
+            {
+              "start_s": 14.681633,
+              "end_s": 14.981633,
+              "description": "Small caster gesture, camera includes recipient"
+            },
+            {
+              "start_s": 14.981633,
+              "end_s": 15.481633,
+              "description": "Gold rising light and star at ally"
+            },
+            {
+              "start_s": 15.481633,
+              "end_s": 15.949,
+              "description": "Light fades, formation reset"
+            }
+          ],
+          "camera": [
+            {
+              "start_s": 13.747,
+              "end_s": 15.949,
+              "shot": "medium ally interaction then wide",
+              "framing": "Caster and ally share side-on frame; recipient right; do not stage a melee collision"
+            }
+          ],
+          "effects": [
+            {
+              "start_s": 14.981633,
+              "end_s": 15.581633,
+              "shape_layering": "Gold vertical wisps and cream star glow around ally; red/pink small accents",
+              "size_BH": ".7–1.2",
+              "position": "Recipient body/feet",
+              "colors_hex": {
+                "core": "#FFF5CE",
+                "glow": "#FFE58A",
+                "accent": "#EF2445"
+              },
+              "motion_fade": "Rises and dissolves"
+            }
+          ],
+          "props": [],
+          "caster_motion": [
+            {
+              "time_s": [
+                13.747,
+                14.781633000000001
+              ],
+              "motion": "short glide",
+              "distance_BH": "1–2"
+            },
+            {
+              "time_s": [
+                14.781633000000001,
+                15.949
+              ],
+              "motion": "hand gesture, stationary",
+              "distance_BH": "0"
+            }
+          ],
+          "contact_sheets": [
+            "sheets/native_01.jpg",
+            "sheets/native_02.jpg",
+            "sheets/base_02.jpg",
+            "sheets/base_03.jpg"
+          ]
+        },
+        {
+          "id": "base-support-2",
+          "start_s": 22.4,
+          "end_s": 24.5,
+          "start_frame": 671,
+          "end_frame_exclusive": 734,
+          "mapping_confidence": "med",
+          "repeat_of": "base-support-1",
+          "official_coins": 1,
+          "hits_vs_coins": "1 support activation / 1 coin; 0 confirmed damage hits",
+          "hits": [
+            {
+              "frame": 709,
+              "time_s": 23.656967,
+              "contact": "Gold/cream light appears directly around ally; no damaging contact proven",
+              "range_class": "aoe_at_target",
+              "caster_target_distance_BH": "2–4",
+              "coin_index": 1,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 0
+            }
+          ],
+          "beats": [
+            {
+              "start_s": 22.4,
+              "end_s": 23.356967,
+              "description": "Glide, turn/present hand toward ally"
+            },
+            {
+              "start_s": 23.356967,
+              "end_s": 23.656967,
+              "description": "Small caster gesture, camera includes recipient"
+            },
+            {
+              "start_s": 23.656967,
+              "end_s": 24.156967,
+              "description": "Gold rising light and star at ally"
+            },
+            {
+              "start_s": 24.156967,
+              "end_s": 24.5,
+              "description": "Light fades, formation reset"
+            }
+          ],
+          "camera": [
+            {
+              "start_s": 22.4,
+              "end_s": 24.5,
+              "shot": "medium ally interaction then wide",
+              "framing": "Caster and ally share side-on frame; recipient right; do not stage a melee collision"
+            }
+          ],
+          "effects": [
+            {
+              "start_s": 23.656967,
+              "end_s": 24.256967000000003,
+              "shape_layering": "Gold vertical wisps and cream star glow around ally; red/pink small accents",
+              "size_BH": ".7–1.2",
+              "position": "Recipient body/feet",
+              "colors_hex": {
+                "core": "#FFF5CE",
+                "glow": "#FFE58A",
+                "accent": "#EF2445"
+              },
+              "motion_fade": "Rises and dissolves"
+            }
+          ],
+          "props": [],
+          "caster_motion": [
+            {
+              "time_s": [
+                22.4,
+                23.456967000000002
+              ],
+              "motion": "short glide",
+              "distance_BH": "1–2"
+            },
+            {
+              "time_s": [
+                23.456967000000002,
+                24.5
+              ],
+              "motion": "hand gesture, stationary",
+              "distance_BH": "0"
+            }
+          ],
+          "contact_sheets": [
+            "sheets/native_02.jpg",
+            "sheets/base_06.jpg",
+            "sheets/base_07.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "candidate_name": "Je m'expulse",
+      "official_attack_type": "Pierce",
+      "official_coins": 3,
+      "mapping_confidence": "med",
+      "mapping_evidence": "Three clearly separated contacts, all chain-mediated; matches3 coins. Je m’abjecte remains alternative without UI.",
+      "weapon": {
+        "type": "Flexible chain carrying repeating paired crescent/axe-shaped links; skeletal claw gauntlet",
+        "size_BH": "Gauntlet forearm/claws .5–.8; link .15–.3; deployed chain typically3–5; cape/ribs enlarge apparent silhouette",
+        "holding": "Chain curves from hand/arm area; mostly one-arm lash with other arm extended. Some grip is hidden by cape. No rigid two-handed greatsword swing established.",
+        "parts_colors": "Ivory/pink edged paired crescents #E4CDD0, dark central chain #3C1521, red inner facets #9D1832; skeletal ivory claw fingers over red glove, black/red ribbed cloak."
+      },
+      "occurrences": [
+        {
+          "id": "transformed-three-chain",
+          "start_s": 88.455,
+          "end_s": 92.4,
+          "start_frame": 2651,
+          "end_frame_exclusive": 2769,
+          "mapping_confidence": "med",
+          "repeat_of": null,
+          "official_coins": 3,
+          "hits_vs_coins": "3 separated target contacts / 3 coins; no fourth hit from residual glow",
+          "hits": [
+            {
+              "frame": 2682,
+              "time_s": 89.4894,
+              "contact": "Linked blade tip with white star on enemy",
+              "range_class": "melee",
+              "caster_target_distance_BH": "2–3",
+              "coin_index": 1,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 0
+            },
+            {
+              "frame": 2696,
+              "time_s": 89.956533,
+              "contact": "Second downward linked-chain arc meets enemy",
+              "range_class": "melee",
+              "caster_target_distance_BH": "2–3",
+              "coin_index": 2,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 0
+            },
+            {
+              "frame": 2724,
+              "time_s": 90.8908,
+              "contact": "Straight linked chain extension under red-white streak reaches enemy",
+              "range_class": "melee",
+              "caster_target_distance_BH": "3–4",
+              "coin_index": 3,
+              "coin_index_status": "inferred from separated contact group",
+              "uncertainty_frames": 0
+            }
+          ],
+          "beats": [
+            {
+              "start_s": 88.455,
+              "end_s": 89.356,
+              "description": "Low forward slide, rise and cast chain into loose loop"
+            },
+            {
+              "start_s": 89.356,
+              "end_s": 89.489,
+              "description": "Chain windup enlarges; target remains right"
+            },
+            {
+              "start_s": 89.489,
+              "end_s": 89.89,
+              "description": "First overhead arc and impact"
+            },
+            {
+              "start_s": 89.89,
+              "end_s": 90.1,
+              "description": "Camera punch, second descending sweep"
+            },
+            {
+              "start_s": 90.1,
+              "end_s": 90.791,
+              "description": "Chain/cape follows through"
+            },
+            {
+              "start_s": 90.791,
+              "end_s": 90.891,
+              "description": "Two blurred frames f2721–2722 then face insert f2723"
+            },
+            {
+              "start_s": 90.891,
+              "end_s": 91.4,
+              "description": "Straight crimson thrust; linked geometry remains after streak"
+            },
+            {
+              "start_s": 91.4,
+              "end_s": 92.4,
+              "description": "Retract/recover; formation cut"
+            }
+          ],
+          "camera": [
+            {
+              "start_s": 88.455,
+              "end_s": 89.356,
+              "shot": "wide",
+              "framing": "Caster left, enemy right; ground-level side view"
+            },
+            {
+              "start_s": 89.356,
+              "end_s": 89.89,
+              "shot": "medium",
+              "framing": "Both bodies, loop fills width"
+            },
+            {
+              "start_s": 89.89,
+              "end_s": 90.1,
+              "shot": "medium-close impact",
+              "framing": "Cape fills left, target at right edge"
+            },
+            {
+              "start_s": 90.791,
+              "end_s": 90.891,
+              "shot": "smear then extreme face close",
+              "framing": "f2721–2722 motion blur, f2723 face"
+            },
+            {
+              "start_s": 90.891,
+              "end_s": 91.4,
+              "shot": "low horizontal impact shot",
+              "framing": "Streak crosses width at target torso height"
+            },
+            {
+              "start_s": 91.4,
+              "end_s": 92.4,
+              "shot": "pullback wide",
+              "framing": "Chain visible across gap"
+            }
+          ],
+          "effects": [
+            {
+              "start_s": 89.489,
+              "end_s": 90.624,
+              "shape_layering": "Two red crescent ribbons: pale thin leading core, red glow, dark petal trailing edge",
+              "size_BH": "arc3–5; thickness.1–.3",
+              "position": "Across caster-target gap",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Sweep left to right/down; particles drift and fade"
+            },
+            {
+              "start_s": 90.891,
+              "end_s": 91.4,
+              "shape_layering": "Straight white/red streak with red shard spray; attached links beneath glow",
+              "size_BH": "length3–5, width.2–.4",
+              "position": "Target torso line",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Extends right; bloom decays to visible chain"
+            }
+          ],
+          "props": [],
+          "caster_motion": [
+            {
+              "time_s": [
+                88.455,
+                88.9
+              ],
+              "motion": "low dash",
+              "distance_BH": "1–2"
+            },
+            {
+              "time_s": [
+                89,
+                91.4
+              ],
+              "motion": "planted/low lunge and arm lashes",
+              "distance_BH": "less than1"
+            },
+            {
+              "time_s": [
+                91.4,
+                92.4
+              ],
+              "motion": "recover",
+              "distance_BH": "less than1"
+            }
+          ],
+          "contact_sheets": [
+            "sheets/native_13.jpg",
+            "sheets/native_14.jpg",
+            "sheets/detail_09.jpg",
+            "sheets/detail_10.jpg",
+            "sheets/detail_11.jpg"
+          ]
+        }
+      ]
+    }
+  ],
+  "unobserved_or_unresolved_variants": [
+    {
+      "name": "Le Trait unaire",
+      "coins": 2,
+      "status": "No confidently identified two-hit Sinclair counter. Orange ally defense is excluded."
+    }
+  ]
+}

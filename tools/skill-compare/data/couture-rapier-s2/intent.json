@@ -1,0 +1,291 @@
+{
+  "title": "Couturier s2 \u2014 measured source intent",
+  "source": {
+    "video": "GIe7Fna5LD4",
+    "start_s": 26.4,
+    "frames": "frame_%05d.jpg",
+    "fps": 29.97
+  },
+  "units": "blocks; x = toward enemy, y = up, z = toward side camera",
+  "duration_ticks": 100,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        2.7,
+        2.335,
+        8.45
+      ],
+      "target": [
+        2.7,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 10,
+      "pos": [
+        2.5,
+        2.075,
+        6.5
+      ],
+      "target": [
+        2.5,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 44,
+      "pos": [
+        2.8,
+        2.01,
+        5.85
+      ],
+      "target": [
+        2.8,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 75,
+      "pos": [
+        1.0,
+        1.685,
+        3.9
+      ],
+      "target": [
+        1,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 79,
+      "pos": [
+        5.4,
+        1.75,
+        3.25
+      ],
+      "target": [
+        5.4,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 85,
+      "pos": [
+        3.0,
+        2.335,
+        8.45
+      ],
+      "target": [
+        3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#332B25",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 75,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 78,
+          "pos": [
+            5,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#982E24",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            5.4,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 2.7,
+    "width": 0.08,
+    "color": "#EEE1C8",
+    "keys": [
+      {
+        "t": 0,
+        "angle": -25
+      },
+      {
+        "t": 8,
+        "angle": 110
+      },
+      {
+        "t": 13,
+        "angle": 0
+      },
+      {
+        "t": 18,
+        "angle": -30
+      },
+      {
+        "t": 40,
+        "angle": 110
+      },
+      {
+        "t": 45,
+        "angle": 0
+      },
+      {
+        "t": 50,
+        "angle": -30
+      },
+      {
+        "t": 71,
+        "angle": 110
+      },
+      {
+        "t": 76,
+        "angle": 0
+      },
+      {
+        "t": 81,
+        "angle": -30
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 13,
+      "at": [
+        5.4,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "hit",
+      "t": 45,
+      "at": [
+        5.4,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "hit",
+      "t": 79,
+      "at": [
+        5.4,
+        1.1,
+        0
+      ],
+      "coin": 3
+    },
+    {
+      "type": "crescent_ring",
+      "id": "sweep13",
+      "t0": 10,
+      "t1": 20,
+      "center": [
+        0,
+        1.05,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 25,
+      "radius": 2.6,
+      "start_deg": 105,
+      "sweep_deg": 195,
+      "draw_ticks": 4,
+      "width": 0.55,
+      "layers": [
+        {
+          "color": "#FFF1EA",
+          "width": 0.55,
+          "alpha": 0.8
+        },
+        {
+          "color": "#28201C",
+          "width": 0.12,
+          "alpha": 0.5
+        }
+      ]
+    },
+    {
+      "type": "crescent_ring",
+      "id": "sweep45",
+      "t0": 42,
+      "t1": 52,
+      "center": [
+        0,
+        1.05,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 25,
+      "radius": 2.6,
+      "start_deg": 105,
+      "sweep_deg": 195,
+      "draw_ticks": 4,
+      "width": 0.55,
+      "layers": [
+        {
+          "color": "#FFF1EA",
+          "width": 0.55,
+          "alpha": 0.8
+        },
+        {
+          "color": "#28201C",
+          "width": 0.12,
+          "alpha": 0.5
+        }
+      ]
+    }
+  ]
+}

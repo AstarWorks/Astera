@@ -1,0 +1,126 @@
+id: couture-launch-haze
+duration_ticks: 15
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: haze-0
+  kind:
+    type: block
+    block: purple_stained_glass
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 0.6
+    - -0.4
+    scale:
+    - 0.5
+    - 0.35
+    - 0.12
+  - t: 10
+    translate:
+    - 0
+    - 0.6
+    - -0.9
+    scale:
+    - 0.35
+    - 0.25
+    - 0.08
+  - t: 13
+    scale:
+    - 0
+    - 0
+    - 0
+- id: haze-1
+  kind:
+    type: block
+    block: purple_stained_glass
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.0
+    - -0.55
+    scale:
+    - 0.44
+    - 0.35
+    - 0.12
+  - t: 10
+    translate:
+    - 0
+    - 1.0
+    - -1.05
+    scale:
+    - 0.35
+    - 0.25
+    - 0.08
+  - t: 13
+    scale:
+    - 0
+    - 0
+    - 0
+- id: haze-2
+  kind:
+    type: block
+    block: purple_stained_glass
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.4
+    - -0.7
+    scale:
+    - 0.38
+    - 0.35
+    - 0.12
+  - t: 10
+    translate:
+    - 0
+    - 1.4
+    - -1.2
+    scale:
+    - 0.35
+    - 0.25
+    - 0.08
+  - t: 13
+    scale:
+    - 0
+    - 0
+    - 0
+- id: haze-3
+  kind:
+    type: block
+    block: purple_stained_glass
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.8000000000000003
+    - -0.85
+    scale:
+    - 0.32
+    - 0.35
+    - 0.12
+  - t: 10
+    translate:
+    - 0
+    - 1.8000000000000003
+    - -1.35
+    scale:
+    - 0.35
+    - 0.25
+    - 0.08
+  - t: 13
+    scale:
+    - 0
+    - 0
+    - 0

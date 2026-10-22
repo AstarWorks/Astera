@@ -1,77 +1,83 @@
-# ADR-0230 persona weapon: Bastion Greatsword DEF (sneak + left click), "Tower Shield".
-# A 40-tick guard: resist.physical +0.7 and full knockback resistance, a translucent gold shield in front.
-# Guarding is how this weapon banks charge: 1 on cast, +1 at tick 20 and +1 at tick 39 if the
-# guard was held to the end (the shield flares white), followed by a shield bash that shoves
-# enemies off.
-
 id: bastion-greatsword-def
-
 name:
-  ja: "城壁の構え"
-  en: "Tower Shield"
+  ja: 城壁の構え
+  en: Tower Shield
 description:
-  ja: "黄金の大盾で身を守り、物理ダメージを大きく軽減する。構えを維持するほど溜め（チャージ）が貯まり、最後に盾で押し返す。"
-  en: "Raise a golden tower shield: heavy physical resistance. Holding it banks charge, and it ends with a shield bash."
-
+  ja: 半透明の障壁で受け止める。
+  en: Brace behind a translucent barrier.
 archetype: sequence
 cooldown_ticks: 120
-resource_cost: 15              # energy
-tags: [ buff, defense, charge ]
-
+resource_cost: 15
+tags:
+- buff
+- defense
+- charge
 params:
   type: sequence
-
 phases:
   type: sequence
   cast:
-    - type: apply_status
-      targets: { type: caster }
-      status_id: charge
-      effect_duration_ticks: { type: literal, value: 400 }
-      stack_count: { type: literal, value: 1 }
-    - type: modify_attribute
-      targets: { type: caster }
-      attribute_key: resist.physical
-      delta: { type: literal, value: 0.7 }
-      ticks: { type: literal, value: 40 }
-    - type: modify_attribute
-      targets: { type: caster }
-      attribute_key: resist.knockback
-      delta: { type: literal, value: 1.0 }
-      ticks: { type: literal, value: 40 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.shield.block
-      pitch: { type: literal, value: 0.8 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: bastion-def-shield
-    - type: apply_status
-      targets: { type: caster }
-      status_id: charge
-      effect_duration_ticks: { type: literal, value: 400 }
-      stack_count: { type: literal, value: 1 }
-      delay_ticks: { type: literal, value: 20 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.anvil.land
-      volume: { type: literal, value: 0.4 }
-      pitch: { type: literal, value: 1.2 }
-      delay_ticks: { type: literal, value: 34 }
-    - type: apply_status
-      targets: { type: caster }
-      status_id: charge
-      effect_duration_ticks: { type: literal, value: 400 }
-      stack_count: { type: literal, value: 1 }
-      delay_ticks: { type: literal, value: 39 }
-    # Shield bash at the end of the guard.
-    - type: knockback
-      targets: { type: nearby_entities, center: { type: caster_forward, distance: 1.6, height: -1.2 }, radius: { type: literal, value: 2.4 }, exclude_caster: true }
-      direction: { type: away_from_caster, vertical: 0.2 }
-      strength: { type: literal, value: 0.9 }
-      delay_ticks: { type: literal, value: 38 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.knockback
-      pitch: { type: literal, value: 0.7 }
-      delay_ticks: { type: literal, value: 38 }
+  - type: play_vfx
+    vfx_id: bastion-def-shield
+    targets:
+      type: caster
+  - type: play_sound
+    targets:
+      type: caster
+    sound_id: item.shield.block
+  - type: modify_attribute
+    targets:
+      type: caster
+    attribute_key: resist.physical
+    delta:
+      type: literal
+      value: 0.7
+    ticks:
+      type: literal
+      value: 162
+  - type: modify_attribute
+    targets:
+      type: caster
+    attribute_key: resist.knockback
+    delta:
+      type: literal
+      value: 1.0
+    ticks:
+      type: literal
+      value: 162
+  - type: apply_status
+    targets:
+      type: caster
+    status_id: charge
+    effect_duration_ticks:
+      type: literal
+      value: 400
+    stack_count:
+      type: literal
+      value: 1
+  - type: apply_status
+    targets:
+      type: caster
+    status_id: charge
+    effect_duration_ticks:
+      type: literal
+      value: 400
+    stack_count:
+      type: literal
+      value: 1
+    delay_ticks:
+      type: literal
+      value: 20
+  - type: apply_status
+    targets:
+      type: caster
+    status_id: charge
+    effect_duration_ticks:
+      type: literal
+      value: 400
+    stack_count:
+      type: literal
+      value: 1
+    delay_ticks:
+      type: literal
+      value: 40

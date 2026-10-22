@@ -1,0 +1,50 @@
+{
+  "id": "bastion-greatsword-def",
+  "rev": 4,
+  "videoId": "Svaaq9F7Ty8",
+  "start_s": 23.7,
+  "end_s": 31.767,
+  "identity": "Zwei West Section 3 Ishmael",
+  "weapon": "bastion-greatsword",
+  "status": "captured",
+  "iterations": 1,
+  "report": "/report/bastion-greatsword",
+  "skill": {
+    "name": "城壁の構え",
+    "coins": 1,
+    "asteraSkillId": "bastion-greatsword-def"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 6
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "DEF",
+      "start_s": 23.7,
+      "end_s": 31.767
+    }
+  ],
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/def.json を参照。",
+  "editLog": [],
+  "verification": {
+    "status": "failed",
+    "reason": "身体の低い踏み込み・両手の上段姿勢・原動画の極端な寄りを再現できていない。斬撃と柱の輪郭、光量にも差がある。",
+    "normalInput": "実入力撮影あり。標的HP 200.0f（回数の測定ではない）",
+    "evidence": "/evidence/bastion-greatsword-def.png"
+  },
+  "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
+  "referenceRevision": "4daf8ac4dcb8b285f47cdfb73bd29e4a631a0880ce587022a807ec00a77190cd",
+  "focus": {
+    "factor": 0.2,
+    "windowMs": 150,
+    "enabled": false
+  },
+  "contentRevision": "b85080deaf351bce967f5457e644d82bb8168c4e145fe2f536f7b63af08e28f3"
+}

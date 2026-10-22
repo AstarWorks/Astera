@@ -1,0 +1,249 @@
+{
+  "title": "連拳 — astra2に基づく形状・接触の設計図（調整中）",
+  "source": {
+    "video": "vBob-jTmlnc",
+    "start_s": 42.733333,
+    "fps": 30
+  },
+  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "duration_ticks": 46,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        2.0,
+        2.5,
+        8
+      ],
+      "target": [
+        2.0,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#66889A",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 1,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 5,
+          "pos": [
+            1.2000000000000002,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#8E3440",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            3,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 1.8,
+    "width": 0.12,
+    "color": "#CCCCCC",
+    "parts": [
+      {
+        "size": [
+          0.65,
+          0.4,
+          0.32
+        ],
+        "pos": [
+          0.2,
+          0,
+          0
+        ],
+        "color": "#343131"
+      },
+      {
+        "size": [
+          0.12,
+          0.26,
+          0.3
+        ],
+        "pos": [
+          0.6,
+          0,
+          0
+        ],
+        "color": "#FF9B12"
+      }
+    ],
+    "keys": [
+      {
+        "t": 0,
+        "angle": 15
+      },
+      {
+        "t": 5,
+        "angle": -15
+      },
+      {
+        "t": 10,
+        "angle": 0
+      },
+      {
+        "t": 16,
+        "angle": 15
+      },
+      {
+        "t": 21,
+        "angle": -15
+      },
+      {
+        "t": 26,
+        "angle": 0
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 5,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "spike_star",
+      "t0": 5,
+      "t1": 13,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#FFAA25",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 3,
+      "t1": 14,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#FFAA25",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    },
+    {
+      "type": "hit",
+      "t": 21,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "spike_star",
+      "t0": 21,
+      "t1": 29,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#FFAA25",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 19,
+      "t1": 30,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#FFAA25",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    }
+  ]
+}

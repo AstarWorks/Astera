@@ -12,7 +12,6 @@ elements:
   - id: column
     kind: { type: block, block: orange_stained_glass }
     brightness: 15
-    glow_color: "#ff7a1a"
     end_tick: 28
     keyframes:
       - { t: 0, translate: [0.0, 0.1, 0.0], scale: [0.4, 0.2, 0.4] }
@@ -35,7 +34,6 @@ elements:
   - id: floor-ring
     kind: { type: block, block: orange_stained_glass }
     brightness: 15
-    glow_color: "#ff7a1a"
     count: 20
     end_tick: 28
     formation:

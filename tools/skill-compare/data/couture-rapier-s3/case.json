@@ -1,0 +1,71 @@
+{
+  "id": "couture-rapier-s3",
+  "rev": 3,
+  "videoId": "GIe7Fna5LD4",
+  "start_s": 32.399033,
+  "end_s": 39.773067,
+  "skill": {
+    "name": "花鋏の終縫",
+    "coins": 3,
+    "asteraSkillId": "couture-rapier-s3"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "S3",
+      "start_s": 32.399033,
+      "end_s": 39.773067
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "接触 1",
+      "t_s": 33.900533,
+      "notes": "astra2 source frame 1016; ranged_projectile; game tick 30. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "接触 2",
+      "t_s": 34.701333,
+      "notes": "astra2 source frame 1040; ranged_projectile; game tick 46. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit3",
+      "kind": "hit",
+      "label": "接触 3",
+      "t_s": 38.038,
+      "notes": "astra2 source frame 1140; ranged_projectile; game tick 113. Coin grouping uncertainty remains in reference analysis."
+    }
+  ],
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/couture-rapier/s3.json を参照。",
+  "editLog": [],
+  "status": "captured",
+  "verification": {
+    "status": "failed",
+    "reason": "身体の向き替え、指先の鋏操作、白い光帯の厚み・連続性、花飾りとロゼットの細部が不足。カット時刻は反映したが、寄りの画面占有率は未一致。",
+    "normalInput": "実入力撮影あり。標的HP 158.672f（回数の測定ではない）",
+    "evidence": "/evidence/couture-rapier-s3.png"
+  },
+  "weapon": "couture-rapier",
+  "identity": "The Alteration Shop Rodion",
+  "videoTitle": "The Alteration Shop Rodion — skill showcase",
+  "iterations": 4,
+  "report": "/report/couture-rapier",
+  "referenceRevision": "e18293a67654e26dfa8e05842b7de8897e052f52d7b5eaca3ef357fa356625fd",
+  "contentRevision": "a66a10c26b18311d6250fee8eb17e0355138eab0536ccdefb7c6cb566a98d796"
+}

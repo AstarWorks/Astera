@@ -92,7 +92,7 @@ internal object ItemArt {
         "knight-sword" to Design.Blade(25.5, 1.9, 4.2, STEEL, GOLD, LEATHER, fuller = true, halo = 0xFFFFE066.toInt()),
         "greatsword" to Design.Blade(30.0, 2.8, 5.8, DARK_STEEL, CRIMSON, BLACK_METAL, fuller = true, halo = 0xFFE8434C.toInt()),
         "dagger" to Design.Blade(19.5, 1.5, 2.7, GUNMETAL, DARK_STEEL, LEATHER, fuller = false),
-        "couture-rapier" to Design.Persona(PersonaArt.RAPIER),
+        "couture-rapier" to Design.Persona(PersonaArt.SHEARS),
         "gossamer-katana" to Design.Persona(PersonaArt.KATANA),
         "vendetta-rifle" to Design.Persona(PersonaArt.VENDETTA_RIFLE),
         "ember-gauntlet" to Design.Persona(PersonaArt.GAUNTLET),

@@ -1,0 +1,164 @@
+{
+  "metadata": {
+    "video_id": "Gpj-lvOnAgs",
+    "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+    "source_fps": "30000/1001",
+    "frame_convention": "Zero-based decoded source frame; time_s = frame * 1001 / 30000. End frames exclusive. Native source is 29.970 fps, not exactly 30.",
+    "units": "BH = visible standing body height of caster in same shot, excluding halo/cape spread. Distances are screen-plane estimates, not calibrated world coordinates.",
+    "precision": "Native-window events identify individual frames. Other boundaries from 6/15 fps are explicitly approximate (usually +/-2 frames for 15 fps, +/-5 for 6 fps). Flash-obscured contact is bracketed; no invisible collision or coin boundary is asserted.",
+    "colors": "Hex values are visual approximations under bloom/compression, not sampled material albedos.",
+    "mapping_policy": "Supplied kit is the authority for names, Pierce type and coin counts. No skill-name/coin UI is readable; mapping confidence is separate from visual confidence. Repeated VFX pulses are not counted automatically as coins.",
+    "kit_source": "../../wiki/Gpj-lvOnAgs.md",
+    "native_index": "native/index.json"
+  },
+  "slot": "def",
+  "variants": [
+    {
+      "candidate_name": "La Fuite",
+      "official_attack_type": "Pierce",
+      "official_coins": 1,
+      "mapping_confidence": "med",
+      "mapping_evidence": "Two incoming swings and evasive displacement, no Sinclair outgoing hit; matches Evade.",
+      "weapon": {
+        "type": "Bare-hand/orb casting; no held firearm or edged weapon visible",
+        "size_BH": "Hand-sized emission .15–.3; suspended red orb cluster .3–.6",
+        "holding": "One hand extended toward recipient; two arms raise for barrage; no shouldering/grip",
+        "parts_colors": "Pale hand; olive/gold cape #A58B43; white/pink clothes #F4DFDA. Red spell nodes #EF2445, cream cores #FFF0DC."
+      },
+      "occurrences": [
+        {
+          "id": "La Fuite candidate",
+          "start_s": 57.791,
+          "end_s": 59.693,
+          "start_frame": 1732,
+          "end_frame_exclusive": 1789,
+          "mapping_confidence": "med",
+          "repeat_of": null,
+          "official_coins": 1,
+          "hits_vs_coins": "0 outgoing hits;2 apparent evades /1 reusable evade coin",
+          "hits": [],
+          "beats": [
+            {
+              "start_s": 56.65,
+              "end_s": 57.758,
+              "description": "Enemy approach/preparation; not Sinclair skill windup"
+            },
+            {
+              "start_s": 57.758,
+              "end_s": 57.791,
+              "description": "Enemy swing begins; Sinclair starts evasive backstep next frame"
+            },
+            {
+              "start_s": 57.791,
+              "end_s": 58.1,
+              "description": "Sinclair cape sweeps while slipping away; no target damage flare"
+            },
+            {
+              "start_s": 58.692,
+              "end_s": 58.759,
+              "description": "Enemy second preparation, one-frame enemy close f1760"
+            },
+            {
+              "start_s": 58.759,
+              "end_s": 59.2,
+              "description": "Second evasive movement; swing passes ahead"
+            },
+            {
+              "start_s": 59.2,
+              "end_s": 59.693,
+              "description": "Return/reset"
+            }
+          ],
+          "camera": [
+            {
+              "start_s": 56.65,
+              "end_s": 57.758,
+              "shot": "wide opponent approach",
+              "framing": "Sinclair and attacker share frame"
+            },
+            {
+              "start_s": 57.758,
+              "end_s": 58.1,
+              "shot": "medium combat",
+              "framing": "Sinclair cape foreground, enemy strike line ahead"
+            },
+            {
+              "start_s": 58.725,
+              "end_s": 58.759,
+              "shot": "one-frame enemy close",
+              "framing": "f1760"
+            },
+            {
+              "start_s": 58.759,
+              "end_s": 59.693,
+              "shot": "wide recovery",
+              "framing": "Keep the gap visible; no attack trajectory from Sinclair"
+            }
+          ],
+          "effects": [
+            {
+              "start_s": 57.758,
+              "end_s": 58.1,
+              "shape_layering": "Enemy pale/yellow swing streak; Sinclair cape motion blur",
+              "size_BH": "arc1–2",
+              "position": "Ahead of Sinclair",
+              "colors_hex": {
+                "core": "#FFF0C5",
+                "glow": "#E6BC6B"
+              },
+              "motion_fade": "Passes without confirmed contact"
+            },
+            {
+              "start_s": 58.759,
+              "end_s": 59.1,
+              "shape_layering": "Second enemy swing streak",
+              "size_BH": "arc1–2",
+              "position": "Ahead of Sinclair",
+              "colors_hex": {
+                "core": "#FFF0DC",
+                "glow": "#FF2438",
+                "body": "#DC1535",
+                "dark_accents": "#69091C",
+                "void": "#190609",
+                "petals": "#EF1435",
+                "gold": "#FFE58A"
+              },
+              "motion_fade": "Fast pass and fade"
+            }
+          ],
+          "props": [],
+          "caster_motion": [
+            {
+              "time_s": [
+                57.791,
+                58.1
+              ],
+              "motion": "backstep/short float backward",
+              "distance_BH": ".5–1"
+            },
+            {
+              "time_s": [
+                58.759,
+                59.2
+              ],
+              "motion": "second evade/backstep",
+              "distance_BH": ".5–1"
+            }
+          ],
+          "contact_sheets": [
+            "sheets/native_06.jpg",
+            "sheets/base_24.jpg",
+            "sheets/base_25.jpg"
+          ]
+        }
+      ]
+    }
+  ],
+  "unobserved_or_unresolved_variants": [
+    {
+      "name": "La Garde",
+      "coins": 1,
+      "status": "No confidently identified Sinclair guard. Yellow defense on orange-haired ally excluded."
+    }
+  ]
+}

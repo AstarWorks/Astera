@@ -1,0 +1,42 @@
+{
+  "id": "verdict-hammer-ego",
+  "rev": 2,
+  "videoId": "Hc6CJXJrzME",
+  "start_s": 0,
+  "end_s": 11.55,
+  "skill": {
+    "name": "誓約の終鐘",
+    "coins": 0,
+    "asteraSkillId": "verdict-hammer-ego"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
+  "editLog": [],
+  "status": "from-wiki",
+  "verification": {
+    "status": "unverified",
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 152.768f（回数の測定ではない）",
+    "evidence": "/evidence/verdict-hammer-ego.png"
+  },
+  "weapon": "verdict-hammer",
+  "identity": "Haute Couture::The Black Knight of Le Noir Don Quixote",
+  "videoTitle": "Haute Couture::The Black Knight of Le Noir Don Quixote — skill showcase",
+  "iterations": 1,
+  "report": "/report/verdict-hammer",
+  "referenceRevision": "6c8fc907061c3cd88a66bab503d1f30f4d28906803292cd67efcb29765b786ed",
+  "contentRevision": "2d792920242ac15e6b41a5c1248d789185ec1b16457927eea861306c93d8cb6f"
+}

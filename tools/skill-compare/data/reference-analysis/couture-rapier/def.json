@@ -1,0 +1,40 @@
+{
+  "video_id": "GIe7Fna5LD4",
+  "identity": "Haute Couture::Alteration Shop Rodion",
+  "source_video": "../../vid/GIe7Fna5LD4.mp4",
+  "kit_source": "../../wiki/GIe7Fna5LD4.md",
+  "fps_num": 30000,
+  "fps_den": 1001,
+  "frame_indexing": "Zero-based source decoded frames. Intervals are [start,end). Source is 29.97002997 fps, not exactly 30.",
+  "measurement_note": "Distances and hex colors are visual estimates, not world coordinates or colorimeter samples. Frame precision applies to visible events; obscured contact is explicitly bounded. No HUD coin/name labels are visible.",
+  "review": "Whole video viewed at 6 fps; every source frame 330–1649 viewed in 44 contact sheets; selected frames enlarged. Old reports read only after the independent frame pass.",
+  "slot": "def",
+  "official_name": "Trimming",
+  "official_coins": 1,
+  "observed": false,
+  "mapping_confidence": "low",
+  "status": "No separately confirmed counter demonstration",
+  "candidate": {
+    "start_frame": 1055,
+    "end_frame_exclusive": 1192,
+    "start_s": 35.201833,
+    "end_s": 39.773067
+  },
+  "evidence": [
+    "The chest-level charge and remote hit within the continuous 32–39 s sequence could be Trimming. No incoming enemy attack/counter trigger or explicit edit is visible, so it is retained as S3 third coin with medium confidence."
+  ],
+  "weapon": null,
+  "props": [],
+  "caster_motion": [],
+  "hits": [],
+  "beats": [],
+  "effects": [],
+  "camera": [],
+  "contact_sheets": [
+    "sheets/detail_25.jpg",
+    "sheets/detail_26.jpg",
+    "sheets/detail_27.jpg",
+    "sheets/detail_28.jpg",
+    "sheets/detail_29.jpg"
+  ]
+}

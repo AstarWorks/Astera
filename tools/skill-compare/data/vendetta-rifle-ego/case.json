@@ -1,0 +1,42 @@
+{
+  "id": "vendetta-rifle-ego",
+  "rev": 2,
+  "videoId": "wbu2viInM3w",
+  "start_s": 0,
+  "end_s": 13.55,
+  "skill": {
+    "name": "紅蓮の決算",
+    "coins": 5,
+    "asteraSkillId": "vendetta-rifle-ego"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
+  "editLog": [],
+  "status": "from-wiki",
+  "verification": {
+    "status": "unverified",
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 182.432f（回数の測定ではない）",
+    "evidence": "/evidence/vendetta-rifle-ego.png"
+  },
+  "weapon": "vendetta-rifle",
+  "identity": "The Thumb East Soldato II Sinclair",
+  "videoTitle": "The Thumb East Soldato II Sinclair — skill showcase",
+  "iterations": 1,
+  "report": "/report/vendetta-rifle",
+  "referenceRevision": "d77c558e878dd9e86b7e64613f7eea342bc39c1a5155d730db8b3c222ec9c579",
+  "contentRevision": "75876a642a2de47492761d1b0a868f35189aa624158deea7e669c1b2966d9b36"
+}

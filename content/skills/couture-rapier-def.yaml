@@ -1,59 +1,106 @@
-# Couturier's Rapier DEF (sneak + left-click): the fitting step. A quick hop back out of reach under
-# the `evasive` sprint, a white pin fan where the blade would parry, and a red afterimage left
-# standing on the spot. Stepping clean away is rewarded with 2 poise for the next string.
-
 id: couture-rapier-def
-
 name:
-  ja: "仮縫いの退歩"
-  en: "Fitting Step"
+  ja: 返し裁ち
+  en: Trimming Guard
 description:
-  ja: "後ろへ素早く跳んで間合いを外し、集中（poise）を2溜める。"
-  en: "A quick hop out of reach that banks 2 poise for the next string."
-
+  ja: 身を守り、近くを大鋏で裁つ。防御後の反撃は一定時間で発動する。
+  en: Trimming Guard
 archetype: sequence
-cooldown_ticks: 90
+cooldown_ticks: 85
 resource_cost: 10
-tags: [ buff, movement, defense, poise ]
-
 params:
   type: sequence
-
 phases:
   type: sequence
   cast:
-    - type: apply_status
-      targets: { type: caster }
-      status_id: evasive
-      effect_duration_ticks: { type: literal, value: 14 }
-    - type: propel
-      targets: { type: caster }
-      direction: { type: from_caster }
-      strength: { type: literal, value: -1.0 }
-    - type: propel
-      targets: { type: caster }
-      direction: { type: up }
-      strength: { type: literal, value: 0.3 }
-    - type: apply_status
-      targets: { type: caster }
-      status_id: poise
-      effect_duration_ticks: { type: literal, value: 400 }
-      stack_count: { type: literal, value: 2 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: couture-rapier-guard
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: couture-rapier-afterimage
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.shield.block
-      volume: { type: literal, value: 0.5 }
-      pitch: { type: literal, value: 1.7 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.sweep
-      pitch: { type: literal, value: 1.9 }
-    - type: spawn_particle
-      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
-      particle_id: dash-cloud
+  - type: modify_attribute
+    targets:
+      type: caster
+    attribute_key: resist.physical
+    delta:
+      type: literal
+      value: 0.7
+    ticks:
+      type: literal
+      value: 30
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: couture-rapier-guard
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: couture-shears-snip
+    delay_ticks:
+      type: literal
+      value: 12
+    follow:
+      type: literal
+      value: true
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.5
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 19
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.5
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    vfx_id: couture-rapier-cross
+    delay_ticks:
+      type: literal
+      value: 19
+  - type: play_sound
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.5
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 19

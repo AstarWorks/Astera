@@ -15,8 +15,14 @@ Output: `build/vfx-shot/<skill>/<view>/`
 | file | what |
 |---|---|
 | `frame_NNN.png` | NNN = ticks after the cast (20 fps, so 1 frame = 1 tick), 1280x720 |
+| `frame_NNN.webp` | 転送用の軽量プレビュー。原寸PNGは比較・計測用に保持する |
 | `sheet.png` | contact sheet, 6 columns, every `SHEET_STEP`-th tick labelled `t+N` |
 | `<skill>-<view>.gif` / `.mp4` | the same frames as a loop (gif 640 px wide) |
+
+比較撮影の`meta.json`は参照・contentの版、撮影日時、実装コミット、カメラ内容のハッシュを保持する。
+`captureQuality.maxRepeatedFrames`が15以上なら停止映像の疑いを目視確認する。静止した場面もあるため、自動で不合格にはしない。
+実際に描画停止を確認した撮影には`captureQuality.invalid: true`を付けると比較画面から除外できる。
+ソフトウェア描画は既定で`LP_NUM_THREADS=4`。共有環境では撮影と重いビルドを重ねない。
 
 ## Views
 

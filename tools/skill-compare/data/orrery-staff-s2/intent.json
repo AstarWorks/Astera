@@ -1,0 +1,326 @@
+{
+  "title": "orrery-s2 - intent (my reading of the video, no Minecraft constraints)",
+  "source": {
+    "video": "0DYvUxa24wo",
+    "start_s": 17.2,
+    "frames": "frame_%05d.jpg",
+    "fps": 29.97
+  },
+  "units": "blocks; x = toward enemy, y = up, z = toward the side camera",
+  "duration_ticks": 104,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        3.3,
+        2.2,
+        8.0
+      ],
+      "target": [
+        3.3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Side shot; zoom approximated from character/frame-height ratio."
+    },
+    {
+      "t": 8,
+      "pos": [
+        3.3,
+        2.2,
+        8.0
+      ],
+      "target": [
+        3.3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Side shot; zoom approximated from character/frame-height ratio."
+    },
+    {
+      "t": 21,
+      "pos": [
+        3.3,
+        2.2,
+        6.5
+      ],
+      "target": [
+        3.3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Side shot; zoom approximated from character/frame-height ratio."
+    },
+    {
+      "t": 25,
+      "pos": [
+        3.3,
+        2.2,
+        8.0
+      ],
+      "target": [
+        3.3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Side shot; zoom approximated from character/frame-height ratio."
+    },
+    {
+      "t": 34,
+      "pos": [
+        3.3,
+        2.2,
+        6.5
+      ],
+      "target": [
+        3.3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Side shot; zoom approximated from character/frame-height ratio."
+    },
+    {
+      "t": 36,
+      "pos": [
+        3.3,
+        2.2,
+        8.0
+      ],
+      "target": [
+        3.3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Side shot; zoom approximated from character/frame-height ratio."
+    },
+    {
+      "t": 51,
+      "pos": [
+        3.3,
+        2.2,
+        8.0
+      ],
+      "target": [
+        3.3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Side shot; zoom approximated from character/frame-height ratio."
+    },
+    {
+      "t": 59,
+      "pos": [
+        3.3,
+        2.2,
+        5.5
+      ],
+      "target": [
+        3.3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Side shot; zoom approximated from character/frame-height ratio."
+    },
+    {
+      "t": 61,
+      "pos": [
+        3.3,
+        2.2,
+        5.5
+      ],
+      "target": [
+        3.3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Side shot; zoom approximated from character/frame-height ratio."
+    },
+    {
+      "t": 72,
+      "pos": [
+        3.3,
+        2.2,
+        8.0
+      ],
+      "target": [
+        3.3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Side shot; zoom approximated from character/frame-height ratio."
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#e8803a",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 4,
+          "pos": [
+            1.2,
+            0,
+            0
+          ],
+          "ease": "out_quad"
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#7a2a2a",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            5.4,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 66,
+          "pos": [
+            5.800000000000001,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 2.0,
+    "width": 0.11,
+    "color": "#282027",
+    "keys": [
+      {
+        "t": 0,
+        "angle": 110
+      },
+      {
+        "t": 8,
+        "angle": 130
+      },
+      {
+        "t": 21,
+        "angle": 30
+      },
+      {
+        "t": 25,
+        "angle": 90
+      },
+      {
+        "t": 36,
+        "angle": 90
+      },
+      {
+        "t": 50,
+        "angle": 90
+      },
+      {
+        "t": 61,
+        "angle": 90
+      },
+      {
+        "t": 80,
+        "angle": 90
+      },
+      {
+        "t": 103,
+        "angle": 80
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 36,
+      "at": [
+        5.4,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "hit",
+      "t": 61,
+      "at": [
+        5.4,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "crescent_ring",
+      "id": "fan36",
+      "t0": 32,
+      "t1": 41,
+      "center": [
+        1.2,
+        1.1,
+        0
+      ],
+      "plane": "vertical",
+      "radius": 2.7,
+      "start_deg": -80,
+      "sweep_deg": 180,
+      "draw_ticks": 4,
+      "width": 0.6,
+      "layers": [
+        {
+          "color": "#FFD447",
+          "width": 0.6,
+          "alpha": 1.0
+        }
+      ]
+    },
+    {
+      "type": "crescent_ring",
+      "id": "fan61",
+      "t0": 57,
+      "t1": 66,
+      "center": [
+        1.2,
+        1.1,
+        0
+      ],
+      "plane": "vertical",
+      "radius": 2.7,
+      "start_deg": -80,
+      "sweep_deg": 180,
+      "draw_ticks": 4,
+      "width": 0.6,
+      "layers": [
+        {
+          "color": "#FFD447",
+          "width": 0.6,
+          "alpha": 1.0
+        }
+      ]
+    }
+  ]
+}

@@ -1,201 +1,242 @@
-# Persona weapon: Ember Gauntlet. S3 sneak + right-click -- Inferno Furnace (finisher). Costs 70 energy.
-#
-#   t0    TELEGRAPH (26 ticks): the caster plants, a flame column rises from the floor, flat rings pulse, enemies in
-#         front are outlined (glow).
-#   t27   giant fire spiral sweeps the arena.                       2.5 fire damage, +1 burn
-#   t49   burning halo + upright flame shards around each target.   2.5 fire damage, +1 burn, small pop-up
-#   t71   mega starburst, white-yellow flash, hit-stop, shake.      3.5 damage + 1.5 per burn stack (consumed)
-#                                                                    + 0.3 per Charge on the caster (consumed), knockback
-# Burn is a real once-a-second DoT (2 x stacks), so its duration is kept short (40 ticks = two ticks).
-#   t74   smoke vent and a recoil hop.
-# Every hit ignores the invulnerability window (spiral 3 x 0.85, halo 2 x 1.25); a pure timeline: archetype sequence.
-# Targets: a 60 degree, 8 block cone taken from the (planted) caster.
-
 id: ember-gauntlet-s3
-
 name:
-  ja: "業炉・灼熱解放"
-  en: "Inferno Furnace"
+  ja: 炉心解放
+  en: Furnace Release
 description:
-  ja: "足を止めて炎の柱を立て、三段の灼熱で焼き尽くす。最後の一撃は敵の燃焼と自分の充填を全て消費して重くなる。"
-  en: "Plants and raises a flame column, then lands three scorching beats. The last one consumes every burn stack on the enemy and every charge you hold."
-
+  ja: 炉心解放
+  en: Furnace Release
 archetype: sequence
-cooldown_ticks: 320
-resource_cost: 70              # energy
-tags: [ persona, melee, fire, finisher, burn, charge ]
-
+cooldown_ticks: 100
+resource_cost: 14
 params:
   type: sequence
-
 phases:
   type: sequence
   cast:
-    # ---- t0: telegraph -------------------------------------------------------------------------
-    - type: hit_stop
-      targets: { type: caster }
-      ticks: 26
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: ember-column
-    - type: glow
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      ticks: { type: literal, value: 28 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.fire.ambient
-      volume: { type: literal, value: 1.0 }
-      pitch: { type: literal, value: 0.6 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.blaze.ambient
-      volume: { type: literal, value: 0.9 }
-      pitch: { type: literal, value: 0.5 }
-      delay_ticks: { type: literal, value: 4 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.firecharge.use
-      volume: { type: literal, value: 1.0 }
-      pitch: { type: literal, value: 0.5 }
-      delay_ticks: { type: literal, value: 16 }
-
-    # ---- t26: fire spiral -----------------------------------------------------------------------
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: ember-spiral
-      delay_ticks: { type: literal, value: 25 }
-    - type: loop
-      count: { type: literal, value: 3 }
-      stride_ticks: { type: literal, value: 2 }
-      delay_ticks: { type: literal, value: 27 }
-      mechanics:
-        - type: damage
-          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-          ignore_invulnerability: { type: literal, value: true }
-          components:
-            - base: { type: literal, value: 0.85 }
-              attribute: fire
-    - type: apply_status
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      status_id: burn
-      effect_duration_ticks: { type: literal, value: 40 }
-      delay_ticks: { type: literal, value: 27 }
-    - type: play_vfx
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      vfx_id: ember-hoop-hit
-      scale: { type: literal, value: 1.4 }
-      delay_ticks: { type: literal, value: 27 }
-    - type: play_sound
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      sound_id: entity.player.attack.sweep
-      volume: { type: literal, value: 1.0 }
-      pitch: { type: literal, value: 0.6 }
-      delay_ticks: { type: literal, value: 27 }
-    - type: camera_shake
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      intensity: { type: literal, value: 0.3 }
-      ticks: { type: literal, value: 4 }
-      delay_ticks: { type: literal, value: 27 }
-
-    # ---- t48: halo ------------------------------------------------------------------------------
-    - type: play_vfx
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      vfx_id: ember-halo
-      delay_ticks: { type: literal, value: 48 }
-    - type: loop
-      count: { type: literal, value: 2 }
-      stride_ticks: { type: literal, value: 3 }
-      delay_ticks: { type: literal, value: 49 }
-      mechanics:
-        - type: damage
-          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-          ignore_invulnerability: { type: literal, value: true }
-          components:
-            - base: { type: literal, value: 1.25 }
-              attribute: fire
-    - type: apply_status
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      status_id: burn
-      effect_duration_ticks: { type: literal, value: 40 }
-      delay_ticks: { type: literal, value: 49 }
-    - type: knockup
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      strength: { type: literal, value: 0.4 }
-      delay_ticks: { type: literal, value: 49 }
-    - type: play_sound
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      sound_id: entity.blaze.shoot
-      volume: { type: literal, value: 1.0 }
-      pitch: { type: literal, value: 0.6 }
-      delay_ticks: { type: literal, value: 49 }
-
-    # ---- t70: mega starburst ---------------------------------------------------------------------
-    - type: play_vfx
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      vfx_id: ember-mega-burst
-      delay_ticks: { type: literal, value: 70 }
-    - type: damage
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      ignore_invulnerability: { type: literal, value: true }
-      components:
-        - base: { type: literal, value: 3.5 }
-          attribute: fire
-          per_stack: { status_id: burn, amount: 1.5, on: target, consume: true }
-        - base: { type: literal, value: 0.0 }
-          attribute: fire
-          per_stack: { status_id: charge, amount: 0.3, on: caster, consume: true }
-      delay_ticks: { type: literal, value: 71 }
-    - type: hit_stop
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      ticks: 4
-      include_caster: true
-      delay_ticks: { type: literal, value: 71 }
-    - type: knockback
-      targets: { type: cone, from: { type: caster }, direction: { type: away_from_caster, vertical: 0.15 }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      direction: { type: away_from_caster, vertical: 0.15 }
-      strength: { type: literal, value: 1.6 }
-      delay_ticks: { type: literal, value: 71 }
-    - type: camera_shake
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      intensity: { type: literal, value: 0.8 }
-      ticks: { type: literal, value: 8 }
-      delay_ticks: { type: literal, value: 71 }
-    - type: camera_shake
-      targets: { type: caster }
-      intensity: { type: literal, value: 0.6 }
-      ticks: { type: literal, value: 8 }
-      delay_ticks: { type: literal, value: 71 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.generic.explode
-      volume: { type: literal, value: 1.0 }
-      pitch: { type: literal, value: 0.8 }
-      delay_ticks: { type: literal, value: 71 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.firework_rocket.large_blast
-      volume: { type: literal, value: 0.8 }
-      pitch: { type: literal, value: 0.7 }
-      delay_ticks: { type: literal, value: 71 }
-    - type: spawn_particle
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      particle_id: fire-impact
-      count: { type: literal, value: 2 }
-      delay_ticks: { type: literal, value: 71 }
-
-    # ---- t76: vent + recoil ----------------------------------------------------------------------
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: ember-smoke-puff
-      delay_ticks: { type: literal, value: 76 }
-    - type: propel
-      targets: { type: caster }
-      direction: { type: from_caster }
-      strength: { type: literal, value: -0.7 }
-      delay_ticks: { type: literal, value: 76 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.fire.extinguish
-      volume: { type: literal, value: 0.9 }
-      pitch: { type: literal, value: 0.7 }
-      delay_ticks: { type: literal, value: 76 }
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: ember-harness
+  - type: dash_strike
+    distance: 3
+    ticks: 3
+    radius: 0.8
+    hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    on_hit: []
+    stop_before_target: 1.8
+    delay_ticks:
+      type: literal
+      value: 13
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: ember-sweep
+    delay_ticks:
+      type: literal
+      value: 15
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.3
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 7
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 17
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.3
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    vfx_id: ember-hoop-hit
+    delay_ticks:
+      type: literal
+      value: 17
+  - type: play_sound
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.3
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 17
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: ember-punch
+    delay_ticks:
+      type: literal
+      value: 21
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.3
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 7
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 23
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.3
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    vfx_id: ember-hoop-hit
+    delay_ticks:
+      type: literal
+      value: 23
+  - type: play_sound
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.3
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 23
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: ember-furnace-blast
+    delay_ticks:
+      type: literal
+      value: 49
+  - type: damage
+    targets:
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 9
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 11
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 51
+  - type: play_vfx
+    targets:
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 9
+    vfx_id: ember-hoop-hit
+    delay_ticks:
+      type: literal
+      value: 51
+  - type: play_sound
+    targets:
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 9
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 51
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: ember-smoke-puff
+    delay_ticks:
+      type: literal
+      value: 63

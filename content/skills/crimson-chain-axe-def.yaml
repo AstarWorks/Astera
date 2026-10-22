@@ -1,56 +1,57 @@
-# Crimson Chain-Axe DEF (sneak + left-click) "Chain Ward": a short guard stance. A ring of axe-head links
-# snaps round the caster, then whips outward: enemies within 3.5 blocks are shoved back and take one
-# Rupture stack (a counter pulse that doubles as space). The caster gets a short evasive burst.
-
 id: crimson-chain-axe-def
-
 name:
-  ja: "鎖の結界"
-  en: "Chain Ward"
+  ja: 緋の退避
+  en: Crimson Evasion
 description:
-  ja: "鎖斧の輪を身にまとい、近づく敵を弾き返して裂傷を刻む。短い加速つき。"
-  en: "A ring of chain links whips outward, shoving close enemies away and marking them with Rupture."
-
-archetype: buff
-cooldown_ticks: 120
-resource_cost: 20              # energy
-tags: [ buff, defense, rupture ]
-
+  ja: 緋の退避
+  en: Crimson Evasion
+archetype: sequence
+cooldown_ticks: 80
+resource_cost: 10
 params:
-  type: buff
-  status_effect_id: evasive
-  duration_ticks: 25
-
+  type: sequence
 phases:
-  type: buff
+  type: sequence
   cast:
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: crimson-chain-axe-ward
-      follow: { type: literal, value: true }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.armor.equip_chain
-      pitch: { type: literal, value: 0.8 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.sweep
-      pitch: { type: literal, value: 0.7 }
-      delay_ticks: { type: literal, value: 8 }
-    # counter pulse on the whip (tick 8)
-    - type: knockback
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 3.5 } }
-      direction: { type: away_from_caster, vertical: 0.2 }
-      strength: { type: literal, value: 0.9 }
-      delay_ticks: { type: literal, value: 8 }
-    - type: apply_status
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 3.5 } }
-      status_id: rupture
-      effect_duration_ticks: { type: literal, value: 200 }
-      delay_ticks: { type: literal, value: 8 }
-    - type: play_vfx
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 3.5 } }
-      vfx_id: crimson-chain-axe-impact
-      delay_ticks: { type: literal, value: 8 }
-  expire: []
-  removed: []
+  - type: propel
+    targets:
+      type: caster
+    direction:
+      type: from_caster
+    strength:
+      type: literal
+      value: -0.65
+  - type: modify_attribute
+    targets:
+      type: caster
+    attribute_key: resist.physical
+    delta:
+      type: literal
+      value: 0.7
+    ticks:
+      type: literal
+      value: 8
+  - type: propel
+    targets:
+      type: caster
+    direction:
+      type: from_caster
+    strength:
+      type: literal
+      value: -0.65
+    delay_ticks:
+      type: literal
+      value: 19
+  - type: modify_attribute
+    targets:
+      type: caster
+    attribute_key: resist.physical
+    delta:
+      type: literal
+      value: 0.7
+    ticks:
+      type: literal
+      value: 8
+    delay_ticks:
+      type: literal
+      value: 19

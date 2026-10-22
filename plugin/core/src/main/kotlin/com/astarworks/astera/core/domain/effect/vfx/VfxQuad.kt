@@ -19,31 +19,25 @@ public data class VfxQuadStyle(
 /**
  * Display-particle quad maths ("display particles": coloured translucent quads on a TextDisplay).
  *
- * Calibration (vanilla 1.20.2+ text display, scale 1, see ADR-0220): one text pixel is `0.025` block
- * (the renderer scales the font by 1/40). A line is 9 px tall and the background box spans `y = -1 .. 9`
- * px below the entity origin (top edge `+0.025`, bottom `-0.225`), `x = +-(w/2 + 1)` where `w` is the
- * text advance. A single space has advance 4, so the box is 5 px x 10 px = `0.125 x 0.25` block at
- * scale 1, centred horizontally and with its centre `0.1` block BELOW the origin (`-0.1 * scale.y`).
- * Hence for a solid quad of `w x h` blocks:
+ * Minecraft 26.3 TextDisplayRenderer applies Ry(180), scale(-.025), then
+ * translation(1 - textWidth/2, -9, 0) for one line. A space (advance 4) has
+ * background bounds [-1,4] x [-1,9], hence local centre (+.0125,+.125,0)
+ * and size .125 x .25 blocks. Confirmed with a real-client calibration capture.
+ * The default 8px glyph cell uses the same centre; its size is .2 blocks.
  *
- * ```
- * scale       = (w * 8, h * 4, 1)            // 0.125 * 8 = 1, 0.25 * 4 = 1
- * translation = R * (0, +0.1 * scale.y, 0)   // puts the box centre on the entity position
- * ```
- *
- * The entity position carries the particle position (the transformation translation would be
- * billboard-relative and so move with the camera); the transformation only holds the centring shift,
- * rotation (spin about the view axis) and scale. Glyph quads use `scale = size * 5` (a glyph cell is
- * 8 px = `0.2` block tall at scale 1) with the same centring (cell centre 4 px = `0.1` below the origin).
- * These constants are derived from the renderer, not measured: verify in game and adjust here only.
+ * Particle position is carried by the entity, so the transformation compensates
+ * the native centre BEFORE rotation/scale. A camera-facing quad must not also
+ * inherit caster yaw (VfxTimeline handles that separately).
+
  */
 public object VfxQuad {
     public const val SOLID_SCALE_X: Double = 8.0
     public const val SOLID_SCALE_Y: Double = 4.0
     public const val GLYPH_SCALE: Double = 5.0
 
-    /** Box centre offset below the origin per unit of Y scale, blocks. */
-    public const val CENTER_Y_PER_SCALE: Double = 0.1
+    /** Native one-line text centre above/right of the entity origin, per display scale. */
+    public const val CENTER_X_PER_SCALE: Double = 0.0125
+    public const val CENTER_Y_PER_SCALE: Double = 0.125
 
     /** Client treats `text_opacity` below 4 as opaque. */
     public const val MIN_TEXT_OPACITY: Int = 4
@@ -59,7 +53,7 @@ public object VfxQuad {
     /** Transformation of a quad of [size] blocks facing [rotation]; its box centre lands on the entity position. */
     public fun transform(kind: VfxElementKind.Quad, rotation: Quaternion, size: Vec3): DisplayTransform {
         val scale = displayScale(kind, size)
-        return DisplayTransform(rotation.rotate(Vec3(0.0, CENTER_Y_PER_SCALE * scale.y, 0.0)), rotation, scale)
+        return DisplayTransform(rotation.rotate(Vec3(-CENTER_X_PER_SCALE * scale.x, -CENTER_Y_PER_SCALE * scale.y, 0.0)), rotation, scale)
     }
 
     public fun style(kind: VfxElementKind.Quad, rgb: Int, alpha: Double): VfxQuadStyle {

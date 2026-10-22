@@ -1,0 +1,277 @@
+{
+  "title": "gossamer-katana-s1 - intent (my reading of the video, no Minecraft constraints)",
+  "source": {
+    "video": "LkLhzmoJZ6Y",
+    "start_s": 10.3,
+    "frames": "frame_%03d.jpg",
+    "fps": 29.97
+  },
+  "units": "blocks; x = toward enemy, y = up, z = toward the side camera",
+  "duration_ticks": 90,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        3,
+        3.5,
+        16
+      ],
+      "target": [
+        3,
+        1,
+        0
+      ],
+      "fov": 40
+    },
+    {
+      "t": 30,
+      "pos": [
+        3.5,
+        2.3,
+        8
+      ],
+      "target": [
+        3.5,
+        1.0,
+        0
+      ],
+      "fov": 40
+    },
+    {
+      "t": 43,
+      "pos": [
+        4.6,
+        3,
+        12
+      ],
+      "target": [
+        4.6,
+        1,
+        0
+      ],
+      "fov": 40
+    },
+    {
+      "t": 54,
+      "pos": [
+        5.5,
+        2.2,
+        7
+      ],
+      "target": [
+        5.5,
+        1.0,
+        0
+      ],
+      "fov": 40
+    },
+    {
+      "t": 60,
+      "pos": [
+        4,
+        3.5,
+        16
+      ],
+      "target": [
+        4,
+        1,
+        0
+      ],
+      "fov": 40
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#17213F",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 25,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 28,
+          "pos": [
+            3.6,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#7a2a2a",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            6,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 2.1,
+    "width": 0.09,
+    "color": "#c9ccd4",
+    "keys": [
+      {
+        "t": 0,
+        "angle": 190
+      },
+      {
+        "t": 34,
+        "angle": 65
+      },
+      {
+        "t": 43,
+        "angle": -50
+      },
+      {
+        "t": 55,
+        "angle": 65
+      },
+      {
+        "t": 65,
+        "angle": 185
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 34,
+      "at": [
+        6,
+        1.0,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "hit",
+      "t": 43,
+      "at": [
+        6,
+        1.0,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "hit",
+      "t": 55,
+      "at": [
+        6,
+        1.0,
+        0
+      ],
+      "coin": 3
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 30,
+      "t1": 42,
+      "id": "arc-34",
+      "center": [
+        4,
+        1,
+        0
+      ],
+      "plane": "vertical",
+      "radius": 2.1,
+      "start_deg": -45,
+      "sweep_deg": 190,
+      "draw_ticks": 4,
+      "width": 0.6,
+      "layers": [
+        {
+          "color": "#14245F",
+          "width": 0.55,
+          "alpha": 0.95
+        },
+        {
+          "color": "#69DFFF",
+          "width": 0.05
+        }
+      ]
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 39,
+      "t1": 51,
+      "id": "arc-43",
+      "center": [
+        4,
+        1,
+        0
+      ],
+      "plane": "vertical",
+      "radius": 2.1,
+      "start_deg": -45,
+      "sweep_deg": 190,
+      "draw_ticks": 4,
+      "width": 0.6,
+      "layers": [
+        {
+          "color": "#14245F",
+          "width": 0.55,
+          "alpha": 0.95
+        },
+        {
+          "color": "#69DFFF",
+          "width": 0.05
+        }
+      ]
+    },
+    {
+      "type": "hbar",
+      "t0": 55,
+      "t1": 80,
+      "center": [
+        5,
+        1.05,
+        0
+      ],
+      "length": 10,
+      "thickness": 0.045,
+      "color": "#69DFFF"
+    },
+    {
+      "type": "sparks",
+      "t0": 71,
+      "t1": 72,
+      "emitter": [
+        6,
+        1.05,
+        0
+      ],
+      "count": 12,
+      "color": "#BC1839",
+      "speed": 6,
+      "dir": "outward",
+      "life": 10,
+      "gravity": 5,
+      "streak": false
+    }
+  ]
+}

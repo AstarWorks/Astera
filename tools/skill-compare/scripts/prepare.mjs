@@ -33,13 +33,13 @@ if (!existsSync(video)) { console.error("download produced no " + video); proces
 
 const probe = JSON.parse(run("ffprobe", ["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=r_frame_rate,width,height", "-of", "json", video], { capture: true })).streams[0];
 const [fn, fd] = probe.r_frame_rate.split("/").map(Number);
-const fps = Math.round((fn / (fd || 1)) * 1000) / 1000;
+const fps = fn / (fd || 1);
 console.log(`source ${probe.width}x${probe.height} @ ${fps} fps`);
 
 const dataDir = join(HERE, "data");
 const cases = readdirSync(dataDir).filter((d) => CASE_ID_RE.test(d) && existsSync(join(dataDir, d, "case.json")))
   .map((d) => ({ id: d, ...JSON.parse(readFileSync(join(dataDir, d, "case.json"), "utf8")) }))
-  .filter((c) => c.videoId === videoId && (!only || c.id === only));
+  .filter((c) => c.status !== "from-wiki" && c.videoId === videoId && (!only || c.id === only));
 if (!cases.length) { console.error(`no case with videoId ${videoId}${only ? " / id " + only : ""} in data/`); process.exit(1); }
 
 for (const c of cases) {
@@ -49,9 +49,9 @@ for (const c of cases) {
   mkdirSync(frames, { recursive: true });
   // -fps_mode passthrough: keep every source frame (no duplicate/drop), frame 0 = first frame at start_s
   run("ffmpeg", ["-nostdin", "-loglevel", "error", "-y", "-ss", String(c.start_s), "-to", String(c.end_s), "-i", video,
-    "-vf", "scale=-2:720", "-q:v", "3", "-fps_mode", "passthrough", "-start_number", "0", join(frames, "frame_%05d.jpg")]);
+    "-vf", "scale=-2:min(720\\,ih)", "-q:v", "3", "-fps_mode", "passthrough", "-start_number", "0", join(frames, "frame_%05d.jpg")]);
   const count = readdirSync(frames).filter((f) => f.endsWith(".jpg")).length;
-  writeFileSync(join(out, "meta.json"), JSON.stringify({ videoId, fps, frameCount: count, start_s: c.start_s, end_s: c.end_s, width: Math.round(720 * probe.width / probe.height), height: 720 }, null, 2));
+  writeFileSync(join(out, "meta.json"), JSON.stringify({ videoId, fps, frameCount: count, start_s: c.start_s, end_s: c.end_s, width: Math.round(Math.min(720, probe.height) * probe.width / probe.height / 2) * 2, height: Math.min(720, probe.height) }, null, 2));
   run("python3", ["-I", join(HERE, "scripts", "analyze.py"), video, join(out, "analysis.json"), String(c.start_s), String(c.end_s)]);
   console.log(`${c.id}: ${count} frames @ ${fps} fps -> ${out}`);
 }

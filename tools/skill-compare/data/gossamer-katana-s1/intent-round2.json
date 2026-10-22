@@ -1,0 +1,412 @@
+{
+  "title": "糸切り — astra2に基づく形状・接触の設計図（調整中）",
+  "source": {
+    "video": "LkLhzmoJZ6Y",
+    "start_s": 11.845167,
+    "fps": 29.97002997002997
+  },
+  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "duration_ticks": 63,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        2.0,
+        2.5,
+        8
+      ],
+      "target": [
+        2.0,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#66889A",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 10,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 14,
+          "pos": [
+            5,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 22,
+          "pos": [
+            5,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 26,
+          "pos": [
+            2,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 37,
+          "pos": [
+            2,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 41,
+          "pos": [
+            6,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#8E3440",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            4,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 1.8,
+    "width": 0.12,
+    "color": "#CCCCCC",
+    "parts": [
+      {
+        "size": [
+          0.5,
+          0.08,
+          0.04
+        ],
+        "pos": [
+          0.0,
+          0.0,
+          0
+        ],
+        "color": "#C1C0C0",
+        "rotate": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "size": [
+          0.5,
+          0.08,
+          0.04
+        ],
+        "pos": [
+          0.45,
+          0.03,
+          0
+        ],
+        "color": "#C1C0C0",
+        "rotate": [
+          0,
+          0,
+          6
+        ]
+      },
+      {
+        "size": [
+          0.5,
+          0.08,
+          0.04
+        ],
+        "pos": [
+          0.9,
+          0.12,
+          0
+        ],
+        "color": "#C1C0C0",
+        "rotate": [
+          0,
+          0,
+          12
+        ]
+      },
+      {
+        "size": [
+          0.5,
+          0.08,
+          0.04
+        ],
+        "pos": [
+          1.35,
+          0.27,
+          0
+        ],
+        "color": "#C1C0C0",
+        "rotate": [
+          0,
+          0,
+          18
+        ]
+      },
+      {
+        "size": [
+          0.3,
+          0.09,
+          0.08
+        ],
+        "pos": [
+          -0.3,
+          0,
+          0
+        ],
+        "color": "#382C35"
+      }
+    ],
+    "keys": [
+      {
+        "t": 0,
+        "angle": 0
+      },
+      {
+        "t": 7,
+        "angle": 15
+      },
+      {
+        "t": 12,
+        "angle": -15
+      },
+      {
+        "t": 17,
+        "angle": 0
+      },
+      {
+        "t": 19,
+        "angle": 15
+      },
+      {
+        "t": 24,
+        "angle": -15
+      },
+      {
+        "t": 29,
+        "angle": 0
+      },
+      {
+        "t": 34,
+        "angle": 15
+      },
+      {
+        "t": 39,
+        "angle": -15
+      },
+      {
+        "t": 44,
+        "angle": 0
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 12,
+      "at": [
+        4,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "spike_star",
+      "t0": 12,
+      "t1": 20,
+      "center": [
+        4,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#DCEAFF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 10,
+      "t1": 21,
+      "center": [
+        2.7,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#DCEAFF",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    },
+    {
+      "type": "hit",
+      "t": 24,
+      "at": [
+        4,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "spike_star",
+      "t0": 24,
+      "t1": 32,
+      "center": [
+        4,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#DCEAFF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 22,
+      "t1": 33,
+      "center": [
+        2.7,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#DCEAFF",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    },
+    {
+      "type": "hit",
+      "t": 39,
+      "at": [
+        4,
+        1.1,
+        0
+      ],
+      "coin": 3
+    },
+    {
+      "type": "spike_star",
+      "t0": 39,
+      "t1": 47,
+      "center": [
+        4,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#DCEAFF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 37,
+      "t1": 48,
+      "center": [
+        2.7,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#DCEAFF",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    }
+  ]
+}

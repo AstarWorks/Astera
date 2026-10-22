@@ -12,7 +12,6 @@ elements:
   - id: body
     kind: { type: block, block: white_stained_glass }
     brightness: 15
-    glow_color: "#8fb8ff"
     count: 3
     start_tick: 0
     slot_lifetime_ticks: 14
@@ -28,7 +27,6 @@ elements:
   - id: counter-line
     kind: { type: block, block: white_concrete }
     brightness: 15
-    glow_color: "#8fb8ff"
     start_tick: 8
     end_tick: 20
     keyframes:

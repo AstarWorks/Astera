@@ -13,7 +13,6 @@ elements:
   - id: blade
     kind: { type: block, block: orange_stained_glass }
     brightness: 15
-    glow_color: "#ff7a1a"
     count: 20
     slot_lifetime_ticks: 12
     formation:

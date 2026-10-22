@@ -1,79 +1,33 @@
-# Persona weapon: Vendetta Bayonet. DEF sneak + left-click -- Hairpin Parry. Free.
-# An orange parry ring flashes on the caster, then the caster slips forward through the enemy in 5 ticks
-# while untouchable (dash_strike invulnerable = the immunity status) and ripostes whoever the slip clips:
-# 3.5 damage, +2 tremor, a second ring on the victim and a short mutual hit-stop. Whiff = a plain 3.6 block slip.
-
 id: vendetta-rifle-def
-
 name:
-  ja: "ヘアピン・パリィ"
-  en: "Hairpin Parry"
+  ja: 鉄の構え
+  en: Ferrous Guard
 description:
-  ja: "橙の輪で受け流しながら敵の懐へ滑り込む。滑走中は無敵で、触れた敵に反撃して震動を与える。"
-  en: "Slips through the enemy under an orange parry ring. Invulnerable while sliding; whoever you clip is riposted and shaken."
-
-archetype: buff
-cooldown_ticks: 140
-resource_cost: 0
-tags: [ persona, gun, defense, counter, tremor ]
-
+  ja: 鉄の構え
+  en: Ferrous Guard
+archetype: sequence
+cooldown_ticks: 90
+resource_cost: 10
 params:
-  type: buff
-  status_effect_id: evasive
-  duration_ticks: 20
-
+  type: sequence
 phases:
-  type: buff
+  type: sequence
   cast:
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: vendetta-parry-ring
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.shield.block
-      volume: { type: literal, value: 0.8 }
-      pitch: { type: literal, value: 1.7 }
-    - type: spawn_particle
-      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
-      particle_id: dash-cloud
-    - type: dash_strike
-      distance: 3.6
-      ticks: 5
-      radius: 1.4
-      hit_once: true
-      invulnerable: true
-      stop_on_block: true
-      on_hit:
-        - type: play_vfx
-          targets: { type: target }
-          vfx_id: vendetta-parry-ring
-          scale: { type: literal, value: 1.2 }
-        - type: damage
-          targets: { type: target }
-          components:
-            - base: { type: literal, value: 3.5 }
-              attribute: physical
-        - type: apply_status
-          targets: { type: target }
-          status_id: tremor
-          effect_duration_ticks: { type: literal, value: 200 }
-          stack_count: { type: literal, value: 2 }
-        - type: hit_stop
-          targets: { type: target }
-          ticks: 3
-          include_caster: true
-        - type: play_sound
-          targets: { type: target }
-          sound_id: entity.player.attack.crit
-          pitch: { type: literal, value: 1.3 }
-        - type: play_sound
-          targets: { type: target }
-          sound_id: item.shield.block
-          pitch: { type: literal, value: 0.9 }
-          delay_ticks: { type: literal, value: 3 }
-        - type: camera_shake
-          targets: { type: caster }
-          intensity: { type: literal, value: 0.2 }
-          ticks: { type: literal, value: 3 }
-  expire: []
-  removed: []
+  - type: modify_attribute
+    targets:
+      type: caster
+    attribute_key: resist.physical
+    delta:
+      type: literal
+      value: 0.7
+    ticks:
+      type: literal
+      value: 45
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: vendetta-bayonet-thrust
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: vendetta-parry-ring

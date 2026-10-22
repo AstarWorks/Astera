@@ -1,0 +1,779 @@
+{
+  "video_id": "Svaaq9F7Ty8",
+  "identity": "Zwei Assoc. West Section 3 Ishmael",
+  "source_video": "../../vid/Svaaq9F7Ty8.mp4",
+  "source_kit": "../../wiki/Svaaq9F7Ty8.md",
+  "fps": 30,
+  "decoded_frame_count": 1456,
+  "duration_s": 48.533,
+  "source_resolution": [
+    640,
+    360
+  ],
+  "frame_convention": "Zero-based source frame indices; intervals are [start,end). Seconds use decoded PTS, not rounded sheet labels. Nominal 30 fps has millisecond PTS rounding.",
+  "sheet_convention": "combat_01..21 contain every source frame 330..959, 30 frames per sheet, row-major 5 columns x 6 rows. Burned fN is SELECTED-frame ordinal: source frame = N+330. detail sheets have t*30 labels that can round down by 1; JSON source indices are authoritative. Overview sheets sample at 6 fps and are for coverage, not exact boundaries.",
+  "inspection": "All 9 overview, 21 combat, 2 detail and 2 boundary sheets were visually inspected. Entire combat was inspected at native 30 fps; noncombat boundaries were additionally sampled at native rate.",
+  "timing_limits": "Contact proxy is the first impact spark/flash, not verified game damage timing. Cropping and opaque VFX hide some physical contacts; uncertainty intervals are recorded. Camera and effect event boundaries refer to observed source frames.",
+  "measurement_limits": "H = visible upright character height, excluding weapon/hair overshoot. Distances, effect dimensions and colors are visual estimates, not calibrated world coordinates. Do not treat zoom-induced apparent displacement as a dash.",
+  "mapping_limits": "No skill-name UI is shown. Coin counts, weapon motion, sequence separation and finisher motif support mappings; S2 versus S3 remains medium confidence because both have 3 coins.",
+  "audio": "Supplied onsets.txt inspected only as a secondary locator. Speech/music/transitions produce onsets; audio was not used as coin-count evidence.",
+  "range_rule": "Classify motion/contact, not long bright streak shape alone. Sweeps here stay tied to a held weapon; no detached traveling projectile or sustained beam is resolved. Their oversized trails bridge stylized sprite spacing. Melee classifications for cropped contacts have medium confidence.",
+  "segments": [
+    {
+      "id": "warning",
+      "start_frame": 0,
+      "end_frame_exclusive": 49,
+      "start_s": 0.0,
+      "end_s": 1.633,
+      "kind": "intro",
+      "mapping": null,
+      "confidence": "high",
+      "description": "Age/content warning fading to black.",
+      "evidence": [
+        {
+          "frame": 0,
+          "time_s": 0.0,
+          "description": "Warning card",
+          "contact_sheet": "sheets/overview_01.jpg"
+        },
+        {
+          "frame": 48,
+          "time_s": 1.6,
+          "description": "Last dark warning frame",
+          "contact_sheet": "sheets/overview_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "title",
+      "start_frame": 49,
+      "end_frame_exclusive": 106,
+      "start_s": 1.633,
+      "end_s": 3.533,
+      "kind": "intro",
+      "mapping": null,
+      "confidence": "high",
+      "description": "Identity announcement card.",
+      "evidence": [
+        {
+          "frame": 49,
+          "time_s": 1.633,
+          "description": "First title frame",
+          "contact_sheet": "sheets/overview_01.jpg"
+        },
+        {
+          "frame": 105,
+          "time_s": 3.5,
+          "description": "Last sharp title frame",
+          "contact_sheet": "sheets/overview_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "title_transition",
+      "start_frame": 106,
+      "end_frame_exclusive": 110,
+      "start_s": 3.533,
+      "end_s": 3.667,
+      "kind": "transition",
+      "mapping": null,
+      "confidence": "high",
+      "description": "Four-frame vertical smear.",
+      "evidence": [
+        {
+          "frame": 106,
+          "time_s": 3.533,
+          "description": "Smear starts",
+          "contact_sheet": "sheets/overview_01.jpg"
+        },
+        {
+          "frame": 110,
+          "time_s": 3.667,
+          "description": "New cutscene shot",
+          "contact_sheet": "sheets/overview_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "cutscene_man",
+      "start_frame": 110,
+      "end_frame_exclusive": 166,
+      "start_s": 3.667,
+      "end_s": 5.533,
+      "kind": "cutscene",
+      "mapping": null,
+      "confidence": "high",
+      "description": "Low-angle chest/head portrait of bearded uniformed man; focus resolves; leaves drift.",
+      "evidence": [
+        {
+          "frame": 110,
+          "time_s": 3.667,
+          "description": "Blurred portrait starts",
+          "contact_sheet": "sheets/overview_01.jpg"
+        },
+        {
+          "frame": 165,
+          "time_s": 5.5,
+          "description": "Last man shot",
+          "contact_sheet": "sheets/overview_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "cutscene_badge",
+      "start_frame": 166,
+      "end_frame_exclusive": 226,
+      "start_s": 5.533,
+      "end_s": 7.533,
+      "kind": "cutscene",
+      "mapping": null,
+      "confidence": "high",
+      "description": "Close view of Ishmael shoulder badge and orange hair.",
+      "evidence": [
+        {
+          "frame": 166,
+          "time_s": 5.533,
+          "description": "Blurred cut to badge",
+          "contact_sheet": "sheets/overview_01.jpg"
+        },
+        {
+          "frame": 225,
+          "time_s": 7.5,
+          "description": "Last badge close-up",
+          "contact_sheet": "sheets/overview_02.jpg"
+        }
+      ]
+    },
+    {
+      "id": "cutscene_ishmael",
+      "start_frame": 226,
+      "end_frame_exclusive": 286,
+      "start_s": 7.533,
+      "end_s": 9.533,
+      "kind": "cutscene",
+      "mapping": null,
+      "confidence": "high",
+      "description": "Profile/over-shoulder portrait, focus resolves.",
+      "evidence": [
+        {
+          "frame": 226,
+          "time_s": 7.533,
+          "description": "New blurred profile",
+          "contact_sheet": "sheets/overview_02.jpg"
+        },
+        {
+          "frame": 285,
+          "time_s": 9.5,
+          "description": "Last preflash profile",
+          "contact_sheet": "sheets/overview_02.jpg"
+        }
+      ]
+    },
+    {
+      "id": "cutscene_flash",
+      "start_frame": 286,
+      "end_frame_exclusive": 336,
+      "start_s": 9.533,
+      "end_s": 11.2,
+      "kind": "cutscene",
+      "mapping": null,
+      "confidence": "high",
+      "description": "White flash then wider version of profile illustration; no combat.",
+      "evidence": [
+        {
+          "frame": 286,
+          "time_s": 9.533,
+          "description": "White screen retaining subtitles",
+          "contact_sheet": "sheets/overview_02.jpg"
+        },
+        {
+          "frame": 290,
+          "time_s": 9.667,
+          "description": "Portrait returning under white fade",
+          "contact_sheet": "sheets/overview_02.jpg"
+        },
+        {
+          "frame": 335,
+          "time_s": 11.167,
+          "description": "Portrait before gameplay dissolve",
+          "contact_sheet": "sheets/combat_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "gameplay_dissolve",
+      "start_frame": 336,
+      "end_frame_exclusive": 342,
+      "start_s": 11.2,
+      "end_s": 11.4,
+      "kind": "transition",
+      "mapping": null,
+      "confidence": "high",
+      "description": "Six-frame dissolve from portrait to container-yard battle.",
+      "evidence": [
+        {
+          "frame": 336,
+          "time_s": 11.2,
+          "description": "Portrait zoom/dissolve begins",
+          "contact_sheet": "sheets/combat_01.jpg"
+        },
+        {
+          "frame": 341,
+          "time_s": 11.367,
+          "description": "Last mixed image",
+          "contact_sheet": "sheets/combat_01.jpg"
+        },
+        {
+          "frame": 342,
+          "time_s": 11.4,
+          "description": "Clean gameplay",
+          "contact_sheet": "sheets/combat_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "idle_before_s1",
+      "start_frame": 342,
+      "end_frame_exclusive": 349,
+      "start_s": 11.4,
+      "end_s": 11.633,
+      "kind": "idle",
+      "mapping": null,
+      "confidence": "high",
+      "description": "Ishmael left, opponent right; blade resting nearly upright.",
+      "evidence": [
+        {
+          "frame": 342,
+          "time_s": 11.4,
+          "description": "Wide two-shot",
+          "contact_sheet": "sheets/combat_01.jpg"
+        },
+        {
+          "frame": 348,
+          "time_s": 11.6,
+          "description": "Last upright idle before low-ready pose",
+          "contact_sheet": "sheets/combat_01.jpg"
+        }
+      ]
+    },
+    {
+      "id": "attack_1",
+      "start_frame": 349,
+      "end_frame_exclusive": 427,
+      "start_s": 11.633,
+      "end_s": 14.233,
+      "kind": "attack",
+      "mapping": "s1",
+      "confidence": "high",
+      "description": "Two sweep impacts, low recovery held until reset cut.",
+      "evidence": [
+        {
+          "frame": 349,
+          "time_s": 11.633,
+          "description": "First low blade wind-up pose",
+          "contact_sheet": "sheets/combat_01.jpg"
+        },
+        {
+          "frame": 359,
+          "time_s": 11.967,
+          "description": "First orange impact",
+          "contact_sheet": "sheets/combat_01.jpg"
+        },
+        {
+          "frame": 396,
+          "time_s": 13.2,
+          "description": "Second orange impact in close-up",
+          "contact_sheet": "sheets/combat_03.jpg"
+        },
+        {
+          "frame": 427,
+          "time_s": 14.233,
+          "description": "Hard cut back to wide idle",
+          "contact_sheet": "sheets/combat_04.jpg"
+        }
+      ],
+      "observed_hits": 2,
+      "official_coins": 2,
+      "repeat": false,
+      "end_reason": "Camera cut; no return to original upright idle before cut."
+    },
+    {
+      "id": "idle_before_s2",
+      "start_frame": 427,
+      "end_frame_exclusive": 439,
+      "start_s": 14.233,
+      "end_s": 14.633,
+      "kind": "idle",
+      "mapping": null,
+      "confidence": "high",
+      "description": "New wide idle gap separates attacks.",
+      "evidence": [
+        {
+          "frame": 427,
+          "time_s": 14.233,
+          "description": "Wide reset",
+          "contact_sheet": "sheets/combat_04.jpg"
+        },
+        {
+          "frame": 438,
+          "time_s": 14.6,
+          "description": "Final upright idle frame",
+          "contact_sheet": "sheets/combat_04.jpg"
+        }
+      ]
+    },
+    {
+      "id": "attack_2",
+      "start_frame": 439,
+      "end_frame_exclusive": 552,
+      "start_s": 14.633,
+      "end_s": 18.4,
+      "kind": "attack",
+      "mapping": "s2",
+      "confidence": "med",
+      "description": "Two horizontal sweeps then overhead ground slam; 3 impacts.",
+      "evidence": [
+        {
+          "frame": 439,
+          "time_s": 14.633,
+          "description": "First low blade wind-up pose",
+          "contact_sheet": "sheets/combat_04.jpg"
+        },
+        {
+          "frame": 459,
+          "time_s": 15.3,
+          "description": "Sweep impact",
+          "contact_sheet": "sheets/combat_05.jpg"
+        },
+        {
+          "frame": 487,
+          "time_s": 16.233,
+          "description": "Second sweep impact",
+          "contact_sheet": "sheets/combat_06.jpg"
+        },
+        {
+          "frame": 519,
+          "time_s": 17.3,
+          "description": "Slam impact",
+          "contact_sheet": "sheets/combat_07.jpg"
+        },
+        {
+          "frame": 552,
+          "time_s": 18.4,
+          "description": "Hard cut to next wide setup",
+          "contact_sheet": "sheets/combat_08.jpg"
+        }
+      ],
+      "observed_hits": 3,
+      "official_coins": 3,
+      "repeat": false,
+      "end_reason": "Kneeling follow-through held until cut.",
+      "mapping_alternative": "S3 also has 3 coins; weaker finisher and lack of long advancing thrust favor S2 here."
+    },
+    {
+      "id": "idle_before_s3",
+      "start_frame": 552,
+      "end_frame_exclusive": 567,
+      "start_s": 18.4,
+      "end_s": 18.9,
+      "kind": "idle",
+      "mapping": null,
+      "confidence": "high",
+      "description": "Wide reset with diagonal black/gold framing.",
+      "evidence": [
+        {
+          "frame": 552,
+          "time_s": 18.4,
+          "description": "New wide shot",
+          "contact_sheet": "sheets/combat_08.jpg"
+        },
+        {
+          "frame": 566,
+          "time_s": 18.866,
+          "description": "Last upright idle",
+          "contact_sheet": "sheets/combat_08.jpg"
+        }
+      ]
+    },
+    {
+      "id": "attack_3",
+      "start_frame": 567,
+      "end_frame_exclusive": 711,
+      "start_s": 18.9,
+      "end_s": 23.7,
+      "kind": "attack",
+      "mapping": "s3",
+      "confidence": "med",
+      "description": "Sweep/hilt-leading blow, drag preparation and advancing thrust, close downward slam.",
+      "evidence": [
+        {
+          "frame": 567,
+          "time_s": 18.9,
+          "description": "First low-ready wind-up",
+          "contact_sheet": "sheets/combat_08.jpg"
+        },
+        {
+          "frame": 582,
+          "time_s": 19.4,
+          "description": "First impact",
+          "contact_sheet": "sheets/combat_09.jpg"
+        },
+        {
+          "frame": 627,
+          "time_s": 20.9,
+          "description": "Lunge impact flash",
+          "contact_sheet": "sheets/combat_10.jpg"
+        },
+        {
+          "frame": 661,
+          "time_s": 22.033,
+          "description": "Downward impact begins",
+          "contact_sheet": "sheets/combat_12.jpg"
+        },
+        {
+          "frame": 711,
+          "time_s": 23.7,
+          "description": "Cut away to guard demonstration",
+          "contact_sheet": "sheets/combat_13.jpg"
+        }
+      ],
+      "observed_hits": 3,
+      "official_coins": 3,
+      "repeat": false,
+      "end_reason": "Planted-blade crouch held until cut.",
+      "mapping_alternative": "S2 also has 3 coins; largest ground burst and close finisher favor Ward. Defensive Stance variant cannot be confirmed."
+    },
+    {
+      "id": "guard_A",
+      "start_frame": 711,
+      "end_frame_exclusive": 851,
+      "start_s": 23.7,
+      "end_s": 28.367,
+      "kind": "defense",
+      "mapping": "def",
+      "confidence": "high",
+      "description": "Guard establishment, two clear incoming sweeps, bright shield resolution with target rings, held guard.",
+      "evidence": [
+        {
+          "frame": 711,
+          "time_s": 23.7,
+          "description": "New darker shot/guard setup",
+          "contact_sheet": "sheets/combat_13.jpg"
+        },
+        {
+          "frame": 713,
+          "time_s": 23.767,
+          "description": "First gold shield appearance",
+          "contact_sheet": "sheets/combat_13.jpg"
+        },
+        {
+          "frame": 743,
+          "time_s": 24.767,
+          "description": "Enemy sweep strikes shield",
+          "contact_sheet": "sheets/combat_14.jpg"
+        },
+        {
+          "frame": 787,
+          "time_s": 26.233,
+          "description": "Second enemy sweep strikes shield",
+          "contact_sheet": "sheets/combat_16.jpg"
+        },
+        {
+          "frame": 804,
+          "time_s": 26.8,
+          "description": "Shield close-up flare",
+          "contact_sheet": "sheets/combat_16.jpg"
+        },
+        {
+          "frame": 811,
+          "time_s": 27.033,
+          "description": "New starburst; then target-centered rings",
+          "contact_sheet": "sheets/combat_17.jpg"
+        },
+        {
+          "frame": 850,
+          "time_s": 28.334,
+          "description": "Last held guard before reset",
+          "contact_sheet": "sheets/combat_18.jpg"
+        }
+      ],
+      "repeat": false,
+      "observed_outgoing_attack_hits": 0,
+      "official_coins": 1,
+      "enemy_actions": [
+        "enemy_A1",
+        "enemy_A2"
+      ],
+      "special_event": "guard_resolution"
+    },
+    {
+      "id": "guard_B",
+      "start_frame": 851,
+      "end_frame_exclusive": 887,
+      "start_s": 28.367,
+      "end_s": 29.567,
+      "kind": "defense",
+      "mapping": "def",
+      "confidence": "high",
+      "description": "Reset/fade to another guard exchange; incoming sweep.",
+      "evidence": [
+        {
+          "frame": 851,
+          "time_s": 28.367,
+          "description": "One-frame dim reset",
+          "contact_sheet": "sheets/combat_18.jpg"
+        },
+        {
+          "frame": 852,
+          "time_s": 28.4,
+          "description": "New wider enemy approach",
+          "contact_sheet": "sheets/combat_18.jpg"
+        },
+        {
+          "frame": 861,
+          "time_s": 28.7,
+          "description": "Incoming orange contact flash",
+          "contact_sheet": "sheets/combat_18.jpg"
+        },
+        {
+          "frame": 886,
+          "time_s": 29.534,
+          "description": "Held aftermath",
+          "contact_sheet": "sheets/combat_19.jpg"
+        }
+      ],
+      "repeat": true,
+      "repeat_of": "def",
+      "enemy_actions": [
+        "enemy_B1"
+      ],
+      "observed_outgoing_attack_hits": 0
+    },
+    {
+      "id": "guard_C",
+      "start_frame": 887,
+      "end_frame_exclusive": 914,
+      "start_s": 29.567,
+      "end_s": 30.467,
+      "kind": "defense",
+      "mapping": "def",
+      "confidence": "med",
+      "description": "Brief fade/re-establishment and held guard. No new impact resolved.",
+      "evidence": [
+        {
+          "frame": 887,
+          "time_s": 29.567,
+          "description": "Ghosted reset starts",
+          "contact_sheet": "sheets/combat_19.jpg"
+        },
+        {
+          "frame": 890,
+          "time_s": 29.667,
+          "description": "Shield restored",
+          "contact_sheet": "sheets/combat_19.jpg"
+        },
+        {
+          "frame": 913,
+          "time_s": 30.434,
+          "description": "Last held guard before next reset",
+          "contact_sheet": "sheets/combat_20.jpg"
+        }
+      ],
+      "repeat": true,
+      "repeat_of": "def",
+      "observed_outgoing_attack_hits": 0
+    },
+    {
+      "id": "guard_D",
+      "start_frame": 914,
+      "end_frame_exclusive": 953,
+      "start_s": 30.467,
+      "end_s": 31.767,
+      "kind": "defense",
+      "mapping": "def",
+      "confidence": "high",
+      "description": "Fade/reset; opponent rises and swings a large curling crescent into shield.",
+      "evidence": [
+        {
+          "frame": 914,
+          "time_s": 30.467,
+          "description": "Dim upright reset",
+          "contact_sheet": "sheets/combat_20.jpg"
+        },
+        {
+          "frame": 919,
+          "time_s": 30.634,
+          "description": "Gold shield restored",
+          "contact_sheet": "sheets/combat_20.jpg"
+        },
+        {
+          "frame": 937,
+          "time_s": 31.234,
+          "description": "Enemy crescent/white shield contact",
+          "contact_sheet": "sheets/combat_21.jpg"
+        },
+        {
+          "frame": 952,
+          "time_s": 31.734,
+          "description": "Last gameplay frame",
+          "contact_sheet": "sheets/combat_21.jpg"
+        }
+      ],
+      "repeat": true,
+      "repeat_of": "def",
+      "enemy_actions": [
+        "enemy_D1"
+      ],
+      "observed_outgoing_attack_hits": 0
+    },
+    {
+      "id": "splash",
+      "start_frame": 953,
+      "end_frame_exclusive": 1342,
+      "start_s": 31.767,
+      "end_s": 44.733,
+      "kind": "outro_illustration",
+      "mapping": null,
+      "confidence": "high",
+      "description": "White transition into prolonged identity illustration: Ishmael blocking a dark foreground weapon. Not an E.G.O or a new gameplay attack.",
+      "evidence": [
+        {
+          "frame": 953,
+          "time_s": 31.767,
+          "description": "Full-white cut",
+          "contact_sheet": "sheets/combat_21.jpg"
+        },
+        {
+          "frame": 958,
+          "time_s": 31.933,
+          "description": "Illustration resolving",
+          "contact_sheet": "sheets/combat_21.jpg"
+        },
+        {
+          "frame": 1341,
+          "time_s": 44.7,
+          "description": "Last illustration frame",
+          "contact_sheet": "sheets/overview_08.jpg"
+        }
+      ]
+    },
+    {
+      "id": "publisher_logo",
+      "start_frame": 1342,
+      "end_frame_exclusive": 1456,
+      "start_s": 44.733,
+      "end_s": 48.533,
+      "kind": "outro",
+      "mapping": null,
+      "confidence": "high",
+      "description": "Crescent/eclipse emblem on black, followed by PROJECT MOON wordmark to end.",
+      "evidence": [
+        {
+          "frame": 1342,
+          "time_s": 44.733,
+          "description": "First logo animation frame",
+          "contact_sheet": "sheets/overview_08.jpg"
+        },
+        {
+          "frame": 1455,
+          "time_s": 48.5,
+          "description": "Last wordmark frame",
+          "contact_sheet": "sheets/overview_09.jpg"
+        }
+      ]
+    }
+  ],
+  "overlapping_enemy_and_special_events": [
+    {
+      "id": "enemy_A1",
+      "start_frame": 717,
+      "end_frame_exclusive": 771,
+      "start_s": 23.9,
+      "end_s": 25.7,
+      "contact_frame": 743,
+      "contact_s": 24.767,
+      "description": "Blue/dark-haired red/navy-coated opponent approaches from right, low sweep hits gold barrier; orange contact ring and small black/white glyph. Enemy recovers; Ishmael holds guard."
+    },
+    {
+      "id": "enemy_A2",
+      "start_frame": 771,
+      "end_frame_exclusive": 804,
+      "start_s": 25.7,
+      "end_s": 26.8,
+      "contact_frame": 787,
+      "contact_s": 26.233,
+      "description": "Opponent closes again, rises into sweep; white star at barrier, then orange ring and thin gold crescent. Not an Ishmael attack."
+    },
+    {
+      "id": "guard_resolution",
+      "start_frame": 804,
+      "end_frame_exclusive": 851,
+      "start_s": 26.8,
+      "end_s": 28.367,
+      "contact_frame": 811,
+      "contact_s": 27.033,
+      "description": "Shield flares, new white/orange star and black glyph at 27.000–27.033, then two yellow circles at enemy. Separate incoming physical strike is not cleanly resolved; possible guard/clash result."
+    },
+    {
+      "id": "enemy_B1",
+      "start_frame": 852,
+      "end_frame_exclusive": 887,
+      "start_s": 28.4,
+      "end_s": 29.567,
+      "contact_frame": 861,
+      "contact_s": 28.7,
+      "description": "Another low right-to-left opponent sweep; orange ring at guard face, then held recovery."
+    },
+    {
+      "id": "enemy_D1",
+      "start_frame": 918,
+      "end_frame_exclusive": 953,
+      "start_s": 30.6,
+      "end_s": 31.767,
+      "contact_frame": 937,
+      "contact_s": 31.234,
+      "description": "Opponent rises, swings large textured gold crescent leftward at barrier; dust and red/orange impact remain on guard side. No Ishmael counter-dash visible."
+    }
+  ],
+  "unobserved": {
+    "ego": "No E.G.O gameplay or identifiable E.G.O activation. Long illustration is outro.",
+    "s1_s2_s3_variants": "No separately identifiable repeat or Defensive Stance variant of an offensive skill.",
+    "passives": "No unique animation or readable UI proves Shock-nullifying Greatsword or Emergency Protection activation."
+  },
+  "contact_sheets": [
+    "sheets/overview_01.jpg",
+    "sheets/overview_02.jpg",
+    "sheets/overview_03.jpg",
+    "sheets/overview_04.jpg",
+    "sheets/overview_05.jpg",
+    "sheets/overview_06.jpg",
+    "sheets/overview_07.jpg",
+    "sheets/overview_08.jpg",
+    "sheets/overview_09.jpg",
+    "sheets/combat_01.jpg",
+    "sheets/combat_02.jpg",
+    "sheets/combat_03.jpg",
+    "sheets/combat_04.jpg",
+    "sheets/combat_05.jpg",
+    "sheets/combat_06.jpg",
+    "sheets/combat_07.jpg",
+    "sheets/combat_08.jpg",
+    "sheets/combat_09.jpg",
+    "sheets/combat_10.jpg",
+    "sheets/combat_11.jpg",
+    "sheets/combat_12.jpg",
+    "sheets/combat_13.jpg",
+    "sheets/combat_14.jpg",
+    "sheets/combat_15.jpg",
+    "sheets/combat_16.jpg",
+    "sheets/combat_17.jpg",
+    "sheets/combat_18.jpg",
+    "sheets/combat_19.jpg",
+    "sheets/combat_20.jpg",
+    "sheets/combat_21.jpg",
+    "sheets/detail_01.jpg",
+    "sheets/detail_02.jpg",
+    "sheets/boundaries_01.jpg",
+    "sheets/boundaries_02.jpg"
+  ]
+}

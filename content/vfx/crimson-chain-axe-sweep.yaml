@@ -1,149 +1,107 @@
-# Crimson Chain-Axe S1 "Chain Sweep": three chained passes (tilted right-to-left, tilted left-to-right,
-# full 360 spin) of ribbon slashes that draw on piece by piece, with iron-axe chain links trailing the
-# arc and a white star flash on the closing spin. Pass starts line up with the damage beats at ticks 0 / 5 / 10.
-# Local axes: x = left, y = up, z = forward. Rings are ~3 blocks around the caster.
-
+# Measured reference: tools/skill-compare/data/crimson-chain-axe-REPORT.md
 id: crimson-chain-axe-sweep
-duration_ticks: 32
+duration_ticks: 17
 orient: yaw
 follow: false
-sample_ticks: 2
-
+sample_ticks: 1
 elements:
-  - id: a-ribbon
-    kind: { type: block, block: red_stained_glass }
-    brightness: 15
-    glow_color: "#c0102a"
-    start_tick: 0
-    slot_lifetime_ticks: 10
-    count: 7
-    formation:
-      curve: { type: arc, radius: 3.4, from_deg: 70, to_deg: -70 }
-      tilt: { yaw: 0, pitch: 0, roll: 14 }
-      offset: [0.0, 1.15, 0.0]
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.02, 0.1, 0.6] }
-      - { t: 2, scale: [0.05, 0.4, 1.0], ease: out_expo }
-      - { t: 5, block: pink_stained_glass }
-      - { t: 10, scale: [0.0, 0.2, 1.0], ease: in_quad }
-
-  - id: a-core
-    kind: { type: block, block: white_concrete }
-    brightness: 15
-    start_tick: 0
-    slot_lifetime_ticks: 7
-    count: 6
-    formation:
-      curve: { type: arc, radius: 3.4, from_deg: 70, to_deg: -70 }
-      tilt: { yaw: 0, pitch: 0, roll: 14 }
-      offset: [0.0, 1.15, 0.0]
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.01, 0.04, 0.5] }
-      - { t: 2, scale: [0.03, 0.08, 1.0], ease: out_expo }
-      - { t: 7, scale: [0.0, 0.04, 1.0], ease: in_quad }
-
-  - id: a-chain
-    kind: { type: item, item: iron_axe, display_mode: fixed }
-    brightness: 15
-    start_tick: 1
-    slot_lifetime_ticks: 8
+- id: petals
+  kind:
+    type: quad
+    color: '#B3152A'
+    alpha: 0.85
+    glyph: "\u25C6"
+  brightness: 15
+  start_tick: 5
+  end_tick: 14
+  emit:
     count: 4
-    formation:
-      curve: { type: arc, radius: 3.75, from_deg: 70, to_deg: -70 }
-      tilt: { yaw: 0, pitch: 0, roll: 14 }
-      offset: [0.0, 1.15, 0.0]
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.2, 0.2, 0.2] }
-      - { t: 2, rotate: [0, 0, 200], scale: [0.55, 0.55, 0.55], ease: out_cubic }
-      - { t: 8, rotate: [0, 0, 560], scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  - id: b-ribbon
-    kind: { type: block, block: red_stained_glass }
+    speed: [0.08, 0.2]
+    spread_deg: 100
+    direction: outward
+    gravity: 0.008
+    drag: 0.06
+    life_ticks: [5, 8]
+    size: [0.08, 0.16]
+    alpha_over_life: [0.9, 0]
+    color_over_life:
+    - '#E72840'
+    - '#330711'
+  keyframes:
+  - t: 0
+    translate: [0, 1.0, 3.4]
+rigs:
+- id: chain
+  pivot: [-0.25, 1.0, 0.3]
+  rest: [0, 90, 0]
+  tilt: [0, 0, -90]
+  respect_hit_stop: true
+  end_tick: 14
+  parts:
+  - id: haft
+    block: black_concrete
+    offset: [0, 1.8, 0]
+    size: [0.08, 3.6, 0.08]
+  - id: vein
+    block: red_concrete
+    offset: [0.07, 1.8, 0]
+    size: [0.035, 3.6, 0.09]
     brightness: 15
-    glow_color: "#c0102a"
-    start_tick: 5
-    slot_lifetime_ticks: 10
-    count: 7
-    formation:
-      curve: { type: arc, radius: 3.1, from_deg: -70, to_deg: 70 }
-      tilt: { yaw: 0, pitch: 0, roll: -22 }
-      offset: [0.0, 1.4, 0.0]
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.02, 0.1, 0.6] }
-      - { t: 2, scale: [0.05, 0.4, 1.0], ease: out_expo }
-      - { t: 5, block: pink_stained_glass }
-      - { t: 10, scale: [0.0, 0.2, 1.0], ease: in_quad }
-
-  - id: b-core
-    kind: { type: block, block: white_concrete }
+  - id: head-0
+    block: white_concrete
+    offset: [0, 1.1, 0]
+    size: [0.35, 0.18, 0.13]
     brightness: 15
-    start_tick: 5
-    slot_lifetime_ticks: 7
-    count: 6
-    formation:
-      curve: { type: arc, radius: 3.1, from_deg: -70, to_deg: 70 }
-      tilt: { yaw: 0, pitch: 0, roll: -22 }
-      offset: [0.0, 1.4, 0.0]
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.01, 0.04, 0.5] }
-      - { t: 2, scale: [0.03, 0.08, 1.0], ease: out_expo }
-      - { t: 7, scale: [0.0, 0.04, 1.0], ease: in_quad }
-
-  - id: b-chain
-    kind: { type: item, item: iron_axe, display_mode: fixed }
+  - id: head-1
+    block: white_concrete
+    offset: [0, 2.2, 0]
+    size: [0.35, 0.18, 0.13]
     brightness: 15
-    start_tick: 6
-    slot_lifetime_ticks: 8
-    count: 4
-    formation:
-      curve: { type: arc, radius: 3.45, from_deg: -70, to_deg: 70 }
-      tilt: { yaw: 0, pitch: 0, roll: -22 }
-      offset: [0.0, 1.4, 0.0]
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.2, 0.2, 0.2] }
-      - { t: 2, rotate: [0, 0, 200], scale: [0.55, 0.55, 0.55], ease: out_cubic }
-      - { t: 8, rotate: [0, 0, 560], scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  # Pass 3: the full spin. A flat ring drawn around the caster in a flat 12-piece sweep.
-  - id: c-ribbon
-    kind: { type: block, block: red_stained_glass }
+  - id: head-2
+    block: white_concrete
+    offset: [0, 3.3, 0]
+    size: [0.35, 0.18, 0.13]
     brightness: 15
-    glow_color: "#c0102a"
-    start_tick: 10
-    slot_lifetime_ticks: 10
-    count: 12
-    formation:
-      curve: { type: circle, radius: 3.3 }
-      offset: [0.0, 1.0, 0.0]
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.02, 0.1, 0.5] }
-      - { t: 2, scale: [0.06, 0.45, 1.15], ease: out_expo }
-      - { t: 5, block: pink_stained_glass }
-      - { t: 10, scale: [0.0, 0.2, 1.15], ease: in_quad }
-
-  # Impact frame on the closing spin: white four-point star at chest height.
-  - id: c-star
-    kind: { type: text, text: "<white>✦</white>", background: "#00000000", shadow: false, see_through: true }
-    billboard: center
+  - id: tip
+    block: red_concrete
+    offset: [0, 3.75, 0]
+    size: [0.2, 0.6, 0.14]
     brightness: 15
-    start_tick: 10
-    end_tick: 20
-    keyframes:
-      - { t: 0, translate: [0.0, 1.3, 1.8], scale: [0.0, 0.0, 0.0] }
-      - { t: 2, scale: [7.0, 7.0, 7.0], ease: out_expo }
-      - { t: 4, scale: [8.5, 8.5, 8.5] }
-      - { t: 10, scale: [0.0, 0.0, 0.0], ease: in_quad }
+  swing:
+  - t: 0
+    rotate: [170, 0, 0]
+  - t: 2
+    rotate: [180, 0, 0]
+    ease: in_out_quad
+  - t: 6
+    rotate: [0, 0, 0]
+    ease: out_quad
+  - t: 8
+    rotate: [-10, 0, 0]
+  - t: 13
+    rotate: [-20, 0, 0]
+    ease: out_cubic
+  trails:
+  - id: blade-fan
+    from: [0, 3.65, 0]
+    to: [0, 4.0, 0]
+    start_t: 2
+    end_t: 6
+    life_ticks: 5
+    step_deg: 24
+    style: crisp
+    bands:
+    - from: 0.0
+      to: 1.0
+      color: '#E0DA1634'
+      color_to: '#303A0712'
+      block: red_concrete
+    edge:
+      block: pink_concrete
+      width: 0.055
+  emitters:
+  - id: blood-flecks
+    particle_id: crimson-chain-axe-petals
+    point: [0, 4.0, 0]
+    start_t: 2
+    end_t: 8

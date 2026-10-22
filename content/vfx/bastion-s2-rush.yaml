@@ -1,89 +1,131 @@
-# Bastion Greatsword S2 cast side: a lit dash lane on the floor and a giant sword held flat overhead
-# telegraph the rush (8 ticks), then the sword thrusts ahead, mirrored "«" wings flare off the caster
-# and gold streak lines + a dust trail run down the lane. ~20 live displays.
-# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
-
 id: bastion-s2-rush
-duration_ticks: 24
+duration_ticks: 21
 orient: yaw
-follow: false
-sample_ticks: 2
-
-elements:
-  # Flat floor lane (7 pads) marking the rush path; lights up in sequence and dies when the rush starts.
-  - id: lane
-    kind: { type: block, block: yellow_stained_glass }
-    brightness: 12
-    start_tick: 0
-    end_tick: 8
-    count: 7
-    formation:
-      curve: { type: line, from: [0.0, 0.05, 0.8], to: [0.0, 0.05, 6.8] }
-      stagger_ticks: 0
-    keyframes:
-      - { t: 0, scale: [0.0, 0.03, 0.9] }
-      - { t: 3, scale: [1.0, 0.03, 0.9], ease: out_quad }
-      - { t: 8, scale: [0.0, 0.03, 0.9], ease: in_quad }
-
-  # Greatsword projection held flat overhead, then driven forward with the rush.
-  - id: sword
-    kind: { type: item, item: golden_sword, display_mode: fixed }
-    brightness: 15
-    glow_color: "#ff9a2a"
-    start_tick: 0
-    end_tick: 15
-    keyframes:
-      - { t: 0, translate: [0.0, 2.6, 0.3], rotate: [0, 0, -45], scale: [0.0, 0.0, 0.0] }
-      - { t: 4, scale: [4.5, 4.5, 4.5], ease: out_back }
-      - { t: 8, translate: [0.0, 2.6, 0.5] }
-      - { t: 11, translate: [0.0, 1.5, 4.5], ease: out_expo }
-      - { t: 15, translate: [0.0, 1.5, 6.5], scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  # Streak lines raked along the lane while the caster is moving.
-  - id: streak
-    kind: { type: block, block: yellow_concrete }
-    brightness: 15
-    glow_color: "#ffd23a"
-    start_tick: 8
-    end_tick: 16
-    count: 10
-    formation:
-      curve: { type: line, from: [0.9, 0.3, 0.8], to: [-0.9, 1.9, 6.2] }
-      align: none
-    jitter: { position: 0.3, rotation_deg: 0, scale: 0.3 }
-    keyframes:
-      - { t: 0, scale: [0.04, 0.04, 0.3] }
-      - { t: 2, scale: [0.05, 0.05, 2.4], ease: out_expo }
-      - { t: 8, scale: [0.0, 0.0, 2.4], ease: in_quad }
-
-  # Wing flares: two mirrored chevrons snap open at the start of the dash.
-  - id: wing-left
-    kind: { type: text, text: "<#ffd23a><b>«</b>", background: "#00000000", shadow: false, see_through: true }
-    billboard: vertical
-    brightness: 15
-    start_tick: 8
-    end_tick: 15
-    keyframes:
-      - { t: 0, translate: [1.0, 1.5, 0.8], scale: [0.0, 0.0, 0.0] }
-      - { t: 2, translate: [1.6, 1.5, 1.2], scale: [7.0, 7.0, 7.0], ease: out_expo }
-      - { t: 7, translate: [2.0, 1.5, 1.4], scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  - id: wing-right
-    kind: { type: text, text: "<#ffd23a><b>«</b>", background: "#00000000", shadow: false, see_through: true }
-    billboard: vertical
-    brightness: 15
-    start_tick: 8
-    end_tick: 15
-    keyframes:
-      - { t: 0, translate: [-1.0, 1.5, 0.8], scale: [0.0, 0.0, 0.0] }
-      - { t: 2, translate: [-1.6, 1.5, 1.2], scale: [7.0, 7.0, 7.0], ease: out_expo }
-      - { t: 7, translate: [-2.0, 1.5, 1.4], scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  # Dust kicked up along the lane (no entity, a particle emitter that travels with the dash).
-  - id: dust
-    kind: { type: particle, particle_id: dash-cloud, every_ticks: 1 }
-    start_tick: 8
-    end_tick: 14
-    keyframes:
-      - { t: 0, translate: [0.0, 0.15, 0.2] }
-      - { t: 5, translate: [0.0, 0.15, 6.4], ease: linear }
+follow: true
+sample_ticks: 1
+rigs:
+- id: sword
+  pivot:
+  - -0.35
+  - 1.05
+  - 0
+  rest:
+  - 0
+  - 90
+  - 0
+  respect_hit_stop: true
+  end_tick: 20
+  parts:
+  - id: blade
+    block: iron_block
+    offset:
+    - 0.0
+    - 1.125
+    - 0.0
+    size:
+    - 0.07
+    - 1.75
+    - 0.32
+  - id: edge
+    block: white_concrete
+    offset:
+    - 0.0
+    - 1.125
+    - 0.145
+    size:
+    - 0.075
+    - 1.75
+    - 0.06
+  - id: fuller
+    block: light_gray_concrete
+    offset:
+    - 0.0
+    - 1.125
+    - 0.0
+    size:
+    - 0.08
+    - 1.5
+    - 0.05
+  - id: guard
+    block: gold_block
+    offset:
+    - 0.0
+    - 0.21
+    - 0.0
+    size:
+    - 0.1
+    - 0.08
+    - 0.5
+  - id: grip
+    block: black_concrete
+    offset:
+    - 0.0
+    - -0.05
+    - 0.0
+    size:
+    - 0.07
+    - 0.35
+    - 0.07
+  - id: pommel
+    block: gold_block
+    offset:
+    - 0.0
+    - -0.25
+    - 0.0
+    size:
+    - 0.1
+    - 0.1
+    - 0.1
+  swing:
+  - t: 0
+    rotate:
+    - 180
+    - -20
+    - 0
+  - t: 4
+    rotate:
+    - 180
+    - -20
+    - 0
+  - t: 6
+    rotate:
+    - 60
+    - 0
+    - 65
+  - t: 8
+    rotate:
+    - -60
+    - 0
+    - 65
+  - t: 10
+    rotate:
+    - -120
+    - 0
+    - 65
+  - t: 20
+    rotate:
+    - -175
+    - -25
+    - 0
+  trails:
+  - id: wind
+    from:
+    - 0
+    - 1.7
+    - 0
+    to:
+    - 0
+    - 2.25
+    - 0
+    start_t: 5
+    end_t: 10
+    life_ticks: 7
+    lag_ticks: 0
+    style: soft
+    step_deg: 16
+    fade_power: 1.5
+    bands:
+    - from: 0.0
+      to: 1.0
+      color: '#FFFFF7B0'
+      color_to: '#30CBB84A'

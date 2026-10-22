@@ -1,137 +1,61 @@
-# Crimson Chain-Axe S3 telegraph (tick 0-33 of "Blade Forest"; it ends a tick before the quake frame spawns so the
-# two never overlap inside one tick, which would put 77 displays on a client at once): a crimson ring glows on the floor at the
-# danger radius, eight white spokes radiate from the caster, three tilted rings are drawn round them
-# (staggered so each reads as turning), and a red orb pulses three times overhead.
-# Local axes: x = left, y = up, z = forward.
-
 id: crimson-chain-axe-charge
-duration_ticks: 33
+duration_ticks: 34
 orient: yaw
 follow: false
 sample_ticks: 2
-
 elements:
-  - id: floor-ring
-    kind: { type: block, block: red_concrete }
-    brightness: 15
-    glow_color: "#c0102a"
-    start_tick: 0
-    end_tick: 36
-    count: 16
-    formation:
-      curve: { type: circle, radius: 7.0 }
-      offset: [0.0, 0.05, 0.0]
-      align: tangent
-      stagger_ticks: 0
-    group_keyframes:
-      - { t: 0 }
-      - { t: 28, rotate: [-90, 0, 0], ease: in_out_sine }
-    keyframes:
-      - { t: 0, scale: [0.0, 0.02, 0.0] }
-      - { t: 8, scale: [0.18, 0.03, 2.8], ease: out_expo }
-      - { t: 28, scale: [0.28, 0.03, 2.8] }
-      - { t: 36, scale: [0.0, 0.03, 2.8], ease: in_quad }
-    oscillate: { axis: scale_x, amplitude: 0.05, period_ticks: 4 }
-
-  - id: spoke
-    kind: { type: block, block: white_concrete }
-    brightness: 15
-    start_tick: 6
-    end_tick: 34
-    count: 8
-    formation:
-      curve: { type: circle, radius: 0.6 }
-      offset: [0.0, 0.08, 0.0]
-      align: outward
-    group_keyframes:
-      - { t: 0 }
-      - { t: 28, rotate: [120, 0, 0], ease: in_out_sine }
-    keyframes:
-      - { t: 0, scale: [0.03, 0.02, 0.1] }
-      - { t: 6, translate: [0.0, 0.0, 3.2], scale: [0.05, 0.02, 6.0], ease: out_expo }
-      - { t: 28, translate: [0.0, 0.0, 3.2], scale: [0.02, 0.02, 6.0] }
-    oscillate: { axis: scale_x, amplitude: 0.025, period_ticks: 2 }
-
-  - id: ring-a
-    kind: { type: block, block: red_stained_glass }
-    brightness: 15
-    glow_color: "#c0102a"
-    start_tick: 4
-    slot_lifetime_ticks: 30
-    count: 10
-    formation:
-      curve: { type: circle, radius: 2.6 }
-      tilt: { yaw: 0, pitch: 0, roll: 20 }
-      offset: [0.0, 1.2, 0.0]
-      align: tangent
-      stagger_ticks: 1
-    group_keyframes:
-      - { t: 0 }
-      - { t: 30, rotate: [150, 0, 0], ease: in_out_sine }
-    keyframes:
-      - { t: 0, scale: [0.0, 0.0, 0.0] }
-      - { t: 3, scale: [0.06, 0.2, 1.8], ease: out_expo }
-      - { t: 22, scale: [0.06, 0.2, 1.8] }
-      - { t: 26, scale: [0.0, 0.2, 1.8], ease: in_quad }
-    oscillate: { axis: scale_y, amplitude: 0.06, period_ticks: 2 }
-
-  - id: ring-b
-    kind: { type: block, block: red_stained_glass }
-    brightness: 15
-    start_tick: 8
-    slot_lifetime_ticks: 26
-    count: 10
-    formation:
-      curve: { type: circle, radius: 3.4 }
-      tilt: { yaw: 0, pitch: 0, roll: -30 }
-      offset: [0.0, 1.2, 0.0]
-      align: tangent
-      stagger_ticks: 1
-    group_keyframes:
-      - { t: 0 }
-      - { t: 26, rotate: [-150, 0, 0], ease: in_out_sine }
-    keyframes:
-      - { t: 0, scale: [0.0, 0.0, 0.0] }
-      - { t: 3, scale: [0.05, 0.16, 2.3], ease: out_expo }
-      - { t: 18, scale: [0.05, 0.16, 2.3] }
-      - { t: 22, scale: [0.0, 0.16, 2.3], ease: in_quad }
-    oscillate: { axis: scale_y, amplitude: 0.06, period_ticks: 2 }
-
-  - id: ring-c
-    kind: { type: block, block: pink_stained_glass }
-    brightness: 15
-    start_tick: 12
-    slot_lifetime_ticks: 22
-    count: 10
-    formation:
-      curve: { type: circle, radius: 4.2 }
-      tilt: { yaw: 0, pitch: 0, roll: 50 }
-      offset: [0.0, 1.2, 0.0]
-      align: tangent
-      stagger_ticks: 1
-    group_keyframes:
-      - { t: 0 }
-      - { t: 22, rotate: [200, 0, 0], ease: in_out_sine }
-    keyframes:
-      - { t: 0, scale: [0.0, 0.0, 0.0] }
-      - { t: 3, scale: [0.04, 0.14, 2.8], ease: out_expo }
-      - { t: 14, scale: [0.04, 0.14, 2.8] }
-      - { t: 18, scale: [0.0, 0.14, 2.8], ease: in_quad }
-
-  # Hunger orb: pulses three times, growing each beat, before the burst.
-    oscillate: { axis: scale_y, amplitude: 0.06, period_ticks: 2 }
-
-  - id: orb
-    kind: { type: block, block: red_concrete }
-    brightness: 15
-    glow_color: "#ff3b30"
-    start_tick: 2
-    end_tick: 34
-    keyframes:
-      - { t: 0, translate: [0.0, 2.9, 0.0], scale: [0.0, 0.0, 0.0] }
-      - { t: 4, scale: [0.7, 0.7, 0.7], ease: out_back }
-      - { t: 10, scale: [1.1, 1.1, 1.1], ease: in_out_quad }
-      - { t: 14, scale: [0.7, 0.7, 0.7], ease: in_out_quad }
-      - { t: 20, scale: [1.3, 1.3, 1.3], ease: in_out_quad }
-      - { t: 24, scale: [0.8, 0.8, 0.8], ease: in_out_quad }
-      - { t: 30, scale: [1.6, 1.6, 1.6], ease: in_out_quad }
+- id: orb
+  kind:
+    type: quad
+    glyph: ◆
+    color: '#C71938'
+    alpha: 0.9
+  brightness: 15
+  start_tick: 2
+  end_tick: 34
+  keyframes:
+  - t: 0
+    translate:
+    - 0.18
+    - 1.3
+    - 0.7
+    scale:
+    - 0.0
+    - 0.0
+    - 0.0
+  - t: 4
+    scale:
+    - 0.24499999999999997
+    - 0.24499999999999997
+    - 0.24499999999999997
+    ease: out_back
+  - t: 10
+    scale:
+    - 0.385
+    - 0.385
+    - 0.385
+    ease: in_out_quad
+  - t: 14
+    scale:
+    - 0.24499999999999997
+    - 0.24499999999999997
+    - 0.24499999999999997
+    ease: in_out_quad
+  - t: 20
+    scale:
+    - 0.45499999999999996
+    - 0.45499999999999996
+    - 0.45499999999999996
+    ease: in_out_quad
+  - t: 24
+    scale:
+    - 0.27999999999999997
+    - 0.27999999999999997
+    - 0.27999999999999997
+    ease: in_out_quad
+  - t: 30
+    scale:
+    - 0.5599999999999999
+    - 0.5599999999999999
+    - 0.5599999999999999
+    ease: in_out_quad

@@ -1,19 +1,71 @@
 {
   "id": "zwei-s3",
-  "rev": 0,
+  "rev": 3,
   "videoId": "Svaaq9F7Ty8",
-  "start_s": 18.6,
-  "end_s": 24.0,
-  "skill": { "name": "Zwei West S3 Ward", "coins": 3, "asteraSkillId": "bastion-greatsword-s3" },
-  "intent": { "file": "intent.json" },
-  "mc": { "source": "vfx-caster", "offset_ms": 0, "castTickInTrace": 5 },
-  "focus": { "enabled": true, "factor": 0.2, "windowMs": 150 },
+  "start_s": 18.9,
+  "end_s": 23.7,
+  "skill": {
+    "name": "巨剣墜つ",
+    "coins": 3,
+    "asteraSkillId": "bastion-greatsword-s3"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 6
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
   "segments": [
-    { "id": "skill", "kind": "skill", "label": "S3 skill", "start_s": 18.6, "end_s": 23.7, "notes": "" },
-    { "id": "hit1", "kind": "hit", "label": "coin 1", "t_s": 19.7, "notes": "" },
-    { "id": "hit2", "kind": "hit", "label": "coin 2", "t_s": 20.95, "notes": "" },
-    { "id": "hit3", "kind": "hit", "label": "coin 3", "t_s": 22.1, "notes": "" }
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "S3",
+      "start_s": 18.9,
+      "end_s": 23.7
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "接触 1",
+      "t_s": 19.4,
+      "notes": "astra2 source frame 582; melee; game tick 10. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "接触 2",
+      "t_s": 20.9,
+      "notes": "astra2 source frame 627; dash_melee; game tick 40. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit3",
+      "kind": "hit",
+      "label": "接触 3",
+      "t_s": 22.033,
+      "notes": "astra2 source frame 661; melee; game tick 63. Coin grouping uncertainty remains in reference analysis."
+    }
   ],
-  "notes": "",
-  "editLog": []
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/s3.json を参照。",
+  "editLog": [],
+  "status": "captured",
+  "iterations": 2,
+  "report": "/report/bastion-greatsword",
+  "verification": {
+    "status": "failed",
+    "reason": "身体の低い踏み込み・両手の上段姿勢・原動画の極端な寄りを再現できていない。斬撃と柱の輪郭、光量にも差がある。",
+    "normalInput": "実入力撮影あり。標的HP 183.27202f（回数の測定ではない）",
+    "evidence": "/evidence/zwei-s3.png"
+  },
+  "weapon": "bastion-greatsword",
+  "identity": "Zwei West Section 3 Ishmael",
+  "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
+  "referenceRevision": "42654faba56df907a2558a4370210026dd6d5e3ac8f95a95d411843f87ebf466",
+  "contentRevision": "218148194e324d068bd640c3c4c36071387992b28958ec25de56f1dca6584feb"
 }

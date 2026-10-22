@@ -1,0 +1,71 @@
+{
+  "id": "couture-rapier-s2",
+  "rev": 3,
+  "videoId": "GIe7Fna5LD4",
+  "start_s": 26.593233,
+  "end_s": 31.498133,
+  "skill": {
+    "name": "型紙裁ち",
+    "coins": 3,
+    "asteraSkillId": "couture-rapier-s2"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "S2",
+      "start_s": 26.593233,
+      "end_s": 31.498133
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "接触 1",
+      "t_s": 27.060367,
+      "notes": "astra2 source frame 811; ranged_projectile; game tick 9. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "接触 2",
+      "t_s": 28.6286,
+      "notes": "astra2 source frame 858; ranged_projectile; game tick 41. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit3",
+      "kind": "hit",
+      "label": "接触 3",
+      "t_s": 30.196833,
+      "notes": "astra2 source frame 905; dash_melee; game tick 72. Coin grouping uncertainty remains in reference analysis."
+    }
+  ],
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/couture-rapier/s2.json を参照。",
+  "editLog": [],
+  "status": "captured",
+  "verification": {
+    "status": "failed",
+    "reason": "身体の向き替え、指先の鋏操作、白い光帯の厚み・連続性、花飾りとロゼットの細部が不足。カット時刻は反映したが、寄りの画面占有率は未一致。",
+    "normalInput": "実入力撮影あり。標的HP 177.368f（回数の測定ではない）",
+    "evidence": "/evidence/couture-rapier-s2.png"
+  },
+  "weapon": "couture-rapier",
+  "identity": "The Alteration Shop Rodion",
+  "videoTitle": "The Alteration Shop Rodion — skill showcase",
+  "iterations": 4,
+  "report": "/report/couture-rapier",
+  "referenceRevision": "2a0c71b6bf925c5522f4a1fd6d83a77e400ca197ab4467f06d1696e98bbc47ff",
+  "contentRevision": "82f0a93667d6b24511b2aa07edde6e46dbb9176f78d4813bd5af2359560547d0"
+}

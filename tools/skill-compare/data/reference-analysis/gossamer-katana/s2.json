@@ -1,0 +1,505 @@
+{
+  "video_id": "LkLhzmoJZ6Y",
+  "identity": "Blade of the House of Spiders Ryōshū",
+  "source_fps": {
+    "numerator": 30000,
+    "denominator": 1001
+  },
+  "frame_indexing": "Zero-based source decoded frame. End frames exclusive. Source PTS = frame * 1001 / 30000.",
+  "accuracy": "Contacts denote first visible intersection/impact, not hidden engine damage ticks. Native neighborhoods resolve listed events to source frames; other envelope transitions sampled every two source frames have up to one-frame uncertainty. Coin mappings are hypotheses without HUD.",
+  "scale": "H = standing caster body height in the SAME shot. Distances are screen-plane estimates; not inferred from effect length.",
+  "color_note": "Hex colors are visual palette approximations, not calibrated pixel measurements.",
+  "kit_source": "../../wiki/LkLhzmoJZ6Y.md (provided snapshot only)",
+  "sheet_note": "overview sheets are 6 fps; detail sheets select even source frames (~14.985 fps). detail f-label is SAMPLE index, not source frame; use timestamp. Native sheets label actual SRC frame; windows may be discontinuous.",
+  "slot": "s2",
+  "name": "Tripleslash - Echoshear (tentative)",
+  "mapping": {
+    "confidence": "med",
+    "official_coins": 3,
+    "attack_type": "Slash",
+    "evidence": [
+      "One luminous double crosses target, then paired cross-through, then delayed target lattice: three visible contact groups.",
+      "Echo motif is explicit: corporeal caster and cyan duplicate are simultaneously visible at opposite sides."
+    ],
+    "alternatives": [
+      "S3-2 (two coins) plus S2-2 follow-up could explain the last separate burst.",
+      "The mirrored practice arcs at 16.483–16.884 s do not themselves touch the centered target."
+    ]
+  },
+  "time_range": {
+    "start_frame": 469,
+    "end_frame_exclusive": 619,
+    "start_s": 15.648967,
+    "end_s": 20.653967
+  },
+  "weapon": {
+    "type": "Long narrow curved single-edged sword; katana/nodachi-like silhouette, with separate dark scabbard",
+    "size_relative_to_body_height": {
+      "total_length_H": [
+        1.2,
+        1.6
+      ],
+      "blade_width_H": [
+        0.04,
+        0.08
+      ]
+    },
+    "held": "One hand controls hilt in visible dash poses; other hand manages scabbard. Exact fingers/grip obscured in motion. Two separated hands support sword/scabbard assembly above head in overhead poses.",
+    "parts_colors": {
+      "blade": "silver-white #DDE8F4; darker blue-gray spine #536781",
+      "hilt": "dark violet #26233D with pale diagonal wrapping #A7A3BC",
+      "scabbard": "near-black/navy #10182B",
+      "cord": "thin dark cord at hilt/scabbard; red ribbons/threads accompany body"
+    },
+    "evidence": [
+      "detail_018.jpg at 51.118 s",
+      "native_013.jpg at 78.779 s",
+      "native_014.jpg at 81.015 s"
+    ],
+    "measurement_note": "Screen-space estimates from chibi sprite; camera scaling and foreshortening preclude exact world dimensions."
+  },
+  "props": [
+    {
+      "type": "one spectral humanoid double carrying matching curved blade",
+      "count": 1,
+      "size_H": [
+        1,
+        1.2
+      ],
+      "origin": "coincident with kneeling caster",
+      "path": "materializes upward, moves right through target ~5 H; later changes to opposite side",
+      "timing": {
+        "start_frame": 469,
+        "end_frame_exclusive": 619,
+        "start_s": 15.648967,
+        "end_s": 20.653967
+      },
+      "palette": {
+        "body": "#51DFFF",
+        "scanlines": "#D823F4",
+        "dark": "#132B67"
+      },
+      "fade": "remains until reset at 20.654 s"
+    },
+    {
+      "type": "four-lobed knot/flower glyph sprites and shards",
+      "count": "~8–20 visible in close-up, overlapping",
+      "size_H": [
+        0.05,
+        0.5
+      ],
+      "origin": "impact zone",
+      "path": "radial outward drift",
+      "timing": {
+        "start_frame": 514,
+        "end_frame_exclusive": 592,
+        "start_s": 17.150467,
+        "end_s": 19.753067
+      }
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 469,
+      "end_frame_exclusive": 487,
+      "start_s": 15.648967,
+      "end_s": 16.249567,
+      "description": "Real caster kneels left; double rises and crosses target. Real displacement ≈0 H."
+    },
+    {
+      "start_frame": 487,
+      "end_frame_exclusive": 513,
+      "start_s": 16.249567,
+      "end_s": 17.1171,
+      "description": "Real caster stands and sweeps in place; double mirrors on far side, each ~3 H from target."
+    },
+    {
+      "start_frame": 513,
+      "end_frame_exclusive": 530,
+      "start_s": 17.1171,
+      "end_s": 17.684333,
+      "description": "Masked rapid cross-through; real caster ends right and double left, separation from target ~3–5 H."
+    },
+    {
+      "start_frame": 530,
+      "end_frame_exclusive": 619,
+      "start_s": 17.684333,
+      "end_s": 20.653967,
+      "description": "Both hold overhead/extended weapon poses; target-centered burst occurs without caster approach."
+    }
+  ],
+  "hits": [
+    {
+      "frame": 479,
+      "time_s": 15.982633,
+      "contact": "Spectral duplicate overlaps target, then leaves violet horizontal slash",
+      "range_class": "ranged_projectile",
+      "caster_target_distance_H": [
+        2.5,
+        4
+      ],
+      "coin_candidate": 1,
+      "confidence": "med",
+      "note": "Range category describes the dispatched humanoid effect from real caster; duplicate itself reaches melee distance.",
+      "contact_sheet": "native_002.jpg"
+    },
+    {
+      "frame": 514,
+      "time_s": 17.150467,
+      "contact": "Cyan cut and glyphs at target torso; corporeal/ghost positions swap sides behind the flash",
+      "range_class": "dash_melee",
+      "caster_target_distance_H": [
+        0,
+        1
+      ],
+      "coin_candidate": 2,
+      "confidence": "med",
+      "note": "First torso-contact flash 17.150 s; side swap confirms caster traverse, although movement is masked.",
+      "contact_sheet": "native_002.jpg"
+    },
+    {
+      "frame": 558,
+      "time_s": 18.6186,
+      "contact": "New luminous lattice/line erupts at target while both figures hold distant poses",
+      "range_class": "aoe_at_target",
+      "caster_target_distance_H": [
+        3,
+        5
+      ],
+      "coin_candidate": 3,
+      "confidence": "med",
+      "note": "Could be independent S2-2; do not add hidden sub-hits for each line.",
+      "contact_sheet": "native_002.jpg"
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 469,
+      "end_frame_exclusive": 479,
+      "start_s": 15.648967,
+      "end_s": 15.982633,
+      "description": "Cyan/magenta scanline double materializes from caster."
+    },
+    {
+      "start_frame": 479,
+      "end_frame_exclusive": 487,
+      "start_s": 15.982633,
+      "end_s": 16.249567,
+      "description": "Contact 1 by double; trailing violet ellipse."
+    },
+    {
+      "start_frame": 492,
+      "end_frame_exclusive": 513,
+      "start_s": 16.4164,
+      "end_s": 17.1171,
+      "description": "Mirrored crescents around separated figures, settle into horizontal blade glint."
+    },
+    {
+      "start_frame": 513,
+      "end_frame_exclusive": 514,
+      "start_s": 17.1171,
+      "end_s": 17.150467,
+      "description": "ONE-frame extreme target belt/torso insert."
+    },
+    {
+      "start_frame": 514,
+      "end_frame_exclusive": 530,
+      "start_s": 17.150467,
+      "end_s": 17.684333,
+      "description": "Contact 2; glyph flash, camera wide, horizontal cyan band and opposing curled ribbons."
+    },
+    {
+      "start_frame": 530,
+      "end_frame_exclusive": 558,
+      "start_s": 17.684333,
+      "end_s": 18.6186,
+      "description": "Dark vignette; thin horizontal line persists while figures hold still."
+    },
+    {
+      "start_frame": 558,
+      "end_frame_exclusive": 574,
+      "start_s": 18.6186,
+      "end_s": 19.152467,
+      "description": "Contact 3 candidate: target-centered cyan burst with diagonal lattice and glyphs."
+    },
+    {
+      "start_frame": 574,
+      "end_frame_exclusive": 581,
+      "start_s": 19.152467,
+      "end_s": 19.386033,
+      "description": "Target punch-in: near torso at 19.152–19.353 s; lattice remains."
+    },
+    {
+      "start_frame": 581,
+      "end_frame_exclusive": 619,
+      "start_s": 19.386033,
+      "end_s": 20.653967,
+      "description": "Lines turn blue/purple/pink and thin away; both figures remain posed until reset."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 469,
+      "end_frame_exclusive": 479,
+      "start_s": 15.648967,
+      "end_s": 15.982633,
+      "shape": "stacked horizontal glitch strips",
+      "size_H": [
+        1,
+        1.5
+      ],
+      "position": "over caster",
+      "palette": {
+        "core": "#A9FAFF",
+        "edge_glow": "#37CEFF",
+        "secondary": "#7956FF",
+        "dark_fill": "#071C50",
+        "accent": "#E12DFF"
+      },
+      "motion": "rise and coalesce into double",
+      "fade": "become stable cyan body"
+    },
+    {
+      "start_frame": 479,
+      "end_frame_exclusive": 487,
+      "start_s": 15.982633,
+      "end_s": 16.249567,
+      "shape": "thin violet elliptical slash",
+      "size_H": [
+        1,
+        3
+      ],
+      "position": "target waist",
+      "palette": {
+        "core": "#A9FAFF",
+        "edge_glow": "#37CEFF",
+        "secondary": "#7956FF",
+        "dark_fill": "#071C50",
+        "accent": "#E12DFF"
+      },
+      "motion": "sweeps through target with double",
+      "fade": "contracts behind double"
+    },
+    {
+      "start_frame": 492,
+      "end_frame_exclusive": 510,
+      "start_s": 16.4164,
+      "end_s": 17.017,
+      "shape": "mirrored dome/crescent arcs",
+      "size_H": [
+        1.5,
+        2.5
+      ],
+      "position": "around caster and double separately",
+      "palette": {
+        "core": "#A9FAFF",
+        "edge_glow": "#37CEFF",
+        "secondary": "#7956FF",
+        "dark_fill": "#071C50",
+        "accent": "#E12DFF"
+      },
+      "motion": "curved sword-synchronous sweeps",
+      "fade": "edge fragments fall"
+    },
+    {
+      "start_frame": 514,
+      "end_frame_exclusive": 558,
+      "start_s": 17.150467,
+      "end_s": 18.6186,
+      "shape": "wide horizontal cut band thinning to line",
+      "size_H": [
+        6,
+        12
+      ],
+      "position": "across target center",
+      "palette": {
+        "core": "#A9FAFF",
+        "edge_glow": "#37CEFF",
+        "secondary": "#7956FF",
+        "dark_fill": "#071C50",
+        "accent": "#E12DFF"
+      },
+      "motion": "expands rapidly; glyph fragments eject radially",
+      "fade": "wide band narrows by 17.6 s; thin line persists"
+    },
+    {
+      "start_frame": 558,
+      "end_frame_exclusive": 599,
+      "start_s": 18.6186,
+      "end_s": 19.986633,
+      "shape": "horizontal bright strip and intersecting diagonal strings",
+      "size_H": [
+        5,
+        12
+      ],
+      "position": "target-centered across screen",
+      "palette": {
+        "core": "#A9FAFF",
+        "edge_glow": "#37CEFF",
+        "secondary": "#7956FF",
+        "dark_fill": "#071C50",
+        "accent": "#E12DFF"
+      },
+      "motion": "abrupt bloom, angular strands extend to frame edges",
+      "fade": "cyan dims to royal blue and pink; segments disappear"
+    },
+    {
+      "start_frame": 469,
+      "end_frame_exclusive": 619,
+      "start_s": 15.648967,
+      "end_s": 20.653967,
+      "shape": "dark purple vignette",
+      "size_H": [
+        10,
+        20
+      ],
+      "position": "screen edges",
+      "palette": {
+        "shade": "#130B29"
+      },
+      "motion": "gradual darkening around attacks",
+      "fade": "returns at scene reset"
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 469,
+      "end_frame_exclusive": 479,
+      "start_s": 15.648967,
+      "end_s": 15.982633,
+      "shot": "caster medium then wide",
+      "framing": "Double reveal push-in 15.883–15.949; cut wide 15.983."
+    },
+    {
+      "start_frame": 479,
+      "end_frame_exclusive": 513,
+      "start_s": 15.982633,
+      "end_s": 17.1171,
+      "shot": "wide three-subject shot",
+      "framing": "Real left, target center, double right; body height ~0.18 frame."
+    },
+    {
+      "start_frame": 513,
+      "end_frame_exclusive": 514,
+      "start_s": 17.1171,
+      "end_s": 17.150467,
+      "shot": "one-frame torso insert",
+      "framing": "Extreme crop at belt."
+    },
+    {
+      "start_frame": 514,
+      "end_frame_exclusive": 530,
+      "start_s": 17.150467,
+      "end_s": 17.684333,
+      "shot": "wide slightly canted",
+      "framing": "Both figures and horizontal line; pan with crossing."
+    },
+    {
+      "start_frame": 530,
+      "end_frame_exclusive": 558,
+      "start_s": 17.684333,
+      "end_s": 18.6186,
+      "shot": "wide held",
+      "framing": "Bodies at outer thirds; target center."
+    },
+    {
+      "start_frame": 558,
+      "end_frame_exclusive": 574,
+      "start_s": 18.6186,
+      "end_s": 19.152467,
+      "shot": "effect close-up",
+      "framing": "Cyan band fills middle half of image, diagonal streaks to borders."
+    },
+    {
+      "start_frame": 574,
+      "end_frame_exclusive": 581,
+      "start_s": 19.152467,
+      "end_s": 19.386033,
+      "shot": "target torso punch then pullout",
+      "framing": "Large knot glyphs foreground; zoom back to full-body."
+    },
+    {
+      "start_frame": 581,
+      "end_frame_exclusive": 619,
+      "start_s": 19.386033,
+      "end_s": 20.653967,
+      "shot": "wide recovery",
+      "framing": "Slight tilt; persistent lines fade."
+    }
+  ],
+  "repeats": [
+    {
+      "time_range": {
+        "start_frame": 1997,
+        "end_frame_exclusive": 2146,
+        "start_s": 66.633233,
+        "end_s": 71.604867
+      },
+      "confidence": "high for visual repeat; med for kit name",
+      "hits": [
+        {
+          "frame": 2006,
+          "time_s": 66.933533,
+          "contact": "Spectral double crosses three-character group",
+          "range_class": "ranged_projectile",
+          "caster_target_distance_H": [
+            3,
+            6
+          ],
+          "coin_candidate": 1,
+          "confidence": "med",
+          "note": "",
+          "contact_sheet": "native_010.jpg"
+        },
+        {
+          "frame": 2042,
+          "time_s": 68.134733,
+          "contact": "Torso cross-cut/glyph flash",
+          "range_class": "dash_melee",
+          "caster_target_distance_H": [
+            0,
+            1
+          ],
+          "coin_candidate": 2,
+          "confidence": "med",
+          "note": "",
+          "contact_sheet": "native_011.jpg"
+        },
+        {
+          "frame": 2085,
+          "time_s": 69.5695,
+          "contact": "Delayed lattice at target group",
+          "range_class": "aoe_at_target",
+          "caster_target_distance_H": [
+            3,
+            6
+          ],
+          "coin_candidate": 3,
+          "confidence": "med",
+          "note": "",
+          "contact_sheet": "native_011.jpg"
+        }
+      ],
+      "differences": "Burning hall; multiple targets; gold aura on real caster; target insert frames 2041–2042, lattice begins 2085; camera cuts to new summon action 2146.",
+      "contact_sheets": [
+        "detail_024.jpg",
+        "detail_025.jpg",
+        "detail_026.jpg",
+        "native_010.jpg",
+        "native_011.jpg"
+      ]
+    }
+  ],
+  "contact_sheets": [
+    "detail_003.jpg",
+    "detail_004.jpg",
+    "detail_005.jpg",
+    "native_002.jpg"
+  ],
+  "coin_comparison": {
+    "visible_contact_groups": 3,
+    "official_coins": 3,
+    "verified_coin_assignments": false,
+    "note": "Visual contact groups do not establish hidden game damage events. Null coins retain unresolved mapping."
+  }
+}

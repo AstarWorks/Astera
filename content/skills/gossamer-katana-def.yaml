@@ -1,68 +1,40 @@
-# Gossamer Katana DEF (sneak + left-click): spun ward. A sidestep back under the `evasive` sprint while
-# threads wind up around the caster; anything within 2.8 blocks is snagged -- webbed, one bleed stack and
-# a 6-tick hit-stop, which is the opening to get away or to punish.
-
 id: gossamer-katana-def
-
 name:
-  ja: "糸結界"
-  en: "Spun Ward"
+  ja: 糸抜け
+  en: Thread Slip
 description:
-  ja: "後ろへ跳びつつ糸を張り、近くの敵を絡め取って出血と短い硬直を与える。"
-  en: "A hop back that spins a ward: nearby enemies are snagged, bled once and held for a moment."
-
+  ja: 糸抜け
+  en: Thread Slip
 archetype: sequence
 cooldown_ticks: 80
-resource_cost: 12
-tags: [ buff, movement, defense, bleed ]
-
+resource_cost: 10
 params:
   type: sequence
-
 phases:
   type: sequence
   cast:
-    - type: apply_status
-      targets: { type: caster }
-      status_id: evasive
-      effect_duration_ticks: { type: literal, value: 14 }
-    - type: propel
-      targets: { type: caster }
-      direction: { type: from_caster }
-      strength: { type: literal, value: -0.9 }
-    - type: propel
-      targets: { type: caster }
-      direction: { type: up }
-      strength: { type: literal, value: 0.25 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: gossamer-katana-guard
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.tripwire.attach
-      volume: { type: literal, value: 0.8 }
-      pitch: { type: literal, value: 1.2 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.sweep
-      pitch: { type: literal, value: 1.6 }
-    # snagged enemies
-    - type: apply_status
-      targets:
-        type: enemies
-        center: { type: caster }
-        radius: { type: literal, value: 2.8 }
-      status_id: bleed
-      effect_duration_ticks: { type: literal, value: 100 }
-    - type: hit_stop
-      targets:
-        type: enemies
-        center: { type: caster }
-        radius: { type: literal, value: 2.8 }
-      ticks: 6
-    - type: play_vfx
-      targets:
-        type: enemies
-        center: { type: caster }
-        radius: { type: literal, value: 2.8 }
-      vfx_id: gossamer-katana-web
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: gossamer-katana-guard
+  - type: dash_strike
+    distance: 5
+    ticks: 5
+    radius: 0.8
+    hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    on_hit: []
+    delay_ticks:
+      type: literal
+      value: 3
+  - type: modify_attribute
+    targets:
+      type: caster
+    attribute_key: resist.physical
+    delta:
+      type: literal
+      value: 0.7
+    ticks:
+      type: literal
+      value: 12

@@ -1,72 +1,31 @@
-# Persona weapon #9 (orrery-staff), DEF / sneak + left-click: Counter-Seal.
-# A short evade window (speed buff) with an armillary of three gold hoops drawn around the caster.
-# Reactive payoff: the seal snaps shut with a small fire burst on anything within 3 blocks, and banks
-# two Charge so a guarded exchange feeds the beam.
-
 id: orrery-def
-
-name:
-  ja: "天球の返し"
-  en: "Orrery Counter-Seal"
-description:
-  ja: "三重の金環を身にまとい、一瞬だけ素早く身をかわす。近くの敵を小さな炎で弾き、「充填」を二つ得る。"
-  en: "Wraps you in three gold hoops for a brief evade. Singes and shoves back anything close and banks two Charge."
-
-archetype: buff
+name: {en: Orrery Counter-Seal, ja: 天球の返し}
+description: {en: Guard against physical attacks and bank three Charge., ja: 天球の返し。金の軌跡と充填を操る。}
+archetype: sequence
 cooldown_ticks: 90
-resource_cost: 20              # energy
-tags: [ buff, evade, fire, persona, orrery, charge ]
-
-params:
-  type: buff
-  status_effect_id: evasive
-  duration_ticks: 24
-
+resource_cost: 12
+tags: [persona, orrery]
+params: {type: sequence}
 phases:
-  type: buff
+  type: sequence
   cast:
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.amethyst_block.resonate
-      volume: { type: literal, value: 0.9 }
-      pitch: { type: literal, value: 1.4 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: orrery-guard
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: orrery-motes
-    - type: apply_status
-      targets: { type: caster }
-      status_id: charge
-      effect_duration_ticks: { type: literal, value: 400 }
-      stack_count: { type: literal, value: 2 }
-    # The seal snaps shut once the hoops are drawn.
-    - type: damage
-      targets: { type: enemies, center: { type: caster }, radius: { type: literal, value: 3.2 } }
-      ignore_invulnerability: { type: literal, value: true }
-      delay_ticks: { type: literal, value: 6 }
-      components:
-        - base: { type: literal, value: 2.5 }
-          attribute: fire
-    - type: hit_stop
-      targets: { type: enemies, center: { type: caster }, radius: { type: literal, value: 3.2 } }
-      ticks: 4
-      delay_ticks: { type: literal, value: 6 }
-    - type: knockback
-      targets: { type: enemies, center: { type: caster }, radius: { type: literal, value: 3.2 } }
-      direction: { type: away_from_caster }
-      strength: { type: literal, value: 0.8 }
-      delay_ticks: { type: literal, value: 6 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.chain.break
-      volume: { type: literal, value: 0.8 }
-      pitch: { type: literal, value: 1.6 }
-      delay_ticks: { type: literal, value: 6 }
-    - type: spawn_particle
-      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 1.0, z: 0.0 } } }
-      particle_id: fire-impact
-      delay_ticks: { type: literal, value: 6 }
-  expire: []
-  removed: []
+  - type: play_vfx
+    targets: {type: caster}
+    delay_ticks: {type: literal, value: 0}
+    vfx_id: orrery-guard
+  - type: modify_attribute
+    targets: {type: caster}
+    delay_ticks: {type: literal, value: 0}
+    attribute_key: resist.physical
+    delta: {type: literal, value: 0.6}
+    ticks: {type: literal, value: 30}
+  - type: apply_status
+    targets: {type: caster}
+    delay_ticks: {type: literal, value: 0}
+    status_id: charge
+    effect_duration_ticks: {type: literal, value: 400}
+    stack_count: {type: literal, value: 3}
+  - type: play_sound
+    targets: {type: caster}
+    delay_ticks: {type: literal, value: 0}
+    sound_id: item.shield.block

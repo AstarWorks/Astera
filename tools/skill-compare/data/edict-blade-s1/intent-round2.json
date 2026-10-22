@@ -1,0 +1,432 @@
+{
+  "title": "双拳砕き — astra2に基づく形状・接触の設計図（調整中）",
+  "source": {
+    "video": "x6sc9JkW77c",
+    "start_s": 12.045367,
+    "fps": 29.97002997002997
+  },
+  "units": "blocks; body height 1.8. Camera cuts follow source; unmeasured scale and body poses remain provisional.",
+  "duration_ticks": 40,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        0.35,
+        1.417,
+        4.59
+      ],
+      "target": [
+        0.35,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "原資料の身長比: 0.28; source 12.045367s / medium side view; Don center-left, target at right edge; Don ~0.28 screen height"
+    },
+    {
+      "t": 6,
+      "pos": [
+        0.65,
+        1.371,
+        1.512
+      ],
+      "target": [
+        0.65,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.85; source 12.345667s / extreme crop; floor and trailing echo; caster exits right"
+    },
+    {
+      "t": 9,
+      "pos": [
+        2.1,
+        1.393,
+        4.284
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "原資料の身長比: 0.30; source 12.479133s / medium two-shot; caster left, target right; Don ~0.3 screen height"
+    },
+    {
+      "t": 21,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 13.113100s / medium close; caster and cape dominate center"
+    },
+    {
+      "t": 22,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 13.146467s / close-up; head, collar and joined cuffs fill most of screen; target cropped right"
+    },
+    {
+      "t": 24,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 13.246567s / medium to wide two-shot; both actors visible, expanding gap from recoil"
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#66889A",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 5,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 9,
+          "pos": [
+            1.2000000000000002,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#8E3440",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            3,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 1.8,
+    "width": 0.12,
+    "color": "#CCCCCC",
+    "parts": [
+      {
+        "size": [
+          0.3,
+          0.28,
+          0.24
+        ],
+        "pos": [
+          0.35,
+          0,
+          -0.16
+        ],
+        "color": "#F0F3EF"
+      },
+      {
+        "size": [
+          0.3,
+          0.28,
+          0.24
+        ],
+        "pos": [
+          0.35,
+          0,
+          0.16
+        ],
+        "color": "#F0F3EF"
+      },
+      {
+        "size": [
+          0.18,
+          0.34,
+          0.3
+        ],
+        "pos": [
+          0.1,
+          0,
+          -0.16
+        ],
+        "color": "#A49A73"
+      },
+      {
+        "size": [
+          0.18,
+          0.34,
+          0.3
+        ],
+        "pos": [
+          0.1,
+          0,
+          0.16
+        ],
+        "color": "#A49A73"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          -0.18
+        ],
+        "color": "#B1AF96"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          -0.10999999999999999
+        ],
+        "color": "#B1AF96"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          -0.03999999999999998
+        ],
+        "color": "#B1AF96"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          0.030000000000000027
+        ],
+        "color": "#B1AF96"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          0.10000000000000003
+        ],
+        "color": "#B1AF96"
+      },
+      {
+        "size": [
+          0.07,
+          0.05,
+          0.07
+        ],
+        "pos": [
+          -0.15,
+          -0.12,
+          0.17000000000000004
+        ],
+        "color": "#B1AF96"
+      }
+    ],
+    "keys": [
+      {
+        "t": 0,
+        "angle": 0
+      },
+      {
+        "t": 4,
+        "angle": 65
+      },
+      {
+        "t": 9,
+        "angle": -15
+      },
+      {
+        "t": 14,
+        "angle": 0
+      },
+      {
+        "t": 17,
+        "angle": 65
+      },
+      {
+        "t": 22,
+        "angle": -15
+      },
+      {
+        "t": 27,
+        "angle": 0
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 9,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "spike_star",
+      "t0": 9,
+      "t1": 17,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#DCEAFF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 7,
+      "t1": 18,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#DCEAFF",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    },
+    {
+      "type": "hit",
+      "t": 22,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "spike_star",
+      "t0": 22,
+      "t1": 30,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#DCEAFF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 20,
+      "t1": 31,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#DCEAFF",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    }
+  ]
+}

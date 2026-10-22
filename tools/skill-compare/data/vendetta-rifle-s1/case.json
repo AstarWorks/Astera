@@ -1,0 +1,64 @@
+{
+  "id": "vendetta-rifle-s1",
+  "rev": 2,
+  "videoId": "wbu2viInM3w",
+  "start_s": 12.583333,
+  "end_s": 14.666667,
+  "skill": {
+    "name": "礼節の銃剣",
+    "coins": 2,
+    "asteraSkillId": "vendetta-rifle-s1"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "S1",
+      "start_s": 12.583333,
+      "end_s": 14.666667
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "接触 1",
+      "t_s": 12.916667,
+      "notes": "astra2 source frame 310; dash_melee; game tick 7. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "接触 2",
+      "t_s": 13.583333,
+      "notes": "astra2 source frame 326; dash_melee; game tick 20. Coin grouping uncertainty remains in reference analysis."
+    }
+  ],
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/vendetta-rifle/s1.json を参照。",
+  "editLog": [],
+  "status": "captured",
+  "verification": {
+    "status": "failed",
+    "reason": "銃を抱える姿勢、腰の回転、踏み込みと逆方向の振り、接触時の寄りが不足。装備モデルと演出用の銃が二重に見える区間がある。",
+    "normalInput": "実入力撮影あり。標的HP 176.384f（回数の測定ではない）",
+    "evidence": "/evidence/vendetta-rifle-s1.png"
+  },
+  "weapon": "vendetta-rifle",
+  "identity": "The Thumb East Soldato II Sinclair",
+  "videoTitle": "The Thumb East Soldato II Sinclair — skill showcase",
+  "iterations": 1,
+  "report": "/report/vendetta-rifle",
+  "referenceRevision": "9b7d1fbee3dcad827fd5305622c13e7e503844cd2f31a491c17fb6654f6afd63",
+  "contentRevision": "13d6c096428f111909998e9c646590172f8162cd608ea2ec4c9a373691827a1c"
+}

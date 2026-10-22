@@ -1,0 +1,389 @@
+{
+  "title": "誓約の終鐘 — wiki由来の設計図",
+  "source": {
+    "video": "Hc6CJXJrzME",
+    "start_s": 0,
+    "fps": 29.97002997002997
+  },
+  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "duration_ticks": 231,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        2.0,
+        2.5,
+        8
+      ],
+      "target": [
+        2.0,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#66889A",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 67,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 71,
+          "pos": [
+            1.2000000000000002,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#8E3440",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            3,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 1.8,
+    "width": 0.12,
+    "color": "#CCCCCC",
+    "parts": [
+      {
+        "size": [
+          1.6,
+          0.12,
+          0.12
+        ],
+        "pos": [
+          0.5,
+          0,
+          0
+        ],
+        "color": "#3C3330"
+      },
+      {
+        "size": [
+          0.35,
+          0.7,
+          0.5
+        ],
+        "pos": [
+          1.3,
+          0,
+          0
+        ],
+        "color": "#BC9D66"
+      }
+    ],
+    "keys": [
+      {
+        "t": 0,
+        "angle": 0
+      },
+      {
+        "t": 66,
+        "angle": 65
+      },
+      {
+        "t": 71,
+        "angle": -15
+      },
+      {
+        "t": 76,
+        "angle": 0
+      },
+      {
+        "t": 97,
+        "angle": 65
+      },
+      {
+        "t": 102,
+        "angle": -15
+      },
+      {
+        "t": 107,
+        "angle": 0
+      },
+      {
+        "t": 123,
+        "angle": 65
+      },
+      {
+        "t": 128,
+        "angle": -15
+      },
+      {
+        "t": 133,
+        "angle": 0
+      },
+      {
+        "t": 186,
+        "angle": 65
+      },
+      {
+        "t": 191,
+        "angle": -15
+      },
+      {
+        "t": 196,
+        "angle": 0
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 71,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "spike_star",
+      "t0": 71,
+      "t1": 79,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#DCEAFF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 69,
+      "t1": 80,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#DCEAFF",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    },
+    {
+      "type": "hit",
+      "t": 102,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "spike_star",
+      "t0": 102,
+      "t1": 110,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#DCEAFF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 100,
+      "t1": 111,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#DCEAFF",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    },
+    {
+      "type": "hit",
+      "t": 128,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 3
+    },
+    {
+      "type": "spike_star",
+      "t0": 128,
+      "t1": 136,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#DCEAFF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 126,
+      "t1": 137,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#DCEAFF",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    },
+    {
+      "type": "hit",
+      "t": 191,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 4
+    },
+    {
+      "type": "spike_star",
+      "t0": 191,
+      "t1": 199,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#DCEAFF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 189,
+      "t1": 200,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#DCEAFF",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    }
+  ]
+}

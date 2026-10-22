@@ -1,130 +1,70 @@
-# Verdict Hammer DEF: the vigil. The hammer is held flat across the caster's brow under two
-# concentric gold halo rings while circuitry flickers up both flanks (24-tick guard); at tick 24
-# the guard releases as a counter pulse: a white-gold hoop races out and a star flashes.
-# Follows the caster. ~45 live displays at peak.
-# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
-
 id: verdict-def-vigil
-duration_ticks: 32
+duration_ticks: 24
 orient: yaw
-follow: true
-sample_ticks: 2
-
-elements:
-  - id: hammer
-    kind: { type: item, item: mace, display_mode: fixed }
+follow: false
+sample_ticks: 1
+elements: []
+rigs:
+- id: hammer
+  pivot: [-0.25, 1.0, 0.15]
+  rest: [0, 0, 0]
+  tilt: [0, 0, 22]
+  respect_hit_stop: true
+  end_tick: 23
+  parts:
+  - id: haft
+    block: black_concrete
+    offset: [0, 0.8, 0]
+    size: [0.12, 1.8, 0.12]
     brightness: 15
-    glow_color: "#ffcc40"
-    start_tick: 0
-    end_tick: 30
-    keyframes:
-      - { t: 0, translate: [0.0, 2.4, 0.6], rotate: [0, 0, -45], scale: [0.0, 0.0, 0.0] }
-      - { t: 3, scale: [4.0, 4.0, 4.0], ease: out_back }
-      - { t: 22, scale: [4.0, 4.0, 4.0] }
-      - { t: 24, translate: [0.0, 1.4, 1.4], rotate: [0, 90, -45], ease: in_expo }
-      - { t: 30, scale: [0.0, 0.0, 0.0], ease: in_quad }
-    oscillate: { axis: translate_y, amplitude: 0.06, period_ticks: 3 }
-
-  - id: halo-outer
-    kind: { type: block, block: yellow_stained_glass }
+  - id: head
+    block: black_concrete
+    offset: [0, 2, 0]
+    size: [1.2, 0.7, 0.65]
     brightness: 15
-    glow_color: "#ffcc40"
-    start_tick: 2
-    end_tick: 21
-    count: 16
-    formation:
-      curve: { type: circle, radius: 1.3 }
-      offset: [0.0, 1.5, 0.9]
-      tilt: { yaw: 0, pitch: 90, roll: 0 }
-      align: tangent
-    keyframes:
-      - { t: 0, scale: [0.0, 0.0, 0.0] }
-      - { t: 3, scale: [0.1, 0.1, 0.55], ease: out_back }
-      - { t: 15, scale: [0.1, 0.1, 0.55] }
-      - { t: 19, scale: [0.0, 0.0, 0.55], ease: in_quad }
-    oscillate: { axis: scale_xz, amplitude: 0.07, period_ticks: 4 }
-
-  - id: halo-inner
-    kind: { type: block, block: gold_block }
+  - id: cap-0.53
+    block: yellow_concrete
+    offset: [-0.53, 2, 0]
+    size: [0.12, 0.74, 0.69]
     brightness: 15
-    glow_color: "#ffcc40"
-    start_tick: 3
-    end_tick: 21
-    count: 12
-    formation:
-      curve: { type: circle, radius: 0.85 }
-      offset: [0.0, 1.5, 0.9]
-      tilt: { yaw: 0, pitch: 90, roll: 0 }
-      align: tangent
-    keyframes:
-      - { t: 0, scale: [0.0, 0.0, 0.0] }
-      - { t: 3, scale: [0.12, 0.12, 0.5], ease: out_back }
-      - { t: 14, scale: [0.12, 0.12, 0.5] }
-      - { t: 18, scale: [0.0, 0.0, 0.5], ease: in_quad }
-    oscillate: { axis: scale_xz, amplitude: 0.07, period_ticks: 4 }
-
-  - id: circuit-left
-    kind: { type: block, block: gold_block }
+  - id: cap0.53
+    block: yellow_concrete
+    offset: [0.53, 2, 0]
+    size: [0.12, 0.74, 0.69]
     brightness: 15
-    glow_color: "#3fe0e0"
-    start_tick: 0
-    end_tick: 17
-    slot_lifetime_ticks: 17
-    count: 8
-    formation:
-      curve: { type: lightning, from: [1.6, 0.1, 0.0], to: [1.6, 3.0, 0.0], segments: 5, amplitude: 0.3, seed: 21 }
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.0, 0.0, 0.0] }
-      - { t: 2, scale: [0.05, 0.05, 0.6], ease: out_expo }
-      - { t: 13, scale: [0.05, 0.05, 0.6] }
-      - { t: 17, scale: [0.0, 0.0, 0.6], ease: in_quad }
-    oscillate: { axis: scale_xz, amplitude: 0.025, period_ticks: 2 }
-
-  - id: circuit-right
-    kind: { type: block, block: gold_block }
+  - id: stripe1.78
+    block: yellow_concrete
+    offset: [0, 1.78, 0.34]
+    size: [1.05, 0.045, 0.02]
     brightness: 15
-    glow_color: "#3fe0e0"
-    start_tick: 0
-    end_tick: 17
-    slot_lifetime_ticks: 17
-    count: 8
-    formation:
-      curve: { type: lightning, from: [-1.6, 0.1, 0.0], to: [-1.6, 3.0, 0.0], segments: 5, amplitude: 0.3, seed: 29 }
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.0, 0.0, 0.0] }
-      - { t: 2, scale: [0.05, 0.05, 0.6], ease: out_expo }
-      - { t: 13, scale: [0.05, 0.05, 0.6] }
-      - { t: 17, scale: [0.0, 0.0, 0.6], ease: in_quad }
-    oscillate: { axis: scale_xz, amplitude: 0.025, period_ticks: 2 }
-
-  # Counter pulse at guard release.
-  - id: pulse
-    kind: { type: block, block: white_concrete }
+  - id: stripe2.22
+    block: yellow_concrete
+    offset: [0, 2.22, 0.34]
+    size: [1.05, 0.045, 0.02]
     brightness: 15
-    glow_color: "#ffcc40"
-    start_tick: 24
-    end_tick: 32
-    count: 20
-    formation:
-      curve: { type: circle, radius: 0.5 }
-      offset: [0.0, 0.2, 0.0]
-      align: outward
-    keyframes:
-      - { t: 0, scale: [0.4, 0.12, 0.16] }
-      - { t: 5, translate: [0.0, 0.0, 3.6], scale: [0.9, 0.1, 0.16], ease: out_expo }
-      - { t: 8, translate: [0.0, 0.0, 4.1], scale: [0.0, 0.0, 0.16], ease: in_quad }
-
-  - id: flash
-    kind: { type: text, text: "<#ffe27a><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
-    billboard: center
-    brightness: 15
-    start_tick: 24
-    end_tick: 31
-    keyframes:
-      - { t: 0, translate: [0.0, 1.4, 0.8], scale: [0.0, 0.0, 0.0] }
-      - { t: 1, scale: [7.0, 7.0, 7.0], ease: out_expo }
-      - { t: 7, scale: [0.0, 0.0, 0.0], ease: in_quad }
+  swing:
+  - t: 0
+    rotate: [0, -35, 0]
+  - t: 5
+    rotate: [0, -60, 0]
+    ease: in_out_quad
+  - t: 9
+    rotate: [0, 115, 0]
+    ease: out_quad
+  - t: 13
+    rotate: [0, 125, 0]
+  - t: 20
+    rotate: [0, 25, 0]
+    ease: in_out_quad
+  trails:
+  - id: gold-fan
+    from: [0, 0.9, 0]
+    to: [0, 2.7, 0]
+    start_t: 5
+    end_t: 10
+    life_ticks: 5
+    style: soft
+    step_deg: 18
+    bands:
+    - {from: 0.0, to: 0.85, color: '#18FFD878', color_to: '#00A07020'}
+    - {from: 0.85, to: 1.0, color: '#EFFFF4C7', color_to: '#30D5AC60'}

@@ -1,0 +1,642 @@
+id: couture-shear-crescent
+duration_ticks: 13
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: arc-0
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -2.363538607229299
+    - 1.1
+    - 0.816755626400633
+    rotate:
+    - 10.0
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - -2.363538607229299
+    - 1.1
+    - 0.816755626400633
+    rotate:
+    - 10.0
+    - 0
+    - 0
+    scale:
+    - 0.10743575942901386
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - -2.363538607229299
+    - 1.1
+    - 0.816755626400633
+    rotate:
+    - 10.0
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+- id: arc-1
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -2.1332050767718163
+    - 1.1
+    - 1.499743652145785
+    rotate:
+    - 27.272727272727273
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - -2.1332050767718163
+    - 1.1
+    - 1.499743652145785
+    rotate:
+    - 27.272727272727273
+    - 0
+    - 0
+    scale:
+    - 0.16153356129050445
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - -2.1332050767718163
+    - 1.1
+    - 1.499743652145785
+    rotate:
+    - 27.272727272727273
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+- id: arc-2
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -1.7104660113092707
+    - 1.1
+    - 2.083539730495171
+    rotate:
+    - 44.54545454545455
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - -1.7104660113092707
+    - 1.1
+    - 2.083539730495171
+    rotate:
+    - 44.54545454545455
+    - 0
+    - 0
+    scale:
+    - 0.20914943797779084
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - -1.7104660113092707
+    - 1.1
+    - 2.083539730495171
+    rotate:
+    - 44.54545454545455
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+- id: arc-3
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -1.1334505794544383
+    - 1.1
+    - 2.515488072274197
+    rotate:
+    - 61.81818181818182
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - -1.1334505794544383
+    - 1.1
+    - 2.515488072274197
+    rotate:
+    - 61.81818181818182
+    - 0
+    - 0
+    scale:
+    - 0.24751612781447752
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - -1.1334505794544383
+    - 1.1
+    - 2.515488072274197
+    rotate:
+    - 61.81818181818182
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+- id: arc-4
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -0.45420298646498436
+    - 1.1
+    - 2.756628873430496
+    rotate:
+    - 79.0909090909091
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - -0.45420298646498436
+    - 1.1
+    - 2.756628873430496
+    rotate:
+    - 79.0909090909091
+    - 0
+    - 0
+    scale:
+    - 0.27440389824449957
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - -0.45420298646498436
+    - 1.1
+    - 2.756628873430496
+    rotate:
+    - 79.0909090909091
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+- id: arc-5
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 0.26601167976242623
+    - 1.1
+    - 2.78521231470701
+    rotate:
+    - 96.36363636363636
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - 0.26601167976242623
+    - 1.1
+    - 2.78521231470701
+    rotate:
+    - 96.36363636363636
+    - 0
+    - 0
+    scale:
+    - 0.2882501297835329
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - 0.26601167976242623
+    - 1.1
+    - 2.78521231470701
+    rotate:
+    - 96.36363636363636
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+- id: arc-6
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 0.962233284975873
+    - 1.1
+    - 2.598660297836967
+    rotate:
+    - 113.63636363636364
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - 0.962233284975873
+    - 1.1
+    - 2.598660297836967
+    rotate:
+    - 113.63636363636364
+    - 0
+    - 0
+    scale:
+    - 0.2882501297835329
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - 0.962233284975873
+    - 1.1
+    - 2.598660297836967
+    rotate:
+    - 113.63636363636364
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+- id: arc-7
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 1.571665761468684
+    - 1.1
+    - 2.21379897845022
+    rotate:
+    - 130.9090909090909
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - 1.571665761468684
+    - 1.1
+    - 2.21379897845022
+    rotate:
+    - 130.9090909090909
+    - 0
+    - 0
+    scale:
+    - 0.27440389824449957
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - 1.571665761468684
+    - 1.1
+    - 2.21379897845022
+    rotate:
+    - 130.9090909090909
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+- id: arc-8
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 2.0393410318788345
+    - 1.1
+    - 1.6653411222652057
+    rotate:
+    - 148.1818181818182
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - 2.0393410318788345
+    - 1.1
+    - 1.6653411222652057
+    rotate:
+    - 148.1818181818182
+    - 0
+    - 0
+    scale:
+    - 0.24751612781447757
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - 2.0393410318788345
+    - 1.1
+    - 1.6653411222652057
+    rotate:
+    - 148.1818181818182
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+- id: arc-9
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 2.323076883351255
+    - 1.1
+    - 1.0027551692345895
+    rotate:
+    - 165.45454545454547
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - 2.323076883351255
+    - 1.1
+    - 1.0027551692345895
+    rotate:
+    - 165.45454545454547
+    - 0
+    - 0
+    scale:
+    - 0.20914943797779084
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - 2.323076883351255
+    - 1.1
+    - 1.0027551692345895
+    rotate:
+    - 165.45454545454547
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+- id: arc-10
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 2.397281614039219
+    - 1.1
+    - 0.28580340202301907
+    rotate:
+    - 182.72727272727272
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - 2.397281614039219
+    - 1.1
+    - 0.28580340202301907
+    rotate:
+    - 182.72727272727272
+    - 0
+    - 0
+    scale:
+    - 0.16153356129050456
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - 2.397281614039219
+    - 1.1
+    - 0.28580340202301907
+    rotate:
+    - 182.72727272727272
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+- id: arc-11
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 2.25526228988618
+    - 1.1
+    - -0.42084834398160487
+    rotate:
+    - 200.0
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 2
+    translate:
+    - 2.25526228988618
+    - 1.1
+    - -0.42084834398160487
+    rotate:
+    - 200.0
+    - 0
+    - 0
+    scale:
+    - 0.10743575942901384
+    - 0.025
+    - 0.9318915808321141
+  - t: 12
+    translate:
+    - 2.25526228988618
+    - 1.1
+    - -0.42084834398160487
+    rotate:
+    - 200.0
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0.49922763258863245
+  brightness: 15
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0

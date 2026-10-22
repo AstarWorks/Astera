@@ -1,62 +1,98 @@
-# Sigil Rifle S1 (left-click) "Marked Round": a hitscan shot through a spinning sigil lens. 7 phys plus
-# 0.8 per Sinking stack already on the target, and the hit leaves one more Sinking stack (a sigil floating
-# over the head, slowing the target a little). The stacks are what S3 detonates. Players have 20-tick
-# i-frames, so the fire rate (cooldown 18) is the lever, not the hit count.
-
 id: sigil-rifle-s1
-
 name:
-  ja: "刻印弾"
-  en: "Marked Round"
+  ja: 銃床の踏み込み
+  en: Rifle Rush
 description:
-  ja: "刻印のレンズを通した一発。命中した相手に沈降の刻印が一つ刻まれ、足が鈍る。"
-  en: "A shot through a sigil lens. The target is marked with a Sinking sigil that slows it."
-
-archetype: melee
-cooldown_ticks: 18
-resource_cost: 12              # energy
-tags: [ ranged, hitscan, physical, sinking ]
-
+  ja: 銃床の踏み込み
+  en: Rifle Rush
+archetype: sequence
+cooldown_ticks: 70
+resource_cost: 10
 params:
-  type: melee
-  range: 28.0
-  arc_degrees: 4.0
-  knockback: 0.1
-  damage:
-    - base: { type: literal, value: 7.0 }
-      attribute: physical
-      per_stack: { status_id: sinking, amount: 0.8, on: target }
-
+  type: sequence
 phases:
-  type: melee
+  type: sequence
   cast:
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: sigil-rifle-shot
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.firework_rocket.blast
-      pitch: { type: literal, value: 0.6 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.crossbow.shoot
-      pitch: { type: literal, value: 0.6 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.beacon.deactivate
-      volume: { type: literal, value: 0.5 }
-      pitch: { type: literal, value: 1.8 }
-  hit_entity:
-    - type: apply_status
-      targets: { type: target }
-      status_id: sinking
-      effect_duration_ticks: { type: literal, value: 160 }
-    - type: play_vfx
-      targets: { type: target }
-      vfx_id: sigil-rifle-mark
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.arrow.hit_player
-      volume: { type: literal, value: 0.5 }
-      pitch: { type: literal, value: 1.2 }
-  miss: []
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: sigil-rifle-dash
+  - type: dash_strike
+    distance: 3
+    ticks: 4
+    radius: 0.8
+    hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    on_hit: []
+    stop_before_target: 1.8
+    delay_ticks:
+      type: literal
+      value: 9
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.5
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 9
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 13
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.5
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    vfx_id: sigil-rifle-mark
+    delay_ticks:
+      type: literal
+      value: 13
+  - type: play_sound
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.5
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 13

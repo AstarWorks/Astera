@@ -1,0 +1,231 @@
+{
+  "metadata": {
+    "video_id": "-pOx9fo6A7M",
+    "identity": "N Corp. E.G.O::Fell Bullet Yi Sang",
+    "source_video": "../../vid/-pOx9fo6A7M.mp4",
+    "fps": 24,
+    "total_frames": 1035,
+    "duration_s": 43.125,
+    "time_convention": "Zero-based native decoded frame; seconds=frame/24; intervals end-exclusive. Input brief says 30 fps, but ffprobe counted 1035 frames at 24/1. No invented 30 fps frames.",
+    "method": "Whole-video 6 fps overview, all native frames 300–836 viewed on 23 sheets, enlarged S1 contact sheet. Kit supplied locally; old notes consulted only after frame inspection.",
+    "measurement_limits": "Body-height distances are screen-space estimates, not world measurements. Hex colors are visual palette approximations. Skill names are inferred: no skill-name/coin UI. Contact means first visible impact evidence; hidden contact is explicitly qualified."
+  },
+  "slot": "s1",
+  "name": "See Through Defenses",
+  "observed": true,
+  "sequence": {
+    "start_frame": 314,
+    "end_frame_exclusive": 359,
+    "start_s": 13.083333,
+    "end_s": 14.958333,
+    "description": "wind-up through recovery/cut"
+  },
+  "official_coins": 1,
+  "mapping_confidence": "high",
+  "weapon": {
+    "type": "long rifle / firearm",
+    "length_body_heights": "approximately 1.2–1.5",
+    "parts": "Long straight narrow barrel, rectangular receiver/fore-end, angular shoulder stock and dark grip; metallic parallel rails/highlights. No sword blade or bayonet can be established.",
+    "colors": {
+      "body": "#211E20",
+      "metal_highlights": "#8B7771",
+      "edge_dark": "#0D0B0E"
+    },
+    "holding": "Rifle carried into a low forward lunge; exact hand placement and striking part hidden by red trails at contact. No visible separate sword.",
+    "evidence": [
+      "sheets/native_004.jpg f388–389",
+      "sheets/native_010.jpg f527–529"
+    ]
+  },
+  "contact_sheets": [
+    "sheets/native_001.jpg",
+    "sheets/native_002.jpg",
+    "sheets/native_003.jpg",
+    "sheets/s1_contact.jpg"
+  ],
+  "effects": [
+    {
+      "start_frame": 314,
+      "end_frame_exclusive": 326,
+      "start_s": 13.083333,
+      "end_s": 13.583333,
+      "description": "Broad broken crescent/ribbon curling over shoulder and down right side",
+      "size_body_heights": "~1.5–2 diameter",
+      "position": "caster",
+      "palette": {
+        "core_red": "#FF170D",
+        "glow_red": "#E90010",
+        "dark_red": "#650B13",
+        "spark_core": "#FFF5B0",
+        "spark_gold": "#FFC126",
+        "smoke": "#701B17"
+      },
+      "layering": "bright red or pale-gold core over red glow; dark maroon/black torn accents and translucent smoke; foreground effects obscure sprites",
+      "motion_and_fade": "Fast swing, splits into flakes and dims"
+    },
+    {
+      "start_frame": 326,
+      "end_frame_exclusive": 334,
+      "start_s": 13.583333,
+      "end_s": 13.916667,
+      "description": "Long red horizontal speed smear and pointed red impact wedges, sparse gold needles",
+      "size_body_heights": "~3–5 long; ~1–2 tall",
+      "position": "dash path and contact",
+      "palette": {
+        "core_red": "#FF170D",
+        "glow_red": "#E90010",
+        "dark_red": "#650B13",
+        "spark_core": "#FFF5B0",
+        "spark_gold": "#FFC126",
+        "smoke": "#701B17"
+      },
+      "layering": "bright red or pale-gold core over red glow; dark maroon/black torn accents and translucent smoke; foreground effects obscure sprites",
+      "motion_and_fade": "Sweeps right; sparks start f330, persists through f333"
+    },
+    {
+      "start_frame": 334,
+      "end_frame_exclusive": 343,
+      "start_s": 13.916667,
+      "end_s": 14.291667,
+      "description": "Ground-level red crescent, black/red flecks and target blood-like spray",
+      "size_body_heights": "~2–3 wide",
+      "position": "caster feet/target",
+      "palette": {
+        "core_red": "#FF170D",
+        "glow_red": "#E90010",
+        "dark_red": "#650B13",
+        "spark_core": "#FFF5B0",
+        "spark_gold": "#FFC126",
+        "smoke": "#701B17"
+      },
+      "layering": "bright red or pale-gold core over red glow; dark maroon/black torn accents and translucent smoke; foreground effects obscure sprites",
+      "motion_and_fade": "Crescent contracts and fades; target recoils"
+    }
+  ],
+  "props": [
+    {
+      "type": "none resolved",
+      "description": "Red ribbon and fragments are effects, not detached solid blades."
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 314,
+      "end_frame_exclusive": 326,
+      "start_s": 13.083333,
+      "end_s": 13.583333,
+      "description": "Stationary rifle flourish"
+    },
+    {
+      "start_frame": 326,
+      "end_frame_exclusive": 334,
+      "start_s": 13.583333,
+      "end_s": 13.916667,
+      "description": "Low rapid rightward dash, roughly 3–5 body heights; pan prevents exact displacement"
+    },
+    {
+      "start_frame": 334,
+      "end_frame_exclusive": 359,
+      "start_s": 13.916667,
+      "end_s": 14.958333,
+      "description": "Low crouched follow-through left of recoiling target; no visible second attack; cut resets positions"
+    }
+  ],
+  "hits": [
+    {
+      "coin": 1,
+      "contact_frame": 330,
+      "contact_s": 13.75,
+      "contact": "First gold impact sparks during close-range rush; rifle/body strike plausible, exact contact surface obscured",
+      "range_class": "dash_melee",
+      "caster_target_distance_body_heights": "~0.5–1 at confirmed shared shot f333",
+      "evidence": [
+        "sheets/s1_contact.jpg",
+        "sheets/native_002.jpg"
+      ],
+      "uncertainty": "Impact onset f330 (13.750); target visibly shares contact frame f333 (13.875). Exact geometry hidden; not a second hit."
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 314,
+      "end_frame_exclusive": 326,
+      "start_s": 13.083333,
+      "end_s": 13.583333,
+      "description": "Red circular wind-up"
+    },
+    {
+      "start_frame": 326,
+      "end_frame_exclusive": 330,
+      "start_s": 13.583333,
+      "end_s": 13.75,
+      "description": "Floor-level whip-pan and red rush"
+    },
+    {
+      "start_frame": 330,
+      "end_frame_exclusive": 334,
+      "start_s": 13.75,
+      "end_s": 13.916667,
+      "description": "Single impact, gold sparks and red wedges; close-up holds 3 frames"
+    },
+    {
+      "start_frame": 334,
+      "end_frame_exclusive": 343,
+      "start_s": 13.916667,
+      "end_s": 14.291667,
+      "description": "Camera pulls out; floor crescent and flakes decay"
+    },
+    {
+      "start_frame": 343,
+      "end_frame_exclusive": 359,
+      "start_s": 14.291667,
+      "end_s": 14.958333,
+      "description": "Crouched recovery until cut"
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 314,
+      "end_frame_exclusive": 326,
+      "start_s": 13.083333,
+      "end_s": 13.583333,
+      "description": "Side medium full-body caster shot, target offscreen right; preceding push began f307"
+    },
+    {
+      "start_frame": 326,
+      "end_frame_exclusive": 330,
+      "start_s": 13.583333,
+      "end_s": 13.75,
+      "description": "Extreme low floor close-up, rapid pan right across column"
+    },
+    {
+      "start_frame": 330,
+      "end_frame_exclusive": 333,
+      "start_s": 13.75,
+      "end_s": 13.875,
+      "description": "Tight caster head/contact crop, target partially offscreen; 3-frame impact hold"
+    },
+    {
+      "start_frame": 333,
+      "end_frame_exclusive": 334,
+      "start_s": 13.875,
+      "end_s": 13.916667,
+      "description": "One-frame medium two-shot at contact"
+    },
+    {
+      "start_frame": 334,
+      "end_frame_exclusive": 343,
+      "start_s": 13.916667,
+      "end_s": 14.291667,
+      "description": "Rapid pullback to side-wide two-shot"
+    },
+    {
+      "start_frame": 343,
+      "end_frame_exclusive": 359,
+      "start_s": 14.291667,
+      "end_s": 14.958333,
+      "description": "Locked wide recovery; reset cut f359"
+    }
+  ],
+  "mapping_evidence": "One close-range physical impact; consistent with supplied one-coin Blunt S1. Red crescent is not evidence of a bladed weapon."
+}

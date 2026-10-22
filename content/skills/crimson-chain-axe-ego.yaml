@@ -1,0 +1,40 @@
+id: crimson-chain-axe-ego
+name:
+  ja: 緋鎖の展開
+  en: Crimson Chain Unfurl
+description:
+  ja: 緋鎖の展開
+  en: Crimson Chain Unfurl
+archetype: sequence
+cooldown_ticks: 220
+resource_cost: 0
+params:
+  type: sequence
+phases:
+  type: sequence
+  cast:
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: crimson-chain-axe-ego-orbit
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: crimson-chain-axe-orbit
+    delay_ticks:
+      type: literal
+      value: 30
+  - type: apply_status
+    targets:
+      type: caster
+    status_id: poise
+    effect_duration_ticks:
+      type: literal
+      value: 400
+    stack_count:
+      type: literal
+      value: 5
+    delay_ticks:
+      type: literal
+      value: 40
+ego_cost: 100

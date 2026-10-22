@@ -1,0 +1,71 @@
+{
+  "id": "vendetta-rifle-s3",
+  "rev": 2,
+  "videoId": "wbu2viInM3w",
+  "start_s": 18.541667,
+  "end_s": 21.666667,
+  "skill": {
+    "name": "鉄の服従",
+    "coins": 3,
+    "asteraSkillId": "vendetta-rifle-s3"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "S3",
+      "start_s": 18.541667,
+      "end_s": 21.666667
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "接触 1",
+      "t_s": 18.958333,
+      "notes": "astra2 source frame 455; dash_melee; game tick 8. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "接触 2",
+      "t_s": 19.333333,
+      "notes": "astra2 source frame 464; melee; game tick 16. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit3",
+      "kind": "hit",
+      "label": "接触 3",
+      "t_s": 20.75,
+      "notes": "astra2 source frame 498; dash_melee; game tick 44. Coin grouping uncertainty remains in reference analysis."
+    }
+  ],
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/vendetta-rifle/s3.json を参照。",
+  "editLog": [],
+  "status": "captured",
+  "verification": {
+    "status": "failed",
+    "reason": "銃を抱える姿勢、腰の回転、踏み込みと逆方向の振り、接触時の寄りが不足。装備モデルと演出用の銃が二重に見える区間がある。",
+    "normalInput": "実入力撮影あり。標的HP 176.384f（回数の測定ではない）",
+    "evidence": "/evidence/vendetta-rifle-s3.png"
+  },
+  "weapon": "vendetta-rifle",
+  "identity": "The Thumb East Soldato II Sinclair",
+  "videoTitle": "The Thumb East Soldato II Sinclair — skill showcase",
+  "iterations": 1,
+  "report": "/report/vendetta-rifle",
+  "referenceRevision": "7ae4101811a5e396a2e196ddaa93972b281457837ff9ad03d280d761aa459f8c",
+  "contentRevision": "566f27f39b477e1a15d79c8280178e86b7100c7b2321f7e5c6e0ed8b74b4db1d"
+}

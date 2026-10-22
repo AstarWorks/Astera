@@ -1,86 +1,289 @@
-# ADR-0230 persona weapon: Verdict Hammer S3 (sneak + right click), "Obsidian Judgment".
-# Finisher: 39 ticks of telegraph (the floor hoop is the 5.8-block damage radius, a colossal hammer
-# hangs overhead), the stake eruption, and a collapse 23 ticks later. Both hits scale with the
-# rupture stakes already on each target; the collapse only judges targets still carrying stakes and spends them. The eruption is fixed on the
-# spot the cast started at, so leaving the hoop dodges it.
-# A sequence skill: no baseline hit, all damage comes from the timeline below.
-
 id: verdict-hammer-s3
-
 name:
-  ja: "黒曜の審判"
-  en: "Obsidian Judgment"
+  ja: 杭と鉄槌
+  en: Nails and Judgment
 description:
-  ja: "巨大な杭槌を掲げ、杭の林を呼び起こす奥義。打ち込まれた杭（破裂）の数だけ威力が増し、崩落で杭を消費する。"
-  en: "Raise a colossal hammer and raise a forest of stakes. Scales with the rupture stakes on each target; the collapse spends them."
-
+  ja: 杭と鉄槌
+  en: Nails and Judgment
 archetype: sequence
-cooldown_ticks: 300
-resource_cost: 60              # energy
-tags: [ aoe, physical, finisher, rupture ]
-
+cooldown_ticks: 165
+resource_cost: 26
 params:
   type: sequence
-
 phases:
   type: sequence
   cast:
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.beacon.activate
-      pitch: { type: literal, value: 0.6 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: verdict-s3-judgment
-    # Eruption (tick 39).
-    - type: damage
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.8 }, exclude_caster: true }
-      components:
-        - base: { type: literal, value: 8.0 }
-          attribute: physical
-          per_stack: { status_id: rupture, amount: 1.0, on: target, consume: false }
-      delay_ticks: { type: literal, value: 39 }
-      snapshot_pose: true
-    - type: knockup
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.8 }, exclude_caster: true }
-      strength: { type: literal, value: 0.9 }
-      delay_ticks: { type: literal, value: 39 }
-      snapshot_pose: true
-    - type: hit_stop
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.8 }, exclude_caster: true }
-      ticks: 4
-      include_caster: true
-      delay_ticks: { type: literal, value: 39 }
-      snapshot_pose: true
-    - type: camera_shake
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 10.0 }, exclude_caster: false }
-      intensity: { type: literal, value: 0.9 }
-      ticks: { type: literal, value: 8 }
-      delay_ticks: { type: literal, value: 39 }
-      snapshot_pose: true
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.generic.explode
-      volume: { type: literal, value: 0.8 }
-      pitch: { type: literal, value: 0.7 }
-      delay_ticks: { type: literal, value: 39 }
-    # Collapse (tick 62); spends the stakes.
-    - type: damage
-      targets: { type: filter, base: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 6.2 }, exclude_caster: true }, condition: { type: has_status, status_id: rupture } }
-      components:
-        - base: { type: literal, value: 6.0 }
-          attribute: physical
-          per_stack: { status_id: rupture, amount: 1.0, on: target, consume: true }
-      delay_ticks: { type: literal, value: 62 }
-      snapshot_pose: true
-    - type: camera_shake
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 10.0 }, exclude_caster: false }
-      intensity: { type: literal, value: 0.7 }
-      ticks: { type: literal, value: 6 }
-      delay_ticks: { type: literal, value: 62 }
-      snapshot_pose: true
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.firework_rocket.blast
-      pitch: { type: literal, value: 0.6 }
-      delay_ticks: { type: literal, value: 62 }
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 45
+      max_count: 1
+    vfx_id: verdict-summoned-nails
+    delay_ticks:
+      type: literal
+      value: 11
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 45
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 8
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 26
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 45
+      max_count: 1
+    vfx_id: verdict-impact
+    delay_ticks:
+      type: literal
+      value: 26
+  - type: play_sound
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 45
+      max_count: 1
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 26
+  - type: dash_strike
+    distance: 5
+    ticks: 4
+    radius: 0.8
+    hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    on_hit: []
+    stop_before_target: 1.8
+    delay_ticks:
+      type: literal
+      value: 49
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: verdict-s1-gavel
+    delay_ticks:
+      type: literal
+      value: 44
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 10
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 53
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    vfx_id: verdict-impact
+    delay_ticks:
+      type: literal
+      value: 53
+  - type: play_sound
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 53
+  - type: propel
+    targets:
+      type: caster
+    direction:
+      type: up
+    strength:
+      type: literal
+      value: 0.65
+    delay_ticks:
+      type: literal
+      value: 73
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: verdict-s3-judgment
+    delay_ticks:
+      type: literal
+      value: 82
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 16
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 91
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    vfx_id: verdict-impact
+    delay_ticks:
+      type: literal
+      value: 91
+  - type: play_sound
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 91
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    vfx_id: verdict-ego-ring
+    delay_ticks:
+      type: literal
+      value: 91

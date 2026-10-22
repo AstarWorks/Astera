@@ -1,0 +1,57 @@
+{
+  "id": "crimson-chain-axe-s1",
+  "rev": 3,
+  "videoId": "Gpj-lvOnAgs",
+  "start_s": 11.144,
+  "end_s": 13.28,
+  "skill": {
+    "name": "緋針",
+    "coins": 1,
+    "asteraSkillId": "crimson-chain-axe-s1"
+  },
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "S1",
+      "start_s": 11.144,
+      "end_s": 13.28
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "接触 1",
+      "t_s": 12.479133,
+      "notes": "astra2 source frame 374; ranged_projectile; game tick 27. Coin grouping uncertainty remains in reference analysis."
+    }
+  ],
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/crimson-chain-axe/s1.json を参照。",
+  "editLog": [],
+  "status": "captured",
+  "verification": {
+    "status": "failed",
+    "reason": "手を上げる姿勢と大きなカメラ寄りが不足。針の色・密度・光の面積は未一致。Q後に攻撃セットを持続的に変身版へ切り替える処理は未実装。",
+    "normalInput": "実入力撮影あり。標的HP 193.112f（回数の測定ではない）",
+    "evidence": "/evidence/crimson-chain-axe-s1.png"
+  },
+  "weapon": "crimson-chain-axe",
+  "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+  "videoTitle": "Haute Couture::The Crimson God of Le Rouge Sinclair — skill showcase",
+  "iterations": 3,
+  "report": "/report/crimson-chain-axe",
+  "referenceRevision": "51dd80c5d7bff30ba3bb05e43420a985c0c54b30ec526f1620bdf302cc921334",
+  "contentRevision": "3106740f067e7d521775b4e690227e92f4294317cac9ec559ed8728778a6f01b"
+}

@@ -1,48 +1,86 @@
-# Gossamer Katana spun ward: a red thread helix is wound up around the caster (ten bars, one per tick)
-# over a floor web of fourteen segments. Enemies close enough to be snagged get the web too (see the skill).
-# Follows the caster so the ward travels with the sidestep.
-
 id: gossamer-katana-guard
-duration_ticks: 24
+duration_ticks: 16
 orient: yaw
-follow: true
-sample_ticks: 2
-
+follow: false
+sample_ticks: 1
 elements:
-  - id: wind
-    kind: { type: block, block: red_stained_glass }
-    brightness: 15
-    glow_color: "#d01030"
-    start_tick: 0
-    slot_lifetime_ticks: 16
-    count: 10
-    formation:
-      curve: { type: helix, radius: 1.1, turns: 1.0, height: 2.0, start_deg: 0 }
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.03, 0.03, 0.1] }
-      - { t: 2, scale: [0.06, 0.06, 0.8], ease: out_expo }
-      - { t: 10, block: gray_stained_glass }
-      - { t: 14, scale: [0.0, 0.0, 0.8], ease: in_quad }
-    group_keyframes:
-      - { t: 0 }
-      - { t: 16, rotate: [360, 0, 0], ease: out_quad }
-
-  - id: floor
-    kind: { type: block, block: red_stained_glass }
-    brightness: 15
-    glow_color: "#8a0b1a"
-    start_tick: 0
-    end_tick: 20
-    count: 14
-    formation:
-      curve: { type: circle, radius: 2.3 }
-      offset: [0.0, 0.06, 0.0]
-      align: tangent
-    keyframes:
-      - { t: 0, scale: [0.03, 0.03, 0.1] }
-      - { t: 3, scale: [0.04, 0.04, 1.1], ease: out_expo }
-      - { t: 12, block: gray_stained_glass }
-      - { t: 17, block: glass }
-      - { t: 19, scale: [0.0, 0.0, 1.1], ease: in_quad }
+- id: echo-0
+  kind: {type: block, block: cyan_stained_glass}
+  brightness: 15
+  start_tick: 0
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 1.6, 0]
+    scale: [0.084, 0.42, 0.3]
+    rotate: [0, 0, 0]
+  - t: 1
+    scale: [0.42, 0.42, 0.3]
+    ease: out_expo
+  - t: 9
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: echo-1
+  kind: {type: block, block: cyan_stained_glass}
+  brightness: 15
+  start_tick: 0
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 1.05, 0]
+    scale: [0.1, 0.7, 0.25]
+    rotate: [0, 0, 0]
+  - t: 1
+    scale: [0.5, 0.7, 0.25]
+    ease: out_expo
+  - t: 9
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: echo-2
+  kind: {type: block, block: cyan_stained_glass}
+  brightness: 15
+  start_tick: 0
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 0.35, -0.17]
+    scale: [0.044000000000000004, 0.7, 0.2]
+    rotate: [0, 0, 0]
+  - t: 1
+    scale: [0.22, 0.7, 0.2]
+    ease: out_expo
+  - t: 9
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: echo-3
+  kind: {type: block, block: cyan_stained_glass}
+  brightness: 15
+  start_tick: 0
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 0.35, 0.17]
+    scale: [0.044000000000000004, 0.7, 0.2]
+    rotate: [0, 0, 0]
+  - t: 1
+    scale: [0.22, 0.7, 0.2]
+    ease: out_expo
+  - t: 9
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: echo-4
+  kind: {type: block, block: cyan_stained_glass}
+  brightness: 15
+  start_tick: 0
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 1.0, 0.4]
+    scale: [0.036, 0.6, 0.18]
+    rotate: [0, 0, 0]
+  - t: 1
+    scale: [0.18, 0.6, 0.18]
+    ease: out_expo
+  - t: 9
+    scale: [0, 0, 0]
+    ease: in_quad
