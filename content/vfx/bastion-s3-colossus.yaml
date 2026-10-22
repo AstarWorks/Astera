@@ -1,0 +1,128 @@
+# Bastion Greatsword S3 finisher: a 29-tick readable telegraph (the floor hoop is the damage radius,
+# a colossal sword rises out of the ground and hangs trembling overhead), then the slam: ground spike
+# star, ten radial light rays, a star flash and a shockwave hoop; an aftershock hoop follows at tick 51.
+# Peak ~48 live displays at the slam frame.
+# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
+
+id: bastion-s3-colossus
+duration_ticks: 60
+orient: yaw
+follow: false
+sample_ticks: 2
+
+elements:
+  # Damage-radius hoop on the floor, pulsing until the slam.
+  - id: warn
+    kind: { type: block, block: yellow_stained_glass }
+    brightness: 12
+    glow_color: "#ffd23a"
+    start_tick: 0
+    end_tick: 29
+    count: 20
+    formation:
+      curve: { type: circle, radius: 5.0 }
+      offset: [0.0, 0.05, 0.0]
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.0, 0.03, 0.0] }
+      - { t: 5, scale: [0.18, 0.03, 1.2], ease: out_back }
+      - { t: 29, scale: [0.18, 0.03, 1.2] }
+    oscillate: { axis: scale_x, amplitude: 0.06, period_ticks: 4 }
+
+  # Colossal sword: bursts out of the ground, hangs and trembles, then slams forward-down.
+  - id: sword
+    kind: { type: item, item: golden_sword, display_mode: fixed }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 0
+    end_tick: 46
+    keyframes:
+      - { t: 0, translate: [0.0, -1.5, 0.6], rotate: [0, 0, 45], scale: [5.5, 5.5, 5.5] }
+      - { t: 6, translate: [0.0, 4.4, 0.6], ease: out_cubic }
+      - { t: 26, translate: [0.0, 4.6, 0.6], ease: linear }
+      - { t: 29, translate: [0.0, 1.6, 3.4], rotate: [0, 115, 45], ease: in_expo }
+      - { t: 40, translate: [0.0, 1.6, 3.4] }
+      - { t: 46, scale: [0.0, 0.0, 0.0], ease: in_quad }
+    oscillate: { axis: translate_y, amplitude: 0.05, period_ticks: 3 }
+
+  # Ground spike star.
+  - id: spikes
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 29
+    end_tick: 47
+    count: 12
+    formation:
+      curve: { type: circle, radius: 0.8 }
+      offset: [0.0, 0.05, 0.0]
+      align: outward
+    jitter: { position: 0.0, rotation_deg: 5, scale: 0.25 }
+    keyframes:
+      - { t: 0, translate: [0.0, 0.2, 0.8], rotate: [0, -20, 0], scale: [0.12, 0.12, 0.5] }
+      - { t: 3, translate: [0.0, 0.8, 3.0], scale: [0.2, 0.2, 4.4], ease: out_expo }
+      - { t: 10, block: yellow_stained_glass }
+      - { t: 18, scale: [0.0, 0.0, 4.4], ease: in_quad }
+
+  # Radial light rays: a star burst on the vertical plane facing the caster.
+  - id: rays
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 29
+    end_tick: 39
+    count: 10
+    formation:
+      curve: { type: circle, radius: 0.6 }
+      offset: [0.0, 1.4, 1.0]
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      align: outward
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.5], scale: [0.04, 0.04, 0.5] }
+      - { t: 2, translate: [0.0, 0.0, 3.8], scale: [0.06, 0.06, 7.0], ease: out_expo }
+      - { t: 5, block: white_stained_glass }
+      - { t: 10, scale: [0.0, 0.0, 7.0], ease: in_quad }
+
+  - id: flash
+    kind: { type: text, text: "<#fff6a0><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 29
+    end_tick: 38
+    keyframes:
+      - { t: 0, translate: [0.0, 1.6, 2.4], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [15.0, 15.0, 15.0], ease: out_expo }
+      - { t: 4, scale: [11.0, 11.0, 11.0] }
+      - { t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  # First shockwave hoop and the aftershock (tick 51) share the same shape.
+  - id: shock
+    kind: { type: block, block: orange_concrete }
+    brightness: 15
+    glow_color: "#ff7a1a"
+    start_tick: 29
+    end_tick: 39
+    count: 24
+    formation:
+      curve: { type: circle, radius: 0.6 }
+      offset: [0.0, 0.15, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, scale: [0.5, 0.12, 0.16] }
+      - { t: 6, translate: [0.0, 0.0, 4.8], scale: [1.1, 0.1, 0.16], ease: out_expo }
+      - { t: 10, translate: [0.0, 0.0, 5.3], scale: [0.0, 0.0, 0.16], ease: in_quad }
+
+  - id: aftershock
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 51
+    end_tick: 60
+    count: 16
+    formation:
+      curve: { type: circle, radius: 0.6 }
+      offset: [0.0, 0.15, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, scale: [0.6, 0.1, 0.14] }
+      - { t: 5, translate: [0.0, 0.0, 5.0], scale: [1.4, 0.08, 0.14], ease: out_expo }
+      - { t: 9, translate: [0.0, 0.0, 5.6], scale: [0.0, 0.0, 0.14], ease: in_quad }

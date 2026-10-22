@@ -1,0 +1,60 @@
+# Verdict Hammer S1, beat 2: the echo. A near-vertical gold crescent is drawn top to bottom in two
+# arc sections with a star gleam at its heel. Played 17 ticks into the cast so it snaps on the
+# damage frame. ~9 live displays.
+# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
+
+id: verdict-s1-echo
+duration_ticks: 16
+orient: look
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: crescent-a
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    glow_color: "#ffcc40"
+    start_tick: 2
+    end_tick: 12
+    count: 4
+    formation:
+      curve: { type: arc, radius: 3.0, from_deg: -70, to_deg: 0 }
+      offset: [0.0, 1.5, -0.3]
+      tilt: { yaw: 0, pitch: 0, roll: 78 }
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.3] }
+      - { t: 2, scale: [0.18, 0.18, 1.5], ease: out_expo }
+      - { t: 5, block: yellow_stained_glass }
+      - { t: 10, scale: [0.0, 0.0, 1.5], ease: in_quad }
+
+  - id: crescent-b
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    glow_color: "#ffcc40"
+    start_tick: 3
+    end_tick: 13
+    count: 4
+    formation:
+      curve: { type: arc, radius: 3.0, from_deg: 0, to_deg: 70 }
+      offset: [0.0, 1.5, -0.3]
+      tilt: { yaw: 0, pitch: 0, roll: 78 }
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.3] }
+      - { t: 2, scale: [0.18, 0.18, 1.5], ease: out_expo }
+      - { t: 5, block: yellow_stained_glass }
+      - { t: 10, scale: [0.0, 0.0, 1.5], ease: in_quad }
+
+  - id: gleam
+    kind: { type: text, text: "<#ffe27a><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 4
+    end_tick: 12
+    keyframes:
+      - { t: 0, translate: [0.0, 1.0, 2.8], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [3.5, 3.5, 3.5], ease: out_back }
+      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }

@@ -494,6 +494,8 @@ astera:
           verdant-staff: "翠緑の杖"
           greatsword: "大剣"
           thunder-staff: "サンダースタッフ"
+          bastion-greatsword: "城壁の大剣"
+          verdict-hammer: "審判の杭槌"
       gui:
         spacer: " "
         price: "<gray>価格: <green>{amount}</green> {currency}</gray>"
