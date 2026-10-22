@@ -37,7 +37,7 @@ public class InMemoryMatchRepository : IMatchRepository {
 
     override fun findMatchOf(playerId: PlayerId): Match? =
         store.values.firstOrNull { match ->
-            match.teams.any { team -> playerId in team.members }
+            match.phase != MatchPhase.ENDED && match.hasParticipant(playerId)
         }
 
     override fun findInPhase(phase: MatchPhase): Collection<Match> =

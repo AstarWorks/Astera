@@ -433,7 +433,8 @@ public object CombatWiring {
         // Wave 6a Paper sweep pattern.
         val projectileService: IProjectileService = ports.projectileService(services)
         registrations += services.register<IProjectileService>(projectileService, priority = 100)
-        val teamLookup = services.get<IMatchTeamLookup>()
+        // Match enables after Combat; resolve its team service when damage is applied.
+        val teamLookup = IMatchTeamLookup { playerId -> services.get<IMatchTeamLookup>()?.teamOf(playerId) }
         val combatContexts = com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() }
         val damageRule = DamageRule(
             elementMatrix = elementMatrix,

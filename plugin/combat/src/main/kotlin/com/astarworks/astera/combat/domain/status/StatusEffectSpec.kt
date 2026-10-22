@@ -21,8 +21,10 @@ public data class StatusEffectSpec(
     val magnitude: Double,
     val stackable: Boolean,
     val maxStacks: Int,
+    val defaultDurationTicks: Int = 100,
 ) {
     init {
+        require(defaultDurationTicks >= 0) { "defaultDurationTicks must be >= 0: $defaultDurationTicks" }
         require(maxStacks >= 1) { "maxStacks must be >= 1: $maxStacks" }
     }
 }

@@ -9,7 +9,6 @@ import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
-import com.astarworks.astera.match.domain.match.MatchStateMachine
 
 /**
  * Ends a match, publishing [MatchEnded].
@@ -31,19 +30,7 @@ public class EndMatchUseCase(
             return Result.failure(EndMatchError.MatchAlreadyEnded(matchId))
         }
 
-        val trigger = when (reason) {
-            EndReason.AdminEnded -> MatchStateMachine.TransitionTrigger.AdminEnd
-            is EndReason.Cancelled -> MatchStateMachine.TransitionTrigger.Cancel
-            else -> MatchStateMachine.TransitionTrigger.AdminEnd
-        }
-
-        val transitionResult = MatchStateMachine.transition(match.phase, trigger)
-        val nextPhase = when (transitionResult) {
-            is Result.Success -> transitionResult.value
-            is Result.Failure -> MatchPhase.ENDED
-        }
-
-        val ended = match.withPhase(nextPhase)
+        val ended = match.withPhase(MatchPhase.ENDED)
         matches.save(ended)
 
         // Wave 4.5: compute winning team via score threshold evaluator (ADR-0027)
