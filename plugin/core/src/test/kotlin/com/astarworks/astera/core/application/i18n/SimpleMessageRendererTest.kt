@@ -44,6 +44,17 @@ class SimpleMessageRendererTest {
     )
 
     @Test
+    fun `key and inline translations agree for trimmed BCP47 locales`() {
+        val bcp47Renderer = SimpleMessageRenderer(languages, localeResolver = { "  JA-JP  " })
+        assertThat(bcp47Renderer.render(jaPlayer, mk("astera.system.welcome"), mapOf("player" to "Alice")))
+            .isEqualTo("ようこそ、Alice！")
+        assertThat(bcp47Renderer.renderLore(jaPlayer, mk("astera.weapon.example-sword.lore")))
+            .containsExactly("<gray>テスト用</gray>", "<gray>左クリック</gray>")
+        assertThat(bcp47Renderer.renderText(jaPlayer, helloText, mapOf("player" to "Alice")))
+            .isEqualTo("ようこそ、Alice！")
+    }
+
+    @Test
     fun `looks up the key in the player's locale`() {
         val out = renderer.render(jaPlayer, mk("astera.system.welcome"), mapOf("player" to "Alice"))
         assertThat(out).isEqualTo("ようこそ、Alice！")

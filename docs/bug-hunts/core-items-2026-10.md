@@ -30,4 +30,10 @@ Verification: no local builds or tests run, per task constraints. Regression tes
 - Evidence: `ItemsWiring.kt:131` constructed an empty RefinementProfileRegistry, immediately handing its resolver to both use cases. No production caller invoked register/registerFromYaml, despite the documented `content/refinement/<id>.yaml` contract.
 - Fix: use the existing multi-format ContentLoader to populate that registry before constructing consumers; malformed profiles are logged and skipped through the standard loader.
 - Test: `RefinementContentScenarioTest` boots real wiring with a valid profile and malformed sibling, then actually applies the configured refinement. Its temporary content tree links the existing categories and owns only refinement.
+- Fix commit: `982c406e`.
+
+## 6. BCP-47 locales fall back to English for key-based messages
+- Evidence: `SimpleMessageRenderer.kt:131` split only on underscore and did not trim, unlike LocaleCode.parse used by inline item text. A `ja-JP` viewer received English message-key text alongside Japanese item text.
+- Fix: reuse LocaleCode.parse for both paths.
+- Test: `SimpleMessageRendererTest.key and inline translations agree for trimmed BCP47 locales` covers key text, lore, and inline text with `  JA-JP  `.
 - Fix commit: pending.
