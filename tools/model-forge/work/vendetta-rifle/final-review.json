@@ -1,0 +1,852 @@
+{
+  "item": "vendetta-rifle",
+  "round": 5,
+  "validation": {
+    "valid": true,
+    "elements": 178,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999667,
+      2.0000000000000373
+    ],
+    "rotated_bounds": [
+      [
+        -7.899999999999999,
+        7.307617736356693,
+        5.7749999999999995
+      ],
+      [
+        24.900000000000002,
+        19.5,
+        10.75
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        15,
+        82,
+        247,
+        167
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        108,
+        82,
+        143,
+        167
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        15,
+        112,
+        247,
+        147
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        25,
+        79,
+        232,
+        159
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        18,
+        87,
+        224,
+        175
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        88,
+        75,
+        181,
+        147
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        116,
+        72,
+        142,
+        139
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        72,
+        75,
+        165,
+        147
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        116,
+        72,
+        142,
+        139
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        83,
+        88,
+        174,
+        121
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        70,
+        104,
+        182,
+        145
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "1c84fa7fc1ea07ecda053f56b2770c8bba0f0795bc3c9018a18f94a480c27ad6",
+  "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation.",
+  "rounds": [
+    {
+      "item": "vendetta-rifle",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 8,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.0,
+          2.000000000000003
+        ],
+        "rotated_bounds": [
+          [
+            -7.5,
+            7.307617736356693,
+            6.45
+          ],
+          [
+            25.0,
+            15.5,
+            9.55
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            18,
+            110,
+            248,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            117,
+            110,
+            138,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            18,
+            117,
+            248,
+            138
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            28,
+            95,
+            233,
+            159
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            21,
+            105,
+            227,
+            175
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            90,
+            99,
+            180,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            119,
+            94,
+            136,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            74,
+            99,
+            164,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            119,
+            94,
+            136,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            85,
+            99,
+            175,
+            121
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            70,
+            118,
+            180,
+            145
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "1c84fa7fc1ea07ecda053f56b2770c8bba0f0795bc3c9018a18f94a480c27ad6",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    },
+    {
+      "item": "vendetta-rifle",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 66,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999762,
+          2.000000000000016
+        ],
+        "rotated_bounds": [
+          [
+            -7.899999999999999,
+            7.307617736356693,
+            6.25
+          ],
+          [
+            24.900000000000002,
+            19.3,
+            9.75
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            15,
+            83,
+            247,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            116,
+            83,
+            139,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            15,
+            116,
+            247,
+            139
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            25,
+            79,
+            232,
+            159
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            18,
+            87,
+            224,
+            175
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            88,
+            76,
+            181,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            118,
+            73,
+            137,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            72,
+            76,
+            165,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            118,
+            73,
+            137,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            83,
+            88,
+            174,
+            121
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            70,
+            105,
+            182,
+            145
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "1c84fa7fc1ea07ecda053f56b2770c8bba0f0795bc3c9018a18f94a480c27ad6",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    },
+    {
+      "item": "vendetta-rifle",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 126,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999667,
+          2.0000000000000373
+        ],
+        "rotated_bounds": [
+          [
+            -7.899999999999999,
+            7.307617736356693,
+            5.7749999999999995
+          ],
+          [
+            24.900000000000002,
+            19.5,
+            10.225
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            15,
+            82,
+            247,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            112,
+            82,
+            143,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            15,
+            112,
+            247,
+            143
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            25,
+            79,
+            232,
+            159
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            18,
+            87,
+            224,
+            175
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            88,
+            75,
+            181,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            116,
+            72,
+            139,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            72,
+            75,
+            165,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            116,
+            72,
+            139,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            83,
+            88,
+            174,
+            121
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            70,
+            104,
+            182,
+            145
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "1c84fa7fc1ea07ecda053f56b2770c8bba0f0795bc3c9018a18f94a480c27ad6",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    },
+    {
+      "item": "vendetta-rifle",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 154,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999667,
+          2.0000000000000373
+        ],
+        "rotated_bounds": [
+          [
+            -7.899999999999999,
+            7.307617736356693,
+            5.7749999999999995
+          ],
+          [
+            24.900000000000002,
+            19.5,
+            10.225
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            15,
+            82,
+            247,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            112,
+            82,
+            143,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            15,
+            112,
+            247,
+            143
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            25,
+            79,
+            232,
+            159
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            18,
+            87,
+            224,
+            175
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            88,
+            75,
+            181,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            116,
+            72,
+            139,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            72,
+            75,
+            165,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            116,
+            72,
+            139,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            83,
+            88,
+            174,
+            121
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            70,
+            104,
+            182,
+            145
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "1c84fa7fc1ea07ecda053f56b2770c8bba0f0795bc3c9018a18f94a480c27ad6",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    },
+    {
+      "item": "vendetta-rifle",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 178,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999667,
+          2.0000000000000373
+        ],
+        "rotated_bounds": [
+          [
+            -7.899999999999999,
+            7.307617736356693,
+            5.7749999999999995
+          ],
+          [
+            24.900000000000002,
+            19.5,
+            10.75
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            15,
+            82,
+            247,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            108,
+            82,
+            143,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            15,
+            112,
+            247,
+            147
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            25,
+            79,
+            232,
+            159
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            18,
+            87,
+            224,
+            175
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            88,
+            75,
+            181,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            116,
+            72,
+            142,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            72,
+            75,
+            165,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            116,
+            72,
+            142,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            83,
+            88,
+            174,
+            121
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            70,
+            104,
+            182,
+            145
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "1c84fa7fc1ea07ecda053f56b2770c8bba0f0795bc3c9018a18f94a480c27ad6",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    }
+  ],
+  "sha256": {
+    "model.json": "99fa104eae6603c6b68587a26181d6f282ad530e1fd3b18bb4b4abfce50338da",
+    "texture.png": "17eac232a30912983de5dfe8aca2057f23a67cc7fb1bee7e450e5b320b3b8e8a"
+  }
+}
