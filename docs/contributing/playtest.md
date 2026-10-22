@@ -31,6 +31,16 @@ with `game` if they need op there too).
 You always land on the **lobby** server (`try = ["lobby"]`). Shop, vault, queue and NPCs
 are there; matches run on the **game** server (section 4).
 
+### Lobby menu kit (compass + crafting-grid buttons)
+
+On the lobby (and on `ALL` backends while you are not in a match) hotbar slot 0 is the **Game Menu**
+compass (right-click = same as `/astera menu`); slots 1-3 / 7 / 8 are queue, shop, customize,
+profile and settings. Open your **inventory (E)**: the 2x2 crafting grid shows Menu / Profile /
+Shop / Settings and the result slot shows Queue; click one and the inventory closes and that
+screen opens. Layout: `content/gui/kit/lobby-kit.yaml` (ADR-0185). Check that none of these items
+can be moved, dropped (Q), swapped (F, number keys), double-click collected, crafted, or kept after
+death, and that they are gone while in a match and back after returning to the lobby.
+
 ## 3. Get weapons
 
 Every command is a subcommand of one root: `/astera`. Type `/astera help` for what you may use, or press Tab after `/astera ` (admin areas such as `admin`, `mod`, `items` only show for ops).

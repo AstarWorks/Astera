@@ -90,6 +90,7 @@ internal class CorePaperBindings(
 
     /** Set by the GUI factory; the Paper listener needs the concrete adapter. */
     private var paperGuiAdapter: PaperGuiAdapter? = null
+    private var lobbyMenuKit: com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyMenuKit? = null
 
     fun buildPorts(): CorePlatformPorts {
         // ---- Vendor-neutral abstraction over Paper -----------------------
@@ -281,7 +282,7 @@ internal class CorePaperBindings(
                 // while PlayerSession.state == Loading).
                 val sessions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository>()
                 val paperInventorySerializer = com.astarworks.astera.core.adapter.paper.inventory
-                    .PaperInventorySnapshotSerializer()
+                    .PaperInventorySnapshotSerializer(onRestored = { player -> lobbyMenuKit?.refresh(player) })
                 services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventoryGateway>(
                     com.astarworks.astera.core.adapter.paper.inventory
                         .PaperPlayerInventoryGateway(server, paperInventorySerializer),
@@ -402,6 +403,8 @@ internal class CorePaperBindings(
         val guiListener = PaperGuiListener(adapter = guiAdapter, router = result.guiIntentRouter, server = mcServer)
         server.pluginManager.registerEvents(guiListener, plugin)
 
+        installLobbyMenuKit(ctx, result)
+
         // ── Wave 6a-6 (ADR-0153) — Bukkit → DomainEvent adapter ────────────
         // Single Bukkit Listener that:
         //   Role 1 — translates 9 Bukkit events into Core DomainEvents
@@ -431,6 +434,40 @@ internal class CorePaperBindings(
                 "Role 2: EntityDamageEvent + PlayerDeathEvent defensive cancellation " +
                 "per ADR-0149 §D).",
         )
+    }
+
+    /**
+     * ADR-0185 — locked lobby hotbar kit + inventory crafting-grid buttons. Only on backends that
+     * host the lobby and when `content/gui/kit/lobby-kit.yaml` loaded; refreshed whenever a match
+     * starts or ends so an `ALL` backend swaps the kit with the match inventory.
+     */
+    private fun installLobbyMenuKit(ctx: WiringContext, result: CoreWiringResult) {
+        val kit = ctx.services.get<com.astarworks.astera.core.domain.lobby.LobbyMenuKit>() ?: return
+        val renderer = com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer(
+            items = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
+            messages = ctx.services.getOrThrow<IMessageRenderer>(),
+            bindingResolver = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver>(),
+        )
+        val menuKit = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyMenuKit(
+            plugin = plugin,
+            kit = kit,
+            role = ctx.serverRole,
+            renderer = renderer,
+            messages = ctx.services.getOrThrow<IMessageRenderer>(),
+            intents = result.guiIntentRouter,
+            mcServer = mcServer,
+            inMatch = { playerId ->
+                ctx.services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
+                    ?.isHeld(playerId) ?: false
+            },
+        )
+        server.pluginManager.registerEvents(menuKit, plugin)
+        lobbyMenuKit = menuKit
+        val bus = ctx.services.getOrThrow<IDomainEventBus>()
+        ctx.subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { menuKit.refreshAll() }
+        ctx.subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) { menuKit.refreshAll() }
+        menuKit.refreshAll()
+        logger.info("Lobby menu kit installed: ${kit.entries.size} entries (ADR-0185).")
     }
 
     /**
@@ -514,6 +551,8 @@ internal class CorePaperBindings(
 
     /** Paper-side teardown; the host-neutral wiring tears down via `WiringContext.close()` + `CoreWiringResult.shutdown()`. */
     fun shutdown() {
+        lobbyMenuKit?.stripAll()
+        lobbyMenuKit = null
         npcBodyService?.removeAll()
         npcBodyService = null
         paperVaultWindow?.closeAll()
