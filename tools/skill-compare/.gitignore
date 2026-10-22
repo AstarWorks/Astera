@@ -1,0 +1,4 @@
+# third-party video frames / audio / analysis: never committed (copyright)
+cache/
+node_modules/
+build/
