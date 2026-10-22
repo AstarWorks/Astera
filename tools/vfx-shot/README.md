@@ -108,3 +108,6 @@ prints `queued: ...` and polls every 3 s. The kernel frees the slot when the run
 
 **Target dummy**: husk with movement_speed 0, follow_range 0, attack_damage 0, silent, fixed rotation facing the caster, HP 200, summoned
 fresh per view (NOT `NoAI`: that would also swallow knockback/velocity). It can still turn its head toward the caster, never walk or attack.
+
+
+When reusing one client for several comparison cases, pass its actual FOV in degrees as the optional last argument to `compare_plan.py` (for example `70`). This converts every intent camera key to the running client's FOV. Without this argument the emitted `CMP_FOV_OPT` must be applied when starting the client; changing a shell variable after startup does not change the rendered FOV. A camera plan with correct response timing but the wrong client FOV is not valid framing evidence.

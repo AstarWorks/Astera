@@ -1,11 +1,13 @@
 """Plan for `VIEW=compare`: maps a skill-compare case's intent.json onto world space.
 
-usage: python3 -I compare_plan.py <intent.json|-> <mode case|side> <cx> <cy> <cz> <plan_out>
+usage: python3 -I compare_plan.py <intent.json|-> <mode case|side> <cx> <cy> <cz> <plan_out> [client_fov_degrees]
 
 Intent units: x toward the enemy, y up, z toward the side camera, caster at the origin. The world mapping is the
 identity (world = (cx+x, cy+y, cz+z)); the caster faces +x (yaw -90), so the side camera at +z sees the enemy on its
 right. The client FOV option is fixed per run (the first key's fov); keys with another fov are emulated by moving the
 camera along its view ray (distance * tan(fov/2) / tan(fov0/2)) so the framing matches.
+For a reused client, pass its actual FOV as the optional final argument; every camera key, including the first,
+is then converted to that FOV. Without it, the caller must launch the client with CMP_FOV_OPT.
 
 Writes <plan_out> as `t_ms<TAB>command` lines (t relative to the cast) and prints shell assignments on stdout.
 """
@@ -36,7 +38,9 @@ def main() -> int:
     if mode == "side" or not keys:
         mid = enemy_x / 2
         keys = [{"t": 0, "pos": [mid, 1.6, 6.0], "target": [mid, 1.0, 0.0], "fov": 55}]
-    fov0 = float(keys[0].get("fov", 70))
+    fov0 = float(sys.argv[7]) if len(sys.argv) > 7 else float(keys[0].get("fov", 70))
+    if not 30 <= fov0 <= 110:
+        raise ValueError("client FOV must be between 30 and 110 degrees")
     fov_opt = max(-1.0, min(1.0, (fov0 - 70.0) / 40.0))
     k0 = math.tan(math.radians(fov0) / 2)
     # A destination key opts into a continuous dolly; unspecified transitions remain hard cuts.
