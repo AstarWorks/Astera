@@ -19,3 +19,7 @@ default_config:
   respawn_delay_seconds: "5"
   death_cam_seconds: "2"
   spawn_protection_seconds: "3"
+  # G1 win condition: every enemy kill scores 1 for the killer's team. The first team to score_threshold kills
+  # wins; after time_limit_seconds of ACTIVE time the team in front wins (tie = draw).
+  score_threshold: "10"
+  time_limit_seconds: "600"

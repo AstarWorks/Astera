@@ -48,6 +48,12 @@ public class PhaseTimerUseCase(
     private val matchTimer: MatchTimerService? = null,
     /** COUNTDOWN length in ticks (WP8: `match_countdown_seconds` of the queue config). */
     private val countdownTicks: () -> Long = { PhaseTimings.COUNTDOWN_TICKS },
+    /**
+     * G1: what to do when SUDDEN_DEATH runs out. A bare phase switch to ENDED never published
+     * `MatchEnded`, so players stayed in the arena with no result, no rewards and no way back; the
+     * platform wires this to the real end-of-match path. Null keeps the legacy phase switch (tests).
+     */
+    private val onSuddenDeathExpired: ((MatchId) -> Unit)? = null,
 ) {
 
     /**
@@ -96,10 +102,16 @@ public class PhaseTimerUseCase(
                 MatchPhase.SUDDEN_DEATH -> {
                     val enteredAt = suddenDeathEnteredAt.getOrPut(match.id) { now }
                     if (now - enteredAt >= PhaseTimings.SUDDEN_DEATH_TICKS + shift) {
-                        switchPhase.execute(
-                            match.id,
-                            MatchStateMachine.TransitionTrigger.SuddenDeathTimer,
-                        )
+                        val end = onSuddenDeathExpired
+                        if (end != null) {
+                            suddenDeathEnteredAt.remove(match.id)
+                            end(match.id)
+                        } else {
+                            switchPhase.execute(
+                                match.id,
+                                MatchStateMachine.TransitionTrigger.SuddenDeathTimer,
+                            )
+                        }
                         matchTimer?.clearShiftsFor(match.id)
                     }
                 }
