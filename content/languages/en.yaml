@@ -97,6 +97,19 @@ astera:
   skill.cast.ok: "<green>Cast <white>{skill}</white> for {player}.</green>"
   skill.cast.need-target: "<red>Name a player: /astera skill cast <skill-id> <player></red>"
   skill.cast.no-player: "<red>Player <gold>{player}</gold> is offline or unknown.</red>"
+  skill.preview.started: "<green>Previewing <white>{skill}</white> (view {view}, speed {speed}x). A dummy casts it in 0.5s.</green>"
+  skill.preview.again: "<green>Repeating the last preview.</green>"
+  skill.preview.slow-warning: "<yellow>Tick rate is slowed for everyone on this backend until the preview ends.</yellow>"
+  skill.preview.frozen: "<yellow>Server frozen for everyone on this backend. <white>/astera skill preview step [n]</white> advances, <white>unfreeze</white> resumes.</yellow>"
+  skill.preview.unfrozen: "<green>Server unfrozen.</green>"
+  skill.preview.stepped: "<gray>Stepped {ticks} tick(s).</gray>"
+  skill.preview.not-frozen: "<red>Freeze first: /astera skill preview freeze</red>"
+  skill.preview.nothing-to-repeat: "<red>No previous preview to repeat.</red>"
+  skill.preview.speed-needs-operator: "<red>speed below 1 changes the tick rate for everyone and needs an operator.</red>"
+  skill.preview.viewer-unavailable: "<red>Could not read your position.</red>"
+  skill.preview.stage-failed: "<red>Could not spawn the preview dummies (world not loaded?).</red>"
+  skill.preview.bad-option: "<red>Unknown option <gold>{option}</gold>. Use view=, speed=, distance=.</red>"
+  skill.preview.bad-value: "<red>Bad value <gold>{value}</gold> for <white>{key}</white> (view: side|opponent|behind|stay, speed: 0.05-1, distance: 2-32).</red>"
 
   command:
     give:

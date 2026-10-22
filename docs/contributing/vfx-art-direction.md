@@ -115,3 +115,6 @@ ItemDisplay はほぼ使わない。
 
 `tools/skill-viewer` で **術者一人称・相手三人称・横** の 3 視点を出し、ダメージ tick と重ねて確認する。
 近似プレビューでの確認だけで完了にしない。
+
+ゲーム内では `/astera skill preview <skill-id> view=side|opponent|behind speed=0.25` でダミーに発動させ、
+術者の一人称以外の視点から実機で確認する (`again` で再生、`freeze` / `step` でコマ送り。詳細は `docs/contributing/playtest.md`)。

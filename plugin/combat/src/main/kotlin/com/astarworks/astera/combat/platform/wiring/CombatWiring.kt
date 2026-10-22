@@ -317,7 +317,14 @@ public object CombatWiring {
         // 4. Wire use cases if runtime impls are present -----------------------
         val eventBus = services.getOrThrow<IDomainEventBus>()
         val scheduler = services.getOrThrow<IScheduler>()
-        val worldGateway = services.getOrThrow<IWorldGateway>()
+        // Preview dummies / mobs cast by entity uuid: widen the player-only pose + teleport reads to them.
+        val entityBody = ports.entityCasterBody?.invoke(services)
+        val worldGateway = services.getOrThrow<IWorldGateway>().let { base ->
+            if (entityBody != null) com.astarworks.astera.combat.application.preview.EntityTeleportingWorldGateway(base, entityBody) else base
+        }
+        val casterPoses = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>()?.let { base ->
+            if (entityBody != null) com.astarworks.astera.combat.application.preview.EntityFallbackPoseLookup(base, entityBody) else base
+        }
 
         val cooldownTracker = services.get<ICooldownTracker>()
         if (cooldownTracker == null) {
@@ -527,7 +534,7 @@ public object CombatWiring {
                 particleRegistry = particleRegistry,
                 soundRegistry = soundRegistry,
                 soundScheduler = services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>(),
-                poseLookup = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>(),
+                poseLookup = casterPoses,
                 // Match registers IMatchTeamLookup after Combat enables (softdepend
                 // order), so resolve it per call instead of at wiring time.
                 teamLookup = IMatchTeamLookup { playerId -> services.get<IMatchTeamLookup>()?.teamOf(playerId) },
@@ -588,7 +595,7 @@ public object CombatWiring {
                 scheduler = scheduler,
                 resourcePool = services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>(),
                 items = services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
-                poseLookup = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>(),
+                poseLookup = casterPoses,
                 egoGauge = services.get<com.astarworks.astera.core.application.port.outbound.IEgoGauge>(),
                 // skillCastDispatcher injected after construction below to
                 // break the wiring cycle (dispatcher needs ProjectileHandler
@@ -632,7 +639,7 @@ public object CombatWiring {
                 nearbyQuery,
                 applyDamage,
                 mechanicDispatcher,
-                services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>(),
+                casterPoses,
             )
             val aoeHandler = AoeHandler(nearbyQuery, applyDamage, mechanicDispatcher)
             val buffHandler = BuffHandler(applyStatus, scheduler, mechanicDispatcher)
@@ -786,10 +793,30 @@ public object CombatWiring {
             testers = { services.get<com.astarworks.astera.core.application.port.outbound.ISkillTesterDelivery>() },
             guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
         ).install(services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>())
+        // `/astera skill preview`: dummy caster, camera, tick-rate control (Paper only; the simulator has none).
+        val previewStage = ports.skillPreviewStage?.invoke(services)
+        val tickControl = ports.tickRateControl?.invoke(services)
+        val previewService = if (previewStage != null && tickControl != null) {
+            com.astarworks.astera.combat.application.preview.SkillPreviewService(
+                stage = previewStage,
+                tick = tickControl,
+                caster = adminSkillCaster,
+                poses = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>(),
+                items = services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
+                scheduler = scheduler,
+                onCastFailed = { viewer, failure -> logger.warning("skill preview cast rejected for $viewer: ${failure.error}") },
+            ).also {
+                shutdownHooks += { it.shutdown() }
+                registrations += services.register(it)
+            }
+        } else {
+            null
+        }
         ctx.commandMount("Astera-Combat").register(
             com.astarworks.astera.combat.command.skillCommandSpec(
                 adminSkillCaster,
                 services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
+                previewService,
             ),
         )
 
