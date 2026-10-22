@@ -1,0 +1,341 @@
+{
+  "video_id": "Hc6CJXJrzME",
+  "identity": "Haute Couture::Le Noir Brand Manager Don Quixote",
+  "video_source": "../../vid/Hc6CJXJrzME.mp4",
+  "kit_source": "../../wiki/Hc6CJXJrzME.md",
+  "fps_rational": "30000/1001",
+  "frame_numbering": "Zero-based source decoded frames; intervals are [start,end). Seconds = frame*1001/30000.",
+  "measurement_policy": "Body height H excludes antlers, hammer, hair trails and VFX; dimensions/distances are screen-space estimates, usually ±0.5 H or ±25%, not world-space measurements. Palette hex values are visual approximations, not original asset colors.",
+  "mapping_policy": "No skill labels or coin UI in this trailer. Named mappings are hypotheses from the supplied kit, counts and motifs. The supplied kit itself warns of paraphrase risk. Distinguish visible contact events from inferred game coins; do not force equality.",
+  "timing_policy": "Every gameplay source frame 315–1960 inspected in native-rate sheets. Overviews cover the entire file at 6 fps. Frame-accurate refers to visible pose/effect/cut onset; exact physical contact can be occluded and is bracketed where necessary.",
+  "slot": "s2",
+  "skill_name_candidate": "Judgment!",
+  "interval": {
+    "start_frame": 1069,
+    "end_frame_exclusive": 1131,
+    "start_s": 35.668967,
+    "end_s": 37.7377
+  },
+  "official_attack_type": "Blunt",
+  "official_coins": 1,
+  "mapping_confidence": "high",
+  "mapping_evidence": [
+    "Only one target impact; caster stays distant, no hammer strike follows.",
+    "Same paired nail summon motif as other sequences; fits one-coin unclashable Blunt Judgment! entry.",
+    "Next attacker is visibly a different dark-clad character."
+  ],
+  "weapon": {
+    "type": "long-hafted double-headed hammer",
+    "size_body_heights": {
+      "haft_length": [
+        1.3,
+        1.7
+      ],
+      "head_end_to_end": [
+        0.8,
+        1.1
+      ],
+      "each_drum_diameter": [
+        0.3,
+        0.45
+      ]
+    },
+    "parts": "Two heavy faceted cylindrical/drum striking heads joined by a narrow central collar; long thin shaft with banded, capped butt. Rectangular inset/rib outlines on the drums. Not three separate floating blocks.",
+    "colors": {
+      "body": "#101114",
+      "edge_inlays": "#A69A6C",
+      "charged_edges": "#FFFFC3"
+    },
+    "held": "Hammer kept low beside caster during stationary gesture; it never reaches target. Damaging objects are summoned nails.",
+    "evidence": [
+      {
+        "frame": 387,
+        "time_s": 12.9129,
+        "observation": "Hammer head next to enemy, continuous thin haft back to Don.",
+        "sheet": "sheets/native_003.jpg"
+      },
+      {
+        "frame": 552,
+        "time_s": 18.4184,
+        "observation": "One gloved hand grips shaft across shoulder; capped butt above right.",
+        "sheet": "sheets/native_008.jpg"
+      },
+      {
+        "frame": 1492,
+        "time_s": 49.783067,
+        "observation": "Both drums and center collar visible behind shoulder.",
+        "sheet": "sheets/native_040.jpg"
+      },
+      {
+        "frame": 1881,
+        "time_s": 62.7627,
+        "observation": "One visible hand low on shaft during final strike.",
+        "sheet": "sheets/native_053.jpg"
+      }
+    ]
+  },
+  "props": [
+    {
+      "type": "summoned luminous nails/stakes",
+      "count": 2,
+      "origin": "Materialize in air above the target; not launched out of the held hammer.",
+      "path": "Two downward points develop from ragged gold streaks, hover separated, then plunge inward to converge in a V at the target.",
+      "size_body_heights": {
+        "length": [
+          1.0,
+          1.7
+        ],
+        "head_width": [
+          0.25,
+          0.45
+        ],
+        "spawn_height_above_target": [
+          2.0,
+          3.5
+        ]
+      },
+      "appearance": "T/crossbar head, tapered shaft/point; white-yellow core, gold edge/glow; pointed silhouette is not evidence of a sword grip or blade.",
+      "spawn": {
+        "frame": 1076,
+        "time_s": 35.902533,
+        "observation": "First luminous tip/streak in upper frame.",
+        "sheet": "sheets/native_026.jpg"
+      },
+      "impact": {
+        "frame": 1097,
+        "time_s": 36.603233,
+        "observation": "Two bright converging trails and target flash.",
+        "sheet": "sheets/native_027.jpg"
+      },
+      "end_frame_exclusive": 1147,
+      "end_s": 38.271567,
+      "residue": "V-shaped pair remains at target after plunge; floor ring is aftermath of the same event."
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 1054,
+      "end_frame_exclusive": 1069,
+      "start_s": 35.168467,
+      "end_s": 35.668967,
+      "label": "approach",
+      "description": "Low slide about 1–2 H, no contact."
+    },
+    {
+      "start_frame": 1069,
+      "end_frame_exclusive": 1131,
+      "start_s": 35.668967,
+      "end_s": 37.7377,
+      "label": "stationary_cast",
+      "description": "Upright, arm extends; remains distant throughout impact. Camera shifts toward target, not a caster dash."
+    }
+  ],
+  "hits": [
+    {
+      "frame": 1097,
+      "time_s": 36.603233,
+      "coin_candidate": 1,
+      "contact": "Two golden summoned nails plunge together into target.",
+      "range_class": "ranged_projectile",
+      "caster_target_distance_body_heights": [
+        3.5,
+        5
+      ],
+      "timing_basis": "First visible target-impact/occluding flash frame; not a game-engine damage timestamp.",
+      "contact_uncertainty_frames": 1,
+      "evidence": {
+        "frame": 1097,
+        "time_s": 36.603233,
+        "observation": "First converging bright shafts/impact flash at 36.603233.",
+        "sheet": "sheets/native_027.jpg"
+      }
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 1069,
+      "end_frame_exclusive": 1076,
+      "start_s": 35.668967,
+      "end_s": 35.902533,
+      "label": "windup",
+      "description": "Stands and gestures."
+    },
+    {
+      "start_frame": 1076,
+      "end_frame_exclusive": 1097,
+      "start_s": 35.902533,
+      "end_s": 36.603233,
+      "label": "nail_formation",
+      "description": "Two tips appear above target, lengthen, hover."
+    },
+    {
+      "start_frame": 1097,
+      "end_frame_exclusive": 1107,
+      "start_s": 36.603233,
+      "end_s": 36.9369,
+      "label": "coin_1",
+      "description": "Paired plunge and bloom."
+    },
+    {
+      "start_frame": 1107,
+      "end_frame_exclusive": 1131,
+      "start_s": 36.9369,
+      "end_s": 37.7377,
+      "label": "recovery",
+      "description": "Ring opens and thins; V stays. Cut away to another actor at 1131; residue lasts into that shot."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 1076,
+      "end_frame_exclusive": 1097,
+      "start_s": 35.902533,
+      "end_s": 36.603233,
+      "name": "nail materialization",
+      "shape": "two flame/ribbon silhouettes resolving into T-headed nails",
+      "size_body_heights": "1–1.7 H each",
+      "position": "2–3.5 H above target",
+      "colors": {
+        "core": "#FFFFE8",
+        "glow": "#EBD472",
+        "dark_accents": "#55472C"
+      },
+      "motion_and_fade": "Streaks lengthen and settle point-down; no caster translation.",
+      "lifetime_s": 0.7007
+    },
+    {
+      "start_frame": 1097,
+      "end_frame_exclusive": 1107,
+      "start_s": 36.603233,
+      "end_s": 36.9369,
+      "name": "nail plunge",
+      "shape": "two oblique tapered luminous streaks",
+      "size_body_heights": "3–5 H long; 0.1–0.4 H wide",
+      "position": "above target, converging onto torso/ground",
+      "colors": {
+        "core": "#FFFFE8",
+        "glow": "#EBD472",
+        "dark_accents": "#55472C"
+      },
+      "motion_and_fade": "Fast descent, thick saturated first frame; contracts to thin residual trails.",
+      "lifetime_s": 0.333667
+    },
+    {
+      "start_frame": 1097,
+      "end_frame_exclusive": 1119,
+      "start_s": 36.603233,
+      "end_s": 37.3373,
+      "name": "nail impact and floor ring",
+      "shape": "white star/bloom then rough elliptical ring",
+      "size_body_heights": "bloom 1–2 H; ring diameter 2–3 H",
+      "position": "target torso and target ground plane",
+      "colors": {
+        "core": "#FFFFE8",
+        "glow": "#EBD472",
+        "dark_accents": "#55472C"
+      },
+      "motion_and_fade": "Bloom opens into a hollow ring; sparks rise and spread; no second hit inferred from ring expansion.",
+      "lifetime_s": 0.734067
+    },
+    {
+      "start_frame": 1107,
+      "end_frame_exclusive": 1147,
+      "start_s": 36.9369,
+      "end_s": 38.271567,
+      "name": "V nail residue and shards",
+      "shape": "two convergent bright shafts and triangular flecks",
+      "size_body_heights": "V 0.8–1.3 H; shards 0.03–0.15 H",
+      "position": "in front of target; shards around impact",
+      "colors": {
+        "core": "#FFFFE8",
+        "glow": "#EBD472",
+        "dark_accents": "#55472C"
+      },
+      "motion_and_fade": "V persists, ring expands/thins; shards fade separately.",
+      "lifetime_s": 1.334667
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 1069,
+      "end_frame_exclusive": 1097,
+      "start_s": 35.668967,
+      "end_s": 36.603233,
+      "shot": "side target pan",
+      "framing": "Caster left, target right, upper space reserved for nails; camera moves right until caster cropped."
+    },
+    {
+      "start_frame": 1097,
+      "end_frame_exclusive": 1131,
+      "start_s": 36.603233,
+      "end_s": 37.7377,
+      "shot": "target close",
+      "framing": "Impact centered; ring diameter ~half image width. No held-weapon contact."
+    }
+  ],
+  "ambient_effects": [
+    {
+      "start_frame": 318,
+      "end_frame_exclusive": 1960,
+      "start_s": 10.6106,
+      "end_s": 65.398667,
+      "name": "arena ambience",
+      "shape": "cyan drifting points and small hollow bubbles",
+      "size_body_heights": "0.01–0.15",
+      "position": "throughout arena in front of and behind sprites",
+      "colors": {
+        "core": "#67D9DA",
+        "glow": "#235D66",
+        "dark_accents": "#0A1B22"
+      },
+      "motion_and_fade": "Slow drifting; persistent and independent of skill.",
+      "lifetime_s": 54.788067
+    },
+    {
+      "start_frame": 661,
+      "end_frame_exclusive": 1960,
+      "start_s": 22.055367,
+      "end_s": 65.398667,
+      "name": "persistent angular field",
+      "shape": "thin zigzag/stepped gold polylines, with longer verticals late",
+      "size_body_heights": "whole arena; line thickness <0.02",
+      "position": "background behind actors; later floor plane too",
+      "colors": {
+        "core": "#E5E0AD",
+        "glow": "#8F8756",
+        "dark_accents": "#17262B"
+      },
+      "motion_and_fade": "Grows after the self-centered activation; remains between attacks. Not a projectile or repeated damage.",
+      "lifetime_s": 43.3433
+    }
+  ],
+  "contact_sheets": [
+    "sheets/native_026.jpg",
+    "sheets/native_027.jpg",
+    "sheets/native_028.jpg"
+  ],
+  "limitations": [
+    "Skill name is inferred, not read from UI. See mapping confidence and alternatives.",
+    "Exact game damage processing and coin resolution are not visible. Contact flash frame may precede/occlude physical overlap."
+  ],
+  "approach": {
+    "start_frame": 1054,
+    "end_frame_exclusive": 1069,
+    "start_s": 35.168467,
+    "end_s": 35.668967
+  },
+  "repeated_motif_occurrences": [
+    {
+      "interval": {
+        "start_frame": 1431,
+        "end_frame_exclusive": 1483,
+        "start_s": 47.7477,
+        "end_s": 49.482767
+      },
+      "hit_frame": 1462,
+      "note": "Same standalone nail gesture precedes two hammer sweeps. Could be an appended Judgment before Witness; could be part of Defense response. See def.json; not double-counted as a confirmed second S2."
+    }
+  ],
+  "visible_outgoing_contact_count": 1,
+  "inspection_complete_for_interval": true
+}

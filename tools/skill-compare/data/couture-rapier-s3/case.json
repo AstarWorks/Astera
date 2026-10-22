@@ -1,16 +1,16 @@
 {
   "id": "couture-rapier-s3",
-  "rev": 1,
+  "rev": 3,
   "videoId": "GIe7Fna5LD4",
-  "start_s": 41.5,
-  "end_s": 46,
+  "start_s": 32.399033,
+  "end_s": 39.773067,
   "skill": {
-    "name": "couture-rapier-s3",
+    "name": "花鋏の終縫",
     "coins": 3,
     "asteraSkillId": "couture-rapier-s3"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,38 +26,44 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "couture-rapier-s3",
-      "start_s": 41.5,
-      "end_s": 46,
-      "notes": ""
+      "label": "S3",
+      "start_s": 32.399033,
+      "end_s": 39.773067
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "contact 1",
-      "t_s": 42.15,
-      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
+      "label": "接触 1",
+      "t_s": 33.900533,
+      "notes": "astra2 source frame 1016; ranged_projectile; game tick 30. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "contact 2",
-      "t_s": 43.0,
-      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
+      "label": "接触 2",
+      "t_s": 34.701333,
+      "notes": "astra2 source frame 1040; ranged_projectile; game tick 46. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit3",
       "kind": "hit",
-      "label": "contact 3",
-      "t_s": 44.55,
-      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
+      "label": "接触 3",
+      "t_s": 38.038,
+      "notes": "astra2 source frame 1140; ranged_projectile; game tick 113. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Mapping inferred from footage and supplied wiki; no skill labels in video. ",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/couture-rapier/s3.json を参照。",
   "editLog": [],
-  "status": "built",
+  "status": "captured",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "couture-rapier",
+  "identity": "The Alteration Shop Rodion",
+  "videoTitle": "The Alteration Shop Rodion — skill showcase",
+  "iterations": 2,
+  "report": "/report/couture-rapier",
+  "referenceRevision": "e18293a67654e26dfa8e05842b7de8897e052f52d7b5eaca3ef357fa356625fd",
+  "contentRevision": "d11de095dd036a2f9780b65f0f2f6c3a8c4ea63b21499389a1a2d850f9a3ade0"
 }

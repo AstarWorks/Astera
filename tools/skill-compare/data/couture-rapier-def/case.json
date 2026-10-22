@@ -1,16 +1,16 @@
 {
   "id": "couture-rapier-def",
-  "rev": 1,
+  "rev": 3,
   "videoId": "GIe7Fna5LD4",
-  "start_s": 36,
-  "end_s": 40,
+  "start_s": 0,
+  "end_s": 3.0,
   "skill": {
-    "name": "couture-rapier-def",
+    "name": "返し裁ち",
     "coins": 1,
     "asteraSkillId": "couture-rapier-def"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,32 +18,23 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
-  "segments": [
-    {
-      "id": "skill",
-      "kind": "skill",
-      "label": "couture-rapier-def",
-      "start_s": 36,
-      "end_s": 40,
-      "notes": ""
-    },
-    {
-      "id": "hit1",
-      "kind": "hit",
-      "label": "contact 1",
-      "t_s": 38.2,
-      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
-    }
-  ],
-  "notes": "Mapping inferred from footage and supplied wiki; no skill labels in video. ",
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
   "editLog": [],
-  "status": "built",
+  "status": "from-wiki",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "couture-rapier",
+  "identity": "The Alteration Shop Rodion",
+  "videoTitle": "The Alteration Shop Rodion — skill showcase",
+  "iterations": 2,
+  "report": "/report/couture-rapier",
+  "referenceRevision": "7201b6a0dc8b0607e2e8c2297f48e71dc03cad791d405099f2039397ce778d5a",
+  "contentRevision": "146dc85a8679143fa216afc30b4cf2a8de083fee29d303c65c4046b031a92654"
 }

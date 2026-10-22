@@ -1,16 +1,13 @@
 id: couture-rapier-s1
 name:
-  ja: 縫い針
-  en: Basting Stitch
+  ja: 切り合わせ
+  en: Shear Passage
 description:
-  ja: 構えから一閃し、相手を通り抜けて淡い軌跡を残す。
-  en: A measured wind-up, one passing cut, and a pale silk follow-through.
+  ja: 切り合わせ
+  en: Shear Passage
 archetype: sequence
 cooldown_ticks: 65
-resource_cost: 12
-tags:
-- physical
-- couture
+resource_cost: 10
 params:
   type: sequence
 phases:
@@ -19,139 +16,60 @@ phases:
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: couture-rapier-ready
-  - type: dash_strike
-    distance: 5
-    ticks: 3
-    radius: 0.8
-    hit_once: true
-    stop_on_block: true
-    invulnerable: false
-    delay_ticks:
-      type: literal
-      value: 30
-    on_hit: []
-    stop_before_target: 1.8
+    vfx_id: couture-launch-haze
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: couture-rapier-slash
+    vfx_id: couture-shears-snip
     delay_ticks:
       type: literal
-      value: 31
-  - type: damage
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75
-      distance:
-        type: literal
-        value: 3.7
-      max_count: 1
-    components:
-    - base:
-        type: literal
-        value: 7.5
-      attribute: physical
-    ignore_invulnerability:
+      value: 6
+    follow:
       type: literal
       value: true
+  - type: dash_strike
+    distance: 6
+    ticks: 4
+    radius: 0.8
+    hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    on_hit:
+    - type: damage
+      targets:
+        type: target
+      ignore_invulnerability:
+        type: literal
+        value: true
+      components:
+      - base:
+          type: literal
+          value: 8
+        attribute: physical
+    - type: play_vfx
+      targets:
+        type: target
+      vfx_id: couture-rapier-cross
+    - type: play_sound
+      targets:
+        type: target
+      sound_id: entity.player.attack.strong
+      volume:
+        type: literal
+        value: 0.7
+      pitch:
+        type: literal
+        value: 1.1
     delay_ticks:
       type: literal
-      value: 31
+      value: 10
   - type: play_vfx
     targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75
-      distance:
-        type: literal
-        value: 3.7
-      max_count: 1
-    vfx_id: couture-rapier-cross
-    delay_ticks:
-      type: literal
-      value: 31
-  - type: play_sound
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75
-      distance:
-        type: literal
-        value: 3.7
-      max_count: 1
-    sound_id: entity.player.attack.crit
-    volume:
-      type: literal
-      value: 0.6
-    pitch:
-      type: literal
-      value: 1.6
-    delay_ticks:
-      type: literal
-      value: 31
-  - type: hit_stop
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75
-      distance:
-        type: literal
-        value: 3.7
-      max_count: 1
-    ticks: 2
-    include_caster: true
-    delay_ticks:
-      type: literal
-      value: 31
-  - type: screen_flash
-    targets:
       type: caster
-    overlay: white
-    color: '#FFF1DC'
-    fade_in:
-      type: literal
-      value: 0
-    stay:
-      type: literal
-      value: 1
-    fade_out:
-      type: literal
-      value: 1
+    vfx_id: couture-shear-crescent
     delay_ticks:
       type: literal
-      value: 31
-  - type: apply_status
-    targets:
-      type: caster
-    status_id: charge
-    effect_duration_ticks:
+      value: 13
+    follow:
       type: literal
-      value: 400
-    stack_count:
-      type: literal
-      value: 1
-    delay_ticks:
-      type: literal
-      value: 31
+      value: true

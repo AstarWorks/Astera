@@ -1,58 +1,230 @@
 id: vendetta-rifle-s3
 name:
-  ja: 報復の一斉掃射
-  en: Reckoning Salvo
+  ja: 鉄の服従
+  en: Ferrous Obedience
 description:
-  ja: 銃剣を振るい、3連の近接攻撃を放つ。
-  en: A 3-beat close-range bayonet sequence with crimson wakes and gold-edged cuts.
+  ja: 鉄の服従
+  en: Ferrous Obedience
 archetype: sequence
-cooldown_ticks: 183
-resource_cost: 3
-tags:
-- persona
-- melee
-- tremor
+cooldown_ticks: 90
+resource_cost: 10
 params:
   type: sequence
 phases:
   type: sequence
   cast:
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-ready
-    delay_ticks:
-      type: literal
-      value: 1
-  - type: play_sound
-    targets:
-      type: caster
-    sound_id: item.crossbow.loading_end
-    pitch:
-      type: literal
-      value: 0.7
   - type: dash_strike
-    distance: 3.0
-    ticks: 4
-    radius: 0.3
+    distance: 2.4
+    ticks: 3
+    radius: 0.8
     hit_once: true
     invulnerable: false
     stop_on_block: true
     on_hit: []
+    stop_before_target: 1.8
     delay_ticks:
       type: literal
-      value: 35
-    stop_before_target: 1.8
+      value: 4
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: vendetta-slash-b
+    vfx_id: vendetta-bayonet-rise
+    delay_ticks:
+      type: literal
+      value: 5
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: vendetta-gold-rise
+    delay_ticks:
+      type: literal
+      value: 7
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 7
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 8
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    vfx_id: vendetta-thrust-flash
+    delay_ticks:
+      type: literal
+      value: 8
+  - type: play_sound
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 8
+  - type: dash_strike
+    distance: 2.4
+    ticks: 3
+    radius: 0.8
+    hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    on_hit: []
+    stop_before_target: 1.8
+    delay_ticks:
+      type: literal
+      value: 12
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: vendetta-bayonet-thrust
+    delay_ticks:
+      type: literal
+      value: 13
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: vendetta-gold-sweep
+    delay_ticks:
+      type: literal
+      value: 15
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 7
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 16
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    vfx_id: vendetta-thrust-flash
+    delay_ticks:
+      type: literal
+      value: 16
+  - type: play_sound
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 16
+  - type: dash_strike
+    distance: 2.4
+    ticks: 3
+    radius: 0.8
+    hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    on_hit: []
+    stop_before_target: 1.8
     delay_ticks:
       type: literal
       value: 40
-    freeze:
-    - at: 5
-      ticks: 2
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: vendetta-bayonet-thrust
+    delay_ticks:
+      type: literal
+      value: 41
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: vendetta-gold-sweep
+    delay_ticks:
+      type: literal
+      value: 43
   - type: damage
     targets:
       type: cone
@@ -60,414 +232,81 @@ phases:
         type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75.0
       distance:
         type: literal
-        value: 3.6
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
     ignore_invulnerability:
       type: literal
       value: true
     components:
     - base:
         type: literal
-        value: 2.0
+        value: 10
       attribute: physical
     delay_ticks:
       type: literal
-      value: 45
-  - type: apply_status
+      value: 44
+  - type: play_vfx
     targets:
       type: cone
       from:
         type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75.0
       distance:
         type: literal
-        value: 3.6
-    status_id: tremor
-    effect_duration_ticks:
-      type: literal
-      value: 240
-    stack_count:
-      type: literal
-      value: 3
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    vfx_id: vendetta-thrust-flash
     delay_ticks:
       type: literal
-      value: 45
+      value: 44
   - type: play_sound
     targets:
-      type: caster
-    sound_id: entity.player.attack.sweep
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.8
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
     pitch:
       type: literal
       value: 1.1
     delay_ticks:
       type: literal
-      value: 45
-  - type: hit_stop
+      value: 44
+  - type: play_vfx
     targets:
       type: cone
       from:
         type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75.0
       distance:
         type: literal
-        value: 3.6
-    ticks: 2
-    include_caster: true
-    delay_ticks:
-      type: literal
-      value: 45
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-thrust-flash
-    delay_ticks:
-      type: literal
-      value: 45
-  - type: play_sound
-    targets:
-      type: caster
-    sound_id: entity.generic.explode
-    volume:
-      type: literal
-      value: 0.5
-    pitch:
-      type: literal
-      value: 1.5
-    delay_ticks:
-      type: literal
-      value: 45
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-burst
-    delay_ticks:
-      type: literal
-      value: 45
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-slash-b
-    delay_ticks:
-      type: literal
-      value: 78
-    freeze:
-    - at: 5
-      ticks: 2
-  - type: damage
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
+        value: 3.8
       angle_degrees:
         type: literal
-        value: 75.0
-      distance:
-        type: literal
-        value: 3.6
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 2.0
-      attribute: physical
+        value: 90
+      max_count: 1
+    vfx_id: vendetta-contact-ring
     delay_ticks:
       type: literal
-      value: 83
-  - type: apply_status
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75.0
-      distance:
-        type: literal
-        value: 3.6
-    status_id: tremor
-    effect_duration_ticks:
-      type: literal
-      value: 240
-    stack_count:
-      type: literal
-      value: 3
-    delay_ticks:
-      type: literal
-      value: 83
-  - type: play_sound
-    targets:
-      type: caster
-    sound_id: entity.player.attack.sweep
-    pitch:
-      type: literal
-      value: 1.1
-    delay_ticks:
-      type: literal
-      value: 83
-  - type: hit_stop
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75.0
-      distance:
-        type: literal
-        value: 3.6
-    ticks: 2
-    include_caster: true
-    delay_ticks:
-      type: literal
-      value: 83
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-thrust-flash
-    delay_ticks:
-      type: literal
-      value: 83
-  - type: play_sound
-    targets:
-      type: caster
-    sound_id: entity.generic.explode
-    volume:
-      type: literal
-      value: 0.5
-    pitch:
-      type: literal
-      value: 1.5
-    delay_ticks:
-      type: literal
-      value: 83
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-burst
-    delay_ticks:
-      type: literal
-      value: 83
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-slash-a
-    delay_ticks:
-      type: literal
-      value: 146
-    freeze:
-    - at: 5
-      ticks: 2
-  - type: damage
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75.0
-      distance:
-        type: literal
-        value: 3.6
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 4.0
-      attribute: physical
-    delay_ticks:
-      type: literal
-      value: 151
-  - type: apply_status
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75.0
-      distance:
-        type: literal
-        value: 3.6
-    status_id: tremor
-    effect_duration_ticks:
-      type: literal
-      value: 240
-    stack_count:
-      type: literal
-      value: 3
-    delay_ticks:
-      type: literal
-      value: 151
-  - type: play_sound
-    targets:
-      type: caster
-    sound_id: entity.player.attack.sweep
-    pitch:
-      type: literal
-      value: 1.1
-    delay_ticks:
-      type: literal
-      value: 151
-  - type: hit_stop
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75.0
-      distance:
-        type: literal
-        value: 3.6
-    ticks: 3
-    include_caster: true
-    delay_ticks:
-      type: literal
-      value: 151
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-thrust-flash
-    delay_ticks:
-      type: literal
-      value: 151
-  - type: play_sound
-    targets:
-      type: caster
-    sound_id: entity.generic.explode
-    volume:
-      type: literal
-      value: 0.5
-    pitch:
-      type: literal
-      value: 1.5
-    delay_ticks:
-      type: literal
-      value: 151
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-burst
-    delay_ticks:
-      type: literal
-      value: 151
-  - type: knockback
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75.0
-      distance:
-        type: literal
-        value: 3.6
-    direction:
-      type: away_from_caster
-      vertical: 0.1
-    strength:
-      type: literal
-      value: 0.45
-    delay_ticks:
-      type: literal
-      value: 151
-  - type: camera_shake
-    targets:
-      type: caster
-    intensity:
-      type: literal
-      value: 0.25
-    ticks:
-      type: literal
-      value: 3
-    delay_ticks:
-      type: literal
-      value: 151
-  - type: screen_flash
-    targets:
-      type: caster
-    overlay: impact_star
-    color: '#FF643C'
-    fade_in:
-      type: literal
-      value: 0
-    stay:
-      type: literal
-      value: 1
-    fade_out:
-      type: literal
-      value: 2
-    delay_ticks:
-      type: literal
-      value: 151
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-burst
-    scale:
-      type: literal
-      value: 0.65
-    delay_ticks:
-      type: literal
-      value: 22
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-burst
-    scale:
-      type: literal
-      value: 0.65
-    delay_ticks:
-      type: literal
-      value: 66
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: vendetta-burst
-    scale:
-      type: literal
-      value: 0.65
-    delay_ticks:
-      type: literal
-      value: 104
-  - type: leap
-    targets:
-      type: caster
-    destination:
-      type: caster
-    arc_height:
-      type: literal
-      value: 1.4
-    delay_ticks:
-      type: literal
-      value: 133
+      value: 44

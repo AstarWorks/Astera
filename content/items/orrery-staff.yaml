@@ -1,21 +1,39 @@
 id: orrery-staff
 material: BREEZE_ROD
-name: {ja: <gold>天球儀の杖</gold>, en: <gold>Orrery Staff</gold>}
-lore: {ja: ['<gray>左クリック: 双弧（2連・充填+5）</gray>', '<gray>右クリック: 時計仕掛けの旋回（2連）</gray>', '<gray>スニーク + 右クリック: 連禱（4連）</gray>',
-    '<gray>スニーク + 左クリック: 返し（防御・充填+3）</gray>', '<gold>Q: 天球の極点（E.G.O 100）</gold>'], en: ['<gray>Left-click: Twin Arcs
-      (2 hits, +5 Charge)</gray>', '<gray>Right-click: Clockwork Spin (2 hits)</gray>', '<gray>Sneak + right-click: Beam
-      Litany (4 hits)</gray>', '<gray>Sneak + left-click: Counter-Seal (guard, +3 Charge)</gray>', '<gold>Q: Orrery Zenith
-      (100 E.G.O)</gold>']}
+name:
+  ja: <gold>天球儀の杖</gold>
+  en: <gold>Orrery Staff</gold>
+lore:
+  ja:
+  - '左クリック: 電撃の杖'
+  - '右クリック: 標的の電場'
+  - 'Shift+右: 四連の光束'
+  - 'Shift+左: 天球の返し'
+  - 'Q: 天球の極点'
+  en:
+  - 'left_click: Energy Rod Strike'
+  - 'right_click: Target Field'
+  - 'sneak_right: Fourfold Beam'
+  - 'sneak_left: Orrery Counter-Seal'
+  - 'drop: Orrery Zenith'
 rarity: epic
 level_requirement: 4
-attributes: {attack_damage: 2.0, attack_speed: 1.0}
+attributes:
+  attack_damage: 2.0
+  attack_speed: 1.0
 equip_slot: mainhand
 resource_type: energy
 resource_cost_per_use: 12
 skills:
-- {trigger: left_click, skill_id: orrery-s1}
-- {trigger: right_click, skill_id: orrery-s2}
-- {trigger: sneak_right, skill_id: orrery-s3}
-- {trigger: sneak_left, skill_id: orrery-def}
-- {trigger: drop, skill_id: orrery-ego}
-pdc_tags: {'astera:rarity': epic}
+- trigger: left_click
+  skill_id: orrery-s1
+- trigger: right_click
+  skill_id: orrery-s2
+- trigger: sneak_right
+  skill_id: orrery-s3
+- trigger: sneak_left
+  skill_id: orrery-def
+- trigger: drop
+  skill_id: orrery-ego
+pdc_tags:
+  astera:rarity: epic

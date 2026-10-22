@@ -37,19 +37,23 @@ export function makeHandler(opts = {}) {
     }));
   }
 
-  function mcInfo(skill) {
+  function mcInfo(skill, referenceRevision, contentRevision) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return info;
     for (const view of ["compare", "caster", "opponent", "side"]) {
       const base = vfxFind(skill, view);
       const d = base && join(base, skill, view);
       if (base) {
+        if (referenceRevision) {
+          try { const m = readJson(join(d, "meta.json")); if (m.referenceRevision !== referenceRevision || (contentRevision && m.contentRevision !== contentRevision)) continue; } catch { continue; }
+        }
         const n = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).length;
         let castFrame = 0;  // compare: frames before the cast (meta.json cast_tick_ms)
         try { castFrame = Math.round((readJson(join(d, "meta.json")).cast_tick_ms ?? 0) / 50); } catch { /* no meta: frame 0 = cast */ }
         if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n, castFrame };
       }
     }
+    if (referenceRevision) return info;
     const kd = join(viewerDir, skill, "frames");
     if (existsSync(kd)) {
       const keys = readdirSync(kd).map((f) => /^key-(\d+)\.png$/.exec(f)).filter(Boolean).map((m) => +m[1]).sort((a, b) => a - b);
@@ -81,9 +85,9 @@ export function makeHandler(opts = {}) {
     return {
       case: c, intent, from: { worktree: src.name, branch: src.branch },
       weapon: weaponOf(c.skill?.asteraSkillId, c.weapon),
-      media: cdir ? { ready: true, ...readJson(join(cdir, "meta.json")), base: `/media/${id}/frames/` } : { ready: false },
+      media: cdir ? { ready: true, ...readJson(join(cdir, "meta.json")), revision: c.referenceRevision || String(c.rev ?? 0), base: `/media/${id}/frames/` } : { ready: false },
       analysis: ap && existsSync(ap) ? readJson(ap) : { waveform: [], waveformStepMs: 10, onsets: [], cuts: [] },
-      mc: mcInfo(c.skill?.asteraSkillId),
+      mc: mcInfo(c.skill?.asteraSkillId, c.referenceRevision, c.contentRevision),
     };
   }
 
@@ -120,7 +124,7 @@ export function makeHandler(opts = {}) {
 
   function file(path, type) {
     if (!existsSync(path) || !statSync(path).isFile()) return new Response("not found", { status: 404 });
-    return new Response(Bun.file(path), { headers: type ? { "content-type": type } : {} });
+    return new Response(Bun.file(path), { headers: { ...(type ? { "content-type": type } : {}), "cache-control": /\.(png|jpg)$/.test(path) ? "private, max-age=300" : "no-cache" } });
   }
 
   let bundle = { stamp: 0, text: "" };
@@ -141,6 +145,9 @@ export function makeHandler(opts = {}) {
     let m;
     if (p === "/" || p === "/index.html") return file(join(publicDir, "index.html"), "text/html; charset=utf-8");
     if (p === "/case.html" || /^\/case\/[a-z0-9-]+$/.test(p)) return file(join(publicDir, "case.html"), "text/html; charset=utf-8");
+    if ((m = /^\/evidence\/([a-z0-9-]+)\.png$/.exec(p))) return file(join(repo, "build", "limbus-review", "pairs-round2", m[1] + ".png"), "image/png");
+    if ((m = /^\/report\/([a-z0-9-]+)$/.exec(p))) return file(join(root, "data", m[1] + "-REPORT.md"), "text/plain; charset=utf-8");
+    if ((m = /^\/reference\/([a-z0-9-]+)\/([a-z0-9-]+\.(?:json|md))$/.exec(p))) return file(join(root, "data", "reference-analysis", m[1], m[2]), m[2].endsWith("json") ? "application/json" : "text/plain; charset=utf-8");
     if (p === "/app.js") return appJs();
     if (p === "/index.js") return file(join(publicDir, "index.js"), "text/javascript");
     if (p === "/style.css") return file(join(publicDir, "style.css"), "text/css");
@@ -182,7 +189,7 @@ export function writeCaseFile(path, c) {
 if (import.meta.main) {
   const port = Number(process.env.PORT || 8097);
   const hostname = process.env.HOST || "0.0.0.0";
-  const handle = makeHandler();
+  const handle = makeHandler({ repo: process.env.SKILL_COMPARE_REPO || undefined });
   Bun.serve({ port, hostname, fetch: handle });
   const lan = Object.values(networkInterfaces()).flat().filter((i) => i && i.family === "IPv4" && !i.internal).map((i) => i.address);
   console.log(`skill-compare on http://${hostname}:${port}  (LAN: ${lan.map((a) => `http://${a}:${port}`).join(" ") || "-"})`);

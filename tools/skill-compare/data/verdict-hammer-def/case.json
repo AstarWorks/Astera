@@ -1,16 +1,16 @@
 {
   "id": "verdict-hammer-def",
-  "rev": 1,
+  "rev": 2,
   "videoId": "Hc6CJXJrzME",
-  "start_s": 15.8,
-  "end_s": 19.8,
+  "start_s": 43.9439,
+  "end_s": 51.418033,
   "skill": {
-    "name": "verdict-hammer-def",
+    "name": "守護の報復",
     "coins": 2,
     "asteraSkillId": "verdict-hammer-def"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,29 +26,44 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "verdict-hammer-def",
-      "start_s": 15.8,
-      "end_s": 19.8,
-      "notes": ""
+      "label": "DEF",
+      "start_s": 43.9439,
+      "end_s": 51.418033
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "Coin 1",
-      "t_s": 17.0
+      "label": "接触 1",
+      "t_s": 48.782067,
+      "notes": "astra2 source frame 1462; ranged_projectile; game tick 97. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "Coin 2",
-      "t_s": 18.45
+      "label": "接触 2",
+      "t_s": 49.8498,
+      "notes": "astra2 source frame 1494; dash_melee; game tick 118. Coin grouping uncertainty remains in reference analysis."
+    },
+    {
+      "id": "hit3",
+      "kind": "hit",
+      "label": "接触 3",
+      "t_s": 50.283567,
+      "notes": "astra2 source frame 1507; dash_melee; game tick 127. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Frame-verified visual timing; wiki slot assignment inferred (no skill titles in source). Q is a cinematic adaptation, not a confirmed identity E.G.O.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/verdict-hammer/def.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "verdict-hammer",
+  "identity": "Haute Couture::The Black Knight of Le Noir Don Quixote",
+  "videoTitle": "Haute Couture::The Black Knight of Le Noir Don Quixote — skill showcase",
+  "iterations": 0,
+  "report": "/report/verdict-hammer",
+  "referenceRevision": "43eaa22895c832375f083feac599e678276e2ad8b162553a334b4bc9d34585ca",
+  "contentRevision": "fc96e8468fd2320a0f6c1bfa0006243ea2ce654157ffae16f751e2366ccbefd6"
 }

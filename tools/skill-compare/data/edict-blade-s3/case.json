@@ -1,16 +1,16 @@
 {
   "id": "edict-blade-s3",
-  "rev": 1,
+  "rev": 2,
   "videoId": "x6sc9JkW77c",
-  "start_s": 30.4,
-  "end_s": 35.2,
+  "start_s": 19.753067,
+  "end_s": 24.2242,
   "skill": {
-    "name": "edict-s3",
+    "name": "落下の鉄拳",
     "coins": 2,
     "asteraSkillId": "edict-s3"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,31 +26,37 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "edict-s3",
-      "start_s": 30.4,
-      "end_s": 35.2,
-      "notes": ""
+      "label": "S3",
+      "start_s": 19.753067,
+      "end_s": 24.2242
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "coin 1",
-      "t_s": 31.4,
-      "notes": "round((31.4-30.4)*20) = 20 ticks"
+      "label": "接触 1",
+      "t_s": 20.086733,
+      "notes": "astra2 source frame 602; dash_melee; game tick 7. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "coin 2",
-      "t_s": 33.95,
-      "notes": "round((33.95-30.4)*20) = 71 ticks"
+      "label": "接触 2",
+      "t_s": 22.6226,
+      "notes": "astra2 source frame 678; dash_melee; game tick 57. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Native 29.97-fps reference checked. Normal form: S3 has two coins, not the transformed four-coin move. E.G.O case is the non-damaging form entry. Defense is not shown.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/edict-blade/s3.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "edict-blade",
+  "identity": "The Index Proxy Don Quixote",
+  "videoTitle": "The Index Proxy Don Quixote — skill showcase",
+  "iterations": 0,
+  "report": "/report/edict-blade",
+  "referenceRevision": "503c54d74ee0841e01ef8b2e14c1f07ce5ca89abd342c23e98fef1f29c568da0",
+  "contentRevision": "7270671b7a8b92c08769b9519178a4442ef1d3fda5802bb471931e7fd37adcbc"
 }

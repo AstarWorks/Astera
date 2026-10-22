@@ -1,114 +1,70 @@
 id: gossamer-katana-s3
 name:
-  en: Web Cyclone
-  ja: 巣廻し・旋
+  ja: 一線の傷
+  en: Single Scar
 description:
-  en: Echoing cuts converge into one space-rending strike in front of the blade.
-  ja: 踏み込んで残像の斬撃を重ね、前方を一度だけ大きく断つ。
+  ja: 一線の傷
+  en: Single Scar
 archetype: sequence
-cooldown_ticks: 170
-resource_cost: 45
+cooldown_ticks: 120
+resource_cost: 25
 params:
   type: sequence
 phases:
   type: sequence
   cast:
-  - type: apply_status
-    targets:
-      type: caster
-    status_id: poise
-    effect_duration_ticks:
-      type: literal
-      value: 400
-    stack_count:
-      type: literal
-      value: 5
   - type: play_vfx
     targets:
       type: caster
     vfx_id: gossamer-katana-draw
   - type: dash_strike
-    distance: 3.6
-    ticks: 3
-    radius: 0.7
+    distance: 6
+    ticks: 4
+    radius: 0.8
     hit_once: true
+    invulnerable: false
     stop_on_block: true
-    follow_pitch: false
-    on_hit: []
+    on_hit:
+    - type: damage
+      targets:
+        type: target
+      ignore_invulnerability:
+        type: literal
+        value: true
+      components:
+      - base:
+          type: literal
+          value: 20
+        attribute: physical
+    - type: play_vfx
+      targets:
+        type: target
+      vfx_id: gossamer-katana-scar
+    - type: play_sound
+      targets:
+        type: target
+      sound_id: entity.player.attack.strong
+      volume:
+        type: literal
+        value: 0.7
+      pitch:
+        type: literal
+        value: 1.1
     delay_ticks:
       type: literal
-      value: 11
-    stop_before_target: 1.8
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: gossamer-katana-slash-up
-    delay_ticks:
-      type: literal
-      value: 17
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: gossamer-katana-echo
-    delay_ticks:
-      type: literal
-      value: 17
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: gossamer-katana-slash-down
-    delay_ticks:
-      type: literal
-      value: 27
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: gossamer-katana-echo
-    delay_ticks:
-      type: literal
-      value: 27
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: gossamer-katana-slash-up
-    delay_ticks:
-      type: literal
-      value: 37
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: gossamer-katana-echo
-    delay_ticks:
-      type: literal
-      value: 37
+      value: 4
   - type: play_vfx
     targets:
       type: caster
     vfx_id: gossamer-katana-iaido-line
     delay_ticks:
       type: literal
-      value: 48
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: gossamer-katana-whirl
-    scale:
-      type: literal
-      value: 1.5
-    delay_ticks:
-      type: literal
-      value: 73
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: gossamer-katana-scar
-    delay_ticks:
-      type: literal
-      value: 87
+      value: 5
   - type: screen_flash
     targets:
       type: caster
-    overlay: white
+    overlay: vignette
+    color: '#08080a'
     fade_in:
       type: literal
       value: 0
@@ -117,116 +73,7 @@ phases:
       value: 1
     fade_out:
       type: literal
-      value: 0
-    delay_ticks:
-      type: literal
-      value: 85
-  - type: screen_flash
-    targets:
-      type: caster
-    overlay: vignette
-    color: '#171B2B'
-    fade_in:
-      type: literal
-      value: 0
-    stay:
-      type: literal
       value: 2
-    fade_out:
-      type: literal
-      value: 4
     delay_ticks:
       type: literal
-      value: 86
-  - type: damage
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 65.0
-      distance:
-        type: literal
-        value: 4.2
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 16.0
-      attribute: physical
-    delay_ticks:
-      type: literal
-      value: 87
-  - type: hit_stop
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 65.0
-      distance:
-        type: literal
-        value: 4.2
-    ticks: 2
-    include_caster: true
-    delay_ticks:
-      type: literal
-      value: 87
-  - type: spawn_particle
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 65.0
-      distance:
-        type: literal
-        value: 4.2
-    particle_id: hit-spark
-    delay_ticks:
-      type: literal
-      value: 87
-  - type: play_sound
-    targets:
-      type: caster
-    sound_id: entity.player.attack.crit
-    pitch:
-      type: literal
-      value: 1.3
-    delay_ticks:
-      type: literal
-      value: 87
-  - type: apply_status
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 65.0
-      distance:
-        type: literal
-        value: 4.2
-    status_id: bleed
-    effect_duration_ticks:
-      type: literal
-      value: 140
-    stack_count:
-      type: literal
-      value: 3
-    delay_ticks:
-      type: literal
-      value: 87
+      value: 6

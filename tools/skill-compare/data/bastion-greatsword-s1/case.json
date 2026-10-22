@@ -1,21 +1,21 @@
 {
   "id": "bastion-greatsword-s1",
-  "rev": 2,
+  "rev": 4,
   "videoId": "Svaaq9F7Ty8",
-  "start_s": 11.7,
-  "end_s": 15.0,
-  "identity": "Zwei Association West Section 3 Ishmael",
+  "start_s": 11.633,
+  "end_s": 14.233,
+  "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "built",
   "iterations": 0,
-  "report": "../bastion-greatsword-REPORT.md",
+  "report": "/report/bastion-greatsword",
   "skill": {
-    "name": "Moon Sweep",
+    "name": "月輪の薙ぎ",
     "coins": 2,
     "asteraSkillId": "bastion-greatsword-s1"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -26,30 +26,37 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "s1",
-      "start_s": 11.7,
-      "end_s": 15.0,
-      "notes": ""
+      "label": "S1",
+      "start_s": 11.633,
+      "end_s": 14.233
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "coin 1",
-      "t_s": 11.9,
-      "notes": ""
+      "label": "接触 1",
+      "t_s": 11.967,
+      "notes": "astra2 source frame 359; melee; game tick 7. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "coin 2",
-      "t_s": 13.1,
-      "notes": ""
+      "label": "接触 2",
+      "t_s": 13.2,
+      "notes": "astra2 source frame 396; melee; game tick 31. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "No fresh client captures: Docker prohibition; pending manager verification.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/s1.json を参照。",
   "editLog": [],
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
+  "referenceRevision": "9a9b8b2062d3b702777cdc0b7abe0fe9c2c5987e676d581d992ca3640125bb5e",
+  "focus": {
+    "factor": 0.2,
+    "windowMs": 150,
+    "enabled": false
+  },
+  "contentRevision": "2052af25dbd8bcfc834de8e04aebbe85cab8453aaca8d48bd035e57337c968f7"
 }

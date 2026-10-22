@@ -1,16 +1,16 @@
 {
   "id": "couture-rapier-ego",
-  "rev": 1,
+  "rev": 3,
   "videoId": "GIe7Fna5LD4",
-  "start_s": 47.3,
-  "end_s": 54.5,
+  "start_s": 0,
+  "end_s": 5.1,
   "skill": {
-    "name": "couture-rapier-ego",
+    "name": "落花の裁断",
     "coins": 0,
     "asteraSkillId": "couture-rapier-ego"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,39 +18,23 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
-  "segments": [
-    {
-      "id": "skill",
-      "kind": "skill",
-      "label": "couture-rapier-ego",
-      "start_s": 47.3,
-      "end_s": 54.5,
-      "notes": ""
-    },
-    {
-      "id": "hit1",
-      "kind": "hit",
-      "label": "contact 1",
-      "t_s": 50.3,
-      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
-    },
-    {
-      "id": "hit2",
-      "kind": "hit",
-      "label": "contact 2",
-      "t_s": 52.8,
-      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
-    }
-  ],
-  "notes": "Mapping inferred from footage and supplied wiki; no skill labels in video. E.G.O slot adapts final suspended-shears sequence; not a verified wiki E.G.O.",
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
   "editLog": [],
-  "status": "built",
+  "status": "from-wiki",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "couture-rapier",
+  "identity": "The Alteration Shop Rodion",
+  "videoTitle": "The Alteration Shop Rodion — skill showcase",
+  "iterations": 2,
+  "report": "/report/couture-rapier",
+  "referenceRevision": "f6ac960b3fd1e47999ff1fb5a53da9c280b5c635970968ec944a3bbdb909545b",
+  "contentRevision": "900a4f40eb25587876343240a14918fb7b88940f06b8dabe737e6d5a60092442"
 }

@@ -1,0 +1,714 @@
+id: edict-fists-return
+duration_ticks: 13
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: -1-glove
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -0.17
+    - 0.8213353670350962
+    - 0.7161293027807589
+    rotate:
+    - 0
+    - 20
+    - 0
+    scale:
+    - 0.27
+    - 0.28
+    - 0.3
+  - t: 3
+    translate:
+    - -0.17
+    - 2.0291247805611015
+    - 0.2799541791680386
+    rotate:
+    - 0
+    - -95
+    - 0
+    scale:
+    - 0.27
+    - 0.28
+    - 0.3
+  - t: 6
+    translate:
+    - -0.17
+    - 1.0299541791680387
+    - 1.2291247805611014
+    rotate:
+    - 0
+    - 5
+    - 0
+    scale:
+    - 0.27
+    - 0.28
+    - 0.3
+  - t: 11
+    translate:
+    - -0.17
+    - 1.05
+    - 0.63
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.27
+    - 0.28
+    - 0.3
+- id: -1-cuff
+  kind:
+    type: block
+    block: raw_iron_block
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -0.17
+    - 0.9
+    - 0.5
+    rotate:
+    - 0
+    - 20
+    - 0
+    scale:
+    - 0.34
+    - 0.32
+    - 0.19
+  - t: 3
+    translate:
+    - -0.17
+    - 1.8
+    - 0.3
+    rotate:
+    - 0
+    - -95
+    - 0
+    scale:
+    - 0.34
+    - 0.32
+    - 0.19
+  - t: 6
+    translate:
+    - -0.17
+    - 1.05
+    - 1.0
+    rotate:
+    - 0
+    - 5
+    - 0
+    scale:
+    - 0.34
+    - 0.32
+    - 0.19
+  - t: 11
+    translate:
+    - -0.17
+    - 1.05
+    - 0.4
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.34
+    - 0.32
+    - 0.19
+- id: -1-cuff-inlay
+  kind:
+    type: block
+    block: light_gray_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -0.17
+    - 1.0597477455336044
+    - 0.5581434243653637
+    rotate:
+    - 0
+    - 20
+    - 0
+    scale:
+    - 0.26
+    - 0.025
+    - 0.13
+  - t: 3
+    translate:
+    - -0.17
+    - 1.7851835237328981
+    - 0.13064690132440324
+    rotate:
+    - 0
+    - -95
+    - 0
+    scale:
+    - 0.26
+    - 0.025
+    - 0.13
+  - t: 6
+    translate:
+    - -0.17
+    - 1.2193530986755967
+    - 1.014816476267102
+    rotate:
+    - 0
+    - 5
+    - 0
+    scale:
+    - 0.26
+    - 0.025
+    - 0.13
+  - t: 11
+    translate:
+    - -0.17
+    - 1.22
+    - 0.4
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.26
+    - 0.025
+    - 0.13
+- id: 1-glove
+  kind:
+    type: block
+    block: white_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 0.17
+    - 0.8213353670350962
+    - 0.7161293027807589
+    rotate:
+    - 0
+    - 20
+    - 0
+    scale:
+    - 0.27
+    - 0.28
+    - 0.3
+  - t: 3
+    translate:
+    - 0.17
+    - 2.0291247805611015
+    - 0.2799541791680386
+    rotate:
+    - 0
+    - -95
+    - 0
+    scale:
+    - 0.27
+    - 0.28
+    - 0.3
+  - t: 6
+    translate:
+    - 0.17
+    - 1.0299541791680387
+    - 1.2291247805611014
+    rotate:
+    - 0
+    - 5
+    - 0
+    scale:
+    - 0.27
+    - 0.28
+    - 0.3
+  - t: 11
+    translate:
+    - 0.17
+    - 1.05
+    - 0.63
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.27
+    - 0.28
+    - 0.3
+- id: 1-cuff
+  kind:
+    type: block
+    block: raw_iron_block
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 0.17
+    - 0.9
+    - 0.5
+    rotate:
+    - 0
+    - 20
+    - 0
+    scale:
+    - 0.34
+    - 0.32
+    - 0.19
+  - t: 3
+    translate:
+    - 0.17
+    - 1.8
+    - 0.3
+    rotate:
+    - 0
+    - -95
+    - 0
+    scale:
+    - 0.34
+    - 0.32
+    - 0.19
+  - t: 6
+    translate:
+    - 0.17
+    - 1.05
+    - 1.0
+    rotate:
+    - 0
+    - 5
+    - 0
+    scale:
+    - 0.34
+    - 0.32
+    - 0.19
+  - t: 11
+    translate:
+    - 0.17
+    - 1.05
+    - 0.4
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.34
+    - 0.32
+    - 0.19
+- id: 1-cuff-inlay
+  kind:
+    type: block
+    block: light_gray_concrete
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 0.17
+    - 1.0597477455336044
+    - 0.5581434243653637
+    rotate:
+    - 0
+    - 20
+    - 0
+    scale:
+    - 0.26
+    - 0.025
+    - 0.13
+  - t: 3
+    translate:
+    - 0.17
+    - 1.7851835237328981
+    - 0.13064690132440324
+    rotate:
+    - 0
+    - -95
+    - 0
+    scale:
+    - 0.26
+    - 0.025
+    - 0.13
+  - t: 6
+    translate:
+    - 0.17
+    - 1.2193530986755967
+    - 1.014816476267102
+    rotate:
+    - 0
+    - 5
+    - 0
+    scale:
+    - 0.26
+    - 0.025
+    - 0.13
+  - t: 11
+    translate:
+    - 0.17
+    - 1.22
+    - 0.4
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.26
+    - 0.025
+    - 0.13
+- id: chain-0
+  kind:
+    type: block
+    block: iron_block
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -0.16
+    - 0.75
+    - 0.42
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 3
+    translate:
+    - -0.16
+    - 1.6500000000000001
+    - 0.21999999999999997
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 6
+    translate:
+    - -0.16
+    - 0.9
+    - 0.92
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 11
+    translate:
+    - -0.16
+    - 0.9
+    - 0.32
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+- id: chain-1
+  kind:
+    type: block
+    block: iron_block
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -0.096
+    - 0.6794657697249032
+    - 0.42
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 3
+    translate:
+    - -0.096
+    - 1.5794657697249033
+    - 0.21999999999999997
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 6
+    translate:
+    - -0.096
+    - 0.8294657697249033
+    - 0.92
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 11
+    translate:
+    - -0.096
+    - 0.8294657697249033
+    - 0.32
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+- id: chain-2
+  kind:
+    type: block
+    block: iron_block
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -0.031999999999999994
+    - 0.6358732180445816
+    - 0.42
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 3
+    translate:
+    - -0.031999999999999994
+    - 1.5358732180445818
+    - 0.21999999999999997
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 6
+    translate:
+    - -0.031999999999999994
+    - 0.7858732180445815
+    - 0.92
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 11
+    translate:
+    - -0.031999999999999994
+    - 0.7858732180445815
+    - 0.32
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+- id: chain-3
+  kind:
+    type: block
+    block: iron_block
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 0.031999999999999994
+    - 0.6358732180445815
+    - 0.42
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 3
+    translate:
+    - 0.031999999999999994
+    - 1.5358732180445818
+    - 0.21999999999999997
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 6
+    translate:
+    - 0.031999999999999994
+    - 0.7858732180445815
+    - 0.92
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 11
+    translate:
+    - 0.031999999999999994
+    - 0.7858732180445815
+    - 0.32
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+- id: chain-4
+  kind:
+    type: block
+    block: iron_block
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 0.09600000000000002
+    - 0.6794657697249032
+    - 0.42
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 3
+    translate:
+    - 0.09600000000000002
+    - 1.5794657697249033
+    - 0.21999999999999997
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 6
+    translate:
+    - 0.09600000000000002
+    - 0.8294657697249033
+    - 0.92
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 11
+    translate:
+    - 0.09600000000000002
+    - 0.8294657697249033
+    - 0.32
+    rotate:
+    - 0
+    - 0
+    - -45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+- id: chain-5
+  kind:
+    type: block
+    block: iron_block
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - 0.16
+    - 0.75
+    - 0.42
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 3
+    translate:
+    - 0.16
+    - 1.6500000000000001
+    - 0.21999999999999997
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 6
+    translate:
+    - 0.16
+    - 0.9
+    - 0.92
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06
+  - t: 11
+    translate:
+    - 0.16
+    - 0.9
+    - 0.32
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.09
+    - 0.04
+    - 0.06

@@ -1,16 +1,16 @@
 {
   "id": "edict-blade-ego",
-  "rev": 1,
+  "rev": 2,
   "videoId": "x6sc9JkW77c",
-  "start_s": 35.8,
-  "end_s": 39.2,
+  "start_s": 35.902533,
+  "end_s": 38.171467,
   "skill": {
-    "name": "edict-ego",
-    "coins": 0,
+    "name": "解かれた勅令",
+    "coins": null,
     "asteraSkillId": "edict-ego"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,17 +26,23 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "edict-ego",
-      "start_s": 35.8,
-      "end_s": 39.2,
-      "notes": ""
+      "label": "EGO",
+      "start_s": 35.902533,
+      "end_s": 38.171467
     }
   ],
-  "notes": "Native 29.97-fps reference checked. Normal form: S3 has two coins, not the transformed four-coin move. E.G.O case is the non-damaging form entry. Defense is not shown.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/edict-blade/ego.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "edict-blade",
+  "identity": "The Index Proxy Don Quixote",
+  "videoTitle": "The Index Proxy Don Quixote — skill showcase",
+  "iterations": 0,
+  "report": "/report/edict-blade",
+  "referenceRevision": "f9de6e91693cc79499f874fd3b19a1dcfcb3f4f68dca3c47d2b0a0db387cf585",
+  "contentRevision": "a15a971059d67c1af788d13e71290aa9bd30f856394f1fe4d2f3176a635423f9"
 }

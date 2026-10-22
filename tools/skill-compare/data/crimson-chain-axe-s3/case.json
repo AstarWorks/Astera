@@ -1,16 +1,16 @@
 {
   "id": "crimson-chain-axe-s3",
-  "rev": 1,
+  "rev": 3,
   "videoId": "Gpj-lvOnAgs",
-  "start_s": 79.8,
-  "end_s": 86.8,
+  "start_s": 48.916,
+  "end_s": 55.922,
   "skill": {
-    "name": "Blade Forest",
-    "coins": 5,
+    "name": "緋針の雨",
+    "coins": 3,
     "asteraSkillId": "crimson-chain-axe-s3"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,47 +26,44 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "Blade Forest",
-      "start_s": 79.8,
-      "end_s": 86.8,
-      "notes": ""
+      "label": "S3",
+      "start_s": 48.916,
+      "end_s": 55.922
     },
     {
-      "id": "hit-1",
+      "id": "hit1",
       "kind": "hit",
-      "label": "contact 1",
-      "t_s": 80.3
+      "label": "接触 1",
+      "t_s": 51.818433,
+      "notes": "astra2 source frame 1553; ranged_projectile; game tick 58. Coin grouping uncertainty remains in reference analysis."
     },
     {
-      "id": "hit-2",
+      "id": "hit2",
       "kind": "hit",
-      "label": "contact 2",
-      "t_s": 80.55
+      "label": "接触 2",
+      "t_s": 52.485767,
+      "notes": "astra2 source frame 1573; ranged_projectile; game tick 71. Coin grouping uncertainty remains in reference analysis."
     },
     {
-      "id": "hit-3",
+      "id": "hit3",
       "kind": "hit",
-      "label": "contact 3",
-      "t_s": 81.4
-    },
-    {
-      "id": "hit-4",
-      "kind": "hit",
-      "label": "contact 4",
-      "t_s": 82.25
-    },
-    {
-      "id": "hit-5",
-      "kind": "hit",
-      "label": "contact 5",
-      "t_s": 83.3
+      "label": "接触 3",
+      "t_s": 53.3533,
+      "notes": "astra2 source frame 1599; ranged_projectile; game tick 89. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Trailer has no skill labels. Variant mapping is provisional; see notes.md. Extended Q is a cinematic adaptation, not a confirmed identity E.G.O.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/crimson-chain-axe/s3.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "crimson-chain-axe",
+  "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+  "videoTitle": "Haute Couture::The Crimson God of Le Rouge Sinclair — skill showcase",
+  "iterations": 0,
+  "report": "/report/crimson-chain-axe",
+  "referenceRevision": "d9c1cfc878b196dc1aa64dac977cb3c045da9a5df7e130dcb22f8fac0d5209de",
+  "contentRevision": "2422cbf738e4e4542bcf51ca2cd55ee60c1a7a1470c93c653ef58a730c78d380"
 }

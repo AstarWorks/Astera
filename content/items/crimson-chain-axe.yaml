@@ -1,15 +1,21 @@
-# Measured reference: tools/skill-compare/data/crimson-chain-axe-REPORT.md
 id: crimson-chain-axe
 material: NETHERITE_AXE
 name:
   ja: <#c0102a>緋の鎖斧</#c0102a>
   en: <#c0102a>Crimson Chain-Axe</#c0102a>
 lore:
-  ja: ['<gray>左クリック: 鎖斧の連薙ぎ（三連撃）</gray>', '<gray>右クリック: 鉤爪の突進（槍・薙ぎ・斬り上げ）</gray>', '<gray>スニーク + 右クリック: 刃の森（五連撃）</gray>', '<gray>スニーク + 左クリック:
-      鎖の結界（回避の構え）</gray>', '<gray>Q: 緋の鎮魂歌（E.G.O 100）</gray>']
-  en: ['<gray>Left-click: Chain Sweep (three chain strikes)</gray>', '<gray>Right-click: Hooked Lunge (lances, sweep, rising cut)</gray>', '<gray>Sneak
-      + right-click: Blade Forest (five strikes)</gray>', '<gray>Sneak + left-click: Chain Ward (evasive stance)</gray>', '<gray>Q: Crimson Requiem
-      (100 E.G.O)</gray>']
+  ja:
+  - '左クリック: 緋針'
+  - '右クリック: 二重の刺繍'
+  - 'Shift+右: 緋針の雨'
+  - 'Shift+左: 緋の退避'
+  - 'Q: 緋鎖の展開'
+  en:
+  - 'left_click: Crimson Needle'
+  - 'right_click: Double Embroidery'
+  - 'sneak_right: Needle Rain'
+  - 'sneak_left: Crimson Evasion'
+  - 'drop: Crimson Chain Unfurl'
 rarity: epic
 level_requirement: 4
 attributes:

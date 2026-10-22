@@ -1,23 +1,40 @@
 id: verdict-hammer
 material: MACE
-name: {ja: <gold>審判の杭槌</gold>, en: <gold>Verdict Hammer</gold>}
+name:
+  ja: <gold>審判の杭槌</gold>
+  en: <gold>Verdict Hammer</gold>
 lore:
-  ja: ['<gray>左クリック: 槌音の一撃（二連撃・杭を打つ）</gray>', '<gray>右クリック: 天降る杭（一撃）</gray>', '<gray>スニーク + 右クリック: 黒曜の審判（三連撃・杭を消費）</gray>',
-    '<gray>スニーク + 左クリック: 審判の構え（杭と槌の二連撃）</gray>', '<gold>Q: 誓約の終鐘（E.G.O 100）</gold>', '<dark_gray>rarity: epic / level: 5</dark_gray>']
-  en: ['<gray>Left-click: Gavel Strike (two beats, plants stakes)</gray>', '<gray>Right-click: Heavenly Stakes (one strike)</gray>',
-    '<gray>Sneak + right-click: Obsidian Judgment (three beats, spends stakes)</gray>', '<gray>Sneak + left-click: Vigil (nails
-      then hammer)</gray>', '<gold>Q: Covenant Toll (E.G.O 100)</gold>', '<dark_gray>rarity: epic / level: 5</dark_gray>']
+  ja:
+  - '左クリック: 横薙ぎと追突'
+  - '右クリック: 二本の杭'
+  - 'Shift+右: 杭と鉄槌'
+  - 'Shift+左: 守護の報復'
+  - 'Q: 誓約の終鐘'
+  en:
+  - 'left_click: Hammer Sweep and Rush'
+  - 'right_click: Paired Nails'
+  - 'sneak_right: Nails and Judgment'
+  - 'sneak_left: Guardian Reprisal'
+  - 'drop: Covenant Toll'
 rarity: epic
 level_requirement: 5
-attributes: {attack_damage: 9.0, attack_speed: 0.8}
+attributes:
+  attack_damage: 9.0
+  attack_speed: 0.8
 equip_slot: mainhand
 resource_type: energy
 resource_cost_per_use: 20
 glint: true
 skills:
-- {trigger: left_click, skill_id: verdict-hammer-s1}
-- {trigger: right_click, skill_id: verdict-hammer-s2}
-- {trigger: sneak_right, skill_id: verdict-hammer-s3}
-- {trigger: sneak_left, skill_id: verdict-hammer-def}
-- {trigger: drop, skill_id: verdict-hammer-ego}
-pdc_tags: {'astera:rarity': epic}
+- trigger: left_click
+  skill_id: verdict-hammer-s1
+- trigger: right_click
+  skill_id: verdict-hammer-s2
+- trigger: sneak_right
+  skill_id: verdict-hammer-s3
+- trigger: sneak_left
+  skill_id: verdict-hammer-def
+- trigger: drop
+  skill_id: verdict-hammer-ego
+pdc_tags:
+  astera:rarity: epic

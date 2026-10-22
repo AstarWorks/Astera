@@ -1,16 +1,16 @@
 {
   "id": "orrery-staff-s3",
-  "rev": 1,
+  "rev": 2,
   "videoId": "0DYvUxa24wo",
-  "start_s": 34.3,
-  "end_s": 43.2,
+  "start_s": 23.5235,
+  "end_s": 33.7337,
   "skill": {
-    "name": "orrery-s3",
+    "name": "四連の光束",
     "coins": 4,
     "asteraSkillId": "orrery-s3"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,45 +26,51 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "orrery-s3",
-      "start_s": 34.3,
-      "end_s": 43.2,
-      "notes": ""
+      "label": "S3",
+      "start_s": 23.5235,
+      "end_s": 33.7337
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "Coin 1",
-      "t_s": 36.2,
-      "notes": "Contact/beam onset rounded to nearest server tick; uncertainty ±1 tick."
+      "label": "接触 1",
+      "t_s": 25.792433,
+      "notes": "astra2 source frame 773; beam; game tick 45. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "Coin 2",
-      "t_s": 37.05,
-      "notes": "Contact/beam onset rounded to nearest server tick; uncertainty ±1 tick."
+      "label": "接触 2",
+      "t_s": 26.5265,
+      "notes": "astra2 source frame 795; beam; game tick 60. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit3",
       "kind": "hit",
-      "label": "Coin 3",
-      "t_s": 37.6,
-      "notes": "Contact/beam onset rounded to nearest server tick; uncertainty ±1 tick."
+      "label": "接触 3",
+      "t_s": 27.1271,
+      "notes": "astra2 source frame 813; beam; game tick 72. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit4",
       "kind": "hit",
-      "label": "Coin 4",
-      "t_s": 41.1,
-      "notes": "Contact/beam onset rounded to nearest server tick; uncertainty ±1 tick."
+      "label": "接触 4",
+      "t_s": 30.663967,
+      "notes": "astra2 source frame 919; beam; game tick 143. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Measured from native 29.97 fps source and 24 fps sheets. Audio muxed from supplied m4a for onset extraction. See notes.md.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/orrery-staff/s3.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "orrery-staff",
+  "identity": "R Corp. 4th Pack Reindeer Rodion",
+  "videoTitle": "R Corp. 4th Pack Reindeer Rodion — skill showcase",
+  "iterations": 0,
+  "report": "/report/orrery-staff",
+  "referenceRevision": "37cecbf269279ceeb30fc8758063b98bfd2b4119e0e80d61007e51ec20da4f94",
+  "contentRevision": "150dc0c1f8c1db32debd54a0928a9a57e2c6d10fbd915b86f7e3d03e42932f26"
 }

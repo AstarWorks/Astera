@@ -1,0 +1,1021 @@
+{
+  "video_id": "Svaaq9F7Ty8",
+  "identity": "Zwei Assoc. West Section 3 Ishmael",
+  "slot": "def",
+  "official_name": "Your Shield",
+  "observed": true,
+  "start_frame": 711,
+  "end_frame_exclusive": 953,
+  "start_s": 23.7,
+  "end_s": 31.767,
+  "official_attack_type": "Guard; Clashable Guard, 1 Unbreakable coin (provided kit)",
+  "official_coins": 1,
+  "mapping_confidence": "high",
+  "mapping_evidence": "Separated demonstration and matching impact count; see segments.json for evidence and alternative mapping.",
+  "weapon": {
+    "type": "Broad rectangular greatsword/slab blade, visually confirmed; no separate physical tower shield resolved.",
+    "size_body_heights": {
+      "blade_length": [
+        1.0,
+        1.35
+      ],
+      "blade_width": [
+        0.18,
+        0.28
+      ],
+      "total_length_estimate": [
+        1.3,
+        1.65
+      ]
+    },
+    "parts": "Broad squared/beveled tip, thick pale metallic perimeter, dark inset central panel, small yellow-green rectangular inset near base, dark grip/guard. Edge-on views can look like a rod.",
+    "colors_hex": {
+      "rim": "#C8C9B7",
+      "blade_face": "#55574E",
+      "inset": "#C9CD5B",
+      "grip": "#292B2C"
+    },
+    "grip": "Both gauntleted hands appear clustered on/near grip in sweep close-ups; overhead poses visibly have both arms raised. Hand overlap and motion blur prevent finger-level grip identification.",
+    "held_positions": "Low diagonal blade pointing behind/left during ready pose; broad blade behind shoulder during sweep follow-through; raised behind/above head for slams.",
+    "evidence": [
+      "sheets/detail_01.jpg",
+      "sheets/detail_02.jpg"
+    ],
+    "limitations": "Dimensions and hex values are estimates from compressed video. Large apparent size changes mostly come from camera punches, not weapon growth.",
+    "skill_specific": "Physical rectangular blade remains visible low to caster left during guard establishment and between impacts; some upright guard poses obscure it. Gold shield has translucent field and graphic concentric outline, not a resolved solid carried tower shield. No weapon swap is proved."
+  },
+  "props": [
+    {
+      "type": "gold shield-shaped barrier graphic",
+      "count": 1,
+      "origin": "Appears immediately in front/right of caster at guard establishment; follows guard pose, not thrown.",
+      "path": "Stationary relative to caster, vertical plane facing enemy/right. Slight perspective curvature; resets with shot fades.",
+      "size_body_heights": {
+        "height": [
+          1.3,
+          1.7
+        ],
+        "width": [
+          0.55,
+          0.9
+        ],
+        "caster_offset_forward": [
+          0.15,
+          0.35
+        ]
+      },
+      "shape": "Rounded/angular shield outline containing nested long U/panel contours; translucent curved oval/half-oval gold field extends behind outline.",
+      "colors_hex": [
+        "#F7E68A",
+        "#D6C56B",
+        "#8C8343"
+      ],
+      "timing": [
+        {
+          "start_frame": 713,
+          "end_frame_exclusive": 715,
+          "start_s": 23.767,
+          "end_s": 23.833
+        },
+        {
+          "start_frame": 716,
+          "end_frame_exclusive": 851,
+          "start_s": 23.867,
+          "end_s": 28.367
+        },
+        {
+          "start_frame": 852,
+          "end_frame_exclusive": 887,
+          "start_s": 28.4,
+          "end_s": 29.567
+        },
+        {
+          "start_frame": 890,
+          "end_frame_exclusive": 914,
+          "start_s": 29.667,
+          "end_s": 30.467
+        },
+        {
+          "start_frame": 919,
+          "end_frame_exclusive": 953,
+          "start_s": 30.634,
+          "end_s": 31.767
+        }
+      ],
+      "limitations": "713–714 brief initial appearance; 715 dims; from 716 sustained. Other brief dimming/reset intervals listed in beats. No independent physical shield rim/handle can be resolved."
+    },
+    {
+      "type": "target-centered concentric rings",
+      "count": 2,
+      "origin": "Appear directly around opponent after guard flare; no flight from caster.",
+      "path": "Outer and inner yellow circular outlines expand/pulse around target body then fade.",
+      "size_body_heights": {
+        "outer_diameter": [
+          0.8,
+          1.1
+        ],
+        "inner_diameter": [
+          0.35,
+          0.6
+        ]
+      },
+      "start_frame": 812,
+      "end_frame_exclusive": 826,
+      "start_s": 27.067,
+      "end_s": 27.534,
+      "colors_hex": [
+        "#D6CE29",
+        "#F0DD51"
+      ],
+      "interpretation": "Likely Tremor/guard-clash result visual; not a fired projectile, not evidence of an additional damage coin."
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 711,
+      "end_frame_exclusive": 717,
+      "start_s": 23.7,
+      "end_s": 23.9,
+      "motion": "guard_setup",
+      "distance_body_heights": [
+        0,
+        0.4
+      ],
+      "description": "Crouches/braces, blade low, shield graphic flickers into place."
+    },
+    {
+      "start_frame": 717,
+      "end_frame_exclusive": 771,
+      "start_s": 23.9,
+      "end_s": 25.7,
+      "motion": "guard_hold",
+      "distance_body_heights": [
+        0,
+        0.3
+      ],
+      "description": "Mostly planted; changes body angle/brace after enemy sweep."
+    },
+    {
+      "start_frame": 771,
+      "end_frame_exclusive": 804,
+      "start_s": 25.7,
+      "end_s": 26.8,
+      "motion": "guard_adjust",
+      "distance_body_heights": [
+        0,
+        0.5
+      ],
+      "description": "Raises torso/blade slightly, braces for second enemy sweep."
+    },
+    {
+      "start_frame": 804,
+      "end_frame_exclusive": 851,
+      "start_s": 26.8,
+      "end_s": 28.367,
+      "motion": "guard_resolution/hold",
+      "distance_body_heights": [
+        0,
+        0.3
+      ],
+      "description": "Shield brightens; caster remains behind it. Zoom dominates apparent size and movement."
+    },
+    {
+      "start_frame": 851,
+      "end_frame_exclusive": 887,
+      "start_s": 28.367,
+      "end_s": 29.567,
+      "motion": "reset/guard_hold",
+      "distance_body_heights": [
+        0,
+        0.4
+      ],
+      "description": "Shot fades/resets to wider incoming opponent action."
+    },
+    {
+      "start_frame": 887,
+      "end_frame_exclusive": 914,
+      "start_s": 29.567,
+      "end_s": 30.467,
+      "motion": "reset/guard_hold",
+      "distance_body_heights": [
+        0,
+        0.4
+      ],
+      "description": "Brief transparency, shield restored; no resolved counter-travel."
+    },
+    {
+      "start_frame": 914,
+      "end_frame_exclusive": 953,
+      "start_s": 30.467,
+      "end_s": 31.767,
+      "motion": "reset/guard_hold",
+      "distance_body_heights": [
+        0,
+        0.4
+      ],
+      "description": "Another dim reset, upright guard restored, receives final enemy swing."
+    }
+  ],
+  "hits": [],
+  "beats": [
+    {
+      "start_frame": 711,
+      "end_frame_exclusive": 713,
+      "start_s": 23.7,
+      "end_s": 23.767,
+      "kind": "setup",
+      "description": "Hard change to darker gameplay shot; caster lowers/braces."
+    },
+    {
+      "start_frame": 713,
+      "end_frame_exclusive": 715,
+      "start_s": 23.767,
+      "end_s": 23.833,
+      "kind": "barrier_on",
+      "description": "Gold shield appears."
+    },
+    {
+      "start_frame": 715,
+      "end_frame_exclusive": 716,
+      "start_s": 23.833,
+      "end_s": 23.867,
+      "kind": "barrier_dip",
+      "description": "One dim frame with shield mostly absent."
+    },
+    {
+      "start_frame": 716,
+      "end_frame_exclusive": 743,
+      "start_s": 23.867,
+      "end_s": 24.767,
+      "kind": "hold/enemy_approach",
+      "description": "Barrier returns; opponent approaches then holds low wind-up."
+    },
+    {
+      "start_frame": 743,
+      "end_frame_exclusive": 755,
+      "start_s": 24.767,
+      "end_s": 25.167,
+      "kind": "incoming_contact_1",
+      "description": "Enemy crescent into shield; orange impact, expanding ring, black/white overhead glyph. Crescent and ring fade."
+    },
+    {
+      "start_frame": 755,
+      "end_frame_exclusive": 771,
+      "start_s": 25.167,
+      "end_s": 25.7,
+      "kind": "held_guard",
+      "description": "Opponent recovery and shield hold."
+    },
+    {
+      "start_frame": 771,
+      "end_frame_exclusive": 787,
+      "start_s": 25.7,
+      "end_s": 26.233,
+      "kind": "enemy_approach_2",
+      "description": "Opponent advances/repositions; caster braces upright."
+    },
+    {
+      "start_frame": 787,
+      "end_frame_exclusive": 789,
+      "start_s": 26.233,
+      "end_s": 26.3,
+      "kind": "incoming_contact_2",
+      "description": "Two-frame white star at shield."
+    },
+    {
+      "start_frame": 789,
+      "end_frame_exclusive": 804,
+      "start_s": 26.3,
+      "end_s": 26.8,
+      "kind": "contact_decay",
+      "description": "Orange star/ring and enemy crescent thin; shield remains."
+    },
+    {
+      "start_frame": 804,
+      "end_frame_exclusive": 807,
+      "start_s": 26.8,
+      "end_s": 26.9,
+      "kind": "shield_flare_closeup",
+      "description": "Three bright close-up frames: upright gold field and fine wavering contour."
+    },
+    {
+      "start_frame": 807,
+      "end_frame_exclusive": 810,
+      "start_s": 26.9,
+      "end_s": 27.0,
+      "kind": "shield_flare_decay",
+      "description": "Shield outline visible with floating white flakes and thin horizontal gold line."
+    },
+    {
+      "start_frame": 810,
+      "end_frame_exclusive": 812,
+      "start_s": 27.0,
+      "end_s": 27.067,
+      "kind": "guard_resolution_flash",
+      "description": "White flare and black glyph at 810, white/orange star at 811."
+    },
+    {
+      "start_frame": 812,
+      "end_frame_exclusive": 826,
+      "start_s": 27.067,
+      "end_s": 27.534,
+      "kind": "target_rings",
+      "description": "Two yellow circles appear directly around enemy; orange shield ring and glyph persist."
+    },
+    {
+      "start_frame": 826,
+      "end_frame_exclusive": 851,
+      "start_s": 27.534,
+      "end_s": 28.367,
+      "kind": "guard_hold",
+      "description": "Rings disappear; overhead glyph fades by ≈847; guard holds."
+    },
+    {
+      "start_frame": 851,
+      "end_frame_exclusive": 852,
+      "start_s": 28.367,
+      "end_s": 28.4,
+      "kind": "reset",
+      "description": "One dim mixed frame."
+    },
+    {
+      "start_frame": 852,
+      "end_frame_exclusive": 861,
+      "start_s": 28.4,
+      "end_s": 28.7,
+      "kind": "repeat_guard_setup",
+      "description": "Wider shot and low enemy approach."
+    },
+    {
+      "start_frame": 861,
+      "end_frame_exclusive": 872,
+      "start_s": 28.7,
+      "end_s": 29.067,
+      "kind": "incoming_contact_3",
+      "description": "Orange barrier hit, gold opponent crescent, orange ring and small black/white glyph."
+    },
+    {
+      "start_frame": 872,
+      "end_frame_exclusive": 887,
+      "start_s": 29.067,
+      "end_s": 29.567,
+      "kind": "held_guard",
+      "description": "No new hit."
+    },
+    {
+      "start_frame": 887,
+      "end_frame_exclusive": 890,
+      "start_s": 29.567,
+      "end_s": 29.667,
+      "kind": "reset_fade",
+      "description": "Three frames of transparent/dim figures and no bright shield."
+    },
+    {
+      "start_frame": 890,
+      "end_frame_exclusive": 914,
+      "start_s": 29.667,
+      "end_s": 30.467,
+      "kind": "held_guard",
+      "description": "Barrier restored; no additional contact spark."
+    },
+    {
+      "start_frame": 914,
+      "end_frame_exclusive": 919,
+      "start_s": 30.467,
+      "end_s": 30.634,
+      "kind": "reset_fade",
+      "description": "Five dim frames before gold barrier returns; enemy reappears during transition."
+    },
+    {
+      "start_frame": 919,
+      "end_frame_exclusive": 937,
+      "start_s": 30.634,
+      "end_s": 31.234,
+      "kind": "guard_and_enemy_windup",
+      "description": "Caster braces, opponent rises into swing."
+    },
+    {
+      "start_frame": 937,
+      "end_frame_exclusive": 946,
+      "start_s": 31.234,
+      "end_s": 31.534,
+      "kind": "incoming_contact_4",
+      "description": "Large curling textured gold crescent from enemy, white contact star, red/orange sparks and ground dust."
+    },
+    {
+      "start_frame": 946,
+      "end_frame_exclusive": 953,
+      "start_s": 31.534,
+      "end_s": 31.767,
+      "kind": "guard_hold",
+      "description": "Crescent gone, caster still behind shield; cut to white outro at 953."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 713,
+      "end_frame_exclusive": 953,
+      "start_s": 23.767,
+      "end_s": 31.767,
+      "name": "shield_barrier",
+      "shape": "Nested tall shield outline inside translucent curved gold field",
+      "size_body_heights": [
+        1.3,
+        1.7
+      ],
+      "position": "Just in front/right of caster",
+      "colors_hex": [
+        "#F6E787",
+        "#D7C76A",
+        "#817A3F"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Bright thin nested gold outline over translucent olive-gold body; caster remains visible through field.",
+      "motion": "Fixed to guard pose; briefly flickers/dims at setup and resets. See props timing for visible intervals.",
+      "lifetime_s": 8.0,
+      "fade": "No continuous 8-second fade; short resets at 715,851,887–889,914–918. Ends on outro cut."
+    },
+    {
+      "start_frame": 743,
+      "end_frame_exclusive": 755,
+      "start_s": 24.767,
+      "end_s": 25.167,
+      "name": "incoming1_contact",
+      "shape": "Orange star and expanding thin ring; tiny sparks",
+      "size_body_heights": [
+        0.5,
+        1
+      ],
+      "position": "Shield front at body height",
+      "colors_hex": [
+        "#FFFAD0",
+        "#FFB921",
+        "#F16F0E"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "White/yellow center, orange ring above shield graphic.",
+      "motion": "Ring grows from contact and drifts slightly; opponent crescent sweeps right-to-left.",
+      "lifetime_s": 0.4,
+      "fade": "Bright first 2 frames, thin ring to ≈753."
+    },
+    {
+      "start_frame": 743,
+      "end_frame_exclusive": 771,
+      "start_s": 24.767,
+      "end_s": 25.7,
+      "name": "incoming1_glyph",
+      "shape": "Small black blot/white outlined mark",
+      "size_body_heights": [
+        0.25,
+        0.45
+      ],
+      "position": "Above/right of barrier",
+      "colors_hex": [
+        "#161615",
+        "#EEE9CD"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Black fill, pale outline; resembles UI feedback, not a physical prop.",
+      "motion": "Pops up then floats/holds.",
+      "lifetime_s": 0.933,
+      "fade": "Dims through enemy recovery."
+    },
+    {
+      "start_frame": 743,
+      "end_frame_exclusive": 755,
+      "start_s": 24.767,
+      "end_s": 25.167,
+      "name": "enemy1_crescent",
+      "shape": "Thin tawny curved weapon trail",
+      "size_body_heights": [
+        1,
+        1.8
+      ],
+      "position": "Around opponent and toward shield",
+      "colors_hex": [
+        "#C1A55D",
+        "#E2C97E"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Textured ochre center and pale rim.",
+      "motion": "Opponent low sweep, follows weapon arc.",
+      "lifetime_s": 0.4,
+      "fade": "Thins away behind opponent."
+    },
+    {
+      "start_frame": 787,
+      "end_frame_exclusive": 789,
+      "start_s": 26.233,
+      "end_s": 26.3,
+      "name": "incoming2_white_star",
+      "shape": "Long thin white-blue star rays",
+      "size_body_heights": [
+        1,
+        2
+      ],
+      "position": "At shield contact",
+      "colors_hex": [
+        "#FFFFFF",
+        "#CBDAE6"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "White center and pale cool rays above barrier.",
+      "motion": "Two-frame flash.",
+      "lifetime_s": 0.067,
+      "fade": "Replaced by orange star."
+    },
+    {
+      "start_frame": 789,
+      "end_frame_exclusive": 800,
+      "start_s": 26.3,
+      "end_s": 26.667,
+      "name": "incoming2_contact",
+      "shape": "Orange star and circular ripple with flecks",
+      "size_body_heights": [
+        0.6,
+        1.1
+      ],
+      "position": "Barrier front",
+      "colors_hex": [
+        "#FFF7B2",
+        "#FFA718",
+        "#EE6C13"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Yellow core and orange ring, small outward embers.",
+      "motion": "Expands then curls around shield outline.",
+      "lifetime_s": 0.367,
+      "fade": "Fades to thin ring by 798."
+    },
+    {
+      "start_frame": 787,
+      "end_frame_exclusive": 800,
+      "start_s": 26.233,
+      "end_s": 26.667,
+      "name": "enemy2_crescent",
+      "shape": "Low thin gold weapon arc",
+      "size_body_heights": [
+        1,
+        2
+      ],
+      "position": "Between enemy and barrier",
+      "colors_hex": [
+        "#CFAD66",
+        "#EFE1A6"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Tawny textured center/pale edge.",
+      "motion": "Follows opponent sweep; holds briefly.",
+      "lifetime_s": 0.434,
+      "fade": "Breaks into little streaks."
+    },
+    {
+      "start_frame": 804,
+      "end_frame_exclusive": 810,
+      "start_s": 26.8,
+      "end_s": 27.0,
+      "name": "guard_flare",
+      "shape": "Very bright vertical shield field, wavering edge lines, horizontal ray, floating white flakes",
+      "size_body_heights": [
+        1.5,
+        2
+      ],
+      "position": "Attached to barrier; camera crops to caster",
+      "colors_hex": [
+        "#FFFFD2",
+        "#FFF7A2",
+        "#D8C96A"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "White-gold core over translucent field, thin gold contour echoes behind, white foreground flecks.",
+      "motion": "Flares vertically, white flakes fan outward to left and upward.",
+      "lifetime_s": 0.2,
+      "fade": "Broad light recedes into ordinary shield by 810; new contact flash follows."
+    },
+    {
+      "start_frame": 810,
+      "end_frame_exclusive": 824,
+      "start_s": 27.0,
+      "end_s": 27.467,
+      "name": "resolution_star_ring",
+      "shape": "White then orange star and expanding orange ripple",
+      "size_body_heights": [
+        0.6,
+        1.2
+      ],
+      "position": "Shield upper-middle",
+      "colors_hex": [
+        "#FFFFFF",
+        "#FFE68A",
+        "#FF9D15"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "White center over orange ring and sparks.",
+      "motion": "White at 810–811 then orange cross/star; ring spreads over barrier.",
+      "lifetime_s": 0.467,
+      "fade": "Decays while target circles persist."
+    },
+    {
+      "start_frame": 810,
+      "end_frame_exclusive": 848,
+      "start_s": 27.0,
+      "end_s": 28.267,
+      "name": "resolution_glyph",
+      "shape": "Black splat with cream-outlined curled numeral-like mark",
+      "size_body_heights": [
+        0.4,
+        0.6
+      ],
+      "position": "Above barrier",
+      "colors_hex": [
+        "#141410",
+        "#E8DAA2"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Black irregular background/pale outline; exact glyph semantic not legible.",
+      "motion": "Pops above shield, holds then fades.",
+      "lifetime_s": 1.267,
+      "fade": "Fades near 845–847."
+    },
+    {
+      "start_frame": 812,
+      "end_frame_exclusive": 826,
+      "start_s": 27.067,
+      "end_s": 27.534,
+      "name": "target_circles",
+      "shape": "Two fine concentric yellow circles",
+      "size_body_heights": [
+        0.8,
+        1.1
+      ],
+      "position": "Centered on opponent, not caster",
+      "colors_hex": [
+        "#DBCF31",
+        "#EBDD58"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Thin bright outer/inner outlines over target sprite; no filled disk.",
+      "motion": "Appear at target and slightly pulse/expand; no visible travel.",
+      "lifetime_s": 0.467,
+      "fade": "Thin and disappear by 826."
+    },
+    {
+      "start_frame": 861,
+      "end_frame_exclusive": 872,
+      "start_s": 28.7,
+      "end_s": 29.067,
+      "name": "incoming3_contact",
+      "shape": "Orange star/ring and small black/white glyph",
+      "size_body_heights": [
+        0.5,
+        1
+      ],
+      "position": "Barrier front and just above",
+      "colors_hex": [
+        "#FFB521",
+        "#F16D0D",
+        "#171713",
+        "#EDE5CA"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Orange light above gold shield; black mark outlined pale.",
+      "motion": "Star then circular ripple; small glyph rises.",
+      "lifetime_s": 0.367,
+      "fade": "Spark/ring fades; glyph persists into hold."
+    },
+    {
+      "start_frame": 861,
+      "end_frame_exclusive": 872,
+      "start_s": 28.7,
+      "end_s": 29.067,
+      "name": "enemy3_crescent",
+      "shape": "Low tawny crescent",
+      "size_body_heights": [
+        1,
+        1.8
+      ],
+      "position": "Opponent side sweeping into barrier",
+      "colors_hex": [
+        "#CCAD67",
+        "#E8D391"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Ochre body and pale rim.",
+      "motion": "Opponent swing then held trail.",
+      "lifetime_s": 0.367,
+      "fade": "Thins into short streak."
+    },
+    {
+      "start_frame": 937,
+      "end_frame_exclusive": 946,
+      "start_s": 31.234,
+      "end_s": 31.534,
+      "name": "enemy4_crescent_and_contact",
+      "shape": "Large curling textured golden arc, white contact point, red/orange embers, gray-brown ground puffs",
+      "size_body_heights": [
+        1,
+        1.7
+      ],
+      "position": "Between opponent and shield; arc wraps opponent front",
+      "colors_hex": [
+        "#E4CA86",
+        "#B59A55",
+        "#FFFFFF",
+        "#F67D24",
+        "#9C3420",
+        "#807365"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Textured gold crescent in front of opponent; white contact at shield; orange/red flecks and opaque dust below.",
+      "motion": "Opponent sweeps arc leftward into shield; curls and dust expand then fall away.",
+      "lifetime_s": 0.3,
+      "fade": "Arc thins 942–945; dust fades."
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 711,
+      "end_frame_exclusive": 787,
+      "start_s": 23.7,
+      "end_s": 26.233,
+      "shot_type": "wide_two_shot",
+      "framing": "Caster x≈0.35–0.4, enemy x≈0.55–0.65; caster ≈0.20–0.25 screen height, feet ≈0.60. Dark vignette, no attack matte.",
+      "transition": "Hard reset at 711, small tracking shifts during incoming approach."
+    },
+    {
+      "start_frame": 787,
+      "end_frame_exclusive": 804,
+      "start_s": 26.233,
+      "end_s": 26.8,
+      "shot_type": "medium_two_shot",
+      "framing": "Guard center-left, opponent right, shield ≈0.45 screen height.",
+      "transition": "Push in during incoming star and aftermath."
+    },
+    {
+      "start_frame": 804,
+      "end_frame_exclusive": 807,
+      "start_s": 26.8,
+      "end_s": 26.9,
+      "shot_type": "close_full_body",
+      "framing": "Caster ≈0.6 screen height, gold barrier right of face/body; opponent largely cropped.",
+      "transition": "Abrupt close-up flare, slight shake."
+    },
+    {
+      "start_frame": 807,
+      "end_frame_exclusive": 810,
+      "start_s": 26.9,
+      "end_s": 27.0,
+      "shot_type": "close",
+      "framing": "White flakes surround caster and barrier; thin ray crosses image.",
+      "transition": "Hold with slight pullback."
+    },
+    {
+      "start_frame": 810,
+      "end_frame_exclusive": 814,
+      "start_s": 27.0,
+      "end_s": 27.133,
+      "shot_type": "close_to_medium",
+      "framing": "Black glyph above barrier, star at face height; target rings enter right.",
+      "transition": "Brief impact punch then pullback."
+    },
+    {
+      "start_frame": 814,
+      "end_frame_exclusive": 851,
+      "start_s": 27.133,
+      "end_s": 28.367,
+      "shot_type": "medium_two_shot",
+      "framing": "Caster left, opponent right, rings then glyph fade; shield remains.",
+      "transition": "Smooth pullback then hold."
+    },
+    {
+      "start_frame": 851,
+      "end_frame_exclusive": 852,
+      "start_s": 28.367,
+      "end_s": 28.4,
+      "shot_type": "dim_transition",
+      "framing": "Ghosted figures in old framing.",
+      "transition": "One-frame reset."
+    },
+    {
+      "start_frame": 852,
+      "end_frame_exclusive": 887,
+      "start_s": 28.4,
+      "end_s": 29.567,
+      "shot_type": "wide_two_shot",
+      "framing": "Caster ≈0.2 screen height, enemy immediately right; more floor visible.",
+      "transition": "New wider setup, small contact shake at 861."
+    },
+    {
+      "start_frame": 887,
+      "end_frame_exclusive": 890,
+      "start_s": 29.567,
+      "end_s": 29.667,
+      "shot_type": "dim_transition",
+      "framing": "Figures partially transparent; ground visible through.",
+      "transition": "Three-frame dissolve/reset; not evidence of teleport."
+    },
+    {
+      "start_frame": 890,
+      "end_frame_exclusive": 914,
+      "start_s": 29.667,
+      "end_s": 30.467,
+      "shot_type": "wide_two_shot",
+      "framing": "Same guard/enemy spacing, shield restored.",
+      "transition": "Stable hold."
+    },
+    {
+      "start_frame": 914,
+      "end_frame_exclusive": 919,
+      "start_s": 30.467,
+      "end_s": 30.634,
+      "shot_type": "dim_transition",
+      "framing": "Upright Ishmael and fading enemy; shield not bright.",
+      "transition": "Five-frame dissolve/reset."
+    },
+    {
+      "start_frame": 919,
+      "end_frame_exclusive": 953,
+      "start_s": 30.634,
+      "end_s": 31.767,
+      "shot_type": "wide_two_shot",
+      "framing": "Ishmael left, enemy close right; final enemy arc between them.",
+      "transition": "Stable with small impact shake at 937; hard full-white cut at 953."
+    }
+  ],
+  "contact_sheets": [
+    "sheets/combat_13.jpg",
+    "sheets/combat_14.jpg",
+    "sheets/combat_15.jpg",
+    "sheets/combat_16.jpg",
+    "sheets/combat_17.jpg",
+    "sheets/combat_18.jpg",
+    "sheets/combat_19.jpg",
+    "sheets/combat_20.jpg",
+    "sheets/combat_21.jpg"
+  ],
+  "conventions": "Zero-based source frame indices; intervals are [start,end). Seconds use decoded PTS, not rounded sheet labels. Nominal 30 fps has millisecond PTS rounding.",
+  "limitations": [
+    "Contact proxy is the first impact spark/flash, not verified game damage timing. Cropping and opaque VFX hide some physical contacts; uncertainty intervals are recorded. Camera and effect event boundaries refer to observed source frames.",
+    "H = visible upright character height, excluding weapon/hair overshoot. Distances, effect dimensions and colors are visual estimates, not calibrated world coordinates. Do not treat zoom-induced apparent displacement as a dash.",
+    "Classify motion/contact, not long bright streak shape alone. Sweeps here stay tied to a held weapon; no detached traveling projectile or sustained beam is resolved. Their oversized trails bridge stylized sprite spacing. Melee classifications for cropped contacts have medium confidence."
+  ],
+  "observed_outgoing_attack_hits": 0,
+  "coin_comparison": "1 guard coin is not 1 offensive hit. Four clear opponent weapon-sweep contacts plus one separate guard-resolution flash are visible; do not call these five Ishmael coins.",
+  "occurrences": [
+    {
+      "id": "guard_A",
+      "start_frame": 711,
+      "end_frame_exclusive": 851,
+      "start_s": 23.7,
+      "end_s": 28.367,
+      "repeat": false
+    },
+    {
+      "id": "guard_B",
+      "start_frame": 851,
+      "end_frame_exclusive": 887,
+      "start_s": 28.367,
+      "end_s": 29.567,
+      "repeat": true
+    },
+    {
+      "id": "guard_C",
+      "start_frame": 887,
+      "end_frame_exclusive": 914,
+      "start_s": 29.567,
+      "end_s": 30.467,
+      "repeat": true
+    },
+    {
+      "id": "guard_D",
+      "start_frame": 914,
+      "end_frame_exclusive": 953,
+      "start_s": 30.467,
+      "end_s": 31.767,
+      "repeat": true
+    }
+  ],
+  "incoming_contacts": [
+    {
+      "coin": null,
+      "actor": "opponent",
+      "contact_frame": 743,
+      "contact_s": 24.767,
+      "what_makes_contact": "Opponent low sweep/gold crescent meets gold barrier; orange star/ring.",
+      "range_class": "melee",
+      "caster_target_distance_body_heights": [
+        1,
+        2
+      ],
+      "contact_sheet": "sheets/combat_14.jpg",
+      "confidence": "high",
+      "note": "Distance is Ishmael-to-opponent center separation; this is an incoming event, not an outgoing skill coin."
+    },
+    {
+      "coin": null,
+      "actor": "opponent",
+      "contact_frame": 787,
+      "contact_s": 26.233,
+      "what_makes_contact": "Opponent sweep meets shield; white star then orange ring.",
+      "range_class": "melee",
+      "caster_target_distance_body_heights": [
+        0.8,
+        1.5
+      ],
+      "contact_sheet": "sheets/combat_16.jpg",
+      "confidence": "high",
+      "note": "Distance is Ishmael-to-opponent center separation; this is an incoming event, not an outgoing skill coin."
+    },
+    {
+      "coin": null,
+      "actor": "opponent",
+      "contact_frame": 861,
+      "contact_s": 28.7,
+      "what_makes_contact": "Opponent low sweep contacts barrier front; orange star/ring.",
+      "range_class": "melee",
+      "caster_target_distance_body_heights": [
+        1,
+        1.8
+      ],
+      "contact_sheet": "sheets/combat_18.jpg",
+      "confidence": "high",
+      "note": "Distance is Ishmael-to-opponent center separation; this is an incoming event, not an outgoing skill coin."
+    },
+    {
+      "coin": null,
+      "actor": "opponent",
+      "contact_frame": 937,
+      "contact_s": 31.234,
+      "what_makes_contact": "Opponent large curling gold sweep hits barrier; white star and reddish sparks.",
+      "range_class": "melee",
+      "caster_target_distance_body_heights": [
+        0.5,
+        1.2
+      ],
+      "contact_sheet": "sheets/combat_21.jpg",
+      "confidence": "high",
+      "note": "Distance is Ishmael-to-opponent center separation; this is an incoming event, not an outgoing skill coin."
+    }
+  ],
+  "guard_coin_resolution": {
+    "coin": 1,
+    "candidate_frame": 811,
+    "candidate_time_s": 27.033,
+    "confidence": "med",
+    "evidence": [
+      {
+        "frame": 804,
+        "time_s": 26.8,
+        "description": "Gold shield flares in close-up",
+        "contact_sheet": "sheets/combat_16.jpg"
+      },
+      {
+        "frame": 810,
+        "time_s": 27.0,
+        "description": "Bright white field and black/white overhead glyph",
+        "contact_sheet": "sheets/combat_17.jpg"
+      },
+      {
+        "frame": 811,
+        "time_s": 27.033,
+        "description": "White/orange contact star at shield",
+        "contact_sheet": "sheets/combat_17.jpg"
+      },
+      {
+        "frame": 812,
+        "time_s": 27.067,
+        "description": "Yellow concentric target circles begin",
+        "contact_sheet": "sheets/combat_17.jpg"
+      }
+    ],
+    "contact": "Shield-side flash rather than visible outgoing weapon hit. Target rings appear in place, without traveling projectile.",
+    "range_class": null,
+    "target_effect_range_class": "aoe_at_target",
+    "caster_target_distance_body_heights": [
+      1,
+      2
+    ],
+    "mechanic_interpretation": "Consistent with Your Shield Clash Win/Tremor Burst from kit, but exact game resolution, damage and trigger cannot be proved without UI. Do not count another offensive coin or assert perfect-block timing."
+  },
+  "passives_and_specials": [
+    {
+      "candidate": "Your Shield Clash Win / Tremor Burst",
+      "frames": [
+        804,
+        825
+      ],
+      "confidence": "med",
+      "evidence": "Shield flare then target circles; kit provides this effect. No readable gameplay UI confirms trigger."
+    },
+    {
+      "candidate": "Defensive Stance",
+      "confidence": "low",
+      "evidence": "Repeated held guard is compatible but not sufficient to identify stack count or turns. No alternate offensive animation demonstrated."
+    },
+    {
+      "candidate": "Shock-nullifying Greatsword / Emergency Protection",
+      "confidence": "low",
+      "evidence": "No uniquely attributable passive VFX or readable stat display."
+    }
+  ]
+}

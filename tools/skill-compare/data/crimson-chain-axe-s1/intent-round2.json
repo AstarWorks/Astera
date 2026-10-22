@@ -1,0 +1,133 @@
+{
+  "title": "緋針 — astra2に基づく形状・接触の設計図（調整中）",
+  "source": {
+    "video": "Gpj-lvOnAgs",
+    "start_s": 11.144,
+    "fps": 29.97002997002997
+  },
+  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "duration_ticks": 43,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        3.5,
+        2.5,
+        10
+      ],
+      "target": [
+        3.5,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#66889A",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#8E3440",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            7,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 1.8,
+    "width": 0.12,
+    "color": "#CCCCCC",
+    "parts": [
+      {
+        "size": [
+          0.2,
+          0.12,
+          0.15
+        ],
+        "pos": [
+          0.3,
+          0,
+          0
+        ],
+        "color": "#F4DFDA"
+      }
+    ],
+    "keys": [
+      {
+        "t": 0,
+        "angle": 0
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 27,
+      "at": [
+        7,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "spike_star",
+      "t0": 27,
+      "t1": 35,
+      "center": [
+        7,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#EF2445",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "hbar",
+      "t0": 25,
+      "t1": 31,
+      "center": [
+        3.5,
+        1.1,
+        0
+      ],
+      "length": 7,
+      "thickness": 0.06
+    }
+  ]
+}

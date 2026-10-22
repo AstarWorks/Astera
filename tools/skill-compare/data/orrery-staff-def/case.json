@@ -1,0 +1,39 @@
+{
+  "id": "orrery-staff-def",
+  "start_s": 0,
+  "end_s": 3.0,
+  "skill": {
+    "name": "天球の返し",
+    "asteraSkillId": "orrery-def"
+  },
+  "editLog": [],
+  "weapon": "orrery-staff",
+  "identity": "R Corp. 4th Pack Reindeer Rodion",
+  "videoTitle": "R Corp. 4th Pack Reindeer Rodion — skill showcase",
+  "status": "from-wiki",
+  "iterations": 0,
+  "report": "/report/orrery-staff",
+  "referenceRevision": "2e144cddf8f0adfbc3f737f99bcc64bee5c4be4550b10ff3df8a5fa648fbbfa8",
+  "verification": {
+    "status": "unverified",
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "rev": 1,
+  "focus": {
+    "factor": 0.2,
+    "windowMs": 150,
+    "enabled": false
+  },
+  "videoId": "0DYvUxa24wo",
+  "mc": {
+    "source": "vfx-compare",
+    "castTickInTrace": 5,
+    "offset_ms": 0
+  },
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "contentRevision": "5b7b1f57231eb60ee328abc36ed771d193ea86b89c882066f629c857995826b2"
+}

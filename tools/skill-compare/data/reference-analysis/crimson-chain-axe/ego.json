@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "video_id": "Gpj-lvOnAgs",
+    "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+    "source_fps": "30000/1001",
+    "frame_convention": "Zero-based decoded source frame; time_s = frame * 1001 / 30000. End frames exclusive. Native source is 29.970 fps, not exactly 30.",
+    "units": "BH = visible standing body height of caster in same shot, excluding halo/cape spread. Distances are screen-plane estimates, not calibrated world coordinates.",
+    "precision": "Native-window events identify individual frames. Other boundaries from 6/15 fps are explicitly approximate (usually +/-2 frames for 15 fps, +/-5 for 6 fps). Flash-obscured contact is bracketed; no invisible collision or coin boundary is asserted.",
+    "colors": "Hex values are visual approximations under bloom/compression, not sampled material albedos.",
+    "mapping_policy": "Supplied kit is the authority for names, Pierce type and coin counts. No skill-name/coin UI is readable; mapping confidence is separate from visual confidence. Repeated VFX pulses are not counted automatically as coins.",
+    "kit_source": "../../wiki/Gpj-lvOnAgs.md",
+    "native_index": "native/index.json"
+  },
+  "slot": "ego",
+  "observed": false,
+  "mapping_confidence": "high for absence of identifiable E.G.O label; not a claim that E.G.O is mechanically impossible",
+  "weapon": null,
+  "props": [],
+  "caster_motion": [],
+  "hits": [],
+  "beats": [],
+  "effects": [],
+  "camera": [],
+  "evidence": "No separate E.G.O named in supplied kit or readable skill UI. Transformation is recorded as extra-1; dramatic visuals alone do not identify E.G.O.",
+  "contact_sheets": [
+    "sheets/native_09.jpg"
+  ]
+}

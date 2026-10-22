@@ -1,16 +1,13 @@
 id: couture-rapier-s2
 name:
-  ja: 裾払いの突進
-  en: Hemline Rush
+  ja: 型紙裁ち
+  en: Pattern Trim
 description:
-  ja: 薙ぎ払いの投影、落ちる鋏、通り抜けの刺突を三段で放つ。
-  en: 'Three cuts: a sweeping projection, descending shears, and a passing thrust.'
+  ja: 型紙裁ち
+  en: Pattern Trim
 archetype: sequence
-cooldown_ticks: 110
-resource_cost: 12
-tags:
-- physical
-- couture
+cooldown_ticks: 125
+resource_cost: 18
 params:
   type: sequence
 phases:
@@ -18,173 +15,29 @@ phases:
   cast:
   - type: play_vfx
     targets:
-      type: caster
-    vfx_id: couture-rapier-ready
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: couture-rapier-slash
-    delay_ticks:
-      type: literal
-      value: 9
-  - type: damage
-    targets:
-      type: forward_ray
+      type: cone
       from:
         type: caster
+      direction:
+        type: from_caster
       distance:
         type: literal
-        value: 6.8
-    components:
-    - base:
+        value: 12
+      angle_degrees:
         type: literal
-        value: 3
-      attribute: physical
-    ignore_invulnerability:
-      type: literal
-      value: true
+        value: 45
+      max_count: 1
+    vfx_id: couture-shears-remote
     delay_ticks:
       type: literal
-      value: 13
-  - type: play_vfx
-    targets:
-      type: caster_forward
-      distance: 5.7
-      height: -1.62
-    vfx_id: couture-rapier-burst
-    delay_ticks:
-      type: literal
-      value: 13
-  - type: play_sound
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 6.8
-    sound_id: entity.player.attack.crit
-    volume:
-      type: literal
-      value: 0.6
-    pitch:
-      type: literal
-      value: 1.6
-    delay_ticks:
-      type: literal
-      value: 13
-  - type: hit_stop
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 6.8
-    ticks: 2
-    include_caster: true
-    delay_ticks:
-      type: literal
-      value: 13
+      value: 3
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: couture-rapier-vertical
+    vfx_id: couture-shear-crescent
     delay_ticks:
       type: literal
-      value: 25
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: couture-rapier-shears
-    delay_ticks:
-      type: literal
-      value: 42
-  - type: damage
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 6.8
-    components:
-    - base:
-        type: literal
-        value: 3
-      attribute: physical
-    ignore_invulnerability:
-      type: literal
-      value: true
-    delay_ticks:
-      type: literal
-      value: 45
-  - type: play_vfx
-    targets:
-      type: caster_forward
-      distance: 5.7
-      height: -1.62
-    vfx_id: couture-rapier-burst
-    delay_ticks:
-      type: literal
-      value: 45
-  - type: play_sound
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 6.8
-    sound_id: entity.player.attack.crit
-    volume:
-      type: literal
-      value: 0.6
-    pitch:
-      type: literal
-      value: 1.6
-    delay_ticks:
-      type: literal
-      value: 45
-  - type: hit_stop
-    targets:
-      type: forward_ray
-      from:
-        type: caster
-      distance:
-        type: literal
-        value: 6.8
-    ticks: 2
-    include_caster: true
-    delay_ticks:
-      type: literal
-      value: 45
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: couture-rapier-ready
-    delay_ticks:
-      type: literal
-      value: 46
-  - type: dash_strike
-    distance: 5
-    ticks: 3
-    radius: 0.8
-    hit_once: true
-    stop_on_block: true
-    invulnerable: false
-    delay_ticks:
-      type: literal
-      value: 78
-    on_hit: []
-    stop_before_target: 1.8
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: couture-rapier-slash
-    delay_ticks:
-      type: literal
-      value: 78
+      value: 8
     follow:
       type: literal
       value: true
@@ -195,24 +48,24 @@ phases:
         type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75
       distance:
         type: literal
-        value: 3.8
-      max_count: 1
-    components:
-    - base:
+        value: 12
+      angle_degrees:
         type: literal
-        value: 4
-      attribute: physical
+        value: 45
+      max_count: 1
     ignore_invulnerability:
       type: literal
       value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
     delay_ticks:
       type: literal
-      value: 79
+      value: 9
   - type: play_vfx
     targets:
       type: cone
@@ -220,17 +73,17 @@ phases:
         type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75
       distance:
         type: literal
-        value: 3.8
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 45
       max_count: 1
     vfx_id: couture-rapier-cross
     delay_ticks:
       type: literal
-      value: 79
+      value: 9
   - type: play_sound
     targets:
       type: cone
@@ -238,63 +91,193 @@ phases:
         type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75
       distance:
         type: literal
-        value: 3.8
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 45
       max_count: 1
-    sound_id: entity.player.attack.crit
+    sound_id: entity.player.attack.strong
     volume:
       type: literal
-      value: 0.6
+      value: 0.7
     pitch:
       type: literal
-      value: 1.6
+      value: 1.1
     delay_ticks:
       type: literal
-      value: 79
-  - type: hit_stop
+      value: 9
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: couture-shear-overhead
+    delay_ticks:
+      type: literal
+      value: 22
+  - type: play_vfx
     targets:
       type: cone
       from:
         type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75
       distance:
         type: literal
-        value: 3.8
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 45
       max_count: 1
-    ticks: 2
-    include_caster: true
+    vfx_id: couture-shears-remote
     delay_ticks:
       type: literal
-      value: 79
-  - type: screen_flash
+      value: 35
+  - type: play_vfx
     targets:
-      type: caster
-    overlay: white
-    color: '#FFF1DC'
-    fade_in:
-      type: literal
-      value: 0
-    stay:
-      type: literal
-      value: 1
-    fade_out:
-      type: literal
-      value: 1
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 45
+      max_count: 1
+    vfx_id: couture-companion-blades
     delay_ticks:
       type: literal
-      value: 76
+      value: 35
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 45
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 7
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 41
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 45
+      max_count: 1
+    vfx_id: couture-rapier-cross
+    delay_ticks:
+      type: literal
+      value: 41
+  - type: play_sound
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 45
+      max_count: 1
+    sound_id: entity.player.attack.strong
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 41
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: couture-rapier-seam
+    vfx_id: couture-launch-haze
     delay_ticks:
       type: literal
-      value: 13
+      value: 63
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: couture-shears-snip
+    delay_ticks:
+      type: literal
+      value: 65
+    follow:
+      type: literal
+      value: true
+  - type: dash_strike
+    distance: 8
+    ticks: 5
+    radius: 0.8
+    hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    on_hit:
+    - type: damage
+      targets:
+        type: target
+      ignore_invulnerability:
+        type: literal
+        value: true
+      components:
+      - base:
+          type: literal
+          value: 10
+        attribute: physical
+    - type: play_vfx
+      targets:
+        type: target
+      vfx_id: couture-rapier-cross
+    - type: play_sound
+      targets:
+        type: target
+      sound_id: entity.player.attack.strong
+      volume:
+        type: literal
+        value: 0.7
+      pitch:
+        type: literal
+        value: 1.1
+    delay_ticks:
+      type: literal
+      value: 69
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: couture-shear-crescent
+    delay_ticks:
+      type: literal
+      value: 72
+    follow:
+      type: literal
+      value: true

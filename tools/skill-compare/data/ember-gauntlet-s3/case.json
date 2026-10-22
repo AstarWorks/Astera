@@ -1,16 +1,16 @@
 {
   "id": "ember-gauntlet-s3",
-  "rev": 1,
+  "rev": 2,
   "videoId": "vBob-jTmlnc",
-  "start_s": 54.5,
-  "end_s": 58.8,
+  "start_s": 54.666667,
+  "end_s": 58.866667,
   "skill": {
-    "name": "ember-gauntlet-s3",
+    "name": "炉心解放",
     "coins": 3,
     "asteraSkillId": "ember-gauntlet-s3"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,35 +26,44 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "ember-gauntlet-s3",
-      "start_s": 54.5,
-      "end_s": 58.8,
-      "notes": ""
+      "label": "S3",
+      "start_s": 54.666667,
+      "end_s": 58.866667
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "Coin 1",
-      "t_s": 55.533333
+      "label": "接触 1",
+      "t_s": 55.5,
+      "notes": "astra2 source frame 1665; dash_melee; game tick 17. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "Coin 2",
-      "t_s": 55.8
+      "label": "接触 2",
+      "t_s": 55.8,
+      "notes": "astra2 source frame 1674; melee; game tick 23. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit3",
       "kind": "hit",
-      "label": "Coin 3",
-      "t_s": 57.3
+      "label": "接触 3",
+      "t_s": 57.2,
+      "notes": "astra2 source frame 1716; beam; game tick 51. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Native 30 fps inspection; visual ring echoes are not additional damage hits.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/ember-gauntlet/s3.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "ember-gauntlet",
+  "identity": "Firefist Gregor",
+  "videoTitle": "Firefist Gregor — skill showcase",
+  "iterations": 0,
+  "report": "/report/ember-gauntlet",
+  "referenceRevision": "e19f5c72d2cc01bf3c3b2c28b38a96d8019ca69b41ad4de076574d605cd97bfd",
+  "contentRevision": "fccd758b4837219cdbe520879f342f4c6a9a8da35360380a7df172bd4f24ffa0"
 }

@@ -1,20 +1,39 @@
 id: ember-gauntlet
 material: GOLDEN_AXE
-name: {ja: <#ff7a1a>灼拳の手甲</#ff7a1a>, en: <#ff7a1a>Ember Gauntlet</#ff7a1a>}
+name:
+  ja: <#ff7a1a>灼拳の手甲</#ff7a1a>
+  en: <#ff7a1a>Ember Gauntlet</#ff7a1a>
 lore:
-  ja: ['<gray>左: 炉心の連拳 / 右: 輪砲</gray>', '<gray>スニーク右: 業炉・灼熱解放 / スニーク左: フレア・ガード</gray>', '<gold>Q: 熾火の心臓（E.G.O 100）</gold>']
-  en: ['<gray>Left: Furnace Jab / Right: Hoop Cannon</gray>', '<gray>Sneak right: Inferno Furnace / Sneak left: Flare Guard</gray>',
-    '<gold>Q: Cinder Heart (100 E.G.O)</gold>']
+  ja:
+  - '左クリック: 炎拳と噴射'
+  - '右クリック: 連拳'
+  - 'Shift+右: 炉心解放'
+  - 'Shift+左: 迎撃の炎拳'
+  - 'Q: 熾火の心臓'
+  en:
+  - 'left_click: Flame Fist and Jet'
+  - 'right_click: Double Fist'
+  - 'sneak_right: Furnace Release'
+  - 'sneak_left: Flame Reprisal'
+  - 'drop: Cinder Heart'
 rarity: epic
 level_requirement: 4
-attributes: {attack_damage: 5.0, attack_speed: 2.0}
+attributes:
+  attack_damage: 5.0
+  attack_speed: 2.0
 equip_slot: mainhand
 resource_type: energy
 resource_cost_per_use: 12
 skills:
-- {trigger: left_click, skill_id: ember-gauntlet-s1}
-- {trigger: right_click, skill_id: ember-gauntlet-s2}
-- {trigger: sneak_right, skill_id: ember-gauntlet-s3}
-- {trigger: sneak_left, skill_id: ember-gauntlet-def}
-- {trigger: drop, skill_id: ember-gauntlet-ego}
-pdc_tags: {'astera:rarity': epic}
+- trigger: left_click
+  skill_id: ember-gauntlet-s1
+- trigger: right_click
+  skill_id: ember-gauntlet-s2
+- trigger: sneak_right
+  skill_id: ember-gauntlet-s3
+- trigger: sneak_left
+  skill_id: ember-gauntlet-def
+- trigger: drop
+  skill_id: ember-gauntlet-ego
+pdc_tags:
+  astera:rarity: epic

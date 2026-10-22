@@ -1,0 +1,334 @@
+{
+  "title": "鉄の服従 — astra2に基づく形状・接触の設計図（調整中）",
+  "source": {
+    "video": "wbu2viInM3w",
+    "start_s": 18.541667,
+    "fps": 24
+  },
+  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "duration_ticks": 63,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        2.0,
+        2.5,
+        8
+      ],
+      "target": [
+        2.0,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#66889A",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 4,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 8,
+          "pos": [
+            1.2000000000000002,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#8E3440",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            3,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 1.8,
+    "width": 0.12,
+    "color": "#CCCCCC",
+    "parts": [
+      {
+        "size": [
+          0.65,
+          0.22,
+          0.13
+        ],
+        "pos": [
+          -0.3,
+          0,
+          0
+        ],
+        "color": "#44272B"
+      },
+      {
+        "size": [
+          1.1,
+          0.08,
+          0.08
+        ],
+        "pos": [
+          0.55,
+          0,
+          0
+        ],
+        "color": "#252629"
+      },
+      {
+        "size": [
+          0.65,
+          0.08,
+          0.04
+        ],
+        "pos": [
+          1.4,
+          0,
+          0.08
+        ],
+        "color": "#C8C5C0"
+      }
+    ],
+    "keys": [
+      {
+        "t": 0,
+        "angle": 0
+      },
+      {
+        "t": 3,
+        "angle": 15
+      },
+      {
+        "t": 8,
+        "angle": -15
+      },
+      {
+        "t": 11,
+        "angle": 15
+      },
+      {
+        "t": 13,
+        "angle": 0
+      },
+      {
+        "t": 16,
+        "angle": -15
+      },
+      {
+        "t": 21,
+        "angle": 0
+      },
+      {
+        "t": 39,
+        "angle": 15
+      },
+      {
+        "t": 44,
+        "angle": -15
+      },
+      {
+        "t": 49,
+        "angle": 0
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 8,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "spike_star",
+      "t0": 8,
+      "t1": 16,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#FFAA25",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 6,
+      "t1": 17,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#FFAA25",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    },
+    {
+      "type": "hit",
+      "t": 16,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "spike_star",
+      "t0": 16,
+      "t1": 24,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#FFAA25",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 14,
+      "t1": 25,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#FFAA25",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    },
+    {
+      "type": "hit",
+      "t": 44,
+      "at": [
+        3,
+        1.1,
+        0
+      ],
+      "coin": 3
+    },
+    {
+      "type": "spike_star",
+      "t0": 44,
+      "t1": 52,
+      "center": [
+        3,
+        1.1,
+        0
+      ],
+      "count": 8,
+      "spread_deg": [
+        0,
+        360
+      ],
+      "length": [
+        0.4,
+        1.2
+      ],
+      "width": 0.08,
+      "zigzag": 1,
+      "color": "#FFAA25",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "crescent_ring",
+      "t0": 42,
+      "t1": 53,
+      "center": [
+        1.7000000000000002,
+        1.1,
+        0
+      ],
+      "tilt_deg": 30,
+      "radius": 1.7,
+      "start_deg": -80,
+      "sweep_deg": 210,
+      "draw_ticks": 2,
+      "layers": [
+        {
+          "color": "#FFAA25",
+          "width": 0.12,
+          "alpha": 0.85
+        }
+      ],
+      "width": 0.55
+    }
+  ]
+}

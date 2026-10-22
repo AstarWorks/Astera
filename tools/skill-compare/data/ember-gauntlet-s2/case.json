@@ -1,16 +1,16 @@
 {
   "id": "ember-gauntlet-s2",
-  "rev": 1,
+  "rev": 2,
   "videoId": "vBob-jTmlnc",
-  "start_s": 42.7,
-  "end_s": 44.7,
+  "start_s": 42.733333,
+  "end_s": 45.0,
   "skill": {
-    "name": "ember-gauntlet-s2",
+    "name": "連拳",
     "coins": 2,
     "asteraSkillId": "ember-gauntlet-s2"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,29 +26,37 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "ember-gauntlet-s2",
-      "start_s": 42.7,
-      "end_s": 44.7,
-      "notes": ""
+      "label": "S2",
+      "start_s": 42.733333,
+      "end_s": 45.0
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "Coin 1",
-      "t_s": 42.966667
+      "label": "接触 1",
+      "t_s": 42.966667,
+      "notes": "astra2 source frame 1289; dash_melee; game tick 5. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "Coin 2",
-      "t_s": 43.766667
+      "label": "接触 2",
+      "t_s": 43.766667,
+      "notes": "astra2 source frame 1313; melee; game tick 21. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Native 30 fps inspection; visual ring echoes are not additional damage hits.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/ember-gauntlet/s2.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "ember-gauntlet",
+  "identity": "Firefist Gregor",
+  "videoTitle": "Firefist Gregor — skill showcase",
+  "iterations": 0,
+  "report": "/report/ember-gauntlet",
+  "referenceRevision": "1056817f99d7680adb06fe93fa841f595683f09d84492fd06cd18be871a52ddb",
+  "contentRevision": "8c9f046182932ed58999135a25763120438d670ffd7196a0557f83b84040a01f"
 }

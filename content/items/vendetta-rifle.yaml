@@ -1,4 +1,3 @@
-# Ribbed bayonet rifle: 2 / 3 / 3 / 2 / 5 close-range beats.
 id: vendetta-rifle
 material: LEATHER_HORSE_ARMOR
 name:
@@ -6,12 +5,19 @@ name:
   en: <#ff3d7f>Vendetta Bayonet</#ff3d7f>
 lore:
   ja:
-  - '<gray>左: 双連 / 右: 斉射 / Shift+右: 掃射</gray>'
-  - '<gray>Shift+左: パリィ / Q: 紅蓮の決算 / Shift+Q: 装填</gray>'
+  - '左クリック: 礼節の銃剣'
+  - '右クリック: 厳粛な刺突'
+  - 'Shift+右: 鉄の服従'
+  - 'Shift+左: 鉄の構え'
+  - 'Q: 紅蓮の決算'
+  - 'Shift+Q: リロード'
   en:
-  - '<gray>Left: Bayonet Double / Right: Rack Volley</gray>'
-  - '<gray>Sneak+right: Reckoning Salvo / Sneak+left: Hairpin Parry</gray>'
-  - '<gray>Q: Crimson Settlement (100 E.G.O) / Shift+Q: reload</gray>'
+  - 'left_click: Bayonet Propriety'
+  - 'right_click: Solemn Thrust'
+  - 'sneak_right: Ferrous Obedience'
+  - 'sneak_left: Ferrous Guard'
+  - 'drop: Crimson Settlement'
+  - 'sneak_drop: Reload'
 rarity: epic
 level_requirement: 4
 attributes:

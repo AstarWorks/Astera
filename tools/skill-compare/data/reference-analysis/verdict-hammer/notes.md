@@ -1,0 +1,40 @@
+# Frame-first re-analysis — Hc6CJXJrzME
+
+Source: 854×480, **30000/1001 fps (29.97003)**, 2,287 frames, 76.309567 s. Frame numbers are zero-based; JSON intervals are end-exclusive. All gameplay frames f315–1960 were visually inspected at native rate in 55 contact sheets; 23 six-fps sheets cover the whole video. Two full-resolution detail sheets resolve weapon construction, grips, and who attacks whom. All 80 sheets were viewed. Audio onsets and supplied cut candidates were only navigation aids, not evidence of hits. No external sources or old timing templates were used to establish the observations.
+
+Skill names remain inferences: the trailer has subtitles, but no readable skill/coin UI. The supplied kit warns that its own extraction may be paraphrased. A precise effect frame does not make an uncertain skill label precise. H means visible standing body height excluding antlers, hammer and trailing hair. Dimensions, distances and hex palettes are approximate visual measurements.
+
+| Candidate | Windup → end / cut | Weapon and range | Contact events / supplied coins | Confidence |
+|---|---|---|---|---|
+| S1 — Cometh the Nail | 12.112–14.414 s; approach 11.211–12.045 | Black/gold double-drum hammer; dash melee. Broad circular sweep, then horizontal rush past enemy. | 2 / 2: f373 (12.446), f401 (13.380) | Medium; Witness is another possible two-coin mapping |
+| Extra — Witness Ye in Silence | 15.883–19.720 s; approach 15.015–15.883 | Summoned gold nail pair at distance, then charged hammer slam. V residue, face/shaft cut-in, floor dome. | 2 / 2: f509 (16.984), f554 (18.485) | Low; Defense or S1 remain alternatives |
+| S3 — I Sever Thine Advent! | 26.760–33.567 s; approach 25.559–25.993 | Nail projectiles, hammer rush, leaping hammer finisher. Gold dome and four single-frame color inserts. | 3 / 3: f841 (28.061), f882 (29.429), f939 (31.331) | Medium |
+| S2 — Judgment! | 35.669–37.738 s; approach 35.168–35.669 | Stationary distant nail pair; held hammer never reaches enemy. | 1 / 1: f1097 (36.603) | High |
+| Defense candidate — Summoneth the Nail | Guard 43.944–46.747; response 47.748–51.418 s | Hammer plus upright golden guard construct. Response: distant nail pair and two hammer sweeps. | **3 outgoing events / 2 coins unresolved**: f1462 (48.782), f1494 (49.850), f1507 (50.284). Two earlier red strikes are incoming. | Low named mapping; guard direction is clear |
+| S3 alternate — With Each Smite… | 56.156–65.399 s; approach 54.688–55.122 | Same hammer with many summoned nails; ranged first impact, dash melee second, target-centered hammer/AoE finisher. | 3 primary beats / 3: f1734 (57.858), f1782 (59.459), f1882 (62.796). Gold reprise at f1913 is retained separately, not forced into a fourth coin. | Medium |
+
+The self-centered activation at 19.987–22.789 s has no visible enemy hit. It creates a bright circular aura followed by persistent angular field lines. Sanctum/passive association is plausible but unverified (`extra-2.json`). The dark-clad actor at 37.738–42.442 s is another character (`extra-3.json`); its two contacts must not be assigned to Don. Its exact weapon subtype is too dark/occluded to confidently call a scythe. No E.G.O is independently identifiable; `ego.json` records that absence of evidence, and the final cinematic is a candidate alternate in `s3.json`.
+
+The Defense response is deliberately unresolved. One possible explanation is Judgment! followed by the two-coin Witness; another is a multi-contact final Defense coin. There is an upright pause before the response but no separating skill label or decisive cut between its nail and hammer actions. The JSON preserves all three contact frames and leaves their coin indices null. The earlier two-contact nail/slam sequence cannot be uniquely named from count alone either.
+
+## What the previous analyses got wrong
+
+- **Wrong attacker at 44–46 s.** Full-resolution 44.544 and 45.345 frames show the red enemy attacking leftward into Don’s golden guard. These are not two red-tinted S1 hits or a Don “shield slam.” The later counter/response is recorded separately, with the intervening idle gap.
+- **Overcounted continuous effects.** S1’s 12.446 crescent, subsequent bright star and low ring are one sustained sweep. There is no separately established 12.67 hit. Its second contact begins at 13.380.
+- **Counted a charged leap as a hit.** At 30.697 and 60.694, bright traces surround Don’s hammer below/behind her while the target remains separated. The following downward impact is the next contact, not a fourth strike after a “flurry.”
+- **Invented E.G.O identification/name.** “Obsidian Judgment” is not in the supplied kit or visible UI. The final three-beat sequence closely repeats earlier S3 with a wider nail field and extended portrait. S3 alternate is the better-supported candidate, still only medium confidence.
+- **Added an unsupported second weapon.** The “halberd/spear-like pole” is consistent with the same hammer’s long shaft and capped butt. Close-ups show two connected faceted drums and a collar, not three floating hammer blocks. One-hand poses are visible; a permanently two-handed grip should not be assumed.
+- **Wrong range treatment.** Nail impacts occur with Don stationary at a measurable gap. They are descending summoned projectiles, with target-centered ring aftermath. A bright trail does not by itself establish a sustained beam or melee hit.
+- **Unsupported prop counts/origin.** The final field has many overlapping T-headed nails. About a dozen can be individually distinguished in one clear view, with more across changing shots; exactly 25 is unverified. Vertical streaks and suspended point-down nails do not establish that all props rise out of the ground.
+- **Incorrect multi-target claim at 48–51 s.** That response shows one enemy. The edit to three enemies is at f1541 / 51.418 s.
+- **Loose boundaries and false idle states.** Intro, approaches, upright pauses, attacks, guard, other actor, long recovery and outro are partitioned in `segments.json`. A low forward travel pose is not evidence that Don lies prone on the ground. Final cinematic recovery is cut off by artwork, not a shown return to idle.
+- **Coarse flash durations.** S3 includes a two-frame dark crop at f936–937 and four distinct one-frame fields f953–956. The finale includes one-/two-/three-frame inserts and a five-frame dark hold f1908–1912. These are explicitly retained, not generalized to an eight-tick glitch.
+- **Invented mechanics and world dimensions.** Damage amounts, exact Minecraft distances, extra damage on rings, persistent damaging zones, token mechanics, cooldown buffs, and a floor “V decal” before the nails are not established by this video. Here the V residue begins at impact; persistent angular background lines are not automatically attacks.
+
+## Reproducibility and files
+
+`segments.json` partitions all 2,287 frames. Skill files contain weapon, props, motion, contacts, beats, effects, camera, evidence and confidence. S3 alternate is nested under `s3.json → variants[0]`. `def.json` keeps incoming contacts separate from outgoing contacts. All sheet paths are relative to this directory.
+
+`native_001.jpg` begins at f315. Each sheet has 30 consecutive source frames, six columns by five rows; the last has f1935–1960 and blank unused cells. Thus sheet index = floor((frame−315)/30)+1. Timestamps are original source PTS. Overview timestamps are six-fps sampling-grid labels, so use native sheets for exact gameplay timing. `detail_01.jpg` and `detail_02.jpg` retain native-resolution tiles. Non-gameplay edit boundaries are based on the supplied edit times and whole-video overview, not a claim of exhaustive native-frame inspection of the illustrated intro/outro.
+
+Contact timestamps mark the first visible target-impact flash; physical overlap may be hidden within ±1–2 frames, explicitly recorded in JSON. The finale’s f1881 side-strike crop / f1882 monochrome onset bounds that uncertainty. Camera fields give reproducible framing and movement, not invented focal lengths or world coordinates.

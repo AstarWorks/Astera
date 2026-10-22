@@ -1,17 +1,13 @@
 id: ember-gauntlet-s2
 name:
-  ja: 輪砲
-  en: Hoop Cannon
+  ja: 連拳
+  en: Double Fist
 description:
-  ja: 二度の直突きに炎を乗せ、最後に圧力の輪を放つ。
-  en: Steps in with two straight flame punches, the second driving a pressure hoop.
+  ja: 連拳
+  en: Double Fist
 archetype: sequence
-cooldown_ticks: 70
-resource_cost: 28
-tags:
-- persona
-- fire
-- attack
+cooldown_ticks: 100
+resource_cost: 14
 params:
   type: sequence
 phases:
@@ -22,228 +18,169 @@ phases:
       type: caster
     vfx_id: ember-harness
   - type: dash_strike
-    distance: 2.4
+    distance: 3
     ticks: 3
-    radius: 0.6
-    stop_on_block: true
+    radius: 0.8
     hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    on_hit: []
+    stop_before_target: 1.8
     delay_ticks:
       type: literal
-      value: 3
-    stop_before_target: 1.8
+      value: 1
   - type: play_vfx
     targets:
       type: caster
     vfx_id: ember-punch
-    scale:
-      type: literal
-      value: 1
     delay_ticks:
       type: literal
-      value: 4
+      value: 3
   - type: damage
     targets:
       type: cone
       from:
-        type: caster_forward
-        distance: 0.0
-        height: -0.52
+        type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 18.0
       distance:
         type: literal
-        value: 3.6
+        value: 3.3
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
     ignore_invulnerability:
       type: literal
       value: true
     components:
     - base:
         type: literal
-        value: 3.0
-      attribute: fire
+        value: 7
+      attribute: physical
     delay_ticks:
       type: literal
-      value: 6
-  - type: apply_status
+      value: 5
+  - type: play_vfx
     targets:
       type: cone
       from:
-        type: caster_forward
-        distance: 0.0
-        height: -0.52
+        type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 18.0
       distance:
         type: literal
-        value: 3.6
-    status_id: burn
-    effect_duration_ticks:
-      type: literal
-      value: 20
-    delay_ticks:
-      type: literal
-      value: 6
-  - type: hit_stop
-    targets:
-      type: cone
-      from:
-        type: caster_forward
-        distance: 0.0
-        height: -0.52
-      direction:
-        type: from_caster
+        value: 3.3
       angle_degrees:
         type: literal
-        value: 18.0
-      distance:
-        type: literal
-        value: 3.6
-    ticks: 2
-    include_caster: true
+        value: 90
+      max_count: 1
+    vfx_id: ember-hoop-hit
     delay_ticks:
       type: literal
-      value: 6
+      value: 5
   - type: play_sound
     targets:
-      type: caster
-    sound_id: entity.blaze.shoot
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.3
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    sound_id: entity.player.attack.strong
     volume:
       type: literal
-      value: 0.8
+      value: 0.7
     pitch:
       type: literal
       value: 1.1
     delay_ticks:
       type: literal
-      value: 6
+      value: 5
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: ember-hoop-cannon
-    scale:
-      type: literal
-      value: 1
+    vfx_id: ember-punch
     delay_ticks:
       type: literal
-      value: 20
+      value: 19
   - type: damage
     targets:
       type: cone
       from:
-        type: caster_forward
-        distance: 0.0
-        height: -0.52
+        type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 18.0
       distance:
         type: literal
-        value: 3.6
+        value: 3.3
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
     ignore_invulnerability:
       type: literal
       value: true
     components:
     - base:
         type: literal
-        value: 4.0
-      attribute: fire
+        value: 11
+      attribute: physical
     delay_ticks:
       type: literal
-      value: 22
-  - type: apply_status
+      value: 21
+  - type: play_vfx
     targets:
       type: cone
       from:
-        type: caster_forward
-        distance: 0.0
-        height: -0.52
+        type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 18.0
       distance:
         type: literal
-        value: 3.6
-    status_id: burn
-    effect_duration_ticks:
-      type: literal
-      value: 20
-    delay_ticks:
-      type: literal
-      value: 22
-  - type: hit_stop
-    targets:
-      type: cone
-      from:
-        type: caster_forward
-        distance: 0.0
-        height: -0.52
-      direction:
-        type: from_caster
+        value: 3.3
       angle_degrees:
         type: literal
-        value: 18.0
-      distance:
-        type: literal
-        value: 3.6
-    ticks: 2
-    include_caster: true
+        value: 90
+      max_count: 1
+    vfx_id: ember-hoop-hit
     delay_ticks:
       type: literal
-      value: 22
+      value: 21
   - type: play_sound
     targets:
-      type: caster
-    sound_id: entity.blaze.shoot
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.3
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    sound_id: entity.player.attack.strong
     volume:
       type: literal
-      value: 0.8
+      value: 0.7
     pitch:
       type: literal
-      value: 0.8
+      value: 1.1
     delay_ticks:
       type: literal
-      value: 22
+      value: 21
   - type: play_vfx
     targets:
       type: caster
     vfx_id: ember-smoke-puff
-    scale:
-      type: literal
-      value: 1
     delay_ticks:
       type: literal
-      value: 34
-  - type: knockback
-    targets:
-      type: cone
-      from:
-        type: caster_forward
-        distance: 0.0
-        height: -0.52
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 18.0
-      distance:
-        type: literal
-        value: 3.6
-    direction:
-      type: away_from_caster
-      vertical: 0.1
-    strength:
-      type: literal
-      value: 0.35
-    delay_ticks:
-      type: literal
-      value: 22
+      value: 33

@@ -1,0 +1,852 @@
+id: edict-branching-arms
+duration_ticks: 46
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: arm--1-0-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - -0.35
+    - 1.1
+    - 0.3
+    rotate:
+    - -35
+    - 30
+    - -25
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 34
+    translate:
+    - -0.35
+    - 1.1
+    - 0.3
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 44
+    translate:
+    - -0.35
+    - 1.1
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm--1-0-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - -0.95
+    - 0.7000000000000001
+    - 0.6
+    rotate:
+    - -35
+    - 30
+    - -25
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - -0.95
+    - 0.7000000000000001
+    - 0.6
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - -0.95
+    - 0.7000000000000001
+    - 0.6
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm--1-0-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - -1.5499999999999998
+    - 0.30000000000000004
+    - 0.8999999999999999
+    rotate:
+    - -35
+    - 30
+    - -25
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - -1.5499999999999998
+    - 0.30000000000000004
+    - 0.8999999999999999
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - -1.5499999999999998
+    - 0.30000000000000004
+    - 0.8999999999999999
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm--1-1-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - -0.35
+    - 1.35
+    - 0.3
+    rotate:
+    - -35
+    - 0
+    - -25
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 34
+    translate:
+    - -0.35
+    - 1.35
+    - 0.3
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 44
+    translate:
+    - -0.35
+    - 1.35
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm--1-1-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - -0.95
+    - 1.35
+    - 0.6
+    rotate:
+    - -35
+    - 0
+    - -25
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - -0.95
+    - 1.35
+    - 0.6
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - -0.95
+    - 1.35
+    - 0.6
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm--1-1-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - -1.5499999999999998
+    - 1.35
+    - 0.8999999999999999
+    rotate:
+    - -35
+    - 0
+    - -25
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - -1.5499999999999998
+    - 1.35
+    - 0.8999999999999999
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - -1.5499999999999998
+    - 1.35
+    - 0.8999999999999999
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm--1-2-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - -0.35
+    - 1.6
+    - 0.3
+    rotate:
+    - -35
+    - -30
+    - -25
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 34
+    translate:
+    - -0.35
+    - 1.6
+    - 0.3
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 44
+    translate:
+    - -0.35
+    - 1.6
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm--1-2-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - -0.95
+    - 2.0
+    - 0.6
+    rotate:
+    - -35
+    - -30
+    - -25
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - -0.95
+    - 2.0
+    - 0.6
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - -0.95
+    - 2.0
+    - 0.6
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm--1-2-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - -1.5499999999999998
+    - 2.4000000000000004
+    - 0.8999999999999999
+    rotate:
+    - -35
+    - -30
+    - -25
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - -1.5499999999999998
+    - 2.4000000000000004
+    - 0.8999999999999999
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - -1.5499999999999998
+    - 2.4000000000000004
+    - 0.8999999999999999
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm-1-0-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - 0.35
+    - 1.1
+    - 0.3
+    rotate:
+    - 35
+    - 30
+    - 25
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 34
+    translate:
+    - 0.35
+    - 1.1
+    - 0.3
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 44
+    translate:
+    - 0.35
+    - 1.1
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm-1-0-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - 0.95
+    - 0.7000000000000001
+    - 0.6
+    rotate:
+    - 35
+    - 30
+    - 25
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - 0.95
+    - 0.7000000000000001
+    - 0.6
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - 0.95
+    - 0.7000000000000001
+    - 0.6
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm-1-0-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - 1.5499999999999998
+    - 0.30000000000000004
+    - 0.8999999999999999
+    rotate:
+    - 35
+    - 30
+    - 25
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - 1.5499999999999998
+    - 0.30000000000000004
+    - 0.8999999999999999
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - 1.5499999999999998
+    - 0.30000000000000004
+    - 0.8999999999999999
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm-1-1-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - 0.35
+    - 1.35
+    - 0.3
+    rotate:
+    - 35
+    - 0
+    - 25
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 34
+    translate:
+    - 0.35
+    - 1.35
+    - 0.3
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 44
+    translate:
+    - 0.35
+    - 1.35
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm-1-1-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - 0.95
+    - 1.35
+    - 0.6
+    rotate:
+    - 35
+    - 0
+    - 25
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - 0.95
+    - 1.35
+    - 0.6
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - 0.95
+    - 1.35
+    - 0.6
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm-1-1-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - 1.5499999999999998
+    - 1.35
+    - 0.8999999999999999
+    rotate:
+    - 35
+    - 0
+    - 25
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - 1.5499999999999998
+    - 1.35
+    - 0.8999999999999999
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - 1.5499999999999998
+    - 1.35
+    - 0.8999999999999999
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm-1-2-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - 0.35
+    - 1.6
+    - 0.3
+    rotate:
+    - 35
+    - -30
+    - 25
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 34
+    translate:
+    - 0.35
+    - 1.6
+    - 0.3
+    scale:
+    - 0.18
+    - 0.18
+    - 0.8
+  - t: 44
+    translate:
+    - 0.35
+    - 1.6
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm-1-2-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - 0.95
+    - 2.0
+    - 0.6
+    rotate:
+    - 35
+    - -30
+    - 25
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - 0.95
+    - 2.0
+    - 0.6
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - 0.95
+    - 2.0
+    - 0.6
+    scale:
+    - 0
+    - 0
+    - 0
+- id: arm-1-2-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 45
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.3
+    - 0.3
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 10
+    translate:
+    - 1.5499999999999998
+    - 2.4000000000000004
+    - 0.8999999999999999
+    rotate:
+    - 35
+    - -30
+    - 25
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 34
+    translate:
+    - 1.5499999999999998
+    - 2.4000000000000004
+    - 0.8999999999999999
+    scale:
+    - 0.09999999999999999
+    - 0.09999999999999999
+    - 0.8
+  - t: 44
+    translate:
+    - 1.5499999999999998
+    - 2.4000000000000004
+    - 0.8999999999999999
+    scale:
+    - 0
+    - 0
+    - 0

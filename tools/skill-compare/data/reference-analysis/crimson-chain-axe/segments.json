@@ -1,0 +1,1489 @@
+{
+  "metadata": {
+    "video_id": "Gpj-lvOnAgs",
+    "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+    "source_fps": "30000/1001",
+    "frame_convention": "Zero-based decoded source frame; time_s = frame * 1001 / 30000. End frames exclusive. Native source is 29.970 fps, not exactly 30.",
+    "units": "BH = visible standing body height of caster in same shot, excluding halo/cape spread. Distances are screen-plane estimates, not calibrated world coordinates.",
+    "precision": "Native-window events identify individual frames. Other boundaries from 6/15 fps are explicitly approximate (usually +/-2 frames for 15 fps, +/-5 for 6 fps). Flash-obscured contact is bracketed; no invisible collision or coin boundary is asserted.",
+    "colors": "Hex values are visual approximations under bloom/compression, not sampled material albedos.",
+    "mapping_policy": "Supplied kit is the authority for names, Pierce type and coin counts. No skill-name/coin UI is readable; mapping confidence is separate from visual confidence. Repeated VFX pulses are not counted automatically as coins.",
+    "kit_source": "../../wiki/Gpj-lvOnAgs.md",
+    "native_index": "native/index.json"
+  },
+  "duration_s": 174.107267,
+  "segments": [
+    {
+      "id": "00-warning",
+      "label": "warning",
+      "start_s": 0.0,
+      "end_s": 0.633967,
+      "start_frame": 0,
+      "end_frame_exclusive": 19,
+      "actor": "editorial",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 5
+      },
+      "evidence": [
+        "Opening warning card"
+      ],
+      "contact_sheets": [
+        "sheets/segment_01.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "01-title",
+      "label": "title",
+      "start_s": 0.633967,
+      "end_s": 2.6026,
+      "start_frame": 19,
+      "end_frame_exclusive": 78,
+      "actor": "editorial",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 5,
+        "end": 5
+      },
+      "evidence": [
+        "Identity title"
+      ],
+      "contact_sheets": [
+        "sheets/segment_01.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "02-portrait",
+      "label": "portrait",
+      "start_s": 2.6026,
+      "end_s": 10.6106,
+      "start_frame": 78,
+      "end_frame_exclusive": 318,
+      "actor": "editorial",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 5,
+        "end": 2
+      },
+      "evidence": [
+        "Pale-haired hooded/halo figure; same base form later transforms"
+      ],
+      "contact_sheets": [
+        "sheets/base_01.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "03-idle",
+      "label": "idle",
+      "start_s": 10.6106,
+      "end_s": 11.144467,
+      "start_frame": 318,
+      "end_frame_exclusive": 334,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 0
+      },
+      "evidence": [
+        "Team shot"
+      ],
+      "contact_sheets": [
+        "sheets/native_01.jpg",
+        "sheets/base_01.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "04-base-shot-1",
+      "label": "base-shot-1",
+      "start_s": 11.144467,
+      "end_s": 13.279933,
+      "start_frame": 334,
+      "end_frame_exclusive": 398,
+      "actor": "Sinclair",
+      "slot_file": "s1.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Hand/orb emission; one distant contact at f374"
+      ],
+      "contact_sheets": [
+        "sheets/native_01.jpg",
+        "sheets/base_01.jpg",
+        "sheets/base_02.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "La Pulsion (enemy mode)",
+        "coins": 1,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "05-idle",
+      "label": "idle",
+      "start_s": 13.279933,
+      "end_s": 13.747067,
+      "start_frame": 398,
+      "end_frame_exclusive": 412,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Cut back; glide starts f412"
+      ],
+      "contact_sheets": [
+        "sheets/native_01.jpg",
+        "sheets/base_02.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "06-base-support-1",
+      "label": "base-support-1",
+      "start_s": 13.747067,
+      "end_s": 15.949267,
+      "start_frame": 412,
+      "end_frame_exclusive": 478,
+      "actor": "Sinclair",
+      "slot_file": "s1.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 2
+      },
+      "evidence": [
+        "Golden effect on ally f449; no blade contact"
+      ],
+      "contact_sheets": [
+        "sheets/native_01.jpg",
+        "sheets/native_02.jpg",
+        "sheets/base_02.jpg",
+        "sheets/base_03.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "La Pulsion (ally mode)",
+        "coins": 1,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "07-idle",
+      "label": "idle",
+      "start_s": 15.949267,
+      "end_s": 16.383033,
+      "start_frame": 478,
+      "end_frame_exclusive": 491,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Formation reset"
+      ],
+      "contact_sheets": [
+        "sheets/base_03.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "08-ally-attack-1",
+      "label": "ally-attack-1",
+      "start_s": 16.383033,
+      "end_s": 19.652967,
+      "start_frame": 491,
+      "end_frame_exclusive": 589,
+      "actor": "orange-haired ally",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Orange hair, red dress/scarf; moves independently of pale Sinclair"
+      ],
+      "contact_sheets": [
+        "sheets/base_03.jpg",
+        "sheets/base_04.jpg",
+        "sheets/base_05.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "09-idle",
+      "label": "idle",
+      "start_s": 19.652967,
+      "end_s": 19.786433,
+      "start_frame": 589,
+      "end_frame_exclusive": 593,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Reset"
+      ],
+      "contact_sheets": [
+        "sheets/base_05.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "10-base-shot-2",
+      "label": "base-shot-2",
+      "start_s": 19.786433,
+      "end_s": 21.8218,
+      "start_frame": 593,
+      "end_frame_exclusive": 654,
+      "actor": "Sinclair",
+      "slot_file": "s1.json",
+      "mapping_confidence": "low",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Single red shot f632; Je vous aide or repeated La Pulsion"
+      ],
+      "contact_sheets": [
+        "sheets/native_02.jpg",
+        "sheets/base_05.jpg",
+        "sheets/base_06.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Je vous aide OR repeated La Pulsion",
+        "coins": 1,
+        "confidence": "low"
+      }
+    },
+    {
+      "id": "11-idle",
+      "label": "idle",
+      "start_s": 21.8218,
+      "end_s": 22.389033,
+      "start_frame": 654,
+      "end_frame_exclusive": 671,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Reset"
+      ],
+      "contact_sheets": [
+        "sheets/base_06.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "12-base-support-2",
+      "label": "base-support-2",
+      "start_s": 22.389033,
+      "end_s": 24.491133,
+      "start_frame": 671,
+      "end_frame_exclusive": 734,
+      "actor": "Sinclair",
+      "slot_file": "s1.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Repeat gold ally effect f709"
+      ],
+      "contact_sheets": [
+        "sheets/native_02.jpg",
+        "sheets/base_06.jpg",
+        "sheets/base_07.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "La Pulsion (ally mode)",
+        "coins": 1,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "13-ally-clash-2",
+      "label": "ally-clash-2",
+      "start_s": 24.491133,
+      "end_s": 28.294933,
+      "start_frame": 734,
+      "end_frame_exclusive": 848,
+      "actor": "orange-haired ally and enemy",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Ally red sweeps and enemy exchange; not Sinclair"
+      ],
+      "contact_sheets": [
+        "sheets/base_07.jpg",
+        "sheets/base_08.jpg",
+        "sheets/base_09.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "14-enemy-attack-1",
+      "label": "enemy-attack-1",
+      "start_s": 28.294933,
+      "end_s": 29.863167,
+      "start_frame": 848,
+      "end_frame_exclusive": 895,
+      "actor": "enemy targeting orange ally",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Enemy advances and strikes ally"
+      ],
+      "contact_sheets": [
+        "sheets/base_09.jpg",
+        "sheets/base_10.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "15-idle",
+      "label": "idle",
+      "start_s": 29.863167,
+      "end_s": 30.5305,
+      "start_frame": 895,
+      "end_frame_exclusive": 915,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 0
+      },
+      "evidence": [
+        "Last idle f914; approach f915"
+      ],
+      "contact_sheets": [
+        "sheets/native_02.jpg",
+        "sheets/base_10.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "16-base-double-shot",
+      "label": "base-double-shot",
+      "start_s": 30.5305,
+      "end_s": 34.267567,
+      "start_frame": 915,
+      "end_frame_exclusive": 1027,
+      "actor": "Sinclair",
+      "slot_file": "s2.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 2
+      },
+      "evidence": [
+        "Two launches/contact groups f961 and f1002"
+      ],
+      "contact_sheets": [
+        "sheets/native_02.jpg",
+        "sheets/native_03.jpg",
+        "sheets/base_10.jpg",
+        "sheets/base_11.jpg",
+        "sheets/base_12.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "L'Appétit (enemy mode)",
+        "coins": 2,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "17-idle",
+      "label": "idle",
+      "start_s": 34.267567,
+      "end_s": 35.3353,
+      "start_frame": 1027,
+      "end_frame_exclusive": 1059,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Reset"
+      ],
+      "contact_sheets": [
+        "sheets/base_12.jpg",
+        "sheets/base_13.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "18-base-buff",
+      "label": "base-buff",
+      "start_s": 35.3353,
+      "end_s": 37.5375,
+      "start_frame": 1059,
+      "end_frame_exclusive": 1125,
+      "actor": "Sinclair",
+      "slot_file": "s2.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Red patches directly on allies f1098, consistent ally mode"
+      ],
+      "contact_sheets": [
+        "sheets/native_03.jpg",
+        "sheets/base_13.jpg",
+        "sheets/base_14.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "L'Appétit (ally mode)",
+        "coins": 2,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "19-idle",
+      "label": "idle",
+      "start_s": 37.5375,
+      "end_s": 37.904533,
+      "start_frame": 1125,
+      "end_frame_exclusive": 1136,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Reset"
+      ],
+      "contact_sheets": [
+        "sheets/base_14.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "20-enemy-attack-2",
+      "label": "enemy-attack-2",
+      "start_s": 37.904533,
+      "end_s": 40.3403,
+      "start_frame": 1136,
+      "end_frame_exclusive": 1209,
+      "actor": "enemy targeting white/gold ally",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Enemy rush; white/gold ally takes strike around39.26 and red status flare39.85"
+      ],
+      "contact_sheets": [
+        "sheets/base_14.jpg",
+        "sheets/base_15.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "21-base-restore",
+      "label": "base-restore",
+      "start_s": 40.3403,
+      "end_s": 43.4434,
+      "start_frame": 1209,
+      "end_frame_exclusive": 1302,
+      "actor": "Sinclair",
+      "slot_file": "s3.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Hand orb f1255; target ally red feet f1268"
+      ],
+      "contact_sheets": [
+        "sheets/native_03.jpg",
+        "sheets/native_04.jpg",
+        "sheets/base_15.jpg",
+        "sheets/base_16.jpg",
+        "sheets/base_17.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Le Manque-à-être",
+        "coins": 1,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "22-idle",
+      "label": "idle",
+      "start_s": 43.4434,
+      "end_s": 45.178467,
+      "start_frame": 1302,
+      "end_frame_exclusive": 1354,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Return and green status pulses"
+      ],
+      "contact_sheets": [
+        "sheets/base_17.jpg",
+        "sheets/base_18.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "23-base-feed-1",
+      "label": "base-feed-1",
+      "start_s": 45.178467,
+      "end_s": 48.915533,
+      "start_frame": 1354,
+      "end_frame_exclusive": 1466,
+      "actor": "Sinclair and allies",
+      "slot_file": "extra-2.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Chest/tether f1376, simultaneous ally red flares f1427"
+      ],
+      "contact_sheets": [
+        "sheets/native_04.jpg",
+        "sheets/base_18.jpg",
+        "sheets/base_19.jpg",
+        "sheets/base_20.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Ally consumption/support or halo passive; exact trigger unresolved",
+        "confidence": "low"
+      }
+    },
+    {
+      "id": "24-base-barrage-1",
+      "label": "base-barrage-1",
+      "start_s": 48.915533,
+      "end_s": 55.922533,
+      "start_frame": 1466,
+      "end_frame_exclusive": 1676,
+      "actor": "Sinclair",
+      "slot_file": "s3.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Head-orb windup and repeated needle shots; three kit coins, visual grouping unresolved"
+      ],
+      "contact_sheets": [
+        "sheets/native_04.jpg",
+        "sheets/native_05.jpg",
+        "sheets/native_06.jpg",
+        "sheets/base_20.jpg",
+        "sheets/base_21.jpg",
+        "sheets/base_22.jpg",
+        "sheets/base_23.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Le Baptême rouge",
+        "coins": 3,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "25-idle",
+      "label": "idle",
+      "start_s": 55.922533,
+      "end_s": 56.6566,
+      "start_frame": 1676,
+      "end_frame_exclusive": 1698,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Reset"
+      ],
+      "contact_sheets": [
+        "sheets/base_23.jpg",
+        "sheets/base_24.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "26-evade-exchange",
+      "label": "evade-exchange",
+      "start_s": 56.6566,
+      "end_s": 59.692967,
+      "start_frame": 1698,
+      "end_frame_exclusive": 1789,
+      "actor": "enemy versus Sinclair",
+      "slot_file": "def.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Enemy attacks twice; Sinclair backsteps f1732 and f1761"
+      ],
+      "contact_sheets": [
+        "sheets/native_06.jpg",
+        "sheets/base_24.jpg",
+        "sheets/base_25.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "La Fuite",
+        "coins": 1,
+        "confidence": "med",
+        "Sinclair_windup_frame": 1732,
+        "enemy_leadin_start_s": 56.65
+      }
+    },
+    {
+      "id": "27-idle-halo-onset",
+      "label": "idle-halo-onset",
+      "start_s": 59.692967,
+      "end_s": 61.2612,
+      "start_frame": 1789,
+      "end_frame_exclusive": 1836,
+      "actor": "Sinclair formation",
+      "slot_file": "extra-2.json",
+      "mapping_confidence": "low",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Ragged red halo appears; exact passive trigger unobservable"
+      ],
+      "contact_sheets": [
+        "sheets/base_25.jpg",
+        "sheets/base_26.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Ally consumption/support or halo passive; exact trigger unresolved",
+        "confidence": "low"
+      }
+    },
+    {
+      "id": "28-base-feed-2",
+      "label": "base-feed-2",
+      "start_s": 61.2612,
+      "end_s": 64.898167,
+      "start_frame": 1836,
+      "end_frame_exclusive": 1945,
+      "actor": "Sinclair and allies",
+      "slot_file": "extra-2.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Repeat preparation; self/allies flares f1908"
+      ],
+      "contact_sheets": [
+        "sheets/native_07.jpg",
+        "sheets/base_26.jpg",
+        "sheets/base_27.jpg",
+        "sheets/base_28.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Ally consumption/support or halo passive; exact trigger unresolved",
+        "confidence": "low"
+      }
+    },
+    {
+      "id": "29-base-barrage-2",
+      "label": "base-barrage-2",
+      "start_s": 64.898167,
+      "end_s": 71.3713,
+      "start_frame": 1945,
+      "end_frame_exclusive": 2139,
+      "actor": "Sinclair",
+      "slot_file": "s3.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Repeat barrage with persistent halo; launch/contact f2031"
+      ],
+      "contact_sheets": [
+        "sheets/native_07.jpg",
+        "sheets/native_08.jpg",
+        "sheets/base_28.jpg",
+        "sheets/base_29.jpg",
+        "sheets/base_30.jpg",
+        "sheets/base_31.jpg",
+        "sheets/detail_01.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Le Baptême rouge",
+        "coins": 3,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "30-idle",
+      "label": "idle",
+      "start_s": 71.3713,
+      "end_s": 72.4724,
+      "start_frame": 2139,
+      "end_frame_exclusive": 2172,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 0
+      },
+      "evidence": [
+        "Team holds before red floor onset"
+      ],
+      "contact_sheets": [
+        "sheets/native_08.jpg",
+        "sheets/base_31.jpg",
+        "sheets/detail_01.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "31-transformation",
+      "label": "transformation",
+      "start_s": 72.4724,
+      "end_s": 76.1761,
+      "start_frame": 2172,
+      "end_frame_exclusive": 2283,
+      "actor": "Sinclair",
+      "slot_file": "extra-1.json",
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Continuous base-to-blond skeletal form change; f2172 floor, f2221 flash, f2236 face"
+      ],
+      "contact_sheets": [
+        "sheets/native_08.jpg",
+        "sheets/native_09.jpg",
+        "sheets/detail_01.jpg",
+        "sheets/detail_02.jpg",
+        "sheets/detail_03.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Form-change/passive; not identified E.G.O",
+        "confidence": "low exact mechanic, high visual identity"
+      }
+    },
+    {
+      "id": "32-transformed-feed-1",
+      "label": "transformed-feed-1",
+      "start_s": 76.1761,
+      "end_s": 78.144733,
+      "start_frame": 2283,
+      "end_frame_exclusive": 2342,
+      "actor": "Sinclair and allies",
+      "slot_file": "extra-2.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Ally/self flares f2298 then f2319; separate from subsequent attack"
+      ],
+      "contact_sheets": [
+        "sheets/native_09.jpg",
+        "sheets/native_10.jpg",
+        "sheets/detail_03.jpg",
+        "sheets/detail_04.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Ally consumption/support or halo passive; exact trigger unresolved",
+        "confidence": "low"
+      }
+    },
+    {
+      "id": "33-transformed-combo-A",
+      "label": "transformed-combo-A",
+      "start_s": 78.144733,
+      "end_s": 86.920167,
+      "start_frame": 2342,
+      "end_frame_exclusive": 2605,
+      "actor": "Sinclair",
+      "slot_file": "extra-3.json",
+      "mapping_confidence": "low",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Five visible contact episodes if double sweep separated, followed by prolonged floor effects; coin grouping unresolved"
+      ],
+      "contact_sheets": [
+        "sheets/native_10.jpg",
+        "sheets/native_11.jpg",
+        "sheets/native_12.jpg",
+        "sheets/native_13.jpg",
+        "sheets/detail_04.jpg",
+        "sheets/detail_05.jpg",
+        "sheets/detail_06.jpg",
+        "sheets/detail_07.jpg",
+        "sheets/detail_08.jpg"
+      ],
+      "kit_mapping": {
+        "candidates": [
+          "La Castration5",
+          "La Voracité4"
+        ],
+        "confidence": "low"
+      }
+    },
+    {
+      "id": "34-idle-scene-change",
+      "label": "idle-scene-change",
+      "start_s": 86.920167,
+      "end_s": 88.455033,
+      "start_frame": 2605,
+      "end_frame_exclusive": 2651,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Formation returns f2605; red hall background replaces blue"
+      ],
+      "contact_sheets": [
+        "sheets/native_13.jpg",
+        "sheets/detail_08.jpg",
+        "sheets/detail_09.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "35-transformed-three-chain",
+      "label": "transformed-three-chain",
+      "start_s": 88.455033,
+      "end_s": 92.3923,
+      "start_frame": 2651,
+      "end_frame_exclusive": 2769,
+      "actor": "Sinclair",
+      "slot_file": "s1.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 2
+      },
+      "evidence": [
+        "Two chain arcs and one straight chain extension:3 distinct contacts"
+      ],
+      "contact_sheets": [
+        "sheets/native_13.jpg",
+        "sheets/native_14.jpg",
+        "sheets/detail_09.jpg",
+        "sheets/detail_10.jpg",
+        "sheets/detail_11.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Je m'expulse",
+        "coins": 3,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "36-idle",
+      "label": "idle",
+      "start_s": 92.3923,
+      "end_s": 93.426667,
+      "start_frame": 2769,
+      "end_frame_exclusive": 2800,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 0
+      },
+      "evidence": [
+        "Reset; dash starts f2800"
+      ],
+      "contact_sheets": [
+        "sheets/native_14.jpg",
+        "sheets/detail_11.jpg",
+        "sheets/detail_12.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "37-transformed-feed-2",
+      "label": "transformed-feed-2",
+      "start_s": 93.426667,
+      "end_s": 95.261833,
+      "start_frame": 2800,
+      "end_frame_exclusive": 2855,
+      "actor": "Sinclair and ally",
+      "slot_file": "extra-2.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Ally and self red flares; no observed enemy contact"
+      ],
+      "contact_sheets": [
+        "sheets/native_14.jpg",
+        "sheets/native_15.jpg",
+        "sheets/detail_12.jpg",
+        "sheets/detail_13.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Ally consumption/support or halo passive; exact trigger unresolved",
+        "confidence": "low"
+      }
+    },
+    {
+      "id": "38-needle-chain-combo",
+      "label": "needle-chain-combo",
+      "start_s": 95.261833,
+      "end_s": 101.6015,
+      "start_frame": 2855,
+      "end_frame_exclusive": 3045,
+      "actor": "Sinclair",
+      "slot_file": "s2.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Detached spokes fire; chain sweep; airborne final target hit. Self flash is not fourth target hit"
+      ],
+      "contact_sheets": [
+        "sheets/native_15.jpg",
+        "sheets/native_16.jpg",
+        "sheets/native_17.jpg",
+        "sheets/detail_13.jpg",
+        "sheets/detail_14.jpg",
+        "sheets/detail_15.jpg",
+        "sheets/detail_16.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Je m'abjecte",
+        "coins": 3,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "39-idle",
+      "label": "idle",
+      "start_s": 101.6015,
+      "end_s": 102.135367,
+      "start_frame": 3045,
+      "end_frame_exclusive": 3061,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Formation cut f3045; chain windup f3061"
+      ],
+      "contact_sheets": [
+        "sheets/native_17.jpg",
+        "sheets/native_18.jpg",
+        "sheets/detail_16.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "40-transformed-orbit-combo",
+      "label": "transformed-orbit-combo",
+      "start_s": 102.135367,
+      "end_s": 107.7076,
+      "start_frame": 3061,
+      "end_frame_exclusive": 3228,
+      "actor": "Sinclair",
+      "slot_file": "s3.json",
+      "mapping_confidence": "low",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Flurry, straight chain thrust, orbit, final crescent:four proposed groups; mechanical boundaries unresolved"
+      ],
+      "contact_sheets": [
+        "sheets/native_18.jpg",
+        "sheets/native_19.jpg",
+        "sheets/detail_16.jpg",
+        "sheets/detail_17.jpg",
+        "sheets/detail_18.jpg",
+        "sheets/detail_19.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "La Voracité (provisional)",
+        "coins": 4,
+        "confidence": "low"
+      }
+    },
+    {
+      "id": "41-idle",
+      "label": "idle",
+      "start_s": 107.7076,
+      "end_s": 109.5094,
+      "start_frame": 3228,
+      "end_frame_exclusive": 3282,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 2
+      },
+      "evidence": [
+        "Team returns f3228"
+      ],
+      "contact_sheets": [
+        "sheets/native_19.jpg",
+        "sheets/detail_19.jpg",
+        "sheets/detail_20.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "42-ally-clash-3",
+      "label": "ally-clash-3",
+      "start_s": 109.5094,
+      "end_s": 111.6115,
+      "start_frame": 3282,
+      "end_frame_exclusive": 3345,
+      "actor": "orange-haired ally versus enemy",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Yellow clashes on orange-haired ally"
+      ],
+      "contact_sheets": [
+        "sheets/detail_20.jpg",
+        "sheets/detail_21.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "43-idle",
+      "label": "idle",
+      "start_s": 111.6115,
+      "end_s": 112.8127,
+      "start_frame": 3345,
+      "end_frame_exclusive": 3381,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Reposition"
+      ],
+      "contact_sheets": [
+        "sheets/detail_21.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "44-enemy-attack-3",
+      "label": "enemy-attack-3",
+      "start_s": 112.8127,
+      "end_s": 115.2151,
+      "start_frame": 3381,
+      "end_frame_exclusive": 3453,
+      "actor": "enemy targeting orange ally",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Two yellow attack arcs near113.19 and114.01"
+      ],
+      "contact_sheets": [
+        "sheets/detail_21.jpg",
+        "sheets/detail_22.jpg",
+        "sheets/detail_23.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "45-transformed-restore",
+      "label": "transformed-restore",
+      "start_s": 115.2151,
+      "end_s": 118.284833,
+      "start_frame": 3453,
+      "end_frame_exclusive": 3545,
+      "actor": "Sinclair",
+      "slot_file": "s3.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Red handorb f3496; ally-target effect f3510 then ally rises"
+      ],
+      "contact_sheets": [
+        "sheets/native_20.jpg",
+        "sheets/detail_23.jpg",
+        "sheets/detail_24.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Le Manque-à-être (transformed)",
+        "coins": 1,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "46-idle",
+      "label": "idle",
+      "start_s": 118.284833,
+      "end_s": 119.5194,
+      "start_frame": 3545,
+      "end_frame_exclusive": 3582,
+      "actor": "formation",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 2
+      },
+      "evidence": [
+        "Reset"
+      ],
+      "contact_sheets": [
+        "sheets/detail_24.jpg",
+        "sheets/detail_25.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "47-idle-halo-onset-2",
+      "label": "idle-halo-onset-2",
+      "start_s": 119.5194,
+      "end_s": 120.687233,
+      "start_frame": 3582,
+      "end_frame_exclusive": 3617,
+      "actor": "Sinclair formation",
+      "slot_file": "extra-2.json",
+      "mapping_confidence": "low",
+      "boundary_uncertainty_frames": {
+        "start": 2,
+        "end": 0
+      },
+      "evidence": [
+        "Red halo/state persists; no strike"
+      ],
+      "contact_sheets": [
+        "sheets/native_20.jpg",
+        "sheets/detail_25.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Ally consumption/support or halo passive; exact trigger unresolved",
+        "confidence": "low"
+      }
+    },
+    {
+      "id": "48-transformed-feed-3",
+      "label": "transformed-feed-3",
+      "start_s": 120.687233,
+      "end_s": 124.491033,
+      "start_frame": 3617,
+      "end_frame_exclusive": 3731,
+      "actor": "Sinclair and allies",
+      "slot_file": "extra-2.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Move toward ally; chest red tether; target flare f3692; distinct preparation"
+      ],
+      "contact_sheets": [
+        "sheets/native_20.jpg",
+        "sheets/native_21.jpg",
+        "sheets/detail_25.jpg",
+        "sheets/detail_26.jpg",
+        "sheets/detail_27.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "Ally consumption/support or halo passive; exact trigger unresolved",
+        "confidence": "low"
+      }
+    },
+    {
+      "id": "49-final-combo",
+      "label": "final-combo",
+      "start_s": 124.491033,
+      "end_s": 142.175367,
+      "start_frame": 3731,
+      "end_frame_exclusive": 4261,
+      "actor": "Sinclair",
+      "slot_file": "s3.json",
+      "mapping_confidence": "med",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 0
+      },
+      "evidence": [
+        "Longest chain sequence, aerial floor rings, linked columns and silhouette finisher; La Castration candidate"
+      ],
+      "contact_sheets": [
+        "sheets/native_21.jpg",
+        "sheets/native_22.jpg",
+        "sheets/native_23.jpg",
+        "sheets/native_24.jpg",
+        "sheets/native_25.jpg",
+        "sheets/native_26.jpg",
+        "sheets/detail_27.jpg",
+        "sheets/detail_28.jpg",
+        "sheets/detail_29.jpg",
+        "sheets/detail_30.jpg",
+        "sheets/detail_31.jpg",
+        "sheets/detail_32.jpg",
+        "sheets/detail_33.jpg",
+        "sheets/detail_34.jpg",
+        "sheets/detail_35.jpg",
+        "sheets/detail_36.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": "La Castration (provisional)",
+        "coins": 5,
+        "confidence": "med"
+      }
+    },
+    {
+      "id": "50-key-art",
+      "label": "key-art",
+      "start_s": 142.175367,
+      "end_s": 153.186367,
+      "start_frame": 4261,
+      "end_frame_exclusive": 4591,
+      "actor": "editorial",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 0,
+        "end": 5
+      },
+      "evidence": [
+        "White transition f4261 to character art"
+      ],
+      "contact_sheets": [
+        "sheets/native_26.jpg",
+        "sheets/detail_36.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "51-announcer-card",
+      "label": "announcer-card",
+      "start_s": 153.186367,
+      "end_s": 170.703867,
+      "start_frame": 4591,
+      "end_frame_exclusive": 5116,
+      "actor": "editorial",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 5,
+        "end": 5
+      },
+      "evidence": [
+        "Pwei card, no combat"
+      ],
+      "contact_sheets": [
+        "sheets/segment_20.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    },
+    {
+      "id": "52-logo-outro",
+      "label": "logo-outro",
+      "start_s": 170.703867,
+      "end_s": 174.107267,
+      "start_frame": 5116,
+      "end_frame_exclusive": 5218,
+      "actor": "editorial",
+      "slot_file": null,
+      "mapping_confidence": "high",
+      "boundary_uncertainty_frames": {
+        "start": 5,
+        "end": 5
+      },
+      "evidence": [
+        "Logo/end"
+      ],
+      "contact_sheets": [
+        "sheets/segment_22.jpg"
+      ],
+      "kit_mapping": {
+        "candidate": null,
+        "reason": "Idle/editorial/another character action"
+      }
+    }
+  ],
+  "identity_evidence": {
+    "base_form": "Pale bob/horned halo, olive cape, white/pink clothing. Direct transformation f2189–2237 establishes identity continuity.",
+    "transformed_form": "Blond hair, red lower-face covering, ivory ribs and claws, black/red cape, linked double-crescent chain.",
+    "excluded_allies": "Orange-haired red/dark dress fighter; white/gold armored broad-blade figure; white top-hat figure are separately present. Their weapons/actions are not Sinclair skills."
+  }
+}

@@ -1,54 +1,40 @@
-# ADR-0230 persona weapon #5: Bastion Greatsword (butter-yellow / orange). Stack = charge, banked
-# by guarding (DEF) and by landing the S1 beats, spent by the S2 / S3 follow-ups.
-
 id: bastion-greatsword
-
 material: GOLDEN_SWORD
-
 name:
-  ja: "<gold>城壁の大剣</gold>"
-  en: "<gold>Bastion Greatsword</gold>"
+  ja: <gold>城壁の大剣</gold>
+  en: <gold>Bastion Greatsword</gold>
 lore:
   ja:
-    - "<gray>左クリック: 月輪の薙ぎ（二連撃・溜めを得る）</gray>"
-    - "<gray>右クリック: 審判の突進（三連斬・溜めを消費）</gray>"
-    - "<gray>スニーク + 右クリック: 巨剣墜つ（奥義）</gray>"
-    - "<gray>スニーク + 左クリック: 城壁の構え（溜めを得る）</gray>"
-    - "<gold>Q: 城塞の暁（E.G.O 100）</gold>"
-    - "<dark_gray>rarity: rare / level: 4</dark_gray>"
+  - '左クリック: 月輪の薙ぎ'
+  - '右クリック: 審判の突進'
+  - 'Shift+右: 巨剣墜つ'
+  - 'Shift+左: 城壁の構え'
+  - 'Q: 城塞の暁'
   en:
-    - "<gray>Left-click: Moon Sweep (two beats, banks charge)</gray>"
-    - "<gray>Right-click: Judgement Rush (three cuts, spends charge)</gray>"
-    - "<gray>Sneak + right-click: Colossus Fall (finisher)</gray>"
-    - "<gray>Sneak + left-click: Tower Shield (banks charge)</gray>"
-    - "<gold>Q: Citadel Dawn (E.G.O 100)</gold>"
-    - "<dark_gray>rarity: rare / level: 4</dark_gray>"
-
+  - 'left_click: Moon Sweep'
+  - 'right_click: Judgement Rush'
+  - 'sneak_right: Colossus Fall'
+  - 'sneak_left: Tower Shield'
+  - 'drop: Citadel Dawn'
 rarity: rare
 level_requirement: 4
-
 attributes:
   attack_damage: 9.0
   attack_speed: 0.8
-
 equip_slot: mainhand
-
 resource_type: energy
 resource_cost_per_use: 20
-
 glint: true
-
 skills:
-  - trigger: left_click
-    skill_id: bastion-greatsword-s1
-  - trigger: right_click
-    skill_id: bastion-greatsword-s2
-  - trigger: sneak_right
-    skill_id: bastion-greatsword-s3
-  - trigger: sneak_left
-    skill_id: bastion-greatsword-def
-  - trigger: drop
-    skill_id: bastion-greatsword-ego
-
+- trigger: left_click
+  skill_id: bastion-greatsword-s1
+- trigger: right_click
+  skill_id: bastion-greatsword-s2
+- trigger: sneak_right
+  skill_id: bastion-greatsword-s3
+- trigger: sneak_left
+  skill_id: bastion-greatsword-def
+- trigger: drop
+  skill_id: bastion-greatsword-ego
 pdc_tags:
   astera:rarity: rare

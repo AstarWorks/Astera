@@ -1,658 +1,294 @@
 id: orrery-s3
 name:
-  en: Orrery Beam Litany
-  ja: 天球の連禱
+  ja: 四連の光束
+  en: Fourfold Beam
 description:
-  en: Four gold beam strikes; the last spends banked Charge.
-  ja: 天球の連禱。金の軌跡と充填を操る。
+  ja: 四連の光束
+  en: Fourfold Beam
 archetype: sequence
-cooldown_ticks: 220
-resource_cost: 12
-tags:
-- persona
-- orrery
+cooldown_ticks: 235
+resource_cost: 28
 params:
   type: sequence
 phases:
   type: sequence
   cast:
-  - type: dash_strike
-    distance: 1.2
-    ticks: 4
-    radius: 0.2
-    hit_once: true
-    invulnerable: false
-    stop_on_block: true
-    follow_pitch: false
-    on_hit: []
-    stop_before_target: 1.8
   - type: play_vfx
     targets:
       type: caster
-    delay_ticks:
-      type: literal
-      value: 5
     vfx_id: orrery-channel
-  - type: play_vfx
-    targets:
-      type: caster
     delay_ticks:
       type: literal
       value: 5
-    vfx_id: orrery-seal-ground
   - type: play_vfx
     targets:
       type: caster
-    delay_ticks:
-      type: literal
-      value: 8
-    vfx_id: orrery-motes
-  - type: play_vfx
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 22
     vfx_id: orrery-orb
+    delay_ticks:
+      type: literal
+      value: 20
   - type: play_vfx
     targets:
       type: caster
-    delay_ticks:
-      type: literal
-      value: 82
-    vfx_id: orrery-motes
-  - type: play_vfx
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 121
-    vfx_id: orrery-orb
-  - type: play_vfx
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 38
     vfx_id: orrery-beam-short
+    delay_ticks:
+      type: literal
+      value: 45
   - type: play_vfx
     targets:
       type: caster
-    delay_ticks:
-      type: literal
-      value: 38
     vfx_id: orrery-seal-front
-  - type: play_vfx
-    targets:
-      type: nearby_entities
-      center:
-        type: caster_forward
-        distance: 6.3
-        height: -1.6
-      radius:
-        type: literal
-        value: 2.5
-      max_count:
-        type: literal
-        value: 1
-      exclude_caster: true
     delay_ticks:
       type: literal
-      value: 38
-    vfx_id: orrery-ring-hit
+      value: 45
   - type: damage
     targets:
-      type: cone
+      type: forward_ray
       from:
         type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
       distance:
         type: literal
-        value: 13.0
-    delay_ticks:
-      type: literal
-      value: 38
+        value: 14
     ignore_invulnerability:
       type: literal
       value: true
     components:
     - base:
         type: literal
-        value: 5
+        value: 6
       attribute: physical
-  - type: spawn_particle
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
-      distance:
-        type: literal
-        value: 13.0
     delay_ticks:
       type: literal
-      value: 38
-    particle_id: orrery-sparks
-  - type: hit_stop
+      value: 45
+  - type: play_vfx
     targets:
-      type: cone
+      type: forward_ray
       from:
         type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
       distance:
         type: literal
-        value: 13.0
+        value: 14
+    vfx_id: orrery-ring-hit
     delay_ticks:
       type: literal
-      value: 38
-    ticks: 2
-    include_caster: true
+      value: 45
   - type: play_sound
     targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 38
-    sound_id: entity.player.attack.crit
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 14
+    sound_id: entity.player.attack.strong
     volume:
       type: literal
       value: 0.7
     pitch:
       type: literal
-      value: 1.2
-  - type: apply_status
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
-      distance:
-        type: literal
-        value: 13.0
+      value: 1.1
     delay_ticks:
       type: literal
-      value: 38
-    status_id: sinking
-    effect_duration_ticks:
-      type: literal
-      value: 100
-    stack_count:
-      type: literal
-      value: 1
-  - type: screen_flash
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 37
-    overlay: gold_burst
-    color: '#FFCD50'
-    fade_in:
-      type: literal
-      value: 0
-    stay:
-      type: literal
-      value: 1
-    fade_out:
-      type: literal
-      value: 1
+      value: 45
   - type: play_vfx
     targets:
       type: caster
-    delay_ticks:
-      type: literal
-      value: 55
     vfx_id: orrery-beam-short
+    delay_ticks:
+      type: literal
+      value: 60
   - type: play_vfx
     targets:
       type: caster
-    delay_ticks:
-      type: literal
-      value: 55
     vfx_id: orrery-seal-front
-  - type: play_vfx
-    targets:
-      type: nearby_entities
-      center:
-        type: caster_forward
-        distance: 6.3
-        height: -1.6
-      radius:
-        type: literal
-        value: 2.5
-      max_count:
-        type: literal
-        value: 1
-      exclude_caster: true
     delay_ticks:
       type: literal
-      value: 55
-    vfx_id: orrery-ring-hit
+      value: 60
   - type: damage
     targets:
-      type: cone
+      type: forward_ray
       from:
         type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
       distance:
         type: literal
-        value: 13.0
-    delay_ticks:
-      type: literal
-      value: 55
+        value: 14
     ignore_invulnerability:
       type: literal
       value: true
     components:
     - base:
         type: literal
-        value: 5
+        value: 6
       attribute: physical
-  - type: spawn_particle
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
-      distance:
-        type: literal
-        value: 13.0
     delay_ticks:
       type: literal
-      value: 55
-    particle_id: orrery-sparks
-  - type: hit_stop
+      value: 60
+  - type: play_vfx
     targets:
-      type: cone
+      type: forward_ray
       from:
         type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
       distance:
         type: literal
-        value: 13.0
+        value: 14
+    vfx_id: orrery-ring-hit
     delay_ticks:
       type: literal
-      value: 55
-    ticks: 2
-    include_caster: true
+      value: 60
   - type: play_sound
     targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 55
-    sound_id: entity.player.attack.crit
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 14
+    sound_id: entity.player.attack.strong
     volume:
       type: literal
       value: 0.7
     pitch:
       type: literal
-      value: 1.2
-  - type: apply_status
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
-      distance:
-        type: literal
-        value: 13.0
+      value: 1.1
     delay_ticks:
       type: literal
-      value: 55
-    status_id: sinking
-    effect_duration_ticks:
-      type: literal
-      value: 100
-    stack_count:
-      type: literal
-      value: 1
-  - type: screen_flash
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 54
-    overlay: gold_burst
-    color: '#FFCD50'
-    fade_in:
-      type: literal
-      value: 0
-    stay:
-      type: literal
-      value: 1
-    fade_out:
-      type: literal
-      value: 1
+      value: 60
   - type: play_vfx
     targets:
       type: caster
-    delay_ticks:
-      type: literal
-      value: 66
     vfx_id: orrery-beam-short
+    delay_ticks:
+      type: literal
+      value: 72
   - type: play_vfx
     targets:
       type: caster
-    delay_ticks:
-      type: literal
-      value: 66
     vfx_id: orrery-seal-front
-  - type: play_vfx
-    targets:
-      type: nearby_entities
-      center:
-        type: caster_forward
-        distance: 6.3
-        height: -1.6
-      radius:
-        type: literal
-        value: 2.5
-      max_count:
-        type: literal
-        value: 1
-      exclude_caster: true
     delay_ticks:
       type: literal
-      value: 66
-    vfx_id: orrery-ring-hit
+      value: 72
   - type: damage
     targets:
-      type: cone
+      type: forward_ray
       from:
         type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
       distance:
         type: literal
-        value: 13.0
-    delay_ticks:
-      type: literal
-      value: 66
+        value: 14
     ignore_invulnerability:
       type: literal
       value: true
     components:
     - base:
         type: literal
-        value: 5
+        value: 6
       attribute: physical
-  - type: spawn_particle
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
-      distance:
-        type: literal
-        value: 13.0
     delay_ticks:
       type: literal
-      value: 66
-    particle_id: orrery-sparks
-  - type: hit_stop
+      value: 72
+  - type: play_vfx
     targets:
-      type: cone
+      type: forward_ray
       from:
         type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
       distance:
         type: literal
-        value: 13.0
+        value: 14
+    vfx_id: orrery-ring-hit
     delay_ticks:
       type: literal
-      value: 66
-    ticks: 2
-    include_caster: true
+      value: 72
   - type: play_sound
     targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 66
-    sound_id: entity.player.attack.crit
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 14
+    sound_id: entity.player.attack.strong
     volume:
       type: literal
       value: 0.7
     pitch:
       type: literal
-      value: 1.2
-  - type: apply_status
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
-      distance:
-        type: literal
-        value: 13.0
+      value: 1.1
     delay_ticks:
       type: literal
-      value: 66
-    status_id: sinking
-    effect_duration_ticks:
-      type: literal
-      value: 100
-    stack_count:
-      type: literal
-      value: 1
-  - type: screen_flash
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 65
-    overlay: gold_burst
-    color: '#FFCD50'
-    fade_in:
-      type: literal
-      value: 0
-    stay:
-      type: literal
-      value: 1
-    fade_out:
-      type: literal
-      value: 1
+      value: 72
   - type: play_vfx
     targets:
       type: caster
-    delay_ticks:
-      type: literal
-      value: 136
     vfx_id: orrery-beam
+    delay_ticks:
+      type: literal
+      value: 143
   - type: play_vfx
     targets:
       type: caster
-    delay_ticks:
-      type: literal
-      value: 136
     vfx_id: orrery-seal-front
-  - type: play_vfx
-    targets:
-      type: nearby_entities
-      center:
-        type: caster_forward
-        distance: 6.3
-        height: -1.6
-      radius:
-        type: literal
-        value: 2.5
-      max_count:
-        type: literal
-        value: 1
-      exclude_caster: true
     delay_ticks:
       type: literal
-      value: 136
-    vfx_id: orrery-ring-hit
+      value: 143
   - type: damage
     targets:
-      type: cone
+      type: forward_ray
       from:
         type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
       distance:
         type: literal
-        value: 13.0
-    delay_ticks:
-      type: literal
-      value: 136
+        value: 14
     ignore_invulnerability:
       type: literal
       value: true
     components:
     - base:
         type: literal
-        value: 5
+        value: 15
       attribute: physical
-      per_stack:
-        status_id: charge
-        amount: 0.3
-        'on': caster
-        consume: true
-  - type: spawn_particle
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
-      distance:
-        type: literal
-        value: 13.0
     delay_ticks:
       type: literal
-      value: 136
-    particle_id: orrery-sparks
-  - type: hit_stop
+      value: 143
+  - type: play_vfx
     targets:
-      type: cone
+      type: forward_ray
       from:
         type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
       distance:
         type: literal
-        value: 13.0
+        value: 14
+    vfx_id: orrery-ring-hit
     delay_ticks:
       type: literal
-      value: 136
-    ticks: 2
-    include_caster: true
+      value: 143
   - type: play_sound
     targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 136
-    sound_id: entity.player.attack.crit
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 14
+    sound_id: entity.player.attack.strong
     volume:
       type: literal
       value: 0.7
     pitch:
       type: literal
-      value: 1.2
+      value: 1.1
+    delay_ticks:
+      type: literal
+      value: 143
   - type: apply_status
     targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 6.0
-      distance:
-        type: literal
-        value: 13.0
-    delay_ticks:
-      type: literal
-      value: 136
-    status_id: sinking
+      type: caster
+    status_id: charge
     effect_duration_ticks:
       type: literal
-      value: 100
+      value: 400
     stack_count:
       type: literal
-      value: 1
-  - type: screen_flash
-    targets:
-      type: caster
+      value: 3
     delay_ticks:
       type: literal
-      value: 135
-    overlay: gold_burst
-    color: '#FFCD50'
-    fade_in:
-      type: literal
-      value: 0
-    stay:
-      type: literal
-      value: 1
-    fade_out:
-      type: literal
-      value: 1
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: orrery-seal-ground
-    delay_ticks:
-      type: literal
-      value: 84
+      value: 145

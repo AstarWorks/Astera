@@ -1,0 +1,39 @@
+{
+  "id": "sigil-rifle-def",
+  "start_s": 0,
+  "end_s": 3.0,
+  "skill": {
+    "name": "刻印の退き足",
+    "asteraSkillId": "sigil-rifle-def"
+  },
+  "editLog": [],
+  "weapon": "sigil-rifle",
+  "identity": "Fell Bullet Yi Sang",
+  "videoTitle": "Fell Bullet Yi Sang — skill showcase",
+  "status": "from-wiki",
+  "iterations": 0,
+  "report": "/report/sigil-rifle",
+  "referenceRevision": "6544c8f245d0182d719e0b0109d42ee413d75eeae30a42bf90f6089c3418f905",
+  "verification": {
+    "status": "unverified",
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "rev": 1,
+  "focus": {
+    "factor": 0.2,
+    "windowMs": 150,
+    "enabled": false
+  },
+  "videoId": "-pOx9fo6A7M",
+  "mc": {
+    "source": "vfx-compare",
+    "castTickInTrace": 5,
+    "offset_ms": 0
+  },
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "contentRevision": "4acf9f441fdaa6ccbde18b7569bd543f867078865c7f158832bbad472b2371c3"
+}

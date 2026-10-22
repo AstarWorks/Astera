@@ -1,16 +1,16 @@
 {
   "id": "vendetta-rifle-s3",
-  "rev": 1,
+  "rev": 2,
   "videoId": "wbu2viInM3w",
-  "start_s": 55.8,
-  "end_s": 64.2,
+  "start_s": 18.541667,
+  "end_s": 21.666667,
   "skill": {
-    "name": "Reckoning Salvo",
+    "name": "鉄の服従",
     "coins": 3,
     "asteraSkillId": "vendetta-rifle-s3"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,38 +26,44 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "vendetta-rifle-s3",
-      "start_s": 55.8,
-      "end_s": 64.2,
-      "notes": ""
+      "label": "S3",
+      "start_s": 18.541667,
+      "end_s": 21.666667
     },
     {
-      "id": "hit-1",
+      "id": "hit1",
       "kind": "hit",
-      "label": "coin 1",
-      "t_s": 58.05,
-      "notes": "Contact group, not each decorative shard."
+      "label": "接触 1",
+      "t_s": 18.958333,
+      "notes": "astra2 source frame 455; dash_melee; game tick 8. Coin grouping uncertainty remains in reference analysis."
     },
     {
-      "id": "hit-2",
+      "id": "hit2",
       "kind": "hit",
-      "label": "coin 2",
-      "t_s": 59.95,
-      "notes": "Contact group, not each decorative shard."
+      "label": "接触 2",
+      "t_s": 19.333333,
+      "notes": "astra2 source frame 464; melee; game tick 16. Coin grouping uncertainty remains in reference analysis."
     },
     {
-      "id": "hit-3",
+      "id": "hit3",
       "kind": "hit",
-      "label": "coin 3",
-      "t_s": 63.35,
-      "notes": "Contact group, not each decorative shard."
+      "label": "接触 3",
+      "t_s": 20.75,
+      "notes": "astra2 source frame 498; dash_melee; game tick 44. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Native source is 24 fps. Earlier rack/ranged hypotheses rejected against frames.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/vendetta-rifle/s3.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "vendetta-rifle",
+  "identity": "The Thumb East Soldato II Sinclair",
+  "videoTitle": "The Thumb East Soldato II Sinclair — skill showcase",
+  "iterations": 0,
+  "report": "/report/vendetta-rifle",
+  "referenceRevision": "7ae4101811a5e396a2e196ddaa93972b281457837ff9ad03d280d761aa459f8c",
+  "contentRevision": "566f27f39b477e1a15d79c8280178e86b7100c7b2321f7e5c6e0ed8b74b4db1d"
 }

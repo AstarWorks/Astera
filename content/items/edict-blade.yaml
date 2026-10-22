@@ -1,13 +1,21 @@
 id: edict-blade
-material: IRON_SWORD
+material: LEATHER_HORSE_ARMOR
 name:
-  ja: <white>勅令の刃</white>
-  en: <white>Edict Blade</white>
+  ja: 勅令の手枷
+  en: Edict Shackles
 lore:
-  en: ['<gray>Left-click: twin cut (2 hits)</gray>', '<gray>Right-click: sky rend (3 hits)</gray>', '<gray>Sneak + right-click: final prescript (2 hits)</gray>',
-    '<gray>Sneak + left-click: cold reply (3 cuts)</gray>', '<gray>Q: thorn mandate (100 E.G.O)</gray>']
-  ja: ['<gray>左クリック: 勅令の二断</gray>', '<gray>右クリック: 天穿ちの剣</gray>', '<gray>スニーク＋右クリック: 最後の勅令</gray>', '<gray>スニーク＋左クリック: 冷たい返答</gray>', '<gray>Q: 棘の勅令（E.G.O
-      100）</gray>']
+  ja:
+  - '左クリック: 双拳砕き'
+  - '右クリック: 返しの手枷'
+  - 'Shift+右: 落下の鉄拳'
+  - 'Shift+左: 手枷の応酬'
+  - 'Q: 解かれた勅令'
+  en:
+  - 'left_click: Bound Fist Crush'
+  - 'right_click: Shackle Return'
+  - 'sneak_right: Cuffed Descent'
+  - 'sneak_left: Shackle Reprisal'
+  - 'drop: Unbound Mandate'
 rarity: epic
 level_requirement: 4
 attributes:

@@ -1,16 +1,16 @@
 {
   "id": "gossamer-katana-s2",
-  "rev": 1,
+  "rev": 2,
   "videoId": "LkLhzmoJZ6Y",
-  "start_s": 15.3,
-  "end_s": 20.6,
+  "start_s": 15.648967,
+  "end_s": 20.653967,
   "skill": {
-    "name": "gossamer-katana-s2",
+    "name": "影糸の網",
     "coins": 3,
     "asteraSkillId": "gossamer-katana-s2"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,35 +26,44 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "gossamer-katana-s2",
-      "start_s": 15.3,
-      "end_s": 20.6,
-      "notes": ""
+      "label": "S2",
+      "start_s": 15.648967,
+      "end_s": 20.653967
     },
     {
-      "id": "coin-1",
+      "id": "hit1",
       "kind": "hit",
-      "label": "Coin 1",
-      "t_s": 16.05
+      "label": "接触 1",
+      "t_s": 15.982633,
+      "notes": "astra2 source frame 479; ranged_projectile; game tick 7. Coin grouping uncertainty remains in reference analysis."
     },
     {
-      "id": "coin-2",
+      "id": "hit2",
       "kind": "hit",
-      "label": "Coin 2",
-      "t_s": 16.55
+      "label": "接触 2",
+      "t_s": 17.150467,
+      "notes": "astra2 source frame 514; dash_melee; game tick 30. Coin grouping uncertainty remains in reference analysis."
     },
     {
-      "id": "coin-3",
+      "id": "hit3",
       "kind": "hit",
-      "label": "Coin 3",
-      "t_s": 18.6
+      "label": "接触 3",
+      "t_s": 18.6186,
+      "notes": "astra2 source frame 558; aoe_at_target; game tick 59. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Identity mapping is provisional: source montage has no readable skill labels. Three base coins for S1/S2; one base coin for S3. Extra visual cuts are not extra damage.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/gossamer-katana/s2.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "gossamer-katana",
+  "identity": "Spider Blade Ryoshu",
+  "videoTitle": "Spider Blade Ryoshu — skill showcase",
+  "iterations": 0,
+  "report": "/report/gossamer-katana",
+  "referenceRevision": "2858125222e9397c7544911fe365760c44b7f399ab22f6a5a4d9894d8093fc83",
+  "contentRevision": "83614e6b9e0d0ab80f5005d10d75dc3197259a1e98d47fd4c1623e0e259e50c7"
 }

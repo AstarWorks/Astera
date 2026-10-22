@@ -1,16 +1,16 @@
 {
   "id": "ember-gauntlet-s1",
-  "rev": 1,
+  "rev": 2,
   "videoId": "vBob-jTmlnc",
-  "start_s": 35.5,
-  "end_s": 38.5,
+  "start_s": 35.8,
+  "end_s": 38.833333,
   "skill": {
-    "name": "ember-gauntlet-s1",
+    "name": "炎拳と噴射",
     "coins": 2,
     "asteraSkillId": "ember-gauntlet-s1"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,29 +26,37 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "ember-gauntlet-s1",
-      "start_s": 35.5,
-      "end_s": 38.5,
-      "notes": ""
+      "label": "S1",
+      "start_s": 35.8,
+      "end_s": 38.833333
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "Coin 1",
-      "t_s": 36.133333
+      "label": "接触 1",
+      "t_s": 36.133333,
+      "notes": "astra2 source frame 1084; dash_melee; game tick 7. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "Coin 2",
-      "t_s": 37.3
+      "label": "接触 2",
+      "t_s": 36.933333,
+      "notes": "astra2 source frame 1108; beam; game tick 23. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Native 30 fps inspection; visual ring echoes are not additional damage hits.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/ember-gauntlet/s1.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "ember-gauntlet",
+  "identity": "Firefist Gregor",
+  "videoTitle": "Firefist Gregor — skill showcase",
+  "iterations": 0,
+  "report": "/report/ember-gauntlet",
+  "referenceRevision": "521af31d47a1370dc3e3df1cd69a06b84f465e98e9fbaab1b5253d121293e0c5",
+  "contentRevision": "3bb86a5c7ffa4a6f200754f541814989c740e431d21827299f083a2c8cd036cb"
 }

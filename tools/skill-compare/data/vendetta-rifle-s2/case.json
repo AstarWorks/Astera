@@ -1,16 +1,16 @@
 {
   "id": "vendetta-rifle-s2",
-  "rev": 1,
+  "rev": 2,
   "videoId": "wbu2viInM3w",
-  "start_s": 50.55,
-  "end_s": 54.8,
+  "start_s": 15.25,
+  "end_s": 17.833333,
   "skill": {
-    "name": "Rack Volley",
-    "coins": 3,
+    "name": "厳粛な刺突",
+    "coins": 2,
     "asteraSkillId": "vendetta-rifle-s2"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,38 +26,37 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "vendetta-rifle-s2",
-      "start_s": 50.55,
-      "end_s": 54.8,
-      "notes": ""
+      "label": "S2",
+      "start_s": 15.25,
+      "end_s": 17.833333
     },
     {
-      "id": "hit-1",
+      "id": "hit1",
       "kind": "hit",
-      "label": "coin 1",
-      "t_s": 51.8,
-      "notes": "Contact group, not each decorative shard."
+      "label": "接触 1",
+      "t_s": 15.375,
+      "notes": "astra2 source frame 369; dash_melee; game tick 3. Coin grouping uncertainty remains in reference analysis."
     },
     {
-      "id": "hit-2",
+      "id": "hit2",
       "kind": "hit",
-      "label": "coin 2",
-      "t_s": 52.2,
-      "notes": "Contact group, not each decorative shard."
-    },
-    {
-      "id": "hit-3",
-      "kind": "hit",
-      "label": "coin 3",
-      "t_s": 53.85,
-      "notes": "Contact group, not each decorative shard."
+      "label": "接触 2",
+      "t_s": 16.625,
+      "notes": "astra2 source frame 399; dash_melee; game tick 28. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Native source is 24 fps. Earlier rack/ranged hypotheses rejected against frames.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/vendetta-rifle/s2.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "vendetta-rifle",
+  "identity": "The Thumb East Soldato II Sinclair",
+  "videoTitle": "The Thumb East Soldato II Sinclair — skill showcase",
+  "iterations": 0,
+  "report": "/report/vendetta-rifle",
+  "referenceRevision": "9f2e27b597c88773b44a4033437beb19a75bfc0a00d5d8e23447de983f179282",
+  "contentRevision": "a307e3d36f17a95daced7cab06040eb3128837bf2050d4ec093c7ca36acd851a"
 }

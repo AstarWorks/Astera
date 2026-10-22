@@ -1,21 +1,21 @@
 {
   "id": "bastion-greatsword-s2",
-  "rev": 2,
+  "rev": 4,
   "videoId": "Svaaq9F7Ty8",
-  "start_s": 14.9,
-  "end_s": 18.5,
-  "identity": "Zwei Association West Section 3 Ishmael",
+  "start_s": 14.633,
+  "end_s": 18.4,
+  "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "built",
   "iterations": 0,
-  "report": "../bastion-greatsword-REPORT.md",
+  "report": "/report/bastion-greatsword",
   "skill": {
-    "name": "Judgement Rush",
+    "name": "審判の突進",
     "coins": 3,
     "asteraSkillId": "bastion-greatsword-s2"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -26,37 +26,44 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "s2",
-      "start_s": 14.9,
-      "end_s": 18.5,
-      "notes": ""
+      "label": "S2",
+      "start_s": 14.633,
+      "end_s": 18.4
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "coin 1",
+      "label": "接触 1",
       "t_s": 15.3,
-      "notes": ""
+      "notes": "astra2 source frame 459; melee; game tick 13. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "coin 2",
-      "t_s": 16.2,
-      "notes": ""
+      "label": "接触 2",
+      "t_s": 16.233,
+      "notes": "astra2 source frame 487; melee; game tick 32. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit3",
       "kind": "hit",
-      "label": "coin 3",
-      "t_s": 17.4,
-      "notes": ""
+      "label": "接触 3",
+      "t_s": 17.3,
+      "notes": "astra2 source frame 519; melee; game tick 53. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "No fresh client captures: Docker prohibition; pending manager verification.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/s2.json を参照。",
   "editLog": [],
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
+  "referenceRevision": "c4f92d2c5f3d2b5058d4932f0f8d2127d55cf21d0e135d850783b7c783f01a25",
+  "focus": {
+    "factor": 0.2,
+    "windowMs": 150,
+    "enabled": false
+  },
+  "contentRevision": "4670a56f0266f41a3e869d3cb8ec9a75ec6cf61d2ca52b43f9ad67645a3d0dca"
 }

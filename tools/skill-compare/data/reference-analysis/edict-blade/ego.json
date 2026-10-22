@@ -1,0 +1,404 @@
+{
+  "schema_version": 1,
+  "slot": "ego",
+  "name": "Effloresced E.G.O Procuration — form entry",
+  "form": "transformation",
+  "status": "observed",
+  "time_range": {
+    "start_frame": 1076,
+    "end_frame_exclusive": 1144,
+    "start_s": 35.902533,
+    "end_s": 38.171467
+  },
+  "mapping": {
+    "kit_slot": "passive / Effloresced form entry",
+    "confidence": "high",
+    "evidence": [
+      "Normal-form recovery dissolves into glyphs, black claw growth and transformed standing pose. No target hit is shown.",
+      "Kit describes form entry; this is not a separate damaging E.G.O attack."
+    ],
+    "attack_type": null,
+    "official_coins": null
+  },
+  "weapon": {
+    "type": "paired black branching claw-like arm extensions, with flexible ribbon/thorn trails",
+    "size_relative_to_body_height": {
+      "resting_each_claw": [
+        0.7,
+        1.2
+      ],
+      "extended_branch_fan": [
+        2,
+        3.5
+      ],
+      "both_sides_total_span": [
+        2.5,
+        4
+      ]
+    },
+    "held": "Extensions surround/project from both forearms; no hilt or two-handed sword grip. Don sweeps her arms and the jointed, hooked black structures follow.",
+    "parts_and_colors": [
+      {
+        "part": "solid jagged outer fingers/branches",
+        "color_hex": "#080D10",
+        "shape": "irregular long hooked tapering prongs with open gaps"
+      },
+      {
+        "part": "edge veins/highlights",
+        "color_hex": "#687474",
+        "shape": "thin pale angular lines inside black silhouette"
+      },
+      {
+        "part": "flexible trailing fan",
+        "color_hex": "#06090B",
+        "shape": "several long curved black ribbons; extensions overlap, exact finger count unresolved"
+      },
+      {
+        "part": "white glove and collar",
+        "color_hex": "#ECEEE8",
+        "shape": "small original hand and neck components remain visible"
+      }
+    ],
+    "confidence": "high for claw-like silhouette; med for exact attachment anatomy",
+    "evidence": [
+      "sheets/detail_03.png (f1313)",
+      "sheets/detail_04.png (f1509)",
+      "sheets/transform_03.jpg (f1144 standing transformed silhouette)"
+    ],
+    "important_distinction": "No visible conventional sword. The dialogue calls this her sword metaphorically; the visible equipment is branching claws."
+  },
+  "props": [
+    {
+      "type": "floating Prescript glyphs",
+      "origin": "screen space above/around caster",
+      "count": "several text fragments; exact glyph count varies",
+      "path": "appear stationary then dissolve",
+      "size_body_heights": [
+        0.2,
+        1.5
+      ],
+      "timing": {
+        "start_frame": 1078,
+        "end_frame_exclusive": 1126,
+        "start_s": 35.969267,
+        "end_s": 37.570867
+      }
+    },
+    {
+      "type": "claw cage",
+      "origin": "caster arms",
+      "count": "two branching assemblies",
+      "path": "unfurl and circle body, then spread outward",
+      "size_body_heights": [
+        2,
+        3.5
+      ],
+      "timing": {
+        "start_frame": 1090,
+        "end_frame_exclusive": 1144,
+        "start_s": 36.369667,
+        "end_s": 38.171467
+      }
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 1076,
+      "end_frame_exclusive": 1090,
+      "start_s": 35.902533,
+      "end_s": 36.369667,
+      "motion": "idle",
+      "distance_body_heights": [
+        0,
+        0
+      ],
+      "description": "Dissolve, glyphs and foot glow."
+    },
+    {
+      "start_frame": 1090,
+      "end_frame_exclusive": 1098,
+      "start_s": 36.369667,
+      "end_s": 36.6366,
+      "motion": "crouch",
+      "distance_body_heights": [
+        0,
+        0.2
+      ],
+      "description": "Claws close around body as camera punches."
+    },
+    {
+      "start_frame": 1098,
+      "end_frame_exclusive": 1144,
+      "start_s": 36.6366,
+      "end_s": 38.171467,
+      "motion": "crouch_to_stand",
+      "distance_body_heights": [
+        0,
+        0.2
+      ],
+      "description": "Black arms unfurl, body held low; first upright idle f1144."
+    }
+  ],
+  "hits": [],
+  "beats": [
+    {
+      "start_frame": 1076,
+      "end_frame_exclusive": 1079,
+      "start_s": 35.902533,
+      "end_s": 36.002633,
+      "kind": "transition",
+      "description": "Dissolve from normal recovery; glyph begins f1078."
+    },
+    {
+      "start_frame": 1079,
+      "end_frame_exclusive": 1090,
+      "start_s": 36.002633,
+      "end_s": 36.369667,
+      "kind": "glyphs",
+      "description": "Blue motes and violet foot glow."
+    },
+    {
+      "start_frame": 1090,
+      "end_frame_exclusive": 1092,
+      "start_s": 36.369667,
+      "end_s": 36.4364,
+      "kind": "claw_growth",
+      "description": "Black cocoon forms; camera pushes in."
+    },
+    {
+      "start_frame": 1092,
+      "end_frame_exclusive": 1093,
+      "start_s": 36.4364,
+      "end_s": 36.469767,
+      "kind": "one_frame_cut_in",
+      "description": "Extreme eye close-up."
+    },
+    {
+      "start_frame": 1093,
+      "end_frame_exclusive": 1094,
+      "start_s": 36.469767,
+      "end_s": 36.503133,
+      "kind": "black_flash",
+      "description": "One black frame."
+    },
+    {
+      "start_frame": 1094,
+      "end_frame_exclusive": 1095,
+      "start_s": 36.503133,
+      "end_s": 36.5365,
+      "kind": "one_frame_cut_in",
+      "description": "Extreme chains and prismatic strips."
+    },
+    {
+      "start_frame": 1095,
+      "end_frame_exclusive": 1098,
+      "start_s": 36.5365,
+      "end_s": 36.6366,
+      "kind": "pullback",
+      "description": "Reveals claw cocoon."
+    },
+    {
+      "start_frame": 1098,
+      "end_frame_exclusive": 1112,
+      "start_s": 36.6366,
+      "end_s": 37.103733,
+      "kind": "unfurl",
+      "description": "Purple/pink/cyan swirls around black cage; glyph resolves."
+    },
+    {
+      "start_frame": 1112,
+      "end_frame_exclusive": 1126,
+      "start_s": 37.103733,
+      "end_s": 37.570867,
+      "kind": "glyph_hold",
+      "description": "CLEAR text visible, disappears f1126."
+    },
+    {
+      "start_frame": 1126,
+      "end_frame_exclusive": 1144,
+      "start_s": 37.570867,
+      "end_s": 38.171467,
+      "kind": "recovery",
+      "description": "Low transformed hold, first standing idle f1144."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 1078,
+      "end_frame_exclusive": 1144,
+      "start_s": 35.969267,
+      "end_s": 38.171467,
+      "name": "Procuration foot glow",
+      "shape": "small shallow oval/flame tuft",
+      "size_body_heights": [
+        0.4,
+        0.8
+      ],
+      "position": "directly under caster",
+      "colors_hex": [
+        "#E9E6FF",
+        "#9D9AE8",
+        "#4E4E86"
+      ],
+      "layering": "white core, lavender rim",
+      "motion": "tracks feet even during low dash",
+      "fade": "persistent within this form",
+      "lifetime_s": 2.2022
+    },
+    {
+      "start_frame": 1078,
+      "end_frame_exclusive": 1126,
+      "start_s": 35.969267,
+      "end_s": 37.570867,
+      "name": "Prescript lettering",
+      "shape": "thin floating glyph/text fragments",
+      "size_body_heights": [
+        0.2,
+        1.5
+      ],
+      "position": "above/around caster",
+      "colors_hex": [
+        "#D9F8FF",
+        "#8CBDE7"
+      ],
+      "layering": "pale cyan luminous lines",
+      "motion": "materialize; CLEAR resolves during form change",
+      "fade": "f1126 absent",
+      "lifetime_s": 1.6016
+    },
+    {
+      "start_frame": 1090,
+      "end_frame_exclusive": 1112,
+      "start_s": 36.369667,
+      "end_s": 37.103733,
+      "name": "transformation vortex",
+      "shape": "overlapping curved ribbons and orb/cage silhouette",
+      "size_body_heights": [
+        2,
+        3
+      ],
+      "position": "around caster",
+      "colors_hex": [
+        "#06090B",
+        "#F6C8F9",
+        "#A68CEA",
+        "#8DE7FF"
+      ],
+      "layering": "black prongs under bright pink/cyan strips",
+      "motion": "wrap around body as claws expand",
+      "fade": "colored bands fade leaving solid black arms",
+      "lifetime_s": 0.734067
+    },
+    {
+      "start_frame": 1078,
+      "end_frame_exclusive": 1144,
+      "start_s": 35.969267,
+      "end_s": 38.171467,
+      "name": "blue-white fragments / petals",
+      "shape": "irregular teardrop and polygon chips",
+      "size_body_heights": [
+        0.03,
+        0.2
+      ],
+      "position": "caster-to-target corridor and impact",
+      "colors_hex": [
+        "#F3FFFF",
+        "#9CD9FF",
+        "#747BD1"
+      ],
+      "layering": "white small centers with cyan/lavender rims",
+      "motion": "scatter upward/outward and drift down; no coherent projectile flight",
+      "fade": "individual particles dim and vanish",
+      "lifetime_s": 2.2022
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 1076,
+      "end_frame_exclusive": 1090,
+      "start_s": 35.902533,
+      "end_s": 36.369667,
+      "shot": "wide",
+      "framing": "caster left target right",
+      "operation": "dissolve, then slight push"
+    },
+    {
+      "start_frame": 1090,
+      "end_frame_exclusive": 1092,
+      "start_s": 36.369667,
+      "end_s": 36.4364,
+      "shot": "close",
+      "framing": "black cocoon and face",
+      "operation": "rapid push"
+    },
+    {
+      "start_frame": 1092,
+      "end_frame_exclusive": 1093,
+      "start_s": 36.4364,
+      "end_s": 36.469767,
+      "shot": "extreme close",
+      "framing": "eye fills crop",
+      "operation": "one frame"
+    },
+    {
+      "start_frame": 1093,
+      "end_frame_exclusive": 1094,
+      "start_s": 36.469767,
+      "end_s": 36.503133,
+      "shot": "black",
+      "framing": "black field",
+      "operation": "one frame"
+    },
+    {
+      "start_frame": 1094,
+      "end_frame_exclusive": 1095,
+      "start_s": 36.503133,
+      "end_s": 36.5365,
+      "shot": "extreme close",
+      "framing": "chains and prismatic bands",
+      "operation": "one frame"
+    },
+    {
+      "start_frame": 1095,
+      "end_frame_exclusive": 1098,
+      "start_s": 36.5365,
+      "end_s": 36.6366,
+      "shot": "close to medium",
+      "framing": "expanding claw cage",
+      "operation": "pullback"
+    },
+    {
+      "start_frame": 1098,
+      "end_frame_exclusive": 1144,
+      "start_s": 36.6366,
+      "end_s": 38.171467,
+      "shot": "wide",
+      "framing": "crouched transformed caster, target unchanged",
+      "operation": "hold"
+    }
+  ],
+  "contact_sheets": [
+    "sheets/transform_01.jpg",
+    "sheets/transform_02.jpg",
+    "sheets/transform_03.jpg"
+  ],
+  "measurement_notes": {
+    "source_video": "../../vid/x6sc9JkW77c.mp4",
+    "source_audio": "../../aud/x6sc9JkW77c.m4a",
+    "kit_source": "../../wiki/x6sc9JkW77c.md",
+    "fps_num": 30000,
+    "fps_den": 1001,
+    "frame_index_base": 0,
+    "frame_time_formula": "frame * 1001 / 30000 seconds",
+    "interval_convention": "[start_frame, end_frame_exclusive); end is first idle/cut-away frame, not last contact",
+    "precision": "Every combat frame in the listed native contact sheets was inspected; overview sheets are 6 fps. Native source is 29.97002997 fps, not exactly 30. Use source frame indices for reproduction.",
+    "hit_definition": "First visible target overlap/impact for each proposed coin group. A held starburst and its shrinking/knockback tail are one event. Frame-accurate VFX timing does not reveal hidden engine damage registration. Bounds and confidence distinguish obscured contact from visible contact.",
+    "coin_mapping_limit": "No readable skill-name/coin HUD during the attack demonstrations. Names and grouping are inferred from supplied kit, form, count, motif and resets. Procuration has multiple cosmetic rakes per proposed coin; do not schedule extra damage for each rake.",
+    "units": "Body height (BH) means upright chibi Don from soles to top of hair in the same shot. Distances are screen-plane estimates, usually +/-0.5 BH, not measured 3D world distances.",
+    "colors": "Approximate displayed sRGB palette estimates, not exact source shader colors. Bloom and compression change local pixels.",
+    "range_class_definition": "aoe_at_target describes spatial placement of an effect on the distant target; it does not assert multi-target game mechanics. No clearly resolved ballistic projectile or sustained beam was seen.",
+    "workflow": "Viewed all 20 overview sheets, then all native combat sheets, then full-resolution details and boundary/contact checks; old notes read only after independent frame inspection. Audio onset file was inspected as secondary context, never used to assign a hit."
+  },
+  "observed_coin_groups": 0,
+  "coin_grouping_confidence": "med"
+}

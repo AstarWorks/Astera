@@ -1,48 +1,40 @@
 {
   "id": "bastion-greatsword-ego",
-  "rev": 2,
+  "rev": 4,
   "videoId": "Svaaq9F7Ty8",
-  "start_s": 21.4,
-  "end_s": 23.7,
-  "identity": "Zwei Association West Section 3 Ishmael",
+  "start_s": 0,
+  "end_s": 3.8,
+  "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
-  "status": "built",
+  "status": "from-wiki",
   "iterations": 0,
-  "report": "../bastion-greatsword-REPORT.md",
+  "report": "/report/bastion-greatsword",
   "skill": {
-    "name": "Citadel Dawn",
+    "name": "城塞の暁",
     "coins": 0,
     "asteraSkillId": "bastion-greatsword-ego"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
     "offset_ms": 0,
     "castTickInTrace": 6
   },
-  "segments": [
-    {
-      "id": "skill",
-      "kind": "skill",
-      "label": "ego",
-      "start_s": 21.4,
-      "end_s": 23.7,
-      "notes": "Original EGO derivative; source excerpt is a motif reference only."
-    },
-    {
-      "id": "hit1",
-      "kind": "hit",
-      "label": "coin 1",
-      "t_s": 23.2,
-      "notes": ""
-    }
-  ],
-  "notes": "No fresh client captures: Docker prohibition; pending manager verification.",
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
   "editLog": [],
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
+  "referenceRevision": "a40478a425ea3fcf5bbad88a61b0bc624b7e2e17e746b01723ac5a046b6ce99a",
+  "focus": {
+    "factor": 0.2,
+    "windowMs": 150,
+    "enabled": false
+  },
+  "contentRevision": "e346c27b6bcf401c685f323dd47e744b85c0e21e92ea23e575e6bd5606273836"
 }

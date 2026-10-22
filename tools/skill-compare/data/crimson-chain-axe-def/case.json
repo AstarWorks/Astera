@@ -1,0 +1,48 @@
+{
+  "id": "crimson-chain-axe-def",
+  "start_s": 57.791,
+  "end_s": 59.693,
+  "skill": {
+    "name": "緋の退避",
+    "asteraSkillId": "crimson-chain-axe-def",
+    "coins": 1
+  },
+  "editLog": [],
+  "weapon": "crimson-chain-axe",
+  "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+  "videoTitle": "Haute Couture::The Crimson God of Le Rouge Sinclair — skill showcase",
+  "status": "built",
+  "iterations": 0,
+  "report": "/report/crimson-chain-axe",
+  "referenceRevision": "11fa0f66373f5863d1056cb10e50d626cd5d1749d56250176dcc9285a4cf9046",
+  "verification": {
+    "status": "unverified",
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "rev": 1,
+  "focus": {
+    "factor": 0.2,
+    "windowMs": 150,
+    "enabled": false
+  },
+  "videoId": "Gpj-lvOnAgs",
+  "mc": {
+    "source": "vfx-compare",
+    "castTickInTrace": 5,
+    "offset_ms": 0
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "DEF",
+      "start_s": 57.791,
+      "end_s": 59.693
+    }
+  ],
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/crimson-chain-axe/def.json を参照。",
+  "intent": {
+    "file": "intent-round2.json"
+  },
+  "contentRevision": "872e70029da90b29ffb8a099c0eb355898f07ca8ec285345aae519efb7174d1b"
+}

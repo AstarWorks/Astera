@@ -1,16 +1,16 @@
 {
   "id": "verdict-hammer-ego",
-  "rev": 1,
+  "rev": 2,
   "videoId": "Hc6CJXJrzME",
-  "start_s": 54.3,
-  "end_s": 65.2,
+  "start_s": 0,
+  "end_s": 11.55,
   "skill": {
-    "name": "verdict-hammer-ego",
+    "name": "誓約の終鐘",
     "coins": 0,
     "asteraSkillId": "verdict-hammer-ego"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,49 +18,23 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
-  "segments": [
-    {
-      "id": "skill",
-      "kind": "skill",
-      "label": "verdict-hammer-ego",
-      "start_s": 54.3,
-      "end_s": 65.2,
-      "notes": ""
-    },
-    {
-      "id": "hit1",
-      "kind": "hit",
-      "label": "Observed pulse 1",
-      "t_s": 57.85
-    },
-    {
-      "id": "hit2",
-      "kind": "hit",
-      "label": "Observed pulse 2",
-      "t_s": 59.4
-    },
-    {
-      "id": "hit3",
-      "kind": "hit",
-      "label": "Observed pulse 3",
-      "t_s": 60.7
-    },
-    {
-      "id": "hit4",
-      "kind": "hit",
-      "label": "Observed pulse 4",
-      "t_s": 63.85
-    }
-  ],
-  "notes": "Frame-verified visual timing; wiki slot assignment inferred (no skill titles in source). Q is a cinematic adaptation, not a confirmed identity E.G.O.",
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
   "editLog": [],
-  "status": "built",
+  "status": "from-wiki",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "verdict-hammer",
+  "identity": "Haute Couture::The Black Knight of Le Noir Don Quixote",
+  "videoTitle": "Haute Couture::The Black Knight of Le Noir Don Quixote — skill showcase",
+  "iterations": 0,
+  "report": "/report/verdict-hammer",
+  "referenceRevision": "6c8fc907061c3cd88a66bab503d1f30f4d28906803292cd67efcb29765b786ed",
+  "contentRevision": "2d792920242ac15e6b41a5c1248d789185ec1b16457927eea861306c93d8cb6f"
 }

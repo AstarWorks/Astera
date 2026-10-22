@@ -1,0 +1,829 @@
+{
+  "video_id": "Svaaq9F7Ty8",
+  "identity": "Zwei Assoc. West Section 3 Ishmael",
+  "slot": "s3",
+  "official_name": "Ward",
+  "observed": true,
+  "start_frame": 567,
+  "end_frame_exclusive": 711,
+  "start_s": 18.9,
+  "end_s": 23.7,
+  "official_attack_type": "Blunt",
+  "official_coins": 3,
+  "mapping_confidence": "med",
+  "mapping_evidence": "Separated demonstration and matching impact count; see segments.json for evidence and alternative mapping.",
+  "weapon": {
+    "type": "Broad rectangular greatsword/slab blade, visually confirmed; no separate physical tower shield resolved.",
+    "size_body_heights": {
+      "blade_length": [
+        1.0,
+        1.35
+      ],
+      "blade_width": [
+        0.18,
+        0.28
+      ],
+      "total_length_estimate": [
+        1.3,
+        1.65
+      ]
+    },
+    "parts": "Broad squared/beveled tip, thick pale metallic perimeter, dark inset central panel, small yellow-green rectangular inset near base, dark grip/guard. Edge-on views can look like a rod.",
+    "colors_hex": {
+      "rim": "#C8C9B7",
+      "blade_face": "#55574E",
+      "inset": "#C9CD5B",
+      "grip": "#292B2C"
+    },
+    "grip": "Both gauntleted hands appear clustered on/near grip in sweep close-ups; overhead poses visibly have both arms raised. Hand overlap and motion blur prevent finger-level grip identification.",
+    "held_positions": "Low diagonal blade pointing behind/left during ready pose; broad blade behind shoulder during sweep follow-through; raised behind/above head for slams.",
+    "evidence": [
+      "sheets/detail_01.jpg",
+      "sheets/detail_02.jpg"
+    ],
+    "limitations": "Dimensions and hex values are estimates from compressed video. Large apparent size changes mostly come from camera punches, not weapon growth.",
+    "skill_specific": "First blow shows broad blade up/back-left and a narrow hilt/shaft-like portion leading right across body (19.400–19.533); likely hilt/guard-leading blunt sweep, not visibly a blade-edge cut. Second blow carries the weapon longitudinally forward in a low lunge. Both hands raise blade for third downstroke; final broad blade is upright/planted in front of crouching caster."
+  },
+  "props": [
+    {
+      "type": "none observed",
+      "description": "No falling/summoned swords, detached projectiles or independently fired beam. Second-hit streak follows caster and held weapon; final vertical pillar follows downstroke."
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 567,
+      "end_frame_exclusive": 581,
+      "start_s": 18.9,
+      "end_s": 19.366,
+      "motion": "ready/step",
+      "distance_body_heights": [
+        0,
+        0.5
+      ],
+      "description": "Low blade ready and settling; zoom dominates apparent approach."
+    },
+    {
+      "start_frame": 581,
+      "end_frame_exclusive": 602,
+      "start_s": 19.366,
+      "end_s": 20.066,
+      "motion": "pivot",
+      "distance_body_heights": [
+        0,
+        0.5
+      ],
+      "description": "First sweep; blade ends high/back then lowered."
+    },
+    {
+      "start_frame": 602,
+      "end_frame_exclusive": 608,
+      "start_s": 20.066,
+      "end_s": 20.266,
+      "motion": "reset",
+      "distance_body_heights": [
+        0,
+        0.2
+      ],
+      "description": "Low forward stance."
+    },
+    {
+      "start_frame": 608,
+      "end_frame_exclusive": 624,
+      "start_s": 20.266,
+      "end_s": 20.8,
+      "motion": "drag_prepare",
+      "distance_body_heights": [
+        0,
+        0.5
+      ],
+      "description": "Leans forward with tip near floor to left; orange scrape sparks. Feet mostly stay anchored, not a multi-H dash yet."
+    },
+    {
+      "start_frame": 624,
+      "end_frame_exclusive": 630,
+      "start_s": 20.8,
+      "end_s": 21.0,
+      "motion": "dash",
+      "distance_body_heights": [
+        2,
+        3.5
+      ],
+      "description": "Advances screen-right; intermediate travel obscured by gray flash and close-up. Before/after two-shots show gap closes to ≈1 H."
+    },
+    {
+      "start_frame": 630,
+      "end_frame_exclusive": 643,
+      "start_s": 21.0,
+      "end_s": 21.433,
+      "motion": "lunge_hold",
+      "distance_body_heights": [
+        0,
+        0.3
+      ],
+      "description": "Low extended pose at enemy; no continuing projectile."
+    },
+    {
+      "start_frame": 643,
+      "end_frame_exclusive": 660,
+      "start_s": 21.433,
+      "end_s": 22.0,
+      "motion": "overhead_hold",
+      "distance_body_heights": [
+        0,
+        0.2
+      ],
+      "description": "Stands adjacent to enemy with blade behind/above head."
+    },
+    {
+      "start_frame": 660,
+      "end_frame_exclusive": 682,
+      "start_s": 22.0,
+      "end_s": 22.733,
+      "motion": "downstroke/crouch",
+      "distance_body_heights": [
+        0,
+        0.5
+      ],
+      "description": "Close downward strike; target recoils right; caster sinks into planted-blade crouch."
+    },
+    {
+      "start_frame": 682,
+      "end_frame_exclusive": 711,
+      "start_s": 22.733,
+      "end_s": 23.7,
+      "motion": "hold",
+      "distance_body_heights": [
+        0,
+        0.2
+      ],
+      "description": "Crouch and vertical blade remain until cut."
+    }
+  ],
+  "hits": [
+    {
+      "coin": 1,
+      "contact_frame": 582,
+      "contact_s": 19.4,
+      "contact_observation": "First visible impact flash/spark proxy; physical contact may be occluded.",
+      "uncertainty_frames_inclusive": [
+        582,
+        584
+      ],
+      "uncertainty_s_inclusive": [
+        19.4,
+        19.466
+      ],
+      "what_makes_contact": "Weapon/hilt-leading sweep; broad blade visibly back-left, narrow projecting portion forward. Exact impact at right crop.",
+      "range_class": "melee",
+      "range_confidence": "med",
+      "caster_target_distance_body_heights": [
+        2.5,
+        4
+      ],
+      "distance_method": "Estimate from adjacent readable two-shot; cropped contact itself may not permit measurement.",
+      "evidence": {
+        "frame": 582,
+        "time_s": 19.4,
+        "description": "Orange contact streak and sweeping arc appear together in close-up.",
+        "contact_sheet": "sheets/combat_09.jpg"
+      }
+    },
+    {
+      "coin": 2,
+      "contact_frame": 627,
+      "contact_s": 20.9,
+      "contact_observation": "First visible impact flash/spark proxy; physical contact may be occluded.",
+      "uncertainty_frames_inclusive": [
+        626,
+        628
+      ],
+      "uncertainty_s_inclusive": [
+        20.866,
+        20.933
+      ],
+      "what_makes_contact": "Forward carried greatsword/hilt assembly in body-level lunge; target visible behind gold streak on pullback.",
+      "range_class": "dash_melee",
+      "range_confidence": "high",
+      "caster_target_distance_body_heights": [
+        0.6,
+        1.2
+      ],
+      "distance_method": "Estimate from adjacent readable two-shot; cropped contact itself may not permit measurement.",
+      "evidence": {
+        "frame": 627,
+        "time_s": 20.9,
+        "description": "One-frame gray insert at 626; orange/white impact at 627, caster adjacent to enemy by 628–630.",
+        "contact_sheet": "sheets/combat_10.jpg"
+      }
+    },
+    {
+      "coin": 3,
+      "contact_frame": 661,
+      "contact_s": 22.033,
+      "contact_observation": "First visible impact flash/spark proxy; physical contact may be occluded.",
+      "uncertainty_frames_inclusive": [
+        661,
+        664
+      ],
+      "uncertainty_s_inclusive": [
+        22.033,
+        22.133
+      ],
+      "what_makes_contact": "Downward held-weapon blow into close target/ground area, with tall local impact burst.",
+      "range_class": "melee",
+      "range_confidence": "high",
+      "caster_target_distance_body_heights": [
+        0.7,
+        1.2
+      ],
+      "distance_method": "Estimate from adjacent readable two-shot; cropped contact itself may not permit measurement.",
+      "evidence": {
+        "frame": 661,
+        "time_s": 22.033,
+        "description": "First explosive downstroke image at 661. Physical overlap hidden; burst is not evidence of a separately fired beam.",
+        "contact_sheet": "sheets/combat_12.jpg"
+      }
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 567,
+      "end_frame_exclusive": 581,
+      "start_s": 18.9,
+      "end_s": 19.366,
+      "kind": "wind_up",
+      "description": "Low-ready pose and hold."
+    },
+    {
+      "start_frame": 581,
+      "end_frame_exclusive": 582,
+      "start_s": 19.366,
+      "end_s": 19.4,
+      "kind": "motion",
+      "description": "Tiny gold streak at right edge before close-up."
+    },
+    {
+      "start_frame": 582,
+      "end_frame_exclusive": 586,
+      "start_s": 19.4,
+      "end_s": 19.533,
+      "kind": "hit_1_closeups",
+      "description": "582 broad arc and orange impact, 583 face/shoulder close, 584–585 shifted face/shaft crop."
+    },
+    {
+      "start_frame": 586,
+      "end_frame_exclusive": 602,
+      "start_s": 19.533,
+      "end_s": 20.066,
+      "kind": "followthrough",
+      "description": "Pullback shows extended sweep; ring thins and blade lowers."
+    },
+    {
+      "start_frame": 602,
+      "end_frame_exclusive": 608,
+      "start_s": 20.066,
+      "end_s": 20.266,
+      "kind": "reset",
+      "description": "Low-ready, short pause."
+    },
+    {
+      "start_frame": 608,
+      "end_frame_exclusive": 624,
+      "start_s": 20.266,
+      "end_s": 20.8,
+      "kind": "wind_up_2",
+      "description": "Leans into sword-tip scrape; sparks appear at 609 and continue."
+    },
+    {
+      "start_frame": 624,
+      "end_frame_exclusive": 626,
+      "start_s": 20.8,
+      "end_s": 20.866,
+      "kind": "motion",
+      "description": "Two-frame rising crescent/torn stroke with caster upright."
+    },
+    {
+      "start_frame": 626,
+      "end_frame_exclusive": 627,
+      "start_s": 20.866,
+      "end_s": 20.9,
+      "kind": "full_field_flash",
+      "description": "One gray-brown flat field frame inside black diagonal border; subtitles remain. This is not a new hit."
+    },
+    {
+      "start_frame": 627,
+      "end_frame_exclusive": 628,
+      "start_s": 20.9,
+      "end_s": 20.933,
+      "kind": "hit_2_insert",
+      "description": "One extreme orange-white impact frame."
+    },
+    {
+      "start_frame": 628,
+      "end_frame_exclusive": 630,
+      "start_s": 20.933,
+      "end_s": 21.0,
+      "kind": "hit_2_closeup",
+      "description": "Two-frame low lunge beside/into target, thick horizontal streaks."
+    },
+    {
+      "start_frame": 630,
+      "end_frame_exclusive": 643,
+      "start_s": 21.0,
+      "end_s": 21.433,
+      "kind": "followthrough",
+      "description": "Low forward weapon hold; streaks thin and disappear."
+    },
+    {
+      "start_frame": 643,
+      "end_frame_exclusive": 660,
+      "start_s": 21.433,
+      "end_s": 22.0,
+      "kind": "wind_up_3",
+      "description": "Raises/holds sword overhead beside enemy for ≈0.57 s; no new attack during hold."
+    },
+    {
+      "start_frame": 660,
+      "end_frame_exclusive": 661,
+      "start_s": 22.0,
+      "end_s": 22.033,
+      "kind": "closeup",
+      "description": "One-frame full-body close-up with enemy directly right."
+    },
+    {
+      "start_frame": 661,
+      "end_frame_exclusive": 662,
+      "start_s": 22.033,
+      "end_s": 22.067,
+      "kind": "hit_3",
+      "description": "One-frame hair/back close-up and vertical yellow-white eruption."
+    },
+    {
+      "start_frame": 662,
+      "end_frame_exclusive": 663,
+      "start_s": 22.067,
+      "end_s": 22.1,
+      "kind": "flash_insert",
+      "description": "Near-full yellow/white screen within diagonal matte."
+    },
+    {
+      "start_frame": 663,
+      "end_frame_exclusive": 664,
+      "start_s": 22.1,
+      "end_s": 22.133,
+      "kind": "flash_insert",
+      "description": "One-frame dark navy foreground/weapon silhouette with bright stripe at top."
+    },
+    {
+      "start_frame": 664,
+      "end_frame_exclusive": 666,
+      "start_s": 22.133,
+      "end_s": 22.2,
+      "kind": "impact_inserts",
+      "description": "Two close frames of broad vertical blade/light column with horizontal ring."
+    },
+    {
+      "start_frame": 666,
+      "end_frame_exclusive": 681,
+      "start_s": 22.2,
+      "end_s": 22.7,
+      "kind": "finisher",
+      "description": "Pullback onto large jagged bowl/crown-like ground eruption, vertical core and horizontal ring; one held impact."
+    },
+    {
+      "start_frame": 681,
+      "end_frame_exclusive": 701,
+      "start_s": 22.7,
+      "end_s": 23.367,
+      "kind": "recovery_effect",
+      "description": "Burst retracts to small floor cracks; caster kneels behind vertical planted blade."
+    },
+    {
+      "start_frame": 701,
+      "end_frame_exclusive": 711,
+      "start_s": 23.367,
+      "end_s": 23.7,
+      "kind": "recovery_hold",
+      "description": "Cracks gone/dim; crouch retained until guard cut."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 581,
+      "end_frame_exclusive": 602,
+      "start_s": 19.366,
+      "end_s": 20.066,
+      "name": "coin1_sweep",
+      "shape": "Broad tilted gold crescent opening forward with narrow horizontal streak",
+      "size_body_heights": [
+        3.5,
+        5
+      ],
+      "position": "Caster-centered; blade behind shoulder, forward gold edge at enemy side",
+      "colors_hex": [
+        "#FFFED4",
+        "#F6F69B",
+        "#C2AE48",
+        "#FF9A17",
+        "#EC5A10"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "White rim/yellow interior/olive shadow; orange contact shards.",
+      "motion": "Fast rotation then held ring; no disconnected object.",
+      "lifetime_s": 0.7,
+      "fade": "Ring thins 593–601."
+    },
+    {
+      "start_frame": 582,
+      "end_frame_exclusive": 593,
+      "start_s": 19.4,
+      "end_s": 19.766,
+      "name": "coin1_sparks",
+      "shape": "Crossed orange streaks and embers",
+      "size_body_heights": [
+        0.5,
+        1.5
+      ],
+      "position": "Right of caster",
+      "colors_hex": [
+        "#FFFFD8",
+        "#FFAD21",
+        "#EB5F11"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "White core, orange arms.",
+      "motion": "Radial streaks then drifting points.",
+      "lifetime_s": 0.366,
+      "fade": "Fade during held sweep."
+    },
+    {
+      "start_frame": 609,
+      "end_frame_exclusive": 624,
+      "start_s": 20.3,
+      "end_s": 20.8,
+      "name": "tip_scrape",
+      "shape": "Small curved orange sparks springing from blade tip",
+      "size_body_heights": [
+        0.2,
+        0.6
+      ],
+      "position": "Ground left/back of caster",
+      "colors_hex": [
+        "#FFD241",
+        "#FF9C13",
+        "#B35C0D"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Yellow contact dot with orange taper.",
+      "motion": "Repeated short curling upward spurts; originate at low sword tip, not target.",
+      "lifetime_s": 0.5,
+      "fade": "Each spurt lasts a few frames; ends at lunge."
+    },
+    {
+      "start_frame": 624,
+      "end_frame_exclusive": 640,
+      "start_s": 20.8,
+      "end_s": 21.333,
+      "name": "coin2_lunge_trail",
+      "shape": "Low sweeping crescent plus several parallel torn horizontal ribbons",
+      "size_body_heights": [
+        3,
+        5
+      ],
+      "position": "Behind moving caster and across close enemy at chest height",
+      "colors_hex": [
+        "#FFFED4",
+        "#F6F69B",
+        "#C2AE48",
+        "#FF9A17",
+        "#EC5A10"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Near-white bands, pale yellow broad areas, orange contact streaks; gray wake below.",
+      "motion": "Caster advances right; ribbons stretch behind, not detached flight.",
+      "lifetime_s": 0.533,
+      "fade": "Strong through 633 then narrow through 639."
+    },
+    {
+      "start_frame": 626,
+      "end_frame_exclusive": 627,
+      "start_s": 20.866,
+      "end_s": 20.9,
+      "name": "gray_flash",
+      "shape": "Flat gray-brown battle-field insert",
+      "size_body_heights": "whole battle viewport",
+      "position": "Inside diagonal matte",
+      "colors_hex": [
+        "#605A57"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Subtitles and black border remain above/around field.",
+      "motion": "Single frame.",
+      "lifetime_s": 0.034,
+      "fade": "Hard replacement by orange-white image."
+    },
+    {
+      "start_frame": 627,
+      "end_frame_exclusive": 633,
+      "start_s": 20.9,
+      "end_s": 21.1,
+      "name": "coin2_impact",
+      "shape": "White/yellow overexposure with orange X-shaped strokes",
+      "size_body_heights": [
+        1,
+        3
+      ],
+      "position": "At lunge target; initially fills crop",
+      "colors_hex": [
+        "#FFFFFF",
+        "#FFF7A1",
+        "#FFA00D",
+        "#E6670E"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "White center above yellow/orange; dark silhouette interrupts.",
+      "motion": "One explosive contact image then local streaks.",
+      "lifetime_s": 0.2,
+      "fade": "Resolves into lunge trail."
+    },
+    {
+      "start_frame": 661,
+      "end_frame_exclusive": 681,
+      "start_s": 22.033,
+      "end_s": 22.7,
+      "name": "coin3_burst",
+      "shape": "Vertical column/downstroke, horizontal ring, jagged radial spike bowl",
+      "size_body_heights": [
+        2,
+        3.5
+      ],
+      "position": "Centered ≈0.5–1 H ahead of caster, under close target",
+      "colors_hex": [
+        "#FFFED4",
+        "#F6F69B",
+        "#C2AE48",
+        "#FF9A17",
+        "#EC5A10"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "White central column and ring, pale gold spikes, dark gaps, tiny orange embers.",
+      "motion": "Erupts on downstroke then holds; no remote spawn or detached falling blade.",
+      "lifetime_s": 0.667,
+      "fade": "Large spikes peel away 679–681."
+    },
+    {
+      "start_frame": 662,
+      "end_frame_exclusive": 666,
+      "start_s": 22.067,
+      "end_s": 22.2,
+      "name": "coin3_flash_inserts",
+      "shape": "Near-frame white/yellow fields interrupted by navy silhouette",
+      "size_body_heights": "whole battle viewport",
+      "position": "Foreground close crop",
+      "colors_hex": [
+        "#FFFFFF",
+        "#FFF78C",
+        "#F5A527",
+        "#202838"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Black diagonal matte and subtitles remain.",
+      "motion": "662 white/yellow; 663 dark foreground; 664–665 vertical light/blade.",
+      "lifetime_s": 0.133,
+      "fade": "Hard sequential changes, not uniform multi-frame white hold."
+    },
+    {
+      "start_frame": 681,
+      "end_frame_exclusive": 701,
+      "start_s": 22.7,
+      "end_s": 23.367,
+      "name": "floor_cracks",
+      "shape": "Low branching bright zigzags and small dust puffs",
+      "size_body_heights": [
+        1,
+        2
+      ],
+      "position": "At planted blade base",
+      "colors_hex": [
+        "#FFFFD2",
+        "#E2D66D",
+        "#9E9C86"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "White crack core over gold glow and gray dust.",
+      "motion": "Short local expansion then fixed branching pattern.",
+      "lifetime_s": 0.667,
+      "fade": "Diminishes 697–700, gone by 701."
+    },
+    {
+      "start_frame": 582,
+      "end_frame_exclusive": 711,
+      "start_s": 19.4,
+      "end_s": 23.7,
+      "name": "blood_decal",
+      "shape": "Dark red floor smear",
+      "size_body_heights": [
+        1,
+        2
+      ],
+      "position": "Behind caster; stays in old position as caster lunges",
+      "colors_hex": [
+        "#991927",
+        "#BD2834"
+      ],
+      "colors_are_visual_approximations": true,
+      "layering": "Ground layer under VFX.",
+      "motion": "Fixed stage decal.",
+      "lifetime_s": 4.3,
+      "fade": "Cut away at 711."
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 567,
+      "end_frame_exclusive": 582,
+      "start_s": 18.9,
+      "end_s": 19.4,
+      "shot_type": "wide_to_medium",
+      "framing": "Caster left/center, target right; diagonal black corners/gold border; caster ≈0.22→0.35 screen height.",
+      "transition": "Preparatory zoom."
+    },
+    {
+      "start_frame": 582,
+      "end_frame_exclusive": 583,
+      "start_s": 19.4,
+      "end_s": 19.433,
+      "shot_type": "close",
+      "framing": "Caster torso, raised blade upper-left, orange impact right.",
+      "transition": "One-frame punch."
+    },
+    {
+      "start_frame": 583,
+      "end_frame_exclusive": 584,
+      "start_s": 19.433,
+      "end_s": 19.466,
+      "shot_type": "close",
+      "framing": "Face and shoulder, hilt/shaft across body.",
+      "transition": "One-frame tighter crop."
+    },
+    {
+      "start_frame": 584,
+      "end_frame_exclusive": 586,
+      "start_s": 19.466,
+      "end_s": 19.533,
+      "shot_type": "close",
+      "framing": "Face cropped at left, projecting shaft and sparks to right.",
+      "transition": "Two-frame lateral crop/shake."
+    },
+    {
+      "start_frame": 586,
+      "end_frame_exclusive": 602,
+      "start_s": 19.533,
+      "end_s": 20.066,
+      "shot_type": "medium_to_wide",
+      "framing": "Caster left, target returns right; full crescent spans most width.",
+      "transition": "Pullback."
+    },
+    {
+      "start_frame": 602,
+      "end_frame_exclusive": 624,
+      "start_s": 20.066,
+      "end_s": 20.8,
+      "shot_type": "medium",
+      "framing": "Caster low near left-center; target often out of right edge; sword-tip scrape visible.",
+      "transition": "Slow preparatory zoom; do not convert into world translation."
+    },
+    {
+      "start_frame": 624,
+      "end_frame_exclusive": 626,
+      "start_s": 20.8,
+      "end_s": 20.866,
+      "shot_type": "close_full_body",
+      "framing": "Rising sweep surrounds caster; target mostly cropped.",
+      "transition": "Two-frame punch."
+    },
+    {
+      "start_frame": 626,
+      "end_frame_exclusive": 627,
+      "start_s": 20.866,
+      "end_s": 20.9,
+      "shot_type": "flat_insert",
+      "framing": "Gray field within diagonal matte.",
+      "transition": "One-frame flash cut."
+    },
+    {
+      "start_frame": 627,
+      "end_frame_exclusive": 628,
+      "start_s": 20.9,
+      "end_s": 20.933,
+      "shot_type": "extreme_close",
+      "framing": "Orange/white impact ribbons and obscured weapon.",
+      "transition": "One-frame impact insert."
+    },
+    {
+      "start_frame": 628,
+      "end_frame_exclusive": 630,
+      "start_s": 20.933,
+      "end_s": 21.0,
+      "shot_type": "close",
+      "framing": "Low caster at left/center, enemy adjacent right, weapon across.",
+      "transition": "Two-frame close follow."
+    },
+    {
+      "start_frame": 630,
+      "end_frame_exclusive": 643,
+      "start_s": 21.0,
+      "end_s": 21.433,
+      "shot_type": "medium_two_shot",
+      "framing": "Caster crouched at x≈0.45 and enemy x≈0.6; feet ≈0.7; caster height ≈0.35.",
+      "transition": "Pullback/tracking after advance."
+    },
+    {
+      "start_frame": 643,
+      "end_frame_exclusive": 660,
+      "start_s": 21.433,
+      "end_s": 22.0,
+      "shot_type": "medium_two_shot",
+      "framing": "Both full bodies; raised sword above caster; target within ≈1 H.",
+      "transition": "Slow push in for finisher."
+    },
+    {
+      "start_frame": 660,
+      "end_frame_exclusive": 661,
+      "start_s": 22.0,
+      "end_s": 22.033,
+      "shot_type": "close_full_body",
+      "framing": "Both figures fill most height, blade upper-left.",
+      "transition": "One-frame punch."
+    },
+    {
+      "start_frame": 661,
+      "end_frame_exclusive": 662,
+      "start_s": 22.033,
+      "end_s": 22.067,
+      "shot_type": "extreme_close",
+      "framing": "Hair/back and downstroke burst; target hidden.",
+      "transition": "One-frame contact cut."
+    },
+    {
+      "start_frame": 662,
+      "end_frame_exclusive": 663,
+      "start_s": 22.067,
+      "end_s": 22.1,
+      "shot_type": "full_field_insert",
+      "framing": "Yellow-white flare; retain subtitles/matte.",
+      "transition": "One-frame flash."
+    },
+    {
+      "start_frame": 663,
+      "end_frame_exclusive": 664,
+      "start_s": 22.1,
+      "end_s": 22.133,
+      "shot_type": "extreme_close",
+      "framing": "Dark navy silhouette plus bright top stripe.",
+      "transition": "One-frame contrasting insert."
+    },
+    {
+      "start_frame": 664,
+      "end_frame_exclusive": 666,
+      "start_s": 22.133,
+      "end_s": 22.2,
+      "shot_type": "extreme_close",
+      "framing": "Vertical blade/light column and horizontal ring.",
+      "transition": "Two-frame impact crop."
+    },
+    {
+      "start_frame": 666,
+      "end_frame_exclusive": 681,
+      "start_s": 22.2,
+      "end_s": 22.7,
+      "shot_type": "medium",
+      "framing": "Central crown/column burst; caster obscured then revealed; target thrown right.",
+      "transition": "Rapid pullback then hold."
+    },
+    {
+      "start_frame": 681,
+      "end_frame_exclusive": 711,
+      "start_s": 22.7,
+      "end_s": 23.7,
+      "shot_type": "medium_wide",
+      "framing": "Caster low at x≈0.3, target ≈0.8; upright planted sword and floor sparks.",
+      "transition": "Steady pullback/hold, cut at 711."
+    }
+  ],
+  "contact_sheets": [
+    "sheets/combat_08.jpg",
+    "sheets/combat_09.jpg",
+    "sheets/combat_10.jpg",
+    "sheets/combat_11.jpg",
+    "sheets/combat_12.jpg",
+    "sheets/combat_13.jpg"
+  ],
+  "conventions": "Zero-based source frame indices; intervals are [start,end). Seconds use decoded PTS, not rounded sheet labels. Nominal 30 fps has millisecond PTS rounding.",
+  "limitations": [
+    "Contact proxy is the first impact spark/flash, not verified game damage timing. Cropping and opaque VFX hide some physical contacts; uncertainty intervals are recorded. Camera and effect event boundaries refer to observed source frames.",
+    "H = visible upright character height, excluding weapon/hair overshoot. Distances, effect dimensions and colors are visual estimates, not calibrated world coordinates. Do not treat zoom-induced apparent displacement as a dash.",
+    "Classify motion/contact, not long bright streak shape alone. Sweeps here stay tied to a held weapon; no detached traveling projectile or sustained beam is resolved. Their oversized trails bridge stylized sprite spacing. Melee classifications for cropped contacts have medium confidence."
+  ]
+}

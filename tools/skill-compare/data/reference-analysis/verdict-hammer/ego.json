@@ -1,0 +1,14 @@
+{
+  "video_id": "Hc6CJXJrzME",
+  "slot": "ego",
+  "observed": false,
+  "mapping_confidence": "low",
+  "reason": "No E.G.O is identifiable from frames or supplied kit. Prior label Obsidian Judgment is unsupported. Cinematic nail-field sequence is stored under s3.json variants[0], medium-confidence S3 alternate candidate.",
+  "weapon": null,
+  "props": [],
+  "caster_motion": [],
+  "hits": [],
+  "beats": [],
+  "effects": [],
+  "camera": []
+}

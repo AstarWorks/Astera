@@ -1,16 +1,16 @@
 {
   "id": "verdict-hammer-s1",
-  "rev": 1,
+  "rev": 2,
   "videoId": "Hc6CJXJrzME",
-  "start_s": 10.9,
-  "end_s": 14.6,
+  "start_s": 12.1121,
+  "end_s": 14.4144,
   "skill": {
-    "name": "verdict-hammer-s1",
+    "name": "横薙ぎと追突",
     "coins": 2,
     "asteraSkillId": "verdict-hammer-s1"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,29 +26,37 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "verdict-hammer-s1",
-      "start_s": 10.9,
-      "end_s": 14.6,
-      "notes": ""
+      "label": "S1",
+      "start_s": 12.1121,
+      "end_s": 14.4144
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "Coin 1",
-      "t_s": 12.45
+      "label": "接触 1",
+      "t_s": 12.445767,
+      "notes": "astra2 source frame 373; dash_melee; game tick 7. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "Coin 2",
-      "t_s": 13.3
+      "label": "接触 2",
+      "t_s": 13.380033,
+      "notes": "astra2 source frame 401; dash_melee; game tick 25. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Frame-verified visual timing; wiki slot assignment inferred (no skill titles in source). Q is a cinematic adaptation, not a confirmed identity E.G.O.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/verdict-hammer/s1.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "verdict-hammer",
+  "identity": "Haute Couture::The Black Knight of Le Noir Don Quixote",
+  "videoTitle": "Haute Couture::The Black Knight of Le Noir Don Quixote — skill showcase",
+  "iterations": 0,
+  "report": "/report/verdict-hammer",
+  "referenceRevision": "c25dc6c60f8c3f4edebd659704ad6ecd62d687fbcdbf0a4246596a1086801f5a",
+  "contentRevision": "c8656de6608dc366463c9f76a6f2397ac5b4d84942d069ca85d55fa5066f6ad2"
 }

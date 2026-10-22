@@ -1,16 +1,16 @@
 {
   "id": "edict-blade-s2",
-  "rev": 1,
+  "rev": 2,
   "videoId": "x6sc9JkW77c",
-  "start_s": 16.8,
-  "end_s": 23.6,
+  "start_s": 14.881533,
+  "end_s": 19.285933,
   "skill": {
-    "name": "edict-s2",
+    "name": "返しの手枷",
     "coins": 3,
     "asteraSkillId": "edict-s2"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,38 +26,44 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "edict-s2",
-      "start_s": 16.8,
-      "end_s": 23.6,
-      "notes": ""
+      "label": "S2",
+      "start_s": 14.881533,
+      "end_s": 19.285933
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "coin 1",
-      "t_s": 18.2333,
-      "notes": "round((18.2333-16.8)*20) = 29 ticks"
+      "label": "接触 1",
+      "t_s": 15.3153,
+      "notes": "astra2 source frame 459; dash_melee; game tick 9. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "coin 2",
-      "t_s": 20.1,
-      "notes": "round((20.1-16.8)*20) = 66 ticks"
+      "label": "接触 2",
+      "t_s": 15.982633,
+      "notes": "astra2 source frame 479; melee; game tick 22. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit3",
       "kind": "hit",
-      "label": "coin 3",
-      "t_s": 22.7,
-      "notes": "round((22.7-16.8)*20) = 118 ticks"
+      "label": "接触 3",
+      "t_s": 18.2182,
+      "notes": "astra2 source frame 546; dash_melee; game tick 67. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Native 29.97-fps reference checked. Normal form: S3 has two coins, not the transformed four-coin move. E.G.O case is the non-damaging form entry. Defense is not shown.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/edict-blade/s2.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "edict-blade",
+  "identity": "The Index Proxy Don Quixote",
+  "videoTitle": "The Index Proxy Don Quixote — skill showcase",
+  "iterations": 1,
+  "report": "/report/edict-blade",
+  "referenceRevision": "0a466a990b92dffa7148e1bce841d2ae1d7f022d721a3bd345f15b2012e05e3c",
+  "contentRevision": "cd2615f742b8ea95b2402b5b9bab8199132dad74f3879171e6450e2dd71c9ab8"
 }

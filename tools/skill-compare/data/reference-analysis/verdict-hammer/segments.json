@@ -1,0 +1,887 @@
+{
+  "video_id": "Hc6CJXJrzME",
+  "identity": "Haute Couture::Le Noir Brand Manager Don Quixote",
+  "video_source": "../../vid/Hc6CJXJrzME.mp4",
+  "kit_source": "../../wiki/Hc6CJXJrzME.md",
+  "fps_rational": "30000/1001",
+  "frame_numbering": "Zero-based source decoded frames; intervals are [start,end). Seconds = frame*1001/30000.",
+  "measurement_policy": "Body height H excludes antlers, hammer, hair trails and VFX; dimensions/distances are screen-space estimates, usually ±0.5 H or ±25%, not world-space measurements. Palette hex values are visual approximations, not original asset colors.",
+  "mapping_policy": "No skill labels or coin UI in this trailer. Named mappings are hypotheses from the supplied kit, counts and motifs. The supplied kit itself warns of paraphrase risk. Distinguish visible contact events from inferred game coins; do not force equality.",
+  "timing_policy": "Every gameplay source frame 315–1960 inspected in native-rate sheets. Overviews cover the entire file at 6 fps. Frame-accurate refers to visible pose/effect/cut onset; exact physical contact can be occluded and is bracketed where necessary.",
+  "duration_s": 76.309567,
+  "decoded_frames": 2287,
+  "coverage": "All 2287 source frames partitioned; non-gameplay edit boundaries use supplied cut times and overview context.",
+  "segments": [
+    {
+      "id": "seq-01",
+      "start_frame": 0,
+      "end_frame_exclusive": 19,
+      "start_s": 0.0,
+      "end_s": 0.633967,
+      "kind": "content_warning",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 0,
+          "time_s": 0.0,
+          "observation": "Rating/warning card.",
+          "sheet": "sheets/overview_001.jpg"
+        },
+        {
+          "frame": 18,
+          "time_s": 0.6006,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/overview_001.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-02",
+      "start_frame": 19,
+      "end_frame_exclusive": 78,
+      "start_s": 0.633967,
+      "end_s": 2.6026,
+      "kind": "identity_title",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 19,
+          "time_s": 0.633967,
+          "observation": "Identity artwork/name.",
+          "sheet": "sheets/overview_001.jpg"
+        },
+        {
+          "frame": 77,
+          "time_s": 2.569233,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/overview_001.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-03",
+      "start_frame": 78,
+      "end_frame_exclusive": 318,
+      "start_s": 2.6026,
+      "end_s": 10.6106,
+      "kind": "intro_art_cutscene",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 78,
+          "time_s": 2.6026,
+          "observation": "Illustrated portrait pans, weapon/light motifs, subtitles. No combat.",
+          "sheet": "sheets/overview_001.jpg"
+        },
+        {
+          "frame": 317,
+          "time_s": 10.577233,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_001.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-04",
+      "start_frame": 318,
+      "end_frame_exclusive": 336,
+      "start_s": 10.6106,
+      "end_s": 11.2112,
+      "kind": "arena_idle",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 318,
+          "time_s": 10.6106,
+          "observation": "Wide arena, Don left and red enemy right.",
+          "sheet": "sheets/native_001.jpg"
+        },
+        {
+          "frame": 335,
+          "time_s": 11.177833,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_001.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-05",
+      "start_frame": 336,
+      "end_frame_exclusive": 361,
+      "start_s": 11.2112,
+      "end_s": 12.045367,
+      "kind": "approach",
+      "mapping": "s1",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 336,
+          "time_s": 11.2112,
+          "observation": "Low dash, no contact.",
+          "sheet": "sheets/native_001.jpg"
+        },
+        {
+          "frame": 360,
+          "time_s": 12.012,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_002.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-06",
+      "start_frame": 361,
+      "end_frame_exclusive": 363,
+      "start_s": 12.045367,
+      "end_s": 12.1121,
+      "kind": "brief_idle",
+      "mapping": "s1",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 361,
+          "time_s": 12.045367,
+          "observation": "Two upright frames before hammer windup.",
+          "sheet": "sheets/native_002.jpg"
+        },
+        {
+          "frame": 362,
+          "time_s": 12.078733,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_002.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-07",
+      "start_frame": 363,
+      "end_frame_exclusive": 432,
+      "start_s": 12.1121,
+      "end_s": 14.4144,
+      "kind": "attack",
+      "mapping": "s1",
+      "confidence": "med",
+      "evidence": [
+        {
+          "frame": 363,
+          "time_s": 12.1121,
+          "observation": "Two hammer contacts.",
+          "sheet": "sheets/native_002.jpg"
+        },
+        {
+          "frame": 431,
+          "time_s": 14.381033,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_004.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-08",
+      "start_frame": 432,
+      "end_frame_exclusive": 450,
+      "start_s": 14.4144,
+      "end_s": 15.015,
+      "kind": "idle_gap",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 432,
+          "time_s": 14.4144,
+          "observation": "Wide reset.",
+          "sheet": "sheets/native_004.jpg"
+        },
+        {
+          "frame": 449,
+          "time_s": 14.981633,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_005.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-09",
+      "start_frame": 450,
+      "end_frame_exclusive": 476,
+      "start_s": 15.015,
+      "end_s": 15.882533,
+      "kind": "approach",
+      "mapping": "extra-1",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 450,
+          "time_s": 15.015,
+          "observation": "Low dash then planted cast pose.",
+          "sheet": "sheets/native_005.jpg"
+        },
+        {
+          "frame": 475,
+          "time_s": 15.849167,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_006.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-10",
+      "start_frame": 476,
+      "end_frame_exclusive": 591,
+      "start_s": 15.882533,
+      "end_s": 19.7197,
+      "kind": "attack",
+      "mapping": "extra-1",
+      "confidence": "low",
+      "evidence": [
+        {
+          "frame": 476,
+          "time_s": 15.882533,
+          "observation": "Nail pair and hammer slam; named mapping tentative.",
+          "sheet": "sheets/native_006.jpg"
+        },
+        {
+          "frame": 590,
+          "time_s": 19.686333,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_010.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-11",
+      "start_frame": 591,
+      "end_frame_exclusive": 599,
+      "start_s": 19.7197,
+      "end_s": 19.986633,
+      "kind": "idle_gap",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 591,
+          "time_s": 19.7197,
+          "observation": "Wide reset.",
+          "sheet": "sheets/native_010.jpg"
+        },
+        {
+          "frame": 598,
+          "time_s": 19.953267,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_010.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-12",
+      "start_frame": 599,
+      "end_frame_exclusive": 683,
+      "start_s": 19.986633,
+      "end_s": 22.789433,
+      "kind": "activation",
+      "mapping": "extra-2",
+      "confidence": "low",
+      "evidence": [
+        {
+          "frame": 599,
+          "time_s": 19.986633,
+          "observation": "Self-centered aura, no contact.",
+          "sheet": "sheets/native_010.jpg"
+        },
+        {
+          "frame": 682,
+          "time_s": 22.756067,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_013.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-13",
+      "start_frame": 683,
+      "end_frame_exclusive": 766,
+      "start_s": 22.789433,
+      "end_s": 25.558867,
+      "kind": "idle_gap",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 683,
+          "time_s": 22.789433,
+          "observation": "Gold angular field persists.",
+          "sheet": "sheets/native_013.jpg"
+        },
+        {
+          "frame": 765,
+          "time_s": 25.5255,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_016.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-14",
+      "start_frame": 766,
+      "end_frame_exclusive": 779,
+      "start_s": 25.558867,
+      "end_s": 25.992633,
+      "kind": "approach",
+      "mapping": "s3",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 766,
+          "time_s": 25.558867,
+          "observation": "Low dash, then upright.",
+          "sheet": "sheets/native_016.jpg"
+        },
+        {
+          "frame": 778,
+          "time_s": 25.959267,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_016.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-15",
+      "start_frame": 779,
+      "end_frame_exclusive": 802,
+      "start_s": 25.992633,
+      "end_s": 26.760067,
+      "kind": "idle_gap",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 779,
+          "time_s": 25.992633,
+          "observation": "Upright wait before arm gesture.",
+          "sheet": "sheets/native_016.jpg"
+        },
+        {
+          "frame": 801,
+          "time_s": 26.7267,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_017.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-16",
+      "start_frame": 802,
+      "end_frame_exclusive": 1006,
+      "start_s": 26.760067,
+      "end_s": 33.566867,
+      "kind": "attack",
+      "mapping": "s3",
+      "confidence": "med",
+      "evidence": [
+        {
+          "frame": 802,
+          "time_s": 26.760067,
+          "observation": "Nail pair, hammer rush, leaping finisher.",
+          "sheet": "sheets/native_017.jpg"
+        },
+        {
+          "frame": 1005,
+          "time_s": 33.5335,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_024.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-17",
+      "start_frame": 1006,
+      "end_frame_exclusive": 1054,
+      "start_s": 33.566867,
+      "end_s": 35.168467,
+      "kind": "idle_gap",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1006,
+          "time_s": 33.566867,
+          "observation": "Wide reset; field remains.",
+          "sheet": "sheets/native_024.jpg"
+        },
+        {
+          "frame": 1053,
+          "time_s": 35.1351,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_025.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-18",
+      "start_frame": 1054,
+      "end_frame_exclusive": 1069,
+      "start_s": 35.168467,
+      "end_s": 35.668967,
+      "kind": "approach",
+      "mapping": "s2",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1054,
+          "time_s": 35.168467,
+          "observation": "Low dash, no contact.",
+          "sheet": "sheets/native_025.jpg"
+        },
+        {
+          "frame": 1068,
+          "time_s": 35.6356,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_026.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-19",
+      "start_frame": 1069,
+      "end_frame_exclusive": 1131,
+      "start_s": 35.668967,
+      "end_s": 37.7377,
+      "kind": "attack",
+      "mapping": "s2",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1069,
+          "time_s": 35.668967,
+          "observation": "Single distant nail-pair impact, cut to other actor.",
+          "sheet": "sheets/native_026.jpg"
+        },
+        {
+          "frame": 1130,
+          "time_s": 37.704333,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_028.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-20",
+      "start_frame": 1131,
+      "end_frame_exclusive": 1272,
+      "start_s": 37.7377,
+      "end_s": 42.4424,
+      "kind": "other_character_attack",
+      "mapping": "extra-3",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1131,
+          "time_s": 37.7377,
+          "observation": "Dark-clad actor approaches, attacks twice, recovers.",
+          "sheet": "sheets/native_028.jpg"
+        },
+        {
+          "frame": 1271,
+          "time_s": 42.409033,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_032.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-21",
+      "start_frame": 1272,
+      "end_frame_exclusive": 1296,
+      "start_s": 42.4424,
+      "end_s": 43.2432,
+      "kind": "idle_gap",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1272,
+          "time_s": 42.4424,
+          "observation": "Don visible again in wide reset.",
+          "sheet": "sheets/native_032.jpg"
+        },
+        {
+          "frame": 1295,
+          "time_s": 43.209833,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_033.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-22",
+      "start_frame": 1296,
+      "end_frame_exclusive": 1317,
+      "start_s": 43.2432,
+      "end_s": 43.9439,
+      "kind": "enemy_approach",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1296,
+          "time_s": 43.2432,
+          "observation": "Red enemy advances; camera follows it.",
+          "sheet": "sheets/native_033.jpg"
+        },
+        {
+          "frame": 1316,
+          "time_s": 43.910533,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_034.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-23",
+      "start_frame": 1317,
+      "end_frame_exclusive": 1401,
+      "start_s": 43.9439,
+      "end_s": 46.7467,
+      "kind": "guard_and_enemy_attacks",
+      "mapping": "def",
+      "confidence": "med",
+      "evidence": [
+        {
+          "frame": 1317,
+          "time_s": 43.9439,
+          "observation": "Don dashes in, blocks two red attacks, releases guard and resets.",
+          "sheet": "sheets/native_034.jpg"
+        },
+        {
+          "frame": 1400,
+          "time_s": 46.713333,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_037.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-24",
+      "start_frame": 1401,
+      "end_frame_exclusive": 1431,
+      "start_s": 46.7467,
+      "end_s": 47.7477,
+      "kind": "idle_gap",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1401,
+          "time_s": 46.7467,
+          "observation": "Upright pause separates guard and next cast.",
+          "sheet": "sheets/native_037.jpg"
+        },
+        {
+          "frame": 1430,
+          "time_s": 47.714333,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_038.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-25",
+      "start_frame": 1431,
+      "end_frame_exclusive": 1541,
+      "start_s": 47.7477,
+      "end_s": 51.418033,
+      "kind": "response_candidate",
+      "mapping": "def",
+      "confidence": "low",
+      "evidence": [
+        {
+          "frame": 1431,
+          "time_s": 47.7477,
+          "observation": "Nail impact then two hammer-contact flashes; coin mismatch retained.",
+          "sheet": "sheets/native_038.jpg"
+        },
+        {
+          "frame": 1540,
+          "time_s": 51.384667,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_041.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-26",
+      "start_frame": 1541,
+      "end_frame_exclusive": 1639,
+      "start_s": 51.418033,
+      "end_s": 54.687967,
+      "kind": "multi_target_setup_idle",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1541,
+          "time_s": 51.418033,
+          "observation": "Hard cut to three enemies and bright crown/field state; no attack yet.",
+          "sheet": "sheets/native_041.jpg"
+        },
+        {
+          "frame": 1638,
+          "time_s": 54.6546,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_045.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-27",
+      "start_frame": 1639,
+      "end_frame_exclusive": 1652,
+      "start_s": 54.687967,
+      "end_s": 55.121733,
+      "kind": "approach",
+      "mapping": "s3:alternate",
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1639,
+          "time_s": 54.687967,
+          "observation": "Low dash over patterned floor.",
+          "sheet": "sheets/native_045.jpg"
+        },
+        {
+          "frame": 1651,
+          "time_s": 55.088367,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_045.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-28",
+      "start_frame": 1652,
+      "end_frame_exclusive": 1683,
+      "start_s": 55.121733,
+      "end_s": 56.1561,
+      "kind": "idle_gap",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1652,
+          "time_s": 55.121733,
+          "observation": "Wait in darkened wide shot; three enemies still present.",
+          "sheet": "sheets/native_045.jpg"
+        },
+        {
+          "frame": 1682,
+          "time_s": 56.122733,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_046.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-29",
+      "start_frame": 1683,
+      "end_frame_exclusive": 1960,
+      "start_s": 56.1561,
+      "end_s": 65.398667,
+      "kind": "attack",
+      "mapping": "s3:alternate",
+      "confidence": "med",
+      "evidence": [
+        {
+          "frame": 1683,
+          "time_s": 56.1561,
+          "observation": "Nail-field impact, hammer rush, cinematic smite; cut away before idle.",
+          "sheet": "sheets/native_046.jpg"
+        },
+        {
+          "frame": 1959,
+          "time_s": 65.3653,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/native_055.jpg"
+        }
+      ],
+      "repeat_status": "No exact replay established; nail motif recurs across distinct sequences."
+    },
+    {
+      "id": "seq-30",
+      "start_frame": 1960,
+      "end_frame_exclusive": 2173,
+      "start_s": 65.398667,
+      "end_s": 72.505767,
+      "kind": "outro_identity_art",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 1960,
+          "time_s": 65.398667,
+          "observation": "White transition to final portrait/artwork.",
+          "sheet": "sheets/native_055.jpg"
+        },
+        {
+          "frame": 2172,
+          "time_s": 72.4724,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/overview_022.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    },
+    {
+      "id": "seq-31",
+      "start_frame": 2173,
+      "end_frame_exclusive": 2287,
+      "start_s": 72.505767,
+      "end_s": 76.309567,
+      "kind": "publisher_logo_outro",
+      "mapping": null,
+      "confidence": "high",
+      "evidence": [
+        {
+          "frame": 2173,
+          "time_s": 72.505767,
+          "observation": "Crescent logo resolves to PROJECT MOON then fades.",
+          "sheet": "sheets/overview_022.jpg"
+        },
+        {
+          "frame": 2286,
+          "time_s": 76.2762,
+          "observation": "Last source frame before next interval; overview-only precision outside gameplay.",
+          "sheet": "sheets/overview_023.jpg"
+        }
+      ],
+      "repeat_status": "not_applicable"
+    }
+  ],
+  "kit_coverage": {
+    "s1": "s1.json; medium named mapping",
+    "s2": "s2.json; high",
+    "s3_base_and_alternate": "s3.json; medium",
+    "defense": "def.json; low named mapping, high observation of guard/incoming attacks",
+    "witness_ye_in_silence": "extra-1.json; low, unresolved among two-coin skills",
+    "passives": "extra-2.json; visible activation, exact passive association low",
+    "ego": "No independently identifiable E.G.O; cinematic stored as S3 alternate candidate.",
+    "other_actor": "extra-3.json"
+  },
+  "key_sheets": [
+    "sheets/detail_01.jpg",
+    "sheets/detail_02.jpg"
+  ],
+  "all_viewed_sheets": [
+    "sheets/detail_01.jpg",
+    "sheets/detail_02.jpg",
+    "sheets/native_001.jpg",
+    "sheets/native_002.jpg",
+    "sheets/native_003.jpg",
+    "sheets/native_004.jpg",
+    "sheets/native_005.jpg",
+    "sheets/native_006.jpg",
+    "sheets/native_007.jpg",
+    "sheets/native_008.jpg",
+    "sheets/native_009.jpg",
+    "sheets/native_010.jpg",
+    "sheets/native_011.jpg",
+    "sheets/native_012.jpg",
+    "sheets/native_013.jpg",
+    "sheets/native_014.jpg",
+    "sheets/native_015.jpg",
+    "sheets/native_016.jpg",
+    "sheets/native_017.jpg",
+    "sheets/native_018.jpg",
+    "sheets/native_019.jpg",
+    "sheets/native_020.jpg",
+    "sheets/native_021.jpg",
+    "sheets/native_022.jpg",
+    "sheets/native_023.jpg",
+    "sheets/native_024.jpg",
+    "sheets/native_025.jpg",
+    "sheets/native_026.jpg",
+    "sheets/native_027.jpg",
+    "sheets/native_028.jpg",
+    "sheets/native_029.jpg",
+    "sheets/native_030.jpg",
+    "sheets/native_031.jpg",
+    "sheets/native_032.jpg",
+    "sheets/native_033.jpg",
+    "sheets/native_034.jpg",
+    "sheets/native_035.jpg",
+    "sheets/native_036.jpg",
+    "sheets/native_037.jpg",
+    "sheets/native_038.jpg",
+    "sheets/native_039.jpg",
+    "sheets/native_040.jpg",
+    "sheets/native_041.jpg",
+    "sheets/native_042.jpg",
+    "sheets/native_043.jpg",
+    "sheets/native_044.jpg",
+    "sheets/native_045.jpg",
+    "sheets/native_046.jpg",
+    "sheets/native_047.jpg",
+    "sheets/native_048.jpg",
+    "sheets/native_049.jpg",
+    "sheets/native_050.jpg",
+    "sheets/native_051.jpg",
+    "sheets/native_052.jpg",
+    "sheets/native_053.jpg",
+    "sheets/native_054.jpg",
+    "sheets/native_055.jpg",
+    "sheets/overview_001.jpg",
+    "sheets/overview_002.jpg",
+    "sheets/overview_003.jpg",
+    "sheets/overview_004.jpg",
+    "sheets/overview_005.jpg",
+    "sheets/overview_006.jpg",
+    "sheets/overview_007.jpg",
+    "sheets/overview_008.jpg",
+    "sheets/overview_009.jpg",
+    "sheets/overview_010.jpg",
+    "sheets/overview_011.jpg",
+    "sheets/overview_012.jpg",
+    "sheets/overview_013.jpg",
+    "sheets/overview_014.jpg",
+    "sheets/overview_015.jpg",
+    "sheets/overview_016.jpg",
+    "sheets/overview_017.jpg",
+    "sheets/overview_018.jpg",
+    "sheets/overview_019.jpg",
+    "sheets/overview_020.jpg",
+    "sheets/overview_021.jpg",
+    "sheets/overview_022.jpg",
+    "sheets/overview_023.jpg"
+  ]
+}

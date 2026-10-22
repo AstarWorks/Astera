@@ -30,7 +30,7 @@ export function makeSources({ root, repo, vfxShotDir, mediaDirs, worktrees = tru
     const seen = new Set();
     const add = (s) => { const k = real(s.dataDir); if (!seen.has(k) && existsSync(s.dataDir)) { seen.add(k); out.push(s); } };
     add({ name: "main", branch: gitBranch(repo), root, dataDir: join(root, "data"), cacheDir: join(root, "cache"), vfxDir: vfxShotDir });
-    const wtRoot = join(repo, ".claude", "worktrees");
+    const wtRoot = process.env.SKILL_COMPARE_WORKTREE_ROOT || join(repo, ".claude", "worktrees");
     if (worktrees && existsSync(wtRoot)) {
       for (const d of readdirSync(wtRoot, { withFileTypes: true })) {
         if (!d.isDirectory()) continue;
@@ -64,7 +64,9 @@ export function makeSources({ root, repo, vfxShotDir, mediaDirs, worktrees = tru
 
   /** Every case id -> the winning {id, src, c, file, mtime, dups}. Highest `rev` wins (a founder edit made through the
    *  server bumps it), then the newest case.json; an identical copy in main never loses to a worktree checkout. */
+  let caseCache = null, caseCacheUntil = 0;
   function allCases() {
+    if (caseCache && Date.now() < caseCacheUntil) return caseCache;
     const best = new Map();
     for (const src of sources()) {
       for (const d of readdirSync(src.dataDir, { withFileTypes: true })) {
@@ -76,20 +78,28 @@ export function makeSources({ root, repo, vfxShotDir, mediaDirs, worktrees = tru
         const cand = { id: d.name, src, c, file, mtime: mtime(file), text: JSON.stringify(c) };
         const cur = best.get(d.name);
         if (!cur) { best.set(d.name, cand); continue; }
-        const better = cand.text === cur.text ? false
+        const better = process.env.SKILL_COMPARE_CANONICAL === "1" && cur.src.name === "main" ? false : cand.text === cur.text ? false
           : (cand.c.rev ?? 0) !== (cur.c.rev ?? 0) ? (cand.c.rev ?? 0) > (cur.c.rev ?? 0)
           : cand.mtime > cur.mtime;
         if (better) best.set(d.name, cand);
       }
     }
+    caseCache = best; caseCacheUntil = Date.now() + 1000;
     return best;
   }
 
   /** cache/<case> dir with meta.json: the winner's own, else any other source's. */
   function cacheFor(id, src) {
-    const own = src && join(src.cacheDir, id);
-    if (own && existsSync(join(own, "meta.json"))) return own;
-    for (const s of sources()) { const p = join(s.cacheDir, id); if (existsSync(join(p, "meta.json"))) return p; }
+    const c = allCases().get(id)?.c;
+    if (!c || c.status === "from-wiki") return null;
+    const candidates = [...new Set([src?.cacheDir, ...sources().map((s) => s.cacheDir)].filter(Boolean))];
+    for (const base of candidates) {
+      const p = join(base, id);
+      try {
+        const m = readJson(join(p, "meta.json"));
+        if (m.videoId === c.videoId && Math.abs(m.start_s - c.start_s) < 0.001 && Math.abs(m.end_s - c.end_s) < 0.001) return p;
+      } catch { /* absent or invalid cache */ }
+    }
     return null;
   }
 

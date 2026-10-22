@@ -5,17 +5,17 @@ name:
   en: <#b3141c>Sigil Rifle</#b3141c>
 lore:
   ja:
-  - '<gray>左クリック: 刻印弾（踏み込み打撃）</gray>'
-  - '<gray>右クリック: 刻印の二連射</gray>'
-  - '<gray>スニーク + 右クリック: 刻印連鎖爆破</gray>'
-  - '<gray>スニーク + 左クリック: 刻印の退き足</gray>'
-  - '<gray>Q: 終刻の弾丸（E.G.O 100）</gray>'
+  - '左クリック: 銃床の踏み込み'
+  - '右クリック: 二連の刻印弾'
+  - 'Shift+右: 刻印の追撃'
+  - 'Shift+左: 刻印の退き足'
+  - 'Q: 終刻の弾丸'
   en:
-  - '<gray>Left-click: Marked Round (rifle lunge)</gray>'
-  - '<gray>Right-click: Twin Inscription (two shots)</gray>'
-  - '<gray>Sneak + right-click: Sigil Detonation</gray>'
-  - '<gray>Sneak + left-click: Sigil Ward</gray>'
-  - '<gray>Q: Final Inscription (E.G.O 100)</gray>'
+  - 'left_click: Rifle Rush'
+  - 'right_click: Twin Seal Shots'
+  - 'sneak_right: Seal Pursuit'
+  - 'sneak_left: Sigil Ward'
+  - 'drop: Final Inscription'
 rarity: epic
 level_requirement: 4
 attributes:

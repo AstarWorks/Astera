@@ -1,21 +1,21 @@
 {
   "id": "bastion-greatsword-def",
-  "rev": 2,
+  "rev": 4,
   "videoId": "Svaaq9F7Ty8",
   "start_s": 23.7,
-  "end_s": 31.8,
-  "identity": "Zwei Association West Section 3 Ishmael",
+  "end_s": 31.767,
+  "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "built",
   "iterations": 0,
-  "report": "../bastion-greatsword-REPORT.md",
+  "report": "/report/bastion-greatsword",
   "skill": {
-    "name": "Tower Shield",
+    "name": "城壁の構え",
     "coins": 1,
     "asteraSkillId": "bastion-greatsword-def"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -26,16 +26,23 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "def",
+      "label": "DEF",
       "start_s": 23.7,
-      "end_s": 31.8,
-      "notes": ""
+      "end_s": 31.767
     }
   ],
-  "notes": "No fresh client captures: Docker prohibition; pending manager verification.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/def.json を参照。",
   "editLog": [],
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
+  "referenceRevision": "4daf8ac4dcb8b285f47cdfb73bd29e4a631a0880ce587022a807ec00a77190cd",
+  "focus": {
+    "factor": 0.2,
+    "windowMs": 150,
+    "enabled": false
+  },
+  "contentRevision": "b85080deaf351bce967f5457e644d82bb8168c4e145fe2f536f7b63af08e28f3"
 }

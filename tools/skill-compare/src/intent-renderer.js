@@ -75,7 +75,7 @@ Batch.prototype.strip=function(pts,ws,cs,side){
 var BA=new Batch(true,14000), BN=new Batch(false,2000);
 
 /* actors & weapon */
-var actorObjs={}, weaponGroup, bladeMesh, guard;
+var actorObjs={}, weaponGroup, bladeMesh, guard, weaponParts=[];
 function buildScene(){
   intent.actors.forEach(function(a){
     var g=new THREE.Group(),H=a.height,col=new THREE.Color(a.color);
@@ -90,11 +90,19 @@ function buildScene(){
   });
   var w=intent.weapon;weaponGroup=new THREE.Group();
   var inner=new THREE.Group();inner.name="inner";
+  if (Array.isArray(w.parts)) {
+    w.parts.forEach(function(p){
+      var mesh=new THREE.Mesh(new THREE.BoxGeometry(...p.size),new THREE.MeshLambertMaterial({color:p.color||w.color}));
+      mesh.position.set(...p.pos);mesh.rotation.set(...(p.rotate||[0,0,0]).map(function(v){return v*Math.PI/180}));
+      inner.add(mesh);weaponParts.push({mesh:mesh,spec:p});
+    });
+  } else {
   var bm=new THREE.MeshLambertMaterial({color:new THREE.Color(w.color),emissive:0x20242c});
   bladeMesh=new THREE.Mesh(new THREE.BoxGeometry(w.length,w.width,0.04),bm);bladeMesh.position.x=w.length/2;inner.add(bladeMesh);
   var tipg=new THREE.Mesh(new THREE.ConeGeometry(w.width/2,0.3,4),bm);tipg.rotation.z=-Math.PI/2;tipg.scale.z=0.12;tipg.position.x=w.length+0.15;inner.add(tipg);
   guard=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.7,0.08),new THREE.MeshLambertMaterial({color:0x6a5a3a}));guard.position.x=0.02;inner.add(guard);
   var grip=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.07,0.07),new THREE.MeshLambertMaterial({color:0x4a3a2a}));grip.position.x=-0.15;inner.add(grip);
+  }
   weaponGroup.add(inner);scene.add(weaponGroup);
   // fill carried spin_y
   var sp=0;w.keys.forEach(function(k){if(k.spin_y===undefined)k.spin_y=sp;else sp=k.spin_y});
@@ -312,6 +320,12 @@ function render(t){
   var ws=weaponState(t),cp=casterPos(t);
   weaponGroup.position.set(cp[0],cp[1],cp[2]);weaponGroup.rotation.y=ws.spin*Math.PI/180;
   var inner=weaponGroup.getObjectByName("inner");inner.position.set(0.25,1.0,0);inner.rotation.z=ws.angle*Math.PI/180;
+  weaponParts.forEach(function(p){
+    if(!p.spec.keys?.length)return;
+    var s=seg(p.spec.keys,t),a=s[0],b=s[1],u=s[2];
+    p.mesh.position.set(...lerpArr(a.pos,b.pos,u));
+    p.mesh.rotation.set(...lerpArr(a.rotate||[0,0,0],b.rotate||[0,0,0],u).map(function(v){return v*Math.PI/180}));
+  });
   BA.reset();BN.reset();var flash=0,flashC=null;
   intent.effects.forEach(function(e){
     var vis;

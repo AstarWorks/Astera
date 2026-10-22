@@ -1,16 +1,16 @@
 {
   "id": "vendetta-rifle-ego",
-  "rev": 1,
+  "rev": 2,
   "videoId": "wbu2viInM3w",
-  "start_s": 104.4,
-  "end_s": 117.5,
+  "start_s": 0,
+  "end_s": 13.55,
   "skill": {
-    "name": "Crimson Settlement",
+    "name": "紅蓮の決算",
     "coins": 5,
     "asteraSkillId": "vendetta-rifle-ego"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,60 +18,23 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
-  "segments": [
-    {
-      "id": "skill",
-      "kind": "skill",
-      "label": "vendetta-rifle-ego",
-      "start_s": 104.4,
-      "end_s": 117.5,
-      "notes": ""
-    },
-    {
-      "id": "hit-1",
-      "kind": "hit",
-      "label": "coin 1",
-      "t_s": 107.05,
-      "notes": "Contact group, not each decorative shard."
-    },
-    {
-      "id": "hit-2",
-      "kind": "hit",
-      "label": "coin 2",
-      "t_s": 107.95,
-      "notes": "Contact group, not each decorative shard."
-    },
-    {
-      "id": "hit-3",
-      "kind": "hit",
-      "label": "coin 3",
-      "t_s": 109.8,
-      "notes": "Contact group, not each decorative shard."
-    },
-    {
-      "id": "hit-4",
-      "kind": "hit",
-      "label": "coin 4",
-      "t_s": 111.45,
-      "notes": "Contact group, not each decorative shard."
-    },
-    {
-      "id": "hit-5",
-      "kind": "hit",
-      "label": "coin 5",
-      "t_s": 115.95,
-      "notes": "Contact group, not each decorative shard."
-    }
-  ],
-  "notes": "Q adapts the enhanced five-coin S3; this is not a separate E.G.O in the source.",
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
   "editLog": [],
-  "status": "built",
+  "status": "from-wiki",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "vendetta-rifle",
+  "identity": "The Thumb East Soldato II Sinclair",
+  "videoTitle": "The Thumb East Soldato II Sinclair — skill showcase",
+  "iterations": 0,
+  "report": "/report/vendetta-rifle",
+  "referenceRevision": "d77c558e878dd9e86b7e64613f7eea342bc39c1a5155d730db8b3c222ec9c579",
+  "contentRevision": "75876a642a2de47492761d1b0a868f35189aa624158deea7e669c1b2966d9b36"
 }

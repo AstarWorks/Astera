@@ -1,16 +1,16 @@
 {
   "id": "sigil-rifle-s3",
-  "rev": 1,
+  "rev": 2,
   "videoId": "-pOx9fo6A7M",
-  "start_s": 19.6,
-  "end_s": 25.9,
+  "start_s": 19.916667,
+  "end_s": 26.708333,
   "skill": {
-    "name": "Sigil Detonation",
+    "name": "刻印の追撃",
     "coins": 2,
     "asteraSkillId": "sigil-rifle-s3"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,31 +26,37 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "sigil-rifle-s3",
-      "start_s": 19.6,
-      "end_s": 25.9,
-      "notes": ""
+      "label": "S3",
+      "start_s": 19.916667,
+      "end_s": 26.708333
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "coin 1",
-      "t_s": 23.167,
-      "notes": "Visual contact; nearest 20 TPS tick."
+      "label": "接触 1",
+      "t_s": 23.083333,
+      "notes": "astra2 source frame 554; ranged_projectile; game tick 63. Coin grouping uncertainty remains in reference analysis."
     },
     {
       "id": "hit2",
       "kind": "hit",
-      "label": "coin 2",
-      "t_s": 24.708,
-      "notes": "Visual contact; nearest 20 TPS tick."
+      "label": "接触 2",
+      "t_s": 24.708333,
+      "notes": "astra2 source frame 593; aoe_at_target; game tick 96. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Four real-client PDCA iterations; partial visual parity. See notes.md and ../sigil-rifle-REPORT.md. No full-match claim.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/sigil-rifle/s3.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "sigil-rifle",
+  "identity": "Fell Bullet Yi Sang",
+  "videoTitle": "Fell Bullet Yi Sang — skill showcase",
+  "iterations": 0,
+  "report": "/report/sigil-rifle",
+  "referenceRevision": "46757b46b53cfca81feda27cf5c41e6a3c074315e6ee6e465f68f31079352dc1",
+  "contentRevision": "696a64c879ef13a6857a33c1a89530ee8de1408abd8e5b6b82986fde092793dc"
 }

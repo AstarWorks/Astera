@@ -1,0 +1,36 @@
+{
+  "id": "vendetta-rifle-reload",
+  "weapon": "vendetta-rifle",
+  "identity": "The Thumb East Soldato II Sinclair",
+  "videoId": "wbu2viInM3w",
+  "videoTitle": "The Thumb East Soldato II Sinclair — skill showcase",
+  "start_s": 0,
+  "end_s": 2,
+  "skill": {
+    "name": "再装填",
+    "asteraSkillId": "pistol-reload",
+    "coins": null
+  },
+  "status": "from-wiki",
+  "iterations": 0,
+  "report": "/report/vendetta-rifle",
+  "referenceRevision": "reload-adaptation-v2",
+  "verification": {
+    "status": "unverified",
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "segments": [],
+  "notes": "銃の補助操作。Shift+Q。原動画で独立したリロード技の発動は未確認。",
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "rev": 1,
+  "contentRevision": "6ba0a5d8a0aadc768cb0b5f2430a58cfdee0c15af9a16d2d19059e3b4699ad51"
+}

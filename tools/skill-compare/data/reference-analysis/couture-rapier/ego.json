@@ -1,0 +1,29 @@
+{
+  "video_id": "GIe7Fna5LD4",
+  "identity": "Haute Couture::Alteration Shop Rodion",
+  "source_video": "../../vid/GIe7Fna5LD4.mp4",
+  "kit_source": "../../wiki/GIe7Fna5LD4.md",
+  "fps_num": 30000,
+  "fps_den": 1001,
+  "frame_indexing": "Zero-based source decoded frames. Intervals are [start,end). Source is 29.97002997 fps, not exactly 30.",
+  "measurement_note": "Distances and hex colors are visual estimates, not world coordinates or colorimeter samples. Frame precision applies to visible events; obscured contact is explicitly bounded. No HUD coin/name labels are visible.",
+  "review": "Whole video viewed at 6 fps; every source frame 330–1649 viewed in 44 contact sheets; selected frames enlarged. Old reports read only after the independent frame pass.",
+  "slot": "ego",
+  "observed": false,
+  "official_name": null,
+  "official_coins": null,
+  "mapping_confidence": "high",
+  "status": "No identifiable E.G.O shown; supplied identity kit contains none.",
+  "weapon": null,
+  "props": [],
+  "caster_motion": [],
+  "hits": [],
+  "beats": [],
+  "effects": [],
+  "camera": [],
+  "contact_sheets": [
+    "sheets/overview_10.jpg",
+    "sheets/overview_11.jpg",
+    "sheets/overview_12.jpg"
+  ]
+}

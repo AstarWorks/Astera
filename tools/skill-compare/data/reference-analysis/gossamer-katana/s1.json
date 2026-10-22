@@ -1,0 +1,356 @@
+{
+  "video_id": "LkLhzmoJZ6Y",
+  "identity": "Blade of the House of Spiders Ryōshū",
+  "source_fps": {
+    "numerator": 30000,
+    "denominator": 1001
+  },
+  "frame_indexing": "Zero-based source decoded frame. End frames exclusive. Source PTS = frame * 1001 / 30000.",
+  "accuracy": "Contacts denote first visible intersection/impact, not hidden engine damage ticks. Native neighborhoods resolve listed events to source frames; other envelope transitions sampled every two source frames have up to one-frame uncertainty. Coin mappings are hypotheses without HUD.",
+  "scale": "H = standing caster body height in the SAME shot. Distances are screen-plane estimates; not inferred from effect length.",
+  "color_note": "Hex colors are visual palette approximations, not calibrated pixel measurements.",
+  "kit_source": "../../wiki/LkLhzmoJZ6Y.md (provided snapshot only)",
+  "sheet_note": "overview sheets are 6 fps; detail sheets select even source frames (~14.985 fps). detail f-label is SAMPLE index, not source frame; use timestamp. Native sheets label actual SRC frame; windows may be discontinuous.",
+  "slot": "s1",
+  "name": "Tripleslash",
+  "mapping": {
+    "confidence": "med",
+    "official_coins": 3,
+    "attack_type": "Slash",
+    "evidence": [
+      "Three target-contact groups at frames 373, 391, 413; direct blade passes; all Slash compatible.",
+      "The crescent at 12.012 s is a preparatory swing at caster position: target is still separated, so it is not counted as an extra hit."
+    ],
+    "alternatives": [
+      "S2 also has three Slash coins; without a name banner S1/S2 cannot be proven solely from count."
+    ]
+  },
+  "time_range": {
+    "start_frame": 355,
+    "end_frame_exclusive": 448,
+    "start_s": 11.845167,
+    "end_s": 14.948267
+  },
+  "weapon": {
+    "type": "Long narrow curved single-edged sword; katana/nodachi-like silhouette, with separate dark scabbard",
+    "size_relative_to_body_height": {
+      "total_length_H": [
+        1.2,
+        1.6
+      ],
+      "blade_width_H": [
+        0.04,
+        0.08
+      ]
+    },
+    "held": "One hand controls hilt in visible dash poses; other hand manages scabbard. Exact fingers/grip obscured in motion. Two separated hands support sword/scabbard assembly above head in overhead poses.",
+    "parts_colors": {
+      "blade": "silver-white #DDE8F4; darker blue-gray spine #536781",
+      "hilt": "dark violet #26233D with pale diagonal wrapping #A7A3BC",
+      "scabbard": "near-black/navy #10182B",
+      "cord": "thin dark cord at hilt/scabbard; red ribbons/threads accompany body"
+    },
+    "evidence": [
+      "detail_018.jpg at 51.118 s",
+      "native_013.jpg at 78.779 s",
+      "native_014.jpg at 81.015 s"
+    ],
+    "measurement_note": "Screen-space estimates from chibi sprite; camera scaling and foreshortening preclude exact world dimensions."
+  },
+  "props": [
+    {
+      "type": "red and blue body afterimages",
+      "count_visible": "2–4 overlapping impressions, not separate physical weapons",
+      "origin": "caster previous positions",
+      "path": "along each dash",
+      "size_H": 1,
+      "timing": {
+        "start_frame": 355,
+        "end_frame_exclusive": 430,
+        "start_s": 11.845167,
+        "end_s": 14.347667
+      },
+      "note": "No projectile detaches from the blade."
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 355,
+      "end_frame_exclusive": 373,
+      "start_s": 11.845167,
+      "end_s": 12.445767,
+      "description": "Plant feet and draw/sweep in place, displacement <0.5 H."
+    },
+    {
+      "start_frame": 373,
+      "end_frame_exclusive": 384,
+      "start_s": 12.445767,
+      "end_s": 12.8128,
+      "description": "Dash right about 3–4 H to target; crouched trailing recovery."
+    },
+    {
+      "start_frame": 389,
+      "end_frame_exclusive": 407,
+      "start_s": 12.979633,
+      "end_s": 13.580233,
+      "description": "Dash through to right side about 3 H; blade extended."
+    },
+    {
+      "start_frame": 410,
+      "end_frame_exclusive": 431,
+      "start_s": 13.680333,
+      "end_s": 14.381033,
+      "description": "Reverse across target about 3–4 H; stop low on its left."
+    },
+    {
+      "start_frame": 431,
+      "end_frame_exclusive": 448,
+      "start_s": 14.381033,
+      "end_s": 14.948267,
+      "description": "Hold crouched recovery; upright idle at frame 448."
+    }
+  ],
+  "hits": [
+    {
+      "frame": 373,
+      "time_s": 12.445767,
+      "contact": "Curved blade and cyan vertical edge intersect target on first forward pass",
+      "range_class": "dash_melee",
+      "caster_target_distance_H": [
+        0,
+        1.3
+      ],
+      "coin_candidate": 1,
+      "confidence": "med",
+      "note": "",
+      "contact_sheet": "native_001.jpg"
+    },
+    {
+      "frame": 391,
+      "time_s": 13.046367,
+      "contact": "Horizontal blade/cyan cutting trail crosses target torso",
+      "range_class": "dash_melee",
+      "caster_target_distance_H": [
+        0,
+        1
+      ],
+      "coin_candidate": 2,
+      "confidence": "med",
+      "note": "",
+      "contact_sheet": "native_001.jpg"
+    },
+    {
+      "frame": 413,
+      "time_s": 13.780433,
+      "contact": "Return pass through target; red radial blood/flower-like burst behind victim",
+      "range_class": "dash_melee",
+      "caster_target_distance_H": [
+        0,
+        1
+      ],
+      "coin_candidate": 3,
+      "confidence": "med",
+      "note": "",
+      "contact_sheet": "native_001.jpg"
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 355,
+      "end_frame_exclusive": 373,
+      "start_s": 11.845167,
+      "end_s": 12.445767,
+      "description": "Wind-up: low hip blade, enlarged body impressions, blue glint then rising navy/cyan crescent at caster; no target contact yet."
+    },
+    {
+      "start_frame": 373,
+      "end_frame_exclusive": 388,
+      "start_s": 12.445767,
+      "end_s": 12.946267,
+      "description": "Hit 1, upright cyan flare on victim; violet/cyan arcs multiply behind dash and thin away."
+    },
+    {
+      "start_frame": 389,
+      "end_frame_exclusive": 391,
+      "start_s": 12.979633,
+      "end_s": 13.046367,
+      "description": "White circular speed smear; frame 390 is target close-up before contact."
+    },
+    {
+      "start_frame": 391,
+      "end_frame_exclusive": 410,
+      "start_s": 13.046367,
+      "end_s": 13.680333,
+      "description": "Hit 2, horizontal streak and white spiral ribbon; ground dust; caster stops beyond victim."
+    },
+    {
+      "start_frame": 410,
+      "end_frame_exclusive": 413,
+      "start_s": 13.680333,
+      "end_s": 13.780433,
+      "description": "Two-frame floor/framing punch at 410–411; frame 412 extreme speed smear."
+    },
+    {
+      "start_frame": 413,
+      "end_frame_exclusive": 431,
+      "start_s": 13.780433,
+      "end_s": 14.381033,
+      "description": "Hit 3, red radial burst and blue threads; camera backs out while victim collapses."
+    },
+    {
+      "start_frame": 431,
+      "end_frame_exclusive": 448,
+      "start_s": 14.381033,
+      "end_s": 14.948267,
+      "description": "Dust fades, crouched recovery, upright at 448."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 358,
+      "end_frame_exclusive": 373,
+      "start_s": 11.945267,
+      "end_s": 12.445767,
+      "shape": "glint, spiky orb, then broad rising crescent",
+      "size_H": [
+        1,
+        2.5
+      ],
+      "position": "caster front/above",
+      "palette": {
+        "core": "#A9FAFF",
+        "edge_glow": "#37CEFF",
+        "secondary": "#7956FF",
+        "dark_fill": "#071C50",
+        "accent": "#E12DFF"
+      },
+      "motion": "arc follows blade upward; dark interior under bright rim",
+      "fade": "breaks into small blue diamonds"
+    },
+    {
+      "start_frame": 373,
+      "end_frame_exclusive": 389,
+      "start_s": 12.445767,
+      "end_s": 12.979633,
+      "shape": "nested open elliptical arcs plus narrow target cross",
+      "size_H": [
+        2,
+        3
+      ],
+      "position": "between caster and target",
+      "palette": {
+        "core": "#A9FAFF",
+        "edge_glow": "#37CEFF",
+        "secondary": "#7956FF",
+        "dark_fill": "#071C50",
+        "accent": "#E12DFF"
+      },
+      "motion": "2–3 violet/cyan arcs trail horizontal advance",
+      "fade": "thin and vanish"
+    },
+    {
+      "start_frame": 389,
+      "end_frame_exclusive": 407,
+      "start_s": 12.979633,
+      "end_s": 13.580233,
+      "shape": "white wind ball, cyan horizontal line and orbiting ribbons",
+      "size_H": [
+        0.7,
+        5
+      ],
+      "position": "target torso and dash path",
+      "palette": {
+        "core": "#A9FAFF",
+        "edge_glow": "#37CEFF",
+        "secondary": "#7956FF",
+        "dark_fill": "#071C50",
+        "accent": "#E12DFF"
+      },
+      "motion": "ribbons stretch along travel; dust remains at ground",
+      "fade": "dust disperses over ~0.5 s"
+    },
+    {
+      "start_frame": 413,
+      "end_frame_exclusive": 432,
+      "start_s": 13.780433,
+      "end_s": 14.4144,
+      "shape": "red radial petal/blood disk, blue lines, red body silhouettes",
+      "size_H": [
+        2,
+        3
+      ],
+      "position": "behind victim and along caster path",
+      "palette": {
+        "red": "#B5001C",
+        "dark": "#370413",
+        "blue": "#629DFF",
+        "dust": "#C9D8F1"
+      },
+      "motion": "disk opens outward; silhouettes lag caster",
+      "fade": "blood falls, blue dust thins"
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 355,
+      "end_frame_exclusive": 373,
+      "start_s": 11.845167,
+      "end_s": 12.445767,
+      "shot": "medium caster shot",
+      "framing": "Side-on slight downward pitch; caster ~0.35 image height, victim off right."
+    },
+    {
+      "start_frame": 373,
+      "end_frame_exclusive": 389,
+      "start_s": 12.445767,
+      "end_s": 12.979633,
+      "shot": "tracking two-shot",
+      "framing": "Track right; both full bodies, baseline y≈0.65."
+    },
+    {
+      "start_frame": 390,
+      "end_frame_exclusive": 393,
+      "start_s": 13.013,
+      "end_s": 13.1131,
+      "shot": "target torso punch",
+      "framing": "Target enlarged to ~0.8 frame height for 3 source frames."
+    },
+    {
+      "start_frame": 393,
+      "end_frame_exclusive": 410,
+      "start_s": 13.1131,
+      "end_s": 13.680333,
+      "shot": "wide tracking",
+      "framing": "Caster traverses victim then stops to right."
+    },
+    {
+      "start_frame": 410,
+      "end_frame_exclusive": 413,
+      "start_s": 13.680333,
+      "end_s": 13.780433,
+      "shot": "floor/detail then smear cut-in",
+      "framing": "410–411 floor/target edge; 412 speed smear fills frame."
+    },
+    {
+      "start_frame": 413,
+      "end_frame_exclusive": 448,
+      "start_s": 13.780433,
+      "end_s": 14.948267,
+      "shot": "impact two-shot pulling wide",
+      "framing": "Victim center-right, caster left; back out to arena."
+    }
+  ],
+  "repeats": [],
+  "contact_sheets": [
+    "detail_001.jpg",
+    "detail_002.jpg",
+    "detail_003.jpg",
+    "native_001.jpg"
+  ],
+  "coin_comparison": {
+    "visible_contact_groups": 3,
+    "official_coins": 3,
+    "verified_coin_assignments": false,
+    "note": "Visual contact groups do not establish hidden game damage events. Null coins retain unresolved mapping."
+  }
+}

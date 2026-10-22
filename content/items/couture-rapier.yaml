@@ -1,21 +1,21 @@
 id: couture-rapier
-material: IRON_SWORD
+material: SHEARS
 name:
-  ja: <aqua>仕立屋の細剣</aqua>
-  en: <aqua>Couturier's Rapier</aqua>
+  ja: 仕立屋の大鋏
+  en: Couturier’s Shears
 lore:
   ja:
-  - '<gray>左クリック: 縫い針（一閃）</gray>'
-  - '<gray>右クリック: 裾払いの突進（三段斬り）</gray>'
-  - '<gray>スニーク + 右クリック: 金糸の連刺（金色の天蓋）</gray>'
-  - '<gray>スニーク + 左クリック: 仮縫いの退歩（構えと反撃）</gray>'
-  - '<gold>Q: 終幕の裁ち鋏（E.G.O 100）</gold>'
+  - '左クリック: 切り合わせ'
+  - '右クリック: 型紙裁ち'
+  - 'Shift+右: 花鋏の終縫'
+  - 'Shift+左: 返し裁ち'
+  - 'Q: 落花の裁断'
   en:
-  - '<gray>Left-click: Basting Stitch (one passing cut)</gray>'
-  - '<gray>Right-click: Hemline Rush (three cuts)</gray>'
-  - '<gray>Sneak + right-click: Gilded Salvo (gold canopy)</gray>'
-  - '<gray>Sneak + left-click: Fitting Step (guard and reply)</gray>'
-  - '<gold>Q: Final Fitting (100 E.G.O)</gold>'
+  - 'left_click: Shear Passage'
+  - 'right_click: Pattern Trim'
+  - 'sneak_right: Floral Closure'
+  - 'sneak_left: Trimming Guard'
+  - 'drop: Falling Cutout'
 rarity: epic
 level_requirement: 4
 attributes:

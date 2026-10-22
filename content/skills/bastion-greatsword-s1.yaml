@@ -8,7 +8,10 @@ description:
 archetype: sequence
 cooldown_ticks: 64
 resource_cost: 20
-tags: [melee, physical, charge]
+tags:
+- melee
+- physical
+- charge
 params:
   type: sequence
 phases:
@@ -18,51 +21,81 @@ phases:
     vfx_id: bastion-s1-sweep
     targets:
       type: caster
+    delay_ticks:
+      type: literal
+      value: 3
   - type: damage
     targets:
-      type: nearby_entities
-      center:
+      type: cone
+      from:
         type: caster
-      radius: {type: literal, value: 3.3}
-      exclude_caster: true
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.4
+      angle_degrees:
+        type: literal
+        value: 110
+      max_count: 1
     components:
-    - base: {type: literal, value: 7}
+    - base:
+        type: literal
+        value: 7
       attribute: physical
     ignore_invulnerability:
       type: literal
       value: true
-    delay_ticks: {type: literal, value: 4}
+    delay_ticks:
+      type: literal
+      value: 7
   - type: spawn_particle
     targets:
       type: nearby_entities
       center:
         type: caster
-      radius: {type: literal, value: 3.3}
+      radius:
+        type: literal
+        value: 3.3
       exclude_caster: true
     particle_id: bastion-s3-hit-crit
-    delay_ticks: {type: literal, value: 4}
+    delay_ticks:
+      type: literal
+      value: 7
   - type: hit_stop
     targets:
       type: nearby_entities
       center:
         type: caster
-      radius: {type: literal, value: 3.3}
+      radius:
+        type: literal
+        value: 3.3
       exclude_caster: true
     ticks: 2
     include_caster: true
-    delay_ticks: {type: literal, value: 4}
+    delay_ticks:
+      type: literal
+      value: 7
   - type: play_sound
     targets:
       type: caster
     sound_id: entity.player.attack.strong
-    delay_ticks: {type: literal, value: 4}
+    delay_ticks:
+      type: literal
+      value: 7
   - type: apply_status
     targets:
       type: caster
     status_id: charge
-    effect_duration_ticks: {type: literal, value: 400}
-    stack_count: {type: literal, value: 1}
-    delay_ticks: {type: literal, value: 4}
+    effect_duration_ticks:
+      type: literal
+      value: 400
+    stack_count:
+      type: literal
+      value: 1
+    delay_ticks:
+      type: literal
+      value: 7
     condition:
       type: distance_less_than
       a:
@@ -71,7 +104,9 @@ phases:
         type: nearby_entities
         center:
           type: caster
-        radius: {type: literal, value: 3.3}
+        radius:
+          type: literal
+          value: 3.3
         exclude_caster: true
       distance:
         type: literal
@@ -80,42 +115,65 @@ phases:
     vfx_id: bastion-s1-rise
     targets:
       type: caster
-    delay_ticks: {type: literal, value: 24}
+    delay_ticks:
+      type: literal
+      value: 27
   - type: damage
     targets:
-      type: nearby_entities
-      center:
+      type: cone
+      from:
         type: caster
-      radius: {type: literal, value: 3.3}
-      exclude_caster: true
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.4
+      angle_degrees:
+        type: literal
+        value: 110
+      max_count: 1
     components:
-    - base: {type: literal, value: 9}
+    - base:
+        type: literal
+        value: 9
       attribute: physical
     ignore_invulnerability:
       type: literal
       value: true
-    delay_ticks: {type: literal, value: 28}
+    delay_ticks:
+      type: literal
+      value: 31
   - type: spawn_particle
     targets:
       type: nearby_entities
       center:
         type: caster
-      radius: {type: literal, value: 3.3}
+      radius:
+        type: literal
+        value: 3.3
       exclude_caster: true
     particle_id: bastion-s3-hit-crit
-    delay_ticks: {type: literal, value: 28}
+    delay_ticks:
+      type: literal
+      value: 31
   - type: hit_stop
     targets:
       type: nearby_entities
       center:
         type: caster
-      radius: {type: literal, value: 3.3}
+      radius:
+        type: literal
+        value: 3.3
       exclude_caster: true
     ticks: 2
     include_caster: true
-    delay_ticks: {type: literal, value: 28}
+    delay_ticks:
+      type: literal
+      value: 31
   - type: play_sound
     targets:
       type: caster
     sound_id: entity.player.attack.strong
-    delay_ticks: {type: literal, value: 28}
+    delay_ticks:
+      type: literal
+      value: 31

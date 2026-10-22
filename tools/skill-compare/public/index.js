@@ -1,6 +1,6 @@
 // Index: persona weapons -> skill slots -> case. One static JSON (/api/index), vanilla DOM.
 const STATUS = {
-  none: ["未着手", "st-none"], analysed: ["分析済", "st-an"], built: ["実装済", "st-bu"], captured: ["撮影済", "st-ca"],
+  "from-wiki": ["wiki由来", "st-an"], matched: ["再現確認済", "st-ca"], none: ["未着手", "st-none"], analysed: ["分析済", "st-an"], built: ["実装済", "st-bu"], captured: ["撮影済", "st-ca"],
 };
 const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
 const ago = (ms) => {
@@ -29,12 +29,12 @@ function slotRow(w, s) {
   const bits = [s.range];
   if (k) {
     const coins = k.coins ?? "?";
-    bits.push(`コイン ${coins} / 実装ヒット ${k.hits}`);
+    bits.push(`コイン ${coins} / 実装ヒット ${k.hits ?? "未計測"}`);
   }
   meta.textContent = bits.join(" ・ ");
-  if (k && k.coins != null && k.coins !== k.hits) meta.classList.add("mismatch");
+  if (k && k.coins != null && k.hits != null && k.coins !== k.hits) meta.classList.add("mismatch");
   const chips = el("div", "chips");
-  const [stTxt, stCls] = STATUS[k ? k.status : "none"];
+  const [stTxt, stCls] = (STATUS[k ? k.status : "none"] ?? STATUS.none);
   chips.appendChild(el("span", "chip " + stCls, stTxt));
   if (k) {
     const verdict = { passed: "再現確認済", failed: "要修正", original: "独自設計", unverified: "再現未確認" };
@@ -49,7 +49,7 @@ function slotRow(w, s) {
   }
   if (k) {
     chips.appendChild(el("span", "upd", `更新 ${ago(k.updated)}`));
-    chips.appendChild(el("span", "from", k.from.worktree === "main" ? "main" : `${k.from.branch || k.from.worktree}`));
+    chips.appendChild(el("span", "from", k.from.branch || k.from.worktree));
   }
   const mid = el("div", "smid");
   mid.append(nm, meta, chips);

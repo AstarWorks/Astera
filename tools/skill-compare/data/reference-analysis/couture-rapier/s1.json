@@ -1,0 +1,515 @@
+{
+  "video_id": "GIe7Fna5LD4",
+  "identity": "Haute Couture::Alteration Shop Rodion",
+  "source_video": "../../vid/GIe7Fna5LD4.mp4",
+  "kit_source": "../../wiki/GIe7Fna5LD4.md",
+  "fps_num": 30000,
+  "fps_den": 1001,
+  "frame_indexing": "Zero-based source decoded frames. Intervals are [start,end). Source is 29.97002997 fps, not exactly 30.",
+  "measurement_note": "Distances and hex colors are visual estimates, not world coordinates or colorimeter samples. Frame precision applies to visible events; obscured contact is explicitly bounded. No HUD coin/name labels are visible.",
+  "review": "Whole video viewed at 6 fps; every source frame 330–1649 viewed in 44 contact sheets; selected frames enlarged. Old reports read only after the independent frame pass.",
+  "slot": "s1",
+  "official_name": "Retouche",
+  "attack_type": "slash",
+  "observed": true,
+  "start_frame": 373,
+  "end_frame_exclusive": 428,
+  "start_s": 12.445767,
+  "end_s": 14.280933,
+  "official_coins": 1,
+  "mapping_confidence": "med",
+  "mapping_evidence": [
+    "One dash-through cutting impact, matching one coin; same one-coin skill also has an ally-directed demonstration at frames 464–490.",
+    "Counter cannot be established for the opening attack: no incoming enemy action is shown. Retouche enemy use is the better fit, but the skill name is not displayed."
+  ],
+  "weapon": {
+    "type": "Ornate oversized tailoring shears / separable scissor blades",
+    "size_body_heights": [
+      1.0,
+      1.5
+    ],
+    "held": "One-handed grip near the floral hinge/handle when attached; raised free hand directs detached blades. Individual fingers and hand side are not consistently resolvable.",
+    "parts": "Long paired narrow pointed dark blades, angular open diamond/polygon handle loops, pale flower cluster at the hinge, segmented/linked-looking silver contours. Closed blades can resemble a spear; open blades establish the scissor shape.",
+    "colors_hex": {
+      "blade": "#373536",
+      "edge": "#C8C6C3",
+      "handle": "#302D31",
+      "flowers": "#F2EEEA"
+    },
+    "evidence": [
+      "sheets/weapon_01.jpg",
+      "sheets/weapon_02.jpg",
+      "sheets/weapon_03.jpg"
+    ]
+  },
+  "props": [
+    {
+      "start_frame": 392,
+      "end_frame_exclusive": 428,
+      "start_s": 13.079733,
+      "end_s": 14.280933,
+      "object": "Main shears extending behind the passing caster",
+      "count": 1,
+      "size_body_heights": [
+        1,
+        1.5
+      ],
+      "origin": "Carried tool",
+      "path": "Moves left-to-right with Rodion; extended back toward target after passing. No independent projectile is established here."
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 347,
+      "end_frame_exclusive": 373,
+      "start_s": 11.578233,
+      "end_s": 12.445767,
+      "kind": "approach",
+      "description": "Low forward glide about 3–4 H; violet streak/afterimage."
+    },
+    {
+      "start_frame": 373,
+      "end_frame_exclusive": 392,
+      "start_s": 12.445767,
+      "end_s": 13.079733,
+      "kind": "wind_up",
+      "description": "Rise, raise tool, then twist into a low braced stance. Less than 0.5 H translation."
+    },
+    {
+      "start_frame": 392,
+      "end_frame_exclusive": 399,
+      "start_s": 13.079733,
+      "end_s": 13.3133,
+      "kind": "dash",
+      "description": "Cross target plane and finish about 2–3 H to its right; total stroke about 5 H, obscured by flash."
+    },
+    {
+      "start_frame": 399,
+      "end_frame_exclusive": 428,
+      "start_s": 13.3133,
+      "end_s": 14.280933,
+      "kind": "recovery",
+      "description": "Hold low follow-through until hard camera reset; return-to-idle animation itself is not shown."
+    }
+  ],
+  "hits": [
+    {
+      "coin": 1,
+      "contact_frame": 392,
+      "contact_s": 13.079733,
+      "contact": "Closed/closing shears carried through the target during a horizontal dash; target is first clearly visible inside the cross flare at f394.",
+      "range_class": "dash_melee",
+      "caster_target_distance_body_heights": [
+        0,
+        1
+      ],
+      "evidence": [
+        "sheets/detail_03.jpg"
+      ],
+      "contact_frame_bounds": [
+        392,
+        394
+      ],
+      "impact_flash_frame": 392
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 373,
+      "end_frame_exclusive": 376,
+      "start_s": 12.445767,
+      "end_s": 12.545867,
+      "kind": "wind_up",
+      "description": "Upright tool raise."
+    },
+    {
+      "start_frame": 376,
+      "end_frame_exclusive": 388,
+      "start_s": 12.545867,
+      "end_s": 12.946267,
+      "kind": "wind_up",
+      "description": "Purple segmented silhouette/glow at rear; low prepared pose."
+    },
+    {
+      "start_frame": 388,
+      "end_frame_exclusive": 392,
+      "start_s": 12.946267,
+      "end_s": 13.079733,
+      "kind": "camera_punch",
+      "description": "Caster enlarged for four frames."
+    },
+    {
+      "start_frame": 392,
+      "end_frame_exclusive": 394,
+      "start_s": 13.079733,
+      "end_s": 13.146467,
+      "kind": "impact_cut_in",
+      "description": "Two overexposed frames filled by white curved edge and horizontal speed smear."
+    },
+    {
+      "start_frame": 394,
+      "end_frame_exclusive": 396,
+      "start_s": 13.146467,
+      "end_s": 13.2132,
+      "kind": "target_cut_in",
+      "description": "Two-frame tight target/X flash."
+    },
+    {
+      "start_frame": 396,
+      "end_frame_exclusive": 403,
+      "start_s": 13.2132,
+      "end_s": 13.446767,
+      "kind": "finisher",
+      "description": "Pull back; crossing slash lines and broad pale pink crescent behind passing Rodion."
+    },
+    {
+      "start_frame": 403,
+      "end_frame_exclusive": 428,
+      "start_s": 13.446767,
+      "end_s": 14.280933,
+      "kind": "recovery",
+      "description": "Petals drift away; no second contact."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 376,
+      "end_frame_exclusive": 392,
+      "start_s": 12.545867,
+      "end_s": 13.079733,
+      "shape": "Stacked violet triangular afterimage / vertical haze",
+      "size_body_heights": [
+        0.5,
+        1.5
+      ],
+      "position": "Immediately behind caster",
+      "colors_hex": [
+        "#8065BA",
+        "#B2A0E0"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Remains at launch position, then stretches horizontally.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 392,
+      "end_frame_exclusive": 403,
+      "start_s": 13.079733,
+      "end_s": 13.446767,
+      "shape": "Thin X cut lines plus broad curled crescent",
+      "size_body_heights": [
+        3,
+        6
+      ],
+      "position": "Target X; crescent trails caster to target right",
+      "colors_hex": [
+        "#FFFFFF",
+        "#E8C4CA",
+        "#8D747E"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Fast horizontal sweep; X holds briefly while camera pulls out.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 392,
+      "end_frame_exclusive": 414,
+      "start_s": 13.079733,
+      "end_s": 13.8138,
+      "shape": "White petal-like shards and orange pin sparks",
+      "size_body_heights": [
+        0.03,
+        0.15
+      ],
+      "position": "Around impact and along dash route",
+      "colors_hex": [
+        "#FFFDF8",
+        "#FF9D40"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Radial ejection then slow falling drift.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 373,
+      "end_frame_exclusive": 388,
+      "start_s": 12.445767,
+      "end_s": 12.946267,
+      "shot": "wide side-on",
+      "framing": "Caster left-third, target right-third; floor visible, slight downward angle; caster about 22% image height.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 388,
+      "end_frame_exclusive": 392,
+      "start_s": 12.946267,
+      "end_s": 13.079733,
+      "shot": "medium caster",
+      "framing": "Caster central, about 45% image height; target cropped right.",
+      "transition": "Snap punch-in"
+    },
+    {
+      "start_frame": 392,
+      "end_frame_exclusive": 394,
+      "start_s": 13.079733,
+      "end_s": 13.146467,
+      "shot": "extreme action insert",
+      "framing": "Bright cutting edge and smear fill gameplay area.",
+      "transition": "Hard cut, 2 frames"
+    },
+    {
+      "start_frame": 394,
+      "end_frame_exclusive": 396,
+      "start_s": 13.146467,
+      "end_s": 13.2132,
+      "shot": "close target",
+      "framing": "Target torso and orange halo dominate.",
+      "transition": "Hard cut, 2 frames"
+    },
+    {
+      "start_frame": 396,
+      "end_frame_exclusive": 428,
+      "start_s": 13.2132,
+      "end_s": 14.280933,
+      "shot": "wide side-on",
+      "framing": "Pull out to both sprites; caster now target right, preserve facing reversal.",
+      "transition": "Continuous reframing / scale change"
+    }
+  ],
+  "contact_sheets": [
+    "sheets/detail_02.jpg",
+    "sheets/detail_03.jpg",
+    "sheets/detail_04.jpg"
+  ],
+  "limitations": [],
+  "approach": {
+    "start_frame": 347,
+    "end_frame_exclusive": 373,
+    "start_s": 11.578233,
+    "end_s": 12.445767
+  },
+  "variants": [
+    {
+      "video_id": "GIe7Fna5LD4",
+      "identity": "Haute Couture::Alteration Shop Rodion",
+      "source_video": "../../vid/GIe7Fna5LD4.mp4",
+      "kit_source": "../../wiki/GIe7Fna5LD4.md",
+      "fps_num": 30000,
+      "fps_den": 1001,
+      "frame_indexing": "Zero-based source decoded frames. Intervals are [start,end). Source is 29.97002997 fps, not exactly 30.",
+      "measurement_note": "Distances and hex colors are visual estimates, not world coordinates or colorimeter samples. Frame precision applies to visible events; obscured contact is explicitly bounded. No HUD coin/name labels are visible.",
+      "review": "Whole video viewed at 6 fps; every source frame 330–1649 viewed in 44 contact sheets; selected frames enlarged. Old reports read only after the independent frame pass.",
+      "slot": "s1-ally",
+      "official_name": "Retouche — ally target",
+      "attack_type": "slash",
+      "observed": true,
+      "start_frame": 464,
+      "end_frame_exclusive": 491,
+      "start_s": 15.482133,
+      "end_s": 16.383033,
+      "official_coins": 1,
+      "mapping_confidence": "high",
+      "mapping_evidence": [
+        "Caster clips/snips at the nearby black-clad ally at f479; white-pink spiral wraps that ally; three upright white blade-like markers remain around the ally afterward.",
+        "The ally subsequently performs its own gold-colored two-hit action; do not merge those hits with this skill."
+      ],
+      "weapon": {
+        "type": "Ornate oversized tailoring shears / separable scissor blades",
+        "size_body_heights": [
+          1.0,
+          1.5
+        ],
+        "held": "Main shears raised in one hand toward the ally above/right; ordinary down-pointing blade/tool silhouette also remains near skirt. Hand/tool overlap prevents a definite two-tool inventory.",
+        "parts": "Long paired narrow pointed dark blades, angular open diamond/polygon handle loops, pale flower cluster at the hinge, segmented/linked-looking silver contours. Closed blades can resemble a spear; open blades establish the scissor shape.",
+        "colors_hex": {
+          "blade": "#373536",
+          "edge": "#C8C6C3",
+          "handle": "#302D31",
+          "flowers": "#F2EEEA"
+        },
+        "evidence": [
+          "sheets/weapon_01.jpg",
+          "sheets/weapon_02.jpg",
+          "sheets/weapon_03.jpg"
+        ]
+      },
+      "props": [
+        {
+          "start_frame": 491,
+          "end_frame_exclusive": 612,
+          "start_s": 16.383033,
+          "end_s": 20.4204,
+          "object": "Upright pale blade/marker shapes around ally",
+          "count": 3,
+          "size_body_heights": [
+            1,
+            1.5
+          ],
+          "origin": "Materialize at ally after support snip",
+          "path": "Follow ally through next action. These are distinct from the many static background scissors; exact status identity is inferred, not visible in HUD."
+        }
+      ],
+      "caster_motion": [
+        {
+          "start_frame": 448,
+          "end_frame_exclusive": 464,
+          "start_s": 14.948267,
+          "end_s": 15.482133,
+          "kind": "approach",
+          "description": "Short reposition toward ally, about 1–2 H; transparency comes from scene transition."
+        },
+        {
+          "start_frame": 464,
+          "end_frame_exclusive": 479,
+          "start_s": 15.482133,
+          "end_s": 15.982633,
+          "kind": "wind_up",
+          "description": "Stay planted; lift the ornate shears above shoulder."
+        },
+        {
+          "start_frame": 479,
+          "end_frame_exclusive": 491,
+          "start_s": 15.982633,
+          "end_s": 16.383033,
+          "kind": "recovery",
+          "description": "Snip near ally; lower/settle to normal standing pose."
+        }
+      ],
+      "hits": [
+        {
+          "coin": 1,
+          "contact_frame": 479,
+          "contact_s": 15.982633,
+          "contact": "Small orange contact streak at the nearby ally followed by a white-pink snipping spiral.",
+          "range_class": "melee",
+          "caster_target_distance_body_heights": [
+            0.5,
+            1.2
+          ],
+          "evidence": [
+            "sheets/detail_05.jpg"
+          ],
+          "target": "ally",
+          "damage_inference": "Support contact event; damage cannot be read from hidden HUD."
+        }
+      ],
+      "beats": [
+        {
+          "start_frame": 464,
+          "end_frame_exclusive": 477,
+          "start_s": 15.482133,
+          "end_s": 15.9159,
+          "kind": "wind_up",
+          "description": "Raised arm and shears hold."
+        },
+        {
+          "start_frame": 477,
+          "end_frame_exclusive": 479,
+          "start_s": 15.9159,
+          "end_s": 15.982633,
+          "kind": "camera_punch",
+          "description": "Two-frame caster/ally close setup."
+        },
+        {
+          "start_frame": 479,
+          "end_frame_exclusive": 481,
+          "start_s": 15.982633,
+          "end_s": 16.049367,
+          "kind": "contact",
+          "description": "Small horizontal orange streak at ally."
+        },
+        {
+          "start_frame": 481,
+          "end_frame_exclusive": 491,
+          "start_s": 16.049367,
+          "end_s": 16.383033,
+          "kind": "support_effect",
+          "description": "Pink-white spiral wraps ally, shrinks, then upright markers remain."
+        }
+      ],
+      "effects": [
+        {
+          "start_frame": 479,
+          "end_frame_exclusive": 491,
+          "start_s": 15.982633,
+          "end_s": 16.383033,
+          "shape": "Stacked short white/pink corkscrew ribbons",
+          "size_body_heights": [
+            0.7,
+            1.2
+          ],
+          "position": "Around ally just above/right of Rodion",
+          "colors_hex": [
+            "#FFFDF6",
+            "#E4BFC8",
+            "#FF993D"
+          ],
+          "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+          "motion": "Two or three visible loops rotate and contract; no remote target contact.",
+          "fade": "Opacity falls to zero; small motes outlive the solid shape."
+        },
+        {
+          "start_frame": 491,
+          "end_frame_exclusive": 612,
+          "start_s": 16.383033,
+          "end_s": 20.4204,
+          "shape": "Three luminous upright blade-like markers",
+          "size_body_heights": [
+            1,
+            1.5
+          ],
+          "position": "Flanking ally",
+          "colors_hex": [
+            "#FBF8F0",
+            "#99938D"
+          ],
+          "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+          "motion": "Hover upright and travel with ally.",
+          "fade": "Persist into ally action, not an impact flash."
+        }
+      ],
+      "camera": [
+        {
+          "start_frame": 464,
+          "end_frame_exclusive": 477,
+          "start_s": 15.482133,
+          "end_s": 15.9159,
+          "shot": "wide two-character setup",
+          "framing": "Rodion in foreground left-center, ally just behind/right; enemy offscreen.",
+          "transition": "Continuous reframing / scale change"
+        },
+        {
+          "start_frame": 477,
+          "end_frame_exclusive": 481,
+          "start_s": 15.9159,
+          "end_s": 16.049367,
+          "shot": "medium caster and ally",
+          "framing": "Rodion about half gameplay height; raised tool/ally in upper-right.",
+          "transition": "Brief punch-in"
+        },
+        {
+          "start_frame": 481,
+          "end_frame_exclusive": 491,
+          "start_s": 16.049367,
+          "end_s": 16.383033,
+          "shot": "medium-wide",
+          "framing": "Ease out while spiral contracts.",
+          "transition": "Continuous reframing / scale change"
+        }
+      ],
+      "contact_sheets": [
+        "sheets/detail_05.jpg",
+        "sheets/detail_06.jpg"
+      ],
+      "limitations": [],
+      "approach": {
+        "start_frame": 448,
+        "end_frame_exclusive": 464,
+        "start_s": 14.948267,
+        "end_s": 15.482133
+      }
+    }
+  ]
+}

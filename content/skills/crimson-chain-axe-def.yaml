@@ -1,48 +1,57 @@
 id: crimson-chain-axe-def
 name:
-  ja: 鎖の結界
-  en: Chain Ward
+  ja: 緋の退避
+  en: Crimson Evasion
 description:
-  ja: 鎖を引き寄せ、短い回避の構えを取る。
-  en: Gather the chain close and enter a brief evasive stance.
-archetype: buff
-cooldown_ticks: 120
-resource_cost: 20
-tags:
-- defense
-- movement
+  ja: 緋の退避
+  en: Crimson Evasion
+archetype: sequence
+cooldown_ticks: 80
+resource_cost: 10
 params:
-  type: buff
-  status_effect_id: evasive
-  duration_ticks: 25
+  type: sequence
 phases:
-  type: buff
+  type: sequence
   cast:
-  - type: dash_strike
-    distance: 0.05
-    ticks: 8
-    radius: 0.1
-    hit_once: true
-    invulnerable: true
-    stop_on_block: true
-    follow_pitch: false
-    on_hit: []
-    stop_before_target: 1.8
-  - type: play_vfx
-    targets: &id001
+  - type: propel
+    targets:
       type: caster
-    vfx_id: crimson-chain-axe-ward
+    direction:
+      type: from_caster
+    strength:
+      type: literal
+      value: -0.65
+  - type: modify_attribute
+    targets:
+      type: caster
+    attribute_key: resist.physical
+    delta:
+      type: literal
+      value: 0.7
+    ticks:
+      type: literal
+      value: 8
+  - type: propel
+    targets:
+      type: caster
+    direction:
+      type: from_caster
+    strength:
+      type: literal
+      value: -0.65
     delay_ticks:
       type: literal
-      value: 0
-  - type: play_sound
-    targets: *id001
-    sound_id: item.armor.equip_chain
-    pitch:
+      value: 19
+  - type: modify_attribute
+    targets:
+      type: caster
+    attribute_key: resist.physical
+    delta:
       type: literal
-      value: 0.8
+      value: 0.7
+    ticks:
+      type: literal
+      value: 8
     delay_ticks:
       type: literal
-      value: 0
-  expire: []
-  removed: []
+      value: 19

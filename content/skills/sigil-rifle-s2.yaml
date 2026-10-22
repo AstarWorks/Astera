@@ -1,277 +1,47 @@
 id: sigil-rifle-s2
 name:
-  ja: 刻印の二連射
-  en: Twin Inscription
+  ja: 二連の刻印弾
+  en: Twin Seal Shots
 description:
-  ja: 足を止め、間を置いて二発を撃つ。
-  en: Shoulder the rifle and fire two deliberate rounds.
+  ja: 二連の刻印弾
+  en: Twin Seal Shots
 archetype: sequence
-cooldown_ticks: 80
-resource_cost: 25
-tags:
-- physical
-- sigil-rifle
+cooldown_ticks: 120
+resource_cost: 16
 params:
   type: sequence
 phases:
   type: sequence
   cast:
   - type: play_vfx
-    targets: &id001
+    targets:
       type: caster
     vfx_id: sigil-rifle-s2-rig
-    follow:
-      type: literal
-      value: true
-  - type: apply_status
-    targets: *id001
-    status_id: poise
-    effect_duration_ticks:
-      type: literal
-      value: 200
-    stack_count:
-      type: literal
-      value: 2
   - type: play_vfx
-    targets: *id001
-    vfx_id: sigil-rifle-shot
-    delay_ticks: &id003
-      type: literal
-      value: 20
-  - type: damage
-    targets: &id002
-      type: forward_ray
-      from: *id001
-      distance:
-        type: literal
-        value: 12
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 5
-      attribute: physical
-      per_stack:
-        status_id: poise
-        amount: 0.1
-        'on': caster
-    delay_ticks:
-      type: literal
-      value: 20
-  - type: hit_stop
-    targets: *id002
-    ticks: 2
-    delay_ticks:
-      type: literal
-      value: 20
-  - type: schedule_particle_animation
-    targets: *id002
-    animation:
-    - type: point
-      particles:
-      - id: crit
-        count: 8
-        extra: 0.15
-        offset:
-          x: 0
-          y: 1
-          z: 0
-      - id: smoke
-        count: 5
-        extra: 0.04
-        offset:
-          x: 0
-          y: 1
-          z: 0
-      - id: dust
-        count: 14
-        extra: 0.08
-        color:
-          r: 245
-          g: 42
-          b: 19
-        scale: 1.2
-        offset:
-          x: 0
-          y: 1
-          z: 0
-    delay_ticks:
-      type: literal
-      value: 20
-  - type: play_sound
-    targets: *id001
-    sound_id: item.crossbow.shoot
-    pitch:
-      type: literal
-      value: 0.65
-    delay_ticks:
-      type: literal
-      value: 20
-  - type: camera_shake
-    targets: *id001
-    intensity:
-      type: literal
-      value: 0.2
-    ticks:
-      type: literal
-      value: 3
-    delay_ticks:
-      type: literal
-      value: 20
-  - type: play_vfx
-    targets: *id002
-    vfx_id: sigil-rifle-mark
-    delay_ticks:
-      type: literal
-      value: 20
-  - type: play_vfx
-    targets: *id001
-    vfx_id: sigil-rifle-shot
-    delay_ticks: &id004
-      type: literal
-      value: 54
-  - type: damage
-    targets: *id002
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 5
-      attribute: physical
-      per_stack:
-        status_id: poise
-        amount: 0.1
-        'on': caster
-    delay_ticks:
-      type: literal
-      value: 54
-  - type: hit_stop
-    targets: *id002
-    ticks: 2
-    delay_ticks:
-      type: literal
-      value: 54
-  - type: schedule_particle_animation
-    targets: *id002
-    animation:
-    - type: point
-      particles:
-      - id: crit
-        count: 8
-        extra: 0.15
-        offset:
-          x: 0
-          y: 1
-          z: 0
-      - id: smoke
-        count: 5
-        extra: 0.04
-        offset:
-          x: 0
-          y: 1
-          z: 0
-      - id: dust
-        count: 14
-        extra: 0.08
-        color:
-          r: 245
-          g: 42
-          b: 19
-        scale: 1.2
-        offset:
-          x: 0
-          y: 1
-          z: 0
-    delay_ticks:
-      type: literal
-      value: 54
-  - type: play_sound
-    targets: *id001
-    sound_id: item.crossbow.shoot
-    pitch:
-      type: literal
-      value: 0.65
-    delay_ticks:
-      type: literal
-      value: 54
-  - type: camera_shake
-    targets: *id001
-    intensity:
-      type: literal
-      value: 0.2
-    ticks:
-      type: literal
-      value: 3
-    delay_ticks:
-      type: literal
-      value: 54
-  - type: play_vfx
-    targets: *id002
-    vfx_id: sigil-rifle-mark
-    delay_ticks:
-      type: literal
-      value: 54
-  - type: schedule_particle_animation
     targets:
-      type: caster_forward
-      distance: 1.8
-      height: -0.35
-    delay_ticks: *id003
-    period_ticks:
+      type: caster
+    vfx_id: sigil-rifle-shot
+    delay_ticks:
       type: literal
-      value: 2
-    duration_ticks:
-      type: literal
-      value: 8
-    animation:
-    - type: point
-      particles:
-      - id: dust
-        count: 16
-        extra: 0.09
-        offset:
-          x: 0.25
-          y: 0.25
-          z: 0.25
-        color:
-          r: 245
-          g: 42
-          b: 19
-        scale: 1.5
-      - id: smoke
-        count: 4
-        extra: 0.04
-  - type: schedule_particle_animation
+      value: 20
+  - type: cast_skill
     targets:
-      type: caster_forward
-      distance: 1.8
-      height: -0.35
-    delay_ticks: *id004
-    period_ticks:
+      type: caster
+    skill_id: sigil-bullet-projectile
+    delay_ticks:
       type: literal
-      value: 2
-    duration_ticks:
+      value: 20
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: sigil-rifle-shot
+    delay_ticks:
       type: literal
-      value: 8
-    animation:
-    - type: point
-      particles:
-      - id: dust
-        count: 16
-        extra: 0.09
-        offset:
-          x: 0.25
-          y: 0.25
-          z: 0.25
-        color:
-          r: 245
-          g: 42
-          b: 19
-        scale: 1.5
-      - id: smoke
-        count: 4
-        extra: 0.04
+      value: 56
+  - type: cast_skill
+    targets:
+      type: caster
+    skill_id: sigil-bullet-projectile
+    delay_ticks:
+      type: literal
+      value: 56

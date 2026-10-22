@@ -1,16 +1,16 @@
 {
   "id": "couture-rapier-s1",
-  "rev": 1,
+  "rev": 3,
   "videoId": "GIe7Fna5LD4",
-  "start_s": 11.5,
-  "end_s": 14.5,
+  "start_s": 12.445767,
+  "end_s": 14.280933,
   "skill": {
-    "name": "couture-rapier-s1",
+    "name": "切り合わせ",
     "coins": 1,
     "asteraSkillId": "couture-rapier-s1"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,24 +26,30 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "couture-rapier-s1",
-      "start_s": 11.5,
-      "end_s": 14.5,
-      "notes": ""
+      "label": "S1",
+      "start_s": 12.445767,
+      "end_s": 14.280933
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "contact 1",
-      "t_s": 13.05,
-      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
+      "label": "接触 1",
+      "t_s": 13.079733,
+      "notes": "astra2 source frame 392; dash_melee; game tick 13. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Mapping inferred from footage and supplied wiki; no skill labels in video. ",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/couture-rapier/s1.json を参照。",
   "editLog": [],
-  "status": "built",
+  "status": "captured",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "couture-rapier",
+  "identity": "The Alteration Shop Rodion",
+  "videoTitle": "The Alteration Shop Rodion — skill showcase",
+  "iterations": 2,
+  "report": "/report/couture-rapier",
+  "referenceRevision": "3a88f54825eec141e8c687f87ded3861206e760c42c17897d7061cfca2ce6b9a",
+  "contentRevision": "788a70db80c27786a1d895cdf6580b9aaee44a03f3072be1b33be0262472406e"
 }

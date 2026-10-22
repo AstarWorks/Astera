@@ -1,16 +1,16 @@
 {
   "id": "gossamer-katana-s3",
-  "rev": 1,
+  "rev": 2,
   "videoId": "LkLhzmoJZ6Y",
-  "start_s": 43,
-  "end_s": 50.5,
+  "start_s": 38.571867,
+  "end_s": 41.6416,
   "skill": {
-    "name": "gossamer-katana-s3",
+    "name": "一線の傷",
     "coins": 1,
     "asteraSkillId": "gossamer-katana-s3"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,23 +26,30 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "gossamer-katana-s3",
-      "start_s": 43,
-      "end_s": 50.5,
-      "notes": ""
+      "label": "S3",
+      "start_s": 38.571867,
+      "end_s": 41.6416
     },
     {
-      "id": "coin-1",
+      "id": "hit1",
       "kind": "hit",
-      "label": "Coin 1",
-      "t_s": 47.35
+      "label": "接触 1",
+      "t_s": 38.872167,
+      "notes": "astra2 source frame 1165; dash_melee; game tick 6. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Identity mapping is provisional: source montage has no readable skill labels. Three base coins for S1/S2; one base coin for S3. Extra visual cuts are not extra damage.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/gossamer-katana/s3.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "gossamer-katana",
+  "identity": "Spider Blade Ryoshu",
+  "videoTitle": "Spider Blade Ryoshu — skill showcase",
+  "iterations": 0,
+  "report": "/report/gossamer-katana",
+  "referenceRevision": "4fb3d1ca8829208166526a1c36d9715770e4433aea70aab4df251b658dc4563f",
+  "contentRevision": "7ba0acc48a8fd3052833204e6ea2be8e83bc517551fb440f5c12414e37cda8c6"
 }

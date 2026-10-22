@@ -59,7 +59,7 @@ case "$VIEW" in caster|opponent|side|compare|all) ;; *) die "VIEW must be caster
 case "$CAMERA" in case|side) ;; *) die "CAMERA must be case|side";; esac
 if [ "$VIEW" = compare ]; then
   [ -n "$CASE" ] || die "VIEW=compare needs CASE=<case-id> (e.g. CASE=zwei-s3)"
-  INTENT="$ROOT/tools/skill-compare/data/$CASE/intent.json"
+  INTENT="$(python3 -c 'import json,pathlib,sys; d=pathlib.Path(sys.argv[1]); c=json.loads((d/"case.json").read_text()); p=(d/c.get("intent",{}).get("file","intent.json")).resolve(); p.relative_to(d.resolve()); print(p)' "$ROOT/tools/skill-compare/data/$CASE")"
   [ -f "$INTENT" ] || { log "WARN: $INTENT missing, using defaults"; INTENT=-; }
   PRE_TICKS="${PRE_TICKS_CMP:-6}"
   ARENA_R=30
@@ -312,7 +312,8 @@ film() { # viewer view_dir
   log "caster before cast: $(rcon "data get entity Caster Pos" | sed 's/.*data: //') in $(rcon "data get entity Caster Dimension" | sed 's/.*data: //')"
   if [ "$VIEW" = compare ]; then
     # one RCON connection: cast, then the camera cuts of the plan on the wall clock
-    cast_stamp="$(python3 -I "$HERE/director.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$STATE/camera-plan.tsv" "$cast_cmd" 2>&1 >/dev/null | awk '/^STAMP/{print $2}')"
+    python3 -I "$HERE/director.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$STATE/camera-plan.tsv" "$cast_cmd" >"$STATE/director.stdout" 2>"$STATE/director.stderr" || { cat "$STATE/director.stderr" >&2; die "director failed"; }
+    cast_stamp="$(awk '/^STAMP/{print $2}' "$STATE/director.stderr")"
   else
     cast_stamp="$(rcon --stamp "$cast_cmd" 2>&1 >/dev/null | awk '/^STAMP/{print $2}')"
   fi
@@ -350,6 +351,7 @@ make_outputs() { # dir view
   if [ "$view" = compare ]; then
     printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":20,"cast_tick_ms":%d,"frames":%d}\n' \
       "$CASE" "$CAMERA" "$SKILL" "$((PRE_TICKS * 50))" "$n" > "$dir/meta.json"
+    python3 -c 'import json,pathlib,sys; c=json.loads(pathlib.Path(sys.argv[1]).read_text()); p=pathlib.Path(sys.argv[2]); m=json.loads(p.read_text()); m.update({k:c[k] for k in ("referenceRevision","contentRevision") if k in c}); p.write_text(json.dumps(m,indent=2)+"\n")' "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir/meta.json"
   fi
   log "$view: $n frames -> $dir (sheet.png, $SKILL-$view.gif, $SKILL-$view.mp4)"
 }

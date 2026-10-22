@@ -1,4 +1,5 @@
 // skill-compare case page. Master clock = ms since case.start_s; see timeline.js for the mappings.
+import { createFrameCache } from "./frame-cache.js";
 import { createIntentRenderer } from "./intent-renderer.js";
 import {
   TICK_MS, clamp, msToVideoFrame, videoFrameToMs, msToTick, tickToMs, msToIntentTick, sToMs, msToS, castMs, focusZones, effectiveSpeed,
@@ -22,7 +23,7 @@ fetch("/api/cases/" + encodeURIComponent(caseId)).then((r) => { if (!r.ok) throw
 function init(d) {
   S.data = d; S.c = d.case; S.intent = d.intent;
   S.c.mc ??= { source: "vfx-caster", offset_ms: 0, castTickInTrace: 5 };
-  S.c.focus ??= { enabled: true, factor: 0.2, windowMs: 150 };
+  S.c.focus ??= { enabled: false, factor: 0.2, windowMs: 150 };
   S.dur = Math.round((S.c.end_s - S.c.start_s) * 1000);
   S.fps = d.media.ready ? d.media.fps : 30;
   S.frameCount = d.media.ready ? d.media.frameCount : Math.floor((S.dur * S.fps) / 1000);
@@ -31,12 +32,15 @@ function init(d) {
   document.title = (S.c.skill.name || caseId) + " - skill compare";
   $("title").textContent = S.c.skill.name || caseId;
   $("sub").textContent = `video ${S.c.videoId} ${S.c.start_s}-${S.c.end_s} s @ ${S.fps} fps - Astera ${S.c.skill.asteraSkillId || "-"} - ${S.c.skill.coins ?? "?"} coins`;
+  $("sub").textContent += ` ・ ${d.from.branch || d.from.worktree} ・ ${S.c.status === "from-wiki" ? "wiki由来" : "再現確認中"}`;
   $("who").value = store.get("skill-compare.who") || "";
   $("cnotes").value = S.c.notes || "";
+  S.frameCache = createFrameCache(() => { S.needsRedraw = true; });
   setupVideo();
   if (S.intent) {
     S.ir = createIntentRenderer({ cv: $("cv"), stage: $("stage"), labels: $("labels"), flash: $("flash"), hud: $("hud") }, S.intent);
-  } else $("iinfo").textContent = "no intent.json";
+  } else $("iinfo").textContent = "新しい解析に基づく図解を準備中";
+  setupSkillNav();
   setupMc();
   setupControls();
   recomputeZones();
@@ -49,6 +53,22 @@ function init(d) {
   update(true);
   requestAnimationFrame(tickLoop);
   window.__ready = true;
+}
+
+function setupSkillNav() {
+  const nav = $("skillnav");
+  fetch("/api/index").then((r) => r.json()).then((d) => {
+    const w = d.weapons.find((w) => w.id === S.data.weapon?.id);
+    for (const slot of w?.slots || []) {
+      const a = el(slot.case ? "a" : "span", "chip", `${slot.tag} · ${slot.label}`);
+      if (slot.case) a.href = `/case.html?id=${encodeURIComponent(slot.case.id)}`;
+      if (slot.case?.id === caseId) a.setAttribute("aria-current", "page");
+      nav.append(a);
+    }
+    if (S.c.weapon) {
+      const a = el("a", "chip", "解析・進捗"); a.href = `/report/${S.c.weapon}`; nav.append(a);
+    }
+  }).catch(() => { nav.textContent = "スキル一覧を読み込めませんでした"; });
 }
 
 // ---- derived ------------------------------------------------------------------------------------------------------
@@ -65,24 +85,23 @@ function mcHitMs() {
 }
 
 // ---- video column -------------------------------------------------------------------------------------------------
-function setupVideo() {
-  const m = S.data.media;
-  if (!m.ready) return;
-  $("vph").classList.add("on");
-  let loaded = 0;
-  for (let i = 0; i < m.frameCount; i++) {
-    const img = new Image();
-    img.onload = () => { if (++loaded === 1) $("vph").classList.remove("on"); S.lastVideo = -1; };
-    img.src = `${m.base}frame_${String(i).padStart(5, "0")}.jpg`;
-    S.frames.push(img);
-  }
+function videoUrl(ms) {
+  if (!S.data.media.ready) return null;
+  const i = msToVideoFrame(ms, S.fps, S.frameCount || 1);
+  return `${S.data.media.base}frame_${String(i).padStart(5, "0")}.jpg?v=${encodeURIComponent(S.data.media.revision || "0")}`;
 }
-function drawVideo(i) {
-  const img = S.frames[i];
-  const cv = $("vcv");
-  if (!img || !img.complete || !img.naturalWidth) { S.lastVideo = -1; return; }
+function setupVideo() {
+  $("vph").textContent = S.c.status === "from-wiki"
+    ? "原動画に該当技なし・wiki由来の設計"
+    : S.data.media.ready ? "読み込み中…" : "参照区間の映像を準備中";
+}
+function drawVideo(ms) {
+  const entry = S.frameCache.get(videoUrl(ms));
+  if (entry?.state !== "ready") return;
+  const img = entry.img, cv = $("vcv");
   if (cv.width !== img.naturalWidth) { cv.width = img.naturalWidth; cv.height = img.naturalHeight; }
   cv.getContext("2d").drawImage(img, 0, 0);
+  $("vph").classList.remove("on");
 }
 
 // ---- minecraft column ---------------------------------------------------------------------------------------------
@@ -101,38 +120,48 @@ function setupMc() {
   $("moff").oninput = (e) => setOff(e.target.value);
   $("moffn").onchange = (e) => setOff(e.target.value);
 }
+function mcFrame(ms) {
+  const src = S.data.mc.sources[S.c.mc.source];
+  if (!src) return null;
+  const tick = msToTick(ms, castOf());
+  if (src.kind === "frames") {
+    const f = tick + (src.castFrame ?? 0), n = clamp(f, 0, src.count - 1);
+    return { url: `${src.base}frame_${String(n).padStart(3, "0")}.${src.extension || "png"}`,
+      dim: f < 0 || f >= src.count, label: `t+${tick} (frame ${n})`, tick };
+  }
+  const abs = tick + (S.c.mc.castTickInTrace ?? 5);
+  let k = src.keys[0]; for (const x of src.keys) if (x <= abs) k = x;
+  return { url: `${src.base}key-${k}.png`, dim: abs < src.keys[0], label: `t+${tick} (nearest key tick ${k})`, tick };
+}
 function showMc(ms) {
-  const src = S.data.mc.sources[S.c.mc.source], img = $("mimg"), ph = $("mph"), badge = $("mbadge");
-  if (!src) {
-    ph.classList.add("on");
-    ph.textContent = `no Minecraft frames for ${S.c.skill.asteraSkillId || "?"}: make vfx-shot SKILL=${S.c.skill.asteraSkillId || "<skill>"}`;
+  const f = mcFrame(ms), img = $("mimg"), ph = $("mph"), badge = $("mbadge");
+  if (!f) {
+    ph.classList.add("on"); ph.textContent = "このスキルの実機映像は準備中";
     img.style.visibility = "hidden"; $("minfo").textContent = ""; badge.hidden = true; return;
   }
-  const tick = msToTick(ms, castOf());
-  let url, shown, dim = false, label;
-  if (src.kind === "frames") {
-    const f = tick + (src.castFrame ?? 0);
-    const n = clamp(f, 0, src.count - 1);
-    dim = f < 0 || f > src.count - 1;
-    shown = n; url = `${src.base}frame_${String(n).padStart(3, "0")}.png`;
-    label = `t+${tick} (frame_${String(n).padStart(3, "0")})`;
-  } else {
-    const abs = tick + (S.c.mc.castTickInTrace ?? 5);
-    let k = src.keys[0]; for (const x of src.keys) if (x <= abs) k = x;
-    dim = abs < src.keys[0];
-    shown = k; url = `${src.base}key-${k}.png`;
-    label = `t+${tick} (nearest key tick ${k})`;
+  $("minfo").textContent = f.label;
+  badge.hidden = !f.dim; badge.textContent = f.tick < 0 ? "発動前" : "撮影範囲の終端";
+  const entry = S.frameCache.get(f.url);
+  if (entry?.state !== "ready") return;
+  // Only change the visible image when its bytes are already in the browser cache.
+  img.src = entry.img.src; img.classList.toggle("dim", f.dim);
+  ph.classList.remove("on"); img.style.visibility = "visible";
+}
+function prepareFrames(ms) {
+  const urls = [];
+  for (let i = 0; i <= 12; i++) {
+    const t = clamp(ms + i * 1000 / Math.max(S.fps, 20), 0, S.dur);
+    urls.push(videoUrl(t), mcFrame(t)?.url);
   }
-  $("minfo").textContent = label;
-  badge.hidden = !dim; badge.textContent = tick < 0 ? "before cast" : "after last frame";
-  const key = url + dim;
-  if (key === S.lastMc) return;
-  S.lastMc = key;
-  img.classList.toggle("dim", dim);
-  img.onload = () => { ph.classList.remove("on"); img.style.visibility = "visible"; };
-  img.onerror = () => { ph.classList.add("on"); ph.textContent = "missing " + url; img.style.visibility = "hidden"; };
-  img.src = url;
-  if (src.kind === "frames") for (let k = 1; k <= 4; k++) if (shown + k < src.count) new Image().src = `${src.base}frame_${String(shown + k).padStart(3, "0")}.png`;
+  S.frameCache.want(urls);
+  const current = [videoUrl(ms), mcFrame(ms)?.url].filter(Boolean);
+  const failed = current.some((url) => S.frameCache.get(url)?.state === "error");
+  const ready = current.every((url) => S.frameCache.get(url)?.state === "ready");
+  $("buffer").hidden = ready;
+  $("bufferText").textContent = failed ? "画像を読み込めません。再試行できます。" : "映像を読み込み中…（両側の時刻を同期して待機）";
+  $("bRetry").hidden = !failed;
+  S.buffering = !ready;
+  return ready;
 }
 
 // ---- timeline ----------------------------------------------------------------------------------------------------
@@ -331,23 +360,26 @@ function stepTick(d) { pause(); const t = msToTick(S.ms, castOf()) + d; S.ms = c
 function setSpeed(v) { S.speed = v; $("speed").value = String(v); }
 
 function tickLoop(ts) {
+  let redraw = S.needsRedraw; S.needsRedraw = false;
   if (S.playing) {
     if (S.lastTs) {
       const dt = Math.min(100, ts - S.lastTs);
       const eff = effectiveSpeed(S.ms, S.speed, S.zones, S.c.focus.enabled, S.c.focus.factor);
-      S.ms += dt * eff;
+      let next = S.ms + dt * eff;
       const hi = S.loop ? S.loop.to : S.dur, lo = S.loop ? S.loop.from : 0;
-      if (S.ms >= hi) S.ms = lo;
-      update();
+      if (next >= hi) next = lo;
+      if (prepareFrames(next)) { S.ms = next; redraw = true; }
     }
     S.lastTs = ts;
   }
+  if (redraw) update(true);
   requestAnimationFrame(tickLoop);
 }
 
 function update(force) {
   const vf = msToVideoFrame(S.ms, S.fps, S.frameCount || 1);
-  if (force || vf !== S.lastVideo) { S.lastVideo = vf; if (S.frames.length) drawVideo(vf); }
+  prepareFrames(S.ms);
+  if (force || vf !== S.lastVideo) { S.lastVideo = vf; drawVideo(S.ms); }
   $("vinfo").textContent = `frame ${vf} / ${Math.max(0, S.frameCount - 1)} @ ${S.fps} fps`;
   const it = msToIntentTick(S.ms, S.c.start_s, S.intent?.source?.start_s ?? S.c.start_s);
   if (S.ir) { S.ir.render(it); $("iinfo").textContent = `tick ${it.toFixed(1)}`; }
@@ -369,6 +401,7 @@ function syncFocusUi() { $("fzOn").checked = S.c.focus.enabled; $("fzF").value =
 
 function setupControls() {
   setupTimeline();
+  $("bRetry").onclick = () => S.frameCache.retry();
   $("bPlay").onclick = () => (S.playing ? pause() : play());
   $("bFm").onclick = () => stepFrame(-1); $("bFp").onclick = () => stepFrame(1);
   $("bTm").onclick = () => stepTick(-1); $("bTp").onclick = () => stepTick(1);

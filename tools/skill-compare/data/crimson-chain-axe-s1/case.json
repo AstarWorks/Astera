@@ -1,16 +1,16 @@
 {
   "id": "crimson-chain-axe-s1",
-  "rev": 1,
+  "rev": 3,
   "videoId": "Gpj-lvOnAgs",
-  "start_s": 89.1,
-  "end_s": 92.3,
+  "start_s": 11.144,
+  "end_s": 13.28,
   "skill": {
-    "name": "Chain Sweep",
-    "coins": 3,
+    "name": "緋針",
+    "coins": 1,
     "asteraSkillId": "crimson-chain-axe-s1"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,35 +26,30 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "Chain Sweep",
-      "start_s": 89.1,
-      "end_s": 92.3,
-      "notes": ""
+      "label": "S1",
+      "start_s": 11.144,
+      "end_s": 13.28
     },
     {
-      "id": "hit-1",
+      "id": "hit1",
       "kind": "hit",
-      "label": "contact 1",
-      "t_s": 89.55
-    },
-    {
-      "id": "hit-2",
-      "kind": "hit",
-      "label": "contact 2",
-      "t_s": 89.95
-    },
-    {
-      "id": "hit-3",
-      "kind": "hit",
-      "label": "contact 3",
-      "t_s": 90.9
+      "label": "接触 1",
+      "t_s": 12.479133,
+      "notes": "astra2 source frame 374; ranged_projectile; game tick 27. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Trailer has no skill labels. Variant mapping is provisional; see notes.md. Extended Q is a cinematic adaptation, not a confirmed identity E.G.O.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/crimson-chain-axe/s1.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "crimson-chain-axe",
+  "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+  "videoTitle": "Haute Couture::The Crimson God of Le Rouge Sinclair — skill showcase",
+  "iterations": 0,
+  "report": "/report/crimson-chain-axe",
+  "referenceRevision": "51dd80c5d7bff30ba3bb05e43420a985c0c54b30ec526f1620bdf302cc921334",
+  "contentRevision": "b695db0a2c7be59d4e3e17b047379bfbd3c8e7f12da6ca0ba2ce4052a92a65bf"
 }

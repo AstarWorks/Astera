@@ -110,3 +110,7 @@ a.slot:hover{background:var(--head)}
 .th.empty{background:repeating-linear-gradient(45deg,#0b0f16,#0b0f16 6px,#0e1320 6px,#0e1320 12px)}
 @media (max-width:520px){.slot{grid-template-columns:48px minmax(0,1fr)}.pair{grid-column:1/-1}}
 .crumb{font-size:12.5px;color:var(--mute)}
+
+#skillnav { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+#skillnav [aria-current="page"] { outline:2px solid var(--accent); }
+#buffer { padding:10px; color:var(--accent); }

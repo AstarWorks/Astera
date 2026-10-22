@@ -1,21 +1,28 @@
 id: couture-rapier-def
 name:
-  ja: 仮縫いの退歩
-  en: Fitting Step
+  ja: 返し裁ち
+  en: Trimming Guard
 description:
-  ja: 仕立ての構えを保ち、間合いを詰めて一撃を返す。
-  en: Hold a fitting stance, then answer with one close-range cut.
+  ja: 身を守り、近くを大鋏で裁つ。防御後の反撃は一定時間で発動する。
+  en: Trimming Guard
 archetype: sequence
-cooldown_ticks: 100
-resource_cost: 12
-tags:
-- physical
-- couture
+cooldown_ticks: 85
+resource_cost: 10
 params:
   type: sequence
 phases:
   type: sequence
   cast:
+  - type: modify_attribute
+    targets:
+      type: caster
+    attribute_key: resist.physical
+    delta:
+      type: literal
+      value: 0.7
+    ticks:
+      type: literal
+      value: 30
   - type: play_vfx
     targets:
       type: caster
@@ -23,36 +30,13 @@ phases:
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: couture-rapier-parry
-  - type: apply_status
-    targets:
-      type: caster
-    status_id: charge
-    effect_duration_ticks:
-      type: literal
-      value: 400
-    stack_count:
-      type: literal
-      value: 2
-  - type: dash_strike
-    distance: 2.6
-    ticks: 3
-    radius: 0.8
-    hit_once: true
-    stop_on_block: true
-    invulnerable: false
+    vfx_id: couture-shears-snip
     delay_ticks:
       type: literal
-      value: 35
-    on_hit: []
-    stop_before_target: 1.8
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: couture-rapier-reply
-    delay_ticks:
+      value: 12
+    follow:
       type: literal
-      value: 35
+      value: true
   - type: damage
     targets:
       type: cone
@@ -60,33 +44,42 @@ phases:
         type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75
       distance:
         type: literal
-        value: 3.6
+        value: 3.5
+      angle_degrees:
+        type: literal
+        value: 90
       max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
     components:
     - base:
         type: literal
         value: 6
       attribute: physical
-    ignore_invulnerability:
-      type: literal
-      value: true
     delay_ticks:
       type: literal
-      value: 44
+      value: 19
   - type: play_vfx
     targets:
-      type: caster_forward
-      distance: 1.5
-      height: -1.62
-    vfx_id: couture-rapier-burst
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 3.5
+      angle_degrees:
+        type: literal
+        value: 90
+      max_count: 1
+    vfx_id: couture-rapier-cross
     delay_ticks:
       type: literal
-      value: 44
+      value: 19
   - type: play_sound
     targets:
       type: cone
@@ -94,65 +87,20 @@ phases:
         type: caster
       direction:
         type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75
       distance:
         type: literal
-        value: 3.6
+        value: 3.5
+      angle_degrees:
+        type: literal
+        value: 90
       max_count: 1
-    sound_id: entity.player.attack.crit
+    sound_id: entity.player.attack.strong
     volume:
       type: literal
-      value: 0.6
+      value: 0.7
     pitch:
       type: literal
-      value: 1.6
+      value: 1.1
     delay_ticks:
       type: literal
-      value: 44
-  - type: hit_stop
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      angle_degrees:
-        type: literal
-        value: 75
-      distance:
-        type: literal
-        value: 3.6
-      max_count: 1
-    ticks: 3
-    include_caster: true
-    delay_ticks:
-      type: literal
-      value: 44
-  - type: screen_flash
-    targets:
-      type: caster
-    overlay: white
-    color: '#FFF1DC'
-    fade_in:
-      type: literal
-      value: 0
-    stay:
-      type: literal
-      value: 1
-    fade_out:
-      type: literal
-      value: 1
-    delay_ticks:
-      type: literal
-      value: 54
-  - type: play_vfx
-    targets:
-      type: caster_forward
-      distance: 1.5
-      height: -1.62
-    vfx_id: couture-rapier-cross
-    delay_ticks:
-      type: literal
-      value: 56
+      value: 19

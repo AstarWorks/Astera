@@ -1,16 +1,16 @@
 {
   "id": "crimson-chain-axe-ego",
-  "rev": 1,
+  "rev": 2,
   "videoId": "Gpj-lvOnAgs",
-  "start_s": 125.5,
-  "end_s": 141.7,
+  "start_s": 0,
+  "end_s": 4.0,
   "skill": {
-    "name": "Crimson Requiem",
+    "name": "緋鎖の展開",
     "coins": 5,
     "asteraSkillId": "crimson-chain-axe-ego"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,55 +18,23 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
-  "segments": [
-    {
-      "id": "skill",
-      "kind": "skill",
-      "label": "Crimson Requiem",
-      "start_s": 125.5,
-      "end_s": 141.7,
-      "notes": ""
-    },
-    {
-      "id": "hit-1",
-      "kind": "hit",
-      "label": "contact 1",
-      "t_s": 127.8
-    },
-    {
-      "id": "hit-2",
-      "kind": "hit",
-      "label": "contact 2",
-      "t_s": 129.5
-    },
-    {
-      "id": "hit-3",
-      "kind": "hit",
-      "label": "contact 3",
-      "t_s": 134.8
-    },
-    {
-      "id": "hit-4",
-      "kind": "hit",
-      "label": "contact 4",
-      "t_s": 136.05
-    },
-    {
-      "id": "hit-5",
-      "kind": "hit",
-      "label": "contact 5",
-      "t_s": 139.4
-    }
-  ],
-  "notes": "Trailer has no skill labels. Variant mapping is provisional; see notes.md. Extended Q is a cinematic adaptation, not a confirmed identity E.G.O.",
+  "segments": [],
+  "notes": "原動画に対応する発動は確認できません。wiki kit由来の設計。原動画の別の技を代用して一致とは扱いません。",
   "editLog": [],
-  "status": "built",
+  "status": "from-wiki",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "crimson-chain-axe",
+  "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+  "videoTitle": "Haute Couture::The Crimson God of Le Rouge Sinclair — skill showcase",
+  "iterations": 0,
+  "report": "/report/crimson-chain-axe",
+  "referenceRevision": "e3388f76d75f8c9de12b686f53219c2cd841995dc4de14058c58bc00811c02df",
+  "contentRevision": "10c377c1c23d0238ae1d1c7a2c3b82a41a753528d9a7b0a98efde6ce9c0af539"
 }

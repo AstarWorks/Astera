@@ -1,0 +1,652 @@
+{
+  "slot": "gregor-s3",
+  "name": "Firefist",
+  "status": "observed",
+  "official_attack_type": "blunt",
+  "official_coins": 3,
+  "sequence": {
+    "start": {
+      "frame": 1640,
+      "time_s": 54.666667
+    },
+    "end_exclusive": {
+      "frame": 1766,
+      "time_s": 58.866667
+    }
+  },
+  "mapping": {
+    "confidence": "high",
+    "evidence": "Three grouped contacts: fiery sweep, quick straight follow-up, charged large flame/pressure-ring finisher. Distinct ignition and dramatic cut fit S3; no E.G.O transformation."
+  },
+  "weapon": {
+    "type": "bulky forearm-mounted mechanical fist/flamethrower gauntlet with backpack and flexible hoses",
+    "size_relative_to_body_height": "forearm assembly ~0.35–0.5 H long, ~0.2 H thick; backpack ~0.6 H tall",
+    "held": "worn on one forearm, aimed/punched one-handed; opposite arm balances; not shouldered and not a two-handed gun",
+    "parts_and_colors": "segmented bronze/olive plates #75613B, dark metal #302D24, black hoses #18191A, dark tank pack #292B24; orange ignition #FF8A00 at hand",
+    "evidence": "36.733–36.900 and 40.000–40.100 extended device with backpack hose loop; 56.900 one-frame close-up of plated mechanism; details.jpg",
+    "confidence": "high for arm-mounted device, medium for mechanical parts hidden by sprite scale"
+  },
+  "props": [
+    {
+      "type": "pressure-ring VFX, not independent solid projectiles",
+      "count": "2 dominant yellow upright hoops in final shot; an additional thin grey arc outside",
+      "origin": "forward gauntlet thrust",
+      "path": "expand in front of fist; remain near caster as target moves right; no evidence each hoop deals separate damage",
+      "size_body_heights_estimate": [
+        1,
+        2
+      ],
+      "timing": {
+        "start": {
+          "frame": 1710,
+          "time_s": 57.0
+        },
+        "end_exclusive": {
+          "frame": 1759,
+          "time_s": 58.633333
+        }
+      }
+    }
+  ],
+  "caster_motion": [
+    {
+      "start": {
+        "frame": 1640,
+        "time_s": 54.666667
+      },
+      "end_exclusive": {
+        "frame": 1660,
+        "time_s": 55.333333
+      },
+      "motion": "idle",
+      "distance_body_heights_estimate": [
+        0,
+        0.2
+      ],
+      "description": "Gauntlet lowered; small flame points toward ground. Camera moves, caster stays planted."
+    },
+    {
+      "start": {
+        "frame": 1660,
+        "time_s": 55.333333
+      },
+      "end_exclusive": {
+        "frame": 1665,
+        "time_s": 55.5
+      },
+      "motion": "dash",
+      "distance_body_heights_estimate": [
+        2,
+        3.5
+      ],
+      "description": "Rapid rightward sweep approach."
+    },
+    {
+      "start": {
+        "frame": 1665,
+        "time_s": 55.5
+      },
+      "end_exclusive": {
+        "frame": 1691,
+        "time_s": 56.366667
+      },
+      "motion": "step",
+      "distance_body_heights_estimate": [
+        0,
+        0.5
+      ],
+      "description": "Sweep then straight punch and retraction."
+    },
+    {
+      "start": {
+        "frame": 1691,
+        "time_s": 56.366667
+      },
+      "end_exclusive": {
+        "frame": 1706,
+        "time_s": 56.866667
+      },
+      "motion": "step",
+      "distance_body_heights_estimate": [
+        0.2,
+        0.5
+      ],
+      "description": "Spread feet, draw burning arm back/up."
+    },
+    {
+      "start": {
+        "frame": 1706,
+        "time_s": 56.866667
+      },
+      "end_exclusive": {
+        "frame": 1719,
+        "time_s": 57.3
+      },
+      "motion": "dash",
+      "distance_body_heights_estimate": [
+        0.5,
+        1.5
+      ],
+      "description": "Short forward lunge into heavily cropped flame thrust; exact travel obscured."
+    },
+    {
+      "start": {
+        "frame": 1719,
+        "time_s": 57.3
+      },
+      "end_exclusive": {
+        "frame": 1766,
+        "time_s": 58.866667
+      },
+      "motion": "idle",
+      "distance_body_heights_estimate": [
+        0,
+        0.5
+      ],
+      "description": "Hold finish while target propelled ~3–4 H right; flame and pressure rings dissipate."
+    }
+  ],
+  "hits": [
+    {
+      "coin_candidate": 1,
+      "contact": {
+        "frame": 1665,
+        "time_s": 55.5
+      },
+      "contact_uncertainty_frames": 1,
+      "contact_object": "sweeping gauntlet / large flame hook at target",
+      "range_class": "dash_melee",
+      "caster_target_distance_body_heights_estimate": [
+        0.7,
+        1.5
+      ],
+      "evidence": "55.333 dash/arc; contact first visible at right crop 55.500.",
+      "coin_assignment": "inferred from grouped animation and supplied kit; no visible combat UI"
+    },
+    {
+      "coin_candidate": 2,
+      "contact": {
+        "frame": 1674,
+        "time_s": 55.8
+      },
+      "contact_uncertainty_frames": 1,
+      "contact_object": "straight gauntlet/fire thrust",
+      "range_class": "melee",
+      "caster_target_distance_body_heights_estimate": [
+        0.6,
+        1.2
+      ],
+      "evidence": "New large round yellow target flare 55.800, distinct from fading first star.",
+      "coin_assignment": "inferred from grouped animation and supplied kit; no visible combat UI"
+    },
+    {
+      "coin_candidate": 3,
+      "contact": {
+        "frame": 1716,
+        "time_s": 57.2
+      },
+      "contact_uncertainty_frames": 10,
+      "contact_object": "large emitted flame-pressure thrust; metal contact obscured",
+      "range_class": "beam",
+      "caster_target_distance_body_heights_estimate": [
+        1,
+        2.5
+      ],
+      "evidence": "Finisher emitted from 56.867; black frames 56.933/56.967 hide onset, target star first legible ~57.200 and fully framed 57.300. Exact contact may be earlier under yellow crop.",
+      "coin_assignment": "inferred from grouped animation and supplied kit; no visible combat UI",
+      "range_confidence": "med: short-range emitted jet with preceding body lunge; dash_melee is possible if hidden fist touches at onset. Later large separation is target knockback, not proof of long-range launch."
+    }
+  ],
+  "beats": [
+    {
+      "start": {
+        "frame": 1640,
+        "time_s": 54.666667
+      },
+      "end_exclusive": {
+        "frame": 1660,
+        "time_s": 55.333333
+      },
+      "description": "Downward gauntlet ignition; no target contact."
+    },
+    {
+      "start": {
+        "frame": 1660,
+        "time_s": 55.333333
+      },
+      "end_exclusive": {
+        "frame": 1665,
+        "time_s": 55.5
+      },
+      "description": "Dash/sweep, increasingly tight fire crop."
+    },
+    {
+      "start": {
+        "frame": 1665,
+        "time_s": 55.5
+      },
+      "end_exclusive": {
+        "frame": 1674,
+        "time_s": 55.8
+      },
+      "description": "Coin 1 sweep impact."
+    },
+    {
+      "start": {
+        "frame": 1674,
+        "time_s": 55.8
+      },
+      "end_exclusive": {
+        "frame": 1691,
+        "time_s": 56.366667
+      },
+      "description": "Coin 2 straight impact, upright pressure hoop, retract."
+    },
+    {
+      "start": {
+        "frame": 1691,
+        "time_s": 56.366667
+      },
+      "end_exclusive": {
+        "frame": 1706,
+        "time_s": 56.866667
+      },
+      "description": "Arm pulled back diagonally with persistent flame; brace."
+    },
+    {
+      "start": {
+        "frame": 1706,
+        "time_s": 56.866667
+      },
+      "end_exclusive": {
+        "frame": 1707,
+        "time_s": 56.9
+      },
+      "description": "Forward thrust begins."
+    },
+    {
+      "start": {
+        "frame": 1707,
+        "time_s": 56.9
+      },
+      "end_exclusive": {
+        "frame": 1708,
+        "time_s": 56.933333
+      },
+      "description": "One-frame extreme close-up of plated arm/back assembly."
+    },
+    {
+      "start": {
+        "frame": 1708,
+        "time_s": 56.933333
+      },
+      "end_exclusive": {
+        "frame": 1710,
+        "time_s": 57.0
+      },
+      "description": "Two black frames, gold diagonal borders retained."
+    },
+    {
+      "start": {
+        "frame": 1710,
+        "time_s": 57.0
+      },
+      "end_exclusive": {
+        "frame": 1719,
+        "time_s": 57.3
+      },
+      "description": "Yellow flame-filled extreme crop; target contact timing partly hidden."
+    },
+    {
+      "start": {
+        "frame": 1719,
+        "time_s": 57.3
+      },
+      "end_exclusive": {
+        "frame": 1739,
+        "time_s": 57.966667
+      },
+      "description": "Finisher starburst and two upright pressure rings held almost still."
+    },
+    {
+      "start": {
+        "frame": 1739,
+        "time_s": 57.966667
+      },
+      "end_exclusive": {
+        "frame": 1766,
+        "time_s": 58.866667
+      },
+      "description": "Target knocked right; rings thin, fire becomes ember trail; caster settles."
+    }
+  ],
+  "effects": [
+    {
+      "start": {
+        "frame": 1640,
+        "time_s": 54.666667
+      },
+      "end_exclusive": {
+        "frame": 1660,
+        "time_s": 55.333333
+      },
+      "shape": "small narrow downward flame",
+      "size_body_heights_estimate": [
+        0.3,
+        0.7
+      ],
+      "position": "below gauntlet near caster foot; orange ground light",
+      "colors_hex_approximate": [
+        "#FFDB34",
+        "#FF8508",
+        "#B54715"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "vertical flicker, small pooling glow; not a 3 H column",
+      "fade": "shrinks into sparks as dash starts"
+    },
+    {
+      "start": {
+        "frame": 1660,
+        "time_s": 55.333333
+      },
+      "end_exclusive": {
+        "frame": 1674,
+        "time_s": 55.8
+      },
+      "shape": "broad hooked fire arc and starburst",
+      "size_body_heights_estimate": [
+        1,
+        3
+      ],
+      "position": "around torso toward target",
+      "colors_hex_approximate": [
+        "#FFF95F",
+        "#FFC600",
+        "#FF7810"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "fast horizontal sweep; camera enlarges it to screen scale",
+      "fade": "persists briefly beneath second hit"
+    },
+    {
+      "start": {
+        "frame": 1674,
+        "time_s": 55.8
+      },
+      "end_exclusive": {
+        "frame": 1692,
+        "time_s": 56.4
+      },
+      "shape": "round yellow contact burst then upright orange ring",
+      "size_body_heights_estimate": [
+        1,
+        2
+      ],
+      "position": "target chest and gauntlet front",
+      "colors_hex_approximate": [
+        "#FFFF65",
+        "#FFBA00",
+        "#F96812"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "radial burst, ring expands then thins",
+      "fade": "flame fragments remain on target"
+    },
+    {
+      "start": {
+        "frame": 1691,
+        "time_s": 56.366667
+      },
+      "end_exclusive": {
+        "frame": 1706,
+        "time_s": 56.866667
+      },
+      "shape": "diagonal burning arm trail",
+      "size_body_heights_estimate": [
+        0.5,
+        1
+      ],
+      "position": "behind raised/retracted gauntlet",
+      "colors_hex_approximate": [
+        "#FFD33C",
+        "#FF840A"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "points up-left as arm chambers",
+      "fade": "merges with next thrust"
+    },
+    {
+      "start": {
+        "frame": 1708,
+        "time_s": 56.933333
+      },
+      "end_exclusive": {
+        "frame": 1710,
+        "time_s": 57.0
+      },
+      "shape": "full-frame black insert",
+      "size_body_heights_estimate": null,
+      "position": "screen",
+      "colors_hex_approximate": [
+        "#000000"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "hard cut for two frames",
+      "fade": "hard return to yellow"
+    },
+    {
+      "start": {
+        "frame": 1710,
+        "time_s": 57.0
+      },
+      "end_exclusive": {
+        "frame": 1759,
+        "time_s": 58.633333
+      },
+      "shape": "large yellow-orange thrust with two upright pressure hoops and target star",
+      "size_body_heights_estimate": [
+        1,
+        3
+      ],
+      "position": "in front of caster, star at target; screen-sized due to close crop",
+      "colors_hex_approximate": [
+        "#FFFF31",
+        "#FFF883",
+        "#FFB100",
+        "#F46916",
+        "#E8D5C3"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "two dominant hoops transverse to punch axis; translucent grey shock arc outside; near-hold to 57.966 then target separates",
+      "fade": "hoops narrow into arcs, then ember remnants"
+    },
+    {
+      "start": {
+        "frame": 1665,
+        "time_s": 55.5
+      },
+      "end_exclusive": {
+        "frame": 1766,
+        "time_s": 58.866667
+      },
+      "shape": "sparks, dark smoke accents and red ground smear",
+      "size_body_heights_estimate": [
+        0.1,
+        2
+      ],
+      "position": "around hits, behind caster, floor",
+      "colors_hex_approximate": [
+        "#FFAB21",
+        "#302A25",
+        "#A6201D"
+      ],
+      "layering": "bright core over translucent glow; sprite and stage behind unless specified",
+      "motion": "embers radiate/upward; floor smear remains fixed",
+      "fade": "embers fade, ground smear persists"
+    }
+  ],
+  "camera": [
+    {
+      "start": {
+        "frame": 1631,
+        "time_s": 54.366667
+      },
+      "end_exclusive": {
+        "frame": 1640,
+        "time_s": 54.666667
+      },
+      "shot": "wide to medium single",
+      "framing": "Pre-wind-up push onto caster; kept separate from attack start.",
+      "caster_height_fraction_of_frame_estimate": 0.3
+    },
+    {
+      "start": {
+        "frame": 1640,
+        "time_s": 54.666667
+      },
+      "end_exclusive": {
+        "frame": 1660,
+        "time_s": 55.333333
+      },
+      "shot": "medium single",
+      "framing": "Gauntlet ignition near feet; target off right.",
+      "caster_height_fraction_of_frame_estimate": 0.35
+    },
+    {
+      "start": {
+        "frame": 1660,
+        "time_s": 55.333333
+      },
+      "end_exclusive": {
+        "frame": 1665,
+        "time_s": 55.5
+      },
+      "shot": "fast tracking extreme crop",
+      "framing": "Fire arc and body move beyond right; close crop magnifies flame.",
+      "caster_height_fraction_of_frame_estimate": 0.9
+    },
+    {
+      "start": {
+        "frame": 1665,
+        "time_s": 55.5
+      },
+      "end_exclusive": {
+        "frame": 1674,
+        "time_s": 55.8
+      },
+      "shot": "close to medium impact",
+      "framing": "Target burst enters right; widen.",
+      "caster_height_fraction_of_frame_estimate": 0.6
+    },
+    {
+      "start": {
+        "frame": 1674,
+        "time_s": 55.8
+      },
+      "end_exclusive": {
+        "frame": 1683,
+        "time_s": 56.1
+      },
+      "shot": "close impact punch",
+      "framing": "Brief enlarged second flash, then retreat.",
+      "caster_height_fraction_of_frame_estimate": 0.65
+    },
+    {
+      "start": {
+        "frame": 1683,
+        "time_s": 56.1
+      },
+      "end_exclusive": {
+        "frame": 1706,
+        "time_s": 56.866667
+      },
+      "shot": "medium then push",
+      "framing": "Target right, Gregor braces and raises burning arm.",
+      "caster_height_fraction_of_frame_estimate": 0.4
+    },
+    {
+      "start": {
+        "frame": 1707,
+        "time_s": 56.9
+      },
+      "end_exclusive": {
+        "frame": 1708,
+        "time_s": 56.933333
+      },
+      "shot": "one-frame extreme detail",
+      "framing": "Plated mechanism fills frame.",
+      "caster_height_fraction_of_frame_estimate": 1.5
+    },
+    {
+      "start": {
+        "frame": 1708,
+        "time_s": 56.933333
+      },
+      "end_exclusive": {
+        "frame": 1710,
+        "time_s": 57.0
+      },
+      "shot": "black insert",
+      "framing": "Two frames.",
+      "caster_height_fraction_of_frame_estimate": null
+    },
+    {
+      "start": {
+        "frame": 1710,
+        "time_s": 57.0
+      },
+      "end_exclusive": {
+        "frame": 1719,
+        "time_s": 57.3
+      },
+      "shot": "extreme flame crop",
+      "framing": "Frame nearly yellow; gradually reveal target star.",
+      "caster_height_fraction_of_frame_estimate": 1.5
+    },
+    {
+      "start": {
+        "frame": 1719,
+        "time_s": 57.3
+      },
+      "end_exclusive": {
+        "frame": 1739,
+        "time_s": 57.966667
+      },
+      "shot": "close impact hold",
+      "framing": "Two hoops left, starburst right; small shake during extended hold.",
+      "caster_height_fraction_of_frame_estimate": 0.7
+    },
+    {
+      "start": {
+        "frame": 1739,
+        "time_s": 57.966667
+      },
+      "end_exclusive": {
+        "frame": 1766,
+        "time_s": 58.866667
+      },
+      "shot": "wide pullback",
+      "framing": "Keep target in right third after knockback; no second finisher hit.",
+      "caster_height_fraction_of_frame_estimate": 0.25
+    }
+  ],
+  "camera_baseline": "Side-on 2.5D battle plane, caster left facing right, target right facing left. Slight elevated view of floor. Reproduce with locked yaw and short dolly/pan changes, not orbiting camera. Gold border and subtitles are presentation overlays.",
+  "contact_sheets": [
+    "sheets/gregor-s3_001.jpg",
+    "sheets/gregor-s3_002.jpg",
+    "sheets/gregor-s3_003.jpg",
+    "sheets/gregor-s3_004.jpg",
+    "sheets/gregor-s3_005.jpg",
+    "sheets/boundaries_002.jpg",
+    "sheets/boundaries_003.jpg",
+    "sheets/boundaries_004.jpg",
+    "sheets/details.jpg"
+  ],
+  "limitations": [
+    "Frame numbers identify visible changes, not hidden game damage ticks. Occluded contacts have explicit uncertainty. Coin groupings are hypotheses without UI. Noncombat montage transitions reviewed at 6 fps have up to 5-frame uncertainty.",
+    "H = standing caster body height in the same shot, excluding VFX. Distances are approximate projected centre-to-centre separation, not calibrated 3D distances. Camera zoom/knockback is not caster travel. Hex colours are visual approximations, not sampled material colours."
+  ],
+  "observed_damage_groups": 3,
+  "coin_count_comparison": "3 grouped damage events / 3 kit coins; grouping is inferred, not combat-UI verified"
+}

@@ -1,16 +1,16 @@
 {
   "id": "crimson-chain-axe-s2",
-  "rev": 1,
+  "rev": 3,
   "videoId": "Gpj-lvOnAgs",
-  "start_s": 96,
-  "end_s": 101.5,
+  "start_s": 30.53,
+  "end_s": 34.268,
   "skill": {
-    "name": "Hooked Lunge",
-    "coins": 3,
+    "name": "二重の刺繍",
+    "coins": 2,
     "asteraSkillId": "crimson-chain-axe-s2"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,35 +26,37 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "Hooked Lunge",
-      "start_s": 96,
-      "end_s": 101.5,
-      "notes": ""
+      "label": "S2",
+      "start_s": 30.53,
+      "end_s": 34.268
     },
     {
-      "id": "hit-1",
+      "id": "hit1",
       "kind": "hit",
-      "label": "contact 1",
-      "t_s": 97.5
+      "label": "接触 1",
+      "t_s": 32.065367,
+      "notes": "astra2 source frame 961; ranged_projectile; game tick 31. Coin grouping uncertainty remains in reference analysis."
     },
     {
-      "id": "hit-2",
+      "id": "hit2",
       "kind": "hit",
-      "label": "contact 2",
-      "t_s": 98.8
-    },
-    {
-      "id": "hit-3",
-      "kind": "hit",
-      "label": "contact 3",
-      "t_s": 100.05
+      "label": "接触 2",
+      "t_s": 33.4334,
+      "notes": "astra2 source frame 1002; ranged_projectile; game tick 58. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Trailer has no skill labels. Variant mapping is provisional; see notes.md. Extended Q is a cinematic adaptation, not a confirmed identity E.G.O.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/crimson-chain-axe/s2.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "crimson-chain-axe",
+  "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+  "videoTitle": "Haute Couture::The Crimson God of Le Rouge Sinclair — skill showcase",
+  "iterations": 0,
+  "report": "/report/crimson-chain-axe",
+  "referenceRevision": "1903f08c8e9483e5f3b2c9e5808068e1d6a13528f0b70400344fb70b993626d2",
+  "contentRevision": "cd40e04f1185299e39983adad43d554ae4c1baa6b6edb41be96de88fde12b2c0"
 }

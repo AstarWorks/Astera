@@ -60,7 +60,7 @@ function thumbs(rec, S, mc) {
   const t = hits.length ? hits[0] : c.start_s;
   const out = { t_s: t, video: null, mc: null };
   const cache = S.cacheFor(rec.id, rec.src);
-  if (cache) {
+  if (cache && c.status !== "from-wiki") {
     let fps = 30;
     try { fps = JSON.parse(readFileSync(join(cache, "meta.json"), "utf8")).fps || 30; } catch { /* keep 30 */ }
     out.video = `/media/${rec.id}/frames/frame_${String(Math.max(0, Math.floor((t - c.start_s) * fps))).padStart(5, "0")}.jpg`;
@@ -75,15 +75,15 @@ function thumbs(rec, S, mc) {
 
 function caseCard(rec, S, mcInfo) {
   const c = rec.c, skillId = c.skill?.asteraSkillId;
-  const mc = mcInfo(skillId);
+  const mc = mcInfo(skillId, c.referenceRevision, c.contentRevision);
   const captured = !!mc.sources["vfx-compare"];
   const log = c.editLog || [];
   const report = typeof c.report === "string" && c.report ? c.report : null;
   return {
     id: rec.id, skillId: skillId ?? "", identity: c.identity ?? "", videoTitle: c.videoTitle ?? "", videoId: c.videoId, weapon: c.weapon ?? "",
     skillName: c.skill?.name ?? rec.id, coins: c.skill?.coins ?? null,
-    hits: (mc.hitTicks || []).length,
-    status: captured ? "captured" : c.status === "built" ? "built" : "analysed",
+    hits: c.referenceRevision && !mc.hitTicks?.length ? null : (mc.hitTicks || []).length,
+    status: c.status === "from-wiki" ? "from-wiki" : captured ? "captured" : c.status === "built" ? "built" : "analysed",
     verification: c.verification ?? { status: "unverified" },
     iterations: Number(c.iterations ?? 0),
     report,

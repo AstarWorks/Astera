@@ -3,8 +3,8 @@ name:
   ja: 城壁の構え
   en: Tower Shield
 description:
-  ja: 三秒間大盾を構え、耐性と溜めを得る。
-  en: Brace behind a tower shield for three seconds, gaining resistance and charge.
+  ja: 半透明の障壁で受け止める。
+  en: Brace behind a translucent barrier.
 archetype: sequence
 cooldown_ticks: 120
 resource_cost: 15
@@ -34,7 +34,7 @@ phases:
       value: 0.7
     ticks:
       type: literal
-      value: 60
+      value: 162
   - type: modify_attribute
     targets:
       type: caster
@@ -44,7 +44,7 @@ phases:
       value: 1.0
     ticks:
       type: literal
-      value: 60
+      value: 162
   - type: apply_status
     targets:
       type: caster

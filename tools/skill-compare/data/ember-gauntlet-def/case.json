@@ -1,16 +1,16 @@
 {
   "id": "ember-gauntlet-def",
-  "rev": 1,
+  "rev": 2,
   "videoId": "vBob-jTmlnc",
-  "start_s": 47.5,
-  "end_s": 49.2,
+  "start_s": 46.9,
+  "end_s": 53.466667,
   "skill": {
-    "name": "ember-gauntlet-def",
+    "name": "迎撃の炎拳",
     "coins": 1,
     "asteraSkillId": "ember-gauntlet-def"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,23 +26,30 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "ember-gauntlet-def",
-      "start_s": 47.5,
-      "end_s": 49.2,
-      "notes": ""
+      "label": "DEF",
+      "start_s": 46.9,
+      "end_s": 53.466667
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "Coin 1",
-      "t_s": 48.466667
+      "label": "接触 1",
+      "t_s": 52.533333,
+      "notes": "astra2 source frame 1576; dash_melee; game tick 113. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Measured native 30 fps. DEF identification probable: incoming strike followed by one sweep. E.G.O absent.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/ember-gauntlet/def.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "ember-gauntlet",
+  "identity": "Firefist Gregor",
+  "videoTitle": "Firefist Gregor — skill showcase",
+  "iterations": 0,
+  "report": "/report/ember-gauntlet",
+  "referenceRevision": "4fb46e5320e867ef62dde3859378c4da9556f45b9e6262a4e3540a0bbbe3d16f",
+  "contentRevision": "196eef83535de8fa2074d282063235a63c45fa3a4b6013e3c6491932be5cdbcd"
 }

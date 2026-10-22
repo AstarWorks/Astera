@@ -17,18 +17,21 @@ video, out = sys.argv[1], sys.argv[2]
 start, end = float(sys.argv[3]), float(sys.argv[4])
 rng = ["-ss", str(start), "-to", str(end)]
 
-with tempfile.TemporaryDirectory() as tmp:
-    wav = os.path.join(tmp, "a.wav")
-    subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-y", *rng, "-i", video, "-vn", "-ac", "1", "-ar", "22050", wav], check=True)
-    with wave.open(wav) as w:
-        sr = w.getframerate()
-        x = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32) / 32768
+has_audio = bool(json.loads(subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries", "stream=index", "-of", "json", video]))["streams"])
+sr, x = 22050, np.zeros(0, dtype=np.float32)
+if has_audio:
+    with tempfile.TemporaryDirectory() as tmp:
+        wav = os.path.join(tmp, "a.wav")
+        subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-y", *rng, "-i", video, "-vn", "-ac", "1", "-ar", "22050", wav], check=True)
+        with wave.open(wav) as w:
+            sr = w.getframerate()
+            x = np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32) / 32768
 
 # --- waveform ---------------------------------------------------------------
 step = int(sr * 0.010)
 nb = len(x) // step
 peaks = np.abs(x[: nb * step]).reshape(nb, step).max(axis=1) if nb else np.zeros(0)
-peaks = peaks / (peaks.max() or 1)
+peaks = peaks / (peaks.max() or 1) if len(peaks) else peaks
 
 # --- onsets -----------------------------------------------------------------
 hop, win = 256, 1024

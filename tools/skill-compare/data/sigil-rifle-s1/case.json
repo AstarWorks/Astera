@@ -1,16 +1,16 @@
 {
   "id": "sigil-rifle-s1",
-  "rev": 1,
+  "rev": 2,
   "videoId": "-pOx9fo6A7M",
-  "start_s": 12.7,
-  "end_s": 14.9,
+  "start_s": 13.083333,
+  "end_s": 14.958333,
   "skill": {
-    "name": "Marked Round",
+    "name": "銃床の踏み込み",
     "coins": 1,
     "asteraSkillId": "sigil-rifle-s1"
   },
   "intent": {
-    "file": "intent.json"
+    "file": "intent-round2.json"
   },
   "mc": {
     "source": "vfx-compare",
@@ -18,7 +18,7 @@
     "castTickInTrace": 5
   },
   "focus": {
-    "enabled": true,
+    "enabled": false,
     "factor": 0.2,
     "windowMs": 150
   },
@@ -26,24 +26,30 @@
     {
       "id": "skill",
       "kind": "skill",
-      "label": "sigil-rifle-s1",
-      "start_s": 12.7,
-      "end_s": 14.9,
-      "notes": ""
+      "label": "S1",
+      "start_s": 13.083333,
+      "end_s": 14.958333
     },
     {
       "id": "hit1",
       "kind": "hit",
-      "label": "coin 1",
+      "label": "接触 1",
       "t_s": 13.75,
-      "notes": "Visual contact; nearest 20 TPS tick."
+      "notes": "astra2 source frame 330; dash_melee; game tick 13. Coin grouping uncertainty remains in reference analysis."
     }
   ],
-  "notes": "Four real-client PDCA iterations; partial visual parity. See notes.md and ../sigil-rifle-REPORT.md. No full-match claim.",
+  "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/sigil-rifle/s1.json を参照。",
   "editLog": [],
   "status": "built",
   "verification": {
     "status": "unverified",
-    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
-  }
+    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+  },
+  "weapon": "sigil-rifle",
+  "identity": "Fell Bullet Yi Sang",
+  "videoTitle": "Fell Bullet Yi Sang — skill showcase",
+  "iterations": 0,
+  "report": "/report/sigil-rifle",
+  "referenceRevision": "bf360ac0d19bae0467699a79edea95481e4a3eea5f915da462841079fab77ccb",
+  "contentRevision": "b410474fe7a289dda90cc6d440f6dbab28e4813bfe1b8fd2522fa2bb6429d2e0"
 }

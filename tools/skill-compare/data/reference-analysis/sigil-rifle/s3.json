@@ -1,0 +1,444 @@
+{
+  "metadata": {
+    "video_id": "-pOx9fo6A7M",
+    "identity": "N Corp. E.G.O::Fell Bullet Yi Sang",
+    "source_video": "../../vid/-pOx9fo6A7M.mp4",
+    "fps": 24,
+    "total_frames": 1035,
+    "duration_s": 43.125,
+    "time_convention": "Zero-based native decoded frame; seconds=frame/24; intervals end-exclusive. Input brief says 30 fps, but ffprobe counted 1035 frames at 24/1. No invented 30 fps frames.",
+    "method": "Whole-video 6 fps overview, all native frames 300–836 viewed on 23 sheets, enlarged S1 contact sheet. Kit supplied locally; old notes consulted only after frame inspection.",
+    "measurement_limits": "Body-height distances are screen-space estimates, not world measurements. Hex colors are visual palette approximations. Skill names are inferred: no skill-name/coin UI. Contact means first visible impact evidence; hidden contact is explicitly qualified."
+  },
+  "slot": "s3",
+  "name": "Target Readjustment Fire",
+  "observed": true,
+  "sequence": {
+    "start_frame": 478,
+    "end_frame_exclusive": 641,
+    "start_s": 19.916667,
+    "end_s": 26.708333,
+    "description": "wind-up through recovery/cut"
+  },
+  "official_coins": 2,
+  "mapping_confidence": "high",
+  "weapon": {
+    "type": "long rifle / firearm",
+    "length_body_heights": "approximately 1.2–1.5",
+    "parts": "Long straight narrow barrel, rectangular receiver/fore-end, angular shoulder stock and dark grip; metallic parallel rails/highlights. No sword blade or bayonet can be established.",
+    "colors": {
+      "body": "#211E20",
+      "metal_highlights": "#8B7771",
+      "edge_dark": "#0D0B0E"
+    },
+    "holding": "Initially vertical rifle in front of head, then brought down to shoulder while dropping to one knee. Gloved support under fore-end in barrel cut-in.",
+    "evidence": [
+      "sheets/native_004.jpg f388–389",
+      "sheets/native_010.jpg f527–529"
+    ]
+  },
+  "contact_sheets": [
+    "sheets/native_008.jpg",
+    "sheets/native_009.jpg",
+    "sheets/native_010.jpg",
+    "sheets/native_011.jpg",
+    "sheets/native_012.jpg",
+    "sheets/native_013.jpg",
+    "sheets/native_014.jpg",
+    "sheets/native_015.jpg"
+  ],
+  "effects": [
+    {
+      "start_frame": 478,
+      "end_frame_exclusive": 496,
+      "start_s": 19.916667,
+      "end_s": 20.666667,
+      "description": "Persistent torn red shoulder plume",
+      "size_body_heights": "~1",
+      "position": "behind head and raised rifle",
+      "palette": {
+        "core_red": "#FF170D",
+        "glow_red": "#E90010",
+        "dark_red": "#650B13",
+        "spark_core": "#FFF5B0",
+        "spark_gold": "#FFC126",
+        "smoke": "#701B17"
+      },
+      "layering": "bright red or pale-gold core over red glow; dark maroon/black torn accents and translucent smoke; foreground effects obscure sprites",
+      "motion_and_fade": "Small flickering threads"
+    },
+    {
+      "start_frame": 496,
+      "end_frame_exclusive": 510,
+      "start_s": 20.666667,
+      "end_s": 21.25,
+      "description": "Tall hooked red crescent, black torn underside, falling red flakes",
+      "size_body_heights": "~2–2.5 tall",
+      "position": "around caster",
+      "palette": {
+        "core_red": "#FF170D",
+        "glow_red": "#E90010",
+        "dark_red": "#650B13",
+        "spark_core": "#FFF5B0",
+        "spark_gold": "#FFC126",
+        "smoke": "#701B17"
+      },
+      "layering": "bright red or pale-gold core over red glow; dark maroon/black torn accents and translucent smoke; foreground effects obscure sprites",
+      "motion_and_fade": "Sweeps over head during rifle lowering; fades from top down"
+    },
+    {
+      "start_frame": 527,
+      "end_frame_exclusive": 545,
+      "start_s": 21.958333,
+      "end_s": 22.708333,
+      "description": "Dark single-frame blink then broad red muzzle plume, petals and smoky halo",
+      "size_body_heights": "~2 long; ~1.5 tall",
+      "position": "muzzle right",
+      "palette": {
+        "core_red": "#FF170D",
+        "glow_red": "#E90010",
+        "dark_red": "#650B13",
+        "spark_core": "#FFF5B0",
+        "spark_gold": "#FFC126",
+        "smoke": "#701B17"
+      },
+      "layering": "bright red or pale-gold core over red glow; dark maroon/black torn accents and translucent smoke; foreground effects obscure sprites",
+      "motion_and_fade": "f528 dark frame; f530 explosive expansion then fade"
+    },
+    {
+      "start_frame": 551,
+      "end_frame_exclusive": 574,
+      "start_s": 22.958333,
+      "end_s": 23.916667,
+      "description": "Thin red horizontal trail, pale-gold impact needles and target red spray",
+      "size_body_heights": "~4 wide; ~1.5 burst",
+      "position": "central target torso/floor",
+      "palette": {
+        "core_red": "#FF170D",
+        "glow_red": "#E90010",
+        "dark_red": "#650B13",
+        "spark_core": "#FFF5B0",
+        "spark_gold": "#FFC126",
+        "smoke": "#701B17"
+      },
+      "layering": "bright red or pale-gold core over red glow; dark maroon/black torn accents and translucent smoke; foreground effects obscure sprites",
+      "motion_and_fade": "Gold onset f554; long red line remains; burst expands f562 then motes"
+    },
+    {
+      "start_frame": 574,
+      "end_frame_exclusive": 612,
+      "start_s": 23.916667,
+      "end_s": 25.5,
+      "description": "Three red line-art circles; floor star; crossing gold trails and red spikes",
+      "size_body_heights": "~3 wide cluster",
+      "position": "target cluster",
+      "palette": {
+        "core_red": "#FF170D",
+        "glow_red": "#E90010",
+        "dark_red": "#650B13",
+        "spark_core": "#FFF5B0",
+        "spark_gold": "#FFC126",
+        "smoke": "#701B17"
+      },
+      "layering": "bright red or pale-gold core over red glow; dark maroon/black torn accents and translucent smoke; foreground effects obscure sprites",
+      "motion_and_fade": "Build f574–576, hold through f587, floor star f588, zoom f591, spark f593; traces fade by f605, circles by f612"
+    }
+  ],
+  "props": [
+    {
+      "type": "main-target sigil",
+      "count": 1,
+      "origin": "materializes at central target, not at muzzle",
+      "path": "stationary vertical plane across torso",
+      "size_body_heights": "~1.2–1.5 diameter",
+      "start_frame": 551,
+      "end_frame_exclusive": 564,
+      "colors": [
+        "#FF100D",
+        "#8A0714"
+      ]
+    },
+    {
+      "type": "redirecting sigil discs",
+      "count": 3,
+      "origin": "around central target/nearby target cluster",
+      "path": "two upright side discs plus one tilted overhead disc; hold, then traces cross between them",
+      "size_body_heights": "~1–1.5 each",
+      "start_frame": 574,
+      "end_frame_exclusive": 612,
+      "colors": [
+        "#FF100D"
+      ],
+      "count_confidence": "high at f576–587"
+    },
+    {
+      "type": "shot/tracers",
+      "count": "one primary discharge; second crossing volley, individual bullets unresolved",
+      "origin": "primary rifle muzzle; follow-up target-local ring arrangement",
+      "path": "primary left-to-right; follow-up horizontal crossing target zone",
+      "size_body_heights": "~0.05–0.15 thick, ~3–5 long",
+      "timing_frames": [
+        530,
+        554,
+        593
+      ]
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 478,
+      "end_frame_exclusive": 496,
+      "start_s": 19.916667,
+      "end_s": 20.666667,
+      "description": "Stationary vertical rifle presentation; camera pushes in"
+    },
+    {
+      "start_frame": 496,
+      "end_frame_exclusive": 502,
+      "start_s": 20.666667,
+      "end_s": 20.916667,
+      "description": "Rifle rotated level; drops onto one knee without appreciable translation"
+    },
+    {
+      "start_frame": 502,
+      "end_frame_exclusive": 545,
+      "start_s": 20.916667,
+      "end_s": 22.708333,
+      "description": "Kneeling aim and small firing recoil; <0.25 body-height displacement"
+    },
+    {
+      "start_frame": 545,
+      "end_frame_exclusive": 641,
+      "start_s": 22.708333,
+      "end_s": 26.708333,
+      "description": "Caster offscreen; do not invent teleport to targets"
+    }
+  ],
+  "hits": [
+    {
+      "coin": 1,
+      "contact_frame": 554,
+      "contact_s": 23.083333,
+      "contact": "Gold/white horizontal projectile impact through marked central target",
+      "range_class": "ranged_projectile",
+      "caster_target_distance_body_heights": null,
+      "evidence": [
+        "sheets/native_011.jpg f551–555"
+      ],
+      "uncertainty": "Caster offscreen; long-range separation established by traveling camera, no defensible numeric distance."
+    },
+    {
+      "coin": 2,
+      "contact_frame": 593,
+      "contact_s": 24.708333,
+      "contact": "Gold tracer/impact appears within target-local red ring arrangement",
+      "range_class": "aoe_at_target",
+      "caster_target_distance_body_heights": null,
+      "evidence": [
+        "sheets/native_013.jpg f591–595"
+      ],
+      "uncertainty": "Secondary projectile-like volley local to targets; contact obscured by sigils. Range class describes presentation, not official damage type."
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 478,
+      "end_frame_exclusive": 496,
+      "start_s": 19.916667,
+      "end_s": 20.666667,
+      "description": "Vertical-rifle preparation"
+    },
+    {
+      "start_frame": 496,
+      "end_frame_exclusive": 510,
+      "start_s": 20.666667,
+      "end_s": 21.25,
+      "description": "Red flourish and kneeling aim; this is not a shot or hit"
+    },
+    {
+      "start_frame": 510,
+      "end_frame_exclusive": 527,
+      "start_s": 21.25,
+      "end_s": 21.958333,
+      "description": "Aim hold, red vignette"
+    },
+    {
+      "start_frame": 527,
+      "end_frame_exclusive": 531,
+      "start_s": 21.958333,
+      "end_s": 22.125,
+      "description": "Barrel f527; dark blink f528; barrel f529; release f530"
+    },
+    {
+      "start_frame": 531,
+      "end_frame_exclusive": 545,
+      "start_s": 22.125,
+      "end_s": 22.708333,
+      "description": "Muzzle smoke expands then thins"
+    },
+    {
+      "start_frame": 545,
+      "end_frame_exclusive": 551,
+      "start_s": 22.708333,
+      "end_s": 22.958333,
+      "description": "Rightward traveling camera across architecture"
+    },
+    {
+      "start_frame": 551,
+      "end_frame_exclusive": 554,
+      "start_s": 22.958333,
+      "end_s": 23.083333,
+      "description": "Target circle and incoming red tracer"
+    },
+    {
+      "start_frame": 554,
+      "end_frame_exclusive": 574,
+      "start_s": 23.083333,
+      "end_s": 23.916667,
+      "description": "First impact, then red target burst and motes"
+    },
+    {
+      "start_frame": 574,
+      "end_frame_exclusive": 591,
+      "start_s": 23.916667,
+      "end_s": 24.625,
+      "description": "Three rings assemble and hold; red floor star f588"
+    },
+    {
+      "start_frame": 591,
+      "end_frame_exclusive": 595,
+      "start_s": 24.625,
+      "end_s": 24.791667,
+      "description": "Punch into ring cluster; second impact f593"
+    },
+    {
+      "start_frame": 595,
+      "end_frame_exclusive": 612,
+      "start_s": 24.791667,
+      "end_s": 25.5,
+      "description": "Pull back, gold streaks decay and ring outlines fade"
+    },
+    {
+      "start_frame": 612,
+      "end_frame_exclusive": 641,
+      "start_s": 25.5,
+      "end_s": 26.708333,
+      "description": "Target aftermath hold until cut to new performance"
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 478,
+      "end_frame_exclusive": 496,
+      "start_s": 19.916667,
+      "end_s": 20.666667,
+      "description": "Cut to caster full-body, slow push into head/vertical rifle"
+    },
+    {
+      "start_frame": 496,
+      "end_frame_exclusive": 502,
+      "start_s": 20.666667,
+      "end_s": 20.916667,
+      "description": "Tight face/level rifle flourish then pull to kneeling full-body"
+    },
+    {
+      "start_frame": 502,
+      "end_frame_exclusive": 527,
+      "start_s": 20.916667,
+      "end_s": 21.958333,
+      "description": "Medium kneeling caster, facing right; dark red vignette"
+    },
+    {
+      "start_frame": 527,
+      "end_frame_exclusive": 528,
+      "start_s": 21.958333,
+      "end_s": 22.0,
+      "description": "One-frame extreme rifle close-up"
+    },
+    {
+      "start_frame": 528,
+      "end_frame_exclusive": 529,
+      "start_s": 22.0,
+      "end_s": 22.041667,
+      "description": "One-frame nearly uniform dark brown blink"
+    },
+    {
+      "start_frame": 529,
+      "end_frame_exclusive": 530,
+      "start_s": 22.041667,
+      "end_s": 22.083333,
+      "description": "One-frame rifle close-up"
+    },
+    {
+      "start_frame": 530,
+      "end_frame_exclusive": 531,
+      "start_s": 22.083333,
+      "end_s": 22.125,
+      "description": "One-frame closer firing pose"
+    },
+    {
+      "start_frame": 531,
+      "end_frame_exclusive": 545,
+      "start_s": 22.125,
+      "end_s": 22.708333,
+      "description": "Medium caster plume and fade"
+    },
+    {
+      "start_frame": 545,
+      "end_frame_exclusive": 551,
+      "start_s": 22.708333,
+      "end_s": 22.958333,
+      "description": "Whip-pan right: column close-ups f549–550, no caster teleport"
+    },
+    {
+      "start_frame": 551,
+      "end_frame_exclusive": 561,
+      "start_s": 22.958333,
+      "end_s": 23.375,
+      "description": "Medium target trio with central vertical sigil; camera holds during first hit"
+    },
+    {
+      "start_frame": 561,
+      "end_frame_exclusive": 574,
+      "start_s": 23.375,
+      "end_s": 23.916667,
+      "description": "Pull out as central target erupts"
+    },
+    {
+      "start_frame": 574,
+      "end_frame_exclusive": 591,
+      "start_s": 23.916667,
+      "end_s": 24.625,
+      "description": "Wide target cluster with ring preparation"
+    },
+    {
+      "start_frame": 591,
+      "end_frame_exclusive": 593,
+      "start_s": 24.625,
+      "end_s": 24.708333,
+      "description": "Two-frame extreme target/ring crop"
+    },
+    {
+      "start_frame": 593,
+      "end_frame_exclusive": 595,
+      "start_s": 24.708333,
+      "end_s": 24.791667,
+      "description": "Close target spark shot"
+    },
+    {
+      "start_frame": 595,
+      "end_frame_exclusive": 612,
+      "start_s": 24.791667,
+      "end_s": 25.5,
+      "description": "Pull back and fade"
+    },
+    {
+      "start_frame": 612,
+      "end_frame_exclusive": 641,
+      "start_s": 25.5,
+      "end_s": 26.708333,
+      "description": "Locked wide target aftermath"
+    }
+  ],
+  "mapping_evidence": "Rifle firing and two impact phases, with target-local redirecting circles; matches 2-coin Pierce S3. One muzzle discharge, two damage beats. Upright starting pose first visible at cut f478; any earlier preparation is not shown."
+}
