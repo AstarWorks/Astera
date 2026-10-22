@@ -39,10 +39,14 @@ class ResourcePackBuilderTest {
         for (sprite in listOf("heart/full", "heart/half", "heart/container", "heart/absorbing_full", "armor_full")) {
             assertThat(files).containsKey("assets/minecraft/textures/gui/sprites/hud/$sprite.png")
         }
-        assertThat(files).containsKey("assets/astera/models/items/swords/amethyst-dagger.json")
-        assertThat(files).containsKey("assets/astera/textures/items/swords/dagger_v01.png")
-        val itemDef = json(files.getValue("assets/astera/items/swords/amethyst-dagger.json")).path("model")
-        assertThat(itemDef.path("model").asText()).isEqualTo("astera:items/swords/amethyst-dagger")
+        // content/models is authored in AsteraStudio and changes often, so check
+        // the mapping generically: each item definition points at a packed model.
+        val itemDefs = files.keys.filter { it.startsWith("assets/astera/items/") && it.endsWith(".json") }
+        assertThat(itemDefs).isNotEmpty()
+        for (def in itemDefs) {
+            val model = json(files.getValue(def)).path("model").path("model").asText()
+            assertThat(files).`as`(def).containsKey("assets/astera/models/" + model.substringAfter("astera:") + ".json")
+        }
     }
 
     @Test
