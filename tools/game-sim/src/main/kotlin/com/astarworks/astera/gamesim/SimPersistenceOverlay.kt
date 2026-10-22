@@ -26,7 +26,7 @@ import com.astarworks.astera.stats.application.port.outbound.IPlayerXpRepository
 import com.astarworks.astera.stats.application.service.InMemoryPlayerXpRepository
 
 /**
- * Stand-in for Astera-Persistence (ADR-0187): distinct, separately-typed
+ * Stand-in for Astera-Persistence (ADR-0195): distinct, separately-typed
  * repository instances registered at priority 100 BEFORE any wiring runs,
  * exactly when the real plugin registers its Postgres overlays (its `onLoad`).
  * Every consumer must end up on these instances and none on the priority-0

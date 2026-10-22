@@ -167,7 +167,7 @@ internal class CorePaperBindings(
                     eventBus = deps.services.getOrThrow<IDomainEventBus>(),
                     customBlockRegistry = deps.customBlocks,
                     durabilityRule = deps.durabilityRule,
-                    // ADR-0187: the final journal (Postgres overlay when present), not the constructor default.
+                    // ADR-0195: the final journal (Postgres overlay when present), not the constructor default.
                     journal = deps.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository>(),
                 )
                 // Wave 6c §B (ADR-0160) introduced PaperBlockStateGateway.warmUp(WorldId)

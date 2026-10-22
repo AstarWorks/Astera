@@ -77,7 +77,7 @@ public object ItemsWiring {
 
         // Item registry: Core already loaded content/items/ and registered it (and its
         // /astera reload entry). A second ItemContents here would be a second copy that
-        // Core's consumers never see (ADR-0187), so reuse the registered one.
+        // Core's consumers never see (ADR-0195), so reuse the registered one.
         val itemRegistry: IItemRegistry = services.getOrThrow<IItemRegistry>()
 
         // Cooldown tracker — shared with Combat (the registry returns
@@ -92,6 +92,10 @@ public object ItemsWiring {
 
         // Items-owned ports.
         registrations += services.register<IItemDelivery>(itemDelivery)
+        // F2-5 (ADR-0196): the combat plugin's admin Skills page hands out skill testers through this.
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.ISkillTesterDelivery>(
+            com.astarworks.astera.items.application.admin.SkillTesterDelivery(itemRegistry, itemDelivery),
+        )
         registrations += services.register<IPaperItemIdResolver>(itemIdResolver)
 
         // ── Wave 5refine / ADR-0100 — Item Refinement Layer ──────────────

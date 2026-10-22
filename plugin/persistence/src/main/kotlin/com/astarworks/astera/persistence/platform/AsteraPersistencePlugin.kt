@@ -80,7 +80,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
 /**
- * Astera-Persistence plugin entrypoint (ADR-0022, ADR-0187).
+ * Astera-Persistence plugin entrypoint (ADR-0022, ADR-0195).
  *
  * Everything happens in [onLoad], which Paper runs for every plugin before any
  * plugin's `onEnable`:
@@ -190,7 +190,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             attributeContainerStore,
             priority = 100,
         )
-        // ADR-0187: onboarding fact + lifetime XP survive restarts (V49 / V50).
+        // ADR-0195: onboarding fact + lifetime XP survive restarts (V49 / V50).
         stage<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>(
             com.astarworks.astera.persistence.repository.PostgresPlayerProfileRepository(ctx.database),
             priority = 100,

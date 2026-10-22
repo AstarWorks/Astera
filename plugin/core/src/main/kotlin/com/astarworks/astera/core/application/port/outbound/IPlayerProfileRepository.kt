@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerProfile
 
 /**
- * Durable store behind [IPlayerProfileService] (ADR-0187). The service keeps the
+ * Durable store behind [IPlayerProfileService] (ADR-0195). The service keeps the
  * starter-grant logic; this port keeps the "has this player ever been onboarded"
  * fact, so a restart does not re-run the first-time grant (starter kit, 100 GOLD).
  * Persistence overlays the in-memory default at priority 100.

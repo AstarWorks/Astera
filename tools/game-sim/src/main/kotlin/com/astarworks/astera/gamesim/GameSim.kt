@@ -439,7 +439,7 @@ public class GameSim private constructor(
             /** The snapshot store shared by every server of a network (the Postgres all backends use); `null` = this server's own in-memory one. */
             snapshots: com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository? = null,
 
-            /** Registers the stand-in Persistence overlay before any wiring, like the plugin's onLoad (ADR-0187). */
+            /** Registers the stand-in Persistence overlay before any wiring, like the plugin's onLoad (ADR-0195). */
             persistenceOverlay: Boolean = false,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
@@ -492,7 +492,7 @@ public class GameSim private constructor(
                 proxyMessenger = proxy?.let { messenger -> { _ -> messenger } },
             )
             val coreCtx = context()
-            // Shared snapshot store must exist before Core wiring reads it (ADR-0187 late-override guard).
+            // Shared snapshot store must exist before Core wiring reads it (ADR-0195 late-override guard).
             if (snapshots != null) {
                 coreCtx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository>(snapshots, priority = 100)
             }

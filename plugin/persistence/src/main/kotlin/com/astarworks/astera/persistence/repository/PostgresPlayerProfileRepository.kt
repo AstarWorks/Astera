@@ -10,7 +10,7 @@ import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
-/** Postgres-backed [IPlayerProfileRepository] (V49, ADR-0187). `insertIfAbsent` is `INSERT .. ON CONFLICT DO NOTHING`. */
+/** Postgres-backed [IPlayerProfileRepository] (V49, ADR-0195). `insertIfAbsent` is `INSERT .. ON CONFLICT DO NOTHING`. */
 public class PostgresPlayerProfileRepository(private val db: Database) : IPlayerProfileRepository {
 
     override fun find(playerId: PlayerId): PlayerProfile? = transaction(db) {

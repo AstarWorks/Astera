@@ -16,7 +16,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0187: with the Persistence overlay registered before any wiring (as the
+ * ADR-0195: with the Persistence overlay registered before any wiring (as the
  * plugin's `onLoad` does), every consumer — Core's join listener, the wallet,
  * the vault use cases, the profile service — lands on the overlay instances.
  * No port may be overridden after a consumer resolved it.

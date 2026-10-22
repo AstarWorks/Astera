@@ -36,7 +36,7 @@ import java.nio.file.Path
 /** Permission, proxy, reload dispatcher, particle / sound / effect schedulers, player repositories and survival foundation. */
 internal fun CoreWiringState.wireContentAndRepositories() {
     // ---- Permission service ------------------------------------------
-    // ADR-0187: Astera-Persistence registers its Postgres overlays (priority 100)
+    // ADR-0195: Astera-Persistence registers its Postgres overlays (priority 100)
     // in its onLoad, i.e. before this wiring runs, so `get` already returns the
     // final implementation. The in-memory one below is the Postgres-less fallback.
     permissionService =
@@ -177,6 +177,11 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     services.register<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>(
         soundScheduler, priority = 0,
     )
+    // ADR-0196: time-animated particle patterns (RTM ParticleScheduler port).
+    services.register<com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator>(
+        com.astarworks.astera.core.application.service.effect.SchedulerParticleAnimator(scheduler, effectsWorldGateway),
+        priority = 0,
+    )
     services.register<com.astarworks.astera.core.application.port.outbound.effect.IEffectOrchestrator>(
         effectOrchestrator, priority = 0,
     )
@@ -204,7 +209,7 @@ internal fun CoreWiringState.wireContentAndRepositories() {
         services.get<IPlayerAttributeContainerStore>() ?: InMemoryPlayerAttributeContainer().also {
             services.register<IPlayerAttributeContainerStore>(it, priority = 0)
         }
-    // Persistence registers its overlays in onLoad (ADR-0187), so `get` already
+    // Persistence registers its overlays in onLoad (ADR-0195), so `get` already
     // returns the final implementation; the in-memory default is only the fallback.
     sessionRepo = services.get<IPlayerSessionRepository>()
         ?: InMemoryPlayerSessionRepository().also { services.register<IPlayerSessionRepository>(it, priority = 0) }

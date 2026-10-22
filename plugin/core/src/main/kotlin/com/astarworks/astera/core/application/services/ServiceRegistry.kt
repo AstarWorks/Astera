@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
  * - Cancellable via [Registration]; plugins call `unregister()` on
  *   `onDisable` to clean up when the server shuts a single plugin.
  * - NOT thread-safe; called only from the Paper main thread.
- * - Late-override guard (ADR-0187): once a type has been resolved, a later
+ * - Late-override guard (ADR-0195): once a type has been resolved, a later
  *   registration that would outrank the resolved implementation means some
  *   consumer already captured the wrong one (overlay split brain). It is
  *   recorded in [lateOverrides] and reported to [lateOverrideListener].
@@ -41,7 +41,7 @@ public class ServiceRegistry {
         val message: String
             get() = "ServiceRegistry: ${type.qualifiedName} registered at priority $registeredPriority " +
                 "AFTER a consumer resolved priority $resolvedPriority. That consumer holds a stale " +
-                "implementation (persistence overlay split brain, ADR-0187)."
+                "implementation (persistence overlay split brain, ADR-0195)."
     }
 
     private val _lateOverrides: MutableList<LateOverride> = mutableListOf()

@@ -79,7 +79,7 @@ public class RecordingWorldGateway(
     override fun blockAt(world: WorldId, at: Vec3): BlockType? = this.world.blockAt(world, at)
 
     override fun spawnParticle(world: WorldId, at: Vec3, particle: ParticleSpec) {
-        recorder.recordParticle(scheduler.currentTick(), world.value, at, particle.key, particle.count)
+        recorder.recordParticle(scheduler.currentTick(), world.value, at, particle.key, particle.count, particle)
     }
 
     override fun playSound(world: WorldId, at: Vec3, sound: SoundSpec) {

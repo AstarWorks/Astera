@@ -11,7 +11,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
-/** Postgres-backed [IPlayerXpRepository] (V50, ADR-0187). `addXp` is an atomic `ON CONFLICT DO UPDATE total_xp = total_xp + n`. */
+/** Postgres-backed [IPlayerXpRepository] (V50, ADR-0195). `addXp` is an atomic `ON CONFLICT DO UPDATE total_xp = total_xp + n`. */
 public class PostgresPlayerXpRepository(private val db: Database) : IPlayerXpRepository {
 
     override fun totalXp(playerId: PlayerId): Long = transaction(db) {

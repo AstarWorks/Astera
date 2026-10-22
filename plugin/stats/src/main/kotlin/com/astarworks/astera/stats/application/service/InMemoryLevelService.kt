@@ -10,7 +10,7 @@ import com.astarworks.astera.stats.domain.level.XpCurve
 import com.astarworks.astera.stats.application.port.outbound.IPlayerXpRepository
 
 public class InMemoryLevelService(
-    /** Total accumulated XP per player; Persistence overlays the default (ADR-0187) so XP survives restarts. */
+    /** Total accumulated XP per player; Persistence overlays the default (ADR-0195) so XP survives restarts. */
     private val xpStore: IPlayerXpRepository = InMemoryPlayerXpRepository(),
 ) : ILevelService {
 

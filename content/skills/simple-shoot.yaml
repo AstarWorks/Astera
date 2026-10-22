@@ -1,0 +1,104 @@
+# F2-5 (ADR-0196): the founder's RyuZUTechnicalMagic `SimpleShoot`, ported.
+#
+# RTM config (Effect.Particles):
+#   ProjectileStart: FLAME x50, extra 0.2            -> cast burst below
+#   Projectile:      FLAME + dust(255,100,20) x1.5   -> params.visual.trail (every tick, dense)
+#   ProjectileEnd:   CIRCLE, random angle, amount 2, period 2, speed 10,
+#                    acceleration 15, radius 3-4, dust(255,100,20) x2
+#                                                    -> hit / expire phases below
+# RTM `CoolTime: 0`; a 4-tick floor keeps held right-click from flooding the server.
+
+id: simple-shoot
+
+name:
+  ja: "シンプルシュート"
+  en: "Simple Shoot"
+description:
+  ja: "炎と橙色の粉塵の光線を撃ち、着弾点で輪状に弾ける。"
+  en: "Fires a dense flame-and-ember beam that bursts into a ring where it lands."
+
+archetype: projectile
+cooldown_ticks: 4
+tags: [ ranged, fire-family, rtm ]
+
+params:
+  type: projectile
+  launch_speed: 2.0
+  max_lifetime_ticks: 40
+  visual:
+    trail_spacing: 0.25
+    trail:
+      - type: point
+        particles:
+          - { id: flame }
+          - { id: dust, color: { r: 255, g: 100, b: 20 }, scale: 1.5 }
+
+phases:
+  type: projectile
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.blaze.shoot
+    - type: schedule_particle_animation
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 1.5, z: 0.0 } } }
+      animation:
+        - type: point
+          particles:
+            - { id: flame, count: 50, extra: 0.2 }
+  hit_entity:
+    - type: damage
+      targets: { type: target }
+      components:
+        - base: { type: literal, value: 8.0 }
+          attribute: fire
+    - type: schedule_particle_animation
+      targets: { type: hit_location }
+      animation:
+        - type: circle
+          angle: random
+          amount: 2
+          period_ticks: 2
+          speed: 10
+          acceleration: 15
+          min_radius: 3.0
+          max_radius: 4.0
+          repeat_radius_acceleration: false
+          radius_acceleration: 0.0
+          delay_ticks: 0
+          particles:
+            - { id: dust, color: { r: 255, g: 100, b: 20 }, scale: 2.0 }
+  hit_block:
+    - type: schedule_particle_animation
+      targets: { type: hit_location }
+      animation:
+        - type: circle
+          angle: random
+          amount: 2
+          period_ticks: 2
+          speed: 10
+          acceleration: 15
+          min_radius: 3.0
+          max_radius: 4.0
+          repeat_radius_acceleration: false
+          radius_acceleration: 0.0
+          delay_ticks: 0
+          particles:
+            - { id: dust, color: { r: 255, g: 100, b: 20 }, scale: 2.0 }
+  miss: []
+  expire:
+    - type: schedule_particle_animation
+      targets: { type: hit_location }
+      animation:
+        - type: circle
+          angle: random
+          amount: 2
+          period_ticks: 2
+          speed: 10
+          acceleration: 15
+          min_radius: 3.0
+          max_radius: 4.0
+          repeat_radius_acceleration: false
+          radius_acceleration: 0.0
+          delay_ticks: 0
+          particles:
+            - { id: dust, color: { r: 255, g: 100, b: 20 }, scale: 2.0 }

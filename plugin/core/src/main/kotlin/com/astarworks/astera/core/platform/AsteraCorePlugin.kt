@@ -58,7 +58,7 @@ public class AsteraCorePlugin : JavaPlugin() {
      * at priority 100.
      */
     public val services: ServiceRegistry = ServiceRegistry().also { registry ->
-        // ADR-0187: Persistence registers its overlays in its own onLoad, i.e.
+        // ADR-0195: Persistence registers its overlays in its own onLoad, i.e.
         // before any consumer exists. A registration that still outranks an
         // already-resolved implementation is a split-brain bug: shout.
         registry.lateOverrideListener = { logger.severe(it.message) }

@@ -71,8 +71,7 @@ public sealed interface ProjectileStepOutcome {
 /**
  * Host-neutral per-tick projectile stepping (ADR-0174 mitigation for "sim and
  * Paper disagree"): velocity integration (homing steer, gravity, drag),
- * segment contact test through a [ProjectileWorldProbe], lifetime expiry, trail
- * particles, and the **exactly-once** call into [ProjectileImpactResolver].
+ * segment contact test through a [ProjectileWorldProbe], lifetime expiry, and the **exactly-once** call into [ProjectileImpactResolver].
  *
  * Paper (`PaperProjectileService`) and the game simulator
  * (`SimProjectileService`) both drive their projectiles through this class and
@@ -86,8 +85,6 @@ public sealed interface ProjectileStepOutcome {
 public class ProjectileStepper(
     /** Resolved lazily: the resolver is built by the combat wiring after the projectile service. */
     private val resolver: () -> ProjectileImpactHandler?,
-    /** Trail particles are emitted through the world gateway; `null` => no trail. */
-    private val worldGateway: () -> IWorldGateway? = { null },
 ) {
 
     /** Launch velocity (blocks/tick) for [spec] along the unit [direction]. */
@@ -129,7 +126,6 @@ public class ProjectileStepper(
                 if (isExpired(flight, age)) ProjectileStepOutcome.Expired(to) else ProjectileStepOutcome.Flying
             }
         }
-        emitTrail(flight, from, flight.position, age)
         if (outcome.isTerminal) {
             beforeResolve(outcome)
             resolve(flight, outcome)
@@ -175,17 +171,6 @@ public class ProjectileStepper(
         LifetimePolicy.UntilHit -> age >= UNTIL_HIT_CAP_TICKS
     } || flight.spec.motion is MotionProfile.Beam
 
-    /** Particle trail along the swept segment: evenly spaced points, every `trailIntervalTicks`. */
-    private fun emitTrail(flight: ProjectileFlight, from: Vec3, to: Vec3, age: Long) {
-        val visual = flight.spec.visual
-        if (visual.trail.isEmpty() || age % visual.trailIntervalTicks != 0L) return
-        val world = flight.spec.skill?.worldId ?: return
-        val gateway = worldGateway() ?: return
-        for (p in trailPoints(from, to)) {
-            for (particle in visual.trail) gateway.spawnParticle(world, p, particle)
-        }
-    }
-
     public companion object {
         public const val TICKS_PER_SECOND: Double = 20.0
 
@@ -194,12 +179,6 @@ public class ProjectileStepper(
 
         /** `UntilHit` projectiles still despawn after this many ticks (1 minute). */
         public const val UNTIL_HIT_CAP_TICKS: Long = 1200L
-
-        /** Distance between trail emission points along a fast projectile's step. */
-        public const val TRAIL_SPACING: Double = 0.6
-
-        /** Upper bound of trail points per tick (long rifle steps stay cheap). */
-        public const val TRAIL_MAX_POINTS: Int = 10
 
         private const val EPS: Double = 1.0e-9
         private val DEFAULT_DIRECTION: Vec3 = Vec3(1.0, 0.0, 0.0)
@@ -213,17 +192,6 @@ public class ProjectileStepper(
             is HitProfile.Sphere -> hit.radius
             is HitProfile.Sweep -> hit.radius
             is HitProfile.Box -> max(hit.width, max(hit.height, hit.depth)) / 2.0
-        }
-
-        /**
-         * Points to emit trail particles at for the segment [from] -> [to]: one at the end, then back
-         * towards the start every [TRAIL_SPACING] blocks (at most [TRAIL_MAX_POINTS]).
-         */
-        public fun trailPoints(from: Vec3, to: Vec3): List<Vec3> {
-            val len = from.distance(to)
-            if (len < EPS) return listOf(to)
-            val n = min(TRAIL_MAX_POINTS, max(1, ceil(len / TRAIL_SPACING).toInt()))
-            return (1..n).map { i -> from + (to - from) * (i.toDouble() / n) }
         }
 
         /**

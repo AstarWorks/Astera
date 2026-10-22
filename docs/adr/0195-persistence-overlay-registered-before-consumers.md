@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0187: Persistence repositories are registered in `onLoad`, before any consumer exists
+# ADR-0195: Persistence repositories are registered in `onLoad`, before any consumer exists
 
 ## Status
 

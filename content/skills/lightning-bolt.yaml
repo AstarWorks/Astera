@@ -23,7 +23,11 @@ params:
   launch_speed: 3.0
   max_lifetime_ticks: 40
   visual:
-    trail: [ thunder-trail, thunder-core ]
+    trail:
+      - type: point
+        particles:
+          - { id: electric_spark, count: 3, extra: 0.02, offset: { x: 0.1, y: 0.1, z: 0.1 } }
+          - { id: end_rod, offset: { x: 0.02, y: 0.02, z: 0.02 } }
     display: { variant: item, material: minecraft:end_rod, scale: 0.8 }
 
 phases:

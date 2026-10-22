@@ -43,11 +43,10 @@ import org.slf4j.LoggerFactory
  *    world is unknown (offline / unloaded) per the port contract; an `AIR`
  *    block still round-trips as `BlockType("minecraft:air")`.
  *  - [spawnParticle] → `world.spawnParticle(particle, loc, count, offsetX,
- *    offsetY, offsetZ)` where `particle` is resolved by stripping the
- *    `minecraft:` namespace and `Particle.valueOf(name.uppercase())`. Offset
- *    comes from [ParticleSpec.offset]; the `extra` parameter is fixed at
- *    `0.0` (per-particle speed multiplier — only meaningful for
- *    velocity-bearing particles, none currently authored).
+ *    offsetY, offsetZ, extra, data)` where `particle` is resolved by stripping the
+ *    `minecraft:` namespace and `Particle.valueOf(name.uppercase())`. Offset and
+ *    extra come from [ParticleSpec]; `dust` gets `DustOptions(color, scale)`
+ *    (ADR-0196). `count == 0` is vanilla's directional form (offset = velocity).
  *  - [playSound] → resolves through `Registry.SOUNDS.get(NamespacedKey)`
  *    because `Sound` migrated to the Bukkit Registry pattern in 1.21.
  *    Falls back to silent no-op (DEBUG-logged) when the sound key is

@@ -2,7 +2,7 @@ package com.astarworks.astera.core.domain.skill.mechanic
 
 import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.effect.DisplaySpec
-import com.astarworks.astera.core.domain.effect.ParticleAnimationId
+import com.astarworks.astera.core.domain.effect.animation.ParticleAnimation
 import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.effect.SoundId
 import com.astarworks.astera.core.domain.i18n.LocalizedText
@@ -375,10 +375,14 @@ public sealed class Mechanic {
         override val condition: Condition? = null,
     ) : Mechanic()
 
-    /** Schedule a Phase 4 timed particle animation. */
+    /**
+     * Play a time-animated particle pattern (ADR-0196) at each resolved location.
+     * Direction is the caster's look direction. Pair with `delay_ticks` /
+     * `period_ticks` / `duration_ticks` to repeat it.
+     */
     public data class ScheduleParticleAnimation(
         override val targets: Targeter,
-        val animationId: ParticleAnimationId,
+        val animation: ParticleAnimation,
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),

@@ -248,7 +248,7 @@ internal fun CoreWiringState.wireProgression() {
 
     // Inventory snapshot use cases + PlayerJoined-side listener.
     // snapshotRepo is already the final implementation: Persistence registered its
-    // overlay in onLoad (ADR-0187), so it is captured once like any other port.
+    // overlay in onLoad (ADR-0195), so it is captured once like any other port.
     val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
     val restoreSnapshotUseCase = RestoreInventorySnapshotUseCase(snapshotRepo, sessionRepo, eventBus)
     // Wave H 5content-depth: preexisting bug from Wave E 5admin-ops —

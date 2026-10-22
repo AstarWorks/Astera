@@ -49,7 +49,7 @@ class AdminPanelScenarioTest {
             assertThat(adapter.currentSpec(checkNotNull(sim.server.view(admin.id)))!!.id.value).isEqualTo("admin-hub")
             val registry = sim.services.getOrThrow<IAdminPanelRegistry>()
             assertThat(registry.tiles(AdminPanelPoint.HUB).map { it.id })
-                .containsExactly("items.catalog", "match.control", "core.players", "core.server", "core.self")
+                .containsExactly("items.catalog", "combat.skills", "match.control", "core.players", "core.server", "core.self")
             assertThat(registry.tiles(AdminPanelPoint.PLAYER).map { it.id }).contains("economy.currency", "combat.player.heal")
             assertThat(registry.tiles(AdminPanelPoint.SELF).map { it.id })
                 .contains("core.self.fly", "combat.self.god", "combat.self.cooldowns", "combat.self.refill")

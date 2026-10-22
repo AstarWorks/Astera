@@ -3,7 +3,7 @@ package com.astarworks.astera.stats.application.port.outbound
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Durable lifetime-XP total per player, behind `ILevelService` (ADR-0187). Levels
+ * Durable lifetime-XP total per player, behind `ILevelService` (ADR-0195). Levels
  * are derived from the total by `XpCurve`, so only the total is stored.
  * Persistence overlays the in-memory default at priority 100.
  */

@@ -20,7 +20,11 @@ params:
   launch_speed: 2.4
   max_lifetime_ticks: 50
   visual:
-    trail: [ verdant-trail, verdant-leaf ]
+    trail:
+      - type: point
+        particles:
+          - { id: happy_villager, offset: { x: 0.08, y: 0.08, z: 0.08 } }
+          - { id: composter, count: 2, offset: { x: 0.1, y: 0.1, z: 0.1 } }
 
 phases:
   type: projectile

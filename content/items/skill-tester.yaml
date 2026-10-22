@@ -1,0 +1,30 @@
+# F2-5 (ADR-0196): template for admin "skill tester" items. The admin panel's Skills page
+# (shift-click) re-templates this per skill: id `skill-tester-<skill-id>`, right-click casts
+# that skill. Not meant to be given as is (hidden from the item catalog).
+
+id: skill-tester
+
+material: NETHER_STAR
+
+name:
+  ja: "<light_purple>スキルテスター</light_purple>"
+  en: "<light_purple>Skill Tester</light_purple>"
+lore:
+  ja:
+    - "<gray>右クリック: 紐づくスキルを発動</gray>"
+  en:
+    - "<gray>Right-click: cast the bound skill</gray>"
+
+rarity: epic
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 4.0
+
+equip_slot: mainhand
+
+glint: true
+
+pdc_tags:
+  astera:rarity: epic

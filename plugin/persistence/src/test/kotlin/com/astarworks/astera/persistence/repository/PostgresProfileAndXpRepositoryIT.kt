@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-/** ADR-0187: V49 `player_profiles` and V50 `player_xp` round trips against real Postgres. */
+/** ADR-0195: V49 `player_profiles` and V50 `player_xp` round trips against real Postgres. */
 public class PostgresProfileAndXpRepositoryIT : PostgresIntegrationTestBase() {
 
     @Test
