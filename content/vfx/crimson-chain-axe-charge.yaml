@@ -1,10 +1,11 @@
-# Crimson Chain-Axe S3 telegraph (tick 0-34 of "Blade Forest"): a crimson ring glows on the floor at the
+# Crimson Chain-Axe S3 telegraph (tick 0-33 of "Blade Forest"; it ends a tick before the quake frame spawns so the
+# two never overlap inside one tick, which would put 77 displays on a client at once): a crimson ring glows on the floor at the
 # danger radius, eight white spokes radiate from the caster, three tilted rings are drawn round them
 # (staggered so each reads as turning), and a red orb pulses three times overhead.
 # Local axes: x = left, y = up, z = forward.
 
 id: crimson-chain-axe-charge
-duration_ticks: 34
+duration_ticks: 33
 orient: yaw
 follow: false
 sample_ticks: 2

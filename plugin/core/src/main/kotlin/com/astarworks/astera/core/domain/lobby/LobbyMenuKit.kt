@@ -16,6 +16,19 @@ public enum class KitArea(public val slotCount: Int) {
 
     /** The single crafting result slot of the player's own inventory. */
     CRAFTING_RESULT(1),
+
+    /** Swap-hand key (F) pressed while not holding a weapon (ADR-0232). Slot is always 0; no item is given. */
+    KEY_SWAP(1),
+
+    /** Sneak + swap-hand key (sneak+F) while not holding a weapon (ADR-0232). */
+    KEY_SNEAK_SWAP(1),
+
+    /** The drop key (Q) pressed on the hotbar menu item (ADR-0232). */
+    KEY_DROP(1),
+    ;
+
+    /** True for the keybind areas: they dispatch an intent but occupy no inventory slot. */
+    public val isKeybind: Boolean get() = this == KEY_SWAP || this == KEY_SNEAK_SWAP || this == KEY_DROP
 }
 
 /**
@@ -51,6 +64,9 @@ public class LobbyMenuKit(entries: List<KitEntry>) {
             require(e.area != KitArea.HOTBAR || e.slot in HotbarLayout.KIT_SLOTS) {
                 "kit entry '${e.id}': hotbar slot ${e.slot} is in the weapon zone; kit slots are ${HotbarLayout.KIT_SLOTS}"
             }
+            require(e.area != KitArea.HOTBAR || this.entries.count { it.area == KitArea.HOTBAR } <= HotbarLayout.MAX_KIT_ITEMS) {
+                "kit has more than ${HotbarLayout.MAX_KIT_ITEMS} hotbar item (ADR-0232: the hotbar belongs to the player)"
+            }
             require(places.add(e.area to e.slot)) { "kit slot ${e.area}/${e.slot} is used twice" }
         }
         byId = this.entries.associateBy { it.id }
@@ -63,7 +79,19 @@ public class LobbyMenuKit(entries: List<KitEntry>) {
     public fun at(area: KitArea, slot: Int): KitEntry? = entries.firstOrNull { it.area == area && it.slot == slot }
 
     /** True when crafting-grid buttons exist (the inventory screen then needs click locking). */
-    public val hasCraftingButtons: Boolean get() = entries.any { it.area != KitArea.HOTBAR }
+    public val hasCraftingButtons: Boolean get() = entries.any { it.area == KitArea.CRAFTING_GRID || it.area == KitArea.CRAFTING_RESULT }
+}
+
+/**
+ * Which keybind area a swap-hand press triggers (ADR-0232). Weapons bind LC / RC / sneak+click / Q (drop) /
+ * shoot, never the swap-hand key, but a weapon in hand keeps vanilla F so the hand-swap stays usable there.
+ */
+public object LobbyKeybinds {
+    public fun swapArea(holdingWeapon: Boolean, sneaking: Boolean): KitArea? = when {
+        holdingWeapon -> null
+        sneaking -> KitArea.KEY_SNEAK_SWAP
+        else -> KitArea.KEY_SWAP
+    }
 }
 
 /** When a player carries the kit at all. */

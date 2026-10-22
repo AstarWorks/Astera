@@ -63,5 +63,10 @@ public class CombatPlatformPorts(
     public val displayEntityGateway: ((ServiceRegistry) -> IDisplayEntityGateway)? = null,
     public val summonGateway: ((ServiceRegistry) -> ISummonGateway)? = null,
     public val blockEditGuard: ((ServiceRegistry) -> IBlockEditGuard)? = null,
+    /** Non-player casters (preview dummies, mobs): pose + teleport by entity uuid; `null` = players only. */
+    public val entityCasterBody: ((ServiceRegistry) -> com.astarworks.astera.combat.application.port.outbound.IEntityCasterBody)? = null,
+    /** `/astera skill preview` bodies + camera; with [tickRateControl] enables the command. */
+    public val skillPreviewStage: ((ServiceRegistry) -> com.astarworks.astera.combat.application.port.outbound.ISkillPreviewStage)? = null,
+    public val tickRateControl: ((ServiceRegistry) -> com.astarworks.astera.combat.application.port.outbound.ITickRateControl)? = null,
     public val trainingDummyShells: ((ServiceRegistry) -> com.astarworks.astera.combat.application.port.outbound.ITrainingDummyShells)? = null,
 )

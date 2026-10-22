@@ -127,10 +127,13 @@ class BrigadierTreeBuilderTest {
     }
 
     @Test
-    fun `missing mandatory argument and out of range value do not execute`() {
+    fun `missing mandatory argument prints usage and out of range value does not execute`() {
         mountDemo()
         val d = dispatcher()
-        assertThatThrownBy { d.execute("astera items give alice", operator) }.isInstanceOf(CommandSyntaxException::class.java)
+        val before = operator.replies.size
+        d.execute("astera items give alice", operator)
+        assertThat(operator.replies.drop(before).single())
+            .isEqualTo(CommandInvoker.USAGE to mapOf("usage" to "/astera items give <target> <item> [amount]"))
         assertThatThrownBy { d.execute("astera items give alice dagger 99", operator) }.isInstanceOf(CommandSyntaxException::class.java)
         assertThat(executed).isEmpty()
     }
@@ -204,5 +207,34 @@ class BrigadierTreeBuilderTest {
         val d = dispatcher()
         d.execute("astera boom", player)
         assertThat(player.replies).containsExactly(MessageKey("test.failed") to mapOf("x" to "1"))
+    }
+
+    @Test
+    fun `a group literal without executor prints usage instead of a generic error`() {
+        mountDemo()
+        val d = dispatcher()
+        d.execute("astera queue", player)
+        assertThat(player.replies.single().first).isEqualTo(CommandInvoker.USAGE)
+        assertThat(executed).isEmpty()
+    }
+
+    @Test
+    fun `tooltips ride along with the matching suggestions`() {
+        registry.register(
+            "Demo", listOf("queue"),
+            leaf(
+                "join", CommandAccess.EVERYONE, "astera.queue.join",
+                CommandSpec.Argument(
+                    "lane", ArgumentType.StringArg(),
+                    completer = { listOf("norma", "annihilation") },
+                    tooltips = { mapOf("annihilation" to "2/4") },
+                ),
+            ),
+        )
+        val d = dispatcher()
+        val list = d.getCompletionSuggestions(d.parse("astera queue join ", player)).get().list
+        assertThat(list.map { it.text }).containsExactlyInAnyOrder("norma", "annihilation")
+        assertThat(list.first { it.text == "annihilation" }.tooltip?.string).isEqualTo("2/4")
+        assertThat(list.first { it.text == "norma" }.tooltip).isNull()
     }
 }

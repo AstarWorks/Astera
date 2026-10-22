@@ -42,7 +42,7 @@ class VfxTimelineTest {
         seed: Long = 1L,
         scale: Double = 1.0,
         sprites: SpriteFrames = SpriteFrames.NONE,
-    ) = VfxTimeline.plan(def, anchor, seed, scale, sprites)
+    ) = VfxTimeline.plan(def, anchor, seed, scale, sprites = sprites)
 
     private fun assertVec(actual: Vec3, x: Double, y: Double, z: Double, eps: Double = 1e-6) {
         assertThat(actual.x).isCloseTo(x, within(eps))

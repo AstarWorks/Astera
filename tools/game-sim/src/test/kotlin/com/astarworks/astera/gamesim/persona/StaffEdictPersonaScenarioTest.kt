@@ -86,7 +86,7 @@ class StaffEdictPersonaScenarioTest {
         var peak = sim.displays.active.size
         repeat(ticks) {
             advance(1)
-            peak = maxOf(peak, sim.displays.active.size)
+            peak = maxOf(peak, sim.displays.peakActive)
         }
         return peak
     }

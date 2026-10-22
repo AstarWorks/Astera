@@ -21,8 +21,18 @@ public class HelpCommands(
     private val messages: IMessageRenderer,
 ) {
 
-    /** Executor for the bare `/astera`. */
-    public val overview: suspend (CommandContext) -> CommandResult = { ctx -> show(ctx, area = null) }
+    /**
+     * Executor for the bare `/astera` (ADR-0234): a player gets the main menu (the GUI is the
+     * discoverable front door); the console, or a player whose menu cannot open, gets the help overview.
+     */
+    public val overview: suspend (CommandContext) -> CommandResult = lambda@{ ctx ->
+        val menu = registry.snapshot().literals.firstOrNull { it.name == "menu" }
+        val open = menu?.executor
+        if (ctx.sender != null && menu != null && open != null && authorizer.canUse(ctx.actor, menu)) {
+            if (open(ctx) is CommandResult.Success) return@lambda CommandResult.Success
+        }
+        show(ctx, area = null)
+    }
 
     /** The `help [area]` literal. */
     public fun literal(): CommandSpec.Literal = CommandSpec.Literal(

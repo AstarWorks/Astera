@@ -21,6 +21,11 @@ data class LiveDisplay(
     val glowArgb: Int?,
     val brightness: Int?,
     val billboard: DisplayBillboard,
+    /** Entity position offset from the plan origin (quads move by teleport, not by transformation). */
+    val offset: Vec3 = Vec3.ZERO,
+    /** Current colour / alpha of a quad (after style updates), `null` for other kinds. */
+    val quadRgb: Int? = null,
+    val quadAlpha: Double = 1.0,
 )
 
 /**
@@ -56,6 +61,13 @@ class PlanReplay(val plan: VfxPlan) {
         var to = el.initial
         var start = el.spawnTick
         var duration = 1
+        var posFrom = el.spawnOffset
+        var posTo = el.spawnOffset
+        var posStart = el.spawnTick
+        var posDuration = 1
+        val quad = el.kind as? VfxElementKind.Quad
+        var rgb = quad?.colorRgb
+        var alpha = quad?.alpha ?: 1.0
         var block = (el.kind as? VfxElementKind.Block)?.blockKey
         var text = (el.kind as? VfxElementKind.Text)?.text
         for (u in el.updates) {
@@ -66,6 +78,16 @@ class PlanReplay(val plan: VfxPlan) {
             duration = u.interpolationTicks.coerceAtLeast(1)
             u.block?.let { block = it }
             u.text?.let { text = it }
+            u.position?.let {
+                posFrom = lerp(posFrom, posTo, ((u.tick - posStart).toDouble() / posDuration).coerceIn(0.0, 1.0))
+                posTo = it
+                posStart = u.tick
+                posDuration = u.interpolationTicks.coerceAtLeast(1)
+            }
+            u.style?.let {
+                if (quad?.glyph == null) alpha = (it.backgroundArgb ushr 24) / 255.0 else alpha = it.textOpacity / 255.0
+                rgb = it.textRgb ?: (it.backgroundArgb and 0xFFFFFF)
+            }
         }
         return LiveDisplay(
             elementId = el.elementId,
@@ -77,6 +99,9 @@ class PlanReplay(val plan: VfxPlan) {
             glowArgb = el.glowArgb,
             brightness = el.brightness,
             billboard = el.billboard,
+            offset = lerp(posFrom, posTo, ((tick - posStart).toDouble() / posDuration).coerceIn(0.0, 1.0)),
+            quadRgb = rgb,
+            quadAlpha = alpha,
         )
     }
 

@@ -164,6 +164,15 @@ e2e: ## Boot the offline e2e backend, run the MCProtocolLib bot suite, write bui
 e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, volumes, images)
 	bash scripts/e2e.sh down
 
+.PHONY: vfx-shot
+vfx-shot: ## Film a skill with a real headless MC client: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|all] [TICKS=60]
+	@test -n "$(SKILL)" || { echo "usage: make vfx-shot SKILL=<skill-id> [VIEW=caster|opponent|side|all] [TICKS=60]"; exit 2; }
+	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(or $(TICKS),60)" bash tools/vfx-shot/vfx-shot.sh
+
+.PHONY: vfx-shot-down
+vfx-shot-down: ## Stop + drop the vfx-shot server (project astera-shot; only needed after SHOT_KEEP=1)
+	bash tools/vfx-shot/vfx-shot.sh down
+
 # ----------------------------------------------------------------------------
 # bots inside the LIVE stack (QA-2, ADR-0221) - Velocity modern forwarding, needs the astera-dev stack
 # ----------------------------------------------------------------------------

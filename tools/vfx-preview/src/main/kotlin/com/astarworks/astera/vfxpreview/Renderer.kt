@@ -17,7 +17,10 @@ import kotlin.math.max
 import kotlin.math.tan
 
 enum class ViewMode(val key: String) {
-    DEFAULT("default"), TOP("top"), SIDE("side"), FRONT("front"), BEHIND("behind");
+    DEFAULT("default"), TOP("top"), SIDE("side"), FRONT("front"), BEHIND("behind"),
+
+    /** Caster first person: camera at the eye (y 1.62) looking +Z. */
+    EYE("eye");
 
     companion object {
         fun parse(key: String): ViewMode? = entries.firstOrNull { it.key == key }
@@ -47,9 +50,15 @@ class Camera(
     companion object {
         const val NEAR: Double = 0.05
         const val FOV_V_DEG: Double = 48.0
+        const val EYE_FOV_V_DEG: Double = 70.0
 
         /** Frames every point of [points] (plus the caster) tightly for [view]. */
         fun fit(view: ViewMode, points: List<Vec3>, width: Int, height: Int): Camera {
+            if (view == ViewMode.EYE) {
+                val tanEye = tan(Math.toRadians(EYE_FOV_V_DEG / 2))
+                // caster faces +Z, so local "left" (+X) is screen-left: screen right is world -X
+                return Camera(Vec3(0.0, 1.62, 0.0), Vec3(0.0, 0.0, 1.0), Vec3(-1.0, 0.0, 0.0), Vec3(0.0, 1.0, 0.0), (height / 2.0) / tanEye, width, height)
+            }
             val dir = when (view) { // target -> camera
                 ViewMode.DEFAULT -> Vec3(-0.55, 0.42, -0.72)
                 ViewMode.TOP -> Vec3(0.0, 1.0, 0.0001)
@@ -114,6 +123,7 @@ class Renderer(
             is Prim.Text -> text(items, p)
             is Prim.Item -> item(items, p)
             is Prim.Dot -> dot(items, p)
+            is Prim.Quad -> quad(items, p)
         }
         items.sortByDescending { it.depth }
         for (d in items) d.draw(g)
@@ -358,6 +368,48 @@ class Renderer(
             g.font = Font(Font.SANS_SERIF, Font.PLAIN, 13)
             g.color = Color(235, 235, 245)
             g.drawString(it.itemKey, (c[0] + 10).toFloat(), (c[1] + 26).toFloat())
+        }
+    }
+
+    /** Display particle: an alpha-blended parallelogram (solid) or a coloured glyph. */
+    private fun quad(out: MutableList<Drawable>, q: Prim.Quad) {
+        if (q.width < 1e-4 || q.height < 1e-4) return
+        val (r, u) = axes(q.rotation::rotate, q.billboard)
+        val o = camera.project(q.center) ?: return
+        val a = (q.alpha.coerceIn(0.0, 1.0) * 255).toInt()
+        val depth = camera.depth(q.center)
+        if (q.glyph == null) {
+            val corners = listOf(
+                q.center - r * (q.width / 2) - u * (q.height / 2),
+                q.center + r * (q.width / 2) - u * (q.height / 2),
+                q.center + r * (q.width / 2) + u * (q.height / 2),
+                q.center - r * (q.width / 2) + u * (q.height / 2),
+            ).map { camera.project(it) ?: return }
+            val path = Path2D.Double()
+            corners.forEachIndexed { i, p -> if (i == 0) path.moveTo(p[0], p[1]) else path.lineTo(p[0], p[1]) }
+            path.closePath()
+            val c = Color(q.rgb)
+            out += Drawable(depth) { g ->
+                g.composite = AlphaComposite.SrcOver
+                g.color = Color(c.red, c.green, c.blue, a)
+                g.fill(path)
+            }
+        } else {
+            val ex = camera.project(q.center + r * q.width) ?: return
+            val ey = camera.project(q.center - u * q.height) ?: return
+            val tx = AffineTransform(ex[0] - o[0], ex[1] - o[1], ey[0] - o[0], ey[1] - o[1], o[0], o[1])
+            out += Drawable(depth) { g ->
+                val old = g.transform
+                g.transform(tx)
+                val gv = Fonts.glyph(false, q.glyph).deriveFont(1f).createGlyphVector(g.fontRenderContext, q.glyph)
+                val b = gv.visualBounds
+                val shape = AffineTransform.getTranslateInstance(-b.centerX, -b.centerY).createTransformedShape(gv.outline)
+                val c = Color(q.rgb)
+                g.composite = AlphaComposite.SrcOver
+                g.color = Color(c.red, c.green, c.blue, a)
+                g.fill(shape)
+                g.transform = old
+            }
         }
     }
 

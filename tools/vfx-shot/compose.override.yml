@@ -1,0 +1,20 @@
+# vfx-shot: pin the compose network + container IPs so the client (running in the dev container, attached
+# to this network) can reach both the server and the resource-pack host by a stable address.
+# The subnet comes from SHOT_SUBNET_PREFIX (default 10.211.77) -- override if it collides.
+services:
+  e2e:
+    environment:
+      ASTERA_RESOURCE_PACK_URL: "http://${SHOT_SUBNET_PREFIX:-10.211.77}.3/astera.zip"
+      ASTERA_RESOURCE_PACK_SHA1_URL: "http://${SHOT_SUBNET_PREFIX:-10.211.77}.3/astera.zip.sha1"
+    networks:
+      default:
+        ipv4_address: "${SHOT_SUBNET_PREFIX:-10.211.77}.2"
+  e2e-resource-pack:
+    networks:
+      default:
+        ipv4_address: "${SHOT_SUBNET_PREFIX:-10.211.77}.3"
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: "${SHOT_SUBNET_PREFIX:-10.211.77}.0/24"

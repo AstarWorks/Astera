@@ -42,7 +42,11 @@ val e2e by tasks.registering(Test::class) {
     classpath = sourceSets.test.get().runtimeClasspath
     useJUnitPlatform()
     outputs.upToDateWhen { false }
-    filter { excludeTestsMatching("*.live.*") }
+    filter {
+        excludeTestsMatching("*.live.*")
+        // E2E_ONLY=PersonaWeaponsE2eTest (comma separated simple class names) narrows the run.
+        System.getenv("E2E_ONLY")?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.forEach { includeTestsMatching("*.$it") }
+    }
     // Bot sessions are stateful against one server: run strictly serially.
     maxParallelForks = 1
     systemProperty("astera.e2e.report", layout.buildDirectory.file("e2e-report.md").get().asFile.absolutePath)

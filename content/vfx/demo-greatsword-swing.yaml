@@ -1,0 +1,52 @@
+# Weapon rig + 風切り demo: a greatsword (block-display rig) swings 315 degrees about the hand while a fan of
+# translucent surfaces is generated from the blade's swept path. Cast it with content/skills/vfx-demo-greatsword.yaml.
+# Rig-local frame (origin = pivot = hand): blade along +Y, width along X (the cutting edge is the +X side),
+# thickness along Z. rest [0, 90, 0] turns +Y to the caster's forward; tilt roll 20 tips the swing plane so it
+# reads from the side. Swing yaw is about the vertical: + = to the caster's right, - = to the left.
+# Local axes of the anchor: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
+#
+# Client note: every swing chunk is ONE update (linear translation + slerp rotation over its ticks), so a
+# 315 degree sweep in 4 ticks is 4 chunks of 137/98/49/24 degrees; the planner refuses > 170 degrees per tick.
+
+id: demo-greatsword-swing
+duration_ticks: 24
+orient: yaw
+follow: false
+sample_ticks: 2
+
+rigs:
+  - id: sword
+    pivot: [-0.35, 1.2, 0.3]
+    rest: [0, 90, 0]
+    tilt: [0, 0, 20]
+    respect_hit_stop: true
+    end_tick: 22
+    parts:
+      - { id: blade, block: iron_block, offset: [0.0, 1.6, 0.0], size: [0.4, 2.6, 0.12], brightness: 15 }
+      - { id: edge, block: white_concrete, offset: [0.21, 1.6, 0.0], size: [0.04, 2.6, 0.14], brightness: 15 }
+      - { id: guard, block: gold_block, offset: [0.0, 0.25, 0.0], size: [0.95, 0.14, 0.24], brightness: 15 }
+      - { id: grip, block: black_concrete, offset: [0.0, -0.25, 0.0], size: [0.1, 0.9, 0.1] }
+    swing:
+      - { t: 0, rotate: [110, 0, 0] }                        # wind-up: held on the right
+      - { t: 2, rotate: [125, 0, 0], ease: in_out_quad }     # last pull-back
+      - { t: 6, rotate: [-190, 0, 0], ease: out_quad }       # the slash: 315 degrees in 4 ticks
+      - { t: 9, rotate: [-205, 0, 0], ease: out_cubic }      # follow-through
+      - { t: 16, rotate: [-120, 0, 0], ease: in_out_quad }   # recovery
+    trails:
+      - id: wind
+        from: [0.0, 0.9, 0.0]          # blade root (above the guard)
+        to: [0.0, 2.9, 0.0]            # blade tip
+        start_t: 2
+        end_t: 7
+        life_ticks: 7
+        lag_ticks: 0
+        style: soft
+        step_deg: 36
+        fade_power: 1.4
+        bands:                         # faint at the root, bright at the tip; white at spawn -> gold -> clear
+          - { from: 0.0, to: 0.5, color: "#40FFD070", color_to: "#20C07010" }
+          - { from: 0.5, to: 1.0, color: "#C8FFFFFF", color_to: "#FFE0A020" }
+        edge: { block: white_concrete, width: 0.05 }
+        dark_rim: { color: "#B01A0C00", width: 0.22 }
+    emitters:
+      - { id: embers, particle_id: fire-trail, point: [0.0, 2.9, 0.0], start_t: 2, end_t: 8 }

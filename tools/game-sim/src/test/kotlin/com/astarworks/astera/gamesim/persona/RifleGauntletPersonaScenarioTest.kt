@@ -73,7 +73,7 @@ class RifleGauntletPersonaScenarioTest {
     private fun ScenarioScope.step(ticks: Int) {
         repeat(ticks) {
             advance(1)
-            peak = maxOf(peak, sim.displays.active.size)
+            peak = maxOf(peak, sim.displays.peakActive)
         }
     }
 
