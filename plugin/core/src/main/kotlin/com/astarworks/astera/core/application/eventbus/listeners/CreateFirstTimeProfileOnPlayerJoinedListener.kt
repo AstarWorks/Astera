@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory
  *   retry — re-running the grant could double-credit the wallet).
  * - The implementation never re-throws. The join must complete (CLAUDE.md
  *   §Pre-release posture + the same invariant
- *   [RestoreInventoryOnPlayerJoinedListener] documents).
+ *   `PlayerHandoffService` documents).
  */
 public class CreateFirstTimeProfileOnPlayerJoinedListener(
     private val profileService: IPlayerProfileService,

@@ -31,7 +31,7 @@ import com.astarworks.astera.core.domain.resource.ResourceType
  *
  * # Init
  *
- * Wave 5e `RestoreInventoryOnPlayerJoinedListener` calls
+ * Wave 5e `PlayerHandoffService` calls
  * [initialiseFor] when a player joins. Implementations seed all three
  * counters to the per-type max from `content/balance/resource-defaults.yaml`.
  */

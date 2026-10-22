@@ -29,7 +29,7 @@ import kotlin.io.path.readText
  * EMPTY on failure is intentional: a first-time player on a broken server
  * gets a Lobby with no starter items but DOES get a profile created. That
  * matches the "the join must complete" invariant
- * [com.astarworks.astera.core.application.eventbus.listeners.RestoreInventoryOnPlayerJoinedListener]
+ * [com.astarworks.astera.core.application.service.handoff.PlayerHandoffService]
  * already documents for inventory restore.
  */
 public class StarterGrantLoader {

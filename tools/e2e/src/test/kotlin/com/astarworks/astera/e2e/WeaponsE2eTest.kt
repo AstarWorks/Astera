@@ -117,7 +117,7 @@ class WeaponsE2eTest : E2eBase() {
                     val after = samples.minOrNull()
                     E2eReport.check(suite, "$item left click #$n spends energy (food bar)", "server foodLevel") {
                         assertThat(after != null && before != null && after < before)
-                            .describedAs("food $before -> $samples; hp target=${hp(b)}; pos a=${rcon("data get entity ${a.name} Pos").trim()} b=${rcon("data get entity ${b.name} Pos").trim()}; dim=${rcon("data get entity ${a.name} Dimension").trim()}; selected=$lastSelected").isTrue()
+                            .describedAs("food $before -> $samples; hp target=${hp(b)}; pos a=${rcon("data get entity ${a.name} Pos").trim()} b=${rcon("data get entity ${b.name} Pos").trim()}; dim=${rcon("data get entity ${a.name} Dimension").trim()}; selected=$lastSelected; server=${ServerLog.lines("weapons-debug").filter { a.name in it || a.uuid.toString() in it }.takeLast(6).map { it.substringAfter("[weapons-debug]") }}").isTrue()
                         "food $before -> min $after"
                     }
                 }

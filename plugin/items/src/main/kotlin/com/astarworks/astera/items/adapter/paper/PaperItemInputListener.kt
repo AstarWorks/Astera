@@ -83,6 +83,12 @@ public class PaperItemInputListener(
         val itemId = itemIdResolver.itemIdOf(stack) ?: return false
         val consumed = sink(IMcEvent.PlayerInput(PaperPlayer(player), kind, player.isSneaking, itemId))
         log.debug("input {} {} item={} consumed={}", player.name, kind, itemId, consumed)
+        if (TRACE) log.info("[weapons-debug] input {} {} item={} consumed={} tick={}", player.name, kind, itemId, consumed, player.world.gameTime)
         return consumed
+    }
+
+    private companion object {
+        /** E2E-only trace (`ASTERA_DEBUG_WEAPONS`), quiet by default. */
+        val TRACE: Boolean = System.getenv("ASTERA_DEBUG_WEAPONS") != null
     }
 }
