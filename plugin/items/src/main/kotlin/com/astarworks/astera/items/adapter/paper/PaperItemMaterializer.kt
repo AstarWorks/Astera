@@ -39,7 +39,8 @@ import java.util.UUID
  *  - PDC: writes `astera:item_id` (string) unconditionally so the resolver +
  *    enchant-gate can identify the stack later. Designer-supplied PDC tags
  *    on the spec's template are merged in.
- *  - `custom_model_data` for resource-pack-driven visuals.
+ *  - `custom_model_data` for resource-pack-driven visuals, and the `item_model` component
+ *    (`astera:<id>`) for items the pack has generated art for (see [ItemModelCatalog]).
  *  - [ItemAttributes] mapped to Bukkit `AttributeModifier`s, scoped to the
  *    spec's [EquipSlot].
  *  - [com.astarworks.astera.core.domain.item.DurabilityPolicy] — `unbreakable`
@@ -58,6 +59,7 @@ import java.util.UUID
 public class PaperItemMaterializer(
     private val plugin: Plugin,
     private val messages: IMessageRenderer,
+    private val itemModels: ItemModelCatalog = ItemModelCatalog.NONE,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -146,6 +148,12 @@ public class PaperItemMaterializer(
             if (template is ItemTemplate.Vanilla && template.customModelData != null) {
                 @Suppress("DEPRECATION")
                 meta.setCustomModelData(template.customModelData)
+            }
+
+            // item_model (ADR-0193): point at the pack's `astera:<id>` icon when it has one. The base
+            // material stays, so a client without the pack still gets a normal vanilla item.
+            itemModels.modelKey(spec.id.value)?.let { key ->
+                NamespacedKey.fromString(key)?.let { meta.itemModel = it }
             }
 
             // Durability

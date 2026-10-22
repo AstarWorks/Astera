@@ -28,6 +28,9 @@ bin/
 
 # --- KSP / annotation processor generated ---
 generated/
+# ...except the committed procedural item icons (ADR-0193, :tools:item-art)
+!content/textures/generated/
+!content/models/generated/
 **/build/generated/
 
 # --- IntelliJ IDEA ---
