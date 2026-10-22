@@ -5,11 +5,16 @@ import com.astarworks.astera.core.application.port.outbound.IEgoGauge
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.IStatusEffectIconSource
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.event.PlayerQuitServer
+import com.astarworks.astera.core.domain.event.ResourcePackStatusChanged
 import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
+import com.astarworks.astera.core.domain.hud.status.StatusEffectHudGlyphs
+import com.astarworks.astera.core.domain.hud.status.StatusEffectHudLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.slf4j.LoggerFactory
@@ -18,7 +23,10 @@ import org.slf4j.LoggerFactory
  * The action bar's one persistent owner: the combat readout (WP14, ADR-0177).
  *
  * Shows the E.G.O gauge (ADR-0231; `E.G.O n/max`, `E.G.O READY` when full) and the
- * active status effects (name, `xN` when stacked). Cooldowns left this
+ * active status effects (name, `xN` when stacked) without a loaded pack. With
+ * the pack, authored effects move to the anchored icon row; unknown runtime
+ * IDs keep their text. This listener also supplies snapshots to Core through
+ * [IStatusEffectIconSource], without writing the status-line channel. Cooldowns left this
  * line in ADR-0197: they are per-binding icons on the status line now, so this
  * class (`HudUpdateOnCooldownTickListener` until then) only reads effects.
  *
@@ -42,7 +50,22 @@ public class HudStatusEffectReadoutListener(
     pollPeriodTicks: Long = DEFAULT_POLL_PERIOD_TICKS,
     /** ADR-0231: when set, the E.G.O gauge is the first segment of the readout while it holds anything. */
     private val egoGauge: IEgoGauge? = null,
-) {
+) : IStatusEffectIconSource {
+    private val packLoaded: MutableSet<PlayerId> = mutableSetOf()
+
+    public fun onPackStatus(event: ResourcePackStatusChanged) {
+        if (event.status.isLoaded) packLoaded += event.playerId else packLoaded -= event.playerId
+    }
+
+    public fun onQuit(event: PlayerQuitServer) {
+        packLoaded -= event.playerId
+        lastSent -= event.playerId
+    }
+
+    override fun entriesFor(playerId: PlayerId): List<StatusEffectHudLayout.Entry> =
+        statusEffects.active(playerId).map {
+            StatusEffectHudLayout.Entry(it.spec.id.value, it.remainingTicks, it.currentStacks)
+        }
 
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -100,7 +123,10 @@ public class HudStatusEffectReadoutListener(
             }
         }
 
-        for ((index, effect) in statusEffects.active(playerId).take(MAX_EFFECTS).withIndex()) {
+        val textEffects = statusEffects.active(playerId).filter {
+            playerId !in packLoaded || it.spec.id.value !in StatusEffectHudGlyphs.IDS
+        }
+        for ((index, effect) in textEffects.take(MAX_EFFECTS).withIndex()) {
             if (index > 0 || parts.isNotEmpty()) parts += HudComponent.Text(messageKey = KEY_SEPARATOR)
             // Harmful effects read red, beneficial ones green; stacks and seconds left follow the name.
             parts += HudComponent.Text(

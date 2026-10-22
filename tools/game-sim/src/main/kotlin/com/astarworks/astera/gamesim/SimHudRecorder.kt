@@ -8,6 +8,7 @@ import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.hud.HudRegion
 import com.astarworks.astera.core.domain.hud.region
+import com.astarworks.astera.core.domain.hud.status.StatusEffectHudGlyphs
 import com.astarworks.astera.core.domain.hud.status.StatusHudGlyphs
 import com.astarworks.astera.core.domain.player.PlayerId
 
@@ -68,6 +69,12 @@ public class SimHudRecorder(
         }
     }
 
+    /** Decoded effect IDs, seconds and stacks from the packed glyph row. */
+    public fun statusEffects(player: PlayerId): List<StatusEffectReadout> =
+        (statusLine(player)?.component as? HudComponent.FontText)?.let(::effectReadouts).orEmpty()
+
+    public data class StatusEffectReadout(val id: String, val seconds: Int, val stacks: Int)
+
     /** Whether any layout ever recorded for [player] or anyone else is a boss bar: there is no such layout type. */
     public val bossBarLayoutsRecorded: Int get() = log.count { it.region.name.startsWith("BOSS_BAR") }
 
@@ -106,7 +113,24 @@ public class SimHudRecorder(
             is HudComponent.ProgressBar -> "bar:${component.percent}"
             is HudComponent.Spacer -> "spacer"
             is HudComponent.FontText ->
-                "hp-bar:" + hpNumbers(component) + (ammoNumbers(component)?.let { " ammo:$it" } ?: "")
+                "hp-bar:" + hpNumbers(component) + (ammoNumbers(component)?.let { " ammo:$it" } ?: "") +
+                    effectReadouts(component).joinToString("") { " effect:${it.id}{seconds=${it.seconds},stacks=${it.stacks}}" }
+        }
+
+        private fun effectReadouts(text: HudComponent.FontText): List<StatusEffectReadout> {
+            val firstIcon = StatusEffectHudGlyphs.icon(StatusEffectHudGlyphs.IDS.first())
+            val lastIcon = StatusEffectHudGlyphs.icon(StatusEffectHudGlyphs.IDS.last())
+            val icons = text.text.withIndex().filter { it.value in firstIcon..lastIcon }
+            return icons.mapIndexed { index, icon ->
+                val tail = text.text.substring(icon.index + 1, icons.getOrNull(index + 1)?.index ?: text.text.length)
+                fun number(base: Char): Int? = tail.filter { it in base..base + 9 }
+                    .map { '0' + (it - base) }.joinToString("").toIntOrNull()
+                StatusEffectReadout(
+                    StatusEffectHudGlyphs.IDS[icon.value - firstIcon],
+                    number(StatusEffectHudGlyphs.digit(0)) ?: 0,
+                    number(StatusEffectHudGlyphs.stack(0)) ?: 1,
+                )
+            }
         }
 
         private fun digitsOf(glyphs: String): String =
