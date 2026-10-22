@@ -50,10 +50,14 @@ abstract class E2eBase {
         }
     }
 
-    /** Ids of the matches `/astera match list` reports on the backend (console output, ANSI stripped). */
-    protected fun activeMatchIds(): List<String> =
-        rcon("astera match list").replace(Regex("\u001B\\[[0-9;]*m"), "").lines()
-            .mapNotNull { Regex("^(\\S+) \\[").find(it.trim())?.groupValues?.get(1) }
+    /** Ids of the matches `/astera match list` reports on the backend (console reply, legacy `§x` colour codes stripped). */
+    protected fun activeMatchIds(): List<String> {
+        // RCON replies carry legacy section-sign colour codes ("§fmatch-ab12§r §7[ACTIVE] ..."), so strip them before parsing.
+        val reply = rcon("astera match list").replace(Regex("\u00A7.|\u001B\\[[0-9;]*m"), "")
+        val ids = Regex("(match-[0-9a-f]+) \\[").findAll(reply).map { it.groupValues[1] }.distinct().toList()
+        check(ids.isNotEmpty() || !Regex("[1-9]\\d* active").containsMatchIn(reply)) { "unparseable match list reply: '$reply'" }
+        return ids
+    }
 
     /**
      * QA-4: ends every running match via RCON and waits until `/astera match list` is empty, i.e. the arena is free.
