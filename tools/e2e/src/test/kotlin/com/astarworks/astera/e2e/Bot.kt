@@ -63,6 +63,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.title.Clien
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundCommandSuggestionPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundPlayerLoadedPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundClientTickEndPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.inventory.ServerboundContainerClosePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundMovePlayerPosRotPacket
@@ -227,8 +228,6 @@ class Bot private constructor(
                     disconnectReason = plain(event.reason) + (event.cause?.let { " [cause: $it]" } ?: "")
                 }
                 joined = false
-                if (disconnectReason?.contains("nvalid", true) == true)
-                    E2eReport.notes += "bot $name kicked ($disconnectReason); move log: ${moveLog.takeLast(10)}"
             }
         }
     }
@@ -274,7 +273,6 @@ class Bot private constructor(
                 yawDeg = if (PositionElement.Y_ROT in rel) yawDeg + packet.yRot else packet.yRot
                 pitchDeg = if (PositionElement.X_ROT in rel) pitchDeg + packet.xRot else packet.xRot
                 positionPackets.incrementAndGet()
-                moveLog += "pos#${packet.id} raw=${packet.position} rot=${packet.yRot}/${packet.xRot} rel=$rel -> $x,$y,$z $yawDeg/$pitchDeg"
                 session.send(ServerboundAcceptTeleportationPacket(packet.id, x, y, z, yawDeg, pitchDeg))
                 session.send(ServerboundPlayerLoadedPacket.INSTANCE)
                 joined = true
@@ -452,9 +450,6 @@ class Bot private constructor(
 
     fun selectHotbar(slot: Int) = session.send(ServerboundSetCarriedItemPacket(slot))
 
-    fun look(yaw: Float, pitch: Float) =
-        session.send(ServerboundMovePlayerPosRotPacket(true, false, x, y, z, yaw, pitch))
-
     fun useItem(yaw: Float, pitch: Float) =
         session.send(ServerboundUseItemPacket(Hand.MAIN_HAND, sequence.getAndIncrement(), yaw, pitch))
 
@@ -507,12 +502,15 @@ class Bot private constructor(
 
     fun closeWindow(id: Int) = session.send(ServerboundContainerClosePacket(id))
 
-    /** Keeps the anti-AFK detector quiet. */
-    val moveLog = CopyOnWriteArrayList<String>()
-
+    /**
+     * A position update, the way a real client sends it. Since 26.x the server kicks (`invalid_player_movement`) a
+     * second position packet received before the client's `ServerboundClientTickEnd`; a bot without a tick loop must
+     * therefore end every "tick" itself, before and after the move.
+     */
     fun nudge() {
-        if (moveLog.size < 40) moveLog += "nudge $x,$y,$z $yawDeg/$pitchDeg"
+        session.send(ServerboundClientTickEndPacket.INSTANCE)
         session.send(ServerboundMovePlayerPosRotPacket(true, false, x, y, z, yawDeg, pitchDeg))
+        session.send(ServerboundClientTickEndPacket.INSTANCE)
     }
 
     // --- queries ---------------------------------------------------------------------------------------------

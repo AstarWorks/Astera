@@ -58,7 +58,7 @@ class WeaponsE2eTest : E2eBase() {
      * in the overworld across a settle window.
      */
     private fun stage(a: Bot, b: Bot, distance: Double, settleMs: Long) {
-        repeat(6) {
+        repeat(12) {
             face(a, b, distance)
             Thread.sleep(settleMs)
             if (inOverworld(a) && inOverworld(b)) {
@@ -105,7 +105,9 @@ class WeaponsE2eTest : E2eBase() {
                     rcon("effect give ${a.name} minecraft:instant_health 1 4 true")
                     stage(a, b, 2.2, 1_500)
                     val before = food(a)
+                    // A real client sends the swing plus the attack on the entity in its crosshair.
                     a.punch()
+                    a.entityIdByUuid[b.uuid]?.let(a::attack)
                     // Sample through the swing: the cost is charged on cast, and energy regenerates right after.
                     val samples = mutableListOf<Int>()
                     val sampleEnd = System.currentTimeMillis() + 1_200
