@@ -220,7 +220,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             PostgresMatchRepository(ctx.database),
             priority = 100,
         )
-        // IStageRegistry is intentionally NOT overlaid (ADR-0222): stages are content.
+        // IStageRegistry is intentionally NOT overlaid (ADR-0226): stages are content.
         val ledger: ICurrencyLedger = PostgresCurrencyLedger(ctx.database)
         stage<ICurrencyLedger>(
             ledger,
