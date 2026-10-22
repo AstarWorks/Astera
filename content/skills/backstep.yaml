@@ -1,6 +1,7 @@
 # WP7: gun mobility (rifle / shotgun, sneak + right-click). Hops backwards and
 # up, then a short sprint (evasive) to break away from melee.
 
+# V-2a visuals. Per-cast particle budget: start cloud 10 + streak 7 steps x 4 = 28 -> 38.
 id: backstep
 
 name:
@@ -37,5 +38,58 @@ phases:
     - type: spawn_particle
       targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
       particle_id: dash-cloud
+    # motion streak laid along the path, one step per tick
+    - type: schedule_particle_animation
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.9, z: 0.0 } } }
+      animation:
+        - type: arc
+          delay_ticks: 0
+          radius: 0.6
+          start_degrees: 180.0
+          end_degrees: 180.0
+          points: 1
+          particles: [ { id: end_rod }, { id: electric_spark, count: 2, extra: 0.1 }, { id: cloud, extra: 0.02 } ]
+        - type: arc
+          delay_ticks: 1
+          radius: 1.5
+          start_degrees: 180.0
+          end_degrees: 180.0
+          points: 1
+          particles: [ { id: end_rod }, { id: electric_spark, count: 2, extra: 0.1 }, { id: cloud, extra: 0.02 } ]
+        - type: arc
+          delay_ticks: 2
+          radius: 2.4
+          start_degrees: 180.0
+          end_degrees: 180.0
+          points: 1
+          particles: [ { id: end_rod }, { id: electric_spark, count: 2, extra: 0.1 }, { id: cloud, extra: 0.02 } ]
+        - type: arc
+          delay_ticks: 3
+          radius: 3.3
+          start_degrees: 180.0
+          end_degrees: 180.0
+          points: 1
+          particles: [ { id: end_rod }, { id: electric_spark, count: 2, extra: 0.1 }, { id: cloud, extra: 0.02 } ]
+        - type: arc
+          delay_ticks: 4
+          radius: 4.2
+          start_degrees: 180.0
+          end_degrees: 180.0
+          points: 1
+          particles: [ { id: end_rod }, { id: electric_spark, count: 2, extra: 0.1 }, { id: cloud, extra: 0.02 } ]
+        - type: arc
+          delay_ticks: 5
+          radius: 5.1
+          start_degrees: 180.0
+          end_degrees: 180.0
+          points: 1
+          particles: [ { id: end_rod }, { id: electric_spark, count: 2, extra: 0.1 }, { id: cloud, extra: 0.02 } ]
+        - type: arc
+          delay_ticks: 6
+          radius: 6.0
+          start_degrees: 180.0
+          end_degrees: 180.0
+          points: 1
+          particles: [ { id: end_rod }, { id: electric_spark, count: 2, extra: 0.1 }, { id: cloud, extra: 0.02 } ]
   expire: []
   removed: []

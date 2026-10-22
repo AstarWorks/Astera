@@ -1,5 +1,7 @@
 # WP1: gun right-click. Fast, flat, physical bullet.
 
+# V-2a visuals. Per-cast particle budget (emitted particles, trail excluded): muzzle 15, entity impact 16,
+# block impact 16. Trail: 2 per tick of flight (<= 60 over 30 ticks, ~8 at pistol range).
 id: pistol-shot
 
 name:
@@ -22,8 +24,8 @@ params:
     trail:
       - type: point
         particles:
-          - { id: crit }
-          - { id: white_smoke, offset: { x: 0.02, y: 0.02, z: 0.02 } }
+          - { id: end_rod }
+          - { id: electric_spark, extra: 0.02 }
 
 phases:
   type: projectile
@@ -33,21 +35,30 @@ phases:
       sound_id: entity.firework_rocket.blast
       volume: { type: literal, value: 0.8 }
       pitch: { type: literal, value: 1.2 }
-    - type: spawn_particle
+    - type: schedule_particle_animation
       targets: { type: caster_forward, distance: 0.9, height: -0.25 }
-      particle_id: gun-muzzle-flash
-    - type: spawn_particle
-      targets: { type: caster_forward, distance: 0.9, height: -0.25 }
-      particle_id: gun-muzzle-smoke
+      animation:
+        - type: point
+          particles:
+            - { id: flame, count: 10, extra: 0.16 }
+            - { id: electric_spark, count: 4, extra: 0.3 }
+            - { id: white_smoke, count: 3, extra: 0.03, delay_ticks: 1 }
   hit_entity:
     - type: damage
       targets: { type: target }
       components:
         - base: { type: literal, value: 7.0 }
           attribute: physical
-    - type: spawn_particle
+    - type: schedule_particle_animation
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
-      particle_id: gun-impact
+      animation:
+        - type: point
+          particles:
+            - { id: crit, count: 8, extra: 0.35 }
+            - { id: firework, count: 4, extra: 0.15 }
+            - { id: dust, count: 2, color: { r: 235, g: 225, b: 200 }, scale: 1.6, extra: 0.02 }
+            - { id: electric_spark, count: 6, extra: 0.25 }
+            - { id: white_smoke, count: 2, extra: 0.04 }
     - type: play_sound
       targets: { type: caster }
       sound_id: entity.arrow.hit_player
@@ -59,11 +70,14 @@ phases:
       sound_id: block.stone.hit
       volume: { type: literal, value: 0.6 }
       pitch: { type: literal, value: 1.6 }
-    - type: spawn_particle
+    - type: schedule_particle_animation
       targets: { type: hit_location }
-      particle_id: gun-impact
-    - type: spawn_particle
-      targets: { type: hit_location }
-      particle_id: gun-impact-smoke
+      animation:
+        - type: point
+          particles:
+            - { id: crit, count: 6, extra: 0.3 }
+            - { id: electric_spark, count: 4, extra: 0.25 }
+            - { id: smoke, count: 4, extra: 0.03 }
+            - { id: cloud, count: 2, extra: 0.02 }
   miss: []
   expire: []

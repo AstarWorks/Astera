@@ -1,5 +1,6 @@
 # WP7: greatsword left-click. Slow, wide, heavy: two cleaves kill, big knockback.
 
+# V-2a visuals. Per-cast particle budget: cleave arcs 15x3 + 5 + 8x3 = 74, hit 33 + 3 indicator per target.
 id: greatsword-cleave
 
 name:
@@ -30,16 +31,59 @@ phases:
       targets: { type: caster }
       sound_id: entity.player.attack.sweep
       pitch: { type: literal, value: 0.6 }
-    - type: spawn_particle
-      targets: { type: caster_forward, distance: 2.4, height: -0.3 }
-      particle_id: cleave-sweep
+    # wide heavy cleave across the 150 degree cone (radius ~80% of range), slow 5 tick sweep, dust kicked up along the ground
+    - type: schedule_particle_animation
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
+      animation:
+        - type: arc
+          radius: 3.4
+          start_degrees: 75.0
+          end_degrees: -75.0
+          points: 15
+          sweep_ticks: 5
+          height_start: 0.5
+          height_end: -0.3
+          particles: [ { id: end_rod }, { id: electric_spark }, { id: crit } ]
+        - type: arc
+          radius: 3.0
+          start_degrees: 75.0
+          end_degrees: -75.0
+          points: 5
+          sweep_ticks: 5
+          height_start: 0.4
+          height_end: -0.3
+          particles: [ { id: sweep_attack } ]
+        - type: arc
+          radius: 3.4
+          start_degrees: 75.0
+          end_degrees: -75.0
+          points: 8
+          sweep_ticks: 5
+          height_start: -1.1
+          height_end: -1.1
+          particles:
+            - { id: dust, count: 2, color: { r: 150, g: 125, b: 90 }, scale: 2.0, extra: 0.02 }
+            - { id: cloud, extra: 0.03 }
   hit_entity:
     - type: play_sound
       targets: { type: target }
       sound_id: entity.player.attack.crit
-    - type: spawn_particle
+    - type: schedule_particle_animation
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
-      particle_id: hit-spark
+      animation:
+        - type: point
+          particles:
+            - { id: crit, count: 16, extra: 0.45 }
+            - { id: electric_spark, count: 10, extra: 0.35 }
+            - { id: explosion, count: 1 }
+        - type: point
+          delay_ticks: 1
+          particles:
+            - { id: cloud, count: 5, extra: 0.1, offset: { x: 0.0, y: -1.0, z: 0.0 } }
+    - type: camera_shake
+      targets: { type: target }
+      intensity: { type: literal, value: 0.8 }
+      ticks: { type: literal, value: 8 }
     - type: spawn_particle
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.6, z: 0.0 } } }
       particle_id: hit-indicator

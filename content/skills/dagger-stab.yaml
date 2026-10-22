@@ -2,6 +2,7 @@
 # bleed DoT (stacks to 3) is not gated by invulnerability frames, so the dagger
 # is the sustain-DPS pick against a target it stays glued to.
 
+# V-2a visuals. Per-cast particle budget: thrust 1+2+2+3 = 8, hit 16 per target.
 id: dagger-stab
 
 name:
@@ -32,9 +33,36 @@ phases:
       targets: { type: caster }
       sound_id: entity.player.attack.sweep
       pitch: { type: literal, value: 1.6 }
-    - type: spawn_particle
-      targets: { type: caster_forward, distance: 1.4, height: -0.2 }
-      particle_id: stab-spark
+    # quick short thrust: a straight needle of light (4 steps over 2 ticks)
+    - type: schedule_particle_animation
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 1.1, z: 0.0 } } }
+      animation:
+        - type: arc
+          radius: 0.7
+          start_degrees: 0.0
+          end_degrees: 0.0
+          points: 1
+          particles: [ { id: end_rod } ]
+        - type: arc
+          radius: 1.2
+          start_degrees: 0.0
+          end_degrees: 0.0
+          points: 1
+          particles: [ { id: end_rod }, { id: electric_spark } ]
+        - type: arc
+          delay_ticks: 1
+          radius: 1.7
+          start_degrees: 0.0
+          end_degrees: 0.0
+          points: 1
+          particles: [ { id: end_rod }, { id: electric_spark } ]
+        - type: arc
+          delay_ticks: 1
+          radius: 2.1
+          start_degrees: 0.0
+          end_degrees: 0.0
+          points: 1
+          particles: [ { id: crit, count: 3, extra: 0.2 } ]
   hit_entity:
     - type: apply_status
       targets: { type: target }
@@ -46,7 +74,12 @@ phases:
       sound_id: entity.player.attack.crit
       volume: { type: literal, value: 0.6 }
       pitch: { type: literal, value: 1.5 }
-    - type: spawn_particle
+    - type: schedule_particle_animation
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
-      particle_id: hit-spark
+      animation:
+        - type: point
+          particles:
+            - { id: crit, count: 8, extra: 0.35 }
+            - { id: electric_spark, count: 4, extra: 0.3 }
+            - { id: dust, count: 4, color: { r: 190, g: 20, b: 30 }, scale: 1.0, extra: 0.05 }
   miss: []

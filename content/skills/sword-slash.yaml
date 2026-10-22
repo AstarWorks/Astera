@@ -6,6 +6,7 @@
 # item's vanilla melee damage is cancelled by the combat plugin so it never
 # double-applies (ADR-0149). WP1 binds the sword's left_click to this id.
 
+# V-2a visuals. Per-cast particle budget: swing arcs 11x2 + 3 = 25, hit 16 per target.
 id: sword-slash
 
 name:
@@ -34,16 +35,39 @@ phases:
     - type: play_sound
       targets: { type: caster }
       sound_id: entity.player.attack.sweep
-    - type: spawn_particle
-      targets: { type: caster_forward, distance: 1.6, height: -0.3 }
-      particle_id: slash-sweep
+    # swing: right -> left across the 100 degree hit cone, radius ~80% of range
+    - type: schedule_particle_animation
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 1.1, z: 0.0 } } }
+      animation:
+        - type: arc
+          radius: 2.8
+          start_degrees: 50.0
+          end_degrees: -50.0
+          points: 11
+          sweep_ticks: 3
+          height_start: 0.3
+          height_end: -0.2
+          particles: [ { id: end_rod }, { id: electric_spark } ]
+        - type: arc
+          radius: 2.4
+          start_degrees: 50.0
+          end_degrees: -50.0
+          points: 3
+          sweep_ticks: 3
+          height_start: 0.3
+          height_end: -0.2
+          particles: [ { id: sweep_attack } ]
   hit_entity:
     - type: play_sound
       targets: { type: target }
       sound_id: entity.player.attack.strong
-    - type: spawn_particle
+    - type: schedule_particle_animation
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
-      particle_id: hit-spark
+      animation:
+        - type: point
+          particles:
+            - { id: crit, count: 10, extra: 0.35 }
+            - { id: electric_spark, count: 6, extra: 0.3 }
   miss:
     - type: play_sound
       targets: { type: caster }
