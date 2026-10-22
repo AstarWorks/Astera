@@ -43,13 +43,13 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "再撮影で横へ湾曲した軌跡と細いX命中を確認。32px素材の拡大で輪郭が粗く、原作の淡い滑らかな曲線とは不一致。人物ポーズ・紫の予備動作・画面占有率も未一致。現在版の通常操作撮影は未実施。"
+    "reason": "128px専用軌跡、前方の紫の菱形予備動作、9ブロック通過を比較・通常左クリックで実機確認。終点は対象から5ブロック（約2.8H）。人物の低い姿勢、予備動作中の連続ズーム、軌跡の厚さ等は未一致。"
   },
   "weapon": "couture-rapier",
   "identity": "The Alteration Shop Rodion",
   "videoTitle": "The Alteration Shop Rodion — skill showcase",
-  "iterations": 8,
+  "iterations": 11,
   "report": "/report/couture-rapier",
   "referenceRevision": "3a88f54825eec141e8c687f87ded3861206e760c42c17897d7061cfca2ce6b9a",
-  "contentRevision": "68da8572ca2bedb9b5695493295ce27f571589c0eb5a0d6d16d90ab0953fa970"
+  "contentRevision": "fe289dcdd64ccf12eeca50cd187109ae55641f4f428d6d986089baf4bfbeab70"
 }

@@ -121,6 +121,7 @@ make skill-compare
 - 51操作を実際のitem YAMLから一覧化する。S3等の略称だけで紐づけず `skill.asteraSkillId` と `weapon` を記録する。
 - 原資料のスナップショットは `tools/skill-compare/data/reference-analysis/<weapon>/`、開始・接触の索引は `round2-sources.json`。原資料の不確実性を消さない。
 - caseの `referenceRevision` は原資料のSHA-256、`contentRevision` はskillと参照VFX・内部skill・itemの内容ハッシュ。実機 `meta.json` に両方を記録する。一致しない撮影は比較欄へ出さない。
+- スプライトを使うVFXの内容版には `content/sprites/<id>.yaml`、`content/fonts/vfx/<id>.json`、生成PNGも含める。実機確認時は配信packのSHA-256を別途記録する。
 - この内容ハッシュだけではruntime jar・全パーティクル定義・リソースパックの同一性までは証明しない。これらを変更した場合も配備版を記録し、影響する技を撮り直す。`implementationCommit`は撮影ツール側のcheckoutを表し、サーバーjarの版を自動検出した値ではない。
 - 切り出した原動画もvideoId/start/endが一致するものだけ使う。24fpsと29.97fpsを30fpsに再サンプリングしない。無音動画でも切り出せる。
 - 原動画の全コマ一括ロードを避け、両側で共用する6件の読込キュー・48枚キャッシュ・先読みで再生する。次の両側の画像がそろうまで時刻を止め、「読み込み中」を表示する。失敗時は再試行する。
