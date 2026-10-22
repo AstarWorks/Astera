@@ -82,6 +82,14 @@ class ShopOwnershipAndBrowseTest {
     private fun slot(i: Int) = spec().slotAt(SlotIndex(i))
 
     @Test
+    fun `authored offer display key overrides the catalog name in the shop`() {
+        val key = MessageKey("astera.shop.special-offer")
+        register(offer("o", "sword").copy(displayKey = key))
+        browse.execute(playerId, shopId)
+        assertThat((slot(0) as GuiSlot.Static).displayName?.key).isEqualTo(key)
+    }
+
+    @Test
     fun `an owned unlock can be reclaimed after the authored stock becomes zero`() {
         val original = offer("o", "sword")
         register(original)

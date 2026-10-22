@@ -30,6 +30,22 @@ class ShopScenarioTest {
         dispatch(who, "shop.purchase", "shop_id" to "example-shop", "offer_id" to offer)
 
     @Test
+    fun `shop offer display key reaches the GUI through the production intent`() {
+        scenario("shop-offer-display-key") {
+            val buyer = player("buyer")
+            val shops = sim.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IShopRegistry>()
+            val shopId = com.astarworks.astera.core.domain.shop.ShopId("example-shop")
+            val original = checkNotNull(shops.resolve(shopId))
+            val key = com.astarworks.astera.core.domain.i18n.MessageKey("astera.economy.shop.gui.owned")
+            shops.register(original.copy(offers = original.offers.map { it.copy(displayKey = key) }))
+            dispatch(buyer, "lobby.shop.open")
+            val view = checkNotNull(sim.server.view(buyer.id))
+            val spec = checkNotNull(sim.services.getOrThrow<IGuiAdapter>().currentSpec(view))
+            assertThat((spec.slotAt(SlotIndex(0)) as GuiSlot.Static).displayName?.key).isEqualTo(key)
+        }
+    }
+
+    @Test
     fun `new player opens the shop, confirms a purchase, gets the item and is told when short`() {
         scenario("shop-loop") {
             val ledger = sim.services.getOrThrow<ICurrencyLedger>()
