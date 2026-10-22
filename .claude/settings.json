@@ -19,7 +19,19 @@
       "Bash(./gradlew tasks:*)",
       "Bash(make help)",
       "Bash(make check)",
-      "Bash(./.claude/hooks/*.sh:*)"
+      "Bash(./.claude/hooks/*.sh:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git merge:*)",
+      "Bash(git worktree:*)",
+      "Bash(git branch -d:*)",
+      "Bash(git stash:*)",
+      "Bash(git fetch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git restore --staged:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git merge-base:*)"
     ],
     "deny": [
       "Bash(git push:*)",
@@ -35,9 +47,6 @@
       "Read(**/.env.*)",
       "Read(**/*.pem)",
       "Read(**/*.key)"
-    ],
-    "ask": [
-      "Bash(git commit:*)"
     ]
   },
   "hooks": {
