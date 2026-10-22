@@ -22,7 +22,8 @@
 !**/.env.example
 
 # Docker artefacts themselves don't need to enter the build context
-docker/
+docker/*
+!docker/paper-patches
 
 # Docs and deploy aren't needed for the jar build
 docs/

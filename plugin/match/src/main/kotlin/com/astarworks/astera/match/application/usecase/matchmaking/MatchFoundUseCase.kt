@@ -38,10 +38,10 @@ public class MatchFoundUseCase(
     private val matches: IMatchRepository,
     private val notifier: IQueueNotifier,
     private val planFor: (MatchmakingMode) -> MatchPlan,
-) {
+) : MatchFormer {
 
     /** `true` while a non-ended match already occupies [mode]'s stage. */
-    public fun isStageBusy(mode: MatchmakingMode): Boolean {
+    override fun isStageBusy(mode: MatchmakingMode): Boolean {
         val stageId = planFor(mode).stageId
         return matches.findActiveMatches().any { it.stageId == stageId }
     }
@@ -54,7 +54,7 @@ public class MatchFoundUseCase(
      *  - `Failure(QueueFailure)`: the matchmaker rejected the call (mode closed...).
      *  - `Failure(StartFailure)`: the match could not start; players were re-queued.
      */
-    public fun execute(mode: MatchmakingMode): Result<MatchId?, MatchFoundError> {
+    override fun execute(mode: MatchmakingMode): Result<MatchId?, MatchFoundError> {
         if (isStageBusy(mode)) return Result.Success(null)
         val formation = when (val formationResult = matchmaker.tryFormMatch(mode)) {
             is Result.Failure -> return Result.Failure(MatchFoundError.QueueFailure(formationResult.error))
@@ -99,6 +99,18 @@ public class MatchFoundUseCase(
     }
 }
 
+/**
+ * Forms matches out of the queues. [MatchFoundUseCase] starts them on this
+ * server; `RemoteMatchFormer` hands them to the game server (ADR-0179).
+ */
+public interface MatchFormer {
+    /** `true` while [mode]'s lane cannot take another match. */
+    public fun isStageBusy(mode: MatchmakingMode): Boolean
+
+    /** Try to form one match for [mode]. `Success(null)` = nothing to do. */
+    public fun execute(mode: MatchmakingMode): Result<MatchId?, MatchFoundError>
+}
+
 /** Sealed failure modes for [MatchFoundUseCase.execute]. */
 public sealed class MatchFoundError {
     public abstract val messageKey: MessageKey
@@ -111,5 +123,10 @@ public sealed class MatchFoundError {
     /** Formation was consumed but match start failed (stage mismatch); players were re-queued. */
     public data class StartFailure(val cause: StartMatchError) : MatchFoundError() {
         override val messageKey: MessageKey = cause.messageKey
+    }
+
+    /** The match could not be handed to the game server; players were re-queued. */
+    public data class DispatchFailure(val reason: String) : MatchFoundError() {
+        override val messageKey: MessageKey = MessageKey("astera.match.matchmaking.dispatch-failure")
     }
 }

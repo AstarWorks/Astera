@@ -6,18 +6,30 @@ Goal: boot the server, log in with a Minecraft Java client, get weapons, play a 
 
 ```bash
 cp docker/.env.example docker/.env     # set OPS=<your Minecraft name>
-make docker-up                          # builds 7 jars + bakes content/, starts the stack
-make docker-logs                        # wait for "Done (...)!" and all Astera-* enabled
+make docker-up                          # builds 7 jars + bakes content/, generates the Velocity secret, starts the stack
+make docker-logs                        # wait for "Done (...)!" on lobby AND game, all Astera-* enabled
 ```
 
 `make docker-up` rebuilds every time; re-run it after changing code or `content/`.
+The stack is Velocity (proxy) + `lobby` + `game` (two Paper servers) + Postgres +
+Redis; see `docker/README.md` and ADR-0179.
 
 ## 2. Connect
 
 Minecraft Java Edition 26.3 -> Multiplayer -> Direct Connect -> `localhost:25565`
-(host:25565; `online-mode=false`, any username). World is superflat survival, PvP on.
-You must be op (`OPS=` in `docker/.env`, or run `op <name>` in the server console:
-`docker exec -i astera-paper rcon-cli op <name>`).
+(host:25565). **Velocity runs `online-mode=true`: you need a real, paid Minecraft Java
+account and you join under that account's name** (there is no offline / any-username
+login any more, and the backends are not reachable from outside the compose network).
+Your name and skin are the real ones; your UUID is the real Mojang UUID.
+
+You must be op to use the admin commands: put your exact Minecraft name in `OPS=` in
+`docker/.env` before `make docker-up` (both servers op you; the name is resolved to
+your real UUID through Mojang). To op someone later:
+`docker compose -f docker/docker-compose.yml exec lobby rcon-cli op <name>` (and the same
+with `game` if they need op there too).
+
+You always land on the **lobby** server (`try = ["lobby"]`). Shop, vault, queue and NPCs
+are there; matches run on the **game** server (section 4).
 
 ## 3. Get weapons
 
@@ -75,6 +87,14 @@ split across the two teams).
 
 What happens next (no further commands):
 
+0. The queue lives on the lobby. When a match forms, the lobby sends the teams to the
+   game server over Redis, and once the game server accepts, moves every queued player
+   there (they see a short "connecting" transition). If the game server is busy (it
+   hosts one match at a time) the queue holds and you are told the arena is in use. When
+   the match ends, everybody is sent back to the lobby automatically after ~8 s.
+   Players who do not arrive within 45 s are dropped from that match. Anyone who
+   connects to the game server without an assignment is sent back to the lobby.
+
 1. Once `min_players` are queued a countdown starts (default 10 s, announced
    in chat at 10/5/3/2/1). It restarts if someone leaves or disconnects, and
    is cancelled if the queue drops below the minimum. A full queue
@@ -115,8 +135,12 @@ has no mode key and runs plain Norma). A stage names its Bukkit world with `worl
 
 ## Logs / reset
 
-- Logs: `docker compose -f docker/docker-compose.yml logs -f paper`
+- Logs: `docker compose -f docker/docker-compose.yml logs -f velocity lobby game`
 - Content is baked into the image at `/content` (outside the `/data` volume),
   so every `make docker-up` serves exactly the repo's `content/`.
 - Reset world and data: `make docker-nuke` then `make docker-up`
   (`LEVEL_TYPE=FLAT` only applies to a freshly created world).
+- Second stack next to a running one: use another project name and host ports, e.g.
+  `ASTERA_PORT=25570 POSTGRES_PORT=5441 REDIS_PORT=6391 docker compose -p astera-other -f docker/docker-compose.yml up -d --build`.
+- Single-server mode (no proxy) still exists for the simulator and quick local boots:
+  `ASTERA_SERVER_ROLE` unset or `all` runs lobby and matches in one JVM.

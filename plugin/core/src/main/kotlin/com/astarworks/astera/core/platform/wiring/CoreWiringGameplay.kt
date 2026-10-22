@@ -155,8 +155,13 @@ internal fun CoreWiringState.wireGameplayLoop() {
             eventBus = eventBus,
             scheduler = scheduler,
         )
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { event ->
-        createFirstTimeListener.handle(event)
+    // First-time onboarding is owned by the lobby (ADR-0179): profiles live in
+    // memory per backend, so a game-only server would treat every arrival from
+    // the lobby as a new player and re-run the starter grant.
+    if (ctx.serverRole.hostsLobby) {
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { event ->
+            createFirstTimeListener.handle(event)
+        }
     }
     val startTutorialListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
         .StartTutorialOnFirstTimeProfileCreatedListener(

@@ -45,7 +45,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
             }
 
         // 2. Host-neutral wiring (ADR-0174) + Paper-only binding ----------------
-        val ctx = WiringContext(core.services, core.contentDir, logger)
+        val ctx = WiringContext(core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
         wiringContext = ctx
         val platform = CombatPaperPlatform(this)
         paperPlatform = platform

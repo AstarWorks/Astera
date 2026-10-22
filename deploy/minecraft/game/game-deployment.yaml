@@ -77,8 +77,6 @@ spec:
               value: "10"
             - name: SIMULATION_DISTANCE
               value: "8"
-            - name: ONLINE_MODE
-              value: "false"
             - name: ENABLE_RCON
               value: "true"
             - name: RCON_PASSWORD
@@ -90,6 +88,40 @@ spec:
               value: "survival"
             - name: ALLOW_FLIGHT
               value: "true"
+            # ADR-0179: this pod is one half of the lobby/game split behind Velocity.
+            # Players authenticate on the proxy; the backend trusts only the
+            # modern-forwarding secret (docker/paper-patches/velocity.json).
+            - name: ONLINE_MODE
+              value: "false"
+            - name: PATCH_DEFINITIONS
+              value: "/patches"
+            - name: CFG_VELOCITY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: astera-runtime
+                  key: velocity-forwarding-secret
+            - name: ASTERA_SERVER_ROLE
+              value: "game"
+            - name: ASTERA_SERVER_NAME
+              value: "game"
+            - name: ASTERA_LOBBY_SERVER
+              value: "lobby"
+            - name: ASTERA_GAME_SERVER
+              value: "game"
+            - name: ASTERA_REDIS_URI
+              value: "redis://redis.databases.svc.cluster.local:6379"
+            - name: ASTERA_PG_URL
+              value: "jdbc:postgresql://postgresql.databases.svc.cluster.local:5432/astera_db"
+            - name: ASTERA_PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: astera-runtime
+                  key: pg-user
+            - name: ASTERA_PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: astera-runtime
+                  key: pg-password
             - name: ASTERA_METRICS_ENABLED
               value: "true"
             - name: ASTERA_METRICS_PORT

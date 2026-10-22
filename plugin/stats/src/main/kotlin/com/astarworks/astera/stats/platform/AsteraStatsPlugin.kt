@@ -35,7 +35,7 @@ public class AsteraStatsPlugin : JavaPlugin() {
             }
 
         // Host-neutral wiring (ADR-0174); Stats has no Paper-only step.
-        val ctx = WiringContext(core.services, core.contentDir, logger)
+        val ctx = WiringContext(core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
         wiringContext = ctx
         wiringResult = StatsWiring.install(ctx, StatsPlatformPorts())
 

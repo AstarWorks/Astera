@@ -33,7 +33,7 @@ public class AsteraMatchPlugin : JavaPlugin() {
             }
 
         // Host-neutral wiring (ADR-0174), then the Paper-only listener step.
-        val ctx = WiringContext(core.services, core.contentDir, logger)
+        val ctx = WiringContext(core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
         wiringContext = ctx
         val wired = MatchWiring.install(
             ctx,

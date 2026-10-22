@@ -361,6 +361,10 @@ astera:
       stage-busy: "<gray>The arena is in use. Your match starts as soon as it is free.</gray>"
       match-found: "<green>Match found! Teleporting to <gold>{stage}</gold> on team <gold>{team}</gold>.</green>"
       start-failed: "<red>The match could not start; you were put back in the queue.</red>"
+      # ADR-0179 — lobby/game server split
+      transferring: "<green>Match found! Moving you to the arena server…</green>"
+      dispatch-failure: "<red>The arena server did not answer; you were put back in the queue.</red>"
+      wrong-server: "<gray>This server only hosts matches. Sending you back to the lobby…</gray>"
     # Wave 5lobby-content (ADR-0119) — lobby `lobby.queue.*` GuiIntent surface.
     queue:
       unknown-mode: "<red>Unknown queue mode.</red>"

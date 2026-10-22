@@ -41,7 +41,7 @@ public class AsteraItemsPlugin : JavaPlugin() {
                 server.pluginManager.disablePlugin(this); return
             }
 
-        val ctx = WiringContext(core.services, core.contentDir, logger)
+        val ctx = WiringContext(core.services, core.contentDir, logger, core.serverEnvironment.role, core.serverEnvironment.name)
         wiringContext = ctx
 
         // Paper-side item adapters (ADR-0174: injected into the host-neutral wiring).
