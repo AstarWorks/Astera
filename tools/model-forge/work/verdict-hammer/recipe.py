@@ -44,7 +44,7 @@ class Prop:
       t=3 if x%16 in (0,1) or y%16==0 else 1 if x%16>11 else 2
       if m==0:t=2 if x%12==0 else 1 if (x+y)%19 else 0
       if m==3:t=1 if x%9 in (6,7) else 3 if (x*7+y)%31==0 else 2
-      if m in (2,6,7):t=4 if x%8<2 else 3 if x%8<4 else 2
+      if m in (2,6,7):t=(4 if x%8<2 else 3 if x%8<4 else 2) if self.item=='verdict-hammer' else (4 if y%16==0 else 3 if y%16<3 else 2)
       if self.stage>=5 and (x*7+y*13)%113==0:t=4
      im.putpixel((ox+x,oy+y),tuple(bytes.fromhex(pal[t]))+(255,))
   return im
