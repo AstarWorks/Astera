@@ -358,11 +358,12 @@ astera:
     # Wave 5w — マッチメイキング キュー (ADR-0089)
     matchmaking:
       queue-failure: "<red>キュー処理が失敗しました。</red>"
-      enqueue:
-        success: "<green>キューに参加: <gold>{mode}</gold></green>"
-        already-enqueued: "<red>既にキューに入っています。</red>"
-        mode-closed: "<red>そのモードは閉鎖中です。</red>"
-        invalid-mode: "<red>未知のマッチメイク モード <gold>{mode}</gold></red>"
+      # WP8 — スケジュール式 キュー → マッチ
+      countdown: "<yellow>マッチ開始まで <gold>{seconds}</gold> 秒 <gray>（キュー {players} 人）</gray></yellow>"
+      countdown-cancelled: "<gray>人数が足りません（{players}/{required}）。参加者を待っています。</gray>"
+      stage-busy: "<gray>アリーナ使用中です。空き次第マッチが始まります。</gray>"
+      match-found: "<green>マッチ成立！ <gold>{stage}</gold> へ移動します（チーム <gold>{team}</gold>）。</green>"
+      start-failed: "<red>マッチを開始できませんでした。キューに戻しました。</red>"
     # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
     queue:
       unknown-mode: "<red>未知のキューモードです。</red>"
@@ -372,12 +373,14 @@ astera:
         not-queued: "<red>キューに参加していません。</red>"
         mode-closed: "<red>そのキューモードは現在閉鎖中です。</red>"
         party-too-large: "<red>パーティが選択モードに対して大きすぎます。</red>"
+        in-match: "<red>既にマッチに参加しています。</red>"
       dequeue:
         success: "<green>キューを離脱しました。</green>"
         not-enqueued: "<red>キューに参加していません。</red>"
       status:
         none: "<gray>キューには参加していません。</gray>"
         line: "<yellow>キュー:</yellow> <white>{mode}</white> <gray>(#</gray><gold>{position}</gold><gray>)</gray>"
+        progress: "<gray>キュー {players}/{required} 人（人数が揃うとマッチが始まります）。</gray>"
 
     # Wave 5v — マッチ録画キャプチャ (ADR-0088)
     replay:
@@ -394,6 +397,10 @@ astera:
       "replay.invalid-id": "<red>マッチ ID が不正です: {match}</red>"
       "replay.not-found": "<red>マッチ {match} の録画は保存されていません。</red>"
       "replay.export-failed": "<red>マッチ {match} の書き出しに失敗: {reason}</red>"
+      queue: "<gray>マッチキューに参加／離脱します。</gray>"
+      "queue.join": "<gray>キュー参加: norma | custom:MODE。</gray>"
+      "queue.leave": "<gray>マッチキューを離脱します。</gray>"
+      "queue.status": "<gray>キューの順番を表示します。</gray>"
       # Wave 5complete (ADR-0117 §Axis 3) — フラット管理サブコマンド。
       abort: "<gray>マッチを即座に中止します (AdminEnded)。</gray>"
       cancel: "<gray>マッチをキャンセルします (勝者なし)。</gray>"

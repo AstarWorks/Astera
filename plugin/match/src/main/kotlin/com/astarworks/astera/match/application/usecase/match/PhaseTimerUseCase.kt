@@ -46,6 +46,8 @@ public class PhaseTimerUseCase(
      * predate the `IMatchTimerService` impl).
      */
     private val matchTimer: MatchTimerService? = null,
+    /** COUNTDOWN length in ticks (WP8: `match_countdown_seconds` of the queue config). */
+    private val countdownTicks: () -> Long = { PhaseTimings.COUNTDOWN_TICKS },
 ) {
 
     /**
@@ -82,7 +84,7 @@ public class PhaseTimerUseCase(
 
             when (match.phase) {
                 MatchPhase.COUNTDOWN -> {
-                    if (now - match.startedAtTick >= PhaseTimings.COUNTDOWN_TICKS + shift) {
+                    if (now - match.startedAtTick >= countdownTicks() + shift) {
                         switchPhase.execute(
                             match.id,
                             MatchStateMachine.TransitionTrigger.CountdownComplete,

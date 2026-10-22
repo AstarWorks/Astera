@@ -8,18 +8,30 @@ import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.match.application.usecase.spawn.MatchSpawnUseCase
+import com.astarworks.astera.match.application.usecase.spawn.SpawnKind
+import org.slf4j.LoggerFactory
 
 /**
  * Registers [playerId] as a participant in [matchId].
  *
  * Entry is accepted only in WAITING or COUNTDOWN phases.
  * Rejects if the player is already registered.
+ *
+ * WP8: with `teamId == null` the player joins the **smallest** team (first on
+ * ties) so admin/queue entries auto-balance, and, when a [spawn] use case is
+ * wired, is teleported to a stage spawn of their team (first team = attacker
+ * spawns, the others = defender spawns). A teleport failure is logged but does
+ * not undo the entry.
  */
 public class EntryGameUseCase(
     private val matches: IMatchRepository,
     @Suppress("UnusedPrivateProperty")
     private val eventBus: IDomainEventBus,
+    private val spawn: MatchSpawnUseCase? = null,
 ) {
+
+    private val log = LoggerFactory.getLogger(javaClass)
 
     public fun execute(
         matchId: MatchId,
@@ -37,8 +49,18 @@ public class EntryGameUseCase(
             return Result.failure(EntryGameError.AlreadyRegistered(matchId, playerId))
         }
 
-        val updated = match.addParticipant(playerId, teamId)
+        val targetTeam = teamId ?: match.teams.minByOrNull { it.members.size }?.id
+        val updated = match.addParticipant(playerId, targetTeam)
         matches.save(updated)
+
+        if (spawn != null) {
+            val teamIndex = updated.teams.indexOfFirst { playerId in it.members }
+            val kind = if (teamIndex <= 0) SpawnKind.ATTACKER else SpawnKind.DEFENDER
+            val outcome = spawn.spawnPlayer(matchId, playerId, kind)
+            if (outcome is Result.Failure) {
+                log.warn("Entry teleport for {} into {} failed: {}", playerId, matchId, outcome.error)
+            }
+        }
 
         return Result.success(Unit)
     }

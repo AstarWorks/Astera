@@ -67,8 +67,10 @@ public object MatchMinPlayerPolicy {
     }
 
     /** Apply the mode's min-player floor against [match]'s current roster. */
-    public fun check(modeKey: String?, match: Match): Outcome {
-        val required = requirementFor(modeKey)
+    public fun check(modeKey: String?, match: Match): Outcome = check(requirementFor(modeKey), match)
+
+    /** Apply an explicit [required] floor (e.g. the queue lane's `min_players`) against [match]'s roster. */
+    public fun check(required: Int, match: Match): Outcome {
         val actual = match.teams.sumOf { it.members.size }
         return if (actual >= required) Outcome.Ok else Outcome.Insufficient(required, actual)
     }

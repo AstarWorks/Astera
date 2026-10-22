@@ -1,7 +1,6 @@
 package com.astarworks.astera.match.application.service.matchmaking
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
-import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.MatchFormed
 import com.astarworks.astera.core.domain.event.MatchQueueJoined
@@ -43,7 +42,6 @@ import java.time.Instant
  */
 public class InMemoryMatchmaker(
     private val eventBus: IDomainEventBus,
-    private val scheduler: IScheduler? = null,
     private val clock: () -> Instant = { Instant.now() },
     private val minPlayersPerTeam: Int = 1,
     private val teamCount: Int = 2,
@@ -134,7 +132,7 @@ public class InMemoryMatchmaker(
         val spec = sizeByMode(mode)
         val perTeam = spec.playersPerTeam
         val list = pending[modeKey] ?: return Result.Success(null)
-        if (list.size < spec.targetPlayers) return Result.Success(null)
+        if (list.size < spec.minPlayers) return Result.Success(null)
 
         // FIFO + party-aware. Group entries by partyId; null = solo.
         val sorted = list.sortedBy { it.enqueuedAt }
@@ -171,26 +169,30 @@ public class InMemoryMatchmaker(
                     ),
                 )
             }
-            val teamIdx = teams.indexOfFirst { it.size + party.size <= perTeam }
-            if (teamIdx < 0) continue
+            val teamIdx = teams.withIndex()
+                .filter { (_, team) -> team.size + party.size <= perTeam }
+                .minByOrNull { (_, team) -> team.size }?.index
+                ?: continue
             teams[teamIdx].addAll(party.map { it.playerId })
             pickedEntries += party
         }
         // Solos: snake-draft by rating (desc). Each pick goes to the team with a
-        // free slot and the lowest current average rating, so the strongest free
-        // agents are spread across teams and the team averages stay close.
+        // free slot, the fewest players (keeps sizes within one of each other
+        // when the queue is only partly full) and then the lowest current
+        // average rating, so the strongest free agents are spread across teams
+        // and the team averages stay close.
         val rankedSolos = solos.sortedByDescending { (it.rating ?: Rating.DEFAULT).value }
         for (solo in rankedSolos) {
             val target = teams.withIndex()
                 .filter { (_, team) -> team.size < perTeam }
-                .minByOrNull { (_, team) -> teamAverage(team) }
+                .minWithOrNull(compareBy({ (_, team) -> team.size }, { (_, team) -> teamAverage(team) }))
                 ?: break
             teams[target.index].add(solo.playerId)
             pickedEntries += solo
             if (teams.all { it.size >= perTeam }) break
         }
-        // Final check: every team meets the per-mode size.
-        if (teams.any { it.size < perTeam }) {
+        // Final check: enough players were placed (parties that did not fit stay queued).
+        if (pickedEntries.size < spec.minPlayers) {
             return Result.Success(null)
         }
 
@@ -233,11 +235,8 @@ public class InMemoryMatchmaker(
 
     private fun estimateWaitSec(modeKey: ModeKey): Int {
         // Phase 1 PoC: queue depth × 5s/slot. Phase 2 replaces with per-mode
-        // average form rate. The scheduler reference is currently advisory
-        // (Wave 5w wiring may add ticking ETA refresh in Phase C).
+        // average form rate.
         val depth = pending[modeKey]?.size ?: 0
-        @Suppress("UnusedExpression") // intentional: scheduler reserved for Phase 2
-        scheduler
         return depth * 5
     }
 

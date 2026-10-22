@@ -29,6 +29,7 @@ internal object MatchGameplayWiring {
         val logger = env.ctx.logger
         val registrations = env.ctx.registrations
         val subscriptions = env.ctx.subscriptions
+        val scheduledTasks = env.scheduledTasks
         val matches = env.matches
         val stages = env.stages
         val eventBus = env.eventBus
@@ -70,18 +71,49 @@ internal object MatchGameplayWiring {
             services.get<IMatchmaker>()
                 ?: InMemoryMatchmaker(
                     eventBus = eventBus,
-                    scheduler = scheduler,
                     ratingLookup = { ratingRepository.ratingOf(it) },
+                    sizeByMode = { env.queueSettings.current().sizeFor(it) },
                 ).also {
                     registrations += services.register<IMatchmaker>(it, priority = 0)
                 }
         commandHandler.register(
             MatchCommandSpecs.buildQueueCommandSpec(
                 matchmaker = matchmaker,
+                matches = matches,
                 playerGateway = playerGateway,
                 permService = permService,
+                messages = env.msgRenderer,
+                settings = { env.queueSettings.current() },
             ),
         )
+
+        // ── WP8: queue → match. Scheduled tryFormMatch + auto start/entry ──
+        val queueNotifier = com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueNotifier { id, key, ph ->
+            playerGateway.sendMessage(id, env.msgRenderer.render(id, key, ph))
+        }
+        val matchFound = com.astarworks.astera.match.application.usecase.matchmaking.MatchFoundUseCase(
+            matchmaker = matchmaker,
+            lifecycle = facade,
+            matches = matches,
+            notifier = queueNotifier,
+            planFor = { mode ->
+                val lane = env.queueSettings.current().laneFor(mode)
+                    ?: com.astarworks.astera.match.domain.matchmaking.QueueSettings.DEFAULT.lanes.getValue("norma")
+                com.astarworks.astera.match.application.usecase.matchmaking.MatchPlan(lane.stage, lane.modeKey)
+            },
+        )
+        scheduledTasks += com.astarworks.astera.match.application.service.matchmaking.QueueMatchScheduler(
+            matchmaker = matchmaker,
+            matchFound = matchFound,
+            notifier = queueNotifier,
+            scheduler = scheduler,
+            settings = { env.queueSettings.current() },
+        ).start()
+        // A queued player who disconnects leaves the queue (so they are never
+        // pulled into a match while offline).
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
+        ) { matchmaker.dequeue(it.playerId) }
 
         // ── Wave 7b (ADR-0037): ranked rating update + tournament use cases ──
         // On MatchEnded, recompute each participant's Elo (winner ↑ / loser ↓

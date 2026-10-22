@@ -1,85 +1,101 @@
 package com.astarworks.astera.match.application.usecase.matchmaking
 
-import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
+import com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueNotifier
 import com.astarworks.astera.match.application.usecase.match.StartMatchError
 import com.astarworks.astera.match.domain.matchmaking.MatchFormation
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.domain.matchmaking.QueueError
 
+/** Where and how a queue lane plays: the stage and `MatchStarted.modeKey` (`null` = legacy Norma). */
+public data class MatchPlan(val stageId: StageId, val modeKey: String?)
+
 /**
- * Wave 5w / ADR-0089 δ — bridge between [IMatchmaker] and Wave 5c
- * `StartMatchUseCase`.
+ * Bridge between [IMatchmaker] and the match lifecycle (Wave 5w / ADR-0089 δ,
+ * completed in WP8).
  *
- * Pulls a [MatchFormation] for the requested [MatchmakingMode], starts a
- * match on the configured stage, and entries each formation player on their
- * formation team. The Wave 5c `MatchStarted` → `MatchSpawnUseCase` listener
- * (wired in `AsteraMatchPlugin.kt`) then teleports them.
+ * Pulls a [MatchFormation] for a [MatchmakingMode], starts a match on the lane's
+ * stage, and enters every formation player on their formation team. Entry
+ * teleports each player to a stage spawn (`EntryGameUseCase`).
  *
- * **Idempotency**: `tryFormMatch` is consume-on-success, so the second call
- * (which returns `Success(null)`) is the path that triggers "no formation
- * yet, do nothing".
+ * - **Idempotent**: `tryFormMatch` is consume-on-success; an empty/short queue
+ *   returns `Success(null)` without mutating anything.
+ * - **Stage busy**: a stage hosts one match at a time; while it is busy no
+ *   formation is consumed ([isStageBusy]).
+ * - **Start failure**: the consumed players are put back in the queue so a bad
+ *   stage config does not silently drop them.
  */
 public class MatchFoundUseCase(
     private val matchmaker: IMatchmaker,
     private val lifecycle: IMatchLifecycle,
-    @Suppress("unused") private val eventBus: IDomainEventBus,
-    private val defaultStageProvider: (MatchmakingMode) -> StageId,
+    private val matches: IMatchRepository,
+    private val notifier: IQueueNotifier,
+    private val planFor: (MatchmakingMode) -> MatchPlan,
 ) {
+
+    /** `true` while a non-ended match already occupies [mode]'s stage. */
+    public fun isStageBusy(mode: MatchmakingMode): Boolean {
+        val stageId = planFor(mode).stageId
+        return matches.findActiveMatches().any { it.stageId == stageId }
+    }
 
     /**
      * Try to start one match. Returns:
-     *  - `Result.Success(matchId)` — a formation was found AND
-     *    `StartMatchUseCase` succeeded; `entry` was called for every player.
-     *  - `Result.Success(null)` — no formation available yet (queue too
-     *    shallow). No state mutation.
-     *  - `Result.Failure(MatchFoundError.QueueFailure)` — matchmaker rejected
-     *    the call (e.g. mode closed).
-     *  - `Result.Failure(MatchFoundError.StartFailure)` — formation was
-     *    consumed but `StartMatchUseCase` rejected the stage (mismatch).
-     *    Players are re-queued is NOT performed in Phase 1 PoC; the operator
-     *    is alerted via the [StartMatchError] message key.
+     *  - `Success(matchId)`: a formation was found and the match started;
+     *    every player was entered (and teleported) on a team.
+     *  - `Success(null)`: nothing to do (queue too shallow, or stage busy).
+     *  - `Failure(QueueFailure)`: the matchmaker rejected the call (mode closed...).
+     *  - `Failure(StartFailure)`: the match could not start; players were re-queued.
      */
     public fun execute(mode: MatchmakingMode): Result<MatchId?, MatchFoundError> {
-        val formationResult = matchmaker.tryFormMatch(mode)
-        when (formationResult) {
+        if (isStageBusy(mode)) return Result.Success(null)
+        val formation = when (val formationResult = matchmaker.tryFormMatch(mode)) {
             is Result.Failure -> return Result.Failure(MatchFoundError.QueueFailure(formationResult.error))
-            is Result.Success -> {
-                val formation = formationResult.value ?: return Result.Success(null)
-                val stageId = defaultStageProvider(mode)
-                return startWithFormation(formation, stageId)
-            }
+            is Result.Success -> formationResult.value ?: return Result.Success(null)
         }
+        return startWithFormation(formation, planFor(mode))
     }
 
     private fun startWithFormation(
         formation: MatchFormation,
-        stageId: StageId,
+        plan: MatchPlan,
     ): Result<MatchId?, MatchFoundError> {
-        val startResult = lifecycle.start(stageId)
-        val matchId = when (startResult) {
+        val matchId = when (val startResult = lifecycle.start(plan.stageId, plan.modeKey)) {
             is Result.Success -> startResult.value
-            is Result.Failure -> return Result.Failure(MatchFoundError.StartFailure(startResult.error))
+            is Result.Failure -> {
+                requeue(formation)
+                return Result.Failure(MatchFoundError.StartFailure(startResult.error))
+            }
         }
-        // Entry every formation player on their formation team. The teamId
-        // mapping is positional: teams[0] = red, teams[1] = blue (matches
-        // StartMatchUseCase default). Phase 2 generalises to N-team modes.
-        val teamIds = listOf(
-            com.astarworks.astera.core.domain.match.TeamId("red"),
-            com.astarworks.astera.core.domain.match.TeamId("blue"),
-        )
+        // Formation team i maps onto the match's i-th team (red, blue, ...);
+        // surplus formation teams fold back so nobody is dropped.
+        val teamIds: List<TeamId> = matches.findById(matchId)?.teams?.map { it.id }.orEmpty()
         formation.teams.forEachIndexed { idx, team ->
-            val teamId = teamIds.getOrNull(idx) ?: return@forEachIndexed
+            val teamId = if (teamIds.isEmpty()) null else teamIds[idx % teamIds.size]
             for (playerId in team) {
                 lifecycle.entry(matchId, playerId, teamId)
+                notifier.notify(
+                    playerId,
+                    MessageKey("astera.match.matchmaking.match-found"),
+                    mapOf("team" to (teamId?.value ?: ""), "stage" to plan.stageId.value),
+                )
             }
         }
         return Result.Success(matchId)
+    }
+
+    private fun requeue(formation: MatchFormation) {
+        for (playerId in formation.players) {
+            matchmaker.enqueue(playerId, formation.mode)
+            notifier.notify(playerId, MessageKey("astera.match.matchmaking.start-failed"), emptyMap())
+        }
     }
 }
 
@@ -92,7 +108,7 @@ public sealed class MatchFoundError {
         override val messageKey: MessageKey = MessageKey("astera.match.matchmaking.queue-failure")
     }
 
-    /** Formation was consumed but match start failed (stage mismatch). */
+    /** Formation was consumed but match start failed (stage mismatch); players were re-queued. */
     public data class StartFailure(val cause: StartMatchError) : MatchFoundError() {
         override val messageKey: MessageKey = cause.messageKey
     }
