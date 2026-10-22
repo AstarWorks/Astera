@@ -14,11 +14,16 @@ ROOT="$(cd "$HERE/../.." && pwd -P)"
 . "$HERE/lib.sh"
 
 SKILL="${SKILL:-}"
+CASE="${CASE:-}"                     # VIEW=compare: skill-compare case id (tools/skill-compare/data/<case>/intent.json)
+OUT_ROOT="${OUT_ROOT:-$ROOT/build/vfx-shot}"
+# Run identity: unique per worktree path + case/skill, so parallel runs never share a compose project, image tag,
+# container name, docker network or subnet. SHOT_PROJECT overrides the project name (SHOT_ID the image-tag id).
+SHOT_ID="${SHOT_ID:-$(printf '%s|%s' "$ROOT" "${CASE:-$SKILL}" | sha1sum | cut -c1-8)}"
+PROJECT="${SHOT_PROJECT:-astera-shot-$SHOT_ID}"
 if [ "${1:-}" = down ]; then
-  OUT_ROOT="${OUT_ROOT:-$ROOT/build/vfx-shot}"
   SUBNET="$(cat "$OUT_ROOT/.state/subnet" 2>/dev/null || echo 10.211.77)"
-  docker network disconnect "astera-shot_default" "$(hostname)" >/dev/null 2>&1 || true
-  SHOT_SUBNET_PREFIX="$SUBNET" ASTERA_E2E_ID=shot RCON_PASSWORD=astera-shot docker compose -p astera-shot \
+  docker network disconnect "${PROJECT}_default" "$(hostname)" >/dev/null 2>&1 || true
+  SHOT_SUBNET_PREFIX="$SUBNET" ASTERA_E2E_ID="$SHOT_ID" RCON_PASSWORD=astera-shot docker compose -p "$PROJECT" \
     -f "$ROOT/docker/docker-compose.e2e.yml" -f "$HERE/compose.override.yml" --profile e2e \
     down -v --remove-orphans --rmi local
   exit 0
@@ -43,7 +48,6 @@ ITEM="${ITEM:-}"                     # item to hold; default: skill id minus -sN
 CAST_LAG_MS="${CAST_LAG_MS:-60}"     # client render + network lag between server cast and the frame
 KEEP="${SHOT_KEEP:-0}"               # 1 = leave the server running (next run reuses it)
 
-CASE="${CASE:-}"                     # VIEW=compare: skill-compare case id (tools/skill-compare/data/<case>/intent.json)
 CAMERA="${CAMERA:-case}"             # VIEW=compare: case = intent.json camera keys, side = fixed 6 blocks to the side
 PRE_TICKS=0                          # frames filmed before the cast (compare only; cast_tick_ms = PRE_TICKS * 50)
 ARENA_R=15                           # floor half-size around the arena centre
@@ -64,12 +68,10 @@ if [ "$VIEW" = compare ]; then
 fi
 [ -n "$ITEM" ] || ITEM="$(printf '%s' "$SKILL" | sed -E 's/-(s[0-9]+|def)$//')"
 
-PROJECT="astera-shot"
 SERVER_CT="$PROJECT-e2e-1"
 NET="${PROJECT}_default"
 RCON_PORT=25575
 RCON_PASS="astera-shot"
-OUT_ROOT="${OUT_ROOT:-$ROOT/build/vfx-shot}"
 STATE="$OUT_ROOT/.state"
 CLIENTS="$OUT_ROOT/.clients"
 CACHE="${SHOT_CACHE:-$HOME/.cache/astera-vfx-shot}"
@@ -98,7 +100,7 @@ cleanup() {
 }
 
 compose() {
-  SHOT_SUBNET_PREFIX="$SUBNET" ASTERA_E2E_ID=shot RCON_PASSWORD="$RCON_PASS" \
+  SHOT_SUBNET_PREFIX="$SUBNET" ASTERA_E2E_ID="$SHOT_ID" RCON_PASSWORD="$RCON_PASS" \
     docker compose -p "$PROJECT" -f "$ROOT/docker/docker-compose.e2e.yml" \
     -f "$HERE/compose.override.yml" --profile e2e "$@"
 }
@@ -106,15 +108,27 @@ compose() {
 rcon() { python3 -I "$HERE/rcon.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$@"; }
 
 # ---------------------------------------------------------------- server
+create_network() {
+  SUBNET="$(pick_subnet_prefix)" || { log "no free docker subnet 10.N.77.0/24 (N=211..250)"; return 1; }
+  echo "$SUBNET" > "$STATE/subnet"
+  compose up --no-build --no-start e2e e2e-resource-pack > "$STATE/compose-create.log" 2>&1 \
+    || { tail -30 "$STATE/compose-create.log" >&2; return 1; }
+}
+
 boot_server() {
   if docker inspect "$SERVER_CT" >/dev/null 2>&1 && [ -s "$STATE/subnet" ]; then
     SUBNET="$(cat "$STATE/subnet")"
     log "reusing running server (subnet $SUBNET)"
   else
-    SUBNET="$(pick_subnet_prefix)" || die "no free docker subnet 10.N.77.0/24 (N=211..250)"
-    echo "$SUBNET" > "$STATE/subnet"
-    log "building + starting server (project $PROJECT, subnet $SUBNET.0/24); first build takes minutes"
-    compose up -d --build --wait e2e e2e-resource-pack > "$STATE/compose-up.log" 2>&1 \
+    log "building server image (project $PROJECT); first build takes minutes"
+    SUBNET="10.211.77"   # placeholder for the compose interpolation of `build` (not used there)
+    compose build e2e e2e-resource-pack > "$STATE/compose-build.log" 2>&1 \
+      || { tail -30 "$STATE/compose-build.log" >&2; die "server image build failed"; }
+    # subnet pick + network/container creation is one critical section across all parallel runs
+    # (otherwise two runs probe the same free 10.N.77.0/24 and the second `up` fails with "Pool overlaps")
+    with_global_lock subnet create_network || die "could not create the compose network"
+    log "starting server (project $PROJECT, subnet $SUBNET.0/24)"
+    compose up -d --no-build --wait e2e e2e-resource-pack > "$STATE/compose-up.log" 2>&1 \
       || { tail -30 "$STATE/compose-up.log" >&2; die "server failed to start"; }
   fi
   SERVER_IP="$SUBNET.2"
@@ -171,11 +185,14 @@ EOF
 
 start_client() { # name width height
   local name="$1" w="$2" h="$3" d wd="$CLIENTS/$1" i
-  d="$(pick_display)" || die "no free X display"
   write_client_files "$name" "$w" "$h"
-  Xvfb ":$d" -screen 0 "${w}x${h}x24" -nolisten tcp >"$wd/xvfb.log" 2>&1 &
+  # -displayfd: the X server picks a free display number itself and writes it to stdout (no race between runs)
+  : > "$wd/display"
+  Xvfb -displayfd 1 -screen 0 "${w}x${h}x24" -nolisten tcp >"$wd/display" 2>"$wd/xvfb.log" &
   XPID[$name]=$!
-  for i in $(seq 1 50); do [ -e "/tmp/.X11-unix/X$d" ] && break; sleep 0.1; done
+  d=""
+  for i in $(seq 1 100); do d="$(tr -dc '0-9' <"$wd/display")"; [ -n "$d" ] && break; sleep 0.1; done
+  [ -n "$d" ] || die "Xvfb did not report a display (see $wd/xvfb.log)"
   DISP[$name]="$d"
   : > "$wd/client.log"
   DISPLAY=":$d" LIBGL_ALWAYS_SOFTWARE=1 XDG_RUNTIME_DIR="$wd" \
@@ -257,10 +274,17 @@ setup_world() {
   rcon "kill @e[type=minecraft:item]" >/dev/null
 }
 
+# Target dummy: no AI behaviour (does not wander / hunt / hit / talk) but still takes knockback and velocity,
+# which NoAI:1b would suppress. Rotation is fixed at summon (it only "looks at" the caster, the one
+# non-spectator player). HP 200, fresh per run (the husk is killed at the start and end of every view).
+dummy_nbt() { # yaw
+  printf '{Silent:1b,PersistenceRequired:1b,Rotation:[%sf,0f],attributes:[{id:"minecraft:max_health",base:200},{id:"minecraft:movement_speed",base:0},{id:"minecraft:follow_range",base:0},{id:"minecraft:attack_damage",base:0}],Health:200f}' "$1"
+}
+
 summon_target() {
   local tz
   tz="$(awk -v z="$CZ" -v d="$DISTANCE" 'BEGIN{printf "%.1f", z+d}')"
-  rcon "execute in minecraft:overworld run summon minecraft:husk $CX $Y $tz {NoAI:1b,Silent:1b,PersistenceRequired:1b,Rotation:[180f,0f],attributes:[{id:\"minecraft:max_health\",base:2000}],Health:2000f}" >/dev/null
+  rcon "execute in minecraft:overworld run summon minecraft:husk $CX $Y $tz $(dummy_nbt 180)" >/dev/null
 }
 
 target_z() { awk -v z="$CZ" -v d="$DISTANCE" 'BEGIN{printf "%.1f", z+d}'; }
@@ -357,7 +381,7 @@ place_scene() { # view target_z
       rcon "team modify cmp nametagVisibility never" >/dev/null
       rcon "team join cmp Caster" >/dev/null
       tp Caster "$CX" "$Y" "$CZ" -90 0
-      rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" -v d="$ENEMY_X" 'BEGIN{printf "%.2f", x+d}') $Y $CZ {Silent:1b,PersistenceRequired:1b,Rotation:[90f,0f],attributes:[{id:\"minecraft:max_health\",base:200},{id:\"minecraft:movement_speed\",base:0},{id:\"minecraft:follow_range\",base:0}],Health:200f}" >/dev/null
+      rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" -v d="$ENEMY_X" 'BEGIN{printf "%.2f", x+d}') $Y $CZ $(dummy_nbt 90)" >/dev/null
       rcon "gamemode spectator Watcher" >/dev/null
       rcon "$CAM0_CMD" >/dev/null ;;
     side)
@@ -424,6 +448,7 @@ run_view() { # view
 # ---------------------------------------------------------------- main
 trap cleanup EXIT
 trap 'exit 130' INT TERM
+acquire_slot   # global concurrency limit across worktrees; held (fd) until this process exits
 command -v ffmpeg >/dev/null && command -v xdotool >/dev/null && command -v Xvfb >/dev/null \
   && command -v montage >/dev/null || die "need ffmpeg, xdotool, Xvfb and ImageMagick (montage)"
 ensure_client_install

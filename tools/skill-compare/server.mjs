@@ -18,6 +18,9 @@ export function makeHandler(opts = {}) {
   const cacheDir = join(root, "cache");
   const publicDir = join(root, "public");
   const vfxShotDir = opts.vfxShotDir ?? process.env.SKILL_COMPARE_VFX_SHOT ?? join(repo, "build", "vfx-shot");
+  // extra vfx-shot output dirs (other worktrees' build/vfx-shot), colon-separated; the first dir holding skill/view wins
+  const vfxDirs = [vfxShotDir, ...(opts.mediaDirs ?? (process.env.SKILL_COMPARE_MEDIA_DIRS || "").split(":").filter(Boolean)).map((d) => resolve(d))];
+  const vfxFind = (skill, view) => vfxDirs.find((b) => existsSync(join(b, skill, view)));
   const viewerDir = opts.viewerDir ?? join(repo, "tools", "skill-viewer", "build", "skill-frames");
   const tracesDir = opts.tracesDir ?? join(repo, "tools", "game-sim", "build", "sim-traces");
 
@@ -46,8 +49,9 @@ export function makeHandler(opts = {}) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return info;
     for (const view of ["compare", "caster", "opponent", "side"]) {
-      const d = join(vfxShotDir, skill, view);
-      if (existsSync(d)) {
+      const base = vfxFind(skill, view);
+      const d = base && join(base, skill, view);
+      if (base) {
         const n = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).length;
         let castFrame = 0;  // compare: frames before the cast (meta.json cast_tick_ms)
         try { castFrame = Math.round((readJson(join(d, "meta.json")).cast_tick_ms ?? 0) / 50); } catch { /* no meta: frame 0 = cast */ }
@@ -67,7 +71,7 @@ export function makeHandler(opts = {}) {
         info.traceHitsAreAbsolute = true;
       } catch { /* unreadable trace: no markers */ }
     }
-    const mp = join(vfxShotDir, skill, "meta.json");
+    const mp = join(vfxDirs.find((b) => existsSync(join(b, skill, "meta.json"))) ?? vfxShotDir, skill, "meta.json");
     if (existsSync(mp)) {
       try { const m = readJson(mp); if (Array.isArray(m.hitTicks)) { info.hitTicks = m.hitTicks; info.traceHitsAreAbsolute = false; } } catch { /* ignore */ }
     }
@@ -151,8 +155,9 @@ export function makeHandler(opts = {}) {
       return inside(cacheDir, f) ? file(f, "image/jpeg") : err(400, "bad path");
     }
     if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|caster|opponent|side)\/(frame_\d{3,4}\.png)$/.exec(p))) {
-      const f = join(vfxShotDir, m[1], m[2], m[3]);
-      return inside(vfxShotDir, f) ? file(f, "image/png") : err(400, "bad path");
+      const base = vfxFind(m[1], m[2]) ?? vfxShotDir;
+      const f = join(base, m[1], m[2], m[3]);
+      return inside(base, f) ? file(f, "image/png") : err(400, "bad path");
     }
     if ((m = /^\/mc\/viewer\/([a-z0-9-]+)\/(key-\d+\.png)$/.exec(p))) {
       const f = join(viewerDir, m[1], "frames", m[2]);
