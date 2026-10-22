@@ -483,11 +483,14 @@ public class GameSim private constructor(
                 proxyMessenger = proxy?.let { messenger -> { _ -> messenger } },
             )
             val coreCtx = context()
+            // Shared snapshot store must exist before Core wiring reads it (ADR-0187 late-override guard).
+            if (snapshots != null) {
+                coreCtx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository>(snapshots, priority = 100)
+            }
             sim.core = CoreWiring.install(coreCtx, corePorts)
             if (snapshots != null) {
                 val inventory = SimInventoryGateway()
                 sim.inventory = inventory
-                coreCtx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository>(snapshots, priority = 100)
                 coreCtx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventoryGateway>(inventory, priority = 100)
             }
 

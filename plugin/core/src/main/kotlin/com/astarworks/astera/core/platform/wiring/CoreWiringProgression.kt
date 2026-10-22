@@ -300,7 +300,7 @@ internal fun CoreWiringState.wireProgression() {
         localServer = ctx.serverName,
         awaitToken = networked,
         messenger = proxyMessenger,
-        snapshots = liveSnapshots,
+        snapshots = snapshotRepo,
         inventory = { services.get<IPlayerInventoryGateway>() },
         sessions = sessionRepo,
         scheduler = scheduler,
