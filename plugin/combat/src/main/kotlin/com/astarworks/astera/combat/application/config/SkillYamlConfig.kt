@@ -39,6 +39,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  * resource_type: mana   # optional; default = the source item's resource_type
  * resource_cost: 2      # optional; default = the item's resource_cost_per_use; 0 = free
  * reload_ticks: 30      # optional; marks a reload skill (refills the item's ammo after N ticks)
+ * ready_cue: true       # optional; sound when the cooldown ends (default: on for cooldowns >= 3 s)
  * name: { ja: "プラズマ", en: "Plasma" }
  * description: { ja: "…", en: "…" }
  * tags: [ damage, electric ]
@@ -84,6 +85,7 @@ public data class SkillYamlConfig(
     @SerialName("resource_cost") public val resourceCost: Int? = null,
     @SerialName("reload_ticks") public val reloadTicks: Int? = null,
     @SerialName("charge_ticks") public val chargeTicks: Long? = null,
+    @SerialName("ready_cue") public val readyCue: Boolean? = null,
     public val tags: List<String> = emptyList(),
 ) {
     /**
@@ -124,6 +126,7 @@ public data class SkillYamlConfig(
             resourceCost = resourceCost,
             reloadTicks = reloadTicks,
             chargeVariant = variant,
+            readyCue = readyCue,
         )
     }
 

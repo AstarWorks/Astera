@@ -1,7 +1,9 @@
 package com.astarworks.astera.resourcepack
 
+import com.astarworks.astera.core.domain.hud.status.CooldownHudGlyphs
 import com.astarworks.astera.core.domain.hud.status.NegativeSpace
 import com.astarworks.astera.core.domain.hud.status.StatusHudGlyphs
+import com.astarworks.astera.core.domain.skill.SkillTrigger
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.util.DefaultIndenter
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
@@ -69,6 +71,8 @@ public object HudArtGenerator {
     public fun render(): Map<String, ByteArray> = sortedMapOf(
         "status/atlas.png" to png(atlas()),
         "status.json" to statusJson().toByteArray(),
+        "cooldown/atlas.png" to png(cooldownAtlas()),
+        "cooldown.json" to cooldownJson().toByteArray(),
         "space.json" to spaceJson().toByteArray(),
         "mana/icon.png" to png(manaIcon()),
         "mana/bar-fill.png" to png(solid(4, 8, 0xFF3D8BFF.toInt(), 0xFF8CC0FF.toInt(), 0xFF2457B8.toInt())),
@@ -160,6 +164,112 @@ public object HudArtGenerator {
         val markerX = StatusHudGlyphs.advance(StatusHudGlyphs.digit(0)) - 2
         px(markerX, StatusHudGlyphs.CELL_HEIGHT - 1, MARKER)
     }
+
+
+    // ---- cooldown icons (ADR-0195) -------------------------------------------
+
+    private val mouseRows: List<String> = listOf(
+        ".######.",
+        "#LL##RR#",
+        "#LL##RR#",
+        "#LL##RR#",
+        "########",
+        "#......#",
+        "#......#",
+        "#......#",
+        ".######.",
+    )
+
+    /** The shift arrow drawn over the mouse's lower half for the sneak variants. */
+    private val sneakRows: List<String> = listOf(
+        "...SS...",
+        "..SSSS..",
+        ".SSSSSS.",
+    )
+
+    private val keyRows: List<String> = listOf(
+        "########",
+        "#......#",
+        "#......#",
+        "#......#",
+        "#......#",
+        "#......#",
+        "#......#",
+        "#......#",
+        "########",
+    )
+
+    private val letterQ: List<String> = listOf("01110", "10001", "10001", "10001", "10101", "10010", "01101")
+
+    private class IconPalette(val outline: Int, val body: Int, val accent: Int)
+
+    private val readyPalette = IconPalette(0xFFEDEDED.toInt(), 0xFF2B2B2B.toInt(), 0xFF58D058.toInt())
+    private val coolingPalette = IconPalette(0xFF777777.toInt(), 0xFF1C1C1C.toInt(), 0xFF8C8C8C.toInt())
+
+    internal fun cooldownAtlas(): BufferedImage {
+        val image = BufferedImage(
+            CooldownHudGlyphs.CELL_WIDTH * CooldownHudGlyphs.ATLAS_COLUMNS,
+            CooldownHudGlyphs.CELL_HEIGHT * CooldownHudGlyphs.ATLAS_ROWS.size,
+            BufferedImage.TYPE_INT_ARGB,
+        )
+        CooldownHudGlyphs.ATLAS_ROWS.forEachIndexed { row, chars ->
+            chars.forEachIndexed { column, glyph ->
+                if (glyph == CooldownHudGlyphs.NONE) return@forEachIndexed
+                val ox = column * CooldownHudGlyphs.CELL_WIDTH
+                val oy = row * CooldownHudGlyphs.CELL_HEIGHT
+                if (CooldownHudGlyphs.isIcon(glyph)) {
+                    val trigger = CooldownHudGlyphs.TRIGGERS.first {
+                        glyph == CooldownHudGlyphs.ready(it) || glyph == CooldownHudGlyphs.cooling(it)
+                    }
+                    val palette = if (glyph == CooldownHudGlyphs.ready(trigger)) readyPalette else coolingPalette
+                    drawIcon(image, ox, oy, trigger, palette)
+                } else {
+                    text('0' + (glyph - CooldownHudGlyphs.digit(0))) { x, y, argb -> image.setRGB(ox + x, oy + y, argb) }
+                }
+            }
+        }
+        return image
+    }
+
+    private fun drawIcon(image: BufferedImage, ox: Int, oy: Int, trigger: SkillTrigger, palette: IconPalette) {
+        fun px(x: Int, y: Int, argb: Int) = image.setRGB(ox + x, oy + y, argb)
+        if (trigger == SkillTrigger.DROP) {
+            keyRows.forEachIndexed { y, line ->
+                line.forEachIndexed { x, c -> px(x, y, if (c == '#') palette.outline else palette.body) }
+            }
+            letterQ.forEachIndexed { y, line -> line.forEachIndexed { x, c -> if (c == '1') px(x + 2, y + 1, palette.accent) } }
+            return
+        }
+        val left = trigger == SkillTrigger.LEFT_CLICK || trigger == SkillTrigger.SNEAK_LEFT
+        val sneak = trigger == SkillTrigger.SNEAK_LEFT || trigger == SkillTrigger.SNEAK_RIGHT
+        mouseRows.forEachIndexed { y, line ->
+            line.forEachIndexed { x, c ->
+                when (c) {
+                    '#' -> px(x, y, palette.outline)
+                    '.' -> px(x, y, palette.body)
+                    'L' -> px(x, y, if (left) palette.accent else palette.body)
+                    'R' -> px(x, y, if (left) palette.body else palette.accent)
+                }
+            }
+        }
+        if (sneak) sneakRows.forEachIndexed { i, line -> line.forEachIndexed { x, c -> if (c == 'S') px(x, 5 + i, palette.accent) } }
+    }
+
+    internal fun cooldownJson(): String = json(
+        linkedMapOf(
+            "_comment" to "Cooldown icon glyphs (ADR-0195). GENERATED by :tools:resource-pack generateHudArt from " +
+                "CooldownHudGlyphs - do not edit by hand. PUA range E200-E2FF reserved for the cooldown family.",
+            "providers" to listOf(
+                linkedMapOf(
+                    "type" to "bitmap",
+                    "file" to "astera:hud/cooldown/atlas.png",
+                    "ascent" to CooldownHudGlyphs.ASCENT,
+                    "height" to CooldownHudGlyphs.CELL_HEIGHT,
+                    "chars" to CooldownHudGlyphs.ATLAS_ROWS,
+                ),
+            ),
+        ),
+    )
 
     // ---- small icons --------------------------------------------------------
 

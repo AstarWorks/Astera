@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.PhaseOverrides
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.core.domain.skill.SkillTrigger
 import java.time.Instant
 
 /**
@@ -39,6 +40,9 @@ import java.time.Instant
  *   before dispatch. Defaults to
  *   [com.astarworks.astera.core.domain.item.PhaseOverrides.EMPTY] for
  *   non-item-driven casts (e.g. system-fired skills).
+ *
+ * @property trigger the input of the binding that fired (`null` for casts that are not input-driven);
+ *   the cooldown HUD files the cooldown under this input (ADR-0195).
  */
 public data class SkillCastRequested(
     public val actorId: PlayerId,
@@ -47,6 +51,7 @@ public data class SkillCastRequested(
     public val sourceItemId: ItemId,
     public val cooldownOverrideTicks: Int?,
     public val phaseOverrides: PhaseOverrides = PhaseOverrides.EMPTY,
+    public val trigger: SkillTrigger? = null,
     override val occurredAt: Instant = Instant.now(),
     override val version: Int = 1,
 ) : DomainEvent

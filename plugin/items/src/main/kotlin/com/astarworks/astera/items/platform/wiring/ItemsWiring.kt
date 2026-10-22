@@ -39,6 +39,8 @@ import com.astarworks.astera.items.application.service.refinement.RefinementProf
 import com.astarworks.astera.items.application.usecase.ApplyHeldItemGlowUseCase
 import com.astarworks.astera.items.application.usecase.GiveItemUseCase
 import com.astarworks.astera.items.application.usecase.HandleItemTriggerUseCase
+import com.astarworks.astera.items.application.usecase.SweepItemOnSkillCooldownUseCase
+import com.astarworks.astera.core.domain.event.SkillCooldownStarted
 import com.astarworks.astera.items.application.usecase.refinement.ApplyRefinementUseCase
 import com.astarworks.astera.items.application.usecase.refinement.RerollSubStatsUseCase
 import com.astarworks.astera.items.command.giveItemSubcommand
@@ -160,6 +162,10 @@ public object ItemsWiring {
             eventBus = eventBus,
             resourcePool = services.get<IResourcePoolService>(),
         )
+
+        // ADR-0195 — a skill going on cooldown (primary binding / reload) runs the hotbar sweep.
+        val sweepOnCooldown = SweepItemOnSkillCooldownUseCase(itemRegistry, ports.itemCooldownSweep)
+        ctx.subscriptions += eventBus.subscribe(SkillCooldownStarted::class) { sweepOnCooldown.handle(it) }
 
         // Click → trigger sink (vendor-neutral). The host feeds it IMcEvents.
         val triggerListener = ItemSkillTriggerListener(

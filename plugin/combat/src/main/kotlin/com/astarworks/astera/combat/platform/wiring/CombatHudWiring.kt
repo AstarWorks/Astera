@@ -1,12 +1,17 @@
 package com.astarworks.astera.combat.platform.wiring
 
 import com.astarworks.astera.combat.application.contents.SkillContents
-import com.astarworks.astera.combat.application.eventbus.listeners.hud.HudUpdateOnCooldownTickListener
+import com.astarworks.astera.combat.application.eventbus.listeners.hud.HudStatusEffectReadoutListener
+import com.astarworks.astera.combat.application.eventbus.listeners.hud.SkillReadyCueListener
+import com.astarworks.astera.combat.application.service.HeldItemCooldownSource
+import com.astarworks.astera.combat.domain.event.CooldownExpired
+import com.astarworks.astera.core.domain.event.SkillCooldownStarted
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.services.get
+import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.platform.wiring.WiringContext
 
 /** HUD listeners + quickbar-bind intent (split out of [CombatWiring] for size; ADR-0174). */
@@ -39,31 +44,23 @@ internal object CombatHudWiring {
             ) { event -> hudComboListener.handle(event) }
             logger.info("Wave 5wireup §G8 wired: HudUpdateOnComboStepRecorded subscribed.")
 
-            // WP14 (ADR-0177) — the action bar's one persistent owner: cooldown
-            // readout + active status effects (the old status sidebar is gone).
-            //   ICooldownTracker has no Started/Tick event (intentional —
-            //   tick storms would flood the bus). The listener polls the
-            //   tracker every 5 ticks and pushes an action-bar update for
-            //   each online player with active cooldowns.
+            // WP14 (ADR-0177) — the action bar's one persistent owner: the
+            // active status effects (the old status sidebar is gone). Cooldowns
+            // moved to per-binding icons on the status line (ADR-0195, below).
             val sessionRepoOrNull = services.get<
                 com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository>()
-            if (cooldownTracker != null && sessionRepoOrNull != null) {
-                val cooldownHudListener: HudUpdateOnCooldownTickListener =
-                    HudUpdateOnCooldownTickListener(
-                        cooldownTracker = cooldownTracker,
-                        sessions = sessionRepoOrNull,
-                        hudGateway = hudGatewayOrNull,
-                        scheduler = scheduler,
-                        statusEffects = statusContainer,
-                    )
-                shutdownHooks += { cooldownHudListener.stop() }
-                logger.info(
-                    "Wave 5match-hud (ADR-0118 §1) wired: " +
-                        "HudUpdateOnCooldownTick polling started.",
+            if (statusContainer != null && sessionRepoOrNull != null) {
+                val effectsReadout = HudStatusEffectReadoutListener(
+                    sessions = sessionRepoOrNull,
+                    hudGateway = hudGatewayOrNull,
+                    scheduler = scheduler,
+                    statusEffects = statusContainer,
                 )
+                shutdownHooks += { effectsReadout.stop() }
+                logger.info("ADR-0177 wired: HudStatusEffectReadoutListener polling started.")
             } else {
                 logger.warning(
-                    "Cooldown HUD listener skipped — ICooldownTracker=${cooldownTracker != null}, " +
+                    "Status-effect readout skipped — IStatusEffectContainer=${statusContainer != null}, " +
                         "IPlayerSessionRepository=${sessionRepoOrNull != null}.",
                 )
             }
@@ -72,6 +69,29 @@ internal object CombatHudWiring {
                 "IHudGateway not registered; HudUpdateOnComboStepRecordedListener skipped " +
                     "(astera-core must enable before astera-combat).",
             )
+        }
+
+        // ADR-0195 — per-binding cooldown icons (status line, owned by core's HpStatusHudService)
+        // and the "ready again" cue.
+        val itemRegistry = services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>()
+        val resourcePool = services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>()
+        if (cooldownTracker != null && itemRegistry != null && resourcePool != null) {
+            registrations += services.register<com.astarworks.astera.core.application.port.outbound.ICooldownIconSource>(
+                HeldItemCooldownSource(itemRegistry, resourcePool, cooldownTracker),
+                priority = 0,
+            )
+        } else {
+            logger.warning(
+                "Cooldown icons skipped — ICooldownTracker=${cooldownTracker != null}, " +
+                    "IItemRegistry=${itemRegistry != null}, IResourcePoolService=${resourcePool != null}.",
+            )
+        }
+        val soundGateway = services.get<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>()
+        val skillRegistry = services.get<com.astarworks.astera.combat.application.port.outbound.ISkillRegistry>()
+        if (soundGateway != null && skillRegistry != null) {
+            val readyCue = SkillReadyCueListener(soundGateway, skillRegistry)
+            subscriptions += eventBus.subscribe(SkillCooldownStarted::class) { readyCue.onStarted(it) }
+            subscriptions += eventBus.subscribe(CooldownExpired::class) { readyCue.onExpired(it) }
         }
 
         // ── Wave M 5polish-quickwin (ADR-0130 §C) — quickbar bind UI ─────

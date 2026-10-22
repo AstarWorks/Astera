@@ -88,6 +88,9 @@ public class GameSim private constructor(
     /** What every HUD channel currently shows per player, and every show / update / clear (WP14). */
     public val hud: SimHudRecorder = SimHudRecorder(recorder) { scheduler.currentTick() }
 
+    /** Native hotbar cooldown sweeps the item side asked for (ADR-0195). */
+    public val sweeps: SimItemCooldownSweep = SimItemCooldownSweep { scheduler.currentTick() }
+
     /** Displays spawned by SpawnDisplay (WP5). */
     public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder)
 
@@ -503,6 +506,7 @@ public class GameSim private constructor(
                 ItemsPlatformPorts(
                     itemDelivery = { SimItemDelivery() },
                     itemIdResolver = SimItemIdResolver(world),
+                    itemCooldownSweep = sim.sweeps,
                 ),
             )
 

@@ -1,5 +1,6 @@
 package com.astarworks.astera.resourcepack
 
+import com.astarworks.astera.core.domain.hud.status.CooldownHudGlyphs
 import com.astarworks.astera.core.domain.hud.status.NegativeSpace
 import com.astarworks.astera.core.domain.hud.status.StatusHudGlyphs
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -45,6 +46,29 @@ class HudArtTest {
                 assertThat(visible + 1).`as`("advance of U+%04X".format(glyph.code)).isEqualTo(StatusHudGlyphs.advance(glyph))
             }
         }
+    }
+
+    @Test
+    fun `every cooldown glyph advances the pen exactly as the glyph table says`() {
+        val atlas = decode(Files.readAllBytes(hudDir.resolve("cooldown/atlas.png")))
+        CooldownHudGlyphs.ATLAS_ROWS.forEachIndexed { row, chars ->
+            chars.forEachIndexed { column, glyph ->
+                if (glyph == CooldownHudGlyphs.NONE) return@forEachIndexed
+                var visible = 0
+                for (x in 0 until CooldownHudGlyphs.CELL_WIDTH) for (y in 0 until CooldownHudGlyphs.CELL_HEIGHT) {
+                    val argb = atlas.getRGB(column * CooldownHudGlyphs.CELL_WIDTH + x, row * CooldownHudGlyphs.CELL_HEIGHT + y)
+                    if ((argb ushr 24) != 0) visible = x + 1
+                }
+                assertThat(visible + 1).`as`("advance of U+%04X".format(glyph.code)).isEqualTo(CooldownHudGlyphs.advance(glyph))
+            }
+        }
+    }
+
+    @Test
+    fun `the cooldown font provider sits one row above the status line`() {
+        val provider = ObjectMapper().readTree(Files.readAllBytes(hudDir.resolve("cooldown.json"))).path("providers").single()
+        assertThat(provider.path("ascent").asInt()).isEqualTo(CooldownHudGlyphs.ASCENT)
+        assertThat(provider.path("chars").map { it.asText() }).isEqualTo(CooldownHudGlyphs.ATLAS_ROWS)
     }
 
     private fun visibleWidth(image: BufferedImage, ox: Int, oy: Int): Int {
