@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.platform.wiring
 
+import com.astarworks.astera.core.application.port.outbound.spectator.ISpectator
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.match.application.port.outbound.IBarrierGateway
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig
@@ -12,6 +13,8 @@ import java.nio.file.Path
  *   the InMemory default (Paper: `PaperBarrierGateway`, BlockDisplay visual).
  *   `null` keeps the InMemory impl. Factory because the Paper impl resolves
  *   `IScheduler` / `IDomainEventBus` from the registry at registration time.
+ * @property spectator the host's spectator-mode port (Paper: `PaperSpectator`, the simulator: its own
+ *   recorder), registered at priority 100. `null` disables death cam / real spectating.
  * @property replayExportRoot directory `/astera match replay export` writes to
  *   (Paper: `<plugin dataFolder>/replays`; the simulator: a temp dir).
  * @property annihilationConfig tunables of the Annihilation mode (phase timers,
@@ -23,4 +26,5 @@ public class MatchPlatformPorts(
     public val replayExportRoot: Path,
     public val barrierGateway: ((ServiceRegistry) -> IBarrierGateway)? = null,
     public val annihilationConfig: AnnihilationConfig? = null,
+    public val spectator: ((ServiceRegistry) -> ISpectator)? = null,
 )

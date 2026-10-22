@@ -99,6 +99,8 @@ public class GameSim private constructor(
         private set
     public lateinit var match: MatchWiringResult
         private set
+    /** Spectator-mode recorder behind the `ISpectator` port (death cam / eliminated teams). */
+    public val spectator: SimSpectator = SimSpectator()
     public lateinit var stats: StatsWiringResult
         private set
     public lateinit var economy: EconomyWiringResult
@@ -520,7 +522,7 @@ public class GameSim private constructor(
 
             // ---- Match / Stats / Economy ---------------------------------
             val replayRoot = Files.createTempDirectory("astera-sim-replays")
-            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation))
+            sim.match = MatchWiring.install(context(), MatchPlatformPorts(replayExportRoot = replayRoot, annihilationConfig = annihilation, spectator = { sim.spectator }))
             sim.stats = StatsWiring.install(context(), StatsPlatformPorts())
             sim.economy = EconomyWiring.install(context(), EconomyPlatformPorts())
 

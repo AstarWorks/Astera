@@ -912,7 +912,6 @@ astera:
       team-header: "<white>Team {team}</white>"
       team-footer: "<gray>Astera PvP</gray>"
     respawn:
-      countdown: "<yellow>Respawning in {seconds}…</yellow>"
       out-of-match: "<yellow>You were defeated. Returning to the lobby.</yellow>"
 
   # Wave 5e — Tutorial display strings (ADR-0034). Renders via `astera.tutorial.*`
@@ -1258,6 +1257,20 @@ astera:
       no-team: "<red>You are not in any match team.</red>"
       no-party: "<red>You are not in a party.</red>"
       unknown-player: "<red>That player is not online: {player}</red>"
+
+  death:
+    title: "<red><bold>You died</bold></red>"
+    subtitle:
+      weapon: "<gray>Killed by <white>{killer}</white> with <yellow>{weapon}</yellow></gray>"
+      killer: "<gray>Killed by <white>{killer}</white></gray>"
+      generic: "<gray>You were defeated</gray>"
+    countdown: "<yellow>Respawning in {seconds}</yellow> <dark_gray>|</dark_gray> <gray>click: switch view</gray>"
+    eliminated:
+      title: "<red><bold>Your team is eliminated</bold></red>"
+      subtitle: "<gray>Spectating until the match ends - click to switch view</gray>"
+
+  spectate:
+    target: "<gray>Spectating</gray> <white>{player}</white>"
 
   killfeed:
     victim: "<red>You were killed in combat.</red>"

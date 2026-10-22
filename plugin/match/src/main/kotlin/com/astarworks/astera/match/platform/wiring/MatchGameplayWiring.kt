@@ -1,6 +1,18 @@
 package com.astarworks.astera.match.platform.wiring
 
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
+import com.astarworks.astera.combat.domain.event.DamageDealt
+import com.astarworks.astera.combat.domain.event.PlayerKilled
+import com.astarworks.astera.core.application.port.outbound.IHudGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
+import com.astarworks.astera.core.application.port.outbound.spectator.ISpectator
+import com.astarworks.astera.core.domain.event.TeamEliminated
+import com.astarworks.astera.match.application.eventbus.listeners.respawn.EliminatedTeamSpectators
+import com.astarworks.astera.match.application.service.death.DeathRespawnCoordinator
+import com.astarworks.astera.match.application.service.death.SpectatorTargetCycler
+import com.astarworks.astera.match.application.usecase.spectator.EnterSpectatorUseCase
+import com.astarworks.astera.match.application.usecase.spectator.LeaveSpectatorUseCase
+import com.astarworks.astera.match.domain.death.DeathRespawnConfig
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
@@ -178,46 +190,78 @@ internal object MatchGameplayWiring {
             priority = 0,
         )
 
-        val respawnUseCase = com.astarworks.astera.match.application.usecase.respawn.RespawnUseCase(
-            healthGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>(),
-            worldGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(),
-            itemRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
-            protectionGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ISpawnProtectionGateway>(),
+        val health = services.getOrThrow<IPlayerHealthGateway>()
+        val protectionGateway = services.getOrThrow<ISpawnProtectionGateway>()
+        val respawnUseCase = RespawnUseCase(
+            healthGateway = health,
+            worldGateway = services.getOrThrow<IWorldGateway>(),
+            itemRegistry = services.getOrThrow<IItemRegistry>(),
+            protectionGateway = protectionGateway,
             eventBus = eventBus,
             scheduler = scheduler,
-            statusEffectContainer = services.get<com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer>(),
+            statusEffectContainer = services.get<IStatusEffectContainer>(),
         )
         val respawnSelectorPort: ISpawnSelector = services.getOrThrow<ISpawnSelector>()
-        val eliminatedTeams = com.astarworks.astera.match.application.eventbus.listeners.respawn.EliminatedTeamSpectators(
+        val deathHud = services.getOrThrow<IHudGateway>()
+        env.ports.spectator?.let { registrations += services.register<ISpectator>(it(services), priority = 100) }
+        val spectatorPort = services.get<ISpectator>()
+        // The eliminated-team tracker and the cycler reference each other: the cycler skips
+        // eliminated players, the tracker focuses the cycler after switching a team to spectating.
+        var eliminatedRef: EliminatedTeamSpectators? = null
+        val cycler = spectatorPort?.let {
+            SpectatorTargetCycler(
+                matches = matches,
+                spectator = it,
+                hud = deathHud,
+                players = playerGateway,
+                isOut = { match, player -> eliminatedRef?.isEliminated(match, player) == true },
+            )
+        }
+        env.spectatorCycler = cycler
+        val sessions = services.get<IPlayerSessionRepository>()
+        val eliminatedTeams = EliminatedTeamSpectators(
             matches = matches,
-            healthGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>(),
-            worldGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(),
-            enterSpectator = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository>()?.let {
-                com.astarworks.astera.match.application.usecase.spectator.EnterSpectatorUseCase(
-                    sessionRepository = it,
-                    worldGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(),
-                    eventBus = eventBus,
-                    scheduler = scheduler,
-                )
+            healthGateway = health,
+            spectator = spectatorPort,
+            // No world gateway: spectators stay in the arena (IWorldGateway.spectatorSpawn is a lobby stub).
+            enterSpectator = sessions?.let {
+                EnterSpectatorUseCase(sessionRepository = it, eventBus = eventBus, scheduler = scheduler)
+            },
+            leaveSpectator = sessions?.let { LeaveSpectatorUseCase(sessionRepository = it) },
+            cycler = cycler,
+            hud = deathHud,
+        )
+        eliminatedRef = eliminatedTeams
+        subscriptions += eventBus.subscribe(TeamEliminated::class) { eliminatedTeams.onTeamEliminated(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { eliminatedTeams.onMatchEnded(it) }
+
+        // F3-5: death screen -> death cam -> countdown -> respawn at a team spawn -> spawn protection.
+        val deathConfigLogged = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+        val deathRespawn = DeathRespawnCoordinator(
+            matches = matches,
+            stages = stages,
+            spawnSelector = respawnSelectorPort,
+            respawnUseCase = respawnUseCase,
+            healthGateway = health,
+            protection = protectionGateway,
+            scheduler = scheduler,
+            hud = deathHud,
+            messages = msgRenderer,
+            players = playerGateway,
+            items = services.get<IItemRegistry>(),
+            spectator = spectatorPort,
+            cycler = cycler,
+            eliminatedTeams = eliminatedTeams,
+            configOf = { matchId ->
+                val parsed = DeathRespawnConfig.parse(env.modeConfigOf(matchId))
+                parsed.warnings.filter { deathConfigLogged.add(it) }.forEach { logger.warning(it) }
+                parsed.config
             },
         )
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.TeamEliminated::class) {
-            eliminatedTeams.onTeamEliminated(it)
-        }
-        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) {
-            eliminatedTeams.onMatchEnded(it)
-        }
-        val respawnOnKilled = com.astarworks.astera.match.application.eventbus.listeners.respawn
-            .RespawnOnPlayerKilledListener(
-                matches = matches,
-                stages = stages,
-                spawnSelector = respawnSelectorPort,
-                respawnUseCase = respawnUseCase,
-                eliminatedTeams = eliminatedTeams,
-            )
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.combat.domain.event.PlayerKilled::class,
-        ) { event -> respawnOnKilled.handle(event) }
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { deathRespawn.onKilled(it) }
+        subscriptions += eventBus.subscribe(DamageDealt::class) { deathRespawn.onDamageDealt(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { deathRespawn.onMatchEnded(it) }
+        subscriptions += eventBus.subscribe(TeamEliminated::class) { deathRespawn.onTeamEliminated(it) }
         // Out-of-match deaths (lobby PvP / fall / mob) restore HP and return
         // the player to lobby spawn; in-match deaths stay with respawnOnKilled.
         val returnToLobbyOnDeath = com.astarworks.astera.match.application.eventbus.listeners.respawn

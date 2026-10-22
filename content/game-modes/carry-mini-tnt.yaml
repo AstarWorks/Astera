@@ -14,4 +14,8 @@ id: carry-mini-tnt
 title_key: astera.gamemode.carry-mini-tnt.title
 impl_class: com.astarworks.astera.match.application.gamemode.CarryMiniTntGameMode
 tick_period_ticks: 20
-default_config: {}
+default_config:
+  # F3-5 death / respawn (seconds): death-screen countdown, killer death-cam length, post-respawn invulnerability (ends on attack).
+  respawn_delay_seconds: "5"
+  death_cam_seconds: "2"
+  spawn_protection_seconds: "3"

@@ -3,6 +3,7 @@ package com.astarworks.astera.items.adapter.paper
 import com.astarworks.astera.core.adapter.api.event.IMcEvent
 import com.astarworks.astera.core.adapter.api.event.IMcEvent.InputKind
 import com.astarworks.astera.core.adapter.paper.entity.PaperPlayer
+import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -71,6 +72,8 @@ public class PaperItemInputListener(
     }
 
     private fun dispatch(player: Player, kind: InputKind, stack: ItemStack?): Boolean {
+        // Spectators (death cam / eliminated teams) never trigger item skills.
+        if (player.gameMode == GameMode.SPECTATOR) return false
         val itemId = itemIdResolver.itemIdOf(stack) ?: return false
         return sink(IMcEvent.PlayerInput(PaperPlayer(player), kind, player.isSneaking, itemId))
     }

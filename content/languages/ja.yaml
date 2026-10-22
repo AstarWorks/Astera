@@ -914,7 +914,6 @@ astera:
       team-header: "<white>チーム {team}</white>"
       team-footer: "<gray>Astera PvP</gray>"
     respawn:
-      countdown: "<yellow>{seconds} 秒後にリスポーン…</yellow>"
       out-of-match: "<yellow>倒されました。ロビーに戻ります。</yellow>"
 
   # Wave 5e — Tutorial 表示文字列 (ADR-0034)。
@@ -1249,6 +1248,20 @@ astera:
       no-team: "<red>マッチチームに所属していません。</red>"
       no-party: "<red>パーティに所属していません。</red>"
       unknown-player: "<red>そのプレイヤーはオンラインではありません: {player}</red>"
+
+  death:
+    title: "<red><bold>倒されました</bold></red>"
+    subtitle:
+      weapon: "<gray><white>{killer}</white> の <yellow>{weapon}</yellow> に倒された</gray>"
+      killer: "<gray><white>{killer}</white> に倒された</gray>"
+      generic: "<gray>戦闘不能になりました</gray>"
+    countdown: "<yellow>{seconds} 秒後にリスポーン</yellow> <dark_gray>|</dark_gray> <gray>クリック: 視点切替</gray>"
+    eliminated:
+      title: "<red><bold>チームが全滅しました</bold></red>"
+      subtitle: "<gray>試合終了まで観戦します - クリックで視点切替</gray>"
+
+  spectate:
+    target: "<gray>観戦中</gray> <white>{player}</white>"
 
   killfeed:
     victim: "<red>戦闘で倒されました。</red>"

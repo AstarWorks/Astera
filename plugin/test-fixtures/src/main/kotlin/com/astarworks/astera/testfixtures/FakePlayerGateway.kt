@@ -25,6 +25,9 @@ public class FakePlayerGateway : IPlayerGateway {
 
     override fun findByName(name: String): PlayerId? = players[name]
 
+    override fun nameOf(playerId: PlayerId): String? =
+        players.entries.firstOrNull { it.value == playerId }?.key
+
     override fun sendMessage(playerId: PlayerId, rendered: String) {
         messages += playerId to rendered
     }
