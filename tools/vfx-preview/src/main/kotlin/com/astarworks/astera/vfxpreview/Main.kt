@@ -1,7 +1,10 @@
 package com.astarworks.astera.vfxpreview
 
+import com.astarworks.astera.core.application.config.SpriteYamlConfig
 import com.astarworks.astera.core.application.config.VfxYamlConfig
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.effect.vfx.SpriteFrames
+import com.astarworks.astera.core.domain.effect.vfx.SpriteId
 import com.astarworks.astera.core.domain.effect.vfx.VfxDefinition
 import com.astarworks.astera.core.domain.effect.vfx.VfxFreeze
 import com.astarworks.astera.core.domain.effect.vfx.VfxTimeline
@@ -28,6 +31,10 @@ data class PreviewOptions(
     val height: Int = 720,
     val sheetColumns: Int = 6,
     val sheetWidth: Int = 1800,
+    /** Flipbook frame counts (`content/sprites`); unknown sprites plan as one frame. */
+    val sprites: SpriteFrames = SpriteFrames.NONE,
+    /** Glyph art of those sprites (`content/textures/generated/sprites`). */
+    val spriteStrips: SpriteStrips = SpriteStrips.default(),
 )
 
 /** Frames of one effect, rendered but not yet written. */
@@ -47,8 +54,17 @@ object VfxPreview {
         }
     }
 
+    /** Frame counts of every the `<contentDir>/sprites` YAML files. */
+    fun loadSprites(spritesDir: File): SpriteFrames {
+        val frames = spritesDir.listFiles { f -> f.extension == "yaml" }.orEmpty().associate { f ->
+            val def = yaml.decodeFromString(SpriteYamlConfig.serializer(), f.readText()).toDefinition()
+            def.id to def.frames
+        }
+        return SpriteFrames { id: SpriteId -> frames[id] }
+    }
+
     fun plan(def: VfxDefinition, opts: PreviewOptions) =
-        VfxTimeline.plan(def, Frame.fromYawPitch(Vec3.ZERO, 0.0, opts.pitchDeg), opts.seed, 1.0, opts.freezes)
+        VfxTimeline.plan(def, Frame.fromYawPitch(Vec3.ZERO, 0.0, opts.pitchDeg), opts.seed, 1.0, opts.sprites, opts.freezes)
 
     fun render(def: VfxDefinition, opts: PreviewOptions): RenderedEffect {
         val plan = plan(def, opts)
@@ -59,7 +75,7 @@ object VfxPreview {
         // Frame once for the whole effect so tiles are comparable.
         val all = ticks.flatMap { SceneBuilder.points(SceneBuilder.build(replay, it, shiftAt(it))) }
         val camera = Camera.fit(opts.view, all, opts.width, opts.height)
-        val renderer = Renderer(camera, def.id.value)
+        val renderer = Renderer(camera, def.id.value, opts.spriteStrips)
         val frames = ticks.map { t -> renderer.render(SceneBuilder.build(replay, t, shiftAt(t)), t, shiftAt(t)) }
         return RenderedEffect(def.id.value, replay, frames)
     }
@@ -119,6 +135,7 @@ fun main(args: Array<String>) {
         }
         i++
     }
+    opts = opts.copy(sprites = VfxPreview.loadSprites(File(contentDir, "sprites")), spriteStrips = SpriteStrips(contentDir))
     val vfxDir = File(contentDir, "vfx")
     val files = if (all) {
         vfxDir.listFiles { f -> f.extension == "yaml" }?.sortedBy { it.name }.orEmpty()

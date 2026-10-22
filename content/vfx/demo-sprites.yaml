@@ -1,0 +1,109 @@
+# ADR-0239 demo: every custom particle sprite (content/sprites) looping side by side in front of the caster,
+# code-drawn row on top, AI-sheet row below, plus one rising flame whose flipbook swaps land inside its
+# interpolation steps (they must not stall the motion). Cast with content/skills/vfx-demo-sprites.yaml.
+
+id: demo-sprites
+duration_ticks: 100
+orient: yaw
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: spark
+    kind: { type: sprite, sprite: spark, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [3.3, 2.6, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: ring
+    kind: { type: sprite, sprite: ring, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [2.2, 2.6, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: burst
+    kind: { type: sprite, sprite: burst, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [1.1, 2.6, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: puff
+    kind: { type: sprite, sprite: puff, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [0.0, 2.6, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: flame
+    kind: { type: sprite, sprite: flame, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [-1.1, 2.6, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: glint
+    kind: { type: sprite, sprite: glint, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [-2.2, 2.6, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: slash
+    kind: { type: sprite, sprite: slash, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [-3.3, 2.6, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: fire-burst
+    kind: { type: sprite, sprite: fire-burst, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [2.75, 1.4, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: frost-shatter
+    kind: { type: sprite, sprite: frost-shatter, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [1.65, 1.4, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: arcane-slash
+    kind: { type: sprite, sprite: arcane-slash, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [0.55, 1.4, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: holy-glint
+    kind: { type: sprite, sprite: holy-glint, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [-0.55, 1.4, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: thunder-spark
+    kind: { type: sprite, sprite: thunder-spark, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [-1.65, 1.4, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: blood-splash
+    kind: { type: sprite, sprite: blood-splash, frame_ticks: 2, loop: true, see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [-2.75, 1.4, 3.5], scale: [1.2, 1.2, 1.2] }
+
+  - id: rising
+    kind: { type: sprite, sprite: flame, frame_ticks: 3, loop: true, color: "#FFB060", see_through: true }
+    billboard: center
+    brightness: 15
+    keyframes:
+      - { t: 0, translate: [4.4, 0.6, 3.5], scale: [1.2, 1.2, 1.2] }
+      - { t: 24, translate: [4.4, 3.8, 3.5], scale: [1.2, 1.2, 1.2] }

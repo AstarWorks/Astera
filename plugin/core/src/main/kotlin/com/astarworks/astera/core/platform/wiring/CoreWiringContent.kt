@@ -125,6 +125,15 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     services.register<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>(particleContents, priority = 0)
     reloadRegistry.register(particleContents, particlesContentDir)
 
+    // ---- Sprite contents (ADR-0239) ---------------------------------
+    // Generated particle sprite metadata at content/sprites/; loaded before VFX so flipbooks know their length.
+    val spritesContentDir = contentDir.resolve("sprites")
+    val spriteContents = com.astarworks.astera.core.application.contents.SpriteContents()
+    val spriteReport = spriteContents.bootstrap(spritesContentDir)
+    logger.info("Sprites loaded: ${spriteReport.loaded} ok, ${spriteReport.failed} failed")
+    services.register<com.astarworks.astera.core.application.port.outbound.ISpriteRegistry>(spriteContents, priority = 0)
+    reloadRegistry.register(spriteContents, spritesContentDir)
+
     // ---- VFX contents (ADR-0220) ------------------------------------
     // Display choreographies at content/vfx/, played by combat's `play_vfx` mechanic.
     val vfxContentDir = contentDir.resolve("vfx")

@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.ParticleId
+import com.astarworks.astera.core.domain.effect.vfx.SpriteId
 import com.astarworks.astera.core.domain.effect.vfx.VfxAlign
 import com.astarworks.astera.core.domain.effect.vfx.VfxDefinition
 import com.astarworks.astera.core.domain.effect.vfx.VfxElement
@@ -171,6 +172,20 @@ public sealed class VfxKindYaml {
     ) : VfxKindYaml() {
         override fun toDomain(): VfxElementKind =
             VfxElementKind.Text(text, parseArgb(background, "background"), shadow, seeThrough, lineWidth)
+    }
+
+    /** Custom particle sprite flipbook (ADR-0239); `color` is `#RRGGBB` (alpha ignored) or absent for the texture's own colours. */
+    @Serializable
+    @SerialName("sprite")
+    public data class Sprite(
+        public val sprite: String,
+        @SerialName("frame_ticks") public val frameTicks: Int = 1,
+        public val loop: Boolean = false,
+        public val color: String? = null,
+        @SerialName("see_through") public val seeThrough: Boolean = false,
+    ) : VfxKindYaml() {
+        override fun toDomain(): VfxElementKind =
+            VfxElementKind.Sprite(SpriteId(sprite), frameTicks, loop, color?.let { parseArgb(it, "color") }, seeThrough)
     }
 
     /**

@@ -33,15 +33,14 @@ elements:
       - { t: 8, scale: [0.0, 10.0, 0.0], ease: in_quad }
 
   - id: star
-    kind: { type: text, text: "<white>✦</white>", background: "#00000000", shadow: false, see_through: true }
+    kind: { type: sprite, sprite: blood-splash, frame_ticks: 2, see_through: true }
     billboard: center
     brightness: 15
     start_tick: 1
     end_tick: 13
     keyframes:
-      - { t: 0, translate: [0.0, 1.5, 3.8], scale: [0.0, 0.0, 0.0] }
-      - { t: 2, scale: [16.0, 16.0, 16.0], ease: out_expo }
-      - { t: 12, scale: [0.0, 0.0, 0.0], ease: in_quad }
+      - { t: 0, translate: [0.0, 1.5, 3.8], scale: [2.0, 2.0, 2.0] }
+      - { t: 2, scale: [4.0, 4.0, 4.0], ease: out_expo }
 
   - id: shard
     kind: { type: block, block: red_concrete }

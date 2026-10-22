@@ -152,9 +152,7 @@ internal object ItemArt {
     fun icons(contentDir: Path): List<Pair<String, IconSpec>> =
         allItemIds(contentDir).mapNotNull { id -> Icons.SPECS[id]?.let { id to it } }
 
-    fun iconModelJson(id: String): String =
-        "{\n  \"parent\": \"minecraft:item/generated\",\n  \"textures\": {\n    \"layer0\": " +
-            "\"$NAMESPACE:$RESOURCE_PREFIX/$id\"\n  }\n}\n"
+    fun iconModelJson(id: String): String = modelJson(id, ModelStyle.GENERATED)
 
     fun render(item: ItemRecord): BufferedImage {
         val seed = item.id.fold(1469598103934665603L) { h, c -> (h xor c.code.toLong()) * 1099511628211L }
@@ -169,9 +167,7 @@ internal object ItemArt {
         return sprite.render()
     }
 
-    fun modelJson(item: ItemRecord): String =
-        "{\n  \"parent\": \"${designFor(item).style.parent}\",\n  \"textures\": {\n    \"layer0\": " +
-            "\"$NAMESPACE:$RESOURCE_PREFIX/${item.id}\"\n  }\n}\n"
+    fun modelJson(item: ItemRecord): String = modelJson(item.id, designFor(item).style)
 
     fun png(image: BufferedImage): ByteArray {
         val out = ByteArrayOutputStream()
@@ -181,17 +177,29 @@ internal object ItemArt {
 
     fun decode(bytes: ByteArray): BufferedImage = ImageIO.read(ByteArrayInputStream(bytes))
 
-    /** Every generated file, keyed by path relative to the content dir. */
+    fun modelJson(id: String, style: ModelStyle): String =
+        "{\n  \"parent\": \"${style.parent}\",\n  \"textures\": {\n    \"layer0\": " +
+            "\"$NAMESPACE:$RESOURCE_PREFIX/$id\"\n  }\n}\n"
+
+    /**
+     * Every generated file, keyed by path relative to the content dir. An item with a raster source
+     * ([Sources], ADR-0238) is converted from it; otherwise weapons and icons are drawn by code.
+     */
     fun renderAll(contentDir: Path): Map<String, ByteArray> {
         val files = sortedMapOf<String, ByteArray>()
-        for (item in weapons(contentDir)) {
-            files["$TEXTURE_DIR/${item.id}.png"] = png(render(item))
-            files["$MODEL_DIR/${item.id}.model.json"] = modelJson(item).toByteArray()
+        val sources = Sources.load(contentDir)
+        val ids = allItemIds(contentDir).toSet()
+        require(sources.keys.all { it in ids }) { "${Sources.MANIFEST} names unknown items: ${sources.keys - ids}" }
+        fun put(id: String, style: ModelStyle, draw: () -> BufferedImage) {
+            val ref = sources[id]
+            files["$TEXTURE_DIR/$id.png"] = png(if (ref != null) Sources.render(ref) else draw())
+            files["$MODEL_DIR/$id.model.json"] = modelJson(id, ref?.model ?: style).toByteArray()
         }
-        for ((id, spec) in icons(contentDir)) {
-            files["$TEXTURE_DIR/$id.png"] = png(Icons.render(id, spec))
-            files["$MODEL_DIR/$id.model.json"] = iconModelJson(id).toByteArray()
-        }
+        for (item in weapons(contentDir)) put(item.id, designFor(item).style) { render(item) }
+        for ((id, spec) in icons(contentDir)) put(id, ModelStyle.GENERATED) { Icons.render(id, spec) }
+        // Items with a source but no code design (neither weapon nor icon): always converted.
+        for (id in sources.keys) if ("$TEXTURE_DIR/$id.png" !in files) put(id, ModelStyle.GENERATED) { error(id) }
+        files.putAll(SpriteSources.renderAll(contentDir))
         return files
     }
 
@@ -215,6 +223,7 @@ internal object ItemArt {
             val dir = contentDir.resolve(dirRel)
             if (Files.isDirectory(dir)) Files.list(dir).use { s -> s.forEach { if (contentDir.relativize(it).toString().replace('\\', '/') !in files) Files.delete(it) } }
         }
+        SpriteSources.orphans(contentDir, files.keys).forEach(Files::delete)
         for ((rel, bytes) in files) {
             val file = contentDir.resolve(rel)
             Files.createDirectories(file.parent)

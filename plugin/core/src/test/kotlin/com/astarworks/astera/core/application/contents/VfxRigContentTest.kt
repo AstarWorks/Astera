@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.contents
 
+import com.astarworks.astera.core.domain.effect.vfx.SpriteFrames
 import com.astarworks.astera.core.domain.effect.vfx.VfxDefinition
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxFreeze
@@ -23,7 +24,7 @@ class VfxRigContentTest {
         val def = contents.find(VfxId("demo-greatsword-swing"))!!
         assertThat(def.rigs).hasSize(1)
 
-        val plan = VfxTimeline.plan(def, Frame.fromYawPitch(Vec3.ZERO, 0.0, 0.0), 1L, 1.0, listOf(VfxFreeze(7, 3)))
+        val plan = VfxTimeline.plan(def, Frame.fromYawPitch(Vec3.ZERO, 0.0, 0.0), 1L, 1.0, SpriteFrames.NONE, listOf(VfxFreeze(7, 3)))
         assertThat(plan.displayCount).isBetween(20, VfxDefinition.MAX_SLOTS)
         assertThat(plan.elements.count { it.elementId.startsWith("wind.b") }).isGreaterThan(20)
         assertThat(plan.elements.filter { it.kind is VfxElementKind.Quad }).allMatch { it.updates.isNotEmpty() }

@@ -36,6 +36,7 @@ internal object SemanticChecks {
         val statuses: Set<String>,
         val particles: Set<String>,
         val vfx: Set<String> = emptySet(),
+        val sprites: Set<String> = emptySet(),
     )
 
     fun check(root: JsonNode, known: KnownIds): List<String> {
@@ -54,6 +55,8 @@ internal object SemanticChecks {
                 checkRef(node, "particle_id", known.particles, "particle", path, errors)
                 checkRef(node, "skill_id", known.skills, "skill", path, errors)
                 checkRef(node, "vfx_id", known.vfx, "vfx", path, errors)
+                // ADR-0239: only a vfx element kind (`type: sprite`) carries a sprite reference.
+                if (type == "sprite") checkRef(node, "sprite", known.sprites, "sprite", path, errors)
                 for ((key, child) in node.properties()) {
                     // `params.type` is the archetype discriminator (projectile,
                     // summon, teleport, ...), not a mechanic -- skip its own type.
