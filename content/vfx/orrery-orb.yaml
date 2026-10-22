@@ -1,0 +1,36 @@
+# Orrery Staff: the charging orb at the staff tip (S3). A glowstone core spins up inside an orange glass
+# shell, swelling 0.2 -> 1.0 over the 14-tick charge, snaps larger when the beam fires (out_expo), flickers
+# while it burns, then collapses. Local axes: x = left, y = up, z = forward.
+
+id: orrery-orb
+duration_ticks: 46
+orient: look
+sample_ticks: 2
+
+elements:
+  - id: core
+    kind: { type: block, block: glowstone }
+    brightness: 15
+    glow_color: "#ffd45a"
+    start_tick: 0
+    end_tick: 44
+    keyframes:
+      - { t: 0, translate: [0.35, 1.35, 1.0], rotate: [0, 0, 0], scale: [0.1, 0.1, 0.1] }
+      - { t: 14, rotate: [360, 360, 0], scale: [0.6, 0.6, 0.6], ease: in_out_quad }
+      - { t: 16, rotate: [450, 450, 90], scale: [0.9, 0.9, 0.9], ease: out_expo }
+      - { t: 38, rotate: [1080, 1080, 360] }
+      - { t: 44, rotate: [1260, 1260, 360], scale: [0.0, 0.0, 0.0], ease: in_quad }
+    oscillate: { axis: scale_xyz, amplitude: 0.05, period_ticks: 2 }
+
+  - id: shell
+    kind: { type: block, block: orange_stained_glass }
+    brightness: 15
+    start_tick: 0
+    end_tick: 44
+    keyframes:
+      - { t: 0, translate: [0.35, 1.35, 1.0], rotate: [0, 0, 0], scale: [0.2, 0.2, 0.2] }
+      - { t: 14, rotate: [-180, 90, 0], scale: [1.0, 1.0, 1.0], ease: out_quad }
+      - { t: 16, rotate: [-220, 90, 0], scale: [1.5, 1.5, 1.5], ease: out_expo }
+      - { t: 38, rotate: [-720, 90, 0] }
+      - { t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad }
+    oscillate: { axis: scale_xyz, amplitude: 0.1, period_ticks: 3 }

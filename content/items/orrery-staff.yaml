@@ -1,0 +1,48 @@
+# Persona weapon #9 (ADR-0221): gold clockwork staff. Charge stack (caster) built by crescents and spins,
+# spent by the beam. Four bindings: S1 twin arcs, S2 clockwork spin, S3 beam litany, DEF counter-seal.
+
+id: orrery-staff
+
+material: BREEZE_ROD
+
+name:
+  ja: "<gold>天球儀の杖</gold>"
+  en: "<gold>Orrery Staff</gold>"
+lore:
+  ja:
+    - "<gray>左クリック: 双弧（2連・充填+2）</gray>"
+    - "<gray>右クリック: 時計仕掛けの旋回（3連・充填+3）</gray>"
+    - "<gray>スニーク + 右クリック: 連禱の光線（充填を消費）</gray>"
+    - "<gray>スニーク + 左クリック: 返しの封印（回避・充填+2）</gray>"
+    - "<dark_gray>rarity: epic / level: 4</dark_gray>"
+  en:
+    - "<gray>Left-click: twin arcs (2 hits, +2 Charge)</gray>"
+    - "<gray>Right-click: clockwork spin (3 hits, +3 Charge)</gray>"
+    - "<gray>Sneak + right-click: beam litany (spends Charge)</gray>"
+    - "<gray>Sneak + left-click: counter-seal (evade, +2 Charge)</gray>"
+    - "<dark_gray>rarity: epic / level: 4</dark_gray>"
+
+rarity: epic
+level_requirement: 4
+
+attributes:
+  attack_damage: 2.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 12
+
+skills:
+  - trigger: left_click
+    skill_id: orrery-s1
+  - trigger: right_click
+    skill_id: orrery-s2
+  - trigger: sneak_right
+    skill_id: orrery-s3
+  - trigger: sneak_left
+    skill_id: orrery-def
+
+pdc_tags:
+  astera:rarity: epic
