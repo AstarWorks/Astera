@@ -40,4 +40,17 @@ class CombatMatchBugHuntScenarioTest {
                 .containsExactly(helper.id)
         }
     }
+    @Test
+    fun `nova does not damage a mob at the same coordinates in another world`() {
+        scenario("bug-hunt-aoe-world") {
+            val caster = player("caster")
+            val local = mob("local", caster.position)
+            val remote = mob("remote", caster.position)
+            remote.world = com.astarworks.astera.core.domain.world.WorldId("other-world")
+            caster.cast("frost-nova")
+            advance(1)
+            assertThat(eventsOf<com.astarworks.astera.combat.domain.event.DamageDealt>().map { it.target })
+                .contains(local.id).doesNotContain(remote.id)
+        }
+    }
 }
