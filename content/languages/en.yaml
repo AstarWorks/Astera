@@ -803,8 +803,6 @@ astera:
     annihilation:
       title: "<red>Annihilation</red>"
       description: "<gray>3-pillar Nexus hybrid: hold your tier, fall the enemy's.</gray>"
-      template:
-        default: "<gray>Default 3-pillar layout</gray>"
       phase:
         build: "<aqua>Build</aqua>"
         engage: "<yellow>Engage</yellow>"

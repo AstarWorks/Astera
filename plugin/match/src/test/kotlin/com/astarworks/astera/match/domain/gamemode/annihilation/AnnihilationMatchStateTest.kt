@@ -125,4 +125,36 @@ class AnnihilationMatchStateTest {
         assertThat(outcome).isInstanceOf(NexusDamageOutcome.Ignored::class.java)
         assertThat(next).isEqualTo(state)
     }
+
+    @Test
+    fun `destroying a Tier 1 pillar opens only that team's Tier 2`() {
+        val matchId = com.astarworks.astera.core.domain.match.MatchId("cascade")
+        val red = com.astarworks.astera.core.domain.match.TeamId("red")
+        val blue = com.astarworks.astera.core.domain.match.TeamId("blue")
+        val config = AnnihilationConfig.DEFAULT
+        val state = AnnihilationMatchState.seed(matchId, config, listOf(red, blue))
+            .openTierForCombat(com.astarworks.astera.core.domain.nexus.NexusPillarTier.TIER_1)
+        val (next, _) = state.applyDamage(com.astarworks.astera.core.domain.nexus.NexusId("cascade-red-1"), config.pillarHp)
+        val states = next.pillars.values.associate { (it.owningTeam to it.tier) to it.state }
+        org.assertj.core.api.Assertions.assertThat(states[red to com.astarworks.astera.core.domain.nexus.NexusPillarTier.TIER_2])
+            .isEqualTo(com.astarworks.astera.core.domain.nexus.NexusState.VULNERABLE)
+        org.assertj.core.api.Assertions.assertThat(states[blue to com.astarworks.astera.core.domain.nexus.NexusPillarTier.TIER_2])
+            .isEqualTo(com.astarworks.astera.core.domain.nexus.NexusState.BUILDING)
+        org.assertj.core.api.Assertions.assertThat(states[red to com.astarworks.astera.core.domain.nexus.NexusPillarTier.TIER_3])
+            .isEqualTo(com.astarworks.astera.core.domain.nexus.NexusState.BUILDING)
+    }
+
+    @Test
+    fun `seed gives a pillar its own hp when overridden`() {
+        val matchId = com.astarworks.astera.core.domain.match.MatchId("hp")
+        val red = com.astarworks.astera.core.domain.match.TeamId("red")
+        val state = AnnihilationMatchState.seed(
+            matchId,
+            AnnihilationConfig.DEFAULT,
+            listOf(red),
+            hpOverrides = mapOf((red to com.astarworks.astera.core.domain.nexus.NexusPillarTier.TIER_3) to 900),
+        )
+        org.assertj.core.api.Assertions.assertThat(state.pillars.values.map { it.maxHp }.sorted())
+            .containsExactly(AnnihilationConfig.DEFAULT.pillarHp, AnnihilationConfig.DEFAULT.pillarHp, 900)
+    }
 }

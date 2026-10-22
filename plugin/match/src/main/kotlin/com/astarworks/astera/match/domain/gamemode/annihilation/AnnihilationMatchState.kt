@@ -111,16 +111,28 @@ public data class AnnihilationMatchState(
         } else {
             eliminatedTeams
         }
-        return copy(pillars = newPillars, eliminatedTeams = newEliminated) to outcome
+        val next2 = copy(pillars = newPillars, eliminatedTeams = newEliminated)
+        // Graceful degradation: a team whose outer pillar fell exposes its middle one
+        // right away. Without this the "lost both lower tiers" cascade into Phase 3
+        // could never fire (Tier 2 stays immune until Phase 3 begins).
+        val opened = if (outcome is NexusDamageOutcome.Destroyed && next.tier == NexusPillarTier.TIER_1) {
+            next2.openTierForCombat(NexusPillarTier.TIER_2, next.owningTeam)
+        } else {
+            next2
+        }
+        return opened to outcome
     }
 
     /**
      * Promote every pillar at [tier] from [NexusState.BUILDING] to
      * [NexusState.VULNERABLE]. No-op for pillars already past Building.
      */
-    public fun openTierForCombat(tier: NexusPillarTier): AnnihilationMatchState {
+    public fun openTierForCombat(tier: NexusPillarTier): AnnihilationMatchState = openTierForCombat(tier, team = null)
+
+    /** Like [openTierForCombat] but only for [team]'s pillar of that tier (all teams when null). */
+    public fun openTierForCombat(tier: NexusPillarTier, team: TeamId?): AnnihilationMatchState {
         val updated = pillars.mapValues { (_, p) ->
-            if (p.tier == tier) p.openForCombat() else p
+            if (p.tier == tier && (team == null || p.owningTeam == team)) p.openForCombat() else p
         }
         return copy(pillars = updated)
     }
@@ -142,6 +154,10 @@ public data class AnnihilationMatchState(
          * team), all in [NexusState.BUILDING] at full HP. The phase is
          * [NexusPhase.Phase1Build] entered at tick `0`.
          *
+         * [hpOverrides] gives a pillar its own HP (stage `pillars[].hp`); the
+         * world position of a pillar is not part of this pure state (the
+         * tracker keeps the stage's sites next to it).
+         *
          * The pillar ids follow `<match>-<team>-<tier>` so audit / SQL /
          * compass HUD can deterministically reconstruct them without a
          * lookup. The tier number uses [NexusPillarTier.ordinalValue]
@@ -151,9 +167,7 @@ public data class AnnihilationMatchState(
             matchId: MatchId,
             config: AnnihilationConfig,
             teams: Collection<TeamId>,
-            position: (TeamId, NexusPillarTier) -> com.astarworks.astera.core.domain.nexus.INexusEntity.Position3D =
-                { _, _ -> com.astarworks.astera.core.domain.nexus.INexusEntity.Position3D(0, 64, 0) },
-            worldKey: String = matchId.value,
+            hpOverrides: Map<Pair<TeamId, NexusPillarTier>, Int> = emptyMap(),
         ): AnnihilationMatchState {
             require(teams.isNotEmpty()) { "AnnihilationMatchState.seed requires >=1 team (matchId=${matchId.value})" }
             val pillars = buildMap {
@@ -167,19 +181,14 @@ public data class AnnihilationMatchState(
                                 matchId = matchId,
                                 owningTeam = team,
                                 tier = tier,
-                                maxHp = config.pillarHp,
-                                hp = config.pillarHp,
+                                maxHp = hpOverrides[team to tier] ?: config.pillarHp,
+                                hp = hpOverrides[team to tier] ?: config.pillarHp,
                                 state = NexusState.BUILDING,
                             ),
                         )
                     }
                 }
             }
-            // The position / worldKey are part of the entity layer; we keep
-            // the state pure here. The tracker materialises INexusEntity
-            // separately on top of this state.
-            @Suppress("UNUSED_VARIABLE") val unusedPos = position
-            @Suppress("UNUSED_VARIABLE") val unusedWorld = worldKey
             return AnnihilationMatchState(
                 matchId = matchId,
                 config = config,

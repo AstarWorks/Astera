@@ -30,18 +30,17 @@ import org.slf4j.LoggerFactory
  *     pillar falls. After the event, the listener re-asks the tracker
  *     for the current outcome:
  *     - [WinConditionRules.Outcome.Winner] → call
- *       [IMatchLifecycle.end] with [EndReason.ObjectiveCompleted].
- *     - [WinConditionRules.Outcome.Draw] → call `end` with the same
- *       reason but no winning team (the [com.astarworks.astera.core.domain.event.MatchEnded]
- *       carries `winningTeam = null`; the `EndMatchUseCase` is
- *       responsible for that).
+ *       [IMatchLifecycle.end] with [EndReason.TeamVictory] (winner carried
+ *       into `MatchEnded.winningTeam`).
+ *     - [WinConditionRules.Outcome.Draw] → call `end` with
+ *       `TeamVictory(null)` (`MatchEnded.winningTeam = null`).
  *     - [WinConditionRules.Outcome.InProgress] → drop (a single team
  *       wipe out of three may leave two survivors fighting on).
  *  2. **AnnihilationPhaseTransitioned to Phase4SuddenDeath** — the
  *     sudden-death timer becomes authoritative. The listener schedules
  *     a one-shot tick task at `now + suddenDeathTicks`. At expiry it
  *     re-asks the tracker; whatever the outcome says, the match ends.
- *     Reason is [EndReason.SuddenDeathResolved].
+ *     Reason is [EndReason.TeamVictory] (winner null on a draw).
  *
  * # Idempotency
  *
@@ -77,8 +76,9 @@ public class AnnihilationWinConditionListener(
     public fun handleTeamEliminated(event: TeamEliminated) {
         val outcome = tracker.evaluateWinCondition(event.matchId, event.atTick)
         when (outcome) {
-            is WinConditionRules.Outcome.Winner -> endMatch(event.matchId, EndReason.ObjectiveCompleted, "winner=${outcome.team}")
-            WinConditionRules.Outcome.Draw -> endMatch(event.matchId, EndReason.ObjectiveCompleted, "draw")
+            is WinConditionRules.Outcome.Winner ->
+                endMatch(event.matchId, EndReason.TeamVictory(outcome.team), "winner=${outcome.team}")
+            WinConditionRules.Outcome.Draw -> endMatch(event.matchId, EndReason.TeamVictory(null), "draw")
             WinConditionRules.Outcome.InProgress -> Unit // wait for next elimination / SD
         }
     }
@@ -89,16 +89,12 @@ public class AnnihilationWinConditionListener(
         // final outcome and end the match regardless of who wins / draw.
         scheduler.runLater(ticks(suddenDeathTicks)) {
             val outcome = tracker.evaluateWinCondition(event.matchId, scheduler.currentTick())
-            val tag = when (outcome) {
-                is WinConditionRules.Outcome.Winner -> "winner=${outcome.team}"
-                WinConditionRules.Outcome.Draw -> "draw"
-                // InProgress at SD timer expiry is unexpected (the rules say
-                // SD must resolve at elapsed >= suddenDeathTicks). Still end
-                // the match — the rule may have changed mid-tick; the safe
-                // action is to close the match rather than hang in SD.
-                WinConditionRules.Outcome.InProgress -> "in-progress-at-sd-expiry"
-            }
-            endMatch(event.matchId, EndReason.SuddenDeathResolved, tag)
+            // InProgress at SD timer expiry is unexpected (the rules say SD must
+            // resolve at elapsed >= suddenDeathTicks; a single-team playtest is the
+            // one legitimate case). Still end the match - hanging in SD is worse -
+            // without a winner.
+            val winner = (outcome as? WinConditionRules.Outcome.Winner)?.team
+            endMatch(event.matchId, EndReason.TeamVictory(winner), "sudden-death outcome=$outcome")
         }
     }
 

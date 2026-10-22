@@ -205,4 +205,40 @@ class ProjectileImpactResolverTest {
         assertThat(damageGateway.applied).isEmpty()
         assertThat(particles.scheduled).hasSize(1)
     }
+
+    @Test
+    fun `block hit on a structure is an entity hit on it, a plain block hit elsewhere is not`() {
+        val pillar = PlayerId(UUID.randomUUID())
+        val structures = object : com.astarworks.astera.core.application.port.outbound.IStructureTargets {
+            private val t = com.astarworks.astera.core.application.port.outbound.IStructureTargets.StructureTarget(
+                pillar, Vec3(20.5, 64.5, 2.5), world,
+            )
+            override fun findInRadius(center: Vec3, radius: Double, world: WorldId?) =
+                if (center.distance(t.position) <= radius) listOf(t) else emptyList()
+            override fun isStructure(id: PlayerId) = id == pillar
+            override fun targetAtBlock(world: WorldId?, blockPosition: Vec3) = null
+            override fun damage(target: PlayerId, attacker: PlayerId?, amount: Double) =
+                com.astarworks.astera.core.domain.Result.success(1.0)
+            override fun hitPoints(id: PlayerId): Double? = 1.0
+            override fun maxHitPoints(id: PlayerId): Double? = 1.0
+        }
+        val structureResolver = ProjectileImpactResolver(
+            dispatcher = dispatcher,
+            applyDamage = applyDamage,
+            applyStatus = applyStatus,
+            scheduler = scheduler,
+            particleScheduler = particles,
+            soundScheduler = sounds,
+            structures = { structures },
+        )
+        val f = flight(PhaseMechanics.Projectile(hitEntity = listOf(damage), hitBlock = listOf(hitParticle)))
+
+        structureResolver.onHitBlock(f, Vec3(20.0, 64.5, 2.5))
+        assertThat(damageGateway.applied.map { it.first }).containsExactly(pillar)
+        assertThat(particles.scheduled).`as`("hit_block did not run").isEmpty()
+
+        structureResolver.onHitBlock(f, Vec3(40.0, 64.5, 2.5))
+        assertThat(damageGateway.applied).hasSize(1)
+        assertThat(particles.scheduled).hasSize(1)
+    }
 }

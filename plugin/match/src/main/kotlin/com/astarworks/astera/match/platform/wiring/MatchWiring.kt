@@ -30,6 +30,8 @@ import com.astarworks.astera.match.application.gamemode.NormaGameMode
 import com.astarworks.astera.match.application.gamemode.StealJewelryGameMode
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationGameMode
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationMatchTracker
+import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPillarTargets
+import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationPillarWorld
 import com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry
 import com.astarworks.astera.match.application.port.outbound.IGameModeScheduler
 import com.astarworks.astera.match.application.service.DefaultGameModeScheduler
@@ -85,6 +87,8 @@ import com.astarworks.astera.core.platform.wiring.WiringContext
 public class MatchWiringResult(
     public val matches: IMatchRepository,
     public val lifecycle: IMatchLifecycle,
+    /** Annihilation pillars as targets; the host feeds enemy block breaks into it (WP10). */
+    public val pillarTargets: AnnihilationPillarTargets,
     private val shutdownHooks: List<() -> Unit>,
     private val scheduledTasks: List<IScheduler.TaskHandle>,
 ) {
@@ -454,10 +458,23 @@ public object MatchWiring {
         // happen in production. Mirrors the Norma "replace YAML-resolved with
         // bus-wired" pattern above.
         val annihilationTracker = AnnihilationMatchTracker(eventBus)
+        // WP10: pillars as combat / world targets. Combat resolves IStructureTargets
+        // lazily (it wires before Match), so skills, projectiles and enemy block
+        // breaks all reach the tracker through it.
+        val pillarTargets = AnnihilationPillarTargets(annihilationTracker, matches, scheduler)
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.IStructureTargets>(
+            pillarTargets,
+        )
+        val pillarWorld = worldGateway?.let {
+            AnnihilationPillarWorld(annihilationTracker, it, matches, playerGateway, msgRenderer)
+        }
+        pillarWorld?.let { subscriptions += it.subscribe(eventBus) }
         gameModeFrameworkRegistry.register(
             AnnihilationGameMode(
                 tracker = annihilationTracker,
                 eventBus = eventBus,
+                defaultConfig = ports.annihilationConfig,
+                clock = { scheduler.currentTick() },
             ),
         )
         logger.info(
@@ -525,9 +542,14 @@ public object MatchWiring {
             // onMatchStarted fires so the tracker pillars are non-empty.
             if (modeId == AnnihilationGameMode.ID && teamIds.isNotEmpty()) {
                 gmCtx = gmCtx.withState(AnnihilationGameMode.TEAMS_STATE_KEY, teamIds)
+                // WP10: the stage tells the tracker where the pillars stand.
+                match?.let { stages.find(it.stageId) }?.let {
+                    gmCtx = gmCtx.withState(AnnihilationGameMode.STAGE_STATE_KEY, it)
+                }
             }
 
             mode.onMatchStarted(gmCtx)
+            if (modeId == AnnihilationGameMode.ID) pillarWorld?.placeAll(event.matchId)
             gameModeScheduler.register(event.matchId, mode, gmCtx)
         }
         subscriptions += eventBus.subscribe(
@@ -577,6 +599,7 @@ public object MatchWiring {
         return MatchWiringResult(
             matches = matches,
             lifecycle = facade,
+            pillarTargets = pillarTargets,
             shutdownHooks = shutdownHooks.toList(),
             scheduledTasks = scheduledTasks.toList(),
         )

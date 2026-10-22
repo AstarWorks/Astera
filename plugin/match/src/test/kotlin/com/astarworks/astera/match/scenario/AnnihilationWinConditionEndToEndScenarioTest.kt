@@ -167,13 +167,10 @@ class AnnihilationWinConditionEndToEndScenarioTest {
                     "and call IMatchLifecycle.end on a Winner outcome.",
             )
             .hasSize(1)
-        assertThat(ends.single().reason).isEqualTo(EndReason.ObjectiveCompleted)
-        // Note: MatchEnded.winningTeam is computed by VictoryConditionEvaluator
-        // (Norma-specific). For Annihilation the team identity lives in the
-        // listener's debug log + the AnnihilationMatchTracker state. The
-        // end-event chain itself (the regression target) is the load-bearing
-        // assertion here. The Wave 6 Paper-impl ADR-0108 §"MatchEnded fields"
-        // tracks adding Annihilation-aware winningTeam population.
+        // The mode decided the match: the reason carries the winner into MatchEnded.winningTeam.
+        val reason = ends.single().reason as EndReason.TeamVictory
+        assertThat(reason.winner).isNotNull()
+        assertThat(ends.single().winningTeam).isEqualTo(reason.winner)
     }
 
     @Test

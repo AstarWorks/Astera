@@ -796,8 +796,6 @@ astera:
     annihilation:
       title: "<red>アナイアレーション</red>"
       description: "<gray>3 柱 Nexus ハイブリッド: 自陣を守り、敵陣を落とせ。</gray>"
-      template:
-        default: "<gray>標準 3 柱配置</gray>"
       phase:
         build: "<aqua>準備フェーズ</aqua>"
         engage: "<yellow>戦闘フェーズ</yellow>"

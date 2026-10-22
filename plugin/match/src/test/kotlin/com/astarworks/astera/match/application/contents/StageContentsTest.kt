@@ -182,4 +182,66 @@ class StageContentsTest {
 
         assertThat(contents.find(StageId("programmatic"))).isEqualTo(stage)
     }
+
+    @Test
+    fun `pillars are loaded as a proper stage field`(@TempDir dir: Path) {
+        Files.writeString(
+            dir.resolve("pillar-arena.yaml"),
+            """
+            id: pillar-arena
+            display_name_key: astera.stage.pillar-arena.name
+            pillars:
+              - { team: red, tier: 1, position: { x: 1.0, y: -60.0, z: 2.0 }, block: "minecraft:obsidian" }
+              - { team: red, tier: 3, position: { x: 5.0, y: -60.0, z: 2.0 }, block: "minecraft:beacon", hp: 800 }
+            """.trimIndent(),
+        )
+        val contents = StageContents()
+        assertThat(contents.bootstrap(dir).loaded).isEqualTo(1)
+
+        val pillars = requireNotNull(contents.find(StageId("pillar-arena"))).pillars
+        assertThat(pillars.map { it.tier.ordinalValue }).containsExactly(1, 3)
+        assertThat(pillars[0].team.value).isEqualTo("red")
+        assertThat(pillars[0].position).isEqualTo(Vec3(1.0, -60.0, 2.0))
+        assertThat(pillars[0].block.key).isEqualTo("minecraft:obsidian")
+        assertThat(pillars[0].centre).isEqualTo(Vec3(1.5, -59.5, 2.5))
+        assertThat(pillars[0].hp).isNull()
+        assertThat(pillars[1].hp).isEqualTo(800)
+    }
+
+    @Test
+    fun `a stage with a bad pillar tier or a duplicated pillar fails to load`(@TempDir dir: Path) {
+        Files.writeString(
+            dir.resolve("bad-tier.yaml"),
+            """
+            id: bad-tier
+            display_name_key: astera.stage.bad-tier.name
+            pillars:
+              - { team: red, tier: 4, position: { x: 0.0, y: 0.0, z: 0.0 }, block: "minecraft:obsidian" }
+            """.trimIndent(),
+        )
+        Files.writeString(
+            dir.resolve("dup.yaml"),
+            """
+            id: dup
+            display_name_key: astera.stage.dup.name
+            pillars:
+              - { team: red, tier: 1, position: { x: 0.0, y: 0.0, z: 0.0 }, block: "minecraft:obsidian" }
+              - { team: red, tier: 1, position: { x: 1.0, y: 0.0, z: 0.0 }, block: "minecraft:obsidian" }
+            """.trimIndent(),
+        )
+        val report = StageContents().bootstrap(dir)
+        assertThat(report.loaded).isEqualTo(0)
+        assertThat(report.failed).isEqualTo(2)
+    }
+
+    @Test
+    fun `the shipped annihilation arena declares three tiers for each of its three teams`() {
+        val dir = Path.of("../../content/stages").toAbsolutePath().normalize()
+        val contents = StageContents()
+        contents.bootstrap(dir)
+        val arena = requireNotNull(contents.find(StageId("annihilation-arena")))
+        assertThat(arena.pillars.groupBy { it.team.value }.mapValues { (_, v) -> v.map { it.tier.ordinalValue } })
+            .containsOnlyKeys("red", "blue", "yellow")
+            .allSatisfy { _, tiers -> assertThat(tiers).containsExactly(1, 2, 3) }
+    }
 }

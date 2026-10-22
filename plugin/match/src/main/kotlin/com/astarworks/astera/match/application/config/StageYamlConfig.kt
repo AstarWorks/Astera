@@ -2,7 +2,11 @@ package com.astarworks.astera.match.application.config
 
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.nexus.NexusPillarTier
 import com.astarworks.astera.core.domain.stage.Region
+import com.astarworks.astera.core.domain.stage.StagePillar
+import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.core.domain.world.WorldId
@@ -21,6 +25,7 @@ import kotlinx.serialization.Serializable
  *     min: { x: -50.0, y: -60.0, z: -50.0 }
  *     max: { x:  50.0, y: -30.0, z:  50.0 }
  * spawn_points: [...]     # see [SpawnPointYamlConfig]
+ * pillars: [...]          # Annihilation pillar sites, see [PillarYamlConfig]
  * ```
  *
  * `name` on a [RegionYamlConfig] is informational: other YAMLs reference areas
@@ -35,6 +40,7 @@ public data class StageYamlConfig(
     public val world: String = Stage.DEFAULT_WORLD,
     public val regions: List<RegionYamlConfig> = emptyList(),
     @SerialName("spawn_points") public val spawnPoints: List<SpawnPointYamlConfig> = emptyList(),
+    public val pillars: List<PillarYamlConfig> = emptyList(),
 ) {
     /**
      * Convert the parsed DTO into a domain [Stage]. Any kebab-case / i18n key
@@ -50,8 +56,39 @@ public data class StageYamlConfig(
             regions = regions.map { it.toRegion() },
             spawnPoints = spawnPoints.map { it.toDomain(worldId) },
             world = worldId,
+            pillars = pillars.map { it.toDomain() },
         )
     }
+}
+
+/**
+ * YAML-shaped DTO for one `pillars:` entry of a stage (WP10): the block of one
+ * team's Annihilation pillar.
+ *
+ * ```yaml
+ * pillars:
+ *   - team: red
+ *     tier: 1                              # 1 (outer) .. 3 (the Nexus proper)
+ *     position: { x: 0, y: -59, z: -41 }   # block coordinate in the stage's world
+ *     block: minecraft:obsidian
+ *     hp: 800                              # optional; default = the mode's pillar_hp
+ * ```
+ */
+@Serializable
+public data class PillarYamlConfig(
+    public val team: String,
+    public val tier: Int,
+    public val position: Vec3YamlConfig,
+    public val block: String,
+    public val hp: Int? = null,
+) {
+    public fun toDomain(): StagePillar = StagePillar(
+        team = TeamId(team),
+        tier = requireNotNull(NexusPillarTier.fromOrdinal(tier)) { "pillar tier must be 1..3 (got $tier)" },
+        position = position.toVec3(),
+        block = BlockType(block),
+        hp = hp,
+    )
 }
 
 /**

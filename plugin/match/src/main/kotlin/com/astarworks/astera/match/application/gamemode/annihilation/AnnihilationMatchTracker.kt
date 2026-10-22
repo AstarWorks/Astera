@@ -7,12 +7,15 @@ import com.astarworks.astera.core.domain.event.NexusDestroyed
 import com.astarworks.astera.core.domain.event.TeamEliminated
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.nexus.Nexus
 import com.astarworks.astera.core.domain.nexus.NexusDamageOutcome
 import com.astarworks.astera.core.domain.nexus.NexusId
 import com.astarworks.astera.core.domain.nexus.NexusPhase
 import com.astarworks.astera.core.domain.nexus.NexusPillarTier
 import com.astarworks.astera.core.domain.nexus.NexusState
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.stage.StagePillar
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationMatchState
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationPhaseRules
@@ -60,6 +63,25 @@ public class AnnihilationMatchTracker(
 
     private val matches: MutableMap<MatchId, AnnihilationMatchState> = mutableMapOf()
 
+    /** Where each match's pillars stand (from the stage), by pillar id. Empty when the stage declares none. */
+    private val sites: MutableMap<MatchId, PillarSites> = mutableMapOf()
+
+    /** A match's pillar sites: the world they are in and the stage entry of each pillar. */
+    public data class PillarSites(val world: WorldId, val byNexus: Map<NexusId, StagePillar>)
+
+    /** A standing-or-fallen pillar together with its world site (null when the stage declared none). */
+    public data class PillarView(val nexus: Nexus, val site: StagePillar?, val world: WorldId?)
+
+    /** Every pillar of [matchId] with its site; empty for an unknown match. */
+    public fun pillarViews(matchId: MatchId): List<PillarView> {
+        val state = matches[matchId] ?: return emptyList()
+        val placed = sites[matchId]
+        return state.pillars.values.map { PillarView(it, placed?.byNexus?.get(it.id), placed?.world) }
+    }
+
+    /** Sites of [matchId], or null when none were registered. */
+    public fun sitesOf(matchId: MatchId): PillarSites? = sites[matchId]
+
     /** Currently-tracked match ids — order undefined. */
     public fun allActive(): Set<MatchId> = matches.keys.toSet()
 
@@ -81,15 +103,33 @@ public class AnnihilationMatchTracker(
         config: AnnihilationConfig,
         teams: Collection<TeamId>,
         atTick: Long = 0L,
+        world: WorldId? = null,
+        pillarSites: List<StagePillar> = emptyList(),
     ): AnnihilationMatchState {
-        val seeded = AnnihilationMatchState.seed(matchId, config, teams).copy(phaseEnteredAtTick = atTick)
+        val teamSet = teams.toSet()
+        val placed = pillarSites.filter { it.team in teamSet }
+        val seeded = AnnihilationMatchState.seed(
+            matchId,
+            config,
+            teams,
+            hpOverrides = placed.mapNotNull { p -> p.hp?.let { (p.team to p.tier) to it } }.toMap(),
+        ).copy(phaseEnteredAtTick = atTick)
         matches[matchId] = seeded
+        if (world != null && placed.isNotEmpty()) {
+            sites[matchId] = PillarSites(
+                world,
+                placed.associateBy { NexusId("${matchId.value}-${it.team.value}-${it.tier.ordinalValue}") },
+            )
+        } else {
+            sites.remove(matchId)
+        }
         return seeded
     }
 
     /** Discard tracking state for [matchId]. No-op if unknown. */
     public fun unregister(matchId: MatchId) {
         matches.remove(matchId)
+        sites.remove(matchId)
     }
 
     /**

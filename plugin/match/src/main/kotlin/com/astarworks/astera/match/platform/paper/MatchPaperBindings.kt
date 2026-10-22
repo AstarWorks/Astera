@@ -6,6 +6,7 @@ import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.match.adapter.paper.PaperBarrierGateway
 import com.astarworks.astera.match.adapter.paper.PaperItemPickupAdapter
+import com.astarworks.astera.match.adapter.paper.PaperPillarBlockListener
 import com.astarworks.astera.match.platform.wiring.MatchPlatformPorts
 import com.astarworks.astera.match.platform.wiring.MatchWiringResult
 import org.bukkit.plugin.java.JavaPlugin
@@ -45,5 +46,8 @@ internal object MatchPaperBindings {
             eventBus = ctx.services.getOrThrow<IDomainEventBus>(),
             scheduler = ctx.services.getOrThrow<IScheduler>(),
         ).start(plugin)
+
+        // WP10: enemy block breaks on Annihilation pillar blocks damage the pillar.
+        PaperPillarBlockListener(wired.pillarTargets).start(plugin)
     }
 }
