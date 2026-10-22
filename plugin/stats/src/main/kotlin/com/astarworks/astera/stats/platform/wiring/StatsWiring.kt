@@ -200,6 +200,7 @@ public object StatsWiring {
         val broadcastOnLeveledUpListener = BroadcastOnLeveledUpListener(broadcaster)
         val recordAssistListener = RecordAssistOnAssistCreditedListener(recordAssist)
 
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { recordDeath.execute(it.victim) }
         subscriptions += eventBus.subscribe(PlayerKilled::class) { rewardOnKill.handle(it) }
         subscriptions += eventBus.subscribe(DamageDealt::class) { rewardOnDamage.handle(it) }
         subscriptions += eventBus.subscribe(PlayerKilled::class) { missionProgressOnKill.handle(it) }

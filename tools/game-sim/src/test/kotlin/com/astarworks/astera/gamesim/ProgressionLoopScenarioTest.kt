@@ -26,6 +26,20 @@ import java.time.LocalDate
 class ProgressionLoopScenarioTest {
 
     @Test
+    fun `player and environmental kills both record the victim death through production wiring`() {
+        scenario("stats-deaths") {
+            val killer = player("killer")
+            val victim = player("victim")
+            val bus = sim.services.getOrThrow<IDomainEventBus>()
+            val stats = sim.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository>()
+            bus.publish(PlayerKilled(victim.id, killer.id, DamageSource.Environment.Generic, 1L))
+            bus.publish(PlayerKilled(victim.id, null, DamageSource.Environment.Generic, 2L))
+            assertThat(stats.find(victim.id)!!.deaths).isEqualTo(2L)
+            assertThat(stats.find(killer.id)!!.kills).isEqualTo(1L)
+        }
+    }
+
+    @Test
     fun `joining the lobby collects the daily bonus once and starts the streak`() {
         scenario("progression-login-bonus") {
             val alice = player("alice")
