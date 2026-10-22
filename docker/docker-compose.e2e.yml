@@ -27,6 +27,8 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+      args:
+        E2E_FAST: "1"
       labels:
         astera.e2e.id: "${ASTERA_E2E_ID:-local}"
     image: astera/minecraft-server:e2e-${ASTERA_E2E_ID:-local}

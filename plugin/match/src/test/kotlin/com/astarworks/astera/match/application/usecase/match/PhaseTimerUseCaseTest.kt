@@ -109,6 +109,23 @@ class PhaseTimerUseCaseTest {
     }
 
     @Test
+    fun `SUDDEN_DEATH expiry calls the end hook exactly once instead of a bare phase switch`() {
+        val matchId = MatchId("match-sudden-end")
+        matches.save(buildMatch(matchId, MatchPhase.SUDDEN_DEATH, startedAtTick = 0L))
+        val ended = mutableListOf<MatchId>()
+        val timer = PhaseTimerUseCase(matches, scheduler, switchPhase, onSuddenDeathExpired = { ended += it })
+
+        timer.tickAll()
+        scheduler.advanceTicks(PhaseTimings.SUDDEN_DEATH_TICKS)
+        timer.tickAll()
+
+        assertThat(ended).containsExactly(matchId)
+        // The hook owns the transition (EndMatchUseCase publishes MatchEnded); the timer must not also flip the phase.
+        assertThat(matches.findById(matchId)!!.phase).isEqualTo(MatchPhase.SUDDEN_DEATH)
+        assertThat(eventBus.published.filterIsInstance<com.astarworks.astera.match.domain.event.PhaseChanged>()).isEmpty()
+    }
+
+    @Test
     fun `tickAll is a no-op when there are no active matches`() {
         // Saving an ENDED match should not interact with the timer
         // (findActiveMatches excludes ENDED).

@@ -298,6 +298,10 @@ public object MatchWiring {
         val phaseTimer = PhaseTimerUseCase(
             matches, scheduler, switchPhase, matchTimer,
             countdownTicks = { queueSettings.current().matchCountdownSeconds * 20L },
+            // G1: the sudden-death timer must end the match for real (result screen, rewards, return to lobby).
+            onSuddenDeathExpired = { id ->
+                endMatch.execute(id, com.astarworks.astera.core.domain.event.EndReason.SuddenDeathResolved)
+            },
         )
         scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
             phaseTimer.tickAll()
