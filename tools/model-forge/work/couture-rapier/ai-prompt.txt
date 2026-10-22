@@ -1,0 +1,5 @@
+Tool: built-in image_gen.imagegen; transparent_background=false.
+Reference: content/textures/sources/sheets/weapons-v1.png; cell ordering from content/textures/sources/items.yaml.
+Item brief: content/items/couture-rapier.yaml and tools/item-art/sheets/weapons-v1.yaml.
+
+Create a premium Minecraft fantasy prop concept turnaround sheet for Couturier's Rapier. Use the reference sheet's FIRST ROW SECOND CELL only as identity reference: extremely slender cyan luminous needle blade, ornate silver swept hilt with multiple interlaced open scroll loops, large faceted cyan jewel, navy wrapped grip, cyan pommel. Show FRONT, SIDE, TOP (true end-on looking along blade), THREE QUARTER, clearly separated at identical orthographic scale. Flat pure magenta #ff00ff background. Detailed stepped bevels and pixel painted silver/cyan tones, Blockbench-compatible aesthetic, elegant elaborate open hilt, no effects or floating particles. Reference is identity only; output just this one weapon's four views.

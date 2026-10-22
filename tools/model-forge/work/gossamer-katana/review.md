@@ -1,0 +1,7 @@
+# Gossamer katana
+Built-in generated target from source cell 8 and YAML: curved pale blade, red silk crossing blue underwrap, small gold tsuba. AI top is oblique; no measured IoU.
+1. Blockout: long blue grip and narrow blade fit the proportions, but straight rectangular blade loses katana identity. Next: stepped gentle curve, single bright cutting edge, dark spine and oval gold tsuba rim.
+2. Shape: gentle curve and single edge read in front/GUI, with a slim side profile. Plain blue handle lacks the signature red diamonds and tsuba remains undecorated. Next: separate crossed silk strips on both broad grip faces, brass pins, then guard engraving.
+3. Detail: red diamond crossings are visible in front and GUI, but thinner/darker than target's silk. Side view shows unwrapped blue edges. Next: widen silk slightly, add short side returns, paint five-tone materials and engraved web spokes on the tsuba.
+4. Texture: grip now reads red/blue in all hand views and tsuba spokes appear in top view. Red samples are too pale pink, and upper blade shows a sawtooth stair at GUI size. Next: deepen silk highlights, rotate final blade sections 22.5 degrees into the curve, add habaki engraving and pommel pin.
+5. Polish: deeper red crossing blue and gold caps retain source identity; angled upper sections smooth the cutting-edge read at 32px. Pass local review: 148 elements, 128px atlas, 3 texels/unit, eleven unclipped views. Weaknesses: blade curve is still visibly stepped close up, tsuba web disappears at GUI size, generated top is tilted. No client hand/FOV verification.
