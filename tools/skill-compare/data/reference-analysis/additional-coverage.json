@@ -148,7 +148,7 @@
     "videoId": "x6sc9JkW77c",
     "file": "extra-1.json",
     "sha256": "f1c3a46f72c16eaf6e85681b482e95f1bab5f26ca856902932022d9b913c7774",
-    "coverage": "case-registered-implementation-missing",
+    "coverage": "prototype-direct-capture-form-routing-missing",
     "name": "Let These Hands be the Proxy with Which...",
     "case": "edict-procuration-s1"
   },
