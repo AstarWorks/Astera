@@ -1,0 +1,5 @@
+.lock
+# Recreated by walkthrough.py; retain exported model, boards and JSONL evidence.
+session/project/project.json
+session/project/model.json
+session/project/textures/

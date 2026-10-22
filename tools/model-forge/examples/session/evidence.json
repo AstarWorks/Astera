@@ -1,0 +1,42 @@
+{
+  "final_board": "/IdeaProjects/Astera/.claude/worktrees/forge-server/tools/model-forge/examples/session/project/renders/final.png",
+  "comparison": "/IdeaProjects/Astera/.claude/worktrees/forge-server/tools/model-forge/examples/session/project/renders/baseline-diff.png",
+  "element_count": 42,
+  "valid": true,
+  "paint_undo_verified": true,
+  "metrics": {
+    "front": {
+      "iou": 1.0,
+      "colour_histogram_distance": 0.01087294190742466
+    },
+    "back": {
+      "iou": 1.0,
+      "colour_histogram_distance": 0.01087294190742466
+    },
+    "left": {
+      "iou": 0.9894684052156469,
+      "colour_histogram_distance": 0.010531594784353063
+    },
+    "right": {
+      "iou": 0.9894684052156469,
+      "colour_histogram_distance": 0.01053159478435305
+    },
+    "top": {
+      "iou": 1.0,
+      "colour_histogram_distance": 0.0
+    },
+    "bottom": {
+      "iou": 1.0,
+      "colour_histogram_distance": 0.0
+    },
+    "iso": {
+      "iou": 0.9989486134840321,
+      "colour_histogram_distance": 0.007537345808214387
+    },
+    "iso_back": {
+      "iou": 0.9989486134840321,
+      "colour_histogram_distance": 0.00754315533770666
+    }
+  },
+  "model_sha256": "376e1cd0d771e1bd6891df9fd035e251e79149e075b76b9262328aac73c510d2"
+}
