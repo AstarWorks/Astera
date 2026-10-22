@@ -138,5 +138,771 @@
   },
   "target_sha256": "2e341c4a9348804d1272750930f1b57e3e9b91a35548bcf6688f6eb929f45edc",
   "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
-  "limitations": "Orthographic transform previews, not in-client hand/FOV validation."
+  "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+  "production_validation": {
+    "valid": true,
+    "elements": 133,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      2.999999999999965,
+      3.0000000000002265
+    ],
+    "rotated_bounds": [
+      [
+        3.0410876990099305,
+        -1.6750000000000007,
+        7.1
+      ],
+      [
+        12.95891230099007,
+        28.5,
+        9.889999999999999
+      ]
+    ]
+  },
+  "rounds": [
+    {
+      "item": "couture-rapier",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 5,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999947,
+          3.0000000000000067
+        ],
+        "rotated_bounds": [
+          [
+            6.5,
+            0.0,
+            7.1
+          ],
+          [
+            9.5,
+            29.0,
+            8.9
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            103,
+            12,
+            120,
+            192
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            106,
+            12,
+            117,
+            192
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            103,
+            106,
+            120,
+            117
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            101,
+            18,
+            122,
+            189
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            47,
+            53,
+            151,
+            197
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            99,
+            18,
+            129,
+            157
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            106,
+            9,
+            119,
+            127
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            108,
+            18,
+            138,
+            157
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            104,
+            9,
+            117,
+            127
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            109,
+            47,
+            114,
+            107
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            106,
+            45,
+            117,
+            166
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "2e341c4a9348804d1272750930f1b57e3e9b91a35548bcf6688f6eb929f45edc",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "65a66f1101b0beec6ca67feac403a98ddefa41c436a042727490be1958a20c18",
+        "texture.png": "9479b2acb4d0988a526508015244721e2b50f135e026b38988e56391bc6fd9aa",
+        "comparison.png": "a02c97671956c9bafa821ba328fd4c22721d744cd197242da429002908d55183"
+      }
+    },
+    {
+      "item": "couture-rapier",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 57,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.999999999999965,
+          3.0000000000000298
+        ],
+        "rotated_bounds": [
+          [
+            3.3168079145099307,
+            -1.5426667017101199,
+            7.1
+          ],
+          [
+            12.67063611710225,
+            28.5,
+            9.69
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            83,
+            16,
+            140,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            101,
+            16,
+            117,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            83,
+            106,
+            140,
+            122
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            83,
+            21,
+            134,
+            197
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            43,
+            57,
+            148,
+            201
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            99,
+            21,
+            137,
+            164
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            102,
+            11,
+            123,
+            132
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            100,
+            21,
+            138,
+            164
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            99,
+            11,
+            121,
+            132
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            102,
+            54,
+            121,
+            110
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            93,
+            47,
+            130,
+            172
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "2e341c4a9348804d1272750930f1b57e3e9b91a35548bcf6688f6eb929f45edc",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "6a92bf7a738646c7f5a77d8b465016cf8bd3964819c068ae3fc2de064036cb13",
+        "texture.png": "9479b2acb4d0988a526508015244721e2b50f135e026b38988e56391bc6fd9aa",
+        "comparison.png": "e9e5565f7c80f7c45e5512011bacb9ed35c8c456841cbd817b9de36e50e8e4dc"
+      }
+    },
+    {
+      "item": "couture-rapier",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 109,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.999999999999965,
+          3.0000000000000364
+        ],
+        "rotated_bounds": [
+          [
+            3.0410876990099305,
+            -1.5426667017101199,
+            7.1
+          ],
+          [
+            12.95891230099007,
+            28.5,
+            9.69
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            81,
+            16,
+            142,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            101,
+            16,
+            117,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            81,
+            106,
+            142,
+            122
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            81,
+            21,
+            135,
+            197
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            42,
+            57,
+            148,
+            201
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            97,
+            21,
+            137,
+            164
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            102,
+            11,
+            125,
+            132
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            100,
+            21,
+            139,
+            164
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            98,
+            11,
+            121,
+            132
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            102,
+            54,
+            121,
+            110
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            91,
+            47,
+            132,
+            172
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "2e341c4a9348804d1272750930f1b57e3e9b91a35548bcf6688f6eb929f45edc",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "77799b37a0b0c16b1529d864536ebe968d7678ef7ec5b519ddbad544fd1ca45d",
+        "texture.png": "9479b2acb4d0988a526508015244721e2b50f135e026b38988e56391bc6fd9aa",
+        "comparison.png": "43b9a8f1b7e58a40ae3a1a0c4d039935b7870fdbd39e55eb5f3030e6e3d63c2a"
+      }
+    },
+    {
+      "item": "couture-rapier",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 129,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.999999999999965,
+          3.0000000000002265
+        ],
+        "rotated_bounds": [
+          [
+            3.0410876990099305,
+            -1.5426667017101199,
+            7.1
+          ],
+          [
+            12.95891230099007,
+            28.5,
+            9.889999999999999
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            81,
+            16,
+            142,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            100,
+            16,
+            117,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            81,
+            106,
+            142,
+            123
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            81,
+            21,
+            135,
+            197
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            42,
+            57,
+            148,
+            201
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            97,
+            21,
+            137,
+            164
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            102,
+            11,
+            125,
+            132
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            100,
+            21,
+            139,
+            164
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            98,
+            11,
+            121,
+            132
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            102,
+            54,
+            121,
+            110
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            91,
+            47,
+            132,
+            172
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "2e341c4a9348804d1272750930f1b57e3e9b91a35548bcf6688f6eb929f45edc",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "cd0ef0bd6d785edf66fe990a2d3644a07e6ab788138f62a348f42e6bc68fa5a8",
+        "texture.png": "3e3eaa1cdc5fbd034dbcd9abde9dd07647bf11929857e08553952c5d8cc8cc29",
+        "comparison.png": "cd5ca4af7f1f077e115da3493277368c49d3f046eccab9f88ab44ccceb8e48e2"
+      }
+    },
+    {
+      "item": "couture-rapier",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 133,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.999999999999965,
+          3.0000000000002265
+        ],
+        "rotated_bounds": [
+          [
+            3.0410876990099305,
+            -1.6750000000000007,
+            7.1
+          ],
+          [
+            12.95891230099007,
+            28.5,
+            9.889999999999999
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            81,
+            16,
+            142,
+            202
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            100,
+            16,
+            117,
+            202
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            81,
+            106,
+            142,
+            123
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            81,
+            21,
+            135,
+            198
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            42,
+            57,
+            148,
+            204
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            97,
+            21,
+            137,
+            165
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            102,
+            11,
+            125,
+            133
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            100,
+            21,
+            139,
+            165
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            98,
+            11,
+            121,
+            133
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            102,
+            54,
+            121,
+            110
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            91,
+            47,
+            132,
+            173
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "2e341c4a9348804d1272750930f1b57e3e9b91a35548bcf6688f6eb929f45edc",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "11465567ef665c5105a6a75e4625dc9c0125f54f8a5e8a28bc44bdd6ce949870",
+        "texture.png": "f994095e96d5c1c991c65f97eba3d403f67e56d5fbfd67a3df04273c5a4cafc2",
+        "comparison.png": "801ca8bb858c4960c5f6d89f47f0e400a3b3ae4d7211155f1e5e5f49ae8ddce0"
+      }
+    }
+  ],
+  "sha256": {
+    "content/models/items/couture-rapier.model.json": "11465567ef665c5105a6a75e4625dc9c0125f54f8a5e8a28bc44bdd6ce949870",
+    "content/textures/items/couture-rapier.png": "f994095e96d5c1c991c65f97eba3d403f67e56d5fbfd67a3df04273c5a4cafc2",
+    "tools/model-forge/work/couture-rapier/ai-target.png": "2e341c4a9348804d1272750930f1b57e3e9b91a35548bcf6688f6eb929f45edc",
+    "tools/model-forge/work/couture-rapier/final-sheet.png": "801ca8bb858c4960c5f6d89f47f0e400a3b3ae4d7211155f1e5e5f49ae8ddce0"
+  }
 }

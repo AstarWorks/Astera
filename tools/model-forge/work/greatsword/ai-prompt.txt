@@ -1,0 +1,5 @@
+Tool: built-in image_gen.imagegen; transparent_background=false.
+Reference: content/textures/sources/sheets/weapons-v1.png; cell ordering from content/textures/sources/items.yaml.
+Item brief: content/items/greatsword.yaml and tools/item-art/sheets/weapons-v1.yaml.
+
+Successful prompt: Nonviolent asset-design reference sheet for a Minecraft decorative fantasy sword item, no people or action. Reference second row fifth cell only: broad dark gray steel blade, silver edge trim, red crossguard, black handle, red pommel. Pixel-painted cuboid game-art style with detailed stepped bevels, small rivets and leather wraps. Show front, side, top end-on cross-section, and three-quarter orthographic views of this same prop on flat magenta. Same scale. This is a static game inventory/3D modeling reference only.

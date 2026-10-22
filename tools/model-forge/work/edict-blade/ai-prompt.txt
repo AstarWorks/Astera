@@ -1,0 +1,5 @@
+Tool: built-in image_gen.imagegen; transparent_background=false.
+Reference: content/textures/sources/sheets/weapons-v1.png; cell ordering from content/textures/sources/items.yaml.
+Item brief: content/items/edict-blade.yaml and tools/item-art/sheets/weapons-v1.yaml.
+
+Premium pixel-painted Blockbench fantasy weapon turnaround for EDICT BLADE, reference FIRST ROW FIFTH CELL only. Noble white-silver longsword / dueling blade, long straight sharply pointed double-edged blade with narrow dark central groove, gold crossguard, large faceted azure-blue gem in guard, dark navy-black wrapped hilt, gold pommel with blue gem. White-and-black disciplined royal identity, restrained gold trim. Four views labeled FRONT SIDE TOP 3/4. Strict top is end-on looking down blade axis showing a thin blade cross-section and horizontal guard, no long shaft. Same scale, pure #ff00ff background. Fine stepped bevels, tiny rivets, geometric engraving. No effects, no other weapons.

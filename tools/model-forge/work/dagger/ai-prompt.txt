@@ -1,0 +1,5 @@
+Tool: built-in image_gen.imagegen; transparent_background=false.
+Reference: content/textures/sources/sheets/weapons-v1.png; cell ordering from content/textures/sources/items.yaml.
+Item brief: content/items/dagger.yaml and tools/item-art/sheets/weapons-v1.yaml.
+
+Production concept turnaround of a SHORT PLAIN DARK STEEL DAGGER with brown leather grip, based on reference sheet FIRST ROW FOURTH CELL. Preserve humble practical identity, no jewels/gold/magic. Broad short tapered spear-point blade, steel central ridge, sharpened silver bevels, short swept steel guard, tightly wrapped brown leather handle, faceted iron pommel, subtle pins and wear. Premium detailed pixel-painted Blockbench prop. Four separated labeled panels FRONT / SIDE / TOP / 3-4, same scale on pure magenta. For TOP, strict orthographic END-ON: camera on longitudinal blade axis, only narrow cross section of guard and blade visible, absolutely no full blade length or handle length. No other objects.

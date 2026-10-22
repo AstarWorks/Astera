@@ -1,0 +1,5 @@
+Tool: built-in image_gen.imagegen; transparent_background=false.
+Reference: content/textures/sources/sheets/weapons-v1.png; cell ordering from content/textures/sources/items.yaml.
+Item brief: content/items/gossamer-katana.yaml and tools/item-art/sheets/weapons-v1.yaml.
+
+GOSSAMER KATANA premium Blockbench pixel-painted fantasy game prop turnaround. Reference sheet second row fourth cell: slender gently curved pale silver single-edged katana, dark spine, red-and-blue diamond-wrapped long hilt, small gold tsuba and gold end cap. Web/thread duelist identity, delicate engraved web pattern on guard only, no floating webs, no scabbard. Four separate orthographic panels FRONT SIDE TOP 3/4 at equal scale on pure magenta. TOP must be end-on along blade axis: blade cross section and oval tsuba only, no handle or blade length. Fine stepped curvature/bevels, crossing red silk over blue underwrap, small brass pins. Preserve graceful narrow curved silhouette.

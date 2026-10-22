@@ -138,5 +138,771 @@
   },
   "target_sha256": "26472593410a00b47f6ebc47950055cd9f683fbeef9f4819495a203325eca541",
   "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
-  "limitations": "Orthographic transform previews, not in-client hand/FOV validation."
+  "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+  "production_validation": {
+    "valid": true,
+    "elements": 163,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      2.9999999999999702,
+      3.0000000000000475
+    ],
+    "rotated_bounds": [
+      [
+        2.58,
+        -1.7509474016201132,
+        6.475
+      ],
+      [
+        13.32,
+        29.15,
+        9.532620584960366
+      ]
+    ]
+  },
+  "rounds": [
+    {
+      "item": "crimson-chain-axe",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 4,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.999999999999997,
+          3.0000000000000013
+        ],
+        "rotated_bounds": [
+          [
+            2.0,
+            0.0,
+            6.75
+          ],
+          [
+            14.0,
+            27.5,
+            9.25
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            75,
+            22,
+            148,
+            192
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            104,
+            22,
+            119,
+            192
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            75,
+            104,
+            148,
+            119
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            78,
+            20,
+            145,
+            189
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            47,
+            35,
+            160,
+            196
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            78,
+            27,
+            136,
+            157
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            104,
+            11,
+            128,
+            127
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            106,
+            19,
+            156,
+            157
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            94,
+            16,
+            121,
+            127
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            99,
+            50,
+            124,
+            107
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            87,
+            51,
+            136,
+            166
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "26472593410a00b47f6ebc47950055cd9f683fbeef9f4819495a203325eca541",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "b00228f754e24dceedfae9b10c62363dc71a70fcd8f5f8d7821afd90e893c701",
+        "texture.png": "f1d3126a4c245706767f537c13201a20638bee1cd2013fb9fe11d9f6e7f3e107",
+        "comparison.png": "dd56cc9049da99e9c7f288112764179c30d643405ea3af019c0bdb9851b6c1c9"
+      }
+    },
+    {
+      "item": "crimson-chain-axe",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 52,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999702,
+          3.000000000000047
+        ],
+        "rotated_bounds": [
+          [
+            2.9800000000000004,
+            -1.7509474016201132,
+            6.75
+          ],
+          [
+            13.32,
+            27.65,
+            9.25
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            81,
+            21,
+            144,
+            202
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            104,
+            21,
+            119,
+            203
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            81,
+            104,
+            144,
+            119
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            83,
+            21,
+            142,
+            198
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            43,
+            45,
+            151,
+            202
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            84,
+            28,
+            132,
+            165
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            104,
+            12,
+            126,
+            133
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            105,
+            21,
+            151,
+            165
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            96,
+            17,
+            119,
+            133
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            101,
+            50,
+            122,
+            110
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            90,
+            50,
+            132,
+            172
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "26472593410a00b47f6ebc47950055cd9f683fbeef9f4819495a203325eca541",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "443c479daaee75f471ea22c603da0b0a8e7b19a3cf72da7035ba5eb344fdce08",
+        "texture.png": "f1d3126a4c245706767f537c13201a20638bee1cd2013fb9fe11d9f6e7f3e107",
+        "comparison.png": "421d19dce0319bf1b438804bcc54a149705ba82f1954d45603fbb9171e55e30a"
+      }
+    },
+    {
+      "item": "crimson-chain-axe",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 143,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999702,
+          3.000000000000047
+        ],
+        "rotated_bounds": [
+          [
+            2.58,
+            -1.7509474016201132,
+            6.590000000000001
+          ],
+          [
+            13.32,
+            29.15,
+            9.41
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            78,
+            12,
+            144,
+            202
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            103,
+            12,
+            120,
+            203
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            78,
+            103,
+            144,
+            120
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            80,
+            15,
+            142,
+            198
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            43,
+            47,
+            151,
+            202
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            84,
+            18,
+            132,
+            165
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            104,
+            8,
+            126,
+            133
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            105,
+            17,
+            151,
+            165
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            96,
+            9,
+            119,
+            133
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            101,
+            47,
+            122,
+            110
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            90,
+            44,
+            134,
+            172
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "26472593410a00b47f6ebc47950055cd9f683fbeef9f4819495a203325eca541",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "c098d5887cad1b0643adfb65cf83a7632ee0bc31874dbe5151d1a365f8c6a50c",
+        "texture.png": "f1d3126a4c245706767f537c13201a20638bee1cd2013fb9fe11d9f6e7f3e107",
+        "comparison.png": "225477572ff06fdd7489932ada71cd499009ad1fd06c19cf7e9b3d6d66cd6025"
+      }
+    },
+    {
+      "item": "crimson-chain-axe",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 155,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999702,
+          3.0000000000000475
+        ],
+        "rotated_bounds": [
+          [
+            2.58,
+            -1.7509474016201132,
+            6.475
+          ],
+          [
+            13.32,
+            29.15,
+            9.525
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            78,
+            12,
+            144,
+            202
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            103,
+            12,
+            120,
+            203
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            78,
+            103,
+            144,
+            120
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            80,
+            15,
+            142,
+            198
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            43,
+            47,
+            151,
+            202
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            84,
+            18,
+            132,
+            165
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            104,
+            8,
+            126,
+            133
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            105,
+            17,
+            151,
+            165
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            96,
+            9,
+            119,
+            133
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            101,
+            47,
+            122,
+            110
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            90,
+            44,
+            134,
+            172
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "26472593410a00b47f6ebc47950055cd9f683fbeef9f4819495a203325eca541",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "bd3e0da64e04b01514afc7ba09ed1cb65d3dc422f79bafd044e385c76bafd57e",
+        "texture.png": "d1ab0e12e7c7ff4c700dab1f2168396ca3e5da5f5ef7c741217a89ba3e07f707",
+        "comparison.png": "a630241055147470e3038115c9507a273dd15b03f5205e5c498e1019ddb354a1"
+      }
+    },
+    {
+      "item": "crimson-chain-axe",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 163,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999702,
+          3.0000000000000475
+        ],
+        "rotated_bounds": [
+          [
+            2.58,
+            -1.7509474016201132,
+            6.475
+          ],
+          [
+            13.32,
+            29.15,
+            9.532620584960366
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            78,
+            12,
+            144,
+            202
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            103,
+            12,
+            120,
+            203
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            78,
+            103,
+            144,
+            121
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            80,
+            15,
+            142,
+            198
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            43,
+            47,
+            151,
+            202
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            84,
+            18,
+            132,
+            165
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            104,
+            8,
+            126,
+            133
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            105,
+            17,
+            151,
+            165
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            96,
+            9,
+            119,
+            133
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            101,
+            47,
+            122,
+            110
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            90,
+            44,
+            134,
+            172
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "26472593410a00b47f6ebc47950055cd9f683fbeef9f4819495a203325eca541",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "3c36078ff0f0c502600189e35184b2fa47fcaea1f27d9ca9a72dd25902854be4",
+        "texture.png": "fed8e72fc657e3b44bf76ec09d0f759b1c3a3c8bc4f1726557120265d0627e37",
+        "comparison.png": "620dddf1c244e9d07a90ad2bf749314aed7c70eb6fbb81ef43e4d4c8c88644d1"
+      }
+    }
+  ],
+  "sha256": {
+    "content/models/items/crimson-chain-axe.model.json": "3c36078ff0f0c502600189e35184b2fa47fcaea1f27d9ca9a72dd25902854be4",
+    "content/textures/items/crimson-chain-axe.png": "fed8e72fc657e3b44bf76ec09d0f759b1c3a3c8bc4f1726557120265d0627e37",
+    "tools/model-forge/work/crimson-chain-axe/ai-target.png": "26472593410a00b47f6ebc47950055cd9f683fbeef9f4819495a203325eca541",
+    "tools/model-forge/work/crimson-chain-axe/final-sheet.png": "620dddf1c244e9d07a90ad2bf749314aed7c70eb6fbb81ef43e4d4c8c88644d1"
+  }
 }

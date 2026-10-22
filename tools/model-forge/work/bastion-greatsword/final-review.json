@@ -138,5 +138,771 @@
   },
   "target_sha256": "ce9027a72cb4cde20b2da6244d4ec58877465998a0789985d02bbdb48318bedf",
   "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
-  "limitations": "Orthographic transform previews, not in-client hand/FOV validation."
+  "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+  "production_validation": {
+    "valid": true,
+    "elements": 105,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      2.999999999999929,
+      3.00000000000005
+    ],
+    "rotated_bounds": [
+      [
+        2.0999999999999996,
+        -2.418456203060215,
+        6.45
+      ],
+      [
+        13.9,
+        29.073340937824508,
+        9.55
+      ]
+    ]
+  },
+  "rounds": [
+    {
+      "item": "bastion-greatsword",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 3,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999982,
+          3.0000000000000018
+        ],
+        "rotated_bounds": [
+          [
+            3.0,
+            -0.5,
+            6.7
+          ],
+          [
+            13.0,
+            26.0,
+            9.3
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            81,
+            31,
+            142,
+            195
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            104,
+            31,
+            119,
+            195
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            81,
+            104,
+            142,
+            119
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            81,
+            32,
+            142,
+            193
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            43,
+            58,
+            152,
+            200
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            92,
+            30,
+            142,
+            160
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            98,
+            20,
+            124,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            95,
+            30,
+            145,
+            160
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            99,
+            20,
+            125,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            101,
+            53,
+            122,
+            108
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            91,
+            57,
+            132,
+            168
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "ce9027a72cb4cde20b2da6244d4ec58877465998a0789985d02bbdb48318bedf",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "8ae9f3961b445c0a2fb1daf2481b29033eb33b23910305d636fef87352f1a7a3",
+        "texture.png": "a75435bb624f9078cdda4a63909980ebe7d616d257891411d712c7c4c09e8147",
+        "comparison.png": "34a97e3ab746ef3668fee0621d9008f00e39aec5d8aa3cda4e868ca42383d8bf"
+      }
+    },
+    {
+      "item": "bastion-greatsword",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 31,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999702,
+          3.000000000000012
+        ],
+        "rotated_bounds": [
+          [
+            2.3499999999999996,
+            -2.084701802340164,
+            6.6
+          ],
+          [
+            13.65,
+            29.073340937824508,
+            9.4
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            77,
+            12,
+            146,
+            204
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            103,
+            12,
+            120,
+            205
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            77,
+            103,
+            146,
+            120
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            77,
+            17,
+            146,
+            199
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            43,
+            54,
+            155,
+            203
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            90,
+            18,
+            145,
+            166
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            97,
+            9,
+            126,
+            135
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            92,
+            18,
+            147,
+            166
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            97,
+            9,
+            126,
+            135
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            100,
+            47,
+            123,
+            111
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            88,
+            45,
+            135,
+            174
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "ce9027a72cb4cde20b2da6244d4ec58877465998a0789985d02bbdb48318bedf",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "aa24af7769227cef9ad06083e67b4d1a2eb15b5404f685dd4ca4b3cb58e0b906",
+        "texture.png": "a75435bb624f9078cdda4a63909980ebe7d616d257891411d712c7c4c09e8147",
+        "comparison.png": "cd290caca4a4637b62a8776f4685ef77bf1c363e272a43f9ca920c9a1a4b8899"
+      }
+    },
+    {
+      "item": "bastion-greatsword",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 69,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999654,
+          3.0000000000000178
+        ],
+        "rotated_bounds": [
+          [
+            2.25,
+            -2.418456203060215,
+            6.45
+          ],
+          [
+            13.75,
+            29.073340937824508,
+            9.55
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            76,
+            12,
+            147,
+            206
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            102,
+            12,
+            121,
+            207
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            76,
+            102,
+            147,
+            121
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            77,
+            17,
+            146,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            41,
+            54,
+            155,
+            204
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            90,
+            18,
+            146,
+            168
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            96,
+            9,
+            126,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            91,
+            18,
+            147,
+            168
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            97,
+            9,
+            127,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            100,
+            47,
+            123,
+            111
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            88,
+            45,
+            135,
+            175
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "ce9027a72cb4cde20b2da6244d4ec58877465998a0789985d02bbdb48318bedf",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "4bee84d32b54cfc3f7e129dd680810962f1727f6895fe66b55384be69121567a",
+        "texture.png": "a75435bb624f9078cdda4a63909980ebe7d616d257891411d712c7c4c09e8147",
+        "comparison.png": "384552a036803895becee4a4ecaeba17e76e6f517a60f43ba4cb9b126d56c173"
+      }
+    },
+    {
+      "item": "bastion-greatsword",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 97,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.9999999999999654,
+          3.0000000000000475
+        ],
+        "rotated_bounds": [
+          [
+            2.25,
+            -2.418456203060215,
+            6.45
+          ],
+          [
+            13.75,
+            29.073340937824508,
+            9.55
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            76,
+            12,
+            147,
+            206
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            102,
+            12,
+            121,
+            207
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            76,
+            102,
+            147,
+            121
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            77,
+            17,
+            146,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            41,
+            54,
+            155,
+            204
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            90,
+            18,
+            146,
+            168
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            96,
+            9,
+            126,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            91,
+            18,
+            147,
+            168
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            97,
+            9,
+            127,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            100,
+            47,
+            123,
+            111
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            88,
+            45,
+            135,
+            175
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "ce9027a72cb4cde20b2da6244d4ec58877465998a0789985d02bbdb48318bedf",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "0cf2710d93ec1ec026566daaf2295be6421269739a419ab238f401be258ede4a",
+        "texture.png": "60cb81fba555101064ed214994fbc8110e0ba8f8b061f0120016c3c65c2fe46f",
+        "comparison.png": "e03945ec14896df1cbbae44416699782848ff5c2970005b8936102c4a7769650"
+      }
+    },
+    {
+      "item": "bastion-greatsword",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 105,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.999999999999929,
+          3.00000000000005
+        ],
+        "rotated_bounds": [
+          [
+            2.0999999999999996,
+            -2.418456203060215,
+            6.45
+          ],
+          [
+            13.9,
+            29.073340937824508,
+            9.55
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            75,
+            12,
+            148,
+            206
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            102,
+            12,
+            121,
+            207
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            75,
+            102,
+            148,
+            121
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            76,
+            17,
+            147,
+            201
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            41,
+            54,
+            155,
+            204
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            90,
+            18,
+            146,
+            168
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            96,
+            9,
+            127,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            91,
+            18,
+            147,
+            168
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            96,
+            9,
+            127,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            100,
+            47,
+            123,
+            111
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            87,
+            45,
+            136,
+            175
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "target_sha256": "ce9027a72cb4cde20b2da6244d4ec58877465998a0789985d02bbdb48318bedf",
+      "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+      "limitations": "Orthographic transform previews, not in-client hand/FOV validation.",
+      "sha256": {
+        "model.json": "94f17413656c7c65d73e0adfbcafe1c173cdbe056ef19210e9a3d8f572dea272",
+        "texture.png": "32e28a24459000d951644eb6a3afd6f94d1baac3d098c1ecba7c0ec1511c2d15",
+        "comparison.png": "ffbdbf4cfbf7069bf137d395e5fea608dfbd08daa565a61a74919db173c340b1"
+      }
+    }
+  ],
+  "sha256": {
+    "content/models/items/bastion-greatsword.model.json": "94f17413656c7c65d73e0adfbcafe1c173cdbe056ef19210e9a3d8f572dea272",
+    "content/textures/items/bastion-greatsword.png": "32e28a24459000d951644eb6a3afd6f94d1baac3d098c1ecba7c0ec1511c2d15",
+    "tools/model-forge/work/bastion-greatsword/ai-target.png": "ce9027a72cb4cde20b2da6244d4ec58877465998a0789985d02bbdb48318bedf",
+    "tools/model-forge/work/bastion-greatsword/final-sheet.png": "ffbdbf4cfbf7069bf137d395e5fea608dfbd08daa565a61a74919db173c340b1"
+  }
 }

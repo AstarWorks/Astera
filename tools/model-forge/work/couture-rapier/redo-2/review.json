@@ -1,0 +1,142 @@
+{
+  "item": "couture-rapier",
+  "round": 2,
+  "validation": {
+    "valid": true,
+    "elements": 57,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      2.999999999999965,
+      3.0000000000000298
+    ],
+    "rotated_bounds": [
+      [
+        3.3168079145099307,
+        -1.5426667017101199,
+        7.1
+      ],
+      [
+        12.67063611710225,
+        28.5,
+        9.69
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        83,
+        16,
+        140,
+        201
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        101,
+        16,
+        117,
+        201
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        83,
+        106,
+        140,
+        122
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        83,
+        21,
+        134,
+        197
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        43,
+        57,
+        148,
+        201
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        99,
+        21,
+        137,
+        164
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        102,
+        11,
+        123,
+        132
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        100,
+        21,
+        138,
+        164
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        99,
+        11,
+        121,
+        132
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        102,
+        54,
+        121,
+        110
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        93,
+        47,
+        130,
+        172
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "target_sha256": "2e341c4a9348804d1272750930f1b57e3e9b91a35548bcf6688f6eb929f45edc",
+  "comparison": "Visual comparison to image-generated target; no synthetic target IoU",
+  "limitations": "Orthographic transform previews, not in-client hand/FOV validation."
+}
