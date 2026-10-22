@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.domain.effect
 
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
  * Vendor-neutral particle emission descriptor.
@@ -20,6 +21,13 @@ public data class ParticleSpec(
     val color: ParticleColor? = null,
     /** Dust size (vanilla range 0.01..4). Ignored when [color] is null. */
     val scale: Float = 1.0f,
+    /** Typed data for non-dust particles (block / item / trail / ...); wins over [color] / [scale] when set. */
+    val data: ParticleData? = null,
+    /** `World.spawnParticle(..., force)`: render beyond the normal 32-block particle range. */
+    val force: Boolean = false,
+    val viewers: ParticleViewers = ParticleViewers.ALL,
+    /** The caster, needed to resolve [viewers] other than `ALL`. */
+    val source: PlayerId? = null,
 ) {
     init {
         require(key.isNotBlank()) { "particle key must not be blank" }

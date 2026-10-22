@@ -159,8 +159,17 @@ public sealed class VfxKindYaml {
     public data class Particle(
         @SerialName("particle_id") public val particleId: String,
         @SerialName("every_ticks") public val everyTicks: Int = 1,
+        @SerialName("along_path") public val alongPath: Boolean = false,
+        @SerialName("step_blocks") public val stepBlocks: Double = 0.4,
+        @SerialName("trail_to") public val trailTo: List<Double>? = null,
     ) : VfxKindYaml() {
-        override fun toDomain(): VfxElementKind = VfxElementKind.Particle(ParticleId(particleId), everyTicks)
+        override fun toDomain(): VfxElementKind = VfxElementKind.Particle(
+            ParticleId(particleId),
+            everyTicks,
+            alongPath,
+            stepBlocks,
+            trailTo?.let { vec3(it, "trail_to") },
+        )
     }
 }
 

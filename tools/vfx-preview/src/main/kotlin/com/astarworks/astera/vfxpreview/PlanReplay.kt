@@ -23,8 +23,11 @@ data class LiveDisplay(
     val billboard: DisplayBillboard,
 )
 
-/** A particle emission still visible, [age] ticks after it was emitted. */
-data class LiveParticle(val position: Vec3, val age: Int)
+/**
+ * A particle emission still visible, [age] ticks after it was emitted. [direction] is the element's
+ * direction of travel (the `along_tangent` velocity), [trailTarget] the plan-relative `toward` point.
+ */
+data class LiveParticle(val position: Vec3, val age: Int, val direction: Vec3? = null, val trailTarget: Vec3? = null)
 
 /**
  * Replays a [VfxPlan] the way a vanilla client would see it: a display is live from its spawn
@@ -43,7 +46,10 @@ class PlanReplay(val plan: VfxPlan) {
     fun particles(tick: Int, lifetime: Int = PARTICLE_LIFETIME_TICKS): List<LiveParticle> = plan.elements
         .flatMap { el -> el.particles }
         .filter { it.tick <= tick && tick - it.tick < lifetime }
-        .map { LiveParticle(it.offset, tick - it.tick) }
+        .flatMap { e ->
+            // along_path elements emit the whole streak between the previous and current position
+            e.pathOffsets.ifEmpty { listOf(e.offset) }.map { LiveParticle(it, tick - e.tick, e.tangent, e.trailTarget) }
+        }
 
     private fun liveOf(el: VfxElementPlan, tick: Int): LiveDisplay {
         var from = el.initial

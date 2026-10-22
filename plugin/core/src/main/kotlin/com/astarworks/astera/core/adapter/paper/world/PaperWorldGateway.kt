@@ -6,13 +6,13 @@ import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.WorldGatewayError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.ParticleSpec
+import com.astarworks.astera.core.domain.effect.ParticleViewers
 import com.astarworks.astera.core.domain.effect.SoundSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
-import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -21,6 +21,7 @@ import org.bukkit.Registry
 import org.bukkit.Server
 import org.bukkit.Sound
 import org.bukkit.World
+import org.bukkit.block.data.BlockData
 import org.bukkit.entity.Player
 import org.slf4j.LoggerFactory
 
@@ -45,8 +46,10 @@ import org.slf4j.LoggerFactory
  *  - [spawnParticle] → `world.spawnParticle(particle, loc, count, offsetX,
  *    offsetY, offsetZ, extra, data)` where `particle` is resolved by stripping the
  *    `minecraft:` namespace and `Particle.valueOf(name.uppercase())`. Offset and
- *    extra come from [ParticleSpec]; `dust` gets `DustOptions(color, scale)`
- *    (ADR-0196). `count == 0` is vanilla's directional form (offset = velocity).
+ *    extra come from [ParticleSpec]; the data object is chosen by `Particle.dataType`
+ *    ([PaperParticleData]: dust, block, item, trail, vibration, ...). `count == 0` is vanilla's
+ *    directional form (offset = velocity). `force` and `viewers` map to the `force` flag and the
+ *    receivers list.
  *  - [playSound] → resolves through `Registry.SOUNDS.get(NamespacedKey)`
  *    because `Sound` migrated to the Bukkit Registry pattern in 1.21.
  *    Falls back to silent no-op (DEBUG-logged) when the sound key is
@@ -145,35 +148,36 @@ public class PaperWorldGateway(
             log.debug("PaperWorldGateway.spawnParticle: unknown particle {}", particle.key)
             return
         }
-        val data = particleData(bukkitParticle, particle) ?: run {
+        val data = PaperParticleData.map(bukkitParticle, particle, w, ::blockData) ?: run {
             log.debug("PaperWorldGateway.spawnParticle: {} needs data this spec cannot supply", particle.key)
             return
         }
-        val loc = toLocation(w, at)
         w.spawnParticle(
             bukkitParticle,
-            loc,
+            receiversFor(w, particle),
+            null,
+            at.x,
+            at.y,
+            at.z,
             particle.count,
             particle.offset.x,
             particle.offset.y,
             particle.offset.z,
             particle.extra,
             data.value,
+            particle.force,
         )
     }
 
-    /** Boxed so "no data needed" (`Data(null)`) differs from "data required but unavailable" (`null`). */
-    private class Data(val value: Any?)
+    private fun blockData(key: String): BlockData? = runCatching { server.createBlockData(key) }.getOrNull()
 
-    private fun particleData(bukkit: Particle, spec: ParticleSpec): Data? {
-        val rgb = spec.color?.let { Color.fromRGB(it.r, it.g, it.b) } ?: Color.WHITE
-        return when (bukkit.dataType) {
-            Void::class.java -> Data(null)
-            Particle.DustOptions::class.java -> Data(Particle.DustOptions(rgb, spec.scale.coerceIn(0.01f, 4f)))
-            Particle.DustTransition::class.java ->
-                Data(Particle.DustTransition(rgb, Color.WHITE, spec.scale.coerceIn(0.01f, 4f)))
-            Color::class.java -> Data(rgb)
-            else -> null
+    /** `null` = everyone in range; otherwise the explicit viewer list. */
+    private fun receiversFor(w: World, spec: ParticleSpec): List<Player>? {
+        val source = spec.source ?: return null
+        return when (spec.viewers) {
+            ParticleViewers.ALL -> null
+            ParticleViewers.CASTER -> listOfNotNull(onlinePlayer(source))
+            ParticleViewers.OTHERS -> w.players.filter { it.uniqueId != source.uuid }
         }
     }
 

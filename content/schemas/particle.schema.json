@@ -29,6 +29,18 @@
         },
         "size": {
             "type": "number"
+        },
+        "data": {
+            "$ref": "#/definitions/com.astarworks.astera.core.application.config.ParticleDataDto"
+        },
+        "velocity": {
+            "$ref": "#/definitions/com.astarworks.astera.core.application.config.ParticleVelocityDto"
+        },
+        "force": {
+            "type": "boolean"
+        },
+        "viewers": {
+            "type": "string"
         }
     },
     "required": [
@@ -58,6 +70,82 @@
                 "b"
             ]
         },
+        "com.astarworks.astera.core.application.config.ParticleDataDto": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string"
+                },
+                "color": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.ColorDto"
+                },
+                "from": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.ColorDto"
+                },
+                "to": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.ColorDto"
+                },
+                "scale": {
+                    "type": "number"
+                },
+                "power": {
+                    "type": "number"
+                },
+                "block": {
+                    "type": "string"
+                },
+                "item": {
+                    "type": "string"
+                },
+                "target_offset": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "toward": {
+                    "type": "boolean"
+                },
+                "duration_ticks": {
+                    "type": "integer"
+                },
+                "arrival_ticks": {
+                    "type": "integer"
+                },
+                "roll": {
+                    "type": "number"
+                },
+                "delay": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "kind"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.ParticleVelocityDto": {
+            "type": "object",
+            "properties": {
+                "direction": {
+                    "type": "string"
+                },
+                "custom": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "speed": {
+                    "type": "number"
+                },
+                "spread_degrees": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "direction"
+            ]
+        },
         "com.astarworks.astera.core.application.config.ShapeDto": {
             "type": "object",
             "properties": {
@@ -71,6 +159,21 @@
                     "type": "number"
                 },
                 "spread_blocks": {
+                    "type": "number"
+                },
+                "points": {
+                    "type": "integer"
+                },
+                "from_deg": {
+                    "type": "number"
+                },
+                "to_deg": {
+                    "type": "number"
+                },
+                "height_blocks": {
+                    "type": "number"
+                },
+                "turns": {
                     "type": "number"
                 }
             },

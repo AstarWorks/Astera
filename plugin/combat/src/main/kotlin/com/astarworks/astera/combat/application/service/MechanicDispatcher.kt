@@ -47,7 +47,10 @@ import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.damage.StackHolder
+import com.astarworks.astera.core.domain.effect.ParticleEmitContext
+import com.astarworks.astera.core.domain.effect.ParticleEmitter
 import com.astarworks.astera.core.domain.effect.ParticleSpec
+import com.astarworks.astera.core.domain.effect.PlannedParticle
 import com.astarworks.astera.core.domain.effect.SoundSpec
 import com.astarworks.astera.core.domain.effect.scheduler.ScheduledParticleSpec
 import com.astarworks.astera.core.domain.effect.sound.ScheduledSoundSpec
@@ -273,14 +276,29 @@ public class MechanicDispatcher(
             null
         }
 
-    private fun emitVfxParticle(world: WorldId, at: Vec3, id: com.astarworks.astera.core.domain.effect.ParticleId) {
-        val spec = particleRegistry?.find(id)?.toParticleSpec(countOverride = null)
-            ?: ParticleSpec(key = id.value, count = 1)
+    private fun emitVfxParticle(call: com.astarworks.astera.combat.application.service.vfx.VfxParticleCall) {
+        val definition = particleRegistry?.find(call.particleId)
+        val context = ParticleEmitContext(
+            look = call.look,
+            tangent = call.tangent,
+            center = call.center,
+            toward = call.toward,
+            source = call.source,
+        )
+        val planned = definition?.let { ParticleEmitter.plan(it, call.at, context) }
+            ?: listOf(PlannedParticle(call.at, ParticleSpec(key = call.particleId.value, count = 1, force = true)))
+        emitPlanned(call.world, planned)
+    }
+
+    /** Spawns planned particles through [IParticleScheduler] when wired, else straight through the world gateway. */
+    private fun emitPlanned(world: WorldId, planned: List<PlannedParticle>) {
         val ps = particleScheduler
-        if (ps != null) {
-            ps.schedule(ScheduledParticleSpec.EmitOnce(particle = spec, position = at, atTick = scheduler.currentTick(), world = world))
-        } else {
-            worldGateway.spawnParticle(world, at, spec)
+        for (p in planned) {
+            if (ps != null) {
+                ps.schedule(ScheduledParticleSpec.EmitOnce(particle = p.spec, position = p.at, atTick = scheduler.currentTick(), world = world))
+            } else {
+                worldGateway.spawnParticle(world, p.at, p.spec)
+            }
         }
     }
 
@@ -705,32 +723,23 @@ public class MechanicDispatcher(
                 if (locations.isEmpty()) return
                 val count = resolveInt(mechanic.count, ctx).coerceAtLeast(1)
                 val definition = particleRegistry?.find(mechanic.particleId)
-                // Wave 5effects: route through IParticleScheduler if wired;
-                // otherwise fall through to IWorldGateway.spawnParticle (which
-                // itself may be a no-op until Wave 6).
-                // A vanilla-mapped definition owns its count / spread / colour; a mechanic count > 1 overrides the count.
-                val spec = definition?.toParticleSpec(countOverride = count.takeIf { it > 1 })
-                    ?: ParticleSpec(key = mechanic.particleId.value, count = count)
-                val ps = particleScheduler
-                if (ps != null && ctx.worldId != null) {
-                    for (loc in locations) {
-                        ps.schedule(
-                            ScheduledParticleSpec.EmitOnce(
-                                particle = spec,
-                                position = loc,
-                                atTick = scheduler.currentTick(),
-                                world = ctx.worldId,
-                            ),
+                val world = ctx.worldId ?: run {
+                    log.debug("SpawnParticle {} dropped: ctx.worldId is null", mechanic.particleId)
+                    return
+                }
+                // A vanilla-mapped definition owns its count / spread / colour / motion; a mechanic count > 1
+                // overrides the count. Routed through IParticleScheduler when wired.
+                val look = ctx.pose?.direction?.takeIf { it.lengthSquared() > 1e-9 }
+                for (loc in locations) {
+                    val planned = definition?.let {
+                        ParticleEmitter.plan(
+                            it,
+                            loc,
+                            ParticleEmitContext(look = look, source = ctx.actorId),
+                            countOverride = count.takeIf { c -> c > 1 },
                         )
-                    }
-                } else {
-                    if (ctx.worldId == null) {
-                        log.debug("SpawnParticle {} dropped: ctx.worldId is null", mechanic.particleId)
-                        return
-                    }
-                    for (loc in locations) {
-                        worldGateway.spawnParticle(ctx.worldId, loc, spec)
-                    }
+                    } ?: listOf(PlannedParticle(loc, ParticleSpec(key = mechanic.particleId.value, count = count)))
+                    emitPlanned(world, planned)
                 }
             }
 
