@@ -1,0 +1,141 @@
+{
+  "item": "orrery-staff",
+  "round": 1,
+  "validation": {
+    "valid": true,
+    "elements": 2,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      2.0,
+      2.0000000000000004
+    ],
+    "rotated_bounds": [
+      [
+        3.75,
+        0.0,
+        3.75
+      ],
+      [
+        12.25,
+        28.75,
+        12.25
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        98,
+        16,
+        157,
+        219
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        98,
+        16,
+        157,
+        219
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        98,
+        98,
+        157,
+        157
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        87,
+        9,
+        168,
+        216
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        63,
+        29,
+        214,
+        217
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        84,
+        17,
+        156,
+        180
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        106,
+        10,
+        160,
+        144
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        115,
+        17,
+        187,
+        180
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        95,
+        10,
+        149,
+        144
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        118,
+        54,
+        137,
+        122
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        108,
+        52,
+        147,
+        189
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "e83b00325fda8bedb1d70a7d8fc50052fa3b42a98bd28c6d7d888f19c3246373",
+  "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+}

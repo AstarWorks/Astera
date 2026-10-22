@@ -1,0 +1,141 @@
+{
+  "item": "orrery-staff",
+  "round": 4,
+  "validation": {
+    "valid": true,
+    "elements": 176,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999827,
+      2.0000000000000355
+    ],
+    "rotated_bounds": [
+      [
+        3.075,
+        -1.0075000000000003,
+        3.498127014570628
+      ],
+      [
+        12.925,
+        29.25,
+        12.50187298542937
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        93,
+        12,
+        162,
+        227
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        96,
+        12,
+        159,
+        227
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        93,
+        96,
+        162,
+        159
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        95,
+        17,
+        160,
+        222
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        58,
+        45,
+        193,
+        221
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        95,
+        19,
+        152,
+        185
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        113,
+        10,
+        154,
+        149
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        119,
+        19,
+        176,
+        185
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        101,
+        10,
+        142,
+        149
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        116,
+        53,
+        139,
+        125
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        104,
+        50,
+        151,
+        194
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "e83b00325fda8bedb1d70a7d8fc50052fa3b42a98bd28c6d7d888f19c3246373",
+  "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+}
