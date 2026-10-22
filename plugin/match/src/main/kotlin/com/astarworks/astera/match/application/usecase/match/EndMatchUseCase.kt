@@ -47,7 +47,8 @@ public class EndMatchUseCase(
         matches.save(ended)
 
         // Wave 4.5: compute winning team via score threshold evaluator (ADR-0027)
-        val winningTeam = victoryEvaluator.evaluate(ended)
+        // A mode that decided the match itself (WP10 Annihilation) carries its winner.
+        val winningTeam = if (reason is EndReason.TeamVictory) reason.winner else victoryEvaluator.evaluate(ended)
 
         eventBus.publish(
             MatchEnded(

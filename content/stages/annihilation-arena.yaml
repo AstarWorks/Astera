@@ -5,11 +5,9 @@
 # Layout: three bases on a triangle of radius ~45 around the origin, each
 # facing the centre. Per base: 4 spawns (a small cross, so teammates spread) and
 # the 3 Nexus pillars (tier 1 outer .. tier 3 Nexus proper) on the line from
-# the base towards the centre, matching content/nexus-templates/default-3pillar
-# offsets (4 / 6 / 8 blocks forward; y -59 / -59 / -58 = template y offsets 1/1/2).
-# Pillar positions are the single-block `pillar-<team>-<tier>` regions.
-# The pillar block placement itself is not consumed yet (the tracker seeds
-# pillars at a placeholder; Phase 6 Paper adapter), the positions are the data.
+# the base towards the centre, 4 / 6 / 8 blocks forward of the base's first spawn.
+# `pillars:` entries are block coordinates in `world`; the match places `block`
+# there while the pillar stands (WP10). Tier 3 is the beefier Nexus proper.
 # Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
 
 id: annihilation-arena
@@ -26,33 +24,47 @@ regions:
   - name: center
     min: { x: -8.0, y: -60.0, z: -8.0 }
     max: { x:  8.0, y: -57.0, z:  8.0 }
-  - name: pillar-red-1
-    min: { x: 0.0, y: -59.0, z: -41.0 }
-    max: { x: 0.0, y: -59.0, z: -41.0 }
-  - name: pillar-red-2
-    min: { x: 0.0, y: -59.0, z: -39.0 }
-    max: { x: 0.0, y: -59.0, z: -39.0 }
-  - name: pillar-red-3
-    min: { x: 0.0, y: -58.0, z: -37.0 }
-    max: { x: 0.0, y: -58.0, z: -37.0 }
-  - name: pillar-blue-1
-    min: { x: 36.0, y: -59.0, z: 20.0 }
-    max: { x: 36.0, y: -59.0, z: 20.0 }
-  - name: pillar-blue-2
-    min: { x: 34.0, y: -59.0, z: 19.0 }
-    max: { x: 34.0, y: -59.0, z: 19.0 }
-  - name: pillar-blue-3
-    min: { x: 32.0, y: -58.0, z: 18.0 }
-    max: { x: 32.0, y: -58.0, z: 18.0 }
-  - name: pillar-yellow-1
-    min: { x: -36.0, y: -59.0, z: 20.0 }
-    max: { x: -36.0, y: -59.0, z: 20.0 }
-  - name: pillar-yellow-2
-    min: { x: -34.0, y: -59.0, z: 19.0 }
-    max: { x: -34.0, y: -59.0, z: 19.0 }
-  - name: pillar-yellow-3
-    min: { x: -32.0, y: -58.0, z: 18.0 }
-    max: { x: -32.0, y: -58.0, z: 18.0 }
+
+pillars:
+  - team: red
+    tier: 1
+    position: { x: 0.0, y: -60.0, z: -41.0 }
+    block: minecraft:obsidian
+  - team: red
+    tier: 2
+    position: { x: 0.0, y: -60.0, z: -39.0 }
+    block: minecraft:crying_obsidian
+  - team: red
+    tier: 3
+    position: { x: 0.0, y: -60.0, z: -37.0 }
+    block: minecraft:beacon
+    hp: 800
+  - team: blue
+    tier: 1
+    position: { x: 36.0, y: -60.0, z: 20.0 }
+    block: minecraft:obsidian
+  - team: blue
+    tier: 2
+    position: { x: 34.0, y: -60.0, z: 19.0 }
+    block: minecraft:crying_obsidian
+  - team: blue
+    tier: 3
+    position: { x: 32.0, y: -60.0, z: 18.0 }
+    block: minecraft:beacon
+    hp: 800
+  - team: yellow
+    tier: 1
+    position: { x: -36.0, y: -60.0, z: 20.0 }
+    block: minecraft:obsidian
+  - team: yellow
+    tier: 2
+    position: { x: -34.0, y: -60.0, z: 19.0 }
+    block: minecraft:crying_obsidian
+  - team: yellow
+    tier: 3
+    position: { x: -32.0, y: -60.0, z: 18.0 }
+    block: minecraft:beacon
+    hp: 800
 
 spawn_points:
   - team: red

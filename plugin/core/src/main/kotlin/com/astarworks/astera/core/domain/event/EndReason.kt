@@ -29,4 +29,12 @@ public sealed interface EndReason {
      */
     public data object WorldUnloaded : EndReason
     public data class Cancelled(val why: String) : EndReason
+
+    /**
+     * WP10: the match was decided by a mode's own rule (Annihilation: last
+     * team with a Nexus standing, or the sudden-death tiebreak). [winner] is
+     * carried into `MatchEnded.winningTeam` as is; `null` is a draw. A
+     * score-threshold evaluation cannot know this result.
+     */
+    public data class TeamVictory(val winner: com.astarworks.astera.core.domain.match.TeamId?) : EndReason
 }

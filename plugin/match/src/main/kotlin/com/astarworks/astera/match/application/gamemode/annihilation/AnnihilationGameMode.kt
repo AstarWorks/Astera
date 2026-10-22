@@ -2,6 +2,7 @@ package com.astarworks.astera.match.application.gamemode.annihilation
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.match.domain.gamemode.GameModeContext
 import com.astarworks.astera.match.domain.gamemode.GameModeEvent
 import com.astarworks.astera.match.domain.gamemode.IGameMode
@@ -63,6 +64,12 @@ public class AnnihilationGameMode @JvmOverloads constructor(
     private val tracker: AnnihilationMatchTracker? = null,
     private val eventBus: IDomainEventBus? = null,
     private val defaultConfig: AnnihilationConfig = AnnihilationConfig.DEFAULT,
+    /**
+     * Current scheduler tick. `onTick` receives the absolute server tick, so the
+     * tracker must stamp phase entry with the same clock (a `0` stamp would let
+     * the Build phase expire at once on any server that has been up for a while).
+     */
+    private val clock: () -> Long = { 0L },
 ) : IGameMode {
 
     override fun id(): GameModeId = ID
@@ -81,11 +88,14 @@ public class AnnihilationGameMode @JvmOverloads constructor(
         // Seed the match-state in the tracker. Bus-less variant is a no-op
         // (the reflective fallback path) — `AsteraMatchPlugin` re-registers
         // a fully-wired instance before any production match starts.
+        val stage = context.scoringState[STAGE_STATE_KEY] as? Stage
         tracker?.register(
             matchId = context.matchId,
             config = defaultConfig,
             teams = inferTeams(context),
-            atTick = 0L,
+            atTick = clock(),
+            world = stage?.world,
+            pillarSites = stage?.pillars.orEmpty(),
         )
         eventBus?.publish(
             GameModeEvent.GameModeStarted(
@@ -114,10 +124,7 @@ public class AnnihilationGameMode @JvmOverloads constructor(
      *  1. Try to advance the Annihilation phase (timer / cascade rules).
      *  2. If currently in Phase 4 sudden-death, apply DoT to surviving
      *     Tier 3 pillars.
-     *  3. Evaluate win condition (elimination or sudden-death expiry).
-     *     The decision surface is exposed via [tracker]; the actual
-     *     `IMatchLifecycle.end` call lives in the Phase C wiring so that
-     *     unit tests can run the mode without a lifecycle harness.
+     *  (The win condition is decided by `AnnihilationWinConditionListener`.)
      *
      * Bus-less variant: still drives the tracker (the tracker can publish
      * events through its own bus; the mode's bus is for the framework's
@@ -127,13 +134,8 @@ public class AnnihilationGameMode @JvmOverloads constructor(
         val tr = tracker ?: return
         tr.advancePhasesIfNeeded(context.matchId, tick)
         tr.applySuddenDeathTick(context.matchId, tick)
-        // Win-condition observation: read-only here. The wiring listens to
-        // [com.astarworks.astera.core.domain.event.TeamEliminated] for the
-        // elimination path and to [com.astarworks.astera.core.domain.event.AnnihilationPhaseTransitioned]
-        // for sudden-death entry; the actual match-end action belongs to the
-        // lifecycle layer (Phase C wiring).
-        @Suppress("UNUSED_VARIABLE")
-        val outcome = tr.evaluateWinCondition(context.matchId, tick)
+        // The win condition is not evaluated here: AnnihilationWinConditionListener
+        // ends the match on TeamEliminated and on the sudden-death timer.
     }
 
     override fun onMatchEnded(context: GameModeContext) {
@@ -181,6 +183,14 @@ public class AnnihilationGameMode @JvmOverloads constructor(
          * has a single canonical name to write to.
          */
         public const val TEAMS_STATE_KEY: String = "annihilation.teams"
+
+        /**
+         * Key under which `GameModeContext.scoringState` carries the match's
+         * [Stage] (WP10): its world and `pillars` tell the tracker where each
+         * pillar stands. Absent => pillars exist in the state only (no world
+         * presence, not hittable).
+         */
+        public const val STAGE_STATE_KEY: String = "annihilation.stage"
 
         private val DEFAULT_PHASES: List<IGameModePhase> = listOf(
             IGameModePhase.Lobby,

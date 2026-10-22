@@ -90,4 +90,24 @@ class EndMatchUseCaseTest {
             startedAtTick = 0L,
         )
     }
+
+    @Test
+    fun `TeamVictory carries the mode's winner into MatchEnded`() {
+        val matchId = MatchId("match-win")
+        matches.save(buildMatch(matchId, MatchPhase.ACTIVE))
+
+        useCase.execute(matchId, EndReason.TeamVictory(TeamId("red")))
+
+        assertThat(eventBus.publishedOfType<MatchEnded>().single().winningTeam).isEqualTo(TeamId("red"))
+    }
+
+    @Test
+    fun `TeamVictory without a winner is a draw`() {
+        val matchId = MatchId("match-draw")
+        matches.save(buildMatch(matchId, MatchPhase.ACTIVE))
+
+        useCase.execute(matchId, EndReason.TeamVictory(null))
+
+        assertThat(eventBus.publishedOfType<MatchEnded>().single().winningTeam).isNull()
+    }
 }

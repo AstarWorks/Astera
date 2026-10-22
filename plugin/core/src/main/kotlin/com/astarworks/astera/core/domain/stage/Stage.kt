@@ -17,7 +17,13 @@ public data class Stage(
     val regions: List<Region>,
     val spawnPoints: List<SpawnPoint> = emptyList(),
     val world: WorldId = WorldId(DEFAULT_WORLD),
+    val pillars: List<StagePillar> = emptyList(),
 ) {
+    init {
+        val keys = pillars.map { it.team to it.tier }
+        require(keys.size == keys.toSet().size) { "Stage '${id.value}' declares a pillar (team, tier) twice" }
+    }
+
     public companion object {
         /** The server's default level name. */
         public const val DEFAULT_WORLD: String = "world"

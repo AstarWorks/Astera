@@ -51,6 +51,8 @@ package com.astarworks.astera.match.domain.gamemode.annihilation
 public data class AnnihilationConfig(
     public val pillarCount: Int = 3,
     public val pillarHp: Int = 500,
+    /** Damage one enemy block break deals to a pillar (the block itself never breaks). */
+    public val pillarBreakDamage: Int = 25,
     public val buildPhaseTicks: Long = 6000L,
     public val engagePhaseTicks: Long = 12000L,
     public val tier3PhaseTicks: Long = 6000L,
@@ -63,6 +65,7 @@ public data class AnnihilationConfig(
         require(pillarCount == 3) {
             "AnnihilationConfig.pillarCount: only 3-pillar variant supported in Phase 1 PoC (got=$pillarCount)"
         }
+        require(pillarBreakDamage > 0) { "AnnihilationConfig.pillarBreakDamage must be > 0 (got=$pillarBreakDamage)" }
         require(pillarHp > 0) { "AnnihilationConfig.pillarHp must be > 0 (got=$pillarHp)" }
         require(buildPhaseTicks >= 0) { "AnnihilationConfig.buildPhaseTicks must be >= 0 (got=$buildPhaseTicks)" }
         require(engagePhaseTicks > 0) { "AnnihilationConfig.engagePhaseTicks must be > 0 (got=$engagePhaseTicks)" }
