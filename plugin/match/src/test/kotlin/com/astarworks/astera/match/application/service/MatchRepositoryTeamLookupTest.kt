@@ -93,6 +93,21 @@ class MatchRepositoryTeamLookupTest {
         assertThat(lookup.teamOf(bluePlayer)).isEqualTo(blue)
     }
 
+    @Test
+    fun `ended matches retain history but no longer own player membership`() {
+        val ended = buildMatch(setOf(redPlayer), setOf(bluePlayer)).withPhase(MatchPhase.ENDED)
+        matchRepository.save(ended)
+
+        assertThat(matchRepository.findMatchOf(redPlayer)).isNull()
+        assertThat(lookup.teamOf(redPlayer)).isNull()
+        assertThat(matchRepository.findById(matchId)).isEqualTo(ended)
+
+        val next = buildMatch(emptySet(), setOf(redPlayer)).copy(id = MatchId("match-2"))
+        matchRepository.save(next)
+        assertThat(matchRepository.findMatchOf(redPlayer)?.id).isEqualTo(next.id)
+        assertThat(lookup.teamOf(redPlayer)).isEqualTo(blue)
+    }
+
     private fun buildMatch(
         redMembers: Set<PlayerId>,
         blueMembers: Set<PlayerId>,
