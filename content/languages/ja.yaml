@@ -1797,6 +1797,11 @@ astera:
         "3": "管理者コマンド + スケジュールアナウンス + メンテナンスモード。"
       full: "Phase 1 PoC リリース: 全機能 × 状態マトリックスは RTM-PARITY-TRACKER.md を参照。"
 
+  board:
+    leaderboard:
+      title: "§6§l== シーズンランキング =="
+      empty: "§7ランク戦の結果はまだありません。"
+
   progress:
     daily:
       header: "<gold><bold>デイリーログインボーナス</bold></gold>"

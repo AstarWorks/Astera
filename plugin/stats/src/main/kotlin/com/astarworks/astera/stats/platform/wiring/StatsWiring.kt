@@ -469,6 +469,34 @@ public object StatsWiring {
             priority = 0,
         )
 
+        // ADR-0210: the season ranking floats in the lobby as a text board.
+        if (ctx.serverRole.hostsLobby) {
+            val boardDir = ctx.contentDir.resolve("lobby-boards")
+            val boardConfigs = mutableListOf<com.astarworks.astera.stats.application.config.LobbyBoardYamlConfig>()
+            com.astarworks.astera.core.application.service.ContentLoader(
+                parsers = com.astarworks.astera.core.application.service.ContentLoader.DEFAULT_PARSERS,
+                deserializer = com.astarworks.astera.stats.application.config.LobbyBoardYamlConfig.serializer(),
+            ).loadFrom(boardDir) { boardConfigs += it }
+            val holograms = services.get<com.astarworks.astera.core.application.port.outbound.IHologramGateway>()
+            val dynamicMessages = services.get<com.astarworks.astera.core.application.port.outbound.IDynamicMessages>()
+            if (holograms != null && dynamicMessages != null) {
+                for (cfg in boardConfigs) {
+                    val board = com.astarworks.astera.stats.application.service.leaderboard.LobbyLeaderboardBoard(
+                        query = queryLeaderboard,
+                        profiles = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>() },
+                        holograms = holograms,
+                        dynamic = dynamicMessages,
+                        scheduler = scheduler,
+                        world = com.astarworks.astera.core.domain.world.WorldId(cfg.world),
+                        position = com.astarworks.astera.core.domain.geometry.Vec3(cfg.x, cfg.y, cfg.z),
+                        rows = cfg.rows,
+                        refreshTicks = cfg.refreshSeconds * 20L,
+                    )
+                    shutdownHooks += board::stop
+                }
+            }
+        }
+
         // F3-4: back in the lobby, recap the match the player just finished (once).
         if (ctx.serverRole.hostsLobby) {
             val recapOnJoin = com.astarworks.astera.stats.application.eventbus.listeners.ShowLastMatchRecapOnJoinListener(
@@ -531,6 +559,7 @@ public object StatsWiring {
             players = playerGateway,
             permissions = { services.getOrThrow<IPermissionService>() },
             lastMatches = { services.get<com.astarworks.astera.core.application.port.outbound.ILastMatchStore>() },
+            names = { id -> services.get<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>()?.find(id)?.displayName },
         ).build().forEach { commands.register("stats", it) }
 
         return StatsWiringResult(grantXp = grantXp, shutdownHooks = shutdownHooks.toList())

@@ -1810,6 +1810,11 @@ astera:
         "3": "Admin ops commands + scheduled announcements + maintenance mode."
       full: "Phase 1 PoC release: see RTM-PARITY-TRACKER.md for the full feature × state matrix."
 
+  board:
+    leaderboard:
+      title: "§6§l== Season Ranking =="
+      empty: "§7No ranked results yet."
+
   progress:
     daily:
       header: "<gold><bold>Daily login bonus</bold></gold>"
