@@ -1,0 +1,12 @@
+# thunder projectile: bright core line
+id: thunder-core
+shape:
+  kind: burst
+  spread_blocks: 0.02
+color:
+  r: 255
+  g: 255
+  b: 255
+count: 1
+lifetime_ticks: 20
+vanilla_particle: end_rod

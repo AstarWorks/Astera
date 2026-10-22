@@ -1,0 +1,13 @@
+# dash: dust cloud at the start point
+id: dash-cloud
+shape:
+  kind: burst
+  spread_blocks: 0.3
+color:
+  r: 255
+  g: 255
+  b: 255
+count: 10
+lifetime_ticks: 20
+vanilla_particle: cloud
+speed: 0.03

@@ -134,8 +134,7 @@ Konsist tests in `:tools:architecture-test` enforce this.
 | `HitProfile` (sealed) | `Sphere(radius)` / `Box(w,h,d)` / `Sweep(radius)` |
 | `LifetimePolicy` (sealed) | `Ticks(maxTicks)` / `Distance(maxBlocks)` / `UntilHit` |
 | `OnHitEffect` (sealed) | `DealDamage` / `Explode(radius, Easing falloff)` / `InflictStatus(statusId, Duration)` / `SpawnChild(sub ProjectileSpec)` / `PlaySound` / `SpawnParticle` |
-| `ProjectileVisual` (sealed) | `None` / `ParticleTrail(intervalTicks)` / `Display(DisplaySpec)` / `VanillaEntity(VanillaProjectileType)` |
-| `VanillaProjectileType` | enum ARROW / SNOWBALL / TRIDENT / FIREBALL / SMALL_FIREBALL / EGG / EXPERIENCE_BOTTLE |
+| `ProjectileVisual` | data class: particle `trail` + `trailIntervalTicks` + optional `display` (ADR-0190; no vanilla carrier) |
 | `DisplaySpec` | variant (ITEM/BLOCK/TEXT_DISPLAY) + materialKey + scale Vec3 + BillboardMode |
 | `GunSpec` | ammoCapacity + reloadDuration + shotCooldown + ProjectileSpec |
 

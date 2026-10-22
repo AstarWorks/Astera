@@ -14,7 +14,6 @@ import com.astarworks.astera.combat.adapter.paper.PaperNearbyTargetQuery
 import com.astarworks.astera.combat.adapter.paper.PaperProjectileService
 import com.astarworks.astera.combat.adapter.paper.PaperStatusEffectContainer
 import com.astarworks.astera.combat.adapter.paper.PaperVanillaKillPublisher
-import com.astarworks.astera.combat.adapter.paper.ProjectileHitListener
 import com.astarworks.astera.combat.adapter.paper.StatusEffectTickListener
 import com.astarworks.astera.combat.adapter.paper.VanillaMeleeSuppressor
 import com.astarworks.astera.combat.adapter.paper.aoe.PaperAreaEffectGateway
@@ -33,6 +32,7 @@ import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.effect.IDamageApplier
 import com.astarworks.astera.core.application.port.outbound.effect.IParticleScheduler
@@ -50,7 +50,7 @@ import org.bukkit.plugin.java.JavaPlugin
  * (`ApplyDamageUseCase` / `ApplyStatusUseCase`).
  *
  * The headless simulator replaces this class: its own ports, plus a hit
- * dispatcher in place of `ProjectileHitListener`.
+ * stepper (`SimProjectileService`) in place of `PaperProjectileService`.
  */
 internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
 
@@ -75,9 +75,13 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         summonGateway = { PaperSummonGateway(plugin.server) },
         playerFeedbackGateway = { PaperPlayerFeedbackGateway(plugin.server) },
         projectileService = { services ->
-            // Wave 6a-N2 (ADR-0155) — PaperProjectileService. Spawns vanilla
-            // Bukkit projectile entities as visual carriers.
-            val paperProjectile = PaperProjectileService(plugin.server, services.getOrThrow<IScheduler>())
+            // F2-4 — server-simulated projectiles (no vanilla projectile entity).
+            val paperProjectile = PaperProjectileService(
+                server = plugin.server,
+                scheduler = services.getOrThrow<IScheduler>(),
+                worldGateway = services.getOrThrow<IWorldGateway>(),
+                teamLookup = { services.get<IMatchTeamLookup>() },
+            )
             paperProjectile.start()
             projectileService = paperProjectile
             paperProjectile
@@ -168,19 +172,12 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             // createExplosion call so explosion damage lands once (Astera path only).
             explosionGateway?.let { plugin.server.pluginManager.registerEvents(it, plugin) }
 
-            // Wave 6a-N2 (ADR-0155): ProjectileHitListener bridges Bukkit
-            // ProjectileHitEvent + EntityDamageByEntityEvent into the Astera
-            // damage / status pipeline. Cancels vanilla EntityDamageByEntity
-            // when damager is an Astera-tracked projectile (ADR-0149 §C —
-            // prevents double-counting); non-Astera projectiles fall through
-            // to Core's BukkitEventAdapter Role 2 vanilla-intrusion handler.
+            // The simulated projectiles resolve their impacts through the shared
+            // ProjectileImpactResolver (damage / status / phases) — no Bukkit
+            // projectile events involved.
             val impactResolver = services.get<com.astarworks.astera.combat.application.service.ProjectileImpactResolver>()
                 ?: error("ProjectileImpactResolver not registered — IParticleScheduler / ISoundScheduler missing (ADR-0109)")
             paperProjectile.bindImpactResolver(impactResolver)
-            ProjectileHitListener(
-                projectileService = paperProjectile,
-                impactResolver = impactResolver,
-            ).start(plugin)
         }
 
         // WP5: summons never target or hurt their owner's side.

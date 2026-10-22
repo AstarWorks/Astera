@@ -1,0 +1,13 @@
+# bullet impact sparks
+id: gun-impact
+shape:
+  kind: burst
+  spread_blocks: 0.2
+color:
+  r: 255
+  g: 230
+  b: 150
+count: 8
+lifetime_ticks: 20
+vanilla_particle: crit
+speed: 0.2

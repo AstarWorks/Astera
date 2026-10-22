@@ -2291,6 +2291,25 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "caster_forward"
+                        },
+                        "distance": {
+                            "type": "number"
+                        },
+                        "height": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "distance"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "caster_offset"
                         },
                         "offset": {

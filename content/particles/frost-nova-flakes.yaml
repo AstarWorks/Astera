@@ -1,0 +1,13 @@
+# frost nova: ring of snowflakes around the caster
+id: frost-nova-flakes
+shape:
+  kind: circle
+  radius_blocks: 2.2
+color:
+  r: 235
+  g: 245
+  b: 255
+count: 120
+lifetime_ticks: 20
+vanilla_particle: snowflake
+speed: 0.04

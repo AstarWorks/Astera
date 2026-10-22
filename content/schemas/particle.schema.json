@@ -20,6 +20,15 @@
         },
         "display_name_key": {
             "type": "string"
+        },
+        "vanilla_particle": {
+            "type": "string"
+        },
+        "speed": {
+            "type": "number"
+        },
+        "size": {
+            "type": "number"
         }
     },
     "required": [

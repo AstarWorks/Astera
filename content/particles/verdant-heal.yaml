@@ -1,0 +1,12 @@
+# regrowth: sparkles around the caster
+id: verdant-heal
+shape:
+  kind: sphere
+  radius_blocks: 1.0
+color:
+  r: 80
+  g: 200
+  b: 80
+count: 30
+lifetime_ticks: 20
+vanilla_particle: happy_villager

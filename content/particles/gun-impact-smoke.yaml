@@ -1,0 +1,13 @@
+# bullet impact smoke
+id: gun-impact-smoke
+shape:
+  kind: burst
+  spread_blocks: 0.15
+color:
+  r: 90
+  g: 90
+  b: 90
+count: 4
+lifetime_ticks: 20
+vanilla_particle: smoke
+speed: 0.01

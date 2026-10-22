@@ -4,11 +4,16 @@ import com.astarworks.astera.combat.domain.skill.ChargedSkillVariant
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.combat.domain.skill.SkillTag
+import com.astarworks.astera.combat.domain.projectile.DisplaySpec
+import com.astarworks.astera.combat.domain.projectile.DisplayVariant
+import com.astarworks.astera.combat.domain.skill.params.ProjectileVisualParams
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.core.application.config.skill.DamageComponentYaml
 import com.astarworks.astera.core.application.config.skill.PhaseMechanicsYaml
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.effect.ParticleId
+import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.resource.ResourceType
@@ -183,11 +188,44 @@ public sealed class SkillParamsYaml {
         @SerialName("launch_speed") public val launchSpeed: Double,
         @SerialName("max_lifetime_ticks") public val maxLifetimeTicks: Int,
         @SerialName("hit_radius") public val hitRadius: Double? = null,
+        public val visual: ProjectileVisualYaml? = null,
     ) : SkillParamsYaml() {
         override fun toDomain(): SkillParams = SkillParams.ProjectileParams(
             launchSpeed = launchSpeed,
             maxLifetimeTicks = maxLifetimeTicks,
             hitRadius = hitRadius ?: SkillParams.ProjectileParams.DEFAULT_HIT_RADIUS,
+            visual = visual?.toDomain() ?: ProjectileVisualParams.NONE,
+        )
+    }
+
+    /** `params.visual` of a projectile skill: particle trail ids + optional display entity. */
+    @Serializable
+    public data class ProjectileVisualYaml(
+        /** `content/particles` ids emitted along the path. */
+        public val trail: List<String> = emptyList(),
+        @SerialName("trail_interval_ticks") public val trailIntervalTicks: Int = 1,
+        public val display: ProjectileDisplayYaml? = null,
+    ) {
+        public fun toDomain(): ProjectileVisualParams = ProjectileVisualParams(
+            trail = trail.map(::ParticleId),
+            trailIntervalTicks = trailIntervalTicks,
+            display = display?.toDomain(),
+        )
+    }
+
+    /** An item / block display entity that rides the projectile. */
+    @Serializable
+    public data class ProjectileDisplayYaml(
+        /** `item` | `block` | `text`. */
+        public val variant: String = "item",
+        /** Material key (`minecraft:blaze_powder`) or, for `text`, the literal text. */
+        public val material: String,
+        public val scale: Double = 1.0,
+    ) {
+        public fun toDomain(): DisplaySpec = DisplaySpec(
+            variant = DisplayVariant.valueOf(variant.uppercase() + "_DISPLAY"),
+            materialKey = material,
+            scale = Vec3(scale, scale, scale),
         )
     }
 

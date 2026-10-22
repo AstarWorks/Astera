@@ -1,0 +1,13 @@
+# fire staff muzzle burst
+id: fire-cast
+shape:
+  kind: burst
+  spread_blocks: 0.25
+color:
+  r: 255
+  g: 140
+  b: 30
+count: 14
+lifetime_ticks: 20
+vanilla_particle: flame
+speed: 0.05

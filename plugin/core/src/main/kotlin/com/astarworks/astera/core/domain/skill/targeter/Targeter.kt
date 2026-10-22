@@ -20,6 +20,13 @@ public sealed class Targeter {
     public object ProjectilePosition : Targeter()
 
     public data class CasterOffset(public val offset: VectorValue) : Targeter()
+
+    /**
+     * A point [distance] blocks in front of the caster's eyes along their look direction, then
+     * [height] blocks up/down. Facing-aware (unlike [CasterOffset], whose offset is in world axes):
+     * use it for muzzle flashes and swing arcs. Falls back to the cast origin + 1.5 up without a pose.
+     */
+    public data class CasterForward(public val distance: Double, public val height: Double = 0.0) : Targeter()
     public data class TargetOffset(public val offset: VectorValue) : Targeter()
     public data class ProjectileOffset(public val offset: VectorValue) : Targeter()
     public data class HitOffset(public val offset: VectorValue) : Targeter()

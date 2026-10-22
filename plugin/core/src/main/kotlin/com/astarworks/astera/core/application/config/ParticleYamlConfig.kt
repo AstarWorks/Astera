@@ -45,6 +45,10 @@ public data class ParticleYamlConfig(
     public val count: Int,
     @SerialName("lifetime_ticks") public val lifetimeTicks: Long,
     @SerialName("display_name_key") public val displayNameKey: String? = null,
+    /** Vanilla particle type to emit (`flame`, `snowflake`, `dust`, ...). */
+    @SerialName("vanilla_particle") public val vanillaParticle: String? = null,
+    public val speed: Double = 0.0,
+    public val size: Double = 1.0,
 ) {
     /**
      * Materialize the domain [ParticleDefinition]. Throws
@@ -64,6 +68,9 @@ public data class ParticleYamlConfig(
         count = count,
         lifetimeTicks = lifetimeTicks,
         displayNameKey = displayNameKey?.let(::MessageKey),
+        vanillaParticle = vanillaParticle,
+        speed = speed,
+        size = size,
     )
 }
 

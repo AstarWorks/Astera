@@ -151,6 +151,9 @@
                         },
                         "hit_radius": {
                             "type": "number"
+                        },
+                        "visual": {
+                            "$ref": "#/definitions/com.astarworks.astera.combat.application.config.SkillParamsYaml.ProjectileVisualYaml"
                         }
                     },
                     "required": [
@@ -204,6 +207,40 @@
                     ]
                 }
             ]
+        },
+        "com.astarworks.astera.combat.application.config.SkillParamsYaml.ProjectileDisplayYaml": {
+            "type": "object",
+            "properties": {
+                "variant": {
+                    "type": "string"
+                },
+                "material": {
+                    "type": "string"
+                },
+                "scale": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "material"
+            ]
+        },
+        "com.astarworks.astera.combat.application.config.SkillParamsYaml.ProjectileVisualYaml": {
+            "type": "object",
+            "properties": {
+                "trail": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "trail_interval_ticks": {
+                    "type": "integer"
+                },
+                "display": {
+                    "$ref": "#/definitions/com.astarworks.astera.combat.application.config.SkillParamsYaml.ProjectileDisplayYaml"
+                }
+            }
         },
         "com.astarworks.astera.core.application.config.skill.BindingRefYaml": {
             "type": "object",
@@ -2358,6 +2395,25 @@
                     },
                     "required": [
                         "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "caster_forward"
+                        },
+                        "distance": {
+                            "type": "number"
+                        },
+                        "height": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "distance"
                     ]
                 },
                 {

@@ -1,0 +1,12 @@
+# thorn impact: green sparkles
+id: verdant-impact-sparkle
+shape:
+  kind: burst
+  spread_blocks: 0.4
+color:
+  r: 80
+  g: 200
+  b: 80
+count: 10
+lifetime_ticks: 20
+vanilla_particle: happy_villager

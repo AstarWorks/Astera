@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.effect
 
+import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 
 /**
@@ -51,10 +52,48 @@ public data class ParticleDefinition(
     public val count: Int,
     public val lifetimeTicks: Long,
     public val displayNameKey: MessageKey? = null,
+    /**
+     * Vanilla particle type this definition emits (`flame`, `snowflake`, `dust`, ...; namespace
+     * optional). `null` = legacy definition with no vanilla mapping (nothing is rendered).
+     */
+    public val vanillaParticle: String? = null,
+    /** Vanilla "extra" value (drift speed). */
+    public val speed: Double = 0.0,
+    /** Dust size; only meaningful for `dust` / `dust_color_transition`. */
+    public val size: Double = 1.0,
 ) {
     init {
         require(count > 0) { "count must be positive: $count" }
         require(lifetimeTicks > 0L) { "lifetimeTicks must be positive: $lifetimeTicks" }
+        require(speed >= 0.0) { "speed must be >= 0: $speed" }
+        require(size > 0.0) { "size must be > 0: $size" }
+    }
+
+    /**
+     * The emission descriptor for this definition. [countOverride] (a mechanic's explicit `count`)
+     * replaces [count] when given. Definitions without a [vanillaParticle] keep the legacy mapping
+     * (key = id), which the Paper gateway cannot resolve.
+     */
+    public fun toParticleSpec(countOverride: Int? = null): ParticleSpec {
+        val spread = when (val s = shape) {
+            is ParticleShape.Burst -> Vec3(s.spreadBlocks, s.spreadBlocks, s.spreadBlocks)
+            is ParticleShape.Sphere -> Vec3(s.radiusBlocks, s.radiusBlocks, s.radiusBlocks)
+            is ParticleShape.Circle -> Vec3(s.radiusBlocks, FLAT_SPREAD, s.radiusBlocks)
+            is ParticleShape.Line -> Vec3(s.lengthBlocks, FLAT_SPREAD, FLAT_SPREAD)
+            ParticleShape.Point -> Vec3.ZERO
+        }
+        return ParticleSpec(
+            key = vanillaParticle ?: id.value,
+            count = countOverride ?: count,
+            offset = spread,
+            extra = speed,
+            color = color,
+            scale = size.toFloat(),
+        )
+    }
+
+    private companion object {
+        const val FLAT_SPREAD: Double = 0.1
     }
 }
 
