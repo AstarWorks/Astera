@@ -41,7 +41,6 @@ public class PaperItemInputListener(
 
     @EventHandler
     public fun onInteract(e: PlayerInteractEvent) {
-        log.info("TMPDBG interact {} hand={} action={} world={} item={}", e.player.name, e.hand, e.action, e.player.world.name, e.item?.type)
         if (e.hand != EquipmentSlot.HAND) return
         val kind = when (e.action) {
             Action.LEFT_CLICK_AIR, Action.LEFT_CLICK_BLOCK -> InputKind.LEFT_CLICK
@@ -71,33 +70,16 @@ public class PaperItemInputListener(
     }
 
     @EventHandler
-    public fun tmpTp(e: org.bukkit.event.player.PlayerTeleportEvent) {
-        log.info("TMPDBG teleport {} {} -> {} cause={} caller={}", e.player.name, e.from.world?.name, e.to.world?.name, e.cause,
-            Throwable().stackTrace.drop(1).filter { "astarworks" in it.className }.take(4))
-    }
-
-    @EventHandler
-    public fun tmpDeath(e: org.bukkit.event.entity.PlayerDeathEvent) {
-        log.info("TMPDBG death {} {}", e.player.name, e.deathMessage())
-    }
-
-    @EventHandler
-    public fun tmpResp(e: org.bukkit.event.player.PlayerRespawnEvent) {
-        log.info("TMPDBG respawn {} -> {}", e.player.name, e.respawnLocation.world?.name)
-    }
-
-    @EventHandler
     public fun onQuit(e: PlayerQuitEvent) {
         sink(IMcEvent.PlayerQuit(PaperPlayer(e.player)))
     }
 
     private fun dispatch(player: Player, kind: InputKind, stack: ItemStack?): Boolean {
-        log.info("TMPDBG dispatch {} {} stack={} id={}", player.name, kind, stack?.type, itemIdResolver.itemIdOf(stack))
         // Spectators (death cam / eliminated teams) never trigger item skills.
         if (player.gameMode == GameMode.SPECTATOR) return false
         val itemId = itemIdResolver.itemIdOf(stack) ?: return false
         val consumed = sink(IMcEvent.PlayerInput(PaperPlayer(player), kind, player.isSneaking, itemId))
-        log.info("TMPDBG input {} {} item={} consumed={}", player.name, kind, itemId, consumed)
+        log.debug("input {} {} item={} consumed={}", player.name, kind, itemId, consumed)
         return consumed
     }
 }

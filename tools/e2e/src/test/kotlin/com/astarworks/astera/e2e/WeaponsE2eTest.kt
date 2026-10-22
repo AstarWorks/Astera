@@ -47,6 +47,36 @@ class WeaponsE2eTest : E2eBase() {
         Thread.sleep(800)
     }
 
+    private fun inOverworld(b: Bot): Boolean = "overworld" in rcon("data get entity ${b.name} Dimension")
+
+    /**
+     * Puts both bots in the overworld, alive and settled. Out-of-match Astera deaths (lingering status damage
+     * from the previous shot) send the victim back to the lobby, where damage and hunger are disabled by
+     * design; a shot taken from/at the lobby says nothing about the weapon, so re-stage until both bots stay
+     * in the overworld across a settle window.
+     */
+    private fun stage(a: Bot, b: Bot, distance: Double, settleMs: Long) {
+        repeat(6) {
+            face(a, b, distance)
+            Thread.sleep(settleMs)
+            if (inOverworld(a) && inOverworld(b)) {
+                Thread.sleep(700)
+                if (inOverworld(a) && inOverworld(b)) return
+            }
+        }
+    }
+
+    /** Lowest target HP seen while polling: a killing blow resets the HP mirror on respawn, so sample during. */
+    private fun lowestHp(b: Bot, windowMs: Long): Double? {
+        var min: Double? = null
+        val end = System.currentTimeMillis() + windowMs
+        while (System.currentTimeMillis() < end) {
+            hp(b)?.let { v -> if (min == null || v < min!!) min = v }
+            Thread.sleep(50)
+        }
+        return min
+    }
+
     @Test
     fun `melee left click spends energy and ranged skills damage a still target`() {
         val a = bot("Shooter")
@@ -71,8 +101,7 @@ class WeaponsE2eTest : E2eBase() {
             if (melee) {
                 repeat(3) { n ->
                     rcon("effect give ${a.name} minecraft:instant_health 1 4 true")
-                    face(a, b, 2.2)
-                    Thread.sleep(1_500)
+                    stage(a, b, 2.2, 1_500)
                     val before = food(a)
                     a.punch()
                     Thread.sleep(300)
@@ -88,12 +117,10 @@ class WeaponsE2eTest : E2eBase() {
                 val tries = 4
                 repeat(tries) {
                     rcon("effect give ${b.name} minecraft:instant_health 1 4 true")
-                    face(a, b, 4.0)
-                    Thread.sleep(2_500)
+                    stage(a, b, 4.0, 2_500)
                     val before = hp(b)
                     a.useItem(0f, 0f)
-                    Thread.sleep(1_800)
-                    val after = hp(b)
+                    val after = lowestHp(b, 1_800)
                     if (before != null && after != null && after < before) hits++
                 }
                 E2eReport.check(suite, "$item hits a still target $tries/$tries", "server Health") {
