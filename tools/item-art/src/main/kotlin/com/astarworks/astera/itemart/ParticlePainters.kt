@@ -108,7 +108,7 @@ internal object ParticlePainters {
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
         "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
-        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash,
+        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice,
     )
 
     /** A 4-point star that pops open, hangs, then shrinks, with a small diagonal star and a white-hot core. */
@@ -260,7 +260,12 @@ internal object ParticlePainters {
     }
 
     /** A crescent slash: arc swept from upper right to lower left, bright at the head, tail fading away. */
-    private fun slash(c: Canvas, t: Double, i: Int, n: Int) {
+    private fun slash(c: Canvas, t: Double, i: Int, n: Int) = crescent(c, t, 3.6)
+
+    /** Fine cutting ribbon, preserving the slash arc and sweep timing. */
+    private fun slice(c: Canvas, t: Double, i: Int, n: Int) = crescent(c, t, 1.2)
+
+    private fun crescent(c: Canvas, t: Double, width: Double) {
         val cx = 1.0
         val cy = 1.0
         val radius = 22.0
@@ -275,7 +280,7 @@ internal object ParticlePainters {
             val s = (atan2(dy, dx) - a0) / (a1 - a0)
             if (s < tail || s > head || s < 0.0 || s > 1.0) return@forEach 0.0
             // Thickest mid-arc, pointed at both ends.
-            val half = 0.4 + 3.6 * sin(PI * s).pow(0.8) * (1 - 0.35 * tail)
+            val half = 0.4 + width * sin(PI * s).pow(0.8) * (1 - 0.35 * tail)
             val radial = 1.0 - abs(rho - radius - 0.6 * (s - 0.5)) / half
             val span = max(0.05, head - tail)
             val bright = 0.5 + 0.5 * ((s - tail) / span)
