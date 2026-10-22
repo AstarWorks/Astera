@@ -72,6 +72,7 @@ public class PlayerHandoffService(
     private val handedOff: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
     private val tokens: MutableMap<PlayerId, Stored> = ConcurrentHashMap()
     private val waiting: MutableMap<PlayerId, Waiting> = ConcurrentHashMap()
+    private val dropped: MutableMap<PlayerId, PlayerSession> = ConcurrentHashMap()
     private var subscription: IProxyMessenger.Subscription? = null
 
     /** Starts listening for tokens (only a networked server needs it). */
@@ -144,6 +145,7 @@ public class PlayerHandoffService(
         val wait = waiting.remove(playerId)
         if (wait != null) {
             wait.poll?.cancel()
+            dropped.remove(playerId)?.let { sessions.upsert(it) } // still dropped from the match: the window keeps running
             log.debug("{} left before the hand-off restore finished; nothing to save.", playerId)
             return
         }
@@ -245,6 +247,11 @@ public class PlayerHandoffService(
 
     private fun markLoading(playerId: PlayerId) {
         val current = sessions.find(playerId)
+        // A player who dropped out of a running match keeps that claim through the restore: markLobby puts it
+        // back so the match can resume them on arrival instead of finding a plain lobby session.
+        if (current != null && current.state is SessionState.Disconnected && current.currentMatch != null) {
+            dropped[playerId] = current
+        }
         sessions.upsert(
             current?.copy(state = SessionState.Loading)
                 ?: PlayerSession(playerId = playerId, state = SessionState.Loading, currentMatch = null),
@@ -253,6 +260,11 @@ public class PlayerHandoffService(
 
     private fun markLobby(playerId: PlayerId) {
         val current = sessions.find(playerId) ?: return
+        val claim = dropped.remove(playerId)
+        if (claim != null && current.state == SessionState.Loading) {
+            sessions.upsert(claim)
+            return
+        }
         if (current.state == SessionState.Loading) {
             sessions.upsert(current.copy(state = SessionState.Lobby, currentMatch = null))
         }

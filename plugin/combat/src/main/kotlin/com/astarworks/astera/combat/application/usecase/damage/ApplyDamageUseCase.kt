@@ -12,6 +12,7 @@ import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
+import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.damage.ResolvedDamage
 import com.astarworks.astera.combat.domain.damage.attackerIdOrNull
 import com.astarworks.astera.combat.domain.event.CriticalHit
@@ -95,6 +96,11 @@ public class ApplyDamageUseCase(
     /** F3-11: players in the lobby training range are immune to damage from anyone (no PvP there). */
     private val protection: com.astarworks.astera.combat.application.port.outbound.IDamageProtection? = null,
     /**
+     * Spawn protection after a (re)spawn, match start or reconnect: the target takes no damage from anything
+     * except the void (a protected player must still be killable by falling out of the arena).
+     */
+    private val spawnProtection: com.astarworks.astera.combat.application.port.outbound.IDamageProtection? = null,
+    /**
      * ADR-0237: decides the [CombatContext] stamped on every published [DamageDealt] / [PlayerKilled].
      * Defaults to the (possibly late-registered, hence possibly null) [teamLookup]; wiring passes a
      * per-call lookup because the match plugin registers its lookup after combat enables.
@@ -110,6 +116,9 @@ public class ApplyDamageUseCase(
             godMode?.isGod(attempt.targetId) == true ||
             statusContainer.has(attempt.targetId, IMMUNITY_ID)
         ) {
+            return Result.failure(ApplyDamageError.TargetImmune(attempt.targetId))
+        }
+        if (attempt.source !is DamageSource.Environment.Void && spawnProtection?.isProtected(attempt.targetId) == true) {
             return Result.failure(ApplyDamageError.TargetImmune(attempt.targetId))
         }
 

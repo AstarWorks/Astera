@@ -45,6 +45,14 @@ public class MatchInventorySnapshotListener(
     /** `true` while [playerId] has an entry snapshot of a running match outstanding. */
     public fun isHeld(playerId: PlayerId): Boolean = held.values.any { playerId in it }
 
+    /**
+     * A participant came back mid-match: the join restored their entry snapshot, so what the match adds on
+     * top of it (the loaner kit for an unarmed player) is handed out again. No-op for players not held.
+     */
+    public fun rearm(playerId: PlayerId) {
+        if (isHeld(playerId)) afterEntryCapture(playerId)
+    }
+
     /** A match that already has members at start (admin paths) is captured here; later entries go through [handleEntered]. */
     public fun handleStarted(event: MatchStarted) {
         val match = matches()?.findById(event.matchId) ?: return

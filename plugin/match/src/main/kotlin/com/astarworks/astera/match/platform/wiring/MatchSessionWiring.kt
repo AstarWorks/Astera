@@ -22,7 +22,6 @@ import com.astarworks.astera.match.application.usecase.spectator.LeaveSpectatorU
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.domain.event.MatchStarted
-import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 
 /** Spectator, disconnect/reconnect, pins, audit, snapshot save, replay recording + `/astera match` (original Wave 5e / 5v). */
 internal object MatchSessionWiring {
@@ -72,9 +71,32 @@ internal object MatchSessionWiring {
                 com.astarworks.astera.match.application.usecase.match.ApplyForfeitUseCase(
                     removeFromMatch, eventBus, scheduler,
                 )
+            // Mid-match reconnect: back on the player's own team spawn (not the lobby-side spectator stub),
+            // with the same spawn protection a respawn gets, the loaner kit re-armed and the sidebar redrawn.
+            val resumeSpawn = services.get<com.astarworks.astera.match.application.service.ISpawnSelector>()?.let { selector ->
+                com.astarworks.astera.match.application.usecase.spawn.MatchSpawnUseCase(
+                    matchRepository = matches,
+                    stageRegistry = env.stages,
+                    worldGateway = worldGateway,
+                    eventBus = eventBus,
+                    spawnSelector = selector,
+                )
+            }
             val resumeMatch =
                 com.astarworks.astera.match.application.usecase.match.ResumeMatchUseCase(
-                    sessionRepo, matches, worldGateway, eventBus, scheduler,
+                    sessions = sessionRepo,
+                    matches = matches,
+                    worldGateway = worldGateway,
+                    eventBus = eventBus,
+                    scheduler = scheduler,
+                    spawn = resumeSpawn,
+                    protection = services.get<com.astarworks.astera.core.application.port.outbound.ISpawnProtectionGateway>(),
+                    protectionSeconds = { id ->
+                        com.astarworks.astera.match.domain.death.DeathRespawnConfig.parse(env.modeConfigOf(id)).config.spawnProtectionSeconds
+                    },
+                    afterResume = { player ->
+                        services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()?.rearm(player)
+                    },
                 )
             val disconnectListener =
                 com.astarworks.astera.match.application.eventbus.listeners.DisconnectDuringMatchListener(
@@ -84,11 +106,20 @@ internal object MatchSessionWiring {
                 com.astarworks.astera.match.application.eventbus.listeners.ReconnectDuringMatchListener(
                     sessionRepo, resumeMatch, worldGateway,
                 )
-            subscriptions += eventBus.subscribe(
-                com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
-            ) { disconnectListener.handle(it) }
-            subscriptions += eventBus.subscribe(PlayerJoinedServer::class) {
-                reconnectListener.handle(it)
+            // Match membership lives on the backend that hosts matches; a lobby sharing the session store must
+            // neither flip a dropped player's claim again nor start its own removal timer for it.
+            if (env.ctx.serverRole.hostsMatches) {
+                subscriptions += eventBus.subscribe(
+                    com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
+                ) { disconnectListener.handle(it) }
+                subscriptions += eventBus.subscribe(MatchEnded::class) { disconnectListener.onMatchEnded(it) }
+            }
+            // Only a backend that hosts matches resumes anyone: a lobby that merely shares the session store
+            // must leave the claim alone (MatchReconnectRouter sends the player on to the game server).
+            if (env.ctx.serverRole.hostsMatches) {
+                subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class) {
+                    reconnectListener.handle(it)
+                }
             }
         }
 

@@ -500,6 +500,10 @@ public object CombatWiring {
                 entityDamageGateway = entityDamageGateway,
                 godMode = godModeService,
                 protection = trainingProtection,
+                // Core registers the gateway before Combat enables; resolved per call anyway.
+                spawnProtection = com.astarworks.astera.combat.application.port.outbound.IDamageProtection { target ->
+                    services.get<com.astarworks.astera.core.application.port.outbound.ISpawnProtectionGateway>()?.isProtected(target) == true
+                },
                 // ADR-0237: Match registers IMatchTeamLookup after Combat enables, so resolve per call.
                 contexts = combatContexts,
             )

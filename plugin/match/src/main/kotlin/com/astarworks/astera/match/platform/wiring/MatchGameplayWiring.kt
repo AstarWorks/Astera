@@ -146,6 +146,18 @@ internal object MatchGameplayWiring {
                 settings = { env.queueSettings.current() },
             ).start()
         }
+        if (role.hostsLobby && !role.hostsMatches) {
+            // LOBBY: a login that the game server holds a seat for goes straight back to the running match.
+            val router = com.astarworks.astera.match.application.service.matchmaking.MatchReconnectRouter(
+                messenger = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IProxyMessenger>(),
+                transfers = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IServerTransferGateway>(),
+                eventBus = eventBus,
+                scheduler = scheduler,
+                settings = crossServer,
+            )
+            router.start()
+            env.shutdownHooks += { router.stop() }
+        }
         if (!role.hostsLobby) {
             // GAME: accept assignments, receive the players, send them back after the match.
             val receiver = com.astarworks.astera.match.application.service.matchmaking.MatchAssignmentReceiver(
@@ -161,6 +173,17 @@ internal object MatchGameplayWiring {
             )
             receiver.start()
             env.shutdownHooks += { receiver.stop() }
+            // A player who drops out of the running match is announced to the lobby, which sends them back
+            // here when they log in again (Velocity always lands a fresh login on the lobby).
+            val announcer = com.astarworks.astera.match.application.service.matchmaking.MatchReconnectAnnouncer(
+                messenger = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IProxyMessenger>(),
+                matches = matches,
+                eventBus = eventBus,
+                scheduler = scheduler,
+                settings = crossServer,
+            )
+            announcer.start()
+            env.shutdownHooks += { announcer.stop() }
             // A game process that died mid-match leaves ACTIVE rows in the (shared) match store; they would make
             // every later assignment answer "busy" and swallow in-match deaths of players who are not in them.
             for (stale in matches.findActiveMatches().toList()) {

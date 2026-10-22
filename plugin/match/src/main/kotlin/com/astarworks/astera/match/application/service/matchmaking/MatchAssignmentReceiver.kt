@@ -106,6 +106,11 @@ public class MatchAssignmentReceiver(
 
     private fun onPlayerJoined(playerId: PlayerId) {
         val current = session
+        if (current != null && current.matchId != null && playerId in current.assignment.players && inActiveMatch(playerId)) {
+            // A participant coming back to the running match: counted as present again (the abandon watchdog needs it).
+            current.arrived += playerId
+            return
+        }
         if (current == null || current.matchId != null || playerId !in current.assignment.players) {
             bounceIfStray(playerId)
             return
