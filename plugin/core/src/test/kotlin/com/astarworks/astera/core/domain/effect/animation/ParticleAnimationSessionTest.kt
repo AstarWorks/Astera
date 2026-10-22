@@ -182,4 +182,33 @@ class ParticleAnimationSessionTest {
             assertThat(ParticleAngle.RANDOM.resolve(dir, rnd).length()).isCloseTo(1.0, Offset.offset(1e-9))
         }
     }
+
+    @Test
+    fun `arc lays points on a horizontal arc of the radius, sweeping right to left over the sweep ticks`() {
+        val arc = AnimatedShape.Arc(
+            particles = listOf(AnimatedParticle("sweep_attack")),
+            radius = 3.0,
+            startDegrees = 60.0,
+            endDegrees = -60.0,
+            points = 5,
+            sweepTicks = 4,
+            heightStart = 1.0,
+            heightEnd = 0.0,
+        )
+        // facing +z: right is -x
+        val plan = ParticleAnimationSession(ParticleAnimation(listOf(arc)), Random(1)).plan(origin, Vec3(0.0, 0.3, 1.0))
+
+        assertThat(plan.map { it.tickOffset }).containsExactly(0, 1, 2, 3, 4)
+        plan.forEach {
+            val d = it.position - origin
+            assertThat(kotlin.math.hypot(d.x, d.z)).isCloseTo(3.0, Offset.offset(1e-9))
+        }
+        val first = plan.first().position - origin
+        assertThat(first.x).isCloseTo(-3.0 * kotlin.math.sin(Math.toRadians(60.0)), Offset.offset(1e-9)) // on the right (-x)
+        assertThat(first.y).isCloseTo(1.0, Offset.offset(1e-9))
+        val mid = plan[2].position - origin
+        assertThat(mid.z).isCloseTo(3.0, Offset.offset(1e-9))
+        assertThat(mid.y).isCloseTo(0.5, Offset.offset(1e-9))
+        assertThat((plan.last().position - origin).x).isGreaterThan(0.0) // ends on the left (+x)
+    }
 }

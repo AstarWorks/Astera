@@ -311,6 +311,14 @@ function applyCamera(name, instant = true) {
     const fx = c0.dx, fz = c0.dz; const len = Math.hypot(fx, fz) || 1;
     camera.position.set(c0.x - fx / len * 3.2, c0.y + 2.5, c0.z - fz / len * 3.2);
     controls.target.set(c0.x + fx / len * 8, c0.y + 1.2, c0.z + fz / len * 8);
+  } else if (name === 'close' || name === 'impact') {
+    // 'close': side view of the first ~5 blocks in front of the caster (muzzle / swing); 'impact': side view around the first non-player entity
+    const other = state.trace.entities.find((e) => e.kind !== 'player' && e !== caster);
+    const o = other ? entityState(other.id, 0) : c0;
+    const len = Math.hypot(c0.dx, c0.dz) || 1, fx = c0.dx / len, fz = c0.dz / len;
+    const k = name === 'close' ? { x: c0.x + fx * 2.2, z: c0.z + fz * 2.2 } : { x: o.x, z: o.z };
+    camera.position.set(k.x - fz * 5.2 - fx * 0.5, g + 2.0, k.z + fx * 5.2 - fz * 0.5);
+    controls.target.set(k.x, g + 1.2, k.z);
   } else if (name === 'top') {
     camera.position.set(cx + 0.001, g + Math.max(14, span * 1.2), cz);
     controls.target.set(cx, g, cz);

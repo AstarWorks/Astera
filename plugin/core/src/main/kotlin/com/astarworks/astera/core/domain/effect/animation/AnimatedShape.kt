@@ -60,6 +60,37 @@ public sealed class AnimatedShape {
         }
     }
 
+    /**
+     * A sweeping arc in front of the caster (melee swings, ADR-0221). Unlike [Circle] it is
+     * deterministic: [points] positions are laid on a horizontal arc of [radius] around the anchor,
+     * from [startDegrees] to [endDegrees] measured from the (flattened) facing direction, positive =
+     * to the caster's right, so `50 -> -50` is a right-to-left slash. Point `i` spawns at tick
+     * `delayTicks + round(sweepTicks * i / (points - 1))` so the arc visibly travels. Height runs
+     * linearly from [heightStart] to [heightEnd] (a diagonal slash). Each point emits every particle
+     * of the shape once; [amount] repeats the whole arc. [angle] is ignored (the facing is fixed).
+     * Cost per play: `amount * points * particles.size` spawn calls (budget in the skill YAML).
+     */
+    public data class Arc(
+        override val delayTicks: Int = 0,
+        override val amount: Int = 1,
+        override val angle: ParticleAngle = ParticleAngle.RAW,
+        override val particles: List<AnimatedParticle>,
+        val radius: Double,
+        val startDegrees: Double,
+        val endDegrees: Double,
+        val points: Int,
+        val sweepTicks: Int = 0,
+        val heightStart: Double = 0.0,
+        val heightEnd: Double = 0.0,
+    ) : AnimatedShape() {
+        init {
+            validateCommon(delayTicks, amount, particles)
+            require(radius > 0.0) { "radius must be > 0, got $radius" }
+            require(points >= 1) { "points must be >= 1, got $points" }
+            require(sweepTicks >= 0) { "sweepTicks must be >= 0, got $sweepTicks" }
+        }
+    }
+
     internal companion object {
         fun validateCommon(delayTicks: Int, amount: Int, particles: List<AnimatedParticle>) {
             require(delayTicks >= 0) { "delayTicks must be >= 0, got $delayTicks" }

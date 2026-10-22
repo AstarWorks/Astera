@@ -300,6 +300,56 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "arc"
+                        },
+                        "delay_ticks": {
+                            "type": "integer"
+                        },
+                        "amount": {
+                            "type": "integer"
+                        },
+                        "particles": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.AnimatedParticleYaml"
+                            }
+                        },
+                        "radius": {
+                            "type": "number"
+                        },
+                        "start_degrees": {
+                            "type": "number"
+                        },
+                        "end_degrees": {
+                            "type": "number"
+                        },
+                        "points": {
+                            "type": "integer"
+                        },
+                        "sweep_ticks": {
+                            "type": "integer"
+                        },
+                        "height_start": {
+                            "type": "number"
+                        },
+                        "height_end": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "particles",
+                        "radius",
+                        "start_degrees",
+                        "end_degrees",
+                        "points"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "circle"
                         },
                         "delay_ticks": {

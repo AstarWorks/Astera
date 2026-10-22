@@ -1,5 +1,5 @@
 // Headless frame renderer: trace JSON -> PNG frames + contact sheets + animated GIF.
-//   bun scripts/render.mjs --traces <dir> --out <dir> [--scenario showcase-simple-shoot | --all] [--cell 512x288]
+//   bun scripts/render.mjs --traces <dir> --out <dir> [--scenario a,b | --all] [--cell 512x288] [--no-gif] [--cams side,behind,close,impact]
 // Needs dist/ (bun run build) and a Chromium that playwright-core can launch (see README).
 import { chromium } from 'playwright-core';
 import { execFileSync } from 'node:child_process';
@@ -23,7 +23,7 @@ if (args.all) names = readdirSync(tracesDir).filter((f) => /^showcase-.*\.json$/
 else {
   const s = String(args.scenario ?? '');
   if (!s || s === 'true') throw new Error('pass --scenario <skill id | trace name> or --all');
-  names = [existsSync(join(tracesDir, s + '.json')) ? s : 'showcase-' + s];
+  names = s.split(',').map((x) => (existsSync(join(tracesDir, x + '.json')) ? x : 'showcase-' + x)); // comma list allowed
 }
 
 /** Choose 16 key ticks: a few before the cast, flight, impact and the aftermath. */
@@ -84,7 +84,7 @@ for (const name of names) {
 
   const { frames, castT, impactT, lastActive } = keyTicks(trace);
   const sheets = {};
-  for (const cam of ['side', 'behind']) {
+  for (const cam of String(args.cams ?? 'side,behind').split(',')) {
     await page.evaluate((c) => window.viewer.applyCamera(c), cam);
     const shots = [];
     for (const tick of frames) {
@@ -96,13 +96,14 @@ for (const name of names) {
       if (cam === 'side') writeFileSync(join(dir, 'frames', `key-${String(tick).padStart(3, '0')}.png`), png);
     }
     const sheetPage = await ctx.newPage();
-    await renderSheet(sheetPage, shots, `${skill}  -  camera ${cam}  -  20 TPS, impact at tick ${impactT}`, join(dir, cam === 'side' ? 'sheet.png' : 'sheet-behind.png'));
+    await renderSheet(sheetPage, shots, `${skill}  -  camera ${cam}  -  20 TPS, impact at tick ${impactT}`, join(dir, cam === 'side' ? 'sheet.png' : `sheet-${cam}.png`));
     await sheetPage.close();
     sheets[cam] = true;
   }
 
   // Animated GIF (side camera, real time): from just before the cast until the activity dies down.
   await page.evaluate(() => window.viewer.applyCamera('side'));
+  if (args['no-gif']) { await ctx.close(); console.log(`${skill}: ${join(dir, 'sheet.png')}  (cast ${castT}, impact ${impactT}, active until ${lastActive})`); summary.push({ skill, sheet: join(dir, 'sheet.png') }); continue; }
   const from = Math.max(0, castT - 3), to = Math.min(trace.ticks.length - 1, Math.max(lastActive + 6, castT + 20));
   const step = Math.max(1, Math.ceil((to - from + 1) / 90)); // <= 90 frames
   const tmp = join(dir, 'anim-frames');

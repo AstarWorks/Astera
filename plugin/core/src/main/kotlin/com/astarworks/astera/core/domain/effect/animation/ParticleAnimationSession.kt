@@ -40,6 +40,7 @@ public class ParticleAnimationSession(
             for (instance in 0 until shape.amount) {
                 when (shape) {
                     is AnimatedShape.Point -> planPoint(shape, origin, direction, out)
+                    is AnimatedShape.Arc -> planArc(shape, origin, direction, out)
                     is AnimatedShape.Circle -> planCircle(shape, shapeIndex, instance, origin, direction, out)
                 }
             }
@@ -51,6 +52,27 @@ public class ParticleAnimationSession(
         val dir = shape.angle.resolve(direction, random)
         for (p in shape.particles) {
             out += PlannedEmission(shape.delayTicks + p.delayTicks, origin, p.toSpec(dir))
+        }
+    }
+
+    private fun planArc(shape: AnimatedShape.Arc, origin: Vec3, direction: Vec3, out: MutableList<PlannedEmission>) {
+        val flat = Vec3(direction.x, 0.0, direction.z)
+        val forward = if (flat.lengthSquared() > 1e-9) flat.normalize() else Vec3(1.0, 0.0, 0.0)
+        val right = Vec3(-forward.z, 0.0, forward.x) // forward rotated -90 degrees about Y (looking along +z, right is -x)
+        val last = (shape.points - 1).coerceAtLeast(1)
+        repeat(shape.amount) {
+            for (i in 0 until shape.points) {
+                val k = if (shape.points == 1) 0.5 else i.toDouble() / last
+                val theta = Math.toRadians(shape.startDegrees + (shape.endDegrees - shape.startDegrees) * k)
+                val radial = forward * kotlin.math.cos(theta) + right * kotlin.math.sin(theta)
+                val height = shape.heightStart + (shape.heightEnd - shape.heightStart) * k
+                val position = origin + radial * shape.radius + Vec3(0.0, height, 0.0)
+                val tick = shape.delayTicks + Math.round(shape.sweepTicks * k).toInt()
+                // tangent of travel (toward increasing k), used as the direction of count == 0 particles
+                val sign = if (shape.endDegrees >= shape.startDegrees) 1.0 else -1.0
+                val tangent = (forward * -kotlin.math.sin(theta) + right * kotlin.math.cos(theta)) * sign
+                for (p in shape.particles) out += PlannedEmission(tick + p.delayTicks, position, p.toSpec(tangent))
+            }
         }
     }
 

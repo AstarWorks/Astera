@@ -81,6 +81,34 @@ public sealed class AnimatedShapeYaml {
             radiusAcceleration = radiusAcceleration,
         )
     }
+
+    @Serializable
+    @SerialName("arc")
+    public data class Arc(
+        @SerialName("delay_ticks") public val delayTicks: Int = 0,
+        public val amount: Int = 1,
+        public val particles: List<AnimatedParticleYaml>,
+        public val radius: Double,
+        @SerialName("start_degrees") public val startDegrees: Double,
+        @SerialName("end_degrees") public val endDegrees: Double,
+        public val points: Int,
+        @SerialName("sweep_ticks") public val sweepTicks: Int = 0,
+        @SerialName("height_start") public val heightStart: Double = 0.0,
+        @SerialName("height_end") public val heightEnd: Double = 0.0,
+    ) : AnimatedShapeYaml() {
+        override fun toDomain(): AnimatedShape = AnimatedShape.Arc(
+            delayTicks = delayTicks,
+            amount = amount,
+            particles = particles.map { it.toDomain() },
+            radius = radius,
+            startDegrees = startDegrees,
+            endDegrees = endDegrees,
+            points = points,
+            sweepTicks = sweepTicks,
+            heightStart = heightStart,
+            heightEnd = heightEnd,
+        )
+    }
 }
 
 @Serializable
