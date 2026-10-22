@@ -41,6 +41,8 @@ public class LobbyBuildPlan(
     public val npcSpots: Map<String, LobbyNpcSpot>,
     /** Centre of each queue lane pad, keyed by lane id. */
     public val lanePads: Map<String, Vec3>,
+    /** The training range landmarks (F3-11); blocks are part of [blocks]. */
+    public val training: LobbyTrainingPlan,
 ) {
     public val minX: Int = blocks.keys.minOf { it.x }
     public val maxX: Int = blocks.keys.maxOf { it.x }

@@ -75,6 +75,16 @@ class LobbyWorldContentTest {
             .isEqualTo(plan.lanePads)
     }
 
+    @Test
+    fun `the training range is part of the lobby build and its spawn is walkable`() {
+        assertThat(config.markerVersion).describedAs("training island needs a repaste").isGreaterThanOrEqualTo(3)
+        assertThat(plan.training).isEqualTo(
+            com.astarworks.astera.core.domain.lobby.LobbyTrainingLayout.plan(config.center.x, config.center.z, config.surfaceY),
+        )
+        assertThat(plan.isWalkable(plan.training.spawn)).isTrue()
+        assertThat(plan.training.region.contains(plan.spawn)).isFalse()
+    }
+
     private fun locateContentRoot(): Path {
         var cur: Path? = Path.of("").toAbsolutePath()
         while (cur != null) {
