@@ -1,10 +1,13 @@
 package com.astarworks.astera.stats.application.eventbus.listeners
 
 import com.astarworks.astera.core.domain.achievement.AchievementId
+import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.stats.application.service.InMemoryAchievementRepository
+import com.astarworks.astera.stats.domain.achievement.Achievement
 import com.astarworks.astera.stats.domain.event.AchievementUnlocked
 import com.astarworks.astera.testfixtures.FakeHudGateway
 import com.astarworks.astera.testfixtures.FakeMessageRenderer
@@ -24,7 +27,8 @@ class NotifyOnAchievementUnlockedListenerTest {
         val player = FakePlayerGateway()
         val renderer = FakeMessageRenderer()
         val hud = FakeHudGateway()
-        val listener = NotifyOnAchievementUnlockedListener(player, renderer, hud)
+        val achievements = InMemoryAchievementRepository()
+        val listener = NotifyOnAchievementUnlockedListener(player, renderer, hud, achievements)
 
         listener.handle(
             AchievementUnlocked(
@@ -49,7 +53,8 @@ class NotifyOnAchievementUnlockedListenerTest {
         val player = FakePlayerGateway()
         val renderer = FakeMessageRenderer()
         val hud = FakeHudGateway()
-        val listener = NotifyOnAchievementUnlockedListener(player, renderer, hud)
+        val achievements = InMemoryAchievementRepository()
+        val listener = NotifyOnAchievementUnlockedListener(player, renderer, hud, achievements)
 
         listener.handle(
             AchievementUnlocked(
@@ -73,7 +78,8 @@ class NotifyOnAchievementUnlockedListenerTest {
         val player = FakePlayerGateway()
         val renderer = FakeMessageRenderer()
         val hud = FakeHudGateway()
-        val listener = NotifyOnAchievementUnlockedListener(player, renderer, hud)
+        val achievements = InMemoryAchievementRepository()
+        val listener = NotifyOnAchievementUnlockedListener(player, renderer, hud, achievements)
         val other = PlayerId(UUID.randomUUID())
 
         listener.handle(AchievementUnlocked(playerId, AchievementId("a"), now))
@@ -82,5 +88,36 @@ class NotifyOnAchievementUnlockedListenerTest {
         assertThat(player.messages.map { it.first }).containsExactly(playerId, other)
         val shown = hud.operations.filterIsInstance<FakeHudGateway.HudOp.Shown>()
         assertThat(shown.map { it.playerId }).containsExactly(playerId, other)
+    }
+    @Test
+    fun `handle shows catalog name and description when the achievement is registered`() {
+        val player = FakePlayerGateway()
+        val renderer = FakeMessageRenderer()
+        val hud = FakeHudGateway()
+        val achievements = InMemoryAchievementRepository()
+        achievements.registerAll(
+            listOf(
+                Achievement(
+                    id = AchievementId("kills-100"),
+                    nameKey = MessageKey("astera.stats.achievement.kills-100.name"),
+                    descriptionKey = MessageKey("astera.stats.achievement.kills-100.description"),
+                    iconItemId = "minecraft:iron_sword",
+                ),
+            ),
+        )
+        val listener = NotifyOnAchievementUnlockedListener(player, renderer, hud, achievements)
+
+        listener.handle(AchievementUnlocked(playerId, AchievementId("kills-100"), now))
+
+        val shown = hud.operations.filterIsInstance<FakeHudGateway.HudOp.Shown>()
+        val layout = shown.single().layout as HudLayout.Subtitle
+        val composite = layout.component as HudComponent.Composite
+        assertThat(composite.parts).hasSize(2)
+        val name = composite.parts[0] as HudComponent.Text
+        val description = composite.parts[1] as HudComponent.Text
+        assertThat(name.messageKey).isEqualTo(MessageKey("astera.stats.achievement.kills-100.name"))
+        assertThat(name.color).isEqualTo(HudColor.GOLD)
+        assertThat(description.messageKey).isEqualTo(MessageKey("astera.stats.achievement.kills-100.description"))
+        assertThat(description.color).isEqualTo(HudColor.GRAY)
     }
 }

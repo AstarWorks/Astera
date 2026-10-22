@@ -839,7 +839,7 @@ astera:
     combo:
       streak: "<gold>コンボ x{streak}</gold>"
     leveled-up:
-      announce: "<yellow><bold>レベルアップ！</bold></yellow> <white>Lv.{level}</white>"
+      title: "<yellow><bold>レベル{level}！</bold></yellow>"
     mana:
       value: "<aqua>{mana}</aqua>"
     star:

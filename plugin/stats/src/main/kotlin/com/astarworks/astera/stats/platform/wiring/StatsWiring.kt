@@ -209,8 +209,9 @@ public object StatsWiring {
         // cannot import it). The InMemory HUD gateway records the call only
         // until Wave 6b's Paper renderer lands.
         val hudGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
+        val playerSoundGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway>()
         val hudLeveledUpListener = com.astarworks.astera.stats.application.eventbus.listeners.hud
-            .HudUpdateOnLeveledUpListener(hudGateway)
+            .HudUpdateOnLeveledUpListener(hudGateway, playerSoundGateway)
         subscriptions += eventBus.subscribe(LeveledUp::class) { hudLeveledUpListener.handle(it) }
 
         // ---- Wave 5e Achievement + LevelUpMission + Reward listeners ---------
@@ -359,6 +360,7 @@ public object StatsWiring {
             playerGateway = playerGateway,
             messages = messages,
             hudGateway = hudGateway,
+            achievements = achievementRepo,
         )
         subscriptions += eventBus.subscribe(AchievementUnlocked::class) {
             notifyOnUnlock.handle(it)
