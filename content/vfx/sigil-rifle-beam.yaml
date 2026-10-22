@@ -31,7 +31,7 @@ elements:
     brightness: 15
     glow_color: "#ff2a1a"
     start_tick: 10
-    end_tick: 46
+    slot_lifetime_ticks: 36
     count: 10
     formation:
       curve: { type: circle, radius: 0.85 }

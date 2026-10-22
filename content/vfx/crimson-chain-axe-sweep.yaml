@@ -15,7 +15,7 @@ elements:
     brightness: 15
     glow_color: "#c0102a"
     start_tick: 0
-    end_tick: 10
+    slot_lifetime_ticks: 10
     count: 7
     formation:
       curve: { type: arc, radius: 3.4, from_deg: 70, to_deg: -70 }
@@ -33,7 +33,7 @@ elements:
     kind: { type: block, block: white_concrete }
     brightness: 15
     start_tick: 0
-    end_tick: 7
+    slot_lifetime_ticks: 7
     count: 6
     formation:
       curve: { type: arc, radius: 3.4, from_deg: 70, to_deg: -70 }
@@ -50,7 +50,7 @@ elements:
     kind: { type: item, item: iron_axe, display_mode: fixed }
     brightness: 15
     start_tick: 1
-    end_tick: 9
+    slot_lifetime_ticks: 8
     count: 4
     formation:
       curve: { type: arc, radius: 3.75, from_deg: 70, to_deg: -70 }
@@ -68,7 +68,7 @@ elements:
     brightness: 15
     glow_color: "#c0102a"
     start_tick: 5
-    end_tick: 15
+    slot_lifetime_ticks: 10
     count: 7
     formation:
       curve: { type: arc, radius: 3.1, from_deg: -70, to_deg: 70 }
@@ -86,7 +86,7 @@ elements:
     kind: { type: block, block: white_concrete }
     brightness: 15
     start_tick: 5
-    end_tick: 12
+    slot_lifetime_ticks: 7
     count: 6
     formation:
       curve: { type: arc, radius: 3.1, from_deg: -70, to_deg: 70 }
@@ -103,7 +103,7 @@ elements:
     kind: { type: item, item: iron_axe, display_mode: fixed }
     brightness: 15
     start_tick: 6
-    end_tick: 14
+    slot_lifetime_ticks: 8
     count: 4
     formation:
       curve: { type: arc, radius: 3.45, from_deg: -70, to_deg: 70 }
@@ -122,7 +122,7 @@ elements:
     brightness: 15
     glow_color: "#c0102a"
     start_tick: 10
-    end_tick: 20
+    slot_lifetime_ticks: 10
     count: 12
     formation:
       curve: { type: circle, radius: 3.3 }

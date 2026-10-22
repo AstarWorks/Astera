@@ -23,6 +23,9 @@ elements:
       tilt: { yaw: 0, pitch: 90, roll: 0 }
       offset: [0.0, 1.2, -0.4]
       align: tangent
+    group_keyframes:
+      - { t: 0 }
+      - { t: 18, rotate: [180, 0, 0], ease: in_out_sine }
     keyframes:
       - { t: 0, scale: [0.0, 0.0, 0.0] }
       - { t: 3, scale: [0.07, 0.07, 2.2], ease: out_back }
@@ -42,6 +45,9 @@ elements:
       tilt: { yaw: 0, pitch: 90, roll: 0 }
       offset: [0.0, 1.2, 0.0]
       align: tangent
+    group_keyframes:
+      - { t: 0 }
+      - { t: 14, rotate: [-180, 0, 0], ease: in_out_sine }
     keyframes:
       - { t: 0, scale: [0.0, 0.0, 0.0] }
       - { t: 3, scale: [0.07, 0.07, 2.2], ease: out_back }
@@ -60,6 +66,9 @@ elements:
       tilt: { yaw: 0, pitch: 90, roll: 0 }
       offset: [0.0, 1.2, 0.4]
       align: tangent
+    group_keyframes:
+      - { t: 0 }
+      - { t: 10, rotate: [180, 0, 0], ease: in_out_sine }
     keyframes:
       - { t: 0, scale: [0.0, 0.0, 0.0] }
       - { t: 3, scale: [0.07, 0.07, 2.2], ease: out_back }

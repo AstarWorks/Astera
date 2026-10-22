@@ -53,6 +53,21 @@ class ChainAxeSigilPersonaScenarioTest {
         return peak
     }
 
+    /** Distinct ticks on which [victim] lost HP while advancing [ticks]: one per landed damage beat. */
+    private fun ScenarioScope.countHits(victim: SimEntity, ticks: Int, from: Double = hp(victim)): Pair<Int, Int> {
+        var peak = sim.displays.active.size
+        var hits = 0
+        var last = from
+        repeat(ticks) {
+            advance(1)
+            peak = maxOf(peak, sim.displays.active.size)
+            val now = hp(victim)
+            if (now < last) hits++
+            last = now
+        }
+        return peak to hits
+    }
+
     private fun ScenarioScope.assertDisplaysClean(peak: Int) {
         assertThat(sim.displays.spawned).`as`("displays spawned").isNotEmpty()
         assertThat(peak).`as`("peak live displays").isLessThanOrEqualTo(60)
@@ -75,7 +90,8 @@ class ChainAxeSigilPersonaScenarioTest {
             val before = hp(victim)
 
             caster.cast("crimson-chain-axe-s1")
-            val peak = runFor(50)
+            val (peak, hits) = countHits(victim, 50, before)
+            assertThat(hits).`as`("damage beats landed").isEqualTo(3)
 
             assertThat(before - hp(victim)).isGreaterThan(0.0)
             assertThat(stacks(victim, rupture)).isEqualTo(3)
@@ -93,7 +109,8 @@ class ChainAxeSigilPersonaScenarioTest {
             val before = hp(victim)
 
             caster.cast("crimson-chain-axe-s2")
-            val peak = runFor(50)
+            val (peak, hits) = countHits(victim, 50, before)
+            assertThat(hits).`as`("damage beats landed").isEqualTo(3)
 
             assertThat(caster.position.z).isGreaterThan(2.0)
             assertThat(before - hp(victim)).isGreaterThan(0.0)
@@ -115,7 +132,8 @@ class ChainAxeSigilPersonaScenarioTest {
                 caster.cast("crimson-chain-axe-s3")
                 advance(1)
                 assertThat(caster.frozenTicks).`as`("caster planted during the telegraph").isGreaterThan(0)
-                val peak = runFor(110)
+                val (peak, hits) = countHits(victim, 110, before)
+                assertThat(hits).`as`("forest blow + finishing slash").isEqualTo(2)
 
                 lost = before - hp(victim)
                 left = stacks(victim, rupture)
@@ -154,7 +172,8 @@ class ChainAxeSigilPersonaScenarioTest {
             val before = hp(victim)
 
             caster.cast("sigil-rifle-s1")
-            val peak = runFor(45)
+            val (peak, hits) = countHits(victim, 45, before)
+            assertThat(hits).isEqualTo(1)
 
             assertThat(before - hp(victim)).isGreaterThan(0.0)
             assertThat(stacks(victim, sinking)).isEqualTo(1)
@@ -171,7 +190,8 @@ class ChainAxeSigilPersonaScenarioTest {
             val before = hp(victim)
 
             caster.cast("sigil-rifle-s2")
-            val peak = runFor(45)
+            val (peak, hits) = countHits(victim, 45, before)
+            assertThat(hits).`as`("two cuts").isEqualTo(2)
 
             assertThat(caster.position.z).isGreaterThan(1.5)
             assertThat(before - hp(victim)).isGreaterThan(0.0)
@@ -193,9 +213,12 @@ class ChainAxeSigilPersonaScenarioTest {
                 caster.cast("sigil-rifle-s3")
                 advance(1)
                 assertThat(caster.frozenTicks).`as`("caster rooted while charging").isGreaterThan(0)
-                advance(46) // tick 47: beam landed (44), sigils stacking (46)
+                val (peakA, beamHits) = countHits(victim, 46, before) // tick 47: beam landed (44), sigils stacking (46)
+                assertThat(beamHits).`as`("beam beat").isEqualTo(1)
                 assertThat(stacks(victim, sinking)).`as`("beam adds two sigils").isEqualTo(preloaded + 2)
-                val peak = runFor(60)
+                val (peakB, popHits) = countHits(victim, 60, hp(victim))
+                assertThat(popHits).`as`("detonation beat").isEqualTo(1)
+                val peak = maxOf(peakA, peakB)
 
                 lost = before - hp(victim)
                 left = stacks(victim, sinking)
