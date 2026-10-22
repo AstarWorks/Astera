@@ -204,6 +204,9 @@ public class InMemoryPlayerProfileService(
         }
     }
 
+    /** Item ids of the starter grant (`default_loadout`), also lent to unarmed players for a match. */
+    public fun starterItemIds(): List<com.astarworks.astera.core.domain.item.ItemId> = starterGrant.defaultLoadout
+
     /** Test / adapter helper: items resolved for a created profile. Empty list when nothing was granted. */
     public fun loadoutFor(playerId: PlayerId): List<com.astarworks.astera.core.domain.item.ItemSpec> =
         grantedLoadout[playerId].orEmpty()

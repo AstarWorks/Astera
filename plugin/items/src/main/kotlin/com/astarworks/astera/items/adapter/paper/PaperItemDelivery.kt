@@ -3,10 +3,10 @@ package com.astarworks.astera.items.adapter.paper
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.domain.item.ItemSpec
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
+import com.astarworks.astera.core.application.port.outbound.item.ItemOrigin
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.items.application.port.outbound.DeliveryResult
-import com.astarworks.astera.items.application.port.outbound.IItemDelivery
-import com.astarworks.astera.items.application.port.outbound.ItemOrigin
 import com.astarworks.astera.core.adapter.paper.lobby.TrainingItemTag
 import org.bukkit.Server
 

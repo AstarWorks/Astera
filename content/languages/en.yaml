@@ -519,6 +519,7 @@ astera:
         insufficient_funds: "<red>Not enough {currency}: need {need}, you have {have} ({short} short).</red>"
         confirm: "<yellow>{price} {currency} - click the item again to confirm the purchase.</yellow>"
         delivery_failed: "<red>Could not deliver item: {reason}</red>"
+        blocked_in_match: "<red>The shop is closed during a match - purchases would be lost when your inventory is restored.</red>"
     command:
       shop:
         root: "Shop commands"
@@ -628,6 +629,7 @@ astera:
       new_started: "<gray>A new {period} period has begun.</gray>"
 
   match:
+    loaner-kit: "<yellow>You came without a weapon - the starter weapons are on loan for this match.</yellow>"
     phase:
       countdown_start: "<yellow>Match starting in {seconds}s…</yellow>"
       active_started: "<green>The match has started!</green>"

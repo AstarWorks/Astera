@@ -1,4 +1,4 @@
-package com.astarworks.astera.items.application.port.outbound
+package com.astarworks.astera.core.application.port.outbound.item
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry

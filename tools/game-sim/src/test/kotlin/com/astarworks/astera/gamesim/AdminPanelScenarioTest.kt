@@ -63,11 +63,14 @@ class AdminPanelScenarioTest {
             val matchmaker = sim.services.getOrThrow<IMatchmaker>()
             matchmaker.enqueue(rookie.id, MatchmakingMode.Norma)
 
+            // A first-time player already holds the starter grant (content/balance/starter-grant.yaml).
+            val before = checkNotNull(sim.server.view(rookie.id)).givenItems.toList()
+
             click(rookie, "admin.match.lane-force", "lane" to "norma")
             click(rookie, "admin.items.kit")
 
             assertThat(sim.services.getOrThrow<IMatchRepository>().findActiveMatches()).isEmpty()
-            assertThat(checkNotNull(sim.server.view(rookie.id)).givenItems).isEmpty()
+            assertThat(checkNotNull(sim.server.view(rookie.id)).givenItems).containsExactlyElementsOf(before)
         }
     }
 
@@ -133,9 +136,12 @@ class AdminPanelScenarioTest {
             val expected = AdminItemCatalog.kit(sim.items.itemRegistry.all()).map { it.id.value }
             assertThat(expected).contains("rifle", "pistol", "fire-staff", "greatsword")
 
+            val starter = checkNotNull(sim.server.view(admin.id)).givenItems.toList()
+
             click(admin, "admin.items.kit")
 
-            assertThat(checkNotNull(sim.server.view(admin.id)).givenItems).containsExactlyInAnyOrderElementsOf(expected)
+            assertThat(checkNotNull(sim.server.view(admin.id)).givenItems)
+                .containsExactlyInAnyOrderElementsOf(starter + expected)
         }
     }
 

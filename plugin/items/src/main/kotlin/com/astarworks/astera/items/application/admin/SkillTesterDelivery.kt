@@ -12,8 +12,8 @@ import com.astarworks.astera.core.domain.item.ItemSkillBinding
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skill.SkillTesterItems
 import com.astarworks.astera.core.domain.skill.SkillTrigger
-import com.astarworks.astera.items.application.port.outbound.DeliveryResult
-import com.astarworks.astera.items.application.port.outbound.IItemDelivery
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 
 /**
  * Hands an admin a "skill tester" (F2-5, ADR-0196): the content item

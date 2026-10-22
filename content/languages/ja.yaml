@@ -522,6 +522,7 @@ astera:
         insufficient_funds: "<red>{currency} が足りません: 必要 {need}、所持 {have}（あと {short}）。</red>"
         confirm: "<yellow>{price} {currency} - 購入を確定するには、もう一度アイテムをクリックしてください。</yellow>"
         delivery_failed: "<red>アイテムを配送できませんでした: {reason}</red>"
+        blocked_in_match: "<red>試合中はショップを利用できません（購入品が試合後の持ち物復元で失われるため）。</red>"
     command:
       shop:
         root: "ショップコマンド"
@@ -630,6 +631,7 @@ astera:
       new_started: "<gray>新しい {period} 期間が始まりました。</gray>"
 
   match:
+    loaner-kit: "<yellow>武器を持っていないため、この試合の間だけ初期武器を貸し出します。</yellow>"
     phase:
       countdown_start: "<yellow>試合開始まで {seconds} 秒…</yellow>"
       active_started: "<green>試合が開始されました！</green>"

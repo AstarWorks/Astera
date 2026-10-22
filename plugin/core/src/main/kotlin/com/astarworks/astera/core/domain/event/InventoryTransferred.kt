@@ -20,7 +20,7 @@ import java.time.Instant
  * count. Adapters that need ordered emission (FIFO hopper) emit one event
  * per pull instead of folding them into a single multi-item event.
  *
- * Distinct from per-item [ItemAcquired] / [com.astarworks.astera.items.application.port.outbound.IItemDelivery]:
+ * Distinct from per-item [ItemAcquired] / [com.astarworks.astera.core.application.port.outbound.item.IItemDelivery]:
  * those fire on individual stack arrivals, this fires once per *bulk
  * transfer* (one publish covers N item ids).
  */

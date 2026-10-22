@@ -40,12 +40,12 @@ import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
-import com.astarworks.astera.items.application.port.outbound.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
 import com.astarworks.astera.items.application.port.outbound.IItemCooldownSweepGateway
-import com.astarworks.astera.items.application.port.outbound.IItemDelivery
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.items.application.port.outbound.ITrainingInventory
 import com.astarworks.astera.items.application.port.outbound.ITrainingRackGateway
-import com.astarworks.astera.items.application.port.outbound.ItemOrigin
+import com.astarworks.astera.core.application.port.outbound.item.ItemOrigin
 import com.astarworks.astera.items.application.port.outbound.RackFrame
 import com.astarworks.astera.combat.application.port.outbound.ITrainingDummyShells
 import com.astarworks.astera.core.domain.item.ItemSpec
@@ -463,8 +463,13 @@ public class SimTrainingShells(
 }
 
 /** [IPaperItemIdResolver] reading the entity's held item (PDC on Paper). */
-public class SimItemIdResolver(private val world: SimWorld) : IPaperItemIdResolver {
+public class SimItemIdResolver(
+    private val world: SimWorld,
+    private val inventory: (PlayerId) -> List<String> = { emptyList() },
+) : IPaperItemIdResolver {
     override fun heldItemId(playerId: PlayerId): ItemId? = world.find(playerId)?.heldItem
+
+    override fun inventoryItemIds(playerId: PlayerId): List<ItemId> = inventory(playerId).map(::ItemId)
 }
 
 /** [IItemCooldownSweepGateway] that records the sweeps (`Player.setCooldown(group, ticks)` on Paper). */

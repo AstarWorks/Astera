@@ -114,7 +114,7 @@ internal object Icons {
     /** Items that deliberately keep their vanilla look: filler panes, player heads (skin), a spacer. */
     val VANILLA: Set<String> = setOf(
         "gui-pane-dark", "gui-pane-red", "gui-admin-empty",
-        "gui-admin-player-head", "gui-admin-players", "gui-tile-profile",
+        "gui-admin-player-head", "gui-admin-players", "gui-tile-profile", "gui-tile-training",
     )
 
     fun render(id: String, spec: IconSpec): BufferedImage {
