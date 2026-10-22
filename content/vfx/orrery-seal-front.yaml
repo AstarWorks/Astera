@@ -50,7 +50,7 @@ elements:
 
   # Wheels spin on the ring plane (billboard keeps them facing the viewer, roll spins them).
   - id: wheel-outer
-    kind: { type: text, text: "<#ffb000><b>☸</b>", background: "#00000000", shadow: false, see_through: true }
+    kind: { type: text, text: "<#ffb000><b>◎</b>", background: "#00000000", shadow: false, see_through: true }
     billboard: center
     brightness: 15
     start_tick: 2
@@ -61,7 +61,7 @@ elements:
       - { t: 44, rotate: [0, 0, 720], scale: [11.0, 11.0, 11.0], ease: out_cubic }
 
   - id: wheel-inner
-    kind: { type: text, text: "<#ff6a10><b>✺</b>", background: "#00000000", shadow: false, see_through: true }
+    kind: { type: text, text: "<#ff6a10><b>◆</b>", background: "#00000000", shadow: false, see_through: true }
     billboard: center
     brightness: 15
     start_tick: 4

@@ -40,7 +40,7 @@ elements:
       - { t: 9, scale: [0.0, 0.05, 0.05], ease: in_quad }
 
   - id: tip
-    kind: { type: text, text: "<#dcebff><b>✧</b>", background: "#00000000", shadow: false, see_through: true }
+    kind: { type: text, text: "<#dcebff><b>☆</b>", background: "#00000000", shadow: false, see_through: true }
     billboard: center
     brightness: 15
     start_tick: 1

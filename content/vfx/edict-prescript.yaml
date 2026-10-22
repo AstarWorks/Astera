@@ -28,8 +28,8 @@ elements:
       - { t: 9, text: "<#c9d8ff><b>wL7!eZ</b>" }
       - { t: 10, text: "<#c9d8ff><b>H~z!A0</b>" }
       - { t: 11, text: "<#e8f0ff><b>斬z!A0</b>" }
-      - { t: 12, text: "<#ffffff><b>斬</b>", scale: [7.5, 7.5, 7.5], ease: out_back }
-      - { t: 26, scale: [8.0, 8.0, 8.0] }
+      - { t: 12, text: "<#ffffff><b>斬</b>", scale: [10.0, 10.0, 10.0], ease: out_back }
+      - { t: 26, scale: [11.0, 11.0, 11.0] }
       - { t: 32, scale: [0.0, 0.0, 0.0], ease: in_quad }
     oscillate: { axis: translate_y, amplitude: 0.05, period_ticks: 6 }
 
@@ -45,6 +45,7 @@ elements:
       offset: [0.0, 0.12, 0.0]
       align: outward
     jitter: { rotation_deg: 6, scale: 0.25 }
+    oscillate: { axis: scale_xyz, amplitude: 0.02, period_ticks: 2 }
     keyframes:
       - { t: 0, scale: [0.1, 0.1, 0.2] }
       - { t: 12, translate: [0.0, 0.0, 2.4], scale: [0.14, 0.1, 4.6], ease: out_cubic }
@@ -64,6 +65,7 @@ elements:
       offset: [0.0, 1.5, -0.7]
       align: outward
     jitter: { rotation_deg: 5, scale: 0.4 }
+    oscillate: { axis: scale_xyz, amplitude: 0.02, period_ticks: 2 }
     keyframes:
       - { t: 0, scale: [0.08, 0.08, 0.2] }
       - { t: 10, translate: [0.0, 0.0, 2.2], scale: [0.12, 0.12, 4.0], ease: out_cubic }

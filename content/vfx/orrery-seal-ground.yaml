@@ -63,7 +63,7 @@ elements:
       - { t: 18, scale: [0.0, 0.04, 0.5], ease: in_quad }
 
   - id: wheel-outer
-    kind: { type: text, text: "<#ffb000><b>☸</b>", background: "#00000000", shadow: false, see_through: true }
+    kind: { type: text, text: "<#ffb000><b>◎</b>", background: "#00000000", shadow: false, see_through: true }
     billboard: fixed
     brightness: 15
     start_tick: 0
@@ -74,7 +74,7 @@ elements:
       - { t: 30, rotate: [0, -90, 540], scale: [14.0, 14.0, 14.0], ease: out_cubic }
 
   - id: wheel-inner
-    kind: { type: text, text: "<#ff6a10><b>✺</b>", background: "#00000000", shadow: false, see_through: true }
+    kind: { type: text, text: "<#ff6a10><b>◆</b>", background: "#00000000", shadow: false, see_through: true }
     billboard: fixed
     brightness: 15
     start_tick: 2
