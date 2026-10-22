@@ -31,4 +31,13 @@ public enum class StatusKind(
 
     /** Cannot cast skills (`CastSkillUseCase` checks the `silence` status id). */
     SILENCE(true),
+
+    /**
+     * Pure stack counter with no engine-side behaviour (Tremor / Rupture / ...). Skills read the
+     * stack count through `has_status.min_stacks` and `damage.per_stack`. Removed by a harmful Cleanse.
+     */
+    STACK_DEBUFF(true),
+
+    /** Pure stack counter on the user's side (Poise / Charge / ...); survives a harmful Cleanse. */
+    STACK_BUFF(false),
 }

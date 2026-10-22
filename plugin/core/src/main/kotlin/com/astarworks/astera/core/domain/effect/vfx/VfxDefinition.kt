@@ -1,0 +1,271 @@
+package com.astarworks.astera.core.domain.effect.vfx
+
+import com.astarworks.astera.core.domain.animation.Easing
+import com.astarworks.astera.core.domain.effect.DisplayBillboard
+import com.astarworks.astera.core.domain.effect.DisplayItemMode
+import com.astarworks.astera.core.domain.effect.ParticleId
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.geometry.math.Curve
+import com.astarworks.astera.core.domain.geometry.math.Frame
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
+
+/**
+ * Identifier of a [VfxDefinition] loaded from `content/vfx/<id>.yaml`
+ * (lower-kebab-case, same convention as every other content id).
+ */
+@JvmInline
+public value class VfxId(public val value: String) {
+    init {
+        require(value.matches(KEBAB)) { "VfxId must be lower-kebab: $value" }
+    }
+
+    override fun toString(): String = value
+
+    public companion object {
+        private val KEBAB = Regex("^[a-z][a-z0-9-]*$")
+    }
+}
+
+/** How the effect's anchor frame is oriented when it is played. */
+public enum class VfxOrient {
+    /** Caster yaw + pitch. */
+    LOOK,
+
+    /** Caster yaw only (level). */
+    YAW,
+
+    /** No rotation: local axes are world axes. */
+    WORLD,
+
+    /** Caster -> anchor direction. */
+    TO_TARGET,
+    ;
+
+    /**
+     * Builds the anchor [Frame] at [origin]. [look] is the caster's look direction,
+     * [toTarget] the caster -> anchor direction; a missing or degenerate vector
+     * falls back to an unrotated frame ([TO_TARGET] falls back to [look] first).
+     */
+    public fun frame(origin: Vec3, look: Vec3?, toTarget: Vec3?): Frame {
+        val dir = when (this) {
+            WORLD -> null
+            LOOK -> look
+            YAW -> look?.let { Vec3(it.x, 0.0, it.z) }
+            TO_TARGET -> toTarget?.takeIf { it.lengthSquared() > 1e-9 } ?: look
+        }
+        if (dir == null || dir.lengthSquared() < 1e-9) return Frame(origin, Quaternion.IDENTITY)
+        return Frame.fromDirection(origin, dir)
+    }
+}
+
+/**
+ * Display choreography (Limbus-style multi-hit slashes, projections, text flashes):
+ * a set of [VfxElement]s, each placed along a math curve and animated with keyframed,
+ * eased, client-interpolated transforms. Pure data; [VfxTimeline] turns it into a plan.
+ */
+public data class VfxDefinition(
+    public val id: VfxId,
+    /** Whole-effect lifetime in ticks; every entity is removed at the end. */
+    public val durationTicks: Int,
+    public val orient: VfxOrient = VfxOrient.LOOK,
+    /** `true`: the anchor position is re-resolved every tick (moves with an entity anchor). */
+    public val follow: Boolean = false,
+    /** Easing resolution: keyframe segments are split into chunks of at most this many ticks. */
+    public val sampleTicks: Int = 2,
+    public val elements: List<VfxElement>,
+) {
+    init {
+        require(durationTicks in 1..MAX_DURATION_TICKS) { "VfxDefinition.durationTicks must be 1..$MAX_DURATION_TICKS: $durationTicks" }
+        require(sampleTicks >= 1) { "VfxDefinition.sampleTicks must be >= 1: $sampleTicks" }
+        require(elements.isNotEmpty()) { "VfxDefinition.elements must not be empty" }
+        val ids = elements.map { it.id }
+        require(ids.toSet().size == ids.size) { "VfxDefinition element ids must be unique: $ids" }
+        val slots = elements.sumOf { it.count }
+        require(slots <= MAX_SLOTS) { "VfxDefinition has $slots element slots (max $MAX_SLOTS)" }
+        elements.forEach {
+            require(it.startTick < durationTicks) { "element '${it.id}' start_tick ${it.startTick} >= duration_ticks $durationTicks" }
+        }
+    }
+
+    public companion object {
+        public const val MAX_DURATION_TICKS: Int = 200
+        public const val MAX_SLOTS: Int = 256
+    }
+}
+
+public data class VfxElement(
+    public val id: String,
+    public val kind: VfxElementKind,
+    /** Fixed block + sky light 0..15 (emissive look). */
+    public val brightness: Int? = null,
+    public val glowArgb: Int? = null,
+    public val billboard: DisplayBillboard = DisplayBillboard.FIXED,
+    public val viewRange: Float? = null,
+    public val startTick: Int = 0,
+    /** Slot lifetime is `endTick - startTick` (so staggered copies live as long as the first); `null` = until the effect ends. */
+    public val endTick: Int? = null,
+    /** Formation copies. */
+    public val count: Int = 1,
+    public val formation: VfxFormation? = null,
+    public val jitter: VfxJitter? = null,
+    public val keyframes: List<VfxKeyframe>,
+    public val oscillate: VfxOscillate? = null,
+) {
+    init {
+        require(id.isNotBlank()) { "VfxElement.id must not be blank" }
+        require(brightness == null || brightness in 0..15) { "element '$id' brightness must be 0..15: $brightness" }
+        require(startTick >= 0) { "element '$id' start_tick must be >= 0: $startTick" }
+        require(endTick == null || endTick > startTick) { "element '$id' end_tick ($endTick) must be > start_tick ($startTick)" }
+        require(count in 1..MAX_COUNT) { "element '$id' count must be 1..$MAX_COUNT: $count" }
+        require(keyframes.isNotEmpty()) { "element '$id' needs at least one keyframe" }
+        require(keyframes.first().t >= 0) { "element '$id' keyframe t must be >= 0" }
+        keyframes.zipWithNext().forEach { (a, b) ->
+            require(b.t > a.t) { "element '$id' keyframe t must be strictly increasing (${a.t} then ${b.t})" }
+        }
+        keyframes.forEach {
+            require(it.block == null || kind is VfxElementKind.Block) { "element '$id': keyframe block swap needs kind block" }
+            require(it.text == null || kind is VfxElementKind.Text) { "element '$id': keyframe text swap needs kind text" }
+        }
+    }
+
+    public companion object {
+        public const val MAX_COUNT: Int = 128
+    }
+}
+
+public sealed interface VfxElementKind {
+    /** `blockKey` is a vanilla block id with or without the `minecraft:` prefix. */
+    public data class Block(public val blockKey: String) : VfxElementKind {
+        init {
+            require(blockKey.isNotBlank()) { "VfxElementKind.Block.blockKey must not be blank" }
+        }
+    }
+
+    /** Vanilla material key (`netherite_sword`). */
+    public data class Item(
+        public val itemKey: String,
+        public val displayMode: DisplayItemMode = DisplayItemMode.FIXED,
+    ) : VfxElementKind {
+        init {
+            require(itemKey.isNotBlank()) { "VfxElementKind.Item.itemKey must not be blank" }
+            itemId // validates the key shape
+        }
+
+        /** [itemKey] as the lower-kebab [ItemId] the display gateway resolves (`netherite_sword` -> `netherite-sword`). */
+        public val itemId: ItemId
+            get() = ItemId(itemKey.removePrefix("minecraft:").lowercase().replace('_', '-'))
+    }
+
+    /** MiniMessage text (rendered by the adapter's text deserializer). */
+    public data class Text(
+        public val text: String,
+        public val backgroundArgb: Int = 0,
+        public val shadow: Boolean = false,
+        public val seeThrough: Boolean = false,
+        public val lineWidth: Int? = null,
+    ) : VfxElementKind {
+        init {
+            require(text.isNotBlank()) { "VfxElementKind.Text.text must not be blank" }
+        }
+    }
+
+    /** No entity: emits a `content/particles` id at the element position every [everyTicks]. */
+    public data class Particle(
+        public val particleId: ParticleId,
+        public val everyTicks: Int = 1,
+    ) : VfxElementKind {
+        init {
+            require(everyTicks >= 1) { "VfxElementKind.Particle.everyTicks must be >= 1: $everyTicks" }
+        }
+    }
+}
+
+public enum class VfxAlign {
+    /** Local +Z follows the curve tangent. */
+    TANGENT,
+
+    /** Local +Z points away from the curve's origin. */
+    OUTWARD,
+
+    /** Keeps the formation (tilt) orientation: every slot faces like the tilted formation. */
+    ANCHOR,
+
+    /** Keeps the anchor orientation, ignoring tilt. */
+    NONE,
+}
+
+/** Slots placed along [curve]; slot `i` sits at `curve.point(t_i)`. */
+public data class VfxFormation(
+    public val curve: Curve,
+    /** `(yaw, pitch, roll)` degrees rotating the curve's plane. */
+    public val tiltYawPitchRoll: Vec3 = Vec3.ZERO,
+    /** Local offset of the whole formation (x = left, y = up, z = forward). */
+    public val offset: Vec3 = Vec3.ZERO,
+    public val align: VfxAlign = VfxAlign.NONE,
+    /** Slot `i` starts `i * staggerTicks` after the element's `startTick`. */
+    public val staggerTicks: Int = 0,
+    /** Reverses the stagger order (the sweep runs against the curve direction). */
+    public val reverse: Boolean = false,
+) {
+    init {
+        require(staggerTicks >= 0) { "VfxFormation.staggerTicks must be >= 0: $staggerTicks" }
+    }
+
+    /** Whether slots wrap around (circle, polygon): the end point would duplicate the start. */
+    public val closed: Boolean
+        get() = curve.closed
+}
+
+/** Seeded per-slot randomness (deterministic for a given cast seed). */
+public data class VfxJitter(
+    /** Max positional offset per axis, blocks. */
+    public val position: Double = 0.0,
+    /** Max rotation per euler axis, degrees. */
+    public val rotationDeg: Double = 0.0,
+    /** Max relative scale change (0.1 = +-10%). */
+    public val scale: Double = 0.0,
+) {
+    init {
+        require(position >= 0.0 && rotationDeg >= 0.0 && scale >= 0.0) { "VfxJitter values must be >= 0" }
+    }
+}
+
+/**
+ * LOCAL transform of a slot at element-relative tick [t]. Absent fields carry over
+ * from the previous keyframe (identity for the first one). [ease] shapes the segment
+ * ENDING at this keyframe. [block] / [text] swap the displayed content at that tick
+ * (displays have no alpha, so fades are done with a block ladder).
+ */
+public data class VfxKeyframe(
+    public val t: Int,
+    public val translate: Vec3? = null,
+    /** `(yaw, pitch, roll)` degrees. Interpolated component-wise, so multi-turn spins work. */
+    public val rotateEuler: Vec3? = null,
+    public val scale: Vec3? = null,
+    public val ease: Easing = Easing.LINEAR,
+    public val block: String? = null,
+    public val text: String? = null,
+)
+
+public enum class VfxOscillateAxis {
+    SCALE_X, SCALE_Y, SCALE_Z,
+
+    /** Both horizontal scale axes together (beam bloom). */
+    SCALE_XZ,
+
+    /** All three scale axes together. */
+    SCALE_XYZ,
+    TRANSLATE_X, TRANSLATE_Y, TRANSLATE_Z,
+}
+
+/** Per-tick flicker `amplitude * cos(2*PI * tick / periodTicks)` added on top of the keyframes. */
+public data class VfxOscillate(
+    public val axis: VfxOscillateAxis,
+    public val amplitude: Double,
+    public val periodTicks: Int,
+) {
+    init {
+        require(periodTicks >= 1) { "VfxOscillate.periodTicks must be >= 1: $periodTicks" }
+    }
+}

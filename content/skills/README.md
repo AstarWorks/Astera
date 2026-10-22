@@ -68,3 +68,44 @@ skills:
 
 The same skill can be bound to multiple items / triggers (or none at all,
 e.g. for system-fired skills via `SkillCastRequested` published directly).
+
+## Combo / stack / dash mechanics
+
+```yaml
+# loop: iteration i runs at delay i * stride_ticks (0 = all at once)
+- { type: loop, count: { type: literal, value: 3 }, stride_ticks: { type: literal, value: 4 }, mechanics: [ ... ] }
+
+# stacks: stack_count adds N (capped at the status max_stacks); remove_status.stacks consumes N (omit = remove all)
+- { type: apply_status, targets: { type: target }, status_id: rupture, effect_duration_ticks: { type: literal, value: 200 }, stack_count: { type: literal, value: 2 } }
+- { type: remove_status, targets: { type: target }, status_id: rupture, stacks: 2 }
+
+# has_status condition: min_stacks (default 1), on: target (default) | caster, or an explicit targets:
+condition: { type: has_status, on: caster, status_id: poise, min_stacks: 5 }
+
+# damage component: per_stack adds `amount x stacks` AFTER the component multiplier.
+# Stacks are read before the hit; consume: true removes them once the whole damage mechanic has landed.
+components:
+  - base: { type: literal, value: 4.0 }
+    attribute: physical
+    per_stack: { status_id: rupture, amount: 1.5, on: target, consume: false }
+
+# dash_strike: the caster lunges `distance` blocks over `ticks` ticks (level heading, or full look with follow_pitch),
+# sweeping a capsule of `radius`; on_hit runs once per touched entity (target = that entity) unless hit_once: false.
+# invulnerable grants the immunity status for the dash; stop_on_block ends it at the first solid block.
+- type: dash_strike
+  distance: 6.0
+  ticks: 4
+  radius: 1.2
+  hit_once: true
+  invulnerable: true
+  stop_on_block: true
+  follow_pitch: false
+  on_hit:
+    - { type: apply_status, targets: { type: target }, status_id: tremor, effect_duration_ticks: { type: literal, value: 200 } }
+
+# hit_stop: hold targets (zero velocity, no walking/jumping) for `ticks`; include_caster holds the caster too
+- { type: hit_stop, targets: { type: target }, ticks: 3, include_caster: false }
+```
+
+Stack-only statuses (`tremor`, `rupture`, `poise`, `charge`, `sinking`) live in `content/status/`
+(`kind: stack_debuff | stack_buff`, `params: { type: marker }`).

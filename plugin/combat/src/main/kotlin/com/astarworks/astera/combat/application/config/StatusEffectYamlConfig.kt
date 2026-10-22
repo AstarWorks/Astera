@@ -178,4 +178,20 @@ public sealed class StatusEffectParamsYaml {
         override fun hashCode(): Int = javaClass.hashCode()
         override fun toString(): String = "DisableParamsYaml"
     }
+
+    /**
+     * Pure stack counter: `STACK_DEBUFF` / `STACK_BUFF`. No scalar payload; the stack count itself is
+     * the value (read by `has_status.min_stacks` / `damage.per_stack`).
+     */
+    @Serializable
+    @SerialName("marker")
+    public class MarkerParamsYaml : StatusEffectParamsYaml() {
+        override fun magnitude(): Double = 0.0
+        override fun matches(kind: StatusKind): Boolean =
+            kind == StatusKind.STACK_DEBUFF || kind == StatusKind.STACK_BUFF
+
+        override fun equals(other: Any?): Boolean = other is MarkerParamsYaml
+        override fun hashCode(): Int = javaClass.hashCode()
+        override fun toString(): String = "MarkerParamsYaml"
+    }
 }
