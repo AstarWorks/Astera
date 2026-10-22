@@ -58,7 +58,9 @@ public class SimHudRecorder(
      * the glyph form (after the bullet icon) or from the `ammo` / `ammoMax` placeholders of the text form.
      */
     public fun statusAmmo(player: PlayerId): String? {
-        val component = statusLine(player)?.component ?: return null
+        val line = statusLine(player)?.component ?: return null
+        // The text form carries the cooldown parts after the HP text (ADR-0197): the HP text is first.
+        val component = if (line is HudComponent.Composite) line.parts.firstOrNull() ?: return null else line
         return when (component) {
             is HudComponent.FontText -> ammoNumbers(component)
             is HudComponent.Text -> component.placeholders["ammo"]?.let { "$it/${component.placeholders["ammoMax"]}" }

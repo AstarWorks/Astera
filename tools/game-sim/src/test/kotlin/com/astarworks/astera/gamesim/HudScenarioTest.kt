@@ -183,7 +183,7 @@ class HudScenarioTest {
                 advance(6)
             }
             assertThat(sim.hud.statusAmmo(shooter.id)).isEqualTo("0/12")
-            assertThat(cooldownSweeps()).isEmpty()
+            assertThat(cooldownSweeps().map { it.ticks }).doesNotContain(30) // shots sweep their own short cooldown (ADR-0197), not the reload
             shooter.drop()
             advance(2)
             assertThat(cooldownSweeps().map { it.ticks }).contains(30)
