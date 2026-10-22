@@ -86,5 +86,10 @@ public class StructureAwareEntityDamageGateway(
     override fun maxHitPoints(target: PlayerId): Double? =
         structure(target)?.maxHitPoints(target) ?: base?.maxHitPoints(target)
 
+    /** Structures (pillars) are not healable; everything else goes to [base]. */
+    override fun heal(target: PlayerId, amount: Double) {
+        if (structure(target) == null) base?.heal(target, amount)
+    }
+
     private fun structure(id: PlayerId): IStructureTargets? = structures()?.takeIf { it.isStructure(id) }
 }

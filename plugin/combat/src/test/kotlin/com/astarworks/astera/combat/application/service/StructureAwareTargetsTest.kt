@@ -90,6 +90,7 @@ class StructureAwareTargetsTest {
             override fun apply(target: PlayerId, resolved: ResolvedDamage, source: DamageSource) =
                 Result.success(DamageOutcome.HpReduced(7.0))
             override fun hitPoints(target: PlayerId): Double? = 7.0
+            override fun heal(target: PlayerId, amount: Double) = Unit
         }
         val gateway = StructureAwareEntityDamageGateway(host) { structures }
 
