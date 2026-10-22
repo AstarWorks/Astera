@@ -100,6 +100,46 @@ class InMemoryEffectOrchestratorTest {
     }
 
     @Test
+    fun `short parallel sequence does not cancel a longer sibling`() {
+        val scheduler = FakeScheduler()
+        val gateway = FakeWorldGateway()
+        val sut = InMemoryEffectOrchestrator(scheduler, gateway, RecordingStatusApplier(), RecordingDamageApplier())
+        val handle = sut.play(
+            EffectChain.Parallel(
+                listOf(
+                    EffectChain.Sequence(listOf(EffectStep.SoundStep(sound, Vec3.ZERO, world))),
+                    EffectChain.Sequence(listOf(EffectStep.DelayStep(10), EffectStep.ParticleStep(particle, Vec3.ZERO, world))),
+                ),
+            ),
+        )
+        scheduler.advanceTicks(0)
+        assertThat(gateway.sounds).hasSize(1)
+        assertThat(handle.isActive).isTrue()
+        scheduler.advanceTicks(10)
+        assertThat(gateway.particles).hasSize(1)
+        assertThat(handle.isActive).isFalse()
+    }
+
+    @Test
+    fun `loop completes only after the last delayed iteration`() {
+        val scheduler = FakeScheduler()
+        val gateway = FakeWorldGateway()
+        val sut = InMemoryEffectOrchestrator(scheduler, gateway, RecordingStatusApplier(), RecordingDamageApplier())
+        val handle = sut.play(
+            EffectChain.Loop(
+                EffectChain.Sequence(listOf(EffectStep.DelayStep(2), EffectStep.SoundStep(sound, Vec3.ZERO, world))),
+                durationTicks = 10, intervalTicks = 5,
+            ),
+        )
+        scheduler.advanceTicks(7)
+        assertThat(gateway.sounds).hasSize(2)
+        assertThat(handle.isActive).isTrue()
+        scheduler.advanceTicks(5)
+        assertThat(gateway.sounds).hasSize(3)
+        assertThat(handle.isActive).isFalse()
+    }
+
+    @Test
     fun `cancel tears down every pending step`() {
         val scheduler = FakeScheduler(startTick = 0L)
         val worldGateway = FakeWorldGateway()

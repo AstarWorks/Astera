@@ -50,13 +50,18 @@ public class InMemoryEffectOrchestrator(
 
     override fun play(chain: EffectChain): EffectHandle {
         val composite = CompositeHandle()
-        execute(chain, composite, delayTicks = 0L)
+        val endTick = execute(chain, composite, delayTicks = 0L)
+        composite.add(scheduler.runLater(ticks(endTick)) { composite.markComplete() })
         return composite
     }
 
-    private fun execute(chain: EffectChain, composite: CompositeHandle, delayTicks: Long) {
+    /** Schedule every branch before completing the shared handle at the latest end tick. */
+    private fun execute(chain: EffectChain, composite: CompositeHandle, delayTicks: Long): Long =
         when (chain) {
-            is EffectChain.EmitOnce -> dispatchStep(chain.step, composite, delayTicks)
+            is EffectChain.EmitOnce -> {
+                dispatchStep(chain.step, composite, delayTicks)
+                delayTicks + ((chain.step as? EffectStep.DelayStep)?.durationTicks ?: 0L)
+            }
             is EffectChain.Sequence -> {
                 var cursor = delayTicks
                 for (step in chain.steps) {
@@ -66,29 +71,21 @@ public class InMemoryEffectOrchestrator(
                         dispatchStep(step, composite, cursor)
                     }
                 }
-                if (chain.steps.isNotEmpty()) {
-                    val cancel = scheduler.runLater(ticks(cursor)) { composite.markComplete() }
-                    composite.add(cancel)
-                }
+                cursor
             }
-            is EffectChain.Parallel -> {
-                for (branch in chain.branches) {
-                    execute(branch, composite, delayTicks)
-                }
-            }
+            is EffectChain.Parallel -> chain.branches.maxOf { execute(it, composite, delayTicks) }
             is EffectChain.Loop -> {
                 if (chain.durationTicks == 0L) {
                     log.warn("EffectChain.Loop with durationTicks=0 dropped (infinite loop guard)")
-                    return
-                }
-                val iterations = chain.durationTicks / chain.intervalTicks
-                for (i in 0..iterations) {
-                    val offset = delayTicks + i * chain.intervalTicks
-                    execute(chain.chain, composite, offset)
+                    delayTicks
+                } else {
+                    val iterations = chain.durationTicks / chain.intervalTicks
+                    (0..iterations).maxOf { i ->
+                        execute(chain.chain, composite, delayTicks + i * chain.intervalTicks)
+                    }
                 }
             }
         }
-    }
 
     private fun dispatchStep(step: EffectStep, composite: CompositeHandle, delayTicks: Long) {
         val task = scheduler.runLater(ticks(delayTicks)) {
