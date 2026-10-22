@@ -3,6 +3,7 @@ package com.astarworks.astera.match.adapter.paper
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.domain.event.BlockBroken
 import com.astarworks.astera.core.domain.event.PlayerMoved
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -45,15 +46,16 @@ public class PaperMatchWorldInputAdapter(
         val playerId = PlayerId(event.player.uniqueId)
         val match = matches.findMatchOf(playerId) ?: return
         val block = event.block
-        eventBus.publish(
-            BlockBroken(
-                matchId = match.id,
-                playerId = playerId,
-                position = Vec3(block.x.toDouble(), block.y.toDouble(), block.z.toDouble()),
-                blockId = block.type.key.asString(),
-                atTick = scheduler.currentTick(),
-            ),
+        val broken = BlockBroken(
+            matchId = match.id,
+            playerId = playerId,
+            position = Vec3(block.x.toDouble(), block.y.toDouble(), block.z.toDouble()),
+            blockId = block.type.key.asString(),
+            atTick = scheduler.currentTick(),
         )
+        // MONITOR fires before the server removes the block. Publish a tick later so a listener that writes the block
+        // back (break-core: "your own core cannot be broken") is not overwritten by the break completing afterwards.
+        scheduler.runLaterTicks(1L) { eventBus.publish(broken) }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

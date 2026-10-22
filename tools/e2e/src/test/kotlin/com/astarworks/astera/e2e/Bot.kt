@@ -27,6 +27,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.ResourcePackStatus
 import org.geysermc.mcprotocollib.protocol.data.game.command.CommandNode
 import org.geysermc.mcprotocollib.protocol.data.game.command.CommandType
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.Hand
+import org.geysermc.mcprotocollib.protocol.data.game.entity.player.PositionElement
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.HandPreference
 import org.geysermc.mcprotocollib.protocol.data.game.scoreboard.ObjectiveAction
 import org.geysermc.mcprotocollib.protocol.data.game.scoreboard.ScoreboardPosition
@@ -62,6 +63,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.title.Clien
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundChatCommandPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundCommandSuggestionPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundPlayerLoadedPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundClientTickEndPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.inventory.ServerboundContainerClosePacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.level.ServerboundAcceptTeleportationPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundMovePlayerPosRotPacket
@@ -178,6 +180,8 @@ class Bot private constructor(
     @Volatile var x = 0.0; private set
     @Volatile var y = 0.0; private set
     @Volatile var z = 0.0; private set
+    @Volatile var yawDeg = 0f; private set
+    @Volatile var pitchDeg = 0f; private set
     @Volatile var worldName: String? = null; private set
     val worldHistory = CopyOnWriteArrayList<String>()
     val positionPackets = AtomicInteger()
@@ -236,7 +240,12 @@ class Bot private constructor(
             }
             is ClientboundDisconnectPacket -> disconnectReason = plain(packet.reason)
             is ClientboundPlayerCombatKillPacket -> deaths += plain(packet.message)
-            is ClientboundGameEventPacket -> if (packet.notification == GameEvent.CHANGE_GAME_MODE) gameModes += packet.value.toString()
+            is ClientboundGameEventPacket -> if (packet.notification == GameEvent.CHANGE_GAME_MODE) {
+                gameModes += packet.value.toString()
+                // Astera deaths never raise a vanilla death (ADR-0149: the HP mirror is held above zero), so no
+                // ClientboundPlayerCombatKill arrives. The visible death is the death cam: spectator mode.
+                if (packet.value == org.geysermc.mcprotocollib.protocol.data.game.entity.player.GameMode.SPECTATOR) deaths += "death cam (spectator)"
+            }
             is ClientboundCustomQueryPacket -> answerLoginQuery(packet)
             is ClientboundCustomPayloadPacket -> handlePluginMessage(packet)
             is ClientboundDamageEventPacket -> damageEventEntities += packet.entityId
@@ -261,9 +270,15 @@ class Bot private constructor(
                 worldHistory += worldName!!
             }
             is ClientboundPlayerPositionPacket -> {
-                x = packet.position.x; y = packet.position.y; z = packet.position.z
+                // Relative flags (a vanilla client applies them to its own state before echoing the absolute result).
+                val rel = packet.relatives
+                x = if (PositionElement.X in rel) x + packet.position.x else packet.position.x
+                y = if (PositionElement.Y in rel) y + packet.position.y else packet.position.y
+                z = if (PositionElement.Z in rel) z + packet.position.z else packet.position.z
+                yawDeg = if (PositionElement.Y_ROT in rel) yawDeg + packet.yRot else packet.yRot
+                pitchDeg = if (PositionElement.X_ROT in rel) pitchDeg + packet.xRot else packet.xRot
                 positionPackets.incrementAndGet()
-                session.send(ServerboundAcceptTeleportationPacket(packet.id, x, y, z, packet.yRot, packet.xRot))
+                session.send(ServerboundAcceptTeleportationPacket(packet.id, x, y, z, yawDeg, pitchDeg))
                 session.send(ServerboundPlayerLoadedPacket.INSTANCE)
                 joined = true
             }
@@ -440,9 +455,6 @@ class Bot private constructor(
 
     fun selectHotbar(slot: Int) = session.send(ServerboundSetCarriedItemPacket(slot))
 
-    fun look(yaw: Float, pitch: Float) =
-        session.send(ServerboundMovePlayerPosRotPacket(true, false, x, y, z, yaw, pitch))
-
     fun useItem(yaw: Float, pitch: Float) =
         session.send(ServerboundUseItemPacket(Hand.MAIN_HAND, sequence.getAndIncrement(), yaw, pitch))
 
@@ -495,8 +507,16 @@ class Bot private constructor(
 
     fun closeWindow(id: Int) = session.send(ServerboundContainerClosePacket(id))
 
-    /** Keeps the anti-AFK detector quiet. */
-    fun nudge() = session.send(ServerboundMovePlayerPosRotPacket(true, false, x, y, z, 0f, 0f))
+    /**
+     * A position update, the way a real client sends it. Since 26.x the server kicks (`invalid_player_movement`) a
+     * second position packet received before the client's `ServerboundClientTickEnd`; a bot without a tick loop must
+     * therefore end every "tick" itself, before and after the move.
+     */
+    fun nudge() {
+        session.send(ServerboundClientTickEndPacket.INSTANCE)
+        session.send(ServerboundMovePlayerPosRotPacket(true, false, x, y, z, yawDeg, pitchDeg))
+        session.send(ServerboundClientTickEndPacket.INSTANCE)
+    }
 
     // --- queries ---------------------------------------------------------------------------------------------
     fun waitUntil(timeoutMs: Long = 10_000, cond: () -> Boolean): Boolean {

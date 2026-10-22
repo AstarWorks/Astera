@@ -48,6 +48,8 @@ class AnnihilationPlaythroughE2eTest : PlaythroughBase() {
 
     private fun shoot(a: Bot, times: Int) {
         repeat(times) {
+            // The magazine holds 12; an empty one fires nothing (Shift+Q reloads).
+            if ((ammoOf(a) ?: 12) <= 0) reload(a)
             a.useItem(0f, 16f)
             Thread.sleep(330)
         }

@@ -123,6 +123,7 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 val dmgPacketsBefore = t.packetCounts["ClientboundDamageEventPacket"]?.get() ?: 0
                 val hurtBefore = t.packetCounts["ClientboundHurtAnimationPacket"]?.get() ?: 0
                 val deathsBefore = t.deaths.size
+                val targetChatBefore = t.chat.size
                 val selfDmgBefore = t.damageEventEntities.size
                 val numbersBefore = a.damageNumbers.size
                 val castAt = System.currentTimeMillis()
@@ -165,7 +166,10 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 val typeCounts = spawnedAt.groupingBy { it.type }.eachCount()
 
                 val hpAfter = hp(t)
-                val damaged = (hpBefore != null && hpAfter != null && hpAfter < hpBefore) || t.healthHistory.drop(healthHistBefore).any { hpBefore != null && it < hpBefore }
+                // A lethal hit outside a match sends the victim to the lobby at full HP before any poll sees the dip;
+                // the "You were defeated" notice is the evidence of that hit.
+                val defeated = t.chatTexts().drop(targetChatBefore).any { it.contains("defeated", ignoreCase = true) }
+                val damaged = defeated || (hpBefore != null && hpAfter != null && hpAfter < hpBefore) || t.healthHistory.drop(healthHistBefore).any { hpBefore != null && it < hpBefore }
                 val hits = (t.packetCounts["ClientboundDamageEventPacket"]?.get() ?: 0) - dmgPacketsBefore
                 val hurts = (t.packetCounts["ClientboundHurtAnimationPacket"]?.get() ?: 0) - hurtBefore
                 // Reliable hit count: damage-event packets whose victim is the target itself (the server sends one per

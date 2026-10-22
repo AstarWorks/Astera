@@ -83,7 +83,7 @@ class NormaPlaythroughE2eTest : PlaythroughBase() {
             }
             if (!fight.killed) {
                 // Fallback so the rest of the loop (win condition, ending) is still exercised.
-                rcon("damage ${victim.name} 1000 minecraft:player_attack by ${shooter.name}")
+                rcon("damage ${victim.name} 1000 minecraft:magic by ${shooter.name}")
                 victim.waitUntil(5_000) { victim.deaths.isNotEmpty() }
             }
             if (!last) {

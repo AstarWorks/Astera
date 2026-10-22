@@ -14,6 +14,8 @@ class WeaponsE2eTest : E2eBase() {
     private fun hp(b: Bot): Double? =
         Regex("(-?[0-9.]+)f?$").find(rcon("data get entity ${b.name} Health").trim())?.groupValues?.get(1)?.toDoubleOrNull()
 
+    private fun status(b: Bot): String = b.actionBars.lastOrNull()?.text.orEmpty().filter { it.code < 0xE000 }.take(80)
+
     private fun food(b: Bot): Int? =
         rcon("data get entity ${b.name} foodLevel").trim().substringAfterLast(" ").toIntOrNull()
 
@@ -56,13 +58,14 @@ class WeaponsE2eTest : E2eBase() {
      * in the overworld across a settle window.
      */
     private fun stage(a: Bot, b: Bot, distance: Double, settleMs: Long) {
-        repeat(6) {
+        repeat(12) { attempt ->
             face(a, b, distance)
             Thread.sleep(settleMs)
             if (inOverworld(a) && inOverworld(b)) {
                 Thread.sleep(700)
                 if (inOverworld(a) && inOverworld(b)) return
             }
+            if (attempt == 2) E2eReport.notes += "Weapons stage attempt ${attempt + 1} failed: a=${rcon("data get entity ${a.name} Dimension").trim().substringAfter("data: ")} hp=${hp(a)} gm=${rcon("data get entity ${a.name} playerGameType").trim().substringAfter("data: ")}; b=${rcon("data get entity ${b.name} Dimension").trim().substringAfter("data: ")} hp=${hp(b)}; chat a=${a.chatTexts().takeLast(3)} b=${b.chatTexts().takeLast(3)}"
         }
     }
 
@@ -101,30 +104,43 @@ class WeaponsE2eTest : E2eBase() {
             if (melee) {
                 repeat(3) { n ->
                     rcon("effect give ${a.name} minecraft:instant_health 1 4 true")
+                    rcon("effect give ${b.name} minecraft:instant_health 1 4 true")
                     stage(a, b, 2.2, 1_500)
                     val before = food(a)
+                    // A real client sends the swing plus the attack on the entity in its crosshair.
                     a.punch()
-                    Thread.sleep(300)
-                    val after = food(a)
+                    a.entityIdByUuid[b.uuid]?.let(a::attack)
+                    // Sample through the swing: the cost is charged on cast, and energy regenerates right after.
+                    val samples = mutableListOf<Int>()
+                    val sampleEnd = System.currentTimeMillis() + 1_200
+                    while (System.currentTimeMillis() < sampleEnd) { food(a)?.let(samples::add); Thread.sleep(60) }
+                    val after = samples.minOrNull()
                     E2eReport.check(suite, "$item left click #$n spends energy (food bar)", "server foodLevel") {
                         assertThat(after != null && before != null && after < before)
-                            .describedAs("food $before -> $after; hp target=${hp(b)}; selected=$lastSelected").isTrue()
-                        "food $before -> $after"
+                            .describedAs("food $before -> $samples; hp target=${hp(b)}; pos a=${rcon("data get entity ${a.name} Pos").trim()} b=${rcon("data get entity ${b.name} Pos").trim()}; dim=${rcon("data get entity ${a.name} Dimension").trim()}; selected=$lastSelected").isTrue()
+                        "food $before -> min $after"
                     }
                 }
             } else {
                 var hits = 0
+                val trace = mutableListOf<String>()
                 val tries = 4
                 repeat(tries) {
+                    rcon("effect give ${a.name} minecraft:instant_health 1 4 true")
                     rcon("effect give ${b.name} minecraft:instant_health 1 4 true")
                     stage(a, b, 4.0, 2_500)
                     val before = hp(b)
+                    val chatBefore = b.chat.size
                     a.useItem(0f, 0f)
                     val after = lowestHp(b, 1_800)
-                    if (before != null && after != null && after < before) hits++
+                    // A lethal hit resets the victim to full HP in the lobby before the poll can see it: the
+                    // "You were defeated" notice is the evidence of that hit.
+                    val killed = b.chatTexts().drop(chatBefore).any { it.contains("defeated", ignoreCase = true) }
+                    if (killed || (before != null && after != null && after < before)) hits++
+                    trace += "try: hp $before -> $after; a=${rcon("data get entity ${a.name} Pos").trim().substringAfter("data: ")} b=${rcon("data get entity ${b.name} Pos").trim().substringAfter("data: ")} dim=${rcon("data get entity ${b.name} Dimension").trim().substringAfterLast(" ")}; bar='${status(a)}'"
                 }
                 E2eReport.check(suite, "$item hits a still target $tries/$tries", "server Health") {
-                    assertThat(hits).describedAs("hits=$hits/$tries").isEqualTo(tries)
+                    assertThat(hits).describedAs("hits=$hits/$tries; ${trace.joinToString(" | ")}").isEqualTo(tries)
                     "hits $hits/$tries (selected=$lastSelected)"
                 }
             }
