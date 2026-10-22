@@ -3,15 +3,18 @@ package com.astarworks.astera.combat.platform.wiring
 import com.astarworks.astera.combat.application.contents.SkillContents
 import com.astarworks.astera.combat.application.eventbus.listeners.hud.HudStatusEffectReadoutListener
 import com.astarworks.astera.combat.application.eventbus.listeners.hud.SkillReadyCueListener
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.service.HeldItemCooldownSource
 import com.astarworks.astera.combat.domain.event.CooldownExpired
-import com.astarworks.astera.core.domain.event.SkillCooldownStarted
-import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.IStatusEffectIconSource
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.register
+import com.astarworks.astera.core.domain.event.PlayerQuitServer
+import com.astarworks.astera.core.domain.event.ResourcePackStatusChanged
+import com.astarworks.astera.core.domain.event.SkillCooldownStarted
 import com.astarworks.astera.core.platform.wiring.WiringContext
 
 /** HUD listeners + quickbar-bind intent (split out of [CombatWiring] for size; ADR-0174). */
@@ -57,6 +60,9 @@ internal object CombatHudWiring {
                     statusEffects = statusContainer,
                     egoGauge = services.get<com.astarworks.astera.core.application.port.outbound.IEgoGauge>(),
                 )
+                registrations += services.register<IStatusEffectIconSource>(effectsReadout)
+                subscriptions += eventBus.subscribe(ResourcePackStatusChanged::class, effectsReadout::onPackStatus)
+                subscriptions += eventBus.subscribe(PlayerQuitServer::class, effectsReadout::onQuit)
                 shutdownHooks += { effectsReadout.stop() }
                 logger.info("ADR-0177 wired: HudStatusEffectReadoutListener polling started.")
             } else {

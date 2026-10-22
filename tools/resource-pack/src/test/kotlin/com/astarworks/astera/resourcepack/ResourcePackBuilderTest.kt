@@ -30,7 +30,7 @@ class ResourcePackBuilderTest {
         val types = providers.map { it.path("type").asText() }
         assertThat(types).contains("bitmap", "space")
         assertThat(providers.filter { it.path("type").asText() == "bitmap" }.map { it.path("file").asText() })
-            .contains("astera:hud/status/atlas.png", "astera:hud/currency/star-icon.png")
+            .contains("astera:hud/status/atlas.png", "astera:hud/currency/star-icon.png", "astera:hud/effects/atlas.png")
         // Every bitmap provider resolves to a file inside the pack (no dangling references).
         for (provider in providers.filter { it.path("type").asText() == "bitmap" }) {
             val path = "assets/astera/textures/" + provider.path("file").asText().substringAfter("astera:")

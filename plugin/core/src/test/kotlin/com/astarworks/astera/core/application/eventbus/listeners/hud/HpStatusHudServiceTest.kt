@@ -2,6 +2,8 @@ package com.astarworks.astera.core.application.eventbus.listeners.hud
 
 import com.astarworks.astera.core.application.contents.ItemContents
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.ICooldownIconSource
+import com.astarworks.astera.core.application.port.outbound.IStatusEffectIconSource
 import com.astarworks.astera.core.application.service.InMemoryResourcePoolService
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
@@ -10,7 +12,9 @@ import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.hud.ResourcePackStatus
 import com.astarworks.astera.core.domain.hud.status.AmmoReadoutLayout
+import com.astarworks.astera.core.domain.hud.status.CooldownHudLayout
 import com.astarworks.astera.core.domain.hud.status.HpBarLayout
+import com.astarworks.astera.core.domain.hud.status.StatusEffectHudLayout
 import com.astarworks.astera.core.domain.hud.status.StatusHudGlyphs
 import com.astarworks.astera.core.domain.i18n.LocalizedLore
 import com.astarworks.astera.core.domain.i18n.LocalizedText
@@ -22,18 +26,16 @@ import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.item.Rarity
-import com.astarworks.astera.core.domain.resource.ResourceType
-import com.astarworks.astera.core.application.port.outbound.ICooldownIconSource
-import com.astarworks.astera.core.domain.hud.status.CooldownHudLayout
-import com.astarworks.astera.core.domain.skill.SkillTrigger
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
+import com.astarworks.astera.core.domain.resource.ResourceType
+import com.astarworks.astera.core.domain.skill.SkillTrigger
 import com.astarworks.astera.testfixtures.FakeHudGateway
 import com.astarworks.astera.testfixtures.FakePlayerHealthGateway
 import com.astarworks.astera.testfixtures.FakeScheduler
+import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.util.UUID
 
 class HpStatusHudServiceTest {
 
@@ -309,4 +311,35 @@ class HpStatusHudServiceTest {
         val parts = (lastLine(alice).component as HudComponent.Composite).parts.map { (it as HudComponent.Text).messageKey.value }
         assertThat(parts).containsExactly("astera.hud.status.hp", "astera.hud.cooldown.lc.waiting")
     }
+
+    @Test
+    fun `effect snapshots overlay only for loaded packs and disappear on expiry`() {
+        service.stop()
+        withIcons.stop()
+        val effects = mutableListOf(
+            StatusEffectHudLayout.Entry("burn", 61, 2),
+        )
+        val source = IStatusEffectIconSource { effects.toList() }
+        val withEffects = HpStatusHudService(health, hud, pools, items, scheduler, statusEffectIcons = { source })
+        setHp(alice, 100.0)
+        withEffects.onJoined(PlayerJoinedServer(alice))
+        scheduler.advanceTicks(2)
+        assertThat(lastLine(alice).component).isInstanceOf(HudComponent.Text::class.java)
+
+        withEffects.onPackStatus(ResourcePackStatusChanged(alice, ResourcePackStatus.LOADED))
+        scheduler.advanceTicks(2)
+        val bar = HpBarLayout.render(100.0, 200.0)
+        assertThat(lastLine(alice).component).isEqualTo(
+            StatusEffectHudLayout.overlay(bar, effects),
+        )
+        assertThat(lastLine(alice).anchorLeftPx).isEqualTo(HpBarLayout.HEARTS_LEFT_PX)
+
+        effects.clear()
+        scheduler.advanceTicks(2)
+        assertThat(lastLine(alice).component).isEqualTo(bar)
+        withEffects.onPackStatus(ResourcePackStatusChanged(alice, ResourcePackStatus.FAILED))
+        scheduler.advanceTicks(2)
+        assertThat(lastLine(alice).component).isInstanceOf(HudComponent.Text::class.java)
+    }
+
 }

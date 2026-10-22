@@ -2,6 +2,7 @@ package com.astarworks.astera.resourcepack
 
 import com.astarworks.astera.core.domain.hud.status.CooldownHudGlyphs
 import com.astarworks.astera.core.domain.hud.status.NegativeSpace
+import com.astarworks.astera.core.domain.hud.status.StatusEffectHudGlyphs
 import com.astarworks.astera.core.domain.hud.status.StatusHudGlyphs
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
@@ -20,6 +21,38 @@ class HudArtTest {
 
     private fun pixels(image: BufferedImage): List<Int> =
         (0 until image.height).flatMap { y -> (0 until image.width).map { x -> image.getRGB(x, y) } }
+
+    @Test
+    fun `effect art covers all status content and keeps exact pen advances and frame colours`() {
+        val atlas = StatusEffectArt.atlas()
+        val yaml = org.yaml.snakeyaml.Yaml()
+        Files.list(hudDir.parent.resolve("status")).use { paths ->
+            paths.filter { it.toString().endsWith(".yaml") }.forEach { path ->
+                val status = yaml.load<Map<String, Any>>(Files.readString(path))
+                val id = status.getValue("id").toString()
+                assertThat(StatusEffectHudGlyphs.IDS).contains(id)
+                val beneficial = status["kind"].toString() in setOf("stack_buff", "speed_up", "heal_amp")
+                val frame = atlas.getRGB(StatusEffectHudGlyphs.IDS.indexOf(id) * 9, 1)
+                assertThat(frame).`as`("$id frame").isEqualTo(if (beneficial) 0xFF56CB86.toInt() else 0xFFE76370.toInt())
+            }
+        }
+        StatusEffectHudGlyphs.ATLAS_ROWS.forEachIndexed { row, chars ->
+            chars.forEachIndexed { column, glyph ->
+                if (glyph != '\u0000') {
+                    var width = 0
+                    for (x in 0 until 9) for (y in 0 until 12) {
+                        if (atlas.getRGB(column * 9 + x, row * 12 + y) ushr 24 != 0) width = x + 1
+                    }
+                    assertThat(width + 1).isEqualTo(StatusEffectHudGlyphs.advance(glyph))
+                }
+            }
+        }
+        val provider = ObjectMapper().readTree(Files.readString(hudDir.resolve("effects.json")))["providers"].single()
+        assertThat(provider["ascent"].asInt()).isEqualTo(StatusEffectHudGlyphs.ASCENT)
+        assertThat(StatusEffectHudGlyphs.ASCENT - CooldownHudGlyphs.ASCENT).isGreaterThanOrEqualTo(12)
+        val preview = ImageIO.read(hudDir.resolve("../../docs/assets/status-icons-preview.png").normalize().toFile())
+        assertThat(pixels(preview)).isEqualTo(pixels(StatusEffectArt.preview()))
+    }
 
     @Test
     fun `committed HUD art is exactly what the generator draws`() {
