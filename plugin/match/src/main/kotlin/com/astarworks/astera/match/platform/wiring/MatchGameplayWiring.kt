@@ -10,7 +10,6 @@ import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationMatchTracker
 import com.astarworks.astera.core.domain.event.MatchEnded
-import com.astarworks.astera.match.application.service.DefaultSpawnSelector
 import com.astarworks.astera.match.application.service.ISpawnSelector
 import com.astarworks.astera.match.application.usecase.respawn.RespawnUseCase
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
@@ -148,11 +147,7 @@ internal object MatchGameplayWiring {
             scheduler = scheduler,
             statusEffectContainer = services.get<com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer>(),
         )
-        val respawnSelectorPort: com.astarworks.astera.match.application.service.ISpawnSelector =
-            services.get<com.astarworks.astera.match.application.service.ISpawnSelector>()
-                ?: com.astarworks.astera.match.application.service.DefaultSpawnSelector().also {
-                    registrations += services.register<com.astarworks.astera.match.application.service.ISpawnSelector>(it, priority = 0)
-                }
+        val respawnSelectorPort: ISpawnSelector = services.getOrThrow<ISpawnSelector>()
         val respawnOnKilled = com.astarworks.astera.match.application.eventbus.listeners.respawn
             .RespawnOnPlayerKilledListener(
                 matches = matches,

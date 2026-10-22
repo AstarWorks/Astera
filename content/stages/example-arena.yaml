@@ -1,12 +1,14 @@
-# Phase 1-2 demo stage; spawn_points added in Wave 4.5 (ADR-0027).
-# Still missing schematic / core (those land in Phase 3).
+# Demo stage for the 2-team Norma queue lane (red vs blue).
 # Y coordinates target the docker playtest superflat world: grass top is y=-61,
 # players stand at y=-60 (see docs/contributing/playtest.md).
 # Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
 #
-# See content/stages/README.md for the Phase 3 schema sketch.
+# See content/stages/README.md for the schema.
 
 id: example-arena
+
+# Bukkit world the stage is played in (default "world" = the server's main world).
+world: world
 
 # i18n keys; actual text in content/languages/{ja,en}.yaml
 display_name_key: astera.stage.example-arena.name
@@ -22,24 +24,39 @@ regions:
     min: { x: -5.0, y: -60.0, z: -5.0 }
     max: { x:  5.0, y: -58.0, z:  5.0 }
 
-# Role-tagged teleport targets used by MatchSpawnUseCase + RespawnUseCase
-# (Wave 5o / ADR-0081).
-#
-# Schema (flat data shape, Wave 5o reshape):
-#   faction:  attacker | defender | lobby | spectator   (required)
-#   position: { x, y, z }                                (required)
-#   yaw:      0.0..360.0   (optional, default 0.0)      Bukkit-style facing
-#   pitch:    -90.0..90.0  (optional, default 0.0)
-#   world:    "<world-id>" (optional, default "world")
+# Spawn points (WP9): per-team spawns for the 2-team Norma lane plus lobby /
+# spectator points. Schema (SpawnPointYamlConfig): exactly one of
+#   team: <team id>         per-team spawn (red / blue here)
+#   role: lobby | spectator team-less point
+# plus position {x,y,z}, optional yaw / pitch. All spawns are in the stage's world.
+# Several spawns per team: entry/respawn hands out the least-used one (Spread).
 spawn_points:
-  - faction: attacker
-    position: { x: -45.0, y: -60.0, z: 0.0 }
-    yaw: 90.0
-  - faction: defender
-    position: { x:  45.0, y: -60.0, z: 0.0 }
+  - team: red
+    position: { x: -45.0, y: -60.0, z: -3.0 }
     yaw: 270.0
-  - faction: lobby
-    position: { x:   0.0, y: -60.0, z: 0.0 }
-  - faction: spectator
-    position: { x:   0.0, y: -50.0, z: 0.0 }
+  - team: red
+    position: { x: -45.0, y: -60.0, z: 3.0 }
+    yaw: 270.0
+  - team: red
+    position: { x: -43.0, y: -60.0, z: 0.0 }
+    yaw: 270.0
+  - team: red
+    position: { x: -47.0, y: -60.0, z: 0.0 }
+    yaw: 270.0
+  - team: blue
+    position: { x: 45.0, y: -60.0, z: -3.0 }
+    yaw: 90.0
+  - team: blue
+    position: { x: 45.0, y: -60.0, z: 3.0 }
+    yaw: 90.0
+  - team: blue
+    position: { x: 43.0, y: -60.0, z: 0.0 }
+    yaw: 90.0
+  - team: blue
+    position: { x: 47.0, y: -60.0, z: 0.0 }
+    yaw: 90.0
+  - role: lobby
+    position: { x: 0.0, y: -60.0, z: 0.0 }
+  - role: spectator
+    position: { x: 0.0, y: -50.0, z: 0.0 }
     pitch: 45.0

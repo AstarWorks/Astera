@@ -24,14 +24,14 @@ regions:
     max: { x:  80.0, y: 80.0, z:  80.0 }
 
 spawn_points:
-  - faction: attacker
+  - team: red
     position: { x: -70.0, y: 64.0, z: 0.0 }
     yaw: 90.0
-  - faction: defender
+  - team: blue
     position: { x:  70.0, y: 64.0, z: 0.0 }
     yaw: 270.0
-  - faction: lobby
+  - role: lobby
     position: { x:   0.0, y: 80.0, z: 0.0 }
-  - faction: spectator
+  - role: spectator
     position: { x:   0.0, y: 95.0, z: 0.0 }
     pitch: 60.0

@@ -4,12 +4,9 @@ import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
-import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
-import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
 import com.astarworks.astera.core.domain.event.ChatMessageSent
 import com.astarworks.astera.match.application.eventbus.listeners.AuditLogListener
-import com.astarworks.astera.match.application.eventbus.listeners.SaveInventoryOnMatchEndedListener
 import com.astarworks.astera.match.application.port.inbound.IMatchRecorder
 import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
 import com.astarworks.astera.match.application.port.outbound.IPlayerPinService
@@ -107,14 +104,7 @@ internal object MatchSessionWiring {
         subscriptions += eventBus.subscribe(MatchStarted::class) { auditListener.handleMatchStarted(it) }
         subscriptions += eventBus.subscribe(MatchEnded::class) { auditListener.handleMatchEnded(it) }
 
-        // Inventory snapshot save on MatchEnded (per-participant placeholder; Wave 6b
-        // replaces with a real Bukkit-inventory capture).
-        val snapshotRepo = services.getOrThrow<IPlayerInventorySnapshotRepository>()
-        val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
-        val saveInventoryOnMatchEnded = SaveInventoryOnMatchEndedListener(saveSnapshotUseCase, matches)
-        subscriptions += eventBus.subscribe(MatchEnded::class) { saveInventoryOnMatchEnded.handle(it) }
-
-        logger.info("Wave 5e wiring complete: Spectator + PlayerPin + AuditLog + SaveInventory listeners.")
+        logger.info("Wave 5e wiring complete: Spectator + PlayerPin + AuditLog listeners.")
 
         // ---- Wave 5v: Match recording capture (ADR-0088) --------------------
         // Repository: registered at priority 0 (in-memory) so an absent

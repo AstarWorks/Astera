@@ -1,0 +1,98 @@
+# Annihilation arena (WP9): 3-team (red / blue / yellow) free-for-all on the
+# docker playtest superflat world (grass top y=-61, players stand at y=-60).
+# Used by the `annihilation` lane of content/matchmaking/queue.yaml.
+#
+# Layout: three bases on a triangle of radius ~45 around the origin, each
+# facing the centre. Per base: 4 spawns (a small cross, so teammates spread) and
+# the 3 Nexus pillars (tier 1 outer .. tier 3 Nexus proper) on the line from
+# the base towards the centre, matching content/nexus-templates/default-3pillar
+# offsets (4 / 6 / 8 blocks forward; y -59 / -59 / -58 = template y offsets 1/1/2).
+# Pillar positions are the single-block `pillar-<team>-<tier>` regions.
+# The pillar block placement itself is not consumed yet (the tracker seeds
+# pillars at a placeholder; Phase 6 Paper adapter), the positions are the data.
+# Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
+
+id: annihilation-arena
+
+display_name_key: astera.stage.annihilation-arena.name
+
+# Bukkit world (default "world" = the server's main world).
+world: world
+
+regions:
+  - name: full-arena
+    min: { x: -70.0, y: -60.0, z: -70.0 }
+    max: { x:  70.0, y: -30.0, z:  70.0 }
+  - name: center
+    min: { x: -8.0, y: -60.0, z: -8.0 }
+    max: { x:  8.0, y: -57.0, z:  8.0 }
+  - name: pillar-red-1
+    min: { x: 0.0, y: -59.0, z: -41.0 }
+    max: { x: 0.0, y: -59.0, z: -41.0 }
+  - name: pillar-red-2
+    min: { x: 0.0, y: -59.0, z: -39.0 }
+    max: { x: 0.0, y: -59.0, z: -39.0 }
+  - name: pillar-red-3
+    min: { x: 0.0, y: -58.0, z: -37.0 }
+    max: { x: 0.0, y: -58.0, z: -37.0 }
+  - name: pillar-blue-1
+    min: { x: 36.0, y: -59.0, z: 20.0 }
+    max: { x: 36.0, y: -59.0, z: 20.0 }
+  - name: pillar-blue-2
+    min: { x: 34.0, y: -59.0, z: 19.0 }
+    max: { x: 34.0, y: -59.0, z: 19.0 }
+  - name: pillar-blue-3
+    min: { x: 32.0, y: -58.0, z: 18.0 }
+    max: { x: 32.0, y: -58.0, z: 18.0 }
+  - name: pillar-yellow-1
+    min: { x: -36.0, y: -59.0, z: 20.0 }
+    max: { x: -36.0, y: -59.0, z: 20.0 }
+  - name: pillar-yellow-2
+    min: { x: -34.0, y: -59.0, z: 19.0 }
+    max: { x: -34.0, y: -59.0, z: 19.0 }
+  - name: pillar-yellow-3
+    min: { x: -32.0, y: -58.0, z: 18.0 }
+    max: { x: -32.0, y: -58.0, z: 18.0 }
+
+spawn_points:
+  - team: red
+    position: { x: 3.0, y: -60.0, z: -45.0 }
+    yaw: 0.0
+  - team: red
+    position: { x: -3.0, y: -60.0, z: -45.0 }
+    yaw: 0.0
+  - team: red
+    position: { x: 0.0, y: -60.0, z: -47.0 }
+    yaw: 0.0
+  - team: red
+    position: { x: 0.0, y: -60.0, z: -49.0 }
+    yaw: 0.0
+  - team: blue
+    position: { x: 37.5, y: -60.0, z: 24.6 }
+    yaw: 119.4
+  - team: blue
+    position: { x: 40.5, y: -60.0, z: 19.4 }
+    yaw: 119.4
+  - team: blue
+    position: { x: 40.7, y: -60.0, z: 23.0 }
+    yaw: 119.4
+  - team: blue
+    position: { x: 42.5, y: -60.0, z: 24.0 }
+    yaw: 119.4
+  - team: yellow
+    position: { x: -40.5, y: -60.0, z: 19.4 }
+    yaw: 240.6
+  - team: yellow
+    position: { x: -37.5, y: -60.0, z: 24.6 }
+    yaw: 240.6
+  - team: yellow
+    position: { x: -40.7, y: -60.0, z: 23.0 }
+    yaw: 240.6
+  - team: yellow
+    position: { x: -42.5, y: -60.0, z: 24.0 }
+    yaw: 240.6
+  - role: lobby
+    position: { x: 0.0, y: -60.0, z: 0.0 }
+  - role: spectator
+    position: { x: 0.0, y: -45.0, z: 0.0 }
+    pitch: 60.0

@@ -36,7 +36,8 @@ start alone; friends who join the queue before the countdown ends are
 split across the two teams).
 
 ```
-/astera-queue join norma     # "Joined queue: norma", then "n/min players queued"
+/astera-queue join norma         # 2 teams (red / blue) on example-arena
+/astera-queue join annihilation  # 3 teams (red / blue / yellow) on annihilation-arena
 /astera-queue status         # your position + how many players are queued
 /astera-queue leave          # optional: leave the queue
 ```
@@ -48,7 +49,9 @@ What happens next (no further commands):
    is cancelled if the queue drops below the minimum. A full queue
    (`teams x players_per_team`) starts immediately.
 2. "Match found!": you are put on a team (sizes balanced within 1) and
-   teleported to the stage spawn (`content/stages/example-arena.yaml`).
+   teleported to a spawn of your own team (`content/stages/example-arena.yaml`
+   for `norma`, `content/stages/annihilation-arena.yaml` for `annihilation`).
+   Teammates get different spawns of that team (least-used first).
 3. A 10 s in-arena COUNTDOWN (`match_countdown_seconds`), then the match is ACTIVE.
 4. When the match ends (win condition, or `/astera-match end <matchId>`) everyone
    is teleported back to the lobby and can `/astera-queue join norma` again.
@@ -64,6 +67,16 @@ per lane `stage`, `teams`, `players_per_team`, `min_players`.
 Admin shortcuts (skip the queue): `/astera-match start example-arena`, then
 `/astera-match entry <matchId> <name>` (teleports and auto-balances teams), plus
 `/astera-match phase|end|abort|list`.
+
+## World and coordinates
+
+The playtest world is superflat: the surface block is y=-61, you stand at y=-60.
+Everything you should see in a playtest uses that height: the lobby NPCs
+(`content/lobby-npcs/*.yaml`, y=-60; logical world `lobby` = the main world),
+the lobby spawn (the world spawn, x~0 z~0) and the `example-arena` /
+`annihilation-arena` stages. A stage names its Bukkit world with `world:`
+(default `world`, the server's main world). The other stages (`siege-arena`,
+`forest-arena`, `boss-arena`) keep y>=64 coordinates and are not playable on the flat world.
 
 ## Logs / reset
 

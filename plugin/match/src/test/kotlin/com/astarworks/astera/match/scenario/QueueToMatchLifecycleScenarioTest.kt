@@ -10,7 +10,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.core.domain.stage.SpawnFaction
+import com.astarworks.astera.core.domain.stage.SpawnRole
 import com.astarworks.astera.core.domain.stage.SpawnPoint
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
@@ -30,6 +30,7 @@ import com.astarworks.astera.match.application.usecase.match.StartMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase
 import com.astarworks.astera.match.application.usecase.matchmaking.MatchFoundUseCase
 import com.astarworks.astera.match.application.usecase.matchmaking.MatchPlan
+import com.astarworks.astera.match.application.service.DefaultSpawnSelector
 import com.astarworks.astera.match.application.usecase.spawn.MatchSpawnUseCase
 import com.astarworks.astera.match.domain.match.MatchMinPlayerPolicy
 import com.astarworks.astera.match.domain.match.MatchStateMachine
@@ -70,8 +71,8 @@ class QueueToMatchLifecycleScenarioTest {
                         displayNameKey = MessageKey("astera.stage.arena"),
                         regions = emptyList(),
                         spawnPoints = listOf(
-                            SpawnPoint(WorldId("world"), Vec3(-45.0, -60.0, 0.0), faction = SpawnFaction.ATTACKER),
-                            SpawnPoint(WorldId("world"), Vec3(45.0, -60.0, 0.0), faction = SpawnFaction.DEFENDER),
+                            SpawnPoint(WorldId("world"), Vec3(-45.0, -60.0, 0.0), role = SpawnRole.TEAM, team = TeamId("red")),
+                            SpawnPoint(WorldId("world"), Vec3(45.0, -60.0, 0.0), role = SpawnRole.TEAM, team = TeamId("blue")),
                         ),
                     ),
                 )
@@ -80,7 +81,7 @@ class QueueToMatchLifecycleScenarioTest {
             bus.subscribe(MatchStarted::class) { modes.register(it.matchId, it.modeKey) }
             val start = StartMatchUseCase(stages, matches, bus, scheduler)
             val end = EndMatchUseCase(matches, bus, scheduler)
-            val entry = EntryGameUseCase(matches, bus, MatchSpawnUseCase(matches, stages, world, bus))
+            val entry = EntryGameUseCase(matches, bus, MatchSpawnUseCase(matches, stages, world, bus, DefaultSpawnSelector(matches)))
             val switch = SwitchPhaseUseCase(
                 matches, bus, scheduler, modes,
                 minPlayersFor = { settings.minPlayersForModeKey(it) ?: MatchMinPlayerPolicy.requirementFor(it) },

@@ -10,43 +10,33 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stage.StageId
+import com.astarworks.astera.match.application.service.ISpawnSelector
+import com.astarworks.astera.match.application.service.SpawnStrategy
 
 /**
- * Teleport a player to a spawn point of [SpawnKind] for the match they belong
- * to.
- *
- * Phase A (Wave 4.5 / R3.5, ADR-0027) wires the use case end-to-end against
- * [IWorldGateway]. In Wave 4.5 the only [IWorldGateway] in production is
- * `FakeWorldGateway` (test-fixtures); the real `PaperWorldGateway.teleport`
- * lands in Wave 5 (R4 Paper runtime). The use case is therefore unit-testable
- * today and ships unchanged when Paper plumbing arrives.
+ * Teleport a player to a spawn of their team in the match's stage (WP9).
  *
  * # Sequence
- * 1. Resolve the match by id ([SpawnError.MatchNotFound] otherwise).
- * 2. Resolve the stage referenced by `match.stageId`
- *    ([SpawnError.StageNotFound] otherwise — should be impossible in steady
- *    state but the repository contract permits it).
- * 3. Ask the [SpawnRotationStrategy] to pick a spawn of the requested [kind]
- *    ([SpawnError.NoSpawnPointForKind] if no spawn of that variant exists).
- * 4. Delegate the teleport to [IWorldGateway.teleport]
- *    ([SpawnError.TeleportFailed] if the gateway reports failure — typically
- *    "player offline" or "world unknown").
+ * 1. Resolve the match ([SpawnError.MatchNotFound]) and its stage
+ *    ([SpawnError.StageNotFound]).
+ * 2. Ask the [ISpawnSelector] for a [SpawnStrategy.Spread] spawn of the
+ *    player's team ([SpawnError.NoSpawnPoint] if the stage has none for it).
+ * 3. Teleport into the spawn's world ([SpawnError.TeleportFailed] on refusal).
  *
- * The strategy defaults to [RandomSpawnRotationStrategy]; tests inject a
- * deterministic one if they need to assert on the picked position.
+ * Used for match entry; a player who enters after `MatchStarted` (phase
+ * COUNTDOWN) goes through the same path, so late entrants are teleported too.
  */
 public class MatchSpawnUseCase(
     private val matchRepository: IMatchRepository,
     private val stageRegistry: IStageRegistry,
     private val worldGateway: IWorldGateway,
     private val eventBus: IDomainEventBus,
-    private val strategy: SpawnRotationStrategy = RandomSpawnRotationStrategy(),
+    private val spawnSelector: ISpawnSelector,
 ) {
 
     public fun spawnPlayer(
         matchId: MatchId,
         playerId: PlayerId,
-        kind: SpawnKind,
     ): Result<Unit, SpawnError> {
         val match = matchRepository.findById(matchId)
             ?: return Result.failure(SpawnError.MatchNotFound(matchId))
@@ -54,10 +44,10 @@ public class MatchSpawnUseCase(
         val stage = stageRegistry.find(match.stageId)
             ?: return Result.failure(SpawnError.StageNotFound(match.stageId))
 
-        val spawnPoint = strategy.pick(stage.spawnPoints, kind)
-            ?: return Result.failure(SpawnError.NoSpawnPointForKind(kind, stage.id))
+        val spawnPoint = spawnSelector.selectFor(playerId, matchId, stage, SpawnStrategy.Spread)
+            ?: return Result.failure(SpawnError.NoSpawnPoint(playerId, stage.id))
 
-        val ok = worldGateway.teleport(playerId, spawnPoint.pos)
+        val ok = worldGateway.teleport(playerId, spawnPoint.pos, spawnPoint.world)
         if (!ok) {
             return Result.failure(SpawnError.TeleportFailed(playerId))
         }
@@ -89,7 +79,7 @@ public sealed class SpawnError {
             MessageKey("astera.match.spawn.error.stage-not-found")
     }
 
-    public data class NoSpawnPointForKind(val kind: SpawnKind, val stageId: StageId) : SpawnError() {
+    public data class NoSpawnPoint(val playerId: PlayerId, val stageId: StageId) : SpawnError() {
         override val messageKey: MessageKey =
             MessageKey("astera.match.spawn.error.no-spawn-for-kind")
     }

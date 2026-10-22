@@ -10,7 +10,16 @@ import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.match.Score
 import com.astarworks.astera.core.domain.match.Team
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.stage.SpawnPoint
+import com.astarworks.astera.core.domain.stage.SpawnRole
+import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
+import com.astarworks.astera.core.domain.world.WorldId
+import com.astarworks.astera.match.application.contents.StageContents
+import com.astarworks.astera.match.application.service.DefaultSpawnSelector
+import com.astarworks.astera.match.application.usecase.spawn.MatchSpawnUseCase
+import com.astarworks.astera.testfixtures.FakeWorldGateway
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -100,6 +109,35 @@ class EntryGameUseCaseTest {
         assertThat(result).isInstanceOf(Result.Failure::class.java)
         assertThat((result as Result.Failure).error)
             .isInstanceOf(EntryGameError.AlreadyRegistered::class.java)
+    }
+
+    @Test
+    fun `a player entering after MatchStarted (COUNTDOWN) is teleported to their team spawn`() {
+        val stages = StageContents()
+        val spawn = Vec3(-45.0, -60.0, 0.0)
+        stages.register(
+            Stage(
+                id = StageId("test-arena"),
+                displayNameKey = MessageKey("astera.stage.test-arena.name"),
+                regions = emptyList(),
+                spawnPoints = listOf(
+                    SpawnPoint(WorldId("world"), spawn, role = SpawnRole.TEAM, team = TeamId("red")),
+                ),
+            ),
+        )
+        val world = FakeWorldGateway()
+        val entry = EntryGameUseCase(
+            matches, eventBus,
+            MatchSpawnUseCase(matches, stages, world, eventBus, DefaultSpawnSelector(matches)),
+        )
+        matches.save(buildMatch(matchId, MatchPhase.COUNTDOWN))
+
+        val result = entry.execute(matchId, playerId, null)
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(world.teleports).hasSize(1)
+        assertThat(world.teleports.single().playerId).isEqualTo(playerId)
+        assertThat(world.teleports.single().at).isEqualTo(spawn)
     }
 
     private fun buildMatch(id: MatchId, phase: MatchPhase): Match {

@@ -5,56 +5,36 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.stage.Region
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
+import com.astarworks.astera.core.domain.world.WorldId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
  * YAML-shaped DTO for `content/stages/` definition files (ADR-0003 / ADR-0016).
  *
- * Mirrors [WeaponYamlConfig]'s pattern: kept in `application/config/` so that
- * the domain ([Stage]) stays free of `kotlinx.serialization` annotations and
- * the wire schema can evolve independently of the domain (Phase 3 will add
- * `schematic`, `spawn`, `core`, etc. per `content/stages/README.md`).
- *
- * # Wire format (Phase 1-2)
- *
  * ```yaml
  * id: example-arena
  * display_name_key: astera.stage.example-arena.name
+ * world: world            # optional; Bukkit world name, default = the main world "world"
  * regions:
  *   - name: full-arena
- *     min: { x: -50.0, y: 60.0, z: -50.0 }
- *     max: { x:  50.0, y: 90.0, z:  50.0 }
+ *     min: { x: -50.0, y: -60.0, z: -50.0 }
+ *     max: { x:  50.0, y: -30.0, z:  50.0 }
+ * spawn_points: [...]     # see [SpawnPointYamlConfig]
  * ```
  *
- * `name` on a [RegionYamlConfig] is currently informational only — the domain
- * [Region] type does not carry a name (it is a pure AABB). It is retained in
- * the schema so authors can label sub-regions; this label will likely be
- * promoted to a typed value once Phase 3 introduces named spawn / goal /
- * capture regions.
- *
- * # Phase 3 fields (not yet supported)
- *
- * `schematic`, `core` (see `content/stages/README.md`). They are intentionally
- * omitted from the DTO until the domain supports them — silent omit is
- * forbidden, so an authored YAML carrying them today will fail to parse
- * (strict YAML decode), surfacing the gap.
- *
- * # Wave 4.5 addition: `spawn_points`
- *
- * Per ADR-0027, the `spawn_points:` block is a list of polymorphic
- * [SpawnPointYamlConfig] entries (`type: attacker | defender | lobby |
- * spectator`). It is optional (defaults to empty); a stage with no spawns
- * simply cannot be used by `MatchSpawnUseCase` until one is authored.
+ * `name` on a [RegionYamlConfig] is informational: other YAMLs reference areas
+ * of a stage by it. WP9 decision: stages are hand-built in their world, so
+ * `schematic` / `core` are not part of the schema (a strict decode rejects
+ * them); they return only together with a consumer.
  */
 @Serializable
 public data class StageYamlConfig(
     public val id: String,
     @SerialName("display_name_key") public val displayNameKey: String,
+    public val world: String = Stage.DEFAULT_WORLD,
     public val regions: List<RegionYamlConfig> = emptyList(),
     @SerialName("spawn_points") public val spawnPoints: List<SpawnPointYamlConfig> = emptyList(),
-    // TODO(Phase 3): schematic: String? — WorldEdit `.schem` path
-    // TODO(Phase 3): core: CoreYamlConfig — central objective position + HP
 ) {
     /**
      * Convert the parsed DTO into a domain [Stage]. Any kebab-case / i18n key
@@ -62,24 +42,23 @@ public data class StageYamlConfig(
      * [com.astarworks.astera.core.application.service.ContentLoader] logs and
      * counts as a failure (the batch keeps going).
      */
-    public fun toSpec(): Stage = Stage(
-        id = StageId(id),
-        displayNameKey = MessageKey(displayNameKey),
-        regions = regions.map { it.toRegion() },
-        // Wave 5o (ADR-0081): SpawnPoint is now a flat data class carrying
-        // (world, position, yaw, pitch, faction). Default world id falls back
-        // to the loader's "world" constant — Wave 5d MatchWorld passes the
-        // per-match world id at construction in the future.
-        spawnPoints = spawnPoints.map { it.toDomain() },
-    )
+    public fun toSpec(): Stage {
+        val worldId = WorldId(world)
+        return Stage(
+            id = StageId(id),
+            displayNameKey = MessageKey(displayNameKey),
+            regions = regions.map { it.toRegion() },
+            spawnPoints = spawnPoints.map { it.toDomain(worldId) },
+            world = worldId,
+        )
+    }
 }
 
 /**
  * YAML-shaped DTO for a single [Region] inside a stage.
  *
- * `name` is currently informational — see [StageYamlConfig] kdoc. The AABB
- * invariant (`min <= max` on every axis) is enforced by [Region]'s `init`
- * block, which throws if violated.
+ * `name` is informational. The AABB invariant (`min <= max` on every axis) is
+ * enforced by [Region]'s `init` block, which throws if violated.
  */
 @Serializable
 public data class RegionYamlConfig(

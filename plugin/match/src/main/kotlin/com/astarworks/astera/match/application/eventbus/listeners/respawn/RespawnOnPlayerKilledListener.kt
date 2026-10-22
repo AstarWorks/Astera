@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory
  *     log + skip (stage was unloaded between match-start and the kill, a
  *     race-condition guard).
  *  3. Pick a spawn point via [ISpawnSelector.selectFor] with
- *     [SpawnStrategy.Random]. `null` → WARN log + skip.
+ *     [SpawnStrategy.Spread]. `null` → WARN log + skip.
  *  4. Call [RespawnUseCase.respawn] with default tuning (5s protection,
  *     20.0 HP, no kit, no status effects). Wave 6+ wires per-mode kit
  *     resolution.
@@ -78,7 +78,7 @@ public class RespawnOnPlayerKilledListener(
             player = victim,
             match = match.id,
             stage = stage,
-            strategy = SpawnStrategy.Random,
+            strategy = SpawnStrategy.Spread,
         )
         if (spawn == null) {
             log.warn(

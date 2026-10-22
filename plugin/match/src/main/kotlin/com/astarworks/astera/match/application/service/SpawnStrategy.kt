@@ -21,6 +21,13 @@ public sealed interface SpawnStrategy {
     public data object FirstAvailable : SpawnStrategy
 
     /**
+     * Pick the least-used matching spawn of the player's team (declaration
+     * order on ties), so teammates do not stack. The default for match entry
+     * and respawn.
+     */
+    public data object Spread : SpawnStrategy
+
+    /**
      * Pick one of the matching spawns uniformly at random. The selector seeds
      * its own [kotlin.random.Random]; tests inject a deterministic selector to
      * pin behavior.
