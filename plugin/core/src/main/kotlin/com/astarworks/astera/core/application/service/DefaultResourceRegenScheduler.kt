@@ -59,7 +59,7 @@ public class DefaultResourceRegenScheduler(
         val changed = mutableSetOf<PlayerId>()
         for (playerId in tracked) {
             for (type in ResourceType.all) {
-                val rate = resourcePool.capFor(type).regenPerSecond
+                val rate = resourcePool.capFor(playerId, type).regenPerSecond
                 if (rate <= 0.0) continue
                 val key = playerId to type
                 val perTick = rate / 20.0

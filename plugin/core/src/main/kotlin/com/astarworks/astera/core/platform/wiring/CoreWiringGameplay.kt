@@ -185,21 +185,25 @@ internal fun CoreWiringState.wireGameplayLoop() {
         hudCurrencyListener.handle(event)
     }
 
-    // 4.1 Wave 5match-hud (ADR-0118 §2) — ResourcePool HUD readout.
-    //     Subscribes to ResourceSpent / ResourceReloaded / ResourceRegenned
-    //     (Wave 5k / ADR-0080) and pushes a BossBarSlot per resource type
-    //     (mana / stamina / ammo). Pure listener — no scheduler / no extra
-    //     state, so it lives next to the Currency listener.
-    val hudResourceListener = com.astarworks.astera.core.application.eventbus.listeners.hud
-        .HudUpdateOnResourcePoolChangedListener(hudGateway)
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceSpent::class) { event ->
-        hudResourceListener.onSpent(event)
-    }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceReloaded::class) { event ->
-        hudResourceListener.onReloaded(event)
-    }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceRegenned::class) { event ->
-        hudResourceListener.onRegenned(event)
+    // 4.1 WP2 — weapon-resource HUD (ammo / mana / stamina of the held item).
+    //     Subscribes to ResourceSpent / ResourceReloaded / ResourceRegenned and
+    //     PlayerActiveWeaponChanged; reads current / max from the pool service.
+    val resourcePoolForHud = services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>()
+    if (resourcePoolForHud != null) {
+        val hudResourceListener = com.astarworks.astera.core.application.eventbus.listeners.hud
+            .HudUpdateOnResourcePoolChangedListener(hudGateway, resourcePoolForHud, itemContents)
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceSpent::class) { event ->
+            hudResourceListener.onSpent(event)
+        }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceReloaded::class) { event ->
+            hudResourceListener.onReloaded(event)
+        }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceRegenned::class) { event ->
+            hudResourceListener.onRegenned(event)
+        }
+        wave5completeSubs += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.PlayerActiveWeaponChanged::class,
+        ) { event -> hudResourceListener.onActiveWeaponChanged(event) }
     }
 
     // 4.2 Wave H 5content-depth (ADR-0125) — Quest + Recipe listener wiring.

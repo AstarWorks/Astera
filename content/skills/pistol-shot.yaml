@@ -10,7 +10,8 @@ description:
   en: "Fires a fast, flat-flying bullet."
 
 archetype: projectile
-cooldown_ticks: 8
+cooldown_ticks: 8              # the pistol's cooldown_override_ticks (6) wins when fired from the item
+resource_cost: 1               # one round; resource type comes from the pistol (ammo)
 tags: [ ranged, gun ]
 
 params:

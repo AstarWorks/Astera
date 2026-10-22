@@ -200,7 +200,18 @@
                 }
             ]
         },
-        "mana_cost": {
+        "resource_type": {
+            "type": "string",
+            "enum": [
+                "ammo",
+                "mana",
+                "stamina"
+            ]
+        },
+        "resource_cost": {
+            "type": "integer"
+        },
+        "reload_ticks": {
             "type": "integer"
         },
         "charge_ticks": {

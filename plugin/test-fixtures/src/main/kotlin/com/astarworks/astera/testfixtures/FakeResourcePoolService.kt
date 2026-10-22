@@ -96,7 +96,7 @@ public class FakeResourcePoolService(
         return Result.success(next)
     }
 
-    override fun capFor(type: ResourceType): ResourceCap =
+    override fun capFor(playerId: PlayerId, type: ResourceType): ResourceCap =
         caps[type] ?: ResourceCap.DEFAULTS.getValue(type)
 
     public fun reset() {

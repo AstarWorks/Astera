@@ -24,11 +24,11 @@ import com.astarworks.astera.core.domain.resource.ResourceType
  *
  * # Cap resolution
  *
- *   1. If [itemRegistry] returns an item whose `resourceMaxPool > 0`, use it.
+ *   1. If the player's active weapon uses the type and has `resourceMaxPool > 0`, use it.
  *   2. Else use the [ResourceCap.DEFAULTS] entry for the type.
  *
  * Same precedence for `resourceRegenPerSecond` (sentinel value -1.0 = "use
- * default").
+ * default"). Switching weapons clamps the counter to the new capacity.
  */
 public class InMemoryResourcePoolService(
     private val scheduler: IScheduler,
@@ -56,7 +56,14 @@ public class InMemoryResourcePoolService(
     override fun setActiveWeapon(playerId: PlayerId, weapon: ItemId?) {
         val existing = pools[playerId] ?: initialiseFor(playerId)
         if (existing.activeWeapon == weapon) return
-        pools[playerId] = existing.copy(activeWeapon = weapon)
+        var next = existing.copy(activeWeapon = weapon)
+        // The new weapon's capacity may be lower than the carried-over counter.
+        val type = weapon?.let { itemRegistry.find(it)?.resourceType }
+        if (type != null) {
+            val cap = resolve(next, type).maxPool
+            if (next.valueOf(type) > cap) next = next.with(type, cap)
+        }
+        pools[playerId] = next
         eventBus.publish(
             PlayerActiveWeaponChanged(
                 playerId = playerId,
@@ -118,7 +125,7 @@ public class InMemoryResourcePoolService(
     ): Result<Int, ResourceError> {
         if (amount < 0) return Result.failure(ResourceError.InvalidValue("amount", amount))
         val pool = pools[playerId] ?: return Result.failure(ResourceError.UninitialisedPlayer)
-        val cap = capFor(type).maxPool
+        val cap = resolve(pool, type).maxPool
         val current = pool.valueOf(type)
         val next = (current + amount).coerceAtMost(cap)
         if (next == current) return Result.success(current)
@@ -126,9 +133,25 @@ public class InMemoryResourcePoolService(
         return Result.success(next)
     }
 
-    override fun capFor(type: ResourceType): ResourceCap =
+    override fun capFor(playerId: PlayerId, type: ResourceType): ResourceCap {
+        val pool = pools[playerId] ?: return defaultCap(type)
+        return resolve(pool, type)
+    }
+
+    private fun defaultCap(type: ResourceType): ResourceCap =
         defaults[type] ?: ResourceCap.DEFAULTS.getValue(type)
 
+    /** Per-type defaults, overridden by the active weapon when it uses [type]. */
+    private fun resolve(pool: PlayerResourcePool, type: ResourceType): ResourceCap {
+        val base = defaultCap(type)
+        val spec = pool.activeWeapon?.let { itemRegistry.find(it) }
+        if (spec == null || spec.resourceType != type) return base
+        return ResourceCap(
+            maxPool = if (spec.resourceMaxPool > 0) spec.resourceMaxPool else base.maxPool,
+            regenPerSecond = if (spec.resourceRegenPerSecond >= 0.0) spec.resourceRegenPerSecond else base.regenPerSecond,
+        )
+    }
+
     private fun resolveCap(type: ResourceType, override: Int): Int =
-        if (override > 0) override else capFor(type).maxPool
+        if (override > 0) override else defaultCap(type).maxPool
 }

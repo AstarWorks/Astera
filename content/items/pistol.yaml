@@ -1,5 +1,6 @@
 # WP1 gun roster: right-click = shot, hold = auto-repeat (same shot, throttled
-# by the skill cooldown), drop key (Q) = reload (the drop is cancelled).
+# by the binding's cooldown override), drop key (Q) = reload (the drop is cancelled).
+# WP2: 12-round magazine (1 ammo per shot), refilled by the reload skill.
 
 id: pistol
 
@@ -27,9 +28,16 @@ attributes:
 
 equip_slot: mainhand
 
+# Resource pool (WP2): the pistol spends ammo; the magazine only refills via reload.
+resource_type: ammo
+resource_cost_per_use: 1
+resource_max_pool: 12
+resource_reloadable: true
+
 skills:
   - trigger: right_click
     skill_id: pistol-shot
+    cooldown_override_ticks: 6    # 0.3s between shots; wins over the skill's own cooldown_ticks
   - trigger: drop
     skill_id: pistol-reload
 

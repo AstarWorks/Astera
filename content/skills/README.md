@@ -25,7 +25,10 @@ cooldown_ticks: 40             # ticks; 20 = 1s
 # item side via `content/items/.../<item>.yaml`'s `bindings:` block.
 
 # Optional Wave 5a fields.
-mana_cost: 30                  # debited via ConsumeManaUseCase before SkillCast
+resource_type: mana            # ammo | mana | stamina; default = the source item's resource_type
+resource_cost: 30              # spent from the caster's pool before SkillCast; default = the item's
+                               # resource_cost_per_use; 0 = free
+reload_ticks: 30               # marks a reload skill: refills the item's ammo after N ticks
 charge_ticks: 30               # hold-to-cast window before the cast fires
 
 params:

@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedText
+import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
 import com.astarworks.astera.core.domain.status.StatusEffectId
@@ -30,7 +31,9 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  * id: plasma-burst
  * archetype: projectile
  * cooldown_ticks: 4
- * mana_cost: 2
+ * resource_type: mana   # optional; default = the source item's resource_type
+ * resource_cost: 2      # optional; default = the item's resource_cost_per_use; 0 = free
+ * reload_ticks: 30      # optional; marks a reload skill (refills the item's ammo after N ticks)
  * name: { ja: "プラズマ", en: "Plasma" }
  * description: { ja: "…", en: "…" }
  * tags: [ damage, electric ]
@@ -72,7 +75,9 @@ public data class SkillYamlConfig(
     @SerialName("cooldown_ticks") public val cooldownTicks: Int,
     public val params: SkillParamsYaml,
     public val phases: PhaseMechanicsYaml,
-    @SerialName("mana_cost") public val manaCost: Long? = null,
+    @SerialName("resource_type") public val resourceType: String? = null,
+    @SerialName("resource_cost") public val resourceCost: Int? = null,
+    @SerialName("reload_ticks") public val reloadTicks: Int? = null,
     @SerialName("charge_ticks") public val chargeTicks: Long? = null,
     public val tags: List<String> = emptyList(),
 ) {
@@ -107,7 +112,12 @@ public data class SkillYamlConfig(
             params = domainParams,
             tags = tags.map { SkillTag(it) }.toSet(),
             phases = domainPhases,
-            manaCost = manaCost,
+            resourceType = resourceType?.let {
+                ResourceType.fromKey(it)
+                    ?: throw IllegalArgumentException("Skill '$id': unknown resource_type '$it' (ammo / stamina / mana)")
+            },
+            resourceCost = resourceCost,
+            reloadTicks = reloadTicks,
             chargeVariant = variant,
         )
     }

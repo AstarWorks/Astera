@@ -482,9 +482,15 @@ astera:
       mitigated_by_armor: "<gray>(-{amount} from armor)</gray>"
       critical: "<red><bold>CRITICAL!</bold></red>"
       friendly_fire_blocked: "<yellow>Friendly fire blocked.</yellow>"
-    mana:
-      insufficient: "<red>Insufficient mana ({have}/{tried}).</red>"
-      consumed: "<aqua>-{amount} mana</aqua>"
+    cast:
+      insufficient:
+        ammo: "Out of ammo - press Q to reload"
+        mana: "Not enough mana"
+        stamina: "Not enough stamina"
+      reloading: "Reloading..."
+      ammo_full: "Magazine is full"
+      not_reloadable: "This item cannot be reloaded"
+      silenced: "You are silenced"
     skill:
       charge:
         started: "<yellow>Charging {skill}…</yellow>"

@@ -1,7 +1,7 @@
 package com.astarworks.astera.combat.application.usecase.skill
 
-import com.astarworks.astera.combat.application.usecase.cost.ConsumeManaUseCase
-import com.astarworks.astera.combat.domain.event.ManaConsumed
+import com.astarworks.astera.combat.domain.event.CastRejectionReason
+import com.astarworks.astera.combat.domain.event.SkillCastRejected
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillSpec
@@ -11,7 +11,6 @@ import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.combat.domain.status.StatusEffectSpec
 import com.astarworks.astera.combat.domain.status.StatusKind
 import com.astarworks.astera.combat.testfixtures.FakeCooldownTracker
-import com.astarworks.astera.combat.testfixtures.FakeManaPoolService
 import com.astarworks.astera.combat.testfixtures.FakeSkillRegistry
 import com.astarworks.astera.combat.testfixtures.FakeStatusEffectContainer
 import com.astarworks.astera.core.domain.Result
@@ -21,7 +20,19 @@ import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.application.contents.ItemContents
+import com.astarworks.astera.core.application.service.InMemoryResourcePoolService
+import com.astarworks.astera.core.domain.i18n.LocalizedLore
+import com.astarworks.astera.core.domain.item.DropPolicy
+import com.astarworks.astera.core.domain.item.DurabilityPolicy
+import com.astarworks.astera.core.domain.item.EquipSlot
+import com.astarworks.astera.core.domain.item.ItemAttributes
+import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.item.ItemSpec
+import com.astarworks.astera.core.domain.item.ItemTemplate
+import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeScheduler
@@ -144,73 +155,152 @@ class CastSkillUseCaseTest {
 
         assertThat(result).isInstanceOf(Result.Failure::class.java)
         assertThat((result as Result.Failure).error).isInstanceOf(CastSkillError.Silenced::class.java)
-        assertThat(eventBus.published).isEmpty()
-    }
-
-    @Test
-    fun `mana cost - sufficient pool consumes mana and publishes both events`() {
-        val manaService = FakeManaPoolService()
-        manaService.init(casterId, max = 100L, regenPerSec = 1.0)
-        val consumeMana = ConsumeManaUseCase(manaService = manaService, eventBus = eventBus)
-        val withCost = CastSkillUseCase(
-            skillRegistry = skillRegistry,
-            statusContainer = statusContainer,
-            eventBus = eventBus,
-            cooldownTracker = cooldownTracker,
-            scheduler = scheduler,
-            consumeMana = consumeMana,
-        )
-        val specWithCost = spec.copy(manaCost = 30L)
-        skillRegistry.register(specWithCost)
-
-        val result = withCost.execute(casterId, skillId)
-
-        assertThat(result).isInstanceOf(Result.Success::class.java)
-        // Pool was debited 30.
-        assertThat(manaService.get(casterId)?.current).isEqualTo(70L)
-        // Both events fired: ManaConsumed first (debit), then SkillCast (commit).
-        val consumed = eventBus.publishedOfType<ManaConsumed>()
-        assertThat(consumed).hasSize(1)
-        assertThat(consumed[0].amount).isEqualTo(30L)
-        assertThat(consumed[0].remaining).isEqualTo(70L)
-        val casts = eventBus.publishedOfType<SkillCast>()
-        assertThat(casts).hasSize(1)
-        assertThat(casts[0].caster).isEqualTo(casterId)
-    }
-
-    @Test
-    fun `mana cost - empty pool returns InsufficientMana and SkillCast is not published`() {
-        val manaService = FakeManaPoolService()
-        manaService.init(casterId, max = 10L, regenPerSec = 1.0)
-        val consumeMana = ConsumeManaUseCase(manaService = manaService, eventBus = eventBus)
-        val withCost = CastSkillUseCase(
-            skillRegistry = skillRegistry,
-            statusContainer = statusContainer,
-            eventBus = eventBus,
-            cooldownTracker = cooldownTracker,
-            scheduler = scheduler,
-            consumeMana = consumeMana,
-        )
-        val specWithCost = spec.copy(manaCost = 30L)
-        skillRegistry.register(specWithCost)
-
-        val result = withCost.execute(casterId, skillId)
-
-        assertThat(result).isInstanceOf(Result.Failure::class.java)
-        val error = (result as Result.Failure).error
-        assertThat(error).isInstanceOf(CastSkillError.InsufficientMana::class.java)
-        val insufficient = error as CastSkillError.InsufficientMana
-        assertThat(insufficient.have).isEqualTo(10L)
-        assertThat(insufficient.tried).isEqualTo(30L)
-
-        // Pool unchanged (mana was not debited).
-        assertThat(manaService.get(casterId)?.current).isEqualTo(10L)
-        // No SkillCast → downstream mechanics don't trigger.
         assertThat(eventBus.publishedOfType<SkillCast>()).isEmpty()
-        // No ManaConsumed either (failure short-circuits before publish).
-        assertThat(eventBus.publishedOfType<ManaConsumed>()).isEmpty()
-        // Cooldown is not started → player can retry once regen catches up.
+        assertThat(eventBus.publishedOfType<SkillCastRejected>().single().reason).isEqualTo(CastRejectionReason.SILENCED)
+    }
+
+    // ---- WP2: resource pools, reload, cooldown override ------------------
+
+    private fun advance(ticks: Int) {
+        scheduler.advanceTicks(ticks.toLong())
+        cooldownTracker.currentTick = scheduler.currentTick()
+    }
+
+    private val pistolId = ItemId("test-pistol")
+    private val staffId = ItemId("test-staff")
+
+    private fun item(id: ItemId, type: ResourceType, cost: Int, max: Int, reloadable: Boolean = false) = ItemSpec(
+        id = id,
+        template = ItemTemplate.Vanilla("STICK", null),
+        displayName = LocalizedText(mapOf(LocaleCode.EN to id.value)),
+        lore = LocalizedLore.EMPTY,
+        rarity = Rarity.COMMON,
+        levelRequirement = 1,
+        attributes = ItemAttributes(),
+        equipSlot = EquipSlot.MAINHAND,
+        durability = DurabilityPolicy(null, false),
+        dropPolicy = DropPolicy(dropOnDeath = true, keepOnDeath = false),
+        enchantable = true,
+        glint = null,
+        skillBindings = emptyList(),
+        pdcTags = emptyMap(),
+        resourceType = type,
+        resourceCostPerUse = cost,
+        resourceMaxPool = max,
+        resourceReloadable = reloadable,
+    )
+
+    private fun withResources(): Pair<CastSkillUseCase, InMemoryResourcePoolService> {
+        val itemRegistry = ItemContents()
+        itemRegistry.register(pistolId, item(pistolId, ResourceType.Ammo, cost = 1, max = 3, reloadable = true))
+        itemRegistry.register(staffId, item(staffId, ResourceType.Mana, cost = 40, max = 100))
+        val pool = InMemoryResourcePoolService(scheduler, eventBus, itemRegistry)
+        pool.initialiseFor(casterId)
+        val uc = CastSkillUseCase(
+            skillRegistry = skillRegistry,
+            statusContainer = statusContainer,
+            eventBus = eventBus,
+            cooldownTracker = cooldownTracker,
+            scheduler = scheduler,
+            resourcePool = pool,
+            items = itemRegistry,
+        )
+        return uc to pool
+    }
+
+    @Test
+    fun `item cooldown override wins over the skill cooldown`() {
+        skillRegistry.register(spec) // cooldown_ticks = 40
+
+        useCase.execute(casterId, skillId, cooldownOverrideTicks = 6)
+        advance(5)
+        val early = useCase.execute(casterId, skillId, cooldownOverrideTicks = 6)
+        assertThat((early as Result.Failure).error).isInstanceOf(CastSkillError.OnCooldown::class.java)
+
+        advance(1) // 6 ticks since the first cast, 34 before the skill's own cooldown
+        val again = useCase.execute(casterId, skillId, cooldownOverrideTicks = 6)
+        assertThat(again).isInstanceOf(Result.Success::class.java)
+        assertThat(eventBus.publishedOfType<SkillCast>()).hasSize(2)
+    }
+
+    @Test
+    fun `item cost per use is spent from the item's resource and an empty pool rejects the cast`() {
+        val (uc, pool) = withResources()
+        skillRegistry.register(spec.copy(cooldownTicks = 0))
+
+        repeat(3) { assertThat(uc.execute(casterId, skillId, sourceItemId = pistolId)).isInstanceOf(Result.Success::class.java) }
+        assertThat(pool.currentPool(casterId)!!.ammo).isEqualTo(0)
+
+        val result = uc.execute(casterId, skillId, sourceItemId = pistolId)
+        val error = (result as Result.Failure).error as CastSkillError.InsufficientResource
+        assertThat(error.type).isEqualTo(ResourceType.Ammo)
+        assertThat(error.have).isEqualTo(0)
+        assertThat(eventBus.publishedOfType<SkillCast>()).hasSize(3)
+        assertThat(eventBus.publishedOfType<SkillCastRejected>().single().reason)
+            .isEqualTo(CastRejectionReason.INSUFFICIENT_AMMO)
+    }
+
+    @Test
+    fun `skill resource cost overrides the item default and a failed spend leaves the cooldown untouched`() {
+        val (uc, pool) = withResources()
+        skillRegistry.register(spec.copy(resourceCost = 70))
+
+        val ok = uc.execute(casterId, skillId, sourceItemId = staffId)
+        assertThat(ok).isInstanceOf(Result.Success::class.java)
+        assertThat(pool.currentPool(casterId)!!.mana).isEqualTo(30)
+
+        cooldownTracker.reset(casterId, CooldownKey.Skill(skillId.value))
+        val short = uc.execute(casterId, skillId, sourceItemId = staffId)
+        assertThat(((short as Result.Failure).error as CastSkillError.InsufficientResource).have).isEqualTo(30)
         assertThat(cooldownTracker.isCoolingDown(casterId, CooldownKey.Skill(skillId.value))).isFalse()
+        assertThat(eventBus.publishedOfType<SkillCastRejected>().single().reason)
+            .isEqualTo(CastRejectionReason.INSUFFICIENT_MANA)
+    }
+
+    @Test
+    fun `explicit zero cost is free`() {
+        val (uc, pool) = withResources()
+        skillRegistry.register(spec.copy(resourceCost = 0))
+
+        uc.execute(casterId, skillId, sourceItemId = staffId)
+
+        assertThat(pool.currentPool(casterId)!!.mana).isEqualTo(100)
+    }
+
+    @Test
+    fun `reload skill refills ammo after reload_ticks and blocks ammo casts meanwhile`() {
+        val (uc, pool) = withResources()
+        val shot = spec.copy(cooldownTicks = 0)
+        val reloadId = SkillId("reload")
+        skillRegistry.register(shot)
+        skillRegistry.register(spec.copy(id = reloadId, cooldownTicks = 0, resourceCost = 0, reloadTicks = 30))
+
+        repeat(3) { uc.execute(casterId, skillId, sourceItemId = pistolId) }
+        assertThat(pool.currentPool(casterId)!!.ammo).isEqualTo(0)
+
+        assertThat(uc.execute(casterId, reloadId, sourceItemId = pistolId)).isInstanceOf(Result.Success::class.java)
+        advance(29)
+        val midReload = uc.execute(casterId, skillId, sourceItemId = pistolId)
+        assertThat((midReload as Result.Failure).error).isInstanceOf(CastSkillError.Reloading::class.java)
+        assertThat(pool.currentPool(casterId)!!.ammo).isEqualTo(0)
+
+        advance(1)
+        assertThat(pool.currentPool(casterId)!!.ammo).isEqualTo(3)
+        assertThat(uc.execute(casterId, skillId, sourceItemId = pistolId)).isInstanceOf(Result.Success::class.java)
+        assertThat(pool.currentPool(casterId)!!.ammo).isEqualTo(2)
+    }
+
+    @Test
+    fun `reload with a full magazine or from a non-reloadable item is rejected`() {
+        val (uc, _) = withResources()
+        val reloadId = SkillId("reload")
+        skillRegistry.register(spec.copy(id = reloadId, cooldownTicks = 0, resourceCost = 0, reloadTicks = 30))
+
+        val full = uc.execute(casterId, reloadId, sourceItemId = pistolId)
+        assertThat((full as Result.Failure).error).isInstanceOf(CastSkillError.MagazineFull::class.java)
+
+        val staff = uc.execute(casterId, reloadId, sourceItemId = staffId)
+        assertThat((staff as Result.Failure).error).isInstanceOf(CastSkillError.NotReloadable::class.java)
     }
 
     @Test

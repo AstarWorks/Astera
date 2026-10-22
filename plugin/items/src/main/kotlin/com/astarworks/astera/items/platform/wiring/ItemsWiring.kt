@@ -11,6 +11,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
+import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.service.InMemoryCooldownTracker
 import com.astarworks.astera.core.application.services.get
@@ -87,11 +88,9 @@ public object ItemsWiring {
 
         // Cooldown tracker — shared with Combat (the registry returns
         // whichever impl was registered first; in-memory at priority 0).
-        val cooldowns: ICooldownTracker =
-            services.get<ICooldownTracker>()
-                ?: InMemoryCooldownTracker(scheduler).also {
-                    registrations += services.register<ICooldownTracker>(it, priority = 0)
-                }
+        if (services.get<ICooldownTracker>() == null) {
+            registrations += services.register<ICooldownTracker>(InMemoryCooldownTracker(scheduler), priority = 0)
+        }
 
         // Host-side item adapters (Paper materializer / simulator fakes).
         val itemDelivery: IItemDelivery = ports.itemDelivery(services)
@@ -152,8 +151,8 @@ public object ItemsWiring {
         )
         val handleTrigger = HandleItemTriggerUseCase(
             items = itemRegistry,
-            cooldowns = cooldowns,
             eventBus = eventBus,
+            resourcePool = services.get<IResourcePoolService>(),
         )
 
         // Click → trigger sink (vendor-neutral). The host feeds it IMcEvents.

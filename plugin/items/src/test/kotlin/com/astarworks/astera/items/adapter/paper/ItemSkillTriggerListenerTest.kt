@@ -4,7 +4,6 @@ import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.adapter.api.event.IMcEvent
 import com.astarworks.astera.core.adapter.api.event.IMcEvent.InputKind
 import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
-import com.astarworks.astera.core.application.service.InMemoryCooldownTracker
 import com.astarworks.astera.core.domain.event.SkillCastRequested
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -54,7 +53,7 @@ class ItemSkillTriggerListenerTest {
     private val itemId = ItemId("test-weapon")
 
     private val listener = ItemSkillTriggerListener(
-        handleTrigger = HandleItemTriggerUseCase(items, InMemoryCooldownTracker(scheduler), eventBus),
+        handleTrigger = HandleItemTriggerUseCase(items, eventBus),
         itemIdResolver = object : IPaperItemIdResolver {
             override fun heldItemId(playerId: PlayerId): ItemId? = null
         },

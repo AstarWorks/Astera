@@ -12,6 +12,7 @@ description:
 
 archetype: buff
 cooldown_ticks: 100
+resource_cost: 30              # stamina (type from the knight sword)
 tags: [ buff, movement, sword ]
 
 params:

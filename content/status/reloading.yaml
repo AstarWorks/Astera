@@ -1,5 +1,5 @@
 # WP1: short movement slow while a gun reloads (applied by pistol-reload,
-# bound to the drop key). WP2 replaces the placeholder with real ammo pools.
+# bound to the drop key); the actual ammo refill is the skill's reload_ticks (WP2).
 
 id: reloading
 

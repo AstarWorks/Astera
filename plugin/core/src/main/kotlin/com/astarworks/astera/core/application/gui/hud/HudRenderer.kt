@@ -84,7 +84,7 @@ public class HudRenderer(
     // ─── Per-variant renderers ─────────────────────────────────────────
 
     private fun renderText(text: HudComponent.Text, viewer: PlayerId?): Component {
-        val raw = messageRenderer.render(viewer, text.messageKey)
+        val raw = messageRenderer.render(viewer, text.messageKey, text.placeholders)
         val base = Component.text(raw)
         return text.color?.let { base.color(it.toAdventure()) } ?: base
     }

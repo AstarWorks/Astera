@@ -27,6 +27,13 @@ attributes:
 
 equip_slot: mainhand
 
+# Resource pool (WP2): mana. Skills without their own `resource_cost` cost
+# resource_cost_per_use; mana regenerates passively.
+resource_type: mana
+resource_cost_per_use: 8
+resource_max_pool: 60
+resource_regen_per_second: 6.0
+
 skills:
   - trigger: right_click
     skill_id: frost-shard
