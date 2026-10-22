@@ -13,6 +13,7 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
+import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
@@ -89,6 +90,24 @@ public class SimDisplayGateway(
     /** Every display ever spawned, in order. */
     public val spawned: MutableList<Spawned> = mutableListOf()
 
+    /** A transform update sent to a display (client-side interpolation over [interpolationTicks]). */
+    public data class Update(
+        val handle: IDisplayEntityGateway.DisplayHandle,
+        val tick: Long,
+        val transform: DisplayTransform,
+        val interpolationTicks: Int,
+    )
+
+    /** A content swap (`kind` = `block` / `text`). */
+    public data class Swap(val handle: IDisplayEntityGateway.DisplayHandle, val tick: Long, val kind: String, val value: String)
+
+    public data class Teleport(val handle: IDisplayEntityGateway.DisplayHandle, val tick: Long, val at: Vec3, val teleportTicks: Int)
+
+    /** Every transform update, in order. */
+    public val updates: MutableList<Update> = mutableListOf()
+    public val swaps: MutableList<Swap> = mutableListOf()
+    public val teleports: MutableList<Teleport> = mutableListOf()
+
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): IDisplayEntityGateway.DisplayHandle {
         val handle = IDisplayEntityGateway.DisplayHandle(UUID.randomUUID())
         val record = Spawned(handle, world, at, spec, renderedLines)
@@ -101,6 +120,30 @@ public class SimDisplayGateway(
         }
         recorder.recordEffect(scheduler.currentTick(), "display_spawn", at, "$what lifetime=${spec.lifetimeTicks}")
         return handle
+    }
+
+    override fun update(handle: IDisplayEntityGateway.DisplayHandle, transform: DisplayTransform, interpolationTicks: Int) {
+        val record = active[handle] ?: return
+        updates += Update(handle, scheduler.currentTick(), transform, interpolationTicks)
+        recorder.recordEffect(scheduler.currentTick(), "display_update", record.at, "${handle.id} over=$interpolationTicks scale=${transform.scale}")
+    }
+
+    override fun setBlock(handle: IDisplayEntityGateway.DisplayHandle, blockKey: String) {
+        val record = active[handle] ?: return
+        swaps += Swap(handle, scheduler.currentTick(), "block", blockKey)
+        recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} block $blockKey")
+    }
+
+    override fun setText(handle: IDisplayEntityGateway.DisplayHandle, renderedLines: List<String>) {
+        val record = active[handle] ?: return
+        swaps += Swap(handle, scheduler.currentTick(), "text", renderedLines.joinToString(" / "))
+        recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} text ${renderedLines.joinToString(" / ")}")
+    }
+
+    override fun teleport(handle: IDisplayEntityGateway.DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
+        if (handle !in active) return
+        teleports += Teleport(handle, scheduler.currentTick(), at, teleportTicks)
+        recorder.recordEffect(scheduler.currentTick(), "display_teleport", at, "${handle.id} over=$teleportTicks")
     }
 
     override fun remove(handle: IDisplayEntityGateway.DisplayHandle) {

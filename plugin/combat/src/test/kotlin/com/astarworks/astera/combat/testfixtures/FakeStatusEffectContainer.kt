@@ -8,9 +8,10 @@ import com.astarworks.astera.core.domain.player.PlayerId
 /**
  * In-memory [IStatusEffectContainer] for use case tests.
  *
- * Stacking semantics follow the spec: if the effect is not stackable,
- * the existing instance is replaced (duration refresh); if stackable,
- * a new instance is added up to the spec's maxStacks cap.
+ * Stacking semantics follow the spec (and the Paper / simulator containers): a
+ * non-stackable effect is replaced (duration refresh); a stackable one keeps a
+ * single instance whose `currentStacks` grows by the applied instance's
+ * `currentStacks`, capped at the spec's maxStacks.
  */
 public class FakeStatusEffectContainer : IStatusEffectContainer {
 
@@ -25,13 +26,17 @@ public class FakeStatusEffectContainer : IStatusEffectContainer {
     override fun apply(instance: StatusEffectInstance) {
         val set = store.getOrPut(instance.targetPlayerId) { mutableSetOf() }
         val spec = instance.spec
-        if (!spec.stackable) {
-            set.removeIf { it.spec.id == spec.id }
-        } else {
-            val currentCount = set.count { it.spec.id == spec.id }
-            if (currentCount >= spec.maxStacks) return
-        }
-        set += instance
+        val existing = set.firstOrNull { it.spec.id == spec.id }
+        set.removeIf { it.spec.id == spec.id }
+        val stacks = if (!spec.stackable) 1 else ((existing?.currentStacks ?: 0) + instance.currentStacks).coerceAtMost(spec.maxStacks)
+        set += instance.copy(currentStacks = stacks)
+    }
+
+    override fun removeStacks(playerId: PlayerId, effectId: StatusEffectId, count: Int) {
+        val set = store[playerId] ?: return
+        val existing = set.firstOrNull { it.spec.id == effectId } ?: return
+        set.remove(existing)
+        if (count < existing.currentStacks) set += existing.copy(currentStacks = existing.currentStacks - count)
     }
 
     override fun remove(playerId: PlayerId, effectId: StatusEffectId) {

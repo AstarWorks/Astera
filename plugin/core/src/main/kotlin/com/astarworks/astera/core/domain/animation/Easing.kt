@@ -135,4 +135,18 @@ enum class Easing(private val fn: (Double) -> Double) {
 
     /** Linear interpolation between [from] and [to] with this easing curve applied to `t`. */
     fun interpolate(from: Double, to: Double, t: Double): Double = from + (to - from) * apply(t)
+
+    companion object {
+        private val BY_KEY: Map<String, Easing> = entries.associateBy { it.name.removePrefix("EASE_").lowercase() }
+
+        /**
+         * Parses a snake_case YAML key: `out_cubic`, `in_out_back`, `linear`
+         * (`EASE_OUT_CUBIC` -> `out_cubic`). Case-insensitive; `-` is treated
+         * as `_`; an `ease_` prefix is tolerated. Unknown keys give null.
+         */
+        fun fromKey(key: String): Easing? {
+            val k = key.trim().lowercase().replace('-', '_').removePrefix("ease_")
+            return BY_KEY[k]
+        }
+    }
 }

@@ -43,6 +43,7 @@ public object MechanicSupport {
                 (mechanic.then_ + mechanic.else_).forEach { collect(it, out) }
             }
             is Mechanic.Loop -> mechanic.mechanics.forEach { collect(it, out) }
+            is Mechanic.DashStrike -> mechanic.onHit.forEach { collect(it, out) }
             is Mechanic.Choose -> mechanic.weighted.flatMap { it.mechanics }.forEach { collect(it, out) }
             else -> Unit
         }
@@ -72,13 +73,14 @@ public object MechanicSupport {
         is Mechanic.Resurrect, is Mechanic.GiveItem, is Mechanic.ConsumeItem -> true
         // WP5 batch B: implemented in WorldMechanics.
         is Mechanic.Heal, is Mechanic.SummonLightning, is Mechanic.Summon, is Mechanic.SetBlock,
-        is Mechanic.RemoveBlock, is Mechanic.Explode, is Mechanic.SpawnDisplay, is Mechanic.Glow,
+        is Mechanic.RemoveBlock, is Mechanic.Explode, is Mechanic.SpawnDisplay, is Mechanic.PlayVfx, is Mechanic.Glow,
         is Mechanic.CameraShake -> false
         is Mechanic.Damage, is Mechanic.ApplyStatus, is Mechanic.Knockback, is Mechanic.Knockup,
         is Mechanic.RemoveStatus, is Mechanic.Cleanse, is Mechanic.Ignite, is Mechanic.Freeze,
         is Mechanic.Silence, is Mechanic.SetVelocity, is Mechanic.Propel, is Mechanic.Leap,
         is Mechanic.ModifyAttribute, is Mechanic.SetCooldown,
         is Mechanic.SendMessage, is Mechanic.SendActionBar, is Mechanic.SendTitle,
+        is Mechanic.DashStrike, is Mechanic.HitStop,
         is Mechanic.Teleport, is Mechanic.SpawnParticle, is Mechanic.ScheduleParticleAnimation, is Mechanic.PlaySound,
         is Mechanic.CastSkill, is Mechanic.IfThen, is Mechanic.Loop, is Mechanic.Choose -> false
     }

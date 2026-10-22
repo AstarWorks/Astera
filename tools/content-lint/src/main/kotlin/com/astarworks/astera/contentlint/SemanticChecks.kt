@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode
 /**
  * Checks the JSON Schema cannot express: content that *decodes* fine but that
  * the runtime (`MechanicDispatcher`, `StubCelEvaluator`) cannot execute, and
- * cross-file id references. Applied to `content/skills/` and `content/items/`.
+ * cross-file id references. Applied to `content/skills/`, `content/items/` and `content/vfx/`.
  *
  * Goal: broken content fails loudly here instead of silently doing nothing in
  * game. The no-op sets mirror `combat/.../MechanicSupport.kt` (the Kotlin side
@@ -35,6 +35,7 @@ internal object SemanticChecks {
         val skills: Set<String>,
         val statuses: Set<String>,
         val particles: Set<String>,
+        val vfx: Set<String> = emptySet(),
     )
 
     fun check(root: JsonNode, known: KnownIds): List<String> {
@@ -52,6 +53,7 @@ internal object SemanticChecks {
                 checkRef(node, "status_effect_id", known.statuses, "status", path, errors)
                 checkRef(node, "particle_id", known.particles, "particle", path, errors)
                 checkRef(node, "skill_id", known.skills, "skill", path, errors)
+                checkRef(node, "vfx_id", known.vfx, "vfx", path, errors)
                 for ((key, child) in node.properties()) {
                     // `params.type` is the archetype discriminator (projectile,
                     // summon, teleport, ...), not a mechanic -- skip its own type.

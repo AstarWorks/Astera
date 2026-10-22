@@ -29,6 +29,15 @@ public interface IEntityEffectsGateway {
     /** Roots / frosts the target for [ticks] (no walking, no jumping, frost overlay). */
     public fun freeze(target: PlayerId, ticks: Int)
 
+    /**
+     * Hit-stop hold: zero velocity and no walking / jumping for [ticks], without the frost overlay
+     * (`hit_stop`). Defaults to [freeze] for hosts without a lighter-weight hold.
+     */
+    public fun hold(target: PlayerId, ticks: Int) {
+        setVelocity(target, Vec3.ZERO)
+        freeze(target, ticks)
+    }
+
     /** Ends a [freeze] early. */
     public fun thaw(target: PlayerId)
 

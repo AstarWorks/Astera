@@ -24,9 +24,23 @@ public interface IStatusEffectContainer {
      * Apply a status effect instance. Stacking behaviour follows
      * `StatusEffectSpec.stackable` / `maxStacks` on the underlying spec —
      * not-stackable effects refresh duration; stackable effects increment up
-     * to the cap.
+     * to the cap. A stackable [StatusEffectInstance.currentStacks] greater than one adds that many
+     * stacks at once (`apply_status.stack_count`).
      */
     public fun apply(instance: StatusEffectInstance)
+
+    /** Current stack count of [effectId] on [playerId]; `0` when the effect is not active. */
+    public fun stacks(playerId: PlayerId, effectId: StatusEffectId): Int =
+        active(playerId).firstOrNull { it.spec.id == effectId }?.currentStacks ?: 0
+
+    /**
+     * Consume [count] stacks of [effectId]; the effect is removed when no stack is left
+     * (`remove_status.stacks`, `damage.per_stack.consume`). Containers without partial-stack
+     * support fall back to removing the whole effect.
+     */
+    public fun removeStacks(playerId: PlayerId, effectId: StatusEffectId, count: Int) {
+        remove(playerId, effectId)
+    }
 
     /**
      * Apply many instances in one call (Wave 5g, ADR-0072).
