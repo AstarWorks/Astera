@@ -154,6 +154,35 @@ class LobbyGameSplitScenarioTest {
     }
 
     @Test
+    fun `a failing transfer notice never blocks the proxy hop in either direction`() {
+        val network = SimProxyNetwork()
+        val lobby = GameSim.boot("split-notice-lobby", role = ServerRole.LOBBY, serverName = lobbyName, proxy = network.node(lobbyName))
+        val game = GameSim.boot("split-notice-game", role = ServerRole.GAME, serverName = gameName, proxy = network.node(gameName))
+        network.register(lobbyName, lobby)
+        network.register(gameName, game)
+        try {
+            val player = lobby.spawnPlayer("p1")
+            checkNotNull(lobby.server.view(player.id)).failNotices = true
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.Norma)
+
+            assertThat(arrivedOn(network, game, player.id, 800)).`as`("Connect sent despite the failing notice").isTrue()
+            assertThat(network.moves.map { it.third }).containsExactly(gameName)
+            network.step(5)
+
+            checkNotNull(game.server.view(player.id)).failNotices = true
+            val match = game.services.getOrThrow<IMatchRepository>().findActiveMatches().single()
+            game.services.getOrThrow<IMatchLifecycle>().end(match.id, EndReason.AdminEnded)
+            network.step(8 * 20 + 40)
+
+            assertThat(lobby.world.find(player.id)).`as`("LobbyReturn hop sent despite the failing notice").isNotNull()
+            assertThat(network.moves.map { it.third }).contains(lobbyName)
+        } finally {
+            lobby.shutdown()
+            game.shutdown()
+        }
+    }
+
+    @Test
     fun `inventory survives lobby to game to lobby even when the save is slow`() {
         val network = SimProxyNetwork()
         val shared = SharedSnapshotRepository(readLag = 4)

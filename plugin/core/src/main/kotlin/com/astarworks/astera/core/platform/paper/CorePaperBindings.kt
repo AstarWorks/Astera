@@ -63,6 +63,9 @@ internal class CorePaperBindings(
     private val logger = plugin.logger
 
     private lateinit var mcServer: IMcServer
+
+    /** Resolved lazily: the renderer is registered after [buildPorts] (set in [afterWiring]). */
+    @Volatile private var messageRenderer: (() -> IMessageRenderer?)? = null
     private lateinit var scheduler: IScheduler
 
     /** Retained so [shutdown] can call [PaperScheduler.stop]. */
@@ -94,7 +97,7 @@ internal class CorePaperBindings(
 
     fun buildPorts(): CorePlatformPorts {
         // ---- Vendor-neutral abstraction over Paper -----------------------
-        val mcServer: IMcServer = PaperServer(server)
+        val mcServer: IMcServer = PaperServer(server) { messageRenderer?.invoke() }
         this.mcServer = mcServer
         val ps = PaperScheduler(plugin)
         ps.start()
@@ -361,6 +364,7 @@ internal class CorePaperBindings(
      * starts the Paper services that need the [JavaPlugin].
      */
     fun afterWiring(ctx: WiringContext, result: CoreWiringResult) {
+        messageRenderer = { ctx.services.get<IMessageRenderer>() }
         // The single /astera Brigadier tree (ADR-0184): publishes the registry's
         // merged snapshot on Paper's COMMANDS event and re-publishes it when a
         // feature plugin mounts / removes its subtree after Core enabled.

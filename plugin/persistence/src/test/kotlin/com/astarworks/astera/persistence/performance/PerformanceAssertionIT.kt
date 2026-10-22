@@ -11,9 +11,7 @@ import com.astarworks.astera.core.domain.match.Team
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.persistence.harness.PostgresIntegrationTestBase
-import com.astarworks.astera.persistence.jsonb.StageRegionsJson
 import com.astarworks.astera.persistence.repository.PostgresMatchRepository
-import com.astarworks.astera.persistence.table.StagesTable
 import com.astarworks.astera.testfixtures.FakeScheduler
 import org.assertj.core.api.Assertions.assertThat
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -114,7 +112,6 @@ public class PerformanceAssertionIT : PostgresIntegrationTestBase() {
      */
     @Test
     public fun `creating 10 matches concurrently completes within the per-match latency budget`() {
-        seedPerfTestStage()
         val repo = PostgresMatchRepository(db)
         val matches = (0 until MATCH_STARTUP_COUNT).map { i ->
             buildMatch(MatchId("perf-test-$i"))
@@ -151,7 +148,6 @@ public class PerformanceAssertionIT : PostgresIntegrationTestBase() {
      */
     @Test
     public fun `MatchRepository findById issues exactly one query`() {
-        seedPerfTestStage()
         val repo = PostgresMatchRepository(db)
         val match = buildMatch(MatchId("perf-find"))
         repo.save(match)
@@ -184,21 +180,6 @@ public class PerformanceAssertionIT : PostgresIntegrationTestBase() {
             assertThat(conn.transactionIsolation)
                 .`as`("Postgres default isolation should be READ_COMMITTED")
                 .isEqualTo(Connection.TRANSACTION_READ_COMMITTED)
-        }
-    }
-
-    /**
-     * Seed `perf-test-stage` in the stages table. The FK
-     * `matches.stage_id_fkey` requires a stages row to exist before any
-     * `repo.save(match)` call can succeed. Idempotent via upsert.
-     */
-    private fun seedPerfTestStage() {
-        transaction(db) {
-            StagesTable.upsert(StagesTable.id) {
-                it[id] = "perf-test-stage"
-                it[displayNameKey] = "astera.stage.perf-test-stage.name"
-                it[regions] = StageRegionsJson(regions = emptyList())
-            }
         }
     }
 
