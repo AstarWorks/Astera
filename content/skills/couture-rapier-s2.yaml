@@ -111,46 +111,10 @@ phases:
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: couture-shear-overhead
+    vfx_id: couture-s2-orbit
     delay_ticks:
       type: literal
-      value: 22
-  - type: play_vfx
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    vfx_id: couture-shears-remote
-    delay_ticks:
-      type: literal
-      value: 35
-  - type: play_vfx
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    vfx_id: couture-companion-blades
-    delay_ticks:
-      type: literal
-      value: 35
+      value: 19
   - type: damage
     targets:
       type: cone
