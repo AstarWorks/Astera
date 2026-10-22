@@ -326,7 +326,12 @@ astera:
 
   # WP12: personal vault (= ender chest), /vault + vanilla ender chest block.
   vault:
-    title: "Personal Vault"
+    title: "Personal Vault ({page}/{pages})"
+    nav:
+      prev: "<yellow>Previous page <gray>({page}/{pages})</gray></yellow>"
+      next: "<yellow>Next page <gray>({page}/{pages})</gray></yellow>"
+      sort: "<gold>Sort this page</gold> <gray>(merge stacks, order by item)</gray>"
+      page: "<white>Page {page} of {pages}</white>"
     blocked-in-match: "<red>The vault cannot be opened during a match.</red>"
     unavailable: "<red>Could not open your vault.</red>"
 
@@ -506,15 +511,40 @@ astera:
           confirm: "<gold><bold>Click again to confirm!</bold></gold>"
           short: "<red>Need {missing} more {currency}</red>"
           sold_out: "<dark_red>Sold out</dark_red>"
+          carrying: "<green>You are carrying it</green>"
+          take_copy: "<yellow>Click to take another copy (free)</yellow>"
+        owned: "<green>Owned <dark_gray>(bought once, yours for good)</dark_gray></green>"
+        page:
+          prev: "<yellow>Previous page <gray>({page}/{pages})</gray></yellow>"
+          next: "<yellow>Next page <gray>({page}/{pages})</gray></yellow>"
+        category:
+          title: "<gold>Category: <white>{category}</white></gold>"
+          next: "<gray>Click for: <white>{category}</white></gray>"
+        history:
+          title: "<gold>Purchase history</gold>"
+          hint: "<gray>Click to see what you bought.</gray>"
+          gui_title: "Your purchases"
+          line: "<gray>{when} - paid <white>{amount}</white> {currency}</gray>"
+          back: "<yellow>Back to the shop</yellow>"
         wallet:
           title: "<gold>Your wallet</gold>"
           line: "<gray>{currency}: <white>{amount}</white></gray>"
+      category:
+        all: "All"
+        weapon: "Weapons"
+        gun: "Guns"
+        sword: "Swords"
+        staff: "Staves"
+        armor: "Armor"
+        consumable: "Consumables"
       browse:
         invalid_id: "<red>Invalid shop id: {shop}</red>"
         player_not_online: "<red>You must be online to browse the shop.</red>"
         not_found: "<red>Shop not found: {shop}</red>"
         open_rejected: "<red>Could not open shop GUI.</red>"
       purchase:
+        claimed: "<green>Took a copy of <gold>{offer}</gold> - you already own it, no charge.</green>"
+        already_carrying: "<yellow>You are already carrying that item.</yellow>"
         success: "<green>Purchased <gold>{offer}</gold> for {price} {currency}.</green>"
         failure_generic: "<red>Purchase failed.</red>"
         player_not_online: "<red>You must be online to purchase.</red>"

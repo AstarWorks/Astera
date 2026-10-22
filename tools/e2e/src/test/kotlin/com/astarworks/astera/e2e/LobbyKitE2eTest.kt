@@ -76,10 +76,10 @@ class LobbyKitE2eTest : E2eBase() {
             "opened window '$title'; grid before=$grid after close=${b.craftingArea()}; server item ids: $inv"
         }
 
-        E2eReport.check(suite, "right-click compass (slot 0) opens a window", "ServerboundUseItem -> ClientboundOpenScreen") {
+        E2eReport.check(suite, "right-click compass (hotbar slot 8) opens a window", "ServerboundUseItem -> ClientboundOpenScreen") {
             b.closeWindow(0)
             val before = b.screens.size
-            b.selectHotbar(0)
+            b.selectHotbar(8)
             Thread.sleep(300)
             b.useItem(0f, 0f)
             assertThat(b.waitUntil(5_000) { b.screens.size > before })

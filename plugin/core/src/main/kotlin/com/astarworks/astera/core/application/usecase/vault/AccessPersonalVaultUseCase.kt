@@ -19,7 +19,7 @@ public class AccessPersonalVaultUseCase(
     private val matches: () -> IMatchRepository?,
 ) {
 
-    public fun open(playerId: PlayerId): Result<Unit, VaultError> {
+    public fun open(playerId: PlayerId, page: Int = 0): Result<Unit, VaultError> {
         val match = matches()?.findMatchOf(playerId)
         if (match != null && match.phase in LIVE_PHASES) {
             return Result.Failure(VaultError.BlockedInMatch)
@@ -29,7 +29,7 @@ public class AccessPersonalVaultUseCase(
         return when (val loaded = openVault.openVault(playerId)) {
             is Result.Failure -> Result.Failure(loaded.error)
             is Result.Success ->
-                if (vaultWindow.show(loaded.value)) Result.Success(Unit)
+                if (vaultWindow.show(loaded.value, page)) Result.Success(Unit)
                 else Result.Failure(VaultError.WindowUnavailable)
         }
     }

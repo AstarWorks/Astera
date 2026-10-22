@@ -334,7 +334,12 @@ astera:
 
   # WP12: personal vault (= ender chest), /vault + vanilla ender chest block.
   vault:
-    title: "パーソナルヴォルト"
+    title: "個人ヴォルト ({page}/{pages})"
+    nav:
+      prev: "<yellow>前のページ <gray>({page}/{pages})</gray></yellow>"
+      next: "<yellow>次のページ <gray>({page}/{pages})</gray></yellow>"
+      sort: "<gold>このページを整理</gold> <gray>(スタックを統合し、種類順に並べ替え)</gray>"
+      page: "<white>{page} / {pages} ページ</white>"
     blocked-in-match: "<red>試合中はヴォルトを開けません。</red>"
     unavailable: "<red>ヴォルトを開けませんでした。</red>"
 
@@ -514,15 +519,40 @@ astera:
           confirm: "<gold><bold>もう一度クリックで購入確定！</bold></gold>"
           short: "<red>{currency} があと {missing} 足りません</red>"
           sold_out: "<dark_red>売り切れ</dark_red>"
+          carrying: "<green>所持中です</green>"
+          take_copy: "<yellow>クリックでもう1本受け取る（無料）</yellow>"
+        owned: "<green>購入済み <dark_gray>(一度買えば永久にあなたのもの)</dark_gray></green>"
+        page:
+          prev: "<yellow>前のページ <gray>({page}/{pages})</gray></yellow>"
+          next: "<yellow>次のページ <gray>({page}/{pages})</gray></yellow>"
+        category:
+          title: "<gold>カテゴリ: <white>{category}</white></gold>"
+          next: "<gray>クリックで切替: <white>{category}</white></gray>"
+        history:
+          title: "<gold>購入履歴</gold>"
+          hint: "<gray>クリックで購入した品を確認。</gray>"
+          gui_title: "購入履歴"
+          line: "<gray>{when} - <white>{amount}</white> {currency} で購入</gray>"
+          back: "<yellow>ショップに戻る</yellow>"
         wallet:
           title: "<gold>所持金</gold>"
           line: "<gray>{currency}: <white>{amount}</white></gray>"
+      category:
+        all: "すべて"
+        weapon: "武器"
+        gun: "銃"
+        sword: "剣"
+        staff: "杖"
+        armor: "防具"
+        consumable: "消耗品"
       browse:
         invalid_id: "<red>不正なショップ ID: {shop}</red>"
         player_not_online: "<red>ショップを開くにはオンラインである必要があります。</red>"
         not_found: "<red>ショップが見つかりません: {shop}</red>"
         open_rejected: "<red>ショップ GUI を開けませんでした。</red>"
       purchase:
+        claimed: "<green><gold>{offer}</gold> を受け取りました - 購入済みのため無料です。</green>"
+        already_carrying: "<yellow>そのアイテムは既に所持しています。</yellow>"
         success: "<green><gold>{offer}</gold> を {price} {currency} で購入しました。</green>"
         failure_generic: "<red>購入に失敗しました。</red>"
         player_not_online: "<red>購入にはオンラインである必要があります。</red>"
