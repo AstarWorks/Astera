@@ -1,8 +1,6 @@
-# Gossamer Katana S1 (left-click): thread cut. Two beats -- a rising ice-blue cut, then a falling cut
-# 4 ticks later that carries the bleed. The damage (7.0) is one lump on beat 1: a target takes at most
-# one hit per 20-tick invulnerability window and `damage.ignore_invulnerability` is not honoured by
-# the dispatcher yet. Beat 2 follows through hit_entity as feel plus substance: +1 bleed (the DoT is not
-# gated by the window), a 2-tick hit-stop, a flash.
+# Gossamer Katana S1 (left-click): thread cut. Two real hits -- a rising ice-blue cut (3.0, the melee hit),
+# then a falling cut 4 ticks later (4.0, ignores i-frames, 2-tick hit-stop, +1 bleed). 7 per string plus
+# the bleed.
 
 id: gossamer-katana-s1
 
@@ -24,7 +22,7 @@ params:
   arc_degrees: 85.0
   knockback: 0.1
   damage:
-    - base: { type: literal, value: 7.0 }
+    - base: { type: literal, value: 3.0 }
       attribute: physical
 
 phases:
@@ -58,6 +56,13 @@ phases:
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
       particle_id: hit-spark
     # beat 2
+    - type: damage
+      targets: { type: target }
+      components:
+        - base: { type: literal, value: 4.0 }
+          attribute: physical
+      ignore_invulnerability: { type: literal, value: true }
+      delay_ticks: { type: literal, value: 4 }
     - type: apply_status
       targets: { type: target }
       status_id: bleed

@@ -14,7 +14,7 @@ elements:
     brightness: 15
     glow_color: "#8fe8ff"
     start_tick: 0
-    end_tick: 15
+    slot_lifetime_ticks: 15
     count: 12
     formation:
       curve: { type: helix, radius: 1.8, turns: 1.5, height: 2.4, start_deg: 0 }
@@ -26,12 +26,15 @@ elements:
       - { t: 2, scale: [0.07, 0.07, 0.7], ease: out_expo }
       - { t: 10, block: white_stained_glass }
       - { t: 14, scale: [0.0, 0.0, 0.7], ease: in_quad }
+    group_keyframes:
+      - { t: 0 }
+      - { t: 28, rotate: [540, 0, 0], ease: in_out_quad }
 
   - id: helix-b
     kind: { type: block, block: white_concrete }
     brightness: 15
     start_tick: 0
-    end_tick: 15
+    slot_lifetime_ticks: 15
     count: 12
     formation:
       curve: { type: helix, radius: 1.8, turns: 1.5, height: 2.4, start_deg: 180 }
@@ -42,13 +45,16 @@ elements:
       - { t: 0, scale: [0.03, 0.03, 0.1] }
       - { t: 2, scale: [0.04, 0.04, 0.65], ease: out_expo }
       - { t: 14, scale: [0.0, 0.0, 0.65], ease: in_quad }
+    group_keyframes:
+      - { t: 0 }
+      - { t: 28, rotate: [540, 0, 0], ease: in_out_quad }
 
   - id: wall
     kind: { type: block, block: blue_stained_glass }
     brightness: 15
     glow_color: "#3fa9ff"
     start_tick: 8
-    end_tick: 20
+    slot_lifetime_ticks: 12
     count: 8
     formation:
       curve: { type: helix, radius: 2.5, turns: 1.0, height: 2.0, start_deg: 90 }
@@ -60,3 +66,6 @@ elements:
       - { t: 2, scale: [0.07, 0.07, 0.9], ease: out_expo }
       - { t: 9, block: gray_stained_glass }
       - { t: 11, scale: [0.0, 0.0, 0.9], ease: in_quad }
+    group_keyframes:
+      - { t: 0 }
+      - { t: 14, rotate: [-420, 0, 0], ease: in_out_quad }
