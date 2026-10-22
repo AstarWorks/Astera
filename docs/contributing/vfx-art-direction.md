@@ -127,3 +127,6 @@ glyph 版は `scale = size*5` (1 セル = 8 px = 0.2 block)、色は text colour
 クライアントは色を補間しないので、色 / alpha の変化は `sample_ticks` ごとの更新で送る。
 粒子は entity 位置を teleport (`teleport_duration`) で動かす (transformation の translation は billboard 相対になるため)。
 重力は世界座標の下向き。`emit` の乱数は cast の seed 固定 (同じ seed なら同じ軌道)。
+
+ゲーム内では `/astera skill preview <skill-id> view=side|opponent|behind speed=0.25` でダミーに発動させ、
+術者の一人称以外の視点から実機で確認する (`again` で再生、`freeze` / `step` でコマ送り。詳細は `docs/contributing/playtest.md`)。

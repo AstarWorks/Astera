@@ -161,6 +161,18 @@ Every action is permission-checked per click and written to the audit log.
 The quickest solo test loop: `/astera admin panel` -> Weapons & items -> Full kit ->
 Match control -> your lane -> right-click ("just me").
 
+### Watching a skill from outside (`/astera skill preview`)
+
+First-person casts are hard to read. `/astera skill preview <skill-id> [view=side|opponent|behind|stay] [speed=1|0.5|0.25] [distance=6]`
+(permission `astera.skill.preview`, ops) spawns a player-like Mannequin caster holding the skill's weapon 3 blocks in
+front of you and a no-AI husk 4 blocks past it, then makes the dummy cast the skill through the real pipeline
+(damage, hit_stop, dash_strike, VFX). Views: `side` = spectator camera `distance` blocks off the caster-target line,
+`opponent` = from the target's spot, `behind` = over the caster's shoulder, `stay` = you do not move. Your gamemode and
+position come back when the preview ends (or you quit). Dummies are removed 120 ticks after the cast.
+
+- `speed<1` slows the **whole backend's** tick rate (`/tick rate`) until the preview ends; ops only.
+- `/astera skill preview again` repeats the last one. `freeze`, `step [n]`, `unfreeze` drive `/tick freeze|step` for frame-by-frame reading.
+
 ### Weapon roster (WP7)
 
 | Item | Class | Right-click | Sneak + right-click | Left-click | GOLD | Crit-free TTK on 20 HP |

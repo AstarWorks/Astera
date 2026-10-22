@@ -105,6 +105,19 @@ astera:
   skill.cast.ok: "<green>{player} に <white>{skill}</white> を発動しました。</green>"
   skill.cast.need-target: "<red>プレイヤーを指定してください: /astera skill cast <skill-id> <player></red>"
   skill.cast.no-player: "<red>プレイヤー <gold>{player}</gold> はオフラインか存在しません。</red>"
+  skill.preview.started: "<green><white>{skill}</white> をプレビュー中 (視点 {view}、速度 {speed}x)。0.5 秒後にダミーが発動します。</green>"
+  skill.preview.again: "<green>直前のプレビューをもう一度再生します。</green>"
+  skill.preview.slow-warning: "<yellow>プレビュー終了までこのバックエンドの全員の tick レートが遅くなります。</yellow>"
+  skill.preview.frozen: "<yellow>このバックエンドの全員でサーバーを停止しました。<white>/astera skill preview step [n]</white> で進め、<white>unfreeze</white> で再開します。</yellow>"
+  skill.preview.unfrozen: "<green>サーバーの停止を解除しました。</green>"
+  skill.preview.stepped: "<gray>{ticks} tick 進めました。</gray>"
+  skill.preview.not-frozen: "<red>先に /astera skill preview freeze で停止してください。</red>"
+  skill.preview.nothing-to-repeat: "<red>繰り返せる直前のプレビューがありません。</red>"
+  skill.preview.speed-needs-operator: "<red>speed を 1 未満にすると全員の tick レートが変わるため、オペレーター限定です。</red>"
+  skill.preview.viewer-unavailable: "<red>あなたの位置を取得できませんでした。</red>"
+  skill.preview.stage-failed: "<red>プレビュー用ダミーを出せませんでした (ワールド未ロード?)。</red>"
+  skill.preview.bad-option: "<red>不明なオプション <gold>{option}</gold>。view= / speed= / distance= を使ってください。</red>"
+  skill.preview.bad-value: "<red><white>{key}</white> の値 <gold>{value}</gold> が不正です (view: side|opponent|behind|stay、speed: 0.05-1、distance: 2-32)。</red>"
 
   command:
     give:
