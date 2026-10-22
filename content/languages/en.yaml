@@ -1507,6 +1507,8 @@ astera:
     hint:
       use: "<gray>Right-click to open</gray>"
       click: "<gray>Click to open</gray>"
+      compass: "<gray>Right-click or F to open (Sneak+F: vault, Q: queue)</gray>"
+      keys: "<gray>F: menu  |  Sneak+F: vault  |  Q on the compass: queue</gray>"
 
   lobby:
     npc:

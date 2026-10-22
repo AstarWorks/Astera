@@ -472,6 +472,11 @@ class Bot private constructor(
         ),
     )
 
+    /** F: swap main hand and off hand (ADR-0232 keybind in the lobby). */
+    fun swapHands() = session.send(
+        ServerboundPlayerActionPacket(PlayerAction.SWAP_HANDS, Vector3i.from(0, 0, 0), Direction.DOWN, 0),
+    )
+
     /** A raw inventory-window click as a client would send it (no predicted slot changes). */
     fun clickSlot(containerId: Int, slot: Int, type: ContainerActionType, param: ContainerAction) = session.send(
         ServerboundContainerClickPacket(containerId, stateIds[containerId] ?: 0, slot, type, param, null, emptyMap<Int, HashedStack?>()),
