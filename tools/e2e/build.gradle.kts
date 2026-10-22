@@ -42,6 +42,7 @@ val e2e by tasks.registering(Test::class) {
     classpath = sourceSets.test.get().runtimeClasspath
     useJUnitPlatform()
     outputs.upToDateWhen { false }
+    filter { excludeTestsMatching("*.live.*") }
     // Bot sessions are stateful against one server: run strictly serially.
     maxParallelForks = 1
     systemProperty("astera.e2e.report", layout.buildDirectory.file("e2e-report.md").get().asFile.absolutePath)
@@ -50,6 +51,30 @@ val e2e by tasks.registering(Test::class) {
     systemProperty("astera.e2e.project", "astera-e2e-$e2eId")
     listOf("host", "port", "rconPort", "rconPassword", "autostart", "serverLog").forEach { k ->
         (project.findProperty("e2e.$k") as String?)?.let { systemProperty("astera.e2e.$k", it) }
+    }
+    testLogging.showStandardStreams = false
+}
+
+// QA-2 (ADR-0221): the same bots, but against the LIVE docker stack (lobby + game behind Velocity) via
+// Velocity modern forwarding. `make live-bots SCENARIO=smoke|weapons|match|all` - never part of check.
+val live by tasks.registering(Test::class) {
+    group = "verification"
+    description = "Runs the live-stack bot scenarios (needs the astera-dev stack; run through make live-bots)."
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnitPlatform()
+    outputs.upToDateWhen { false }
+    maxParallelForks = 1
+    val scenario = (project.findProperty("live.scenario") as String?) ?: "all"
+    filter {
+        if (scenario == "all") includeTestsMatching("*.live.*") else includeTestsMatching("*.live.${scenario.replaceFirstChar { it.uppercase() }}LiveTest")
+        isFailOnNoMatchingTests = true
+    }
+    systemProperty("astera.e2e.report", layout.buildDirectory.file("live-report.md").get().asFile.absolutePath)
+    systemProperty("astera.e2e.reportTitle", "Astera live-stack bot report ($scenario)")
+    systemProperty("astera.e2e.backendDesc", "astera-dev stack, bots connect directly to the lobby/game backends with Velocity modern forwarding (no Mojang account)")
+    listOf("lobbyHost", "gameHost", "rconPassword", "lobbyData", "gameData", "contentDir", "weapons").forEach { k ->
+        (project.findProperty("live.$k") as String?)?.let { systemProperty("astera.live.$k", it) }
     }
     testLogging.showStandardStreams = false
 }

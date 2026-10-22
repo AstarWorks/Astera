@@ -1,9 +1,22 @@
 package com.astarworks.astera.e2e
 
+import net.kyori.adventure.key.Key
+import org.geysermc.mcprotocollib.protocol.data.game.ClientCommand
+import org.geysermc.mcprotocollib.protocol.data.game.level.notify.GameEvent
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerCombatKillPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundGameEventPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.ServerboundClientCommandPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.level.ServerboundPlayerInputPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundPunchPacket
 import net.kyori.adventure.text.Component
+import org.geysermc.mcprotocollib.protocol.packet.common.clientbound.ClientboundCustomPayloadPacket
+import org.geysermc.mcprotocollib.protocol.packet.common.serverbound.ServerboundCustomPayloadPacket
+import org.geysermc.mcprotocollib.protocol.packet.login.clientbound.ClientboundCustomQueryPacket
+import org.geysermc.mcprotocollib.protocol.packet.login.serverbound.ServerboundCustomQueryAnswerPacket
 import net.kyori.adventure.text.KeybindComponent
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.TranslatableComponent
+import org.geysermc.mcprotocollib.network.ClientSession
 import org.geysermc.mcprotocollib.network.Session
 import org.geysermc.mcprotocollib.network.event.session.DisconnectedEvent
 import org.geysermc.mcprotocollib.network.event.session.SessionAdapter
@@ -66,6 +79,12 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
+/**
+ * A server a bot logs in to. [forwardingSecret] non-null = answer Velocity's modern-forwarding login query
+ * (the bot then connects straight to a backend as a "forwarded" player, no Mojang account).
+ */
+data class Endpoint(val host: String, val port: Int, val forwardingSecret: String? = null, val clientAddress: String = "127.0.0.1")
+
 /** How the bot answers a resource pack push, like the three clients a real player can have. */
 enum class PackPolicy { LOAD, DECLINE, FAIL_DOWNLOAD, IGNORE }
 
@@ -100,16 +119,26 @@ fun visible(s: String): String = buildString {
 }
 
 /** A real Minecraft Java 26.3 client (MCProtocolLib) that records everything the server sends it. */
-class Bot private constructor(val name: String, private val packPolicy: PackPolicy, private val locale: String) : AutoCloseable {
+class Bot private constructor(
+    val name: String,
+    private val packPolicy: PackPolicy,
+    private val locale: String,
+    /** Where the bot is connected right now; changes when it emulates a proxy `Connect` hop. */
+    @Volatile var endpoint: Endpoint,
+    /** Backend name (as in the Velocity server table) -> endpoint; non-empty enables `Connect` hop emulation. */
+    private val servers: Map<String, Endpoint>,
+) : AutoCloseable {
 
-    private val session = ClientNetworkSessionFactory.factory()
-        .setAddress(E2eEnv.host, E2eEnv.port)
-        .setProtocol(MinecraftProtocol(name))
-        .create()
+    private lateinit var session: ClientSession
+    /** Backend names this bot was sent to by a `BungeeCord Connect` message, in order (live mode). */
+    val hops = CopyOnWriteArrayList<String>()
+    /** Death-screen messages (ClientboundPlayerCombatKill) and game mode changes seen, in order. */
+    val deaths = CopyOnWriteArrayList<String>()
+    val gameModes = CopyOnWriteArrayList<String>()
 
     // --- recorded state -------------------------------------------------------------------------------------
     /** The offline-mode UUID the backend assigns (what server logs print). */
-    val uuid: UUID = UUID.nameUUIDFromBytes("OfflinePlayer:$name".toByteArray(Charsets.UTF_8))
+    val uuid: UUID = offlineUuid(name)
     @Volatile var joined = false; private set
     @Volatile var loggedIn = false; private set
     @Volatile var disconnectReason: String? = null; private set
@@ -140,6 +169,9 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
     @Volatile var commandTree: ClientboundCommandsPacket? = null; private set
     @Volatile var health: Float = Float.NaN; private set
     val healthHistory = CopyOnWriteArrayList<Float>()
+    /** The vanilla food bar (ADR-0194: it is the energy readout) as the server sets it. */
+    @Volatile var food: Int = -1; private set
+    val foodHistory = CopyOnWriteArrayList<Int>()
     @Volatile var x = 0.0; private set
     @Volatile var y = 0.0; private set
     @Volatile var z = 0.0; private set
@@ -152,9 +184,19 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
     private val nextTransaction = AtomicInteger(100)
     private val sequence = AtomicInteger(1)
 
-    init {
-        session.addListener(object : SessionAdapter() {
+    private fun newSession(ep: Endpoint): ClientSession {
+        val s = ClientNetworkSessionFactory.factory()
+            .setAddress(ep.host, ep.port)
+            .setProtocol(MinecraftProtocol(name))
+            .create()
+        s.addListener(listener)
+        return s
+    }
+
+    private val listener: SessionAdapter = run {
+        object : SessionAdapter() {
             override fun packetReceived(s: Session, packet: Packet) {
+                if (s !== session) return
                 packetCounts.computeIfAbsent(packet.javaClass.simpleName) { AtomicInteger() }.incrementAndGet()
                 try {
                     handle(packet)
@@ -164,12 +206,13 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
             }
 
             override fun disconnected(event: DisconnectedEvent) {
+                if (event.session !== session) return
                 if (disconnectReason == null) {
                     disconnectReason = plain(event.reason) + (event.cause?.let { " [cause: $it]" } ?: "")
                 }
                 joined = false
             }
-        })
+        }
     }
 
     private fun handle(packet: Packet) {
@@ -179,8 +222,17 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
                 respondToPack(packet.id)
             }
             is ClientboundDisconnectPacket -> disconnectReason = plain(packet.reason)
+            is ClientboundPlayerCombatKillPacket -> deaths += plain(packet.message)
+            is ClientboundGameEventPacket -> if (packet.notification == GameEvent.CHANGE_GAME_MODE) gameModes += packet.value.toString()
+            is ClientboundCustomQueryPacket -> answerLoginQuery(packet)
+            is ClientboundCustomPayloadPacket -> handlePluginMessage(packet)
             is ClientboundLoginPacket -> {
                 loggedIn = true
+                if (servers.isNotEmpty()) {
+                    // Velocity tells real clients to listen on the legacy proxy channel; Paper only delivers
+                    // plugin messages on channels the client registered.
+                    session.send(ServerboundCustomPayloadPacket(Key.key("minecraft", "register"), "bungeecord:main\u0000".toByteArray()))
+                }
                 worldName = packet.commonPlayerSpawnInfo.worldName.asString()
                 worldHistory += worldName!!
                 session.send(
@@ -209,6 +261,8 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
             is ClientboundSetHealthPacket -> {
                 health = packet.health
                 healthHistory += packet.health
+                food = packet.food
+                foodHistory += packet.food
             }
             is ClientboundBossEventPacket -> handleBossBar(packet)
             is ClientboundSetObjectivePacket -> when (packet.action) {
@@ -258,6 +312,55 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
         }
     }
 
+    /** Login plugin request: only `velocity:player_info` is answered (modern forwarding); everything else = "not understood". */
+    private fun answerLoginQuery(q: ClientboundCustomQueryPacket) {
+        val secret = endpoint.forwardingSecret
+        if (q.channel.asString() == VelocityForwarding.CHANNEL && secret != null) {
+            session.send(ServerboundCustomQueryAnswerPacket(q.messageId, VelocityForwarding.payload(secret, endpoint.clientAddress, uuid, name)))
+        } else {
+            session.send(ServerboundCustomQueryAnswerPacket(q.messageId))
+        }
+    }
+
+    private fun handlePluginMessage(p: ClientboundCustomPayloadPacket) {
+        val ch = p.channel.asString()
+        if (servers.isEmpty() || ch != "bungeecord:main") return
+        val target = runCatching {
+            val din = java.io.DataInputStream(java.io.ByteArrayInputStream(p.data))
+            if (din.readUTF() == "Connect") din.readUTF() else null
+        }.getOrNull() ?: return
+        val ep = servers[target]
+        if (ep == null) {
+            E2eReport.notes += "bot $name: proxy Connect to unknown server '$target' ignored"
+            return
+        }
+        hops += target
+        // Reconnect off the netty thread: the old session's listener thread must not block on the new login.
+        Thread({ hopTo(ep) }, "bot-hop-$name").also { it.isDaemon = true }.start()
+    }
+
+    /**
+     * Test-harness workaround for a broken `Connect` (the server never sent it): do the proxy's job by hand.
+     * Always reported by the caller as a failure of the product path it replaces.
+     */
+    fun forceHop(server: String): Boolean {
+        val ep = servers[server] ?: return false
+        hops += "$server (forced)"
+        hopTo(ep)
+        return true
+    }
+
+    /** Emulates what Velocity does on `Connect`: drop the backend connection and log in to [ep] with forwarding. */
+    private fun hopTo(ep: Endpoint) {
+        val old = session
+        joined = false; loggedIn = false; disconnectReason = null
+        runCatching { old.disconnect("hop") }
+        objectives.clear(); displaySlots.clear(); scores.clear(); teams.clear(); bossBars.clear()
+        contents.clear(); screens.clear(); stateIds.clear()
+        endpoint = ep
+        connect()
+    }
+
     private fun handleBossBar(p: ClientboundBossEventPacket) {
         val view = bossBars.computeIfAbsent(p.uuid) { BossBarView(p.uuid, "", 0f) }
         when (p.action.name) {
@@ -290,6 +393,7 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
     // --- actions ---------------------------------------------------------------------------------------------
     fun connect(): Bot {
         throttleGate()
+        session = newSession(endpoint)
         session.connect(true)
         markConnected()
         return this
@@ -314,6 +418,15 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
 
     fun useItem(yaw: Float, pitch: Float) =
         session.send(ServerboundUseItemPacket(Hand.MAIN_HAND, sequence.getAndIncrement(), yaw, pitch))
+
+    /** Left click in the air (arm swing) - fires `left_click` bindings. */
+    fun punch() = session.send(ServerboundPunchPacket.INSTANCE)
+
+    /** Holds/releases sneak (shift) - `sneak_right` bindings need it held while right-clicking. */
+    fun sneak(on: Boolean) = session.send(ServerboundPlayerInputPacket(false, false, false, false, false, on, false))
+
+    /** The "Respawn" button of the death screen. */
+    fun respawn() = session.send(ServerboundClientCommandPacket(ClientCommand.PERFORM_RESPAWN))
 
     /** Q (single item) or Ctrl+Q (whole stack) on the selected hotbar slot. */
     fun dropSelected(wholeStack: Boolean = false) = session.send(
@@ -398,6 +511,8 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
 
     companion object {
         /** Paper rejects a second connection from one IP within `connection-throttle` (4s): space our logins out. */
+        fun offlineUuid(name: String): UUID = UUID.nameUUIDFromBytes("OfflinePlayer:$name".toByteArray(Charsets.UTF_8))
+
         private const val MIN_GAP_MS = 4_800L
         private var lastConnectAt = 0L
         private val gateLock = Any()
@@ -421,8 +536,11 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
             packPolicy: PackPolicy = PackPolicy.LOAD,
             locale: String = "en_us",
             waitForJoin: Boolean = true,
+            endpoint: Endpoint = Endpoint(E2eEnv.host, E2eEnv.port),
+            servers: Map<String, Endpoint> = emptyMap(),
+            exactName: String? = null,
         ): Bot {
-            val bot = Bot(uniqueName(prefix), packPolicy, locale).connect()
+            val bot = Bot(exactName ?: uniqueName(prefix), packPolicy, locale, endpoint, servers).connect()
             if (waitForJoin) bot.awaitJoin()
             return bot
         }

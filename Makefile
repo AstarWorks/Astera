@@ -154,3 +154,11 @@ e2e: ## Boot the offline e2e backend, run the MCProtocolLib bot suite, write bui
 .PHONY: e2e-down
 e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, volumes, images)
 	bash scripts/e2e.sh down
+
+# ----------------------------------------------------------------------------
+# bots inside the LIVE stack (QA-2, ADR-0221) - Velocity modern forwarding, needs the astera-dev stack
+# ----------------------------------------------------------------------------
+
+.PHONY: live-bots
+live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=smoke|weapons|match|all (report: build/live-report.md)
+	bash scripts/live-bots.sh $(or $(SCENARIO),all)
