@@ -49,6 +49,10 @@ implementer — in every session, not just one:
   a one-line merge-conflict resolution or a commit-message-level fix goes to a
   subagent (Sonnet/Haiku) or Codex (`codex exec -p astar-implement`).
 - If the main session catches itself editing files, it stops and delegates.
+- **Enforced** by the `PreToolUse` hook `.claude/hooks/manager-guard.py`
+  (main session only; subagents/Codex unaffected). Allow/deny tables, Codex
+  launcher (`scripts/codex-task.sh`) and prompt preambles:
+  `.claude/rules/manager-mode.md`.
 
 ## Session bootstrap (Wave protocol)
 
