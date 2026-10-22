@@ -81,6 +81,8 @@ public class MatchWiringResult(
     public val lifecycle: IMatchLifecycle,
     /** Annihilation pillars as targets; the host feeds enemy block breaks into it (WP10). */
     public val pillarTargets: AnnihilationPillarTargets,
+    /** Camera cycling for spectators; the host feeds left / right clicks into it (F3-5). `null` without an `ISpectator`. */
+    public val spectatorCycler: com.astarworks.astera.match.application.service.death.SpectatorTargetCycler?,
     private val shutdownHooks: List<() -> Unit>,
     private val scheduledTasks: List<IScheduler.TaskHandle>,
 ) {
@@ -111,9 +113,14 @@ internal class MatchWiringEnv(
     val queueSettings: QueueSettingsContents,
     val annihilationTracker: AnnihilationMatchTracker,
     val worldGateway: IWorldGateway?,
+    /** `default_config` of the game mode a match runs (Norma's when the mode is unknown); read live so reloads apply. */
+    val modeConfigOf: (com.astarworks.astera.core.domain.match.MatchId) -> Map<String, String>,
     val scheduledTasks: MutableList<IScheduler.TaskHandle>,
     val shutdownHooks: MutableList<() -> Unit>,
-)
+) {
+    /** Set by [MatchGameplayWiring]; `null` when the host registered no `ISpectator`. */
+    var spectatorCycler: com.astarworks.astera.match.application.service.death.SpectatorTargetCycler? = null
+}
 
 /**
  * Host-neutral Match wiring (ADR-0174). Pure construction / registration /
@@ -573,11 +580,19 @@ public object MatchWiring {
             com.astarworks.astera.match.application.service.MatchRepositoryTeamLookup(matches),
         )
 
+        val modeConfigOf: (com.astarworks.astera.core.domain.match.MatchId) -> Map<String, String> = { id ->
+            val key = matchModeRegistry.modeKeyOf(id)?.takeIf { it.isNotBlank() }
+                ?.let { runCatching { GameModeId(it) }.getOrNull() }
+            (key?.let { gameModeContents.find(it) } ?: gameModeContents.find(NormaGameMode.ID))?.defaultConfig
+                ?: emptyMap()
+        }
+
         val env = MatchWiringEnv(
             ctx = ctx, ports = ports, matches = matches, stages = stages, eventBus = eventBus,
             scheduler = scheduler, playerGateway = playerGateway, commands = commands,
             permService = permService, msgRenderer = msgRenderer, matchModeRegistry = matchModeRegistry,
             facade = facade, queueSettings = queueSettings, annihilationTracker = annihilationTracker, worldGateway = worldGateway,
+            modeConfigOf = modeConfigOf,
             scheduledTasks = scheduledTasks, shutdownHooks = shutdownHooks,
         )
         MatchWorldWiring.install(env)
@@ -588,6 +603,7 @@ public object MatchWiring {
             matches = matches,
             lifecycle = facade,
             pillarTargets = pillarTargets,
+            spectatorCycler = env.spectatorCycler,
             shutdownHooks = shutdownHooks.toList(),
             scheduledTasks = scheduledTasks.toList(),
         )

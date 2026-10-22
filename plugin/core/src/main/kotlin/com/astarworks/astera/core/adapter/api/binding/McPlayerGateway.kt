@@ -25,6 +25,9 @@ public class McPlayerGateway(
     override fun findByName(name: String): PlayerId? =
         server.findPlayerByName(name)?.id
 
+    override fun nameOf(playerId: PlayerId): String? =
+        server.findPlayer(playerId)?.name
+
     override fun sendMessage(playerId: PlayerId, rendered: String) {
         server.findPlayer(playerId)?.sendMessage(rendered)
     }

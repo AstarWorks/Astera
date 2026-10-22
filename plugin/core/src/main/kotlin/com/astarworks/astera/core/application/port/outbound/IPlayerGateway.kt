@@ -22,4 +22,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public interface IPlayerGateway {
     public fun findByName(name: String): PlayerId?
     public fun sendMessage(playerId: PlayerId, rendered: String)
+
+    /** Current name of an online player, or `null` when offline / unknown. */
+    public fun nameOf(playerId: PlayerId): String? = null
 }

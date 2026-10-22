@@ -361,7 +361,7 @@ public class PaperHudGateway(
                 JDuration.ofMillis(layout.stayTicks * 50L),
                 JDuration.ofMillis(layout.fadeOutTicks * 50L),
             )
-            player.showTitle(Title.title(Component.empty(), sub, times))
+            player.showTitle(Title.title(layout.title?.let { toComponent(playerId, it) } ?: Component.empty(), sub, times))
             null
         }
     }
