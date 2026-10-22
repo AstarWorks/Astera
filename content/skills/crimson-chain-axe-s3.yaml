@@ -1,0 +1,126 @@
+# Crimson Chain-Axe S3 (sneak + right-click) "Blade Forest": the caster plants (rooted 34 ticks) while a
+# floor ring, spokes and three tilted rings telegraph a 7-block danger zone. Tick 34 the shockwave
+# staggers every enemy in range (knock-up + hit-stop, no damage). Tick 40 a forest of axes erupts:
+# 6 + 1.5 per Rupture stack, consuming them all. Tick 60 a diagonal finishing slash lands (6, hit-stop,
+# shake). No stacks ~12 phys; 10 stacks ~27. 15 ticks between the two damage beats are NOT i-frame-proof
+# against players, so both are `ignore_invulnerability`.
+
+id: crimson-chain-axe-s3
+
+name:
+  ja: "刃の森"
+  en: "Blade Forest"
+description:
+  ja: "足を止めて紅い魔法陣を張り、衝撃波で敵を浮かせたのち、地面から斧の森を突き上げる。裂傷が多いほど威力が増し、すべて消費する。"
+  en: "Plant, telegraph a red zone, stagger everyone with a shockwave, then erupt a forest of axes. Scales with and consumes Rupture."
+
+archetype: aoe
+cooldown_ticks: 300
+resource_cost: 60              # energy
+tags: [ aoe, physical, finisher, rupture ]
+
+params:
+  type: aoe
+  radius: 0.5
+  falloff: linear
+  damage:
+    - base: { type: literal, value: 0.0 }
+      attribute: physical
+
+phases:
+  type: aoe
+  cast:
+    # -- telegraph (0-34) --
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: crimson-chain-axe-charge
+    - type: hit_stop
+      targets: { type: caster }
+      ticks: 34
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.beacon.activate
+      pitch: { type: literal, value: 0.6 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.beacon.power_select
+      pitch: { type: literal, value: 0.5 }
+      delay_ticks: { type: literal, value: 16 }
+    # -- shockwave (34) --
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: crimson-chain-axe-quake
+      delay_ticks: { type: literal, value: 34 }
+    - type: knockup
+      targets: { type: enemies, center: { type: caster } }
+      strength: { type: literal, value: 0.55 }
+      delay_ticks: { type: literal, value: 34 }
+    - type: hit_stop
+      targets: { type: enemies, center: { type: caster } }
+      ticks: 6
+      delay_ticks: { type: literal, value: 34 }
+    - type: camera_shake
+      targets: { type: enemies, center: { type: caster } }
+      intensity: { type: literal, value: 0.7 }
+      ticks: { type: literal, value: 8 }
+      delay_ticks: { type: literal, value: 34 }
+    - type: camera_shake
+      targets: { type: caster }
+      intensity: { type: literal, value: 0.5 }
+      ticks: { type: literal, value: 8 }
+      delay_ticks: { type: literal, value: 34 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.wither.spawn
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 0.6 }
+      delay_ticks: { type: literal, value: 34 }
+    # -- forest (40): the stack-scaled blow --
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: crimson-chain-axe-forest
+      delay_ticks: { type: literal, value: 40 }
+    - type: damage
+      targets: { type: enemies, center: { type: caster } }
+      ignore_invulnerability: { type: literal, value: true }
+      delay_ticks: { type: literal, value: 40 }
+      components:
+        - base: { type: literal, value: 6.0 }
+          attribute: physical
+          per_stack: { status_id: rupture, amount: 1.5, on: target, consume: true }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.anvil.land
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 0.6 }
+      delay_ticks: { type: literal, value: 40 }
+    # -- finishing slash (60) --
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: crimson-chain-axe-finish
+      delay_ticks: { type: literal, value: 56 }
+    - type: damage
+      targets: { type: enemies, center: { type: caster } }
+      ignore_invulnerability: { type: literal, value: true }
+      delay_ticks: { type: literal, value: 60 }
+      components:
+        - base: { type: literal, value: 6.0 }
+          attribute: physical
+    - type: hit_stop
+      targets: { type: enemies, center: { type: caster } }
+      ticks: 3
+      include_caster: true
+      delay_ticks: { type: literal, value: 60 }
+    - type: camera_shake
+      targets: { type: enemies, center: { type: caster } }
+      intensity: { type: literal, value: 0.8 }
+      ticks: { type: literal, value: 8 }
+      delay_ticks: { type: literal, value: 60 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.crit
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 0.7 }
+      delay_ticks: { type: literal, value: 60 }
+  hit_entity: []
+  expire: []

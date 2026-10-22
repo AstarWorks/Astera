@@ -1,0 +1,46 @@
+# Crimson Chain-Axe S3 "Blade Forest" (tick 40): 20 giant iron axes erupt from the floor at scattered radii,
+# each tilted a little differently (jitter), overshoot with out_back, stand for ~1.5 s, then sink away.
+# Six blood-crystal spikes rise between them. Fits the 60-display cap with room to spare.
+# Local axes: x = left, y = up, z = forward.
+
+id: crimson-chain-axe-forest
+duration_ticks: 52
+orient: yaw
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: axe
+    kind: { type: item, item: iron_axe, display_mode: fixed }
+    brightness: 15
+    glow_color: "#c0102a"
+    start_tick: 0
+    end_tick: 50
+    count: 20
+    formation:
+      curve: { type: spiral, start_radius: 2.0, end_radius: 9.0, turns: 2.5 }
+      offset: [0.0, 0.0, 0.0]
+      align: none
+      stagger_ticks: 0
+    jitter: { position: 0.9, rotation_deg: 25, scale: 0.25 }
+    keyframes:
+      - { t: 0, translate: [0.0, -1.5, 0.0], scale: [0.2, 0.2, 0.2] }
+      - { t: 5, translate: [0.0, 1.6, 0.0], scale: [3.0, 3.0, 3.0], ease: out_back }
+      - { t: 38, translate: [0.0, 1.6, 0.0], scale: [3.0, 3.0, 3.0] }
+      - { t: 50, translate: [0.0, -1.2, 0.0], scale: [0.4, 0.4, 0.4], ease: in_quad }
+
+  - id: crystal
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 2
+    end_tick: 44
+    count: 6
+    formation:
+      curve: { type: spiral, start_radius: 3.0, end_radius: 8.5, turns: 1.5, start_deg: 40 }
+      align: none
+    jitter: { position: 1.0, rotation_deg: 18, scale: 0.3 }
+    keyframes:
+      - { t: 0, translate: [0.0, -0.5, 0.0], scale: [0.2, 0.1, 0.2] }
+      - { t: 4, translate: [0.0, 1.0, 0.0], scale: [0.3, 2.2, 0.3], ease: out_expo }
+      - { t: 30, translate: [0.0, 1.0, 0.0], scale: [0.3, 2.2, 0.3] }
+      - { t: 42, translate: [0.0, 0.0, 0.0], scale: [0.0, 0.4, 0.0], ease: in_quad }

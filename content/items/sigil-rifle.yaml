@@ -1,0 +1,50 @@
+# Persona weapon (ADR-0221): Sigil Rifle. Patient marksman: shots and cuts leave Sinking sigils on the
+# target (stacking, slowing), S3 detonates them. Red, gold, black.
+# Left-click = S1 marked round (hitscan), right-click = S2 dash-cut, sneak + right-click = S3 sigil
+# detonation (finisher), sneak + left-click = DEF sigil ward (step back).
+
+id: sigil-rifle
+
+material: IRON_HORSE_ARMOR
+
+name:
+  ja: "<#b3141c>刻印の狙撃銃</#b3141c>"
+  en: "<#b3141c>Sigil Rifle</#b3141c>"
+lore:
+  ja:
+    - "<gray>左クリック: 刻印弾（貫通ビーム・沈降を刻む）</gray>"
+    - "<gray>右クリック: 滑走斬り（無敵の滑り込み・二段斬り）</gray>"
+    - "<gray>スニーク + 右クリック: 刻印連鎖爆破（沈降を消費して炸裂）</gray>"
+    - "<gray>スニーク + 左クリック: 刻印の退き足（後退・沈降付与）</gray>"
+    - "<dark_gray>rarity: epic / level: 4</dark_gray>"
+  en:
+    - "<gray>Left-click: marked round (hitscan, leaves Sinking)</gray>"
+    - "<gray>Right-click: dash-cut (invulnerable slide, two cuts)</gray>"
+    - "<gray>Sneak + right-click: sigil detonation (spends Sinking for a chain blast)</gray>"
+    - "<gray>Sneak + left-click: sigil ward (step back, mark pursuers)</gray>"
+    - "<dark_gray>rarity: epic / level: 4</dark_gray>"
+
+rarity: epic
+level_requirement: 4
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 3.0
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 12
+
+skills:
+  - trigger: left_click
+    skill_id: sigil-rifle-s1
+  - trigger: right_click
+    skill_id: sigil-rifle-s2
+  - trigger: sneak_right
+    skill_id: sigil-rifle-s3
+  - trigger: sneak_left
+    skill_id: sigil-rifle-def
+
+pdc_tags:
+  astera:rarity: epic
