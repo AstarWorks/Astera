@@ -1,4 +1,4 @@
-# ADR-0194: Inventory snapshot on match entry (addendum to ADR-0187)
+# ADR-0198: Inventory snapshot on match entry (addendum to ADR-0187)
 
 Status: Accepted (F3-12). Addendum to ADR-0187 / WP12 per-match snapshot.
 
