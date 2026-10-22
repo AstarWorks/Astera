@@ -580,6 +580,10 @@ astera:
         reloaded: "<green>Reloaded</green> <white>{remaining}/{max}</white>"
     status:
       stacks: "<gray>x{stacks}</gray>"
+      # ADR-0182 — plain-text HP, shown while the resource pack is not loaded.
+      hp: "<red>HP</red> <white>{current}/{max}</white>"
+    resource-pack:
+      prompt: "<gold>Astera resource pack</gold> <gray>- custom HP bar, item models and sounds</gray>"
     sidebar:
       spacer: " "
       phase:

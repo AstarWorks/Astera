@@ -582,6 +582,10 @@ astera:
         reloaded: "<green>リロード完了</green> <white>{remaining}/{max}</white>"
     status:
       stacks: "<gray>x{stacks}</gray>"
+      # ADR-0182 — リソースパック未適用時の文字表示 HP。
+      hp: "<red>HP</red> <white>{current}/{max}</white>"
+    resource-pack:
+      prompt: "<gold>Astera リソースパック</gold> <gray>- 専用 HP バー・アイテムモデル・サウンド</gray>"
     sidebar:
       spacer: " "
       phase:

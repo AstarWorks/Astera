@@ -1,0 +1,106 @@
+package com.astarworks.astera.resourcepack
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.nio.file.Files
+import java.nio.file.Path
+import java.security.MessageDigest
+import java.util.zip.ZipFile
+
+class ResourcePackBuilderTest {
+
+    private val contentDir: Path = Path.of(checkNotNull(System.getProperty("astera.contentDir")))
+    private val mapper = ObjectMapper()
+
+    private fun json(bytes: ByteArray) = mapper.readTree(bytes)
+
+    @Test
+    fun `the real content builds a pack with mcmeta, font, sprites, models and textures`() {
+        val files = ResourcePackBuilder(contentDir).collect()
+
+        val mcmeta = json(files.getValue("pack.mcmeta")).path("pack")
+        assertThat(mcmeta.path("min_format").asInt()).isEqualTo(ResourcePackBuilder.MIN_FORMAT)
+        assertThat(mcmeta.path("max_format").asInt()).isEqualTo(ResourcePackBuilder.MAX_FORMAT)
+        assertThat(mcmeta.has("description")).isTrue()
+
+        val providers = json(files.getValue("assets/astera/font/default.json")).path("providers")
+        val types = providers.map { it.path("type").asText() }
+        assertThat(types).contains("bitmap", "space")
+        assertThat(providers.filter { it.path("type").asText() == "bitmap" }.map { it.path("file").asText() })
+            .contains("astera:hud/status/atlas.png", "astera:hud/mana/icon.png", "astera:hud/currency/star-icon.png")
+        // Every bitmap provider resolves to a file inside the pack (no dangling references).
+        for (provider in providers.filter { it.path("type").asText() == "bitmap" }) {
+            val path = "assets/astera/textures/" + provider.path("file").asText().substringAfter("astera:")
+            assertThat(files).`as`(path).containsKey(path)
+        }
+
+        for (sprite in listOf("heart/full", "heart/half", "heart/container", "heart/absorbing_full", "armor_full")) {
+            assertThat(files).containsKey("assets/minecraft/textures/gui/sprites/hud/$sprite.png")
+        }
+        assertThat(files).containsKey("assets/astera/models/items/swords/amethyst-dagger.json")
+        assertThat(files).containsKey("assets/astera/textures/items/swords/dagger_v01.png")
+        val itemDef = json(files.getValue("assets/astera/items/swords/amethyst-dagger.json")).path("model")
+        assertThat(itemDef.path("model").asText()).isEqualTo("astera:items/swords/amethyst-dagger")
+    }
+
+    @Test
+    fun `the zip is reproducible and the sha1 file matches the zip`(@TempDir tmp: Path) {
+        val builder = ResourcePackBuilder(contentDir)
+        val first = builder.buildTo(tmp.resolve("a"))
+        val second = builder.buildTo(tmp.resolve("b"))
+
+        assertThat(first.sha1).isEqualTo(second.sha1)
+        assertThat(Files.readAllBytes(first.zip)).isEqualTo(Files.readAllBytes(second.zip))
+        val actual = MessageDigest.getInstance("SHA-1").digest(Files.readAllBytes(first.zip)).joinToString("") { "%02x".format(it) }
+        assertThat(first.sha1).isEqualTo(actual).matches("[0-9a-f]{40}")
+        assertThat(Files.readString(first.zip.resolveSibling("astera.zip.sha1"))).isEqualTo("$actual  astera.zip\n")
+
+        ZipFile(first.zip.toFile()).use { zip ->
+            val names = zip.entries().asSequence().map { it.name }.toList()
+            assertThat(names).isEqualTo(names.sorted()).hasSize(first.entryCount)
+            assertThat(names).first().isEqualTo("assets/astera/font/default.json")
+            assertThat(names).contains("pack.mcmeta")
+            assertThat(zip.entries().asSequence().map { it.timeLocal.year }.toSet()).containsExactly(1980)
+        }
+    }
+
+    @Test
+    fun `a content change changes the sha1`(@TempDir tmp: Path) {
+        val content = tmp.resolve("content")
+        Files.createDirectories(content.resolve("textures/items"))
+        Files.write(content.resolve("textures/items/a.png"), byteArrayOf(1, 2, 3))
+        val before = ResourcePackBuilder(content).buildTo(tmp.resolve("out1")).sha1
+        Files.write(content.resolve("textures/items/a.png"), byteArrayOf(1, 2, 4))
+        val after = ResourcePackBuilder(content).buildTo(tmp.resolve("out2")).sha1
+        assertThat(after).isNotEqualTo(before)
+    }
+
+    @Test
+    fun `sounds yaml with an ogg becomes a sound event, a yaml without an ogg is skipped`(@TempDir tmp: Path) {
+        val sounds = tmp.resolve("content/sounds")
+        Files.createDirectories(sounds.resolve("skills"))
+        Files.writeString(sounds.resolve("skills/fireball-cast.yaml"), "id: \"astera:skill/fireball/cast\"\nresource_key: x\n")
+        Files.write(sounds.resolve("skills/fireball-cast.ogg"), byteArrayOf(9))
+        Files.writeString(sounds.resolve("skills/ghost.yaml"), "id: \"astera:skill/ghost\"\n")
+        Files.createDirectories(sounds.resolve("ui"))
+        Files.write(sounds.resolve("ui/confirm.ogg"), byteArrayOf(8))
+
+        val files = ResourcePackBuilder(tmp.resolve("content")).collect()
+
+        assertThat(files).containsKey("assets/astera/sounds/skills/fireball-cast.ogg")
+        val events = json(files.getValue("assets/astera/sounds.json"))
+        assertThat(events.path("skill/fireball/cast").path("sounds").map { it.asText() }).containsExactly("astera:skills/fireball-cast")
+        assertThat(events.path("ui/confirm").path("sounds").map { it.asText() }).containsExactly("astera:ui/confirm")
+        assertThat(events.has("skill/ghost")).isFalse()
+    }
+
+    @Test
+    fun `an empty content tree still yields a valid pack with the vanilla overrides`(@TempDir tmp: Path) {
+        val files = ResourcePackBuilder(tmp).collect()
+        assertThat(files).containsKey("pack.mcmeta")
+        assertThat(files.keys.filter { it.startsWith("assets/minecraft/") }).hasSameSizeAs(ResourcePackBuilder.HIDDEN_SPRITES)
+        assertThat(files).doesNotContainKey("assets/astera/font/default.json")
+    }
+}

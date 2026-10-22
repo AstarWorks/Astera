@@ -31,4 +31,7 @@ public enum class HudRegion {
     TAB_LIST_HEADER,
     TAB_LIST_FOOTER,
     SUBTITLE,
+
+    /** The always-on status line (HP bar), composited into the action bar by the gateway (ADR-0182). */
+    STATUS_LINE,
 }

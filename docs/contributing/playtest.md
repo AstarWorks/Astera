@@ -99,6 +99,31 @@ Admin shortcuts (skip the queue): `/astera-match start example-arena`, then
 `/astera-match entry <matchId> <name>` (teleports and auto-balances teams), plus
 `/astera-match phase|end|abort|list`.
 
+## Resource pack (custom HP bar, ADR-0182)
+
+Vanilla hearts are a lossy mirror of Astera's HP, so Astera ships a resource pack that
+hides them and draws a red bar with the exact `current/max` where the hearts were.
+Without the pack you still play: vanilla hearts plus an `HP 200/200` text line.
+
+- **Build / serve:** the `resource-pack` compose service builds the pack from `content/`
+  (textures, models, sounds, HUD art) and serves `http://localhost:8099/astera.zip`
+  (+ `astera.zip.sha1`). `make docker-up` rebuilds it with everything else. To build it
+  alone: `./gradlew :tools:resource-pack:buildResourcePack` -> `build/resource-pack/`.
+- **Server env** (paper service): `ASTERA_RESOURCE_PACK_URL` (what clients download;
+  unset = no pack, no error), `ASTERA_RESOURCE_PACK_SHA1` or `ASTERA_RESOURCE_PACK_SHA1_URL`
+  (default `<url>.sha1`, read once at boot), `ASTERA_RESOURCE_PACK_REQUIRED` (default false).
+  Players off this machine need the host's LAN / public address in the URL.
+- **On join** the client is prompted; accept it. Server list -> edit -> *Server Resource Packs:
+  Enabled* skips the prompt next time.
+- **Check:** hearts and armor bar gone, red bar with numbers above the hotbar's left half,
+  it follows damage / healing, turns orange at 25 % HP, and stays while the cooldown text
+  or a toast shows. Decline the pack and the hearts + `HP` text come back.
+- **Tuning** (not verifiable headless): if the bar sits too high or low change
+  `StatusHudGlyphs.ASCENT` and run `./gradlew :tools:resource-pack:generateHudArt`; the
+  committed art under `content/hud/` is generated, never edited by hand.
+- **Pack format:** `pack.mcmeta` uses `min_format` 75 / `max_format` 1000 until the 26.3
+  value is confirmed (`ResourcePackBuilder.MIN_FORMAT` / `MAX_FORMAT`).
+
 ## World and coordinates
 
 The playtest world is superflat: the surface block is y=-61, you stand at y=-60.

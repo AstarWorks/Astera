@@ -208,6 +208,29 @@ internal fun CoreWiringState.wireGameplayLoop() {
         ) { event -> hudResourceListener.onActiveWeaponChanged(event) }
     }
 
+    // 4.15 ADR-0182 — status line (exact HP bar) and the resource pack it needs.
+    //      HpStatusHudService owns the status-line channel: glyph bar once the
+    //      client reports the pack LOADED, `HP cur/max` text before that.
+    //      The pack is pushed on join only when the host configured one.
+    val hpStatusHud = com.astarworks.astera.core.application.eventbus.listeners.hud
+        .HpStatusHudService(
+            health = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>(),
+            hudGateway = hudGateway,
+            scheduler = scheduler,
+        )
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hpStatusHud.onJoined(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerHealthChanged::class) { hpStatusHud.onHealthChanged(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerMaxHealthChanged::class) { hpStatusHud.onMaxHealthChanged(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerRespawned::class) { hpStatusHud.onRespawned(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hpStatusHud.onQuit(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { hpStatusHud.onPackStatus(it) }
+    ports.resourcePack?.let { pack ->
+        val pushOnJoin = com.astarworks.astera.core.application.eventbus.listeners.hud
+            .ResourcePackPushOnJoinListener(hudGateway, pack)
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { pushOnJoin.handle(it) }
+        logger.info("ADR-0182: resource pack push on join enabled (${pack.url}).")
+    } ?: logger.info("ADR-0182: no resource pack configured (ASTERA_RESOURCE_PACK_URL unset); status HUD uses its text form.")
+
     // 4.2 Wave H 5content-depth (ADR-0125) — Quest + Recipe listener wiring.
     //     Phase 1 PoC closing: `QuestStageCompleted` (Wave 5s) and
     //     `RecipeCrafted` (Wave 5s) published events with no subscriber,

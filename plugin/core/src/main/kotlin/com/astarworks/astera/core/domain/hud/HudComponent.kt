@@ -122,4 +122,18 @@ public sealed interface HudComponent {
             public fun px(width: Int): Spacer = Spacer(width)
         }
     }
+
+    /**
+     * A pre-composed string in the Astera font (PUA glyphs and negative-space
+     * advances, see `StatusHudGlyphs`) whose total advance is [widthPx] pixels.
+     * The gateway draws it verbatim, white, in the `astera:default` font.
+     */
+    public data class FontText(
+        public val text: String,
+        public val widthPx: Int,
+    ) : HudComponent {
+        init {
+            require(text.isNotEmpty()) { "FontText.text must not be empty" }
+        }
+    }
 }
