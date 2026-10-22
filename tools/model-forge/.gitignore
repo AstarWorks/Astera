@@ -1,0 +1,8 @@
+__pycache__/
+work/*.png
+work/*/*
+!work/*/final-sheet.png
+!work/*/final-review.json
+!work/*/concept-sheet.png
+!work/*/concept.json
+!work/*/review.md

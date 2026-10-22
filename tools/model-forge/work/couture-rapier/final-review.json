@@ -1,0 +1,655 @@
+{
+  "item": "couture-rapier",
+  "concept_sha256": "54b120d39d0bd367fc712586bbb1a521ae5232cb25e0c11174a3186438835c45",
+  "views": {
+    "front": {
+      "iou": 0.82311,
+      "bounds": [
+        96,
+        14,
+        152,
+        224
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "iou": 0.86854,
+      "bounds": [
+        115,
+        14,
+        134,
+        224
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "iou": 0.82077,
+      "bounds": [
+        96,
+        121,
+        152,
+        140
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "iou": 0.87383,
+      "bounds": [
+        99,
+        20,
+        152,
+        221
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        41,
+        58,
+        161,
+        216
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        107,
+        19,
+        145,
+        172
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        107,
+        0,
+        131,
+        142
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        110,
+        50,
+        127,
+        116
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        104,
+        48,
+        139,
+        180
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "validation": {
+    "valid": true,
+    "elements": 17,
+    "budget": 64,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999762,
+      2.0000000000000013
+    ],
+    "rotated_bounds": [
+      [
+        3.55,
+        -0.5999999999999996,
+        7.0
+      ],
+      [
+        11.558340429971405,
+        29.0,
+        9.799999999999999
+      ]
+    ]
+  },
+  "note": "IoU compares independent polygon construction targets, not the source icon. Hand views are isolated orthographic transform previews.",
+  "sha256": {
+    "content/models/items/couture-rapier.model.json": "bb24cc3621619a02ec9881c189c31a36acfc25749c052b86108606ece3a8edae",
+    "content/textures/items/couture-rapier.png": "25f622c4b5a4dc7a5a7a88f108370679d80d478f6b2d9d452d3bd3dc36087e70"
+  },
+  "rounds": [
+    {
+      "round": "round-1",
+      "views": {
+        "front": {
+          "iou": 0.64889,
+          "bounds": [
+            103,
+            14,
+            152,
+            219
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "iou": 0.77634,
+          "bounds": [
+            121,
+            14,
+            134,
+            219
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "iou": 0.76087,
+          "bounds": [
+            103,
+            121,
+            152,
+            134
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "iou": 0.7037,
+          "bounds": [
+            103,
+            20,
+            152,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            51,
+            58,
+            161,
+            210
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            107,
+            19,
+            145,
+            168
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            108,
+            0,
+            130,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            112,
+            50,
+            127,
+            115
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            104,
+            48,
+            135,
+            178
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "54b120d39d0bd367fc712586bbb1a521ae5232cb25e0c11174a3186438835c45",
+      "sha256": {
+        "model.json": "9b3de640c7bf70585da719785c0ace68f3780e9d46c91d894724fc7d18b6dd4d",
+        "texture.png": "e888eb2e3a04e66d960ab6578b1bfc11aac2688b2186ada01e722a11831ff77a",
+        "comparison.png": "1d373a3d14316ee59431d7cd72e15f8d77b9bf86ea7e88059d1f830611b318fe"
+      }
+    },
+    {
+      "round": "round-2",
+      "views": {
+        "front": {
+          "iou": 0.77005,
+          "bounds": [
+            96,
+            14,
+            152,
+            219
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "iou": 0.81075,
+          "bounds": [
+            121,
+            14,
+            134,
+            219
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "iou": 0.81116,
+          "bounds": [
+            96,
+            121,
+            152,
+            134
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "iou": 0.81403,
+          "bounds": [
+            99,
+            20,
+            152,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            37,
+            58,
+            161,
+            210
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            107,
+            19,
+            145,
+            169
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            107,
+            0,
+            131,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            110,
+            50,
+            127,
+            115
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            104,
+            48,
+            139,
+            178
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "54b120d39d0bd367fc712586bbb1a521ae5232cb25e0c11174a3186438835c45",
+      "sha256": {
+        "model.json": "8ac1d14a2489b7c2e570c17a724c502aeea637cdf8daf98f467d6d1618673728",
+        "texture.png": "e888eb2e3a04e66d960ab6578b1bfc11aac2688b2186ada01e722a11831ff77a",
+        "comparison.png": "1c519fcad5f462847a262795d38293a024ca230a443ac8da9179e9cdd09e77df"
+      }
+    },
+    {
+      "round": "round-3",
+      "views": {
+        "front": {
+          "iou": 0.8189,
+          "bounds": [
+            96,
+            14,
+            152,
+            224
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "iou": 0.86854,
+          "bounds": [
+            115,
+            14,
+            134,
+            224
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "iou": 0.82077,
+          "bounds": [
+            96,
+            121,
+            152,
+            140
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "iou": 0.87882,
+          "bounds": [
+            99,
+            20,
+            152,
+            221
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            41,
+            58,
+            161,
+            216
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            107,
+            19,
+            145,
+            172
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            107,
+            0,
+            131,
+            142
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            110,
+            50,
+            127,
+            116
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            104,
+            48,
+            139,
+            180
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "54b120d39d0bd367fc712586bbb1a521ae5232cb25e0c11174a3186438835c45",
+      "sha256": {
+        "model.json": "edd336620d0ed2160787dbe384dbf7fd6d4a2a107565ec7f53c605e6e849048d",
+        "texture.png": "e888eb2e3a04e66d960ab6578b1bfc11aac2688b2186ada01e722a11831ff77a",
+        "comparison.png": "c908b93f6dbe40847ab26409fb821aa4b9030362f3a865f680d94b58cfd6aac9"
+      }
+    },
+    {
+      "round": "round-4",
+      "views": {
+        "front": {
+          "iou": 0.82375,
+          "bounds": [
+            96,
+            14,
+            152,
+            224
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "iou": 0.86854,
+          "bounds": [
+            115,
+            14,
+            134,
+            224
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "iou": 0.82077,
+          "bounds": [
+            96,
+            121,
+            152,
+            140
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "iou": 0.87844,
+          "bounds": [
+            99,
+            20,
+            152,
+            221
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            41,
+            58,
+            161,
+            216
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            107,
+            19,
+            145,
+            172
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            107,
+            0,
+            131,
+            142
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            110,
+            50,
+            127,
+            116
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            104,
+            48,
+            139,
+            180
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "54b120d39d0bd367fc712586bbb1a521ae5232cb25e0c11174a3186438835c45",
+      "sha256": {
+        "model.json": "53b6ad3ac65d2665e4e6956ce4b973577326050bf207d4aa8ee639d1000d3031",
+        "texture.png": "a9516831aa148a04bd8d7b7c77ee85268a56278d48c0ce7cfd70b987e93afb55",
+        "comparison.png": "f814fd172248b8becbbaf4de678a61825c3fb30d4145f40b743b0d1455071403"
+      }
+    },
+    {
+      "round": "round-5",
+      "views": {
+        "front": {
+          "iou": 0.82311,
+          "bounds": [
+            96,
+            14,
+            152,
+            224
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "iou": 0.86854,
+          "bounds": [
+            115,
+            14,
+            134,
+            224
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "iou": 0.82077,
+          "bounds": [
+            96,
+            121,
+            152,
+            140
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "iou": 0.87383,
+          "bounds": [
+            99,
+            20,
+            152,
+            221
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            41,
+            58,
+            161,
+            216
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            107,
+            19,
+            145,
+            172
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            107,
+            0,
+            131,
+            142
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            110,
+            50,
+            127,
+            116
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            104,
+            48,
+            139,
+            180
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "54b120d39d0bd367fc712586bbb1a521ae5232cb25e0c11174a3186438835c45",
+      "sha256": {
+        "model.json": "bb24cc3621619a02ec9881c189c31a36acfc25749c052b86108606ece3a8edae",
+        "texture.png": "25f622c4b5a4dc7a5a7a88f108370679d80d478f6b2d9d452d3bd3dc36087e70",
+        "comparison.png": "5f0b5c5d493a2cb5b4b35e88ebf77bb243c978b77fd868d8f6ed24f5a69a7571"
+      }
+    }
+  ]
+}

@@ -1,0 +1,213 @@
+{
+  "parts": [
+    {
+      "polygon": [
+        [
+          7,
+          0
+        ],
+        [
+          9,
+          0
+        ],
+        [
+          9,
+          7
+        ],
+        [
+          7,
+          7
+        ]
+      ],
+      "depth": 2,
+      "z": 8,
+      "color": "#302f34"
+    },
+    {
+      "polygon": [
+        [
+          6.5,
+          -1
+        ],
+        [
+          9.5,
+          -1
+        ],
+        [
+          9.5,
+          0.5
+        ],
+        [
+          6.5,
+          0.5
+        ]
+      ],
+      "depth": 3,
+      "z": 8,
+      "color": "#e9ac48"
+    },
+    {
+      "polygon": [
+        [
+          4.6,
+          9
+        ],
+        [
+          11.4,
+          9
+        ],
+        [
+          11.4,
+          24
+        ],
+        [
+          10,
+          27
+        ],
+        [
+          8,
+          29
+        ],
+        [
+          6,
+          27
+        ],
+        [
+          4.6,
+          24
+        ]
+      ],
+      "depth": 2.5,
+      "z": 8,
+      "color": "#ffe194"
+    },
+    {
+      "polygon": [
+        [
+          7.4,
+          10
+        ],
+        [
+          8.6,
+          10
+        ],
+        [
+          8.6,
+          26
+        ],
+        [
+          8,
+          27
+        ],
+        [
+          7.4,
+          26
+        ]
+      ],
+      "depth": 2.7,
+      "z": 8,
+      "color": "#d88d32"
+    },
+    {
+      "polygon": [
+        [
+          2.5,
+          6.5
+        ],
+        [
+          2.5,
+          8
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          13.5,
+          8
+        ],
+        [
+          13.5,
+          6.5
+        ],
+        [
+          10.5,
+          7.5
+        ],
+        [
+          5.5,
+          7.5
+        ]
+      ],
+      "depth": 3,
+      "z": 8,
+      "color": "#d8943b"
+    },
+    {
+      "polygon": [
+        [
+          8,
+          7
+        ],
+        [
+          9.3,
+          8.3
+        ],
+        [
+          8,
+          9.6
+        ],
+        [
+          6.7,
+          8.3
+        ]
+      ],
+      "depth": 3.3,
+      "z": 8,
+      "color": "#ffca5b"
+    }
+  ],
+  "item": "bastion-greatsword",
+  "brief": "Astera: bold silhouette, top-left pixel highlights, readable held prop. Preserve the source weapon identity; use true volume and restrained material trims.",
+  "source_sha256": "08af0869908b408fb125d94935a6d9393456bba9a9d31e5c38d6f98ff98ae723",
+  "provenance": "Codex-authored polygon construction drawing from existing AI sheet; no model render input",
+  "camera": {
+    "center": [
+      8,
+      13,
+      8
+    ],
+    "span": 36,
+    "views": {
+      "front": [
+        0,
+        0,
+        0
+      ],
+      "side": [
+        0,
+        -90,
+        0
+      ],
+      "top": [
+        90,
+        0,
+        0
+      ],
+      "iso": [
+        20,
+        -30,
+        0
+      ]
+    }
+  },
+  "key": [
+    255,
+    0,
+    255
+  ]
+}
