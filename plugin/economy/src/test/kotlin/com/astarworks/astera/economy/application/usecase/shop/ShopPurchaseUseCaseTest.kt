@@ -108,6 +108,7 @@ public class ShopPurchaseUseCaseTest {
                     itemId = itemId,
                     price = price,
                     stock = ShopStock.Limited(initial),
+                    limit = com.astarworks.astera.core.domain.shop.PurchaseLimit.UNLIMITED,
                 ),
             ),
         )
@@ -126,6 +127,7 @@ public class ShopPurchaseUseCaseTest {
                     itemId = itemId,
                     price = price,
                     stock = ShopStock.Unlimited,
+                    limit = com.astarworks.astera.core.domain.shop.PurchaseLimit.UNLIMITED,
                 ),
             ),
         )

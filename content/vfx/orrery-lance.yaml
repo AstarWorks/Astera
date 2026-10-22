@@ -1,0 +1,43 @@
+# Orrery Staff: a gold lance thrust straight ahead (S2 hit 3). A thin core and a bloom shoot out of
+# the staff tip (out_expo), hold one tick, then thin away; two sparks ride the tip.
+# Local axes: x = left, y = up, z = forward.
+
+id: orrery-lance
+duration_ticks: 12
+orient: look
+sample_ticks: 1
+
+elements:
+  - id: core
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    glow_color: "#ffd45a"
+    start_tick: 0
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [0.3, 1.3, 1.0], scale: [0.04, 0.04, 0.4] }
+      - { t: 2, translate: [0.3, 1.3, 5.0], scale: [0.1, 0.1, 8.0], ease: out_expo }
+      - { t: 4, block: yellow_concrete }
+      - { t: 10, scale: [0.0, 0.0, 8.0], ease: in_quad }
+
+  - id: bloom
+    kind: { type: block, block: yellow_stained_glass }
+    brightness: 15
+    start_tick: 0
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [0.3, 1.3, 1.0], scale: [0.1, 0.1, 0.4] }
+      - { t: 2, translate: [0.3, 1.3, 5.0], scale: [0.36, 0.36, 8.0], ease: out_expo }
+      - { t: 10, scale: [0.0, 0.0, 8.0], ease: in_quad }
+    oscillate: { axis: scale_xz, amplitude: 0.06, period_ticks: 2 }
+
+  - id: tip-spark
+    kind: { type: text, text: "<#fff2a8><b>★</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 1
+    end_tick: 9
+    keyframes:
+      - { t: 0, translate: [0.3, 1.3, 8.8], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [5.0, 5.0, 5.0], ease: out_back }
+      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }

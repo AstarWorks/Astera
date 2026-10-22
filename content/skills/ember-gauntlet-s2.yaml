@@ -1,0 +1,148 @@
+# Persona weapon: Ember Gauntlet. S2 right-click -- Hoop Cannon.
+# A flame jet fires three fire hoops forward; each hoop is one hit (1 damage + a burn stack). Holding 3+ Charge adds one bigger overdrive hoop (and spends 3 Charge). The gauntlet then vents:
+# soot puff + a small recoil hop backwards -- the visible cooldown gap.
+#
+#   t2  jet + hoop 1 leaves            t7  hoop 1 lands: 1 damage + burn
+#   t5  hoop 2 leaves                  t10 hoop 2 lands: burn + starburst
+#   t8  hoop 3 leaves                  t13 hoop 3 lands: burn, knockback, hit-stop, big starburst
+#   overdrive (3 Charge): one big hoop 4 lands t14, +2 burn
+#   t17 smoke vent, recoil
+# Hits are timed for a target about 5 blocks out (the hoops cover 8.5 blocks in 6 ticks).
+
+id: ember-gauntlet-s2
+
+name:
+  ja: "輪砲"
+  en: "Hoop Cannon"
+description:
+  ja: "炎の噴流と共に火の輪を三つ撃ち出す。輪ひとつにつき一撃で、燃焼を蓄積する。充填3以上で追加の大輪が加わる。"
+  en: "Fires three fire hoops behind a flame jet; each hoop is one hit and stacks burn. With 3 charge, a bigger overdrive hoop joins in."
+
+archetype: sequence
+cooldown_ticks: 44
+resource_cost: 28              # energy
+tags: [ persona, ranged, fire, burn, mobility ]
+
+params:
+  type: sequence
+
+phases:
+  type: sequence
+  cast:
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: ember-hoop-cannon
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.blaze.shoot
+      volume: { type: literal, value: 0.9 }
+      pitch: { type: literal, value: 0.7 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.firecharge.use
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 0.9 }
+    - type: loop
+      count: { type: literal, value: 3 }
+      stride_ticks: { type: literal, value: 3 }
+      delay_ticks: { type: literal, value: 2 }
+      mechanics:
+        - type: play_sound
+          targets: { type: caster }
+          sound_id: entity.ghast.shoot
+          volume: { type: literal, value: 0.35 }
+          pitch: { type: literal, value: 1.5 }
+    # ---- hoop 1: damage + burn
+    - type: play_vfx
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 30.0 }, distance: { type: literal, value: 10.0 } }
+      vfx_id: ember-hoop-hit
+      delay_ticks: { type: literal, value: 7 }
+    # ---- burn on each of the three hoops (t6, t9, t12)
+    - type: loop
+      count: { type: literal, value: 3 }
+      stride_ticks: { type: literal, value: 3 }
+      delay_ticks: { type: literal, value: 7 }
+      mechanics:
+        - type: damage
+          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 30.0 }, distance: { type: literal, value: 10.0 } }
+          ignore_invulnerability: { type: literal, value: true }
+          components:
+            - base: { type: literal, value: 1.0 }
+              attribute: fire
+        - type: apply_status
+          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 30.0 }, distance: { type: literal, value: 10.0 } }
+          status_id: burn
+          effect_duration_ticks: { type: literal, value: 20 }
+        - type: play_sound
+          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 30.0 }, distance: { type: literal, value: 10.0 } }
+          sound_id: entity.player.attack.strong
+          volume: { type: literal, value: 0.7 }
+          pitch: { type: literal, value: 1.4 }
+        - type: spawn_particle
+          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 30.0 }, distance: { type: literal, value: 10.0 } }
+          particle_id: fire-impact
+    # ---- hoop 2
+    - type: play_vfx
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 30.0 }, distance: { type: literal, value: 10.0 } }
+      vfx_id: ember-hoop-hit
+      delay_ticks: { type: literal, value: 10 }
+    # ---- hoop 3: the closing hit
+    - type: play_vfx
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 30.0 }, distance: { type: literal, value: 10.0 } }
+      vfx_id: ember-starburst
+      scale: { type: literal, value: 0.95 }
+      delay_ticks: { type: literal, value: 13 }
+    - type: hit_stop
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 30.0 }, distance: { type: literal, value: 10.0 } }
+      ticks: 3
+      delay_ticks: { type: literal, value: 13 }
+    - type: knockback
+      targets: { type: cone, from: { type: caster }, direction: { type: away_from_caster, vertical: 0.15 }, angle_degrees: { type: literal, value: 30.0 }, distance: { type: literal, value: 10.0 } }
+      direction: { type: away_from_caster, vertical: 0.15 }
+      strength: { type: literal, value: 0.8 }
+      delay_ticks: { type: literal, value: 13 }
+    - type: camera_shake
+      targets: { type: caster }
+      intensity: { type: literal, value: 0.3 }
+      ticks: { type: literal, value: 5 }
+      delay_ticks: { type: literal, value: 13 }
+    # ---- overdrive: only with 3+ Charge, spends 3
+    - type: if_then
+      predicate: { type: has_status, on: caster, status_id: charge, min_stacks: 3 }
+      then:
+        - type: remove_status
+          targets: { type: caster }
+          status_id: charge
+          stacks: 3
+        - type: play_vfx
+          targets: { type: caster }
+          vfx_id: ember-hoop-overdrive
+          delay_ticks: { type: literal, value: 9 }
+        - type: play_sound
+          targets: { type: caster }
+          sound_id: entity.blaze.shoot
+          volume: { type: literal, value: 1.0 }
+          pitch: { type: literal, value: 0.5 }
+          delay_ticks: { type: literal, value: 9 }
+        - type: apply_status
+          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 30.0 }, distance: { type: literal, value: 10.0 } }
+          status_id: burn
+          effect_duration_ticks: { type: literal, value: 20 }
+          stack_count: { type: literal, value: 2 }
+          delay_ticks: { type: literal, value: 14 }
+    # ---- vent: smoke puff + recoil hop
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: ember-smoke-puff
+      delay_ticks: { type: literal, value: 17 }
+    - type: propel
+      targets: { type: caster }
+      direction: { type: from_caster }
+      strength: { type: literal, value: -0.55 }
+      delay_ticks: { type: literal, value: 17 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.fire.extinguish
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 0.8 }
+      delay_ticks: { type: literal, value: 17 }

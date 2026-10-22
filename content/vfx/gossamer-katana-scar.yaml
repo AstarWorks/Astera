@@ -1,0 +1,66 @@
+# Gossamer Katana finisher: one corner-to-corner diagonal. A thick ink-black bar and a hair-thin white line
+# slam into place together (out_expo), a pale glyph on a dark plate holds for ~6 ticks like a frozen
+# frame, twelve ink blots burst out of the crossing, and then the scar stays on as it fades through a
+# block ladder (black -> gray -> clear). Anchored on the caster, yaw-oriented.
+
+id: gossamer-katana-scar
+duration_ticks: 26
+orient: yaw
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: ink
+    kind: { type: block, block: gray_concrete }
+    brightness: 6
+    start_tick: 0
+    end_tick: 24
+    keyframes:
+      - { t: 0, translate: [0.0, 1.4, 3.5], rotate: [0, 0, 52], scale: [0.04, 0.5, 0.04] }
+      - { t: 2, scale: [0.24, 11.0, 0.24], ease: out_expo }
+      - { t: 6, scale: [0.24, 11.0, 0.24] }
+      - { t: 12, scale: [0.16, 11.0, 0.16], ease: in_quad }
+      - { t: 13, block: light_gray_concrete }
+      - { t: 18, block: gray_stained_glass }
+      - { t: 22, scale: [0.0, 11.0, 0.0], ease: in_quad }
+
+  - id: line
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    glow_color: "#f2f2f2"
+    start_tick: 0
+    end_tick: 20
+    keyframes:
+      - { t: 0, translate: [0.0, 1.4, 3.3], rotate: [0, 0, 52], scale: [0.02, 0.5, 0.02] }
+      - { t: 2, scale: [0.07, 11.5, 0.07], ease: out_expo }
+      - { t: 5, scale: [0.07, 11.5, 0.07] }
+      - { t: 10, scale: [0.035, 11.5, 0.035], ease: in_quad }
+      - { t: 18, scale: [0.0, 11.5, 0.0], ease: in_quad }
+
+  - id: glyph
+    kind: { type: text, text: "<#f2f2f2><b>断</b>", background: "#c0000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 1
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [0.0, 1.4, 2.8], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [9.0, 9.0, 9.0], ease: out_expo }
+      - { t: 6, scale: [9.4, 9.4, 9.4] }
+      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: blot
+    kind: { type: block, block: gray_concrete }
+    brightness: 6
+    start_tick: 1
+    end_tick: 15
+    count: 12
+    formation:
+      curve: { type: sphere, radius: 0.3 }
+      offset: [0.0, 1.4, 3.5]
+      align: outward
+    jitter: { position: 0.05, rotation_deg: 30, scale: 0.3 }
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.05] }
+      - { t: 3, translate: [0.0, 0.0, 1.9], rotate: [0, 0, 120], scale: [0.26, 0.26, 0.26], ease: out_expo }
+      - { t: 13, translate: [0.0, -0.4, 2.4], scale: [0.0, 0.0, 0.0], ease: in_quad }

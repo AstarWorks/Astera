@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap
 import org.slf4j.LoggerFactory
 
 /**
- * Puts the starter grant's items (`default_loadout` in `content/balance/starter-grant.yaml`) into a
+ * Puts the starter grant's items (`starter_items` in `content/balance/starter-grant.yaml`) into a
  * brand-new player's inventory. Until now the profile service only *recorded* the resolved items;
  * nothing handed them out, so a new player started with an empty inventory.
  *

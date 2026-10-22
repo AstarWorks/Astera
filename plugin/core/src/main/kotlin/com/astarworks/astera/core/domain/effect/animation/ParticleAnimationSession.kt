@@ -2,6 +2,9 @@ package com.astarworks.astera.core.domain.effect.animation
 
 import com.astarworks.astera.core.domain.effect.ParticleSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.random.Random
 
 /** One spawn the animation wants [tickOffset] ticks after [ParticleAnimationSession.plan] was called. */
@@ -26,6 +29,8 @@ public data class PlannedEmission(
  *    `shape.delay + particle.delay + count` drops `acceleration` points. Tasks of one
  *    instance run in ascending tick order (RTM's stable sort), the order the shared
  *    cursor advances in.
+ *  - [AnimatedShape.Ring]: `points` per tick for `periodTicks` ticks, radius growing start to end.
+ *  - [AnimatedShape.Line]: the whole jagged polyline at `shape.delay + particle.delay`.
  */
 public class ParticleAnimationSession(
     public val animation: ParticleAnimation,
@@ -40,8 +45,10 @@ public class ParticleAnimationSession(
             for (instance in 0 until shape.amount) {
                 when (shape) {
                     is AnimatedShape.Point -> planPoint(shape, origin, direction, out)
-                    is AnimatedShape.Arc -> planArc(shape, origin, direction, out)
                     is AnimatedShape.Circle -> planCircle(shape, shapeIndex, instance, origin, direction, out)
+                    is AnimatedShape.Arc -> planArc(shape, origin, direction, out)
+                    is AnimatedShape.Ring -> planRing(shape, origin, direction, out)
+                    is AnimatedShape.Line -> planLine(shape, origin, direction, out)
                 }
             }
         }
@@ -60,20 +67,56 @@ public class ParticleAnimationSession(
         val forward = if (flat.lengthSquared() > 1e-9) flat.normalize() else Vec3(1.0, 0.0, 0.0)
         val right = Vec3(-forward.z, 0.0, forward.x) // forward rotated -90 degrees about Y (looking along +z, right is -x)
         val last = (shape.points - 1).coerceAtLeast(1)
-        repeat(shape.amount) {
+        for (i in 0 until shape.points) {
+            val k = if (shape.points == 1) 0.5 else i.toDouble() / last
+            val theta = Math.toRadians(shape.startDegrees + (shape.endDegrees - shape.startDegrees) * k)
+            val radial = forward * kotlin.math.cos(theta) + right * kotlin.math.sin(theta)
+            val height = shape.heightStart + (shape.heightEnd - shape.heightStart) * k
+            val position = origin + radial * shape.radius + Vec3(0.0, height, 0.0)
+            val tick = shape.delayTicks + Math.round(shape.sweepTicks * k).toInt()
+            // tangent of travel (toward increasing k), used as the direction of count == 0 particles
+            val sign = if (shape.endDegrees >= shape.startDegrees) 1.0 else -1.0
+            val tangent = (forward * -kotlin.math.sin(theta) + right * kotlin.math.cos(theta)) * sign
+            for (p in shape.particles) out += PlannedEmission(tick + p.delayTicks, position, p.toSpec(tangent))
+        }
+    }
+
+    private fun planRing(shape: AnimatedShape.Ring, origin: Vec3, direction: Vec3, out: MutableList<PlannedEmission>) {
+        val basis = PlaneBasis(shape.angle.resolve(direction, random))
+        val phase = random.nextDouble(0.0, 2 * PI)
+        for (step in 0 until shape.periodTicks) {
+            val t = if (shape.periodTicks == 1) 1.0 else step.toDouble() / (shape.periodTicks - 1)
+            val radius = shape.startRadius + (shape.endRadius - shape.startRadius) * t
             for (i in 0 until shape.points) {
-                val k = if (shape.points == 1) 0.5 else i.toDouble() / last
-                val theta = Math.toRadians(shape.startDegrees + (shape.endDegrees - shape.startDegrees) * k)
-                val radial = forward * kotlin.math.cos(theta) + right * kotlin.math.sin(theta)
-                val height = shape.heightStart + (shape.heightEnd - shape.heightStart) * k
-                val position = origin + radial * shape.radius + Vec3(0.0, height, 0.0)
-                val tick = shape.delayTicks + Math.round(shape.sweepTicks * k).toInt()
-                // tangent of travel (toward increasing k), used as the direction of count == 0 particles
-                val sign = if (shape.endDegrees >= shape.startDegrees) 1.0 else -1.0
-                val tangent = (forward * -kotlin.math.sin(theta) + right * kotlin.math.cos(theta)) * sign
-                for (p in shape.particles) out += PlannedEmission(tick + p.delayTicks, position, p.toSpec(tangent))
+                val rad = phase + 2 * PI * i / shape.points
+                val outward = basis.a * cos(rad) + basis.b * sin(rad)
+                val position = origin + outward * radius + basis.axis * (shape.rise * t)
+                for (p in shape.particles) {
+                    out += PlannedEmission(shape.delayTicks + p.delayTicks + step, position, p.toSpec(outward))
+                }
             }
         }
+    }
+
+    private fun planLine(shape: AnimatedShape.Line, origin: Vec3, direction: Vec3, out: MutableList<PlannedEmission>) {
+        val basis = PlaneBasis(shape.angle.resolve(direction, random))
+        val vertices = (0..shape.segments).map { i ->
+            val along = basis.axis * (shape.length * i / shape.segments)
+            val interior = i != 0 && i != shape.segments
+            val side = if (interior && shape.jitter > 0.0) {
+                basis.a * random.nextDouble(-shape.jitter, shape.jitter) + basis.b * random.nextDouble(-shape.jitter, shape.jitter)
+            } else {
+                Vec3.ZERO
+            }
+            origin + along + side
+        }
+        for (s in 0 until shape.segments) {
+            for (k in 0 until shape.pointsPerSegment) {
+                val point = vertices[s] + (vertices[s + 1] - vertices[s]) * (k.toDouble() / shape.pointsPerSegment)
+                for (p in shape.particles) out += PlannedEmission(shape.delayTicks + p.delayTicks, point, p.toSpec(basis.axis))
+            }
+        }
+        for (p in shape.particles) out += PlannedEmission(shape.delayTicks + p.delayTicks, vertices.last(), p.toSpec(basis.axis))
     }
 
     private fun planCircle(

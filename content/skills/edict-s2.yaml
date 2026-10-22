@@ -1,0 +1,163 @@
+# Persona weapon #10 (edict-blade), S2 / right-click: Sky Rend.
+# Beat sheet (ticks): 0 leap -- a ghost sword materialises 8 blocks up over the dive point and hangs
+# (telegraph) -> 12 dive-cut 7 blocks forward (invulnerable), the sword plunges in sync -> on contact:
+# X-cross cut (3) + the target is MARKED (2 Rupture, a blue star follows it) -> +6 flat cut (3) ->
+# +13 finisher (4 + 0.5 per Rupture): star burst, ground ripple, 3t hit-stop on both, camera shake.
+# Every cut banks one Poise.
+
+id: edict-s2
+
+name:
+  ja: "天穿ちの剣"
+  en: "Edict Sky Rend"
+description:
+  ja: "跳び上がると空に幻の剣が現れ、急降下とともに突き刺さる。三度断ち、相手に星の印を刻む。"
+  en: "Leaps; a ghost sword hangs overhead, then the dive-cut lands with it. Three cuts and a blue star mark on the target."
+
+archetype: sequence
+cooldown_ticks: 100
+resource_cost: 30              # energy
+tags: [ melee, physical, dash, persona, edict, poise, rupture, multi-hit ]
+
+params:
+  type: sequence
+
+phases:
+  type: sequence
+  cast:
+    # 0: leap + ghost sword telegraph
+    - type: propel
+      targets: { type: caster }
+      direction: { type: up }
+      strength: { type: literal, value: 0.9 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.trident.riptide_1
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 1.3 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: edict-sky-sword
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.amethyst_cluster.break
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 0.6 }
+      delay_ticks: { type: literal, value: 4 }
+    # 12: the dive
+    - type: dash_strike
+      delay_ticks: { type: literal, value: 12 }
+      distance: 7.0
+      ticks: 4
+      radius: 1.6
+      hit_once: true
+      invulnerable: true
+      stop_on_block: true
+      follow_pitch: false
+      on_hit:
+        # Cut 1 + the mark
+        - type: damage
+          targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
+          components:
+            - base: { type: literal, value: 3.0 }
+              attribute: physical
+        - type: apply_status
+          targets: { type: target }
+          status_id: rupture
+          effect_duration_ticks: { type: literal, value: 200 }
+          stack_count: { type: literal, value: 2 }
+        - type: apply_status
+          targets: { type: caster }
+          status_id: poise
+          effect_duration_ticks: { type: literal, value: 400 }
+          stack_count: { type: literal, value: 1 }
+        - type: play_vfx
+          targets: { type: target }
+          vfx_id: edict-slash-x
+        - type: play_vfx
+          targets: { type: target }
+          vfx_id: edict-mark
+        - type: hit_stop
+          targets: { type: target }
+          ticks: 2
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.player.attack.crit
+          volume: { type: literal, value: 0.9 }
+          pitch: { type: literal, value: 1.5 }
+        # Cut 2
+        - type: damage
+          targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
+          delay_ticks: { type: literal, value: 6 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+          components:
+            - base: { type: literal, value: 3.0 }
+              attribute: physical
+        - type: apply_status
+          targets: { type: caster }
+          status_id: poise
+          effect_duration_ticks: { type: literal, value: 400 }
+          stack_count: { type: literal, value: 1 }
+          delay_ticks: { type: literal, value: 6 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+        - type: play_vfx
+          targets: { type: target }
+          vfx_id: edict-slash-h
+          delay_ticks: { type: literal, value: 6 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.player.attack.sweep
+          volume: { type: literal, value: 0.9 }
+          pitch: { type: literal, value: 1.7 }
+          delay_ticks: { type: literal, value: 6 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+        # Finisher
+        - type: damage
+          targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
+          delay_ticks: { type: literal, value: 13 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+          components:
+            - base: { type: literal, value: 4.0 }
+              attribute: physical
+              per_stack: { status_id: rupture, amount: 0.5, on: target, consume: false }
+        - type: apply_status
+          targets: { type: caster }
+          status_id: poise
+          effect_duration_ticks: { type: literal, value: 400 }
+          stack_count: { type: literal, value: 1 }
+          delay_ticks: { type: literal, value: 13 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+        - type: play_vfx
+          targets: { type: target }
+          vfx_id: edict-star
+          delay_ticks: { type: literal, value: 13 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+        - type: hit_stop
+          targets: { type: target }
+          ticks: 3
+          include_caster: true
+          delay_ticks: { type: literal, value: 13 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+        - type: camera_shake
+          targets: { type: target }
+          intensity: { type: literal, value: 0.6 }
+          ticks: { type: literal, value: 8 }
+          delay_ticks: { type: literal, value: 13 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+        - type: knockback
+          targets: { type: target }
+          direction: { type: from_caster }
+          strength: { type: literal, value: 0.9 }
+          delay_ticks: { type: literal, value: 14 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.generic.explode
+          volume: { type: literal, value: 0.6 }
+          pitch: { type: literal, value: 1.6 }
+          delay_ticks: { type: literal, value: 13 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }

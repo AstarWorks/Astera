@@ -51,6 +51,9 @@ class VfxContentsTest {
               - { t: 3, scale: [0.08, 0.08, 6.0], ease: out_expo }
               - { t: 12, scale: [0.0, 0.0, 6.0], ease: in_quad, block: gray_stained_glass }
             oscillate: { axis: scale_xz, amplitude: 0.03, period_ticks: 2 }
+            group_keyframes:
+              - { t: 0, rotate: [0, 0, 0] }
+              - { t: 12, rotate: [360, 0, 0], translate: [0, 1, 0], scale: 1.5, ease: out_quad }
           - id: glyph
             kind: { type: text, text: "<#ff2040><b>X</b>", background: "#80000000", shadow: true, see_through: true, line_width: 100 }
             keyframes:
@@ -98,6 +101,10 @@ class VfxContentsTest {
         assertThat(slash.keyframes[1].translate).isNull()
         assertThat(slash.keyframes[2].block).isEqualTo("gray_stained_glass")
         assertThat(slash.oscillate!!.axis).isEqualTo(VfxOscillateAxis.SCALE_XZ)
+        assertThat(slash.groupKeyframes).hasSize(2)
+        assertThat(slash.groupKeyframes[1].rotateEuler).isEqualTo(Vec3(360.0, 0.0, 0.0))
+        assertThat(slash.groupKeyframes[1].translate).isEqualTo(Vec3(0.0, 1.0, 0.0))
+        assertThat(slash.groupKeyframes[1].scale).isEqualTo(1.5)
 
         val text = def.elements[1].kind as VfxElementKind.Text
         assertThat(text.backgroundArgb).isEqualTo(0x80000000.toInt())

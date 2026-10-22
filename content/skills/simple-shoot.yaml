@@ -1,6 +1,7 @@
 # F2-5 (ADR-0196): the founder's RyuZUTechnicalMagic `SimpleShoot`, ported.
 #
-# RTM config (Effect.Particles):
+# RTM config (the end ring is tightened from radius 3-4 to ~1-1.5 so it reads as a burst on the impact point;
+#   core 68 + flat ring 4x16x2 + orbit circle 3x60 spawns; muzzle burst 50 flames + 20 embers at the muzzle, 1 block ahead) (Effect.Particles):
 #   ProjectileStart: FLAME x50, extra 0.2            -> cast burst below
 #   Projectile:      FLAME + dust(255,100,20) x1.5   -> params.visual.trail (every tick, dense)
 #   ProjectileEnd:   CIRCLE, random angle, amount 2, period 2, speed 10,
@@ -40,11 +41,12 @@ phases:
       targets: { type: caster }
       sound_id: entity.blaze.shoot
     - type: schedule_particle_animation
-      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 1.5, z: 0.0 } } }
+      targets: { type: caster_forward, distance: 1.2, height: 0.0 }
       animation:
         - type: point
           particles:
             - { id: flame, count: 50, extra: 0.2 }
+            - { id: dust, count: 20, extra: 0.0, color: { r: 255, g: 100, b: 20 }, scale: 1.6, offset: { x: 0.2, y: 0.2, z: 0.2 } }
   hit_entity:
     - type: damage
       targets: { type: target }
@@ -54,14 +56,26 @@ phases:
     - type: schedule_particle_animation
       targets: { type: hit_location }
       animation:
+        - type: point
+          particles:
+            - { id: flame, count: 60, extra: 0.2 }
+            - { id: lava, count: 8, extra: 0.1 }
+        - type: ring
+          period_ticks: 4
+          points: 16
+          start_radius: 0.4
+          end_radius: 1.8
+          particles:
+            - { id: flame, count: 0, extra: 0.06 }
+            - { id: dust, color: { r: 255, g: 100, b: 20 }, scale: 2.5 }
         - type: circle
           angle: random
-          amount: 2
+          amount: 3
           period_ticks: 2
           speed: 10
           acceleration: 15
-          min_radius: 3.0
-          max_radius: 4.0
+          min_radius: 0.9
+          max_radius: 1.5
           repeat_radius_acceleration: false
           radius_acceleration: 0.0
           delay_ticks: 0
@@ -71,14 +85,26 @@ phases:
     - type: schedule_particle_animation
       targets: { type: hit_location }
       animation:
+        - type: point
+          particles:
+            - { id: flame, count: 60, extra: 0.2 }
+            - { id: lava, count: 8, extra: 0.1 }
+        - type: ring
+          period_ticks: 4
+          points: 16
+          start_radius: 0.4
+          end_radius: 1.8
+          particles:
+            - { id: flame, count: 0, extra: 0.06 }
+            - { id: dust, color: { r: 255, g: 100, b: 20 }, scale: 2.5 }
         - type: circle
           angle: random
-          amount: 2
+          amount: 3
           period_ticks: 2
           speed: 10
           acceleration: 15
-          min_radius: 3.0
-          max_radius: 4.0
+          min_radius: 0.9
+          max_radius: 1.5
           repeat_radius_acceleration: false
           radius_acceleration: 0.0
           delay_ticks: 0
@@ -89,14 +115,26 @@ phases:
     - type: schedule_particle_animation
       targets: { type: hit_location }
       animation:
+        - type: point
+          particles:
+            - { id: flame, count: 60, extra: 0.2 }
+            - { id: lava, count: 8, extra: 0.1 }
+        - type: ring
+          period_ticks: 4
+          points: 16
+          start_radius: 0.4
+          end_radius: 1.8
+          particles:
+            - { id: flame, count: 0, extra: 0.06 }
+            - { id: dust, color: { r: 255, g: 100, b: 20 }, scale: 2.5 }
         - type: circle
           angle: random
-          amount: 2
+          amount: 3
           period_ticks: 2
           speed: 10
           acceleration: 15
-          min_radius: 3.0
-          max_radius: 4.0
+          min_radius: 0.9
+          max_radius: 1.5
           repeat_radius_acceleration: false
           radius_acceleration: 0.0
           delay_ticks: 0

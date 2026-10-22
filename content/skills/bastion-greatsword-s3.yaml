@@ -1,0 +1,85 @@
+# ADR-0230 persona weapon: Bastion Greatsword S3 (sneak + right click), "Colossus Fall".
+# Finisher: 29 ticks of telegraph (the floor hoop is the 5.2-block damage radius), the slam, and
+# an aftershock 22 ticks later. Both hits scale with banked charge; the aftershock spends it.
+# The slam is fixed on the spot the cast started at, so leaving the hoop dodges it.
+# A sequence skill: no baseline hit, all damage comes from the timeline below.
+
+id: bastion-greatsword-s3
+
+name:
+  ja: "巨剣墜つ"
+  en: "Colossus Fall"
+description:
+  ja: "巨大な剣を掲げて叩きつける奥義。足元の光輪が範囲の予告。溜め（チャージ）を消費して余震の威力が増す。"
+  en: "Raise a colossal sword and bring it down. The floor hoop shows the radius. Spends charge for extra damage."
+
+archetype: sequence
+cooldown_ticks: 300
+resource_cost: 50              # energy
+tags: [ aoe, physical, finisher, charge ]
+
+params:
+  type: sequence
+
+phases:
+  type: sequence
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.anvil.land
+      pitch: { type: literal, value: 0.5 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: bastion-s3-colossus
+    # Slam (tick 29).
+    - type: damage
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.2 }, exclude_caster: true }
+      components:
+        - base: { type: literal, value: 10.0 }
+          attribute: physical
+          per_stack: { status_id: charge, amount: 0.7, on: caster, consume: false }
+      delay_ticks: { type: literal, value: 29 }
+      snapshot_pose: true
+    - type: knockup
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.2 }, exclude_caster: true }
+      strength: { type: literal, value: 0.8 }
+      delay_ticks: { type: literal, value: 29 }
+      snapshot_pose: true
+    - type: hit_stop
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.2 }, exclude_caster: true }
+      ticks: 4
+      include_caster: true
+      delay_ticks: { type: literal, value: 29 }
+      snapshot_pose: true
+    - type: camera_shake
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 9.0 }, exclude_caster: false }
+      intensity: { type: literal, value: 0.9 }
+      ticks: { type: literal, value: 8 }
+      delay_ticks: { type: literal, value: 29 }
+      snapshot_pose: true
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.generic.explode
+      volume: { type: literal, value: 0.9 }
+      pitch: { type: literal, value: 0.6 }
+      delay_ticks: { type: literal, value: 29 }
+    # Aftershock (tick 51); spends the charge.
+    - type: damage
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.6 }, exclude_caster: true }
+      components:
+        - base: { type: literal, value: 7.0 }
+          attribute: physical
+          per_stack: { status_id: charge, amount: 0.7, on: caster, consume: true }
+      delay_ticks: { type: literal, value: 51 }
+      snapshot_pose: true
+    - type: camera_shake
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 9.0 }, exclude_caster: false }
+      intensity: { type: literal, value: 0.6 }
+      ticks: { type: literal, value: 6 }
+      delay_ticks: { type: literal, value: 51 }
+      snapshot_pose: true
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.firework_rocket.blast
+      pitch: { type: literal, value: 0.6 }
+      delay_ticks: { type: literal, value: 51 }

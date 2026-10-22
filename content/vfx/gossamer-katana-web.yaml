@@ -1,0 +1,65 @@
+# Gossamer Katana web: red thread laid over a struck target. A ring of twelve segments is drawn on
+# (stagger), six spokes pop outward from the target's feet, and three long threads reach from the target
+# back toward the caster (orient to_target: +z points caster -> target, so threads run along -z). The
+# whole web fades through a block ladder (red -> gray -> clear). Anchored on the target.
+
+id: gossamer-katana-web
+duration_ticks: 30
+orient: to_target
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: ring
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#d01030"
+    start_tick: 0
+    slot_lifetime_ticks: 26
+    count: 12
+    formation:
+      curve: { type: circle, radius: 1.5 }
+      offset: [0.0, 0.06, 0.0]
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.03, 0.03, 0.1] }
+      - { t: 2, scale: [0.04, 0.04, 0.85], ease: out_expo }
+      - { t: 16, block: gray_stained_glass }
+      - { t: 22, block: glass }
+      - { t: 25, scale: [0.0, 0.0, 0.85], ease: in_quad }
+
+  - id: spoke
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#d01030"
+    start_tick: 2
+    end_tick: 26
+    count: 6
+    formation:
+      curve: { type: circle, radius: 0.2 }
+      offset: [0.0, 0.06, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.1], scale: [0.03, 0.03, 0.1] }
+      - { t: 3, translate: [0.0, 0.0, 0.8], scale: [0.04, 0.04, 1.6], ease: out_expo }
+      - { t: 16, block: gray_stained_glass }
+      - { t: 22, block: glass }
+      - { t: 24, scale: [0.0, 0.0, 1.6], ease: in_quad }
+
+  - id: thread
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    glow_color: "#8a0b1a"
+    start_tick: 0
+    end_tick: 24
+    count: 3
+    formation:
+      curve: { type: line, from: [0.0, 0.5, 0.0], to: [0.0, 1.6, 0.0] }
+      align: none
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, -0.3], scale: [0.015, 0.015, 0.2] }
+      - { t: 3, translate: [0.0, 0.0, -3.2], scale: [0.02, 0.02, 6.0], ease: out_expo }
+      - { t: 14, block: gray_concrete }
+      - { t: 20, block: gray_stained_glass }
+      - { t: 23, scale: [0.0, 0.0, 6.0], ease: in_quad }

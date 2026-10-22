@@ -20,11 +20,22 @@ params:
   launch_speed: 2.4
   max_lifetime_ticks: 50
   visual:
+    # Budget: ~6 particles per 0.3-block sample => ~48 spawns/tick in flight.
+    trail_spacing: 0.3
     trail:
       - type: point
         particles:
           - { id: happy_villager, offset: { x: 0.08, y: 0.08, z: 0.08 } }
           - { id: composter, count: 2, offset: { x: 0.1, y: 0.1, z: 0.1 } }
+          - { id: dust, count: 2, offset: { x: 0.08, y: 0.08, z: 0.08 }, color: { r: 70, g: 170, b: 60 }, scale: 1.2 }
+      - type: line
+        angle: random
+        length: 0.7
+        segments: 3
+        jitter: 0.15
+        points_per_segment: 2
+        particles:
+          - { id: dust, color: { r: 40, g: 120, b: 40 }, scale: 0.9 }
 
 phases:
   type: projectile
@@ -63,6 +74,27 @@ phases:
     - type: spawn_particle
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.0, z: 0.0 } } }
       particle_id: verdant-impact-sparkle
+    # Thorn burst: spikes of vine-lines radiating from the hit (3 x 13 = ~40 spawns) + a ring of leaves.
+    - type: schedule_particle_animation
+      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.0, z: 0.0 } } }
+      animation:
+        - type: line
+          angle: random
+          amount: 4
+          length: 1.4
+          segments: 3
+          jitter: 0.2
+          points_per_segment: 3
+          particles:
+            - { id: dust, color: { r: 60, g: 150, b: 50 }, scale: 1.2 }
+        - type: ring
+          period_ticks: 4
+          points: 10
+          start_radius: 0.3
+          end_radius: 1.6
+          angle: random
+          particles:
+            - { id: composter, count: 0, extra: 0.04 }
     - type: play_sound
       targets: { type: caster }
       sound_id: entity.arrow.hit_player

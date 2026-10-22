@@ -1,4 +1,4 @@
-# Astera E2E test backend (QA-1, ADR-0186). Used by `make e2e` / :tools:e2e.
+# Astera E2E test backend (QA-1, ADR-0222). Used by `make e2e` / :tools:e2e.
 #
 # One standalone Paper server that runs lobby AND matches (ASTERA_SERVER_ROLE=all)
 # with ONLINE_MODE=FALSE and no Velocity, so protocol bots (MCProtocolLib) can join

@@ -48,7 +48,7 @@ class LobbyIslandGeneratorTest {
     fun `every recommended NPC stand is on a walkable block`() {
         assertThat(plan.npcSpots.keys).containsExactlyInAnyOrder(
             "shop-npc", "queue-npc", "travel-npc", "party-npc",
-            "profile-npc", "settings-npc", "loadout-npc",
+            "profile-npc", "settings-npc", "gear-keeper-npc",
         )
         plan.npcSpots.forEach { (id, spot) ->
             assertThat(plan.isWalkable(com.astarworks.astera.core.domain.geometry.Vec3(spot.x, spot.y, spot.z)))

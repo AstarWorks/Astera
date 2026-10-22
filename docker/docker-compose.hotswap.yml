@@ -1,7 +1,7 @@
 # DEV-ONLY overlay: run the lobby/game backends on JetBrains Runtime with
 # enhanced class redefinition and a loopback-only hotswap agent, so `make dev-hotswap`
 # can apply a Kotlin change to the running plugins without a restart
-# (F3-9, ADR-0201). Usage (from the repo root):
+# (F3-9, ADR-0224). Usage (from the repo root):
 #
 #     make dev-hotswap-up
 #   = docker compose -f docker/docker-compose.yml -f docker/docker-compose.hotswap.yml up -d --build

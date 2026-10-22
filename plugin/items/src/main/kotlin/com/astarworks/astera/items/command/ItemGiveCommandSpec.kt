@@ -59,7 +59,7 @@ internal fun giveItemSubcommand(
 ).requirePermission(Permission("astera.items.give"))
 
 /**
- * `/astera items refresh` (F3-9, ADR-0201): after `/astera admin reload items`, re-apply the visual half
+ * `/astera items refresh` (F3-9, ADR-0224): after `/astera admin reload items`, re-apply the visual half
  * of the edited specs (name, lore, item model) to every Astera stack online players hold. Gameplay data
  * is read from the registry at use time and needs no refresh.
  */

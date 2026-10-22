@@ -1,0 +1,51 @@
+# Edict Blade: a flat horizontal cut through the target (second "coin" of the dash combo).
+# A long white line shoots out sideways on out_expo with a pale-blue echo one tick later, a black line
+# trails below; ladder fade. Played at the target, facing the caster. Local axes: x = left, y = up.
+
+id: edict-slash-h
+duration_ticks: 12
+orient: to_target
+sample_ticks: 1
+
+elements:
+  - id: line
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    glow_color: "#8fb8ff"
+    start_tick: 0
+    end_tick: 11
+    keyframes:
+      - { t: 0, translate: [1.5, 0.95, 0.0], scale: [0.2, 0.04, 0.04] }
+      - { t: 2, translate: [0.0, 0.95, 0.0], scale: [5.0, 0.06, 0.06], ease: out_expo }
+      - { t: 5, block: white_stained_glass }
+      - { t: 11, scale: [0.0, 0.06, 0.06], ease: in_quad }
+
+  - id: echo
+    kind: { type: block, block: light_blue_stained_glass }
+    brightness: 15
+    start_tick: 1
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [1.5, 1.12, 0.0], scale: [0.2, 0.03, 0.03] }
+      - { t: 2, translate: [0.0, 1.12, 0.0], scale: [4.2, 0.04, 0.04], ease: out_expo }
+      - { t: 9, scale: [0.0, 0.04, 0.04], ease: in_quad }
+
+  - id: shadow
+    kind: { type: block, block: black_concrete }
+    start_tick: 1
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [1.5, 0.75, 0.0], scale: [0.2, 0.03, 0.03] }
+      - { t: 2, translate: [0.0, 0.75, 0.0], scale: [3.6, 0.05, 0.05], ease: out_expo }
+      - { t: 9, scale: [0.0, 0.05, 0.05], ease: in_quad }
+
+  - id: tip
+    kind: { type: text, text: "<#dcebff><b>☆</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 1
+    end_tick: 7
+    keyframes:
+      - { t: 0, translate: [-2.3, 0.95, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [4.5, 4.5, 4.5], ease: out_back }
+      - { t: 6, scale: [0.0, 0.0, 0.0], ease: in_quad }

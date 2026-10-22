@@ -2,7 +2,7 @@ package com.astarworks.astera.core.application.service
 
 import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
-import com.astarworks.astera.core.domain.i18n.LocalizedLore
+import com.astarworks.astera.core.application.service.item.ItemTooltip
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.item.ItemTemplate
@@ -51,11 +51,8 @@ public fun ItemSpec.toAdapterTemplate(
         } else {
             messages.renderText(viewer, displayName)
         }
-        val renderedLore = if (lore == LocalizedLore.EMPTY) {
-            emptyList()
-        } else {
-            messages.renderLocalizedLore(viewer, lore)
-        }
+        // One renderer for every surface (ADR-0211): rarity / level / stats are derived from the spec.
+        val renderedLore = ItemTooltip(messages).lore(this, viewer)
         IMcItemTemplate.Vanilla(
             id = id,
             material = tpl.material,

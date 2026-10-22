@@ -1,7 +1,7 @@
 # :tools:skill-viewer
 
 Static three.js replay of `:tools:game-sim` traces (`astera-sim-trace/1`), plus a headless renderer that turns a trace
-into PNG frames, a contact sheet and a GIF so an AI agent can look at a skill. See ADR-0211. Not shipped, not in `check`.
+into PNG frames, a contact sheet and a GIF so an AI agent can look at a skill. See ADR-0225. Not shipped, not in `check`.
 
 Needs [bun](https://bun.sh) and a Chromium that `playwright-core` can launch (a Playwright browser cache or
 `PLAYWRIGHT_BROWSERS_PATH`; `bunx playwright-core install chromium` installs one). `ffmpeg` is used for the GIF.

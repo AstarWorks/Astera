@@ -4,6 +4,7 @@ import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository
 import com.astarworks.astera.core.application.port.outbound.IShopRegistry
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.domain.economy.Currency
@@ -23,7 +24,13 @@ import com.astarworks.astera.core.domain.gui.SlotIndex
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.shop.ShopId
 import com.astarworks.astera.core.domain.shop.ShopSpec
+import com.astarworks.astera.core.domain.shop.PurchaseLimit
+import com.astarworks.astera.economy.application.service.InMemoryShopPurchaseRepository
 import org.slf4j.LoggerFactory
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Resolves a [ShopId] to its registered [ShopSpec], composes a one-shot
@@ -59,8 +66,16 @@ public class ShopBrowseUseCase(
     private val ledger: ICurrencyLedger,
     private val stock: IShopStockRepository,
     private val messages: IMessageRenderer,
+    private val purchases: IShopPurchaseRepository = InMemoryShopPurchaseRepository(),
+    private val carried: (PlayerId) -> List<ItemId> = { emptyList() },
+    private val zone: ZoneId = ZoneOffset.UTC,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
+
+    /** The page / category a player is looking at, so a repaint after a purchase stays where they were. */
+    private data class View(val shopId: ShopId, val page: Int, val category: String?)
+
+    private val views = ConcurrentHashMap<PlayerId, View>()
 
     /**
      * Opens [shopId] for [playerId], or - when the player already has this
@@ -72,14 +87,24 @@ public class ShopBrowseUseCase(
         playerId: PlayerId,
         shopId: ShopId,
         pendingOffer: ShopOfferId? = null,
+        page: Int? = null,
+        category: String? = null,
     ): Result<Unit, ShopBrowseError> {
         val player = server.findPlayer(playerId)
             ?: return Result.failure(ShopBrowseError.PlayerNotOnline)
         val shopSpec = registry.resolve(shopId)
             ?: return Result.failure(ShopBrowseError.ShopNotFound(shopId))
 
-        val guiSpec = buildShopGui(playerId, shopSpec, pendingOffer)
-        if (adapter.currentSpec(player)?.id == guiSpec.id) {
+        val open = adapter.currentSpec(player)?.id == GuiId("shop-${shopId.value}")
+        val previous = views[playerId]?.takeIf { it.shopId == shopId && open }
+        val view = when {
+            page != null -> View(shopId, page, category)
+            previous != null -> previous
+            else -> View(shopId, 0, null)
+        }
+        val guiSpec = buildShopGui(playerId, shopSpec, pendingOffer, view)
+        views[playerId] = view
+        if (open) {
             adapter.update(player, guiSpec)
             return Result.success(Unit)
         }
@@ -91,25 +116,22 @@ public class ShopBrowseUseCase(
     }
 
     /**
-     * Rows of offers (9 per row, declared order) plus one footer row holding
-     * the wallet. Each offer icon is the item itself (its own name, lore and
-     * stats), with the price in the right currency, the live stock and the
-     * click hint appended.
+     * One page of offers (9 per row, declared order, optionally filtered to one category) plus a footer row:
+     * previous page, category cycle, wallet, history, next page. Each offer icon is the item itself (its own
+     * name, lore and stats), with ownership, price, live stock and the click hint appended.
      */
-    private fun buildShopGui(playerId: PlayerId, shopSpec: ShopSpec, pendingOffer: ShopOfferId?): GuiSpec {
-        val visibleOffers = if (shopSpec.offers.size > MAX_OFFERS) {
-            log.warn(
-                "ShopSpec '{}' has {} offers; the GUI caps at {} - extra offers are hidden.",
-                shopSpec.id.value,
-                shopSpec.offers.size,
-                MAX_OFFERS,
-            )
-            shopSpec.offers.take(MAX_OFFERS)
-        } else {
-            shopSpec.offers
-        }
+    private fun buildShopGui(playerId: PlayerId, shopSpec: ShopSpec, pendingOffer: ShopOfferId?, view: View): GuiSpec {
+        val categories = shopSpec.offers.mapNotNull { it.category }.distinct()
+        val category = view.category?.takeIf { it in categories }
+        val filtered = shopSpec.offers.filter { category == null || it.category == category }
+        val pages = ((filtered.size + MAX_OFFERS - 1) / MAX_OFFERS).coerceAtLeast(1)
+        val page = view.page.coerceIn(0, pages - 1)
+        val visibleOffers = filtered.drop(page * MAX_OFFERS).take(MAX_OFFERS)
         val offerRows = ((visibleOffers.size + 8) / 9).coerceAtLeast(1)
         val size = GuiSize.entries.first { it.slotCount == (offerRows + 1) * 9 }
+        val footer = size.slotCount - 9
+        val cycle = (listOf<String?>(null) + categories)
+        val nextCategory = cycle[(cycle.indexOf(category) + 1) % cycle.size]
 
         return GuiSpec.build(
             id = GuiId("shop-${shopSpec.id.value}"),
@@ -119,9 +141,111 @@ public class ShopBrowseUseCase(
             visibleOffers.forEachIndexed { index, offer ->
                 slot(SlotIndex(index), offerSlot(playerId, shopSpec, offer, pendingOffer == offer.id))
             }
-            for (col in 0 until 9) {
-                slot(SlotIndex(size.slotCount - 9 + col), if (col == 4) walletSlot(playerId) else GuiSlot.Border(FOOTER_PANE))
+            for (col in 0 until 9) slot(SlotIndex(footer + col), GuiSlot.Border(FOOTER_PANE))
+            if (page > 0) slot(SlotIndex(footer), pageSlot(shopSpec, PREV_ICON, PAGE_PREV, page - 1, category, page, pages))
+            if (categories.isNotEmpty()) {
+                slot(SlotIndex(footer + 2), categorySlot(playerId, shopSpec, category, nextCategory))
             }
+            slot(SlotIndex(footer + 4), walletSlot(playerId))
+            slot(SlotIndex(footer + 6), historySlot(shopSpec))
+            if (page < pages - 1) {
+                slot(SlotIndex(footer + 8), pageSlot(shopSpec, NEXT_ICON, PAGE_NEXT, page + 1, category, page + 2, pages))
+            }
+        }
+    }
+
+    private fun pageSlot(
+        shopSpec: ShopSpec,
+        icon: ItemId,
+        title: MessageKey,
+        target: Int,
+        category: String?,
+        shownPage: Int,
+        pages: Int,
+    ): GuiSlot.Static = GuiSlot.Static(
+        itemId = icon,
+        displayName = GuiText(title, mapOf("page" to shownPage.toString(), "pages" to pages.toString())),
+        onLeftClick = GuiIntent(
+            key = INTENT_PAGE,
+            payload = buildMap {
+                put("shop_id", shopSpec.id.value)
+                put("page", target.toString())
+                if (category != null) put("category", category)
+            },
+        ),
+    )
+
+    private fun categorySlot(playerId: PlayerId, shopSpec: ShopSpec, current: String?, next: String?): GuiSlot.Static =
+        GuiSlot.Static(
+            itemId = CATEGORY_ICON,
+            displayName = GuiText(CATEGORY_TITLE, mapOf("category" to categoryName(playerId, current))),
+            lore = listOf(GuiText(CATEGORY_NEXT, mapOf("category" to categoryName(playerId, next)))),
+            onLeftClick = GuiIntent(
+                key = INTENT_PAGE,
+                payload = buildMap {
+                    put("shop_id", shopSpec.id.value)
+                    put("page", "0")
+                    if (next != null) put("category", next)
+                },
+            ),
+        )
+
+    private fun historySlot(shopSpec: ShopSpec): GuiSlot.Static = GuiSlot.Static(
+        itemId = HISTORY_ICON,
+        displayName = GuiText(HISTORY_TITLE),
+        lore = listOf(GuiText(HISTORY_HINT)),
+        onLeftClick = GuiIntent(key = INTENT_HISTORY, payload = mapOf("shop_id" to shopSpec.id.value)),
+    )
+
+    private fun categoryName(playerId: PlayerId, category: String?): String =
+        messages.render(playerId, MessageKey("astera.economy.shop.category.${category ?: "all"}"))
+
+    /** The player's own purchase history (newest first) as a read-only GUI with a way back to the shop. */
+    public fun history(playerId: PlayerId, shopId: ShopId): Result<Unit, ShopBrowseError> {
+        val player = server.findPlayer(playerId) ?: return Result.failure(ShopBrowseError.PlayerNotOnline)
+        val shopSpec = registry.resolve(shopId) ?: return Result.failure(ShopBrowseError.ShopNotFound(shopId))
+        val records = purchases.history(playerId, MAX_OFFERS)
+        val rows = ((records.size + 8) / 9).coerceAtLeast(1)
+        val size = GuiSize.entries.first { it.slotCount == (rows + 1) * 9 }
+        val fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(zone)
+        val spec = GuiSpec.build(id = GuiId("shop-history"), title = HISTORY_GUI_TITLE, size = size) {
+            records.forEachIndexed { index, r ->
+                slot(
+                    SlotIndex(index),
+                    GuiSlot.Static(
+                        itemId = r.itemId,
+                        lore = listOf(
+                            GuiText(SPACER),
+                            GuiText(
+                                HISTORY_LINE,
+                                mapOf(
+                                    "when" to fmt.format(r.purchasedAt),
+                                    "amount" to r.price.amount.toString(),
+                                    "currency" to currencyName(playerId, r.price.currency),
+                                ),
+                            ),
+                        ),
+                    ),
+                )
+            }
+            val footer = size.slotCount - 9
+            for (col in 0 until 9) slot(SlotIndex(footer + col), GuiSlot.Border(FOOTER_PANE))
+            slot(
+                SlotIndex(footer + 4),
+                GuiSlot.Static(
+                    itemId = BACK_ICON,
+                    displayName = GuiText(HISTORY_BACK),
+                    onLeftClick = GuiIntent(key = INTENT_OPEN, payload = mapOf("shop_id" to shopSpec.id.value)),
+                ),
+            )
+        }
+        return if (adapter.currentSpec(player)?.id == spec.id) {
+            adapter.update(player, spec)
+            Result.success(Unit)
+        } else if (adapter.open(player, spec)) {
+            Result.success(Unit)
+        } else {
+            Result.failure(ShopBrowseError.OpenRejected)
         }
     }
 
@@ -132,7 +256,9 @@ public class ShopBrowseUseCase(
             is ShopStock.Unlimited -> null
             is ShopStock.Limited -> live.remaining
         }
-        val soldOut = remaining != null && remaining <= 0
+        val owned = offer.limit == PurchaseLimit.ONCE && purchases.count(playerId, shopSpec.id, offer.id) > 0
+        val carrying = owned && offer.itemId in carried(playerId)
+        val soldOut = !owned && remaining != null && remaining <= 0
         val currencyName = currencyName(playerId, offer.price.currency)
         val priceArgs = mapOf(
             "amount" to offer.price.amount.toString(),
@@ -141,11 +267,13 @@ public class ShopBrowseUseCase(
         )
         val lore = buildList {
             add(GuiText(SPACER))
-            add(GuiText(if (affordable) PRICE_OK else PRICE_SHORT, priceArgs))
-            if (remaining != null && !soldOut) add(GuiText(STOCK_LIMITED, mapOf("remaining" to remaining.toString())))
+            if (owned) add(GuiText(OWNED_BADGE)) else add(GuiText(if (affordable) PRICE_OK else PRICE_SHORT, priceArgs))
+            if (!owned && remaining != null && !soldOut) add(GuiText(STOCK_LIMITED, mapOf("remaining" to remaining.toString())))
             add(
                 GuiText(
                     when {
+                        carrying -> ACTION_CARRYING
+                        owned -> ACTION_TAKE_COPY
                         soldOut -> ACTION_SOLD_OUT
                         !affordable -> ACTION_SHORT
                         pending -> ACTION_CONFIRM
@@ -180,7 +308,7 @@ public class ShopBrowseUseCase(
         messages.render(playerId, MessageKey("astera.economy.currency.${currency.name.lowercase()}"))
 
     public companion object {
-        /** Offers per shop: five rows; the sixth is the wallet footer. */
+        /** Offers per page: five rows; the sixth is the footer (paging, category, wallet, history). */
         public const val MAX_OFFERS: Int = 45
 
         private val FOOTER_PANE = ItemId("gui-pane-dark")
@@ -193,6 +321,28 @@ public class ShopBrowseUseCase(
         private val ACTION_CONFIRM = MessageKey("astera.economy.shop.gui.action.confirm")
         private val ACTION_SHORT = MessageKey("astera.economy.shop.gui.action.short")
         private val ACTION_SOLD_OUT = MessageKey("astera.economy.shop.gui.action.sold_out")
+        private val ACTION_CARRYING = MessageKey("astera.economy.shop.gui.action.carrying")
+        private val ACTION_TAKE_COPY = MessageKey("astera.economy.shop.gui.action.take_copy")
+        private val OWNED_BADGE = MessageKey("astera.economy.shop.gui.owned")
+        private val PAGE_PREV = MessageKey("astera.economy.shop.gui.page.prev")
+        private val PAGE_NEXT = MessageKey("astera.economy.shop.gui.page.next")
+        private val CATEGORY_TITLE = MessageKey("astera.economy.shop.gui.category.title")
+        private val CATEGORY_NEXT = MessageKey("astera.economy.shop.gui.category.next")
+        private val HISTORY_TITLE = MessageKey("astera.economy.shop.gui.history.title")
+        private val HISTORY_HINT = MessageKey("astera.economy.shop.gui.history.hint")
+        private val HISTORY_GUI_TITLE = MessageKey("astera.economy.shop.gui.history.gui_title")
+        private val HISTORY_LINE = MessageKey("astera.economy.shop.gui.history.line")
+        private val HISTORY_BACK = MessageKey("astera.economy.shop.gui.history.back")
+        private val PREV_ICON = ItemId("gui-admin-prev")
+        private val NEXT_ICON = ItemId("gui-admin-next")
+        private val CATEGORY_ICON = ItemId("gui-admin-cat-all")
+        private val HISTORY_ICON = ItemId("gui-admin-page")
+        private val BACK_ICON = ItemId("gui-admin-back")
+
+        public const val INTENT_PAGE: String = "shop.page"
+        public const val INTENT_HISTORY: String = "shop.history"
+        public const val INTENT_OPEN: String = "shop.open"
+
         private val WALLET_TITLE = MessageKey("astera.economy.shop.gui.wallet.title")
         private val WALLET_LINE = MessageKey("astera.economy.shop.gui.wallet.line")
     }

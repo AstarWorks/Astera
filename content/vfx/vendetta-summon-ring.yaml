@@ -1,0 +1,55 @@
+# Vendetta Bayonet: crimson summoning circle on the floor under the caster -- the readable telegraph of
+# the Reckoning Salvo (S3). An outer ring sweeps out (out_expo), a five-point star is inked inside it
+# (staggered draw-on), both pulse once, then dim down a block ladder. Anchored on the caster, yaw only.
+# Tangent-aligned slots slide outward along local -x.
+
+id: vendetta-summon-ring
+duration_ticks: 22
+orient: yaw
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: ring
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#c8102e"
+    count: 16
+    end_tick: 21
+    formation:
+      curve: { type: circle, radius: 0.4 }
+      offset: [0.0, 0.06, 0.0]
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.1, 0.03, 0.2] }
+      - { t: 5, translate: [-2.0, 0.0, 0.0], scale: [0.1, 0.03, 0.95], ease: out_expo }
+      - { t: 12, block: magenta_stained_glass }
+      - { t: 13, scale: [0.14, 0.03, 0.95] }
+      - { t: 15, scale: [0.1, 0.03, 0.95] }
+      - { t: 17, block: gray_stained_glass }
+      - { t: 20, scale: [0.0, 0.03, 0.95], ease: in_quad }
+
+  # Pentagram, inked one segment per tick.
+  - id: star
+    kind: { type: block, block: magenta_stained_glass }
+    brightness: 15
+    glow_color: "#ff3d7f"
+    count: 20
+    start_tick: 3
+    slot_lifetime_ticks: 18
+    formation:
+      curve: { type: polygon, radius: 1.5, sides: 5, skip: 2, rotation_deg: 180 }
+      offset: [0.0, 0.07, 0.0]
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.04, 0.03, 0.05] }
+      - { t: 2, scale: [0.08, 0.03, 0.95], ease: out_expo }
+      - { t: 10, scale: [0.08, 0.03, 0.95] }
+      - { t: 13, scale: [0.0, 0.03, 0.95], ease: in_quad }
+
+  - id: dust
+    kind: { type: particle, particle_id: gun-muzzle-smoke, every_ticks: 4 }
+    end_tick: 18
+    keyframes:
+      - { t: 0, translate: [0.0, 0.2, 0.0] }

@@ -11,10 +11,8 @@ name:
 lore:
   ja:
     - "<gray>右クリック: 炎の爆発（燃焼）</gray>"
-    - "<dark_gray>rarity: uncommon / level: 2</dark_gray>"
   en:
     - "<gray>Right-click: flame burst (burn)</gray>"
-    - "<dark_gray>rarity: uncommon / level: 2</dark_gray>"
 
 rarity: uncommon
 level_requirement: 2

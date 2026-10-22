@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository
 import com.astarworks.astera.core.application.port.outbound.IShopRegistry
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
@@ -14,12 +15,19 @@ import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.economy.WalletError
 import com.astarworks.astera.core.domain.event.CurrencyChangeReason
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.item.ItemSpec
+import com.astarworks.astera.core.domain.shop.PurchaseLimit
+import com.astarworks.astera.core.domain.shop.PurchaseRecord
 import com.astarworks.astera.core.domain.shop.ShopId
+import com.astarworks.astera.core.domain.shop.ShopOffer
 import com.astarworks.astera.core.domain.shop.ShopOfferId
 import com.astarworks.astera.core.domain.shop.ShopPrice
 import com.astarworks.astera.core.domain.shop.ShopStock
 import com.astarworks.astera.core.domain.shop.ShopStockError
 import com.astarworks.astera.core.domain.event.CurrencyChanged
+import com.astarworks.astera.economy.application.service.InMemoryShopPurchaseRepository
+import java.time.Clock
 
 /**
  * Atomically purchases one [com.astarworks.astera.core.domain.shop.ShopOffer]:
@@ -88,7 +96,18 @@ public class ShopPurchaseUseCase(
     private val delivery: () -> IItemDelivery?,
     /** `true` while a running match holds the buyer's entry snapshot (purchases are refused then). */
     private val inMatch: (PlayerId) -> Boolean,
+    /** Ownership ledger + history (ADR-0211). */
+    private val purchases: IShopPurchaseRepository = InMemoryShopPurchaseRepository(),
+    /** Item ids the player currently carries; a [PurchaseLimit.ONCE] replica is only handed out when absent. */
+    private val carried: (PlayerId) -> List<ItemId> = { emptyList() },
+    private val clock: Clock = Clock.systemUTC(),
 ) {
+    /** True when [playerId] already owns the [PurchaseLimit.ONCE] unlock behind [offerId] (a re-click hands out a free copy). */
+    public fun owns(playerId: PlayerId, shopId: ShopId, offerId: ShopOfferId): Boolean {
+        val offer = registry.resolve(shopId)?.offer(offerId) ?: return false
+        return offer.limit == PurchaseLimit.ONCE && purchases.count(playerId, shopId, offerId) > 0
+    }
+
     public fun execute(
         playerId: PlayerId,
         shopId: ShopId,
@@ -122,6 +141,10 @@ public class ShopPurchaseUseCase(
         // wrote a different PDC key and produced an inert item). Checked BEFORE the debit.
         val itemDelivery = delivery()
             ?: return Result.failure(ShopPurchaseError.DeliveryFailed("Item delivery is not available on this server"))
+
+        if (offer.limit == PurchaseLimit.ONCE && purchases.count(playerId, shopId, offerId) > 0) {
+            return claimReplica(playerId, player, offer, spec, itemDelivery)
+        }
 
         val debit = ledger.debit(playerId, offer.price.currency, offer.price.amount)
         return when (debit) {
@@ -181,6 +204,7 @@ public class ShopPurchaseUseCase(
                 }
 
                 val newBalance = debit.value.balance(offer.price.currency)
+                purchases.record(PurchaseRecord(playerId, shopId, offerId, offer.itemId, offer.price, clock.instant()))
                 eventBus.publish(
                     CurrencyChanged(
                         playerId = playerId,
@@ -199,6 +223,31 @@ public class ShopPurchaseUseCase(
                 )
             }
         }
+    }
+
+    /** Owned unlock: hand out a free replica unless the player already carries the item. */
+    private fun claimReplica(
+        playerId: PlayerId,
+        player: com.astarworks.astera.core.adapter.api.entity.IMcPlayer,
+        offer: ShopOffer,
+        spec: ItemSpec,
+        itemDelivery: IItemDelivery,
+    ): Result<ShopPurchaseReceipt, ShopPurchaseError> {
+        if (offer.itemId in carried(playerId)) return Result.failure(ShopPurchaseError.AlreadyCarrying(offer.itemId))
+        when (val delivered = itemDelivery.give(player, spec, 1)) {
+            is DeliveryResult.Delivered, is DeliveryResult.InventoryFull -> Unit
+            is DeliveryResult.UnknownTemplate -> return Result.failure(
+                ShopPurchaseError.DeliveryFailed("Item template '${delivered.templateKey}' cannot be materialized"),
+            )
+        }
+        return Result.success(
+            ShopPurchaseReceipt(
+                itemName = messages.renderText(playerId, spec.displayName),
+                price = offer.price,
+                newBalance = ledger.balance(playerId, offer.price.currency),
+                claimed = true,
+            ),
+        )
     }
 }
 
@@ -240,6 +289,9 @@ public sealed class ShopPurchaseError {
         public val need: Long,
     ) : ShopPurchaseError()
 
+    /** An owned [PurchaseLimit.ONCE] unlock whose item the player still carries: nothing to hand out. */
+    public data class AlreadyCarrying(public val itemId: ItemId) : ShopPurchaseError()
+
     /**
      * The offer's item could not be delivered. Carries a human-readable
      * [reason] that the intent handler / command executor may log; user-facing
@@ -253,4 +305,6 @@ public data class ShopPurchaseReceipt(
     public val itemName: String,
     public val price: ShopPrice,
     public val newBalance: Long,
+    /** True when an already-owned unlock was handed out again for free (no debit). */
+    public val claimed: Boolean = false,
 )

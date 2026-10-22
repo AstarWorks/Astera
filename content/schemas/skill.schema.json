@@ -170,6 +170,18 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "sequence"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "summon"
                         },
                         "entity_type_key": {
@@ -364,6 +376,7 @@
                                 "raw",
                                 "horizontal",
                                 "vertical",
+                                "down",
                                 "random"
                             ]
                         },
@@ -405,6 +418,53 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "line"
+                        },
+                        "delay_ticks": {
+                            "type": "integer"
+                        },
+                        "amount": {
+                            "type": "integer"
+                        },
+                        "angle": {
+                            "type": "string",
+                            "enum": [
+                                "raw",
+                                "horizontal",
+                                "vertical",
+                                "down",
+                                "random"
+                            ]
+                        },
+                        "particles": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.AnimatedParticleYaml"
+                            }
+                        },
+                        "length": {
+                            "type": "number"
+                        },
+                        "segments": {
+                            "type": "integer"
+                        },
+                        "jitter": {
+                            "type": "number"
+                        },
+                        "points_per_segment": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "particles"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "point"
                         },
                         "delay_ticks": {
@@ -419,6 +479,7 @@
                                 "raw",
                                 "horizontal",
                                 "vertical",
+                                "down",
                                 "random"
                             ]
                         },
@@ -427,6 +488,56 @@
                             "items": {
                                 "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.AnimatedParticleYaml"
                             }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "particles"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "ring"
+                        },
+                        "delay_ticks": {
+                            "type": "integer"
+                        },
+                        "amount": {
+                            "type": "integer"
+                        },
+                        "angle": {
+                            "type": "string",
+                            "enum": [
+                                "raw",
+                                "horizontal",
+                                "vertical",
+                                "down",
+                                "random"
+                            ]
+                        },
+                        "particles": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.AnimatedParticleYaml"
+                            }
+                        },
+                        "period_ticks": {
+                            "type": "integer"
+                        },
+                        "points": {
+                            "type": "integer"
+                        },
+                        "start_radius": {
+                            "type": "number"
+                        },
+                        "end_radius": {
+                            "type": "number"
+                        },
+                        "rise": {
+                            "type": "number"
                         }
                     },
                     "required": [
@@ -716,6 +827,21 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "away_from_caster"
+                        },
+                        "vertical": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "custom"
                         },
                         "vector": {
@@ -745,6 +871,21 @@
                         "type": {
                             "type": "string",
                             "const": "from_hit_normal"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "toward_caster"
+                        },
+                        "vertical": {
+                            "type": "number"
                         }
                     },
                     "required": [
@@ -1018,6 +1159,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1054,6 +1198,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1087,6 +1234,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1121,6 +1271,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1152,6 +1305,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1186,6 +1342,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1227,6 +1386,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1280,6 +1442,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1327,6 +1492,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1359,6 +1527,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1394,6 +1565,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1426,6 +1600,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1458,6 +1635,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1493,6 +1673,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1536,6 +1719,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1568,6 +1754,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1603,6 +1792,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1636,6 +1828,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1671,6 +1866,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1712,6 +1910,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1750,6 +1951,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1790,6 +1994,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1828,6 +2035,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1863,6 +2073,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1899,6 +2112,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -1933,12 +2149,53 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
                         "type",
                         "targets",
                         "status_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "restore_resource"
+                        },
+                        "resource": {
+                            "type": "string"
+                        },
+                        "amount": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "resource",
+                        "amount"
                     ]
                 },
                 {
@@ -1965,6 +2222,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2000,6 +2260,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2035,6 +2298,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2070,6 +2336,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2120,6 +2389,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2158,6 +2430,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2193,6 +2468,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2229,6 +2507,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2262,6 +2543,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2294,6 +2578,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2329,6 +2616,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2367,6 +2657,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2399,6 +2692,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2430,6 +2726,9 @@
                         },
                         "condition": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
@@ -2646,6 +2945,24 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "sequence"
+                        },
+                        "cast": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                            }
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "summon"
                         },
                         "cast": {
@@ -2740,6 +3057,9 @@
                         },
                         "include_self": {
                             "type": "boolean"
+                        },
+                        "radius": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
                         }
                     },
                     "required": [
@@ -2831,6 +3151,9 @@
                         },
                         "center": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "radius": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
                         }
                     },
                     "required": [

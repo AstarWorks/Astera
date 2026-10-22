@@ -1,0 +1,91 @@
+# Orrery Staff: counter-rotating clock seal drawn on the floor around the caster (S2 telegraph).
+# Outer ring of gold slabs draws on clockwise (stagger), the inner ring draws on the other way (reverse),
+# and two glyph wheels spin in opposite directions at the centre. Ladder fade: gold -> glass -> gone.
+# Local axes: x = left, y = up, z = forward (yaw only: the seal lies flat).
+
+id: orrery-seal-ground
+duration_ticks: 34
+orient: yaw
+sample_ticks: 2
+
+elements:
+  - id: outer-ring
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    glow_color: "#ffb000"
+    count: 10
+    start_tick: 0
+    slot_lifetime_ticks: 24
+    formation:
+      curve: { type: arc, radius: 2.6, from_deg: 0, to_deg: 360 }
+      offset: [0.0, 0.08, 0.0]
+      align: tangent
+      stagger_ticks: 1
+    group_keyframes:
+      - { t: 0, rotate: [0, 0, 0] }
+      - { t: 24, rotate: [140, 0, 0], ease: out_quad }
+    keyframes:
+      - { t: 0, scale: [0.12, 0.05, 0.2] }
+      - { t: 2, scale: [0.14, 0.05, 1.7], ease: out_expo }
+      - { t: 16, block: yellow_stained_glass }
+      - { t: 22, scale: [0.14, 0.05, 0.0], ease: in_quad }
+
+  - id: inner-ring
+    kind: { type: block, block: orange_concrete }
+    brightness: 15
+    count: 6
+    start_tick: 1
+    slot_lifetime_ticks: 22
+    formation:
+      curve: { type: arc, radius: 1.5, from_deg: 0, to_deg: 360 }
+      offset: [0.0, 0.1, 0.0]
+      align: tangent
+      stagger_ticks: 1
+      reverse: true
+    group_keyframes:
+      - { t: 0, rotate: [0, 0, 0] }
+      - { t: 22, rotate: [-200, 0, 0], ease: out_quad }
+    keyframes:
+      - { t: 0, scale: [0.1, 0.05, 0.2] }
+      - { t: 2, scale: [0.1, 0.05, 1.65], ease: out_expo }
+      - { t: 14, block: yellow_stained_glass }
+      - { t: 20, scale: [0.1, 0.05, 0.0], ease: in_quad }
+
+  # Spokes: six ticks marking the outer ring, popping outward as it completes.
+  - id: tick-marks
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    count: 6
+    start_tick: 4
+    end_tick: 22
+    formation:
+      curve: { type: arc, radius: 2.0, from_deg: 0, to_deg: 360 }
+      offset: [0.0, 0.1, 0.0]
+      align: outward
+      stagger_ticks: 0
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [0.06, 0.04, 0.5], ease: out_back }
+      - { t: 18, scale: [0.0, 0.04, 0.5], ease: in_quad }
+
+  - id: wheel-outer
+    kind: { type: text, text: "<#ffb000><b>◎</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: fixed
+    brightness: 15
+    start_tick: 0
+    end_tick: 30
+    keyframes:
+      - { t: 0, translate: [0.0, 0.12, 0.0], rotate: [0, -90, 0], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [14.0, 14.0, 14.0], ease: out_back }
+      - { t: 30, rotate: [0, -90, 540], scale: [14.0, 14.0, 14.0], ease: out_cubic }
+
+  - id: wheel-inner
+    kind: { type: text, text: "<#ff6a10><b>◆</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: fixed
+    brightness: 15
+    start_tick: 2
+    end_tick: 30
+    keyframes:
+      - { t: 0, translate: [0.0, 0.14, 0.0], rotate: [0, -90, 0], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [8.0, 8.0, 8.0], ease: out_back }
+      - { t: 28, rotate: [0, -90, -540], scale: [8.0, 8.0, 8.0], ease: out_cubic }

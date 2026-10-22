@@ -1,0 +1,129 @@
+# Crimson Chain-Axe S1 (left-click) "Chain Sweep": three beats on one target -- right-to-left sweep,
+# left-to-right return, closing full spin (heaviest, with knockback + hit-stop + shake). Every beat
+# adds one Rupture stack and is worth +0.5 per stack already on the target, so a chained fight snowballs.
+# Beats 2 and 3 are `ignore_invulnerability` so the whole combo counts against players (20-tick i-frames
+# would otherwise swallow them). Total ~15 phys + stack bonus, a touch above the greatsword cleave.
+
+id: crimson-chain-axe-s1
+
+name:
+  ja: "鎖斧の連薙ぎ"
+  en: "Chain Sweep"
+description:
+  ja: "鎖斧を三連で振るう。命中のたびに裂傷が積み重なり、最後の回転斬りが敵を弾き飛ばす。"
+  en: "Three chained axe sweeps. Each hit stacks Rupture; the closing spin is the heaviest and staggers."
+
+archetype: melee
+cooldown_ticks: 30
+resource_cost: 22              # energy
+tags: [ melee, physical, combo, rupture ]
+
+params:
+  type: melee
+  range: 4.6
+  arc_degrees: 140.0
+  knockback: 0.2
+  damage:
+    - base: { type: literal, value: 5.0 }
+      attribute: physical
+      per_stack: { status_id: rupture, amount: 0.5, on: target }
+
+phases:
+  type: melee
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.trident.throw
+      pitch: { type: literal, value: 0.7 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.sweep
+      pitch: { type: literal, value: 0.8 }
+      delay_ticks: { type: literal, value: 5 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.sweep
+      pitch: { type: literal, value: 0.6 }
+      delay_ticks: { type: literal, value: 10 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: crimson-chain-axe-sweep
+  hit_entity:
+    # beat 1 (params.damage above)
+    - type: apply_status
+      targets: { type: target }
+      status_id: rupture
+      effect_duration_ticks: { type: literal, value: 200 }
+    - type: play_vfx
+      targets: { type: target }
+      vfx_id: crimson-chain-axe-impact
+    - type: play_sound
+      targets: { type: target }
+      sound_id: entity.player.attack.crit
+      pitch: { type: literal, value: 0.9 }
+    # beat 2
+    - type: damage
+      targets: { type: target }
+      ignore_invulnerability: { type: literal, value: true }
+      delay_ticks: { type: literal, value: 5 }
+      components:
+        - base: { type: literal, value: 4.0 }
+          attribute: physical
+          per_stack: { status_id: rupture, amount: 0.5, on: target }
+    - type: apply_status
+      targets: { type: target }
+      status_id: rupture
+      effect_duration_ticks: { type: literal, value: 200 }
+      delay_ticks: { type: literal, value: 5 }
+    - type: play_vfx
+      targets: { type: target }
+      vfx_id: crimson-chain-axe-impact
+      delay_ticks: { type: literal, value: 5 }
+    - type: play_sound
+      targets: { type: target }
+      sound_id: entity.player.attack.crit
+      pitch: { type: literal, value: 1.1 }
+      delay_ticks: { type: literal, value: 5 }
+    # beat 3: the closing spin
+    - type: damage
+      targets: { type: target }
+      ignore_invulnerability: { type: literal, value: true }
+      delay_ticks: { type: literal, value: 10 }
+      components:
+        - base: { type: literal, value: 6.0 }
+          attribute: physical
+          per_stack: { status_id: rupture, amount: 0.5, on: target }
+    - type: apply_status
+      targets: { type: target }
+      status_id: rupture
+      effect_duration_ticks: { type: literal, value: 200 }
+      delay_ticks: { type: literal, value: 10 }
+    - type: knockback
+      targets: { type: target }
+      direction: { type: away_from_caster }
+      strength: { type: literal, value: 0.9 }
+      delay_ticks: { type: literal, value: 10 }
+    - type: hit_stop
+      targets: { type: target }
+      ticks: 3
+      include_caster: true
+      delay_ticks: { type: literal, value: 10 }
+    - type: camera_shake
+      targets: { type: caster }
+      intensity: { type: literal, value: 0.4 }
+      ticks: { type: literal, value: 5 }
+      delay_ticks: { type: literal, value: 10 }
+    - type: play_vfx
+      targets: { type: target }
+      vfx_id: crimson-chain-axe-impact
+      delay_ticks: { type: literal, value: 10 }
+    - type: play_sound
+      targets: { type: target }
+      sound_id: entity.generic.explode
+      volume: { type: literal, value: 0.4 }
+      pitch: { type: literal, value: 1.4 }
+      delay_ticks: { type: literal, value: 10 }
+  miss:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.nodamage

@@ -1,0 +1,72 @@
+# Orrery Staff: the standing clock seal in front of the caster (S3 telegraph + beam lens).
+# An outer ring of 14 gold slabs and an inner ring of 9 draw on in opposite directions over the 14-tick
+# charge (the telegraph), two glyph wheels counter-rotate at the centre, then everything holds while the
+# beam fires through it and fades with a gold -> glass -> gone ladder.
+# Orient look: the ring plane is x/y at forward offset 2.4. Local axes: x = left, y = up, z = forward.
+
+id: orrery-seal-front
+duration_ticks: 50
+orient: look
+sample_ticks: 2
+
+elements:
+  - id: outer-ring
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    glow_color: "#ffb000"
+    count: 14
+    start_tick: 0
+    slot_lifetime_ticks: 34
+    formation:
+      curve: { type: arc, radius: 1.9, from_deg: 0, to_deg: 360 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.5, 2.4]
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.1, 0.1, 0.2] }
+      - { t: 2, scale: [0.12, 0.12, 0.95], ease: out_expo }
+      - { t: 26, block: yellow_stained_glass }
+      - { t: 34, scale: [0.12, 0.12, 0.0], ease: in_quad }
+
+  - id: inner-ring
+    kind: { type: block, block: orange_concrete }
+    brightness: 15
+    count: 9
+    start_tick: 2
+    slot_lifetime_ticks: 30
+    formation:
+      curve: { type: arc, radius: 1.15, from_deg: 0, to_deg: 360 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.5, 2.4]
+      align: tangent
+      stagger_ticks: 1
+      reverse: true
+    keyframes:
+      - { t: 0, scale: [0.09, 0.09, 0.2] }
+      - { t: 2, scale: [0.1, 0.1, 0.85], ease: out_expo }
+      - { t: 24, block: yellow_stained_glass }
+      - { t: 32, scale: [0.1, 0.1, 0.0], ease: in_quad }
+
+  # Wheels spin on the ring plane (billboard keeps them facing the viewer, roll spins them).
+  - id: wheel-outer
+    kind: { type: text, text: "<#ffb000><b>◎</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 2
+    end_tick: 46
+    keyframes:
+      - { t: 0, translate: [0.0, 1.5, 2.4], rotate: [0, 0, 0], scale: [0.0, 0.0, 0.0] }
+      - { t: 6, scale: [11.0, 11.0, 11.0], ease: out_back }
+      - { t: 44, rotate: [0, 0, 720], scale: [11.0, 11.0, 11.0], ease: out_cubic }
+
+  - id: wheel-inner
+    kind: { type: text, text: "<#ff6a10><b>◆</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 4
+    end_tick: 46
+    keyframes:
+      - { t: 0, translate: [0.0, 1.5, 2.45], rotate: [0, 0, 0], scale: [0.0, 0.0, 0.0] }
+      - { t: 6, scale: [6.5, 6.5, 6.5], ease: out_back }
+      - { t: 42, rotate: [0, 0, -720], scale: [6.5, 6.5, 6.5], ease: out_cubic }

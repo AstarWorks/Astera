@@ -484,6 +484,20 @@ class ArmorReductionModifierTest {
     }
 
     @Test
+    fun `unarmored defender still gets container resist`() {
+        val modifier = ArmorReductionModifier(FakeArmorRegistry())
+        val container = SimpleAttributeContainer()
+        container.addModifier(
+            AttributeModifier(Attributes.RESIST_PHYSICAL, AttributeModifier.Operation.ADD, 0.25, "skill:guard"),
+        )
+
+        for (armor in listOf<ArmorBundle?>(null, ArmorBundle.empty(targetId))) {
+            val out = modifier.apply(working(8.0), attempt(8.0), armor, container, nonRandom)
+            assertThat(out.currentAmount).isEqualTo(6.0, within(1e-9))
+        }
+    }
+
+    @Test
     fun `null defenderContainer falls back to spec walk for legacy callers`() {
         // Phase C wires the container store; until that lands (and for
         // callers that bypass it intentionally) the modifier should still

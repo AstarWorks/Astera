@@ -1,0 +1,82 @@
+# Vendetta Bayonet: shotgun finale. One frame of white (flash glyph + a blast cube that melts down a
+# white -> glass ladder), then a 14-shard orange sphere, a crimson shock ring sweeping out to 4 blocks,
+# and rolling smoke. The cube is the "impact frame": big, short, bright. Anchored on the target.
+
+id: vendetta-burst
+duration_ticks: 30
+orient: look
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: flash
+    kind: { type: text, text: "<#ffffff>✦", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [18.0, 18.0, 18.0], ease: out_expo }
+      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: blast
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    end_tick: 12
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0], rotate: [30, 20, 0], scale: [0.2, 0.2, 0.2] }
+      - { t: 2, scale: [3.8, 3.8, 3.8], ease: out_expo }
+      - { t: 3, block: white_stained_glass }
+      - { t: 5, block: orange_stained_glass }
+      - { t: 8, block: red_stained_glass }
+      - { t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: shard
+    kind: { type: block, block: orange_stained_glass }
+    brightness: 15
+    glow_color: "#ff8a1f"
+    count: 14
+    end_tick: 20
+    formation:
+      curve: { type: sphere, radius: 0.2 }
+      offset: [0.0, 1.2, 0.0]
+      align: outward
+    jitter: { rotation_deg: 5, scale: 0.3 }
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.3], scale: [0.05, 0.05, 0.3] }
+      - { t: 3, translate: [0.0, 0.0, 2.2], scale: [0.14, 0.14, 3.2], ease: out_expo }
+      - { t: 9, block: red_stained_glass }
+      - { t: 12, block: gray_stained_glass }
+      - { t: 18, translate: [0.0, 0.0, 3.4], scale: [0.0, 0.0, 3.2], ease: in_quad }
+
+  # Crimson shock ring at the floor of the blast.
+  - id: ring
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#c8102e"
+    count: 12
+    start_tick: 2
+    end_tick: 20
+    formation:
+      curve: { type: circle, radius: 0.6 }
+      offset: [0.0, 0.5, 0.0]
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.18, 0.18, 0.4] }
+      - { t: 8, translate: [-3.6, 0.0, 0.0], scale: [0.08, 0.08, 1.7], ease: out_expo }
+      - { t: 12, block: gray_stained_glass }
+      - { t: 17, scale: [0.0, 0.0, 1.7], ease: in_quad }
+
+  - id: smoke
+    kind: { type: particle, particle_id: gun-impact-smoke, every_ticks: 2 }
+    start_tick: 2
+    end_tick: 14
+    keyframes:
+      - { t: 0, translate: [0.0, 1.0, 0.0] }
+
+  - id: embers
+    kind: { type: particle, particle_id: fire-impact, every_ticks: 6 }
+    start_tick: 1
+    end_tick: 8
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0] }

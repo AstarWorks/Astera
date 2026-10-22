@@ -1,0 +1,81 @@
+# Bastion Greatsword DEF: the tower shield. A translucent gold plate with a 24-piece hexagonal rim
+# and a crest glyph fades in in front of the caster (4 ticks), holds, flares white at tick 34 (the
+# guard is about to pay out), then a shield-bash hoop pushes outward and everything collapses.
+# Follows the caster. ~41 live displays at peak.
+# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
+
+id: bastion-def-shield
+duration_ticks: 44
+orient: yaw
+follow: true
+sample_ticks: 2
+
+elements:
+  - id: plate
+    kind: { type: block, block: yellow_stained_glass }
+    brightness: 12
+    glow_color: "#e8c860"
+    start_tick: 0
+    end_tick: 44
+    keyframes:
+      - { t: 0, translate: [0.0, 1.5, 1.8], scale: [0.0, 0.0, 0.06] }
+      - { t: 4, scale: [2.6, 3.0, 0.06], ease: out_back }
+      - { t: 33, scale: [2.6, 3.0, 0.06] }
+      - { t: 34, block: white_stained_glass }
+      - { t: 36, scale: [3.1, 3.5, 0.06], ease: out_expo }
+      - { t: 40, scale: [3.0, 3.4, 0.06] }
+      - { t: 44, scale: [0.0, 0.0, 0.06], ease: in_quad }
+    oscillate: { axis: translate_z, amplitude: 0.04, period_ticks: 4 }
+
+  # Hexagonal rim, 4 pieces per edge.
+  - id: rim
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    glow_color: "#e8c860"
+    start_tick: 0
+    end_tick: 44
+    count: 24
+    formation:
+      curve: { type: polygon, radius: 1.5, sides: 6 }
+      offset: [0.0, 1.5, 1.8]
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [0.12, 0.12, 0.55], ease: out_back }
+      - { t: 34, scale: [0.12, 0.12, 0.55] }
+      - { t: 36, scale: [0.2, 0.2, 0.7], ease: out_expo }
+      - { t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  # Crest glyph on the plate (billboard so it reads from the front).
+  - id: crest
+    kind: { type: text, text: "<#ffd23a><b>盾</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: vertical
+    brightness: 15
+    start_tick: 2
+    end_tick: 44
+    keyframes:
+      - { t: 0, translate: [0.0, 1.5, 1.75], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [5.0, 5.0, 5.0], ease: out_back }
+      - { t: 32, scale: [5.0, 5.0, 5.0] }
+      - { t: 36, scale: [7.5, 7.5, 7.5], ease: out_expo }
+      - { t: 42, scale: [0.0, 0.0, 0.0], ease: in_quad }
+    oscillate: { axis: scale_xyz, amplitude: 0.3, period_ticks: 6 }
+
+  # Shield bash hoop (matches the knockback at guard end).
+  - id: bash
+    kind: { type: block, block: orange_concrete }
+    brightness: 15
+    glow_color: "#ff7a1a"
+    start_tick: 36
+    end_tick: 44
+    count: 16
+    formation:
+      curve: { type: circle, radius: 0.5 }
+      offset: [0.0, 1.5, 1.9]
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      align: outward
+    keyframes:
+      - { t: 0, scale: [0.2, 0.12, 0.16] }
+      - { t: 4, translate: [0.0, 0.0, 1.7], scale: [0.5, 0.1, 0.16], ease: out_expo }
+      - { t: 8, translate: [0.0, 0.0, 2.1], scale: [0.0, 0.0, 0.16], ease: in_quad }

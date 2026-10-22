@@ -83,6 +83,9 @@ public sealed class SkillParams {
         }
     }
 
+    /** `sequence` archetype: no parameters, the skill is its `cast` phase mechanics. */
+    public data object SequenceParams : SkillParams()
+
     public data class TeleportParams(
         val maxDistance: Double,
         val requiresLineOfSight: Boolean,

@@ -1,0 +1,67 @@
+# Orrery Staff: the gold impact frame -- a hard white-gold spark glyph that over-exposes for two ticks,
+# a ring of radial rays, and six gold shards scattered outward that cool through a glass ladder.
+# Played at the point of impact (use play_vfx scale to make it bigger). Local axes: x = left, y = up, z = forward.
+
+id: orrery-flash
+duration_ticks: 22
+orient: look
+sample_ticks: 1
+
+elements:
+  # Impact frame: oversized white glyph for two ticks, then a gold afterimage.
+  - id: frame
+    kind: { type: text, text: "<#ffffff><b>★</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 3
+    keyframes:
+      - { t: 0, translate: [0.0, 1.4, 0.0], scale: [6.0, 6.0, 6.0] }
+      - { t: 1, scale: [26.0, 26.0, 26.0], ease: out_expo }
+      - { t: 3, scale: [30.0, 30.0, 30.0] }
+
+  - id: afterimage
+    kind: { type: text, text: "<#ffb000><b>★</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 2
+    end_tick: 16
+    keyframes:
+      - { t: 0, translate: [0.0, 1.4, 0.0], rotate: [0, 0, 0], scale: [14.0, 14.0, 14.0] }
+      - { t: 14, rotate: [0, 0, 90], scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  # Radial rays: thin bars shooting out of the impact in the view plane.
+  - id: rays
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    count: 6
+    start_tick: 1
+    end_tick: 11
+    formation:
+      curve: { type: arc, radius: 0.3, from_deg: 0, to_deg: 360 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.4, 0.0]
+      align: outward
+    jitter: { rotation_deg: 8, scale: 0.25 }
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.3] }
+      - { t: 3, translate: [0.0, 0.0, 1.7], scale: [0.1, 0.1, 3.8], ease: out_expo }
+      - { t: 10, translate: [0.0, 0.0, 2.6], scale: [0.0, 0.0, 3.8], ease: in_quad }
+
+  # Shards: gold chips scattered on a sphere, spinning as they fly, cooling gold -> glass -> gone.
+  - id: shards
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    count: 6
+    start_tick: 1
+    end_tick: 20
+    formation:
+      curve: { type: sphere, radius: 0.4 }
+      offset: [0.0, 1.4, 0.0]
+      align: outward
+    jitter: { rotation_deg: 30, scale: 0.3 }
+    keyframes:
+      - { t: 0, scale: [0.28, 0.28, 0.28] }
+      - { t: 6, translate: [0.0, 0.0, 4.5], rotate: [0, 0, 360], scale: [0.32, 0.32, 0.8], ease: out_expo }
+      - { t: 9, block: yellow_stained_glass }
+      - { t: 18, translate: [0.0, -0.6, 4.8], scale: [0.0, 0.0, 0.0], ease: in_quad }

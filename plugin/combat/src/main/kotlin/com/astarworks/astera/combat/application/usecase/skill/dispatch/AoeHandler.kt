@@ -52,11 +52,11 @@ public class AoeHandler(
                 .coerceAtLeast(0.0)
             val scaledProfile = scaleProfile(params.damage, falloffMultiplier)
 
-            for (target in candidates) {
+            dispatcher.forEachWithPerStack(candidates, scaledProfile, baseCtx) { target, profile ->
                 applyDamage.execute(
                     DamageAttempt(
                         targetId = target,
-                        baseProfile = scaledProfile,
+                        baseProfile = profile,
                         source = source,
                     ),
                 )
@@ -76,7 +76,7 @@ public class AoeHandler(
                     is NumericValue.Literal -> NumericValue.Literal(b.value * multiplier)
                     is NumericValue.Cel -> b // Phase 1 keeps CEL untouched; evaluator handles scaling later.
                 }
-                DamageComponent(base = scaled, attribute = component.attribute, multiplier = component.multiplier)
+                component.copy(base = scaled)
             },
         )
     }

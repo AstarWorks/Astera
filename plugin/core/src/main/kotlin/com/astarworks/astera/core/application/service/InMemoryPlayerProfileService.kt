@@ -114,7 +114,7 @@ public class InMemoryPlayerProfileService(
 
         // 1. Default loadout — resolve every item id; skip unknowns.
         val resolvedLoadout = mutableListOf<com.astarworks.astera.core.domain.item.ItemSpec>()
-        for (itemId in starterGrant.defaultLoadout) {
+        for (itemId in starterGrant.starterItems) {
             val spec = itemRegistry.find(itemId)
             if (spec == null) {
                 log.warn(
@@ -122,7 +122,7 @@ public class InMemoryPlayerProfileService(
                     itemId,
                     playerId,
                 )
-                failed += "default_loadout:$itemId"
+                failed += "starter_items:$itemId"
             } else {
                 resolvedLoadout += spec
             }
@@ -204,11 +204,11 @@ public class InMemoryPlayerProfileService(
         }
     }
 
-    /** Item ids of the starter grant (`default_loadout`), also lent to unarmed players for a match. */
-    public fun starterItemIds(): List<com.astarworks.astera.core.domain.item.ItemId> = starterGrant.defaultLoadout
+    /** Item ids of the starter grant (`starter_items`), also lent to unarmed players for a match. */
+    public fun starterItemIds(): List<com.astarworks.astera.core.domain.item.ItemId> = starterGrant.starterItems
 
     /** Test / adapter helper: items resolved for a created profile. Empty list when nothing was granted. */
-    public fun loadoutFor(playerId: PlayerId): List<com.astarworks.astera.core.domain.item.ItemSpec> =
+    public fun starterItemsFor(playerId: PlayerId): List<com.astarworks.astera.core.domain.item.ItemSpec> =
         grantedLoadout[playerId].orEmpty()
 
     /** Test / adapter helper: welcome dialog id recorded for a player, or `null`. */

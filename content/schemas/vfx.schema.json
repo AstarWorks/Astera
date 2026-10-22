@@ -283,6 +283,9 @@
                 "end_tick": {
                     "type": "integer"
                 },
+                "slot_lifetime_ticks": {
+                    "type": "integer"
+                },
                 "count": {
                     "type": "integer"
                 },
@@ -300,6 +303,12 @@
                 },
                 "oscillate": {
                     "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxOscillateYaml"
+                },
+                "group_keyframes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxGroupKeyframeYaml"
+                    }
                 }
             },
             "required": [
@@ -335,6 +344,35 @@
             },
             "required": [
                 "curve"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxGroupKeyframeYaml": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "integer"
+                },
+                "translate": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "rotate": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "scale": {
+                    "type": "number"
+                },
+                "ease": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "t"
             ]
         },
         "com.astarworks.astera.core.application.config.VfxJitterYaml": {

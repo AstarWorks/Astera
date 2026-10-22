@@ -11,7 +11,7 @@ class StarterGrantYamlConfigTest {
     @Test
     fun `toDomain returns parsed starter grant on the happy path`() {
         val dto = StarterGrantYamlConfig(
-            defaultLoadout = listOf("example-sword", "example-wand"),
+            starterItems = listOf("example-sword", "example-wand"),
             walletGrants = mapOf("GOLD" to 100L, "STAR" to 0L),
             tutorial = StarterGrantYamlConfig.TutorialBlock(
                 autoEnroll = true,
@@ -24,7 +24,7 @@ class StarterGrantYamlConfigTest {
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
         val grant = (result as Result.Success).value
-        assertThat(grant.defaultLoadout)
+        assertThat(grant.starterItems)
             .containsExactly(ItemId("example-sword"), ItemId("example-wand"))
         // Zero entries are dropped to keep the audit log clean.
         assertThat(grant.walletGrants).containsOnly(java.util.Map.entry(Currency.GOLD, 100L))
@@ -65,7 +65,7 @@ class StarterGrantYamlConfigTest {
     @Test
     fun `toDomain rejects a malformed item id`() {
         val dto = StarterGrantYamlConfig(
-            defaultLoadout = listOf("UpperCaseBad"),
+            starterItems = listOf("UpperCaseBad"),
         )
 
         val result = dto.toDomain()
@@ -73,7 +73,7 @@ class StarterGrantYamlConfigTest {
         assertThat(result).isInstanceOf(Result.Failure::class.java)
         val err = (result as Result.Failure).error
         assertThat(err).isInstanceOf(ConfigError.InvalidIdentifier::class.java)
-        assertThat((err as ConfigError.InvalidIdentifier).field).isEqualTo("default_loadout[0]")
+        assertThat((err as ConfigError.InvalidIdentifier).field).isEqualTo("starter_items[0]")
     }
 
     @Test
@@ -106,7 +106,7 @@ class StarterGrantYamlConfigTest {
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
         val grant = (result as Result.Success).value
-        assertThat(grant.defaultLoadout).isEmpty()
+        assertThat(grant.starterItems).isEmpty()
         assertThat(grant.walletGrants).isEmpty()
         assertThat(grant.tutorialAutoEnroll).isFalse
         assertThat(grant.welcomeDialogId).isNull()

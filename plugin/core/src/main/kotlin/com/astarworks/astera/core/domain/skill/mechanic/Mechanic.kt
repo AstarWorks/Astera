@@ -65,6 +65,13 @@ public sealed class Mechanic {
     /** Optional gate. `null` = always execute. */
     public open val condition: Condition? get() = null
 
+    /**
+     * Delayed / repeating executions (`delay_ticks` > 0 or `period_ticks` > 0) re-read the caster's
+     * CURRENT position + look at execution time, so geometric targeters (cone / forward_ray /
+     * caster_forward / nearby_entities) follow a dash. `true` keeps the cast-time pose instead.
+     */
+    public open val snapshotPose: Boolean get() = false
+
     // ───────────────────────── Gameplay (3) ─────────────────────────
 
     /** Inflict damage from a list of attribute-typed components. */
@@ -77,6 +84,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic() {
         init { require(components.isNotEmpty()) { "Mechanic.Damage.components must not be empty" } }
     }
@@ -89,6 +97,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Revive downed targets at a fraction of max HP. */
@@ -99,6 +108,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     // ───────────────────────── Status (6) ─────────────────────────
@@ -117,6 +127,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /**
@@ -131,6 +142,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Strip all (or matching) statuses from [targets]. */
@@ -141,6 +153,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Set targets on fire for [ticks]. */
@@ -151,6 +164,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Freeze (powder-snow style) for [ticks]. */
@@ -161,6 +175,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Suppress skill casts for [ticks]. */
@@ -171,6 +186,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     // ───────────────────────── Movement (6) ─────────────────────────
@@ -184,6 +200,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Vertical launch. */
@@ -194,6 +211,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Overwrite the target's velocity vector outright. */
@@ -205,6 +223,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Add a velocity impulse along [direction]. */
@@ -216,6 +235,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Instantly relocate to [destination]. */
@@ -226,6 +246,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /**
@@ -249,6 +270,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /**
@@ -263,7 +285,25 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
+
+    /**
+     * Refund [amount] of [resource] (ammo / energy) to the [targets]' held-item resource pool
+     * (default: the caster), clamped at the pool cap - e.g. a melee hit that refunds a bullet.
+     */
+    public data class RestoreResource(
+        val resource: com.astarworks.astera.core.domain.resource.ResourceType,
+        val amount: IntValue,
+        override val targets: Targeter = Targeter.Caster,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic() {
+        init { require(amount !is IntValue.Literal || amount.value >= 0) { "Mechanic.RestoreResource.amount must be >= 0" } }
+    }
 
     /** Parabolic jump toward [destination] (Phase 6 resolves arc). */
     public data class Leap(
@@ -274,6 +314,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     // ───────────────────────── World (5) ─────────────────────────
@@ -286,6 +327,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Spawn an entity. `entityTypeKey` is vendor-neutral (`ZOMBIE`, `mythicmobs:imp`, …). */
@@ -298,6 +340,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic() {
         init { require(entityTypeKey.isNotBlank()) { "Mechanic.Summon.entityTypeKey must not be blank" } }
     }
@@ -317,6 +360,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic() {
         init { require(blockKey.isNotBlank()) { "Mechanic.SetBlock.blockKey must not be blank" } }
     }
@@ -335,6 +379,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /**
@@ -356,6 +401,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     // ───────────────────────── Item (4) ─────────────────────────
@@ -368,6 +414,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     public data class ConsumeItem(
@@ -378,6 +425,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Adjust a generic attribute (max-health, movement-speed, …) for [ticks]. */
@@ -390,6 +438,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic() {
         init { require(attributeKey.isNotBlank()) { "Mechanic.ModifyAttribute.attributeKey must not be blank" } }
     }
@@ -403,6 +452,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     // ───────────────────────── Visual (6) ─────────────────────────
@@ -416,6 +466,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /**
@@ -430,6 +481,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     public data class PlaySound(
@@ -441,6 +493,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Spawn a Display Entity (block / item / text). */
@@ -451,6 +504,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /**
@@ -467,6 +521,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Apply outline glow for [ticks]. */
@@ -477,6 +532,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Camera shake for [ticks] with [intensity] (0..1). */
@@ -488,6 +544,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     // ───────────────────────── Messages (3) ─────────────────────────
@@ -499,6 +556,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     public data class SendActionBar(
@@ -508,6 +566,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     public data class SendTitle(
@@ -521,6 +580,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     // ───────────────────────── Control flow (4) ─────────────────────────
@@ -536,6 +596,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Branch on a [Condition]. `else_` is optional. */
@@ -548,6 +609,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
     /** Run [mechanics] [count] times with [strideTicks] between iterations. */
@@ -560,6 +622,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic() {
         init { require(mechanics.isNotEmpty()) { "Mechanic.Loop.mechanics must not be empty" } }
     }
@@ -572,6 +635,7 @@ public sealed class Mechanic {
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
     ) : Mechanic() {
         init {
             require(weighted.isNotEmpty()) { "Mechanic.Choose.weighted must not be empty" }

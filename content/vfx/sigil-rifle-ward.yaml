@@ -1,0 +1,63 @@
+# Sigil Rifle DEF "Sigil Ward": a floor sigil blooms under the caster as they slip back (it follows them
+# for the length of the evasive burst), its ring is drawn on piece by piece, two bars spin inside and a gold
+# glyph pulses over the spot they left. Short and flat so it never blocks the shooter's view.
+# Local axes: x = left, y = up, z = forward.
+
+id: sigil-rifle-ward
+duration_ticks: 26
+orient: yaw
+follow: true
+sample_ticks: 2
+
+elements:
+  - id: ring
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#b3141c"
+    start_tick: 0
+    end_tick: 26
+    count: 12
+    formation:
+      curve: { type: circle, radius: 1.5 }
+      offset: [0.0, 0.05, 0.0]
+      align: tangent
+      stagger_ticks: 0
+    group_keyframes:
+      - { t: 0 }
+      - { t: 24, rotate: [-180, 0, 0], ease: in_out_sine }
+    keyframes:
+      - { t: 0, scale: [0.0, 0.03, 0.0] }
+      - { t: 4, scale: [0.1, 0.03, 0.85], ease: out_expo }
+      - { t: 18, scale: [0.1, 0.03, 0.85] }
+      - { t: 26, scale: [0.0, 0.03, 0.85], ease: in_quad }
+
+  - id: spin-a
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 1
+    end_tick: 26
+    keyframes:
+      - { t: 0, translate: [0.0, 0.08, 0.0], rotate: [0, 0, 0], scale: [0.0, 0.02, 0.0] }
+      - { t: 4, scale: [0.04, 0.02, 3.0], ease: out_expo }
+      - { t: 24, rotate: [360, 0, 0], scale: [0.0, 0.02, 3.0], ease: in_out_sine }
+
+  - id: spin-b
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 1
+    end_tick: 26
+    keyframes:
+      - { t: 0, translate: [0.0, 0.08, 0.0], rotate: [90, 0, 0], scale: [0.0, 0.02, 0.0] }
+      - { t: 4, scale: [0.04, 0.02, 3.0], ease: out_expo }
+      - { t: 24, rotate: [450, 0, 0], scale: [0.0, 0.02, 3.0], ease: in_out_sine }
+
+  - id: glyph
+    kind: { type: text, text: "<#ffc24a>◎</#ffc24a>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 16
+    keyframes:
+      - { t: 0, translate: [0.0, 0.9, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 3, scale: [6.0, 6.0, 6.0], ease: out_expo }
+      - { t: 16, translate: [0.0, 1.4, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad }

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
  *
  * The Wave 5wireup [com.astarworks.astera.core.application.gui.lobby.MainMenuGuiSpec]
  * emits `lobby.customize.open` from its customize tile; the wave-5lobby-content
- * NPC YAML (`content/lobby-npcs/loadout-npc.yaml`) uses `lobby.customize.show`
+ * NPC YAML (`content/lobby-npcs/gear-keeper-npc.yaml`) uses `lobby.customize.show`
  * for symmetry with the other show-the-sub-menu intents. Both keys land here
  * and open the same sub-menu — the user-facing distinction is purely the
  * upstream entry point (compass tile vs NPC).

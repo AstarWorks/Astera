@@ -153,7 +153,7 @@ private-update: ## Pull the latest commit from the private/ submodule
 	git submodule update --remote private
 
 # ----------------------------------------------------------------------------
-# in-game E2E with protocol bots (QA-1, ADR-0186) - needs docker, not part of `check`
+# in-game E2E with protocol bots (QA-1, ADR-0222) - needs docker, not part of `check`
 # ----------------------------------------------------------------------------
 
 .PHONY: e2e

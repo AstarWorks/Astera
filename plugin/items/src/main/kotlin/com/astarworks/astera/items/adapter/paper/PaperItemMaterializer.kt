@@ -2,6 +2,7 @@ package com.astarworks.astera.items.adapter.paper
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.service.item.ItemTooltip
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.item.EquipSlot
 import com.astarworks.astera.core.domain.item.ItemAttributes
@@ -62,6 +63,7 @@ public class PaperItemMaterializer(
     private val itemModels: ItemModelCatalog = ItemModelCatalog.NONE,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
+    private val tooltip = ItemTooltip(messages)
 
     private val itemIdKey: NamespacedKey =
         NamespacedKey(plugin, PaperItemIdResolver.ITEM_ID_KEY)
@@ -97,7 +99,7 @@ public class PaperItemMaterializer(
 
     /**
      * Re-apply the visual half of [spec] (display name, lore, `item_model`, custom model data) to an
-     * existing stack in place (F3-9, ADR-0201). Everything per-instance (refinement, enchants,
+     * existing stack in place (F3-9, ADR-0224). Everything per-instance (refinement, enchants,
      * damage, PDC state) and the base material stay untouched, so a held item picks up an edited
      * item YAML text or new art without being re-given. Returns whether anything changed.
      */
@@ -144,7 +146,7 @@ public class PaperItemMaterializer(
             if (displayName.isNotBlank()) {
                 meta.displayName(AsteraTextDeserializer.deserialize(displayName))
             }
-            val lore = messages.renderLocalizedLore(viewerId, spec.lore)
+            val lore = tooltip.lore(spec, viewerId)
             if (lore.isNotEmpty()) {
                 meta.lore(lore.map { AsteraTextDeserializer.deserialize(it) })
             }

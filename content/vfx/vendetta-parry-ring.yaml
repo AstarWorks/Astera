@@ -1,0 +1,53 @@
+# Vendetta Bayonet: parry ring. An orange hoop snaps out at chest height (out_expo), a gold
+# glyph pops at its centre, and eight short sparks fly off the ring. Cast once on the caster at the
+# start of the Hairpin Parry slip and once on whoever the slip clips (play_vfx scale 1.2).
+# Anchored on the entity, yaw only.
+
+id: vendetta-parry-ring
+duration_ticks: 14
+orient: yaw
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: ring
+    kind: { type: block, block: orange_stained_glass }
+    brightness: 15
+    glow_color: "#ff8a1f"
+    count: 16
+    end_tick: 11
+    formation:
+      curve: { type: circle, radius: 0.5 }
+      offset: [0.0, 1.1, 0.0]
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.08, 0.08, 0.2] }
+      - { t: 4, translate: [-1.4, 0.0, 0.0], scale: [0.06, 0.06, 0.65], ease: out_expo }
+      - { t: 6, block: yellow_stained_glass }
+      - { t: 8, block: gray_stained_glass }
+      - { t: 10, scale: [0.0, 0.0, 0.65], ease: in_quad }
+
+  - id: flare
+    kind: { type: text, text: "<#ffd24a>✦", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    end_tick: 9
+    keyframes:
+      - { t: 0, translate: [0.0, 1.1, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [6.0, 6.0, 6.0], ease: out_back }
+      - { t: 7, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: spark
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    count: 8
+    end_tick: 9
+    formation:
+      curve: { type: circle, radius: 0.5 }
+      offset: [0.0, 1.1, 0.0]
+      align: outward
+    jitter: { rotation_deg: 8 }
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.2], scale: [0.04, 0.04, 0.15] }
+      - { t: 3, translate: [0.0, 0.0, 1.5], scale: [0.04, 0.04, 0.8], ease: out_expo }
+      - { t: 8, scale: [0.0, 0.0, 0.8], ease: in_quad }

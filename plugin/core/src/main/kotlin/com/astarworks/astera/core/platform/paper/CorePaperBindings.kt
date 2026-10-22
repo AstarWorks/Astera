@@ -384,6 +384,7 @@ internal class CorePaperBindings(
         // is the Bukkit listener routing vanilla ender chest blocks to it.
         val vaultWindow = com.astarworks.astera.core.adapter.paper.vault.PaperVaultWindow(
             server = server,
+            plugin = plugin,
             save = ctx.services.getOrThrow<com.astarworks.astera.core.application.usecase.vault.SaveVaultUseCase>(),
             access = { ctx.services.getOrThrow<com.astarworks.astera.core.application.usecase.vault.AccessPersonalVaultUseCase>() },
             messages = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),

@@ -1,0 +1,134 @@
+# Sigil Rifle S3 chain detonation, played on each pierced target. Three vertical sigil discs stack
+# around the target 0.4 blocks apart (each 4 gold-red pieces, spinning in, staggered by 4 ticks), then at
+# tick 20 they collapse into a burst: a gold flash star, a radial spray of gold spark lines, a red mist
+# of expanding glass cubes and a floor ring. Sized for two targets inside the 60-display budget.
+# Local axes: x = left, y = up, z = forward.
+
+id: sigil-rifle-detonate
+duration_ticks: 34
+orient: yaw
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: disc-a
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#ff2a1a"
+    start_tick: 0
+    end_tick: 20
+    count: 4
+    formation:
+      curve: { type: circle, radius: 1.4 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.2, -0.4]
+      align: tangent
+    group_keyframes:
+      - { t: 0 }
+      - { t: 18, rotate: [180, 0, 0], ease: in_out_sine }
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 3, scale: [0.07, 0.07, 2.2], ease: out_back }
+      - { t: 17, scale: [0.07, 0.07, 2.2] }
+      - { t: 20, scale: [0.0, 0.0, 1.0], ease: in_cubic }
+    oscillate: { axis: scale_x, amplitude: 0.03, period_ticks: 2 }
+
+  - id: disc-b
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#ff2a1a"
+    start_tick: 4
+    end_tick: 24
+    count: 4
+    formation:
+      curve: { type: circle, radius: 1.4 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.2, 0.0]
+      align: tangent
+    group_keyframes:
+      - { t: 0 }
+      - { t: 14, rotate: [-180, 0, 0], ease: in_out_sine }
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 3, scale: [0.07, 0.07, 2.2], ease: out_back }
+      - { t: 13, scale: [0.07, 0.07, 2.2] }
+      - { t: 16, scale: [0.0, 0.0, 1.0], ease: in_cubic }
+    oscillate: { axis: scale_x, amplitude: 0.03, period_ticks: 2 }
+
+  - id: disc-c
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    start_tick: 8
+    end_tick: 28
+    count: 4
+    formation:
+      curve: { type: circle, radius: 1.4 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.2, 0.4]
+      align: tangent
+    group_keyframes:
+      - { t: 0 }
+      - { t: 10, rotate: [180, 0, 0], ease: in_out_sine }
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 3, scale: [0.07, 0.07, 2.2], ease: out_back }
+      - { t: 9, scale: [0.07, 0.07, 2.2] }
+      - { t: 12, scale: [0.0, 0.0, 1.0], ease: in_cubic }
+
+  # The pop (tick 20): flash, spark spray, mist, floor ring.
+    oscillate: { axis: scale_x, amplitude: 0.03, period_ticks: 2 }
+
+  - id: flash
+    kind: { type: text, text: "<#ffc24a>✦</#ffc24a>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 20
+    end_tick: 30
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [14.0, 14.0, 14.0], ease: out_expo }
+      - { t: 10, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: flash-white
+    kind: { type: text, text: "<white>✦</white>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 20
+    end_tick: 25
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.05], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [7.0, 7.0, 7.0], ease: out_expo }
+      - { t: 5, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: spray
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    start_tick: 20
+    end_tick: 32
+    count: 6
+    formation:
+      curve: { type: sphere, radius: 0.3 }
+      offset: [0.0, 1.2, 0.0]
+      align: outward
+    jitter: { position: 0.05, rotation_deg: 12, scale: 0.3 }
+    keyframes:
+      - { t: 0, scale: [0.03, 0.03, 0.1] }
+      - { t: 3, translate: [0.0, 0.0, 2.2], scale: [0.04, 0.04, 1.4], ease: out_expo }
+      - { t: 12, translate: [0.0, 0.0, 3.4], scale: [0.0, 0.0, 0.5], ease: in_quad }
+
+  - id: mist
+    kind: { type: block, block: red_concrete }
+    brightness: 12
+    start_tick: 20
+    end_tick: 34
+    count: 2
+    formation:
+      curve: { type: circle, radius: 0.4 }
+      offset: [0.0, 1.0, 0.0]
+      align: outward
+    jitter: { position: 0.2, rotation_deg: 40, scale: 0.3 }
+    keyframes:
+      - { t: 0, scale: [0.2, 0.2, 0.2] }
+      - { t: 3, translate: [0.0, 0.1, 0.6], scale: [0.6, 0.6, 0.6], ease: out_expo }
+      - { t: 7, block: red_stained_glass }
+      - { t: 14, translate: [0.0, 0.5, 1.2], scale: [0.0, 0.0, 0.0], ease: in_quad }

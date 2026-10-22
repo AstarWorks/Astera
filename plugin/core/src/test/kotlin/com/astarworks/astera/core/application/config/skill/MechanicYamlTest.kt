@@ -123,4 +123,19 @@ class MechanicYamlTest {
         assertThat(domain.skillId.value).isEqualTo("fireball")
         assertThat(domain.targets).isSameAs(com.astarworks.astera.core.domain.skill.targeter.Targeter.Caster)
     }
+
+    @Test
+    fun `snapshot_pose and radial directions round-trip`() {
+        val dto = MechanicYaml.Knockback(
+            targets = TargeterYaml.Target,
+            direction = DirectionRefYaml.AwayFromCaster(vertical = 0.3),
+            strength = NumericValueYaml.Literal(1.0),
+            snapshotPose = true,
+        )
+        val domain = dto.toDomain() as Mechanic.Knockback
+        assertThat(domain.direction).isEqualTo(DirectionRef.AwayFromCaster(0.3))
+        assertThat(domain.snapshotPose).isTrue()
+        assertThat(DirectionRefYaml.TowardCaster().toDomain()).isEqualTo(DirectionRef.TowardCaster(0.0))
+        assertThat(Mechanic.Heal(com.astarworks.astera.core.domain.skill.targeter.Targeter.Caster, com.astarworks.astera.core.domain.skill.value.NumericValue.Literal(1.0)).snapshotPose).isFalse()
+    }
 }

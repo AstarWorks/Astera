@@ -1,0 +1,74 @@
+# Ember Gauntlet: the finisher's mega starburst. A giant yellow glyph and a white blast cube make
+# the impact frame; thirty-two long orange spikes detonate out of the target (out_expo, red -> gray ladder); a
+# flat shock ring sweeps out to 5 blocks. Anchored on the target; pair it with hit_stop + camera_shake.
+
+id: ember-mega-burst
+duration_ticks: 34
+orient: look
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: flash
+    kind: { type: text, text: "<#ffe36e>✦", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    end_tick: 14
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [22.0, 22.0, 22.0], ease: out_expo }
+      - { t: 12, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: blast
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    end_tick: 13
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0], rotate: [20, 35, 0], scale: [0.2, 0.2, 0.2] }
+      - { t: 2, scale: [4.4, 4.4, 4.4], ease: out_expo }
+      - { t: 3, block: yellow_stained_glass }
+      - { t: 6, block: orange_stained_glass }
+      - { t: 9, block: red_stained_glass }
+      - { t: 12, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: spike
+    kind: { type: block, block: orange_stained_glass }
+    brightness: 15
+    glow_color: "#ff7a1a"
+    count: 32
+    end_tick: 26
+    formation:
+      curve: { type: sphere, radius: 0.25 }
+      offset: [0.0, 1.2, 0.0]
+      align: outward
+    jitter: { rotation_deg: 4, scale: 0.3 }
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.3], scale: [0.06, 0.06, 0.4] }
+      - { t: 3, translate: [0.0, 0.0, 2.6], scale: [0.2, 0.2, 4.6], ease: out_expo }
+      - { t: 10, block: red_stained_glass }
+      - { t: 14, block: gray_stained_glass }
+      - { t: 24, translate: [0.0, 0.0, 4.2], scale: [0.0, 0.0, 4.6], ease: in_quad }
+
+  - id: ring
+    kind: { type: block, block: orange_stained_glass }
+    brightness: 15
+    glow_color: "#ff7a1a"
+    count: 16
+    start_tick: 2
+    end_tick: 24
+    formation:
+      curve: { type: circle, radius: 0.6 }
+      offset: [0.0, 0.5, 0.0]
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.2, 0.12, 0.4] }
+      - { t: 9, translate: [-4.4, 0.0, 0.0], scale: [0.12, 0.1, 2.4], ease: out_expo }
+      - { t: 14, block: gray_stained_glass }
+      - { t: 21, scale: [0.0, 0.0, 2.4], ease: in_quad }
+
+  - id: embers
+    kind: { type: particle, particle_id: fire-impact, every_ticks: 3 }
+    start_tick: 1
+    end_tick: 14
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0] }

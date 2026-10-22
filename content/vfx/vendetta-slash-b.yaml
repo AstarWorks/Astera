@@ -1,0 +1,65 @@
+# Vendetta Bayonet: return crescent. Mirrors vendetta-slash-a (opposite tilt, drawn on from the
+# other side) in magenta over a gold core, so the two read as a quick A-B cut.
+
+id: vendetta-slash-b
+duration_ticks: 20
+orient: look
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: blade
+    kind: { type: block, block: magenta_stained_glass }
+    brightness: 15
+    glow_color: "#ff3d7f"
+    count: 8
+    slot_lifetime_ticks: 13
+    formation:
+      curve: { type: arc, radius: 2.8, from_deg: -62, to_deg: 62 }
+      tilt: { yaw: 0, pitch: 0, roll: -38 }
+      offset: [0.0, 1.2, -2.8]
+      align: tangent
+      stagger_ticks: 1
+      reverse: true
+    keyframes:
+      - { t: 0, scale: [0.02, 0.02, 0.05] }
+      - { t: 2, scale: [0.18, 0.18, 1.1], ease: out_expo }
+      - { t: 6, block: pink_stained_glass }
+      - { t: 8, block: gray_stained_glass }
+      - { t: 12, scale: [0.0, 0.0, 1.1], ease: in_quad }
+
+  - id: core
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    count: 8
+    slot_lifetime_ticks: 11
+    formation:
+      curve: { type: arc, radius: 2.8, from_deg: -62, to_deg: 62 }
+      tilt: { yaw: 0, pitch: 0, roll: -38 }
+      offset: [0.0, 1.2, -2.8]
+      align: tangent
+      stagger_ticks: 1
+      reverse: true
+    keyframes:
+      - { t: 0, scale: [0.01, 0.01, 0.05] }
+      - { t: 2, scale: [0.06, 0.06, 1.1], ease: out_expo }
+      - { t: 7, scale: [0.06, 0.06, 1.1] }
+      - { t: 10, scale: [0.0, 0.0, 1.1], ease: in_quad }
+
+  - id: flash
+    kind: { type: text, text: "<#ff3d7f>✦", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 3
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.2], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [5.0, 5.0, 5.0], ease: out_back }
+      - { t: 6, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: sparks
+    kind: { type: particle, particle_id: gun-impact, every_ticks: 2 }
+    start_tick: 3
+    end_tick: 9
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0] }

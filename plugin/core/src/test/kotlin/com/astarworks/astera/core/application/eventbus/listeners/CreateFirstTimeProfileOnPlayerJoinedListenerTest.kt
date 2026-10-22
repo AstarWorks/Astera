@@ -47,7 +47,7 @@ class CreateFirstTimeProfileOnPlayerJoinedListenerTest {
     fun `handle tolerates a PartialGrant without rethrowing`() {
         val profileService = FakePlayerProfileService()
         profileService.nextOutcome = Result.failure(
-            ProfileError.PartialGrant(playerId, listOf("default_loadout:missing")),
+            ProfileError.PartialGrant(playerId, listOf("starter_items:missing")),
         )
         val listener = CreateFirstTimeProfileOnPlayerJoinedListener(profileService, eventBus, scheduler)
 

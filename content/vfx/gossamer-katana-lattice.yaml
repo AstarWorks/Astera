@@ -1,0 +1,72 @@
+# Gossamer Katana S2 reveal on the struck target: a level cut and two diagonals draw a lattice over the
+# chest (out_expo, one tick apart), a white four-lobed flash sits at the crossing and six petals burst
+# outward. Anchored on the target; lines face the caster's look direction.
+
+id: gossamer-katana-lattice
+duration_ticks: 14
+orient: look
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: level
+    kind: { type: block, block: light_blue_stained_glass }
+    brightness: 15
+    glow_color: "#8fe8ff"
+    start_tick: 0
+    end_tick: 11
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.3], scale: [0.2, 0.04, 0.04] }
+      - { t: 2, scale: [3.6, 0.07, 0.07], ease: out_expo }
+      - { t: 6, block: white_stained_glass }
+      - { t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: diag-a
+    kind: { type: block, block: blue_stained_glass }
+    brightness: 15
+    glow_color: "#3fa9ff"
+    start_tick: 1
+    end_tick: 12
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.3], rotate: [0, 0, 35], scale: [0.04, 0.2, 0.04] }
+      - { t: 2, scale: [0.07, 3.6, 0.07], ease: out_expo }
+      - { t: 11, scale: [0.0, 3.6, 0.0], ease: in_quad }
+
+  - id: diag-b
+    kind: { type: block, block: blue_stained_glass }
+    brightness: 15
+    glow_color: "#3fa9ff"
+    start_tick: 2
+    end_tick: 13
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.3], rotate: [0, 0, -35], scale: [0.04, 0.2, 0.04] }
+      - { t: 2, scale: [0.07, 3.6, 0.07], ease: out_expo }
+      - { t: 11, scale: [0.0, 3.6, 0.0], ease: in_quad }
+
+  - id: flare
+    kind: { type: text, text: "<#ffffff><b>❖</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 9
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.5], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [7.0, 7.0, 7.0], ease: out_back }
+      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: petal
+    kind: { type: text, text: "<#8fe8ff><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 1
+    end_tick: 10
+    count: 6
+    formation:
+      curve: { type: circle, radius: 0.25 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.2, 0.5]
+      align: outward
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 2, translate: [0.0, 0.0, 0.7], scale: [3.0, 3.0, 3.0], ease: out_expo }
+      - { t: 8, translate: [0.0, 0.0, 1.8], scale: [0.0, 0.0, 0.0], ease: in_quad }

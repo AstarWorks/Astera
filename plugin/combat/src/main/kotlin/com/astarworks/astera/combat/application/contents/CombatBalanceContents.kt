@@ -14,7 +14,7 @@ import java.nio.file.Path
 
 /**
  * The combat half of `content/balance/` as one reloadable category
- * (`balance-combat`, F3-9 / ADR-0201): `element-matrix.yaml` (damage
+ * (`balance-combat`, F3-9 / ADR-0224): `element-matrix.yaml` (damage
  * multipliers) and `status-effect-interactions.yaml`.
  *
  * [elementMatrix] and [interactionRule] are stable delegating views handed to
