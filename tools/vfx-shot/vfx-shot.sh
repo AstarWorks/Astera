@@ -3,6 +3,7 @@
 # (headless: Xvfb + llvmpipe). Output: build/vfx-shot/<skill>/<view>/{frame_NNN.png,sheet.png,<skill>-<view>.gif,.mp4}
 #
 #   make vfx-shot SKILL=couture-rapier-s2 [VIEW=caster|opponent|side|all] [TICKS=60]
+#   make vfx-shot SKILL=bastion-greatsword-s3 VIEW=compare CASE=zwei-s3     # camera from the skill-compare intent
 #
 # See tools/vfx-shot/README.md for the knobs and troubleshooting.
 set -uo pipefail
@@ -24,7 +25,8 @@ if [ "${1:-}" = down ]; then
 fi
 [ -n "$SKILL" ] || die "SKILL=<skill-id> is required (e.g. SKILL=couture-rapier-s2)"
 VIEW="${VIEW:-all}"
-TICKS="${TICKS:-60}"                 # ticks filmed after the cast
+TICKS_SET="${TICKS:-}"
+TICKS="${TICKS:-60}"                 # ticks filmed after the cast (compare: the case duration_ticks)
 RES="${RES:-1280x720}"               # viewer resolution
 HIDE_HUD="${HIDE_HUD:-1}"            # 1 = F1 (hand + world only), 0 = keep the HUD
 GUI_SCALE="${GUI_SCALE:-2}"
@@ -41,7 +43,25 @@ ITEM="${ITEM:-}"                     # item to hold; default: skill id minus -sN
 CAST_LAG_MS="${CAST_LAG_MS:-60}"     # client render + network lag between server cast and the frame
 KEEP="${SHOT_KEEP:-0}"               # 1 = leave the server running (next run reuses it)
 
-case "$VIEW" in caster|opponent|side|all) ;; *) die "VIEW must be caster|opponent|side|all";; esac
+CASE="${CASE:-}"                     # VIEW=compare: skill-compare case id (tools/skill-compare/data/<case>/intent.json)
+CAMERA="${CAMERA:-case}"             # VIEW=compare: case = intent.json camera keys, side = fixed 6 blocks to the side
+PRE_TICKS=0                          # frames filmed before the cast (compare only; cast_tick_ms = PRE_TICKS * 50)
+ARENA_R=15                           # floor half-size around the arena centre
+ARENA_H=12                           # air cleared above the floor
+CMP_FOV_OPT=""
+CAM0_CMD=""
+ENEMY_X=4.2
+case "$VIEW" in caster|opponent|side|compare|all) ;; *) die "VIEW must be caster|opponent|side|compare|all";; esac
+case "$CAMERA" in case|side) ;; *) die "CAMERA must be case|side";; esac
+if [ "$VIEW" = compare ]; then
+  [ -n "$CASE" ] || die "VIEW=compare needs CASE=<case-id> (e.g. CASE=zwei-s3)"
+  INTENT="$ROOT/tools/skill-compare/data/$CASE/intent.json"
+  [ -f "$INTENT" ] || { log "WARN: $INTENT missing, using defaults"; INTENT=-; }
+  PRE_TICKS="${PRE_TICKS_CMP:-6}"
+  ARENA_R=30
+  ARENA_H=7
+  FLOOR_BLOCK="${FLOOR_BLOCK:-minecraft:light_gray_concrete}"
+fi
 [ -n "$ITEM" ] || ITEM="$(printf '%s' "$SKILL" | sed -E 's/-(s[0-9]+|def)$//')"
 
 PROJECT="astera-shot"
@@ -212,14 +232,16 @@ tp() { # player x y z yaw pitch
 
 build_arena() {
   local i out
-  rcon "execute in minecraft:overworld run forceload add 280 280 320 320" >/dev/null
+  local lo hi
+  lo=$((285 - (ARENA_R - 15))); hi=$((315 + (ARENA_R - 15)))
+  rcon "execute in minecraft:overworld run forceload add $((lo - 5)) $((lo - 5)) $((hi + 5)) $((hi + 5))" >/dev/null
   for i in $(seq 1 40); do
-    out="$(rcon "execute in minecraft:overworld run fill 285 $((Y - 1)) 285 315 $((Y - 1)) 315 $FLOOR_BLOCK")"
+    out="$(rcon "execute in minecraft:overworld run fill $lo $((Y - 1)) $lo $hi $((Y - 1)) $hi $FLOOR_BLOCK")"
     [[ "$out" == *"not loaded"* ]] || break
     sleep 1
   done
   [[ "$out" == *"not loaded"* ]] && die "arena chunks never loaded"
-  rcon "execute in minecraft:overworld run fill 285 $Y 285 315 $((Y + 12)) 315 minecraft:air" >/dev/null
+  rcon "execute in minecraft:overworld run fill $lo $Y $lo $hi $((Y + ARENA_H)) $hi minecraft:air" >/dev/null
 }
 
 setup_world() {
@@ -253,6 +275,7 @@ film() { # viewer view_dir
   local viewer="$1" dir="$2" rec="$OUT_ROOT/.rec-$$.mkv" d="${DISP[$1]}"
   local dur t_total cast_stamp first_pts offset
   dur="$(awk -v t="$TICKS" -v p="$PRE_ROLL" 'BEGIN{printf "%.2f", p + t/20 + 2.0}')"
+  local cast_cmd="astera skill cast $SKILL Caster --force"
   t_total="$(awk -v d="$dur" 'BEGIN{printf "%.2f", d + 1.5}')"
   rm -f "$rec"
   # showinfo (before the rebase) logs each frame's wall-clock pts -> epoch time of the first frame
@@ -263,19 +286,24 @@ film() { # viewer view_dir
   for i in $(seq 1 100); do grep -q ' pts:' "$rec.log" 2>/dev/null && break; sleep 0.1; done
   sleep "$PRE_ROLL"
   log "caster before cast: $(rcon "data get entity Caster Pos" | sed 's/.*data: //') in $(rcon "data get entity Caster Dimension" | sed 's/.*data: //')"
-  cast_stamp="$(rcon --stamp "astera skill cast $SKILL Caster --force" 2>&1 >/dev/null | awk '/^STAMP/{print $2}')"
+  if [ "$VIEW" = compare ]; then
+    # one RCON connection: cast, then the camera cuts of the plan on the wall clock
+    cast_stamp="$(python3 -I "$HERE/director.py" "$SERVER_IP" "$RCON_PORT" "$RCON_PASS" "$STATE/camera-plan.tsv" "$cast_cmd" 2>&1 >/dev/null | awk '/^STAMP/{print $2}')"
+  else
+    cast_stamp="$(rcon --stamp "$cast_cmd" 2>&1 >/dev/null | awk '/^STAMP/{print $2}')"
+  fi
   [ -n "$cast_stamp" ] || { kill "$fpid" 2>/dev/null; die "cast command failed"; }
   wait "$fpid"
   [ -s "$rec" ] || die "recording failed"
   # showinfo's `pts:` is in microseconds (wall-clock timebase 1/1e6)
   first_pts="$(grep -m1 -o ' pts:[0-9]*' "$rec.log" | tr -dc '0-9' | awk '{printf "%.6f", $1/1000000}')"
   [ -n "$first_pts" ] || die "could not read the first frame time from $rec.log"
-  offset="$(awk -v c="$cast_stamp" -v f="$first_pts" -v l="$CAST_LAG_MS" 'BEGIN{printf "%.3f", c - f + l/1000.0}')"
+  offset="$(awk -v c="$cast_stamp" -v f="$first_pts" -v l="$CAST_LAG_MS" 'BEGIN{printf "%.3f", c - f + l/1000.0 - '"$PRE_TICKS"'/20.0}')"
   last_pts="$(grep -o ' pts:[0-9]*' "$rec.log" | tail -1 | tr -dc '0-9' | awk '{printf "%.3f", $1/1000000}')"
   log "cast at +${offset}s into the recording (cast $cast_stamp, first frame $first_pts, last frame $last_pts)"
   rm -rf "$dir"; mkdir -p "$dir"
   ffmpeg -nostdin -loglevel error -y -i "$rec" \
-    -vf "fps=20:start_time=$offset,setpts=N/20/TB" -frames:v "$((TICKS + 1))" -start_number 0 "$dir/frame_%03d.png" \
+    -vf "fps=20:start_time=$offset,setpts=N/20/TB" -frames:v "$((TICKS + PRE_TICKS + 1))" -start_number 0 "$dir/frame_%03d.png" \
     || die "frame extraction failed"
   rm -f "$rec" "$rec.log"
 }
@@ -286,7 +314,7 @@ make_outputs() { # dir view
   [ "$n" -gt 0 ] || die "no frames extracted into $dir"
   local args=() i
   for ((i = 0; i < n; i += SHEET_STEP)); do
-    args+=(-label "t+$i" "$dir/$(printf 'frame_%03d.png' "$i")")
+    args+=(-label "t+$((i - PRE_TICKS))" "$dir/$(printf 'frame_%03d.png' "$i")")
   done
   montage "${args[@]}" -tile "${SHEET_COLS}x" -geometry 320x180+3+3 -background '#151515' -fill white \
     -pointsize 16 "$dir/sheet.png" 2>/dev/null || log "WARN: montage failed"
@@ -295,11 +323,15 @@ make_outputs() { # dir view
     "$dir/$SKILL-$view.gif" || log "WARN: gif failed"
   ffmpeg -nostdin -loglevel error -y -framerate 20 -i "$dir/frame_%03d.png" -c:v libx264 -crf 16 \
     -pix_fmt yuv420p "$dir/$SKILL-$view.mp4" || log "WARN: mp4 failed"
+  if [ "$view" = compare ]; then
+    printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":20,"cast_tick_ms":%d,"frames":%d}\n' \
+      "$CASE" "$CAMERA" "$SKILL" "$((PRE_TICKS * 50))" "$n" > "$dir/meta.json"
+  fi
   log "$view: $n frames -> $dir (sheet.png, $SKILL-$view.gif, $SKILL-$view.mp4)"
 }
 
 # ---------------------------------------------------------------- views
-players_of() { case "$1" in caster) echo Caster ;; opponent) echo "Caster Target" ;; side) echo "Caster Watcher" ;; esac; }
+players_of() { case "$1" in caster) echo Caster ;; opponent) echo "Caster Target" ;; side|compare) echo "Caster Watcher" ;; esac; }
 
 in_arena() { # player -> 0 when in the overworld, x/z in the 300s
   local dim pos
@@ -312,13 +344,22 @@ place_scene() { # view target_z
   local view="$1" tz="$2"
   rcon "kill @e[type=minecraft:husk]" >/dev/null
   rcon "gamemode survival Caster" >/dev/null
-  tp Caster "$CX" "$Y" "$CZ" 0 0
+  [ "$view" = compare ] || tp Caster "$CX" "$Y" "$CZ" 0 0
   case "$view" in
     caster)
       summon_target ;;
     opponent)
       rcon "gamemode survival Target" >/dev/null
       tp Target "$CX" "$Y" "$tz" 180 0 ;;
+    compare)
+      # caster faces +x (yaw -90); enemy ENEMY_X ahead looking back; spectator camera from the plan
+      rcon "team add cmp" >/dev/null 2>&1
+      rcon "team modify cmp nametagVisibility never" >/dev/null
+      rcon "team join cmp Caster" >/dev/null
+      tp Caster "$CX" "$Y" "$CZ" -90 0
+      rcon "execute in minecraft:overworld run summon minecraft:husk $(awk -v x="$CX" -v d="$ENEMY_X" 'BEGIN{printf "%.2f", x+d}') $Y $CZ {Silent:1b,PersistenceRequired:1b,Rotation:[90f,0f],attributes:[{id:\"minecraft:max_health\",base:200},{id:\"minecraft:movement_speed\",base:0},{id:\"minecraft:follow_range\",base:0}],Health:200f}" >/dev/null
+      rcon "gamemode spectator Watcher" >/dev/null
+      rcon "$CAM0_CMD" >/dev/null ;;
     side)
       summon_target
       rcon "gamemode spectator Watcher" >/dev/null
@@ -336,7 +377,13 @@ run_view() { # view
     caster)   viewer="Caster" ;;
     opponent) viewer="Target"; dummy_caster=1 ;;
     side)     viewer="Watcher"; dummy_caster=1 ;;
+    compare)  viewer="Watcher"; dummy_caster=1 ;;
   esac
+  if [ "$view" = compare ]; then
+    eval "$(python3 -I "$HERE/compare_plan.py" "$INTENT" "$CAMERA" "$CX" "$Y" "$CZ" "$STATE/camera-plan.tsv")"
+    FOV_OPT="$CMP_FOV_OPT"
+    [ -n "$TICKS_SET" ] || TICKS="$DURATION_TICKS"
+  fi
   log "=== view $view (viewer $viewer) ==="
   setup_world
   build_arena
@@ -363,7 +410,7 @@ run_view() { # view
   done
   [ "$ok" = 1 ] || die "could not keep the players in the overworld arena"
   rcon "kill @e[type=minecraft:item]" >/dev/null
-  key "$viewer" 1
+  [ "$view" = compare ] || key "$viewer" 1
   if [ "$HIDE_HUD" = 1 ]; then key "$viewer" F1; fi
   DISPLAY=":${DISP[$viewer]}" xdotool mousemove 640 360 2>/dev/null || true
   sleep 1

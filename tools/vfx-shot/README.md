@@ -25,10 +25,25 @@ Output: `build/vfx-shot/<skill>/<view>/`
 | `caster` | the caster, first person (`Caster`) | husk (AI off) 4 blocks ahead |
 | `opponent` | the target (`Target`) looking at the caster | caster is a second real client (small, 480x270) |
 | `side` | `Watcher` in spectator, 6 blocks to the side, looking at the midpoint | caster client + husk target |
+| `compare` | `Watcher` in spectator, camera from a skill-compare case | caster client (facing +x, nametag hidden) + husk (200 HP, speed 0 + follow range 0 instead of NoAI, which ignores knockback) `ENEMY_X` ahead, on a 61x61 light-grey concrete floor |
 
 The cast is `/astera skill cast <skill> Caster --force` (existing operator command, ADR-0196: the regular
 cast pipeline, no resource cost, cooldown cleared). The caster aims where its client looks, so the scene is
 framed with `/tp x y z yaw pitch`. Arena: overworld flat world at (300.5, -60, 300.5), away from the lobby.
+
+### `VIEW=compare CASE=<case-id>`
+
+```
+SKILL=bastion-greatsword-s3 VIEW=compare CASE=zwei-s3 bash tools/vfx-shot/vfx-shot.sh   # TICKS defaults to intent duration_ticks
+```
+
+`tools/skill-compare/data/<case>/intent.json` drives the scene: `actors.enemy` first key = enemy distance, `camera` keys
+(x toward the enemy, y up, z toward the side camera, caster at the origin; world = arena centre + intent) = spectator
+`/tp` hard cuts at `t` ticks after the cast (`director.py` sends the cast + the cuts over one RCON connection on a wall
+clock). The client FOV option is the first key's fov; other keys' fov is emulated by dollying along the view ray
+(`compare_plan.py`). `CAMERA=side` ignores the keys (6 blocks to the side, eye level). Output
+`build/vfx-shot/<skill>/compare/` has `PRE_TICKS_CMP` (6) frames before the cast and `meta.json` with `cast_tick_ms`,
+which skill-compare reads (source `vfx-compare`, the default) to align the frames with the case's skill start.
 
 ## How it works
 
