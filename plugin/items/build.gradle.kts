@@ -39,6 +39,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     testImplementation(project(":plugin:test-fixtures"))
+    testImplementation(libs.paper.api)
+    testImplementation(libs.mockk)
 }
 
 tasks.named<ProcessResources>("processResources") {

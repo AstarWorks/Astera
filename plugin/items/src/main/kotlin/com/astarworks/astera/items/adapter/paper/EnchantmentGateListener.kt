@@ -18,11 +18,8 @@ import org.bukkit.plugin.Plugin
  *  1. **Enchant gate** — cancel `PrepareItemEnchantEvent` if the item being
  *     enchanted has `astera:enchantable=0`. Designers opt items out of the
  *     vanilla enchanting table per [com.astarworks.astera.core.domain.item.ItemSpec.enchantable].
- *  2. **Keep on death** — on `PlayerDeathEvent`, scan the death's drop list
- *     and remove any stack tagged `astera:keep_on_death=1`. The kept stacks
- *     stay in the player's inventory after respawn (Bukkit's `keepInventory`
- *     flag is not toggled — we only filter the drops list, which is the
- *     vanilla idiom for per-item retention).
+ *  2. **Keep on death** — move tagged stacks from the death drops into
+ *     Paper's `itemsToKeep`, which restores them during respawn.
  *
  * Konsist allows Bukkit imports here (`adapter/paper`).
  */
@@ -44,18 +41,11 @@ public class EnchantmentGateListener(
 
     @EventHandler
     public fun onPlayerDeath(event: PlayerDeathEvent) {
+        if (event.keepInventory) return
         val keepers = event.drops.filter { isKeepOnDeath(it) }
         if (keepers.isEmpty()) return
+        event.itemsToKeep.addAll(keepers)
         event.drops.removeAll(keepers.toSet())
-        // Restore the kept stacks to the player's inventory post-respawn by
-        // stashing them on the entity; Paper consumes inventory rebuild on
-        // respawn so adding them back here would be lost. The vanilla
-        // convention is to use the death event's setKeepInventory(...) +
-        // setShouldDropExperience(...) for total retention, but per-item
-        // retention requires the player respawn listener. Phase 1 keeps the
-        // logic simple — the kept stacks disappear from the world drop list,
-        // and a follow-up commit wires a respawn listener that restores them
-        // from a per-player buffer.
     }
 
     private fun isEnchantable(stack: ItemStack): Boolean {
