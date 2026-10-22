@@ -9,7 +9,16 @@ import java.nio.file.Path
  * the pack builder turns into `assets/astera/items/<id>.json`. The materializer puts that key in the
  * `item_model` data component; items without art keep the plain vanilla look of their base material.
  */
-public class ItemModelCatalog(private val modelIds: Set<String>) {
+public class ItemModelCatalog(
+    modelIds: Set<String>,
+    private val contentDir: Path? = null,
+) {
+    @Volatile private var modelIds: Set<String> = modelIds
+
+    /** Re-read the generated model list (F3-9): a pushed `content/models/` takes effect without a restart. */
+    public fun rescan() {
+        contentDir?.let { modelIds = idsIn(it) }
+    }
 
     /** The `item_model` key (`astera:<id>`) for [itemId], or null when the pack has no art for it. */
     public fun modelKey(itemId: String): String? = if (itemId in modelIds) "$NAMESPACE:$itemId" else null
@@ -23,15 +32,18 @@ public class ItemModelCatalog(private val modelIds: Set<String>) {
 
         /** Scans the content dir; a missing directory means no art. */
         public fun fromContentDir(contentDir: Path): ItemModelCatalog {
+            return ItemModelCatalog(idsIn(contentDir), contentDir)
+        }
+
+        private fun idsIn(contentDir: Path): Set<String> {
             val dir = contentDir.resolve(GENERATED_MODELS)
-            if (!Files.isDirectory(dir)) return NONE
-            val ids = Files.list(dir).use { stream ->
+            if (!Files.isDirectory(dir)) return emptySet()
+            return Files.list(dir).use { stream ->
                 stream.map { it.fileName.toString() }
                     .filter { it.endsWith(SUFFIX) }
                     .map { it.removeSuffix(SUFFIX) }
                     .toList()
-            }
-            return ItemModelCatalog(ids.toSet())
+            }.toSet()
         }
     }
 }

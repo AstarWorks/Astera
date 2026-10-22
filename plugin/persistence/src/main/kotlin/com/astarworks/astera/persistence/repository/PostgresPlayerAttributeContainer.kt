@@ -8,13 +8,12 @@ import com.astarworks.astera.core.domain.attribute.IAttributeContainer
 import com.astarworks.astera.core.domain.attribute.SimpleAttributeContainer
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.persistence.jsonb.PlayerAttributesJson
+import com.astarworks.astera.persistence.jsonb.JsonbColumnType
 import com.astarworks.astera.persistence.table.PlayerAttributesTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.jetbrains.exposed.v1.jdbc.upsert
-import java.time.Instant
 
 /**
  * Postgres-backed [IPlayerAttributeContainerStore] (Wave 5e / ADR-0058 §5).
@@ -79,27 +78,40 @@ public class PostgresPlayerAttributeContainer(private val db: Database) : IPlaye
         }
     }
 
+    /**
+     * Whole-document upsert, except that `wallet.*` entries already in the row
+     * win over this JVM's cached ones: money is owned by [PostgresCurrencyLedger]
+     * (atomic SQL) and another server may have changed it since this cache
+     * loaded, so a stat / XP / modifier write here must never roll it back.
+     * A wallet entry that is only in the cache (row without one) is stored.
+     */
     private fun write(playerId: PlayerId, container: WriteThroughContainer) {
         val payload = PlayerAttributesJson.fromDomain(
             values = container.snapshotValues(),
             modifiers = container.snapshotModifiers(),
         )
+        val text = JsonbColumnType.DefaultJson.encodeToString(PlayerAttributesJson.serializer(), payload)
         transaction(db) {
-            PlayerAttributesTable.upsert(PlayerAttributesTable.playerId) {
-                it[PlayerAttributesTable.playerId] = playerId.uuid
-                it[PlayerAttributesTable.payload] = payload
-                it[updatedAt] = Instant.now()
+            (connection.connection as java.sql.Connection).prepareStatement(UPSERT_KEEPING_WALLET).use { st ->
+                st.setObject(1, playerId.uuid)
+                st.setString(2, text)
+                st.executeUpdate()
             }
         }
     }
+
+    private companion object {
+        const val UPSERT_KEEPING_WALLET: String =
+            "INSERT INTO player_attributes AS pa (player_id, payload, updated_at) VALUES (?, ?::jsonb, now()) " +
+                "ON CONFLICT (player_id) DO UPDATE SET " +
+                "payload = jsonb_set(EXCLUDED.payload, '{values}', " +
+                "COALESCE(EXCLUDED.payload -> 'values', '{}'::jsonb) || COALESCE((" +
+                "SELECT jsonb_object_agg(e.key, e.value) FROM jsonb_each(pa.payload -> 'values') e " +
+                "WHERE e.key IN ('wallet.star', 'wallet.gold', 'wallet.gem')), '{}'::jsonb)), " +
+                "updated_at = now()"
+    }
 }
 
-/**
- * Decorator that delegates reads to a backing [SimpleAttributeContainer] and
- * flushes on each mutation. Snapshot helpers extract the current value/modifier
- * lists so the JSONB payload can be re-serialized without exposing the
- * backing fields directly.
- */
 internal class WriteThroughContainer(
     private val playerId: PlayerId,
     private val backing: SimpleAttributeContainer,

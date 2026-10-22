@@ -48,6 +48,18 @@ public class YamlElementMatrix(
             YamlElementMatrix(config.toTable())
 
         /**
+         * Strict variant for reloads: a missing file is [IElementMatrix.Neutral] (same as boot), but a
+         * file that cannot be parsed throws so the caller keeps the running matrix.
+         */
+        public fun loadStrict(file: Path, parsers: List<IContentParser> = DEFAULT_PARSERS): IElementMatrix {
+            if (!file.isRegularFile()) return IElementMatrix.Neutral
+            val parser = requireNotNull(parsers.firstOrNull { it.supports(file.extension) }) {
+                "No content parser for $file"
+            }
+            return fromConfig(parser.parse(Files.readString(file), ElementMatrixYamlConfig.serializer()))
+        }
+
+        /**
          * Loads from a single file. Returns the [IElementMatrix.Neutral]
          * instance when the file is absent so callers can wire the matrix
          * unconditionally and content authors can omit the file in early dev.

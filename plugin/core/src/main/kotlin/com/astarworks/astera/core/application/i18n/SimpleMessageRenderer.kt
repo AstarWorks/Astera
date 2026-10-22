@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.i18n
 
+import com.astarworks.astera.core.application.port.outbound.IDynamicMessages
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedLore
@@ -30,7 +31,13 @@ public class SimpleMessageRenderer(
     languages: Map<String, Map<String, Any>>,
     private val localeResolver: (PlayerId?) -> String?,
     private val defaultLocale: String = "en",
-) : IMessageRenderer {
+) : IMessageRenderer, IDynamicMessages {
+
+    private val dynamic = java.util.concurrent.ConcurrentHashMap<String, String>()
+
+    override fun set(key: MessageKey, text: String) {
+        dynamic[key.value] = text
+    }
 
     private val defaultLocaleCode: LocaleCode = LocaleCode.parse(defaultLocale)
 
@@ -44,6 +51,7 @@ public class SimpleMessageRenderer(
     }
 
     override fun render(playerId: PlayerId?, key: MessageKey, placeholders: Map<String, String>): String {
+        dynamic[key.value]?.let { return it }
         val languages = languages
         val locale = normalize(localeResolver(playerId)) ?: defaultLocale
         val template = (languages[locale]?.get(key.value) as? String)

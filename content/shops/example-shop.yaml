@@ -1,9 +1,14 @@
 # Lobby shop (default target of the lobby shop NPC, the main-menu tile and
 # `/astera shop`). Every `item` must exist in content/items/ (ShopShippedContentTest).
-# Priced in GOLD: a new player starts with 100 GOLD (content/balance/starter-grant.yaml),
-# so the pistol, knight sword and dagger are affordable at once;
-# the staffs, shotgun, rifle and greatsword (WP7 roster) need more earnings.
-# offers iterate in YAML order; ShopBrowseUseCase places them at slot index 0, 1, 2 in a CHEST_27 GUI.
+# Currency design (docs/game-design/economy/README.md, ADR-0199):
+#   STAR  = the everyday currency, paid by every match (content/balance/match-rewards.yaml)
+#           -> standard weapons, 100-320 STAR (about 2-6 matches each).
+#   GOLD  = scarce prestige currency (quests, advancements, a little per win)
+#           -> the top-tier greatsword / thunder staff, 120-150 GOLD.
+# A new player starts with 150 STAR (content/balance/starter-grant.yaml): the cheapest offer is
+# affordable at once, everything else has to be earned.
+# Offers priced at >= 100 need a confirming second click in the GUI (ShopIntentHandler.CONFIRM_AT).
+# offers iterate in YAML order, 9 per GUI row (max 45), footer row = wallet.
 id: example-shop
 display_key: astera.economy.shop.example-shop.title
 
@@ -11,64 +16,64 @@ offers:
   - id: pistol
     item: pistol
     price:
-      currency: GOLD
-      amount: 60
+      currency: STAR
+      amount: 120
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.pistol-basic
   - id: knight-sword
     item: knight-sword
     price:
-      currency: GOLD
-      amount: 50
+      currency: STAR
+      amount: 100
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.knight-sword
   - id: dagger
     item: dagger
     price:
-      currency: GOLD
-      amount: 70
+      currency: STAR
+      amount: 140
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.dagger
   - id: frost-staff
     item: frost-staff
     price:
-      currency: GOLD
-      amount: 90
+      currency: STAR
+      amount: 150
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.frost-staff
   - id: fire-staff
     item: fire-staff
     price:
-      currency: GOLD
-      amount: 100
+      currency: STAR
+      amount: 200
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.fire-staff
   - id: shotgun
     item: shotgun
     price:
-      currency: GOLD
-      amount: 110
+      currency: STAR
+      amount: 260
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.shotgun
   - id: rifle
     item: rifle
     price:
-      currency: GOLD
-      amount: 120
+      currency: STAR
+      amount: 300
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.rifle
   - id: verdant-staff
     item: verdant-staff
     price:
-      currency: GOLD
-      amount: 130
+      currency: STAR
+      amount: 320
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.verdant-staff
@@ -76,7 +81,7 @@ offers:
     item: greatsword
     price:
       currency: GOLD
-      amount: 140
+      amount: 120
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.greatsword
@@ -84,7 +89,7 @@ offers:
     item: thunder-staff
     price:
       currency: GOLD
-      amount: 160
+      amount: 150
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.thunder-staff

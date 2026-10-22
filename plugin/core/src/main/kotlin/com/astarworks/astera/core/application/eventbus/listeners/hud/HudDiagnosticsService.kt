@@ -40,7 +40,7 @@ public data class HudDiagnostics(
 public class HudDiagnosticsService(
     private val hud: IHudGateway,
     private val scheduler: IScheduler,
-    private val packConfigured: Boolean,
+    private val packConfigured: () -> Boolean,
     private val logDelayTicks: Long = LOG_DELAY_TICKS,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -87,7 +87,7 @@ public class HudDiagnosticsService(
                     },
                 )
             },
-            pack = packStatus[playerId]?.name ?: if (packConfigured) "pushed, no client report" else "not configured",
+            pack = packStatus[playerId]?.name ?: if (packConfigured()) "pushed, no client report" else "not configured",
         )
     }
 

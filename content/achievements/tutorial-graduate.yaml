@@ -1,0 +1,5 @@
+# Achievement catalog entry (ADR-0210). Names / descriptions: astera.stats.achievement.tutorial-graduate.*
+id: tutorial-graduate
+name_key: astera.stats.achievement.tutorial-graduate.name
+description_key: astera.stats.achievement.tutorial-graduate.description
+icon_item_id: knight-sword

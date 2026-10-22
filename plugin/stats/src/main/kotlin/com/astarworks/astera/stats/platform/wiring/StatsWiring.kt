@@ -55,9 +55,7 @@ import com.astarworks.astera.stats.application.port.outbound.ILevelService
 import com.astarworks.astera.stats.application.port.outbound.INormaRegistry
 import com.astarworks.astera.stats.application.port.outbound.INormaService
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
-import com.astarworks.astera.core.application.port.outbound.IRewardBridge
 import com.astarworks.astera.stats.application.eventbus.listeners.AdvanceLevelOnNormaCompletedListener
-import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnMissionCompletedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnDamageMilestoneListener
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnKillMilestoneListener
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnMatchWinListener
@@ -221,8 +219,24 @@ public object StatsWiring {
         subscriptions += eventBus.subscribe(LeveledUp::class) { hudLeveledUpListener.handle(it) }
 
         // ---- Wave 5e Achievement + LevelUpMission + Reward listeners ---------
-        val achievementRepo = InMemoryAchievementRepository()
-        registrations += services.register<IAchievementRepository>(achievementRepo, priority = 0)
+        // ADR-0210: unlocks persist (V60 Postgres overlay wins when present); the catalog is
+        // content/achievements/ and was never populated before, so no achievement could unlock.
+        val achievementRepo: IAchievementRepository =
+            services.get<IAchievementRepository>()
+                ?: InMemoryAchievementRepository().also {
+                    registrations += services.register<IAchievementRepository>(it, priority = 0)
+                }
+        val achievementContentDir = ctx.contentDir.resolve("achievements")
+        val achievementContents = com.astarworks.astera.stats.application.contents.AchievementContents()
+        val achievementReport = achievementContents.bootstrap(achievementContentDir)
+        logger.info("Loaded ${achievementReport.loaded} achievement(s) from $achievementContentDir (failed: ${achievementReport.failed})")
+        achievementRepo.registerAll(achievementContents.all().toList())
+        reloadRegistry.register(
+            com.astarworks.astera.stats.application.contents.ReloadSyncedContents(achievementContents) {
+                achievementRepo.registerAll(achievementContents.all().toList())
+            },
+            achievementContentDir,
+        )
 
         // ── Wave M 5polish-quickwin (ADR-0130 §B) ────────────────────────
         // PlayerAchievementListGuiBindingResolver projects the achievement
@@ -255,15 +269,33 @@ public object StatsWiring {
             grantXp,
             AdvanceLevelOnNormaCompletedListener.DEFAULT_CRITERION_BY_LEVEL,
         )
-        // Reward 2-server flow: enqueue bundles on match-end / mission-complete.
-        val rewardBridge = services.getOrThrow<IRewardBridge>()
-        val rewardOnMissionCompleted = RewardOnMissionCompletedListener(rewardBridge)
+        // ADR-0210: a completed mission pays its XP and tells the player (its currency is paid by the economy
+        // plugin). This replaced an IRewardBridge enqueue that nothing ever consumed.
+        val payOutMission = com.astarworks.astera.stats.application.eventbus.listeners.PayOutMissionCompletedListener(
+            grantXp = grantXp,
+            normas = normaContents,
+            messages = messages,
+            playerGateway = playerGateway,
+            hudGateway = hudGateway,
+        )
+        val trackNormaProgress = com.astarworks.astera.stats.application.eventbus.listeners.TrackNormaProgressListener(
+            normaService = normaService,
+            eventBus = eventBus,
+            matchRepository = matchRepository,
+        )
+        val progressionAchievements = com.astarworks.astera.stats.application.eventbus.listeners.UnlockProgressionAchievementsListener(unlockAchievement)
 
         subscriptions += eventBus.subscribe(PlayerKilled::class) { killMilestoneListener.handle(it) }
         subscriptions += eventBus.subscribe(DamageDealt::class) { damageMilestoneListener.handle(it) }
         subscriptions += eventBus.subscribe(MatchEnded::class) { matchWinMilestoneListener.handle(it) }
         subscriptions += eventBus.subscribe(MissionCompleted::class) { advanceLevelOnNormaListener.handle(it) }
-        subscriptions += eventBus.subscribe(MissionCompleted::class) { rewardOnMissionCompleted.handle(it) }
+        subscriptions += eventBus.subscribe(MissionCompleted::class) { payOutMission.handle(it) }
+        subscriptions += eventBus.subscribe(MissionCompleted::class) { progressionAchievements.handle(it) }
+        subscriptions += eventBus.subscribe(LeveledUp::class) { progressionAchievements.handle(it) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.LoginBonusClaimed::class) { progressionAchievements.handle(it) }
+        subscriptions += eventBus.subscribe(DamageDealt::class) { trackNormaProgress.handle(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { trackNormaProgress.handle(it) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.XpGranted::class) { trackNormaProgress.handle(it) }
 
         // ---- Wave 5p Advancement progress fan-out (ADR-0088) ------------
         // Bridges combat / economy / match / items events into core's
@@ -437,6 +469,34 @@ public object StatsWiring {
             priority = 0,
         )
 
+        // ADR-0210: the season ranking floats in the lobby as a text board.
+        if (ctx.serverRole.hostsLobby) {
+            val boardDir = ctx.contentDir.resolve("lobby-boards")
+            val boardConfigs = mutableListOf<com.astarworks.astera.stats.application.config.LobbyBoardYamlConfig>()
+            com.astarworks.astera.core.application.service.ContentLoader(
+                parsers = com.astarworks.astera.core.application.service.ContentLoader.DEFAULT_PARSERS,
+                deserializer = com.astarworks.astera.stats.application.config.LobbyBoardYamlConfig.serializer(),
+            ).loadFrom(boardDir) { boardConfigs += it }
+            val holograms = services.get<com.astarworks.astera.core.application.port.outbound.IHologramGateway>()
+            val dynamicMessages = services.get<com.astarworks.astera.core.application.port.outbound.IDynamicMessages>()
+            if (holograms != null && dynamicMessages != null) {
+                for (cfg in boardConfigs) {
+                    val board = com.astarworks.astera.stats.application.service.leaderboard.LobbyLeaderboardBoard(
+                        query = queryLeaderboard,
+                        profiles = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>() },
+                        holograms = holograms,
+                        dynamic = dynamicMessages,
+                        scheduler = scheduler,
+                        world = com.astarworks.astera.core.domain.world.WorldId(cfg.world),
+                        position = com.astarworks.astera.core.domain.geometry.Vec3(cfg.x, cfg.y, cfg.z),
+                        rows = cfg.rows,
+                        refreshTicks = cfg.refreshSeconds * 20L,
+                    )
+                    shutdownHooks += board::stop
+                }
+            }
+        }
+
         // F3-4: back in the lobby, recap the match the player just finished (once).
         if (ctx.serverRole.hostsLobby) {
             val recapOnJoin = com.astarworks.astera.stats.application.eventbus.listeners.ShowLastMatchRecapOnJoinListener(
@@ -450,6 +510,47 @@ public object StatsWiring {
             }
         }
 
+        // ---- ADR-0210: quests that actually run, and the daily login bonus ----------
+        // Quest chains are open to everyone (started on join) and advance on real events; before this
+        // nothing ever called IQuestService.progressCurrent. Stage clears are announced to the player.
+        val questService = services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IQuestService>()
+        val startQuestsOnJoin = com.astarworks.astera.stats.application.eventbus.listeners.quest
+            .StartQuestsOnJoinListener(questService, questChainRegistry)
+        val trackQuestProgress = com.astarworks.astera.stats.application.eventbus.listeners.quest
+            .TrackQuestProgressListener(questService, questChainRegistry, matchRepository)
+        val notifyQuestStage = com.astarworks.astera.stats.application.eventbus.listeners.quest
+            .NotifyOnQuestStageCompletedListener(questChainRegistry, messages, playerGateway, hudGateway)
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { startQuestsOnJoin.handle(it) }
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { trackQuestProgress.handle(it) }
+        subscriptions += eventBus.subscribe(MobKilled::class) { trackQuestProgress.handle(it) }
+        subscriptions += eventBus.subscribe(MatchEnded::class) { trackQuestProgress.handle(it) }
+        subscriptions += eventBus.subscribe(CurrencyChanged::class) { trackQuestProgress.handle(it) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.ItemAcquired::class) { trackQuestProgress.handle(it) }
+        subscriptions += eventBus.subscribe(QuestStageCompleted::class) { notifyQuestStage.handle(it) }
+
+        val loginBonusService = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginBonusService>()
+        val claimLoginBonus = com.astarworks.astera.stats.application.eventbus.listeners.loginbonus.ClaimLoginBonusOnJoinListener(
+            loginBonus = loginBonusService,
+            messages = messages,
+            playerGateway = playerGateway,
+            hudGateway = hudGateway,
+            scheduler = scheduler,
+        )
+        if (ctx.serverRole.hostsLobby) {
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) {
+                claimLoginBonus.handle(it)
+            }
+        }
+        com.astarworks.astera.stats.command.ProgressionCommands(
+            loginBonus = loginBonusService,
+            claimDaily = claimLoginBonus::claim,
+            normas = normaService,
+            quests = questService,
+            questChains = questChainRegistry,
+            achievements = achievementRepo,
+            messages = messages,
+        ).build().forEach { commands.register(it) }
+
         // 7. `/astera stats show|leaderboard|xp grant` (ADR-0184).
         com.astarworks.astera.stats.command.StatsCommands(
             grantXp = grantXp,
@@ -458,6 +559,7 @@ public object StatsWiring {
             players = playerGateway,
             permissions = { services.getOrThrow<IPermissionService>() },
             lastMatches = { services.get<com.astarworks.astera.core.application.port.outbound.ILastMatchStore>() },
+            names = { id -> services.get<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>()?.find(id)?.displayName },
         ).build().forEach { commands.register("stats", it) }
 
         return StatsWiringResult(grantXp = grantXp, shutdownHooks = shutdownHooks.toList())

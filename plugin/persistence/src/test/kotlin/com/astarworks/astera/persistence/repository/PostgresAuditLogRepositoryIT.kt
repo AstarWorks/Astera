@@ -76,6 +76,21 @@ public class PostgresAuditLogRepositoryIT : PostgresIntegrationTestBase() {
 
         val round = repo.recent(limit = 1).single() as AuditEvent.CurrencyTransferred
         assertThat(round).isEqualTo(event)
+
+        // ADR-0202: the per-movement transaction-log variant round-trips too.
+        val movement = AuditEvent.CurrencyMovement(
+            id = AuditEventId.random(),
+            player = PlayerId(UUID.randomUUID()),
+            currency = Currency.STAR,
+            delta = -120L,
+            newBalance = 30L,
+            reason = "shop:example-shop/pistol",
+            occurredAt = Instant.parse("2026-05-19T08:00:00Z"),
+        )
+
+        repo.write(movement)
+
+        assertThat(repo.recent(limit = 1).single()).isEqualTo(movement)
     }
 
     @Test

@@ -35,6 +35,7 @@ astera:
   friends.pending.none: "<gray>No pending friend requests.</gray>"
   friends.pending.footer: "<gray>Accept with /astera friend accept <player>.</gray>"
   items.command.give.success: "<green>Gave <gold>{amount}x {item}</gold> to {player}.</green>"
+  items.command.refresh.success: "<green>Refreshed the name, lore and model of <gold>{count}</gold> held item stack(s).</green>"
   items.command.give.invalid_amount: "<red>Amount must be at least 1 (got {amount}).</red>"
   items.command.give.invalid_id: "<red>Invalid item id <gold>{item}</gold>.</red>"
   items.command.give.not_found: "<red>Item <gold>{item}</gold> not found.</red>"
@@ -124,6 +125,10 @@ astera:
       lang: "Switch your language (ja / en)"
       volume: "Set a volume channel (music / sound / voice)"
       news: "Read the latest server news"
+      daily: "Collect your daily login bonus"
+      missions: "Show your daily and weekly missions"
+      quests: "Show your quests"
+      achievements: "Show your achievements"
       patch: "Read the patch notes"
       report: "Report a player or a bug"
       shop: "Open a shop (the lobby shop by default)"
@@ -150,6 +155,7 @@ astera:
       match-replay-export: "Export a saved replay to a file"
       items: "Items"
       items-give: "Give an item to a player"
+      items-refresh: "Re-apply edited item text and art to held items"
       skill: "Cast any skill directly"
       skill-list: "List every registered skill"
       skill-cast: "Cast a skill (no resource cost; --force ignores its cooldown)"
@@ -209,6 +215,8 @@ astera:
       admin-backup: "Player backup"
       admin-restart: "Schedule a graceful restart"
       admin-drain: "Move this server's players to another backend"
+      admin-pack: "Resource pack tools"
+      admin-pack-reload: "Re-read the resource pack hash and re-push the pack to everyone online"
       admin-panel: "Open the admin panel (weapons, matches, players, server)"
       admin-announce: "Broadcast an announcement"
       admin-stage: "Stage catalogue"
@@ -243,6 +251,8 @@ astera:
       admin-restart: "<yellow>Restart scheduled in {minutes} minutes.</yellow>"
       admin-drain: "<yellow>Moving {count} player(s) to <gold>{target}</gold>.</yellow>"
       admin-drain-unavailable: "<red>Cross-server transfer is not available on this server.</red>"
+      admin-pack-reload: "<green>Resource pack {sha1} (changed: {changed}), re-pushed to {count} player(s).</green>"
+      admin-pack-unavailable: "<red>The resource pack could not be read (ASTERA_RESOURCE_PACK_URL unset or the sha1 file is unreachable); the previous pack stays active.</red>"
       admin-slow-query-header: "<gold>Slow queries: {total} total, {recent} in the last 7 days</gold>"
       admin-slow-query-line: "<gray>#{index} {ms}ms [{context}] {sql}</gray>"
       admin-spawn-mob: "<green>Spawned {count} x {mob} at {world} {x} {y} {z}.</green>"
@@ -460,6 +470,10 @@ astera:
 
   # ── Wave 4.5 (ADR-0027): Shop / Loadout persist / Norma / Match / Spawn ──
   economy:
+    currency:
+      star: "<yellow>STAR</yellow>"
+      gold: "<gold>GOLD</gold>"
+      gem: "<light_purple>GEM</light_purple>"
     shop:
       example-shop:
         title: "Example Shop"
@@ -477,6 +491,19 @@ astera:
           verdant-staff: "Verdant Staff"
           greatsword: "Greatsword"
           thunder-staff: "Thunder Staff"
+      gui:
+        spacer: " "
+        price: "<gray>Price: <green>{amount}</green> {currency}</gray>"
+        price_short: "<gray>Price: <red>{amount}</red> {currency} <dark_gray>(you have {have})</dark_gray></gray>"
+        stock: "<gray>In stock: <white>{remaining}</white></gray>"
+        action:
+          buy: "<yellow>Click to buy</yellow>"
+          confirm: "<gold><bold>Click again to confirm!</bold></gold>"
+          short: "<red>Need {missing} more {currency}</red>"
+          sold_out: "<dark_red>Sold out</dark_red>"
+        wallet:
+          title: "<gold>Your wallet</gold>"
+          line: "<gray>{currency}: <white>{amount}</white></gray>"
       browse:
         invalid_id: "<red>Invalid shop id: {shop}</red>"
         player_not_online: "<red>You must be online to browse the shop.</red>"
@@ -489,7 +516,8 @@ astera:
         shop_not_found: "<red>Shop disappeared during purchase.</red>"
         offer_not_found: "<red>That offer no longer exists.</red>"
         out_of_stock: "<red>Sold out.</red>"
-        insufficient_funds: "<red>Insufficient {currency} balance.</red>"
+        insufficient_funds: "<red>Not enough {currency}: need {need}, you have {have} ({short} short).</red>"
+        confirm: "<yellow>{price} {currency} - click the item again to confirm the purchase.</yellow>"
         delivery_failed: "<red>Could not deliver item: {reason}</red>"
     command:
       shop:
@@ -578,6 +606,19 @@ astera:
       on_match_start: "<gray>Loadout applied for the match.</gray>"
 
   norma:
+    toast: "<gold>Mission complete</gold>"
+    daily-killer-1:
+      name: "Daily Hunter (defeat 5 players)"
+    daily-damage:
+      name: "Daily Damage (deal 1,500 damage)"
+    daily-victory:
+      name: "Daily Victory (win 1 match)"
+    daily-grinder:
+      name: "Daily Grind (earn 400 XP)"
+    weekly-warrior:
+      name: "Weekly Warrior (win 5 matches)"
+    weekly-slayer:
+      name: "Weekly Slayer (defeat 40 players)"
     progress:
       updated: "<gray>{norma}: {current}/{target}</gray>"
     completed: "<green>Mission complete: <gold>{norma}</gold>!</green>"
@@ -950,6 +991,7 @@ astera:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>banked,</gray> <white>{left}</white> <gray>left</gray>"
       you: "<gray>You:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>Stars</gray>"
+      gold: "<gold>*</gold> <white>{gold}</white> <gray>Gold</gray>"
     lobby:
       title: "<gold><bold>Astera</bold></gold>"
       online: "<gray>Online:</gray> <white>{count}</white>"
@@ -1012,6 +1054,39 @@ astera:
       kills-100:
         name: "<gold>Legend</gold>"
         description: "<gray>100 kills.</gray>"
+      wins-1:
+        name: "<gold>First Victory</gold>"
+        description: "<gray>Win your first match.</gray>"
+      wins-10:
+        name: "<gold>Champion</gold>"
+        description: "<gray>Win 10 matches.</gray>"
+      wins-50:
+        name: "<gold>Conqueror</gold>"
+        description: "<gray>Win 50 matches.</gray>"
+      damage-1k:
+        name: "<gold>Heavy Hitter</gold>"
+        description: "<gray>Deal 1,000 damage in total.</gray>"
+      damage-10k:
+        name: "<gold>Devastator</gold>"
+        description: "<gray>Deal 10,000 damage in total.</gray>"
+      tutorial-graduate:
+        name: "<gold>Tutorial Graduate</gold>"
+        description: "<gray>Finish the tutorial.</gray>"
+      explorer:
+        name: "<gold>Explorer</gold>"
+        description: "<gray>Finish the forest exploration quest.</gray>"
+      streak-7:
+        name: "<gold>Regular</gold>"
+        description: "<gray>Log in 7 days in a row.</gray>"
+      level-5:
+        name: "<gold>Rising Star</gold>"
+        description: "<gray>Reach level 5.</gray>"
+      level-10:
+        name: "<gold>Veteran</gold>"
+        description: "<gray>Reach level 10.</gray>"
+      mission-first:
+        name: "<gold>Mission Clear</gold>"
+        description: "<gray>Complete your first mission.</gray>"
 
     # F3-4 — "last match" card: /astera stats last and the lobby recap.
     last:
@@ -1167,6 +1242,7 @@ astera:
     progress:
       stage-completed: "<gold>Quest stage cleared!</gold>"
       chain-completed: "<gold>Quest complete!</gold>"
+      stage-line: "<gray>{quest}: {stage}</gray>"
 
   # Wave 5multi-skill (ADR-0101): multi-axis skill progression perks.
   progression:
@@ -1765,9 +1841,43 @@ astera:
         "3": "Admin ops commands + scheduled announcements + maintenance mode."
       full: "Phase 1 PoC release: see RTM-PARITY-TRACKER.md for the full feature × state matrix."
 
+  board:
+    leaderboard:
+      title: "§6§l== Season Ranking =="
+      empty: "§7No ranked results yet."
+
+  progress:
+    daily:
+      header: "<gold><bold>Daily login bonus</bold></gold>"
+      status: "<gray>Streak:</gray> <white>{streak}</white> <gray>day(s), today pays day</gray> <white>{day}</white>"
+      claimed: "<green>Today's bonus is already collected.</green>"
+      unavailable: "<yellow>No bonus is configured for today.</yellow>"
+      tomorrow: "<gray>Tomorrow:</gray> <yellow>{amount} {currency}</yellow>"
+    missions:
+      header: "<gold><bold>Missions</bold></gold>"
+      none: "<gray>No missions are available.</gray>"
+      line: "<gray>[{period}]</gray> <white>{name}</white> <yellow>{current}/{required}</yellow>"
+      line-done: "<gray>[{period}]</gray> <green>{name} - done</green>"
+    period:
+      daily: "daily"
+      weekly: "weekly"
+      seasonal: "season"
+    quests:
+      header: "<gold><bold>Quests</bold></gold>"
+      none: "<gray>No quests yet. They start when you join.</gray>"
+      line: "{quest}<gray>:</gray> <white>{stage}</white> <yellow>{current}/{required}</yellow>"
+      line-done: "{quest} <green>- complete</green>"
+    achievements:
+      header: "<gold><bold>Achievements</bold></gold> <gray>({unlocked}/{total})</gray>"
+      line-unlocked: "<green>[x]</green> {name} <gray>- {description}</gray>"
+      line-locked: "<dark_gray>[ ]</dark_gray> <gray>{name} - {description}</gray>"
+
   loginbonus:
+    claimed:
+      chat: "<gold>Daily bonus!</gold> <gray>Day {day} (streak {streak}):</gray> <yellow>+{amount} {currency}</yellow>"
+      toast-title: "<gold>Daily bonus</gold>"
+      toast-body: "<yellow>+{amount} {currency}</yellow> <gray>- {streak} day streak</gray>"
     error:
-      not_implemented: "<red>Daily login bonus claim is not yet wired (Phase 2).</red>"
       already_claimed_today: "<yellow>You have already claimed today's bonus.</yellow>"
       no_reward_for_day: "<red>No reward configured for day {day}.</red>"
 

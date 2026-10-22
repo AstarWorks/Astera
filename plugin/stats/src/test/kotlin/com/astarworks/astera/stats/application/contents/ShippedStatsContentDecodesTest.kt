@@ -23,6 +23,7 @@ class ShippedStatsContentDecodesTest {
         val cases: List<Pair<String, (Path) -> ContentLoader.LoadReport>> = listOf(
             "norma" to { d -> NormaContents().bootstrap(d) },
             "skills-progression" to { d -> SkillProgressionContents().bootstrap(d) },
+            "achievements" to { d -> AchievementContents().bootstrap(d) },
         )
         return cases.map { (category, load) ->
             DynamicTest.dynamicTest(category) {
@@ -39,6 +40,16 @@ class ShippedStatsContentDecodesTest {
                 assertThat(report.loaded).`as`("content/$category must ship at least one file").isGreaterThan(0)
             }
         }
+    }
+
+    @org.junit.jupiter.api.Test
+    fun `every achievement id the milestone listeners unlock is in the shipped catalog`() {
+        val contents = AchievementContents().also { it.bootstrap(contentRoot.resolve("achievements")) }
+        val ids = contents.all().map { it.id.value }.toSet()
+        assertThat(ids).contains(
+            "kills-10", "kills-50", "kills-100", "wins-1", "wins-10", "wins-50", "damage-1k", "damage-10k",
+            "tutorial-graduate", "explorer", "streak-7", "level-5", "level-10", "mission-first",
+        )
     }
 
     private fun shippedFileCount(dir: Path): Int {

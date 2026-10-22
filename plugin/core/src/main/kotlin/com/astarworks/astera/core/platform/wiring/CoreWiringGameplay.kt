@@ -229,17 +229,28 @@ internal fun CoreWiringState.wireGameplayLoop() {
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hpStatusHud.onJoined(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hpStatusHud.onQuit(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { hpStatusHud.onPackStatus(it) }
+    // F3-9 (ADR-0201): the pack spec is re-readable (`/astera admin pack reload`), so the
+    // join listener and the diagnostics always go through the service.
+    val resourcePackService = com.astarworks.astera.core.application.service.hud.ResourcePackService(
+        initial = ports.resourcePack,
+        loader = { com.astarworks.astera.core.platform.wiring.ResourcePackEnv.load(logger = logger) },
+        hud = hudGateway,
+        onlinePlayers = {
+            services.get<com.astarworks.astera.core.application.port.outbound.admin.IAdminPlayerGateway>()
+                ?.onlinePlayers().orEmpty()
+        },
+    )
+    services.register<com.astarworks.astera.core.application.service.hud.ResourcePackService>(resourcePackService, priority = 0)
     val hudDiagnostics = com.astarworks.astera.core.application.eventbus.listeners.hud
-        .HudDiagnosticsService(hudGateway, scheduler, packConfigured = ports.resourcePack != null)
+        .HudDiagnosticsService(hudGateway, scheduler, packConfigured = { resourcePackService.current() != null })
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hudDiagnostics.onJoined(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hudDiagnostics.onQuit(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { hudDiagnostics.onPackStatus(it) }
-    ports.resourcePack?.let { pack ->
-        val pushOnJoin = com.astarworks.astera.core.application.eventbus.listeners.hud
-            .ResourcePackPushOnJoinListener(hudGateway, pack)
-        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { pushOnJoin.handle(it) }
-        logger.info("ADR-0182: resource pack push on join enabled (${pack.url}).")
-    } ?: logger.info("ADR-0182: no resource pack configured (ASTERA_RESOURCE_PACK_URL unset); status HUD uses its text form.")
+    val pushOnJoin = com.astarworks.astera.core.application.eventbus.listeners.hud
+        .ResourcePackPushOnJoinListener(hudGateway) { resourcePackService.current() }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { pushOnJoin.handle(it) }
+    ports.resourcePack?.let { logger.info("ADR-0182: resource pack push on join enabled (${it.url}).") }
+        ?: logger.info("ADR-0182: no resource pack configured (ASTERA_RESOURCE_PACK_URL unset); status HUD uses its text form.")
 
     // 4.2 Wave H 5content-depth (ADR-0125) — Quest + Recipe listener wiring.
     //     Phase 1 PoC closing: `QuestStageCompleted` (Wave 5s) and

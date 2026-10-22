@@ -19,10 +19,11 @@ import kotlin.system.exitProcess
 public fun main(args: Array<String>) {
     when (args.firstOrNull()) {
         "write" -> {
-            require(args.size == 3) { "usage: write <contentDir> <previewPng>" }
+            require(args.size in 3..4) { "usage: write <contentDir> <previewPng> [<iconPreviewPng>]" }
             val content = Path(args[1])
             val n = ItemArt.write(content)
             writePreview(content, Path(args[2]))
+            if (args.size > 3) writeIconPreview(content, Path(args[3]))
             println("item art: $n files under $content, preview ${args[2]}")
         }
         "check" -> {
@@ -48,10 +49,18 @@ private const val LABEL_H = 30
 
 /** Contact sheet: every generated icon at x8 on a checkerboard, labelled with the item id. */
 internal fun writePreview(contentDir: Path, out: Path) {
-    val items = ItemArt.weapons(contentDir)
-    val cell = Sprite.SIZE * SCALE
-    val rows = (items.size + COLUMNS - 1) / COLUMNS
-    val w = COLUMNS * (cell + PAD) + PAD
+    sheet(ItemArt.weapons(contentDir).map { it.id to ItemArt.render(it) }, out)
+}
+
+/** Contact sheet of the GUI / kit / skill-kind icons. */
+internal fun writeIconPreview(contentDir: Path, out: Path) {
+    sheet(ItemArt.icons(contentDir).map { (id, spec) -> id to Icons.render(id, spec) }, out, columns = 8, scale = 5)
+}
+
+private fun sheet(items: List<Pair<String, BufferedImage>>, out: Path, columns: Int = COLUMNS, scale: Int = SCALE) {
+    val cell = Sprite.SIZE * scale
+    val rows = (items.size + columns - 1) / columns
+    val w = columns * (cell + PAD) + PAD
     val h = rows * (cell + LABEL_H + PAD) + PAD
     val sheet = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
     val g = sheet.createGraphics()
@@ -59,17 +68,17 @@ internal fun writePreview(contentDir: Path, out: Path) {
         g.color = Color(0x1B1B24)
         g.fillRect(0, 0, w, h)
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
-        g.font = Font(Font.SANS_SERIF, Font.BOLD, 15)
-        items.forEachIndexed { i, item ->
-            val x = PAD + (i % COLUMNS) * (cell + PAD)
-            val y = PAD + (i / COLUMNS) * (cell + LABEL_H + PAD)
+        g.font = Font(Font.SANS_SERIF, Font.BOLD, if (scale >= 8) 15 else 11)
+        items.forEachIndexed { i, (id, image) ->
+            val x = PAD + (i % columns) * (cell + PAD)
+            val y = PAD + (i / columns) * (cell + LABEL_H + PAD)
             for (cy in 0 until Sprite.SIZE) for (cx in 0 until Sprite.SIZE) {
                 g.color = if ((cx + cy) % 2 == 0) Color(0x2C2C38) else Color(0x24242F)
-                g.fillRect(x + cx * SCALE, y + cy * SCALE, SCALE, SCALE)
+                g.fillRect(x + cx * scale, y + cy * scale, scale, scale)
             }
-            g.drawImage(ItemArt.render(item), x, y, cell, cell, null)
+            g.drawImage(image, x, y, cell, cell, null)
             g.color = Color(0xE6E6F0)
-            g.drawString(item.id, x + 4, y + cell + 20)
+            g.drawString(id, x + 4, y + cell + 20)
         }
     } finally {
         g.dispose()

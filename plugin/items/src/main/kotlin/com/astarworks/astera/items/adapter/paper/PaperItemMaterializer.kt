@@ -92,6 +92,28 @@ public class PaperItemMaterializer(
         return stack
     }
 
+    /** Re-scan the generated item models so [refreshVisuals] sees art pushed after boot. */
+    public fun rescanModels(): Unit = itemModels.rescan()
+
+    /**
+     * Re-apply the visual half of [spec] (display name, lore, `item_model`, custom model data) to an
+     * existing stack in place (F3-9, ADR-0201). Everything per-instance (refinement, enchants,
+     * damage, PDC state) and the base material stay untouched, so a held item picks up an edited
+     * item YAML text or new art without being re-given. Returns whether anything changed.
+     */
+    public fun refreshVisuals(stack: ItemStack, spec: ItemSpec, viewerId: PlayerId?): Boolean {
+        val fresh = buildFor(spec, viewerId, null, 1).itemMeta ?: return false
+        val before = stack.itemMeta
+        stack.editMeta { meta ->
+            meta.displayName(fresh.displayName())
+            meta.lore(fresh.lore())
+            if (fresh.hasItemModel()) meta.itemModel = fresh.itemModel
+            @Suppress("DEPRECATION")
+            if (fresh.hasCustomModelData()) meta.setCustomModelData(fresh.customModelData)
+        }
+        return stack.itemMeta != before
+    }
+
     private fun baseStack(spec: ItemSpec, amount: Int): ItemStack {
         val template = spec.template
         val material: Material = when (template) {

@@ -18,7 +18,7 @@ class HudDiagnosticsServiceTest {
     private val alice = PlayerId(UUID.randomUUID())
     private val scheduler = FakeScheduler()
     private val hud = FakeHudGateway()
-    private val service = HudDiagnosticsService(hud, scheduler, packConfigured = true)
+    private val service = HudDiagnosticsService(hud, scheduler, packConfigured = { true })
 
     private fun text(key: String) = HudComponent.Text(MessageKey(key))
 
@@ -47,7 +47,7 @@ class HudDiagnosticsServiceTest {
 
     @Test
     fun `without a configured pack the report says so`() {
-        val none = HudDiagnosticsService(hud, scheduler, packConfigured = false)
+        val none = HudDiagnosticsService(hud, scheduler, packConfigured = { false })
         assertThat(none.describe(alice).pack).isEqualTo("not configured")
     }
 

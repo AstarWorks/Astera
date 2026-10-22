@@ -16,7 +16,9 @@ import com.astarworks.astera.economy.application.service.InMemoryCurrencyLedger
 import com.astarworks.astera.economy.application.service.InMemoryShopRegistry
 import com.astarworks.astera.economy.application.service.InMemoryShopStockRepository
 import com.astarworks.astera.economy.application.service.ShopLoaderService
+import com.astarworks.astera.economy.application.usecase.shop.ShopBrowseUseCase
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
+import com.astarworks.astera.testfixtures.FakeGuiAdapter
 import com.astarworks.astera.testfixtures.FakeMcPlayer
 import com.astarworks.astera.testfixtures.FakeMcServer
 import com.astarworks.astera.testfixtures.FakeMessageRenderer
@@ -48,6 +50,8 @@ class ShopShippedContentPurchaseTest {
     private lateinit var eventBus: FakeDomainEventBus
     private lateinit var messages: FakeMessageRenderer
     private lateinit var purchase: ShopPurchaseUseCase
+    private lateinit var gui: FakeGuiAdapter
+    private lateinit var browse: ShopBrowseUseCase
 
     @BeforeEach
     fun setUp() {
@@ -66,6 +70,8 @@ class ShopShippedContentPurchaseTest {
         assertThat(report.failures).isEmpty()
 
         purchase = ShopPurchaseUseCase(shops, ledger, items, messages, server, eventBus, stock)
+        gui = FakeGuiAdapter()
+        browse = ShopBrowseUseCase(shops, gui, server, ledger, stock, messages)
 
         // A brand-new player gets the shipped starter grant (what first join does).
         StarterGrantLoader().load(content.resolve("balance").resolve("starter-grant.yaml"))
@@ -111,7 +117,10 @@ class ShopShippedContentPurchaseTest {
 
         val result = purchase.execute(playerId, shopId, offer.id)
 
-        assertThat(result.errorOrNull()).isEqualTo(ShopPurchaseError.InsufficientFunds(offer.price.currency))
+        val error = result.errorOrNull() as ShopPurchaseError.InsufficientFunds
+        assertThat(error.currency).isEqualTo(offer.price.currency)
+        assertThat(error.need).isEqualTo(offer.price.amount)
+        assertThat(error.have).isLessThan(offer.price.amount)
         assertThat(ledger.balance(playerId, offer.price.currency)).isEqualTo(before).isLessThan(offer.price.amount)
         assertThat(player.given).isEmpty()
         assertThat(eventBus.publishedOfType<CurrencyChanged>()).isEmpty()
@@ -119,23 +128,22 @@ class ShopShippedContentPurchaseTest {
 
     @Test
     fun `purchase intent tells the buyer what they bought and what is left`() {
-        val handler = ShopIntentHandler(purchase, messages, FakePlayerGateway())
+        val handler = handler()
         val offer = shops.resolve(shopId)!!.offers.minBy { it.price.amount }
+        val click = GuiIntent("shop.purchase", mapOf("shop_id" to shopId.value, "offer_id" to offer.id.value))
 
-        handler.handle(
-            GuiIntent("shop.purchase", mapOf("shop_id" to shopId.value, "offer_id" to offer.id.value)),
-            player,
-        )
+        handler.handle(click, player)
+        if (offer.price.amount >= ShopIntentHandler.CONFIRM_AT) handler.handle(click, player) // confirming click
 
         val call = messages.calls.last { it.key == MessageKey("astera.economy.shop.purchase.success") }
         assertThat(call.placeholders).containsKeys("offer", "price", "currency", "balance")
         assertThat(call.placeholders["price"]).isEqualTo(offer.price.amount.toString())
-        assertThat(call.placeholders["currency"]).isEqualTo(offer.price.currency.name)
+        assertThat(call.placeholders["currency"]).isEqualTo("astera.economy.currency.${offer.price.currency.name.lowercase()}")
     }
 
     @Test
     fun `insufficient funds message names the missing currency`() {
-        val handler = ShopIntentHandler(purchase, messages, FakePlayerGateway())
+        val handler = handler()
         val offer = shops.resolve(shopId)!!.offers.maxBy { it.price.amount }
         ledger.debit(playerId, offer.price.currency, ledger.balance(playerId, offer.price.currency))
 
@@ -145,7 +153,48 @@ class ShopShippedContentPurchaseTest {
         )
 
         val call = messages.calls.last { it.key == MessageKey("astera.economy.shop.purchase.insufficient_funds") }
-        assertThat(call.placeholders["currency"]).isEqualTo(offer.price.currency.name)
+        assertThat(call.placeholders["need"]).isEqualTo(offer.price.amount.toString())
+        assertThat(call.placeholders["have"]).isEqualTo("0")
+        assertThat(call.placeholders["short"]).isEqualTo(offer.price.amount.toString())
+    }
+
+    @Test
+    fun `an expensive offer needs a confirming second click and the shop repaints with the new balance`() {
+        val offer = shops.resolve(shopId)!!.offers.filter { it.price.amount >= ShopIntentHandler.CONFIRM_AT }
+            .minByOrNull { it.price.amount } ?: return
+        ledger.credit(playerId, offer.price.currency, offer.price.amount * 2)
+        val before = ledger.balance(playerId, offer.price.currency)
+        browse.execute(playerId, shopId)
+        val handler = handler()
+        val click = GuiIntent("shop.purchase", mapOf("shop_id" to shopId.value, "offer_id" to offer.id.value))
+
+        handler.handle(click, player)
+        assertThat(ledger.balance(playerId, offer.price.currency)).`as`("first click only arms").isEqualTo(before)
+        assertThat(player.given).isEmpty()
+        assertThat(messages.calls.map { it.key }).contains(MessageKey("astera.economy.shop.purchase.confirm"))
+
+        handler.handle(click, player)
+        assertThat(ledger.balance(playerId, offer.price.currency)).isEqualTo(before - offer.price.amount)
+        assertThat(player.given).hasSize(1)
+        // Repainted in place (Update, not a second Open) and the wallet line shows the new balance.
+        assertThat(gui.history(player).filterIsInstance<FakeGuiAdapter.GuiOperation.Update>()).isNotEmpty
+    }
+
+    @Test
+    fun `the shop gui shows price in the offer currency, a wallet and shortfall for unaffordable offers`() {
+        ledger.debit(playerId, Currency.GOLD, ledger.balance(playerId, Currency.GOLD))
+        ledger.debit(playerId, Currency.STAR, ledger.balance(playerId, Currency.STAR))
+        assertThat(browse.execute(playerId, shopId)).isInstanceOf(Result.Success::class.java)
+        val spec = gui.currentSpec(player)!!
+        val offers = shops.resolve(shopId)!!.offers
+        val statics = (0 until offers.size).map { spec.slotAt(com.astarworks.astera.core.domain.gui.SlotIndex(it)) as com.astarworks.astera.core.domain.gui.GuiSlot.Static }
+        statics.forEachIndexed { i, slot ->
+            assertThat(slot.lore.map { it.key.value }).`as`(offers[i].id.value).contains("astera.economy.shop.gui.price_short", "astera.economy.shop.gui.action.short")
+            assertThat(slot.lore.first { it.key.value == "astera.economy.shop.gui.price_short" }.args["amount"]).isEqualTo(offers[i].price.amount.toString())
+        }
+        val footer = (0 until spec.size.slotCount).map { spec.slotAt(com.astarworks.astera.core.domain.gui.SlotIndex(it)) }.filterIsInstance<com.astarworks.astera.core.domain.gui.GuiSlot.Static>().filter { it.displayName?.key?.value == "astera.economy.shop.gui.wallet.title" }
+        assertThat(footer).hasSize(1)
+        assertThat(footer.single().lore).hasSize(Currency.entries.size)
     }
 
     @Test
@@ -153,6 +202,8 @@ class ShopShippedContentPurchaseTest {
         val result = purchase.execute(playerId, ShopId("no-such-shop"), ShopOfferId("x"))
         assertThat(result.errorOrNull()).isEqualTo(ShopPurchaseError.ShopNotFound(ShopId("no-such-shop")))
     }
+
+    private fun handler() = ShopIntentHandler(purchase, messages, FakePlayerGateway(), shops, ledger, browse)
 
     private fun locateContentRoot(): Path {
         var cur: Path? = Path.of("").toAbsolutePath()

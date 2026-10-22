@@ -462,11 +462,8 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     //    substrate).
     //  - `/astera patch [version]` — latest or version-specific
     //    ChangelogEntry, from content/changelog/*.yaml.
-    //  - Login bonus skeleton — LoginBonusContents +
-    //    InMemoryLoginStreakRepository + DefaultLoginBonusService (returns
-    //    NotImplemented in Phase 1). Phase 2 will fill in claim flow +
-    //    Postgres migration; surface is registered now so caller code
-    //    written this wave (e.g. GUI) compiles without scaffold churn.
+    //  - Login bonus — LoginBonusContents + login-streak repository +
+    //    DefaultLoginBonusService (claim flow: ADR-0210).
     val newsContentDir: Path = contentDir.resolve("news")
     val newsContents = com.astarworks.astera.core.application.contents.NewsContents()
     val newsReport = newsContents.bootstrap(newsContentDir)
@@ -498,6 +495,8 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         com.astarworks.astera.core.application.service.loginbonus.DefaultLoginBonusService(
             registry = loginBonusContents,
             streakRepo = loginStreakRepo,
+            ledger = { services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>() },
+            events = eventBus,
         )
     services.register<com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginBonusService>(loginBonusService, priority = 0)
 
@@ -527,6 +526,13 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             },
         ),
     )
+    // F3-9 (ADR-0201): `/astera admin pack reload [force]` re-reads the pack sha1 and re-pushes the pack.
+    services.get<com.astarworks.astera.core.application.service.hud.ResourcePackService>()?.let { packService ->
+        commands.register(
+            "admin",
+            com.astarworks.astera.core.application.command.admin.buildAsteraPackCommandSpec(packService),
+        )
+    }
     commands.register(
         com.astarworks.astera.core.application.command.buildAsteraNewsCommandSpec(
             registry = newsContents,

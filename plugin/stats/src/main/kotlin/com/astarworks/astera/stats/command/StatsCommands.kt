@@ -38,6 +38,8 @@ internal class StatsCommands(
     private val players: IPlayerGateway,
     private val permissions: () -> IPermissionService,
     private val lastMatches: () -> ILastMatchStore?,
+    /** Display name of a player (from their profile), or `null` when unknown. */
+    private val names: (com.astarworks.astera.core.domain.player.PlayerId) -> String? = { null },
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
@@ -124,7 +126,7 @@ internal class StatsCommands(
                                 MessageKey("astera.command.reply.stats-leaderboard-line"),
                                 mapOf(
                                     "rank" to (i + 1).toString(),
-                                    "player" to e.playerId.uuid.toString().take(8),
+                                    "player" to (names(e.playerId) ?: e.playerId.uuid.toString().take(8)),
                                     "rating" to e.rating.toString(),
                                     "wins" to e.wins.toString(),
                                     "losses" to e.losses.toString(),

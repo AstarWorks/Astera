@@ -9,7 +9,12 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.stats.application.contents.NormaContents
 import com.astarworks.astera.stats.application.port.outbound.INormaRegistry
 import com.astarworks.astera.stats.application.port.outbound.INormaService
+import com.astarworks.astera.core.domain.norma.PeriodKind
+import com.astarworks.astera.stats.application.port.outbound.NormaView
+import java.time.Clock
 import java.time.Instant
+import java.time.LocalDate
+import java.time.temporal.IsoFields
 
 /**
  * In-memory [INormaService].
@@ -36,6 +41,8 @@ import java.time.Instant
 public class InMemoryNormaService(
     private val progressRepository: INormaProgressRepository,
     private val definitions: INormaRegistry,
+    /** Decides which day / ISO week a daily / weekly mission row belongs to. */
+    private val clock: Clock = Clock.systemDefaultZone(),
 ) : INormaService {
 
     /**
@@ -71,7 +78,23 @@ public class InMemoryNormaService(
     override fun activeNormasFor(playerId: PlayerId): Collection<Norma> = definitions.all()
 
     override fun progress(playerId: PlayerId): Collection<MissionProgress> =
-        progressRepository.allFor(playerId)
+        progressRepository.allFor(playerId).filter { row ->
+            val norma = definitions.find(row.normaId)
+            norma == null || row.periodKey == periodKey(norma.period)
+        }
+
+    override fun views(playerId: PlayerId): List<NormaView> {
+        val rows = progressRepository.allFor(playerId).associateBy { it.normaId }
+        return definitions.all().map { norma ->
+            val row = rows[norma.id]?.takeIf { it.periodKey == periodKey(norma.period) }
+            NormaView(
+                norma = norma,
+                current = row?.current ?: 0L,
+                required = requiredCount(norma.target),
+                completed = row?.completed ?: false,
+            )
+        }
+    }
 
     override fun recordProgress(playerId: PlayerId, target: NormaTarget, delta: Long): List<MissionProgress> {
         val newlyCompleted = mutableListOf<MissionProgress>()
@@ -79,8 +102,10 @@ public class InMemoryNormaService(
         for (norma in definitions.all()) {
             if (!sameKind(norma.target, target)) continue
 
-            val existing = progressRepository.find(playerId, norma.id)
-                ?: MissionProgress(playerId, norma.id, 0L, false, null)
+            val key = periodKey(norma.period)
+            // A row from an earlier day / week is stale: the mission starts over.
+            val existing = progressRepository.find(playerId, norma.id)?.takeIf { it.periodKey == key }
+                ?: MissionProgress(playerId, norma.id, 0L, false, null, key)
 
             if (existing.completed) continue
 
@@ -106,11 +131,20 @@ public class InMemoryNormaService(
     override fun markComplete(playerId: PlayerId, normaId: NormaId): MissionProgress? {
         val existing = progressRepository.find(playerId, normaId) ?: run {
             val norma = definitions.find(normaId) ?: return null
-            MissionProgress(playerId, normaId, requiredCount(norma.target), false, null)
+            MissionProgress(playerId, normaId, requiredCount(norma.target), false, null, periodKey(norma.period))
         }
         val updated = existing.copy(completed = true, completedAt = Instant.now())
         progressRepository.upsert(playerId, updated)
         return updated
+    }
+
+    /** The window a row belongs to: the date for daily, the ISO week for weekly, `""` (never resets) for seasonal. */
+    private fun periodKey(period: PeriodKind): String = when (period) {
+        PeriodKind.Daily -> LocalDate.now(clock).toString()
+        PeriodKind.Weekly -> LocalDate.now(clock).let {
+            "%d-W%02d".format(it.get(IsoFields.WEEK_BASED_YEAR), it.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR))
+        }
+        PeriodKind.Seasonal -> ""
     }
 
     private fun sameKind(a: NormaTarget, b: NormaTarget): Boolean = when {

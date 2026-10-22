@@ -31,5 +31,5 @@ tasks.named<Test>("test") {
     outputs.upToDateWhen { false }
     // One shared project scope (KonsistScopes) holds every parsed source file;
     // the default test-JVM heap (512m) is too small for the full tree.
-    maxHeapSize = "6g"
+    maxHeapSize = "10g"
 }
