@@ -140,9 +140,10 @@ class CommandTreeTest {
             val areaLines = plain.replies.filter { it.first.value == "astera.command.help.area-line" }.map { it.second["area"] }
             assertThat(areaLines).contains("queue", "shop").doesNotContain("admin", "mod")
 
+            // bare `/astera`: a player gets the main menu, or the help overview when it cannot open (ADR-0234)
             val bare = sim.command("alice", "")
             assertThat(bare.succeeded).isTrue()
-            assertThat(bare.replies.map { it.first.value }).contains("astera.command.help.header")
+            assertThat(bare.replies.map { it.first.value }).doesNotContain("astera.command.usage")
 
             val queueHelp = sim.command("alice", "help queue")
             val usages = queueHelp.replies.filter { it.first.value == "astera.command.help.line" }.map { it.second["usage"] }
@@ -306,6 +307,48 @@ class CommandTreeTest {
             }
             assertThat(clash.exceptionOrNull()).isInstanceOf(IllegalArgumentException::class.java)
             assertThat(registry.snapshot()).isEqualTo(before)
+        }
+    }
+
+    @Test
+    fun `top-level shortcuts run the same nodes as the full paths`() {
+        scenario("command-shortcuts") {
+            player("alice")
+            assertThat(sim.complete("alice", "play ")).contains("norma", "annihilation")
+            val play = sim.command("alice", "play norma")
+            assertThat(play.succeeded).`as`(play.replies.toString()).isTrue()
+            assertThat(play.replies.map { it.first.value }).contains("astera.match.queue.join.success")
+            assertThat(sim.command("alice", "queue status").replies.map { it.first.value })
+                .contains("astera.match.queue.status.line", "astera.match.queue.status.actions")
+            sim.command("alice", "queue leave")
+        }
+    }
+
+    @Test
+    fun `destructive match commands ask players for confirmation but not the console`() {
+        scenario("command-confirm") {
+            player("alice")
+            val asked = sim.command("alice", "match abort m-1", operator = true)
+            assertThat(asked.succeeded).isFalse()
+            assertThat(asked.replies.map { it.first.value }).containsExactly("astera.command.confirm.required")
+            assertThat(asked.replies.single().second["command"]).isEqualTo("/astera match abort m-1 --confirm")
+
+            val confirmed = sim.command("alice", "match abort m-1 --confirm", operator = true)
+            assertThat(confirmed.replies.map { it.first.value }).doesNotContain("astera.command.confirm.required")
+            val console = sim.consoleCommand("match cancel m-1")
+            assertThat(console.replies.map { it.first.value }).doesNotContain("astera.command.confirm.required")
+        }
+    }
+
+    @Test
+    fun `the usability messages exist in the language files`() {
+        scenario("command-i18n") {
+            player("alice")
+            val renderer = sim.services.getOrThrow<IMessageRenderer>()
+            for (key in listOf("astera.command.confirm.required", "astera.command.usage-sub", "astera.match.queue.status.actions")) {
+                val text = renderer.render(null, com.astarworks.astera.core.domain.i18n.MessageKey(key), mapOf("command" to "/x", "subs" to "a"))
+                assertThat(text).`as`(key).doesNotContain("astera.")
+            }
         }
     }
 }

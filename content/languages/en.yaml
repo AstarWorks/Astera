@@ -110,6 +110,24 @@ astera:
     menu:
       root: "<gray>Open the main menu.</gray>"
     usage: "<red>Usage: <white>{usage}</white></red>"
+    usage-description: "<gray>{description}</gray>"
+    usage-sub: "<gray>Choose one of:</gray> <yellow>{subs}</yellow>"
+    usage-example: "<gray>Example:</gray> <white>{example}</white>"
+    confirm:
+      required: "<yellow>This cannot be undone. <click:run_command:'{command}'><hover:show_text:'{command}'><green>[Click to confirm]</green></hover></click> <gray>or run {command}</gray></yellow>"
+    example:
+      queue-join: "/astera queue join norma   (or just /play norma)"
+      lang: "/astera lang ja"
+      volume: "/astera volume music 50"
+      shop: "/astera shop"
+      items-give: "/astera items give Steve greatsword 1"
+      match-start: "/astera match start example-arena"
+      match-abort: "/astera match abort <id> --confirm"
+      match-cancel: "/astera match cancel <id> --confirm"
+      economy-grant: "/astera economy grant Steve star 100"
+      friend-add: "/astera friend add Steve"
+      party-invite: "/astera party invite Steve"
+      chat-msg: "/astera chat msg Steve hello"
     internal_error: "<red>That command failed unexpectedly. The error was logged.</red>"
     player-not-found: "<red>Player <gold>{player}</gold> is offline or unknown.</red>"
     help:
@@ -280,6 +298,7 @@ astera:
       match-entry: "<green>{player} entered match <gold>{match}</gold>.</green>"
       match-list-header: "<gold>{count} active matches</gold>"
       match-list-line: "<white>{match}</white> <gray>[{phase}] stage={stage}</gray>"
+      match-list-line-op: "<white>{match}</white> <gray>[{phase}] stage={stage}</gray> <click:run_command:'/astera match end {match}'><hover:show_text:'/astera match end {match}'><gold>[End]</gold></hover></click> <click:suggest_command:'/astera match abort {match} --confirm'><hover:show_text:'/astera match abort {match}'><red>[Abort]</red></hover></click>"
       match-list-none: "<gray>No active matches.</gray>"
       match-phase: "<green>Match <gold>{match}</gold>: phase trigger <gold>{trigger}</gold> applied.</green>"
       match-replay-export: "<green>Replay exported to {path}.</green>"
@@ -738,6 +757,7 @@ astera:
         none: "<gray>You are not currently queued.</gray>"
         line: "<yellow>Queue:</yellow> <white>{mode}</white> <gray>(#</gray><gold>{position}</gold><gray>)</gray>"
         progress: "<gray>{players}/{required} players queued (the match starts once enough have joined).</gray>"
+        actions: "<click:run_command:'/astera queue leave'><hover:show_text:'/astera queue leave'><red>[Leave queue]</red></hover></click>"
 
     # Wave 5v — Match recording capture (ADR-0088)
     replay:
