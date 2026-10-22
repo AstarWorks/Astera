@@ -21,7 +21,7 @@ class ProjectileLifecycleScenarioTest {
         val trace = scenario("projectile-expires") {
             val shooter = player("shooter")
             shooter.holds("example-pistol")
-            shooter.click()
+            shooter.rightClick()
             advance(80)
             assertThat(sim.projectiles.inFlight).isZero()
         }
@@ -37,7 +37,7 @@ class ProjectileLifecycleScenarioTest {
             val shooter = player("shooter")
             shooter.holds("example-pistol")
             shooter.lookAt(Vec3(0.0, groundY, 6.0)) // down at the floor, 6 blocks ahead
-            shooter.click()
+            shooter.rightClick()
             advance(40)
             assertThat(sim.projectiles.inFlight).isZero()
         }

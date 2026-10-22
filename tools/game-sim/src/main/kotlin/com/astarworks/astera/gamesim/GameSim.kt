@@ -151,11 +151,16 @@ public class GameSim private constructor(
         entity.heldItem = ItemId(itemId)
     }
 
-    /** Left click in the air with the held item — the same sink the Paper click bridge feeds. */
-    public fun leftClick(entity: SimEntity) {
+    /** Feeds one input with the held item into the same sink `PaperItemInputListener` feeds. */
+    public fun input(entity: SimEntity, kind: IMcEvent.InputKind, sneaking: Boolean = false): Boolean {
         val view = checkNotNull(server.view(entity.id)) { "${entity.name} is not a player" }
-        items.triggerListener.handle(IMcEvent.PlayerLeftClickAir(view))
+        return items.triggerListener.handle(IMcEvent.PlayerInput(view, kind, sneaking, entity.heldItem))
     }
+
+    public fun leftClick(entity: SimEntity): Boolean = input(entity, IMcEvent.InputKind.LEFT_CLICK)
+
+    public fun rightClick(entity: SimEntity, sneaking: Boolean = false): Boolean =
+        input(entity, IMcEvent.InputKind.RIGHT_CLICK, sneaking)
 
     /**
      * Requests a skill cast the way an item binding does: publishes the

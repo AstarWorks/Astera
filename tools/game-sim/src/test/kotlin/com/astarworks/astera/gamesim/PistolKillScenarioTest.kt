@@ -25,7 +25,7 @@ class PistolKillScenarioTest {
             // example-blast has a 40-tick skill cooldown, so keep clicking until the kill lands.
             repeat(20) {
                 if (eventsOf<PlayerKilled>().isEmpty()) {
-                    shooter.click()
+                    shooter.rightClick()
                     advance(10)
                 }
             }

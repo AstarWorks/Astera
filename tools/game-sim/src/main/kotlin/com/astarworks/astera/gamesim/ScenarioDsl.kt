@@ -58,8 +58,12 @@ public class ScenarioScope(public val sim: GameSim) {
         lookAt(target.position + Vec3(0.0, target.hitboxHeight / 2, 0.0))
     }
 
-    public fun SimEntity.click() {
+    public fun SimEntity.leftClick() {
         sim.leftClick(this)
+    }
+
+    public fun SimEntity.rightClick(sneaking: Boolean = false) {
+        sim.rightClick(this, sneaking)
     }
 
     /** Casts [skillId] as if a bound item had requested it (see [GameSim.cast]). */
