@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.domain.damage
 
 import com.astarworks.astera.core.domain.skill.value.NumericValue
+import com.astarworks.astera.core.domain.status.StatusEffectId
 
 /**
  * Pure damage descriptor — now a non-empty list of [DamageComponent]s so a
@@ -74,9 +75,27 @@ public data class DamageProfile(
  *  - [attribute]: element family the band routes through.
  *  - [multiplier]: CEL-evaluable scaling applied before the matrix. Default
  *    `1.0` preserves the legacy `(base, attribute)` shape.
+ *  - [perStack]: optional bonus that scales with a status's stack count. Honoured by
+ *    `Mechanic.Damage` only (the dispatcher folds it into [base] per target).
  */
 public data class DamageComponent(
     public val base: NumericValue,
     public val attribute: DamageAttribute,
     public val multiplier: NumericValue = NumericValue.Literal(1.0),
+    public val perStack: PerStackBonus? = null,
+)
+
+/** Whose status stacks a [PerStackBonus] reads. */
+public enum class StackHolder { TARGET, CASTER }
+
+/**
+ * `final damage += amount x stacks(statusId on holder)`. The stack count is read
+ * BEFORE the hit; with [consume] the counted stacks are removed after the whole
+ * `Mechanic.Damage` has landed (so every target of one mechanic sees the same count).
+ */
+public data class PerStackBonus(
+    public val statusId: StatusEffectId,
+    public val amount: Double,
+    public val on: StackHolder = StackHolder.TARGET,
+    public val consume: Boolean = false,
 )

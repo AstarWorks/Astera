@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.domain.effect
 
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.item.ItemId
 
@@ -22,8 +23,15 @@ public data class DisplaySpec(
     public val transform: DisplayTransform = DisplayTransform.IDENTITY,
     public val lifetimeTicks: Long,
     public val billboard: DisplayBillboard = DisplayBillboard.FIXED,
+    /** Fixed block + sky light (0..15) for an emissive look; `null` = world lighting. */
+    public val brightness: Int? = null,
+    /** ARGB outline glow colour; `null` = no glow. */
+    public val glowArgb: Int? = null,
+    /** Render-distance multiplier; `null` = vanilla default. */
+    public val viewRange: Float? = null,
 ) {
     init {
+        require(brightness == null || brightness in 0..15) { "DisplaySpec.brightness must be 0..15: $brightness" }
         require(lifetimeTicks > 0L) { "DisplaySpec.lifetimeTicks must be > 0: $lifetimeTicks" }
     }
 }
@@ -39,7 +47,10 @@ public sealed class DisplayKind {
     }
 
     /** Renders an item model. Resolves through `IItemRegistry`. */
-    public data class Item(public val itemId: ItemId) : DisplayKind()
+    public data class Item(
+        public val itemId: ItemId,
+        public val displayMode: DisplayItemMode = DisplayItemMode.NONE,
+    ) : DisplayKind()
 
     /**
      * Renders floating text. `lines` is i18n-aware: the adapter picks the
@@ -48,6 +59,10 @@ public sealed class DisplayKind {
     public data class Text(
         public val lines: List<LocalizedText>,
         public val backgroundArgb: Int = 0x40000000.toInt(),
+        public val shadow: Boolean = false,
+        public val seeThrough: Boolean = false,
+        /** Wrap width in pixels; `null` = vanilla default (200). */
+        public val lineWidth: Int? = null,
     ) : DisplayKind() {
         init { require(lines.isNotEmpty()) { "DisplayKind.Text.lines must not be empty" } }
     }
@@ -72,22 +87,10 @@ public data class DisplayTransform(
     }
 }
 
-/**
- * Unit-quaternion orientation, double precision. Identity is `(0, 0, 0, 1)`
- * — Mojang's wire convention `(x, y, z, w)`.
- *
- * Lives here (rather than in `geometry/`) because no other domain concept
- * needs a quaternion in Phase 1. Promote when a second use site appears.
- */
-public data class Quaternion(
-    public val x: Double,
-    public val y: Double,
-    public val z: Double,
-    public val w: Double,
-) {
-    public companion object {
-        public val IDENTITY: Quaternion = Quaternion(0.0, 0.0, 0.0, 1.0)
-    }
+/** How an item display positions its model; mirrors Mojang's `ItemDisplayContext` one-for-one. */
+public enum class DisplayItemMode {
+    NONE, THIRDPERSON_LEFTHAND, THIRDPERSON_RIGHTHAND, FIRSTPERSON_LEFTHAND, FIRSTPERSON_RIGHTHAND,
+    HEAD, GUI, GROUND, FIXED,
 }
 
 /**

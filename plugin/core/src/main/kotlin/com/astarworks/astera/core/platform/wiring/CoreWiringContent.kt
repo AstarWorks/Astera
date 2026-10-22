@@ -125,6 +125,15 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     services.register<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>(particleContents, priority = 0)
     reloadRegistry.register(particleContents, particlesContentDir)
 
+    // ---- VFX contents (ADR-0220) ------------------------------------
+    // Display choreographies at content/vfx/, played by combat's `play_vfx` mechanic.
+    val vfxContentDir = contentDir.resolve("vfx")
+    val vfxContents = com.astarworks.astera.core.application.contents.VfxContents()
+    val vfxReport = vfxContents.bootstrap(vfxContentDir)
+    logger.info("VFX loaded: ${vfxReport.loaded} ok, ${vfxReport.failed} failed")
+    services.register<com.astarworks.astera.core.application.port.outbound.IVfxRegistry>(vfxContents, priority = 0)
+    reloadRegistry.register(vfxContents, vfxContentDir)
+
     // ---- Sound contents (Wave 5effects, ADR-0109) -------------------
     // SoundDefinition domain + Contents-driven YAML at content/sounds/.
     // Walks the per-category subdirectories (skills/, combat/, match/, ...)

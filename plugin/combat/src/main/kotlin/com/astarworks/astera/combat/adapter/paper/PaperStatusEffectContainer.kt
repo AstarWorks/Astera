@@ -137,10 +137,10 @@ public class PaperStatusEffectContainer(
             existing == null -> instance
             !spec.stackable -> instance.copy(currentStacks = 1) // refresh duration, single stack
             else -> {
-                val newStacks = (existing.currentStacks + 1).coerceAtMost(spec.maxStacks)
+                val newStacks = (existing.currentStacks + instance.currentStacks).coerceAtMost(spec.maxStacks)
                 instance.copy(currentStacks = newStacks)
             }
-        }
+        }.let { it.copy(currentStacks = if (it.spec.stackable) it.currentStacks.coerceAtMost(it.spec.maxStacks) else 1) }
         perPlayer[effectId] = merged
 
         // 2) Mirror to Bukkit (best-effort). Offline player → log + degrade.
@@ -187,6 +187,19 @@ public class PaperStatusEffectContainer(
                 atTick = scheduler.currentTick(),
             ),
         )
+    }
+
+    override fun removeStacks(playerId: PlayerId, effectId: StatusEffectId, count: Int) {
+        val existing = activeEffects[playerId]?.get(effectId) ?: return
+        if (count >= existing.currentStacks) {
+            remove(playerId, effectId)
+            return
+        }
+        if (count <= 0) return
+        val reduced = existing.copy(currentStacks = existing.currentStacks - count)
+        activeEffects[playerId]?.put(effectId, reduced)
+        server.getPlayer(playerId.uuid)?.let { mirrorApply(it, reduced) }
+        eventBus.publish(StatusApplied(target = playerId, effect = reduced, atTick = scheduler.currentTick()))
     }
 
     override fun clear(playerId: PlayerId) {
@@ -274,6 +287,8 @@ public class PaperStatusEffectContainer(
         StatusKind.CT_RATE_DOWN,
         StatusKind.CT_FREEZE,
         StatusKind.SILENCE,
+        StatusKind.STACK_DEBUFF,
+        StatusKind.STACK_BUFF,
         -> null
     }
 }

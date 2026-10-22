@@ -1,0 +1,16 @@
+# Wave PM-W3: Poise stacks on the user (caster side). Data only for now: a crit-chance hook
+# reads it later; skills can already gate on has_status.min_stacks and scale hits with
+# damage.per_stack { on: caster }.
+
+id: poise
+
+display_name_key: astera.status.poise.name
+
+kind: stack_buff
+default_duration_ticks: 400   # 20s @ 20 TPS
+
+stackable: true
+max_stacks: 20
+
+params:
+  type: marker
