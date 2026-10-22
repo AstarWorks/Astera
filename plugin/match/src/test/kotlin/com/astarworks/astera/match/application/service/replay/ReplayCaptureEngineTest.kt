@@ -178,6 +178,29 @@ class ReplayCaptureEngineTest {
     }
 
     @Test
+    fun `full per tick recording captures every tick including sub second movement`() {
+        stateProvider.participants[matchId] = listOf(attacker)
+        engine.startRecording(matchId, ReplayFormat.FullPerTick(maxDurationTicks = 100))
+        for (tick in 1L..5L) {
+            stateProvider.positions[attacker] = Vec3Snapshot(tick.toFloat(), 64f, 0f)
+            scheduler.advanceTicks(1L)
+        }
+        val result = engine.stopRecording(matchId)
+        check(result is Result.Success)
+        assertThat(result.value.keyFrames.map { it.tick }).containsExactly(1L, 2L, 3L, 4L, 5L)
+        assertThat(result.value.keyFrames.map { it.playerPositions[attacker]?.x }).containsExactly(1f, 2f, 3f, 4f, 5f)
+    }
+
+    @Test
+    fun `keyframe intervals need not be multiples of twenty`() {
+        engine.startRecording(matchId, ReplayFormat.EventLogKeyFrame(keyFramePer = 7))
+        scheduler.advanceTicks(21L)
+        val result = engine.stopRecording(matchId)
+        check(result is Result.Success)
+        assertThat(result.value.keyFrames.map { it.tick }).containsExactly(7L, 14L, 21L)
+    }
+
+    @Test
     fun `startRecording is idempotent on the same matchId`() {
         engine.startRecording(matchId, ReplayFormat.EventLogKeyFrame())
         engine.startRecording(matchId, ReplayFormat.FullPerTick(maxDurationTicks = 100))

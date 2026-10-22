@@ -53,4 +53,19 @@ class CombatMatchBugHuntScenarioTest {
                 .contains(local.id).doesNotContain(remote.id)
         }
     }
+    @Test
+    fun `production recorder captures movement on each tick`() {
+        scenario("bug-hunt-replay-ticks") {
+            val red = player("red")
+            val blue = player("blue")
+            val id = startMatch("norma", mapOf(red to "red", blue to "blue"))
+            val recorder = sim.services.getOrThrow<com.astarworks.astera.match.application.port.inbound.IMatchRecorder>()
+            recorder.startRecording(id, com.astarworks.astera.core.domain.replay.ReplayFormat.FullPerTick(100))
+            val started = sim.tick
+            repeat(5) { advance(1) }
+            val stopped = recorder.stopRecording(id)
+            check(stopped is com.astarworks.astera.core.domain.Result.Success)
+            assertThat(stopped.value.keyFrames.map { it.tick }).containsExactlyElementsOf((started + 1..started + 5).toList())
+        }
+    }
 }
