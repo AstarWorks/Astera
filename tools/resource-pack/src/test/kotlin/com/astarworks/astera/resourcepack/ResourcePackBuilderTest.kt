@@ -21,8 +21,9 @@ class ResourcePackBuilderTest {
         val files = ResourcePackBuilder(contentDir).collect()
 
         val mcmeta = json(files.getValue("pack.mcmeta")).path("pack")
-        assertThat(mcmeta.path("min_format").asInt()).isEqualTo(ResourcePackBuilder.MIN_FORMAT)
-        assertThat(mcmeta.path("max_format").asInt()).isEqualTo(ResourcePackBuilder.MAX_FORMAT)
+        assertThat(mcmeta.path("min_format").map { it.asInt() }).containsExactly(97, 0)
+        // 26.3: version.json pack_version.resource_major/minor = 97/1
+        assertThat(mcmeta.path("max_format").map { it.asInt() }).containsExactly(97, 1)
         assertThat(mcmeta.has("description")).isTrue()
 
         val providers = json(files.getValue("assets/astera/font/default.json")).path("providers")

@@ -143,6 +143,7 @@ public class PaperHudGateway(
 
     private val active: ConcurrentHashMap<HudHandle, ActiveHud> = ConcurrentHashMap()
 
+    private val renderFailureLogged: MutableSet<String> = ConcurrentHashMap.newKeySet()
     private var unsupportedSidebarLineLogged: Boolean = false
     private var tabListStubLogged: Boolean = false
 
@@ -178,7 +179,11 @@ public class PaperHudGateway(
         }
 
         val handle = HudHandle(UUID.randomUUID().toString())
-        val bossBarId = renderLayout(player, playerId, handle, layout, previous = null)
+        val bossBarId = try {
+            renderLayout(player, playerId, handle, layout, previous = null)
+        } catch (ex: RuntimeException) {
+            return Result.failure(renderFailure(layout, ex))
+        }
         active[handle] = ActiveHud(playerId, layout, bossBarId, HudChannelPolicy.expiresAt(layout, now), gen = 0)
         if (layout is HudLayout.StatusLine) sendActionBar(player, playerId, liveReadout(playerId))
 
@@ -209,10 +214,14 @@ public class PaperHudGateway(
         if (!sameRegion) {
             clearLayoutSurface(current)
         }
-        val newBossBarId = renderLayout(
-            player, current.playerId, handle, layout,
-            previous = if (sameRegion) current.layout else null,
-        )
+        val newBossBarId = try {
+            renderLayout(
+                player, current.playerId, handle, layout,
+                previous = if (sameRegion) current.layout else null,
+            )
+        } catch (ex: RuntimeException) {
+            return Result.failure(renderFailure(layout, ex))
+        }
         val gen = current.gen + 1
         active[handle] = current.copy(
             layout = layout,
@@ -292,12 +301,24 @@ public class PaperHudGateway(
         return Result.success(Unit)
     }
 
+    override fun layoutsFor(playerId: PlayerId): List<HudLayout> =
+        active.values.filter { it.playerId == playerId }.map { it.layout }
+
     override fun activeFor(playerId: PlayerId): Collection<HudHandle> =
         active.entries
             .filter { it.value.playerId == playerId }
             .map { it.key }
 
     // ---- Layout rendering -------------------------------------------------
+
+    /** A platform exception while drawing used to vanish into the caller's poll; log it once per layout kind. */
+    private fun renderFailure(layout: HudLayout, ex: RuntimeException): HudError {
+        val kind = layout::class.simpleName ?: "layout"
+        if (renderFailureLogged.add(kind)) {
+            log.error("HUD render failed for {}; later failures of this kind are not logged.", kind, ex)
+        }
+        return HudError.RenderFailed("$kind: ${ex.message}")
+    }
 
     /**
      * Render [layout] for [player]. Returns the materialized [BossBarId]

@@ -1,8 +1,6 @@
 package com.astarworks.astera.core.application.eventbus.listeners.hud
 
-import com.astarworks.astera.core.domain.event.PlayerHealthChanged
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
-import com.astarworks.astera.core.domain.event.PlayerMaxHealthChanged
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.event.ResourcePackStatusChanged
 import com.astarworks.astera.core.domain.hud.HudComponent
@@ -35,10 +33,6 @@ class HpStatusHudServiceTest {
         health.setMaxHealth(player, max)
         health.setHealth(player, hp, HealthChangeSource.Other("test"))
     }
-
-    private fun changed(player: PlayerId, old: Double, new: Double) = PlayerHealthChanged(
-        playerId = player, oldHp = old, newHp = new, source = HealthChangeSource.Other("test"), atTick = 0,
-    )
 
     private fun lastLine(player: PlayerId): HudLayout.StatusLine {
         val handle = hud.activeFor(player).single()
@@ -90,7 +84,7 @@ class HpStatusHudServiceTest {
     }
 
     @Test
-    fun `damage, heal and max-HP changes update the line`() {
+    fun `damage, heal and max-HP changes update the line, with or without an event`() {
         setHp(alice, 200.0)
         service.onPackStatus(ResourcePackStatusChanged(alice, ResourcePackStatus.LOADED))
         service.onJoined(PlayerJoinedServer(alice))
@@ -98,14 +92,23 @@ class HpStatusHudServiceTest {
         assertThat(lastLine(alice).component).isEqualTo(HpBarLayout.render(200.0, 200.0))
 
         setHp(alice, 80.0)
-        service.onHealthChanged(changed(alice, 200.0, 80.0))
         scheduler.advanceTicks(2)
         assertThat(lastLine(alice).component).isEqualTo(HpBarLayout.render(80.0, 200.0))
 
         setHp(alice, 120.0, max = 300.0)
-        service.onMaxHealthChanged(PlayerMaxHealthChanged(alice, 200.0, 300.0, atTick = 0))
         scheduler.advanceTicks(2)
         assertThat(lastLine(alice).component).isEqualTo(HpBarLayout.render(120.0, 300.0))
+    }
+
+    @Test
+    fun `a writer that never raises an event is still picked up by the poll`() {
+        setHp(alice, 200.0)
+        service.onJoined(PlayerJoinedServer(alice))
+        scheduler.advanceTicks(2)
+        // The combat damage gateway writes the container directly, with no PlayerHealthChanged.
+        setHp(alice, 30.0)
+        scheduler.advanceTicks(2)
+        assertThat((lastLine(alice).component as HudComponent.Text).placeholders).containsEntry("current", "30")
     }
 
     @Test
@@ -117,7 +120,6 @@ class HpStatusHudServiceTest {
 
         for (hp in listOf(190.0, 170.0, 150.0, 120.0)) {
             setHp(alice, hp)
-            service.onHealthChanged(changed(alice, hp + 10, hp))
         }
         scheduler.advanceTicks(1)
         assertThat(hud.operations).hasSize(before) // nothing yet: throttled
@@ -133,23 +135,28 @@ class HpStatusHudServiceTest {
         service.onJoined(PlayerJoinedServer(alice))
         scheduler.advanceTicks(2)
         val before = hud.operations.size
-
-        service.onHealthChanged(changed(alice, 100.0, 100.0))
         scheduler.advanceTicks(4)
 
         assertThat(hud.operations).hasSize(before)
     }
 
     @Test
-    fun `players are independent and a player without HP yet is retried, not dropped`() {
+    fun `a player with no HP in the container shows full default health, not nothing`() {
+        service.onJoined(PlayerJoinedServer(bob)) // nothing seeds the container on join
+        scheduler.advanceTicks(2)
+        val text = lastLine(bob).component as HudComponent.Text
+        assertThat(text.placeholders).containsEntry("current", "20").containsEntry("max", "20")
+
+        service.stop()
+    }
+
+    @Test
+    fun `players are independent`() {
         setHp(alice, 50.0)
         service.onJoined(PlayerJoinedServer(alice))
-        service.onJoined(PlayerJoinedServer(bob)) // no HP in the container yet
-        scheduler.advanceTicks(2)
-        assertThat(hud.activeFor(alice)).hasSize(1)
-        assertThat(hud.activeFor(bob)).isEmpty()
-
+        service.onJoined(PlayerJoinedServer(bob))
         setHp(bob, 10.0, max = 20.0)
+        scheduler.advanceTicks(2)
         scheduler.advanceTicks(2)
         assertThat((lastLine(bob).component as HudComponent.Text).placeholders).containsEntry("current", "10").containsEntry("max", "20")
         assertThat((lastLine(alice).component as HudComponent.Text).placeholders).containsEntry("current", "50")

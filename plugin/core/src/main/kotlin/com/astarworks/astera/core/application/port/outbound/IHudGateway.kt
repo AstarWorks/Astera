@@ -75,6 +75,9 @@ public interface IHudGateway {
 
     /** Snapshot of currently active HUD handles for [playerId]. */
     public fun activeFor(playerId: PlayerId): Collection<HudHandle>
+
+    /** The layouts currently held for [playerId], one per occupied region (diagnostics, tests). */
+    public fun layoutsFor(playerId: PlayerId): List<HudLayout>
 }
 
 public sealed class HudError {
@@ -83,4 +86,7 @@ public sealed class HudError {
     public data class InvalidGlyph(public val ref: HudGlyphRef) : HudError()
     public data class ResourcePackPushFailed(public val detail: String) : HudError()
     public data class Storage(public val detail: String) : HudError()
+
+    /** The platform threw while drawing the layout (logged once with the stack trace by the gateway). */
+    public data class RenderFailed(public val detail: String) : HudError()
 }

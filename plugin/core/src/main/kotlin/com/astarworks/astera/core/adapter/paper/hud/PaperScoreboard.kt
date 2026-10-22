@@ -7,7 +7,9 @@ import com.astarworks.astera.core.adapter.paper.packetevents.ITeamPacketSender
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
+import io.papermc.paper.scoreboard.numbers.NumberFormat
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.Server
 import org.bukkit.scoreboard.DisplaySlot
 import org.bukkit.scoreboard.Objective
@@ -37,7 +39,7 @@ import java.util.UUID
  * register and the UPDATE paths so they stay byte-identical.
  *
  * Phase 1 PoC limits:
- *  - The title stays shared (default locale, [TITLE_LIMIT]-truncated):
+ *  - The title stays shared (default locale):
  *    the objective display name travels in a different packet and is out
  *    of ADR-0171 scope.
  *  - Locale changes apply on relog: a re-`show` → [addViewer] re-runs
@@ -71,14 +73,18 @@ public class PaperScoreboard(
         ?: bukkitScoreboard.registerNewObjective(
             OBJECTIVE_NAME,
             org.bukkit.scoreboard.Criteria.DUMMY,
-            Component.text(renderTitle(initialTitle)),
-        ).also { it.displaySlot = DisplaySlot.SIDEBAR }
+            renderTitle(initialTitle),
+        ).also {
+            it.displaySlot = DisplaySlot.SIDEBAR
+            // The score is only a sort key (slot index); the red column of numbers is noise.
+            it.numberFormat(NumberFormat.blank())
+        }
 
     override val title: MessageKey get() = titleBacking
 
     override fun setTitle(title: MessageKey) {
         titleBacking = title
-        objective.displayName(Component.text(renderTitle(title)))
+        objective.displayName(renderTitle(title))
     }
 
     override fun addLine(index: Int, text: MessageKey, placeholders: Map<String, String>) {
@@ -97,7 +103,7 @@ public class PaperScoreboard(
                 objective.getScore(token).score = index
             }
         val baseline = renderBaseline(text, placeholders)
-        team.prefix(Component.text(baseline))
+        team.prefix(toComponent(baseline))
         lineMap[index] = LineState(text, placeholders, baseline, teamName)
         fanOutLine(index)
     }
@@ -141,8 +147,16 @@ public class PaperScoreboard(
     /** Snapshot of the UUIDs currently attached to this scoreboard. */
     public fun viewers(): Set<UUID> = viewers.toSet()
 
-    private fun renderTitle(key: MessageKey): String =
-        truncate(messageRenderer?.render(null, key, emptyMap()) ?: key.value, TITLE_LIMIT)
+    private fun renderTitle(key: MessageKey): Component =
+        toComponent(messageRenderer?.render(null, key, emptyMap()) ?: key.value)
+
+    /**
+     * The renderer returns MiniMessage (`<gray>Online:</gray> ...`); drawing it as
+     * literal text showed the tags on screen. Falls back to plain text when the
+     * string is not valid MiniMessage.
+     */
+    private fun toComponent(rendered: String): Component =
+        runCatching { MiniMessage.miniMessage().deserialize(rendered) }.getOrElse { Component.text(rendered) }
 
     /**
      * Default-locale rendering for the shared Bukkit board. The component
@@ -158,9 +172,6 @@ public class PaperScoreboard(
         return out
     }
 
-    private fun truncate(s: String, limit: Int): String =
-        if (s.length <= limit) s else s.substring(0, limit)
-
     /** Per-viewer override of the line at [index] for all online viewers. */
     private fun fanOutLine(index: Int) {
         val sender = teamPacketSender ?: return
@@ -169,7 +180,7 @@ public class PaperScoreboard(
         for (uuid in viewers) {
             val player = server.getPlayer(uuid) ?: continue
             val rendered = renderer.render(PlayerId(uuid), line.key, line.placeholders)
-            sender.sendTeamUpdate(player, line.teamName, Component.text(rendered))
+            sender.sendTeamUpdate(player, line.teamName, toComponent(rendered))
         }
     }
 
@@ -180,7 +191,7 @@ public class PaperScoreboard(
         val player = server.getPlayer(playerId.uuid) ?: return
         for (line in lineMap.values) {
             val rendered = renderer.render(playerId, line.key, line.placeholders)
-            sender.sendTeamUpdate(player, line.teamName, Component.text(rendered))
+            sender.sendTeamUpdate(player, line.teamName, toComponent(rendered))
         }
     }
 
@@ -202,7 +213,6 @@ public class PaperScoreboard(
 
     private companion object {
         private const val OBJECTIVE_NAME = "astera"
-        private const val TITLE_LIMIT = 32
 
         /**
          * One legacy color code per sidebar slot 0..14. `"§<code>§r"` is

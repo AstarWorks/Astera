@@ -44,6 +44,7 @@ public class MatchSidebarService(
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
+    private val failureLogged: MutableSet<PlayerId> = mutableSetOf()
     private val lastSent: MutableMap<PlayerId, HudLayout.Sidebar> = mutableMapOf()
 
     private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(
@@ -99,7 +100,7 @@ public class MatchSidebarService(
             is Result.Success -> Unit
             is Result.Failure -> {
                 lastSent.remove(playerId)
-                log.debug("Match sidebar show failed for {} in {}: {}", playerId, match.id, outcome.error)
+                if (failureLogged.add(playerId)) log.warn("Match sidebar show failed for {} in {}: {}", playerId, match.id, outcome.error)
             }
         }
     }
