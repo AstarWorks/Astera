@@ -170,7 +170,7 @@ vfx-shot: ## Film a skill with a real headless MC client: make vfx-shot SKILL=<s
 	SKILL="$(SKILL)" VIEW="$(or $(VIEW),all)" TICKS="$(or $(TICKS),60)" bash tools/vfx-shot/vfx-shot.sh
 
 .PHONY: vfx-shot-down
-vfx-shot-down: ## Stop + drop the vfx-shot server (project astera-shot; only needed after SHOT_KEEP=1)
+vfx-shot-down: ## Stop + drop the vfx-shot server (this checkout + SKILL/CASE; only needed after SHOT_KEEP=1)
 	bash tools/vfx-shot/vfx-shot.sh down
 
 # ----------------------------------------------------------------------------
@@ -189,3 +189,16 @@ skill-compare: ## Video vs intent vs Minecraft compare web app on 0.0.0.0:8097 (
 skill-compare-fetch: ## Download a reference video + native-fps frames/waveform for its cases: make skill-compare-fetch VIDEO=<youtube id> [CASE=<id>]
 	@test -n "$(VIDEO)" || { echo "usage: make skill-compare-fetch VIDEO=<youtube id> [CASE=<case id>]"; exit 2; }
 	cd tools/skill-compare && bun install && bun scripts/prepare.mjs "$(VIDEO)" $(CASE)
+
+# Reference videos are shared by every worktree (one download, atomic rename); frames/analysis stay per worktree.
+export SKILL_COMPARE_VIDEO_DIR ?= $(HOME)/.cache/astera-skill-compare/videos
+
+.PHONY: skill-compare-case
+skill-compare-case: ## New case + native-fps frames: make skill-compare-case CASE=<id> VIDEO=<youtubeId> START=<s> END=<s> SKILL=<astera-skill-id> [NAME=..] [COINS=..] [IDENTITY=..] [WEAPON=<item-id>] [TITLE=<video title>]
+	@test -n "$(CASE)" -a -n "$(VIDEO)" -a -n "$(START)" -a -n "$(END)" -a -n "$(SKILL)" || { echo "usage: make skill-compare-case CASE=<id> VIDEO=<youtubeId> START=<s> END=<s> SKILL=<astera-skill-id> [NAME=..] [COINS=..] [IDENTITY=..] [WEAPON=<item-id>] [TITLE=<video title>]"; exit 2; }
+	cd tools/skill-compare && bun install && bun scripts/scaffold.mjs "$(CASE)" "$(VIDEO)" "$(START)" "$(END)" "$(SKILL)" "$(NAME)" "$(COINS)" "$(IDENTITY)" "$(WEAPON)" "$(TITLE)"
+
+.PHONY: skill-pairs
+skill-pairs: ## Video vs MC frame pairs at video times -> build/pairs/<case>.png: make skill-pairs CASE=<id> [SKILL=<skill>] AT="t1:label t2:label ..."
+	@test -n "$(CASE)" -a -n "$(AT)" || { echo "usage: make skill-pairs CASE=<id> [SKILL=<skill>] AT=\"19.7:hit1 20.9:hit2\" (t = video seconds)"; exit 2; }
+	python3 -I tools/skill-compare/scripts/pairs.py --case "$(CASE)" $(if $(SKILL),--skill "$(SKILL)") --out "build/pairs/$(CASE).png" $(AT)

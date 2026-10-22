@@ -119,6 +119,9 @@ public class SimMcPlayer(private val entity: SimEntity) : IMcPlayer {
     public val titles: MutableList<MessageKey> = mutableListOf()
     public val givenItems: MutableList<String> = mutableListOf()
 
+    /** When set, action bars and titles throw like the old `TODO()` stub did (a failing cosmetic output). */
+    public var failNotices: Boolean = false
+
     override fun sendMessage(rendered: String) {
         messages += rendered
     }
@@ -136,6 +139,7 @@ public class SimMcPlayer(private val entity: SimEntity) : IMcPlayer {
     override fun heldItemMaterialKey(): String? = entity.heldItem?.value
 
     override fun sendActionBar(messageKey: MessageKey, placeholders: Map<String, String>) {
+        if (failNotices) throw NotImplementedError("sim: action bar failure")
         actionBars += messageKey
     }
 
@@ -146,6 +150,7 @@ public class SimMcPlayer(private val entity: SimEntity) : IMcPlayer {
         stay: Duration,
         fadeOut: Duration,
     ) {
+        if (failNotices) throw NotImplementedError("sim: title failure")
         titles += titleKey
     }
 }

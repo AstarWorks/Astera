@@ -54,3 +54,31 @@ Frames before the cast / after the last frame are shown dimmed. Align with the "
 
 Only `public/`, `src/` (bundled on the fly), `data/`, `cache/` and the three build dirs above are reachable, by fixed
 URL patterns with strict file-name regexes. Binding `0.0.0.0` is intended for the LAN; there is no auth, do not expose it.
+
+## Agent PDCA loop
+
+Each agent works in its own worktree; frames stay in that worktree's `build/`, only `data/<case>/` is committed.
+
+1. **Case**: `make skill-compare-case CASE=<id> VIDEO=<youtubeId> START=<s> END=<s> SKILL=<astera-skill-id> [NAME=.. COINS=..]` writes `data/<id>/case.json`
+   + an `intent.json` template and extracts native-fps frames/onsets/cuts. Several cases per video share one download (`SKILL_COMPARE_VIDEO_DIR`,
+   default `~/.cache/astera-skill-compare/videos` via make).
+2. **Intent**: fill `intent.json` (camera / actors / weapon / effects; tick 0 = START, schema = `data/zwei-s3/intent.json`).
+3. **Author**: write/adjust the Astera skill YAML / VFX.
+4. **Capture**: `SKILL=<skill> VIEW=compare CASE=<id> bash tools/vfx-shot/vfx-shot.sh` (queues on the global slots, see `tools/vfx-shot/README.md`).
+5. **Pairs**: `make skill-pairs CASE=<id> [SKILL=<skill>] AT="19.7:hit1 20.9:hit2"` (t = absolute video seconds; video, t0 and pre-ticks are derived)
+   -> `build/pairs/<id>.png`; read it, compare, go back to 3.
+6. **Review**: `make skill-compare` serves cases from the checkout it runs in. To also show other worktrees' captures:
+   `SKILL_COMPARE_MEDIA_DIRS=/path/wt-a/build/vfx-shot:/path/wt-b/build/vfx-shot make skill-compare` (the main dir is searched first).
+
+## Index (weapon roster) and multi-worktree aggregation
+
+The index lists the persona weapons (`content/items/*.yaml` with ADR-0230 bindings, 10 today) with item-art icon, ja/en name, and one row per bound slot
+(左クリック S1 / 右クリック S2 / スニーク+右 S3 / スニーク+左 DEF / Q) with skill name, range type, coins vs implemented hits, video+MC thumbnails at the first hit,
+status chip (未着手 / 分析済 / 実装済 / 撮影済), `N回目`, REPORT link and last update. Weapons without cases stay in the list, greyed. `GET /api/index` is the JSON.
+
+Every request re-scans main + `.claude/worktrees/*/tools/skill-compare/data/*/case.json` (+ their `build/vfx-shot/`), plus `SKILL_COMPARE_DATA_DIRS` / `SKILL_COMPARE_MEDIA_DIRS`.
+Duplicate ids: the highest `rev` wins, then the newest `case.json` (an identical copy in main never loses to a worktree checkout). Each row shows which branch it came from.
+Saving a case writes the winning copy (in whichever worktree it lives).
+
+Optional case.json fields read by the index (the page preserves them on save): `identity` (character/source), `weapon` (item id), `videoTitle`,
+`status` (`analysed` default, `built` when the skill is authored; `captured` is derived from the existence of `compare` frames), `iterations` (number), `report` (URL or `/path`).

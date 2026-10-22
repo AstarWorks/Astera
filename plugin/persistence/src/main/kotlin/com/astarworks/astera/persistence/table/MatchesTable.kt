@@ -16,7 +16,7 @@ import java.time.Instant
 public object MatchesTable : Table("matches") {
     public val id = varchar("id", 128)
     public val phase = varchar("phase", 32)
-    public val stageId = varchar("stage_id", 128).references(StagesTable.id)
+    public val stageId = varchar("stage_id", 128)
     public val startedAtTick = long("started_at_tick")
     public val teams = jsonb("teams", MatchTeamsJson.serializer())
     public val score = jsonb("score", MatchScoreJson.serializer())

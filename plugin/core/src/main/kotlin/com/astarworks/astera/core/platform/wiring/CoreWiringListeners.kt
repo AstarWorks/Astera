@@ -119,6 +119,14 @@ internal fun CoreWiringState.wireCompletenessListeners() {
         hintListener.handle(event)
     }
 
+    // Vanilla hearts are a mirror of the Astera HP container; a direct login must not keep the previous
+    // session's playerdata health (1-3 hearts) next to a full HP line.
+    val healthMirrorOnJoin = com.astarworks.astera.core.application.eventbus.listeners.physiology
+        .SyncHealthMirrorOnJoinListener({ services.get<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>() })
+    wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { event ->
+        healthMirrorOnJoin.handle(event)
+    }
+
     // Wave AB 5lobby-ux-complete (ADR-0138): chat display. Pre-Wave-AB ChatMessageSent had only audit + replay
     // subscribers (no UX path); chat sent was invisible to other
     // players. ITabList registered at priority 0 but no listener

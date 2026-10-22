@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import org.slf4j.LoggerFactory
 
 /**
  * Paper half of the item input bridge (WP1): translates Bukkit input events
@@ -35,6 +36,8 @@ public class PaperItemInputListener(
     private val itemIdResolver: PaperItemIdResolver,
     private val sink: (IMcEvent) -> Boolean,
 ) : Listener {
+
+    private val log = LoggerFactory.getLogger(javaClass)
 
     @EventHandler
     public fun onInteract(e: PlayerInteractEvent) {
@@ -75,6 +78,8 @@ public class PaperItemInputListener(
         // Spectators (death cam / eliminated teams) never trigger item skills.
         if (player.gameMode == GameMode.SPECTATOR) return false
         val itemId = itemIdResolver.itemIdOf(stack) ?: return false
-        return sink(IMcEvent.PlayerInput(PaperPlayer(player), kind, player.isSneaking, itemId))
+        val consumed = sink(IMcEvent.PlayerInput(PaperPlayer(player), kind, player.isSneaking, itemId))
+        log.debug("input {} {} item={} consumed={}", player.name, kind, itemId, consumed)
+        return consumed
     }
 }

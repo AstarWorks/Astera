@@ -7,6 +7,8 @@ import { join, resolve, sep, dirname } from "node:path";
 import { networkInterfaces } from "node:os";
 import { fileURLToPath } from "node:url";
 import { CASE_ID_RE, validateCase, diffSummary } from "./src/timeline.js";
+import { makeSources } from "./lib/sources.mjs";
+import { buildIndex } from "./lib/weapons.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const MAX_BODY = 1_000_000;
@@ -14,10 +16,10 @@ const MAX_BODY = 1_000_000;
 export function makeHandler(opts = {}) {
   const root = opts.root ?? HERE;
   const repo = opts.repo ?? resolve(HERE, "..", "..");
-  const dataDir = join(root, "data");
-  const cacheDir = join(root, "cache");
   const publicDir = join(root, "public");
   const vfxShotDir = opts.vfxShotDir ?? process.env.SKILL_COMPARE_VFX_SHOT ?? join(repo, "build", "vfx-shot");
+  const S = makeSources({ root, repo, vfxShotDir, mediaDirs: opts.mediaDirs, worktrees: opts.worktrees ?? true });
+  const vfxFind = S.vfxFind;
   const viewerDir = opts.viewerDir ?? join(repo, "tools", "skill-viewer", "build", "skill-frames");
   const tracesDir = opts.tracesDir ?? join(repo, "tools", "game-sim", "build", "sim-traces");
 
@@ -28,26 +30,20 @@ export function makeHandler(opts = {}) {
   const inside = (base, p) => { const r = resolve(p); return r === resolve(base) || r.startsWith(resolve(base) + sep); };
 
   function listCases() {
-    if (!existsSync(dataDir)) return [];
-    return readdirSync(dataDir, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && CASE_ID_RE.test(d.name) && existsSync(join(dataDir, d.name, "case.json")))
-      .map((d) => {
-        const c = readJson(join(dataDir, d.name, "case.json"));
-        return {
-          id: d.name, videoId: c.videoId, skill: c.skill, start_s: c.start_s, end_s: c.end_s,
-          hits: (c.segments || []).filter((s) => s.kind === "hit").length,
-          media: existsSync(join(cacheDir, d.name, "meta.json")),
-          edits: (c.editLog || []).length,
-        };
-      });
+    return [...S.allCases().values()].map(({ id, c, src }) => ({
+      id, videoId: c.videoId, skill: c.skill, start_s: c.start_s, end_s: c.end_s,
+      hits: (c.segments || []).filter((x) => x.kind === "hit").length,
+      media: !!S.cacheFor(id, src), edits: (c.editLog || []).length, from: { worktree: src.name, branch: src.branch },
+    }));
   }
 
   function mcInfo(skill) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return info;
     for (const view of ["compare", "caster", "opponent", "side"]) {
-      const d = join(vfxShotDir, skill, view);
-      if (existsSync(d)) {
+      const base = vfxFind(skill, view);
+      const d = base && join(base, skill, view);
+      if (base) {
         const n = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).length;
         let castFrame = 0;  // compare: frames before the cast (meta.json cast_tick_ms)
         try { castFrame = Math.round((readJson(join(d, "meta.json")).cast_tick_ms ?? 0) / 50); } catch { /* no meta: frame 0 = cast */ }
@@ -67,7 +63,7 @@ export function makeHandler(opts = {}) {
         info.traceHitsAreAbsolute = true;
       } catch { /* unreadable trace: no markers */ }
     }
-    const mp = join(vfxShotDir, skill, "meta.json");
+    const mp = join(S.vfxDirs().find((b) => existsSync(join(b, skill, "meta.json"))) ?? vfxShotDir, skill, "meta.json");
     if (existsSync(mp)) {
       try { const m = readJson(mp); if (Array.isArray(m.hitTicks)) { info.hitTicks = m.hitTicks; info.traceHitsAreAbsolute = false; } } catch { /* ignore */ }
     }
@@ -75,19 +71,26 @@ export function makeHandler(opts = {}) {
   }
 
   function getCase(id) {
-    const dir = join(dataDir, id);
-    const cp = join(dir, "case.json");
-    if (!existsSync(cp)) return null;
-    const c = readJson(cp);
+    const rec = S.allCases().get(id);
+    if (!rec) return null;
+    const { c, src } = rec, dir = join(src.dataDir, id);
     const intentPath = join(dir, c.intent?.file ?? "intent.json");
     const intent = inside(dir, intentPath) && existsSync(intentPath) ? readJson(intentPath) : null;
-    const mp = join(cacheDir, id, "meta.json"), ap = join(cacheDir, id, "analysis.json");
+    const cdir = S.cacheFor(id, src);
+    const ap = cdir && join(cdir, "analysis.json");
     return {
-      case: c, intent,
-      media: existsSync(mp) ? { ready: true, ...readJson(mp), base: `/media/${id}/frames/` } : { ready: false },
-      analysis: existsSync(ap) ? readJson(ap) : { waveform: [], waveformStepMs: 10, onsets: [], cuts: [] },
+      case: c, intent, from: { worktree: src.name, branch: src.branch },
+      weapon: weaponOf(c.skill?.asteraSkillId, c.weapon),
+      media: cdir ? { ready: true, ...readJson(join(cdir, "meta.json")), base: `/media/${id}/frames/` } : { ready: false },
+      analysis: ap && existsSync(ap) ? readJson(ap) : { waveform: [], waveformStepMs: 10, onsets: [], cuts: [] },
       mc: mcInfo(c.skill?.asteraSkillId),
     };
+  }
+
+  // breadcrumb target: the roster weapon this skill (or the case's `weapon` field) belongs to
+  function weaponOf(skillId, hint) {
+    const w = buildIndex({ repo, S, mcInfo }).weapons.find((x) => x.id === hint || x.slots.some((r) => r.skillId === skillId));
+    return w ? { id: w.id, ja: w.ja, en: w.en, slot: w.slots.find((r) => r.skillId === skillId)?.tag ?? "" } : null;
   }
 
   async function saveCase(id, req) {
@@ -100,8 +103,10 @@ export function makeHandler(opts = {}) {
     if (!incoming || incoming.id !== id) return err(400, "case.id must equal the URL id");
     const problems = validateCase(incoming);
     if (problems.length) return json({ error: "invalid case", problems }, 422);
-    const cp = join(dataDir, id, "case.json");
-    const before = readJson(cp);
+    const rec = S.allCases().get(id);
+    if (!rec) return err(404, "no such case");
+    const cp = rec.file;
+    const before = rec.c;
     if ((incoming.rev ?? 0) !== (before.rev ?? 0)) return json({ error: "stale rev: reload (someone else saved)", rev: before.rev ?? 0 }, 409);
     const next = { ...incoming, rev: (before.rev ?? 0) + 1 };
     next.editLog = [...(before.editLog || []), {
@@ -140,19 +145,24 @@ export function makeHandler(opts = {}) {
     if (p === "/index.js") return file(join(publicDir, "index.js"), "text/javascript");
     if (p === "/style.css") return file(join(publicDir, "style.css"), "text/css");
     if (p === "/api/cases" && req.method === "GET") return json(listCases());
+    if (p === "/api/index" && req.method === "GET") return json(buildIndex({ repo, S, mcInfo }));
+    if ((m = /^\/icon\/([a-z0-9-]+)\.png$/.exec(p))) return file(join(repo, "content", "textures", "generated", "items", m[1] + ".png"), "image/png");
     if ((m = /^\/api\/cases\/([a-z0-9-]+)$/.exec(p))) {
       if (!CASE_ID_RE.test(m[1])) return err(400, "bad id");
       if (req.method === "GET") { const c = getCase(m[1]); return c ? json(c) : err(404, "no such case"); }
-      if (req.method === "POST") { if (!existsSync(join(dataDir, m[1], "case.json"))) return err(404, "no such case"); return saveCase(m[1], req); }
+      if (req.method === "POST") { return saveCase(m[1], req); }
       return err(405, "method not allowed");
     }
     if ((m = /^\/media\/([a-z0-9-]+)\/frames\/(frame_\d{5}\.jpg)$/.exec(p))) {
-      const f = join(cacheDir, m[1], "frames", m[2]);
-      return inside(cacheDir, f) ? file(f, "image/jpeg") : err(400, "bad path");
+      const cdir = S.cacheFor(m[1], S.allCases().get(m[1])?.src);
+      if (!cdir) return err(404, "no media");
+      const f = join(cdir, "frames", m[2]);
+      return inside(cdir, f) ? file(f, "image/jpeg") : err(400, "bad path");
     }
     if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|caster|opponent|side)\/(frame_\d{3,4}\.png)$/.exec(p))) {
-      const f = join(vfxShotDir, m[1], m[2], m[3]);
-      return inside(vfxShotDir, f) ? file(f, "image/png") : err(400, "bad path");
+      const base = vfxFind(m[1], m[2]) ?? vfxShotDir;
+      const f = join(base, m[1], m[2], m[3]);
+      return inside(base, f) ? file(f, "image/png") : err(400, "bad path");
     }
     if ((m = /^\/mc\/viewer\/([a-z0-9-]+)\/(key-\d+\.png)$/.exec(p))) {
       const f = join(viewerDir, m[1], "frames", m[2]);

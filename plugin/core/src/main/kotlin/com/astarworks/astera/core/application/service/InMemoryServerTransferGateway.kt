@@ -50,6 +50,8 @@ public class InMemoryServerTransferGateway(
     private val queueCapacity: Int = DEFAULT_QUEUE_CAPACITY,
 ) : IServerTransferGateway {
 
+    private val log = org.slf4j.LoggerFactory.getLogger(javaClass)
+
     private data class QueuedTransfer(
         val playerId: PlayerId,
         val targetServer: ServerName,
@@ -88,13 +90,18 @@ public class InMemoryServerTransferGateway(
 
         // Pre-publish the domain event so HUD / audit / inventory snapshot
         // listeners can react before the proxy hop actually starts.
-        eventBus.publish(
-            PlayerTransferRequested(
-                playerId = playerId,
-                targetServer = targetServer,
-                transferReason = transferReason,
-            ),
-        )
+        // A failing listener must never block the move itself.
+        try {
+            eventBus.publish(
+                PlayerTransferRequested(
+                    playerId = playerId,
+                    targetServer = targetServer,
+                    transferReason = transferReason,
+                ),
+            )
+        } catch (e: Throwable) {
+            log.warn("PlayerTransferRequested listener failed for {} -> {}; sending anyway", playerId, targetServer, e)
+        }
 
         return when (val sent = messenger.sendToServer(playerId, targetServer)) {
             is Result.Success -> Result.success(Unit)
