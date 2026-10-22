@@ -27,6 +27,15 @@ help: ## Show this help
 build: ## Build the 7 Astera plugin shadow jars (plugin/*/build/libs/astera-*.jar)
 	$(GRADLEW) $(foreach p,core items combat match stats economy persistence,:plugin:$(p):shadowJar)
 
+.PHONY: skill-frames
+skill-frames: ## Render PNG frames + contact sheet + GIF for one skill: make skill-frames SKILL=simple-shoot
+	@test -n "$(SKILL)" || { echo "usage: make skill-frames SKILL=<skill id>"; exit 2; }
+	$(GRADLEW) :tools:skill-viewer:render -Pscenario=$(SKILL)
+
+.PHONY: skill-frames-all
+skill-frames-all: ## Contact sheets for every skill (tools/skill-viewer/build/skill-frames/<skill>/sheet.png)
+	$(GRADLEW) :tools:skill-viewer:render
+
 .PHONY: check
 check: ## Run unit tests + Konsist architecture tests
 	$(GRADLEW) check
