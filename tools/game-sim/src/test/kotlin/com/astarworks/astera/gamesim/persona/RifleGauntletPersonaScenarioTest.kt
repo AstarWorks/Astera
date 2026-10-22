@@ -23,7 +23,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0221 persona weapons #3 `vendetta-rifle` (Vendetta Bayonet) and #4 `ember-gauntlet` (Ember Gauntlet):
+ * ADR-0230 persona weapons #3 `vendetta-rifle` (Vendetta Bayonet) and #4 `ember-gauntlet` (Ember Gauntlet):
  * the four skills of each cast through the real item bindings (or `cast` for the sneak+left DEF, which the
  * click DSL cannot press), deal their damage to a dummy, spend/build their resources and stacks, spawn
  * display choreography within the 60-live-displays budget, and leave no display behind.

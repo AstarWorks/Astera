@@ -17,7 +17,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0221 persona weapons #7 (`crimson-chain-axe`, Rupture) and #8 (`sigil-rifle`, Sinking): every
+ * ADR-0230 persona weapons #7 (`crimson-chain-axe`, Rupture) and #8 (`sigil-rifle`, Sinking): every
  * binding casts, offensive skills damage a dummy, stacks apply / are consumed as designed, displays
  * spawn within the 60-display budget and are all gone by the end of the effect.
  */

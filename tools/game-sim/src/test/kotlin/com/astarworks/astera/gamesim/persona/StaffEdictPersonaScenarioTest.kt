@@ -20,7 +20,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * Persona weapons #9 `orrery-staff` (charge) and #10 `edict-blade` (poise), ADR-0221.
+ * Persona weapons #9 `orrery-staff` (charge) and #10 `edict-blade` (poise), ADR-0230.
  *
  * Every skill is fired through its real item binding (left / right / sneak + right / sneak + left), then the
  * test checks: damage lands on a dummy where the skill is offensive, the stack the design promises is

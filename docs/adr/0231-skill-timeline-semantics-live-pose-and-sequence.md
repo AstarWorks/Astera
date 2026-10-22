@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0222: Skill timeline semantics — live pose, fire-time conditions, true multi-hit, `sequence` archetype
+# ADR-0231: Skill timeline semantics — live pose, fire-time conditions, true multi-hit, `sequence` archetype
 
 ## Status
 
@@ -14,7 +14,7 @@ Accepted
 
 ## Context
 
-ADR-0221 の 10 人格武器 (40 スキル) を ADR-0220 の基盤で書いた結果、作者 5 名が同じ穴に当たった:
+ADR-0230 の 10 人格武器 (40 スキル) を ADR-0220 の基盤で書いた結果、作者 5 名が同じ穴に当たった:
 多段ヒットが 20 tick の無敵時間で消える (`ignore_invulnerability` が未実装)、遅延ビートがキャスト時の位置・条件で
 評価される (ダッシュ後の斬撃が元の位置に出る)、`filter` が条件を無視、放射ノックバックが無い、
 hit_stop が同 tick のノックバックを消す、スキル全体がタイムラインの場合に `melee range 0.5` や
@@ -45,4 +45,4 @@ hit_stop が同 tick のノックバックを消す、スキル全体がタイ�
 - **無敵時間を全体で短縮**: 通常攻撃の連打まで速くなるため不採用。スキル側の明示フラグにした。
 
 ## References
-- ADR-0220, ADR-0221
+- ADR-0220, ADR-0230

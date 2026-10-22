@@ -1,4 +1,4 @@
-# ADR-0221 persona weapon: Bastion Greatsword S1 (left click). Two beats: a horizontal moon
+# ADR-0230 persona weapon: Bastion Greatsword S1 (left click). Two beats: a horizontal moon
 # crescent now (7), a heavier rising crescent 14 ticks later (9, ignores invulnerability frames so it
 # really lands). Landing the first beat banks 1 charge and refunds 6 energy. The second beat picks
 # its victims when it fires (a cone in front of where the caster is then), so backing off or

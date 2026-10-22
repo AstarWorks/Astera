@@ -1,4 +1,4 @@
-# ADR-0221 persona weapon: Bastion Greatsword S3 (sneak + right click), "Colossus Fall".
+# ADR-0230 persona weapon: Bastion Greatsword S3 (sneak + right click), "Colossus Fall".
 # Finisher: 29 ticks of telegraph (the floor hoop is the 5.2-block damage radius), the slam, and
 # an aftershock 22 ticks later. Both hits scale with banked charge; the aftershock spends it.
 # The slam is fixed on the spot the cast started at, so leaving the hoop dodges it.

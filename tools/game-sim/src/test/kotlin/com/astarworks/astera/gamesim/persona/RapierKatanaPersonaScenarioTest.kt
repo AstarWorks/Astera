@@ -20,7 +20,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0221 persona weapons #1 (`couture-rapier`, poise) and #2 (`gossamer-katana`, bleed): every
+ * ADR-0230 persona weapons #1 (`couture-rapier`, poise) and #2 (`gossamer-katana`, bleed): every
  * bound skill casts through the real item bindings, deals its designed damage to a dummy, builds or
  * spends its stack, spawns its layered displays within the live-display budget and leaves no display
  * behind. The dummy gets 200 HP so a whole kit's damage stays measurable (a crit only ever adds).

@@ -22,7 +22,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0221 persona weapons #5 `bastion-greatsword` (charge, banked by guarding) and #6
+ * ADR-0230 persona weapons #5 `bastion-greatsword` (charge, banked by guarding) and #6
  * `verdict-hammer` (rupture "stakes" driven into the target). Every skill is cast through the
  * item binding (or `cast` for sneak + left click, which the simulator has no input for), must
  * damage a dummy where it is offensive, must spawn displays, apply / spend its stack as

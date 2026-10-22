@@ -1,4 +1,4 @@
-# ADR-0221 persona weapon: Verdict Hammer S2 (right click), "Heavenly Stakes". 8 ticks of
+# ADR-0230 persona weapon: Verdict Hammer S2 (right click), "Heavenly Stakes". 8 ticks of
 # telegraph (hammer floats up, circuitry climbs both flanks), a 6-block dash; if it connects, the
 # spot is marked with a V and a closing hoop, and 38 ticks after the dash two sword stakes drop on
 # it (the hoop is the dodge window). Both hits scale with the target's rupture stakes; the dash
