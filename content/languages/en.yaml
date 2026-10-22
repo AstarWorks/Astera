@@ -402,6 +402,8 @@ astera:
         tooltip: "<gray>Click to travel to PvE / Survival / Lobby.</gray>"
       profile:
         tooltip: "<gray>Click to view your profile.</gray>"
+      training:
+        tooltip: "<gray>Click to visit the training range (try every weapon for free).</gray>"
     travel-menu:
       title: "<gold>Travel</gold>"
       pve:

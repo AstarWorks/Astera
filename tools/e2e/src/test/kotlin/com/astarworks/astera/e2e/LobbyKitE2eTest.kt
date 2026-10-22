@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Test
 class LobbyKitE2eTest : E2eBase() {
 
     private val suite = "Lobby kit & HUD"
-    private val kitHotbar = listOf(0, 1, 2, 3, 7, 8)
+    /** HotbarLayout (ADR-0211): the kit is compact in 5..8; slots 0..4 belong to weapons. */
+    private val kitHotbar = listOf(5, 6, 7, 8)
+    private val weaponZone = listOf(0, 1, 2, 3, 4)
 
     /** Which hotbar / crafting slots hold anything on the server (item identity is not needed to see a change). */
     private fun inventoryIds(b: Bot): String = serverSlots(b)
@@ -21,11 +23,13 @@ class LobbyKitE2eTest : E2eBase() {
         b.waitUntil(8_000) { b.contents[0]?.any { it.amount > 0 } == true }
         Thread.sleep(1_500)
 
-        E2eReport.check(suite, "kit items are in hotbar slots 0,1,2,3,7,8 after join", "SetContainerContent(inventory)") {
+        E2eReport.check(suite, "kit items are in hotbar slots 5,6,7,8 after join, weapons (starter grant) in 0..4", "SetContainerContent(inventory)") {
             val hb = b.hotbar()
             val missing = kitHotbar.filter { hb[it] == -1 }
             assertThat(missing).describedAs("kit slots empty: $missing (hotbar=$hb)").isEmpty()
-            assertThat(listOf(4, 5, 6).filter { hb[it] != -1 }).describedAs("unexpected items in free slots: $hb").isEmpty()
+            val kitIds = kitHotbar.map { hb[it] }.toSet()
+            assertThat(weaponZone.filter { hb[it] in kitIds }).describedAs("kit item in the weapon zone: $hb").isEmpty()
+            assertThat(weaponZone.count { hb[it] != -1 }).describedAs("starter weapons missing from the weapon zone: $hb").isGreaterThanOrEqualTo(1)
             "hotbar item ids=$hb; crafting area (result,grid x4)=${b.craftingArea()}\nserver item ids: ${inventoryIds(b)}"
         }
         E2eReport.check(suite, "crafting-grid buttons + result slot present", "SetContainerContent(inventory)") {
@@ -37,15 +41,15 @@ class LobbyKitE2eTest : E2eBase() {
         val invBefore = inventoryIds(b)
         val hotbarBefore = b.hotbar()
         val craftBefore = b.craftingArea()
-        b.selectHotbar(1)
+        b.selectHotbar(6)
         Thread.sleep(300)
         b.dropSelected(false)
         b.dropSelected(true)
-        b.clickSlot(0, 37, ContainerActionType.DROP_ITEM, DropItemAction.DROP_SELECTED_STACK)
-        b.clickSlot(0, 36, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
-        b.clickSlot(0, 40, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
+        b.clickSlot(0, 41, ContainerActionType.DROP_ITEM, DropItemAction.DROP_SELECTED_STACK)
+        b.clickSlot(0, 44, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
+        b.clickSlot(0, 42, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
         b.clickSlot(0, 20, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
-        b.clickSlot(0, 38, ContainerActionType.SHIFT_CLICK_ITEM, org.geysermc.mcprotocollib.protocol.data.game.inventory.ShiftClickItemAction.LEFT_CLICK)
+        b.clickSlot(0, 43, ContainerActionType.SHIFT_CLICK_ITEM, org.geysermc.mcprotocollib.protocol.data.game.inventory.ShiftClickItemAction.LEFT_CLICK)
         Thread.sleep(2_000)
         b.selectHotbar(0)
 

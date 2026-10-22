@@ -410,6 +410,8 @@ astera:
         tooltip: "<gray>クリックで PvE / サバイバル / ロビーへ移動。</gray>"
       profile:
         tooltip: "<gray>クリックでプロフィールを表示。</gray>"
+      training:
+        tooltip: "<gray>クリックで訓練場へ移動（全武器を無料で試せます）。</gray>"
     travel-menu:
       title: "<gold>移動</gold>"
       pve:
