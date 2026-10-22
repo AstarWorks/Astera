@@ -8555,7 +8555,7 @@ elements:
 - id: orbit-cut--1
   kind:
     type: sprite
-    sprite: couture-cut
+    sprite: couture-orbit
     frame_ticks: 2
     loop: true
   billboard: center
@@ -8631,7 +8631,7 @@ elements:
 - id: orbit-cut-1
   kind:
     type: sprite
-    sprite: couture-cut
+    sprite: couture-orbit
     frame_ticks: 2
     loop: true
   billboard: center

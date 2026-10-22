@@ -108,7 +108,7 @@ internal object ParticlePainters {
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
         "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
-        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice,
+        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit,
     )
 
     /** A 4-point star that pops open, hangs, then shrinks, with a small diagonal star and a white-hot core. */
@@ -264,6 +264,20 @@ internal object ParticlePainters {
 
     /** Fine cutting ribbon, preserving the slash arc and sweep timing. */
     private fun slice(c: Canvas, t: Double, i: Int, n: Int) = crescent(c, t, 1.2)
+
+    /** A long, tapered orbit ribbon; the VFX timeline supplies its rotation. */
+    private fun orbit(c: Canvas, t: Double, i: Int, n: Int) {
+        val sweep = 230.0 * PI / 180.0
+        c.forEach { x, y ->
+            val dx = x - C
+            val dy = y - C
+            val angle = (atan2(dy, dx) + 2 * PI) % (2 * PI)
+            val u = angle / sweep
+            if (u !in 0.0..1.0) return@forEach 0.0
+            val halfWidth = 0.12 + 1.35 * sin(PI * u).pow(0.7)
+            (1.0 - abs(hypot(dx, dy) - 11.5) / halfWidth) * (0.85 + 0.15 * sin(PI * u))
+        }
+    }
 
     private fun crescent(c: Canvas, t: Double, width: Double) {
         val cx = 1.0
