@@ -109,6 +109,17 @@ public class PostgresAuditLogRepository(private val db: Database) : IAuditLogRep
             ),
         )
 
+        is AuditEvent.CurrencyMovement -> KIND_CURRENCY_MOVEMENT to json.encodeToString(
+            CurrencyMovementJson.serializer(),
+            CurrencyMovementJson(
+                player = event.player.uuid.toString(),
+                currency = event.currency.name,
+                delta = event.delta,
+                newBalance = event.newBalance,
+                reason = event.reason,
+            ),
+        )
+
         is AuditEvent.MatchStarted -> KIND_MATCH_STARTED to json.encodeToString(
             MatchStartedJson.serializer(),
             MatchStartedJson(matchId = event.matchId.value),
@@ -177,6 +188,18 @@ public class PostgresAuditLogRepository(private val db: Database) : IAuditLogRep
                     occurredAt = occurredAt,
                 )
             }
+            KIND_CURRENCY_MOVEMENT -> {
+                val dto = json.decodeFromString(CurrencyMovementJson.serializer(), raw)
+                AuditEvent.CurrencyMovement(
+                    id = id,
+                    player = PlayerId(UUID.fromString(dto.player)),
+                    currency = Currency.valueOf(dto.currency),
+                    delta = dto.delta,
+                    newBalance = dto.newBalance,
+                    reason = dto.reason,
+                    occurredAt = occurredAt,
+                )
+            }
             KIND_MATCH_STARTED -> {
                 val dto = json.decodeFromString(MatchStartedJson.serializer(), raw)
                 AuditEvent.MatchStarted(id = id, matchId = MatchId(dto.matchId), occurredAt = occurredAt)
@@ -228,6 +251,7 @@ public class PostgresAuditLogRepository(private val db: Database) : IAuditLogRep
     public companion object {
         public const val KIND_PERMISSION_ASSIGNED: String = "permission_assigned"
         public const val KIND_CURRENCY_TRANSFERRED: String = "currency_transferred"
+        public const val KIND_CURRENCY_MOVEMENT: String = "currency_movement"
         public const val KIND_MATCH_STARTED: String = "match_started"
         public const val KIND_MATCH_ENDED: String = "match_ended"
         public const val KIND_CHAT_MESSAGE_RECORDED: String = "chat_message_recorded"
@@ -251,6 +275,15 @@ private data class CurrencyTransferredJson(
     val to: String,
     val currency: String,
     val amount: Long,
+    val reason: String,
+)
+
+@Serializable
+private data class CurrencyMovementJson(
+    val player: String,
+    val currency: String,
+    val delta: Long,
+    val newBalance: Long,
     val reason: String,
 )
 
