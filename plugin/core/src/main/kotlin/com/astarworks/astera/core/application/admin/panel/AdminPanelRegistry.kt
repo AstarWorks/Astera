@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * Where on the `/astera-admin` panel a plugin-contributed tile appears
- * (F1-D, ADR-0182).
+ * (F1-D, ADR-0183).
  *
  *  - [HUB]    — a section of the top-level hub (Weapons & items, Match control, ...).
  *  - [PLAYER] — a per-player action; the panel injects `target=<uuid>` into its intent.

@@ -51,7 +51,7 @@ public interface IMatchmaker {
      *    match yet. No state mutation.
      *  - `Result.Failure(QueueError.ModeClosed)` — admin closed [mode].
      *
-     * Admin panel overrides (F1-D, ADR-0182): [minPlayers] replaces the lane's
+     * Admin panel overrides (F1-D, ADR-0183): [minPlayers] replaces the lane's
      * minimum-players gate (a "force start now" passes `1`); [only], when
      * non-null, restricts the draw to those queued players ("start the lane
      * with just me") — everyone else stays queued.

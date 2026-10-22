@@ -1,0 +1,30 @@
+---
+# velocity.toml for the cluster (ADR-0179). itzg/mc-proxy copies /config into
+# /server on start. The forwarding secret is NOT here: the pod gets it from the
+# `astera-runtime` Secret as VELOCITY_FORWARDING_SECRET.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: velocity-config
+  namespace: astera
+data:
+  velocity.toml: |
+    config-version = "2.7"
+    bind = "0.0.0.0:25577"
+    motd = "<#09add3>Astera"
+    show-max-players = 200
+    online-mode = true
+    force-key-authentication = true
+    prevent-client-proxy-connections = false
+    player-info-forwarding-mode = "modern"
+    forwarding-secret-file = "forwarding.secret"
+    announce-forge = false
+    kick-existing-players = false
+    ping-passthrough = "DISABLED"
+
+    [servers]
+    lobby = "astera-lobby.astera.svc.cluster.local:31001"
+    game = "astera-game.astera.svc.cluster.local:31002"
+    try = ["lobby"]
+
+    [forced-hosts]

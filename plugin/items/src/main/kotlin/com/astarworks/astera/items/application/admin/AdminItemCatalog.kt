@@ -15,7 +15,7 @@ import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.resource.ResourceType
 
-/** Admin-catalog grouping of an item (F1-D, ADR-0182). Derived from item data, never from a hard-coded id list. */
+/** Admin-catalog grouping of an item (F1-D, ADR-0183). Derived from item data, never from a hard-coded id list. */
 public enum class AdminItemCategory(public val key: String) {
     GUN("gun"),
     SWORD("sword"),

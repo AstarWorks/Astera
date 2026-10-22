@@ -75,7 +75,11 @@ public class InMemoryServerTransferGateway(
         targetServer: ServerName,
         transferReason: TransferReason,
     ): Result<Unit, TransferError> {
-        permissionService?.let { svc ->
+        // System-initiated hops (match found / return to lobby, ADR-0179) are not
+        // the player's choice, so they are not gated on a per-server permission.
+        val systemInitiated = transferReason is TransferReason.MatchFound ||
+            transferReason is TransferReason.LobbyReturn
+        permissionService?.takeUnless { systemInitiated }?.let { svc ->
             val node = permissionNodeFor(targetServer)
             if (!svc.check(playerId, Permission(node))) {
                 return Result.failure(TransferError.PermissionDenied(node))

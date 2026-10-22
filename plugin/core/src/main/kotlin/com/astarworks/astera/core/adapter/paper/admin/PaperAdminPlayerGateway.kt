@@ -10,7 +10,7 @@ import org.bukkit.Server
 import org.bukkit.entity.Player
 
 /**
- * Paper implementation of [IAdminPlayerGateway] (F1-D, ADR-0182). Main-thread
+ * Paper implementation of [IAdminPlayerGateway] (F1-D, ADR-0183). Main-thread
  * only — invoked from GUI click handlers.
  */
 public class PaperAdminPlayerGateway(private val server: Server) : IAdminPlayerGateway {

@@ -15,7 +15,7 @@ public data class ReloadAllFailed(val summary: ReloadAllSummary)
 /**
  * Reloads every category registered on [IReloadableContentsRegistry] — the same
  * per-category `reload()` that `/astera-reload <category>` calls, run for all
- * of them (F1-D, ADR-0182). Categories are independent: a failure in one never
+ * of them (F1-D, ADR-0183). Categories are independent: a failure in one never
  * stops the others.
  */
 public class ReloadAllContentUseCase(

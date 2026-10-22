@@ -27,7 +27,7 @@ import java.time.Clock
 import java.util.UUID
 
 /**
- * Core-owned pages of the `/astera-admin` panel (F1-D, ADR-0182): the hub, the
+ * Core-owned pages of the `/astera-admin` panel (F1-D, ADR-0183): the hub, the
  * Players page (online list + per-player actions), the Server page and the
  * Self-tools page.
  *

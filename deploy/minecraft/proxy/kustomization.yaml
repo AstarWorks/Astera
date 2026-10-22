@@ -4,5 +4,6 @@ kind: Kustomization
 namespace: astera
 
 resources:
+  - velocity-config.yaml
   - velocity-deployment.yaml
   - velocity-service.yaml

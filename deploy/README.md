@@ -62,6 +62,24 @@ attached as a git submodule under `private/`) as sealed-secrets or SOPS blobs.
 The `AstarWorks/AsteraPrivate` submodule is mounted at `private/`. See
 `.gitmodules`.
 
+`astera-runtime` (`deploy/minecraft/astera-runtime-secret.yaml`) carries the
+**Velocity forwarding secret** (Velocity pod: `VELOCITY_FORWARDING_SECRET`;
+lobby / game pods: `CFG_VELOCITY_SECRET`, applied to Paper's
+`proxies.velocity.secret` by the image's `/patches`) and the Postgres app
+credentials. Use one value of `velocity-forwarding-secret` everywhere; rotate by
+changing the secret and restarting all three pods.
+
+## Lobby / game split (ADR-0179)
+
+Players connect to Velocity only (NodePort 33411; `online-mode=true`). The lobby
+and game pods run the same image with `ASTERA_SERVER_ROLE=lobby|game` and
+`ASTERA_SERVER_NAME=lobby|game` (the names in `velocity-config`), reach Postgres and
+Redis through `ASTERA_PG_*` / `ASTERA_REDIS_URI`, and accept only
+forwarding-signed connections (`ONLINE_MODE=false` + Paper velocity forwarding).
+The lobby queue hands formed matches to the game pod over Redis and moves players
+with the BungeeCord `Connect` plugin message. The game Deployment stays a single
+replica: it hosts one match at a time.
+
 ## Storage
 
 Phase 1 uses **hostPath** PVs (`/srv/astera/...`) for the lobby world, game world,

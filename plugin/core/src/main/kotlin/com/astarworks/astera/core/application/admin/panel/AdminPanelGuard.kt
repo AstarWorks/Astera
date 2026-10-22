@@ -15,7 +15,7 @@ import java.time.Clock
 
 /**
  * Permission gate + audit trail shared by every `admin.*` panel intent handler
- * (F1-D, ADR-0182).
+ * (F1-D, ADR-0183).
  *
  * The GUI itself is unauthenticated plumbing — anyone can hold an inventory
  * that was opened for them, and permissions can be revoked while a panel is

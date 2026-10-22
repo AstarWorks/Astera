@@ -11,7 +11,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 
 /**
- * Intent keys of the `/astera-admin` panel (F1-D, ADR-0182). Each plugin owns
+ * Intent keys of the `/astera-admin` panel (F1-D, ADR-0183). Each plugin owns
  * one `admin.<area>.` prefix on `IGuiIntentRouter` (ADR-0119 ownership rule).
  */
 public object AdminIntents {

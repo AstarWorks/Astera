@@ -1,0 +1,40 @@
+# syntax=docker/dockerfile:1.7
+#
+# Astera resource pack server (ADR-0182).
+#
+#   1. `builder` - runs `:tools:resource-pack:buildResourcePack` over content/
+#                  (textures, models, sounds, HUD art) -> astera.zip + astera.zip.sha1
+#   2. `serve`   - nginx serving just those two files
+#
+# Build context is the repository root:
+#
+#     docker build -f docker/Dockerfile.resource-pack -t astera/resource-pack:dev .
+#
+# The sha1 file is served next to the zip (`/astera.zip.sha1`); the Paper
+# server reads it at boot when ASTERA_RESOURCE_PACK_SHA1 is not set.
+
+# ---------- Stage 1: build the pack ----------
+FROM gradle:9.5.1-jdk25 AS builder
+
+WORKDIR /workspace
+
+COPY settings.gradle.kts build.gradle.kts gradle.properties /workspace/
+COPY gradle /workspace/gradle/
+COPY buildSrc /workspace/buildSrc/
+COPY config /workspace/config/
+COPY tools /workspace/tools/
+# :tools:resource-pack reads the glyph table from :plugin:core.
+COPY plugin /workspace/plugin/
+COPY content /workspace/content/
+
+RUN --mount=type=cache,id=astera-resource-pack-gradle,target=/home/gradle/.gradle \
+    gradle --no-daemon -x test :tools:resource-pack:buildResourcePack \
+ && test -s build/resource-pack/astera.zip \
+ && test -s build/resource-pack/astera.zip.sha1
+
+# ---------- Stage 2: serve it ----------
+FROM nginx:1.27-alpine AS serve
+
+COPY --from=builder /workspace/build/resource-pack/astera.zip /workspace/build/resource-pack/astera.zip.sha1 /usr/share/nginx/html/
+
+EXPOSE 80

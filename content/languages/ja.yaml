@@ -363,6 +363,10 @@ astera:
       stage-busy: "<gray>アリーナ使用中です。空き次第マッチが始まります。</gray>"
       match-found: "<green>マッチ成立！ <gold>{stage}</gold> へ移動します（チーム <gold>{team}</gold>）。</green>"
       start-failed: "<red>マッチを開始できませんでした。キューに戻しました。</red>"
+      # ADR-0179 — ロビー/ゲームサーバー分離
+      transferring: "<green>マッチ成立！ アリーナサーバーへ移動します…</green>"
+      dispatch-failure: "<red>アリーナサーバーが応答しませんでした。キューに戻しました。</red>"
+      wrong-server: "<gray>このサーバーはマッチ専用です。ロビーに戻します…</gray>"
     # Wave 5lobby-content (ADR-0119) — ロビー `lobby.queue.*` GuiIntent 出力.
     queue:
       unknown-mode: "<red>未知のキューモードです。</red>"
@@ -582,6 +586,10 @@ astera:
         reloaded: "<green>リロード完了</green> <white>{remaining}/{max}</white>"
     status:
       stacks: "<gray>x{stacks}</gray>"
+      # ADR-0182 — リソースパック未適用時の文字表示 HP。
+      hp: "<red>HP</red> <white>{current}/{max}</white>"
+    resource-pack:
+      prompt: "<gold>Astera リソースパック</gold> <gray>- 専用 HP バー・アイテムモデル・サウンド</gray>"
     sidebar:
       spacer: " "
       phase:
@@ -1016,6 +1024,33 @@ astera:
       party:
         name: "パーティコーディネーター"
 
+    # ADR-0180 — 空島ロビーの看板 (4 行、1 行 15 文字以内)。
+    sign:
+      dir:
+        market:
+          title: "<gold><bold>マーケット</bold></gold>"
+          subtitle: "<dark_gray>ショップ・装備</dark_gray>"
+        garden:
+          title: "<dark_green><bold>庭園</bold></dark_green>"
+          subtitle: "<dark_gray>くつろぎ</dark_gray>"
+        pavilion:
+          title: "<light_purple><bold>展望台</bold></light_purple>"
+          subtitle: "<dark_gray>あずまや</dark_gray>"
+        queue:
+          title: "<dark_red><bold>マッチ</bold></dark_red>"
+          subtitle: "<dark_gray>ここで待機</dark_gray>"
+      lane:
+        hint: "<dark_gray>床の上に立つ</dark_gray>"
+        norma:
+          title: "<green><bold>ノルマ</bold></green>"
+          subtitle: "<dark_gray>ノルマ競争</dark_gray>"
+        annihilation:
+          title: "<red><bold>殲滅</bold></red>"
+          subtitle: "<dark_gray>3 本の柱</dark_gray>"
+        siege:
+          title: "<aqua><bold>攻城</bold></aqua>"
+          subtitle: "<dark_gray>目標を落とせ</dark_gray>"
+
   # Wave E 5admin-ops (ADR-0122) — /astera-<verb> 管理者コマンド群。
   admin:
     maintenance:
@@ -1165,6 +1200,8 @@ astera:
       "match.hub": "<red>試合コントロール</red>"
       "match.hub.lore": "<gray>進行中の試合とキューレーン。</gray>"
       "match.none": "<gray>進行中の試合はありません。</gray>"
+      "match.remote": "<gray>試合は <white>{game}</white> で進行します。</gray>"
+      "match.remote.lore": "<dark_gray>ここはロビーサーバーです。試合の終了・中止・フェーズ送りはゲームサーバー側で行ってください。</dark_gray>"
       "match.lanes": "<gold>キューレーン</gold>"
       "match.row": "<white>{match}</white> <gray>[{mode}]</gray>"
       "match.row.stage": "<gray>ステージ: <white>{stage}</white></gray>"

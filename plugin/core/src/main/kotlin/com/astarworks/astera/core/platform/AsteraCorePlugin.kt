@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.platform.paper.CorePaperBindings
 import com.astarworks.astera.core.platform.wiring.CoreWiring
 import com.astarworks.astera.core.platform.wiring.CoreWiringResult
+import com.astarworks.astera.core.platform.wiring.ServerEnvironment
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import org.bukkit.plugin.java.JavaPlugin
 import java.nio.file.Files
@@ -59,6 +60,9 @@ public class AsteraCorePlugin : JavaPlugin() {
     public lateinit var services: ServiceRegistry
         private set
 
+    /** Role and proxy name of this backend (`ASTERA_SERVER_ROLE` / `ASTERA_SERVER_NAME`), read once; the other plugins reuse it. */
+    public val serverEnvironment: ServerEnvironment = ServerEnvironment.fromSystem()
+
     /** Workspace / server content directory (`content/`) resolved at enable. */
     public lateinit var contentDir: Path
         private set
@@ -108,9 +112,10 @@ public class AsteraCorePlugin : JavaPlugin() {
         contentDir = resolveContentDir()
         logger.info("Content directory: $contentDir")
 
-        val ctx = WiringContext(services, contentDir, logger)
+        val ctx = WiringContext(services, contentDir, logger, serverEnvironment.role, serverEnvironment.name)
+        logger.info("Server role=${serverEnvironment.role} name=${serverEnvironment.name}")
         wiringContext = ctx
-        val bindings = CorePaperBindings(this, packetEventsInstalled)
+        val bindings = CorePaperBindings(this, packetEventsInstalled, serverEnvironment)
         paperBindings = bindings
 
         val ports = bindings.buildPorts()

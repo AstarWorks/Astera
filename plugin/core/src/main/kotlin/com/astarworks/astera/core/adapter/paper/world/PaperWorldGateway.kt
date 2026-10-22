@@ -62,10 +62,8 @@ import org.slf4j.LoggerFactory
  *    Wave (post Wave 6b inventory bridges) introduces the per-match spawn
  *    registry and rewires this to read the arena center.
  *  - [lobbySpawn] → reads the lobby world's `world.spawnLocation`. The
- *    lobby world is `server.worlds.first()` (vanilla Paper guarantees the
- *    main world is index 0). Wave 6b follow-up may add a configurable
- *    `lobby.world` content key; KDoc on [IWorldGateway.lobbySpawn] already
- *    flagged this as an open knob.
+ *    lobby world is the procedural sky-island world `lobby` (ADR-0180) when
+ *    this backend hosts it, else `server.worlds.first()` (the main world).
  *
  * # ADR-0149 §C invariant
  *
@@ -199,7 +197,9 @@ public class PaperWorldGateway(
     override fun lobbySpawn(playerId: PlayerId): Result<Unit, WorldGatewayError> {
         val player = onlinePlayer(playerId)
             ?: return Result.failure(WorldGatewayError.UnknownPlayer(playerId))
-        val lobby = server.worlds.firstOrNull()
+        // The procedural sky-island world (ADR-0180) when this backend hosts it, else the main world.
+        val lobby = server.getWorld(com.astarworks.astera.core.application.config.LobbyWorldYamlConfig.DEFAULT_ID)
+            ?: server.worlds.firstOrNull()
             ?: return Result.failure(WorldGatewayError.Storage("no worlds loaded"))
         val ok = player.teleport(lobby.spawnLocation)
         return if (ok) {

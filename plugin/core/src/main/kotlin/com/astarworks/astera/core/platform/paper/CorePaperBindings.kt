@@ -58,6 +58,8 @@ internal class CorePaperBindings(
      * gate (JLS §5.3.4 lazy resolution keeps vanilla Paper bootable).
      */
     private val packetEventsInstalled: Boolean,
+    /** Role and proxy name of this backend (ADR-0179). */
+    private val serverEnvironment: com.astarworks.astera.core.platform.wiring.ServerEnvironment,
 ) {
     private val server = plugin.server
     private val logger = plugin.logger
@@ -70,6 +72,10 @@ internal class CorePaperBindings(
 
     /** Wave 6b-3 (ADR-0158): drained on [shutdown]. */
     private var lettuceBroadcaster: com.astarworks.astera.core.adapter.paper.broadcast.LettuceRedisBroadcaster? = null
+
+    /** ADR-0179: closed on [shutdown]. */
+    private var redisProxyMessenger: com.astarworks.astera.core.adapter.paper.proxy.RedisProxyMessenger? = null
+    private var bungeeConnector: com.astarworks.astera.core.adapter.paper.proxy.BungeeCordPlayerConnector? = null
 
     /** Retained so [shutdown] can release the HTTP port (Wave _ops). */
     private var metricsHttpServer: HttpMetricsServer? = null
@@ -144,6 +150,7 @@ internal class CorePaperBindings(
                     tabListPacketSender,
                 )
             },
+            resourcePack = com.astarworks.astera.core.platform.wiring.ResourcePackEnv.load(logger = logger),
             hudGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.hud.PaperHudGateway(
                     server = server,
@@ -318,7 +325,40 @@ internal class CorePaperBindings(
                 null
             },
             metrics = { services -> bootstrapMetrics(services) },
+            proxyMessenger = { _ -> buildProxyMessenger(scheduler) },
         )
+    }
+
+    /**
+     * Cross-server messenger (ADR-0179): Redis pub/sub for messages plus the
+     * BungeeCord `Connect` plugin message for moving players. Only for a
+     * lobby / game backend; a single-server (`all`) boot keeps the loopback.
+     * A missing / unreachable Redis is logged SEVERE and leaves the loopback,
+     * so transfers then fail loudly instead of silently half-working.
+     */
+    private fun buildProxyMessenger(scheduler: IScheduler): com.astarworks.astera.core.application.port.outbound.IProxyMessenger? {
+        if (serverEnvironment.role == com.astarworks.astera.core.domain.proxy.ServerRole.ALL) return null
+        val uri = System.getenv("ASTERA_REDIS_URI")?.takeIf { it.isNotBlank() } ?: run {
+            logger.severe("ASTERA_SERVER_ROLE=${serverEnvironment.role} needs ASTERA_REDIS_URI; cross-server transfer disabled.")
+            return null
+        }
+        val connector = com.astarworks.astera.core.adapter.paper.proxy.BungeeCordPlayerConnector(plugin)
+        val messenger = com.astarworks.astera.core.adapter.paper.proxy.RedisProxyMessenger(
+            localServer = serverEnvironment.name,
+            redisUri = io.lettuce.core.RedisURI.create(uri),
+            playerConnector = connector::connect,
+            dispatch = { block -> scheduler.runLater(com.astarworks.astera.core.application.port.outbound.TICK) { block() } },
+        )
+        return try {
+            messenger.start()
+            bungeeConnector = connector
+            redisProxyMessenger = messenger
+            messenger
+        } catch (ex: RuntimeException) {
+            connector.close()
+            logger.severe("RedisProxyMessenger could not connect to $uri (${ex.message}); cross-server transfer disabled.")
+            null
+        }
     }
 
     /**
@@ -371,11 +411,46 @@ internal class CorePaperBindings(
             playerHealthGateway = highestPriorityPlayerHealthGateway,
             scheduler = scheduler,
         )
+        installLobbyWorld(ctx)
         bukkitEventAdapterTimeTaskHandle = bukkitEventAdapter.start(plugin)
         logger.info(
             "Wave 6a-6 BukkitEventAdapter wired (Role 1: 9 event translations; " +
                 "Role 2: EntityDamageEvent + PlayerDeathEvent defensive cancellation " +
                 "per ADR-0149 §D).",
+        )
+    }
+
+    /**
+     * ADR-0180 — procedural sky-island lobby. Only on backends that host the
+     * lobby (`serverRole.hostsLobby`): creates the void `lobby` world from
+     * `content/worlds/lobby.yaml`, pastes the build (idempotent), applies the
+     * world rules and registers the lobby protection listener. Missing or
+     * invalid content leaves the old behaviour (lobby = main world).
+     */
+    private fun installLobbyWorld(ctx: WiringContext) {
+        if (!ctx.serverRole.hostsLobby) {
+            logger.info("Lobby world skipped (server role ${ctx.serverRole}).")
+            return
+        }
+        val config = when (val loaded = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.load(ctx.contentDir)) {
+            is com.astarworks.astera.core.domain.Result.Success -> loaded.value
+            is com.astarworks.astera.core.domain.Result.Failure -> {
+                logger.warning("Lobby world content unavailable (${loaded.error}); lobby stays on the main world.")
+                return
+            }
+        }
+        val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(config)
+        val world = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyWorld(
+            plugin = plugin,
+            messages = ctx.services.getOrThrow<IMessageRenderer>(),
+            rules = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway>(),
+            time = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway>(),
+            weather = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldWeatherGateway>(),
+        ).install(config, plan) ?: return
+        val spawn = org.bukkit.Location(world, config.spawn.x, config.spawn.y, config.spawn.z, config.spawn.yaw, config.spawn.pitch)
+        server.pluginManager.registerEvents(
+            com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(config.id, config.rules) { spawn.clone() },
+            plugin,
         )
     }
 
@@ -395,6 +470,10 @@ internal class CorePaperBindings(
         // Wave 6b-3 (ADR-0158): drain the Lettuce Redis connection.
         lettuceBroadcaster?.stop()
         lettuceBroadcaster = null
+        redisProxyMessenger?.stop()
+        redisProxyMessenger = null
+        bungeeConnector?.close()
+        bungeeConnector = null
         // Wave 6c-stub-packetevents (ADR-0170) — PE 2.x lifecycle phase 3
         // (terminate). Mirrors the `onLoad`-gated entry: only call when the
         // PacketEvents plugin was confirmed installed at load time. Skipped

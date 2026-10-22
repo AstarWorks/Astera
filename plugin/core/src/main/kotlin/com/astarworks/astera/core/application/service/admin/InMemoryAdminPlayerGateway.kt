@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * In-memory [IAdminPlayerGateway] for the headless simulator and unit tests
- * (F1-D, ADR-0182). Players are put "online" explicitly via [join]; every
+ * (F1-D, ADR-0183). Players are put "online" explicitly via [join]; every
  * mutation is recorded so tests can assert what the panel asked for.
  */
 public class InMemoryAdminPlayerGateway : IAdminPlayerGateway {

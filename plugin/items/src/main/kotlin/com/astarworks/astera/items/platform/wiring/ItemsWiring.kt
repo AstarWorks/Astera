@@ -203,7 +203,7 @@ public object ItemsWiring {
         )
         registrations += services.register(applyHeldGlow, priority = 0)
 
-        // F1-D (ADR-0182): `/astera-admin` weapons & items catalog. Core owns the
+        // F1-D (ADR-0183): `/astera-admin` weapons & items catalog. Core owns the
         // hub / guard / registry; this plugin contributes its tile + `admin.items.` handler.
         val adminItemsPanel = AdminItemsPanel(
             guard = services.getOrThrow<AdminPanelGuard>(),

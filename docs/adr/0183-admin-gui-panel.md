@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0182: `/astera-admin` GUI panel (plugin-contributed sections)
+# ADR-0183: `/astera-admin` GUI panel (plugin-contributed sections)
 
 ## Status
 

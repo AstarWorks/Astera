@@ -23,7 +23,7 @@ public sealed class AdminToolError {
 }
 
 /**
- * Admin-panel combat tools (F1-D, ADR-0182): heal to full on the **Astera HP
+ * Admin-panel combat tools (F1-D, ADR-0183): heal to full on the **Astera HP
  * container** (not vanilla health), clear statuses, clear cooldowns, refill
  * ammo / mana / stamina, toggle god mode. Each operates on any player so the
  * same use case serves "self tools" and "per-player actions".

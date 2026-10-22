@@ -47,7 +47,7 @@ public class SwitchPhaseUseCase(
      */
     private val minPlayersFor: (String?) -> Int = MatchMinPlayerPolicy::requirementFor,
     /**
-     * F1-D (ADR-0182): matches an admin forced past the roster floor (panel
+     * F1-D (ADR-0183): matches an admin forced past the roster floor (panel
      * "force start now" / "next phase"). Waived matches skip the min-player
      * guard on COUNTDOWN to ACTIVE.
      */

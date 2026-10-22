@@ -24,14 +24,14 @@ import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
-import com.astarworks.astera.match.application.usecase.matchmaking.MatchFoundUseCase
+import com.astarworks.astera.match.application.usecase.matchmaking.MatchFormer
 import com.astarworks.astera.match.application.usecase.validate.ValidateContentReferencesUseCase
 import com.astarworks.astera.match.domain.matchmaking.QueueLane
 import com.astarworks.astera.match.domain.matchmaking.QueueSettings
 import org.slf4j.LoggerFactory
 
 /**
- * Match-plugin section of the `/astera-admin` panel (F1-D, ADR-0182): active
+ * Match-plugin section of the `/astera-admin` panel (F1-D, ADR-0183): active
  * matches with end / abort / next-phase, and the queue lanes with "force
  * start now" / "start with just me". Also contributes the server-page
  * "validate content" action.
@@ -46,12 +46,16 @@ public class AdminMatchPanel(
     private val guiAdapter: IGuiAdapter,
     private val matches: IMatchRepository,
     private val matchmaker: IMatchmaker,
-    private val matchFound: MatchFoundUseCase,
+    /** `null` on a game-only server (no queue lanes there). */
+    private val matchFound: MatchFormer?,
     private val settings: () -> QueueSettings,
     private val nowTick: () -> Long,
     private val control: AdminMatchControlUseCase,
     private val forceStart: ForceStartLaneUseCase,
     private val validate: ValidateContentReferencesUseCase?,
+    /** `false` on a LOBBY server: matches run on [gameServer], so the match list would mislead. */
+    private val hostsMatches: Boolean = true,
+    private val gameServer: String = "game",
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -184,12 +188,25 @@ public class AdminMatchPanel(
         val active = matches.findActiveMatches().sortedBy { it.id.value }
         val lanes = config.lanes.values.sortedBy { it.key }
         return GuiSpec.build(GUI_ID, K_TITLE, GuiSize.CHEST_54) {
-            if (active.isEmpty()) {
-                slot(SlotIndex(13), GuiSlot.Static(ICON_EMPTY, displayName = GuiText(K_NO_MATCHES)))
+            if (!hostsMatches) {
+                slot(
+                    SlotIndex(13),
+                    GuiSlot.Static(
+                        ICON_EMPTY,
+                        displayName = GuiText(K_REMOTE_MATCHES, mapOf("game" to gameServer)),
+                        lore = listOf(GuiText(K_REMOTE_MATCHES_LORE)),
+                    ),
+                )
+            } else {
+                if (active.isEmpty()) {
+                    slot(SlotIndex(13), GuiSlot.Static(ICON_EMPTY, displayName = GuiText(K_NO_MATCHES)))
+                }
+                active.take(MATCH_SLOTS).forEachIndexed { i, m -> slot(SlotIndex(i), matchTile(m, config, tick)) }
             }
-            active.take(MATCH_SLOTS).forEachIndexed { i, m -> slot(SlotIndex(i), matchTile(m, config, tick)) }
-            slot(SlotIndex(27), GuiSlot.Static(ICON_LANES, displayName = GuiText(K_LANES_HEADER)))
-            lanes.take(LANE_SLOTS).forEachIndexed { i, lane -> slot(SlotIndex(36 + i), laneTile(lane)) }
+            if (matchFound != null) {
+                slot(SlotIndex(27), GuiSlot.Static(ICON_LANES, displayName = GuiText(K_LANES_HEADER)))
+                lanes.take(LANE_SLOTS).forEachIndexed { i, lane -> slot(SlotIndex(36 + i), laneTile(lane, matchFound)) }
+            }
             slot(SlotIndex(45), AdminPanelUi.back())
             slot(SlotIndex(49), AdminPanelUi.refresh(GuiIntent(OPEN)))
             slot(SlotIndex(53), AdminPanelUi.close())
@@ -219,9 +236,9 @@ public class AdminMatchPanel(
         )
     }
 
-    private fun laneTile(lane: QueueLane): GuiSlot.Static {
+    private fun laneTile(lane: QueueLane, former: MatchFormer): GuiSlot.Static {
         val queued = matchmaker.pendingByMode(lane.mode).size
-        val busy = matchFound.isStageBusy(lane.mode)
+        val busy = former.isStageBusy(lane.mode)
         val payload = mapOf(PAYLOAD_LANE to lane.key)
         return GuiSlot.Static(
             itemId = ICON_LANE,
@@ -271,6 +288,8 @@ public class AdminMatchPanel(
         private val K_HUB = k("hub")
         private val K_HUB_LORE = k("hub.lore")
         private val K_NO_MATCHES = k("none")
+        private val K_REMOTE_MATCHES = k("remote")
+        private val K_REMOTE_MATCHES_LORE = k("remote.lore")
         private val K_LANES_HEADER = k("lanes")
         private val K_MATCH_ROW = k("row")
         private val K_MATCH_STAGE = k("row.stage")

@@ -265,7 +265,7 @@ public object MatchWiring {
             )
         }
         val entryGame = EntryGameUseCase(matches, eventBus, matchSpawn)
-        // F1-D (ADR-0182): matches an admin forced past the roster floor.
+        // F1-D (ADR-0183): matches an admin forced past the roster floor.
         val minPlayerWaivers = com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers()
         registrations += services.register(minPlayerWaivers)
         val switchPhase = SwitchPhaseUseCase(

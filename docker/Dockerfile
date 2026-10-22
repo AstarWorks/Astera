@@ -76,6 +76,11 @@ COPY --from=builder /out/ /plugins/
 # repo's content — deleted files do not linger.
 COPY content /content/
 
+# Paper config patches (itzg PATCH_DEFINITIONS): the compose file points
+# PATCH_DEFINITIONS=/patches at this directory on the lobby / game backends so
+# Paper trusts Velocity's modern forwarding (secret from CFG_VELOCITY_SECRET).
+COPY docker/paper-patches /patches/
+
 # 25565 = Minecraft Java, 25575 = RCON. World/config volume is /data.
 EXPOSE 25565 25575
 VOLUME ["/data"]

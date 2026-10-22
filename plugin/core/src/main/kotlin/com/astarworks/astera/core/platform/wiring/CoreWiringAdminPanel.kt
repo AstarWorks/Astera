@@ -14,7 +14,7 @@ import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.application.usecase.admin.ReloadAllContentUseCase
 
 /**
- * F1-D (ADR-0182): the `/astera-admin` panel. Registers the shared pieces
+ * F1-D (ADR-0183): the `/astera-admin` panel. Registers the shared pieces
  * feature plugins plug into ([IAdminPanelRegistry], [AdminPanelGuard],
  * [IAdminPlayerGateway]), Core's own pages and the `/astera-admin` command.
  * Must run after the GUI router, permission service, audit repo, reload

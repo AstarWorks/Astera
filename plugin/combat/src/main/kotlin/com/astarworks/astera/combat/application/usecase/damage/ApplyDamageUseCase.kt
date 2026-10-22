@@ -88,7 +88,7 @@ public class ApplyDamageUseCase(
      * takes [executeOnEntity] instead of the player path.
      */
     private val entityDamageGateway: IEntityDamageGateway? = null,
-    /** F1-D (ADR-0182): admin god mode; a god target is immune like the `immunity` status. */
+    /** F1-D (ADR-0183): admin god mode; a god target is immune like the `immunity` status. */
     private val godMode: com.astarworks.astera.combat.application.port.outbound.IGodModeService? = null,
 ) {
     public fun execute(attempt: DamageAttempt): Result<DamageOutcome, ApplyDamageError> {

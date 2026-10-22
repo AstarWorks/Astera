@@ -1,0 +1,182 @@
+package com.astarworks.astera.core.application.eventbus.listeners.hud
+
+import com.astarworks.astera.core.domain.event.PlayerHealthChanged
+import com.astarworks.astera.core.domain.event.PlayerJoinedServer
+import com.astarworks.astera.core.domain.event.PlayerMaxHealthChanged
+import com.astarworks.astera.core.domain.event.PlayerQuitServer
+import com.astarworks.astera.core.domain.event.ResourcePackStatusChanged
+import com.astarworks.astera.core.domain.hud.HudComponent
+import com.astarworks.astera.core.domain.hud.HudLayout
+import com.astarworks.astera.core.domain.hud.ResourcePackStatus
+import com.astarworks.astera.core.domain.hud.status.HpBarLayout
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
+import com.astarworks.astera.testfixtures.FakeHudGateway
+import com.astarworks.astera.testfixtures.FakePlayerHealthGateway
+import com.astarworks.astera.testfixtures.FakeScheduler
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import java.util.UUID
+
+class HpStatusHudServiceTest {
+
+    private val alice = PlayerId(UUID.randomUUID())
+    private val bob = PlayerId(UUID.randomUUID())
+    private val scheduler = FakeScheduler()
+    private val health = FakePlayerHealthGateway()
+    private val hud = FakeHudGateway()
+    private val service = HpStatusHudService(health, hud, scheduler)
+
+    private fun shown(player: PlayerId): List<HudLayout.StatusLine> = hud.operations
+        .mapNotNull { (it as? FakeHudGateway.HudOp.Shown)?.takeIf { op -> op.playerId == player }?.layout as? HudLayout.StatusLine } +
+        hud.operations.mapNotNull { (it as? FakeHudGateway.HudOp.Updated)?.layout as? HudLayout.StatusLine }
+
+    private fun setHp(player: PlayerId, hp: Double, max: Double = 200.0) {
+        health.setMaxHealth(player, max)
+        health.setHealth(player, hp, HealthChangeSource.Other("test"))
+    }
+
+    private fun changed(player: PlayerId, old: Double, new: Double) = PlayerHealthChanged(
+        playerId = player, oldHp = old, newHp = new, source = HealthChangeSource.Other("test"), atTick = 0,
+    )
+
+    private fun lastLine(player: PlayerId): HudLayout.StatusLine {
+        val handle = hud.activeFor(player).single()
+        return checkNotNull(hud.currentLayout(handle) as? HudLayout.StatusLine)
+    }
+
+    @Test
+    fun `without a loaded pack the status line is plain text with exact numbers`() {
+        setHp(alice, 123.4)
+        service.onJoined(PlayerJoinedServer(alice))
+        scheduler.advanceTicks(2)
+
+        val line = lastLine(alice)
+        val text = line.component as HudComponent.Text
+        assertThat(text.messageKey.value).isEqualTo("astera.hud.status.hp")
+        assertThat(text.placeholders).containsEntry("current", "124").containsEntry("max", "200")
+        assertThat(line.anchorLeftPx).isNull()
+    }
+
+    @Test
+    fun `once the client reports the pack loaded the line becomes the glyph bar anchored over the hearts`() {
+        setHp(alice, 100.0)
+        service.onJoined(PlayerJoinedServer(alice))
+        scheduler.advanceTicks(2)
+
+        service.onPackStatus(ResourcePackStatusChanged(alice, ResourcePackStatus.LOADED))
+        scheduler.advanceTicks(2)
+
+        val line = lastLine(alice)
+        assertThat(line.component).isEqualTo(HpBarLayout.render(100.0, 200.0))
+        assertThat(line.anchorLeftPx).isEqualTo(HpBarLayout.HEARTS_LEFT_PX)
+    }
+
+    @Test
+    fun `accepted and declined do not switch to glyphs, and a later decline-after-load switches back`() {
+        setHp(alice, 100.0)
+        service.onJoined(PlayerJoinedServer(alice))
+        service.onPackStatus(ResourcePackStatusChanged(alice, ResourcePackStatus.ACCEPTED))
+        scheduler.advanceTicks(2)
+        assertThat(lastLine(alice).component).isInstanceOf(HudComponent.Text::class.java)
+
+        service.onPackStatus(ResourcePackStatusChanged(alice, ResourcePackStatus.LOADED))
+        scheduler.advanceTicks(2)
+        assertThat(lastLine(alice).component).isInstanceOf(HudComponent.FontText::class.java)
+
+        service.onPackStatus(ResourcePackStatusChanged(alice, ResourcePackStatus.FAILED))
+        scheduler.advanceTicks(2)
+        assertThat(lastLine(alice).component).isInstanceOf(HudComponent.Text::class.java)
+    }
+
+    @Test
+    fun `damage, heal and max-HP changes update the line`() {
+        setHp(alice, 200.0)
+        service.onPackStatus(ResourcePackStatusChanged(alice, ResourcePackStatus.LOADED))
+        service.onJoined(PlayerJoinedServer(alice))
+        scheduler.advanceTicks(2)
+        assertThat(lastLine(alice).component).isEqualTo(HpBarLayout.render(200.0, 200.0))
+
+        setHp(alice, 80.0)
+        service.onHealthChanged(changed(alice, 200.0, 80.0))
+        scheduler.advanceTicks(2)
+        assertThat(lastLine(alice).component).isEqualTo(HpBarLayout.render(80.0, 200.0))
+
+        setHp(alice, 120.0, max = 300.0)
+        service.onMaxHealthChanged(PlayerMaxHealthChanged(alice, 200.0, 300.0, atTick = 0))
+        scheduler.advanceTicks(2)
+        assertThat(lastLine(alice).component).isEqualTo(HpBarLayout.render(120.0, 300.0))
+    }
+
+    @Test
+    fun `a burst of changes inside one flush window costs one update`() {
+        setHp(alice, 200.0)
+        service.onJoined(PlayerJoinedServer(alice))
+        scheduler.advanceTicks(2)
+        val before = hud.operations.size
+
+        for (hp in listOf(190.0, 170.0, 150.0, 120.0)) {
+            setHp(alice, hp)
+            service.onHealthChanged(changed(alice, hp + 10, hp))
+        }
+        scheduler.advanceTicks(1)
+        assertThat(hud.operations).hasSize(before) // nothing yet: throttled
+        scheduler.advanceTicks(1)
+
+        assertThat(hud.operations).hasSize(before + 1)
+        assertThat((lastLine(alice).component as HudComponent.Text).placeholders).containsEntry("current", "120")
+    }
+
+    @Test
+    fun `an event that leaves the rendered line unchanged sends nothing`() {
+        setHp(alice, 100.0)
+        service.onJoined(PlayerJoinedServer(alice))
+        scheduler.advanceTicks(2)
+        val before = hud.operations.size
+
+        service.onHealthChanged(changed(alice, 100.0, 100.0))
+        scheduler.advanceTicks(4)
+
+        assertThat(hud.operations).hasSize(before)
+    }
+
+    @Test
+    fun `players are independent and a player without HP yet is retried, not dropped`() {
+        setHp(alice, 50.0)
+        service.onJoined(PlayerJoinedServer(alice))
+        service.onJoined(PlayerJoinedServer(bob)) // no HP in the container yet
+        scheduler.advanceTicks(2)
+        assertThat(hud.activeFor(alice)).hasSize(1)
+        assertThat(hud.activeFor(bob)).isEmpty()
+
+        setHp(bob, 10.0, max = 20.0)
+        scheduler.advanceTicks(2)
+        assertThat((lastLine(bob).component as HudComponent.Text).placeholders).containsEntry("current", "10").containsEntry("max", "20")
+        assertThat((lastLine(alice).component as HudComponent.Text).placeholders).containsEntry("current", "50")
+    }
+
+    @Test
+    fun `a player who quit is forgotten so a rejoin redraws from scratch`() {
+        setHp(alice, 100.0)
+        service.onPackStatus(ResourcePackStatusChanged(alice, ResourcePackStatus.LOADED))
+        service.onJoined(PlayerJoinedServer(alice))
+        scheduler.advanceTicks(2)
+        service.onQuit(PlayerQuitServer(alice))
+
+        service.onJoined(PlayerJoinedServer(alice))
+        scheduler.advanceTicks(2)
+
+        // The pack state was forgotten with the session: text form until the client reports again.
+        assertThat(lastLine(alice).component).isInstanceOf(HudComponent.Text::class.java)
+    }
+
+    @Test
+    fun `stop cancels the flush task`() {
+        setHp(alice, 100.0)
+        service.stop()
+        service.onJoined(PlayerJoinedServer(alice))
+        scheduler.advanceTicks(10)
+        assertThat(hud.operations).isEmpty()
+        assertThat(shown(alice)).isEmpty()
+    }
+}

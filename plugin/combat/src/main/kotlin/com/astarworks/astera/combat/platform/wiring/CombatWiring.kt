@@ -353,7 +353,7 @@ public object CombatWiring {
         val damageGateway = services.get<IDamageGateway>()
         val statusContainer = services.get<IStatusEffectContainer>()
 
-        // F1-D (ADR-0182): admin god mode, consulted by ApplyDamageUseCase.
+        // F1-D (ADR-0183): admin god mode, consulted by ApplyDamageUseCase.
         val godModeService: com.astarworks.astera.combat.application.port.outbound.IGodModeService =
             services.get<com.astarworks.astera.combat.application.port.outbound.IGodModeService>()
                 ?: com.astarworks.astera.combat.application.service.InMemoryGodModeService().also {
@@ -693,7 +693,7 @@ public object CombatWiring {
             shutdownHooks = shutdownHooks,
         )
 
-        // ── F1-D (ADR-0182) — `/astera-admin` combat tools ─────────────────
+        // ── F1-D (ADR-0183) — `/astera-admin` combat tools ─────────────────
         val adminTools = com.astarworks.astera.combat.application.admin.AdminCombatToolsUseCase(
             health = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>(),
             statuses = statusContainer,

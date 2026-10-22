@@ -39,8 +39,13 @@ clean: ## Clean Gradle build outputs
 # ----------------------------------------------------------------------------
 
 .PHONY: docker-up
-docker-up: ## (Re)build image (jars + content baked in) and start Paper + Postgres + Redis
+docker-up: ## (Re)build image (jars + content baked in) and start Velocity + lobby + game + Postgres + Redis
 	@test -f docker/.env || cp docker/.env.example docker/.env
+	@grep -q '^VELOCITY_FORWARDING_SECRET=.' docker/.env || { \
+		grep -v '^VELOCITY_FORWARDING_SECRET=' docker/.env > docker/.env.tmp; \
+		echo "VELOCITY_FORWARDING_SECRET=$$(head -c 24 /dev/urandom | base64 | tr -dc 'A-Za-z0-9')" >> docker/.env.tmp; \
+		mv docker/.env.tmp docker/.env; \
+		echo "Generated a Velocity forwarding secret in docker/.env"; }
 	$(DOCKER_COMPOSE) up -d --build
 
 .PHONY: docker-down
@@ -52,8 +57,8 @@ docker-nuke: ## Stop local stack and DROP volumes
 	$(DOCKER_COMPOSE) down -v
 
 .PHONY: docker-logs
-docker-logs: ## Tail Paper logs
-	$(DOCKER_COMPOSE) logs -f paper
+docker-logs: ## Tail Velocity + lobby + game logs
+	$(DOCKER_COMPOSE) logs -f velocity lobby game
 
 # ----------------------------------------------------------------------------
 # kind / k8s

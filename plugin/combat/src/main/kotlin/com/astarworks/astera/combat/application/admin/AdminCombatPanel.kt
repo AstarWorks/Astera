@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 /**
- * Combat section of the `/astera-admin` panel (F1-D, ADR-0182): god mode,
+ * Combat section of the `/astera-admin` panel (F1-D, ADR-0183): god mode,
  * heal (Astera HP), clear statuses / cooldowns, refill resources. Contributes
  * tiles to the Players page (heal, statuses) and the Self-tools page (all
  * five) and owns the `admin.combat.` intent prefix. The panel injects

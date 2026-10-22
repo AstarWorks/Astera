@@ -84,7 +84,7 @@ public sealed interface AuditEvent {
     ) : AuditEvent
 
     /**
-     * F1-D (ADR-0182): a state-changing action taken from the `/astera-admin`
+     * F1-D (ADR-0183): a state-changing action taken from the `/astera-admin`
      * GUI panel (give item, force-start lane, kick, heal, ...). [action] is the
      * stable dotted intent key (`admin.items.give`), [target] the affected
      * player / match / lane when there is one, [detail] a short free-form

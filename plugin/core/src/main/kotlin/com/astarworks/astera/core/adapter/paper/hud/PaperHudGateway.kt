@@ -11,7 +11,14 @@ import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.port.outbound.ticks
+import com.astarworks.astera.core.domain.hud.status.MinecraftTextWidth
+import com.astarworks.astera.core.domain.hud.status.NegativeSpace
+import com.astarworks.astera.core.domain.hud.status.StatusLineAnchor
+import net.kyori.adventure.key.Key
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.HudCleared
 import com.astarworks.astera.core.domain.event.HudShown
@@ -141,6 +148,12 @@ public class PaperHudGateway(
 
     private val miniMessage: MiniMessage = MiniMessage.miniMessage()
 
+    init {
+        // The client fades an action bar out after ~3 s; the status line (HP) is
+        // permanent, so it is re-sent (composited with the live readout) well before that.
+        scheduler.runRepeatingTicks(STATUS_REFRESH_TICKS, STATUS_REFRESH_TICKS) { refreshStatusLines() }
+    }
+
     override fun showFor(
         playerId: PlayerId,
         layout: HudLayout,
@@ -167,6 +180,7 @@ public class PaperHudGateway(
         val handle = HudHandle(UUID.randomUUID().toString())
         val bossBarId = renderLayout(player, playerId, handle, layout, previous = null)
         active[handle] = ActiveHud(playerId, layout, bossBarId, HudChannelPolicy.expiresAt(layout, now), gen = 0)
+        if (layout is HudLayout.StatusLine) sendActionBar(player, playerId, liveReadout(playerId))
 
         eventBus.publish(
             HudShown(
@@ -206,6 +220,7 @@ public class PaperHudGateway(
             expiresAt = HudChannelPolicy.expiresAt(layout, scheduler.currentTick()),
             gen = gen,
         )
+        if (layout is HudLayout.StatusLine) sendActionBar(player, current.playerId, liveReadout(current.playerId))
 
         eventBus.publish(
             HudUpdated(
@@ -235,7 +250,7 @@ public class PaperHudGateway(
         // even with no tracked handle, an external caller may have set
         // an action bar via a sibling code path; honour the contract.
         if (matching.isEmpty() && region == HudRegion.ACTION_BAR) {
-            server.getPlayer(playerId.uuid)?.sendActionBar(Component.empty())
+            server.getPlayer(playerId.uuid)?.let { sendActionBar(it, playerId, readout = null) }
         }
         if (matching.isEmpty() && region == HudRegion.SUBTITLE) {
             server.getPlayer(playerId.uuid)?.resetTitle()
@@ -297,9 +312,11 @@ public class PaperHudGateway(
         previous: HudLayout?,
     ): BossBarId? = when (layout) {
         is HudLayout.ActionBar -> {
-            player.sendActionBar(toComponent(playerId, layout.component))
+            sendActionBar(player, playerId, layout)
             null
         }
+        // Drawn through the action bar once the handle is stored (see showFor / updateFor).
+        is HudLayout.StatusLine -> null
         is HudLayout.BossBarSlot -> renderBossBar(playerId, handle, layout)
         is HudLayout.Sidebar -> {
             renderSidebar(playerId, layout, previous as? HudLayout.Sidebar)
@@ -367,7 +384,10 @@ public class PaperHudGateway(
     private fun clearLayoutSurface(hud: ActiveHud) {
         val player = server.getPlayer(hud.playerId.uuid) ?: return
         when (val layout = hud.layout) {
-            is HudLayout.ActionBar -> player.sendActionBar(Component.empty())
+            // The hud is already out of `active`, so the composition sees neither it nor (for a
+            // status line) the line itself: what is left of the action bar is drawn.
+            is HudLayout.ActionBar, is HudLayout.StatusLine ->
+                sendActionBar(player, hud.playerId, liveReadout(hud.playerId))
             is HudLayout.BossBarSlot -> {
                 val id = hud.bossBarId ?: bossBarIdFor(HudHandle(hud.playerId.toString()), layout.slot)
                 bossBarManager.removeBossBar(id)
@@ -398,6 +418,65 @@ public class PaperHudGateway(
             clearFor(playerId, HudRegion.ACTION_BAR)
         }
     }
+
+    // ---- Action bar + status line (ADR-0182) --------------------------------
+
+    /** The action bar layout currently on screen for [playerId], if any (not yet expired). */
+    private fun liveReadout(playerId: PlayerId): HudLayout.ActionBar? {
+        val now = scheduler.currentTick()
+        return active.values.firstOrNull {
+            it.playerId == playerId && it.layout is HudLayout.ActionBar && it.expiresAt > now
+        }?.layout as? HudLayout.ActionBar
+    }
+
+    private fun statusLineOf(playerId: PlayerId): HudLayout.StatusLine? =
+        active.values.firstOrNull { it.playerId == playerId && it.layout is HudLayout.StatusLine }
+            ?.layout as? HudLayout.StatusLine
+
+    /** Sends the action bar line: [readout] (or nothing) with the player's status line composited in. */
+    private fun sendActionBar(player: Player, playerId: PlayerId, readout: HudLayout.ActionBar?) {
+        player.sendActionBar(composeActionBar(playerId, readout, statusLineOf(playerId)))
+    }
+
+    private fun refreshStatusLines() {
+        val withStatus = active.values.filter { it.layout is HudLayout.StatusLine }.map { it.playerId }.distinct()
+        for (playerId in withStatus) {
+            val player = server.getPlayer(playerId.uuid) ?: continue
+            sendActionBar(player, playerId, liveReadout(playerId))
+        }
+    }
+
+    /**
+     * The action bar is centred on the screen, and the HP block has to sit over
+     * the heart row whatever text the readout has. With the readout first, then
+     * a gap of `g`, then the block (width `Wh`), the block's left edge lands at
+     * `(Wr + g - Wh) / 2` from the centre, so `g = 2 * anchor + Wh - Wr` puts it
+     * on [HudLayout.StatusLine.anchorLeftPx]. `Wr` (the readout's width) is an
+     * estimate; an error of N px moves the block N / 2 px.
+     */
+    private fun composeActionBar(
+        playerId: PlayerId,
+        readout: HudLayout.ActionBar?,
+        status: HudLayout.StatusLine?,
+    ): Component {
+        val readoutComponent = readout?.let { toComponent(playerId, it.component) }
+        if (status == null) return readoutComponent ?: Component.empty()
+        val block = status.component
+        if (block is HudComponent.FontText && status.anchorLeftPx != null) {
+            val readoutWidth = readoutComponent
+                ?.let { MinecraftTextWidth.estimate(PlainTextComponentSerializer.plainText().serialize(it)) }
+                ?: 0
+            val gap = StatusLineAnchor.gapPx(status.anchorLeftPx, block.widthPx, readoutWidth)
+            var out: Component = Component.empty().append(readoutComponent ?: Component.empty())
+            if (gap != 0) out = out.append(fontText(NegativeSpace.spacer(gap)))
+            return out.append(fontText(block.text))
+        }
+        val statusComponent = toComponent(playerId, block)
+        return if (readoutComponent == null) statusComponent else statusComponent.append(Component.text("  ")).append(readoutComponent)
+    }
+
+    private fun fontText(text: String): Component =
+        Component.text(text).font(ASTERA_FONT).color(NamedTextColor.WHITE)
 
     // ---- Sidebar ----------------------------------------------------------
 
@@ -449,6 +528,7 @@ public class PaperHudGateway(
     private fun toComponent(playerId: PlayerId, component: HudComponent): Component =
         when (component) {
             is HudComponent.Text -> renderTextComponent(playerId, component)
+            is HudComponent.FontText -> fontText(component.text)
             is HudComponent.Glyph -> Component.text("<glyph:${component.textureRef.value}>")
             is HudComponent.ProgressBar -> renderProgressBarComponent(playerId, component)
             is HudComponent.Composite -> {
@@ -545,4 +625,10 @@ public class PaperHudGateway(
         BossBarStyle.NOTCHED_20 -> ApiBossBarOverlay.NOTCHED_20
     }
 
+    private companion object {
+        /** Well under the client's ~3 s action bar fade. */
+        const val STATUS_REFRESH_TICKS: Long = 20L
+
+        val ASTERA_FONT: Key = Key.key("astera", "default")
+    }
 }

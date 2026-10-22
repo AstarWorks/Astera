@@ -279,7 +279,7 @@ public object EconomyWiring {
             shopIntentHandler.handle(intent, player)
         }
 
-        // ── F1-D (ADR-0182) — `/astera-admin` give-currency action ────────
+        // ── F1-D (ADR-0183) — `/astera-admin` give-currency action ────────
         registrations += com.astarworks.astera.economy.application.admin.AdminCurrencyPanel(
             guard = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.AdminPanelGuard>(),
             registry = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.IAdminPanelRegistry>(),
@@ -297,10 +297,13 @@ public object EconomyWiring {
                 messages = msgRenderer,
                 playerGateway = playerGateway,
             )
-        registrations += intentRouter.register(
-            com.astarworks.astera.economy.application.intent.LobbyShopOpenIntentHandler.INTENT_PREFIX,
-        ) { intent, player ->
-            lobbyShopOpenIntentHandler.handle(intent, player)
+        // The shop NPC / compass tile exist only in the lobby (ADR-0179).
+        if (ctx.serverRole.hostsLobby) {
+            registrations += intentRouter.register(
+                com.astarworks.astera.economy.application.intent.LobbyShopOpenIntentHandler.INTENT_PREFIX,
+            ) { intent, player ->
+                lobbyShopOpenIntentHandler.handle(intent, player)
+            }
         }
 
         // ── Wave 5flex (ADR-0102) — PowerIndex aggregate ───────────────────

@@ -27,7 +27,7 @@ public sealed class AdminMatchError {
 }
 
 /**
- * Admin-panel match actions over [IMatchLifecycle] (F1-D, ADR-0182): advance to
+ * Admin-panel match actions over [IMatchLifecycle] (F1-D, ADR-0183): advance to
  * the next phase, end (a normal admin end), abort (cancelled, no winner).
  * Application use cases, not commands: the panel keeps working if the queue /
  * proxy layer changes how matches are started.

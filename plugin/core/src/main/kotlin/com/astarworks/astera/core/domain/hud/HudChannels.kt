@@ -21,6 +21,7 @@ public fun HudLayout.region(): HudRegion = when (this) {
     // Header and footer share one logical layout; clearing either clears it.
     is HudLayout.TabList -> HudRegion.TAB_LIST_HEADER
     is HudLayout.Subtitle -> HudRegion.SUBTITLE
+    is HudLayout.StatusLine -> HudRegion.STATUS_LINE
 }
 
 /**

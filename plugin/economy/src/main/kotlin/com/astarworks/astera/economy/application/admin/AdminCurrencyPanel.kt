@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 /**
- * Economy section of the `/astera-admin` panel (F1-D, ADR-0182): a per-player
+ * Economy section of the `/astera-admin` panel (F1-D, ADR-0183): a per-player
  * "give currency" action with preset amounts. Grants go through
  * [DepositUseCase] (`AdminGrant` reason), so wallets, HUD and the
  * `CurrencyChanged` event stream behave exactly as for `/astera-grant-currency`.

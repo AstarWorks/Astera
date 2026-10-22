@@ -99,8 +99,8 @@ internal class PaperNpcBodyService(
 
     /** `false` when no world is loaded yet (caller keeps the request pending). */
     private fun trySpawn(req: PendingBody): Boolean {
-        // "lobby" is the logical world name; the Paper lobby is the server's main world
-        // (see PaperWorldGateway.lobbySpawn) unless a world with that exact name is loaded.
+        // "lobby" is the logical world name: the sky-island world (ADR-0180) when loaded,
+        // else the server's main world (see PaperWorldGateway.lobbySpawn).
         val bukkitWorld = plugin.server.getWorld(req.world.value) ?: plugin.server.worlds.firstOrNull()
             ?: return false
         val location = Location(bukkitWorld, req.position.x, req.position.y, req.position.z, req.yaw, req.pitch)

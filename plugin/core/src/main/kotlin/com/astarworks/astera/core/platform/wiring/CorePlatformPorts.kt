@@ -65,6 +65,8 @@ public class CorePlatformPorts(
     public val scoreboardManager: ((ServiceRegistry) -> IScoreboardManager)? = null,
     public val tabList: ((ServiceRegistry) -> ITabList)? = null,
     public val hudGateway: ((ServiceRegistry) -> IHudGateway)? = null,
+    /** The resource pack to push on join (ADR-0182); null = none configured. */
+    public val resourcePack: com.astarworks.astera.core.domain.hud.ResourcePackSpec? = null,
     // ---- World ----------------------------------------------------------
     /** No in-memory default exists: when null, `services.get<IWorldGateway>()` is null and the wiring falls back to a Noop. */
     public val worldGateway: ((ServiceRegistry) -> IWorldGateway)? = null,
@@ -102,6 +104,13 @@ public class CorePlatformPorts(
      * HTTP server; returns the analytics exporter to use, or null for the Noop one.
      */
     public val metrics: ((ServiceRegistry) -> IAnalyticsExporter?)? = null,
+    /**
+     * Cross-server messenger (Redis pub/sub + player connect through the
+     * Velocity proxy, ADR-0179). Registered at priority 100 over the in-memory
+     * loopback; the server-transfer gateway is built on top of it. `null`
+     * (simulator without a peer, single-server mode) or a factory returning `null` keeps the loopback.
+     */
+    public val proxyMessenger: ((WiringContext) -> com.astarworks.astera.core.application.port.outbound.IProxyMessenger?)? = null,
 )
 
 /** Builds the host GUI adapter from the content/i18n objects the wiring has just created. */

@@ -75,39 +75,82 @@ internal object MatchGameplayWiring {
                 ).also {
                     registrations += services.register<IMatchmaker>(it, priority = 0)
                 }
-        commandHandler.register(
-            MatchCommandSpecs.buildQueueCommandSpec(
-                matchmaker = matchmaker,
-                matches = matches,
-                playerGateway = playerGateway,
-                permService = permService,
-                messages = env.msgRenderer,
-                settings = { env.queueSettings.current() },
-            ),
-        )
+        // Role gating (ADR-0179): the queue lives on the lobby; a game-only
+        // backend has no queue command, scheduler or lobby intents.
+        val role = env.ctx.serverRole
+        if (role.hostsLobby) {
+            commandHandler.register(
+                MatchCommandSpecs.buildQueueCommandSpec(
+                    matchmaker = matchmaker,
+                    matches = matches,
+                    playerGateway = playerGateway,
+                    permService = permService,
+                    messages = env.msgRenderer,
+                    settings = { env.queueSettings.current() },
+                ),
+            )
+        }
 
         // ── WP8: queue → match. Scheduled tryFormMatch + auto start/entry ──
         val queueNotifier = com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueNotifier { id, key, ph ->
             playerGateway.sendMessage(id, env.msgRenderer.render(id, key, ph))
         }
-        val matchFound = com.astarworks.astera.match.application.usecase.matchmaking.MatchFoundUseCase(
-            matchmaker = matchmaker,
-            lifecycle = facade,
-            matches = matches,
-            notifier = queueNotifier,
-            planFor = { mode ->
-                val lane = env.queueSettings.current().laneFor(mode)
-                    ?: com.astarworks.astera.match.domain.matchmaking.QueueSettings.DEFAULT.lanes.getValue("norma")
-                com.astarworks.astera.match.application.usecase.matchmaking.MatchPlan(lane.stage, lane.modeKey)
-            },
-        )
-        scheduledTasks += com.astarworks.astera.match.application.service.matchmaking.QueueMatchScheduler(
-            matchmaker = matchmaker,
-            matchFound = matchFound,
-            notifier = queueNotifier,
-            scheduler = scheduler,
-            settings = { env.queueSettings.current() },
-        ).start()
+        val planFor: (com.astarworks.astera.match.domain.matchmaking.MatchmakingMode) -> com.astarworks.astera.match.application.usecase.matchmaking.MatchPlan = { mode ->
+            val lane = env.queueSettings.current().laneFor(mode)
+                ?: com.astarworks.astera.match.domain.matchmaking.QueueSettings.DEFAULT.lanes.getValue("norma")
+            com.astarworks.astera.match.application.usecase.matchmaking.MatchPlan(lane.stage, lane.modeKey)
+        }
+        val crossServer = com.astarworks.astera.match.application.service.matchmaking.CrossServerSettings.from(System.getenv())
+        var adminFormer: com.astarworks.astera.match.application.usecase.matchmaking.MatchFormer? = null
+        if (role.hostsLobby) {
+            // ALL: form and play the match right here. LOBBY: hand the formed teams to the game server.
+            val matchFormer: com.astarworks.astera.match.application.usecase.matchmaking.MatchFormer =
+                if (role.hostsMatches) {
+                    com.astarworks.astera.match.application.usecase.matchmaking.MatchFoundUseCase(
+                        matchmaker = matchmaker,
+                        lifecycle = facade,
+                        matches = matches,
+                        notifier = queueNotifier,
+                        planFor = planFor,
+                    )
+                } else {
+                    com.astarworks.astera.match.application.service.matchmaking.RemoteMatchFormer(
+                        matchmaker = matchmaker,
+                        messenger = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IProxyMessenger>(),
+                        transfers = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IServerTransferGateway>(),
+                        notifier = queueNotifier,
+                        scheduler = scheduler,
+                        settings = crossServer,
+                        planFor = planFor,
+                    ).also { remote ->
+                        val statusSubscription = remote.start()
+                        env.shutdownHooks += { statusSubscription.cancel() }
+                    }
+                }
+            adminFormer = matchFormer
+            scheduledTasks += com.astarworks.astera.match.application.service.matchmaking.QueueMatchScheduler(
+                matchmaker = matchmaker,
+                matchFound = matchFormer,
+                notifier = queueNotifier,
+                scheduler = scheduler,
+                settings = { env.queueSettings.current() },
+            ).start()
+        }
+        if (!role.hostsLobby) {
+            // GAME: accept assignments, receive the players, send them back after the match.
+            val receiver = com.astarworks.astera.match.application.service.matchmaking.MatchAssignmentReceiver(
+                messenger = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IProxyMessenger>(),
+                transfers = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IServerTransferGateway>(),
+                lifecycle = facade,
+                matches = matches,
+                eventBus = eventBus,
+                scheduler = scheduler,
+                notifier = queueNotifier,
+                settings = crossServer,
+            )
+            receiver.start()
+            env.shutdownHooks += { receiver.stop() }
+        }
         // A queued player who disconnects leaves the queue (so they are never
         // pulled into a match while offline).
         subscriptions += eventBus.subscribe(
@@ -200,8 +243,11 @@ internal object MatchGameplayWiring {
                 eventBus = eventBus,
                 scheduler = scheduler,
             )
-        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
-            teleportLobbyListener.handle(event)
+        // Game-only backends send players back through the proxy instead (MatchAssignmentReceiver).
+        if (role != com.astarworks.astera.core.domain.proxy.ServerRole.GAME) {
+            subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
+                teleportLobbyListener.handle(event)
+            }
         }
 
         logger.info(
@@ -387,27 +433,29 @@ internal object MatchGameplayWiring {
         // `payload[modeKey] = "norma" | "custom:<id>" | "tournament:<id>"`.
         // The handler resolves the player's party via IPartyRepository for
         // party-aware enqueue (Wave 5w contract).
-        val lobbyQueueIntentHandler =
-            com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler(
-                matchmaker = matchmaker,
-                parties = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPartyRepository>(),
-                guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
-                mcServer = services.getOrThrow<IMcServer>(),
-                messages = services.getOrThrow<IMessageRenderer>(),
-                playerGateway = playerGateway,
-            )
-        val lobbyQueueIntentRouter =
-            services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>()
-        registrations += lobbyQueueIntentRouter.register(
-            com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler.INTENT_PREFIX,
-        ) { intent, player ->
-            lobbyQueueIntentHandler.handle(intent, player)
-        }
+        if (role.hostsLobby) {
+            val lobbyQueueIntentHandler =
+                com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler(
+                    matchmaker = matchmaker,
+                    parties = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPartyRepository>(),
+                    guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
+                    mcServer = services.getOrThrow<IMcServer>(),
+                    messages = services.getOrThrow<IMessageRenderer>(),
+                    playerGateway = playerGateway,
+                )
+            val lobbyQueueIntentRouter =
+                services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>()
+            registrations += lobbyQueueIntentRouter.register(
+                com.astarworks.astera.match.application.intent.LobbyQueueIntentHandler.INTENT_PREFIX,
+            ) { intent, player ->
+                lobbyQueueIntentHandler.handle(intent, player)
+            }
 
-        logger.info(
-            "Wave 5lobby-content wired: LobbyQueueIntentHandler registered on " +
-                "'lobby.queue.' prefix.",
-        )
+            logger.info(
+                "Wave 5lobby-content wired: LobbyQueueIntentHandler registered on " +
+                    "'lobby.queue.' prefix.",
+            )
+        }
 
         // ── Wave E 5admin-ops (ADR-0122) — admin commands ───────────────────
         // `/astera-stage <list|select>` for stage catalog visibility +
@@ -446,7 +494,7 @@ internal object MatchGameplayWiring {
             )
         }
 
-        // ── F1-D (ADR-0182) — `/astera-admin` match control section ─────────
+        // ── F1-D (ADR-0183) — `/astera-admin` match control section ─────────
         val adminWaivers = services.getOrThrow<com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers>()
         val adminMatchPanel = com.astarworks.astera.match.application.admin.AdminMatchPanel(
             guard = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.AdminPanelGuard>(),
@@ -454,13 +502,14 @@ internal object MatchGameplayWiring {
             guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
             matches = matches,
             matchmaker = matchmaker,
-            matchFound = matchFound,
+            matchFound = adminFormer,
             settings = { env.queueSettings.current() },
             nowTick = scheduler::currentTick,
             control = com.astarworks.astera.match.application.admin.AdminMatchControlUseCase(facade, matches, adminWaivers),
             forceStart = com.astarworks.astera.match.application.admin.ForceStartLaneUseCase(
                 matchmaker = matchmaker,
-                matchFound = matchFound,
+                matchFound = adminFormer ?: com.astarworks.astera.match.application.admin.NoLanesFormer,
+                matches = matches,
                 lifecycle = facade,
                 waivers = adminWaivers,
                 settings = { env.queueSettings.current() },
@@ -471,7 +520,11 @@ internal object MatchGameplayWiring {
                     skills = it,
                 )
             },
+            hostsMatches = role.hostsMatches,
+            gameServer = crossServer.gameServer.value,
         )
-        registrations += adminMatchPanel.install(lobbyQueueIntentRouter)
+        registrations += adminMatchPanel.install(
+            services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>(),
+        )
     }
 }

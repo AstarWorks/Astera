@@ -10,7 +10,7 @@ public data class AdminOnlinePlayer(public val id: PlayerId, public val name: St
 
 /**
  * Outbound port: the host-level player operations the `/astera-admin` panel
- * needs that no other port covers (F1-D, ADR-0182).
+ * needs that no other port covers (F1-D, ADR-0183).
  *
  * Everything here is "server admin" plumbing — the Paper impl maps it onto
  * `Player#setGameMode`, `Player#setAllowFlight`, `Player#kick`, … The
