@@ -1,7 +1,9 @@
 package com.astarworks.astera.combat.platform.wiring
 
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
+import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
+import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.port.outbound.IProjectileService
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.aoe.IAreaEffectGateway
@@ -28,6 +30,9 @@ import com.astarworks.astera.core.application.services.ServiceRegistry
  *
  * @property projectileService required: no InMemory default exists for this
  *   port (Paper `PaperProjectileService` / simulator tick-stepped service).
+ * @property nearbyTargetQuery host spatial query over players *and mobs*; registered
+ *   first so every later `services.get<INearbyTargetQuery>()` sees it (WP3).
+ * @property entityDamageGateway non-player (mob) damage; null = mobs are not damageable (WP3).
  * @property explosionGateway receives the full-pipeline damage applier built
  *   from `ApplyDamageUseCase` (Wave 6e-N1 / ADR-0164), so it is a 2-arg factory.
  */
@@ -40,4 +45,6 @@ public class CombatPlatformPorts(
     public val statusEffectContainer: ((ServiceRegistry) -> IStatusEffectContainer)? = null,
     public val knockbackGateway: ((ServiceRegistry) -> IKnockbackGateway)? = null,
     public val explosionGateway: ((ServiceRegistry, ExplosionDamageApplier) -> IExplosionGateway)? = null,
+    public val nearbyTargetQuery: ((ServiceRegistry) -> INearbyTargetQuery)? = null,
+    public val entityDamageGateway: ((ServiceRegistry) -> IEntityDamageGateway)? = null,
 )

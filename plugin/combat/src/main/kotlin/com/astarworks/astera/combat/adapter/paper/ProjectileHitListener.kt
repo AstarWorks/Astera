@@ -3,6 +3,9 @@ package com.astarworks.astera.combat.adapter.paper
 import com.astarworks.astera.combat.application.service.ProjectileImpactResolver
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
+import org.bukkit.entity.ArmorStand
+import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
 import org.bukkit.event.EventHandler
@@ -97,7 +100,7 @@ public class ProjectileHitListener(
         try {
             val flight = tracking.toFlight()
             if (hitEntity != null) {
-                val target = (hitEntity as? Player)?.let { PlayerId(it.uniqueId) }
+                val target = damageableTarget(hitEntity)
                 val at = Vec3(hitEntity.location.x, hitEntity.location.y, hitEntity.location.z)
                 impactResolver.onHitEntity(flight, target, at)
             } else {
@@ -136,11 +139,12 @@ public class ProjectileHitListener(
         // double-count against Astera's PaperDamageGateway + ArmorReductionModifier
         // pipeline (ADR-0149 §C: Astera-internal HP is source of truth).
         //
-        // Only Player victims: Astera's IDamageGateway is player-keyed, so
-        // dispatchOnHit skips non-player targets. Cancelling for a mob would
-        // make the hit deal zero damage; leave the vanilla hit (applied once)
-        // until a mob damage port exists.
-        if (event.entity is Player && projectileService.trackingForBukkitEntity(damager.uniqueId) != null) {
+        // Players and mobs (WP3): the impact resolver routes both through
+        // ApplyDamageUseCase (mobs via IEntityDamageGateway), so the vanilla
+        // copy is cancelled for every damageable victim.
+        if (damageableTarget(event.entity) != null &&
+            projectileService.trackingForBukkitEntity(damager.uniqueId) != null
+        ) {
             event.isCancelled = true
             return
         }
@@ -148,5 +152,17 @@ public class ProjectileHitListener(
         // The core BukkitEventAdapter Role 2 owns the environment-intrusion
         // cancel + re-route for non-Astera damage paths; this listener stays
         // silent so we do not double-handle.
+    }
+
+    /**
+     * The id the impact pipeline uses for [entity]: players by uuid, mobs as
+     * `PlayerId(entityUuid)` (WP3); armor stands / invulnerable entities and
+     * non-living ones are not targets.
+     */
+    private fun damageableTarget(entity: Entity): PlayerId? = when {
+        entity is Player -> PlayerId(entity.uniqueId)
+        entity is ArmorStand -> null
+        entity is LivingEntity && !entity.isInvulnerable -> PlayerId(entity.uniqueId)
+        else -> null
     }
 }

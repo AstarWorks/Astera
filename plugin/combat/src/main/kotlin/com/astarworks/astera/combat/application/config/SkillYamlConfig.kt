@@ -157,11 +157,13 @@ public sealed class SkillParamsYaml {
         public val range: Double,
         public val knockback: Double,
         public val damage: List<DamageComponentYaml>,
+        @SerialName("arc_degrees") public val arcDegrees: Double = SkillParams.MeleeParams.DEFAULT_ARC_DEGREES,
     ) : SkillParamsYaml() {
         override fun toDomain(): SkillParams = SkillParams.MeleeParams(
             range = range,
             knockback = knockback,
             damage = damage.toDamageProfile(),
+            arcDegrees = arcDegrees,
         )
     }
 

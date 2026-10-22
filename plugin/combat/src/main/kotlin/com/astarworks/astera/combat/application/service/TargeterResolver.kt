@@ -1,6 +1,7 @@
 package com.astarworks.astera.combat.application.service
 
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
+import com.astarworks.astera.combat.application.port.outbound.NearbyTarget
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -11,7 +12,6 @@ import com.astarworks.astera.core.domain.skill.value.IntValue
 import com.astarworks.astera.core.domain.skill.value.NumericValue
 import com.astarworks.astera.core.domain.skill.value.VectorValue
 import org.slf4j.Logger
-import kotlin.math.cos
 
 /**
  * Resolves a [Targeter] to a concrete `List<PlayerId>` (for damage / status /
@@ -166,17 +166,13 @@ internal class TargeterResolver(
         }
         val origin = rayOrigin(t.from, ctx) ?: return emptyList()
         val distance = literal(t.distance)
-        val minCos = cos(Math.toRadians(literal(t.angleDegrees) / 2.0))
-        return candidates(origin, distance, ctx)
-            .mapNotNull { (id, feet) ->
-                val v = feet + Vec3(0.0, BODY_HEIGHT / 2.0, 0.0) - origin
-                val len = v.length()
-                if (len > distance) return@mapNotNull null
-                val inside = len < 1e-6 || v.dot(dir) / len >= minCos - 1e-9
-                if (inside) id to len else null
-            }
-            .sortedBy { it.second }
-            .map { it.first }
+        return ConeSelector.select(
+            origin = origin,
+            direction = dir,
+            range = distance,
+            angleDegrees = literal(t.angleDegrees),
+            candidates = nearbyTargets(origin, distance, ctx),
+        ).map { it.id }
     }
 
     private fun resolveEnemies(t: Targeter.Enemies, ctx: MechanicContext): List<PlayerId> {
@@ -198,16 +194,21 @@ internal class TargeterResolver(
         return if (t.includeSelf) listOf(ctx.actorId) + mates else mates
     }
 
-    /** Nearby players (minus the caster) with their feet position. */
-    private fun candidates(origin: Vec3, radius: Double, ctx: MechanicContext): List<Pair<PlayerId, Vec3>> {
-        val lookup = poseLookup ?: return emptyList()
-        return nearbyQuery.findInRadius(origin, radius, ctx.worldId)
+    /** Nearby targets (players and mobs, minus the caster) with a known feet position. */
+    private fun nearbyTargets(origin: Vec3, radius: Double, ctx: MechanicContext): List<NearbyTarget> =
+        nearbyQuery.findNearby(origin, radius, ctx.worldId)
             .asSequence()
-            .filter { it != ctx.actorId }
-            .distinct()
-            .mapNotNull { id -> lookup.poseOf(id)?.let { id to it.position } }
+            .filter { it.id != ctx.actorId }
+            .distinctBy { it.id }
+            .mapNotNull { t ->
+                val feet = t.position ?: poseLookup?.poseOf(t.id)?.position ?: return@mapNotNull null
+                t.copy(position = feet)
+            }
             .toList()
-    }
+
+    /** Nearby players/mobs (minus the caster) with their feet position. */
+    private fun candidates(origin: Vec3, radius: Double, ctx: MechanicContext): List<Pair<PlayerId, Vec3>> =
+        nearbyTargets(origin, radius, ctx).map { it.id to it.position!! }
 
     private fun literal(v: NumericValue): Double = when (v) {
         is NumericValue.Literal -> v.value
