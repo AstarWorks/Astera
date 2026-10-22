@@ -182,6 +182,16 @@ astera:
           sword: "サンプルソード"
           pistol: "サンプルピストル"
           wand: "サンプルワンド"
+          pistol-basic: "ピストル"
+          knight-sword: "騎士の剣"
+          dagger: "ダガー"
+          frost-staff: "フロストスタッフ"
+          fire-staff: "ファイアスタッフ"
+          shotgun: "ショットガン"
+          rifle: "ライフル"
+          verdant-staff: "翠緑の杖"
+          greatsword: "大剣"
+          thunder-staff: "サンダースタッフ"
       browse:
         invalid_id: "<red>不正なショップ ID: {shop}</red>"
         player_not_online: "<red>ショップを開くにはオンラインである必要があります。</red>"
@@ -1121,3 +1131,26 @@ astera:
     "4": "<aqua>💡 ヒント:</aqua> <gray>プロフィールタイルでアチーブメントを追跡 — 全ての達成が記録されます。</gray>"
     "5": "<aqua>💡 ヒント:</aqua> <gray>アイテムの厳選でレア度ティアが上がり、ティア別パークが解放されます。Refinement タイルから。</gray>"
     "6": "<aqua>💡 ヒント:</aqua> <gray>サバイバルアイランドでパーティと建築 — Travel タイルから自分のアイランドへ。</gray>"
+
+  # WP7: status effect display names (content/status/*.yaml display_name_key).
+  status:
+    burn:
+      name: "燃焼"
+    freeze:
+      name: "凍結"
+    poison:
+      name: "毒"
+    reloading:
+      name: "リロード中"
+    dash:
+      name: "ダッシュ"
+    shock:
+      name: "感電"
+    wet:
+      name: "びしょ濡れ"
+    bleed:
+      name: "出血"
+    regen:
+      name: "再生"
+    evasive:
+      name: "回避"

@@ -1,0 +1,16 @@
+# WP7: physical DoT from dagger stabs. Weaker per second than burn but stacks to 3
+# and can't be extinguished by water/ice the way fire interactions work.
+
+id: bleed
+
+display_name_key: astera.status.bleed.name
+
+kind: burn
+default_duration_ticks: 100   # 5s of DoT @ 20 TPS
+
+stackable: true
+max_stacks: 3
+
+params:
+  type: burn
+  damage_per_tick: 1.0

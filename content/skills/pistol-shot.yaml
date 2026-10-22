@@ -19,7 +19,7 @@ params:
   launch_speed: 3.2
   max_lifetime_ticks: 30
   damage:
-    - base: { type: literal, value: 6.0 }
+    - base: { type: literal, value: 7.0 }
       attribute: physical
 
 phases:
@@ -32,7 +32,7 @@ phases:
     - type: damage
       targets: { type: target }
       components:
-        - base: { type: literal, value: 6.0 }
+        - base: { type: literal, value: 7.0 }
           attribute: physical
   hit_block: []
   miss: []

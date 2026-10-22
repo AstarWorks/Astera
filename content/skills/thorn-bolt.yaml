@@ -1,0 +1,44 @@
+# WP7: verdant staff right-click. Earth-element poke that poisons. Low burst,
+# the support staff's way to finish a fight while the allies it heals do the rest.
+
+id: thorn-bolt
+
+name:
+  ja: "茨の矢"
+  en: "Thorn Bolt"
+description:
+  ja: "土属性の茨を放ち、対象を毒状態にする。"
+  en: "Looses a thorn of earth that poisons its target."
+
+archetype: projectile
+cooldown_ticks: 24
+resource_cost: 6               # mana
+tags: [ ranged, earth-family, poison ]
+
+params:
+  type: projectile
+  launch_speed: 2.4
+  max_lifetime_ticks: 50
+  damage:
+    - base: { type: literal, value: 5.0 }
+      attribute: earth
+
+phases:
+  type: projectile
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.grass.break
+  hit_entity:
+    - type: damage
+      targets: { type: target }
+      components:
+        - base: { type: literal, value: 5.0 }
+          attribute: earth
+    - type: apply_status
+      targets: { type: target }
+      status_id: poison
+      effect_duration_ticks: { type: literal, value: 160 }
+  hit_block: []
+  miss: []
+  expire: []

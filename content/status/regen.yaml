@@ -1,0 +1,17 @@
+# WP7: heal over time from the verdant staff's regrowth. HEAL_AMP ticks
+# `multiplier` HP per second per stack through the health gateway
+# (StatusEffectTickListener).
+
+id: regen
+
+display_name_key: astera.status.regen.name
+
+kind: heal_amp
+default_duration_ticks: 160   # 8s @ 20 TPS
+
+stackable: false
+max_stacks: 1
+
+params:
+  type: heal
+  multiplier: 1.5

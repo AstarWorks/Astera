@@ -1,0 +1,15 @@
+# WP7: short sprint after a gun backstep (rifle / shotgun, sneak + right-click).
+
+id: evasive
+
+display_name_key: astera.status.evasive.name
+
+kind: speed_up
+default_duration_ticks: 25   # 1.25s @ 20 TPS
+
+stackable: false
+max_stacks: 1
+
+params:
+  type: speed
+  multiplier: 1.6

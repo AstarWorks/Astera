@@ -1,0 +1,42 @@
+# WP7 staff roster: support. Right-click = thorn bolt (poison poke),
+# sneak + right-click = regrowth (cleanse + heal-over-time for you and nearby allies).
+
+id: verdant-staff
+
+material: BREEZE_ROD
+
+name:
+  ja: "<green>翠緑の杖</green>"
+  en: "<green>Verdant Staff</green>"
+lore:
+  ja:
+    - "<gray>右クリック: 茨の矢（毒）</gray>"
+    - "<gray>スニーク + 右クリック: 再生の風（味方を回復）</gray>"
+    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
+  en:
+    - "<gray>Right-click: thorn bolt (poison)</gray>"
+    - "<gray>Sneak + right-click: regrowth (heals allies)</gray>"
+    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
+
+rarity: rare
+level_requirement: 3
+
+attributes:
+  attack_damage: 2.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: mana
+resource_cost_per_use: 6
+resource_max_pool: 80
+resource_regen_per_second: 6.0
+
+skills:
+  - trigger: right_click
+    skill_id: thorn-bolt
+  - trigger: sneak_right
+    skill_id: regrowth
+
+pdc_tags:
+  astera:rarity: rare
