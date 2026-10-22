@@ -93,10 +93,29 @@ export function buildIndex({ repo, S, mcInfo }) {
   const bySkill = new Map();
   for (const k of cases.sort((a, b) => b.updated - a.updated)) if (k.skillId && !bySkill.has(k.skillId)) bySkill.set(k.skillId, k);
   const used = new Set();
-  const weapons = personaWeapons(repo).map((w) => {
+  const roster = personaWeapons(repo);
+  // Cases with no bound item slot (E.G.O before the Q binding exists, a rebound Q, ...) still belong to their weapon:
+  // case.weapon wins, else the `<weapon-id>-(ego|def|s1..s3)` id prefix.
+  const boundSkills = new Set(roster.flatMap((w) => w.slots.map((s) => s.skillId)));
+  const extra = new Map();
+  const SUFFIX_ORDER = ["s1", "s2", "s3", "def", "ego"];
+  for (const k of cases) {
+    if (boundSkills.has(k.skillId) && bySkill.get(k.skillId) === k) continue;
+    const m = /^(.+)-(ego|def|s[1-3])$/.exec(k.id);
+    const w = roster.find((x) => x.id === k.weapon) ?? (m ? roster.find((x) => x.id === m[1]) : null);
+    if (!w) continue;
+    const suf = m && w.id === m[1] ? m[2] : null;
+    const tag = suf === "ego" ? "E.G.O / Q" : suf ? suf.toUpperCase() : "case";
+    if (!extra.has(w.id)) extra.set(w.id, []);
+    extra.get(w.id).push({ trigger: "", label: "", tag, skillId: k.skillId, ja: k.skillName, en: k.id, range: k.skillId || "-", case: k, ord: SUFFIX_ORDER.indexOf(suf) });
+    used.add(k.id);
+  }
+  const weapons = roster.map((w) => {
     const rows = w.slots.map((s) => { const k = bySkill.get(s.skillId) ?? null; if (k) used.add(k.id); return { ...s, case: k }; });
-    const first = rows.find((r) => r.case)?.case;
-    return { ...w, slots: rows, identity: first?.identity ?? "", videoTitle: first?.videoTitle ?? "", cases: rows.filter((r) => r.case).length };
+    const more = (extra.get(w.id) ?? []).sort((a, b) => a.ord - b.ord);
+    const all = [...rows, ...more];
+    const first = all.find((r) => r.case)?.case;
+    return { ...w, slots: all, identity: first?.identity ?? "", videoTitle: first?.videoTitle ?? "", cases: all.filter((r) => r.case).length };
   });
   return { weapons, others: cases.filter((k) => !used.has(k.id)), generated: Date.now() };
 }

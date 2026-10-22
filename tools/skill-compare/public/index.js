@@ -86,13 +86,7 @@ function load() {
       const sec = el("section", "weapon");
       const h = el("div", "whead"); h.appendChild(el("h2", null, "その他の case (武器に紐づかない)")); sec.appendChild(h);
       const list = el("div", "slots");
-      for (const k of d.others) {
-        const a = el("a", "slot"); a.href = "/case.html?id=" + encodeURIComponent(k.id);
-        const mid = el("div", "smid");
-        mid.append(el("b", null, k.skillName), el("div", "smeta", `${k.id} ・ ${k.skillId || "-"} ・ ${k.from.branch || k.from.worktree}`));
-        a.appendChild(mid);
-        list.appendChild(a);
-      }
+      for (const k of d.others) list.appendChild(slotRow(null, { tag: "", label: "", ja: k.skillName, en: k.id, range: k.skillId || "-", case: k }));
       sec.appendChild(list); box.appendChild(sec);
     }
     if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
