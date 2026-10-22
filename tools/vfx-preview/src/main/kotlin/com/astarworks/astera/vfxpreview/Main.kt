@@ -51,7 +51,7 @@ object VfxPreview {
         }
     }
 
-    /** Frame counts of every `<contentDir>/sprites/*.yaml`. */
+    /** Frame counts of every the `<contentDir>/sprites` YAML files. */
     fun loadSprites(spritesDir: File): SpriteFrames {
         val frames = spritesDir.listFiles { f -> f.extension == "yaml" }.orEmpty().associate { f ->
             val def = yaml.decodeFromString(SpriteYamlConfig.serializer(), f.readText()).toDefinition()
