@@ -1,7 +1,6 @@
 package com.astarworks.astera.core.application.config.skill
 
 import com.astarworks.astera.core.domain.effect.DisplaySpec
-import com.astarworks.astera.core.domain.effect.ParticleAnimationId
 import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.effect.SoundId
 import com.astarworks.astera.core.domain.i18n.LocaleCode
@@ -598,7 +597,7 @@ public sealed class MechanicYaml {
     @SerialName("schedule_particle_animation")
     public data class ScheduleParticleAnimation(
         public val targets: TargeterYaml,
-        @SerialName("animation_id") public val animationId: String,
+        public val animation: List<AnimatedShapeYaml>,
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -606,7 +605,7 @@ public sealed class MechanicYaml {
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.ScheduleParticleAnimation(
             targets = targets.toDomain(),
-            animationId = ParticleAnimationId(animationId),
+            animation = animation.toAnimation(),
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),

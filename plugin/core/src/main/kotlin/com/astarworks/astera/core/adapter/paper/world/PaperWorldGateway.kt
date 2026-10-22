@@ -12,6 +12,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
+import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -42,11 +43,10 @@ import org.slf4j.LoggerFactory
  *    world is unknown (offline / unloaded) per the port contract; an `AIR`
  *    block still round-trips as `BlockType("minecraft:air")`.
  *  - [spawnParticle] → `world.spawnParticle(particle, loc, count, offsetX,
- *    offsetY, offsetZ)` where `particle` is resolved by stripping the
- *    `minecraft:` namespace and `Particle.valueOf(name.uppercase())`. Offset
- *    comes from [ParticleSpec.offset]; the `extra` parameter is fixed at
- *    `0.0` (per-particle speed multiplier — only meaningful for
- *    velocity-bearing particles, none currently authored).
+ *    offsetY, offsetZ, extra, data)` where `particle` is resolved by stripping the
+ *    `minecraft:` namespace and `Particle.valueOf(name.uppercase())`. Offset and
+ *    extra come from [ParticleSpec]; `dust` gets `DustOptions(color, scale)`
+ *    (ADR-0187). `count == 0` is vanilla's directional form (offset = velocity).
  *  - [playSound] → resolves through `Registry.SOUNDS.get(NamespacedKey)`
  *    because `Sound` migrated to the Bukkit Registry pattern in 1.21.
  *    Falls back to silent no-op (DEBUG-logged) when the sound key is
@@ -146,6 +146,20 @@ public class PaperWorldGateway(
             return
         }
         val loc = toLocation(w, at)
+        // ADR-0187: dust carries its colour/size as DustOptions; data-less particles pass
+        // null. Particles that need data we cannot supply (block, item, ...) are dropped.
+        val data: Any? = when (bukkitParticle.dataType) {
+            Particle.DustOptions::class.java ->
+                Particle.DustOptions(
+                    particle.color?.let { Color.fromRGB(it.r, it.g, it.b) } ?: Color.RED,
+                    particle.scale,
+                )
+            Void::class.java -> null
+            else -> {
+                log.debug("PaperWorldGateway.spawnParticle: {} needs {} data; dropped", particle.key, bukkitParticle.dataType)
+                return
+            }
+        }
         w.spawnParticle(
             bukkitParticle,
             loc,
@@ -153,6 +167,8 @@ public class PaperWorldGateway(
             particle.offset.x,
             particle.offset.y,
             particle.offset.z,
+            particle.extra,
+            data,
         )
     }
 

@@ -47,7 +47,7 @@ public object AdminItemCatalog {
     public const val STACK_AMOUNT: Int = 16
 
     /** Ids with these prefixes are GUI furniture (tiles, panes, indicators), not giveable catalog items. */
-    private val HIDDEN_PREFIXES: List<String> = listOf("gui-", "indicator-")
+    private val HIDDEN_PREFIXES: List<String> = listOf("gui-", "indicator-", "skill-tester")
 
     public val GUI_ID: GuiId = GuiId("admin-items")
 

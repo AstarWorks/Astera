@@ -531,6 +531,10 @@ public class PaperProjectileService(
         override val isAlive: Boolean
             get() = service.tracking.containsKey(id)
 
+        override val position: Vec3?
+            get() = service.tracking[id]?.let { service.server.getEntity(it.bukkitEntityUuid)?.location }
+                ?.let { Vec3(it.x, it.y, it.z) }
+
         override fun cancel() {
             service.untrack(id)
         }

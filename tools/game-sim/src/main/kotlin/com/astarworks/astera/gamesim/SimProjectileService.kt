@@ -94,6 +94,7 @@ public class SimProjectileService(
     private inner class Handle(private val flight: Flight) : IProjectileHandle {
         override val id: ProjectileId get() = flight.id
         override val isAlive: Boolean get() = flight.alive
+        override val position: Vec3? get() = flight.position
         override fun cancel() {
             if (!flight.alive) return
             flight.alive = false

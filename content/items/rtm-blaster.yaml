@@ -1,0 +1,34 @@
+# F2-5 (ADR-0187): carrier for the ported RyuZUTechnicalMagic SimpleShoot skill.
+# Right-click = dense flame + ember beam with a burst ring where it lands.
+# No resource pool: it is a look-and-feel showcase, not a balanced weapon.
+
+id: rtm-blaster
+
+material: BLAZE_ROD
+
+name:
+  ja: "<gold>RTMブラスター</gold>"
+  en: "<gold>RTM Blaster</gold>"
+lore:
+  ja:
+    - "<gray>右クリック: シンプルシュート（炎の光線）</gray>"
+    - "<dark_gray>RyuZUTechnicalMagic から移植</dark_gray>"
+  en:
+    - "<gray>Right-click: Simple Shoot (flame beam)</gray>"
+    - "<dark_gray>Ported from RyuZUTechnicalMagic</dark_gray>"
+
+rarity: rare
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 2.0
+
+equip_slot: mainhand
+
+skills:
+  - trigger: right_click
+    skill_id: simple-shoot
+
+pdc_tags:
+  astera:rarity: rare

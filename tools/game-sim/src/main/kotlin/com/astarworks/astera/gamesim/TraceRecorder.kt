@@ -1,5 +1,6 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.domain.effect.ParticleSpec
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import kotlinx.serialization.json.Json
@@ -64,10 +65,14 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         }
     }
 
-    public fun recordParticle(tick: Long, world: String, at: Vec3, key: String, count: Int) {
+    public fun recordParticle(tick: Long, world: String, at: Vec3, key: String, count: Int, spec: ParticleSpec? = null) {
         bucket(tick).particles += buildJsonObject {
             put("key", key)
             put("count", count)
+            // ADR-0187: animated particles carry colour / size / speed so a viewer can replay them.
+            spec?.color?.let { put("color", buildJsonObject { put("r", it.r); put("g", it.g); put("b", it.b) }) }
+            spec?.takeIf { it.color != null }?.let { put("scale", it.scale.toDouble()) }
+            spec?.takeIf { it.extra != 0.0 }?.let { put("extra", it.extra) }
             put("world", world)
             vec(at)
         }

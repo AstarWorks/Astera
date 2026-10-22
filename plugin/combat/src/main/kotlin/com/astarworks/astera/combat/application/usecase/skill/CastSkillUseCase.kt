@@ -100,6 +100,8 @@ public class CastSkillUseCase(
         phaseOverrides: PhaseOverrides = PhaseOverrides.EMPTY,
         sourceItemId: ItemId? = null,
         cooldownOverrideTicks: Int? = null,
+        /** Admin casts (F2-5): do not spend the skill's / item's resource (the cooldown still applies). */
+        ignoreResource: Boolean = false,
     ): Result<SkillSpec, CastSkillError> {
         // 1. Look up spec
         val spec = skillRegistry.find(skillId)
@@ -124,7 +126,7 @@ public class CastSkillUseCase(
         val pool = resourcePool
         val sourceItem = sourceItemId?.let { items?.find(it) }
         var reloadItem: ItemId? = null
-        if (pool != null) {
+        if (pool != null && !ignoreResource) {
             pool.initialiseFor(casterId)
             if (sourceItemId != null) pool.setActiveWeapon(casterId, sourceItemId)
             if (spec.reloadTicks != null) {

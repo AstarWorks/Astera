@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.config
 
+import com.astarworks.astera.core.application.config.skill.toAnimation
 import com.astarworks.astera.combat.domain.skill.ChargedSkillVariant
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillSpec
@@ -183,11 +184,16 @@ public sealed class SkillParamsYaml {
         @SerialName("launch_speed") public val launchSpeed: Double,
         @SerialName("max_lifetime_ticks") public val maxLifetimeTicks: Int,
         @SerialName("hit_radius") public val hitRadius: Double? = null,
+        /** Particle shapes replayed at the projectile each tick (ADR-0187). */
+        public val trail: List<com.astarworks.astera.core.application.config.skill.AnimatedShapeYaml>? = null,
+        @SerialName("trail_spacing") public val trailSpacing: Double = 0.0,
     ) : SkillParamsYaml() {
         override fun toDomain(): SkillParams = SkillParams.ProjectileParams(
             launchSpeed = launchSpeed,
             maxLifetimeTicks = maxLifetimeTicks,
             hitRadius = hitRadius ?: SkillParams.ProjectileParams.DEFAULT_HIT_RADIUS,
+            trail = trail?.toAnimation(),
+            trailSpacing = trailSpacing,
         )
     }
 

@@ -33,6 +33,8 @@ import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
 public class ProjectileHandler(
     private val projectileService: IProjectileService,
     private val dispatcher: MechanicDispatcher,
+    /** ADR-0187: replays `params.trail` at the projectile each tick; `null` disables trails. */
+    private val trailFollower: com.astarworks.astera.combat.application.service.ProjectileTrailFollower? = null,
 ) {
     /**
      * Fire the `cast` phase, then spawn the projectile via [IProjectileService].
@@ -70,12 +72,19 @@ public class ProjectileHandler(
                 pose = pose,
             ),
         )
-        projectileService.spawn(
+        val handle = projectileService.spawn(
             spec = spec,
             origin = muzzle,
             direction = direction,
             owner = event.caster,
         )
+
+        // 3. Per-tick trail (RTM Effect.Particles.Projectile).
+        val trail = params.trail
+        val world = pose?.world
+        if (trail != null && world != null && trailFollower != null) {
+            trailFollower.follow(handle, world, muzzle, direction, trail, params.trailSpacing)
+        }
     }
 
     public companion object {

@@ -3,16 +3,27 @@ package com.astarworks.astera.core.domain.effect
 import com.astarworks.astera.core.domain.geometry.Vec3
 
 /**
- * Vendor-neutral particle emission descriptor. Phase 2 mid will animate these
- * along [com.astarworks.astera.core.domain.animation.Easing] curves for skill effects.
+ * Vendor-neutral particle emission descriptor.
+ *
+ * `count > 0`: spawn [count] particles scattered by [offset] (per-axis spread), speed
+ * [extra]. `count == 0`: vanilla's "directional" form, a single particle whose velocity
+ * is [offset] scaled by [extra] (flames shooting outwards). [color] / [scale] select
+ * `Particle.DUST` options (ADR-0187).
  */
 public data class ParticleSpec(
     val key: String,
     val count: Int,
     val offset: Vec3 = Vec3.ZERO,
+    /** Vanilla `extra` argument: speed for velocity particles (and for `count == 0` direction spawns). */
+    val extra: Double = 0.0,
+    /** RGB tint for `dust` (and similar colour-carrying) particles; `null` = the particle's own colour. */
+    val color: ParticleColor? = null,
+    /** Dust size (vanilla range 0.01..4). Ignored when [color] is null. */
+    val scale: Float = 1.0f,
 ) {
     init {
         require(key.isNotBlank()) { "particle key must not be blank" }
         require(count >= 0) { "count must be >= 0, got $count" }
+        require(scale > 0f) { "scale must be > 0, got $scale" }
     }
 }

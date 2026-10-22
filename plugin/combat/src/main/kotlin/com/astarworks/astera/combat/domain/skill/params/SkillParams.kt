@@ -44,8 +44,19 @@ public sealed class SkillParams {
         val maxLifetimeTicks: Int,
         /** Projectile hit-test sphere radius in blocks (ADR-0174). */
         val hitRadius: Double = DEFAULT_HIT_RADIUS,
+        /**
+         * Particle pattern replayed at the projectile every tick while it flies
+         * (RTM `Effect.Particles.Projectile`, ADR-0187). `null` = no trail.
+         */
+        val trail: com.astarworks.astera.core.domain.effect.animation.ParticleAnimation? = null,
+        /**
+         * Blocks between trail plays along the segment the projectile covered this
+         * tick (RTM `Repeat` sub-steps). `0` = one play per tick at the new position.
+         */
+        val trailSpacing: Double = 0.0,
     ) : SkillParams() {
         init {
+            require(trailSpacing >= 0.0) { "ProjectileParams.trailSpacing must be >= 0: $trailSpacing" }
             require(hitRadius > 0.0) { "ProjectileParams.hitRadius must be > 0: $hitRadius" }
             require(launchSpeed >= 0.0) { "ProjectileParams.launchSpeed must be >= 0: $launchSpeed" }
             require(maxLifetimeTicks >= 0) {
