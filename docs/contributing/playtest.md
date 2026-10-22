@@ -11,20 +11,50 @@ make docker-logs                        # wait for "Done (...)!" on lobby AND ga
 ```
 
 `make docker-up` rebuilds the whole image every time (minutes, both backends restart). For the
-edit-test loop use the fast targets below instead.
+edit-test loop use the fast targets below instead (start with the decision table).
 The stack is Velocity (proxy) + `lobby` + `game` (two Paper servers) + Postgres +
 Redis; see `docker/README.md` and ADR-0179.
 
-### Fast loop: change code or content without `make docker-up` (ADR-0186)
+### Fast loop: change code, content or the pack without `make docker-up` (ADR-0186, ADR-0201)
 
-| Target | Does | You wait | Players |
+**Which command for which change** (restart = a backend stops and boots, about 55 s; players are
+moved to the other backend, not kicked):
+
+| You changed | Run | Restart? | You wait |
 |---|---|---|---|
-| `make dev-content` | copies `content/` into both backends, runs `/astera admin reload all` | ~3 s | nothing happens to them |
-| `make dev-plugins` | `shadowJar` for the 7 plugins (incremental), then per backend whose jars changed: drain, stop, copy jars, start | build 25-45 s + ~55 s per backend (Paper `Done` is ~25 s of that, the rest is itzg init + JVM), backends one after the other | moved to the other backend, not kicked |
+| Kotlin method bodies (damage formula, log text, a branch, a constant) | `make dev-hotswap` | no | build 10-45 s + 2-4 s |
+| Kotlin: added a method / field / class / enum entry, changed a class hierarchy | `make dev-hotswap` | no | same |
+| Kotlin: anything above, but the stack is not the hotswap one (first time) | `make dev-hotswap-up` once, then `make dev-hotswap` | one-time recreate | image build + boot |
+| Kotlin wiring: what `onEnable` / `*Wiring` registers (a new listener, command node, service), `plugin.yml`, a changed initialiser or constructor that must run again | `make dev-plugins` | yes, changed backends only | build + 55 s per backend |
+| Anything `make dev-hotswap` answers "not possible" for | it restarts by itself (same as `make dev-plugins`) | yes | build + 55 s per backend |
+| `content/` YAML: skills, status, items, armor, stages, game-modes, mobs, quests, recipes, normas, languages, `balance/element-matrix.yaml`, `balance/status-effect-interactions.yaml`, bet-policies, ... (full list below) | `make dev-content` | no | about 3 s |
+| Item name / lore / model of items players already hold | `make dev-content` (it runs `/astera items refresh`) | no | about 3 s |
+| Textures, models, HUD art, sounds-in-pack (anything the resource pack carries) | `docker compose -f docker/docker-compose.yml up -d --build resource-pack`, then `make dev-pack` | no | pack build + 1 s |
+| Content that is only read at boot (list below) | `make dev-content`, then `FORCE=1 make dev-plugins` | yes | 55 s per backend |
+| `velocity.toml`, compose env, Dockerfile | `make docker-up` | everything | minutes |
 
-`make dev-plugins` never touches Velocity, Postgres, Redis or the resource pack. Details:
+`make dev-hotswap-up` (once per fresh stack) starts the same stack with the two backends on
+JetBrains Runtime 25 and an in-container hotswap agent (loopback port, nothing published). It is dev
+only: the production image is untouched. `make docker-up` goes back to the stock image.
 
-- Only jars whose SHA-256 differs from the one in the container are copied, and only a backend with a
+`make dev-hotswap` builds the 7 shadow jars, compares them with what each backend boots with, and
+sends the changed classes to the running JVM. What that does and does not do:
+
+- Works live: method bodies, new / removed methods and fields, new classes, new enum entries,
+  hierarchy and modifier changes. State of existing objects is kept (a service's counters, caches,
+  registered listeners).
+- Applied by the agent, but the new code only runs where it is *called again*: a field added to an
+  object that already exists is `null`/`0` until something sets it (initialisers do not re-run), an
+  already created lambda keeps its old body, boot-time wiring does not run again. If your change
+  must re-run `onEnable`, use `make dev-plugins`.
+- Refused (the script then restarts that backend): a changed `plugin.yml` or other resource in a
+  jar, or a class the JVM refuses to redefine. Nothing is applied in that case.
+- Verify with the server log (`make docker-logs`): the script prints the changed classes, and your
+  log line shows the next time that path runs.
+
+`make dev-plugins` details:
+
+- Only jars whose SHA-256 differs from `/plugins/<jar>` in the container are copied, and only a backend with a
   changed jar restarts. `BACKENDS=lobby make dev-plugins` limits it to one backend, `FORCE=1` redeploys
   unchanged jars (use it to restart for non-reloadable content, see below).
 - Order is lobby, then game. Before a backend stops, `/astera admin drain <other>` runs over RCON:
@@ -40,16 +70,32 @@ Redis; see `docker/README.md` and ADR-0179.
   `SYNC_SKIP_NEWER_IN_DESTINATION=false`), so a plain container restart keeps them. A later
   `make docker-up` recreates the containers from a fresh image and wins again.
 - Needs the stack up (`make docker-up` once) and RCON (`docker/.env` `RCON_PASSWORD`, default fine).
+- None of these targets touch Velocity, Postgres or Redis.
 
-`reload all` covers: advancements, anomaly, armor, blocks, changelog, combat-depth/combos, dialogs,
-game-modes, gathering, generators, gui, items, login-bonus, matchmaking, mobs, music, news, normas,
-particles, permissions, pve/*, quests, recipes, skills, skills-progression, sounds, stages, status,
-tutorials. **Not reloadable** (loaded at boot): `languages/`, `balance/`, `hud/`, `shops/`,
-`lobby-npcs/`, `worlds/`, `flex/`, `bet-policies/`. Push them with `make dev-content` and then
-`FORCE=1 make dev-plugins` (graceful restart, content is already in place). Textures/models/HUD art
-need the resource pack rebuilt (`resource-pack` service), not covered by these targets.
+`make dev-pack` (`/astera admin pack reload [force]` on each backend) re-reads the pack hash from the
+pack host (`ASTERA_RESOURCE_PACK_SHA1_URL`, the `astera.zip.sha1` the pack container serves) and, when
+it changed, re-sends the pack to every online player; players who join later get the new one
+automatically. The client keeps the same pack id and swaps the pack in place (the pack apply screen
+flashes once). If `ASTERA_RESOURCE_PACK_SHA1` is set in the environment it wins over the fetched hash:
+leave it unset for development. `PACK_FORCE=1 make dev-pack` re-sends even when the hash is unchanged.
 
-Why not `/reload` or PlugMan-style hot swap: see ADR-0186.
+**`reload all` / `make dev-content` covers** (live, all-or-nothing per category): advancements,
+anomaly, armor, balance-combat (`balance/element-matrix.yaml` and
+`balance/status-effect-interactions.yaml`), bet-policies, blocks, changelog, combat-depth/combos,
+dialogs, game-modes, gathering, generators, gui, items, languages, lobby-kit, login-bonus,
+matchmaking, mobs, music, news, normas, particles, permissions, pve/*, quests, recipes, skills,
+skills-progression, sounds, stages, status, tutorials. Skills, statuses and item specs are read from
+their registries when used, so the next cast / hit / click uses the new values. Items already in an
+inventory keep the name, lore and model they were given with until `/astera items refresh` (which
+`make dev-content` runs for you); their attributes and skill bindings are live already.
+
+**Not reloadable (loaded at boot)**, push with `make dev-content` and then `FORCE=1 make dev-plugins`:
+`shops/` (a reload would re-seed limited stock), `lobby-npcs/`, `worlds/`, `flex/glow-profile.yaml`,
+and the rest of `balance/` (`starter-grant`, `block-durability`, `resource-defaults`,
+`backup-policy`). `hud/` is resource-pack art, not server content: rebuild and push the pack.
+
+Why not `/reload` or PlugMan-style unload/load: see ADR-0186. Why the agent instead of a JDWP
+debugger push: see ADR-0201.
 
 ## 2. Connect
 

@@ -385,6 +385,9 @@ public object EconomyWiring {
                 "$betPoliciesContentDir (failed: ${bettingPoliciesReport.failed})",
         )
         registrations += services.register<IBettingPolicyRegistry>(bettingPolicies, priority = 0)
+        // F3-9 (ADR-0201): `/astera admin reload bet-policies`; `reload all` picks it up too.
+        services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
+            .register(bettingPolicies, betPoliciesContentDir)
 
         val initiateBetting = InitiateBettingChallengeUseCase(
             matches = bettingMatchRepo,

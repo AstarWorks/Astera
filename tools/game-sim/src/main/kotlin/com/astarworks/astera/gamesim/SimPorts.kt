@@ -17,6 +17,7 @@ import com.astarworks.astera.combat.domain.status.StatusKind
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
@@ -373,6 +374,9 @@ public class SimItemDelivery : IItemDelivery {
         }
         return DeliveryResult.Delivered
     }
+
+    /** The simulator keeps item ids only, there is no name/lore/model on a held item to refresh. */
+    override fun refreshHeld(items: IItemRegistry): Int = 0
 }
 
 /** [ITrainingInventory] over [SimItemDelivery.trainingStacks]. */

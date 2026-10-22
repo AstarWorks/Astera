@@ -527,6 +527,13 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             },
         ),
     )
+    // F3-9 (ADR-0201): `/astera admin pack reload [force]` re-reads the pack sha1 and re-pushes the pack.
+    services.get<com.astarworks.astera.core.application.service.hud.ResourcePackService>()?.let { packService ->
+        commands.register(
+            "admin",
+            com.astarworks.astera.core.application.command.admin.buildAsteraPackCommandSpec(packService),
+        )
+    }
     commands.register(
         com.astarworks.astera.core.application.command.buildAsteraNewsCommandSpec(
             registry = newsContents,
