@@ -75,11 +75,11 @@ phases:
       volume: { type: literal, value: 0.7 }
       pitch: { type: literal, value: 0.6 }
       delay_ticks: { type: literal, value: 34 }
-    # -- forest (40): the stack-scaled blow --
+    # -- forest: axes start erupting outward at 36, the stack-scaled blow lands at 40 --
     - type: play_vfx
       targets: { type: caster }
       vfx_id: crimson-chain-axe-forest
-      delay_ticks: { type: literal, value: 40 }
+      delay_ticks: { type: literal, value: 36 }
     - type: damage
       targets: { type: enemies, center: { type: caster } }
       ignore_invulnerability: { type: literal, value: true }
