@@ -113,6 +113,9 @@ internal class CorePaperBindings(
         val broadcaster = buildBroadcaster(scheduler)
 
         return CorePlatformPorts(
+            tutorialStateRepository = com.astarworks.astera.core.adapter.storage.FilePlayerTutorialStateRepository(
+                plugin.dataFolder.toPath().resolve("tutorial-progress"),
+            ),
             mcServer = mcServer,
             scheduler = scheduler,
             broadcaster = broadcaster,
@@ -500,6 +503,12 @@ internal class CorePaperBindings(
             intents = result.guiIntentRouter,
             mcServer = mcServer,
             visibility = { ctx.services.get<com.astarworks.astera.core.application.gui.ViewerVisibility>() },
+            onMenuKey = { id ->
+                val player = mcServer.findPlayer(id)
+                if (player != null && result.guiAdapter.currentSpec(player)?.id?.value == "main-menu") {
+                    ctx.services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()?.recordAction(id, "menu")
+                }
+            },
             inMatch = { playerId ->
                 com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy.inMatch(
                     snapshotHeld = ctx.services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()

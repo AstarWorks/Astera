@@ -17,6 +17,7 @@ public class AccessPersonalVaultUseCase(
     private val openVault: OpenVaultUseCase,
     private val window: () -> IVaultWindow?,
     private val matches: () -> IMatchRepository?,
+    private val onOpened: (PlayerId) -> Unit = {},
 ) {
 
     public fun open(playerId: PlayerId, page: Int = 0): Result<Unit, VaultError> {
@@ -29,8 +30,10 @@ public class AccessPersonalVaultUseCase(
         return when (val loaded = openVault.openVault(playerId)) {
             is Result.Failure -> Result.Failure(loaded.error)
             is Result.Success ->
-                if (vaultWindow.show(loaded.value, page)) Result.Success(Unit)
-                else Result.Failure(VaultError.WindowUnavailable)
+                if (vaultWindow.show(loaded.value, page)) {
+                    onOpened(playerId)
+                    Result.Success(Unit)
+                } else Result.Failure(VaultError.WindowUnavailable)
         }
     }
 

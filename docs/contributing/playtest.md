@@ -2,6 +2,48 @@
 
 Goal: boot the server, log in with a Minecraft Java client, get weapons, play a match.
 
+## Guided first join (ADR-0242)
+
+Use a server built by GitHub Actions for this change. Join with a fresh profile; close the
+welcome dialog. Every step shows a title/subtitle, a repeated action-bar hint and a private
+floating target marker. Try the flow in English and Japanese (`/astera lang ja`).
+
+| Step | Do this | Expected |
+|---|---|---|
+| Menu | Empty your hand or hold the compass, press F | Main menu opens; guide points east to the training island |
+| Range | Close the menu and walk across the east bridge | Entering the training area advances; waiting in the plaza does nothing |
+| Rack | Right-click the Knight's Sword frame and select the sword | Successful rack delivery advances; a refused claim does not |
+| Primary | Approach the marked melee dummy and left-click with the sword | A landed hit advances; swinging at air does not |
+| Secondary | Face safe ground, sneak + right-click with the sword | Accepted dash advances; rejected casts do not |
+| Reload | Take a pistol from the rack, select it, fire with RC, press Q | Wait for ammo to refill; the pistol now reloads with Q |
+| HUD | Watch for four seconds | Food bar is shared energy; ammo and cooldown icons / hotbar sweep explain readiness |
+| Shop | Put the weapon away; F → Shop or click the marked merchant | Opening the shop advances; no purchase is needed |
+| Vault | Sneak+F → Vault, or F → Customize → Vault | The real vault window opens; no deposit is needed |
+| Queue | Follow the south marker and step onto a queue pad | Tutorial completes, queue entry proceeds, first graduation grants 50 STAR |
+
+The compass stays in hotbar slot 8; inventory crafting-grid buttons offer the same lobby
+navigation. Q on the compass opens queue selection. Weapons bind their own inputs: this
+lesson uses sword LC / sneak+RC and pistol RC / Q; check each other weapon's lore.
+
+At any wait, `/astera tutorial status` describes the next action. `/astera tutorial skip`
+pauses and removes the marker; `/astera tutorial start` resumes that step. Disconnect and
+rejoin both while active and while skipped. Restart the backend mid-step and verify the
+same cursor returns. Paper stores standalone progress under
+`plugins/Astera-Core/tutorial-progress/`; network servers use Postgres V65 instead.
+After completion, `tutorial start` replays the lesson without another graduation reward.
+Do not delete a real player's progress to test rewards; use a fresh test profile.
+
+On an ALL backend, enter a match mid-tutorial: hints/markers disappear and actions cannot
+advance it; return to the lobby to continue. GAME backends never enroll or present the
+lesson. Verify that one player's marker is invisible to another and that quit, skip and
+shutdown remove it. Client appearance and beacon visibility still require this playtest.
+
+CI coverage: `TutorialScenarioTest` drives a fresh player through F, movement, rack claim,
+landed primary, secondary, Q reload, HUD observation, shop/vault and a real queue pad.
+It also covers skip/reconnect, role and match guards; unit/storage tests cover replay
+protection, cursor reopening and Postgres round trips. No local build/test is required for
+this task; the orchestrator pushes the committed branch for GitHub Actions verification.
+
 ## 1. Build and boot
 
 ```bash

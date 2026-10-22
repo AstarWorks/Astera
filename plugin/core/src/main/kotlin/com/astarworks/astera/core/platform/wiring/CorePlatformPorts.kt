@@ -57,6 +57,7 @@ public class CorePlatformPorts(
     public val broadcaster: IBroadcaster,
     /** Required: GUI rendering has no in-memory default. Built before the wiring registers [IGuiBindingResolver]. */
     public val guiAdapter: GuiAdapterFactory,
+    public val tutorialStateRepository: com.astarworks.astera.core.application.port.outbound.IPlayerTutorialStateRepository? = null,
     // ---- HUD ------------------------------------------------------------
     public val scoreboardManager: ((ServiceRegistry) -> IScoreboardManager)? = null,
     public val tabList: ((ServiceRegistry) -> ITabList)? = null,

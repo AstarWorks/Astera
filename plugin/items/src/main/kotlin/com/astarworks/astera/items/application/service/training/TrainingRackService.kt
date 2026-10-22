@@ -60,6 +60,7 @@ public class TrainingRackService(
     private val players: IPlayerGateway,
     private val messages: IMessageRenderer,
     private val matches: () -> IMatchRepository?,
+    private val onClaimed: (PlayerId, ItemId) -> Unit = { _, _ -> },
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -94,6 +95,7 @@ public class TrainingRackService(
         val target = server.findPlayer(playerId) ?: return fail(playerId, RackError.PlayerOffline, itemId)
         return when (delivery.give(target, spec, 1, ItemOrigin.TRAINING)) {
             is DeliveryResult.Delivered -> {
+                onClaimed(playerId, itemId)
                 send(playerId, K_CLAIMED, itemId)
                 Result.success(spec)
             }

@@ -240,6 +240,9 @@ public object ItemsWiring {
                 delivery = itemDelivery,
                 server = mcServer,
                 poses = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>() },
+                onClaimed = { player, item ->
+                    if (item.value == "knight-sword") services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()?.recordAction(player, "rack")
+                },
                 inventory = trainingInventory,
                 gateway = rackGateway,
                 players = playerGateway,
