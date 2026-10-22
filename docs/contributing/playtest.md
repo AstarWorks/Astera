@@ -22,11 +22,14 @@ You must be op (`OPS=` in `docker/.env`, or run `op <name>` in the server consol
 ## 3. Get weapons
 
 ```
-/astera-items give <yourName> example-sword
-/astera-items give <yourName> example-pistol
-/astera-items give <yourName> example-wand
-/astera-items give <yourName> example-sword 3     # optional amount
+/astera-items give <yourName> pistol         # right-click shoot (12 rounds), Q reload
+/astera-items give <yourName> knight-sword   # left-click slash, sneak+right-click dash
+/astera-items give <yourName> frost-staff    # right-click frost shard, sneak+right-click frost nova (mana)
 ```
+
+Or buy them: right-click the "Lobby Merchant" villager near spawn, or `/astera-shop`
+(new players start with 100 GOLD). `/vault` or an ender chest opens your personal vault.
+Skill damage also hits mobs (`/summon zombie` to test).
 
 ## 4. Run a match (queue)
 
