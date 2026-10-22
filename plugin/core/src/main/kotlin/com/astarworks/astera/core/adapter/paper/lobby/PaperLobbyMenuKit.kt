@@ -39,6 +39,7 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.event.player.PlayerSwapHandItemsEvent
+import org.bukkit.event.player.PlayerTeleportEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
@@ -190,6 +191,10 @@ internal class PaperLobbyMenuKit(
 
     @EventHandler(priority = EventPriority.MONITOR)
     fun onWorld(e: PlayerChangedWorldEvent) = later(e.player)
+
+    /** Match entry / return teleports can stay inside one world (no PlayerChangedWorldEvent), so re-evaluate on every teleport. */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    fun onTeleport(e: PlayerTeleportEvent) = later(e.player)
 
     @EventHandler(priority = EventPriority.MONITOR)
     fun onGameMode(e: PlayerGameModeChangeEvent) = later(e.player)

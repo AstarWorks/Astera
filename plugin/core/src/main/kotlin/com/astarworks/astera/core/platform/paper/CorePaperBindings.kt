@@ -449,8 +449,11 @@ internal class CorePaperBindings(
             intents = result.guiIntentRouter,
             mcServer = mcServer,
             inMatch = { playerId ->
-                ctx.services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
-                    ?.isHeld(playerId) ?: false
+                com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy.inMatch(
+                    snapshotHeld = ctx.services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
+                        ?.isHeld(playerId) ?: false,
+                    membershipPhase = ctx.services.get<IMatchRepository>()?.findMatchOf(playerId)?.phase,
+                )
             },
         )
         server.pluginManager.registerEvents(menuKit, plugin)
