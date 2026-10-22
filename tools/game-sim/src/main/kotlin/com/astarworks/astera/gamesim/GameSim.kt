@@ -91,6 +91,10 @@ public class GameSim private constructor(
     /** Displays spawned by SpawnDisplay (WP5). */
     public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder)
 
+    /** The stand-in Persistence overlay when booted with `persistenceOverlay = true`. */
+    public var persistenceOverlay: SimPersistenceOverlay? = null
+        internal set
+
     public lateinit var core: CoreWiringResult
         private set
     public lateinit var items: ItemsWiringResult
@@ -402,11 +406,14 @@ public class GameSim private constructor(
             serverName: com.astarworks.astera.core.domain.proxy.ServerName = com.astarworks.astera.core.platform.wiring.ServerEnvironment.DEFAULT_NAME,
             /** The messenger connecting this server to its peers; `null` keeps the in-memory loopback. */
             proxy: com.astarworks.astera.core.application.port.outbound.IProxyMessenger? = null,
+            /** Registers the stand-in Persistence overlay before any wiring, like the plugin's onLoad (ADR-0187). */
+            persistenceOverlay: Boolean = false,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
             val scheduler = FakeScheduler()
             val services = ServiceRegistry()
+            val overlay = if (persistenceOverlay) SimPersistenceOverlay.install(services) else null
             // One seeded source for every random roll; CombatWiring picks it up instead of its own.
             services.register<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(
                 com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer(seed),
@@ -438,6 +445,7 @@ public class GameSim private constructor(
             )
 
             sim = GameSim(scenarioName, world, scheduler, services, recorder, mcServer, projectiles, broadcaster, contexts)
+            sim.persistenceOverlay = overlay
             val feedback = sim.feedback
 
             // ---- Core -----------------------------------------------------

@@ -6,7 +6,7 @@ authors: [AstarWorks]
 description: Astera persistence plugin — Postgres-backed repositories overriding in-memory defaults (ADR-0022).
 website: https://github.com/AstarWorks/Astera
 depend: [Astera-Core]
-# loadbefore (not softdepend): persistence must register Postgres impls BEFORE
-# feature plugins look them up via `services.get<X>()` in their onEnable.
-# Wave 3 (R2) — ADR-0020.
+# Overlays are registered in onLoad (ADR-0187), before any plugin's onEnable, so
+# Core and the feature plugins resolve the final repositories. loadbefore only
+# keeps the enable order stable.
 loadbefore: [Astera-Items, Astera-Combat, Astera-Match, Astera-Stats, Astera-Economy]

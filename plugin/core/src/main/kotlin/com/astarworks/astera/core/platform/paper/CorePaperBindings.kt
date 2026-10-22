@@ -35,7 +35,6 @@ import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.platform.wiring.CorePlatformPorts
 import com.astarworks.astera.core.platform.wiring.CoreWiringResult
 import com.astarworks.astera.core.platform.wiring.GuiAdapterFactory
-import com.astarworks.astera.core.platform.wiring.LiveSnapshotRepository
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -173,6 +172,8 @@ internal class CorePaperBindings(
                     eventBus = deps.services.getOrThrow<IDomainEventBus>(),
                     customBlockRegistry = deps.customBlocks,
                     durabilityRule = deps.durabilityRule,
+                    // ADR-0187: the final journal (Postgres overlay when present), not the constructor default.
+                    journal = deps.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository>(),
                 )
                 // Wave 6c §B (ADR-0160) introduced PaperBlockStateGateway.warmUp(WorldId)
                 // to rehydrate the in-memory tracker from the persistent
@@ -291,8 +292,7 @@ internal class CorePaperBindings(
                 com.astarworks.astera.core.adapter.paper.inventory
                     .PlayerInventoryLifecycleListener(
                         server = server,
-                        // Resolved per call: Postgres overlays register after Core enables.
-                        snapshotRepo = LiveSnapshotRepository(services),
+                        snapshotRepo = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository>(),
                         serializer = paperInventorySerializer,
                         sessions = sessions,
                         scheduler = scheduler,

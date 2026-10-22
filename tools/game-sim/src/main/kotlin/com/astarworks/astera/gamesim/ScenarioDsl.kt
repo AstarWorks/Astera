@@ -27,9 +27,10 @@ public fun scenario(
     name: String,
     annihilation: com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig? = null,
     seed: Long = GameSim.DEFAULT_SEED,
+    persistenceOverlay: Boolean = false,
     block: ScenarioScope.() -> Unit,
 ): Path {
-    val sim = GameSim.boot(name, annihilation = annihilation, seed = seed)
+    val sim = GameSim.boot(name, annihilation = annihilation, seed = seed, persistenceOverlay = persistenceOverlay)
     var trace: Path? = null
     try {
         ScenarioScope(sim).block()
