@@ -1,8 +1,8 @@
 package com.astarworks.astera.match.application.service.death
 
 import com.astarworks.astera.combat.domain.damage.DamageSource
-import com.astarworks.astera.combat.domain.damage.ProjectileOrigin
 import com.astarworks.astera.combat.domain.event.DamageDealt
+import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
@@ -70,6 +70,7 @@ public class DeathRespawnCoordinator(
     private val messages: IMessageRenderer,
     private val players: IPlayerGateway,
     private val items: IItemRegistry?,
+    private val skills: ISkillRegistry? = null,
     private val spectator: ISpectator?,
     private val cycler: SpectatorTargetCycler?,
     private val eliminatedTeams: EliminatedTeamSpectators?,
@@ -196,7 +197,7 @@ public class DeathRespawnCoordinator(
     private fun showDeathScreen(event: PlayerKilled, config: DeathRespawnConfig) {
         val victim = event.victim
         val killer = event.killer?.takeIf { it != victim }
-        val weapon = weaponLabel(victim, event.source)
+        val weapon = KillWeaponLabel.of(victim, event.source, items, skills, messages)
         val (key, placeholders) = when {
             killer != null && weapon != null -> SUBTITLE_WEAPON to mapOf(
                 "killer" to nameOf(killer),
@@ -234,20 +235,6 @@ public class DeathRespawnCoordinator(
     }
 
     private fun nameOf(player: PlayerId): String = players.nameOf(player) ?: player.uuid.toString().take(8)
-
-    /** Localised weapon / skill label for the death screen, or `null` for environmental deaths. */
-    private fun weaponLabel(viewer: PlayerId, source: DamageSource): String? = when (source) {
-        is DamageSource.Item -> itemName(viewer, source.itemId)
-        is DamageSource.Skill -> source.skillId.value
-        is DamageSource.Projectile -> when (val origin = source.origin) {
-            is ProjectileOrigin.FromItem -> itemName(viewer, origin.itemId)
-            is ProjectileOrigin.FromSkill -> origin.skillId.value
-        }
-        else -> null
-    }
-
-    private fun itemName(viewer: PlayerId, id: com.astarworks.astera.core.domain.item.ItemId): String? =
-        items?.find(id)?.let { messages.renderText(viewer, it.displayName) }?.takeIf { it.isNotBlank() }
 
     public companion object {
         private const val TICKS_PER_SECOND = 20

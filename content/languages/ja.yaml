@@ -937,12 +937,21 @@ astera:
       summary: "<gold>{delta} {currency}</gold> <gray>(所持 {balance})</gray>"
     status:
       stacks: "<gray>x{stacks}</gray>"
+      seconds: "<gray>{seconds}s</gray>"
+      separator: "<dark_gray>|</dark_gray>"
       # ADR-0182 — リソースパック未適用時の文字表示 HP。
       hp: "<red>HP</red> <white>{current}/{max}</white>"
       # F2-2 (ADR-0194) - 銃を持っていてパック未適用のときのテキスト表示。
       hp-ammo: "<red>HP</red> <white>{current}/{max}</white>  <yellow>弾</yellow> <white>{ammo}/{ammoMax}</white>"
     resource-pack:
       prompt: "<gold>Astera リソースパック</gold> <gray>- 専用 HP バー・アイテムモデル・サウンド</gray>"
+    tab:
+      lobby:
+        header: "\n<gold><bold>ASTERA</bold></gold>\n<gray>ロビー</gray>\n"
+        footer: "\n<gray>オンライン</gray> <white>{count}</white>\n"
+      match:
+        header: "\n<gold><bold>ASTERA</bold></gold>\n<gray>{mode}</gray>\n"
+        footer: "\n<gray>あなたのチーム</gray> <{color}>{team}</{color}> <dark_gray>|</dark_gray> <gray>参加者</gray> <white>{count}</white>\n"
     sidebar:
       spacer: " "
       phase:
@@ -1387,14 +1396,11 @@ astera:
     target: "<gray>観戦中</gray> <white>{player}</white>"
 
   killfeed:
-    victim: "<red>戦闘で倒されました。</red>"
-    killer: "<gold>敵を倒しました。</gold>"
-    entry: "<yellow>プレイヤーが倒されました。</yellow>"
-    # Wave 5match-hud (ADR-0118 §8) — 武器詳細バリアント。
-    weapon:
-      item: "<yellow>{killer} が {item-name} で {victim} を倒した</yellow>"
-      skill: "<yellow>{killer} が {skill-id} で {victim} を倒した</yellow>"
-      generic: "<yellow>{killer} が {victim} を倒した</yellow>"
+    killer: "<gold>{victim} を倒しました。</gold>"
+    chat:
+      kill: "<dark_gray>[キル]</dark_gray> <{killer-color}>{killer}</{killer-color}> <gray>が</gray> <{victim-color}>{victim}</{victim-color}> <gray>を倒した</gray>"
+      kill-weapon: "<dark_gray>[キル]</dark_gray> <{killer-color}>{killer}</{killer-color}> <gray>が</gray> {weapon} <gray>で</gray> <{victim-color}>{victim}</{victim-color}> <gray>を倒した</gray>"
+      death: "<dark_gray>[キル]</dark_gray> <{victim-color}>{victim}</{victim-color}> <gray>が倒れた</gray>"
 
   item-entity:
     error:

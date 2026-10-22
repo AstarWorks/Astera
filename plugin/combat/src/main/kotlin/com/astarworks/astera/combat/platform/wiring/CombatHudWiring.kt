@@ -94,6 +94,15 @@ internal object CombatHudWiring {
             subscriptions += eventBus.subscribe(CooldownExpired::class) { readyCue.onExpired(it) }
         }
 
+        // ADR-0206 — hit marker sound + floating damage number for the attacker.
+        val indicators = services.get<com.astarworks.astera.core.application.port.outbound.IDamageIndicatorGateway>()
+        if (soundGateway != null && indicators != null) {
+            val hitFeedback = com.astarworks.astera.combat.application.eventbus.listeners.hud
+                .HitFeedbackListener(indicators, soundGateway)
+            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.DamageDealt::class) { hitFeedback.onDamage(it) }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) { hitFeedback.onKilled(it) }
+        }
+
         // ── Wave M 5polish-quickwin (ADR-0130 §C) — quickbar bind UI ─────
         // Wires the core-side BindQuickbarSlotIntentHandler with combat's
         // SkillContents as the skill-id provider. Lives here (not core
