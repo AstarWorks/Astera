@@ -1941,6 +1941,44 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "play_animation"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "animation": {
+                            "type": "string"
+                        },
+                        "ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "snapshot_pose": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "animation"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "play_sound"
                         },
                         "targets": {
