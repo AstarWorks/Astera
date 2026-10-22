@@ -49,6 +49,12 @@ When the user says `Wave 5b を実装して` (or similar), read these in this or
 4. **`docs/RTM-PARITY-TRACKER.md`** — feature × state × wave-assignment.
    SSOT for "what's left".
 
+## Verification is CI, not local
+
+Agents verify via CI on `wp/*` branches; never run tests (`./gradlew`, `make e2e`, docker) locally.
+Push the branch and fetch results with `gh run watch` / `gh run view --log-failed` / `gh run download`;
+details in `docs/contributing/ci.md`.
+
 ## Phase A / B / C
 
 - **Phase A — orchestrator solo.** Dep prep, port skeletons, `mkdir` for new
