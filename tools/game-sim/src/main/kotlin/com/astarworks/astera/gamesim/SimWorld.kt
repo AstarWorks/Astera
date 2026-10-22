@@ -1,7 +1,6 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
-import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -124,10 +123,6 @@ public class SimMcPlayer(private val entity: SimEntity) : IMcPlayer {
 
     override fun sendMessage(rendered: String) {
         messages += rendered
-    }
-
-    override fun giveItem(template: IMcItemTemplate, displayNameOverride: String?, loreOverride: List<String>) {
-        receive(template.id)
     }
 
     /** Puts [item] in the inventory; the first item received becomes the held (main-hand) item. */

@@ -1,6 +1,5 @@
 package com.astarworks.astera.core.adapter.api.entity
 
-import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -16,15 +15,6 @@ import kotlin.time.Duration.Companion.milliseconds
  *
  * Strings passed to [sendMessage] are already MiniMessage-formatted; the impl
  * is responsible for deserializing to its native Component / chat type.
- *
- * [giveItem] takes an [IMcItemTemplate] produced by
- * `ItemSpec.toAdapterTemplate(messages, viewer)` (see
- * [com.astarworks.astera.core.application.service.toAdapterTemplate]). The
- * template already carries pre-rendered MiniMessage display name + lore per
- * the viewer's locale (Wave _items-1 / ADR-0073); the caller may still pass
- * non-null `displayNameOverride` / non-empty `loreOverride` to take
- * precedence (typical: a per-binding weapon-level label overrides the
- * underlying item's default name).
  */
 interface IMcPlayer {
     val id: PlayerId
@@ -33,18 +23,6 @@ interface IMcPlayer {
     val locale: String?
 
     fun sendMessage(rendered: String)
-
-    /**
-     * Materialize [template] in this player's inventory.
-     *
-     * @param displayNameOverride MiniMessage-formatted display name. When
-     *   non-null, overrides whatever the template carries. Pass `null` to
-     *   use the template's own pre-rendered `displayName` (resolved at
-     *   conversion time by `ItemSpec.toAdapterTemplate`).
-     * @param loreOverride MiniMessage-formatted lore lines. Empty means
-     *   "use the template's own pre-rendered lore".
-     */
-    fun giveItem(template: IMcItemTemplate, displayNameOverride: String?, loreOverride: List<String>)
 
     /**
      * Material key of the item currently held in the main hand, or null if the

@@ -1,5 +1,6 @@
 package com.astarworks.astera.items.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer
 import org.bukkit.NamespacedKey
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

@@ -1,15 +1,12 @@
-package com.astarworks.astera.items.adapter.paper
+package com.astarworks.astera.core.adapter.paper.item
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
-import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
-import com.astarworks.astera.core.application.service.item.ItemTooltip
-import com.astarworks.astera.core.domain.i18n.LocaleCode
+import com.astarworks.astera.core.application.service.item.ItemBlueprint
+import com.astarworks.astera.core.application.service.item.ItemBlueprintFactory
 import com.astarworks.astera.core.domain.item.EquipSlot
 import com.astarworks.astera.core.domain.item.ItemAttributes
 import com.astarworks.astera.core.domain.item.ItemSpec
-import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.player.PlayerId
-import net.kyori.adventure.text.minimessage.MiniMessage
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -28,20 +25,22 @@ import java.util.UUID
 /**
  * ItemSpec → Bukkit `ItemStack` materializer (Wave _items-1, ADR-0073).
  *
- * The single place Astera turns an [ItemSpec] into a stack that can live in
- * the player's inventory. Applies:
+ * The single place Astera turns an [ItemSpec] into a Bukkit stack (ADR-0241): the inventory item
+ * (`/astera items give`, shop, rewards) and every GUI icon (admin catalog, shop offers, kit, menus)
+ * come out of [buildFor]; GUI surfaces only append their own lore lines afterwards. What the stack
+ * carries is decided by [ItemBlueprintFactory]; this class only applies it. Applies:
  *
  *  - Vanilla material resolution via `Material.matchMaterial`, falling back
  *    to `STONE` with a warning on miss.
  *  - Display name + lore rendered through the player's locale (uses the
  *    spec's inline [com.astarworks.astera.core.domain.i18n.LocalizedText] /
  *    [com.astarworks.astera.core.domain.i18n.LocalizedLore], or i18n keys
- *    via [IMessageRenderer] when the spec carries `displayNameKey`).
+ *    via the message renderer).
  *  - PDC: writes `astera:item_id` (string) unconditionally so the resolver +
  *    enchant-gate can identify the stack later. Designer-supplied PDC tags
  *    on the spec's template are merged in.
  *  - `custom_model_data` for resource-pack-driven visuals, and the `item_model` component
- *    (`astera:<id>`) for items the pack has generated art for (see [ItemModelCatalog]).
+ *    (`astera:<id>`) for items the pack has generated art for (see [com.astarworks.astera.core.application.service.item.ItemModelCatalog]).
  *  - [ItemAttributes] mapped to Bukkit `AttributeModifier`s, scoped to the
  *    spec's [EquipSlot].
  *  - [com.astarworks.astera.core.domain.item.DurabilityPolicy] — `unbreakable`
@@ -51,22 +50,18 @@ import java.util.UUID
  *    a glint with no actual enchantments to render.
  *
  * External templates (Oraxen / ItemAdder / …) fall back to `STONE` in
- * Phase 1, mirroring `PaperPlayer.giveItem`'s existing posture. The
- * provider-specific adapters land in Phase 4.
+ * Phase 1. The provider-specific adapters land in Phase 4.
  *
  * Konsist allows Bukkit imports here (`adapter/paper`); the broader spec-side
  * type lives in `core.domain.item`.
  */
 public class PaperItemMaterializer(
     private val plugin: Plugin,
-    private val messages: IMessageRenderer,
-    private val itemModels: ItemModelCatalog = ItemModelCatalog.NONE,
+    private val blueprints: ItemBlueprintFactory,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private val tooltip = ItemTooltip(messages)
 
-    private val itemIdKey: NamespacedKey =
-        NamespacedKey(plugin, PaperItemIdResolver.ITEM_ID_KEY)
+    private val itemIdKey: NamespacedKey = NamespacedKey(plugin, ITEM_ID_KEY)
     private val enchantableKey: NamespacedKey =
         NamespacedKey(plugin, ENCHANTABLE_KEY)
     private val keepOnDeathKey: NamespacedKey =
@@ -77,9 +72,7 @@ public class PaperItemMaterializer(
      * lore rendered for [viewer]'s locale.
      */
     public fun build(spec: ItemSpec, viewer: IMcPlayer, amount: Int): ItemStack {
-        val stack = baseStack(spec, amount)
-        applyMeta(stack, spec, viewer.id, viewer.locale)
-        return stack
+        return buildFor(spec, viewer.id, amount)
     }
 
     /**
@@ -88,14 +81,15 @@ public class PaperItemMaterializer(
      * the player by id). The rendered locale falls back to the spec's primary
      * inline locale or the default.
      */
-    public fun buildFor(spec: ItemSpec, viewerId: PlayerId?, locale: String?, amount: Int): ItemStack {
-        val stack = baseStack(spec, amount)
-        applyMeta(stack, spec, viewerId, locale)
+    public fun buildFor(spec: ItemSpec, viewerId: PlayerId?, amount: Int): ItemStack {
+        val blueprint = blueprints.build(spec, viewerId)
+        val stack = baseStack(blueprint, amount)
+        applyMeta(stack, blueprint)
         return stack
     }
 
     /** Re-scan the generated item models so [refreshVisuals] sees art pushed after boot. */
-    public fun rescanModels(): Unit = itemModels.rescan()
+    public fun rescanModels(): Unit = blueprints.rescanModels()
 
     /**
      * Re-apply the visual half of [spec] (display name, lore, `item_model`, custom model data) to an
@@ -104,7 +98,7 @@ public class PaperItemMaterializer(
      * item YAML text or new art without being re-given. Returns whether anything changed.
      */
     public fun refreshVisuals(stack: ItemStack, spec: ItemSpec, viewerId: PlayerId?): Boolean {
-        val fresh = buildFor(spec, viewerId, null, 1).itemMeta ?: return false
+        val fresh = buildFor(spec, viewerId, 1).itemMeta ?: return false
         val before = stack.itemMeta
         stack.editMeta { meta ->
             meta.displayName(fresh.displayName())
@@ -116,75 +110,52 @@ public class PaperItemMaterializer(
         return stack.itemMeta != before
     }
 
-    private fun baseStack(spec: ItemSpec, amount: Int): ItemStack {
-        val template = spec.template
-        val material: Material = when (template) {
-            is ItemTemplate.Vanilla -> Material.matchMaterial(template.material) ?: run {
-                log.warn("Unknown Material '{}' for item id={}; falling back to STONE", template.material, spec.id)
-                Material.STONE
-            }
-            is ItemTemplate.External -> {
-                log.warn(
-                    "External template (key='{}') for item id={} — provider adapter not yet wired; falling back to STONE.",
-                    template.externalKey, spec.id,
-                )
-                Material.STONE
-            }
+    private fun baseStack(blueprint: ItemBlueprint, amount: Int): ItemStack {
+        blueprint.externalKey?.let { key ->
+            log.warn(
+                "External template (key='{}') for item id={} - provider adapter not yet wired; falling back to STONE.",
+                key, blueprint.itemId,
+            )
+        }
+        val material: Material = Material.matchMaterial(blueprint.material) ?: run {
+            log.warn("Unknown Material '{}' for item id={}; falling back to STONE", blueprint.material, blueprint.itemId)
+            Material.STONE
         }
         val stackSize = amount.coerceAtLeast(1).coerceAtMost(material.maxStackSize)
         return ItemStack(material, stackSize)
     }
 
     @Suppress("LongMethod")
-    private fun applyMeta(stack: ItemStack, spec: ItemSpec, viewerId: PlayerId?, locale: String?) {
+    private fun applyMeta(stack: ItemStack, blueprint: ItemBlueprint) {
         stack.editMeta { meta ->
-            // Display name + lore (inline LocalizedText / LocalizedLore via
-            // IMessageRenderer.renderText — the Wave _items-1 addition that
-            // resolves inline locale maps with the same fallback + placeholder
-            // pipeline as MessageKey-based labels).
-            val displayName = messages.renderText(viewerId, spec.displayName)
-            if (displayName.isNotBlank()) {
-                meta.displayName(AsteraTextDeserializer.deserialize(displayName))
+            blueprint.displayName?.let { meta.displayName(AsteraTextDeserializer.deserialize(it)) }
+            if (blueprint.lore.isNotEmpty()) {
+                meta.lore(blueprint.lore.map { AsteraTextDeserializer.deserialize(it) })
             }
-            val lore = tooltip.lore(spec, viewerId)
-            if (lore.isNotEmpty()) {
-                meta.lore(lore.map { AsteraTextDeserializer.deserialize(it) })
-            }
-            // viewer locale is consulted inside the renderer; kept here for
-            // forward-compat with any local fallback we may need pre-render.
-            @Suppress("UNUSED_VARIABLE")
-            val resolvedLocale = locale?.let(LocaleCode.Companion::parse) ?: LocaleCode.EN
 
             // PDC: the canonical astera:item_id, plus the policy flags the
             // enchant-gate and death-drop logic consult.
             val pdc = meta.persistentDataContainer
-            pdc.set(itemIdKey, PersistentDataType.STRING, spec.id.value)
-            pdc.set(enchantableKey, PersistentDataType.BYTE, if (spec.enchantable) 1 else 0)
-            pdc.set(keepOnDeathKey, PersistentDataType.BYTE, if (spec.dropPolicy.keepOnDeath) 1 else 0)
+            pdc.set(itemIdKey, PersistentDataType.STRING, blueprint.itemId)
+            pdc.set(enchantableKey, PersistentDataType.BYTE, if (blueprint.enchantable) 1 else 0)
+            pdc.set(keepOnDeathKey, PersistentDataType.BYTE, if (blueprint.keepOnDeath) 1 else 0)
 
-            // External plugin tags (e.g. provider-specific PDC entries from
-            // the spec's template). Vanilla templates may also surface
-            // arbitrary string tags later — Phase 1 keeps the surface
-            // minimal.
-
-            // custom_model_data
-            val template = spec.template
-            if (template is ItemTemplate.Vanilla && template.customModelData != null) {
+            blueprint.customModelData?.let {
                 @Suppress("DEPRECATION")
-                meta.setCustomModelData(template.customModelData)
+                meta.setCustomModelData(it)
             }
 
             // item_model (ADR-0193): point at the pack's `astera:<id>` icon when it has one. The base
             // material stays, so a client without the pack still gets a normal vanilla item.
-            itemModels.modelKey(spec.id.value)?.let { key ->
+            blueprint.itemModel?.let { key ->
                 NamespacedKey.fromString(key)?.let { meta.itemModel = it }
             }
 
             // use_cooldown (ADR-0197): a per-item cooldown group so the skill cooldown / reload can
             // be drawn as the vanilla hotbar sweep (PaperItemCooldownSweepGateway). The 1-tick base
             // cooldown is the component's minimum; the real length is always set explicitly.
-            if (spec.skillBindings.isNotEmpty()) {
-                PaperItemCooldownSweepGateway.groupOf(spec.id)?.let { group ->
+            blueprint.cooldownGroup?.let { raw ->
+                NamespacedKey.fromString(raw)?.let { group ->
                     val useCooldown = meta.useCooldown
                     useCooldown.cooldownGroup = group
                     useCooldown.cooldownSeconds = BASE_COOLDOWN_SECONDS
@@ -192,13 +163,11 @@ public class PaperItemMaterializer(
                 }
             }
 
-            // Durability
-            val durability = spec.durability
-            if (durability.unbreakable) {
+            if (blueprint.unbreakable) {
                 meta.isUnbreakable = true
                 meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE)
             }
-            val maxDurability = durability.maxDurability
+            val maxDurability = blueprint.maxDurability
             if (maxDurability != null && meta is Damageable) {
                 // Bukkit doesn't let plugins override an item's vanilla max,
                 // but it does let us set the current damage. We park the
@@ -207,17 +176,11 @@ public class PaperItemMaterializer(
                 pdc.set(MAX_DURABILITY_KEY_NS(plugin), PersistentDataType.INTEGER, maxDurability)
             }
 
-            // Attributes → AttributeModifier
-            applyAttributes(meta, spec.attributes, spec.equipSlot)
+            applyAttributes(meta, blueprint.attributes, blueprint.equipSlot)
 
-            // Glint without an enchantment: add a hidden LUCK enchantment.
-            // Skipped when the item already carries any enchantment.
-            //
-            // `glint` is nullable (Boolean?): `null` = "no opinion, use vanilla
-            // behaviour"; `true` = force a glint; `false` = explicitly suppress
-            // (no-op in Phase 1 since vanilla won't add a glint without
-            // enchantments anyway).
-            if (spec.glint == true && meta.enchants.isEmpty()) {
+            // Glint without an enchantment: add a hidden enchantment. Skipped when the item already
+            // carries any enchantment. `false` / unset leave vanilla behaviour.
+            if (blueprint.glint && meta.enchants.isEmpty()) {
                 @Suppress("DEPRECATION")
                 meta.addEnchant(Enchantment.LUCK_OF_THE_SEA, 1, true)
                 meta.addItemFlags(ItemFlag.HIDE_ENCHANTS)
@@ -226,10 +189,10 @@ public class PaperItemMaterializer(
             // Designer-supplied PDC tags from the spec. Convention: each key
             // is a fully-qualified `namespace:key`; entries that don't parse
             // are skipped with a warning rather than failing the give.
-            for ((rawKey, rawValue) in spec.pdcTags) {
+            for ((rawKey, rawValue) in blueprint.pdcTags) {
                 val key = NamespacedKey.fromString(rawKey)
                 if (key == null) {
-                    log.warn("ItemSpec id={} has malformed pdcTag '{}'; skipping.", spec.id, rawKey)
+                    log.warn("Item id={} has malformed pdcTag '{}'; skipping.", blueprint.itemId, rawKey)
                     continue
                 }
                 pdc.set(key, PersistentDataType.STRING, rawValue)
@@ -304,6 +267,7 @@ public class PaperItemMaterializer(
     }
 
     public companion object {
+        public const val ITEM_ID_KEY: String = "item_id"
         public const val ENCHANTABLE_KEY: String = "enchantable"
         public const val KEEP_ON_DEATH_KEY: String = "keep_on_death"
         private const val MAX_DURABILITY_KEY: String = "max_durability"
@@ -313,6 +277,5 @@ public class PaperItemMaterializer(
         private fun MAX_DURABILITY_KEY_NS(plugin: Plugin): NamespacedKey =
             NamespacedKey(plugin, MAX_DURABILITY_KEY)
 
-        private val MM: MiniMessage = MiniMessage.miniMessage()
     }
 }

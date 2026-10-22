@@ -1,19 +1,19 @@
 package com.astarworks.astera.items.platform
 
 import com.astarworks.astera.core.application.services.getOrThrow
-import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.items.adapter.paper.PaperItemDelivery
 import com.astarworks.astera.items.adapter.paper.PaperItemCooldownSweepGateway
 import com.astarworks.astera.items.adapter.paper.PaperItemIdResolver
-import com.astarworks.astera.items.adapter.paper.ItemModelCatalog
-import com.astarworks.astera.items.adapter.paper.PaperItemMaterializer
+import com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer
+import com.astarworks.astera.core.application.service.item.ItemBlueprintFactory
 import com.astarworks.astera.items.adapter.paper.PaperTrainingInventory
 import com.astarworks.astera.items.adapter.paper.PaperTrainingRackGateway
 import com.astarworks.astera.items.platform.wiring.ItemsWiringResult
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.services.get
+import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.items.platform.paper.ItemsPaperBindings
 import com.astarworks.astera.items.platform.wiring.ItemsPlatformPorts
 import com.astarworks.astera.items.platform.wiring.ItemsWiring
@@ -59,16 +59,17 @@ public class AsteraItemsPlugin : JavaPlugin() {
             itemDelivery = { services ->
                 val built = PaperItemMaterializer(
                     plugin = this,
-                    messages = services.getOrThrow<IMessageRenderer>(),
-                    itemModels = ItemModelCatalog.fromContentDir(core.contentDir),
+                    blueprints = services.getOrThrow<ItemBlueprintFactory>(),
                 )
                 materializer = built
+                // ADR-0241: Core's GUI renderer builds every icon through this same materializer.
+                services.register<PaperItemMaterializer>(built)
                 PaperItemDelivery(built, server, PaperItemIdResolver(this, server))
             },
             itemIdResolver = PaperItemIdResolver(this, server),
             trainingRack = { services ->
                 val registry = services.getOrThrow<IItemRegistry>()
-                PaperTrainingRackGateway(this) { id -> registry.find(id)?.let { spec -> materializer?.buildFor(spec, null, null, 1) } }
+                PaperTrainingRackGateway(this) { id -> registry.find(id)?.let { spec -> materializer?.buildFor(spec, null, 1) } }
                     .also { rackFrames = it }
             },
             trainingInventory = { PaperTrainingInventory(server) },

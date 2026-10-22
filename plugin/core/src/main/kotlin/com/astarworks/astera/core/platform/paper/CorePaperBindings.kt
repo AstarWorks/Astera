@@ -66,6 +66,8 @@ internal class CorePaperBindings(
 
     /** Resolved lazily: the renderer is registered after [buildPorts] (set in [afterWiring]). */
     @Volatile private var messageRenderer: (() -> IMessageRenderer?)? = null
+    /** ADR-0241: the Items plugin's materializer, looked up per render (set in [afterWiring]). */
+    @Volatile private var itemMaterializer: (() -> com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer?)? = null
     private lateinit var scheduler: IScheduler
 
     /** Retained so [shutdown] can call [PaperScheduler.stop]. */
@@ -112,7 +114,7 @@ internal class CorePaperBindings(
             scheduler = scheduler,
             broadcaster = broadcaster,
             guiAdapter = GuiAdapterFactory { items, messages, bindingResolver ->
-                val guiRenderer = PaperItemTemplateRenderer(items, messages, bindingResolver)
+                val guiRenderer = PaperItemTemplateRenderer(items, messages, bindingResolver) { itemMaterializer?.invoke() }
                 PaperGuiAdapter(
                     server = mcServer,
                     scheduler = scheduler,
@@ -204,6 +206,7 @@ internal class CorePaperBindings(
                     scheduler = scheduler,
                     eventBus = services.getOrThrow<IDomainEventBus>(),
                     itemRegistry = services.getOrThrow<IItemRegistry>(),
+                    itemMaterializer = { services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>() },
                     messageRenderer = services.getOrThrow<IMessageRenderer>(),
                     // Wave 6g-PerTeam (ADR-0169) — lazy thunk; Match plugin
                     // registers the IMatchRepository impl in its own onEnable,
@@ -365,6 +368,7 @@ internal class CorePaperBindings(
      */
     fun afterWiring(ctx: WiringContext, result: CoreWiringResult) {
         messageRenderer = { ctx.services.get<IMessageRenderer>() }
+        itemMaterializer = { ctx.services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>() }
         // The single /astera Brigadier tree (ADR-0184): publishes the registry's
         // merged snapshot on Paper's COMMANDS event and re-publishes it when a
         // feature plugin mounts / removes its subtree after Core enabled.
@@ -475,6 +479,7 @@ internal class CorePaperBindings(
             items = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
             messages = ctx.services.getOrThrow<IMessageRenderer>(),
             bindingResolver = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver>(),
+            materializer = { ctx.services.get<com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer>() },
         )
         val menuKit = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyMenuKit(
             plugin = plugin,

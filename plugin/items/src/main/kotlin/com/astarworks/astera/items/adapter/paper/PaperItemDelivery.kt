@@ -1,5 +1,6 @@
 package com.astarworks.astera.items.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.domain.item.ItemSpec

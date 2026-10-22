@@ -1,5 +1,7 @@
 package com.astarworks.astera.items.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer
+import com.astarworks.astera.core.adapter.paper.lobby.MenuKitTag
 import com.astarworks.astera.core.adapter.paper.lobby.TrainingItemTag
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -26,7 +28,7 @@ public class PaperItemIdResolver(
     private val server: Server,
 ) : IPaperItemIdResolver {
 
-    private val itemIdKey: NamespacedKey = NamespacedKey(plugin, ITEM_ID_KEY)
+    private val itemIdKey: NamespacedKey = NamespacedKey(plugin, PaperItemMaterializer.ITEM_ID_KEY)
 
     override fun heldItemId(playerId: PlayerId): ItemId? {
         val player = server.getPlayer(playerId.uuid) ?: return null
@@ -38,6 +40,7 @@ public class PaperItemIdResolver(
         val inv = player.inventory
         return (inv.contents.asList() + inv.armorContents.asList() + inv.itemInOffHand)
             .filterNot(TrainingItemTag::isTraining) // lobby rack stacks are lent, not owned
+            .filterNot(MenuKitTag::isKit) // lobby kit icons carry an item id but are menu buttons
             .mapNotNull(::itemIdOf)
     }
 
@@ -46,9 +49,5 @@ public class PaperItemIdResolver(
         val meta = stack?.itemMeta ?: return null
         val raw = meta.persistentDataContainer.get(itemIdKey, PersistentDataType.STRING) ?: return null
         return runCatching { ItemId(raw) }.getOrNull()
-    }
-
-    public companion object {
-        public const val ITEM_ID_KEY: String = "item_id"
     }
 }

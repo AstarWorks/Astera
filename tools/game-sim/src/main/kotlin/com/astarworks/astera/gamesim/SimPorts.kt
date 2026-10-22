@@ -399,7 +399,11 @@ public class SimItemDelivery : IItemDelivery {
     /** Lobby-only (training rack) stacks per player, as `astera:training_item` would tag them on Paper. */
     public val trainingStacks: MutableMap<PlayerId, MutableSet<String>> = ConcurrentHashMap()
 
+    /** Every spec handed out, in order: what the Paper delivery would materialize into a stack. */
+    public val delivered: MutableList<ItemSpec> = java.util.Collections.synchronizedList(mutableListOf())
+
     override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int, origin: ItemOrigin): DeliveryResult {
+        delivered += spec
         (target as? SimMcPlayer)?.receive(spec.id) ?: return DeliveryResult.UnknownTemplate(spec.id.value)
         if (origin == ItemOrigin.TRAINING) {
             trainingStacks.getOrPut(target.id) { ConcurrentHashMap.newKeySet() }.add(spec.id.value)
