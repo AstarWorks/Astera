@@ -72,6 +72,20 @@ class EndMatchUseCaseTest {
             .isInstanceOf(EndMatchError.MatchAlreadyEnded::class.java)
     }
 
+    @Test
+    fun `cancelling countdown ends the match instead of returning it to waiting`() {
+        val id = MatchId("cancel-countdown")
+        matches.save(buildMatch(id, MatchPhase.COUNTDOWN))
+        assertThat(useCase.execute(id, EndReason.Cancelled("server-drain")))
+            .isInstanceOf(Result.Success::class.java)
+        assertThat(matches.findById(id)?.phase).isEqualTo(MatchPhase.ENDED)
+        assertThat(matches.findActiveMatches()).isEmpty()
+        assertThat(eventBus.publishedOfType<MatchEnded>()).hasSize(1)
+        assertThat(useCase.execute(id, EndReason.Cancelled("server-drain")))
+            .isInstanceOf(Result.Failure::class.java)
+        assertThat(eventBus.publishedOfType<MatchEnded>()).hasSize(1)
+    }
+
     private fun buildMatch(id: MatchId, phase: MatchPhase): Match {
         val teamId = TeamId("red")
         return Match(

@@ -121,4 +121,16 @@ class CombatMatchBugHuntScenarioTest {
             assertThat(modes.activeMatches()).isEmpty()
         }
     }
+    @Test
+    fun `aborting countdown frees the stage for the next match`() {
+        scenario("bug-hunt-abort-countdown") {
+            val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
+            val stage = com.astarworks.astera.core.domain.stage.StageId("siege-flat")
+            val first = lifecycle.start(stage)
+            check(first is com.astarworks.astera.core.domain.Result.Success)
+            lifecycle.end(first.value, EndReason.Cancelled("admin-abort"))
+            assertThat(sim.match.matches.findActiveMatches()).isEmpty()
+            assertThat(lifecycle.start(stage)).isInstanceOf(com.astarworks.astera.core.domain.Result.Success::class.java)
+        }
+    }
 }
