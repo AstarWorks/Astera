@@ -6,6 +6,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.vfx.SpriteFrames
 import com.astarworks.astera.core.domain.effect.vfx.SpriteId
 import com.astarworks.astera.core.domain.effect.vfx.VfxDefinition
+import com.astarworks.astera.core.domain.effect.vfx.VfxFreeze
 import com.astarworks.astera.core.domain.effect.vfx.VfxTimeline
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Frame
@@ -24,6 +25,8 @@ data class PreviewOptions(
     val followPath: Boolean = false,
     val view: ViewMode = ViewMode.DEFAULT,
     val seed: Long = 1L,
+    /** Hit-stop windows handed to the planner (`--freeze at:ticks`, repeatable). */
+    val freezes: List<VfxFreeze> = emptyList(),
     val width: Int = 960,
     val height: Int = 720,
     val sheetColumns: Int = 6,
@@ -61,7 +64,7 @@ object VfxPreview {
     }
 
     fun plan(def: VfxDefinition, opts: PreviewOptions) =
-        VfxTimeline.plan(def, Frame.fromYawPitch(Vec3.ZERO, 0.0, opts.pitchDeg), opts.seed, sprites = opts.sprites)
+        VfxTimeline.plan(def, Frame.fromYawPitch(Vec3.ZERO, 0.0, opts.pitchDeg), opts.seed, 1.0, opts.sprites, opts.freezes)
 
     fun render(def: VfxDefinition, opts: PreviewOptions): RenderedEffect {
         val plan = plan(def, opts)
@@ -119,8 +122,12 @@ fun main(args: Array<String>) {
             "--all" -> all = true
             "--pitch" -> opts = opts.copy(pitchDeg = value(a).toDoubleOrNull() ?: usage("bad --pitch"))
             "--follow-path" -> opts = opts.copy(followPath = true)
-            "--view" -> opts = opts.copy(view = ViewMode.parse(value(a)) ?: usage("--view default|top|side|front|behind"))
+            "--view" -> opts = opts.copy(view = ViewMode.parse(value(a)) ?: usage("--view default|top|side|front|behind|eye"))
             "--seed" -> opts = opts.copy(seed = value(a).toLongOrNull() ?: usage("bad --seed"))
+            "--freeze" -> {
+                val (at, ticks) = value(a).split(":").map { it.toIntOrNull() ?: usage("bad --freeze (at:ticks)") }
+                opts = opts.copy(freezes = opts.freezes + VfxFreeze(at, ticks))
+            }
             "--cols" -> opts = opts.copy(sheetColumns = value(a).toIntOrNull() ?: usage("bad --cols"))
             "--content" -> contentDir = File(value(a))
             "--out" -> outRoot = File(value(a))
@@ -160,7 +167,7 @@ fun main(args: Array<String>) {
 private fun usage(msg: String): Nothing {
     System.err.println(
         "$msg\nusage: vfx-preview [<id>... | --all] [--pitch deg] [--follow-path] " +
-            "[--view default|top|side|front|behind] [--seed n] [--cols n] [--content dir] [--out dir]",
+            "[--view default|top|side|front|behind|eye] [--freeze at:ticks] [--seed n] [--cols n] [--content dir] [--out dir]",
     )
     exitProcess(2)
 }

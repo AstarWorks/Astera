@@ -10,6 +10,7 @@ import com.astarworks.astera.core.application.service.lobby.LobbyKitLockRules
 import com.astarworks.astera.core.domain.gui.GuiSlot
 import com.astarworks.astera.core.domain.lobby.KitArea
 import com.astarworks.astera.core.domain.lobby.KitEntry
+import com.astarworks.astera.core.domain.lobby.LobbyKeybinds
 import com.astarworks.astera.core.domain.lobby.LobbyMenuKit
 import com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -184,7 +185,23 @@ internal class PaperLobbyMenuKit(
     // ---- lifecycle -----------------------------------------------------
 
     @EventHandler(priority = EventPriority.MONITOR)
-    fun onJoin(e: PlayerJoinEvent) = later(e.player)
+    fun onJoin(e: PlayerJoinEvent) {
+        later(e.player)
+        hintKeys(e.player)
+    }
+
+    /** Once per join: tell the player about the keybinds (ADR-0232). Silent where the kit does not apply. */
+    private fun hintKeys(player: Player) {
+        plugin.server.scheduler.runTaskLater(
+            plugin,
+            Runnable {
+                if (!player.isOnline || !active(player)) return@Runnable
+                val text = messages.render(PlayerId(player.uniqueId), com.astarworks.astera.core.domain.i18n.MessageKey(KEYS_HINT))
+                player.sendActionBar(AsteraTextDeserializer.deserialize(text))
+            },
+            HINT_DELAY_TICKS,
+        )
+    }
 
     @EventHandler(priority = EventPriority.MONITOR)
     fun onRespawn(e: PlayerRespawnEvent) = later(e.player)
@@ -237,6 +254,10 @@ internal class PaperLobbyMenuKit(
 
     private fun press(player: Player, entryId: String) {
         val entry = kit.find(entryId) ?: return
+        press(player, entry)
+    }
+
+    private fun press(player: Player, entry: KitEntry) {
         if (!active(player)) {
             later(player)
             return
@@ -321,15 +342,40 @@ internal class PaperLobbyMenuKit(
         e.inventory.result = result
     }
 
+    /** Q on the kit item is never a drop; it fires the `key_drop` entry (ADR-0232). */
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onDrop(e: PlayerDropItemEvent) {
-        if (MenuKitTag.isKit(e.itemDrop.itemStack)) e.isCancelled = true
+        if (!MenuKitTag.isKit(e.itemDrop.itemStack)) return
+        e.isCancelled = true
+        kit.at(KitArea.KEY_DROP, 0)?.let { press(e.player, it) }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    /**
+     * F (swap hand) while not holding a weapon opens the menu, sneak+F the second key entry (ADR-0232).
+     * Weapons never bind F, so this does not collide with skill triggers; with a weapon in hand F stays vanilla.
+     * Sneak+F by an operator / `astera.admin.panel` holder is taken first by the admin hub (ADR-0233,
+     * NORMAL priority, cancels the event), so `ignoreCancelled` leaves it alone here.
+     * Nothing is intercepted outside the lobby kit (matches keep vanilla F).
+     */
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onSwapHands(e: PlayerSwapHandItemsEvent) {
+        val player = e.player
+        if (active(player)) {
+            val held = player.inventory.itemInMainHand
+            val holdingWeapon = !held.isEmpty && !MenuKitTag.isKit(held) && isAsteraItem(held)
+            val area = LobbyKeybinds.swapArea(holdingWeapon, player.isSneaking)
+            val entry = area?.let { kit.at(it, 0) }
+            if (entry != null) {
+                e.isCancelled = true
+                press(player, entry)
+                return
+            }
+        }
         if (MenuKitTag.isKit(e.mainHandItem) || MenuKitTag.isKit(e.offHandItem)) e.isCancelled = true
     }
+
+    private fun isAsteraItem(stack: ItemStack): Boolean =
+        stack.hasItemMeta() && stack.itemMeta?.persistentDataContainer?.keys?.any { it.key == WEAPON_ID_KEY_NAME } == true
 
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onPlace(e: BlockPlaceEvent) {
@@ -345,5 +391,9 @@ internal class PaperLobbyMenuKit(
 
     private companion object {
         const val PRESS_COOLDOWN_MS = 200L
+        const val HINT_DELAY_TICKS = 40L
+        const val KEYS_HINT = "astera.lobby-kit.hint.keys"
+        /** The items plugin stamps `<plugin>:item_id` on every skill item; matched by key name (as combat does). */
+        const val WEAPON_ID_KEY_NAME = "item_id"
     }
 }

@@ -41,6 +41,7 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         val effects = mutableListOf<JsonElement>()
         val events = mutableListOf<JsonElement>()
         val hud = mutableListOf<JsonElement>()
+        val displays = mutableListOf<JsonElement>()
         var hasSnapshot = false
         var entities: JsonElement = JsonArray(emptyList())
         var projectiles: JsonElement = JsonArray(emptyList())
@@ -187,6 +188,15 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         }
     }
 
+    /**
+     * Full-fidelity display-entity record for the viewer (`displays` per tick): [event] is one of
+     * `spawn` / `update` / `swap` / `teleport` / `remove`, built by `SimDisplayGateway` with the exact
+     * values the Paper adapter would send to the client. Additive to schema `astera-sim-trace/1`.
+     */
+    public fun recordDisplay(tick: Long, event: JsonElement) {
+        bucket(tick).displays += event
+    }
+
     /** Catch-all for every domain event ([type] = simple class name). */
     public fun recordEvent(tick: Long, type: String, summary: String) {
         bucket(tick).events += buildJsonObject {
@@ -267,6 +277,7 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
                             put("effects", JsonArray(b.effects))
                             put("events", JsonArray(b.events))
                             put("hud", JsonArray(b.hud))
+                            put("displays", JsonArray(b.displays))
                         },
                     )
                 }

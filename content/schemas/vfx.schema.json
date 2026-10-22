@@ -23,14 +23,63 @@
             "items": {
                 "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxElementYaml"
             }
+        },
+        "rigs": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxRigYaml"
+            }
         }
     },
     "required": [
         "id",
-        "duration_ticks",
-        "elements"
+        "duration_ticks"
     ],
     "definitions": {
+        "com.astarworks.astera.core.application.config.VfxBoardYaml": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "at": {
+                    "type": "integer"
+                },
+                "ticks": {
+                    "type": "integer"
+                },
+                "from": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "to": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "arc_deg": {
+                    "type": "number"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "fade_power": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "id",
+                "at",
+                "ticks",
+                "from",
+                "to",
+                "arc_deg",
+                "color"
+            ]
+        },
         "com.astarworks.astera.core.application.config.VfxCurveYaml": {
             "oneOf": [
                 {
@@ -309,12 +358,79 @@
                     "items": {
                         "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxGroupKeyframeYaml"
                     }
+                },
+                "emit": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxEmitYaml"
                 }
             },
             "required": [
                 "id",
-                "kind",
-                "keyframes"
+                "kind"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxEmitYaml": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "rate_per_tick": {
+                    "type": "integer"
+                },
+                "speed": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "spread_deg": {
+                    "type": "number"
+                },
+                "direction": {
+                    "type": "string"
+                },
+                "gravity": {
+                    "type": "number"
+                },
+                "drag": {
+                    "type": "number"
+                },
+                "life_ticks": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "size": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "size_over_life": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "color_over_life": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "alpha_over_life": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "spin_deg_per_tick": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "count"
             ]
         },
         "com.astarworks.astera.core.application.config.VfxFormationYaml": {
@@ -421,6 +537,12 @@
                 },
                 "text": {
                     "type": "string"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "alpha": {
+                    "type": "number"
                 }
             },
             "required": [
@@ -500,6 +622,30 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "quad"
+                        },
+                        "color": {
+                            "type": "string"
+                        },
+                        "alpha": {
+                            "type": "number"
+                        },
+                        "glyph": {
+                            "type": "string"
+                        },
+                        "see_through": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "sprite"
                         },
                         "sprite": {
@@ -572,6 +718,169 @@
                 "period_ticks"
             ]
         },
+        "com.astarworks.astera.core.application.config.VfxRigEmitterYaml": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "particle_id": {
+                    "type": "string"
+                },
+                "point": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "start_t": {
+                    "type": "integer"
+                },
+                "end_t": {
+                    "type": "integer"
+                },
+                "step_blocks": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "id",
+                "particle_id",
+                "point",
+                "start_t",
+                "end_t"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxRigPartYaml": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "block": {
+                    "type": "string"
+                },
+                "offset": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "size": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "rotate": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "brightness": {
+                    "type": "integer"
+                },
+                "glow_color": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "block",
+                "offset",
+                "size"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxRigYaml": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "pivot": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "tilt": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "rest": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "start_tick": {
+                    "type": "integer"
+                },
+                "end_tick": {
+                    "type": "integer"
+                },
+                "parts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxRigPartYaml"
+                    }
+                },
+                "swing": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxSwingKeyYaml"
+                    }
+                },
+                "trails": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxTrailYaml"
+                    }
+                },
+                "boards": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxBoardYaml"
+                    }
+                },
+                "emitters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxRigEmitterYaml"
+                    }
+                },
+                "respect_hit_stop": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "id",
+                "pivot"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxSwingKeyYaml": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "integer"
+                },
+                "rotate": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "ease": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "t"
+            ]
+        },
         "com.astarworks.astera.core.application.config.VfxTiltYaml": {
             "type": "object",
             "properties": {
@@ -585,6 +894,117 @@
                     "type": "number"
                 }
             }
+        },
+        "com.astarworks.astera.core.application.config.VfxTrailBandYaml": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "number"
+                },
+                "to": {
+                    "type": "number"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "color_to": {
+                    "type": "string"
+                },
+                "block": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "from",
+                "to",
+                "color"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxTrailEdgeYaml": {
+            "type": "object",
+            "properties": {
+                "block": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "number"
+                }
+            }
+        },
+        "com.astarworks.astera.core.application.config.VfxTrailRimYaml": {
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "color"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxTrailYaml": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "to": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "start_t": {
+                    "type": "integer"
+                },
+                "end_t": {
+                    "type": "integer"
+                },
+                "life_ticks": {
+                    "type": "integer"
+                },
+                "lag_ticks": {
+                    "type": "integer"
+                },
+                "style": {
+                    "type": "string"
+                },
+                "bands": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxTrailBandYaml"
+                    }
+                },
+                "edge": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxTrailEdgeYaml"
+                },
+                "dark_rim": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxTrailRimYaml"
+                },
+                "step_deg": {
+                    "type": "number"
+                },
+                "fade_power": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "id",
+                "from",
+                "to",
+                "start_t",
+                "end_t",
+                "life_ticks"
+            ]
         }
     }
 }

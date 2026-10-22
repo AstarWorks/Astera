@@ -5,6 +5,7 @@ import com.astarworks.astera.combat.application.service.TargeterResolver
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.effect.vfx.VfxFreeze
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
 import org.slf4j.Logger
@@ -24,7 +25,7 @@ internal class VfxMechanics(
 
     fun shutdown() = player.shutdown()
 
-    fun play(m: Mechanic.PlayVfx, ctx: MechanicContext, scale: Double, follow: Boolean?) {
+    fun play(m: Mechanic.PlayVfx, ctx: MechanicContext, scale: Double, follow: Boolean?, freeze: List<VfxFreeze> = emptyList()) {
         val world = ctx.worldId ?: return log.debug("PlayVfx {} dropped: ctx.worldId is null", m.vfxId)
         val casterPosition = ctx.pose?.position ?: ctx.origin
         val look = ctx.pose?.direction?.takeIf { it.lengthSquared() > 1e-9 }
@@ -49,6 +50,7 @@ internal class VfxMechanics(
                 scale = scale,
                 follow = follow,
                 caster = ctx.actorId,
+                freeze = freeze,
                 anchor = live,
                 seed = scheduler.currentTick() * 1_000_003L + ctx.actorId.hashCode() * 31L + index,
             )

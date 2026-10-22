@@ -34,21 +34,51 @@ Particle models live in `src/particles.js` (`TYPES`); add an entry when content 
 ## 3. Render frames (AI review)
 
 ```
-./gradlew :tools:skill-viewer:render -Pscenario=simple-shoot     # one skill
-make skill-frames SKILL=simple-shoot                             # same
-make skill-frames-all                                            # every skill
+./gradlew :tools:skill-viewer:render -Pscenario=bastion-greatsword-s3     # one skill, all three views
+make skill-frames SKILL=bastion-greatsword-s3                              # same
+make skill-frames-all                                                      # every skill
 ```
 
-(or without Gradle: `cd tools/skill-viewer && bun run build && bun scripts/render.mjs --scenario simple-shoot`;
-`--traces <dir> --out <dir> --cell 512x288` override defaults).
+Without Gradle (traces from `./gradlew :tools:game-sim:showcase`):
+
+```
+cd tools/skill-viewer && bun install && bun run build
+bun scripts/render.mjs --scenario crimson-chain-axe-s3                        # side + first + opponent, sheets + GIFs
+bun scripts/render.mjs --scenario couture-rapier-s2 --views first --no-gif    # one view, sheet only
+```
+
+`--traces <dir> --out <dir> --cell 512x288 --views side,first,opponent --no-gif --all` are the other options.
+
+Views (the same trace, three cameras):
+
+| View | Camera |
+|---|---|
+| `first` | caster first-person: eyes at +1.62, looking along the cast direction (caster model hidden), FOV 70 |
+| `opponent` | a spectator/opponent at min(4, target distance) blocks in front of the caster, eye height 1.62, looking back at the caster (FOV 70); the target model is hidden when the camera stands inside it |
+| `side` | wide side camera, FOV 55 (the old default) |
+
+Caster and target are Steve-sized boxes (0.6 x 1.8, eyes 1.62); damage ticks draw a red/white hit burst plus the damage number.
 
 Output in `tools/skill-viewer/build/skill-frames/<skill>/`:
 
 | File | Content |
 |---|---|
-| `sheet.png` | 4x4 contact sheet, side camera, 16 key ticks (before cast, cast, flight, impact, aftermath), each labelled with tick and offset from the cast |
-| `sheet-behind.png` | same ticks from behind the caster |
-| `anim.gif` | side camera, real time, from just before the cast until the effect dies down |
-| `frames/key-<tick>.png` | the individual side-camera frames |
+| `sheet-<view>.png` | 4x4 contact sheet of 16 key ticks (before cast, cast, flight, impact, aftermath), labelled with tick and offset from the cast |
+| `anim-<view>.gif` | real time, from just before the cast until the effect dies down |
+| `sheet.png`, `anim.gif`, `frames/key-<tick>.png` | the side view (kept for old links) |
 
-Programmatic API in the page: `window.viewer.load(trace)`, `.seek(tick)`, `.applyCamera(name)`, `.setCapture(true)`.
+Block / item / text display entities are drawn with the exact client semantics documented in `DISPLAY-SEMANTICS.md`
+(transformation order, pivots, billboards, interpolation, brightness, glow outline). The trace carries them as a per-tick
+`displays` array (`spawn` / `update` / `swap` / `teleport` / `remove`, additive to `astera-sim-trace/1`).
+
+Programmatic API in the page: `window.viewer.load(trace)` (async), `.seek(tick)`, `.applyCamera('side'|'first'|'opponent'|'behind'|'top'|'front')`,
+`.setCamera({pos,target,fov})`, `.measureDisplays()`, `.pixelBounds()`, `.setCapture(true)`.
+
+## 4. Tests and calibration
+
+```
+bun test test/                  # display math: composition order, pivots, billboards, interpolation, item/text conventions
+bun scripts/calibrate.mjs       # known displays rendered in Chromium, drawn bounds asserted against the projection;
+                                # PNGs in build/calibration/ (block identity, beam roll 45, sword fixed/none, text centre billboard)
+./gradlew :tools:skill-viewer:bunTest :tools:skill-viewer:calibrate    # same, via Gradle
+```

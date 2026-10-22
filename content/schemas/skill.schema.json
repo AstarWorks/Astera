@@ -279,6 +279,21 @@
                 "b"
             ]
         },
+        "com.astarworks.astera.core.application.config.VfxFreezeYaml": {
+            "type": "object",
+            "properties": {
+                "at": {
+                    "type": "integer"
+                },
+                "ticks": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "at",
+                "ticks"
+            ]
+        },
         "com.astarworks.astera.core.application.config.skill.AnimatedParticleYaml": {
             "type": "object",
             "properties": {
@@ -1976,6 +1991,12 @@
                         },
                         "follow": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BoolValueYaml"
+                        },
+                        "freeze": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxFreezeYaml"
+                            }
                         },
                         "delay_ticks": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"

@@ -7,6 +7,9 @@ import com.astarworks.astera.combat.adapter.paper.PaperEntityDamageGateway
 import com.astarworks.astera.combat.adapter.paper.training.PaperTrainingDummyGuard
 import com.astarworks.astera.combat.adapter.paper.training.PaperTrainingDummyShells
 import com.astarworks.astera.combat.adapter.paper.PaperSummonGateway
+import com.astarworks.astera.combat.adapter.paper.preview.PaperEntityCasterBody
+import com.astarworks.astera.combat.adapter.paper.preview.PaperSkillPreviewStage
+import com.astarworks.astera.combat.adapter.paper.preview.PaperTickRateControl
 import com.astarworks.astera.combat.adapter.paper.SummonAllegianceListener
 import com.astarworks.astera.combat.application.service.SummonRegistry
 import com.astarworks.astera.combat.adapter.paper.PaperEntityEffectsGateway
@@ -76,6 +79,9 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         displayEntityGateway = { PaperDisplayEntityGateway(plugin.server) },
         summonGateway = { PaperSummonGateway(plugin.server) },
         trainingDummyShells = { PaperTrainingDummyShells(plugin) },
+        entityCasterBody = { PaperEntityCasterBody(plugin.server) },
+        skillPreviewStage = { PaperSkillPreviewStage(plugin) },
+        tickRateControl = { PaperTickRateControl(plugin.server) },
         playerFeedbackGateway = { PaperPlayerFeedbackGateway(plugin.server) },
         projectileService = { services ->
             // F2-4 — server-simulated projectiles (no vanilla projectile entity).

@@ -55,5 +55,5 @@ public object LobbyMenuKitContent {
 
     private fun parseArea(raw: String): KitArea =
         KitArea.entries.firstOrNull { it.name.equals(raw.trim(), ignoreCase = true) }
-            ?: throw IllegalArgumentException("unknown kit area '$raw' (hotbar | crafting_grid | crafting_result)")
+            ?: throw IllegalArgumentException("unknown kit area '$raw' (hotbar | crafting_grid | crafting_result | key_swap | key_sneak_swap | key_drop)")
 }

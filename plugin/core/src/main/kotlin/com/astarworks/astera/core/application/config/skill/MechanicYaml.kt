@@ -814,6 +814,8 @@ public sealed class MechanicYaml {
         @SerialName("vfx_id") public val vfxId: String,
         public val scale: NumericValueYaml = NumericValueYaml.Literal(1.0),
         public val follow: BoolValueYaml? = null,
+        /** Hit-stop windows `[{at, ticks}]` (effect ticks) freezing the rigs that set `respect_hit_stop`. */
+        public val freeze: List<com.astarworks.astera.core.application.config.VfxFreezeYaml> = emptyList(),
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -825,6 +827,7 @@ public sealed class MechanicYaml {
             vfxId = com.astarworks.astera.core.domain.effect.vfx.VfxId(vfxId),
             scale = scale.toDomain(),
             follow = follow?.toDomain(),
+            freeze = freeze.map { it.toDomain() },
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
