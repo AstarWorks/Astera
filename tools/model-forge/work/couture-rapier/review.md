@@ -1,18 +1,10 @@
-# couture-rapier: visual review
+# Couture rapier redo — visual observations
+Target: `ai-target.png`, built-in image generation from weapons-v1 first row second cell and item YAML. The generated top view exaggerates gem visibility; front/side/3-4 govern construction. No polygon-target scores used.
 
-Five observed rounds: blockout -> shape -> details -> texture -> polish.
-The concept remained locked. Scores compare construction diagrams, not the diagonal source icon.
+1. Blockout: cyan blade has the right length and saturated hue, but exposed gaps separate grip, guard and socket. Hilt lacks all defining open scrolls and gems. Next: continuous tang, layered open loops, stepped needle and jewel mounts.
+2. Shape: tang closes the gaps; upper bow and asymmetric lower loop now read in front and GUI. Compared with the target the guard is still sparse, quillon ends are blunt and the grip is unwrapped. Side view is narrow but the forward jewel is visibly raised. Next: inner scroll, finger ring, cyan terminal stones and wire binding.
+3. Detail: layered guard is recognizable and terminal gems restore the source identity. Wire turns make the grip too pale; silver surfaces remain dull compared with the target. Next: navy wire, brighter five-tone silver, edge wear and small cyan scroll rivets. 16px loses most loops; 32px retains the hilt cluster and needle.
+4. Texture: brighter metal helps but each tiny segment samples a white atlas edge, producing spotted, fragmented-looking scrolls. Next: coherent mid-silver at UV origins, reserve bright wear for larger faces; add socket petals and pommel finial. Keep cyan saturated instead of whitening the full blade.
+5. Polish: continuous silver scrolls, cyan needle and stones, and navy grip now read together in GUI and both hand transforms. Socket/pommel details complete the ends. Pass local authoring review at 133 elements, 128px atlas, 3 texels/unit; all eleven views unclipped. Weaknesses: target's fine curved filigree is discretized, some inner scrolls merge at 32px, 16px needle is intermittent; orthographic hands cannot certify client grip/FOV. Generated top view is illustrative rather than a strict orthographic end view.
 
-| Round | Front | Side | Top | Iso | Observation and next action |
-|---|---:|---:|---:|---:|---|
-| 1 | 0.649 | 0.776 | 0.761 | 0.704 | Blockout: needle and straight guard exist, but the defining open swept hilt is absent. |
-| 2 | 0.770 | 0.811 | 0.811 | 0.814 | Shape: open bow helps identity. Vision caught a disconnected lower diagonal arc; its rotation sign is wrong. |
-| 3 | 0.819 | 0.869 | 0.821 | 0.879 | Details: corrected the lower arc rotation, joined the bow, added gem/bezel, pommel and grip stitches. The hilt now reads as a continuous open shape. |
-| 4 | 0.824 | 0.869 | 0.821 | 0.878 | Texture: cyan blade and silver hilt agree with the reference. Widened the blade slightly for raster readability, preserving its thin side profile. |
-| 5 | 0.823 | 0.869 | 0.821 | 0.874 | Polish: shorten the redundant straight crossguard under the swept quillons. Final iso/hand and inventory reviewed. At 16px the needle is a sparse diagonal; open guard survives at 32px. |
-
-Verdict: **pass local authoring gate; client verification pending**. Final validation: 17 elements, 2 texels/unit, no errors/warnings, no clipped preview.
-
-Reviewed images: round-1 through round-4 comparison sheets; round-5 native-size inventory panels and final iso/first-person contact sheet. Fire staff round-5 full comparison was also inspected after its palette correction.
-
-No Minecraft client or Blockbench execution was performed. Check both hands, actual grip alignment, FOV, swing/use animation, frame/ground placement, back faces and overlapping surfaces under motion.
+Validator: shared `validate.validate(..., budget=250, density=3)`; defaults 64/2 are superseded by this batch's explicit brief. No shared code edits. `python3 tools/model-forge/work/couture-rapier/recipe.py 5 --publish` reproduces final.
