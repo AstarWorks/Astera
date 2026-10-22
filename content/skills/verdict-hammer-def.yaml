@@ -1,7 +1,7 @@
 # ADR-0221 persona weapon: Verdict Hammer DEF (sneak + left click), "Vigil". A 24-tick guard:
-# resist.physical +0.6 (only bites a defender wearing armor, the damage rule skips resistances otherwise),
+# resist.physical +0.6,
 # full knockback resistance, the hammer held across the brow under gold halos. When the guard releases it answers with a counter pulse that shoves nearby enemies off and drives one
-# rupture stake into each. The cast also grants one stack of poise.
+# rupture stake into each.
 
 id: verdict-hammer-def
 
@@ -12,18 +12,16 @@ description:
   ja: "杭槌を掲げて身を守り、物理ダメージを軽減する。構えを解くと衝撃波で周囲を押し返し、杭（破裂）を打ち込む。"
   en: "Hold the hammer up: physical resistance. Releasing the guard sends a counter pulse that shoves enemies back and plants a rupture stake."
 
-archetype: buff
+archetype: sequence
 cooldown_ticks: 120
 resource_cost: 15              # energy
 tags: [ buff, defense, rupture ]
 
 params:
-  type: buff
-  status_effect_id: poise      # one stack of poise, granted on raise
-  duration_ticks: 100
+  type: sequence
 
 phases:
-  type: buff
+  type: sequence
   cast:
     - type: modify_attribute
       targets: { type: caster }
@@ -57,7 +55,7 @@ phases:
       delay_ticks: { type: literal, value: 24 }
     - type: knockback
       targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
-      direction: { type: from_caster }
+      direction: { type: away_from_caster, vertical: 0.2 }
       strength: { type: literal, value: 0.9 }
       delay_ticks: { type: literal, value: 24 }
     - type: hit_stop
@@ -73,5 +71,3 @@ phases:
       sound_id: entity.player.attack.knockback
       pitch: { type: literal, value: 0.7 }
       delay_ticks: { type: literal, value: 24 }
-  expire: []
-  removed: []

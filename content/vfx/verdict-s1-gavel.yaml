@@ -31,6 +31,7 @@ elements:
     glow_color: "#ffcc40"
     start_tick: 10
     end_tick: 20
+    slot_lifetime_ticks: 10
     count: 7
     formation:
       curve: { type: arc, radius: 3.6, from_deg: -75, to_deg: 0 }
@@ -51,6 +52,7 @@ elements:
     glow_color: "#ffcc40"
     start_tick: 11
     end_tick: 21
+    slot_lifetime_ticks: 10
     count: 7
     formation:
       curve: { type: arc, radius: 3.6, from_deg: 0, to_deg: 75 }

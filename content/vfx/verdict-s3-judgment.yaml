@@ -24,6 +24,7 @@ elements:
       curve: { type: circle, radius: 6.0 }
       offset: [0.0, 0.05, 0.0]
       align: tangent
+    group_keyframes: [ { t: 0 }, { t: 38, rotate: [-150, 0, 0] } ]
     keyframes:
       - { t: 0, scale: [0.0, 0.03, 0.0] }
       - { t: 6, scale: [0.18, 0.03, 1.4], ease: out_back }
@@ -37,6 +38,7 @@ elements:
     glow_color: "#3fe0e0"
     start_tick: 2
     end_tick: 31
+    slot_lifetime_ticks: 29
     count: 8
     formation:
       curve: { type: lightning, from: [-5.0, 0.07, -5.0], to: [5.0, 0.07, 5.0], segments: 7, amplitude: 1.0, seed: 5 }
@@ -54,6 +56,7 @@ elements:
     glow_color: "#3fe0e0"
     start_tick: 2
     end_tick: 31
+    slot_lifetime_ticks: 29
     count: 8
     formation:
       curve: { type: lightning, from: [5.0, 0.07, -5.0], to: [-5.0, 0.07, 5.0], segments: 7, amplitude: 1.0, seed: 13 }
@@ -88,6 +91,7 @@ elements:
     glow_color: "#ffcc40"
     start_tick: 39
     end_tick: 62
+    slot_lifetime_ticks: 23
     count: 6
     formation:
       curve: { type: circle, radius: 2.6 }
@@ -105,6 +109,7 @@ elements:
     glow_color: "#ffcc40"
     start_tick: 39
     end_tick: 62
+    slot_lifetime_ticks: 23
     count: 6
     formation:
       curve: { type: circle, radius: 2.6 }
@@ -123,6 +128,7 @@ elements:
     glow_color: "#ffcc40"
     start_tick: 42
     end_tick: 64
+    slot_lifetime_ticks: 22
     count: 8
     formation:
       curve: { type: circle, radius: 5.0 }
@@ -140,6 +146,7 @@ elements:
     glow_color: "#ffcc40"
     start_tick: 42
     end_tick: 64
+    slot_lifetime_ticks: 22
     count: 8
     formation:
       curve: { type: circle, radius: 5.0 }
@@ -219,6 +226,7 @@ elements:
       curve: { type: circle, radius: 6.2 }
       offset: [0.0, 0.05, 0.0]
       align: tangent
+    group_keyframes: [ { t: 0 }, { t: 23, rotate: [60, 0, 0] } ]
     keyframes:
       - { t: 0, scale: [0.0, 0.03, 0.0] }
       - { t: 4, scale: [0.2, 0.03, 1.8], ease: out_quad }

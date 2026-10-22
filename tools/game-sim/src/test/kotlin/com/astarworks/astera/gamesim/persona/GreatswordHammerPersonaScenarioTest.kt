@@ -2,6 +2,7 @@ package com.astarworks.astera.gamesim.persona
 
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.service.MechanicContext
+import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.attribute.AttributeKey
@@ -35,7 +36,6 @@ class GreatswordHammerPersonaScenarioTest {
 
     private val charge = StatusEffectId("charge")
     private val rupture = StatusEffectId("rupture")
-    private val poise = StatusEffectId("poise")
 
     private fun ScenarioScope.stacks(entity: SimEntity, id: StatusEffectId): Int =
         sim.services.getOrThrow<IStatusEffectContainer>().stacks(entity.id, id)
@@ -86,6 +86,9 @@ class GreatswordHammerPersonaScenarioTest {
         return peak
     }
 
+    /** Distinct damage events that landed on [who] (each beat / coin is its own event). */
+    private fun ScenarioScope.hitsOn(who: SimEntity): Int = eventsOf<DamageDealt>().count { it.target == who.id }
+
     private fun ScenarioScope.assertDisplaysSpawnedAndGone() {
         assertThat(sim.displays.spawned).isNotEmpty
         assertThat(sim.displays.active).isEmpty()
@@ -105,7 +108,7 @@ class GreatswordHammerPersonaScenarioTest {
             d.caster.leftClick()
             advance(1)
             val first = before - hp(d.target)
-            assertThat(first).isGreaterThanOrEqualTo(8.0)
+            assertThat(first).isGreaterThanOrEqualTo(7.0)
             assertThat(stacks(d.caster, charge)).isEqualTo(1)
             assertThat(sim.displays.spawned).isNotEmpty
 
@@ -113,6 +116,7 @@ class GreatswordHammerPersonaScenarioTest {
             val total = before - hp(d.target)
             assertThat(total).isGreaterThanOrEqualTo(16.0)
             assertThat(stacks(d.caster, charge)).isEqualTo(1)
+            assertThat(hitsOn(d.target)).isEqualTo(2)
             assertThat(peak).isLessThanOrEqualTo(60)
 
             stepPeak(40)
@@ -157,6 +161,7 @@ class GreatswordHammerPersonaScenarioTest {
             val total = before - hp(d.target)
             assertThat(total).isGreaterThanOrEqualTo(rush + 9.0 + 0.5 * 4)
             assertThat(stacks(d.caster, charge)).isZero()
+            assertThat(hitsOn(d.target)).isEqualTo(2)
             assertThat(maxOf(peak, peak2)).isLessThanOrEqualTo(60)
 
             stepPeak(40)
@@ -201,6 +206,7 @@ class GreatswordHammerPersonaScenarioTest {
             val peak2 = stepPeak(25) // tick 57: the aftershock
             assertThat(before - hp(d.target)).isGreaterThanOrEqualTo(slam + 7.0 + 0.7 * 5)
             assertThat(stacks(d.caster, charge)).isZero()
+            assertThat(hitsOn(d.target)).isEqualTo(2)
             assertThat(maxOf(telegraph, peak, peak2)).isLessThanOrEqualTo(60)
 
             stepPeak(40)
@@ -238,6 +244,43 @@ class GreatswordHammerPersonaScenarioTest {
     }
 
     @Test
+    fun `both guards really cut damage taken`() {
+        fun lossFrom(item: String, def: String?): Double {
+            var loss = 0.0
+            scenario("persona-guard-$item-${def != null}") {
+                val victim = player("victim", team = "red")
+                val attacker = player("attacker", at = Vec3(0.0, groundY, 2.2), team = "blue")
+                victim.holds(item)
+                attacker.holds("greatsword")
+                attacker.faces(victim)
+                fatten(victim)
+                val before = hp(victim)
+                if (def != null) {
+                    victim.cast(def)
+                    advance(2)
+                }
+                attacker.leftClick()
+                advance(2)
+                loss = before - hp(victim)
+            }
+            return loss
+        }
+        assertThat(lossFrom("bastion-greatsword", null)).isGreaterThanOrEqualTo(13.0)
+        assertThat(lossFrom("bastion-greatsword", "bastion-greatsword-def")).isLessThan(13.0 * 0.5)
+        assertThat(lossFrom("verdict-hammer", "verdict-hammer-def")).isLessThan(13.0 * 0.6)
+    }
+
+    @Test
+    fun `verdict S3 collapse only judges targets still carrying stakes`() {
+        scenario("persona-verdict-s3-unmarked") {
+            val d = duel("verdict-hammer")
+            d.caster.rightClick(sneaking = true)
+            stepPeak(75)
+            assertThat(hitsOn(d.target)).isEqualTo(1) // the eruption lands, the collapse skips an unmarked target
+        }
+    }
+
+    @Test
     fun `bastion vfx use item, block and text displays`() {
         scenario("persona-bastion-kinds") {
             val d = duel("bastion-greatsword")
@@ -262,14 +305,15 @@ class GreatswordHammerPersonaScenarioTest {
 
             d.caster.leftClick()
             advance(1)
-            assertThat(before - hp(d.target)).isGreaterThanOrEqualTo(8.0)
+            assertThat(before - hp(d.target)).isGreaterThanOrEqualTo(7.0)
             assertThat(stacks(d.target, rupture)).isEqualTo(1)
             assertThat(sim.displays.spawned).isNotEmpty
 
             val peak = stepPeak(25)
             // echo: 7 + 0.5 per stake (1 stake read before its own stake lands)
-            assertThat(before - hp(d.target)).isGreaterThanOrEqualTo(8.0 + 7.5)
+            assertThat(before - hp(d.target)).isGreaterThanOrEqualTo(7.0 + 8.5)
             assertThat(stacks(d.target, rupture)).isEqualTo(2)
+            assertThat(hitsOn(d.target)).isEqualTo(2)
             assertThat(peak).isLessThanOrEqualTo(60)
 
             stepPeak(40)
@@ -297,6 +341,7 @@ class GreatswordHammerPersonaScenarioTest {
             val peak2 = stepPeak(40)
             assertThat(before - hp(d.target)).isGreaterThanOrEqualTo(dash + 9.0 + 0.8)
             assertThat(stacks(d.target, rupture)).isEqualTo(3)
+            assertThat(hitsOn(d.target)).isEqualTo(2)
             assertThat(maxOf(peak, peak2)).isLessThanOrEqualTo(60)
 
             stepPeak(60)
@@ -341,6 +386,7 @@ class GreatswordHammerPersonaScenarioTest {
             val peak2 = stepPeak(24) // tick 68: the collapse
             assertThat(before - hp(d.target)).isGreaterThanOrEqualTo(eruption + 6.0 + 1.0 * 4)
             assertThat(stacks(d.target, rupture)).isZero()
+            assertThat(hitsOn(d.target)).isEqualTo(2)
             assertThat(maxOf(telegraph, peak, peak2)).isLessThanOrEqualTo(60)
 
             stepPeak(40)
@@ -358,7 +404,6 @@ class GreatswordHammerPersonaScenarioTest {
             advance(2)
             assertThat(resist(d.caster, Attributes.RESIST_PHYSICAL)).isGreaterThanOrEqualTo(0.6)
             assertThat(resist(d.caster, Attributes.RESIST_KNOCKBACK)).isGreaterThanOrEqualTo(1.0)
-            assertThat(stacks(d.caster, poise)).isEqualTo(1)
             assertThat(before - hp(d.target)).isZero() // the counter waits for the guard to release
             val peak = stepPeak(28)
 

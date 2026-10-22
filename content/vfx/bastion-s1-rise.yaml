@@ -28,6 +28,7 @@ elements:
     glow_color: "#ffd23a"
     start_tick: 2
     end_tick: 12
+    slot_lifetime_ticks: 10
     count: 12
     formation:
       curve: { type: bezier, points: [[-1.8, 0.2, 2.2], [-2.6, 1.8, 3.0], [-0.8, 3.2, 3.1], [1.8, 3.7, 2.5]] }

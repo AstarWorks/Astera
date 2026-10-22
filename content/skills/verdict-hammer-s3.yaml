@@ -1,9 +1,9 @@
 # ADR-0221 persona weapon: Verdict Hammer S3 (sneak + right click), "Obsidian Judgment".
 # Finisher: 39 ticks of telegraph (the floor hoop is the 5.8-block damage radius, a colossal hammer
 # hangs overhead), the stake eruption, and a collapse 23 ticks later. Both hits scale with the
-# rupture stakes already on each target; the collapse spends them. The eruption is fixed on the
+# rupture stakes already on each target; the collapse only judges targets still carrying stakes and spends them. The eruption is fixed on the
 # spot the cast started at, so leaving the hoop dodges it.
-# No baseline hit: the aoe radius is 0, all damage comes from the timeline below.
+# A sequence skill: no baseline hit, all damage comes from the timeline below.
 
 id: verdict-hammer-s3
 
@@ -14,21 +14,16 @@ description:
   ja: "巨大な杭槌を掲げ、杭の林を呼び起こす奥義。打ち込まれた杭（破裂）の数だけ威力が増し、崩落で杭を消費する。"
   en: "Raise a colossal hammer and raise a forest of stakes. Scales with the rupture stakes on each target; the collapse spends them."
 
-archetype: aoe
+archetype: sequence
 cooldown_ticks: 300
 resource_cost: 60              # energy
 tags: [ aoe, physical, finisher, rupture ]
 
 params:
-  type: aoe
-  radius: 0.0
-  falloff: linear
-  damage:
-    - base: { type: literal, value: 1.0 }
-      attribute: physical
+  type: sequence
 
 phases:
-  type: aoe
+  type: sequence
   cast:
     - type: play_sound
       targets: { type: caster }
@@ -45,20 +40,24 @@ phases:
           attribute: physical
           per_stack: { status_id: rupture, amount: 1.0, on: target, consume: false }
       delay_ticks: { type: literal, value: 39 }
+      snapshot_pose: true
     - type: knockup
       targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.8 }, exclude_caster: true }
       strength: { type: literal, value: 0.9 }
       delay_ticks: { type: literal, value: 39 }
+      snapshot_pose: true
     - type: hit_stop
       targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.8 }, exclude_caster: true }
       ticks: 4
       include_caster: true
       delay_ticks: { type: literal, value: 39 }
+      snapshot_pose: true
     - type: camera_shake
       targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 10.0 }, exclude_caster: false }
       intensity: { type: literal, value: 0.9 }
       ticks: { type: literal, value: 8 }
       delay_ticks: { type: literal, value: 39 }
+      snapshot_pose: true
     - type: play_sound
       targets: { type: caster }
       sound_id: entity.generic.explode
@@ -67,21 +66,21 @@ phases:
       delay_ticks: { type: literal, value: 39 }
     # Collapse (tick 62); spends the stakes.
     - type: damage
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 6.2 }, exclude_caster: true }
+      targets: { type: filter, base: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 6.2 }, exclude_caster: true }, condition: { type: has_status, status_id: rupture } }
       components:
         - base: { type: literal, value: 6.0 }
           attribute: physical
           per_stack: { status_id: rupture, amount: 1.0, on: target, consume: true }
       delay_ticks: { type: literal, value: 62 }
+      snapshot_pose: true
     - type: camera_shake
       targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 10.0 }, exclude_caster: false }
       intensity: { type: literal, value: 0.7 }
       ticks: { type: literal, value: 6 }
       delay_ticks: { type: literal, value: 62 }
+      snapshot_pose: true
     - type: play_sound
       targets: { type: caster }
       sound_id: entity.firework_rocket.blast
       pitch: { type: literal, value: 0.6 }
       delay_ticks: { type: literal, value: 62 }
-  hit_entity: []
-  expire: []
