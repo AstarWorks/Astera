@@ -13,12 +13,10 @@ lore:
     - "<gray>右クリック: 散弾（近距離・ノックバック）</gray>"
     - "<gray>スニーク + 右クリック: バックステップ</gray>"
     - "<gray>Q: リロード</gray>"
-    - "<dark_gray>rarity: uncommon / level: 3</dark_gray>"
   en:
     - "<gray>Right-click: blast (close range, knockback)</gray>"
     - "<gray>Sneak + right-click: backstep</gray>"
     - "<gray>Q: reload</gray>"
-    - "<dark_gray>rarity: uncommon / level: 3</dark_gray>"
 
 rarity: uncommon
 level_requirement: 3

@@ -11,10 +11,8 @@ name:
 lore:
   ja:
     - "<gray>右クリック: 稲妻（麻痺）</gray>"
-    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
   en:
     - "<gray>Right-click: lightning bolt (shock)</gray>"
-    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
 
 rarity: rare
 level_requirement: 3
