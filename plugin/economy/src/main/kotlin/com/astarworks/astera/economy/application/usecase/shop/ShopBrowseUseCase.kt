@@ -285,6 +285,7 @@ public class ShopBrowseUseCase(
         }
         return GuiSlot.Static(
             itemId = offer.itemId,
+            displayName = offer.displayKey?.let { GuiText(it) },
             onLeftClick = GuiIntent(
                 key = "shop.purchase",
                 payload = mapOf("shop_id" to shopSpec.id.value, "offer_id" to offer.id.value),

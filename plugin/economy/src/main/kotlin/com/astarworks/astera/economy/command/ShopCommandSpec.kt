@@ -46,14 +46,14 @@ internal fun buildShopCommandSpec(
             runCatching { ShopId(raw) }.getOrNull()
                 ?: return@lambda CommandResult.Failure(
                     MessageKey("astera.economy.shop.browse.invalid_id"),
-                    mapOf("shop-id" to raw),
+                    mapOf("shop" to raw),
                 )
         } ?: LobbyShopOpenIntentHandler.DEFAULT_LOBBY_SHOP_ID
         when (val outcome = browse.execute(playerId, shopId)) {
             is Result.Success -> CommandResult.Success // the opened GUI is the reply
             is Result.Failure -> CommandResult.Failure(
                 messageKey = outcome.error.toMessageKey(),
-                placeholders = mapOf("shop-id" to shopId.value),
+                placeholders = mapOf("shop" to shopId.value),
             )
         }
     },

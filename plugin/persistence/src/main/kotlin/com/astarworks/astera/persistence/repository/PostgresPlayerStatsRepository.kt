@@ -19,9 +19,9 @@ import com.astarworks.astera.core.domain.stats.PlayerStats
  * store has any **loaded** state for the player and returns `null` only
  * when the underlying row+cache are both empty.
  *
- * `upsert` is a no-op: the use case has already mutated the container in
- * place (via `.copy()` was the pre-5e shape; post-5e the use case writes
- * straight to the container). Kept for ABI compatibility with the port.
+ * `upsert` also accepts detached stats (including the first mutation after a
+ * cold miss). Copy their values into the canonical write-through container
+ * before flushing; flushing an untouched cached container would lose them.
  */
 public class PostgresPlayerStatsRepository(
     private val containerStore: IPlayerAttributeContainerStore,
@@ -35,8 +35,14 @@ public class PostgresPlayerStatsRepository(
     }
 
     override fun upsert(stats: PlayerStats): PlayerStats {
+        val target = containerStore.containerFor(stats.playerId)
+        if (target !== stats.container) {
+            stats.container.keys().forEach { key ->
+                target.set(key, stats.container.get(key)!!)
+            }
+        }
         containerStore.flush(stats.playerId)
-        return stats
+        return PlayerStats(stats.playerId, target)
     }
 
     /**
