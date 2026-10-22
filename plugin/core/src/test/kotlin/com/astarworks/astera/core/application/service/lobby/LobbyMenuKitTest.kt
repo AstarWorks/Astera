@@ -6,6 +6,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.lobby.KitArea
 import com.astarworks.astera.core.domain.lobby.LobbyMenuKit
 import com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy
+import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.proxy.ServerRole
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -89,6 +90,18 @@ class LobbyMenuKitTest {
         assertThat(LobbyMenuKitPolicy.active(ServerRole.ALL, inMatch = false)).isTrue()
         assertThat(LobbyMenuKitPolicy.active(ServerRole.ALL, inMatch = true)).isFalse()
         assertThat(LobbyMenuKitPolicy.active(ServerRole.GAME, inMatch = false)).isFalse()
+    }
+
+    @Test
+    fun `F3-10 match membership counts as in match even without a snapshot hold`() {
+        assertThat(LobbyMenuKitPolicy.inMatch(snapshotHeld = false, membershipPhase = null)).isFalse()
+        for (phase in MatchPhase.entries.filter { it != MatchPhase.ENDED }) {
+            val inMatch = LobbyMenuKitPolicy.inMatch(snapshotHeld = false, membershipPhase = phase)
+            assertThat(inMatch).`as`("phase $phase").isTrue()
+            assertThat(LobbyMenuKitPolicy.active(ServerRole.ALL, inMatch)).isFalse()
+        }
+        assertThat(LobbyMenuKitPolicy.inMatch(snapshotHeld = false, membershipPhase = MatchPhase.ENDED)).isFalse()
+        assertThat(LobbyMenuKitPolicy.inMatch(snapshotHeld = true, membershipPhase = null)).isTrue()
     }
 
     private fun locateContentRoot(): Path {

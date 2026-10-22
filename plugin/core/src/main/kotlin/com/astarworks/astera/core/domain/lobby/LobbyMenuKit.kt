@@ -3,6 +3,7 @@ package com.astarworks.astera.core.domain.lobby
 import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.proxy.ServerRole
 
 /** Where on the player a [KitEntry] is shown (ADR-0185). */
@@ -70,4 +71,12 @@ public object LobbyMenuKitPolicy {
      * player is inside a match (on an `ALL` backend the same player can be in either).
      */
     public fun active(role: ServerRole, inMatch: Boolean): Boolean = role.hostsLobby && !inMatch
+
+    /**
+     * Whether a player counts as "in a match" for the kit (F3-10). Members are added to a match
+     * *after* `MatchStarted` (queue formation / `entry`), so the inventory-snapshot hold alone
+     * misses them; membership in a not-yet-ended match is the authoritative signal.
+     */
+    public fun inMatch(snapshotHeld: Boolean, membershipPhase: MatchPhase?): Boolean =
+        snapshotHeld || (membershipPhase != null && membershipPhase != MatchPhase.ENDED)
 }
