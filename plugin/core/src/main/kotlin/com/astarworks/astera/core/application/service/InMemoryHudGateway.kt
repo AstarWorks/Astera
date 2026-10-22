@@ -150,6 +150,9 @@ public class InMemoryHudGateway(
         return Result.success(Unit)
     }
 
+    override fun layoutsFor(playerId: PlayerId): List<HudLayout> =
+        active.values.filter { it.playerId == playerId }.map { it.layout }
+
     override fun activeFor(playerId: PlayerId): Collection<HudHandle> =
         active.entries
             .filter { it.value.playerId == playerId }

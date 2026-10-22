@@ -45,6 +45,7 @@ public class LobbySidebarService(
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
+    private val failureLogged: MutableSet<PlayerId> = mutableSetOf()
     private val lastSent: MutableMap<PlayerId, HudLayout.Sidebar> = mutableMapOf()
 
     private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(
@@ -88,7 +89,7 @@ public class LobbySidebarService(
             is Result.Success -> Unit
             is Result.Failure -> {
                 lastSent.remove(playerId)
-                log.debug("Lobby sidebar show failed for {}: {}", playerId, outcome.error)
+                if (failureLogged.add(playerId)) log.warn("Lobby sidebar show failed for {}: {}", playerId, outcome.error)
             }
         }
     }

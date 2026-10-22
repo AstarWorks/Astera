@@ -99,5 +99,6 @@ public class InMemoryMiningProgressDisplay(
         is HudError.InvalidGlyph -> Result.failure(PlayerAnimationError.Platform("hud glyph invalid: ${error.ref}"))
         is HudError.ResourcePackPushFailed -> Result.failure(PlayerAnimationError.Platform("resource pack push: ${error.detail}"))
         is HudError.Storage -> Result.failure(PlayerAnimationError.Platform("hud storage: ${error.detail}"))
+        is HudError.RenderFailed -> Result.failure(PlayerAnimationError.Platform("hud render: ${error.detail}"))
     }
 }

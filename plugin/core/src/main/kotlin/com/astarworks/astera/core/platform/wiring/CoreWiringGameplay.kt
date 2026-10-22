@@ -224,11 +224,13 @@ internal fun CoreWiringState.wireGameplayLoop() {
             scheduler = scheduler,
         )
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hpStatusHud.onJoined(it) }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerHealthChanged::class) { hpStatusHud.onHealthChanged(it) }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerMaxHealthChanged::class) { hpStatusHud.onMaxHealthChanged(it) }
-    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerRespawned::class) { hpStatusHud.onRespawned(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hpStatusHud.onQuit(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { hpStatusHud.onPackStatus(it) }
+    val hudDiagnostics = com.astarworks.astera.core.application.eventbus.listeners.hud
+        .HudDiagnosticsService(hudGateway, scheduler, packConfigured = ports.resourcePack != null)
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hudDiagnostics.onJoined(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hudDiagnostics.onQuit(it) }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { hudDiagnostics.onPackStatus(it) }
     ports.resourcePack?.let { pack ->
         val pushOnJoin = com.astarworks.astera.core.application.eventbus.listeners.hud
             .ResourcePackPushOnJoinListener(hudGateway, pack)

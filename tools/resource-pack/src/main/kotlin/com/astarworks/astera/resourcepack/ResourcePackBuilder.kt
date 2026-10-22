@@ -179,15 +179,15 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         public const val SPRITE_SIZE: Int = 9
 
         /**
-         * Pack format window. Minecraft 1.21.9 replaced `pack_format` /
-         * `supported_formats` with `min_format` / `max_format`; 75 is the format of
-         * 1.21.11, the oldest client this pack is meant for. The exact resource pack
-         * format of Minecraft 26.3 could not be looked up offline, so the window is
-         * left open upwards - narrow `MAX_FORMAT` once the 26.3 value is confirmed
-         * (a client only warns on a mismatch for a server pack, it still loads it).
+         * Pack format window, `[major, minor]` pairs (26.x versions resource packs
+         * as `major.minor`; `min_format` / `max_format` replaced `pack_format` in
+         * 1.21.9). Source: `version.json` inside the Paper 26.3 server jar,
+         * `pack_version.resource_major = 97`, `resource_minor = 1`. The window is
+         * 97.0 - 97.1: every 26.3 client loads the pack silently, a different
+         * major only earns the incompatibility warning (a server pack still loads).
          */
-        public const val MIN_FORMAT: Int = 75
-        public const val MAX_FORMAT: Int = 1000
+        public val MIN_FORMAT: List<Int> = listOf(97, 0)
+        public val MAX_FORMAT: List<Int> = listOf(97, 1)
 
         private val FIXED_TIME: LocalDateTime = LocalDateTime.of(1980, 1, 1, 0, 0)
 

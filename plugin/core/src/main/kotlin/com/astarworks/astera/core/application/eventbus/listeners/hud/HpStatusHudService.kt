@@ -6,11 +6,8 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.Result
-import com.astarworks.astera.core.domain.event.PlayerHealthChanged
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
-import com.astarworks.astera.core.domain.event.PlayerMaxHealthChanged
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
-import com.astarworks.astera.core.domain.event.PlayerRespawned
 import com.astarworks.astera.core.domain.event.ResourcePackStatusChanged
 import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
@@ -36,9 +33,19 @@ import kotlin.math.roundToInt
  *
  * # Throttling
  *
- * Events only mark a player dirty. A task every [FLUSH_PERIOD_TICKS] ticks
- * sends the dirty players whose rendered line actually changed, so a burst of
- * damage ticks costs one update, and an unchanged line costs nothing.
+ * A task every [FLUSH_PERIOD_TICKS] ticks re-renders every joined player and
+ * sends the ones whose rendered line actually changed, so a burst of damage
+ * ticks costs one update, and an unchanged line costs nothing. There is no
+ * per-event trigger on purpose: the poll also catches writers that touch the
+ * container without raising `PlayerHealthChanged` (the combat damage gateway
+ * does exactly that), so one path covers every writer.
+ *
+ * # Unset HP
+ *
+ * Nothing seeds the HP container on join, so a fresh player has neither
+ * current nor max HP. That is "full health at [DEFAULT_MAX_HP]" (the same
+ * default the health and damage gateways use), not "nothing to show": a
+ * missing value used to leave the line unsent forever.
  */
 public class HpStatusHudService(
     private val health: IPlayerHealthGateway,
@@ -49,7 +56,8 @@ public class HpStatusHudService(
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val packLoaded: MutableSet<PlayerId> = mutableSetOf()
-    private val dirty: MutableSet<PlayerId> = linkedSetOf()
+    private val joined: MutableSet<PlayerId> = linkedSetOf()
+    private val failureLogged: MutableSet<PlayerId> = mutableSetOf()
     private val lastSent: MutableMap<PlayerId, HudLayout.StatusLine> = mutableMapOf()
 
     private val task: IScheduler.TaskHandle = scheduler.runRepeatingTicks(flushPeriodTicks, flushPeriodTicks) { flush() }
@@ -59,19 +67,7 @@ public class HpStatusHudService(
     }
 
     public fun onJoined(event: PlayerJoinedServer) {
-        dirty += event.playerId
-    }
-
-    public fun onHealthChanged(event: PlayerHealthChanged) {
-        dirty += event.playerId
-    }
-
-    public fun onMaxHealthChanged(event: PlayerMaxHealthChanged) {
-        dirty += event.playerId
-    }
-
-    public fun onRespawned(event: PlayerRespawned) {
-        dirty += event.playerId
+        joined += event.playerId
     }
 
     public fun onQuit(event: PlayerQuitServer) {
@@ -79,22 +75,23 @@ public class HpStatusHudService(
     }
 
     public fun onPackStatus(event: ResourcePackStatusChanged) {
-        val changed = if (event.status.isLoaded) packLoaded.add(event.playerId) else packLoaded.remove(event.playerId)
-        if (changed) dirty += event.playerId
+        if (event.status.isLoaded) packLoaded.add(event.playerId) else packLoaded.remove(event.playerId)
     }
 
     /** Sends every pending update now (also called by the task). */
     public fun flush() {
-        if (dirty.isEmpty()) return
-        for (playerId in dirty.toList()) {
-            val layout = render(playerId) ?: continue // no HP yet: stay dirty and retry
-            dirty -= playerId
+        if (joined.isEmpty()) return
+        for (playerId in joined.toList()) {
+            val layout = render(playerId)
             if (lastSent[playerId] == layout) continue
             when (val outcome = hudGateway.showFor(playerId, layout)) {
                 is Result.Success -> lastSent[playerId] = layout
                 is Result.Failure -> {
-                    if (outcome.error is HudError.UnknownPlayer) forget(playerId)
-                    log.debug("HP status HUD show failed for {}: {}", playerId, outcome.error)
+                    if (outcome.error is HudError.UnknownPlayer) {
+                        forget(playerId)
+                    } else if (failureLogged.add(playerId)) {
+                        log.warn("HP status HUD show failed for {}: {}", playerId, outcome.error)
+                    }
                 }
             }
         }
@@ -102,13 +99,14 @@ public class HpStatusHudService(
 
     private fun forget(playerId: PlayerId) {
         packLoaded -= playerId
-        dirty -= playerId
+        joined -= playerId
+        failureLogged -= playerId
         lastSent -= playerId
     }
 
-    private fun render(playerId: PlayerId): HudLayout.StatusLine? {
-        val hp = health.getCurrentHealth(playerId) ?: return null
-        val max = health.getMaxHealth(playerId) ?: return null
+    private fun render(playerId: PlayerId): HudLayout.StatusLine {
+        val max = health.getMaxHealth(playerId) ?: DEFAULT_MAX_HP
+        val hp = health.getCurrentHealth(playerId) ?: max
         if (playerId in packLoaded) {
             return HudLayout.StatusLine(HpBarLayout.render(hp, max), anchorLeftPx = HpBarLayout.HEARTS_LEFT_PX)
         }
@@ -128,6 +126,9 @@ public class HpStatusHudService(
     public companion object {
         /** 0.1 s: faster than a player can read a number, slower than a damage burst. */
         public const val FLUSH_PERIOD_TICKS: Long = 2L
+
+        /** Max HP of a player whose container holds none; matches the health / damage gateways. */
+        public const val DEFAULT_MAX_HP: Double = 20.0
 
         private val KEY_HP: MessageKey = MessageKey("astera.hud.status.hp")
     }

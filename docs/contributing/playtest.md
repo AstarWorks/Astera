@@ -157,8 +157,12 @@ Without the pack you still play: vanilla hearts plus an `HP 200/200` text line.
 - **Tuning** (not verifiable headless): if the bar sits too high or low change
   `StatusHudGlyphs.ASCENT` and run `./gradlew :tools:resource-pack:generateHudArt`; the
   committed art under `content/hud/` is generated, never edited by hand.
-- **Pack format:** `pack.mcmeta` uses `min_format` 75 / `max_format` 1000 until the 26.3
-  value is confirmed (`ResourcePackBuilder.MIN_FORMAT` / `MAX_FORMAT`).
+- **Pack format:** `pack.mcmeta` uses `min_format` `[97, 0]` / `max_format` `[97, 1]`, the
+  26.3 resource pack version read from `version.json` in the Paper 26.3 jar
+  (`pack_version.resource_major/minor`). Supersedes the 75 / 1000 guess in ADR-0182.
+- **HUD diagnostics:** every join logs `HUD channels for <player>: sidebar=..., bossbar=...,
+  actionbar=..., pack=...` (INFO, ~3 s after join and again when the client reports the pack).
+  No line, or `sidebar=none`, means that channel never reached the gateway.
 
 ## World and coordinates
 

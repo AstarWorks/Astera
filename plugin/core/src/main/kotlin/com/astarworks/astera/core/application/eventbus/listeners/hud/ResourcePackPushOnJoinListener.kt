@@ -19,7 +19,7 @@ public class ResourcePackPushOnJoinListener(
 
     public fun handle(event: PlayerJoinedServer) {
         when (val outcome = hudGateway.pushResourcePack(event.playerId, pack)) {
-            is Result.Success -> Unit
+            is Result.Success -> log.info("Resource pack pushed to {} ({}).", event.playerId.uuid, pack.url)
             is Result.Failure -> log.warn("Resource pack push failed for {}: {}", event.playerId, outcome.error)
         }
     }
