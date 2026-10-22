@@ -22,9 +22,9 @@ public class PostgresPersonalVaultRepositoryIT : PostgresIntegrationTestBase() {
         val vault = PersonalVault(
             playerId = id,
             items = listOf(
-                PersonalVault.VaultItem("astera:sword", count = 1, nbt = nbt),
-                PersonalVault.VaultItem("astera:potion", count = 32),
-                PersonalVault.VaultItem("astera:emerald", count = 64),
+                PersonalVault.VaultItem(slot = 0, "astera:sword", count = 1, nbt = nbt),
+                PersonalVault.VaultItem(slot = 1, "astera:potion", count = 32),
+                PersonalVault.VaultItem(slot = 2, "astera:emerald", count = 64),
             ),
         )
 
@@ -51,10 +51,10 @@ public class PostgresPersonalVaultRepositoryIT : PostgresIntegrationTestBase() {
     public fun `upsert replaces the prior items array atomically`() {
         val repo = PostgresPersonalVaultRepository(db)
         val id = PlayerId(UUID.randomUUID())
-        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem("old", 1))))
+        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem(slot = 3, "old", 1))))
 
         repo.upsert(
-            PersonalVault(id, listOf(PersonalVault.VaultItem("new-a", 4), PersonalVault.VaultItem("new-b", 8))),
+            PersonalVault(id, listOf(PersonalVault.VaultItem(slot = 4, "new-a", 4), PersonalVault.VaultItem(slot = 5, "new-b", 8))),
         )
 
         val found = repo.find(id)!!
@@ -65,7 +65,7 @@ public class PostgresPersonalVaultRepositoryIT : PostgresIntegrationTestBase() {
     public fun `remove deletes the row`() {
         val repo = PostgresPersonalVaultRepository(db)
         val id = PlayerId(UUID.randomUUID())
-        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem("x", 1))))
+        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem(slot = 6, "x", 1))))
 
         repo.remove(id)
 

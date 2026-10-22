@@ -17,8 +17,8 @@ class InMemoryPersonalVaultRepositoryTest {
         val vault = PersonalVault(
             playerId = id,
             items = listOf(
-                PersonalVault.VaultItem("astera:sword", count = 1),
-                PersonalVault.VaultItem("astera:potion", count = 32),
+                PersonalVault.VaultItem(slot = 0, "astera:sword", count = 1),
+                PersonalVault.VaultItem(slot = 1, "astera:potion", count = 32),
             ),
         )
         repo.upsert(vault)
@@ -38,9 +38,9 @@ class InMemoryPersonalVaultRepositoryTest {
         val repo = InMemoryPersonalVaultRepository()
         val id = playerId()
         val items = listOf(
-            PersonalVault.VaultItem("a", 1),
-            PersonalVault.VaultItem("b", 2),
-            PersonalVault.VaultItem("c", 3),
+            PersonalVault.VaultItem(slot = 2, "a", 1),
+            PersonalVault.VaultItem(slot = 3, "b", 2),
+            PersonalVault.VaultItem(slot = 4, "c", 3),
         )
         repo.upsert(PersonalVault(id, items))
 
@@ -51,8 +51,8 @@ class InMemoryPersonalVaultRepositoryTest {
     fun `upsert overwrites the prior vault for the same player`() {
         val repo = InMemoryPersonalVaultRepository()
         val id = playerId()
-        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem("old", 1))))
-        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem("new", 2))))
+        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem(slot = 5, "old", 1))))
+        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem(slot = 6, "new", 2))))
 
         val current = repo.find(id)!!
         assertThat(current.items).hasSize(1)
@@ -63,7 +63,7 @@ class InMemoryPersonalVaultRepositoryTest {
     fun `remove makes find return null`() {
         val repo = InMemoryPersonalVaultRepository()
         val id = playerId()
-        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem("x", 1))))
+        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem(slot = 7, "x", 1))))
 
         repo.remove(id)
 
@@ -82,7 +82,7 @@ class InMemoryPersonalVaultRepositoryTest {
         val repo = InMemoryPersonalVaultRepository()
         val id = playerId()
         val nbt = """{"Enchantments":[{"id":"minecraft:sharpness","lvl":5}]}"""
-        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem("astera:sword", 1, nbt))))
+        repo.upsert(PersonalVault(id, listOf(PersonalVault.VaultItem(slot = 8, "astera:sword", 1, nbt))))
 
         assertThat(repo.find(id)!!.items[0].nbt).isEqualTo(nbt)
     }

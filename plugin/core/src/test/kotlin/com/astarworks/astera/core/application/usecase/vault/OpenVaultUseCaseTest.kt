@@ -16,7 +16,7 @@ class OpenVaultUseCaseTest {
     fun `openVault returns the persisted vault when one exists`() {
         val repo = InMemoryPersonalVaultRepository()
         val id = playerId()
-        val stored = PersonalVault(id, listOf(PersonalVault.VaultItem("astera:sword", 1)))
+        val stored = PersonalVault(id, listOf(PersonalVault.VaultItem(slot = 0, "astera:sword", 1)))
         repo.upsert(stored)
 
         val result = OpenVaultUseCase(repo).openVault(id)

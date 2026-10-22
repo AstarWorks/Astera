@@ -22,6 +22,8 @@ astera:
       usage: "<yellow>使い方: /astera-items give <プレイヤー> <アイテムID></yellow>"
     player-only: "<red>このコマンドはプレイヤーのみ実行できます。</red>"
     player-offline: "<red>このコマンドはオンライン中のみ実行できます。</red>"
+    vault:
+      root: "<gray>パーソナルヴォルト（エンダーチェスト）を開く。</gray>"
     menu:
       root: "<gray>メインメニューを開きます。</gray>"
     reload:
@@ -31,6 +33,12 @@ astera:
     profiling:
       root: "<gray>プロファイリング診断コマンド（管理者専用）。</gray>"
       export: "<green>プロファイリング snapshot を flamegraph 形式 (Brendan Gregg collapsed) で書き出します。</green>"
+
+  # WP12: personal vault (= ender chest), /vault + vanilla ender chest block.
+  vault:
+    title: "パーソナルヴォルト"
+    blocked-in-match: "<red>試合中はヴォルトを開けません。</red>"
+    unavailable: "<red>ヴォルトを開けませんでした。</red>"
 
   # Wave _items-1 (ADR-0073): item / weapon の content-specific i18n は
   # 各 content/items/<id>.yaml 内に inline 化。`weapon:` セクションは
@@ -64,10 +72,6 @@ astera:
 
   # Wave 4 R3 — Declarative GUI demo (ADR-0021) + Wave 4.5 bindings (ADR-0027).
   gui:
-    loadout:
-      title: "ロードアウト"
-    personal_vault:
-      title: "パーソナルヴォルト"
     button:
       close: "閉じる"
     binding:

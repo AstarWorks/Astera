@@ -17,7 +17,7 @@ class SaveVaultUseCaseTest {
     fun `save persists a valid vault and returns Success`() {
         val repo = InMemoryPersonalVaultRepository()
         val id = playerId()
-        val vault = PersonalVault(id, listOf(PersonalVault.VaultItem("astera:sword", 1)))
+        val vault = PersonalVault(id, listOf(PersonalVault.VaultItem(slot = 0, "astera:sword", 1)))
 
         val result = SaveVaultUseCase(repo).save(vault)
 
@@ -42,7 +42,7 @@ class SaveVaultUseCaseTest {
         // Construction-time guard means SaveVaultUseCase's own validation is a
         // safety-net, not the primary check. Documented here for the maintainer.
         assertThatThrownBy {
-            PersonalVault(playerId(), listOf(PersonalVault.VaultItem("zero", 0)))
+            PersonalVault(playerId(), listOf(PersonalVault.VaultItem(slot = 1, "zero", 0)))
         }.isInstanceOf(IllegalArgumentException::class.java)
     }
 }

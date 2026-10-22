@@ -1,10 +1,8 @@
 package com.astarworks.astera.core.adapter.paper.inventory
 
-import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
-import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerSession
 import com.astarworks.astera.core.domain.player.SessionState
@@ -18,7 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
 /**
- * Bukkit `PlayerJoinEvent` / `PlayerQuitEvent` + [MatchEnded] driver for
+ * Bukkit `PlayerJoinEvent` / `PlayerQuitEvent` driver for
  * [IPlayerInventorySnapshotRepository] (Wave 6b-3, ADR-0158).
  *
  * Closes the Phase 1 PoC smoke-test path #3 (re-login restores loadout)
@@ -38,14 +36,10 @@ import org.slf4j.LoggerFactory
  *  - **onPlayerQuit**: serialize the current inventory into the V10 row
  *    so the next login (possibly on a sibling Paper instance via Phase 2
  *    server-transfer) sees the same items. Latest-wins; no history.
- *  - **MatchEnded (domain event)**: snapshot every currently online
- *    player. The match plugin's `SaveInventoryOnMatchEndedListener`
- *    (Wave 5e) writes [com.astarworks.astera.core.domain.player.PlayerInventorySnapshot.empty]
- *    placeholders for participants — Core overwrites those with the real
- *    Paper-side captures before the player can quit. ADR-0022 forbids
- *    Core from importing the match plugin, so this Core-side listener
- *    is the only place a Paper-aware MatchEnded handler can live.
- *    Same latest-wins semantics; per-player failures log WARN and skip.
+ *    Skipped while [isHeld] says the player is inside a running match: the
+ *    persisted row is then the pre-match entry snapshot
+ *    ([com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener])
+ *    and must survive so the next join restores the pre-match inventory.
  *
  * # Error isolation (per-player)
  *
@@ -57,10 +51,8 @@ import org.slf4j.LoggerFactory
  *
  * # Registration
  *
- * Construct in `AsteraCorePlugin.onEnable` and call [start] with the
- * `JavaPlugin` instance to register the Bukkit listener and subscribe
- * the MatchEnded handler on the domain event bus. The [MatchEnded]
- * subscription is held internally and cancelled by [stop] for `onDisable`.
+ * Construct in the Paper bindings and call [start] with the `JavaPlugin`
+ * instance to register the Bukkit listener.
  */
 public class PlayerInventoryLifecycleListener(
     private val server: Server,
@@ -68,32 +60,14 @@ public class PlayerInventoryLifecycleListener(
     private val serializer: PaperInventorySnapshotSerializer,
     private val sessions: IPlayerSessionRepository,
     private val scheduler: IScheduler,
-    private val eventBus: IDomainEventBus,
+    private val isHeld: (PlayerId) -> Boolean,
 ) : Listener {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private var matchEndedSubscription: IDomainEventBus.Subscription? = null
-
-    /**
-     * Register Bukkit listeners + subscribe to [MatchEnded] on the domain
-     * event bus. Called by `AsteraCorePlugin.onEnable` after construction.
-     */
+    /** Register the Bukkit listener. */
     public fun start(plugin: JavaPlugin) {
         plugin.server.pluginManager.registerEvents(this, plugin)
-        matchEndedSubscription = eventBus.subscribe(MatchEnded::class) { event ->
-            handleMatchEnded(event)
-        }
-    }
-
-    /**
-     * Cancel the [MatchEnded] subscription. Bukkit listener teardown is
-     * handled by Paper's `HandlerList.unregisterAll(plugin)` during the
-     * normal plugin disable path, so it is not repeated here.
-     */
-    public fun stop() {
-        matchEndedSubscription?.cancel()
-        matchEndedSubscription = null
     }
 
     /**
@@ -152,6 +126,10 @@ public class PlayerInventoryLifecycleListener(
     public fun onPlayerQuit(event: PlayerQuitEvent) {
         val player = event.player
         val playerId = PlayerId(player.uniqueId)
+        if (isHeld(playerId)) {
+            log.debug("onPlayerQuit: {} is inside a match; keeping the pre-match entry snapshot", playerId)
+            return
+        }
         try {
             val snapshot = serializer.serialize(player)
             snapshotRepo.save(snapshot)
@@ -167,45 +145,6 @@ public class PlayerInventoryLifecycleListener(
                 "PlayerInventoryLifecycleListener.onPlayerQuit: save failed for {}; previous snapshot retained",
                 playerId,
                 t,
-            )
-        }
-    }
-
-    /**
-     * Snapshot every currently online player at [MatchEnded]. Overwrites
-     * the placeholder rows the Wave 5e
-     * `match.application.eventbus.listeners.SaveInventoryOnMatchEndedListener`
-     * writes (ADR-0022 sibling-isolation forces match-plugin → Core only,
-     * so the match listener cannot reach the Paper inventory; this Core
-     * listener does).
-     *
-     * Iterates [Server.getOnlinePlayers] rather than the match's
-     * participant list — the latter requires reaching into
-     * `IMatchRepository` and racing the match-tear-down pipeline. Saving
-     * every online player is a superset that costs O(online) Postgres
-     * upserts; cheap enough at Phase 1 PoC scale (≤ 10 players per
-     * server) and avoids the race.
-     */
-    private fun handleMatchEnded(event: MatchEnded) {
-        for (player in server.onlinePlayers) {
-            val playerId = PlayerId(player.uniqueId)
-            try {
-                val snapshot = serializer.serialize(player)
-                snapshotRepo.save(snapshot)
-            } catch (t: Throwable) {
-                log.warn(
-                    "PlayerInventoryLifecycleListener.handleMatchEnded: save failed for {} (match={}); previous snapshot retained",
-                    playerId,
-                    event.matchId,
-                    t,
-                )
-            }
-        }
-        if (log.isDebugEnabled) {
-            log.debug(
-                "PlayerInventoryLifecycleListener.handleMatchEnded: snapshotted {} online players for match={}",
-                server.onlinePlayers.size,
-                event.matchId,
             )
         }
     }

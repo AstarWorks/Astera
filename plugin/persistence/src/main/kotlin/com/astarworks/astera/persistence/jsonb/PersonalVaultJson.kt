@@ -10,8 +10,7 @@ import kotlinx.serialization.Serializable
  * [PersonalVault.VaultItem] stays free of `@Serializable`; this DTO mirrors
  * its shape for persistence and converts both ways.
  *
- * Order is preserved across the round-trip — the vault GUI shows items in
- * insertion order, so the JSONB array reflects the same ordering.
+ * Order is preserved across the round-trip; each item carries its chest slot.
  */
 @Serializable
 public data class PersonalVaultJson(val items: List<VaultItemJson>) {
@@ -30,15 +29,16 @@ public data class PersonalVaultJson(val items: List<VaultItemJson>) {
 
 @Serializable
 public data class VaultItemJson(
+    val slot: Int,
     val itemId: String,
     val count: Int,
     val nbt: String? = null,
 ) {
     public fun toDomain(): PersonalVault.VaultItem =
-        PersonalVault.VaultItem(itemId = itemId, count = count, nbt = nbt)
+        PersonalVault.VaultItem(slot = slot, itemId = itemId, count = count, nbt = nbt)
 
     public companion object {
         public fun fromDomain(item: PersonalVault.VaultItem): VaultItemJson =
-            VaultItemJson(itemId = item.itemId, count = item.count, nbt = item.nbt)
+            VaultItemJson(slot = item.slot, itemId = item.itemId, count = item.count, nbt = item.nbt)
     }
 }

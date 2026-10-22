@@ -36,6 +36,7 @@ import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.platform.wiring.CorePlatformPorts
 import com.astarworks.astera.core.platform.wiring.CoreWiringResult
 import com.astarworks.astera.core.platform.wiring.GuiAdapterFactory
+import com.astarworks.astera.core.platform.wiring.LiveSnapshotRepository
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -76,6 +77,9 @@ internal class CorePaperBindings(
 
     /** Wave 6a-6 (ADR-0153): BukkitEventAdapter's time-polling task. */
     private var bukkitEventAdapterTimeTaskHandle: IScheduler.TaskHandle? = null
+
+    /** WP12: closed on [shutdown] so open vaults are saved. */
+    private var paperVaultWindow: com.astarworks.astera.core.adapter.paper.vault.PaperVaultWindow? = null
 
     /** Set by the GUI factory; the Paper listener needs the concrete adapter. */
     private var paperGuiAdapter: PaperGuiAdapter? = null
@@ -249,22 +253,32 @@ internal class CorePaperBindings(
                 )
             },
             inventoryLifecycle = { services ->
-                // Wave 6b-3 (ADR-0158): Paper inventory subsystem — serializer (pure
-                // codec) + lifecycle Listener (save on quit / restore on join /
-                // save on MatchEnded) + action-lock enforcer (cancel inventory
-                // events while PlayerSession.state == Loading). Closes Phase 1 PoC
-                // smoke-test item #3 (re-login → loadout 復元).
+                // Wave 6b-3 (ADR-0158) + WP12: Paper inventory subsystem — serializer
+                // (pure codec), the IPlayerInventoryGateway the per-match snapshot
+                // listener drives, the join/quit lifecycle listener (restore on
+                // join / save on quit, except while a match holds the entry
+                // snapshot) and the action-lock enforcer (cancel inventory events
+                // while PlayerSession.state == Loading).
                 val sessions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository>()
                 val paperInventorySerializer = com.astarworks.astera.core.adapter.paper.inventory
                     .PaperInventorySnapshotSerializer()
+                services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventoryGateway>(
+                    com.astarworks.astera.core.adapter.paper.inventory
+                        .PaperPlayerInventoryGateway(server, paperInventorySerializer),
+                    priority = 100,
+                )
                 com.astarworks.astera.core.adapter.paper.inventory
                     .PlayerInventoryLifecycleListener(
                         server = server,
-                        snapshotRepo = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository>(),
+                        // Resolved per call: Postgres overlays register after Core enables.
+                        snapshotRepo = LiveSnapshotRepository(services),
                         serializer = paperInventorySerializer,
                         sessions = sessions,
                         scheduler = scheduler,
-                        eventBus = services.getOrThrow<IDomainEventBus>(),
+                        isHeld = { playerId ->
+                            services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
+                                ?.isHeld(playerId) ?: false
+                        },
                     ).start(plugin)
                 com.astarworks.astera.core.adapter.paper.inventory
                     .InventoryActionLockEnforcer(
@@ -302,6 +316,21 @@ internal class CorePaperBindings(
             com.astarworks.astera.core.adapter.paper.entity.PaperPlayerPoseLookup(server),
             priority = 100,
         )
+        // WP12: personal vault (= ender chest). Registered as the IVaultWindow the
+        // wiring-built AccessPersonalVaultUseCase resolves lazily; the same object
+        // is the Bukkit listener routing vanilla ender chest blocks to it.
+        val vaultWindow = com.astarworks.astera.core.adapter.paper.vault.PaperVaultWindow(
+            server = server,
+            save = ctx.services.getOrThrow<com.astarworks.astera.core.application.usecase.vault.SaveVaultUseCase>(),
+            access = { ctx.services.getOrThrow<com.astarworks.astera.core.application.usecase.vault.AccessPersonalVaultUseCase>() },
+            messages = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
+        )
+        ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IVaultWindow>(
+            vaultWindow,
+            priority = 100,
+        )
+        server.pluginManager.registerEvents(vaultWindow, plugin)
+        paperVaultWindow = vaultWindow
         val guiAdapter = checkNotNull(paperGuiAdapter) { "GuiAdapterFactory was not invoked by CoreWiring.install" }
         val guiListener = PaperGuiListener(adapter = guiAdapter, router = result.guiIntentRouter, server = mcServer)
         server.pluginManager.registerEvents(guiListener, plugin)
@@ -336,6 +365,8 @@ internal class CorePaperBindings(
 
     /** Paper-side teardown; the host-neutral wiring tears down via `WiringContext.close()` + `CoreWiringResult.shutdown()`. */
     fun shutdown() {
+        paperVaultWindow?.closeAll()
+        paperVaultWindow = null
         matchQueueMetric?.stop()
         metricsHttpServer?.stop()
         // Wave 6a-6 (ADR-0153): cancel BukkitEventAdapter time-polling task.

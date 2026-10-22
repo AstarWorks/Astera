@@ -196,8 +196,9 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     services.register<IPlayerSessionRepository>(sessionRepo, priority = 0)
     services.register<IFriendshipRepository>(InMemoryFriendshipRepository(), priority = 0)
     services.register<IPartyRepository>(InMemoryPartyRepository(), priority = 0)
-    vaultRepo = services.get<IPersonalVaultRepository>()
-        ?: InMemoryPersonalVaultRepository().also { services.register<IPersonalVaultRepository>(it, priority = 0) }
+    if (services.get<IPersonalVaultRepository>() == null) {
+        services.register<IPersonalVaultRepository>(InMemoryPersonalVaultRepository(), priority = 0)
+    }
     settingsRepo = services.get<IPlayerSettingsRepository>()
         ?: InMemoryPlayerSettingsRepository().also { services.register<IPlayerSettingsRepository>(it, priority = 0) }
     services.register<IRewardBridge>(InMemoryRewardBridge(), priority = 0)

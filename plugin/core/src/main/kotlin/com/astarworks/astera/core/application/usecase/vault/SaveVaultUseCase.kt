@@ -5,13 +5,11 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.vault.PersonalVault
 
 /**
- * Persists a [PersonalVault] aggregate (Wave 5e, RTM issue #3).
+ * Persists a [PersonalVault] aggregate.
  *
  * Validates each [PersonalVault.VaultItem] up-front so a malformed deposit
- * surfaces as [VaultError.InvalidCount] rather than as an
- * `IllegalArgumentException` thrown out of the data class `init`. The first
- * invalid item short-circuits — the persistence call only happens when every
- * item passes.
+ * surfaces as a [VaultError] value. The persistence call only happens when
+ * every item passes.
  */
 public class SaveVaultUseCase(private val vaults: IPersonalVaultRepository) {
 
@@ -19,6 +17,9 @@ public class SaveVaultUseCase(private val vaults: IPersonalVaultRepository) {
         vault.items.forEach { item ->
             if (item.count < 1) {
                 return Result.Failure(VaultError.InvalidCount(item.itemId, item.count))
+            }
+            if (item.slot !in 0 until PersonalVault.SLOT_COUNT) {
+                return Result.Failure(VaultError.InvalidSlot(item.slot))
             }
         }
         vaults.upsert(vault)
