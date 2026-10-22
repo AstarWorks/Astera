@@ -2,7 +2,7 @@
 #   textures/generated/sprites/<id>.png   horizontal frame strip
 #   fonts/vfx/<id>.json                   bitmap font, frame i = U+E000 + i
 #   sprites/<id>.yaml                     runtime metadata (frame count)
-# A sprite is `draw: <painter>` (code: spark ring burst puff flame glint slash), `from: <sheet>, row: N`
+# A sprite is `draw: <painter>` (code: spark ring burst puff flame glint slash slice), `from: <sheet>, row: N`
 # (first `frames` cells of a sheet row) or `from: <image>, frames: N` (one image split horizontally).
 # Optional per sprite: size (32), colors (12), outline (false). Sheets are keyed on their flat background.
 
@@ -17,7 +17,7 @@ sprites:
   flame: { draw: flame, frames: 6, color: "#ff7a1f" }
   glint: { draw: glint, frames: 6, color: "#e8f6ff" }
   slash: { draw: slash, frames: 6, color: "#d8e4ff" }
-  couture-cut: { draw: slash, frames: 6, size: 128, color: "#fff4ee" }
+  couture-cut: { draw: slice, frames: 6, size: 128, color: "#fff4ee" }
 
   fire-burst: { from: vfx-v1, row: 0, frames: 6 }
   frost-shatter: { from: vfx-v1, row: 1, frames: 6 }

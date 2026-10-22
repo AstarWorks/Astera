@@ -101,3 +101,5 @@ The Minecraft selector separates forced comparison shots (`compare/`) from real 
 ### Public URL recovery
 
 A local HTTP 200 or a public Cloudflare Access login redirect does **not** establish that the tunnel is connected. For the existing deployment, inspect `cloudflared tunnel info b96ef35b-39d2-4a12-89ff-458f927cb649` and the running connector. Its configuration is `~/.cloudflared/astera-skill-compare.yml`, forwarding to `http://127.0.0.1:8097`. Restore a stopped connector with `cloudflared tunnel --config ~/.cloudflared/astera-skill-compare.yml run` in a persistent supervised process, without removing Access protection. Confirm registered edge connections, origin response, and an authenticated public page separately.
+
+Camera keyの `transition: linear` は直前のkeyからの連続移動を表す。比較撮影は20TPSで位置・注視点・FOVを補間し、設計図表示も同じ指定を解釈する。明示的な `transition: cut` は瞬間切替。撮影ツールで指定がないkeyは従来どおりcut、設計図の旧データは従来の補間規則を保つ。

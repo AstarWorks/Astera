@@ -36,7 +36,8 @@
         0
       ],
       "fov": 70,
-      "note": "原資料の身長比: 0.45; source 12.946267s / medium caster; Caster central, about 45% image height; target cropped right."
+      "note": "原資料の身長比: 0.45; source 12.946267s / medium caster; Caster central, about 45% image height; target cropped right.",
+      "transition": "linear"
     },
     {
       "t": 13,
@@ -51,7 +52,8 @@
         0
       ],
       "fov": 70,
-      "note": "shot記述からの暫定身長比（未実測）: 0.85; source 13.079733s / extreme action insert; Bright cutting edge and smear fill gameplay area."
+      "note": "shot記述からの暫定身長比（未実測）: 0.85; source 13.079733s / extreme action insert; Bright cutting edge and smear fill gameplay area.",
+      "transition": "cut"
     },
     {
       "t": 14,
@@ -66,7 +68,8 @@
         0
       ],
       "fov": 70,
-      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 13.146467s / close target; Target torso and orange halo dominate."
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 13.146467s / close target; Target torso and orange halo dominate.",
+      "transition": "cut"
     },
     {
       "t": 15,
@@ -81,7 +84,8 @@
         0
       ],
       "fov": 70,
-      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 13.213200s / wide side-on; Pull out to both sprites; caster now target right, preserve facing reversal."
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 13.213200s / wide side-on; Pull out to both sprites; caster now target right, preserve facing reversal.",
+      "transition": "cut"
     }
   ],
   "actors": [

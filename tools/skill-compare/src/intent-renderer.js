@@ -128,7 +128,8 @@ function camState(t){
   var K=intent.camera,n=K.length,i=0;
   for(i=n-1;i>=0;i--){if(t>=K[i].t)break}
   if(i<0)i=0;var a=K[i],b=K[i+1],u=0;
-  if(b&&b.t-a.t<=3){u=ease("smooth",(t-a.t)/(b.t-a.t))}else b=a;
+  if(b&&b.transition==="linear"){u=clamp((t-a.t)/(b.t-a.t),0,1)}
+  else if(b&&b.transition!=="cut"&&b.t-a.t<=3){u=ease("smooth",(t-a.t)/(b.t-a.t))}else b=a;
   return {pos:lerpArr(a.pos,b.pos,u),target:lerpArr(a.target,b.target,u),fov:lerp(a.fov,b.fov,u),note:a.note||""};
 }
 

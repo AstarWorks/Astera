@@ -39,6 +39,18 @@ def main() -> int:
     fov0 = float(keys[0].get("fov", 70))
     fov_opt = max(-1.0, min(1.0, (fov0 - 70.0) / 40.0))
     k0 = math.tan(math.radians(fov0) / 2)
+    # A destination key opts into a continuous dolly; unspecified transitions remain hard cuts.
+    sampled = [keys[0]]
+    for a, b in zip(keys, keys[1:]):
+        if b.get("transition") == "linear":
+            for tick in range(math.floor(a["t"]) + 1, math.ceil(b["t"])):
+                u = (tick - a["t"]) / (b["t"] - a["t"])
+                sampled.append({"t": tick,
+                    "pos": [x + (y - x) * u for x, y in zip(a["pos"], b["pos"])],
+                    "target": [x + (y - x) * u for x, y in zip(a["target"], b["target"])],
+                    "fov": a.get("fov", fov0) + (b.get("fov", fov0) - a.get("fov", fov0)) * u})
+        sampled.append(b)
+    keys = sampled
     first = ""
     lines = []
     for key in keys:
