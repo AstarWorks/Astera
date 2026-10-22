@@ -1,0 +1,11 @@
+# Mission (ADR-0199). daily window: progress restarts each day.
+id: daily-victory
+display_name_key: astera.norma.daily-victory.name
+period: daily
+target:
+  type: match_wins
+  count: 1
+reward:
+  currency_id: STAR
+  currency_amount: 60
+  xp: 100

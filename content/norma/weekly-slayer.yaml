@@ -1,0 +1,11 @@
+# Mission (ADR-0199). weekly window: progress restarts each ISO week.
+id: weekly-slayer
+display_name_key: astera.norma.weekly-slayer.name
+period: weekly
+target:
+  type: kills
+  count: 40
+reward:
+  currency_id: STAR
+  currency_amount: 150
+  xp: 250

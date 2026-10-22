@@ -1,0 +1,11 @@
+# Mission (ADR-0199). weekly window: progress restarts each ISO week.
+id: weekly-warrior
+display_name_key: astera.norma.weekly-warrior.name
+period: weekly
+target:
+  type: match_wins
+  count: 5
+reward:
+  currency_id: GOLD
+  currency_amount: 40
+  xp: 300

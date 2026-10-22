@@ -1,9 +1,10 @@
-# Wave J 5server-content-ops (ADR-0127) — Login bonus 7-day default rotation.
+# Daily login-bonus rotation (ADR-0127; claim flow ADR-0199).
 #
-# Phase 1 ships the table only — claim flow returns NotImplemented until Phase 2
-# wires the streak repository to an actual reward grant (currency ledger +
-# IItemDelivery). Authors can already tune the table by editing this file and
-# running `/astera admin reload login-bonus`.
+# A player's first login of the (server-local) day pays the reward of their streak day; logging in
+# on consecutive days grows the streak, missing a day restarts it at day 1. When the streak is
+# longer than the last day listed here the rotation wraps (day 8 pays day 1 again).
+# `items` is carried in the claim but nothing delivers it yet - ship currency-only rewards.
+# Edit and run `/astera admin reload login-bonus` to apply.
 
 days:
   - day: 1
@@ -32,7 +33,5 @@ days:
       amount: 65
   - day: 7
     reward:
-      currency: STAR
-      amount: 100
-      items:
-        - welcome-pack
+      currency: GOLD
+      amount: 25

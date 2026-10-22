@@ -124,6 +124,10 @@ astera:
       lang: "Switch your language (ja / en)"
       volume: "Set a volume channel (music / sound / voice)"
       news: "Read the latest server news"
+      daily: "Collect your daily login bonus"
+      missions: "Show your daily and weekly missions"
+      quests: "Show your quests"
+      achievements: "Show your achievements"
       patch: "Read the patch notes"
       report: "Report a player or a bug"
       shop: "Open a shop (the lobby shop by default)"
@@ -578,6 +582,19 @@ astera:
       on_match_start: "<gray>Loadout applied for the match.</gray>"
 
   norma:
+    toast: "<gold>Mission complete</gold>"
+    daily-killer-1:
+      name: "Daily Hunter (defeat 5 players)"
+    daily-damage:
+      name: "Daily Damage (deal 1,500 damage)"
+    daily-victory:
+      name: "Daily Victory (win 1 match)"
+    daily-grinder:
+      name: "Daily Grind (earn 400 XP)"
+    weekly-warrior:
+      name: "Weekly Warrior (win 5 matches)"
+    weekly-slayer:
+      name: "Weekly Slayer (defeat 40 players)"
     progress:
       updated: "<gray>{norma}: {current}/{target}</gray>"
     completed: "<green>Mission complete: <gold>{norma}</gold>!</green>"
@@ -1191,6 +1208,7 @@ astera:
     progress:
       stage-completed: "<gold>Quest stage cleared!</gold>"
       chain-completed: "<gold>Quest complete!</gold>"
+      stage-line: "<gray>{quest}: {stage}</gray>"
 
   # Wave 5multi-skill (ADR-0101): multi-axis skill progression perks.
   progression:
@@ -1755,9 +1773,38 @@ astera:
         "3": "Admin ops commands + scheduled announcements + maintenance mode."
       full: "Phase 1 PoC release: see RTM-PARITY-TRACKER.md for the full feature × state matrix."
 
+  progress:
+    daily:
+      header: "<gold><bold>Daily login bonus</bold></gold>"
+      status: "<gray>Streak:</gray> <white>{streak}</white> <gray>day(s), today pays day</gray> <white>{day}</white>"
+      claimed: "<green>Today's bonus is already collected.</green>"
+      unavailable: "<yellow>No bonus is configured for today.</yellow>"
+      tomorrow: "<gray>Tomorrow:</gray> <yellow>{amount} {currency}</yellow>"
+    missions:
+      header: "<gold><bold>Missions</bold></gold>"
+      none: "<gray>No missions are available.</gray>"
+      line: "<gray>[{period}]</gray> <white>{name}</white> <yellow>{current}/{required}</yellow>"
+      line-done: "<gray>[{period}]</gray> <green>{name} - done</green>"
+    period:
+      daily: "daily"
+      weekly: "weekly"
+      seasonal: "season"
+    quests:
+      header: "<gold><bold>Quests</bold></gold>"
+      none: "<gray>No quests yet. They start when you join.</gray>"
+      line: "{quest}<gray>:</gray> <white>{stage}</white> <yellow>{current}/{required}</yellow>"
+      line-done: "{quest} <green>- complete</green>"
+    achievements:
+      header: "<gold><bold>Achievements</bold></gold> <gray>({unlocked}/{total})</gray>"
+      line-unlocked: "<green>[x]</green> {name} <gray>- {description}</gray>"
+      line-locked: "<dark_gray>[ ]</dark_gray> <gray>{name} - {description}</gray>"
+
   loginbonus:
+    claimed:
+      chat: "<gold>Daily bonus!</gold> <gray>Day {day} (streak {streak}):</gray> <yellow>+{amount} {currency}</yellow>"
+      toast-title: "<gold>Daily bonus</gold>"
+      toast-body: "<yellow>+{amount} {currency}</yellow> <gray>- {streak} day streak</gray>"
     error:
-      not_implemented: "<red>Daily login bonus claim is not yet wired (Phase 2).</red>"
       already_claimed_today: "<yellow>You have already claimed today's bonus.</yellow>"
       no_reward_for_day: "<red>No reward configured for day {day}.</red>"
 

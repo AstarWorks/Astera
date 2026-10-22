@@ -47,9 +47,16 @@ class MatchRewardsScenarioTest {
             assertThat(granted.getValue(red.id).star).isEqualTo(145L)
             assertThat(granted.getValue(red.id).gold).isEqualTo(30L)
             assertThat(granted.getValue(blue.id).star).isEqualTo(40L)
-            // + 10 STAR per kill from the existing kill-XP conversion (DepositOnXpListener).
-            assertThat(ledger.balance(red.id, Currency.STAR)).isEqualTo(starBefore.first + 145L + 20L)
-            assertThat(ledger.balance(blue.id, Currency.STAR)).isEqualTo(starBefore.second + 40L)
+            // The wallet also moves for reasons that are not the match table (kill-XP conversion, a daily
+            // mission, the login bonus), so the match payout is read from the MatchReward deposits.
+            fun matchStar(id: com.astarworks.astera.core.domain.player.PlayerId) =
+                eventsOf<com.astarworks.astera.core.domain.event.CurrencyChanged>()
+                    .filter { it.playerId == id && it.currency == Currency.STAR && it.reason == com.astarworks.astera.core.domain.event.CurrencyChangeReason.MatchReward }
+                    .sumOf { it.delta }
+            assertThat(matchStar(red.id)).isEqualTo(145L)
+            assertThat(matchStar(blue.id)).isEqualTo(40L)
+            assertThat(ledger.balance(red.id, Currency.STAR)).isGreaterThanOrEqualTo(starBefore.first + 145L)
+            assertThat(ledger.balance(blue.id, Currency.STAR)).isGreaterThanOrEqualTo(starBefore.second + 40L)
 
             // The result screen and the reward breakdown reached the players' chat.
             val redChat = sim.server.view(red.id)!!.messages.joinToString("\n")
@@ -64,8 +71,9 @@ class MatchRewardsScenarioTest {
             assertThat(last.star).isEqualTo(145L)
 
             // A repeated summary does not pay again.
+            val settled = ledger.balance(red.id, Currency.STAR)
             bus.publish(MatchSummaryReady(summary))
-            assertThat(ledger.balance(red.id, Currency.STAR)).isEqualTo(starBefore.first + 145L + 20L)
+            assertThat(ledger.balance(red.id, Currency.STAR)).isEqualTo(settled)
         }
     }
 }

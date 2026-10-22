@@ -61,6 +61,8 @@ class HudScenarioTest {
             )
             assertThat(inQueue.keys()).doesNotContain("astera.hud.lobby.queue.idle")
 
+            // The daily login bonus lands ~5 s after joining and moves the wallet once; let it settle first.
+            advance(100)
             // Idle seconds cost nothing: the poll sees identical layouts and sends nothing.
             val changes = sim.hud.changes(alice.id, HudRegion.SIDEBAR).size
             advance(100)
