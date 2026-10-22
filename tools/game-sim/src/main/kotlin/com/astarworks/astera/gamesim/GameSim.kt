@@ -448,6 +448,8 @@ public class GameSim private constructor(
 
             /** Registers the stand-in Persistence overlay before any wiring, like the plugin's onLoad (ADR-0195). */
             persistenceOverlay: Boolean = false,
+            /** Use entity-declared teams outside matches; false exercises Paper's late Match-owned team lookup. */
+            standaloneTeams: Boolean = true,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
@@ -520,10 +522,12 @@ public class GameSim private constructor(
 
             // Teams as declared on the simulated entities (Match registers its own, match-bound
             // lookup later; scenarios that never start a match still need ally / enemy answers).
-            coreCtx.registrations += services.register<IMatchTeamLookup>(
-                IMatchTeamLookup { id -> world.find(id)?.team },
-                priority = 100,
-            )
+            if (standaloneTeams) {
+                coreCtx.registrations += services.register<IMatchTeamLookup>(
+                    IMatchTeamLookup { id -> world.find(id)?.team },
+                    priority = 100,
+                )
+            }
 
             // ---- Items ----------------------------------------------------
             sim.items = ItemsWiring.install(
