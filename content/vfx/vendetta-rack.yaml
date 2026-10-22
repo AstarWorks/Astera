@@ -19,7 +19,7 @@ elements:
     billboard: fixed
     view_range: 2.0
     count: 8
-    end_tick: 24
+    slot_lifetime_ticks: 24
     formation:
       curve: { type: arc, radius: 11.6, from_deg: 194, to_deg: 166 }
       offset: [0.0, 1.9, 10.0]

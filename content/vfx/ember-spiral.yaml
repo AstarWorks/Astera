@@ -15,7 +15,7 @@ elements:
     brightness: 15
     glow_color: "#ff7a1a"
     count: 20
-    end_tick: 12
+    slot_lifetime_ticks: 12
     formation:
       curve: { type: helix, radius: 4.5, turns: 0.75, height: 3.2, start_deg: 200 }
       offset: [0.0, 0.5, 0.0]
@@ -32,7 +32,7 @@ elements:
     kind: { type: block, block: yellow_concrete }
     brightness: 15
     count: 20
-    end_tick: 9
+    slot_lifetime_ticks: 9
     formation:
       curve: { type: helix, radius: 4.5, turns: 0.75, height: 3.2, start_deg: 200 }
       offset: [0.0, 0.5, 0.0]
@@ -48,7 +48,7 @@ elements:
     kind: { type: particle, particle_id: fire-impact, every_ticks: 5 }
     count: 4
     start_tick: 4
-    end_tick: 14
+    slot_lifetime_ticks: 10
     formation:
       curve: { type: helix, radius: 4.5, turns: 0.75, height: 3.2, start_deg: 200 }
       offset: [0.0, 0.5, 0.0]

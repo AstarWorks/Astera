@@ -36,7 +36,7 @@ elements:
     glow_color: "#ff3d7f"
     count: 20
     start_tick: 3
-    end_tick: 21
+    slot_lifetime_ticks: 18
     formation:
       curve: { type: polygon, radius: 1.5, sides: 5, skip: 2, rotation_deg: 180 }
       offset: [0.0, 0.07, 0.0]

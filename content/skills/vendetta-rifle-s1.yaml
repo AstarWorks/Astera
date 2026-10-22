@@ -2,11 +2,10 @@
 # point-blank shot). S1 left-click. Free (no ammo): the bayonet side of the gun.
 #
 # Timeline (t = ticks after the dash touches the target):
-#   t0  crescent A (orange)   +1 tremor
-#   t4  crescent B (magenta)  +1 tremor
-#   t9  point-blank thrust: white flash + piercing beam + shock ring, 5.5 damage, short hit-stop
-# Players carry 20-tick invulnerability frames, so a second direct hit inside the window is dropped:
-# the beats before the last are stack-and-feedback beats and the heavy damage rides the LAST one.
+#   t0  crescent A (orange)   1.5 damage, +1 tremor
+#   t4  crescent B (magenta)  1.5 damage, +1 tremor
+#   t9  point-blank thrust: white flash + piercing beam + shock ring, 2.5 damage, short hit-stop, +1 round refunded
+# Every beat is its own damage hit (ignore_invulnerability), the last one heaviest: 5.5 in total.
 
 id: vendetta-rifle-s1
 
@@ -58,6 +57,12 @@ phases:
           targets: { type: target }
           status_id: tremor
           effect_duration_ticks: { type: literal, value: 200 }
+        - type: damage
+          targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
+          components:
+            - base: { type: literal, value: 1.5 }
+              attribute: physical
         # t4 -- crescent B
         - type: play_vfx
           targets: { type: target }
@@ -73,6 +78,13 @@ phases:
           status_id: tremor
           effect_duration_ticks: { type: literal, value: 200 }
           delay_ticks: { type: literal, value: 4 }
+        - type: damage
+          targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
+          components:
+            - base: { type: literal, value: 1.5 }
+              attribute: physical
+          delay_ticks: { type: literal, value: 4 }
         # t9 -- thrust (the heavy beat)
         - type: play_vfx
           targets: { type: target }
@@ -80,9 +92,15 @@ phases:
           delay_ticks: { type: literal, value: 9 }
         - type: damage
           targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
           components:
-            - base: { type: literal, value: 5.5 }
+            - base: { type: literal, value: 2.5 }
               attribute: physical
+          delay_ticks: { type: literal, value: 9 }
+        # a landed thrust refunds a round: the bayonet feeds the gun
+        - type: restore_resource
+          resource: ammo
+          amount: { type: literal, value: 1 }
           delay_ticks: { type: literal, value: 9 }
         - type: hit_stop
           targets: { type: target }
