@@ -124,7 +124,11 @@ public class InMemoryMatchmaker(
         return list.sortedBy { it.enqueuedAt }
     }
 
-    override fun tryFormMatch(mode: MatchmakingMode): Result<MatchFormation?, QueueError> {
+    override fun tryFormMatch(
+        mode: MatchmakingMode,
+        minPlayers: Int?,
+        only: Set<PlayerId>?,
+    ): Result<MatchFormation?, QueueError> {
         val modeKey = ModeKey.of(mode)
         if (modeKey in closedModes) {
             return Result.Failure(QueueError.ModeClosed(mode))
@@ -132,10 +136,12 @@ public class InMemoryMatchmaker(
         val spec = sizeByMode(mode)
         val perTeam = spec.playersPerTeam
         val list = pending[modeKey] ?: return Result.Success(null)
-        if (list.size < spec.minPlayers) return Result.Success(null)
+        val required = (minPlayers ?: spec.minPlayers).coerceAtLeast(1)
+        val candidates = if (only == null) list.toList() else list.filter { it.playerId in only }
+        if (candidates.size < required) return Result.Success(null)
 
         // FIFO + party-aware. Group entries by partyId; null = solo.
-        val sorted = list.sortedBy { it.enqueuedAt }
+        val sorted = candidates.sortedBy { it.enqueuedAt }
         val grouped: MutableMap<PartyId, MutableList<QueueEntry>> = mutableMapOf()
         val solos: MutableList<QueueEntry> = mutableListOf()
         for (e in sorted) {
@@ -192,7 +198,7 @@ public class InMemoryMatchmaker(
             if (teams.all { it.size >= perTeam }) break
         }
         // Final check: enough players were placed (parties that did not fit stay queued).
-        if (pickedEntries.size < spec.minPlayers) {
+        if (pickedEntries.size < required) {
             return Result.Success(null)
         }
 

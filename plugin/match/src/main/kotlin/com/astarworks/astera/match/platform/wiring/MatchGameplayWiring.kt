@@ -101,6 +101,7 @@ internal object MatchGameplayWiring {
             com.astarworks.astera.match.application.usecase.matchmaking.MatchPlan(lane.stage, lane.modeKey)
         }
         val crossServer = com.astarworks.astera.match.application.service.matchmaking.CrossServerSettings.from(System.getenv())
+        var adminFormer: com.astarworks.astera.match.application.usecase.matchmaking.MatchFormer? = null
         if (role.hostsLobby) {
             // ALL: form and play the match right here. LOBBY: hand the formed teams to the game server.
             val matchFormer: com.astarworks.astera.match.application.usecase.matchmaking.MatchFormer =
@@ -126,6 +127,7 @@ internal object MatchGameplayWiring {
                         env.shutdownHooks += { statusSubscription.cancel() }
                     }
                 }
+            adminFormer = matchFormer
             scheduledTasks += com.astarworks.astera.match.application.service.matchmaking.QueueMatchScheduler(
                 matchmaker = matchmaker,
                 matchFound = matchFormer,
@@ -491,5 +493,38 @@ internal object MatchGameplayWiring {
                     "/astera-validate skipped (Astera-Combat not loaded; ISkillRegistry unavailable).",
             )
         }
+
+        // ── F1-D (ADR-0183) — `/astera-admin` match control section ─────────
+        val adminWaivers = services.getOrThrow<com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers>()
+        val adminMatchPanel = com.astarworks.astera.match.application.admin.AdminMatchPanel(
+            guard = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.AdminPanelGuard>(),
+            registry = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.IAdminPanelRegistry>(),
+            guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
+            matches = matches,
+            matchmaker = matchmaker,
+            matchFound = adminFormer,
+            settings = { env.queueSettings.current() },
+            nowTick = scheduler::currentTick,
+            control = com.astarworks.astera.match.application.admin.AdminMatchControlUseCase(facade, matches, adminWaivers),
+            forceStart = com.astarworks.astera.match.application.admin.ForceStartLaneUseCase(
+                matchmaker = matchmaker,
+                matchFound = adminFormer ?: com.astarworks.astera.match.application.admin.NoLanesFormer,
+                matches = matches,
+                lifecycle = facade,
+                waivers = adminWaivers,
+                settings = { env.queueSettings.current() },
+            ),
+            validate = skillRegistry?.let {
+                com.astarworks.astera.match.application.usecase.validate.ValidateContentReferencesUseCase(
+                    items = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
+                    skills = it,
+                )
+            },
+            hostsMatches = role.hostsMatches,
+            gameServer = crossServer.gameServer.value,
+        )
+        registrations += adminMatchPanel.install(
+            services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>(),
+        )
     }
 }

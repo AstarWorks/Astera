@@ -1,0 +1,4 @@
+# F1-D (ADR-0183) - admin panel icon. Names/lore are supplied by the panel (GuiText).
+
+id: gui-admin-fly
+material: FEATHER

@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.proxy.ProxyChannel
 import com.astarworks.astera.core.domain.proxy.TransferReason
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
@@ -75,9 +76,13 @@ public class RemoteMatchFormer(
         return false
     }
 
-    override fun execute(mode: MatchmakingMode): Result<MatchId?, MatchFoundError> {
+    override fun execute(
+        mode: MatchmakingMode,
+        minPlayers: Int?,
+        only: Set<PlayerId>?,
+    ): Result<MatchId?, MatchFoundError> {
         if (isStageBusy(mode)) return Result.Success(null)
-        val formation = when (val formed = matchmaker.tryFormMatch(mode)) {
+        val formation = when (val formed = matchmaker.tryFormMatch(mode, minPlayers, only)) {
             is Result.Failure -> return Result.Failure(MatchFoundError.QueueFailure(formed.error))
             is Result.Success -> formed.value ?: return Result.Success(null)
         }

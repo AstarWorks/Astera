@@ -71,7 +71,7 @@ public class PaperItemTemplateRenderer(
      */
     fun render(slot: GuiSlot, viewer: PlayerId?): ItemStack? = when (slot) {
         GuiSlot.Empty -> null
-        is GuiSlot.Static -> resolve(slot.itemId, slot.count, viewer)
+        is GuiSlot.Static -> resolve(slot.itemId, slot.count, viewer)?.let { applyStaticExtras(it, slot, viewer) }
         is GuiSlot.Border -> resolve(slot.itemId, count = 1, viewer = viewer)
         is GuiSlot.Reactive -> resolveReactive(slot, viewer)
         // Wave 5h: render the confirm-button item; cancel button + prompt
@@ -106,6 +106,32 @@ public class PaperItemTemplateRenderer(
                 log.warn("Reactive binding '{}' did not resolve to a registered item.", slot.binding.value)
             }
         return applyOverrides(base, resolved, viewer)
+    }
+
+    /**
+     * Admin-panel style dynamic rows: override the display name, append lore
+     * lines and set a player-head skin from the [GuiSlot.Static] extras.
+     */
+    private fun applyStaticExtras(stack: ItemStack, slot: GuiSlot.Static, viewer: PlayerId?): ItemStack {
+        if (slot.displayName == null && slot.lore.isEmpty() && slot.headOf == null) return stack
+        stack.editMeta { meta ->
+            slot.displayName?.let { t ->
+                meta.displayName(AsteraTextDeserializer.deserialize(messages.render(viewer, t.key, t.args)))
+            }
+            if (slot.lore.isNotEmpty()) {
+                val existing = meta.lore() ?: emptyList()
+                meta.lore(
+                    existing + slot.lore.map { t ->
+                        AsteraTextDeserializer.deserialize(messages.render(viewer, t.key, t.args))
+                    },
+                )
+            }
+            val head = slot.headOf
+            if (head != null && meta is org.bukkit.inventory.meta.SkullMeta) {
+                meta.owningPlayer = org.bukkit.Bukkit.getOfflinePlayer(head.uuid)
+            }
+        }
+        return stack
     }
 
     /**

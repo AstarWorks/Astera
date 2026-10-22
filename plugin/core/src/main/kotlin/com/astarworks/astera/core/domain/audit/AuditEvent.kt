@@ -82,4 +82,20 @@ public sealed interface AuditEvent {
         val sourceIdentifier: String,
         override val occurredAt: Instant,
     ) : AuditEvent
+
+    /**
+     * F1-D (ADR-0183): a state-changing action taken from the `/astera-admin`
+     * GUI panel (give item, force-start lane, kick, heal, ...). [action] is the
+     * stable dotted intent key (`admin.items.give`), [target] the affected
+     * player / match / lane when there is one, [detail] a short free-form
+     * qualifier (`item=rifle x1`).
+     */
+    public data class AdminActionPerformed(
+        override val id: AuditEventId,
+        val actor: PlayerId,
+        val action: String,
+        val target: String?,
+        val detail: String,
+        override val occurredAt: Instant,
+    ) : AuditEvent
 }

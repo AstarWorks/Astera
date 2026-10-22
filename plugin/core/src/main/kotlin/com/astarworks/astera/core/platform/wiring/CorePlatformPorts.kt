@@ -24,6 +24,7 @@ import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway
 import com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway
 import com.astarworks.astera.core.application.port.outbound.IWorldWeatherGateway
+import com.astarworks.astera.core.application.port.outbound.admin.IAdminPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.analytics.IAnalyticsExporter
 import com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway
 import com.astarworks.astera.core.application.port.outbound.cinematic.ICameraGateway
@@ -93,6 +94,8 @@ public class CorePlatformPorts(
      * at this exact point of the wiring (subscription order is observable).
      */
     public val inventoryLifecycle: ((ServiceRegistry) -> Unit)? = null,
+    /** Admin panel host operations (online list, gamemode, fly, kick, teleport). Null = in-memory (headless). */
+    public val adminPlayerGateway: IAdminPlayerGateway? = null,
     // ---- Infrastructure -------------------------------------------------
     /** Returns a started interceptor (registered at priority 100) or is null when PacketEvents is absent. */
     public val packetInterceptor: (() -> IPacketInterceptor)? = null,

@@ -98,6 +98,37 @@ class ApplyDamageUseCaseTest {
     }
 
     @Test
+    fun `god mode target is immune like the immunity status, and damage resumes when it is off`() {
+        val god = com.astarworks.astera.combat.application.service.InMemoryGodModeService()
+        val rule = DamageRule(
+            elementMatrix = IElementMatrix.Neutral,
+            modifiers = listOf(HeadshotModifier()),
+            friendlyFire = FriendlyFirePolicy.Allow,
+            randomizer = FakeDamageRandomizer(listOf(0.99)),
+        )
+        val godUseCase = ApplyDamageUseCase(
+            damageGateway = gateway,
+            knockbackGateway = knockbackGateway,
+            statusContainer = container,
+            damageRule = rule,
+            armorProvider = armorProvider,
+            teamLookup = null,
+            eventBus = eventBus,
+            scheduler = com.astarworks.astera.testfixtures.FakeScheduler(),
+            godMode = god,
+        )
+        god.setGod(targetId, true)
+
+        val blocked = godUseCase.execute(attempt())
+        assertThat((blocked as Result.Failure).error).isInstanceOf(ApplyDamageError.TargetImmune::class.java)
+        assertThat(gateway.applied).isEmpty()
+
+        god.setGod(targetId, false)
+        assertThat(godUseCase.execute(attempt())).isInstanceOf(Result.Success::class.java)
+        assertThat(gateway.applied).hasSize(1)
+    }
+
+    @Test
     fun `target immune - returns TargetImmune, no gateway call, no DamageDealt published`() {
         val immunitySpec = StatusEffectSpec(
             id = StatusEffectId("immunity"),

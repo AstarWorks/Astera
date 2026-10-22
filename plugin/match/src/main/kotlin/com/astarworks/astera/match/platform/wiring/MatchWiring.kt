@@ -265,12 +265,16 @@ public object MatchWiring {
             )
         }
         val entryGame = EntryGameUseCase(matches, eventBus, matchSpawn)
+        // F1-D (ADR-0183): matches an admin forced past the roster floor.
+        val minPlayerWaivers = com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers()
+        registrations += services.register(minPlayerWaivers)
         val switchPhase = SwitchPhaseUseCase(
             matches, eventBus, scheduler, matchModeRegistry,
             minPlayersFor = { modeKey ->
                 queueSettings.current().minPlayersForModeKey(modeKey)
                     ?: MatchMinPlayerPolicy.requirementFor(modeKey)
             },
+            minPlayersWaived = minPlayerWaivers::isWaived,
         )
 
         // Wave 4.5 (ADR-0027): phase auto-timer + match spawn

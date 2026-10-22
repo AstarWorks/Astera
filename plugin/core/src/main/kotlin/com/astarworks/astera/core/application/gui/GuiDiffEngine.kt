@@ -107,7 +107,12 @@ public object GuiDiffEngine {
 
         return when (after) {
             is GuiSlot.Empty -> SlotPatch.Clear(idx)
-            is GuiSlot.Static -> SlotPatch.Set(idx, after.itemId, after.count)
+            is GuiSlot.Static -> SlotPatch.Set(
+                idx,
+                after.itemId,
+                after.count,
+                slot = after.takeIf { it.displayName != null || it.lore.isNotEmpty() || it.headOf != null },
+            )
             is GuiSlot.Border -> SlotPatch.Set(idx, after.itemId, count = 1)
             is GuiSlot.Reactive -> SlotPatch.Set(
                 idx,
