@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.ParticleId
+import com.astarworks.astera.core.domain.effect.vfx.SpriteFrames
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementPlan
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
@@ -62,6 +63,8 @@ public class VfxPlayer(
     private val emitParticle: (WorldId, Vec3, ParticleId) -> Unit,
     private val log: Logger,
     private val maxLiveDisplays: Int = MAX_LIVE_DISPLAYS,
+    /** Flipbook frame counts for `sprite` elements (ADR-0237); unknown sprites play as one frame. */
+    private val sprites: SpriteFrames = SpriteFrames.NONE,
 ) {
 
     private class ElementState(val plan: VfxElementPlan) {
@@ -87,7 +90,7 @@ public class VfxPlayer(
         val def = registry.find(request.vfxId) ?: return Result.failure(VfxPlayError.UnknownVfx(request.vfxId))
         val effective = request.follow?.let { def.copy(follow = it) } ?: def
         val frame = effective.orient.frame(request.origin, request.look, request.toTarget)
-        val plan = VfxTimeline.plan(effective, frame, request.seed, request.scale)
+        val plan = VfxTimeline.plan(effective, frame, request.seed, request.scale, sprites)
         if (reserved + plan.displayCount > maxLiveDisplays) {
             log.debug("VFX {} dropped: {} + {} live displays exceed the cap {}", request.vfxId, reserved, plan.displayCount, maxLiveDisplays)
             return Result.failure(VfxPlayError.OverCapacity(reserved, plan.displayCount, maxLiveDisplays))
@@ -193,6 +196,7 @@ public class VfxPlayer(
             lineWidth = kind.lineWidth,
         )
         is VfxElementKind.Particle -> null
+        is VfxElementKind.Sprite -> error("sprite elements are resolved to text by VfxTimeline.plan")
     }
 
     private fun finish(instance: Instance) {

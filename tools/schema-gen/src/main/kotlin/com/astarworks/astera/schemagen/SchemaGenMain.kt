@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.config.BlockDurabilityYamlConfig
 import com.astarworks.astera.core.application.config.GuiYamlConfig
 import com.astarworks.astera.core.application.config.ItemYamlConfig
 import com.astarworks.astera.core.application.config.ParticleYamlConfig
+import com.astarworks.astera.core.application.config.SpriteYamlConfig
 import com.astarworks.astera.core.application.config.VfxYamlConfig
 import com.astarworks.astera.economy.application.config.ShopYamlConfig
 import com.astarworks.astera.match.application.config.AnomalyScheduleYamlConfig
@@ -100,6 +101,11 @@ fun main(args: Array<String>) {
             name = "vfx",
             serializer = serializer<VfxYamlConfig>(),
             schemaId = "https://astera.astarworks.com/schemas/vfx.schema.json",
+        ),
+        SchemaEntry(
+            name = "sprite",
+            serializer = serializer<SpriteYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/sprite.schema.json",
         ),
     )
 

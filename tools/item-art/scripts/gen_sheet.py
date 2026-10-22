@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Generate an item-icon sheet with an image model (ADR-0236). Human-run, never part of the build.
+"""Generate an item-icon or particle-animation sheet with an image model (ADR-0236 / ADR-0237).
+Human-run, never part of the build.
 
     python3 tools/item-art/scripts/gen_sheet.py tools/item-art/sheets/<name>.yaml [--prompt-only]
 
@@ -25,20 +26,31 @@ ROOT = Path(__file__).resolve().parents[3]
 
 def prompt(spec: dict) -> str:
     cols, rows = spec["grid"]
+    bg = spec["background"]
+    head = (
+        "Use your image generation tool to create ONE image and save it as sheet.png in the current directory.\n\n"
+        f"The image: a square pixel-art sprite sheet, a strict {cols}x{rows} grid of equal square cells. Plain flat "
+        f"solid {bg} background everywhere, NO cell borders, NO frames, NO text, NO labels, NO drop shadows. "
+        "Every drawing is centered in its cell and never crosses into neighbouring cells. "
+        f"Consistent style for the whole sheet: {spec['style']}\n\n"
+    )
+    if "animations" in spec:
+        # One row per animation, frames left to right (sprites, ADR-0237).
+        anims = list(spec["animations"].items())
+        if len(anims) > rows:
+            sys.exit(f"{len(anims)} animations do not fit {rows} rows")
+        lines = [f"Row {r + 1} ({name}): {cols} animation frames left to right, same size and position in every "
+                 f"cell so the frames play back as a flipbook: {desc}" for r, (name, desc) in enumerate(anims)]
+        return head + "\n".join(lines) + "\n"
     cells = list(spec["cells"].items())
     if len(cells) > cols * rows:
         sys.exit(f"{len(cells)} cells do not fit a {cols}x{rows} grid")
     lines = [f"{i + 1} {item}: {desc}" for i, (item, desc) in enumerate(cells)]
     if len(cells) < cols * rows:
         lines.append(f"{len(cells) + 1}-{cols * rows}: leave empty (background only)")
-    bg = spec["background"]
     return (
-        "Use your image generation tool to create ONE image and save it as sheet.png in the current directory.\n\n"
-        f"The image: a square sprite sheet of {cols * rows} RPG item icons in pixel art style, arranged in a strict "
-        f"{cols}x{rows} grid of equal square cells. Plain flat solid {bg} background everywhere, NO cell borders, "
-        "NO frames, NO text, NO labels, NO drop shadows. Each icon is centered in its cell, fills about 80% of it "
-        f"and never crosses into neighbouring cells. Consistent style for all icons: {spec['style']}\n\n"
-        "Cells in reading order (row by row, left to right):\n" + "\n".join(lines) + "\n"
+        head + "Each icon fills about 80% of its cell.\n\nCells in reading order (row by row, left to right):\n"
+        + "\n".join(lines) + "\n"
     )
 
 
@@ -78,7 +90,12 @@ def main() -> None:
     cols, rows = spec["grid"]
     print(f"wrote {out.relative_to(ROOT)}. Manifest entry for content/textures/sources/items.yaml:\n")
     print(f"  {spec['name']}:\n    file: sheets/{spec['name']}.png\n    grid: [{cols}, {rows}]")
-    print("    cells: [" + ", ".join(spec["cells"]) + "]")
+    if "animations" in spec:
+        print("\nsprites.yaml rows:")
+        for r, name in enumerate(spec["animations"]):
+            print(f"  {name}: {{ from: {spec['name']}, row: {r}, frames: {cols} }}")
+    else:
+        print("    cells: [" + ", ".join(spec["cells"]) + "]")
 
 
 if __name__ == "__main__":

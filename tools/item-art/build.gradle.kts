@@ -9,6 +9,9 @@
  *
  * Deterministic: icons are drawn from code, or converted from a committed raster listed in
  * content/textures/sources/items.yaml (ADR-0236; any tool may make the raster, the build never calls one).
+ * Custom particle sprites (ADR-0237) come from content/textures/sources/sprites.yaml: code painters, AI sheet rows
+ * or hand-drawn strips become content/textures/generated/sprites/<id>.png (frame strip), content/fonts/vfx/<id>.json
+ * (bitmap font, frame i = U+E000 + i), content/sprites/<id>.yaml and the contact sheet docs/assets/sprite-preview.png.
  * Studio-authored assets under content/models/items (Studio) override a generated icon of the same item id.
  *
  *   ./gradlew :tools:item-art:run --args="convert <image> <outDir> [colors]"   -> every converter stage as PNG
@@ -52,6 +55,8 @@ val checkItemArt = tasks.register<JavaExec>("checkItemArt") {
     inputs.dir("$rootDir/content/textures/sources").optional()
     inputs.dir("$rootDir/content/textures/generated")
     inputs.dir("$rootDir/content/models/generated")
+    inputs.dir("$rootDir/content/fonts/vfx").optional()
+    inputs.dir("$rootDir/content/sprites").optional()
 }
 
 tasks.named("check") { dependsOn(checkItemArt) }

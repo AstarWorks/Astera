@@ -1,0 +1,26 @@
+# Custom particle sprites (ADR-0237), tool-only. `./gradlew :tools:item-art:run` writes, per sprite id,
+#   textures/generated/sprites/<id>.png   horizontal frame strip
+#   fonts/vfx/<id>.json                   bitmap font, frame i = U+E000 + i
+#   sprites/<id>.yaml                     runtime metadata (frame count)
+# A sprite is `draw: <painter>` (code: spark ring burst puff flame glint slash), `from: <sheet>, row: N`
+# (first `frames` cells of a sheet row) or `from: <image>, frames: N` (one image split horizontally).
+# Optional per sprite: size (32), colors (12), outline (false). Sheets are keyed on their flat background.
+
+sources:
+  vfx-v1: { file: sheets/vfx-v1.png, grid: [6, 6] }
+
+sprites:
+  spark: { draw: spark, frames: 6, color: "#ffe27a" }
+  ring: { draw: ring, frames: 6, color: "#7fd6ff" }
+  burst: { draw: burst, frames: 6, color: "#ff9a3c" }
+  puff: { draw: puff, frames: 6, color: "#b9bfd0" }
+  flame: { draw: flame, frames: 6, color: "#ff7a1f" }
+  glint: { draw: glint, frames: 6, color: "#e8f6ff" }
+  slash: { draw: slash, frames: 6, color: "#d8e4ff" }
+
+  fire-burst: { from: vfx-v1, row: 0, frames: 6 }
+  frost-shatter: { from: vfx-v1, row: 1, frames: 6 }
+  arcane-slash: { from: vfx-v1, row: 2, frames: 6 }
+  holy-glint: { from: vfx-v1, row: 3, frames: 6 }
+  thunder-spark: { from: vfx-v1, row: 4, frames: 6 }
+  blood-splash: { from: vfx-v1, row: 5, frames: 6 }

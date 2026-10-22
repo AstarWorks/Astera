@@ -136,6 +136,40 @@ class ResourcePackBuilderTest {
     }
 
     @Test
+    fun `content fonts ship under assets font and texture sources stay out`(@TempDir tmp: Path) {
+        fun put(rel: String, bytes: ByteArray) {
+            val f = tmp.resolve(rel)
+            Files.createDirectories(f.parent)
+            Files.write(f, bytes)
+        }
+        put("fonts/vfx/spark.json", """{"providers":[{"type":"bitmap","file":"astera:generated/sprites/spark.png","ascent":14,"height":32,"chars":["\ue000"]}]}""".toByteArray())
+        put("textures/generated/sprites/spark.png", byteArrayOf(1))
+        put("textures/sources/sheets/vfx-v1.png", byteArrayOf(2))
+        put("textures/sources/sprites.yaml", "sources: {}".toByteArray())
+        put("hud/status.json", """{"providers":[{"type":"space","advances":{"a":1}}]}""".toByteArray())
+
+        val files = ResourcePackBuilder(tmp).collect()
+
+        assertThat(json(files.getValue("assets/astera/font/vfx/spark.json")).path("providers").path(0).path("file").asText())
+            .isEqualTo("astera:generated/sprites/spark.png")
+        assertThat(files).containsKey("assets/astera/textures/generated/sprites/spark.png")
+        assertThat(files).containsKey("assets/astera/font/default.json")
+        assertThat(files.keys.filter { it.contains("sources") }).isEmpty()
+    }
+
+    @Test
+    fun `a fonts default json colliding with the merged hud font fails loudly`(@TempDir tmp: Path) {
+        Files.createDirectories(tmp.resolve("fonts"))
+        Files.createDirectories(tmp.resolve("hud"))
+        Files.writeString(tmp.resolve("fonts/default.json"), """{"providers":[]}""")
+        Files.writeString(tmp.resolve("hud/status.json"), """{"providers":[{"type":"space","advances":{"a":1}}]}""")
+
+        org.assertj.core.api.Assertions.assertThatThrownBy { ResourcePackBuilder(tmp).collect() }
+            .isInstanceOf(IllegalStateException::class.java)
+            .hasMessageContaining("collides")
+    }
+
+    @Test
     fun `an empty content tree still yields a valid pack with the vanilla overrides`(@TempDir tmp: Path) {
         val files = ResourcePackBuilder(tmp).collect()
         assertThat(files).containsKey("pack.mcmeta")

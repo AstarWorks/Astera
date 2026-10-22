@@ -12,6 +12,7 @@ class SemanticChecksTest {
         statuses = setOf("example-burn"),
         particles = setOf("example-burst"),
         vfx = setOf("demo-cross"),
+        sprites = setOf("spark"),
     )
 
     private fun parse(yaml: String): JsonNode = YamlToJson.parse(StringReader(yaml.trimIndent()))
@@ -180,5 +181,20 @@ class SemanticChecksTest {
             """,
         )
         assertThat(SemanticChecks.check(vfx, known)).singleElement().asString().contains("unknown particle id 'nope'")
+    }
+
+    @Test
+    fun `unknown sprite id in a vfx element is an error`() {
+        val node = parse(
+            """
+            elements:
+              - id: ok
+                kind: { type: sprite, sprite: spark }
+              - id: bad
+                kind: { type: sprite, sprite: ghost }
+            """,
+        )
+        assertThat(SemanticChecks.check(node, known))
+            .containsExactly("$.elements[1].kind.sprite: unknown sprite id 'ghost'")
     }
 }

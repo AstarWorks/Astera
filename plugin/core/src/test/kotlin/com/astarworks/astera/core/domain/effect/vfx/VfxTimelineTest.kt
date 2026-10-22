@@ -36,8 +36,13 @@ class VfxTimelineTest {
     private fun definition(vararg elements: VfxElement, duration: Int = 30, sample: Int = 2, follow: Boolean = false) =
         VfxDefinition(VfxId("test"), duration, VfxOrient.WORLD, follow, sample, elements.toList())
 
-    private fun plan(def: VfxDefinition, anchor: Frame = origin, seed: Long = 1L, scale: Double = 1.0) =
-        VfxTimeline.plan(def, anchor, seed, scale)
+    private fun plan(
+        def: VfxDefinition,
+        anchor: Frame = origin,
+        seed: Long = 1L,
+        scale: Double = 1.0,
+        sprites: SpriteFrames = SpriteFrames.NONE,
+    ) = VfxTimeline.plan(def, anchor, seed, scale, sprites)
 
     private fun assertVec(actual: Vec3, x: Double, y: Double, z: Double, eps: Double = 1e-6) {
         assertThat(actual.x).isCloseTo(x, within(eps))
@@ -588,5 +593,118 @@ class VfxTimelineTest {
         assertThat(VfxOrient.WORLD.frame(Vec3.ZERO, dir, null).rotation.angleTo(Quaternion.IDENTITY)).isCloseTo(0.0, within(1e-9))
         assertVec(VfxOrient.TO_TARGET.frame(Vec3.ZERO, dir, Vec3(1.0, 0.0, 0.0)).forward(), 1.0, 0.0, 0.0)
         assertVec(VfxOrient.TO_TARGET.frame(Vec3.ZERO, Vec3(0.0, 0.0, 1.0), null).forward(), 0.0, 0.0, 1.0)
+    }
+
+    // ---- sprites (ADR-0237) ------------------------------------------------------
+
+    private val spark = SpriteId("spark")
+    private val sparkFrames = SpriteFrames { if (it == spark) 4 else null }
+
+    private fun spriteElement(
+        frameTicks: Int = 1,
+        loop: Boolean = false,
+        keyframes: List<VfxKeyframe> = listOf(kf(0)),
+        color: Int? = null,
+        spriteId: SpriteId = spark,
+    ) = element(kind = VfxElementKind.Sprite(spriteId, frameTicks, loop, color, seeThrough = true), keyframes = keyframes)
+
+    private fun frameText(frame: Int) = SpriteGlyphs.text(spark, frame)
+
+    @Test
+    fun `a sprite plans as a text display showing frame 0`() {
+        val p = plan(definition(spriteElement(color = 0xFFFFE9A8.toInt())), sprites = sparkFrames).elements.single()
+        val kind = p.kind as VfxElementKind.Text
+        assertThat(kind.text).isEqualTo("<#ffe9a8><font:astera:vfx/spark>\uE000</font>")
+        assertThat(kind.backgroundArgb).isZero()
+        assertThat(kind.shadow).isFalse()
+        assertThat(kind.seeThrough).isTrue()
+    }
+
+    @Test
+    fun `a non looping flipbook swaps every frame_ticks and stops on the last frame`() {
+        val p = plan(definition(spriteElement(frameTicks = 2)), sprites = sparkFrames).elements.single()
+        // element tick u lands at spawn + 1 + u
+        assertThat(p.updates.map { it.tick to it.text }).containsExactly(
+            3 to frameText(1),
+            5 to frameText(2),
+            7 to frameText(3),
+        )
+    }
+
+    @Test
+    fun `a looping flipbook wraps until the slot dies`() {
+        val p = plan(definition(spriteElement(loop = true), duration = 10), sprites = sparkFrames).elements.single()
+        // animation life = 10 - 1 = 9 -> swaps at u = 1..8
+        assertThat(p.updates.map { it.text }).containsExactly(
+            frameText(1), frameText(2), frameText(3), frameText(0), frameText(1), frameText(2), frameText(3), frameText(0),
+        )
+        assertThat(p.updates.map { it.tick }).containsExactly(2, 3, 4, 5, 6, 7, 8, 9)
+    }
+
+    @Test
+    fun `an unknown sprite is a single frame without swaps`() {
+        val p = plan(definition(spriteElement(loop = true, spriteId = SpriteId("ghost"))), sprites = sparkFrames).elements.single()
+        assertThat((p.kind as VfxElementKind.Text).text).contains("astera:vfx/ghost")
+        assertThat(p.updates).isEmpty()
+    }
+
+    @Test
+    fun `a swap inside an interpolation step keeps the motion and targets the step end`() {
+        val p = plan(
+            definition(
+                spriteElement(frameTicks = 3, keyframes = listOf(kf(0), kf(8, translate = Vec3(8.0, 0.0, 0.0)))),
+                sample = 4,
+            ),
+            sprites = sparkFrames,
+        ).elements.single()
+        // steps: u 0..4, 4..8; swap at u = 3 (tick 4) is inside the first step, u = 6 (tick 7) inside the second
+        val first = p.updates.single { it.tick == 4 }
+        assertThat(first.text).isEqualTo(frameText(1))
+        assertThat(first.interpolationTicks).isEqualTo(1)
+        assertThat(first.transform.translation.x).isCloseTo(4.0, within(1e-9))
+        val second = p.updates.single { it.tick == 7 }
+        assertThat(second.text).isEqualTo(frameText(2))
+        assertThat(second.interpolationTicks).isEqualTo(2)
+        assertThat(second.transform.translation.x).isCloseTo(8.0, within(1e-9))
+    }
+
+    @Test
+    fun `keyframe swaps stay plain breakpoints while long flipbook steps interpolate`() {
+        val p = plan(
+            definition(
+                element(
+                    kind = VfxElementKind.Text("A"),
+                    keyframes = listOf(kf(0), kf(2, text = "B"), kf(6, translate = Vec3(6.0, 0.0, 0.0))),
+                ),
+                sample = 4,
+            ),
+        ).elements.single()
+        val swap = p.updates.single { it.text == "B" }
+        assertThat(swap.interpolationTicks).isEqualTo(0) // a keyframe is a breakpoint: not inside a step
+        val s2 = plan(
+            definition(
+                spriteElement(frameTicks = 2, keyframes = listOf(kf(0), kf(6, translate = Vec3(6.0, 0.0, 0.0)))),
+                sample = 6,
+            ),
+            sprites = sparkFrames,
+        ).elements.single()
+        val mid = s2.updates.single { it.text == frameText(1) }
+        assertThat(mid.interpolationTicks).isEqualTo(4)
+        assertThat(mid.transform.translation.x).isCloseTo(6.0, within(1e-9))
+    }
+
+    @Test
+    fun `a sprite element rejects keyframe text swaps`() {
+        assertThatThrownBy { spriteElement(keyframes = listOf(kf(0), kf(2, text = "x"))) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("flipbook")
+    }
+
+    @Test
+    fun `sprite glyph text follows the font convention`() {
+        assertThat(SpriteGlyphs.text(spark, 0)).isEqualTo("<font:astera:vfx/spark>\uE000</font>")
+        assertThat(SpriteGlyphs.text(spark, 5, 0xFFFFFF)).isEqualTo("<font:astera:vfx/spark>\uE005</font>")
+        assertThat(SpriteGlyphs.text(spark, 1, 0x0A0B0C)).startsWith("<#0a0b0c>")
+        assertThatThrownBy { SpriteGlyphs.glyph(256) }.isInstanceOf(IllegalArgumentException::class.java)
     }
 }

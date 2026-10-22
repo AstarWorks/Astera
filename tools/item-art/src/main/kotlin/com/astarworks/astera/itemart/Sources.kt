@@ -42,16 +42,16 @@ internal object Sources {
         if (!Files.isRegularFile(manifest)) return emptyMap()
         val doc = Yaml().load<Map<String, Any?>>(Files.readString(manifest)).orEmpty()
         val sources = (doc["sources"] as? Map<*, *>).orEmpty()
+        val parsed = parseSources(contentDir, MANIFEST, sources)
         val items = (doc["items"] as? Map<*, *>).orEmpty()
         return items.entries.associate { (k, v) ->
             val item = k.toString()
             val opts = v as? Map<*, *>
             val name = (opts?.get("from") ?: v).toString()
-            val src = requireNotNull(sources[name] as? Map<*, *>) { "$MANIFEST: item $item names unknown source '$name'" }
-            val file = contentDir.resolve(DIR).resolve(requireNotNull(src["file"]) { "$MANIFEST: source $name has no file" }.toString())
-            val cell = (src["grid"] as? List<*>)?.let { grid ->
-                val cols = (grid[0] as Number).toInt()
-                val rows = (grid[1] as Number).toInt()
+            val source = requireNotNull(parsed[name]) { "$MANIFEST: item $item names unknown source '$name'" }
+            val src = source.raw
+            val file = source.file
+            val cell = source.grid?.let { (cols, rows) ->
                 val cells = (src["cells"] as? List<*>).orEmpty().map { it?.toString() }
                 val at = cells.indexOf(item)
                 require(at in 0 until cols * rows) { "$MANIFEST: item $item is not a cell of sheet '$name'" }
@@ -63,7 +63,27 @@ internal object Sources {
         }
     }
 
-    private val keyedSheets = HashMap<Path, Pair<PixelConverter.Raster, Pair<IntArray, List<PixelConverter.Blob>>>>()
+    /** A background-keyed sheet with its 8-connected blobs, cached per file. */
+    internal class Sheet(val keyed: PixelConverter.Raster, val label: IntArray, val blobs: List<PixelConverter.Blob>, val background: Int?)
+
+    private val sheets = HashMap<Path, Sheet>()
+
+    internal fun sheet(file: Path): Sheet = sheets.getOrPut(file) {
+        val image = requireNotNull(ImageIO.read(file.toFile())) { "unreadable source image $file" }
+        val raw = PixelConverter.Raster.of(image)
+        val r = PixelConverter.keyBackground(raw)
+        val (label, blobs) = PixelConverter.components(r)
+        Sheet(r, label, blobs, PixelConverter.sheetBackground(raw))
+    }
+
+    /** The sheet with only the blobs whose centroid lies in [x0, x1) x [y0, y1) kept. */
+    internal fun blobsIn(sheet: Sheet, x0: Int, y0: Int, x1: Int, y1: Int): PixelConverter.Raster {
+        val keyed = sheet.keyed
+        val mine = sheet.blobs.map { it.cx >= x0 && it.cx < x1 && it.cy >= y0 && it.cy < y1 }
+        val out = PixelConverter.Raster(keyed.w, keyed.h)
+        for (i in sheet.label.indices) if (sheet.label[i] >= 0 && mine[sheet.label[i]]) out.px[i] = keyed.px[i]
+        return out
+    }
 
     /**
      * The pixels of [ref]: the whole image, or the blobs of its sheet cell. Generated sheets rarely keep
@@ -71,23 +91,26 @@ internal object Sources {
      * not the pixels inside its bounds: a blade crossing the line stays whole, a neighbour's tip stays out.
      */
     fun crop(ref: Ref): BufferedImage {
-        val image = requireNotNull(ImageIO.read(ref.file.toFile())) { "unreadable source image ${ref.file}" }
-        val cell = ref.cell ?: return image
-        val (keyed, comps) = keyedSheets.getOrPut(ref.file) {
-            val r = PixelConverter.keyBackground(PixelConverter.Raster.of(image))
-            r to PixelConverter.components(r)
-        }
-        val (label, blobs) = comps
-        val x0 = keyed.w * cell.col / cell.cols
-        val y0 = keyed.h * cell.row / cell.rows
-        val x1 = keyed.w * (cell.col + 1) / cell.cols
-        val y1 = keyed.h * (cell.row + 1) / cell.rows
-        val mine = blobs.map { it.cx >= x0 && it.cx < x1 && it.cy >= y0 && it.cy < y1 }
-        val out = PixelConverter.Raster(keyed.w, keyed.h)
-        for (i in label.indices) if (label[i] >= 0 && mine[label[i]]) out.px[i] = keyed.px[i]
+        val cell = ref.cell ?: return requireNotNull(ImageIO.read(ref.file.toFile())) { "unreadable source image ${ref.file}" }
+        val sheet = sheet(ref.file)
+        val w = sheet.keyed.w
+        val h = sheet.keyed.h
+        val out = blobsIn(sheet, w * cell.col / cell.cols, h * cell.row / cell.rows, w * (cell.col + 1) / cell.cols, h * (cell.row + 1) / cell.rows)
         require(out.px.any { it ushr 24 != 0 }) { "sheet ${ref.file}: cell of ${ref.item} is empty" }
         return PixelConverter.crop(out).image()
     }
+
+    /** `sources:` of a manifest: name to (file, grid cols x rows or null, raw map). */
+    internal class Source(val name: String, val file: Path, val grid: Pair<Int, Int>?, val raw: Map<*, *>)
+
+    internal fun parseSources(contentDir: Path, manifest: String, sources: Map<*, *>): Map<String, Source> =
+        sources.entries.associate { (k, v) ->
+            val name = k.toString()
+            val src = requireNotNull(v as? Map<*, *>) { "$manifest: source $name is not a map" }
+            val file = contentDir.resolve(DIR).resolve(requireNotNull(src["file"]) { "$manifest: source $name has no file" }.toString())
+            val grid = (src["grid"] as? List<*>)?.let { (it[0] as Number).toInt() to (it[1] as Number).toInt() }
+            name to Source(name, file, grid, src)
+        }
 
     fun render(ref: Ref): BufferedImage = PixelConverter.convert(crop(ref), PixelConverter.Options(colors = ref.colors))
 

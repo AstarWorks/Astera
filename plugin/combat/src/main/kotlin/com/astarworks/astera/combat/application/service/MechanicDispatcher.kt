@@ -179,6 +179,7 @@ public class MechanicDispatcher(
     private val displayGateway: IDisplayEntityGateway? = null,
     /** ADR-0220: catalog for `play_vfx`; needs [displayGateway] too, otherwise the mechanic warns and drops. */
     private val vfxRegistry: com.astarworks.astera.core.application.port.outbound.IVfxRegistry? = null,
+    private val spriteFrames: com.astarworks.astera.core.domain.effect.vfx.SpriteFrames = com.astarworks.astera.core.domain.effect.vfx.SpriteFrames.NONE,
     /** WP5: Summon. */
     private val summonGateway: ISummonGateway? = null,
     /** WP5: summon ownership / allegiance bookkeeping, shared with the host's targeting guard. */
@@ -261,6 +262,7 @@ public class MechanicDispatcher(
                     scheduler = scheduler,
                     displays = displayGateway,
                     registry = vfxRegistry,
+                    sprites = spriteFrames,
                     emitParticle = ::emitVfxParticle,
                     log = log,
                 ),

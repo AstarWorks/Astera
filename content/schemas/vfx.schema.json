@@ -488,6 +488,34 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "sprite"
+                        },
+                        "sprite": {
+                            "type": "string"
+                        },
+                        "frame_ticks": {
+                            "type": "integer"
+                        },
+                        "loop": {
+                            "type": "boolean"
+                        },
+                        "color": {
+                            "type": "string"
+                        },
+                        "see_through": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "sprite"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "text"
                         },
                         "text": {

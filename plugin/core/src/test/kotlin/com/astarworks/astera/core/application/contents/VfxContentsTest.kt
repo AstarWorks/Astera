@@ -6,6 +6,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.animation.Easing
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayItemMode
+import com.astarworks.astera.core.domain.effect.vfx.SpriteId
 import com.astarworks.astera.core.domain.effect.vfx.VfxAlign
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
@@ -205,6 +206,36 @@ class VfxContentsTest {
         assertThat(report.failed).isEqualTo(1)
         assertThat(contents.find(VfxId("b"))).isNull()
     }
+
+    @Test
+    fun `a sprite kind decodes with its flipbook fields`() {
+        val def = (decode(spriteYaml("{ type: sprite, sprite: spark, frame_ticks: 2, loop: true, color: \"#ffe9a8\", see_through: true }")) as Result.Success).value
+        val kind = def.elements.single().kind as VfxElementKind.Sprite
+        assertThat(kind.spriteId).isEqualTo(SpriteId("spark"))
+        assertThat(kind.frameTicks).isEqualTo(2)
+        assertThat(kind.loop).isTrue()
+        assertThat(kind.colorArgb).isEqualTo(0xFFFFE9A8.toInt())
+        assertThat(kind.seeThrough).isTrue()
+    }
+
+    @Test
+    fun `a sprite kind has flipbook defaults and rejects bad values`() {
+        val kind = (decode(spriteYaml("{ type: sprite, sprite: spark }")) as Result.Success).value.elements.single().kind as VfxElementKind.Sprite
+        assertThat(kind).isEqualTo(VfxElementKind.Sprite(SpriteId("spark")))
+        assertThat(decode(spriteYaml("{ type: sprite, sprite: spark, frame_ticks: 0 }"))).isInstanceOf(Result.Failure::class.java)
+        assertThat(decode(spriteYaml("{ type: sprite, sprite: spark, color: red }"))).isInstanceOf(Result.Failure::class.java)
+        assertThat(decode(spriteYaml("{ type: sprite, sprite: Bad_Id }"))).isInstanceOf(Result.Failure::class.java)
+    }
+
+    private fun spriteYaml(kind: String) = """
+        id: sparkle
+        duration_ticks: 10
+        elements:
+          - id: s
+            kind: $kind
+            keyframes:
+              - { t: 0 }
+    """.trimIndent()
 
     private fun decode(yaml: String): Result<com.astarworks.astera.core.domain.effect.vfx.VfxDefinition, VfxConfigError> {
         val config = com.astarworks.astera.core.application.config.parser.YamlContentParser().parse(yaml, VfxYamlConfig.serializer())

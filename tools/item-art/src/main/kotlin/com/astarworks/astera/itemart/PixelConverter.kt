@@ -23,7 +23,17 @@ import kotlin.math.sqrt
  */
 internal object PixelConverter {
 
-    data class Options(val colors: Int = 16, val size: Int = Sprite.SIZE, val margin: Int = 1)
+    data class Options(
+        val colors: Int = 16,
+        val size: Int = Sprite.SIZE,
+        val margin: Int = 1,
+        /** Dark outline around the silhouette (items yes, particle sprites no). */
+        val outline: Boolean = true,
+        /** Share of a target pixel's source area that must be opaque for it to be drawn. */
+        val coverage: Double = COVERAGE,
+        /** Keep single pixels with no neighbour (embers, droplets). */
+        val keepOrphans: Boolean = false,
+    )
 
     class Stages(
         val normalized: BufferedImage,
@@ -41,8 +51,8 @@ internal object PixelConverter {
         val smoothed = if (max(normalized.w, normalized.h) >= options.size * 4) median(normalized) else normalized
         val palette = palette(smoothed, options.colors)
         val pixelized = pixelize(smoothed, palette, options)
-        val cleaned = cleanup(pixelized)
-        val result = outline(cleaned)
+        val cleaned = cleanup(pixelized, options.keepOrphans)
+        val result = if (options.outline) outline(cleaned) else cleaned
         return Stages(normalized.image(), smoothed.image(), palette, pixelized.image(), cleaned.image(), result.image())
     }
 
@@ -93,8 +103,15 @@ internal object PixelConverter {
 
     private const val FRINGE_PASSES = 2
 
+    /** The flat background colour of [src] as [keyBackground] sees it, or null when the border is mixed. */
+    internal fun sheetBackground(src: Raster): Int? {
+        val r = src.copy()
+        for (i in r.px.indices) if (r.px[i] ushr 24 < 128) r.px[i] = 0 else r.px[i] = r.px[i] or OPAQUE
+        return borderColor(r)
+    }
+
     /** The colour most border pixels are close to, when at least [BG_SHARE] of the border is. */
-    private fun borderColor(r: Raster): Int? {
+    internal fun borderColor(r: Raster): Int? {
         val border = ArrayList<Int>()
         for (x in 0 until r.w) { border.add(r[x, 0]); border.add(r[x, r.h - 1]) }
         for (y in 0 until r.h) { border.add(r[0, y]); border.add(r[r.w - 1, y]) }
@@ -154,6 +171,43 @@ internal object PixelConverter {
         for (y in 0 until out.h) for (x in 0 until out.w) out[x, y] = r[x + x0, y + y0]
         return out
     }
+
+    /**
+     * Converts the frames of one animation (already background-keyed, e.g. cells of a [Sources.Sheet]) so they
+     * stay registered: ONE union bounding box crops every frame, ONE palette comes from all of them, and
+     * every frame is scaled and placed the same, so a moving blob keeps its offset between frames.
+     * Blobs of 1-2 source pixels are dropped as noise; anything bigger (embers, shards, droplets) is content.
+     */
+    fun convertFrames(frames: List<BufferedImage>, options: Options): List<BufferedImage> {
+        require(frames.isNotEmpty()) { "no frames" }
+        val rasters = frames.map { f ->
+            val r = Raster.of(f)
+            for (i in r.px.indices) r.px[i] = if (r.px[i] ushr 24 < 128) 0 else r.px[i] or OPAQUE
+            val (label, blobs) = components(r)
+            for (i in label.indices) if (label[i] >= 0 && blobs[label[i]].size <= TINY_BLOB) r.px[i] = 0
+            r
+        }
+        var x0 = Int.MAX_VALUE; var y0 = Int.MAX_VALUE; var x1 = -1; var y1 = -1
+        for (r in rasters) for (y in 0 until r.h) for (x in 0 until r.w) if (r.opaque(x, y)) {
+            x0 = min(x0, x); y0 = min(y0, y); x1 = max(x1, x); y1 = max(y1, y)
+        }
+        require(x1 >= 0) { "animation has no visible pixels after background removal" }
+        val w = x1 - x0 + 1
+        val h = y1 - y0 + 1
+        val cropped = rasters.map { r ->
+            Raster(w, h).also { o -> for (y in 0 until h) for (x in 0 until w) o[x, y] = r[x + x0, y + y0] }
+        }
+        val smoothed = if (max(w, h) >= options.size * 4) cropped.map { median(it) } else cropped
+        val all = Raster(w, h * smoothed.size)
+        smoothed.forEachIndexed { i, r -> System.arraycopy(r.px, 0, all.px, i * w * h, w * h) }
+        val palette = palette(all, options.colors)
+        return smoothed.map { r ->
+            val cleaned = cleanup(pixelize(r, palette, options), options.keepOrphans)
+            (if (options.outline) outline(cleaned) else cleaned).image()
+        }
+    }
+
+    private const val TINY_BLOB = 2
 
     // ---- 2. smooth -----------------------------------------------------------------------------------
 
@@ -238,7 +292,7 @@ internal object PixelConverter {
                 opaque++; votes[p] += 1.0
                 for (d in 0..2) mean[d] += pLab[p][d]
             }
-            if (total == 0 || opaque.toDouble() / total < COVERAGE) continue
+            if (total == 0 || opaque.toDouble() / total < o.coverage) continue
             for (d in 0..2) mean[d] /= opaque
             var best = 0; var bestScore = -1.0
             for (p in palette.indices) {
@@ -257,11 +311,11 @@ internal object PixelConverter {
 
     private const val NOISE_DELTA = 14.0
 
-    internal fun cleanup(src: Raster): Raster {
+    internal fun cleanup(src: Raster, keepOrphans: Boolean = false): Raster {
         val r = src.copy()
         for (y in 0 until r.h) for (x in 0 until r.w) {
             val n4 = neighbours4(x, y).count { (nx, ny) -> src.opaque(nx, ny) }
-            if (src.opaque(x, y) && n4 == 0 && neighbours8(x, y).none { (nx, ny) -> src.opaque(nx, ny) }) r[x, y] = 0
+            if (!keepOrphans && src.opaque(x, y) && n4 == 0 && neighbours8(x, y).none { (nx, ny) -> src.opaque(nx, ny) }) r[x, y] = 0
             if (!src.opaque(x, y) && n4 == 4) r[x, y] = mode(neighbours4(x, y).map { (nx, ny) -> src[nx, ny] })
         }
         val pass = r.copy()

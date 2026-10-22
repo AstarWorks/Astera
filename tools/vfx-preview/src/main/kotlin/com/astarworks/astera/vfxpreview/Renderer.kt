@@ -89,7 +89,11 @@ class Camera(
 }
 
 /** Software renderer (Java2D) for one tick of a [PlanReplay]. */
-class Renderer(private val camera: Camera, private val label: String) {
+class Renderer(
+    private val camera: Camera,
+    private val label: String,
+    private val sprites: SpriteStrips = SpriteStrips.default(),
+) {
 
     private class Drawable(val depth: Double, val draw: (java.awt.Graphics2D) -> Unit)
 
@@ -277,6 +281,20 @@ class Renderer(private val camera: Camera, private val label: String) {
         val ex = camera.project(t.center + r * (size.x * px)) ?: return
         val ey = camera.project(t.center - u * (size.y * px)) ?: return
         val tx = AffineTransform(ex[0] - o[0], ex[1] - o[1], ey[0] - o[0], ey[1] - o[1], o[0], o[1])
+        val sprite = t.styled.sprite?.let { sprites.frame(it, t.styled.rgb) }
+        if (sprite != null) {
+            // Font glyph (ADR-0237): H px square, centred on the display origin by ascent = H/2 - 2.
+            out += Drawable(camera.depth(t.center) - 0.0005) { g ->
+                val old = g.transform
+                val hint = g.getRenderingHint(RenderingHints.KEY_INTERPOLATION)
+                g.transform(tx)
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR)
+                g.drawImage(sprite, -sprite.width / 2, -sprite.height / 2, sprite.width, sprite.height, null)
+                g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hint ?: RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+                g.transform = old
+            }
+            return
+        }
         out += Drawable(camera.depth(t.center) - 0.0005) { g ->
             val old = g.transform
             g.transform(tx)

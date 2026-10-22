@@ -140,7 +140,10 @@ public data class VfxElement(
         }
         keyframes.forEach {
             require(it.block == null || kind is VfxElementKind.Block) { "element '$id': keyframe block swap needs kind block" }
-            require(it.text == null || kind is VfxElementKind.Text) { "element '$id': keyframe text swap needs kind text" }
+            require(it.text == null || kind is VfxElementKind.Text) {
+                if (kind is VfxElementKind.Sprite) "element '$id': sprite elements animate by flipbook, keyframe text swaps are not allowed"
+                else "element '$id': keyframe text swap needs kind text"
+            }
         }
     }
 
@@ -182,6 +185,24 @@ public sealed interface VfxElementKind {
     ) : VfxElementKind {
         init {
             require(text.isNotBlank()) { "VfxElementKind.Text.text must not be blank" }
+        }
+    }
+
+    /**
+     * Custom particle sprite (ADR-0237): a flipbook of font glyphs shown on a TextDisplay. [VfxTimeline.plan]
+     * resolves it into a [Text] kind plus timed text swaps, so runtimes need no sprite-specific display.
+     * Frame `k` shows for [frameTicks] ticks; [loop] wraps after the last frame, otherwise it stays there.
+     * [colorArgb] tints the glyph (`null` / white = the texture's own colours).
+     */
+    public data class Sprite(
+        public val spriteId: SpriteId,
+        public val frameTicks: Int = 1,
+        public val loop: Boolean = false,
+        public val colorArgb: Int? = null,
+        public val seeThrough: Boolean = false,
+    ) : VfxElementKind {
+        init {
+            require(frameTicks >= 1) { "VfxElementKind.Sprite.frameTicks must be >= 1: $frameTicks" }
         }
     }
 

@@ -65,6 +65,26 @@ class PackValidationTest {
     }
 
     @Test
+    fun `every bitmap font provider file in any packed font exists in the pack`() {
+        val fonts = files.keys.filter { it.startsWith("assets/astera/font/") && it.endsWith(".json") }
+        assertThat(fonts).isNotEmpty()
+        for (path in fonts) {
+            for (provider in json(path).path("providers")) {
+                if (provider.path("type").asText() != "bitmap") continue
+                val ref = provider.path("file").asText()
+                val key = textureKey(ref)
+                assertThat(key).`as`("$path provider file '$ref' must be astera:-namespaced").isNotNull()
+                assertThat(files).`as`("$path provider file $ref").containsKey(key)
+            }
+        }
+    }
+
+    @Test
+    fun `texture sources are not shipped`() {
+        assertThat(files.keys.filter { it.startsWith("assets/astera/textures/sources/") }).isEmpty()
+    }
+
+    @Test
     fun `item and gui icons are square and small`() {
         val icons = files.filterKeys { it.startsWith("assets/astera/textures/generated/items/") }
         assertThat(icons).isNotEmpty()

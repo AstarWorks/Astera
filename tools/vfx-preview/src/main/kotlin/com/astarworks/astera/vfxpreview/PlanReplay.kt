@@ -93,7 +93,7 @@ class PlanReplay(val plan: VfxPlan) {
 }
 
 /** Tint of a MiniMessage-ish text plus its visible characters. */
-data class StyledText(val text: String, val rgb: Int, val bold: Boolean)
+data class StyledText(val text: String, val rgb: Int, val bold: Boolean, val sprite: SpriteRef? = null)
 
 object MiniText {
     private val tag = Regex("<[^>]*>")
@@ -104,13 +104,17 @@ object MiniText {
         "dark_gray" to 0x555555, "black" to 0x000000,
     )
 
+    private val spriteFont = Regex("<font:astera:vfx/([a-z0-9-]+)>\\s*([\\uE000-\\uE0FF])")
+
     fun style(raw: String): StyledText {
+        val sprite = spriteFont.find(raw)?.let { SpriteRef(it.groupValues[1], it.groupValues[2][0].code - 0xE000) }
         val hex = hexTag.find(raw)?.groupValues?.get(1)?.toInt(16)
         val name = Regex("<([a-z_]+)>").findAll(raw).map { named[it.groupValues[1]] }.firstOrNull { it != null }
         return StyledText(
             text = raw.replace(tag, ""),
             rgb = hex ?: name ?: 0xFFFFFF,
             bold = raw.contains("<b>") || raw.contains("<bold>"),
+            sprite = sprite,
         )
     }
 }

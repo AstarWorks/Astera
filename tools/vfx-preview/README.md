@@ -30,3 +30,11 @@ halo), item displays as a blade with the item name, text displays as the real gl
 billboard applied, particle emissions as fading dots. The camera is fitted once to the whole effect,
 so tiles on a sheet share one framing. Block colours are approximations (`BlockColors.kt`); text
 size assumes 1 font pixel = 1/40 block.
+
+
+Sprites (ADR-0237): a text display whose MiniMessage is `<font:astera:vfx/<id>>` + a char U+E000+i
+draws frame i of `content/textures/generated/sprites/<id>.png` (strip of square frames, size = strip
+height) instead of text: nearest-neighbour, `height / 40 * scale` blocks, centred on the display origin
+(the contract's ascent `size/2 - 2` does this in game), multiplied by the text colour (white = the
+texture's own colours), billboard as for text. A missing strip or frame falls back to plain text.
+The strips come from `--content` (tests: `astera.contentDir`; the `Renderer` takes a `SpriteStrips`).

@@ -199,6 +199,7 @@ internal object ItemArt {
         for ((id, spec) in icons(contentDir)) put(id, ModelStyle.GENERATED) { Icons.render(id, spec) }
         // Items with a source but no code design (neither weapon nor icon): always converted.
         for (id in sources.keys) if ("$TEXTURE_DIR/$id.png" !in files) put(id, ModelStyle.GENERATED) { error(id) }
+        files.putAll(SpriteSources.renderAll(contentDir))
         return files
     }
 
@@ -222,6 +223,7 @@ internal object ItemArt {
             val dir = contentDir.resolve(dirRel)
             if (Files.isDirectory(dir)) Files.list(dir).use { s -> s.forEach { if (contentDir.relativize(it).toString().replace('\\', '/') !in files) Files.delete(it) } }
         }
+        SpriteSources.orphans(contentDir, files.keys).forEach(Files::delete)
         for ((rel, bytes) in files) {
             val file = contentDir.resolve(rel)
             Files.createDirectories(file.parent)

@@ -553,6 +553,8 @@ public object CombatWiring {
                 ),
                 displayGateway = ports.displayEntityGateway?.invoke(services),
                 vfxRegistry = services.get<com.astarworks.astera.core.application.port.outbound.IVfxRegistry>(),
+                spriteFrames = services.get<com.astarworks.astera.core.application.port.outbound.ISpriteRegistry>()
+                    ?: com.astarworks.astera.core.domain.effect.vfx.SpriteFrames.NONE,
                 summonGateway = ports.summonGateway?.invoke(services),
                 summonRegistry = summonRegistry,
                 randomizer = damageRandomizer,

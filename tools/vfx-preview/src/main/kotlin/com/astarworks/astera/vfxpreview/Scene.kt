@@ -78,6 +78,7 @@ object SceneBuilder {
                     glowArgb = d.glowArgb,
                 )
                 is VfxElementKind.Particle -> Unit
+                is VfxElementKind.Sprite -> error("sprite elements are resolved to text by VfxTimeline.plan")
             }
         }
         for (p in replay.particles(tick)) prims += Prim.Dot(p.position + shift, p.age)
@@ -97,7 +98,7 @@ object SceneBuilder {
             is Prim.Box -> p.corners
             is Prim.Dot -> listOf(p.position)
             is Prim.Text -> {
-                val r = max(p.size.x, p.size.y) * 0.2
+                val r = max(p.size.x, p.size.y) * (if (p.styled.sprite != null) 0.4 else 0.2)
                 listOf(p.center + Vec3(r, r, r), p.center - Vec3(r, r, r))
             }
             is Prim.Item -> {

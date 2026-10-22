@@ -25,6 +25,7 @@ public fun main(args: Array<String>) {
             val n = ItemArt.write(content)
             writePreview(content, Path(args[2]))
             writeSourcesPreview(content, Path(args[2]).resolveSibling("item-art-sources-preview.png"))
+            writeSpritePreview(content, Path(args[2]).resolveSibling("sprite-preview.png"))
             if (args.size > 3) writeIconPreview(content, Path(args[3]))
             println("item art: $n files under $content, preview ${args[2]}")
         }
@@ -83,6 +84,43 @@ internal fun writeSourcesPreview(contentDir: Path, out: Path) {
         listOf("${ref.item} src" to Sources.crop(ref), "code" to code, "converted" to Sources.render(ref))
     }
     sheet(tiles, out, columns = 6, scale = 5)
+}
+
+/** Every sprite's frames in a row at x4 on a checkerboard, labelled with the id. Deleted when there are no sprites. */
+internal fun writeSpritePreview(contentDir: Path, out: Path) {
+    val defs = SpriteSources.load(contentDir)
+    if (defs.isEmpty()) { Files.deleteIfExists(out); return }
+    val scale = 4
+    val labelW = 96
+    val maxFrames = defs.maxOf { it.frames }
+    val rowH = defs.maxOf { it.size } * scale + PAD
+    val w = labelW + maxFrames * (defs.maxOf { it.size } * scale + 4) + PAD
+    val h = defs.size * rowH + PAD
+    val sheet = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+    val g = sheet.createGraphics()
+    try {
+        g.color = Color(0x1B1B24)
+        g.fillRect(0, 0, w, h)
+        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON)
+        g.font = Font(Font.SANS_SERIF, Font.BOLD, 13)
+        defs.forEachIndexed { row, def ->
+            val y = PAD / 2 + row * rowH
+            g.color = Color(0xE6E6F0)
+            g.drawString(def.id, 8, y + def.size * scale / 2)
+            SpriteSources.render(def).forEachIndexed { i, frame ->
+                val x = labelW + i * (def.size * scale + 4)
+                for (cy in 0 until def.size) for (cx in 0 until def.size) {
+                    g.color = if ((cx + cy) % 2 == 0) Color(0x2C2C38) else Color(0x24242F)
+                    g.fillRect(x + cx * scale, y + cy * scale, scale, scale)
+                }
+                g.drawImage(frame, x, y, def.size * scale, def.size * scale, null)
+            }
+        }
+    } finally {
+        g.dispose()
+    }
+    Files.createDirectories(out.parent)
+    ImageIO.write(sheet, "png", out.toFile())
 }
 
 /** Contact sheet of the GUI / kit / skill-kind icons. */
