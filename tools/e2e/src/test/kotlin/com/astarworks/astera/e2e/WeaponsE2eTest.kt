@@ -126,12 +126,17 @@ class WeaponsE2eTest : E2eBase() {
                 val trace = mutableListOf<String>()
                 val tries = 4
                 repeat(tries) {
+                    rcon("effect give ${a.name} minecraft:instant_health 1 4 true")
                     rcon("effect give ${b.name} minecraft:instant_health 1 4 true")
                     stage(a, b, 4.0, 2_500)
                     val before = hp(b)
+                    val chatBefore = b.chat.size
                     a.useItem(0f, 0f)
                     val after = lowestHp(b, 1_800)
-                    if (before != null && after != null && after < before) hits++
+                    // A lethal hit resets the victim to full HP in the lobby before the poll can see it: the
+                    // "You were defeated" notice is the evidence of that hit.
+                    val killed = b.chatTexts().drop(chatBefore).any { it.contains("defeated", ignoreCase = true) }
+                    if (killed || (before != null && after != null && after < before)) hits++
                     trace += "try: hp $before -> $after; a=${rcon("data get entity ${a.name} Pos").trim().substringAfter("data: ")} b=${rcon("data get entity ${b.name} Pos").trim().substringAfter("data: ")} dim=${rcon("data get entity ${b.name} Dimension").trim().substringAfterLast(" ")}; bar='${status(a)}'"
                 }
                 E2eReport.check(suite, "$item hits a still target $tries/$tries", "server Health") {
