@@ -1,0 +1,512 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://astera.astarworks.com/schemas/vfx.schema.json",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "duration_ticks": {
+            "type": "integer"
+        },
+        "orient": {
+            "type": "string"
+        },
+        "follow": {
+            "type": "boolean"
+        },
+        "sample_ticks": {
+            "type": "integer"
+        },
+        "elements": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxElementYaml"
+            }
+        }
+    },
+    "required": [
+        "id",
+        "duration_ticks",
+        "elements"
+    ],
+    "definitions": {
+        "com.astarworks.astera.core.application.config.VfxCurveYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "arc"
+                        },
+                        "radius": {
+                            "type": "number"
+                        },
+                        "from_deg": {
+                            "type": "number"
+                        },
+                        "to_deg": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "radius",
+                        "from_deg",
+                        "to_deg"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "bezier"
+                        },
+                        "points": {
+                            "type": "array",
+                            "items": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "points"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "circle"
+                        },
+                        "radius": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "radius"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "helix"
+                        },
+                        "radius": {
+                            "type": "number"
+                        },
+                        "turns": {
+                            "type": "number"
+                        },
+                        "height": {
+                            "type": "number"
+                        },
+                        "start_deg": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "radius",
+                        "turns",
+                        "height"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "lightning"
+                        },
+                        "from": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "to": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "segments": {
+                            "type": "integer"
+                        },
+                        "amplitude": {
+                            "type": "number"
+                        },
+                        "seed": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "from",
+                        "to",
+                        "segments",
+                        "amplitude"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "line"
+                        },
+                        "from": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "to": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "from",
+                        "to"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "polygon"
+                        },
+                        "radius": {
+                            "type": "number"
+                        },
+                        "sides": {
+                            "type": "integer"
+                        },
+                        "skip": {
+                            "type": "integer"
+                        },
+                        "rotation_deg": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "radius",
+                        "sides"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "sphere"
+                        },
+                        "radius": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "radius"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "spiral"
+                        },
+                        "start_radius": {
+                            "type": "number"
+                        },
+                        "end_radius": {
+                            "type": "number"
+                        },
+                        "turns": {
+                            "type": "number"
+                        },
+                        "start_deg": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "start_radius",
+                        "end_radius",
+                        "turns"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxElementYaml": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxKindYaml"
+                },
+                "brightness": {
+                    "type": "integer"
+                },
+                "glow_color": {
+                    "type": "string"
+                },
+                "billboard": {
+                    "type": "string"
+                },
+                "view_range": {
+                    "type": "number"
+                },
+                "start_tick": {
+                    "type": "integer"
+                },
+                "end_tick": {
+                    "type": "integer"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "formation": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxFormationYaml"
+                },
+                "jitter": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxJitterYaml"
+                },
+                "keyframes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxKeyframeYaml"
+                    }
+                },
+                "oscillate": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxOscillateYaml"
+                }
+            },
+            "required": [
+                "id",
+                "kind",
+                "keyframes"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxFormationYaml": {
+            "type": "object",
+            "properties": {
+                "curve": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxCurveYaml"
+                },
+                "tilt": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxTiltYaml"
+                },
+                "offset": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "align": {
+                    "type": "string"
+                },
+                "stagger_ticks": {
+                    "type": "integer"
+                },
+                "reverse": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "curve"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxJitterYaml": {
+            "type": "object",
+            "properties": {
+                "position": {
+                    "type": "number"
+                },
+                "rotation_deg": {
+                    "type": "number"
+                },
+                "scale": {
+                    "type": "number"
+                }
+            }
+        },
+        "com.astarworks.astera.core.application.config.VfxKeyframeYaml": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "integer"
+                },
+                "translate": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "rotate": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "scale": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "ease": {
+                    "type": "string"
+                },
+                "block": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "t"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxKindYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "block"
+                        },
+                        "block": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "block"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "item"
+                        },
+                        "item": {
+                            "type": "string"
+                        },
+                        "display_mode": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "item"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "particle"
+                        },
+                        "particle_id": {
+                            "type": "string"
+                        },
+                        "every_ticks": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "particle_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "text"
+                        },
+                        "text": {
+                            "type": "string"
+                        },
+                        "background": {
+                            "type": "string"
+                        },
+                        "shadow": {
+                            "type": "boolean"
+                        },
+                        "see_through": {
+                            "type": "boolean"
+                        },
+                        "line_width": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "text"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxOscillateYaml": {
+            "type": "object",
+            "properties": {
+                "axis": {
+                    "type": "string"
+                },
+                "amplitude": {
+                    "type": "number"
+                },
+                "period_ticks": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "axis",
+                "amplitude",
+                "period_ticks"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxTiltYaml": {
+            "type": "object",
+            "properties": {
+                "yaw": {
+                    "type": "number"
+                },
+                "pitch": {
+                    "type": "number"
+                },
+                "roll": {
+                    "type": "number"
+                }
+            }
+        }
+    }
+}

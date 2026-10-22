@@ -84,6 +84,18 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "marker"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "rate"
                         },
                         "multiplier": {

@@ -200,7 +200,7 @@ class VfxContentsTest {
     }
 
     private fun decode(yaml: String): Result<com.astarworks.astera.core.domain.effect.vfx.VfxDefinition, VfxConfigError> {
-        val config = com.astarworks.astera.core.application.config.parser.YamlContentParser.DEFAULT_YAML.decodeFromString(VfxYamlConfig.serializer(), yaml)
+        val config = com.astarworks.astera.core.application.config.parser.YamlContentParser().parse(yaml, VfxYamlConfig.serializer())
         return config.toDefinition()
     }
 }
