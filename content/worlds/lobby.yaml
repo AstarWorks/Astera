@@ -29,7 +29,7 @@ spawn:
 
 # Bump to repaste the build (the old bounds are cleared first). Unchanged => the
 # marker (plugins/Astera-Core/lobby-world.marker) makes boot skip the paste.
-marker_version: 2
+marker_version: 3                 # 3: training island east of the market (F3-11)
 
 rules:
   time_of_day: 6000        # noon

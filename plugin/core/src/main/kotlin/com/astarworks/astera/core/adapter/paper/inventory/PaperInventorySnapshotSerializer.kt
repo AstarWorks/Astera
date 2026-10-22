@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.adapter.paper.inventory
 
 import com.astarworks.astera.core.adapter.paper.lobby.MenuKitTag
+import com.astarworks.astera.core.adapter.paper.lobby.TrainingItemTag
 import com.astarworks.astera.core.application.port.outbound.item.IContentItemRegistryLookup
 import com.astarworks.astera.core.domain.player.InventoryItemSlot
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -174,8 +175,8 @@ public class PaperInventorySnapshotSerializer(
      * WARN and return `null` so the snapshot stays well-shaped.
      */
     private fun encodeSlot(item: ItemStack?, where: String): InventoryItemSlot? {
-        // Lobby menu kit items (ADR-0185) are never part of a snapshot.
-        if (item == null || item.isEmpty || MenuKitTag.isKit(item)) return null
+        // Lobby menu kit items (ADR-0185) and training-rack weapons (ADR-0200) are never part of a snapshot.
+        if (item == null || item.isEmpty || MenuKitTag.isKit(item) || TrainingItemTag.isTraining(item)) return null
         return try {
             val baos = ByteArrayOutputStream()
             BukkitObjectOutputStream(baos).use { it.writeObject(item) }
@@ -206,7 +207,7 @@ public class PaperInventorySnapshotSerializer(
                 try {
                     val bytes = Base64.getDecoder().decode(slot.serializedItemStack)
                     BukkitObjectInputStream(ByteArrayInputStream(bytes)).use { ois ->
-                        (ois.readObject() as? ItemStack)?.takeUnless { MenuKitTag.isKit(it) }
+                        (ois.readObject() as? ItemStack)?.takeUnless { MenuKitTag.isKit(it) || TrainingItemTag.isTraining(it) }
                     }
                 } catch (t: Throwable) {
                     log.warn(

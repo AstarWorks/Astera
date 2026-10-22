@@ -10,7 +10,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * Outbound port: low-level inventory mutation primitives
  * (Wave 5world-events, ADR-0111).
  *
- * Generalises beyond the item-side [com.astarworks.astera.items.application.port.outbound.IItemDelivery]
+ * Generalises beyond the item-side [com.astarworks.astera.core.application.port.outbound.item.IItemDelivery]
  * (which only models give-one-item) so any use case — kit issuance, loot
  * apply, admin tooling, marketplace fulfillment, anti-cheat sweep — can
  * read and mutate a player's inventory through a single neutral port.

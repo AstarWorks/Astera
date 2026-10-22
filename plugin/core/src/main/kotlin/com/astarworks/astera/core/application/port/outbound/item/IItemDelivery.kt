@@ -20,7 +20,20 @@ import com.astarworks.astera.core.domain.item.ItemSpec
  * use cases can map each variant to a localized message key without try-catch.
  */
 public interface IItemDelivery {
-    public fun give(target: IMcPlayer, spec: ItemSpec, amount: Int = 1): DeliveryResult
+    public fun give(
+        target: IMcPlayer,
+        spec: ItemSpec,
+        amount: Int = 1,
+        origin: ItemOrigin = ItemOrigin.STANDARD,
+    ): DeliveryResult
+}
+
+/** Where a delivered stack comes from; [TRAINING] stacks are tagged lobby-only (F3-11, ADR-0200). */
+public enum class ItemOrigin {
+    STANDARD,
+
+    /** Taken from the lobby training weapon rack: never snapshotted, stripped on match entry / world change / quit. */
+    TRAINING,
 }
 
 /** Outcome of a single [IItemDelivery.give] call. */

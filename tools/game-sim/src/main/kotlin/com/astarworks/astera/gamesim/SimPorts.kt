@@ -42,6 +42,11 @@ import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
 import com.astarworks.astera.items.application.port.outbound.IItemCooldownSweepGateway
 import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
+import com.astarworks.astera.items.application.port.outbound.ITrainingInventory
+import com.astarworks.astera.items.application.port.outbound.ITrainingRackGateway
+import com.astarworks.astera.core.application.port.outbound.item.ItemOrigin
+import com.astarworks.astera.items.application.port.outbound.RackFrame
+import com.astarworks.astera.combat.application.port.outbound.ITrainingDummyShells
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.items.adapter.paper.IPaperItemIdResolver
 import com.astarworks.astera.core.domain.item.ItemId
@@ -357,9 +362,99 @@ public class SimPlayerFeedbackGateway(
 
 /** Holds items "in the main hand" for the entity it is given to; the first item given is the held one. */
 public class SimItemDelivery : IItemDelivery {
-    override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int): DeliveryResult {
+
+    /** Lobby-only (training rack) stacks per player, as `astera:training_item` would tag them on Paper. */
+    public val trainingStacks: MutableMap<PlayerId, MutableSet<String>> = ConcurrentHashMap()
+
+    override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int, origin: ItemOrigin): DeliveryResult {
         (target as? SimMcPlayer)?.receive(spec.id) ?: return DeliveryResult.UnknownTemplate(spec.id.value)
+        if (origin == ItemOrigin.TRAINING) {
+            trainingStacks.getOrPut(target.id) { ConcurrentHashMap.newKeySet() }.add(spec.id.value)
+        }
         return DeliveryResult.Delivered
+    }
+}
+
+/** [ITrainingInventory] over [SimItemDelivery.trainingStacks]. */
+public class SimTrainingInventory(private val delivery: SimItemDelivery) : ITrainingInventory {
+    override fun holds(playerId: PlayerId, itemId: ItemId): Boolean =
+        delivery.trainingStacks[playerId]?.contains(itemId.value) == true
+
+    override fun strip(playerId: PlayerId): Int = delivery.trainingStacks.remove(playerId)?.size ?: 0
+
+    override fun holders(): Set<PlayerId> = delivery.trainingStacks.filterValues { it.isNotEmpty() }.keys.toSet()
+}
+
+/** [ITrainingRackGateway] that remembers the frames the rack asked for. */
+public class SimTrainingRackGateway : ITrainingRackGateway {
+    public var frames: List<RackFrame> = emptyList()
+        private set
+
+    override fun ensure(world: WorldId, frames: List<RackFrame>): Int {
+        this.frames = frames
+        return frames.size
+    }
+
+    override fun removeAll() {
+        frames = emptyList()
+    }
+}
+
+/**
+ * [ITrainingDummyShells] for the simulator: a dummy body is an inert [SimEntityKind.MOB] standing at its
+ * post (so the position-backed target query finds it); labels are kept for assertions.
+ */
+public class SimTrainingShells(
+    private val world: SimWorld,
+    private val recorder: TraceRecorder,
+) : ITrainingDummyShells {
+
+    /**
+     * Whether the range's world "is loaded". Off by default so scenarios that do not train keep their
+     * entity list (and trace size) unchanged; a training scenario switches it on.
+     */
+    public var worldLoaded: Boolean = false
+
+    /** Last label lines pushed to each body. */
+    public val labels: MutableMap<PlayerId, List<String>> = linkedMapOf()
+
+    /** Body of the dummy spawned for [spotId], or `null`. */
+    public fun bodyOf(spotId: String): SimEntity? = world.entities.firstOrNull { it.name == "training-dummy-$spotId" }
+
+    override fun spawn(world: WorldId, spot: com.astarworks.astera.core.domain.lobby.TrainingDummySpot, at: Vec3): PlayerId? {
+        if (!worldLoaded) return null
+        val entity = SimEntity(
+            id = newPlayerId(),
+            name = "training-dummy-${spot.id}",
+            kind = SimEntityKind.MOB,
+            position = at,
+            direction = Vec3(0.0, 0.0, 1.0),
+            world = world,
+        )
+        this.world.add(entity)
+        recorder.registerEntity(entity)
+        return entity.id
+    }
+
+    override fun isAlive(id: PlayerId): Boolean = world.find(id) != null
+
+    override fun positionOf(id: PlayerId): Vec3? = world.find(id)?.position
+
+    override fun moveTo(id: PlayerId, at: Vec3) {
+        world.find(id)?.position = at
+    }
+
+    override fun setLabel(id: PlayerId, lines: List<String>) {
+        labels[id] = lines
+    }
+
+    override fun remove(id: PlayerId) {
+        world.remove(id)
+        labels.remove(id)
+    }
+
+    override fun removeAll() {
+        world.entities.filter { it.name.startsWith("training-dummy-") }.forEach { remove(it.id) }
     }
 }
 

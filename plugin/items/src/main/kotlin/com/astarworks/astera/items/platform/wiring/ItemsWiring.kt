@@ -16,6 +16,7 @@ import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.application.service.InMemoryCooldownTracker
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
@@ -28,6 +29,7 @@ import com.astarworks.astera.items.application.config.glow.GlowProfileFileYaml
 import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.items.application.port.outbound.IItemInstanceRepository
 import com.astarworks.astera.items.application.port.outbound.IItemRenderer
+import com.astarworks.astera.items.application.service.training.TrainingRackService
 import com.astarworks.astera.items.application.port.outbound.IRefinementRandomizer
 import com.astarworks.astera.items.application.service.glow.InMemoryGlowProfileRegistry
 import com.astarworks.astera.items.application.service.glow.RecordingItemRenderer
@@ -55,7 +57,15 @@ public class ItemsWiringResult(
     public val triggerListener: ItemSkillTriggerListener,
     /** F1-D: the weapons & items section of `/astera admin panel`. */
     public val adminItemsPanel: AdminItemsPanel,
-)
+    /** F3-11: the lobby training weapon rack; `null` when the host supplied no rack gateway. */
+    public val trainingRack: TrainingRackService?,
+    private val shutdownHooks: List<() -> Unit>,
+) {
+    /** Stops the rack's repair loop and removes its frames. Subscriptions are closed by `WiringContext.close()`. */
+    public fun shutdown() {
+        shutdownHooks.forEach { runCatching(it) }
+    }
+}
 
 /**
  * Host-neutral Items wiring (ADR-0174). Pure construction / registration /
@@ -212,6 +222,36 @@ public object ItemsWiring {
         )
         registrations += adminItemsPanel.install(services.getOrThrow<IGuiIntentRouter>())
 
+        // F3-11 (ADR-0200): lobby training weapon rack, claimed by right-clicking its frames.
+        val shutdownHooks = mutableListOf<() -> Unit>()
+        var trainingRack: TrainingRackService? = null
+        val rackGateway = ports.trainingRack?.invoke(services)
+        val trainingInventory = ports.trainingInventory?.invoke(services)
+        if (rackGateway != null && trainingInventory != null) {
+            val rack = TrainingRackService(
+                range = { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>() },
+                items = itemRegistry,
+                delivery = itemDelivery,
+                server = mcServer,
+                poses = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>() },
+                inventory = trainingInventory,
+                gateway = rackGateway,
+                players = playerGateway,
+                messages = messages,
+                matches = { services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>() },
+            )
+            ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { rack.onMatchStarted(it) }
+            ctx.subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { rack.onMatchFormed(it) }
+            // Players join a match after MatchStarted fires, so also sweep: nobody in a match keeps a training weapon.
+            val sweepLoop = scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) { rack.sweep() }
+            shutdownHooks += { sweepLoop.cancel() }
+            // The lobby world does not exist yet at enable time (it is created on ServerLoad); the loop also repairs lost frames.
+            val rackLoop = scheduler.runRepeatingTicks(initialDelayTicks = 40L, periodTicks = 100L) { rack.ensureRendered() }
+            shutdownHooks += { rackLoop.cancel() }
+            shutdownHooks += { rackGateway.removeAll() }
+            trainingRack = rack
+        }
+
         // Command tree.
         // `/astera items give <target> <item> [amount]` (ADR-0184).
         commands.register("items", giveItemSubcommand(giveItem, itemRegistry))
@@ -267,6 +307,8 @@ public object ItemsWiring {
             handleTrigger = handleTrigger,
             triggerListener = triggerListener,
             adminItemsPanel = adminItemsPanel,
+            trainingRack = trainingRack,
+            shutdownHooks = shutdownHooks,
         )
     }
 }

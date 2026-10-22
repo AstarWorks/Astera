@@ -4,6 +4,8 @@ import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
 import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
+import com.astarworks.astera.core.application.port.outbound.item.ItemOrigin
+import com.astarworks.astera.core.adapter.paper.lobby.TrainingItemTag
 import org.bukkit.Server
 
 /**
@@ -22,11 +24,12 @@ public class PaperItemDelivery(
     private val server: Server,
 ) : IItemDelivery {
 
-    override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int): DeliveryResult {
+    override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int, origin: ItemOrigin): DeliveryResult {
         val bukkitPlayer = server.getPlayer(target.id.uuid)
             ?: return DeliveryResult.InventoryFull(target.name)
 
         val stack = materializer.build(spec, target, amount)
+        if (origin == ItemOrigin.TRAINING) TrainingItemTag.mark(stack, spec.id.value)
         val leftover = bukkitPlayer.inventory.addItem(stack)
         return if (leftover.isEmpty()) {
             DeliveryResult.Delivered
