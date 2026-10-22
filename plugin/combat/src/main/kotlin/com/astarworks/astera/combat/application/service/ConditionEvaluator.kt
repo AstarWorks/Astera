@@ -29,7 +29,10 @@ internal class ConditionEvaluator(
         is Condition.HasStatus -> {
             val targets = targeters.resolvePlayers(condition.targets, ctx)
             statusContainer != null && targets.isNotEmpty() &&
-                targets.all { statusContainer.has(it, condition.statusId) }
+                targets.all {
+                    if (condition.minStacks <= 1) statusContainer.has(it, condition.statusId)
+                    else statusContainer.stacks(it, condition.statusId) >= condition.minStacks
+                }
         }
         is Condition.IsAlly -> pairwise(condition.a, condition.b, ctx, ::areAllies)
         is Condition.IsEnemy -> pairwise(condition.a, condition.b, ctx) { x, y -> !areAllies(x, y) }

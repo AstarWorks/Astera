@@ -2,6 +2,7 @@ package com.astarworks.astera.core.domain.skill.mechanic
 
 import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.effect.DisplaySpec
+import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.effect.animation.ParticleAnimation
 import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.effect.SoundId
@@ -36,7 +37,7 @@ import com.astarworks.astera.core.domain.status.StatusEffectId
  *  - Status (6) — ApplyStatus / RemoveStatus / Cleanse / Ignite / Freeze /
  *    Silence
  *  - Movement (5) — Knockback / Knockup / SetVelocity / Propel / Teleport /
- *    Leap (6 with Leap)
+ *    Leap (6 with Leap) / DashStrike / HitStop
  *  - World (4) — SummonLightning / Summon / SetBlock / RemoveBlock / Explode
  *    (5 with Explode)
  *  - Item (4) — GiveItem / ConsumeItem / ModifyAttribute / SetCooldown
@@ -118,9 +119,14 @@ public sealed class Mechanic {
         override val condition: Condition? = null,
     ) : Mechanic()
 
+    /**
+     * Remove [statusId]. [stacks] `null` removes the whole status; `N` consumes N stacks
+     * (the status disappears when none are left).
+     */
     public data class RemoveStatus(
         override val targets: Targeter,
         val statusId: StatusEffectId,
+        val stacks: IntValue? = null,
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
@@ -216,6 +222,43 @@ public sealed class Mechanic {
     public data class Teleport(
         override val targets: Targeter,
         val destination: LocationRef,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+    ) : Mechanic()
+
+    /**
+     * Lunge the caster [distance] blocks along its look direction over [ticks] ticks (per-tick
+     * teleports), sweeping a capsule of [radius]. Each entity touched runs [onHit] with that entity
+     * as `target` (once per dash when [hitOnce]). [invulnerable]: the caster takes no damage while
+     * dashing. [stopOnBlock]: the dash ends at the first solid block. [followPitch]: dash along the
+     * full look vector instead of the level heading. [targets] is ignored - the caster always dashes.
+     */
+    public data class DashStrike(
+        override val targets: Targeter = Targeter.Caster,
+        val distance: NumericValue,
+        val ticks: IntValue,
+        val radius: NumericValue = NumericValue.Literal(1.2),
+        val hitOnce: BoolValue = BoolValue.Literal(true),
+        val invulnerable: BoolValue = BoolValue.Literal(true),
+        val stopOnBlock: BoolValue = BoolValue.Literal(true),
+        val followPitch: BoolValue = BoolValue.Literal(false),
+        val onHit: List<Mechanic> = emptyList(),
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+    ) : Mechanic()
+
+    /**
+     * Freeze [targets] in place for [ticks] ticks to sell an impact (zero velocity, no walking, no
+     * jumping). [includeCaster] holds the caster too.
+     */
+    public data class HitStop(
+        override val targets: Targeter,
+        val ticks: IntValue,
+        val includeCaster: BoolValue = BoolValue.Literal(false),
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
@@ -404,6 +447,22 @@ public sealed class Mechanic {
     public data class SpawnDisplay(
         override val targets: Targeter,
         val display: DisplaySpec,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+    ) : Mechanic()
+
+    /**
+     * Plays a `content/vfx` display choreography (ADR-0220) at each target. Entity targets
+     * anchor on that entity (and follow it when [follow] / the definition says so);
+     * location targets are fixed. [scale] multiplies every length of the effect.
+     */
+    public data class PlayVfx(
+        override val targets: Targeter,
+        val vfxId: VfxId,
+        val scale: NumericValue = NumericValue.Literal(1.0),
+        val follow: BoolValue? = null,
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),

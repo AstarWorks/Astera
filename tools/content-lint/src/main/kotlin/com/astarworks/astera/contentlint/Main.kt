@@ -149,6 +149,8 @@ internal object SchemaMapping {
         // Wave 5f (ADR-0035, RTM #21): particles are per-file definitions
         // mirroring the weapon / skill shape.
         SchemaTarget("particle.schema.json", "particles"),
+        // ADR-0220: display choreographies, one definition per file.
+        SchemaTarget("vfx.schema.json", "vfx"),
         // element-matrix is a balance singleton, not a directory of authored
         // entries — validate only the one file the schema describes.
         SchemaTarget("element-matrix.schema.json", "balance", singleFile = "element-matrix.yaml"),
@@ -207,9 +209,10 @@ internal class LintRunner(private val cli: CliArgs) {
             skills = idsIn("skills"),
             statuses = idsIn("status"),
             particles = idsIn("particles"),
+            vfx = idsIn("vfx"),
         )
         val out = mutableListOf<FileResult>()
-        for (dir in listOf("skills", "items")) {
+        for (dir in listOf("skills", "items", "vfx")) {
             for (yaml in yamlFilesIn(dir)) {
                 val node = try {
                     yaml.reader().use { YamlToJson.parse(it) }

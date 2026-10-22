@@ -11,6 +11,7 @@ class SemanticChecksTest {
         skills = setOf("example-blast"),
         statuses = setOf("example-burn"),
         particles = setOf("example-burst"),
+        vfx = setOf("demo-cross"),
     )
 
     private fun parse(yaml: String): JsonNode = YamlToJson.parse(StringReader(yaml.trimIndent()))
@@ -149,5 +150,35 @@ class SemanticChecksTest {
     fun `params archetype type is not mistaken for a mechanic`() {
         val node = parse("params: { type: summon }")
         assertThat(SemanticChecks.check(node, known)).isEmpty()
+    }
+
+    @Test
+    fun `play_vfx must reference a known vfx and vfx particle elements a known particle`() {
+        val skill = parse(
+            """
+            id: s
+            phases:
+              cast:
+                - type: play_vfx
+                  targets: { type: caster }
+                  vfx_id: demo-cross
+                - type: play_vfx
+                  targets: { type: caster }
+                  vfx_id: missing-vfx
+            """,
+        )
+        assertThat(SemanticChecks.check(skill, known)).singleElement().asString().contains("unknown vfx id 'missing-vfx'")
+
+        val vfx = parse(
+            """
+            id: v
+            elements:
+              - id: ok
+                kind: { type: particle, particle_id: example-burst }
+              - id: bad
+                kind: { type: particle, particle_id: nope }
+            """,
+        )
+        assertThat(SemanticChecks.check(vfx, known)).singleElement().asString().contains("unknown particle id 'nope'")
     }
 }

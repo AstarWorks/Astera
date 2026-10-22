@@ -15,6 +15,7 @@ import com.astarworks.astera.combat.application.port.outbound.IStatusEffectConta
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
+import com.astarworks.astera.combat.application.service.dash.DashStrikeRunner
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.domain.damage.DamageAttempt
@@ -45,6 +46,7 @@ import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.damage.DamageProfile
+import com.astarworks.astera.core.domain.damage.StackHolder
 import com.astarworks.astera.core.domain.effect.ParticleSpec
 import com.astarworks.astera.core.domain.effect.SoundSpec
 import com.astarworks.astera.core.domain.effect.scheduler.ScheduledParticleSpec
@@ -63,6 +65,7 @@ import com.astarworks.astera.core.domain.skill.value.BoolValue
 import com.astarworks.astera.core.domain.skill.value.IntValue
 import com.astarworks.astera.core.domain.skill.value.NumericValue
 import com.astarworks.astera.core.domain.skill.value.VectorValue
+import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.world.WorldId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -174,6 +177,8 @@ public class MechanicDispatcher(
     private val blockEditGuard: IBlockEditGuard? = null,
     /** WP5: SpawnDisplay. */
     private val displayGateway: IDisplayEntityGateway? = null,
+    /** ADR-0220: catalog for `play_vfx`; needs [displayGateway] too, otherwise the mechanic warns and drops. */
+    private val vfxRegistry: com.astarworks.astera.core.application.port.outbound.IVfxRegistry? = null,
     /** WP5: Summon. */
     private val summonGateway: ISummonGateway? = null,
     /** WP5: summon ownership / allegiance bookkeeping, shared with the host's targeting guard. */
@@ -242,8 +247,56 @@ public class MechanicDispatcher(
         log = log,
     )
 
-    /** Undoes every temporary world change batch B made (blocks, displays, summons, glow). */
+    /** ADR-0220: `play_vfx` display choreographies; null unless both the display gateway and the vfx catalog are wired. */
+    private val vfxMechanics: com.astarworks.astera.combat.application.service.vfx.VfxMechanics? =
+        if (displayGateway != null && vfxRegistry != null) {
+            com.astarworks.astera.combat.application.service.vfx.VfxMechanics(
+                player = com.astarworks.astera.combat.application.service.vfx.VfxPlayer(
+                    scheduler = scheduler,
+                    displays = displayGateway,
+                    registry = vfxRegistry,
+                    emitParticle = ::emitVfxParticle,
+                    log = log,
+                ),
+                targeters = targeterResolver,
+                poseLookup = poseLookup,
+                scheduler = scheduler,
+                log = log,
+            )
+        } else {
+            null
+        }
+
+    private fun emitVfxParticle(world: WorldId, at: Vec3, id: com.astarworks.astera.core.domain.effect.ParticleId) {
+        val spec = particleRegistry?.find(id)?.toParticleSpec(countOverride = null)
+            ?: ParticleSpec(key = id.value, count = 1)
+        val ps = particleScheduler
+        if (ps != null) {
+            ps.schedule(ScheduledParticleSpec.EmitOnce(particle = spec, position = at, atTick = scheduler.currentTick(), world = world))
+        } else {
+            worldGateway.spawnParticle(world, at, spec)
+        }
+    }
+
+    /** `dash_strike` runtime (per-tick teleports + capsule sweep). */
+    private val dashRunner = DashStrikeRunner(
+        scheduler = scheduler,
+        worldGateway = worldGateway,
+        poseLookup = poseLookup,
+        nearbyQuery = nearbyQuery,
+        effects = entityEffects,
+        applyStatus = applyStatus,
+        statusContainer = statusContainer,
+        statusRegistry = statusRegistry,
+        living = ::living,
+        runOnHit = { mechanics, hitCtx -> dispatch(mechanics, hitCtx) },
+        log = log,
+    )
+
+    /** Undoes every temporary world change batch B made (blocks, displays, summons, glow) and ends running dashes. */
     public fun shutdown() {
+        dashRunner.shutdown()
+        vfxMechanics?.shutdown()
         worldMechanics.shutdown()
     }
 
@@ -337,13 +390,14 @@ public class MechanicDispatcher(
                     log.warn("Damage mechanic dropped: ApplyDamageUseCase not wired")
                     return
                 }
-                val profile = buildDamageProfile(mechanic.components)
                 val sourceSkillId = ctx.castedSkills.firstOrNull() ?: FALLBACK_SKILL_ID
+                // per_stack.consume: stacks counted before the hit, removed once every target has been hit.
+                val consumed = LinkedHashMap<Pair<PlayerId, StatusEffectId>, Int>()
                 for (target in targets) {
                     val outcome = applyDamage.execute(
                         DamageAttempt(
                             targetId = target,
-                            baseProfile = profile,
+                            baseProfile = buildDamageProfile(mechanic.components, target, ctx, consumed),
                             source = DamageSource.Skill(
                                 skillId = sourceSkillId,
                                 casterId = ctx.actorId,
@@ -355,6 +409,7 @@ public class MechanicDispatcher(
                         killedThisDispatch += target
                     }
                 }
+                for ((key, stacks) in consumed) statusContainer?.removeStacks(key.first, key.second, stacks)
             }
 
             is Mechanic.Heal -> worldMechanics.heal(mechanic, ctx)
@@ -372,6 +427,7 @@ public class MechanicDispatcher(
                 }
                 val durationTicks = resolveInt(mechanic.effectDurationTicks, ctx)
                 val chance = resolveDouble(mechanic.chance, ctx).coerceIn(0.0, 1.0)
+                val stacks = resolveInt(mechanic.stackCount, ctx).coerceAtLeast(1)
                 for (target in targets) {
                     if (chance < 1.0 && randomizer.nextDouble() > chance) continue
                     applyStatus.execute(
@@ -379,14 +435,19 @@ public class MechanicDispatcher(
                         effectId = mechanic.statusId,
                         durationTicks = durationTicks,
                         sourceId = ctx.actorId,
+                        stacks = stacks,
                     )
                 }
             }
 
             is Mechanic.RemoveStatus -> {
                 val container = statusContainer ?: return warnMissing("RemoveStatus", "IStatusEffectContainer")
+                val stacks = mechanic.stacks?.let { resolveInt(it, ctx) }
                 for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
-                    container.remove(target, mechanic.statusId)
+                    when {
+                        stacks == null -> container.remove(target, mechanic.statusId)
+                        stacks > 0 -> container.removeStacks(target, mechanic.statusId, stacks)
+                    }
                 }
             }
 
@@ -488,6 +549,32 @@ public class MechanicDispatcher(
                 for (target in targets) {
                     worldGateway.teleport(target, dest.position, dest.world)
                 }
+            }
+
+            is Mechanic.DashStrike -> {
+                dashRunner.start(
+                    caster = ctx.actorId,
+                    params = DashStrikeRunner.Params(
+                        distance = resolveDouble(mechanic.distance, ctx),
+                        ticks = resolveInt(mechanic.ticks, ctx),
+                        radius = resolveDouble(mechanic.radius, ctx).coerceAtLeast(0.0),
+                        hitOnce = resolveBool(mechanic.hitOnce, ctx),
+                        invulnerable = resolveBool(mechanic.invulnerable, ctx),
+                        stopOnBlock = resolveBool(mechanic.stopOnBlock, ctx),
+                        followPitch = resolveBool(mechanic.followPitch, ctx),
+                        onHit = mechanic.onHit,
+                    ),
+                    ctx = ctx,
+                )
+            }
+
+            is Mechanic.HitStop -> {
+                val effects = entityEffects ?: return warnMissing("HitStop", "IEntityEffectsGateway")
+                val holdTicks = resolveInt(mechanic.ticks, ctx).coerceAtLeast(0)
+                if (holdTicks == 0) return
+                val held = LinkedHashSet(living(targeterResolver.resolvePlayers(mechanic.targets, ctx)))
+                if (resolveBool(mechanic.includeCaster, ctx)) held += ctx.actorId
+                for (id in held) effects.hold(id, holdTicks)
             }
 
             // ===== World ==============================================
@@ -606,6 +693,10 @@ public class MechanicDispatcher(
             }
 
             is Mechanic.SpawnDisplay -> worldMechanics.display(mechanic, ctx)
+            is Mechanic.PlayVfx -> {
+                val vfx = vfxMechanics ?: return warnMissing("PlayVfx", "IVfxRegistry / IDisplayEntityGateway")
+                vfx.play(mechanic, ctx, resolveDouble(mechanic.scale, ctx), mechanic.follow?.let { resolveBool(it, ctx) })
+            }
             is Mechanic.Glow -> worldMechanics.glow(mechanic, ctx)
             is Mechanic.CameraShake -> worldMechanics.cameraShake(mechanic, ctx)
 
@@ -686,7 +777,16 @@ public class MechanicDispatcher(
 
             is Mechanic.Loop -> {
                 val iters = resolveInt(mechanic.count, ctx).coerceAtLeast(0)
-                repeat(iters) { dispatch(mechanic.mechanics, ctx.copy(tickIndex = ctx.tickIndex + it)) }
+                val stride = resolveInt(mechanic.strideTicks, ctx).coerceAtLeast(0)
+                repeat(iters) { i ->
+                    val iterCtx = ctx.copy(tickIndex = ctx.tickIndex + i)
+                    // Iteration i runs i * stride ticks after the loop fires (stride 0 = all at once).
+                    if (stride > 0 && i > 0) {
+                        scheduler.runLater(ticks((i.toLong() * stride))) { dispatch(mechanic.mechanics, iterCtx) }
+                    } else {
+                        dispatch(mechanic.mechanics, iterCtx)
+                    }
+                }
             }
 
             is Mechanic.Choose -> {
@@ -708,12 +808,38 @@ public class MechanicDispatcher(
 
     // -------- Value resolution (CEL injection points) ----------------
 
-    private fun buildDamageProfile(components: List<DamageComponent>): DamageProfile =
+    private fun buildDamageProfile(
+        components: List<DamageComponent>,
+        target: PlayerId,
+        ctx: MechanicContext,
+        consumed: MutableMap<Pair<PlayerId, StatusEffectId>, Int>,
+    ): DamageProfile =
         if (components.isEmpty()) {
             DamageProfile.single(0.0, DamageAttribute.PHYSICAL)
         } else {
-            DamageProfile(components)
+            DamageProfile(components.map { foldPerStack(it, target, ctx, consumed) })
         }
+
+    /**
+     * Folds `per_stack` into the component's base for [target]: `final += amount x stacks`, where
+     * the bonus lands after the component multiplier (so it is divided by it here).
+     */
+    private fun foldPerStack(
+        component: DamageComponent,
+        target: PlayerId,
+        ctx: MechanicContext,
+        consumed: MutableMap<Pair<PlayerId, StatusEffectId>, Int>,
+    ): DamageComponent {
+        val bonus = component.perStack ?: return component
+        val holder = if (bonus.on == StackHolder.CASTER) ctx.actorId else target
+        val stacks = statusContainer?.stacks(holder, bonus.statusId) ?: 0
+        if (stacks <= 0) return component.copy(perStack = null)
+        if (bonus.consume) consumed.putIfAbsent(holder to bonus.statusId, stacks)
+        val multiplier = resolveDouble(component.multiplier, ctx)
+        val extra = bonus.amount * stacks
+        val base = resolveDouble(component.base, ctx) + if (multiplier > 0.0) extra / multiplier else extra
+        return component.copy(base = NumericValue.Literal(base), perStack = null)
+    }
 
     internal fun resolveDouble(value: NumericValue, ctx: MechanicContext): Double = when (value) {
         is NumericValue.Literal -> value.value
