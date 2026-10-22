@@ -19,6 +19,8 @@ data class CheckResult(
 object E2eReport {
     val results = CopyOnWriteArrayList<CheckResult>()
     val notes = CopyOnWriteArrayList<String>()
+    /** Pre-rendered markdown sections (title -> table body), appended after the evidence. */
+    val tables = java.util.concurrent.ConcurrentHashMap<String, String>()
     private val failuresThisTest = ThreadLocal.withInitial { mutableListOf<String>() }
 
     /**
@@ -73,6 +75,7 @@ class ReportWriter : LauncherSessionListener {
             sb.append("\n## Notes\n\n")
             E2eReport.notes.forEach { sb.append("- $it\n") }
         }
+        E2eReport.tables.toSortedMap().forEach { (title, body) -> sb.append("\n## $title\n\n$body\n") }
         val file = File(path)
         file.parentFile?.mkdirs()
         file.writeText(sb.toString())

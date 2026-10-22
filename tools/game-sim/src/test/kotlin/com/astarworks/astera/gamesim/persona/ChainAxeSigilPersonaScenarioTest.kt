@@ -48,7 +48,7 @@ class ChainAxeSigilPersonaScenarioTest {
         var peak = sim.displays.active.size
         repeat(ticks) {
             advance(1)
-            peak = maxOf(peak, sim.displays.active.size)
+            peak = maxOf(peak, sim.displays.peakActive)
         }
         return peak
     }
@@ -60,7 +60,7 @@ class ChainAxeSigilPersonaScenarioTest {
         var last = from
         repeat(ticks) {
             advance(1)
-            peak = maxOf(peak, sim.displays.active.size)
+            peak = maxOf(peak, sim.displays.peakActive)
             val now = hp(victim)
             if (now < last) hits++
             last = now
