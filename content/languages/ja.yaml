@@ -1921,6 +1921,18 @@ astera:
       name: "再生"
     evasive:
       name: "回避"
+    tremor:
+      name: "振動"
+    rupture:
+      name: "破裂"
+    sinking:
+      name: "沈潜"
+    poise:
+      name: "呼吸"
+    charge:
+      name: "チャージ"
+    immunity:
+      name: "無敵"
 
   # F3-2: message keys referenced from Kotlin (MessageKey / labelKey / button / text literals).
   damage.target_offline: "<red>対象のプレイヤーはオフラインです。</red>"
