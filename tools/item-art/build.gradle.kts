@@ -34,7 +34,7 @@ application {
 
 tasks.named<JavaExec>("run") {
     workingDir = rootDir
-    args = listOf("write", "$rootDir/content", "$rootDir/docs/assets/item-art-preview.png")
+    args = listOf("write", "$rootDir/content", "$rootDir/docs/assets/item-art-preview.png", "$rootDir/docs/assets/item-icons-preview.png")
 }
 
 val checkItemArt = tasks.register<JavaExec>("checkItemArt") {

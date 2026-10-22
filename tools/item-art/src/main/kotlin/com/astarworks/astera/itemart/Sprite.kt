@@ -14,14 +14,14 @@ internal data class P(val x: Double, val y: Double)
  * from a top-left light (edge pixels facing up/left get the light tone, down/right the shadow tone),
  * adds seeded dither, then an outline and an optional glow.
  */
-internal class Sprite(private val seed: Long) {
+internal class Sprite(private val seed: Long, private val partEdges: Boolean = false) {
     val size: Int = SIZE
     private val part = IntArray(SIZE * SIZE)
     private val ramps = ArrayList<Ramp>()
     private var glow: Glow? = null
     private val sparks = ArrayList<Triple<Int, Int, Int>>()
 
-    private class Glow(val cx: Double, val cy: Double, val radius: Double, val color: Int)
+    private class Glow(val cx: Double, val cy: Double, val radius: Double, val color: Int, val alpha: Int)
 
     fun ramp(r: Ramp): Int { ramps.add(r); return ramps.size }
 
@@ -56,7 +56,7 @@ internal class Sprite(private val seed: Long) {
         if (x in 0 until SIZE && y in 0 until SIZE) part[y * SIZE + x] = id
     }
 
-    fun glow(cx: Double, cy: Double, radius: Double, color: Int) { glow = Glow(cx, cy, radius, color) }
+    fun glow(cx: Double, cy: Double, radius: Double, color: Int, alpha: Int = GLOW_ALPHA) { glow = Glow(cx, cy, radius, color, alpha) }
 
     fun spark(x: Int, y: Int, color: Int) { sparks.add(Triple(x, y, color)) }
 
@@ -75,12 +75,14 @@ internal class Sprite(private val seed: Long) {
             if (p == 0) continue
             val r = ramps[p - 1]
             if (r.flat) { argb[y * SIZE + x] = r.mid; continue }
-            val litEdge = at(x, y - 1) == 0 || at(x - 1, y) == 0
-            val shadeEdge = at(x, y + 1) == 0 || at(x + 1, y) == 0
+            // partEdges (GUI icons): edges also form against another part, so glyphs bevel on their plaque.
+            fun open(nx: Int, ny: Int): Boolean = at(nx, ny).let { if (partEdges) it != p else it == 0 }
+            val litEdge = open(x, y - 1) || open(x - 1, y)
+            val shadeEdge = open(x, y + 1) || open(x + 1, y)
             var tone = 1
             if (litEdge && !shadeEdge) tone = 2
             if (shadeEdge && !litEdge) tone = 0
-            if (litEdge && at(x, y - 1) == 0 && at(x - 1, y) == 0) tone = 3
+            if (litEdge && open(x, y - 1) && open(x - 1, y)) tone = 3
             if (tone == 1) {
                 val n = hash(x, y) % 100
                 if (n < 7) tone = 2 else if (n < 13) tone = 0
@@ -101,7 +103,7 @@ internal class Sprite(private val seed: Long) {
                 val d = Math.hypot(x + 0.5 - g.cx, y + 0.5 - g.cy)
                 if (d >= g.radius) continue
                 val f = 1.0 - d / g.radius
-                val alpha = (GLOW_ALPHA * f * f).toInt()
+                val alpha = (g.alpha * f * f).toInt()
                 if (alpha > 0) outlined[y * SIZE + x] = (alpha shl 24) or (g.color and 0xFFFFFF)
             }
         }

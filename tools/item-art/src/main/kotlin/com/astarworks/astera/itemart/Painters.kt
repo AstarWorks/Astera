@@ -50,6 +50,13 @@ internal object BladePainter {
         val r = at(gripLen + guardLen + 0.4, d.guardHalfWidth)
         s.disc(l.x, l.y, 0.9, guard)
         s.disc(r.x, r.y, 0.9, guard)
+        // faint enchant halo around the blade and a glint at the tip
+        val mid = at(b0 + d.length * 0.5, 0.0)
+        d.halo?.let { s.glow(mid.x, mid.y, d.length * 0.55, it, alpha = 70) }
+        val gl = at(tip + 1.5, 2.5)
+        s.spark(gl.x.toInt(), gl.y.toInt(), 0xFFFFFFFF.toInt())
+        s.spark(gl.x.toInt() + 1, gl.y.toInt(), 0xCCFFFFFF.toInt())
+        s.spark(gl.x.toInt(), gl.y.toInt() - 1, 0xCCFFFFFF.toInt())
     }
 }
 
@@ -160,6 +167,8 @@ internal object GunPainter {
         )[rnd.nextInt(3)])
         val accent = s.ramp(Ramp(shade(d.accent, 0.55), d.accent, shade(d.accent, 1.3), shade(d.accent, 1.7)))
         val muzzle = rnd.nextInt(3) - 1.0 // seeded +-1px barrel length
+        val gx = when (d.kind) { GunKind.PISTOL -> 16.0 to 12.5; GunKind.RIFLE -> 21.0 to 9.0; GunKind.SHOTGUN -> 11.0 to 13.8 }
+        s.glow(gx.first, gx.second, 6.5, d.accent, alpha = 90)
         when (d.kind) {
             GunKind.PISTOL -> {
                 s.rect(8.0, 15.0, 20.0, 17.5, dark)
@@ -178,14 +187,14 @@ internal object GunPainter {
                 s.poly(listOf(P(10.0, 17.0), P(13.5, 17.0), P(12.0, 24.0), P(8.5, 24.0)), grip)
                 s.rect(12.0, 17.0, 16.0, 23.0, dark)
                 s.rect(10.0, 11.0, 19.0, 17.0, dark)
-                s.rect(19.0, 12.0, 31.0 + muzzle, 14.2, metal)
+                s.rect(19.0, 12.0, 30.0 + minOf(muzzle, 0.0), 14.2, metal)
                 s.rect(19.0, 11.5, 26.0, 15.5, wood)
                 s.rect(11.0, 13.2, 18.0, 14.4, accent)
                 s.rect(11.8, 9.6, 13.0, 11.0, dark)
                 s.rect(18.6, 9.6, 19.8, 11.0, dark)
                 s.rect(11.0, 6.6, 21.5, 9.8, dark)
                 s.disc(21.6, 8.2, 1.4, accent)
-                s.rect(29.0 + muzzle, 10.8, 30.2 + muzzle, 12.0, dark)
+                s.rect(28.0 + minOf(muzzle, 0.0), 10.8, 29.2 + minOf(muzzle, 0.0), 12.0, dark)
             }
             GunKind.SHOTGUN -> {
                 s.poly(listOf(P(1.0, 12.0), P(8.5, 11.0), P(8.5, 19.0), P(4.0, 23.5), P(1.0, 23.5)), wood)
