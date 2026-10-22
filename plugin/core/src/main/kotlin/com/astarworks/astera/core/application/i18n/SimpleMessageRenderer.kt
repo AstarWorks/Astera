@@ -27,14 +27,24 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * Minecraft / Paper imports (Konsist guard in :tools:architecture-test).
  */
 public class SimpleMessageRenderer(
-    private val languages: Map<String, Map<String, Any>>,
+    languages: Map<String, Map<String, Any>>,
     private val localeResolver: (PlayerId?) -> String?,
     private val defaultLocale: String = "en",
 ) : IMessageRenderer {
 
     private val defaultLocaleCode: LocaleCode = LocaleCode.parse(defaultLocale)
 
+    /** Immutable snapshot; [replaceLanguages] swaps the reference so readers never see a half-loaded table. */
+    @Volatile
+    private var languages: Map<String, Map<String, Any>> = languages
+
+    /** Atomically swap the whole key table (`/astera admin reload languages`). */
+    public fun replaceLanguages(next: Map<String, Map<String, Any>>) {
+        languages = next
+    }
+
     override fun render(playerId: PlayerId?, key: MessageKey, placeholders: Map<String, String>): String {
+        val languages = languages
         val locale = normalize(localeResolver(playerId)) ?: defaultLocale
         val template = (languages[locale]?.get(key.value) as? String)
             ?: (languages[defaultLocale]?.get(key.value) as? String)
@@ -43,6 +53,7 @@ public class SimpleMessageRenderer(
     }
 
     override fun renderLore(playerId: PlayerId?, key: MessageKey, placeholders: Map<String, String>): List<String> {
+        val languages = languages
         val locale = normalize(localeResolver(playerId)) ?: defaultLocale
         @Suppress("UNCHECKED_CAST")
         val template = (languages[locale]?.get(key.value) as? List<String>)

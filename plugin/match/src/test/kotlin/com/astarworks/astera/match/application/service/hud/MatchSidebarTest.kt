@@ -1,7 +1,6 @@
 package com.astarworks.astera.match.application.service.hud
 
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
-import com.astarworks.astera.core.application.service.InMemoryPlayerSessionRepository
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.i18n.LocalizedLore
@@ -15,8 +14,6 @@ import com.astarworks.astera.core.domain.match.Team
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.nexus.NexusPillarTier
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.core.domain.player.PlayerSession
-import com.astarworks.astera.core.domain.player.SessionState
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.match.application.service.matchmaking.InMemoryMatchmaker
@@ -297,12 +294,10 @@ class MatchSidebarTest {
         val scheduler = FakeScheduler()
         val hud = FakeHudGateway(scheduler = scheduler)
         val matches = InMemoryMatchRepository()
-        val sessions = InMemoryPlayerSessionRepository()
         val matchmaker = InMemoryMatchmaker(eventBus = FakeDomainEventBus())
     }
 
     private fun LobbyFixture.service() = LobbySidebarService(
-        sessions = sessions,
         matches = matches,
         matchmaker = matchmaker,
         hud = hud,
@@ -317,9 +312,9 @@ class MatchSidebarTest {
     @Test
     fun `the lobby sidebar shows players online, queue state and stars`() {
         val f = LobbyFixture()
-        f.sessions.upsert(PlayerSession(p1, SessionState.Lobby))
-        f.sessions.upsert(PlayerSession(p2, SessionState.Lobby))
         val service = f.service()
+        service.onJoined(p1)
+        service.onJoined(p2)
 
         service.refreshAll()
         val idle = f.sidebarOf(p1)
@@ -339,9 +334,9 @@ class MatchSidebarTest {
     @Test
     fun `players in a live match are left to the match sidebar and get the lobby back afterwards`() {
         val f = LobbyFixture()
-        f.sessions.upsert(PlayerSession(p1, SessionState.Lobby))
         f.matches.save(match())
         val service = f.service()
+        service.onJoined(p1)
 
         service.refreshAll()
         assertThat(f.hud.operations).isEmpty()
@@ -355,9 +350,8 @@ class MatchSidebarTest {
     @Test
     fun `an unchanged lobby is not redrawn by the poll`() {
         val f = LobbyFixture()
-        f.sessions.upsert(PlayerSession(p1, SessionState.Lobby))
         val service = f.service()
-        service.refreshAll()
+        service.onJoined(p1)
         val before = f.hud.operations.size
 
         f.scheduler.advanceTicks(60)

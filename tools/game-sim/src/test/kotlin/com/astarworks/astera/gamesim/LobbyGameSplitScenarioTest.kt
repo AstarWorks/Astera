@@ -30,6 +30,20 @@ class LobbyGameSplitScenarioTest {
     private fun commandNames(sim: GameSim): Set<String> = sim.commandTree.literals.map { it.name }.toSet()
 
     @Test
+    fun `lobby-role server shows the lobby sidebar to a joining player`() {
+        val lobby = GameSim.boot("split-lobby-sidebar", role = ServerRole.LOBBY, serverName = lobbyName)
+        try {
+            val player = lobby.spawnPlayer("p1")
+            lobby.step(40)
+            val sidebar = checkNotNull(lobby.hud.sidebar(player.id)) { "no lobby sidebar on a LOBBY-role server" }
+            assertThat(sidebar.titleKey.value).isEqualTo("astera.hud.lobby.title")
+            assertThat(sidebar.lines).isNotEmpty()
+        } finally {
+            lobby.shutdown()
+        }
+    }
+
+    @Test
     fun `roles gate lobby-only and match-only features`() {
         val lobby = GameSim.boot("split-roles-lobby", role = ServerRole.LOBBY, serverName = lobbyName)
         val game = GameSim.boot("split-roles-game", role = ServerRole.GAME, serverName = gameName)

@@ -3,7 +3,6 @@ package com.astarworks.astera.match.platform.wiring
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
-import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.event.CurrencyChanged
@@ -42,7 +41,6 @@ internal object MatchHudWiring {
         val subscriptions = env.ctx.subscriptions
         val eventBus = env.eventBus
         val modes = services.get<IGameModeFrameworkRegistry>()
-        val sessions = services.get<IPlayerSessionRepository>()
         // Resolved per call: the economy plugin registers the ledger after match wiring ran.
         val stars: (com.astarworks.astera.core.domain.player.PlayerId) -> Long? =
             { player -> services.get<ICurrencyLedger>()?.balance(player, Currency.STAR) }
@@ -73,12 +71,7 @@ internal object MatchHudWiring {
         subscriptions += eventBus.subscribe(CurrencyChanged::class) { matchSidebar.refreshPlayer(it.playerId) }
 
         if (!env.ctx.serverRole.hostsLobby) return // no lobby on a game-only backend (ADR-0179)
-        if (sessions == null) {
-            env.ctx.logger.warning("Lobby sidebar skipped — IPlayerSessionRepository is not registered.")
-            return
-        }
         val lobbySidebar = LobbySidebarService(
-            sessions = sessions,
             matches = env.matches,
             matchmaker = matchmaker,
             hud = hudGateway,
@@ -88,8 +81,8 @@ internal object MatchHudWiring {
         )
         env.shutdownHooks += { lobbySidebar.stop() }
 
-        subscriptions += eventBus.subscribe(PlayerJoinedServer::class) { lobbySidebar.refreshAll() }
-        subscriptions += eventBus.subscribe(PlayerQuitServer::class) { lobbySidebar.refreshAll() }
+        subscriptions += eventBus.subscribe(PlayerJoinedServer::class) { lobbySidebar.onJoined(it.playerId) }
+        subscriptions += eventBus.subscribe(PlayerQuitServer::class) { lobbySidebar.onQuit(it.playerId) }
         subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class) { lobbySidebar.refresh(it.playerId) }
         subscriptions += eventBus.subscribe(MatchQueueJoined::class) { lobbySidebar.refresh(it.playerId) }
         subscriptions += eventBus.subscribe(MatchQueueLeft::class) { lobbySidebar.refresh(it.playerId) }
