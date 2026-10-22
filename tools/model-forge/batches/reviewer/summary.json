@@ -1,0 +1,149 @@
+[
+  {
+    "item": "bastion-greatsword",
+    "sha256": "299043b54c93af2e07fd29a811919fb4c89191988fa5933f3dcc37cb1cc741aa",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 60
+  },
+  {
+    "item": "couture-rapier",
+    "sha256": "7072365dc62d3a45012afa1aad312a2cb6f2cc5c6b18d9c7fa8f5bb248c7731f",
+    "views": 35,
+    "coplanar_candidates": 58,
+    "near_candidates": 0
+  },
+  {
+    "item": "crimson-chain-axe",
+    "sha256": "2d21efbb2c6aecce6e008f8d9b9ba0ac3685351d471baf535c101a623be7212b",
+    "views": 35,
+    "coplanar_candidates": 271,
+    "near_candidates": 30
+  },
+  {
+    "item": "dagger",
+    "sha256": "bc5125a627bde9c4ba50c4320c57f2f8d55cb9036af41dca2376da9a105a893a",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 184
+  },
+  {
+    "item": "edict-blade",
+    "sha256": "8ad15c5e6bb555792c006737df71a005055c4fd17fac0777bdaa4db8b9a49d6e",
+    "views": 35,
+    "coplanar_candidates": 16,
+    "near_candidates": 1
+  },
+  {
+    "item": "ember-gauntlet",
+    "sha256": "c19f4ab7ef0d4bede4fc6fd144734395194bf88666a35cb17252aa7918e47a75",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 140
+  },
+  {
+    "item": "fire-staff",
+    "sha256": "ea291cf3f951b91402538cdd68d3b0735a029a59d58942fe10529ce61db95de5",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 7
+  },
+  {
+    "item": "frost-staff",
+    "sha256": "60d031222492c4cd18c1aaf9607fa2ec584ae4671bc2a81c631fc84b61666a42",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 167
+  },
+  {
+    "item": "gossamer-katana",
+    "sha256": "f3e8f686bae3f84a12bbfdc4e1220b69525eb2f546b0c1ee86140c594eec2788",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 315
+  },
+  {
+    "item": "greatsword",
+    "sha256": "60c0ae049463c45ddc83c6022a514c048b8a2c361424c5b5bef9b2aac459e09b",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 54
+  },
+  {
+    "item": "knight-sword",
+    "sha256": "ba9412f7d78622f8c9d5a0c636110ec2fb50bc70b5892409e8be441209d061f3",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 54
+  },
+  {
+    "item": "orrery-staff",
+    "sha256": "6acfc44dee6401b337b2c4afa25c8855b17bdfd58b704f97734e83cecd1692e8",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 112
+  },
+  {
+    "item": "pistol",
+    "sha256": "baf110d4952172125a8e1b822b4ef804b0f781d95bd6794d8772c0bf5a0b1f4d",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 24
+  },
+  {
+    "item": "rifle",
+    "sha256": "7d6ab19dad7220cb3cbfe9dfcbf9cbe7896b5dda6eca8fec4c310c93d63ea1ce",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 90
+  },
+  {
+    "item": "rtm-blaster",
+    "sha256": "db319701c2280ffabdc2eb13960eb9e21d9421c3e2b076a2674688e23241af92",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 150
+  },
+  {
+    "item": "shotgun",
+    "sha256": "1cd2c9139845337b7762bbe2adbcf1fdcd548cc679efa651ee7fe7efc1229f48",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 140
+  },
+  {
+    "item": "sigil-rifle",
+    "sha256": "9709dfa1c9efb04103a673ec28da394a63717ec432239f3f1e3db4f677de6e78",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 134
+  },
+  {
+    "item": "thunder-staff",
+    "sha256": "cf0357dc73c58e0b026bf93b8b1f00a7d74ba180231cb252dd9f934e73da7174",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 105
+  },
+  {
+    "item": "vendetta-rifle",
+    "sha256": "cd7b403e33523190392f3c4d286f66eac2d3d182df3b3857f390255d6a524ba6",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 137
+  },
+  {
+    "item": "verdant-staff",
+    "sha256": "eaab459a24dccde22e9bfc5ae6558eb1856c18510123d52fd16fa3c1ade58c2a",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 133
+  },
+  {
+    "item": "verdict-hammer",
+    "sha256": "7a65e985d217374207a1db47fd3a5e086f2bab3236d1bd008dd70b2cb6bf3014",
+    "views": 35,
+    "coplanar_candidates": 0,
+    "near_candidates": 211
+  }
+]

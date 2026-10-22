@@ -195,3 +195,80 @@ Lighting, bobbing height and the frame reference are illustrative. Swing/use,
 FOV changes, shader packs, glint and exact live-client animation remain client
 review items. Do not mistake a thin barrel in an isolated transform view for a
 wrong in-game muzzle direction: inspect the player context and side view.
+
+## Interactive all-angle self-review (no Minecraft)
+
+Build a portable HTML snapshot from the **actual authored JSON and PNG atlases**:
+
+```sh
+(cd tools/skill-viewer && bun install --frozen-lockfile)
+python3 tools/model-forge/context_preview.py --viewer --out tools/model-forge/work/reviewer
+# Open tools/model-forge/work/reviewer/viewer.html directly in a browser.
+```
+
+The HTML embeds geometry, textures and JavaScript. No server, CDN, credentials,
+Minecraft login or network connection is required. Rebuild after changing assets;
+it is a snapshot, not a live link. An optional trailing list of item IDs limits
+export. Each item's SHA256 covers the resolved model and embedded texture pixels.
+
+Drag to orbit, scroll to zoom, right-drag to pan. Switch between raw model and all
+item contexts. Pick a face or named element, isolate/hide it, focus it, or inspect
+clay/wireframe/xray. Empty-space clicking clears selection. Top and bottom buttons
+reach the OrbitControls pole limit. The FOV slider affects perspective cameras.
+Saved PNG and camera JSON have separate download buttons.
+
+Coplanar and <=0.021-unit near-parallel pairs can be selected in two colors.
+Detection includes rotations and excludes edge-only contacts/opposite-facing solid
+contacts. It does **not** classify visibility, alpha-masked area or intentional
+seams; candidate counts are not visible defect counts. Nonparallel intersections
+and distances above the threshold require visual inspection. No depth bias,
+polygon offset or hidden-face deletion is applied to make the preview look clean.
+
+### Agent captures
+
+```sh
+# 26 model directions (8 yaws × 3 elevations + 2 poles), then 9 item contexts.
+bun tools/model-forge/review.mjs tools/model-forge/work/reviewer/viewer.html /tmp/model-review
+
+# One model, a deliberately chosen angle and enlarged component.
+bun tools/model-forge/review.mjs tools/model-forge/work/reviewer/viewer.html /tmp/rifle-detail \
+  rifle --yaw 127 --pitch 18 --zoom 1.5 --element e0001 --mode wireframe
+
+# First-person offhand, without orbiting away from its reference camera.
+bun tools/model-forge/review.mjs tools/model-forge/work/reviewer/viewer.html /tmp/offhand \
+  rifle --context firstperson_lefthand
+```
+
+Captures include `cameras.json` with asset identity, camera, display context,
+mode, selection, hidden elements and viewport size, plus a screenshot of the UI.
+Open the actual PNGs; a successful batch render is not a visual verdict. A finite
+26-view sweep is a starting point, not proof of correctness from every direction.
+Use closer views on ambiguous joins, then recapture the same views after an edit.
+
+For browser automation the shared `window.review` API exposes `ready`, async
+`load(item, context)`, `setCamera({yaw,pitch,zoom,target?})`, `setFov`, `setMode`,
+`select([{id,face?}])`, `frameSelection`, `hide([id])`, `showAll`, `capture`, `state`,
+and async `restore(savedMetadata)`. Restore rejects a changed asset hash. Keep the
+same viewport dimensions when reproducing a saved image. IDs are e0001-based
+source element indices and correspond to Forge imports of that model version.
+All operations are read-only; export an edited Forge project to content before
+rebuilding the snapshot.
+
+### Choosing a Z-fighting fix
+
+Prefer a single visible surface, not an unconditional inflate pass:
+
+1. Remove a duplicate face or a face completely covered by opaque geometry.
+   In Java cuboids, omit its entry from `faces`. Check the back and oblique views;
+   alpha cutouts and incomplete coverage can make a deleted face leave a hole.
+2. If surfaces overlap only partly, restructure/split the cuboids so their visible
+   faces meet at an edge. Preserve UV scale/orientation while changing geometry.
+3. Put flat decoration (lines, seams, insignia) in the texture of the base face.
+4. Give actual layered ornament deliberate thickness/separation; a tiny offset
+   remains useful when layering is intentional, but it is not the only remedy.
+
+Renderer-side polygon offset/depth bias is a standard graphics solution, but
+ordinary Java model JSON does not offer a per-face depth-bias control. Applying it
+only in this viewer would hide defects without changing the resource pack.
+References: [Blockbench tips](https://blockbench.net/wiki/guides/blockbench-overview-tips/)
+and [Khronos polygon offset](https://wikis.khronos.org/opengl/Basics_Of_Polygon_Offset).

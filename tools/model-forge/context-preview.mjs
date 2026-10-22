@@ -9,7 +9,7 @@ const app = await readFile(new URL('./context-scene.js', import.meta.url), 'utf8
 const server=Bun.serve({hostname:'127.0.0.1',port:0,fetch(req){
  const path=new URL(req.url).pathname;
  if(path==='/data.json')return new Response(Bun.file(dataPath),{headers:{'Content-Type':'application/json'}});
- if(path==='/three.js')return new Response(Bun.file(new URL('../skill-viewer/node_modules/three/build/three.module.js',import.meta.url)),{headers:{'Content-Type':'text/javascript'}});
+ if(path==='/three.js' || path==='/skill-viewer/node_modules/three/build/three.module.js')return new Response(Bun.file(new URL('../skill-viewer/node_modules/three/build/three.module.js',import.meta.url)),{headers:{'Content-Type':'text/javascript'}});
  if(path==='/app.js')return new Response(app,{headers:{'Content-Type':'text/javascript'}});
  if(path!=='/')return new Response('Not found',{status:404});
  return new Response('<style>body{margin:0}</style><script type="module" src="/app.js"></script>',{headers:{'Content-Type':'text/html'}});

@@ -1,0 +1,12 @@
+import {readFile,writeFile} from 'node:fs/promises';
+const [dataPath,output]=process.argv.slice(2);
+if(!dataPath||!output)throw new Error('Usage: bun build-reviewer.mjs data.json viewer.html');
+const result=await Bun.build({entrypoints:[new URL('./reviewer.js',import.meta.url).pathname],target:'browser',format:'iife',minify:true});
+if(!result.success)throw new AggregateError(result.logs,'Viewer build failed');
+let html=await readFile(new URL('./reviewer.html',import.meta.url),'utf8');
+const safe=s=>s.replace(/</g,'\\u003c');
+const data=JSON.stringify(JSON.parse(await readFile(dataPath,'utf8')));
+html=html.replace('/*MODEL_DATA*/',()=>safe(data));
+const code=await result.outputs[0].text();
+html=html.replace('/*REVIEW_BUNDLE*/',()=>code.replace(/<\/script/gi,'<\\/script'));
+await writeFile(output,html);

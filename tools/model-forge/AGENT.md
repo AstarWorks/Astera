@@ -60,3 +60,21 @@ left-hand signs and player base rotation must be included; isolated TRS previews
 cannot establish these properties. Keep 16/32/64px inventory review as well.
 Record client-only animation/FOV questions explicitly; do not claim an offline
 board proves live-client behavior. Preserve before/after evidence with the assets.
+
+## All-angle evidence and surface cleanup
+
+Build the standalone reviewer (`context_preview.py --viewer`) from the current
+assets, run `review.mjs`, and open its actual captures. The 26-direction sweep and
+9 contexts are an initial screen, not the final verdict. Use arbitrary yaw/pitch,
+zoom, element/face selection, isolation and xray on every ambiguous join; save
+camera metadata and compare the same camera after edits. Raw model view supplies
+free orbit; a rotated hand context is no longer the in-game camera. Never count
+rendered but unopened images as reviewed evidence.
+
+Treat coplanar/near-parallel detections as candidates, including hidden faces.
+For Z-fighting choose duplicate/covered-face removal, cuboid restructuring or
+texture-only detail before a generic inflate pass. Use offsets for intentional
+layers, with an explicit reason. Do not use viewer depth bias to suppress defects.
+Do not auto-delete partially covered or alpha-cutout faces. Review backside,
+underside and edge views after cleanup. Record unresolved questions, and retain
+the distinction between an offline geometry review and live-client rendering.
