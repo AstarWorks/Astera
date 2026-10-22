@@ -269,6 +269,9 @@ public object EconomyWiring {
             registry = shopRegistry,
             adapter = guiAdapter,
             server = mcServer,
+            ledger = ledger,
+            stock = shopStockRepository,
+            messages = msgRenderer,
         )
         val shopPurchase = ShopPurchaseUseCase(
             registry = shopRegistry,
@@ -283,6 +286,9 @@ public object EconomyWiring {
             purchase = shopPurchase,
             messages = msgRenderer,
             playerGateway = playerGateway,
+            registry = shopRegistry,
+            ledger = ledger,
+            browse = shopBrowse,
         )
         registrations += intentRouter.register(ShopIntentHandler.INTENT_PREFIX) { intent, player ->
             shopIntentHandler.handle(intent, player)
