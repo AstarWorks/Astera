@@ -1,0 +1,4 @@
+# Velocity for the e2e stack (QA-7): offline-mode so MCProtocolLib bots can join under any name,
+# otherwise the same proxy as production (modern forwarding, same itzg image).
+FROM itzg/mc-proxy:latest
+COPY velocity-e2e.toml /config/velocity.toml

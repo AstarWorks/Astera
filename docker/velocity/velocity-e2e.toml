@@ -1,0 +1,20 @@
+# Astera e2e Velocity (QA-7). Same as velocity.toml except: online-mode = false (bots have no Mojang
+# account) and a single backend (`e2e`, ASTERA_SERVER_ROLE=all). Secret from VELOCITY_FORWARDING_SECRET.
+config-version = "2.7"
+bind = "0.0.0.0:25565"
+motd = "<#09add3>Astera e2e"
+show-max-players = 100
+online-mode = false
+force-key-authentication = false
+prevent-client-proxy-connections = false
+player-info-forwarding-mode = "modern"
+forwarding-secret-file = "forwarding.secret"
+announce-forge = false
+kick-existing-players = false
+ping-passthrough = "DISABLED"
+
+[servers]
+e2e = "e2e:25565"
+try = ["e2e"]
+
+[forced-hosts]
