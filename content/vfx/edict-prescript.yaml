@@ -1,0 +1,71 @@
+# Edict Blade: the "prescript" beat of the finisher -- a garbled glyph string flickers above the caster's
+# head, one random string per tick (text swaps), then locks into a single command word (斬) with a pop,
+# while black thorns grow out of the caster: six ground legs and an eight-spike sunburst standing behind.
+# Everything holds, then retracts. Local axes: x = left, y = up, z = forward (yaw only).
+
+id: edict-prescript
+duration_ticks: 34
+orient: yaw
+sample_ticks: 1
+
+elements:
+  - id: glyph
+    kind: { type: text, text: "<#9fb8ff><b>H#z!A0</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 32
+    keyframes:
+      - { t: 0, translate: [0.0, 2.7, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, text: "<#9fb8ff><b>Zq%7wK</b>", scale: [3.2, 3.2, 3.2], ease: out_back }
+      - { t: 2, text: "<#9fb8ff><b>▒k@Xe9</b>" }
+      - { t: 3, text: "<#9fb8ff><b>8vN?¶p</b>" }
+      - { t: 4, text: "<#9fb8ff><b>uW$3Σd</b>" }
+      - { t: 5, text: "<#9fb8ff><b>Ж7#Lb2</b>" }
+      - { t: 6, text: "<#9fb8ff><b>A!0zHq</b>" }
+      - { t: 7, text: "<#9fb8ff><b>x9Λ&Rt</b>" }
+      - { t: 8, text: "<#9fb8ff><b>Q#▓4mC</b>" }
+      - { t: 9, text: "<#c9d8ff><b>wL7!eZ</b>" }
+      - { t: 10, text: "<#c9d8ff><b>H~z!A0</b>" }
+      - { t: 11, text: "<#e8f0ff><b>斬z!A0</b>" }
+      - { t: 12, text: "<#ffffff><b>斬</b>", scale: [7.5, 7.5, 7.5], ease: out_back }
+      - { t: 26, scale: [8.0, 8.0, 8.0] }
+      - { t: 32, scale: [0.0, 0.0, 0.0], ease: in_quad }
+    oscillate: { axis: translate_y, amplitude: 0.05, period_ticks: 6 }
+
+  # Ground legs: black thorns crawl out of the caster across the floor.
+  - id: legs
+    kind: { type: block, block: black_concrete }
+    glow_color: "#d01030"
+    count: 6
+    start_tick: 8
+    end_tick: 32
+    formation:
+      curve: { type: arc, radius: 0.5, from_deg: 0, to_deg: 360 }
+      offset: [0.0, 0.12, 0.0]
+      align: outward
+    jitter: { rotation_deg: 6, scale: 0.25 }
+    keyframes:
+      - { t: 0, scale: [0.1, 0.1, 0.2] }
+      - { t: 12, translate: [0.0, 0.0, 2.4], scale: [0.14, 0.1, 4.6], ease: out_cubic }
+      - { t: 20, translate: [0.0, 0.0, 2.4] }
+      - { t: 24, translate: [0.0, 0.0, 0.2], scale: [0.0, 0.0, 0.2], ease: in_quad }
+
+  # Sunburst standing behind the caster (black wings), spikes of uneven length.
+  - id: wings
+    kind: { type: block, block: black_concrete }
+    glow_color: "#d01030"
+    count: 8
+    start_tick: 6
+    end_tick: 32
+    formation:
+      curve: { type: arc, radius: 0.4, from_deg: 0, to_deg: 360 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.5, -0.7]
+      align: outward
+    jitter: { rotation_deg: 5, scale: 0.4 }
+    keyframes:
+      - { t: 0, scale: [0.08, 0.08, 0.2] }
+      - { t: 10, translate: [0.0, 0.0, 2.2], scale: [0.12, 0.12, 4.0], ease: out_cubic }
+      - { t: 20, translate: [0.0, 0.0, 2.2] }
+      - { t: 26, translate: [0.0, 0.0, 0.2], scale: [0.0, 0.0, 0.2], ease: in_quad }

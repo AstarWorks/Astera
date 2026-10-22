@@ -1,0 +1,63 @@
+# Edict Blade: the marker that drops on a victim before the final cut -- a jagged blue bolt from the sky
+# (six bars along a lightning curve, drawn on top-down) inside a pale column, a star glyph at the head and a
+# flat ring flare at the feet. Played at the target. Local axes: x = left, y = up.
+
+id: edict-column
+duration_ticks: 18
+orient: world
+sample_ticks: 1
+
+elements:
+  - id: bolt
+    kind: { type: block, block: light_blue_concrete }
+    brightness: 15
+    glow_color: "#4f8fff"
+    count: 6
+    start_tick: 0
+    end_tick: 14
+    formation:
+      curve: { type: lightning, from: [0.0, 9.0, 0.0], to: [0.0, 0.0, 0.0], segments: 6, amplitude: 0.5, seed: 7 }
+      align: tangent
+      stagger_ticks: 0
+    keyframes:
+      - { t: 0, scale: [0.03, 0.03, 0.1] }
+      - { t: 1, scale: [0.09, 0.09, 1.9], ease: out_expo }
+      - { t: 6, block: white_concrete }
+      - { t: 13, scale: [0.0, 0.0, 1.9], ease: in_quad }
+
+  - id: column
+    kind: { type: block, block: light_blue_stained_glass }
+    brightness: 15
+    start_tick: 0
+    end_tick: 14
+    keyframes:
+      - { t: 0, translate: [0.0, 4.5, 0.0], scale: [0.1, 9.0, 0.1] }
+      - { t: 2, scale: [0.55, 9.0, 0.55], ease: out_expo }
+      - { t: 14, scale: [0.0, 9.0, 0.0], ease: in_quad }
+    oscillate: { axis: scale_xz, amplitude: 0.08, period_ticks: 2 }
+
+  - id: head
+    kind: { type: text, text: "<#4f8fff><b>★</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 16
+    keyframes:
+      - { t: 0, translate: [0.0, 2.9, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 3, scale: [8.0, 8.0, 8.0], ease: out_back }
+      - { t: 16, rotate: [0, 0, 180], scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: flare
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    count: 8
+    start_tick: 0
+    end_tick: 12
+    formation:
+      curve: { type: arc, radius: 0.3, from_deg: 0, to_deg: 360 }
+      offset: [0.0, 0.05, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, scale: [0.06, 0.02, 0.1] }
+      - { t: 5, translate: [0.0, 0.0, 1.6], scale: [0.08, 0.02, 0.9], ease: out_expo }
+      - { t: 12, translate: [0.0, 0.0, 2.0], scale: [0.0, 0.02, 0.9], ease: in_quad }

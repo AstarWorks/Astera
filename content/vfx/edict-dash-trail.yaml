@@ -1,0 +1,46 @@
+# Edict Blade: streak lines left behind by a 5-block dash-cut, plus a dust trail and a small blue star at
+# the launch point. Eight thin white bars fan across the body height and stretch forward on out_expo (the
+# snap), then thin away in the last 5 ticks. Played at the caster's start position; local z = dash direction.
+# Local axes: x = left, y = up, z = forward (yaw only: the dash is level).
+
+id: edict-dash-trail
+duration_ticks: 14
+orient: yaw
+sample_ticks: 1
+
+elements:
+  - id: streaks
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    count: 8
+    start_tick: 0
+    end_tick: 12
+    formation:
+      curve: { type: line, from: [-0.6, 0.3, 0.0], to: [0.6, 1.7, 0.0] }
+    jitter: { position: 0.08, scale: 0.2 }
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.2], scale: [0.03, 0.03, 0.3] }
+      - { t: 2, translate: [0.0, 0.0, 2.6], scale: [0.04, 0.04, 5.0], ease: out_expo }
+      - { t: 6, block: white_stained_glass }
+      - { t: 12, translate: [0.0, 0.0, 2.6], scale: [0.0, 0.0, 5.0], ease: in_quad }
+
+  # Dust kicked up along the whole path.
+  - id: dust
+    kind: { type: particle, particle_id: dash-cloud, every_ticks: 1 }
+    start_tick: 0
+    end_tick: 5
+    keyframes:
+      - { t: 0, translate: [0.0, 0.2, 0.0] }
+      - { t: 4, translate: [0.0, 0.2, 5.0], ease: out_cubic }
+
+  # Blue star where the cut began.
+  - id: star
+    kind: { type: text, text: "<#4f8fff><b>★</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 8
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.3], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [6.0, 6.0, 6.0], ease: out_back }
+      - { t: 8, rotate: [0, 0, 90], scale: [0.0, 0.0, 0.0], ease: in_quad }

@@ -1,0 +1,142 @@
+# Persona weapon #10 (edict-blade), S1 / left-click: Prescript Cut.
+# A 5-block dash-cut (invulnerable while it runs) that leaves white streak lines and a dust trail.
+# The body it passes through is cut three times -- X-cross (3), flat line 6t later (3), heavy downward
+# line 12t later (4, hit-stop 3t, small knockback). Each cut banks one Poise on the caster.
+# Archetype melee is only the cast container (range 0.5, token contact damage): all real damage is the
+# explicit mechanics under dash_strike.on_hit. Later cuts are gated on the target still being close.
+
+id: edict-s1
+
+name:
+  ja: "勅令の三断"
+  en: "Edict Triple Cut"
+description:
+  ja: "白い軌跡を残して駆け抜け、斬り抜けた相手を三度断つ。斬るたびに「平静」が溜まる。"
+  en: "Dashes through the target leaving white streaks and cuts it three times. Each cut banks one Poise."
+
+archetype: melee
+cooldown_ticks: 30
+resource_cost: 14              # energy
+tags: [ melee, physical, dash, persona, edict, poise, multi-hit ]
+
+params:
+  type: melee
+  range: 0.5
+  arc_degrees: 30.0
+  knockback: 0.0
+  damage:
+    - base: { type: literal, value: 1.0 }
+      attribute: physical
+
+phases:
+  type: melee
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.sweep
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 1.5 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: edict-dash-trail
+    - type: dash_strike
+      distance: 5.0
+      ticks: 4
+      radius: 1.3
+      hit_once: true
+      invulnerable: true
+      stop_on_block: true
+      follow_pitch: false
+      on_hit:
+        # Cut 1: X-cross.
+        - type: damage
+          targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
+          components:
+            - base: { type: literal, value: 3.0 }
+              attribute: physical
+        - type: apply_status
+          targets: { type: caster }
+          status_id: poise
+          effect_duration_ticks: { type: literal, value: 400 }
+          stack_count: { type: literal, value: 1 }
+        - type: play_vfx
+          targets: { type: target }
+          vfx_id: edict-slash-x
+        - type: hit_stop
+          targets: { type: target }
+          ticks: 2
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.player.attack.crit
+          volume: { type: literal, value: 0.8 }
+          pitch: { type: literal, value: 1.6 }
+        # Cut 2: flat line.
+        - type: damage
+          targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
+          delay_ticks: { type: literal, value: 6 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.5 } }
+          components:
+            - base: { type: literal, value: 3.0 }
+              attribute: physical
+        - type: apply_status
+          targets: { type: caster }
+          status_id: poise
+          effect_duration_ticks: { type: literal, value: 400 }
+          stack_count: { type: literal, value: 1 }
+          delay_ticks: { type: literal, value: 6 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.5 } }
+        - type: play_vfx
+          targets: { type: target }
+          vfx_id: edict-slash-h
+          delay_ticks: { type: literal, value: 6 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.5 } }
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.player.attack.sweep
+          volume: { type: literal, value: 0.8 }
+          pitch: { type: literal, value: 1.8 }
+          delay_ticks: { type: literal, value: 6 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.5 } }
+        # Cut 3: heavy downward line, hit-stop, small shove.
+        - type: damage
+          targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
+          delay_ticks: { type: literal, value: 12 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.5 } }
+          components:
+            - base: { type: literal, value: 4.0 }
+              attribute: physical
+        - type: apply_status
+          targets: { type: caster }
+          status_id: poise
+          effect_duration_ticks: { type: literal, value: 400 }
+          stack_count: { type: literal, value: 1 }
+          delay_ticks: { type: literal, value: 12 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.5 } }
+        - type: play_vfx
+          targets: { type: target }
+          vfx_id: edict-slash-v
+          delay_ticks: { type: literal, value: 12 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.5 } }
+        - type: hit_stop
+          targets: { type: target }
+          ticks: 3
+          delay_ticks: { type: literal, value: 12 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.5 } }
+        - type: knockback
+          targets: { type: target }
+          direction: { type: from_caster }
+          strength: { type: literal, value: 0.5 }
+          delay_ticks: { type: literal, value: 13 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.5 } }
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.player.attack.crit
+          volume: { type: literal, value: 1.0 }
+          pitch: { type: literal, value: 1.2 }
+          delay_ticks: { type: literal, value: 12 }
+          condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.5 } }
+  hit_entity: []
+  miss: []

@@ -1,0 +1,169 @@
+# Persona weapon #9 (orrery-staff), S2 / right-click: Clockwork Spin.
+# Beat sheet (ticks): 0 seal draws on the floor (telegraph) -> 6 crescent spin (hit A) -> 11 gold lance
+# thrust (hit B) -> 14 small hop -> 17 impact frame: white-gold flash, shard scatter, 3t hit-stop,
+# camera shake, knockback (finisher). Every hit banks one Charge; the finisher reads the bank (+0.3 each).
+# Contact damage at cast time is small (2); the rest is delayed and gated on the target staying close.
+
+id: orrery-s2
+
+name:
+  ja: "時計仕掛けの旋回"
+  en: "Clockwork Spin"
+description:
+  ja: "足元に歯車の封印を描き、旋回・槍突き・閃光の三連撃。当たるたびに「充填」が溜まり、最後の一撃は充填で強まる。"
+  en: "Draws a clock seal underfoot, then spin, lance thrust and a flash finisher. Each hit banks Charge; the finisher scales with it."
+
+archetype: melee
+cooldown_ticks: 70
+resource_cost: 28              # energy
+tags: [ melee, fire, persona, orrery, charge, multi-hit ]
+
+params:
+  type: melee
+  range: 3.6
+  arc_degrees: 360.0
+  knockback: 0.1
+  damage:
+    - base: { type: literal, value: 2.0 }
+      attribute: fire
+
+phases:
+  type: melee
+  cast:
+    # 0: telegraph
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.beacon.activate
+      volume: { type: literal, value: 0.5 }
+      pitch: { type: literal, value: 1.6 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: orrery-seal-ground
+    # 6: spin
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: orrery-crescent-a
+      delay_ticks: { type: literal, value: 6 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.firecharge.use
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 1.0 }
+      delay_ticks: { type: literal, value: 6 }
+    - type: spawn_particle
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 1.0, z: 0.0 } } }
+      particle_id: fire-impact
+      delay_ticks: { type: literal, value: 6 }
+    # 11: lance
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: orrery-lance
+      delay_ticks: { type: literal, value: 11 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.blaze.shoot
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 1.3 }
+      delay_ticks: { type: literal, value: 11 }
+    # 14: hop (the staff is raised overhead for the finisher)
+    - type: propel
+      targets: { type: caster }
+      direction: { type: up }
+      strength: { type: literal, value: 0.4 }
+      delay_ticks: { type: literal, value: 14 }
+  hit_entity:
+    # Hit A (t6)
+    - type: damage
+      targets: { type: target }
+      ignore_invulnerability: { type: literal, value: true }
+      delay_ticks: { type: literal, value: 6 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.6 } }
+      components:
+        - base: { type: literal, value: 3.0 }
+          attribute: fire
+    - type: apply_status
+      targets: { type: caster }
+      status_id: charge
+      effect_duration_ticks: { type: literal, value: 400 }
+      stack_count: { type: literal, value: 1 }
+      delay_ticks: { type: literal, value: 6 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.6 } }
+    - type: play_vfx
+      targets: { type: target }
+      vfx_id: orrery-ring-hit
+      delay_ticks: { type: literal, value: 6 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.6 } }
+    # Hit B (t11)
+    - type: damage
+      targets: { type: target }
+      ignore_invulnerability: { type: literal, value: true }
+      delay_ticks: { type: literal, value: 11 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.6 } }
+      components:
+        - base: { type: literal, value: 3.0 }
+          attribute: fire
+    - type: apply_status
+      targets: { type: caster }
+      status_id: charge
+      effect_duration_ticks: { type: literal, value: 400 }
+      stack_count: { type: literal, value: 1 }
+      delay_ticks: { type: literal, value: 11 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.6 } }
+    - type: play_sound
+      targets: { type: target }
+      sound_id: entity.player.attack.crit
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 1.4 }
+      delay_ticks: { type: literal, value: 11 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.6 } }
+    # Finisher (t17): the impact frame
+    - type: damage
+      targets: { type: target }
+      ignore_invulnerability: { type: literal, value: true }
+      delay_ticks: { type: literal, value: 17 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+      components:
+        - base: { type: literal, value: 4.0 }
+          attribute: fire
+          per_stack: { status_id: charge, amount: 0.3, on: caster, consume: false }
+    - type: apply_status
+      targets: { type: caster }
+      status_id: charge
+      effect_duration_ticks: { type: literal, value: 400 }
+      stack_count: { type: literal, value: 1 }
+      delay_ticks: { type: literal, value: 17 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+    - type: play_vfx
+      targets: { type: target }
+      vfx_id: orrery-flash
+      delay_ticks: { type: literal, value: 17 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+    - type: hit_stop
+      targets: { type: target }
+      ticks: 3
+      include_caster: true
+      delay_ticks: { type: literal, value: 17 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+    - type: camera_shake
+      targets: { type: target }
+      intensity: { type: literal, value: 0.5 }
+      ticks: { type: literal, value: 8 }
+      delay_ticks: { type: literal, value: 17 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+    - type: knockback
+      targets: { type: target }
+      direction: { type: from_caster }
+      strength: { type: literal, value: 0.8 }
+      delay_ticks: { type: literal, value: 18 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+    - type: play_sound
+      targets: { type: target }
+      sound_id: entity.generic.explode
+      volume: { type: literal, value: 0.6 }
+      pitch: { type: literal, value: 1.5 }
+      delay_ticks: { type: literal, value: 17 }
+      condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
+  miss:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.nodamage
