@@ -7,7 +7,8 @@ from core import bbox
 
 VIEWS={'front':(0,0),'back':(180,0),'left':(90,0),'right':(-90,0),
        'top':(0,90),'bottom':(0,-90),'iso':(-30,20),'iso_back':(150,20)}
-DISPLAYS=('gui','firstperson_righthand','thirdperson_righthand','ground','fixed')
+DISPLAYS=('gui','firstperson_righthand','firstperson_lefthand',
+          'thirdperson_righthand','thirdperson_lefthand','ground','fixed')
 
 
 def tile(im):

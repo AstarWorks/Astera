@@ -43,3 +43,44 @@ Limit: the software renderer is orthographic, not Minecraft. It cannot certify
 motion-dependent depth precision, client lighting or actual hand-camera framing.
 Near-coplanar faces are not counted by this audit. Final in-game confirmation is
 still needed from the founder; no Minecraft client or unit tests were launched.
+
+## Follow-up: complete display contexts
+
+The founder explicitly requested the complete item presentation, not mesh-only
+completion. The earlier unchanged-hand observations above describe round one;
+the final assets now also change first/third-person R/L, ground and fixed.
+
+An offline three.js player-context renderer exposed defects hidden by isolated
+orthographic views: rifles pointed downward in third person and held the wrong
+part; first-person left/right swords were not mirrored as intended; gauntlet
+fingers pointed back toward the arm. The new renderer uses Blockbench's player
+base transforms and Java left-hand sign convention, with a labelled mannequin
+and a perspective camera. This is now a reusable `context_preview.py` command.
+
+- Each item's actual grip center anchors to the hand. Rifles compensate the
+  -67.5-degree player rest-pose rotation, producing forward-pointing barrels;
+  offhand yaw also preserves forward direction. Shotgun anchors at the stock
+  neck, pistol at its raked grip, and long guns at their pistol grip.
+- Swords/staves have an upright, forward-leaning third-person pose and category
+  scales (dagger remains short, long weapons remain visibly long). First-person
+  scale/placement keeps the screen center clear; left/right placement is mirrored.
+- Gauntlet cuff surrounds the forearm and fingers extend past the hand, with the
+  left-hand yaw placing the thumb on the opposite side.
+- Ground models are centered around their spin axis, posed nearly horizontal and
+  sized to an 11-unit longest dimension. Ground local minimum Y is zero; default
+  reference float height is shown, not a claimed reproduction of client bobbing.
+- Fixed models fit a 9.5-unit span inside the 10-unit frame opening after the
+  engine's half-scale; centering and depth keep the model in front of its backing.
+- Final GUI transforms and geometry remain unchanged from round one.
+
+Opened all 21 final context boards and the full-size rifle, shotgun, greatsword
+and gauntlet boards; compared original-context boards as well. The documented
+CLI was exercised independently on rifle/gauntlet and again after extracting the
+browser module. No unit tests, Minecraft client or GitHub CI were run.
+
+`contexts/before` and `contexts/after` preserve all nine-view boards;
+`contexts/report.json` records authored grip points and every display transform.
+The earlier `boards-*.jpg` are round-one isolated previews, not final contexts.
+The pipeline now requires context review for future changes. Rest-pose checks
+cannot certify live swing/use/aim animation, all FOVs or shader-dependent flicker;
+the founder's in-game check remains necessary.

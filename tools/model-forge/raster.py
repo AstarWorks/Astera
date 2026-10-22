@@ -47,9 +47,13 @@ def default_uv(e, face):
 def render(model, textures, view, size=256, clay=False, camera=None, mode='textured', highlight=(), overlay=()):
     """Return RGBA, silhouette and diagnostics. Fixed cameras, never auto-fit."""
     d=model.get('display',{}).get(view,{})
-    R=display_matrix(VIEWS.get(view,d.get('rotation',[0,0,0])))
+    angles=list(VIEWS.get(view,d.get('rotation',[0,0,0])))
+    if view.endswith('lefthand'):
+        angles[1]*=-1; angles[2]*=-1
+    R=display_matrix(angles)
     scale=np.array(d.get('scale',[1,1,1])) if view not in VIEWS else np.ones(3)
     T=np.array(d.get('translation',[0,0,0])) if view not in VIEWS else np.zeros(3)
+    if view.endswith('lefthand'): T[0]*=-1
     center=CENTER if view in VIEWS else np.full(3,8)
     span=SPAN if view in VIEWS else 16 if view=='gui' else 32
     if camera:

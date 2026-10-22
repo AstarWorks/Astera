@@ -168,3 +168,30 @@ Open [the final board](examples/session/project/renders/final.png),
 [the regression comparison](examples/session/project/renders/baseline-diff.png), and
 [the deliberately bad paint before undo](examples/session/project/renders/rest-paint.png).
 See [the visual review](examples/REVIEW.md) for critic/verifier observations and limitations.
+
+## Display-context finish check
+
+A model-only board is insufficient for hand placement. Render with a player rest
+pose, perspective camera, Java left-hand rotation/translation signs, dropped-item
+spin and item-frame scale before shipping:
+
+```sh
+(cd tools/skill-viewer && bun install --frozen-lockfile)
+python3 tools/model-forge/context_preview.py --out /tmp/item-contexts
+# Or just selected items:
+python3 tools/model-forge/context_preview.py --out /tmp/item-contexts rifle ember-gauntlet
+```
+
+This optional preview uses existing skill-viewer three.js/playwright-core packages,
+Bun and local Chromium (`CHROMIUM_EXECUTABLE` overrides `/usr/bin/chromium`). It opens
+only a loopback page, never Minecraft, and does not change assets. Each item gets
+nine screenshots and a labelled board: first-person R/L, third-person R/L plus a
+side view, ground at two spin angles, frame and GUI. No external assets or APIs.
+
+Base transforms and left-hand sign handling follow
+[Blockbench display mode](https://github.com/JannisX11/blockbench/blob/master/js/display_mode/display_mode.js).
+The mannequin uses a 22.5-degree arm rest pose; first-person FOV is 70 degrees.
+Lighting, bobbing height and the frame reference are illustrative. Swing/use,
+FOV changes, shader packs, glint and exact live-client animation remain client
+review items. Do not mistake a thin barrel in an isolated transform view for a
+wrong in-game muzzle direction: inspect the player context and side view.

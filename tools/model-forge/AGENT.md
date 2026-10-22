@@ -49,3 +49,14 @@ for explicit element/texture actions and undo. The founder's supplied LL3M/Blend
 ArtisanCAD, CADSmith and CADCodeVerify research informed the critic/verifier separation,
 eight-view board, exact measurements and binary visual checklist. This tool supplies the
 observations and edits; the calling agent performs the visual judgments.
+
+## Display contexts are part of completion
+
+Do not finish at an attractive mesh. Run `context_preview.py` (README) and actually
+open its boards for every changed item. Check both hands in first/third person,
+model-space grip versus the hand anchor, muzzle/finger direction, a clear screen
+center, dropped-item size and spin pivot, and frame centering/depth. The Java
+left-hand signs and player base rotation must be included; isolated TRS previews
+cannot establish these properties. Keep 16/32/64px inventory review as well.
+Record client-only animation/FOV questions explicitly; do not claim an offline
+board proves live-client behavior. Preserve before/after evidence with the assets.
