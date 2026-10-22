@@ -18,4 +18,10 @@ Verification: no local builds or tests run, per task constraints. Regression tes
 - Evidence: `EnchantmentGateListener.kt:48` removed kept stacks from drops, with no respawn buffer or `itemsToKeep` write; its comment explicitly deferred restoration.
 - Fix: hand retained stacks to Paper's `itemsToKeep`; skip when keepInventory already preserves the complete inventory to prevent duplicates.
 - Test: `EnchantmentGateListenerTest` checks drop/retention lists and the keepInventory path with mocked Paper events. Uses existing catalog Paper/MockK test dependencies.
+- Fix commit: `bd1c2040`.
+
+## 4. Refinement accepts unrelated item instances
+- Evidence: `ApplyRefinementUseCase.kt:73` looked up only by UUID, without checking owner or item template; `RerollSubStatsUseCase.kt:79` likewise ignored owner. A caller could mutate another player's item or apply a permissive template's rules to another template.
+- Fix: require the requested owner/template on lookup before mutation, cost or event publication. Return the existing UnknownInstance error for inaccessible instances.
+- Tests: two apply regressions (foreign owner / mismatched template) and one reroll regression (no charge, no roll, no mutation/event for a foreign owner).
 - Fix commit: pending.

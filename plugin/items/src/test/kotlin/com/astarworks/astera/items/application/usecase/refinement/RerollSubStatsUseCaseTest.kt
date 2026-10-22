@@ -46,6 +46,28 @@ class RerollSubStatsUseCaseTest {
         )
 
     @Test
+    fun `reroll rejects another player's instance before charging or rolling`() {
+        val registry = InMemoryItemRegistry().apply { register(itemSpec(id = itemId.value)) }
+        val instances = InMemoryItemInstanceRepository()
+        val rolls = listOf(SubStatRoll(SubStatKey.ATTACK, 30.0, 1))
+        val instance = seededInstance(rolls)
+        instances.save(instance)
+        val bus = FakeDomainEventBus()
+        val useCase = RerollSubStatsUseCase(
+            registry, instances, FakeRefinementRandomizer(), bus,
+            { RefinementSpec(enabled = true, subStatCount = 1, candidateSubStats = listOf(SubStatKey.ATTACK), maxRollsPerStat = 5) },
+        )
+        val wallet = walletWith(10_000L)
+        val result = useCase.reroll(PlayerId(UUID.randomUUID()), wallet, instance.id)
+
+        assertThat(result.errorOrNull()).isEqualTo(RefinementError.UnknownInstance(instance.id))
+        assertThat(wallet.balance(Currency.GOLD)).isEqualTo(10_000L)
+        assertThat(instance.rerollCount()).isZero()
+        assertThat(instance.subStatRolls()).isEqualTo(rolls)
+        assertThat(bus.publishedOfType<ItemInstanceRerolled>()).isEmpty()
+    }
+
+    @Test
     fun `reroll keeps the better candidate by default and publishes kept=true`() {
         val registry = InMemoryItemRegistry().apply { register(itemSpec(id = itemId.value)) }
         val instances = InMemoryItemInstanceRepository()

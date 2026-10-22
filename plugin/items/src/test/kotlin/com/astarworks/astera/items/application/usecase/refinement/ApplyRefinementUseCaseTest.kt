@@ -40,6 +40,32 @@ class ApplyRefinementUseCaseTest {
     }
 
     @Test
+    fun `apply cannot mutate an instance belonging to another player`() {
+        val (useCase, bus, repo) = setup(RefinementSpec(enabled = true, upgradeableTo = 10))
+        val instance = useCase.apply(owner, null, itemId, Refinement.Star(1)).getOrNull()!!.instance
+        val result = useCase.apply(PlayerId(UUID.randomUUID()), instance.id, itemId, Refinement.Star(2))
+
+        assertThat(result.errorOrNull()).isEqualTo(RefinementError.UnknownInstance(instance.id))
+        assertThat(repo.findById(instance.id)!!.layers()).containsExactly(Refinement.Star(1))
+        assertThat(bus.publishedOfType<ItemInstanceRefined>()).hasSize(1)
+    }
+
+    @Test
+    fun `apply cannot use another template's profile for an existing instance`() {
+        val (useCase, bus, repo) = setup(RefinementSpec(enabled = true, upgradeableTo = 10))
+        val instance = com.astarworks.astera.items.domain.refinement.ItemInstance(
+            com.astarworks.astera.items.domain.refinement.ItemInstanceId(UUID.randomUUID()),
+            ItemId("other-template"), owner, Instant.EPOCH,
+        )
+        repo.save(instance)
+        val result = useCase.apply(owner, instance.id, itemId, Refinement.Star(10))
+
+        assertThat(result.errorOrNull()).isEqualTo(RefinementError.UnknownInstance(instance.id))
+        assertThat(instance.layers()).isEmpty()
+        assertThat(bus.publishedOfType<ItemInstanceRefined>()).isEmpty()
+    }
+
+    @Test
     fun `apply rejects unknown item`() {
         val (useCase, _, _) = setup(RefinementSpec(enabled = true, gemstoneSlots = 1))
         val result = useCase.apply(owner, null, ItemId("does-not-exist"), Refinement.Star(1))

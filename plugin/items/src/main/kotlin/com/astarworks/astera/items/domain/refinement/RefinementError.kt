@@ -58,7 +58,7 @@ public sealed class RefinementError {
             MessageKey("astera.items.refinement.insufficient_funds")
     }
 
-    /** Player tried to apply an instance that does not exist on the repository. */
+    /** No matching instance is accessible for the requested owner and template. */
     public data class UnknownInstance(val id: ItemInstanceId) : RefinementError() {
         override val messageKey: MessageKey =
             MessageKey("astera.items.refinement.unknown_instance")
