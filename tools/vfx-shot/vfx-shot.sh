@@ -327,6 +327,7 @@ film() { # viewer view_dir
   last_pts="$(grep -o ' pts:[0-9]*' "$rec.log" | tail -1 | tr -dc '0-9' | awk '{printf "%.3f", $1/1000000}')"
   log "cast at +${offset}s into the recording (cast $cast_stamp, first frame $first_pts, last frame $last_pts)"
   rm -rf "$dir"; mkdir -p "$dir"
+  if [ "$VIEW" = compare ]; then cp "$STATE/director.stderr" "$dir/director-timing.log"; fi
   ffmpeg -nostdin -loglevel error -y -i "$rec" \
     -vf "fps=20:start_time=$offset,setpts=N/20/TB" -frames:v "$((TICKS + PRE_TICKS + 1))" -start_number 0 "$dir/frame_%03d.png" \
     || die "frame extraction failed"
@@ -349,7 +350,7 @@ make_outputs() { # dir view
   ffmpeg -nostdin -loglevel error -y -framerate 20 -i "$dir/frame_%03d.png" -c:v libx264 -crf 16 \
     -pix_fmt yuv420p "$dir/$SKILL-$view.mp4" || log "WARN: mp4 failed"
   ffmpeg -nostdin -loglevel error -y -i "$dir/frame_%03d.png" -c:v libwebp -quality 85 \
-    -compression_level 4 -threads 2 "$dir/frame_%03d.webp" || log "WARN: web preview failed; serving PNG"
+    -compression_level 4 -threads 2 -start_number 0 "$dir/frame_%03d.webp" || log "WARN: web preview failed; serving PNG"
   if [ "$view" = compare ]; then
     printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":20,"cast_tick_ms":%d,"frames":%d}\n' \
       "$CASE" "$CAMERA" "$SKILL" "$((PRE_TICKS * 50))" "$n" > "$dir/meta.json"

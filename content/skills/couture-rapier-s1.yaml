@@ -49,7 +49,7 @@ phases:
     - type: play_vfx
       targets:
         type: target
-      vfx_id: couture-rapier-cross
+      vfx_id: couture-passage-contact
     - type: play_sound
       targets:
         type: target

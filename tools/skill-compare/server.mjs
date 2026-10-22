@@ -48,11 +48,11 @@ export function makeHandler(opts = {}) {
           try { const m = readJson(join(d, "meta.json")); if (m.captureQuality?.invalid || m.referenceRevision !== referenceRevision || (contentRevision && m.contentRevision !== contentRevision)) continue; } catch { continue; }
         }
         const n = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).length;
-        const webpCount = readdirSync(d).filter((f) => /^frame_\d{3,4}\.webp$/.test(f)).length;
+        const webpReady = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).every((f) => existsSync(join(d, f.replace(/\.png$/, ".webp"))));
         let castFrame = 0;  // compare: frames before the cast (meta.json cast_tick_ms)
         try { castFrame = Math.round((readJson(join(d, "meta.json")).cast_tick_ms ?? 0) / 50); } catch { /* no meta: frame 0 = cast */ }
         if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n, castFrame,
-          extension: webpCount === n ? "webp" : "png",
+          extension: webpReady ? "webp" : "png",
           revision: String(statSync(existsSync(join(d, "meta.json")) ? join(d, "meta.json") : d).mtimeMs) };
       }
     }
