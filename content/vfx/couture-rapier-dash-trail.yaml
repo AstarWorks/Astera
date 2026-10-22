@@ -39,7 +39,7 @@ elements:
   - id: dust
     kind: { type: particle, particle_id: dash-cloud, every_ticks: 2 }
     start_tick: 1
-    end_tick: 9
+    slot_lifetime_ticks: 8
     count: 7
     formation:
       curve: { type: line, from: [0.0, 0.15, 0.5], to: [0.0, 0.15, 7.0] }

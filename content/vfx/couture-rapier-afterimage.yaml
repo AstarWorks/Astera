@@ -15,7 +15,7 @@ elements:
     brightness: 15
     glow_color: "#d8323a"
     start_tick: 0
-    end_tick: 10
+    slot_lifetime_ticks: 10
     count: 3
     formation:
       curve: { type: line, from: [0.0, 1.1, 0.4], to: [0.0, 1.1, 3.4] }

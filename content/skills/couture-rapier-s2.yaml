@@ -1,10 +1,9 @@
 # Couturier's Rapier S2 (right-click): the hemline rush. A 3-tick wind-up (afterimages stay standing where
-# the caster was, streak lines rake out along the path), then a 7-block invulnerable dash-through.
-# Whoever it touches gets: an X "scissor" cut with a 3-tick freeze (6.0), three flickering follow-up
-# stabs (2-tick spacing, poise + flash only: a target takes one hit per 20-tick invulnerability window,
-# `damage.ignore_invulnerability` is not honoured by the dispatcher yet) and, 21 ticks after the cut,
-# a closing thrust (4.0) with a 2-tick hit-stop; the caster is pulled back afterwards. 10 damage,
-# 5 poise. The cooldown is the cost of the mobility.
+# the caster was, streak lines rake out along the path), then a 7-block invulnerable dash-through. Whoever
+# it touches takes four real hits: an X "scissor" cut with a 3-tick freeze (3.0), three flickering stabs at
+# 2-tick spacing (3 x 1.0) and a closing thrust with a 2-tick hit-stop (4.0); then the caster is pulled
+# back. 10 damage, 5 poise, every hit its own damage event ignoring i-frames. The cooldown is the cost
+# of the mobility.
 
 id: couture-rapier-s2
 
@@ -15,19 +14,16 @@ description:
   ja: "無敵の突進で相手を貫き、X字の鋏刃と連続突きを叩き込んで下がる。poise を溜める。"
   en: "An invulnerable dash-through into a scissor X and a flicker of stabs, then a step back. Builds poise."
 
-archetype: buff
+archetype: sequence
 cooldown_ticks: 80
 resource_cost: 25
 tags: [ melee, movement, physical, combo, poise ]
 
-# The `dash` speed status rides along for the tail of the run (the dash_strike itself does the travel).
 params:
-  type: buff
-  status_effect_id: dash
-  duration_ticks: 8
+  type: sequence
 
 phases:
-  type: buff
+  type: sequence
   cast:
     - type: play_sound
       targets: { type: caster }
@@ -56,8 +52,9 @@ phases:
         - type: damage
           targets: { type: target }
           components:
-            - base: { type: literal, value: 6.0 }
+            - base: { type: literal, value: 3.0 }
               attribute: physical
+          ignore_invulnerability: { type: literal, value: true }
         - type: apply_status
           targets: { type: caster }
           status_id: poise
@@ -83,6 +80,12 @@ phases:
           stride_ticks: { type: literal, value: 2 }
           delay_ticks: { type: literal, value: 4 }
           mechanics:
+            - type: damage
+              targets: { type: target }
+              components:
+                - base: { type: literal, value: 1.0 }
+                  attribute: physical
+              ignore_invulnerability: { type: literal, value: true }
             - type: apply_status
               targets: { type: caster }
               status_id: poise
@@ -102,34 +105,33 @@ phases:
           components:
             - base: { type: literal, value: 4.0 }
               attribute: physical
-          delay_ticks: { type: literal, value: 21 }
+          ignore_invulnerability: { type: literal, value: true }
+          delay_ticks: { type: literal, value: 11 }
         - type: apply_status
           targets: { type: caster }
           status_id: poise
           effect_duration_ticks: { type: literal, value: 400 }
-          delay_ticks: { type: literal, value: 21 }
+          delay_ticks: { type: literal, value: 11 }
         - type: play_vfx
           targets: { type: target }
           vfx_id: couture-rapier-burst
-          delay_ticks: { type: literal, value: 21 }
+          delay_ticks: { type: literal, value: 11 }
         - type: hit_stop
           targets: { type: target }
           ticks: 2
-          delay_ticks: { type: literal, value: 21 }
+          delay_ticks: { type: literal, value: 11 }
         - type: knockback
           targets: { type: target }
           direction: { type: from_caster }
           strength: { type: literal, value: 0.5 }
-          delay_ticks: { type: literal, value: 21 }
+          delay_ticks: { type: literal, value: 11 }
         - type: play_sound
           targets: { type: target }
           sound_id: entity.player.attack.knockback
-          delay_ticks: { type: literal, value: 21 }
+          delay_ticks: { type: literal, value: 11 }
     # step back out of the reply
     - type: propel
       targets: { type: caster }
       direction: { type: from_caster }
       strength: { type: literal, value: -0.7 }
-      delay_ticks: { type: literal, value: 27 }
-  expire: []
-  removed: []
+      delay_ticks: { type: literal, value: 16 }
