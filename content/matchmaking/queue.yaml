@@ -21,3 +21,11 @@ lanes:
     # Playtest default: 1 lets you start alone (you land on one team, the other
     # stays empty). Raise to 2+ for real matches.
     min_players: 1
+
+  # Annihilation: 3 teams (red / blue / yellow) on the flat playtest world.
+  # min_players 1 so one player can start it alone.
+  - id: annihilation
+    stage: annihilation-arena
+    teams: 3
+    players_per_team: 4
+    min_players: 1

@@ -1,23 +1,26 @@
 # content/stages/
 
-Stage (map) definitions for Siege Warfare. **Phase 3 で本格的に追加**される。
-
-Phase 1-2 では空。
-
-Phase 3 schema イメージ (確定前):
+Stage (map) definitions. Schema: `plugin/match/.../application/config/StageYamlConfig.kt`
+(strict decode: unknown keys fail the file).
 
 ```yaml
-id: example-fortress
-display_name_key: astera.stage.example-fortress.name
-schematic: example-fortress.schem
-spawn:
-  attackers:
-    - { x: 0, y: 64, z: -100 }
-  defenders:
-    - { x: 0, y: 64, z: 100 }
-core:
-  position: { x: 0, y: 70, z: 80 }
-  health: 1000
+id: example-arena
+display_name_key: astera.stage.example-arena.name
+world: world                 # optional; Bukkit world the stage is played in (default: main world "world")
+regions:                     # named AABBs; other YAMLs refer to areas by `name`
+  - name: full-arena
+    min: { x: -50.0, y: -60.0, z: -50.0 }
+    max: { x:  50.0, y: -30.0, z:  50.0 }
+spawn_points:
+  - team: red                # per-team spawn; any number of teams (team ids = the match's teams)
+    position: { x: -45.0, y: -60.0, z: 0.0 }
+    yaw: 270.0               # optional
+  - role: lobby              # team-less: lobby | spectator
+    position: { x: 0.0, y: -60.0, z: 0.0 }
 ```
 
-Schematics (WorldEdit `.schem`) は `stages/schematics/` 配下 (Phase 3 で導入)。
+- Put several spawns per team: entry and respawn hand out the least-used one, so teammates spread.
+- 2-team lanes use team ids `red` / `blue`; the `annihilation` mode uses `red` / `blue` / `yellow`.
+- Stages are hand-built in their world (no schematic / core fields; add them together with a consumer).
+- The docker playtest world is superflat: stand at y=-60. `example-arena` and
+  `annihilation-arena` target it; the other stages keep their original (y>=64) coordinates.

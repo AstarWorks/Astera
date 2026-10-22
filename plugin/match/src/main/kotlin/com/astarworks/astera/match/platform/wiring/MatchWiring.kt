@@ -249,6 +249,14 @@ public object MatchWiring {
         val endMatch = EndMatchUseCase(matches, eventBus, scheduler, victoryEvaluator)
         // IWorldGateway is registered by Astera-Core (gate on null for hosts without one).
         val worldGateway = services.get<IWorldGateway>()
+        // WP9: one per-team spawn selector shared by entry teleports and respawns.
+        val spawnSelector = com.astarworks.astera.match.application.service.DefaultSpawnSelector(matches)
+        registrations += services.register<com.astarworks.astera.match.application.service.ISpawnSelector>(
+            spawnSelector, priority = 0,
+        )
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) {
+            spawnSelector.forget(it.matchId)
+        }
         // WP8: entry teleports the player to a stage spawn of their team, so a
         // queue-formed (or admin `entry`) player lands in the arena immediately.
         val matchSpawn = worldGateway?.let {
@@ -257,6 +265,7 @@ public object MatchWiring {
                 stageRegistry = stages,
                 worldGateway = it,
                 eventBus = eventBus,
+                spawnSelector = spawnSelector,
             )
         }
         val entryGame = EntryGameUseCase(matches, eventBus, matchSpawn)

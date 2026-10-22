@@ -11,13 +11,15 @@
 # `(0.5, 64.0, 0.5)`) — committing it here pins the canonical lobby
 # coordinates that every "return to lobby" code path resolves through.
 
+# Coordinates target the docker playtest superflat world (surface y=-61, stand at y=-60).
+# Logical world "lobby" resolves to the main world; the lobby spawn is its world spawn (x~0,z~0).
 id: lobby
 display_name: "Astera Lobby"
 
 default_spawn:
   world: lobby
   x: 0.5
-  y: 64.0
+  y: -60.0
   z: 0.5
   yaw: 0.0
   pitch: 0.0

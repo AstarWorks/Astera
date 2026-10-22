@@ -13,7 +13,8 @@ import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.core.domain.stage.SpawnFaction
+import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.stage.SpawnRole
 import com.astarworks.astera.core.domain.stage.SpawnPoint
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
@@ -41,7 +42,8 @@ class RespawnUseCaseTest {
         position = Vec3(1.0, 64.0, 2.0),
         yaw = 90.0f,
         pitch = 0.0f,
-        faction = SpawnFaction.ATTACKER,
+        role = SpawnRole.TEAM,
+        team = TeamId("red"),
     )
 
     private lateinit var worldGateway: FakeWorldGateway

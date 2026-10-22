@@ -166,76 +166,76 @@ regions:
 
 # ─── Spawn points ─────────────────────────────────────────────────────────
 # Role-tagged teleport targets consumed by MatchSpawnUseCase / RespawnUseCase
-# (Wave 5o / ADR-0081). Schema: { faction, position, yaw?, pitch?, world? }.
+# (ADR-0081, per-team since WP9). Schema: { team | role, position, yaw?, pitch? }.
 #
 # Layout:
-#   - attacker (red team) — 8 spawns along the red base front line, facing east (+X), yaw 90.
-#   - defender (blue team) — 8 spawns along the blue base front line, facing west (-X), yaw 270.
+#   - red team — 8 spawns along the red base front line, facing east (+X), yaw 90.
+#   - blue team — 8 spawns along the blue base front line, facing west (-X), yaw 270.
 #   - lobby — single elevated pre-match staging point above central zone.
 #   - spectator — single elevated overlook for non-participants.
 #
 # 6 game modes reuse the same flat list; the spawn selector strategy filters
-# by faction and applies mode-specific strategy (FurthestFromEnemies for
+# by team and applies mode-specific strategy (FurthestFromEnemies for
 # CarryTNT escort, CycleRotation for BattleLoyal, etc.).
 spawn_points:
-  # ---- Attacker (red team) — yaw 90 (facing +X / blue base) ----
-  - faction: attacker
+  # ---- Red team — yaw 90 (facing +X / blue base) ----
+  - team: red
     position: { x: -75.0, y: 65.0, z:   0.0 }
     yaw: 90.0
-  - faction: attacker
+  - team: red
     position: { x: -75.0, y: 65.0, z: -20.0 }
     yaw: 90.0
-  - faction: attacker
+  - team: red
     position: { x: -75.0, y: 65.0, z:  20.0 }
     yaw: 90.0
-  - faction: attacker
+  - team: red
     position: { x: -80.0, y: 65.0, z: -35.0 }
     yaw: 90.0
-  - faction: attacker
+  - team: red
     position: { x: -80.0, y: 65.0, z:  35.0 }
     yaw: 90.0
-  - faction: attacker
+  - team: red
     position: { x: -65.0, y: 65.0, z: -10.0 }
     yaw: 90.0
-  - faction: attacker
+  - team: red
     position: { x: -65.0, y: 65.0, z:  10.0 }
     yaw: 90.0
-  - faction: attacker
+  - team: red
     position: { x: -90.0, y: 67.0, z:   0.0 }
     yaw: 90.0
 
-  # ---- Defender (blue team) — yaw 270 (facing -X / red base) ----
-  - faction: defender
+  # ---- Blue team — yaw 270 (facing -X / red base) ----
+  - team: blue
     position: { x:  75.0, y: 65.0, z:   0.0 }
     yaw: 270.0
-  - faction: defender
+  - team: blue
     position: { x:  75.0, y: 65.0, z: -20.0 }
     yaw: 270.0
-  - faction: defender
+  - team: blue
     position: { x:  75.0, y: 65.0, z:  20.0 }
     yaw: 270.0
-  - faction: defender
+  - team: blue
     position: { x:  80.0, y: 65.0, z: -35.0 }
     yaw: 270.0
-  - faction: defender
+  - team: blue
     position: { x:  80.0, y: 65.0, z:  35.0 }
     yaw: 270.0
-  - faction: defender
+  - team: blue
     position: { x:  65.0, y: 65.0, z: -10.0 }
     yaw: 270.0
-  - faction: defender
+  - team: blue
     position: { x:  65.0, y: 65.0, z:  10.0 }
     yaw: 270.0
-  - faction: defender
+  - team: blue
     position: { x:  90.0, y: 67.0, z:   0.0 }
     yaw: 270.0
 
   # ---- Lobby (pre-match staging) ----
-  - faction: lobby
+  - role: lobby
     position: { x: 0.0, y: 100.0, z: 0.0 }
     pitch: 30.0
 
   # ---- Spectator (overlook camera) ----
-  - faction: spectator
+  - role: spectator
     position: { x: 0.0, y: 150.0, z: 0.0 }
     pitch: 75.0

@@ -14,7 +14,7 @@ import com.astarworks.astera.core.domain.match.Team
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stage.Region
-import com.astarworks.astera.core.domain.stage.SpawnFaction
+import com.astarworks.astera.core.domain.stage.SpawnRole
 import com.astarworks.astera.core.domain.stage.SpawnPoint
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
@@ -65,7 +65,8 @@ class RespawnOnPlayerKilledListenerTest {
                         SpawnPoint(
                             world = WorldId("test-world"),
                             position = Vec3(10.0, 64.0, 20.0),
-                            faction = SpawnFaction.LOBBY,
+                            role = SpawnRole.TEAM,
+                            team = TeamId("red"),
                         ),
                     ),
                 ),
@@ -87,7 +88,7 @@ class RespawnOnPlayerKilledListenerTest {
         val listener = RespawnOnPlayerKilledListener(
             matches = matches,
             stages = stages,
-            spawnSelector = DefaultSpawnSelector(),
+            spawnSelector = DefaultSpawnSelector(matches),
             respawnUseCase = respawnUseCase,
         )
 
@@ -100,7 +101,8 @@ class RespawnOnPlayerKilledListenerTest {
             ),
         )
 
-        // The victim should have been teleported into the configured spawn.
+        // The victim should have been teleported into their team's spawn (not the lobby).
+        assertThat(world.teleports.first().at).isEqualTo(Vec3(10.0, 64.0, 20.0))
         assertThat(world.teleports).hasSize(1)
         assertThat(world.teleports.first().playerId).isEqualTo(victim)
         // Health restored via the gateway.
@@ -124,7 +126,7 @@ class RespawnOnPlayerKilledListenerTest {
             eventBus = bus,
             scheduler = scheduler,
         )
-        val listener = RespawnOnPlayerKilledListener(matches, stages, DefaultSpawnSelector(), respawnUseCase)
+        val listener = RespawnOnPlayerKilledListener(matches, stages, DefaultSpawnSelector(matches), respawnUseCase)
 
         listener.handle(
             PlayerKilled(

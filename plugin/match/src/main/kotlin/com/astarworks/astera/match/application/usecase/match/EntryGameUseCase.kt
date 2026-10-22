@@ -9,7 +9,6 @@ import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.match.application.usecase.spawn.MatchSpawnUseCase
-import com.astarworks.astera.match.application.usecase.spawn.SpawnKind
 import org.slf4j.LoggerFactory
 
 /**
@@ -20,8 +19,7 @@ import org.slf4j.LoggerFactory
  *
  * WP8: with `teamId == null` the player joins the **smallest** team (first on
  * ties) so admin/queue entries auto-balance, and, when a [spawn] use case is
- * wired, is teleported to a stage spawn of their team (first team = attacker
- * spawns, the others = defender spawns). A teleport failure is logged but does
+ * wired, is teleported to a spawn of their own team on the stage. A teleport failure is logged but does
  * not undo the entry.
  */
 public class EntryGameUseCase(
@@ -54,9 +52,7 @@ public class EntryGameUseCase(
         matches.save(updated)
 
         if (spawn != null) {
-            val teamIndex = updated.teams.indexOfFirst { playerId in it.members }
-            val kind = if (teamIndex <= 0) SpawnKind.ATTACKER else SpawnKind.DEFENDER
-            val outcome = spawn.spawnPlayer(matchId, playerId, kind)
+            val outcome = spawn.spawnPlayer(matchId, playerId)
             if (outcome is Result.Failure) {
                 log.warn("Entry teleport for {} into {} failed: {}", playerId, matchId, outcome.error)
             }

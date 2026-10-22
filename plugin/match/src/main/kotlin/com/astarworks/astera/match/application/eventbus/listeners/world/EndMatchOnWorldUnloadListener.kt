@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory
  * to fire its cleanup chain (RestoreBlocksOnMatchEnded — irrelevant since
  * the world is going away, but the journal is still cleared for the
  * next match;
- * `SaveInventoryOnMatchEndedListener`; betting resolution;
+ * core `MatchInventorySnapshotListener`; betting resolution;
  * teleport-to-lobby) instead of leaving the match in a permanent ACTIVE
  * phantom state.
  *

@@ -11,13 +11,11 @@ import com.astarworks.astera.core.domain.stage.Stage
  * Given a player, the match they belong to, the stage they spawn into, and a
  * [SpawnStrategy] choice, returns the [SpawnPoint] the
  * [com.astarworks.astera.match.application.usecase.respawn.RespawnUseCase]
- * (and the legacy `MatchSpawnUseCase`) should teleport into.
+ * and `MatchSpawnUseCase` should teleport into.
  *
- * The selector is faction-aware: each [SpawnStrategy] variant filters the
- * stage's spawn list to the faction the player belongs to (resolved through
- * the match's team membership). The Wave 5o implementation defaults the
- * faction to `ATTACKER` when the match-team lookup is unavailable; richer
- * team-balance variants land later.
+ * The selector is team-aware: it filters the stage's spawn list to the spawns
+ * owned by the player's team in the match (WP9: any number of teams), then
+ * applies the [SpawnStrategy].
  *
  * # Konsist
  *

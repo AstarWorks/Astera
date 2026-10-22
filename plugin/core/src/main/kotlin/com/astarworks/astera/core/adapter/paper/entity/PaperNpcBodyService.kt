@@ -23,6 +23,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
+import org.bukkit.event.server.ServerLoadEvent
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.inventory.EquipmentSlot
@@ -51,9 +52,11 @@ internal class PaperNpcBodyService(
     private val log = LoggerFactory.getLogger(javaClass)
     private val tagKey = NamespacedKey(plugin, TAG)
     private val bodies = ConcurrentHashMap<EntityHandle, UUID>()
+    private val pending = java.util.concurrent.CopyOnWriteArrayList<PendingBody>()
 
     fun start() {
         plugin.server.pluginManager.registerEvents(this, plugin)
+        plugin.server.scheduler.runTask(plugin, Runnable { flushPending() })
     }
 
     override fun materialize(
@@ -64,38 +67,66 @@ internal class PaperNpcBodyService(
         pitch: Float,
         displayName: MessageKey,
     ) {
-        val spawn = Runnable {
-            // "lobby" is the logical world name; the Paper lobby is the server's main world
-            // (see PaperWorldGateway.lobbySpawn) unless a world with that exact name is loaded.
-            val bukkitWorld = plugin.server.getWorld(world.value) ?: plugin.server.worlds.firstOrNull()
-            if (bukkitWorld == null) {
-                log.warn("No Bukkit world available for NPC {} (logical world '{}')", handle.id, world.value)
-                return@Runnable
-            }
-            val location = Location(bukkitWorld, position.x, position.y, position.z, yaw, pitch)
-            val name = MiniMessage.miniMessage().deserialize(messages.render(null, displayName))
-            val villager = bukkitWorld.spawn(location, Villager::class.java) { v ->
-                v.setAI(false)
-                v.isInvulnerable = true
-                v.isSilent = true
-                v.isPersistent = false
-                v.removeWhenFarAway = false
-                v.customName(name)
-                v.isCustomNameVisible = true
-                v.persistentDataContainer.set(tagKey, PersistentDataType.STRING, encode(handle))
-            }
-            bodies[handle] = villager.uniqueId
-        }
-        if (plugin.server.isPrimaryThread) spawn.run() else plugin.server.scheduler.runTask(plugin, spawn)
+        val request = PendingBody(handle, world, position, yaw, pitch, displayName)
+        val run = Runnable { if (!trySpawn(request)) pending += request }
+        if (plugin.server.isPrimaryThread) run.run() else plugin.server.scheduler.runTask(plugin, run)
     }
 
     override fun removeAll() {
         val remove = Runnable {
+            pending.clear()
             bodies.values.forEach { id -> plugin.server.getEntity(id)?.remove() }
             bodies.clear()
         }
         if (plugin.server.isPrimaryThread) remove.run() else plugin.server.scheduler.runTask(plugin, remove)
     }
+
+    /**
+     * Core enables before the server has loaded its worlds, so early requests are parked in
+     * [pending] and flushed once worlds exist (ServerLoadEvent, or the first tick as a fallback).
+     */
+    @EventHandler
+    fun onServerLoad(event: ServerLoadEvent) {
+        flushPending()
+    }
+
+    private fun flushPending() {
+        if (pending.isEmpty()) return
+        val batch = pending.toList()
+        pending.clear()
+        batch.forEach { if (!trySpawn(it)) pending += it }
+    }
+
+    /** `false` when no world is loaded yet (caller keeps the request pending). */
+    private fun trySpawn(req: PendingBody): Boolean {
+        // "lobby" is the logical world name; the Paper lobby is the server's main world
+        // (see PaperWorldGateway.lobbySpawn) unless a world with that exact name is loaded.
+        val bukkitWorld = plugin.server.getWorld(req.world.value) ?: plugin.server.worlds.firstOrNull()
+            ?: return false
+        val location = Location(bukkitWorld, req.position.x, req.position.y, req.position.z, req.yaw, req.pitch)
+        val name = MiniMessage.miniMessage().deserialize(messages.render(null, req.displayName))
+        val villager = bukkitWorld.spawn(location, Villager::class.java) { v ->
+            v.setAI(false)
+            v.isInvulnerable = true
+            v.isSilent = true
+            v.isPersistent = false
+            v.removeWhenFarAway = false
+            v.customName(name)
+            v.isCustomNameVisible = true
+            v.persistentDataContainer.set(tagKey, PersistentDataType.STRING, encode(req.handle))
+        }
+        bodies[req.handle] = villager.uniqueId
+        return true
+    }
+
+    private data class PendingBody(
+        val handle: EntityHandle,
+        val world: WorldId,
+        val position: Vec3,
+        val yaw: Float,
+        val pitch: Float,
+        val displayName: MessageKey,
+    )
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onInteract(event: PlayerInteractEntityEvent) {

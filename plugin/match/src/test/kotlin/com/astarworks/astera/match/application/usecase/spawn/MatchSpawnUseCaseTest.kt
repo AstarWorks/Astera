@@ -11,12 +11,13 @@ import com.astarworks.astera.core.domain.match.Score
 import com.astarworks.astera.core.domain.match.Team
 import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.core.domain.stage.SpawnFaction
+import com.astarworks.astera.core.domain.stage.SpawnRole
 import com.astarworks.astera.core.domain.stage.SpawnPoint
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.match.application.contents.StageContents
+import com.astarworks.astera.match.application.service.DefaultSpawnSelector
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeWorldGateway
@@ -28,9 +29,7 @@ import java.util.UUID
 /**
  * Unit tests for [MatchSpawnUseCase].
  *
- * Wave 5o (ADR-0081): the assertions now construct `SpawnPoint` as a flat
- * data class with `faction` enum instead of the pre-Wave-5o
- * `SpawnPoint.Attacker(pos)` sealed-variant calls.
+ * WP9: spawns are per team; the player sits on team `red`.
  */
 class MatchSpawnUseCaseTest {
 
@@ -57,25 +56,23 @@ class MatchSpawnUseCaseTest {
             stageRegistry = stages,
             worldGateway = worldGateway,
             eventBus = eventBus,
-            // RandomSpawnRotationStrategy with a single matching spawn is
-            // deterministic — no need to seed the Random for these tests.
-            strategy = RandomSpawnRotationStrategy(),
+            spawnSelector = DefaultSpawnSelector(matches),
         )
     }
 
     @Test
     fun `happy path - teleports player to the matching spawn`() {
-        stages.register(stageWithSpawns(attacker(attackerPos)))
+        stages.register(stageWithSpawns(red(attackerPos)))
         matches.save(matchOn(stageId))
 
-        val result = useCase.spawnPlayer(matchId, playerId, SpawnKind.ATTACKER)
+        val result = useCase.spawnPlayer(matchId, playerId)
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
         assertThat(worldGateway.teleports).hasSize(1)
         val call = worldGateway.teleports.single()
         assertThat(call.playerId).isEqualTo(playerId)
         assertThat(call.at).isEqualTo(attackerPos)
-        assertThat(call.world).isNull()
+        assertThat(call.world).isEqualTo(testWorld)
         // Wave 5e: cross-server portal-ready signal must fire on happy path.
         val portals = eventBus.publishedOfType<PlayerPortalReady.EntryReady>()
         assertThat(portals).hasSize(1)
@@ -86,9 +83,9 @@ class MatchSpawnUseCaseTest {
     @Test
     fun `MatchNotFound when match does not exist`() {
         // Stage exists but no match is saved.
-        stages.register(stageWithSpawns(attacker(attackerPos)))
+        stages.register(stageWithSpawns(red(attackerPos)))
 
-        val result = useCase.spawnPlayer(matchId, playerId, SpawnKind.ATTACKER)
+        val result = useCase.spawnPlayer(matchId, playerId)
 
         assertThat(result).isInstanceOf(Result.Failure::class.java)
         val error = (result as Result.Failure).error
@@ -102,7 +99,7 @@ class MatchSpawnUseCaseTest {
         // Match referencing a stage that was never saved.
         matches.save(matchOn(StageId("ghost-stage")))
 
-        val result = useCase.spawnPlayer(matchId, playerId, SpawnKind.ATTACKER)
+        val result = useCase.spawnPlayer(matchId, playerId)
 
         assertThat(result).isInstanceOf(Result.Failure::class.java)
         val error = (result as Result.Failure).error
@@ -112,29 +109,29 @@ class MatchSpawnUseCaseTest {
     }
 
     @Test
-    fun `NoSpawnPointForKind when stage has no spawn of the requested kind`() {
-        // Stage only has a defender spawn — asking for attacker must fail.
-        stages.register(stageWithSpawns(defender(Vec3(0.0, 64.0, 0.0))))
+    fun `NoSpawnPoint when stage has no spawn for the player's team`() {
+        // Stage only has a blue spawn; the player is on red.
+        stages.register(stageWithSpawns(blue(Vec3(0.0, 64.0, 0.0))))
         matches.save(matchOn(stageId))
 
-        val result = useCase.spawnPlayer(matchId, playerId, SpawnKind.ATTACKER)
+        val result = useCase.spawnPlayer(matchId, playerId)
 
         assertThat(result).isInstanceOf(Result.Failure::class.java)
         val error = (result as Result.Failure).error
-        assertThat(error).isInstanceOf(SpawnError.NoSpawnPointForKind::class.java)
-        val noSpawn = error as SpawnError.NoSpawnPointForKind
-        assertThat(noSpawn.kind).isEqualTo(SpawnKind.ATTACKER)
+        assertThat(error).isInstanceOf(SpawnError.NoSpawnPoint::class.java)
+        val noSpawn = error as SpawnError.NoSpawnPoint
+        assertThat(noSpawn.playerId).isEqualTo(playerId)
         assertThat(noSpawn.stageId).isEqualTo(stageId)
         assertThat(worldGateway.teleports).isEmpty()
     }
 
     @Test
     fun `TeleportFailed when world gateway returns false`() {
-        stages.register(stageWithSpawns(attacker(attackerPos)))
+        stages.register(stageWithSpawns(red(attackerPos)))
         matches.save(matchOn(stageId))
         worldGateway.teleportResult = false
 
-        val result = useCase.spawnPlayer(matchId, playerId, SpawnKind.ATTACKER)
+        val result = useCase.spawnPlayer(matchId, playerId)
 
         assertThat(result).isInstanceOf(Result.Failure::class.java)
         val error = (result as Result.Failure).error
@@ -146,11 +143,11 @@ class MatchSpawnUseCaseTest {
         assertThat(eventBus.publishedOfType<PlayerPortalReady.EntryReady>()).isEmpty()
     }
 
-    private fun attacker(pos: Vec3): SpawnPoint =
-        SpawnPoint(world = testWorld, position = pos, faction = SpawnFaction.ATTACKER)
+    private fun red(pos: Vec3): SpawnPoint =
+        SpawnPoint(world = testWorld, position = pos, role = SpawnRole.TEAM, team = TeamId("red"))
 
-    private fun defender(pos: Vec3): SpawnPoint =
-        SpawnPoint(world = testWorld, position = pos, faction = SpawnFaction.DEFENDER)
+    private fun blue(pos: Vec3): SpawnPoint =
+        SpawnPoint(world = testWorld, position = pos, role = SpawnRole.TEAM, team = TeamId("blue"))
 
     private fun stageWithSpawns(vararg spawns: SpawnPoint): Stage = Stage(
         id = stageId,
@@ -167,7 +164,7 @@ class MatchSpawnUseCaseTest {
                 id = TeamId("red"),
                 displayNameKey = MessageKey("astera.match.team.red"),
                 colorKey = MessageKey("astera.match.team.red.color"),
-                members = emptySet(),
+                members = setOf(playerId),
             ),
         ),
         score = Score(mapOf(TeamId("red") to 0)),
