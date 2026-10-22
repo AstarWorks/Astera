@@ -169,6 +169,7 @@ astera:
       stats: "プレイヤー統計"
       stats-show: "統計を表示（既定は自分）"
       stats-leaderboard: "シーズンのランキングを表示"
+      stats-last: "直近の試合を表示"
       stats-xp: "XP 操作"
       stats-xp-grant: "プレイヤーに XP を付与"
       friend: "フレンド"
@@ -729,6 +730,37 @@ astera:
         sudden-death: "<gray>サドンデスで決着。</gray>"
         objective: "<gray>目標達成により終了。</gray>"
         cancelled: "<gray>マッチがキャンセルされました。</gray>"
+        world-unloaded: "<gray>マッチのワールドがアンロードされました。</gray>"
+    # F3-4 — 試合終了時のリザルト画面（チャット部分）。ロビーへ戻る前に表示。
+    result:
+      score:
+        label: "<gray>スコア</gray>  {scores}"
+        team: "<{color}>{team}</{color}> <white><bold>{score}</bold></white>"
+      top:
+        header: "<gray>トッププレイヤー</gray> <dark_gray>(キル / デス / アシスト、目標)</dark_gray>"
+        entry: " <yellow>{rank}.</yellow> <{color}>{name}</{color}> <white>{kills}</white><gray>/</gray><white>{deaths}</white><gray>/</gray><white>{assists}</white> <dark_gray>|</dark_gray> <white>{objective}</white>{mvp}"
+      mvp-tag: " <gold>[MVP]</gold>"
+      mvp: "<gold><bold>MVP:</bold></gold> <{color}>{name}</{color}> <gray>({kills} / {deaths} / {assists})</gray>"
+      you: "<aqua>あなた:</aqua> <white>{kills}</white> <gray>キル</gray>、<white>{deaths}</white> <gray>デス</gray>、<white>{assists}</white> <gray>アシスト</gray>、<white>{objective}</white> <gray>目標</gray>"
+    # F3-4 — 試合終了時に支払われる報酬の内訳 (match-rewards.yaml)。
+    reward:
+      header: "<gold>-- 報酬 --</gold>"
+      none: "<gray>今回の試合の報酬はありません。</gray>"
+      line: " <gray>{label}</gray> <dark_gray>></dark_gray> {amounts}"
+      total: "<gold><bold>合計</bold></gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      level: "<aqua>レベル {level}</aqua> <gray>(次のレベルまで {into} / {next} XP)</gray>"
+      levelup: "<green><bold>レベルアップ！</bold></green> <white>{from}</white> <gray>-></gray> <white>{to}</white>"
+      amount:
+        star: "<yellow>+{amount} STAR</yellow>"
+        gold: "<gold>+{amount} GOLD</gold>"
+        xp: "<aqua>+{amount} XP</aqua>"
+      kind:
+        participation: "参加ボーナス"
+        result: "試合結果"
+        kills: "キル x{count}"
+        assists: "アシスト x{count}"
+        objectives: "目標 x{count}"
+        mvp: "MVP ボーナス"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — 切断保留中の再接続猶予
     # ActionBar カウントダウン。
     reconnect:
@@ -954,6 +986,20 @@ astera:
       kills-100:
         name: "<gold>英雄</gold>"
         description: "<gray>キル数 100。</gray>"
+
+    # F3-4 — 「直近の試合」カード: /astera stats last とロビー復帰時のまとめ。
+    last:
+      none: "<gray>まだ試合をプレイしていません。</gray>"
+      recap: "<dark_aqua>== 直近の試合 ==</dark_aqua>"
+      header:
+        win: "<gold><bold>勝利</bold></gold> <gray>{mode} ・ {ago}前</gray>"
+        lose: "<dark_red><bold>敗北</bold></dark_red> <gray>{mode} ・ {ago}前</gray>"
+        draw: "<gray><bold>引き分け</bold></gray> <gray>{mode} ・ {ago}前</gray>"
+      score: "<gray>スコア:</gray> <white>{scores}</white>"
+      you: "<aqua>あなた:</aqua> <white>{kills}</white> <gray>キル</gray>、<white>{deaths}</white> <gray>デス</gray>、<white>{assists}</white> <gray>アシスト</gray>、<white>{objective}</white> <gray>目標</gray>"
+      mvp: "<gold>あなたが MVP でした！</gold>"
+      rewards: "<gold>報酬</gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      level: "<aqua>レベル {level}</aqua> <gray>(次のレベルまで {into} / {next} XP)</gray>"
 
     # Wave 5flex (ADR-0102) — マッチネームプレートのマイルストーン表示。
     milestone:

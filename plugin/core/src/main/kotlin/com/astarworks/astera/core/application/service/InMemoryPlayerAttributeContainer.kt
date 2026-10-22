@@ -27,5 +27,9 @@ public class InMemoryPlayerAttributeContainer : IPlayerAttributeContainerStore {
         // no-op for in-memory; Postgres overlay flushes JSONB row.
     }
 
+    override fun reload(playerId: PlayerId) {
+        // no-op: this JVM's map is the only copy.
+    }
+
     override fun loaded(): Map<PlayerId, IAttributeContainer> = containers.toMap()
 }

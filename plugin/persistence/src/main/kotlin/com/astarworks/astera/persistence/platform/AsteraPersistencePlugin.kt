@@ -103,7 +103,9 @@ public class AsteraPersistencePlugin : JavaPlugin() {
 
     private val registrations = mutableListOf<ServiceRegistry.Registration>()
     private val staged = mutableListOf<Pair<String, (ServiceRegistry) -> ServiceRegistry.Registration>>()
+    private val subscriptions = mutableListOf<com.astarworks.astera.core.application.port.outbound.IDomainEventBus.Subscription>()
     private var persistence: PersistenceContext? = null
+    private var attributeStore: IPlayerAttributeContainerStore? = null
     private var bootstrapFailure: Throwable? = null
 
     /** Queues an overlay; nothing is registered until every repository has been built. */
@@ -158,6 +160,18 @@ public class AsteraPersistencePlugin : JavaPlugin() {
     }
 
     override fun onEnable() {
+        // F3-4: the lobby and the game server share one player row but each JVM caches it. A
+        // player arriving on this backend re-reads the row first, so the wallet / last-match
+        // written on the other backend is what shows. Subscribed before any feature plugin's
+        // join listener (loadbefore). Needs Core's bus, so it cannot run in onLoad.
+        attributeStore?.let { store ->
+            getPlugin(AsteraCorePlugin::class.java).services
+                .get<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()?.let { bus ->
+                    subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) {
+                        store.reload(it.playerId)
+                    }
+                }
+        }
         // Core has enabled (its error reporter exists) by now: surface the onLoad failure.
         val t = bootstrapFailure ?: return
         // Wave L 5hardening-complete (ADR-0129): structured fan-out for the
@@ -199,6 +213,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             com.astarworks.astera.persistence.repository.PostgresPlayerXpRepository(ctx.database),
             priority = 100,
         )
+        attributeStore = attributeContainerStore
         stage<IPlayerStatsRepository>(
             PostgresPlayerStatsRepository(attributeContainerStore),
             priority = 100,
@@ -407,6 +422,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
     }
 
     override fun onDisable() {
+        subscriptions.forEach { it.cancel() }
+        subscriptions.clear()
         registrations.forEach { it.unregister() }
         registrations.clear()
         persistence?.dataSource?.close()

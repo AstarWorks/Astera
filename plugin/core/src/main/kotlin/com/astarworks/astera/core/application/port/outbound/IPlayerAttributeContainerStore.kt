@@ -32,6 +32,16 @@ public interface IPlayerAttributeContainerStore {
     public fun flush(playerId: PlayerId)
 
     /**
+     * Re-read [playerId]'s state from the shared store into the container
+     * this JVM already holds (same reference, so holders see the new values).
+     * Called when the player arrives on this server: another backend of the
+     * network (lobby <-> game) may have written wallet / progress since this
+     * JVM last loaded them. A no-op when the player was never loaded here and
+     * for single-JVM in-memory stores.
+     */
+    public fun reload(playerId: PlayerId)
+
+    /**
      * Snapshot of every currently-loaded container. Audit / debug only.
      * Postgres impl returns only the rows it has loaded since
      * `containerFor` — not the full table.

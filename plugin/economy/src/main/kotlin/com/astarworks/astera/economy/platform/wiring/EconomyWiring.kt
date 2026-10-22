@@ -21,7 +21,11 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnMissionCompletedListener
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnXpListener
-import com.astarworks.astera.economy.application.eventbus.listeners.RewardOnMatchEndedListener
+import com.astarworks.astera.economy.application.config.MatchRewardsLoader
+import com.astarworks.astera.economy.application.eventbus.listeners.GrantMatchRewardsOnSummaryListener
+import com.astarworks.astera.core.application.port.outbound.ILastMatchStore
+import com.astarworks.astera.core.domain.event.MatchSummaryReady
+import com.astarworks.astera.stats.application.port.outbound.ILevelService
 import com.astarworks.astera.economy.application.eventbus.listeners.onboarding.GrantRewardOnTutorialCompletedListener
 import com.astarworks.astera.economy.application.eventbus.listeners.betting.DistributeBettingPayoutOnResolvedListener
 import com.astarworks.astera.economy.application.eventbus.listeners.betting.ResolveBettingOnMatchEndedListener
@@ -197,22 +201,27 @@ public object EconomyWiring {
 
         // ── Listeners ──────────────────────────────────────────────────────────
         val depositOnXpListener = DepositOnXpListener(deposit)
-        // Wave 2 R1.b: cross-plugin reward listeners.
-        // rewardAmount is a constructor-fixed default until StageYamlConfig grows a
-        // `win_reward` field (Phase 3); see RewardOnMatchEndedListener kdoc.
-        val rewardOnMatchEndedListener = RewardOnMatchEndedListener(
-            matchRepository = matchRepository,
+        // F3-4: the match-end payout. Reward amounts come from
+        // content/balance/match-rewards.yaml, re-read at every match end so
+        // `make dev-content` takes effect without a restart.
+        val matchRewardsPath = ctx.contentDir.resolve("balance").resolve("match-rewards.yaml")
+        val matchRewardsLoader = MatchRewardsLoader()
+        val grantMatchRewards = GrantMatchRewardsOnSummaryListener(
+            table = { matchRewardsLoader.load(matchRewardsPath) },
             deposit = deposit,
-            rewardAmount = 100L,
-            rewardCurrency = Currency.STAR,
+            levels = { services.get<ILevelService>() },
+            eventBus = eventBus,
+            messages = msgRenderer,
+            playerGateway = playerGateway,
+            lastMatches = { services.get<ILastMatchStore>() },
         )
         val depositOnMissionCompletedListener = DepositOnMissionCompletedListener(deposit)
 
         subscriptions += eventBus.subscribe(XpGranted::class) { event ->
             depositOnXpListener.handle(event)
         }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { event ->
-            rewardOnMatchEndedListener.handle(event)
+        subscriptions += eventBus.subscribe(MatchSummaryReady::class) { event ->
+            grantMatchRewards.handle(event)
         }
         subscriptions += eventBus.subscribe(MissionCompleted::class) { event ->
             depositOnMissionCompletedListener.handle(event)

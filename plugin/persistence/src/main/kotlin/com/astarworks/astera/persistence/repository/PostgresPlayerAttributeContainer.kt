@@ -48,8 +48,20 @@ public class PostgresPlayerAttributeContainer(private val db: Database) : IPlaye
 
     override fun loaded(): Map<PlayerId, IAttributeContainer> = cache.toMap()
 
+    override fun reload(playerId: PlayerId) {
+        val cached = cache[playerId] ?: return
+        val fresh = SimpleAttributeContainer()
+        readInto(playerId, fresh)
+        cached.replaceWith(fresh)
+    }
+
     private fun load(playerId: PlayerId): WriteThroughContainer {
         val backing = SimpleAttributeContainer()
+        readInto(playerId, backing)
+        return WriteThroughContainer(playerId, backing) { id, c -> write(id, c) }
+    }
+
+    private fun readInto(playerId: PlayerId, backing: SimpleAttributeContainer) {
         val payload = transaction(db) {
             PlayerAttributesTable
                 .selectAll()
@@ -65,7 +77,6 @@ public class PostgresPlayerAttributeContainer(private val db: Database) : IPlaye
                 backing.addModifier(mod.toDomain())
             }
         }
-        return WriteThroughContainer(playerId, backing) { id, c -> write(id, c) }
     }
 
     private fun write(playerId: PlayerId, container: WriteThroughContainer) {
@@ -122,6 +133,14 @@ internal class WriteThroughContainer(
     }
 
     override fun effectiveNumber(key: AttributeKey): Double = backing.effectiveNumber(key)
+
+    /** Swap in [fresh] state without writing it back (it was just read from the row). */
+    internal fun replaceWith(fresh: SimpleAttributeContainer) {
+        backing.keys().forEach { backing.remove(it) }
+        backing.modifiers().map { it.sourceId }.distinct().forEach { backing.removeModifiersBySource(it) }
+        fresh.keys().forEach { backing.set(it, fresh.get(it)!!) }
+        fresh.modifiers().forEach { backing.addModifier(it) }
+    }
 
     internal fun snapshotValues(): Map<AttributeKey, AttributeValue> =
         backing.keys().associateWith { backing.get(it)!! }
