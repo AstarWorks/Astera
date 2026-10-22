@@ -8,6 +8,7 @@ import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
+import com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -877,6 +878,47 @@ public sealed class MechanicYaml {
             condition = condition?.toDomain(),
             snapshotPose = snapshotPose,
         )
+    }
+
+    @Serializable
+    @SerialName("screen_flash")
+    public data class ScreenFlash(
+        public val targets: TargeterYaml,
+        /** One of white / vignette / gold_burst / speed_diag / speed_radial / impact_star. */
+        public val overlay: String,
+        /** `#RRGGBB` tint; omitted = the overlay's default colour. */
+        public val color: String? = null,
+        @SerialName("fade_in") public val fadeIn: IntValueYaml = IntValueYaml.Literal(0),
+        public val stay: IntValueYaml = IntValueYaml.Literal(1),
+        @SerialName("fade_out") public val fadeOut: IntValueYaml = IntValueYaml.Literal(2),
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.ScreenFlash(
+            targets = targets.toDomain(),
+            overlay = requireNotNull(ScreenOverlay.fromYaml(overlay)) {
+                "screen_flash: unknown overlay '$overlay' (one of ${ScreenOverlay.entries.joinToString { it.yamlName }})"
+            },
+            colorRgb = color?.let {
+                require(HEX_COLOR.matches(it)) { "screen_flash: color '$it' is not #RRGGBB" }
+                it.substring(1).toInt(16)
+            },
+            fadeInTicks = fadeIn.toDomain(),
+            stayTicks = stay.toDomain(),
+            fadeOutTicks = fadeOut.toDomain(),
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
+        )
+
+        private companion object {
+            val HEX_COLOR = Regex("#[0-9a-fA-F]{6}")
+        }
     }
 
     // ───────────────────────── Messages (3) ─────────────────────────

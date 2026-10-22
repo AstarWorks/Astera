@@ -138,4 +138,24 @@ class MechanicYamlTest {
         assertThat(DirectionRefYaml.TowardCaster().toDomain()).isEqualTo(DirectionRef.TowardCaster(0.0))
         assertThat(Mechanic.Heal(com.astarworks.astera.core.domain.skill.targeter.Targeter.Caster, com.astarworks.astera.core.domain.skill.value.NumericValue.Literal(1.0)).snapshotPose).isFalse()
     }
+
+    @Test
+    fun `screen flash parses overlay and hex colour`() {
+        val domain = MechanicYaml.ScreenFlash(TargeterYaml.Target, overlay = "gold_burst", color = "#FFC84A").toDomain()
+            as Mechanic.ScreenFlash
+        assertThat(domain.overlay).isEqualTo(com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay.GOLD_BURST)
+        assertThat(domain.colorRgb).isEqualTo(0xFFC84A)
+        assertThat(MechanicYaml.ScreenFlash(TargeterYaml.Target, overlay = "white").toDomain())
+            .isInstanceOf(Mechanic.ScreenFlash::class.java)
+    }
+
+    @Test
+    fun `screen flash rejects unknown overlay and bad colour`() {
+        org.assertj.core.api.Assertions.assertThatThrownBy {
+            MechanicYaml.ScreenFlash(TargeterYaml.Target, overlay = "nope").toDomain()
+        }.isInstanceOf(IllegalArgumentException::class.java)
+        org.assertj.core.api.Assertions.assertThatThrownBy {
+            MechanicYaml.ScreenFlash(TargeterYaml.Target, overlay = "white", color = "red").toDomain()
+        }.isInstanceOf(IllegalArgumentException::class.java)
+    }
 }

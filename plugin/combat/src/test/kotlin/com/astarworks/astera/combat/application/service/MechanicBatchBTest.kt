@@ -27,6 +27,7 @@ import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
+import com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay
 import com.astarworks.astera.core.domain.skill.targeter.Targeter
 import com.astarworks.astera.core.domain.skill.value.BoolValue
 import com.astarworks.astera.core.domain.skill.value.IntValue
@@ -406,6 +407,20 @@ class MechanicBatchBTest {
         assertThat(kicks.last()).isLessThan(0.5)
     }
 
+    @Test
+    fun `screen flash sends the overlay with its default colour and clamped ticks`() {
+        run(Mechanic.ScreenFlash(Targeter.Target, ScreenOverlay.GOLD_BURST, fadeInTicks = lit(-3), stayTicks = lit(2)))
+        assertThat(feedback.flashes).containsExactly(
+            listOf(victim, ScreenOverlay.GOLD_BURST, 0xFFC84A, 0, 2, 2),
+        )
+    }
+
+    @Test
+    fun `screen flash honours an explicit colour`() {
+        run(Mechanic.ScreenFlash(Targeter.Target, ScreenOverlay.WHITE, colorRgb = 0x112233))
+        assertThat(feedback.flashes.single()[2]).isEqualTo(0x112233)
+    }
+
     // ---- support table -----------------------------------------------------
 
     @Test
@@ -420,6 +435,7 @@ class MechanicBatchBTest {
             Mechanic.SpawnDisplay(Targeter.Caster, DisplaySpec(DisplayKind.Block("minecraft:glass"), lifetimeTicks = 5L)),
             Mechanic.Glow(Targeter.Caster, lit(5)),
             Mechanic.CameraShake(Targeter.Caster, lit(0.5), lit(5)),
+            Mechanic.ScreenFlash(Targeter.Caster, ScreenOverlay.WHITE),
         )
         all.forEach { assertThat(MechanicSupport.problemsOf(it)).describedAs(it::class.simpleName).isEmpty() }
         assertThat(MechanicSupport.problemsOf(Mechanic.Resurrect(Targeter.Caster, lit(0.5)))).isNotEmpty()
@@ -514,6 +530,19 @@ class MechanicBatchBTest {
             stayTicks: Int,
             fadeOutTicks: Int,
         ) = Unit
+
+        val flashes = mutableListOf<List<Any>>()
+
+        override fun sendScreenFlash(
+            target: PlayerId,
+            overlay: ScreenOverlay,
+            colorRgb: Int,
+            fadeInTicks: Int,
+            stayTicks: Int,
+            fadeOutTicks: Int,
+        ) {
+            flashes += listOf(target, overlay, colorRgb, fadeInTicks, stayTicks, fadeOutTicks)
+        }
 
         override fun cameraKick(target: PlayerId, intensity: Double) {
             kicks += target to intensity

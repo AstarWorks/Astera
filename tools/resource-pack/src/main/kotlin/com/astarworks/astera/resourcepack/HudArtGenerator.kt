@@ -87,7 +87,7 @@ public object HudArtGenerator {
         "cooldown.json" to cooldownJson().toByteArray(),
         "space.json" to spaceJson().toByteArray(),
         "currency/star-icon.png" to png(starIcon()),
-    )
+    ).apply { putAll(OverlayArtGenerator.render()) }
 
     public fun writeTo(hudDir: Path): List<Path> = render().map { (relative, bytes) ->
         val target = hudDir.resolve(relative)

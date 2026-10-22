@@ -547,6 +547,25 @@ public sealed class Mechanic {
         override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
+    /**
+     * Cut-in screen flash: a full-screen [overlay] glyph shown as a title (so it replaces any
+     * gameplay title on the viewer for its few ticks; text belongs in the subtitle / action bar).
+     * [colorRgb] (0xRRGGBB) tints it, `null` = the overlay's default. Viewers are [targets].
+     */
+    public data class ScreenFlash(
+        override val targets: Targeter,
+        val overlay: ScreenOverlay,
+        val colorRgb: Int? = null,
+        val fadeInTicks: IntValue = IntValue.Literal(0),
+        val stayTicks: IntValue = IntValue.Literal(1),
+        val fadeOutTicks: IntValue = IntValue.Literal(2),
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic()
+
     // ───────────────────────── Messages (3) ─────────────────────────
 
     public data class SendMessage(

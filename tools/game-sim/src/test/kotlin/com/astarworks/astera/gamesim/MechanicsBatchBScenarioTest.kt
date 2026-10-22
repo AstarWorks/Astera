@@ -195,4 +195,27 @@ class MechanicsBatchBScenarioTest {
             assertThat(sim.recorder.effects("block_remove")).hasSize(1) // the revert
         }
     }
+
+    @Test
+    fun `the cut-in demo skill flashes white then gold then speed lines for the caster only`() {
+        scenario("vfx-demo-cutin") {
+            val caster = player("caster", team = "red")
+            val enemy = player("enemy", at = Vec3(0.0, groundY, 4.0), team = "blue")
+
+            caster.cast("vfx-demo-cutin")
+            advance(6)
+
+            val flashes = sim.feedback.flashes
+            assertThat(flashes.map { it.overlay }).containsExactly(
+                com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay.WHITE,
+                com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay.GOLD_BURST,
+                com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay.SPEED_DIAG,
+            )
+            assertThat(flashes.map { it.tick }).isSorted()
+            assertThat(flashes.map { it.target }.toSet()).containsExactly(caster.id)
+            assertThat(flashes.none { it.target == enemy.id }).isTrue()
+            assertThat(flashes[1].colorRgb).isEqualTo(0xFFC84A)
+            assertThat(sim.recorder.effects("screen_flash")).hasSize(3)
+        }
+    }
 }

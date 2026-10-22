@@ -1,6 +1,7 @@
 package com.astarworks.astera.combat.application.port.outbound
 
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay
 
 /**
  * Host-neutral player-facing text output for the messaging mechanics
@@ -15,6 +16,19 @@ public interface IPlayerFeedbackGateway {
         target: PlayerId,
         title: String,
         subtitle: String?,
+        fadeInTicks: Int,
+        stayTicks: Int,
+        fadeOutTicks: Int,
+    )
+
+    /**
+     * Full-screen cut-in (`screen_flash`): [overlay] glyph tinted [colorRgb] (0xRRGGBB), shown as a
+     * title, so it replaces any title the player currently sees.
+     */
+    public fun sendScreenFlash(
+        target: PlayerId,
+        overlay: ScreenOverlay,
+        colorRgb: Int,
         fadeInTicks: Int,
         stayTicks: Int,
         fadeOutTicks: Int,

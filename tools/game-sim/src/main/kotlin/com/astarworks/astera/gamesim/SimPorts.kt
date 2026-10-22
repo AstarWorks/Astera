@@ -27,6 +27,7 @@ import com.astarworks.astera.core.application.port.outbound.WorldGatewayError
 import com.astarworks.astera.core.application.port.outbound.spectator.ISpectator
 import com.astarworks.astera.core.application.port.outbound.spectator.SpectatorError
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
+import com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.attribute.AttributeValue
 import com.astarworks.astera.core.domain.attribute.Attributes
@@ -353,6 +354,26 @@ public class SimPlayerFeedbackGateway(
     override fun cameraKick(target: PlayerId, intensity: Double) {
         kicks += Kick(target, intensity, clock())
         recorder?.recordEffect(clock(), "camera_shake", null, "${target.uuid} intensity=${"%.2f".format(intensity)}")
+    }
+
+    /** Screen flashes sent by ScreenFlash. */
+    public data class Flash(val target: PlayerId, val overlay: ScreenOverlay, val colorRgb: Int, val tick: Long,
+        val fadeInTicks: Int, val stayTicks: Int, val fadeOutTicks: Int)
+    public val flashes: MutableList<Flash> = mutableListOf()
+
+    override fun sendScreenFlash(
+        target: PlayerId,
+        overlay: ScreenOverlay,
+        colorRgb: Int,
+        fadeInTicks: Int,
+        stayTicks: Int,
+        fadeOutTicks: Int,
+    ) {
+        flashes += Flash(target, overlay, colorRgb, clock(), fadeInTicks, stayTicks, fadeOutTicks)
+        recorder?.recordEffect(
+            clock(), "screen_flash", null,
+            "${target.uuid} ${overlay.yamlName} #%06X in=$fadeInTicks stay=$stayTicks out=$fadeOutTicks".format(colorRgb),
+        )
     }
 
     public val actionBars: MutableList<Pair<PlayerId, String>> = mutableListOf()

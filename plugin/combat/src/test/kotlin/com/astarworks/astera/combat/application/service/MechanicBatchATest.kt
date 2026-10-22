@@ -448,6 +448,15 @@ class MechanicBatchATest {
             titles += listOf(target, title, subtitle, fadeInTicks, stayTicks, fadeOutTicks)
         }
 
+        override fun sendScreenFlash(
+            target: PlayerId,
+            overlay: com.astarworks.astera.core.domain.skill.mechanic.ScreenOverlay,
+            colorRgb: Int,
+            fadeInTicks: Int,
+            stayTicks: Int,
+            fadeOutTicks: Int,
+        ) = Unit
+
         override fun cameraKick(target: PlayerId, intensity: Double) = Unit
     }
 }
