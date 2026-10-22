@@ -23,4 +23,21 @@ class CombatMatchBugHuntScenarioTest {
             assertThat(matches.findMatchOf(blue.id)?.id).isEqualTo(second)
         }
     }
+    @Test
+    fun `assist attribution is scoped to one life through production wiring`() {
+        scenario("bug-hunt-assist-lives") {
+            val helper = player("helper")
+            val killer = player("killer")
+            val victim = player("victim")
+            val history = sim.services.getOrThrow<com.astarworks.astera.combat.application.port.outbound.IDamageHistoryService>()
+            history.record(victim.id, com.astarworks.astera.combat.domain.damage.DamageEntry(helper.id, 5.0, sim.tick))
+            val death = com.astarworks.astera.combat.domain.event.PlayerKilled(
+                victim.id, killer.id, com.astarworks.astera.combat.domain.damage.DamageSource.Environment.Generic, sim.tick,
+            )
+            sim.eventBus.publish(death)
+            sim.eventBus.publish(death.copy(atTick = sim.tick + 1))
+            assertThat(eventsOf<com.astarworks.astera.combat.domain.event.AssistCredited>().map { it.player })
+                .containsExactly(helper.id)
+        }
+    }
 }

@@ -61,4 +61,25 @@ class AssistAttributionUseCaseTest {
         val events = bus.publishedOfType<AssistCredited>()
         assertThat(events.map { it.player }).containsExactly(assistA)
     }
+    @Test
+    fun `a death consumes damage history so respawn does not award the same assist twice`() {
+        val history = InMemoryDamageHistoryService()
+        val bus = FakeDomainEventBus()
+        val useCase = AssistAttributionUseCase(history, bus)
+        history.record(victim, DamageEntry(assistA, 5.0, at = 90L))
+
+        useCase.handle(kill(100L))
+        assertThat(history.entries(victim)).isEmpty()
+        useCase.handle(kill(101L))
+        assertThat(bus.publishedOfType<AssistCredited>().map { it.player }).containsExactly(assistA)
+    }
+
+    @Test
+    fun `self damage never earns an assist on the victims own death`() {
+        val history = InMemoryDamageHistoryService()
+        val bus = FakeDomainEventBus()
+        history.record(victim, DamageEntry(victim, 5.0, at = 90L))
+        AssistAttributionUseCase(history, bus).handle(kill(100L))
+        assertThat(bus.publishedOfType<AssistCredited>()).isEmpty()
+    }
 }
