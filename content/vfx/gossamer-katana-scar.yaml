@@ -11,14 +11,16 @@ sample_ticks: 1
 
 elements:
   - id: ink
-    kind: { type: block, block: black_concrete }
+    kind: { type: block, block: gray_concrete }
+    brightness: 6
     start_tick: 0
     end_tick: 24
     keyframes:
       - { t: 0, translate: [0.0, 1.4, 3.5], rotate: [0, 0, 52], scale: [0.04, 0.5, 0.04] }
       - { t: 2, scale: [0.24, 11.0, 0.24], ease: out_expo }
-      - { t: 12, scale: [0.24, 11.0, 0.24] }
-      - { t: 13, block: gray_concrete }
+      - { t: 6, scale: [0.24, 11.0, 0.24] }
+      - { t: 12, scale: [0.16, 11.0, 0.16], ease: in_quad }
+      - { t: 13, block: light_gray_concrete }
       - { t: 18, block: gray_stained_glass }
       - { t: 22, scale: [0.0, 11.0, 0.0], ease: in_quad }
 
@@ -31,7 +33,8 @@ elements:
     keyframes:
       - { t: 0, translate: [0.0, 1.4, 3.3], rotate: [0, 0, 52], scale: [0.02, 0.5, 0.02] }
       - { t: 2, scale: [0.07, 11.5, 0.07], ease: out_expo }
-      - { t: 10, scale: [0.07, 11.5, 0.07] }
+      - { t: 5, scale: [0.07, 11.5, 0.07] }
+      - { t: 10, scale: [0.035, 11.5, 0.035], ease: in_quad }
       - { t: 18, scale: [0.0, 11.5, 0.0], ease: in_quad }
 
   - id: glyph
@@ -47,7 +50,8 @@ elements:
       - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
 
   - id: blot
-    kind: { type: block, block: black_concrete }
+    kind: { type: block, block: gray_concrete }
+    brightness: 6
     start_tick: 1
     end_tick: 15
     count: 12

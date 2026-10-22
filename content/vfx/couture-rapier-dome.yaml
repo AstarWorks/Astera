@@ -56,7 +56,8 @@ elements:
     keyframes:
       - { t: 0, translate: [0.0, 4.0, 0.0], scale: [0.1, 8.0, 0.1] }
       - { t: 2, scale: [0.55, 8.0, 0.55], ease: out_expo }
-      - { t: 5, block: yellow_stained_glass }
+      - { t: 5, block: yellow_stained_glass, scale: [0.55, 8.0, 0.55] }
+      - { t: 10, scale: [0.3, 8.0, 0.3], ease: in_quad }
       - { t: 14, scale: [0.0, 8.0, 0.0], ease: in_quad }
 
   - id: star
