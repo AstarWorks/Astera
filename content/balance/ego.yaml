@@ -1,0 +1,8 @@
+# E.G.O gauge (ADR-0231): one per-player 0..max resource that fuels each persona
+# weapon's drop-key (Q) ultimate. Skills spend it with `ego_cost`.
+# Read by Core's EgoConfigLoader at boot; every field is optional.
+max: 100
+gain_on_dealt: 5        # per hit landed on a player or mob
+gain_on_taken: 4        # per hit taken
+decay_per_second: 2     # drains while out of combat; 0 = never decays
+decay_delay_ticks: 200  # out-of-combat time (10 s) before it starts draining

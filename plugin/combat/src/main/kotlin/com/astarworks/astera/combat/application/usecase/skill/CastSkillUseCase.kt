@@ -10,6 +10,7 @@ import com.astarworks.astera.combat.domain.skill.SkillSpec
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IEgoGauge
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
@@ -88,6 +89,8 @@ public class CastSkillUseCase(
      * facing, no world => particles / sounds drop).
      */
     private val poseLookup: IPlayerPoseLookup? = null,
+    /** ADR-0231: the E.G.O gauge a skill's `ego_cost` is checked against and spent from; `null` ignores `ego_cost`. */
+    private val egoGauge: IEgoGauge? = null,
 ) {
 
     /** Tick at which each reloading player's reload completes. */
@@ -123,6 +126,21 @@ public class CastSkillUseCase(
             val remainingTicks = cooldownTracker.remainingTicks(casterId, key)
             val remainingMs = remainingTicks * TICKS_TO_MS
             return Result.failure(CastSkillError.OnCooldown(skillId, remainingMs))
+        }
+
+        // 3b. E.G.O gate (ADR-0231): checked before anything is spent, consumed once the resource spend passed.
+        val egoCost = if (ignoreResource) 0 else spec.egoCost ?: 0
+        val ego = egoGauge
+        if (ego != null && egoCost > 0) {
+            val have = ego.value(casterId)
+            if (have < egoCost) {
+                return reject(
+                    casterId,
+                    skillId,
+                    CastRejectionReason.INSUFFICIENT_EGO,
+                    CastSkillError.InsufficientEgo(have = have, tried = egoCost),
+                )
+            }
         }
 
         // 4. Resource gate (WP2): reload state, then spend.
@@ -165,6 +183,8 @@ public class CastSkillUseCase(
                 }
             }
         }
+
+        if (ego != null && egoCost > 0) ego.spend(casterId, egoCost)
 
         // 5. Record cooldown (the item binding's override wins over the skill's own).
         val cooldownTicks = cooldownOverrideTicks ?: spec.cooldownTicks
@@ -254,6 +274,9 @@ public sealed class CastSkillError {
 
     /** The caster's pool of [type] held [have] but the cast costs [tried]. */
     public data class InsufficientResource(val type: ResourceType, val have: Int, val tried: Int) : CastSkillError()
+
+    /** The caster's E.G.O gauge held [have] but the cast costs [tried] (ADR-0231). */
+    public data class InsufficientEgo(val have: Int, val tried: Int) : CastSkillError()
 
     /** An ammo cast (or another reload) was attempted while a reload is in progress. */
     public data class Reloading(val casterId: PlayerId) : CastSkillError()

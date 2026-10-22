@@ -1,4 +1,4 @@
-# WP1: gun drop key (Q). WP2: a real reload. `reload_ticks` marks it as a reload:
+# WP1: gun sneak + drop key (Shift+Q). WP2: a real reload. `reload_ticks` marks it as a reload:
 # after 30 ticks the source item's ammo is refilled; ammo casts are rejected until
 # then. The buff phase keeps the short slow + click sound as the visible cue.
 

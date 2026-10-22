@@ -881,8 +881,9 @@ astera:
       friendly_fire_blocked: "<yellow>フレンドリーファイアは無効です。</yellow>"
     cast:
       insufficient:
-        ammo: "弾切れ - Qでリロード"
+        ammo: "弾切れ - Shift+Qでリロード"
         energy: "エネルギーが足りない"
+        ego: "E.G.Oゲージが足りない"
       reloading: "リロード中..."
       ammo_full: "弾倉は満タン"
       not_reloadable: "このアイテムはリロードできない"
@@ -952,6 +953,11 @@ astera:
       count: "<gold>{count}</gold>"
     mining:
       progress: "<gray>採掘中...</gray>"
+    # ADR-0231: E.G.O ゲージ。アクションバー表示 (戦闘) + 満タン時のタイトル演出。
+    ego:
+      gauge: "<light_purple>E.G.O {value}/{max}</light_purple>"
+      ready: "<gold><bold>E.G.O 発動可</bold></gold>"
+      flash: "<gold><bold>E.G.O 発動可</bold></gold> <gray>[Q]</gray>"
     # WP14 (ADR-0177) — HUD チャンネルは 1 つにつき持ち主 1 つ (docs/adr/0177-*)。
     #   アクションバー: 戦闘表示 (状態異常; クールダウンアイコンはステータス行 (ADR-0197))、通知が優先
     #   満腹度バー: エネルギー (F2-2, ADR-0194)   ステータス行: HP + 弾薬   サイドバー: 試合 / ロビー
