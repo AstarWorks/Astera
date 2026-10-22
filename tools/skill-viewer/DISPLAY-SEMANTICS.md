@@ -71,7 +71,7 @@ Astera VFX displays are at yaw 0 unless billboarded.
 A `type: sprite` VFX element is a text display whose text is `<#rrggbb>?<font:astera:vfx/<id>>\uE00k</font>`; each flipbook
 frame is a text `swap`. The viewer draws runs in a font from `content/fonts/**` (`astera:<tree>`, embedded with its provider
 image by `scripts/embed-sprites.mjs`) with vanilla's `BitmapProvider` + `Font` + `TextDisplayRenderer` rules
-(`display-math.js` `bitmapProvider` / `bitmapGlyphQuads`, pinned by `test/bitmap-font.test.js` and calibration scene 5):
+(`display-math.js` `bitmapProvider` / `bitmapGlyphQuads`, visually checked by calibration scene 5):
 
 * **Cell** = image width / chars per row x image height / rows (integer division); `scale = height / cellH` **(code)**.
 * **Quad**: the FULL cell, `cellW * scale` x `height` font px, left edge at the pen, top `ascent` px above the baseline; the
