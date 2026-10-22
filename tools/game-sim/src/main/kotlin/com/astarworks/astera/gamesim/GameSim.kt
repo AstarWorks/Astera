@@ -98,6 +98,10 @@ public class GameSim private constructor(
     private val handoff: com.astarworks.astera.core.application.service.handoff.PlayerHandoffService?
         get() = services.get<com.astarworks.astera.core.application.service.handoff.PlayerHandoffService>()
 
+    /** The stand-in Persistence overlay when booted with `persistenceOverlay = true`. */
+    public var persistenceOverlay: SimPersistenceOverlay? = null
+        internal set
+
     public lateinit var core: CoreWiringResult
         private set
     public lateinit var items: ItemsWiringResult
@@ -425,11 +429,15 @@ public class GameSim private constructor(
             proxy: com.astarworks.astera.core.application.port.outbound.IProxyMessenger? = null,
             /** The snapshot store shared by every server of a network (the Postgres all backends use); `null` = this server's own in-memory one. */
             snapshots: com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository? = null,
+
+            /** Registers the stand-in Persistence overlay before any wiring, like the plugin's onLoad (ADR-0187). */
+            persistenceOverlay: Boolean = false,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
             val scheduler = FakeScheduler()
             val services = ServiceRegistry()
+            val overlay = if (persistenceOverlay) SimPersistenceOverlay.install(services) else null
             // One seeded source for every random roll; CombatWiring picks it up instead of its own.
             services.register<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(
                 com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer(seed),
@@ -462,6 +470,7 @@ public class GameSim private constructor(
             )
 
             sim = GameSim(scenarioName, world, scheduler, services, recorder, mcServer, projectiles, broadcaster, contexts)
+            sim.persistenceOverlay = overlay
             val feedback = sim.feedback
 
             // ---- Core -----------------------------------------------------

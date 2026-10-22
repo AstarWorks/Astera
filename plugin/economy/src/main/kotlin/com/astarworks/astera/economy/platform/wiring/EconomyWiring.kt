@@ -247,8 +247,10 @@ public object EconomyWiring {
         // immutable spec. Persistence plugin registers the Postgres overlay
         // at priority 100; this in-memory default is the fallback for tests
         // and Postgres-less runs.
-        val shopStockRepository = InMemoryShopStockRepository()
-        registrations += services.register<IShopStockRepository>(shopStockRepository, priority = 0)
+        val shopStockRepository: IShopStockRepository = services.get<IShopStockRepository>()
+            ?: InMemoryShopStockRepository().also {
+                registrations += services.register<IShopStockRepository>(it, priority = 0)
+            }
 
         val shopsContentDir = ctx.contentDir.resolve("shops")
         val shopReport = ShopLoaderService(shopRegistry, shopStockRepository).loadFrom(shopsContentDir)

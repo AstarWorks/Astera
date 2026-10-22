@@ -57,8 +57,12 @@ public class AsteraCorePlugin : JavaPlugin() {
      * plugin overrides in-memory ItemRegistry with a Postgres-backed impl
      * at priority 100.
      */
-    public lateinit var services: ServiceRegistry
-        private set
+    public val services: ServiceRegistry = ServiceRegistry().also { registry ->
+        // ADR-0187: Persistence registers its overlays in its own onLoad, i.e.
+        // before any consumer exists. A registration that still outranks an
+        // already-resolved implementation is a split-brain bug: shout.
+        registry.lateOverrideListener = { logger.severe(it.message) }
+    }
 
     /** Role and proxy name of this backend (`ASTERA_SERVER_ROLE` / `ASTERA_SERVER_NAME`), read once; the other plugins reuse it. */
     public val serverEnvironment: ServerEnvironment = ServerEnvironment.fromSystem()
@@ -108,7 +112,6 @@ public class AsteraCorePlugin : JavaPlugin() {
     override fun onEnable() {
         logger.info("Astera-Core enabling (ADR-0022 Phase 2)…")
 
-        services = ServiceRegistry()
         contentDir = resolveContentDir()
         logger.info("Content directory: $contentDir")
 

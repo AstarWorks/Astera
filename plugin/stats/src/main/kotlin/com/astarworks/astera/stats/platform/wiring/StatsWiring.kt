@@ -74,7 +74,9 @@ import com.astarworks.astera.stats.application.service.nameplate.InMemoryNamepla
 import com.astarworks.astera.stats.application.service.nameplate.NameplateBadgeRegistry
 import com.astarworks.astera.stats.application.usecase.nameplate.RecomputeNameplateBadgeUseCase
 import com.astarworks.astera.stats.domain.event.AchievementUnlocked
+import com.astarworks.astera.stats.application.port.outbound.IPlayerXpRepository
 import com.astarworks.astera.stats.application.service.InMemoryLevelService
+import com.astarworks.astera.stats.application.service.InMemoryPlayerXpRepository
 import com.astarworks.astera.stats.application.usecase.achievement.UnlockAchievementUseCase
 import com.astarworks.astera.stats.domain.event.MissionCompleted
 import com.astarworks.astera.stats.application.service.InMemoryNormaProgressRepository
@@ -138,7 +140,12 @@ public object StatsWiring {
                 ?: InMemoryPlayerStatsRepository().also {
                     registrations += services.register<IPlayerStatsRepository>(it, priority = 0)
                 }
-        val levelService = InMemoryLevelService()
+        val xpRepository: IPlayerXpRepository =
+            services.get<IPlayerXpRepository>()
+                ?: InMemoryPlayerXpRepository().also {
+                    registrations += services.register<IPlayerXpRepository>(it, priority = 0)
+                }
+        val levelService = InMemoryLevelService(xpRepository)
 
         // Wave 4.5 (ADR-0027): Norma progress is now persisted via repository.
         // Postgres impl overlays at priority 100 when Astera-Persistence is loaded.

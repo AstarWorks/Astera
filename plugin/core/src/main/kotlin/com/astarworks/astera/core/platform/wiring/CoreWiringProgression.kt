@@ -30,6 +30,7 @@ import com.astarworks.astera.core.application.usecase.advancement.ProgressAdvanc
 import com.astarworks.astera.core.application.usecase.dialog.RunNpcDialogUseCase
 import com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerInventoryGateway
 import com.astarworks.astera.core.application.port.outbound.IVaultWindow
 import com.astarworks.astera.core.application.usecase.vault.AccessPersonalVaultUseCase
@@ -246,11 +247,10 @@ internal fun CoreWiringState.wireProgression() {
     services.register<IQuestService>(questService, priority = 0)
 
     // Inventory snapshot use cases + PlayerJoined-side listener.
-    // Repositories are resolved per call so the Postgres overlays (registered by
-    // Persistence AFTER Core enables) actually receive the traffic.
-    val liveSnapshots = LiveSnapshotRepository(services)
-    val saveSnapshotUseCase = SaveInventorySnapshotUseCase(liveSnapshots)
-    val restoreSnapshotUseCase = RestoreInventorySnapshotUseCase(liveSnapshots, sessionRepo, eventBus)
+    // snapshotRepo is already the final implementation: Persistence registered its
+    // overlay in onLoad (ADR-0187), so it is captured once like any other port.
+    val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
+    val restoreSnapshotUseCase = RestoreInventorySnapshotUseCase(snapshotRepo, sessionRepo, eventBus)
     // Wave H 5content-depth: preexisting bug from Wave E 5admin-ops —
     // RestoreInventoryOnPlayerJoinedListener gained `sessionRepo` for the
     // double-join idempotency guard but the caller wasn't updated.
@@ -271,10 +271,10 @@ internal fun CoreWiringState.wireProgression() {
 
     // WP12: personal vault (= ender chest) — `/astera vault` and the ender chest block
     // share AccessPersonalVaultUseCase; the IVaultWindow is registered by the host.
-    val liveVaults = LiveVaultRepository(services)
-    val openVaultUseCase = OpenVaultUseCase(liveVaults)
+    val vaultRepo = services.getOrThrow<IPersonalVaultRepository>()
+    val openVaultUseCase = OpenVaultUseCase(vaultRepo)
     services.register<OpenVaultUseCase>(openVaultUseCase, priority = 0)
-    services.register<SaveVaultUseCase>(SaveVaultUseCase(liveVaults), priority = 0)
+    services.register<SaveVaultUseCase>(SaveVaultUseCase(vaultRepo), priority = 0)
     val accessVault = AccessPersonalVaultUseCase(
         openVault = openVaultUseCase,
         window = { services.get<IVaultWindow>() },

@@ -136,12 +136,19 @@ internal fun CoreWiringState.wireGameplayLoop() {
     val starterGrant = com.astarworks.astera.core.application.service
         .StarterGrantLoader()
         .load(starterGrantPath)
+    // ADR-0187: the "already onboarded" fact is durable (Persistence overlay, V49) so a
+    // restart does not re-run the first-time starter grant.
+    val profileRepository = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>()
+        ?: com.astarworks.astera.core.application.service.InMemoryPlayerProfileRepository().also {
+            services.register<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>(it, priority = 0)
+        }
     profileService =
         com.astarworks.astera.core.application.service.InMemoryPlayerProfileService(
             starterGrant = starterGrant,
             itemRegistry = itemContents,
             ledgerProvider = ledgerProvider,
             tutorialRegistry = tutorialContents,
+            repository = profileRepository,
         )
     services.register<com.astarworks.astera.core.application.port.outbound.IPlayerProfileService>(
         profileService,
