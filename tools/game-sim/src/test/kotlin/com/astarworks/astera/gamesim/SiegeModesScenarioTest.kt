@@ -246,13 +246,15 @@ class SiegeModesScenarioTest {
 
     // ---- queue lanes ------------------------------------------------------
 
-    @ParameterizedTest(name = "lane {0} forms a siege-flat match for one player")
+    @ParameterizedTest(name = "lane {0} forms a siege-flat match for two queued players")
     @ValueSource(strings = ["break-core", "carry-tnt", "capture-wool", "steal-jewelry", "battle-loyal"])
-    fun `each siege lane forms a match for a single queued player`(lane: String) {
+    fun `each siege lane forms a match once both sides have a player`(lane: String) {
         scenario("siege-lane-$lane") {
             val solo = player("solo")
+            val rival = player("rival")
             val mode = MatchmakingMode.Custom(GameModeId(lane))
             check(sim.services.getOrThrow<IMatchmaker>().enqueue(solo.id, mode) is Result.Success)
+            check(sim.services.getOrThrow<IMatchmaker>().enqueue(rival.id, mode) is Result.Success)
 
             assertThat(advanceUntil(600) { eventsOf<MatchStarted>().isNotEmpty() }).isTrue()
             val started = eventsOf<MatchStarted>().single()

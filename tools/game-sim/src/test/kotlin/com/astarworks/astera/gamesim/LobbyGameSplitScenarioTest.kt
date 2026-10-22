@@ -69,7 +69,9 @@ class LobbyGameSplitScenarioTest {
 
             // ALL still forms the match on the spot.
             val p3 = all.spawnPlayer("p3")
+            val p4 = all.spawnPlayer("p4")
             all.services.getOrThrow<IMatchmaker>().enqueue(p3.id, MatchmakingMode.Norma)
+            all.services.getOrThrow<IMatchmaker>().enqueue(p4.id, MatchmakingMode.Norma)
             assertThat(all.stepUntil(400) { all.eventsOf<MatchStarted>().isNotEmpty() }).isTrue()
         } finally {
             lobby.shutdown()
@@ -87,7 +89,9 @@ class LobbyGameSplitScenarioTest {
         network.register(gameName, game)
         try {
             val player = lobby.spawnPlayer("p1")
+            val mate = lobby.spawnPlayer("p1b")
             assertThat(lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.Norma)).isInstanceOf(Result.Success::class.java)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.Norma)
 
             // Queue countdown on the lobby, then the assignment is sent and the player is transferred.
             var arrived = false
@@ -100,7 +104,7 @@ class LobbyGameSplitScenarioTest {
             assertThat(arrived).`as`("player reached the game server").isTrue()
             assertThat(lobby.world.find(player.id)).`as`("player left the lobby").isNull()
             assertThat(network.sent.map { it.channel }).contains(ProxyChannel.MATCH_FOUND, ProxyChannel.MATCH_STATUS)
-            assertThat(network.moves.map { it.third }).containsExactly(gameName)
+            assertThat(network.moves.map { it.third }).containsOnly(gameName)
 
             // The match starts once the hand-off token has landed and the arrival is announced.
             network.step(5)
@@ -110,11 +114,14 @@ class LobbyGameSplitScenarioTest {
             assertThat(lobby.eventsOf<MatchStarted>()).isEmpty()
             val matches = game.services.getOrThrow<IMatchRepository>()
             val match = matches.findActiveMatches().single()
-            assertThat(match.teams.flatMap { it.members }).containsExactly(player.id)
+            assertThat(match.teams.flatMap { it.members }).containsExactlyInAnyOrder(player.id, mate.id)
+            assertThat(match.teams.map { it.members.size }).`as`("one player per side").containsExactly(1, 1)
 
             // While it runs, a second wave on the lobby waits for the game server.
             val late = lobby.spawnPlayer("p2")
+            val late2 = lobby.spawnPlayer("p2b")
             lobby.services.getOrThrow<IMatchmaker>().enqueue(late.id, MatchmakingMode.Norma)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(late2.id, MatchmakingMode.Norma)
             network.step(300)
             assertThat(game.world.find(late.id)).`as`("queue is held while the game server is busy").isNull()
 
@@ -162,11 +169,13 @@ class LobbyGameSplitScenarioTest {
         network.register(gameName, game)
         try {
             val player = lobby.spawnPlayer("p1")
+            val mate = lobby.spawnPlayer("p1b")
             checkNotNull(lobby.server.view(player.id)).failNotices = true
             lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.Norma)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.Norma)
 
             assertThat(arrivedOn(network, game, player.id, 800)).`as`("Connect sent despite the failing notice").isTrue()
-            assertThat(network.moves.map { it.third }).containsExactly(gameName)
+            assertThat(network.moves.map { it.third }).containsOnly(gameName)
             network.step(5)
 
             checkNotNull(game.server.view(player.id)).failNotices = true
@@ -196,7 +205,9 @@ class LobbyGameSplitScenarioTest {
             network.step(60) // the direct login waits for a token that never comes, then restores the latest (nothing)
             assertThat(lobby.eventsOf<PlayerArrivedOnServer>().map { it.playerId }).containsExactly(player.id)
             checkNotNull(lobby.inventory).put(player.id, "sword")
+            val mate = lobby.spawnPlayer("p1b")
             lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.Norma)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.Norma)
 
             assertThat(arrivedOn(network, game, player.id, 800)).`as`("player reached the game server").isTrue()
             // "Moving to ..." shown on the source before the proxy hop.
@@ -245,7 +256,9 @@ class LobbyGameSplitScenarioTest {
             assertThat(lobby.eventsOf<ProxyHeartbeat>().last().knownPeers).isEmpty()
 
             val player = lobby.spawnPlayer("p1")
+            val mate = lobby.spawnPlayer("p1b")
             lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.Norma)
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(mate.id, MatchmakingMode.Norma)
             network.step(800)
 
             assertThat(network.sent.map { it.channel }).doesNotContain(ProxyChannel.MATCH_FOUND)
