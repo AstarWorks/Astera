@@ -46,6 +46,8 @@ public data class PersistenceContext(
     val database: Database,
 )
 
+internal const val MIGRATION_LOCATION: String = "classpath:db/migration"
+
 /**
  * Build a HikariCP pool, run Flyway migrations from `classpath:db/migration`,
  * and bind an Exposed [Database] to the pool.
@@ -71,12 +73,21 @@ public fun connectAndMigrate(config: PostgresConfig, logger: Logger): Persistenc
     }
     val ds = HikariDataSource(hikari)
 
-    Flyway.configure()
+    // Flyway scans via the classloader it is given; the default is the thread context
+    // loader, which on Paper is the server loader and cannot see this plugin's jar
+    // ("No migrations found"). Pin it to the loader that loaded this plugin's classes.
+    val flyway = Flyway.configure(PersistenceContext::class.java.classLoader)
         .dataSource(ds)
-        .locations("classpath:db/migration")
+        .locations(MIGRATION_LOCATION)
         .baselineOnMigrate(true)
         .load()
-        .migrate()
+    val discovered = flyway.info().all().size
+    if (discovered == 0) {
+        ds.close()
+        error("Astera-Persistence: Flyway resolved 0 migrations from $MIGRATION_LOCATION (classloader scan failed)")
+    }
+    logger.info("Astera-Persistence: Flyway resolved $discovered migrations")
+    flyway.migrate()
 
     val db = Database.connect(ds)
     logger.info("Astera-Persistence: Flyway migrations applied, Exposed connected")
