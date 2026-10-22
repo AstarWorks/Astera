@@ -32,6 +32,22 @@ class ArchitectureTest {
         "com.mojang",
     )
 
+    /**
+     * Files whose body is plugin enable-time wiring (ADR-0123 / ADR-0131 scope):
+     * the Paper entrypoint `platform/Astera*Plugin.kt` AND, since ADR-0174 moved
+     * the object-graph construction out of it, the host-neutral
+     * `platform/wiring/` functions the headless simulator also runs.
+     */
+    private fun isPluginWiringFile(file: KoFileDeclaration): Boolean {
+        val path = file.path
+        if (path.contains("/test/")) return false
+        val isPluginEntrypoint = path.contains("/platform/") &&
+            file.name.startsWith("Astera") &&
+            file.name.endsWith("Plugin")
+        val isHostNeutralWiring = path.contains("/platform/wiring/")
+        return isPluginEntrypoint || isHostNeutralWiring
+    }
+
     private fun hasBukkitFamilyImport(file: KoFileDeclaration): Boolean =
         file.imports.any { imp ->
             bukkitFamily.any { prefix -> imp.name.startsWith(prefix) }
@@ -1840,7 +1856,8 @@ class ArchitectureTest {
 
     /**
      * Wave 5server-harden / ADR-0123: every `eventBus.subscribe(...)` call
-     * inside a `platform/Astera*Plugin.kt` MUST be assigned into a
+     * inside a `platform/Astera*Plugin.kt` or `platform/wiring/` file (the
+     * ADR-0174 host-neutral wiring) MUST be assigned into a
      * subscription holder list (so `onDisable` can cancel it).
      *
      * Accepted prefixes (case-insensitive, leading whitespace ignored):
@@ -1868,17 +1885,9 @@ class ArchitectureTest {
     fun `every plugin onEnable subscribe must be assigned into a subscription holder (ADR-0123)`() {
         val violators = Konsist.scopeFromProject()
             .files
-            .filter { file ->
-                // KoFile.name is the basename WITHOUT extension (e.g.
-                // "AsteraCorePlugin", not "AsteraCorePlugin.kt"). The previous
-                // .endsWith("Plugin.kt") check matched 0 files; ADR-0131 work
-                // discovered this and corrected the filter.
-                val path = file.path
-                path.contains("/platform/") &&
-                    file.name.startsWith("Astera") &&
-                    file.name.endsWith("Plugin") &&
-                    !path.contains("/test/")
-            }
+            // KoFile.name is the basename WITHOUT extension (e.g. "AsteraCorePlugin",
+            // not "AsteraCorePlugin.kt"); see isPluginWiringFile for the scope.
+            .filter { file -> isPluginWiringFile(file) }
             .flatMap { file ->
                 file.text.lineSequence().withIndex().mapNotNull { (idx, raw) ->
                     val line = raw.trim()
@@ -1898,7 +1907,7 @@ class ArchitectureTest {
         assertThat(violators)
             .withFailMessage {
                 "ADR-0123 violation: ${violators.size} unassigned eventBus.subscribe(...) call(s) " +
-                    "inside plugin platform/Astera*Plugin.kt:\n" +
+                    "inside plugin platform/Astera*Plugin.kt or platform/wiring/:\n" +
                     violators.joinToString("\n") { "  $it" } +
                     "\n\nAll subscribes inside *Plugin.onEnable must be assigned to a subscription " +
                     "holder list (e.g. `subscriptions += eventBus.subscribe(...)`) so onDisable can " +
@@ -1911,8 +1920,8 @@ class ArchitectureTest {
 
     /**
      * ADR-0131 — Every `val xxxListener = ...` declaration inside an
-     * `Astera*Plugin.kt` must reference `xxxListener` at least once more
-     * later in the same file. The wiring may take any of the forms used
+     * `Astera*Plugin.kt` or `platform/wiring/` file must reference
+     * `xxxListener` at least once more later in the same file. The wiring may take any of the forms used
      * across Astera plugins:
      *
      *  - `xxxListener.subscribe(...)` — self-subscribe helper
@@ -1949,14 +1958,8 @@ class ArchitectureTest {
         val declRegex = Regex("\\bval\\s+([a-z][A-Za-z0-9]*Listener)\\b")
         val violators = Konsist.scopeFromProject()
             .files
-            .filter { file ->
-                // KoFile.name is the basename WITHOUT extension (e.g.
-                // "AsteraCorePlugin", not "AsteraCorePlugin.kt").
-                file.path.contains("/platform/") &&
-                    file.name.startsWith("Astera") &&
-                    file.name.endsWith("Plugin") &&
-                    !file.path.contains("/test/")
-            }
+            // KoFile.name is the basename WITHOUT extension; see isPluginWiringFile for the scope.
+            .filter { file -> isPluginWiringFile(file) }
             .flatMap { file ->
                 val text = file.text
                 declRegex.findAll(text).mapNotNull { match ->
@@ -1979,7 +1982,7 @@ class ArchitectureTest {
         assertThat(violators)
             .withFailMessage {
                 "ADR-0131 violation: ${violators.size} unwired listener variable(s) " +
-                    "in Astera*Plugin.kt:\n" +
+                    "in Astera*Plugin.kt / platform/wiring/:\n" +
                     violators.joinToString("\n") { "  $it" } +
                     "\n\nEvery `val xxxListener = ...` inside *Plugin.kt must be " +
                     "referenced at least once more later in the same file (subscribe, " +
@@ -1991,6 +1994,48 @@ class ArchitectureTest {
                     "but the `subscriptions += xxx.subscribe()` line was never added, " +
                     "and every Annihilation match silently no-op'd for 50+ commits. " +
                     "See ADR-0131."
+            }
+            .isEmpty()
+    }
+
+    // ─── ADR-0174 — host-neutral wiring seam ───────────────────────────────
+
+    /**
+     * ADR-0174 — `platform/wiring/` is loaded by the headless simulator
+     * (`:tools:game-sim`) without Paper on the classpath, so it must neither
+     * import the Bukkit family nor reach into a Paper adapter. Paper impls are
+     * injected through each plugin's `*PlatformPorts`; Bukkit listener
+     * registration lives in `platform/paper/`.
+     *
+     * The only `adapter.paper` types wiring may name are the two Bukkit-free
+     * Items types that live there for historical reasons (the held-item
+     * resolver port and the vendor-neutral click sink).
+     */
+    @Test
+    fun `platform wiring must stay free of Bukkit and Paper adapters (ADR-0174)`() {
+        val pureAdapterPaperTypes = setOf(
+            "com.astarworks.astera.items.adapter.paper.IPaperItemIdResolver",
+            "com.astarworks.astera.items.adapter.paper.ItemSkillTriggerListener",
+        )
+        val violators = Konsist.scopeFromProject()
+            .files
+            .filter { file -> file.path.contains("/platform/wiring/") && !file.path.contains("/test/") }
+            .flatMap { file ->
+                file.imports
+                    .map { it.name }
+                    .filter { name ->
+                        bukkitFamily.any { prefix -> name.startsWith(prefix) } ||
+                            (name.contains(".adapter.paper.") && name !in pureAdapterPaperTypes)
+                    }
+                    .map { "${file.path}: import $it" }
+            }
+
+        assertThat(violators)
+            .withFailMessage {
+                "ADR-0174 violation: ${violators.size} Bukkit / Paper-adapter import(s) in platform/wiring/:\n" +
+                    violators.joinToString("\n") { "  $it" } +
+                    "\n\nHost-neutral wiring must not depend on Paper. Inject the adapter through the " +
+                    "plugin's *PlatformPorts bundle (built in platform/paper/) instead."
             }
             .isEmpty()
     }

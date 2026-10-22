@@ -59,4 +59,7 @@ include(
     ":tools:schema-gen",
     // content/ YAML × content/schemas/*.schema.json validator (ADR-0066)
     ":tools:content-lint",
+    // Headless game simulator: boots the production wiring with simulator
+    // ports, runs scenarios, exports JSON traces (ADR-0174). Not shipped.
+    ":tools:game-sim",
 )
