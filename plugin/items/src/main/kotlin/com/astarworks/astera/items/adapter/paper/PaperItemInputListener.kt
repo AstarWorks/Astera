@@ -2,6 +2,7 @@ package com.astarworks.astera.items.adapter.paper
 
 import com.astarworks.astera.core.adapter.api.event.IMcEvent
 import com.astarworks.astera.core.adapter.api.event.IMcEvent.InputKind
+import com.astarworks.astera.core.adapter.paper.event.SkillDamageScope
 import com.astarworks.astera.core.adapter.paper.entity.PaperPlayer
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
@@ -55,6 +56,8 @@ public class PaperItemInputListener(
     public fun onAttack(e: EntityDamageByEntityEvent) {
         val attacker = e.damager as? Player ?: return
         if (e.cause != DamageCause.ENTITY_ATTACK) return
+        // Skill-applied damage (caster as damager) is not a player click.
+        if (SkillDamageScope.active) return
         if (dispatch(attacker, InputKind.LEFT_CLICK, attacker.inventory.itemInMainHand)) e.isCancelled = true
     }
 
