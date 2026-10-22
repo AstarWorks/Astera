@@ -29,6 +29,7 @@ class RecordRatingOnPlayerRatingUpdatedListenerTest {
     private class FixedSeasonRepository(private val season: Season?) : ISeasonRepository {
         override fun current(): Season? = season
         override fun start(label: String, at: Instant): Season = error("not used")
+        override fun startOnce(scheduleKey: String, label: String, at: java.time.Instant): Season? = error("Not used")
         override fun all(): List<Season> = listOfNotNull(season)
     }
 

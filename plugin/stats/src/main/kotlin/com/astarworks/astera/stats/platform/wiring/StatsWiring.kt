@@ -11,6 +11,13 @@ import com.astarworks.astera.core.application.port.outbound.INormaProgressReposi
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
+import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
+import com.astarworks.astera.stats.application.config.LevelRewardsYamlConfig
+import com.astarworks.astera.stats.application.config.SeasonsYamlConfig
+import com.astarworks.astera.stats.application.port.outbound.ILevelRewardRepository
+import com.astarworks.astera.stats.application.service.InMemoryLevelRewardRepository
+import com.astarworks.astera.stats.application.usecase.level.GrantLevelRewardsUseCase
+import com.astarworks.astera.stats.application.usecase.season.CheckSeasonEndUseCase
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ISkillPerkRegistry
 import com.astarworks.astera.core.application.port.outbound.ISkillProgressionRepository
@@ -217,6 +224,46 @@ public object StatsWiring {
         val hudLeveledUpListener = com.astarworks.astera.stats.application.eventbus.listeners.hud
             .HudUpdateOnLeveledUpListener(hudGateway, playerSoundGateway)
         subscriptions += eventBus.subscribe(LeveledUp::class) { hudLeveledUpListener.handle(it) }
+
+        // Permanent rewards reconcile on XP and join, recovering XP committed before a crash.
+        val progressionDir = ctx.contentDir.resolve("progression")
+        val yaml = com.astarworks.astera.core.application.config.parser.YamlContentParser()
+        val rewardConfig = yaml.parse(
+            java.nio.file.Files.readString(progressionDir.resolve("level-rewards.yaml")),
+            LevelRewardsYamlConfig.serializer(),
+        )
+        val levelRewards = services.get<ILevelRewardRepository>()
+            ?: InMemoryLevelRewardRepository {
+                services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>()
+            }.also { registrations += services.register<ILevelRewardRepository>(it) }
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockView>(levelRewards)
+        val grantLevelRewards = GrantLevelRewardsUseCase(
+            rewardConfig.levels.mapValues { it.value.toDomain() }, levelRewards, playerGateway, messages, hudGateway,
+            onGranted = { id, level, reward ->
+                val ledger = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>()
+                for ((currency, amount) in listOf(
+                    com.astarworks.astera.core.domain.economy.Currency.STAR to reward.star,
+                    com.astarworks.astera.core.domain.economy.Currency.GOLD to reward.gold,
+                )) {
+                    if (amount > 0) eventBus.publish(CurrencyChanged(
+                        id, currency, amount, ledger.balance(id, currency),
+                        com.astarworks.astera.core.domain.event.CurrencyChangeReason.LevelReward(level),
+                    ))
+                }
+            },
+        )
+        registrations += services.register(grantLevelRewards)
+        fun reconcileRewards(id: com.astarworks.astera.core.domain.player.PlayerId) {
+            grantLevelRewards.execute(id, levelService.currentLevel(id).value).onFailure {
+                logger.warning("Level reward reconciliation failed for $id: $it")
+            }
+        }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.stats.domain.event.XpGranted::class) {
+            reconcileRewards(it.playerId)
+        }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) {
+            reconcileRewards(it.playerId)
+        }
 
         // ---- Wave 5e Achievement + LevelUpMission + Reward listeners ---------
         // ADR-0210: unlocks persist (V60 Postgres overlay wins when present); the catalog is
@@ -464,10 +511,28 @@ public object StatsWiring {
         val queryLeaderboard = com.astarworks.astera.stats.application.usecase.leaderboard
             .QueryLeaderboardUseCase(leaderboardRepository, seasonRepository)
         registrations += services.register(queryLeaderboard, priority = 0)
-        registrations += services.register(
-            com.astarworks.astera.stats.application.usecase.season.ResetSeasonUseCase(seasonRepository),
-            priority = 0,
-        )
+        val resetSeason = com.astarworks.astera.stats.application.usecase.season.ResetSeasonUseCase(seasonRepository)
+        registrations += services.register(resetSeason, priority = 0)
+        if (ctx.serverRole.hostsLobby) {
+            val seasons = yaml.parse(
+                java.nio.file.Files.readString(progressionDir.resolve("seasons.yaml")), SeasonsYamlConfig.serializer(),
+            )
+            val checkSeason = CheckSeasonEndUseCase(seasons.seasons, resetSeason) { ended, opened ->
+                logger.info("Season $ended ended; opened ${opened.label}")
+                val sessions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository>()
+                for (session in sessions.all()) {
+                    playerGateway.sendMessage(session.playerId, messages.render(
+                        session.playerId, MessageKey("astera.progression.season.ended"),
+                        mapOf("season" to ended, "next" to opened.label),
+                    ))
+                }
+            }
+            registrations += services.register(checkSeason)
+            val seasonTask = scheduler.runRepeatingTicks(1L, 1200L) {
+                checkSeason.execute(java.time.Instant.now()).onFailure { logger.warning("Season check failed: $it") }
+            }
+            shutdownHooks += { seasonTask.cancel() }
+        }
 
         // ADR-0210: the season ranking floats in the lobby as a text board.
         if (ctx.serverRole.hostsLobby) {

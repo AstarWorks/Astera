@@ -31,6 +31,7 @@ public class LobbyProfileShowIntentHandler(
     private val playerGateway: IPlayerGateway,
     private val levels: () -> IPlayerLevelView? = { null },
     private val stats: () -> IPlayerStatsRepository? = { null },
+    private val unlocks: () -> com.astarworks.astera.core.application.port.outbound.IPlayerUnlockView? = { null },
     private val wallet: () -> ICurrencyLedger? = { null },
 ) {
 
@@ -61,6 +62,7 @@ public class LobbyProfileShowIntentHandler(
         val ledger = wallet()
         val level = levels()
         return ProfileCardGuiSpec.Snapshot(
+            unlocks = unlocks()?.unlocks(id)?.sorted() ?: emptyList(),
             level = level?.levelOf(id) ?: 1,
             totalXp = level?.totalXpOf(id) ?: 0L,
             kills = s?.kills ?: 0L,

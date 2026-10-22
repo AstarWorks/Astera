@@ -34,6 +34,7 @@ public object ProfileCardGuiSpec {
         val star: Long,
         val gold: Long,
         val gem: Long,
+        val unlocks: List<String> = emptyList(),
     ) {
         /** Win rate in percent, one decimal; 0.0 before the first match. */
         val winRatePercent: String
@@ -97,6 +98,16 @@ public object ProfileCardGuiSpec {
                     GuiText(MessageKey("astera.gui.profile-card.wallet.gold"), mapOf("amount" to snapshot.gold.toString())),
                     GuiText(MessageKey("astera.gui.profile-card.wallet.gem"), mapOf("amount" to snapshot.gem.toString())),
                 ),
+            ),
+        )
+        slot(
+            SlotIndex(19),
+            GuiSlot.Static(
+                itemId = ItemId("gui-tile-profile"),
+                displayName = GuiText(MessageKey("astera.progression.unlocks.name")),
+                lore = snapshot.unlocks.map {
+                    GuiText(MessageKey("astera.progression.unlocks.entry"), mapOf("id" to it))
+                }.ifEmpty { listOf(GuiText(MessageKey("astera.progression.unlocks.empty"))) },
             ),
         )
         slot(
