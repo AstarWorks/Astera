@@ -364,8 +364,13 @@ public class SimItemDelivery : IItemDelivery {
 }
 
 /** [IPaperItemIdResolver] reading the entity's held item (PDC on Paper). */
-public class SimItemIdResolver(private val world: SimWorld) : IPaperItemIdResolver {
+public class SimItemIdResolver(
+    private val world: SimWorld,
+    private val inventory: (PlayerId) -> List<String> = { emptyList() },
+) : IPaperItemIdResolver {
     override fun heldItemId(playerId: PlayerId): ItemId? = world.find(playerId)?.heldItem
+
+    override fun inventoryItemIds(playerId: PlayerId): List<ItemId> = inventory(playerId).map(::ItemId)
 }
 
 /** [IItemCooldownSweepGateway] that records the sweeps (`Player.setCooldown(group, ticks)` on Paper). */

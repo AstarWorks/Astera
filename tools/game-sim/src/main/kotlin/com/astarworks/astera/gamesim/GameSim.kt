@@ -522,7 +522,7 @@ public class GameSim private constructor(
                 context(),
                 ItemsPlatformPorts(
                     itemDelivery = { SimItemDelivery() },
-                    itemIdResolver = SimItemIdResolver(world),
+                    itemIdResolver = SimItemIdResolver(world) { id -> mcServer.view(id)?.givenItems.orEmpty() },
                     itemCooldownSweep = sim.sweeps,
                 ),
             )

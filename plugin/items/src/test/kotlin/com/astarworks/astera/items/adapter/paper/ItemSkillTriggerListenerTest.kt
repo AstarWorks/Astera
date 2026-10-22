@@ -56,6 +56,7 @@ class ItemSkillTriggerListenerTest {
         handleTrigger = HandleItemTriggerUseCase(items, eventBus),
         itemIdResolver = object : IPaperItemIdResolver {
             override fun heldItemId(playerId: PlayerId): ItemId? = null
+            override fun inventoryItemIds(playerId: PlayerId): List<ItemId> = emptyList()
         },
         nowTick = scheduler::currentTick,
     )

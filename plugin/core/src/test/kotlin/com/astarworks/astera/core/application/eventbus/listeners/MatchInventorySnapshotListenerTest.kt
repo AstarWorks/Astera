@@ -130,6 +130,25 @@ class MatchInventorySnapshotListenerTest {
     }
 
     @Test
+    fun `the after-capture hook runs once per entering player and sees the snapshot already taken`() {
+        val team = Team(TeamId("t"), MessageKey("t"), MessageKey("t.c"), emptySet())
+        val match = Match(matchId, MatchPhase.WAITING, listOf(team), Score(mapOf(team.id to 0)), StageId("arena"), 0L)
+        val seen = mutableListOf<Boolean>()
+        lateinit var l: MatchInventorySnapshotListener
+        l = MatchInventorySnapshotListener(
+            { inventories },
+            SaveInventorySnapshotUseCase(snapshots),
+            { seen += l.isHeld(it) },
+        ) { FakeMatches(match) }
+        inventories.live[red] = inventoryOf(red, "lobby-item")
+
+        l.handleEntered(PlayerEnteredMatch(matchId, red))
+        l.handleEntered(PlayerEnteredMatch(matchId, red))
+
+        assertThat(seen).containsExactly(true)
+    }
+
+    @Test
     fun `end without a recorded entry is a no-op`() {
         inventories.live[red] = inventoryOf(red, "kept")
         listener().handleEnded(ended)

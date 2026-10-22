@@ -587,6 +587,7 @@ astera:
       new_started: "<gray>A new {period} period has begun.</gray>"
 
   match:
+    loaner-kit: "<yellow>You came without a weapon - the starter weapons are on loan for this match.</yellow>"
     phase:
       countdown_start: "<yellow>Match starting in {seconds}s…</yellow>"
       active_started: "<green>The match has started!</green>"

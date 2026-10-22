@@ -42,4 +42,30 @@ class MatchEntryInventoryScenarioTest {
             sim.shutdown()
         }
     }
+
+    @Test
+    fun `an unarmed player is lent the starter weapons on entry, an armed one is left alone`() {
+        val sim = GameSim.boot("match-entry-loaner", snapshots = InMemoryPlayerInventorySnapshotRepository())
+        try {
+            val armed = sim.spawnPlayer("armed")
+            val unarmed = sim.spawnPlayer("unarmed")
+            sim.step(5)
+            val armedItems = checkNotNull(sim.server.view(armed.id)).givenItems
+            val unarmedItems = checkNotNull(sim.server.view(unarmed.id)).givenItems
+            assertThat(armedItems).containsExactly("knight-sword", "frost-staff") // starter grant
+            unarmedItems.clear() // sold everything
+            unarmedItems += "gui-pane-dark" // a non-weapon item does not count as a kit
+
+            val matchmaker = sim.services.getOrThrow<IMatchmaker>()
+            matchmaker.enqueue(armed.id, MatchmakingMode.Norma)
+            matchmaker.enqueue(unarmed.id, MatchmakingMode.Norma)
+            assertThat(sim.stepUntil(600) { sim.eventsOf<PlayerEnteredMatch>().size == 2 }).isTrue()
+
+            assertThat(armedItems).containsExactly("knight-sword", "frost-staff")
+            assertThat(unarmedItems).containsExactly("gui-pane-dark", "knight-sword", "frost-staff")
+            assertThat(checkNotNull(sim.server.view(unarmed.id)).messages).anyMatch { "on loan" in it }
+        } finally {
+            sim.shutdown()
+        }
+    }
 }

@@ -32,6 +32,12 @@ public class PaperItemIdResolver(
         return itemIdOf(player.inventory.itemInMainHand)
     }
 
+    override fun inventoryItemIds(playerId: PlayerId): List<ItemId> {
+        val player = server.getPlayer(playerId.uuid) ?: return emptyList()
+        val inv = player.inventory
+        return (inv.contents.asList() + inv.armorContents.asList() + inv.itemInOffHand).mapNotNull(::itemIdOf)
+    }
+
     /** The `astera:item_id` of [stack], or `null` for air / non-Astera stacks. */
     public fun itemIdOf(stack: ItemStack?): ItemId? {
         val meta = stack?.itemMeta ?: return null
