@@ -240,7 +240,12 @@ class Bot private constructor(
             }
             is ClientboundDisconnectPacket -> disconnectReason = plain(packet.reason)
             is ClientboundPlayerCombatKillPacket -> deaths += plain(packet.message)
-            is ClientboundGameEventPacket -> if (packet.notification == GameEvent.CHANGE_GAME_MODE) gameModes += packet.value.toString()
+            is ClientboundGameEventPacket -> if (packet.notification == GameEvent.CHANGE_GAME_MODE) {
+                gameModes += packet.value.toString()
+                // Astera deaths never raise a vanilla death (ADR-0149: the HP mirror is held above zero), so no
+                // ClientboundPlayerCombatKill arrives. The visible death is the death cam: spectator mode.
+                if (packet.value == org.geysermc.mcprotocollib.protocol.data.game.entity.player.GameMode.SPECTATOR) deaths += "death cam (spectator)"
+            }
             is ClientboundCustomQueryPacket -> answerLoginQuery(packet)
             is ClientboundCustomPayloadPacket -> handlePluginMessage(packet)
             is ClientboundDamageEventPacket -> damageEventEntities += packet.entityId

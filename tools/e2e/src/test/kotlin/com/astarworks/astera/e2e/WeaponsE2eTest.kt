@@ -58,13 +58,14 @@ class WeaponsE2eTest : E2eBase() {
      * in the overworld across a settle window.
      */
     private fun stage(a: Bot, b: Bot, distance: Double, settleMs: Long) {
-        repeat(12) {
+        repeat(12) { attempt ->
             face(a, b, distance)
             Thread.sleep(settleMs)
             if (inOverworld(a) && inOverworld(b)) {
                 Thread.sleep(700)
                 if (inOverworld(a) && inOverworld(b)) return
             }
+            if (attempt == 2) E2eReport.notes += "Weapons stage attempt ${attempt + 1} failed: a=${rcon("data get entity ${a.name} Dimension").trim().substringAfter("data: ")} hp=${hp(a)} gm=${rcon("data get entity ${a.name} playerGameType").trim().substringAfter("data: ")}; b=${rcon("data get entity ${b.name} Dimension").trim().substringAfter("data: ")} hp=${hp(b)}; chat a=${a.chatTexts().takeLast(3)} b=${b.chatTexts().takeLast(3)}"
         }
     }
 
@@ -103,6 +104,7 @@ class WeaponsE2eTest : E2eBase() {
             if (melee) {
                 repeat(3) { n ->
                     rcon("effect give ${a.name} minecraft:instant_health 1 4 true")
+                    rcon("effect give ${b.name} minecraft:instant_health 1 4 true")
                     stage(a, b, 2.2, 1_500)
                     val before = food(a)
                     // A real client sends the swing plus the attack on the entity in its crosshair.
