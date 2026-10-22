@@ -35,6 +35,9 @@ public value class ProxyChannel(public val name: String) {
 
         /** Reserved channel for match-found notifications. */
         /** Lobby to game: a formed match to host (match assignment frame, ADR-0179). */
+        /** Hand-off token: the source server saved the player's state; the target may restore it now (F3-6). */
+        public val HANDOFF: ProxyChannel = ProxyChannel("astera.handoff")
+
         public val MATCH_FOUND: ProxyChannel = ProxyChannel("astera.match.found")
 
         /** Game to lobby: accepted / rejected / ended answers to an assignment (ADR-0179). */

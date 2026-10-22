@@ -2,6 +2,7 @@ package com.astarworks.astera.match.application.service.matchmaking
 
 import com.astarworks.astera.core.application.port.outbound.IProxyMessenger
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.IServerLiveness
 import com.astarworks.astera.core.application.port.outbound.IServerTransferGateway
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
@@ -34,8 +35,10 @@ import java.util.UUID
  *   |<-------- Ended (MATCH_STATUS) -------|   game server is free again
  * ```
  *
- * The game server runs one match at a time, so while an assignment is in
- * flight (or until its [CrossServerSettings.matchLeaseSeconds] lease runs out)
+ * The game server runs one match at a time, and is only assigned while its
+ * heartbeat is alive (ADR-0187: 5 s beat, down after 15 s); while it is down the
+ * queue is held and the queued players told, instead of assigning into the void.
+ * So while an assignment is in flight (or until its [CrossServerSettings.matchLeaseSeconds] lease runs out)
  * [isStageBusy] holds the queue, and the scheduler tells the queued players
  * "the arena is in use".
  */
@@ -43,6 +46,7 @@ public class RemoteMatchFormer(
     private val matchmaker: IMatchmaker,
     private val messenger: IProxyMessenger,
     private val transfers: IServerTransferGateway,
+    private val liveness: IServerLiveness,
     private val notifier: IQueueNotifier,
     private val scheduler: IScheduler,
     private val settings: CrossServerSettings,
@@ -68,7 +72,11 @@ public class RemoteMatchFormer(
             if (status == null) log.warn("Dropping malformed match status from {}", message.fromServer) else onStatus(status)
         }
 
+    override fun holdNotice(mode: MatchmakingMode): String =
+        if (liveness.isUp(settings.gameServer)) "stage-busy" else "server-down"
+
     override fun isStageBusy(mode: MatchmakingMode): Boolean {
+        if (!liveness.isUp(settings.gameServer)) return true
         val current = inFlight ?: return false
         if (scheduler.currentTick() < current.leaseUntilTick) return true
         log.warn("Game server lease for assignment {} expired without an Ended answer; releasing.", current.assignment.id)

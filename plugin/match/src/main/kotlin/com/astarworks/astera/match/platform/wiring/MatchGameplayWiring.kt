@@ -115,6 +115,7 @@ internal object MatchGameplayWiring {
                         matchmaker = matchmaker,
                         messenger = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IProxyMessenger>(),
                         transfers = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IServerTransferGateway>(),
+                        liveness = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IServerLiveness>(),
                         notifier = queueNotifier,
                         scheduler = scheduler,
                         settings = crossServer,

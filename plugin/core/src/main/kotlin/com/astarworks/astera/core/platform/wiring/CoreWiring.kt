@@ -218,7 +218,12 @@ internal class CoreWiringState(
 
     var locationTracker: com.astarworks.astera.core.application.service.PlayerMovedLocationTracker? = null
 
+    /** F3-6: stops the hand-off listener and heartbeat task. */
+    val shutdownHooks: MutableList<() -> Unit> = mutableListOf()
+
     fun shutdown() {
+        shutdownHooks.forEach { runCatching(it) }
+        shutdownHooks.clear()
         broadcastCriticalErrorSub?.cancel()
         broadcastCriticalErrorSub = null
         locationTracker?.stop()

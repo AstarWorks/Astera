@@ -290,16 +290,7 @@ internal class CorePaperBindings(
                 )
                 com.astarworks.astera.core.adapter.paper.inventory
                     .PlayerInventoryLifecycleListener(
-                        server = server,
-                        // Resolved per call: Postgres overlays register after Core enables.
-                        snapshotRepo = LiveSnapshotRepository(services),
-                        serializer = paperInventorySerializer,
-                        sessions = sessions,
-                        scheduler = scheduler,
-                        isHeld = { playerId ->
-                            services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
-                                ?.isHeld(playerId) ?: false
-                        },
+                        handoff = { services.get<com.astarworks.astera.core.application.service.handoff.PlayerHandoffService>() },
                     ).start(plugin)
                 com.astarworks.astera.core.adapter.paper.inventory
                     .InventoryActionLockEnforcer(
