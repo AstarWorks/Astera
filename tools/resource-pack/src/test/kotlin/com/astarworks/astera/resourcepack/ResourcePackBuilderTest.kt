@@ -17,6 +17,39 @@ class ResourcePackBuilderTest {
     private fun json(bytes: ByteArray) = mapper.readTree(bytes)
 
     @Test
+    fun `atlas definitions cover every item and block texture directory the pack writes`() {
+        val files = ResourcePackBuilder(contentDir).collect()
+        val sources = listOf("items", "blocks").flatMap { atlas ->
+            val bytes = files["assets/minecraft/atlases/$atlas.json"] ?: return@flatMap emptyList()
+            json(bytes).path("sources").map {
+                assertThat(it.path("type").asText()).isEqualTo("directory")
+                assertThat(it.path("prefix").asText()).isEqualTo(it.path("source").asText() + "/")
+                atlas to it.path("source").asText()
+            }
+        }
+        val covered = sources.map { it.second }
+        val textures = files.keys.filter { it.startsWith("assets/astera/textures/") && it.endsWith(".png") }
+            .map { it.removePrefix("assets/astera/textures/") }
+        for (t in textures) {
+            val top = if (t.startsWith("generated/items/")) "generated/items" else t.substringBefore('/')
+            if (top in setOf("items", "generated/items", "blocks")) {
+                assertThat(covered).`as`(t).contains(top)
+            }
+        }
+        assertThat(covered).contains("generated/items", "items")
+    }
+
+    @Test
+    fun `atlasDirectories maps item and block texture paths`() {
+        val m = ResourcePackBuilder.atlasDirectories(
+            listOf("assets/astera/textures/items/a/b.png", "assets/astera/textures/generated/items/x.png",
+                "assets/astera/textures/blocks/y.png", "assets/astera/textures/hud/z.png"),
+        )
+        assertThat(m["items"]).containsExactly("generated/items", "items")
+        assertThat(m["blocks"]).containsExactly("blocks")
+    }
+
+    @Test
     fun `the real content builds a pack with mcmeta, font, sprites, models and textures`() {
         val files = ResourcePackBuilder(contentDir).collect()
 

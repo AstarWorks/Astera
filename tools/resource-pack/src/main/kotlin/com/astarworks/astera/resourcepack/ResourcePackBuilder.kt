@@ -50,6 +50,7 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         addSounds(files)
         addHud(files)
         addVanillaOverrides(files)
+        addAtlases(files)
         return files
     }
 
@@ -66,6 +67,19 @@ public class ResourcePackBuilder(private val contentDir: Path) {
     }
 
     // ---- sections ---------------------------------------------------------------
+
+    /**
+     * Vanilla's atlas sources only cover `textures/item` / `textures/block`, so item-model
+     * textures under `textures/items/` and `textures/generated/items/` render magenta unless
+     * the pack adds `directory` sources. Atlas definitions merge across packs.
+     */
+    private fun addAtlases(files: MutableMap<String, ByteArray>) {
+        val dirs = atlasDirectories(files.keys)
+        for ((atlas, list) in dirs) {
+            val sources = list.map { mapOf("type" to "directory", "source" to it, "prefix" to "$it/") }
+            files["assets/minecraft/atlases/$atlas.json"] = json(mapOf("sources" to sources)).toByteArray()
+        }
+    }
 
     private fun addTextures(files: MutableMap<String, ByteArray>) {
         for (file in filesUnder("textures")) {
@@ -236,6 +250,26 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         }.distinct().sorted()
 
         private val mapper: ObjectMapper = JsonMapper.builder().enable(JsonWriteFeature.ESCAPE_NON_ASCII).build()
+
+        /** Atlas name to texture directories (relative to `textures/`) the pack's PNGs live in. */
+        internal fun atlasDirectories(paths: Collection<String>): Map<String, List<String>> {
+            val prefix = "assets/$NAMESPACE/textures/"
+            val items = sortedSetOf<String>()
+            val blocks = sortedSetOf<String>()
+            for (path in paths) {
+                if (!path.startsWith(prefix) || !path.endsWith(".png")) continue
+                val parts = path.removePrefix(prefix).split('/')
+                when {
+                    parts.size >= 3 && parts[0] == "generated" && parts[1] == "items" -> items += "generated/items"
+                    parts.size >= 2 && parts[0] == "items" -> items += "items"
+                    parts.size >= 2 && parts[0] == "blocks" -> blocks += "blocks"
+                }
+            }
+            val out = sortedMapOf<String, List<String>>()
+            if (items.isNotEmpty()) out["items"] = items.toList()
+            if (blocks.isNotEmpty()) out["blocks"] = blocks.toList()
+            return out
+        }
 
         private fun json(value: Any): String = mapper.writeValueAsString(value) + "\n"
 
