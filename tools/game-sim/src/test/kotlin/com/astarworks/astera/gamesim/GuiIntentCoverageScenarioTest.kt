@@ -11,6 +11,7 @@ import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.gui.GuiSlot
 import com.astarworks.astera.core.domain.gui.GuiSpec
+import com.astarworks.astera.core.domain.lobby.KitArea
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -79,6 +80,24 @@ class GuiIntentCoverageScenarioTest {
                 "astera.gui.profile-card.matches.played",
                 "astera.gui.profile-card.wallet.star",
             )
+        }
+    }
+
+    @Test
+    fun `ADR-0232 hotbar kit is one item and the F, sneak+F keybinds open the main menu and the vault`() {
+        scenario("gui-lobby-keybinds") {
+            val p = player("keys")
+            val router = sim.services.getOrThrow<IGuiIntentRouter>()
+            val adapter = sim.services.getOrThrow<IGuiAdapter>()
+            val view = checkNotNull(sim.server.view(p.id))
+            val kit = LobbyMenuKitContents().also { assertThat(it.reload(GameSim.defaultContentDir()).failed).isZero() }.current()
+
+            assertThat(kit.entries(KitArea.HOTBAR)).hasSize(1)
+            router.dispatch(view, kit.at(KitArea.KEY_SWAP, 0)!!.intent)
+            assertThat(adapter.currentSpec(view)!!.id.value).isEqualTo("main-menu")
+            router.dispatch(view, kit.at(KitArea.KEY_SNEAK_SWAP, 0)!!.intent)
+            assertThat(adapter.currentSpec(view)!!.id.value).isEqualTo("customize-menu")
+            assertThat(router.hasHandler(kit.at(KitArea.KEY_DROP, 0)!!.intent.key)).isTrue()
         }
     }
 

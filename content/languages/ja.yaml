@@ -1476,6 +1476,8 @@ astera:
     hint:
       use: "<gray>右クリックで開く</gray>"
       click: "<gray>クリックで開く</gray>"
+      compass: "<gray>右クリックか F で開く（Shift+F: 保管庫、Q: キュー）</gray>"
+      keys: "<gray>F: メニュー  |  Shift+F: 保管庫  |  コンパスで Q: キュー</gray>"
 
   lobby:
     npc:
