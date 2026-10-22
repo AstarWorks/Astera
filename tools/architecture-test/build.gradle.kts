@@ -29,4 +29,7 @@ dependencies {
 // Force re-run on every invocation. Performance is fine — scanning is fast.
 tasks.named<Test>("test") {
     outputs.upToDateWhen { false }
+    // One shared project scope (KonsistScopes) holds every parsed source file;
+    // the default test-JVM heap (512m) is too small for the full tree.
+    maxHeapSize = "2g"
 }
