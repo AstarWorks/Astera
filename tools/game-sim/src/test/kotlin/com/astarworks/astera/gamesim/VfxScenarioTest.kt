@@ -55,6 +55,34 @@ class VfxScenarioTest {
     }
 
     @Test
+    fun `the sprite demo records every flipbook frame as a text swap in the viewer trace`() {
+        scenario("vfx-demo-sprites") {
+            val caster = player("caster", team = "red")
+            caster.cast("vfx-demo-sprites")
+            advance(30)
+
+            val ticks = sim.recorder.toJson().jsonObject["ticks"]!!.jsonArray.map { it.jsonObject }
+            fun ops(op: String) = ticks.flatMap { t ->
+                t["displays"]!!.jsonArray.map { it.jsonObject }.filter { it["op"]!!.jsonPrimitive.content == op }
+                    .map { t["tick"]!!.jsonPrimitive.content.toInt() to it }
+            }
+            val glint = ops("spawn").map { it.second }.single {
+                it["lines"]!!.jsonArray.single().jsonPrimitive.content == "<font:astera:vfx/glint></font>"
+            }
+            assertThat(ops("spawn")).hasSize(13)
+            assertThat(ops("spawn")).allSatisfy { (_, s) ->
+                assertThat(s["lines"]!!.jsonArray.single().jsonPrimitive.content).startsWith("<font:astera:vfx/")
+            }
+            // frame_ticks 2, loop: frame k at 2k after the 1-tick spawn delay, wrapping after the 6th frame
+            val swaps = ops("swap").filter { it.second["id"] == glint["id"] }
+            assertThat(swaps.map { it.second["kind"]!!.jsonPrimitive.content }).containsOnly("text")
+            assertThat(swaps.take(7).map { it.second["lines"]!!.jsonArray.single().jsonPrimitive.content })
+                .containsExactly(*(listOf(1, 2, 3, 4, 5, 0, 1).map { "<font:astera:vfx/glint>${(0xE000 + it).toChar()}</font>" }.toTypedArray()))
+            assertThat(swaps.zipWithNext { a, b -> b.first - a.first }.take(6)).containsOnly(2)
+        }
+    }
+
+    @Test
     fun `the quad sparks demo spawns coloured text displays, restyles and moves them, and removes all`() {
         scenario("vfx-demo-quad-sparks") {
             val caster = player("caster", team = "red")

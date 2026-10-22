@@ -66,6 +66,31 @@ Astera VFX displays are at yaw 0 unless billboarded.
   Minecraft bitmap font **(approx)**. Colour comes from the MiniMessage subset `<#rrggbb>`, named colours, `<b>`, legacy `§` codes.
 * `see_through` draws without depth test; otherwise depth tested (background and text are translucent layers).
 
+## 3a. Bitmap-font glyphs (custom particle sprites, ADR-0237)
+
+A `type: sprite` VFX element is a text display whose text is `<#rrggbb>?<font:astera:vfx/<id>>\uE00k</font>`; each flipbook
+frame is a text `swap`. The viewer draws runs in a font from `content/fonts/**` (`astera:<tree>`, embedded with its provider
+image by `scripts/embed-sprites.mjs`) with vanilla's `BitmapProvider` + `Font` + `TextDisplayRenderer` rules
+(`display-math.js` `bitmapProvider` / `bitmapGlyphQuads`, pinned by `test/bitmap-font.test.js` and calibration scene 5):
+
+* **Cell** = image width / chars per row x image height / rows (integer division); `scale = height / cellH` **(code)**.
+* **Quad**: the FULL cell, `cellW * scale` x `height` font px, left edge at the pen, top `ascent` px above the baseline; the
+  baseline is 7 px below the line top (default font: 8 px glyphs, ascent 7 -> top on the line top) **(code)**. The quad may
+  overflow the 9 px line box (the background does not grow).
+* **Advance** = `(int)(0.5 + actualWidth * scale) + 1`, where `actualWidth` = 1 + the rightmost cell column that holds a pixel
+  with alpha != 0 **(code)**. Bold +1. Codepoint 0 is a hole; a glyph missing from a known bitmap font advances 6.
+* **Line placement** (alignment `center`): the block is shifted by `1 - maxWidth/2`, line i starts `(maxWidth - width_i)/2`
+  further right **(code)**. So for one sprite glyph of advance A the cell centre sits at `17 - A/2` px: 0.5 px for a full-width
+  frame (A = 33). A frame whose right columns are empty has a smaller A and is drawn up to `(33 - A)/2` px off centre - this is
+  why `:tools:item-art` pins every strip frame's last column with an alpha-1 pixel (`SpriteSources.WIDTH_PIN`).
+* **Vertical**: with `height = H`, `ascent = H/2 - 2` the cell spans `[-H/2, +H/2]` around the pivot (line top 9, baseline 2
+  above the pivot). Size in blocks = `H / 40 * scale`.
+* **Colour**: texture x text colour (`<#rrggbb>`, default white) x `text_opacity`; discarded where that alpha < 0.1
+  (`rendertype_text` / `_see_through`), otherwise alpha-blended **(code)**. Nearest sampling, no mipmaps. Not drawn: the bold
+  double-strike and the shadow of bitmap glyphs.
+* **Uncertainty**: the `1 - maxWidth/2` shift (0.5 px) and the `7 - ascent` top offset are recalled from the decompiled renderer,
+  not measured on a client; a client screenshot of `vfx-demo-sprites` settles both.
+
 ## 4. Billboard
 
 `fixed`: entity yaw/pitch. `vertical`: pivots about the vertical axis only (camera yaw, entity pitch). `horizontal`: pivots about

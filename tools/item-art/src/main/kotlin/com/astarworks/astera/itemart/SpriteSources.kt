@@ -144,13 +144,27 @@ internal object SpriteSources {
 
     // ---- generated files -------------------------------------------------------------------------------
 
+    /**
+     * Frames side by side. Every frame whose last column is empty gets a [WIDTH_PIN] pixel at its bottom-right corner:
+     * vanilla `BitmapProvider` sets a glyph's advance from its rightmost pixel with alpha != 0, and a TextDisplay centres
+     * the line by that advance while drawing the full cell from the pen - so without the pin each frame would shift by
+     * half its empty right margin (up to 8 px, jittering through the flipbook). Alpha 1/255 is below the text shader's
+     * 0.1 discard, so the pin never draws.
+     */
     fun strip(frames: List<BufferedImage>): BufferedImage {
         val size = frames.first().width
         val img = BufferedImage(size * frames.size, size, BufferedImage.TYPE_INT_ARGB)
         val g = img.createGraphics()
         try { frames.forEachIndexed { i, f -> g.drawImage(f, i * size, 0, null) } } finally { g.dispose() }
+        for (i in frames.indices) {
+            val x = i * size + size - 1
+            if ((0 until size).none { y -> img.getRGB(x, y) ushr 24 != 0 }) img.setRGB(x, size - 1, WIDTH_PIN)
+        }
         return img
     }
+
+    /** Invisible width pin (ARGB, alpha 1): see [strip]. */
+    const val WIDTH_PIN: Int = 0x01000000
 
     /** Bitmap font JSON; the codepoints are written as \\u escapes so the file stays plain ASCII. */
     fun fontJson(id: String, frames: Int, size: Int): String {

@@ -25,7 +25,11 @@ val buildViewer = tasks.register<Exec>("buildViewer") {
     workingDir = viewerDir.asFile
     commandLine(bun.get(), "run", "build")
     inputs.dir("src")
+    inputs.dir("scripts")
     inputs.file("package.json")
+    // embedded by scripts/embed-sprites.mjs: item art + bitmap fonts (ADR-0237 particle sprites)
+    inputs.dir(rootProject.layout.projectDirectory.dir("content/textures/generated"))
+    inputs.dir(rootProject.layout.projectDirectory.dir("content/fonts")).optional()
     outputs.dir("dist")
 }
 
