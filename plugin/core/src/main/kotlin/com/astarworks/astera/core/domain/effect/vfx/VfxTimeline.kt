@@ -69,6 +69,7 @@ public object VfxTimeline {
         seed: Long,
         scale: Double,
     ): List<VfxElementPlan> {
+        if (el.emit != null) return VfxEmitterPlanner.plan(def, el, elementIndex, anchorRot, seed, scale)
         val formation = el.formation
         val curveParams = formation?.curve?.distribute(el.count, formation.closed) ?: List(el.count) { 0.0 }
         val tilt = formation?.tiltYawPitchRoll?.let { Quaternion.fromEulerDegrees(it.x, it.y, it.z) } ?: Quaternion.IDENTITY
@@ -294,6 +295,7 @@ public object VfxTimeline {
             val s = scale * geometry.scaleFactor * groupScale
             val sc = Vec3(local.scale.x * s, local.scale.y * s, local.scale.z * s)
             val rotation = slotRotation * Quaternion.fromEulerDegrees(local.euler.x, local.euler.y, local.euler.z)
+            if (el.kind is VfxElementKind.Quad) return VfxQuad.transform(el.kind, rotation, sc)
             var translation = position + slotRotation.rotate(local.translate * scale * groupScale)
             if (el.kind is VfxElementKind.Block) translation -= rotation.rotate(sc * 0.5)
             return DisplayTransform(translation, rotation, sc)
@@ -312,8 +314,10 @@ public object VfxTimeline {
         val kind = when (val k = el.kind) {
             is VfxElementKind.Block -> if (first.t == 0 && first.block != null) k.copy(blockKey = first.block) else k
             is VfxElementKind.Text -> if (first.t == 0 && first.text != null) k.copy(text = first.text) else k
+            is VfxElementKind.Quad -> VfxQuad.trackAt(el, k, 0.0).let { (c, a) -> k.copy(colorRgb = c, alpha = a) }
             else -> el.kind
         }
+        val quad = el.kind is VfxElementKind.Quad
         return VfxElementPlan(
             elementId = el.id,
             slot = slot,
@@ -327,6 +331,8 @@ public object VfxTimeline {
             initial = ctx.transformAt(0),
             updates = updatesFor(spawn, ctx),
             particles = emptyList(),
+            // quads sit at their own entity position (a transformation translation would be billboard-relative)
+            spawnOffset = if (quad) ctx.centerAt(0) else Vec3.ZERO,
         )
     }
 
@@ -347,6 +353,18 @@ public object VfxTimeline {
             val existing = byTick[tick]
             byTick[tick] = existing?.copy(block = f.block, text = f.text)
                 ?: VfxUpdate(tick, ctx.transformAt(f.t), 0, f.block, f.text)
+        }
+        val el = ctx.el
+        if (el.kind is VfxElementKind.Quad) {
+            val styled = VfxQuad.hasStyleTrack(el)
+            return byTick.values.sortedBy { it.tick }.map { u ->
+                val startU = u.tick - base
+                val endU = startU + u.interpolationTicks
+                u.copy(
+                    position = ctx.centerAt(endU),
+                    style = if (styled) VfxQuad.trackAt(el, el.kind, startU + u.interpolationTicks / 2.0).let { (c, a) -> VfxQuad.style(el.kind, c, a) } else null,
+                )
+            }
         }
         return byTick.values.sortedBy { it.tick }
     }

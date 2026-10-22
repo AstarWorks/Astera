@@ -101,12 +101,16 @@ public class SimDisplayGateway(
     /** A content swap (`kind` = `block` / `text`). */
     public data class Swap(val handle: IDisplayEntityGateway.DisplayHandle, val tick: Long, val kind: String, val value: String)
 
+    /** A text restyle (background ARGB, text_opacity, optional text colour). */
+    public data class Style(val handle: IDisplayEntityGateway.DisplayHandle, val tick: Long, val backgroundArgb: Int, val textOpacity: Int, val textRgb: Int?)
+
     public data class Teleport(val handle: IDisplayEntityGateway.DisplayHandle, val tick: Long, val at: Vec3, val teleportTicks: Int)
 
     /** Every transform update, in order. */
     public val updates: MutableList<Update> = mutableListOf()
     public val swaps: MutableList<Swap> = mutableListOf()
     public val teleports: MutableList<Teleport> = mutableListOf()
+    public val styles: MutableList<Style> = mutableListOf()
 
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): IDisplayEntityGateway.DisplayHandle {
         val handle = IDisplayEntityGateway.DisplayHandle(UUID.randomUUID())
@@ -138,6 +142,12 @@ public class SimDisplayGateway(
         val record = active[handle] ?: return
         swaps += Swap(handle, scheduler.currentTick(), "text", renderedLines.joinToString(" / "))
         recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} text ${renderedLines.joinToString(" / ")}")
+    }
+
+    override fun setTextStyle(handle: IDisplayEntityGateway.DisplayHandle, backgroundArgb: Int, textOpacity: Int, textRgb: Int?) {
+        val record = active[handle] ?: return
+        styles += Style(handle, scheduler.currentTick(), backgroundArgb, textOpacity, textRgb)
+        recorder.recordEffect(scheduler.currentTick(), "display_style", record.at, "${handle.id} bg=${Integer.toHexString(backgroundArgb)} opacity=$textOpacity")
     }
 
     override fun teleport(handle: IDisplayEntityGateway.DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {

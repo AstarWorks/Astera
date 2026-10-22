@@ -309,12 +309,79 @@
                     "items": {
                         "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxGroupKeyframeYaml"
                     }
+                },
+                "emit": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxEmitYaml"
                 }
             },
             "required": [
                 "id",
-                "kind",
-                "keyframes"
+                "kind"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxEmitYaml": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "rate_per_tick": {
+                    "type": "integer"
+                },
+                "speed": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "spread_deg": {
+                    "type": "number"
+                },
+                "direction": {
+                    "type": "string"
+                },
+                "gravity": {
+                    "type": "number"
+                },
+                "drag": {
+                    "type": "number"
+                },
+                "life_ticks": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "size": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "size_over_life": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "color_over_life": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "alpha_over_life": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "spin_deg_per_tick": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "count"
             ]
         },
         "com.astarworks.astera.core.application.config.VfxFormationYaml": {
@@ -421,6 +488,12 @@
                 },
                 "text": {
                     "type": "string"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "alpha": {
+                    "type": "number"
                 }
             },
             "required": [
@@ -481,6 +554,30 @@
                     "required": [
                         "type",
                         "particle_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "quad"
+                        },
+                        "color": {
+                            "type": "string"
+                        },
+                        "alpha": {
+                            "type": "number"
+                        },
+                        "glyph": {
+                            "type": "string"
+                        },
+                        "see_through": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type"
                     ]
                 },
                 {

@@ -13,6 +13,7 @@ import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementPlan
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.effect.vfx.VfxPlan
+import com.astarworks.astera.core.domain.effect.vfx.VfxQuad
 import com.astarworks.astera.core.domain.effect.vfx.VfxTimeline
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.LocaleCode
@@ -68,6 +69,12 @@ public class VfxPlayer(
         var handle: DisplayHandle? = null
         var nextUpdate: Int = 0
         var nextParticle: Int = 0
+
+        /** Entity position offset from the anchor (quads sit at their own point; `0` for ordinary displays). */
+        var offset: Vec3 = plan.spawnOffset
+
+        /** Quad updates move the entity themselves, so the per-tick follow teleport would fight them. */
+        val selfMoving: Boolean = plan.updates.any { it.position != null }
     }
 
     private class Instance(val request: VfxRequest, val plan: VfxPlan) {
@@ -135,7 +142,7 @@ public class VfxPlayer(
         if (plan.follow && anchor != null) {
             anchor()?.let { instance.position = it }
             for (state in instance.elements) {
-                state.handle?.let { displays.teleport(it, instance.position, 0f, 0f, FOLLOW_TELEPORT_TICKS) }
+                if (!state.selfMoving) state.handle?.let { displays.teleport(it, instance.position + state.offset, 0f, 0f, FOLLOW_TELEPORT_TICKS) }
             }
         }
         for (state in instance.elements) {
@@ -148,6 +155,11 @@ public class VfxPlayer(
                     if (u.tick < age) continue
                     u.block?.let { displays.setBlock(handle, it) }
                     u.text?.let { displays.setText(handle, listOf(it)) }
+                    u.style?.let { displays.setTextStyle(handle, it.backgroundArgb, it.textOpacity, it.textRgb) }
+                    u.position?.let {
+                        state.offset = it
+                        displays.teleport(handle, instance.position + it, 0f, 0f, u.interpolationTicks.coerceIn(0, MAX_TELEPORT_TICKS))
+                    }
                     displays.update(handle, u.transform, u.interpolationTicks)
                 }
             }
@@ -177,8 +189,12 @@ public class VfxPlayer(
             glowArgb = e.glowArgb,
             viewRange = e.viewRange,
         )
-        val lines = (e.kind as? VfxElementKind.Text)?.let { listOf(it.text) } ?: emptyList()
-        state.handle = displays.spawn(instance.request.world, instance.position, spec, lines)
+        val lines = when (val k = e.kind) {
+            is VfxElementKind.Text -> listOf(k.text)
+            is VfxElementKind.Quad -> listOf(VfxQuad.text(k))
+            else -> emptyList()
+        }
+        state.handle = displays.spawn(instance.request.world, instance.position + e.spawnOffset, spec, lines)
         if (state.handle == null) log.debug("VFX {}: display for element '{}' was not spawned", instance.request.vfxId, e.elementId)
     }
 
@@ -192,6 +208,17 @@ public class VfxPlayer(
             seeThrough = kind.seeThrough,
             lineWidth = kind.lineWidth,
         )
+        is VfxElementKind.Quad -> {
+            val style = VfxQuad.style(kind, kind.colorRgb, kind.alpha)
+            DisplayKind.Text(
+                lines = listOf(LocalizedText(mapOf(LocaleCode.EN to VfxQuad.text(kind)))),
+                backgroundArgb = style.backgroundArgb,
+                shadow = false,
+                seeThrough = kind.seeThrough,
+                textOpacity = style.textOpacity,
+                textRgb = style.textRgb,
+            )
+        }
         is VfxElementKind.Particle -> null
     }
 
@@ -210,5 +237,8 @@ public class VfxPlayer(
 
         /** `teleport_duration` for followed anchors: smooths the per-tick move. */
         public const val FOLLOW_TELEPORT_TICKS: Int = 2
+
+        /** Client maximum for `teleport_duration`. */
+        public const val MAX_TELEPORT_TICKS: Int = 59
     }
 }

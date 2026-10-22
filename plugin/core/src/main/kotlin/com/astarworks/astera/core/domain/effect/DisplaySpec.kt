@@ -63,6 +63,10 @@ public sealed class DisplayKind {
         public val seeThrough: Boolean = false,
         /** Wrap width in pixels; `null` = vanilla default (200). */
         public val lineWidth: Int? = null,
+        /** `text_opacity` 0..255 (client treats < 4 as opaque). */
+        public val textOpacity: Int = 255,
+        /** `0xRRGGBB` text colour override; `null` = the lines' own colours. */
+        public val textRgb: Int? = null,
     ) : DisplayKind() {
         init { require(lines.isNotEmpty()) { "DisplayKind.Text.lines must not be empty" } }
     }
