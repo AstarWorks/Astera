@@ -29,6 +29,36 @@ Display entity (block / item / text) と particle は役割が違う。**形と�
 **風切り = TextDisplay の半透明の扇を刃の通過に沿って自動生成**、**命中 = パーティクルの色・閃光・飛散 + 暗い残煙**。
 ItemDisplay はほぼ使わない。
 
+## 0.5 業界の知見 (出典つき)
+
+- **溜め → 発生 → 余韻。** 主動作は寿命の**最初の 1/4 で終える**、線形タイミングは使わない、余韻は徐々に弱める。
+  命中の演出はダメージと**同じ tick** に出す。([VFX Apprentice: timing](https://www.vfxapprentice.com/blog/the-soul-of-effects-what-is-timing-in-vfx),
+  [style guides](https://www.vfxapprentice.com/blog/creating-vfx-style-guides-for-games))
+- **重要度 = 見た目の大きさ。** 技の重要度を 1–10 で付け、強い技ほど大きく明るく鋭く。同じ効果 (スタン・回復) は同じ見た目言語。
+  ([LoL VFX の解剖](https://realtimevfx.com/t/anatomy-of-a-league-of-legends-missile-part-2-what-are-we-communicating-with-our-vfx/13062))
+- **当たり判定と見た目を一致させる。** 命中 tick の演出の広がり = ダメージ範囲。予兆の形 = 判定の形。([Riot: clarity](https://riotgames.com/en/news/dev-clarity-in-league))
+- **形:** 主要素 1 つ + 副要素。脅威は鋭い形、補助は丸い形。太い線と細い線を混ぜる。矛盾する形を重ねない。([LoL VFX tips](https://www.vfxapprentice.com/blog/10-league-of-legends-vfx-design-tips))
+- **明度と色:** 0/100 の極端を避け中間を広く使う。補色は一方を従に。パレットは類似色/三角配色で 3–4 色、支配色 1 つ。
+  明るさは「キャラより上、UI より少し下」。([LoL VFX tips](https://www.vfxapprentice.com/blog/10-league-of-legends-vfx-design-tips))
+- **ヒットストップ:** 攻撃側・被弾側を同時に止める、強い攻撃ほど長く、上限を設ける、多人数戦では短めに (止まった相手を第三者が殴れるため)。
+  ([桜井政博 ファミ通コラム要約](https://sourcegaming.info/2015/11/11/thoughts-on-hitstop-sakurais-famitsu-column-vol-490-1/),
+  [critpoints](https://critpoints.net/2017/05/17/hitstophitfreezehitlaghitpausehitshit/))
+  目安: 格闘ゲームで弱 7 / 強 11 フレーム程度 (60fps)。Minecraft の 20tps では弱 2 / 強 4 tick。
+- **風切りの欠け:** 高速の振りは毎フレームの刃の位置の間が空く (180° を 4 フレームで振ると 4 本の筋になる)。
+  → 振りの最中は 1 tick に 1 回以上更新し、先端に smear の破片を足す。([realtimevfx](https://realtimevfx.com/t/ue4-weapon-slash-meshes-vs-animtrail-data/5628))
+
+### 1 スキルのチェックリスト
+1. 重要度 1–10 を決め、大きさ・明るさ・長さをそれに合わせる。
+2. 溜め / 命中 tick / 余韻 の tick を書く。予兆は命中より先に読める。
+3. 命中 tick の演出の広がり = ダメージ範囲。
+4. 主要素 1 つ (脅威 = 鋭い)、副要素は 1 つまで。
+5. 色は 3–4 色、支配色 1 つ。暗い芯か縁を必ず入れる。
+6. 線形のタイミングは使わない。主動作は寿命の最初の 1/4。頂点で 1–2 tick 止める。
+7. 層: 芯 / 閃光 / 火花 / 煙 / 地面 / (決め技のみ) 画面。情報を足さない層は削る。
+8. 命中: 接触点に火花、ヒットストップ (強さで 2–4 tick)、被弾側の揺れ、音。
+9. 余韻で要素を減らしてから消す。次の技や相手の姿を隠さない。
+10. Display 数・寿命・視聴者あたりの上限を守る。比較ページ (動画 | 意図 | Minecraft) で確認する。
+
 ## 1. 二つの素材の性質
 
 | | Display entity | Particle |
