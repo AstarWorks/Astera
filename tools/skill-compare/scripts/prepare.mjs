@@ -4,7 +4,7 @@
 // cache/<case>/frames/frame_NNNNN.jpg         NATIVE fps frames of [start_s,end_s], 720p, jpg q3 (never resampled)
 // cache/<case>/meta.json  analysis.json       fps / frame count / size; waveform + onsets + cuts
 // Everything under cache/ is gitignored: it is third-party video material.
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { VIDEO_ID_RE, CASE_ID_RE } from "../src/timeline.js";
@@ -19,12 +19,15 @@ const run = (cmd, args, opts = {}) => {
   return opts.capture ? p.stdout.toString() : "";
 };
 
-const videoDir = join(HERE, "cache", "videos");
+const videoDir = process.env.SKILL_COMPARE_VIDEO_DIR || join(HERE, "cache", "videos");  // shared dir: parallel worktrees download once
 mkdirSync(videoDir, { recursive: true });
 const video = join(videoDir, `${videoId}.mp4`);
 if (!existsSync(video)) {
-  run("yt-dlp", ["-f", "bv*[height<=720][fps<=30]+ba/b", "--merge-output-format", "mp4", "-o", join(videoDir, `${videoId}.%(ext)s`),
+  // unique temp name, then atomic rename: two worktrees fetching the same video never clobber each other
+  const tmpBase = `${videoId}.dl${process.pid}`;
+  run("yt-dlp", ["-f", "bv*[height<=720][fps<=30]+ba/b", "--merge-output-format", "mp4", "-o", join(videoDir, `${tmpBase}.%(ext)s`),
     `https://www.youtube.com/watch?v=${videoId}`]);
+  if (!existsSync(video) && existsSync(join(videoDir, `${tmpBase}.mp4`))) renameSync(join(videoDir, `${tmpBase}.mp4`), video);
 }
 if (!existsSync(video)) { console.error("download produced no " + video); process.exit(1); }
 

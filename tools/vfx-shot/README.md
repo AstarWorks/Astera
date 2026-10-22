@@ -88,3 +88,17 @@ default `~/.cache/astera-vfx-shot`; first run downloads the client ~ 1 GB).
 - **Stale processes**: the trap kills clients by process group; leftovers are `portablemc` / `java` / `Xvfb :19x`
   under your user - kill by pid, never `pkill java`.
 - **Old server in the way**: `make vfx-shot-down`.
+
+## Parallel runs (several agents, one machine)
+
+Every run is isolated by `SHOT_ID` = hash(worktree path + CASE-or-SKILL): compose project `astera-shot-<id>` (`SHOT_PROJECT=` to override),
+image tag, container, docker network and its own free `10.N.77.0/24` (picked + created under a global lock). No fixed host ports (the
+server publishes ephemeral 127.0.0.1 ports only; clients join over the compose network IP), Xvfb picks its own display (`-displayfd`),
+the trap disconnects this container from the network and removes the project. `make vfx-shot-down` (same SKILL/CASE) drops a `SHOT_KEEP=1` leftover.
+
+**Slots**: a global semaphore of `flock`ed files `/tmp/claude-1000/vfx-shot-slots/slot-{1..N}.lock` (`SHOT_SLOTS`, default 2; `SHOT_SLOT_DIR`).
+A run takes a slot BEFORE the image build (gradle inside docker) and keeps it through server + clients + capture; when all are busy it
+prints `queued: ...` and polls every 3 s. The kernel frees the slot when the run exits, however it ends.
+
+**Target dummy**: husk with movement_speed 0, follow_range 0, attack_damage 0, silent, fixed rotation facing the caster, HP 200, summoned
+fresh per view (NOT `NoAI`: that would also swallow knockback/velocity). It can still turn its head toward the caster, never walk or attack.

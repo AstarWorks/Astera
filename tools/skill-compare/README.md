@@ -54,3 +54,18 @@ Frames before the cast / after the last frame are shown dimmed. Align with the "
 
 Only `public/`, `src/` (bundled on the fly), `data/`, `cache/` and the three build dirs above are reachable, by fixed
 URL patterns with strict file-name regexes. Binding `0.0.0.0` is intended for the LAN; there is no auth, do not expose it.
+
+## Agent PDCA loop
+
+Each agent works in its own worktree; frames stay in that worktree's `build/`, only `data/<case>/` is committed.
+
+1. **Case**: `make skill-compare-case CASE=<id> VIDEO=<youtubeId> START=<s> END=<s> SKILL=<astera-skill-id> [NAME=.. COINS=..]` writes `data/<id>/case.json`
+   + an `intent.json` template and extracts native-fps frames/onsets/cuts. Several cases per video share one download (`SKILL_COMPARE_VIDEO_DIR`,
+   default `~/.cache/astera-skill-compare/videos` via make).
+2. **Intent**: fill `intent.json` (camera / actors / weapon / effects; tick 0 = START, schema = `data/zwei-s3/intent.json`).
+3. **Author**: write/adjust the Astera skill YAML / VFX.
+4. **Capture**: `SKILL=<skill> VIEW=compare CASE=<id> bash tools/vfx-shot/vfx-shot.sh` (queues on the global slots, see `tools/vfx-shot/README.md`).
+5. **Pairs**: `make skill-pairs CASE=<id> [SKILL=<skill>] AT="19.7:hit1 20.9:hit2"` (t = absolute video seconds; video, t0 and pre-ticks are derived)
+   -> `build/pairs/<id>.png`; read it, compare, go back to 3.
+6. **Review**: `make skill-compare` serves cases from the checkout it runs in. To also show other worktrees' captures:
+   `SKILL_COMPARE_MEDIA_DIRS=/path/wt-a/build/vfx-shot:/path/wt-b/build/vfx-shot make skill-compare` (the main dir is searched first).
