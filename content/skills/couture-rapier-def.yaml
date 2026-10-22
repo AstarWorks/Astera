@@ -1,0 +1,59 @@
+# Couturier's Rapier DEF (sneak + left-click): the fitting step. A quick hop back out of reach under
+# the `evasive` sprint, a white pin fan where the blade would parry, and a red afterimage left
+# standing on the spot. Stepping clean away is rewarded with 2 poise for the next string.
+
+id: couture-rapier-def
+
+name:
+  ja: "仮縫いの退歩"
+  en: "Fitting Step"
+description:
+  ja: "後ろへ素早く跳んで間合いを外し、集中（poise）を2溜める。"
+  en: "A quick hop out of reach that banks 2 poise for the next string."
+
+archetype: buff
+cooldown_ticks: 90
+resource_cost: 10
+tags: [ buff, movement, defense, poise ]
+
+params:
+  type: buff
+  status_effect_id: evasive
+  duration_ticks: 14
+
+phases:
+  type: buff
+  cast:
+    - type: propel
+      targets: { type: caster }
+      direction: { type: from_caster }
+      strength: { type: literal, value: -1.0 }
+    - type: propel
+      targets: { type: caster }
+      direction: { type: up }
+      strength: { type: literal, value: 0.3 }
+    - type: apply_status
+      targets: { type: caster }
+      status_id: poise
+      effect_duration_ticks: { type: literal, value: 400 }
+      stack_count: { type: literal, value: 2 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: couture-rapier-guard
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: couture-rapier-afterimage
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.shield.block
+      volume: { type: literal, value: 0.5 }
+      pitch: { type: literal, value: 1.7 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.sweep
+      pitch: { type: literal, value: 1.9 }
+    - type: spawn_particle
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
+      particle_id: dash-cloud
+  expire: []
+  removed: []

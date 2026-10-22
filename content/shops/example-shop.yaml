@@ -93,3 +93,19 @@ offers:
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.thunder-staff
+  - id: couture-rapier
+    item: couture-rapier
+    price:
+      currency: GOLD
+      amount: 160
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.couture-rapier
+  - id: gossamer-katana
+    item: gossamer-katana
+    price:
+      currency: GOLD
+      amount: 160
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.gossamer-katana

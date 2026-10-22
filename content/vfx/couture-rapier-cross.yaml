@@ -1,0 +1,85 @@
+# Couturier's Rapier scissor cross: two long cyan bars snap into an X over the struck target (out_expo),
+# hold ~3 ticks as the hit-stop freeze, then pinch shut like closing shears (in_quad). A thin white
+# core rides each bar, a red ✦ flashes at the crossing and a ring of radial rays shocks outward.
+# Anchored on the target; the X faces the caster's look direction.
+
+id: couture-rapier-cross
+duration_ticks: 16
+orient: look
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: blade-a
+    kind: { type: block, block: cyan_stained_glass }
+    brightness: 15
+    glow_color: "#3ff0ff"
+    start_tick: 0
+    end_tick: 13
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.3], rotate: [0, 0, 42], scale: [0.04, 0.3, 0.04] }
+      - { t: 2, scale: [0.09, 3.8, 0.09], ease: out_expo }
+      - { t: 7, scale: [0.09, 3.8, 0.09] }
+      - { t: 8, block: white_stained_glass }
+      - { t: 13, scale: [0.0, 3.8, 0.0], ease: in_quad }
+
+  - id: blade-b
+    kind: { type: block, block: cyan_stained_glass }
+    brightness: 15
+    glow_color: "#3ff0ff"
+    start_tick: 1
+    end_tick: 14
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.3], rotate: [0, 0, -42], scale: [0.04, 0.3, 0.04] }
+      - { t: 2, scale: [0.09, 3.8, 0.09], ease: out_expo }
+      - { t: 7, scale: [0.09, 3.8, 0.09] }
+      - { t: 8, block: white_stained_glass }
+      - { t: 13, scale: [0.0, 3.8, 0.0], ease: in_quad }
+
+  - id: core-a
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 0
+    end_tick: 9
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.35], rotate: [0, 0, 42], scale: [0.02, 0.3, 0.02] }
+      - { t: 2, scale: [0.03, 4.0, 0.03], ease: out_expo }
+      - { t: 9, scale: [0.0, 4.0, 0.0], ease: in_quad }
+
+  - id: core-b
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 1
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.35], rotate: [0, 0, -42], scale: [0.02, 0.3, 0.02] }
+      - { t: 2, scale: [0.03, 4.0, 0.03], ease: out_expo }
+      - { t: 9, scale: [0.0, 4.0, 0.0], ease: in_quad }
+
+  - id: flash
+    kind: { type: text, text: "<#ff3b4a><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 8
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.5], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [6.0, 6.0, 6.0], ease: out_back }
+      - { t: 7, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: shock
+    kind: { type: block, block: light_blue_stained_glass }
+    brightness: 15
+    glow_color: "#8ff8ff"
+    start_tick: 1
+    end_tick: 10
+    count: 16
+    formation:
+      curve: { type: circle, radius: 0.5 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.2, 0.4]
+      align: outward
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.04, 0.04, 0.2] }
+      - { t: 3, translate: [0.0, 0.0, 1.0], scale: [0.05, 0.05, 0.9], ease: out_expo }
+      - { t: 9, translate: [0.0, 0.0, 1.9], scale: [0.0, 0.0, 0.9], ease: in_quad }
