@@ -29,6 +29,22 @@ Or buy them: right-click the "Lobby Merchant" villager near spawn, or `/astera-s
 (new players start with 100 GOLD; prices below). `/vault` or an ender chest opens your personal vault.
 Skill damage also hits mobs (`/summon zombie` to test). `Q` reloads any gun.
 
+### Admin panel (`/astera-admin`)
+
+Ops (and anyone with `astera.admin.panel`) get a chest-GUI hub:
+
+| Page | What it does |
+|---|---|
+| Weapons & items | Every loaded item, tabs for guns / swords / staffs / support / other, paginated. Click = give 1, shift-click = give 16. Shift-click a tab = one of each in that category. "Full kit" = one of each gun, sword and staff. |
+| Match control | Active matches (mode, stage, phase, players, time): click = next phase, right-click = end, shift-click = abort. Queue lanes: click = force start now (ignores min players and countdowns), right-click = start the lane with just you. |
+| Players | Online heads, then per player: teleport to / bring, toggle gamemode, heal (Astera HP), clear statuses, give currency (presets), kick (shift-click). |
+| Server | Reload all content, validate content (issue count in chat), maintenance toggle, health summary. |
+| Self tools | God mode, fly, heal, clear cooldowns, refill ammo/mana. |
+
+Every action is permission-checked per click and written to the audit log.
+The quickest solo test loop: `/astera-admin` -> Weapons & items -> Full kit ->
+Match control -> your lane -> right-click ("just me").
+
 ### Weapon roster (WP7)
 
 | Item | Class | Right-click | Sneak + right-click | Left-click | GOLD | Crit-free TTK on 20 HP |

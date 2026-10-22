@@ -226,6 +226,7 @@ internal class CorePaperBindings(
                 bodies
             },
             playerSoundGateway = com.astarworks.astera.core.adapter.paper.effect.PaperPlayerSoundGateway(server),
+            adminPlayerGateway = com.astarworks.astera.core.adapter.paper.admin.PaperAdminPlayerGateway(server),
             playerHealthGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.physiology.PaperPlayerHealthGateway(
                     services.getOrThrow<IPlayerAttributeContainerStore>(),

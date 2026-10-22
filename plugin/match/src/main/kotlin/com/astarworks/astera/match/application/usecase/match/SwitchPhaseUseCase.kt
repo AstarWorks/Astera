@@ -46,6 +46,12 @@ public class SwitchPhaseUseCase(
      * mode policy.
      */
     private val minPlayersFor: (String?) -> Int = MatchMinPlayerPolicy::requirementFor,
+    /**
+     * F1-D (ADR-0182): matches an admin forced past the roster floor (panel
+     * "force start now" / "next phase"). Waived matches skip the min-player
+     * guard on COUNTDOWN to ACTIVE.
+     */
+    private val minPlayersWaived: (MatchId) -> Boolean = { false },
 ) {
 
     public fun execute(
@@ -55,7 +61,7 @@ public class SwitchPhaseUseCase(
         val match = matches.findById(matchId)
             ?: return Result.failure(SwitchPhaseError.MatchNotFound(matchId))
 
-        if (trigger == MatchStateMachine.TransitionTrigger.CountdownComplete) {
+        if (trigger == MatchStateMachine.TransitionTrigger.CountdownComplete && !minPlayersWaived(matchId)) {
             val modeKey = modeRegistry?.modeKeyOf(matchId)
             when (val gate = MatchMinPlayerPolicy.check(minPlayersFor(modeKey), match)) {
                 MatchMinPlayerPolicy.Outcome.Ok -> Unit

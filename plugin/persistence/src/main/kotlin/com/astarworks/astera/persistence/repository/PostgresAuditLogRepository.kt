@@ -136,6 +136,16 @@ public class PostgresAuditLogRepository(private val db: Database) : IAuditLogRep
                 sourceIdentifier = event.sourceIdentifier,
             ),
         )
+
+        is AuditEvent.AdminActionPerformed -> KIND_ADMIN_ACTION_PERFORMED to json.encodeToString(
+            AdminActionPerformedJson.serializer(),
+            AdminActionPerformedJson(
+                actor = event.actor.uuid.toString(),
+                action = event.action,
+                target = event.target,
+                detail = event.detail,
+            ),
+        )
     }
 
     // ─── decode ─────────────────────────────────────────────────────────────
@@ -200,6 +210,17 @@ public class PostgresAuditLogRepository(private val db: Database) : IAuditLogRep
                     occurredAt = occurredAt,
                 )
             }
+            KIND_ADMIN_ACTION_PERFORMED -> {
+                val dto = json.decodeFromString(AdminActionPerformedJson.serializer(), raw)
+                AuditEvent.AdminActionPerformed(
+                    id = id,
+                    actor = PlayerId(UUID.fromString(dto.actor)),
+                    action = dto.action,
+                    target = dto.target,
+                    detail = dto.detail,
+                    occurredAt = occurredAt,
+                )
+            }
             else -> error("PostgresAuditLogRepository: unknown audit kind='$k' id=$id (forward-compat fence)")
         }
     }
@@ -211,6 +232,7 @@ public class PostgresAuditLogRepository(private val db: Database) : IAuditLogRep
         public const val KIND_MATCH_ENDED: String = "match_ended"
         public const val KIND_CHAT_MESSAGE_RECORDED: String = "chat_message_recorded"
         public const val KIND_SERVER_ERROR_REPORTED: String = "server_error_reported"
+        public const val KIND_ADMIN_ACTION_PERFORMED: String = "admin_action_performed"
     }
 }
 
@@ -243,6 +265,14 @@ private data class ChatMessageRecordedJson(
     val sender: String,
     val channel: ChannelJson,
     val content: String,
+)
+
+@Serializable
+private data class AdminActionPerformedJson(
+    val actor: String,
+    val action: String,
+    val target: String?,
+    val detail: String,
 )
 
 @Serializable

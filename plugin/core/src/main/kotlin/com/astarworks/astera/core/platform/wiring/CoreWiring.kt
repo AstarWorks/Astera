@@ -73,6 +73,7 @@ public object CoreWiring {
         state.wireProgression()
         state.wirePlayerSystems()
         state.wireBossAndAdmin()
+        state.wireAdminPanel()
         state.wireInfrastructure()
         state.wireGameplayLoop()
         state.wireCompletenessListeners()

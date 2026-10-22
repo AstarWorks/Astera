@@ -5,6 +5,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
@@ -53,10 +54,17 @@ public class MatchFoundUseCase(
      *  - `Success(null)`: nothing to do (queue too shallow, or stage busy).
      *  - `Failure(QueueFailure)`: the matchmaker rejected the call (mode closed...).
      *  - `Failure(StartFailure)`: the match could not start; players were re-queued.
+     *
+     * [minPlayers] / [only] are the admin-panel overrides of
+     * [IMatchmaker.tryFormMatch] (force start / start with just one player).
      */
-    public fun execute(mode: MatchmakingMode): Result<MatchId?, MatchFoundError> {
+    public fun execute(
+        mode: MatchmakingMode,
+        minPlayers: Int? = null,
+        only: Set<PlayerId>? = null,
+    ): Result<MatchId?, MatchFoundError> {
         if (isStageBusy(mode)) return Result.Success(null)
-        val formation = when (val formationResult = matchmaker.tryFormMatch(mode)) {
+        val formation = when (val formationResult = matchmaker.tryFormMatch(mode, minPlayers, only)) {
             is Result.Failure -> return Result.Failure(MatchFoundError.QueueFailure(formationResult.error))
             is Result.Success -> formationResult.value ?: return Result.Success(null)
         }

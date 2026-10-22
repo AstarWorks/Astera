@@ -353,6 +353,13 @@ public object CombatWiring {
         val damageGateway = services.get<IDamageGateway>()
         val statusContainer = services.get<IStatusEffectContainer>()
 
+        // F1-D (ADR-0182): admin god mode, consulted by ApplyDamageUseCase.
+        val godModeService: com.astarworks.astera.combat.application.port.outbound.IGodModeService =
+            services.get<com.astarworks.astera.combat.application.port.outbound.IGodModeService>()
+                ?: com.astarworks.astera.combat.application.service.InMemoryGodModeService().also {
+                    registrations += services.register<com.astarworks.astera.combat.application.port.outbound.IGodModeService>(it, priority = 0)
+                }
+
         // Wave 6a-1 5paper-sweep-knockback (ADR-0144): Paper knockback
         // adapter overlays NoOpKnockbackGateway at priority 100. Reads
         // Bukkit Attribute.KNOCKBACK_RESISTANCE per ADR-0136 §A
@@ -431,6 +438,7 @@ public object CombatWiring {
                     targetLockBonusSource,
                 ),
                 entityDamageGateway = entityDamageGateway,
+                godMode = godModeService,
             )
 
             // Wave 6e-N1 (ADR-0164): the explosion overlay is wired with
@@ -684,6 +692,22 @@ public object CombatWiring {
             scheduler = scheduler,
             shutdownHooks = shutdownHooks,
         )
+
+        // ── F1-D (ADR-0182) — `/astera-admin` combat tools ─────────────────
+        val adminTools = com.astarworks.astera.combat.application.admin.AdminCombatToolsUseCase(
+            health = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>(),
+            statuses = statusContainer,
+            cooldowns = cooldownTracker,
+            resources = services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>(),
+            godMode = godModeService,
+        )
+        registrations += services.register(adminTools)
+        registrations += com.astarworks.astera.combat.application.admin.AdminCombatPanel(
+            guard = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.AdminPanelGuard>(),
+            registry = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.IAdminPanelRegistry>(),
+            tools = adminTools,
+            mcServer = services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
+        ).install(services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>())
 
         return CombatWiringResult(
             skillContents = skillContents,

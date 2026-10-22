@@ -1,0 +1,4 @@
+# F1-D (ADR-0182) - admin panel icon. Names/lore are supplied by the panel (GuiText).
+
+id: gui-admin-god
+material: TOTEM_OF_UNDYING

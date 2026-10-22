@@ -40,6 +40,12 @@ public sealed interface GuiSlot {
      *   this slot do?" hints without baking the help into the item template.
      * @property count how many of the item to show in the stack. Vanilla
      *   inventory stacks cap at 64; the domain enforces `1..64`.
+     * @property displayName replaces the item's display name (dynamic rows:
+     *   a match, a player). `null` keeps the item template's name.
+     * @property lore lines **appended** to the item template's own lore
+     *   (e.g. "left-click: give 1" under a weapon's real tooltip).
+     * @property headOf when set and the item renders as a player head, the
+     *   skin of this player is shown (admin panel player list).
      */
     public data class Static(
         public val itemId: ItemId,
@@ -49,6 +55,9 @@ public sealed interface GuiSlot {
         public val onMiddleClick: GuiIntent? = null,
         public val tooltip: List<MessageKey> = emptyList(),
         public val count: Int = 1,
+        public val displayName: GuiText? = null,
+        public val lore: List<GuiText> = emptyList(),
+        public val headOf: com.astarworks.astera.core.domain.player.PlayerId? = null,
     ) : GuiSlot {
         init {
             require(count in 1..MAX_STACK) {

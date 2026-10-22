@@ -39,6 +39,11 @@ public sealed interface SlotPatch {
         val index: SlotIndex,
         val itemId: ItemId,
         val count: Int = 1,
+        /**
+         * The full slot when it carries display extras (name / lore / head);
+         * `null` for a plain icon so the common patch stays `Set(idx, item, n)`.
+         */
+        val slot: com.astarworks.astera.core.domain.gui.GuiSlot.Static? = null,
     ) : SlotPatch {
         init {
             require(count in 1..MAX_STACK) { "Set.count must be in 1..$MAX_STACK: $count" }

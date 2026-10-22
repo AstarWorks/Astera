@@ -279,6 +279,14 @@ public object EconomyWiring {
             shopIntentHandler.handle(intent, player)
         }
 
+        // ── F1-D (ADR-0182) — `/astera-admin` give-currency action ────────
+        registrations += com.astarworks.astera.economy.application.admin.AdminCurrencyPanel(
+            guard = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.AdminPanelGuard>(),
+            registry = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.IAdminPanelRegistry>(),
+            guiAdapter = guiAdapter,
+            deposit = deposit,
+        ).install(intentRouter)
+
         // ── Wave 5lobby-content (ADR-0119) — `lobby.shop.open` bridge ───
         // Lobby compass tile / shop NPC right-click emits `lobby.shop.open`
         // (no payload by default → opens DEFAULT_LOBBY_SHOP_ID =

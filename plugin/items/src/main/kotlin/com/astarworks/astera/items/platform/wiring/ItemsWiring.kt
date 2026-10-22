@@ -1,7 +1,13 @@
 package com.astarworks.astera.items.platform.wiring
 
 import com.astarworks.astera.core.adapter.api.server.IMcServer
+import com.astarworks.astera.core.application.admin.panel.AdminPanelGuard
+import com.astarworks.astera.core.application.admin.panel.IAdminPanelRegistry
 import com.astarworks.astera.core.application.command.CommandSpec
+import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
+import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
+import com.astarworks.astera.items.application.admin.AdminGiveItemsUseCase
+import com.astarworks.astera.items.application.admin.AdminItemsPanel
 import com.astarworks.astera.core.application.contents.ItemContents
 import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
@@ -48,6 +54,8 @@ public class ItemsWiringResult(
     public val handleTrigger: HandleItemTriggerUseCase,
     /** Vendor-neutral click sink. Paper feeds it from `PaperItemInputListener`; the simulator feeds `IMcEvent`s directly. */
     public val triggerListener: ItemSkillTriggerListener,
+    /** F1-D: the weapons & items section of `/astera-admin`. */
+    public val adminItemsPanel: AdminItemsPanel,
 )
 
 /**
@@ -195,6 +203,17 @@ public object ItemsWiring {
         )
         registrations += services.register(applyHeldGlow, priority = 0)
 
+        // F1-D (ADR-0182): `/astera-admin` weapons & items catalog. Core owns the
+        // hub / guard / registry; this plugin contributes its tile + `admin.items.` handler.
+        val adminItemsPanel = AdminItemsPanel(
+            guard = services.getOrThrow<AdminPanelGuard>(),
+            registry = services.getOrThrow<IAdminPanelRegistry>(),
+            items = itemRegistry,
+            give = AdminGiveItemsUseCase(itemRegistry, itemDelivery),
+            guiAdapter = services.getOrThrow<IGuiAdapter>(),
+        )
+        registrations += adminItemsPanel.install(services.getOrThrow<IGuiIntentRouter>())
+
         // Command tree.
         commandHandler.register(
             CommandSpec.Literal(
@@ -259,6 +278,7 @@ public object ItemsWiring {
             giveItem = giveItem,
             handleTrigger = handleTrigger,
             triggerListener = triggerListener,
+            adminItemsPanel = adminItemsPanel,
         )
     }
 }
