@@ -14,7 +14,7 @@ elements:
     kind: { type: block, block: red_concrete }
     brightness: 8
     start_tick: 0
-    end_tick: 14
+    slot_lifetime_ticks: 14
     count: 5
     formation:
       curve: { type: line, from: [0.0, 0.9, 0.8], to: [0.0, 0.9, 5.2] }

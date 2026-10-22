@@ -76,7 +76,7 @@ elements:
     kind: { type: item, item: iron_axe, display_mode: fixed }
     brightness: 15
     start_tick: 1
-    end_tick: 13
+    slot_lifetime_ticks: 12
     count: 6
     formation:
       curve: { type: line, from: [0.0, 1.0, 0.6], to: [0.0, 1.0, 6.4] }

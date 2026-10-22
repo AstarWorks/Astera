@@ -100,7 +100,7 @@ phases:
       delay_ticks: { type: literal, value: 10 }
     - type: knockback
       targets: { type: target }
-      direction: { type: from_caster }
+      direction: { type: away_from_caster }
       strength: { type: literal, value: 0.9 }
       delay_ticks: { type: literal, value: 10 }
     - type: hit_stop
