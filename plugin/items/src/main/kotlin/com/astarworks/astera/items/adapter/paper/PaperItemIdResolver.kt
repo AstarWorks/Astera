@@ -1,5 +1,6 @@
 package com.astarworks.astera.items.adapter.paper
 
+import com.astarworks.astera.core.adapter.paper.lobby.TrainingItemTag
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.NamespacedKey
@@ -35,7 +36,9 @@ public class PaperItemIdResolver(
     override fun inventoryItemIds(playerId: PlayerId): List<ItemId> {
         val player = server.getPlayer(playerId.uuid) ?: return emptyList()
         val inv = player.inventory
-        return (inv.contents.asList() + inv.armorContents.asList() + inv.itemInOffHand).mapNotNull(::itemIdOf)
+        return (inv.contents.asList() + inv.armorContents.asList() + inv.itemInOffHand)
+            .filterNot(TrainingItemTag::isTraining) // lobby rack stacks are lent, not owned
+            .mapNotNull(::itemIdOf)
     }
 
     /** The `astera:item_id` of [stack], or `null` for air / non-Astera stacks. */
