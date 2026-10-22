@@ -70,7 +70,7 @@ public class PaperCommandBridge(
                 "Astera commands: /astera help",
                 emptyList(),
             )
-            // ADR-0232: /play /menu /vault /shop /lang are redirects into the one tree, never second specs.
+            // ADR-0234: /play /menu /vault /shop /lang are redirects into the one tree, never second specs.
             for ((name, target) in CommandShortcuts.TABLE) {
                 var found: com.mojang.brigadier.tree.CommandNode<CommandSourceStack>? = built
                 for (segment in target) found = found?.getChild(segment)

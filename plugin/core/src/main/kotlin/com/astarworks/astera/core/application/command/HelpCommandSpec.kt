@@ -22,7 +22,7 @@ public class HelpCommands(
 ) {
 
     /**
-     * Executor for the bare `/astera` (ADR-0232): a player gets the main menu (the GUI is the
+     * Executor for the bare `/astera` (ADR-0234): a player gets the main menu (the GUI is the
      * discoverable front door); the console, or a player whose menu cannot open, gets the help overview.
      */
     public val overview: suspend (CommandContext) -> CommandResult = lambda@{ ctx ->

@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0232: Command usability: shortcuts as redirects, usage blocks, tooltips, confirm
+# ADR-0234: Command usability: shortcuts as redirects, usage blocks, tooltips, confirm
 
 ## Status
 

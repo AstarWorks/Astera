@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
  * The reply block shown when a command line did not resolve to a runnable node
- * (ADR-0232): the expected syntax, what the command does, the sub-commands to
+ * (ADR-0234): the expected syntax, what the command does, the sub-commands to
  * pick from, and a copy-paste example when the language files carry one
  * (`astera.command.example.<path joined by '-'>`).
  */

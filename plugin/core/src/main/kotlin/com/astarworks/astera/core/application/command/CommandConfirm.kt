@@ -3,7 +3,7 @@ package com.astarworks.astera.core.application.command
 import com.astarworks.astera.core.domain.i18n.MessageKey
 
 /**
- * Confirmation step for destructive admin commands (ADR-0232).
+ * Confirmation step for destructive admin commands (ADR-0234).
  *
  * A destructive leaf declares [argument] as its last (optional) argument and
  * starts its executor with [guard]. A player who omits `--confirm` gets the

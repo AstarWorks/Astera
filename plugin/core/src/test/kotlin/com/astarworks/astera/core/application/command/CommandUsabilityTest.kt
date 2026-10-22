@@ -10,7 +10,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-/** Pure tests for the usability helpers of ADR-0232: usage block, shortcuts, confirm guard. */
+/** Pure tests for the usability helpers of ADR-0234: usage block, shortcuts, confirm guard. */
 class CommandUsabilityTest {
 
     private class MapRenderer(private val texts: Map<String, String>) : IMessageRenderer {

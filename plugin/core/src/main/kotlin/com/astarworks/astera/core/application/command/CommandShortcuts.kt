@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.application.command
 
 /**
- * Short top-level aliases for the most common player actions (ADR-0232).
+ * Short top-level aliases for the most common player actions (ADR-0234).
  *
  * Each shortcut is a Brigadier *redirect* to a node of the single `/astera`
  * tree, never a second spec: `/play norma` runs exactly `/astera queue join norma`

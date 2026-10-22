@@ -140,7 +140,7 @@ class CommandTreeTest {
             val areaLines = plain.replies.filter { it.first.value == "astera.command.help.area-line" }.map { it.second["area"] }
             assertThat(areaLines).contains("queue", "shop").doesNotContain("admin", "mod")
 
-            // bare `/astera`: a player gets the main menu, or the help overview when it cannot open (ADR-0232)
+            // bare `/astera`: a player gets the main menu, or the help overview when it cannot open (ADR-0234)
             val bare = sim.command("alice", "")
             assertThat(bare.succeeded).isTrue()
             assertThat(bare.replies.map { it.first.value }).doesNotContain("astera.command.usage")
