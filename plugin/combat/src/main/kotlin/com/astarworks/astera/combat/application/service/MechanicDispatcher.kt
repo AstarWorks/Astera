@@ -116,7 +116,7 @@ public class MechanicDispatcher(
     private val broadcaster: IBroadcaster?,
     private val celEvaluator: ICelEvaluator,
     private val scheduler: IScheduler,
-    @Suppress("unused") private val eventBus: IDomainEventBus,
+    private val eventBus: IDomainEventBus,
     /**
      * Wave 5effects (ADR-0109): tick-scheduled emission engine. When wired
      * `Mechanic.SpawnParticle` produces a real emission (single-tick burst
@@ -320,8 +320,13 @@ public class MechanicDispatcher(
         log = log,
     )
 
+    private val counters = CounterWindows(eventBus, scheduler, poseLookup,
+        isAlive = { vitals?.isAlive(it) != false },
+        run = { mechanics, context -> dispatch(mechanics, context) })
+
     /** Undoes every temporary world change batch B made (blocks, displays, summons, glow) and ends running dashes. */
     public fun shutdown() {
+        counters.shutdown()
         dashRunner.shutdown()
         heldUntil.clear()
         deferredMovement.clear()
@@ -747,6 +752,13 @@ public class MechanicDispatcher(
                 }
             }
 
+            is Mechanic.Counter -> {
+                val window = resolveInt(mechanic.windowTicks, ctx)
+                val range = resolveDouble(mechanic.maxDistance, ctx)
+                for (guard in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    counters.arm(ctx.copy(actorId = guard), window, range, mechanic.onHit)
+                }
+            }
             is Mechanic.PlayAnimation -> {
                 val gateway = playerAnimation ?: return warnMissing("PlayAnimation", "IPlayerAnimationGateway")
                 val ticks = resolveInt(mechanic.ticks, ctx).toLong()

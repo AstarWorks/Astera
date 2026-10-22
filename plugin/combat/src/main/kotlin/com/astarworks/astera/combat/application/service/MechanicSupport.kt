@@ -43,6 +43,7 @@ public object MechanicSupport {
                 (mechanic.then_ + mechanic.else_).forEach { collect(it, out) }
             }
             is Mechanic.Loop -> mechanic.mechanics.forEach { collect(it, out) }
+            is Mechanic.Counter -> mechanic.onHit.forEach { collect(it, out) }
             is Mechanic.DashStrike -> mechanic.onHit.forEach { collect(it, out) }
             is Mechanic.Choose -> mechanic.weighted.flatMap { it.mechanics }.forEach { collect(it, out) }
             else -> Unit
@@ -81,7 +82,7 @@ public object MechanicSupport {
         is Mechanic.ModifyAttribute, is Mechanic.SetCooldown,
         is Mechanic.SendMessage, is Mechanic.SendActionBar, is Mechanic.SendTitle,
         is Mechanic.DashStrike, is Mechanic.HitStop, is Mechanic.RestoreResource,
-        is Mechanic.Teleport, is Mechanic.SpawnParticle, is Mechanic.ScheduleParticleAnimation, is Mechanic.PlaySound, is Mechanic.PlayAnimation,
+        is Mechanic.Teleport, is Mechanic.SpawnParticle, is Mechanic.ScheduleParticleAnimation, is Mechanic.PlaySound, is Mechanic.PlayAnimation, is Mechanic.Counter,
         is Mechanic.CastSkill, is Mechanic.IfThen, is Mechanic.Loop, is Mechanic.Choose -> false
     }
 

@@ -67,6 +67,9 @@ public class SkillCycleValidator {
                 is Mechanic.Loop -> {
                     for (x in m.mechanics) stack.addLast(x)
                 }
+                is Mechanic.Counter -> {
+                    for (x in m.onHit) stack.addLast(x)
+                }
                 is Mechanic.DashStrike -> {
                     for (x in m.onHit) stack.addLast(x)
                 }

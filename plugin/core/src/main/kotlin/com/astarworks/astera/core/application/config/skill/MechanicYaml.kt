@@ -756,6 +756,27 @@ public sealed class MechanicYaml {
     }
 
     @Serializable
+    @SerialName("counter")
+    public data class Counter(
+        public val targets: TargeterYaml,
+        @SerialName("window_ticks") public val windowTicks: IntValueYaml,
+        @SerialName("max_distance") public val maxDistance: NumericValueYaml,
+        @SerialName("on_hit") public val onHit: List<MechanicYaml>,
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.Counter(
+            targets = targets.toDomain(), windowTicks = windowTicks.toDomain(),
+            maxDistance = maxDistance.toDomain(), onHit = onHit.map { it.toDomain() },
+            delayTicks = delayTicks.toDomain(), periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(), condition = condition?.toDomain(), snapshotPose = snapshotPose,
+        )
+    }
+
+    @Serializable
     @SerialName("play_animation")
     public data class PlayAnimation(
         public val targets: TargeterYaml,
