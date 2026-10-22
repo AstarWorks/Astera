@@ -1,0 +1,141 @@
+{
+  "item": "verdant-staff",
+  "round": 1,
+  "validation": {
+    "valid": true,
+    "elements": 2,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999996,
+      2.0
+    ],
+    "rotated_bounds": [
+      [
+        5.0,
+        0.0,
+        6.75
+      ],
+      [
+        11.0,
+        29.0,
+        9.25
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        107,
+        14,
+        148,
+        219
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        119,
+        14,
+        136,
+        219
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        107,
+        119,
+        148,
+        136
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        105,
+        15,
+        150,
+        216
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        62,
+        38,
+        198,
+        218
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        99,
+        17,
+        149,
+        180
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        120,
+        10,
+        145,
+        144
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        122,
+        17,
+        172,
+        180
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        110,
+        10,
+        135,
+        144
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        121,
+        54,
+        134,
+        122
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        114,
+        51,
+        141,
+        189
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "86e2ea7a6c6cc47f27885a831911204c83672ab7aa2e467dcbdd3963f6b341f5",
+  "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+}
