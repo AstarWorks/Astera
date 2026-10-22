@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.eventbus.listeners.killfeed
 
+import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
@@ -36,6 +37,7 @@ public class KillfeedOnPlayerKilledListener(
     private val messages: IMessageRenderer,
     private val players: IPlayerGateway,
     private val items: IItemRegistry? = null,
+    private val skills: ISkillRegistry? = null,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -63,7 +65,7 @@ public class KillfeedOnPlayerKilledListener(
     }
 
     private fun line(viewer: PlayerId, match: Match, event: PlayerKilled, killer: PlayerId?): String {
-        val weapon = KillWeaponLabel.of(viewer, event.source, items, messages)
+        val weapon = KillWeaponLabel.of(viewer, event.source, items, skills, messages)
         val victimTeam = match.teams.firstOrNull { event.victim in it.members }
         val placeholders = mutableMapOf(
             "victim" to nameOf(event.victim),

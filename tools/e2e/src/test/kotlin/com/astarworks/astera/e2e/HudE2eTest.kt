@@ -50,6 +50,50 @@ class HudE2eTest : E2eBase() {
     }
 
     @Test
+    fun `a kill in a match is announced in chat with names and the weapon`() {
+        val a = bot("KillA")
+        val b = bot("KillB")
+        op(a)
+        op(b)
+        val posA = a.positionPackets.get()
+        val posB = b.positionPackets.get()
+        a.command("astera queue join norma")
+        b.command("astera queue join norma")
+        a.waitUntil(60_000) { a.positionPackets.get() > posA }
+        b.waitUntil(30_000) { b.positionPackets.get() > posB }
+        Thread.sleep(3_000)
+        val slotsBefore = a.slotUpdates.size
+        a.command("astera items give ${a.name} pistol")
+        a.waitUntil(4_000) { a.slotUpdates.size > slotsBefore }
+        val hotbarIndex = a.slotUpdates.drop(slotsBefore).lastOrNull { it.containerId == 0 && it.amount > 0 && it.slot in 36..44 }?.let { it.slot - 36 } ?: 0
+        // Face each other on a line at A's position, whatever the arena.
+        rcon("tp ${a.name} ${a.x} ${a.y} ${a.z} 0 0")
+        rcon("tp ${b.name} ${a.x} ${a.y} ${a.z + 4} 180 0")
+        Thread.sleep(1_000)
+        a.selectHotbar(hotbarIndex)
+        Thread.sleep(500)
+        val chatBefore = a.chat.size
+        var shots = 0
+        while (shots < 60 && a.chatTexts().drop(chatBefore).none { it.contains("[Kill]") || it.contains("[キル]") }) {
+            a.useItem(0f, 0f)
+            shots++
+            Thread.sleep(700)
+        }
+        Thread.sleep(500)
+
+        E2eReport.check(suite, "kill feed line names killer, victim and weapon", "SystemChat") {
+            val lines = a.chatTexts().drop(chatBefore).filter { it.contains("[Kill]") || it.contains("[キル]") }
+            assertThat(lines).describedAs("no kill feed line after $shots shots; chat=${a.chatTexts().drop(chatBefore).takeLast(6)}").isNotEmpty()
+            val line = lines.first()
+            assertThat(line).contains(a.name, b.name)
+            assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
+            val victimSaw = b.chatTexts().any { it.contains("[Kill]") && it.contains(a.name) && it.contains(b.name) }
+            assertThat(victimSaw).describedAs("the victim did not see the kill feed line; victim chat=${b.chatTexts().takeLast(5)}").isTrue()
+            "after $shots shots: '$line'"
+        }
+    }
+
+    @Test
     fun `tab list header and footer in the lobby, then nameplates and tab in a match`() {
         val b = bot("HudTab")
         op(b)

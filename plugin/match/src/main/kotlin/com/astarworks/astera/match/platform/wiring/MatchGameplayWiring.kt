@@ -250,6 +250,7 @@ internal object MatchGameplayWiring {
             messages = msgRenderer,
             players = playerGateway,
             items = services.get<IItemRegistry>(),
+            skills = services.get<com.astarworks.astera.combat.application.port.outbound.ISkillRegistry>(),
             spectator = spectatorPort,
             cycler = cycler,
             eliminatedTeams = eliminatedTeams,
@@ -359,6 +360,7 @@ internal object MatchGameplayWiring {
                 messages = msgRenderer,
                 players = playerGateway,
                 items = services.get<IItemRegistry>(),
+                skills = services.get<com.astarworks.astera.combat.application.port.outbound.ISkillRegistry>(),
             )
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,
