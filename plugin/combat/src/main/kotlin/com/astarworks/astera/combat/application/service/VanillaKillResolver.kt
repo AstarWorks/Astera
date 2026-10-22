@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.core.application.service.combat.CombatContextResolver
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.domain.event.PlayerHealthChanged
@@ -32,7 +33,10 @@ public data class PendingVanillaAttribution(
  * gateway; this resolver turns that transition into exactly one
  * `PlayerKilled` (only the `oldHp > 0 -> newHp <= 0` edge qualifies).
  */
-public class VanillaKillResolver {
+public class VanillaKillResolver(
+    /** ADR-0235: stamps the kill's context; the default lookup-less resolver files everything under `Lobby`. */
+    private val contexts: CombatContextResolver = CombatContextResolver { null },
+) {
 
     public fun resolve(event: PlayerHealthChanged, pending: PendingVanillaAttribution?): PlayerKilled? {
         if (event.oldHp <= 0.0 || event.newHp > 0.0) return null
@@ -55,6 +59,7 @@ public class VanillaKillResolver {
             killer = killer,
             source = source,
             atTick = event.atTick,
+            context = contexts.betweenPlayers(killer, event.playerId),
         )
     }
 

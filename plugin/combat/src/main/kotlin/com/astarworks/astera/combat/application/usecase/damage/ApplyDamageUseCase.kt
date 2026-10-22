@@ -1,5 +1,7 @@
 package com.astarworks.astera.combat.application.usecase.damage
 
+import com.astarworks.astera.core.application.service.combat.CombatContextResolver
+import com.astarworks.astera.core.domain.combat.CombatContext
 import com.astarworks.astera.combat.application.port.outbound.DamageApplicationError
 import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.IArmorEquipmentProvider
@@ -92,6 +94,12 @@ public class ApplyDamageUseCase(
     private val godMode: com.astarworks.astera.combat.application.port.outbound.IGodModeService? = null,
     /** F3-11: players in the lobby training range are immune to damage from anyone (no PvP there). */
     private val protection: com.astarworks.astera.combat.application.port.outbound.IDamageProtection? = null,
+    /**
+     * ADR-0235: decides the [CombatContext] stamped on every published [DamageDealt] / [PlayerKilled].
+     * Defaults to the (possibly late-registered, hence possibly null) [teamLookup]; wiring passes a
+     * per-call lookup because the match plugin registers its lookup after combat enables.
+     */
+    private val contexts: CombatContextResolver = CombatContextResolver { teamLookup },
 ) {
     public fun execute(attempt: DamageAttempt): Result<DamageOutcome, ApplyDamageError> {
         if (entityDamageGateway?.isEntityTarget(attempt.targetId) == true) {
@@ -168,6 +176,7 @@ public class ApplyDamageUseCase(
         //     target-lock single-use); they are called exactly once per
         //     attempt in registration order.
         val atTick = scheduler.currentTick()
+        val context = contexts.betweenPlayers(attackerId, attempt.targetId)
         val ruleAmount = resolution.resolved.finalAmount
         var bonusFactor = 1.0
         for (src in bonusSources) {
@@ -198,6 +207,7 @@ public class ApplyDamageUseCase(
                         resolved = boostedResolved,
                         source = attempt.source,
                         atTick = atTick,
+                        context = context,
                     ),
                 )
                 resolution.knockback?.let { impulse ->
@@ -217,6 +227,7 @@ public class ApplyDamageUseCase(
                             killer = attackerId,
                             source = attempt.source,
                             atTick = atTick,
+                            context = context,
                         ),
                     )
                 }
@@ -249,6 +260,8 @@ public class ApplyDamageUseCase(
             return Result.failure(ApplyDamageError.FriendlyFireBlocked(attempt.targetId))
         }
         val atTick = scheduler.currentTick()
+        // A training dummy is its own context; any other entity counts only through a match participant.
+        val context = if (gateway.isTrainingTarget(attempt.targetId)) CombatContext.Training else contexts.againstEntity(attackerId)
         return when (val gw = gateway.apply(attempt.targetId, resolution.resolved, attempt.source)) {
             is Result.Success -> {
                 eventBus.publish(
@@ -258,6 +271,7 @@ public class ApplyDamageUseCase(
                         resolved = resolution.resolved,
                         source = attempt.source,
                         atTick = atTick,
+                        context = context,
                     ),
                 )
                 resolution.knockback?.let { impulse ->

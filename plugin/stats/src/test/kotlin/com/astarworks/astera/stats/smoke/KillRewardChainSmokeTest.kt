@@ -22,9 +22,8 @@ import org.junit.jupiter.api.Test
  * → GrantXp publishes XpGranted. Asserts:
  *   - attacker's kill count incremented
  *   - attacker's XP/level updated
- *   - XpGranted event observed on the bus (the cross-plugin hook Economy
- *     subscribes to via DepositOnXpListener — that side is covered by
- *     DepositOnXpListenerTest in plugin/economy).
+ *   - XpGranted event observed on the bus (XP is a level concern only; it no
+ *     longer converts to STAR, ADR-0235).
  *
  * This split smoke test honors Konsist: plugin/stats can import combat events
  * (line 344-356 only bans economy/persistence); plugin/economy cannot import

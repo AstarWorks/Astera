@@ -574,7 +574,9 @@ public class GameSim private constructor(
             // rerouted-damage kill publisher.
             projectiles.start()
             if (statusContainer.isInitialized()) statusContainer.value.start()
-            val killResolver = VanillaKillResolver()
+            val killResolver = VanillaKillResolver(
+                com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() },
+            )
             val bus = services.getOrThrow<IDomainEventBus>()
             contexts.last().subscriptions += bus.subscribe(PlayerHealthChanged::class) { change ->
                 killResolver.resolve(change, null)?.let { bus.publish(it) }

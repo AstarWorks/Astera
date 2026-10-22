@@ -3,6 +3,7 @@ package com.astarworks.astera.match.application.eventbus.listeners.killfeed
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.domain.combat.CombatContext
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
@@ -89,6 +90,17 @@ class KillfeedOnPlayerKilledListenerTest {
         val subtitle = shown.single().layout as HudLayout.Subtitle
         assertThat((subtitle.component as com.astarworks.astera.core.domain.hud.HudComponent.Text).placeholders)
             .containsEntry("victim", "Vic")
+    }
+
+    @Test
+    fun `a kill outside a match context is not announced even if the victim is a participant (ADR-0235)`() {
+        val matches = InMemoryMatchRepository().apply { save(buildMatch()) }
+        val hud = FakeHudGateway()
+
+        listener(matches, hud).handle(killedBySword().copy(context = CombatContext.Lobby))
+
+        assertThat(gateway.messages).isEmpty()
+        assertThat(hud.operations).isEmpty()
     }
 
     @Test

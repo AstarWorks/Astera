@@ -20,7 +20,6 @@ import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnMissionCompletedListener
-import com.astarworks.astera.economy.application.eventbus.listeners.DepositOnXpListener
 import com.astarworks.astera.economy.application.config.MatchRewardsLoader
 import com.astarworks.astera.economy.application.eventbus.listeners.GrantMatchRewardsOnSummaryListener
 import com.astarworks.astera.core.application.port.outbound.ILastMatchStore
@@ -83,7 +82,6 @@ import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.TutorialCompleted
 import com.astarworks.astera.stats.domain.event.MissionCompleted
-import com.astarworks.astera.stats.domain.event.XpGranted
 import com.astarworks.astera.core.platform.wiring.WiringContext
 
 /** What the host needs after [EconomyWiring.install]. */
@@ -200,7 +198,8 @@ public object EconomyWiring {
         registrations += services.register<CancelListingUseCase>(cancelListing)
 
         // ── Listeners ──────────────────────────────────────────────────────────
-        val depositOnXpListener = DepositOnXpListener(deposit)
+        // ADR-0235: XP never converts to STAR (the old DepositOnXpListener is gone); STAR comes from the
+        // match-end table, mission / quest / achievement rewards and the login bonus only.
         // F3-4: the match-end payout. Reward amounts come from
         // content/balance/match-rewards.yaml, re-read at every match end so
         // `make dev-content` takes effect without a restart.
@@ -217,9 +216,6 @@ public object EconomyWiring {
         )
         val depositOnMissionCompletedListener = DepositOnMissionCompletedListener(deposit)
 
-        subscriptions += eventBus.subscribe(XpGranted::class) { event ->
-            depositOnXpListener.handle(event)
-        }
         subscriptions += eventBus.subscribe(MatchSummaryReady::class) { event ->
             grantMatchRewards.handle(event)
         }

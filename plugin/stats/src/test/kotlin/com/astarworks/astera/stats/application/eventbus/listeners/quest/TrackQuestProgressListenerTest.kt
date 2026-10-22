@@ -6,7 +6,12 @@ import com.astarworks.astera.core.application.contents.QuestChainContents
 import com.astarworks.astera.core.application.port.inbound.IQuestService
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.advancement.AdvancementCriteria
+import com.astarworks.astera.core.domain.combat.CombatContext
+import com.astarworks.astera.core.domain.entity.EntityHandle
+import com.astarworks.astera.core.domain.event.MobKilled
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.mob.MobTypeId
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.quest.PlayerQuestProgress
@@ -80,6 +85,36 @@ class TrackQuestProgressListenerTest {
         listener.handle(PlayerKilled(killer = null, victim = victim, source = DamageSource.Environment.Generic, atTick = 0L))
 
         assertThat(quests.progressed).isEmpty()
+    }
+
+    @Test
+    fun `kills and mob kills outside a match advance nothing (ADR-0235)`() {
+        for (context in listOf(CombatContext.Training, CombatContext.Lobby, CombatContext.World)) {
+            val quests = RecordingQuests(mutableListOf(row("hunt")))
+            val listener = TrackQuestProgressListener(quests, chains, InMemoryMatchRepository())
+            listener.handle(PlayerKilled(killer = player, victim = victim, source = DamageSource.Environment.Generic, atTick = 0L, context = context))
+            listener.handle(
+                MobKilled(
+                    handle = EntityHandle(UUID.randomUUID(), "bukkit"),
+                    mobTypeId = MobTypeId("bukkit:zombie"),
+                    killerId = player,
+                    drops = emptyList(),
+                    atTick = 0L,
+                    context = context,
+                ),
+            )
+            assertThat(quests.progressed).describedAs("$context").isEmpty()
+        }
+    }
+
+    @Test
+    fun `a match kill still advances the hunt chain`() {
+        val quests = RecordingQuests(mutableListOf(row("hunt")))
+        val listener = TrackQuestProgressListener(quests, chains, InMemoryMatchRepository())
+        listener.handle(
+            PlayerKilled(killer = player, victim = victim, source = DamageSource.Environment.Generic, atTick = 0L, context = CombatContext.Match(MatchId("m-1"))),
+        )
+        assertThat(quests.progressed).containsExactly(QuestChainId("hunt") to 1)
     }
 
     @Test

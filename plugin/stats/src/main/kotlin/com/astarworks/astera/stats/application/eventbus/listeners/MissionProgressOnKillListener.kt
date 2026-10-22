@@ -11,6 +11,7 @@ public class MissionProgressOnKillListener(
     private val eventBus: IDomainEventBus,
 ) {
     public fun handle(event: PlayerKilled) {
+        if (!event.context.countsForProgression) return // ADR-0235
         val killerId = event.killer ?: return
         val normaForKiller = normaService.activeNormasFor(killerId)
 

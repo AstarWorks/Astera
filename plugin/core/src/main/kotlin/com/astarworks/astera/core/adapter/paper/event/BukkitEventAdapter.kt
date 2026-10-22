@@ -116,6 +116,9 @@ public class BukkitEventAdapter(
     private val eventBus: IDomainEventBus,
     private val playerHealthGateway: IPlayerHealthGateway,
     private val scheduler: IScheduler,
+    /** ADR-0235: context of a mob kill by [PlayerId] (null = no credited player); `Match` only for match participants. */
+    private val mobKillContext: (PlayerId?) -> com.astarworks.astera.core.domain.combat.CombatContext =
+        { com.astarworks.astera.core.domain.combat.CombatContext.World },
 ) : Listener {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -306,6 +309,7 @@ public class BukkitEventAdapter(
         // so Path 1 stays the single publish point.
         if (entity is Player) return
         val killerUuid = entity.killer?.uniqueId
+        val killerId = killerUuid?.let { PlayerId(it) }
         // MobTypeId requires namespaced lower-kebab-case. Bukkit's
         // EntityType.name is SCREAMING_SNAKE_CASE — normalise to the
         // `bukkit:<lower-kebab>` namespace so the regex
@@ -315,9 +319,10 @@ public class BukkitEventAdapter(
             MobKilled(
                 handle = EntityHandle(id = entity.uniqueId, backendId = "bukkit"),
                 mobTypeId = mobTypeId,
-                killerId = killerUuid?.let { PlayerId(it) },
+                killerId = killerId,
                 drops = emptyList(), // Phase 1: loot resolution is the distributor's job
                 atTick = scheduler.currentTick(),
+                context = mobKillContext(killerId),
             )
         }
     }

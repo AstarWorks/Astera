@@ -58,6 +58,7 @@ public class TrackAdvancementProgressListener(
     private val log = LoggerFactory.getLogger(javaClass)
 
     public fun handle(event: PlayerKilled) {
+        if (!event.context.countsForProgression) return // ADR-0235
         val killer = event.killer ?: return
         forEachMatching(killer) { advancement ->
             firstLeaf(advancement.criteria) { leaf ->

@@ -16,4 +16,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
  */
 public fun interface IMatchTeamLookup {
     public fun teamOf(playerId: PlayerId): TeamId?
+
+    /** The match [playerId] is in, or `null` (also for lookups that cannot name it; a team still means "in a match"). */
+    public fun matchOf(playerId: PlayerId): com.astarworks.astera.core.domain.match.MatchId? = null
 }
