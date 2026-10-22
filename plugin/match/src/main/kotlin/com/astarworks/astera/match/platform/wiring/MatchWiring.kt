@@ -38,6 +38,7 @@ import com.astarworks.astera.match.domain.gamemode.GameModeContext as FrameworkG
 import com.astarworks.astera.match.domain.gamemode.IGameModePhase
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.match.application.contents.GeneratorContents
+import com.astarworks.astera.match.application.contents.QueueSettingsContents
 import com.astarworks.astera.match.application.contents.StageContents
 import com.astarworks.astera.match.application.port.outbound.IAnomalyRegistry
 import com.astarworks.astera.match.application.port.outbound.IAnomalyScheduleRepository
@@ -72,7 +73,7 @@ import com.astarworks.astera.match.application.usecase.match.StartMatchUseCase
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseUseCase
 import com.astarworks.astera.match.application.usecase.match.VictoryConditionEvaluator
 import com.astarworks.astera.match.application.usecase.spawn.MatchSpawnUseCase
-import com.astarworks.astera.match.application.usecase.spawn.SpawnKind
+import com.astarworks.astera.match.domain.match.MatchMinPlayerPolicy
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.match.domain.match.MatchStateMachine
@@ -111,6 +112,7 @@ internal class MatchWiringEnv(
     val msgRenderer: IMessageRenderer,
     val matchModeRegistry: com.astarworks.astera.match.application.port.outbound.IMatchModeRegistry,
     val facade: IMatchLifecycle,
+    val queueSettings: QueueSettingsContents,
     val annihilationTracker: AnnihilationMatchTracker,
     val worldGateway: IWorldGateway?,
     val scheduledTasks: MutableList<IScheduler.TaskHandle>,
@@ -215,6 +217,13 @@ public object MatchWiring {
         reloadRegistry.register(anomalyContents, anomalyContentDir)
         reloadRegistry.register(generatorContents, generatorContentDir)
 
+        // WP8: queue lanes (stage / team sizes / min players / countdowns).
+        val queueContentDir = ctx.contentDir.resolve("matchmaking")
+        val queueSettings = QueueSettingsContents()
+        val queueReport = queueSettings.bootstrap(queueContentDir)
+        logger.info("Loaded ${queueReport.loaded} queue config(s) from $queueContentDir (failed: ${queueReport.failed})")
+        reloadRegistry.register(queueSettings, queueContentDir)
+
         @Suppress("UnusedVariable")
         val broadcaster = services.getOrThrow<IBroadcaster>()
 
@@ -238,8 +247,26 @@ public object MatchWiring {
         val victoryEvaluator = VictoryConditionEvaluator()
         val startMatch = StartMatchUseCase(stages, matches, eventBus, scheduler)
         val endMatch = EndMatchUseCase(matches, eventBus, scheduler, victoryEvaluator)
-        val entryGame = EntryGameUseCase(matches, eventBus)
-        val switchPhase = SwitchPhaseUseCase(matches, eventBus, scheduler, matchModeRegistry)
+        // IWorldGateway is registered by Astera-Core (gate on null for hosts without one).
+        val worldGateway = services.get<IWorldGateway>()
+        // WP8: entry teleports the player to a stage spawn of their team, so a
+        // queue-formed (or admin `entry`) player lands in the arena immediately.
+        val matchSpawn = worldGateway?.let {
+            MatchSpawnUseCase(
+                matchRepository = matches,
+                stageRegistry = stages,
+                worldGateway = it,
+                eventBus = eventBus,
+            )
+        }
+        val entryGame = EntryGameUseCase(matches, eventBus, matchSpawn)
+        val switchPhase = SwitchPhaseUseCase(
+            matches, eventBus, scheduler, matchModeRegistry,
+            minPlayersFor = { modeKey ->
+                queueSettings.current().minPlayersForModeKey(modeKey)
+                    ?: MatchMinPlayerPolicy.requirementFor(modeKey)
+            },
+        )
 
         // Wave 4.5 (ADR-0027): phase auto-timer + match spawn
         // Wave 6a-N1 (ADR-0154): MatchTimerService is the production
@@ -252,33 +279,12 @@ public object MatchWiring {
             matchTimer,
             priority = 0,
         )
-        val phaseTimer = PhaseTimerUseCase(matches, scheduler, switchPhase, matchTimer)
+        val phaseTimer = PhaseTimerUseCase(
+            matches, scheduler, switchPhase, matchTimer,
+            countdownTicks = { queueSettings.current().matchCountdownSeconds * 20L },
+        )
         scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
             phaseTimer.tickAll()
-        }
-
-        // IWorldGateway is registered by Astera-Core (Wave 5 lands the Paper impl,
-        // until then the binding might not be present in production; gate on null).
-        val worldGateway = services.get<IWorldGateway>()
-        if (worldGateway != null) {
-            val matchSpawn = MatchSpawnUseCase(
-                matchRepository = matches,
-                stageRegistry = stages,
-                worldGateway = worldGateway,
-                eventBus = eventBus,
-            )
-            subscriptions += eventBus.subscribe(MatchStarted::class) { event ->
-                val match = matches.findById(event.matchId) ?: return@subscribe
-                match.teams.forEachIndexed { idx, team ->
-                    val kind = if (idx == 0) SpawnKind.ATTACKER else SpawnKind.DEFENDER
-                    team.members.forEach { playerId ->
-                        matchSpawn.spawnPlayer(match.id, playerId, kind)
-                    }
-                }
-            }
-            logger.info("MatchSpawnUseCase wired (IWorldGateway present).")
-        } else {
-            logger.info("IWorldGateway not registered; spawn-on-MatchStarted skipped (lands in Wave 5).")
         }
 
         // 4. Expose IMatchLifecycle via ServiceRegistry -------------------------
@@ -552,7 +558,7 @@ public object MatchWiring {
             ctx = ctx, ports = ports, matches = matches, stages = stages, eventBus = eventBus,
             scheduler = scheduler, playerGateway = playerGateway, commandHandler = commandHandler,
             permService = permService, msgRenderer = msgRenderer, matchModeRegistry = matchModeRegistry,
-            facade = facade, annihilationTracker = annihilationTracker, worldGateway = worldGateway,
+            facade = facade, queueSettings = queueSettings, annihilationTracker = annihilationTracker, worldGateway = worldGateway,
             scheduledTasks = scheduledTasks, shutdownHooks = shutdownHooks,
         )
         MatchWorldWiring.install(env)

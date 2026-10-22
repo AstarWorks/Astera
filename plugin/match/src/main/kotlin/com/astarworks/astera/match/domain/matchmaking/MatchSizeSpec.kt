@@ -12,13 +12,23 @@ package com.astarworks.astera.match.domain.matchmaking
 public data class MatchSizeSpec(
     val teamCount: Int,
     val playersPerTeam: Int,
+    /**
+     * Fewest queued players `tryFormMatch` accepts (WP8). Defaults to a full
+     * roster ([targetPlayers]); a lower value lets a partly filled queue
+     * start, with teams balanced to within one player of each other (a
+     * 1-player floor is the playtest setting).
+     */
+    val minPlayers: Int = teamCount * playersPerTeam,
 ) {
     init {
         require(teamCount >= 2) { "MatchSizeSpec.teamCount must be >= 2; got $teamCount" }
         require(playersPerTeam >= 1) { "MatchSizeSpec.playersPerTeam must be >= 1; got $playersPerTeam" }
+        require(minPlayers in 1..targetPlayers) {
+            "MatchSizeSpec.minPlayers must be in 1..$targetPlayers; got $minPlayers"
+        }
     }
 
-    /** Total players a full match of this size needs. */
+    /** Total players a full match of this size holds (the roster cap). */
     public val targetPlayers: Int get() = teamCount * playersPerTeam
 
     public companion object {

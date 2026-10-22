@@ -11,7 +11,6 @@ import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.domain.matchmaking.QueueError
 import com.astarworks.astera.match.domain.rating.Rating
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
-import com.astarworks.astera.testfixtures.FakeScheduler
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -29,7 +28,6 @@ class InMemoryMatchmakerTest {
             val bus = FakeDomainEventBus()
             InMemoryMatchmaker(
                 eventBus = bus,
-                scheduler = FakeScheduler(),
                 clock = { baseClock },
                 teamCount = teamCount,
                 minPlayersPerTeam = minPlayersPerTeam,
@@ -42,7 +40,6 @@ class InMemoryMatchmakerTest {
         val timeline = mutableListOf(baseClock)
         val mm = InMemoryMatchmaker(
             eventBus = bus,
-            scheduler = FakeScheduler(),
             clock = { timeline.last() },
             teamCount = teamCount,
             minPlayersPerTeam = minPlayersPerTeam,
@@ -201,7 +198,6 @@ class InMemoryMatchmakerTest {
         val bus = FakeDomainEventBus()
         val mm = InMemoryMatchmaker(
             eventBus = bus,
-            scheduler = FakeScheduler(),
             clock = { baseClock },
             sizeByMode = { MatchSizeSpec.TWO_V_TWO },
         )
@@ -220,7 +216,6 @@ class InMemoryMatchmakerTest {
         val ratings = mutableMapOf<PlayerId, Rating>()
         val mm = InMemoryMatchmaker(
             eventBus = FakeDomainEventBus(),
-            scheduler = FakeScheduler(),
             clock = { baseClock },
             ratingLookup = { ratings[it] ?: Rating.DEFAULT },
             sizeByMode = { MatchSizeSpec.TWO_V_TWO },
@@ -256,5 +251,49 @@ class InMemoryMatchmakerTest {
         // The matchmaker rejects the oversized party for this mode.
         assertThat(res).isInstanceOf(Result.Failure::class.java)
         assertThat((res as Result.Failure).error).isInstanceOf(QueueError.PartyTooLargeForMode::class.java)
+    }
+
+    @Test
+    fun `min players below the roster cap forms a partly filled balanced match`() {
+        val mm = InMemoryMatchmaker(
+            eventBus = FakeDomainEventBus(),
+            clock = { baseClock },
+            sizeByMode = { MatchSizeSpec(teamCount = 2, playersPerTeam = 4, minPlayers = 1) },
+        )
+        mm.enqueue(pid(), MatchmakingMode.Norma)
+        val solo = mm.tryFormMatch(MatchmakingMode.Norma).getOrNull()!!
+        assertThat(solo.players).hasSize(1)
+        assertThat(solo.teams.map { it.size }).containsExactlyInAnyOrder(1, 0)
+
+        repeat(5) { mm.enqueue(pid(), MatchmakingMode.Norma) }
+        val five = mm.tryFormMatch(MatchmakingMode.Norma).getOrNull()!!
+        assertThat(five.players).hasSize(5)
+        assertThat(five.teams.map { it.size }).containsExactlyInAnyOrder(3, 2)
+        assertThat(mm.pendingByMode(MatchmakingMode.Norma)).isEmpty()
+    }
+
+    @Test
+    fun `a full queue takes at most the roster cap and leaves the rest queued`() {
+        val mm = InMemoryMatchmaker(
+            eventBus = FakeDomainEventBus(),
+            clock = { baseClock },
+            sizeByMode = { MatchSizeSpec(teamCount = 2, playersPerTeam = 2, minPlayers = 2) },
+        )
+        repeat(6) { mm.enqueue(pid(), MatchmakingMode.Norma) }
+        val formation = mm.tryFormMatch(MatchmakingMode.Norma).getOrNull()!!
+        assertThat(formation.players).hasSize(4)
+        assertThat(mm.pendingByMode(MatchmakingMode.Norma)).hasSize(2)
+    }
+
+    @Test
+    fun `below min players nothing is formed or consumed`() {
+        val mm = InMemoryMatchmaker(
+            eventBus = FakeDomainEventBus(),
+            clock = { baseClock },
+            sizeByMode = { MatchSizeSpec(teamCount = 2, playersPerTeam = 4, minPlayers = 3) },
+        )
+        repeat(2) { mm.enqueue(pid(), MatchmakingMode.Norma) }
+        assertThat(mm.tryFormMatch(MatchmakingMode.Norma).getOrNull()).isNull()
+        assertThat(mm.pendingByMode(MatchmakingMode.Norma)).hasSize(2)
     }
 }

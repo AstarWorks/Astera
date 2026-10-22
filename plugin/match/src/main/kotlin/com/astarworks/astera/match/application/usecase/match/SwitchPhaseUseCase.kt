@@ -40,6 +40,12 @@ public class SwitchPhaseUseCase(
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
     private val modeRegistry: IMatchModeRegistry? = null,
+    /**
+     * Roster floor for COUNTDOWN to ACTIVE per modeKey (WP8: the queue lane's
+     * `min_players`, so a 1-player playtest match can start). Defaults to the
+     * mode policy.
+     */
+    private val minPlayersFor: (String?) -> Int = MatchMinPlayerPolicy::requirementFor,
 ) {
 
     public fun execute(
@@ -51,7 +57,7 @@ public class SwitchPhaseUseCase(
 
         if (trigger == MatchStateMachine.TransitionTrigger.CountdownComplete) {
             val modeKey = modeRegistry?.modeKeyOf(matchId)
-            when (val gate = MatchMinPlayerPolicy.check(modeKey, match)) {
+            when (val gate = MatchMinPlayerPolicy.check(minPlayersFor(modeKey), match)) {
                 MatchMinPlayerPolicy.Outcome.Ok -> Unit
                 is MatchMinPlayerPolicy.Outcome.Insufficient ->
                     return Result.failure(

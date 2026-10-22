@@ -14,9 +14,12 @@ import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.application.port.inbound.IMatchRecorder
 import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
-import com.astarworks.astera.match.domain.mode.GameModeId
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
+import com.astarworks.astera.match.domain.matchmaking.QueueError
+import com.astarworks.astera.match.domain.matchmaking.QueueSettings
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.application.usecase.match.EndMatchError
 import com.astarworks.astera.match.application.usecase.match.EntryGameError
 import com.astarworks.astera.match.application.usecase.match.StartMatchError
@@ -39,111 +42,126 @@ import java.util.logging.Logger
 internal object MatchCommandSpecs {
 
     /**
-     * Wave 5w (ADR-0089 δ): `/astera queue join <mode>` / `leave` / `status`.
+     * `/astera-queue join <mode>` / `leave` / `status` (Wave 5w ADR-0089 delta, WP8).
      *
-     * The mode argument accepts:
-     *   - `norma` — `MatchmakingMode.Norma`
-     *   - `custom:<game-mode-id>` — `MatchmakingMode.Custom`
-     *   - `tournament:<id>` — `MatchmakingMode.Tournament`
-     *
-     * Wave 7b (ADR-0037) replaces this with a richer subcommand tree once
-     * tournament brackets and rating-based modes land.
+     * The mode argument is [MatchmakingMode.parse]: `norma`, `custom:<game-mode-id>`
+     * or `tournament:<id>`. Players already in a running match cannot queue.
+     * Replies use the `astera.match.queue.*` keys shared with the lobby GUI.
      */
     fun buildQueueCommandSpec(
         matchmaker: IMatchmaker,
+        matches: IMatchRepository,
         playerGateway: IPlayerGateway,
         permService: IPermissionService,
-    ): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-queue",
-        description = MessageKey("astera.match.matchmaking.enqueue.success"),
-        subcommands = listOf(
-            CommandSpec.Literal(
-                name = "join",
-                description = MessageKey("astera.match.matchmaking.enqueue.success"),
-                subcommands = listOf(
-                    CommandSpec.Argument(
-                        name = "mode",
-                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-                    ),
-                ),
-                executor = { ctx ->
-                    val senderId = ctx.sender
-                        ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
-                    val modeStr = ctx.required<String>("mode")
-                    val mode = parseMatchmakingMode(modeStr)
-                        ?: return@Literal CommandResult.Failure(
-                            MessageKey("astera.match.matchmaking.enqueue.invalid-mode"),
-                            mapOf("mode" to modeStr),
-                        )
-                    when (val res = matchmaker.enqueue(senderId, mode, partyId = null)) {
-                        is Result.Success -> {
-                            playerGateway.sendMessage(senderId, "Joined queue: $modeStr")
-                            CommandResult.Success
-                        }
-                        is Result.Failure -> {
-                            val key = when (res.error) {
-                                is com.astarworks.astera.match.domain.matchmaking.QueueError.AlreadyEnqueued ->
-                                    MessageKey("astera.match.matchmaking.enqueue.already-enqueued")
-                                is com.astarworks.astera.match.domain.matchmaking.QueueError.ModeClosed ->
-                                    MessageKey("astera.match.matchmaking.enqueue.mode-closed")
-                                else -> MessageKey("astera.match.matchmaking.queue-failure")
-                            }
-                            CommandResult.Failure(key)
-                        }
-                    }
-                },
-            ),
-            CommandSpec.Literal(
-                name = "leave",
-                description = MessageKey("astera.match.matchmaking.dequeue.success"),
-                executor = { ctx ->
-                    val senderId = ctx.sender
-                        ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
-                    when (val res = matchmaker.dequeue(senderId)) {
-                        is Result.Success -> {
-                            playerGateway.sendMessage(senderId, "Left the queue.")
-                            CommandResult.Success
-                        }
-                        is Result.Failure -> CommandResult.Failure(
-                            MessageKey("astera.match.matchmaking.dequeue.not-enqueued"),
-                        )
-                    }
-                },
-            ),
-            CommandSpec.Literal(
-                name = "status",
-                description = MessageKey("astera.match.matchmaking.status.line"),
-                executor = { ctx ->
-                    val senderId = ctx.sender
-                        ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
-                    val status = matchmaker.queueStatus(senderId)
-                    if (status == null) {
-                        CommandResult.Failure(MessageKey("astera.match.matchmaking.status.none"))
-                    } else {
-                        playerGateway.sendMessage(senderId, "In queue: ${status.mode}")
-                        CommandResult.Success
-                    }
-                },
-            ),
-        ),
-    ).requirePermission(
-        permissionService = permService,
-        permission = Permission("astera.match.queue"),
-    )
+        messages: IMessageRenderer,
+        settings: () -> QueueSettings,
+    ): CommandSpec.Literal {
+        fun reply(senderId: PlayerId, key: String, placeholders: Map<String, String> = emptyMap()) =
+            playerGateway.sendMessage(senderId, messages.render(senderId, MessageKey(key), placeholders))
 
-    /** Parse `"norma"` / `"custom:break-core"` / `"tournament:cup-2026"` into [MatchmakingMode]. */
-    private fun parseMatchmakingMode(raw: String): MatchmakingMode? {
-        val lower = raw.lowercase()
-        if (lower == "norma") return MatchmakingMode.Norma
-        if (lower.startsWith("custom:")) {
-            val gmId = raw.substringAfter(":").takeIf { it.isNotBlank() } ?: return null
-            return runCatching { MatchmakingMode.Custom(GameModeId(gmId)) }.getOrNull()
-        }
-        if (lower.startsWith("tournament:")) {
-            val tid = raw.substringAfter(":").takeIf { it.isNotBlank() } ?: return null
-            return runCatching { MatchmakingMode.Tournament(tid) }.getOrNull()
-        }
-        return null
+        return CommandSpec.Literal(
+            name = "astera-queue",
+            description = MessageKey("astera.match.command.queue"),
+            subcommands = listOf(
+                CommandSpec.Literal(
+                    name = "join",
+                    description = MessageKey("astera.match.command.queue.join"),
+                    subcommands = listOf(
+                        CommandSpec.Argument(
+                            name = "mode",
+                            type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        ),
+                    ),
+                    executor = { ctx ->
+                        val senderId = ctx.sender
+                            ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
+                        val modeStr = ctx.required<String>("mode")
+                        val mode = MatchmakingMode.parse(modeStr)
+                            ?: return@Literal CommandResult.Failure(
+                                MessageKey("astera.match.queue.unknown-mode"),
+                                mapOf("mode" to modeStr),
+                            )
+                        if (matches.findActiveMatches().any { m -> m.teams.any { senderId in it.members } }) {
+                            return@Literal CommandResult.Failure(MessageKey("astera.match.queue.join.in-match"))
+                        }
+                        when (val res = matchmaker.enqueue(senderId, mode, partyId = null)) {
+                            is Result.Success -> {
+                                reply(senderId, "astera.match.queue.join.success", mapOf("mode" to modeStr))
+                                replyProgress(senderId, mode, matchmaker, settings, ::reply)
+                                CommandResult.Success
+                            }
+                            is Result.Failure -> CommandResult.Failure(
+                                when (res.error) {
+                                    is QueueError.AlreadyEnqueued -> MessageKey("astera.match.queue.join.already-queued")
+                                    is QueueError.ModeClosed -> MessageKey("astera.match.queue.join.mode-closed")
+                                    is QueueError.PartyTooLargeForMode -> MessageKey("astera.match.queue.join.party-too-large")
+                                    is QueueError.NotEnqueued -> MessageKey("astera.match.queue.join.not-queued")
+                                },
+                            )
+                        }
+                    },
+                ),
+                CommandSpec.Literal(
+                    name = "leave",
+                    description = MessageKey("astera.match.command.queue.leave"),
+                    executor = { ctx ->
+                        val senderId = ctx.sender
+                            ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
+                        when (matchmaker.dequeue(senderId)) {
+                            is Result.Success -> {
+                                reply(senderId, "astera.match.queue.dequeue.success")
+                                CommandResult.Success
+                            }
+                            is Result.Failure -> CommandResult.Failure(
+                                MessageKey("astera.match.queue.dequeue.not-enqueued"),
+                            )
+                        }
+                    },
+                ),
+                CommandSpec.Literal(
+                    name = "status",
+                    description = MessageKey("astera.match.command.queue.status"),
+                    executor = { ctx ->
+                        val senderId = ctx.sender
+                            ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
+                        val status = matchmaker.queueStatus(senderId)
+                        if (status == null) {
+                            CommandResult.Failure(MessageKey("astera.match.queue.status.none"))
+                        } else {
+                            val position = matchmaker.pendingByMode(status.mode)
+                                .indexOfFirst { it.playerId == senderId } + 1
+                            reply(
+                                senderId, "astera.match.queue.status.line",
+                                mapOf("mode" to status.mode.toString(), "position" to position.toString()),
+                            )
+                            replyProgress(senderId, status.mode, matchmaker, settings, ::reply)
+                            CommandResult.Success
+                        }
+                    },
+                ),
+            ),
+        ).requirePermission(
+            permissionService = permService,
+            permission = Permission("astera.match.queue"),
+        )
+    }
+
+    /** "n/min players queued" line so a lone playtester sees what the lane is waiting for. */
+    private fun replyProgress(
+        senderId: PlayerId,
+        mode: MatchmakingMode,
+        matchmaker: IMatchmaker,
+        settings: () -> QueueSettings,
+        reply: (PlayerId, String, Map<String, String>) -> Unit,
+    ) {
+        val lane = settings().laneFor(mode) ?: return
+        reply(
+            senderId, "astera.match.queue.status.progress",
+            mapOf(
+                "players" to matchmaker.pendingByMode(mode).size.toString(),
+                "required" to lane.minPlayers.toString(),
+            ),
+        )
     }
 
     fun buildMatchCommandSpec(

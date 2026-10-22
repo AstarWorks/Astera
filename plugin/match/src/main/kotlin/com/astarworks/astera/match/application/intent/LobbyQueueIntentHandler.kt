@@ -13,7 +13,6 @@ import com.astarworks.astera.match.application.gui.lobby.QueueModeListGuiSpec
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.domain.matchmaking.QueueError
-import com.astarworks.astera.match.domain.mode.GameModeId
 import org.slf4j.LoggerFactory
 
 /**
@@ -86,7 +85,7 @@ public class LobbyQueueIntentHandler(
             send(player, MSG_MODE_UNKNOWN)
             return
         }
-        val mode = parseMode(modeKey)
+        val mode = MatchmakingMode.parse(modeKey)
         if (mode == null) {
             log.warn(
                 "lobby.queue.join intent has unparseable modeKey '{}' from player {}",
@@ -99,24 +98,6 @@ public class LobbyQueueIntentHandler(
         when (val outcome = matchmaker.enqueue(player.id, mode, partyId)) {
             is Result.Success -> send(player, MSG_JOIN_SUCCESS, mapOf("mode" to modeKey))
             is Result.Failure -> send(player, mapQueueError(outcome.error), mapOf("mode" to modeKey))
-        }
-    }
-
-    private fun parseMode(modeKey: String): MatchmakingMode? {
-        // Format: "norma" | "custom:<id>" | "tournament:<id>"
-        return when {
-            modeKey == NORMA_KEY -> MatchmakingMode.Norma
-            modeKey.startsWith(CUSTOM_PREFIX) -> {
-                val raw = modeKey.removePrefix(CUSTOM_PREFIX)
-                if (raw.isBlank()) return null
-                runCatching { MatchmakingMode.Custom(GameModeId(raw)) }.getOrNull()
-            }
-            modeKey.startsWith(TOURNAMENT_PREFIX) -> {
-                val raw = modeKey.removePrefix(TOURNAMENT_PREFIX)
-                if (raw.isBlank()) return null
-                runCatching { MatchmakingMode.Tournament(raw) }.getOrNull()
-            }
-            else -> null
         }
     }
 
@@ -136,10 +117,6 @@ public class LobbyQueueIntentHandler(
         public const val INTENT_SHOW: String = "lobby.queue.show"
         public const val INTENT_JOIN: String = "lobby.queue.join"
         public const val PAYLOAD_MODE_KEY: String = "modeKey"
-
-        private const val NORMA_KEY = "norma"
-        private const val CUSTOM_PREFIX = "custom:"
-        private const val TOURNAMENT_PREFIX = "tournament:"
 
         private val MSG_OPEN_REJECTED = MessageKey("astera.gui.error.open-rejected")
         private val MSG_MODE_UNKNOWN = MessageKey("astera.match.queue.unknown-mode")

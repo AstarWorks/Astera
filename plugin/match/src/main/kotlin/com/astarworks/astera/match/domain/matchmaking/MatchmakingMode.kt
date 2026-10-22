@@ -30,4 +30,24 @@ public sealed interface MatchmakingMode {
             }
         }
     }
+
+    public companion object {
+        /**
+         * Parse the wire form shared by `/astera-queue join` and the lobby GUI:
+         * `norma` | `custom:<game-mode-id>` | `tournament:<id>`. Returns null when malformed.
+         */
+        public fun parse(raw: String): MatchmakingMode? {
+            val lower = raw.lowercase()
+            return when {
+                lower == "norma" -> Norma
+                lower.startsWith("custom:") ->
+                    raw.substringAfter(":").takeIf { it.isNotBlank() }
+                        ?.let { runCatching { Custom(GameModeId(it)) }.getOrNull() }
+                lower.startsWith("tournament:") ->
+                    raw.substringAfter(":").takeIf { it.isNotBlank() }
+                        ?.let { runCatching { Tournament(it) }.getOrNull() }
+                else -> null
+            }
+        }
+    }
 }

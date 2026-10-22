@@ -22,7 +22,7 @@ class LobbyWaitingRoomHudTest {
 
     private fun newFixture(): Fixture {
         val bus = FakeDomainEventBus()
-        val mm = InMemoryMatchmaker(eventBus = bus, scheduler = FakeScheduler())
+        val mm = InMemoryMatchmaker(eventBus = bus)
         val bossBars = FakeBossBarManager()
         val scoreboards = FakeScoreboardManager()
         val server = FakeMcServer()

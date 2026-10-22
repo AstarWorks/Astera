@@ -1,0 +1,23 @@
+# Queue -> match tuning (WP8). Schema: plugin/match/.../application/config/QueueYamlConfig.kt
+# Reload with `/astera reload matchmaking` (edits apply on the next queue check).
+
+# How often the queues are checked (seconds).
+check_interval_seconds: 1
+
+# Wait between "enough players queued" and forming the match. Restarts when a
+# queued player leaves; a full lane (teams x players_per_team) starts at once.
+queue_countdown_seconds: 10
+
+# In-arena COUNTDOWN phase length before the match turns ACTIVE.
+match_countdown_seconds: 10
+
+lanes:
+  # `norma` = the standard 2-team lane. A game-mode id (e.g. annihilation)
+  # adds a `custom:<id>` lane.
+  - id: norma
+    stage: example-arena
+    teams: 2
+    players_per_team: 4
+    # Playtest default: 1 lets you start alone (you land on one team, the other
+    # stays empty). Raise to 2+ for real matches.
+    min_players: 1
