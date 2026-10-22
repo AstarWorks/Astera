@@ -39,4 +39,27 @@ class VfxScenarioTest {
             assertThat(sim.recorder.effects("display_spawn")).hasSize(8)
         }
     }
+
+    @Test
+    fun `the greatsword rig swings, its fan fades through background updates and everything is removed`() {
+        scenario("vfx-demo-greatsword") {
+            val caster = player("caster", team = "red")
+
+            caster.cast("vfx-demo-greatsword")
+            // the four rig parts exist at once
+            assertThat(sim.displays.spawned.map { it.spec.kind }.filterIsInstance<DisplayKind.Block>()).hasSize(4)
+
+            advance(30)
+            val quads = sim.displays.spawned.filter { it.spec.kind is DisplayKind.Text }
+            assertThat(quads.size).isGreaterThan(20)
+            // soft quads fade by background swaps; every swap is an ARGB hex
+            val backgrounds = sim.displays.swaps.filter { it.kind == "background" }
+            assertThat(backgrounds).isNotEmpty()
+            assertThat(backgrounds).allMatch { it.value.matches(Regex("#[0-9A-F]{8}")) }
+            // the swing sends many transform updates (one per tick per part during the slash)
+            assertThat(sim.displays.updates.size).isGreaterThan(20)
+            assertThat(sim.displays.active).isEmpty()
+            assertThat(sim.recorder.effects("display_remove")).hasSize(sim.recorder.effects("display_spawn").size)
+        }
+    }
 }

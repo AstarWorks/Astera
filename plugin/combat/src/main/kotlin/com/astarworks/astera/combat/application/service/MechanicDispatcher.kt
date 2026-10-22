@@ -781,7 +781,7 @@ public class MechanicDispatcher(
             is Mechanic.SpawnDisplay -> worldMechanics.display(mechanic, ctx)
             is Mechanic.PlayVfx -> {
                 val vfx = vfxMechanics ?: return warnMissing("PlayVfx", "IVfxRegistry / IDisplayEntityGateway")
-                vfx.play(mechanic, ctx, resolveDouble(mechanic.scale, ctx), mechanic.follow?.let { resolveBool(it, ctx) })
+                vfx.play(mechanic, ctx, resolveDouble(mechanic.scale, ctx), mechanic.follow?.let { resolveBool(it, ctx) }, mechanic.freeze)
             }
             is Mechanic.Glow -> worldMechanics.glow(mechanic, ctx)
             is Mechanic.CameraShake -> worldMechanics.cameraShake(mechanic, ctx)

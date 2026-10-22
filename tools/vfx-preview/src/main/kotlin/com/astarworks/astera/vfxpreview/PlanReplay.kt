@@ -18,6 +18,8 @@ data class LiveDisplay(
     /** Current MiniMessage text (text kind) after content swaps; `null` for other kinds. */
     val text: String?,
     val transform: DisplayTransform,
+    /** Current text-display background (ARGB) after fades; `null` for other kinds. */
+    val backgroundArgb: Int? = null,
     val glowArgb: Int?,
     val brightness: Int?,
     val billboard: DisplayBillboard,
@@ -58,6 +60,7 @@ class PlanReplay(val plan: VfxPlan) {
         var duration = 1
         var block = (el.kind as? VfxElementKind.Block)?.blockKey
         var text = (el.kind as? VfxElementKind.Text)?.text
+        var background = (el.kind as? VfxElementKind.Text)?.backgroundArgb
         for (u in el.updates) {
             if (u.tick > tick) break
             from = interpolate(from, to, start, duration, u.tick)
@@ -66,6 +69,7 @@ class PlanReplay(val plan: VfxPlan) {
             duration = u.interpolationTicks.coerceAtLeast(1)
             u.block?.let { block = it }
             u.text?.let { text = it }
+            u.backgroundArgb?.let { background = it }
         }
         return LiveDisplay(
             elementId = el.elementId,
@@ -74,6 +78,7 @@ class PlanReplay(val plan: VfxPlan) {
             block = block,
             text = text,
             transform = interpolate(from, to, start, duration, tick),
+            backgroundArgb = background,
             glowArgb = el.glowArgb,
             brightness = el.brightness,
             billboard = el.billboard,

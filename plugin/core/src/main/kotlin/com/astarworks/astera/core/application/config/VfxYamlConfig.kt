@@ -16,7 +16,17 @@ import com.astarworks.astera.core.domain.effect.vfx.VfxJitter
 import com.astarworks.astera.core.domain.effect.vfx.VfxKeyframe
 import com.astarworks.astera.core.domain.effect.vfx.VfxOrient
 import com.astarworks.astera.core.domain.effect.vfx.VfxOscillate
+import com.astarworks.astera.core.domain.effect.vfx.VfxBoard
 import com.astarworks.astera.core.domain.effect.vfx.VfxOscillateAxis
+import com.astarworks.astera.core.domain.effect.vfx.VfxRig
+import com.astarworks.astera.core.domain.effect.vfx.VfxRigEmitter
+import com.astarworks.astera.core.domain.effect.vfx.VfxRigPart
+import com.astarworks.astera.core.domain.effect.vfx.VfxSwingKey
+import com.astarworks.astera.core.domain.effect.vfx.VfxTrail
+import com.astarworks.astera.core.domain.effect.vfx.VfxTrailBand
+import com.astarworks.astera.core.domain.effect.vfx.VfxTrailEdge
+import com.astarworks.astera.core.domain.effect.vfx.VfxTrailRim
+import com.astarworks.astera.core.domain.effect.vfx.VfxTrailStyle
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Curve
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -59,7 +69,9 @@ public data class VfxYamlConfig(
     public val orient: String = "look",
     public val follow: Boolean = false,
     @SerialName("sample_ticks") public val sampleTicks: Int = 2,
-    public val elements: List<VfxElementYaml>,
+    public val elements: List<VfxElementYaml> = emptyList(),
+    /** Weapon rigs with 風切り trails (see [VfxRigYaml]). */
+    public val rigs: List<VfxRigYaml> = emptyList(),
 ) {
     /** Materializes the domain definition; every validation failure comes back as a [VfxConfigError]. */
     public fun toDefinition(): Result<VfxDefinition, VfxConfigError> = try {
@@ -71,6 +83,7 @@ public data class VfxYamlConfig(
                 follow = follow,
                 sampleTicks = sampleTicks,
                 elements = elements.map { it.toDomain() },
+                rigs = rigs.map { it.toDomain() },
             ),
         )
     } catch (e: IllegalArgumentException) {
@@ -345,6 +358,216 @@ public data class VfxOscillateYaml(
     @SerialName("period_ticks") public val periodTicks: Int,
 ) {
     public fun toDomain(): VfxOscillate = VfxOscillate(parseEnum<VfxOscillateAxis>(axis, "oscillate.axis"), amplitude, periodTicks)
+}
+
+/**
+ * Weapon rig (see the domain [VfxRig]). Vectors are `[x, y, z]` (x = left, y = up, z = forward) in the rig-local
+ * frame (origin = pivot); rotations `[yaw, pitch, roll]` degrees.
+ *
+ * ```yaml
+ * rigs:
+ *   - id: sword
+ *     pivot: [-0.35, 1.2, 0.3]        # the hand, relative to the anchor
+ *     rest: [0, 90, 0]                # blade (+Y) points forward at swing zero
+ *     tilt: [0, 0, 20]                # tilts the swing plane
+ *     respect_hit_stop: true
+ *     parts:
+ *       - { id: blade, block: iron_block, offset: [0, 1.5, 0], size: [0.4, 2.6, 0.12] }
+ *     swing:
+ *       - { t: 0, rotate: [60, 0, 0] }
+ *       - { t: 4, rotate: [-240, 0, 0], ease: out_quad }
+ *     trails:
+ *       - { id: wind, from: [0, 0.3, 0], to: [0, 2.9, 0], start_t: 1, end_t: 4, life_ticks: 6 }
+ * ```
+ */
+@Serializable
+public data class VfxRigYaml(
+    public val id: String,
+    public val pivot: List<Double>,
+    public val tilt: List<Double> = listOf(0.0, 0.0, 0.0),
+    public val rest: List<Double> = listOf(0.0, 0.0, 0.0),
+    @SerialName("start_tick") public val startTick: Int = 0,
+    @SerialName("end_tick") public val endTick: Int? = null,
+    public val parts: List<VfxRigPartYaml> = emptyList(),
+    public val swing: List<VfxSwingKeyYaml> = emptyList(),
+    public val trails: List<VfxTrailYaml> = emptyList(),
+    public val boards: List<VfxBoardYaml> = emptyList(),
+    public val emitters: List<VfxRigEmitterYaml> = emptyList(),
+    /** `true`: `play_vfx.freeze` windows stop this rig's swing and its trail fades. */
+    @SerialName("respect_hit_stop") public val respectHitStop: Boolean = false,
+) {
+    public fun toDomain(): VfxRig = VfxRig(
+        id = id,
+        pivot = vec3(pivot, "rig.pivot"),
+        tiltYawPitchRoll = vec3(tilt, "rig.tilt"),
+        restYawPitchRoll = vec3(rest, "rig.rest"),
+        startTick = startTick,
+        endTick = endTick,
+        parts = parts.map { it.toDomain() },
+        swing = swing.map { it.toDomain() },
+        trails = trails.map { it.toDomain() },
+        boards = boards.map { it.toDomain() },
+        emitters = emitters.map { it.toDomain() },
+        respectHitStop = respectHitStop,
+    )
+}
+
+@Serializable
+public data class VfxRigPartYaml(
+    public val id: String,
+    public val block: String,
+    /** Centre of the part's box, rig-local. */
+    public val offset: List<Double>,
+    /** Box size (x, y, z), rig-local. */
+    public val size: List<Double>,
+    public val rotate: List<Double> = listOf(0.0, 0.0, 0.0),
+    public val brightness: Int? = null,
+    @SerialName("glow_color") public val glowColor: String? = null,
+) {
+    public fun toDomain(): VfxRigPart = VfxRigPart(
+        id = id,
+        block = block,
+        offset = vec3(offset, "part.offset"),
+        size = vec3(size, "part.size"),
+        rotateEuler = vec3(rotate, "part.rotate"),
+        brightness = brightness,
+        glowArgb = glowColor?.let { parseArgb(it, "glow_color") },
+    )
+}
+
+@Serializable
+public data class VfxSwingKeyYaml(
+    public val t: Int,
+    /** `[yaw, pitch, roll]` degrees; absent = carry over. */
+    public val rotate: List<Double>? = null,
+    public val ease: String? = null,
+) {
+    public fun toDomain(): VfxSwingKey = VfxSwingKey(
+        t = t,
+        rotateEuler = rotate?.let { vec3(it, "swing.rotate") },
+        ease = ease?.let { Easing.fromKey(it) ?: throw IllegalArgumentException("unknown ease '$it'") } ?: Easing.LINEAR,
+    )
+}
+
+@Serializable
+public data class VfxTrailYaml(
+    public val id: String,
+    /** Blade root, rig-local. */
+    public val from: List<Double>,
+    /** Blade tip, rig-local. */
+    public val to: List<Double>,
+    @SerialName("start_t") public val startT: Int,
+    @SerialName("end_t") public val endT: Int,
+    @SerialName("life_ticks") public val lifeTicks: Int,
+    @SerialName("lag_ticks") public val lagTicks: Int = 0,
+    /** `soft` (translucent text quads) | `crisp` (opaque block slabs) | `both`. */
+    public val style: String = "soft",
+    /** Radial bands root -> tip; empty = three white bands (faint inside, bright at the tip). */
+    public val bands: List<VfxTrailBandYaml> = emptyList(),
+    public val edge: VfxTrailEdgeYaml? = null,
+    @SerialName("dark_rim") public val darkRim: VfxTrailRimYaml? = null,
+    @SerialName("step_deg") public val stepDeg: Double = 30.0,
+    @SerialName("fade_power") public val fadePower: Double = 1.5,
+) {
+    public fun toDomain(): VfxTrail = VfxTrail(
+        id = id,
+        from = vec3(from, "trail.from"),
+        to = vec3(to, "trail.to"),
+        startT = startT,
+        endT = endT,
+        lifeTicks = lifeTicks,
+        lagTicks = lagTicks,
+        style = parseEnum<VfxTrailStyle>(style, "trail.style"),
+        bands = bands.map { it.toDomain() }.ifEmpty { VfxTrail.DEFAULT_BANDS },
+        edge = edge?.toDomain(),
+        darkRim = darkRim?.toDomain(),
+        stepDeg = stepDeg,
+        fadePower = fadePower,
+    )
+}
+
+@Serializable
+public data class VfxTrailBandYaml(
+    /** Fraction of root -> tip where the band starts (0 = root). */
+    public val from: Double,
+    public val to: Double,
+    /** `#AARRGGBB`: colour and peak alpha of the soft quad. */
+    public val color: String,
+    /** Colour it has faded to at the end of its life. */
+    @SerialName("color_to") public val colorTo: String? = null,
+    /** Crisp slab block (styles `crisp` / `both`). */
+    public val block: String? = null,
+) {
+    public fun toDomain(): VfxTrailBand = VfxTrailBand(
+        from = from,
+        to = to,
+        argb = parseArgb(color, "band.color"),
+        toArgb = colorTo?.let { parseArgb(it, "band.color_to") },
+        block = block,
+    )
+}
+
+@Serializable
+public data class VfxTrailEdgeYaml(
+    public val block: String = "white_concrete",
+    public val width: Double = 0.04,
+) {
+    public fun toDomain(): VfxTrailEdge = VfxTrailEdge(block, width)
+}
+
+@Serializable
+public data class VfxTrailRimYaml(
+    public val color: String,
+    public val width: Double = 0.18,
+) {
+    public fun toDomain(): VfxTrailRim = VfxTrailRim(parseArgb(color, "dark_rim.color"), width)
+}
+
+@Serializable
+public data class VfxBoardYaml(
+    public val id: String,
+    public val at: Int,
+    public val ticks: Int,
+    public val from: List<Double>,
+    public val to: List<Double>,
+    @SerialName("arc_deg") public val arcDeg: Double,
+    public val color: String,
+    @SerialName("fade_power") public val fadePower: Double = 0.0,
+) {
+    public fun toDomain(): VfxBoard = VfxBoard(
+        id = id,
+        at = at,
+        ticks = ticks,
+        from = vec3(from, "board.from"),
+        to = vec3(to, "board.to"),
+        arcDeg = arcDeg,
+        argb = parseArgb(color, "board.color"),
+        fadePower = fadePower,
+    )
+}
+
+@Serializable
+public data class VfxRigEmitterYaml(
+    public val id: String,
+    @SerialName("particle_id") public val particleId: String,
+    /** Rig-local emission point (e.g. the blade tip). */
+    public val point: List<Double>,
+    @SerialName("start_t") public val startT: Int,
+    @SerialName("end_t") public val endT: Int,
+    @SerialName("step_blocks") public val stepBlocks: Double = 0.4,
+) {
+    public fun toDomain(): VfxRigEmitter =
+        VfxRigEmitter(id, ParticleId(particleId), vec3(point, "emitter.point"), startT, endT, stepBlocks)
+}
+
+/** One hit-stop window of `play_vfx.freeze`: effect ticks `[at, at + ticks)`. */
+@Serializable
+public data class VfxFreezeYaml(
+    public val at: Int,
+    public val ticks: Int,
+) {
+    public fun toDomain(): com.astarworks.astera.core.domain.effect.vfx.VfxFreeze =
+        com.astarworks.astera.core.domain.effect.vfx.VfxFreeze(at, ticks)
 }
 
 private fun vec3(list: List<Double>, field: String): Vec3 {

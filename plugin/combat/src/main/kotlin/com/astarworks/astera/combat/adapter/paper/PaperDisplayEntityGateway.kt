@@ -99,6 +99,11 @@ public class PaperDisplayEntityGateway(
         display.text(Component.join(net.kyori.adventure.text.JoinConfiguration.newlines(), lines))
     }
 
+    override fun setBackground(handle: DisplayHandle, argb: Int) {
+        val display = server.getEntity(handle.id) as? TextDisplay ?: return
+        display.backgroundColor = Color.fromARGB(argb)
+    }
+
     override fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
         val display = server.getEntity(handle.id) as? Display ?: return
         display.teleportDuration = teleportTicks.coerceIn(0, 59)

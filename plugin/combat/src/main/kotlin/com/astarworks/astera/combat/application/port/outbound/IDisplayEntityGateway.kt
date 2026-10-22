@@ -33,6 +33,9 @@ public interface IDisplayEntityGateway {
     /** Swaps the (already localized / MiniMessage) lines of a text display. */
     public fun setText(handle: DisplayHandle, renderedLines: List<String>)
 
+    /** Sets the background colour (ARGB) of a text display (fades of translucent quads); other kinds ignore it. */
+    public fun setBackground(handle: DisplayHandle, argb: Int) {}
+
     /** Moves the display; the client smooths the move over [teleportTicks] (`teleport_duration`). */
     public fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int)
 

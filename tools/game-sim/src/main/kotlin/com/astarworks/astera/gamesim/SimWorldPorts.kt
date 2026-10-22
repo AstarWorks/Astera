@@ -140,6 +140,13 @@ public class SimDisplayGateway(
         recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} text ${renderedLines.joinToString(" / ")}")
     }
 
+    override fun setBackground(handle: IDisplayEntityGateway.DisplayHandle, argb: Int) {
+        val record = active[handle] ?: return
+        val hex = "#%08X".format(argb)
+        swaps += Swap(handle, scheduler.currentTick(), "background", hex)
+        recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} background $hex")
+    }
+
     override fun teleport(handle: IDisplayEntityGateway.DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
         if (handle !in active) return
         teleports += Teleport(handle, scheduler.currentTick(), at, teleportTicks)

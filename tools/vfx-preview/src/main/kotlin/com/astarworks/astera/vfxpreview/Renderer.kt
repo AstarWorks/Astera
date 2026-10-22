@@ -17,7 +17,10 @@ import kotlin.math.max
 import kotlin.math.tan
 
 enum class ViewMode(val key: String) {
-    DEFAULT("default"), TOP("top"), SIDE("side"), FRONT("front"), BEHIND("behind");
+    DEFAULT("default"), TOP("top"), SIDE("side"), FRONT("front"), BEHIND("behind"),
+
+    /** Caster first person: camera at the eye (y 1.62) looking +Z. */
+    EYE("eye");
 
     companion object {
         fun parse(key: String): ViewMode? = entries.firstOrNull { it.key == key }
@@ -47,9 +50,15 @@ class Camera(
     companion object {
         const val NEAR: Double = 0.05
         const val FOV_V_DEG: Double = 48.0
+        const val EYE_FOV_V_DEG: Double = 70.0
 
         /** Frames every point of [points] (plus the caster) tightly for [view]. */
         fun fit(view: ViewMode, points: List<Vec3>, width: Int, height: Int): Camera {
+            if (view == ViewMode.EYE) {
+                val tanEye = tan(Math.toRadians(EYE_FOV_V_DEG / 2))
+                // caster faces +Z, so local "left" (+X) is screen-left: screen right is world -X
+                return Camera(Vec3(0.0, 1.62, 0.0), Vec3(0.0, 0.0, 1.0), Vec3(-1.0, 0.0, 0.0), Vec3(0.0, 1.0, 0.0), (height / 2.0) / tanEye, width, height)
+            }
             val dir = when (view) { // target -> camera
                 ViewMode.DEFAULT -> Vec3(-0.55, 0.42, -0.72)
                 ViewMode.TOP -> Vec3(0.0, 1.0, 0.0001)
@@ -108,6 +117,7 @@ class Renderer(private val camera: Camera, private val label: String) {
         for (p in prims) when (p) {
             is Prim.Box -> box(items, p)
             is Prim.Text -> text(items, p)
+            is Prim.Quad -> quad(items, p)
             is Prim.Item -> item(items, p)
             is Prim.Dot -> dot(items, p)
         }
@@ -294,6 +304,20 @@ class Renderer(private val camera: Camera, private val label: String) {
             g.color = col
             g.fill(shape)
             g.transform = old
+        }
+    }
+
+    private fun quad(out: MutableList<Drawable>, q: Prim.Quad) {
+        val sp = q.corners.map { camera.project(it) ?: return }
+        val path = Path2D.Double()
+        sp.forEachIndexed { i, p -> if (i == 0) path.moveTo(p[0], p[1]) else path.lineTo(p[0], p[1]) }
+        path.closePath()
+        val depth = camera.depth(q.corners.fold(Vec3.ZERO) { a, v -> a + v } * 0.25)
+        val c = Color(q.argb, true)
+        out += Drawable(depth) { g ->
+            g.composite = AlphaComposite.SrcOver
+            g.color = c
+            g.fill(path)
         }
     }
 

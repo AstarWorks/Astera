@@ -49,6 +49,8 @@ public data class VfxUpdate(
     public val interpolationTicks: Int,
     public val block: String? = null,
     public val text: String? = null,
+    /** Text display only: sets the background colour (ARGB) from this tick (not interpolated by the client). */
+    public val backgroundArgb: Int? = null,
 )
 
 /**

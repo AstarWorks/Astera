@@ -28,6 +28,9 @@ sealed interface Prim {
         val glowArgb: Int?,
     ) : Prim
 
+    /** Translucent flat quad (a text display with a blank body and a background colour): corners in order. */
+    data class Quad(val corners: List<Vec3>, val argb: Int) : Prim
+
     /** Item sprite (centred on [center]); drawn as a blade-like shape with its name. */
     data class Item(
         val center: Vec3,
@@ -69,7 +72,9 @@ object SceneBuilder {
                     rgb = BlockColors.itemRgb(kind.itemKey),
                     glowArgb = d.glowArgb,
                 )
-                is VfxElementKind.Text -> prims += Prim.Text(
+                is VfxElementKind.Text -> if ((d.text ?: kind.text).isBlank()) {
+                    quad(t, d.backgroundArgb ?: kind.backgroundArgb, shift)?.let { prims += it }
+                } else prims += Prim.Text(
                     center = t.translation + shift,
                     rotation = t.rotation,
                     size = t.scale,
@@ -84,6 +89,16 @@ object SceneBuilder {
         return prims
     }
 
+    /** Background rectangle of a blank text display: 5 x 10 font pixels at scale 1, centred (vanilla's half-pixel offset ignored). */
+    private fun quad(t: DisplayTransform, argb: Int, shift: Vec3): Prim.Quad? {
+        if ((argb ushr 24) == 0) return null
+        val hx = t.scale.x * 5 * TEXT_PIXEL / 2
+        val hy = t.scale.y * 10 * TEXT_PIXEL / 2
+        val corners = listOf(Vec3(-hx, -hy, 0.0), Vec3(hx, -hy, 0.0), Vec3(hx, hy, 0.0), Vec3(-hx, hy, 0.0))
+            .map { t.translation + shift + t.rotation.rotate(it) }
+        return Prim.Quad(corners, argb)
+    }
+
     fun boxCorners(t: DisplayTransform, shift: Vec3): List<Vec3> = buildList {
         for (i in 0..1) for (j in 0..1) for (k in 0..1) {
             val local = Vec3(i * t.scale.x, j * t.scale.y, k * t.scale.z)
@@ -96,6 +111,7 @@ object SceneBuilder {
         when (p) {
             is Prim.Box -> p.corners
             is Prim.Dot -> listOf(p.position)
+            is Prim.Quad -> p.corners
             is Prim.Text -> {
                 val r = max(p.size.x, p.size.y) * 0.2
                 listOf(p.center + Vec3(r, r, r), p.center - Vec3(r, r, r))
