@@ -43,15 +43,13 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "身体の向き替え、指先の鋏操作、白い光帯の厚み・連続性、花飾りとロゼットの細部が不足。カット時刻は反映したが、寄りの画面占有率は未一致。",
-    "normalInput": "実入力撮影あり。標的HP 192.128f（回数の測定ではない）",
-    "evidence": "/evidence/couture-rapier-s1.png"
+    "reason": "継続改修の実機撮影2回目。軌跡の表示・寿命・術者側への配置は改善したが縦に立ちすぎ、原作の横へ流れる曲線とは不一致。人物ポーズ・予備動作・命中形状・カメラも未一致。通常操作はこの内容版で未撮影。"
   },
   "weapon": "couture-rapier",
   "identity": "The Alteration Shop Rodion",
   "videoTitle": "The Alteration Shop Rodion — skill showcase",
-  "iterations": 4,
+  "iterations": 6,
   "report": "/report/couture-rapier",
   "referenceRevision": "3a88f54825eec141e8c687f87ded3861206e760c42c17897d7061cfca2ce6b9a",
-  "contentRevision": "6b898aebdc7934209e8ac18bdd5798eecb3a45888bffb14243c87f8e2e66f19c"
+  "contentRevision": "a5f2225be300180619e410ee136d0a6d208429cd77595c1f8b2930188a8a6771"
 }

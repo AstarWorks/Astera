@@ -96,3 +96,8 @@ Round 2 captures require matching `referenceRevision` and `contentRevision` in t
 Frames use WebP previews when the full preview sequence exists; PNG remains the measurement source and fallback. Frame URLs include capture metadata modification time, so recapturing the same case does not display stale cached images. `captureQuality.invalid: true` excludes a confirmed stalled capture; repeated idle frames alone do not prove a stall.
 
 The Minecraft selector separates forced comparison shots (`compare/`) from real key/mouse recordings (`input/`). Both require current reference/content hashes. Normal-input setup and trigger are recorded in metadata; having a recording is not proof that the requested skill was accepted. `/report/<weapon>`, `/reference/<weapon>/<file>`, and `/evidence/<case>.png` expose the review record, source analysis, and same-time image pairs.
+
+
+### Public URL recovery
+
+A local HTTP 200 or a public Cloudflare Access login redirect does **not** establish that the tunnel is connected. For the existing deployment, inspect `cloudflared tunnel info b96ef35b-39d2-4a12-89ff-458f927cb649` and the running connector. Its configuration is `~/.cloudflared/astera-skill-compare.yml`, forwarding to `http://127.0.0.1:8097`. Restore a stopped connector with `cloudflared tunnel --config ~/.cloudflared/astera-skill-compare.yml run` in a persistent supervised process, without removing Access protection. Confirm registered edge connections, origin response, and an authenticated public page separately.

@@ -311,9 +311,11 @@ public object VfxTimeline {
             val sc = Vec3(local.scale.x * s, local.scale.y * s, local.scale.z * s)
             // CENTER already receives the camera rotation on the client. Applying the caster/formation
             // rotation again turns flashes edge-on when the caster faces east/west. Placement stays world-relative.
-            val facing = if (el.kind is VfxElementKind.Quad && el.billboard == DisplayBillboard.CENTER) Quaternion.IDENTITY else slotRotation
+            val anchoredText = el.kind is VfxElementKind.Quad || el.kind is VfxElementKind.Sprite
+            val facing = if (anchoredText && el.billboard == DisplayBillboard.CENTER) Quaternion.IDENTITY else slotRotation
             val rotation = facing * Quaternion.fromEulerDegrees(local.euler.x, local.euler.y, local.euler.z)
             if (el.kind is VfxElementKind.Quad) return VfxQuad.transform(el.kind, rotation, sc)
+            if (el.kind is VfxElementKind.Sprite) return DisplayTransform(Vec3.ZERO, rotation, sc)
             var translation = position + slotRotation.rotate(local.translate * scale * groupScale)
             if (el.kind is VfxElementKind.Block) translation -= rotation.rotate(sc * 0.5)
             return DisplayTransform(translation, rotation, sc)
@@ -350,7 +352,7 @@ public object VfxTimeline {
             is VfxElementKind.Quad -> VfxQuad.trackAt(el, k, 0.0).let { (c, a) -> k.copy(colorRgb = c, alpha = a) }
             else -> el.kind
         }
-        val quad = el.kind is VfxElementKind.Quad
+        val anchoredText = el.kind is VfxElementKind.Quad || el.kind is VfxElementKind.Sprite
         return VfxElementPlan(
             elementId = el.id,
             slot = slot,
@@ -364,8 +366,8 @@ public object VfxTimeline {
             initial = ctx.transformAt(0),
             updates = updatesFor(spawn, ctx, sprite, frameCount),
             particles = emptyList(),
-            // quads sit at their own entity position (a transformation translation would be billboard-relative)
-            spawnOffset = if (quad) ctx.centerAt(0) else Vec3.ZERO,
+            // Billboarded images sit at their world position; transformation translation rotates with the camera.
+            spawnOffset = if (anchoredText) ctx.centerAt(0) else Vec3.ZERO,
         )
     }
 
@@ -393,14 +395,15 @@ public object VfxTimeline {
                 ?: swapInsideStep(swap, tick, steps, ctx)
         }
         val el = ctx.el
-        if (el.kind is VfxElementKind.Quad) {
-            val styled = VfxQuad.hasStyleTrack(el)
+        if (el.kind is VfxElementKind.Quad || el.kind is VfxElementKind.Sprite) {
+            val quad = el.kind as? VfxElementKind.Quad
+            val styled = quad != null && VfxQuad.hasStyleTrack(el)
             return byTick.values.sortedBy { it.tick }.map { u ->
                 val startU = u.tick - base
                 val endU = startU + u.interpolationTicks
                 u.copy(
                     position = ctx.centerAt(endU),
-                    style = if (styled) VfxQuad.trackAt(el, el.kind, startU + u.interpolationTicks / 2.0).let { (c, a) -> VfxQuad.style(el.kind, c, a) } else null,
+                    style = if (styled && quad != null) VfxQuad.trackAt(el, quad, startU + u.interpolationTicks / 2.0).let { (c, a) -> VfxQuad.style(quad, c, a) } else null,
                 )
             }
         }
