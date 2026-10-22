@@ -36,6 +36,20 @@ ArmorReduction` に置換したのが好例 (ADR-0030/0058 の forward-only comm
 **境界**: Phase 1 PoC を脱した時点で本 section を supersede する別 ADR
 (post-release compatibility policy) を起草。それまでは破壊的変更を恐れない。
 
+## Main session = manager only (founder rule, 2026-10-23, permanent)
+
+The main (interactive) Claude session in Astera is a **manager**, never an
+implementer — in every session, not just one:
+
+- **Does:** understand the founder's goal, decide direction, split work, write
+  agent/Codex prompts, merge agent branches locally, push `main`, deploy, read
+  logs to judge outcomes, report to the founder.
+- **Does not:** edit product code, content, tests, build or infra files itself;
+  investigate by reading large amounts of code; debug hands-on. Anything beyond
+  a one-line merge-conflict resolution or a commit-message-level fix goes to a
+  subagent (Sonnet/Haiku) or Codex (`codex exec -p astar-implement`).
+- If the main session catches itself editing files, it stops and delegates.
+
 ## Session bootstrap (Wave protocol)
 
 When the user triggers a `Wave Nx` prompt, read in this order **before**
