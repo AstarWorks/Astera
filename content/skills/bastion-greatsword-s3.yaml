@@ -208,6 +208,10 @@ phases:
       targets: { type: caster }
       vfx_id: bastion-s3-raise
       delay_ticks: { type: literal, value: 56 }
+    - type: play_vfx
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.5 }, exclude_caster: true, max_count: { type: literal, value: 1 } }
+      vfx_id: bastion-s3-telegraph
+      delay_ticks: { type: literal, value: 60 }
     - type: play_sound
       targets: { type: caster }
       sound_id: item.trident.return
@@ -258,7 +262,7 @@ phases:
       fade_out: { type: literal, value: 2 }
       delay_ticks: { type: literal, value: 70 }
     - type: play_vfx
-      targets: { type: caster }
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.5 }, exclude_caster: true, max_count: { type: literal, value: 1 } }
       vfx_id: bastion-s3-slam
       delay_ticks: { type: literal, value: 70 }
     - type: damage
@@ -271,8 +275,8 @@ phases:
       delay_ticks: { type: literal, value: 70 }
     - type: knockback
       targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.5 }, exclude_caster: true }
-      direction: { type: away_from_caster, vertical: 0.3 }
-      strength: { type: literal, value: 1.6 }
+      direction: { type: away_from_caster, vertical: 0.35 }
+      strength: { type: literal, value: 2.6 }
       delay_ticks: { type: literal, value: 70 }
     - type: hit_stop
       targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.5 }, exclude_caster: true }

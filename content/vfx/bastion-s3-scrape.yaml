@@ -13,19 +13,19 @@ rigs:
   - id: sword
     pivot: [-0.35, 0.9, 0.3]
     rest: [0, 90, 0]
-    tilt: [0, 0, 10]
+    tilt: [0, 0, 14]
     respect_hit_stop: true
     end_tick: 16
     parts:
-      - { id: blade, block: iron_block, offset: [0.0, 1.6, 0.0], size: [0.4, 2.7, 0.12], brightness: 15 }
-      - { id: edge, block: white_concrete, offset: [0.21, 1.6, 0.0], size: [0.04, 2.7, 0.14], brightness: 15 }
+      - { id: blade, block: iron_block, offset: [0.0, 2.05, 0.0], size: [0.4, 3.6, 0.12], brightness: 15 }
+      - { id: edge, block: white_concrete, offset: [0.21, 2.05, 0.0], size: [0.04, 3.6, 0.14], brightness: 15 }
       - { id: guard, block: gold_block, offset: [0.0, 0.25, 0.0], size: [0.95, 0.14, 0.24], brightness: 15 }
       - { id: grip, block: black_concrete, offset: [0.0, -0.25, 0.0], size: [0.1, 0.9, 0.1] }
     swing:
-      - { t: 0, rotate: [-150, 18, 0] }                      # tip on the floor, behind
-      - { t: 8, rotate: [-155, 19, 0], ease: in_out_quad }   # slow drag
-      - { t: 15, rotate: [-170, 20, 0], ease: in_quad }      # drawn back before the dash
+      - { t: 0, rotate: [-155, -15, 0] }                     # tip on the floor, behind (pitch - lowers the tip here)
+      - { t: 8, rotate: [-158, -15, 0], ease: in_out_quad }  # slow drag
+      - { t: 15, rotate: [-170, -15, 0], ease: in_quad }     # drawn back before the dash
     emitters:
-      - { id: sparks, particle_id: bastion-s3-scrape-spark, point: [0.0, 2.9, 0.0], start_t: 0, end_t: 16 }
-      - { id: flames, particle_id: bastion-s3-scrape-flame, point: [0.0, 2.9, 0.0], start_t: 2, end_t: 16 }
-      - { id: chips, particle_id: bastion-s3-scrape-chip, point: [0.0, 2.9, 0.0], start_t: 3, end_t: 16 }
+      - { id: sparks, particle_id: bastion-s3-scrape-spark, point: [0.0, 3.85, 0.0], start_t: 0, end_t: 16 }
+      - { id: flames, particle_id: bastion-s3-scrape-flame, point: [0.0, 3.85, 0.0], start_t: 2, end_t: 16 }
+      - { id: chips, particle_id: bastion-s3-scrape-chip, point: [0.0, 3.85, 0.0], start_t: 3, end_t: 16 }
