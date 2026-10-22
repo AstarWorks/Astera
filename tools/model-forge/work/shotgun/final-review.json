@@ -1,0 +1,852 @@
+{
+  "item": "shotgun",
+  "round": 5,
+  "validation": {
+    "valid": true,
+    "elements": 124,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999667,
+      2.0000000000000355
+    ],
+    "rotated_bounds": [
+      [
+        -7.899999999999999,
+        9.151533483920426,
+        6.0
+      ],
+      [
+        24.325,
+        16.25,
+        10.5
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        15,
+        105,
+        243,
+        154
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        110,
+        105,
+        141,
+        154
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        15,
+        114,
+        243,
+        145
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        25,
+        93,
+        230,
+        150
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        18,
+        96,
+        220,
+        170
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        88,
+        94,
+        182,
+        136
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        117,
+        90,
+        141,
+        129
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        72,
+        94,
+        166,
+        136
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        117,
+        90,
+        141,
+        129
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        83,
+        97,
+        173,
+        116
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        72,
+        116,
+        182,
+        139
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "485f7f65e7c7adae685cff565dc09abd1c953d704542621458f795bf4741fb16",
+  "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation.",
+  "rounds": [
+    {
+      "item": "shotgun",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 4,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.0,
+          2.0
+        ],
+        "rotated_bounds": [
+          [
+            -7.5,
+            10.7,
+            6.5
+          ],
+          [
+            24.0,
+            15.875,
+            9.5
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            18,
+            108,
+            241,
+            143
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            117,
+            108,
+            138,
+            143
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            18,
+            117,
+            241,
+            138
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            28,
+            95,
+            229,
+            150
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            21,
+            98,
+            219,
+            160
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            90,
+            97,
+            180,
+            127
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            120,
+            92,
+            135,
+            120
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            74,
+            97,
+            164,
+            127
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            120,
+            92,
+            135,
+            120
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            85,
+            98,
+            172,
+            111
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            73,
+            117,
+            180,
+            134
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "485f7f65e7c7adae685cff565dc09abd1c953d704542621458f795bf4741fb16",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    },
+    {
+      "item": "shotgun",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 36,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999911,
+          2.000000000000016
+        ],
+        "rotated_bounds": [
+          [
+            -7.899999999999999,
+            9.151533483920426,
+            6.25
+          ],
+          [
+            24.325,
+            16.25,
+            9.75
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            15,
+            105,
+            243,
+            154
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            116,
+            105,
+            139,
+            154
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            15,
+            116,
+            243,
+            139
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            25,
+            93,
+            230,
+            150
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            18,
+            96,
+            220,
+            170
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            88,
+            94,
+            182,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            118,
+            90,
+            137,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            72,
+            94,
+            166,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            118,
+            90,
+            137,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            83,
+            97,
+            173,
+            116
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            72,
+            116,
+            182,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "485f7f65e7c7adae685cff565dc09abd1c953d704542621458f795bf4741fb16",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    },
+    {
+      "item": "shotgun",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 75,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999667,
+          2.000000000000016
+        ],
+        "rotated_bounds": [
+          [
+            -7.899999999999999,
+            9.151533483920426,
+            6.05
+          ],
+          [
+            24.325,
+            16.25,
+            9.95
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            15,
+            105,
+            243,
+            154
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            114,
+            105,
+            141,
+            154
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            15,
+            114,
+            243,
+            141
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            25,
+            93,
+            230,
+            150
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            18,
+            96,
+            220,
+            170
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            88,
+            94,
+            182,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            117,
+            90,
+            138,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            72,
+            94,
+            166,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            117,
+            90,
+            138,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            83,
+            97,
+            173,
+            116
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            72,
+            116,
+            182,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "485f7f65e7c7adae685cff565dc09abd1c953d704542621458f795bf4741fb16",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    },
+    {
+      "item": "shotgun",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 115,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999667,
+          2.00000000000002
+        ],
+        "rotated_bounds": [
+          [
+            -7.899999999999999,
+            9.151533483920426,
+            6.05
+          ],
+          [
+            24.325,
+            16.25,
+            10.45
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            15,
+            105,
+            243,
+            154
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            111,
+            105,
+            141,
+            154
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            15,
+            114,
+            243,
+            144
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            25,
+            93,
+            230,
+            150
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            18,
+            96,
+            220,
+            170
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            88,
+            94,
+            182,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            117,
+            90,
+            141,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            72,
+            94,
+            166,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            117,
+            90,
+            141,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            83,
+            97,
+            173,
+            116
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            72,
+            116,
+            182,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "485f7f65e7c7adae685cff565dc09abd1c953d704542621458f795bf4741fb16",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    },
+    {
+      "item": "shotgun",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 124,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999667,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            -7.899999999999999,
+            9.151533483920426,
+            6.0
+          ],
+          [
+            24.325,
+            16.25,
+            10.5
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            15,
+            105,
+            243,
+            154
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            110,
+            105,
+            141,
+            154
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            15,
+            114,
+            243,
+            145
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            25,
+            93,
+            230,
+            150
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            18,
+            96,
+            220,
+            170
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            88,
+            94,
+            182,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            117,
+            90,
+            141,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            72,
+            94,
+            166,
+            136
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            117,
+            90,
+            141,
+            129
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            83,
+            97,
+            173,
+            116
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            72,
+            116,
+            182,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "485f7f65e7c7adae685cff565dc09abd1c953d704542621458f795bf4741fb16",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    }
+  ],
+  "sha256": {
+    "model.json": "e5b9f68afcc17da6cf6a9e4a448a74ce572b7bd05baf31ad545c3810b458f253",
+    "texture.png": "642ab2aa18e8c04dbfa59f6f41591468c13d2b66ddb924526dc46bcd8744fe4b"
+  }
+}
