@@ -57,17 +57,17 @@
     {
       "t": 44,
       "pos": [
-        2.5,
-        0.6,
-        3.0
+        2.2,
+        1.0,
+        6.0
       ],
       "target": [
         3.0,
         1.0,
         0
       ],
-      "fov": 38,
-      "note": "low close dash shot"
+      "fov": 45,
+      "note": "low side dash shot (widened for MC scale)"
     },
     {
       "t": 50,
@@ -87,16 +87,16 @@
       "t": 68,
       "pos": [
         3.4,
-        1.8,
-        2.0
+        1.6,
+        4.5
       ],
       "target": [
         3.6,
-        1.6,
+        1.5,
         0
       ],
-      "fov": 35,
-      "note": "plunge close-up"
+      "fov": 40,
+      "note": "plunge close-up (widened for MC scale)"
     },
     {
       "t": 71,
