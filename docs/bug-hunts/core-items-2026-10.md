@@ -42,4 +42,10 @@ Verification: no local builds or tests run, per task constraints. Regression tes
 - Evidence: `InMemoryEffectOrchestrator.kt:78` scheduled markComplete for each Sequence against the same CompositeHandle; `dispatchStep` skipped all subsequent tasks once that flag flipped.
 - Fix: compute the latest end tick while scheduling the tree, then mark the shared handle complete once, after all branches/iterations finish.
 - Tests: `InMemoryEffectOrchestratorTest` covers unequal parallel sequences and a delayed sequence repeated in a loop, including active/completed lifecycle assertions.
+- Fix commit: `9f56e339`.
+
+## 8. Match configuration writes to discarded in-memory world gateways
+- Evidence: `CoreWiringWorld.kt:225` passed local in-memory rules/time/weather instances to InMemoryMatchConfigService after registering host overlays above. Applying a match config reported success but never changed the Paper world.
+- Fix: resolve the three final gateways from the registry when constructing the service.
+- Test: `MatchConfigWiringTest` supplies host gateways to the production wiring stage and checks apply/reset reach those exact gateways (PvP, difficulty, inventory, time, weather).
 - Fix commit: pending.
