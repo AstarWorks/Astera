@@ -140,6 +140,19 @@ class InMemoryEffectOrchestratorTest {
     }
 
     @Test
+    fun `completion at the same tick cannot suppress final steps`() {
+        val scheduler = FakeScheduler()
+        val gateway = FakeWorldGateway()
+        val sut = InMemoryEffectOrchestrator(scheduler, gateway, RecordingStatusApplier(), RecordingDamageApplier())
+        val handle = sut.play(EffectChain.Sequence(List(3) { EffectStep.SoundStep(sound, Vec3.ZERO, world) }))
+
+        // Equal-time scheduler tasks need not be FIFO (FakeScheduler uses a priority queue).
+        scheduler.advanceTicks(0)
+        assertThat(gateway.sounds).hasSize(3)
+        assertThat(handle.isActive).isFalse()
+    }
+
+    @Test
     fun `cancel tears down every pending step`() {
         val scheduler = FakeScheduler(startTick = 0L)
         val worldGateway = FakeWorldGateway()

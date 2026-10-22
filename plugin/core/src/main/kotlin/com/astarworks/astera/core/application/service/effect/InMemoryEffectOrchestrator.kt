@@ -89,7 +89,7 @@ public class InMemoryEffectOrchestrator(
 
     private fun dispatchStep(step: EffectStep, composite: CompositeHandle, delayTicks: Long) {
         val task = scheduler.runLater(ticks(delayTicks)) {
-            if (!composite.isActive) return@runLater
+            if (composite.isCancelled) return@runLater
             executeOne(step)
         }
         composite.add(task)
@@ -137,6 +137,8 @@ public class InMemoryEffectOrchestrator(
         private val children: MutableList<IScheduler.TaskHandle> = mutableListOf()
         private var cancelled: Boolean = false
         private var complete: Boolean = false
+
+        val isCancelled: Boolean get() = cancelled
 
         fun add(task: IScheduler.TaskHandle) {
             if (cancelled) {

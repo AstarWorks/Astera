@@ -60,4 +60,10 @@ Verification: no local builds or tests run, per task constraints. Regression tes
 - Evidence: `PlayerHandoffService.kt:135` consumed stored tokens without checking TTL; purgeTokens only ran when another token arrived. An abandoned transfer token could therefore unlock a much later join before its current token arrived.
 - Fix: expire cached tokens before consuming an early token on join.
 - Test: `PlayerHandoffServiceTest.an expired early token cannot complete a later join` advances beyond TTL, verifies the new join remains Loading, then delivers its fresh token.
+- Fix commit: `9b010712`.
+
+## 11. Same-tick completion suppresses final effect steps
+- Evidence: `InMemoryEffectOrchestrator.kt:97` gated dispatch on isActive, but the completion callback shares the final step's tick. Schedulers do not promise FIFO ties (the existing FakeScheduler uses a PriorityQueue), so completion can run before final callbacks.
+- Fix: suppress scheduled effects only on explicit cancellation; a completion flag is not cancellation. Whole-chain end timing remains unchanged.
+- Test: `InMemoryEffectOrchestratorTest.completion at the same tick cannot suppress final steps` schedules three equal-time steps against the existing scheduler.
 - Fix commit: pending.
