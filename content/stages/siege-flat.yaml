@@ -1,0 +1,98 @@
+# Siege (objective) modes on the docker playtest superflat world (grass top
+# y=-61, players stand at y=-60). One stage serves every siege lane
+# (break-core, carry-tnt, capture-wool, steal-jewelry, battle-loyal): each mode
+# reads only the regions it knows by name, so they never get in each other's way.
+#
+#            z=-20      tnt-spawn
+#   red base                              blue base
+#   x=-48..-34   wool-a (-20,0)   wool-c (20,0)   x=34..48
+#   core (-46,0)         wool-b (0,20)             core (46,0)
+#   jewelry (-44,7)                                 jewelry (44,7)
+#
+# Region vocabulary (name -> mode):
+#   core-<team>      1 block, the team's core            (break-core)
+#   base-<team>      the team's base zone                (carry-tnt delivery, steal-jewelry deposit)
+#   jewelry-<team>   3x3 pedestal zone inside the base   (steal-jewelry)
+#   tnt-spawn        where the TNT waits                 (carry-tnt)
+#   wool-*           control points, any number          (capture-wool)
+# Zones span y -61 (floor block) .. -55 so a standing/jumping player is inside.
+# Objective markers (core / TNT / wool / pedestal blocks) are placed on the
+# floor block at the zone centre at match start and removed at match end.
+# Schema mirrors plugin/match/.../application/config/StageYamlConfig.kt.
+
+id: siege-flat
+
+display_name_key: astera.stage.siege-flat.name
+
+world: world
+
+regions:
+  - name: full-arena
+    min: { x: -60.0, y: -61.0, z: -40.0 }
+    max: { x:  60.0, y: -30.0, z:  40.0 }
+
+  - name: base-red
+    min: { x: -48.0, y: -61.0, z: -10.0 }
+    max: { x: -34.0, y: -55.0, z:  10.0 }
+  - name: base-blue
+    min: { x:  34.0, y: -61.0, z: -10.0 }
+    max: { x:  48.0, y: -55.0, z:  10.0 }
+
+  - name: core-red
+    min: { x: -46.0, y: -60.0, z: 0.0 }
+    max: { x: -46.0, y: -60.0, z: 0.0 }
+  - name: core-blue
+    min: { x:  46.0, y: -60.0, z: 0.0 }
+    max: { x:  46.0, y: -60.0, z: 0.0 }
+
+  - name: jewelry-red
+    min: { x: -45.0, y: -61.0, z: 6.0 }
+    max: { x: -43.0, y: -55.0, z: 8.0 }
+  - name: jewelry-blue
+    min: { x:  43.0, y: -61.0, z: 6.0 }
+    max: { x:  45.0, y: -55.0, z: 8.0 }
+
+  - name: tnt-spawn
+    min: { x: -3.0, y: -61.0, z: -23.0 }
+    max: { x:  3.0, y: -55.0, z: -17.0 }
+
+  - name: wool-a
+    min: { x: -23.0, y: -61.0, z: -3.0 }
+    max: { x: -17.0, y: -55.0, z:  3.0 }
+  - name: wool-b
+    min: { x: -3.0, y: -61.0, z: 17.0 }
+    max: { x:  3.0, y: -55.0, z: 23.0 }
+  - name: wool-c
+    min: { x: 17.0, y: -61.0, z: -3.0 }
+    max: { x: 23.0, y: -55.0, z:  3.0 }
+
+spawn_points:
+  - team: red
+    position: { x: -40.0, y: -60.0, z: -3.0 }
+    yaw: 270.0
+  - team: red
+    position: { x: -40.0, y: -60.0, z: 3.0 }
+    yaw: 270.0
+  - team: red
+    position: { x: -38.0, y: -60.0, z: 0.0 }
+    yaw: 270.0
+  - team: red
+    position: { x: -42.0, y: -60.0, z: 0.0 }
+    yaw: 270.0
+  - team: blue
+    position: { x: 40.0, y: -60.0, z: -3.0 }
+    yaw: 90.0
+  - team: blue
+    position: { x: 40.0, y: -60.0, z: 3.0 }
+    yaw: 90.0
+  - team: blue
+    position: { x: 38.0, y: -60.0, z: 0.0 }
+    yaw: 90.0
+  - team: blue
+    position: { x: 42.0, y: -60.0, z: 0.0 }
+    yaw: 90.0
+  - role: lobby
+    position: { x: 0.0, y: -60.0, z: 0.0 }
+  - role: spectator
+    position: { x: 0.0, y: -45.0, z: 0.0 }
+    pitch: 60.0

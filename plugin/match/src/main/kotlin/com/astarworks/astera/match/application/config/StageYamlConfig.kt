@@ -103,7 +103,7 @@ public data class RegionYamlConfig(
     public val min: Vec3YamlConfig,
     public val max: Vec3YamlConfig,
 ) {
-    public fun toRegion(): Region = Region(min = min.toVec3(), max = max.toVec3())
+    public fun toRegion(): Region = Region(min = min.toVec3(), max = max.toVec3(), name = name)
 }
 
 /**

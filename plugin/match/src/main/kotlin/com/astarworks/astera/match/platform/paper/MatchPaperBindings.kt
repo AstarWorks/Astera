@@ -6,6 +6,7 @@ import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.match.adapter.paper.PaperBarrierGateway
 import com.astarworks.astera.match.adapter.paper.PaperItemPickupAdapter
+import com.astarworks.astera.match.adapter.paper.PaperMatchWorldInputAdapter
 import com.astarworks.astera.match.adapter.paper.PaperPillarBlockListener
 import com.astarworks.astera.match.platform.wiring.MatchPlatformPorts
 import com.astarworks.astera.match.platform.wiring.MatchWiringResult
@@ -40,13 +41,20 @@ internal object MatchPaperBindings {
         // Wave 6a-N3 (ADR-0159): Bukkit EntityPickupItemEvent →
         // match.EntityPickedUpItem (PDC astera:item_id read with
         // bukkit:<material> fallback). Paired with the vendor-neutral
-        // RegionTransitionRelayListener subscribed in MatchWorldWiring.
+        // MatchRegionTransitionListener subscribed in MatchWorldWiring.
         PaperItemPickupAdapter(
             matchRepository = wired.matches,
             eventBus = ctx.services.getOrThrow<IDomainEventBus>(),
             scheduler = ctx.services.getOrThrow<IScheduler>(),
         ).start(plugin)
 
+        // WP11: BlockBreakEvent -> BlockBroken and PlayerMoveEvent -> PlayerMoved for
+        // players in a match (objective modes + the region transition listener).
+        PaperMatchWorldInputAdapter(
+            matches = wired.matches,
+            eventBus = ctx.services.getOrThrow<IDomainEventBus>(),
+            scheduler = ctx.services.getOrThrow<IScheduler>(),
+        ).start(plugin)
         // WP10: enemy block breaks on Annihilation pillar blocks damage the pillar.
         PaperPillarBlockListener(wired.pillarTargets).start(plugin)
     }

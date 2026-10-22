@@ -27,6 +27,7 @@ import com.astarworks.astera.match.application.gamemode.CaptureWoolGameMode
 import com.astarworks.astera.match.application.gamemode.CarryMiniTntGameMode
 import com.astarworks.astera.match.application.gamemode.CarryTntGameMode
 import com.astarworks.astera.match.application.gamemode.NormaGameMode
+import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
 import com.astarworks.astera.match.application.gamemode.StealJewelryGameMode
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationGameMode
 import com.astarworks.astera.match.application.gamemode.annihilation.AnnihilationMatchTracker
@@ -44,12 +45,10 @@ import com.astarworks.astera.match.application.contents.QueueSettingsContents
 import com.astarworks.astera.match.application.contents.StageContents
 import com.astarworks.astera.match.application.port.outbound.IAnomalyRegistry
 import com.astarworks.astera.match.application.port.outbound.IAnomalyScheduleRepository
-import com.astarworks.astera.match.application.port.outbound.IGameModeRegistry
 import com.astarworks.astera.match.application.port.outbound.IGeneratorRegistry
 import com.astarworks.astera.match.application.port.outbound.IGeneratorRepository
 import com.astarworks.astera.match.application.service.AnomalyScheduler
 import com.astarworks.astera.match.application.service.InMemoryAnomalyScheduleRepository
-import com.astarworks.astera.match.application.service.InMemoryGameModeRegistry
 import com.astarworks.astera.match.application.service.InMemoryGeneratorRepository
 import com.astarworks.astera.match.application.service.InMemoryMatchRepository
 import com.astarworks.astera.match.application.service.StarGeneratorScheduler
@@ -58,14 +57,7 @@ import com.astarworks.astera.match.application.usecase.anomaly.TriggerAnomalyUse
 import com.astarworks.astera.match.application.usecase.generator.AdvanceGeneratorChargeUseCase
 import com.astarworks.astera.match.application.usecase.generator.SpawnResourceUseCase
 import com.astarworks.astera.match.application.usecase.match.SuddenDeathAcceleratorUseCase
-import com.astarworks.astera.match.application.usecase.mode.BreakCoreListener
-import com.astarworks.astera.match.domain.mode.BattleLoyal
-import com.astarworks.astera.match.domain.mode.BreakCore
-import com.astarworks.astera.match.domain.mode.CaptureWool
-import com.astarworks.astera.match.domain.mode.CarryMiniTNT
-import com.astarworks.astera.match.domain.mode.CarryTNT
 import com.astarworks.astera.match.domain.mode.GameModeId
-import com.astarworks.astera.match.domain.mode.StealJewelry
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.match.application.usecase.matchmaking.MatchFoundUseCase
 import com.astarworks.astera.match.application.usecase.match.EndMatchUseCase
@@ -318,14 +310,6 @@ public object MatchWiring {
         // (Wave 5e+) at priority 100 transparently replaces them. The schedulers
         // tick continuously and visit only the currently active matches.
 
-        val gameModes: IGameModeRegistry =
-            services.get<IGameModeRegistry>()
-                ?: InMemoryGameModeRegistry().also {
-                    registrations += services.register<IGameModeRegistry>(it, priority = 0)
-                }
-        registerDefaultGameModes(gameModes)
-        logger.info("Game mode registry populated with ${gameModes.all().size} mode(s).")
-
         val generators: IGeneratorRepository =
             services.get<IGeneratorRepository>()
                 ?: InMemoryGeneratorRepository().also {
@@ -382,25 +366,6 @@ public object MatchWiring {
         // SUDDEN_DEATH is active, removing it on exit.
         val suddenDeath = SuddenDeathAcceleratorUseCase(eventBus, generators)
         subscriptions += suddenDeath.subscribe()
-
-        // Per-mode listeners are constructed lazily per match (Wave 6 stage YAML
-        // wiring). At plugin load only BreakCore subscribes globally because its
-        // BlockBroken trigger is mode-agnostic at the event layer — a server
-        // running BreakCore matches will see the listener react to any matching
-        // core block break.
-        val breakCoreDefault = BreakCore(id = GameModeId("break-core"))
-        val breakCoreListener = BreakCoreListener(
-            eventBus = eventBus,
-            matches = matches,
-            lifecycle = facade,
-            mode = breakCoreDefault,
-        )
-        subscriptions += breakCoreListener.subscribe()
-
-        logger.info(
-            "Wave 5c wiring complete: StarGeneratorScheduler + AnomalyScheduler running, " +
-                "SuddenDeathAccelerator subscribed, BreakCoreListener subscribed.",
-        )
 
         // 4.5.bis Wave 5gamemode (ADR-0106) — IGameMode framework foundation.
         // ---------------------------------------------------------------
@@ -482,27 +447,37 @@ public object MatchWiring {
                 "registered into IGameModeFrameworkRegistry.",
         )
 
-        // Wave 5c-N1 (ADR-0165) — six thin-façade IGameMode impls over the
-        // legacy Wave 5c modes. Each façade publishes framework events on
-        // lifecycle boundaries and otherwise no-ops (the `*Listener` classes
-        // wired earlier in this onEnable carry the actual win-condition
-        // logic). Programmatic registration follows the Norma fallback
-        // pattern above — Wave 7a-N1 will land matching `content/game-modes/`
-        // YAML, after which `register(...)` here overwrites the reflection-
-        // built (bus-less) instances with these bus-wired ones.
-        listOf(
-            BattleLoyalGameMode(eventBus = eventBus),
-            BreakCoreGameMode(eventBus = eventBus),
-            CarryTntGameMode(eventBus = eventBus),
-            CarryMiniTntGameMode(eventBus = eventBus),
-            CaptureWoolGameMode(eventBus = eventBus),
-            StealJewelryGameMode(eventBus = eventBus),
-        ).forEach { gameModeFrameworkRegistry.register(it) }
-        logger.info(
-            "Wave 5c-N1 wiring: 6 IGameMode façades (battle-loyal / break-core / " +
-                "carry-tnt / carry-mini-tnt / capture-wool / steal-jewelry) registered " +
-                "into IGameModeFrameworkRegistry.",
+        // WP11: the objective modes (break-core / carry-tnt / capture-wool /
+        // steal-jewelry / battle-loyal) own their per-match state and react to
+        // region / block / kill events of their own matches; the config comes
+        // from content/game-modes/<id>.yaml `default_config`. carry-mini-tnt is
+        // still an event-less façade (not wired to an objective yet).
+        val siegeEnv = { id: com.astarworks.astera.match.domain.mode.GameModeId ->
+            SiegeEnv(
+                eventBus = eventBus,
+                matches = matches,
+                stages = stages,
+                lifecycle = facade,
+                world = worldGateway,
+                messages = msgRenderer,
+                players = playerGateway,
+                config = gameModeContents.find(id)?.defaultConfig ?: emptyMap(),
+                now = { scheduler.currentTick() },
+            )
+        }
+        val siegeModes = listOf(
+            BattleLoyalGameMode(siegeEnv(BattleLoyalGameMode.ID)),
+            BreakCoreGameMode(siegeEnv(BreakCoreGameMode.ID)),
+            CarryTntGameMode(siegeEnv(CarryTntGameMode.ID)),
+            CaptureWoolGameMode(siegeEnv(CaptureWoolGameMode.ID)),
+            StealJewelryGameMode(siegeEnv(StealJewelryGameMode.ID)),
         )
+        for (mode in siegeModes) {
+            gameModeFrameworkRegistry.register(mode)
+            subscriptions += mode.subscribe()
+        }
+        gameModeFrameworkRegistry.register(CarryMiniTntGameMode(eventBus = eventBus))
+        logger.info("WP11 wiring: ${siegeModes.size} objective game modes + carry-mini-tnt registered into IGameModeFrameworkRegistry.")
 
         reloadRegistry.register(gameModeContents, gameModeContentDir)
         logger.info(
@@ -527,7 +502,7 @@ public object MatchWiring {
             // SwitchPhase's min-player guard + PvP death-policy resolver.
             matchModeRegistry.register(event.matchId, event.modeKey)
 
-            val modeId = resolveModeId(event.modeKey)
+            val modeId = resolveModeId(event.modeKey, gameModeFrameworkRegistry)
             val mode = gameModeFrameworkRegistry.get(modeId) ?: return@subscribe
             val match = matches.findById(event.matchId)
             val participants = match?.teams?.flatMap { it.members } ?: emptyList()
@@ -555,9 +530,10 @@ public object MatchWiring {
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.match.domain.event.PhaseChanged::class,
         ) { event ->
-            // PhaseChanged carries no modeKey — fall back to Norma (Phase 1
-            // PoC default; Wave 6 lands a per-match mode lookup on the event).
-            val mode = gameModeFrameworkRegistry.get(NormaGameMode.ID) ?: return@subscribe
+            // PhaseChanged carries no modeKey: use the one MatchStarted mirrored for this match.
+            val mode = gameModeFrameworkRegistry.get(
+                resolveModeId(matchModeRegistry.modeKeyOf(event.matchId), gameModeFrameworkRegistry),
+            ) ?: return@subscribe
             val gmCtx = FrameworkGameModeContext(matchId = event.matchId, modeId = mode.id())
             val old = IGameModePhase.fromCore(event.from)
             val next = IGameModePhase.fromCore(event.to)
@@ -606,71 +582,21 @@ public object MatchWiring {
     }
 
     /**
-     * Populate [IGameModeRegistry] with the 6 Wave 5c modes (ADR-0032). Per-
-     * match config (region maps, item ids) is left at the data-class defaults
-     * — stage YAML overrides them when matches start in Wave 6.
-     */
-    /**
      * Resolve the `MatchStarted.modeKey` string into the framework
      * [com.astarworks.astera.match.domain.mode.GameModeId] used by
      * [gameModeFrameworkRegistry] (Wave 5wireup §G16).
      *
-     * `null` / empty / unknown → fall back to [NormaGameMode.ID] so any
+     * `null` / empty / unregistered keys fall back to [NormaGameMode.ID] so any
      * call site that ships without a mode key keeps the Phase 1 PoC Norma
-     * behaviour. Recognised keys today: `"annihilation"`, `"norma"`. New
-     * modes register their key here when they join the framework.
+     * behaviour.
      */
     private fun resolveModeId(
         modeKey: String?,
-    ): com.astarworks.astera.match.domain.mode.GameModeId = when (modeKey) {
-        AnnihilationGameMode.ID.value -> AnnihilationGameMode.ID
-        NormaGameMode.ID.value, null, "" -> NormaGameMode.ID
-        else -> NormaGameMode.ID
+        registry: IGameModeFrameworkRegistry,
+    ): com.astarworks.astera.match.domain.mode.GameModeId {
+        val id = modeKey?.takeIf { it.isNotBlank() }
+            ?.let { runCatching { GameModeId(it) }.getOrNull() }
+        return if (id != null && registry.get(id) != null) id else NormaGameMode.ID
     }
 
-    private fun registerDefaultGameModes(registry: IGameModeRegistry) {
-        registry.register(BattleLoyal(id = GameModeId("battle-loyal")))
-        registry.register(BreakCore(id = GameModeId("break-core")))
-        registry.register(
-            CarryTNT(
-                id = GameModeId("carry-tnt"),
-                displayNameKey = MessageKey("astera.match.mode.carry-tnt.name"),
-                descriptionKey = MessageKey("astera.match.mode.carry-tnt.description"),
-                deliveryRegionIds = mapOf(
-                    TeamId("red") to "blue_base",
-                    TeamId("blue") to "red_base",
-                ),
-            ),
-        )
-        registry.register(
-            CarryMiniTNT(
-                id = GameModeId("carry-mini-tnt"),
-                displayNameKey = MessageKey("astera.match.mode.carry-mini-tnt.name"),
-                descriptionKey = MessageKey("astera.match.mode.carry-mini-tnt.description"),
-                deliveryRegionIds = mapOf(
-                    TeamId("red") to "blue_base",
-                    TeamId("blue") to "red_base",
-                ),
-            ),
-        )
-        registry.register(
-            CaptureWool(
-                id = GameModeId("capture-wool"),
-                displayNameKey = MessageKey("astera.match.mode.capture-wool.name"),
-                descriptionKey = MessageKey("astera.match.mode.capture-wool.description"),
-                controlRegionIds = listOf("wool_a", "wool_b", "wool_c"),
-            ),
-        )
-        registry.register(
-            StealJewelry(
-                id = GameModeId("steal-jewelry"),
-                displayNameKey = MessageKey("astera.match.mode.steal-jewelry.name"),
-                descriptionKey = MessageKey("astera.match.mode.steal-jewelry.description"),
-                depositRegionIds = mapOf(
-                    TeamId("red") to "red_deposit",
-                    TeamId("blue") to "blue_deposit",
-                ),
-            ),
-        )
-    }
 }

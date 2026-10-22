@@ -29,3 +29,32 @@ lanes:
     teams: 3
     players_per_team: 4
     min_players: 1
+
+  # Siege / objective modes (WP11) on the flat playtest world. They share the
+  # `siege-flat` stage, so one siege match runs at a time (the next lane waits).
+  # Each mode reads its own regions: see content/stages/siege-flat.yaml.
+  - id: break-core
+    stage: siege-flat
+    teams: 2
+    players_per_team: 4
+    min_players: 1
+  - id: carry-tnt
+    stage: siege-flat
+    teams: 2
+    players_per_team: 4
+    min_players: 1
+  - id: capture-wool
+    stage: siege-flat
+    teams: 2
+    players_per_team: 4
+    min_players: 1
+  - id: steal-jewelry
+    stage: siege-flat
+    teams: 2
+    players_per_team: 4
+    min_players: 1
+  - id: battle-loyal
+    stage: siege-flat
+    teams: 2
+    players_per_team: 4
+    min_players: 1

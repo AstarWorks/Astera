@@ -1,86 +1,81 @@
 package com.astarworks.astera.match.application.gamemode
 
-import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.match.domain.gamemode.GameModeContext
-import com.astarworks.astera.match.domain.gamemode.GameModeEvent
-import com.astarworks.astera.match.domain.gamemode.IGameMode
-import com.astarworks.astera.match.domain.gamemode.IGameModePhase
+import com.astarworks.astera.core.domain.match.Match
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.stage.Stage
+import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
+import com.astarworks.astera.match.application.gamemode.siege.SiegeGameMode
+import com.astarworks.astera.match.application.gamemode.siege.SiegeRun
 import com.astarworks.astera.match.domain.mode.GameModeId
 
 /**
- * Carry TNT mode — Wave 5c-N1 thin façade (ADR-0165).
- *
- * Pick up a TNT entity and carry it to the enemy's delivery region.
- * Wraps the existing Wave 5c `CarryTNTListener` (subscribed to
- * `EntityPickedUpItem` + `EntityEnteredRegion`) so the [IGameMode] framework
- * registry can advertise `carry-tnt` without re-routing transport / delivery
- * detection through this class.
- *
- * Façade contract is identical to [NormaGameMode] — see its KDoc for the
- * framework lifecycle and rationale. `onTick` is a no-op: delivery is an
- * event-driven concern handled by the legacy listener.
+ * Carry TNT: one TNT sits in the `tnt-spawn` zone. Walking into the zone while
+ * nobody carries it picks it up; carrying it into an enemy `base-<team>` zone
+ * scores a delivery for the carrier's team and puts the TNT back. The carrier
+ * dying also returns it. First team to `deliveries_to_win` deliveries wins.
  */
 public class CarryTntGameMode @JvmOverloads constructor(
-    private val eventBus: IDomainEventBus? = null,
-) : IGameMode {
+    env: SiegeEnv? = null,
+) : SiegeGameMode<CarryTntGameMode.Run>(ID, TITLE_KEY, env) {
 
-    override fun id(): GameModeId = ID
-
-    override fun titleKey(): MessageKey = TITLE_KEY
-
-    override fun defaultPhases(): List<IGameModePhase> = DEFAULT_PHASES
-
-    override fun tickPeriodTicks(): Long = 20L
-
-    override fun onMatchStarted(context: GameModeContext) {
-        eventBus?.publish(
-            GameModeEvent.GameModeStarted(
-                matchId = context.matchId,
-                modeId = id(),
-                atTick = 0L,
-            ),
-        )
+    public class Run(matchId: MatchId, stage: Stage, public val spawnCell: Vec3) : SiegeRun(matchId, stage) {
+        public var carrier: PlayerId? = null
+        public val deliveries: MutableMap<TeamId, Int> = mutableMapOf()
     }
 
-    override fun onPhaseChanged(context: GameModeContext, oldPhase: IGameModePhase, newPhase: IGameModePhase) {
-        if (oldPhase == newPhase) return
-        eventBus?.publish(
-            GameModeEvent.GameModePhaseChanged(
-                matchId = context.matchId,
-                modeId = id(),
-                oldPhase = oldPhase,
-                newPhase = newPhase,
-                atTick = 0L,
-            ),
-        )
+    private fun deliveriesToWin(): Int = env?.int("deliveries_to_win", DEFAULT_DELIVERIES) ?: DEFAULT_DELIVERIES
+
+    override fun createRun(match: Match, stage: Stage): Run? {
+        val spawn = stage.region(SPAWN_REGION) ?: return null
+        if (match.teams.any { stage.region("$BASE_PREFIX${it.id.value}") == null }) return null
+        return Run(match.id, stage, cellOf(spawn))
     }
 
-    override fun onTick(context: GameModeContext, tick: Long) {
-        // No-op: CarryTNTListener handles pickup + delivery-region transitions.
+    override fun start(run: Run, match: Match) {
+        setBlock(run, run.spawnCell, MARKER_BLOCK)
     }
 
-    override fun onMatchEnded(context: GameModeContext) {
-        eventBus?.publish(
-            GameModeEvent.GameModeEnded(
-                matchId = context.matchId,
-                modeId = id(),
-                atTick = 0L,
-            ),
-        )
+    override fun entered(run: Run, match: Match, player: PlayerId, team: TeamId, region: String) {
+        if (!live(match)) return
+        if (region == SPAWN_REGION) {
+            if (run.carrier == null) {
+                run.carrier = player
+                tellMatch(match, KEY_PICKED_UP, mapOf("team" to team.value))
+            }
+            return
+        }
+        val base = teamOfRegion(region, BASE_PREFIX, match) ?: return
+        if (run.carrier != player || base == team) return
+        run.carrier = null
+        val score = (run.deliveries[team] ?: 0) + 1
+        run.deliveries[team] = score
+        tellMatch(match, KEY_DELIVERED, mapOf("team" to team.value, "score" to score.toString(), "goal" to deliveriesToWin().toString()))
+        if (score >= deliveriesToWin()) win(run, team)
+    }
+
+    override fun killed(run: Run, match: Match, victim: PlayerId, victimTeam: TeamId?, killer: PlayerId?, killerTeam: TeamId?) {
+        if (run.carrier != victim) return
+        run.carrier = null
+        tellMatch(match, KEY_DROPPED, mapOf("team" to (victimTeam?.value ?: "")))
+    }
+
+    override fun finish(run: Run) {
+        setBlock(run, run.spawnCell, floorBlock())
     }
 
     public companion object {
-        /** Stable id; matches `content/game-modes/carry-tnt.yaml` (Wave 7a-N1). */
         public val ID: GameModeId = GameModeId("carry-tnt")
         public val TITLE_KEY: MessageKey = MessageKey("astera.gamemode.carry-tnt.title")
-
-        private val DEFAULT_PHASES: List<IGameModePhase> = listOf(
-            IGameModePhase.Lobby,
-            IGameModePhase.Countdown,
-            IGameModePhase.Active,
-            IGameModePhase.SuddenDeath,
-            IGameModePhase.Ended,
-        )
+        private val KEY_PICKED_UP: MessageKey = MessageKey("astera.gamemode.carry-tnt.picked-up")
+        private val KEY_DELIVERED: MessageKey = MessageKey("astera.gamemode.carry-tnt.delivered")
+        private val KEY_DROPPED: MessageKey = MessageKey("astera.gamemode.carry-tnt.dropped")
+        private const val SPAWN_REGION: String = "tnt-spawn"
+        private const val BASE_PREFIX: String = "base-"
+        private const val MARKER_BLOCK: String = "minecraft:tnt"
+        private const val DEFAULT_DELIVERIES: Int = 3
     }
 }

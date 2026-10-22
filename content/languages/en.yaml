@@ -329,24 +329,9 @@ astera:
       unknown_world: "<red>Match config: unknown world '{worldId}'.</red>"
     # Wave 5c — game mode display strings (ADR-0032)
     mode:
-      battle-loyal:
-        name: "<gold>Battle Loyal</gold>"
-        description: "<gray>Small-scale free-for-all arena. Score the most kills to win.</gray>"
-      break-core:
-        name: "<gold>Break Core</gold>"
-        description: "<gray>Destroy the enemy team's core block to win.</gray>"
-      carry-tnt:
-        name: "<gold>Carry TNT</gold>"
-        description: "<gray>Carry TNT to the enemy base. First team to {wins} deliveries wins.</gray>"
       carry-mini-tnt:
         name: "<gold>Carry Mini TNT</gold>"
         description: "<gray>Collect {count} mini-TNT pieces, then deliver to the enemy base.</gray>"
-      capture-wool:
-        name: "<gold>Capture Wool</gold>"
-        description: "<gray>Hold control regions to capture them. First team to capture {wins} wins.</gray>"
-      steal-jewelry:
-        name: "<gold>Steal Jewelry</gold>"
-        description: "<gray>Steal enemy gems back to your deposit. Steal them all to win.</gray>"
     # Wave 5d — Barrier domain (ADR-0033, RTM issue #8)
     barrier:
       created: "<aqua>Barrier deployed at {position} by {player}.</aqua>"
@@ -832,16 +817,25 @@ astera:
     # surface the registry-level mode title to HUD / queue / scoreboard.
     battle-loyal:
       title: "<gold>Battle Loyal</gold>"
+      scored: "<gold>{team} scores! ({score}/{goal})</gold>"
     break-core:
       title: "<gold>Break Core</gold>"
+      core-destroyed: "<red>The {team} core was destroyed!</red>"
     carry-tnt:
       title: "<gold>Carry TNT</gold>"
+      picked-up: "<gold>Team {team} picked up the TNT!</gold>"
+      delivered: "<green>Team {team} delivered the TNT! ({score}/{goal})</green>"
+      dropped: "<gray>The TNT carrier fell. The TNT is back at its spawn.</gray>"
     carry-mini-tnt:
       title: "<gold>Carry Mini TNT</gold>"
     capture-wool:
       title: "<gold>Capture Wool</gold>"
+      captured: "<green>Team {team} captured {zone}! ({score}/{goal})</green>"
     steal-jewelry:
       title: "<gold>Steal Jewelry</gold>"
+      stolen: "<yellow>Team {team} stole a jewel from {victim}!</yellow>"
+      banked: "<green>Team {team} banked a haul of jewels! ({score}/{goal})</green>"
+      recovered: "<gray>A jewel carrier fell. The jewels returned to their pedestals.</gray>"
 
   # Wave 5e (ADR-0040): Party / friendship social aggregate user-facing errors.
   # Originally landed without i18n; Wave 5pve-survival (ADR-0107) wires the

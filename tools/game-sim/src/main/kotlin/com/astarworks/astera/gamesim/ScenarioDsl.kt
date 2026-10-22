@@ -3,6 +3,7 @@ package com.astarworks.astera.gamesim
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.application.services.getOrThrow
 import java.nio.file.Path
 
 /**
@@ -71,6 +72,19 @@ public class ScenarioScope(public val sim: GameSim) {
         sim.rightClick(this, sneaking)
     }
 
+    /** Walks to [to] (one `PlayerMoved`, as the Paper move adapter reports it for players in a match). */
+    public fun SimEntity.moveTo(to: Vec3) {
+        sim.moveTo(this, to)
+    }
+
+    /** Digs out the block at [cell] (publishes `BlockBroken` for players in a match). */
+    public fun SimEntity.breaks(cell: Vec3) {
+        sim.breakBlock(this, cell)
+    }
+
+    /** Block placed at [cell] in the simulated world, or `null`. */
+    public fun blockAt(cell: Vec3): String? = sim.world.blockAt(com.astarworks.astera.core.domain.world.WorldId("world"), cell)?.key
+
     /** Presses the drop key (Q) with the held item. */
     public fun SimEntity.drop() {
         sim.drop(this)
@@ -97,4 +111,25 @@ public class ScenarioScope(public val sim: GameSim) {
     public fun hp(entity: SimEntity): Double = checkNotNull(sim.hp(entity)) { "no HP for ${entity.name}" }
 
     public inline fun <reified T : DomainEvent> eventsOf(): List<T> = sim.eventsOf<T>()
+
+    /**
+     * Forms a match for the queue lane / game mode [mode] on [stage] through the real
+     * lifecycle facade: players take the given teams (and the stage's team spawns), the
+     * countdown is skipped and the match is ACTIVE on return.
+     */
+    public fun startMatch(
+        mode: String,
+        teams: Map<SimEntity, String>,
+        stage: String = "siege-flat",
+    ): com.astarworks.astera.core.domain.match.MatchId {
+        val lifecycle = sim.services.getOrThrow<com.astarworks.astera.match.application.port.inbound.IMatchLifecycle>()
+        val matchId = when (val started = lifecycle.start(com.astarworks.astera.core.domain.stage.StageId(stage), mode)) {
+            is com.astarworks.astera.core.domain.Result.Success -> started.value
+            is com.astarworks.astera.core.domain.Result.Failure -> error("start failed: ${started.error}")
+        }
+        teams.forEach { (entity, team) -> lifecycle.entry(matchId, entity.id, TeamId(team)) }
+        lifecycle.switchPhase(matchId, com.astarworks.astera.match.domain.match.MatchStateMachine.TransitionTrigger.CountdownComplete)
+        sim.step(2)
+        return matchId
+    }
 }
