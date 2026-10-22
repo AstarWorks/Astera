@@ -833,6 +833,17 @@ public class MechanicDispatcher(
                 }
             }
 
+            is Mechanic.ScreenFlash -> {
+                val out = feedback ?: return warnMissing("ScreenFlash", "IPlayerFeedbackGateway")
+                val fadeIn = resolveInt(mechanic.fadeInTicks, ctx).coerceAtLeast(0)
+                val stay = resolveInt(mechanic.stayTicks, ctx).coerceAtLeast(0)
+                val fadeOut = resolveInt(mechanic.fadeOutTicks, ctx).coerceAtLeast(0)
+                val color = mechanic.colorRgb ?: mechanic.overlay.defaultColor
+                for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    out.sendScreenFlash(target, mechanic.overlay, color, fadeIn, stay, fadeOut)
+                }
+            }
+
             // ===== Control flow =======================================
             is Mechanic.CastSkill -> {
                 if (ctx.depth >= MAX_CHAIN_DEPTH) {

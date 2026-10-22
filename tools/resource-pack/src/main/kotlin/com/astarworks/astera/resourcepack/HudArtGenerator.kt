@@ -91,7 +91,7 @@ public object HudArtGenerator {
         "effects.json" to effectsJson().toByteArray(),
         "space.json" to spaceJson().toByteArray(),
         "currency/star-icon.png" to png(starIcon()),
-    )
+    ).apply { putAll(OverlayArtGenerator.render()) }
 
     public fun writeTo(hudDir: Path): List<Path> {
         val preview = hudDir.resolve("../../docs/assets/status-icons-preview.png").normalize()

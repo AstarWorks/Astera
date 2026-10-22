@@ -164,6 +164,8 @@ public class ResourcePackBuilder(private val contentDir: Path) {
             val rel = file.relativeTo(hudDir).invariantSeparatorsPathString
             when {
                 file.extension == "png" -> files["assets/$NAMESPACE/textures/hud/$rel"] = Files.readAllBytes(file)
+                // The screen_flash overlay glyphs are their own font, astera:overlay.
+                rel == "overlay.json" -> files["assets/$NAMESPACE/font/overlay.json"] = Files.readAllBytes(file)
                 // Only the top-level *.json files are font fragments.
                 file.extension == "json" && file.parent == hudDir ->
                     mapper.readTree(Files.readAllBytes(file)).path("providers").forEach { providers.add(it) }
