@@ -1,0 +1,37 @@
+# WP1 staff roster: right-click = frost shard (projectile),
+# sneak + right-click = frost nova (AoE + slow).
+
+id: frost-staff
+
+material: BLAZE_ROD
+
+name:
+  ja: "<aqua>フロストスタッフ</aqua>"
+  en: "<aqua>Frost Staff</aqua>"
+lore:
+  ja:
+    - "<gray>右クリック: 氷の刃</gray>"
+    - "<gray>スニーク + 右クリック: フロストノヴァ</gray>"
+    - "<dark_gray>rarity: uncommon / level: 2</dark_gray>"
+  en:
+    - "<gray>Right-click: frost shard</gray>"
+    - "<gray>Sneak + right-click: frost nova</gray>"
+    - "<dark_gray>rarity: uncommon / level: 2</dark_gray>"
+
+rarity: uncommon
+level_requirement: 2
+
+attributes:
+  attack_damage: 2.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+skills:
+  - trigger: right_click
+    skill_id: frost-shard
+  - trigger: sneak_right
+    skill_id: frost-nova
+
+pdc_tags:
+  astera:rarity: uncommon

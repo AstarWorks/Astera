@@ -1,0 +1,37 @@
+# WP1 gun roster: right-click = shot, hold = auto-repeat (same shot, throttled
+# by the skill cooldown), drop key (Q) = reload (the drop is cancelled).
+
+id: pistol
+
+material: IRON_HORSE_ARMOR
+
+name:
+  ja: "<aqua>ピストル</aqua>"
+  en: "<aqua>Pistol</aqua>"
+lore:
+  ja:
+    - "<gray>右クリック: 射撃</gray>"
+    - "<gray>Q: リロード</gray>"
+    - "<dark_gray>rarity: common / level: 1</dark_gray>"
+  en:
+    - "<gray>Right-click: shoot</gray>"
+    - "<gray>Q: reload</gray>"
+    - "<dark_gray>rarity: common / level: 1</dark_gray>"
+
+rarity: common
+level_requirement: 1
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 4.0
+
+equip_slot: mainhand
+
+skills:
+  - trigger: right_click
+    skill_id: pistol-shot
+  - trigger: drop
+    skill_id: pistol-reload
+
+pdc_tags:
+  astera:rarity: common

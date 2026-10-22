@@ -39,15 +39,20 @@ public class HandleItemTriggerUseCase(
     private val eventBus: IDomainEventBus,
 ) {
 
+    /**
+     * @return `true` when the item binds [trigger] (even if every binding was
+     *   swallowed by a cooldown) — the caller uses this to decide whether to
+     *   cancel the vanilla side effect of the input.
+     */
     public fun execute(
         playerId: PlayerId,
         itemId: ItemId,
         trigger: SkillTrigger,
         origin: Vec3,
-    ) {
-        val spec = items.find(itemId) ?: return
+    ): Boolean {
+        val spec = items.find(itemId) ?: return false
         val matchingBindings = spec.skillBindings.filter { it.trigger == trigger }
-        if (matchingBindings.isEmpty()) return
+        if (matchingBindings.isEmpty()) return false
 
         for (binding in matchingBindings) {
             val overrideTicks = binding.cooldownOverrideTicks
@@ -74,5 +79,6 @@ public class HandleItemTriggerUseCase(
                 ),
             )
         }
+        return true
     }
 }

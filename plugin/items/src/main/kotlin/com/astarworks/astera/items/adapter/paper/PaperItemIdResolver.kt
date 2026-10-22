@@ -4,6 +4,7 @@ import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.NamespacedKey
 import org.bukkit.Server
+import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.Plugin
 
@@ -28,8 +29,12 @@ public class PaperItemIdResolver(
 
     override fun heldItemId(playerId: PlayerId): ItemId? {
         val player = server.getPlayer(playerId.uuid) ?: return null
-        val stack = player.inventory.itemInMainHand
-        val meta = stack.itemMeta ?: return null
+        return itemIdOf(player.inventory.itemInMainHand)
+    }
+
+    /** The `astera:item_id` of [stack], or `null` for air / non-Astera stacks. */
+    public fun itemIdOf(stack: ItemStack?): ItemId? {
+        val meta = stack?.itemMeta ?: return null
         val raw = meta.persistentDataContainer.get(itemIdKey, PersistentDataType.STRING) ?: return null
         return runCatching { ItemId(raw) }.getOrNull()
     }

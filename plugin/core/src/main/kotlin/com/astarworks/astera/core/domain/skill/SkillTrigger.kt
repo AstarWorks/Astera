@@ -1,51 +1,35 @@
 package com.astarworks.astera.core.domain.skill
 
 /**
- * Input action that fires a skill. Modeled as a vendor-neutral enum so the
- * domain never references Bukkit's `Action` or `PlayerInteractEvent` shapes.
+ * Player input that fires an item-bound skill. Vendor-neutral so the domain
+ * never references Bukkit's `Action` / `PlayerInteractEvent`.
  *
- * Wave 5a established the original 6 values; Wave 5a-fix2 saturated the
- * vocabulary to 20 values matching RTM `model/skill/SkillTrigger.kt`
- * (ADR-0029 §"Deep audit (2026-05-19)"). The new 14 values are pure
- * vocabulary — Bukkit handlers wiring them to runtime input events land in
- * Wave 6.
+ * Only triggers the runtime actually emits live here (WP1 pruned the
+ * 20-value RTM vocabulary of ADR-0029 down to what `ItemSkillTriggerListener`
+ * produces; add a value together with its emitter).
  *
- * `HOLD` is a sustained press (channel-style skills); `AUTO` is invoked by
- * scheduled triggers rather than player input. `SYSTEM` is reserved for
- * server-side fires (e.g., anomaly / mode listeners pushing a skill cast).
+ * - [LEFT_CLICK] — left click on air / block / entity (melee swing).
+ * - [RIGHT_CLICK] — right click (gun shot, spell cast).
+ * - [SNEAK_LEFT] / [SNEAK_RIGHT] — same clicks while sneaking. If an item has
+ *   no sneak binding the plain click binding fires instead.
+ * - [HOLD] — right click auto-repeating while the button is held (vanilla
+ *   re-sends the use every ~4 ticks). Fires instead of [RIGHT_CLICK] for the
+ *   repeats when the item binds it, otherwise repeats fall back to
+ *   [RIGHT_CLICK]. Not emitted for items vanilla treats as "using" (bow,
+ *   crossbow, food, shield) because those do not re-send the click.
+ * - [DROP] — drop key (Q). The drop is cancelled when bound; used as reload.
+ * - [SHOOT] — bow / crossbow release.
  *
  * Promoted from `:plugin:combat` to `:plugin:core` in Wave _items-1
  * (ADR-0073): Items bind triggers → skills inline, so the trigger enum must
  * live where every feature plugin can reference it.
  */
 public enum class SkillTrigger {
-    // Wave 5a baseline
     LEFT_CLICK,
     RIGHT_CLICK,
     SNEAK_LEFT,
     SNEAK_RIGHT,
     HOLD,
-    AUTO,
-
-    // Wave 5a-fix2 saturation (RTM SkillTrigger.kt parity — 14 additions)
-    LEFT_CLICK_BLOCK,
-    RIGHT_CLICK_BLOCK,
-    LEFT_CLICK_AIR,
-    RIGHT_CLICK_AIR,
-    INTERACT,
-    SHOOT,
-    BLOCK_BREAK,
-    CONSUME,
-    CROUCH,
-    JUMP,
-    SPRINT,
     DROP,
-    STACK_DROP,
-    PICKUP,
-    HYPER,
-    ATTACK,
-    SHIELD,
-    DAMAGED,
-    DEATH,
-    SYSTEM,
+    SHOOT,
 }

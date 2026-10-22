@@ -1,7 +1,8 @@
 package com.astarworks.astera.items.platform.paper
 
-import com.astarworks.astera.core.adapter.paper.event.PaperClickEventBridge
 import com.astarworks.astera.items.adapter.paper.EnchantmentGateListener
+import com.astarworks.astera.items.adapter.paper.PaperItemIdResolver
+import com.astarworks.astera.items.adapter.paper.PaperItemInputListener
 import com.astarworks.astera.items.platform.wiring.ItemsWiringResult
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -13,9 +14,12 @@ import org.bukkit.plugin.java.JavaPlugin
 internal object ItemsPaperBindings {
 
     fun register(plugin: JavaPlugin, wired: ItemsWiringResult) {
-        // Click → trigger sink (vendor-neutral listener behind a Paper bridge).
-        val clickBridge = PaperClickEventBridge { event -> wired.triggerListener.handle(event) }
-        plugin.server.pluginManager.registerEvents(clickBridge, plugin)
+        // Input → trigger sink (vendor-neutral listener behind a Paper bridge).
+        val inputListener = PaperItemInputListener(
+            itemIdResolver = PaperItemIdResolver(plugin, plugin.server),
+            sink = wired.triggerListener::handle,
+        )
+        plugin.server.pluginManager.registerEvents(inputListener, plugin)
 
         // Enchant-gate + keep-on-death listener (Bukkit-native).
         plugin.server.pluginManager.registerEvents(EnchantmentGateListener(plugin), plugin)

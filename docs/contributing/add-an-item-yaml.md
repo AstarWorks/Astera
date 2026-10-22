@@ -86,13 +86,18 @@ glint: null                             # null=follow vanilla; true/false=force
 # Skill bindings - 複数可。`trigger` は player input、`skill_id` は
 # content/skills/<id>.yaml を id 参照。`cooldown_override_ticks` で binding
 # 単位の cooldown 上書き可。
+# trigger: left_click | right_click | sneak_left | sneak_right | hold | drop | shoot
+#   - sneak_* は無ければ通常の left/right_click に fallback (具体的な方が優先)
+#   - hold = 右クリック押しっぱなしの 2 回目以降 (無ければ right_click に fallback)
+#   - drop = Q キー。bind すると drop は cancel される (リロード用)
+#   - shoot = 弓/クロスボウの発射
 skills:
   - trigger: left_click
     skill_id: lightning-strike
   - trigger: right_click
     skill_id: thunder-aoe
     cooldown_override_ticks: 200        # 10s @ 20 TPS
-  - trigger: attack
+  - trigger: sneak_right
     skill_id: paralysis-chance
 
 # 追加 PDC tags (`astera:item_id` は自動付与)

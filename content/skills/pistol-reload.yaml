@@ -1,0 +1,29 @@
+# WP1: gun drop key (Q). Placeholder reload: a short slow + click sound.
+# WP2 turns this into a real ammo-pool refill.
+
+id: pistol-reload
+
+name:
+  ja: "リロード"
+  en: "Reload"
+description:
+  ja: "銃を再装填する。短時間動きが鈍る。"
+  en: "Reloads the gun. Slows you briefly."
+
+archetype: buff
+cooldown_ticks: 30
+tags: [ gun, reload ]
+
+params:
+  type: buff
+  status_effect_id: reloading
+  duration_ticks: 30
+
+phases:
+  type: buff
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.iron_door.close
+  expire: []
+  removed: []

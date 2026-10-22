@@ -1,0 +1,31 @@
+# WP1: sword left-click. Melee archetype (WP3 owns the swing/hit logic).
+
+id: sword-slash
+
+name:
+  ja: "斬撃"
+  en: "Slash"
+description:
+  ja: "目の前の敵を斬りつける。"
+  en: "Slashes enemies in front of you."
+
+archetype: melee
+cooldown_ticks: 10
+tags: [ melee, sword ]
+
+params:
+  type: melee
+  range: 3.5
+  knockback: 0.4
+  damage:
+    - base: { type: literal, value: 7.0 }
+      attribute: physical
+
+phases:
+  type: melee
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.sweep
+  hit_entity: []
+  miss: []

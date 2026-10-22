@@ -29,7 +29,7 @@ attributes:
 equip_slot: mainhand
 
 skills:
-  - trigger: left_click
+  - trigger: right_click
     skill_id: example-blast
     cooldown_override_ticks: 6    # 0.3s @ 20 TPS
     # Wave _skills-2 (ADR-0077) demo: the pistol piles on a short ignite
