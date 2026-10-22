@@ -493,6 +493,8 @@ astera:
           thunder-staff: "Thunder Staff"
           couture-rapier: "Couturier's Rapier"
           gossamer-katana: "Gossamer Katana"
+          bastion-greatsword: "Bastion Greatsword"
+          verdict-hammer: "Verdict Hammer"
       gui:
         spacer: " "
         price: "<gray>Price: <green>{amount}</green> {currency}</gray>"

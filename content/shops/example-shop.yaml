@@ -109,3 +109,19 @@ offers:
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.gossamer-katana
+  - id: bastion-greatsword
+    item: bastion-greatsword
+    price:
+      currency: GOLD
+      amount: 160
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.bastion-greatsword
+  - id: verdict-hammer
+    item: verdict-hammer
+    price:
+      currency: GOLD
+      amount: 180
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.verdict-hammer
