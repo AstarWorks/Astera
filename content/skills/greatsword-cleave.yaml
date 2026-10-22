@@ -11,7 +11,7 @@ description:
 
 archetype: melee
 cooldown_ticks: 28
-resource_cost: 35              # stamina; the greatsword pool is 100, regen 15/s
+resource_cost: 35              # energy (shared pool of 100, regen 15/s)
 tags: [ melee, physical, burst ]
 
 params:

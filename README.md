@@ -25,7 +25,7 @@ Current focus is the **core vision** (2026-10): a game system (queue, match, mod
 
 ## What's playable
 
-A Docker server boots all 7 plugins and a player can: queue from the lobby, get auto-balanced into a match (Annihilation pillars, Break Core, Carry TNT, Capture Wool, Steal Jewelry, Battle Loyal), fight with a 10-weapon roster (pistol / rifle / shotgun, knight-sword / greatsword / dagger, frost / fire / thunder / verdant staff) with ammo, mana and stamina pools, hit players and mobs with skills and statuses, buy gear from the lobby shop, and keep items in a personal vault. Everything is also covered headlessly by the `:tools:game-sim` scenario tests (ADR-0174). Step by step: [`docs/contributing/playtest.md`](docs/contributing/playtest.md).
+A Docker server boots all 7 plugins and a player can: queue from the lobby, get auto-balanced into a match (Annihilation pillars, Break Core, Carry TNT, Capture Wool, Steal Jewelry, Battle Loyal), fight with a 10-weapon roster (pistol / rifle / shotgun, knight-sword / greatsword / dagger, frost / fire / thunder / verdant staff) with ammo and one shared energy bar (the food bar), hit players and mobs with skills and statuses, buy gear from the lobby shop, and keep items in a personal vault. Everything is also covered headlessly by the `:tools:game-sim` scenario tests (ADR-0174). Step by step: [`docs/contributing/playtest.md`](docs/contributing/playtest.md).
 
 ## Architecture in one breath
 

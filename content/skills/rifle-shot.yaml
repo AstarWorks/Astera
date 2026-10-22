@@ -21,7 +21,11 @@ params:
   launch_speed: 4.5
   max_lifetime_ticks: 40
   visual:
-    trail: [ gun-tracer, gun-smoke ]
+    trail:
+      - type: point
+        particles:
+          - { id: crit }
+          - { id: white_smoke, offset: { x: 0.02, y: 0.02, z: 0.02 } }
 
 phases:
   type: projectile

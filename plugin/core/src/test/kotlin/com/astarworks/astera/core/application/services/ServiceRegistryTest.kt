@@ -94,4 +94,40 @@ class ServiceRegistryTest {
         highReg.unregister()
         assertThat(registry.get<Greeter>()).isSameAs(low)
     }
+
+    @Test
+    fun `override registered after a consumer resolved the port is flagged as a late override`() {
+        val registry = ServiceRegistry()
+        val seen = mutableListOf<ServiceRegistry.LateOverride>()
+        registry.lateOverrideListener = { seen += it }
+        registry.register<Greeter>(Hello(), priority = 0)
+        registry.get<Greeter>() // a consumer captures the priority-0 default
+
+        registry.register<Greeter>(Bonjour(), priority = 100) // the overlay arrives too late
+
+        assertThat(registry.lateOverrides).hasSize(1)
+        assertThat(seen).isEqualTo(registry.lateOverrides)
+        assertThat(seen.single().type).isEqualTo(Greeter::class)
+        assertThat(seen.single().registeredPriority).isEqualTo(100)
+        assertThat(seen.single().resolvedPriority).isEqualTo(0)
+    }
+
+    @Test
+    fun `override registered before any consumer resolved the port is not flagged`() {
+        val registry = ServiceRegistry()
+        registry.register<Greeter>(Bonjour(), priority = 100)
+        registry.register<Greeter>(Hello(), priority = 0)
+        registry.get<Greeter>()
+        assertThat(registry.lateOverrides).isEmpty()
+    }
+
+    @Test
+    fun `equal or lower priority registration after resolve is not flagged`() {
+        val registry = ServiceRegistry()
+        registry.register<Greeter>(Bonjour(), priority = 100)
+        registry.get<Greeter>()
+        registry.register<Greeter>(Hello(), priority = 0)
+        registry.register<Greeter>(Hello(), priority = 100)
+        assertThat(registry.lateOverrides).isEmpty()
+    }
 }

@@ -42,8 +42,7 @@ public class FakeResourcePoolService(
                 playerId = playerId,
                 activeWeapon = null,
                 ammo = caps[ResourceType.Ammo]?.maxPool ?: 0,
-                stamina = caps[ResourceType.Stamina]?.maxPool ?: 0,
-                mana = caps[ResourceType.Mana]?.maxPool ?: 0,
+                energy = caps[ResourceType.Energy]?.maxPool ?: 0,
             )
         }
     }

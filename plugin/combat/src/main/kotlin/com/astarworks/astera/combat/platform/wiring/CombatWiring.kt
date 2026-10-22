@@ -515,6 +515,7 @@ public object CombatWiring {
                 scheduler = scheduler,
                 eventBus = eventBus,
                 particleScheduler = particleScheduler,
+                particleAnimator = services.get<com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator>(),
                 particleRegistry = particleRegistry,
                 soundRegistry = soundRegistry,
                 soundScheduler = services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>(),
@@ -612,7 +613,9 @@ public object CombatWiring {
             val projectileHandler = ProjectileHandler(
                 projectileService,
                 mechanicDispatcher,
-                particles = { id -> particleRegistry?.find(id) },
+                services.get<com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator>()?.let {
+                    com.astarworks.astera.combat.application.service.ProjectileTrailFollower(scheduler, it)
+                },
             )
             val meleeHandler = MeleeHandler(
                 nearbyQuery,
@@ -663,11 +666,12 @@ public object CombatWiring {
                     phaseOverrides = event.phaseOverrides,
                     sourceItemId = event.sourceItemId,
                     cooldownOverrideTicks = event.cooldownOverrideTicks,
+                    trigger = event.trigger,
                 )
             }
 
             // WP2 — player-facing feedback when a cast is refused (empty
-            // magazine, no mana, mid-reload, silenced).
+            // magazine, no energy, mid-reload, silenced).
             services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()?.let { hud ->
                 val feedback = com.astarworks.astera.combat.application.eventbus.listeners.hud
                     .CastRejectedFeedbackListener(hud)
@@ -745,6 +749,28 @@ public object CombatWiring {
             tools = adminTools,
             mcServer = services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
         ).install(services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>())
+
+        // ── F2-5 (ADR-0196) — cast any skill directly: `/astera skill ...` + admin panel Skills page ──
+        val adminSkillCaster = com.astarworks.astera.combat.application.admin.AdminSkillCaster(
+            skills = skillContents,
+            castSkill = castSkillOut,
+            cooldowns = cooldownTracker,
+        )
+        registrations += services.register(adminSkillCaster)
+        registrations += com.astarworks.astera.combat.application.admin.AdminSkillsPanel(
+            guard = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.AdminPanelGuard>(),
+            registry = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.IAdminPanelRegistry>(),
+            caster = adminSkillCaster,
+            // Items enables before Combat (softdepend) but resolve per click anyway.
+            testers = { services.get<com.astarworks.astera.core.application.port.outbound.ISkillTesterDelivery>() },
+            guiAdapter = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>(),
+        ).install(services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>())
+        ctx.commandMount("Astera-Combat").register(
+            com.astarworks.astera.combat.command.skillCommandSpec(
+                adminSkillCaster,
+                services.getOrThrow<com.astarworks.astera.core.adapter.api.server.IMcServer>(),
+            ),
+        )
 
         return CombatWiringResult(
             skillContents = skillContents,

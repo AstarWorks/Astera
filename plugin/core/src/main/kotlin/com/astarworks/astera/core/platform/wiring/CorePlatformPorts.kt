@@ -1,6 +1,5 @@
 package com.astarworks.astera.core.platform.wiring
 
-import com.astarworks.astera.core.adapter.api.hud.IBossBarManager
 import com.astarworks.astera.core.adapter.api.hud.IScoreboardManager
 import com.astarworks.astera.core.adapter.api.hud.ITabList
 import com.astarworks.astera.core.adapter.api.server.IMcServer
@@ -59,7 +58,6 @@ public class CorePlatformPorts(
     /** Required: GUI rendering has no in-memory default. Built before the wiring registers [IGuiBindingResolver]. */
     public val guiAdapter: GuiAdapterFactory,
     // ---- HUD ------------------------------------------------------------
-    public val bossBarManager: IBossBarManager? = null,
     public val scoreboardManager: ((ServiceRegistry) -> IScoreboardManager)? = null,
     public val tabList: ((ServiceRegistry) -> ITabList)? = null,
     public val hudGateway: ((ServiceRegistry) -> IHudGateway)? = null,

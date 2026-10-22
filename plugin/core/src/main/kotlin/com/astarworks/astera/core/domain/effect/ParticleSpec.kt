@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.geometry.Vec3
  * `count > 0`: spawn [count] particles scattered by [offset] (per-axis spread), speed
  * [extra]. `count == 0`: vanilla's "directional" form, a single particle whose velocity
  * is [offset] scaled by [extra] (flames shooting outwards). [color] / [scale] select
- * `Particle.DUST` options (ADR-0187).
+ * `Particle.DUST` options (ADR-0190).
  */
 public data class ParticleSpec(
     val key: String,

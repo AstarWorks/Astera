@@ -2,6 +2,7 @@ package com.astarworks.astera.match.application.usecase.match
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.event.PlayerEnteredMatch
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -24,7 +25,6 @@ import org.slf4j.LoggerFactory
  */
 public class EntryGameUseCase(
     private val matches: IMatchRepository,
-    @Suppress("UnusedPrivateProperty")
     private val eventBus: IDomainEventBus,
     private val spawn: MatchSpawnUseCase? = null,
 ) {
@@ -50,6 +50,7 @@ public class EntryGameUseCase(
         val targetTeam = teamId ?: match.teams.minByOrNull { it.members.size }?.id
         val updated = match.addParticipant(playerId, targetTeam)
         matches.save(updated)
+        eventBus.publish(PlayerEnteredMatch(matchId, playerId))
 
         if (spawn != null) {
             val outcome = spawn.spawnPlayer(matchId, playerId)

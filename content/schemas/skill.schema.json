@@ -42,6 +42,9 @@
         "charge_ticks": {
             "type": "integer"
         },
+        "ready_cue": {
+            "type": "boolean"
+        },
         "tags": {
             "type": "array",
             "items": {
@@ -231,16 +234,157 @@
                 "trail": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.AnimatedShapeYaml"
                     }
                 },
-                "trail_interval_ticks": {
-                    "type": "integer"
+                "trail_spacing": {
+                    "type": "number"
                 },
                 "display": {
                     "$ref": "#/definitions/com.astarworks.astera.combat.application.config.SkillParamsYaml.ProjectileDisplayYaml"
                 }
             }
+        },
+        "com.astarworks.astera.core.application.config.ColorDto": {
+            "type": "object",
+            "properties": {
+                "r": {
+                    "type": "integer"
+                },
+                "g": {
+                    "type": "integer"
+                },
+                "b": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "r",
+                "g",
+                "b"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.AnimatedParticleYaml": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "extra": {
+                    "type": "number"
+                },
+                "offset": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.Vec3Yaml"
+                },
+                "delay_ticks": {
+                    "type": "integer"
+                },
+                "color": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.ColorDto"
+                },
+                "scale": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "id"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.AnimatedShapeYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "circle"
+                        },
+                        "delay_ticks": {
+                            "type": "integer"
+                        },
+                        "amount": {
+                            "type": "integer"
+                        },
+                        "angle": {
+                            "type": "string",
+                            "enum": [
+                                "raw",
+                                "horizontal",
+                                "vertical",
+                                "random"
+                            ]
+                        },
+                        "particles": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.AnimatedParticleYaml"
+                            }
+                        },
+                        "period_ticks": {
+                            "type": "integer"
+                        },
+                        "speed": {
+                            "type": "integer"
+                        },
+                        "acceleration": {
+                            "type": "integer"
+                        },
+                        "min_radius": {
+                            "type": "number"
+                        },
+                        "max_radius": {
+                            "type": "number"
+                        },
+                        "repeat_radius_acceleration": {
+                            "type": "boolean"
+                        },
+                        "radius_acceleration": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "particles"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "point"
+                        },
+                        "delay_ticks": {
+                            "type": "integer"
+                        },
+                        "amount": {
+                            "type": "integer"
+                        },
+                        "angle": {
+                            "type": "string",
+                            "enum": [
+                                "raw",
+                                "horizontal",
+                                "vertical",
+                                "random"
+                            ]
+                        },
+                        "particles": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.AnimatedParticleYaml"
+                            }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "particles"
+                    ]
+                }
+            ]
         },
         "com.astarworks.astera.core.application.config.skill.BindingRefYaml": {
             "type": "object",
@@ -1649,8 +1793,11 @@
                         "targets": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
                         },
-                        "animation_id": {
-                            "type": "string"
+                        "animation": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.AnimatedShapeYaml"
+                            }
                         },
                         "delay_ticks": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
@@ -1668,7 +1815,7 @@
                     "required": [
                         "type",
                         "targets",
-                        "animation_id"
+                        "animation"
                     ]
                 },
                 {

@@ -182,6 +182,8 @@ class LobbyGameSplitScenarioTest {
 
             val matches = game.services.getOrThrow<IMatchRepository>()
             val lifecycle = game.services.getOrThrow<IMatchLifecycle>()
+            // F3-12: entry snapshotted what arrived from the lobby; the match kit must not travel back.
+            checkNotNull(game.inventory).put(player.id, "match-kit")
             lifecycle.end(matches.findActiveMatches().single().id, EndReason.AdminEnded)
             network.step(8 * 20 + 40)
 

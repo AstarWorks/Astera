@@ -3,8 +3,6 @@ package com.astarworks.astera.core.application.service
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.HudShown
 import com.astarworks.astera.core.domain.event.HudUpdated
-import com.astarworks.astera.core.domain.hud.BossBarColor
-import com.astarworks.astera.core.domain.hud.BossBarStyle
 import com.astarworks.astera.core.domain.hud.HudChannelPolicy
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
@@ -49,13 +47,7 @@ class HudChannelOwnershipTest {
     private fun toast(text: String) =
         HudLayout.ActionBar(HudComponent.Text(MessageKey(text)), ttlTicks = 50, priority = 1)
 
-    private fun bossBar(text: String) = HudLayout.BossBarSlot(
-        slot = 1,
-        component = HudComponent.Text(MessageKey(text)),
-        color = BossBarColor.WHITE,
-        style = BossBarStyle.PROGRESS,
-        progress = 0.5f,
-    )
+    private fun subtitle(text: String) = HudLayout.Subtitle(HudComponent.Text(MessageKey(text)))
 
     private fun sidebar(text: String) = HudLayout.Sidebar(
         titleKey = MessageKey("t"),
@@ -64,8 +56,8 @@ class HudChannelOwnershipTest {
 
     @Test
     fun `showing into an occupied region replaces the handle instead of stacking a second one`() {
-        val first = (gateway.showFor(alice, bossBar("a")) as Result.Success).value
-        val second = (gateway.showFor(alice, bossBar("b")) as Result.Success).value
+        val first = (gateway.showFor(alice, subtitle("a")) as Result.Success).value
+        val second = (gateway.showFor(alice, subtitle("b")) as Result.Success).value
 
         assertThat(second).isEqualTo(first)
         assertThat(gateway.activeFor(alice)).hasSize(1)
@@ -75,10 +67,10 @@ class HudChannelOwnershipTest {
 
     @Test
     fun `different regions and different players do not share a handle`() {
-        gateway.showFor(alice, bossBar("a"))
+        gateway.showFor(alice, subtitle("a"))
         gateway.showFor(alice, sidebar("s"))
         gateway.showFor(alice, readout("r"))
-        gateway.showFor(bob, bossBar("a"))
+        gateway.showFor(bob, subtitle("a"))
 
         assertThat(gateway.activeFor(alice)).hasSize(3)
         assertThat(gateway.activeFor(bob)).hasSize(1)
@@ -123,8 +115,8 @@ class HudChannelOwnershipTest {
 
     @Test
     fun `the fake gateway follows the same channel rules`() {
-        val first = (fake.showFor(alice, bossBar("a")) as Result.Success).value
-        val second = (fake.showFor(alice, bossBar("b")) as Result.Success).value
+        val first = (fake.showFor(alice, subtitle("a")) as Result.Success).value
+        val second = (fake.showFor(alice, subtitle("b")) as Result.Success).value
         assertThat(second).isEqualTo(first)
         assertThat(fake.activeFor(alice)).hasSize(1)
 
@@ -147,7 +139,7 @@ class HudChannelOwnershipTest {
     @Test
     fun `region mapping covers every layout`() {
         assertThat(readout("r").region()).isEqualTo(HudRegion.ACTION_BAR)
-        assertThat(bossBar("b").region()).isEqualTo(HudRegion.BOSS_BAR_SLOT_1)
+        assertThat(subtitle("b").region()).isEqualTo(HudRegion.SUBTITLE)
         assertThat(sidebar("s").region()).isEqualTo(HudRegion.SIDEBAR)
     }
 }

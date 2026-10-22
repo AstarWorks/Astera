@@ -99,6 +99,11 @@ astera:
   stats.xp.invalid-amount: "<red>無効な XP 量です。</red>"
   tutorial.error: "<red>チュートリアルエラー: {error}</red>"
   tutorial.no_active: "<yellow>進行中のチュートリアルはありません。</yellow>"
+  skill.list.header: "<gold>スキル {count} 件:</gold>"
+  skill.list.entry: "<gray> - <white>{id}</white> ({archetype}、クールダウン {cooldown}t)</gray>"
+  skill.cast.ok: "<green>{player} に <white>{skill}</white> を発動しました。</green>"
+  skill.cast.need-target: "<red>プレイヤーを指定してください: /astera skill cast <skill-id> <player></red>"
+  skill.cast.no-player: "<red>プレイヤー <gold>{player}</gold> はオフラインか存在しません。</red>"
 
   command:
     give:
@@ -153,6 +158,9 @@ astera:
       match-replay-export: "保存済みリプレイをファイルへ出力"
       items: "アイテム"
       items-give: "プレイヤーにアイテムを渡す"
+      skill: "スキルを直接発動"
+      skill-list: "登録済みスキルの一覧"
+      skill-cast: "スキルを発動（リソース消費なし、--force でクールダウン無視）"
       economy: "通貨"
       economy-balance: "残高を表示（既定は自分）"
       economy-grant: "プレイヤーに通貨を付与"
@@ -161,6 +169,7 @@ astera:
       stats: "プレイヤー統計"
       stats-show: "統計を表示（既定は自分）"
       stats-leaderboard: "シーズンのランキングを表示"
+      stats-last: "直近の試合を表示"
       stats-xp: "XP 操作"
       stats-xp-grant: "プレイヤーに XP を付与"
       friend: "フレンド"
@@ -721,6 +730,37 @@ astera:
         sudden-death: "<gray>サドンデスで決着。</gray>"
         objective: "<gray>目標達成により終了。</gray>"
         cancelled: "<gray>マッチがキャンセルされました。</gray>"
+        world-unloaded: "<gray>マッチのワールドがアンロードされました。</gray>"
+    # F3-4 — 試合終了時のリザルト画面（チャット部分）。ロビーへ戻る前に表示。
+    result:
+      score:
+        label: "<gray>スコア</gray>  {scores}"
+        team: "<{color}>{team}</{color}> <white><bold>{score}</bold></white>"
+      top:
+        header: "<gray>トッププレイヤー</gray> <dark_gray>(キル / デス / アシスト、目標)</dark_gray>"
+        entry: " <yellow>{rank}.</yellow> <{color}>{name}</{color}> <white>{kills}</white><gray>/</gray><white>{deaths}</white><gray>/</gray><white>{assists}</white> <dark_gray>|</dark_gray> <white>{objective}</white>{mvp}"
+      mvp-tag: " <gold>[MVP]</gold>"
+      mvp: "<gold><bold>MVP:</bold></gold> <{color}>{name}</{color}> <gray>({kills} / {deaths} / {assists})</gray>"
+      you: "<aqua>あなた:</aqua> <white>{kills}</white> <gray>キル</gray>、<white>{deaths}</white> <gray>デス</gray>、<white>{assists}</white> <gray>アシスト</gray>、<white>{objective}</white> <gray>目標</gray>"
+    # F3-4 — 試合終了時に支払われる報酬の内訳 (match-rewards.yaml)。
+    reward:
+      header: "<gold>-- 報酬 --</gold>"
+      none: "<gray>今回の試合の報酬はありません。</gray>"
+      line: " <gray>{label}</gray> <dark_gray>></dark_gray> {amounts}"
+      total: "<gold><bold>合計</bold></gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      level: "<aqua>レベル {level}</aqua> <gray>(次のレベルまで {into} / {next} XP)</gray>"
+      levelup: "<green><bold>レベルアップ！</bold></green> <white>{from}</white> <gray>-></gray> <white>{to}</white>"
+      amount:
+        star: "<yellow>+{amount} STAR</yellow>"
+        gold: "<gold>+{amount} GOLD</gold>"
+        xp: "<aqua>+{amount} XP</aqua>"
+      kind:
+        participation: "参加ボーナス"
+        result: "試合結果"
+        kills: "キル x{count}"
+        assists: "アシスト x{count}"
+        objectives: "目標 x{count}"
+        mvp: "MVP ボーナス"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — 切断保留中の再接続猶予
     # ActionBar カウントダウン。
     reconnect:
@@ -770,8 +810,7 @@ astera:
     cast:
       insufficient:
         ammo: "弾切れ - Qでリロード"
-        mana: "マナが足りない"
-        stamina: "スタミナが足りない"
+        energy: "エネルギーが足りない"
       reloading: "リロード中..."
       ammo_full: "弾倉は満タン"
       not_reloadable: "このアイテムはリロードできない"
@@ -825,10 +864,6 @@ astera:
   # Wave 5b HUD リファレンス設計 (ADR-0031)。Wave 6 Paper 実装が widget を
   # 配線する際に使えるよう、ここで keys を予約する。
   hud:
-    bossbar:
-      match:
-        phase: "<gold>フェーズ：</gold> <white>{phase}</white>"
-        time_remaining: "<gold>残り時間：</gold> <white>{time}</white>"
     scoreboard:
       match:
         title: "<gold><bold>試合</bold></gold>"
@@ -841,33 +876,37 @@ astera:
       streak: "<gold>コンボ x{streak}</gold>"
     leveled-up:
       title: "<yellow><bold>レベル{level}！</bold></yellow>"
-    mana:
-      value: "<aqua>{mana}</aqua>"
     star:
       count: "<gold>{count}</gold>"
     mining:
       progress: "<gray>採掘中...</gray>"
     # WP14 (ADR-0177) — HUD チャンネルは 1 つにつき持ち主 1 つ (docs/adr/0177-*)。
-    #   アクションバー: 戦闘表示 (クールダウン + 状態異常)、通知が優先
-    #   ボスバー 1: 武器リソース   サイドバー: 試合 / ロビー
+    #   アクションバー: 戦闘表示 (状態異常; クールダウンアイコンはステータス行 (ADR-0197))、通知が優先
+    #   満腹度バー: エネルギー (F2-2, ADR-0194)   ステータス行: HP + 弾薬   サイドバー: 試合 / ロビー
     cooldown:
-      summary: "<aqua>クールダウン:</aqua> <white>{count} 件 ({seconds}秒)</white>"
+      lc:
+        waiting: "<gray>左</gray> <white>{seconds}秒</white>"
+        ready: "<green>左 可</green>"
+      rc:
+        waiting: "<gray>右</gray> <white>{seconds}秒</white>"
+        ready: "<green>右 可</green>"
+      sneak-lc:
+        waiting: "<gray>スニーク+左</gray> <white>{seconds}秒</white>"
+        ready: "<green>スニーク+左 可</green>"
+      sneak-rc:
+        waiting: "<gray>スニーク+右</gray> <white>{seconds}秒</white>"
+        ready: "<green>スニーク+右 可</green>"
+      q:
+        waiting: "<gray>Q</gray> <white>{seconds}秒</white>"
+        ready: "<green>Q 可</green>"
     currency:
       summary: "<gold>{delta} {currency}</gold> <gray>(所持 {balance})</gray>"
-    resource:
-      mana:
-        label: "<aqua>マナ:</aqua> <white>{remaining}/{max}</white>"
-      stamina:
-        label: "<yellow>スタミナ:</yellow> <white>{remaining}/{max}</white>"
-      ammo:
-        label: "<white>弾薬:</white> <white>{remaining}/{max}</white>"
-        empty: "<red>弾切れ - リロード！</red> <white>{remaining}/{max}</white>"
-        reloading: "<yellow>リロード中...</yellow>"
-        reloaded: "<green>リロード完了</green> <white>{remaining}/{max}</white>"
     status:
       stacks: "<gray>x{stacks}</gray>"
       # ADR-0182 — リソースパック未適用時の文字表示 HP。
       hp: "<red>HP</red> <white>{current}/{max}</white>"
+      # F2-2 (ADR-0194) - 銃を持っていてパック未適用のときのテキスト表示。
+      hp-ammo: "<red>HP</red> <white>{current}/{max}</white>  <yellow>弾</yellow> <white>{ammo}/{ammoMax}</white>"
     resource-pack:
       prompt: "<gold>Astera リソースパック</gold> <gray>- 専用 HP バー・アイテムモデル・サウンド</gray>"
     sidebar:
@@ -961,6 +1000,20 @@ astera:
       kills-100:
         name: "<gold>英雄</gold>"
         description: "<gray>キル数 100。</gray>"
+
+    # F3-4 — 「直近の試合」カード: /astera stats last とロビー復帰時のまとめ。
+    last:
+      none: "<gray>まだ試合をプレイしていません。</gray>"
+      recap: "<dark_aqua>== 直近の試合 ==</dark_aqua>"
+      header:
+        win: "<gold><bold>勝利</bold></gold> <gray>{mode} ・ {ago}前</gray>"
+        lose: "<dark_red><bold>敗北</bold></dark_red> <gray>{mode} ・ {ago}前</gray>"
+        draw: "<gray><bold>引き分け</bold></gray> <gray>{mode} ・ {ago}前</gray>"
+      score: "<gray>スコア:</gray> <white>{scores}</white>"
+      you: "<aqua>あなた:</aqua> <white>{kills}</white> <gray>キル</gray>、<white>{deaths}</white> <gray>デス</gray>、<white>{assists}</white> <gray>アシスト</gray>、<white>{objective}</white> <gray>目標</gray>"
+      mvp: "<gold>あなたが MVP でした！</gold>"
+      rewards: "<gold>報酬</gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      level: "<aqua>レベル {level}</aqua> <gray>(次のレベルまで {into} / {next} XP)</gray>"
 
     # Wave 5flex (ADR-0102) — マッチネームプレートのマイルストーン表示。
     milestone:
@@ -1477,6 +1530,31 @@ astera:
       critical:
         broadcast: "<dark_red><bold>[Astera Critical]</bold></dark_red> <red>サーバー側で重大なエラーが発生しました。コンソールまたは /astera admin audit を確認してください。</red>"
     panel:
+      "skills.title": "管理: スキル"
+      "skills.hub": "<gold>スキル</gold>"
+      "skills.hub.lore": "<gray>任意のスキルを発動。Shift クリックでスキルテスター。</gray>"
+      "skills.tab.all": "{mark} <white>全スキル</white> <gray>({count})</gray>"
+      "skills.tab.projectile": "{mark} <white>飛び道具</white> <gray>({count})</gray>"
+      "skills.tab.melee": "{mark} <white>近接</white> <gray>({count})</gray>"
+      "skills.tab.aoe": "{mark} <white>範囲</white> <gray>({count})</gray>"
+      "skills.tab.buff": "{mark} <white>バフ</white> <gray>({count})</gray>"
+      "skills.tab.teleport": "{mark} <white>テレポート</white> <gray>({count})</gray>"
+      "skills.tab.summon": "{mark} <white>召喚</white> <gray>({count})</gray>"
+      "skills.tab.lore": "<gray>クリックで絞り込み。</gray>"
+      "skills.entry.name": "<yellow>{id}</yellow>"
+      "skills.entry.info": "<gray>{archetype} / クールダウン {cooldown} tick</gray>"
+      "skills.entry.hint": "<green>クリック: 今すぐ発動</green>"
+      "skills.entry.hint-shift": "<aqua>Shift クリック: スキルテスターを入手</aqua>"
+      "skills.empty": "<gray>スキルが読み込まれていません。</gray>"
+      "skills.tester-given": "<green><white>{skill}</white> のスキルテスターを渡しました。右クリックで発動。</green>"
+      "skills.err.unknown": "<red>不明なスキル <gold>{skill}</gold></red>"
+      "skills.err.cooldown": "<red><gold>{skill}</gold> はクールダウン中です（あと {seconds} 秒、--force で無視）。</red>"
+      "skills.err.silenced": "<red>沈黙状態です。</red>"
+      "skills.err.cast": "<red><gold>{skill}</gold> を発動できませんでした。</red>"
+      "skills.err.no-items": "<red>items プラグインが利用できません。</red>"
+      "skills.err.no-template": "<red>content/items/skill-tester.yaml がありません。</red>"
+      "skills.err.full": "<red>インベントリが満杯です。</red>"
+      "skills.err.delivery": "<red><gold>{skill}</gold> のテスターを渡せませんでした。</red>"
       "denied": "<red>管理パネルの利用には <gold>{permission}</gold> が必要です。</red>"
       "command.root": "<gray>管理パネルを開きます（武器・試合・プレイヤー・サーバー・自分用ツール）。</gray>"
       "nav.back": "<yellow>管理ハブへ戻る</yellow>"
@@ -1604,8 +1682,8 @@ astera:
       "combat.tile.god.lore": "<gray>Astera のダメージ処理で無効化されます。</gray>"
       "combat.tile.cooldowns": "<yellow>クールダウン解除</yellow>"
       "combat.tile.cooldowns.lore": "<gray>進行中のクールダウンを全てリセットします。</gray>"
-      "combat.tile.refill": "<green>弾薬・マナ補充</green>"
-      "combat.tile.refill.lore": "<gray>弾薬・マナ・スタミナを満タンにします。</gray>"
+      "combat.tile.refill": "<green>弾薬・エネルギー補充</green>"
+      "combat.tile.refill.lore": "<gray>弾薬とエネルギーを満タンにします。</gray>"
       "combat.healed": "<green><white>{player}</white> を全回復しました。</green>"
       "combat.statuses-cleared": "<green><white>{player}</white> の状態異常を解除しました。</green>"
       "combat.cooldowns-cleared": "<green>{player} のクールダウンを <white>{count}</white> 件解除しました。</green>"

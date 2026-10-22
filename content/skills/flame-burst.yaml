@@ -15,7 +15,7 @@ description:
 
 archetype: projectile
 cooldown_ticks: 80
-resource_cost: 25              # mana
+resource_cost: 25              # energy
 tags: [ ranged, fire-family, aoe ]
 
 params:
@@ -23,7 +23,11 @@ params:
   launch_speed: 1.4
   max_lifetime_ticks: 50
   visual:
-    trail: [ fire-trail, fire-smoke ]
+    trail:
+      - type: point
+        particles:
+          - { id: flame, count: 2, extra: 0.01, offset: { x: 0.06, y: 0.06, z: 0.06 } }
+          - { id: smoke, extra: 0.01, offset: { x: 0.05, y: 0.05, z: 0.05 } }
     display: { variant: item, material: minecraft:fire_charge, scale: 0.6 }
 
 phases:

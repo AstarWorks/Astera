@@ -13,7 +13,7 @@ description:
 
 archetype: melee
 cooldown_ticks: 8
-resource_cost: 8               # stamina
+resource_cost: 8               # energy
 tags: [ melee, physical, sustain, bleed ]
 
 params:

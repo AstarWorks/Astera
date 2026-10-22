@@ -11,7 +11,7 @@ import com.astarworks.astera.core.domain.hud.HudLayout
  * design: the Wave 5j gateway re-sends the layout on every coin pickup;
  * the client TTL handles the fade-out automatically.
  *
- * Composition mirrors [manaBarHud] but ActionBar instead of BossBar:
+ * Composition:
  *  1. star icon glyph (`hud/currency/star-icon` — a 10-px PUA glyph in
  *     the resource pack, see `content/hud/star-counter.json`),
  *  2. 2-px spacer,

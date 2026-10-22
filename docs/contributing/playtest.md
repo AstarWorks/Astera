@@ -101,7 +101,7 @@ Ops (and anyone with `astera.admin.panel`) get a chest-GUI hub:
 | Match control | Active matches (mode, stage, phase, players, time): click = next phase, right-click = end, shift-click = abort. Queue lanes: click = force start now (ignores min players and countdowns), right-click = start the lane with just you. |
 | Players | Online heads, then per player: teleport to / bring, toggle gamemode, heal (Astera HP), clear statuses, give currency (presets), kick (shift-click). |
 | Server | Reload all content, validate content (issue count in chat), maintenance toggle, health summary. |
-| Self tools | God mode, fly, heal, clear cooldowns, refill ammo/mana. |
+| Self tools | God mode, fly, heal, clear cooldowns, refill ammo/energy. |
 
 Every action is permission-checked per click and written to the audit log.
 The quickest solo test loop: `/astera admin panel` -> Weapons & items -> Full kit ->

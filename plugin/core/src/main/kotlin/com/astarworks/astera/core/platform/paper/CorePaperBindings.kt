@@ -35,7 +35,6 @@ import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.platform.wiring.CorePlatformPorts
 import com.astarworks.astera.core.platform.wiring.CoreWiringResult
 import com.astarworks.astera.core.platform.wiring.GuiAdapterFactory
-import com.astarworks.astera.core.platform.wiring.LiveSnapshotRepository
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -105,11 +104,6 @@ internal class CorePaperBindings(
 
         val broadcaster = buildBroadcaster(scheduler)
 
-        // Wave 6b-2 (ADR-0157): Adventure API (Paper-bundled) is the rendering
-        // substrate of the HUD adapters. PaperHudGateway shares this manager.
-        val paperBossBarManager = com.astarworks.astera.core.adapter.paper.hud
-            .PaperBossBarManager(server, scheduler)
-
         return CorePlatformPorts(
             mcServer = mcServer,
             scheduler = scheduler,
@@ -123,7 +117,6 @@ internal class CorePaperBindings(
                     messages = messages,
                 ).also { paperGuiAdapter = it }
             },
-            bossBarManager = paperBossBarManager,
             // Wave 6c-stub-packetevents-B (ADR-0171): per-viewer scoreboard locale.
             // The PE-backed sender is constructed strictly inside the
             // packetEventsInstalled gate; without PE the scoreboards get null and
@@ -155,7 +148,6 @@ internal class CorePaperBindings(
                     server = server,
                     messageRenderer = services.getOrThrow<IMessageRenderer>(),
                     scheduler = scheduler,
-                    bossBarManager = paperBossBarManager,
                     scoreboardManager = services.getOrThrow<com.astarworks.astera.core.adapter.api.hud.IScoreboardManager>(),
                     eventBus = services.getOrThrow<IDomainEventBus>(),
                 )
@@ -174,6 +166,8 @@ internal class CorePaperBindings(
                     eventBus = deps.services.getOrThrow<IDomainEventBus>(),
                     customBlockRegistry = deps.customBlocks,
                     durabilityRule = deps.durabilityRule,
+                    // ADR-0195: the final journal (Postgres overlay when present), not the constructor default.
+                    journal = deps.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository>(),
                 )
                 // Wave 6c §B (ADR-0160) introduced PaperBlockStateGateway.warmUp(WorldId)
                 // to rehydrate the in-memory tracker from the persistent
@@ -449,8 +443,11 @@ internal class CorePaperBindings(
             intents = result.guiIntentRouter,
             mcServer = mcServer,
             inMatch = { playerId ->
-                ctx.services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
-                    ?.isHeld(playerId) ?: false
+                com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy.inMatch(
+                    snapshotHeld = ctx.services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
+                        ?.isHeld(playerId) ?: false,
+                    membershipPhase = ctx.services.get<IMatchRepository>()?.findMatchOf(playerId)?.phase,
+                )
             },
         )
         server.pluginManager.registerEvents(menuKit, plugin)

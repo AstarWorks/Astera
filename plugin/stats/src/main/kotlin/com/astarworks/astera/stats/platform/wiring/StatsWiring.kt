@@ -57,7 +57,6 @@ import com.astarworks.astera.stats.application.port.outbound.INormaService
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
 import com.astarworks.astera.stats.application.eventbus.listeners.AdvanceLevelOnNormaCompletedListener
-import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnMatchEndedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.RewardOnMissionCompletedListener
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnDamageMilestoneListener
 import com.astarworks.astera.stats.application.eventbus.listeners.UnlockAchievementOnKillMilestoneListener
@@ -74,7 +73,9 @@ import com.astarworks.astera.stats.application.service.nameplate.InMemoryNamepla
 import com.astarworks.astera.stats.application.service.nameplate.NameplateBadgeRegistry
 import com.astarworks.astera.stats.application.usecase.nameplate.RecomputeNameplateBadgeUseCase
 import com.astarworks.astera.stats.domain.event.AchievementUnlocked
+import com.astarworks.astera.stats.application.port.outbound.IPlayerXpRepository
 import com.astarworks.astera.stats.application.service.InMemoryLevelService
+import com.astarworks.astera.stats.application.service.InMemoryPlayerXpRepository
 import com.astarworks.astera.stats.application.usecase.achievement.UnlockAchievementUseCase
 import com.astarworks.astera.stats.domain.event.MissionCompleted
 import com.astarworks.astera.stats.application.service.InMemoryNormaProgressRepository
@@ -138,7 +139,12 @@ public object StatsWiring {
                 ?: InMemoryPlayerStatsRepository().also {
                     registrations += services.register<IPlayerStatsRepository>(it, priority = 0)
                 }
-        val levelService = InMemoryLevelService()
+        val xpRepository: IPlayerXpRepository =
+            services.get<IPlayerXpRepository>()
+                ?: InMemoryPlayerXpRepository().also {
+                    registrations += services.register<IPlayerXpRepository>(it, priority = 0)
+                }
+        val levelService = InMemoryLevelService(xpRepository)
 
         // Wave 4.5 (ADR-0027): Norma progress is now persisted via repository.
         // Postgres impl overlays at priority 100 when Astera-Persistence is loaded.
@@ -251,14 +257,12 @@ public object StatsWiring {
         )
         // Reward 2-server flow: enqueue bundles on match-end / mission-complete.
         val rewardBridge = services.getOrThrow<IRewardBridge>()
-        val rewardOnMatchEnded = RewardOnMatchEndedListener(matchRepository, rewardBridge)
         val rewardOnMissionCompleted = RewardOnMissionCompletedListener(rewardBridge)
 
         subscriptions += eventBus.subscribe(PlayerKilled::class) { killMilestoneListener.handle(it) }
         subscriptions += eventBus.subscribe(DamageDealt::class) { damageMilestoneListener.handle(it) }
         subscriptions += eventBus.subscribe(MatchEnded::class) { matchWinMilestoneListener.handle(it) }
         subscriptions += eventBus.subscribe(MissionCompleted::class) { advanceLevelOnNormaListener.handle(it) }
-        subscriptions += eventBus.subscribe(MatchEnded::class) { rewardOnMatchEnded.handle(it) }
         subscriptions += eventBus.subscribe(MissionCompleted::class) { rewardOnMissionCompleted.handle(it) }
 
         // ---- Wave 5p Advancement progress fan-out (ADR-0088) ------------
@@ -433,6 +437,19 @@ public object StatsWiring {
             priority = 0,
         )
 
+        // F3-4: back in the lobby, recap the match the player just finished (once).
+        if (ctx.serverRole.hostsLobby) {
+            val recapOnJoin = com.astarworks.astera.stats.application.eventbus.listeners.ShowLastMatchRecapOnJoinListener(
+                lastMatches = { services.get<com.astarworks.astera.core.application.port.outbound.ILastMatchStore>() },
+                messages = messages,
+                playerGateway = playerGateway,
+                scheduler = scheduler,
+            )
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) {
+                recapOnJoin.handle(it)
+            }
+        }
+
         // 7. `/astera stats show|leaderboard|xp grant` (ADR-0184).
         com.astarworks.astera.stats.command.StatsCommands(
             grantXp = grantXp,
@@ -440,6 +457,7 @@ public object StatsWiring {
             queryLeaderboard = queryLeaderboard,
             players = playerGateway,
             permissions = { services.getOrThrow<IPermissionService>() },
+            lastMatches = { services.get<com.astarworks.astera.core.application.port.outbound.ILastMatchStore>() },
         ).build().forEach { commands.register("stats", it) }
 
         return StatsWiringResult(grantXp = grantXp, shutdownHooks = shutdownHooks.toList())

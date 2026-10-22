@@ -39,7 +39,6 @@ class CombatE2eTest : E2eBase() {
 
         val hpBefore = b.actionBars.lastOrNull()?.text
         val healthBefore = b.health
-        val barEventsBefore = a.bossBarEvents.size
         repeat(4) {
             a.useItem(0f, 0f)
             Thread.sleep(900)
@@ -58,15 +57,12 @@ class CombatE2eTest : E2eBase() {
             "actionbar before='${visible(hpBefore.orEmpty())}' after='${visible(hpAfter.orEmpty())}'; vanilla health $healthBefore -> ${b.health}; server: $sv"
         }
 
-        E2eReport.check(suite, "boss bar shows ammo and it decreases", "ClientboundBossEvent") {
-            val events = a.bossBarEvents.drop(0)
-            assertThat(a.bossBars).describedAs("no boss bar at all; events=$events").isNotEmpty()
-            val bar = a.bossBars.values.first()
-            val titles = bar.titles.map { visible(it) }.distinct()
-            assertThat(a.bossBarEvents.size).describedAs("boss bar never updated after shooting").isGreaterThan(barEventsBefore)
-            assertThat(bar.progresses.distinct().size + titles.size)
-                .describedAs("boss bar progress/title never changed; titles=$titles progress=${bar.progresses}").isGreaterThan(2)
-            "titles=$titles\nprogress history=${bar.progresses}\nevents:\n${quote(a.bossBarEvents)}"
+        // ADR-0194: no boss bars; ammo is part of the shooter's HP status line.
+        E2eReport.check(suite, "status line shows ammo and it decreases; no boss bar", "action bar / ClientboundBossEvent") {
+            assertThat(a.bossBars).describedAs("boss bar must not be used (ADR-0194); events=${a.bossBarEvents}").isEmpty()
+            val lines = a.actionBars.map { visible(it.text) }.distinct()
+            assertThat(lines.size).describedAs("shooter status line never changed while shooting; lines=$lines").isGreaterThan(1)
+            "status lines=$lines"
         }
     }
 }

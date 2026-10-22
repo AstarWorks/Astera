@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySna
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
+import com.astarworks.astera.core.domain.event.PlayerEnteredMatch
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
@@ -105,6 +106,27 @@ class MatchInventorySnapshotListenerTest {
 
         assertThat(inventories.live[red]!!.hotbar[0]).isEqualTo(InventoryItemSlot.ContentItem("lobby-item", 1))
         assertThat(snapshots.findLatest(blue)!!.hotbar[0]).isEqualTo(InventoryItemSlot.ContentItem("lobby-item", 1))
+    }
+
+    @Test
+    fun `a player entering after start is snapshotted once and restored at end`() {
+        val team = Team(TeamId("t"), MessageKey("t"), MessageKey("t.c"), emptySet())
+        val match = Match(matchId, MatchPhase.WAITING, listOf(team), Score(mapOf(team.id to 0)), StageId("arena"), 0L)
+        val l = MatchInventorySnapshotListener({ inventories }, SaveInventorySnapshotUseCase(snapshots)) { FakeMatches(match) }
+        inventories.live[red] = inventoryOf(red, "lobby-item")
+
+        l.handleStarted(started) // empty teams capture nobody
+        assertThat(l.isHeld(red)).isFalse()
+
+        l.handleEntered(PlayerEnteredMatch(matchId, red))
+        inventories.live[red] = inventoryOf(red, "match-kit")
+        l.handleEntered(PlayerEnteredMatch(matchId, red)) // duplicate must not overwrite the entry snapshot
+        assertThat(l.isHeld(red)).isTrue()
+
+        l.handleEnded(ended)
+
+        assertThat(inventories.live[red]!!.hotbar[0]).isEqualTo(InventoryItemSlot.ContentItem("lobby-item", 1))
+        assertThat(l.isHeld(red)).isFalse()
     }
 
     @Test

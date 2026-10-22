@@ -27,10 +27,8 @@ attributes:
 
 equip_slot: mainhand
 
-resource_type: mana
+resource_type: energy
 resource_cost_per_use: 6
-resource_max_pool: 80
-resource_regen_per_second: 6.0
 
 skills:
   - trigger: right_click

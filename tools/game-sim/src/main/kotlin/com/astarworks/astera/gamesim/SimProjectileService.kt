@@ -44,7 +44,7 @@ public class SimProjectileService(
     worldGateway: () -> IWorldGateway? = { null },
 ) : IProjectileService {
 
-    private val stepper = ProjectileStepper(resolver, worldGateway)
+    private val stepper = ProjectileStepper(resolver)
 
     private val flights: MutableList<ProjectileFlight> = mutableListOf()
 
@@ -85,6 +85,7 @@ public class SimProjectileService(
     private inner class Handle(private val flight: ProjectileFlight) : IProjectileHandle {
         override val id: ProjectileId get() = flight.id
         override val isAlive: Boolean get() = flights.any { it === flight }
+        override val position: Vec3? get() = flight.position
         override fun cancel() {
             if (!flights.remove(flight)) return
             recorder.recordProjectileEvent(

@@ -15,7 +15,7 @@ description:
 
 archetype: projectile
 cooldown_ticks: 30
-resource_cost: 8               # mana
+resource_cost: 8               # energy
 tags: [ ranged, ice-family, slow ]
 
 params:
@@ -23,7 +23,11 @@ params:
   launch_speed: 2.2
   max_lifetime_ticks: 50
   visual:
-    trail: [ frost-trail, frost-dust ]
+    trail:
+      - type: point
+        particles:
+          - { id: snowflake, count: 3, extra: 0.01, offset: { x: 0.08, y: 0.08, z: 0.08 } }
+          - { id: dust, count: 2, offset: { x: 0.06, y: 0.06, z: 0.06 }, color: { r: 235, g: 245, b: 255 }, scale: 0.9 }
 
 phases:
   type: projectile

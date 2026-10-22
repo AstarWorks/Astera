@@ -83,7 +83,7 @@ public class PaperProjectileService(
      */
     private var impactResolver: ProjectileImpactResolver? = null
 
-    private val stepper = ProjectileStepper({ impactResolver }, { worldGateway })
+    private val stepper = ProjectileStepper({ impactResolver })
 
     private val probe = PaperProjectileProbe(server, teamLookup) { flight ->
         live.firstOrNull { it.flight === flight }?.world
@@ -218,6 +218,7 @@ public class PaperProjectileService(
 
     private inner class LiveHandle(override val id: ProjectileId, private val entry: Live) : IProjectileHandle {
         override val isAlive: Boolean get() = live.any { it === entry }
+        override val position: Vec3? get() = entry.flight.position
         override fun cancel() {
             if (live.remove(entry)) removeDisplay(entry)
         }

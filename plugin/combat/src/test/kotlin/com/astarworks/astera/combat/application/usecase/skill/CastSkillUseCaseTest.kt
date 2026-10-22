@@ -31,7 +31,9 @@ import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.item.Rarity
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.resource.ResourceType
+import com.astarworks.astera.core.domain.event.SkillCooldownStarted
 import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.core.domain.skill.SkillTrigger
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import com.astarworks.astera.testfixtures.FakeScheduler
 import org.assertj.core.api.Assertions.assertThat
@@ -190,7 +192,7 @@ class CastSkillUseCaseTest {
     private fun withResources(): Pair<CastSkillUseCase, InMemoryResourcePoolService> {
         val itemRegistry = ItemContents()
         itemRegistry.register(pistolId, item(pistolId, ResourceType.Ammo, cost = 1, max = 3, reloadable = true))
-        itemRegistry.register(staffId, item(staffId, ResourceType.Mana, cost = 40, max = 100))
+        itemRegistry.register(staffId, item(staffId, ResourceType.Energy, cost = 40, max = 100))
         val pool = InMemoryResourcePoolService(scheduler, eventBus, itemRegistry)
         pool.initialiseFor(casterId)
         val uc = CastSkillUseCase(
@@ -221,6 +223,28 @@ class CastSkillUseCaseTest {
     }
 
     @Test
+    fun `starting a cooldown publishes SkillCooldownStarted with the effective length and the input`() {
+        skillRegistry.register(spec) // cooldown_ticks = 40
+        val item = ItemId("wand")
+
+        useCase.execute(casterId, skillId, sourceItemId = item, cooldownOverrideTicks = 6, trigger = SkillTrigger.RIGHT_CLICK)
+
+        val started = eventBus.publishedOfType<SkillCooldownStarted>().single()
+        assertThat(started.playerId).isEqualTo(casterId)
+        assertThat(started.sourceItemId).isEqualTo(item)
+        assertThat(started.trigger).isEqualTo(SkillTrigger.RIGHT_CLICK)
+        assertThat(started.durationTicks).isEqualTo(6)
+        assertThat(started.reloadTicks).isNull()
+    }
+
+    @Test
+    fun `a skill without cooldown publishes no SkillCooldownStarted`() {
+        skillRegistry.register(spec.copy(cooldownTicks = 0))
+        useCase.execute(casterId, skillId)
+        assertThat(eventBus.publishedOfType<SkillCooldownStarted>()).isEmpty()
+    }
+
+    @Test
     fun `item cost per use is spent from the item's resource and an empty pool rejects the cast`() {
         val (uc, pool) = withResources()
         skillRegistry.register(spec.copy(cooldownTicks = 0))
@@ -244,14 +268,14 @@ class CastSkillUseCaseTest {
 
         val ok = uc.execute(casterId, skillId, sourceItemId = staffId)
         assertThat(ok).isInstanceOf(Result.Success::class.java)
-        assertThat(pool.currentPool(casterId)!!.mana).isEqualTo(30)
+        assertThat(pool.currentPool(casterId)!!.energy).isEqualTo(30)
 
         cooldownTracker.reset(casterId, CooldownKey.Skill(skillId.value))
         val short = uc.execute(casterId, skillId, sourceItemId = staffId)
         assertThat(((short as Result.Failure).error as CastSkillError.InsufficientResource).have).isEqualTo(30)
         assertThat(cooldownTracker.isCoolingDown(casterId, CooldownKey.Skill(skillId.value))).isFalse()
         assertThat(eventBus.publishedOfType<SkillCastRejected>().single().reason)
-            .isEqualTo(CastRejectionReason.INSUFFICIENT_MANA)
+            .isEqualTo(CastRejectionReason.INSUFFICIENT_ENERGY)
     }
 
     @Test
@@ -261,7 +285,7 @@ class CastSkillUseCaseTest {
 
         uc.execute(casterId, skillId, sourceItemId = staffId)
 
-        assertThat(pool.currentPool(casterId)!!.mana).isEqualTo(100)
+        assertThat(pool.currentPool(casterId)!!.energy).isEqualTo(100)
     }
 
     @Test

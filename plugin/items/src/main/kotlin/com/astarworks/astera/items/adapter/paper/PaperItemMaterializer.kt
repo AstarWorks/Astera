@@ -156,6 +156,18 @@ public class PaperItemMaterializer(
                 NamespacedKey.fromString(key)?.let { meta.itemModel = it }
             }
 
+            // use_cooldown (ADR-0197): a per-item cooldown group so the skill cooldown / reload can
+            // be drawn as the vanilla hotbar sweep (PaperItemCooldownSweepGateway). The 1-tick base
+            // cooldown is the component's minimum; the real length is always set explicitly.
+            if (spec.skillBindings.isNotEmpty()) {
+                PaperItemCooldownSweepGateway.groupOf(spec.id)?.let { group ->
+                    val useCooldown = meta.useCooldown
+                    useCooldown.cooldownGroup = group
+                    useCooldown.cooldownSeconds = BASE_COOLDOWN_SECONDS
+                    meta.setUseCooldown(useCooldown)
+                }
+            }
+
             // Durability
             val durability = spec.durability
             if (durability.unbreakable) {
@@ -271,6 +283,7 @@ public class PaperItemMaterializer(
         public const val ENCHANTABLE_KEY: String = "enchantable"
         public const val KEEP_ON_DEATH_KEY: String = "keep_on_death"
         private const val MAX_DURABILITY_KEY: String = "max_durability"
+        private const val BASE_COOLDOWN_SECONDS: Float = 0.05f
 
         @Suppress("FunctionName")
         private fun MAX_DURABILITY_KEY_NS(plugin: Plugin): NamespacedKey =

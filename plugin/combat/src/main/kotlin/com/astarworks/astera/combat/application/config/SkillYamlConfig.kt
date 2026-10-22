@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.config
 
+import com.astarworks.astera.core.application.config.skill.toAnimation
 import com.astarworks.astera.combat.domain.skill.ChargedSkillVariant
 import com.astarworks.astera.combat.domain.skill.SkillArchetype
 import com.astarworks.astera.combat.domain.skill.SkillSpec
@@ -7,6 +8,7 @@ import com.astarworks.astera.combat.domain.skill.SkillTag
 import com.astarworks.astera.combat.domain.projectile.DisplaySpec
 import com.astarworks.astera.combat.domain.projectile.DisplayVariant
 import com.astarworks.astera.combat.domain.skill.params.ProjectileVisualParams
+import com.astarworks.astera.core.application.config.skill.toAnimation
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.core.application.config.skill.DamageComponentYaml
 import com.astarworks.astera.core.application.config.skill.PhaseMechanicsYaml
@@ -36,9 +38,10 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  * id: plasma-burst
  * archetype: projectile
  * cooldown_ticks: 4
- * resource_type: mana   # optional; default = the source item's resource_type
+ * resource_type: energy # optional; default = the source item's resource_type
  * resource_cost: 2      # optional; default = the item's resource_cost_per_use; 0 = free
  * reload_ticks: 30      # optional; marks a reload skill (refills the item's ammo after N ticks)
+ * ready_cue: true       # optional; sound when the cooldown ends (default: on for cooldowns >= 3 s)
  * name: { ja: "プラズマ", en: "Plasma" }
  * description: { ja: "…", en: "…" }
  * tags: [ damage, electric ]
@@ -84,6 +87,7 @@ public data class SkillYamlConfig(
     @SerialName("resource_cost") public val resourceCost: Int? = null,
     @SerialName("reload_ticks") public val reloadTicks: Int? = null,
     @SerialName("charge_ticks") public val chargeTicks: Long? = null,
+    @SerialName("ready_cue") public val readyCue: Boolean? = null,
     public val tags: List<String> = emptyList(),
 ) {
     /**
@@ -119,11 +123,12 @@ public data class SkillYamlConfig(
             phases = domainPhases,
             resourceType = resourceType?.let {
                 ResourceType.fromKey(it)
-                    ?: throw IllegalArgumentException("Skill '$id': unknown resource_type '$it' (ammo / stamina / mana)")
+                    ?: throw IllegalArgumentException("Skill '$id': unknown resource_type '$it' (ammo / energy)")
             },
             resourceCost = resourceCost,
             reloadTicks = reloadTicks,
             chargeVariant = variant,
+            readyCue = readyCue,
         )
     }
 
@@ -198,17 +203,18 @@ public sealed class SkillParamsYaml {
         )
     }
 
-    /** `params.visual` of a projectile skill: particle trail ids + optional display entity. */
+    /** `params.visual` of a projectile skill: particle-animation trail + optional display entity. */
     @Serializable
     public data class ProjectileVisualYaml(
-        /** `content/particles` ids emitted along the path. */
-        public val trail: List<String> = emptyList(),
-        @SerialName("trail_interval_ticks") public val trailIntervalTicks: Int = 1,
+        /** RTM-style particle animation replayed at the projectile every tick. */
+        public val trail: List<com.astarworks.astera.core.application.config.skill.AnimatedShapeYaml>? = null,
+        /** Blocks between trail plays along the tick's segment (0 = one play per tick). */
+        @SerialName("trail_spacing") public val trailSpacing: Double = ProjectileVisualParams.DEFAULT_TRAIL_SPACING,
         public val display: ProjectileDisplayYaml? = null,
     ) {
         public fun toDomain(): ProjectileVisualParams = ProjectileVisualParams(
-            trail = trail.map(::ParticleId),
-            trailIntervalTicks = trailIntervalTicks,
+            trail = trail?.toAnimation(),
+            trailSpacing = trailSpacing,
             display = display?.toDomain(),
         )
     }

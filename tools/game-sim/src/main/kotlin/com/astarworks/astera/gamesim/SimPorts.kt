@@ -40,6 +40,7 @@ import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.items.application.port.outbound.DeliveryResult
+import com.astarworks.astera.items.application.port.outbound.IItemCooldownSweepGateway
 import com.astarworks.astera.items.application.port.outbound.IItemDelivery
 import com.astarworks.astera.items.application.port.outbound.ITrainingInventory
 import com.astarworks.astera.items.application.port.outbound.ITrainingRackGateway
@@ -84,7 +85,7 @@ public class RecordingWorldGateway(
     override fun blockAt(world: WorldId, at: Vec3): BlockType? = this.world.blockAt(world, at)
 
     override fun spawnParticle(world: WorldId, at: Vec3, particle: ParticleSpec) {
-        recorder.recordParticle(scheduler.currentTick(), world.value, at, particle.key, particle.count)
+        recorder.recordParticle(scheduler.currentTick(), world.value, at, particle.key, particle.count, particle)
     }
 
     override fun playSound(world: WorldId, at: Vec3, sound: SoundSpec) {
@@ -460,6 +461,22 @@ public class SimTrainingShells(
 /** [IPaperItemIdResolver] reading the entity's held item (PDC on Paper). */
 public class SimItemIdResolver(private val world: SimWorld) : IPaperItemIdResolver {
     override fun heldItemId(playerId: PlayerId): ItemId? = world.find(playerId)?.heldItem
+}
+
+/** [IItemCooldownSweepGateway] that records the sweeps (`Player.setCooldown(group, ticks)` on Paper). */
+public class SimItemCooldownSweep(private val now: () -> Long) : IItemCooldownSweepGateway {
+
+    public data class Sweep(val tick: Long, val player: PlayerId, val item: ItemId, val ticks: Int)
+
+    private val log: MutableList<Sweep> = mutableListOf()
+
+    public val sweeps: List<Sweep> get() = log.toList()
+
+    public fun of(player: PlayerId): List<Sweep> = log.filter { it.player == player }
+
+    override fun sweep(playerId: PlayerId, itemId: ItemId, ticks: Int) {
+        log += Sweep(now(), playerId, itemId, ticks)
+    }
 }
 
 /**

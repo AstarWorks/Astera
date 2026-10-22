@@ -53,8 +53,23 @@ public class SimHudRecorder(
     /** The status line as text: `hp-bar:cur/max` (glyph form) or `key{current=..,max=..}` (text form). */
     public fun statusLineText(player: PlayerId): String? = statusLine(player)?.let { describe(it.component) }
 
-    public fun bossBar(player: PlayerId, slot: Int = 1): HudLayout.BossBarSlot? =
-        layout(player, regionOfSlot(slot)) as? HudLayout.BossBarSlot
+    /**
+     * The ammo shown on the status line as `cur/max`, or `null` when none is (F2-2, ADR-0194): read from
+     * the glyph form (after the bullet icon) or from the `ammo` / `ammoMax` placeholders of the text form.
+     */
+    public fun statusAmmo(player: PlayerId): String? {
+        val line = statusLine(player)?.component ?: return null
+        // The text form carries the cooldown parts after the HP text (ADR-0197): the HP text is first.
+        val component = if (line is HudComponent.Composite) line.parts.firstOrNull() ?: return null else line
+        return when (component) {
+            is HudComponent.FontText -> ammoNumbers(component)
+            is HudComponent.Text -> component.placeholders["ammo"]?.let { "$it/${component.placeholders["ammoMax"]}" }
+            else -> null
+        }
+    }
+
+    /** Whether any layout ever recorded for [player] or anyone else is a boss bar: there is no such layout type. */
+    public val bossBarLayoutsRecorded: Int get() = log.count { it.region.name.startsWith("BOSS_BAR") }
 
     /** Sidebar lines as `key{placeholders}` strings, top to bottom (empty when no sidebar is shown). */
     public fun sidebarText(player: PlayerId): List<String> =
@@ -75,17 +90,9 @@ public class SimHudRecorder(
     private fun summary(layout: HudLayout): String = when (layout) {
         is HudLayout.Sidebar -> "${layout.titleKey.value} | " + layout.lines.joinToString(" / ") { describe(it) }
         is HudLayout.ActionBar -> describe(layout.component)
-        is HudLayout.BossBarSlot -> describe(layout.component) + " @%.2f".format(layout.progress)
         is HudLayout.TabList -> "tab-list"
         is HudLayout.Subtitle -> describe(layout.component)
         is HudLayout.StatusLine -> describe(layout.component)
-    }
-
-    private fun regionOfSlot(slot: Int): HudRegion = when (slot) {
-        1 -> HudRegion.BOSS_BAR_SLOT_1
-        2 -> HudRegion.BOSS_BAR_SLOT_2
-        3 -> HudRegion.BOSS_BAR_SLOT_3
-        else -> HudRegion.BOSS_BAR_SLOT_4
     }
 
     public companion object {
@@ -98,17 +105,25 @@ public class SimHudRecorder(
             is HudComponent.Glyph -> "glyph:${component.textureRef.value}"
             is HudComponent.ProgressBar -> "bar:${component.percent}"
             is HudComponent.Spacer -> "spacer"
-            is HudComponent.FontText -> "hp-bar:" + hpNumbers(component)
+            is HudComponent.FontText ->
+                "hp-bar:" + hpNumbers(component) + (ammoNumbers(component)?.let { " ammo:$it" } ?: "")
         }
 
-        /** The `cur/max` digits drawn on an HP-bar glyph string (`?` when none). */
-        public fun hpNumbers(text: HudComponent.FontText): String =
-            text.text.mapNotNull { c ->
+        private fun digitsOf(glyphs: String): String =
+            glyphs.mapNotNull { c ->
                 when (c) {
                     StatusHudGlyphs.SLASH -> '/'
                     in StatusHudGlyphs.digit(0)..StatusHudGlyphs.digit(9) -> '0' + (c - StatusHudGlyphs.DIGIT_ZERO)
                     else -> null
                 }
-            }.joinToString("").ifEmpty { "?" }
+            }.joinToString("")
+
+        /** The `cur/max` digits after the bullet icon of a status glyph string, `null` when it has no ammo part. */
+        public fun ammoNumbers(text: HudComponent.FontText): String? =
+            if (StatusHudGlyphs.AMMO in text.text) digitsOf(text.text.substringAfter(StatusHudGlyphs.AMMO)) else null
+
+        /** The `cur/max` digits of the HP bar of a status glyph string (`?` when none). */
+        public fun hpNumbers(text: HudComponent.FontText): String =
+            digitsOf(text.text.substringBefore(StatusHudGlyphs.AMMO)).ifEmpty { "?" }
     }
 }

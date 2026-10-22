@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.event.SkillCastRequested
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.SkillTesterItems
 import com.astarworks.astera.core.domain.skill.SkillTrigger
 
 /**
@@ -43,6 +44,25 @@ public class HandleItemTriggerUseCase(
     }
 
     /**
+     * `skill-tester-<skill>` items (F2-5, ADR-0196) are not in the registry: the id itself
+     * names the skill, bound to right click.
+     */
+    private fun castSkillTester(playerId: PlayerId, itemId: ItemId, trigger: SkillTrigger, origin: Vec3): Boolean {
+        val skill = SkillTesterItems.skillOf(itemId) ?: return false
+        if (trigger != SkillTrigger.RIGHT_CLICK) return false
+        eventBus.publish(
+            SkillCastRequested(
+                actorId = playerId,
+                skillId = skill,
+                origin = origin,
+                sourceItemId = itemId,
+                cooldownOverrideTicks = null,
+            ),
+        )
+        return true
+    }
+
+    /**
      * @return `true` when the item binds [trigger] (even if every binding was
      *   swallowed by a cooldown) — the caller uses this to decide whether to
      *   cancel the vanilla side effect of the input.
@@ -53,7 +73,7 @@ public class HandleItemTriggerUseCase(
         trigger: SkillTrigger,
         origin: Vec3,
     ): Boolean {
-        val spec = items.find(itemId) ?: return false
+        val spec = items.find(itemId) ?: return castSkillTester(playerId, itemId, trigger, origin)
         val matchingBindings = spec.skillBindings.filter { it.trigger == trigger }
         if (matchingBindings.isEmpty()) return false
 
@@ -66,6 +86,7 @@ public class HandleItemTriggerUseCase(
                     sourceItemId = itemId,
                     cooldownOverrideTicks = binding.cooldownOverrideTicks,
                     phaseOverrides = binding.phaseOverrides,
+                    trigger = binding.trigger,
                 ),
             )
         }

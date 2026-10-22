@@ -110,21 +110,26 @@ public sealed class SkillParams {
 }
 
 /**
- * In-flight look of a skill projectile, as authored in YAML (`params.visual`).
- * [trail] lists `content/particles` ids emitted along the flight path every
- * [trailIntervalTicks]; [display] is an optional item/block display entity
- * that rides the projectile. Empty = invisible.
+ * In-flight look of a skill projectile, as authored in YAML (`params.visual`, ADR-0190 + ADR-0196).
+ * [trail] is an RTM-style particle animation replayed at the projectile every tick;
+ * [trailSpacing] is the distance in blocks between plays along the segment the projectile
+ * covered that tick (RTM `Repeat` sub-steps; keeps a fast projectile's trail a continuous
+ * beam; `0` = one play per tick at the new position). [display] is an optional
+ * item/block display entity that rides the projectile. Empty = invisible.
  */
 public data class ProjectileVisualParams(
-    val trail: List<com.astarworks.astera.core.domain.effect.ParticleId> = emptyList(),
-    val trailIntervalTicks: Int = 1,
+    val trail: com.astarworks.astera.core.domain.effect.animation.ParticleAnimation? = null,
+    val trailSpacing: Double = DEFAULT_TRAIL_SPACING,
     val display: com.astarworks.astera.combat.domain.projectile.DisplaySpec? = null,
 ) {
     init {
-        require(trailIntervalTicks > 0) { "trailIntervalTicks must be > 0: $trailIntervalTicks" }
+        require(trailSpacing >= 0.0) { "trailSpacing must be >= 0: $trailSpacing" }
     }
 
     public companion object {
         public val NONE: ProjectileVisualParams = ProjectileVisualParams()
+
+        /** Blocks between trail plays along a tick's segment when `trail_spacing` is omitted. */
+        public const val DEFAULT_TRAIL_SPACING: Double = 0.5
     }
 }

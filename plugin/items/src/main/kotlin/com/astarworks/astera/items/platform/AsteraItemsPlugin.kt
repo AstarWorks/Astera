@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.items.adapter.paper.PaperItemDelivery
+import com.astarworks.astera.items.adapter.paper.PaperItemCooldownSweepGateway
 import com.astarworks.astera.items.adapter.paper.PaperItemIdResolver
 import com.astarworks.astera.items.adapter.paper.ItemModelCatalog
 import com.astarworks.astera.items.adapter.paper.PaperItemMaterializer
@@ -71,6 +72,7 @@ public class AsteraItemsPlugin : JavaPlugin() {
                     .also { rackFrames = it }
             },
             trainingInventory = { PaperTrainingInventory(server) },
+            itemCooldownSweep = PaperItemCooldownSweepGateway(server),
         )
 
         val wired = ItemsWiring.install(ctx, ports)

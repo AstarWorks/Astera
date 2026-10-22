@@ -19,7 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin
  *  - `DamageRule` instance with full modifier pipeline
  *    (Headshot → ArmorReduction → CriticalStrike → Knockback) registered on
  *    the ServiceRegistry so Wave 6 adapters can resolve it
- *  - `CastSkillUseCase` spends ammo / mana / stamina from Core's `IResourcePoolService` (WP2)
+ *  - `CastSkillUseCase` spends ammo / energy from Core's `IResourcePoolService` (WP2)
  *  - `ChargedSkillCastUseCase` + `ChargeTracker`
  *  - `SkillCastDispatcher` subscribed to `SkillCast` with 6 archetype handlers
  *    (PROJECTILE/MELEE/AOE/BUFF/TELEPORT/SUMMON; SUMMON stubbed for Wave 6)

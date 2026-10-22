@@ -8,14 +8,12 @@ import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.items.application.admin.AdminGiveItemsUseCase
 import com.astarworks.astera.items.application.admin.AdminItemsPanel
-import com.astarworks.astera.core.application.contents.ItemContents
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
-import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
@@ -41,6 +39,8 @@ import com.astarworks.astera.items.application.service.refinement.RefinementProf
 import com.astarworks.astera.items.application.usecase.ApplyHeldItemGlowUseCase
 import com.astarworks.astera.items.application.usecase.GiveItemUseCase
 import com.astarworks.astera.items.application.usecase.HandleItemTriggerUseCase
+import com.astarworks.astera.items.application.usecase.SweepItemOnSkillCooldownUseCase
+import com.astarworks.astera.core.domain.event.SkillCooldownStarted
 import com.astarworks.astera.items.application.usecase.refinement.ApplyRefinementUseCase
 import com.astarworks.astera.items.application.usecase.refinement.RerollSubStatsUseCase
 import com.astarworks.astera.items.command.giveItemSubcommand
@@ -87,20 +87,10 @@ public object ItemsWiring {
         val mcServer = services.getOrThrow<IMcServer>()
         val eventBus = services.getOrThrow<IDomainEventBus>()
 
-        // Item registry (Worker 1: ItemContents.bootstrap-ed onto content/items/).
-        // Items-side bootstrap: replaces Core-side ItemContents wiring since
-        // Stage 1 D moved item-loading to the dedicated plugin. Phase C
-        // orchestrator switches Core to no-op item wiring.
-        val itemsContentDir = ctx.contentDir.resolve("items")
-        val itemContents = ItemContents()
-        val itemReport = itemContents.bootstrap(itemsContentDir)
-        logger.info("Items loaded: ${itemReport.loaded} ok, ${itemReport.failed} failed")
-        val itemRegistry: IItemRegistry = itemContents
-
-        // Register on the cross-plugin reload dispatcher so operators can
-        // hot-swap items via `/astera reload items`.
-        val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
-        reloadRegistry.register(itemContents, itemsContentDir)
+        // Item registry: Core already loaded content/items/ and registered it (and its
+        // /astera reload entry). A second ItemContents here would be a second copy that
+        // Core's consumers never see (ADR-0195), so reuse the registered one.
+        val itemRegistry: IItemRegistry = services.getOrThrow<IItemRegistry>()
 
         // Cooldown tracker — shared with Combat (the registry returns
         // whichever impl was registered first; in-memory at priority 0).
@@ -113,8 +103,11 @@ public object ItemsWiring {
         val itemIdResolver: IPaperItemIdResolver = ports.itemIdResolver
 
         // Items-owned ports.
-        registrations += services.register<IItemRegistry>(itemRegistry, priority = 10)
         registrations += services.register<IItemDelivery>(itemDelivery)
+        // F2-5 (ADR-0196): the combat plugin's admin Skills page hands out skill testers through this.
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.ISkillTesterDelivery>(
+            com.astarworks.astera.items.application.admin.SkillTesterDelivery(itemRegistry, itemDelivery),
+        )
         registrations += services.register<IPaperItemIdResolver>(itemIdResolver)
 
         // ── Wave 5refine / ADR-0100 — Item Refinement Layer ──────────────
@@ -170,6 +163,10 @@ public object ItemsWiring {
             eventBus = eventBus,
             resourcePool = services.get<IResourcePoolService>(),
         )
+
+        // ADR-0197 — a skill going on cooldown (primary binding / reload) runs the hotbar sweep.
+        val sweepOnCooldown = SweepItemOnSkillCooldownUseCase(itemRegistry, ports.itemCooldownSweep)
+        ctx.subscriptions += eventBus.subscribe(SkillCooldownStarted::class) { sweepOnCooldown.handle(it) }
 
         // Click → trigger sink (vendor-neutral). The host feeds it IMcEvents.
         val triggerListener = ItemSkillTriggerListener(

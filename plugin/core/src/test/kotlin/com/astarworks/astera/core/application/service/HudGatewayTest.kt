@@ -6,8 +6,6 @@ import com.astarworks.astera.core.domain.event.HudCleared
 import com.astarworks.astera.core.domain.event.HudShown
 import com.astarworks.astera.core.domain.event.HudUpdated
 import com.astarworks.astera.core.domain.event.ResourcePackPushRequested
-import com.astarworks.astera.core.domain.hud.BossBarColor
-import com.astarworks.astera.core.domain.hud.BossBarStyle
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudGlyph
 import com.astarworks.astera.core.domain.hud.HudGlyphRef
@@ -43,14 +41,6 @@ class HudGatewayTest {
     private val sidebarLayout: HudLayout = HudLayout.Sidebar(
         titleKey = MessageKey("hud.sidebar.title"),
         lines = listOf(HudComponent.Text(MessageKey("hud.sidebar.l1"))),
-    )
-
-    private val bossBar2: HudLayout = HudLayout.BossBarSlot(
-        slot = 2,
-        component = HudComponent.Text(MessageKey("hud.bar")),
-        color = BossBarColor.GREEN,
-        style = BossBarStyle.PROGRESS,
-        progress = 0.5f,
     )
 
     private val packSpec = ResourcePackSpec(
@@ -176,21 +166,15 @@ class HudGatewayTest {
     }
 
     @Test
-    fun `clearFor BOSS_BAR_SLOT_2 only clears slot 2 not slot 1`() {
-        val slot1Layout = HudLayout.BossBarSlot(
-            slot = 1,
-            component = HudComponent.Text(MessageKey("hud.bar1")),
-            color = BossBarColor.RED,
-            style = BossBarStyle.PROGRESS,
-        )
-        val slot1 = (gateway.showFor(alice, slot1Layout) as Result.Success).value
-        val slot2 = (gateway.showFor(alice, bossBar2) as Result.Success).value
+    fun `clearFor SIDEBAR only clears the sidebar not the action bar`() {
+        val bar = (gateway.showFor(alice, actionBarLayout) as Result.Success).value
+        val side = (gateway.showFor(alice, sidebarLayout) as Result.Success).value
 
-        gateway.clearFor(alice, HudRegion.BOSS_BAR_SLOT_2)
+        gateway.clearFor(alice, HudRegion.SIDEBAR)
 
-        assertThat(gateway.activeFor(alice)).containsExactly(slot1)
+        assertThat(gateway.activeFor(alice)).containsExactly(bar)
         val cleared = bus.publishedOfType<HudCleared>().last()
-        assertThat(cleared.clearedHandles).containsExactly(slot2)
+        assertThat(cleared.clearedHandles).containsExactly(side)
     }
 
     // -------------------------------------------------------------------------

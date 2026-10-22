@@ -188,7 +188,10 @@ public class MatchScenarioHarness private constructor(
             val countdown = MatchCountdownListener(matchRepo, hud, scheduler)
             bus.subscribe(MatchStarted::class) { countdown.handle(it) }
 
-            val endSummary = MatchEndSummaryListener(matchRepo, hud, messages, playerGateway)
+            val endSummary = MatchEndSummaryListener(
+                matchRepo, hud, messages, playerGateway,
+                com.astarworks.astera.match.application.service.result.MatchTallyService(matchRepo), bus, { null },
+            )
             bus.subscribe(MatchEnded::class) { endSummary.handle(it) }
 
             val applyPvp = ApplyPvpDeathPolicyListener(matchRepo, pvpResolver, inventoryMutator)

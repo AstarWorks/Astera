@@ -40,7 +40,6 @@ import com.astarworks.astera.stats.application.usecase.level.GrantXpUseCase
 import com.astarworks.astera.stats.application.usecase.stats.RecordKillUseCase
 import com.astarworks.astera.stats.scenario.fake.SeededDamageRandomizer
 import com.astarworks.astera.combat.domain.event.PlayerKilled
-import com.astarworks.astera.testfixtures.FakeBossBarManager
 import com.astarworks.astera.testfixtures.FakeBroadcaster
 import com.astarworks.astera.testfixtures.FakeGuiAdapter
 import com.astarworks.astera.testfixtures.FakeMatchTeamLookup
@@ -87,7 +86,6 @@ public class AsteraTestHarness private constructor(
     public val messageRenderer: FakeMessageRenderer,
     public val worldGateway: FakeWorldGateway,
     public val playerGateway: FakePlayerGateway,
-    public val bossBars: FakeBossBarManager,
     public val tabList: FakeTabList,
     public val scoreboards: FakeScoreboardManager,
     public val playerRepo: FakePlayerRepository,
@@ -218,7 +216,6 @@ public class AsteraTestHarness private constructor(
             val messages = FakeMessageRenderer()
             val world = FakeWorldGateway()
             val players = FakePlayerGateway()
-            val bossBars = FakeBossBarManager()
             val tab = FakeTabList()
             val scoreboards = FakeScoreboardManager()
             val playerRepo = FakePlayerRepository()
@@ -264,7 +261,6 @@ public class AsteraTestHarness private constructor(
                 messageRenderer = messages,
                 worldGateway = world,
                 playerGateway = players,
-                bossBars = bossBars,
                 tabList = tab,
                 scoreboards = scoreboards,
                 playerRepo = playerRepo,

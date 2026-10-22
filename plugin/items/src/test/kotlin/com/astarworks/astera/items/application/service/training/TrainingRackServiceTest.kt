@@ -36,8 +36,8 @@ class TrainingRackServiceTest {
     private val range = LobbyTrainingRange(lobby, plan)
 
     private val pistol = itemSpec("pistol").copy(resourceType = ResourceType.Ammo)
-    private val sword = itemSpec("knight-sword").copy(resourceType = ResourceType.Stamina)
-    private val staff = itemSpec("fire-staff").copy(resourceType = ResourceType.Mana)
+    private val sword = itemSpec("knight-sword").copy(resourceType = ResourceType.Energy)
+    private val staff = itemSpec("fire-staff", template = com.astarworks.astera.core.domain.item.ItemTemplate.Vanilla(material = "BLAZE_ROD")).copy(resourceType = ResourceType.Energy)
     private val helmet = itemSpec("iron-helm", equipSlot = com.astarworks.astera.core.domain.item.EquipSlot.HELMET)
     private val tile = itemSpec("gui-tile-queue")
 
