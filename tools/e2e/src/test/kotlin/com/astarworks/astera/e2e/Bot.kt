@@ -181,6 +181,8 @@ class Bot private constructor(
     val worldHistory = CopyOnWriteArrayList<String>()
     val positionPackets = AtomicInteger()
     /** Every entity add / remove packet in arrival order (display-entity lifetime checks). */
+    /** Entity id by UUID for every entity spawned at this client (players included), for attack packets. */
+    val entityIdByUuid = ConcurrentHashMap<UUID, Int>()
     val entityEvents = CopyOnWriteArrayList<EntityEvent>()
     val packetCounts = ConcurrentHashMap<String, AtomicInteger>()
 
@@ -289,6 +291,7 @@ class Bot private constructor(
             is ClientboundAddEntityPacket -> {
                 spawnedEntityTypes.computeIfAbsent(packet.type.name) { AtomicInteger() }.incrementAndGet()
                 entityEvents += EntityEvent(System.currentTimeMillis(), packet.entityId, packet.type.name, true)
+                entityIdByUuid[packet.uuid] = packet.entityId
             }
             is ClientboundRemoveEntitiesPacket -> packet.entityIds.forEach { entityEvents += EntityEvent(System.currentTimeMillis(), it, "", false) }
             is ClientboundSoundPacket -> sounds += packet.sound.toString()
@@ -429,6 +432,15 @@ class Bot private constructor(
 
     /** Left click in the air (arm swing) - fires `left_click` bindings. */
     fun punch() = session.send(ServerboundPunchPacket.INSTANCE)
+
+    /** Melee attack on [entityId] (what a real client sends with the swing when an entity is in the crosshair). */
+    fun attack(entityId: Int) {
+        val buf = io.netty.buffer.Unpooled.buffer()
+        var v = entityId
+        while (v and 0x7F.inv() != 0) { buf.writeByte((v and 0x7F) or 0x80); v = v ushr 7 }
+        buf.writeByte(v)
+        session.send(org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundAttackPacket(buf))
+    }
 
     /** Holds/releases sneak (shift) - `sneak_right` bindings need it held while right-clicking. */
     fun sneak(on: Boolean) = session.send(ServerboundPlayerInputPacket(false, false, false, false, false, on, false))

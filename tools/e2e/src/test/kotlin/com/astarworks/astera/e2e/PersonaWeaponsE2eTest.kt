@@ -94,10 +94,10 @@ class PersonaWeaponsE2eTest : E2eBase() {
                 val castAt = System.currentTimeMillis()
 
                 when (trigger) {
-                    "left_click" -> a.punch()
+                    "left_click" -> { a.punch(); t.let { a.entityIdByUuid[it.uuid] }?.let(a::attack) }
                     "right_click" -> a.useItem(0f, 0f)
                     "sneak_right" -> { a.sneak(true); Thread.sleep(250); a.useItem(0f, 0f); Thread.sleep(150); a.sneak(false) }
-                    "sneak_left" -> { a.sneak(true); Thread.sleep(250); a.punch(); Thread.sleep(150); a.sneak(false) }
+                    "sneak_left" -> { a.sneak(true); Thread.sleep(250); a.punch(); a.entityIdByUuid[t.uuid]?.let(a::attack); Thread.sleep(150); a.sneak(false) }
                 }
                 // Timeline + removal window; stop early once displays have been seen and all are gone.
                 val deadline = castAt + 12_000
