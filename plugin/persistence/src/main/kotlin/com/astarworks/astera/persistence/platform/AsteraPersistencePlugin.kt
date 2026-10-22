@@ -22,7 +22,6 @@ import com.astarworks.astera.core.application.port.outbound.IShopPurchaseReposit
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.application.port.outbound.ISkillProgressionRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRegionIndex
-import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.register
@@ -66,7 +65,6 @@ import com.astarworks.astera.persistence.repository.PostgresSkillProgressionRepo
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
 import com.astarworks.astera.persistence.repository.PostgresShopPurchaseRepository
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
-import com.astarworks.astera.persistence.repository.PostgresStageRegistry
 import com.astarworks.astera.items.application.port.outbound.IItemInstanceRepository
 import com.astarworks.astera.match.application.port.outbound.IMatchReplayRepository
 import com.astarworks.astera.persistence.repository.PostgresItemInstanceRepository
@@ -220,10 +218,6 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         )
         stage<IMatchRepository>(
             PostgresMatchRepository(ctx.database),
-            priority = 100,
-        )
-        stage<IStageRegistry>(
-            PostgresStageRegistry(ctx.database),
             priority = 100,
         )
         val ledger: ICurrencyLedger = PostgresCurrencyLedger(ctx.database)
