@@ -45,11 +45,33 @@ public object MainMenuGuiSpec {
 
     public val ID: GuiId = GuiId("main-menu")
 
+    /** `visible_if` of the ops-only tiles; the node is `AdminPanelGuard.PANEL_PERMISSION`. */
+    private const val ADMIN_ONLY: String = "permission:astera.admin.panel"
+
     public val SPEC: GuiSpec = GuiSpec.build(
         id = ID,
         title = MessageKey("astera.gui.main-menu.title"),
         size = GuiSize.CHEST_9,
     ) {
+        // Ops-only tiles (ADR-0240): stripped for viewers without `astera.admin.panel` / op.
+        slot(
+            SlotIndex(0),
+            GuiSlot.Static(
+                itemId = ItemId("gui-tile-admin"),
+                onLeftClick = GuiIntent("admin.hub.open"),
+                tooltip = listOf(MessageKey("astera.gui.main-menu.admin.tooltip")),
+                visibleIf = ADMIN_ONLY,
+            ),
+        )
+        slot(
+            SlotIndex(8),
+            GuiSlot.Static(
+                itemId = ItemId("gui-tile-item-catalog"),
+                onLeftClick = GuiIntent("admin.items.open", mapOf("category" to "all")),
+                tooltip = listOf(MessageKey("astera.gui.main-menu.item-catalog.tooltip")),
+                visibleIf = ADMIN_ONLY,
+            ),
+        )
         slot(
             SlotIndex(1),
             GuiSlot.Static(

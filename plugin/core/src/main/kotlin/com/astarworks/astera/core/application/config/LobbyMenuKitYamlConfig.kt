@@ -17,6 +17,9 @@ import kotlinx.serialization.Serializable
  *     intent: gui.open        # any GuiIntent key
  *     payload: { gui: main-menu }
  *     lore_key: astera.lobby-kit.hint.use
+ *     visible_if: permission:astera.admin.panel   # optional (ADR-0240); replaces the unconditional entry at the same slot
+ *     extra_lore:                                  # optional extra lines, each with its own visible_if
+ *       - { key: astera.lobby-kit.hint.admin, visible_if: "permission:astera.admin.panel" }
  * ```
  */
 @Serializable
@@ -33,4 +36,13 @@ public data class LobbyMenuKitEntryYaml(
     val intent: String,
     val payload: Map<String, String> = emptyMap(),
     @SerialName("lore_key") val loreKey: String? = null,
+    @SerialName("visible_if") val visibleIf: String? = null,
+    @SerialName("extra_lore") val extraLore: List<LobbyMenuKitLoreYaml> = emptyList(),
+)
+
+/** An extra lore line of a kit entry; `visible_if` as in [LobbyMenuKitEntryYaml] (ADR-0240). */
+@Serializable
+public data class LobbyMenuKitLoreYaml(
+    val key: String,
+    @SerialName("visible_if") val visibleIf: String? = null,
 )

@@ -8,6 +8,9 @@
 # Item ids are placeholder `gui-tile-*` references. Wave 6 inventory
 # adapter (gui-tile texture pack) supplies the actual visuals; for now
 # the items render through whatever the InMemoryItemRegistry returns.
+#
+# Slots 0 and 8 are ops-only (ADR-0240): `visible_if: permission:astera.admin.panel` hides them
+# for everyone who is neither op nor holds the node. Both dispatch guarded `admin.*` intents.
 id: main-menu
 title_key: astera.gui.main-menu.title
 size: CHEST_9
@@ -55,3 +58,20 @@ slots:
       key: lobby.profile.show
     tooltip:
       - astera.gui.main-menu.profile.tooltip
+  - type: static
+    index: 0
+    item: gui-tile-admin
+    visible_if: permission:astera.admin.panel
+    on_left:
+      key: admin.hub.open
+    tooltip:
+      - astera.gui.main-menu.admin.tooltip
+  - type: static
+    index: 8
+    item: gui-tile-item-catalog
+    visible_if: permission:astera.admin.panel
+    on_left:
+      key: admin.items.open
+      payload: { category: all }
+    tooltip:
+      - astera.gui.main-menu.item-catalog.tooltip

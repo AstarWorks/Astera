@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.domain.lobby
 
 import com.astarworks.astera.core.domain.gui.GuiIntent
+import com.astarworks.astera.core.domain.gui.GuiVisibility
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.match.MatchPhase
@@ -42,10 +43,29 @@ public data class KitEntry(
     public val itemId: ItemId,
     public val intent: GuiIntent,
     public val loreKey: MessageKey? = null,
+    /** Per-viewer condition ([GuiVisibility], ADR-0240). When satisfied, this entry replaces any unconditional entry at the same place. */
+    public val visibleIf: String? = null,
+    /** Extra lore lines appended after [loreKey], each with its own optional condition (e.g. an ops-only hint). */
+    public val extraLore: List<KitLore> = emptyList(),
 ) {
     init {
+        GuiVisibility.validate(visibleIf)
         require(id.isNotBlank()) { "KitEntry.id must not be blank" }
         require(slot in 0 until area.slotCount) { "KitEntry '$id': slot $slot is outside $area (0..${area.slotCount - 1})" }
+    }
+
+    /** The [extraLore] keys this viewer sees (conditions evaluated by [hasPermission]). */
+    public fun extraLoreFor(hasPermission: (node: String) -> Boolean): List<MessageKey> =
+        extraLore.filter { GuiVisibility.isVisible(it.visibleIf, hasPermission) }.map { it.key }
+}
+
+/** One extra lore line of a [KitEntry]; shown when [visibleIf] (or always, when `null`) holds for the viewer. */
+public data class KitLore(
+    public val key: MessageKey,
+    public val visibleIf: String? = null,
+) {
+    init {
+        GuiVisibility.validate(visibleIf)
     }
 }
 
@@ -58,7 +78,7 @@ public class LobbyMenuKit(entries: List<KitEntry>) {
 
     init {
         val ids = HashSet<String>()
-        val places = HashSet<Pair<KitArea, Int>>()
+        val places = HashSet<Triple<KitArea, Int, String?>>()
         for (e in this.entries) {
             require(ids.add(e.id)) { "duplicate kit entry id '${e.id}'" }
             require(e.area != KitArea.HOTBAR || e.slot in HotbarLayout.KIT_SLOTS) {
@@ -67,12 +87,29 @@ public class LobbyMenuKit(entries: List<KitEntry>) {
             require(e.area != KitArea.HOTBAR || this.entries.count { it.area == KitArea.HOTBAR } <= HotbarLayout.MAX_KIT_ITEMS) {
                 "kit has more than ${HotbarLayout.MAX_KIT_ITEMS} hotbar item (ADR-0232: the hotbar belongs to the player)"
             }
-            require(places.add(e.area to e.slot)) { "kit slot ${e.area}/${e.slot} is used twice" }
+            require(places.add(Triple(e.area, e.slot, e.visibleIf))) { "kit slot ${e.area}/${e.slot} is used twice" }
         }
         byId = this.entries.associateBy { it.id }
     }
 
     public fun find(id: String): KitEntry? = byId[id]
+
+    /**
+     * The kit as one viewer sees it (ADR-0240): entries whose `visibleIf` fails are dropped, and a
+     * visible conditional entry replaces the unconditional entry at the same area/slot. The result
+     * has no conditions left, so the usual accessors apply.
+     */
+    public fun forViewer(hasPermission: (node: String) -> Boolean): LobbyMenuKit {
+        val visible = entries.filter { GuiVisibility.isVisible(it.visibleIf, hasPermission) }
+        val overridden = visible.filter { it.visibleIf != null }.map { it.area to it.slot }.toSet()
+        return LobbyMenuKit(
+            visible.filter { it.visibleIf != null || (it.area to it.slot) !in overridden }
+                .map { it.copy(visibleIf = null) },
+        )
+    }
+
+    /** Whether any entry is viewer-conditional. */
+    public val hasConditionalEntries: Boolean get() = entries.any { it.visibleIf != null }
 
     public fun entries(area: KitArea): List<KitEntry> = entries.filter { it.area == area }
 

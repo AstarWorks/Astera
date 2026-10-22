@@ -8,6 +8,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.lobby.KitArea
 import com.astarworks.astera.core.domain.lobby.KitEntry
+import com.astarworks.astera.core.domain.lobby.KitLore
 import com.astarworks.astera.core.domain.lobby.LobbyMenuKit
 import java.nio.file.Files
 import java.nio.file.Path
@@ -45,6 +46,8 @@ public object LobbyMenuKitContent {
                         itemId = ItemId(e.item),
                         intent = GuiIntent(e.intent, e.payload),
                         loreKey = e.loreKey?.let(::MessageKey),
+                        visibleIf = e.visibleIf,
+                        extraLore = e.extraLore.map { KitLore(MessageKey(it.key), it.visibleIf) },
                     )
                 },
             ),

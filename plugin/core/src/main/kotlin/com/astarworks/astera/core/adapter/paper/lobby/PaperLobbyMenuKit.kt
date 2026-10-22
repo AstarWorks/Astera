@@ -3,6 +3,7 @@ package com.astarworks.astera.core.adapter.paper.lobby
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
+import com.astarworks.astera.core.application.gui.ViewerVisibility
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.service.lobby.KitClickFacts
@@ -87,9 +88,20 @@ internal class PaperLobbyMenuKit(
     private val intents: IGuiIntentRouter,
     private val mcServer: IMcServer,
     private val inMatch: (PlayerId) -> Boolean,
+    private val visibility: () -> ViewerVisibility?,
 ) : Listener {
 
     private val kit: LobbyMenuKit get() = kitSource()
+
+    /** The kit as [player] sees it: `visible_if` entries resolved (ADR-0240); fails closed without a [ViewerVisibility]. */
+    private fun kitFor(player: Player): LobbyMenuKit = kitFor(PlayerId(player.uniqueId))
+
+    private fun kitFor(id: PlayerId): LobbyMenuKit {
+        val all = kit
+        if (!all.hasConditionalEntries) return all
+        val v = visibility()
+        return all.forViewer { node -> v?.hasPermission(id, node) ?: false }
+    }
     private val log = LoggerFactory.getLogger(javaClass)
     private val lastPress = HashMap<UUID, Long>()
 
@@ -143,22 +155,23 @@ internal class PaperLobbyMenuKit(
     private fun give(player: Player) {
         val inv = player.inventory
         val displaced = ArrayList<ItemStack>()
-        val hotbar = kit.entries(KitArea.HOTBAR).mapNotNull { e -> build(player, e)?.let { e to it } }
+        val viewerKit = kitFor(player)
+        val hotbar = viewerKit.entries(KitArea.HOTBAR).mapNotNull { e -> build(player, e)?.let { e to it } }
         for ((e, _) in hotbar) {
             inv.getItem(e.slot)?.takeIf { !it.isEmpty }?.let { displaced += it }
             inv.setItem(e.slot, null)
         }
         for ((e, stack) in hotbar) inv.setItem(e.slot, stack)
-        giveGrid(player, displaced)
+        giveGrid(player, viewerKit, displaced)
         for (stray in displaced) {
             inv.addItem(stray).values.forEach { player.world.dropItemNaturally(player.location, it) }
         }
     }
 
-    private fun giveGrid(player: Player, displaced: MutableList<ItemStack>) {
+    private fun giveGrid(player: Player, viewerKit: LobbyMenuKit, displaced: MutableList<ItemStack>) {
         val top = craftingTop(player) ?: return
-        val grid = kit.entries(KitArea.CRAFTING_GRID)
-        val result = kit.entries(KitArea.CRAFTING_RESULT).firstOrNull()
+        val grid = viewerKit.entries(KitArea.CRAFTING_GRID)
+        val result = viewerKit.entries(KitArea.CRAFTING_RESULT).firstOrNull()
         if (grid.isEmpty() && result == null) return
         for (i in 1..4) {
             top.getItem(i)?.takeIf { !it.isEmpty && !MenuKitTag.isKit(it) }?.let { displaced += it }
@@ -175,6 +188,11 @@ internal class PaperLobbyMenuKit(
             entry.loreKey?.let { key ->
                 val hint = AsteraTextDeserializer.deserialize(messages.render(PlayerId(player.uniqueId), key))
                 meta.lore((meta.lore() ?: emptyList()) + hint)
+            }
+            val viewer = visibility()
+            for (key in entry.extraLoreFor { node -> viewer?.hasPermission(PlayerId(player.uniqueId), node) ?: false }) {
+                val line = AsteraTextDeserializer.deserialize(messages.render(PlayerId(player.uniqueId), key))
+                meta.lore((meta.lore() ?: emptyList()) + line)
             }
             meta.setMaxStackSize(1)
         }
@@ -253,7 +271,12 @@ internal class PaperLobbyMenuKit(
     }
 
     private fun press(player: Player, entryId: String) {
-        val entry = kit.find(entryId) ?: return
+        val entry = kitFor(player).find(entryId)
+        if (entry == null) {
+            // Stale button (e.g. the viewer lost the permission it was gated on): rebuild the kit.
+            later(player)
+            return
+        }
         press(player, entry)
     }
 
@@ -338,7 +361,7 @@ internal class PaperLobbyMenuKit(
     fun onPrepareCraft(e: PrepareItemCraftEvent) {
         if (e.inventory.matrix.none { MenuKitTag.isKit(it) }) return
         val player = e.view.player as? Player ?: return
-        val result = kit.entries(KitArea.CRAFTING_RESULT).firstOrNull()?.let { build(player, it) }
+        val result = kitFor(player).entries(KitArea.CRAFTING_RESULT).firstOrNull()?.let { build(player, it) }
         e.inventory.result = result
     }
 
@@ -347,7 +370,7 @@ internal class PaperLobbyMenuKit(
     fun onDrop(e: PlayerDropItemEvent) {
         if (!MenuKitTag.isKit(e.itemDrop.itemStack)) return
         e.isCancelled = true
-        kit.at(KitArea.KEY_DROP, 0)?.let { press(e.player, it) }
+        kitFor(e.player).at(KitArea.KEY_DROP, 0)?.let { press(e.player, it) }
     }
 
     /**
@@ -364,7 +387,7 @@ internal class PaperLobbyMenuKit(
             val held = player.inventory.itemInMainHand
             val holdingWeapon = !held.isEmpty && !MenuKitTag.isKit(held) && isAsteraItem(held)
             val area = LobbyKeybinds.swapArea(holdingWeapon, player.isSneaking)
-            val entry = area?.let { kit.at(it, 0) }
+            val entry = area?.let { kitFor(player).at(it, 0) }
             if (entry != null) {
                 e.isCancelled = true
                 press(player, entry)

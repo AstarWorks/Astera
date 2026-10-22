@@ -455,6 +455,10 @@ astera:
         tooltip: "<gray>クリックでプロフィールを表示。</gray>"
       training:
         tooltip: "<gray>クリックで訓練場へ移動（全武器を無料で試せます）。</gray>"
+      admin:
+        tooltip: "<gray>クリックで管理パネルを開く（運営専用）。</gray>"
+      item-catalog:
+        tooltip: "<gray>クリックで全武器・アイテムの一覧を開き、受け取れる（運営専用）。</gray>"
     travel-menu:
       title: "<gold>移動</gold>"
       pve:
@@ -1523,6 +1527,7 @@ astera:
       click: "<gray>クリックで開く</gray>"
       compass: "<gray>右クリックか F で開く（Shift+F: 保管庫、Q: キュー）</gray>"
       keys: "<gray>F: メニュー  |  Shift+F: 保管庫  |  コンパスで Q: キュー</gray>"
+      admin: "<red>Shift+F: 管理パネル</red>"
 
   lobby:
     npc:

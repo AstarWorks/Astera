@@ -41,6 +41,11 @@ internal fun CoreWiringState.wireAdminPanel() {
         isOperator = adminPlayers::isOperator,
     )
     ctx.registrations += services.register<AdminPanelGuard>(guard, priority = 0)
+    // ADR-0240: the same permission-or-operator rule drives `visible_if` on GUI slots and kit entries.
+    ctx.registrations += services.register<com.astarworks.astera.core.application.gui.ViewerVisibility>(
+        com.astarworks.astera.core.application.gui.ViewerVisibility(permissionService, adminPlayers::isOperator),
+        priority = 0,
+    )
 
     val panel = AdminCorePanel(
         guard = guard,
