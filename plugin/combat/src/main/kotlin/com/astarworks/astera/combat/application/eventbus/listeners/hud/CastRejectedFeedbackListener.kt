@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 
 /**
  * Tells the player why a cast did nothing (WP2): a short centre-screen
- * subtitle ("Out of ammo - press Q to reload", "Not enough mana", ...).
+ * subtitle ("Out of ammo - press Q to reload", "Not enough energy", ...).
  * Subtitle rather than action bar because the cooldown readout rewrites the
  * action bar every few ticks. Repeats within [MIN_GAP_TICKS] are dropped so a
  * held right click on an empty gun does not spam the title.

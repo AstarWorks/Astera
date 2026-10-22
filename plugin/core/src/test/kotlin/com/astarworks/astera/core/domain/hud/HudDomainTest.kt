@@ -225,59 +225,6 @@ class HudDomainTest {
             .isInstanceOf(IllegalArgumentException::class.java)
     }
 
-    // ---------------------------------------------------------------- HudLayout.BossBarSlot
-
-    @Test
-    fun `HudLayout BossBarSlot rejects slot 0 and slot 5`() {
-        val text = HudComponent.Text(MessageKey("astera.hud.boss.label"))
-        assertThatThrownBy {
-            HudLayout.BossBarSlot(
-                slot = 0,
-                component = text,
-                color = BossBarColor.RED,
-                style = BossBarStyle.PROGRESS,
-            )
-        }.isInstanceOf(IllegalArgumentException::class.java)
-        assertThatThrownBy {
-            HudLayout.BossBarSlot(
-                slot = 5,
-                component = text,
-                color = BossBarColor.RED,
-                style = BossBarStyle.PROGRESS,
-            )
-        }.isInstanceOf(IllegalArgumentException::class.java)
-
-        // 1 and 4 are the boundary valid slots
-        val one = HudLayout.BossBarSlot(1, text, BossBarColor.RED, BossBarStyle.PROGRESS)
-        assertThat(one.slot).isEqualTo(1)
-        val four = HudLayout.BossBarSlot(4, text, BossBarColor.RED, BossBarStyle.PROGRESS)
-        assertThat(four.slot).isEqualTo(4)
-    }
-
-    @Test
-    fun `HudLayout BossBarSlot withProgress returns updated copy`() {
-        val text = HudComponent.Text(MessageKey("astera.hud.boss.label"))
-        val base = HudLayout.BossBarSlot(
-            slot = 2,
-            component = text,
-            color = BossBarColor.BLUE,
-            style = BossBarStyle.NOTCHED_10,
-            progress = 1f,
-        )
-        val updated = base.withProgress(0.25f)
-        assertThat(updated.progress).isEqualTo(0.25f)
-        assertThat(updated.slot).isEqualTo(2)
-        assertThat(updated.color).isEqualTo(BossBarColor.BLUE)
-        assertThat(updated.style).isEqualTo(BossBarStyle.NOTCHED_10)
-        assertThat(base.progress).isEqualTo(1f) // original untouched
-
-        // withProgress still enforces 0..1
-        assertThatThrownBy { base.withProgress(-0.1f) }
-            .isInstanceOf(IllegalArgumentException::class.java)
-        assertThatThrownBy { base.withProgress(1.5f) }
-            .isInstanceOf(IllegalArgumentException::class.java)
-    }
-
     // ---------------------------------------------------------------- HudLayout.Sidebar
 
     @Test
@@ -482,18 +429,16 @@ class HudDomainTest {
     @Test
     fun `HudRegion enum covers every layout target`() {
         // Compile-time exhaustiveness check: every HudLayout subtype has at
-        // least one corresponding HudRegion. Hand-asserted because
-        // HudLayout.BossBarSlot fans out to 4 regions.
+        // least one corresponding HudRegion. Hand-asserted; there is no boss-bar
+        // region any more (F2-2, ADR-0194).
         assertThat(HudRegion.values()).contains(
             HudRegion.ACTION_BAR,
-            HudRegion.BOSS_BAR_SLOT_1,
-            HudRegion.BOSS_BAR_SLOT_2,
-            HudRegion.BOSS_BAR_SLOT_3,
-            HudRegion.BOSS_BAR_SLOT_4,
             HudRegion.SIDEBAR,
             HudRegion.TAB_LIST_HEADER,
             HudRegion.TAB_LIST_FOOTER,
             HudRegion.SUBTITLE,
+            HudRegion.STATUS_LINE,
         )
+        assertThat(HudRegion.values().map { it.name }).noneMatch { it.startsWith("BOSS_BAR") }
     }
 }

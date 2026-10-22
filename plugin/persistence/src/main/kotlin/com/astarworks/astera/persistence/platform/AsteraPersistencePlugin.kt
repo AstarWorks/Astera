@@ -25,7 +25,6 @@ import com.astarworks.astera.core.application.port.outbound.IStageRegionIndex
 import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.core.application.services.get
-import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.core.application.port.outbound.IProfileCardService
@@ -81,68 +80,116 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.slf4j.LoggerFactory
 
 /**
- * Astera-Persistence plugin entrypoint (ADR-0022 / Wave 3 R2).
+ * Astera-Persistence plugin entrypoint (ADR-0022, ADR-0195).
  *
- * Behavior:
- *  1. Read [PostgresConfig.fromEnv]. If env vars are missing → log a warning,
- *     skip registration. Each feature plugin then continues with its
- *     in-memory default.
- *  2. Otherwise, bootstrap Hikari + Flyway + Exposed via [connectAndMigrate].
- *  3. Look up Astera-Core's [ServiceRegistry] and register seven Postgres impls
- *     at `priority = 100` so they overlay the in-memory defaults registered
- *     at the default priority by each feature plugin.
- *  4. `loadbefore` in `plugin.yml` guarantees this plugin's `onEnable` runs
- *     before any feature plugin's `onEnable`, so when those plugins look up
- *     `services.getOrThrow<X>()` they get the Postgres impl already on top.
+ * Everything happens in [onLoad], which Paper runs for every plugin before any
+ * plugin's `onEnable`:
+ *  1. Read [PostgresConfig.fromEnv]. Missing → log a warning and register
+ *     nothing; every consumer then uses the in-memory defaults.
+ *  2. Bootstrap Hikari + Flyway + Exposed via [connectAndMigrate].
+ *  3. Build every Postgres repository, and only when ALL were built register
+ *     them in Core's [ServiceRegistry] at priority 100. Core wiring (its
+ *     `onEnable`) and every feature plugin therefore resolve the final
+ *     implementation the first time they ask: no consumer can capture the
+ *     priority-0 default (the "overlay split brain").
+ *
+ * Failure behaviour: a DB outage or migration error logs SEVERE (and is
+ * reported through `IErrorReporter` once Core has enabled), registers nothing,
+ * and the whole server runs on the in-memory defaults. Never a mix.
  *
  * On disable: unregister all overlays and close the Hikari pool.
  */
 public class AsteraPersistencePlugin : JavaPlugin() {
 
     private val registrations = mutableListOf<ServiceRegistry.Registration>()
+    private val staged = mutableListOf<Pair<String, (ServiceRegistry) -> ServiceRegistry.Registration>>()
+    private val subscriptions = mutableListOf<com.astarworks.astera.core.application.port.outbound.IDomainEventBus.Subscription>()
     private var persistence: PersistenceContext? = null
+    private var attributeStore: IPlayerAttributeContainerStore? = null
+    private var bootstrapFailure: Throwable? = null
 
-    override fun onEnable() {
-        logger.info("Astera-Persistence enabling…")
+    /** Queues an overlay; nothing is registered until every repository has been built. */
+    private inline fun <reified T : Any> stage(impl: T, priority: Int = OVERLAY_PRIORITY) {
+        staged += T::class.simpleName.orEmpty() to { services -> services.register<T>(impl, priority) }
+    }
 
+    override fun onLoad() {
         val config = PostgresConfig.fromEnv()
         if (config == null) {
             logger.warning(
                 "Astera-Persistence: ASTERA_PG_URL / _USER / _PASSWORD not set; " +
-                    "skipping Postgres registration (feature plugins will use in-memory defaults).",
+                    "no Postgres overlays (every consumer uses the in-memory defaults).",
             )
             return
         }
 
-        val core = (server.pluginManager.getPlugin("Astera-Core") as? AsteraCorePlugin)
-            ?: run {
-                logger.severe("Astera-Core not found; disabling Astera-Persistence.")
-                server.pluginManager.disablePlugin(this); return
-            }
-        val services = core.services
+        val services = getPlugin(AsteraCorePlugin::class.java).services
 
         val ctx = try {
             connectAndMigrate(config, LoggerFactory.getLogger(javaClass))
         } catch (t: Throwable) {
-            logger.severe("Astera-Persistence: bootstrap failed: ${t.message}")
-            // Wave L 5hardening-complete (ADR-0129): structured fan-out for
-            // operator-visible DB connection failure. The reporter MUST NOT
-            // throw — InMemoryErrorReporter swallows internal errors at WARN
-            // (see InMemoryErrorReporter.writeAuditSafe + CriticalSub.invokeSafe).
-            services.get<com.astarworks.astera.core.application.port.outbound.error.IErrorReporter>()?.report(
+            failBootstrap(t)
+            return
+        }
+        persistence = ctx
+
+        try {
+            stageAll(ctx)
+        } catch (t: Throwable) {
+            staged.clear()
+            ctx.dataSource.close()
+            persistence = null
+            failBootstrap(t)
+            return
+        }
+        staged.forEach { (_, register) -> registrations += register(services) }
+        logger.info(
+            "Astera-Persistence: ${staged.size} Postgres overlays registered at priority " +
+                "$OVERLAY_PRIORITY during onLoad, before any consumer is constructed: " +
+                staged.joinToString(", ") { it.first },
+        )
+        staged.clear()
+    }
+
+    private fun failBootstrap(t: Throwable) {
+        bootstrapFailure = t
+        logger.severe(
+            "Astera-Persistence: CRITICAL bootstrap failed (${t::class.simpleName}: ${t.message}); " +
+                "NO Postgres overlays registered, the whole server runs on in-memory defaults.",
+        )
+    }
+
+    override fun onEnable() {
+        // F3-4: the lobby and the game server share one player row but each JVM caches it. A
+        // player arriving on this backend re-reads the row first, so the wallet / last-match
+        // written on the other backend is what shows. Subscribed before any feature plugin's
+        // join listener (loadbefore). Needs Core's bus, so it cannot run in onLoad.
+        attributeStore?.let { store ->
+            getPlugin(AsteraCorePlugin::class.java).services
+                .get<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()?.let { bus ->
+                    subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) {
+                        store.reload(it.playerId)
+                    }
+                }
+        }
+        // Core has enabled (its error reporter exists) by now: surface the onLoad failure.
+        val t = bootstrapFailure ?: return
+        // Wave L 5hardening-complete (ADR-0129): structured fan-out for the
+        // operator-visible DB connection failure. The reporter MUST NOT throw.
+        getPlugin(AsteraCorePlugin::class.java).services
+            .get<com.astarworks.astera.core.application.port.outbound.error.IErrorReporter>()?.report(
                 com.astarworks.astera.core.domain.error.ServerError.Critical(
                     occurredAt = java.time.Instant.now(),
-                    summary = "Postgres bootstrap failed (connectAndMigrate threw)",
+                    summary = "Postgres bootstrap failed; running on in-memory repositories",
                     source = com.astarworks.astera.core.domain.error.ErrorSource.Persistence(
-                        repositoryName = "AsteraPersistencePlugin/connectAndMigrate",
+                        repositoryName = "AsteraPersistencePlugin/onLoad",
                     ),
                     causeShortDescription = "${t::class.simpleName}: ${t.message ?: "<no message>"}",
                 ),
             )
-            server.pluginManager.disablePlugin(this); return
-        }
-        persistence = ctx
+    }
 
+    private fun stageAll(ctx: PersistenceContext) {
         // Priority 100 overlays the default-priority InMemory* registrations
         // installed by feature plugins. `loadbefore` in plugin.yml ensures we
         // win the lookup race.
@@ -153,85 +200,96 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // are thin facades over it.
         val attributeContainerStore: IPlayerAttributeContainerStore =
             PostgresPlayerAttributeContainer(ctx.database)
-        registrations += services.register<IPlayerAttributeContainerStore>(
+        stage<IPlayerAttributeContainerStore>(
             attributeContainerStore,
             priority = 100,
         )
-        registrations += services.register<IPlayerStatsRepository>(
+        // ADR-0195: onboarding fact + lifetime XP survive restarts (V49 / V50).
+        stage<com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository>(
+            com.astarworks.astera.persistence.repository.PostgresPlayerProfileRepository(ctx.database),
+            priority = 100,
+        )
+        stage<com.astarworks.astera.stats.application.port.outbound.IPlayerXpRepository>(
+            com.astarworks.astera.persistence.repository.PostgresPlayerXpRepository(ctx.database),
+            priority = 100,
+        )
+        attributeStore = attributeContainerStore
+        stage<IPlayerStatsRepository>(
             PostgresPlayerStatsRepository(attributeContainerStore),
             priority = 100,
         )
-        registrations += services.register<IMatchRepository>(
+        stage<IMatchRepository>(
             PostgresMatchRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IStageRegistry>(
+        stage<IStageRegistry>(
             PostgresStageRegistry(ctx.database),
             priority = 100,
         )
-        registrations += services.register<ICurrencyLedger>(
-            PostgresCurrencyLedger(attributeContainerStore),
+        val ledger: ICurrencyLedger = PostgresCurrencyLedger(attributeContainerStore)
+        stage<ICurrencyLedger>(
+            ledger,
             priority = 100,
         )
-        registrations += services.register<IPermissionService>(
+        stage<IPermissionService>(
             PostgresPermissionService(ctx.database),
             priority = 100,
         )
-        registrations += services.register<INormaProgressRepository>(
+        stage<INormaProgressRepository>(
             PostgresNormaProgressRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<ILoadoutRepository>(
+        stage<ILoadoutRepository>(
             PostgresLoadoutRepository(ctx.database),
             priority = 100,
         )
         // Wave 5e: Session + Social + Vault + Settings + Audit + InventorySnapshot.
-        registrations += services.register<IPersonalVaultRepository>(
+        stage<IPersonalVaultRepository>(
             PostgresPersonalVaultRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IPlayerSettingsRepository>(
+        stage<IPlayerSettingsRepository>(
             PostgresPlayerSettingsRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IAuditLogRepository>(
+        stage<IAuditLogRepository>(
             PostgresAuditLogRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IPlayerInventorySnapshotRepository>(
+        stage<IPlayerInventorySnapshotRepository>(
             PostgresPlayerInventorySnapshotRepository(ctx.database),
             priority = 100,
         )
         // Wave _persist-1: cross-server persistence landmines closed (ADR-0068).
         // SessionState / Friendship / Party / Reward outbox all DB-backed so
         // pod kill / cross-server traversal preserves state.
-        registrations += services.register<IPlayerSessionRepository>(
+        stage<IPlayerSessionRepository>(
             PostgresPlayerSessionRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IFriendshipRepository>(
+        stage<IFriendshipRepository>(
             PostgresFriendshipRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IPartyRepository>(
+        stage<IPartyRepository>(
             PostgresPartyRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IRewardBridge>(
+        stage<IRewardBridge>(
             PostgresRewardBridge(ctx.database),
             priority = 100,
         )
 
         // Wave 5f (ADR-0035): currency issuance log + marketplace + creator revenue.
-        registrations += services.register<ICurrencyIssuanceLog>(
+        stage<ICurrencyIssuanceLog>(
             PostgresCurrencyIssuanceLog(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IMarketplaceRepository>(
+        stage<IMarketplaceRepository>(
             PostgresMarketplaceRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<ICreatorRevenueRepository>(
+        stage<ICreatorRevenueRepository>(
             PostgresCreatorRevenueRepository(ctx.database),
             priority = 100,
         )
@@ -241,7 +299,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // UPDATE` so concurrent purchases serialize at the row level
         // (in-memory overlay at priority 0 in `AsteraEconomyPlugin` is the
         // Postgres-less fallback).
-        registrations += services.register<IShopStockRepository>(
+        stage<IShopStockRepository>(
             PostgresShopStockRepository(ctx.database),
             priority = 100,
         )
@@ -251,7 +309,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // the in-memory shape with JSONB columns for events / key frames /
         // format. AsteraMatchPlugin's InMemoryMatchReplayRepository (priority
         // 0) is the Postgres-less fallback.
-        registrations += services.register<IMatchReplayRepository>(
+        stage<IMatchReplayRepository>(
             PostgresMatchReplayRepository(ctx.database),
             priority = 100,
         )
@@ -261,7 +319,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // the polymorphic Refinement layers + 原神 sub-stat rolls as JSONB.
         // AsteraItemsPlugin's InMemoryItemInstanceRepository (priority 0) is
         // the Postgres-less fallback.
-        registrations += services.register<IItemInstanceRepository>(
+        stage<IItemInstanceRepository>(
             PostgresItemInstanceRepository(ctx.database),
             priority = 100,
         )
@@ -270,15 +328,15 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // V34: power_index_snapshots (Networth aggregate).
         // V35: profile_card_snapshots (out-of-game public profile).
         // V36: nameplate_milestones (current display milestone).
-        registrations += services.register<IPowerIndexRepository>(
+        stage<IPowerIndexRepository>(
             PostgresPowerIndexRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IProfileCardService>(
+        stage<IProfileCardService>(
             PostgresProfileCardService(ctx.database),
             priority = 100,
         )
-        registrations += services.register<INameplateMilestoneRepository>(
+        stage<INameplateMilestoneRepository>(
             PostgresNameplateMilestoneRepository(ctx.database),
             priority = 100,
         )
@@ -290,16 +348,15 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // fallback. The escrow service depends on ICurrencyLedger — by this
         // point our priority-100 PostgresCurrencyLedger has already won, so the
         // injection is end-to-end transactional.
-        val pgLedger = services.getOrThrow<ICurrencyLedger>()
-        registrations += services.register<IBettingMatchRepository>(
+        stage<IBettingMatchRepository>(
             PostgresBettingMatchRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<IBettingEscrowService>(
-            PostgresBettingEscrowService(ctx.database, pgLedger),
+        stage<IBettingEscrowService>(
+            PostgresBettingEscrowService(ctx.database, ledger),
             priority = 100,
         )
-        registrations += services.register<IBettingHistoryService>(
+        stage<IBettingHistoryService>(
             PostgresBettingHistoryService(
                 db = ctx.database,
                 cooldownAfterMatchMs = BettingPolicy.DEFAULT.cooldownAfterMatch.inWholeMilliseconds,
@@ -309,15 +366,15 @@ public class AsteraPersistencePlugin : JavaPlugin() {
 
         // Wave 5pve-survival (ADR-0107): Skyblock party-shared island repositories.
         // V40 party_islands + V41 island_plots + V42 gathering_progress.
-        registrations += services.register<com.astarworks.astera.core.application.port.outbound.survival.IPartyIslandRepository>(
+        stage<com.astarworks.astera.core.application.port.outbound.survival.IPartyIslandRepository>(
             com.astarworks.astera.persistence.repository.survival.PostgresPartyIslandRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<com.astarworks.astera.core.application.port.outbound.survival.IIslandPlotRepository>(
+        stage<com.astarworks.astera.core.application.port.outbound.survival.IIslandPlotRepository>(
             com.astarworks.astera.persistence.repository.survival.PostgresIslandPlotRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<com.astarworks.astera.core.application.port.outbound.survival.IGatheringProgressRepository>(
+        stage<com.astarworks.astera.core.application.port.outbound.survival.IGatheringProgressRepository>(
             com.astarworks.astera.persistence.repository.survival.PostgresGatheringProgressRepository(ctx.database),
             priority = 100,
         )
@@ -329,7 +386,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // shipped + V20 migration applied. KDoc on the repo explicitly
         // promises "Registered by AsteraPersistencePlugin at priority=100";
         // this fills the missing wiring.
-        registrations += services.register<IBlockDurabilityRepository>(
+        stage<IBlockDurabilityRepository>(
             PostgresBlockDurabilityRepository(ctx.database),
             priority = 100,
         )
@@ -338,53 +395,43 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // overlays the core-default InMemoryBlockChangeJournalRepository.
         // PaperBlockStateGateway calls save()/delete() per mutation;
         // loadAll() drives plugin-enable warm-up.
-        registrations += services.register<com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository>(
+        stage<com.astarworks.astera.core.application.port.outbound.IBlockChangeJournalRepository>(
             com.astarworks.astera.persistence.repository.PostgresBlockChangeJournalRepository(ctx.database),
             priority = 100,
         )
 
         // Wave 7b (ADR-0037): Tournament + ranked rating + season leaderboard.
         // V46 tournaments / V47 player_ratings / V48 seasons + leaderboard_rankings.
-        registrations += services.register<com.astarworks.astera.match.application.port.outbound.tournament.ITournamentRepository>(
+        stage<com.astarworks.astera.match.application.port.outbound.tournament.ITournamentRepository>(
             com.astarworks.astera.persistence.repository.PostgresTournamentRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<com.astarworks.astera.match.application.port.outbound.rating.IPlayerRatingRepository>(
+        stage<com.astarworks.astera.match.application.port.outbound.rating.IPlayerRatingRepository>(
             com.astarworks.astera.persistence.repository.PostgresPlayerRatingRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<com.astarworks.astera.stats.application.port.outbound.ISeasonRepository>(
+        stage<com.astarworks.astera.stats.application.port.outbound.ISeasonRepository>(
             com.astarworks.astera.persistence.repository.PostgresSeasonRepository(ctx.database),
             priority = 100,
         )
-        registrations += services.register<com.astarworks.astera.stats.application.port.outbound.ILeaderboardRepository>(
+        stage<com.astarworks.astera.stats.application.port.outbound.ILeaderboardRepository>(
             com.astarworks.astera.persistence.repository.PostgresLeaderboardRepository(ctx.database),
             priority = 100,
         )
 
-        logger.info(
-            "Astera-Persistence enabled. Postgres overlays registered: " +
-                "IPlayerStatsRepository, IMatchRepository, IStageRegistry, " +
-                "ICurrencyLedger, IPermissionService, INormaProgressRepository, " +
-                "ILoadoutRepository, IPersonalVaultRepository, " +
-                "IPlayerSettingsRepository, IAuditLogRepository, " +
-                "IPlayerInventorySnapshotRepository, IPlayerAttributeContainerStore, " +
-                "ICurrencyIssuanceLog, IMarketplaceRepository, ICreatorRevenueRepository, " +
-                "IPlayerSessionRepository, IFriendshipRepository, IPartyRepository, " +
-                "IRewardBridge, IShopStockRepository, IMatchReplayRepository, " +
-                "IItemInstanceRepository, IPowerIndexRepository, IProfileCardService, " +
-                "INameplateMilestoneRepository, IBettingMatchRepository, " +
-                "IBettingEscrowService, IBettingHistoryService, " +
-                "IPartyIslandRepository, IIslandPlotRepository, IGatheringProgressRepository, " +
-                "IBlockDurabilityRepository.",
-        )
     }
 
     override fun onDisable() {
+        subscriptions.forEach { it.cancel() }
+        subscriptions.clear()
         registrations.forEach { it.unregister() }
         registrations.clear()
         persistence?.dataSource?.close()
         persistence = null
         logger.info("Astera-Persistence disabled.")
+    }
+
+    private companion object {
+        const val OVERLAY_PRIORITY = 100
     }
 }

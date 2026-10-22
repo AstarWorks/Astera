@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.service.DefaultGuiIntentRouter
 import com.astarworks.astera.core.application.service.InMemoryAuditLogRepository
 import com.astarworks.astera.core.domain.audit.AuditEvent
 import com.astarworks.astera.core.domain.gui.GuiIntent
+import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.items.application.port.outbound.DeliveryResult
@@ -32,8 +33,8 @@ class AdminItemsPanelTest {
     private val delivery = FakeItemDelivery()
     private val items = InMemoryItemRegistry().apply {
         register(itemSpec("rifle").copy(resourceType = ResourceType.Ammo))
-        register(itemSpec("greatsword").copy(resourceType = ResourceType.Stamina))
-        register(itemSpec("fire-staff").copy(resourceType = ResourceType.Mana))
+        register(itemSpec("greatsword").copy(resourceType = ResourceType.Energy))
+        register(itemSpec("fire-staff", template = ItemTemplate.Vanilla(material = "BLAZE_ROD")).copy(resourceType = ResourceType.Energy))
         register(itemSpec("apple"))
     }
     private val router = DefaultGuiIntentRouter { gui }

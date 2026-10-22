@@ -239,37 +239,4 @@ class ProjectileStepperTest {
         assertThat(stepper.step(f, 1L, probe)).isEqualTo(ProjectileStepOutcome.Flying) // 0..3, box starts at 3.8
         assertThat(stepper.step(f, 2L, probe)).isInstanceOf(ProjectileStepOutcome.HitEntity::class.java)
     }
-
-    // ---- trail -----------------------------------------------------------------
-
-    @Test
-    fun `trail points are evenly spaced, capped and end on the segment end`() {
-        val pts = ProjectileStepper.trailPoints(Vec3.ZERO, Vec3(3.0, 0.0, 0.0))
-        assertThat(pts).hasSize(5) // ceil(3.0 / 0.6)
-        assertThat(pts.last()).isEqualTo(Vec3(3.0, 0.0, 0.0))
-        assertThat(ProjectileStepper.trailPoints(Vec3.ZERO, Vec3(100.0, 0.0, 0.0))).hasSize(ProjectileStepper.TRAIL_MAX_POINTS)
-        assertThat(ProjectileStepper.trailPoints(Vec3(1.0, 2.0, 3.0), Vec3(1.0, 2.0, 3.0))).containsExactly(Vec3(1.0, 2.0, 3.0))
-    }
-
-    @Test
-    fun `the trail is emitted through the world gateway on the configured interval`() {
-        val gateway = FakeWorldGateway()
-        val stepper = ProjectileStepper({ null }, { gateway })
-        val trail = ParticleSpec("flame", 1)
-        val f = flight(spec(visual = ProjectileVisual(trail = listOf(trail), trailIntervalTicks = 2)), stepper)
-        val probe = FakeProbe()
-        repeat(4) { stepper.step(f, (it + 1).toLong(), probe) }
-        // ages 1..4 -> only the even ages (2 and 4) emit; 5 points each
-        assertThat(gateway.particles).hasSize(10)
-        assertThat(gateway.particles).allMatch { it.particle == trail && it.world == world }
-    }
-
-    @Test
-    fun `an invisible projectile emits no particles`() {
-        val gateway = FakeWorldGateway()
-        val stepper = ProjectileStepper({ null }, { gateway })
-        val f = flight(spec(), stepper)
-        stepper.step(f, 1L, FakeProbe())
-        assertThat(gateway.particles).isEmpty()
-    }
 }

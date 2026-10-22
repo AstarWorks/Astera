@@ -12,7 +12,7 @@ import kotlin.io.path.isRegularFile
 
 /**
  * F2-4 guard: every particle a shipped skill emits (cast / hit phases and the
- * projectile `visual.trail`) must resolve to a content/particles definition that
+ * projectile `visual.trail` shapes) must resolve to a content/particles definition that
  * names a real vanilla particle — a mapping-less definition renders nothing, which
  * is how skills silently lost their visuals before. Projectile skills must also
  * declare a visible in-flight look (no more invisible bolts).
@@ -33,8 +33,7 @@ class SkillVisualContentTest {
         val missing = mutableListOf<String>()
         for (file in skillFiles) {
             val text = Files.readString(file)
-            val ids = PARTICLE_ID.findAll(text).map { it.groupValues[1] }.toList() +
-                TRAIL.findAll(text).flatMap { m -> m.groupValues[1].split(',').map { it.trim() }.asSequence() }.toList()
+            val ids = PARTICLE_ID.findAll(text).map { it.groupValues[1] }.toList()
             for (id in ids) {
                 val def = particles.find(ParticleId(id))
                 when {
@@ -50,13 +49,22 @@ class SkillVisualContentTest {
     }
 
     @Test
+    fun `every inline animated particle id is a real vanilla particle`() {
+        val bad = skillFiles.flatMap { file ->
+            INLINE_PARTICLE.findAll(Files.readString(file)).map { it.groupValues[1] }
+                .filter { it !in PAPER_26_3_PARTICLES }.map { "${file.fileName}: '$it'" }.toList()
+        }
+        assertThat(bad).isEmpty()
+    }
+
+    @Test
     fun `every projectile skill has a visible in-flight look`() {
         val invisible = skills.all()
             .map { it.id to it.params }
             .filter { (_, p) -> p is SkillParams.ProjectileParams }
             .filter { (_, p) ->
                 val v = (p as SkillParams.ProjectileParams).visual
-                v.trail.isEmpty() && v.display == null
+                v.trail == null && v.display == null
             }
             .map { it.first.value }
         assertThat(invisible).`as`("projectile skills without params.visual").isEmpty()
@@ -213,6 +221,6 @@ class SkillVisualContentTest {
         )
 
         val PARTICLE_ID = Regex("""particle_id:\s*([a-z0-9-]+)""")
-        val TRAIL = Regex("""trail:\s*\[([^\]]*)]""")
+        val INLINE_PARTICLE = Regex("""\{\s*id:\s*([a-z0-9_]+)""")
     }
 }

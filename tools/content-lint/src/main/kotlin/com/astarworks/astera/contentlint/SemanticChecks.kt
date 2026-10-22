@@ -21,7 +21,7 @@ internal object SemanticChecks {
      * camera_shake) are implemented.
      */
     val NO_OP_MECHANICS: Set<String> = setOf(
-        "resurrect", "give_item", "consume_item", "schedule_particle_animation",
+        "resurrect", "give_item", "consume_item",
     )
 
     /** Condition `type:` values that always evaluate to false at runtime (none: all entity-state conditions are implemented). */

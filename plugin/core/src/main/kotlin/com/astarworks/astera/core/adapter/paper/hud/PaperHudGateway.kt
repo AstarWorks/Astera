@@ -1,9 +1,5 @@
 package com.astarworks.astera.core.adapter.paper.hud
 
-import com.astarworks.astera.core.adapter.api.hud.BossBarColor as ApiBossBarColor
-import com.astarworks.astera.core.adapter.api.hud.BossBarId
-import com.astarworks.astera.core.adapter.api.hud.BossBarOverlay as ApiBossBarOverlay
-import com.astarworks.astera.core.adapter.api.hud.IBossBarManager
 import com.astarworks.astera.core.adapter.api.hud.IScoreboardManager
 import com.astarworks.astera.core.adapter.api.hud.ScoreboardId
 import com.astarworks.astera.core.application.port.outbound.HudError
@@ -24,8 +20,6 @@ import com.astarworks.astera.core.domain.event.HudCleared
 import com.astarworks.astera.core.domain.event.HudShown
 import com.astarworks.astera.core.domain.event.HudUpdated
 import com.astarworks.astera.core.domain.event.ResourcePackPushRequested
-import com.astarworks.astera.core.domain.hud.BossBarColor as DomainBossBarColor
-import com.astarworks.astera.core.domain.hud.BossBarStyle
 import com.astarworks.astera.core.domain.hud.HudChannelPolicy
 import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
@@ -53,7 +47,6 @@ import java.util.concurrent.ConcurrentHashMap
  * Replaces [com.astarworks.astera.core.application.service.InMemoryHudGateway]
  * at priority 100 on real Paper servers. Maps each [HudLayout] variant to
  * the matching Adventure / Bukkit surface and routes through the bound
- * [IBossBarManager] (also Paper-backed in production) for BossBarSlot.
  *
  * # Layout routing
  *
@@ -64,9 +57,6 @@ import java.util.concurrent.ConcurrentHashMap
  *    On TTL boundary the cleared-handle check matches
  *    [InMemoryHudGateway.scheduleActionBarTtl] — an explicit `updateFor`
  *    / `clearFor` before TTL fires wins.
- *  - `BossBarSlot` → routed to [bossBarManager]. The slot becomes part of
- *    the bar id (`hud.slot{n}.{handle}`) so up to 4 concurrent bars per
- *    player are supported (Bukkit stacks up to 4 in the HUD).
  *  - `Sidebar` → a per-player line board (`hud.sidebar.<uuid>`) on the shared
  *    [IScoreboardManager]; only changed lines are rewritten (WP14, ADR-0177).
  *  - `TabList` — still owned by `PaperTabList` ([ITabList]); the gateway
@@ -106,8 +96,8 @@ import java.util.concurrent.ConcurrentHashMap
  * HUD is visual only. This gateway never touches `player.health`,
  * `player.foodLevel`, attribute modifiers, gamemode, or any other
  * gameplay state — those go through the physiology gateway family.
- * The only mutations performed here are Adventure send + BossBar
- * registry routing.
+ * The only mutations performed here are Adventure send + scoreboard
+ * manager routing. There is no boss-bar surface (F2-2, ADR-0194).
  *
  * # Threading
  *
@@ -123,7 +113,6 @@ public class PaperHudGateway(
     private val server: Server,
     private val messageRenderer: IMessageRenderer,
     private val scheduler: IScheduler,
-    private val bossBarManager: IBossBarManager,
     private val scoreboardManager: IScoreboardManager,
     private val eventBus: IDomainEventBus,
 ) : IHudGateway {
@@ -131,8 +120,6 @@ public class PaperHudGateway(
     private data class ActiveHud(
         val playerId: PlayerId,
         val layout: HudLayout,
-        /** Bossbar id materialized for this handle, when the layout is BossBarSlot. */
-        val bossBarId: BossBarId? = null,
         /** Tick at which an action bar stops being visible (see [HudChannelPolicy]). */
         val expiresAt: Long = Long.MAX_VALUE,
         /** Bumped on every show / update so a stale TTL callback cannot clear newer content. */
@@ -179,12 +166,12 @@ public class PaperHudGateway(
         }
 
         val handle = HudHandle(UUID.randomUUID().toString())
-        val bossBarId = try {
+        try {
             renderLayout(player, playerId, handle, layout, previous = null)
         } catch (ex: RuntimeException) {
             return Result.failure(renderFailure(layout, ex))
         }
-        active[handle] = ActiveHud(playerId, layout, bossBarId, HudChannelPolicy.expiresAt(layout, now), gen = 0)
+        active[handle] = ActiveHud(playerId, layout, HudChannelPolicy.expiresAt(layout, now), gen = 0)
         if (layout is HudLayout.StatusLine) sendActionBar(player, playerId, liveReadout(playerId))
 
         eventBus.publish(
@@ -208,13 +195,13 @@ public class PaperHudGateway(
             ?: return Result.failure(HudError.UnknownPlayer(current.playerId))
 
         // If region changed between the old and new layout, clear the old
-        // region first so we don't leak a bossbar / action-bar render
+        // region first so we don't leak an action-bar render
         // outside the handle's lifecycle.
         val sameRegion = current.layout.region() == layout.region()
         if (!sameRegion) {
             clearLayoutSurface(current)
         }
-        val newBossBarId = try {
+        try {
             renderLayout(
                 player, current.playerId, handle, layout,
                 previous = if (sameRegion) current.layout else null,
@@ -225,7 +212,6 @@ public class PaperHudGateway(
         val gen = current.gen + 1
         active[handle] = current.copy(
             layout = layout,
-            bossBarId = newBossBarId,
             expiresAt = HudChannelPolicy.expiresAt(layout, scheduler.currentTick()),
             gen = gen,
         )
@@ -320,99 +306,48 @@ public class PaperHudGateway(
         return HudError.RenderFailed("$kind: ${ex.message}")
     }
 
-    /**
-     * Render [layout] for [player]. Returns the materialized [BossBarId]
-     * when the layout is `BossBarSlot` (so update / clear can dispose of
-     * the bar later), or `null` otherwise.
-     */
+    /** Render [layout] for [player]. */
     private fun renderLayout(
         player: Player,
         playerId: PlayerId,
         handle: HudHandle,
         layout: HudLayout,
         previous: HudLayout?,
-    ): BossBarId? = when (layout) {
-        is HudLayout.ActionBar -> {
-            sendActionBar(player, playerId, layout)
-            null
-        }
-        // Drawn through the action bar once the handle is stored (see showFor / updateFor).
-        is HudLayout.StatusLine -> null
-        is HudLayout.BossBarSlot -> renderBossBar(playerId, handle, layout)
-        is HudLayout.Sidebar -> {
-            renderSidebar(playerId, layout, previous as? HudLayout.Sidebar)
-            null
-        }
-        is HudLayout.TabList -> {
-            if (!tabListStubLogged) {
-                log.info(
-                    "PaperHudGateway.showFor(TabList) is a Phase 1 stub — sub-B " +
-                        "PaperTabList owns the tab list surface (ADR-0031 §hud-routing). " +
-                        "Handle is tracked for activeFor / clearFor accounting only.",
-                )
-                tabListStubLogged = true
+    ) {
+        when (layout) {
+            is HudLayout.ActionBar -> sendActionBar(player, playerId, layout)
+            // Drawn through the action bar once the handle is stored (see showFor / updateFor).
+            is HudLayout.StatusLine -> Unit
+            is HudLayout.Sidebar -> renderSidebar(playerId, layout, previous as? HudLayout.Sidebar)
+            is HudLayout.TabList -> {
+                if (!tabListStubLogged) {
+                    log.info(
+                        "PaperHudGateway.showFor(TabList) is a Phase 1 stub - sub-B " +
+                            "PaperTabList owns the tab list surface (ADR-0031 hud-routing). " +
+                            "Handle is tracked for activeFor / clearFor accounting only.",
+                    )
+                    tabListStubLogged = true
+                }
             }
-            null
+            is HudLayout.Subtitle -> {
+                val sub = toComponent(playerId, layout.component)
+                val times = Title.Times.times(
+                    JDuration.ofMillis(layout.fadeInTicks * 50L),
+                    JDuration.ofMillis(layout.stayTicks * 50L),
+                    JDuration.ofMillis(layout.fadeOutTicks * 50L),
+                )
+                player.showTitle(Title.title(layout.title?.let { toComponent(playerId, it) } ?: Component.empty(), sub, times))
+            }
         }
-        is HudLayout.Subtitle -> {
-            val sub = toComponent(playerId, layout.component)
-            val times = Title.Times.times(
-                JDuration.ofMillis(layout.fadeInTicks * 50L),
-                JDuration.ofMillis(layout.stayTicks * 50L),
-                JDuration.ofMillis(layout.fadeOutTicks * 50L),
-            )
-            player.showTitle(Title.title(layout.title?.let { toComponent(playerId, it) } ?: Component.empty(), sub, times))
-            null
-        }
-    }
-
-    private fun renderBossBar(
-        playerId: PlayerId,
-        handle: HudHandle,
-        layout: HudLayout.BossBarSlot,
-    ): BossBarId {
-        val id = bossBarIdFor(handle, layout.slot)
-        // The component-based title in HudLayout.BossBarSlot doesn't map to
-        // a MessageKey directly; we resolve to a literal MiniMessage string
-        // via the renderer's pipeline. To stay within IBossBarManager's
-        // MessageKey-typed signature, we first render the component to a
-        // string and wrap it as an inline-translation MessageKey replacement
-        // by directly calling the Adventure bossbar API for the title.
-        // Caller-facing contract: title comes from layout.component.
-        val bar = bossBarManager.createBossBar(
-            id = id,
-            // Placeholder MessageKey: the actual title is overwritten below
-            // via PaperBossBar.adventureBar.name(...). When the underlying
-            // manager is the InMemory fallback (tests), the MessageKey is
-            // the visible title — acceptable since tests don't render
-            // Components.
-            title = MessageKey("hud.bossbar.placeholder"),
-            progress = layout.progress.toDouble(),
-            color = layout.color.toApi(),
-            overlay = layout.style.toApi(),
-            flags = emptySet(),
-        )
-        // Reach through to set the actual Component title when the manager
-        // is the Paper concrete; falls through silently for the InMemory
-        // fake (which doesn't render Adventure Components anyway).
-        if (bar is PaperBossBar) {
-            bar.adventureBar.name(toComponent(playerId, layout.component))
-        }
-        bossBarManager.show(playerId, bar)
-        return id
     }
 
     private fun clearLayoutSurface(hud: ActiveHud) {
         val player = server.getPlayer(hud.playerId.uuid) ?: return
-        when (val layout = hud.layout) {
+        when (hud.layout) {
             // The hud is already out of `active`, so the composition sees neither it nor (for a
             // status line) the line itself: what is left of the action bar is drawn.
             is HudLayout.ActionBar, is HudLayout.StatusLine ->
                 sendActionBar(player, hud.playerId, liveReadout(hud.playerId))
-            is HudLayout.BossBarSlot -> {
-                val id = hud.bossBarId ?: bossBarIdFor(HudHandle(hud.playerId.toString()), layout.slot)
-                bossBarManager.removeBossBar(id)
-            }
             is HudLayout.Sidebar -> {
                 val id = sidebarIdFor(hud.playerId)
                 scoreboardManager.hide(hud.playerId)
@@ -604,9 +539,6 @@ public class PaperHudGateway(
     private fun toTextColor(color: HudColor): TextColor =
         TextColor.color(color.redInt, color.greenInt, color.blueInt)
 
-    private fun bossBarIdFor(handle: HudHandle, slot: Int): BossBarId =
-        BossBarId("hud.slot${slot}.${handle.value.lowercase().filter { it.isLetterOrDigit() || it == '-' }}")
-
     /**
      * Convert the hex-SHA1 (validated by [ResourcePackSpec.init]) to the
      * 20-byte form Paper's `setResourcePack` expects. Throws
@@ -624,26 +556,6 @@ public class PaperHudGateway(
             out[i] = ((hi shl 4) or lo).toByte()
         }
         return out
-    }
-
-    // ---- Domain ↔ adapter-api enum bridges --------------------------------
-
-    private fun DomainBossBarColor.toApi(): ApiBossBarColor = when (this) {
-        DomainBossBarColor.PINK -> ApiBossBarColor.PINK
-        DomainBossBarColor.BLUE -> ApiBossBarColor.BLUE
-        DomainBossBarColor.RED -> ApiBossBarColor.RED
-        DomainBossBarColor.GREEN -> ApiBossBarColor.GREEN
-        DomainBossBarColor.YELLOW -> ApiBossBarColor.YELLOW
-        DomainBossBarColor.PURPLE -> ApiBossBarColor.PURPLE
-        DomainBossBarColor.WHITE -> ApiBossBarColor.WHITE
-    }
-
-    private fun BossBarStyle.toApi(): ApiBossBarOverlay = when (this) {
-        BossBarStyle.PROGRESS -> ApiBossBarOverlay.PROGRESS
-        BossBarStyle.NOTCHED_6 -> ApiBossBarOverlay.NOTCHED_6
-        BossBarStyle.NOTCHED_10 -> ApiBossBarOverlay.NOTCHED_10
-        BossBarStyle.NOTCHED_12 -> ApiBossBarOverlay.NOTCHED_12
-        BossBarStyle.NOTCHED_20 -> ApiBossBarOverlay.NOTCHED_20
     }
 
     private companion object {

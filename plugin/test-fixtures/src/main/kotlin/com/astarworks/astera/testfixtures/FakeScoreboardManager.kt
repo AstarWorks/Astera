@@ -13,7 +13,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
  *
  * Stores both flavors of board in a shared id-keyed registry plus a
  * per-player "what are they viewing right now?" map. Modeled after
- * [FakeBossBarManager] so the two fakes feel parallel.
+ * the other HUD fakes.
  *
  * **Single active board per player.** [show] swaps the player's current
  * view; [currentScoreboard] / [currentTeamScoreboard] discriminate on

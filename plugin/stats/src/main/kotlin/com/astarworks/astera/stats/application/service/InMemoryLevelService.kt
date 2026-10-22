@@ -7,24 +7,20 @@ import com.astarworks.astera.stats.application.port.outbound.ILevelService
 import com.astarworks.astera.stats.domain.level.Level
 import com.astarworks.astera.stats.domain.level.Xp
 import com.astarworks.astera.stats.domain.level.XpCurve
-import java.util.concurrent.ConcurrentHashMap
+import com.astarworks.astera.stats.application.port.outbound.IPlayerXpRepository
 
-public class InMemoryLevelService : ILevelService {
+public class InMemoryLevelService(
+    /** Total accumulated XP per player; Persistence overlays the default (ADR-0195) so XP survives restarts. */
+    private val xpStore: IPlayerXpRepository = InMemoryPlayerXpRepository(),
+) : ILevelService {
 
-    /** Total accumulated XP per player. */
-    private val xpStore: ConcurrentHashMap<PlayerId, Long> = ConcurrentHashMap()
+    override fun currentLevel(playerId: PlayerId): Level = XpCurve.levelFor(xpStore.totalXp(playerId))
 
-    override fun currentLevel(playerId: PlayerId): Level {
-        val total = xpStore[playerId] ?: 0L
-        return XpCurve.levelFor(total)
-    }
-
-    override fun totalXp(playerId: PlayerId): Xp = Xp(xpStore[playerId] ?: 0L)
+    override fun totalXp(playerId: PlayerId): Xp = Xp(xpStore.totalXp(playerId))
 
     override fun grantXp(playerId: PlayerId, amount: Xp, source: XpSource): Result<ILevelService.LevelChange, Nothing> {
-        val oldTotal = xpStore[playerId] ?: 0L
-        val newTotal = oldTotal + amount.value
-        xpStore[playerId] = newTotal
+        val newTotal = xpStore.addXp(playerId, amount.value)
+        val oldTotal = newTotal - amount.value
 
         val oldLevel = XpCurve.levelFor(oldTotal)
         val newLevel = XpCurve.levelFor(newTotal)

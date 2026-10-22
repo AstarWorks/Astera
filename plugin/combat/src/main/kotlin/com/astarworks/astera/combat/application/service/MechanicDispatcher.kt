@@ -120,6 +120,8 @@ public class MechanicDispatcher(
      * deferred-port mechanics).
      */
     private val particleScheduler: IParticleScheduler? = null,
+    /** ADR-0196: plays `schedule_particle_animation`; `null` in unit tests that do not need it. */
+    private val particleAnimator: com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator? = null,
     /**
      * Wave 5effects (ADR-0109): catalog of [com.astarworks.astera.core.domain.effect.ParticleDefinition]s
      * loaded from `content/particles/`. Resolves a `Mechanic.SpawnParticle.particleId`
@@ -608,7 +610,15 @@ public class MechanicDispatcher(
             is Mechanic.CameraShake -> worldMechanics.cameraShake(mechanic, ctx)
 
             is Mechanic.ScheduleParticleAnimation -> {
-                log.debug("ScheduleParticleAnimation mechanic dispatched (Phase 6 port wire)")
+                val animator = particleAnimator ?: return warnMissing("ScheduleParticleAnimation", "IParticleAnimator")
+                val world = ctx.worldId ?: run {
+                    log.debug("ScheduleParticleAnimation dropped: ctx.worldId is null")
+                    return
+                }
+                val direction = ctx.pose?.direction?.takeIf { it.lengthSquared() > 0.0 } ?: Vec3(1.0, 0.0, 0.0)
+                for (loc in targeterResolver.resolveLocations(mechanic.targets, ctx)) {
+                    animator.play(world, loc, direction, mechanic.animation)
+                }
             }
 
             // ===== Messages ===========================================

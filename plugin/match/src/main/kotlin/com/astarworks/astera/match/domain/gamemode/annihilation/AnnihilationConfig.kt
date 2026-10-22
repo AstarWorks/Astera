@@ -45,7 +45,7 @@ package com.astarworks.astera.match.domain.gamemode.annihilation
  * @property respawnDelaySecondsTier1Lost Extra respawn delay applied to the
  *   owning team after their Tier 1 pillar falls. Default +2 sec.
  * @property resourceRegenMultTier2Lost Multiplier on the owning team's
- *   resource regen rate (Ammo / Stamina / Mana) after their Tier 2 pillar
+ *   resource regen rate (Ammo / Energy) after their Tier 2 pillar
  *   falls. Default 0.5 (= half regen). Wave 5k integration consumes this.
  */
 public data class AnnihilationConfig(

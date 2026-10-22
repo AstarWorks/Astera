@@ -39,5 +39,10 @@ public interface IProjectileService {
 public interface IProjectileHandle {
     public val id: ProjectileId
     public val isAlive: Boolean
+
+    /** Current world position while alive, `null` when the host cannot report it (or the projectile is gone). */
+    public val position: com.astarworks.astera.core.domain.geometry.Vec3?
+        get() = null
+
     public fun cancel()
 }

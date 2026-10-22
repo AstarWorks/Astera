@@ -27,8 +27,7 @@ public data class ResourceCap(
         /** Default cap table when no YAML override exists. */
         public val DEFAULTS: Map<ResourceType, ResourceCap> = mapOf(
             ResourceType.Ammo to ResourceCap(maxPool = 30, regenPerSecond = 0.0),
-            ResourceType.Stamina to ResourceCap(maxPool = 100, regenPerSecond = 20.0),
-            ResourceType.Mana to ResourceCap(maxPool = 100, regenPerSecond = 5.0),
+            ResourceType.Energy to ResourceCap(maxPool = 100, regenPerSecond = 15.0),
         )
     }
 }

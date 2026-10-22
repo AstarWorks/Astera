@@ -13,6 +13,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.EquipSlot
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.ItemSpec
+import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.resource.ResourceType
 
 /** Admin-catalog grouping of an item (F1-D, ADR-0183). Derived from item data, never from a hard-coded id list. */
@@ -47,7 +48,7 @@ public object AdminItemCatalog {
     public const val STACK_AMOUNT: Int = 16
 
     /** Ids with these prefixes are GUI furniture (tiles, panes, indicators), not giveable catalog items. */
-    private val HIDDEN_PREFIXES: List<String> = listOf("gui-", "indicator-")
+    private val HIDDEN_PREFIXES: List<String> = listOf("gui-", "indicator-", "skill-tester")
 
     public val GUI_ID: GuiId = GuiId("admin-items")
 
@@ -75,13 +76,21 @@ public object AdminItemCatalog {
     public fun isCatalogItem(spec: ItemSpec): Boolean =
         HIDDEN_PREFIXES.none { spec.id.value.startsWith(it) }
 
-    /** Group [spec] by its resource pool / equip slot: ammo = gun, stamina = sword, mana = staff, non-mainhand gear = support. */
+    /**
+     * Group [spec] by its resource pool / equip slot: ammo = gun, energy = sword or staff (told apart
+     * by the vanilla material: `*_SWORD` / `*_AXE` blades, anything else is a rod / staff),
+     * non-mainhand gear = support.
+     */
     public fun categorize(spec: ItemSpec): AdminItemCategory = when {
         spec.resourceType == ResourceType.Ammo -> AdminItemCategory.GUN
-        spec.resourceType == ResourceType.Stamina -> AdminItemCategory.SWORD
-        spec.resourceType == ResourceType.Mana -> AdminItemCategory.STAFF
+        spec.resourceType == ResourceType.Energy -> if (isBlade(spec)) AdminItemCategory.SWORD else AdminItemCategory.STAFF
         spec.equipSlot != EquipSlot.MAINHAND -> AdminItemCategory.SUPPORT
         else -> AdminItemCategory.OTHER
+    }
+
+    private fun isBlade(spec: ItemSpec): Boolean {
+        val material = (spec.template as? ItemTemplate.Vanilla)?.material ?: return false
+        return material.endsWith("_SWORD") || material.endsWith("_AXE")
     }
 
     /** Catalog items of [filter] (`null` = all), ordered by category then id. */

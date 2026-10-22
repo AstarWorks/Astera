@@ -88,6 +88,9 @@ public class GameSim private constructor(
     /** What every HUD channel currently shows per player, and every show / update / clear (WP14). */
     public val hud: SimHudRecorder = SimHudRecorder(recorder) { scheduler.currentTick() }
 
+    /** Native hotbar cooldown sweeps the item side asked for (ADR-0197). */
+    public val sweeps: SimItemCooldownSweep = SimItemCooldownSweep { scheduler.currentTick() }
+
     /** Displays spawned by SpawnDisplay (WP5). */
     public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder)
 
@@ -97,6 +100,10 @@ public class GameSim private constructor(
 
     private val handoff: com.astarworks.astera.core.application.service.handoff.PlayerHandoffService?
         get() = services.get<com.astarworks.astera.core.application.service.handoff.PlayerHandoffService>()
+
+    /** The stand-in Persistence overlay when booted with `persistenceOverlay = true`. */
+    public var persistenceOverlay: SimPersistenceOverlay? = null
+        internal set
 
     public lateinit var core: CoreWiringResult
         private set
@@ -251,9 +258,14 @@ public class GameSim private constructor(
         items.handleTrigger.onHeldItemChanged(entity.id, entity.heldItem)
     }
 
-    /** The entity's resource pool (ammo / stamina / mana), or `null` before it joined. */
+    /** The entity's resource pool (ammo / energy), or `null` before it joined. */
     public fun pool(entity: SimEntity): com.astarworks.astera.core.domain.resource.PlayerResourcePool? =
         services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>()?.currentPool(entity.id)
+
+    /** The vanilla food level the energy bar currently shows for [entity] (F2-2, ADR-0194), or `null` before the first write. */
+    public fun foodLevel(entity: SimEntity): Int? =
+        services.get<com.astarworks.astera.core.application.port.outbound.IPlayerFoodGateway>()?.getFoodLevel(entity.id)
+
 
     /** Feeds one input with the held item into the same sink `PaperItemInputListener` feeds. */
     public fun input(entity: SimEntity, kind: IMcEvent.InputKind, sneaking: Boolean = false): Boolean {
@@ -425,11 +437,15 @@ public class GameSim private constructor(
             proxy: com.astarworks.astera.core.application.port.outbound.IProxyMessenger? = null,
             /** The snapshot store shared by every server of a network (the Postgres all backends use); `null` = this server's own in-memory one. */
             snapshots: com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository? = null,
+
+            /** Registers the stand-in Persistence overlay before any wiring, like the plugin's onLoad (ADR-0195). */
+            persistenceOverlay: Boolean = false,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
             val scheduler = FakeScheduler()
             val services = ServiceRegistry()
+            val overlay = if (persistenceOverlay) SimPersistenceOverlay.install(services) else null
             // One seeded source for every random roll; CombatWiring picks it up instead of its own.
             services.register<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(
                 com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer(seed),
@@ -462,6 +478,7 @@ public class GameSim private constructor(
             )
 
             sim = GameSim(scenarioName, world, scheduler, services, recorder, mcServer, projectiles, broadcaster, contexts)
+            sim.persistenceOverlay = overlay
             val feedback = sim.feedback
 
             // ---- Core -----------------------------------------------------
@@ -474,11 +491,14 @@ public class GameSim private constructor(
                 proxyMessenger = proxy?.let { messenger -> { _ -> messenger } },
             )
             val coreCtx = context()
+            // Shared snapshot store must exist before Core wiring reads it (ADR-0195 late-override guard).
+            if (snapshots != null) {
+                coreCtx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository>(snapshots, priority = 100)
+            }
             sim.core = CoreWiring.install(coreCtx, corePorts)
             if (snapshots != null) {
                 val inventory = SimInventoryGateway()
                 sim.inventory = inventory
-                coreCtx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventorySnapshotRepository>(snapshots, priority = 100)
                 coreCtx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerInventoryGateway>(inventory, priority = 100)
             }
 
@@ -503,6 +523,7 @@ public class GameSim private constructor(
                 ItemsPlatformPorts(
                     itemDelivery = { SimItemDelivery() },
                     itemIdResolver = SimItemIdResolver(world),
+                    itemCooldownSweep = sim.sweeps,
                 ),
             )
 

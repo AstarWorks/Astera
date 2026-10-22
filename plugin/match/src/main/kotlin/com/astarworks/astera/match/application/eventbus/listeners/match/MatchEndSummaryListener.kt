@@ -1,155 +1,233 @@
 package com.astarworks.astera.match.application.eventbus.listeners.match
 
+import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchSummaryReady
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.match.result.MatchOutcome
+import com.astarworks.astera.core.domain.match.result.MatchSummary
+import com.astarworks.astera.core.domain.match.result.MvpRule
+import com.astarworks.astera.core.domain.match.result.PlayerMatchLine
+import com.astarworks.astera.core.domain.match.result.TeamResult
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.match.application.service.result.MatchTallyService
 import org.slf4j.LoggerFactory
 
 /**
- * On [MatchEnded], broadcast a short result summary to every
- * participant (Wave 5game-complete, ADR-0121 §D).
+ * On [MatchEnded] builds the [MatchSummary] and shows every participant the
+ * result screen (F3-4); then publishes [MatchSummaryReady] so the economy can
+ * pay out and the last-match record can be written.
  *
- * # What participants see
+ * # What a participant sees
  *
- *  1. **Subtitle** — per-player verdict:
- *     - Player on `winningTeam` → `astera.match.summary.victory` (key
- *       resolved to "Victory!" by the i18n catalogue).
- *     - Player on a losing team → `astera.match.summary.defeat`.
- *     - `winningTeam == null` (draw) → `astera.match.summary.draw`.
- *  2. **Chat lines** — `astera.match.summary.header` followed by
- *     `astera.match.summary.reason.<reason>` so the reason key maps
- *     cleanly without listener-side string formatting.
+ *  1. A big title: `VICTORY!` / `DEFEAT` / `DRAW` (`astera.match.summary.*`).
+ *  2. Chat: header, why the match ended, the team scores, the top players
+ *     with their kills / deaths / assists / objectives, the MVP, and the
+ *     player's own line. The reward breakdown (currency, XP, level) follows
+ *     as the economy handles [MatchSummaryReady].
  *
- * # Phase 1 PoC scope
+ * The screen is shown on the game server before the transfer back to the lobby
+ * ([com.astarworks.astera.match.application.service.matchmaking.CrossServerSettings.returnDelaySeconds]
+ * later); the lobby keeps the numbers in the last-match record
+ * (`/astera stats last`).
  *
- * GUI summary screen (MVP / kills / damage breakdown) is **deferred to
- * Wave 6b / Phase 4**. The chat + subtitle path covers the "did I win,
- * and why did the match end?" surface that every PvP server has to
- * ship. MVP-aware extension lands once `StatsAggregator` (Wave 5stats)
- * exposes per-match summaries on the bus.
+ * MVP and ranking: see [MvpRule].
  *
- * # Cross-cutting
- *
- * `RewardOnMatchEndedListener` (stats + economy plugins) and
- * `TeleportToLobbyOnMatchEndedListener` (Wave 5lobby) also subscribe to
- * `MatchEnded`. Order is irrelevant — those listeners mutate state,
- * this listener only renders. Subscriber-ordering Konsist rule isn't
- * required because no listener depends on the summary having rendered.
- *
- * # Failure mode
- *
- * Match unknown → log at INFO and drop (could happen if the match was
- * already destroyed by a concurrent listener; defensive).
- * Per-player HUD or chat failures log at DEBUG and continue.
+ * Match unknown (already destroyed by a concurrent listener) is logged and
+ * dropped. A single player's HUD or chat failure never stops the others.
  */
 public class MatchEndSummaryListener(
     private val matches: IMatchRepository,
     private val hudGateway: IHudGateway,
     private val messages: IMessageRenderer,
     private val playerGateway: IPlayerGateway,
+    private val tally: MatchTallyService,
+    private val eventBus: IDomainEventBus,
+    private val nameOf: (PlayerId) -> String?,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
     public fun handle(event: MatchEnded) {
         val match = matches.findById(event.matchId) ?: run {
-            log.info(
-                "MatchEndSummary: match {} not found in repo at MatchEnded time; skipping.",
-                event.matchId,
-            )
+            log.info("MatchEndSummary: match {} not found in repo at MatchEnded time; skipping.", event.matchId)
             return
         }
+        val summary = buildSummary(match, event)
 
         for (team in match.teams) {
-            val verdict = verdictKey(team.id, event.winningTeam)
             for (member in team.members) {
-                pushSubtitle(member, verdict, event.matchId)
-                pushChatSummary(member, event)
+                pushTitle(member, summary.outcomeOf(member), event.matchId)
+                pushChat(member, match, summary, event)
             }
         }
+        eventBus.publish(MatchSummaryReady(summary))
     }
 
-    private fun verdictKey(team: TeamId, winningTeam: TeamId?): MessageKey = when {
-        winningTeam == null -> MSG_DRAW
-        winningTeam == team -> MSG_VICTORY
-        else -> MSG_DEFEAT
+    internal fun buildSummary(match: Match, event: MatchEnded): MatchSummary {
+        val modeKey = tally.modeKeyOf(match.id)
+        val counts = tally.take(match.id)
+        val lines = match.teams.flatMap { team ->
+            team.members.map { member ->
+                val c = counts[member] ?: MatchTallyService.Counts()
+                PlayerMatchLine(
+                    playerId = member,
+                    name = nameOf(member) ?: member.uuid.toString().take(8),
+                    team = team.id,
+                    kills = c.kills,
+                    deaths = c.deaths,
+                    assists = c.assists,
+                    objective = c.objective,
+                )
+            }
+        }
+        return MatchSummary(
+            matchId = match.id,
+            modeKey = modeKey,
+            winningTeam = event.winningTeam,
+            teams = match.teams.map { TeamResult(it.id, match.score.valueFor(it.id), it.members.size) },
+            players = lines,
+            mvp = MvpRule.pick(lines, event.winningTeam),
+            durationSeconds = ((event.atTick - match.startedAtTick).coerceAtLeast(0L)) / TICKS_PER_SECOND,
+        )
     }
 
-    private fun pushSubtitle(playerId: PlayerId, verdict: MessageKey, matchId: MatchId) {
+    private fun pushTitle(playerId: PlayerId, outcome: MatchOutcome, matchId: MatchId) {
         val layout = HudLayout.Subtitle(
-            component = HudComponent.Text(messageKey = verdict),
+            component = HudComponent.Text(messageKey = verdictKey(outcome)),
             fadeInTicks = SUMMARY_FADE_IN,
             stayTicks = SUMMARY_STAY,
             fadeOutTicks = SUMMARY_FADE_OUT,
         )
-        when (val outcome = hudGateway.showFor(playerId, layout)) {
+        when (val outcome2 = hudGateway.showFor(playerId, layout)) {
             is Result.Success -> Unit
             is Result.Failure -> log.debug(
-                "MatchEndSummary subtitle failed for {} in match {}: {}",
-                playerId, matchId, outcome.error,
+                "MatchEndSummary title failed for {} in match {}: {}", playerId, matchId, outcome2.error,
             )
         }
     }
 
-    private fun pushChatSummary(playerId: PlayerId, event: MatchEnded) {
-        sendOrLog(playerId, MSG_HEADER, emptyMap(), event.matchId)
-        sendOrLog(
-            playerId,
-            MessageKey("astera.match.summary.reason.${reasonKindOf(event)}"),
-            emptyMap(),
-            event.matchId,
-        )
+    private fun pushChat(viewer: PlayerId, match: Match, summary: MatchSummary, event: MatchEnded) {
+        fun send(key: String, vararg params: Pair<String, String>) =
+            playerGateway.sendMessage(viewer, messages.render(viewer, MessageKey(key), params.toMap()))
+
+        val teamsById = match.teams.associateBy { it.id }
+        fun teamLabel(team: TeamId, template: String, extra: Map<String, String> = emptyMap()): String {
+            val t = teamsById[team]
+            val color = t?.let { messages.render(viewer, it.colorKey) }?.takeIf { it in COLORS } ?: "white"
+            val name = t?.let { messages.render(viewer, it.displayNameKey) } ?: team.value
+            return messages.render(viewer, MessageKey(template), extra + mapOf("team" to name, "color" to color))
+        }
+
+        send("astera.match.summary.header")
+        send("astera.match.summary.reason.${reasonKindOf(event)}")
+
+        // Score line: "Score  Red 3 - Blue 5".
+        val scores = summary.teams.joinToString(SCORE_SEPARATOR) { r ->
+            teamLabel(r.team, "astera.match.result.score.team", mapOf("score" to r.score.toString()))
+        }
+        send("astera.match.result.score.label", "scores" to scores)
+
+        // Top players.
+        val top = summary.topPlayers(TOP_PLAYERS)
+        if (top.isNotEmpty()) {
+            send("astera.match.result.top.header")
+            top.forEachIndexed { index, line ->
+                val mvpTag = if (line.playerId == summary.mvp) messages.render(viewer, MessageKey("astera.match.result.mvp-tag")) else ""
+                send(
+                    "astera.match.result.top.entry",
+                    "rank" to (index + 1).toString(),
+                    "name" to line.name,
+                    "color" to teamColor(viewer, teamsById[line.team]),
+                    "kills" to line.kills.toString(),
+                    "deaths" to line.deaths.toString(),
+                    "assists" to line.assists.toString(),
+                    "objective" to line.objective.toString(),
+                    "mvp" to mvpTag,
+                )
+            }
+        }
+
+        // MVP.
+        summary.players.firstOrNull { it.playerId == summary.mvp }?.let { mvp ->
+            send(
+                "astera.match.result.mvp",
+                "name" to mvp.name,
+                "color" to teamColor(viewer, teamsById[mvp.team]),
+                "kills" to mvp.kills.toString(),
+                "deaths" to mvp.deaths.toString(),
+                "assists" to mvp.assists.toString(),
+            )
+        }
+
+        // The viewer's own line.
+        summary.players.firstOrNull { it.playerId == viewer }?.let { me ->
+            send(
+                "astera.match.result.you",
+                "kills" to me.kills.toString(),
+                "deaths" to me.deaths.toString(),
+                "assists" to me.assists.toString(),
+                "objective" to me.objective.toString(),
+            )
+        }
     }
 
-    private fun sendOrLog(
-        playerId: PlayerId,
-        key: MessageKey,
-        params: Map<String, String>,
-        @Suppress("UNUSED_PARAMETER") matchId: MatchId,
-    ) {
-        val rendered = messages.render(playerId, key, params)
-        // sendMessage is expected to no-op for offline recipients; the
-        // adapter logs at TRACE on miss. We don't catch JVM throwables
-        // here — Konsist forbids raw throwables in application layers.
-        playerGateway.sendMessage(playerId, rendered)
+    private fun teamColor(viewer: PlayerId, team: com.astarworks.astera.core.domain.match.Team?): String =
+        team?.let { messages.render(viewer, it.colorKey) }?.takeIf { it in COLORS } ?: "white"
+
+    private fun verdictKey(outcome: MatchOutcome): MessageKey = when (outcome) {
+        MatchOutcome.WIN -> MSG_VICTORY
+        MatchOutcome.LOSE -> MSG_DEFEAT
+        MatchOutcome.DRAW -> MSG_DRAW
     }
 
     /**
-     * Stable lowercase snake_case discriminator for the reason — kept
-     * in this listener so i18n key naming doesn't leak into [com.astarworks.astera.core.domain.event.EndReason].
+     * Stable lowercase snake_case discriminator for the reason — kept in this
+     * listener so i18n key naming doesn't leak into [EndReason].
      */
     private fun reasonKindOf(event: MatchEnded): String =
         when (event.reason) {
-            com.astarworks.astera.core.domain.event.EndReason.ScoreThresholdReached -> "score-threshold"
-            com.astarworks.astera.core.domain.event.EndReason.TimerExpired -> "timer-expired"
-            com.astarworks.astera.core.domain.event.EndReason.AdminEnded -> "admin"
-            com.astarworks.astera.core.domain.event.EndReason.SuddenDeathResolved -> "sudden-death"
-            com.astarworks.astera.core.domain.event.EndReason.ObjectiveCompleted -> "objective"
-            // Wave L 5hardening-complete (ADR-0129): WorldUnloaded distinct
-            // from Cancelled so summary GUIs can branch on it (e.g. skip
-            // the per-player teleport step because the world is gone).
-            com.astarworks.astera.core.domain.event.EndReason.WorldUnloaded -> "world-unloaded"
-            is com.astarworks.astera.core.domain.event.EndReason.Cancelled -> "cancelled"
-            is com.astarworks.astera.core.domain.event.EndReason.TeamVictory -> "objective"
+            EndReason.ScoreThresholdReached -> "score-threshold"
+            EndReason.TimerExpired -> "timer-expired"
+            EndReason.AdminEnded -> "admin"
+            EndReason.SuddenDeathResolved -> "sudden-death"
+            EndReason.ObjectiveCompleted -> "objective"
+            // WorldUnloaded is distinct from Cancelled so summary screens can branch on it.
+            EndReason.WorldUnloaded -> "world-unloaded"
+            is EndReason.Cancelled -> "cancelled"
+            is EndReason.TeamVictory -> "objective"
         }
 
     public companion object {
         public val MSG_VICTORY: MessageKey = MessageKey("astera.match.summary.victory")
         public val MSG_DEFEAT: MessageKey = MessageKey("astera.match.summary.defeat")
         public val MSG_DRAW: MessageKey = MessageKey("astera.match.summary.draw")
-        public val MSG_HEADER: MessageKey = MessageKey("astera.match.summary.header")
 
         public const val SUMMARY_FADE_IN: Int = 10
         public const val SUMMARY_STAY: Int = 80
         public const val SUMMARY_FADE_OUT: Int = 20
+
+        /** Rows in the chat top-players table. */
+        public const val TOP_PLAYERS: Int = 5
+
+        private const val TICKS_PER_SECOND: Long = 20L
+        private const val SCORE_SEPARATOR: String = " <gray>-</gray> "
+
+        /** MiniMessage named colours a team colour key may resolve to. */
+        private val COLORS: Set<String> = setOf(
+            "red", "blue", "yellow", "green", "gold", "aqua", "white", "gray",
+            "dark_red", "dark_blue", "dark_green", "dark_aqua", "dark_purple", "light_purple",
+        )
     }
 }

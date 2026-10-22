@@ -36,12 +36,9 @@ import java.nio.file.Path
 /** Permission, proxy, reload dispatcher, particle / sound / effect schedulers, player repositories and survival foundation. */
 internal fun CoreWiringState.wireContentAndRepositories() {
     // ---- Permission service ------------------------------------------
-    // Wave 3 (R2): Astera-Persistence (loadbefore: [features]) loads AFTER
-    // Astera-Core, so at this point Postgres is never present yet. We
-    // register in-memory at priority=0; if env vars are set, persistence
-    // will overlay at priority=100 before feature plugins look up. Core's
-    // own AssignRoleUseCase keeps the in-memory reference (acceptable
-    // Phase 1 trade-off; revisit in Wave 5 with deferred use-case wiring).
+    // ADR-0195: Astera-Persistence registers its Postgres overlays (priority 100)
+    // in its onLoad, i.e. before this wiring runs, so `get` already returns the
+    // final implementation. The in-memory one below is the Postgres-less fallback.
     permissionService =
         services.get<IPermissionService>()
             ?: InMemoryPermissionService().let { roles ->
@@ -180,6 +177,11 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     services.register<com.astarworks.astera.core.application.port.outbound.effect.ISoundScheduler>(
         soundScheduler, priority = 0,
     )
+    // ADR-0196: time-animated particle patterns (RTM ParticleScheduler port).
+    services.register<com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator>(
+        com.astarworks.astera.core.application.service.effect.SchedulerParticleAnimator(scheduler, effectsWorldGateway),
+        priority = 0,
+    )
     services.register<com.astarworks.astera.core.application.port.outbound.effect.IEffectOrchestrator>(
         effectOrchestrator, priority = 0,
     )
@@ -207,16 +209,28 @@ internal fun CoreWiringState.wireContentAndRepositories() {
         services.get<IPlayerAttributeContainerStore>() ?: InMemoryPlayerAttributeContainer().also {
             services.register<IPlayerAttributeContainerStore>(it, priority = 0)
         }
-    sessionRepo = InMemoryPlayerSessionRepository()
-    services.register<IPlayerSessionRepository>(sessionRepo, priority = 0)
-    services.register<IFriendshipRepository>(InMemoryFriendshipRepository(), priority = 0)
-    services.register<IPartyRepository>(InMemoryPartyRepository(), priority = 0)
+    // Persistence registers its overlays in onLoad (ADR-0197), so `get` already
+    // returns the final implementation; the in-memory default is only the fallback.
+    sessionRepo = services.get<IPlayerSessionRepository>()
+        ?: InMemoryPlayerSessionRepository().also { services.register<IPlayerSessionRepository>(it, priority = 0) }
+    if (services.get<IFriendshipRepository>() == null) {
+        services.register<IFriendshipRepository>(InMemoryFriendshipRepository(), priority = 0)
+    }
+    if (services.get<IPartyRepository>() == null) {
+        services.register<IPartyRepository>(InMemoryPartyRepository(), priority = 0)
+    }
     if (services.get<IPersonalVaultRepository>() == null) {
         services.register<IPersonalVaultRepository>(InMemoryPersonalVaultRepository(), priority = 0)
     }
     settingsRepo = services.get<IPlayerSettingsRepository>()
         ?: InMemoryPlayerSettingsRepository().also { services.register<IPlayerSettingsRepository>(it, priority = 0) }
-    services.register<IRewardBridge>(InMemoryRewardBridge(), priority = 0)
+    if (services.get<IRewardBridge>() == null) {
+        services.register<IRewardBridge>(InMemoryRewardBridge(), priority = 0)
+    }
+    services.register<com.astarworks.astera.core.application.port.outbound.ILastMatchStore>(
+        com.astarworks.astera.core.application.service.AttributeLastMatchStore { services.getOrThrow<IPlayerAttributeContainerStore>() },
+        priority = 0,
+    )
     auditRepo = services.get<IAuditLogRepository>()
         ?: InMemoryAuditLogRepository().also { services.register<IAuditLogRepository>(it, priority = 0) }
     snapshotRepo = services.get<IPlayerInventorySnapshotRepository>()

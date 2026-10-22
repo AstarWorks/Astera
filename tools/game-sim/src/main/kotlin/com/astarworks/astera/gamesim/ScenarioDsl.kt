@@ -27,9 +27,10 @@ public fun scenario(
     name: String,
     annihilation: com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig? = null,
     seed: Long = GameSim.DEFAULT_SEED,
+    persistenceOverlay: Boolean = false,
     block: ScenarioScope.() -> Unit,
 ): Path {
-    val sim = GameSim.boot(name, annihilation = annihilation, seed = seed)
+    val sim = GameSim.boot(name, annihilation = annihilation, seed = seed, persistenceOverlay = persistenceOverlay)
     var trace: Path? = null
     try {
         ScenarioScope(sim).block()
@@ -90,12 +91,16 @@ public class ScenarioScope(public val sim: GameSim) {
         sim.drop(this)
     }
 
-    /** Current ammo / mana / stamina of [entity]. */
+    /** Current ammo / energy of [entity]. */
     public fun ammo(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.ammo
 
-    public fun mana(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.mana
+    /** The vanilla food level (the energy bar) shown for [entity], or `null` before the first write. */
+    public fun foodLevel(entity: SimEntity): Int? = sim.foodLevel(entity)
 
-    public fun stamina(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.stamina
+    /** Native hotbar cooldown sweeps (reload / primary-binding cooldown) drawn so far. */
+    public fun cooldownSweeps(): List<SimItemCooldownSweep.Sweep> = sim.sweeps.sweeps
+
+    public fun energy(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.energy
 
     /** Casts [skillId] as if a bound item had requested it (see [GameSim.cast]). */
     public fun SimEntity.cast(skillId: String) {

@@ -37,8 +37,8 @@ import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
 public class ProjectileHandler(
     private val projectileService: IProjectileService,
     private val dispatcher: MechanicDispatcher,
-    /** Resolves the `params.visual.trail` particle ids; an unknown id is skipped. */
-    private val particles: (ParticleId) -> ParticleDefinition? = { null },
+    /** ADR-0196: replays `params.visual.trail` at the projectile each tick; `null` disables trails. */
+    private val trailFollower: com.astarworks.astera.combat.application.service.ProjectileTrailFollower? = null,
 ) {
     /**
      * Fire the `cast` phase, then spawn the projectile via [IProjectileService].
@@ -77,23 +77,23 @@ public class ProjectileHandler(
                 pose = pose,
             ),
         )
-        projectileService.spawn(
+        val handle = projectileService.spawn(
             spec = spec,
             origin = muzzle,
             direction = direction,
             owner = event.caster,
         )
+
+        // 3. Per-tick trail (RTM Effect.Particles.Projectile).
+        val trail = params.visual.trail
+        val world = pose?.world
+        if (trail != null && world != null && trailFollower != null) {
+            trailFollower.follow(handle, world, muzzle, direction, trail, params.visual.trailSpacing)
+        }
     }
 
-    private fun visualOf(visual: ProjectileVisualParams): ProjectileVisual {
-        val trail = visual.trail.mapNotNull { id -> particles(id)?.toParticleSpec() }
-        if (trail.isEmpty() && visual.display == null) return ProjectileVisual.None
-        return ProjectileVisual(
-            trail = trail,
-            trailIntervalTicks = visual.trailIntervalTicks,
-            display = visual.display,
-        )
-    }
+    private fun visualOf(visual: ProjectileVisualParams): ProjectileVisual =
+        if (visual.display == null) ProjectileVisual.None else ProjectileVisual(display = visual.display)
 
     public companion object {
         /** Default hit-test radius when the skill does not set `hit_radius`. */

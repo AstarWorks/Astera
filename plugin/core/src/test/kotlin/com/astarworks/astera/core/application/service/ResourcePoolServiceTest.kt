@@ -53,8 +53,8 @@ class ResourcePoolServiceTest {
 
     private fun seedItems() {
         itemRegistry.register(pistolId, makeItem(pistolId, ResourceType.Ammo, max = 12, reloadable = true))
-        itemRegistry.register(swordId, makeItem(swordId, ResourceType.Stamina, max = 50, reloadable = false))
-        itemRegistry.register(wandId, makeItem(wandId, ResourceType.Mana, max = 80, reloadable = false))
+        itemRegistry.register(swordId, makeItem(swordId, ResourceType.Energy, max = 50, reloadable = false))
+        itemRegistry.register(wandId, makeItem(wandId, ResourceType.Energy, max = 80, reloadable = false))
         itemRegistry.register(potionId, makeItem(potionId, type = null))
     }
 
@@ -91,19 +91,19 @@ class ResourcePoolServiceTest {
         val pool = service.initialiseFor(pid)
 
         assertThat(pool.ammo).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Ammo]!!.maxPool)
-        assertThat(pool.stamina).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Stamina]!!.maxPool)
-        assertThat(pool.mana).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Mana]!!.maxPool)
+        assertThat(pool.energy).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Energy]!!.maxPool)
+        assertThat(pool.energy).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Energy]!!.maxPool)
         assertThat(pool.activeWeapon).isNull()
     }
 
     @Test
     fun `initialiseFor is idempotent`() {
         service.initialiseFor(pid)
-        service.spendResource(pid, ResourceType.Mana, 50)
+        service.spendResource(pid, ResourceType.Energy, 50)
         val again = service.initialiseFor(pid)
 
         // The second call must NOT reset (idempotent).
-        assertThat(again.mana).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Mana]!!.maxPool - 50)
+        assertThat(again.energy).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Energy]!!.maxPool - 50)
     }
 
     @Test
@@ -135,14 +135,14 @@ class ResourcePoolServiceTest {
         val captured = mutableListOf<ResourceSpent>()
         eventBus.subscribe(ResourceSpent::class) { captured += it }
         service.initialiseFor(pid)
-        val before = service.currentPool(pid)!!.mana
+        val before = service.currentPool(pid)!!.energy
 
-        val outcome = service.spendResource(pid, ResourceType.Mana, 20)
+        val outcome = service.spendResource(pid, ResourceType.Energy, 20)
 
         assertThat(outcome).isEqualTo(Result.success(before - 20))
-        assertThat(service.currentPool(pid)!!.mana).isEqualTo(before - 20)
+        assertThat(service.currentPool(pid)!!.energy).isEqualTo(before - 20)
         assertThat(captured).hasSize(1)
-        assertThat(captured[0].type).isEqualTo(ResourceType.Mana)
+        assertThat(captured[0].type).isEqualTo(ResourceType.Energy)
         assertThat(captured[0].amount).isEqualTo(20)
         assertThat(captured[0].remaining).isEqualTo(before - 20)
     }
@@ -151,21 +151,21 @@ class ResourcePoolServiceTest {
     fun `spendResource fails Insufficient when below amount`() {
         service.initialiseFor(pid)
 
-        val outcome = service.spendResource(pid, ResourceType.Mana, 9999)
+        val outcome = service.spendResource(pid, ResourceType.Energy, 9999)
 
         assertThat(outcome.errorOrNull()).isInstanceOf(ResourceError.Insufficient::class.java)
     }
 
     @Test
     fun `spendResource fails UninitialisedPlayer before init`() {
-        val outcome = service.spendResource(pid, ResourceType.Mana, 1)
+        val outcome = service.spendResource(pid, ResourceType.Energy, 1)
         assertThat(outcome.errorOrNull()).isEqualTo(ResourceError.UninitialisedPlayer)
     }
 
     @Test
     fun `spendResource rejects negative amount`() {
         service.initialiseFor(pid)
-        val outcome = service.spendResource(pid, ResourceType.Mana, -1)
+        val outcome = service.spendResource(pid, ResourceType.Energy, -1)
         assertThat(outcome.errorOrNull()).isInstanceOf(ResourceError.InvalidValue::class.java)
     }
 
@@ -209,13 +209,13 @@ class ResourcePoolServiceTest {
     @Test
     fun `applyRegen clamps at type cap`() {
         service.initialiseFor(pid)
-        val outcome = service.applyRegen(pid, ResourceType.Mana, 9999)
-        assertThat(outcome).isEqualTo(Result.success(ResourceCap.DEFAULTS[ResourceType.Mana]!!.maxPool))
+        val outcome = service.applyRegen(pid, ResourceType.Energy, 9999)
+        assertThat(outcome).isEqualTo(Result.success(ResourceCap.DEFAULTS[ResourceType.Energy]!!.maxPool))
     }
 
     @Test
     fun `applyRegen UninitialisedPlayer when no init`() {
-        val outcome = service.applyRegen(pid, ResourceType.Mana, 5)
+        val outcome = service.applyRegen(pid, ResourceType.Energy, 5)
         assertThat(outcome.errorOrNull()).isEqualTo(ResourceError.UninitialisedPlayer)
     }
 
@@ -223,8 +223,8 @@ class ResourcePoolServiceTest {
     fun `capFor returns cap defaults without an active weapon`() {
         service.initialiseFor(pid)
         assertThat(service.capFor(pid, ResourceType.Ammo)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Ammo])
-        assertThat(service.capFor(pid, ResourceType.Stamina)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Stamina])
-        assertThat(service.capFor(pid, ResourceType.Mana)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Mana])
+        assertThat(service.capFor(pid, ResourceType.Energy)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Energy])
+        assertThat(service.capFor(pid, ResourceType.Energy)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Energy])
     }
 
     @Test
@@ -232,7 +232,7 @@ class ResourcePoolServiceTest {
         service.initialiseFor(pid)
         service.setActiveWeapon(pid, pistolId)
         assertThat(service.capFor(pid, ResourceType.Ammo).maxPool).isEqualTo(12)
-        assertThat(service.capFor(pid, ResourceType.Mana)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Mana])
+        assertThat(service.capFor(pid, ResourceType.Energy)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Energy])
     }
 
     @Test
@@ -247,8 +247,8 @@ class ResourcePoolServiceTest {
     fun `applyRegen clamps at the active weapon capacity`() {
         service.initialiseFor(pid)
         service.setActiveWeapon(pid, wandId)
-        service.spendResource(pid, ResourceType.Mana, 70)
-        val outcome = service.applyRegen(pid, ResourceType.Mana, 999)
+        service.spendResource(pid, ResourceType.Energy, 70)
+        val outcome = service.applyRegen(pid, ResourceType.Energy, 999)
         assertThat(outcome.getOrNull()).isEqualTo(80)
     }
 

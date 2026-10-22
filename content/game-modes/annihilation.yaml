@@ -2,7 +2,7 @@
 #
 # Astera's core-identity game mode (per `.claude/plans/idea-annihilation-vision.md`):
 # 3 teams, 3 pillars per team (graceful degradation defensive Nexus), 銃/剣/魔法
-# hybrid combat with per-class resource pools (Wave 5k Ammo / Stamina / Mana),
+# hybrid combat with per-class resource pools (Wave 5k Ammo / Energy),
 # Wave 5combat-depth combo + focus-fire + target-lock integration.
 #
 # Lifecycle:
@@ -13,7 +13,7 @@
 #
 # Per-tier debuffs (applied when the owning team loses the pillar):
 #   Tier 1 lost → respawn delay +2 sec.
-#   Tier 2 lost → resource regen × 0.5 (Ammo / Stamina / Mana).
+#   Tier 2 lost → resource regen × 0.5 (Ammo / Energy).
 #   Tier 3 lost → team eliminated.
 #
 # Tunables under `default_config` are parsed by AnnihilationYamlOverlay; see

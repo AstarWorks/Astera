@@ -1,9 +1,6 @@
 package com.astarworks.astera.core.application.gui.hud
 
-import com.astarworks.astera.core.application.gui.hud.examples.manaBarHud
 import com.astarworks.astera.core.application.gui.hud.examples.starCounterHud
-import com.astarworks.astera.core.domain.hud.BossBarColor
-import com.astarworks.astera.core.domain.hud.BossBarStyle
 import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
@@ -15,11 +12,11 @@ import org.junit.jupiter.api.Test
  * DSL behaviour tests for [HudLayoutBuilder] (Wave 5j Worker δ, ADR-0097).
  *
  * Two-level coverage:
- *  1. DSL primitives — every layout (`actionBar` / `bossBar` / `sidebar` /
+ *  1. DSL primitives — every layout (`actionBar` / `sidebar` /
  *     `tabList` / `subtitle`) + every component primitive (`text` /
  *     `glyph` / `progressBar` / `composite` / `spacer`) + required-field
  *     guards (empty block, double layout).
- *  2. Example HUDs — `manaBarHud` and `starCounterHud` exercise the same
+ *  2. Example HUDs — `starCounterHud` exercise the same
  *     code path the production combat / economy plugins will use in
  *     Wave 5n / 5q, so any DSL signature drift surfaces here first.
  *
@@ -52,29 +49,6 @@ class HudLayoutBuilderTest {
         } as HudLayout.ActionBar
 
         assertThat(layout.ttlTicks).isEqualTo(40)
-    }
-
-    @Test
-    fun `bossBar builds BossBarSlot with slot color style and progress`() {
-        val layout = hudLayout {
-            bossBar(
-                slot = 2,
-                color = BossBarColor.BLUE,
-                style = BossBarStyle.NOTCHED_10,
-                progress = 0.5f,
-            ) {
-                glyph("hud/test")
-            }
-        }
-
-        assertThat(layout).isInstanceOf(HudLayout.BossBarSlot::class.java)
-        val bossBar = layout as HudLayout.BossBarSlot
-        assertThat(bossBar.slot).isEqualTo(2)
-        assertThat(bossBar.color).isEqualTo(BossBarColor.BLUE)
-        assertThat(bossBar.style).isEqualTo(BossBarStyle.NOTCHED_10)
-        assertThat(bossBar.progress).isEqualTo(0.5f)
-        assertThat(bossBar.component).isInstanceOf(HudComponent.Glyph::class.java)
-        assertThat((bossBar.component as HudComponent.Glyph).textureRef.value).isEqualTo("hud/test")
     }
 
     @Test
@@ -228,7 +202,6 @@ class HudLayoutBuilderTest {
             .isInstanceOf(IllegalStateException::class.java)
             .hasMessageContaining("hudLayout")
             .hasMessageContaining("actionBar")
-            .hasMessageContaining("bossBar")
     }
 
     @Test
@@ -265,18 +238,6 @@ class HudLayoutBuilderTest {
     }
 
     @Test
-    fun `bossBar with out-of-range slot is rejected by domain init`() {
-        assertThatThrownBy {
-            hudLayout {
-                bossBar(slot = 5, color = BossBarColor.BLUE, style = BossBarStyle.PROGRESS) {
-                    text("astera.hud.foo")
-                }
-            }
-        }.isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("slot must be 1..4")
-    }
-
-    @Test
     fun `glyph with invalid ref pattern surfaces the HudGlyphRef validator`() {
         assertThatThrownBy {
             hudLayout { actionBar { glyph("INVALID/Foo!") } }
@@ -287,53 +248,6 @@ class HudLayoutBuilderTest {
     // ---------------------------------------------------------------------
     // 4. Example HUDs — production-grade reference
     // ---------------------------------------------------------------------
-
-    @Test
-    fun `manaBarHud returns BossBarSlot with correct progress for half mana`() {
-        val layout = manaBarHud(currentMana = 50, maxMana = 100)
-
-        assertThat(layout).isInstanceOf(HudLayout.BossBarSlot::class.java)
-        val bossBar = layout as HudLayout.BossBarSlot
-        assertThat(bossBar.slot).isEqualTo(1)
-        assertThat(bossBar.color).isEqualTo(BossBarColor.BLUE)
-        assertThat(bossBar.style).isEqualTo(BossBarStyle.NOTCHED_10)
-        assertThat(bossBar.progress).isEqualTo(0.5f)
-    }
-
-    @Test
-    fun `manaBarHud composite contains icon + spacer + value text`() {
-        val layout = manaBarHud(75, 100) as HudLayout.BossBarSlot
-        val composite = layout.component as HudComponent.Composite
-
-        assertThat(composite.parts).hasSize(3)
-        assertThat((composite.parts[0] as HudComponent.Glyph).textureRef.value)
-            .isEqualTo("hud/mana/icon")
-        assertThat((composite.parts[1] as HudComponent.Spacer).widthPx).isEqualTo(2)
-        assertThat((composite.parts[2] as HudComponent.Text).messageKey.value)
-            .isEqualTo("astera.hud.mana.value")
-    }
-
-    @Test
-    fun `manaBarHud with zero max mana clamps progress to 0 without NaN`() {
-        val layout = manaBarHud(currentMana = 0, maxMana = 0) as HudLayout.BossBarSlot
-
-        assertThat(layout.progress).isEqualTo(0f)
-        assertThat(layout.progress.isNaN()).isFalse
-    }
-
-    @Test
-    fun `manaBarHud with current greater than max clamps progress to 1`() {
-        val layout = manaBarHud(currentMana = 200, maxMana = 100) as HudLayout.BossBarSlot
-
-        assertThat(layout.progress).isEqualTo(1f)
-    }
-
-    @Test
-    fun `manaBarHud rejects negative mana`() {
-        assertThatThrownBy { manaBarHud(currentMana = -1, maxMana = 100) }
-            .isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessageContaining("currentMana")
-    }
 
     @Test
     fun `starCounterHud returns ActionBar with 20-tick TTL`() {

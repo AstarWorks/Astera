@@ -91,6 +91,11 @@ astera:
   stats.xp.invalid-amount: "<red>Invalid XP amount.</red>"
   tutorial.error: "<red>Tutorial error: {error}</red>"
   tutorial.no_active: "<yellow>No tutorial is running.</yellow>"
+  skill.list.header: "<gold>{count} skills:</gold>"
+  skill.list.entry: "<gray> - <white>{id}</white> ({archetype}, cooldown {cooldown}t)</gray>"
+  skill.cast.ok: "<green>Cast <white>{skill}</white> for {player}.</green>"
+  skill.cast.need-target: "<red>Name a player: /astera skill cast <skill-id> <player></red>"
+  skill.cast.no-player: "<red>Player <gold>{player}</gold> is offline or unknown.</red>"
 
   command:
     give:
@@ -145,6 +150,9 @@ astera:
       match-replay-export: "Export a saved replay to a file"
       items: "Items"
       items-give: "Give an item to a player"
+      skill: "Cast any skill directly"
+      skill-list: "List every registered skill"
+      skill-cast: "Cast a skill (no resource cost; --force ignores its cooldown)"
       economy: "Currency"
       economy-balance: "Show a balance (yours by default)"
       economy-grant: "Grant currency to a player"
@@ -153,6 +161,7 @@ astera:
       stats: "Player statistics"
       stats-show: "Show statistics (yours by default)"
       stats-leaderboard: "Show the season leaderboard"
+      stats-last: "Show your most recent match"
       stats-xp: "XP tools"
       stats-xp-grant: "Grant XP to a player"
       friend: "Friends"
@@ -708,9 +717,9 @@ astera:
       "5": "<aqua><bold>5</bold></aqua>"
     # Wave 5game-complete (ADR-0121 §D) — per-player verdict + chat header.
     summary:
-      victory: "<gold><bold>Victory!</bold></gold>"
-      defeat: "<dark_red><bold>Defeat</bold></dark_red>"
-      draw: "<gray><bold>Draw</bold></gray>"
+      victory: "<gold><bold>VICTORY!</bold></gold>"
+      defeat: "<dark_red><bold>DEFEAT</bold></dark_red>"
+      draw: "<gray><bold>DRAW</bold></gray>"
       header: "<dark_aqua>== Match Summary ==</dark_aqua>"
       reason:
         score-threshold: "<gray>Ended by reaching the score threshold.</gray>"
@@ -719,6 +728,37 @@ astera:
         sudden-death: "<gray>Resolved in sudden death.</gray>"
         objective: "<gray>Ended by objective completion.</gray>"
         cancelled: "<gray>Match was cancelled.</gray>"
+        world-unloaded: "<gray>The match world was unloaded.</gray>"
+    # F3-4 — result screen (chat part) shown at match end, before the transfer back.
+    result:
+      score:
+        label: "<gray>Score</gray>  {scores}"
+        team: "<{color}>{team}</{color}> <white><bold>{score}</bold></white>"
+      top:
+        header: "<gray>Top players</gray> <dark_gray>(kills / deaths / assists, objectives)</dark_gray>"
+        entry: " <yellow>{rank}.</yellow> <{color}>{name}</{color}> <white>{kills}</white><gray>/</gray><white>{deaths}</white><gray>/</gray><white>{assists}</white> <dark_gray>|</dark_gray> <white>{objective}</white>{mvp}"
+      mvp-tag: " <gold>[MVP]</gold>"
+      mvp: "<gold><bold>MVP:</bold></gold> <{color}>{name}</{color}> <gray>({kills} / {deaths} / {assists})</gray>"
+      you: "<aqua>You:</aqua> <white>{kills}</white> <gray>kills</gray>, <white>{deaths}</white> <gray>deaths</gray>, <white>{assists}</white> <gray>assists</gray>, <white>{objective}</white> <gray>objectives</gray>"
+    # F3-4 — reward breakdown paid at match end (match-rewards.yaml).
+    reward:
+      header: "<gold>-- Rewards --</gold>"
+      none: "<gray>No rewards this match.</gray>"
+      line: " <gray>{label}</gray> <dark_gray>></dark_gray> {amounts}"
+      total: "<gold><bold>Total</bold></gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      level: "<aqua>Level {level}</aqua> <gray>({into} / {next} XP to the next level)</gray>"
+      levelup: "<green><bold>LEVEL UP!</bold></green> <white>{from}</white> <gray>-></gray> <white>{to}</white>"
+      amount:
+        star: "<yellow>+{amount} STAR</yellow>"
+        gold: "<gold>+{amount} GOLD</gold>"
+        xp: "<aqua>+{amount} XP</aqua>"
+      kind:
+        participation: "Participation"
+        result: "Match result"
+        kills: "Kills x{count}"
+        assists: "Assists x{count}"
+        objectives: "Objectives x{count}"
+        mvp: "MVP bonus"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — reconnect-window countdown
     # ActionBar shown while a disconnected participant is held in the seat.
     reconnect:
@@ -768,8 +808,7 @@ astera:
     cast:
       insufficient:
         ammo: "Out of ammo - press Q to reload"
-        mana: "Not enough mana"
-        stamina: "Not enough stamina"
+        energy: "Not enough energy"
       reloading: "Reloading..."
       ammo_full: "Magazine is full"
       not_reloadable: "This item cannot be reloaded"
@@ -823,10 +862,6 @@ astera:
   # Wave 5b HUD reference design (ADR-0031). Keys are reserved here so
   # Wave 6 Paper impls have a localised string ready when widgets are wired.
   hud:
-    bossbar:
-      match:
-        phase: "<gold>Phase:</gold> <white>{phase}</white>"
-        time_remaining: "<gold>Time:</gold> <white>{time}</white>"
     scoreboard:
       match:
         title: "<gold><bold>Match</bold></gold>"
@@ -839,33 +874,38 @@ astera:
       streak: "<gold>Combo x{streak}</gold>"
     leveled-up:
       title: "<yellow><bold>Level {level}!</bold></yellow>"
-    mana:
-      value: "<aqua>{mana}</aqua>"
     star:
       count: "<gold>{count}</gold>"
     mining:
       progress: "<gray>Mining...</gray>"
     # WP14 (ADR-0177) — one owner per HUD channel (see docs/adr/0177-*).
-    #   action bar : combat readout (cooldowns + status effects), toasts on top
-    #   boss bar 1 : weapon resource   sidebar : match / lobby
+    #   action bar : combat readout (status effects), toasts on top
+    #   cooldown icons ride the status line (ADR-0197)
+    #   food bar   : energy (F2-2, ADR-0194)   status line : HP + ammo   sidebar : match / lobby
     cooldown:
-      summary: "<aqua>Cooldown:</aqua> <white>{count} ({seconds}s)</white>"
+      lc:
+        waiting: "<gray>LC</gray> <white>{seconds}s</white>"
+        ready: "<green>LC OK</green>"
+      rc:
+        waiting: "<gray>RC</gray> <white>{seconds}s</white>"
+        ready: "<green>RC OK</green>"
+      sneak-lc:
+        waiting: "<gray>Sneak+LC</gray> <white>{seconds}s</white>"
+        ready: "<green>Sneak+LC OK</green>"
+      sneak-rc:
+        waiting: "<gray>Sneak+RC</gray> <white>{seconds}s</white>"
+        ready: "<green>Sneak+RC OK</green>"
+      q:
+        waiting: "<gray>Q</gray> <white>{seconds}s</white>"
+        ready: "<green>Q OK</green>"
     currency:
       summary: "<gold>{delta} {currency}</gold> <gray>({balance})</gray>"
-    resource:
-      mana:
-        label: "<aqua>Mana:</aqua> <white>{remaining}/{max}</white>"
-      stamina:
-        label: "<yellow>Stamina:</yellow> <white>{remaining}/{max}</white>"
-      ammo:
-        label: "<white>Ammo:</white> <white>{remaining}/{max}</white>"
-        empty: "<red>Empty - reload!</red> <white>{remaining}/{max}</white>"
-        reloading: "<yellow>Reloading...</yellow>"
-        reloaded: "<green>Reloaded</green> <white>{remaining}/{max}</white>"
     status:
       stacks: "<gray>x{stacks}</gray>"
       # ADR-0182 — plain-text HP, shown while the resource pack is not loaded.
       hp: "<red>HP</red> <white>{current}/{max}</white>"
+      # F2-2 (ADR-0194) - text form while a gun is held and the pack is not loaded.
+      hp-ammo: "<red>HP</red> <white>{current}/{max}</white>  <yellow>Ammo</yellow> <white>{ammo}/{ammoMax}</white>"
     resource-pack:
       prompt: "<gold>Astera resource pack</gold> <gray>- custom HP bar, item models and sounds</gray>"
     sidebar:
@@ -963,6 +1003,20 @@ astera:
       kills-100:
         name: "<gold>Legend</gold>"
         description: "<gray>100 kills.</gray>"
+
+    # F3-4 — "last match" card: /astera stats last and the lobby recap.
+    last:
+      none: "<gray>No match played yet.</gray>"
+      recap: "<dark_aqua>== Your last match ==</dark_aqua>"
+      header:
+        win: "<gold><bold>VICTORY</bold></gold> <gray>in {mode}, {ago} ago</gray>"
+        lose: "<dark_red><bold>DEFEAT</bold></dark_red> <gray>in {mode}, {ago} ago</gray>"
+        draw: "<gray><bold>DRAW</bold></gray> <gray>in {mode}, {ago} ago</gray>"
+      score: "<gray>Score:</gray> <white>{scores}</white>"
+      you: "<aqua>You:</aqua> <white>{kills}</white> <gray>kills</gray>, <white>{deaths}</white> <gray>deaths</gray>, <white>{assists}</white> <gray>assists</gray>, <white>{objective}</white> <gray>objectives</gray>"
+      mvp: "<gold>You were the MVP!</gold>"
+      rewards: "<gold>Rewards</gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      level: "<aqua>Level {level}</aqua> <gray>({into} / {next} XP to the next level)</gray>"
 
     # Wave 5flex (ADR-0102) — match-nameplate milestone labels. Keyed by
     # achievement id; the listener prefixes with `astera.stats.milestone.`.
@@ -1452,6 +1506,31 @@ astera:
       critical:
         broadcast: "<dark_red><bold>[Astera Critical]</bold></dark_red> <red>A server-side critical error was reported. Inspect the console or /astera admin audit.</red>"
     panel:
+      "skills.title": "Admin: Skills"
+      "skills.hub": "<gold>Skills</gold>"
+      "skills.hub.lore": "<gray>Cast any skill; shift-click for a skill tester item.</gray>"
+      "skills.tab.all": "{mark} <white>All skills</white> <gray>({count})</gray>"
+      "skills.tab.projectile": "{mark} <white>Projectile</white> <gray>({count})</gray>"
+      "skills.tab.melee": "{mark} <white>Melee</white> <gray>({count})</gray>"
+      "skills.tab.aoe": "{mark} <white>Area</white> <gray>({count})</gray>"
+      "skills.tab.buff": "{mark} <white>Buff</white> <gray>({count})</gray>"
+      "skills.tab.teleport": "{mark} <white>Teleport</white> <gray>({count})</gray>"
+      "skills.tab.summon": "{mark} <white>Summon</white> <gray>({count})</gray>"
+      "skills.tab.lore": "<gray>Click to filter.</gray>"
+      "skills.entry.name": "<yellow>{id}</yellow>"
+      "skills.entry.info": "<gray>{archetype} / cooldown {cooldown} ticks</gray>"
+      "skills.entry.hint": "<green>Click: cast now</green>"
+      "skills.entry.hint-shift": "<aqua>Shift-click: get a skill tester item</aqua>"
+      "skills.empty": "<gray>No skills loaded.</gray>"
+      "skills.tester-given": "<green>Gave a skill tester for <white>{skill}</white>. Right-click to cast.</green>"
+      "skills.err.unknown": "<red>Unknown skill <gold>{skill}</gold>.</red>"
+      "skills.err.cooldown": "<red><gold>{skill}</gold> is on cooldown for {seconds}s (use --force).</red>"
+      "skills.err.silenced": "<red>You are silenced.</red>"
+      "skills.err.cast": "<red>Could not cast <gold>{skill}</gold>.</red>"
+      "skills.err.no-items": "<red>The items plugin is not available.</red>"
+      "skills.err.no-template": "<red>content/items/skill-tester.yaml is missing.</red>"
+      "skills.err.full": "<red>Your inventory is full.</red>"
+      "skills.err.delivery": "<red>Could not hand over the tester for <gold>{skill}</gold>.</red>"
       "denied": "<red>You need <gold>{permission}</gold> to use the admin panel.</red>"
       "command.root": "<gray>Open the admin panel (weapons, matches, players, server, self tools).</gray>"
       "nav.back": "<yellow>Back to admin hub</yellow>"
@@ -1579,8 +1658,8 @@ astera:
       "combat.tile.god.lore": "<gray>Immune in the Astera damage path.</gray>"
       "combat.tile.cooldowns": "<yellow>Clear cooldowns</yellow>"
       "combat.tile.cooldowns.lore": "<gray>Reset every active cooldown.</gray>"
-      "combat.tile.refill": "<green>Refill ammo / mana</green>"
-      "combat.tile.refill.lore": "<gray>Fill ammo, mana and stamina.</gray>"
+      "combat.tile.refill": "<green>Refill ammo / energy</green>"
+      "combat.tile.refill.lore": "<gray>Fill ammo and energy.</gray>"
       "combat.healed": "<green>Healed <white>{player}</white> to full.</green>"
       "combat.statuses-cleared": "<green>Cleared statuses of <white>{player}</white>.</green>"
       "combat.cooldowns-cleared": "<green>Cleared <white>{count}</white> cooldown(s) of {player}.</green>"

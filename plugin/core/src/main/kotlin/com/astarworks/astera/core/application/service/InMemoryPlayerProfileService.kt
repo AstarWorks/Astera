@@ -2,6 +2,7 @@ package com.astarworks.astera.core.application.service
 
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
+import com.astarworks.astera.core.application.port.outbound.IPlayerProfileRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerProfileService
 import com.astarworks.astera.core.application.port.outbound.ITutorialRegistry
 import com.astarworks.astera.core.application.port.outbound.ProfileError
@@ -64,11 +65,12 @@ public class InMemoryPlayerProfileService(
     private val ledgerProvider: () -> ICurrencyLedger?,
     private val tutorialRegistry: ITutorialRegistry,
     private val nowEpochMs: () -> Long = { System.currentTimeMillis() },
+    /** Durable "already onboarded" store; Persistence overlays it (ADR-0197). */
+    private val repository: IPlayerProfileRepository = InMemoryPlayerProfileRepository(),
 ) : IPlayerProfileService {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val profiles: ConcurrentHashMap<PlayerId, PlayerProfile> = ConcurrentHashMap()
 
     /**
      * Items actually granted (post-registry-lookup) per player. The Phase 2
@@ -87,7 +89,7 @@ public class InMemoryPlayerProfileService(
     /** Monotonic counter used solely as a tie-breaker in [createFirstTime] / tests. */
     private val seq = AtomicLong(0)
 
-    override fun find(playerId: PlayerId): PlayerProfile? = profiles[playerId]
+    override fun find(playerId: PlayerId): PlayerProfile? = repository.find(playerId)
 
     override fun createFirstTime(
         playerId: PlayerId,
@@ -103,8 +105,7 @@ public class InMemoryPlayerProfileService(
         )
 
         // putIfAbsent guarantees first-writer-wins under concurrent joins.
-        val existing = profiles.putIfAbsent(playerId, placeholder)
-        if (existing != null) {
+        if (!repository.insertIfAbsent(placeholder)) {
             return Result.failure(ProfileError.AlreadyExists(playerId))
         }
         seq.incrementAndGet()

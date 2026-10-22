@@ -18,16 +18,18 @@ import com.astarworks.astera.core.application.port.outbound.ResourceError
 import com.astarworks.astera.core.application.port.outbound.runLaterTicks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.cooldown.CooldownKey
+import com.astarworks.astera.core.domain.event.SkillCooldownStarted
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.PhaseOverrides
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.core.domain.skill.SkillId
+import com.astarworks.astera.core.domain.skill.SkillTrigger
 
 /**
  * Gates a skill cast: looks up the spec, checks silence, per-skill cooldown and
- * reload state, **spends the cast's resource** (ammo / mana / stamina, WP2),
+ * reload state, **spends the cast's resource** (ammo / energy, WP2; ADR-0194),
  * records the cooldown via [ICooldownTracker], publishes [SkillCast], and
  * returns the spec.
  *
@@ -49,6 +51,8 @@ import com.astarworks.astera.core.domain.skill.SkillId
  * [CastSkillError.Reloading].
  *
  * # Cooldown
+ *
+ * Starting one publishes [SkillCooldownStarted] (ADR-0197) with the input [trigger] that cast it.
  *
  * [cooldownOverrideTicks] (the item binding's `cooldown_override_ticks`) wins
  * over the skill's own `cooldown_ticks` when present. Cooldowns are tracked by
@@ -100,6 +104,9 @@ public class CastSkillUseCase(
         phaseOverrides: PhaseOverrides = PhaseOverrides.EMPTY,
         sourceItemId: ItemId? = null,
         cooldownOverrideTicks: Int? = null,
+        /** Admin casts (F2-5): do not spend the skill's / item's resource (the cooldown still applies). */
+        ignoreResource: Boolean = false,
+        trigger: SkillTrigger? = null,
     ): Result<SkillSpec, CastSkillError> {
         // 1. Look up spec
         val spec = skillRegistry.find(skillId)
@@ -124,7 +131,7 @@ public class CastSkillUseCase(
         val pool = resourcePool
         val sourceItem = sourceItemId?.let { items?.find(it) }
         var reloadItem: ItemId? = null
-        if (pool != null) {
+        if (pool != null && !ignoreResource) {
             pool.initialiseFor(casterId)
             if (sourceItemId != null) pool.setActiveWeapon(casterId, sourceItemId)
             if (spec.reloadTicks != null) {
@@ -184,6 +191,22 @@ public class CastSkillUseCase(
             }
         }
 
+        // 5c. ADR-0197: tell the item side / HUD that the skill is cooling down (hotbar sweep, ready cue).
+        val reloadTicks = if (reloadItem != null) spec.reloadTicks else null
+        if (cooldownTicks > 0 || reloadTicks != null) {
+            eventBus.publish(
+                SkillCooldownStarted(
+                    playerId = casterId,
+                    skillId = skillId,
+                    sourceItemId = sourceItemId,
+                    trigger = trigger,
+                    durationTicks = cooldownTicks,
+                    reloadTicks = reloadTicks,
+                    atTick = now,
+                ),
+            )
+        }
+
         // 6. Stash phase overrides for the dispatcher to consume on the same event.
         skillCastDispatcher?.setPendingOverrides(
             SkillCastDispatcher.OverrideKey(casterId, skillId),
@@ -214,8 +237,7 @@ public class CastSkillUseCase(
 
     private fun rejectionFor(type: ResourceType): CastRejectionReason = when (type) {
         ResourceType.Ammo -> CastRejectionReason.INSUFFICIENT_AMMO
-        ResourceType.Mana -> CastRejectionReason.INSUFFICIENT_MANA
-        ResourceType.Stamina -> CastRejectionReason.INSUFFICIENT_STAMINA
+        ResourceType.Energy -> CastRejectionReason.INSUFFICIENT_ENERGY
     }
 
     private companion object {

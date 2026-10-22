@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.forEveryone
 import com.astarworks.astera.core.application.command.requirePermission
+import com.astarworks.astera.core.application.port.outbound.ILastMatchStore
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
@@ -12,7 +13,9 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.XpSource
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
+import com.astarworks.astera.stats.application.service.LastMatchView
 import com.astarworks.astera.stats.application.usecase.level.GrantXpUseCase
+import java.time.Clock
 import com.astarworks.astera.stats.application.usecase.leaderboard.QueryLeaderboardUseCase
 
 /**
@@ -21,6 +24,7 @@ import com.astarworks.astera.stats.application.usecase.leaderboard.QueryLeaderbo
  *
  * ```
  * /astera stats show [player]            astera.stats.view      (everyone; others: astera.stats.show.other)
+ * /astera stats last                    astera.stats.view      (everyone; your most recent match, F3-4)
  * /astera stats leaderboard [n]          astera.stats.leaderboard (everyone)
  * /astera stats xp grant <player> <amount>   astera.stats.xp.grant   (operators / moderators)
  * ```
@@ -33,9 +37,25 @@ internal class StatsCommands(
     private val queryLeaderboard: QueryLeaderboardUseCase,
     private val players: IPlayerGateway,
     private val permissions: () -> IPermissionService,
+    private val lastMatches: () -> ILastMatchStore?,
+    private val clock: Clock = Clock.systemUTC(),
 ) {
 
-    fun build(): List<CommandSpec.Literal> = listOf(show(), leaderboard(), xp())
+    fun build(): List<CommandSpec.Literal> = listOf(show(), last(), leaderboard(), xp())
+
+    private fun last(): CommandSpec.Literal = CommandSpec.Literal(
+        name = "last",
+        executor = lambda@{ ctx ->
+            val me = ctx.sender ?: return@lambda CommandResult.Failure(MessageKey("astera.command.player-only"))
+            val record = lastMatches()?.find(me)
+            if (record == null) {
+                ctx.reply(MessageKey("astera.stats.last.none"))
+            } else {
+                LastMatchView.lines(record, clock.instant().epochSecond).forEach { ctx.reply(it.key, it.params) }
+            }
+            CommandResult.Success
+        },
+    ).forEveryone(Permission("astera.stats.view"))
 
     private fun show(): CommandSpec.Literal = CommandSpec.Literal(
         name = "show",
