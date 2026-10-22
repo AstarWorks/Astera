@@ -241,7 +241,12 @@ internal fun CoreWiringState.wireBase() {
     val languages = LanguageLoader.loadFrom(contentDir.resolve("languages"))
     simpleMessages = SimpleMessageRenderer(
         languages = languages,
-        localeResolver = { playerId -> playerId?.let { mcServer.findPlayer(it)?.locale } },
+        localeResolver = { playerId ->
+            playerId?.let {
+                services.get<IPlayerSettingsRepository>()?.find(it)?.locale?.code
+                    ?: mcServer.findPlayer(it)?.locale
+            }
+        },
     )
     messages = simpleMessages
 
