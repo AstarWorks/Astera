@@ -317,7 +317,12 @@ internal fun CoreWiringState.wireGui() {
         )
     val guiBindingResolver: IGuiBindingResolver = compositeBindingResolver
 
-    guiAdapter = ports.guiAdapter.create(itemContents, messages, guiBindingResolver)
+    // ADR-0240: slots with `visible_if` are stripped per viewer; the answer comes from
+    // ViewerVisibility, registered by wireAdminPanel (fail closed until then).
+    guiAdapter = com.astarworks.astera.core.application.gui.ViewerFilteringGuiAdapter(
+        delegate = ports.guiAdapter.create(itemContents, messages, guiBindingResolver),
+        visibility = { services.get<com.astarworks.astera.core.application.gui.ViewerVisibility>() },
+    )
     guiIntentRouter = DefaultGuiIntentRouter(adapterProvider = { guiAdapter })
 
     services.register<IGuiRegistry>(guiContents)

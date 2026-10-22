@@ -1,0 +1,7 @@
+# ADR-0240 - ops-only "Item catalog" tile (main menu + inventory crafting grid). Opens the admin items catalog.
+
+id: gui-tile-item-catalog
+material: DIAMOND_SWORD
+name:
+  ja: "<red>アイテムカタログ</red>"
+  en: "<red>Item Catalog</red>"

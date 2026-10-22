@@ -76,6 +76,7 @@ public sealed class GuiSlotYamlConfig {
      *   tooltip:
      *     - astera.shop.iron-sword.tooltip.line1
      *     - astera.shop.iron-sword.tooltip.line2
+     *   visible_if: permission:astera.admin.panel   # optional (ADR-0240): hidden for other viewers
      * ```
      * All click handlers + tooltip are optional. Pre-Wave 5h-fix2 YAML used
      * `on_click:` (single intent for any click) — forward-only migration:
@@ -92,6 +93,7 @@ public sealed class GuiSlotYamlConfig {
         @SerialName("on_middle") val onMiddle: GuiIntentYamlConfig? = null,
         val tooltip: List<String> = emptyList(),
         val count: Int = 1,
+        @SerialName("visible_if") val visibleIf: String? = null,
     ) : GuiSlotYamlConfig() {
         override fun toSlotPair(): Pair<SlotIndex, GuiSlot> =
             SlotIndex(index) to GuiSlot.Static(
@@ -102,6 +104,7 @@ public sealed class GuiSlotYamlConfig {
                 onMiddleClick = onMiddle?.toIntent(),
                 tooltip = tooltip.map { MessageKey(it) },
                 count = count,
+                visibleIf = visibleIf,
             )
     }
 

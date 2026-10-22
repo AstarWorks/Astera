@@ -37,9 +37,15 @@ class LobbyMenuKitTest {
 
     @Test
     fun `shipped kit fills the whole 2x2 grid and the result slot`() {
-        assertThat(kit.entries(KitArea.CRAFTING_GRID).map { it.slot }).containsExactlyInAnyOrder(0, 1, 2, 3)
-        assertThat(kit.at(KitArea.CRAFTING_RESULT, 0)?.intent?.key).isEqualTo("lobby.queue.show")
-        assertThat(kit.hasCraftingButtons).isTrue()
+        val player = kit.forViewer { false }
+        assertThat(player.entries(KitArea.CRAFTING_GRID).map { it.slot }).containsExactlyInAnyOrder(0, 1, 2, 3)
+        assertThat(player.at(KitArea.CRAFTING_RESULT, 0)?.intent?.key).isEqualTo("lobby.queue.show")
+        assertThat(player.hasCraftingButtons).isTrue()
+        // Ops see the admin buttons in place of Shop / Settings (ADR-0240).
+        val op = kit.forViewer { it == "astera.admin.panel" }
+        assertThat(op.entries(KitArea.CRAFTING_GRID).map { it.slot }).containsExactlyInAnyOrder(0, 1, 2, 3)
+        assertThat(op.at(KitArea.CRAFTING_GRID, 2)?.intent?.key).isEqualTo("admin.hub.open")
+        assertThat(op.at(KitArea.CRAFTING_GRID, 3)?.intent?.key).isEqualTo("admin.items.open")
     }
 
     @Test

@@ -484,6 +484,7 @@ internal class CorePaperBindings(
             messages = ctx.services.getOrThrow<IMessageRenderer>(),
             intents = result.guiIntentRouter,
             mcServer = mcServer,
+            visibility = { ctx.services.get<com.astarworks.astera.core.application.gui.ViewerVisibility>() },
             inMatch = { playerId ->
                 com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy.inMatch(
                     snapshotHeld = ctx.services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()

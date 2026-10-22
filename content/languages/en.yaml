@@ -450,6 +450,10 @@ astera:
         tooltip: "<gray>Click to view your profile.</gray>"
       training:
         tooltip: "<gray>Click to visit the training range (try every weapon for free).</gray>"
+      admin:
+        tooltip: "<gray>Click to open the admin panel (ops only).</gray>"
+      item-catalog:
+        tooltip: "<gray>Click to browse every weapon and item and take them (ops only).</gray>"
     travel-menu:
       title: "<gold>Travel</gold>"
       pve:
@@ -1531,6 +1535,7 @@ astera:
       click: "<gray>Click to open</gray>"
       compass: "<gray>Right-click or F to open (Sneak+F: vault, Q: queue)</gray>"
       keys: "<gray>F: menu  |  Sneak+F: vault  |  Q on the compass: queue</gray>"
+      admin: "<red>Sneak+F: admin panel</red>"
 
   lobby:
     npc:

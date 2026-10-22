@@ -46,6 +46,9 @@ public sealed interface GuiSlot {
      *   (e.g. "left-click: give 1" under a weapon's real tooltip).
      * @property headOf when set and the item renders as a player head, the
      *   skin of this player is shown (admin panel player list).
+     * @property visibleIf per-viewer condition (see [GuiVisibility], e.g.
+     *   `permission:astera.admin.panel`); the slot is removed for viewers who do
+     *   not satisfy it. `null` = always visible.
      */
     public data class Static(
         public val itemId: ItemId,
@@ -58,8 +61,10 @@ public sealed interface GuiSlot {
         public val displayName: GuiText? = null,
         public val lore: List<GuiText> = emptyList(),
         public val headOf: com.astarworks.astera.core.domain.player.PlayerId? = null,
+        public val visibleIf: String? = null,
     ) : GuiSlot {
         init {
+            GuiVisibility.validate(visibleIf)
             require(count in 1..MAX_STACK) {
                 "GuiSlot.Static.count must be in 1..$MAX_STACK: $count"
             }

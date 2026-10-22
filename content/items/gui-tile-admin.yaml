@@ -1,0 +1,7 @@
+# ADR-0240 - ops-only "Admin" tile (main menu + inventory crafting grid). Opens the admin hub.
+
+id: gui-tile-admin
+material: COMMAND_BLOCK
+name:
+  ja: "<red>管理パネル</red>"
+  en: "<red>Admin Panel</red>"
