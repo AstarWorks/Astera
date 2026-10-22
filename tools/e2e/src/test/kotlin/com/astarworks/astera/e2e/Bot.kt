@@ -45,6 +45,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.Clientbound
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundSystemChatPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundTabListPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundAddEntityPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundRemoveEntitiesPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundSetEntityDataPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundSoundPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
@@ -94,6 +95,7 @@ data class BossBarView(val id: UUID, var title: String, var progress: Float, val
 data class ScoreView(var value: Int, var display: String?)
 data class TeamView(var prefix: String, var suffix: String, val players: MutableSet<String> = mutableSetOf(), var color: String? = null)
 data class ScreenView(val containerId: Int, val type: String, val title: String)
+data class EntityEvent(val at: Long, val id: Int, val type: String, val added: Boolean)
 data class SlotView(val containerId: Int, val slot: Int, val itemId: Int, val amount: Int)
 
 /** Flattens an Adventure component the way a client would display it; translatable keys stay visible as `<key>`. */
@@ -178,6 +180,8 @@ class Bot private constructor(
     @Volatile var worldName: String? = null; private set
     val worldHistory = CopyOnWriteArrayList<String>()
     val positionPackets = AtomicInteger()
+    /** Every entity add / remove packet in arrival order (display-entity lifetime checks). */
+    val entityEvents = CopyOnWriteArrayList<EntityEvent>()
     val packetCounts = ConcurrentHashMap<String, AtomicInteger>()
 
     val stateIds = ConcurrentHashMap<Int, Int>()
@@ -282,7 +286,11 @@ class Bot private constructor(
                 packet.players?.forEach { p -> if (p != null) t.players += p }
                 if (packet.action.name == "REMOVE") teams.remove(packet.teamName)
             }
-            is ClientboundAddEntityPacket -> spawnedEntityTypes.computeIfAbsent(packet.type.name) { AtomicInteger() }.incrementAndGet()
+            is ClientboundAddEntityPacket -> {
+                spawnedEntityTypes.computeIfAbsent(packet.type.name) { AtomicInteger() }.incrementAndGet()
+                entityEvents += EntityEvent(System.currentTimeMillis(), packet.entityId, packet.type.name, true)
+            }
+            is ClientboundRemoveEntitiesPacket -> packet.entityIds.forEach { entityEvents += EntityEvent(System.currentTimeMillis(), it, "", false) }
             is ClientboundSoundPacket -> sounds += packet.sound.toString()
             is ClientboundSetEntityDataPacket -> packet.metadata.forEach { m -> (m.value as? Component)?.let { entityTexts += plain(it) } }
             is ClientboundTabListPacket -> {
