@@ -7,7 +7,6 @@ Not shipped, not in `check`. Needs `bun`, and for fetching `yt-dlp`, `ffmpeg`, `
 ```
 make skill-compare-fetch VIDEO=Svaaq9F7Ty8     # download + native-fps frames + waveform/onsets/cuts into cache/
 make skill-compare                              # http://0.0.0.0:8097  (PORT=, HOST= env); founder: http://192.168.11.5:8097
-cd tools/skill-compare && bun test test/        # ms/frame/tick mapping, focus zones, case.json validate + save, path safety
 bun scripts/shot.mjs --ms 1100 --out build/shot.png [--focus video|intent|mc] [--width 600]   # Chromium screenshot
 ```
 

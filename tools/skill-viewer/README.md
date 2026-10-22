@@ -77,8 +77,7 @@ Programmatic API in the page: `window.viewer.load(trace)` (async), `.seek(tick)`
 ## 4. Tests and calibration
 
 ```
-bun test test/                  # display math: composition order, pivots, billboards, interpolation, item/text conventions
 bun scripts/calibrate.mjs       # known displays rendered in Chromium, drawn bounds asserted against the projection;
                                 # PNGs in build/calibration/ (block identity, beam roll 45, sword fixed/none, text centre billboard)
-./gradlew :tools:skill-viewer:bunTest :tools:skill-viewer:calibrate    # same, via Gradle
+./gradlew :tools:skill-viewer:calibrate    # same, via Gradle
 ```

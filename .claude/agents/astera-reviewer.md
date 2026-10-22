@@ -58,12 +58,12 @@ that's an error (they don't exist here).
 for a `"\d+\.\d+\.\d+"` literal as a version. Allowed: `libs.versions.<x>`,
 `libs.<lib>`, `versionCatalogs.named(...)`. Flag any hardcoded SemVer.
 
-### 5. Test coverage on new domain classes
+### 5. Tests
 
-For every new `.kt` under `plugin/*/src/main/kotlin/**/domain/**`, confirm a
-corresponding file exists under the same plugin's `src/test/kotlin/`. Flag
-domain classes with no test counterpart (allow value-object DTOs without
-behavior — judgment call).
+Unit tests are forbidden (`docs/contributing/testing-policy.md`). Flag any new
+test class that exercises one class with fakes/mocks. New behaviour should be
+covered by a `tools/game-sim` scenario, e2e, or `*IT`; do not demand a
+per-class test counterpart.
 
 ### 6. i18n key additions
 
