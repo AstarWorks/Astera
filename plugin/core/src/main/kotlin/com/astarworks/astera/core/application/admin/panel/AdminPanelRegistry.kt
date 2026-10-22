@@ -50,6 +50,19 @@ public interface IAdminPanelRegistry {
 
     /** Tiles for [point], ascending by [AdminPanelTile.order] then id. */
     public fun tiles(point: AdminPanelPoint): List<AdminPanelTile>
+
+    /**
+     * Declare the GUI path of an operator command (or a GUI-only action). A second action with
+     * the same [AdminPanelAction.path] replaces the first. The parity test walks the live command
+     * tree and fails for every operator leaf that has no action here (ADR-0233).
+     */
+    public fun registerAction(action: AdminPanelAction): ServiceRegistry.Registration
+
+    /** Every declared action, ordered by category then path. */
+    public fun actions(): List<AdminPanelAction>
+
+    /** The action declared for command [path] (`mod ban`), or `null`. */
+    public fun actionFor(path: String): AdminPanelAction? = actions().firstOrNull { it.path == path }
 }
 
 /** Default thread-safe in-memory [IAdminPanelRegistry]. */
@@ -68,6 +81,23 @@ public class InMemoryAdminPanelRegistry : IAdminPanelRegistry {
             override val isActive: Boolean get() = entries.contains(tile)
         }
     }
+
+    private val actionEntries: MutableList<AdminPanelAction> = CopyOnWriteArrayList()
+
+    override fun registerAction(action: AdminPanelAction): ServiceRegistry.Registration {
+        actionEntries.removeAll { it.path == action.path }
+        actionEntries += action
+        return object : ServiceRegistry.Registration {
+            override fun unregister() {
+                actionEntries.remove(action)
+            }
+
+            override val isActive: Boolean get() = actionEntries.contains(action)
+        }
+    }
+
+    override fun actions(): List<AdminPanelAction> =
+        actionEntries.sortedWith(compareBy({ it.category.order }, { it.path }))
 
     override fun tiles(point: AdminPanelPoint): List<AdminPanelTile> =
         entries.filter { it.point == point }.sortedWith(compareBy({ it.order }, { it.id }))

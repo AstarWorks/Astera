@@ -24,6 +24,7 @@ public data class SkillCastRejected(
 public enum class CastRejectionReason(public val keySuffix: String) {
     INSUFFICIENT_AMMO("insufficient.ammo"),
     INSUFFICIENT_ENERGY("insufficient.energy"),
+    INSUFFICIENT_EGO("insufficient.ego"),
     RELOADING("reloading"),
     MAGAZINE_FULL("ammo_full"),
     NOT_RELOADABLE("not_reloadable"),

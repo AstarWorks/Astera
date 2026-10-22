@@ -9,9 +9,11 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.ParticleId
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementPlan
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
+import com.astarworks.astera.core.domain.effect.vfx.VfxParticleEmission
 import com.astarworks.astera.core.domain.effect.vfx.VfxPlan
 import com.astarworks.astera.core.domain.effect.vfx.VfxTimeline
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -44,6 +46,20 @@ public class VfxRequest(
     /** Live anchor position for `follow`; `null` result = keep the last known one. */
     public val anchor: (() -> Vec3?)? = null,
     public val seed: Long = 0L,
+    /** The caster, for particle `viewers: caster|others`. */
+    public val caster: PlayerId? = null,
+)
+
+/** One particle element emission handed to the runtime (which plans it through `ParticleEmitter`). */
+public class VfxParticleCall(
+    public val world: WorldId,
+    public val at: Vec3,
+    public val particleId: ParticleId,
+    public val look: Vec3?,
+    public val tangent: Vec3?,
+    public val center: Vec3?,
+    public val toward: Vec3?,
+    public val source: PlayerId?,
 )
 
 /**
@@ -59,7 +75,7 @@ public class VfxPlayer(
     private val scheduler: IScheduler,
     private val displays: IDisplayEntityGateway,
     private val registry: IVfxRegistry,
-    private val emitParticle: (WorldId, Vec3, ParticleId) -> Unit,
+    private val emitParticle: (VfxParticleCall) -> Unit,
     private val log: Logger,
     private val maxLiveDisplays: Int = MAX_LIVE_DISPLAYS,
 ) {
@@ -155,7 +171,7 @@ public class VfxPlayer(
             if (kind is VfxElementKind.Particle) {
                 while (state.nextParticle < e.particles.size && e.particles[state.nextParticle].tick <= age) {
                     val p = e.particles[state.nextParticle++]
-                    if (p.tick == age) emitParticle(instance.request.world, instance.position + p.offset, kind.particleId)
+                    if (p.tick == age) emitParticleCalls(instance, kind, p)
                 }
             }
             if (handle != null && age >= e.despawnTick) {
@@ -164,6 +180,25 @@ public class VfxPlayer(
             }
         }
         return age >= plan.durationTicks
+    }
+
+    private fun emitParticleCalls(instance: Instance, kind: VfxElementKind.Particle, p: VfxParticleEmission) {
+        val origin = instance.position
+        val points = p.pathOffsets.ifEmpty { listOf(p.offset) }
+        for (offset in points) {
+            emitParticle(
+                VfxParticleCall(
+                    world = instance.request.world,
+                    at = origin + offset,
+                    particleId = kind.particleId,
+                    look = instance.request.look,
+                    tangent = p.tangent,
+                    center = p.center?.let { origin + it },
+                    toward = p.trailTarget?.let { origin + it },
+                    source = instance.request.caster,
+                ),
+            )
+        }
     }
 
     private fun spawn(instance: Instance, state: ElementState) {

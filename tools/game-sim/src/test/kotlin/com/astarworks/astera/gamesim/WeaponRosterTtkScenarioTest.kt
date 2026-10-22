@@ -76,7 +76,7 @@ class WeaponRosterTtkScenarioTest {
             for (i in 0 until LIMIT_TICKS) {
                 if (eventsOf<PlayerKilled>().isNotEmpty()) break
                 if (weapon.usesAmmo && ammo(attacker) == 0) {
-                    attacker.drop() // reload; the cast is refused while it runs, so keep pressing
+                    attacker.drop(sneaking = true) // reload; the cast is refused while it runs, so keep pressing
                 } else when (weapon.input) {
                     Input.LEFT -> attacker.leftClick()
                     Input.RIGHT -> attacker.rightClick()

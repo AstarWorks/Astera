@@ -143,7 +143,7 @@ Every command is a subcommand of one root: `/astera`. Type `/astera help` for wh
 
 Or buy them: right-click the "Lobby Merchant" villager near spawn, or `/astera shop`
 (new players start with 100 GOLD; prices below). `/astera vault` or an ender chest opens your personal vault.
-Skill damage also hits mobs (`/summon zombie` to test). `Q` reloads any gun.
+Skill damage also hits mobs (`/summon zombie` to test). `Shift+Q` reloads any gun.
 
 ### Admin panel (`/astera admin panel`)
 

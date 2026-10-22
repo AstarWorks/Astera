@@ -86,9 +86,9 @@ public class ScenarioScope(public val sim: GameSim) {
     /** Block placed at [cell] in the simulated world, or `null`. */
     public fun blockAt(cell: Vec3): String? = sim.world.blockAt(com.astarworks.astera.core.domain.world.WorldId("world"), cell)?.key
 
-    /** Presses the drop key (Q) with the held item. */
-    public fun SimEntity.drop() {
-        sim.drop(this)
+    /** Presses the drop key with the held item: Q (E.G.O slot) or, with [sneaking], Shift+Q (gun reload). */
+    public fun SimEntity.drop(sneaking: Boolean = false) {
+        sim.drop(this, sneaking)
     }
 
     /** Current ammo / energy of [entity]. */

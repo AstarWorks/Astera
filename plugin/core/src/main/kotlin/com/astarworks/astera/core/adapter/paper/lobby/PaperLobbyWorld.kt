@@ -45,8 +45,11 @@ internal class PaperLobbyWorld(
     private val log = LoggerFactory.getLogger(javaClass)
     private val server get() = plugin.server
 
-    /** Creates / loads the world, pastes the build when needed and applies the world rules. */
-    fun install(config: LobbyWorldYamlConfig, plan: LobbyBuildPlan): World? {
+    /**
+     * Creates / loads the world, pastes the build when needed and applies the world rules.
+     * [force] clears and pastes again even when the marker matches (admin panel repaste, ADR-0233).
+     */
+    fun install(config: LobbyWorldYamlConfig, plan: LobbyBuildPlan, force: Boolean = false): World? {
         val marker = markerPath()
         val expected = markerText(config, plan)
         val previous = if (Files.isRegularFile(marker)) Files.readString(marker) else null
@@ -55,8 +58,8 @@ internal class PaperLobbyWorld(
             log.error("Lobby world '{}' could not be created", config.id)
             return null
         }
-        if (previous != expected) {
-            if (previous != null) clearBounds(world, plan)
+        if (previous != expected || force) {
+            if (previous != null || force) clearBounds(world, plan)
             paste(world, plan)
             Files.createDirectories(marker.parent)
             Files.writeString(marker, expected)
