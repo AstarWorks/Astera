@@ -2,11 +2,15 @@ package com.astarworks.astera.core.adapter.paper.entity
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import kotlin.time.Duration
+import kotlin.time.toJavaDuration
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.title.Title
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -28,7 +32,10 @@ import org.slf4j.LoggerFactory
  * extra entries from `template.pdcTags`. Stage 2 H uses these for weapon
  * identity at fire-time (replacing material matching).
  */
-class PaperPlayer(private val bukkit: Player) : IMcPlayer {
+class PaperPlayer(
+    private val bukkit: Player,
+    private val renderer: IMessageRenderer? = null,
+) : IMcPlayer {
 
     override val id: PlayerId = PlayerId(bukkit.uniqueId)
     override val name: String = bukkit.name
@@ -91,7 +98,7 @@ class PaperPlayer(private val bukkit: Player) : IMcPlayer {
     }
 
     override fun sendActionBar(messageKey: MessageKey, placeholders: Map<String, String>) {
-        TODO("Wave 6 で実装 — Adventure API integration per ADR-0031")
+        bukkit.sendActionBar(AsteraTextDeserializer.deserialize(render(messageKey, placeholders)))
     }
 
     override fun sendTitle(
@@ -101,8 +108,18 @@ class PaperPlayer(private val bukkit: Player) : IMcPlayer {
         stay: Duration,
         fadeOut: Duration,
     ) {
-        TODO("Wave 6 で実装 — Adventure API integration per ADR-0031")
+        bukkit.showTitle(
+            Title.title(
+                AsteraTextDeserializer.deserialize(render(titleKey)),
+                subtitleKey?.let { AsteraTextDeserializer.deserialize(render(it)) } ?: Component.empty(),
+                Title.Times.times(fadeIn.toJavaDuration(), stay.toJavaDuration(), fadeOut.toJavaDuration()),
+            ),
+        )
     }
+
+    /** i18n via the shared renderer (per-viewer locale); without one the raw key stays visible. */
+    private fun render(key: MessageKey, placeholders: Map<String, String> = emptyMap()): String =
+        renderer?.render(id, key, placeholders) ?: key.value
 
     private fun buildVanilla(template: IMcItemTemplate.Vanilla): ItemStack {
         val material = Material.matchMaterial(template.material) ?: run {

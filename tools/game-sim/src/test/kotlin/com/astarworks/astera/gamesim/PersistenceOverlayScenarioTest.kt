@@ -4,11 +4,14 @@ import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IProfileCardService
+import com.astarworks.astera.core.application.port.outbound.IStageRegistry
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.application.usecase.vault.SaveVaultUseCase
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.event.XpSource
+import com.astarworks.astera.core.domain.stage.StageId
+import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.core.domain.vault.PersonalVault
 import com.astarworks.astera.stats.application.port.outbound.ILevelService
 import com.astarworks.astera.stats.domain.level.Xp
@@ -59,6 +62,17 @@ class PersistenceOverlayScenarioTest {
 
             // guard: nothing registered an override after a consumer resolved the port.
             assertThat(services.lateOverrides).isEmpty()
+        }
+    }
+
+    @Test
+    fun `stages are content and resolve with the persistence overlay present`() {
+        scenario("persistence-overlay-stages", persistenceOverlay = true) {
+            val stages = sim.services.getOrThrow<IStageRegistry>()
+            assertThat(stages.find(StageId("example-arena"))).isNotNull
+            assertThat(stages.all()).isNotEmpty
+            assertThat(sim.services.getOrThrow<IMatchLifecycle>().start(StageId("example-arena")))
+                .isInstanceOf(com.astarworks.astera.core.domain.Result.Success::class.java)
         }
     }
 
