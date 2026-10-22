@@ -589,7 +589,7 @@ class Bot private constructor(
             packPolicy: PackPolicy = PackPolicy.LOAD,
             locale: String = "en_us",
             waitForJoin: Boolean = true,
-            endpoint: Endpoint = Endpoint(E2eEnv.host, E2eEnv.port),
+            endpoint: Endpoint = E2eEnv.botEndpoint,
             servers: Map<String, Endpoint> = emptyMap(),
             exactName: String? = null,
         ): Bot {
