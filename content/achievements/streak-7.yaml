@@ -1,0 +1,5 @@
+# Achievement catalog entry (ADR-0199). Names / descriptions: astera.stats.achievement.streak-7.*
+id: streak-7
+name_key: astera.stats.achievement.streak-7.name
+description_key: astera.stats.achievement.streak-7.description
+icon_item_id: knight-sword

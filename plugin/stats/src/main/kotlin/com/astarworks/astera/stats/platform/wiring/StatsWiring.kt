@@ -221,8 +221,24 @@ public object StatsWiring {
         subscriptions += eventBus.subscribe(LeveledUp::class) { hudLeveledUpListener.handle(it) }
 
         // ---- Wave 5e Achievement + LevelUpMission + Reward listeners ---------
-        val achievementRepo = InMemoryAchievementRepository()
-        registrations += services.register<IAchievementRepository>(achievementRepo, priority = 0)
+        // ADR-0199: unlocks persist (V60 Postgres overlay wins when present); the catalog is
+        // content/achievements/ and was never populated before, so no achievement could unlock.
+        val achievementRepo: IAchievementRepository =
+            services.get<IAchievementRepository>()
+                ?: InMemoryAchievementRepository().also {
+                    registrations += services.register<IAchievementRepository>(it, priority = 0)
+                }
+        val achievementContentDir = ctx.contentDir.resolve("achievements")
+        val achievementContents = com.astarworks.astera.stats.application.contents.AchievementContents()
+        val achievementReport = achievementContents.bootstrap(achievementContentDir)
+        logger.info("Loaded ${achievementReport.loaded} achievement(s) from $achievementContentDir (failed: ${achievementReport.failed})")
+        achievementRepo.registerAll(achievementContents.all().toList())
+        reloadRegistry.register(
+            com.astarworks.astera.stats.application.contents.ReloadSyncedContents(achievementContents) {
+                achievementRepo.registerAll(achievementContents.all().toList())
+            },
+            achievementContentDir,
+        )
 
         // ── Wave M 5polish-quickwin (ADR-0130 §B) ────────────────────────
         // PlayerAchievementListGuiBindingResolver projects the achievement

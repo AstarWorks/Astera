@@ -1000,6 +1000,39 @@ astera:
       kills-100:
         name: "<gold>英雄</gold>"
         description: "<gray>キル数 100。</gray>"
+      wins-1:
+        name: "<gold>初勝利</gold>"
+        description: "<gray>初めて試合に勝利する。</gray>"
+      wins-10:
+        name: "<gold>チャンピオン</gold>"
+        description: "<gray>試合に 10 回勝利する。</gray>"
+      wins-50:
+        name: "<gold>征服者</gold>"
+        description: "<gray>試合に 50 回勝利する。</gray>"
+      damage-1k:
+        name: "<gold>重撃</gold>"
+        description: "<gray>累計 1,000 ダメージを与える。</gray>"
+      damage-10k:
+        name: "<gold>破壊者</gold>"
+        description: "<gray>累計 10,000 ダメージを与える。</gray>"
+      tutorial-graduate:
+        name: "<gold>チュートリアル卒業</gold>"
+        description: "<gray>チュートリアルを完了する。</gray>"
+      explorer:
+        name: "<gold>探検家</gold>"
+        description: "<gray>森の探索クエストを達成する。</gray>"
+      streak-7:
+        name: "<gold>常連</gold>"
+        description: "<gray>7 日連続でログインする。</gray>"
+      level-5:
+        name: "<gold>新星</gold>"
+        description: "<gray>レベル 5 に到達する。</gray>"
+      level-10:
+        name: "<gold>古参</gold>"
+        description: "<gray>レベル 10 に到達する。</gray>"
+      mission-first:
+        name: "<gold>ミッション達成</gold>"
+        description: "<gray>初めてミッションを達成する。</gray>"
 
     # F3-4 — 「直近の試合」カード: /astera stats last とロビー復帰時のまとめ。
     last:

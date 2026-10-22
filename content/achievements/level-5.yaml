@@ -1,0 +1,5 @@
+# Achievement catalog entry (ADR-0199). Names / descriptions: astera.stats.achievement.level-5.*
+id: level-5
+name_key: astera.stats.achievement.level-5.name
+description_key: astera.stats.achievement.level-5.description
+icon_item_id: knight-sword

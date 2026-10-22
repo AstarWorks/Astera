@@ -1003,6 +1003,39 @@ astera:
       kills-100:
         name: "<gold>Legend</gold>"
         description: "<gray>100 kills.</gray>"
+      wins-1:
+        name: "<gold>First Victory</gold>"
+        description: "<gray>Win your first match.</gray>"
+      wins-10:
+        name: "<gold>Champion</gold>"
+        description: "<gray>Win 10 matches.</gray>"
+      wins-50:
+        name: "<gold>Conqueror</gold>"
+        description: "<gray>Win 50 matches.</gray>"
+      damage-1k:
+        name: "<gold>Heavy Hitter</gold>"
+        description: "<gray>Deal 1,000 damage in total.</gray>"
+      damage-10k:
+        name: "<gold>Devastator</gold>"
+        description: "<gray>Deal 10,000 damage in total.</gray>"
+      tutorial-graduate:
+        name: "<gold>Tutorial Graduate</gold>"
+        description: "<gray>Finish the tutorial.</gray>"
+      explorer:
+        name: "<gold>Explorer</gold>"
+        description: "<gray>Finish the forest exploration quest.</gray>"
+      streak-7:
+        name: "<gold>Regular</gold>"
+        description: "<gray>Log in 7 days in a row.</gray>"
+      level-5:
+        name: "<gold>Rising Star</gold>"
+        description: "<gray>Reach level 5.</gray>"
+      level-10:
+        name: "<gold>Veteran</gold>"
+        description: "<gray>Reach level 10.</gray>"
+      mission-first:
+        name: "<gold>Mission Clear</gold>"
+        description: "<gray>Complete your first mission.</gray>"
 
     # F3-4 — "last match" card: /astera stats last and the lobby recap.
     last:
