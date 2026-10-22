@@ -132,6 +132,8 @@ public sealed class MechanicYaml {
     public data class RemoveStatus(
         public val targets: TargeterYaml,
         @SerialName("status_id") public val statusId: String,
+        /** `null` removes the whole status; `N` consumes N stacks. */
+        public val stacks: Int? = null,
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -140,6 +142,7 @@ public sealed class MechanicYaml {
         override fun toDomain(): Mechanic = Mechanic.RemoveStatus(
             targets = targets.toDomain(),
             statusId = StatusEffectId(statusId),
+            stacks = stacks?.let { com.astarworks.astera.core.domain.skill.value.IntValue.Literal(it) },
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
@@ -328,6 +331,60 @@ public sealed class MechanicYaml {
         override fun toDomain(): Mechanic = Mechanic.Teleport(
             targets = targets.toDomain(),
             destination = destination.toDomain(),
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+        )
+    }
+
+    @Serializable
+    @SerialName("dash_strike")
+    public data class DashStrike(
+        public val distance: Double,
+        public val ticks: Int,
+        public val radius: Double = 1.2,
+        @SerialName("hit_once") public val hitOnce: Boolean = true,
+        public val invulnerable: Boolean = true,
+        @SerialName("stop_on_block") public val stopOnBlock: Boolean = true,
+        @SerialName("follow_pitch") public val followPitch: Boolean = false,
+        @SerialName("on_hit") public val onHit: List<MechanicYaml> = emptyList(),
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.DashStrike(
+            distance = com.astarworks.astera.core.domain.skill.value.NumericValue.Literal(distance),
+            ticks = com.astarworks.astera.core.domain.skill.value.IntValue.Literal(ticks),
+            radius = com.astarworks.astera.core.domain.skill.value.NumericValue.Literal(radius),
+            hitOnce = com.astarworks.astera.core.domain.skill.value.BoolValue.Literal(hitOnce),
+            invulnerable = com.astarworks.astera.core.domain.skill.value.BoolValue.Literal(invulnerable),
+            stopOnBlock = com.astarworks.astera.core.domain.skill.value.BoolValue.Literal(stopOnBlock),
+            followPitch = com.astarworks.astera.core.domain.skill.value.BoolValue.Literal(followPitch),
+            onHit = onHit.map { it.toDomain() },
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+        )
+    }
+
+    @Serializable
+    @SerialName("hit_stop")
+    public data class HitStop(
+        public val targets: TargeterYaml,
+        public val ticks: Int = 3,
+        @SerialName("include_caster") public val includeCaster: Boolean = false,
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.HitStop(
+            targets = targets.toDomain(),
+            ticks = com.astarworks.astera.core.domain.skill.value.IntValue.Literal(ticks),
+            includeCaster = com.astarworks.astera.core.domain.skill.value.BoolValue.Literal(includeCaster),
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),

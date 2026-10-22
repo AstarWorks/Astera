@@ -14,6 +14,18 @@ internal object MechanicStatuses {
     val FREEZE_ID: StatusEffectId = StatusEffectId("freeze")
     val SILENCE_ID: StatusEffectId = StatusEffectId("silence")
 
+    /** The id `ApplyDamageUseCase` treats as full damage immunity; DashStrike's `invulnerable` rides it. */
+    val IMMUNITY_ID: StatusEffectId = StatusEffectId("immunity")
+
+    val IMMUNITY: StatusEffectSpec = StatusEffectSpec(
+        id = IMMUNITY_ID,
+        displayNameKey = MessageKey("astera.status.immunity.name"),
+        kind = StatusKind.STACK_BUFF,
+        magnitude = 0.0,
+        stackable = false,
+        maxStacks = 1,
+    )
+
     val FREEZE: StatusEffectSpec = StatusEffectSpec(
         id = FREEZE_ID,
         displayNameKey = MessageKey("astera.status.freeze.name"),

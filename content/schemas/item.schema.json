@@ -418,13 +418,22 @@
                         "targets": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
                         },
+                        "on": {
+                            "type": "string",
+                            "enum": [
+                                "target",
+                                "caster"
+                            ]
+                        },
                         "status_id": {
                             "type": "string"
+                        },
+                        "min_stacks": {
+                            "type": "integer"
                         }
                     },
                     "required": [
                         "type",
-                        "targets",
                         "status_id"
                     ]
                 },
@@ -537,6 +546,9 @@
                 },
                 "multiplier": {
                     "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                },
+                "per_stack": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.PerStackYaml"
                 }
             },
             "required": [
@@ -1075,6 +1087,59 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "dash_strike"
+                        },
+                        "distance": {
+                            "type": "number"
+                        },
+                        "ticks": {
+                            "type": "integer"
+                        },
+                        "radius": {
+                            "type": "number"
+                        },
+                        "hit_once": {
+                            "type": "boolean"
+                        },
+                        "invulnerable": {
+                            "type": "boolean"
+                        },
+                        "stop_on_block": {
+                            "type": "boolean"
+                        },
+                        "follow_pitch": {
+                            "type": "boolean"
+                        },
+                        "on_hit": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                            }
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "distance",
+                        "ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "explode"
                         },
                         "targets": {
@@ -1246,6 +1311,40 @@
                         "type",
                         "targets",
                         "amount"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "hit_stop"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "ticks": {
+                            "type": "integer"
+                        },
+                        "include_caster": {
+                            "type": "boolean"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets"
                     ]
                 },
                 {
@@ -1628,6 +1727,9 @@
                         },
                         "status_id": {
                             "type": "string"
+                        },
+                        "stacks": {
+                            "type": "integer"
                         },
                         "delay_ticks": {
                             "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
@@ -2187,6 +2289,31 @@
                         "value"
                     ]
                 }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.PerStackYaml": {
+            "type": "object",
+            "properties": {
+                "status_id": {
+                    "type": "string"
+                },
+                "amount": {
+                    "type": "number"
+                },
+                "on": {
+                    "type": "string",
+                    "enum": [
+                        "target",
+                        "caster"
+                    ]
+                },
+                "consume": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "status_id",
+                "amount"
             ]
         },
         "com.astarworks.astera.core.application.config.skill.PhaseOverridesYaml": {
