@@ -1,0 +1,126 @@
+package com.astarworks.astera.e2e
+
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+class CommandsE2eTest : E2eBase() {
+
+    private val suite = "Commands"
+
+    private fun Bot.treeVersion() = packetCounts["ClientboundCommandsPacket"]?.get() ?: 0
+
+    @Test
+    fun `command tree is permission filtered`() {
+        val player = bot("CmdPlayer")
+        val admin = bot("CmdOp")
+        val before = admin.treeVersion()
+        op(admin)
+        admin.waitUntil(6_000) { admin.treeVersion() > before }
+        player.waitUntil(5_000) { player.commandTree != null }
+
+        E2eReport.check(suite, "tree root exposes `astera` (non-op)", "ClientboundCommands") {
+            assertThat(player.commandTreeRoots()).contains("astera")
+            "roots(${player.commandTreeRoots().size}) contain astera; children=${player.commandTreeChildren("astera")}"
+        }
+        E2eReport.check(suite, "non-op sees player areas only", "ClientboundCommands (requires filtering)") {
+            val kids = player.commandTreeChildren("astera")
+            assertThat(kids).contains("help", "menu", "queue")
+            assertThat(kids).doesNotContain("items", "admin", "mod")
+            "astera children (non-op): $kids"
+        }
+        E2eReport.check(suite, "op additionally sees items/admin/mod/match subtree", "ClientboundCommands (after op, re-sent tree)") {
+            val kids = admin.commandTreeChildren("astera")
+            assertThat(admin.treeVersion()).describedAs("command tree must be re-sent after /op").isGreaterThan(before)
+            assertThat(kids).contains("help", "menu", "queue", "items", "admin", "mod", "match")
+            "astera children (op): $kids\nastera items: ${admin.commandTreeChildren("astera", "items")}\nastera match: ${admin.commandTreeChildren("astera", "match")}"
+        }
+        E2eReport.check(suite, "no legacy hyphenated roots", "ClientboundCommands") {
+            val legacy = admin.commandTreeRoots().filter { it.startsWith("astera-") && !it.contains(":") }
+            assertThat(legacy).isEmpty()
+            "roots with astera prefix: ${admin.commandTreeRoots().filter { it.startsWith("astera") }} (namespaced `astera-core:astera` is Paper's own alias)"
+        }
+    }
+
+    @Test
+    fun `tab completion returns suggestions`() {
+        val admin = bot("TabOp")
+        op(admin)
+        admin.waitUntil(6_000) { admin.commandTree != null }
+        Thread.sleep(1_000)
+
+        E2eReport.check(suite, "tab-complete `/astera ` lists areas", "ServerboundCommandSuggestion -> ClientboundCommandSuggestions") {
+            val r = admin.complete("/astera ")
+            assertThat(r).describedAs("no ClientboundCommandSuggestions reply within 5s").isNotNull()
+            assertThat(r!!.matches.toList()).contains("help", "queue", "items")
+            "matches=${r.matches.toList()}"
+        }
+        E2eReport.check(suite, "tab-complete `/astera items give ` suggests players", "ServerboundCommandSuggestion") {
+            val r = admin.complete("/astera items give ")
+            assertThat(r).describedAs("no reply").isNotNull()
+            assertThat(r!!.matches.toList()).contains(admin.name)
+            "matches=${r.matches.toList()}"
+        }
+        E2eReport.check(suite, "tab-complete `/astera items give <bot> ` suggests item ids", "ServerboundCommandSuggestion") {
+            val r = admin.complete("/astera items give ${admin.name} ")
+            assertThat(r).describedAs("no reply").isNotNull()
+            assertThat(r!!.matches.toList()).anyMatch { it.contains("pistol") }
+            "matches(${r.matches.size})=${r.matches.take(25)}"
+        }
+        E2eReport.check(suite, "tab-complete `/astera queue join ` suggests lanes", "ServerboundCommandSuggestion") {
+            val r = admin.complete("/astera queue join ")
+            assertThat(r).describedAs("no reply").isNotNull()
+            assertThat(r!!.matches.toList()).contains("norma")
+            "matches=${r.matches.toList()}"
+        }
+    }
+
+    @Test
+    fun `commands execute and reply`() {
+        val admin = bot("ExecOp")
+        op(admin)
+        admin.waitUntil(6_000) { admin.commandTree != null }
+        Thread.sleep(1_000)
+
+        fun run(cmd: String, minNew: Int = 1): List<String> {
+            val before = admin.chat.size
+            admin.command(cmd)
+            return admin.chatSince(before, minNew)
+        }
+
+        E2eReport.check(suite, "/astera help replies with readable text", "SystemChat") {
+            val lines = run("astera help")
+            assertThat(lines).describedAs("no chat reply").isNotEmpty()
+            assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
+            "reply:\n${quote(lines)}"
+        }
+        E2eReport.check(suite, "/astera queue status replies", "SystemChat") {
+            val lines = run("astera queue status")
+            assertThat(lines).describedAs("no chat reply").isNotEmpty()
+            assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
+            "reply:\n${quote(lines)}"
+        }
+        E2eReport.check(suite, "/astera items give <bot> pistol replies and item arrives", "SystemChat + SetContainerSlot + server inventory") {
+            val slotsBefore = admin.slotUpdates.size
+            val lines = run("astera items give ${admin.name} pistol")
+            admin.waitUntil(4_000) { admin.slotUpdates.size > slotsBefore }
+            val inv = rcon("data get entity ${admin.name} Inventory[].id")
+            val hasPistol = rcon("execute if items entity ${admin.name} container.* minecraft:iron_horse_armor")
+            assertThat(lines).describedAs("no chat reply").isNotEmpty()
+            assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
+            assertThat(hasPistol).describedAs("server-side inventory has no pistol (IRON_HORSE_ARMOR): $inv").contains("passed")
+            assertThat(admin.slotUpdates.drop(slotsBefore).any { it.containerId == 0 && it.amount > 0 })
+                .describedAs("no SetContainerSlot packet for the player inventory").isTrue()
+            "reply:\n${quote(lines)}\nclient slot updates: ${admin.slotUpdates.drop(slotsBefore)}\nserver item ids: ${inv.take(400)} / pistol test: $hasPistol"
+        }
+        E2eReport.check(suite, "denied command gives readable error and no item", "SystemChat") {
+            val plain = bot("CmdNoOp")
+            val before = plain.chat.size
+            plain.command("astera items give ${plain.name} pistol")
+            val lines = plain.chatSince(before)
+            assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
+            val hasPistol = rcon("execute if items entity ${plain.name} container.* minecraft:iron_horse_armor")
+            assertThat(hasPistol).describedAs("non-op obtained an item through a denied command").contains("failed")
+            "non-op reply:\n${quote(lines)}"
+        }
+    }
+}

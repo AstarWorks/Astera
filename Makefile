@@ -125,3 +125,15 @@ local-e2e-teardown: ## Tear down the local-e2e kind cluster
 .PHONY: private-update
 private-update: ## Pull the latest commit from the private/ submodule
 	git submodule update --remote private
+
+# ----------------------------------------------------------------------------
+# in-game E2E with protocol bots (QA-1, ADR-0186) - needs docker, not part of `check`
+# ----------------------------------------------------------------------------
+
+.PHONY: e2e
+e2e: ## Boot the offline e2e backend, run the MCProtocolLib bot suite, write build/e2e-report.md (exit code = result)
+	bash scripts/e2e.sh
+
+.PHONY: e2e-down
+e2e-down: ## Stop + drop the e2e backend (compose project astera-e2e)
+	docker compose -p astera-e2e -f docker/docker-compose.e2e.yml --profile e2e down -v --remove-orphans

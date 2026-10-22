@@ -22,6 +22,15 @@ dependencyResolutionManagement {
         maven("https://jitpack.io/") { name = "jitpack" }
         maven("https://repo.codemc.io/repository/maven-public/") { name = "codemc" }
         maven("https://repo.codemc.io/repository/maven-releases/") { name = "codemc-releases" }
+        // MCProtocolLib (protocol bots for :tools:e2e, ADR-0186). Scoped: nothing else resolves here.
+        maven("https://repo.opencollab.dev/maven-releases/") {
+            name = "opencollab"
+            content {
+                includeGroupAndSubgroups("org.geysermc")
+                includeGroupAndSubgroups("org.cloudburstmc")
+                includeGroupAndSubgroups("com.nukkitx")
+            }
+        }
         // External Paper plugins
         maven("https://repo.dmulloy2.net/repository/public/") { name = "protocollib" }
         maven("https://repo.oraxen.com/releases/") { name = "oraxen" }
@@ -68,4 +77,7 @@ include(
     ":tools:game-sim",
     // Renders the procedural sky-island lobby plan to a PNG preview (ADR-0179). Not shipped.
     ":tools:lobby-gen",
+    // Black-box E2E: MCProtocolLib bots join a real Paper backend (docker, `make e2e`) and assert
+    // on the packets a client receives (ADR-0186). Needs docker; NOT part of `check`. Not shipped.
+    ":tools:e2e",
 )

@@ -61,6 +61,9 @@ networknt-json-schema-validator = "1.5.4"   # Active maintenance; supports Draft
 snakeyaml = "2.4"                            # YAML 1.1 parser — produces nested Maps/Lists/scalars
 jackson = "2.21.0"                           # ObjectMapper.valueToTree(...) bridges SnakeYAML output → JsonNode for the validator
 
+# tools:e2e - protocol bots that speak Minecraft Java 26.3 (ADR-0185). Release tag == game version.
+mcprotocollib = "26.3"
+
 # External Paper plugins (compileOnly, soft-dep) — sentinel until Phase 2 mid
 weaponmechanics = "999.999.999"
 oraxen = "999.999.999"
@@ -130,6 +133,9 @@ hikari-cp = { module = "com.zaxxer:HikariCP", version.ref = "hikari-cp" }
 
 # Messaging / Cache
 lettuce-core = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
+
+# E2E protocol bots (tools:e2e)
+mcprotocollib = { module = "org.geysermc.mcprotocollib:protocol", version.ref = "mcprotocollib" }
 
 # Testing
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
