@@ -2,6 +2,7 @@ package com.astarworks.astera.core.platform.wiring
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.domain.proxy.ServerRole
 import java.nio.file.Path
 import java.util.logging.Logger
 
@@ -18,6 +19,8 @@ public class WiringContext(
     public val services: ServiceRegistry,
     public val contentDir: Path,
     public val logger: Logger,
+    /** Which part of the game this backend hosts (lobby / game / all-in-one). */
+    public val serverRole: ServerRole = ServerRole.ALL,
 ) {
     public val registrations: MutableList<ServiceRegistry.Registration> = mutableListOf()
     public val subscriptions: MutableList<IDomainEventBus.Subscription> = mutableListOf()
