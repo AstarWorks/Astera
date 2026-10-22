@@ -373,7 +373,7 @@ internal class PaperLobbyMenuKit(
     }
 
     private fun isAsteraItem(stack: ItemStack): Boolean =
-        stack.hasItemMeta() && stack.itemMeta?.persistentDataContainer?.has(ITEM_ID_KEY, PersistentDataType.STRING) == true
+        stack.hasItemMeta() && stack.itemMeta?.persistentDataContainer?.keys?.any { it.key == WEAPON_ID_KEY_NAME } == true
 
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onPlace(e: BlockPlaceEvent) {
@@ -391,6 +391,7 @@ internal class PaperLobbyMenuKit(
         const val PRESS_COOLDOWN_MS = 200L
         const val HINT_DELAY_TICKS = 40L
         const val KEYS_HINT = "astera.lobby-kit.hint.keys"
-        val ITEM_ID_KEY: NamespacedKey = NamespacedKey.fromString("astera:item-id")!!
+        /** The items plugin stamps `<plugin>:item_id` on every skill item; matched by key name (as combat does). */
+        const val WEAPON_ID_KEY_NAME = "item_id"
     }
 }
