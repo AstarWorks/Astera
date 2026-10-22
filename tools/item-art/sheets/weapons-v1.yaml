@@ -1,0 +1,33 @@
+# AI sheet spec (ADR-0236): `python3 tools/item-art/scripts/gen_sheet.py tools/item-art/sheets/weapons-v1.yaml`
+# One generation draws every cell, so the batch shares one style. The image lands in
+# content/textures/sources/sheets/<name>.png; pick which items use it in content/textures/sources/items.yaml.
+name: weapons-v1
+grid: [5, 5]
+# Flat key colour; pick one far from the cells' palettes (magenta bleeds into purple / pink items).
+background: "#FF00FF"
+style: >-
+  chunky 32x32-style pixel art, bold dark outline, top-left light source, limited saturated palette,
+  game inventory icon look. Long weapons (swords, staffs, axes, hammers) are drawn diagonally from
+  bottom-left (grip) to top-right (tip). Guns are drawn horizontally, muzzle pointing right.
+cells:
+  bastion-greatsword: huge golden greatsword, wide gold blade, orange-gold crossguard, black grip, holy glow
+  couture-rapier: elegant thin rapier, cyan glowing needle blade, ornate silver swept hilt with cyan gem
+  crimson-chain-axe: battle axe with a crimson-red blade on a long chain-wrapped haft
+  dagger: short plain dark-steel dagger, leather grip
+  edict-blade: noble longsword, polished white-silver blade, blue gem in the crossguard, dark hilt
+  ember-gauntlet: black armored fist gauntlet with glowing orange ember stripes and fire at the knuckles
+  fire-staff: wooden staff topped with a burning flame crystal, embers
+  frost-staff: wooden staff topped with a jagged ice crystal, frost sparkles
+  gossamer-katana: slender katana, pale silver curved blade, red-and-blue wrapped hilt
+  greatsword: dark-steel greatsword, crimson crossguard and pommel
+  knight-sword: classic knight sword, steel blade, gold crossguard, leather grip
+  orrery-staff: staff topped with a golden orrery (rings orbiting a purple gem)
+  pistol: compact sci-fi pistol, dark gunmetal slide with cyan light strip, brown grip
+  rifle: assault rifle, wooden stock, gunmetal body, green scope light
+  rtm-blaster: sci-fi blaster rifle, wooden stock, purple-pink energy accents
+  shotgun: pump shotgun, long grey barrel, wooden stock and pump, red shell detail
+  sigil-rifle: dark rifle with a golden magic sigil circle at the muzzle, red accents
+  thunder-staff: wooden staff topped with a purple orb with a yellow lightning bolt
+  vendetta-rifle: long sniper rifle, dark wood, red-and-magenta trim, orange scope cap
+  verdant-staff: wooden staff topped with green leaves and a glowing seed
+  verdict-hammer: judge's warhammer, black head with gold bands and a teal gem, long dark haft

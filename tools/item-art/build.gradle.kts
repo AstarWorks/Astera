@@ -7,8 +7,11 @@
  *   ./gradlew :tools:item-art:checkItemArt   (part of `check`)
  *       -> fails when the committed generated art differs from what the generator draws
  *
- * Deterministic pixel art drawn from code (no generative AI, ADR-0010). Studio-authored assets
- * under content/models/items (Studio) override a generated icon of the same item id in the pack.
+ * Deterministic: icons are drawn from code, or converted from a committed raster listed in
+ * content/textures/sources/items.yaml (ADR-0236; any tool may make the raster, the build never calls one).
+ * Studio-authored assets under content/models/items (Studio) override a generated icon of the same item id.
+ *
+ *   ./gradlew :tools:item-art:run --args="convert <image> <outDir> [colors]"   -> every converter stage as PNG
  */
 
 plugins {
@@ -46,6 +49,7 @@ val checkItemArt = tasks.register<JavaExec>("checkItemArt") {
     args = listOf("check", "$rootDir/content")
     systemProperty("java.awt.headless", "true")
     inputs.dir("$rootDir/content/items")
+    inputs.dir("$rootDir/content/textures/sources").optional()
     inputs.dir("$rootDir/content/textures/generated")
     inputs.dir("$rootDir/content/models/generated")
 }

@@ -1,0 +1,34 @@
+# Raster sources of item icons (ADR-0236). `./gradlew :tools:item-art:run` converts each listed item's
+# source to its 32x32 icon under textures/generated/items; unlisted items stay drawn by code (ADR-0193/0223).
+# Any tool may make a source — an AI sheet (tools/item-art/scripts/gen_sheet.py), Aseprite, a hand-drawn
+# PNG — only the committed file counts. Per item: `name: <source>` or `{ from: <source>, colors: N, model: handheld|generated }`.
+
+sources:
+  # Codex image generation from tools/item-art/sheets/weapons-v1.yaml (one generation, 21 cells).
+  weapons-v1:
+    file: sheets/weapons-v1.png
+    grid: [5, 5]
+    cells: [bastion-greatsword, couture-rapier, crimson-chain-axe, dagger, edict-blade, ember-gauntlet, fire-staff, frost-staff, gossamer-katana, greatsword, knight-sword, orrery-staff, pistol, rifle, rtm-blaster, shotgun, sigil-rifle, thunder-staff, vendetta-rifle, verdant-staff, verdict-hammer]
+
+items:
+  bastion-greatsword: weapons-v1
+  couture-rapier: weapons-v1
+  crimson-chain-axe: weapons-v1
+  dagger: weapons-v1
+  edict-blade: weapons-v1
+  ember-gauntlet: weapons-v1
+  fire-staff: weapons-v1
+  frost-staff: weapons-v1
+  gossamer-katana: weapons-v1
+  greatsword: weapons-v1
+  knight-sword: weapons-v1
+  orrery-staff: weapons-v1
+  pistol: weapons-v1
+  rifle: weapons-v1
+  # rtm-blaster stays code-drawn: its purple glow sits too close to the magenta key colour.
+  shotgun: weapons-v1
+  sigil-rifle: weapons-v1
+  thunder-staff: weapons-v1
+  vendetta-rifle: weapons-v1
+  verdant-staff: weapons-v1
+  verdict-hammer: weapons-v1

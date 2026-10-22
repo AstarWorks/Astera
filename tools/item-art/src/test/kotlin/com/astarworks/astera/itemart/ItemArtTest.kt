@@ -50,6 +50,17 @@ class ItemArtTest {
     }
 
     @Test
+    fun `sourced items are converted from their raster, the rest stay code-drawn`() {
+        val sources = Sources.load(contentDir)
+        val files = ItemArt.renderAll(contentDir)
+        for (item in weapons) {
+            val committed = ItemArt.pixels(ItemArt.decode(files.getValue("${ItemArt.TEXTURE_DIR}/${item.id}.png")))
+            val expected = sources[item.id]?.let { Sources.render(it) } ?: ItemArt.render(item)
+            assertThat(committed).`as`(item.id).isEqualTo(ItemArt.pixels(expected))
+        }
+    }
+
+    @Test
     fun `icons of different items differ`() {
         val pixels = weapons.map { ItemArt.pixels(ItemArt.render(it)) }
         assertThat(pixels.toSet()).hasSize(weapons.size)
@@ -72,7 +83,9 @@ class ItemArtTest {
     @Test
     fun `every non-weapon item has an icon design or is deliberately vanilla`() {
         val weaponIds = weapons.map { it.id }.toSet()
-        val undecided = ItemArt.allItemIds(contentDir).filter { it !in weaponIds && it !in Icons.SPECS && it !in Icons.VANILLA }
+        val sourced = Sources.load(contentDir).keys
+        val undecided = ItemArt.allItemIds(contentDir)
+            .filter { it !in weaponIds && it !in Icons.SPECS && it !in Icons.VANILLA && it !in sourced }
         assertThat(undecided).`as`("items with neither an icon design nor a vanilla exemption").isEmpty()
     }
 
