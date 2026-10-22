@@ -22,9 +22,11 @@ default_loadout:
 # Per-currency initial balance. Currency keys must match `Currency` enum
 # constants (STAR / GOLD / GEM); values are 64-bit non-negative integers.
 # Zero entries are dropped at apply-time so the audit log stays readable.
+# STAR is the everyday shop currency (ADR-0199): 150 buys the cheapest shop offer
+# straight away; GOLD is earned (quests / advancements / wins), GEM is premium.
 wallet_grants:
-  GOLD: 100
-  STAR: 0
+  GOLD: 0
+  STAR: 150
   GEM: 0
 
 # Tutorial auto-enrollment. When `auto_enroll: true`, the new profile is
