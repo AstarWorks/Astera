@@ -46,6 +46,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.Clientbound
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundTabListPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundAddEntityPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundRemoveEntitiesPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundDamageEventPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundSetEntityDataPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundSoundPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
@@ -183,6 +184,12 @@ class Bot private constructor(
     /** Every entity add / remove packet in arrival order (display-entity lifetime checks). */
     /** Entity id by UUID for every entity spawned at this client (players included), for attack packets. */
     val entityIdByUuid = ConcurrentHashMap<UUID, Int>()
+    /** This client's own entity id, and the entity id of every damage-event packet received (self hits = ids equal to it). */
+    @Volatile var selfEntityId = -1; private set
+    val damageEventEntities = CopyOnWriteArrayList<Int>()
+    /** Floating damage numbers shown to this client, one per text-display entity, in arrival order. */
+    val damageNumbers = CopyOnWriteArrayList<String>()
+    private val seenDamageNumberEntities = java.util.Collections.newSetFromMap(ConcurrentHashMap<Int, Boolean>())
     val entityEvents = CopyOnWriteArrayList<EntityEvent>()
     val packetCounts = ConcurrentHashMap<String, AtomicInteger>()
 
@@ -232,7 +239,9 @@ class Bot private constructor(
             is ClientboundGameEventPacket -> if (packet.notification == GameEvent.CHANGE_GAME_MODE) gameModes += packet.value.toString()
             is ClientboundCustomQueryPacket -> answerLoginQuery(packet)
             is ClientboundCustomPayloadPacket -> handlePluginMessage(packet)
+            is ClientboundDamageEventPacket -> damageEventEntities += packet.entityId
             is ClientboundLoginPacket -> {
+                selfEntityId = packet.entityId
                 loggedIn = true
                 if (servers.isNotEmpty()) {
                     // Velocity tells real clients to listen on the legacy proxy channel; Paper only delivers
@@ -295,7 +304,14 @@ class Bot private constructor(
             }
             is ClientboundRemoveEntitiesPacket -> packet.entityIds.forEach { entityEvents += EntityEvent(System.currentTimeMillis(), it, "", false) }
             is ClientboundSoundPacket -> sounds += packet.sound.toString()
-            is ClientboundSetEntityDataPacket -> packet.metadata.forEach { m -> (m.value as? Component)?.let { entityTexts += plain(it) } }
+            is ClientboundSetEntityDataPacket -> packet.metadata.forEach { m ->
+                (m.value as? Component)?.let { c ->
+                    val txt = plain(c)
+                    entityTexts += txt
+                    // floating damage numbers ("-7", "-12.5"): one text display per landed hit
+                    if (DAMAGE_NUMBER.matches(txt) && seenDamageNumberEntities.add(packet.entityId)) damageNumbers += txt
+                }
+            }
             is ClientboundTabListPacket -> {
                 tabHeader = plain(packet.header)
                 tabFooter = plain(packet.footer)
@@ -530,6 +546,7 @@ class Bot private constructor(
     }
 
     companion object {
+        private val DAMAGE_NUMBER = Regex("-[0-9]+(\\.[0-9]+)?")
         /** Paper rejects a second connection from one IP within `connection-throttle` (4s): space our logins out. */
         fun offlineUuid(name: String): UUID = UUID.nameUUIDFromBytes("OfflinePlayer:$name".toByteArray(Charsets.UTF_8))
 

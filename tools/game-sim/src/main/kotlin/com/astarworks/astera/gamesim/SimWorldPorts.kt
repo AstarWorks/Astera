@@ -87,6 +87,14 @@ public class SimDisplayGateway(
     /** Displays currently alive. */
     public val active: MutableMap<IDisplayEntityGateway.DisplayHandle, Spawned> = linkedMapOf()
 
+    /**
+     * Highest number of simultaneously live displays seen at any spawn. Sampling [active] after a whole tick
+     * hides the overlap of a tick that spawns its new displays before the expired ones are removed, which is
+     * exactly what a client sees (add packets arrive before the remove packets), so budgets use this.
+     */
+    public var peakActive: Int = 0
+        private set
+
     /** Every display ever spawned, in order. */
     public val spawned: MutableList<Spawned> = mutableListOf()
 
@@ -112,6 +120,7 @@ public class SimDisplayGateway(
         val handle = IDisplayEntityGateway.DisplayHandle(UUID.randomUUID())
         val record = Spawned(handle, world, at, spec, renderedLines)
         active[handle] = record
+        peakActive = maxOf(peakActive, active.size)
         spawned += record
         val what = when (val kind = spec.kind) {
             is DisplayKind.Block -> "block ${kind.blockKey}"
