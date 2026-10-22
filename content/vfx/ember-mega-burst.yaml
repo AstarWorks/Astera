@@ -46,7 +46,7 @@ elements:
       - { t: 0, translate: [0.0, 0.0, 0.3], scale: [0.06, 0.06, 0.4] }
       - { t: 3, translate: [0.0, 0.0, 2.6], scale: [0.2, 0.2, 4.6], ease: out_expo }
       - { t: 10, block: red_stained_glass }
-      - { t: 16, block: gray_stained_glass }
+      - { t: 14, block: gray_stained_glass }
       - { t: 24, translate: [0.0, 0.0, 4.2], scale: [0.0, 0.0, 4.6], ease: in_quad }
 
   - id: ring
