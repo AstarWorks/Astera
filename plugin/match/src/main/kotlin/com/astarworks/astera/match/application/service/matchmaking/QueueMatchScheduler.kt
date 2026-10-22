@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueNotifier
 import com.astarworks.astera.match.application.usecase.matchmaking.MatchFormer
+import com.astarworks.astera.match.domain.matchmaking.LaneKind
 import com.astarworks.astera.match.domain.matchmaking.QueueLane
 import com.astarworks.astera.match.domain.matchmaking.QueueSettings
 import org.slf4j.LoggerFactory
@@ -75,12 +76,20 @@ public class QueueMatchScheduler(
         val previousQueued = state.lastQueued
         state.lastQueued = queued.size
 
-        if (queued.size < lane.minPlayers) {
+        // PvP: a side needs a player of its own. Parties are indivisible, solos are free agents, so the
+        // queue can fill `teams` sides only when it holds at least that many parties + solos.
+        val sides = queued.count { it.partyId == null } + queued.mapNotNull { it.partyId }.toSet().size
+        val missingOpponents = lane.kind == LaneKind.PVP && sides < lane.teams
+        if (queued.size < lane.minPlayers || missingOpponents) {
             if (state.countdownStartTick != null) {
                 queued.forEach { notify(it, "countdown-cancelled", lane, queued.size) }
             }
             state.reset()
-            state.heldNotice = null
+            val waiting = "waiting-opponents:${queued.size}"
+            if (queued.isNotEmpty() && state.heldNotice != waiting) {
+                queued.forEach { notify(it, "waiting-opponents", lane, queued.size) }
+            }
+            state.heldNotice = waiting
             return
         }
         if (matchFound.isStageBusy(mode)) {

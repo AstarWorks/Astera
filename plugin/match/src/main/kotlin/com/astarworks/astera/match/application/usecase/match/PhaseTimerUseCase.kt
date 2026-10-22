@@ -2,6 +2,7 @@ package com.astarworks.astera.match.application.usecase.match
 
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.match.application.service.MatchTimerService
@@ -54,7 +55,16 @@ public class PhaseTimerUseCase(
      * platform wires this to the real end-of-match path. Null keeps the legacy phase switch (tests).
      */
     private val onSuddenDeathExpired: ((MatchId) -> Unit)? = null,
+    /**
+     * A COUNTDOWN that stays below the roster floor ([SwitchPhaseError.InsufficientPlayers]) for
+     * [INSUFFICIENT_GRACE_TICKS] is cancelled through this hook (players are returned / told) instead of
+     * hanging in COUNTDOWN forever. Null keeps the legacy "retry every sweep" behaviour (tests).
+     */
+    private val onInsufficientPlayers: ((MatchId) -> Unit)? = null,
 ) {
+
+    /** First sweep at which a match's countdown was blocked by the roster floor. */
+    private val insufficientSince: MutableMap<MatchId, Long> = ConcurrentHashMap()
 
     /**
      * In-memory cache of when each match first entered SUDDEN_DEATH.
@@ -91,10 +101,21 @@ public class PhaseTimerUseCase(
             when (match.phase) {
                 MatchPhase.COUNTDOWN -> {
                     if (now - match.startedAtTick >= countdownTicks() + shift) {
-                        switchPhase.execute(
+                        val outcome = switchPhase.execute(
                             match.id,
                             MatchStateMachine.TransitionTrigger.CountdownComplete,
                         )
+                        val blocked = (outcome as? Result.Failure)?.error is SwitchPhaseError.InsufficientPlayers
+                        if (blocked) {
+                            val since = insufficientSince.getOrPut(match.id) { now }
+                            val cancel = onInsufficientPlayers
+                            if (cancel != null && now - since >= INSUFFICIENT_GRACE_TICKS) {
+                                insufficientSince.remove(match.id)
+                                cancel(match.id)
+                            }
+                        } else {
+                            insufficientSince.remove(match.id)
+                        }
                         matchTimer?.clearShiftsFor(match.id)
                     }
                 }
@@ -132,5 +153,11 @@ public class PhaseTimerUseCase(
         // Garbage-collect tracking for matches that are no longer active.
         val activeIds: Set<MatchId> = active.mapTo(mutableSetOf()) { it.id }
         suddenDeathEnteredAt.keys.retainAll(activeIds)
+        insufficientSince.keys.retainAll(activeIds)
+    }
+
+    private companion object {
+        /** How long a blocked countdown waits for late arrivals before the match is cancelled (20 s). */
+        const val INSUFFICIENT_GRACE_TICKS: Long = 400L
     }
 }

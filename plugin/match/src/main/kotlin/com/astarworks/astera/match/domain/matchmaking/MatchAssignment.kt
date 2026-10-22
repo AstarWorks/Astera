@@ -16,6 +16,8 @@ public data class MatchAssignment(
     val stageId: StageId,
     val modeKey: String?,
     val teams: List<List<PlayerId>>,
+    /** An admin forced the formation past the roster floor: the game server waives its own floor too. */
+    val forced: Boolean = false,
 ) {
     init {
         require(teams.isNotEmpty()) { "A match assignment needs at least one team" }

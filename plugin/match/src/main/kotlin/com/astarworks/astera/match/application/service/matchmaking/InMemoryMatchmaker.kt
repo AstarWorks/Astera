@@ -201,6 +201,10 @@ public class InMemoryMatchmaker(
         if (pickedEntries.size < required) {
             return Result.Success(null)
         }
+        // PvP: never start with an empty side (an explicit admin `minPlayers` is the force-start override).
+        if (minPlayers == null && spec.requireAllTeams && teams.any { it.isEmpty() }) {
+            return Result.Success(null)
+        }
 
         // Consume the picked entries — atomic with the publish below.
         for (e in pickedEntries) {

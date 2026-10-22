@@ -18,7 +18,7 @@ import java.util.UUID
  */
 public object MatchAssignmentCodec {
 
-    private const val VERSION: Int = 1
+    private const val VERSION: Int = 2
     private const val STATUS_ACCEPTED: Int = 0
     private const val STATUS_REJECTED: Int = 1
     private const val STATUS_ENDED: Int = 2
@@ -34,6 +34,7 @@ public object MatchAssignmentCodec {
             it.writeInt(team.size)
             team.forEach { player -> it.writeUTF(player.uuid.toString()) }
         }
+        it.writeBoolean(assignment.forced)
     }
 
     public fun decodeAssignment(bytes: ByteArray): MatchAssignment? = read(bytes) { input ->
@@ -46,7 +47,7 @@ public object MatchAssignmentCodec {
             val size = input.readInt().also { n -> require(n in 0..MAX_TEAM_SIZE) }
             List(size) { PlayerId(UUID.fromString(input.readUTF())) }
         }
-        MatchAssignment(id, stage, modeKey, teams)
+        MatchAssignment(id, stage, modeKey, teams, forced = input.readBoolean())
     }
 
     public fun encode(status: AssignmentStatus): ByteArray = write {

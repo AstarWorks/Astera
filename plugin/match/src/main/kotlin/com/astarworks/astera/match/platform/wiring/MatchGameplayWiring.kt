@@ -157,9 +157,16 @@ internal object MatchGameplayWiring {
                 scheduler = scheduler,
                 notifier = queueNotifier,
                 settings = crossServer,
+                waivers = services.get<com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers>(),
             )
             receiver.start()
             env.shutdownHooks += { receiver.stop() }
+            // A game process that died mid-match leaves ACTIVE rows in the (shared) match store; they would make
+            // every later assignment answer "busy" and swallow in-match deaths of players who are not in them.
+            for (stale in matches.findActiveMatches().toList()) {
+                matches.save(stale.withPhase(com.astarworks.astera.core.domain.match.MatchPhase.ENDED))
+                logger.warning("Closed stale match ${stale.id} left over from a previous game-server run.")
+            }
         }
         // A queued player who disconnects leaves the queue (so they are never
         // pulled into a match while offline).
@@ -274,6 +281,7 @@ internal object MatchGameplayWiring {
                 playerGateway = playerGateway,
                 messages = msgRenderer,
                 statusEffects = services.get<com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer>(),
+                gameServer = role == com.astarworks.astera.core.domain.proxy.ServerRole.GAME,
             )
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,

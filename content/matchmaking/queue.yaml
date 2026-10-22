@@ -4,6 +4,9 @@
 # How often the queues are checked (seconds).
 check_interval_seconds: 1
 
+# `kind` marks what a lane is for: pvp (default: every team needs a player, no solo
+# start), pve or training (a solo start is fine). pvp floors are clamped to >= teams on load.
+
 # Wait between "enough players queued" and forming the match. Restarts when a
 # queued player leaves; a full lane (teams x players_per_team) starts at once.
 queue_countdown_seconds: 10
@@ -18,17 +21,19 @@ lanes:
     stage: example-arena
     teams: 2
     players_per_team: 4
-    # Playtest default: 1 lets you start alone (you land on one team, the other
-    # stays empty). Raise to 2+ for real matches.
-    min_players: 1
+    # PvP: at least one player per team (never a solo start). The admin
+    # force-start in the panel bypasses this floor.
+    kind: pvp
+    min_players: 2
 
   # Annihilation: 3 teams (red / blue / yellow) on the flat playtest world.
-  # min_players 1 so one player can start it alone.
+  # One player per team: three sides, never a solo start.
   - id: annihilation
     stage: annihilation-arena
     teams: 3
     players_per_team: 4
-    min_players: 1
+    min_players: 3
+    kind: pvp
 
   # Siege / objective modes (WP11) on the flat playtest world. They share the
   # `siege-flat` stage, so one siege match runs at a time (the next lane waits).
@@ -37,24 +42,29 @@ lanes:
     stage: siege-flat
     teams: 2
     players_per_team: 4
-    min_players: 1
+    min_players: 2
+    kind: pvp
   - id: carry-tnt
     stage: siege-flat
     teams: 2
     players_per_team: 4
-    min_players: 1
+    min_players: 2
+    kind: pvp
   - id: capture-wool
     stage: siege-flat
     teams: 2
     players_per_team: 4
-    min_players: 1
+    min_players: 2
+    kind: pvp
   - id: steal-jewelry
     stage: siege-flat
     teams: 2
     players_per_team: 4
-    min_players: 1
+    min_players: 2
+    kind: pvp
   - id: battle-loyal
     stage: siege-flat
     teams: 2
     players_per_team: 4
-    min_players: 1
+    min_players: 2
+    kind: pvp

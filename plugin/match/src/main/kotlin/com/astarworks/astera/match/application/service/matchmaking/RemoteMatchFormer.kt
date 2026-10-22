@@ -100,6 +100,8 @@ public class RemoteMatchFormer(
             stageId = plan.stageId,
             modeKey = plan.modeKey,
             teams = formation.teams.map { it.toList() },
+            // An explicit roster override is the admin force start: the game server must not re-apply its floor.
+            forced = minPlayers != null,
         )
         // Register before sending: a fast game server may answer before sendMessage returns.
         val lease = scheduler.currentTick() + settings.matchLeaseSeconds * TICKS_PER_SECOND

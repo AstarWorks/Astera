@@ -16,6 +16,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.proxy.ProxyChannel
 import com.astarworks.astera.core.domain.proxy.ServerName
 import com.astarworks.astera.core.domain.proxy.TransferReason
+import com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueNotifier
 import com.astarworks.astera.match.domain.matchmaking.AssignmentStatus
@@ -47,6 +48,7 @@ public class MatchAssignmentReceiver(
     private val scheduler: IScheduler,
     private val notifier: IQueueNotifier,
     private val settings: CrossServerSettings,
+    private val waivers: MatchMinPlayerWaivers? = null,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -129,6 +131,7 @@ public class MatchAssignmentReceiver(
             }
         }
         current.matchId = matchId
+        if (assignment.forced) waivers?.waive(matchId)
         // Assignment team i maps onto the match's i-th team; surplus teams fold back.
         val teamIds = matches.findById(matchId)?.teams?.map { it.id }.orEmpty()
         assignment.teams.forEachIndexed { index, team ->

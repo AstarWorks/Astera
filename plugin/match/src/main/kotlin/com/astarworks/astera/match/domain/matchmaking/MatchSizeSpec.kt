@@ -19,6 +19,11 @@ public data class MatchSizeSpec(
      * 1-player floor is the playtest setting).
      */
     val minPlayers: Int = teamCount * playersPerTeam,
+    /**
+     * PvP floor: a match forms only when every team received at least one player (a 3-team lane needs
+     * three sides, not just three bodies). An admin force start (explicit `minPlayers`) bypasses it.
+     */
+    val requireAllTeams: Boolean = false,
 ) {
     init {
         require(teamCount >= 2) { "MatchSizeSpec.teamCount must be >= 2; got $teamCount" }

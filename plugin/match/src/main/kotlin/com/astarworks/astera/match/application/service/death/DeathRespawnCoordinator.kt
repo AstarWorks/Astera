@@ -24,6 +24,7 @@ import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.match.application.eventbus.listeners.respawn.EliminatedTeamSpectators
 import com.astarworks.astera.match.application.service.ISpawnSelector
 import com.astarworks.astera.match.application.service.SpawnStrategy
@@ -173,12 +174,14 @@ public class DeathRespawnCoordinator(
 
         val stage = stages.find(match.stageId)
         if (stage == null) {
-            log.warn("Respawn for {} in match {}: unknown stage {}; cannot respawn.", victim, match.id, match.stageId)
+            log.warn("Respawn for {} in match {}: unknown stage {}; reviving in place.", victim, match.id, match.stageId)
+            reviveInPlace(victim)
             return
         }
         val spawn = spawnSelector.selectFor(victim, match.id, stage, SpawnStrategy.Spread)
         if (spawn == null) {
-            log.warn("Respawn for {} in match {}: ISpawnSelector returned null; cannot respawn.", victim, match.id)
+            log.warn("Respawn for {} in match {}: ISpawnSelector returned null; reviving in place.", victim, match.id)
+            reviveInPlace(victim)
             return
         }
         val spec = RespawnSpec(
@@ -190,8 +193,16 @@ public class DeathRespawnCoordinator(
         )
         when (val outcome = respawnUseCase.respawn(spec)) {
             is Result.Success -> log.debug("Respawned {} in match {}.", victim, match.id)
-            is Result.Failure -> log.warn("Respawn for {} in match {} failed: {}", victim, match.id, outcome.error)
+            is Result.Failure -> {
+                log.warn("Respawn for {} in match {} failed: {}", victim, match.id, outcome.error)
+                reviveInPlace(victim)
+            }
         }
+    }
+
+    /** A respawn that cannot place the player must still leave them alive (never stuck at 0 HP in the arena). */
+    private fun reviveInPlace(victim: PlayerId) {
+        healthGateway.setHealth(victim, healthGateway.getMaxHealth(victim) ?: DEFAULT_MAX_HP, HealthChangeSource.Respawn)
     }
 
     private fun showDeathScreen(event: PlayerKilled, config: DeathRespawnConfig) {
