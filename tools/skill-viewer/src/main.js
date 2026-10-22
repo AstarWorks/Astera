@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { ParticleSystem } from './particles.js';
+import { DisplayRenderer } from './displays.js';
 
 const TPS = 20;
 const $ = (id) => document.getElementById(id);
@@ -21,6 +22,7 @@ sun.position.set(-6, 14, -4);
 scene.add(sun);
 
 const particles = new ParticleSystem(scene);
+const displays = new DisplayRenderer(scene);
 const dynamic = new THREE.Group(); // rebuilt-per-frame helpers are pooled below
 scene.add(dynamic);
 
@@ -28,7 +30,7 @@ const state = {
   trace: null, byTick: [], tickCount: 0, t: 0, playing: false, speed: 1, camPreset: 'side',
   ground: null, entityMeshes: new Map(), entityMeta: new Map(), projMeshes: new Map(), pool: [],
   schedule: { explosions: [], lightning: [], glows: [], shakes: [], blocks: [], displays: [], summons: [], damage: [] },
-  bounds: null, blockMeshes: [],
+  bounds: null, blockMeshes: [], hide: new Set(), castTick: 0, fov: 55, custom: null,
 };
 
 // ---------------------------------------------------------------- helpers
@@ -96,29 +98,40 @@ function entityColor(meta) {
   return meta.kind === 'player' ? 0x59c27a : 0xc9a24a;
 }
 
+function steve(meta) {
+  const team = entityColor(meta);
+  const skin = new THREE.MeshLambertMaterial({ color: 0xd9a97c }), shirt = new THREE.MeshLambertMaterial({ color: team }), pants = new THREE.MeshLambertMaterial({ color: 0x3a4a8a });
+  const model = new THREE.Group();
+  const part = (w, h, d, x, y, mat) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); m.position.set(x, y, 0); model.add(m); return m; };
+  const head = part(0.5, 0.5, 0.5, 0, 1.75, skin);
+  part(0.5, 0.75, 0.25, 0, 1.125, shirt);
+  part(0.25, 0.75, 0.25, -0.375, 1.125, shirt); part(0.25, 0.75, 0.25, 0.375, 1.125, shirt);
+  part(0.25, 0.75, 0.25, -0.125, 0.375, pants); part(0.25, 0.75, 0.25, 0.125, 0.375, pants);
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x20262e });
+  for (const x of [-0.12, 0.12]) { const e = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.06, 0.02), eyeMat); e.position.set(x, 0.04, 0.26); head.add(e); }
+  return model;
+}
+
 function buildEntities() {
   for (const m of state.entityMeshes.values()) scene.remove(m.group);
   state.entityMeshes.clear(); state.entityMeta.clear();
   for (const e of state.trace.entities) {
     state.entityMeta.set(e.id, e);
     const group = new THREE.Group();
-    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.3, 1.2, 4, 14), new THREE.MeshLambertMaterial({ color: entityColor(e) }));
-    body.position.y = 0.9;
-    const nose = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.16, 0.4), new THREE.MeshLambertMaterial({ color: 0xffffff }));
-    nose.position.set(0, 1.5, 0.3);
+    const body = steve(e); // Steve-sized: 0.6 x 1.8, eyes at 1.62
     const halo = new THREE.Mesh(new THREE.BoxGeometry(0.9, 2.1, 0.9), new THREE.MeshBasicMaterial({ color: 0xffee55, wireframe: true, transparent: true, opacity: 0.9 }));
     halo.position.y = 0.9; halo.visible = false;
     const label = makeLabel(e.name, '#ffffff', 0.4);
     label.position.y = 2.35;
-    group.add(body, nose, halo, label);
+    group.add(body, halo, label);
     scene.add(group);
-    state.entityMeshes.set(e.id, { group, body, nose, halo, label, name: e.name });
+    state.entityMeshes.set(e.id, { group, body, halo, label, name: e.name });
   }
 }
 
 function buildSchedule() {
   const S = state.schedule = { explosions: [], lightning: [], glows: [], shakes: [], blocks: [], displays: [], summons: [], damage: [] };
-  const openBlocks = new Map(), openDisplays = [], openSummons = [];
+  const openBlocks = new Map(), openSummons = [];
   const last = state.tickCount + 200;
   for (const tk of state.trace.ticks) {
     for (const e of tk.effects) {
@@ -135,16 +148,6 @@ function buildSchedule() {
         case 'camera_shake': S.shakes.push({ t: tk.tick, k: parseFloat(d.intensity ?? '0.3') }); break;
         case 'block_place': { const key = `${e.x},${e.y},${e.z}`; const b = { key, name: e.detail, x: e.x, y: e.y, z: e.z, t0: tk.tick, t1: last }; openBlocks.set(key, b); S.blocks.push(b); break; }
         case 'block_remove': { const key = `${e.x},${e.y},${e.z}`; const b = openBlocks.get(key); if (b) { b.t1 = tk.tick; openBlocks.delete(key); } break; }
-        case 'display_spawn': {
-          const life = e.detail.match(/lifetime=(\d+)/);
-          const text = e.detail.startsWith('text ') ? e.detail.slice(5).replace(/\s*lifetime=\d+.*/, '') : null;
-          const dsp = { text, kind: e.detail.split(' ')[0], x: e.x, y: e.y, z: e.z, t0: tk.tick, t1: life ? tk.tick + parseInt(life[1], 10) : last };
-          openDisplays.push(dsp); S.displays.push(dsp); break;
-        }
-        case 'display_remove': {
-          const dsp = openDisplays.find((x) => Math.abs(x.x - e.x) < 0.01 && Math.abs(x.y - e.y) < 0.01 && Math.abs(x.z - e.z) < 0.01 && x.t1 >= tk.tick);
-          if (dsp) dsp.t1 = Math.min(dsp.t1, tk.tick); break;
-        }
         case 'summon': { const s = { x: e.x, y: e.y, z: e.z, t0: tk.tick, t1: last, detail: e.detail }; openSummons.push(s); S.summons.push(s); break; }
         case 'despawn': { const s = openSummons.find((x) => x.t1 === last); if (s) s.t1 = tk.tick; break; }
         default: break;
@@ -194,6 +197,7 @@ const BLOCK_COLORS = { ice: 0x9ad9ff, packed_ice: 0x7ec0f0, stone: 0x888888, dir
 function updateFrame(t) {
   if (!state.trace) return;
   resetPool();
+  if (state.camPreset === 'first' || state.camPreset === 'opponent') followCamera(t);
   // entities
   const nowTick = tickIndexAt(t);
   const frame = state.byTick[nowTick];
@@ -204,8 +208,8 @@ function updateFrame(t) {
     m.group.position.set(s.x, s.y, s.z);
     m.group.rotation.y = Math.atan2(s.dx, s.dz);
     const dead = s.hp !== null && s.hp !== undefined && s.hp <= 0;
-    m.body.rotation.x = dead ? Math.PI / 2 : 0; m.body.position.y = dead ? 0.3 : 0.9;
-    m.body.material.opacity = 1;
+    m.body.rotation.x = dead ? -Math.PI / 2 : 0;
+    if (state.hide.has(id)) m.group.visible = false;
     const hp = s.hp === null || s.hp === undefined ? '' : `  ${Math.max(0, s.hp).toFixed(0)} hp`;
     setLabel(m.label, `${m.name}${hp}`, '#ffffff', 0.4);
     const glow = state.schedule.glows.some((g) => g.name === m.name && t >= g.t0 && t < g.t1);
@@ -255,18 +259,19 @@ function updateFrame(t) {
     if (t < s.t0 || t >= s.t1) continue;
     const m = box(); m.position.set(s.x, s.y + 0.5, s.z); m.scale.set(0.6, 1, 0.6); m.material.color.set(0x7fe0d0); m.material.opacity = 0.9;
   }
-  // display entities
-  for (const d of state.schedule.displays) {
-    if (t < d.t0 || t >= d.t1) continue;
-    if (d.text) { const sp = sprite(); setSprite(sp, d.text, '#ffe066', 0.5, true); sp.position.set(d.x, d.y, d.z); sp.material.opacity = 1; }
-    else { const m = box(); m.position.set(d.x, d.y, d.z); m.scale.setScalar(0.4); m.material.color.set(0xffcc44); m.material.opacity = 0.9; }
-  }
   // damage numbers
   for (const dmg of state.schedule.damage) {
     const age = t - dmg.t; if (age < 0 || age > 26) continue;
     const s = entityState(dmg.target, dmg.t); if (!s) continue;
     const sp = sprite(); setSprite(sp, `-${dmg.amount.toFixed(dmg.amount % 1 ? 1 : 0)}`, dmg.hpAfter <= 0 ? '#ff4040' : '#ffd24d', 0.42, true);
     sp.position.set(s.x, s.y + 2.1 + age * 0.045, s.z); sp.material.opacity = Math.min(1, (26 - age) / 8);
+  }
+  // hit markers: a white-hot burst + red shell at the struck target's chest for a few ticks
+  for (const dmg of state.schedule.damage) {
+    const age = t - dmg.t; if (age < 0 || age > 7) continue;
+    const s = entityState(dmg.target, dmg.t); if (!s) continue;
+    const a = sphere(); a.position.set(s.x, s.y + 1.1, s.z); a.scale.setScalar(0.25 + age * 0.07); a.material.color.set(0xff2a2a); a.material.opacity = 0.75 * (1 - age / 7);
+    const b = sphere(); b.position.set(s.x, s.y + 1.1, s.z); b.scale.setScalar(0.12 + age * 0.03); b.material.color.set(0xffffff); b.material.opacity = 0.9 * (1 - age / 5 > 0 ? 1 - age / 5 : 0);
   }
   // particles
   particles.update(t);
@@ -296,14 +301,48 @@ function updateInfo(t, nowTick) {
 }
 
 // ---------------------------------------------------------------- camera
+const EYE = 1.62; // Minecraft player eye height
+const ACTIVE = (t) => t.particles.length || t.sounds.length || t.projectileEvents.length || t.effects.length || t.status.length || t.damage.length || (t.displays?.length ?? 0);
+function roles() {
+  const caster = state.trace.entities.find((e) => e.kind === 'player') ?? state.trace.entities[0];
+  const target = state.trace.entities.find((e) => e !== caster) ?? null;
+  return { caster, target };
+}
+function flatDir(s) { const l = Math.hypot(s.dx, s.dz) || 1; return new THREE.Vector3(s.dx / l, 0, s.dz / l); }
+
+/** First-person (caster eyes, cast direction) and opponent (4 blocks in front of the caster, looking back) follow the entities per frame. */
+function followCamera(t) {
+  const { caster, target } = roles();
+  if (!caster) return;
+  const c = entityState(caster.id, t);
+  state.hide.clear();
+  if (state.camPreset === 'first') {
+    const d = new THREE.Vector3(c.dx, c.dy, c.dz); if (d.lengthSq() < 1e-6) d.set(0, 0, 1); d.normalize();
+    const eye = new THREE.Vector3(c.x, c.y + EYE, c.z);
+    camera.position.copy(eye); controls.target.copy(eye).addScaledVector(d, 4);
+    state.hide.add(caster.id);
+  } else if (state.camPreset === 'opponent') {
+    const c0 = entityState(caster.id, state.castTick);
+    const d = flatDir(c0);
+    const tg = target ? entityState(target.id, state.castTick) : null;
+    const dist = tg ? Math.min(4, Math.hypot(tg.x - c0.x, tg.z - c0.z)) : 4;
+    camera.position.set(c0.x + d.x * dist, c0.y + EYE, c0.z + d.z * dist);
+    controls.target.set(c.x, c.y + 1.2, c.z);
+    if (target && tg && Math.hypot(tg.x - camera.position.x, tg.z - camera.position.z) < 0.9) state.hide.add(target.id);
+  } else { state.hide.clear(); return; }
+  controls.update();
+}
+
 function applyCamera(name, instant = true) {
-  state.camPreset = name; $('cam').value = name;
+  state.camPreset = name; if ($('cam')) $('cam').value = name in { side: 1, behind: 1, top: 1, front: 1, first: 1, opponent: 1 } ? name : $('cam').value;
   const b = state.bounds; if (!b) return;
+  state.hide.clear();
   const caster = state.trace.entities.find((e) => e.kind === 'player') ?? state.trace.entities[0];
   const c0 = caster ? entityState(caster.id, 0) : { x: 0, y: state.trace.groundY, z: 0, dx: 0, dy: 0, dz: 1 };
   const g = state.trace.groundY;
   const cx = (b.minX + b.maxX) / 2, cz = (b.minZ + b.maxZ) / 2, span = Math.max(6, b.maxZ - b.minZ + 3, b.maxX - b.minX);
   const half = span / 2;
+  camera.fov = name === 'first' || name === 'opponent' ? 70 : 55; camera.updateProjectionMatrix();
   if (name === 'side') {
     camera.position.set(cx - (span * 0.45 + 4), g + 2.2 + span * 0.12, cz - 0.001);
     controls.target.set(cx, g + 1.1, cz);
@@ -314,6 +353,9 @@ function applyCamera(name, instant = true) {
   } else if (name === 'top') {
     camera.position.set(cx + 0.001, g + Math.max(14, span * 1.2), cz);
     controls.target.set(cx, g, cz);
+  } else if (name === 'first' || name === 'opponent') {
+    followCamera(state.t);
+    return;
   } else { // front: from beyond the far end looking back at the caster
     camera.position.set(cx + 3, g + 3.2, b.maxZ + Math.max(6, half * 0.9));
     controls.target.set(cx, g + 1.2, cz);
@@ -325,13 +367,64 @@ function applyCamera(name, instant = true) {
 function resize() {
   const stage = $('stage'); const w = stage.clientWidth, h = stage.clientHeight;
   renderer.setSize(w, h, false);
+  maskRT.setSize(w, h); edgeMat.uniforms.texel.value.set(1 / w, 1 / h); edgeMat.uniforms.radius.value = Math.max(1.5, h / 250);
   camera.aspect = w / h; camera.updateProjectionMatrix();
   particles.setScale(h / (2 * Math.tan((camera.fov * Math.PI) / 360)));
+}
+// Glow outline (glow_color_override): flat-colour mask of the glowing displays -> dilate by ~1-2 px, composited over the frame.
+const maskRT = new THREE.WebGLRenderTarget(2, 2, { depthBuffer: true });
+const edgeScene = new THREE.Scene();
+const edgeCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+const edgeMat = new THREE.ShaderMaterial({
+  transparent: true, depthTest: false, depthWrite: false,
+  uniforms: { tex: { value: maskRT.texture }, texel: { value: new THREE.Vector2(1, 1) }, radius: { value: 1.5 } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+  fragmentShader: `uniform sampler2D tex; uniform vec2 texel; uniform float radius; varying vec2 vUv;
+    void main(){
+      if (texture2D(tex, vUv).a > 0.5) discard;
+      vec4 best = vec4(0.0); float bd = 1e9;
+      for (int dx = -4; dx <= 4; dx++) for (int dy = -4; dy <= 4; dy++) {
+        float d = length(vec2(float(dx), float(dy)));
+        if (d > radius) continue;
+        vec4 s = texture2D(tex, vUv + vec2(float(dx), float(dy)) * texel);
+        if (s.a > 0.5 && d < bd) { bd = d; best = s; }
+      }
+      if (bd > radius) discard;
+      gl_FragColor = vec4(best.rgb, 1.0);
+    }`,
+});
+edgeScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), edgeMat));
+const flatMats = new Map();
+/** Flat outline colour that keeps the mesh's own alpha cut-out (a sprite quad is only as big as its opaque pixels). */
+function flatMat(color, map) {
+  const key = color + ':' + (map?.uuid ?? '');
+  if (!flatMats.has(key)) flatMats.set(key, new THREE.ShaderMaterial({
+    uniforms: { c: { value: new THREE.Vector3((color >> 16 & 255) / 255, (color >> 8 & 255) / 255, (color & 255) / 255) }, map: { value: map } },
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+    fragmentShader: 'uniform vec3 c; uniform sampler2D map; varying vec2 vUv; void main(){ if (texture2D(map, vUv).a < 0.3) discard; gl_FragColor = vec4(c, 1.0); }', side: THREE.DoubleSide,
+  }));
+  return flatMats.get(key);
+}
+function glowPass() {
+  const targets = displays.glowTargets();
+  if (!targets.length) return;
+  const saved = targets.map((x) => x.mesh.material);
+  targets.forEach((x) => { x.mesh.material = flatMat(x.color, x.mesh.material.uniforms.map.value); x.mesh.layers.enable(1); });
+  const bg = scene.background, fog = scene.fog;
+  scene.background = null; scene.fog = null; camera.layers.set(1);
+  renderer.setRenderTarget(maskRT); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(scene, camera);
+  renderer.setRenderTarget(null); camera.layers.set(0); scene.background = bg; scene.fog = fog;
+  targets.forEach((x, i) => { x.mesh.material = saved[i]; x.mesh.layers.disable(1); });
+  renderer.autoClear = false; renderer.render(edgeScene, edgeCam); renderer.autoClear = true;
 }
 function render() {
   const base = camera.position.clone(), tgt = controls.target.clone();
   if (state.shake) camera.position.add(new THREE.Vector3((Math.random() - 0.5) * state.shake * 0.5, (Math.random() - 0.5) * state.shake * 0.5, (Math.random() - 0.5) * state.shake * 0.5));
+  camera.updateMatrixWorld();
+  displays.update(state.t, camera);
+  renderer.setClearColor(0x87b5e8, 1);
   renderer.render(scene, camera);
+  glowPass();
   camera.position.copy(base); controls.target.copy(tgt);
 }
 function seek(t) {
@@ -340,7 +433,7 @@ function seek(t) {
   updateFrame(state.t);
   render();
 }
-function load(trace) {
+async function load(trace) {
   state.trace = trace; state.tickCount = trace.ticks.length;
   state.byTick = trace.ticks;
   clearGroup(dynamic); for (const k of Object.keys(pooled)) pooled[k] = [];
@@ -348,6 +441,8 @@ function load(trace) {
   state.bounds = computeBounds();
   buildGround(state.bounds); buildEntities(); buildSchedule();
   particles.setTrace(trace);
+  state.castTick = Math.max(0, trace.ticks.findIndex(ACTIVE));
+  await displays.setTrace(trace);
   $('scrub').max = String(state.tickCount - 1);
   $('drop').classList.add('hidden');
   resize(); applyCamera(state.camPreset); seek(0);
@@ -365,7 +460,7 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 
-async function loadFile(file) { load(JSON.parse(await file.text())); }
+async function loadFile(file) { await load(JSON.parse(await file.text())); }
 $('file').addEventListener('change', (e) => e.target.files[0] && loadFile(e.target.files[0]));
 $('play').addEventListener('click', () => setPlaying(!state.playing));
 $('restart').addEventListener('click', () => seek(0));
@@ -394,9 +489,49 @@ resize();
 requestAnimationFrame(loop);
 
 // Programmatic API (used by scripts/render.mjs and handy in the devtools console).
+function setCamera({ pos, target, fov = 55 }) {
+  state.camPreset = 'custom'; state.hide.clear();
+  camera.fov = fov; camera.aspect = $('stage').clientWidth / $('stage').clientHeight; camera.updateProjectionMatrix();
+  camera.position.set(...pos); controls.target.set(...target); controls.update(); camera.updateMatrixWorld();
+}
+/** Screen-space (px) bounds + world AABB of every visible display, from the vertices actually drawn (calibration). */
+function measureDisplays() {
+  camera.updateMatrixWorld(); displays.update(state.t, camera); displays.root.updateMatrixWorld(true);
+  const w = $('stage').clientWidth, h = $('stage').clientHeight;
+  return displays.visibleEntries().map((e) => {
+    const sb = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity }, wb = new THREE.Box3(), v = new THREE.Vector3();
+    e.content.traverse((o) => {
+      if (!o.isMesh) return;
+      const pos = o.geometry.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld); wb.expandByPoint(v);
+        const q = v.clone().project(camera);
+        const sx = (q.x * 0.5 + 0.5) * w, sy = (1 - (q.y * 0.5 + 0.5)) * h;
+        sb.x0 = Math.min(sb.x0, sx); sb.x1 = Math.max(sb.x1, sx); sb.y0 = Math.min(sb.y0, sy); sb.y1 = Math.max(sb.y1, sy);
+      }
+    });
+    return { id: e.track.id, kind: e.track.spawn.kind, screen: sb, min: wb.min.toArray(), max: wb.max.toArray() };
+  });
+}
+/** Bounds (px) of canvas pixels that differ from the sky colour by more than `tol` (calibration on a clean sky). */
+function pixelBounds(tol = 40) {
+  const c = document.createElement('canvas'); c.width = canvas.width; c.height = canvas.height;
+  const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(canvas, 0, 0);
+  const d = g.getImageData(0, 0, c.width, c.height).data;
+  const sky = [0x87, 0xb5, 0xe8];
+  let x0 = Infinity, y0 = Infinity, x1 = -1, y1 = -1;
+  for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) {
+    const i = (y * c.width + x) * 4;
+    if (Math.abs(d[i] - sky[0]) + Math.abs(d[i + 1] - sky[1]) + Math.abs(d[i + 2] - sky[2]) > tol) { x0 = Math.min(x0, x); x1 = Math.max(x1, x + 1); y0 = Math.min(y0, y); y1 = Math.max(y1, y + 1); }
+  }
+  return { x0, y0, x1, y1 };
+}
+
 window.viewer = {
   load, seek, applyCamera, resize, render: () => { updateFrame(state.t); render(); },
   setCapture: (on) => { document.body.classList.toggle('capture', on); resize(); },
   play: () => setPlaying(true), pause: () => setPlaying(false),
+  setCamera, measureDisplays, pixelBounds,
+  get castTick() { return state.castTick; },
   get trace() { return state.trace; },
 };
