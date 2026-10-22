@@ -78,7 +78,7 @@ public object MenuKitTag {
  */
 internal class PaperLobbyMenuKit(
     private val plugin: JavaPlugin,
-    private val kit: LobbyMenuKit,
+    private val kitSource: () -> LobbyMenuKit,
     private val role: ServerRole,
     private val renderer: PaperItemTemplateRenderer,
     private val messages: IMessageRenderer,
@@ -87,6 +87,7 @@ internal class PaperLobbyMenuKit(
     private val inMatch: (PlayerId) -> Boolean,
 ) : Listener {
 
+    private val kit: LobbyMenuKit get() = kitSource()
     private val log = LoggerFactory.getLogger(javaClass)
     private val lastPress = HashMap<UUID, Long>()
 

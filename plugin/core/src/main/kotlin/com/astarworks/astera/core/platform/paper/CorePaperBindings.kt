@@ -438,11 +438,11 @@ internal class CorePaperBindings(
 
     /**
      * ADR-0185 — locked lobby hotbar kit + inventory crafting-grid buttons. Only on backends that
-     * host the lobby and when `content/gui/kit/lobby-kit.yaml` loaded; refreshed whenever a match
+     * host the lobby (the layout is reloadable, `content/gui/kit/lobby-kit.yaml`); refreshed whenever a match
      * starts or ends so an `ALL` backend swaps the kit with the match inventory.
      */
     private fun installLobbyMenuKit(ctx: WiringContext, result: CoreWiringResult) {
-        val kit = ctx.services.get<com.astarworks.astera.core.domain.lobby.LobbyMenuKit>() ?: return
+        val kitContents = ctx.services.get<com.astarworks.astera.core.application.contents.LobbyMenuKitContents>() ?: return
         val renderer = com.astarworks.astera.core.adapter.paper.gui.PaperItemTemplateRenderer(
             items = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
             messages = ctx.services.getOrThrow<IMessageRenderer>(),
@@ -450,7 +450,7 @@ internal class CorePaperBindings(
         )
         val menuKit = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyMenuKit(
             plugin = plugin,
-            kit = kit,
+            kitSource = kitContents::current,
             role = ctx.serverRole,
             renderer = renderer,
             messages = ctx.services.getOrThrow<IMessageRenderer>(),
@@ -466,8 +466,10 @@ internal class CorePaperBindings(
         val bus = ctx.services.getOrThrow<IDomainEventBus>()
         ctx.subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.MatchStarted::class) { menuKit.refreshAll() }
         ctx.subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) { menuKit.refreshAll() }
+        // `reload all` / `reload lobby-kit` swaps the layout: re-apply to everyone online (main thread via later()).
+        kitContents.onChanged { menuKit.refreshAll() }
         menuKit.refreshAll()
-        logger.info("Lobby menu kit installed: ${kit.entries.size} entries (ADR-0185).")
+        logger.info("Lobby menu kit installed: ${kitContents.current().entries.size} entries (ADR-0185).")
     }
 
     /**

@@ -3,7 +3,6 @@ package com.astarworks.astera.match.application.service.hud
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
-import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.Result
@@ -12,11 +11,11 @@ import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.core.domain.player.SessionState
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.domain.matchmaking.QueueEntry
 import org.slf4j.LoggerFactory
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * The lobby sidebar's single owner (WP14, ADR-0177): players online, the
@@ -32,9 +31,15 @@ import org.slf4j.LoggerFactory
  * poll hands the region back and forth by itself, and the last-sent cache is
  * dropped whenever a player leaves the lobby so the lobby layout is redrawn
  * the next time they return.
+ *
+ * "Online" is tracked here from [onJoined] / [onQuit] (the wiring forwards
+ * `PlayerJoinedServer` / `PlayerQuitServer`), **not** read from
+ * `IPlayerSessionRepository`: with the Postgres overlay (priority 100)
+ * registered before this plugin enables, that port resolves to a different
+ * store than the in-memory one Core's join listener writes, so the poll saw
+ * nobody and the sidebar never appeared on the live lobby backend.
  */
 public class LobbySidebarService(
-    private val sessions: IPlayerSessionRepository,
     private val matches: IMatchRepository,
     private val matchmaker: IMatchmaker,
     private val hud: IHudGateway,
@@ -47,6 +52,7 @@ public class LobbySidebarService(
     private val log = LoggerFactory.getLogger(javaClass)
     private val failureLogged: MutableSet<PlayerId> = mutableSetOf()
     private val lastSent: MutableMap<PlayerId, HudLayout.Sidebar> = mutableMapOf()
+    private val online: MutableSet<PlayerId> = ConcurrentHashMap.newKeySet()
 
     private val taskHandle: IScheduler.TaskHandle = scheduler.runRepeatingTicks(
         initialDelayTicks = pollPeriodTicks,
@@ -60,20 +66,31 @@ public class LobbySidebarService(
         taskHandle.cancel()
     }
 
+    /** A player arrived on this server: track and draw them, and refresh everyone's online count. */
+    public fun onJoined(playerId: PlayerId) {
+        online += playerId
+        refreshAll()
+    }
+
+    /** A player left this server: forget them and refresh everyone's online count. */
+    public fun onQuit(playerId: PlayerId) {
+        online -= playerId
+        lastSent.remove(playerId)
+        failureLogged.remove(playerId)
+        refreshAll()
+    }
+
     /** Re-evaluate every online player. */
     public fun refreshAll() {
-        val online = sessions.all().filter { it.state != SessionState.Disconnected }
-        lastSent.keys.retainAll(online.map { it.playerId }.toSet())
-        for (session in online) {
-            // Spectators / loading players keep whatever they have.
-            if (session.state is SessionState.Spectator || session.state is SessionState.Loading) continue
-            refresh(session.playerId, online.size)
-        }
+        val now = online.toList()
+        lastSent.keys.retainAll(now.toSet())
+        for (playerId in now) refresh(playerId, now.size)
     }
 
     /** Re-draw one player (queue or wallet change). */
     public fun refresh(playerId: PlayerId) {
-        refresh(playerId, sessions.all().count { it.state != SessionState.Disconnected })
+        if (playerId !in online) return
+        refresh(playerId, online.size)
     }
 
     private fun refresh(playerId: PlayerId, onlineCount: Int) {

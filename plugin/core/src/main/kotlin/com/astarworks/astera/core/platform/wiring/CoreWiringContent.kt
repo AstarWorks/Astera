@@ -108,6 +108,12 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     // their resolved on-disk directories.
     reloadRegistry.register(itemContents, itemsContentDir)
     reloadRegistry.register(guiContents, guiContentDir)
+    // Languages swap an immutable key table, so new i18n keys apply without a restart.
+    reloadRegistry.register(com.astarworks.astera.core.application.contents.LanguageContents(simpleMessages), contentDir.resolve("languages"))
+    // The lobby menu kit layout (ADR-0185); only lobby-hosting backends load and apply it.
+    if (ctx.serverRole.hostsLobby) {
+        reloadRegistry.register(lobbyMenuKitContents, contentDir)
+    }
     // Wave 5x (ADR-0090): custom blocks reload via /astera reload blocks.
     reloadRegistry.register(customBlockContents, customBlocksContentDir)
 

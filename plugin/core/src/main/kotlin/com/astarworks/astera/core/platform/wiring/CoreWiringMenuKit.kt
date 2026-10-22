@@ -1,11 +1,8 @@
 package com.astarworks.astera.core.platform.wiring
 
 import com.astarworks.astera.core.application.gui.lobby.MainMenuGuiSpec
-import com.astarworks.astera.core.application.service.lobby.LobbyMenuKitContent
 import com.astarworks.astera.core.application.services.register
-import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.gui.GuiId
-import com.astarworks.astera.core.domain.lobby.LobbyMenuKit
 
 /**
  * `gui.open {gui: <id>}` opens a registered GUI spec (the lobby kit's "Game Menu" compass and
@@ -27,12 +24,17 @@ internal fun CoreWiringState.wireGuiOpenIntentAndMenuKit() {
         }
     }
     if (!ctx.serverRole.hostsLobby) return
-    when (val loaded = LobbyMenuKitContent.load(contentDir)) {
-        is Result.Success -> {
-            services.register<LobbyMenuKit>(loaded.value)
-            logger.info("Lobby menu kit loaded: ${loaded.value.entries.size} entries")
-        }
-        is Result.Failure ->
-            logger.warning("Lobby menu kit unavailable (${loaded.error}); lobby players get no kit.")
+    val kitContents = com.astarworks.astera.core.application.contents.LobbyMenuKitContents()
+    lobbyMenuKitContents = kitContents
+    services.register<com.astarworks.astera.core.application.contents.LobbyMenuKitContents>(kitContents)
+    // Registered on the reload dispatcher in wireContentAndRepositories (the registry does not exist yet here).
+    val report = kitContents.reload(contentDir)
+    if (report.failed == 0) {
+        logger.info("Lobby menu kit loaded: ${report.loaded} entries")
+    } else {
+        logger.warning(
+            "Lobby menu kit unavailable (${report.failures.firstOrNull()?.message}); lobby players get no kit " +
+                "until '/astera admin reload lobby-kit' succeeds.",
+        )
     }
 }

@@ -147,6 +147,8 @@ internal class CoreWiringState(
     val wave5completeSubs: MutableList<IDomainEventBus.Subscription> get() = ctx.subscriptions
 
     lateinit var messages: IMessageRenderer
+    lateinit var simpleMessages: SimpleMessageRenderer
+    lateinit var lobbyMenuKitContents: com.astarworks.astera.core.application.contents.LobbyMenuKitContents
     lateinit var itemsContentDir: Path
     lateinit var itemContents: ItemContents
     lateinit var playerGateway: IPlayerGateway
@@ -233,10 +235,11 @@ internal class CoreWiringState(
 internal fun CoreWiringState.wireBase() {
     // ---- i18n --------------------------------------------------------
     val languages = LanguageLoader.loadFrom(contentDir.resolve("languages"))
-    messages = SimpleMessageRenderer(
+    simpleMessages = SimpleMessageRenderer(
         languages = languages,
         localeResolver = { playerId -> playerId?.let { mcServer.findPlayer(it)?.locale } },
     )
+    messages = simpleMessages
 
     // ---- Item contents (Wave _items-1, ADR-0073) ---------------------
     // ItemSpec is the canonical materialized form (replaces the legacy
