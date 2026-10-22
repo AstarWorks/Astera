@@ -13,10 +13,6 @@ params:
 phases:
   type: sequence
   cast:
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: orrery-held-rod
   - type: dash_strike
     distance: 4
     ticks: 4

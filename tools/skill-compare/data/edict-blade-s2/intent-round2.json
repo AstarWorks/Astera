@@ -5,23 +5,218 @@
     "start_s": 14.881533,
     "fps": 29.97002997002997
   },
-  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "units": "blocks; body height 1.8. Camera cuts follow source; unmeasured scale and body poses remain provisional.",
   "duration_ticks": 89,
   "camera": [
     {
       "t": 0,
       "pos": [
-        2.0,
-        2.5,
-        8
+        0.35,
+        1.344,
+        3.672
       ],
       "target": [
-        2.0,
-        1,
+        0.35,
+        1.05,
         0
       ],
-      "fov": 40,
-      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 14.881533s / medium; raised hands center-left, target right edge"
+    },
+    {
+      "t": 6,
+      "pos": [
+        0.65,
+        1.408,
+        1.977
+      ],
+      "target": [
+        0.65,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 15.181833s / floor close crop; only trailing echo and ground at peak"
+    },
+    {
+      "t": 9,
+      "pos": [
+        2.1,
+        1.344,
+        3.672
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 15.315300s / medium two-shot; both actors centered around impact"
+    },
+    {
+      "t": 21,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 15.949267s / medium close; Don large in left-center"
+    },
+    {
+      "t": 22,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 15.982633s / close-up; face, chains, cuffed hands and cape; target clipped right"
+    },
+    {
+      "t": 24,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 16.082733s / medium to wide; both actors visible"
+    },
+    {
+      "t": 39,
+      "pos": [
+        1.55,
+        1.344,
+        3.672
+      ],
+      "target": [
+        1.55,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 16.816800s / medium; Don rising"
+    },
+    {
+      "t": 40,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 16.883533s / floor close crop; purple silhouette left behind"
+    },
+    {
+      "t": 42,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 16.983633s / tight moving shot; Don partly clipped above screen, target below-right"
+    },
+    {
+      "t": 45,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 17.117100s / wide; somersault above and past target"
+    },
+    {
+      "t": 55,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 17.617600s / medium to wide; Don right of target against darkened right background"
+    },
+    {
+      "t": 65,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 18.151467s / wide; two actors separated horizontally"
+    },
+    {
+      "t": 67,
+      "pos": [
+        1.55,
+        1.344,
+        3.672
+      ],
+      "target": [
+        1.55,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 18.218200s / medium impact shot; star left, Don right; cape across center"
+    },
+    {
+      "t": 77,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 18.718700s / wide; reverse orientation preserved"
     }
   ],
   "actors": [

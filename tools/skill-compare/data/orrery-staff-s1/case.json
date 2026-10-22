@@ -47,16 +47,18 @@
   ],
   "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/orrery-staff/s1.json を参照。",
   "editLog": [],
-  "status": "built",
+  "status": "captured",
   "verification": {
-    "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "status": "failed",
+    "reason": "ロッド先端の構え、輪の密度と重なり、ビーム発光と発砲時刻の実機表示遅延、カメラ寄りが未一致。",
+    "normalInput": "実入力撮影あり。標的HP 177.368f（回数の測定ではない）",
+    "evidence": "/evidence/orrery-staff-s1.png"
   },
   "weapon": "orrery-staff",
   "identity": "R Corp. 4th Pack Reindeer Rodion",
   "videoTitle": "R Corp. 4th Pack Reindeer Rodion — skill showcase",
-  "iterations": 0,
+  "iterations": 2,
   "report": "/report/orrery-staff",
   "referenceRevision": "fbf0e6d15634cf9b327fa2ad16431e36532685609749bf7c38c5d692b76e953b",
-  "contentRevision": "ea780538b6fb2871e5ffb88b74a1ead4349f107631c231d5ac690dd74adf7d24"
+  "contentRevision": "ed5b119b1f2533879870aadf77a85e909606c33431a5f6653b337221c156587a"
 }

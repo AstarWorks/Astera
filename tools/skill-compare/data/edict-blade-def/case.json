@@ -11,12 +11,14 @@
   "identity": "The Index Proxy Don Quixote",
   "videoTitle": "The Index Proxy Don Quixote — skill showcase",
   "status": "from-wiki",
-  "iterations": 0,
+  "iterations": 3,
   "report": "/report/edict-blade",
   "referenceRevision": "dd61cce81b54d08f7528f43aa673eedea5bfe0ea2dfcffc30cd666f6ff404260",
   "verification": {
     "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 185.24f（回数の測定ではない）",
+    "evidence": "/evidence/edict-blade-def.png"
   },
   "rev": 1,
   "focus": {
@@ -35,5 +37,5 @@
   "intent": {
     "file": "intent-round2.json"
   },
-  "contentRevision": "99fce2b724ffb603cbfd629a82b69d143deaca06b434af7b436e812676084a88"
+  "contentRevision": "fccc80a692a2d83ea204725c3be9afa01659b0ab8eda1fe2eda360d453e1b9ff"
 }

@@ -5,23 +5,98 @@
     "start_s": 12.045367,
     "fps": 29.97002997002997
   },
-  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "units": "blocks; body height 1.8. Camera cuts follow source; unmeasured scale and body poses remain provisional.",
   "duration_ticks": 40,
   "camera": [
     {
       "t": 0,
       "pos": [
-        2.0,
-        2.5,
-        8
+        0.35,
+        1.417,
+        4.59
       ],
       "target": [
-        2.0,
-        1,
+        0.35,
+        1.05,
         0
       ],
-      "fov": 40,
-      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+      "fov": 70,
+      "note": "原資料の身長比: 0.28; source 12.045367s / medium side view; Don center-left, target at right edge; Don ~0.28 screen height"
+    },
+    {
+      "t": 6,
+      "pos": [
+        0.65,
+        1.371,
+        1.512
+      ],
+      "target": [
+        0.65,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.85; source 12.345667s / extreme crop; floor and trailing echo; caster exits right"
+    },
+    {
+      "t": 9,
+      "pos": [
+        2.1,
+        1.393,
+        4.284
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "原資料の身長比: 0.30; source 12.479133s / medium two-shot; caster left, target right; Don ~0.3 screen height"
+    },
+    {
+      "t": 21,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 13.113100s / medium close; caster and cape dominate center"
+    },
+    {
+      "t": 22,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 13.146467s / close-up; head, collar and joined cuffs fill most of screen; target cropped right"
+    },
+    {
+      "t": 24,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 13.246567s / medium to wide two-shot; both actors visible, expanding gap from recoil"
     }
   ],
   "actors": [

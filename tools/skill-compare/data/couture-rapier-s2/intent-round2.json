@@ -5,23 +5,188 @@
     "start_s": 26.593233,
     "fps": 29.97002997002997
   },
-  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "units": "blocks; body height 1.8. Camera cuts follow source; unmeasured scale and body poses remain provisional.",
   "duration_ticks": 99,
   "camera": [
     {
       "t": 0,
       "pos": [
         2.0,
-        2.5,
-        8
+        1.461,
+        5.141
       ],
       "target": [
         2.0,
-        1,
+        1.05,
         0
       ],
-      "fov": 40,
-      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+      "fov": 70,
+      "note": "原資料の身長比: 0.25; source 26.593233s / wide side-on; Caster left, target right; caster 20–25% image height."
+    },
+    {
+      "t": 8,
+      "pos": [
+        2.0,
+        1.344,
+        3.672
+      ],
+      "target": [
+        2.0,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 26.993633s / medium action; Caster sweep enlarged; target partly off right edge."
+    },
+    {
+      "t": 11,
+      "pos": [
+        3.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        3.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 27.160467s / wide; Pull back to both sprites."
+    },
+    {
+      "t": 21,
+      "pos": [
+        2.55,
+        1.344,
+        3.672
+      ],
+      "target": [
+        2.55,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 27.627600s / medium caster; Overhead crescents occupy upper half."
+    },
+    {
+      "t": 25,
+      "pos": [
+        3.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        3.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 27.861167s / wide; Restore full gap and floating blades."
+    },
+    {
+      "t": 41,
+      "pos": [
+        2.55,
+        1.344,
+        3.672
+      ],
+      "target": [
+        2.55,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 28.628600s / medium impact; Fan and target fill right half."
+    },
+    {
+      "t": 45,
+      "pos": [
+        3.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        3.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 28.828800s / wide; Ease out; keep the gap visible."
+    },
+    {
+      "t": 59,
+      "pos": [
+        3.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        3.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 29.562867s / medium caster to wide; Raise tool then crouch."
+    },
+    {
+      "t": 71,
+      "pos": [
+        2.55,
+        1.344,
+        3.672
+      ],
+      "target": [
+        2.55,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 30.163467s / medium caster; One-frame final anticipation."
+    },
+    {
+      "t": 72,
+      "pos": [
+        2.55,
+        1.371,
+        1.512
+      ],
+      "target": [
+        2.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.85; source 30.196833s / extreme action insert; Bright shear edge, horizontal motion smear."
+    },
+    {
+      "t": 75,
+      "pos": [
+        4,
+        1.408,
+        1.977
+      ],
+      "target": [
+        4,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 30.363667s / close target; Target chest/halo and yellow ring."
+    },
+    {
+      "t": 78,
+      "pos": [
+        3.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        3.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 30.497133s / wide side-on; Caster now right of target; slow ease out."
     }
   ],
   "actors": [

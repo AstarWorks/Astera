@@ -40,15 +40,17 @@
   ],
   "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/sigil-rifle/s1.json を参照。",
   "editLog": [],
-  "status": "built",
+  "status": "captured",
   "verification": {
-    "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "status": "failed",
+    "reason": "膝立ちの構え、銃口の花状フラッシュ、紋章内側の文字・同心円・角度、ズームが不足。射線は棒状で原動画の残光と異なる。",
+    "normalInput": "実入力撮影あり。標的HP 191.144f（回数の測定ではない）",
+    "evidence": "/evidence/sigil-rifle-s1.png"
   },
   "weapon": "sigil-rifle",
   "identity": "Fell Bullet Yi Sang",
   "videoTitle": "Fell Bullet Yi Sang — skill showcase",
-  "iterations": 0,
+  "iterations": 1,
   "report": "/report/sigil-rifle",
   "referenceRevision": "bf360ac0d19bae0467699a79edea95481e4a3eea5f915da462841079fab77ccb",
   "contentRevision": "b410474fe7a289dda90cc6d440f6dbab28e4813bfe1b8fd2522fa2bb6429d2e0"

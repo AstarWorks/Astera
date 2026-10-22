@@ -5,23 +5,233 @@
     "start_s": 32.399033,
     "fps": 29.97002997002997
   },
-  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "units": "blocks; body height 1.8. Camera cuts follow source; unmeasured scale and body poses remain provisional.",
   "duration_ticks": 148,
   "camera": [
     {
       "t": 0,
       "pos": [
         3.5,
-        2.5,
-        10
+        1.621,
+        7.141
       ],
       "target": [
         3.5,
-        1,
+        1.05,
         0
       ],
-      "fov": 40,
-      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+      "fov": 70,
+      "note": "原資料の身長比: 0.18; source 32.399033s / wide; Both characters, caster about 18% image height; deep black vignette."
+    },
+    {
+      "t": 21,
+      "pos": [
+        3.5,
+        1.517,
+        5.842
+      ],
+      "target": [
+        3.5,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 33.466767s / wide push; Gradually move toward caster."
+    },
+    {
+      "t": 29,
+      "pos": [
+        3.5,
+        1.517,
+        5.842
+      ],
+      "target": [
+        3.5,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 33.833800s / medium then wide; Caster loop and target; pull out after contact."
+    },
+    {
+      "t": 37,
+      "pos": [
+        3.5,
+        1.517,
+        5.842
+      ],
+      "target": [
+        3.5,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 34.267567s / wide; Pause at full gap."
+    },
+    {
+      "t": 42,
+      "pos": [
+        0.35,
+        1.408,
+        1.977
+      ],
+      "target": [
+        0.35,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 34.501133s / close sweeping action; Push rapidly toward caster; target exits right temporarily."
+    },
+    {
+      "t": 46,
+      "pos": [
+        3.5,
+        1.517,
+        5.842
+      ],
+      "target": [
+        3.5,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 34.701333s / medium-wide; Pull back to target flare."
+    },
+    {
+      "t": 56,
+      "pos": [
+        0.35,
+        1.344,
+        3.672
+      ],
+      "target": [
+        0.35,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 35.201833s / medium caster; Track overhead tool down to chest; target largely outside right frame."
+    },
+    {
+      "t": 77,
+      "pos": [
+        0.35,
+        1.344,
+        3.672
+      ],
+      "target": [
+        0.35,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 36.236200s / medium caster; Caster about 35–45% frame height."
+    },
+    {
+      "t": 89,
+      "pos": [
+        3.5,
+        1.408,
+        1.977
+      ],
+      "target": [
+        3.5,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 36.836800s / close caster to wide; Punch in on charge, gradually pull out to include target."
+    },
+    {
+      "t": 109,
+      "pos": [
+        0.35,
+        1.408,
+        1.977
+      ],
+      "target": [
+        0.35,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 37.871167s / close launch; One-frame launch punch."
+    },
+    {
+      "t": 110,
+      "pos": [
+        0.35,
+        1.344,
+        3.672
+      ],
+      "target": [
+        0.35,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 37.904533s / flash/travel inserts; Burgundy 1 frame then dark/background 2 frames."
+    },
+    {
+      "t": 112,
+      "pos": [
+        7,
+        1.408,
+        1.977
+      ],
+      "target": [
+        7,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 38.004633s / close target; Target torso, orange halo, floral shear hinge visible; caster offscreen."
+    },
+    {
+      "t": 125,
+      "pos": [
+        0.35,
+        1.344,
+        3.672
+      ],
+      "target": [
+        0.35,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 38.638600s / black/travel inserts; Black 3 frames; white streak 1 frame."
+    },
+    {
+      "t": 127,
+      "pos": [
+        7,
+        1.517,
+        5.842
+      ],
+      "target": [
+        7,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 38.772067s / wide target burst; Caster visible at left, large annulus at right; ease back."
+    },
+    {
+      "t": 137,
+      "pos": [
+        3.5,
+        1.517,
+        5.842
+      ],
+      "target": [
+        3.5,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 39.272567s / wide; Both subjects stationary."
     }
   ],
   "actors": [

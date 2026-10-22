@@ -11,12 +11,14 @@
   "identity": "Firefist Gregor",
   "videoTitle": "Firefist Gregor — skill showcase",
   "status": "from-wiki",
-  "iterations": 0,
+  "iterations": 2,
   "report": "/report/ember-gauntlet",
   "referenceRevision": "2a37f48a7116dba463a74dd110f4218662d8e301e9b3a7efddae98cf8f97dd5d",
   "verification": {
     "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 190.18399f（回数の測定ではない）",
+    "evidence": "/evidence/ember-gauntlet-ego.png"
   },
   "rev": 1,
   "focus": {
@@ -35,5 +37,5 @@
   "intent": {
     "file": "intent-round2.json"
   },
-  "contentRevision": "4a1f10181b09b9487dd8d6d82f563468c5912dfaabb0ac30f40c7fcda545265a"
+  "contentRevision": "b369356cf79649491ffee44d8949668459d59d5bffd719b9e8d8c2953e9ac145"
 }

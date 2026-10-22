@@ -54,15 +54,17 @@
   ],
   "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/vendetta-rifle/s3.json を参照。",
   "editLog": [],
-  "status": "built",
+  "status": "captured",
   "verification": {
-    "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "status": "failed",
+    "reason": "銃を抱える姿勢、腰の回転、踏み込みと逆方向の振り、接触時の寄りが不足。装備モデルと演出用の銃が二重に見える区間がある。",
+    "normalInput": "実入力撮影あり。標的HP 176.384f（回数の測定ではない）",
+    "evidence": "/evidence/vendetta-rifle-s3.png"
   },
   "weapon": "vendetta-rifle",
   "identity": "The Thumb East Soldato II Sinclair",
   "videoTitle": "The Thumb East Soldato II Sinclair — skill showcase",
-  "iterations": 0,
+  "iterations": 1,
   "report": "/report/vendetta-rifle",
   "referenceRevision": "7ae4101811a5e396a2e196ddaa93972b281457837ff9ad03d280d761aa459f8c",
   "contentRevision": "566f27f39b477e1a15d79c8280178e86b7100c7b2321f7e5c6e0ed8b74b4db1d"

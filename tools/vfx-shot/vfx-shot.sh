@@ -195,7 +195,7 @@ start_client() { # name width height
   [ -n "$d" ] || die "Xvfb did not report a display (see $wd/xvfb.log)"
   DISP[$name]="$d"
   : > "$wd/client.log"
-  DISPLAY=":$d" LIBGL_ALWAYS_SOFTWARE=1 XDG_RUNTIME_DIR="$wd" \
+  DISPLAY=":$d" LIBGL_ALWAYS_SOFTWARE=1 LP_NUM_THREADS="${LP_NUM_THREADS:-4}" XDG_RUNTIME_DIR="$wd" \
     setsid "$VENV/bin/portablemc" --main-dir "$MCDIR" start "$MC_VERSION" --mc-dir "$wd" -u "$name" \
     --join-server "$SERVER_IP" --join-server-port 25565 --resolution "${w}x${h}" \
     >"$wd/client.log" 2>&1 &
@@ -348,10 +348,12 @@ make_outputs() { # dir view
     "$dir/$SKILL-$view.gif" || log "WARN: gif failed"
   ffmpeg -nostdin -loglevel error -y -framerate 20 -i "$dir/frame_%03d.png" -c:v libx264 -crf 16 \
     -pix_fmt yuv420p "$dir/$SKILL-$view.mp4" || log "WARN: mp4 failed"
+  ffmpeg -nostdin -loglevel error -y -i "$dir/frame_%03d.png" -c:v libwebp -quality 85 \
+    -compression_level 4 -threads 2 "$dir/frame_%03d.webp" || log "WARN: web preview failed; serving PNG"
   if [ "$view" = compare ]; then
     printf '{"view":"compare","case":"%s","camera":"%s","skill":"%s","fps":20,"cast_tick_ms":%d,"frames":%d}\n' \
       "$CASE" "$CAMERA" "$SKILL" "$((PRE_TICKS * 50))" "$n" > "$dir/meta.json"
-    python3 -c 'import json,pathlib,sys; c=json.loads(pathlib.Path(sys.argv[1]).read_text()); p=pathlib.Path(sys.argv[2]); m=json.loads(p.read_text()); m.update({k:c[k] for k in ("referenceRevision","contentRevision") if k in c}); p.write_text(json.dumps(m,indent=2)+"\n")' "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir/meta.json"
+    python3 -I "$HERE/capture_meta.py" "$ROOT/tools/skill-compare/data/$CASE/case.json" "$dir" "$INTENT"
   fi
   log "$view: $n frames -> $dir (sheet.png, $SKILL-$view.gif, $SKILL-$view.mp4)"
 }

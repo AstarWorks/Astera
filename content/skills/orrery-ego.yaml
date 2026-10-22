@@ -1,97 +1,160 @@
 id: orrery-ego
-name: {en: Orrery Zenith, ja: 天球の極点}
-description: {en: An ultimate gold beam released from a gathered clock seal., ja: 天球の極点。金の軌跡と充填を操る。}
+name:
+  en: Orrery Zenith
+  ja: 天球の極点
+description:
+  en: An ultimate gold beam released from a gathered clock seal.
+  ja: 天球の極点。金の軌跡と充填を操る。
 archetype: sequence
 cooldown_ticks: 240
 resource_cost: 0
-tags: [persona, orrery]
-params: {type: sequence}
+tags:
+- persona
+- orrery
+params:
+  type: sequence
 phases:
   type: sequence
   cast:
   - type: play_vfx
-    targets: {type: caster}
-    delay_ticks: {type: literal, value: 0}
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 0
     vfx_id: orrery-poise
   - type: play_vfx
-    targets: {type: caster}
-    delay_ticks: {type: literal, value: 0}
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 0
     vfx_id: orrery-motes
   - type: play_vfx
-    targets: {type: caster}
-    delay_ticks: {type: literal, value: 0}
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 0
     vfx_id: orrery-orb
   - type: play_vfx
-    targets: {type: caster}
-    delay_ticks: {type: literal, value: 24}
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 24
     vfx_id: orrery-beam
   - type: play_vfx
-    targets: {type: caster}
-    delay_ticks: {type: literal, value: 24}
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 24
     vfx_id: orrery-seal-front
   - type: play_vfx
     targets:
-      type: nearby_entities
-      center: {type: caster_forward, distance: 9.0, height: -1.6}
-      radius: {type: literal, value: 2.5}
-      max_count: {type: literal, value: 1}
-      exclude_caster: true
-    delay_ticks: {type: literal, value: 24}
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 13
+    delay_ticks:
+      type: literal
+      value: 24
     vfx_id: orrery-ring-hit
   - type: screen_flash
-    targets: {type: caster}
-    delay_ticks: {type: literal, value: 24}
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 24
     overlay: impact_star
     color: '#FFD447'
-    stay: {type: literal, value: 1}
-    fade_out: {type: literal, value: 2}
+    stay:
+      type: literal
+      value: 1
+    fade_out:
+      type: literal
+      value: 2
   - type: damage
     targets:
-      type: cone
-      from: {type: caster}
-      direction: {type: from_caster}
-      angle_degrees: {type: literal, value: 6}
-      distance: {type: literal, value: 13}
-    delay_ticks: {type: literal, value: 24}
-    ignore_invulnerability: {type: literal, value: true}
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 13
+    delay_ticks:
+      type: literal
+      value: 24
+    ignore_invulnerability:
+      type: literal
+      value: true
     components:
-    - base: {type: literal, value: 18}
+    - base:
+        type: literal
+        value: 18
       attribute: physical
-      per_stack: {status_id: charge, amount: 0.3, 'on': caster, consume: true}
+      per_stack:
+        status_id: charge
+        amount: 0.3
+        'on': caster
+        consume: true
   - type: spawn_particle
     targets:
-      type: cone
-      from: {type: caster}
-      direction: {type: from_caster}
-      angle_degrees: {type: literal, value: 6}
-      distance: {type: literal, value: 13}
-    delay_ticks: {type: literal, value: 24}
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 13
+    delay_ticks:
+      type: literal
+      value: 24
     particle_id: orrery-sparks
   - type: hit_stop
     targets:
-      type: cone
-      from: {type: caster}
-      direction: {type: from_caster}
-      angle_degrees: {type: literal, value: 6}
-      distance: {type: literal, value: 13}
-    delay_ticks: {type: literal, value: 24}
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 13
+    delay_ticks:
+      type: literal
+      value: 24
     ticks: 2
     include_caster: true
   - type: play_sound
-    targets: {type: caster}
-    delay_ticks: {type: literal, value: 24}
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 24
     sound_id: entity.player.attack.crit
-    volume: {type: literal, value: 0.7}
-    pitch: {type: literal, value: 1.2}
+    volume:
+      type: literal
+      value: 0.7
+    pitch:
+      type: literal
+      value: 1.2
   - type: apply_status
     targets:
-      type: cone
-      from: {type: caster}
-      direction: {type: from_caster}
-      angle_degrees: {type: literal, value: 6}
-      distance: {type: literal, value: 13}
-    delay_ticks: {type: literal, value: 24}
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 13
+    delay_ticks:
+      type: literal
+      value: 24
     status_id: sinking
-    effect_duration_ticks: {type: literal, value: 100}
-    stack_count: {type: literal, value: 1}
+    effect_duration_ticks:
+      type: literal
+      value: 100
+    stack_count:
+      type: literal
+      value: 1
 ego_cost: 100

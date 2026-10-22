@@ -5,23 +5,83 @@
     "start_s": 12.445767,
     "fps": 29.97002997002997
   },
-  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "units": "blocks; body height 1.8. Camera cuts follow source; unmeasured scale and body poses remain provisional.",
   "duration_ticks": 37,
   "camera": [
     {
       "t": 0,
       "pos": [
         2.0,
-        2.5,
-        8
+        1.517,
+        5.842
       ],
       "target": [
         2.0,
-        1,
+        1.05,
         0
       ],
-      "fov": 40,
-      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+      "fov": 70,
+      "note": "原資料の身長比: 0.22; source 12.445767s / wide side-on; Caster left-third, target right-third; floor visible, slight downward angle; caster about 22% image height."
+    },
+    {
+      "t": 10,
+      "pos": [
+        0.35,
+        1.279,
+        2.856
+      ],
+      "target": [
+        0.35,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "原資料の身長比: 0.45; source 12.946267s / medium caster; Caster central, about 45% image height; target cropped right."
+    },
+    {
+      "t": 13,
+      "pos": [
+        3.35,
+        1.371,
+        1.512
+      ],
+      "target": [
+        3.35,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.85; source 13.079733s / extreme action insert; Bright cutting edge and smear fill gameplay area."
+    },
+    {
+      "t": 14,
+      "pos": [
+        4,
+        1.408,
+        1.977
+      ],
+      "target": [
+        4,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 13.146467s / close target; Target torso and orange halo dominate."
+    },
+    {
+      "t": 15,
+      "pos": [
+        5.0,
+        1.517,
+        5.842
+      ],
+      "target": [
+        5.0,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 13.213200s / wide side-on; Pull out to both sprites; caster now target right, preserve facing reversal."
     }
   ],
   "actors": [

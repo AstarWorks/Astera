@@ -6,8 +6,8 @@
   "end_s": 31.767,
   "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
-  "status": "built",
-  "iterations": 0,
+  "status": "captured",
+  "iterations": 1,
   "report": "/report/bastion-greatsword",
   "skill": {
     "name": "城壁の構え",
@@ -34,8 +34,10 @@
   "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/def.json を参照。",
   "editLog": [],
   "verification": {
-    "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "status": "failed",
+    "reason": "身体の低い踏み込み・両手の上段姿勢・原動画の極端な寄りを再現できていない。斬撃と柱の輪郭、光量にも差がある。",
+    "normalInput": "実入力撮影あり。標的HP 200.0f（回数の測定ではない）",
+    "evidence": "/evidence/bastion-greatsword-def.png"
   },
   "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
   "referenceRevision": "4daf8ac4dcb8b285f47cdfb73bd29e4a631a0880ce587022a807ec00a77190cd",

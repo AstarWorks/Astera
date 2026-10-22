@@ -40,16 +40,18 @@
   ],
   "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/crimson-chain-axe/s1.json を参照。",
   "editLog": [],
-  "status": "built",
+  "status": "captured",
   "verification": {
-    "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "status": "failed",
+    "reason": "手を上げる姿勢と大きなカメラ寄りが不足。針の色・密度・光の面積は未一致。Q後に攻撃セットを持続的に変身版へ切り替える処理は未実装。",
+    "normalInput": "実入力撮影あり。標的HP 193.112f（回数の測定ではない）",
+    "evidence": "/evidence/crimson-chain-axe-s1.png"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
   "videoTitle": "Haute Couture::The Crimson God of Le Rouge Sinclair — skill showcase",
-  "iterations": 0,
+  "iterations": 3,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "51dd80c5d7bff30ba3bb05e43420a985c0c54b30ec526f1620bdf302cc921334",
-  "contentRevision": "b695db0a2c7be59d4e3e17b047379bfbd3c8e7f12da6ca0ba2ce4052a92a65bf"
+  "contentRevision": "3106740f067e7d521775b4e690227e92f4294317cac9ec559ed8728778a6f01b"
 }

@@ -28,12 +28,14 @@
   "status": "from-wiki",
   "verification": {
     "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 152.768f（回数の測定ではない）",
+    "evidence": "/evidence/verdict-hammer-ego.png"
   },
   "weapon": "verdict-hammer",
   "identity": "Haute Couture::The Black Knight of Le Noir Don Quixote",
   "videoTitle": "Haute Couture::The Black Knight of Le Noir Don Quixote — skill showcase",
-  "iterations": 0,
+  "iterations": 1,
   "report": "/report/verdict-hammer",
   "referenceRevision": "6c8fc907061c3cd88a66bab503d1f30f4d28906803292cd67efcb29765b786ed",
   "contentRevision": "2d792920242ac15e6b41a5c1248d789185ec1b16457927eea861306c93d8cb6f"

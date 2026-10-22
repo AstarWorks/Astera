@@ -40,17 +40,20 @@ export function makeHandler(opts = {}) {
   function mcInfo(skill, referenceRevision, contentRevision) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return info;
-    for (const view of ["compare", "caster", "opponent", "side"]) {
+    for (const view of ["compare", "input", "caster", "opponent", "side"]) {
       const base = vfxFind(skill, view);
       const d = base && join(base, skill, view);
       if (base) {
         if (referenceRevision) {
-          try { const m = readJson(join(d, "meta.json")); if (m.referenceRevision !== referenceRevision || (contentRevision && m.contentRevision !== contentRevision)) continue; } catch { continue; }
+          try { const m = readJson(join(d, "meta.json")); if (m.captureQuality?.invalid || m.referenceRevision !== referenceRevision || (contentRevision && m.contentRevision !== contentRevision)) continue; } catch { continue; }
         }
         const n = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).length;
+        const webpCount = readdirSync(d).filter((f) => /^frame_\d{3,4}\.webp$/.test(f)).length;
         let castFrame = 0;  // compare: frames before the cast (meta.json cast_tick_ms)
         try { castFrame = Math.round((readJson(join(d, "meta.json")).cast_tick_ms ?? 0) / 50); } catch { /* no meta: frame 0 = cast */ }
-        if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n, castFrame };
+        if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n, castFrame,
+          extension: webpCount === n ? "webp" : "png",
+          revision: String(statSync(existsSync(join(d, "meta.json")) ? join(d, "meta.json") : d).mtimeMs) };
       }
     }
     if (referenceRevision) return info;
@@ -124,7 +127,7 @@ export function makeHandler(opts = {}) {
 
   function file(path, type) {
     if (!existsSync(path) || !statSync(path).isFile()) return new Response("not found", { status: 404 });
-    return new Response(Bun.file(path), { headers: { ...(type ? { "content-type": type } : {}), "cache-control": /\.(png|jpg)$/.test(path) ? "private, max-age=300" : "no-cache" } });
+    return new Response(Bun.file(path), { headers: { ...(type ? { "content-type": type } : {}), "cache-control": /\.(png|jpg|webp)$/.test(path) ? "private, max-age=300" : "no-cache" } });
   }
 
   let bundle = { stamp: 0, text: "" };
@@ -166,10 +169,10 @@ export function makeHandler(opts = {}) {
       const f = join(cdir, "frames", m[2]);
       return inside(cdir, f) ? file(f, "image/jpeg") : err(400, "bad path");
     }
-    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|caster|opponent|side)\/(frame_\d{3,4}\.png)$/.exec(p))) {
+    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|input|caster|opponent|side)\/(frame_\d{3,4}\.(?:png|webp))$/.exec(p))) {
       const base = vfxFind(m[1], m[2]) ?? vfxShotDir;
       const f = join(base, m[1], m[2], m[3]);
-      return inside(base, f) ? file(f, "image/png") : err(400, "bad path");
+      return inside(base, f) ? file(f, f.endsWith("webp") ? "image/webp" : "image/png") : err(400, "bad path");
     }
     if ((m = /^\/mc\/viewer\/([a-z0-9-]+)\/(key-\d+\.png)$/.exec(p))) {
       const f = join(viewerDir, m[1], "frames", m[2]);

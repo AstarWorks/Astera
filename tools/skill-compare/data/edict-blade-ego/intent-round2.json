@@ -5,23 +5,98 @@
     "start_s": 35.902533,
     "fps": 29.97002997002997
   },
-  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "units": "blocks; body height 1.8. Camera cuts follow source; unmeasured scale and body poses remain provisional.",
   "duration_ticks": 46,
   "camera": [
     {
       "t": 0,
       "pos": [
-        2.0,
-        2.5,
-        8
+        1.5,
+        1.517,
+        5.842
       ],
       "target": [
-        2.0,
-        1,
+        1.5,
+        1.05,
         0
       ],
-      "fov": 40,
-      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 35.902533s / wide; caster left target right"
+    },
+    {
+      "t": 9,
+      "pos": [
+        0.35,
+        1.408,
+        1.977
+      ],
+      "target": [
+        0.35,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 36.369667s / close; black cocoon and face"
+    },
+    {
+      "t": 11,
+      "pos": [
+        0.35,
+        1.344,
+        3.672
+      ],
+      "target": [
+        0.35,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 36.469767s / black; black field"
+    },
+    {
+      "t": 12,
+      "pos": [
+        0.35,
+        1.371,
+        1.512
+      ],
+      "target": [
+        0.35,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.85; source 36.503133s / extreme close; chains and prismatic bands"
+    },
+    {
+      "t": 13,
+      "pos": [
+        0.35,
+        1.408,
+        1.977
+      ],
+      "target": [
+        0.35,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 36.536500s / close to medium; expanding claw cage"
+    },
+    {
+      "t": 15,
+      "pos": [
+        1.5,
+        1.517,
+        5.842
+      ],
+      "target": [
+        1.5,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 36.636600s / wide; crouched transformed caster, target unchanged"
     }
   ],
   "actors": [

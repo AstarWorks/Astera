@@ -5,7 +5,7 @@ follow: true
 sample_ticks: 1
 elements:
 - id: pilot
-  kind: {type: particle, particle_id: fire-trail, every_ticks: 3}
+  kind: {type: particle, particle_id: ember-fine-spark, every_ticks: 3}
   end_tick: 14
   keyframes:
   - t: 0

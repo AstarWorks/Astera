@@ -28,13 +28,15 @@
   "status": "from-wiki",
   "verification": {
     "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 165.56f（回数の測定ではない）",
+    "evidence": "/evidence/couture-rapier-ego.png"
   },
   "weapon": "couture-rapier",
   "identity": "The Alteration Shop Rodion",
   "videoTitle": "The Alteration Shop Rodion — skill showcase",
-  "iterations": 2,
+  "iterations": 3,
   "report": "/report/couture-rapier",
   "referenceRevision": "f6ac960b3fd1e47999ff1fb5a53da9c280b5c635970968ec944a3bbdb909545b",
-  "contentRevision": "900a4f40eb25587876343240a14918fb7b88940f06b8dabe737e6d5a60092442"
+  "contentRevision": "a395983bd03c42e335e45770c446f611a5a0b28a4f691504c96c49ac8576eee1"
 }

@@ -52,6 +52,7 @@ export function makeSources({ root, repo, vfxShotDir, mediaDirs, worktrees = tru
 
   /** The vfx-shot base dir that holds <skill>/<view>; the most recently written one when several do. */
   function vfxFind(skill, view) {
+    if (process.env.SKILL_COMPARE_CANONICAL === "1" && existsSync(join(vfxShotDir, skill, view))) return vfxShotDir;
     let best = null, bestT = -1;
     for (const b of vfxDirs()) {
       const d = join(b, skill, view);

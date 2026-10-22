@@ -11,12 +11,14 @@
   "identity": "Fell Bullet Yi Sang",
   "videoTitle": "Fell Bullet Yi Sang — skill showcase",
   "status": "from-wiki",
-  "iterations": 0,
+  "iterations": 1,
   "report": "/report/sigil-rifle",
   "referenceRevision": "d1fc7a5208ea5745693b1d18e13a497e0f8053cb77babb43950aea336b0031a0",
   "verification": {
     "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 174.416f（回数の測定ではない）",
+    "evidence": "/evidence/sigil-rifle-ego.png"
   },
   "rev": 1,
   "focus": {

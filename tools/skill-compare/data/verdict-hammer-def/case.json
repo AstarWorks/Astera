@@ -54,15 +54,17 @@
   ],
   "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/verdict-hammer/def.json を参照。",
   "editLog": [],
-  "status": "built",
+  "status": "captured",
   "verification": {
-    "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "status": "failed",
+    "reason": "釘のV字の見え方、ハンマーの両手保持、飛び上がり・振り下ろし姿勢、輪の面積と寄りが未一致。DEFの3接触とwiki上2コインの対応は未確定。",
+    "normalInput": "実入力撮影あり。標的HP 171.46399f（回数の測定ではない）",
+    "evidence": "/evidence/verdict-hammer-def.png"
   },
   "weapon": "verdict-hammer",
   "identity": "Haute Couture::The Black Knight of Le Noir Don Quixote",
   "videoTitle": "Haute Couture::The Black Knight of Le Noir Don Quixote — skill showcase",
-  "iterations": 0,
+  "iterations": 1,
   "report": "/report/verdict-hammer",
   "referenceRevision": "43eaa22895c832375f083feac599e678276e2ad8b162553a334b4bc9d34585ca",
   "contentRevision": "fc96e8468fd2320a0f6c1bfa0006243ea2ce654157ffae16f751e2366ccbefd6"

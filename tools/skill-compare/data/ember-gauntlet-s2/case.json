@@ -47,16 +47,18 @@
   ],
   "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/ember-gauntlet/s2.json を参照。",
   "editLog": [],
-  "status": "built",
+  "status": "captured",
   "verification": {
-    "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "status": "failed",
+    "reason": "身体のひねり・腕の構え、炎の連続した面、カメラの追従と瞬間的な寄りが不足。防御の反撃は被弾条件ではなく観測時刻に沿う固定発動。",
+    "normalInput": "実入力撮影あり。標的HP 182.288f（回数の測定ではない）",
+    "evidence": "/evidence/ember-gauntlet-s2.png"
   },
   "weapon": "ember-gauntlet",
   "identity": "Firefist Gregor",
   "videoTitle": "Firefist Gregor — skill showcase",
-  "iterations": 0,
+  "iterations": 2,
   "report": "/report/ember-gauntlet",
   "referenceRevision": "1056817f99d7680adb06fe93fa841f595683f09d84492fd06cd18be871a52ddb",
-  "contentRevision": "8c9f046182932ed58999135a25763120438d670ffd7196a0557f83b84040a01f"
+  "contentRevision": "a5cd9c0bdeb223359baeb5d2b97e0979a6c384c3c75b45d8bcbe3953a683b1be"
 }

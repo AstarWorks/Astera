@@ -54,16 +54,18 @@
   ],
   "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/bastion-greatsword/s3.json を参照。",
   "editLog": [],
-  "status": "built",
-  "iterations": 0,
+  "status": "captured",
+  "iterations": 2,
   "report": "/report/bastion-greatsword",
   "verification": {
-    "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "status": "failed",
+    "reason": "身体の低い踏み込み・両手の上段姿勢・原動画の極端な寄りを再現できていない。斬撃と柱の輪郭、光量にも差がある。",
+    "normalInput": "実入力撮影あり。標的HP 183.27202f（回数の測定ではない）",
+    "evidence": "/evidence/zwei-s3.png"
   },
   "weapon": "bastion-greatsword",
   "identity": "Zwei West Section 3 Ishmael",
   "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
   "referenceRevision": "42654faba56df907a2558a4370210026dd6d5e3ac8f95a95d411843f87ebf466",
-  "contentRevision": "00bc16ae8b6e845b8d38bd6ac03a6b14274deb7b3f17d1e064b7d417e52c8d25"
+  "contentRevision": "218148194e324d068bd640c3c4c36071387992b28958ec25de56f1dca6584feb"
 }

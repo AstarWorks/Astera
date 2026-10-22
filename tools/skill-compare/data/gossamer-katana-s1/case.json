@@ -54,16 +54,18 @@
   ],
   "notes": "astra2 再解析を基準に再制作。接触とコインは同義ではありません。詳細・不確実性は /reference/gossamer-katana/s1.json を参照。",
   "editLog": [],
-  "status": "built",
+  "status": "captured",
   "verification": {
-    "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "status": "failed",
+    "reason": "分身は完全な人物シルエットではない。反転時の身体の向き、刀の曲率、薄い青い弧と画面を横切る残光が未一致。",
+    "normalInput": "実入力撮影あり。標的HP 177.36801f（回数の測定ではない）",
+    "evidence": "/evidence/gossamer-katana-s1.png"
   },
   "weapon": "gossamer-katana",
   "identity": "Spider Blade Ryoshu",
   "videoTitle": "Spider Blade Ryoshu — skill showcase",
-  "iterations": 0,
+  "iterations": 2,
   "report": "/report/gossamer-katana",
   "referenceRevision": "14059456bd6239c9b35010426f3043cba87bd01c594d65a0da87e6c354baca1d",
-  "contentRevision": "fb7a5282db5a95f9fda10990a32caeba53cc9905740444db22cfa3e31dc5d548"
+  "contentRevision": "3f63ff4b81c76bbe6585962a66b4e725b8686a07a5b770906dd3a553a35f8841"
 }

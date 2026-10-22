@@ -11,13 +11,15 @@
   "weapon": "gossamer-katana",
   "identity": "Spider Blade Ryoshu",
   "videoTitle": "Spider Blade Ryoshu — skill showcase",
-  "status": "built",
-  "iterations": 0,
+  "status": "captured",
+  "iterations": 1,
   "report": "/report/gossamer-katana",
   "referenceRevision": "d2ed1a74c171bb8621ef4ef5e342b350c6179a966573604b2b7d9138d0781251",
   "verification": {
-    "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "status": "failed",
+    "reason": "分身は完全な人物シルエットではない。反転時の身体の向き、刀の曲率、薄い青い弧と画面を横切る残光が未一致。",
+    "normalInput": "実入力撮影あり。標的HP 200.0f（回数の測定ではない）",
+    "evidence": "/evidence/gossamer-katana-def.png"
   },
   "rev": 1,
   "focus": {

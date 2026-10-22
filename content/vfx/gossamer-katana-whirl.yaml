@@ -87,14 +87,10 @@ rigs:
     start_t: 2
     end_t: 6
     life_ticks: 4
-    step_deg: 50
-    style: crisp
+    step_deg: 20
+    style: soft
     bands:
     - from: 0.0
       to: 1.0
       color: '#EEEBF5FF'
       color_to: '#308496C0'
-      block: white_concrete
-    edge:
-      block: white_concrete
-      width: 0.045

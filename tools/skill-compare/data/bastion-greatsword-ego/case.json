@@ -7,7 +7,7 @@
   "identity": "Zwei West Section 3 Ishmael",
   "weapon": "bastion-greatsword",
   "status": "from-wiki",
-  "iterations": 0,
+  "iterations": 1,
   "report": "/report/bastion-greatsword",
   "skill": {
     "name": "城塞の暁",
@@ -27,7 +27,9 @@
   "editLog": [],
   "verification": {
     "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 172.448f（回数の測定ではない）",
+    "evidence": "/evidence/bastion-greatsword-ego.png"
   },
   "videoTitle": "Zwei West Section 3 Ishmael — skill showcase",
   "referenceRevision": "a40478a425ea3fcf5bbad88a61b0bc624b7e2e17e746b01723ac5a046b6ce99a",

@@ -11,12 +11,14 @@
   "identity": "Spider Blade Ryoshu",
   "videoTitle": "Spider Blade Ryoshu — skill showcase",
   "status": "from-wiki",
-  "iterations": 0,
+  "iterations": 2,
   "report": "/report/gossamer-katana",
   "referenceRevision": "b3ab19bb18fe8bb6fb3ac55f20ebecb0e64ed12cdb6c0e0a14d3de5617e57ce7",
   "verification": {
     "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 152.768f（回数の測定ではない）",
+    "evidence": "/evidence/gossamer-katana-ego.png"
   },
   "rev": 1,
   "focus": {
@@ -35,5 +37,5 @@
   "intent": {
     "file": "intent-round2.json"
   },
-  "contentRevision": "0833985f00ff58312eaa475677253d4af66370cb0c2292294d0433abe1bbdba8"
+  "contentRevision": "2e735f9f3c68042768d13b192b847cf3af3cc4c9fa4c7a6a157d1d8efee93bec"
 }

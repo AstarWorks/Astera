@@ -5,23 +5,188 @@
     "start_s": 19.753067,
     "fps": 29.97002997002997
   },
-  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "units": "blocks; body height 1.8. Camera cuts follow source; unmeasured scale and body poses remain provisional.",
   "duration_ticks": 90,
   "camera": [
     {
       "t": 0,
       "pos": [
-        2.0,
-        2.5,
-        8
+        0.35,
+        1.344,
+        3.672
       ],
       "target": [
-        2.0,
-        1,
+        0.35,
+        1.05,
         0
       ],
-      "fov": 40,
-      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 19.753067s / medium; Don left-center, marked target right"
+    },
+    {
+      "t": 6,
+      "pos": [
+        1.25,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.25,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 20.053367s / close moving shot; impact clipped right"
+    },
+    {
+      "t": 8,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 20.153467s / medium to wide; both actors; recoil opens gap"
+    },
+    {
+      "t": 29,
+      "pos": [
+        1.55,
+        1.344,
+        3.672
+      ],
+      "target": [
+        1.55,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.35; source 21.187833s / medium; rising Don"
+    },
+    {
+      "t": 30,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 21.254567s / close crop; upper body sometimes above frame; floor below"
+    },
+    {
+      "t": 33,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 21.388033s / wide two-shot; Don high-left, target low-right"
+    },
+    {
+      "t": 45,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 21.988633s / rolled wide; battle floor rotates through near-inverted and near-vertical views"
+    },
+    {
+      "t": 49,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 22.188833s / wide; diving pose left-above target"
+    },
+    {
+      "t": 57,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 22.622600s / medium to close impact; landing/target occupy center-right"
+    },
+    {
+      "t": 59,
+      "pos": [
+        1.55,
+        1.371,
+        1.512
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.85; source 22.689333s / extreme close; cape and white impact fill most of view, arena still at edges"
+    },
+    {
+      "t": 61,
+      "pos": [
+        1.55,
+        1.408,
+        1.977
+      ],
+      "target": [
+        1.55,
+        1.25,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.65; source 22.822800s / close impact; floor ellipse spans screen, Don obscured in star"
+    },
+    {
+      "t": 68,
+      "pos": [
+        2.1,
+        1.517,
+        5.842
+      ],
+      "target": [
+        2.1,
+        1.05,
+        0
+      ],
+      "fov": 70,
+      "note": "shot記述からの暫定身長比（未実測）: 0.22; source 23.156467s / medium to wide; low Don at impact floor, target rebounds right"
     }
   ],
   "actors": [

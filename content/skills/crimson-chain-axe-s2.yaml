@@ -23,25 +23,25 @@ phases:
     vfx_id: crimson-hand-nodes
     delay_ticks:
       type: literal
-      value: 26
+      value: 24
   - type: cast_skill
     targets:
       type: caster
     skill_id: crimson-needle-projectile
     delay_ticks:
       type: literal
-      value: 29
+      value: 27
   - type: play_vfx
     targets:
       type: caster
     vfx_id: crimson-hand-nodes
     delay_ticks:
       type: literal
-      value: 53
+      value: 51
   - type: cast_skill
     targets:
       type: caster
     skill_id: crimson-needle-projectile
     delay_ticks:
       type: literal
-      value: 56
+      value: 54

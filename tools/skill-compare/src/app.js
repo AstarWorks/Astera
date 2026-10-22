@@ -33,6 +33,10 @@ function init(d) {
   $("title").textContent = S.c.skill.name || caseId;
   $("sub").textContent = `video ${S.c.videoId} ${S.c.start_s}-${S.c.end_s} s @ ${S.fps} fps - Astera ${S.c.skill.asteraSkillId || "-"} - ${S.c.skill.coins ?? "?"} coins`;
   $("sub").textContent += ` ・ ${d.from.branch || d.from.worktree} ・ ${S.c.status === "from-wiki" ? "wiki由来" : "再現確認中"}`;
+  if (S.c.verification?.reason) {
+    const note = el("p", "verification-note", S.c.verification.reason);
+    $("sub").after(note);
+  }
   $("who").value = store.get("skill-compare.who") || "";
   $("cnotes").value = S.c.notes || "";
   S.frameCache = createFrameCache(() => { S.needsRedraw = true; });
@@ -67,6 +71,9 @@ function setupSkillNav() {
     }
     if (S.c.weapon) {
       const a = el("a", "chip", "解析・進捗"); a.href = `/report/${S.c.weapon}`; nav.append(a);
+    }
+    if (S.c.verification?.evidence === `/evidence/${caseId}.png`) {
+      const a = el("a", "chip", "比較画像"); a.href = S.c.verification.evidence; nav.append(a);
     }
   }).catch(() => { nav.textContent = "スキル一覧を読み込めませんでした"; });
 }
@@ -110,7 +117,8 @@ function setupMc() {
   sel.textContent = "";
   const names = Object.keys(srcs);
   if (!names.length) sel.appendChild(Object.assign(el("option", "", "(no frames)"), { value: "" }));
-  for (const n of names) sel.appendChild(Object.assign(el("option", "", n), { value: n }));
+  const labels = { "vfx-compare": "比較用カメラ（強制発動）", "vfx-input": "通常操作で発動", "vfx-caster": "術者視点", "vfx-opponent": "相手視点", "vfx-side": "側面" };
+  for (const n of names) sel.appendChild(Object.assign(el("option", "", labels[n] || n), { value: n }));
   if (names.includes("vfx-compare") && !S.srcPicked) { sel.value = S.c.mc.source = "vfx-compare"; }
   else if (names.includes(S.c.mc.source)) sel.value = S.c.mc.source;
   else if (names.length) { sel.value = names[0]; S.c.mc.source = names[0]; }
@@ -126,7 +134,7 @@ function mcFrame(ms) {
   const tick = msToTick(ms, castOf());
   if (src.kind === "frames") {
     const f = tick + (src.castFrame ?? 0), n = clamp(f, 0, src.count - 1);
-    return { url: `${src.base}frame_${String(n).padStart(3, "0")}.${src.extension || "png"}`,
+    return { url: `${src.base}frame_${String(n).padStart(3, "0")}.${src.extension || "png"}?v=${encodeURIComponent(src.revision || "0")}`,
       dim: f < 0 || f >= src.count, label: `t+${tick} (frame ${n})`, tick };
   }
   const abs = tick + (S.c.mc.castTickInTrace ?? 5);

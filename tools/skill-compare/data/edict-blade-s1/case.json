@@ -49,14 +49,18 @@
   "editLog": [],
   "status": "captured",
   "verification": {
-    "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "status": "failed",
+    "reason": "S2最後の反対側からの打撃とS3の身体回転・着地姿勢が不足。拳の位置、白い軌跡、星状フラッシュの面積が未一致。青い残像は人物シルエットではない。",
+    "normalInput": "実入力撮影あり。標的HP 181.304f（回数の測定ではない）",
+    "evidence": "/evidence/edict-blade-s1.png"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote",
   "videoTitle": "The Index Proxy Don Quixote — skill showcase",
-  "iterations": 2,
+  "iterations": 4,
   "report": "/report/edict-blade",
   "referenceRevision": "982bc576e008ff74a2cbe397c033e0c442cb13ae5008a3b127c739e7d227d230",
-  "contentRevision": "9a07bbdb4f53f4e2f85659159ecaf4ab83ed33c352eba4f4c97e038999637d94"
+  "contentRevision": "571d7f65083923311f8ab5c51ea5afddd0774ba702e4c26c917120e2e88f7830",
+  "captureAttempts": 5,
+  "captureRetakeNote": "第4内容版の描画停止を除くため同版を再撮影。修正反復は4回。"
 }

@@ -28,12 +28,14 @@
   "status": "from-wiki",
   "verification": {
     "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 182.432f（回数の測定ではない）",
+    "evidence": "/evidence/vendetta-rifle-ego.png"
   },
   "weapon": "vendetta-rifle",
   "identity": "The Thumb East Soldato II Sinclair",
   "videoTitle": "The Thumb East Soldato II Sinclair — skill showcase",
-  "iterations": 0,
+  "iterations": 1,
   "report": "/report/vendetta-rifle",
   "referenceRevision": "d77c558e878dd9e86b7e64613f7eea342bc39c1a5155d730db8b3c222ec9c579",
   "contentRevision": "75876a642a2de47492761d1b0a868f35189aa624158deea7e669c1b2966d9b36"

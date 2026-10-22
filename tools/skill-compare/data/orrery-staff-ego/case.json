@@ -11,12 +11,14 @@
   "identity": "R Corp. 4th Pack Reindeer Rodion",
   "videoTitle": "R Corp. 4th Pack Reindeer Rodion — skill showcase",
   "status": "from-wiki",
-  "iterations": 0,
+  "iterations": 2,
   "report": "/report/orrery-staff",
   "referenceRevision": "396bc186ad2f5b000c5a73bc16356bb34a142da314c39270b9c068c4d8ae946d",
   "verification": {
     "status": "unverified",
-    "reason": "この内容版の実機撮影と原動画比較で確認する。"
+    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
+    "normalInput": "実入力撮影あり。標的HP 182.288f（回数の測定ではない）",
+    "evidence": "/evidence/orrery-staff-ego.png"
   },
   "rev": 1,
   "focus": {
@@ -35,5 +37,5 @@
   "intent": {
     "file": "intent-round2.json"
   },
-  "contentRevision": "daa3f898a4174cec0141b9956b5ee59e557966ee9b79cd3a319bc3b9cc5c1173"
+  "contentRevision": "0025bb4354464ebd312cace8f530d56d301d1568811da6604281255656cd9142"
 }

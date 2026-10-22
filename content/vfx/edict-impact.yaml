@@ -1,186 +1,1004 @@
 id: edict-impact
-duration_ticks: 13
-orient: world
+duration_ticks: 11
+orient: yaw
+follow: false
 sample_ticks: 1
 elements:
-- id: dark0
-  kind: {type: block, block: black_concrete}
-  brightness: 15
+- id: ray-0-0
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.475, 0.325, 0.1], rotate: [0, 0, 0.0], translate: [0, 1.05, 0]}
-  - {t: 1, scale: [0.475, 3.025, 0.1], ease: out_expo}
-  - {t: 5, scale: [0.385, 2.275, 0.1]}
-  - {t: 10, scale: [0.055, 0.225, 0.1], ease: in_quad}
-- id: dark1
-  kind: {type: block, block: black_concrete}
+  - t: 0
+    translate:
+    - 0
+    - 1.15
+    - 0.65
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 1.15
+    - 0.65
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.3
+  - t: 4
+    translate:
+    - 0
+    - 1.15
+    - 0.65
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.3
+  - t: 9
+    translate:
+    - 0
+    - 1.15
+    - 0.65
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-0-1
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.475, 0.24999999999999997, 0.1], rotate: [0, 0, 22.5], translate: [0, 1.05, 0]}
-  - {t: 1, scale: [0.475, 2.275, 0.1], ease: out_expo}
-  - {t: 5, scale: [0.385, 1.7125, 0.1]}
-  - {t: 10, scale: [0.055, 0.17500000000000002, 0.1], ease: in_quad}
-- id: dark2
-  kind: {type: block, block: black_concrete}
+  - t: 0
+    translate:
+    - 0
+    - 1.4681980515339463
+    - 0.3181980515339464
+    rotate:
+    - 0
+    - -45
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 1.4681980515339463
+    - 0.3181980515339464
+    rotate:
+    - 0
+    - -45
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 0.9
+  - t: 4
+    translate:
+    - 0
+    - 1.4681980515339463
+    - 0.3181980515339464
+    rotate:
+    - 0
+    - -45
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 0.9
+  - t: 9
+    translate:
+    - 0
+    - 1.4681980515339463
+    - 0.3181980515339464
+    rotate:
+    - 0
+    - -45
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-0-2
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.475, 0.28, 0.1], rotate: [0, 0, 45.0], translate: [0, 1.05, 0]}
-  - {t: 1, scale: [0.475, 2.5749999999999997, 0.1], ease: out_expo}
-  - {t: 5, scale: [0.385, 1.9374999999999998, 0.1]}
-  - {t: 10, scale: [0.055, 0.195, 0.1], ease: in_quad}
-- id: dark3
-  kind: {type: block, block: black_concrete}
+  - t: 0
+    translate:
+    - 0
+    - 1.9
+    - 4.592425496802574e-17
+    rotate:
+    - 0
+    - -90
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 1.9
+    - 4.592425496802574e-17
+    rotate:
+    - 0
+    - -90
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.5
+  - t: 4
+    translate:
+    - 0
+    - 1.9
+    - 4.592425496802574e-17
+    rotate:
+    - 0
+    - -90
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.5
+  - t: 9
+    translate:
+    - 0
+    - 1.9
+    - 4.592425496802574e-17
+    rotate:
+    - 0
+    - -90
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-0-3
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.475, 0.22, 0.1], rotate: [0, 0, 67.5], translate: [0, 1.05, 0]}
-  - {t: 1, scale: [0.475, 1.975, 0.1], ease: out_expo}
-  - {t: 5, scale: [0.385, 1.4875, 0.1]}
-  - {t: 10, scale: [0.055, 0.155, 0.1], ease: in_quad}
-- id: dark4
-  kind: {type: block, block: black_concrete}
+  - t: 0
+    translate:
+    - 0
+    - 1.5035533905932736
+    - -0.35355339059327373
+    rotate:
+    - 0
+    - -135
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 1.5035533905932736
+    - -0.35355339059327373
+    rotate:
+    - 0
+    - -135
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1
+  - t: 4
+    translate:
+    - 0
+    - 1.5035533905932736
+    - -0.35355339059327373
+    rotate:
+    - 0
+    - -135
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1
+  - t: 9
+    translate:
+    - 0
+    - 1.5035533905932736
+    - -0.35355339059327373
+    rotate:
+    - 0
+    - -135
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-0-4
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.475, 0.325, 0.1], rotate: [0, 0, 90.0], translate: [0, 1.05, 0]}
-  - {t: 1, scale: [0.475, 3.025, 0.1], ease: out_expo}
-  - {t: 5, scale: [0.385, 2.275, 0.1]}
-  - {t: 10, scale: [0.055, 0.225, 0.1], ease: in_quad}
-- id: dark5
-  kind: {type: block, block: black_concrete}
+  - t: 0
+    translate:
+    - 0
+    - 1.15
+    - -0.6
+    rotate:
+    - 0
+    - -180
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 1.15
+    - -0.6
+    rotate:
+    - 0
+    - -180
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.2
+  - t: 4
+    translate:
+    - 0
+    - 1.15
+    - -0.6
+    rotate:
+    - 0
+    - -180
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.2
+  - t: 9
+    translate:
+    - 0
+    - 1.15
+    - -0.6
+    rotate:
+    - 0
+    - -180
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-0-5
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.475, 0.24999999999999997, 0.1], rotate: [0, 0, 112.5], translate: [0, 1.05, 0]}
-  - {t: 1, scale: [0.475, 2.275, 0.1], ease: out_expo}
-  - {t: 5, scale: [0.385, 1.7125, 0.1]}
-  - {t: 10, scale: [0.055, 0.17500000000000002, 0.1], ease: in_quad}
-- id: dark6
-  kind: {type: block, block: black_concrete}
+  - t: 0
+    translate:
+    - 0
+    - 0.8671572875253809
+    - -0.28284271247461906
+    rotate:
+    - 0
+    - -225
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 0.8671572875253809
+    - -0.28284271247461906
+    rotate:
+    - 0
+    - -225
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 0.8
+  - t: 4
+    translate:
+    - 0
+    - 0.8671572875253809
+    - -0.28284271247461906
+    rotate:
+    - 0
+    - -225
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 0.8
+  - t: 9
+    translate:
+    - 0
+    - 0.8671572875253809
+    - -0.28284271247461906
+    rotate:
+    - 0
+    - -225
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-0-6
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.475, 0.28, 0.1], rotate: [0, 0, 135.0], translate: [0, 1.05, 0]}
-  - {t: 1, scale: [0.475, 2.5749999999999997, 0.1], ease: out_expo}
-  - {t: 5, scale: [0.385, 1.9374999999999998, 0.1]}
-  - {t: 10, scale: [0.055, 0.195, 0.1], ease: in_quad}
-- id: dark7
-  kind: {type: block, block: black_concrete}
+  - t: 0
+    translate:
+    - 0
+    - 0.44999999999999996
+    - -1.2858791391047207e-16
+    rotate:
+    - 0
+    - -270
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 0.44999999999999996
+    - -1.2858791391047207e-16
+    rotate:
+    - 0
+    - -270
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.4
+  - t: 4
+    translate:
+    - 0
+    - 0.44999999999999996
+    - -1.2858791391047207e-16
+    rotate:
+    - 0
+    - -270
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1.4
+  - t: 9
+    translate:
+    - 0
+    - 0.44999999999999996
+    - -1.2858791391047207e-16
+    rotate:
+    - 0
+    - -270
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-0-7
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.475, 0.22, 0.1], rotate: [0, 0, 157.5], translate: [0, 1.05, 0]}
-  - {t: 1, scale: [0.475, 1.975, 0.1], ease: out_expo}
-  - {t: 5, scale: [0.385, 1.4875, 0.1]}
-  - {t: 10, scale: [0.055, 0.155, 0.1], ease: in_quad}
-- id: core0
-  kind: {type: block, block: snow_block}
+  - t: 0
+    translate:
+    - 0
+    - 0.7964466094067261
+    - 0.3535533905932737
+    rotate:
+    - 0
+    - -315
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0
+    - 0.7964466094067261
+    - 0.3535533905932737
+    rotate:
+    - 0
+    - -315
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1
+  - t: 4
+    translate:
+    - 0
+    - 0.7964466094067261
+    - 0.3535533905932737
+    rotate:
+    - 0
+    - -315
+    - 0
+    scale:
+    - 0.035
+    - 0.09
+    - 1
+  - t: 9
+    translate:
+    - 0
+    - 0.7964466094067261
+    - 0.3535533905932737
+    rotate:
+    - 0
+    - -315
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-1-0
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.44999999999999996, 0.3, 0.18], rotate: [0, 0, 0.0], translate: [0, 1.05, 0.01]}
-  - {t: 1, scale: [0.44999999999999996, 3.0, 0.18], ease: out_expo}
-  - {t: 5, scale: [0.36, 2.25, 0.18]}
-  - {t: 10, scale: [0.03, 0.2, 0.18], ease: in_quad}
-- id: core1
-  kind: {type: block, block: snow_block}
+  - t: 0
+    translate:
+    - 0.65
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0.65
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 1.3
+    - 0.09
+    - 0.035
+  - t: 4
+    translate:
+    - 0.65
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 1.3
+    - 0.09
+    - 0.035
+  - t: 9
+    translate:
+    - 0.65
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-1-1
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.44999999999999996, 0.22499999999999998, 0.18], rotate: [0, 0, 22.5], translate: [0, 1.05, 0.01]}
-  - {t: 1, scale: [0.44999999999999996, 2.25, 0.18], ease: out_expo}
-  - {t: 5, scale: [0.36, 1.6875, 0.18]}
-  - {t: 10, scale: [0.03, 0.15000000000000002, 0.18], ease: in_quad}
-- id: core2
-  kind: {type: block, block: snow_block}
+  - t: 0
+    translate:
+    - 0.3181980515339464
+    - 1.4681980515339463
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0.3181980515339464
+    - 1.4681980515339463
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.9
+    - 0.09
+    - 0.035
+  - t: 4
+    translate:
+    - 0.3181980515339464
+    - 1.4681980515339463
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0.9
+    - 0.09
+    - 0.035
+  - t: 9
+    translate:
+    - 0.3181980515339464
+    - 1.4681980515339463
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 45
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-1-2
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.44999999999999996, 0.255, 0.18], rotate: [0, 0, 45.0], translate: [0, 1.05, 0.01]}
-  - {t: 1, scale: [0.44999999999999996, 2.55, 0.18], ease: out_expo}
-  - {t: 5, scale: [0.36, 1.9124999999999999, 0.18]}
-  - {t: 10, scale: [0.03, 0.17, 0.18], ease: in_quad}
-- id: core3
-  kind: {type: block, block: snow_block}
+  - t: 0
+    translate:
+    - 4.592425496802574e-17
+    - 1.9
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 90
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 4.592425496802574e-17
+    - 1.9
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 90
+    scale:
+    - 1.5
+    - 0.09
+    - 0.035
+  - t: 4
+    translate:
+    - 4.592425496802574e-17
+    - 1.9
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 90
+    scale:
+    - 1.5
+    - 0.09
+    - 0.035
+  - t: 9
+    translate:
+    - 4.592425496802574e-17
+    - 1.9
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 90
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-1-3
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.44999999999999996, 0.195, 0.18], rotate: [0, 0, 67.5], translate: [0, 1.05, 0.01]}
-  - {t: 1, scale: [0.44999999999999996, 1.9500000000000002, 0.18], ease: out_expo}
-  - {t: 5, scale: [0.36, 1.4625000000000001, 0.18]}
-  - {t: 10, scale: [0.03, 0.13, 0.18], ease: in_quad}
-- id: core4
-  kind: {type: block, block: snow_block}
+  - t: 0
+    translate:
+    - -0.35355339059327373
+    - 1.5035533905932736
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 135
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - -0.35355339059327373
+    - 1.5035533905932736
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 135
+    scale:
+    - 1
+    - 0.09
+    - 0.035
+  - t: 4
+    translate:
+    - -0.35355339059327373
+    - 1.5035533905932736
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 135
+    scale:
+    - 1
+    - 0.09
+    - 0.035
+  - t: 9
+    translate:
+    - -0.35355339059327373
+    - 1.5035533905932736
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 135
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-1-4
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.44999999999999996, 0.3, 0.18], rotate: [0, 0, 90.0], translate: [0, 1.05, 0.01]}
-  - {t: 1, scale: [0.44999999999999996, 3.0, 0.18], ease: out_expo}
-  - {t: 5, scale: [0.36, 2.25, 0.18]}
-  - {t: 10, scale: [0.03, 0.2, 0.18], ease: in_quad}
-- id: core5
-  kind: {type: block, block: snow_block}
+  - t: 0
+    translate:
+    - -0.6
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 180
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - -0.6
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 180
+    scale:
+    - 1.2
+    - 0.09
+    - 0.035
+  - t: 4
+    translate:
+    - -0.6
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 180
+    scale:
+    - 1.2
+    - 0.09
+    - 0.035
+  - t: 9
+    translate:
+    - -0.6
+    - 1.15
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 180
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-1-5
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.44999999999999996, 0.22499999999999998, 0.18], rotate: [0, 0, 112.5], translate: [0, 1.05, 0.01]}
-  - {t: 1, scale: [0.44999999999999996, 2.25, 0.18], ease: out_expo}
-  - {t: 5, scale: [0.36, 1.6875, 0.18]}
-  - {t: 10, scale: [0.03, 0.15000000000000002, 0.18], ease: in_quad}
-- id: core6
-  kind: {type: block, block: snow_block}
+  - t: 0
+    translate:
+    - -0.28284271247461906
+    - 0.8671572875253809
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 225
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - -0.28284271247461906
+    - 0.8671572875253809
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 225
+    scale:
+    - 0.8
+    - 0.09
+    - 0.035
+  - t: 4
+    translate:
+    - -0.28284271247461906
+    - 0.8671572875253809
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 225
+    scale:
+    - 0.8
+    - 0.09
+    - 0.035
+  - t: 9
+    translate:
+    - -0.28284271247461906
+    - 0.8671572875253809
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 225
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-1-6
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.44999999999999996, 0.255, 0.18], rotate: [0, 0, 135.0], translate: [0, 1.05, 0.01]}
-  - {t: 1, scale: [0.44999999999999996, 2.55, 0.18], ease: out_expo}
-  - {t: 5, scale: [0.36, 1.9124999999999999, 0.18]}
-  - {t: 10, scale: [0.03, 0.17, 0.18], ease: in_quad}
-- id: core7
-  kind: {type: block, block: snow_block}
+  - t: 0
+    translate:
+    - -1.2858791391047207e-16
+    - 0.44999999999999996
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 270
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - -1.2858791391047207e-16
+    - 0.44999999999999996
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 270
+    scale:
+    - 1.4
+    - 0.09
+    - 0.035
+  - t: 4
+    translate:
+    - -1.2858791391047207e-16
+    - 0.44999999999999996
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 270
+    scale:
+    - 1.4
+    - 0.09
+    - 0.035
+  - t: 9
+    translate:
+    - -1.2858791391047207e-16
+    - 0.44999999999999996
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 270
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
+- id: ray-1-7
+  kind:
+    type: block
+    block: white_concrete
   start_tick: 0
   end_tick: 10
   keyframes:
-  - {t: 0, scale: [0.44999999999999996, 0.195, 0.18], rotate: [0, 0, 157.5], translate: [0, 1.05, 0.01]}
-  - {t: 1, scale: [0.44999999999999996, 1.9500000000000002, 0.18], ease: out_expo}
-  - {t: 5, scale: [0.36, 1.4625000000000001, 0.18]}
-  - {t: 10, scale: [0.03, 0.13, 0.18], ease: in_quad}
-- id: bloom
-  kind: {type: quad, color: '#9DB8EF', alpha: 0.23}
+  - t: 0
+    translate:
+    - 0.3535533905932737
+    - 0.7964466094067261
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 315
+    scale:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    translate:
+    - 0.3535533905932737
+    - 0.7964466094067261
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 315
+    scale:
+    - 1
+    - 0.09
+    - 0.035
+  - t: 4
+    translate:
+    - 0.3535533905932737
+    - 0.7964466094067261
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 315
+    scale:
+    - 1
+    - 0.09
+    - 0.035
+  - t: 9
+    translate:
+    - 0.3535533905932737
+    - 0.7964466094067261
+    - 0
+    rotate:
+    - 0
+    - 0
+    - 315
+    scale:
+    - 0
+    - 0
+    - 0
   brightness: 15
-  start_tick: 0
-  end_tick: 10
+- id: core
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FFFFFF'
+    alpha: 1
   billboard: center
-  keyframes:
-  - {t: 0, translate: [0, 1.05, -0.02], scale: [0.18000000000000002, 0.18000000000000002, 1]}
-  - {t: 1, scale: [0.9, 0.9, 1], ease: out_expo}
-  - {t: 5, scale: [1.08, 1.08, 1], alpha: 0.12}
-  - {t: 10, alpha: 0}
-- id: filled-heart
-  kind: {type: block, block: snow_block}
   brightness: 15
   start_tick: 0
-  end_tick: 8
+  end_tick: 7
   keyframes:
-  - {t: 0, translate: [0, 1.05, 0.03], scale: [0.24000000000000005, 0.24000000000000005, 0.2], rotate: [0, 0, 45]}
-  - {t: 1, scale: [1.2000000000000002, 1.2000000000000002, 0.2], ease: out_expo}
-  - {t: 5, scale: [0.8399999999999999, 0.8399999999999999, 0.2]}
-  - {t: 8, scale: [0.015, 0.015, 0.2]}
+  - t: 0
+    translate:
+    - 0
+    - 1.15
+    - 0
+    scale:
+    - 0.05
+    - 0.05
+    - 1
+  - t: 1
+    translate:
+    - 0
+    - 1.15
+    - 0
+    scale:
+    - 0.8
+    - 0.8
+    - 1
+  - t: 6
+    translate:
+    - 0
+    - 1.15
+    - 0
+    scale:
+    - 0
+    - 0
+    - 1

@@ -123,7 +123,7 @@ elements:
   - t: 16
     scale: [0.01, 0.01, 2.7]
 - id: flame
-  kind: {type: particle, particle_id: fire-trail, every_ticks: 3}
+  kind: {type: particle, particle_id: ember-fine-spark, every_ticks: 3}
   end_tick: 19
   keyframes:
   - t: 0
