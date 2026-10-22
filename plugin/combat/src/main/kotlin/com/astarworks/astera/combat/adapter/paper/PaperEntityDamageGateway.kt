@@ -6,6 +6,7 @@ import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGatew
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.damage.ResolvedDamage
 import com.astarworks.astera.combat.domain.damage.attackerIdOrNull
+import com.astarworks.astera.core.adapter.paper.event.SkillDamageScope
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.Server
@@ -76,7 +77,10 @@ public class PaperEntityDamageGateway(
         entity.noDamageTicks = 0
         applying = true
         try {
-            if (attacker != null) entity.damage(resolved.finalAmount, attacker) else entity.damage(resolved.finalAmount)
+            // SkillDamageScope: the caster-as-damager event must never re-enter item input triggers.
+            SkillDamageScope.around {
+                if (attacker != null) entity.damage(resolved.finalAmount, attacker) else entity.damage(resolved.finalAmount)
+            }
         } finally {
             applying = false
         }
