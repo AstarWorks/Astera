@@ -235,8 +235,8 @@ public class SimStatusEffectContainer(
         val merged = when {
             existing == null -> instance
             !spec.stackable -> instance.copy(currentStacks = 1)
-            else -> instance.copy(currentStacks = (existing.currentStacks + 1).coerceAtMost(spec.maxStacks))
-        }
+            else -> instance.copy(currentStacks = (existing.currentStacks + instance.currentStacks).coerceAtMost(spec.maxStacks))
+        }.let { it.copy(currentStacks = if (spec.stackable) it.currentStacks.coerceAtMost(spec.maxStacks) else 1) }
         perPlayer[spec.id] = merged
         eventBus.publish(StatusApplied(target = instance.targetPlayerId, effect = merged, atTick = scheduler.currentTick()))
     }
@@ -246,6 +246,18 @@ public class SimStatusEffectContainer(
         perPlayer.remove(effectId) ?: return
         if (perPlayer.isEmpty()) active.remove(playerId)
         eventBus.publish(StatusRemoved(playerId, effectId, "manual", scheduler.currentTick()))
+    }
+
+    override fun removeStacks(playerId: PlayerId, effectId: StatusEffectId, count: Int) {
+        val existing = active[playerId]?.get(effectId) ?: return
+        if (count >= existing.currentStacks) {
+            remove(playerId, effectId)
+            return
+        }
+        if (count <= 0) return
+        val reduced = existing.copy(currentStacks = existing.currentStacks - count)
+        active[playerId]?.put(effectId, reduced)
+        eventBus.publish(StatusApplied(target = playerId, effect = reduced, atTick = scheduler.currentTick()))
     }
 
     override fun clear(playerId: PlayerId) {

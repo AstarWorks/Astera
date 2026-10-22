@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.config.skill
 
 import com.astarworks.astera.core.domain.skill.condition.Condition
+import com.astarworks.astera.core.domain.skill.targeter.Targeter
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
@@ -37,12 +38,20 @@ public sealed class ConditionYaml {
     @Serializable
     @SerialName("has_status")
     public data class HasStatus(
-        public val targets: TargeterYaml,
+        /** Explicit targeter; wins over [on]. */
+        public val targets: TargeterYaml? = null,
+        /** Shorthand for `targets`: `target` (default) or `caster`. */
+        public val on: StackHolderYaml = StackHolderYaml.TARGET,
         @SerialName("status_id") public val statusId: String,
+        @SerialName("min_stacks") public val minStacks: Int = 1,
     ) : ConditionYaml() {
         override fun toDomain(): Condition = Condition.HasStatus(
-            targets = targets.toDomain(),
+            targets = targets?.toDomain() ?: when (on) {
+                StackHolderYaml.TARGET -> Targeter.Target
+                StackHolderYaml.CASTER -> Targeter.Caster
+            },
             statusId = StatusEffectId(statusId),
+            minStacks = minStacks,
         )
     }
 

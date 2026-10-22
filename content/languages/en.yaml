@@ -1932,6 +1932,18 @@ astera:
       name: "Regenerating"
     evasive:
       name: "Evasive"
+    tremor:
+      name: "Tremor"
+    rupture:
+      name: "Rupture"
+    sinking:
+      name: "Sinking"
+    poise:
+      name: "Poise"
+    charge:
+      name: "Charge"
+    immunity:
+      name: "Immune"
 
   # F3-2: message keys referenced from Kotlin (MessageKey / labelKey / button / text literals).
   damage.target_offline: "<red>The target player is offline.</red>"

@@ -1,0 +1,15 @@
+# Wave PM-W3: Tremor stacks (Limbus-style). Pure counter: skills read it via
+# has_status.min_stacks and damage.per_stack; a burst skill typically consumes the stacks.
+
+id: tremor
+
+display_name_key: astera.status.tremor.name
+
+kind: stack_debuff
+default_duration_ticks: 200   # 10s @ 20 TPS
+
+stackable: true
+max_stacks: 10
+
+params:
+  type: marker

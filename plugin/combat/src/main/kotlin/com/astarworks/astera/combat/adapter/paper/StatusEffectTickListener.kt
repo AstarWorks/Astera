@@ -192,6 +192,8 @@ public class StatusEffectTickListener(
             StatusKind.HEAL_REDUCE,
             StatusKind.HEAL_NULL,
             StatusKind.SILENCE,
+            StatusKind.STACK_DEBUFF,
+            StatusKind.STACK_BUFF,
             -> Unit
         }
     }

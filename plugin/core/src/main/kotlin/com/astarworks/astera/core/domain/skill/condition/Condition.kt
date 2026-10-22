@@ -27,7 +27,11 @@ public sealed class Condition {
     public data class HasStatus(
         public val targets: Targeter,
         public val statusId: StatusEffectId,
-    ) : Condition()
+        /** At least this many stacks (default 1 = merely present). */
+        public val minStacks: Int = 1,
+    ) : Condition() {
+        init { require(minStacks >= 1) { "Condition.HasStatus.minStacks must be >= 1: $minStacks" } }
+    }
 
     public data class IsAlly(public val a: Targeter, public val b: Targeter) : Condition()
     public data class IsEnemy(public val a: Targeter, public val b: Targeter) : Condition()
