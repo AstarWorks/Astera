@@ -21,6 +21,7 @@ public class AssistAttributionUseCase(
     private val window: DamageHistoryWindow = DamageHistoryWindow.DEFAULT,
 ) {
     public fun handle(event: PlayerKilled) {
+        if (!event.context.countsForProgression) return // ADR-0235
         val attackers = history.recentAttackers(event.victim, window, asOf = event.atTick)
         if (attackers.isEmpty()) return
         attackers.asSequence()

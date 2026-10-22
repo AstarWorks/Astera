@@ -20,6 +20,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public class FakeMatchTeamLookup : IMatchTeamLookup {
 
     private val teams: MutableMap<PlayerId, TeamId> = mutableMapOf()
+    private val matches: MutableMap<PlayerId, com.astarworks.astera.core.domain.match.MatchId> = mutableMapOf()
 
     /** Snapshot of the current player → team assignments. For test readability. */
     public val assignments: Map<PlayerId, TeamId>
@@ -29,19 +30,24 @@ public class FakeMatchTeamLookup : IMatchTeamLookup {
      * Register [playerId] as a member of [teamId]. Overwrites any previous
      * assignment for the same player.
      */
-    public fun place(playerId: PlayerId, teamId: TeamId) {
+    public fun place(playerId: PlayerId, teamId: TeamId, matchId: com.astarworks.astera.core.domain.match.MatchId? = null) {
         teams[playerId] = teamId
+        if (matchId != null) matches[playerId] = matchId else matches.remove(playerId)
     }
 
     /** Remove [playerId] from the lookup — subsequent [teamOf] calls return `null`. */
     public fun remove(playerId: PlayerId) {
         teams.remove(playerId)
+        matches.remove(playerId)
     }
 
     /** Clear all assignments. */
     public fun clear() {
         teams.clear()
+        matches.clear()
     }
 
     override fun teamOf(playerId: PlayerId): TeamId? = teams[playerId]
+
+    override fun matchOf(playerId: PlayerId): com.astarworks.astera.core.domain.match.MatchId? = matches[playerId]
 }

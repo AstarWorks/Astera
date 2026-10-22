@@ -6,6 +6,7 @@ import com.astarworks.astera.combat.domain.damage.DamageHistoryWindow
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.AssistCredited
 import com.astarworks.astera.combat.domain.event.PlayerKilled
+import com.astarworks.astera.core.domain.combat.CombatContext
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
 import org.assertj.core.api.Assertions.assertThat
@@ -25,6 +26,15 @@ class AssistAttributionUseCaseTest {
         source = DamageSource.Environment.Generic,
         atTick = atTick,
     )
+
+    @Test
+    fun `a kill outside a match credits no assists (ADR-0235)`() {
+        val svc = InMemoryDamageHistoryService()
+        svc.record(victim, DamageEntry(assistA, 5.0, at = 50L))
+        val bus = FakeDomainEventBus()
+        AssistAttributionUseCase(svc, bus).handle(kill(atTick = 100L).copy(context = CombatContext.Lobby))
+        assertThat(bus.publishedOfType<AssistCredited>()).isEmpty()
+    }
 
     @Test
     fun `single recent attacker yields one AssistCredited`() {

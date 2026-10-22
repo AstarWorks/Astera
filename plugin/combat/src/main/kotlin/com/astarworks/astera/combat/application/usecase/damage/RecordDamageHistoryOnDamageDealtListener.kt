@@ -13,6 +13,7 @@ public class RecordDamageHistoryOnDamageDealtListener(
     private val history: IDamageHistoryService,
 ) {
     public fun handle(event: DamageDealt) {
+        if (!event.context.countsForProgression) return // ADR-0235: no assist trail from training / lobby hits
         val attacker = event.attacker ?: return
         history.record(
             event.target,

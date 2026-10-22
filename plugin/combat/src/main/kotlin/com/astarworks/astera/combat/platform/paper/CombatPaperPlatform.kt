@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.platform.paper
 
+import com.astarworks.astera.combat.application.service.VanillaKillResolver
 import com.astarworks.astera.combat.adapter.paper.PaperDamageGateway
 import com.astarworks.astera.combat.adapter.paper.PaperEnvironmentDamagePublisher
 import com.astarworks.astera.combat.adapter.paper.PaperDisplayEntityGateway
@@ -216,6 +217,12 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         ctx.subscriptions += PaperVanillaKillPublisher(
             eventBus = eventBus,
             scheduler = scheduler,
+            // ADR-0235: Match registers IMatchTeamLookup after Combat enables, so resolve per call.
+            resolver = VanillaKillResolver(
+                com.astarworks.astera.core.application.service.combat.CombatContextResolver {
+                    services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()
+                },
+            ),
         ).start(plugin)
     }
 

@@ -24,6 +24,9 @@ public interface IEntityDamageGateway {
     /** True when [target] is a live, damageable non-player entity in the host. */
     public fun isEntityTarget(target: PlayerId): Boolean
 
+    /** True when [target] is a lobby training dummy (ADR-0200 / ADR-0235): its hits carry the `Training` context. */
+    public fun isTrainingTarget(target: PlayerId): Boolean = false
+
     /** Applies [resolved] to the entity. Failure modes are expected outcomes, not bugs. */
     public fun apply(
         target: PlayerId,

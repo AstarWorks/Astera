@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.advancement.AdvancementError
 import com.astarworks.astera.core.domain.advancement.AdvancementId
 import com.astarworks.astera.core.domain.advancement.AdvancementProgress
 import com.astarworks.astera.core.domain.advancement.CustomAdvancement
+import com.astarworks.astera.core.domain.combat.CombatContext
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.event.CurrencyChangeReason
 import com.astarworks.astera.core.domain.event.EndReason
@@ -115,6 +116,22 @@ class TrackAdvancementProgressListenerTest {
             ),
         )
         assertThat(recorded).contains(Triple(killer, killAdv, 1))
+    }
+
+    @Test
+    fun `PlayerKilled outside a match progresses nothing (ADR-0235)`() {
+        for (context in listOf(CombatContext.Training, CombatContext.Lobby, CombatContext.World)) {
+            listener.handle(
+                PlayerKilled(
+                    victim = victim,
+                    killer = killer,
+                    source = DamageSource.Environment.Generic,
+                    atTick = 100L,
+                    context = context,
+                ),
+            )
+        }
+        assertThat(recorded).isEmpty()
     }
 
     @Test

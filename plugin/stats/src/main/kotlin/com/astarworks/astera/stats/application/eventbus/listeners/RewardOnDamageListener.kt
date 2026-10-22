@@ -14,6 +14,7 @@ public class RewardOnDamageListener(
     private val repository: IPlayerStatsRepository,
 ) {
     public fun handle(event: DamageDealt) {
+        if (!event.context.countsForProgression) return // ADR-0235: dummies / lobby hits leave no stats
         val dmg = event.resolved.finalAmount.toLong()
 
         // Update target's damageTaken
