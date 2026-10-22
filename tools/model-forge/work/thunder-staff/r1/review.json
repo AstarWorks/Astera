@@ -1,0 +1,141 @@
+{
+  "item": "thunder-staff",
+  "round": 1,
+  "validation": {
+    "valid": true,
+    "elements": 2,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      2.0,
+      2.0000000000000004
+    ],
+    "rotated_bounds": [
+      [
+        5.0,
+        0.0,
+        5.5
+      ],
+      [
+        11.0,
+        28.0,
+        10.5
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        107,
+        21,
+        148,
+        219
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        110,
+        21,
+        145,
+        219
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        107,
+        110,
+        148,
+        145
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        101,
+        19,
+        154,
+        216
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        63,
+        42,
+        199,
+        217
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        96,
+        23,
+        148,
+        180
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        116,
+        14,
+        150,
+        144
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        123,
+        23,
+        175,
+        180
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        105,
+        14,
+        139,
+        144
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        121,
+        56,
+        134,
+        122
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        114,
+        56,
+        141,
+        189
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "daa028492f7e9f7a127d01a0017e36e795374e0e881a1e0159a7787e99f4adea",
+  "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+}

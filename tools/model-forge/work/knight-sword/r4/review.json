@@ -1,0 +1,141 @@
+{
+  "item": "knight-sword",
+  "round": 4,
+  "validation": {
+    "valid": true,
+    "elements": 95,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999407,
+      2.0000000000000355
+    ],
+    "rotated_bounds": [
+      [
+        2.9697627673005784,
+        -1.1325000000000003,
+        6.6000000000000005
+      ],
+      [
+        13.030237232699422,
+        29.26,
+        9.4
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        92,
+        12,
+        163,
+        227
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        118,
+        12,
+        137,
+        227
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        92,
+        118,
+        163,
+        137
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        95,
+        19,
+        160,
+        223
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        58,
+        50,
+        182,
+        222
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        109,
+        19,
+        160,
+        186
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        114,
+        11,
+        141,
+        149
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        111,
+        19,
+        162,
+        186
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        114,
+        11,
+        141,
+        149
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        116,
+        53,
+        139,
+        125
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        104,
+        50,
+        151,
+        195
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "771cd26c3ef92c8b5b07cde96dbb8963338635c856e4d5e7b7583578189f40c0",
+  "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+}

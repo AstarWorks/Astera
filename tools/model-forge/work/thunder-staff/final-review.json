@@ -1,0 +1,853 @@
+{
+  "item": "thunder-staff",
+  "round": 5,
+  "validation": {
+    "valid": true,
+    "elements": 146,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999762,
+      2.0000000000000355
+    ],
+    "rotated_bounds": [
+      [
+        3.944885463393878,
+        -1.0075000000000003,
+        4.85
+      ],
+      [
+        12.055114536606123,
+        28.6,
+        11.15
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        100,
+        17,
+        155,
+        227
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        106,
+        17,
+        149,
+        227
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        99,
+        106,
+        156,
+        149
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        101,
+        20,
+        154,
+        222
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        58,
+        45,
+        191,
+        221
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        99,
+        21,
+        152,
+        185
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        118,
+        12,
+        149,
+        149
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        119,
+        21,
+        172,
+        185
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        107,
+        12,
+        137,
+        149
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        119,
+        55,
+        136,
+        125
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        109,
+        53,
+        146,
+        194
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "daa028492f7e9f7a127d01a0017e36e795374e0e881a1e0159a7787e99f4adea",
+  "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used.",
+  "rounds": [
+    {
+      "item": "thunder-staff",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 2,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.0,
+          2.0000000000000004
+        ],
+        "rotated_bounds": [
+          [
+            5.0,
+            0.0,
+            5.5
+          ],
+          [
+            11.0,
+            28.0,
+            10.5
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            107,
+            21,
+            148,
+            219
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            110,
+            21,
+            145,
+            219
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            107,
+            110,
+            148,
+            145
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            101,
+            19,
+            154,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            63,
+            42,
+            199,
+            217
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            96,
+            23,
+            148,
+            180
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            116,
+            14,
+            150,
+            144
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            123,
+            23,
+            175,
+            180
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            105,
+            14,
+            139,
+            144
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            121,
+            56,
+            134,
+            122
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            114,
+            56,
+            141,
+            189
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "daa028492f7e9f7a127d01a0017e36e795374e0e881a1e0159a7787e99f4adea",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "thunder-staff",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 27,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999911,
+          2.000000000000012
+        ],
+        "rotated_bounds": [
+          [
+            3.944885463393878,
+            -1.0075000000000003,
+            5.45
+          ],
+          [
+            12.055114536606123,
+            28.6,
+            10.55
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            100,
+            17,
+            155,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            110,
+            17,
+            145,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            99,
+            110,
+            156,
+            145
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            100,
+            20,
+            155,
+            222
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            58,
+            45,
+            191,
+            221
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            98,
+            21,
+            152,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            117,
+            12,
+            149,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            21,
+            173,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            106,
+            12,
+            138,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            119,
+            55,
+            136,
+            125
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            109,
+            53,
+            146,
+            194
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "daa028492f7e9f7a127d01a0017e36e795374e0e881a1e0159a7787e99f4adea",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "thunder-staff",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 114,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999762,
+          2.000000000000012
+        ],
+        "rotated_bounds": [
+          [
+            3.944885463393878,
+            -1.0075000000000003,
+            4.85
+          ],
+          [
+            12.055114536606123,
+            28.6,
+            11.15
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            100,
+            17,
+            155,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            106,
+            17,
+            149,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            99,
+            106,
+            156,
+            149
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            101,
+            20,
+            154,
+            222
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            58,
+            45,
+            191,
+            221
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            99,
+            21,
+            152,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            118,
+            12,
+            148,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            21,
+            172,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            107,
+            12,
+            137,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            119,
+            55,
+            136,
+            125
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            109,
+            53,
+            146,
+            194
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "daa028492f7e9f7a127d01a0017e36e795374e0e881a1e0159a7787e99f4adea",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "thunder-staff",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 141,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999762,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            3.944885463393878,
+            -1.0075000000000003,
+            4.85
+          ],
+          [
+            12.055114536606123,
+            28.6,
+            11.15
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            100,
+            17,
+            155,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            106,
+            17,
+            149,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            99,
+            106,
+            156,
+            149
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            101,
+            20,
+            154,
+            222
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            58,
+            45,
+            191,
+            221
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            99,
+            21,
+            152,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            118,
+            12,
+            148,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            21,
+            172,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            107,
+            12,
+            137,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            119,
+            55,
+            136,
+            125
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            109,
+            53,
+            146,
+            194
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "daa028492f7e9f7a127d01a0017e36e795374e0e881a1e0159a7787e99f4adea",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "thunder-staff",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 146,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999762,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            3.944885463393878,
+            -1.0075000000000003,
+            4.85
+          ],
+          [
+            12.055114536606123,
+            28.6,
+            11.15
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            100,
+            17,
+            155,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            106,
+            17,
+            149,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            99,
+            106,
+            156,
+            149
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            101,
+            20,
+            154,
+            222
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            58,
+            45,
+            191,
+            221
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            99,
+            21,
+            152,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            118,
+            12,
+            149,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            21,
+            172,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            107,
+            12,
+            137,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            119,
+            55,
+            136,
+            125
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            109,
+            53,
+            146,
+            194
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "daa028492f7e9f7a127d01a0017e36e795374e0e881a1e0159a7787e99f4adea",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    }
+  ],
+  "sha256": {
+    "content/models/items/thunder-staff.model.json": "6ab623ae7a4233647bca38ccc775db6ed12538ce15149d042286f6127cb775b4",
+    "content/textures/items/thunder-staff.png": "1c166e45a180becd9f766659cd8e29682a70b9036702723a43219a344349e41e",
+    "tools/model-forge/work/thunder-staff/ai-target/concept.png": "daa028492f7e9f7a127d01a0017e36e795374e0e881a1e0159a7787e99f4adea"
+  }
+}

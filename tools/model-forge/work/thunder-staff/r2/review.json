@@ -1,0 +1,141 @@
+{
+  "item": "thunder-staff",
+  "round": 2,
+  "validation": {
+    "valid": true,
+    "elements": 27,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999911,
+      2.000000000000012
+    ],
+    "rotated_bounds": [
+      [
+        3.944885463393878,
+        -1.0075000000000003,
+        5.45
+      ],
+      [
+        12.055114536606123,
+        28.6,
+        10.55
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        100,
+        17,
+        155,
+        227
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        110,
+        17,
+        145,
+        227
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        99,
+        110,
+        156,
+        145
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        100,
+        20,
+        155,
+        222
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        58,
+        45,
+        191,
+        221
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        98,
+        21,
+        152,
+        185
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        117,
+        12,
+        149,
+        149
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        119,
+        21,
+        173,
+        185
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        106,
+        12,
+        138,
+        149
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        119,
+        55,
+        136,
+        125
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        109,
+        53,
+        146,
+        194
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "daa028492f7e9f7a127d01a0017e36e795374e0e881a1e0159a7787e99f4adea",
+  "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+}

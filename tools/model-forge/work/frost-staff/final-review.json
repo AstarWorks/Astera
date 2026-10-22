@@ -1,0 +1,853 @@
+{
+  "item": "frost-staff",
+  "round": 5,
+  "validation": {
+    "valid": true,
+    "elements": 165,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999716,
+      2.0000000000000355
+    ],
+    "rotated_bounds": [
+      [
+        4.6481119437836815,
+        -1.9574999999999996,
+        5.839168399489836
+      ],
+      [
+        11.55395754034522,
+        29.51,
+        11.265164329587135
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        104,
+        11,
+        152,
+        233
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        105,
+        11,
+        142,
+        233
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        104,
+        113,
+        152,
+        150
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        105,
+        17,
+        151,
+        228
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        58,
+        49,
+        188,
+        225
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        103,
+        18,
+        152,
+        190
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        118,
+        9,
+        146,
+        153
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        119,
+        18,
+        170,
+        190
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        109,
+        9,
+        137,
+        153
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        120,
+        52,
+        135,
+        127
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        111,
+        49,
+        143,
+        199
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "48e21d72b302bb3ce3022e6cae0b457269e9003ed4c9cf756a961fb82b77eabc",
+  "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used.",
+  "rounds": [
+    {
+      "item": "frost-staff",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 2,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.0,
+          2.0000000000000004
+        ],
+        "rotated_bounds": [
+          [
+            5.5,
+            0.0,
+            6.5
+          ],
+          [
+            10.5,
+            29.0,
+            9.5
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            110,
+            14,
+            145,
+            219
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            117,
+            14,
+            138,
+            219
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            110,
+            117,
+            145,
+            138
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            107,
+            15,
+            148,
+            216
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            63,
+            40,
+            197,
+            217
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            100,
+            18,
+            148,
+            180
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            121,
+            10,
+            145,
+            144
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            123,
+            18,
+            171,
+            180
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            110,
+            10,
+            134,
+            144
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            122,
+            54,
+            133,
+            122
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            116,
+            51,
+            139,
+            189
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "48e21d72b302bb3ce3022e6cae0b457269e9003ed4c9cf756a961fb82b77eabc",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "frost-staff",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 40,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.999999999999994,
+          2.000000000000016
+        ],
+        "rotated_bounds": [
+          [
+            4.6481119437836815,
+            -1.0075000000000003,
+            6.625
+          ],
+          [
+            11.55395754034522,
+            29.51,
+            9.375
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            104,
+            11,
+            152,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            118,
+            11,
+            137,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            104,
+            118,
+            152,
+            137
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            105,
+            17,
+            151,
+            222
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            58,
+            49,
+            188,
+            221
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            103,
+            18,
+            152,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            118,
+            9,
+            143,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            18,
+            170,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            112,
+            9,
+            137,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            120,
+            52,
+            135,
+            125
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            111,
+            49,
+            143,
+            194
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "48e21d72b302bb3ce3022e6cae0b457269e9003ed4c9cf756a961fb82b77eabc",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "frost-staff",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 130,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999816,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            4.6481119437836815,
+            -1.5075000000000003,
+            6.4482233047033635
+          ],
+          [
+            11.55395754034522,
+            29.51,
+            10.314999999999998
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            104,
+            11,
+            152,
+            230
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            112,
+            11,
+            138,
+            230
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            104,
+            117,
+            152,
+            143
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            105,
+            17,
+            151,
+            225
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            58,
+            49,
+            188,
+            223
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            103,
+            18,
+            152,
+            187
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            118,
+            9,
+            143,
+            151
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            18,
+            170,
+            187
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            112,
+            9,
+            137,
+            151
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            120,
+            52,
+            135,
+            126
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            111,
+            49,
+            143,
+            197
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "48e21d72b302bb3ce3022e6cae0b457269e9003ed4c9cf756a961fb82b77eabc",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "frost-staff",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 155,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999716,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            4.6481119437836815,
+            -1.5075000000000003,
+            5.839168399489836
+          ],
+          [
+            11.55395754034522,
+            29.51,
+            11.265164329587135
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            104,
+            11,
+            152,
+            230
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            105,
+            11,
+            142,
+            230
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            104,
+            113,
+            152,
+            150
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            105,
+            17,
+            151,
+            225
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            58,
+            49,
+            188,
+            223
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            103,
+            18,
+            152,
+            187
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            118,
+            9,
+            146,
+            151
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            18,
+            170,
+            187
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            109,
+            9,
+            137,
+            151
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            120,
+            52,
+            135,
+            126
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            111,
+            49,
+            143,
+            197
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "48e21d72b302bb3ce3022e6cae0b457269e9003ed4c9cf756a961fb82b77eabc",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "frost-staff",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 165,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999716,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            4.6481119437836815,
+            -1.9574999999999996,
+            5.839168399489836
+          ],
+          [
+            11.55395754034522,
+            29.51,
+            11.265164329587135
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            104,
+            11,
+            152,
+            233
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            105,
+            11,
+            142,
+            233
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            104,
+            113,
+            152,
+            150
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            105,
+            17,
+            151,
+            228
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            58,
+            49,
+            188,
+            225
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            103,
+            18,
+            152,
+            190
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            118,
+            9,
+            146,
+            153
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            18,
+            170,
+            190
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            109,
+            9,
+            137,
+            153
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            120,
+            52,
+            135,
+            127
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            111,
+            49,
+            143,
+            199
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "48e21d72b302bb3ce3022e6cae0b457269e9003ed4c9cf756a961fb82b77eabc",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    }
+  ],
+  "sha256": {
+    "content/models/items/frost-staff.model.json": "fba088723f4f982d39fba3aa3138ad52c0824a4a8a1613654c3f87a3ca05273a",
+    "content/textures/items/frost-staff.png": "3eaf708bb676c0d7c7b37d41fd36840ac0933adce18fd521a093cde5e6aa21f1",
+    "tools/model-forge/work/frost-staff/ai-target/concept.png": "48e21d72b302bb3ce3022e6cae0b457269e9003ed4c9cf756a961fb82b77eabc"
+  }
+}
