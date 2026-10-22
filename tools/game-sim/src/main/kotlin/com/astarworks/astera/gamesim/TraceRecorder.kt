@@ -33,11 +33,20 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         val status = mutableListOf<JsonElement>()
         val deaths = mutableListOf<JsonElement>()
         val teleports = mutableListOf<JsonElement>()
+        val effects = mutableListOf<JsonElement>()
         val events = mutableListOf<JsonElement>()
         var hasSnapshot = false
         var entities: JsonElement = JsonArray(emptyList())
         var projectiles: JsonElement = JsonArray(emptyList())
     }
+
+    /** One world effect (see [recordEffect]). */
+    public data class Effect(val tick: Long, val kind: String, val at: Vec3?, val detail: String)
+
+    private val effectLog: MutableList<Effect> = mutableListOf()
+
+    /** Effects recorded so far, optionally only those of [kind]. */
+    public fun effects(kind: String? = null): List<Effect> = effectLog.filter { kind == null || it.kind == kind }
 
     private val buckets: TreeMap<Long, Bucket> = TreeMap()
     private val entityInfo: MutableMap<PlayerId, JsonElement> = linkedMapOf()
@@ -135,6 +144,21 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         }
     }
 
+    /**
+     * World effects of the non-projectile mechanics (WP5). [kind]: `explosion`, `lightning`,
+     * `block_place`, `block_remove`, `display_spawn`, `display_remove`, `summon`, `despawn`,
+     * `glow`, `camera_shake`. [at] is the place it happened (when it has one); [detail] is a
+     * short human-readable description (block key, entity type, radius, ...).
+     */
+    public fun recordEffect(tick: Long, kind: String, at: Vec3?, detail: String) {
+        effectLog += Effect(tick, kind, at, detail)
+        bucket(tick).effects += buildJsonObject {
+            put("kind", kind)
+            put("detail", detail)
+            if (at != null) vec(at)
+        }
+    }
+
     /** Catch-all for every domain event ([type] = simple class name). */
     public fun recordEvent(tick: Long, type: String, summary: String) {
         bucket(tick).events += buildJsonObject {
@@ -212,6 +236,7 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
                             put("status", JsonArray(b.status))
                             put("deaths", JsonArray(b.deaths))
                             put("teleports", JsonArray(b.teleports))
+                            put("effects", JsonArray(b.effects))
                             put("events", JsonArray(b.events))
                         },
                     )

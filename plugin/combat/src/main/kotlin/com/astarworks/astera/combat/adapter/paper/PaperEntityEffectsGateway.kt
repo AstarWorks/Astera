@@ -54,6 +54,10 @@ public class PaperEntityEffectsGateway(
             ?.let { living.removePotionEffect(PotionEffectType.JUMP_BOOST) }
     }
 
+    override fun setGlowing(target: PlayerId, glowing: Boolean) {
+        entity(target)?.isGlowing = glowing
+    }
+
     private fun entity(id: PlayerId): Entity? = server.getEntity(id.uuid)?.takeIf { it.isValid }
 
     private companion object {

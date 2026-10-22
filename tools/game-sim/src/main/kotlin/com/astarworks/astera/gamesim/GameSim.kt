@@ -79,7 +79,10 @@ public class GameSim private constructor(
     private val contexts: List<WiringContext>,
 ) {
     /** Action bars / titles sent by mechanics (WP4). */
-    public val feedback: SimPlayerFeedbackGateway = SimPlayerFeedbackGateway()
+    public val feedback: SimPlayerFeedbackGateway = SimPlayerFeedbackGateway(recorder) { scheduler.currentTick() }
+
+    /** Displays spawned by SpawnDisplay (WP5). */
+    public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder)
 
     public lateinit var core: CoreWiringResult
         private set
@@ -400,8 +403,20 @@ public class GameSim private constructor(
                         SimDamageGateway(world, svc.getOrThrow<IPlayerAttributeContainerStore>(), scheduler)
                     },
                     statusEffectContainer = { statusContainer.value },
-                    entityEffectsGateway = { SimEntityEffectsGateway(world) },
+                    entityEffectsGateway = { SimEntityEffectsGateway(world, recorder) { scheduler.currentTick() } },
                     playerFeedbackGateway = { feedback },
+                    displayEntityGateway = { sim.displays },
+                    summonGateway = { SimSummonGateway(world, scheduler, recorder) },
+                    explosionGateway = { svc, applier ->
+                        SimExplosionGateway(
+                            world = world,
+                            scheduler = scheduler,
+                            eventBus = svc.getOrThrow<IDomainEventBus>(),
+                            damageApplier = applier,
+                            isAlive = alive,
+                            recorder = recorder,
+                        )
+                    },
                 ),
             )
             // Post-wiring host step (CombatPaperPlatform.bind): tick loops and the
@@ -432,6 +447,9 @@ public class GameSim private constructor(
             events += event
             val type = event::class.simpleName ?: "event"
             if (type !in TRACE_NOISE) recorder.recordEvent(tick, type, event.toString())
+        }
+        bus.subscribe(com.astarworks.astera.combat.domain.event.aoe.LightningStrike::class) { e ->
+            recorder.recordEffect(tick, "lightning", e.position, "damaging=${e.damageEntities}")
         }
         bus.subscribe(DamageDealt::class) { e ->
             recorder.recordDamage(

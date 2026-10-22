@@ -39,6 +39,38 @@ class MechanicYamlTest {
     }
 
     @Test
+    fun `explode carries radius and damage components`() {
+        val dto = MechanicYaml.Explode(
+            targets = TargeterYaml.Target,
+            power = NumericValueYaml.Literal(3.0),
+            radius = NumericValueYaml.Literal(5.0),
+            components = listOf(DamageComponentYaml(base = NumericValueYaml.Literal(10.0), attribute = "fire")),
+        )
+        val domain = dto.toDomain() as Mechanic.Explode
+        assertThat(domain.radius).isEqualTo(com.astarworks.astera.core.domain.skill.value.NumericValue.Literal(5.0))
+        assertThat(domain.components).hasSize(1)
+        assertThat(domain.breakBlocks).isEqualTo(BoolValue.Literal(false))
+    }
+
+    @Test
+    fun `block mechanics default to arena-only and carry the revert delay`() {
+        val set = MechanicYaml.SetBlock(
+            targets = TargeterYaml.Target,
+            blockKey = "minecraft:ice",
+            revertAfterTicks = IntValueYaml.Literal(60),
+        ).toDomain() as Mechanic.SetBlock
+        assertThat(set.outsideArena).isEqualTo(BoolValue.Literal(false))
+        assertThat(set.revertAfterTicks).isEqualTo(com.astarworks.astera.core.domain.skill.value.IntValue.Literal(60))
+
+        val remove = MechanicYaml.RemoveBlock(
+            targets = TargeterYaml.Target,
+            outsideArena = BoolValueYaml.Literal(true),
+        ).toDomain() as Mechanic.RemoveBlock
+        assertThat(remove.outsideArena).isEqualTo(BoolValue.Literal(true))
+        assertThat(remove.revertAfterTicks).isEqualTo(com.astarworks.astera.core.domain.skill.value.IntValue.Literal(0))
+    }
+
+    @Test
     fun `knockback with from-hit-normal direction`() {
         val dto = MechanicYaml.Knockback(
             targets = TargeterYaml.Target,

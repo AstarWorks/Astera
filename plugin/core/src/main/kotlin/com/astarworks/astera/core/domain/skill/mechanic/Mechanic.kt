@@ -259,11 +259,17 @@ public sealed class Mechanic {
         init { require(entityTypeKey.isNotBlank()) { "Mechanic.Summon.entityTypeKey must not be blank" } }
     }
 
-    /** Place a block. `blockKey` is a vanilla / namespaced block id. */
+    /**
+     * Place a block temporarily. `blockKey` is a vanilla / namespaced block id.
+     * Only air / liquid / plant cells are replaced. The block reverts after
+     * [revertAfterTicks] (`0` = the runtime default of 200 ticks; there are no
+     * permanent edits). Skipped outside a match arena unless [outsideArena].
+     */
     public data class SetBlock(
         override val targets: Targeter,
         val blockKey: String,
         val revertAfterTicks: IntValue = IntValue.Literal(0),
+        val outsideArena: BoolValue = BoolValue.Literal(false),
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
@@ -272,21 +278,37 @@ public sealed class Mechanic {
         init { require(blockKey.isNotBlank()) { "Mechanic.SetBlock.blockKey must not be blank" } }
     }
 
-    /** Remove a block (set to air). */
+    /**
+     * Remove a block (set to air) temporarily: it is restored after
+     * [revertAfterTicks] (`0` = the runtime default of 200 ticks). Never
+     * touches indestructible blocks (bedrock, barriers, ...). Skipped outside a
+     * match arena unless [outsideArena].
+     */
     public data class RemoveBlock(
         override val targets: Targeter,
+        val revertAfterTicks: IntValue = IntValue.Literal(0),
+        val outsideArena: BoolValue = BoolValue.Literal(false),
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
     ) : Mechanic()
 
-    /** Cosmetic / damaging explosion. `breakBlocks=false` keeps it visual. */
+    /**
+     * Explosion at each target location. [power] is the visual strength and,
+     * unless [radius] is given, the blast radius in blocks. [components] is the
+     * damage dealt at the centre (linear falloff to the edge) through the
+     * Astera damage pipeline; empty = purely visual. `breakBlocks=false` (the
+     * default) never touches terrain; `true` only breaks blocks inside a match
+     * arena, through the block-durability system.
+     */
     public data class Explode(
         override val targets: Targeter,
         val power: NumericValue,
         val breakBlocks: BoolValue = BoolValue.Literal(false),
         val incendiary: BoolValue = BoolValue.Literal(false),
+        val radius: NumericValue? = null,
+        val components: List<DamageComponent> = emptyList(),
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),

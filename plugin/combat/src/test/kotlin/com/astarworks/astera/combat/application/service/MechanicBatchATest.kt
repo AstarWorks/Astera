@@ -425,6 +425,8 @@ class MechanicBatchATest {
         override fun thaw(target: PlayerId) {
             frozen[target] = 0
         }
+
+        override fun setGlowing(target: PlayerId, glowing: Boolean) = Unit
     }
 
     private class RecordingFeedback : IPlayerFeedbackGateway {
@@ -445,5 +447,7 @@ class MechanicBatchATest {
         ) {
             titles += listOf(target, title, subtitle, fadeInTicks, stayTicks, fadeOutTicks)
         }
+
+        override fun cameraKick(target: PlayerId, intensity: Double) = Unit
     }
 }

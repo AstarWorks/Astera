@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import net.kyori.adventure.util.Ticks
 import org.bukkit.Server
+import java.util.concurrent.ThreadLocalRandom
 
 /**
  * Paper concrete of [IPlayerFeedbackGateway] (WP4): Adventure action bar and
@@ -41,5 +42,21 @@ public class PaperPlayerFeedbackGateway(
                 ),
             ),
         )
+    }
+
+    override fun cameraKick(target: PlayerId, intensity: Double) {
+        // Approximation of a screen shake: a small random view nudge per call.
+        val player = server.getPlayer(target.uuid) ?: return
+        val rng = ThreadLocalRandom.current()
+        val spread = intensity.coerceIn(0.0, 1.0) * MAX_JITTER_DEGREES
+        val loc = player.location
+        val yaw = loc.yaw + ((rng.nextDouble() * 2.0 - 1.0) * spread).toFloat()
+        val pitch = (loc.pitch + ((rng.nextDouble() * 2.0 - 1.0) * spread).toFloat()).coerceIn(-90f, 90f)
+        player.setRotation(yaw, pitch)
+    }
+
+    private companion object {
+        /** View jitter (degrees, per axis) at full intensity. */
+        const val MAX_JITTER_DEGREES: Double = 4.0
     }
 }

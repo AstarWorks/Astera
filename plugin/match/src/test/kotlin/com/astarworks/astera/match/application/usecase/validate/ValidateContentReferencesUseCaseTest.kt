@@ -87,7 +87,7 @@ class ValidateContentReferencesUseCaseTest {
         val id = SkillId("healer")
         val phases = PhaseMechanics.Buff(
             cast = listOf(
-                Mechanic.Heal(Targeter.Caster, NumericValue.Literal(5.0)),
+                Mechanic.Resurrect(Targeter.Caster, NumericValue.Literal(0.5)),
                 Mechanic.PlaySound(Targeter.Caster, SoundId("entity.blaze.shoot"), volume = NumericValue.Cel("2.0")),
             ),
         )
@@ -101,7 +101,7 @@ class ValidateContentReferencesUseCaseTest {
         assertThat(report.ok).isFalse
         val issues = report.issues.map { it as ValidationIssue.UnsupportedContent }
         assertThat(issues).allMatch { it.owner == "skill healer" }
-        assertThat(issues.map { it.problem }).anyMatch { "Heal" in it }.anyMatch { "CEL" in it }
+        assertThat(issues.map { it.problem }).anyMatch { "Resurrect" in it }.anyMatch { "CEL" in it }
     }
 
     @Test
@@ -111,7 +111,7 @@ class ValidateContentReferencesUseCaseTest {
             trigger = SkillTrigger.LEFT_CLICK,
             skillId = id,
             phaseOverrides = PhaseOverrides(
-                hitEntityAppend = listOf(Mechanic.Explode(Targeter.Target, NumericValue.Literal(2.0))),
+                hitEntityAppend = listOf(Mechanic.Resurrect(Targeter.Target, NumericValue.Literal(0.5))),
             ),
         )
         val useCase = ValidateContentReferencesUseCase(
@@ -123,7 +123,7 @@ class ValidateContentReferencesUseCaseTest {
 
         val issue = report.issues.single() as ValidationIssue.UnsupportedContent
         assertThat(issue.owner).isEqualTo("item wand binding fire-blast")
-        assertThat(issue.problem).contains("Explode")
+        assertThat(issue.problem).contains("Resurrect")
     }
 
     @Test

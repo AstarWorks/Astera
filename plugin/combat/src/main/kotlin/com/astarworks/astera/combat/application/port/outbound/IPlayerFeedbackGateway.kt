@@ -19,4 +19,11 @@ public interface IPlayerFeedbackGateway {
         stayTicks: Int,
         fadeOutTicks: Int,
     )
+
+    /**
+     * One camera jolt for `CameraShake` (WP5); [intensity] in 0..1. The
+     * mechanic repeats it every couple of ticks for the shake's duration, so
+     * the host only nudges the view once per call.
+     */
+    public fun cameraKick(target: PlayerId, intensity: Double)
 }

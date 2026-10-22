@@ -31,4 +31,7 @@ public interface IEntityEffectsGateway {
 
     /** Ends a [freeze] early. */
     public fun thaw(target: PlayerId)
+
+    /** Turns the outline glow (visible through walls) on or off (WP5: Glow). */
+    public fun setGlowing(target: PlayerId, glowing: Boolean)
 }

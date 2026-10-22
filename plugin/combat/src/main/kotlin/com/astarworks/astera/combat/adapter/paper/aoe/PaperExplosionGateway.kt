@@ -238,8 +238,9 @@ public class PaperExplosionGateway(
         val baseDamage = spec.damageProfile.base
         if (baseDamage > 0.0 && spec.radius > 0.0) {
             for (target in candidates) {
-                val player = server.getPlayer(target.uuid) ?: continue
-                val loc = player.location
+                // Players and mobs alike (mobs travel as PlayerId(entityUuid), WP3).
+                val victim = server.getEntity(target.uuid) ?: continue
+                val loc = victim.location
                 val dx = loc.x - center.x
                 val dy = loc.y - center.y
                 val dz = loc.z - center.z

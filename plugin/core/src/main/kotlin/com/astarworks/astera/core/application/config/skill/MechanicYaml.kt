@@ -410,6 +410,7 @@ public sealed class MechanicYaml {
         public val targets: TargeterYaml,
         @SerialName("block_key") public val blockKey: String,
         @SerialName("revert_after_ticks") public val revertAfterTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("outside_arena") public val outsideArena: BoolValueYaml = BoolValueYaml.Literal(false),
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -419,6 +420,7 @@ public sealed class MechanicYaml {
             targets = targets.toDomain(),
             blockKey = blockKey,
             revertAfterTicks = revertAfterTicks.toDomain(),
+            outsideArena = outsideArena.toDomain(),
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
@@ -430,6 +432,8 @@ public sealed class MechanicYaml {
     @SerialName("remove_block")
     public data class RemoveBlock(
         public val targets: TargeterYaml,
+        @SerialName("revert_after_ticks") public val revertAfterTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("outside_arena") public val outsideArena: BoolValueYaml = BoolValueYaml.Literal(false),
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -437,6 +441,8 @@ public sealed class MechanicYaml {
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.RemoveBlock(
             targets = targets.toDomain(),
+            revertAfterTicks = revertAfterTicks.toDomain(),
+            outsideArena = outsideArena.toDomain(),
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
@@ -451,6 +457,8 @@ public sealed class MechanicYaml {
         public val power: NumericValueYaml,
         @SerialName("break_blocks") public val breakBlocks: BoolValueYaml = BoolValueYaml.Literal(false),
         public val incendiary: BoolValueYaml = BoolValueYaml.Literal(false),
+        public val radius: NumericValueYaml? = null,
+        public val components: List<DamageComponentYaml> = emptyList(),
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -461,6 +469,8 @@ public sealed class MechanicYaml {
             power = power.toDomain(),
             breakBlocks = breakBlocks.toDomain(),
             incendiary = incendiary.toDomain(),
+            radius = radius?.toDomain(),
+            components = components.map { it.toDomain() },
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),

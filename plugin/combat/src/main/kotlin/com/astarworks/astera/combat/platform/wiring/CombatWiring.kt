@@ -31,7 +31,9 @@ import com.astarworks.astera.combat.application.service.EmptyNearbyTargetQuery
 import com.astarworks.astera.combat.application.service.InMemoryDamageHistoryService
 import com.astarworks.astera.combat.application.service.JumpCountTracker
 import com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer
+import com.astarworks.astera.combat.application.service.ArenaBlockEditGuard
 import com.astarworks.astera.combat.application.service.MechanicDispatcher
+import com.astarworks.astera.combat.application.service.SummonRegistry
 import com.astarworks.astera.combat.application.service.NoOpKnockbackGateway
 import com.astarworks.astera.combat.application.service.StubArmorEquipmentProvider
 import com.astarworks.astera.combat.application.service.StubCelEvaluator
@@ -455,6 +457,8 @@ public object CombatWiring {
                 services.get<com.astarworks.astera.core.application.port.outbound.IParticleRegistry>()
             val soundRegistry =
                 services.get<com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry>()
+            val summonRegistry = SummonRegistry { services.get<IMatchTeamLookup>() }
+            registrations += services.register<SummonRegistry>(summonRegistry)
             val mechanicDispatcher = MechanicDispatcher(
                 applyDamage = applyDamage,
                 applyStatus = applyStatus,
@@ -484,8 +488,21 @@ public object CombatWiring {
                 attributeStore = services.get<IPlayerAttributeContainerStore>(),
                 playerHealth = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>() },
                 entityHealth = { services.get<IEntityDamageGateway>() },
+                // WP5 mechanics batch B. Explosion / lightning resolve lazily: the Paper
+                // overlays register at priority 100 and must win over the InMemory defaults.
+                explosionGateway = { services.get<IExplosionGateway>() },
+                lightningGateway = { services.get<ILightningGateway>() },
+                blockEditGuard = ports.blockEditGuard?.invoke(services) ?: ArenaBlockEditGuard(
+                    regionIndex = { services.get<com.astarworks.astera.core.application.port.outbound.IStageRegionIndex>() },
+                    teamLookup = { services.get<IMatchTeamLookup>() },
+                ),
+                displayGateway = ports.displayEntityGateway?.invoke(services),
+                summonGateway = ports.summonGateway?.invoke(services),
+                summonRegistry = summonRegistry,
             )
             registrations += services.register<MechanicDispatcher>(mechanicDispatcher)
+            // Temporary blocks, displays and summons must not outlive the plugin.
+            shutdownHooks += { mechanicDispatcher.shutdown() }
 
             // Shared by every host: Paper's ProjectileHitListener and the
             // headless simulator's projectile stepper both resolve impacts here.

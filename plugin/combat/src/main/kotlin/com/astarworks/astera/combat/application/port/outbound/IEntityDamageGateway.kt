@@ -36,4 +36,7 @@ public interface IEntityDamageGateway {
 
     /** Maximum hit points of a mob target, or `null` when unknown. */
     public fun maxHitPoints(target: PlayerId): Double? = null
+
+    /** Restores up to [amount] hit points (clamped to the maximum) to a mob target (WP5: Heal). */
+    public fun heal(target: PlayerId, amount: Double)
 }

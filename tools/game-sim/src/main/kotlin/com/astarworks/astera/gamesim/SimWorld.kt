@@ -43,6 +43,9 @@ public class SimEntity(
     /** Remaining burn / frost time written by Ignite / Freeze (the sim does not count it down). */
     public var fireTicks: Int = 0
     public var frozenTicks: Int = 0
+
+    /** Outline glow written by the Glow mechanic. */
+    public var glowing: Boolean = false
     public val eyePosition: Vec3 get() = position + Vec3(0.0, EYE_HEIGHT, 0.0)
 
     /** Sets [direction] from a horizontal heading: yaw 0 = +z, 90 = -x (Minecraft convention), pitch up is positive. */
@@ -75,6 +78,9 @@ public class SimWorld(
     }
 
     public fun find(id: PlayerId): SimEntity? = byId[id]
+
+    /** Removes an entity (expired summon, ...); `true` when it existed. */
+    public fun remove(id: PlayerId): Boolean = byId.remove(id) != null
 
     public fun require(id: PlayerId): SimEntity = byId[id] ?: error("unknown sim entity $id")
 
