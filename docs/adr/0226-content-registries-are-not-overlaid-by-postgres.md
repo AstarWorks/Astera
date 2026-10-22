@@ -27,7 +27,7 @@ Live bots (ADR-0221) found the queue -> match loop dead on the real stack:
 
 - Stages are content (`content/stages/*.yaml`, `StageContents`, reload via `/astera reload stages`).
   Persistence no longer overlays `IStageRegistry`; `PostgresStageRegistry`, `StagesTable`, `StageRegionsJson`
-  are deleted and migration V65 drops `matches_stage_id_fkey` and the `stages` table. Postgres holds runtime
+  are deleted and migration V66 drops `matches_stage_id_fkey` and the `stages` table. Postgres holds runtime
   state only. Rule: a port whose data is authored in `content/` is never overlaid by a Postgres table.
 - Audit of the other Postgres overlays: achievements (catalog in memory via `registerAll`, only unlocks stored),
   permission roles (seeded from `DefaultRoles` by UPSERT at construction), shop stock / seasons / tournaments /
