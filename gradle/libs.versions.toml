@@ -25,6 +25,9 @@ kotlinx-coroutines = "1.11.0"
 kotlinx-collections-immutable = "0.4.0" # Pure-Kotlin persistent collections; used in domain (PersistentMap in GuiSpec etc.)
 kotlinx-serialization = "1.9.0" # Pinned to match kaml 0.104 and ktoml 0.7 transitive core (avoid duplicate-class risk)
 
+# Offline HUD MiniMessage parsing (same API as the Paper HUD edge).
+adventure = "4.26.1"
+
 # Logging
 slf4j = "2.0.18"                # 2.1.x still alpha — stay on stable 2.0 line
 logback = "1.5.32"
@@ -101,6 +104,8 @@ koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref =
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 ktoml-core = { module = "com.akuleshov7:ktoml-core", version.ref = "ktoml" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
+adventure-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
 
 # Logging
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }

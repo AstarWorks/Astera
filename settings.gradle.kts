@@ -75,6 +75,7 @@ include(
     // Headless game simulator: boots the production wiring with simulator
     // ports, runs scenarios, exports JSON traces (ADR-0174). Not shipped.
     ":tools:game-sim",
+    ":tools:hud-preview", // Offline HUD frames from structured sim traces (ADR-0235).
     // Static three.js viewer for game-sim traces + headless PNG/GIF skill frames (ADR-0225). Not shipped, not in `check`.
     ":tools:skill-viewer",
     // Renders the procedural sky-island lobby plan to a PNG preview (ADR-0179). Not shipped.
