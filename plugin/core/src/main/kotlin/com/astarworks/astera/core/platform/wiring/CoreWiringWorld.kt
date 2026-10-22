@@ -51,6 +51,21 @@ internal fun CoreWiringState.wireHudAndWorld() {
     // (strictly behind its own packetEventsInstalled gate) from the message renderer.
     ports.scoreboardManager?.let { services.register<IScoreboardManager>(it(services), priority = 100) }
     ports.tabList?.let { services.register<ITabList>(it(services), priority = 100) }
+    // ADR-0206: per-viewer name styling (team colours, HP under the name).
+    services.register<com.astarworks.astera.core.application.port.outbound.IPlayerLabelGateway>(
+        com.astarworks.astera.core.application.service.InMemoryPlayerLabelGateway(),
+        priority = 0,
+    )
+    services.register<com.astarworks.astera.core.application.port.outbound.IDamageIndicatorGateway>(
+        com.astarworks.astera.core.application.service.InMemoryDamageIndicatorGateway(),
+        priority = 0,
+    )
+    ports.damageIndicatorGateway?.let {
+        services.register<com.astarworks.astera.core.application.port.outbound.IDamageIndicatorGateway>(it(services), priority = 100)
+    }
+    ports.playerLabelGateway?.let {
+        services.register<com.astarworks.astera.core.application.port.outbound.IPlayerLabelGateway>(it(services), priority = 100)
+    }
 
     // ---- World geometry ports (Wave 5d, ADR-0033) --------------------
     // BlockDurabilityRule loaded from content/balance/block-durability.yaml

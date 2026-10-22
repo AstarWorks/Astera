@@ -250,6 +250,7 @@ internal object MatchGameplayWiring {
             messages = msgRenderer,
             players = playerGateway,
             items = services.get<IItemRegistry>(),
+            skills = services.get<com.astarworks.astera.combat.application.port.outbound.ISkillRegistry>(),
             spectator = spectatorPort,
             cycler = cycler,
             eliminatedTeams = eliminatedTeams,
@@ -333,9 +334,9 @@ internal object MatchGameplayWiring {
         // ── Wave 5complete (ADR-0117 §Axis 4 + Axis 5) ──────────────────
         //
         //   MatchHudWiring (sidebar services)    — see ADR-0177
-        //   KillfeedOnPlayerKilledListener       — surfaces kill ticks via
-        //                                          HUD (victim actionbar, killer
-        //                                          subtitle, broadcast actionbar)
+        //   KillfeedOnPlayerKilledListener       — match chat kill feed (ADR-0206) +
+        //                                          killer subtitle; victim screen is
+        //                                          DeathRespawnCoordinator
         //   NormaVictoryConditionEvaluatorListener — auto-fires
         //                                          ScoreThresholdReached when
         //                                          VictoryConditionEvaluator finds
@@ -353,7 +354,14 @@ internal object MatchGameplayWiring {
         MatchHudWiring.install(env, matchmaker, hudGateway)
 
         val killfeedListener = com.astarworks.astera.match.application.eventbus.listeners.killfeed
-            .KillfeedOnPlayerKilledListener(matches = matches, hudGateway = hudGateway)
+            .KillfeedOnPlayerKilledListener(
+                matches = matches,
+                hudGateway = hudGateway,
+                messages = msgRenderer,
+                players = playerGateway,
+                items = services.get<IItemRegistry>(),
+                skills = services.get<com.astarworks.astera.combat.application.port.outbound.ISkillRegistry>(),
+            )
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,
         ) { killfeedListener.handle(it) }

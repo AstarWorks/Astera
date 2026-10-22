@@ -64,11 +64,13 @@ When the user says `Wave 5b を実装して` (or similar), read these in this or
   ADR, run `./gradlew check`, update `docs/RTM-PARITY-TRACKER.md` (use
   `rtm-sync` subagent), single commit.
 
-## Single-commit-per-wave + user-pushes
+## Single-commit-per-wave + orchestrator pushes
 
 - One commit per wave (unless the handoff doc says split — e.g., Wave 6 may
   split 6a + 6b).
-- **Claude never pushes.** The user reviews and pushes manually.
+- **Claude pushes `main` itself** after `./gradlew check` is green (founder
+  authorization 2026-10-22; no per-push approval). Never force-push, never
+  rewrite pushed history. Phase B workers / subagents still do not push.
 - **Konsist must stay green.** Run `./gradlew :tools:architecture-test:test`
   (or `make check`) before commit. New Konsist rules may be added; existing
   rules must not be relaxed.

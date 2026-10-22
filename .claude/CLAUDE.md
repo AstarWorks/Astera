@@ -51,8 +51,9 @@ spawning any worker:
 Then run Phase A (orchestrator solo: dep prep, mkdir, TaskCreate) → spawn
 Phase B workers in parallel per the handoff's worker table → Phase C
 (orchestrator solo: wire `platform/Astera*Plugin.kt`, write ADR, run
-`./gradlew check`, sync RTM, single commit). **Claude never pushes** — the
-user reviews and pushes manually. Full protocol in `.claude/rules/wave-execution.md`.
+`./gradlew check`, sync RTM, single commit). **Claude pushes `main` itself**
+(founder authorization 2026-10-22, no per-push approval) once `./gradlew check`
+is green; never force-push. Full protocol in `.claude/rules/wave-execution.md`.
 
 ## Non-negotiable rules (CI-enforced via Konsist)
 
@@ -152,7 +153,7 @@ session's entry point, not an archive.)
 
 ## Where we left off
 - main HEAD: `<short-sha>` "<commit subject>"
-- Unpushed: N commits (user pushes manually)
+- Unpushed: N commits
 - Build: ./gradlew check <green | failing on X>
 - Konsist: N rules <green | failing>
 
