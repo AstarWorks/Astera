@@ -1,0 +1,38 @@
+# WP1: gun right-click. Fast, flat, physical bullet.
+
+id: pistol-shot
+
+name:
+  ja: "ピストル射撃"
+  en: "Pistol Shot"
+description:
+  ja: "高速で直進する弾を撃つ。"
+  en: "Fires a fast, flat-flying bullet."
+
+archetype: projectile
+cooldown_ticks: 8
+tags: [ ranged, gun ]
+
+params:
+  type: projectile
+  launch_speed: 3.2
+  max_lifetime_ticks: 30
+  damage:
+    - base: { type: literal, value: 6.0 }
+      attribute: physical
+
+phases:
+  type: projectile
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.firework_rocket.blast
+  hit_entity:
+    - type: damage
+      targets: { type: target }
+      components:
+        - base: { type: literal, value: 6.0 }
+          attribute: physical
+  hit_block: []
+  miss: []
+  expire: []

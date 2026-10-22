@@ -1,0 +1,29 @@
+# WP1: sword sneak + right-click. Short speed burst (a true propel/leap
+# dash arrives with WP4's movement mechanics).
+
+id: sword-dash
+
+name:
+  ja: "ダッシュ"
+  en: "Dash"
+description:
+  ja: "一瞬だけ素早く駆け出す。"
+  en: "A brief burst of speed."
+
+archetype: buff
+cooldown_ticks: 100
+tags: [ buff, movement, sword ]
+
+params:
+  type: buff
+  status_effect_id: dash
+  duration_ticks: 20
+
+phases:
+  type: buff
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.knockback
+  expire: []
+  removed: []

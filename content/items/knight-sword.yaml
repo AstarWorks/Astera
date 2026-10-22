@@ -1,0 +1,36 @@
+# WP1 sword roster: left-click = slash (melee), sneak + right-click = dash.
+
+id: knight-sword
+
+material: IRON_SWORD
+
+name:
+  ja: "<gold>騎士の剣</gold>"
+  en: "<gold>Knight's Sword</gold>"
+lore:
+  ja:
+    - "<gray>左クリック: 斬撃</gray>"
+    - "<gray>スニーク + 右クリック: ダッシュ</gray>"
+    - "<dark_gray>rarity: common / level: 1</dark_gray>"
+  en:
+    - "<gray>Left-click: slash</gray>"
+    - "<gray>Sneak + right-click: dash</gray>"
+    - "<dark_gray>rarity: common / level: 1</dark_gray>"
+
+rarity: common
+level_requirement: 1
+
+attributes:
+  attack_damage: 7.0
+  attack_speed: 1.6
+
+equip_slot: mainhand
+
+skills:
+  - trigger: left_click
+    skill_id: sword-slash
+  - trigger: sneak_right
+    skill_id: sword-dash
+
+pdc_tags:
+  astera:rarity: common

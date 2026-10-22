@@ -1,0 +1,16 @@
+# WP1: short movement slow while a gun reloads (applied by pistol-reload,
+# bound to the drop key). WP2 replaces the placeholder with real ammo pools.
+
+id: reloading
+
+display_name_key: astera.status.reloading.name
+
+kind: speed_down
+default_duration_ticks: 30   # 1.5s @ 20 TPS
+
+stackable: false
+max_stacks: 1
+
+params:
+  type: speed
+  multiplier: 0.8

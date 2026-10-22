@@ -12,11 +12,11 @@ name:
 lore:
   ja:
     - "<gray>Phase 1 のテスト用武器</gray>"
-    - "<gray>左クリックで攻撃</gray>"
+    - "<gray>スニーク + 右クリックでバフ</gray>"
     - "<dark_gray>rarity: common / level: 1</dark_gray>"
   en:
     - "<gray>Phase 1 demo weapon</gray>"
-    - "<gray>Left-click to attack</gray>"
+    - "<gray>Sneak + right-click to buff</gray>"
     - "<dark_gray>rarity: common / level: 1</dark_gray>"
 
 rarity: common
@@ -29,7 +29,7 @@ attributes:
 equip_slot: mainhand
 
 skills:
-  - trigger: left_click
+  - trigger: sneak_right
     skill_id: example-charge
     # Wave _skills-2 (ADR-0077) demo: this binding appends an extra
     # particle burst to the buff's cast phase. The skill itself emits one

@@ -45,7 +45,7 @@ public class ItemsWiringResult(
     public val itemIdResolver: IPaperItemIdResolver,
     public val giveItem: GiveItemUseCase,
     public val handleTrigger: HandleItemTriggerUseCase,
-    /** Vendor-neutral click sink. Paper wraps it in `PaperClickEventBridge`; the simulator feeds `IMcEvent`s directly. */
+    /** Vendor-neutral click sink. Paper feeds it from `PaperItemInputListener`; the simulator feeds `IMcEvent`s directly. */
     public val triggerListener: ItemSkillTriggerListener,
 )
 
@@ -160,6 +160,7 @@ public object ItemsWiring {
         val triggerListener = ItemSkillTriggerListener(
             handleTrigger = handleTrigger,
             itemIdResolver = itemIdResolver,
+            nowTick = scheduler::currentTick,
         )
 
         // ── Wave 5flex (ADR-0102 surface #1) — Item rarity glow ─────────

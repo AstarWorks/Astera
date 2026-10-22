@@ -28,7 +28,7 @@ attributes:
 equip_slot: mainhand
 
 skills:
-  - trigger: left_click
+  - trigger: right_click
     skill_id: example-mana-skill
     # Wave _skills-2 (ADR-0077) demo: the wand cosmetically adds a magic
     # whoosh to the cast phase and an electric splash on hit_entity, so

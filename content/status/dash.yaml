@@ -1,0 +1,15 @@
+# WP1: burst of speed granted by sword-dash (sneak + right-click on a sword).
+
+id: dash
+
+display_name_key: astera.status.dash.name
+
+kind: speed_up
+default_duration_ticks: 20   # 1s @ 20 TPS
+
+stackable: false
+max_stacks: 1
+
+params:
+  type: speed
+  multiplier: 2.2

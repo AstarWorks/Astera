@@ -58,11 +58,11 @@ See `content/items/.../<item>.yaml`:
 
 ```yaml
 # excerpt from an item YAML
-bindings:
-  - trigger: right_click_air
-    skill: example-blast
-  - trigger: shift_right_click_air
-    skill: example-buff
+skills:
+  - trigger: right_click
+    skill_id: example-blast
+  - trigger: sneak_right
+    skill_id: example-buff
 ```
 
 The same skill can be bound to multiple items / triggers (or none at all,

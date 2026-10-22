@@ -1,0 +1,38 @@
+# WP1: staff sneak + right-click. Ice AoE around the caster that chills.
+
+id: frost-nova
+
+name:
+  ja: "フロストノヴァ"
+  en: "Frost Nova"
+description:
+  ja: "周囲の敵に氷属性ダメージを与え、動きを鈍らせる。"
+  en: "Blasts nearby enemies with ice and slows them."
+
+archetype: aoe
+cooldown_ticks: 160
+tags: [ magic, ice-family, aoe ]
+
+params:
+  type: aoe
+  radius: 5.0
+  falloff: linear
+  damage:
+    - base: { type: literal, value: 8.0 }
+      attribute: water
+
+phases:
+  type: aoe
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.glass.break
+    - type: spawn_particle
+      targets: { type: caster }
+      particle_id: example-burst
+  hit_entity:
+    - type: apply_status
+      targets: { type: target }
+      status_id: freeze
+      effect_duration_ticks: { type: literal, value: 60 }
+  expire: []
