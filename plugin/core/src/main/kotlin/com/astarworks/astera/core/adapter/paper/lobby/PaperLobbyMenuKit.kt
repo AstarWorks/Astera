@@ -353,9 +353,11 @@ internal class PaperLobbyMenuKit(
     /**
      * F (swap hand) while not holding a weapon opens the menu, sneak+F the second key entry (ADR-0232).
      * Weapons never bind F, so this does not collide with skill triggers; with a weapon in hand F stays vanilla.
+     * Sneak+F by an operator / `astera.admin.panel` holder is taken first by the admin hub (ADR-0233,
+     * NORMAL priority, cancels the event), so `ignoreCancelled` leaves it alone here.
      * Nothing is intercepted outside the lobby kit (matches keep vanilla F).
      */
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onSwapHands(e: PlayerSwapHandItemsEvent) {
         val player = e.player
         if (active(player)) {

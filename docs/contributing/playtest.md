@@ -122,7 +122,7 @@ item is the **Menu compass in slot 8**; slots 0-7 are for weapons. A join hint o
 | Input | Result |
 |---|---|
 | Right-click compass, or **F** with no weapon in hand | main menu (same as `/astera menu`) |
-| **Sneak+F** with no weapon in hand | vault / loadout |
+| **Sneak+F** with no weapon in hand | vault / loadout (operators and `astera.admin.panel` holders get the admin hub instead, ADR-0233) |
 | **Q** with the compass selected | queue |
 
 Open your **inventory (E)**: the 2x2 crafting grid shows Menu / Profile / Shop / Settings and the result slot

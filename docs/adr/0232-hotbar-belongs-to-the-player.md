@@ -31,6 +31,7 @@ Accepted. Tightens the hotbar policy of ADR-0211 (kit in slots 5..8) and the kit
 | Shift+F | 同上 | 保管庫 / ロードアウト (`lobby.customize.open`) |
 | Q (ドロップ) | コンパスを選択中 | キュー (`lobby.queue.show`) |
 
+  **管理者**: Shift+F は ADR-0233 の管理ハブが先に処理する (op / `astera.admin.panel` 保持者はハブ、それ以外は保管庫)。ロビーキット側は `ignoreCancelled` で重複しない。
   武器のバインドは `SkillTrigger` = LEFT/RIGHT_CLICK, SNEAK_LEFT/RIGHT, HOLD, DROP(Q), SHOOT で **F は未使用**。
   衝突は無いが、武器を持っている間の F は vanilla の手持ち交換のままにする (Astera アイテム = PDC `astera:item-id` を持つスタック)。
   Q は元々ロックされたキットのドロップ抑止だったものをキューのショートカットに転用 (武器の Q は武器自体を持っているので影響なし)。
