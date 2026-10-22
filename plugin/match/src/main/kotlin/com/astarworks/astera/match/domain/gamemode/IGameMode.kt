@@ -1,6 +1,7 @@
 package com.astarworks.astera.match.domain.gamemode
 
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.match.domain.mode.GameModeId
 
@@ -136,6 +137,15 @@ public interface IGameMode {
      * any owned schedulers, persists end-state, etc.
      */
     public fun onMatchEnded(context: GameModeContext)
+
+    /**
+     * What the match sidebar shows for [match] (WP14, ADR-0177): objective state
+     * per team, plus an optional mode-specific phase line. Pure read of the
+     * mode's own state; called at most once a second per match. The default is
+     * the plain team score.
+     */
+    public fun hudStatus(match: Match, nowTick: Long): MatchHudStatus =
+        MatchHudStatus(lines = MatchHudStatus.scoreLines(match))
 }
 
 /**

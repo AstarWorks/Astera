@@ -96,6 +96,7 @@ public class HudUpdateOnRespawnScheduledListener(
                 color = if (secondsLeft <= 1) HudColor.RED else HudColor.YELLOW,
             ),
             ttlTicks = TICK_TTL,
+            priority = 2,
         )
         when (val outcome = hudGateway.showFor(playerId, layout)) {
             is Result.Success -> Unit

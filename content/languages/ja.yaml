@@ -404,11 +404,15 @@ astera:
       abort: "<gray>マッチを即座に中止します (AdminEnded)。</gray>"
       cancel: "<gray>マッチをキャンセルします (勝者なし)。</gray>"
       restart: "<gray>現在のマッチを終了し、同じステージで新たに開始します。</gray>"
-    # Wave 5complete (ADR-0117 §Axis 4) — マッチごとのサイドバー表示。
-    sidebar:
-      title: "<gold><bold>マッチスコア</bold></gold>"
-      team-line: "<gray>チーム {team}: <white>{score}</white></gray>"
-      empty: "<gray>チームなし。</gray>"
+    # WP14 (ADR-0177): サイドバー / タブリスト用のチーム名と MiniMessage の色名。
+    "team.red": "赤"
+    "team.red.color": "red"
+    "team.blue": "青"
+    "team.blue.color": "blue"
+    "team.yellow": "黄"
+    "team.yellow.color": "yellow"
+    "team.green": "緑"
+    "team.green.color": "green"
     error:
       match-not-found: "<red>マッチが見つかりません。</red>"
       # Wave 5game-complete (ADR-0121 §F) — 最小プレイヤー数 guard.
@@ -549,9 +553,13 @@ astera:
     title:
       match_start: "<gold><bold>試合開始</bold></gold>"
       match_end: "<red><bold>試合終了</bold></red>"
-    # Wave 5match-hud (ADR-0118) — 9 listener wireup。
+    # WP14 (ADR-0177) — HUD チャンネルは 1 つにつき持ち主 1 つ (docs/adr/0177-*)。
+    #   アクションバー: 戦闘表示 (クールダウン + 状態異常)、通知が優先
+    #   ボスバー 1: 武器リソース   サイドバー: 試合 / ロビー
     cooldown:
-      summary: "<aqua>クールダウン中:</aqua> <white>{count} 件</white>"
+      summary: "<aqua>クールダウン:</aqua> <white>{count} 件 ({seconds}秒)</white>"
+    currency:
+      summary: "<gold>{delta} {currency}</gold> <gray>(所持 {balance})</gray>"
     resource:
       mana:
         label: "<aqua>マナ:</aqua> <white>{remaining}/{max}</white>"
@@ -559,18 +567,52 @@ astera:
         label: "<yellow>スタミナ:</yellow> <white>{remaining}/{max}</white>"
       ammo:
         label: "<white>弾薬:</white> <white>{remaining}/{max}</white>"
+        empty: "<red>弾切れ - リロード！</red> <white>{remaining}/{max}</white>"
+        reloading: "<yellow>リロード中...</yellow>"
+        reloaded: "<green>リロード完了</green> <white>{remaining}/{max}</white>"
     status:
-      title: "<gold>付与中エフェクト</gold>"
-      line: "<white>{effect} ({stacks})</white>"
-      none: "<gray>(エフェクトなし)</gray>"
-    phase:
-      waiting: "<gray>フェーズ: 待機中</gray>"
-      countdown: "<yellow>フェーズ: カウントダウン</yellow>"
-      active: "<green>フェーズ: 対戦中</green>"
-      sudden-death: "<red>フェーズ: サドンデス！</red>"
-      ended: "<dark_gray>フェーズ: 終了</dark_gray>"
-    match:
-      timer: "<white>残り時間: {time}</white>"
+      stacks: "<gray>x{stacks}</gray>"
+    sidebar:
+      spacer: " "
+      phase:
+        waiting: "<gray>プレイヤー待機中</gray>"
+        countdown: "<yellow>まもなく開始...</yellow>"
+        active: "<green>対戦中</green> <white>{time}</white>"
+        sudden-death: "<red>サドンデス</red> <white>{time}</white>"
+        ended: "<dark_gray>終了</dark_gray>"
+      nexus:
+        build: "<aqua>建築</aqua> <white>{time}</white>"
+        engage: "<yellow>交戦</yellow> <white>{time}</white>"
+        tier3: "<gold>第3層</gold> <white>{time}</white>"
+        sudden-death: "<red>サドンデス</red>"
+      score: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
+      battle-loyal:
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>キル</gray>"
+      annihilation:
+        team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
+        eliminated: "<dark_gray><st>{team}</st> 全滅</dark_gray>"
+      break-core:
+        intact: "<{color}>{team}</{color}> <green>コア健在</green>"
+        destroyed: "<dark_gray><st>{team}</st> コア破壊</dark_gray>"
+      carry-tnt:
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>納品</gray>"
+        carried: "<gray>TNT 所持:</gray> <{color}>{team}</{color}>"
+        loose: "<gray>TNT は誰でも取れる</gray>"
+      capture-wool:
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>ゾーン</gray>"
+        open: "<gray>未占領ゾーン:</gray> <white>{open}/{total}</white>"
+      steal-jewelry:
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>確保、</gray><white>{left}</white> <gray>残り</gray>"
+      you: "<gray>あなた:</gray> <{color}>{team}</{color}>"
+      stars: "<yellow>*</yellow> <white>{stars}</white> <gray>スター</gray>"
+    lobby:
+      title: "<gold><bold>Astera</bold></gold>"
+      online: "<gray>接続中:</gray> <white>{count}</white>"
+      queue:
+        idle: "<gray>キュー未参加</gray>"
+        mode: "<gray>キュー:</gray> <white>{mode}</white>"
+        position: "<gray>順番:</gray> <white>{position}/{size}</white>"
+        eta: "<gray>待ち時間:</gray> <white>約{eta}秒</white>"
     tablist:
       team-header: "<white>チーム {team}</white>"
       team-footer: "<gray>Astera PvP</gray>"
@@ -1106,10 +1148,6 @@ astera:
       legendary: "<gold>⭐⭐⭐⭐⭐ レジェンダリー</gold>"
     refinement:
       tier: "<light_purple>厳選 tier 適用中</light_purple>"
-  population:
-    online:
-      title: "<gold>Astera</gold>"
-      line: "<gray>{count} 人が接続中</gray>"
   hotbar:
     bind:
       no-skills: "<red>バインドできるスキルがありません。</red>"

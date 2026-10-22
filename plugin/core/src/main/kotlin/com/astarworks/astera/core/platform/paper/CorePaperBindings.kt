@@ -150,6 +150,7 @@ internal class CorePaperBindings(
                     messageRenderer = services.getOrThrow<IMessageRenderer>(),
                     scheduler = scheduler,
                     bossBarManager = paperBossBarManager,
+                    scoreboardManager = services.getOrThrow<com.astarworks.astera.core.adapter.api.hud.IScoreboardManager>(),
                     eventBus = services.getOrThrow<IDomainEventBus>(),
                 )
             },

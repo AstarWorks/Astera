@@ -234,8 +234,7 @@ internal object MatchGameplayWiring {
 
         // ── Wave 5complete (ADR-0117 §Axis 4 + Axis 5) ──────────────────
         //
-        //   UpdateMatchSidebarListener           — pushes per-team scoreboard
-        //                                          on MatchStarted + EntityPickedUpItem
+        //   MatchHudWiring (sidebar services)    — see ADR-0177
         //   KillfeedOnPlayerKilledListener       — surfaces kill ticks via
         //                                          HUD (victim actionbar, killer
         //                                          subtitle, broadcast actionbar)
@@ -250,14 +249,10 @@ internal object MatchGameplayWiring {
         // by default; Wave 6b PaperHudGateway overlays at priority 100).
         val hudGateway: com.astarworks.astera.core.application.port.outbound.IHudGateway =
             services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
-        val sidebarListener = com.astarworks.astera.match.application.eventbus.listeners.hud
-            .UpdateMatchSidebarListener(matches = matches, hudGateway = hudGateway)
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.core.domain.event.MatchStarted::class,
-        ) { sidebarListener.onMatchStarted(it) }
-        subscriptions += eventBus.subscribe(
-            com.astarworks.astera.match.domain.event.EntityPickedUpItem::class,
-        ) { sidebarListener.onItemPickedUp(it) }
+        // WP14 (ADR-0177): one owner per HUD channel. The match sidebar and the
+        // lobby sidebar are the SIDEBAR channel's only producers; the match
+        // service renders whatever the match's IGameMode reports.
+        MatchHudWiring.install(env, matchmaker, hudGateway)
 
         val killfeedListener = com.astarworks.astera.match.application.eventbus.listeners.killfeed
             .KillfeedOnPlayerKilledListener(matches = matches, hudGateway = hudGateway)
@@ -279,7 +274,7 @@ internal object MatchGameplayWiring {
         ) { normaVictoryListener.handle(it) }
 
         logger.info(
-            "Wave 5complete wired: UpdateMatchSidebar + KillfeedOnPlayerKilled + " +
+            "Wave 5complete wired: KillfeedOnPlayerKilled + " +
                 "NormaVictoryConditionEvaluator subscribed; " +
                 "/astera-match {abort,cancel,restart} sub-commands registered.",
         )

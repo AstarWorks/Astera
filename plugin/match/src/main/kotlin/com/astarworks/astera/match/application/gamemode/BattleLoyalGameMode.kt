@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.gamemode
 
+import com.astarworks.astera.match.domain.gamemode.HudLine
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.TeamId
@@ -31,6 +32,14 @@ public class BattleLoyalGameMode @JvmOverloads constructor(
         val points = scored.score.valueFor(killerTeam)
         tellMatch(match, KEY_SCORED, mapOf("team" to killerTeam.value, "score" to points.toString(), "goal" to threshold().toString()))
         if (points >= threshold()) win(run, killerTeam)
+    }
+
+    override fun hudLines(run: SiegeRun, match: Match): List<HudLine> = match.teams.map { team ->
+        HudLine(
+            key = MessageKey("astera.hud.sidebar.battle-loyal.team"),
+            placeholders = mapOf("score" to match.score.valueFor(team.id).toString(), "goal" to threshold().toString()),
+            team = team.id,
+        )
     }
 
     public companion object {

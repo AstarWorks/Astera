@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.gamemode
 
+import com.astarworks.astera.match.domain.gamemode.HudLine
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.Match
@@ -53,6 +54,13 @@ public class BreakCoreGameMode @JvmOverloads constructor(
         tellMatch(match, KEY_DESTROYED, mapOf("team" to owner.value))
         val alive = match.teams.map { it.id }.filter { it !in run.eliminated }
         if (alive.size <= 1) win(run, alive.singleOrNull())
+    }
+
+    override fun hudLines(run: Run, match: Match): List<HudLine> = match.teams.map { team ->
+        HudLine(
+            key = MessageKey(if (team.id in run.eliminated) "astera.hud.sidebar.break-core.destroyed" else "astera.hud.sidebar.break-core.intact"),
+            team = team.id,
+        )
     }
 
     override fun finish(run: Run) {

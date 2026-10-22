@@ -402,11 +402,15 @@ astera:
       abort: "<gray>Abort a match immediately (AdminEnded).</gray>"
       cancel: "<gray>Cancel a match (no winner recorded).</gray>"
       restart: "<gray>End the current match and start a fresh one on the same stage.</gray>"
-    # Wave 5complete (ADR-0117 §Axis 4) — per-match sidebar lines.
-    sidebar:
-      title: "<gold><bold>Match Score</bold></gold>"
-      team-line: "<gray>Team {team}: <white>{score}</white></gray>"
-      empty: "<gray>No teams.</gray>"
+    # WP14 (ADR-0177): team names + MiniMessage colour names for the sidebar / tab list.
+    "team.red": "Red"
+    "team.red.color": "red"
+    "team.blue": "Blue"
+    "team.blue.color": "blue"
+    "team.yellow": "Yellow"
+    "team.yellow.color": "yellow"
+    "team.green": "Green"
+    "team.green.color": "green"
     error:
       match-not-found: "<red>Match not found.</red>"
       # Wave 5game-complete (ADR-0121 §F) — min-player guard rejection.
@@ -547,9 +551,13 @@ astera:
     title:
       match_start: "<gold><bold>MATCH START</bold></gold>"
       match_end: "<red><bold>MATCH END</bold></red>"
-    # Wave 5match-hud (ADR-0118) — 9 listener wireup.
+    # WP14 (ADR-0177) — one owner per HUD channel (see docs/adr/0177-*).
+    #   action bar : combat readout (cooldowns + status effects), toasts on top
+    #   boss bar 1 : weapon resource   sidebar : match / lobby
     cooldown:
-      summary: "<aqua>Cooldowns:</aqua> <white>{count} active</white>"
+      summary: "<aqua>Cooldown:</aqua> <white>{count} ({seconds}s)</white>"
+    currency:
+      summary: "<gold>{delta} {currency}</gold> <gray>({balance})</gray>"
     resource:
       mana:
         label: "<aqua>Mana:</aqua> <white>{remaining}/{max}</white>"
@@ -557,18 +565,52 @@ astera:
         label: "<yellow>Stamina:</yellow> <white>{remaining}/{max}</white>"
       ammo:
         label: "<white>Ammo:</white> <white>{remaining}/{max}</white>"
+        empty: "<red>Empty - reload!</red> <white>{remaining}/{max}</white>"
+        reloading: "<yellow>Reloading...</yellow>"
+        reloaded: "<green>Reloaded</green> <white>{remaining}/{max}</white>"
     status:
-      title: "<gold>Active Effects</gold>"
-      line: "<white>{effect} ({stacks})</white>"
-      none: "<gray>(no active effects)</gray>"
-    phase:
-      waiting: "<gray>Phase: Waiting</gray>"
-      countdown: "<yellow>Phase: Countdown</yellow>"
-      active: "<green>Phase: Active</green>"
-      sudden-death: "<red>Phase: Sudden Death!</red>"
-      ended: "<dark_gray>Phase: Ended</dark_gray>"
-    match:
-      timer: "<white>Time remaining: {time}</white>"
+      stacks: "<gray>x{stacks}</gray>"
+    sidebar:
+      spacer: " "
+      phase:
+        waiting: "<gray>Waiting for players</gray>"
+        countdown: "<yellow>Starting...</yellow>"
+        active: "<green>Live</green> <white>{time}</white>"
+        sudden-death: "<red>Sudden death</red> <white>{time}</white>"
+        ended: "<dark_gray>Ended</dark_gray>"
+      nexus:
+        build: "<aqua>Build</aqua> <white>{time}</white>"
+        engage: "<yellow>Engage</yellow> <white>{time}</white>"
+        tier3: "<gold>Tier 3</gold> <white>{time}</white>"
+        sudden-death: "<red>Sudden death</red>"
+      score: "<{color}>{team}</{color}><gray>:</gray> <white>{score}</white>"
+      battle-loyal:
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>kills</gray>"
+      annihilation:
+        team: "<{color}>{team}</{color}> <white>{tiers}</white> <gray>{hp} HP</gray>"
+        eliminated: "<dark_gray><st>{team}</st> out</dark_gray>"
+      break-core:
+        intact: "<{color}>{team}</{color}> <green>core intact</green>"
+        destroyed: "<dark_gray><st>{team}</st> core down</dark_gray>"
+      carry-tnt:
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>delivered</gray>"
+        carried: "<gray>TNT carried by</gray> <{color}>{team}</{color}>"
+        loose: "<gray>TNT is up for grabs</gray>"
+      capture-wool:
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>zones</gray>"
+        open: "<gray>Open zones:</gray> <white>{open}/{total}</white>"
+      steal-jewelry:
+        team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>banked,</gray> <white>{left}</white> <gray>left</gray>"
+      you: "<gray>You:</gray> <{color}>{team}</{color}>"
+      stars: "<yellow>*</yellow> <white>{stars}</white> <gray>Stars</gray>"
+    lobby:
+      title: "<gold><bold>Astera</bold></gold>"
+      online: "<gray>Online:</gray> <white>{count}</white>"
+      queue:
+        idle: "<gray>Not in queue</gray>"
+        mode: "<gray>Queue:</gray> <white>{mode}</white>"
+        position: "<gray>Position:</gray> <white>{position}/{size}</white>"
+        eta: "<gray>Wait:</gray> <white>~{eta}s</white>"
     tablist:
       team-header: "<white>Team {team}</white>"
       team-footer: "<gray>Astera PvP</gray>"
@@ -1107,7 +1149,6 @@ astera:
   # `astera.gui.binding.friend.*` — Friend tile dynamic binding (§A).
   # `astera.gui.achievement-viewer.*` — Achievement viewer GUI (§B).
   # `astera.tooltip.rarity.*` / `astera.tooltip.refinement.*` — Tooltip providers (§D).
-  # `astera.population.online.*` — Server population HUD sidebar (§E).
   # `astera.hotbar.bind.*` — Quickbar selector modal (§C).
   "gui.binding.friend.online": "<green>Friend (online)</green>"
   "gui.binding.friend.offline": "<gray>Friend (offline)</gray>"
@@ -1123,10 +1164,6 @@ astera:
       legendary: "<gold>⭐⭐⭐⭐⭐ Legendary</gold>"
     refinement:
       tier: "<light_purple>Refinement tier active</light_purple>"
-  population:
-    online:
-      title: "<gold>Astera</gold>"
-      line: "<gray>{count} players online</gray>"
   hotbar:
     bind:
       no-skills: "<red>No skills available to bind.</red>"

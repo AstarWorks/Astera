@@ -170,6 +170,14 @@ public class CastSkillUseCase(
             val ticks = spec.reloadTicks.toLong()
             reloadingUntil[casterId] = now + ticks
             val weapon = reloadItem
+            eventBus.publish(
+                com.astarworks.astera.core.domain.event.ResourceReloadStarted(
+                    playerId = casterId,
+                    weapon = weapon,
+                    durationTicks = ticks,
+                    atTick = now,
+                ),
+            )
             scheduler.runLaterTicks(ticks) {
                 reloadingUntil.remove(casterId)
                 pool.reload(casterId, weapon)

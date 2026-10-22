@@ -106,24 +106,8 @@ internal fun CoreWiringState.wireCompletenessListeners() {
         com.astarworks.astera.core.domain.event.PlayerReturnedToLobby::class,
     ) { loadingProgress.onReturnedToLobby(it) }
 
-    // ── Wave M 5polish-quickwin (ADR-0130 §E) ────────────────────────
-    // Server-population sidebar HUD listeners. Decoupled from Wave 5w
-    // LobbyWaitingRoomHud (queue concern); these subscribers redraw the
-    // population count for every lobby player on join/quit. Lobby-state
-    // filtering happens inside the listener so in-match HUDs are not
-    // clobbered.
-    val populationJoinedListener = com.astarworks.astera.core.application.eventbus.listeners.hud
-        .UpdatePopulationHudOnPlayerJoinedListener(sessionRepo, hudGateway)
-    val populationQuitListener = com.astarworks.astera.core.application.eventbus.listeners.hud
-        .UpdatePopulationHudOnPlayerQuitListener(sessionRepo, hudGateway)
-    wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { event ->
-        populationJoinedListener.handle(event)
-    }
-    wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
-    ) { event ->
-        populationQuitListener.handle(event)
-    }
+    // Server-population / queue / wallet sidebar: owned by the match plugin's
+    // LobbySidebarService since WP14 (ADR-0177) — one producer per HUD channel.
 
     // Wave AC 5onboarding-flow (ADR-0139): rotating tip on every join.
     // Sibling to FirstTimeProfileCreated listeners (welcome dialog +

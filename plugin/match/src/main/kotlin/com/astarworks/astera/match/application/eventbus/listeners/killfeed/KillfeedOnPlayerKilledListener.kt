@@ -55,6 +55,7 @@ public class KillfeedOnPlayerKilledListener(
                     color = HudColor.RED,
                 ),
                 ttlTicks = ACTIONBAR_TTL_TICKS,
+                priority = 1,
             ),
             context = "victim",
         )
@@ -83,6 +84,7 @@ public class KillfeedOnPlayerKilledListener(
                 color = HudColor.YELLOW,
             ),
             ttlTicks = ACTIONBAR_TTL_TICKS,
+            priority = 1,
         )
         for (team in victimMatch.teams) {
             for (member in team.members) {

@@ -130,6 +130,7 @@ public class ReconnectCountdownHudListener(
         val layout = HudLayout.ActionBar(
             component = HudComponent.Text(messageKey = key),
             ttlTicks = ACTIONBAR_TTL,
+            priority = 2,
         )
         when (val outcome = hudGateway.showFor(playerId, layout)) {
             is Result.Success -> Unit
@@ -144,6 +145,7 @@ public class ReconnectCountdownHudListener(
         val layout = HudLayout.ActionBar(
             component = HudComponent.Text(messageKey = KEY_EXPIRED),
             ttlTicks = ACTIONBAR_TTL,
+            priority = 2,
         )
         when (val outcome = hudGateway.showFor(playerId, layout)) {
             is Result.Success -> Unit
