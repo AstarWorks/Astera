@@ -631,6 +631,11 @@ public object CombatWiring {
             val assistAttribution = AssistAttributionUseCase(damageHistory, eventBus)
             subscriptions += eventBus.subscribe(DamageDealt::class) { damageHistoryListener.handle(it) }
             subscriptions += eventBus.subscribe(PlayerKilled::class) { assistAttribution.handle(it) }
+            if (statusContainer != null) {
+                val clearStatuses = com.astarworks.astera.combat.application.eventbus.listeners.status
+                    .ClearStatusesOnPlayerKilledListener(statusContainer)
+                subscriptions += eventBus.subscribe(PlayerKilled::class) { clearStatuses.handle(it) }
+            }
 
             // Wave 5e: ApplyArmorModifiersUseCase + JumpCountTracker.
             // The use case is instantiated here for future Paper-side equip

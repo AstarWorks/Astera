@@ -48,7 +48,7 @@ internal class NoopWorldGatewayForEffects(
         log.debug("noop playSound({}, {}, key={})", world, at, sound.key)
     }
 
-    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?): Boolean {
+    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean {
         log.debug("noop teleport({}, {}, {})", playerId, at, world)
         return false
     }

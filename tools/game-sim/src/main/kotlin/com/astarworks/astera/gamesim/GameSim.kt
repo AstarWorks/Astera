@@ -315,8 +315,7 @@ public class GameSim private constructor(
             scenarioName: String,
             contentDir: Path = defaultContentDir(),
             groundY: Double = SimWorld.DEFAULT_GROUND_Y,
-            annihilation: com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig =
-                com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig.DEFAULT,
+            annihilation: com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig? = null,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)

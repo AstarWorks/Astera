@@ -434,11 +434,19 @@ public object MatchWiring {
             AnnihilationPillarWorld(annihilationTracker, it, matches, playerGateway, msgRenderer)
         }
         pillarWorld?.let { subscriptions += it.subscribe(eventBus) }
+        val annihilationConfig = ports.annihilationConfig ?: run {
+            val parsed = com.astarworks.astera.match.application.config.gamemode.annihilation
+                .AnnihilationYamlOverlay.parse(
+                    gameModeContents.find(AnnihilationGameMode.ID)?.defaultConfig ?: emptyMap(),
+                )
+            parsed.warnings.forEach { logger.warning(it) }
+            parsed.config
+        }
         gameModeFrameworkRegistry.register(
             AnnihilationGameMode(
                 tracker = annihilationTracker,
                 eventBus = eventBus,
-                defaultConfig = ports.annihilationConfig,
+                defaultConfig = annihilationConfig,
                 clock = { scheduler.currentTick() },
             ),
         )

@@ -48,6 +48,7 @@ public class RespawnOnPlayerKilledListener(
     private val stages: IStageRegistry,
     private val spawnSelector: ISpawnSelector,
     private val respawnUseCase: RespawnUseCase,
+    private val eliminatedTeams: EliminatedTeamSpectators? = null,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -62,6 +63,9 @@ public class RespawnOnPlayerKilledListener(
             )
             return
         }
+
+        // Eliminated teams spectate until match end instead of respawning.
+        if (eliminatedTeams?.takeOver(match, victim) == true) return
 
         val stage = stages.find(match.stageId)
         if (stage == null) {

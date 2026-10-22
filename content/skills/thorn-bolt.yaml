@@ -19,9 +19,6 @@ params:
   type: projectile
   launch_speed: 2.4
   max_lifetime_ticks: 50
-  damage:
-    - base: { type: literal, value: 5.0 }
-      attribute: earth
 
 phases:
   type: projectile

@@ -373,6 +373,7 @@ public class MechanicDispatcher(
                         targetId = target,
                         effectId = mechanic.statusId,
                         durationTicks = durationTicks,
+                        sourceId = ctx.actorId,
                     )
                 }
             }

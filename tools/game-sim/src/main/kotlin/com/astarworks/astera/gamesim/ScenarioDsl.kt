@@ -25,8 +25,7 @@ import java.nio.file.Path
  */
 public fun scenario(
     name: String,
-    annihilation: com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig =
-        com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig.DEFAULT,
+    annihilation: com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig? = null,
     block: ScenarioScope.() -> Unit,
 ): Path {
     val sim = GameSim.boot(name, annihilation = annihilation)

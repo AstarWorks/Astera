@@ -22,9 +22,6 @@ params:
   type: projectile
   launch_speed: 1.4
   max_lifetime_ticks: 50
-  damage:
-    - base: { type: literal, value: 12.0 }
-      attribute: fire
 
 phases:
   type: projectile

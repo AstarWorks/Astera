@@ -47,7 +47,7 @@ public class MatchSpawnUseCase(
         val spawnPoint = spawnSelector.selectFor(playerId, matchId, stage, SpawnStrategy.Spread)
             ?: return Result.failure(SpawnError.NoSpawnPoint(playerId, stage.id))
 
-        val ok = worldGateway.teleport(playerId, spawnPoint.pos, spawnPoint.world)
+        val ok = worldGateway.teleport(playerId, spawnPoint.pos, spawnPoint.world, spawnPoint.yaw, spawnPoint.pitch)
         if (!ok) {
             return Result.failure(SpawnError.TeleportFailed(playerId))
         }

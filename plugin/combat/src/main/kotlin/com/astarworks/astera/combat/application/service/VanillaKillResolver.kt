@@ -40,11 +40,14 @@ public class VanillaKillResolver {
         val attribution = pending?.takeIf {
             it.victim == event.playerId && event.atTick - it.atTick in 0..ATTRIBUTION_WINDOW_TICKS
         }
-        val killer = attribution?.killer
         val healthSource = event.source
+        val dotOrigin = (healthSource as? HealthChangeSource.Status)?.originPlayerId
+            ?.takeIf { it != event.playerId }
+        val meleeKiller = attribution?.killer
+        val killer = meleeKiller ?: dotOrigin
         val source: DamageSource = when {
-            killer != null -> DamageSource.Item(ItemId(VANILLA_MELEE_ITEM), killer)
-            healthSource is HealthChangeSource.Status -> statusSource(healthSource.statusId)
+            meleeKiller != null -> DamageSource.Item(ItemId(VANILLA_MELEE_ITEM), meleeKiller)
+            healthSource is HealthChangeSource.Status -> statusSource(healthSource.statusId, dotOrigin)
             else -> DamageSource.Environment.Generic
         }
         return PlayerKilled(
@@ -64,8 +67,8 @@ public class VanillaKillResolver {
         else -> true
     }
 
-    private fun statusSource(statusId: String): DamageSource =
-        runCatching { DamageSource.StatusEffectTick(StatusEffectId(statusId)) }
+    private fun statusSource(statusId: String, origin: PlayerId?): DamageSource =
+        runCatching { DamageSource.StatusEffectTick(StatusEffectId(statusId), origin) }
             .getOrDefault(DamageSource.Environment.Generic)
 
     public companion object {

@@ -15,6 +15,8 @@ public data class StatusEffectInstance(
     val remainingTicks: Int,
     val currentStacks: Int,
     val appliedAtTick: Long,
+    /** Player who applied this status; credited for DoT kills. Null when environmental / self-unknown. */
+    val sourcePlayerId: PlayerId? = null,
 ) {
     init {
         require(remainingTicks >= 0) { "remainingTicks must be >= 0: $remainingTicks" }

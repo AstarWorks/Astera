@@ -30,10 +30,11 @@ public class ApplyStatusUseCase(
         targetId: PlayerId,
         effectId: StatusEffectId,
         durationTicks: Int? = null,
+        sourceId: PlayerId? = null,
     ): Result<StatusEffectInstance, ApplyStatusError> {
         val spec = effectRegistry.find(effectId)
             ?: return Result.failure(ApplyStatusError.EffectNotFound(effectId))
-        return Result.success(applySpec(targetId, spec, durationTicks))
+        return Result.success(applySpec(targetId, spec, durationTicks, sourceId))
     }
 
     /**
@@ -44,6 +45,7 @@ public class ApplyStatusUseCase(
         targetId: PlayerId,
         spec: StatusEffectSpec,
         durationTicks: Int? = null,
+        sourceId: PlayerId? = null,
     ): StatusEffectInstance {
         val instance = StatusEffectInstance(
             spec = spec,
@@ -51,6 +53,7 @@ public class ApplyStatusUseCase(
             remainingTicks = durationTicks ?: DEFAULT_DURATION_TICKS,
             currentStacks = 1,
             appliedAtTick = scheduler.currentTick(),
+            sourcePlayerId = sourceId,
         )
         effectContainer.apply(instance)
         return instance

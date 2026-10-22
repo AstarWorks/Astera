@@ -36,12 +36,12 @@ public sealed class SkillParams {
     /**
      * Lightweight projectile descriptor. Avoids depending on `ProjectileSpec`
      * (parallel Phase 2 work); only exposes the primitives the skill engine
-     * needs to spawn and bound the projectile lifetime.
+     * needs to spawn and bound the projectile lifetime. Impact damage is not a
+     * param: it is declared by `phases.hit_entity` damage mechanics (WP-G).
      */
     public data class ProjectileParams(
         val launchSpeed: Double,
         val maxLifetimeTicks: Int,
-        val damage: DamageProfile,
         /** Projectile hit-test sphere radius in blocks (ADR-0174). */
         val hitRadius: Double = DEFAULT_HIT_RADIUS,
     ) : SkillParams() {

@@ -171,10 +171,13 @@ public class PaperWorldGateway(
         w.playSound(loc, bukkitSound, sound.volume.toFloat(), sound.pitch.toFloat())
     }
 
-    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?): Boolean {
+    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean {
         val player = onlinePlayer(playerId) ?: return false
         val targetWorld = world?.let { resolveWorld(it) } ?: player.world
-        return player.teleport(toLocation(targetWorld, at))
+        val loc = toLocation(targetWorld, at)
+        loc.yaw = yaw ?: player.location.yaw
+        loc.pitch = pitch ?: player.location.pitch
+        return player.teleport(loc)
     }
 
     override fun spectatorSpawn(

@@ -76,4 +76,19 @@ class VanillaKillResolverTest {
 
         assertThat(kill!!.source).isInstanceOf(DamageSource.StatusEffectTick::class.java)
     }
+
+    @Test
+    fun `status DoT kill credits the status applier`() {
+        val kill = resolver.resolve(change(1.0, 0.0, HealthChangeSource.Status("burn", killer)), null)!!
+
+        assertThat(kill.killer).isEqualTo(killer)
+        assertThat((kill.source as DamageSource.StatusEffectTick).originPlayerId).isEqualTo(killer)
+    }
+
+    @Test
+    fun `self-applied status DoT kill has no killer`() {
+        val kill = resolver.resolve(change(1.0, 0.0, HealthChangeSource.Status("burn", victim)), null)!!
+
+        assertThat(kill.killer).isNull()
+    }
 }

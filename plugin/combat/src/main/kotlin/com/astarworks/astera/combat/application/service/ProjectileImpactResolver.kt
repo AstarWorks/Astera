@@ -154,6 +154,7 @@ public class ProjectileImpactResolver(
                         targetPlayerId,
                         StatusEffectId(effect.statusRef.value),
                         durationTicks,
+                        flight.owner,
                     )
                     if (result is Result.Failure && log.isDebugEnabled) {
                         log.debug(

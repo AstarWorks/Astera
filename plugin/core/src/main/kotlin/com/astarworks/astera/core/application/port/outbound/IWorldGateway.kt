@@ -33,14 +33,21 @@ public interface IWorldGateway {
 
     /**
      * Teleport [playerId] to [at] in [world] (or the player's current world
-     * if [world] is null). Returns true on success, false if the player is
+     * if [world] is null). [yaw]/[pitch] set the facing; null keeps the
+     * player's current value. Returns true on success, false if the player is
      * offline or the target world is unknown.
      *
      * Wave 4.5 (R3.5, ADR-0027): ports + Fake impl land here; Paper-side
      * impl lands in Wave 5 (R4 Paper runtime). Until then, MatchSpawnUseCase
      * exercises the port through FakeWorldGateway only.
      */
-    public fun teleport(playerId: PlayerId, at: Vec3, world: WorldId? = null): Boolean
+    public fun teleport(
+        playerId: PlayerId,
+        at: Vec3,
+        world: WorldId? = null,
+        yaw: Float? = null,
+        pitch: Float? = null,
+    ): Boolean
 
     /**
      * Teleport [playerId] to the spectator spawn for [matchId] (Wave 5h,

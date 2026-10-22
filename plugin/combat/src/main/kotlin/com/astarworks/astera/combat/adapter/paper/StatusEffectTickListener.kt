@@ -123,19 +123,22 @@ public class StatusEffectTickListener(
         val now = scheduler.currentTick()
         val playerIds = container.activeEffects.keys.toList()
         for (playerId in playerIds) {
-            val perPlayer = container.activeEffects[playerId] ?: continue
-            val effectIds = perPlayer.keys.toList()
+            val effectIds = container.activeEffects[playerId]?.keys?.toList() ?: continue
             for (effectId in effectIds) {
+                // Re-resolve each iteration: a DoT tick can kill the player, and the
+                // death listener clears every status (the map is replaced/removed).
+                val perPlayer = container.activeEffects[playerId] ?: break
                 val instance = perPlayer[effectId] ?: continue
                 applyTickEffect(playerId, instance)
-                val nextTicks = instance.remainingTicks - TICK_PERIOD_TICKS.toInt()
+                val current = container.activeEffects[playerId]?.get(effectId) ?: continue
+                val nextTicks = current.remainingTicks - TICK_PERIOD_TICKS.toInt()
                 if (nextTicks <= 0) {
-                    expire(playerId, instance, now)
+                    expire(playerId, current, now)
                 } else {
-                    perPlayer[effectId] = instance.copy(remainingTicks = nextTicks)
+                    container.activeEffects[playerId]?.put(effectId, current.copy(remainingTicks = nextTicks))
                 }
             }
-            if (perPlayer.isEmpty()) {
+            if (container.activeEffects[playerId]?.isEmpty() == true) {
                 container.activeEffects.remove(playerId)
             }
         }
@@ -157,7 +160,7 @@ public class StatusEffectTickListener(
                     healthGateway.damage(
                         playerId = playerId,
                         amount = damage,
-                        source = HealthChangeSource.Status(instance.spec.id.value),
+                        source = HealthChangeSource.Status(instance.spec.id.value, instance.sourcePlayerId),
                     )
                 }
             }
@@ -169,7 +172,7 @@ public class StatusEffectTickListener(
                     healthGateway.heal(
                         playerId = playerId,
                         amount = healAmount,
-                        source = HealthChangeSource.Status(instance.spec.id.value),
+                        source = HealthChangeSource.Status(instance.spec.id.value, instance.sourcePlayerId),
                     )
                 }
             }
@@ -249,7 +252,7 @@ public class StatusEffectTickListener(
         val perPlayer = container.activeEffects[playerId] ?: return
 
         val matches: List<StatusEffectId> = perPlayer.entries
-            .filter { (_, inst) -> bukkitPotionTypeFor(inst.spec.kind) == removedType }
+            .filter { (_, inst) -> container.bukkitPotionTypeFor(inst.spec.kind) == removedType }
             .map { (id, _) -> id }
         if (matches.isEmpty()) return
 
@@ -271,44 +274,14 @@ public class StatusEffectTickListener(
     // ── Mirror helpers (kept in sync with PaperStatusEffectContainer) ────
 
     /**
-     * Bukkit-side removal of the vanilla potion icon for [instance].
-     * Duplicates [PaperStatusEffectContainer]'s private mirror helper so
-     * the listener can expire without going back through the container's
-     * `remove` path (which would publish [StatusRemoved] — we want
-     * [StatusExpired] instead).
+     * Bukkit-side removal of the vanilla potion icon for [instance]. Uses the
+     * container's single [PaperStatusEffectContainer.bukkitPotionTypeFor]
+     * mapping, but skips its `remove` path (which would publish
+     * [StatusRemoved] — we want [StatusExpired] instead).
      */
     private fun mirrorRemoveOnPlayer(player: Player, instance: StatusEffectInstance) {
-        val potionType = bukkitPotionTypeFor(instance.spec.kind) ?: return
+        val potionType = container.bukkitPotionTypeFor(instance.spec.kind) ?: return
         player.removePotionEffect(potionType)
-    }
-
-    /**
-     * Mirror of [PaperStatusEffectContainer.bukkitPotionTypeFor] — must
-     * stay consistent. Duplicated rather than exposed because the
-     * container's helper is private (an internal Bukkit-mapping detail);
-     * if the mapping grows the right move is to extract a separate
-     * `StatusEffectBukkitMirror` helper that both classes depend on,
-     * tracked under ADR-0155 follow-up.
-     */
-    private fun bukkitPotionTypeFor(kind: StatusKind): org.bukkit.potion.PotionEffectType? = when (kind) {
-        StatusKind.SPEED_UP -> org.bukkit.potion.PotionEffectType.SPEED
-        StatusKind.SPEED_DOWN -> org.bukkit.potion.PotionEffectType.SLOWNESS
-        StatusKind.PARALYSIS -> org.bukkit.potion.PotionEffectType.SLOWNESS
-        StatusKind.JUMP_DISABLED -> org.bukkit.potion.PotionEffectType.JUMP_BOOST
-        StatusKind.BURN -> org.bukkit.potion.PotionEffectType.WITHER
-        StatusKind.HEAL_AMP,
-        StatusKind.HEAL_REDUCE,
-        StatusKind.HEAL_NULL,
-        StatusKind.STAR_GAIN,
-        StatusKind.STAR_GAIN_BOOST,
-        StatusKind.STAR_GAIN_NULL,
-        StatusKind.GRAVITY_UP,
-        StatusKind.GRAVITY_DOWN,
-        StatusKind.CT_RATE_UP,
-        StatusKind.CT_RATE_DOWN,
-        StatusKind.CT_FREEZE,
-        StatusKind.SILENCE,
-        -> null
     }
 
     public companion object {

@@ -15,12 +15,12 @@ import java.nio.file.Path
  * @property replayExportRoot directory `/astera-match replay export` writes to
  *   (Paper: `<plugin dataFolder>/replays`; the simulator: a temp dir).
  * @property annihilationConfig tunables of the Annihilation mode (phase timers,
- *   pillar HP, ...). The simulator shortens them to play a whole match in a
- *   scenario; the `default_config` of `content/game-modes/annihilation.yaml` is
- *   not wired in yet.
+ *   pillar HP, ...). `null` (production) reads the `default_config` of
+ *   `content/game-modes/annihilation.yaml` over the domain defaults; a non-null
+ *   value (the simulator, to play a whole match in a scenario) wins outright.
  */
 public class MatchPlatformPorts(
     public val replayExportRoot: Path,
     public val barrierGateway: ((ServiceRegistry) -> IBarrierGateway)? = null,
-    public val annihilationConfig: AnnihilationConfig = AnnihilationConfig.DEFAULT,
+    public val annihilationConfig: AnnihilationConfig? = null,
 )

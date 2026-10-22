@@ -148,12 +148,32 @@ internal object MatchGameplayWiring {
             statusEffectContainer = services.get<com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer>(),
         )
         val respawnSelectorPort: ISpawnSelector = services.getOrThrow<ISpawnSelector>()
+        val eliminatedTeams = com.astarworks.astera.match.application.eventbus.listeners.respawn.EliminatedTeamSpectators(
+            matches = matches,
+            healthGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>(),
+            worldGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(),
+            enterSpectator = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository>()?.let {
+                com.astarworks.astera.match.application.usecase.spectator.EnterSpectatorUseCase(
+                    sessionRepository = it,
+                    worldGateway = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldGateway>(),
+                    eventBus = eventBus,
+                    scheduler = scheduler,
+                )
+            },
+        )
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.TeamEliminated::class) {
+            eliminatedTeams.onTeamEliminated(it)
+        }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchEnded::class) {
+            eliminatedTeams.onMatchEnded(it)
+        }
         val respawnOnKilled = com.astarworks.astera.match.application.eventbus.listeners.respawn
             .RespawnOnPlayerKilledListener(
                 matches = matches,
                 stages = stages,
                 spawnSelector = respawnSelectorPort,
                 respawnUseCase = respawnUseCase,
+                eliminatedTeams = eliminatedTeams,
             )
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,

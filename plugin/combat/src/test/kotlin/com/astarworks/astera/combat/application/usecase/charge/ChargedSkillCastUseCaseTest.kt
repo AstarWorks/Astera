@@ -50,7 +50,6 @@ class ChargedSkillCastUseCaseTest {
         params = SkillParams.ProjectileParams(
             launchSpeed = 20.0,
             maxLifetimeTicks = 60,
-            damage = DamageProfile.single(8.0, DamageAttribute.FIRE),
         ),
         phases = com.astarworks.astera.core.domain.skill.phase.PhaseMechanics.Projectile(),
         chargeVariant = ChargedSkillVariant.Charged(chargeTicks = 30),

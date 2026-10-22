@@ -35,16 +35,14 @@ params:
   type: projectile             # must match `archetype`
   launch_speed: 1.8
   max_lifetime_ticks: 60
-  damage:
-    base: 12.0
-    attribute: fire
+  # no `damage` here: a projectile deals damage via `phases.hit_entity` `damage` mechanics
 ```
 
 ## Archetypes
 
 | `archetype:` | `params.type:` | What it does |
 |---|---|---|
-| `projectile` | `projectile` | Fires a projectile that deals damage on impact |
+| `projectile` | `projectile` | Fires a projectile; impact damage comes from `phases.hit_entity` mechanics (`params.damage` is rejected) |
 | `melee` | `melee` | Damages every player within `range` of the cast |
 | `aoe` | `aoe` | Damages every player within `radius` with a falloff easing |
 | `buff` | `buff` | Applies a `StatusEffect` to the caster |
