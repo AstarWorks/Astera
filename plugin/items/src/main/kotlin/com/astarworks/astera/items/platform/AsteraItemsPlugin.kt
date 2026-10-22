@@ -6,6 +6,7 @@ import com.astarworks.astera.core.platform.AsteraCorePlugin
 import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.items.adapter.paper.PaperItemDelivery
 import com.astarworks.astera.items.adapter.paper.PaperItemIdResolver
+import com.astarworks.astera.items.adapter.paper.ItemModelCatalog
 import com.astarworks.astera.items.adapter.paper.PaperItemMaterializer
 import com.astarworks.astera.items.platform.paper.ItemsPaperBindings
 import com.astarworks.astera.items.platform.wiring.ItemsPlatformPorts
@@ -50,6 +51,7 @@ public class AsteraItemsPlugin : JavaPlugin() {
                 val materializer = PaperItemMaterializer(
                     plugin = this,
                     messages = services.getOrThrow<IMessageRenderer>(),
+                    itemModels = ItemModelCatalog.fromContentDir(core.contentDir),
                 )
                 PaperItemDelivery(materializer, server)
             },

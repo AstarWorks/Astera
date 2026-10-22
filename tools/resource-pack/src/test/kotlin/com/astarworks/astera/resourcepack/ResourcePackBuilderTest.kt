@@ -51,6 +51,40 @@ class ResourcePackBuilderTest {
     }
 
     @Test
+    fun `every weapon icon ships with texture, model and item definition`() {
+        val files = ResourcePackBuilder(contentDir).collect()
+        val weapons = listOf("pistol", "rifle", "shotgun", "knight-sword", "greatsword", "dagger",
+            "frost-staff", "fire-staff", "thunder-staff", "verdant-staff")
+        for (id in weapons) {
+            assertThat(files).containsKey("assets/astera/textures/generated/items/$id.png")
+            val model = json(files.getValue("assets/astera/models/generated/items/$id.json"))
+            assertThat(model.path("textures").path("layer0").asText()).isEqualTo("astera:generated/items/$id")
+            val def = json(files.getValue("assets/astera/items/$id.json")).path("model")
+            assertThat(def.path("type").asText()).isEqualTo("minecraft:model")
+            assertThat(def.path("model").asText()).isEqualTo("astera:generated/items/$id")
+        }
+        assertThat(json(files.getValue("assets/astera/models/generated/items/fire-staff.json")).path("parent").asText())
+            .isEqualTo("minecraft:item/handheld")
+    }
+
+    @Test
+    fun `a Studio model named like the item overrides the generated icon`(@TempDir tmp: Path) {
+        fun put(rel: String, text: String) {
+            val f = tmp.resolve(rel)
+            Files.createDirectories(f.parent)
+            Files.writeString(f, text)
+        }
+        put("models/generated/items/dagger.model.json", """{"parent":"minecraft:item/handheld","textures":{"layer0":"astera:generated/items/dagger"}}""")
+        put("models/generated/items/pistol.model.json", """{"parent":"minecraft:item/generated","textures":{"layer0":"astera:generated/items/pistol"}}""")
+        put("models/items/swords/dagger.model.json", """{"elements":[]}""")
+        val files = ResourcePackBuilder(tmp).collect()
+        assertThat(json(files.getValue("assets/astera/items/dagger.json")).path("model").path("model").asText())
+            .isEqualTo("astera:items/swords/dagger")
+        assertThat(json(files.getValue("assets/astera/items/pistol.json")).path("model").path("model").asText())
+            .isEqualTo("astera:generated/items/pistol")
+    }
+
+    @Test
     fun `the zip is reproducible and the sha1 file matches the zip`(@TempDir tmp: Path) {
         val builder = ResourcePackBuilder(contentDir)
         val first = builder.buildTo(tmp.resolve("a"))
