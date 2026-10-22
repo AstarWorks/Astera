@@ -227,6 +227,8 @@ class Bot private constructor(
                     disconnectReason = plain(event.reason) + (event.cause?.let { " [cause: $it]" } ?: "")
                 }
                 joined = false
+                if (disconnectReason?.contains("nvalid", true) == true)
+                    E2eReport.notes += "bot $name kicked ($disconnectReason); move log: ${moveLog.takeLast(10)}"
             }
         }
     }
@@ -272,7 +274,7 @@ class Bot private constructor(
                 yawDeg = if (PositionElement.Y_ROT in rel) yawDeg + packet.yRot else packet.yRot
                 pitchDeg = if (PositionElement.X_ROT in rel) pitchDeg + packet.xRot else packet.xRot
                 positionPackets.incrementAndGet()
-                System.err.println("[bot $name] position packet id=${packet.id} pos=${packet.position} rot=${packet.yRot}/${packet.xRot} rel=$rel -> $x,$y,$z $yawDeg/$pitchDeg")
+                moveLog += "pos#${packet.id} raw=${packet.position} rot=${packet.yRot}/${packet.xRot} rel=$rel -> $x,$y,$z $yawDeg/$pitchDeg"
                 session.send(ServerboundAcceptTeleportationPacket(packet.id, x, y, z, yawDeg, pitchDeg))
                 session.send(ServerboundPlayerLoadedPacket.INSTANCE)
                 joined = true
@@ -506,7 +508,12 @@ class Bot private constructor(
     fun closeWindow(id: Int) = session.send(ServerboundContainerClosePacket(id))
 
     /** Keeps the anti-AFK detector quiet. */
-    fun nudge() = session.send(ServerboundMovePlayerPosRotPacket(true, false, x, y, z, yawDeg, pitchDeg))
+    val moveLog = CopyOnWriteArrayList<String>()
+
+    fun nudge() {
+        if (moveLog.size < 40) moveLog += "nudge $x,$y,$z $yawDeg/$pitchDeg"
+        session.send(ServerboundMovePlayerPosRotPacket(true, false, x, y, z, yawDeg, pitchDeg))
+    }
 
     // --- queries ---------------------------------------------------------------------------------------------
     fun waitUntil(timeoutMs: Long = 10_000, cond: () -> Boolean): Boolean {
