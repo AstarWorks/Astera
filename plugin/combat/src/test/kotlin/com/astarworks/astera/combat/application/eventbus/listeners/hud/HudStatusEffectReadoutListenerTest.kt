@@ -49,9 +49,19 @@ class HudStatusEffectReadoutListenerTest {
         appliedAtTick = 0L,
     )
 
-    private fun shownBar(): HudComponent.Composite =
-        ((hud.operations.filterIsInstance<FakeHudGateway.HudOp.Shown>().last().layout) as HudLayout.ActionBar)
-            .component as HudComponent.Composite
+    /** Latest action bar sent: a same-region redraw is an `Updated` op, not a new `Shown`. */
+    private fun shownBar(): HudComponent.Composite {
+        val layout = hud.operations.last {
+            it is FakeHudGateway.HudOp.Shown || it is FakeHudGateway.HudOp.Updated
+        }.let { op ->
+            when (op) {
+                is FakeHudGateway.HudOp.Shown -> op.layout
+                is FakeHudGateway.HudOp.Updated -> op.layout
+                else -> error("unreachable")
+            }
+        }
+        return (layout as HudLayout.ActionBar).component as HudComponent.Composite
+    }
 
     @Test
     fun `harmful effects are red, beneficial green, with stacks and seconds rounded up`() {
