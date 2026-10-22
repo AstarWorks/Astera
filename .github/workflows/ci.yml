@@ -1,15 +1,8 @@
 name: CI
 
 on:
-  push:
-    branches: [main, 'wp/**']
-  pull_request:
+  # Founder 2026-10-23: no automatic CI; run manually if ever needed.
   workflow_dispatch:
-    inputs:
-      skills:
-        description: 'Skill ids to render (space separated), or ALL (slow, 40+ min). Empty = skills changed in the last push'
-        type: string
-        default: ''
 
 # Cancel superseded runs per branch / PR.
 concurrency:

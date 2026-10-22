@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0235: Procedural status-effect HUD icons
+# ADR-0236: Procedural status-effect HUD icons
 
 ## Status
 
