@@ -663,6 +663,31 @@ public sealed class MechanicYaml {
         )
     }
 
+    /** Plays a `content/vfx` display choreography (ADR-0220). */
+    @Serializable
+    @SerialName("play_vfx")
+    public data class PlayVfx(
+        public val targets: TargeterYaml,
+        @SerialName("vfx_id") public val vfxId: String,
+        public val scale: NumericValueYaml = NumericValueYaml.Literal(1.0),
+        public val follow: BoolValueYaml? = null,
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.PlayVfx(
+            targets = targets.toDomain(),
+            vfxId = com.astarworks.astera.core.domain.effect.vfx.VfxId(vfxId),
+            scale = scale.toDomain(),
+            follow = follow?.toDomain(),
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+        )
+    }
+
     @Serializable
     @SerialName("glow")
     public data class Glow(

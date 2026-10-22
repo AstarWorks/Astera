@@ -174,6 +174,8 @@ public class MechanicDispatcher(
     private val blockEditGuard: IBlockEditGuard? = null,
     /** WP5: SpawnDisplay. */
     private val displayGateway: IDisplayEntityGateway? = null,
+    /** ADR-0220: catalog for `play_vfx`; needs [displayGateway] too, otherwise the mechanic warns and drops. */
+    private val vfxRegistry: com.astarworks.astera.core.application.port.outbound.IVfxRegistry? = null,
     /** WP5: Summon. */
     private val summonGateway: ISummonGateway? = null,
     /** WP5: summon ownership / allegiance bookkeeping, shared with the host's targeting guard. */
@@ -242,8 +244,40 @@ public class MechanicDispatcher(
         log = log,
     )
 
+    /** ADR-0220: `play_vfx` display choreographies; null unless both the display gateway and the vfx catalog are wired. */
+    private val vfxMechanics: com.astarworks.astera.combat.application.service.vfx.VfxMechanics? =
+        if (displayGateway != null && vfxRegistry != null) {
+            com.astarworks.astera.combat.application.service.vfx.VfxMechanics(
+                player = com.astarworks.astera.combat.application.service.vfx.VfxPlayer(
+                    scheduler = scheduler,
+                    displays = displayGateway,
+                    registry = vfxRegistry,
+                    emitParticle = ::emitVfxParticle,
+                    log = log,
+                ),
+                targeters = targeterResolver,
+                poseLookup = poseLookup,
+                scheduler = scheduler,
+                log = log,
+            )
+        } else {
+            null
+        }
+
+    private fun emitVfxParticle(world: WorldId, at: Vec3, id: com.astarworks.astera.core.domain.effect.ParticleId) {
+        val spec = particleRegistry?.find(id)?.toParticleSpec(countOverride = null)
+            ?: ParticleSpec(key = id.value, count = 1)
+        val ps = particleScheduler
+        if (ps != null) {
+            ps.schedule(ScheduledParticleSpec.EmitOnce(particle = spec, position = at, atTick = scheduler.currentTick(), world = world))
+        } else {
+            worldGateway.spawnParticle(world, at, spec)
+        }
+    }
+
     /** Undoes every temporary world change batch B made (blocks, displays, summons, glow). */
     public fun shutdown() {
+        vfxMechanics?.shutdown()
         worldMechanics.shutdown()
     }
 
@@ -606,6 +640,10 @@ public class MechanicDispatcher(
             }
 
             is Mechanic.SpawnDisplay -> worldMechanics.display(mechanic, ctx)
+            is Mechanic.PlayVfx -> {
+                val vfx = vfxMechanics ?: return warnMissing("PlayVfx", "IVfxRegistry / IDisplayEntityGateway")
+                vfx.play(mechanic, ctx, resolveDouble(mechanic.scale, ctx), mechanic.follow?.let { resolveBool(it, ctx) })
+            }
             is Mechanic.Glow -> worldMechanics.glow(mechanic, ctx)
             is Mechanic.CameraShake -> worldMechanics.cameraShake(mechanic, ctx)
 

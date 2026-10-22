@@ -2,6 +2,7 @@ package com.astarworks.astera.core.domain.skill.mechanic
 
 import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.effect.DisplaySpec
+import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.effect.animation.ParticleAnimation
 import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.effect.SoundId
@@ -404,6 +405,22 @@ public sealed class Mechanic {
     public data class SpawnDisplay(
         override val targets: Targeter,
         val display: DisplaySpec,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+    ) : Mechanic()
+
+    /**
+     * Plays a `content/vfx` display choreography (ADR-0220) at each target. Entity targets
+     * anchor on that entity (and follow it when [follow] / the definition says so);
+     * location targets are fixed. [scale] multiplies every length of the effect.
+     */
+    public data class PlayVfx(
+        override val targets: Targeter,
+        val vfxId: VfxId,
+        val scale: NumericValue = NumericValue.Literal(1.0),
+        val follow: BoolValue? = null,
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),

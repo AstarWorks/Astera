@@ -550,6 +550,7 @@ public object CombatWiring {
                     teamLookup = { services.get<IMatchTeamLookup>() },
                 ),
                 displayGateway = ports.displayEntityGateway?.invoke(services),
+                vfxRegistry = services.get<com.astarworks.astera.core.application.port.outbound.IVfxRegistry>(),
                 summonGateway = ports.summonGateway?.invoke(services),
                 summonRegistry = summonRegistry,
                 randomizer = damageRandomizer,
