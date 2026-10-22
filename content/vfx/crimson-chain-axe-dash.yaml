@@ -1,0 +1,100 @@
+# Crimson Chain-Axe S2 "Hooked Lunge": the caster streaks ~7 blocks forward. Ribbons are left along the
+# path (snap out with out_expo, hold, ladder-fade), a spiral curl flares at the start, iron-axe chain links
+# trail down the lane, and a star flashes at the far end.
+# Local axes: x = left, y = up, z = forward.
+
+id: crimson-chain-axe-dash
+duration_ticks: 24
+orient: yaw
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: ribbon-low
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#c0102a"
+    start_tick: 0
+    end_tick: 16
+    keyframes:
+      - { t: 0, translate: [0.0, 0.5, 0.0], scale: [0.03, 0.06, 0.4] }
+      - { t: 3, translate: [0.0, 0.5, 3.6], scale: [0.05, 0.14, 7.2], ease: out_expo }
+      - { t: 8, block: pink_stained_glass }
+      - { t: 16, scale: [0.0, 0.14, 7.2], ease: in_quad }
+
+  - id: ribbon-mid
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#c0102a"
+    start_tick: 0
+    end_tick: 18
+    keyframes:
+      - { t: 0, translate: [0.0, 1.0, 0.0], scale: [0.03, 0.08, 0.4] }
+      - { t: 3, translate: [0.0, 1.0, 3.6], scale: [0.06, 0.3, 7.2], ease: out_expo }
+      - { t: 9, block: pink_stained_glass }
+      - { t: 18, scale: [0.0, 0.3, 7.2], ease: in_quad }
+
+  - id: ribbon-core
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 0
+    end_tick: 9
+    keyframes:
+      - { t: 0, translate: [0.0, 1.0, 0.0], scale: [0.02, 0.03, 0.4] }
+      - { t: 2, translate: [0.0, 1.0, 3.6], scale: [0.03, 0.05, 7.2], ease: out_expo }
+      - { t: 9, scale: [0.0, 0.05, 7.2], ease: in_quad }
+
+  - id: ribbon-high
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    start_tick: 1
+    end_tick: 15
+    keyframes:
+      - { t: 0, translate: [0.0, 1.5, 0.0], scale: [0.03, 0.05, 0.4] }
+      - { t: 3, translate: [0.0, 1.5, 3.6], scale: [0.05, 0.1, 7.2], ease: out_expo }
+      - { t: 14, scale: [0.0, 0.1, 7.2], ease: in_quad }
+
+  # One flaring spiral loop at the lunge origin (the ribbon's "curl").
+  - id: curl
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 0
+    end_tick: 12
+    count: 10
+    formation:
+      curve: { type: helix, radius: 0.9, turns: 1.5, height: 1.4 }
+      offset: [0.0, 0.1, 0.0]
+      align: tangent
+      stagger_ticks: 0
+    keyframes:
+      - { t: 0, scale: [0.02, 0.02, 0.2] }
+      - { t: 2, scale: [0.05, 0.05, 0.7], ease: out_expo }
+      - { t: 12, translate: [0.0, 0.4, 0.0], scale: [0.0, 0.0, 0.7], ease: in_quad }
+
+  # Axe-head chain links laid down the lane, one tick apart, spinning as they fall away.
+  - id: chain
+    kind: { type: item, item: iron_axe, display_mode: fixed }
+    brightness: 15
+    start_tick: 1
+    end_tick: 13
+    count: 6
+    formation:
+      curve: { type: line, from: [0.0, 1.0, 0.6], to: [0.0, 1.0, 6.4] }
+      align: none
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.1, 0.1, 0.1] }
+      - { t: 2, rotate: [0, 0, 240], scale: [0.6, 0.6, 0.6], ease: out_cubic }
+      - { t: 12, translate: [0.0, -0.6, 0.0], rotate: [0, 0, 600], scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  # Far-end impact star where the lunge lands.
+  - id: star
+    kind: { type: text, text: "<#ff2040>✦</#ff2040>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 3
+    end_tick: 13
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 7.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [9.0, 9.0, 9.0], ease: out_expo }
+      - { t: 10, scale: [0.0, 0.0, 0.0], ease: in_quad }

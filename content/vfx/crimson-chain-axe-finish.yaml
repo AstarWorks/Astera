@@ -1,0 +1,61 @@
+# Crimson Chain-Axe S3 finisher (tick 58): one long diagonal slash across the view, a white core, a
+# glass bloom, the closing star frame and a spray of shards. The last hit of "Blade Forest".
+# Local axes: x = left, y = up, z = forward.
+
+id: crimson-chain-axe-finish
+duration_ticks: 22
+orient: look
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: beam
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#ff2040"
+    start_tick: 0
+    end_tick: 16
+    keyframes:
+      - { t: 0, translate: [0.0, 1.5, 4.0], rotate: [0, 0, 35], scale: [0.04, 0.4, 0.04] }
+      - { t: 2, scale: [0.2, 10.0, 0.2], ease: out_expo }
+      - { t: 8, block: pink_stained_glass }
+      - { t: 16, scale: [0.0, 10.0, 0.0], ease: in_quad }
+    oscillate: { axis: scale_xz, amplitude: 0.04, period_ticks: 2 }
+
+  - id: core
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 0
+    end_tick: 8
+    keyframes:
+      - { t: 0, translate: [0.0, 1.5, 3.95], rotate: [0, 0, 35], scale: [0.02, 0.4, 0.02] }
+      - { t: 2, scale: [0.07, 10.0, 0.07], ease: out_expo }
+      - { t: 8, scale: [0.0, 10.0, 0.0], ease: in_quad }
+
+  - id: star
+    kind: { type: text, text: "<white>✦</white>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 1
+    end_tick: 13
+    keyframes:
+      - { t: 0, translate: [0.0, 1.5, 3.8], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [16.0, 16.0, 16.0], ease: out_expo }
+      - { t: 12, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: shard
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 1
+    end_tick: 14
+    count: 10
+    formation:
+      curve: { type: arc, radius: 0.5, from_deg: 0, to_deg: 360 }
+      offset: [0.0, 1.5, 3.8]
+      align: outward
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+    jitter: { position: 0.2, rotation_deg: 20, scale: 0.4 }
+    keyframes:
+      - { t: 0, scale: [0.04, 0.04, 0.1] }
+      - { t: 3, translate: [0.0, 0.0, 2.4], scale: [0.08, 0.08, 0.9], ease: out_expo }
+      - { t: 13, translate: [0.0, 0.0, 3.4], scale: [0.0, 0.0, 0.4], ease: in_quad }

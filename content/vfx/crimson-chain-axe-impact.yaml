@@ -1,0 +1,55 @@
+# Crimson Chain-Axe hit marker, played on the struck target: red four-point star behind a white one
+# (the impact frame), eight radial blood spikes and a spark burst. Short on purpose; every hit uses it.
+# Local axes: x = left, y = up, z = forward.
+
+id: crimson-chain-axe-impact
+duration_ticks: 14
+orient: look
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: star-red
+    kind: { type: text, text: "<#ff2040>✦</#ff2040>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [10.0, 10.0, 10.0], ease: out_expo }
+      - { t: 10, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: star-white
+    kind: { type: text, text: "<white>✦</white>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 6
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.05], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [6.0, 6.0, 6.0], ease: out_expo }
+      - { t: 6, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: spike
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 0
+    end_tick: 10
+    count: 8
+    formation:
+      curve: { type: circle, radius: 0.2 }
+      offset: [0.0, 1.2, 0.0]
+      align: outward
+    jitter: { position: 0.05, rotation_deg: 10, scale: 0.25 }
+    keyframes:
+      - { t: 0, scale: [0.03, 0.03, 0.1] }
+      - { t: 2, translate: [0.0, 0.0, 0.7], scale: [0.06, 0.06, 1.3], ease: out_expo }
+      - { t: 10, translate: [0.0, 0.0, 1.1], scale: [0.0, 0.0, 0.6], ease: in_quad }
+
+  - id: sparks
+    kind: { type: particle, particle_id: hit-spark, every_ticks: 1 }
+    start_tick: 0
+    end_tick: 3
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0] }
