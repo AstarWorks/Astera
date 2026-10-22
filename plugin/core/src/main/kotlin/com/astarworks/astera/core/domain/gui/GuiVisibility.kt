@@ -3,7 +3,7 @@ package com.astarworks.astera.core.domain.gui
 /**
  * Per-viewer visibility conditions for GUI slots and lobby-kit entries (ADR-0240).
  *
- * A condition is a plain string so it can live in `content/gui/*.yaml` and
+ * A condition is a plain string so it can live in `content/gui/<name>.yaml` and
  * `lobby-kit.yaml` (`visible_if: permission:astera.admin.panel`). Grammar:
  *
  * - `permission:<node>` - the viewer holds the permission node, or is a server operator.
