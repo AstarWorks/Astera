@@ -18,6 +18,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -32,6 +33,7 @@ import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.platform.wiring.CorePlatformPorts
 import com.astarworks.astera.core.platform.wiring.CoreWiring
@@ -86,7 +88,7 @@ public class GameSim private constructor(
     public val feedback: SimPlayerFeedbackGateway = SimPlayerFeedbackGateway(recorder) { scheduler.currentTick() }
 
     /** What every HUD channel currently shows per player, and every show / update / clear (WP14). */
-    public val hud: SimHudRecorder = SimHudRecorder(recorder) { scheduler.currentTick() }
+    public val hud: SimHudRecorder = SimHudRecorder(recorder, services.getOrThrow<IMessageRenderer>()) { scheduler.currentTick() }
 
     /** Native hotbar cooldown sweeps the item side asked for (ADR-0197). */
     public val sweeps: SimItemCooldownSweep = SimItemCooldownSweep { scheduler.currentTick() }
@@ -196,8 +198,9 @@ public class GameSim private constructor(
         team: TeamId? = null,
         facing: Vec3 = Vec3(0.0, 0.0, 1.0),
         join: Boolean = true,
+        worldId: WorldId = WorldId("world"),
     ): SimEntity {
-        val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team))
+        val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team, world = worldId))
         recorder.registerEntity(entity)
         if (join) {
             handoff?.onJoin(entity.id)
@@ -282,10 +285,28 @@ public class GameSim private constructor(
 
     public fun leftClick(entity: SimEntity): Boolean = input(entity, IMcEvent.InputKind.LEFT_CLICK)
 
+    /** The lobby F key (the same menu-kit entry and successful-open check as Paper). */
+    public fun swapHands(entity: SimEntity): Boolean {
+        val player = server.view(entity.id) ?: return false
+        if (com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy.inMatch(
+                services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()?.isHeld(entity.id) ?: false,
+                services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>()?.findMatchOf(entity.id)?.phase,
+            )) return false
+        if (entity.heldItem != null && entity.heldItem?.value != "menu-compass") return false
+        val kit = services.get<com.astarworks.astera.core.application.contents.LobbyMenuKitContents>() ?: return false
+        val entry = kit.current().at(com.astarworks.astera.core.domain.lobby.KitArea.KEY_SWAP, 0) ?: return false
+        services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>().dispatch(player, entry.intent)
+        val opened = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>()
+            .currentSpec(player)?.id?.value == "main-menu"
+        if (opened) services.getOrThrow<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()
+            .recordAction(entity.id, "menu")
+        return opened
+    }
+
     public fun rightClick(entity: SimEntity, sneaking: Boolean = false): Boolean =
         input(entity, IMcEvent.InputKind.RIGHT_CLICK, sneaking)
 
-    /** The drop key (Q = E.G.O slot; Shift+Q = reload on guns). */
+    /** The drop key: the held binding decides (pistol Q reload; persona guns usually Shift+Q reload). */
     public fun drop(entity: SimEntity, sneaking: Boolean = false): Boolean =
         input(entity, IMcEvent.InputKind.DROP, sneaking)
 
@@ -448,6 +469,8 @@ public class GameSim private constructor(
 
             /** Registers the stand-in Persistence overlay before any wiring, like the plugin's onLoad (ADR-0195). */
             persistenceOverlay: Boolean = false,
+            /** Use entity-declared teams outside matches; false exercises Paper's late Match-owned team lookup. */
+            standaloneTeams: Boolean = true,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
@@ -520,10 +543,12 @@ public class GameSim private constructor(
 
             // Teams as declared on the simulated entities (Match registers its own, match-bound
             // lookup later; scenarios that never start a match still need ally / enemy answers).
-            coreCtx.registrations += services.register<IMatchTeamLookup>(
-                IMatchTeamLookup { id -> world.find(id)?.team },
-                priority = 100,
-            )
+            if (standaloneTeams) {
+                coreCtx.registrations += services.register<IMatchTeamLookup>(
+                    IMatchTeamLookup { id -> world.find(id)?.team },
+                    priority = 100,
+                )
+            }
 
             // ---- Items ----------------------------------------------------
             sim.items = ItemsWiring.install(

@@ -364,7 +364,7 @@ public class ReplayCaptureEngine(
         public const val MAX_BUFFER_BYTES: Int = 12 * 1024 * 1024
 
         /** Ticker period for key-frame eligibility check. */
-        public const val KEYFRAME_TICKER_PERIOD: Long = 20L
+        public const val KEYFRAME_TICKER_PERIOD: Long = 1L
 
         /** Per-event JSONB cost estimate (avg across the 9 ReplayEvent variants). */
         public const val ESTIMATED_EVENT_BYTES: Int = 48

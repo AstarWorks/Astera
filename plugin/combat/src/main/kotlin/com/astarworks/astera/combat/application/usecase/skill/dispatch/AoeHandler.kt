@@ -39,7 +39,7 @@ public class AoeHandler(
 
         dispatcher.dispatch(phases.cast, baseCtx)
 
-        val candidates = nearbyQuery.findInRadius(event.at, params.radius)
+        val candidates = nearbyQuery.findInRadius(event.at, params.radius, event.pose?.world)
             .filter { it != event.caster }
 
         if (candidates.isNotEmpty()) {

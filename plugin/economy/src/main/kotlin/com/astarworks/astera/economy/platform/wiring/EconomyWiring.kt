@@ -283,6 +283,9 @@ public object EconomyWiring {
                     ?.itemIds(playerId) ?: emptyList()
             }
         val shopBrowse = ShopBrowseUseCase(
+            onOpened = { player ->
+                services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()?.recordAction(player, "shop")
+            },
             registry = shopRegistry,
             adapter = guiAdapter,
             server = mcServer,
@@ -418,8 +421,9 @@ public object EconomyWiring {
         )
         registrations += services.register<IBettingPolicyRegistry>(bettingPolicies, priority = 0)
         // F3-9 (ADR-0224): `/astera admin reload bet-policies`; `reload all` picks it up too.
-        services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
+        val bettingPolicyReload = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry>()
             .register(bettingPolicies, betPoliciesContentDir)
+        shutdownHooks += bettingPolicyReload::unregister
 
         val initiateBetting = InitiateBettingChallengeUseCase(
             matches = bettingMatchRepo,

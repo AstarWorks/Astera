@@ -8,6 +8,7 @@ import com.astarworks.astera.core.application.port.outbound.IServerTransferGatew
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.event.PlayerArrivedOnServer
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
@@ -69,9 +70,13 @@ public class MatchAssignmentReceiver(
             if (assignment == null) log.warn("Dropping malformed match assignment from {}", message.fromServer) else onAssignment(assignment, message.fromServer)
         }
         val joined = eventBus.subscribe(PlayerArrivedOnServer::class) { onPlayerJoined(it.playerId) }
+        val quit = eventBus.subscribe(PlayerQuitServer::class) { event ->
+            session?.takeIf { it.matchId == null }?.arrived?.remove(event.playerId)
+        }
         val ended = eventBus.subscribe(MatchEnded::class) { onMatchEnded(it.matchId) }
         handles += { assignments.cancel() }
         handles += { joined.cancel() }
+        handles += { quit.cancel() }
         handles += { ended.cancel() }
     }
 

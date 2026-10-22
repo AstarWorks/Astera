@@ -168,3 +168,35 @@ jobs:
           path: tools/skill-viewer/build/skill-frames/
           retention-days: 14
           if-no-files-found: ignore
+
+  hud-frames:
+    name: HUD preview frames
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+      - name: Fetch official vanilla font and HUD assets
+        run: python3 tools/hud-preview/fetch-vanilla-assets.py
+      - name: Generate fixed HUD scenarios and calibrate font metrics
+        run: ./gradlew :tools:game-sim:test --tests '*HudPreviewScenarioTest' --no-daemon --stacktrace
+      - name: Render lobby, pistol, burning + regen and low HP
+        run: |
+          for scenario in lobby pistol burning-regen low-hp; do
+            for scale in 2 3; do
+              ./gradlew :tools:hud-preview:render -Ptrace="hud-preview-$scenario" -Pticks=last -PguiScale="$scale" --no-daemon --stacktrace
+            done
+          done
+      - name: Upload HUD frames
+        uses: actions/upload-artifact@v4
+        with:
+          name: hud-frames
+          path: tools/hud-preview/build/hud-frames/
+          retention-days: 14
+          if-no-files-found: error

@@ -82,6 +82,7 @@ public object CoreWiring {
         state.wireGameplayLoop()
         state.wireCompletenessListeners()
         state.wireServerHardenAndLobby()
+        state.wireTutorialGuide()
         state.wireCommandHelp()
         return CoreWiringResult(
             guiAdapter = state.guiAdapter,
@@ -241,7 +242,12 @@ internal fun CoreWiringState.wireBase() {
     val languages = LanguageLoader.loadFrom(contentDir.resolve("languages"))
     simpleMessages = SimpleMessageRenderer(
         languages = languages,
-        localeResolver = { playerId -> playerId?.let { mcServer.findPlayer(it)?.locale } },
+        localeResolver = { playerId ->
+            playerId?.let {
+                services.get<IPlayerSettingsRepository>()?.find(it)?.locale?.code
+                    ?: mcServer.findPlayer(it)?.locale
+            }
+        },
     )
     messages = simpleMessages
 

@@ -9,6 +9,7 @@ import com.astarworks.astera.economy.domain.betting.BettingError
 import com.astarworks.astera.economy.domain.betting.BettingEscrow
 import com.astarworks.astera.economy.domain.betting.BettingEscrowStatus
 import com.astarworks.astera.economy.domain.betting.BettingMatchId
+import com.astarworks.astera.persistence.table.BettingMatchesTable
 import com.astarworks.astera.persistence.table.BetEscrowsTable
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.eq
@@ -44,6 +45,7 @@ public class PostgresBettingEscrowService(
         require(challengerId != opponentId) { "challenger and opponent must differ" }
         require(perSideAmount > 0L) { "perSideAmount must be > 0, got $perSideAmount" }
 
+        lockMatch(bettingMatchId)
         val existing = BetEscrowsTable
             .selectAll()
             .where { BetEscrowsTable.bettingMatchId eq bettingMatchId.value }
@@ -97,6 +99,7 @@ public class PostgresBettingEscrowService(
         require(payoutSplit > 0.0 && payoutSplit <= 1.0) {
             "payoutSplit must be in (0.0, 1.0], got $payoutSplit"
         }
+        lockMatch(bettingMatchId)
         val current = loadEscrow(bettingMatchId)
             ?: return@transaction Result.failure(BettingError.EscrowMissing(bettingMatchId))
         if (current.status == BettingEscrowStatus.Paid) {
@@ -122,6 +125,7 @@ public class PostgresBettingEscrowService(
         bettingMatchId: BettingMatchId,
         now: Instant,
     ): Result<BettingEscrow, BettingError> = transaction(db) {
+        lockMatch(bettingMatchId)
         val current = loadEscrow(bettingMatchId)
             ?: return@transaction Result.failure(BettingError.EscrowMissing(bettingMatchId))
         if (current.status == BettingEscrowStatus.Refunded || current.status == BettingEscrowStatus.Paid) {
@@ -139,6 +143,14 @@ public class PostgresBettingEscrowService(
 
     override fun find(bettingMatchId: BettingMatchId): BettingEscrow? = transaction(db) {
         loadEscrow(bettingMatchId)
+    }
+
+    /** The parent exists even before the first hold; lock it before reading escrow state or moving money. */
+    private fun lockMatch(bettingMatchId: BettingMatchId) {
+        BettingMatchesTable.selectAll()
+            .where { BettingMatchesTable.id eq bettingMatchId.value }
+            .forUpdate()
+            .firstOrNull()
     }
 
     private fun loadEscrow(bettingMatchId: BettingMatchId): BettingEscrow? =

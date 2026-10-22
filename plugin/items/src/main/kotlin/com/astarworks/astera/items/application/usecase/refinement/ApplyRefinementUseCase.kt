@@ -70,7 +70,8 @@ public class ApplyRefinementUseCase(
 
         // (3) load-or-create the instance
         val instance: ItemInstance = if (instanceId != null) {
-            instances.findById(instanceId) ?: return Result.failure(
+            instances.findById(instanceId)?.takeIf { it.owner == owner && it.itemId == itemId }
+                ?: return Result.failure(
                 RefinementError.UnknownInstance(instanceId),
             )
         } else {
