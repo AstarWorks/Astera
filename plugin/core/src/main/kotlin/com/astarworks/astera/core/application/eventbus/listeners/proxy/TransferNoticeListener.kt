@@ -16,8 +16,17 @@ public class TransferNoticeListener(private val mcServer: IMcServer) {
     public fun handle(event: PlayerTransferRequested) {
         log.info("Transfer of {} to {} requested ({})", event.playerId, event.targetServer, event.transferReason)
         val player = mcServer.findPlayer(event.playerId) ?: return
-        player.sendTitle(TITLE, SUBTITLE)
-        player.sendActionBar(ACTION_BAR, mapOf("server" to event.targetServer.value))
+        // A cosmetic notice must never abort the transfer or the listeners after it.
+        notify("title") { player.sendTitle(TITLE, SUBTITLE) }
+        notify("action bar") { player.sendActionBar(ACTION_BAR, mapOf("server" to event.targetServer.value)) }
+    }
+
+    private inline fun notify(what: String, block: () -> Unit) {
+        try {
+            block()
+        } catch (e: Throwable) {
+            log.warn("Transfer notice ({}) failed; the transfer proceeds", what, e)
+        }
     }
 
     private companion object {

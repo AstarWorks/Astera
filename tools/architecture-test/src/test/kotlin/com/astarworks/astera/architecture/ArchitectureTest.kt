@@ -530,6 +530,33 @@ class ArchitectureTest {
     }
 
     /**
+     * Kotlin's `TODO("...")` throws `NotImplementedError` at runtime. A stubbed
+     * port method (`PaperPlayer.sendTitle`) aborted the lobby -> game transfer
+     * on the real stack. Production code must not call it; comments such as
+     * `// TODO(wave-x)` are fine.
+     */
+    @Test
+    fun `production code must not call the throwing TODO stub`() {
+        val call = Regex("""(?<![\w.])TODO\s*\(""")
+        val offenders = projectScope()
+            .files
+            .filter { file ->
+                val path = file.path.replace('\\', '/')
+                path.contains("/plugin/") && path.contains("/src/main/")
+            }
+            .flatMap { file ->
+                file.text.lines().withIndex()
+                    .filter { (_, line) ->
+                        val t = line.trim()
+                        !t.startsWith("//") && !t.startsWith("*") && !t.startsWith("/*") &&
+                            call.containsMatchIn(line.substringBefore("//"))
+                    }
+                    .map { (i, _) -> "${file.path}:${i + 1}" }
+            }
+        assertThat(offenders).`as`("TODO() calls throw NotImplementedError at runtime").isEmpty()
+    }
+
+    /**
      * Combat domain MUST NOT import Bukkit's projectile API. Projectile physics
      * is an edge concern; the domain models projectile as a value (e.g.
      * ProjectileSpec) and delegates collision detection to the Paper adapter.
