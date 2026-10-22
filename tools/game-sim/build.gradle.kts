@@ -45,3 +45,15 @@ tasks.withType<Test>().configureEach {
     // Traces are an output of the run; never serve a cached result.
     outputs.upToDateWhen { false }
 }
+
+// V-1 (ADR-0211): only the per-skill showcase traces, for :tools:skill-viewer. Not part of `check`
+// (the same scenarios also run in `test`).
+tasks.register<Test>("showcase") {
+    group = "verification"
+    description = "Writes build/sim-traces/showcase-<skill>.json for every skill in content/skills"
+    val testSet = sourceSets.test.get()
+    testClassesDirs = testSet.output.classesDirs
+    classpath = testSet.runtimeClasspath
+    useJUnitPlatform()
+    filter { includeTestsMatching("*SkillShowcaseScenarioTest") }
+}

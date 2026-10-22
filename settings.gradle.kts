@@ -75,6 +75,8 @@ include(
     // Headless game simulator: boots the production wiring with simulator
     // ports, runs scenarios, exports JSON traces (ADR-0174). Not shipped.
     ":tools:game-sim",
+    // Static three.js viewer for game-sim traces + headless PNG/GIF skill frames (ADR-0211). Not shipped, not in `check`.
+    ":tools:skill-viewer",
     // Renders the procedural sky-island lobby plan to a PNG preview (ADR-0179). Not shipped.
     ":tools:lobby-gen",
     // Black-box E2E: MCProtocolLib bots join a real Paper backend (docker, `make e2e`) and assert
