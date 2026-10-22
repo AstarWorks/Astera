@@ -25,7 +25,6 @@ import com.astarworks.astera.core.domain.hologram.ItemDisplayMode
 import com.astarworks.astera.core.domain.hologram.TextAlignment
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
-import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
 import org.bukkit.Bukkit
@@ -63,12 +62,11 @@ import java.util.concurrent.ConcurrentHashMap
  *    Lines are joined with `\n` after each [MessageKey] resolves through
  *    [IMessageRenderer] (when present) or falls back to the raw key text.
  *  - [HologramKind.Item] → `world.spawn(loc, ItemDisplay::class.java)` with
- *    the [ItemDisplay.setItemStack] resolved from [IItemRegistry] (the
- *    canonical ItemSpec → Material lookup) and [ItemDisplay.setItemDisplayTransform]
+ *    the [ItemDisplay.setItemStack] built by the shared item materializer from
+ *    the [IItemRegistry] spec (ADR-0241: same art / name as the real item) and [ItemDisplay.setItemDisplayTransform]
  *    mapped 1:1 from [ItemDisplayMode]. Fallback chain when the registry is
  *    absent or the id is unknown:
- *      1. `IItemRegistry.find(id)?.template` if `Vanilla(material, ...)` →
- *         `Material.matchMaterial(material)`
+ *      1. the materialized `IItemRegistry` spec
  *      2. `Material.matchMaterial("minecraft:${id.value.replace('-','_')}")`
  *         (treat the kebab-case id as a vanilla material slug; safe for
  *         common cases like `diamond-sword` / `iron-pickaxe`)
@@ -178,6 +176,8 @@ public class PaperHologramGateway(
     @Suppress("unused") private val scheduler: IScheduler,
     @Suppress("unused") private val eventBus: IDomainEventBus,
     private val itemRegistry: IItemRegistry? = null,
+    /** ADR-0241: an Astera item floats as the real item (art included), not just its base material. */
+    private val itemMaterializer: () -> com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer? = { null },
     private val messageRenderer: IMessageRenderer? = null,
     /**
      * Wave 6g-PerTeam (ADR-0169) — lazy lookup for `IMatchRepository` so
@@ -782,16 +782,8 @@ public class PaperHologramGateway(
      * falls back to [Material.STONE] (logged once) so the entity still spawns.
      */
     private fun resolveItemStack(itemId: ItemId): ItemStack {
-        val fromRegistry = itemRegistry?.find(itemId)?.let { spec ->
-            val template = spec.template
-            if (template is ItemTemplate.Vanilla) {
-                Material.matchMaterial(template.material)
-            } else {
-                null
-            }
-        }
-        val fromSlug = fromRegistry
-            ?: Material.matchMaterial("minecraft:${itemId.value.replace('-', '_')}")
+        itemRegistry?.find(itemId)?.let { spec -> itemMaterializer()?.buildFor(spec, null, 1) }?.let { return it }
+        val fromSlug = Material.matchMaterial("minecraft:${itemId.value.replace('-', '_')}")
         val resolved = fromSlug ?: run {
             if (!itemFallbackStoneLogged) {
                 log.info(

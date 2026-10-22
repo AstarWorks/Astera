@@ -1,7 +1,6 @@
 package com.astarworks.astera.testfixtures
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
-import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -37,7 +36,7 @@ public class FakeMcServer : IMcServer {
 }
 
 /**
- * In-memory [IMcPlayer]. Records `sendMessage` / `giveItem` invocations so
+ * In-memory [IMcPlayer]. Records `sendMessage` invocations so
  * tests can assert on what the use case did. HUD-related recording
  * (`sendActionBar` / `sendTitle`) is filled in by Wave 5b Worker δ.
  */
@@ -48,12 +47,6 @@ public class FakeMcPlayer(
     override val locale: String? = "en",
     public var heldMaterialKey: String? = null,
 ) : IMcPlayer {
-
-    public data class GiveItemCall(
-        val template: IMcItemTemplate,
-        val displayNameOverride: String?,
-        val loreOverride: List<String>,
-    )
 
     public data class ActionBarCall(
         val key: MessageKey,
@@ -69,16 +62,11 @@ public class FakeMcPlayer(
     )
 
     public val messages: MutableList<String> = mutableListOf()
-    public val given: MutableList<GiveItemCall> = mutableListOf()
     public val actionBars: MutableList<ActionBarCall> = mutableListOf()
     public val titles: MutableList<TitleCall> = mutableListOf()
 
     override fun sendMessage(rendered: String) {
         messages += rendered
-    }
-
-    override fun giveItem(template: IMcItemTemplate, displayNameOverride: String?, loreOverride: List<String>) {
-        given += GiveItemCall(template, displayNameOverride, loreOverride)
     }
 
     override fun heldItemMaterialKey(): String? = heldMaterialKey

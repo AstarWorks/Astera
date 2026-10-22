@@ -1,4 +1,4 @@
-package com.astarworks.astera.items.adapter.paper
+package com.astarworks.astera.core.application.service.item
 
 import java.nio.file.Files
 import java.nio.file.Path

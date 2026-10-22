@@ -14,7 +14,7 @@ import java.util.Locale
  * The one place an [ItemSpec] becomes player-facing lore (ADR-0211).
  *
  * Every surface that shows an item - the inventory stack (`PaperItemMaterializer`), shop / vault /
- * admin GUI icons (`toAdapterTemplate`) - calls [lore], so rarity, level and stats can never drift from
+ * admin GUI icons (the same stack, ADR-0241) - gets it via `ItemBlueprintFactory`, which calls [lore], so rarity, level and stats can never drift from
  * the spec or from each other. The YAML `lore:` only carries flavor / usage text; it must not repeat
  * rarity, level or numbers (those lines were hand-written and went stale).
  *

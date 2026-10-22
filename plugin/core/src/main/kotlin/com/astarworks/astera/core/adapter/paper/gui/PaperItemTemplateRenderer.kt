@@ -1,19 +1,15 @@
 package com.astarworks.astera.core.adapter.paper.gui
 
-import com.astarworks.astera.core.adapter.api.item.IMcItemTemplate
+import com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
-import com.astarworks.astera.core.application.service.toAdapterTemplate
 import com.astarworks.astera.core.domain.gui.GuiSlot
 import com.astarworks.astera.core.domain.gui.ResolvedReactiveSlot
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
-import net.kyori.adventure.text.minimessage.MiniMessage
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
 import org.slf4j.LoggerFactory
 
 /**
@@ -33,16 +29,10 @@ import org.slf4j.LoggerFactory
  * means "fall back to whatever the GUI YAML / item template would have
  * rendered statically".
  *
- * Why the logic is duplicated from `PaperPlayer.giveItem`:
- *   `PaperPlayer` owns "give this item to a player's inventory" (which writes
- *   into the player's hot-bar via `inventory.addItem`). The GUI renderer owns
- *   "produce a free-standing ItemStack the adapter will `setItem` into a
- *   custom inventory slot". Trying to share through a `buildItemStack`
- *   helper on `PaperPlayer` would force a refactor of `PaperPlayer.kt` that
- *   is currently the worker-β touch-point (Wave 4 Phase B). Worker α (this
- *   file) and worker β (the GuiStore + reactive loop) must not collide on
- *   `PaperPlayer.kt`; duplicating ~25 lines is the explicitly cheaper option
- *   per the Wave 4 plan.
+ * One item path (ADR-0241): the base stack of every slot comes from
+ * [PaperItemMaterializer.buildFor], the same function that builds the item a player is given, so
+ * material, `item_model` art, name, lore, glint, flags and components are identical. This class only
+ * appends GUI extras (price / stock / click-hint lore, reactive overrides, player-head skins).
  *
  * Reactive caveat:
  *   `GuiDiffEngine` ferries `BindingKey.value` through `ItemId(...)`. Bindings
@@ -59,6 +49,8 @@ public class PaperItemTemplateRenderer(
     private val items: IItemRegistry,
     private val messages: IMessageRenderer,
     private val bindingResolver: com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver,
+    /** Resolved lazily: the Items plugin registers the materializer after Core enabled. */
+    private val materializer: () -> PaperItemMaterializer?,
 ) {
 
     /**
@@ -159,77 +151,26 @@ public class PaperItemTemplateRenderer(
     }
 
     /**
-     * Look up [id] in the item registry and materialize it. Returns `null`
+     * Look up [id] in the item registry and build the real item stack for it. Returns `null`
      * when the id is unknown so the caller can decide whether that is a
      * fatal error (BARRIER placeholder) or expected (Reactive miss).
-     *
-     * Per Wave _items-1 (ADR-0073), the registry returns
-     * [com.astarworks.astera.core.domain.item.ItemSpec]; the adapter-boundary
-     * template is produced by [toAdapterTemplate] which resolves the spec's
-     * inline `LocalizedText` / `LocalizedLore` via [messages] before handing
-     * off to the existing Vanilla / External branch.
      */
     private fun resolve(id: ItemId, count: Int, viewer: PlayerId?): ItemStack? {
         val spec = items.find(id) ?: run {
             log.warn("GUI slot referenced unknown ItemId '{}'.", id.value)
             return null
         }
-        return when (val template = spec.toAdapterTemplate(messages, viewer)) {
-            is IMcItemTemplate.Vanilla -> buildVanilla(template, count)
-            is IMcItemTemplate.External -> {
-                log.warn(
-                    "External item template '{}' (key={}) — provider adapter not wired; falling back to STONE.",
-                    template.id, template.key,
-                )
-                stamp(ItemStack(Material.STONE).also { it.amount = count.coerceIn(1, 64) }, template.id)
-            }
+        val builder = materializer() ?: run {
+            log.warn("No item materializer registered (Items plugin not loaded); cannot render '{}'.", id.value)
+            return null
         }
-    }
-
-    private fun buildVanilla(template: IMcItemTemplate.Vanilla, count: Int): ItemStack {
-        val material = Material.matchMaterial(template.material) ?: run {
-            log.warn(
-                "Unknown Material '{}' for item id={}; falling back to STONE.",
-                template.material, template.id,
-            )
-            Material.STONE
-        }
-        val stack = ItemStack(material).also { it.amount = count.coerceIn(1, 64) }
-        stack.editMeta { meta ->
-            template.displayName?.let { rendered ->
-                meta.displayName(AsteraTextDeserializer.deserialize(rendered))
-            }
-            if (template.lore.isNotEmpty()) {
-                meta.lore(template.lore.map { rendered -> AsteraTextDeserializer.deserialize(rendered) })
-            }
-            if (template.customModelData != null) {
-                @Suppress("DEPRECATION")
-                meta.setCustomModelData(template.customModelData)
-            }
-            val pdc = meta.persistentDataContainer
-            pdc.set(ITEM_ID_KEY, PersistentDataType.STRING, template.id.value)
-            for ((rawKey, rawValue) in template.pdcTags) {
-                val nk = NamespacedKey.fromString(rawKey) ?: continue
-                pdc.set(nk, PersistentDataType.STRING, rawValue)
-            }
-        }
-        return stack
-    }
-
-    /** Stamp the canonical `astera:item-id` PDC tag onto a fallback ItemStack. */
-    private fun stamp(stack: ItemStack, id: ItemId): ItemStack {
-        stack.editMeta { meta ->
-            meta.persistentDataContainer.set(ITEM_ID_KEY, PersistentDataType.STRING, id.value)
-        }
-        return stack
+        return builder.buildFor(spec, viewer, count)
     }
 
     /** Visible placeholder for "we tried to resolve something and it broke". */
     private fun barrier(): ItemStack = ItemStack(Material.BARRIER)
 
     private companion object {
-        val MM: MiniMessage = MiniMessage.miniMessage()
-        val ITEM_ID_KEY: NamespacedKey = NamespacedKey.fromString("astera:item-id")!!
         val log = LoggerFactory.getLogger(PaperItemTemplateRenderer::class.java)
     }
 }

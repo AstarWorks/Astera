@@ -268,6 +268,13 @@ internal fun CoreWiringState.wireBase() {
     services.register<IBroadcaster>(broadcaster)
     services.register<IDomainEventBus>(eventBus)
     services.register<IItemRegistry>(itemContents)
+    // ADR-0241: the one ItemSpec -> blueprint function every item surface (inventory stack, GUI icons) shares.
+    services.register<com.astarworks.astera.core.application.service.item.ItemBlueprintFactory>(
+        com.astarworks.astera.core.application.service.item.ItemBlueprintFactory(
+            messages,
+            com.astarworks.astera.core.application.service.item.ItemModelCatalog.fromContentDir(contentDir),
+        ),
+    )
     services.register<IPlayerGateway>(playerGateway)
     services.register<IAsteraCommandRegistry>(commandRegistry)
     services.register<IMcServer>(mcServer)
