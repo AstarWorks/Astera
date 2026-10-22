@@ -62,4 +62,6 @@ include(
     // Headless game simulator: boots the production wiring with simulator
     // ports, runs scenarios, exports JSON traces (ADR-0174). Not shipped.
     ":tools:game-sim",
+    // Renders the procedural sky-island lobby plan to a PNG preview (ADR-0179). Not shipped.
+    ":tools:lobby-gen",
 )

@@ -380,19 +380,24 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     // INpcInteractionRouter and (Paper only) gives it a clickable body. The
     // intent handlers (e.g. Economy's `lobby.shop.open`) register in their own
     // plugins; dispatch happens at click time, so enable order does not matter.
-    val lobbyNpcBodies = ports.npcBodies?.invoke(services)
-    if (lobbyNpcBodies != null) {
-        services.register<com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer>(
-            lobbyNpcBodies,
-            priority = 100,
-        )
+    // Game-only backends (ServerRole.GAME) have no lobby world, so no lobby NPCs.
+    if (ctx.serverRole.hostsLobby) {
+        val lobbyNpcBodies = ports.npcBodies?.invoke(services)
+        if (lobbyNpcBodies != null) {
+            services.register<com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer>(
+                lobbyNpcBodies,
+                priority = 100,
+            )
+        }
+        val lobbyNpcReport = com.astarworks.astera.core.application.service.entity.LobbyNpcLoaderService(
+            spawner = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner>(),
+            interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
+            bodies = lobbyNpcBodies,
+        ).loadFrom(contentDir.resolve("lobby-npcs"))
+        logger.info("Lobby NPCs loaded: ${lobbyNpcReport.loaded} ok, ${lobbyNpcReport.failed} failed")
+    } else {
+        logger.info("Lobby NPCs skipped (server role ${ctx.serverRole}).")
     }
-    val lobbyNpcReport = com.astarworks.astera.core.application.service.entity.LobbyNpcLoaderService(
-        spawner = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.IEntitySpawner>(),
-        interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
-        bodies = lobbyNpcBodies,
-    ).loadFrom(contentDir.resolve("lobby-npcs"))
-    logger.info("Lobby NPCs loaded: ${lobbyNpcReport.loaded} ok, ${lobbyNpcReport.failed} failed")
 
     // ── Wave J 5server-content-ops (ADR-0127) ─────────────────────────
     //

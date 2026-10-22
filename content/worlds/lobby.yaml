@@ -1,0 +1,43 @@
+# ADR-0180 (supersedes the never-loaded Wave 5lobby-content draft) — the lobby world.
+#
+# A void world named `lobby` holding a procedurally generated floating sky-island lobby,
+# built by core.domain.lobby.LobbyIslandGenerator from this file's `seed` and pasted on
+# first boot (only on backends whose ASTERA_SERVER_ROLE hosts the lobby: lobby | all).
+# Preview without logging in: docs/assets/lobby-preview.png (./gradlew :tools:lobby-gen:run).
+#
+# NPC stands live in content/lobby-npcs/*.yaml and must match the generated plan
+# (LobbyWorldContentTest fails when an NPC is not on a walkable block).
+
+id: lobby
+seed: 20261022
+
+# Y of the top grass/pavement layer; players stand at surface_y + 1.
+surface_y: 64
+
+# Fountain / plaza centre in world coordinates.
+center:
+  x: 0
+  z: 0
+
+# Plaza spawn, six blocks south of the fountain, facing it (yaw 180 = north).
+spawn:
+  x: 0.5
+  y: 65.0
+  z: 6.5
+  yaw: 180.0
+  pitch: 0.0
+
+# Bump to repaste the build (the old bounds are cleared first). Unchanged => the
+# marker (plugins/Astera-Core/lobby-world.marker) makes boot skip the paste.
+marker_version: 1
+
+rules:
+  time_of_day: 6000        # noon
+  time_frozen: true
+  weather_clear_fixed: true
+  pvp_enabled: false
+  build_enabled: false     # ops / astera.lobby.build bypass
+  mob_spawning: false
+  hunger: false
+  fall_damage: false
+  void_rescue_y: 19        # below the deepest stalactite; falling past it teleports back to spawn
