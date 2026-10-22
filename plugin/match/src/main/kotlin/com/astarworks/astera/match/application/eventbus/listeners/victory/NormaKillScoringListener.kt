@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory
  * The Wave 5c Norma pipeline only knew a score threshold that nothing ever raised (stars are picked up
  * but never counted), so a queue-formed Norma match was an endless free-for-all that only an admin could
  * close. Now every kill of an enemy raises the killer team's score by one; the first team to
- * [threshold] kills wins, and a match that runs [timeLimitTicks] of ACTIVE time ends for the team in
+ * [threshold] kills wins ([EndReason.NormaReached]), and a match that runs [timeLimitTicks] of ACTIVE time ends for the team in
  * front (a tie is a draw). Both end through [IMatchLifecycle.end], i.e. the same path as every other
  * mode: result screen, rewards, return to the lobby.
  *
@@ -57,7 +57,8 @@ public class NormaKillScoringListener(
         val scored = match.copy(score = match.score.withIncrement(killerTeam, 1))
         matches.save(scored)
         val points = scored.score.valueFor(killerTeam)
-        if (points >= threshold(match.id)) end(match.id, EndReason.TeamVictory(killerTeam), "score $points")
+        val goal = threshold(match.id)
+        if (points >= goal) end(match.id, EndReason.NormaReached(killerTeam, goal), "score $points")
     }
 
     /** Called about once a second: ends matches whose time limit ran out. */
@@ -67,7 +68,7 @@ public class NormaKillScoringListener(
             if (match.phase != MatchPhase.ACTIVE || !isNorma(match.id)) continue
             val since = activeSince.getOrPut(match.id) { current }
             if (current - since < timeLimitTicks(match.id)) continue
-            end(match.id, EndReason.TeamVictory(leader(match)), "time limit")
+            end(match.id, EndReason.NormaTimeLimit(leader(match)), "time limit")
         }
     }
 

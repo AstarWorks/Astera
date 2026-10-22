@@ -2,8 +2,12 @@ package com.astarworks.astera.match.application.gamemode
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.match.Match
+import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.match.domain.gamemode.GameModeContext
 import com.astarworks.astera.match.domain.gamemode.GameModeEvent
+import com.astarworks.astera.match.domain.gamemode.HudLine
+import com.astarworks.astera.match.domain.gamemode.MatchHudStatus
 import com.astarworks.astera.match.domain.gamemode.IGameMode
 import com.astarworks.astera.match.domain.gamemode.IGameModePhase
 import com.astarworks.astera.match.domain.mode.GameModeId
@@ -65,6 +69,8 @@ import com.astarworks.astera.match.domain.mode.GameModeId
  */
 public class NormaGameMode @JvmOverloads constructor(
     private val eventBus: IDomainEventBus? = null,
+    /** The kill goal of a match (`score_threshold` of the mode config); the sidebar shows progress towards it. */
+    private val goal: (MatchId) -> Int = { DEFAULT_GOAL },
 ) : IGameMode {
 
     override fun id(): GameModeId = ID
@@ -98,6 +104,25 @@ public class NormaGameMode @JvmOverloads constructor(
         )
     }
 
+    /** The norma: the team goal on top, then every team's kills towards it (`Red: 3/10`). */
+    override fun hudStatus(match: Match, nowTick: Long): MatchHudStatus {
+        val target = goal(match.id).toString()
+        return MatchHudStatus(
+            lines = buildList {
+                add(HudLine(GOAL_LINE, mapOf("goal" to target)))
+                match.teams.forEach { team ->
+                    add(
+                        HudLine(
+                            key = TEAM_LINE,
+                            placeholders = mapOf("score" to match.score.valueFor(team.id).toString(), "goal" to target),
+                            team = team.id,
+                        ),
+                    )
+                }
+            },
+        )
+    }
+
     override fun onTick(context: GameModeContext, tick: Long) {
         // Phase 1 PoC: the Wave 5c global schedulers do all the work. The
         // tick hook exists so Phase 3 Siege has a hook point to copy.
@@ -117,6 +142,11 @@ public class NormaGameMode @JvmOverloads constructor(
         /** Stable id used by `content/game-modes/norma.yaml` + queue + HUD. */
         public val ID: GameModeId = GameModeId("norma")
         public val TITLE_KEY: MessageKey = MessageKey("astera.gamemode.norma.title")
+        private val GOAL_LINE: MessageKey = MessageKey("astera.hud.sidebar.norma.goal")
+        private val TEAM_LINE: MessageKey = MessageKey("astera.hud.sidebar.norma.team")
+
+        /** Mirrors the `score_threshold` default of `content/game-modes/norma.yaml`. */
+        public const val DEFAULT_GOAL: Int = 10
 
         private val DEFAULT_PHASES: List<IGameModePhase> = listOf(
             IGameModePhase.Lobby,
