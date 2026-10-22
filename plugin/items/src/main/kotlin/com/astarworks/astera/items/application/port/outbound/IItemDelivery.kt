@@ -1,6 +1,7 @@
 package com.astarworks.astera.items.application.port.outbound
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.domain.item.ItemSpec
 
 /**
@@ -26,6 +27,14 @@ public interface IItemDelivery {
         amount: Int = 1,
         origin: ItemOrigin = ItemOrigin.STANDARD,
     ): DeliveryResult
+
+    /**
+     * Re-apply the visual half of the current [IItemRegistry] specs (name, lore, item model) to every
+     * Astera stack online players hold, in place; returns how many stacks changed (F3-9, ADR-0201).
+     * Gameplay data (attributes, skill bindings) is read from the registry at use time and needs no
+     * refresh.
+     */
+    public fun refreshHeld(items: IItemRegistry): Int
 }
 
 /** Where a delivered stack comes from; [TRAINING] stacks are tagged lobby-only (F3-11, ADR-0200). */

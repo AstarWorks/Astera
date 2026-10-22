@@ -26,7 +26,7 @@ make docker-logs    # tail velocity + lobby + game
 the first time (the file is git-ignored; never commit a real value). Running
 `docker compose` by hand without that variable set fails with a clear message.
 
-Content or code changes need `make docker-up` again (or the fast loop `make dev-plugins` / `make dev-content`, see docs/contributing/playtest.md). Content is baked into the
+Content or code changes need `make docker-up` again (or the fast loop: `make dev-hotswap` / `make dev-plugins` / `make dev-content` / `make dev-pack`, see the decision table in docs/contributing/playtest.md). Content is baked into the
 image; do not bind-mount `../content` — the Docker daemon may be remote/shared.
 
 Connect with a **real, paid Minecraft Java 26.3 account** to `localhost:25565`
@@ -39,15 +39,16 @@ Connect with a **real, paid Minecraft Java 26.3 account** to `localhost:25565`
 |---|---|
 | `Dockerfile` | Paper backend image (plugins + `content/` + `/patches`) |
 | `velocity/` | Velocity image: itzg/mc-proxy + `velocity.toml` (`[servers]` lobby + game, `try = ["lobby"]`) |
+| `docker-compose.hotswap.yml`, `hotswap/` | DEV ONLY overlay: backends on JetBrains Runtime 25 + hotswap agent (`make dev-hotswap-up`, ADR-0201) |
 | `paper-patches/velocity.json` | itzg patch: Paper `proxies.velocity` enabled, online-mode, secret from `CFG_VELOCITY_SECRET` |
 
 ## Running a second stack
 
 There are no pinned container names and the host ports are variables
-(`ASTERA_PORT`, `POSTGRES_PORT`, `REDIS_PORT`), so:
+(`ASTERA_PORT`, `POSTGRES_PORT`, `REDIS_PORT`, `RESOURCE_PACK_PORT`), so:
 
 ```bash
-ASTERA_PORT=25570 POSTGRES_PORT=5441 REDIS_PORT=6391 \
+ASTERA_PORT=25570 POSTGRES_PORT=5441 REDIS_PORT=6391 RESOURCE_PACK_PORT=8100 \
   docker compose -p astera-other -f docker/docker-compose.yml up -d --build
 ```
 

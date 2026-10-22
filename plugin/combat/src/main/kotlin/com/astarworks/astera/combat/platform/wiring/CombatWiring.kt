@@ -78,6 +78,7 @@ import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
+import com.astarworks.astera.combat.application.contents.CombatBalanceContents
 import com.astarworks.astera.core.application.port.outbound.IReloadableContentsRegistry
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
@@ -144,7 +145,7 @@ public object CombatWiring {
         val statusReport = statusContents.bootstrap(statusContentDir)
         logger.info("Status effects loaded: ${statusReport.loaded} ok, ${statusReport.failed} failed")
 
-        val elementMatrix: IElementMatrix = YamlElementMatrix.loadFromFile(
+        val initialElementMatrix: IElementMatrix = YamlElementMatrix.loadFromFile(
             ctx.contentDir.resolve("balance").resolve("element-matrix.yaml"),
         )
 
@@ -171,8 +172,13 @@ public object CombatWiring {
         val interactionConfig = StatusEffectInteractionLoader.load(
             ctx.contentDir.resolve("balance").resolve("status-effect-interactions.yaml"),
         )
-        val statusInteractionRule: IStatusEffectInteractionRule =
-            YamlStatusEffectInteractionRule(interactionConfig)
+        // F3-9 (ADR-0201): both balance files are one reloadable category; consumers hold its stable views.
+        val balanceContents = CombatBalanceContents(
+            initialMatrix = initialElementMatrix,
+            initialRule = YamlStatusEffectInteractionRule(interactionConfig),
+        )
+        val elementMatrix: IElementMatrix = balanceContents.elementMatrix
+        val statusInteractionRule: IStatusEffectInteractionRule = balanceContents.interactionRule
         logger.info(
             "Status-effect interaction rules loaded: ${interactionConfig.rules.size} rule(s).",
         )
@@ -276,6 +282,7 @@ public object CombatWiring {
         reloadRegistry.register(skillContents, skillsContentDir)
         reloadRegistry.register(statusContents, statusContentDir)
         reloadRegistry.register(armorContents, armorContentDir)
+        reloadRegistry.register(balanceContents, ctx.contentDir.resolve("balance"))
 
         // ---- Wave 5combat-depth (ADR-0105) Combat Depth Foundation ----------
         //

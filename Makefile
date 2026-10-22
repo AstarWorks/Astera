@@ -6,6 +6,7 @@ SHELL := /usr/bin/env bash
 
 GRADLEW := ./gradlew
 DOCKER_COMPOSE := docker compose -f docker/docker-compose.yml
+DOCKER_COMPOSE_HOTSWAP := docker compose -f docker/docker-compose.yml -f docker/docker-compose.hotswap.yml
 KIND_CLUSTER ?= astera
 NS ?= astera
 ARGOCD_NS ?= argocd
@@ -38,23 +39,39 @@ clean: ## Clean Gradle build outputs
 # local docker compose
 # ----------------------------------------------------------------------------
 
-.PHONY: docker-up
-docker-up: ## (Re)build image (jars + content baked in) and start Velocity + lobby + game + Postgres + Redis
+.PHONY: docker-env
+docker-env: ## Create docker/.env (from the example) and a Velocity forwarding secret if absent
 	@test -f docker/.env || cp docker/.env.example docker/.env
 	@grep -q '^VELOCITY_FORWARDING_SECRET=.' docker/.env || { \
 		grep -v '^VELOCITY_FORWARDING_SECRET=' docker/.env > docker/.env.tmp; \
 		echo "VELOCITY_FORWARDING_SECRET=$$(head -c 24 /dev/urandom | base64 | tr -dc 'A-Za-z0-9')" >> docker/.env.tmp; \
 		mv docker/.env.tmp docker/.env; \
 		echo "Generated a Velocity forwarding secret in docker/.env"; }
+
+.PHONY: docker-up
+docker-up: docker-env ## (Re)build image (jars + content baked in) and start Velocity + lobby + game + Postgres + Redis
 	$(DOCKER_COMPOSE) up -d --build
+
+.PHONY: dev-hotswap-up
+dev-hotswap-up: docker-env ## DEV ONLY: (re)start the stack with the backends on JetBrains Runtime + hotswap agent (once; enables `make dev-hotswap`)
+	$(DOCKER_COMPOSE) build lobby
+	$(DOCKER_COMPOSE_HOTSWAP) up -d --build
+
+.PHONY: dev-hotswap
+dev-hotswap: ## Fast loop: build jars, apply the changed classes to the RUNNING backends (no restart; restarts only if the JVM refuses)
+	COMPOSE_FILES="docker/docker-compose.yml docker/docker-compose.hotswap.yml" ./scripts/dev-deploy.sh hotswap
 
 .PHONY: dev-plugins
 dev-plugins: ## Fast loop: build jars, push changed ones into the running backends, restart only those (players are moved, not kicked)
 	./scripts/dev-deploy.sh plugins
 
 .PHONY: dev-content
-dev-content: ## Fast loop: push content/ into the running backends and reload it in place (no restart)
+dev-content: ## Fast loop: push content/ into the running backends, reload it in place and refresh held items (no restart)
 	./scripts/dev-deploy.sh content
+
+.PHONY: dev-pack
+dev-pack: ## Fast loop: after `docker compose up -d --build resource-pack`, re-read the pack hash and re-push the pack to everybody online
+	./scripts/dev-deploy.sh pack
 
 .PHONY: docker-down
 docker-down: ## Stop local stack (keeps volumes)

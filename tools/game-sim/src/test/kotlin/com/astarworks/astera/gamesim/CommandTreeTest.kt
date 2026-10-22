@@ -42,14 +42,14 @@ class CommandTreeTest {
                 "start", "end", "list", "phase", "entry", "abort", "cancel", "restart",
                 "replay start", "replay stop", "replay export",
             )
-            assertThat(tree.getValue("items")).containsExactly("give")
+            assertThat(tree.getValue("items")).containsExactlyInAnyOrder("give", "refresh")
             assertThat(tree.getValue("skill")).containsExactlyInAnyOrder("list", "cast")
             assertThat(tree.getValue("economy")).containsExactlyInAnyOrder("balance", "grant", "withdraw", "transfer")
             assertThat(tree.getValue("stats")).containsExactlyInAnyOrder("show", "last", "leaderboard", "xp grant")
             assertThat(tree.getValue("admin")).contains(
                 "maintenance", "teleport", "reload", "audit", "promote", "demote", "config", "health",
                 "spawn-mob", "backup", "restart", "announce", "panel", "stage list", "stage select", "validate",
-                "feedback list", "feedback triage", "slow-query report",
+                "feedback list", "feedback triage", "slow-query report", "pack reload",
             )
             assertThat(tree.getValue("mod")).contains("kick", "mute", "unmute", "ban", "tempban", "unban", "warn")
             assertThat(tree.keys.none { it.startsWith("astera-") }).isTrue()

@@ -28,6 +28,20 @@ class ItemModelCatalogTest {
     }
 
     @Test
+    fun `a rescan picks up models pushed after boot`(@TempDir tmp: Path) {
+        val catalog = ItemModelCatalog.fromContentDir(tmp)
+        assertThat(catalog.modelKey("pistol")).isNull()
+
+        val dir = tmp.resolve("models/generated/items")
+        Files.createDirectories(dir)
+        Files.writeString(dir.resolve("pistol.model.json"), "{}")
+        assertThat(catalog.modelKey("pistol")).isNull()
+
+        catalog.rescan()
+        assertThat(catalog.modelKey("pistol")).isEqualTo("astera:pistol")
+    }
+
+    @Test
     fun `every committed weapon of the real content has an item_model key`() {
         val contentDir = Path.of("../../content") // test working dir is plugin/items
         val catalog = ItemModelCatalog.fromContentDir(contentDir)
