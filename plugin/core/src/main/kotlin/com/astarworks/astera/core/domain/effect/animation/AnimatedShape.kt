@@ -7,8 +7,8 @@ package com.astarworks.astera.core.domain.effect.animation
  * [angle] once. [delayTicks] is the shape's offset from the animation start, added to
  * each particle's own delay.
  *
- * RTM only ever had two set types (`particle` = single point, `circle`), so the sealed
- * hierarchy is exactly those two. Adding a shape means adding a variant here and a
+ * RTM only ever had two set types (`particle` = single point, `circle`); [Ring] and [Line]
+ * are Astera additions. Adding a shape means adding a variant here and a
  * branch in [ParticleAnimationSession].
  */
 public sealed class AnimatedShape {
@@ -57,6 +57,58 @@ public sealed class AnimatedShape {
             require(minRadius >= 0.0 && maxRadius >= minRadius) {
                 "radius range must satisfy 0 <= min <= max, got [$minRadius, $maxRadius]"
             }
+        }
+    }
+
+    /**
+     * An expanding ring (not in RTM): over [periodTicks] ticks, each tick drops [points] points evenly spaced on a
+     * circle whose radius grows linearly from [startRadius] to [endRadius]. The ring lies in the plane
+     * perpendicular to the (angle-resolved) axis, so the default [ParticleAngle.VERTICAL] gives a flat ground ring
+     * (a shockwave). [rise] lifts the ring along the axis by that many blocks over the period (a rising halo). Each instance starts at a random phase. Directional particles (`count: 0`) fly outward.
+     * Budget: `amount * periodTicks * points * particles.size` spawns.
+     */
+    public data class Ring(
+        override val delayTicks: Int = 0,
+        override val amount: Int = 1,
+        override val angle: ParticleAngle = ParticleAngle.VERTICAL,
+        override val particles: List<AnimatedParticle>,
+        val periodTicks: Int = 1,
+        val points: Int = 16,
+        val startRadius: Double = 0.0,
+        val endRadius: Double = 1.0,
+        val rise: Double = 0.0,
+    ) : AnimatedShape() {
+        init {
+            validateCommon(delayTicks, amount, particles)
+            require(periodTicks >= 1) { "periodTicks must be >= 1, got $periodTicks" }
+            require(points >= 1) { "points must be >= 1, got $points" }
+            require(startRadius >= 0.0 && endRadius >= 0.0) { "radii must be >= 0, got $startRadius..$endRadius" }
+        }
+    }
+
+    /**
+     * A jagged polyline (lightning, not in RTM) from the anchor along the (angle-resolved) axis for [length]
+     * blocks, split into [segments] pieces. Every interior vertex is pushed sideways by up to [jitter] blocks
+     * (random, perpendicular to the axis); the endpoints stay put. [pointsPerSegment] points are dropped along each
+     * piece, all on tick `delay + particle.delay`. Each instance rolls its own shape.
+     * Budget: `amount * (segments * pointsPerSegment + 1) * particles.size` spawns.
+     */
+    public data class Line(
+        override val delayTicks: Int = 0,
+        override val amount: Int = 1,
+        override val angle: ParticleAngle = ParticleAngle.RAW,
+        override val particles: List<AnimatedParticle>,
+        val length: Double = 1.0,
+        val segments: Int = 6,
+        val jitter: Double = 0.3,
+        val pointsPerSegment: Int = 3,
+    ) : AnimatedShape() {
+        init {
+            validateCommon(delayTicks, amount, particles)
+            require(length > 0.0) { "length must be > 0, got $length" }
+            require(segments >= 1) { "segments must be >= 1, got $segments" }
+            require(jitter >= 0.0) { "jitter must be >= 0, got $jitter" }
+            require(pointsPerSegment >= 1) { "pointsPerSegment must be >= 1, got $pointsPerSegment" }
         }
     }
 

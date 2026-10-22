@@ -1,8 +1,7 @@
-# Couturier's Rapier S1 (left-click): a three-beat needle string. The damage (7.5, the sword-slash
-# baseline) is one lump on beat 1 because a target takes at most one hit per 20-tick invulnerability
-# window (`damage.ignore_invulnerability` is not honoured by the dispatcher yet). Beats 2 and 3 land
-# 3 and 6 ticks later on the same target as pure feel: +1 poise each, a flash each, and a 2-tick
-# hit-stop on the last. Three poise on the caster for the S3 finisher per full string.
+# Couturier's Rapier S1 (left-click): a three-beat needle string, three real hits (2.0 + 2.0 + 3.5 = 7.5,
+# the sword-slash baseline), each its own damage event ignoring i-frames. Beat 1 is the melee hit (it
+# builds poise); beats 2 and 3 land 3 and 6 ticks later on the same target through hit_entity, the last
+# heavier with a 2-tick hit-stop and a bigger flash. +3 poise on the caster for the S3 finisher.
 
 id: couture-rapier-s1
 
@@ -24,7 +23,7 @@ params:
   arc_degrees: 55.0
   knockback: 0.05
   damage:
-    - base: { type: literal, value: 7.5 }
+    - base: { type: literal, value: 2.0 }
       attribute: physical
 
 phases:
@@ -75,6 +74,13 @@ phases:
       volume: { type: literal, value: 0.5 }
       pitch: { type: literal, value: 1.6 }
     # beat 2
+    - type: damage
+      targets: { type: target }
+      components:
+        - base: { type: literal, value: 2.0 }
+          attribute: physical
+      ignore_invulnerability: { type: literal, value: true }
+      delay_ticks: { type: literal, value: 3 }
     - type: apply_status
       targets: { type: caster }
       status_id: poise
@@ -92,6 +98,13 @@ phases:
       pitch: { type: literal, value: 1.75 }
       delay_ticks: { type: literal, value: 3 }
     # beat 3: the heavier one -- bigger flash, hit-stop
+    - type: damage
+      targets: { type: target }
+      components:
+        - base: { type: literal, value: 3.5 }
+          attribute: physical
+      ignore_invulnerability: { type: literal, value: true }
+      delay_ticks: { type: literal, value: 6 }
     - type: apply_status
       targets: { type: caster }
       status_id: poise

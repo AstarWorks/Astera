@@ -15,7 +15,7 @@ elements:
     brightness: 15
     glow_color: "#c0102a"
     start_tick: 0
-    end_tick: 22
+    slot_lifetime_ticks: 22
     count: 20
     formation:
       curve: { type: spiral, start_radius: 2.0, end_radius: 9.0, turns: 2.5 }
@@ -36,7 +36,7 @@ elements:
     kind: { type: block, block: red_concrete }
     brightness: 15
     start_tick: 2
-    end_tick: 20
+    slot_lifetime_ticks: 18
     count: 6
     formation:
       curve: { type: spiral, start_radius: 3.0, end_radius: 8.5, turns: 1.5, start_deg: 40 }

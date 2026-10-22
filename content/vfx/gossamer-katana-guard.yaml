@@ -14,7 +14,7 @@ elements:
     brightness: 15
     glow_color: "#d01030"
     start_tick: 0
-    end_tick: 16
+    slot_lifetime_ticks: 16
     count: 10
     formation:
       curve: { type: helix, radius: 1.1, turns: 1.0, height: 2.0, start_deg: 0 }
@@ -25,6 +25,9 @@ elements:
       - { t: 2, scale: [0.06, 0.06, 0.8], ease: out_expo }
       - { t: 10, block: gray_stained_glass }
       - { t: 14, scale: [0.0, 0.0, 0.8], ease: in_quad }
+    group_keyframes:
+      - { t: 0 }
+      - { t: 16, rotate: [360, 0, 0], ease: out_quad }
 
   - id: floor
     kind: { type: block, block: red_stained_glass }

@@ -46,7 +46,7 @@ tasks.withType<Test>().configureEach {
     outputs.upToDateWhen { false }
 }
 
-// V-1 (ADR-0211): only the per-skill showcase traces, for :tools:skill-viewer. Not part of `check`
+// V-1 (ADR-0225): only the per-skill showcase traces, for :tools:skill-viewer. Not part of `check`
 // (the same scenarios also run in `test`).
 tasks.register<Test>("showcase") {
     group = "verification"

@@ -242,7 +242,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hpStatusHud.onJoined(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hpStatusHud.onQuit(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { hpStatusHud.onPackStatus(it) }
-    // F3-9 (ADR-0201): the pack spec is re-readable (`/astera admin pack reload`), so the
+    // F3-9 (ADR-0224): the pack spec is re-readable (`/astera admin pack reload`), so the
     // join listener and the diagnostics always go through the service.
     val resourcePackService = com.astarworks.astera.core.application.service.hud.ResourcePackService(
         initial = ports.resourcePack,

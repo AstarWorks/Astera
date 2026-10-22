@@ -1,4 +1,4 @@
-# Ember Gauntlet: the impact starburst. A sphere of ten orange spikes snaps out of the target's
+# Ember Gauntlet: the impact starburst. A sphere of eight orange spikes snaps out of the target's
 # chest (out_expo), a yellow core and a spike-tip ladder (orange -> red -> gray) burn down, a gold
 # glyph flares, and a flat flame ring rolls out. Every length scales with play_vfx `scale`, so the
 # jab's second knuckle uses ~0.75 and the hoop cannon's closing hoop ~0.95. Anchored on the target.
@@ -14,7 +14,7 @@ elements:
     kind: { type: block, block: orange_stained_glass }
     brightness: 15
     glow_color: "#ff7a1a"
-    count: 10
+    count: 8
     end_tick: 14
     formation:
       curve: { type: sphere, radius: 0.15 }
@@ -31,7 +31,7 @@ elements:
   - id: core
     kind: { type: block, block: yellow_concrete }
     brightness: 15
-    count: 4
+    count: 3
     end_tick: 9
     formation:
       curve: { type: sphere, radius: 0.15 }
@@ -56,7 +56,7 @@ elements:
     kind: { type: block, block: orange_stained_glass }
     brightness: 15
     glow_color: "#ff7a1a"
-    count: 8
+    count: 6
     start_tick: 1
     end_tick: 14
     formation:

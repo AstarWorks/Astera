@@ -5,7 +5,6 @@
 # pulse with a ring on every target -> 38 closing burst: impact frame, knockback; the Charge bank is spent.
 # Damage per pulse: 2 + 0.2 per Charge (read, not consumed); burst: 4 + 0.5 per Charge (consumed).
 # The lock: the line is the cast-time aim (vfx and cone both use the cast pose), so positioning decides it.
-# Archetype melee is only the cast container (range 0.5): every point of damage is an explicit mechanic.
 
 id: orrery-s3
 
@@ -16,22 +15,16 @@ description:
   ja: "前方に巨大な時計の封印を描き、宝珠から金の光線を放つ。貫通し、溜めた「充填」の数だけ威力が増して、最後に使い切る。"
   en: "Draws a huge clock seal and fires a piercing gold beam from the orb. Banked Charge adds power and is spent by the closing burst."
 
-archetype: melee
+archetype: sequence
 cooldown_ticks: 300
 resource_cost: 50              # energy
 tags: [ ranged, fire, persona, orrery, charge, finisher, pierce ]
 
 params:
-  type: melee
-  range: 0.5
-  arc_degrees: 20.0
-  knockback: 0.0
-  damage:
-    - base: { type: literal, value: 1.0 }
-      attribute: fire
+  type: sequence
 
 phases:
-  type: melee
+  type: sequence
   cast:
     # 0: telegraph -- seal, orb, motes
     - type: play_sound
@@ -132,5 +125,3 @@ phases:
       targets: { type: caster }
       status_id: charge
       delay_ticks: { type: literal, value: 40 }
-  hit_entity: []
-  miss: []

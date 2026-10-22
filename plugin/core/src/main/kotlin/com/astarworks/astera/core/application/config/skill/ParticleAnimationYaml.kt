@@ -29,6 +29,10 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  *     repeat_radius_acceleration: false
  *     particles: [ { id: dust, color: { r: 255, g: 100, b: 20 }, scale: 2 } ]
  * ```
+ *
+ * Astera additions: `type: ring` (expanding ring: `period_ticks`, `points`, `start_radius`, `end_radius`, `rise`, default
+ * `angle: vertical` = flat on the ground) and `type: line` (jagged polyline: `length`, `segments`, `jitter`,
+ * `points_per_segment`, along `angle`; `down` = sky to ground).
  */
 @OptIn(ExperimentalSerializationApi::class)
 @JsonClassDiscriminator("type")
@@ -81,6 +85,56 @@ public sealed class AnimatedShapeYaml {
             radiusAcceleration = radiusAcceleration,
         )
     }
+
+    @Serializable
+    @SerialName("ring")
+    public data class Ring(
+        @SerialName("delay_ticks") public val delayTicks: Int = 0,
+        public val amount: Int = 1,
+        public val angle: ParticleAngleYaml = ParticleAngleYaml.VERTICAL,
+        public val particles: List<AnimatedParticleYaml>,
+        @SerialName("period_ticks") public val periodTicks: Int = 1,
+        public val points: Int = 16,
+        @SerialName("start_radius") public val startRadius: Double = 0.0,
+        @SerialName("end_radius") public val endRadius: Double = 1.0,
+        public val rise: Double = 0.0,
+    ) : AnimatedShapeYaml() {
+        override fun toDomain(): AnimatedShape = AnimatedShape.Ring(
+            delayTicks = delayTicks,
+            amount = amount,
+            angle = angle.toDomain(),
+            particles = particles.map { it.toDomain() },
+            periodTicks = periodTicks,
+            points = points,
+            startRadius = startRadius,
+            endRadius = endRadius,
+            rise = rise,
+        )
+    }
+
+    @Serializable
+    @SerialName("line")
+    public data class Line(
+        @SerialName("delay_ticks") public val delayTicks: Int = 0,
+        public val amount: Int = 1,
+        public val angle: ParticleAngleYaml = ParticleAngleYaml.RAW,
+        public val particles: List<AnimatedParticleYaml>,
+        public val length: Double = 1.0,
+        public val segments: Int = 6,
+        public val jitter: Double = 0.3,
+        @SerialName("points_per_segment") public val pointsPerSegment: Int = 3,
+    ) : AnimatedShapeYaml() {
+        override fun toDomain(): AnimatedShape = AnimatedShape.Line(
+            delayTicks = delayTicks,
+            amount = amount,
+            angle = angle.toDomain(),
+            particles = particles.map { it.toDomain() },
+            length = length,
+            segments = segments,
+            jitter = jitter,
+            pointsPerSegment = pointsPerSegment,
+        )
+    }
 }
 
 @Serializable
@@ -88,6 +142,7 @@ public enum class ParticleAngleYaml {
     @SerialName("raw") RAW,
     @SerialName("horizontal") HORIZONTAL,
     @SerialName("vertical") VERTICAL,
+    @SerialName("down") DOWN,
     @SerialName("random") RANDOM,
     ;
 

@@ -1,4 +1,4 @@
-# Bastion Greatsword shared impact frame (ADR-0221): a butter-yellow star flash, an orange
+# Bastion Greatsword shared impact frame (ADR-0230): a butter-yellow star flash, an orange
 # shockwave hoop and a burst of spark spikes around the struck body. Anchored on the target;
 # play_vfx `scale` makes the finisher versions bigger.
 # Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.

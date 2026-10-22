@@ -1,6 +1,6 @@
 # Persona weapon: Ember Gauntlet (inspired by a soot-black furnace brawler with a backpack flamethrower).
-# S1 left-click -- Furnace Jab. A two-knuckle lunge: each knuckle lights a small starburst and stacks Burn;
-# the second one carries the damage (players have 20-tick invulnerability frames, so the heavy beat is last).
+# S1 left-click -- Furnace Jab. A two-knuckle lunge: each knuckle is its own hit (1.5 then 3.0), lights a
+# small starburst and stacks Burn.
 # Casting builds one Charge on the caster (the buff status), which Hoop Cannon / Inferno Furnace spend.
 
 id: ember-gauntlet-s1
@@ -49,6 +49,12 @@ phases:
           targets: { type: target }
           status_id: burn
           effect_duration_ticks: { type: literal, value: 20 }
+        - type: damage
+          targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
+          components:
+            - base: { type: literal, value: 1.5 }
+              attribute: fire
         - type: play_sound
           targets: { type: target }
           sound_id: entity.player.attack.strong
@@ -64,8 +70,9 @@ phases:
           delay_ticks: { type: literal, value: 5 }
         - type: damage
           targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
           components:
-            - base: { type: literal, value: 4.5 }
+            - base: { type: literal, value: 3.0 }
               attribute: fire
           delay_ticks: { type: literal, value: 5 }
         - type: apply_status
@@ -80,7 +87,7 @@ phases:
           delay_ticks: { type: literal, value: 5 }
         - type: knockback
           targets: { type: target }
-          direction: { type: from_caster }
+          direction: { type: away_from_caster, vertical: 0.15 }
           strength: { type: literal, value: 0.5 }
           delay_ticks: { type: literal, value: 5 }
         - type: play_sound

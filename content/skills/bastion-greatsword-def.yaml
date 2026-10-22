@@ -1,6 +1,5 @@
-# ADR-0221 persona weapon: Bastion Greatsword DEF (sneak + left click), "Tower Shield".
-# A 40-tick guard: resist.physical +0.7 (only bites a defender wearing armor, the damage rule
-# skips resistances otherwise), full knockback resistance, a translucent gold shield in front.
+# ADR-0230 persona weapon: Bastion Greatsword DEF (sneak + left click), "Tower Shield".
+# A 40-tick guard: resist.physical +0.7 and full knockback resistance, a translucent gold shield in front.
 # Guarding is how this weapon banks charge: 1 on cast, +1 at tick 20 and +1 at tick 39 if the
 # guard was held to the end (the shield flares white), followed by a shield bash that shoves
 # enemies off.
@@ -14,19 +13,22 @@ description:
   ja: "黄金の大盾で身を守り、物理ダメージを大きく軽減する。構えを維持するほど溜め（チャージ）が貯まり、最後に盾で押し返す。"
   en: "Raise a golden tower shield: heavy physical resistance. Holding it banks charge, and it ends with a shield bash."
 
-archetype: buff
+archetype: sequence
 cooldown_ticks: 120
 resource_cost: 15              # energy
 tags: [ buff, defense, charge ]
 
 params:
-  type: buff
-  status_effect_id: charge     # the first stack of charge, granted on raise
-  duration_ticks: 400
+  type: sequence
 
 phases:
-  type: buff
+  type: sequence
   cast:
+    - type: apply_status
+      targets: { type: caster }
+      status_id: charge
+      effect_duration_ticks: { type: literal, value: 400 }
+      stack_count: { type: literal, value: 1 }
     - type: modify_attribute
       targets: { type: caster }
       attribute_key: resist.physical
@@ -65,7 +67,7 @@ phases:
     # Shield bash at the end of the guard.
     - type: knockback
       targets: { type: nearby_entities, center: { type: caster_forward, distance: 1.6, height: -1.2 }, radius: { type: literal, value: 2.4 }, exclude_caster: true }
-      direction: { type: from_caster }
+      direction: { type: away_from_caster, vertical: 0.2 }
       strength: { type: literal, value: 0.9 }
       delay_ticks: { type: literal, value: 38 }
     - type: play_sound
@@ -73,5 +75,3 @@ phases:
       sound_id: entity.player.attack.knockback
       pitch: { type: literal, value: 0.7 }
       delay_ticks: { type: literal, value: 38 }
-  expire: []
-  removed: []

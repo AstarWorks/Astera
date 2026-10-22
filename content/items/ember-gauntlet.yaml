@@ -1,4 +1,4 @@
-# Persona weapon (ADR-0221): Ember Gauntlet -- a soot-black furnace brawler's armoured fist with a backpack
+# Persona weapon (ADR-0230): Ember Gauntlet -- a soot-black furnace brawler's armoured fist with a backpack
 # flamethrower. Orange / black smoke. Shared energy pool; stacks are Burn on the enemy and Charge on you.
 #   left-click       S1 Furnace Jab      lunge, 2 knuckles, +1 Charge per cast, +2 Burn on hit   (12 energy)
 #   right-click      S2 Hoop Cannon      flame jet + 3 fire hoops (5 with 3 Charge)              (28 energy)

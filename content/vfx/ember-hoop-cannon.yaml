@@ -66,16 +66,19 @@ elements:
       curve: { type: circle, radius: 0.8 }
       tilt: { yaw: 0, pitch: 90, roll: 0 }
       offset: [0.0, 1.3, 0.9]
-      align: none
+      align: tangent
+    # the whole ring glides forward in the anchor frame (+z straight ahead)
+    group_keyframes:
+      - { t: 1 }
+      - { t: 6, translate: [0.0, 0.0, 8.5] }
     keyframes:
-      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.0, 0.0, 0.0] }
-      - { t: 1, scale: [0.38, 0.38, 0.38], ease: out_back }
-      - { t: 3, translate: [0.0, 0.0, 3.4], block: yellow_stained_glass }
-      - { t: 6, translate: [0.0, 0.0, 8.5], block: red_stained_glass }
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [0.16, 0.16, 0.56], ease: out_back }
+      - { t: 3, block: yellow_stained_glass }
+      - { t: 6, block: red_stained_glass }
       - { t: 7, block: gray_stained_glass }
       - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
 
-  # Hoop 2 -- 5 ticks in.
   - id: hoop-2
     kind: { type: block, block: orange_stained_glass }
     brightness: 15
@@ -87,16 +90,19 @@ elements:
       curve: { type: circle, radius: 0.8 }
       tilt: { yaw: 0, pitch: 90, roll: 0 }
       offset: [0.0, 1.3, 0.9]
-      align: none
+      align: tangent
+    # the whole ring glides forward in the anchor frame (+z straight ahead)
+    group_keyframes:
+      - { t: 1 }
+      - { t: 6, translate: [0.0, 0.0, 8.5] }
     keyframes:
-      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.0, 0.0, 0.0] }
-      - { t: 1, scale: [0.38, 0.38, 0.38], ease: out_back }
-      - { t: 3, translate: [0.0, 0.0, 3.4], block: yellow_stained_glass }
-      - { t: 6, translate: [0.0, 0.0, 8.5], block: red_stained_glass }
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [0.16, 0.16, 0.56], ease: out_back }
+      - { t: 3, block: yellow_stained_glass }
+      - { t: 6, block: red_stained_glass }
       - { t: 7, block: gray_stained_glass }
       - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
 
-  # Hoop 3 -- 8 ticks in, the biggest bead for the closing hit.
   - id: hoop-3
     kind: { type: block, block: orange_stained_glass }
     brightness: 15
@@ -108,12 +114,16 @@ elements:
       curve: { type: circle, radius: 0.8 }
       tilt: { yaw: 0, pitch: 90, roll: 0 }
       offset: [0.0, 1.3, 0.9]
-      align: none
+      align: tangent
+    # the whole ring glides forward in the anchor frame (+z straight ahead)
+    group_keyframes:
+      - { t: 1 }
+      - { t: 6, translate: [0.0, 0.0, 8.5] }
     keyframes:
-      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.0, 0.0, 0.0] }
-      - { t: 1, scale: [0.44, 0.44, 0.44], ease: out_back }
-      - { t: 3, translate: [0.0, 0.0, 3.4], block: yellow_stained_glass }
-      - { t: 6, translate: [0.0, 0.0, 8.5], block: red_stained_glass }
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [0.2, 0.2, 0.56], ease: out_back }
+      - { t: 3, block: yellow_stained_glass }
+      - { t: 6, block: red_stained_glass }
       - { t: 7, block: gray_stained_glass }
       - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
 

@@ -141,3 +141,20 @@ direction: { kind: toward_caster }                       # pull inward
 
 Stack-only statuses (`tremor`, `rupture`, `poise`, `charge`, `sinking`) live in `content/status/`
 (`kind: stack_debuff | stack_buff`, `params: { type: marker }`).
+
+## Particle animation shapes and budgets
+
+`schedule_particle_animation.animation` and `params.visual.trail` take `point`, `circle` (RTM ports) and two Astera shapes:
+
+```yaml
+# expanding ring: period_ticks ticks, `points` per tick, radius start -> end, optional `rise` (blocks) along the axis.
+# angle defaults to vertical = flat on the ground; count: 0 particles fly outward.
+- { type: ring, period_ticks: 6, points: 16, start_radius: 0.5, end_radius: 3.0, rise: 0.0, particles: [ { id: flame, count: 0, extra: 0.08 } ] }
+# jagged line (lightning): from the anchor along `angle` (down = sky to ground), interior vertices jittered sideways.
+- { type: line, angle: down, length: 8.0, segments: 10, jitter: 0.6, points_per_segment: 4, particles: [ { id: electric_spark } ] }
+```
+
+Per-cast budgets (spawned particle packets; keep a one-shot under ~1000 and a flight trail under ~150/tick):
+ring = `amount * period_ticks * points * particles`, line = `amount * (segments * points_per_segment + 1) * particles`.
+Current: flame-burst impact ~410, frost-nova ~710, regrowth ~850, lightning-bolt strike ~300, simple-shoot impact ~400,
+frost-shard ~160, thorn-bolt ~100. Each YAML carries its own budget comment. Before/after sheets: `docs/assets/skills/`.

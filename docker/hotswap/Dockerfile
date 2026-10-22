@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 #
 # DEV-ONLY backend image with JetBrains Runtime 25 + the Astera hotswap agent
-# (F3-9, ADR-0201).
+# (F3-9, ADR-0224).
 #
 # JBR carries the DCEVM-style "enhanced class redefinition"
 # (-XX:+AllowEnhancedClassRedefinition): a redefinition may add/remove methods and

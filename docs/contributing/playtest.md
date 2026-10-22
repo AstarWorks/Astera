@@ -15,7 +15,7 @@ edit-test loop use the fast targets below instead (start with the decision table
 The stack is Velocity (proxy) + `lobby` + `game` (two Paper servers) + Postgres +
 Redis; see `docker/README.md` and ADR-0179.
 
-### Fast loop: change code, content or the pack without `make docker-up` (ADR-0186, ADR-0201)
+### Fast loop: change code, content or the pack without `make docker-up` (ADR-0186, ADR-0224)
 
 **Which command for which change** (restart = a backend stops and boots, about 55 s; players are
 moved to the other backend, not kicked):
@@ -95,7 +95,7 @@ and the rest of `balance/` (`starter-grant`, `block-durability`, `resource-defau
 `backup-policy`). `hud/` is resource-pack art, not server content: rebuild and push the pack.
 
 Why not `/reload` or PlugMan-style unload/load: see ADR-0186. Why the agent instead of a JDWP
-debugger push: see ADR-0201.
+debugger push: see ADR-0224.
 
 ## 2. Connect
 

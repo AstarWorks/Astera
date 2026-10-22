@@ -32,18 +32,23 @@ elements:
     glow_color: "#ffb020"
     count: 12
     start_tick: 1
-    end_tick: 11
+    end_tick: 10
     formation:
       curve: { type: circle, radius: 0.8 }
       tilt: { yaw: 0, pitch: 90, roll: 0 }
       offset: [0.0, 1.1, 0.6]
-      align: none
+      align: tangent
+    # the whole ring glides forward in the anchor frame (+z straight ahead)
+    group_keyframes:
+      - { t: 1 }
+      - { t: 6, translate: [0.0, 0.0, 4.0] }
     keyframes:
-      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.0, 0.0, 0.0] }
-      - { t: 1, scale: [0.26, 0.26, 0.26], ease: out_back }
-      - { t: 4, translate: [0.0, 0.0, 2.0] }
-      - { t: 7, translate: [0.0, 0.0, 4.0], block: orange_stained_glass }
-      - { t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad }
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [0.14, 0.14, 0.45], ease: out_back }
+      - { t: 3, block: orange_stained_glass }
+      - { t: 6, block: orange_stained_glass }
+      - { t: 7, block: gray_stained_glass }
+      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
 
   - id: soot
     kind: { type: block, block: black_stained_glass }

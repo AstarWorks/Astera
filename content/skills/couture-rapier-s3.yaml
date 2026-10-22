@@ -1,11 +1,10 @@
 # Couturier's Rapier S3 (sneak + right-click): the gilded salvo. A 12-tick charge (cyan motes pull into
 # the blade, afterimages stand behind, anything in the lane is outlined with glow -- the reply window), then
 # a 6-block dash-through. On contact: a heavy thrust (impact frame, three spinning rings, 6-tick freeze for
-# both fighters, 6.0 + 0.3 per poise), four light thrusts at 2-tick spacing (flash + sound only: a
-# target takes one hit per 20-tick invulnerability window and `damage.ignore_invulnerability` is not
-# honoured by the dispatcher yet) and, 21 ticks after the contact, the finisher (6.0 + 0.5 per poise,
-# knock-up, camera shake). The finisher spends all poise; with 3+ poise it also raises the gold dome.
-# 12 damage dry, 16 at 5 poise. Cooldown 13 s.
+# both fighters, 4.0 + 0.3 per poise), four real light thrusts at 2-tick spacing (4 x 1.0) and, 16 ticks
+# after the contact, the finisher (4.0 + 0.5 per poise, knock-up, camera shake). Every hit is its own
+# damage event ignoring i-frames. The finisher spends all poise; with 3+ poise it also raises the gold
+# dome. 12 damage dry, 16 at 5 poise. Cooldown 13 s.
 
 id: couture-rapier-s3
 
@@ -16,18 +15,16 @@ description:
   ja: "溜めの後に突進し、重い一撃・連続突き・黄金のドームで締める。溜まった poise を使い切って威力が上がる。"
   en: "A charged dash into a heavy thrust, a flurry and a gold-dome finisher. Spends all poise for extra damage."
 
-archetype: buff
+archetype: sequence
 cooldown_ticks: 260
 resource_cost: 45
 tags: [ melee, movement, physical, finisher, poise ]
 
 params:
-  type: buff
-  status_effect_id: dash
-  duration_ticks: 6
+  type: sequence
 
 phases:
-  type: buff
+  type: sequence
   cast:
     # --- telegraph (ticks 0-12) ---
     - type: play_sound
@@ -66,9 +63,10 @@ phases:
         - type: damage
           targets: { type: target }
           components:
-            - base: { type: literal, value: 6.0 }
+            - base: { type: literal, value: 4.0 }
               attribute: physical
               per_stack: { status_id: poise, amount: 0.3, on: caster, consume: false }
+          ignore_invulnerability: { type: literal, value: true }
         - type: play_vfx
           targets: { type: target }
           vfx_id: couture-rapier-impact-frame
@@ -95,6 +93,12 @@ phases:
           stride_ticks: { type: literal, value: 2 }
           delay_ticks: { type: literal, value: 7 }
           mechanics:
+            - type: damage
+              targets: { type: target }
+              components:
+                - base: { type: literal, value: 1.0 }
+                  attribute: physical
+              ignore_invulnerability: { type: literal, value: true }
             - type: play_vfx
               targets: { type: target }
               vfx_id: couture-rapier-burst-lite
@@ -108,41 +112,40 @@ phases:
         - type: play_vfx
           targets: { type: target }
           vfx_id: couture-rapier-dome
-          delay_ticks: { type: literal, value: 21 }
+          delay_ticks: { type: literal, value: 16 }
           condition: { type: has_status, on: caster, status_id: poise, min_stacks: 3 }
         - type: damage
           targets: { type: target }
           components:
-            - base: { type: literal, value: 6.0 }
+            - base: { type: literal, value: 4.0 }
               attribute: physical
               per_stack: { status_id: poise, amount: 0.5, on: caster, consume: true }
-          delay_ticks: { type: literal, value: 21 }
+          ignore_invulnerability: { type: literal, value: true }
+          delay_ticks: { type: literal, value: 16 }
         - type: hit_stop
           targets: { type: target }
           ticks: 4
-          delay_ticks: { type: literal, value: 21 }
+          delay_ticks: { type: literal, value: 16 }
         - type: camera_shake
           targets: { type: target }
           intensity: { type: literal, value: 0.6 }
           ticks: { type: literal, value: 8 }
-          delay_ticks: { type: literal, value: 21 }
+          delay_ticks: { type: literal, value: 16 }
         - type: knockback
           targets: { type: target }
-          direction: { type: from_caster }
+          direction: { type: away_from_caster, vertical: 0.15 }
           strength: { type: literal, value: 1.2 }
-          delay_ticks: { type: literal, value: 22 }
+          delay_ticks: { type: literal, value: 17 }
         - type: knockup
           targets: { type: target }
           strength: { type: literal, value: 0.35 }
-          delay_ticks: { type: literal, value: 22 }
+          delay_ticks: { type: literal, value: 17 }
         - type: play_sound
           targets: { type: target }
           sound_id: entity.firework_rocket.blast
           pitch: { type: literal, value: 1.4 }
-          delay_ticks: { type: literal, value: 21 }
+          delay_ticks: { type: literal, value: 16 }
         - type: play_sound
           targets: { type: target }
           sound_id: entity.player.attack.knockback
-          delay_ticks: { type: literal, value: 21 }
-  expire: []
-  removed: []
+          delay_ticks: { type: literal, value: 16 }

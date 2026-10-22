@@ -15,12 +15,15 @@ elements:
     glow_color: "#ffb000"
     count: 10
     start_tick: 0
-    end_tick: 24
+    slot_lifetime_ticks: 24
     formation:
       curve: { type: arc, radius: 2.6, from_deg: 0, to_deg: 360 }
       offset: [0.0, 0.08, 0.0]
       align: tangent
       stagger_ticks: 1
+    group_keyframes:
+      - { t: 0, rotate: [0, 0, 0] }
+      - { t: 24, rotate: [140, 0, 0], ease: out_quad }
     keyframes:
       - { t: 0, scale: [0.12, 0.05, 0.2] }
       - { t: 2, scale: [0.14, 0.05, 1.7], ease: out_expo }
@@ -32,13 +35,16 @@ elements:
     brightness: 15
     count: 6
     start_tick: 1
-    end_tick: 23
+    slot_lifetime_ticks: 22
     formation:
       curve: { type: arc, radius: 1.5, from_deg: 0, to_deg: 360 }
       offset: [0.0, 0.1, 0.0]
       align: tangent
       stagger_ticks: 1
       reverse: true
+    group_keyframes:
+      - { t: 0, rotate: [0, 0, 0] }
+      - { t: 22, rotate: [-200, 0, 0], ease: out_quad }
     keyframes:
       - { t: 0, scale: [0.1, 0.05, 0.2] }
       - { t: 2, scale: [0.1, 0.05, 1.65], ease: out_expo }

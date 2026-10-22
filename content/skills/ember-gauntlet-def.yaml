@@ -64,8 +64,8 @@ phases:
       ticks: 2
       delay_ticks: { type: literal, value: 3 }
     - type: knockback
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 140.0 }, distance: { type: literal, value: 3.4 } }
-      direction: { type: from_caster }
+      targets: { type: cone, from: { type: caster }, direction: { type: away_from_caster, vertical: 0.15 }, angle_degrees: { type: literal, value: 140.0 }, distance: { type: literal, value: 3.4 } }
+      direction: { type: away_from_caster, vertical: 0.15 }
       strength: { type: literal, value: 1.1 }
       delay_ticks: { type: literal, value: 3 }
     - type: apply_status

@@ -26,17 +26,6 @@ params:
 phases:
   type: aoe
   cast:
-    - type: explode
-      targets: { type: caster }
-      power: { type: literal, value: 3.0 }
-      radius: { type: literal, value: 6.0 }
-      break_blocks: { type: literal, value: false }
-      components:
-        - base: { type: literal, value: 8.0 }
-          attribute: fire
-    - type: summon_lightning
-      targets: { type: caster }
-      visual_only: { type: literal, value: true }
     - type: glow
       targets: { type: enemies, center: { type: caster } }
       ticks: { type: literal, value: 60 }
@@ -47,14 +36,26 @@ phases:
     - type: heal
       targets: { type: caster }
       amount: { type: literal, value: 4.0 }
+  hit_entity:
+    # Per-target flourishes land ON the target (z=3 in the showcase), not at the caster.
+    - type: explode
+      targets: { type: target }
+      power: { type: literal, value: 3.0 }
+      radius: { type: literal, value: 6.0 }
+      break_blocks: { type: literal, value: false }
+      components:
+        - base: { type: literal, value: 8.0 }
+          attribute: fire
+    - type: summon_lightning
+      targets: { type: target }
+      visual_only: { type: literal, value: true }
     - type: set_block
-      targets: { type: caster }
+      targets: { type: target }
       block_key: minecraft:ice
       revert_after_ticks: { type: literal, value: 40 }
     - type: spawn_display
-      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 2.5, z: 0.0 } } }
+      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 2.5, z: 0.0 } } }
       display:
         kind: { type: text, lines: [ { en: "Quake!", ja: "クエイク！" } ] }
         lifetime_ticks: 40
-  hit_entity: []
   expire: []

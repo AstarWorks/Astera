@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0221: Persona weapon roster (Limbus Company-inspired, 10 weapons)
+# ADR-0230: Persona weapon roster (Limbus Company-inspired, 10 weapons)
 
 ## Status
 

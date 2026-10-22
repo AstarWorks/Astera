@@ -2,6 +2,8 @@ package com.astarworks.astera.gamesim.persona
 
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.service.MechanicContext
+import com.astarworks.astera.combat.domain.damage.DamageSource
+import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.core.adapter.api.event.IMcEvent
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.effect.DisplayKind
@@ -18,11 +20,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 /**
- * ADR-0221 persona weapons #1 (`couture-rapier`, poise) and #2 (`gossamer-katana`, bleed): every
+ * ADR-0230 persona weapons #1 (`couture-rapier`, poise) and #2 (`gossamer-katana`, bleed): every
  * bound skill casts through the real item bindings, deals its designed damage to a dummy, builds or
  * spends its stack, spawns its layered displays within the live-display budget and leaves no display
  * behind. The dummy gets 200 HP so a whole kit's damage stays measurable (a crit only ever adds).
- * Damage is lumped per 20-tick invulnerability window: `damage.ignore_invulnerability` is not honoured yet.
+ * Multi-hit skills assert their hit count as distinct damage events (each beat ignores i-frames).
  */
 class RapierKatanaPersonaScenarioTest {
 
@@ -44,6 +46,10 @@ class RapierKatanaPersonaScenarioTest {
     }
 
     private fun ScenarioScope.lost(target: SimEntity): Double = DUMMY_HP - hp(target)
+
+    /** Distinct skill damage events the dummy has taken (DoT ticks are not counted). */
+    private fun ScenarioScope.hits(target: SimEntity): Int =
+        eventsOf<DamageDealt>().count { it.target == target.id && it.source is DamageSource.Skill }
 
     private fun ScenarioScope.stacks(entity: SimEntity, id: StatusEffectId): Int =
         sim.services.getOrThrow<IStatusEffectContainer>().stacks(entity.id, id)
@@ -105,7 +111,8 @@ class RapierKatanaPersonaScenarioTest {
             assertThat(stacks(caster, poise)).isEqualTo(1)
 
             val peak = peakDisplays(14)
-            // one 7.5 lump on beat 1; beats 2 and 3 (3 and 6 ticks later) are poise + feel only
+            // 2.0 + 2.0 + 3.5, beats 2 and 3 landing 3 and 6 ticks after the first
+            assertThat(hits(target)).isEqualTo(3)
             assertThat(lost(target)).isBetween(7.4, 20.0)
             assertThat(stacks(caster, poise)).isEqualTo(3)
             assertThat(target.frozenTicks).isGreaterThanOrEqualTo(0)
@@ -132,7 +139,8 @@ class RapierKatanaPersonaScenarioTest {
 
             val peak = peakDisplays(34)
             assertThat(caster.position.z).isGreaterThan(5.0)
-            // 6.0 scissor cut + 4.0 closing thrust 21 ticks later (the flicker between is feel only)
+            // 3.0 scissor cut + 3 x 1.0 flicker + 4.0 closing thrust
+            assertThat(hits(target)).isEqualTo(5)
             assertThat(lost(target)).isBetween(9.9, 25.0)
             assertThat(stacks(caster, poise)).isEqualTo(5)
             assertThat(spawnedGlyphs("✦")).isGreaterThan(0)
@@ -157,7 +165,8 @@ class RapierKatanaPersonaScenarioTest {
             assertThat(spawnedGlyphs("✦")).isGreaterThan(0)
 
             peak = maxOf(peak, peakDisplays(60))
-            // (6.0 + 5 x 0.3) heavy thrust + (6.0 + 5 x 0.5) finisher
+            // (4.0 + 5 x 0.3) heavy thrust + 4 x 1.0 flurry + (4.0 + 5 x 0.5) finisher
+            assertThat(hits(target)).isEqualTo(6)
             assertThat(lost(target)).isBetween(15.9, 40.0)
             assertThat(stacks(caster, poise)).isZero()
             assertThat(spawnedGlyphs("突")).isEqualTo(1)
@@ -175,7 +184,8 @@ class RapierKatanaPersonaScenarioTest {
             sneakRightClick(caster)
             val peak = peakDisplays(70)
 
-            // (6.0 + 0.3) + (6.0 + 0.5) with a single poise
+            // (4.0 + 0.3) + 4 x 1.0 + (4.0 + 0.5) with a single poise
+            assertThat(hits(target)).isEqualTo(6)
             assertThat(lost(target)).isBetween(12.7, 40.0)
             assertThat(stacks(caster, poise)).isZero()
             assertThat(spawnedBlocks("yellow_stained_glass")).isZero()
@@ -228,7 +238,8 @@ class RapierKatanaPersonaScenarioTest {
             assertThat(stacks(target, bleed)).isZero()
 
             val peak = peakDisplays(14)
-            // one 7.0 lump; beat 2 adds the bleed
+            // 3.0 + 4.0; beat 2 adds the bleed
+            assertThat(hits(target)).isEqualTo(2)
             assertThat(lost(target)).isBetween(6.9, 20.0)
             assertThat(stacks(target, bleed)).isEqualTo(1)
             assertThat(spawnedBlocks("light_blue_stained_glass")).isGreaterThan(0)
@@ -249,11 +260,13 @@ class RapierKatanaPersonaScenarioTest {
             var peak = peakDisplays(19)
             assertThat(target.glowing).isTrue()
             assertThat(lost(target)).isZero()
+            assertThat(hits(target)).isZero()
             assertThat(stacks(target, bleed)).isZero()
             assertThat(spawnedBlocks("white_concrete")).isZero() // the white flash has not fired yet
 
             peak = maxOf(peak, peakDisplays(10))
-            // one 12.0 lump at tick 20
+            // 4 x 2.0 + 4.0 on ticks 20..24
+            assertThat(hits(target)).isEqualTo(5)
             assertThat(lost(target)).isBetween(11.9, 30.0)
             assertThat(stacks(target, bleed)).isEqualTo(2)
             assertThat(spawnedBlocks("white_concrete")).isGreaterThan(0)
@@ -297,7 +310,8 @@ class RapierKatanaPersonaScenarioTest {
             assertThat(spawnedBlocks("light_blue_stained_glass")).isGreaterThanOrEqualTo(12)
 
             peak = maxOf(peak, peakDisplays(40))
-            // 5.0 first pulse + (3.0 + 1.5 x 3) scar
+            // 5 x 1.0 pulses + (3.0 + 1.5 x 3) scar
+            assertThat(hits(target)).isEqualTo(6)
             assertThat(lost(target)).isBetween(12.4, 40.0)
             assertThat(stacks(target, bleed)).isZero()
             assertThat(spawnedGlyphs("断")).isEqualTo(1)

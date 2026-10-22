@@ -13,7 +13,7 @@ elements:
     brightness: 15
     glow_color: "#ff3d7f"
     count: 8
-    end_tick: 13
+    slot_lifetime_ticks: 13
     formation:
       curve: { type: arc, radius: 2.8, from_deg: -62, to_deg: 62 }
       tilt: { yaw: 0, pitch: 0, roll: -38 }
@@ -32,7 +32,7 @@ elements:
     kind: { type: block, block: yellow_concrete }
     brightness: 15
     count: 8
-    end_tick: 11
+    slot_lifetime_ticks: 11
     formation:
       curve: { type: arc, radius: 2.8, from_deg: -62, to_deg: 62 }
       tilt: { yaw: 0, pitch: 0, roll: -38 }

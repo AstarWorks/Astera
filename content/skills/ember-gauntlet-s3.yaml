@@ -8,7 +8,7 @@
 #                                                                    + 0.3 per Charge on the caster (consumed), knockback
 # Burn is a real once-a-second DoT (2 x stacks), so its duration is kept short (40 ticks = two ticks).
 #   t74   smoke vent and a recoil hop.
-# Beats are 22 ticks apart so each damage packet clears the 20-tick invulnerability window.
+# Every hit ignores the invulnerability window (spiral 3 x 0.85, halo 2 x 1.25); a pure timeline: archetype sequence.
 # Targets: a 60 degree, 8 block cone taken from the (planted) caster.
 
 id: ember-gauntlet-s3
@@ -20,18 +20,16 @@ description:
   ja: "足を止めて炎の柱を立て、三段の灼熱で焼き尽くす。最後の一撃は敵の燃焼と自分の充填を全て消費して重くなる。"
   en: "Plants and raises a flame column, then lands three scorching beats. The last one consumes every burn stack on the enemy and every charge you hold."
 
-archetype: buff
+archetype: sequence
 cooldown_ticks: 320
 resource_cost: 70              # energy
 tags: [ persona, melee, fire, finisher, burn, charge ]
 
 params:
-  type: buff
-  status_effect_id: reloading  # slowed through the recovery
-  duration_ticks: 90
+  type: sequence
 
 phases:
-  type: buff
+  type: sequence
   cast:
     # ---- t0: telegraph -------------------------------------------------------------------------
     - type: hit_stop
@@ -66,12 +64,17 @@ phases:
       targets: { type: caster }
       vfx_id: ember-spiral
       delay_ticks: { type: literal, value: 25 }
-    - type: damage
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      components:
-        - base: { type: literal, value: 2.5 }
-          attribute: fire
+    - type: loop
+      count: { type: literal, value: 3 }
+      stride_ticks: { type: literal, value: 2 }
       delay_ticks: { type: literal, value: 27 }
+      mechanics:
+        - type: damage
+          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
+          ignore_invulnerability: { type: literal, value: true }
+          components:
+            - base: { type: literal, value: 0.85 }
+              attribute: fire
     - type: apply_status
       targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
       status_id: burn
@@ -99,12 +102,17 @@ phases:
       targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
       vfx_id: ember-halo
       delay_ticks: { type: literal, value: 48 }
-    - type: damage
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      components:
-        - base: { type: literal, value: 2.5 }
-          attribute: fire
+    - type: loop
+      count: { type: literal, value: 2 }
+      stride_ticks: { type: literal, value: 3 }
       delay_ticks: { type: literal, value: 49 }
+      mechanics:
+        - type: damage
+          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
+          ignore_invulnerability: { type: literal, value: true }
+          components:
+            - base: { type: literal, value: 1.25 }
+              attribute: fire
     - type: apply_status
       targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
       status_id: burn
@@ -128,6 +136,7 @@ phases:
       delay_ticks: { type: literal, value: 70 }
     - type: damage
       targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
+      ignore_invulnerability: { type: literal, value: true }
       components:
         - base: { type: literal, value: 3.5 }
           attribute: fire
@@ -142,8 +151,8 @@ phases:
       include_caster: true
       delay_ticks: { type: literal, value: 71 }
     - type: knockback
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
-      direction: { type: from_caster }
+      targets: { type: cone, from: { type: caster }, direction: { type: away_from_caster, vertical: 0.15 }, angle_degrees: { type: literal, value: 60.0 }, distance: { type: literal, value: 8.0 } }
+      direction: { type: away_from_caster, vertical: 0.15 }
       strength: { type: literal, value: 1.6 }
       delay_ticks: { type: literal, value: 71 }
     - type: camera_shake
@@ -190,5 +199,3 @@ phases:
       volume: { type: literal, value: 0.9 }
       pitch: { type: literal, value: 0.7 }
       delay_ticks: { type: literal, value: 76 }
-  expire: []
-  removed: []

@@ -11,19 +11,21 @@ description:
   ja: "後ろへ素早く跳んで間合いを外し、集中（poise）を2溜める。"
   en: "A quick hop out of reach that banks 2 poise for the next string."
 
-archetype: buff
+archetype: sequence
 cooldown_ticks: 90
 resource_cost: 10
 tags: [ buff, movement, defense, poise ]
 
 params:
-  type: buff
-  status_effect_id: evasive
-  duration_ticks: 14
+  type: sequence
 
 phases:
-  type: buff
+  type: sequence
   cast:
+    - type: apply_status
+      targets: { type: caster }
+      status_id: evasive
+      effect_duration_ticks: { type: literal, value: 14 }
     - type: propel
       targets: { type: caster }
       direction: { type: from_caster }
@@ -55,5 +57,3 @@ phases:
     - type: spawn_particle
       targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
       particle_id: dash-cloud
-  expire: []
-  removed: []

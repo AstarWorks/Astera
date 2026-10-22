@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 #
-# Astera E2E runner (QA-1, ADR-0186): runs the :tools:e2e protocol-bot suite INSIDE the
+# Astera E2E runner (QA-1, ADR-0222): runs the :tools:e2e protocol-bot suite INSIDE the
 # `astera-e2e` compose network, so it reaches the `e2e` backend by service name no matter
 # where the Docker daemon runs (a remote/shared daemon publishes ports on a host the
 # calling shell cannot reach; a bind mount of the repo would be empty - same constraint

@@ -2,10 +2,10 @@
 #
 #   t0    TELEGRAPH (22 ticks): the caster plants (hit_stop), a crimson summoning circle inks itself on the
 #         floor, the ghost rack unfolds, enemies in front are outlined (glow). Everyone can read it.
-#   t22   volley: eight beams converge, a 3D star of red lines bursts out of each target.  4 damage, +2 tremor
-#   t44   blood-crystal spikes erupt in a ring around each target.                          3.5 damage, +1 bleed, +2 tremor
+#   t22   volley: eight beams converge, a 3D star of red lines bursts out of each target.  8 x 0.5 damage, +2 tremor
+#   t44   blood-crystal spikes erupt in a ring around each target.                          1.5 + 2.0 damage, +1 bleed, +2 tremor
 #   t66   white flash, hit-stop, camera shake, shotgun burst.  4.5 damage + 1 per tremor stack (consumed), knockback
-# Beats sit 22 ticks apart so every damage packet clears the 20-tick invulnerability window.
+# Every hit ignores the invulnerability window, so each beam / spike is its own hit. A pure timeline: archetype sequence.
 # Targets: a 50 degree, 12 block cone taken from the (planted) caster.
 
 id: vendetta-rifle-s3
@@ -17,18 +17,16 @@ description:
   ja: "足を止めて銃架と魔法陣を展開し、三段の連撃で撃ち抜く。蓄積した震動を全て消費して最後の一撃が重くなる。弾を3発消費する。"
   en: "Plants, unfolds the rack and a summoning circle, then lands three beats. The last one consumes every tremor stack for extra damage. Costs 3 rounds."
 
-archetype: buff
+archetype: sequence
 cooldown_ticks: 300
 resource_cost: 3               # half the magazine
 tags: [ persona, gun, finisher, tremor, bleed ]
 
 params:
-  type: buff
-  status_effect_id: reloading  # the 20% slow of the recovery window
-  duration_ticks: 90
+  type: sequence
 
 phases:
-  type: buff
+  type: sequence
   cast:
     # ---- t0: telegraph -------------------------------------------------------------------------
     - type: hit_stop
@@ -82,12 +80,17 @@ phases:
       targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
       vfx_id: vendetta-beam-cross
       delay_ticks: { type: literal, value: 22 }
-    - type: damage
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
-      components:
-        - base: { type: literal, value: 4.0 }
-          attribute: physical
+    - type: loop
+      count: { type: literal, value: 8 }
+      stride_ticks: { type: literal, value: 2 }
       delay_ticks: { type: literal, value: 22 }
+      mechanics:
+        - type: damage
+          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+          ignore_invulnerability: { type: literal, value: true }
+          components:
+            - base: { type: literal, value: 0.5 }
+              attribute: physical
     - type: apply_status
       targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
       status_id: tremor
@@ -112,10 +115,18 @@ phases:
       delay_ticks: { type: literal, value: 44 }
     - type: damage
       targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      ignore_invulnerability: { type: literal, value: true }
       components:
-        - base: { type: literal, value: 3.5 }
+        - base: { type: literal, value: 1.5 }
           attribute: physical
       delay_ticks: { type: literal, value: 44 }
+    - type: damage
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      ignore_invulnerability: { type: literal, value: true }
+      components:
+        - base: { type: literal, value: 2.0 }
+          attribute: physical
+      delay_ticks: { type: literal, value: 47 }
     - type: apply_status
       targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
       status_id: bleed
@@ -151,6 +162,7 @@ phases:
       delay_ticks: { type: literal, value: 66 }
     - type: damage
       targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      ignore_invulnerability: { type: literal, value: true }
       components:
         - base: { type: literal, value: 4.5 }
           attribute: physical
@@ -162,8 +174,8 @@ phases:
       include_caster: true
       delay_ticks: { type: literal, value: 66 }
     - type: knockback
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
-      direction: { type: from_caster }
+      targets: { type: cone, from: { type: caster }, direction: { type: away_from_caster, vertical: 0.15 }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      direction: { type: away_from_caster, vertical: 0.15 }
       strength: { type: literal, value: 1.5 }
       delay_ticks: { type: literal, value: 66 }
     - type: camera_shake
@@ -192,10 +204,9 @@ phases:
       targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
       particle_id: gun-impact
       delay_ticks: { type: literal, value: 66 }
-  expire:
     - type: play_sound
       targets: { type: caster }
       sound_id: block.iron_door.close
       volume: { type: literal, value: 0.5 }
       pitch: { type: literal, value: 1.2 }
-  removed: []
+      delay_ticks: { type: literal, value: 90 }

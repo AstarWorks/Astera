@@ -42,5 +42,41 @@ phases:
     - type: spawn_particle
       targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 1.0, z: 0.0 } } }
       particle_id: verdant-heal
+    # Healing aura: a ground ripple, two rising green halos and a burst of hearts around the caster.
+    # Budget: ripple 8x16x2 = 256 + halos 2 x 14 x 10 x 2 = 560 + burst 30 => ~850 once per cast.
+    - type: schedule_particle_animation
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.1, z: 0.0 } } }
+      animation:
+        - type: ring
+          period_ticks: 8
+          points: 16
+          start_radius: 0.4
+          end_radius: 2.2
+          particles:
+            - { id: happy_villager, count: 0, extra: 0.02 }
+            - { id: dust, color: { r: 90, g: 230, b: 90 }, scale: 1.4 }
+        - type: ring
+          period_ticks: 14
+          points: 10
+          start_radius: 1.1
+          end_radius: 0.7
+          rise: 2.2
+          particles:
+            - { id: happy_villager }
+            - { id: dust, color: { r: 140, g: 255, b: 120 }, scale: 1.2 }
+        - type: ring
+          delay_ticks: 6
+          period_ticks: 14
+          points: 10
+          start_radius: 0.7
+          end_radius: 1.1
+          rise: 2.2
+          particles:
+            - { id: happy_villager }
+            - { id: dust, color: { r: 140, g: 255, b: 120 }, scale: 1.2 }
+        - type: point
+          particles:
+            - { id: heart, count: 8, offset: { x: 0.8, y: 0.8, z: 0.8 } }
+            - { id: happy_villager, count: 22, offset: { x: 0.7, y: 1.0, z: 0.7 } }
   expire: []
   removed: []

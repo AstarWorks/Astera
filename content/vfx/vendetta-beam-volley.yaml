@@ -15,7 +15,7 @@ elements:
     brightness: 15
     glow_color: "#ff2040"
     count: 8
-    end_tick: 9
+    slot_lifetime_ticks: 9
     formation:
       curve: { type: arc, radius: 11.6, from_deg: 194, to_deg: 166 }
       offset: [0.0, 1.9, 10.0]
@@ -32,7 +32,7 @@ elements:
     kind: { type: block, block: white_concrete }
     brightness: 15
     count: 8
-    end_tick: 6
+    slot_lifetime_ticks: 6
     formation:
       curve: { type: arc, radius: 11.6, from_deg: 194, to_deg: 166 }
       offset: [0.0, 1.9, 10.0]
@@ -47,7 +47,7 @@ elements:
   - id: muzzle
     kind: { type: particle, particle_id: gun-muzzle-flash, every_ticks: 8 }
     count: 8
-    end_tick: 2
+    slot_lifetime_ticks: 2
     formation:
       curve: { type: arc, radius: 11.6, from_deg: 194, to_deg: 166 }
       offset: [0.0, 1.9, 10.0]

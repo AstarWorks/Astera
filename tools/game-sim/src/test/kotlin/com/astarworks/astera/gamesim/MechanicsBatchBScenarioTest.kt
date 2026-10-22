@@ -184,6 +184,10 @@ class MechanicsBatchBScenarioTest {
             assertThat(sim.recorder.effects("lightning")).hasSize(1)
             assertThat(sim.recorder.effects("block_place")).hasSize(1)
             assertThat(sim.displays.active).hasSize(1)
+            // The per-target visuals are anchored on the enemy (z=4), not at the caster (z=0).
+            for (kind in listOf("explosion", "lightning", "block_place")) {
+                assertThat(sim.recorder.effects(kind).single().at!!.z).describedAs(kind).isCloseTo(4.0, org.assertj.core.data.Offset.offset(1.0))
+            }
 
             advance(80)
             assertThat(enemy.glowing).isFalse()

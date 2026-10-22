@@ -1,8 +1,8 @@
-# ADR-0221 persona weapon: Bastion Greatsword S2 (right click), "Judgement Rush". 8 ticks of
+# ADR-0230 persona weapon: Bastion Greatsword S2 (right click), "Judgement Rush". 8 ticks of
 # telegraph (lit floor lane + sword held flat), a 7-block rush, and if it connects a plunge on the
 # spot 30 ticks later (converging warning hoop = dodgeable). Both hits scale with banked charge;
 # the plunge spends it. A rush that touches nobody does nothing past the visuals.
-# No baseline hit: the aoe radius is 0, all damage comes from the timeline below.
+# A sequence skill: no baseline hit, all damage comes from the timeline below.
 
 id: bastion-greatsword-s2
 
@@ -13,21 +13,16 @@ description:
   ja: "溜めた力で突進し、命中した地点へ大剣を突き立てる。溜め（チャージ）を消費して威力が増す。"
   en: "Rush forward and, if it connects, plunge the greatsword into the spot. Spends charge for extra damage."
 
-archetype: aoe
+archetype: sequence
 cooldown_ticks: 100
 resource_cost: 30              # energy
 tags: [ melee, physical, movement, charge ]
 
 params:
-  type: aoe
-  radius: 0.0
-  falloff: linear
-  damage:
-    - base: { type: literal, value: 1.0 }
-      attribute: physical
+  type: sequence
 
 phases:
-  type: aoe
+  type: sequence
   cast:
     - type: play_sound
       targets: { type: caster }
@@ -108,5 +103,3 @@ phases:
           volume: { type: literal, value: 0.6 }
           pitch: { type: literal, value: 0.8 }
           delay_ticks: { type: literal, value: 30 }
-  hit_entity: []
-  expire: []
