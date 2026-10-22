@@ -47,6 +47,7 @@ class ShopShippedContentPurchaseTest {
     private lateinit var stock: InMemoryShopStockRepository
     private lateinit var eventBus: FakeDomainEventBus
     private lateinit var messages: FakeMessageRenderer
+    private lateinit var delivery: com.astarworks.astera.testfixtures.FakeItemDelivery
     private lateinit var purchase: ShopPurchaseUseCase
 
     @BeforeEach
@@ -54,6 +55,7 @@ class ShopShippedContentPurchaseTest {
         server = FakeMcServer()
         player = FakeMcPlayer(id = playerId)
         server.register(player)
+        delivery = com.astarworks.astera.testfixtures.FakeItemDelivery()
         ledger = InMemoryCurrencyLedger()
         eventBus = FakeDomainEventBus()
         messages = FakeMessageRenderer()
@@ -65,7 +67,7 @@ class ShopShippedContentPurchaseTest {
         val report = ShopLoaderService(shops, stock).loadFrom(content.resolve("shops"))
         assertThat(report.failures).isEmpty()
 
-        purchase = ShopPurchaseUseCase(shops, ledger, items, messages, server, eventBus, stock)
+        purchase = ShopPurchaseUseCase(shops, ledger, items, messages, server, eventBus, stock) { delivery }
 
         // A brand-new player gets the shipped starter grant (what first join does).
         StarterGrantLoader().load(content.resolve("balance").resolve("starter-grant.yaml"))
@@ -95,7 +97,7 @@ class ShopShippedContentPurchaseTest {
         assertThat(receipt.price).isEqualTo(offer.price)
         assertThat(receipt.newBalance).isEqualTo(startBalance - offer.price.amount)
         assertThat(ledger.balance(playerId, offer.price.currency)).isEqualTo(startBalance - offer.price.amount)
-        assertThat(player.given).hasSize(1)
+        assertThat(delivery.delivered).hasSize(1)
         assertThat(eventBus.publishedOfType<CurrencyChanged>().single().delta).isEqualTo(-offer.price.amount)
     }
 
@@ -113,7 +115,7 @@ class ShopShippedContentPurchaseTest {
 
         assertThat(result.errorOrNull()).isEqualTo(ShopPurchaseError.InsufficientFunds(offer.price.currency))
         assertThat(ledger.balance(playerId, offer.price.currency)).isEqualTo(before).isLessThan(offer.price.amount)
-        assertThat(player.given).isEmpty()
+        assertThat(delivery.delivered).isEmpty()
         assertThat(eventBus.publishedOfType<CurrencyChanged>()).isEmpty()
     }
 

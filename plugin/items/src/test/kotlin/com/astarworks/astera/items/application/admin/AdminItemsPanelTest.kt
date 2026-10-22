@@ -10,7 +10,7 @@ import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.resource.ResourceType
-import com.astarworks.astera.items.application.port.outbound.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
 import com.astarworks.astera.items.testfixtures.FakeItemDelivery
 import com.astarworks.astera.items.testfixtures.InMemoryItemRegistry
 import com.astarworks.astera.items.testfixtures.itemSpec

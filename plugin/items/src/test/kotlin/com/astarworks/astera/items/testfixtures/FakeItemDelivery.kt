@@ -2,8 +2,8 @@ package com.astarworks.astera.items.testfixtures
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.domain.item.ItemSpec
-import com.astarworks.astera.items.application.port.outbound.DeliveryResult
-import com.astarworks.astera.items.application.port.outbound.IItemDelivery
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 
 /**
  * Test-only [IItemDelivery] that records every call and returns a configurable

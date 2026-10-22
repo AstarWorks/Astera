@@ -5,8 +5,8 @@ import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.ItemSpec
-import com.astarworks.astera.items.application.port.outbound.DeliveryResult
-import com.astarworks.astera.items.application.port.outbound.IItemDelivery
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 
 /** Why an admin-panel item hand-out did not (fully) happen. */
 public sealed class AdminGiveError {

@@ -3,7 +3,7 @@ package com.astarworks.astera.items.platform.wiring
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.items.adapter.paper.IPaperItemIdResolver
 import com.astarworks.astera.items.application.port.outbound.IItemCooldownSweepGateway
-import com.astarworks.astera.items.application.port.outbound.IItemDelivery
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 
 /**
  * Host-specific ports [ItemsWiring.install] consumes (ADR-0174). Paper builds

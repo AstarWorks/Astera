@@ -278,6 +278,7 @@ public object EconomyWiring {
             server = mcServer,
             eventBus = eventBus,
             stockRepository = shopStockRepository,
+            delivery = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemDelivery>() },
         )
         val shopIntentHandler = ShopIntentHandler(
             purchase = shopPurchase,

@@ -39,9 +39,9 @@ import com.astarworks.astera.core.domain.player.physiology.HealthChangeSource
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
-import com.astarworks.astera.items.application.port.outbound.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
 import com.astarworks.astera.items.application.port.outbound.IItemCooldownSweepGateway
-import com.astarworks.astera.items.application.port.outbound.IItemDelivery
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.items.adapter.paper.IPaperItemIdResolver
 import com.astarworks.astera.core.domain.item.ItemId

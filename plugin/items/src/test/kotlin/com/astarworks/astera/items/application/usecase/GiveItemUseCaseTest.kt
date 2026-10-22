@@ -1,7 +1,7 @@
 package com.astarworks.astera.items.application.usecase
 
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.items.application.port.outbound.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
 import com.astarworks.astera.items.testfixtures.FakeItemDelivery
 import com.astarworks.astera.items.testfixtures.InMemoryItemRegistry
 import com.astarworks.astera.items.testfixtures.itemSpec
