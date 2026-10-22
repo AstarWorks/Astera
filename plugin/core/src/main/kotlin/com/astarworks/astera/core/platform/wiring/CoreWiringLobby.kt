@@ -397,6 +397,28 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     // plugins; dispatch happens at click time, so enable order does not matter.
     // Game-only backends (ServerRole.GAME) have no lobby world, so no lobby NPCs.
     if (ctx.serverRole.hostsLobby) {
+        // Queue lane pads (F3-1): step-on detection + the live per-lane queued counts. The lane list
+        // comes from the Match plugin's ILobbyLaneCatalog at use time (Match enables after Core).
+        when (val lobbyContent = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.load(contentDir)) {
+            is com.astarworks.astera.core.domain.Result.Success -> {
+                val lobbyConfig = lobbyContent.value
+                services.register<com.astarworks.astera.core.application.service.lobby.LobbyLanePadService>(
+                    com.astarworks.astera.core.application.service.lobby.LobbyLanePadService(
+                        lobbyWorld = com.astarworks.astera.core.domain.world.WorldId(lobbyConfig.id),
+                        centerX = lobbyConfig.center.x,
+                        centerZ = lobbyConfig.center.z,
+                        surfaceY = lobbyConfig.surfaceY,
+                        catalog = { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneCatalog>() },
+                        eventBus = eventBus,
+                    ),
+                )
+                services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneBoard>(
+                    com.astarworks.astera.core.application.service.lobby.InMemoryLobbyLaneBoard(),
+                )
+            }
+            is com.astarworks.astera.core.domain.Result.Failure ->
+                logger.warning("Lobby lane pads disabled: lobby world content unavailable (${lobbyContent.error}).")
+        }
         val lobbyNpcBodies = ports.npcBodies?.invoke(services)
         if (lobbyNpcBodies != null) {
             services.register<com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer>(

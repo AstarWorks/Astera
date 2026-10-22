@@ -19,8 +19,8 @@ import kotlin.random.Random
  * Layout (offsets from the plaza/fountain centre, +x east, +z south):
  *  - main island r27 with the plaza (r10), fountain, benches, lamp posts, signposts,
  *    a stream that falls off the west rim, trees and flowers; spawn 6 blocks south of the fountain.
- *  - market island east (47, 0): shop, refiner and loadout stalls.
- *  - queue island south (0, 50): one pad + sign board per lane in [LANES], queue master.
+ *  - market island east (47, 0): shop and loadout stalls.
+ *  - queue island south (0, 50): one pad + sign board per queue lane ([LobbyLanePadLayout]), queue master.
  *  - garden island west (-44, 0): pond and a waterfall over the rim.
  *  - pavilion island north (0, -42): gazebo viewpoint.
  *  - three small floating rocks with cherry trees.
@@ -28,11 +28,12 @@ import kotlin.random.Random
  */
 public object LobbyIslandGenerator {
 
-    /** Queue lanes, in left-to-right order on the queue island. */
-    public val LANES: List<String> = listOf("norma", "annihilation", "siege")
-
-    public fun generate(seed: Long, centerX: Int, centerZ: Int, surfaceY: Int): LobbyBuildPlan =
-        Builder(seed, centerX, centerZ, surfaceY).build()
+    /**
+     * [lanes] are the queue lane ids (from `content/matchmaking/queue.yaml`); one pad + sign
+     * board is built per lane, placed by [LobbyLanePadLayout].
+     */
+    public fun generate(seed: Long, centerX: Int, centerZ: Int, surfaceY: Int, lanes: List<String>): LobbyBuildPlan =
+        Builder(seed, centerX, centerZ, surfaceY, lanes).build()
 
     private class Island(
         val cx: Int,
@@ -47,9 +48,9 @@ public object LobbyIslandGenerator {
             r * (1.0 + 0.09 * sin(2 * theta + p1) + 0.06 * sin(3 * theta + p2) + 0.04 * sin(5 * theta + p3))
     }
 
-    private enum class Stall { SHOP, REFINE, LOADOUT }
+    private enum class Stall { SHOP, LOADOUT }
 
-    private class Builder(val seed: Long, val cx: Int, val cz: Int, val s: Int) {
+    private class Builder(val seed: Long, val cx: Int, val cz: Int, val s: Int, val lanes: List<String>) {
         private val blocks = HashMap<LobbyBlockPos, String>(80_000)
         private val signs = ArrayList<LobbySign>()
         private val npcSpots = LinkedHashMap<String, LobbyNpcSpot>()
@@ -81,7 +82,7 @@ public object LobbyIslandGenerator {
         fun build(): LobbyBuildPlan {
             val main = island(0, 0, 27.0, s)
             val market = island(47, 0, 13.0, s)
-            val queue = island(0, 50, 17.0, s)
+            val queue = island(0, LobbyLanePadLayout.islandOffsetZ(lanes.size), LobbyLanePadLayout.islandRadius(lanes.size), s)
             val garden = island(-44, 0, 11.0, s)
             val pavilion = island(0, -42, 10.0, s)
             val rocks = listOf(
@@ -369,7 +370,6 @@ public object LobbyIslandGenerator {
                 set(mx + px, s, mz + pz, "minecraft:coarse_dirt")
             }
             stall(mx, mz - 6, 0, 1, Stall.SHOP, "shop-npc")
-            stall(mx + 6, mz, -1, 0, Stall.REFINE, "refinement-npc")
             stall(mx, mz + 6, 0, -1, Stall.LOADOUT, "loadout-npc")
         }
 
@@ -386,7 +386,6 @@ public object LobbyIslandGenerator {
             }
             val (roofA, roofB) = when (kind) {
                 Stall.SHOP -> "minecraft:red_wool" to "minecraft:white_wool"
-                Stall.REFINE -> "minecraft:gray_wool" to "minecraft:light_gray_wool"
                 Stall.LOADOUT -> "minecraft:blue_wool" to "minecraft:white_wool"
             }
             for (u in -3..3) {
@@ -394,7 +393,6 @@ public object LobbyIslandGenerator {
                 // back wall
                 val wall = when (kind) {
                     Stall.SHOP -> "minecraft:oak_planks"
-                    Stall.REFINE -> "minecraft:stone_bricks"
                     Stall.LOADOUT -> "minecraft:spruce_planks"
                 }
                 for (y in 1..3) w(u, -2, s + y, if (u == -3 || u == 3) "minecraft:stripped_oak_log[axis=y]" else wall)
@@ -407,7 +405,6 @@ public object LobbyIslandGenerator {
                 if (u == -2 || u == 2) w(u, 1, s + 2, "minecraft:lantern[hanging=false]")
                 when (kind) {
                     Stall.SHOP -> w(u, -2, s + 2, if (u and 1 == 0) "minecraft:bookshelf" else "minecraft:oak_planks")
-                    Stall.REFINE -> if (u == 0) w(u, -2, s + 1, "minecraft:blast_furnace[facing=$face,lit=false]")
                     Stall.LOADOUT -> if (u == 0) w(u, -2, s + 1, "minecraft:cartography_table")
                 }
             }
@@ -419,11 +416,6 @@ public object LobbyIslandGenerator {
 
         private fun counterBlock(kind: Stall, u: Int, face: String): String = when (kind) {
             Stall.SHOP -> if (u == -2 || u == 2) "minecraft:barrel[facing=up]" else "minecraft:oak_planks"
-            Stall.REFINE -> when (u) {
-                -1 -> "minecraft:smithing_table"
-                1 -> "minecraft:fletching_table"
-                else -> "minecraft:stone_bricks"
-            }
             Stall.LOADOUT -> when (u) {
                 -1, 1 -> "minecraft:loom[facing=$face]"
                 0 -> "minecraft:spruce_planks"
@@ -446,33 +438,38 @@ public object LobbyIslandGenerator {
             npcSpots["queue-npc"] = LobbyNpcSpot(qx + 2.5, s + 1.0, qz + 0.5, 180f)
             lampPost(qx - 3, qz - 3)
             lampPost(qx + 3, qz - 3)
-            val colors = listOf("lime", "red", "light_blue")
-            LANES.forEachIndexed { i, lane ->
-                val px = qx + (i - 1) * 7
-                val pz = qz + 4
-                val color = colors[i]
+            val colors = listOf("lime", "red", "light_blue", "orange", "magenta", "yellow", "cyan", "purple")
+            LobbyLanePadLayout.slots(lanes.size).forEach { slot ->
+                val lane = lanes[slot.index]
+                val px = qx + slot.dx
+                val pz = qz + slot.dz
+                val color = colors[slot.index % colors.size]
+                // The board stands behind the pad: south of it facing north, or north of it facing south.
+                val bz = if (slot.boardFacesNorth) pz + 3 else pz - 3
+                val sz = if (slot.boardFacesNorth) pz + 2 else pz - 2
                 for (dx in -2..2) for (dz in -2..2) {
                     val d = hypot(dx.toDouble(), dz.toDouble())
                     if (d <= 2.3) set(px + dx, s, pz + dz, if (d <= 1.0) "minecraft:sea_lantern" else if (d <= 1.9) "minecraft:${color}_concrete" else "minecraft:white_concrete")
                 }
                 for (u in -2..2) {
-                    for (y in 1..4) set(px + u, y + s, pz + 3, if (y == 3) "minecraft:${color}_concrete" else "minecraft:quartz_bricks")
-                    set(px + u, s + 5, pz + 3, "minecraft:quartz_slab[type=bottom]")
+                    for (y in 1..4) set(px + u, y + s, bz, if (y == 3) "minecraft:${color}_concrete" else "minecraft:quartz_bricks")
+                    set(px + u, s + 5, bz, "minecraft:quartz_slab[type=bottom]")
                 }
-                set(px - 2, s + 1, pz + 3, "minecraft:sea_lantern")
-                set(px + 2, s + 1, pz + 3, "minecraft:sea_lantern")
-                val signPos = LobbyBlockPos(px, s + 2, pz + 2)
-                val signState = "minecraft:oak_wall_sign[facing=north]"
+                set(px - 2, s + 1, bz, "minecraft:sea_lantern")
+                set(px + 2, s + 1, bz, "minecraft:sea_lantern")
+                val signPos = LobbyBlockPos(px, s + 2, sz)
+                val signState = "minecraft:oak_wall_sign[facing=${if (slot.boardFacesNorth) "north" else "south"}]"
                 set(signPos.x, signPos.y, signPos.z, signState)
                 signs += LobbySign(
                     signPos,
                     signState,
                     listOf(
-                        MessageKey("astera.lobby.sign.lane.$lane.title"),
-                        MessageKey("astera.lobby.sign.lane.$lane.subtitle"),
+                        MessageKey("astera.lobby.sign.lane.title"),
+                        null,
                         null,
                         MessageKey("astera.lobby.sign.lane.hint"),
                     ),
+                    placeholders = mapOf("lane" to LobbyLanePadLayout.displayName(lane)),
                 )
                 lanePads[lane] = Vec3(px + 0.5, s + 1.0, pz + 0.5)
             }

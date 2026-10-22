@@ -507,6 +507,35 @@ internal object MatchGameplayWiring {
                 "Wave 5lobby-content wired: LobbyQueueIntentHandler registered on " +
                     "'lobby.queue.' prefix.",
             )
+
+            // ── F3-1 — lobby lane pads: step on a pad -> join that lane; hologram counts ──
+            // Core builds the pads from this catalog (it cannot read queue.yaml itself) and
+            // publishes LobbyLanePadEntered when a player steps on one.
+            registrations += services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneCatalog>(
+                com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneCatalog {
+                    env.queueSettings.current().lanes.keys.toList()
+                },
+                priority = 0,
+            )
+            val lanePadJoin = com.astarworks.astera.match.application.service.matchmaking.LobbyLanePadJoinService(
+                matchmaker = matchmaker,
+                parties = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPartyRepository>(),
+                matches = matches,
+                mcServer = services.getOrThrow<IMcServer>(),
+                settings = { env.queueSettings.current() },
+                board = services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneBoard>(),
+            )
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.LobbyLanePadEntered::class) {
+                lanePadJoin.onPadEntered(it)
+            }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueJoined::class) { lanePadJoin.refreshBoard() }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchQueueLeft::class) { lanePadJoin.refreshBoard() }
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.MatchFormed::class) { lanePadJoin.refreshBoard() }
+            // Safety net for paths that drain a queue without an event (admin force start, reload).
+            scheduledTasks += scheduler.runRepeating(
+                com.astarworks.astera.core.application.port.outbound.ticks(40),
+                com.astarworks.astera.core.application.port.outbound.ticks(40),
+            ) { lanePadJoin.refreshBoard() }
         }
 
         // ── Wave E 5admin-ops (ADR-0122) — admin commands ───────────────────

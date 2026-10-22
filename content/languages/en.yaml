@@ -1364,15 +1364,28 @@ astera:
           subtitle: "<dark_gray>Queue here</dark_gray>"
       lane:
         hint: "<dark_gray>Step on the pad</dark_gray>"
-        norma:
-          title: "<green><bold>NORMA</bold></green>"
-          subtitle: "<dark_gray>Quota race</dark_gray>"
-        annihilation:
-          title: "<red><bold>ANNIHILATION</bold></red>"
-          subtitle: "<dark_gray>3 pillars</dark_gray>"
-        siege:
-          title: "<aqua><bold>SIEGE</bold></aqua>"
-          subtitle: "<dark_gray>Objectives</dark_gray>"
+        title: "<gold><bold>{lane}</bold></gold>"
+    # F3-1 — queue lane pads: holograms above the pads, join confirmation.
+    lane:
+      board:
+        name: "<gold><bold>{lane}</bold></gold>"
+        queued: "<gray>{count} queued</gray>"
+      joined:
+        title: "<green><bold>Queued</bold></green>"
+        subtitle: "<gray>Waiting for the match to start</gray>"
+        actionbar: "<green>Joined <white>{lane}</white> - leave with <white>/astera queue leave</white></green>"
+      switched:
+        actionbar: "<green>Moved to <white>{lane}</white> - leave with <white>/astera queue leave</white></green>"
+      already:
+        actionbar: "<yellow>You are already queued for <white>{lane}</white>.</yellow>"
+      in-match:
+        actionbar: "<red>You cannot queue during a match.</red>"
+      closed:
+        actionbar: "<red><white>{lane}</white> is closed right now.</red>"
+      party-too-large:
+        actionbar: "<red>Your party is too large for <white>{lane}</white>.</red>"
+      failed:
+        actionbar: "<red>Could not join <white>{lane}</white>.</red>"
 
   # Wave E 5admin-ops (ADR-0122) — flat /astera-<verb> admin commands.
   # Every key maps to one of the 15 commands wired across Core / Items /

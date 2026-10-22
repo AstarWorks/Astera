@@ -28,6 +28,7 @@ public object LobbyWorldContent {
         return Result.success(lobby)
     }
 
-    public fun plan(config: LobbyWorldYamlConfig): LobbyBuildPlan =
-        LobbyIslandGenerator.generate(config.seed, config.center.x, config.center.z, config.surfaceY)
+    /** [lanes]: queue lane ids (`content/matchmaking/queue.yaml`), one pad each. */
+    public fun plan(config: LobbyWorldYamlConfig, lanes: List<String>): LobbyBuildPlan =
+        LobbyIslandGenerator.generate(config.seed, config.center.x, config.center.z, config.surfaceY, lanes)
 }

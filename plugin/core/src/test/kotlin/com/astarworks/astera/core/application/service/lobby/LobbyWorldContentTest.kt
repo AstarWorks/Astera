@@ -4,6 +4,7 @@ import com.astarworks.astera.core.application.config.LobbyNpcYamlConfig
 import com.astarworks.astera.core.application.service.ContentLoader
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.lobby.LobbyLanePadLayout
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
@@ -14,7 +15,9 @@ class LobbyWorldContentTest {
 
     private val content: Path = locateContentRoot()
     private val config = (LobbyWorldContent.load(content) as Result.Success).value
-    private val plan = LobbyWorldContent.plan(config)
+    private val lanes: List<String> = Regex("""(?m)^\s*-\s*id:\s*(\S+)""")
+        .findAll(Files.readString(content.resolve("matchmaking/queue.yaml"))).map { it.groupValues[1] }.toList()
+    private val plan = LobbyWorldContent.plan(config, lanes)
 
     @Test
     fun `lobby yaml loads with its world rules`() {
@@ -48,7 +51,7 @@ class LobbyWorldContentTest {
         val report = ContentLoader(ContentLoader.DEFAULT_PARSERS, LobbyNpcYamlConfig.serializer())
             .loadFrom(content.resolve("lobby-npcs")) { npcs += it }
         assertThat(report.failures).isEmpty()
-        assertThat(npcs).hasSize(8)
+        assertThat(npcs).hasSize(7)
         npcs.forEach { npc ->
             assertThat(npc.spawn.world).describedAs(npc.id).isEqualTo(config.id)
             val at = Vec3(npc.spawn.x, npc.spawn.y, npc.spawn.z)
@@ -58,6 +61,18 @@ class LobbyWorldContentTest {
             assertThat(Vec3(spot.x, spot.y, spot.z)).describedAs(npc.id).isEqualTo(at)
             assertThat(spot.yaw).describedAs("${npc.id} yaw").isEqualTo(npc.spawn.yaw)
         }
+    }
+
+    @Test
+    fun `every shipped queue lane gets a walkable pad that maps back to it`() {
+        assertThat(lanes).isNotEmpty()
+        assertThat(plan.lanePads.keys).containsExactlyElementsOf(lanes)
+        plan.lanePads.forEach { (lane, pad) ->
+            assertThat(plan.isWalkable(pad)).describedAs("pad $lane").isTrue()
+            assertThat(LobbyLanePadLayout.laneAt(plan.lanePads, config.surfaceY, pad)).isEqualTo(lane)
+        }
+        assertThat(LobbyLanePadLayout.padCenters(lanes, config.center.x, config.center.z, config.surfaceY))
+            .isEqualTo(plan.lanePads)
     }
 
     private fun locateContentRoot(): Path {

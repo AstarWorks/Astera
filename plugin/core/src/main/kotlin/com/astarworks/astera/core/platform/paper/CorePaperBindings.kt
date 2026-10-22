@@ -91,6 +91,7 @@ internal class CorePaperBindings(
     /** Set by the GUI factory; the Paper listener needs the concrete adapter. */
     private var paperGuiAdapter: PaperGuiAdapter? = null
     private var lobbyMenuKit: com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyMenuKit? = null
+    private var lobbyLaneHolograms: com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyLaneHolograms? = null
 
     fun buildPorts(): CorePlatformPorts {
         // ---- Vendor-neutral abstraction over Paper -----------------------
@@ -482,7 +483,6 @@ internal class CorePaperBindings(
                 return
             }
         }
-        val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(config)
         val lobby = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyWorld(
             plugin = plugin,
             messages = ctx.services.getOrThrow<IMessageRenderer>(),
@@ -509,7 +509,13 @@ internal class CorePaperBindings(
             if (!created.compareAndSet(false, true)) return@Runnable
             var done = true
             try {
+                // Built here (not at Core's onEnable) so Match, which enables later, has registered
+                // the queue lane list the pads are generated from.
+                val lanes = ctx.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneCatalog>()
+                    ?.laneIds().orEmpty()
+                val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(config, lanes)
                 lobby.install(config, plan)
+                installLobbyLaneHolograms(ctx, config.id, plan)
             } catch (t: Throwable) {
                 if (attempts.incrementAndGet() < MAX_LOBBY_WORLD_ATTEMPTS) {
                     // Paper may still consider the server "starting"; retry a bit later.
@@ -527,6 +533,12 @@ internal class CorePaperBindings(
                 }
             }
         }
+        ctx.services.get<com.astarworks.astera.core.application.service.lobby.LobbyLanePadService>()?.let {
+            server.pluginManager.registerEvents(
+                com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyLanePadListener(it),
+                plugin,
+            )
+        }
         server.pluginManager.registerEvents(
             object : org.bukkit.event.Listener {
                 @org.bukkit.event.EventHandler
@@ -538,6 +550,21 @@ internal class CorePaperBindings(
         server.scheduler.runTask(plugin, create)
     }
 
+    /** F3-1 — one live "lane name + queued" text display above each lane pad. */
+    private fun installLobbyLaneHolograms(
+        ctx: WiringContext,
+        worldName: String,
+        plan: com.astarworks.astera.core.domain.lobby.LobbyBuildPlan,
+    ) {
+        val board = ctx.services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyLaneBoard>() ?: return
+        lobbyLaneHolograms?.removeAll()
+        lobbyLaneHolograms = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyLaneHolograms(
+            plugin = plugin,
+            messages = ctx.services.getOrThrow<IMessageRenderer>(),
+            board = board,
+        ).also { it.install(worldName, plan.lanePads) }
+    }
+
     private companion object {
         const val MAX_LOBBY_WORLD_ATTEMPTS = 5
     }
@@ -546,6 +573,8 @@ internal class CorePaperBindings(
     fun shutdown() {
         lobbyMenuKit?.stripAll()
         lobbyMenuKit = null
+        lobbyLaneHolograms?.removeAll()
+        lobbyLaneHolograms = null
         npcBodyService?.removeAll()
         npcBodyService = null
         paperVaultWindow?.closeAll()
