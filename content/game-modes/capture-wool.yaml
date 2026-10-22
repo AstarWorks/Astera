@@ -1,17 +1,17 @@
-# Capture Wool — Wave 5c original 6 modes (ADR-0167 Wave 7a-N1).
+# Capture Wool (WP11, siege mode).
 #
-# Area-control variant: hold the wool flag inside enemy-controlled zones to
-# accumulate occupancy time. `CaptureWoolListener` (wired globally in
-# AsteraMatchPlugin.onEnable) consumes `EntityEnteredRegion` /
-# `EntityLeftRegion` (Wave 6a-N3 RegionTransitionRelayListener — ADR-0159 §A)
-# and maintains per-zone `RegionCaptureProgress` state. Stage-YAML supplies
-# the legacy `match.domain.mode.CaptureWool.captureZoneIds` runtime list.
+# The stage's `wool-*` zones are control points marked by a wool block. A team
+# that stands alone in a zone for `capture_seconds` captures it (the marker
+# turns into the team's wool); a contested or empty zone resets. First team to
+# `captures_to_win` zones wins (default: a majority of the zones).
+# Implementation: CaptureWoolGameMode, ticked once per second.
 #
-# `impl_class` resolves to a Wave 5c-N1 façade (ADR-0165) — same façade
-# contract (`onTick` no-op, framework events only).
-
+# default_config
+#   capture_seconds   seconds alone in a zone to capture it
+#   captures_to_win   zones needed to win (omit for a majority)
 id: capture-wool
 title_key: astera.gamemode.capture-wool.title
 impl_class: com.astarworks.astera.match.application.gamemode.CaptureWoolGameMode
 tick_period_ticks: 20
-default_config: {}
+default_config:
+  capture_seconds: "10"

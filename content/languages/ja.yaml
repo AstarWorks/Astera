@@ -321,24 +321,9 @@ astera:
       unknown_world: "<red>試合 config: 不明なワールド '{worldId}'。</red>"
     # Wave 5c — ゲームモード表示文字列 (ADR-0032)
     mode:
-      battle-loyal:
-        name: "<gold>バトルロイヤル</gold>"
-        description: "<gray>小規模なフリーフォーオール。最多キル数で勝利。</gray>"
-      break-core:
-        name: "<gold>コアブレイク</gold>"
-        description: "<gray>敵チームのコアブロックを破壊して勝利。</gray>"
-      carry-tnt:
-        name: "<gold>TNTキャリー</gold>"
-        description: "<gray>敵拠点へTNTを運ぶ。先に {wins} 回配達したチームの勝ち。</gray>"
       carry-mini-tnt:
         name: "<gold>ミニTNTキャリー</gold>"
         description: "<gray>ミニTNTを {count} 個収集後、敵拠点へ配達する。</gray>"
-      capture-wool:
-        name: "<gold>ウールキャプチャ</gold>"
-        description: "<gray>制圧エリアを保持して占領。先に {wins} 箇所占領で勝利。</gray>"
-      steal-jewelry:
-        name: "<gold>ジュエリースティール</gold>"
-        description: "<gray>敵の宝石を自陣の保管庫へ盗む。全て盗んで勝利。</gray>"
     # Wave 5d — バリアドメイン (ADR-0033, RTM issue #8)
     barrier:
       created: "<aqua>{position} に {player} がバリアを設置しました。</aqua>"
@@ -817,16 +802,25 @@ astera:
     # のモード名 (HUD / キュー / スコアボード用) のみ。
     battle-loyal:
       title: "<gold>バトルロイヤル</gold>"
+      scored: "<gold>{team} チームが得点！ ({score}/{goal})</gold>"
     break-core:
       title: "<gold>コアブレイク</gold>"
+      core-destroyed: "<red>{team} チームのコアが破壊された！</red>"
     carry-tnt:
       title: "<gold>TNT 輸送</gold>"
+      picked-up: "<gold>{team} チームが TNT を拾った！</gold>"
+      delivered: "<green>{team} チームが TNT を届けた！ ({score}/{goal})</green>"
+      dropped: "<gray>TNT の運び手が倒れた。TNT は元の場所に戻った。</gray>"
     carry-mini-tnt:
       title: "<gold>ミニ TNT 収集</gold>"
     capture-wool:
       title: "<gold>ウール制圧</gold>"
+      captured: "<green>{team} チームが {zone} を制圧！ ({score}/{goal})</green>"
     steal-jewelry:
       title: "<gold>宝石強奪</gold>"
+      stolen: "<yellow>{team} チームが {victim} の宝石を奪った！</yellow>"
+      banked: "<green>{team} チームが宝石を持ち帰った！ ({score}/{goal})</green>"
+      recovered: "<gray>宝石の運び手が倒れた。宝石は台座に戻った。</gray>"
 
   # Wave 5e (ADR-0040): パーティ / フレンドの社交集合エラー文言。Wave 5pve-survival
   # (ADR-0107) で PartyError が参照していた MessageKey を i18n に接続。

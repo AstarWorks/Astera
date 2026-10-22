@@ -1,86 +1,72 @@
 package com.astarworks.astera.match.application.gamemode
 
-import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.match.domain.gamemode.GameModeContext
-import com.astarworks.astera.match.domain.gamemode.GameModeEvent
-import com.astarworks.astera.match.domain.gamemode.IGameMode
-import com.astarworks.astera.match.domain.gamemode.IGameModePhase
+import com.astarworks.astera.core.domain.match.Match
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.stage.Stage
+import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
+import com.astarworks.astera.match.application.gamemode.siege.SiegeGameMode
+import com.astarworks.astera.match.application.gamemode.siege.SiegeRun
 import com.astarworks.astera.match.domain.mode.GameModeId
+import kotlin.math.floor
 
 /**
- * Break Core mode — Wave 5c-N1 thin façade (ADR-0165).
+ * Break Core: every team owns one core block (stage region `core-<team>`, a
+ * single block). Breaking an enemy core eliminates that team; the last team
+ * with an intact core wins. Breaking your own core only puts the block back.
  *
- * Primary RTM mode: destroy the enemy team's core block to win. Wraps the
- * existing Wave 5c `BreakCoreListener` (globally subscribed to `BlockBroken`,
- * see [NormaGameMode] KDoc §"Equivalence with Wave 5c") so the [IGameMode]
- * framework registry can advertise `break-core` without re-routing the win
- * condition through this class.
- *
- * Façade contract is identical to [NormaGameMode] — see its KDoc for the
- * framework lifecycle and rationale. `onTick` is a no-op: `BreakCoreListener`
- * + `VictoryConditionEvaluator` (ADR-0027) drive victory evaluation event-side.
+ * Config (`content/game-modes/break-core.yaml`): `core_block` (material key).
  */
 public class BreakCoreGameMode @JvmOverloads constructor(
-    private val eventBus: IDomainEventBus? = null,
-) : IGameMode {
+    env: SiegeEnv? = null,
+) : SiegeGameMode<BreakCoreGameMode.Run>(ID, TITLE_KEY, env) {
 
-    override fun id(): GameModeId = ID
-
-    override fun titleKey(): MessageKey = TITLE_KEY
-
-    override fun defaultPhases(): List<IGameModePhase> = DEFAULT_PHASES
-
-    override fun tickPeriodTicks(): Long = 20L
-
-    override fun onMatchStarted(context: GameModeContext) {
-        eventBus?.publish(
-            GameModeEvent.GameModeStarted(
-                matchId = context.matchId,
-                modeId = id(),
-                atTick = 0L,
-            ),
-        )
+    public class Run(matchId: MatchId, stage: Stage, public val cores: Map<TeamId, Vec3>) : SiegeRun(matchId, stage) {
+        public val eliminated: MutableSet<TeamId> = mutableSetOf()
     }
 
-    override fun onPhaseChanged(context: GameModeContext, oldPhase: IGameModePhase, newPhase: IGameModePhase) {
-        if (oldPhase == newPhase) return
-        eventBus?.publish(
-            GameModeEvent.GameModePhaseChanged(
-                matchId = context.matchId,
-                modeId = id(),
-                oldPhase = oldPhase,
-                newPhase = newPhase,
-                atTick = 0L,
-            ),
-        )
+    private fun coreBlock(): String = env?.string("core_block", DEFAULT_CORE_BLOCK) ?: DEFAULT_CORE_BLOCK
+
+    override fun createRun(match: Match, stage: Stage): Run? {
+        val cores = match.teams.mapNotNull { team ->
+            stage.region("$REGION_PREFIX${team.id.value}")?.let { team.id to cellOf(it) }
+        }.toMap()
+        return if (cores.size == match.teams.size) Run(match.id, stage, cores) else null
     }
 
-    override fun onTick(context: GameModeContext, tick: Long) {
-        // No-op: BreakCoreListener consumes BlockBroken globally.
+    override fun start(run: Run, match: Match) {
+        run.cores.values.forEach { setBlock(run, it, coreBlock()) }
     }
 
-    override fun onMatchEnded(context: GameModeContext) {
-        eventBus?.publish(
-            GameModeEvent.GameModeEnded(
-                matchId = context.matchId,
-                modeId = id(),
-                atTick = 0L,
-            ),
-        )
+    override fun broken(run: Run, match: Match, player: PlayerId, team: TeamId?, position: Vec3) {
+        val owner = run.cores.entries.firstOrNull { sameCell(it.value, position) }?.key ?: return
+        if (owner in run.eliminated) return
+        if (owner == team) {
+            // Your own core cannot be broken: put it back.
+            run.cores[owner]?.let { setBlock(run, it, coreBlock()) }
+            return
+        }
+        run.eliminated += owner
+        tellMatch(match, KEY_DESTROYED, mapOf("team" to owner.value))
+        val alive = match.teams.map { it.id }.filter { it !in run.eliminated }
+        if (alive.size <= 1) win(run, alive.singleOrNull())
     }
+
+    override fun finish(run: Run) {
+        run.cores.values.forEach { setBlock(run, it, "minecraft:air") }
+    }
+
+    private fun sameCell(a: Vec3, b: Vec3): Boolean =
+        floor(a.x) == floor(b.x) && floor(a.y) == floor(b.y) && floor(a.z) == floor(b.z)
 
     public companion object {
-        /** Stable id; matches `content/game-modes/break-core.yaml` (Wave 7a-N1). */
         public val ID: GameModeId = GameModeId("break-core")
         public val TITLE_KEY: MessageKey = MessageKey("astera.gamemode.break-core.title")
-
-        private val DEFAULT_PHASES: List<IGameModePhase> = listOf(
-            IGameModePhase.Lobby,
-            IGameModePhase.Countdown,
-            IGameModePhase.Active,
-            IGameModePhase.SuddenDeath,
-            IGameModePhase.Ended,
-        )
+        private val KEY_DESTROYED: MessageKey = MessageKey("astera.gamemode.break-core.core-destroyed")
+        private const val REGION_PREFIX: String = "core-"
+        private const val DEFAULT_CORE_BLOCK: String = "minecraft:emerald_block"
     }
 }

@@ -1,86 +1,100 @@
 package com.astarworks.astera.match.application.gamemode
 
-import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
-import com.astarworks.astera.match.domain.gamemode.GameModeContext
-import com.astarworks.astera.match.domain.gamemode.GameModeEvent
-import com.astarworks.astera.match.domain.gamemode.IGameMode
-import com.astarworks.astera.match.domain.gamemode.IGameModePhase
+import com.astarworks.astera.core.domain.match.Match
+import com.astarworks.astera.core.domain.match.MatchId
+import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.stage.Stage
+import com.astarworks.astera.match.application.gamemode.siege.SiegeEnv
+import com.astarworks.astera.match.application.gamemode.siege.SiegeGameMode
+import com.astarworks.astera.match.application.gamemode.siege.SiegeRun
 import com.astarworks.astera.match.domain.mode.GameModeId
 
 /**
- * Steal Jewelry mode — Wave 5c-N1 thin façade (ADR-0165).
- *
- * Break into the enemy vault, steal 3 jewel items, return to base. Wraps the
- * existing Wave 5c `StealJewelryListener` (subscribed to `EntityPickedUpItem`
- * with a 3-jewel counter plus `EntityEnteredRegion` for the return-zone, ADR-
- * 0032 / ADR-0159) so the [IGameMode] framework registry can advertise
- * `steal-jewelry` without re-routing theft state through this class.
- *
- * Façade contract is identical to [NormaGameMode] — see its KDoc for the
- * framework lifecycle and rationale. `onTick` is a no-op: the 3-jewel tally
- * and return detection are event-driven.
+ * Steal Jewelry: each team keeps `gems_per_team` jewels on its pedestal (stage
+ * region `jewelry-<team>`). Walking into an enemy pedestal zone takes one of
+ * its jewels; walking into your own `base-<team>` zone banks what you carry.
+ * A carrier who dies loses the jewels back to their pedestals. A team wins by
+ * banking every enemy jewel.
  */
 public class StealJewelryGameMode @JvmOverloads constructor(
-    private val eventBus: IDomainEventBus? = null,
-) : IGameMode {
+    env: SiegeEnv? = null,
+) : SiegeGameMode<StealJewelryGameMode.Run>(ID, TITLE_KEY, env) {
 
-    override fun id(): GameModeId = ID
+    public class Run(matchId: MatchId, stage: Stage, public val pedestals: Map<TeamId, Vec3>, gems: Int) :
+        SiegeRun(matchId, stage) {
+        /** Jewels still on each team's pedestal. */
+        public val onPedestal: MutableMap<TeamId, Int> = pedestals.keys.associateWith { gems }.toMutableMap()
 
-    override fun titleKey(): MessageKey = TITLE_KEY
+        /** Jewels each player carries, tagged with the team they were stolen from. */
+        public val carried: MutableMap<PlayerId, MutableList<TeamId>> = mutableMapOf()
 
-    override fun defaultPhases(): List<IGameModePhase> = DEFAULT_PHASES
-
-    override fun tickPeriodTicks(): Long = 20L
-
-    override fun onMatchStarted(context: GameModeContext) {
-        eventBus?.publish(
-            GameModeEvent.GameModeStarted(
-                matchId = context.matchId,
-                modeId = id(),
-                atTick = 0L,
-            ),
-        )
+        /** Jewels each team has banked. */
+        public val banked: MutableMap<TeamId, Int> = mutableMapOf()
     }
 
-    override fun onPhaseChanged(context: GameModeContext, oldPhase: IGameModePhase, newPhase: IGameModePhase) {
-        if (oldPhase == newPhase) return
-        eventBus?.publish(
-            GameModeEvent.GameModePhaseChanged(
-                matchId = context.matchId,
-                modeId = id(),
-                oldPhase = oldPhase,
-                newPhase = newPhase,
-                atTick = 0L,
-            ),
-        )
+    private fun gemsPerTeam(): Int = env?.int("gems_per_team", DEFAULT_GEMS) ?: DEFAULT_GEMS
+
+    override fun createRun(match: Match, stage: Stage): Run? {
+        val pedestals = match.teams.mapNotNull { team ->
+            stage.region("$PEDESTAL_PREFIX${team.id.value}")?.let { team.id to cellOf(it) }
+        }.toMap()
+        if (pedestals.size != match.teams.size) return null
+        if (match.teams.any { stage.region("$BASE_PREFIX${it.id.value}") == null }) return null
+        return Run(match.id, stage, pedestals, gemsPerTeam())
     }
 
-    override fun onTick(context: GameModeContext, tick: Long) {
-        // No-op: StealJewelryListener counts pickups + watches return-zone.
+    override fun start(run: Run, match: Match) {
+        run.pedestals.values.forEach { setBlock(run, it, PEDESTAL_BLOCK) }
     }
 
-    override fun onMatchEnded(context: GameModeContext) {
-        eventBus?.publish(
-            GameModeEvent.GameModeEnded(
-                matchId = context.matchId,
-                modeId = id(),
-                atTick = 0L,
-            ),
-        )
+    override fun entered(run: Run, match: Match, player: PlayerId, team: TeamId, region: String) {
+        if (!live(match)) return
+        teamOfRegion(region, PEDESTAL_PREFIX, match)?.let { owner ->
+            steal(run, match, player, team, owner)
+            return
+        }
+        val home = teamOfRegion(region, BASE_PREFIX, match) ?: return
+        if (home == team) deposit(run, match, player, team)
+    }
+
+    private fun steal(run: Run, match: Match, player: PlayerId, team: TeamId, owner: TeamId) {
+        if (owner == team || (run.onPedestal[owner] ?: 0) <= 0) return
+        run.onPedestal[owner] = run.onPedestal.getValue(owner) - 1
+        run.carried.getOrPut(player) { mutableListOf() } += owner
+        tellMatch(match, KEY_STOLEN, mapOf("team" to team.value, "victim" to owner.value))
+    }
+
+    private fun deposit(run: Run, match: Match, player: PlayerId, team: TeamId) {
+        val gems = run.carried.remove(player)?.takeIf { it.isNotEmpty() } ?: return
+        val total = (run.banked[team] ?: 0) + gems.size
+        run.banked[team] = total
+        val goal = gemsPerTeam() * (match.teams.size - 1)
+        tellMatch(match, KEY_BANKED, mapOf("team" to team.value, "score" to total.toString(), "goal" to goal.toString()))
+        if (total >= goal) win(run, team)
+    }
+
+    override fun killed(run: Run, match: Match, victim: PlayerId, victimTeam: TeamId?, killer: PlayerId?, killerTeam: TeamId?) {
+        val gems = run.carried.remove(victim)?.takeIf { it.isNotEmpty() } ?: return
+        gems.forEach { owner -> run.onPedestal[owner] = (run.onPedestal[owner] ?: 0) + 1 }
+        tellMatch(match, KEY_RECOVERED, mapOf("team" to (victimTeam?.value ?: "")))
+    }
+
+    override fun finish(run: Run) {
+        run.pedestals.values.forEach { setBlock(run, it, floorBlock()) }
     }
 
     public companion object {
-        /** Stable id; matches `content/game-modes/steal-jewelry.yaml` (Wave 7a-N1). */
         public val ID: GameModeId = GameModeId("steal-jewelry")
         public val TITLE_KEY: MessageKey = MessageKey("astera.gamemode.steal-jewelry.title")
-
-        private val DEFAULT_PHASES: List<IGameModePhase> = listOf(
-            IGameModePhase.Lobby,
-            IGameModePhase.Countdown,
-            IGameModePhase.Active,
-            IGameModePhase.SuddenDeath,
-            IGameModePhase.Ended,
-        )
+        private val KEY_STOLEN: MessageKey = MessageKey("astera.gamemode.steal-jewelry.stolen")
+        private val KEY_BANKED: MessageKey = MessageKey("astera.gamemode.steal-jewelry.banked")
+        private val KEY_RECOVERED: MessageKey = MessageKey("astera.gamemode.steal-jewelry.recovered")
+        private const val PEDESTAL_PREFIX: String = "jewelry-"
+        private const val BASE_PREFIX: String = "base-"
+        private const val PEDESTAL_BLOCK: String = "minecraft:diamond_block"
+        private const val DEFAULT_GEMS: Int = 3
     }
 }

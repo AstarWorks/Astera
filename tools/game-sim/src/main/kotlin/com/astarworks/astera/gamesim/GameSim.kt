@@ -192,6 +192,47 @@ public class GameSim private constructor(
         )
     }
 
+    /**
+     * Moves [entity] to [to] and reports it like the Paper move adapter
+     * (`PaperMatchWorldInputAdapter`): one `PlayerMoved`, only for players in a match.
+     */
+    public fun moveTo(entity: SimEntity, to: Vec3) {
+        val from = entity.position
+        entity.position = to
+        if (services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMatchRepository>().findMatchOf(entity.id) == null) return
+        eventBus.publish(
+            com.astarworks.astera.core.domain.event.PlayerMoved(
+                playerId = entity.id,
+                from = from,
+                to = to,
+                world = entity.world,
+                atTick = tick,
+            ),
+        )
+    }
+
+    /**
+     * Breaks the block at [cell] like a player digging it: the block disappears and,
+     * as the Paper block-break adapter does for players in a match, `BlockBroken` is published.
+     * Returns whether an event was published.
+     */
+    public fun breakBlock(entity: SimEntity, cell: Vec3): Boolean {
+        val blockId = world.blockAt(entity.world, cell)?.key ?: "minecraft:grass_block"
+        world.removeBlock(entity.world, cell)
+        val match = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMatchRepository>().findMatchOf(entity.id)
+            ?: return false
+        eventBus.publish(
+            com.astarworks.astera.core.domain.event.BlockBroken(
+                matchId = match.id,
+                playerId = entity.id,
+                position = cell,
+                blockId = blockId,
+                atTick = tick,
+            ),
+        )
+        return true
+    }
+
     /** Raises (or lowers) the entity's max HP and fills it, via the registered health gateway. */
     public fun setMaxHealth(entity: SimEntity, maxHp: Double) {
         val health = services.getOrThrow<IPlayerHealthGateway>()

@@ -9,6 +9,7 @@ import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
+import com.astarworks.astera.core.domain.match.TeamId
 import com.astarworks.astera.match.domain.match.MatchStateMachine
 
 /**
@@ -23,7 +24,15 @@ public class EndMatchUseCase(
     private val victoryEvaluator: VictoryConditionEvaluator = VictoryConditionEvaluator(),
 ) {
 
-    public fun execute(matchId: MatchId, reason: EndReason): Result<Unit, EndMatchError> {
+    /**
+     * @param winningTeam the winner an objective mode already decided; `null`
+     *   lets the score-threshold evaluator pick (draw when nobody qualifies).
+     */
+    public fun execute(
+        matchId: MatchId,
+        reason: EndReason,
+        winningTeam: TeamId? = null,
+    ): Result<Unit, EndMatchError> {
         val match = matches.findById(matchId)
             ?: return Result.failure(EndMatchError.MatchNotFound(matchId))
 
@@ -47,12 +56,12 @@ public class EndMatchUseCase(
         matches.save(ended)
 
         // Wave 4.5: compute winning team via score threshold evaluator (ADR-0027)
-        val winningTeam = victoryEvaluator.evaluate(ended)
+        val winner = winningTeam ?: victoryEvaluator.evaluate(ended)
 
         eventBus.publish(
             MatchEnded(
                 matchId = matchId,
-                winningTeam = winningTeam,
+                winningTeam = winner,
                 atTick = scheduler.currentTick(),
                 reason = reason,
             ),

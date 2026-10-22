@@ -41,6 +41,11 @@ split across the two teams).
 ```
 /astera-queue join norma         # 2 teams (red / blue) on example-arena
 /astera-queue join annihilation  # 3 teams (red / blue / yellow) on annihilation-arena
+/astera-queue join break-core      # siege-flat: break the enemy emerald core block (yours is protected)
+/astera-queue join carry-tnt       # siege-flat: step into the centre-north zone for the TNT, run it into the enemy base (2 deliveries)
+/astera-queue join capture-wool    # siege-flat: stand alone in a wool zone for 10 s to capture it; 2 of 3 zones win
+/astera-queue join steal-jewelry   # siege-flat: step on the enemy diamond pedestal (inside their base), bank in your base; steal 2 to win
+/astera-queue join battle-loyal    # siege-flat: team deathmatch, 5 kills win
 /astera-queue status         # your position + how many players are queued
 /astera-queue leave          # optional: leave the queue
 ```
@@ -77,7 +82,11 @@ The playtest world is superflat: the surface block is y=-61, you stand at y=-60.
 Everything you should see in a playtest uses that height: the lobby NPCs
 (`content/lobby-npcs/*.yaml`, y=-60; logical world `lobby` = the main world),
 the lobby spawn (the world spawn, x~0 z~0) and the `example-arena` /
-`annihilation-arena` stages. A stage names its Bukkit world with `world:`
+`annihilation-arena` / `siege-flat` stages. The siege lanes share `siege-flat`
+(red base at x=-40, blue at x=+40; objective zones in `content/stages/siege-flat.yaml`),
+so one siege match runs at a time; their tunables are in `content/game-modes/<mode>.yaml`.
+Objective modes only work through their queue lane (the admin `/astera-match start`
+has no mode key and runs plain Norma). A stage names its Bukkit world with `world:`
 (default `world`, the server's main world). The other stages (`siege-arena`,
 `forest-arena`, `boss-arena`) keep y>=64 coordinates and are not playable on the flat world.
 

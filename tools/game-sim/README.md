@@ -32,6 +32,10 @@ plugin modules). If a wiring function ever needs a Paper type, the Konsist rule
 Verbs: `player`, `mob`, `holds`, `faces`, `click` (left click through the real
 Items trigger sink), `cast(skillId)` (publishes `SkillCastRequested`, what a bound
 item emits), `advance(ticks)`, `advanceUntil`, `hp`, `eventsOf<T>()`. Everything
+`moveTo(pos)` (one `PlayerMoved`, like the Paper move adapter, for players in a match),
+`breaks(cell)` (digs the block and publishes `BlockBroken`), `blockAt(cell)`,
+`startMatch(mode, mapOf(player to "red", ...))` (real lifecycle facade, countdown skipped,
+match ACTIVE on return; see `SiegeModesScenarioTest`). Everything
 else is reachable through `sim` (`GameSim`): `sim.services`, `sim.match`, ...
 
 ## Simulator ports (what replaces Paper)

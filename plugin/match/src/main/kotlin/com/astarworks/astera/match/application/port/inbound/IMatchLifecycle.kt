@@ -37,6 +37,17 @@ public interface IMatchLifecycle {
     /** Ends [matchId] for the given [reason]. */
     public fun end(matchId: MatchId, reason: EndReason): Result<Unit, EndMatchError>
 
+    /**
+     * Ends [matchId] declaring [winningTeam] the winner (objective modes decide
+     * the winner themselves; [end] only knows the score-threshold evaluator).
+     * Implementations without winner support fall back to [end].
+     */
+    public fun endWithWinner(
+        matchId: MatchId,
+        reason: EndReason,
+        winningTeam: TeamId?,
+    ): Result<Unit, EndMatchError> = end(matchId, reason)
+
     /** Registers [playerId] into [matchId], optionally on [teamId]. */
     public fun entry(
         matchId: MatchId,
