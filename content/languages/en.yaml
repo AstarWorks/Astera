@@ -959,6 +959,7 @@ astera:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>banked,</gray> <white>{left}</white> <gray>left</gray>"
       you: "<gray>You:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>Stars</gray>"
+      gold: "<gold>*</gold> <white>{gold}</white> <gray>Gold</gray>"
     lobby:
       title: "<gold><bold>Astera</bold></gold>"
       online: "<gray>Online:</gray> <white>{count}</white>"

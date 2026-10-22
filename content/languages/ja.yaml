@@ -960,6 +960,7 @@ astera:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>確保、</gray><white>{left}</white> <gray>残り</gray>"
       you: "<gray>あなた:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>スター</gray>"
+      gold: "<gold>*</gold> <white>{gold}</white> <gray>ゴールド</gray>"
     lobby:
       title: "<gold><bold>Astera</bold></gold>"
       online: "<gray>接続中:</gray> <white>{count}</white>"
