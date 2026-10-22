@@ -130,6 +130,7 @@ public class PlayerHandoffService(
         val now = scheduler.currentTick()
         val entry = Waiting(deadlineTick = now + settings.maxWaitTicks)
         waiting[playerId] = entry
+        purgeTokens()
         val early = tokens.remove(playerId)?.token
         if (early != null) {
             entry.token = early

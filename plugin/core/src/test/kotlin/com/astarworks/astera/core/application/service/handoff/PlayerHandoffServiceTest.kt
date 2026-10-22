@@ -220,6 +220,27 @@ class PlayerHandoffServiceTest {
     }
 
     @Test
+    fun `an expired early token cannot complete a later join`() {
+        val repo = InMemoryPlayerInventorySnapshotRepository()
+        val source = Server(lobby, awaitToken = true, repo) { now }
+        val target = Server(game, awaitToken = true, repo) { now }
+        source.inventory.items = sword
+        source.service.onTransferRequested(player, game)
+        target.messenger.deliver(tokenFrom(source, game))
+        target.scheduler.advanceTicks(601) // the token's 600-tick TTL has passed
+        target.service.onJoin(player)
+
+        assertThat(target.inventory.applied).isZero()
+        assertThat(target.arrivals).isEmpty()
+        assertThat(target.sessions.find(player)!!.state).isEqualTo(SessionState.Loading)
+        now += 1000
+        source.service.onTransferRequested(player, game)
+        target.messenger.deliver(tokenFrom(source, game))
+        assertThat(target.inventory.items).isEqualTo(sword)
+        assertThat(target.arrivals).hasSize(1)
+    }
+
+    @Test
     fun `no token within the bound restores the latest snapshot anyway`() {
         val repo = InMemoryPlayerInventorySnapshotRepository()
         repo.save(PlayerInventorySnapshot.empty(player).copy(hotbar = sword))

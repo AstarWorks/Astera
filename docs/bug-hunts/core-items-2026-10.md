@@ -54,4 +54,10 @@ Verification: no local builds or tests run, per task constraints. Regression tes
 - Evidence: `PlayerHandoffService.kt:190` used `snapshot == null || ... >= token.version`; a missing/read-failed snapshot immediately unlocked arrival instead of waiting for the source version. Match entry could then capture the default inventory over the saved inventory.
 - Fix: a token requires a non-null snapshot at least its version; missing reads retry within the existing bounded wait.
 - Test: `PlayerHandoffServiceTest.a handoff token waits for a snapshot that is not visible yet` delays visibility and checks Loading/no arrival until the inventory is actually restored.
+- Fix commit: `009f402f`.
+
+## 10. Expired early hand-off tokens bypass the next join's wait
+- Evidence: `PlayerHandoffService.kt:135` consumed stored tokens without checking TTL; purgeTokens only ran when another token arrived. An abandoned transfer token could therefore unlock a much later join before its current token arrived.
+- Fix: expire cached tokens before consuming an early token on join.
+- Test: `PlayerHandoffServiceTest.an expired early token cannot complete a later join` advances beyond TTL, verifies the new join remains Loading, then delivers its fresh token.
 - Fix commit: pending.
