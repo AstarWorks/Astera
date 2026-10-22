@@ -1,18 +1,12 @@
-# verdict-hammer: visual review
+# Verdict Hammer redo — AI reference review
+Target: ai-concept.png, generated with built-in imagegen from weapons-v1 sheet and item YAML. The initial top panel was incorrect; imagegen corrected it before modeling. Prompt: premium pixel-art black cylindrical judge's hammer, broad gold hoops, teal seals, long wrapped haft; front/side/top/three-quarter, flat magenta. No code-drawn target is used for acceptance.
 
-Five observed rounds: blockout -> shape -> details -> texture -> polish.
-The concept remained locked. Scores compare construction diagrams, not the diagonal source icon.
+R1 (2 elements): Opened comparison with all 11 views. Overall long haft and horizontal head read correctly; head is a rectangular brick, no gold landmarks or gem/pommel, side is square. Next add stepped circular sections, broad hoops and socket/pommel.
 
-| Round | Front | Side | Top | Iso | Observation and next action |
-|---|---:|---:|---:|---:|---|
-| 1 | 0.733 | 0.710 | 0.798 | 0.812 | Blockout: head was undersized; plain haft lacked grip hierarchy. Restore the wide chamfered head and proud bindings. |
-| 2 | 0.913 | 0.841 | 0.902 | 0.892 | Shape: bevels and collar hierarchy read as a heavy hammer. The end silhouette is octagonal versus the rectangular construction side; keep the bevel for volume. |
-| 3 | 0.913 | 0.855 | 0.918 | 0.892 | Details: add double-sided diamond seals, studs and strike-face recesses. Silhouette hardly changes, so inspect the render rather than demanding a score increase. |
-| 4 | 0.913 | 0.855 | 0.918 | 0.892 | Texture: retained the seed's purposeful sparse obsidian marks, gold bands and diagonal grip wrap. The body reads near-black at small sizes. |
-| 5 | 0.913 | 0.855 | 0.918 | 0.892 | Polish: add the teal pommel inlay. Inspected final iso and hand preview plus 16/32/64px inventory; dark haft is weak at 16px but category reads at 32px. |
+R2 (45): Opened comparison. Rounded head and separate wide hoops improve iso; side striking face is incorrectly solid gold (outer rim covers the dark cap). Haft still flat and pommel tiny. Add dark inset strike plates, raised teal bezels and diagonal bindings. No clipping in any view.
 
-Verdict: **pass local authoring gate; client verification pending**. Final validation: 40 elements, 2 texels/unit, no errors/warnings, no clipped preview.
+R3 (113): Opened comparison. Black inset fixes side face. Teal central seal and diagonal wraps now match main identity; teal appears flat, gold is ochre, haft wraps too bright and regular. Pommel gem disappears side-on. Next paint metal edge ramps and gem highlights, add hoop rivets and seal pins; final pass adds end medallions and side pommel stones.
 
-Reviewed images: round-1 through round-4 comparison sheets; round-5 native-size inventory panels and final iso/first-person contact sheet. Fire staff round-5 full comparison was also inspected after its palette correction.
+R4 (129): Opened comparison. Painted gold reads brighter and teal catches light; ring/pin details survive 64px. Silver wraps are too stark against the concept's dark leather. Darken their dedicated material; add the concept's end teal medallions, side pommel gems and collar lips. 16px retains gold/teal landmarks but loses haft continuity.
 
-No Minecraft client or Blockbench execution was performed. Check both hands, actual grip alignment, FOV, swing/use animation, frame/ground placement, back faces and overlapping surfaces under motion.
+R5 (161): Opened all views in final comparison. Darker wraps reduce the wire-like look; end seals and side pommel gems remain visible in both third-person transforms. Rounded black head, gold hoops and teal seal read at 32px. Accept for local authoring. Weaknesses: ring facets remain stepped, narrow shaft fades at 16px, concept has richer painted facet shading. In-client grip, animation, glint and perspective remain unverified. Validator called with authorized budget=250, density=2; no shared tool modification.

@@ -1,655 +1,852 @@
 {
   "item": "verdict-hammer",
-  "concept_sha256": "f8bc06ba90c255d9576ba7a5f5c8d53f8be1f950855ff60e09162fac789b6c62",
+  "round": 5,
+  "validation": {
+    "valid": true,
+    "elements": 161,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999898,
+      2.0000000000000355
+    ],
+    "rotated_bounds": [
+      [
+        -0.15000000000000036,
+        -0.75,
+        3.4250000000000007
+      ],
+      [
+        16.150000000000002,
+        27.0,
+        12.575
+      ]
+    ]
+  },
   "views": {
     "front": {
-      "iou": 0.91317,
       "bounds": [
-        71,
-        34,
-        184,
-        227
+        70,
+        28,
+        185,
+        225
       ],
       "clipped": false,
       "span": 36
     },
     "side": {
-      "iou": 0.85502,
       "bounds": [
-        102,
-        34,
-        153,
-        227
+        95,
+        28,
+        160,
+        225
       ],
       "clipped": false,
       "span": 36
     },
     "top": {
-      "iou": 0.91803,
       "bounds": [
-        71,
-        102,
-        184,
-        153
+        70,
+        95,
+        185,
+        160
       ],
       "clipped": false,
       "span": 36
     },
     "iso": {
-      "iou": 0.89162,
       "bounds": [
-        71,
-        28,
-        184,
-        224
+        69,
+        23,
+        186,
+        223
       ],
       "clipped": false,
       "span": 36
     },
     "gui": {
       "bounds": [
-        44,
-        36,
-        194,
-        218
+        46,
+        37,
+        207,
+        233
       ],
       "clipped": false,
       "span": 16
     },
     "firstperson_righthand": {
       "bounds": [
-        76,
-        34,
-        153,
-        170
+        80,
+        33,
+        164,
+        181
       ],
       "clipped": false,
       "span": 32
     },
     "thirdperson_righthand": {
       "bounds": [
-        96,
-        8,
+        101,
+        5,
+        165,
+        153
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        107,
+        33,
+        191,
+        181
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        90,
+        5,
         154,
-        144
+        153
       ],
       "clipped": false,
       "span": 32
     },
     "ground": {
       "bounds": [
-        102,
-        56,
-        137,
-        117
+        108,
+        58,
+        147,
+        124
       ],
       "clipped": false,
       "span": 32
     },
     "fixed": {
       "bounds": [
-        84,
-        60,
-        155,
-        182
+        89,
+        61,
+        166,
+        193
       ],
       "clipped": false,
       "span": 32
     }
   },
-  "validation": {
-    "valid": true,
-    "elements": 40,
-    "budget": 64,
-    "errors": [],
-    "warnings": [],
-    "density_range": [
-      1.999999999999995,
-      2.0000000000000013
-    ],
-    "rotated_bounds": [
-      [
-        0.0,
-        -1.0,
-        4.39
-      ],
-      [
-        16.0,
-        26.25,
-        11.61
-      ]
-    ]
-  },
-  "note": "IoU compares independent polygon construction targets, not the source icon. Hand views are isolated orthographic transform previews.",
-  "sha256": {
-    "content/models/items/verdict-hammer.model.json": "44640b3fdfa1998faa5f37ebdc5ee640206348f1f697b337fc82e81bd27e4c65",
-    "content/textures/items/verdict-hammer.png": "d49062c0d7d1d9de10e025aeee84179a5257a53a260c3cb5a441144ae534f305"
-  },
+  "concept_sha256": "8e00025d4bfbc7462f36049a20031204fe4b6a985fe45e4a9467a6d0dfd92d9b",
+  "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation.",
   "rounds": [
     {
-      "round": "round-1",
+      "item": "verdict-hammer",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 2,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.0,
+          2.0
+        ],
+        "rotated_bounds": [
+          [
+            1.0,
+            0.5,
+            4.5
+          ],
+          [
+            15.0,
+            26.5,
+            11.5
+          ]
+        ]
+      },
       "views": {
         "front": {
-          "iou": 0.73306,
           "bounds": [
             78,
-            43,
+            32,
             177,
-            219
+            216
           ],
           "clipped": false,
           "span": 36
         },
         "side": {
-          "iou": 0.71024,
           "bounds": [
-            107,
-            43,
-            148,
-            219
+            103,
+            32,
+            152,
+            216
           ],
           "clipped": false,
           "span": 36
         },
         "top": {
-          "iou": 0.79787,
           "bounds": [
             78,
-            107,
+            103,
             177,
-            148
+            152
           ],
           "clipped": false,
           "span": 36
         },
         "iso": {
-          "iou": 0.81234,
           "bounds": [
-            74,
-            33,
-            181,
-            217
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "gui": {
-          "bounds": [
-            48,
-            41,
-            191,
+            72,
+            22,
+            183,
             213
           ],
           "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            55,
+            35,
+            211,
+            222
+          ],
+          "clipped": false,
           "span": 16
         },
         "firstperson_righthand": {
           "bounds": [
-            78,
-            39,
-            152,
-            166
+            80,
+            34,
+            164,
+            174
           ],
           "clipped": false,
           "span": 32
         },
         "thirdperson_righthand": {
           "bounds": [
-            97,
-            14,
-            152,
-            140
+            101,
+            7,
+            166,
+            146
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            107,
+            34,
+            191,
+            174
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            89,
+            7,
+            154,
+            146
           ],
           "clipped": false,
           "span": 32
         },
         "ground": {
           "bounds": [
-            104,
-            59,
-            135,
-            115
+            111,
+            60,
+            144,
+            121
           ],
           "clipped": false,
           "span": 32
         },
         "fixed": {
           "bounds": [
-            88,
-            66,
-            151,
-            178
+            94,
+            63,
+            161,
+            187
           ],
           "clipped": false,
           "span": 32
         }
       },
-      "concept_sha256": "f8bc06ba90c255d9576ba7a5f5c8d53f8be1f950855ff60e09162fac789b6c62",
-      "sha256": {
-        "model.json": "08280b9339eb42be27dbcc3bcc02620a5634463ce9ffcf3e72b416268a877467",
-        "texture.png": "e888eb2e3a04e66d960ab6578b1bfc11aac2688b2186ada01e722a11831ff77a",
-        "comparison.png": "353294a2df5b3276454dc360580662e6d92298bb0c1a0537d2562548e2478736"
-      }
+      "concept_sha256": "8e00025d4bfbc7462f36049a20031204fe4b6a985fe45e4a9467a6d0dfd92d9b",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
     },
     {
-      "round": "round-2",
+      "item": "verdict-hammer",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 45,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.999999999999998,
+          2.00000000000001
+        ],
+        "rotated_bounds": [
+          [
+            0.5750000000000002,
+            -0.6500000000000004,
+            4.0
+          ],
+          [
+            15.425,
+            27.0,
+            12.0
+          ]
+        ]
+      },
       "views": {
         "front": {
-          "iou": 0.91317,
           "bounds": [
-            71,
-            34,
-            184,
-            227
+            75,
+            28,
+            180,
+            224
           ],
           "clipped": false,
           "span": 36
         },
         "side": {
-          "iou": 0.84066,
           "bounds": [
-            105,
-            34,
-            150,
-            227
+            100,
+            28,
+            155,
+            224
           ],
           "clipped": false,
           "span": 36
         },
         "top": {
-          "iou": 0.90198,
           "bounds": [
-            71,
-            105,
-            184,
-            150
+            75,
+            100,
+            180,
+            155
           ],
           "clipped": false,
           "span": 36
         },
         "iso": {
-          "iou": 0.89162,
           "bounds": [
-            71,
-            28,
-            184,
-            224
+            70,
+            23,
+            185,
+            222
           ],
           "clipped": false,
           "span": 36
         },
         "gui": {
           "bounds": [
-            44,
-            36,
-            194,
-            218
+            46,
+            37,
+            207,
+            232
           ],
           "clipped": false,
           "span": 16
         },
         "firstperson_righthand": {
           "bounds": [
-            76,
-            34,
-            153,
-            170
+            81,
+            33,
+            164,
+            181
           ],
           "clipped": false,
           "span": 32
         },
         "thirdperson_righthand": {
           "bounds": [
-            96,
-            8,
-            154,
-            144
-          ],
-          "clipped": false,
-          "span": 32
-        },
-        "ground": {
-          "bounds": [
-            102,
-            56,
-            137,
-            117
-          ],
-          "clipped": false,
-          "span": 32
-        },
-        "fixed": {
-          "bounds": [
-            84,
-            60,
-            155,
-            182
-          ],
-          "clipped": false,
-          "span": 32
-        }
-      },
-      "concept_sha256": "f8bc06ba90c255d9576ba7a5f5c8d53f8be1f950855ff60e09162fac789b6c62",
-      "sha256": {
-        "model.json": "a66afbb1299d30587998d8ba1a8520de74997298b7eb613a6fb10c2426f1ee7b",
-        "texture.png": "743fdfe7c9ee1374a74a8176ec5e0fa3f12ac325e20a17633aabd4a35ba49224",
-        "comparison.png": "e47fc5be1fdbb0bc21b900ca189d92331a659c8ba6180e8382e3f6865c965a9d"
-      }
-    },
-    {
-      "round": "round-3",
-      "views": {
-        "front": {
-          "iou": 0.91317,
-          "bounds": [
-            71,
-            34,
-            184,
-            227
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "side": {
-          "iou": 0.85502,
-          "bounds": [
-            102,
-            34,
-            153,
-            227
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "top": {
-          "iou": 0.91803,
-          "bounds": [
-            71,
-            102,
-            184,
+            101,
+            5,
+            165,
             153
           ],
           "clipped": false,
-          "span": 36
+          "span": 32
         },
-        "iso": {
-          "iou": 0.89162,
+        "firstperson_lefthand": {
           "bounds": [
-            71,
-            28,
-            184,
-            224
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "gui": {
-          "bounds": [
-            44,
-            36,
-            194,
-            218
-          ],
-          "clipped": false,
-          "span": 16
-        },
-        "firstperson_righthand": {
-          "bounds": [
-            76,
-            34,
-            153,
-            170
+            107,
+            33,
+            190,
+            181
           ],
           "clipped": false,
           "span": 32
         },
-        "thirdperson_righthand": {
+        "thirdperson_lefthand": {
           "bounds": [
-            96,
-            8,
+            90,
+            5,
             154,
-            144
+            153
           ],
           "clipped": false,
           "span": 32
         },
         "ground": {
           "bounds": [
-            102,
-            56,
-            137,
-            117
+            110,
+            58,
+            145,
+            124
           ],
           "clipped": false,
           "span": 32
         },
         "fixed": {
           "bounds": [
-            84,
-            60,
-            155,
-            182
+            92,
+            61,
+            163,
+            193
           ],
           "clipped": false,
           "span": 32
         }
       },
-      "concept_sha256": "f8bc06ba90c255d9576ba7a5f5c8d53f8be1f950855ff60e09162fac789b6c62",
-      "sha256": {
-        "model.json": "aa50a9cbbd0894b47ca4f4929fd57a0f9b78f79f336cec1f66d9a6ab8f8f881a",
-        "texture.png": "743fdfe7c9ee1374a74a8176ec5e0fa3f12ac325e20a17633aabd4a35ba49224",
-        "comparison.png": "429bd123cfdd1b3cac3a00d8c3145a646c4c4d9ba3bf5a3407f5a1463b392b78"
-      }
+      "concept_sha256": "8e00025d4bfbc7462f36049a20031204fe4b6a985fe45e4a9467a6d0dfd92d9b",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
     },
     {
-      "round": "round-4",
+      "item": "verdict-hammer",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 113,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999898,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            0.15000000000000036,
+            -0.75,
+            3.4250000000000007
+          ],
+          [
+            15.85,
+            27.0,
+            12.575
+          ]
+        ]
+      },
       "views": {
         "front": {
-          "iou": 0.91317,
           "bounds": [
-            71,
-            34,
-            184,
-            227
+            72,
+            28,
+            183,
+            225
           ],
           "clipped": false,
           "span": 36
         },
         "side": {
-          "iou": 0.85502,
           "bounds": [
-            102,
-            34,
-            153,
-            227
+            95,
+            28,
+            160,
+            225
           ],
           "clipped": false,
           "span": 36
         },
         "top": {
-          "iou": 0.91803,
           "bounds": [
-            71,
-            102,
-            184,
-            153
+            72,
+            95,
+            183,
+            160
           ],
           "clipped": false,
           "span": 36
         },
         "iso": {
-          "iou": 0.89162,
           "bounds": [
-            71,
-            28,
-            184,
-            224
+            69,
+            23,
+            186,
+            223
           ],
           "clipped": false,
           "span": 36
         },
         "gui": {
           "bounds": [
-            44,
-            36,
-            194,
-            218
+            46,
+            37,
+            207,
+            232
           ],
           "clipped": false,
           "span": 16
         },
         "firstperson_righthand": {
           "bounds": [
-            76,
-            34,
-            153,
-            170
+            80,
+            33,
+            164,
+            181
           ],
           "clipped": false,
           "span": 32
         },
         "thirdperson_righthand": {
           "bounds": [
-            96,
-            8,
+            101,
+            5,
+            165,
+            153
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            107,
+            33,
+            191,
+            181
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            90,
+            5,
             154,
-            144
+            153
           ],
           "clipped": false,
           "span": 32
         },
         "ground": {
           "bounds": [
-            102,
-            56,
-            137,
-            117
+            109,
+            58,
+            146,
+            124
           ],
           "clipped": false,
           "span": 32
         },
         "fixed": {
           "bounds": [
-            84,
-            60,
-            155,
-            182
+            90,
+            61,
+            165,
+            193
           ],
           "clipped": false,
           "span": 32
         }
       },
-      "concept_sha256": "f8bc06ba90c255d9576ba7a5f5c8d53f8be1f950855ff60e09162fac789b6c62",
-      "sha256": {
-        "model.json": "aa50a9cbbd0894b47ca4f4929fd57a0f9b78f79f336cec1f66d9a6ab8f8f881a",
-        "texture.png": "d49062c0d7d1d9de10e025aeee84179a5257a53a260c3cb5a441144ae534f305",
-        "comparison.png": "26b79676255621b1e0adbf75e4776dc827e660e383b3dec9c16bf1bd9c4267c9"
-      }
+      "concept_sha256": "8e00025d4bfbc7462f36049a20031204fe4b6a985fe45e4a9467a6d0dfd92d9b",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
     },
     {
-      "round": "round-5",
+      "item": "verdict-hammer",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 129,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999898,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            0.15000000000000036,
+            -0.75,
+            3.4250000000000007
+          ],
+          [
+            15.85,
+            27.0,
+            12.575
+          ]
+        ]
+      },
       "views": {
         "front": {
-          "iou": 0.91317,
           "bounds": [
-            71,
-            34,
-            184,
-            227
+            72,
+            28,
+            183,
+            225
           ],
           "clipped": false,
           "span": 36
         },
         "side": {
-          "iou": 0.85502,
           "bounds": [
-            102,
-            34,
-            153,
-            227
+            95,
+            28,
+            160,
+            225
           ],
           "clipped": false,
           "span": 36
         },
         "top": {
-          "iou": 0.91803,
           "bounds": [
-            71,
-            102,
-            184,
-            153
+            72,
+            95,
+            183,
+            160
           ],
           "clipped": false,
           "span": 36
         },
         "iso": {
-          "iou": 0.89162,
           "bounds": [
-            71,
-            28,
-            184,
-            224
+            69,
+            23,
+            186,
+            223
           ],
           "clipped": false,
           "span": 36
         },
         "gui": {
           "bounds": [
-            44,
-            36,
-            194,
-            218
+            46,
+            37,
+            207,
+            232
           ],
           "clipped": false,
           "span": 16
         },
         "firstperson_righthand": {
           "bounds": [
-            76,
-            34,
-            153,
-            170
+            80,
+            33,
+            164,
+            181
           ],
           "clipped": false,
           "span": 32
         },
         "thirdperson_righthand": {
           "bounds": [
-            96,
-            8,
+            101,
+            5,
+            165,
+            153
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            107,
+            33,
+            191,
+            181
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            90,
+            5,
             154,
-            144
+            153
           ],
           "clipped": false,
           "span": 32
         },
         "ground": {
           "bounds": [
-            102,
-            56,
-            137,
-            117
+            109,
+            58,
+            146,
+            124
           ],
           "clipped": false,
           "span": 32
         },
         "fixed": {
           "bounds": [
-            84,
-            60,
-            155,
-            182
+            90,
+            61,
+            165,
+            193
           ],
           "clipped": false,
           "span": 32
         }
       },
-      "concept_sha256": "f8bc06ba90c255d9576ba7a5f5c8d53f8be1f950855ff60e09162fac789b6c62",
-      "sha256": {
-        "model.json": "44640b3fdfa1998faa5f37ebdc5ee640206348f1f697b337fc82e81bd27e4c65",
-        "texture.png": "d49062c0d7d1d9de10e025aeee84179a5257a53a260c3cb5a441144ae534f305",
-        "comparison.png": "5b08f3e4c4cace78f7af73f9548289e69fe47f64af13e5aa0ea0ba291e60505e"
-      }
+      "concept_sha256": "8e00025d4bfbc7462f36049a20031204fe4b6a985fe45e4a9467a6d0dfd92d9b",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    },
+    {
+      "item": "verdict-hammer",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 161,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999898,
+          2.0000000000000355
+        ],
+        "rotated_bounds": [
+          [
+            -0.15000000000000036,
+            -0.75,
+            3.4250000000000007
+          ],
+          [
+            16.150000000000002,
+            27.0,
+            12.575
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            70,
+            28,
+            185,
+            225
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            95,
+            28,
+            160,
+            225
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            70,
+            95,
+            185,
+            160
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            69,
+            23,
+            186,
+            223
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            46,
+            37,
+            207,
+            233
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            80,
+            33,
+            164,
+            181
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            101,
+            5,
+            165,
+            153
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            107,
+            33,
+            191,
+            181
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            90,
+            5,
+            154,
+            153
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            108,
+            58,
+            147,
+            124
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            89,
+            61,
+            166,
+            193
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "8e00025d4bfbc7462f36049a20031204fe4b6a985fe45e4a9467a6d0dfd92d9b",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
     }
-  ]
+  ],
+  "sha256": {
+    "model.json": "826566bdae7dd42360b474c62bf5391d6fb9c48bea953b2ba53cb5d97ce08fd8",
+    "texture.png": "8c1e30ecaf6e8c4f15983ce43ff644b13a03ea57a0c29fa001a06362537ab18b"
+  }
 }
