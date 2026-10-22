@@ -148,12 +148,13 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
     }
 
     /** [op]: `show`, `update`, `clear`; [summary] is the layout's text keys / placeholders (empty on clear). */
-    public fun recordHud(tick: Long, player: PlayerId, region: String, op: String, summary: String) {
+    public fun recordHud(tick: Long, player: PlayerId, region: String, op: String, summary: String, layout: JsonElement) {
         bucket(tick).hud += buildJsonObject {
             put("player", player.uuid.toString())
             put("region", region)
             put("op", op)
             put("summary", summary.take(240))
+            put("layout", layout)
         }
     }
 

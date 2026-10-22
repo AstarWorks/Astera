@@ -18,6 +18,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -87,7 +88,7 @@ public class GameSim private constructor(
     public val feedback: SimPlayerFeedbackGateway = SimPlayerFeedbackGateway(recorder) { scheduler.currentTick() }
 
     /** What every HUD channel currently shows per player, and every show / update / clear (WP14). */
-    public val hud: SimHudRecorder = SimHudRecorder(recorder) { scheduler.currentTick() }
+    public val hud: SimHudRecorder = SimHudRecorder(recorder, services.getOrThrow<IMessageRenderer>()) { scheduler.currentTick() }
 
     /** Native hotbar cooldown sweeps the item side asked for (ADR-0197). */
     public val sweeps: SimItemCooldownSweep = SimItemCooldownSweep { scheduler.currentTick() }

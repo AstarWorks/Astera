@@ -107,7 +107,8 @@ scenario end). Positions are world coordinates in blocks; ids are UUID strings.
       "effects":    [ { "kind": "explosion|lightning|block_place|block_remove|display_spawn|display_remove|summon|despawn|glow|camera_shake",
                         "detail": "radius=5.0 damage=10.0 hit=2 blocks=None", "x": 0, "y": 0, "z": 0 /* absent for camera_shake */ } ],
       "hud":        [ { "player": "…", "region": "SIDEBAR|ACTION_BAR|STATUS_LINE|…", "op": "show|update|clear",
-                        "summary": "i18n keys + placeholders of the layout" } ],
+                        "summary": "i18n keys + placeholders of the layout",
+                        "layout": { "component": { "text": "…", "font": "astera:default", "widthPx": 80 }, "anchorLeftPx": -91 } } ],
       "events":     [ { "type": "MatchStarted", "summary": "MatchStarted(…)" } ]
                                     // every other DomainEvent (HUD / regen chatter filtered out); summary = toString, truncated
     }
@@ -118,3 +119,11 @@ scenario end). Positions are world coordinates in blocks; ids are UUID strings.
 Notes for viewers: arrays are always present (possibly empty); effects happen
 *during* the tick listed, snapshots are taken *after* it. Events fired between
 `step` calls (e.g. a click) are stamped with the last completed tick.
+
+HUD events additionally carry a structured `layout` (null on clear), with messages resolved
+at event time using the simulated viewer's locale. `component`, sidebar `lines`/`title`,
+tab `header`/`footer`, title fade timings, `anchorLeftPx` and the full, untruncated
+custom-font strings support [`hud-preview`](../hud-preview/README.md). Components use
+`text` with optional `font`/`widthPx`/RGB `color`, or `parts` with `spacing`.
+`summary` remains the compact log label used by the skill viewer. Regenerate old
+traces before rendering; HUD preview does not reconstruct layouts from summaries.

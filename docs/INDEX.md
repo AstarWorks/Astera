@@ -24,7 +24,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 
 | ディレクトリ | 内容 |
 |---|---|
-| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0242 (欠番あり) |
+| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0243 (欠番あり) |
 | [`plans/`](plans/) | 作業計画 / バックログ (現行: core vision backlog) |
 | [`architecture/`](architecture/) | 設計の現在地。コードと同期して育てる生きた仕様 |
 | [`infrastructure/`](infrastructure/) | k8s / GitOps / 監視 / スケーリング |
