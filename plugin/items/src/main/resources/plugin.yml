@@ -3,12 +3,8 @@ version: '${version}'
 main: com.astarworks.astera.items.platform.AsteraItemsPlugin
 api-version: '26.3'
 authors: [AstarWorks]
-description: Astera items plugin — custom item definitions, /astera-items give, click-to-skill (ADR-0069).
+description: Astera items plugin — custom item definitions, /astera items give, click-to-skill (ADR-0069).
 website: https://github.com/AstarWorks/Astera
 depend: [Astera-Core]
 # No softdepend: Combat softdepends on Items (ICooldownTracker etc. must exist
 # before Combat wires CastSkillUseCase); a reverse edge makes the order a cycle.
-commands:
-  astera-items:
-    description: Astera items commands (give, …)
-    usage: /astera-items <subcommand> [args...]

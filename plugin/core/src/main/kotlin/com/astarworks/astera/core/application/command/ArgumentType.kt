@@ -66,4 +66,29 @@ public sealed interface ArgumentType {
      * adapter does not need to know about each registry.
      */
     public data object ItemIdArg : ArgumentType
+
+    /** 64-bit floating point with optional inclusive bounds. Resolves to [Double]. */
+    public data class DoubleArg(
+        public val min: Double? = null,
+        public val max: Double? = null,
+    ) : ArgumentType
+
+    /**
+     * The name of a player as a single word. Resolves to [String]. The platform
+     * adapter suggests online player names automatically; use [PlayerSelector]
+     * when the use case needs a [com.astarworks.astera.core.domain.player.PlayerId].
+     */
+    public data object PlayerName : ArgumentType
+
+    /**
+     * One word out of a closed set. Resolves to [String]; the adapter suggests
+     * [values] and rejects anything else at parse time.
+     */
+    public data class Choice(public val values: List<String>) : ArgumentType {
+        init {
+            require(values.isNotEmpty()) { "Choice needs at least one value" }
+        }
+
+        public constructor(vararg values: String) : this(values.toList())
+    }
 }

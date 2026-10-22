@@ -7,7 +7,7 @@ import java.time.Instant
  * Outbound port: read and toggle the server's [MaintenanceMode] (Wave E
  * 5admin-ops, ADR-0122).
  *
- * Single mutable cell of state. The `/astera-maintenance` command consumes
+ * Single mutable cell of state. The `/astera admin maintenance` command consumes
  * this; the future Wave 6b login-gate listener consumes
  * [current] on every `PlayerLogin` and denies non-admins when the result is
  * [MaintenanceMode.On].

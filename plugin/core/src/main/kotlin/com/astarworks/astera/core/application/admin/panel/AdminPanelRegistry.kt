@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.item.ItemId
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
- * Where on the `/astera-admin` panel a plugin-contributed tile appears
+ * Where on the `/astera admin panel` panel a plugin-contributed tile appears
  * (F1-D, ADR-0183).
  *
  *  - [HUB]    — a section of the top-level hub (Weapons & items, Match control, ...).

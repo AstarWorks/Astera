@@ -1,7 +1,9 @@
 package com.astarworks.astera.match.platform.wiring
 
 import com.astarworks.astera.core.application.command.ArgumentType
+import com.astarworks.astera.core.application.command.CommandContext
 import com.astarworks.astera.core.application.command.CommandResult
+import com.astarworks.astera.core.application.command.forEveryone
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
@@ -17,6 +19,7 @@ import com.astarworks.astera.match.application.port.outbound.IMatchReplayReposit
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import com.astarworks.astera.match.domain.matchmaking.QueueError
+import com.astarworks.astera.match.domain.matchmaking.QueueLane
 import com.astarworks.astera.match.domain.matchmaking.QueueSettings
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -36,47 +39,41 @@ import java.nio.file.StandardOpenOption
 import java.util.logging.Logger
 
 /**
- * `/astera-match`, `/astera-queue` command trees (ADR-0174: split out of
- * [MatchWiring] for size; pure `CommandSpec`s, host-neutral).
+ * `/astera match ...`, `/astera queue ...` command trees (ADR-0174: split out of
+ * [MatchWiring] for size; pure `CommandSpec`s, host-neutral; ADR-0184: mounted
+ * under the single `/astera` root by the wiring).
  */
 internal object MatchCommandSpecs {
 
     /**
-     * `/astera-queue join <mode>` / `leave` / `status` (Wave 5w ADR-0089 delta, WP8).
+     * `/astera queue join <lane>` / `leave` / `status` (Wave 5w ADR-0089 delta, WP8).
      *
-     * The mode argument is [MatchmakingMode.parse]: `norma`, `custom:<game-mode-id>`
-     * or `tournament:<id>`. Players already in a running match cannot queue.
+     * The lane argument is a lane key of `queue.yaml` (`norma`, `annihilation`, ...) or the
+     * [MatchmakingMode.parse] wire form: `norma`, `custom:<game-mode-id>` or `tournament:<id>`. Players already in a running match cannot queue.
      * Replies use the `astera.match.queue.*` keys shared with the lobby GUI.
      */
     fun buildQueueCommandSpec(
         matchmaker: IMatchmaker,
         matches: IMatchRepository,
-        playerGateway: IPlayerGateway,
-        permService: IPermissionService,
-        messages: IMessageRenderer,
         settings: () -> QueueSettings,
     ): CommandSpec.Literal {
-        fun reply(senderId: PlayerId, key: String, placeholders: Map<String, String> = emptyMap()) =
-            playerGateway.sendMessage(senderId, messages.render(senderId, MessageKey(key), placeholders))
-
         return CommandSpec.Literal(
-            name = "astera-queue",
-            description = MessageKey("astera.match.command.queue"),
+            name = "queue",
             subcommands = listOf(
                 CommandSpec.Literal(
                     name = "join",
-                    description = MessageKey("astera.match.command.queue.join"),
                     subcommands = listOf(
                         CommandSpec.Argument(
-                            name = "mode",
+                            name = "lane",
                             type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                            completer = { _ -> laneTokens(settings()) },
                         ),
                     ),
                     executor = { ctx ->
                         val senderId = ctx.sender
                             ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
-                        val modeStr = ctx.required<String>("mode")
-                        val mode = MatchmakingMode.parse(modeStr)
+                        val modeStr = ctx.required<String>("lane")
+                        val mode = parseLane(modeStr, settings())
                             ?: return@Literal CommandResult.Failure(
                                 MessageKey("astera.match.queue.unknown-mode"),
                                 mapOf("mode" to modeStr),
@@ -86,8 +83,8 @@ internal object MatchCommandSpecs {
                         }
                         when (val res = matchmaker.enqueue(senderId, mode, partyId = null)) {
                             is Result.Success -> {
-                                reply(senderId, "astera.match.queue.join.success", mapOf("mode" to modeStr))
-                                replyProgress(senderId, mode, matchmaker, settings, ::reply)
+                                ctx.reply(MessageKey("astera.match.queue.join.success"), mapOf("mode" to modeStr))
+                                replyProgress(ctx, mode, matchmaker, settings)
                                 CommandResult.Success
                             }
                             is Result.Failure -> CommandResult.Failure(
@@ -100,16 +97,15 @@ internal object MatchCommandSpecs {
                             )
                         }
                     },
-                ),
+                ).forEveryone(Permission("astera.queue.join")),
                 CommandSpec.Literal(
                     name = "leave",
-                    description = MessageKey("astera.match.command.queue.leave"),
                     executor = { ctx ->
                         val senderId = ctx.sender
                             ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
                         when (matchmaker.dequeue(senderId)) {
                             is Result.Success -> {
-                                reply(senderId, "astera.match.queue.dequeue.success")
+                                ctx.reply(MessageKey("astera.match.queue.dequeue.success"))
                                 CommandResult.Success
                             }
                             is Result.Failure -> CommandResult.Failure(
@@ -117,10 +113,9 @@ internal object MatchCommandSpecs {
                             )
                         }
                     },
-                ),
+                ).forEveryone(Permission("astera.queue.leave")),
                 CommandSpec.Literal(
                     name = "status",
-                    description = MessageKey("astera.match.command.queue.status"),
                     executor = { ctx ->
                         val senderId = ctx.sender
                             ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
@@ -130,33 +125,29 @@ internal object MatchCommandSpecs {
                         } else {
                             val position = matchmaker.pendingByMode(status.mode)
                                 .indexOfFirst { it.playerId == senderId } + 1
-                            reply(
-                                senderId, "astera.match.queue.status.line",
+                            ctx.reply(
+                                MessageKey("astera.match.queue.status.line"),
                                 mapOf("mode" to status.mode.toString(), "position" to position.toString()),
                             )
-                            replyProgress(senderId, status.mode, matchmaker, settings, ::reply)
+                            replyProgress(ctx, status.mode, matchmaker, settings)
                             CommandResult.Success
                         }
                     },
-                ),
+                ).forEveryone(Permission("astera.queue.status")),
             ),
-        ).requirePermission(
-            permissionService = permService,
-            permission = Permission("astera.match.queue"),
         )
     }
 
     /** "n/min players queued" line so a lone playtester sees what the lane is waiting for. */
     private fun replyProgress(
-        senderId: PlayerId,
+        ctx: CommandContext,
         mode: MatchmakingMode,
         matchmaker: IMatchmaker,
         settings: () -> QueueSettings,
-        reply: (PlayerId, String, Map<String, String>) -> Unit,
     ) {
         val lane = settings().laneFor(mode) ?: return
-        reply(
-            senderId, "astera.match.queue.status.progress",
+        ctx.reply(
+            MessageKey("astera.match.queue.status.progress"),
             mapOf(
                 "players" to matchmaker.pendingByMode(mode).size.toString(),
                 "required" to lane.minPlayers.toString(),
@@ -164,27 +155,36 @@ internal object MatchCommandSpecs {
         )
     }
 
+    /** The lane keys of `content/matchmaking/queue.yaml` (`norma`, `annihilation`, ...): what `queue join` suggests. */
+    private fun laneTokens(settings: QueueSettings): List<String> = settings.lanes.keys.toList()
+
+    /**
+     * A lane key (`annihilation`) or the wire form (`norma`, `custom:<id>`, `tournament:<id>`) the lobby GUI
+     * uses. The bare key is what the playtest guide and tab completion show.
+     */
+    private fun parseLane(raw: String, settings: QueueSettings): MatchmakingMode? =
+        MatchmakingMode.parse(raw) ?: settings.lanes[raw.lowercase()]?.mode
+
     fun buildMatchCommandSpec(
         lifecycle: IMatchLifecycle,
         matches: IMatchRepository,
         playerGateway: IPlayerGateway,
-        permService: IPermissionService,
         recorder: IMatchRecorder,
         replayRepo: IMatchReplayRepository,
         exportRoot: Path,
         logger: Logger,
+        stageIds: () -> List<String> = { emptyList() },
     ): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-match",
-        description = MessageKey("astera.match.command.root"),
+        name = "match",
         subcommands = listOf(
-            // astera-match start <stageId>
+            // /astera match start <stageId>
             CommandSpec.Literal(
                 name = "start",
-                description = MessageKey("astera.match.command.start"),
                 subcommands = listOf(
                     CommandSpec.Argument(
                         name = "stage-id",
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        completer = { _ -> stageIds() },
                     ),
                 ),
                 executor = { ctx ->
@@ -196,27 +196,21 @@ internal object MatchCommandSpecs {
                         )
                     when (val result = lifecycle.start(stageId)) {
                         is Result.Success -> {
-                            val senderId = ctx.sender
-                            if (senderId != null) {
-                                playerGateway.sendMessage(senderId, "Match started: ${result.value.value}")
-                            }
+                            ctx.reply(MessageKey("astera.command.reply.match-start"), mapOf("match" to result.value.value))
                             CommandResult.Success
                         }
                         is Result.Failure -> result.error.toCommandFailure()
                     }
                 },
-            ).requirePermission(
-                permissionService = permService,
-                permission = Permission("astera.match.admin.start"),
-            ),
-            // astera-match end <matchId>
+            ).requirePermission(Permission("astera.match.admin.start")),
+            // /astera match end <matchId>
             CommandSpec.Literal(
                 name = "end",
-                description = MessageKey("astera.match.command.end"),
                 subcommands = listOf(
                     CommandSpec.Argument(
                         name = "match-id",
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        completer = { _ -> matches.findActiveMatches().map { it.id.value } },
                     ),
                 ),
                 executor = { ctx ->
@@ -227,26 +221,26 @@ internal object MatchCommandSpecs {
                             mapOf("match" to matchIdStr),
                         )
                     when (val result = lifecycle.end(matchId, EndReason.AdminEnded)) {
-                        is Result.Success -> CommandResult.Success
+                        is Result.Success -> {
+                            ctx.reply(MessageKey("astera.command.reply.match-end"), mapOf("match" to matchIdStr))
+                            CommandResult.Success
+                        }
                         is Result.Failure -> result.error.toCommandFailure()
                     }
                 },
-            ).requirePermission(
-                permissionService = permService,
-                permission = Permission("astera.match.admin.end"),
-            ),
-            // astera-match entry <matchId> <playerName>
+            ).requirePermission(Permission("astera.match.admin.end")),
+            // /astera match entry <matchId> <playerName>
             CommandSpec.Literal(
                 name = "entry",
-                description = MessageKey("astera.match.command.entry"),
                 subcommands = listOf(
                     CommandSpec.Argument(
                         name = "match-id",
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        completer = { _ -> matches.findActiveMatches().map { it.id.value } },
                     ),
                     CommandSpec.Argument(
                         name = "player",
-                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        type = ArgumentType.PlayerName,
                     ),
                 ),
                 executor = { ctx ->
@@ -263,23 +257,31 @@ internal object MatchCommandSpecs {
                             mapOf("player" to playerName),
                         )
                     when (val result = lifecycle.entry(matchId, playerId, null)) {
-                        is Result.Success -> CommandResult.Success
+                        is Result.Success -> {
+                            ctx.reply(
+                                MessageKey("astera.command.reply.match-entry"),
+                                mapOf("match" to matchIdStr, "player" to playerName),
+                            )
+                            CommandResult.Success
+                        }
                         is Result.Failure -> result.error.toCommandFailure()
                     }
                 },
-            ),
-            // astera-match phase <matchId> <triggerName>
+            ).requirePermission(Permission("astera.match.admin.entry")),
+            // /astera match phase <matchId> <triggerName>
             CommandSpec.Literal(
                 name = "phase",
-                description = MessageKey("astera.match.command.phase"),
                 subcommands = listOf(
                     CommandSpec.Argument(
                         name = "match-id",
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        completer = { _ -> matches.findActiveMatches().map { it.id.value } },
                     ),
                     CommandSpec.Argument(
                         name = "trigger",
-                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        type = ArgumentType.Choice(
+                            "countdowncomplete", "scorethresholdreached", "suddendeathtimer", "cancel", "adminend",
+                        ),
                     ),
                 ),
                 executor = { ctx ->
@@ -296,44 +298,46 @@ internal object MatchCommandSpecs {
                             mapOf("trigger" to triggerName),
                         )
                     when (val result = lifecycle.switchPhase(matchId, trigger)) {
-                        is Result.Success -> CommandResult.Success
+                        is Result.Success -> {
+                            ctx.reply(
+                                MessageKey("astera.command.reply.match-phase"),
+                                mapOf("match" to matchIdStr, "trigger" to triggerName),
+                            )
+                            CommandResult.Success
+                        }
                         is Result.Failure -> result.error.toCommandFailure()
                     }
                 },
-            ).requirePermission(
-                permissionService = permService,
-                permission = Permission("astera.match.admin.phase"),
-            ),
-            // astera-match list
+            ).requirePermission(Permission("astera.match.admin.phase")),
+            // /astera match list
             CommandSpec.Literal(
                 name = "list",
-                description = MessageKey("astera.match.command.list"),
                 executor = { ctx ->
                     val active = matches.findActiveMatches()
                     if (active.isEmpty()) {
-                        CommandResult.Failure(MessageKey("astera.match.command.list.none"))
+                        ctx.reply(MessageKey("astera.command.reply.match-list-none"))
                     } else {
-                        val senderId = ctx.sender
+                        ctx.reply(MessageKey("astera.command.reply.match-list-header"), mapOf("count" to active.size.toString()))
                         active.forEach { m ->
-                            val summary = "${m.id.value} [${m.phase}] stage=${m.stageId.value}"
-                            if (senderId != null) {
-                                playerGateway.sendMessage(senderId, summary)
-                            }
+                            ctx.reply(
+                                MessageKey("astera.command.reply.match-list-line"),
+                                mapOf("match" to m.id.value, "phase" to m.phase.toString(), "stage" to m.stageId.value),
+                            )
                         }
-                        CommandResult.Success
                     }
+                    CommandResult.Success
                 },
-            ),
-            // astera-match abort <matchId> [reason]  (Wave 5complete, ADR-0117 §Axis 3)
+            ).forEveryone(Permission("astera.match.list")),
+            // /astera match abort <matchId> [reason]  (Wave 5complete, ADR-0117 §Axis 3)
             //   AdminEnded the match immediately. Reason is free-form for
             //   audit (defaults to "abort").
             CommandSpec.Literal(
                 name = "abort",
-                description = MessageKey("astera.match.command.abort"),
                 subcommands = listOf(
                     CommandSpec.Argument(
                         name = "match-id",
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        completer = { _ -> matches.findActiveMatches().map { it.id.value } },
                     ),
                 ),
                 executor = { ctx ->
@@ -344,24 +348,24 @@ internal object MatchCommandSpecs {
                             mapOf("match" to matchIdStr),
                         )
                     when (val result = lifecycle.end(matchId, EndReason.AdminEnded)) {
-                        is Result.Success -> CommandResult.Success
+                        is Result.Success -> {
+                            ctx.reply(MessageKey("astera.command.reply.match-abort"), mapOf("match" to matchIdStr))
+                            CommandResult.Success
+                        }
                         is Result.Failure -> result.error.toCommandFailure()
                     }
                 },
-            ).requirePermission(
-                permissionService = permService,
-                permission = Permission("astera.match.admin.abort"),
-            ),
-            // astera-match cancel <matchId>  (Wave 5complete, ADR-0117 §Axis 3)
+            ).requirePermission(Permission("astera.match.admin.abort")),
+            // /astera match cancel <matchId>  (Wave 5complete, ADR-0117 §Axis 3)
             //   End the match with a Cancelled reason so reward distribution +
             //   audit can branch on "this match never had a winner".
             CommandSpec.Literal(
                 name = "cancel",
-                description = MessageKey("astera.match.command.cancel"),
                 subcommands = listOf(
                     CommandSpec.Argument(
                         name = "match-id",
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        completer = { _ -> matches.findActiveMatches().map { it.id.value } },
                     ),
                 ),
                 executor = { ctx ->
@@ -372,26 +376,26 @@ internal object MatchCommandSpecs {
                             mapOf("match" to matchIdStr),
                         )
                     when (val result = lifecycle.end(matchId, EndReason.Cancelled("admin-cancel"))) {
-                        is Result.Success -> CommandResult.Success
+                        is Result.Success -> {
+                            ctx.reply(MessageKey("astera.command.reply.match-cancel"), mapOf("match" to matchIdStr))
+                            CommandResult.Success
+                        }
                         is Result.Failure -> result.error.toCommandFailure()
                     }
                 },
-            ).requirePermission(
-                permissionService = permService,
-                permission = Permission("astera.match.admin.cancel"),
-            ),
-            // astera-match restart <matchId>  (Wave 5complete, ADR-0117 §Axis 3)
+            ).requirePermission(Permission("astera.match.admin.cancel")),
+            // /astera match restart <matchId>  (Wave 5complete, ADR-0117 §Axis 3)
             //   End the current match + start a new one on the same stage.
             //   The two-step is best-effort: if start fails the players are
             //   already booted from the prior match (TeleportToLobbyOnMatchEnded
             //   handles teleport-out), so they land in lobby and can re-queue.
             CommandSpec.Literal(
                 name = "restart",
-                description = MessageKey("astera.match.command.restart"),
                 subcommands = listOf(
                     CommandSpec.Argument(
                         name = "match-id",
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        completer = { _ -> matches.findActiveMatches().map { it.id.value } },
                     ),
                 ),
                 executor = { ctx ->
@@ -410,21 +414,24 @@ internal object MatchCommandSpecs {
                     val endOutcome = lifecycle.end(matchId, EndReason.AdminEnded)
                     if (endOutcome is Result.Failure) return@Literal endOutcome.error.toCommandFailure()
                     when (val startOutcome = lifecycle.start(savedStage)) {
-                        is Result.Success -> CommandResult.Success
+                        is Result.Success -> {
+                            ctx.reply(
+                                MessageKey("astera.command.reply.match-restart"),
+                                mapOf("match" to matchIdStr, "new" to startOutcome.value.value),
+                            )
+                            CommandResult.Success
+                        }
                         is Result.Failure -> startOutcome.error.toCommandFailure()
                     }
                 },
-            ).requirePermission(
-                permissionService = permService,
-                permission = Permission("astera.match.admin.restart"),
-            ),
-            // astera-match replay <start|stop|export> <matchId> (Wave 5v / ADR-0088)
-            buildReplayCommandSpec(recorder, replayRepo, permService, exportRoot, playerGateway, logger),
+            ).requirePermission(Permission("astera.match.admin.restart")),
+            // /astera match replay <start|stop|export> <matchId> (Wave 5v / ADR-0088)
+            buildReplayCommandSpec(recorder, replayRepo, exportRoot, matches, logger),
         ),
     )
 
     /**
-     * Wave 5v: `/astera-match replay <subcommand>` admin commands. Three
+     * Wave 5v: `/astera match replay <subcommand>` admin commands. Three
      * subcommands: `start <matchId>` begins capture under the default
      * `EventLogKeyFrame` format; `stop <matchId>` finalises and persists;
      * `export <matchId>` writes the most recent persisted replay for the
@@ -438,21 +445,19 @@ internal object MatchCommandSpecs {
     private fun buildReplayCommandSpec(
         recorder: IMatchRecorder,
         replayRepo: IMatchReplayRepository,
-        permService: IPermissionService,
         exportRoot: Path,
-        playerGateway: IPlayerGateway,
+        matches: IMatchRepository,
         logger: Logger,
     ): CommandSpec.Literal = CommandSpec.Literal(
         name = "replay",
-        description = MessageKey("astera.match.command.replay"),
         subcommands = listOf(
             CommandSpec.Literal(
                 name = "start",
-                description = MessageKey("astera.match.command.replay.start"),
-                subcommands = listOf(
+                                subcommands = listOf(
                     CommandSpec.Argument(
                         name = "match-id",
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        completer = { _ -> matches.findActiveMatches().map { it.id.value } },
                     ),
                 ),
                 executor = { ctx ->
@@ -463,23 +468,17 @@ internal object MatchCommandSpecs {
                             mapOf("match" to matchIdStr),
                         )
                     recorder.startRecording(matchId, ReplayFormat.EventLogKeyFrame())
-                    val senderId = ctx.sender
-                    if (senderId != null) {
-                        playerGateway.sendMessage(senderId, "Recording started for $matchIdStr")
-                    }
+                    ctx.reply(MessageKey("astera.command.reply.match-replay-start"), mapOf("match" to matchIdStr))
                     CommandResult.Success
                 },
-            ).requirePermission(
-                permissionService = permService,
-                permission = Permission("astera.match.admin.replay.start"),
-            ),
+            ).requirePermission(Permission("astera.match.admin.replay.start")),
             CommandSpec.Literal(
                 name = "stop",
-                description = MessageKey("astera.match.command.replay.stop"),
                 subcommands = listOf(
                     CommandSpec.Argument(
                         name = "match-id",
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        completer = { _ -> matches.findActiveMatches().map { it.id.value } },
                     ),
                 ),
                 executor = { ctx ->
@@ -491,31 +490,27 @@ internal object MatchCommandSpecs {
                         )
                     when (val result = recorder.stopRecording(matchId)) {
                         is Result.Success -> {
-                            val senderId = ctx.sender
-                            if (senderId != null) {
-                                playerGateway.sendMessage(
-                                    senderId,
-                                    "Recording stopped: events=${result.value.events.size} " +
-                                        "keyFrames=${result.value.keyFrames.size} " +
-                                        "sizeBytes=${result.value.sizeBytes}",
-                                )
-                            }
+                            ctx.reply(
+                                MessageKey("astera.command.reply.match-replay-stop"),
+                                mapOf(
+                                    "events" to result.value.events.size.toString(),
+                                    "keyframes" to result.value.keyFrames.size.toString(),
+                                    "bytes" to result.value.sizeBytes.toString(),
+                                ),
+                            )
                             CommandResult.Success
                         }
                         is Result.Failure -> CommandResult.Failure(result.error.messageKey)
                     }
                 },
-            ).requirePermission(
-                permissionService = permService,
-                permission = Permission("astera.match.admin.replay.stop"),
-            ),
+            ).requirePermission(Permission("astera.match.admin.replay.stop")),
             CommandSpec.Literal(
                 name = "export",
-                description = MessageKey("astera.match.command.replay.export"),
                 subcommands = listOf(
                     CommandSpec.Argument(
                         name = "match-id",
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                        completer = { _ -> matches.findActiveMatches().map { it.id.value } },
                     ),
                 ),
                 executor = { ctx ->
@@ -539,16 +534,10 @@ internal object MatchCommandSpecs {
                             mapOf("match" to matchIdStr, "reason" to (t.message ?: "unknown")),
                         )
                     }
-                    val senderId = ctx.sender
-                    if (senderId != null) {
-                        playerGateway.sendMessage(senderId, "Replay exported to $outPath")
-                    }
+                    ctx.reply(MessageKey("astera.command.reply.match-replay-export"), mapOf("path" to outPath.toString()))
                     CommandResult.Success
                 },
-            ).requirePermission(
-                permissionService = permService,
-                permission = Permission("astera.match.admin.replay.export"),
-            ),
+            ).requirePermission(Permission("astera.match.admin.replay.export")),
         ),
     )
 

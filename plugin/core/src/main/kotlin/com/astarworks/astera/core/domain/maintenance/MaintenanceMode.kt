@@ -12,7 +12,7 @@ import java.time.Instant
  * gate must live in the adapter).
  *
  * `since` is the wall-clock at the last state flip; combined with
- * [On.scheduledOffAt] it lets the `/astera-maintenance status` command tell
+ * [On.scheduledOffAt] it lets the `/astera admin maintenance status` command tell
  * operators how long the server has been down and when (if ever) it lifts
  * automatically.
  *
@@ -23,7 +23,7 @@ import java.time.Instant
  */
 public sealed interface MaintenanceMode {
 
-    /** When this state was entered. Useful for `/astera-maintenance status`. */
+    /** When this state was entered. Useful for `/astera admin maintenance status`. */
     public val since: Instant
 
     /** Maintenance mode disabled — normal login flow. */

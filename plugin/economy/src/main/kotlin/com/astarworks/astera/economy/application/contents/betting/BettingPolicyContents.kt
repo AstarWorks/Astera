@@ -10,7 +10,7 @@ import com.astarworks.astera.economy.domain.betting.BettingPolicyId
  * `Contents<BettingPolicyId, BettingPolicy>` (Wave 5bet / ADR-0103).
  *
  * Bootstrap directory: `content/bet-policies/`. Atomic-swap reload via
- * `/astera-economy reload bet-policies` (substrate from ADR-0065).
+ * `/astera admin reload bet-policies` (substrate from ADR-0065).
  *
  * Also implements [IBettingPolicyRegistry] so the in-memory default registry
  * is replaced wholesale at boot — same pattern as `EncounterZoneContents`

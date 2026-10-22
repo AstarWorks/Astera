@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.usecase.travel.TravelToPveWorldUse
 import com.astarworks.astera.core.application.usecase.travel.TravelToSurvivalIslandUseCase
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.permission.Permission
 
 /**
  * `/astera travel ...` Brigadier command spec (Wave 5wireup, ADR-0116 §G10).
@@ -27,7 +28,6 @@ public fun buildTravelCommandSpec(
 
     val pve = CommandSpec.Literal(
         name = "pve",
-        description = MessageKey("astera.travel.command.pve"),
         executor = lambda@ { ctx ->
             val playerId = ctx.sender ?: return@lambda CommandResult.Failure(
                 MessageKey("astera.command.player-only"),
@@ -37,11 +37,10 @@ public fun buildTravelCommandSpec(
                 is Result.Failure -> CommandResult.Failure(r.error.messageKey)
             }
         },
-    )
+    ).forEveryone(Permission("astera.travel.pve"))
 
     val survival = CommandSpec.Literal(
         name = "survival",
-        description = MessageKey("astera.travel.command.survival"),
         executor = lambda@ { ctx ->
             val playerId = ctx.sender ?: return@lambda CommandResult.Failure(
                 MessageKey("astera.command.player-only"),
@@ -51,11 +50,10 @@ public fun buildTravelCommandSpec(
                 is Result.Failure -> CommandResult.Failure(r.error.messageKey)
             }
         },
-    )
+    ).forEveryone(Permission("astera.travel.survival"))
 
     val lobby = CommandSpec.Literal(
         name = "lobby",
-        description = MessageKey("astera.travel.command.lobby"),
         executor = lambda@ { ctx ->
             val playerId = ctx.sender ?: return@lambda CommandResult.Failure(
                 MessageKey("astera.command.player-only"),
@@ -65,11 +63,10 @@ public fun buildTravelCommandSpec(
                 is Result.Failure -> CommandResult.Failure(r.error.messageKey)
             }
         },
-    )
+    ).forEveryone(Permission("astera.travel.lobby"))
 
     return CommandSpec.Literal(
         name = "travel",
-        description = MessageKey("astera.travel.command.root"),
         subcommands = listOf(pve, survival, lobby),
     )
 }

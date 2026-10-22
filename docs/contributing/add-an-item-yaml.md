@@ -170,10 +170,10 @@ BukkitEventAdapter に listener が追加される。
 ## Player への配布
 
 ```
-/astera-items give <player> <item-id>
+/astera items give <player> <item-id>
 ```
 
-例: `/astera-items give @s lightning-blade`
+例: `/astera items give @s lightning-blade`
 
 配布された ItemStack の PDC には `astera:item_id=lightning-blade` が stamp
 される。`ItemSkillTriggerListener` がこの tag を読んで適切な skill を発火。

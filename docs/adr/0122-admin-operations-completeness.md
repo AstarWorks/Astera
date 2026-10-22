@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Accepted
+Accepted. The command shape (flat `/astera-<verb>` literals with per-command `requirePermission`) is superseded by [[adr/0184-single-astera-command-tree]]; the ports and the join-listener guard remain in force.
 
 ## Context
 

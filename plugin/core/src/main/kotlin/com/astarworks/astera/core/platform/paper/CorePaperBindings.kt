@@ -1,7 +1,6 @@
 package com.astarworks.astera.core.platform.paper
 
 import com.astarworks.astera.core.adapter.api.server.IMcServer
-import com.astarworks.astera.core.adapter.paper.command.PaperCommandHandler
 import com.astarworks.astera.core.adapter.paper.event.BukkitEventAdapter
 import com.astarworks.astera.core.adapter.paper.event.PaperBroadcaster
 import com.astarworks.astera.core.adapter.paper.gui.PaperGuiAdapter
@@ -103,7 +102,6 @@ internal class CorePaperBindings(
         this.scheduler = scheduler
 
         val broadcaster = buildBroadcaster(scheduler)
-        val commandHandler = PaperCommandHandler(plugin, scheduler)
 
         // Wave 6b-2 (ADR-0157): Adventure API (Paper-bundled) is the rendering
         // substrate of the HUD adapters. PaperHudGateway shares this manager.
@@ -114,7 +112,6 @@ internal class CorePaperBindings(
             mcServer = mcServer,
             scheduler = scheduler,
             broadcaster = broadcaster,
-            commandHandler = commandHandler,
             guiAdapter = GuiAdapterFactory { items, messages, bindingResolver ->
                 val guiRenderer = PaperItemTemplateRenderer(items, messages, bindingResolver)
                 PaperGuiAdapter(
@@ -325,6 +322,8 @@ internal class CorePaperBindings(
                 null
             },
             metrics = { services -> bootstrapMetrics(services) },
+            // ADR-0184: operators / LuckPerms-style nodes pass Astera permission checks too.
+            hostPermission = { playerId, node -> server.getPlayer(playerId.uuid)?.hasPermission(node) == true },
             proxyMessenger = { _ -> buildProxyMessenger(scheduler) },
         )
     }
@@ -366,6 +365,18 @@ internal class CorePaperBindings(
      * starts the Paper services that need the [JavaPlugin].
      */
     fun afterWiring(ctx: WiringContext, result: CoreWiringResult) {
+        // The single /astera Brigadier tree (ADR-0184): publishes the registry's
+        // merged snapshot on Paper's COMMANDS event and re-publishes it when a
+        // feature plugin mounts / removes its subtree after Core enabled.
+        com.astarworks.astera.core.adapter.paper.command.PaperCommandBridge(
+            plugin = plugin,
+            registry = result.commandRegistry,
+            authorizer = result.commandAuthorizer,
+            invoker = result.commandInvoker,
+            scheduler = scheduler,
+            renderer = { ctx.services.getOrThrow<IMessageRenderer>() },
+        ).start()
+
         // Caster pose (world / eye / look) for skill casts; the simulator
         // registers its own position-backed impl.
         ctx.registrations += ctx.services.register<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>(

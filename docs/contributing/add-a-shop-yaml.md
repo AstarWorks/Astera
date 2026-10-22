@@ -89,12 +89,12 @@ plugin 有効時)、reload では維持される (offer 定義のみ swap)。
 - **ロビー NPC**: `content/lobby-npcs/shop-npc.yaml` の右クリックが
   `lobby.shop.open` を発火 → `LobbyShopOpenIntentHandler` → `ShopBrowseUseCase`
   (`payload.shop_id` 省略時は `example-shop`)。メインメニューのショップタイルも同じ intent。
-- **コマンド**: `/astera-shop` (既定ショップ) / `/astera-shop browse <shop-id>`。
+- **コマンド**: `/astera shop` (既定ショップ) / `/astera shop <shop-id>`。
 
 購入フロー: ショップ GUI の offer クリック → `shop.purchase` intent →
 `ShopPurchaseUseCase` (`ICurrencyLedger.debit` → 在庫 decrement → `giveItem`)。
 所持金は新規プレイヤーの starter grant (`content/balance/starter-grant.yaml`、GOLD 100) か、
-管理者の `/astera-grant-currency <player> <currency> <amount>` で付与。
+管理者の `/astera economy grant <player> <currency> <amount>` で付与。
 
 `stock: limited` の場合、`IShopStockRepository` (Persistence overlay 100,
 in-memory 0) で在庫を atomically decrement。

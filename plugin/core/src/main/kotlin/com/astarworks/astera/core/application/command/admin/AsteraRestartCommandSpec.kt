@@ -5,7 +5,6 @@ import com.astarworks.astera.core.application.command.CommandContext
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
-import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.admin.AnnouncementSpec
 import com.astarworks.astera.core.application.port.outbound.admin.AnnouncementTrigger
@@ -23,7 +22,7 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * Wave J 5server-content-ops (ADR-0127) — `/astera-restart <minutes> [reason]`.
+ * Wave J 5server-content-ops (ADR-0127) — `/astera admin restart <minutes> [reason]`.
  *
  * Schedules a graceful, announced server restart `minutes` minutes from now.
  *
@@ -47,7 +46,6 @@ public fun buildAsteraRestartCommandSpec(
     announcer: IScheduledAnnouncementSystem,
     bootstrapper: IServerBootstrapper,
     scheduler: IScheduler,
-    permissionService: IPermissionService,
     clock: Clock = Clock.systemUTC(),
 ): CommandSpec.Literal {
 
@@ -122,12 +120,12 @@ public fun buildAsteraRestartCommandSpec(
         @Suppress("UNUSED_VARIABLE")
         val reasonForLog = reasonKey
 
+        ctx.reply(MessageKey("astera.command.reply.admin-restart"), mapOf("minutes" to minutes.toString()))
         CommandResult.Success
     }
 
     return CommandSpec.Literal(
-        name = "astera-restart",
-        description = MessageKey("astera.restart.command.root"),
+        name = "restart",
         subcommands = listOf(
             CommandSpec.Argument(
                 "minutes",
@@ -136,10 +134,11 @@ public fun buildAsteraRestartCommandSpec(
             CommandSpec.Argument(
                 "reason",
                 ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy),
+                optional = true,
             ),
         ),
         executor = executor,
-    ).requirePermission(permissionService, Permission(PERM_RESTART))
+    ).requirePermission(Permission(PERM_RESTART))
 }
 
 public const val PERM_RESTART: String = "astera.admin.restart"

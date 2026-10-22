@@ -34,7 +34,7 @@ internal object MatchGameplayWiring {
         val eventBus = env.eventBus
         val scheduler = env.scheduler
         val playerGateway = env.playerGateway
-        val commandHandler = env.commandHandler
+        val commands = env.commands
         val permService = env.permService
         val msgRenderer = env.msgRenderer
         val matchModeRegistry = env.matchModeRegistry
@@ -79,13 +79,10 @@ internal object MatchGameplayWiring {
         // backend has no queue command, scheduler or lobby intents.
         val role = env.ctx.serverRole
         if (role.hostsLobby) {
-            commandHandler.register(
+            commands.register(
                 MatchCommandSpecs.buildQueueCommandSpec(
                     matchmaker = matchmaker,
                     matches = matches,
-                    playerGateway = playerGateway,
-                    permService = permService,
-                    messages = env.msgRenderer,
                     settings = { env.queueSettings.current() },
                 ),
             )
@@ -251,7 +248,7 @@ internal object MatchGameplayWiring {
         }
 
         logger.info(
-            "Wave 5wireup wired: /astera-queue command registered; " +
+            "Wave 5wireup wired: /astera queue command registered; " +
                 "RespawnOnPlayerKilled + TeleportToLobbyOnMatchEnded subscribed.",
         )
 
@@ -288,7 +285,7 @@ internal object MatchGameplayWiring {
         //                                          ScoreThresholdReached when
         //                                          VictoryConditionEvaluator finds
         //                                          a unique winner; eliminates the
-        //                                          admin-manual /astera-match phase
+        //                                          admin-manual /astera match phase
         //                                          step from the Norma win path.
         //
         // Sidebar + killfeed talk to the Core IHudGateway (Phase 1 in-memory
@@ -322,7 +319,7 @@ internal object MatchGameplayWiring {
         logger.info(
             "Wave 5complete wired: KillfeedOnPlayerKilled + " +
                 "NormaVictoryConditionEvaluator subscribed; " +
-                "/astera-match {abort,cancel,restart} sub-commands registered.",
+                "/astera match {abort,cancel,restart} sub-commands registered.",
         )
 
         // ── Wave I 5match-wireup-fix (ADR-0126) ─────────────────────────────
@@ -458,14 +455,14 @@ internal object MatchGameplayWiring {
         }
 
         // ── Wave E 5admin-ops (ADR-0122) — admin commands ───────────────────
-        // `/astera-stage <list|select>` for stage catalog visibility +
-        // `/astera-validate [category]` for cross-content reference integrity.
+        // `/astera admin stage <list|select>` for stage catalog visibility +
+        // `/astera admin validate [category]` for cross-content reference integrity.
         // Validate is skipped when Combat isn't loaded (softdepend): without
         // ISkillRegistry the item→skill check has no skill table to consult.
-        commandHandler.register(
+        commands.register(
+            "admin",
             com.astarworks.astera.match.command.admin.AdminStageCommandSpec(
                 stageRegistry = stages,
-                permissionService = permService,
             ).build(),
         )
         val skillRegistry = services.get<com.astarworks.astera.combat.application.port.outbound.ISkillRegistry>()
@@ -480,21 +477,21 @@ internal object MatchGameplayWiring {
             // Broken / unsupported content fails loudly at boot instead of
             // silently no-op'ing in game.
             validateUseCase.validate().issues.forEach { logger.severe("Content validation: $it") }
-            commandHandler.register(
+            commands.register(
+                "admin",
                 com.astarworks.astera.match.command.admin.AdminValidateCommandSpec(
                     validate = validateUseCase,
-                    permissionService = permService,
                 ).build(),
             )
-            logger.info("Wave E 5admin-ops: /astera-stage + /astera-validate registered.")
+            logger.info("Wave E 5admin-ops: /astera admin stage + validate mounted.")
         } else {
             logger.info(
-                "Wave E 5admin-ops: /astera-stage registered. " +
-                    "/astera-validate skipped (Astera-Combat not loaded; ISkillRegistry unavailable).",
+                "Wave E 5admin-ops: /astera admin stage mounted. " +
+                    "/astera admin validate skipped (Astera-Combat not loaded; ISkillRegistry unavailable).",
             )
         }
 
-        // ── F1-D (ADR-0183) — `/astera-admin` match control section ─────────
+        // ── F1-D (ADR-0183) — `/astera admin panel` match control section ─────────
         val adminWaivers = services.getOrThrow<com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers>()
         val adminMatchPanel = com.astarworks.astera.match.application.admin.AdminMatchPanel(
             guard = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.AdminPanelGuard>(),

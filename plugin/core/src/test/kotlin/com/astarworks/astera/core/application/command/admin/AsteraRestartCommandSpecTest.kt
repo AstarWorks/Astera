@@ -1,6 +1,9 @@
 package com.astarworks.astera.core.application.command.admin
 
 import com.astarworks.astera.core.application.command.CommandContext
+import com.astarworks.astera.core.application.command.CommandInvoker
+import com.astarworks.astera.core.application.command.CommandAuthorizer
+import com.astarworks.astera.core.application.command.CommandActor
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.port.outbound.admin.AnnouncementError
@@ -35,9 +38,12 @@ class AsteraRestartCommandSpecTest {
         override fun list(): Collection<AnnouncementSpec> = scheduled
     }
 
+    private val permService = InMemoryPermissionService()
+
     private fun execute(literal: CommandSpec.Literal, ctx: CommandContext): CommandResult {
-        val exec = literal.executor ?: error("no executor")
-        return runBlocking { exec(ctx) }
+        val invoker = CommandInvoker(CommandAuthorizer { permService }, ctx.scheduler)
+        val actor = CommandActor(ctx.sender, isOperator = ctx.sender == null)
+        return runBlocking { invoker.invoke(literal, actor, ctx.args) { _, _ -> } }
     }
 
     @Test
@@ -46,10 +52,9 @@ class AsteraRestartCommandSpecTest {
         val bus = FakeDomainEventBus()
         val bootstrapper = InMemoryServerBootstrapper(bus)
         val scheduler = FakeScheduler()
-        val permService = InMemoryPermissionService()
         val fixedNow = Instant.parse("2026-05-30T12:00:00Z")
         val clock = Clock.fixed(fixedNow, ZoneOffset.UTC)
-        val spec = buildAsteraRestartCommandSpec(announcer, bootstrapper, scheduler, permService, clock)
+        val spec = buildAsteraRestartCommandSpec(announcer, bootstrapper, scheduler, clock)
 
         val outcome = execute(
             spec,
@@ -99,8 +104,7 @@ class AsteraRestartCommandSpecTest {
         )
 
         val scheduler = FakeScheduler()
-        val permService = InMemoryPermissionService()
-        val spec = buildAsteraRestartCommandSpec(announcer, bootstrapper, scheduler, permService)
+        val spec = buildAsteraRestartCommandSpec(announcer, bootstrapper, scheduler)
 
         val outcome = execute(
             spec,
@@ -129,8 +133,7 @@ class AsteraRestartCommandSpecTest {
         val bus = FakeDomainEventBus()
         val bootstrapper = InMemoryServerBootstrapper(bus)
         val scheduler = FakeScheduler()
-        val permService = InMemoryPermissionService()
-        val spec = buildAsteraRestartCommandSpec(announcer, bootstrapper, scheduler, permService)
+        val spec = buildAsteraRestartCommandSpec(announcer, bootstrapper, scheduler)
 
         val outcome = execute(
             spec,

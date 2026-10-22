@@ -55,7 +55,7 @@ Why: see [`docs/adr/0022-multi-plugin-portable-architecture.md`](docs/adr/0022-m
 cp docker/.env.example docker/.env
 docker compose -f docker/docker-compose.yml up -d
 # Connect Minecraft Java client (26.3) to localhost:25565
-/astera-items give <yourName> knight-sword
+/astera items give <yourName> knight-sword
 ```
 
 Just want to compile and run unit + architecture tests? `./gradlew check`.

@@ -1,6 +1,5 @@
 package com.astarworks.astera.core.application.command
 
-import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.usecase.settings.SetLocaleUseCase
 import com.astarworks.astera.core.application.usecase.settings.SetVolumeUseCase
 import com.astarworks.astera.core.application.usecase.settings.SettingsError
@@ -17,8 +16,8 @@ import org.slf4j.LoggerFactory
  * locale + volume setter use cases.
  *
  * Two commands:
- *  - `/astera-language <en|ja>`  permission `astera.settings.language`
- *  - `/astera-volume <music|sound|voice> <0-100>`  permission `astera.settings.volume`
+ *  - `/astera lang <en|ja>`  permission `astera.settings.language`
+ *  - `/astera volume <music|sound|voice> <0-100>`  permission `astera.settings.volume`
  *
  * Both require a player sender — invoking from console returns a typed
  * failure because the setter use cases need a [com.astarworks.astera.core.domain.player.PlayerId]
@@ -34,7 +33,6 @@ import org.slf4j.LoggerFactory
 public class PlayerPrefsCommands(
     private val setLocale: SetLocaleUseCase,
     private val setVolume: SetVolumeUseCase,
-    private val permissionService: IPermissionService,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -45,15 +43,11 @@ public class PlayerPrefsCommands(
     )
 
     private fun languageCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-language",
-        description = MessageKey("astera.settings.language.command.root"),
+        name = "lang",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "locale",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-                completer = { _ ->
-                    PlayerSettings.SUPPORTED_LOCALES.map { it.code }
-                },
+                type = ArgumentType.Choice(PlayerSettings.SUPPORTED_LOCALES.map { it.code }),
             ),
         ),
         executor = { ctx ->
@@ -66,6 +60,7 @@ public class PlayerPrefsCommands(
             when (val outcome = setLocale.set(sender, locale)) {
                 is Result.Success -> {
                     log.info("Player {} switched locale to {}", sender, locale.code)
+                    ctx.reply(MessageKey("astera.command.reply.lang"), mapOf("locale" to locale.code))
                     CommandResult.Success
                 }
                 is Result.Failure -> when (val err = outcome.error) {
@@ -80,16 +75,14 @@ public class PlayerPrefsCommands(
                 }
             }
         },
-    ).requirePermission(permissionService, Permission("astera.settings.language"))
+    ).forEveryone(Permission("astera.settings.language"))
 
     private fun volumeCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-volume",
-        description = MessageKey("astera.settings.volume.command.root"),
+        name = "volume",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "channel",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-                completer = { _ -> CHANNEL_TOKENS },
+                type = ArgumentType.Choice(CHANNEL_TOKENS),
             ),
             CommandSpec.Argument(
                 name = "value",
@@ -113,6 +106,7 @@ public class PlayerPrefsCommands(
             when (val outcome = setVolume.set(sender, channel, value)) {
                 is Result.Success -> {
                     log.info("Player {} set {} volume to {}", sender, channel, value)
+                    ctx.reply(MessageKey("astera.command.reply.volume"), mapOf("channel" to channelRaw, "value" to value.toString()))
                     CommandResult.Success
                 }
                 is Result.Failure -> when (val err = outcome.error) {
@@ -127,7 +121,7 @@ public class PlayerPrefsCommands(
                 }
             }
         },
-    ).requirePermission(permissionService, Permission("astera.settings.volume"))
+    ).forEveryone(Permission("astera.settings.volume"))
 
     private companion object {
         val CHANNEL_BY_TOKEN: Map<String, VolumeChannel> = mapOf(

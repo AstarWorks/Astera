@@ -18,30 +18,25 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 import kotlin.time.Duration
 
+/** Permission declaration (`requirePermission`) + enforcement (`CommandAuthorizer`, `CommandInvoker`), ADR-0184. */
 class CommandPermissionTest {
 
-    // -------------------------------------------------------------------------
-    // Fakes
-    // -------------------------------------------------------------------------
-
-    private fun fakePermissionService(grants: Boolean): IPermissionService =
+    private fun permissionService(grants: Boolean): IPermissionService =
         object : IPermissionService {
-            override fun assign(playerId: PlayerId, roleId: RoleId): Result<Unit, AssignRoleError> =
-                Result.success(Unit)
-            override fun revoke(playerId: PlayerId, roleId: RoleId): Result<Unit, RevokeRoleError> =
-                Result.success(Unit)
+            override fun assign(playerId: PlayerId, roleId: RoleId): Result<Unit, AssignRoleError> = Result.success(Unit)
+            override fun revoke(playerId: PlayerId, roleId: RoleId): Result<Unit, RevokeRoleError> = Result.success(Unit)
             override fun check(playerId: PlayerId, permission: Permission): Boolean = grants
             override fun rolesOf(playerId: PlayerId): Set<RoleId> = emptySet()
             override fun definitionOf(roleId: RoleId): RoleDefinition? = null
             override fun allDefinitions(): Collection<RoleDefinition> = emptyList()
         }
 
-    private val noOpHandle: IScheduler.TaskHandle = object : IScheduler.TaskHandle {
+    private val noOpHandle = object : IScheduler.TaskHandle {
         override fun cancel() = Unit
         override val isActive: Boolean get() = false
     }
 
-    private val noOpScheduler: IScheduler = object : IScheduler {
+    private val scheduler: IScheduler = object : IScheduler {
         override fun currentTick(): Long = 0L
         override fun runLater(delay: Duration, block: () -> Unit): IScheduler.TaskHandle = noOpHandle
         override fun runRepeating(initialDelay: Duration, period: Duration, block: () -> Unit): IScheduler.TaskHandle = noOpHandle
@@ -52,78 +47,78 @@ class CommandPermissionTest {
         override val asyncDispatcher: CoroutineDispatcher get() = Dispatchers.Unconfined
     }
 
-    private val testPermission = Permission("astera.weapons.give")
-    private val testPlayerId = PlayerId(UUID.randomUUID())
+    private val permission = Permission("astera.items.give")
+    private val player = PlayerId(UUID.randomUUID())
+    private val console = CommandActor(playerId = null, isOperator = true)
 
-    private fun ctx(sender: PlayerId?): CommandContext =
-        CommandContext(sender = sender, args = emptyMap(), scheduler = noOpScheduler)
+    private fun leaf(access: CommandAccess = CommandAccess.OPERATOR, ran: () -> Unit = {}): CommandSpec.Literal =
+        CommandSpec.Literal(
+            name = "give",
+            executor = { CommandResult.Success.also { ran() } },
+        ).requirePermission(permission, access)
 
-    // -------------------------------------------------------------------------
-    // Tests
-    // -------------------------------------------------------------------------
+    private fun invoke(spec: CommandSpec.Literal, grants: Boolean, actor: CommandActor): CommandResult {
+        val invoker = CommandInvoker(CommandAuthorizer { permissionService(grants) }, scheduler)
+        return runBlocking { invoker.invoke(spec, actor, emptyMap()) { _, _ -> } }
+    }
 
     @Test
-    fun `requirePermission - sender has permission - executor invoked - success`() = runBlocking {
-        var executed = false
-        val spec = CommandSpec.Literal(
-            name = "give",
-            subcommands = emptyList(),
-            executor = { CommandResult.Success.also { executed = true } },
-        ).requirePermission(fakePermissionService(grants = true), testPermission)
+    fun `requirePermission records node and operator default`() {
+        val spec = leaf()
+        assertThat(spec.permission).isEqualTo(permission)
+        assertThat(spec.access).isEqualTo(CommandAccess.OPERATOR)
+    }
 
-        val result = spec.executor!!(ctx(testPlayerId))
-
-        assertThat(executed).isTrue()
+    @Test
+    fun `holder of the node runs the executor`() {
+        var ran = false
+        val result = invoke(leaf { ran = true }, grants = true, actor = CommandActor(player))
+        assertThat(ran).isTrue()
         assertThat(result).isEqualTo(CommandResult.Success)
     }
 
     @Test
-    fun `requirePermission - sender lacks permission - executor not invoked - failure with permission key`() = runBlocking {
-        var executed = false
-        val spec = CommandSpec.Literal(
-            name = "give",
-            subcommands = emptyList(),
-            executor = { CommandResult.Success.also { executed = true } },
-        ).requirePermission(fakePermissionService(grants = false), testPermission)
-
-        val result = spec.executor!!(ctx(testPlayerId))
-
-        assertThat(executed).isFalse()
-        assertThat(result).isInstanceOf(CommandResult.Failure::class.java)
+    fun `non holder is denied with the permission key and the executor does not run`() {
+        var ran = false
+        val result = invoke(leaf { ran = true }, grants = false, actor = CommandActor(player))
+        assertThat(ran).isFalse()
         val failure = result as CommandResult.Failure
         assertThat(failure.messageKey).isEqualTo(MessageKey("astera.permission.denied"))
-        assertThat(failure.placeholders["permission"]).isEqualTo(testPermission.id)
+        assertThat(failure.placeholders["permission"]).isEqualTo(permission.id)
     }
 
     @Test
-    fun `requirePermission - null sender with consoleBypass true - executor invoked`() = runBlocking {
-        var executed = false
-        val spec = CommandSpec.Literal(
-            name = "give",
-            subcommands = emptyList(),
-            executor = { CommandResult.Success.also { executed = true } },
-        ).requirePermission(fakePermissionService(grants = false), testPermission, consoleBypass = true)
-
-        val result = spec.executor!!(ctx(sender = null))
-
-        assertThat(executed).isTrue()
-        assertThat(result).isEqualTo(CommandResult.Success)
+    fun `operator and console pass without holding the node`() {
+        assertThat(invoke(leaf(), grants = false, actor = CommandActor(player, isOperator = true)))
+            .isEqualTo(CommandResult.Success)
+        assertThat(invoke(leaf(), grants = false, actor = console)).isEqualTo(CommandResult.Success)
     }
 
     @Test
-    fun `requirePermission - null sender with consoleBypass false - failure`() = runBlocking {
-        var executed = false
-        val spec = CommandSpec.Literal(
-            name = "give",
-            subcommands = emptyList(),
-            executor = { CommandResult.Success.also { executed = true } },
-        ).requirePermission(fakePermissionService(grants = false), testPermission, consoleBypass = false)
+    fun `host permission node lets a non operator in`() {
+        val actor = CommandActor(player, platformHas = { it == permission.id })
+        assertThat(invoke(leaf(), grants = false, actor = actor)).isEqualTo(CommandResult.Success)
+    }
 
-        val result = spec.executor!!(ctx(sender = null))
+    @Test
+    fun `EVERYONE access needs no grant`() {
+        assertThat(invoke(leaf(CommandAccess.EVERYONE), grants = false, actor = CommandActor(player)))
+            .isEqualTo(CommandResult.Success)
+    }
 
-        assertThat(executed).isFalse()
-        assertThat(result).isInstanceOf(CommandResult.Failure::class.java)
-        val failure = result as CommandResult.Failure
-        assertThat(failure.messageKey).isEqualTo(MessageKey("astera.permission.denied"))
+    @Test
+    fun `visibility hides an area whose children are all unusable`() {
+        val authorizer = CommandAuthorizer { permissionService(grants = false) }
+        val area = CommandSpec.Literal(name = "admin", subcommands = listOf(leaf()))
+        assertThat(authorizer.isVisible(CommandActor(player), area)).isFalse()
+        assertThat(authorizer.isVisible(CommandActor(player, isOperator = true), area)).isTrue()
+    }
+
+    @Test
+    fun `an executor that throws becomes the internal error reply`() {
+        val spec = CommandSpec.Literal(name = "boom", executor = { error("nope") })
+            .requirePermission(permission, CommandAccess.EVERYONE)
+        val result = invoke(spec, grants = false, actor = CommandActor(player))
+        assertThat((result as CommandResult.Failure).messageKey).isEqualTo(MessageKey("astera.command.internal_error"))
     }
 }

@@ -1,5 +1,5 @@
 # Lobby shop (default target of the lobby shop NPC, the main-menu tile and
-# `/astera-shop`). Every `item` must exist in content/items/ (ShopShippedContentTest).
+# `/astera shop`). Every `item` must exist in content/items/ (ShopShippedContentTest).
 # Priced in GOLD: a new player starts with 100 GOLD (content/balance/starter-grant.yaml),
 # so the pistol, knight sword and dagger are affordable at once;
 # the staffs, shotgun, rifle and greatsword (WP7 roster) need more earnings.

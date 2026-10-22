@@ -9,7 +9,7 @@ import java.time.Instant
  * Read-only catalog of [NewsEntry] surfaces (Wave J 5server-content-ops, ADR-0127).
  *
  * Populated at startup by `NewsContents.bootstrap` and hot-reloadable via
- * `/astera-reload news`. Mirrors [com.astarworks.astera.core.application.port.outbound.IAdvancementRegistry] /
+ * `/astera admin reload news`. Mirrors [com.astarworks.astera.core.application.port.outbound.IAdvancementRegistry] /
  * [com.astarworks.astera.core.application.port.outbound.ITutorialRegistry] — the marker
  * extends [Contents] so the underlying substrate (`YamlDynamicContents`) provides
  * `find` / `all` uniformly.

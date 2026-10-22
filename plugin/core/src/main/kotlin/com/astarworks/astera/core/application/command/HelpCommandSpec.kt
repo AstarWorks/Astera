@@ -1,42 +1,83 @@
 package com.astarworks.astera.core.application.command
 
+import com.astarworks.astera.core.application.port.inbound.IAsteraCommandRegistry
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.permission.Permission
 
 /**
- * `/astera help` Brigadier command spec (Wave 5wireup, ADR-0116 §G12).
+ * `/astera` and `/astera help [area]` (ADR-0184).
  *
- * Hands the player back the [MessageKey] `astera.command.help.summary`
- * which the translation catalogue expands into the canonical "list of
- * commands" message. The command itself is a no-op success — the platform
- * feedback layer renders the description key when the player invokes it
- * (Brigadier convention: `description` reaches the chat reply on a bare
- * `/help` invocation, mirroring how `/astera reload` surfaces its own
- * description string on missing arguments).
+ * Both walk the live merged tree ([IAsteraCommandRegistry.snapshot]) and list
+ * only what the sender may use, so the help can never drift from the commands:
  *
- * # Why one MessageKey, not per-subcommand introspection
- *
- * Phase 1 PoC keeps the help text as authored content rather than a
- * generated catalogue. This matches the Phase 1 stance for the rest of the
- * vocabulary (item names, skill descriptions, mode titles) — the
- * translation tier owns presentation. A generated `/help` that walks
- * `CommandSpec` is a later wave: it requires a `CommandSpec` registry the
- * top-level Brigadier handler does not currently expose to the application
- * layer.
- *
- * # Why we still reply on Failure
- *
- * `CommandResult.Success` is silent by design (per its KDoc). To guarantee
- * the player sees the help text, the executor returns
- * `CommandResult.Failure(astera.command.help.summary)` — abusing "Failure"
- * as a "speak this key to the sender" channel. Acceptable until the
- * command framework grows a `Reply(MessageKey)` variant; documented here
- * so a reader does not mistake it for a bug.
+ *  - `/astera`, `/astera help`: one line per visible area;
+ *  - `/astera help <area>`: every runnable command of that area with its
+ *    usage and description (`astera.command.help.<path>`).
  */
-public fun buildHelpCommandSpec(): CommandSpec.Literal =
-    CommandSpec.Literal(
+public class HelpCommands(
+    private val registry: IAsteraCommandRegistry,
+    private val authorizer: CommandAuthorizer,
+    private val messages: IMessageRenderer,
+) {
+
+    /** Executor for the bare `/astera`. */
+    public val overview: suspend (CommandContext) -> CommandResult = { ctx -> show(ctx, area = null) }
+
+    /** The `help [area]` literal. */
+    public fun literal(): CommandSpec.Literal = CommandSpec.Literal(
         name = "help",
-        description = MessageKey("astera.command.help.summary"),
-        executor = { _ ->
-            CommandResult.Failure(MessageKey("astera.command.help.summary"))
-        },
+        permission = Permission("astera.help.use"),
+        access = CommandAccess.EVERYONE,
+        subcommands = listOf(
+            CommandSpec.Argument(
+                name = "area",
+                type = ArgumentType.StringArg(),
+                optional = true,
+                completer = { input -> visibleAreas(input.actor) },
+            ),
+        ),
+        executor = { ctx -> show(ctx, ctx.optional<String>("area")) },
     )
+
+    private fun visibleAreas(actor: CommandActor): List<String> =
+        registry.snapshot().literals.filter { authorizer.isVisible(actor, it) }.map { it.name }.sorted()
+
+    private fun show(ctx: CommandContext, area: String?): CommandResult {
+        val root = registry.snapshot()
+        val actor = ctx.actor
+        val visibleAreas = root.literals.filter { authorizer.isVisible(actor, it) }.sortedBy { it.name }
+
+        if (area == null) {
+            ctx.reply(MessageKey("astera.command.help.header"))
+            for (node in visibleAreas) {
+                ctx.reply(
+                    MessageKey("astera.command.help.area-line"),
+                    mapOf("area" to node.name, "description" to describe(ctx, listOf(node.name))),
+                )
+            }
+            ctx.reply(MessageKey("astera.command.help.footer"))
+            return CommandResult.Success
+        }
+
+        val node = visibleAreas.firstOrNull { it.name.equals(area, ignoreCase = true) }
+            ?: return CommandResult.Failure(MessageKey("astera.command.help.unknown-area"), mapOf("area" to area))
+        ctx.reply(MessageKey("astera.command.help.area-header"), mapOf("area" to node.name))
+        val rows = mutableListOf<Pair<String, String>>()
+        fun collect(path: List<String>, n: CommandSpec.Literal) {
+            if (n.executor != null && authorizer.canUse(actor, n)) {
+                rows += CommandPaths.usage(path, n) to describe(ctx, path)
+            }
+            n.literals.filter { authorizer.isVisible(actor, it) }.sortedBy { it.name }
+                .forEach { collect(path + it.name, it) }
+        }
+        collect(listOf(node.name), node)
+        for ((usage, description) in rows) {
+            ctx.reply(MessageKey("astera.command.help.line"), mapOf("usage" to usage, "description" to description))
+        }
+        return CommandResult.Success
+    }
+
+    private fun describe(ctx: CommandContext, path: List<String>): String =
+        messages.render(ctx.sender, CommandPaths.descriptionKey(path))
+}

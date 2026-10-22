@@ -11,6 +11,10 @@ import com.astarworks.astera.combat.platform.wiring.CombatWiring
 import com.astarworks.astera.combat.platform.wiring.CombatWiringResult
 import com.astarworks.astera.combat.application.service.VanillaKillResolver
 import com.astarworks.astera.core.adapter.api.event.IMcEvent
+import com.astarworks.astera.core.application.command.CommandActor
+import com.astarworks.astera.core.application.command.CommandSpec
+import com.astarworks.astera.core.application.command.CommandTreeRunner
+import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
@@ -78,9 +82,6 @@ public class GameSim private constructor(
     public val broadcaster: FakeBroadcaster,
     private val contexts: List<WiringContext>,
 ) {
-    /** Commands the wiring registered (the simulator has no chat to run them from). */
-    public val commands: RecordingCommandHandler = RecordingCommandHandler()
-
     /** Action bars / titles sent by mechanics (WP4). */
     public val feedback: SimPlayerFeedbackGateway = SimPlayerFeedbackGateway(recorder) { scheduler.currentTick() }
 
@@ -102,6 +103,56 @@ public class GameSim private constructor(
         private set
     public lateinit var economy: EconomyWiringResult
         private set
+
+    /**
+     * The merged `/astera` tree every wiring mounted into (ADR-0184), interpreted without a
+     * server: same registry, authorizer and invoker the Paper Brigadier bridge uses.
+     */
+    public val commandTree: CommandSpec.Literal get() = core.commandRegistry.snapshot()
+
+    private val commandRunner: CommandTreeRunner by lazy {
+        CommandTreeRunner(
+            root = { core.commandRegistry.snapshot() },
+            invoker = core.commandInvoker,
+            authorizer = core.commandAuthorizer,
+            playerResolver = { name -> server.findPlayerByName(name)?.id },
+            onlinePlayerNames = { world.entities.filter { it.kind == SimEntityKind.PLAYER }.map { it.name } },
+        )
+    }
+
+    /** Outcome of [command]: what the runner decided and every reply the sender received (rendered). */
+    public data class CommandRun(
+        val outcome: CommandTreeRunner.Outcome,
+        val replies: List<Pair<MessageKey, Map<String, String>>>,
+    ) {
+        /** True when the command line ran its executor and it succeeded. */
+        public val succeeded: Boolean
+            get() = (outcome as? CommandTreeRunner.Outcome.Executed)?.result ==
+                com.astarworks.astera.core.application.command.CommandResult.Success
+    }
+
+    /** Runs `/astera <line>` as [name] (an online simulated player). [operator] marks a server op. */
+    public fun command(name: String, line: String, operator: Boolean = false): CommandRun =
+        runCommand(CommandActor(requirePlayer(name), isOperator = operator), line)
+
+    /** Runs `/astera <line>` from the console. */
+    public fun consoleCommand(line: String): CommandRun =
+        runCommand(CommandActor(playerId = null, isOperator = true), line)
+
+    /** Tab completion for `/astera <line>` as [name]. */
+    public fun complete(name: String, line: String, operator: Boolean = false): List<String> =
+        commandRunner.suggest(CommandActor(requirePlayer(name), isOperator = operator), line)
+
+    private fun requirePlayer(name: String): PlayerId =
+        world.byName(name)?.id ?: error("no simulated player named '$name'")
+
+    private fun runCommand(actor: CommandActor, line: String): CommandRun {
+        val replies = mutableListOf<Pair<MessageKey, Map<String, String>>>()
+        val outcome = kotlinx.coroutines.runBlocking {
+            commandRunner.run(actor, line) { key, placeholders -> replies += key to placeholders }
+        }
+        return CommandRun(outcome, replies)
+    }
 
     /** Every domain event published since boot, in order. */
     public val events: MutableList<DomainEvent> = mutableListOf()
@@ -170,7 +221,7 @@ public class GameSim private constructor(
 
     // ---- Input ----------------------------------------------------------
 
-    /** Gives [itemId] through the real `/astera-items give` use case; the first item given is held. */
+    /** Gives [itemId] through the real `/astera items give` use case; the first item given is held. */
     public fun give(entity: SimEntity, itemId: String): Boolean {
         val result = items.giveItem.execute(
             com.astarworks.astera.items.application.usecase.GiveItemUseCase.Request(null, entity.name, itemId),
@@ -394,7 +445,6 @@ public class GameSim private constructor(
                 mcServer = mcServer,
                 scheduler = scheduler,
                 broadcaster = broadcaster,
-                commandHandler = sim.commands,
                 guiAdapter = GuiAdapterFactory { _, _, _ -> FakeGuiAdapter() },
                 worldGateway = { worldGateway },
                 proxyMessenger = proxy?.let { messenger -> { _ -> messenger } },

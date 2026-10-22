@@ -125,7 +125,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     //  - the show handlers already shipped by Wave 5lobby-content but
     //    never wired — we wire those here too so the GUI surface is
     //    end-to-end live (settings/friends/party show + close from main menu)
-    //  - 4 Brigadier command families (`/astera-language`, `/astera-volume`,
+    //  - 4 Brigadier command families (`/astera lang`, `/astera volume`,
     //    `/astera-friend-*`, `/astera-party-*`)
     //
     // Settings/Friends/Party share the same IGuiIntentRouter — registrations
@@ -340,9 +340,8 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     val playerPrefsCommands = com.astarworks.astera.core.application.command.PlayerPrefsCommands(
         setLocale = setLocale,
         setVolume = setVolume,
-        permissionService = permissionService,
     )
-    playerPrefsCommands.build().forEach { commandHandler.register(it) }
+    playerPrefsCommands.build().forEach { commands.register(it) }
 
     val friendCommands = com.astarworks.astera.core.application.command.FriendCommands(
         sendFriendRequest = sendFriendRequest,
@@ -351,9 +350,8 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         friendships = friendshipRepo,
         playerGateway = playerGateway,
         mcServer = mcServer,
-        permissionService = permissionService,
     )
-    friendCommands.build().forEach { commandHandler.register(it) }
+    friendCommands.build().forEach { commands.register("friend", it) }
 
     val partyCommands = com.astarworks.astera.core.application.command.PartyCommands(
         createParty = createParty,
@@ -364,14 +362,13 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         parties = partyRepoForWaveG,
         playerGateway = playerGateway,
         mcServer = mcServer,
-        permissionService = permissionService,
     )
-    partyCommands.build().forEach { commandHandler.register(it) }
+    partyCommands.build().forEach { commands.register("party", it) }
 
     logger.info(
         "Wave G 5player-prefs-social wired: 9 lobby intent handlers " +
             "(settings/friends/party) + 4 Brigadier command families " +
-            "(/astera-language, /astera-volume, /astera-friend-*, /astera-party-*); " +
+            "(/astera lang|volume, /astera friend *, /astera party *); " +
             "${waveGRegistrations.size} intent registrations recorded for onDisable cleanup.",
     )
 
@@ -404,14 +401,14 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     // Three additions, all pure command + content scaffold (no new ports,
     // no Konsist rule, no DB migration):
     //
-    //  - `/astera-restart <minutes> [reason]` — graceful, announced restart
+    //  - `/astera admin restart <minutes> [reason]` — graceful, announced restart
     //    via the existing Wave 5t IScheduledAnnouncementSystem (chat at
     //    now, Title waypoints at -30s/-10s/-3s/-1s) + Wave 5w
     //    IServerBootstrapper.shutdown(Restart) scheduled at -1s.
-    //  - `/astera-news [limit]` — top-N non-expired NewsEntry, surfaced
+    //  - `/astera news [limit]` — top-N non-expired NewsEntry, surfaced
     //    from content/news/*.yaml via NewsContents (YamlDynamicContents
     //    substrate).
-    //  - `/astera-patch [version]` — latest or version-specific
+    //  - `/astera patch [version]` — latest or version-specific
     //    ChangelogEntry, from content/changelog/*.yaml.
     //  - Login bonus skeleton — LoginBonusContents +
     //    InMemoryLoginStreakRepository + DefaultLoginBonusService (returns
@@ -452,25 +449,25 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         )
     services.register<com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginBonusService>(loginBonusService, priority = 0)
 
-    // Bootstrapper for /astera-restart — reuse the InMemoryServerBootstrapper
+    // Bootstrapper for /astera admin restart — reuse the InMemoryServerBootstrapper
     // already provisioned at the lifecycle wiring block above; the local
     // `bootstrapper` val is in scope.
-    commandHandler.register(
+    commands.register(
+        "admin",
         com.astarworks.astera.core.application.command.admin.buildAsteraRestartCommandSpec(
             announcer = announcementSystem,
             bootstrapper = bootstrapper,
             scheduler = scheduler,
-            permissionService = permissionService,
         ),
     )
-    commandHandler.register(
+    commands.register(
         com.astarworks.astera.core.application.command.buildAsteraNewsCommandSpec(
             registry = newsContents,
             messages = messages,
             playerGateway = playerGateway,
         ),
     )
-    commandHandler.register(
+    commands.register(
         com.astarworks.astera.core.application.command.buildAsteraPatchCommandSpec(
             registry = changelogContents,
             messages = messages,
@@ -481,6 +478,6 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     logger.info(
         "Wave J 5server-content-ops wired: INewsRegistry + IChangelogRegistry " +
             "+ ILoginBonusRegistry + ILoginBonusService + ILoginStreakRepository " +
-            "registered; /astera-restart, /astera-news, /astera-patch commands registered.",
+            "registered; /astera admin restart, /astera news, /astera patch commands mounted.",
     )
 }

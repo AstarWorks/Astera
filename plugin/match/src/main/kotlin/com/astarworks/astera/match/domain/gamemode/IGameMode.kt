@@ -77,7 +77,7 @@ import com.astarworks.astera.match.domain.mode.GameModeId
  * alone don't:
  *
  *  - a single registration handle (the registry) for "which modes are
- *    available" — useful for `/astera-match start` tab-completion and YAML
+ *    available" — useful for `/astera match start` tab-completion and YAML
  *    validation,
  *  - a stable per-mode config carrier ([defaultPhases], [tickPeriodTicks]),
  *  - a place to hang Phase 3 additions (scoring, win condition, reward

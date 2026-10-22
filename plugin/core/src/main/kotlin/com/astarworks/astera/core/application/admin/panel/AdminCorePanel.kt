@@ -27,7 +27,7 @@ import java.time.Clock
 import java.util.UUID
 
 /**
- * Core-owned pages of the `/astera-admin` panel (F1-D, ADR-0183): the hub, the
+ * Core-owned pages of the `/astera admin panel` panel (F1-D, ADR-0183): the hub, the
  * Players page (online list + per-player actions), the Server page and the
  * Self-tools page.
  *
@@ -75,7 +75,7 @@ public class AdminCorePanel(
 
     // ---- Hub ------------------------------------------------------------
 
-    /** Open the hub for [player] (also what `/astera-admin` calls after its own permission check). */
+    /** Open the hub for [player] (also what `/astera admin panel` calls after its own permission check). */
     public fun openHub(player: IMcPlayer): Boolean = AdminPanelUi.show(guiAdapter, player, buildHub())
 
     public fun buildHub(): GuiSpec {

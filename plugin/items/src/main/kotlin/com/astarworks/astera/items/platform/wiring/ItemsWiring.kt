@@ -9,7 +9,6 @@ import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.items.application.admin.AdminGiveItemsUseCase
 import com.astarworks.astera.items.application.admin.AdminItemsPanel
 import com.astarworks.astera.core.application.contents.ItemContents
-import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
@@ -54,7 +53,7 @@ public class ItemsWiringResult(
     public val handleTrigger: HandleItemTriggerUseCase,
     /** Vendor-neutral click sink. Paper feeds it from `PaperItemInputListener`; the simulator feeds `IMcEvent`s directly. */
     public val triggerListener: ItemSkillTriggerListener,
-    /** F1-D: the weapons & items section of `/astera-admin`. */
+    /** F1-D: the weapons & items section of `/astera admin panel`. */
     public val adminItemsPanel: AdminItemsPanel,
 )
 
@@ -74,8 +73,7 @@ public object ItemsWiring {
         val scheduler = services.getOrThrow<IScheduler>()
         val messages = services.getOrThrow<IMessageRenderer>()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
-        val commandHandler = services.getOrThrow<ICommandHandler>()
-        val permService = services.getOrThrow<IPermissionService>()
+        val commands = ctx.commandMount("Astera-Items")
         val mcServer = services.getOrThrow<IMcServer>()
         val eventBus = services.getOrThrow<IDomainEventBus>()
 
@@ -203,7 +201,7 @@ public object ItemsWiring {
         )
         registrations += services.register(applyHeldGlow, priority = 0)
 
-        // F1-D (ADR-0183): `/astera-admin` weapons & items catalog. Core owns the
+        // F1-D (ADR-0183): `/astera admin panel` weapons & items catalog. Core owns the
         // hub / guard / registry; this plugin contributes its tile + `admin.items.` handler.
         val adminItemsPanel = AdminItemsPanel(
             guard = services.getOrThrow<AdminPanelGuard>(),
@@ -215,18 +213,8 @@ public object ItemsWiring {
         registrations += adminItemsPanel.install(services.getOrThrow<IGuiIntentRouter>())
 
         // Command tree.
-        commandHandler.register(
-            CommandSpec.Literal(
-                name = "astera-items",
-                description = MessageKey("astera.items.command.root"),
-                subcommands = listOf(giveItemSubcommand(giveItem, permService)),
-            ),
-        )
-
-        // Wave E 5admin-ops (ADR-0122) — `/astera-give` flat top-level alias.
-        commandHandler.register(
-            com.astarworks.astera.items.command.admin.adminGiveItemFlatCommand(giveItem, permService),
-        )
+        // `/astera items give <target> <item> [amount]` (ADR-0184).
+        commands.register("items", giveItemSubcommand(giveItem, itemRegistry))
 
         // ── Wave M 5polish-quickwin (ADR-0130 §D) ────────────────────────
         // Sample tooltip providers:

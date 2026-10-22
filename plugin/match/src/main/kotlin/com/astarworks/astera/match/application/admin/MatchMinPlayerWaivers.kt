@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Matches an admin forced past the roster floor from the `/astera-admin`
+ * Matches an admin forced past the roster floor from the `/astera admin panel`
  * panel (F1-D, ADR-0183). `SwitchPhaseUseCase` consults [isWaived] before the
  * COUNTDOWN to ACTIVE min-player guard, so a lone playtester's force-started
  * match is not stuck in COUNTDOWN waiting for players that never come.

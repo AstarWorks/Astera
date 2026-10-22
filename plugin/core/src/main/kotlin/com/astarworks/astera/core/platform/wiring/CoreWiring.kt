@@ -11,7 +11,12 @@ import com.astarworks.astera.core.application.contents.block.CustomBlockContents
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
 import com.astarworks.astera.core.application.i18n.LanguageLoader
 import com.astarworks.astera.core.application.i18n.SimpleMessageRenderer
-import com.astarworks.astera.core.application.port.inbound.ICommandHandler
+import com.astarworks.astera.core.application.command.AsteraCommandRegistry
+import com.astarworks.astera.core.application.command.CommandAuthorizer
+import com.astarworks.astera.core.application.command.CommandInvoker
+import com.astarworks.astera.core.application.command.CommandMount
+import com.astarworks.astera.core.application.command.HelpCommands
+import com.astarworks.astera.core.application.port.inbound.IAsteraCommandRegistry
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService
 import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
@@ -78,11 +83,15 @@ public object CoreWiring {
         state.wireGameplayLoop()
         state.wireCompletenessListeners()
         state.wireServerHardenAndLobby()
+        state.wireCommandHelp()
         return CoreWiringResult(
             guiAdapter = state.guiAdapter,
             guiIntentRouter = state.guiIntentRouter,
             eventBus = state.eventBus,
             playerHealthGateway = state.playerHealthGateway,
+            commandRegistry = state.commandRegistry,
+            commandAuthorizer = state.commandAuthorizer,
+            commandInvoker = state.commandInvoker,
             teardown = state::shutdown,
         )
     }
@@ -97,6 +106,10 @@ public class CoreWiringResult internal constructor(
     public val eventBus: IDomainEventBus,
     /** The priority-0 in-memory health gateway (fallback when no overlay is registered). */
     public val playerHealthGateway: IPlayerHealthGateway,
+    /** Merged `/astera` tree, its authorizer and invoker (consumed by the Paper bridge and the simulator). */
+    public val commandRegistry: AsteraCommandRegistry,
+    public val commandAuthorizer: CommandAuthorizer,
+    public val commandInvoker: CommandInvoker,
     private val teardown: () -> Unit,
 ) {
     /**
@@ -124,7 +137,11 @@ internal class CoreWiringState(
     val mcServer: IMcServer get() = ports.mcServer
     val scheduler: IScheduler get() = ports.scheduler
     val broadcaster: IBroadcaster get() = ports.broadcaster
-    val commandHandler: ICommandHandler get() = ports.commandHandler
+    /** The single `/astera` command tree (ADR-0184); every wiring stage mounts its subtrees here. */
+    val commandRegistry: AsteraCommandRegistry = AsteraCommandRegistry()
+    val commands: CommandMount = CommandMount(commandRegistry, "Astera-Core", ctx.registrations)
+    lateinit var commandAuthorizer: CommandAuthorizer
+    lateinit var commandInvoker: CommandInvoker
 
     /** Wave 5complete (ADR-0117) subscriptions; recorded on the context so [WiringContext.close] cancels them. */
     val wave5completeSubs: MutableList<IDomainEventBus.Subscription> get() = ctx.subscriptions
@@ -226,7 +243,7 @@ internal fun CoreWiringState.wireBase() {
     // IMcItemTemplate split). The `ItemContents` substrate (ADR-0065)
     // bootstraps content/items/<id>.yaml into the registry; the Items plugin
     // (depends on Core) adds Paper-side click→skill-trigger listeners and
-    // the /astera-items give command on top.
+    // the /astera items give command on top.
     itemsContentDir = contentDir.resolve("items")
     itemContents = ItemContents()
     val itemReport = itemContents.bootstrap(itemsContentDir)
@@ -244,7 +261,7 @@ internal fun CoreWiringState.wireBase() {
     services.register<IDomainEventBus>(eventBus)
     services.register<IItemRegistry>(itemContents)
     services.register<IPlayerGateway>(playerGateway)
-    services.register<ICommandHandler>(commandHandler)
+    services.register<IAsteraCommandRegistry>(commandRegistry)
     services.register<IMcServer>(mcServer)
 }
 
@@ -307,4 +324,13 @@ internal fun CoreWiringState.wireGui() {
     services.register<com.astarworks.astera.core.application.gui.binding.CompositeGuiBindingResolver>(
         compositeBindingResolver,
     )
+}
+
+/** `/astera` + `/astera help`, built last so the authorizer sees the final permission service (ADR-0184). */
+internal fun CoreWiringState.wireCommandHelp() {
+    commandAuthorizer = CommandAuthorizer { services.getOrThrow<IPermissionService>() }
+    commandInvoker = CommandInvoker(commandAuthorizer, scheduler)
+    val help = HelpCommands(commandRegistry, commandAuthorizer, messages)
+    commands.register(emptyList(), help.literal())
+    commandRegistry.rootExecutor = help.overview
 }

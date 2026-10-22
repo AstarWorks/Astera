@@ -1,15 +1,22 @@
 package com.astarworks.astera.core.application.command
 
-import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.permission.Permission
 
 /**
  * Vendor-neutral, declarative description of a command tree.
  *
  * Designed as the Astera replacement for the legacy `CommandAPI` plugin (see
  * silly-knuth §6.1 E, ADR-0015). The application layer defines _what_ commands
- * exist and _what to do_ for each branch; the adapter
- * (`PaperCommandHandler` in `adapter/minecraft-impl-paper`) translates the
- * tree into the platform's native parser (Paper's Brigadier integration).
+ * exist and _what to do_ for each branch. Plugins never register a root: they
+ * mount subtrees under the single `/astera` root through
+ * [com.astarworks.astera.core.application.port.inbound.IAsteraCommandRegistry]
+ * (ADR-0184); `PaperCommandBridge` / `BrigadierTreeBuilder` translate the merged
+ * tree into Paper's Brigadier, and `CommandTreeRunner` interprets it headless.
+ *
+ * Every executable [Literal] declares a [Literal.permission] (`astera.<area>.<action>`)
+ * and a [Literal.access] default. Descriptions are not stored on the spec: the
+ * node at path `queue join` is described by the flat i18n key
+ * `astera.command.help.queue-join` ([CommandPaths.descriptionKey]).
  *
  * Two variants by design:
  *
@@ -27,7 +34,6 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
  * ```
  * Literal(
  *     name = "astera",
- *     description = MessageKey("astera.command.root"),
  *     executor = { _ -> CommandResult.Success },
  *     subcommands = listOf(
  *         Literal(
@@ -67,14 +73,29 @@ public sealed interface CommandSpec {
     /** Literal token. The backbone of the tree. */
     public data class Literal(
         public val name: String,
-        public val description: MessageKey? = null,
         public val executor: (suspend (CommandContext) -> CommandResult)? = null,
         public val subcommands: List<CommandSpec> = emptyList(),
+        /**
+         * Permission node (`astera.<area>.<action>`) required to run this node's
+         * [executor]. Mandatory on every executable leaf (ADR-0184; asserted by
+         * the whole-tree test). Enforced centrally by `CommandAuthorizer`, never
+         * inside the executor.
+         */
+        public val permission: Permission? = null,
+        /** Who holds [permission] by default. Fail-safe default: operators only. */
+        public val access: CommandAccess = CommandAccess.OPERATOR,
     ) : CommandSpec {
         init {
             require(name.isNotBlank()) { "Literal name must not be blank" }
             require(name.matches(NAME_REGEX)) {
                 "Literal name must be [a-z0-9_-]+: '$name'"
+            }
+            val args = subcommands.filterIsInstance<Argument>()
+            val firstOptional = args.indexOfFirst { it.optional }
+            if (firstOptional >= 0) {
+                require(args.drop(firstOptional).all { it.optional }) {
+                    "Literal '$name': a mandatory argument follows an optional one"
+                }
             }
             // A literal with no executor and no subcommands is unreachable.
             require(executor != null || subcommands.isNotEmpty()) {
@@ -90,6 +111,10 @@ public sealed interface CommandSpec {
         public val literals: List<Literal>
             get() = subcommands.filterIsInstance<Literal>()
 
+        /** Count of leading arguments that are mandatory (the rest are optional). */
+        public val requiredArgumentCount: Int
+            get() = arguments.indexOfFirst { it.optional }.let { if (it < 0) arguments.size else it }
+
         public companion object {
             private val NAME_REGEX = Regex("^[a-z0-9][a-z0-9_-]*$")
         }
@@ -100,6 +125,12 @@ public sealed interface CommandSpec {
         public val name: String,
         public val type: ArgumentType,
         public val completer: ((PartialInput) -> List<String>)? = null,
+        /**
+         * Optional arguments may be omitted (`[amount]`). Once one argument is
+         * optional every later argument in the chain must be optional too. The
+         * enclosing literal's executor runs with the arguments typed so far.
+         */
+        public val optional: Boolean = false,
     ) : CommandSpec {
         init {
             require(name.isNotBlank()) { "Argument name must not be blank" }
@@ -124,5 +155,7 @@ public sealed interface CommandSpec {
     public data class PartialInput(
         public val remaining: String,
         public val priorArgs: Map<String, Any> = emptyMap(),
+        /** Who is completing; completers that list permission-gated things must filter by it. */
+        public val actor: CommandActor = CommandActor(playerId = null, isOperator = true),
     )
 }

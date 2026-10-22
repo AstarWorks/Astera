@@ -9,6 +9,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 - **今の到達点と範囲 (2026-10 core vision)** → [plans/2026-10-core-vision-backlog.md](plans/2026-10-core-vision-backlog.md) — 作業パッケージ一覧。Phase 4+ は範囲外
 - **遊んでみる** → [contributing/playtest.md](contributing/playtest.md) — Docker 起動 → 武器 → マッチ
 - **ヘッドレス・シミュレータ** → [`tools/game-sim/README.md`](../tools/game-sim/README.md) + [ADR-0174](adr/0174-host-neutral-wiring-and-headless-game-simulator.md)
+- **コマンド (`/astera <area> <action>` 単一ツリー)** → [ADR-0184](adr/0184-single-astera-command-tree.md) — 権限スキーム・補完・help・追加方法
 - **進行中の Phase** → [roadmap.md](roadmap.md)
 - **実装ロードマップ (SSOT)** → [IMPLEMENTATION-ROADMAP.md](IMPLEMENTATION-ROADMAP.md) — 12-tier、leverage-ordered
 - **RTM パリティ追跡** → [RTM-PARITY-TRACKER.md](RTM-PARITY-TRACKER.md) — feature × state × wave 配賦
@@ -23,7 +24,7 @@ Astera は AstarWorks 公式 Minecraft プロジェクト。Siege Warfare PvP / 
 
 | ディレクトリ | 内容 |
 |---|---|
-| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0176 (欠番あり) |
+| [`adr/`](adr/) | Architecture Decision Records (なぜそう決めたか) — 0001〜0184 (欠番あり) |
 | [`plans/`](plans/) | 作業計画 / バックログ (現行: core vision backlog) |
 | [`architecture/`](architecture/) | 設計の現在地。コードと同期して育てる生きた仕様 |
 | [`infrastructure/`](infrastructure/) | k8s / GitOps / 監視 / スケーリング |

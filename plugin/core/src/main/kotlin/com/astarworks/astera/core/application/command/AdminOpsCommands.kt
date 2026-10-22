@@ -28,28 +28,23 @@ import java.nio.file.Paths
 import java.time.Clock
 
 /**
- * Wave E 5admin-ops (ADR-0122) — 10 Core-side flat admin commands.
+ * Core-side admin commands, mounted under `/astera admin` (ADR-0184; originally
+ * the flat `/astera-<verb>` set of ADR-0122).
  *
- * Returned as a list of top-level [CommandSpec.Literal] each named
- * `astera-<verb>`. The platform layer ([com.astarworks.astera.core.platform.AsteraCorePlugin])
- * registers them individually so each one becomes a top-level command, mirroring
- * the [ModerationFlatCommands] pattern from Wave 5complete (ADR-0117 §Axis 3).
+ *  - `/astera admin maintenance <on|off|status> [reason...]`  astera.admin.maintenance
+ *  - `/astera admin teleport <player> <world> [x y z]`        astera.admin.teleport
+ *  - `/astera admin reload <category>`                        astera.admin.reload
+ *  - `/astera admin audit <player> [limit]`                   astera.admin.audit
+ *  - `/astera admin promote <player> <role-id>`               astera.admin.role.grant
+ *  - `/astera admin demote <player> <role-id>`                astera.admin.role.revoke
+ *  - `/astera admin config <get|set> <category> <path> [value...]`  astera.admin.config
+ *  - `/astera admin health`                                   astera.admin.health
+ *  - `/astera admin spawn-mob <mob-id> [count] [world x y z]` astera.admin.spawn-mob
+ *  - `/astera admin backup <now|list|restore> [target]`       astera.admin.backup
  *
- * Commands:
- *  - `/astera-maintenance <on|off|status> [reason...]`  astera.admin.maintenance
- *  - `/astera-teleport <player> <world> [x y z]`        astera.admin.teleport
- *  - `/astera-reload <category>`                        astera.admin.reload
- *  - `/astera-audit <player> [limit]`                   astera.admin.audit
- *  - `/astera-promote <player> <role-id>`               astera.admin.role.grant
- *  - `/astera-demote <player> <role-id>`                astera.admin.role.revoke
- *  - `/astera-config <get|set> <category> <path> [value]`  astera.admin.config
- *  - `/astera-health`                                   astera.admin.health
- *  - `/astera-spawn-mob <mob-id> [count] [x y z]`       astera.admin.spawn-mob
- *  - `/astera-backup <now|list|restore> [snapshot-id]`  astera.admin.backup
- *
- * Each command's executor is permission-gated via [requirePermission]; the
- * Konsist rule `admin commands must declare a permission gate (ADR-0122)`
- * verifies the gate is present at compile time.
+ * Every executor answers its sender: success through `ctx.reply`, each error as
+ * a [CommandResult.Failure]. Permission gating is declared with
+ * [requirePermission] and enforced by the registry's authorizer.
  */
 @Suppress("LongMethod", "LargeClass", "TooManyFunctions")
 public class AdminOpsCommands(
@@ -63,20 +58,17 @@ public class AdminOpsCommands(
     private val healthCheck: IServerHealthCheck,
     private val mobSpawner: IMobSpawner,
     private val backupGateway: IServerBackupGateway,
+    /** Registered mob type ids, for tab completion of `spawn-mob`. */
+    private val mobIds: () -> List<String> = { emptyList() },
     private val clock: Clock = Clock.systemUTC(),
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Build every Core admin command. Caller is responsible for registering
-     * each entry via `ICommandHandler.register(...)`.
-     *
-     * `/astera-grant-currency` is intentionally NOT here — Economy owns
-     * `ICurrencyLedger` and registers its own admin command in
-     * `AsteraEconomyPlugin` (Bukkit plugin order means Core's onEnable runs
-     * before Economy's, so an ICurrencyLedger lookup at this point would
-     * miss the in-memory impl Economy provides at priority 0).
+     * Build every Core admin command; [registerAll] mounts them under
+     * `/astera admin`. Economy / Stats / Match / Items contribute their own
+     * admin subtrees from their wirings (they own the ports).
      */
     public fun build(): List<CommandSpec.Literal> = listOf(
         maintenanceCommand(),
@@ -91,20 +83,19 @@ public class AdminOpsCommands(
         backupCommand(),
     )
 
-    // ─── /astera-maintenance ────────────────────────────────────────────────
+    // ─── admin maintenance ────────────────────────────────────────────────
 
     private fun maintenanceCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-maintenance",
-        description = MessageKey("astera.admin.maintenance.root"),
+        name = "maintenance",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "action",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-                completer = { _ -> listOf("on", "off", "status") },
+                type = ArgumentType.Choice("on", "off", "status"),
             ),
             CommandSpec.Argument(
                 name = "reason",
                 type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy),
+                optional = true,
             ),
         ),
         executor = { ctx ->
@@ -115,16 +106,25 @@ public class AdminOpsCommands(
                     val reason = ctx.optional<String>("reason")?.takeIf { it.isNotBlank() }
                     val state = maintenance.setOn(now, reason, scheduledOffAt = null)
                     log.info("Maintenance ON: reason={}", state.reason)
+                    ctx.reply(MessageKey("astera.command.reply.admin-maintenance-on"), mapOf("reason" to (state.reason ?: "-")))
                     CommandResult.Success
                 }
                 "off" -> {
                     maintenance.setOff(now)
                     log.info("Maintenance OFF")
+                    ctx.reply(MessageKey("astera.command.reply.admin-maintenance-off"))
                     CommandResult.Success
                 }
                 "status" -> {
                     val current = maintenance.current()
                     log.info("Maintenance status: {}", current)
+                    when (current) {
+                        is com.astarworks.astera.core.domain.maintenance.MaintenanceMode.On -> ctx.reply(
+                            MessageKey("astera.command.reply.admin-maintenance-status-on"),
+                            mapOf("reason" to (current.reason ?: "-")),
+                        )
+                        else -> ctx.reply(MessageKey("astera.command.reply.admin-maintenance-status-off"))
+                    }
                     CommandResult.Success
                 }
                 else -> CommandResult.Failure(
@@ -133,34 +133,18 @@ public class AdminOpsCommands(
                 )
             }
         },
-    ).requirePermission(permissionService, Permission("astera.admin.maintenance"))
+    ).requirePermission(Permission("astera.admin.maintenance"))
 
-    // ─── /astera-teleport ──────────────────────────────────────────────────
+    // ─── admin teleport ──────────────────────────────────────────────────
 
     private fun teleportCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-teleport",
-        description = MessageKey("astera.admin.teleport.root"),
+        name = "teleport",
         subcommands = listOf(
-            CommandSpec.Argument(
-                name = "player",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
-            CommandSpec.Argument(
-                name = "world",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
-            CommandSpec.Argument(
-                name = "x",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
-            CommandSpec.Argument(
-                name = "y",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
-            CommandSpec.Argument(
-                name = "z",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
+            CommandSpec.Argument(name = "player", type = ArgumentType.PlayerName),
+            CommandSpec.Argument(name = "world", type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord)),
+            CommandSpec.Argument(name = "x", type = ArgumentType.DoubleArg(), optional = true),
+            CommandSpec.Argument(name = "y", type = ArgumentType.DoubleArg(), optional = true),
+            CommandSpec.Argument(name = "z", type = ArgumentType.DoubleArg(), optional = true),
         ),
         executor = { ctx ->
             val playerName = ctx.required<String>("player")
@@ -170,23 +154,27 @@ public class AdminOpsCommands(
                     MessageKey("astera.admin.teleport.player_not_found"),
                     mapOf("player" to playerName),
                 )
-            val x = ctx.optional<String>("x")?.toDoubleOrNull() ?: 0.0
-            val y = ctx.optional<String>("y")?.toDoubleOrNull() ?: 64.0
-            val z = ctx.optional<String>("z")?.toDoubleOrNull() ?: 0.0
+            val x = ctx.optional<Double>("x") ?: 0.0
+            val y = ctx.optional<Double>("y") ?: 64.0
+            val z = ctx.optional<Double>("z") ?: 0.0
             val ok = worldGateway.teleport(playerId, Vec3(x, y, z), WorldId(worldName))
-            if (ok) CommandResult.Success
-            else CommandResult.Failure(
+            if (ok) {
+                ctx.reply(
+                    MessageKey("astera.command.reply.admin-teleport"),
+                    mapOf("player" to playerName, "world" to worldName, "x" to "$x", "y" to "$y", "z" to "$z"),
+                )
+                CommandResult.Success
+            } else CommandResult.Failure(
                 MessageKey("astera.admin.teleport.failed"),
                 mapOf("player" to playerName, "world" to worldName),
             )
         },
-    ).requirePermission(permissionService, Permission("astera.admin.teleport"))
+    ).requirePermission(Permission("astera.admin.teleport"))
 
-    // ─── /astera-reload ────────────────────────────────────────────────────
+    // ─── admin reload ────────────────────────────────────────────────────
 
     private fun reloadCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-reload",
-        description = MessageKey("astera.admin.reload.root"),
+        name = "reload",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "category",
@@ -199,6 +187,7 @@ public class AdminOpsCommands(
             when (val outcome = reloadRegistry.reload(category)) {
                 is Result.Success -> {
                     log.info("Reloaded category {}: {}", category, outcome.value)
+                    ctx.reply(MessageKey("astera.command.reply.admin-reload"), mapOf("category" to category))
                     CommandResult.Success
                 }
                 is Result.Failure -> when (val err = outcome.error) {
@@ -213,22 +202,15 @@ public class AdminOpsCommands(
                 }
             }
         },
-    ).requirePermission(permissionService, Permission("astera.admin.reload"))
+    ).requirePermission(Permission("astera.admin.reload"))
 
-    // ─── /astera-audit ─────────────────────────────────────────────────────
+    // ─── admin audit ─────────────────────────────────────────────────────
 
     private fun auditCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-audit",
-        description = MessageKey("astera.admin.audit.root"),
+        name = "audit",
         subcommands = listOf(
-            CommandSpec.Argument(
-                name = "player",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
-            CommandSpec.Argument(
-                name = "limit",
-                type = ArgumentType.IntegerArg(min = 1, max = 200),
-            ),
+            CommandSpec.Argument(name = "player", type = ArgumentType.PlayerName),
+            CommandSpec.Argument(name = "limit", type = ArgumentType.IntegerArg(min = 1, max = 200), optional = true),
         ),
         executor = { ctx ->
             val playerName = ctx.required<String>("player")
@@ -242,23 +224,27 @@ public class AdminOpsCommands(
                 .filter { event -> mentionsPlayer(event, playerId) }
                 .take(limit)
             log.info("Audit lookup for {} ({} matching of {} scanned)", playerName, records.size, limit)
+            ctx.reply(
+                MessageKey("astera.command.reply.admin-audit-header"),
+                mapOf("player" to playerName, "count" to records.size.toString()),
+            )
             records.forEachIndexed { idx, event ->
                 log.info("  [{}] {} {}", idx + 1, event.occurredAt, event::class.simpleName)
+                ctx.reply(
+                    MessageKey("astera.command.reply.admin-audit-line"),
+                    mapOf("index" to (idx + 1).toString(), "at" to event.occurredAt.toString(), "event" to (event::class.simpleName ?: "?")),
+                )
             }
             CommandResult.Success
         },
-    ).requirePermission(permissionService, Permission("astera.admin.audit"))
+    ).requirePermission(Permission("astera.admin.audit"))
 
-    // ─── /astera-promote ───────────────────────────────────────────────────
+    // ─── admin promote ───────────────────────────────────────────────────
 
     private fun promoteCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-promote",
-        description = MessageKey("astera.admin.promote.root"),
+        name = "promote",
         subcommands = listOf(
-            CommandSpec.Argument(
-                name = "player",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
+            CommandSpec.Argument(name = "player", type = ArgumentType.PlayerName),
             CommandSpec.Argument(
                 name = "role-id",
                 type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
@@ -279,6 +265,7 @@ public class AdminOpsCommands(
             when (val outcome = permissionService.assign(playerId, roleId)) {
                 is Result.Success -> {
                     log.info("Assigned role {} to {}", roleStr, playerName)
+                    ctx.reply(MessageKey("astera.command.reply.admin-promote"), mapOf("player" to playerName, "role" to roleStr))
                     CommandResult.Success
                 }
                 is Result.Failure -> CommandResult.Failure(
@@ -287,18 +274,14 @@ public class AdminOpsCommands(
                 )
             }
         },
-    ).requirePermission(permissionService, Permission("astera.admin.role.grant"))
+    ).requirePermission(Permission("astera.admin.role.grant"))
 
-    // ─── /astera-demote ────────────────────────────────────────────────────
+    // ─── admin demote ────────────────────────────────────────────────────
 
     private fun demoteCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-demote",
-        description = MessageKey("astera.admin.demote.root"),
+        name = "demote",
         subcommands = listOf(
-            CommandSpec.Argument(
-                name = "player",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
+            CommandSpec.Argument(name = "player", type = ArgumentType.PlayerName),
             CommandSpec.Argument(
                 name = "role-id",
                 type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
@@ -319,6 +302,7 @@ public class AdminOpsCommands(
             when (val outcome = permissionService.revoke(playerId, roleId)) {
                 is Result.Success -> {
                     log.info("Revoked role {} from {}", roleStr, playerName)
+                    ctx.reply(MessageKey("astera.command.reply.admin-demote"), mapOf("player" to playerName, "role" to roleStr))
                     CommandResult.Success
                 }
                 is Result.Failure -> CommandResult.Failure(
@@ -327,18 +311,16 @@ public class AdminOpsCommands(
                 )
             }
         },
-    ).requirePermission(permissionService, Permission("astera.admin.role.revoke"))
+    ).requirePermission(Permission("astera.admin.role.revoke"))
 
-    // ─── /astera-config ────────────────────────────────────────────────────
+    // ─── admin config ────────────────────────────────────────────────────
 
     private fun configCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-config",
-        description = MessageKey("astera.admin.config.root"),
+        name = "config",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "action",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-                completer = { _ -> listOf("get", "set") },
+                type = ArgumentType.Choice("get", "set"),
             ),
             CommandSpec.Argument(
                 name = "category",
@@ -352,6 +334,7 @@ public class AdminOpsCommands(
             CommandSpec.Argument(
                 name = "value",
                 type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy),
+                optional = true,
             ),
         ),
         executor = { ctx ->
@@ -364,6 +347,10 @@ public class AdminOpsCommands(
                     when (val outcome = liveConfigEditor.read(category, path)) {
                         is Result.Success -> {
                             log.info("Config {} / {} (first 256 chars): {}", category, path, outcome.value.take(256))
+                            ctx.reply(
+                                MessageKey("astera.command.reply.admin-config-get"),
+                                mapOf("category" to category, "path" to pathStr, "content" to outcome.value.take(256)),
+                            )
                             CommandResult.Success
                         }
                         is Result.Failure -> CommandResult.Failure(
@@ -380,6 +367,7 @@ public class AdminOpsCommands(
                     when (val outcome = liveConfigEditor.edit(category, path, value)) {
                         is Result.Success -> {
                             log.info("Config {} / {} updated; reload report: {}", category, path, outcome.value)
+                            ctx.reply(MessageKey("astera.command.reply.admin-config-set"), mapOf("category" to category, "path" to pathStr))
                             CommandResult.Success
                         }
                         is Result.Failure -> CommandResult.Failure(
@@ -394,14 +382,13 @@ public class AdminOpsCommands(
                 )
             }
         },
-    ).requirePermission(permissionService, Permission("astera.admin.config"))
+    ).requirePermission(Permission("astera.admin.config"))
 
-    // ─── /astera-health ────────────────────────────────────────────────────
+    // ─── admin health ────────────────────────────────────────────────────
 
     private fun healthCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-health",
-        description = MessageKey("astera.admin.health.root"),
-        executor = { _ ->
+        name = "health",
+        executor = { ctx ->
             val snapshot = healthCheck.snapshot()
             log.info(
                 "Health snapshot: overall={} sampledAt={} indicators={}",
@@ -409,48 +396,40 @@ public class AdminOpsCommands(
                 snapshot.sampledAt,
                 snapshot.individuals,
             )
+            ctx.reply(
+                MessageKey("astera.command.reply.admin-health"),
+                mapOf(
+                    "overall" to snapshot.overall.toString(),
+                    "indicators" to snapshot.individuals.entries.joinToString(", ") { "${it.key}=${it.value}" }.ifEmpty { "-" },
+                ),
+            )
             CommandResult.Success
         },
-    ).requirePermission(permissionService, Permission("astera.admin.health"))
+    ).requirePermission(Permission("astera.admin.health"))
 
-    // ─── /astera-spawn-mob ─────────────────────────────────────────────────
+    // ─── admin spawn-mob ─────────────────────────────────────────────────
 
     private fun spawnMobCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-spawn-mob",
-        description = MessageKey("astera.admin.spawn_mob.root"),
+        name = "spawn-mob",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "mob-id",
                 type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                completer = { _ -> mobIds() },
             ),
-            CommandSpec.Argument(
-                name = "count",
-                type = ArgumentType.IntegerArg(min = 1, max = MAX_SPAWN_COUNT),
-            ),
-            CommandSpec.Argument(
-                name = "world",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
-            CommandSpec.Argument(
-                name = "x",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
-            CommandSpec.Argument(
-                name = "y",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
-            CommandSpec.Argument(
-                name = "z",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
+            CommandSpec.Argument(name = "count", type = ArgumentType.IntegerArg(min = 1, max = MAX_SPAWN_COUNT), optional = true),
+            CommandSpec.Argument(name = "world", type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord), optional = true),
+            CommandSpec.Argument(name = "x", type = ArgumentType.DoubleArg(), optional = true),
+            CommandSpec.Argument(name = "y", type = ArgumentType.DoubleArg(), optional = true),
+            CommandSpec.Argument(name = "z", type = ArgumentType.DoubleArg(), optional = true),
         ),
         executor = { ctx ->
             val mobIdStr = ctx.required<String>("mob-id")
             val count = ctx.optional<Int>("count") ?: 1
             val worldName = ctx.optional<String>("world") ?: "world"
-            val x = ctx.optional<String>("x")?.toDoubleOrNull() ?: 0.0
-            val y = ctx.optional<String>("y")?.toDoubleOrNull() ?: 64.0
-            val z = ctx.optional<String>("z")?.toDoubleOrNull() ?: 0.0
+            val x = ctx.optional<Double>("x") ?: 0.0
+            val y = ctx.optional<Double>("y") ?: 64.0
+            val z = ctx.optional<Double>("z") ?: 0.0
             val mobTypeId = MobTypeId(mobIdStr)
             var spawned = 0
             for (i in 0 until count) {
@@ -467,25 +446,24 @@ public class AdminOpsCommands(
                 }
             }
             log.info("Spawned {} x{} at {}/{},{},{}", mobIdStr, spawned, worldName, x, y, z)
+            ctx.reply(
+                MessageKey("astera.command.reply.admin-spawn-mob"),
+                mapOf("mob" to mobIdStr, "count" to spawned.toString(), "world" to worldName, "x" to "$x", "y" to "$y", "z" to "$z"),
+            )
             CommandResult.Success
         },
-    ).requirePermission(permissionService, Permission("astera.admin.spawn-mob"))
+    ).requirePermission(Permission("astera.admin.spawn-mob"))
 
-    // ─── /astera-backup ────────────────────────────────────────────────────
+    // ─── admin backup ────────────────────────────────────────────────────
 
     private fun backupCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-backup",
-        description = MessageKey("astera.admin.backup.root"),
+        name = "backup",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "action",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-                completer = { _ -> listOf("now", "list", "restore") },
+                type = ArgumentType.Choice("now", "list", "restore"),
             ),
-            CommandSpec.Argument(
-                name = "target",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-            ),
+            CommandSpec.Argument(name = "target", type = ArgumentType.PlayerName, optional = true),
         ),
         executor = { ctx ->
             val action = ctx.required<String>("action").lowercase()
@@ -509,6 +487,10 @@ public class AdminOpsCommands(
                                 outcome.value.schemaVersion,
                                 outcome.value.shards.keys,
                             )
+                            ctx.reply(
+                                MessageKey("astera.command.reply.admin-backup-now"),
+                                mapOf("player" to playerName, "shards" to outcome.value.shards.keys.joinToString(",").ifEmpty { "-" }),
+                            )
                             CommandResult.Success
                         }
                         is Result.Failure -> CommandResult.Failure(
@@ -522,6 +504,7 @@ public class AdminOpsCommands(
                     // export/import only. Log a hint so admins know the stub.
                     log.info("Backup list: Phase 1 in-memory gateway has no snapshot index. " +
                         "Snapshots are sidecar envelopes; future Wave _ops-2 lands restic.")
+                    ctx.reply(MessageKey("astera.command.reply.admin-backup-list-none"))
                     CommandResult.Success
                 }
                 "restore" -> {
@@ -540,6 +523,7 @@ public class AdminOpsCommands(
                             "deferred to Wave _ops-2 (restic).",
                         target,
                     )
+                    ctx.reply(MessageKey("astera.command.reply.admin-backup-restore-deferred"), mapOf("target" to target))
                     CommandResult.Success
                 }
                 else -> CommandResult.Failure(
@@ -548,7 +532,7 @@ public class AdminOpsCommands(
                 )
             }
         },
-    ).requirePermission(permissionService, Permission("astera.admin.backup"))
+    ).requirePermission(Permission("astera.admin.backup"))
 
     // ─── Helpers ───────────────────────────────────────────────────────────
 
@@ -603,17 +587,10 @@ public class AdminOpsCommands(
         private const val DEFAULT_AUDIT_LIMIT = 25
         private const val MAX_SPAWN_COUNT = 64
 
-        /**
-         * Convenience helper for `AsteraCorePlugin.onEnable` — instantiate the
-         * builder and immediately register every command. Returns the count
-         * of registered commands so the caller can log a single confirmation.
-         */
-        public fun registerAll(
-            handler: com.astarworks.astera.core.application.port.inbound.ICommandHandler,
-            commands: AdminOpsCommands,
-        ): Int {
-            val all = commands.build()
-            all.forEach { handler.register(it) }
+        /** Mount every Core admin command under `/astera admin`; returns how many were mounted. */
+        public fun registerAll(commands: CommandMount, admin: AdminOpsCommands): Int {
+            val all = admin.build()
+            all.forEach { commands.register("admin", it) }
             return all.size
         }
     }

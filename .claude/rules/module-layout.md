@@ -13,7 +13,7 @@ If anything below contradicts `settings.gradle.kts` or `ArchitectureTest.kt`,
 | Plugin | Role | Paper `depend` | Paper `softdepend` |
 |---|---|---|---|
 | `plugin:core` | base. shared domain, `ServiceRegistry`, `IDomainEventBus`, Paper adapter scaffolding. Owns ItemSpec / SkillId / SkillTrigger / DamageProfile vocabulary. | — | — |
-| `plugin:items` | Item-centric content (ADR-0073): paper materializer, click→skill-trigger listener, `/astera-items give`. Renamed from `:plugin:weapons` in Wave _items-1. | Core | — |
+| `plugin:items` | Item-centric content (ADR-0073): paper materializer, click→skill-trigger listener, `/astera items give`. Renamed from `:plugin:weapons` in Wave _items-1. | Core | — |
 | `plugin:combat` | damage / skill / status / element matrix. Owns projectile types. Subscribes to `SkillCastRequested`. | Core | Items |
 | `plugin:match` | match lifecycle, phases, teams | Core | Combat |
 | `plugin:stats` | XP / levels / norma / mission progress | Core | Items, Combat, Match |

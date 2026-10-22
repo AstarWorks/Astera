@@ -27,7 +27,7 @@ class LobbyGameSplitScenarioTest {
     private val lobbyName = ServerName("lobby")
     private val gameName = ServerName("game")
 
-    private fun commandNames(sim: GameSim): Set<String> = sim.commands.registered.map { it.name }.toSet()
+    private fun commandNames(sim: GameSim): Set<String> = sim.commandTree.literals.map { it.name }.toSet()
 
     @Test
     fun `roles gate lobby-only and match-only features`() {
@@ -36,9 +36,9 @@ class LobbyGameSplitScenarioTest {
         val all = GameSim.boot("split-roles-all")
         try {
             // The queue is a lobby feature; ALL keeps today's behaviour.
-            assertThat(commandNames(lobby)).contains("astera-queue")
-            assertThat(commandNames(game)).doesNotContain("astera-queue")
-            assertThat(commandNames(all)).contains("astera-queue")
+            assertThat(commandNames(lobby)).contains("queue")
+            assertThat(commandNames(game)).doesNotContain("queue")
+            assertThat(commandNames(all)).contains("queue")
 
             // A queued lobby player never starts a match locally; a game server has no queue scheduler.
             val p1 = lobby.spawnPlayer("p1")

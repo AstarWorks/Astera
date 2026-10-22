@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
  * actually execute yet. Every branch listed here only logs (or silently resolves
  * to `0` / `false` / empty) at runtime, so content that uses it would "work"
  * without any visible effect. Content validation
- * (`ValidateContentReferencesUseCase`, `/astera-validate`) uses this to fail
+ * (`ValidateContentReferencesUseCase`, `/astera admin validate`) uses this to fail
  * loudly instead.
  *
  * Keep in sync with [MechanicDispatcher.dispatch]: when a mechanic gets a real

@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import java.time.Instant
 
 /**
- * Editorial / announcement entry surfaced by `/astera-news`
+ * Editorial / announcement entry surfaced by `/astera news`
  * (Wave J 5server-content-ops, ADR-0127).
  *
  * Loaded from `content/news/<id>.yaml` files at boot. Title + body are

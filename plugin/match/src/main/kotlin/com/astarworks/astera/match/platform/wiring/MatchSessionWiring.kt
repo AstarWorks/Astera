@@ -24,7 +24,7 @@ import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 
-/** Spectator, disconnect/reconnect, pins, audit, snapshot save, replay recording + `/astera-match` (original Wave 5e / 5v). */
+/** Spectator, disconnect/reconnect, pins, audit, snapshot save, replay recording + `/astera match` (original Wave 5e / 5v). */
 internal object MatchSessionWiring {
 
     fun install(env: MatchWiringEnv) {
@@ -38,7 +38,7 @@ internal object MatchSessionWiring {
         val eventBus = env.eventBus
         val scheduler = env.scheduler
         val playerGateway = env.playerGateway
-        val commandHandler = env.commandHandler
+        val commands = env.commands
         val permService = env.permService
         val facade = env.facade
         val worldGateway = env.worldGateway
@@ -141,17 +141,17 @@ internal object MatchSessionWiring {
 
         logger.info("Wave 5v wiring complete: ReplayCaptureEngine registered as IMatchRecorder.")
 
-        // 5. Register /astera-match command tree --------------------------------
-        commandHandler.register(
+        // 5. Mount `/astera match ...` (ADR-0184) -------------------------------
+        commands.register(
             MatchCommandSpecs.buildMatchCommandSpec(
                 lifecycle = facade,
                 matches = matches,
                 playerGateway = playerGateway,
-                permService = permService,
                 recorder = recorder,
                 replayRepo = replayRepo,
                 exportRoot = ports.replayExportRoot,
                 logger = logger,
+                stageIds = { env.stages.all().map { it.id.value } },
             ),
         )
     }

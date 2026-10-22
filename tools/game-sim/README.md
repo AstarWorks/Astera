@@ -48,7 +48,7 @@ else is reachable through `sim` (`GameSim`): `sim.services`, `sim.match`, ...
 | `INearbyTargetQuery`, `IPlayerPoseLookup` | `SimNearbyTargetQuery`, `SimPoseLookup` | over `SimEntity` positions. NB: no Paper impl of `INearbyTargetQuery` is registered in production yet |
 | `IDamageGateway` | `SimDamageGateway` | ADR-0149/0151: reads/writes `CURRENT_HP` in the attribute container, `Killed` at 0, Bukkit-style 20-tick invulnerability frames |
 | `IStatusEffectContainer` | `SimStatusEffectContainer` | + the 20-tick DoT / expiry loop of Paper's `StatusEffectTickListener` |
-| Core ports (`IMcServer`, GUI, broadcaster, commands) | `SimMcServer`, `FakeGuiAdapter`, `FakeBroadcaster`, `RecordingCommandHandler` | |
+| Core ports (`IMcServer`, GUI, broadcaster, commands) | `SimMcServer`, `FakeGuiAdapter`, `FakeBroadcaster`; commands: the real `AsteraCommandRegistry` + `CommandTreeRunner` (`sim.command(...)`, `sim.complete(...)`, ADR-0184) | |
 | `IExplosionGateway`, `ISummonGateway`, `IDisplayEntityGateway` (WP5) | `SimExplosionGateway`, `SimSummonGateway`, `SimDisplayGateway` | explosion: linear falloff damage through the production `ApplyDamageUseCase` (armor / friendly fire apply), radial velocity, terrain *not* simulated (policy is recorded); summon: an inert `SimEntity` mob carrying the owner's team; display: record only. All write `effects` into the trace. Temporary blocks go through `RecordingWorldGateway` (`block_place` / `block_remove`), lightning is taken from the `LightningStrike` event |
 | `IItemDelivery`, `IPaperItemIdResolver` | `SimItemDelivery`, `SimItemIdResolver` | first item given is the held (main-hand) item |
 

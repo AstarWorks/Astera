@@ -1,6 +1,6 @@
 # Wave J 5server-content-ops (ADR-0127) — News sample 1.
 #
-# Surfaced by `/astera-news` for any player. Title + body are MessageKey
+# Surfaced by `/astera news` for any player. Title + body are MessageKey
 # indirections; the strings live in content/languages/{en,ja}.yaml under the
 # `astera.news.welcome-to-phase-1.*` namespace.
 

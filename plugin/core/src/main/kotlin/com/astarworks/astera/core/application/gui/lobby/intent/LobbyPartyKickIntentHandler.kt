@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
  * if a non-leader fires the intent (e.g., a payload-spoofed click).
  *
  * `payload[target]` is the kicked player's name; absent payload directs the
- * caller to `/astera-party kick <name>`.
+ * caller to `/astera party kick <name>`.
  */
 public class LobbyPartyKickIntentHandler(
     private val kickPartyMember: KickPartyMemberUseCase,

@@ -7,7 +7,7 @@ import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Single entry point for "the player wants their vault" — used by `/vault`
+ * Single entry point for "the player wants their vault" — used by `/astera vault`
  * and by the ender chest block click so both behave identically.
  *
  * The vault is lobby-only: a player in a running match (countdown / active /

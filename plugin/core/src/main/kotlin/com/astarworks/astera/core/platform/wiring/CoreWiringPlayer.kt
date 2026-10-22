@@ -149,57 +149,7 @@ internal fun CoreWiringState.wirePlayerSystems() {
         )
     services.register<IPlayerPvpStateService>(pvpStateService, priority = 0)
 
-    // /astera reload <category> — single Brigadier command for every content type.
-    // Permission: astera.reload (admin tier). Argument is a single-word string;
-    // tab-completion suggests every currently-registered category name (computed
-    // at suggest-time so feature plugins that register late are reflected).
-    commandHandler.register(
-        CommandSpec.Literal(
-            name = "astera",
-            description = MessageKey("astera.command.root"),
-            subcommands = listOf(
-                CommandSpec.Literal(
-                    name = "reload",
-                    description = MessageKey("astera.command.reload"),
-                    subcommands = listOf(
-                        CommandSpec.Argument(
-                            name = "category",
-                            type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-                            completer = { _ -> reloadRegistry.categories().sorted() },
-                        ),
-                    ),
-                    executor = { ctx ->
-                        val category = ctx.required<String>("category")
-                        when (val outcome = reloadRegistry.reload(category)) {
-                            is Result.Success -> {
-                                logger.info(
-                                    "/astera reload $category: loaded=${outcome.value.loaded}, " +
-                                        "failed=${outcome.value.failed}",
-                                )
-                                CommandResult.Success
-                            }
-                            is Result.Failure -> {
-                                when (val err = outcome.error) {
-                                    is ReloadError.UnknownCategory ->
-                                        logger.warning("/astera reload: unknown category '${err.name}'")
-                                    is ReloadError.LoadFailed ->
-                                        logger.warning(
-                                            "/astera reload ${err.categoryName}: aborted with " +
-                                                "loaded=${err.report.loaded}, failed=${err.report.failed} " +
-                                                "(previous state preserved)",
-                                        )
-                                }
-                                CommandResult.Failure(outcome.error.messageKey)
-                            }
-                        }
-                    },
-                ).requirePermission(
-                    permissionService = permissionService,
-                    permission = Permission("astera.reload"),
-                ),
-            ),
-        ),
-    )
+    // `/astera admin reload <category>` lives in AdminOpsCommands (ADR-0184).
 
     // ---- Entity spawning + NPC two-tier (Wave 5l, ADR-0082) ----------
     // Two-tier strategy: MinimalNpcAdapter (always available, backs

@@ -1,6 +1,9 @@
 package com.astarworks.astera.core.application.command.announcement
 
+import com.astarworks.astera.core.application.command.CommandActor
+import com.astarworks.astera.core.application.command.CommandAuthorizer
 import com.astarworks.astera.core.application.command.CommandContext
+import com.astarworks.astera.core.application.command.CommandInvoker
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.PERM_ANNOUNCE
 import com.astarworks.astera.core.application.command.buildAnnouncementCommandSpec
@@ -35,16 +38,18 @@ class AnnouncementCommandSpecTest {
         override fun list(): Collection<AnnouncementSpec> = scheduled
     }
 
+    private val permService = InMemoryPermissionService()
+
     private fun execute(literal: com.astarworks.astera.core.application.command.CommandSpec.Literal, ctx: CommandContext): CommandResult {
-        val exec = literal.executor ?: error("no executor")
-        return runBlocking { exec(ctx) }
+        val invoker = CommandInvoker(CommandAuthorizer { permService }, ctx.scheduler)
+        val actor = CommandActor(ctx.sender, isOperator = ctx.sender == null)
+        return runBlocking { invoker.invoke(literal, actor, ctx.args) { _, _ -> } }
     }
 
     @Test
     fun `console invocation schedules a Once announcement with default kind`() {
         val announcer = CaptureAnnouncer()
-        val permService = InMemoryPermissionService()
-        val spec = buildAnnouncementCommandSpec(announcer, permService)
+        val spec = buildAnnouncementCommandSpec(announcer)
 
         val outcome = execute(
             spec,
@@ -66,8 +71,7 @@ class AnnouncementCommandSpecTest {
     @Test
     fun `player invocation is denied without permission`() {
         val announcer = CaptureAnnouncer()
-        val permService = InMemoryPermissionService()
-        val spec = buildAnnouncementCommandSpec(announcer, permService)
+        val spec = buildAnnouncementCommandSpec(announcer)
 
         val outcome = execute(
             spec,
@@ -85,7 +89,6 @@ class AnnouncementCommandSpecTest {
     @Test
     fun `player invocation succeeds when granted the announce permission`() {
         val announcer = CaptureAnnouncer()
-        val permService = InMemoryPermissionService()
         val roleId = RoleId("admin-announce")
         permService.upsertDefinition(
             RoleDefinition(
@@ -96,7 +99,7 @@ class AnnouncementCommandSpecTest {
         )
         val player = PlayerId(UUID.randomUUID())
         AssignRoleUseCase(permService).execute(player, roleId)
-        val spec = buildAnnouncementCommandSpec(announcer, permService)
+        val spec = buildAnnouncementCommandSpec(announcer)
 
         val outcome = execute(
             spec,
@@ -114,8 +117,7 @@ class AnnouncementCommandSpecTest {
     @Test
     fun `invalid kind returns Failure`() {
         val announcer = CaptureAnnouncer()
-        val permService = InMemoryPermissionService()
-        val spec = buildAnnouncementCommandSpec(announcer, permService)
+        val spec = buildAnnouncementCommandSpec(announcer)
 
         val outcome = execute(
             spec,

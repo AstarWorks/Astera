@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory
  * that routes vanilla ender chest blocks to it.
  *
  *  - Right-click on an `ENDER_CHEST` block (or any vanilla ender chest open)
- *    is cancelled and replaced by [AccessPersonalVaultUseCase.open] so `/vault`
+ *    is cancelled and replaced by [AccessPersonalVaultUseCase.open] so `/astera vault`
  *    and the block behave identically (including the in-match refusal).
  *  - On close, the chest contents are encoded (Base64 `ItemStack` bytes in
  *    [PersonalVault.VaultItem.nbt]) and persisted via [SaveVaultUseCase].

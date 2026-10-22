@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
  * Triggered by `lobby.friends.pending`. Phase 1 PoC: there is no dedicated
  * "pending requests" GUI yet, so the handler renders the list as a chat
  * sequence. Each pending row shows the requester's display name, and the
- * footer hints at `/astera-friend accept <name>` as the next step. When
+ * footer hints at `/astera friend accept <name>` as the next step. When
  * the proper GUI lands (Wave 10c+) this handler will open it via
  * `IGuiAdapter.open` instead.
  *

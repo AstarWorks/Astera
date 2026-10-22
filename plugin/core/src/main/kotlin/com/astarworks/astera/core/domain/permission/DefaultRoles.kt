@@ -35,6 +35,7 @@ public object DefaultRoles {
             Permission("astera.mod.kick"),
             Permission("astera.mod.ban"),
             Permission("astera.mod.lift"),
+            Permission("astera.mod.history"),
         ),
     )
 

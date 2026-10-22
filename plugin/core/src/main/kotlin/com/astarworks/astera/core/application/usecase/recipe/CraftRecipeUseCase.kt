@@ -68,7 +68,7 @@ public class CraftRecipeUseCase(
     /**
      * Attempt to craft [recipeId] for [playerId] from [station]. Pass
      * [CraftingStation.Hand] when no station block is involved (default for
-     * `/astera-items craft` commands and the in-inventory 2x2 grid).
+     * `/astera items craft` commands and the in-inventory 2x2 grid).
      */
     public fun craft(
         playerId: PlayerId,

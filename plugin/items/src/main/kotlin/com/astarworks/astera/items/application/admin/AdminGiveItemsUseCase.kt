@@ -19,9 +19,9 @@ public sealed class AdminGiveError {
 }
 
 /**
- * Hands registry items to an admin from the `/astera-admin` catalog
+ * Hands registry items to an admin from the `/astera admin panel` catalog
  * (F1-D, ADR-0183). Thin over [IItemDelivery] — the same delivery path as
- * `/astera-give` — so a given weapon is the real item (PDC id tag, skill
+ * `/astera items give` — so a given weapon is the real item (PDC id tag, skill
  * bindings, resource pool) and not a display copy.
  */
 public class AdminGiveItemsUseCase(

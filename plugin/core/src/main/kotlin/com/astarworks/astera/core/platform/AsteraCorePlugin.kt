@@ -26,7 +26,7 @@ import java.nio.file.Path
  *  - [IDomainEventBus] (in-process)
  *  - [IItemRegistry] (loaded from `content/items/`; returns `ItemSpec`)
  *  - [IPlayerGateway] (vendor-neutral McPlayerGateway over Paper)
- *  - [ICommandHandler] (Paper Brigadier)
+ *  - [IAsteraCommandRegistry] (single /astera Brigadier tree)
  *  - [IMcServer] (vendor-neutral handle for feature plugins that need
  *    direct player lookup)
  *
@@ -174,7 +174,7 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IDomainEventBus",
             "IItemRegistry (ItemSpec)",
             "IPlayerGateway",
-            "ICommandHandler",
+            "IAsteraCommandRegistry",
             "IMcServer",
             "IGuiRegistry",
             "IGuiIntentRouter",

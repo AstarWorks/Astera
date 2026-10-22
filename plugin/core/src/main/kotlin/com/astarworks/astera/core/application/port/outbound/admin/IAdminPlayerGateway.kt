@@ -9,7 +9,7 @@ public enum class AdminGameMode { SURVIVAL, CREATIVE, ADVENTURE, SPECTATOR }
 public data class AdminOnlinePlayer(public val id: PlayerId, public val name: String)
 
 /**
- * Outbound port: the host-level player operations the `/astera-admin` panel
+ * Outbound port: the host-level player operations the `/astera admin panel` panel
  * needs that no other port covers (F1-D, ADR-0183).
  *
  * Everything here is "server admin" plumbing — the Paper impl maps it onto

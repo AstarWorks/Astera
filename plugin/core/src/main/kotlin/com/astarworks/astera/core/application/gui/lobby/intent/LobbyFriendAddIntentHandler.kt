@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
  * Triggered by the `lobby.friends.add` intent. Phase 1 PoC: the modal anvil
  * prompt primitive (`IGuiModalGateway`) does not exist yet, so the GUI
  * tile's role is to **close the GUI and direct the player to use
- * `/astera-friend add <name>`**. Once the modal lands (Wave 10c+), this
+ * `/astera friend add <name>`**. Once the modal lands (Wave 10c+), this
  * handler will read the typed name from `intent.payload["target"]` and call
  * the use case directly — the use case path below is already in place to
  * cover that future call site too.

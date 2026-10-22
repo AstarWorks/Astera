@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
  * subscribers (`AuditLogListener.handleChatMessageSent`,
  * `ReplayCaptureEngine`) — both audit / persistence concerns. **No
  * subscriber actually surfaced the message to other players.** Players
- * sent chat with `/astera-chat say "..."` and no one saw it. This listener
+ * sent chat with `/astera chat say "..."` and no one saw it. This listener
  * closes that gap with a single per-event broadcast to the appropriate
  * channel recipients.
  *
