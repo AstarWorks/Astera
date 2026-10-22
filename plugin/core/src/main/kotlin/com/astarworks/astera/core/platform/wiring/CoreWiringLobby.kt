@@ -278,18 +278,10 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         com.astarworks.astera.core.application.gui.lobby.intent.LobbyPartyLeaveIntentHandler.INTENT_LEAVE,
     ) { intent, player -> partyLeaveHandler.handle(intent, player) }
 
-    // ── Wave I 5match-wireup-fix (ADR-0126 §B) ─────────────────────
-    // LoadoutSelectorShowIntentHandler: Round 10 Wave D 5game-complete
-    // (ADR-0121 §B) shipped the handler class + the
-    // CustomizeMenuGuiSpec slot that emits `loadout.selector.show`, but
-    // the router registration was deferred. Pre-Wave-I, clicking the
-    // loadout tile in the customize menu silently no-op'd. We wire it
-    // onto the shared IGuiIntentRouter via the existing `loadout.selector.`
-    // prefix; the registration joins `waveGRegistrations` so onDisable
-    // releases the captured handler lambda along with the Wave G
-    // handlers (single cleanup path).
-    val loadoutSelectorShowHandler = com.astarworks.astera.core.application.gui.lobby.intent
-        .LoadoutSelectorShowIntentHandler(
+    // F3-3: customize sub-menu, profile card and personal vault buttons. The profile
+    // card pulls level / stats / wallet lazily from the plugins that publish them.
+    val customizeShowHandler = com.astarworks.astera.core.application.gui.lobby.intent
+        .LobbyCustomizeShowIntentHandler(
             guiAdapter = guiAdapter,
             mcServer = mcServer,
             messages = messages,
@@ -297,8 +289,34 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         )
     waveGRegistrations += waveGRouter.register(
         com.astarworks.astera.core.application.gui.lobby.intent
-            .LoadoutSelectorShowIntentHandler.INTENT_PREFIX,
-    ) { intent, player -> loadoutSelectorShowHandler.handle(intent, player) }
+            .LobbyCustomizeShowIntentHandler.INTENT_PREFIX,
+    ) { intent, player -> customizeShowHandler.handle(intent, player) }
+
+    val profileShowHandler = com.astarworks.astera.core.application.gui.lobby.intent
+        .LobbyProfileShowIntentHandler(
+            guiAdapter = guiAdapter,
+            mcServer = mcServer,
+            messages = messages,
+            playerGateway = playerGateway,
+            levels = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerLevelView>() },
+            stats = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository>() },
+            wallet = { services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>() },
+        )
+    waveGRegistrations += waveGRouter.register(
+        com.astarworks.astera.core.application.gui.lobby.intent
+            .LobbyProfileShowIntentHandler.INTENT_PREFIX,
+    ) { intent, player -> profileShowHandler.handle(intent, player) }
+
+    val vaultOpenHandler = com.astarworks.astera.core.application.gui.lobby.intent
+        .LobbyVaultOpenIntentHandler(
+            access = { services.getOrThrow<com.astarworks.astera.core.application.usecase.vault.AccessPersonalVaultUseCase>() },
+            messages = messages,
+            playerGateway = playerGateway,
+        )
+    waveGRegistrations += waveGRouter.register(
+        com.astarworks.astera.core.application.gui.lobby.intent
+            .LobbyVaultOpenIntentHandler.INTENT_OPEN,
+    ) { intent, player -> vaultOpenHandler.handle(intent, player) }
 
     // ── Wave M 5polish-quickwin (ADR-0130 §B) ──────────────────────
     // Achievement viewer GUI intent handler. The GUI spec lives in core

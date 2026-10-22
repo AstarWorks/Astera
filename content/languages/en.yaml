@@ -358,10 +358,8 @@ astera:
         tooltip: "<gray>Click to join a match queue.</gray>"
       shop:
         tooltip: "<gray>Click to browse the lobby shop.</gray>"
-      refinement:
-        tooltip: "<gray>Click to refine your items.</gray>"
       customize:
-        tooltip: "<gray>Click to customize your loadout.</gray>"
+        tooltip: "<gray>Click for your vault, profile and settings.</gray>"
       travel:
         tooltip: "<gray>Click to travel to PvE / Survival / Lobby.</gray>"
       profile:
@@ -376,31 +374,33 @@ astera:
         tooltip: "<gray>Return to the lobby.</gray>"
     customize-menu:
       title: "<gold>Customize</gold>"
-      loadout:
-        tooltip: "<gray>Edit your equipped loadout.</gray>"
-      refinement:
-        tooltip: "<gray>Apply refinement to your items.</gray>"
+      vault:
+        tooltip: "<gray>Open your personal vault (ender chest storage).</gray>"
       profile:
         tooltip: "<gray>View your profile card.</gray>"
-    # Wave 5game-complete (ADR-0121 §B) — 9-slot loadout selector.
-    loadout-selector:
-      title: "<aqua>Loadout Selector</aqua>"
-      slot:
-        tooltip:
-          activate: "<gray>Left-click: activate this loadout</gray>"
-          rename: "<gray>Right-click: rename</gray>"
-          reset: "<gray>Shift-click: clear</gray>"
-          save: "<gray>Middle-click: save current inventory</gray>"
+      settings:
+        tooltip: "<gray>Open your settings.</gray>"
     profile-card:
       title: "<gold>Profile</gold>"
-      head:
-        tooltip: "<gray>Your avatar.</gray>"
-      power-index:
-        tooltip: "<gray>Your Power Index.</gray>"
-      currency:
-        tooltip: "<gray>Your currency balance.</gray>"
-      recent-matches:
-        tooltip: "<gray>Recent matches.</gray>"
+      level:
+        name: "<gold>Level {level}</gold>"
+        xp: "<gray>Total XP: <white>{xp}</white></gray>"
+      combat:
+        name: "<gold>Combat</gold>"
+        kills: "<gray>Kills: <white>{kills}</white></gray>"
+        deaths: "<gray>Deaths: <white>{deaths}</white></gray>"
+        assists: "<gray>Assists: <white>{assists}</white></gray>"
+      matches:
+        name: "<gold>Matches</gold>"
+        played: "<gray>Played: <white>{played}</white></gray>"
+        wins: "<gray>Wins: <white>{wins}</white></gray>"
+        losses: "<gray>Losses: <white>{losses}</white></gray>"
+        rate: "<gray>Win rate: <white>{rate}%</white></gray>"
+      wallet:
+        name: "<gold>Wallet</gold>"
+        star: "<gray>Star: <white>{amount}</white></gray>"
+        gold: "<gray>Gold: <white>{amount}</white></gray>"
+        gem: "<gray>Gem: <white>{amount}</white></gray>"
     friends-list:
       title: "<gold>Friends</gold>"
       add:

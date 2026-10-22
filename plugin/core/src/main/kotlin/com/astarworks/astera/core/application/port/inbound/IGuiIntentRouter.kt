@@ -55,4 +55,11 @@ public interface IGuiIntentRouter {
      * dropped.
      */
     public fun dispatch(player: IMcPlayer, intent: GuiIntent)
+
+    /**
+     * True when [dispatch] of an intent with [key] would reach a handler
+     * (same longest-prefix rule as [dispatch]). Lets content validation and
+     * tests prove that no GUI button emits an intent nobody owns.
+     */
+    public fun hasHandler(key: String): Boolean
 }

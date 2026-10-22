@@ -1,7 +1,0 @@
-# Wave 5lobby-content (ADR-0119) — placeholder tile icon for refinement.
-
-id: gui-tile-refinement
-material: ANVIL
-name:
-  ja: "<gold>強化</gold>"
-  en: "<gold>Refinement</gold>"
