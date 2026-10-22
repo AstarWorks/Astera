@@ -100,6 +100,7 @@ import org.slf4j.LoggerFactory
 public class AsteraPersistencePlugin : JavaPlugin() {
 
     private val registrations = mutableListOf<ServiceRegistry.Registration>()
+    private val subscriptions = mutableListOf<com.astarworks.astera.core.application.port.outbound.IDomainEventBus.Subscription>()
     private var persistence: PersistenceContext? = null
 
     override fun onEnable() {
@@ -157,6 +158,16 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             attributeContainerStore,
             priority = 100,
         )
+        // F3-4: the lobby and the game server share one player row but each JVM
+        // caches it. A player arriving on this backend re-reads the row first, so
+        // the wallet / XP / last-match written on the other backend is what shows
+        // (and what the next write-through builds on). Subscribed here, before any
+        // feature plugin, so it runs ahead of their join listeners.
+        services.get<com.astarworks.astera.core.application.port.outbound.IDomainEventBus>()?.let { bus ->
+            subscriptions += bus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) {
+                attributeContainerStore.reload(it.playerId)
+            }
+        }
         registrations += services.register<IPlayerStatsRepository>(
             PostgresPlayerStatsRepository(attributeContainerStore),
             priority = 100,
@@ -381,6 +392,8 @@ public class AsteraPersistencePlugin : JavaPlugin() {
     }
 
     override fun onDisable() {
+        subscriptions.forEach { it.cancel() }
+        subscriptions.clear()
         registrations.forEach { it.unregister() }
         registrations.clear()
         persistence?.dataSource?.close()

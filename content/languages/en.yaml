@@ -153,6 +153,7 @@ astera:
       stats: "Player statistics"
       stats-show: "Show statistics (yours by default)"
       stats-leaderboard: "Show the season leaderboard"
+      stats-last: "Show your most recent match"
       stats-xp: "XP tools"
       stats-xp-grant: "Grant XP to a player"
       friend: "Friends"
@@ -707,9 +708,9 @@ astera:
       "5": "<aqua><bold>5</bold></aqua>"
     # Wave 5game-complete (ADR-0121 §D) — per-player verdict + chat header.
     summary:
-      victory: "<gold><bold>Victory!</bold></gold>"
-      defeat: "<dark_red><bold>Defeat</bold></dark_red>"
-      draw: "<gray><bold>Draw</bold></gray>"
+      victory: "<gold><bold>VICTORY!</bold></gold>"
+      defeat: "<dark_red><bold>DEFEAT</bold></dark_red>"
+      draw: "<gray><bold>DRAW</bold></gray>"
       header: "<dark_aqua>== Match Summary ==</dark_aqua>"
       reason:
         score-threshold: "<gray>Ended by reaching the score threshold.</gray>"
@@ -718,6 +719,37 @@ astera:
         sudden-death: "<gray>Resolved in sudden death.</gray>"
         objective: "<gray>Ended by objective completion.</gray>"
         cancelled: "<gray>Match was cancelled.</gray>"
+        world-unloaded: "<gray>The match world was unloaded.</gray>"
+    # F3-4 — result screen (chat part) shown at match end, before the transfer back.
+    result:
+      score:
+        label: "<gray>Score</gray>  {scores}"
+        team: "<{color}>{team}</{color}> <white><bold>{score}</bold></white>"
+      top:
+        header: "<gray>Top players</gray> <dark_gray>(kills / deaths / assists, objectives)</dark_gray>"
+        entry: " <yellow>{rank}.</yellow> <{color}>{name}</{color}> <white>{kills}</white><gray>/</gray><white>{deaths}</white><gray>/</gray><white>{assists}</white> <dark_gray>|</dark_gray> <white>{objective}</white>{mvp}"
+      mvp-tag: " <gold>[MVP]</gold>"
+      mvp: "<gold><bold>MVP:</bold></gold> <{color}>{name}</{color}> <gray>({kills} / {deaths} / {assists})</gray>"
+      you: "<aqua>You:</aqua> <white>{kills}</white> <gray>kills</gray>, <white>{deaths}</white> <gray>deaths</gray>, <white>{assists}</white> <gray>assists</gray>, <white>{objective}</white> <gray>objectives</gray>"
+    # F3-4 — reward breakdown paid at match end (match-rewards.yaml).
+    reward:
+      header: "<gold>-- Rewards --</gold>"
+      none: "<gray>No rewards this match.</gray>"
+      line: " <gray>{label}</gray> <dark_gray>></dark_gray> {amounts}"
+      total: "<gold><bold>Total</bold></gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      level: "<aqua>Level {level}</aqua> <gray>({into} / {next} XP to the next level)</gray>"
+      levelup: "<green><bold>LEVEL UP!</bold></green> <white>{from}</white> <gray>-></gray> <white>{to}</white>"
+      amount:
+        star: "<yellow>+{amount} STAR</yellow>"
+        gold: "<gold>+{amount} GOLD</gold>"
+        xp: "<aqua>+{amount} XP</aqua>"
+      kind:
+        participation: "Participation"
+        result: "Match result"
+        kills: "Kills x{count}"
+        assists: "Assists x{count}"
+        objectives: "Objectives x{count}"
+        mvp: "MVP bonus"
     # Wave I 5match-wireup-fix (ADR-0126 §C) — reconnect-window countdown
     # ActionBar shown while a disconnected participant is held in the seat.
     reconnect:
@@ -963,6 +995,20 @@ astera:
       kills-100:
         name: "<gold>Legend</gold>"
         description: "<gray>100 kills.</gray>"
+
+    # F3-4 — "last match" card: /astera stats last and the lobby recap.
+    last:
+      none: "<gray>No match played yet.</gray>"
+      recap: "<dark_aqua>== Your last match ==</dark_aqua>"
+      header:
+        win: "<gold><bold>VICTORY</bold></gold> <gray>in {mode}, {ago} ago</gray>"
+        lose: "<dark_red><bold>DEFEAT</bold></dark_red> <gray>in {mode}, {ago} ago</gray>"
+        draw: "<gray><bold>DRAW</bold></gray> <gray>in {mode}, {ago} ago</gray>"
+      score: "<gray>Score:</gray> <white>{scores}</white>"
+      you: "<aqua>You:</aqua> <white>{kills}</white> <gray>kills</gray>, <white>{deaths}</white> <gray>deaths</gray>, <white>{assists}</white> <gray>assists</gray>, <white>{objective}</white> <gray>objectives</gray>"
+      mvp: "<gold>You were the MVP!</gold>"
+      rewards: "<gold>Rewards</gold> <yellow>+{star} STAR</yellow> <gold>+{gold} GOLD</gold> <aqua>+{xp} XP</aqua>"
+      level: "<aqua>Level {level}</aqua> <gray>({into} / {next} XP to the next level)</gray>"
 
     # Wave 5flex (ADR-0102) — match-nameplate milestone labels. Keyed by
     # achievement id; the listener prefixes with `astera.stats.milestone.`.

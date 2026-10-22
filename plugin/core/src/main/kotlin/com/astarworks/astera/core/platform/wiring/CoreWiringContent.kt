@@ -217,6 +217,10 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     settingsRepo = services.get<IPlayerSettingsRepository>()
         ?: InMemoryPlayerSettingsRepository().also { services.register<IPlayerSettingsRepository>(it, priority = 0) }
     services.register<IRewardBridge>(InMemoryRewardBridge(), priority = 0)
+    services.register<com.astarworks.astera.core.application.port.outbound.ILastMatchStore>(
+        com.astarworks.astera.core.application.service.AttributeLastMatchStore { services.getOrThrow<IPlayerAttributeContainerStore>() },
+        priority = 0,
+    )
     auditRepo = services.get<IAuditLogRepository>()
         ?: InMemoryAuditLogRepository().also { services.register<IAuditLogRepository>(it, priority = 0) }
     snapshotRepo = services.get<IPlayerInventorySnapshotRepository>()

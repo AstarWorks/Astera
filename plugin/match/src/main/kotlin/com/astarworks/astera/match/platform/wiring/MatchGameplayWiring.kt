@@ -374,6 +374,19 @@ internal object MatchGameplayWiring {
             matchCountdownListener.handle(it)
         }
 
+        // F3-4: per-match kills / deaths / assists / objectives behind the result screen.
+        val matchTally = com.astarworks.astera.match.application.service.result.MatchTallyService(matches)
+        subscriptions += eventBus.subscribe(MatchStarted::class) { matchTally.onMatchStarted(it.matchId, it.modeKey.orEmpty()) }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.PlayerKilled::class) {
+            matchTally.onKill(it.victim, it.killer)
+        }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.combat.domain.event.AssistCredited::class) {
+            matchTally.onAssist(it.player, it.victim)
+        }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.NexusDestroyed::class) {
+            matchTally.onObjective(it.matchId, it.attackerId)
+        }
+
         val matchEndSummaryListener =
             com.astarworks.astera.match.application.eventbus.listeners.match
                 .MatchEndSummaryListener(
@@ -381,6 +394,9 @@ internal object MatchGameplayWiring {
                     hudGateway = hudGateway,
                     messages = msgRenderer,
                     playerGateway = playerGateway,
+                    tally = matchTally,
+                    eventBus = eventBus,
+                    nameOf = { id -> env.ctx.services.get<IMcServer>()?.findPlayer(id)?.name },
                 )
         subscriptions += eventBus.subscribe(MatchEnded::class) {
             matchEndSummaryListener.handle(it)
