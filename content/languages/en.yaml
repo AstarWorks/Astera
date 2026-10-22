@@ -1328,14 +1328,11 @@ astera:
     target: "<gray>Spectating</gray> <white>{player}</white>"
 
   killfeed:
-    victim: "<red>You were killed in combat.</red>"
-    killer: "<gold>You eliminated an opponent.</gold>"
-    entry: "<yellow>A player was eliminated.</yellow>"
-    # Wave 5match-hud (ADR-0118 §8) — weapon-detail variants.
-    weapon:
-      item: "<yellow>{killer} killed {victim} with {item-name}</yellow>"
-      skill: "<yellow>{killer} killed {victim} with {skill-id}</yellow>"
-      generic: "<yellow>{killer} killed {victim}</yellow>"
+    killer: "<gold>You eliminated {victim}.</gold>"
+    chat:
+      kill: "<dark_gray>[Kill]</dark_gray> <{killer-color}>{killer}</{killer-color}> <gray>defeated</gray> <{victim-color}>{victim}</{victim-color}>"
+      kill-weapon: "<dark_gray>[Kill]</dark_gray> <{killer-color}>{killer}</{killer-color}> <gray>defeated</gray> <{victim-color}>{victim}</{victim-color}> <gray>with</gray> {weapon}"
+      death: "<dark_gray>[Kill]</dark_gray> <{victim-color}>{victim}</{victim-color}> <gray>died</gray>"
 
   item-entity:
     error:

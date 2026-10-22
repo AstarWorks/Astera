@@ -1318,14 +1318,11 @@ astera:
     target: "<gray>観戦中</gray> <white>{player}</white>"
 
   killfeed:
-    victim: "<red>戦闘で倒されました。</red>"
-    killer: "<gold>敵を倒しました。</gold>"
-    entry: "<yellow>プレイヤーが倒されました。</yellow>"
-    # Wave 5match-hud (ADR-0118 §8) — 武器詳細バリアント。
-    weapon:
-      item: "<yellow>{killer} が {item-name} で {victim} を倒した</yellow>"
-      skill: "<yellow>{killer} が {skill-id} で {victim} を倒した</yellow>"
-      generic: "<yellow>{killer} が {victim} を倒した</yellow>"
+    killer: "<gold>{victim} を倒しました。</gold>"
+    chat:
+      kill: "<dark_gray>[キル]</dark_gray> <{killer-color}>{killer}</{killer-color}> <gray>が</gray> <{victim-color}>{victim}</{victim-color}> <gray>を倒した</gray>"
+      kill-weapon: "<dark_gray>[キル]</dark_gray> <{killer-color}>{killer}</{killer-color}> <gray>が</gray> {weapon} <gray>で</gray> <{victim-color}>{victim}</{victim-color}> <gray>を倒した</gray>"
+      death: "<dark_gray>[キル]</dark_gray> <{victim-color}>{victim}</{victim-color}> <gray>が倒れた</gray>"
 
   item-entity:
     error:
