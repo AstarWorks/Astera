@@ -131,6 +131,11 @@ public sealed interface CommandSpec {
          * enclosing literal's executor runs with the arguments typed so far.
          */
         public val optional: Boolean = false,
+        /**
+         * Optional hover text per suggestion (`suggestion -> tooltip`, already localized/plain),
+         * e.g. lane `annihilation` -> `2/4 queued`. Shown by clients next to the completion.
+         */
+        public val tooltips: ((PartialInput) -> Map<String, String>)? = null,
     ) : CommandSpec {
         init {
             require(name.isNotBlank()) { "Argument name must not be blank" }

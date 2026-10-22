@@ -143,7 +143,11 @@ public class CommandTreeRunner(
 
     private fun tokenize(line: String): List<String> {
         var tokens = line.trim().removePrefix("/").trim().split(WHITESPACE).filter { it.isNotEmpty() }
-        if (tokens.firstOrNull().equals(AsteraCommandRegistry.ROOT_NAME, ignoreCase = true)) tokens = tokens.drop(1)
+        tokens = if (tokens.firstOrNull().equals(AsteraCommandRegistry.ROOT_NAME, ignoreCase = true)) {
+            tokens.drop(1)
+        } else {
+            CommandShortcuts.expand(tokens) // `/play norma` == `/astera queue join norma` (ADR-0232)
+        }
         return tokens
     }
 

@@ -72,6 +72,35 @@ class CommandsE2eTest : E2eBase() {
             assertThat(r!!.matches.toList()).contains("norma")
             "matches=${r.matches.toList()}"
         }
+        E2eReport.check(suite, "tab-complete `/play ` (shortcut redirect) suggests the same lanes", "ServerboundCommandSuggestion (ADR-0232)") {
+            val r = admin.complete("/play ")
+            assertThat(r).describedAs("no reply").isNotNull()
+            assertThat(r!!.matches.toList()).contains("norma")
+            "matches=${r.matches.toList()}"
+        }
+    }
+
+    @Test
+    fun `wrong arguments reply with usage and example`() {
+        val player = bot("UsagePlayer")
+        player.waitUntil(5_000) { player.commandTree != null }
+        Thread.sleep(1_000)
+        E2eReport.check(suite, "`/astera queue join` without lane shows the expected syntax", "SystemChat (ADR-0232)") {
+            val before = player.chat.size
+            player.command("astera queue join")
+            val lines = player.chatSince(before)
+            assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
+            assertThat(lines.joinToString("\n")).contains("/astera queue join <lane>")
+            "reply:\n${quote(lines)}"
+        }
+        E2eReport.check(suite, "`/astera queue` lists the sub-commands", "SystemChat (ADR-0232)") {
+            val before = player.chat.size
+            player.command("astera queue")
+            val lines = player.chatSince(before)
+            assertThat(rawKeys(lines)).describedAs("raw i18n keys").isEmpty()
+            assertThat(lines.joinToString("\n")).contains("join").contains("leave")
+            "reply:\n${quote(lines)}"
+        }
     }
 
     @Test

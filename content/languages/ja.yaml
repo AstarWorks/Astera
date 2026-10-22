@@ -118,6 +118,24 @@ astera:
     menu:
       root: "<gray>メインメニューを開きます。</gray>"
     usage: "<red>使い方: <white>{usage}</white></red>"
+    usage-description: "<gray>{description}</gray>"
+    usage-sub: "<gray>次のいずれかを指定:</gray> <yellow>{subs}</yellow>"
+    usage-example: "<gray>例:</gray> <white>{example}</white>"
+    confirm:
+      required: "<yellow>この操作は取り消せません。<click:run_command:'{command}'><hover:show_text:'{command}'><green>[クリックで実行]</green></hover></click> <gray>または {command} を実行</gray></yellow>"
+    example:
+      queue-join: "/astera queue join norma （/play norma でも可）"
+      lang: "/astera lang ja"
+      volume: "/astera volume music 50"
+      shop: "/astera shop"
+      items-give: "/astera items give Steve greatsword 1"
+      match-start: "/astera match start example-arena"
+      match-abort: "/astera match abort <id> --confirm"
+      match-cancel: "/astera match cancel <id> --confirm"
+      economy-grant: "/astera economy grant Steve star 100"
+      friend-add: "/astera friend add Steve"
+      party-invite: "/astera party invite Steve"
+      chat-msg: "/astera chat msg Steve こんにちは"
     internal_error: "<red>コマンドの実行中に予期しないエラーが発生しました。ログに記録しました。</red>"
     player-not-found: "<red>プレイヤー <gold>{player}</gold> はオフラインか存在しません。</red>"
     help:
@@ -288,6 +306,7 @@ astera:
       match-entry: "<green>{player} がマッチ <gold>{match}</gold> に参加しました。</green>"
       match-list-header: "<gold>進行中のマッチ {count} 件</gold>"
       match-list-line: "<white>{match}</white> <gray>[{phase}] ステージ={stage}</gray>"
+      match-list-line-op: "<white>{match}</white> <gray>[{phase}] ステージ={stage}</gray> <click:run_command:'/astera match end {match}'><hover:show_text:'/astera match end {match}'><gold>[終了]</gold></hover></click> <click:suggest_command:'/astera match abort {match} --confirm'><hover:show_text:'/astera match abort {match}'><red>[中止]</red></hover></click>"
       match-list-none: "<gray>進行中のマッチはありません。</gray>"
       match-phase: "<green>マッチ <gold>{match}</gold>: フェーズトリガー <gold>{trigger}</gold> を適用しました。</green>"
       match-replay-export: "<green>リプレイを {path} に出力しました。</green>"
@@ -745,6 +764,7 @@ astera:
         none: "<gray>キューには参加していません。</gray>"
         line: "<yellow>キュー:</yellow> <white>{mode}</white> <gray>(#</gray><gold>{position}</gold><gray>)</gray>"
         progress: "<gray>キュー {players}/{required} 人（人数が揃うとマッチが始まります）。</gray>"
+        actions: "<click:run_command:'/astera queue leave'><hover:show_text:'/astera queue leave'><red>[キューを抜ける]</red></hover></click>"
 
     # Wave 5v — マッチ録画キャプチャ (ADR-0088)
     replay:
