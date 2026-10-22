@@ -3,6 +3,7 @@ package com.astarworks.astera.vfxpreview
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
+import com.astarworks.astera.core.domain.effect.vfx.VfxQuad
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import kotlin.math.max
@@ -28,9 +29,6 @@ sealed interface Prim {
         val glowArgb: Int?,
     ) : Prim
 
-    /** Translucent flat quad (a text display with a blank body and a background colour): corners in order. */
-    data class Quad(val corners: List<Vec3>, val argb: Int) : Prim
-
     /** Item sprite (centred on [center]); drawn as a blade-like shape with its name. */
     data class Item(
         val center: Vec3,
@@ -40,6 +38,18 @@ sealed interface Prim {
         val itemKey: String,
         val rgb: Int,
         val glowArgb: Int?,
+    ) : Prim
+
+    /** Display particle: [width] x [height] blocks centred on [center], alpha blended. */
+    data class Quad(
+        val center: Vec3,
+        val rotation: Quaternion,
+        val billboard: DisplayBillboard,
+        val width: Double,
+        val height: Double,
+        val rgb: Int,
+        val alpha: Double,
+        val glyph: String?,
     ) : Prim
 
     data class Dot(val position: Vec3, val age: Int) : Prim
@@ -72,9 +82,7 @@ object SceneBuilder {
                     rgb = BlockColors.itemRgb(kind.itemKey),
                     glowArgb = d.glowArgb,
                 )
-                is VfxElementKind.Text -> if ((d.text ?: kind.text).isBlank()) {
-                    quad(t, d.backgroundArgb ?: kind.backgroundArgb, shift)?.let { prims += it }
-                } else prims += Prim.Text(
+                is VfxElementKind.Text -> prims += Prim.Text(
                     center = t.translation + shift,
                     rotation = t.rotation,
                     size = t.scale,
@@ -82,21 +90,24 @@ object SceneBuilder {
                     styled = MiniText.style(d.text ?: kind.text),
                     glowArgb = d.glowArgb,
                 )
+                is VfxElementKind.Quad -> {
+                    val unit = if (kind.glyph == null) Vec3(VfxQuad.SOLID_SCALE_X, VfxQuad.SOLID_SCALE_Y, 1.0) else Vec3(VfxQuad.GLYPH_SCALE, VfxQuad.GLYPH_SCALE, 1.0)
+                    prims += Prim.Quad(
+                        center = d.offset + shift,
+                        rotation = t.rotation,
+                        billboard = d.billboard,
+                        width = t.scale.x / unit.x,
+                        height = t.scale.y / unit.y,
+                        rgb = d.quadRgb ?: kind.colorRgb,
+                        alpha = d.quadAlpha,
+                        glyph = kind.glyph,
+                    )
+                }
                 is VfxElementKind.Particle -> Unit
             }
         }
         for (p in replay.particles(tick)) prims += Prim.Dot(p.position + shift, p.age)
         return prims
-    }
-
-    /** Background rectangle of a blank text display: 5 x 10 font pixels at scale 1, centred (vanilla's half-pixel offset ignored). */
-    private fun quad(t: DisplayTransform, argb: Int, shift: Vec3): Prim.Quad? {
-        if ((argb ushr 24) == 0) return null
-        val hx = t.scale.x * 5 * TEXT_PIXEL / 2
-        val hy = t.scale.y * 10 * TEXT_PIXEL / 2
-        val corners = listOf(Vec3(-hx, -hy, 0.0), Vec3(hx, -hy, 0.0), Vec3(hx, hy, 0.0), Vec3(-hx, hy, 0.0))
-            .map { t.translation + shift + t.rotation.rotate(it) }
-        return Prim.Quad(corners, argb)
     }
 
     fun boxCorners(t: DisplayTransform, shift: Vec3): List<Vec3> = buildList {
@@ -111,9 +122,12 @@ object SceneBuilder {
         when (p) {
             is Prim.Box -> p.corners
             is Prim.Dot -> listOf(p.position)
-            is Prim.Quad -> p.corners
             is Prim.Text -> {
                 val r = max(p.size.x, p.size.y) * 0.2
+                listOf(p.center + Vec3(r, r, r), p.center - Vec3(r, r, r))
+            }
+            is Prim.Quad -> {
+                val r = max(p.width, p.height) * 0.5
                 listOf(p.center + Vec3(r, r, r), p.center - Vec3(r, r, r))
             }
             is Prim.Item -> {

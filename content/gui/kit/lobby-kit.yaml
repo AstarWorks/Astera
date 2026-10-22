@@ -1,43 +1,43 @@
-# ADR-0185 — lobby menu kit.
+# ADR-0185 / ADR-0211 / ADR-0232 - lobby menu kit.
 #
-# Hotbar items (right-click) and buttons in the 2x2 crafting grid of the player's own
-# inventory (click). Shown on lobby-hosting backends (server role lobby/all) except while
-# the player is in a match. Items are locked: they cannot be moved, dropped, placed,
-# crafted with, or saved into inventory snapshots / the vault.
+# The hotbar belongs to the player: at most ONE hotbar item (the compass, slot 8). Everything else
+# is a crafting-grid button (click) or a keybind. Shown on lobby-hosting backends (server role
+# lobby/all) except while the player is in a match (a match has zero menu items and keeps vanilla F).
+# Items are locked: they cannot be moved, dropped, placed, crafted with, or saved into inventory
+# snapshots / the vault.
 #
-#   area: hotbar | crafting_grid | crafting_result
-#   slot: hotbar 5..8 only (HotbarLayout: slots 0..4 belong to weapons) | crafting_grid 0..3 (row-major: 0 1 / 2 3) | crafting_result 0
-#   item: an id from content/items/ (icon, name and language come from the item)
+#   area: hotbar | crafting_grid | crafting_result | key_swap | key_sneak_swap | key_drop
+#   slot: hotbar 8 only (HotbarLayout: slots 0..7 belong to weapons) | crafting_grid 0..3 (row-major: 0 1 / 2 3)
+#         | crafting_result 0 | key_* 0
+#   item: an id from content/items/ (icon, name and language come from the item; unused by key_*)
 #   intent: any GuiIntent key; payload is passed through (gui.open {gui: <id>} opens content/gui/<id>.yaml)
+#
+# Keybinds (weapons bind LC / RC / sneak+click / Q / shoot, never F):
+#   key_swap        F, not holding a weapon          -> main menu
+#   key_sneak_swap  Sneak+F, not holding a weapon    -> vault / loadout (customize)
+#   key_drop        Q while the compass is selected  -> queue
 entries:
-  # Hotbar policy (ADR-0211): the kit is compact - the four rightmost slots. Weapons (starter grant,
-  # shop, training rack, admin give) take 0..4 left to right. Everything else is one click away
-  # in the compass main menu and the crafting-grid buttons below.
-  - id: hotbar-customize
-    area: hotbar
-    slot: 5
-    item: gui-tile-customize
-    intent: lobby.customize.open
-    lore_key: astera.lobby-kit.hint.use
-  - id: hotbar-shop
-    area: hotbar
-    slot: 6
-    item: gui-tile-shop
-    intent: lobby.shop.open
-    lore_key: astera.lobby-kit.hint.use
-  - id: hotbar-queue
-    area: hotbar
-    slot: 7
-    item: gui-tile-queue
-    intent: lobby.queue.show
-    lore_key: astera.lobby-kit.hint.use
   - id: hotbar-compass
     area: hotbar
     slot: 8
     item: menu-compass
     intent: gui.open
     payload: { gui: main-menu }
-    lore_key: astera.lobby-kit.hint.use
+    lore_key: astera.lobby-kit.hint.compass
+
+  - id: key-menu
+    area: key_swap
+    item: menu-compass
+    intent: gui.open
+    payload: { gui: main-menu }
+  - id: key-customize
+    area: key_sneak_swap
+    item: gui-tile-customize
+    intent: lobby.customize.open
+  - id: key-queue
+    area: key_drop
+    item: gui-tile-queue
+    intent: lobby.queue.show
 
   # Inventory crafting grid: 2x2 input + result slot.
   - id: grid-menu

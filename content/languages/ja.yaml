@@ -105,6 +105,19 @@ astera:
   skill.cast.ok: "<green>{player} に <white>{skill}</white> を発動しました。</green>"
   skill.cast.need-target: "<red>プレイヤーを指定してください: /astera skill cast <skill-id> <player></red>"
   skill.cast.no-player: "<red>プレイヤー <gold>{player}</gold> はオフラインか存在しません。</red>"
+  skill.preview.started: "<green><white>{skill}</white> をプレビュー中 (視点 {view}、速度 {speed}x)。0.5 秒後にダミーが発動します。</green>"
+  skill.preview.again: "<green>直前のプレビューをもう一度再生します。</green>"
+  skill.preview.slow-warning: "<yellow>プレビュー終了までこのバックエンドの全員の tick レートが遅くなります。</yellow>"
+  skill.preview.frozen: "<yellow>このバックエンドの全員でサーバーを停止しました。<white>/astera skill preview step [n]</white> で進め、<white>unfreeze</white> で再開します。</yellow>"
+  skill.preview.unfrozen: "<green>サーバーの停止を解除しました。</green>"
+  skill.preview.stepped: "<gray>{ticks} tick 進めました。</gray>"
+  skill.preview.not-frozen: "<red>先に /astera skill preview freeze で停止してください。</red>"
+  skill.preview.nothing-to-repeat: "<red>繰り返せる直前のプレビューがありません。</red>"
+  skill.preview.speed-needs-operator: "<red>speed を 1 未満にすると全員の tick レートが変わるため、オペレーター限定です。</red>"
+  skill.preview.viewer-unavailable: "<red>あなたの位置を取得できませんでした。</red>"
+  skill.preview.stage-failed: "<red>プレビュー用ダミーを出せませんでした (ワールド未ロード?)。</red>"
+  skill.preview.bad-option: "<red>不明なオプション <gold>{option}</gold>。view= / speed= / distance= を使ってください。</red>"
+  skill.preview.bad-value: "<red><white>{key}</white> の値 <gold>{value}</gold> が不正です (view: side|opponent|behind|stay、speed: 0.05-1、distance: 2-32)。</red>"
 
   command:
     give:
@@ -118,6 +131,24 @@ astera:
     menu:
       root: "<gray>メインメニューを開きます。</gray>"
     usage: "<red>使い方: <white>{usage}</white></red>"
+    usage-description: "<gray>{description}</gray>"
+    usage-sub: "<gray>次のいずれかを指定:</gray> <yellow>{subs}</yellow>"
+    usage-example: "<gray>例:</gray> <white>{example}</white>"
+    confirm:
+      required: "<yellow>この操作は取り消せません。<click:run_command:'{command}'><hover:show_text:'{command}'><green>[クリックで実行]</green></hover></click> <gray>または {command} を実行</gray></yellow>"
+    example:
+      queue-join: "/astera queue join norma （/play norma でも可）"
+      lang: "/astera lang ja"
+      volume: "/astera volume music 50"
+      shop: "/astera shop"
+      items-give: "/astera items give Steve greatsword 1"
+      match-start: "/astera match start example-arena"
+      match-abort: "/astera match abort <id> --confirm"
+      match-cancel: "/astera match cancel <id> --confirm"
+      economy-grant: "/astera economy grant Steve star 100"
+      friend-add: "/astera friend add Steve"
+      party-invite: "/astera party invite Steve"
+      chat-msg: "/astera chat msg Steve こんにちは"
     internal_error: "<red>コマンドの実行中に予期しないエラーが発生しました。ログに記録しました。</red>"
     player-not-found: "<red>プレイヤー <gold>{player}</gold> はオフラインか存在しません。</red>"
     help:
@@ -288,6 +319,7 @@ astera:
       match-entry: "<green>{player} がマッチ <gold>{match}</gold> に参加しました。</green>"
       match-list-header: "<gold>進行中のマッチ {count} 件</gold>"
       match-list-line: "<white>{match}</white> <gray>[{phase}] ステージ={stage}</gray>"
+      match-list-line-op: "<white>{match}</white> <gray>[{phase}] ステージ={stage}</gray> <click:run_command:'/astera match end {match}'><hover:show_text:'/astera match end {match}'><gold>[終了]</gold></hover></click> <click:suggest_command:'/astera match abort {match} --confirm'><hover:show_text:'/astera match abort {match}'><red>[中止]</red></hover></click>"
       match-list-none: "<gray>進行中のマッチはありません。</gray>"
       match-phase: "<green>マッチ <gold>{match}</gold>: フェーズトリガー <gold>{trigger}</gold> を適用しました。</green>"
       match-replay-export: "<green>リプレイを {path} に出力しました。</green>"
@@ -745,6 +777,7 @@ astera:
         none: "<gray>キューには参加していません。</gray>"
         line: "<yellow>キュー:</yellow> <white>{mode}</white> <gray>(#</gray><gold>{position}</gold><gray>)</gray>"
         progress: "<gray>キュー {players}/{required} 人（人数が揃うとマッチが始まります）。</gray>"
+        actions: "<click:run_command:'/astera queue leave'><hover:show_text:'/astera queue leave'><red>[キューを抜ける]</red></hover></click>"
 
     # Wave 5v — マッチ録画キャプチャ (ADR-0088)
     replay:
@@ -1482,6 +1515,8 @@ astera:
     hint:
       use: "<gray>右クリックで開く</gray>"
       click: "<gray>クリックで開く</gray>"
+      compass: "<gray>右クリックか F で開く（Shift+F: 保管庫、Q: キュー）</gray>"
+      keys: "<gray>F: メニュー  |  Shift+F: 保管庫  |  コンパスで Q: キュー</gray>"
 
   lobby:
     npc:

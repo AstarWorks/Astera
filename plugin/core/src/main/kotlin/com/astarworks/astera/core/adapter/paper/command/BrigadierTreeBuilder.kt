@@ -62,13 +62,12 @@ public class BrigadierTreeBuilder<S>(private val env: Env<S>) {
         builder.requires { source -> visible(source, path, node) }
         val args = node.arguments
         if (args.isEmpty()) {
-            if (node.executor != null) builder.executes { ctx -> run(ctx, path, node) }
+            // Also executable when it only groups sub-commands: running it prints the usage block.
+            builder.executes { ctx -> run(ctx, path, node) }
             for (child in node.literals) builder.then(literal(child, path + child.name))
             return builder
         }
-        if (node.executor != null && node.requiredArgumentCount == 0) {
-            builder.executes { ctx -> run(ctx, path, node) }
-        }
+        builder.executes { ctx -> run(ctx, path, node) } // missing mandatory arguments -> usage block
         builder.then(argumentChain(node, path))
         return builder
     }
@@ -78,9 +77,7 @@ public class BrigadierTreeBuilder<S>(private val env: Env<S>) {
         val builders = args.mapIndexed { index, arg -> argument(arg, args.take(index)) }
         for (i in builders.indices.reversed()) {
             val isLast = i == builders.lastIndex
-            if (node.executor != null && i + 1 >= node.requiredArgumentCount) {
-                builders[i].executes { ctx -> run(ctx, path, node) }
-            }
+            builders[i].executes { ctx -> run(ctx, path, node) } // run() prints usage while mandatory arguments are missing
             if (isLast) {
                 for (child in node.literals) builders[i].then(literal(child, path + child.name))
             } else {
@@ -100,7 +97,7 @@ public class BrigadierTreeBuilder<S>(private val env: Env<S>) {
     private fun suggestionsFor(arg: CommandSpec.Argument, prior: List<CommandSpec.Argument>): SuggestionProvider<S>? {
         val type = arg.type
         val hasBuiltin = type is ArgumentType.Choice || type is ArgumentType.PlayerName
-        if (arg.completer == null && !hasBuiltin) return null
+        if (arg.completer == null && arg.tooltips == null && !hasBuiltin) return null
         return SuggestionProvider { ctx, sb ->
             val remaining = sb.remaining
             val actor = env.actor(ctx.source)
@@ -114,7 +111,11 @@ public class BrigadierTreeBuilder<S>(private val env: Env<S>) {
                     else -> Unit
                 }
             }
-            candidates.distinct().filter { it.startsWith(remaining, ignoreCase = true) }.forEach { sb.suggest(it) }
+            val tips = arg.tooltips?.invoke(CommandSpec.PartialInput(remaining, priorValues(ctx, prior), actor)).orEmpty()
+            candidates.distinct().filter { it.startsWith(remaining, ignoreCase = true) }.forEach { value ->
+                val tip = tips[value]
+                if (tip != null) sb.suggest(value, com.mojang.brigadier.LiteralMessage(tip)) else sb.suggest(value)
+            }
             sb.buildFuture()
         }
     }
@@ -142,8 +143,15 @@ public class BrigadierTreeBuilder<S>(private val env: Env<S>) {
             return 0
         }
         val args = LinkedHashMap<String, Any>()
-        for (arg in node.arguments) {
-            val raw = runCatching { ctx.getArgument(arg.name, Any::class.java) }.getOrNull() ?: continue
+        for ((index, arg) in node.arguments.withIndex()) {
+            val raw = runCatching { ctx.getArgument(arg.name, Any::class.java) }.getOrNull()
+            if (raw == null) {
+                if (index < node.requiredArgumentCount) { // a mandatory argument is still missing
+                    env.usage(ctx.source, path, node)
+                    return 0
+                }
+                continue
+            }
             val value = env.convert(ctx.source, arg.type, raw)
             if (value == null) {
                 env.usage(ctx.source, path, node)

@@ -72,6 +72,8 @@ class VfxRigPlannerTest {
     /** Centre of a block display's box in world space. */
     private fun centre(t: DisplayTransform): Vec3 = t.translation + t.rotation.rotate(t.scale * 0.5)
 
+    private fun alphaOf(el: VfxElementPlan): Int = Math.round((el.kind as VfxElementKind.Quad).alpha * 255).toInt()
+
     private fun degrees(a: Quaternion, b: Quaternion) = Math.toDegrees(a.angleTo(b))
 
     // ---- rig rigidity ----------------------------------------------------------------
@@ -173,14 +175,14 @@ class VfxRigPlannerTest {
         val softs = p.elements.filter { it.elementId == "wind.b1" }
         assertThat(softs).isNotEmpty()
         softs.forEach { q ->
-            val alphas = listOf((q.kind as VfxElementKind.Text).backgroundArgb ushr 24) +
-                q.updates.map { requireNotNull(it.backgroundArgb) ushr 24 }
+            val alphas = listOf(alphaOf(q)) +
+                q.updates.map { requireNotNull(it.style).backgroundArgb ushr 24 }
             assertThat(alphas).isSortedAccordingTo(Comparator.reverseOrder())
             assertThat(alphas.first()).isEqualTo(0xC8)
             assertThat(alphas.last()).isLessThan(alphas.first())
             assertThat(q.despawnTick - q.spawnTick).isEqualTo(6)
             // quad colour travels toward color_to
-            val lastRgb = q.updates.last().backgroundArgb!! and 0xFFFFFF
+            val lastRgb = q.updates.last().style!!.backgroundArgb and 0xFFFFFF
             assertThat(lastRgb).isNotEqualTo(0xFFFFFF)
         }
     }
@@ -188,8 +190,8 @@ class VfxRigPlannerTest {
     @Test
     fun `the inner band is fainter than the tip band and the crisp edge shrinks`() {
         val p = plan(rig(slash(Easing.EASE_OUT_QUAD), trails = listOf(trail())))
-        val inner = (p.elements.first { it.elementId == "wind.b0" }.kind as VfxElementKind.Text).backgroundArgb ushr 24
-        val outer = (p.elements.first { it.elementId == "wind.b1" }.kind as VfxElementKind.Text).backgroundArgb ushr 24
+        val inner = alphaOf(p.elements.first { it.elementId == "wind.b0" })
+        val outer = alphaOf(p.elements.first { it.elementId == "wind.b1" })
         assertThat(inner).isLessThan(outer)
         val edge = p.elements.first { it.elementId == "wind.edge" }
         assertThat(edge.kind).isInstanceOf(VfxElementKind.Block::class.java)
@@ -214,7 +216,7 @@ class VfxRigPlannerTest {
     @Test
     fun `crisp style builds slabs from band blocks and no soft quads`() {
         val p = plan(rig(slash(Easing.EASE_OUT_QUAD), trails = listOf(trail(style = VfxTrailStyle.CRISP))))
-        assertThat(p.elements.none { it.kind is VfxElementKind.Text }).isTrue()
+        assertThat(p.elements.none { it.kind is VfxElementKind.Quad }).isTrue()
         assertThat(p.elements.any { it.elementId == "wind.k0" }).isTrue()
         val both = plan(rig(slash(Easing.EASE_OUT_QUAD), trails = listOf(trail(style = VfxTrailStyle.BOTH))))
         assertThat(both.elements.any { it.elementId == "wind.b0" }).isTrue()
@@ -238,8 +240,8 @@ class VfxRigPlannerTest {
         val p = plan(rig(slash(Easing.EASE_OUT_QUAD), boards = listOf(board)))
         val q = p.elements.single { it.elementId == "board" }
         assertThat(q.despawnTick - q.spawnTick).isEqualTo(3)
-        assertThat((q.kind as VfxElementKind.Text).backgroundArgb).isEqualTo(0xA0FFFFFF.toInt())
-        assertThat(q.updates).allMatch { it.backgroundArgb == 0xA0FFFFFF.toInt() }
+        assertThat(alphaOf(q)).isEqualTo(0xA0)
+        assertThat(q.updates).allMatch { it.style!!.backgroundArgb == 0xA0FFFFFF.toInt() }
     }
 
     @Test

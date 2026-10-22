@@ -221,6 +221,7 @@ class TrainingRangeTest {
         override fun update(handle: IDisplayEntityGateway.DisplayHandle, transform: com.astarworks.astera.core.domain.effect.DisplayTransform, interpolationTicks: Int) = Unit
         override fun setBlock(handle: IDisplayEntityGateway.DisplayHandle, blockKey: String) = Unit
         override fun setText(handle: IDisplayEntityGateway.DisplayHandle, renderedLines: List<String>) = Unit
+        override fun setTextStyle(handle: IDisplayEntityGateway.DisplayHandle, backgroundArgb: Int, textOpacity: Int, textRgb: Int?) = Unit
         override fun teleport(handle: IDisplayEntityGateway.DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) = Unit
         override fun remove(handle: IDisplayEntityGateway.DisplayHandle) {
             removed += handle

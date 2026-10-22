@@ -114,15 +114,23 @@ with `game` if they need op there too).
 You always land on the **lobby** server (`try = ["lobby"]`). Shop, vault, queue and NPCs
 are there; matches run on the **game** server (section 4).
 
-### Lobby menu kit (compass + crafting-grid buttons)
+### Lobby menu kit (compass + keybinds + crafting-grid buttons)
 
-On the lobby (and on `ALL` backends while you are not in a match) hotbar slot 0 is the **Game Menu**
-compass (right-click = same as `/astera menu`); slots 1-3 / 7 / 8 are queue, shop, customize,
-profile and settings. Open your **inventory (E)**: the 2x2 crafting grid shows Menu / Profile /
-Shop / Settings and the result slot shows Queue; click one and the inventory closes and that
-screen opens. Layout: `content/gui/kit/lobby-kit.yaml` (ADR-0185). Check that none of these items
-can be moved, dropped (Q), swapped (F, number keys), double-click collected, crafted, or kept after
-death, and that they are gone while in a match and back after returning to the lobby.
+The hotbar is yours (ADR-0232): on the lobby (and on `ALL` backends while you are not in a match) the only menu
+item is the **Menu compass in slot 8**; slots 0-7 are for weapons. A join hint on the action bar lists the keys:
+
+| Input | Result |
+|---|---|
+| Right-click compass, or **F** with no weapon in hand | main menu (same as `/astera menu`) |
+| **Sneak+F** with no weapon in hand | vault / loadout (operators and `astera.admin.panel` holders get the admin hub instead, ADR-0233) |
+| **Q** with the compass selected | queue |
+
+Open your **inventory (E)**: the 2x2 crafting grid shows Menu / Profile / Shop / Settings and the result slot
+shows Queue; click one and the inventory closes and that screen opens. Layout:
+`content/gui/kit/lobby-kit.yaml` (ADR-0185, ADR-0232). Check that none of these items can be moved, dropped,
+swapped (number keys), double-click collected, crafted, or kept after death; that F with a weapon in hand does
+not open a menu; and that in a match the hotbar has zero menu items and F is vanilla, with the compass back
+after returning to the lobby.
 
 ## 3. Get weapons
 
@@ -152,6 +160,18 @@ Ops (and anyone with `astera.admin.panel`) get a chest-GUI hub:
 Every action is permission-checked per click and written to the audit log.
 The quickest solo test loop: `/astera admin panel` -> Weapons & items -> Full kit ->
 Match control -> your lane -> right-click ("just me").
+
+### Watching a skill from outside (`/astera skill preview`)
+
+First-person casts are hard to read. `/astera skill preview <skill-id> [view=side|opponent|behind|stay] [speed=1|0.5|0.25] [distance=6]`
+(permission `astera.skill.preview`, ops) spawns a player-like Mannequin caster holding the skill's weapon 3 blocks in
+front of you and a no-AI husk 4 blocks past it, then makes the dummy cast the skill through the real pipeline
+(damage, hit_stop, dash_strike, VFX). Views: `side` = spectator camera `distance` blocks off the caster-target line,
+`opponent` = from the target's spot, `behind` = over the caster's shoulder, `stay` = you do not move. Your gamemode and
+position come back when the preview ends (or you quit). Dummies are removed 120 ticks after the cast.
+
+- `speed<1` slows the **whole backend's** tick rate (`/tick rate`) until the preview ends; ops only.
+- `/astera skill preview again` repeats the last one. `freeze`, `step [n]`, `unfreeze` drive `/tick freeze|step` for frame-by-frame reading.
 
 ### Weapon roster (WP7)
 

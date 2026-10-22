@@ -17,6 +17,11 @@ import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
+import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import java.util.UUID
 
 /**
@@ -87,6 +92,14 @@ public class SimDisplayGateway(
     /** Displays currently alive. */
     public val active: MutableMap<IDisplayEntityGateway.DisplayHandle, Spawned> = linkedMapOf()
 
+    /**
+     * Highest number of simultaneously live displays seen at any spawn. Sampling [active] after a whole tick
+     * hides the overlap of a tick that spawns its new displays before the expired ones are removed, which is
+     * exactly what a client sees (add packets arrive before the remove packets), so budgets use this.
+     */
+    public var peakActive: Int = 0
+        private set
+
     /** Every display ever spawned, in order. */
     public val spawned: MutableList<Spawned> = mutableListOf()
 
@@ -101,17 +114,22 @@ public class SimDisplayGateway(
     /** A content swap (`kind` = `block` / `text`). */
     public data class Swap(val handle: IDisplayEntityGateway.DisplayHandle, val tick: Long, val kind: String, val value: String)
 
+    /** A text restyle (background ARGB, text_opacity, optional text colour). */
+    public data class Style(val handle: IDisplayEntityGateway.DisplayHandle, val tick: Long, val backgroundArgb: Int, val textOpacity: Int, val textRgb: Int?)
+
     public data class Teleport(val handle: IDisplayEntityGateway.DisplayHandle, val tick: Long, val at: Vec3, val teleportTicks: Int)
 
     /** Every transform update, in order. */
     public val updates: MutableList<Update> = mutableListOf()
     public val swaps: MutableList<Swap> = mutableListOf()
     public val teleports: MutableList<Teleport> = mutableListOf()
+    public val styles: MutableList<Style> = mutableListOf()
 
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): IDisplayEntityGateway.DisplayHandle {
         val handle = IDisplayEntityGateway.DisplayHandle(UUID.randomUUID())
         val record = Spawned(handle, world, at, spec, renderedLines)
         active[handle] = record
+        peakActive = maxOf(peakActive, active.size)
         spawned += record
         val what = when (val kind = spec.kind) {
             is DisplayKind.Block -> "block ${kind.blockKey}"
@@ -119,6 +137,32 @@ public class SimDisplayGateway(
             is DisplayKind.Text -> "text ${renderedLines.joinToString(" / ")}"
         }
         recorder.recordEffect(scheduler.currentTick(), "display_spawn", at, "$what lifetime=${spec.lifetimeTicks}")
+        recorder.recordDisplay(
+            scheduler.currentTick(),
+            buildJsonObject {
+                put("op", "spawn")
+                put("id", handle.id.toString())
+                when (val kind = spec.kind) {
+                    is DisplayKind.Block -> { put("kind", "block"); put("block", kind.blockKey) }
+                    is DisplayKind.Item -> { put("kind", "item"); put("item", kind.itemId.value); put("mode", kind.displayMode.name.lowercase()) }
+                    is DisplayKind.Text -> {
+                        put("kind", "text")
+                        put("lines", buildJsonArray { renderedLines.forEach { add(JsonPrimitive(it)) } })
+                        put("background", kind.backgroundArgb)
+                        put("shadow", kind.shadow)
+                        put("seeThrough", kind.seeThrough)
+                        put("lineWidth", kind.lineWidth)
+                    }
+                }
+                put("x", at.x); put("y", at.y); put("z", at.z)
+                putTransform(spec.transform)
+                put("billboard", spec.billboard.name.lowercase())
+                put("brightness", spec.brightness)
+                put("glow", spec.glowArgb)
+                put("viewRange", spec.viewRange?.toDouble())
+                put("lifetime", spec.lifetimeTicks)
+            },
+        )
         return handle
     }
 
@@ -126,36 +170,65 @@ public class SimDisplayGateway(
         val record = active[handle] ?: return
         updates += Update(handle, scheduler.currentTick(), transform, interpolationTicks)
         recorder.recordEffect(scheduler.currentTick(), "display_update", record.at, "${handle.id} over=$interpolationTicks scale=${transform.scale}")
+        recorder.recordDisplay(
+            scheduler.currentTick(),
+            buildJsonObject { put("op", "update"); put("id", handle.id.toString()); putTransform(transform); put("over", interpolationTicks) },
+        )
     }
 
     override fun setBlock(handle: IDisplayEntityGateway.DisplayHandle, blockKey: String) {
         val record = active[handle] ?: return
         swaps += Swap(handle, scheduler.currentTick(), "block", blockKey)
         recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} block $blockKey")
+        recorder.recordDisplay(
+            scheduler.currentTick(),
+            buildJsonObject { put("op", "swap"); put("id", handle.id.toString()); put("kind", "block"); put("block", blockKey) },
+        )
     }
 
     override fun setText(handle: IDisplayEntityGateway.DisplayHandle, renderedLines: List<String>) {
         val record = active[handle] ?: return
         swaps += Swap(handle, scheduler.currentTick(), "text", renderedLines.joinToString(" / "))
         recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} text ${renderedLines.joinToString(" / ")}")
+        recorder.recordDisplay(
+            scheduler.currentTick(),
+            buildJsonObject {
+                put("op", "swap"); put("id", handle.id.toString()); put("kind", "text")
+                put("lines", buildJsonArray { renderedLines.forEach { add(JsonPrimitive(it)) } })
+            },
+        )
     }
 
-    override fun setBackground(handle: IDisplayEntityGateway.DisplayHandle, argb: Int) {
+    override fun setTextStyle(handle: IDisplayEntityGateway.DisplayHandle, backgroundArgb: Int, textOpacity: Int, textRgb: Int?) {
         val record = active[handle] ?: return
-        val hex = "#%08X".format(argb)
-        swaps += Swap(handle, scheduler.currentTick(), "background", hex)
-        recorder.recordEffect(scheduler.currentTick(), "display_swap", record.at, "${handle.id} background $hex")
+        styles += Style(handle, scheduler.currentTick(), backgroundArgb, textOpacity, textRgb)
+        recorder.recordEffect(scheduler.currentTick(), "display_style", record.at, "${handle.id} bg=${Integer.toHexString(backgroundArgb)} opacity=$textOpacity")
     }
 
     override fun teleport(handle: IDisplayEntityGateway.DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
         if (handle !in active) return
         teleports += Teleport(handle, scheduler.currentTick(), at, teleportTicks)
         recorder.recordEffect(scheduler.currentTick(), "display_teleport", at, "${handle.id} over=$teleportTicks")
+        recorder.recordDisplay(
+            scheduler.currentTick(),
+            buildJsonObject {
+                put("op", "teleport"); put("id", handle.id.toString())
+                put("x", at.x); put("y", at.y); put("z", at.z)
+                put("yaw", yaw.toDouble()); put("pitch", pitch.toDouble()); put("over", teleportTicks)
+            },
+        )
     }
 
     override fun remove(handle: IDisplayEntityGateway.DisplayHandle) {
         val record = active.remove(handle) ?: return
         recorder.recordEffect(scheduler.currentTick(), "display_remove", record.at, record.handle.id.toString())
+        recorder.recordDisplay(scheduler.currentTick(), buildJsonObject { put("op", "remove"); put("id", handle.id.toString()) })
+    }
+
+    private fun JsonObjectBuilder.putTransform(t: DisplayTransform) {
+        put("translation", buildJsonArray { add(JsonPrimitive(t.translation.x)); add(JsonPrimitive(t.translation.y)); add(JsonPrimitive(t.translation.z)) })
+        put("rotation", buildJsonArray { add(JsonPrimitive(t.rotation.x)); add(JsonPrimitive(t.rotation.y)); add(JsonPrimitive(t.rotation.z)); add(JsonPrimitive(t.rotation.w)) })
+        put("scale", buildJsonArray { add(JsonPrimitive(t.scale.x)); add(JsonPrimitive(t.scale.y)); add(JsonPrimitive(t.scale.z)) })
     }
 }
 

@@ -117,9 +117,9 @@ class Renderer(private val camera: Camera, private val label: String) {
         for (p in prims) when (p) {
             is Prim.Box -> box(items, p)
             is Prim.Text -> text(items, p)
-            is Prim.Quad -> quad(items, p)
             is Prim.Item -> item(items, p)
             is Prim.Dot -> dot(items, p)
+            is Prim.Quad -> quad(items, p)
         }
         items.sortByDescending { it.depth }
         for (d in items) d.draw(g)
@@ -307,20 +307,6 @@ class Renderer(private val camera: Camera, private val label: String) {
         }
     }
 
-    private fun quad(out: MutableList<Drawable>, q: Prim.Quad) {
-        val sp = q.corners.map { camera.project(it) ?: return }
-        val path = Path2D.Double()
-        sp.forEachIndexed { i, p -> if (i == 0) path.moveTo(p[0], p[1]) else path.lineTo(p[0], p[1]) }
-        path.closePath()
-        val depth = camera.depth(q.corners.fold(Vec3.ZERO) { a, v -> a + v } * 0.25)
-        val c = Color(q.argb, true)
-        out += Drawable(depth) { g ->
-            g.composite = AlphaComposite.SrcOver
-            g.color = c
-            g.fill(path)
-        }
-    }
-
     private fun item(out: MutableList<Drawable>, it: Prim.Item) {
         val sx = it.size.x
         val sy = it.size.y
@@ -364,6 +350,48 @@ class Renderer(private val camera: Camera, private val label: String) {
             g.font = Font(Font.SANS_SERIF, Font.PLAIN, 13)
             g.color = Color(235, 235, 245)
             g.drawString(it.itemKey, (c[0] + 10).toFloat(), (c[1] + 26).toFloat())
+        }
+    }
+
+    /** Display particle: an alpha-blended parallelogram (solid) or a coloured glyph. */
+    private fun quad(out: MutableList<Drawable>, q: Prim.Quad) {
+        if (q.width < 1e-4 || q.height < 1e-4) return
+        val (r, u) = axes(q.rotation::rotate, q.billboard)
+        val o = camera.project(q.center) ?: return
+        val a = (q.alpha.coerceIn(0.0, 1.0) * 255).toInt()
+        val depth = camera.depth(q.center)
+        if (q.glyph == null) {
+            val corners = listOf(
+                q.center - r * (q.width / 2) - u * (q.height / 2),
+                q.center + r * (q.width / 2) - u * (q.height / 2),
+                q.center + r * (q.width / 2) + u * (q.height / 2),
+                q.center - r * (q.width / 2) + u * (q.height / 2),
+            ).map { camera.project(it) ?: return }
+            val path = Path2D.Double()
+            corners.forEachIndexed { i, p -> if (i == 0) path.moveTo(p[0], p[1]) else path.lineTo(p[0], p[1]) }
+            path.closePath()
+            val c = Color(q.rgb)
+            out += Drawable(depth) { g ->
+                g.composite = AlphaComposite.SrcOver
+                g.color = Color(c.red, c.green, c.blue, a)
+                g.fill(path)
+            }
+        } else {
+            val ex = camera.project(q.center + r * q.width) ?: return
+            val ey = camera.project(q.center - u * q.height) ?: return
+            val tx = AffineTransform(ex[0] - o[0], ex[1] - o[1], ey[0] - o[0], ey[1] - o[1], o[0], o[1])
+            out += Drawable(depth) { g ->
+                val old = g.transform
+                g.transform(tx)
+                val gv = Fonts.glyph(false, q.glyph).deriveFont(1f).createGlyphVector(g.fontRenderContext, q.glyph)
+                val b = gv.visualBounds
+                val shape = AffineTransform.getTranslateInstance(-b.centerX, -b.centerY).createTransformedShape(gv.outline)
+                val c = Color(q.rgb)
+                g.composite = AlphaComposite.SrcOver
+                g.color = Color(c.red, c.green, c.blue, a)
+                g.fill(shape)
+                g.transform = old
+            }
         }
     }
 

@@ -2,6 +2,11 @@ package com.astarworks.astera.combat.command
 
 import com.astarworks.astera.combat.application.admin.AdminSkillCaster
 import com.astarworks.astera.combat.application.admin.AdminSkillsPanel
+import com.astarworks.astera.combat.application.preview.PreviewError
+import com.astarworks.astera.combat.application.preview.PreviewOptions
+import com.astarworks.astera.combat.application.preview.PreviewOptionsError
+import com.astarworks.astera.combat.application.preview.PreviewView
+import com.astarworks.astera.combat.application.preview.SkillPreviewService
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandContext
@@ -20,12 +25,132 @@ import com.astarworks.astera.core.domain.skill.SkillId
  * `cast` runs the skill for [target] (default: the sender) through the regular cast
  * pipeline without spending resources; the skill's own cooldown applies unless
  * `--force`. Both are operator-only.
+ *
+ * `/astera skill preview <skill-id> [view=side|opponent|behind|stay] [speed=1|0.5|0.25] [distance=6]`,
+ * `preview again`, `preview freeze|step [n]|unfreeze`: a dummy caster casts the skill in front of the
+ * operator, who watches from another viewpoint. Present only when the host supplied [preview].
  */
-internal fun skillCommandSpec(caster: AdminSkillCaster, server: IMcServer): CommandSpec.Literal =
+internal fun skillCommandSpec(
+    caster: AdminSkillCaster,
+    server: IMcServer,
+    preview: SkillPreviewService? = null,
+): CommandSpec.Literal =
     CommandSpec.Literal(
         name = "skill",
-        subcommands = listOf(listSubcommand(caster), castSubcommand(caster, server)),
+        subcommands = listOfNotNull(
+            listSubcommand(caster),
+            castSubcommand(caster, server),
+            preview?.let { previewSubcommand(caster, it) },
+        ),
     )
+
+private val K_PV_STARTED = MessageKey("astera.skill.preview.started")
+private val K_PV_SLOW = MessageKey("astera.skill.preview.slow-warning")
+private val K_PV_AGAIN = MessageKey("astera.skill.preview.again")
+private val K_PV_FROZEN = MessageKey("astera.skill.preview.frozen")
+private val K_PV_UNFROZEN = MessageKey("astera.skill.preview.unfrozen")
+private val K_PV_STEPPED = MessageKey("astera.skill.preview.stepped")
+private val K_PV_NOT_FROZEN = MessageKey("astera.skill.preview.not-frozen")
+private val K_PV_NOTHING = MessageKey("astera.skill.preview.nothing-to-repeat")
+private val K_PV_NEED_OP = MessageKey("astera.skill.preview.speed-needs-operator")
+private val K_PV_NO_VIEWER = MessageKey("astera.skill.preview.viewer-unavailable")
+private val K_PV_STAGE = MessageKey("astera.skill.preview.stage-failed")
+private val K_PV_BAD_OPTION = MessageKey("astera.skill.preview.bad-option")
+private val K_PV_BAD_VALUE = MessageKey("astera.skill.preview.bad-value")
+private val PREVIEW_PERMISSION = Permission("astera.skill.preview")
+private val K_PLAYER_ONLY = MessageKey("astera.command.player-only")
+
+private fun previewSubcommand(caster: AdminSkillCaster, preview: SkillPreviewService): CommandSpec.Literal =
+    CommandSpec.Literal(
+        name = "preview",
+        subcommands = listOf(
+            CommandSpec.Literal(
+                name = "again",
+                executor = { ctx ->
+                    val viewer = ctx.sender ?: return@Literal CommandResult.Failure(K_PLAYER_ONLY)
+                    preview.again(viewer, ctx.actor.isOperator).toCommandResult(ctx, K_PV_AGAIN, emptyMap(), null)
+                },
+            ).requirePermission(PREVIEW_PERMISSION),
+            CommandSpec.Literal(
+                name = "freeze",
+                executor = { ctx ->
+                    preview.freeze()
+                    ctx.reply(K_PV_FROZEN)
+                    CommandResult.Success
+                },
+            ).requirePermission(PREVIEW_PERMISSION),
+            CommandSpec.Literal(
+                name = "unfreeze",
+                executor = { ctx ->
+                    preview.unfreeze()
+                    ctx.reply(K_PV_UNFROZEN)
+                    CommandResult.Success
+                },
+            ).requirePermission(PREVIEW_PERMISSION),
+            CommandSpec.Literal(
+                name = "step",
+                subcommands = listOf(
+                    CommandSpec.Argument(name = "ticks", type = ArgumentType.IntegerArg(1, SkillPreviewService.MAX_STEP), optional = true),
+                ),
+                executor = { ctx ->
+                    val n = ctx.optional<Int>("ticks") ?: 1
+                    preview.step(n).toCommandResult(ctx, K_PV_STEPPED, mapOf("ticks" to n.toString()), null)
+                },
+            ).requirePermission(PREVIEW_PERMISSION),
+            CommandSpec.Argument(
+                name = "skill-id",
+                type = ArgumentType.ItemIdArg,
+                completer = { _ -> caster.all().map { it.id.value } },
+            ),
+            CommandSpec.Argument(
+                name = "options",
+                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy),
+                completer = { _ -> PreviewOptions.KEYS + PreviewView.entries.map { "view=${it.key}" } + listOf("speed=0.5", "speed=0.25") },
+                optional = true,
+            ),
+        ),
+        executor = { ctx -> runPreview(ctx, preview) },
+    ).requirePermission(PREVIEW_PERMISSION)
+
+private fun runPreview(ctx: CommandContext, preview: SkillPreviewService): CommandResult {
+    val viewer = ctx.sender ?: return CommandResult.Failure(K_PLAYER_ONLY)
+    val raw = ctx.required<String>("skill-id")
+    val skill = runCatching { SkillId(raw) }.getOrNull()
+        ?: return CommandResult.Failure(K_UNKNOWN, mapOf("skill" to raw))
+    val options = when (val parsed = PreviewOptions.parse(ctx.optional<String>("options"))) {
+        is Result.Success -> parsed.value
+        is Result.Failure -> return when (val e = parsed.error) {
+            is PreviewOptionsError.UnknownOption -> CommandResult.Failure(K_PV_BAD_OPTION, mapOf("option" to e.token))
+            is PreviewOptionsError.BadValue -> CommandResult.Failure(K_PV_BAD_VALUE, mapOf("key" to e.key, "value" to e.value))
+        }
+    }
+    val started = mapOf("skill" to skill.value, "view" to options.view.key, "speed" to options.speed.toString())
+    val result = preview.start(viewer, skill, options, ctx.actor.isOperator).toCommandResult(ctx, K_PV_STARTED, started, skill)
+    if (result is CommandResult.Success && options.speed < 1.0) ctx.reply(K_PV_SLOW)
+    return result
+}
+
+private fun Result<Unit, PreviewError>.toCommandResult(
+    ctx: CommandContext,
+    okKey: MessageKey,
+    okArgs: Map<String, String>,
+    skill: SkillId?,
+): CommandResult = when (this) {
+    is Result.Success -> {
+        ctx.reply(okKey, okArgs)
+        CommandResult.Success
+    }
+    is Result.Failure -> when (val e = error) {
+        is PreviewError.SkillNotFound -> CommandResult.Failure(K_UNKNOWN, mapOf("skill" to e.skill.value))
+        PreviewError.ViewerUnavailable -> CommandResult.Failure(K_PV_NO_VIEWER)
+        PreviewError.StageFailed -> CommandResult.Failure(K_PV_STAGE)
+        PreviewError.SpeedNeedsOperator -> CommandResult.Failure(K_PV_NEED_OP)
+        PreviewError.NothingToRepeat -> CommandResult.Failure(K_PV_NOTHING)
+        PreviewError.NotFrozen -> CommandResult.Failure(K_PV_NOT_FROZEN)
+        is PreviewError.CastFailed ->
+            CommandResult.Failure(AdminSkillsPanel.errorKey(e.error), AdminSkillsPanel.errorArgs(e.error, skill ?: e.skill))
+    }
+}
 
 private val K_LIST_HEADER = MessageKey("astera.skill.list.header")
 private val K_LIST_ENTRY = MessageKey("astera.skill.list.entry")

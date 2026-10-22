@@ -26,7 +26,7 @@ class VfxRigContentTest {
         val plan = VfxTimeline.plan(def, Frame.fromYawPitch(Vec3.ZERO, 0.0, 0.0), 1L, 1.0, listOf(VfxFreeze(7, 3)))
         assertThat(plan.displayCount).isBetween(20, VfxDefinition.MAX_SLOTS)
         assertThat(plan.elements.count { it.elementId.startsWith("wind.b") }).isGreaterThan(20)
-        assertThat(plan.elements.filter { it.kind is VfxElementKind.Text }).allMatch { it.updates.isNotEmpty() }
+        assertThat(plan.elements.filter { it.kind is VfxElementKind.Quad }).allMatch { it.updates.isNotEmpty() }
         plan.elements.forEach { assertThat(it.despawnTick).isLessThanOrEqualTo(def.durationTicks) }
     }
 

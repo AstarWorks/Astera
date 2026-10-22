@@ -190,16 +190,12 @@ public class VfxRigMotion(
  * `pivot frame . swing rotation . part offset`), trails / boards -> text-display background quads (soft)
  * and thin block slabs (crisp), emitters -> particle slots. Everything is an ordinary [VfxElementPlan].
  *
- * Soft quads are text displays containing a single space: its background covers
- * [TEXT_BG_WIDTH] x [TEXT_BG_HEIGHT] blocks at scale 1 (5 x 10 font pixels at 1/40 block per pixel), so a
- * quad of `radial x chord` blocks is scaled `(radial / 0.125, chord / 0.25)`. The quad's local X is the
- * blade (radial) direction and local Y the direction of travel; the vanilla background is offset by half
- * a pixel along X, which is why the long dimension is kept on Y.
+ * Soft quads are [VfxElementKind.Quad]s ([VfxQuad] holds the text-display calibration and the style
+ * update path shared with display particles). The quad's local X is the blade (radial) direction and local
+ * Y the direction of travel; the vanilla background is offset by half a pixel along X, which is why the
+ * long dimension is kept on Y.
  */
 public object VfxRigPlanner {
-
-    public const val TEXT_BG_WIDTH: Double = 0.125
-    public const val TEXT_BG_HEIGHT: Double = 0.25
 
     /** Quads / slabs are this much longer than the interval they cover so neighbours overlap (no seams). */
     private const val OVERLAP: Double = 1.06
@@ -420,18 +416,6 @@ public object VfxRigPlanner {
     private fun remaining(clock: FadeClock, progress: Int, power: Double): Double =
         (1.0 - progress.toDouble() / clock.life).coerceIn(0.0, 1.0).pow(power)
 
-    private fun fadedArgb(from: Int, to: Int?, remaining: Double, progress: Double): Int {
-        val a0 = from ushr 24
-        val alpha = (a0 * remaining).roundToInt().coerceIn(0, 255)
-        val target = to ?: from
-        fun ch(shift: Int): Int {
-            val a = (from shr shift) and 0xFF
-            val b = (target shr shift) and 0xFF
-            return (a + (b - a) * progress).roundToInt().coerceIn(0, 255)
-        }
-        return (alpha shl 24) or (ch(16) shl 16) or (ch(8) shl 8) or ch(0)
-    }
-
     private fun softQuad(
         elementId: String,
         slot: Int,
@@ -441,20 +425,23 @@ public object VfxRigPlanner {
         fadePower: Double,
         clock: FadeClock,
     ): VfxElementPlan {
-        val scale = Vec3(surf.radial / TEXT_BG_WIDTH, surf.chord * OVERLAP / TEXT_BG_HEIGHT, 1.0)
-        val transform = DisplayTransform(surf.center, surf.rotation, scale)
+        val rgb = argb and 0xFFFFFF
+        val peak = (argb ushr 24) / 255.0
+        val kind = VfxElementKind.Quad(colorRgb = rgb, alpha = peak)
+        val transform = VfxQuad.transform(kind, surf.rotation, Vec3(surf.radial, surf.chord * OVERLAP, 1.0))
         val updates = clock.steps.map { (tick, progress) ->
+            val colour = VfxQuad.lerpRgb(rgb, (toArgb ?: argb) and 0xFFFFFF, progress.toDouble() / clock.life)
             VfxUpdate(
                 tick = tick,
                 transform = transform,
                 interpolationTicks = 0,
-                backgroundArgb = fadedArgb(argb, toArgb, remaining(clock, progress, fadePower), progress.toDouble() / clock.life),
+                style = VfxQuad.style(kind, colour, peak * remaining(clock, progress, fadePower)),
             )
         }
         return VfxElementPlan(
             elementId = elementId,
             slot = slot,
-            kind = VfxElementKind.Text(" ", backgroundArgb = argb),
+            kind = kind,
             brightness = QUAD_BRIGHTNESS,
             glowArgb = null,
             billboard = DisplayBillboard.FIXED,
@@ -464,6 +451,8 @@ public object VfxRigPlanner {
             initial = transform,
             updates = updates,
             particles = emptyList(),
+            // the quad sits at its own entity position; VfxQuad.transform only centres the box on it
+            spawnOffset = surf.center,
         )
     }
 

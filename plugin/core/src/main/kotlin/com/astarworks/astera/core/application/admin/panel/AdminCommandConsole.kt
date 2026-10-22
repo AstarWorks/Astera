@@ -5,6 +5,7 @@ import com.astarworks.astera.core.application.admin.panel.AdminPanelUi.pager
 import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandActor
 import com.astarworks.astera.core.application.command.CommandAuthorizer
+import com.astarworks.astera.core.application.command.CommandConfirm
 import com.astarworks.astera.core.application.command.CommandInvoker
 import com.astarworks.astera.core.application.command.CommandPaths
 import com.astarworks.astera.core.application.command.CommandResult
@@ -697,7 +698,14 @@ public class AdminCommandConsole(
             reply(k("unavailable"), emptyMap())
             return false
         }
-        return invoker().invoke(node, actor, typed, reply) is CommandResult.Success
+        // The console has its own confirm page (shown before any destructive run), so a command-level
+        // `--confirm` guard (ADR-0234) must not ask a second time.
+        val args = if (node.arguments.any { it.name == CommandConfirm.ARGUMENT_NAME }) {
+            typed + (CommandConfirm.ARGUMENT_NAME to CommandConfirm.FLAG)
+        } else {
+            typed
+        }
+        return invoker().invoke(node, actor, args, reply) is CommandResult.Success
     }
 
     private fun runSpecial(

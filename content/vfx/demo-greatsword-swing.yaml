@@ -41,7 +41,7 @@ rigs:
         life_ticks: 7
         lag_ticks: 0
         style: soft
-        step_deg: 24
+        step_deg: 36
         fade_power: 1.4
         bands:                         # faint at the root, bright at the tip; white at spawn -> gold -> clear
           - { from: 0.0, to: 0.5, color: "#40FFD070", color_to: "#20C07010" }
