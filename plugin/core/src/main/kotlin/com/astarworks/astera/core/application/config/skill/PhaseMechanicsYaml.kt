@@ -97,6 +97,14 @@ public sealed class PhaseMechanicsYaml {
     }
 
     @Serializable
+    @SerialName("sequence")
+    public data class Sequence(
+        public val cast: List<MechanicYaml> = emptyList(),
+    ) : PhaseMechanicsYaml() {
+        override fun toDomain(): PhaseMechanics = PhaseMechanics.Sequence(cast = cast.map { it.toDomain() })
+    }
+
+    @Serializable
     @SerialName("summon")
     public data class Summon(
         public val cast: List<MechanicYaml> = emptyList(),

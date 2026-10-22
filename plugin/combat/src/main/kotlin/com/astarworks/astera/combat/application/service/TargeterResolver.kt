@@ -6,6 +6,7 @@ import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.skill.condition.Condition
 import com.astarworks.astera.core.domain.skill.targeter.DirectionRef
 import com.astarworks.astera.core.domain.skill.targeter.Targeter
 import com.astarworks.astera.core.domain.skill.value.IntValue
@@ -33,6 +34,9 @@ internal class TargeterResolver(
     private val poseLookup: IPlayerPoseLookup? = null,
     private val teamLookup: IMatchTeamLookup? = null,
 ) {
+    /** Evaluates a [Condition] against a context; wired by `MechanicDispatcher` (cycle-free). */
+    var conditionGate: ((Condition, MechanicContext) -> Boolean)? = null
+
     fun resolvePlayers(targeter: Targeter, ctx: MechanicContext): List<PlayerId> = when (targeter) {
         Targeter.Caster -> listOf(ctx.actorId)
         Targeter.Target -> ctx.targetId?.let { listOf(it) } ?: emptyList()
@@ -51,7 +55,7 @@ internal class TargeterResolver(
         is Targeter.Cone -> resolveCone(targeter, ctx)
         is Targeter.Enemies -> resolveEnemies(targeter, ctx)
         is Targeter.Allies -> resolveAllies(targeter, ctx)
-        is Targeter.Filter -> resolvePlayers(targeter.base, ctx)
+        is Targeter.Filter -> resolveFilter(targeter, ctx)
         is Targeter.Random -> {
             val base = resolvePlayers(targeter.from, ctx)
             val n = when (val c = targeter.count) {
@@ -60,6 +64,21 @@ internal class TargeterResolver(
             }
             base.shuffled().take(n)
         }
+    }
+
+    /**
+     * Candidates of `base` for which the condition holds. The condition is evaluated once per
+     * candidate with that candidate as the context `target` (so `target: { type: target }` inside
+     * `has_status` means "this candidate").
+     */
+    private fun resolveFilter(t: Targeter.Filter, ctx: MechanicContext): List<PlayerId> {
+        val base = resolvePlayers(t.base, ctx)
+        val gate = conditionGate
+        if (gate == null) {
+            log.debug("Filter needs a condition gate (MechanicDispatcher); returning base unfiltered")
+            return base
+        }
+        return base.filter { gate(t.condition, ctx.copy(targetId = it)) }
     }
 
     fun resolveLocations(targeter: Targeter, ctx: MechanicContext): List<Vec3> {
@@ -166,6 +185,8 @@ internal class TargeterResolver(
             DirectionRef.FromCaster, DirectionRef.FromHitNormal -> ctx.pose?.direction
             DirectionRef.Up -> Vec3(0.0, 1.0, 0.0)
             is DirectionRef.Custom -> literalVec(d.vector)
+            // Radial refs have no single cone axis; the caster's look is the sensible axis.
+            is DirectionRef.AwayFromCaster, is DirectionRef.TowardCaster -> ctx.pose?.direction
         }?.normalize()?.takeIf { it.lengthSquared() > 0.0 }
         if (dir == null) {
             log.debug("Cone has no resolvable direction; returning empty")
@@ -184,14 +205,14 @@ internal class TargeterResolver(
 
     private fun resolveEnemies(t: Targeter.Enemies, ctx: MechanicContext): List<PlayerId> {
         val center = resolveLocationOnly(t.center, ctx) ?: return emptyList()
-        val found = nearbyQuery.findInRadius(center, TEAM_TARGETER_RADIUS, ctx.worldId)
+        val found = nearbyQuery.findInRadius(center, t.radius?.let(::literal) ?: TEAM_TARGETER_RADIUS, ctx.worldId)
         val myTeam = teamLookup?.teamOf(ctx.actorId)
         return found.filter { it != ctx.actorId && (myTeam == null || teamLookup?.teamOf(it) != myTeam) }
     }
 
     private fun resolveAllies(t: Targeter.Allies, ctx: MechanicContext): List<PlayerId> {
         val center = resolveLocationOnly(t.center, ctx) ?: return emptyList()
-        val found = nearbyQuery.findInRadius(center, TEAM_TARGETER_RADIUS, ctx.worldId)
+        val found = nearbyQuery.findInRadius(center, t.radius?.let(::literal) ?: TEAM_TARGETER_RADIUS, ctx.worldId)
         val myTeam = teamLookup?.teamOf(ctx.actorId)
         val mates = if (myTeam == null) {
             emptyList()
@@ -236,8 +257,8 @@ internal class TargeterResolver(
         const val FALLBACK_EYE_HEIGHT: Double = 1.5
 
         /**
-         * `Targeter.Enemies` / `Allies` carry no radius in the schema; they scan
-         * this many blocks around `center`.
+         * `Targeter.Enemies` / `Allies` scan this many blocks around `center`
+         * unless they carry an explicit `radius`.
          */
         const val TEAM_TARGETER_RADIUS: Double = 10.0
     }

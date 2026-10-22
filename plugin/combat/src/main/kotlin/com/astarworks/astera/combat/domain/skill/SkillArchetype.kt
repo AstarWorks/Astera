@@ -12,4 +12,7 @@ public enum class SkillArchetype {
     BUFF,
     TELEPORT,
     SUMMON,
+
+    /** Pure mechanics container: runs the `cast` phase only (no hit check, no status). For skills that are entirely timelines. */
+    SEQUENCE,
 }

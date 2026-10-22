@@ -169,4 +169,16 @@ class TargeterResolverTest {
         val c = ctx().copy(targetId = near, hitLocation = Vec3(9.0, 2.0, 1.0))
         assertThat(resolver().resolveLocations(Targeter.Target, c)).containsExactly(Vec3(5.0, 0.0, 0.0))
     }
+
+    @Test
+    fun `filter evaluates its condition per candidate with that candidate as target`() {
+        val r = resolver()
+        r.conditionGate = { _, c -> c.targetId == near || c.targetId == far }
+        val nearby = Targeter.NearbyEntities(Targeter.Caster, NumericValue.Literal(100.0))
+        val result = r.resolvePlayers(
+            Targeter.Filter(nearby, com.astarworks.astera.core.domain.skill.condition.Condition.Cel("x")),
+            ctx(),
+        )
+        assertThat(result).containsExactlyInAnyOrder(near, far)
+    }
 }

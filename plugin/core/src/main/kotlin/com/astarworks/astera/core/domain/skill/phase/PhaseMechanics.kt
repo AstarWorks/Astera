@@ -50,6 +50,11 @@ public sealed class PhaseMechanics {
         public val postTeleport: List<Mechanic> = emptyList(),
     ) : PhaseMechanics()
 
+    /** `sequence` archetype: the `cast` phase is the whole skill. */
+    public data class Sequence(
+        public val cast: List<Mechanic> = emptyList(),
+    ) : PhaseMechanics()
+
     /** Mechanics for [SummonPhase] lifecycle. */
     public data class Summon(
         public val cast: List<Mechanic> = emptyList(),

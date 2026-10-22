@@ -121,6 +121,18 @@ class ApplyDamageUseCaseRichEventsTest {
         assertThat(crits[0].multiplier).isEqualTo(2.0)
     }
 
+    // ignore_invulnerability ---------------------------------------------------
+
+    @Test
+    fun `ignoreInvulnerability on the attempt reaches the gateway`() {
+        val s = newScaffold()
+
+        s.useCase.execute(attempt())
+        s.useCase.execute(attempt().copy(ignoreInvulnerability = true))
+
+        assertThat(s.gateway.ignoreInvulnerabilityCalls).containsExactly(false, true)
+    }
+
     // DamageMitigated --------------------------------------------------------
 
     @Test

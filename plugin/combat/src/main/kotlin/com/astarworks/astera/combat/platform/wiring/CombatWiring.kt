@@ -61,6 +61,7 @@ import com.astarworks.astera.combat.application.usecase.skill.dispatch.MeleeHand
 import com.astarworks.astera.combat.application.usecase.skill.dispatch.ProjectileHandler
 import com.astarworks.astera.combat.application.usecase.skill.dispatch.SkillCastDispatcher
 import com.astarworks.astera.combat.application.usecase.skill.dispatch.SummonHandler
+import com.astarworks.astera.combat.application.usecase.skill.dispatch.SequenceHandler
 import com.astarworks.astera.combat.application.usecase.skill.dispatch.TeleportHandler
 import com.astarworks.astera.combat.application.usecase.status.ApplyStatusUseCase
 import com.astarworks.astera.combat.application.usecase.status.TickCooldownUseCase
@@ -545,6 +546,7 @@ public object CombatWiring {
                 // overlays register at priority 100 and must win over the InMemory defaults.
                 explosionGateway = { services.get<IExplosionGateway>() },
                 lightningGateway = { services.get<ILightningGateway>() },
+                resourcePool = { services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>() },
                 blockEditGuard = ports.blockEditGuard?.invoke(services) ?: ArenaBlockEditGuard(
                     regionIndex = { services.get<com.astarworks.astera.core.application.port.outbound.IStageRegionIndex>() },
                     teamLookup = { services.get<IMatchTeamLookup>() },
@@ -635,6 +637,7 @@ public object CombatWiring {
             val buffHandler = BuffHandler(applyStatus, scheduler, mechanicDispatcher)
             val teleportHandler = TeleportHandler(worldGateway, mechanicDispatcher)
             val summonHandler = SummonHandler(mechanicDispatcher)
+            val sequenceHandler = SequenceHandler(mechanicDispatcher)
 
             val dispatcher = SkillCastDispatcher(
                 skillRegistry = skillContents,
@@ -643,6 +646,7 @@ public object CombatWiring {
                 aoeHandler = aoeHandler,
                 buffHandler = buffHandler,
                 teleportHandler = teleportHandler,
+                sequenceHandler = sequenceHandler,
                 summonHandler = summonHandler,
                 eventBus = eventBus,
             )

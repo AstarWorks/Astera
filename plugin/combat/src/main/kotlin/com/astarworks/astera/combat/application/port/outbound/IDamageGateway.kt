@@ -21,6 +21,8 @@ public interface IDamageGateway {
         target: PlayerId,
         resolved: ResolvedDamage,
         source: DamageSource,
+        /** Skip the i-frame window (`damage.ignore_invulnerability`): multi-hit skills land every beat. */
+        ignoreInvulnerability: Boolean = false,
     ): Result<DamageOutcome, DamageApplicationError>
 }
 

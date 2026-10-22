@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory
  *                                                                          ├─ AoeHandler
  *                                                                          ├─ BuffHandler
  *                                                                          ├─ TeleportHandler
+ *                                                                          ├─ SequenceHandler
  *                                                                          └─ SummonHandler
  * ```
  *
@@ -50,6 +51,7 @@ public class SkillCastDispatcher(
     private val aoeHandler: AoeHandler,
     private val buffHandler: BuffHandler,
     private val teleportHandler: TeleportHandler,
+    private val sequenceHandler: SequenceHandler,
     private val summonHandler: SummonHandler,
     private val eventBus: IDomainEventBus,
     private val log: Logger = LoggerFactory.getLogger(SkillCastDispatcher::class.java),
@@ -128,6 +130,11 @@ public class SkillCastDispatcher(
                 val p = requireParams<SkillParams.TeleportParams>(spec) ?: return
                 val ph = requirePhases<PhaseMechanics.Teleport>(spec, phases) ?: return
                 teleportHandler.handle(event, p, ph)
+            }
+            SkillArchetype.SEQUENCE -> {
+                val p = requireParams<SkillParams.SequenceParams>(spec) ?: return
+                val ph = requirePhases<PhaseMechanics.Sequence>(spec, phases) ?: return
+                sequenceHandler.handle(event, p, ph)
             }
             SkillArchetype.SUMMON -> {
                 val p = requireParams<SkillParams.SummonParams>(spec) ?: return

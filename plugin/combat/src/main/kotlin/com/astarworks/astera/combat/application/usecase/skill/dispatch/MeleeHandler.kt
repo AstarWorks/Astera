@@ -56,11 +56,11 @@ public class MeleeHandler(
             casterId = event.caster,
             casterPosition = event.at,
         )
-        for (target in targets) {
+        dispatcher.forEachWithPerStack(targets, params.damage, baseCtx) { target, profile ->
             applyDamage.execute(
                 DamageAttempt(
                     targetId = target,
-                    baseProfile = params.damage,
+                    baseProfile = profile,
                     source = source,
                 ),
             )
