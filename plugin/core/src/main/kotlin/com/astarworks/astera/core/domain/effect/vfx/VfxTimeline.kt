@@ -65,6 +65,7 @@ public object VfxTimeline {
         scale: Double = 1.0,
         sprites: SpriteFrames,
         freezes: List<VfxFreeze> = emptyList(),
+        sprites: SpriteFrames = SpriteFrames.NONE,
     ): VfxPlan {
         val slots = def.elements.flatMapIndexed { index, element ->
             planElement(def, element, index, anchor.rotation, seed, scale, sprites)

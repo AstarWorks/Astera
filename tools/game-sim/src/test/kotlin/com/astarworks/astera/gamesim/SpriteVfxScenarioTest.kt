@@ -3,6 +3,9 @@ package com.astarworks.astera.gamesim
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.vfx.SpriteGlyphs
 import com.astarworks.astera.core.domain.effect.vfx.SpriteId
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -44,6 +47,12 @@ class SpriteVfxScenarioTest {
                 11L to frame("spark", 5),
                 13L to frame("spark", 0),
             )
+
+            // the skill-viewer trace carries each flipbook frame as a text swap with the glyph line
+            val traceSwaps = sim.recorder.toJson().jsonObject["ticks"]!!.jsonArray
+                .flatMap { it.jsonObject["displays"]!!.jsonArray.map { d -> d.jsonObject } }
+                .filter { it["op"]!!.jsonPrimitive.content == "swap" && it["kind"]!!.jsonPrimitive.content == "text" }
+            assertThat(traceSwaps.map { it["lines"]!!.jsonArray.single().jsonPrimitive.content }).contains(frame("spark", 1), frame("spark", 0))
 
             advance(100)
             assertThat(sim.displays.active).isEmpty()

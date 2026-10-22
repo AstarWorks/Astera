@@ -196,19 +196,98 @@ export function itemModelMatrix(mode, itemId) {
 
 // ---------------------------------------------------------------- text layout
 
-/** Advance of one character in font pixels (approximation of the default font: ASCII ~6, wide glyphs 9, bold +1). */
-export function glyphAdvance(ch, bold = false) {
+const NAMED = {
+  black: '#000000', dark_blue: '#0000aa', dark_green: '#00aa00', dark_aqua: '#00aaaa', dark_red: '#aa0000', dark_purple: '#aa00aa', gold: '#ffaa00', gray: '#aaaaaa',
+  dark_gray: '#555555', blue: '#5555ff', green: '#55ff55', aqua: '#55ffff', red: '#ff5555', light_purple: '#ff55ff', yellow: '#ffff55', white: '#ffffff',
+};
+const LEGACY = { 0: 'black', 1: 'dark_blue', 2: 'dark_green', 3: 'dark_aqua', 4: 'dark_red', 5: 'dark_purple', 6: 'gold', 7: 'gray', 8: 'dark_gray', 9: 'blue', a: 'green', b: 'aqua', c: 'red', d: 'light_purple', e: 'yellow', f: 'white' };
+
+/**
+ * MiniMessage / legacy subset -> runs [{text, color, bold, font}]. `<font:ns:path>` ... `</font>` sets `font` (null = the
+ * default font). Unknown tags are dropped.
+ */
+export function parseStyled(src) {
+  const runs = [];
+  const stack = [], fonts = []; let bold = false, font = null;
+  let color = '#ffffff';
+  const re = /<(\/?)([^<>]+)>|[§&]([0-9a-fk-or])|([^<§&]+|[<§&])/g;
+  let m;
+  while ((m = re.exec(src))) {
+    if (m[3] !== undefined) {
+      if (LEGACY[m[3]]) color = NAMED[LEGACY[m[3]]]; else if (m[3] === 'l') bold = true; else if (m[3] === 'r') { color = '#ffffff'; bold = false; }
+    } else if (m[2] !== undefined) {
+      const close = m[1] === '/'; const tag = m[2].toLowerCase();
+      if (tag === 'b' || tag === 'bold') bold = !close;
+      else if (tag === 'reset' || tag === 'r') { color = '#ffffff'; bold = false; font = null; stack.length = 0; fonts.length = 0; }
+      else if (tag === 'font' || tag.startsWith('font:')) {
+        if (close) font = fonts.pop() ?? null;
+        else { fonts.push(font); const id = tag.slice(5); font = id.includes(':') ? id : 'minecraft:' + id; }
+      } else {
+        const col = tag.startsWith('#') ? tag : tag.startsWith('color:') ? tag.slice(6) : tag.startsWith('gradient') ? (tag.split(':')[1] ?? '#ffffff') : NAMED[tag] ? NAMED[tag] : null;
+        if (col) { if (close) color = stack.pop() ?? '#ffffff'; else { stack.push(color); color = col.startsWith('#') ? col : (NAMED[col] ?? '#ffffff'); } }
+      }
+    } else if (m[4] !== undefined && m[4] !== '') runs.push({ text: m[4], color, bold, font });
+  }
+  return runs;
+}
+
+// ---------------------------------------------------------------- bitmap fonts (resource-pack `type: bitmap` providers)
+
+/** Baseline of a text line, font pixels below the line top (the default font: 8 px glyphs, ascent 7). */
+export const BASELINE_PX = 7;
+/** Advance of vanilla's missing-glyph box. */
+export const MISSING_GLYPH_ADVANCE = 6;
+
+/**
+ * Vanilla `BitmapProvider` over a decoded RGBA image `{w, h, data}`: the image is a grid of `chars` (one string per row,
+ * every row the same length); cell = (w / cols) x (h / rows) (integer division); scale = height / cellH; each glyph is
+ * drawn as the FULL cell (cellW * scale wide, `height` tall, top at `ascent` above the baseline); its advance is
+ * `(int)(0.5 + actualWidth * scale) + 1`, where actualWidth = 1 + the rightmost cell column holding a pixel with alpha != 0.
+ * Codepoint 0 is a hole. Returns plain JSON-able metrics (`glyphs` keyed by codepoint).
+ */
+export function bitmapProvider(def, img) {
+  const rows = def.chars.map((r) => [...r].map((ch) => ch.codePointAt(0)));
+  const cellW = Math.floor(img.w / rows[0].length), cellH = Math.floor(img.h / rows.length);
+  const height = def.height ?? 8, ascent = def.ascent, scale = height / cellH;
+  const glyphs = {};
+  rows.forEach((row, r) => row.forEach((cp, c) => {
+    if (cp === 0) return;
+    let width = 0;
+    for (let x = cellW - 1; x >= 0 && width === 0; x--) {
+      for (let y = 0; y < cellH; y++) if (img.data[((r * cellH + y) * img.w + c * cellW + x) * 4 + 3] !== 0) { width = x + 1; break; }
+    }
+    glyphs[cp] = { col: c, row: r, width, advance: Math.floor(0.5 + width * scale) + 1 };
+  }));
+  return { ascent, height, cellW, cellH, scale, imgW: img.w, imgH: img.h, glyphs };
+}
+
+/** `{provider, index, glyph}` of codepoint `cp` in font `fontId` (first provider that has it), or null. */
+export function fontGlyph(fonts, fontId, cp) {
+  const providers = fonts?.[fontId]?.providers;
+  if (!providers) return null;
+  for (let i = 0; i < providers.length; i++) { const g = providers[i].glyphs[cp]; if (g) return { provider: providers[i], index: i, glyph: g }; }
+  return null;
+}
+
+// ---------------------------------------------------------------- text layout
+
+/**
+ * Advance of one character in font pixels. Default font: approximation (ASCII ~6, wide glyphs 9). A known bitmap font
+ * (`fonts`, see bitmapProvider): its exact glyph advance, or the missing-glyph advance. Bold +1 either way.
+ */
+export function glyphAdvance(ch, bold = false, font = null, fonts = null) {
   const c = ch.codePointAt(0);
+  if (font && fonts?.[font]) return (fontGlyph(fonts, font, c)?.glyph.advance ?? MISSING_GLYPH_ADVANCE) + (bold ? 1 : 0);
   const base = c >= 0x2000 ? 9 : c === 0x20 ? 4 : /[il.,:;'!|]/.test(ch) ? 3 : 6;
   return base + (bold ? 1 : 0);
 }
 
 /**
  * Geometry of a text display in text space (x right, y up, font pixels, bottom centre = origin): background rect
- * (1 px pad) and each line's top. `lines` = [{ runs:[{text,bold}] }].
+ * (1 px pad) and each line's top. `lines` = [{ runs:[{text,bold,font?}] }]; `fonts` = bitmap font metrics by font id.
  */
-export function textLayout(lines, lineWidthPx = 200) {
-  const widths = lines.map((l) => l.runs.reduce((w, r) => w + [...r.text].reduce((a, ch) => a + glyphAdvance(ch, r.bold), 0), 0));
+export function textLayout(lines, lineWidthPx = 200, fonts = null) {
+  const widths = lines.map((l) => l.runs.reduce((w, r) => w + [...r.text].reduce((a, ch) => a + glyphAdvance(ch, r.bold, r.font, fonts), 0), 0));
   const width = Math.min(lineWidthPx, Math.max(0, ...widths));
   const h = lines.length * LINE_HEIGHT_PX;
   return {
@@ -216,6 +295,39 @@ export function textLayout(lines, lineWidthPx = 200) {
     background: { x0: -width / 2 - 1, x1: width / 2 + 1, y0: 0, y1: h + 1 },
     lineTop: (i) => h - i * LINE_HEIGHT_PX,
   };
+}
+
+/**
+ * Quads of every bitmap-font glyph of a text display, in text space (x right, y up, font px, pivot = bottom centre), placed
+ * as `TextDisplayRenderer` + `Font` do (centre alignment): the text block is shifted by `1 - maxWidth/2`, line i starts at
+ * `(maxWidth - width_i)/2`, a glyph sits at the pen with its top `ascent` px above the baseline (7 px below the line top)
+ * and is `cellW * scale` x `height` px - so it may overflow the 9 px line box. `u0..u1` / `v0..v1` are image fractions with
+ * v measured from the TOP of the image. Default-font characters are skipped (they only advance the pen).
+ */
+export function bitmapGlyphQuads(lines, fonts, lineWidthPx = 200) {
+  const L = textLayout(lines, lineWidthPx, fonts);
+  const out = [];
+  lines.forEach((line, i) => {
+    let pen = 1 - L.width / 2 + (L.width - L.widths[i]) / 2;
+    const baseline = L.lineTop(i) - BASELINE_PX;
+    for (const run of line.runs) {
+      for (const ch of run.text) {
+        const hit = run.font ? fontGlyph(fonts, run.font, ch.codePointAt(0)) : null;
+        if (hit) {
+          const { provider: p, glyph: g } = hit;
+          const top = baseline + p.ascent;
+          out.push({
+            font: run.font, provider: hit.index, color: run.color,
+            x0: pen, x1: pen + p.cellW * p.scale, y0: top - p.height, y1: top,
+            u0: (g.col * p.cellW) / p.imgW, u1: ((g.col + 1) * p.cellW) / p.imgW,
+            v0: (g.row * p.cellH) / p.imgH, v1: ((g.row + 1) * p.cellH) / p.imgH,
+          });
+        }
+        pen += glyphAdvance(ch, run.bold, run.font, fonts);
+      }
+    }
+  });
+  return out;
 }
 
 /** Matrix of the whole text plane: Ry(180) so that the front faces local -Z, scaled to blocks. */
