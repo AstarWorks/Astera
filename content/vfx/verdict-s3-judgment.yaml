@@ -75,11 +75,11 @@ elements:
     keyframes:
       - { t: 0, translate: [0.0, -1.0, 0.5], rotate: [0, 0, 45], scale: [0.0, 0.0, 0.0] }
       - { t: 8, translate: [0.0, 5.2, 0.5], scale: [6.5, 6.5, 6.5], ease: out_back }
-      - { t: 36, translate: [0.0, 5.4, 0.5], ease: linear }
+      - { t: 36, translate: [0.0, 6.0, 0.5], scale: [7.0, 7.0, 7.0], ease: out_quad }
       - { t: 39, translate: [0.0, 1.6, 3.2], rotate: [0, 110, 45], ease: in_expo }
       - { t: 48, translate: [0.0, 1.6, 3.2] }
       - { t: 58, scale: [0.0, 0.0, 0.0], ease: in_quad }
-    oscillate: { axis: translate_y, amplitude: 0.06, period_ticks: 3 }
+    oscillate: { axis: translate_y, amplitude: 0.1, period_ticks: 3 }
 
   # T-stakes, inner ring (6): shaft + crossbar. Rise at the slam, collapse at tick 60.
   - id: shaft-in

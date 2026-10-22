@@ -67,12 +67,13 @@ elements:
     start_tick: 0
     end_tick: 60
     keyframes:
-      - { t: 0, translate: [0.9, 11.0, 0.0], rotate: [0, 0, 233], scale: [0.0, 0.0, 0.0] }
+      - { t: 0, translate: [0.9, 11.0, 0.0], rotate: [0, 180, 52], scale: [0.0, 0.0, 0.0] }
       - { t: 5, scale: [4.0, 4.0, 4.0], ease: out_back }
-      - { t: 24, translate: [0.9, 11.0, 0.0], ease: linear }
-      - { t: 30, translate: [0.25, 1.7, 0.0], rotate: [0, 0, 227], ease: in_expo }
+      - { t: 24, translate: [0.9, 10.2, 0.0], ease: linear }
+      - { t: 30, translate: [0.25, 1.7, 0.0], rotate: [0, 180, 46], ease: in_expo }
       - { t: 54, translate: [0.25, 1.7, 0.0] }
       - { t: 60, scale: [0.0, 0.0, 0.0], ease: in_quad }
+    oscillate: { axis: translate_y, amplitude: 0.06, period_ticks: 3 }
 
   - id: stake-right
     kind: { type: item, item: golden_sword, display_mode: fixed }
@@ -81,10 +82,10 @@ elements:
     start_tick: 0
     end_tick: 60
     keyframes:
-      - { t: 0, translate: [-0.9, 11.0, 0.0], rotate: [0, 0, 217], scale: [0.0, 0.0, 0.0] }
+      - { t: 0, translate: [-0.9, 11.0, 0.0], rotate: [0, 180, 38], scale: [0.0, 0.0, 0.0] }
       - { t: 5, scale: [4.0, 4.0, 4.0], ease: out_back }
-      - { t: 24, translate: [-0.9, 11.0, 0.0], ease: linear }
-      - { t: 30, translate: [-0.25, 1.7, 0.0], rotate: [0, 0, 223], ease: in_expo }
+      - { t: 24, translate: [-0.9, 10.2, 0.0], ease: linear }
+      - { t: 30, translate: [-0.25, 1.7, 0.0], rotate: [0, 180, 44], ease: in_expo }
       - { t: 54, translate: [-0.25, 1.7, 0.0] }
       - { t: 60, scale: [0.0, 0.0, 0.0], ease: in_quad }
 

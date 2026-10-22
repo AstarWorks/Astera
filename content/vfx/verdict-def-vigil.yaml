@@ -23,6 +23,7 @@ elements:
       - { t: 22, scale: [4.0, 4.0, 4.0] }
       - { t: 24, translate: [0.0, 1.4, 1.4], rotate: [0, 90, -45], ease: in_expo }
       - { t: 30, scale: [0.0, 0.0, 0.0], ease: in_quad }
+    oscillate: { axis: translate_y, amplitude: 0.06, period_ticks: 3 }
 
   - id: halo-outer
     kind: { type: block, block: yellow_stained_glass }
@@ -41,7 +42,7 @@ elements:
       - { t: 3, scale: [0.1, 0.1, 0.55], ease: out_back }
       - { t: 15, scale: [0.1, 0.1, 0.55] }
       - { t: 19, scale: [0.0, 0.0, 0.55], ease: in_quad }
-    oscillate: { axis: scale_xz, amplitude: 0.03, period_ticks: 4 }
+    oscillate: { axis: scale_xz, amplitude: 0.07, period_ticks: 4 }
 
   - id: halo-inner
     kind: { type: block, block: gold_block }
@@ -60,7 +61,7 @@ elements:
       - { t: 3, scale: [0.12, 0.12, 0.5], ease: out_back }
       - { t: 14, scale: [0.12, 0.12, 0.5] }
       - { t: 18, scale: [0.0, 0.0, 0.5], ease: in_quad }
-    oscillate: { axis: scale_xz, amplitude: 0.03, period_ticks: 4 }
+    oscillate: { axis: scale_xz, amplitude: 0.07, period_ticks: 4 }
 
   - id: circuit-left
     kind: { type: block, block: gold_block }
