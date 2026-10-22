@@ -134,3 +134,15 @@ skills:
 - ADR-0077 (Skill mechanic phase pipeline)
 - ADR-0109 (Effect orchestration)
 - [[contributing/add-an-item-yaml]]
+
+## コンボ / スタック / ダッシュ系 mechanic
+
+詳細な YAML 例は `content/skills/README.md` の「Combo / stack / dash mechanics」節。
+
+- `loop.stride_ticks`: i 回目の反復は `i * stride` tick 後に実行 (0 = 一斉)。
+- `apply_status.stack_count`: N スタック加算 (status の `max_stacks` で頭打ち)。`remove_status.stacks`: N スタック消費 (省略 = 全削除)。
+- `has_status` 条件: `min_stacks` (既定 1)、`on: target|caster`。
+- `damage.components[].per_stack`: `{ status_id, amount, on, consume }`。ダメージに `amount x スタック数` を加算 (乗数適用後)。スタックは被弾前に読み、`consume: true` は mechanic 全体の命中後に消費。
+- `dash_strike`: 術者を `distance` / `ticks` で前進させ、カプセル (`radius`) に触れた対象へ `on_hit` を実行。`invulnerable` は `immunity` status を付与。
+- `hit_stop`: 対象 (と `include_caster` で術者) を `ticks` 間その場に固定。
+- スタック専用 status は `content/status/` の `kind: stack_debuff|stack_buff` + `params: { type: marker }`。

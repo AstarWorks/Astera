@@ -19,7 +19,8 @@ import com.astarworks.astera.core.domain.player.PlayerId
  * merged stack count); this use case must not publish it a second time.
  *
  * [durationTicks] overrides the spec's default if provided, allowing callers
- * (e.g. a skill mechanic) to supply a custom duration.
+ * (e.g. a skill mechanic) to supply a custom duration. [stacks] is how many
+ * stacks this application adds (the container caps at the spec's `maxStacks`).
  */
 public class ApplyStatusUseCase(
     private val effectRegistry: IStatusEffectRegistry,
@@ -31,10 +32,11 @@ public class ApplyStatusUseCase(
         effectId: StatusEffectId,
         durationTicks: Int? = null,
         sourceId: PlayerId? = null,
+        stacks: Int = 1,
     ): Result<StatusEffectInstance, ApplyStatusError> {
         val spec = effectRegistry.find(effectId)
             ?: return Result.failure(ApplyStatusError.EffectNotFound(effectId))
-        return Result.success(applySpec(targetId, spec, durationTicks, sourceId))
+        return Result.success(applySpec(targetId, spec, durationTicks, sourceId, stacks))
     }
 
     /**
@@ -46,12 +48,13 @@ public class ApplyStatusUseCase(
         spec: StatusEffectSpec,
         durationTicks: Int? = null,
         sourceId: PlayerId? = null,
+        stacks: Int = 1,
     ): StatusEffectInstance {
         val instance = StatusEffectInstance(
             spec = spec,
             targetPlayerId = targetId,
             remainingTicks = durationTicks ?: DEFAULT_DURATION_TICKS,
-            currentStacks = 1,
+            currentStacks = stacks.coerceAtLeast(1),
             appliedAtTick = scheduler.currentTick(),
             sourcePlayerId = sourceId,
         )

@@ -4,8 +4,10 @@ import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGate
 import com.astarworks.astera.combat.application.port.outbound.IDisplayEntityGateway.DisplayHandle
 import com.astarworks.astera.core.adapter.paper.text.AsteraTextDeserializer
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
+import com.astarworks.astera.core.domain.effect.DisplayItemMode
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.effect.DisplaySpec
+import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
 import net.kyori.adventure.text.Component
@@ -46,13 +48,20 @@ public class PaperDisplayEntityGateway(
             }
             is DisplayKind.Item -> {
                 val material = Material.matchMaterial(kind.itemId.value)
+                    ?: Material.matchMaterial(kind.itemId.value.replace('-', '_'))
                     ?: return unsupported("item '${kind.itemId.value}' is not a vanilla material")
-                bukkitWorld.spawn(location, ItemDisplay::class.java) { it.setItemStack(ItemStack(material)) }
+                bukkitWorld.spawn(location, ItemDisplay::class.java) {
+                    it.setItemStack(ItemStack(material))
+                    it.itemDisplayTransform = itemMode(kind.displayMode)
+                }
             }
             is DisplayKind.Text -> bukkitWorld.spawn(location, TextDisplay::class.java) { text ->
                 val lines = renderedLines.map { AsteraTextDeserializer.deserialize(it) }
                 text.text(Component.join(net.kyori.adventure.text.JoinConfiguration.newlines(), lines))
                 text.backgroundColor = Color.fromARGB(kind.backgroundArgb)
+                text.isShadowed = kind.shadow
+                text.isSeeThrough = kind.seeThrough
+                kind.lineWidth?.let { text.lineWidth = it }
             }
         }
         display.isPersistent = false
@@ -62,15 +71,49 @@ public class PaperDisplayEntityGateway(
             DisplayBillboard.HORIZONTAL -> Display.Billboard.HORIZONTAL
             DisplayBillboard.CENTER -> Display.Billboard.CENTER
         }
-        val t = spec.transform
-        display.transformation = Transformation(
-            Vector3f(t.translation.x.toFloat(), t.translation.y.toFloat(), t.translation.z.toFloat()),
-            Quaternionf(t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w),
-            Vector3f(t.scale.x.toFloat(), t.scale.y.toFloat(), t.scale.z.toFloat()),
-            Quaternionf(),
-        )
+        display.transformation = transformation(spec.transform)
+        spec.brightness?.let { display.brightness = Display.Brightness(it, it) }
+        spec.glowArgb?.let {
+            display.isGlowing = true
+            display.glowColorOverride = Color.fromARGB(it)
+        }
+        spec.viewRange?.let { display.viewRange = it }
         return DisplayHandle(display.uniqueId)
     }
+
+    override fun update(handle: DisplayHandle, transform: DisplayTransform, interpolationTicks: Int) {
+        val display = server.getEntity(handle.id) as? Display ?: return
+        display.interpolationDelay = 0
+        display.interpolationDuration = interpolationTicks.coerceAtLeast(0)
+        display.transformation = transformation(transform)
+    }
+
+    override fun setBlock(handle: DisplayHandle, blockKey: String) {
+        val display = server.getEntity(handle.id) as? BlockDisplay ?: return
+        runCatching { server.createBlockData(blockKey(blockKey)) }.onSuccess { display.block = it }
+    }
+
+    override fun setText(handle: DisplayHandle, renderedLines: List<String>) {
+        val display = server.getEntity(handle.id) as? TextDisplay ?: return
+        val lines = renderedLines.map { AsteraTextDeserializer.deserialize(it) }
+        display.text(Component.join(net.kyori.adventure.text.JoinConfiguration.newlines(), lines))
+    }
+
+    override fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
+        val display = server.getEntity(handle.id) as? Display ?: return
+        display.teleportDuration = teleportTicks.coerceIn(0, 59)
+        display.teleport(Location(display.world, at.x, at.y, at.z, yaw, pitch))
+    }
+
+    private fun transformation(t: DisplayTransform): Transformation = Transformation(
+        Vector3f(t.translation.x.toFloat(), t.translation.y.toFloat(), t.translation.z.toFloat()),
+        Quaternionf(t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w),
+        Vector3f(t.scale.x.toFloat(), t.scale.y.toFloat(), t.scale.z.toFloat()),
+        Quaternionf(),
+    )
+
+    private fun itemMode(mode: DisplayItemMode): ItemDisplay.ItemDisplayTransform =
+        ItemDisplay.ItemDisplayTransform.valueOf(mode.name)
 
     override fun remove(handle: DisplayHandle) {
         server.getEntity(handle.id)?.remove()

@@ -43,6 +43,13 @@ public class PaperEntityEffectsGateway(
         living.addPotionEffect(PotionEffect(PotionEffectType.JUMP_BOOST, ticks, NO_JUMP_AMPLIFIER, false, false, false))
     }
 
+    override fun hold(target: PlayerId, ticks: Int) {
+        val living = entity(target) as? LivingEntity ?: return
+        living.velocity = Vector(0.0, 0.0, 0.0)
+        living.addPotionEffect(PotionEffect(PotionEffectType.SLOWNESS, ticks, ROOT_AMPLIFIER, false, false, false))
+        living.addPotionEffect(PotionEffect(PotionEffectType.JUMP_BOOST, ticks, NO_JUMP_AMPLIFIER, false, false, false))
+    }
+
     override fun thaw(target: PlayerId) {
         val living = entity(target) as? LivingEntity ?: return
         if (living.freezeTicks > 0) living.freezeTicks = 0

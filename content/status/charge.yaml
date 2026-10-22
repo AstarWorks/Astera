@@ -1,0 +1,15 @@
+# Wave PM-W3: Charge stacks on the user: a spendable resource (apply_status stack_count to
+# build, remove_status stacks / damage.per_stack consume to spend).
+
+id: charge
+
+display_name_key: astera.status.charge.name
+
+kind: stack_buff
+default_duration_ticks: 400   # 20s @ 20 TPS
+
+stackable: true
+max_stacks: 20
+
+params:
+  type: marker

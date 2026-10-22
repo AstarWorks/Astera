@@ -1,0 +1,15 @@
+# Wave PM-W3: Sinking stacks: movement slow (a skill can also read the stack count).
+
+id: sinking
+
+display_name_key: astera.status.sinking.name
+
+kind: speed_down
+default_duration_ticks: 200   # 10s @ 20 TPS
+
+stackable: true
+max_stacks: 10
+
+params:
+  type: speed
+  multiplier: 0.8
