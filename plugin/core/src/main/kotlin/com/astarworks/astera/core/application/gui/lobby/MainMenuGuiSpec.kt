@@ -31,13 +31,11 @@ import com.astarworks.astera.core.domain.item.ItemId
  * - `lobby.queue.show` — opens the queue sub-menu (lists `norma`, `custom:*`,
  *   `tournament:*` options via subsequent intents).
  * - `lobby.shop.open` — dispatches into `ShopBrowseUseCase`.
- * - `lobby.refinement.open` — dispatches into the Wave 5refine
- *   `ApplyRefinementUseCase` GUI.
- * - `lobby.customize.open` — dispatches into the Wave 5e loadout customise
- *   GUI.
+ * - `lobby.customize.open` — opens the customize sub-menu (vault, profile,
+ *   settings).
  * - `lobby.travel.show` — opens the travel sub-menu (pve / survival / lobby
  *   via subsequent intents — matches `/astera travel` subcommands).
- * - `lobby.profile.show` — opens the Wave 5flex profile card.
+ * - `lobby.profile.show` — opens the live profile card (level, XP, stats, wallet).
  *
  * Each intent is routed by the application-layer `IGuiIntentRouter` to the
  * matching use case. New intents are added by extending the router, not by
@@ -69,15 +67,7 @@ public object MainMenuGuiSpec {
             ),
         )
         slot(
-            SlotIndex(3),
-            GuiSlot.Static(
-                itemId = ItemId("gui-tile-refinement"),
-                onLeftClick = GuiIntent("lobby.refinement.open"),
-                tooltip = listOf(MessageKey("astera.gui.main-menu.refinement.tooltip")),
-            ),
-        )
-        slot(
-            SlotIndex(5),
+            SlotIndex(4),
             GuiSlot.Static(
                 itemId = ItemId("gui-tile-customize"),
                 onLeftClick = GuiIntent("lobby.customize.open"),

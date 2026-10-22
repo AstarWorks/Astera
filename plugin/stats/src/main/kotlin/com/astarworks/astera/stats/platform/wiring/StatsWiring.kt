@@ -162,6 +162,14 @@ public object StatsWiring {
         // 4. Register Stats ports onto the shared registry ------------------
         // Note: statsRepository is already registered (or resolved from Postgres) above.
         registrations += services.register<ILevelService>(levelService)
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.IPlayerLevelView>(
+            object : com.astarworks.astera.core.application.port.outbound.IPlayerLevelView {
+                override fun levelOf(playerId: com.astarworks.astera.core.domain.player.PlayerId): Int =
+                    levelService.currentLevel(playerId).value
+                override fun totalXpOf(playerId: com.astarworks.astera.core.domain.player.PlayerId): Long =
+                    levelService.totalXp(playerId).value
+            },
+        )
         registrations += services.register<INormaService>(normaService)
         registrations += services.register<INormaRegistry>(normaContents, priority = 0)
 

@@ -10,22 +10,13 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.item.ItemId
 
 /**
- * Wave 5lobby-content (ADR-0119) — customize sub-menu.
+ * Customize sub-menu, opened by `lobby.customize.show` / `lobby.customize.open`.
+ * Three tiles in a single 9-slot row:
  *
- * Opened by `lobby.customize.show` / `lobby.customize.open`. Three tiles in
- * a single 9-slot row:
- *
- *  - Slot 2: Loadout → emits `loadout.selector.show` (Wave 5game-complete
- *    [LoadoutSelectorGuiSpec]; legacy `weapons.gui.loadout.open` is gone
- *    with the items-plugin rename).
- *  - Slot 4: Refinement → emits `lobby.refinement.open` (Wave 5refine intent
- *    bridge — currently a placeholder until the items plugin lands the
- *    matching handler).
- *  - Slot 6: Profile → emits `lobby.profile.show` (handled by
- *    [com.astarworks.astera.core.application.gui.lobby.intent.LobbyProfileShowIntentHandler]).
- *
- * Each tile is a thin navigation shortcut — the heavy lifting lives in the
- * downstream handlers / specs.
+ *  - Slot 2: personal vault (`lobby.vault.open`) — the ender-chest storage that
+ *    holds the player's gear between matches (WP12 replaced the loadout selector).
+ *  - Slot 4: profile card (`lobby.profile.show`).
+ *  - Slot 6: settings (`lobby.settings.show`).
  */
 public object CustomizeMenuGuiSpec {
 
@@ -39,30 +30,25 @@ public object CustomizeMenuGuiSpec {
         slot(
             SlotIndex(2),
             GuiSlot.Static(
-                itemId = ItemId("gui-tile-customize"),
-                // Wave 5game-complete (ADR-0121 §B): repoint loadout tile from
-                // legacy weapons-plugin intent (`weapons.gui.loadout.open`) to
-                // the new 9-slot LoadoutSelectorGuiSpec entry point. The
-                // legacy intent is gone with the items-plugin rename and the
-                // selector is now the canonical authoring surface.
-                onLeftClick = GuiIntent(LoadoutSelectorGuiSpec.INTENT_SHOW),
-                tooltip = listOf(MessageKey("astera.gui.customize-menu.loadout.tooltip")),
+                itemId = ItemId("gui-tile-vault"),
+                onLeftClick = GuiIntent("lobby.vault.open"),
+                tooltip = listOf(MessageKey("astera.gui.customize-menu.vault.tooltip")),
             ),
         )
         slot(
             SlotIndex(4),
             GuiSlot.Static(
-                itemId = ItemId("gui-tile-refinement"),
-                onLeftClick = GuiIntent("lobby.refinement.open"),
-                tooltip = listOf(MessageKey("astera.gui.customize-menu.refinement.tooltip")),
+                itemId = ItemId("gui-tile-profile"),
+                onLeftClick = GuiIntent("lobby.profile.show"),
+                tooltip = listOf(MessageKey("astera.gui.customize-menu.profile.tooltip")),
             ),
         )
         slot(
             SlotIndex(6),
             GuiSlot.Static(
-                itemId = ItemId("gui-tile-profile"),
-                onLeftClick = GuiIntent("lobby.profile.show"),
-                tooltip = listOf(MessageKey("astera.gui.customize-menu.profile.tooltip")),
+                itemId = ItemId("gui-tile-settings"),
+                onLeftClick = GuiIntent("lobby.settings.show"),
+                tooltip = listOf(MessageKey("astera.gui.customize-menu.settings.tooltip")),
             ),
         )
     }

@@ -366,10 +366,8 @@ astera:
         tooltip: "<gray>クリックでマッチキューに参加。</gray>"
       shop:
         tooltip: "<gray>クリックでロビーショップを開く。</gray>"
-      refinement:
-        tooltip: "<gray>クリックでアイテムを強化。</gray>"
       customize:
-        tooltip: "<gray>クリックでロードアウトを編集。</gray>"
+        tooltip: "<gray>クリックで金庫・プロフィール・設定を開く。</gray>"
       travel:
         tooltip: "<gray>クリックで PvE / サバイバル / ロビーへ移動。</gray>"
       profile:
@@ -384,31 +382,33 @@ astera:
         tooltip: "<gray>ロビーに戻る。</gray>"
     customize-menu:
       title: "<gold>カスタマイズ</gold>"
-      loadout:
-        tooltip: "<gray>装備中のロードアウトを編集。</gray>"
-      refinement:
-        tooltip: "<gray>アイテムに強化を適用。</gray>"
+      vault:
+        tooltip: "<gray>個人金庫（エンダーチェスト）を開く。</gray>"
       profile:
         tooltip: "<gray>プロフィールカードを表示。</gray>"
-    # Wave 5game-complete (ADR-0121 §B) — 9 枠ロードアウトセレクター。
-    loadout-selector:
-      title: "<aqua>ロードアウト選択</aqua>"
-      slot:
-        tooltip:
-          activate: "<gray>左クリック: このロードアウトを有効化</gray>"
-          rename: "<gray>右クリック: 名前を変更</gray>"
-          reset: "<gray>シフトクリック: 内容をクリア</gray>"
-          save: "<gray>中クリック: 現在の装備を保存</gray>"
+      settings:
+        tooltip: "<gray>設定を開く。</gray>"
     profile-card:
       title: "<gold>プロフィール</gold>"
-      head:
-        tooltip: "<gray>自分のアバター。</gray>"
-      power-index:
-        tooltip: "<gray>パワー指数。</gray>"
-      currency:
-        tooltip: "<gray>通貨残高。</gray>"
-      recent-matches:
-        tooltip: "<gray>最近のマッチ。</gray>"
+      level:
+        name: "<gold>レベル {level}</gold>"
+        xp: "<gray>累計 XP: <white>{xp}</white></gray>"
+      combat:
+        name: "<gold>戦績</gold>"
+        kills: "<gray>キル: <white>{kills}</white></gray>"
+        deaths: "<gray>デス: <white>{deaths}</white></gray>"
+        assists: "<gray>アシスト: <white>{assists}</white></gray>"
+      matches:
+        name: "<gold>マッチ</gold>"
+        played: "<gray>プレイ数: <white>{played}</white></gray>"
+        wins: "<gray>勝利: <white>{wins}</white></gray>"
+        losses: "<gray>敗北: <white>{losses}</white></gray>"
+        rate: "<gray>勝率: <white>{rate}%</white></gray>"
+      wallet:
+        name: "<gold>ウォレット</gold>"
+        star: "<gray>スター: <white>{amount}</white></gray>"
+        gold: "<gray>ゴールド: <white>{amount}</white></gray>"
+        gem: "<gray>ジェム: <white>{amount}</white></gray>"
     friends-list:
       title: "<gold>フレンド</gold>"
       add:

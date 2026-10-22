@@ -1,0 +1,7 @@
+# F3-3 — tile icon for the customize menu's personal-vault button.
+
+id: gui-tile-vault
+material: ENDER_CHEST
+name:
+  ja: "<light_purple>個人金庫</light_purple>"
+  en: "<light_purple>Personal Vault</light_purple>"

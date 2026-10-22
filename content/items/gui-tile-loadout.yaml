@@ -1,9 +1,0 @@
-# Wave 5game-complete (ADR-0121 §B) — placeholder tile icon for the
-# 9-slot loadout selector. Each of the selector's 9 slots renders this
-# item; per-slot label / lore comes from the GUI tooltip i18n keys.
-
-id: gui-tile-loadout
-material: BOOK
-name:
-  ja: "<aqua>ロードアウト枠</aqua>"
-  en: "<aqua>Loadout Slot</aqua>"

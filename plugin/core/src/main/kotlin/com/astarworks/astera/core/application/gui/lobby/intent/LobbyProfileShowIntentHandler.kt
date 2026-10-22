@@ -3,34 +3,35 @@ package com.astarworks.astera.core.application.gui.lobby.intent
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.gui.lobby.ProfileCardGuiSpec
+import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerLevelView
+import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
+import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.gui.GuiIntent
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.stats.PlayerStats
 import org.slf4j.LoggerFactory
 
 /**
- * Wave 5lobby-content (ADR-0119) — opens the player profile card GUI in
- * response to the `lobby.profile.show` intent.
+ * Opens the player profile card in response to `lobby.profile.show`.
  *
- * Phase 1 PoC: the profile card is a declarative read-only GUI built from
- * Wave 5flex `PowerIndex` + Wave 5e `IPlayerProfileService` data. Both data
- * sources live in plugins this handler does NOT directly depend on (the
- * resolution flows through Wave 5flex bindings registered in
- * `DefaultGuiBindingResolver`); the spec itself ([ProfileCardGuiSpec.SPEC])
- * is intentionally static so this handler doesn't need to thread any service
- * references through — the renderer pulls live values at GUI-build time.
- *
- * Future waves can swap in a dynamic spec composer (per-mode stats, equipped
- * loadout preview, recent matches) without changing this handler — the GUI
- * spec is a value, the handler just opens it.
+ * The card is built per click from live data: account level + total XP
+ * ([IPlayerLevelView]), combat and match stats ([IPlayerStatsRepository]) and
+ * the wallet ([ICurrencyLedger]). Each source is a lazy provider because the
+ * publishing plugins enable after core; a missing source renders zeros.
  */
 public class LobbyProfileShowIntentHandler(
     private val guiAdapter: IGuiAdapter,
     private val mcServer: IMcServer,
     private val messages: IMessageRenderer,
     private val playerGateway: IPlayerGateway,
+    private val levels: () -> IPlayerLevelView? = { null },
+    private val stats: () -> IPlayerStatsRepository? = { null },
+    private val wallet: () -> ICurrencyLedger? = { null },
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -47,12 +48,31 @@ public class LobbyProfileShowIntentHandler(
             log.debug("Player {} disappeared before profile card open", player.id)
             return
         }
-        if (!guiAdapter.open(mcPlayer, ProfileCardGuiSpec.SPEC)) {
+        if (!guiAdapter.open(mcPlayer, ProfileCardGuiSpec.build(snapshotOf(player.id)))) {
             playerGateway.sendMessage(
                 player.id,
                 messages.render(player.id, MSG_OPEN_REJECTED, emptyMap()),
             )
         }
+    }
+
+    private fun snapshotOf(id: PlayerId): ProfileCardGuiSpec.Snapshot {
+        val s: PlayerStats? = stats()?.find(id)
+        val ledger = wallet()
+        val level = levels()
+        return ProfileCardGuiSpec.Snapshot(
+            level = level?.levelOf(id) ?: 1,
+            totalXp = level?.totalXpOf(id) ?: 0L,
+            kills = s?.kills ?: 0L,
+            deaths = s?.deaths ?: 0L,
+            assists = s?.assists ?: 0L,
+            matchesPlayed = s?.matchesPlayed ?: 0L,
+            wins = s?.wins ?: 0L,
+            losses = s?.losses ?: 0L,
+            star = ledger?.balance(id, Currency.STAR) ?: 0L,
+            gold = ledger?.balance(id, Currency.GOLD) ?: 0L,
+            gem = ledger?.balance(id, Currency.GEM) ?: 0L,
+        )
     }
 
     public companion object {

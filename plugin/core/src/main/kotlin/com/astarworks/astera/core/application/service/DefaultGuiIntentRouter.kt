@@ -91,4 +91,6 @@ public class DefaultGuiIntentRouter(
         }
         match.handler(intent, player)
     }
+
+    override fun hasHandler(key: String): Boolean = entries.any { key.startsWith(it.prefix) }
 }
