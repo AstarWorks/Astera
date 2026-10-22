@@ -908,6 +908,13 @@ astera:
       hp-ammo: "<red>HP</red> <white>{current}/{max}</white>  <yellow>Ammo</yellow> <white>{ammo}/{ammoMax}</white>"
     resource-pack:
       prompt: "<gold>Astera resource pack</gold> <gray>- custom HP bar, item models and sounds</gray>"
+    tab:
+      lobby:
+        header: "\n<gold><bold>ASTERA</bold></gold>\n<gray>Lobby</gray>\n"
+        footer: "\n<gray>Online</gray> <white>{count}</white>\n"
+      match:
+        header: "\n<gold><bold>ASTERA</bold></gold>\n<gray>{mode}</gray>\n"
+        footer: "\n<gray>Your team</gray> <{color}>{team}</{color}> <dark_gray>|</dark_gray> <gray>Players</gray> <white>{count}</white>\n"
     sidebar:
       spacer: " "
       phase:

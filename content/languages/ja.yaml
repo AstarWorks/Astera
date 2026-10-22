@@ -909,6 +909,13 @@ astera:
       hp-ammo: "<red>HP</red> <white>{current}/{max}</white>  <yellow>弾</yellow> <white>{ammo}/{ammoMax}</white>"
     resource-pack:
       prompt: "<gold>Astera リソースパック</gold> <gray>- 専用 HP バー・アイテムモデル・サウンド</gray>"
+    tab:
+      lobby:
+        header: "\n<gold><bold>ASTERA</bold></gold>\n<gray>ロビー</gray>\n"
+        footer: "\n<gray>オンライン</gray> <white>{count}</white>\n"
+      match:
+        header: "\n<gold><bold>ASTERA</bold></gold>\n<gray>{mode}</gray>\n"
+        footer: "\n<gray>あなたのチーム</gray> <{color}>{team}</{color}> <dark_gray>|</dark_gray> <gray>参加者</gray> <white>{count}</white>\n"
     sidebar:
       spacer: " "
       phase:

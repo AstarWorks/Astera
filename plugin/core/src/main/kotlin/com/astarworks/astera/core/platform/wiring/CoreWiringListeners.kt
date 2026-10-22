@@ -119,8 +119,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
         hintListener.handle(event)
     }
 
-    // Wave AB 5lobby-ux-complete (ADR-0138): chat display + tab list
-    // refresh. Pre-Wave-AB ChatMessageSent had only audit + replay
+    // Wave AB 5lobby-ux-complete (ADR-0138): chat display. Pre-Wave-AB ChatMessageSent had only audit + replay
     // subscribers (no UX path); chat sent was invisible to other
     // players. ITabList registered at priority 0 but no listener
     // populated entries on join/quit (vanilla MC default fallback).
@@ -133,16 +132,10 @@ internal fun CoreWiringState.wireCompletenessListeners() {
     ) { event ->
         chatDisplayListener.handle(event)
     }
-    val tabListRefreshListener = com.astarworks.astera.core.application.eventbus.listeners.hud
-        .UpdateTabListOnPlayerJoinedListener(tabList, sessionRepo, profileService)
-    wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { event ->
-        tabListRefreshListener.handle(event)
-    }
-    wave5completeSubs += eventBus.subscribe(
-        com.astarworks.astera.core.domain.event.PlayerQuitServer::class,
-    ) { event ->
-        tabListRefreshListener.handle(event)
-    }
+    // ADR-0200: the tab list is NOT re-populated here any more. The old roster push
+    // rewrote every row with a plain-text display name (and ping 0), which erased the
+    // team colour / grouping the nameplate service sets; header and footer are owned
+    // by the match plugin's TabHeaderFooterService.
 
     // Apply / Lift use cases (shared by flat commands + the existing
     // /astera mod tree if Wave 5h later wires it up).

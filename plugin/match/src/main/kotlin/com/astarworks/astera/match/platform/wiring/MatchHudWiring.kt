@@ -2,7 +2,10 @@ package com.astarworks.astera.match.platform.wiring
 
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
+import com.astarworks.astera.core.adapter.api.hud.ITabList
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerLabelGateway
 import com.astarworks.astera.core.application.services.get
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.event.CurrencyChanged
@@ -11,6 +14,7 @@ import com.astarworks.astera.core.domain.event.MatchFormed
 import com.astarworks.astera.core.domain.event.MatchQueueJoined
 import com.astarworks.astera.core.domain.event.MatchQueueLeft
 import com.astarworks.astera.core.domain.event.MatchStarted
+import com.astarworks.astera.core.domain.event.PlayerHealthChanged
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.event.PlayerReturnedToLobby
@@ -19,6 +23,8 @@ import com.astarworks.astera.match.application.gamemode.NormaGameMode
 import com.astarworks.astera.match.application.port.outbound.IGameModeFrameworkRegistry
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IMatchmaker
 import com.astarworks.astera.match.application.service.hud.LobbySidebarService
+import com.astarworks.astera.match.application.service.hud.MatchNameplateService
+import com.astarworks.astera.match.application.service.hud.TabHeaderFooterService
 import com.astarworks.astera.match.application.service.hud.MatchSidebarService
 import com.astarworks.astera.match.domain.event.EntityPickedUpItem
 import com.astarworks.astera.match.domain.event.PhaseChanged
@@ -70,6 +76,8 @@ internal object MatchHudWiring {
         subscriptions += eventBus.subscribe(MatchEnded::class) { matchSidebar.release(it.matchId) }
         subscriptions += eventBus.subscribe(CurrencyChanged::class) { matchSidebar.refreshPlayer(it.playerId) }
 
+        installNameplatesAndTab(env, modeOf)
+
         if (!env.ctx.serverRole.hostsLobby) return // no lobby on a game-only backend (ADR-0179)
         val lobbySidebar = LobbySidebarService(
             matches = env.matches,
@@ -94,5 +102,49 @@ internal object MatchHudWiring {
         subscriptions += eventBus.subscribe(CurrencyChanged::class) { lobbySidebar.refresh(it.playerId) }
 
         env.ctx.logger.info("WP14 wired: match + lobby sidebar services (ADR-0177).")
+    }
+
+    /**
+     * ADR-0200: team-coloured nameplates + HP under the name (match participants), and the
+     * tab-list header / footer (everyone). Both run on game and lobby backends alike.
+     */
+    private fun installNameplatesAndTab(env: MatchWiringEnv, modeOf: (MatchId) -> IGameMode?) {
+        val services = env.ctx.services
+        val subscriptions = env.ctx.subscriptions
+        val eventBus = env.eventBus
+
+        services.get<IPlayerLabelGateway>()?.let { labels ->
+            val health = services.get<IPlayerHealthGateway>()
+            val nameplates = MatchNameplateService(
+                matches = env.matches,
+                labels = labels,
+                messages = env.msgRenderer,
+                hpOf = { player -> health?.getCurrentHealth(player) },
+                scheduler = env.scheduler,
+            )
+            env.shutdownHooks += { nameplates.stop() }
+            subscriptions += eventBus.subscribe(MatchStarted::class) { nameplates.refresh(it.matchId) }
+            subscriptions += eventBus.subscribe(PhaseChanged::class) { nameplates.refresh(it.matchId) }
+            subscriptions += eventBus.subscribe(PlayerHealthChanged::class) { nameplates.refreshMatchOf(it.playerId) }
+            subscriptions += eventBus.subscribe(MatchEnded::class) { nameplates.release(it.matchId) }
+            subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class) { nameplates.onLeft(it.playerId) }
+            subscriptions += eventBus.subscribe(PlayerQuitServer::class) { nameplates.onLeft(it.playerId) }
+        }
+
+        services.get<ITabList>()?.let { tabList ->
+            val tab = TabHeaderFooterService(
+                matches = env.matches,
+                tabList = tabList,
+                messages = env.msgRenderer,
+                modeOf = modeOf,
+                scheduler = env.scheduler,
+            )
+            env.shutdownHooks += { tab.stop() }
+            subscriptions += eventBus.subscribe(PlayerJoinedServer::class) { tab.onJoined(it.playerId) }
+            subscriptions += eventBus.subscribe(PlayerQuitServer::class) { tab.onQuit(it.playerId) }
+            subscriptions += eventBus.subscribe(MatchStarted::class) { tab.refreshAll() }
+            subscriptions += eventBus.subscribe(MatchEnded::class) { tab.refreshAll() }
+            subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class) { tab.refreshAll() }
+        }
     }
 }

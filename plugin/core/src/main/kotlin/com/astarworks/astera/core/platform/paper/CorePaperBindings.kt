@@ -142,6 +142,7 @@ internal class CorePaperBindings(
                     tabListPacketSender,
                 )
             },
+            playerLabelGateway = { com.astarworks.astera.core.adapter.paper.hud.PaperPlayerLabelGateway(server) },
             resourcePack = com.astarworks.astera.core.platform.wiring.ResourcePackEnv.load(logger = logger),
             hudGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.hud.PaperHudGateway(

@@ -30,6 +30,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.Clientbound
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundPlayerChatPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundRespawnPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundSystemChatPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundTabListPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundSetHealthPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.inventory.ClientboundContainerSetContentPacket
@@ -69,7 +70,7 @@ data class PackPush(val id: UUID, val url: String, val hash: String, val require
 data class ChatLine(val text: String, val overlay: Boolean, val at: Long = System.currentTimeMillis())
 data class BossBarView(val id: UUID, var title: String, var progress: Float, val titles: MutableList<String> = mutableListOf(), val progresses: MutableList<Float> = mutableListOf())
 data class ScoreView(var value: Int, var display: String?)
-data class TeamView(var prefix: String, var suffix: String, val players: MutableSet<String> = mutableSetOf())
+data class TeamView(var prefix: String, var suffix: String, val players: MutableSet<String> = mutableSetOf(), var color: String? = null)
 data class ScreenView(val containerId: Int, val type: String, val title: String)
 data class SlotView(val containerId: Int, val slot: Int, val itemId: Int, val amount: Int)
 
@@ -119,6 +120,10 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
     val displaySlots = ConcurrentHashMap<ScoreboardPosition, String>()
     val scores = ConcurrentHashMap<String, ConcurrentHashMap<String, ScoreView>>()
     val teams = ConcurrentHashMap<String, TeamView>()
+    /** Last tab-list header / footer received, as plain text, and how many times each changed. */
+    @Volatile var tabHeader: String? = null; private set
+    @Volatile var tabFooter: String? = null; private set
+    val tabUpdates = AtomicInteger()
     val screens = CopyOnWriteArrayList<ScreenView>()
     val contents = ConcurrentHashMap<Int, List<SlotView>>()
     val slotUpdates = CopyOnWriteArrayList<SlotView>()
@@ -208,10 +213,16 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
                 ScoreView(packet.value, packet.display?.let(::plain))
             is ClientboundSetPlayerTeamPacket -> {
                 val t = teams.computeIfAbsent(packet.teamName) { TeamView("", "") }
+                packet.color?.let { t.color = it.name }
                 packet.playerPrefix?.let { t.prefix = plain(it) }
                 packet.playerSuffix?.let { t.suffix = plain(it) }
                 packet.players?.forEach { p -> if (p != null) t.players += p }
                 if (packet.action.name == "REMOVE") teams.remove(packet.teamName)
+            }
+            is ClientboundTabListPacket -> {
+                tabHeader = plain(packet.header)
+                tabFooter = plain(packet.footer)
+                tabUpdates.incrementAndGet()
             }
             is ClientboundCommandsPacket -> commandTree = packet
             is ClientboundCommandSuggestionsPacket -> suggestions[packet.transactionId] = packet
@@ -348,6 +359,16 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
             (team?.prefix.orEmpty() + base + team?.suffix.orEmpty())
         }
     }
+
+    /** Score under the nameplate (BELOW_NAME objective) per entry name, e.g. the HP of every styled player. */
+    fun belowNameScores(): Map<String, Int> {
+        val obj = displaySlots[ScoreboardPosition.BELOW_NAME] ?: return emptyMap()
+        return scores[obj].orEmpty().mapValues { it.value.value }
+    }
+
+    /** The scoreboard team (if any) a client would put [player] in, with its colour. */
+    fun teamOf(player: String): Pair<String, TeamView>? =
+        teams.entries.firstOrNull { player in it.value.players }?.let { it.key to it.value }
 
     fun sidebarTitle(): String? = displaySlots[ScoreboardPosition.SIDEBAR]?.let { objectives[it] }
 
