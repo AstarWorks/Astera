@@ -71,15 +71,8 @@ public class PaperCommandBridge(
                 emptyList(),
             )
             // ADR-0234: /play /menu /vault /shop /lang are redirects into the one tree, never second specs.
-            for ((name, target) in CommandShortcuts.TABLE) {
-                var found: com.mojang.brigadier.tree.CommandNode<CommandSourceStack>? = built
-                for (segment in target) found = found?.getChild(segment)
-                val node = found ?: continue // owner plugin not loaded: the shortcut does not exist either
-                val shortcut = com.mojang.brigadier.builder.LiteralArgumentBuilder.literal<CommandSourceStack>(name)
-                    .requires(node.requirement)
-                    .redirect(node)
-                    .executes(node.command)
-                    .build()
+            for (shortcut in ShortcutNodes.build(built, CommandShortcuts.TABLE)) {
+                val target = CommandShortcuts.TABLE.getValue(shortcut.literal)
                 registrar.register(plugin.pluginMeta, shortcut, "Shortcut for /astera ${target.joinToString(" ")}", emptyList())
             }
         }
