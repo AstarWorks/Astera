@@ -10,7 +10,7 @@ A newer push to the same ref cancels the older run.
 |---|---|---|
 | `build` | `./gradlew check` (unit + Konsist), then the 7 plugin shadow jars (`make build`) | `astera-plugin-jars`, `test-reports` (on failure) |
 | `e2e` | `make e2e` (docker, MCProtocolLib bots); report copied to the job summary; fails on any failed check | `e2e-report`, `e2e-backend-logs` (on failure) |
-| `skill-frames` | `:tools:skill-viewer:render` for every skill (bun + Chromium + ffmpeg) | `skill-frames` (sheet.png, anim.gif per skill) |
+| `skill-frames` | `:tools:skill-viewer:render` (bun + Chromium + ffmpeg) for the `content/skills/*.yaml` changed in the push / PR. Manual run: `gh workflow run CI --ref wp/<name> -f skills="simple-shoot backstep"` (or `ALL`, 40+ min) | `skill-frames` (sheet.png, anim.gif per skill) |
 
 ## Reading results with gh
 
