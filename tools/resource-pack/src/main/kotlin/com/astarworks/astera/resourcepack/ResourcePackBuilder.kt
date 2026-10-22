@@ -35,7 +35,7 @@ public data class BuiltPack(val zip: Path, val sha1: String, val entryCount: Int
  * | `content/hud/<tree>.png`                     | `assets/astera/textures/hud/<tree>`                      |
  * | `content/hud/top-level .json`                     | providers merged into `assets/astera/font/default.json` |
  * | `content/fonts/<tree>.json`                  | `assets/astera/font/<tree>.json` (`fonts/vfx/spark.json` = font `astera:vfx/spark`, ADR-0237) |
- * | `content/textures/sources/**`                | not shipped (raster sources for `:tools:item-art`, ADR-0236) |
+ * | `content/textures/sources/` (all of it)     | not shipped (raster sources for `:tools:item-art`, ADR-0236) |
  * | (generated)                              | transparent sprites hiding the vanilla hearts / armor bar |
  *
  * The zip is reproducible: sorted entries, fixed timestamps, stored (not

@@ -55,15 +55,16 @@ class SpriteTest {
     }
 
     @Test
-    fun `painters are deterministic and every frame is non empty`() {
+    fun `painters are deterministic and every frame but a fade-out last one is non empty`() {
         for (name in ParticlePainters.NAMES) {
             val a = ParticlePainters.frames(name, 6, 32, 0xFFFF9A3C.toInt())
             val b = ParticlePainters.frames(name, 6, 32, 0xFFFF9A3C.toInt())
             a.forEachIndexed { i, f ->
                 assertThat(ItemArt.pixels(f)).`as`("$name frame $i").isEqualTo(ItemArt.pixels(b[i]))
-                assertThat(ItemArt.pixels(f).count { it ushr 24 != 0 }).`as`("$name frame $i").isGreaterThan(0)
+                if (i < a.lastIndex) assertThat(ItemArt.pixels(f).count { it ushr 24 != 0 }).`as`("$name frame $i").isGreaterThan(0)
             }
             assertThat(a.first().width).isEqualTo(32)
+            assertThat(a.flatMap { ItemArt.pixels(it) }.count { it ushr 24 != 0 }).`as`(name).isGreaterThan(40)
         }
     }
 
