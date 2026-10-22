@@ -2,7 +2,9 @@ package com.astarworks.astera.gamesim.persona
 
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.service.MechanicContext
+import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.event.CriticalHit
+import com.astarworks.astera.combat.domain.event.DamageDealt
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import com.astarworks.astera.core.domain.geometry.Vec3
@@ -75,6 +77,10 @@ class RifleGauntletPersonaScenarioTest {
         }
     }
 
+    /** Distinct skill damage hits that landed on [entity] (DoT ticks are not skill hits). */
+    private fun ScenarioScope.hits(entity: SimEntity): Int =
+        eventsOf<DamageDealt>().count { it.target == entity.id && it.source is DamageSource.Skill }
+
     private fun ScenarioScope.glyphs(): Int =
         sim.displays.spawned.count { it.spec.kind is DisplayKind.Text && it.lines.any { line -> line.contains("✦") } }
 
@@ -120,10 +126,11 @@ class RifleGauntletPersonaScenarioTest {
 
             shooter.leftClick()
             step(6)
-            assertThat(hp(victim)).`as`("the thrust is the last beat: nothing before tick 9").isEqualTo(hpBefore)
+            assertThat(hits(victim)).`as`("crescent A and B have landed, the thrust has not").isEqualTo(2)
             assertThat(stacks(victim, tremor)).isEqualTo(2)
             step(40)
 
+            assertThat(hits(victim)).`as`("three coins: A, B, thrust").isEqualTo(3)
             assertThat(hpBefore - hp(victim)).isBetween(5.0, 12.0)
             assertThat(ammo(shooter)).`as`("the bayonet is free").isEqualTo(ammoBefore)
             assertThat(shooter.position.z).`as`("dashed forward").isGreaterThan(3.0)
@@ -132,6 +139,25 @@ class RifleGauntletPersonaScenarioTest {
             assertThat(blocksNamed("magenta")).isGreaterThan(0)
             assertThat(peak).isBetween(15, 60)
             assertThat(sim.displays.active).isEmpty()
+        }
+    }
+
+    @Test
+    fun `vendetta S1 thrust refunds a round`() {
+        persona("persona-vendetta-s1-refund") {
+            val (shooter, victim) = fighters(3.0)
+            shooter.holds("vendetta-rifle")
+            shooter.faces(victim)
+            shooter.rightClick() // S2: 6 -> 4
+            step(90)
+            assertThat(ammo(shooter)).isEqualTo(4)
+            shooter.moveTo(Vec3(0.0, groundY, 0.0))
+            shooter.faces(victim)
+
+            shooter.leftClick()
+            step(20)
+
+            assertThat(ammo(shooter)).`as`("the landed thrust gave one round back").isEqualTo(5)
         }
     }
 
@@ -152,6 +178,7 @@ class RifleGauntletPersonaScenarioTest {
             step(70)
 
             assertThat(sim.displays.spawned.count { it.spec.kind is DisplayKind.Item }).isEqualTo(8)
+            assertThat(hits(victim)).`as`("eight beams plus the closing hit").isEqualTo(9)
             assertThat(hpBefore - hp(victim)).isBetween(9.0, 18.0)
             assertThat(stacks(victim, tremor)).isEqualTo(4)
             assertThat(shooter.velocity.z).`as`("recoil hop pushed backwards").isLessThan(0.0)
@@ -180,18 +207,21 @@ class RifleGauntletPersonaScenarioTest {
             assertThat(hp(victim)).`as`("telegraph window deals nothing").isEqualTo(hpBefore)
             assertThat(sim.displays.spawned).`as`("summoning circle + rack are up").isNotEmpty()
 
-            step(6) // t26: volley landed
+            step(20) // t40: the eight volley beams have landed
             val afterVolley = hp(victim)
+            assertThat(hits(victim)).isEqualTo(8)
             assertThat(hpBefore - afterVolley).isBetween(4.0, 8.0)
             assertThat(stacks(victim, tremor)).isEqualTo(2)
 
-            step(22) // t48: spikes
+            step(10) // t50: the two spike hits
             val afterSpikes = hp(victim)
+            assertThat(hits(victim)).isEqualTo(10)
             assertThat(afterVolley - afterSpikes).isGreaterThanOrEqualTo(3.5)
             assertThat(stacks(victim, tremor)).isEqualTo(4)
             assertThat(stacks(victim, bleed)).isGreaterThanOrEqualTo(1)
 
-            step(30) // t78: the shotgun finale consumed every tremor stack
+            step(30) // t80: the shotgun finale consumed every tremor stack
+            assertThat(hits(victim)).`as`("8 beams + 2 spikes + the finale").isEqualTo(11)
             assertThat(stacks(victim, tremor)).isZero()
             assertThat(hpBefore - hp(victim)).`as`("three beats plus 1 per stack").isGreaterThanOrEqualTo(13.0)
             step(40)
@@ -263,11 +293,12 @@ class RifleGauntletPersonaScenarioTest {
             assertThat(stacks(brawler, charge)).`as`("casting builds charge").isEqualTo(1)
             step(3)
             assertThat(stacks(victim, burn)).isGreaterThanOrEqualTo(1)
-            assertThat(hp(victim)).`as`("the damage rides the second knuckle").isEqualTo(hpBefore)
+            assertThat(hits(victim)).`as`("knuckle 1 has landed").isEqualTo(1)
             step(5)
             assertThat(stacks(victim, burn)).`as`("one burn per knuckle (short DoT, expires after ~1s)").isEqualTo(2)
             step(35)
 
+            assertThat(hits(victim)).`as`("two knuckles").isEqualTo(2)
             assertThat(hpBefore - hp(victim)).isGreaterThanOrEqualTo(4.5)
             assertThat(glyphs()).isGreaterThanOrEqualTo(2)
             assertThat(peak).isBetween(10, 60)
@@ -290,7 +321,8 @@ class RifleGauntletPersonaScenarioTest {
 
             assertThat(hpBefore - hp(victim)).isBetween(3.0, 14.0)
             assertThat(stacks(brawler, charge)).`as`("no overdrive without charge").isZero()
-            assertThat(blocksNamed("orange")).isGreaterThanOrEqualTo(3 * 16)
+            assertThat(hits(victim)).`as`("one hit per hoop").isEqualTo(3)
+            assertThat(blocksNamed("orange")).isGreaterThanOrEqualTo(3 * 10)
             assertThat(blocksNamed("black")).`as`("smoke puff").isGreaterThan(0)
             assertThat(brawler.velocity.z).`as`("recoil").isLessThan(0.0)
             assertThat(victim.frozenTicks).isGreaterThan(0)
@@ -339,13 +371,15 @@ class RifleGauntletPersonaScenarioTest {
             assertThat(hp(victim)).`as`("telegraph window deals nothing").isEqualTo(hpBefore)
             assertThat(blocksNamed("orange")).isGreaterThan(0)
 
-            step(6) // t30: spiral
+            step(10) // t34: the three spiral hits
             val afterSpiral = hp(victim)
+            assertThat(hits(victim)).isEqualTo(3)
             assertThat(hpBefore - afterSpiral).isGreaterThanOrEqualTo(2.5)
             assertThat(stacks(victim, burn)).isGreaterThanOrEqualTo(1)
 
-            step(40) // t70: finale on this tick; burn and charge are consumed
+            step(36) // t70: finale on this tick; burn and charge are consumed
             step(50)
+            assertThat(hits(victim)).`as`("3 spiral + 2 halo + the finale").isEqualTo(6)
             assertThat(stacks(brawler, charge)).`as`("charge detonated").isZero()
             assertThat(stacks(victim, burn)).`as`("burn detonated").isZero()
             assertThat(hpBefore - hp(victim)).isGreaterThanOrEqualTo(13.0)
