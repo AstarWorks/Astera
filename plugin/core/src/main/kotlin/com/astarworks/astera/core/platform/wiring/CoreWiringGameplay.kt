@@ -152,7 +152,6 @@ internal fun CoreWiringState.wireGameplayLoop() {
     val createFirstTimeListener = com.astarworks.astera.core.application.eventbus.listeners
         .CreateFirstTimeProfileOnPlayerJoinedListener(
             profileService = profileService,
-            sessionRepo = sessionRepo,
             eventBus = eventBus,
             scheduler = scheduler,
         )

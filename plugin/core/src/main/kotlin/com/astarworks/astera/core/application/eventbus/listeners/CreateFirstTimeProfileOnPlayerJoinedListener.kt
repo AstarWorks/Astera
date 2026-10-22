@@ -2,13 +2,11 @@ package com.astarworks.astera.core.application.eventbus.listeners
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerProfileService
-import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.ProfileError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.FirstTimeProfileCreated
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
-import com.astarworks.astera.core.domain.player.SessionState
 import org.slf4j.LoggerFactory
 
 /**
@@ -18,24 +16,20 @@ import org.slf4j.LoggerFactory
  * Wave 5e gave Astera a [com.astarworks.astera.core.domain.player.PlayerProfile]
  * value object and an inventory-restore listener, but nothing **created**
  * profiles. This listener closes that gap: when the domain join event
- * arrives, it asks [IPlayerSessionRepository] whether the player has been
- * seen before (returning player = the inventory-restore path) — if not, it
- * calls [IPlayerProfileService.createFirstTime] to provision them.
+ * arrives, it calls [IPlayerProfileService.createFirstTime] to provision the
+ * player; the service answers `AlreadyExists` for returning players.
  *
- * # Sibling listener ordering
+ * # Ordering independence
  *
- * Wired alongside [RestoreInventoryOnPlayerJoinedListener] on the same
- * event. **This listener subscribes first** so that:
- *
- *  1. First-time players get a profile + starter grant before
- *     `RestoreInventorySnapshotUseCase` runs (it finds no snapshot and
- *     returns `Success(null)` — see its KDoc).
- *  2. Returning players short-circuit here and let the inventory restore
- *     path do its normal thing.
- *
- * The in-memory `IDomainEventBus` (Wave 5b) dispatches subscribers in
- * registration order; `AsteraCorePlugin.onEnable` subscribes this listener
- * before the inventory listener.
+ * First-time detection is owned entirely by [IPlayerProfileService]:
+ * `createFirstTime` is idempotent and answers [ProfileError.AlreadyExists] for
+ * a known player. This listener deliberately does **not** consult
+ * [com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository]
+ * (an earlier version did, as a "no session yet = first time" pre-filter). The
+ * session is created by the sibling inventory-restore listener on the very same
+ * `PlayerJoinedServer`, so whichever subscribed first decided the outcome: with
+ * restore first, every join looked like a duplicate and `FirstTimeProfileCreated`
+ * (starter grant, tutorial, welcome dialog) never fired.
  *
  * # Failure mode
  *
@@ -50,23 +44,9 @@ import org.slf4j.LoggerFactory
  * - The implementation never re-throws. The join must complete (CLAUDE.md
  *   §Pre-release posture + the same invariant
  *   [RestoreInventoryOnPlayerJoinedListener] documents).
- *
- * # Session-presence-as-first-time-signal
- *
- * Phase 1 uses
- * [com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository.find]
- * as the first-time signal: the in-memory session map is freshly empty on
- * server start, so a "no session" reading after a clean boot is ambiguous
- * (could be a fresh restart of an existing player). [IPlayerProfileService]
- * itself owns the real idempotency via `createFirstTime`'s `AlreadyExists`
- * return — the session check is a cheap pre-filter to avoid calling
- * `createFirstTime` on every reconnect once Postgres profile storage lands.
- * Until then, this listener is effectively a `createFirstTime` driver
- * that the service deduplicates internally.
  */
 public class CreateFirstTimeProfileOnPlayerJoinedListener(
     private val profileService: IPlayerProfileService,
-    private val sessionRepo: IPlayerSessionRepository,
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
 ) {
@@ -75,26 +55,6 @@ public class CreateFirstTimeProfileOnPlayerJoinedListener(
 
     public fun handle(event: PlayerJoinedServer) {
         val playerId = event.playerId
-
-        // Double-join idempotency (Wave E 5admin-ops, ADR-0122 §C):
-        // a live (non-Disconnected) session = the player is already tracked
-        // on this server, so a second PlayerJoinedServer is a duplicate
-        // dispatch — skip with a WARN. A Disconnected session = the player
-        // quit cleanly and is reconnecting; treat as returning player and
-        // fall through to the existing-session DEBUG branch.
-        val existing = sessionRepo.find(playerId)
-        if (existing != null) {
-            if (existing.state !is SessionState.Disconnected) {
-                log.warn(
-                    "Duplicate PlayerJoinedServer for {} (state={}); skipping first-time profile creation.",
-                    playerId,
-                    existing.state::class.simpleName,
-                )
-                return
-            }
-            log.debug("Player {} has an existing session; skipping first-time profile creation.", playerId)
-            return
-        }
 
         // The domain event is deliberately lean (id + timestamp; see its
         // KDoc). Display-name extraction is the Bukkit adapter's job; here

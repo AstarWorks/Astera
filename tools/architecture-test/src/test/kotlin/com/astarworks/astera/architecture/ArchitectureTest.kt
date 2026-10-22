@@ -3,9 +3,7 @@ package com.astarworks.astera.architecture
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlMap
 import com.charleskorn.kaml.YamlNode
-import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.declaration.KoFileDeclaration
-import com.lemonappdev.konsist.api.verify.assertFalse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -62,7 +60,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core domain must not depend on any platform or framework`() {
-        Konsist.scopeFromModule("plugin/core")
+        moduleScope("plugin/core")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain") == true }
             .assertFalse { file ->
@@ -92,7 +90,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core application must not import Bukkit family or persistence drivers`() {
-        Konsist.scopeFromModule("plugin/core")
+        moduleScope("plugin/core")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.application") == true }
             .assertFalse { file ->
@@ -114,7 +112,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core adapter-api MUST stay vendor-neutral (no Bukkit imports)`() {
-        Konsist.scopeFromModule("plugin/core")
+        moduleScope("plugin/core")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.adapter.api") == true }
             .assertFalse(additionalMessage = "ADR-0002 violation: vendor-neutral layer leaked Bukkit imports.") { file ->
@@ -129,7 +127,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core domain event package must not import IBroadcaster or IDomainEventBus`() {
-        Konsist.scopeFromModule("plugin/core")
+        moduleScope("plugin/core")
             .files
             .filter { it.packagee?.name == "com.astarworks.astera.core.domain.event" }
             .assertFalse(
@@ -147,7 +145,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core must not import any feature plugin`() {
-        Konsist.scopeFromModule("plugin/core")
+        moduleScope("plugin/core")
             .files
             .assertFalse(
                 additionalMessage = "ADR-0022 violation: Core cannot depend on feature plugins (creates dependency cycle).",
@@ -163,14 +161,14 @@ class ArchitectureTest {
             }
     }
 
-    // ─── Weapons plugin ─────────────────────────────────────────────────────
+    // ─── Items plugin (formerly Weapons) ─────────────────────────────────────────────────────
 
     /**
      * Weapons domain is pure. Same rules as Core's domain.
      */
     @Test
-    fun `weapons domain must be pure`() {
-        Konsist.scopeFromModule("plugin/weapons")
+    fun `items domain must be pure`() {
+        moduleScope("plugin/items")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.items.domain") == true }
             .assertFalse { file ->
@@ -194,8 +192,8 @@ class ArchitectureTest {
      * the Bukkit translation.
      */
     @Test
-    fun `weapons application must not import Bukkit family`() {
-        Konsist.scopeFromModule("plugin/weapons")
+    fun `items application must not import Bukkit family`() {
+        moduleScope("plugin/items")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.items.application") == true }
             .assertFalse { file -> hasBukkitFamilyImport(file) }
@@ -208,8 +206,8 @@ class ArchitectureTest {
      * not the other way around.
      */
     @Test
-    fun `weapons must not import combat or match or stats or economy or persistence`() {
-        Konsist.scopeFromModule("plugin/weapons")
+    fun `items must not import combat or match or stats or economy or persistence`() {
+        moduleScope("plugin/items")
             .files
             .assertFalse(
                 additionalMessage = "ADR-0022 violation: Weapons cannot reach sibling features. Core is the only allowed cross-plugin reference.",
@@ -228,7 +226,7 @@ class ArchitectureTest {
 
     @Test
     fun `combat domain must be pure (Weapons types allowed for DamageSource Weapon)`() {
-        Konsist.scopeFromModule("plugin/combat")
+        moduleScope("plugin/combat")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.combat.domain") == true }
             .assertFalse { file ->
@@ -249,7 +247,7 @@ class ArchitectureTest {
 
     @Test
     fun `combat application must not import Bukkit family`() {
-        Konsist.scopeFromModule("plugin/combat")
+        moduleScope("plugin/combat")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.combat.application") == true }
             .assertFalse { file -> hasBukkitFamilyImport(file) }
@@ -263,7 +261,7 @@ class ArchitectureTest {
      */
     @Test
     fun `combat must not import match or stats or economy or persistence`() {
-        Konsist.scopeFromModule("plugin/combat")
+        moduleScope("plugin/combat")
             .files
             .assertFalse(
                 additionalMessage = "ADR-0022 violation: Combat may use Core + (soft-dep) Weapons only.",
@@ -281,7 +279,7 @@ class ArchitectureTest {
 
     @Test
     fun `match domain must be pure`() {
-        Konsist.scopeFromModule("plugin/match")
+        moduleScope("plugin/match")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.match.domain") == true }
             .assertFalse { file ->
@@ -302,7 +300,7 @@ class ArchitectureTest {
 
     @Test
     fun `match application must not import Bukkit family`() {
-        Konsist.scopeFromModule("plugin/match")
+        moduleScope("plugin/match")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.match.application") == true }
             .assertFalse { file -> hasBukkitFamilyImport(file) }
@@ -320,7 +318,7 @@ class ArchitectureTest {
      */
     @Test
     fun `match domain gamemode must be pure and avoid legacy mode coupling`() {
-        Konsist.scopeFromModule("plugin/match")
+        moduleScope("plugin/match")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.match.domain.gamemode") == true }
             .assertFalse(
@@ -352,7 +350,7 @@ class ArchitectureTest {
      */
     @Test
     fun `match must not import weapons or stats or economy or persistence`() {
-        Konsist.scopeFromModule("plugin/match")
+        moduleScope("plugin/match")
             .files
             .assertFalse(
                 additionalMessage = "ADR-0022 violation: Match may use Core + (soft-dep) Combat only.",
@@ -370,7 +368,7 @@ class ArchitectureTest {
 
     @Test
     fun `stats domain must be pure`() {
-        Konsist.scopeFromModule("plugin/stats")
+        moduleScope("plugin/stats")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.stats.domain") == true }
             .assertFalse { file ->
@@ -391,7 +389,7 @@ class ArchitectureTest {
 
     @Test
     fun `stats application must not import Bukkit family`() {
-        Konsist.scopeFromModule("plugin/stats")
+        moduleScope("plugin/stats")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.stats.application") == true }
             .assertFalse { file -> hasBukkitFamilyImport(file) }
@@ -404,7 +402,7 @@ class ArchitectureTest {
      */
     @Test
     fun `stats must not import economy or persistence`() {
-        Konsist.scopeFromModule("plugin/stats")
+        moduleScope("plugin/stats")
             .files
             .assertFalse(
                 additionalMessage = "ADR-0022 violation: Stats may use Core + (soft-dep) Weapons/Combat/Match only.",
@@ -420,7 +418,7 @@ class ArchitectureTest {
 
     @Test
     fun `economy domain must be pure`() {
-        Konsist.scopeFromModule("plugin/economy")
+        moduleScope("plugin/economy")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.economy.domain") == true }
             .assertFalse { file ->
@@ -441,7 +439,7 @@ class ArchitectureTest {
 
     @Test
     fun `economy application must not import Bukkit family`() {
-        Konsist.scopeFromModule("plugin/economy")
+        moduleScope("plugin/economy")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.economy.application") == true }
             .assertFalse { file -> hasBukkitFamilyImport(file) }
@@ -453,7 +451,7 @@ class ArchitectureTest {
      */
     @Test
     fun `economy must not import weapons or combat or persistence`() {
-        Konsist.scopeFromModule("plugin/economy")
+        moduleScope("plugin/economy")
             .files
             .assertFalse(
                 additionalMessage = "ADR-0022 violation: Economy may use Core + (soft-dep) Stats/Match only.",
@@ -477,7 +475,7 @@ class ArchitectureTest {
      */
     @Test
     fun `persistence must not import Minecraft family`() {
-        Konsist.scopeFromModule("plugin/persistence")
+        moduleScope("plugin/persistence")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.persistence.platform") != true }
             .assertFalse(additionalMessage = "Persistence is a DB-side plugin; Minecraft access (other than the JavaPlugin entrypoint) belongs in the platform layer or stays off-limits.") { file ->
@@ -516,7 +514,7 @@ class ArchitectureTest {
             "com.astarworks.astera.economy.application",
             "com.astarworks.astera.persistence.application",
         )
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 applicationPackagePrefixes.any { prefix ->
@@ -538,7 +536,7 @@ class ArchitectureTest {
      */
     @Test
     fun `combat domain must not import bukkit projectile api`() {
-        Konsist.scopeFromModule("plugin/combat")
+        moduleScope("plugin/combat")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.combat.domain") == true }
             .assertFalse(
@@ -570,7 +568,7 @@ class ArchitectureTest {
      */
     @Test
     fun `combat depth domain must not import event bus or broadcaster`() {
-        Konsist.scopeFromModule("plugin/combat")
+        moduleScope("plugin/combat")
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -606,7 +604,7 @@ class ArchitectureTest {
      */
     @Test
     fun `gui slot variants must not contain lambda fields`() {
-        Konsist.scopeFromModule("plugin/core")
+        moduleScope("plugin/core")
             .files
             .filter { it.packagee?.name == "com.astarworks.astera.core.domain.gui" }
             .flatMap { it.classes() }
@@ -645,7 +643,7 @@ class ArchitectureTest {
             "com.astarworks.astera.combat.domain.resource.ManaPool",
         )
         val allowedStored = setOf("playerId", "container")
-        Konsist.scopeFromProject()
+        projectScope()
             .classes()
             .filter { it.fullyQualifiedName in facadeClasses }
             .flatMap { it.properties() }
@@ -708,7 +706,7 @@ class ArchitectureTest {
      */
     @Test
     fun `test-fixtures must not import Minecraft or any feature plugin`() {
-        Konsist.scopeFromModule("plugin/test-fixtures")
+        moduleScope("plugin/test-fixtures")
             .files
             .assertFalse { file ->
                 hasBukkitFamilyImport(file) ||
@@ -740,7 +738,7 @@ class ArchitectureTest {
     @Test
     fun `feature plugins must not import core adapter paper gui`() {
         val featureModules = listOf(
-            "plugin/weapons",
+            "plugin/items",
             "plugin/combat",
             "plugin/match",
             "plugin/stats",
@@ -748,7 +746,7 @@ class ArchitectureTest {
             "plugin/persistence",
         )
         for (module in featureModules) {
-            Konsist.scopeFromModule(module)
+            moduleScope(module)
                 .files
                 .assertFalse(
                     additionalMessage = "$module must not import com.astarworks.astera.core.adapter.paper.gui; " +
@@ -814,7 +812,7 @@ class ArchitectureTest {
         // (1) Every allow-set entry must resolve to a real port interface.
         // If a Wave 6 author deletes a port without trimming the allow-set,
         // this fails loudly instead of silently rotting.
-        val knownInterfaces = Konsist.scopeFromProject()
+        val knownInterfaces = projectScope()
             .interfaces()
             .map { it.fullyQualifiedName }
             .toSet()
@@ -834,7 +832,7 @@ class ArchitectureTest {
         // avoids needing a full type-resolution graph and matches the
         // codebase's `IShopStockRepository` / `PaperXxxAdapter` convention.
         val allowedSimpleNames = allowedMissingPaperImpl.map { it.substringAfterLast('.') }.toSet()
-        val paperImplsForAllowedPorts = Konsist.scopeFromProject()
+        val paperImplsForAllowedPorts = projectScope()
             .classes()
             .filter { cls ->
                 val pkg = cls.packagee?.name ?: return@filter false
@@ -880,7 +878,7 @@ class ArchitectureTest {
             "com.astarworks.astera.persistence.repository.PostgresShopStockRepository"
         val expectedPortSimpleName = "IShopStockRepository"
 
-        val matches = Konsist.scopeFromProject()
+        val matches = projectScope()
             .classes()
             .filter { it.fullyQualifiedName == expectedImplFqn }
 
@@ -888,7 +886,7 @@ class ArchitectureTest {
         // the test is a no-op. The runtime registry will fall back to the
         // in-memory impl. Once the impl class exists, the parent-check
         // below enforces the wiring contract.
-        if (matches.isEmpty()) return
+        requireSubjects(matches, "PostgresShopStockRepository class")
 
         val nonImplementors = matches.filter { cls ->
             cls.parents().none { parent -> parent.name == expectedPortSimpleName }
@@ -930,7 +928,7 @@ class ArchitectureTest {
             "MatchPhase", "DamageSourceKind",
         )
 
-        val variantClasses = Konsist.scopeFromProject()
+        val variantClasses = projectScope()
             .classes()
             .filter { cls ->
                 cls.parents().any { parent ->
@@ -940,7 +938,7 @@ class ArchitectureTest {
 
         // Skeleton tolerance: if the sealed has no variants yet, no-op. Once
         // a variant exists the rule fires for every declared property.
-        if (variantClasses.isEmpty()) return
+        requireSubjects(variantClasses, "ReplayEvent variants")
 
         val offenders = variantClasses.flatMap { cls ->
             cls.properties().filter { prop ->
@@ -971,7 +969,7 @@ class ArchitectureTest {
      */
     @Test
     fun `Wave 5v IMatchRecorder must not import Bukkit Paper`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 file.name.removeSuffix(".kt") == "IMatchRecorder" &&
@@ -1007,7 +1005,7 @@ class ArchitectureTest {
      */
     @Test
     fun `IExplosionGateway and IAreaEffectGateway implementations must not import Bukkit Paper (ADR-0088)`() {
-        Konsist.scopeFromModule("plugin/combat")
+        moduleScope("plugin/combat")
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1041,7 +1039,7 @@ class ArchitectureTest {
     fun `IMobAdapter implementations must declare backendId() uniquely (ADR-0085)`() {
         val portSimpleName = "IMobAdapter"
 
-        val adapters = Konsist.scopeFromProject()
+        val adapters = projectScope()
             .classes()
             .filter { cls ->
                 cls.parents().any { parent -> parent.name == portSimpleName }
@@ -1097,7 +1095,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core domain mob must not import MythicMobs API (ADR-0085)`() {
-        Konsist.scopeFromModule("plugin/core")
+        moduleScope("plugin/core")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain.mob") == true }
             .assertFalse(
@@ -1138,7 +1136,7 @@ class ArchitectureTest {
             "com.astarworks.astera.core.domain.mob.raid",
             "com.astarworks.astera.core.domain.mob.runtime",
         )
-        Konsist.scopeFromModule("plugin/core")
+        moduleScope("plugin/core")
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1188,7 +1186,7 @@ class ArchitectureTest {
      */
     @Test
     fun `pve content yaml DTOs must stay platform-free (ADR-0099)`() {
-        Konsist.scopeFromModule("plugin/core")
+        moduleScope("plugin/core")
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1226,7 +1224,7 @@ class ArchitectureTest {
      */
     @Test
     fun `core domain must not import PacketEvents (ADR-0090)`() {
-        Konsist.scopeFromModule("plugin/core")
+        moduleScope("plugin/core")
             .files
             .filter { it.packagee?.name?.startsWith("com.astarworks.astera.core.domain") == true }
             .assertFalse(
@@ -1258,7 +1256,7 @@ class ArchitectureTest {
     @Test
     fun `IPacketInterceptor and IPlayerVisibilityGateway application impls must not import Bukkit Paper (ADR-0090)`() {
         val portSimpleNames = setOf("IPacketInterceptor", "IPlayerVisibilityGateway")
-        Konsist.scopeFromProject()
+        projectScope()
             .classes()
             .filter { cls ->
                 cls.parents().any { parent -> parent.name in portSimpleNames } &&
@@ -1292,7 +1290,7 @@ class ArchitectureTest {
      */
     @Test
     fun `items refinement domain stays pure (ADR-0100)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter {
                 it.packagee?.name?.startsWith("com.astarworks.astera.items.domain.refinement") == true
@@ -1340,7 +1338,7 @@ class ArchitectureTest {
             "com.astarworks.astera.core.domain.profile",
             "com.astarworks.astera.stats.domain.nameplate",
         )
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1393,7 +1391,7 @@ class ArchitectureTest {
      */
     @Test
     fun `betting domain stays pure (ADR-0103)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1445,7 +1443,7 @@ class ArchitectureTest {
      */
     @Test
     fun `effect domain stays pure (ADR-0109)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1477,7 +1475,7 @@ class ArchitectureTest {
 
     @Test
     fun `survival domain stays pure (ADR-0107)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1534,7 +1532,7 @@ class ArchitectureTest {
      */
     @Test
     fun `inventory domain stays pure (ADR-0111)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1584,7 +1582,7 @@ class ArchitectureTest {
             "com.astarworks.astera.core.application.port.outbound.inventory",
             "com.astarworks.astera.core.application.port.outbound.world",
         )
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1653,7 +1651,7 @@ class ArchitectureTest {
      */
     @Test
     fun `gui-depth domain stays pure (ADR-0114)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1716,7 +1714,7 @@ class ArchitectureTest {
      */
     @Test
     fun `hologram transition domain stays pure (ADR-0115)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1769,7 +1767,7 @@ class ArchitectureTest {
      */
     @Test
     fun `item entity domain stays pure (ADR-0117)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1825,7 +1823,7 @@ class ArchitectureTest {
      */
     @Test
     fun `block interaction and portal domain stays pure (ADR-0120)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 val pkg = file.packagee?.name ?: return@filter false
@@ -1883,11 +1881,12 @@ class ArchitectureTest {
      */
     @Test
     fun `every plugin onEnable subscribe must be assigned into a subscription holder (ADR-0123)`() {
-        val violators = Konsist.scopeFromProject()
+        val violators = projectScope()
             .files
             // KoFile.name is the basename WITHOUT extension (e.g. "AsteraCorePlugin",
             // not "AsteraCorePlugin.kt"); see isPluginWiringFile for the scope.
             .filter { file -> isPluginWiringFile(file) }
+            .also { requireSubjects(it, "plugin wiring files") }
             .flatMap { file ->
                 file.text.lineSequence().withIndex().mapNotNull { (idx, raw) ->
                     val line = raw.trim()
@@ -1956,10 +1955,11 @@ class ArchitectureTest {
     @Test
     fun `every plugin val xxxListener must be referenced after declaration (ADR-0131)`() {
         val declRegex = Regex("\\bval\\s+([a-z][A-Za-z0-9]*Listener)\\b")
-        val violators = Konsist.scopeFromProject()
+        val violators = projectScope()
             .files
             // KoFile.name is the basename WITHOUT extension; see isPluginWiringFile for the scope.
             .filter { file -> isPluginWiringFile(file) }
+            .also { requireSubjects(it, "plugin wiring files") }
             .flatMap { file ->
                 val text = file.text
                 declRegex.findAll(text).mapNotNull { match ->
@@ -2017,9 +2017,10 @@ class ArchitectureTest {
             "com.astarworks.astera.items.adapter.paper.IPaperItemIdResolver",
             "com.astarworks.astera.items.adapter.paper.ItemSkillTriggerListener",
         )
-        val violators = Konsist.scopeFromProject()
+        val violators = projectScope()
             .files
             .filter { file -> file.path.contains("/platform/wiring/") && !file.path.contains("/test/") }
+            .also { requireSubjects(it, "platform/wiring files") }
             .flatMap { file ->
                 file.imports
                     .map { it.name }
@@ -2076,6 +2077,8 @@ class ArchitectureTest {
         val allowlist = readAdr0134Allowlist()
         val events = collectDomainEventImpls(allowlist)
         val corpus = collectMainSourceCorpus()
+        requireSubjects(events, "DomainEvent implementations")
+        requireSubjects(corpus, "main source corpus")
 
         val violators = events.mapNotNull { (fqn, simple, ownPath) ->
             val ctor = Regex("\\b${Regex.escape(simple)}\\(")
@@ -2124,7 +2127,7 @@ class ArchitectureTest {
      */
     @Test
     fun `PaperKnockbackGateway source must reference KNOCKBACK_RESISTANCE token (ADR-0136)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 file.path.contains("/adapter/paper/") &&
@@ -2136,12 +2139,7 @@ class ArchitectureTest {
                 // the token check applies. When it doesn't yet exist (pre-
                 // Wave 6a-1 baseline), the rule trivially passes — but we
                 // log so future contributors notice the file removal.
-                if (matchedFiles.isEmpty()) {
-                    // Not an assertion failure — pre-Wave-6a-1 deployments
-                    // legitimately lack the file; the InMemory NoOpKnockbackGateway
-                    // serves Phase 1 PoC and is exempt from the contract.
-                    return@also
-                }
+                requireSubjects(matchedFiles, "PaperKnockbackGateway.kt")
             }
             .forEach { file ->
                 assertThat(file.text)
@@ -2187,13 +2185,14 @@ class ArchitectureTest {
      */
     @Test
     fun `PaperDamageGateway source must use container + forbid vanilla damage and zero health (ADR-0137 + ADR-0149)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 file.path.contains("/adapter/paper/") &&
                     file.name == "PaperDamageGateway" &&
                     file.path.contains("/src/main/kotlin/")
             }
+            .also { requireSubjects(it, "PaperDamageGateway.kt") }
             .forEach { file ->
                 listOf(
                     "appliedThisTick" to "ADR-0137 §PaperDamageGateway — Wave 6a-6 Path 1 vs Path 2 marker",
@@ -2266,12 +2265,13 @@ class ArchitectureTest {
      */
     @Test
     fun `InMemoryPlayerHealthGateway must use IAttributeContainer (ADR-0150)`() {
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 file.path.contains("/src/main/kotlin/") &&
                     file.name == "InMemoryPlayerHealthGateway"
             }
+            .also { requireSubjects(it, "InMemoryPlayerHealthGateway.kt") }
             .forEach { file ->
                 assertThat(file.text)
                     .withFailMessage {
@@ -2331,7 +2331,7 @@ class ArchitectureTest {
     )
 
     private fun collectDomainEventImpls(allowlist: Set<String>): List<DomainEventImpl> =
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 file.path.contains("/src/main/kotlin/") &&
@@ -2353,7 +2353,7 @@ class ArchitectureTest {
             }
 
     private fun collectMainSourceCorpus(): List<Pair<String, String>> =
-        Konsist.scopeFromProject()
+        projectScope()
             .files
             .filter { file ->
                 file.path.contains("/src/main/kotlin/") &&
