@@ -1,0 +1,72 @@
+# Ember Gauntlet: Flare Guard. A flat flame ring bursts out of the caster (out_expo, to 3.2 blocks), a
+# vertical hoop punches ahead like a miniature cannon ring, and a soot ring follows behind it as the
+# vents close. The reactive read is "touch me and you get pushed". Anchored on the caster, yaw only.
+
+id: ember-flare-guard
+duration_ticks: 22
+orient: yaw
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: ring
+    kind: { type: block, block: orange_stained_glass }
+    brightness: 15
+    glow_color: "#ff7a1a"
+    count: 20
+    end_tick: 15
+    formation:
+      curve: { type: circle, radius: 0.5 }
+      offset: [0.0, 0.9, 0.0]
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.12, 0.12, 0.2] }
+      - { t: 4, translate: [-2.7, 0.0, 0.0], scale: [0.2, 0.2, 0.95], ease: out_expo }
+      - { t: 8, block: red_stained_glass }
+      - { t: 10, block: gray_stained_glass }
+      - { t: 14, scale: [0.0, 0.0, 0.95], ease: in_quad }
+
+  - id: hoop
+    kind: { type: block, block: yellow_stained_glass }
+    brightness: 15
+    glow_color: "#ffb020"
+    count: 12
+    start_tick: 1
+    end_tick: 11
+    formation:
+      curve: { type: circle, radius: 0.8 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.1, 0.6]
+      align: none
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [0.26, 0.26, 0.26], ease: out_back }
+      - { t: 4, translate: [0.0, 0.0, 2.0] }
+      - { t: 7, translate: [0.0, 0.0, 4.0], block: orange_stained_glass }
+      - { t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: soot
+    kind: { type: block, block: black_stained_glass }
+    count: 10
+    start_tick: 3
+    end_tick: 19
+    formation:
+      curve: { type: circle, radius: 0.5 }
+      offset: [0.0, 1.0, 0.0]
+      align: outward
+    jitter: { position: 0.1, rotation_deg: 30, scale: 0.3 }
+    keyframes:
+      - { t: 0, scale: [0.12, 0.12, 0.12] }
+      - { t: 5, translate: [0.0, 0.0, 1.4], scale: [0.6, 0.6, 0.6], ease: out_quad }
+      - { t: 9, block: gray_stained_glass }
+      - { t: 15, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: flare
+    kind: { type: text, text: "<#ffb020>✦", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    end_tick: 8
+    keyframes:
+      - { t: 0, translate: [0.0, 1.1, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [8.0, 8.0, 8.0], ease: out_expo }
+      - { t: 7, scale: [0.0, 0.0, 0.0], ease: in_quad }

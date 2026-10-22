@@ -93,3 +93,19 @@ offers:
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.thunder-staff
+  - id: vendetta-rifle
+    item: vendetta-rifle
+    price:
+      currency: GOLD
+      amount: 160
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.vendetta-rifle
+  - id: ember-gauntlet
+    item: ember-gauntlet
+    price:
+      currency: GOLD
+      amount: 160
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.ember-gauntlet

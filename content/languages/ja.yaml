@@ -494,6 +494,8 @@ astera:
           verdant-staff: "翠緑の杖"
           greatsword: "大剣"
           thunder-staff: "サンダースタッフ"
+          vendetta-rifle: "報復の銃剣"
+          ember-gauntlet: "灼拳の手甲"
       gui:
         spacer: " "
         price: "<gray>価格: <green>{amount}</green> {currency}</gray>"

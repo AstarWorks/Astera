@@ -1,0 +1,201 @@
+# Persona weapon: Vendetta Bayonet. S3 sneak + right-click -- Reckoning Salvo (finisher). Costs 3 rounds.
+#
+#   t0    TELEGRAPH (22 ticks): the caster plants (hit_stop), a crimson summoning circle inks itself on the
+#         floor, the ghost rack unfolds, enemies in front are outlined (glow). Everyone can read it.
+#   t22   volley: eight beams converge, a 3D star of red lines bursts out of each target.  4 damage, +2 tremor
+#   t44   blood-crystal spikes erupt in a ring around each target.                          3.5 damage, +1 bleed, +2 tremor
+#   t66   white flash, hit-stop, camera shake, shotgun burst.  4.5 damage + 1 per tremor stack (consumed), knockback
+# Beats sit 22 ticks apart so every damage packet clears the 20-tick invulnerability window.
+# Targets: a 50 degree, 12 block cone taken from the (planted) caster.
+
+id: vendetta-rifle-s3
+
+name:
+  ja: "報復の一斉掃射"
+  en: "Reckoning Salvo"
+description:
+  ja: "足を止めて銃架と魔法陣を展開し、三段の連撃で撃ち抜く。蓄積した震動を全て消費して最後の一撃が重くなる。弾を3発消費する。"
+  en: "Plants, unfolds the rack and a summoning circle, then lands three beats. The last one consumes every tremor stack for extra damage. Costs 3 rounds."
+
+archetype: buff
+cooldown_ticks: 300
+resource_cost: 3               # half the magazine
+tags: [ persona, gun, finisher, tremor, bleed ]
+
+params:
+  type: buff
+  status_effect_id: reloading  # the 20% slow of the recovery window
+  duration_ticks: 90
+
+phases:
+  type: buff
+  cast:
+    # ---- t0: telegraph -------------------------------------------------------------------------
+    - type: hit_stop
+      targets: { type: caster }
+      ticks: 22
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: vendetta-summon-ring
+      scale: { type: literal, value: 1.5 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: vendetta-rack
+      delay_ticks: { type: literal, value: 12 }   # unfolds 12 ticks into the plant so it is fully out when the volley fires
+    - type: glow
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      ticks: { type: literal, value: 24 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.beacon.activate
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 0.6 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.evoker.prepare_attack
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 0.8 }
+      delay_ticks: { type: literal, value: 6 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.crossbow.loading_end
+      volume: { type: literal, value: 0.9 }
+      pitch: { type: literal, value: 0.5 }
+      delay_ticks: { type: literal, value: 14 }
+
+    # ---- t22: volley ---------------------------------------------------------------------------
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: vendetta-beam-volley
+      delay_ticks: { type: literal, value: 20 }
+    - type: loop
+      count: { type: literal, value: 8 }
+      stride_ticks: { type: literal, value: 2 }
+      delay_ticks: { type: literal, value: 20 }
+      mechanics:
+        - type: play_sound
+          targets: { type: caster }
+          sound_id: item.crossbow.shoot
+          volume: { type: literal, value: 0.6 }
+          pitch: { type: literal, value: 1.1 }
+    - type: play_vfx
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      vfx_id: vendetta-beam-cross
+      delay_ticks: { type: literal, value: 22 }
+    - type: damage
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      components:
+        - base: { type: literal, value: 4.0 }
+          attribute: physical
+      delay_ticks: { type: literal, value: 22 }
+    - type: apply_status
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      status_id: tremor
+      effect_duration_ticks: { type: literal, value: 300 }
+      stack_count: { type: literal, value: 2 }
+      delay_ticks: { type: literal, value: 22 }
+    - type: play_sound
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      sound_id: entity.player.attack.crit
+      pitch: { type: literal, value: 1.2 }
+      delay_ticks: { type: literal, value: 22 }
+    - type: camera_shake
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      intensity: { type: literal, value: 0.3 }
+      ticks: { type: literal, value: 4 }
+      delay_ticks: { type: literal, value: 22 }
+
+    # ---- t44: blood-crystal spikes ---------------------------------------------------------------
+    - type: play_vfx
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      vfx_id: vendetta-spike-ring
+      delay_ticks: { type: literal, value: 44 }
+    - type: damage
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      components:
+        - base: { type: literal, value: 3.5 }
+          attribute: physical
+      delay_ticks: { type: literal, value: 44 }
+    - type: apply_status
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      status_id: bleed
+      effect_duration_ticks: { type: literal, value: 40 }
+      delay_ticks: { type: literal, value: 44 }
+    - type: apply_status
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      status_id: tremor
+      effect_duration_ticks: { type: literal, value: 300 }
+      stack_count: { type: literal, value: 2 }
+      delay_ticks: { type: literal, value: 44 }
+    - type: knockup
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      strength: { type: literal, value: 0.45 }
+      delay_ticks: { type: literal, value: 44 }
+    - type: play_sound
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      sound_id: block.amethyst_block.break
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 0.6 }
+      delay_ticks: { type: literal, value: 44 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.warden.sonic_boom
+      volume: { type: literal, value: 0.35 }
+      pitch: { type: literal, value: 1.6 }
+      delay_ticks: { type: literal, value: 44 }
+
+    # ---- t66: the shotgun finale ------------------------------------------------------------------
+    - type: play_vfx
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      vfx_id: vendetta-burst
+      delay_ticks: { type: literal, value: 66 }
+    - type: damage
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      components:
+        - base: { type: literal, value: 4.5 }
+          attribute: physical
+          per_stack: { status_id: tremor, amount: 1.0, on: target, consume: true }
+      delay_ticks: { type: literal, value: 66 }
+    - type: hit_stop
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      ticks: 4
+      include_caster: true
+      delay_ticks: { type: literal, value: 66 }
+    - type: knockback
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      direction: { type: from_caster }
+      strength: { type: literal, value: 1.5 }
+      delay_ticks: { type: literal, value: 66 }
+    - type: camera_shake
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      intensity: { type: literal, value: 0.7 }
+      ticks: { type: literal, value: 8 }
+      delay_ticks: { type: literal, value: 66 }
+    - type: camera_shake
+      targets: { type: caster }
+      intensity: { type: literal, value: 0.6 }
+      ticks: { type: literal, value: 8 }
+      delay_ticks: { type: literal, value: 66 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.generic.explode
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 1.4 }
+      delay_ticks: { type: literal, value: 66 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.totem.use
+      volume: { type: literal, value: 0.35 }
+      pitch: { type: literal, value: 1.8 }
+      delay_ticks: { type: literal, value: 66 }
+    - type: spawn_particle
+      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 50.0 }, distance: { type: literal, value: 12.0 } }
+      particle_id: gun-impact
+      delay_ticks: { type: literal, value: 66 }
+  expire:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.iron_door.close
+      volume: { type: literal, value: 0.5 }
+      pitch: { type: literal, value: 1.2 }
+  removed: []
