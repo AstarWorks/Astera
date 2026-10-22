@@ -1,0 +1,26 @@
+# Zwei S3 beat 4b (cast tick 60-70), played ON THE TARGET: a thin gold ground ring (radius 1.8, the
+# plunge's reach) pulses under the target until the slam at tick 70. 18 live displays.
+# Local axes: x = left, y = up, z = forward.
+
+id: bastion-s3-telegraph
+duration_ticks: 11
+orient: yaw
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: ring
+    kind: { type: block, block: yellow_stained_glass }
+    brightness: 12
+    start_tick: 0
+    end_tick: 10
+    count: 18
+    formation:
+      curve: { type: circle, radius: 1.8 }
+      offset: [0.0, 0.05, 0.0]
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.0, 0.03, 0.0] }
+      - { t: 3, scale: [0.07, 0.03, 0.7], ease: out_back }
+      - { t: 10, scale: [0.07, 0.03, 0.7] }
+    oscillate: { axis: scale_x, amplitude: 0.03, period_ticks: 3 }
