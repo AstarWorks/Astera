@@ -1,90 +1,277 @@
-# Sigil Rifle S2 (right-click) "Dash-Cut": the sniper's close-range answer. A 6-block invulnerable slide
-# leaving dark afterimages; the first enemy touched takes a cut on contact (4) and the crescent follow-up
-# 6 ticks later (5, ignores i-frames). Each cut leaves a Sinking stack (+0.8 per stack already there).
-# ~9 phys total; the slide is the mobility and the stacks feed S3.
-
 id: sigil-rifle-s2
-
 name:
-  ja: "刻印の滑走斬り"
-  en: "Dash-Cut"
+  ja: 刻印の二連射
+  en: Twin Inscription
 description:
-  ja: "残像を引いて滑り込み、最初に触れた敵を二段で斬る。斬られた敵には沈降の刻印が残る。"
-  en: "Slide through leaving afterimages and cut the first enemy touched twice, leaving Sinking sigils."
-
-archetype: buff
+  ja: 足を止め、間を置いて二発を撃つ。
+  en: Shoulder the rifle and fire two deliberate rounds.
+archetype: sequence
 cooldown_ticks: 80
-resource_cost: 25              # energy
-tags: [ buff, movement, physical, sinking ]
-
+resource_cost: 25
+tags:
+- physical
+- sigil-rifle
 params:
-  type: buff
-  status_effect_id: evasive
-  duration_ticks: 12
-
+  type: sequence
 phases:
-  type: buff
+  type: sequence
   cast:
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: sigil-rifle-dash
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.sweep
-      pitch: { type: literal, value: 1.2 }
-    - type: dash_strike
-      distance: 6.0
-      ticks: 4
-      radius: 1.2
-      hit_once: true
-      invulnerable: true
-      stop_on_block: true
-      on_hit:
-        - type: damage
-          targets: { type: target }
-          components:
-            - base: { type: literal, value: 4.0 }
-              attribute: physical
-              per_stack: { status_id: sinking, amount: 0.8, on: target }
-        - type: apply_status
-          targets: { type: target }
-          status_id: sinking
-          effect_duration_ticks: { type: literal, value: 160 }
-        - type: play_vfx
-          targets: { type: target }
-          vfx_id: sigil-rifle-mark
-        - type: play_sound
-          targets: { type: target }
-          sound_id: entity.player.attack.crit
-          pitch: { type: literal, value: 1.3 }
-        # follow-up crescent, six ticks later
-        - type: damage
-          targets: { type: target }
-          ignore_invulnerability: { type: literal, value: true }
-          delay_ticks: { type: literal, value: 6 }
-          components:
-            - base: { type: literal, value: 5.0 }
-              attribute: physical
-              per_stack: { status_id: sinking, amount: 0.8, on: target }
-        - type: apply_status
-          targets: { type: target }
-          status_id: sinking
-          effect_duration_ticks: { type: literal, value: 160 }
-          delay_ticks: { type: literal, value: 6 }
-        - type: hit_stop
-          targets: { type: target }
-          ticks: 3
-          include_caster: true
-          delay_ticks: { type: literal, value: 6 }
-        - type: camera_shake
-          targets: { type: caster }
-          intensity: { type: literal, value: 0.3 }
-          ticks: { type: literal, value: 4 }
-          delay_ticks: { type: literal, value: 6 }
-        - type: play_sound
-          targets: { type: target }
-          sound_id: entity.player.attack.sweep
-          pitch: { type: literal, value: 0.9 }
-          delay_ticks: { type: literal, value: 6 }
-  expire: []
-  removed: []
+  - type: play_vfx
+    targets: &id001
+      type: caster
+    vfx_id: sigil-rifle-s2-rig
+    follow:
+      type: literal
+      value: true
+  - type: apply_status
+    targets: *id001
+    status_id: poise
+    effect_duration_ticks:
+      type: literal
+      value: 200
+    stack_count:
+      type: literal
+      value: 2
+  - type: play_vfx
+    targets: *id001
+    vfx_id: sigil-rifle-shot
+    delay_ticks: &id003
+      type: literal
+      value: 20
+  - type: damage
+    targets: &id002
+      type: forward_ray
+      from: *id001
+      distance:
+        type: literal
+        value: 12
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 5
+      attribute: physical
+      per_stack:
+        status_id: poise
+        amount: 0.1
+        'on': caster
+    delay_ticks:
+      type: literal
+      value: 20
+  - type: hit_stop
+    targets: *id002
+    ticks: 2
+    delay_ticks:
+      type: literal
+      value: 20
+  - type: schedule_particle_animation
+    targets: *id002
+    animation:
+    - type: point
+      particles:
+      - id: crit
+        count: 8
+        extra: 0.15
+        offset:
+          x: 0
+          y: 1
+          z: 0
+      - id: smoke
+        count: 5
+        extra: 0.04
+        offset:
+          x: 0
+          y: 1
+          z: 0
+      - id: dust
+        count: 14
+        extra: 0.08
+        color:
+          r: 245
+          g: 42
+          b: 19
+        scale: 1.2
+        offset:
+          x: 0
+          y: 1
+          z: 0
+    delay_ticks:
+      type: literal
+      value: 20
+  - type: play_sound
+    targets: *id001
+    sound_id: item.crossbow.shoot
+    pitch:
+      type: literal
+      value: 0.65
+    delay_ticks:
+      type: literal
+      value: 20
+  - type: camera_shake
+    targets: *id001
+    intensity:
+      type: literal
+      value: 0.2
+    ticks:
+      type: literal
+      value: 3
+    delay_ticks:
+      type: literal
+      value: 20
+  - type: play_vfx
+    targets: *id002
+    vfx_id: sigil-rifle-mark
+    delay_ticks:
+      type: literal
+      value: 20
+  - type: play_vfx
+    targets: *id001
+    vfx_id: sigil-rifle-shot
+    delay_ticks: &id004
+      type: literal
+      value: 54
+  - type: damage
+    targets: *id002
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 5
+      attribute: physical
+      per_stack:
+        status_id: poise
+        amount: 0.1
+        'on': caster
+    delay_ticks:
+      type: literal
+      value: 54
+  - type: hit_stop
+    targets: *id002
+    ticks: 2
+    delay_ticks:
+      type: literal
+      value: 54
+  - type: schedule_particle_animation
+    targets: *id002
+    animation:
+    - type: point
+      particles:
+      - id: crit
+        count: 8
+        extra: 0.15
+        offset:
+          x: 0
+          y: 1
+          z: 0
+      - id: smoke
+        count: 5
+        extra: 0.04
+        offset:
+          x: 0
+          y: 1
+          z: 0
+      - id: dust
+        count: 14
+        extra: 0.08
+        color:
+          r: 245
+          g: 42
+          b: 19
+        scale: 1.2
+        offset:
+          x: 0
+          y: 1
+          z: 0
+    delay_ticks:
+      type: literal
+      value: 54
+  - type: play_sound
+    targets: *id001
+    sound_id: item.crossbow.shoot
+    pitch:
+      type: literal
+      value: 0.65
+    delay_ticks:
+      type: literal
+      value: 54
+  - type: camera_shake
+    targets: *id001
+    intensity:
+      type: literal
+      value: 0.2
+    ticks:
+      type: literal
+      value: 3
+    delay_ticks:
+      type: literal
+      value: 54
+  - type: play_vfx
+    targets: *id002
+    vfx_id: sigil-rifle-mark
+    delay_ticks:
+      type: literal
+      value: 54
+  - type: schedule_particle_animation
+    targets:
+      type: caster_forward
+      distance: 1.8
+      height: -0.35
+    delay_ticks: *id003
+    period_ticks:
+      type: literal
+      value: 2
+    duration_ticks:
+      type: literal
+      value: 8
+    animation:
+    - type: point
+      particles:
+      - id: dust
+        count: 16
+        extra: 0.09
+        offset:
+          x: 0.25
+          y: 0.25
+          z: 0.25
+        color:
+          r: 245
+          g: 42
+          b: 19
+        scale: 1.5
+      - id: smoke
+        count: 4
+        extra: 0.04
+  - type: schedule_particle_animation
+    targets:
+      type: caster_forward
+      distance: 1.8
+      height: -0.35
+    delay_ticks: *id004
+    period_ticks:
+      type: literal
+      value: 2
+    duration_ticks:
+      type: literal
+      value: 8
+    animation:
+    - type: point
+      particles:
+      - id: dust
+        count: 16
+        extra: 0.09
+        offset:
+          x: 0.25
+          y: 0.25
+          z: 0.25
+        color:
+          r: 245
+          g: 42
+          b: 19
+        scale: 1.5
+      - id: smoke
+        count: 4
+        extra: 0.04

@@ -1,0 +1,224 @@
+id: orrery-channel
+duration_ticks: 173
+orient: yaw
+follow: false
+sample_ticks: 1
+rigs:
+- id: staff
+  pivot:
+  - -0.3
+  - 1.1
+  - 0.3
+  rest:
+  - 0
+  - 0
+  - 0
+  tilt:
+  - 0
+  - 0
+  - 20
+  end_tick: 172
+  respect_hit_stop: true
+  parts:
+  - id: shaft
+    block: black_concrete
+    offset:
+    - 0
+    - 0.5
+    - 0
+    size:
+    - 0.11
+    - 2.0
+    - 0.11
+  - id: collar
+    block: gold_block
+    offset:
+    - 0
+    - 1.4
+    - 0
+    size:
+    - 0.3
+    - 0.3
+    - 0.3
+    brightness: 15
+  - id: orb
+    block: yellow_concrete
+    offset:
+    - 0
+    - 1.65
+    - 0
+    size:
+    - 0.35
+    - 0.35
+    - 0.35
+    brightness: 15
+  swing:
+  - t: 0
+    rotate:
+    - 0
+    - 20
+    - 0
+    ease: out_quad
+  - t: 19
+    rotate:
+    - 0
+    - 65
+    - 0
+    ease: out_quad
+  - t: 31
+    rotate:
+    - 0
+    - 90
+    - 0
+    ease: out_quad
+  - t: 43
+    rotate:
+    - 0
+    - 70
+    - 0
+    ease: out_quad
+  - t: 50
+    rotate:
+    - 0
+    - 90
+    - 0
+    ease: out_quad
+  - t: 60
+    rotate:
+    - 0
+    - 90
+    - 0
+    ease: out_quad
+  - t: 70
+    rotate:
+    - 0
+    - 100
+    - 0
+    ease: out_quad
+  - t: 75
+    rotate:
+    - 0
+    - -50
+    - 0
+    ease: out_quad
+  - t: 83
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 101
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 103
+    rotate:
+    - 0
+    - -80
+    - 0
+    ease: out_quad
+  - t: 111
+    rotate:
+    - 0
+    - 100
+    - 0
+    ease: out_quad
+  - t: 120
+    rotate:
+    - 0
+    - 70
+    - 0
+    ease: out_quad
+  - t: 125
+    rotate:
+    - 0
+    - 70
+    - 0
+    ease: out_quad
+  - t: 131
+    rotate:
+    - 0
+    - 90
+    - 0
+    ease: out_quad
+  - t: 163
+    rotate:
+    - 0
+    - 90
+    - 0
+    ease: out_quad
+  - t: 172
+    rotate:
+    - 0
+    - 20
+    - 0
+    ease: out_quad
+  trails:
+  - id: flourish-75
+    from:
+    - 0
+    - 1.0
+    - 0
+    to:
+    - 0
+    - 2.3
+    - 0
+    start_t: 70
+    end_t: 75
+    life_ticks: 5
+    style: both
+    step_deg: 50
+    bands:
+    - from: 0.0
+      to: 0.65
+      color: '#70DC820D'
+      color_to: '#204E2710'
+    - from: 0.65
+      to: 1.0
+      color: '#FFFFD447'
+      color_to: '#80FF970B'
+      block: gold_block
+    edge:
+      block: black_concrete
+      width: 0.025
+    fade_power: 0.3
+    lag_ticks: 1
+  - id: flourish-108
+    from:
+    - 0
+    - 1.0
+    - 0
+    to:
+    - 0
+    - 2.3
+    - 0
+    start_t: 103
+    end_t: 111
+    life_ticks: 5
+    style: both
+    step_deg: 50
+    bands:
+    - from: 0.0
+      to: 0.65
+      color: '#70DC820D'
+      color_to: '#204E2710'
+    - from: 0.65
+      to: 1.0
+      color: '#FFFFD447'
+      color_to: '#80FF970B'
+      block: gold_block
+    edge:
+      block: black_concrete
+      width: 0.025
+    fade_power: 0.3
+  emitters:
+  - id: embers
+    particle_id: orrery-ember
+    point:
+    - 0
+    - 1.65
+    - 0
+    start_t: 0
+    end_t: 2

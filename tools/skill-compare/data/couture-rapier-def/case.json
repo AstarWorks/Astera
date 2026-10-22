@@ -1,0 +1,49 @@
+{
+  "id": "couture-rapier-def",
+  "rev": 1,
+  "videoId": "GIe7Fna5LD4",
+  "start_s": 36,
+  "end_s": 40,
+  "skill": {
+    "name": "couture-rapier-def",
+    "coins": 1,
+    "asteraSkillId": "couture-rapier-def"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "couture-rapier-def",
+      "start_s": 36,
+      "end_s": 40,
+      "notes": ""
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "contact 1",
+      "t_s": 38.2,
+      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
+    }
+  ],
+  "notes": "Mapping inferred from footage and supplied wiki; no skill labels in video. ",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

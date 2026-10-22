@@ -1,0 +1,63 @@
+{
+  "id": "vendetta-rifle-s2",
+  "rev": 1,
+  "videoId": "wbu2viInM3w",
+  "start_s": 50.55,
+  "end_s": 54.8,
+  "skill": {
+    "name": "Rack Volley",
+    "coins": 3,
+    "asteraSkillId": "vendetta-rifle-s2"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "vendetta-rifle-s2",
+      "start_s": 50.55,
+      "end_s": 54.8,
+      "notes": ""
+    },
+    {
+      "id": "hit-1",
+      "kind": "hit",
+      "label": "coin 1",
+      "t_s": 51.8,
+      "notes": "Contact group, not each decorative shard."
+    },
+    {
+      "id": "hit-2",
+      "kind": "hit",
+      "label": "coin 2",
+      "t_s": 52.2,
+      "notes": "Contact group, not each decorative shard."
+    },
+    {
+      "id": "hit-3",
+      "kind": "hit",
+      "label": "coin 3",
+      "t_s": 53.85,
+      "notes": "Contact group, not each decorative shard."
+    }
+  ],
+  "notes": "Native source is 24 fps. Earlier rack/ranged hypotheses rejected against frames.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

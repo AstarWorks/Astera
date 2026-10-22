@@ -1,53 +1,49 @@
-# Bastion Greatsword S1, hit 2: the rising crescent. A vertical, slightly canted moon (two arc
-# sections drawn bottom to top) with the sword following it up and a gleam at the tip.
-# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
-
 id: bastion-s1-rise
 duration_ticks: 24
-orient: look
-follow: false
-sample_ticks: 2
-
-elements:
-  - id: blade
-    kind: { type: item, item: golden_sword, display_mode: fixed }
-    brightness: 15
-    glow_color: "#ffd23a"
-    start_tick: 0
-    end_tick: 13
-    keyframes:
-      - { t: 0, translate: [0.6, 0.4, 1.8], rotate: [0, -20, 135], scale: [3.0, 3.0, 3.0] }
-      - { t: 4, translate: [0.0, 2.9, 2.0], rotate: [0, -40, 20], ease: out_expo }
-      - { t: 8, scale: [3.0, 3.0, 3.0] }
-      - { t: 13, scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  # Face-on rising crescent (a bezier in the vertical plane in front of the caster) drawn bottom to top.
-  - id: moon
-    kind: { type: block, block: yellow_concrete }
-    brightness: 15
-    glow_color: "#ffd23a"
-    start_tick: 2
-    end_tick: 12
-    slot_lifetime_ticks: 10
-    count: 12
-    formation:
-      curve: { type: bezier, points: [[-1.8, 0.2, 2.2], [-2.6, 1.8, 3.0], [-0.8, 3.2, 3.1], [1.8, 3.7, 2.5]] }
-      align: tangent
-      stagger_ticks: 1
-    jitter: { position: 0.04, rotation_deg: 2, scale: 0.2 }
-    keyframes:
-      - { t: 0, scale: [0.05, 0.05, 0.3] }
-      - { t: 2, scale: [0.2, 0.2, 1.1], ease: out_expo }
-      - { t: 5, block: yellow_stained_glass }
-      - { t: 10, scale: [0.0, 0.0, 1.1], ease: in_quad }
-
-  - id: gleam
-    kind: { type: text, text: "<#fff6a0><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
-    billboard: center
-    brightness: 15
-    start_tick: 6
-    end_tick: 14
-    keyframes:
-      - { t: 0, translate: [-1.0, 4.0, 1.4], scale: [0.0, 0.0, 0.0] }
-      - { t: 2, scale: [3.0, 3.0, 3.0], ease: out_back }
-      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
+orient: yaw
+follow: true
+sample_ticks: 1
+rigs:
+- id: sword
+  pivot: [-0.35, 1.05, 0]
+  rest: [0, 90, 0]
+  respect_hit_stop: true
+  end_tick: 23
+  parts:
+  - {id: blade, block: iron_block, offset: [0.0, 1.125, 0.0], size: [0.07, 1.75, 0.32]}
+  - {id: edge, block: white_concrete, offset: [0.0, 1.125, 0.145], size: [0.075, 1.75, 0.06]}
+  - {id: fuller, block: light_gray_concrete, offset: [0.0, 1.125, 0.0], size: [0.08, 1.5, 0.05]}
+  - {id: guard, block: gold_block, offset: [0.0, 0.21, 0.0], size: [0.1, 0.08, 0.5]}
+  - {id: grip, block: black_concrete, offset: [0.0, -0.05, 0.0], size: [0.07, 0.35, 0.07]}
+  - {id: pommel, block: gold_block, offset: [0.0, -0.25, 0.0], size: [0.1, 0.1, 0.1]}
+  swing:
+  - {t: 0, rotate: [180, -20, 0]}
+  - {t: 2, rotate: [60, 0, 65]}
+  - {t: 4, rotate: [-60, 0, 65]}
+  - {t: 6, rotate: [-120, 0, 65]}
+  - {t: 23, rotate: [-175, -25, 0]}
+  trails:
+  - id: wind
+    from: [0, 0.6, 0]
+    to: [0, 3.1, 0]
+    start_t: 1
+    end_t: 6
+    life_ticks: 4
+    lag_ticks: 0
+    style: soft
+    step_deg: 45
+    fade_power: 1.5
+    bands:
+    - from: 0.0
+      to: 1.0
+      color: '#E8FFD23A'
+      color_to: '#303A2A50'
+    dark_rim:
+      color: '#A0302008'
+      width: 0.12
+  emitters:
+  - id: embers
+    particle_id: bastion-s3-ember
+    point: [0, 2, 0]
+    start_t: 1
+    end_t: 6

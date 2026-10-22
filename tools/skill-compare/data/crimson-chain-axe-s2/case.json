@@ -1,0 +1,60 @@
+{
+  "id": "crimson-chain-axe-s2",
+  "rev": 1,
+  "videoId": "Gpj-lvOnAgs",
+  "start_s": 96,
+  "end_s": 101.5,
+  "skill": {
+    "name": "Hooked Lunge",
+    "coins": 3,
+    "asteraSkillId": "crimson-chain-axe-s2"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "Hooked Lunge",
+      "start_s": 96,
+      "end_s": 101.5,
+      "notes": ""
+    },
+    {
+      "id": "hit-1",
+      "kind": "hit",
+      "label": "contact 1",
+      "t_s": 97.5
+    },
+    {
+      "id": "hit-2",
+      "kind": "hit",
+      "label": "contact 2",
+      "t_s": 98.8
+    },
+    {
+      "id": "hit-3",
+      "kind": "hit",
+      "label": "contact 3",
+      "t_s": 100.05
+    }
+  ],
+  "notes": "Trailer has no skill labels. Variant mapping is provisional; see notes.md. Extended Q is a cinematic adaptation, not a confirmed identity E.G.O.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

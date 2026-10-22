@@ -1,0 +1,10 @@
+# Sparse crimson fragments supplement the swept display fan without consuming display slots.
+id: vendetta-petals
+shape:
+  kind: burst
+  spread_blocks: 0.45
+color: {r: 245, g: 41, b: 82}
+count: 16
+lifetime_ticks: 8
+vanilla_particle: dust
+speed: 0.12

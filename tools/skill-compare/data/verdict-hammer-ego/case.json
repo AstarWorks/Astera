@@ -1,0 +1,66 @@
+{
+  "id": "verdict-hammer-ego",
+  "rev": 1,
+  "videoId": "Hc6CJXJrzME",
+  "start_s": 54.3,
+  "end_s": 65.2,
+  "skill": {
+    "name": "verdict-hammer-ego",
+    "coins": 0,
+    "asteraSkillId": "verdict-hammer-ego"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "verdict-hammer-ego",
+      "start_s": 54.3,
+      "end_s": 65.2,
+      "notes": ""
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "Observed pulse 1",
+      "t_s": 57.85
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "Observed pulse 2",
+      "t_s": 59.4
+    },
+    {
+      "id": "hit3",
+      "kind": "hit",
+      "label": "Observed pulse 3",
+      "t_s": 60.7
+    },
+    {
+      "id": "hit4",
+      "kind": "hit",
+      "label": "Observed pulse 4",
+      "t_s": 63.85
+    }
+  ],
+  "notes": "Frame-verified visual timing; wiki slot assignment inferred (no skill titles in source). Q is a cinematic adaptation, not a confirmed identity E.G.O.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

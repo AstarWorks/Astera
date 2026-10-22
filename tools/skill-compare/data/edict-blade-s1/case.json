@@ -1,0 +1,56 @@
+{
+  "id": "edict-blade-s1",
+  "rev": 1,
+  "videoId": "x6sc9JkW77c",
+  "start_s": 11,
+  "end_s": 14.1,
+  "skill": {
+    "name": "edict-s1",
+    "coins": 2,
+    "asteraSkillId": "edict-s1"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "edict-s1",
+      "start_s": 11,
+      "end_s": 14.1,
+      "notes": ""
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "coin 1",
+      "t_s": 12.4667,
+      "notes": "round((12.4667-11)*20) = 29 ticks"
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "coin 2",
+      "t_s": 13.2,
+      "notes": "round((13.2-11)*20) = 44 ticks"
+    }
+  ],
+  "notes": "Native 29.97-fps reference checked. Normal form: S3 has two coins, not the transformed four-coin move. E.G.O case is the non-damaging form entry. Defense is not shown.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

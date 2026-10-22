@@ -1,0 +1,56 @@
+{
+  "id": "orrery-staff-s1",
+  "rev": 1,
+  "videoId": "0DYvUxa24wo",
+  "start_s": 12.8,
+  "end_s": 16.4,
+  "skill": {
+    "name": "orrery-s1",
+    "coins": 2,
+    "asteraSkillId": "orrery-s1"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "orrery-s1",
+      "start_s": 12.8,
+      "end_s": 16.4,
+      "notes": ""
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "Coin 1",
+      "t_s": 13.4,
+      "notes": "Contact/beam onset rounded to nearest server tick; uncertainty ±1 tick."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "Coin 2",
+      "t_s": 14.95,
+      "notes": "Contact/beam onset rounded to nearest server tick; uncertainty ±1 tick."
+    }
+  ],
+  "notes": "Measured from native 29.97 fps source and 24 fps sheets. Audio muxed from supplied m4a for onset extraction. See notes.md.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

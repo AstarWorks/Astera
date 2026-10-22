@@ -1,58 +1,86 @@
-# Orrery Staff: the sustained gold beam (S3). A white-hot core, a yellow bloom and a wide orange halo shoot
-# out of the orb (out_expo, 2 ticks) and burn for ~26 ticks, flickering every tick; a spark glyph sits at the
-# muzzle and a second at the far end. Fades thin. Played at fire time (not at charge time).
-# Local axes: x = left, y = up, z = forward. Origin = orb position (0.35, 1.35, 1.0); length 22.
-
 id: orrery-beam
-duration_ticks: 32
-orient: look
+duration_ticks: 33
+orient: yaw
 sample_ticks: 1
-
 elements:
-  - id: core
-    kind: { type: block, block: white_concrete }
-    brightness: 15
-    glow_color: "#ffd45a"
-    start_tick: 0
-    end_tick: 31
-    keyframes:
-      - { t: 0, translate: [0.35, 1.35, 1.0], scale: [0.02, 0.02, 0.5] }
-      - { t: 2, translate: [0.35, 1.35, 12.0], scale: [0.18, 0.18, 22.0], ease: out_expo }
-      - { t: 25, scale: [0.18, 0.18, 22.0] }
-      - { t: 31, scale: [0.0, 0.0, 22.0], ease: in_quad }
-    oscillate: { axis: scale_xz, amplitude: 0.03, period_ticks: 2 }
-
-  - id: bloom
-    kind: { type: block, block: yellow_stained_glass }
-    brightness: 15
-    start_tick: 0
-    end_tick: 31
-    keyframes:
-      - { t: 0, translate: [0.35, 1.35, 1.0], scale: [0.05, 0.05, 0.5] }
-      - { t: 2, translate: [0.35, 1.35, 12.0], scale: [0.5, 0.5, 22.0], ease: out_expo }
-      - { t: 25, scale: [0.5, 0.5, 22.0] }
-      - { t: 31, scale: [0.0, 0.0, 22.0], ease: in_quad }
-    oscillate: { axis: scale_xz, amplitude: 0.12, period_ticks: 3 }
-
-  - id: halo
-    kind: { type: block, block: orange_stained_glass }
-    brightness: 15
-    start_tick: 2
-    end_tick: 31
-    keyframes:
-      - { t: 0, translate: [0.35, 1.35, 12.0], scale: [0.2, 0.2, 21.0] }
-      - { t: 3, scale: [0.95, 0.95, 21.0], ease: out_expo }
-      - { t: 22, scale: [0.8, 0.8, 21.0] }
-      - { t: 29, scale: [0.0, 0.0, 21.0], ease: in_quad }
-    oscillate: { axis: scale_xz, amplitude: 0.16, period_ticks: 4 }
-
-  - id: muzzle-spark
-    kind: { type: text, text: "<#fff2a8><b>★</b>", background: "#00000000", shadow: false, see_through: true }
-    billboard: center
-    brightness: 15
-    start_tick: 0
-    end_tick: 14
-    keyframes:
-      - { t: 0, translate: [0.35, 1.35, 1.0], scale: [0.0, 0.0, 0.0] }
-      - { t: 2, scale: [9.0, 9.0, 9.0], ease: out_back }
-      - { t: 14, scale: [0.0, 0.0, 0.0], ease: in_quad }
+- id: core
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 32
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.4
+    - 7.45
+    scale:
+    - 0.08
+    - 0.08
+    - 11.0
+  - t: 29
+    scale:
+    - 0.08
+    - 0.08
+    - 11.0
+  - t: 32
+    scale:
+    - 0.0
+    - 0.0
+    - 11.0
+- id: bloom
+  kind:
+    type: block
+    block: yellow_stained_glass
+  brightness: 15
+  start_tick: 0
+  end_tick: 32
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.4
+    - 7.45
+    scale:
+    - 0.22
+    - 0.22
+    - 11.0
+  - t: 29
+    scale:
+    - 0.22
+    - 0.22
+    - 11.0
+  - t: 32
+    scale:
+    - 0.0
+    - 0.0
+    - 11.0
+- id: dark
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 32
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.28
+    - 7.45
+    scale:
+    - 0.025
+    - 0.025
+    - 11.0
+  - t: 29
+    scale:
+    - 0.025
+    - 0.025
+    - 11.0
+  - t: 32
+    scale:
+    - 0.0
+    - 0.0
+    - 11.0

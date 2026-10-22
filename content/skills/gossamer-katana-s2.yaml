@@ -1,139 +1,296 @@
-# Gossamer Katana S2 (right-click): the drawn line. The caster is rooted for 20 ticks while a thin blue
-# line hangs at eye height and everything in the lane glows -- then the line flashes and the damage
-# arrives ALL AT ONCE as five real hits one tick apart (4 x 2.0 + a 4.0 last = 12), each its own damage
-# event, plus two bleed stacks. Nothing lands before tick 20 and targets are re-read at that moment, so
-# stepping out of the lane dodges it.
-
 id: gossamer-katana-s2
-
 name:
-  ja: "居合の一筋"
-  en: "Unseen Line"
+  en: Unseen Line
+  ja: 居合の一筋
 description:
-  ja: "納刀したまま溜め、見えていた一筋の線が光った瞬間に全員へ遅れて斬撃が届く。出血2。"
-  en: "A still draw: the line you could see flashes and every hit lands at once, late. Leaves 2 bleed."
-
+  en: A spectral double cuts twice; a suspended line releases the third cut.
+  ja: 残像が二度斬り、宙に残った一筋の線が遅れて三撃目を放つ。
 archetype: sequence
-cooldown_ticks: 90
+cooldown_ticks: 115
 resource_cost: 25
-tags: [ melee, physical, delayed, bleed ]
-
 params:
   type: sequence
-
 phases:
   type: sequence
   cast:
-    # --- the draw (ticks 0-20) ---
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.trident.return
-      volume: { type: literal, value: 0.6 }
-      pitch: { type: literal, value: 0.8 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: gossamer-katana-iaido-line
-    - type: hit_stop
-      targets: { type: caster }
-      ticks: 22
-    - type: glow
-      targets:
-        type: cone
-        from: { type: caster }
-        direction: { type: from_caster }
-        angle_degrees: { type: literal, value: 60.0 }
-        distance: { type: literal, value: 9.0 }
-      ticks: { type: literal, value: 20 }
-    # --- the line lands (ticks 20-24) ---
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.sweep
-      pitch: { type: literal, value: 0.7 }
-      delay_ticks: { type: literal, value: 20 }
-    - type: loop
-      targets: { type: caster }
-      count: { type: literal, value: 4 }
-      stride_ticks: { type: literal, value: 1 }
-      delay_ticks: { type: literal, value: 20 }
-      mechanics:
-        - type: damage
-          targets:
-            type: cone
-            from: { type: caster }
-            direction: { type: from_caster }
-            angle_degrees: { type: literal, value: 60.0 }
-            distance: { type: literal, value: 9.0 }
-          components:
-            - base: { type: literal, value: 2.0 }
-              attribute: physical
-          ignore_invulnerability: { type: literal, value: true }
-        - type: camera_shake
-          targets:
-            type: cone
-            from: { type: caster }
-            direction: { type: from_caster }
-            angle_degrees: { type: literal, value: 60.0 }
-            distance: { type: literal, value: 9.0 }
-          intensity: { type: literal, value: 0.2 }
-          ticks: { type: literal, value: 2 }
-    - type: damage
-      targets:
-        type: cone
-        from: { type: caster }
-        direction: { type: from_caster }
-        angle_degrees: { type: literal, value: 60.0 }
-        distance: { type: literal, value: 9.0 }
-      components:
-        - base: { type: literal, value: 4.0 }
-          attribute: physical
-      ignore_invulnerability: { type: literal, value: true }
-      delay_ticks: { type: literal, value: 24 }
-    - type: play_vfx
-      targets:
-        type: cone
-        from: { type: caster }
-        direction: { type: from_caster }
-        angle_degrees: { type: literal, value: 60.0 }
-        distance: { type: literal, value: 9.0 }
-      vfx_id: gossamer-katana-lattice
-      delay_ticks: { type: literal, value: 20 }
-    - type: hit_stop
-      targets:
-        type: cone
-        from: { type: caster }
-        direction: { type: from_caster }
-        angle_degrees: { type: literal, value: 60.0 }
-        distance: { type: literal, value: 9.0 }
-      ticks: 4
-      delay_ticks: { type: literal, value: 20 }
-    - type: camera_shake
-      targets:
-        type: cone
-        from: { type: caster }
-        direction: { type: from_caster }
-        angle_degrees: { type: literal, value: 60.0 }
-        distance: { type: literal, value: 9.0 }
-      intensity: { type: literal, value: 0.3 }
-      ticks: { type: literal, value: 6 }
-      delay_ticks: { type: literal, value: 20 }
-    - type: apply_status
-      targets:
-        type: cone
-        from: { type: caster }
-        direction: { type: from_caster }
-        angle_degrees: { type: literal, value: 60.0 }
-        distance: { type: literal, value: 9.0 }
-      status_id: bleed
-      effect_duration_ticks: { type: literal, value: 120 }
-      stack_count: { type: literal, value: 2 }
-      delay_ticks: { type: literal, value: 24 }
-    - type: play_sound
-      targets:
-        type: cone
-        from: { type: caster }
-        direction: { type: from_caster }
-        angle_degrees: { type: literal, value: 60.0 }
-        distance: { type: literal, value: 9.0 }
-      sound_id: entity.player.attack.crit
-      pitch: { type: literal, value: 1.1 }
-      delay_ticks: { type: literal, value: 20 }
+  - type: apply_status
+    targets:
+      type: caster
+    status_id: poise
+    effect_duration_ticks:
+      type: literal
+      value: 400
+    stack_count:
+      type: literal
+      value: 3
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: gossamer-katana-draw
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: gossamer-katana-echo
+    delay_ticks:
+      type: literal
+      value: 8
+  - type: play_vfx
+    targets:
+      type: caster_forward
+      distance: 6
+      height: -1.62
+    vfx_id: gossamer-katana-echo
+    delay_ticks:
+      type: literal
+      value: 14
+  - type: play_vfx
+    targets:
+      type: caster_forward
+      distance: 4
+      height: -1.62
+    vfx_id: gossamer-katana-echo-cut
+    delay_ticks:
+      type: literal
+      value: 10
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: gossamer-katana-slash-down
+    delay_ticks:
+      type: literal
+      value: 21
+  - type: play_vfx
+    targets:
+      type: caster_forward
+      distance: 6
+      height: -1.62
+    vfx_id: gossamer-katana-slash-up
+    delay_ticks:
+      type: literal
+      value: 21
+  - type: play_vfx
+    targets:
+      type: caster_forward
+      distance: 3.0
+      height: -1.62
+    vfx_id: gossamer-katana-iaido-line
+    delay_ticks:
+      type: literal
+      value: 36
+  - type: play_vfx
+    targets:
+      type: nearby_entities
+      center:
+        type: caster_forward
+        distance: 6
+        height: -1.62
+      radius:
+        type: literal
+        value: 2.2
+      max_count:
+        type: literal
+        value: 1
+    vfx_id: gossamer-katana-lattice
+    delay_ticks:
+      type: literal
+      value: 64
+  - type: damage
+    targets:
+      type: enemies
+      center:
+        type: caster_forward
+        distance: 6.0
+        height: -1.62
+      radius:
+        type: literal
+        value: 2.2
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 4.0
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 15
+  - type: hit_stop
+    targets:
+      type: enemies
+      center:
+        type: caster_forward
+        distance: 6.0
+        height: -1.62
+      radius:
+        type: literal
+        value: 2.2
+    ticks: 2
+    include_caster: true
+    delay_ticks:
+      type: literal
+      value: 15
+  - type: spawn_particle
+    targets:
+      type: enemies
+      center:
+        type: caster_forward
+        distance: 6.0
+        height: -1.62
+      radius:
+        type: literal
+        value: 2.2
+    particle_id: hit-spark
+    delay_ticks:
+      type: literal
+      value: 15
+  - type: play_sound
+    targets:
+      type: caster
+    sound_id: entity.player.attack.crit
+    pitch:
+      type: literal
+      value: 1.3
+    delay_ticks:
+      type: literal
+      value: 15
+  - type: damage
+    targets:
+      type: enemies
+      center:
+        type: caster_forward
+        distance: 6.0
+        height: -1.62
+      radius:
+        type: literal
+        value: 2.2
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 4.0
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 25
+  - type: hit_stop
+    targets:
+      type: enemies
+      center:
+        type: caster_forward
+        distance: 6.0
+        height: -1.62
+      radius:
+        type: literal
+        value: 2.2
+    ticks: 2
+    include_caster: true
+    delay_ticks:
+      type: literal
+      value: 25
+  - type: spawn_particle
+    targets:
+      type: enemies
+      center:
+        type: caster_forward
+        distance: 6.0
+        height: -1.62
+      radius:
+        type: literal
+        value: 2.2
+    particle_id: hit-spark
+    delay_ticks:
+      type: literal
+      value: 25
+  - type: play_sound
+    targets:
+      type: caster
+    sound_id: entity.player.attack.crit
+    pitch:
+      type: literal
+      value: 1.3
+    delay_ticks:
+      type: literal
+      value: 25
+  - type: damage
+    targets:
+      type: enemies
+      center:
+        type: caster_forward
+        distance: 6.0
+        height: -1.62
+      radius:
+        type: literal
+        value: 2.2
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 4.0
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 66
+  - type: hit_stop
+    targets:
+      type: enemies
+      center:
+        type: caster_forward
+        distance: 6.0
+        height: -1.62
+      radius:
+        type: literal
+        value: 2.2
+    ticks: 2
+    include_caster: true
+    delay_ticks:
+      type: literal
+      value: 66
+  - type: spawn_particle
+    targets:
+      type: enemies
+      center:
+        type: caster_forward
+        distance: 6.0
+        height: -1.62
+      radius:
+        type: literal
+        value: 2.2
+    particle_id: hit-spark
+    delay_ticks:
+      type: literal
+      value: 66
+  - type: play_sound
+    targets:
+      type: caster
+    sound_id: entity.player.attack.crit
+    pitch:
+      type: literal
+      value: 1.3
+    delay_ticks:
+      type: literal
+      value: 66
+  - type: apply_status
+    targets:
+      type: enemies
+      center:
+        type: caster_forward
+        distance: 6.0
+        height: -1.62
+      radius:
+        type: literal
+        value: 2.2
+    status_id: bleed
+    effect_duration_ticks:
+      type: literal
+      value: 120
+    stack_count:
+      type: literal
+      value: 2
+    delay_ticks:
+      type: literal
+      value: 66

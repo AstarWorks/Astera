@@ -1,117 +1,339 @@
-# Crimson Chain-Axe S2 (right-click) "Hooked Lunge": the caster dashes 7 blocks (invulnerable while
-# travelling) leaving a crimson ribbon. The first enemy touched is hooked: hit 1 on contact (2 Rupture),
-# hit 2 six ticks later, hit 3 twelve ticks later with a knock-up. Later beats ignore i-frames.
-# ~15 phys + 0.5 per Rupture stack; the lunge itself is the mobility.
-
+# Measured reference: tools/skill-compare/data/crimson-chain-axe-REPORT.md
 id: crimson-chain-axe-s2
-
 name:
-  ja: "鉤爪の突進"
-  en: "Hooked Lunge"
+  ja: "\u9264\u722A\u306E\u7A81\u9032"
+  en: Hooked Lunge
 description:
-  ja: "紅い軌跡を引いて突進し、最初に触れた敵を鎖で引っかけて三連撃を叩き込む。"
-  en: "Lunge along a crimson ribbon; the first enemy touched is hooked for a three-hit chain."
-
-archetype: buff
-cooldown_ticks: 90
-resource_cost: 30              # energy
-tags: [ buff, movement, physical, rupture ]
-
+  ja: "\u9396\u65A7\u306E\u8ECC\u8DE1\u306B\u6CBF\u3063\u3066\u88C2\u50B7\u3092\u523B\u3080\u3002"
+  en: Chain-axe strikes build Rupture along the weapon path.
+archetype: sequence
+cooldown_ticks: 111
+resource_cost: 30
+tags:
+- physical
+- rupture
+- combo
 params:
-  type: buff
-  status_effect_id: evasive
-  duration_ticks: 10
-
+  type: sequence
 phases:
-  type: buff
+  type: sequence
   cast:
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.trident.throw
-      pitch: { type: literal, value: 0.6 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: crimson-chain-axe-dash
-    - type: dash_strike
-      distance: 7.0
-      ticks: 4
-      radius: 1.3
-      hit_once: true
-      invulnerable: true
-      stop_on_block: true
-      on_hit:
-        # hit 1, on contact
-        - type: damage
-          targets: { type: target }
-          components:
-            - base: { type: literal, value: 5.0 }
-              attribute: physical
-              per_stack: { status_id: rupture, amount: 0.5, on: target }
-        - type: apply_status
-          targets: { type: target }
-          status_id: rupture
-          effect_duration_ticks: { type: literal, value: 200 }
-          stack_count: { type: literal, value: 2 }
-        - type: hit_stop
-          targets: { type: target }
-          ticks: 2
-        - type: play_vfx
-          targets: { type: target }
-          vfx_id: crimson-chain-axe-impact
-        - type: play_sound
-          targets: { type: target }
-          sound_id: entity.player.attack.crit
-          pitch: { type: literal, value: 0.8 }
-        # hit 2
-        - type: damage
-          targets: { type: target }
-          ignore_invulnerability: { type: literal, value: true }
-          delay_ticks: { type: literal, value: 6 }
-          components:
-            - base: { type: literal, value: 4.0 }
-              attribute: physical
-              per_stack: { status_id: rupture, amount: 0.5, on: target }
-        - type: play_vfx
-          targets: { type: target }
-          vfx_id: crimson-chain-axe-impact
-          delay_ticks: { type: literal, value: 6 }
-        - type: play_sound
-          targets: { type: target }
-          sound_id: entity.player.attack.sweep
-          pitch: { type: literal, value: 0.9 }
-          delay_ticks: { type: literal, value: 6 }
-        # hit 3, the heavy: knock-up, one more stack
-        - type: damage
-          targets: { type: target }
-          ignore_invulnerability: { type: literal, value: true }
-          delay_ticks: { type: literal, value: 12 }
-          components:
-            - base: { type: literal, value: 6.0 }
-              attribute: physical
-              per_stack: { status_id: rupture, amount: 0.5, on: target }
-        - type: apply_status
-          targets: { type: target }
-          status_id: rupture
-          effect_duration_ticks: { type: literal, value: 200 }
-          delay_ticks: { type: literal, value: 12 }
-        - type: knockup
-          targets: { type: target }
-          strength: { type: literal, value: 0.5 }
-          delay_ticks: { type: literal, value: 12 }
-        - type: camera_shake
-          targets: { type: caster }
-          intensity: { type: literal, value: 0.35 }
-          ticks: { type: literal, value: 5 }
-          delay_ticks: { type: literal, value: 12 }
-        - type: play_vfx
-          targets: { type: target }
-          vfx_id: crimson-chain-axe-impact
-          delay_ticks: { type: literal, value: 12 }
-        - type: play_sound
-          targets: { type: target }
-          sound_id: entity.generic.explode
-          volume: { type: literal, value: 0.4 }
-          pitch: { type: literal, value: 1.5 }
-          delay_ticks: { type: literal, value: 12 }
-  expire: []
-  removed: []
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: crimson-chain-axe-spokes
+    delay_ticks:
+      type: literal
+      value: 0
+  - type: damage
+    targets:
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 5.0
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 4.0
+      attribute: physical
+      per_stack:
+        status_id: rupture
+        amount: 0.5
+        'on': target
+        consume: false
+    delay_ticks:
+      type: literal
+      value: 30
+  - type: apply_status
+    targets:
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 5.0
+    status_id: rupture
+    effect_duration_ticks:
+      type: literal
+      value: 200
+    delay_ticks:
+      type: literal
+      value: 30
+  - type: hit_stop
+    targets:
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 5.0
+    ticks: 2
+    include_caster: true
+    delay_ticks:
+      type: literal
+      value: 30
+  - type: play_sound
+    targets:
+      type: caster
+    sound_id: entity.player.attack.crit
+    pitch:
+      type: literal
+      value: 0.8
+    delay_ticks:
+      type: literal
+      value: 30
+  - type: play_vfx
+    targets:
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 5.0
+    vfx_id: crimson-chain-axe-impact
+    delay_ticks:
+      type: literal
+      value: 30
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: crimson-chain-axe-lances
+    delay_ticks:
+      type: literal
+      value: 30
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: crimson-chain-axe-sweep
+    freeze:
+    - at: 6
+      ticks: 2
+    delay_ticks:
+      type: literal
+      value: 50
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      angle_degrees:
+        type: literal
+        value: 100.0
+      distance:
+        type: literal
+        value: 5
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 4.0
+      attribute: physical
+      per_stack:
+        status_id: rupture
+        amount: 0.5
+        'on': target
+        consume: false
+    delay_ticks:
+      type: literal
+      value: 56
+  - type: apply_status
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      angle_degrees:
+        type: literal
+        value: 100.0
+      distance:
+        type: literal
+        value: 5
+    status_id: rupture
+    effect_duration_ticks:
+      type: literal
+      value: 200
+    delay_ticks:
+      type: literal
+      value: 56
+  - type: hit_stop
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      angle_degrees:
+        type: literal
+        value: 100.0
+      distance:
+        type: literal
+        value: 5
+    ticks: 2
+    include_caster: true
+    delay_ticks:
+      type: literal
+      value: 56
+  - type: play_sound
+    targets:
+      type: caster
+    sound_id: entity.player.attack.crit
+    pitch:
+      type: literal
+      value: 0.9
+    delay_ticks:
+      type: literal
+      value: 56
+  - type: play_vfx
+    targets:
+      type: caster_forward
+      distance: 4.5
+      height: -1.62
+    vfx_id: crimson-chain-axe-impact
+    delay_ticks:
+      type: literal
+      value: 56
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: crimson-chain-axe-rise
+    freeze:
+    - at: 6
+      ticks: 3
+    delay_ticks:
+      type: literal
+      value: 75
+  - type: screen_flash
+    targets:
+      type: caster
+    overlay: impact_star
+    color: '#EF3452'
+    stay:
+      type: literal
+      value: 1
+    fade_out:
+      type: literal
+      value: 2
+    delay_ticks:
+      type: literal
+      value: 78
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      angle_degrees:
+        type: literal
+        value: 100.0
+      distance:
+        type: literal
+        value: 5
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6.0
+      attribute: physical
+      per_stack:
+        status_id: rupture
+        amount: 0.5
+        'on': target
+        consume: false
+    delay_ticks:
+      type: literal
+      value: 81
+  - type: apply_status
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      angle_degrees:
+        type: literal
+        value: 100.0
+      distance:
+        type: literal
+        value: 5
+    status_id: rupture
+    effect_duration_ticks:
+      type: literal
+      value: 200
+    delay_ticks:
+      type: literal
+      value: 81
+  - type: hit_stop
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      angle_degrees:
+        type: literal
+        value: 100.0
+      distance:
+        type: literal
+        value: 5
+    ticks: 3
+    include_caster: true
+    delay_ticks:
+      type: literal
+      value: 81
+  - type: play_sound
+    targets:
+      type: caster
+    sound_id: entity.player.attack.crit
+    pitch:
+      type: literal
+      value: 1.0
+    delay_ticks:
+      type: literal
+      value: 81
+  - type: play_vfx
+    targets:
+      type: caster_forward
+      distance: 4.5
+      height: -1.62
+    vfx_id: crimson-chain-axe-impact
+    delay_ticks:
+      type: literal
+      value: 81
+  - type: propel
+    targets:
+      type: caster
+    direction:
+      type: up
+    strength:
+      type: literal
+      value: 0.5
+    delay_ticks:
+      type: literal
+      value: 68
+  - type: knockup
+    targets:
+      type: forward_ray
+      from:
+        type: caster
+      distance:
+        type: literal
+        value: 5.0
+    strength:
+      type: literal
+      value: 0.25
+    delay_ticks:
+      type: literal
+      value: 30

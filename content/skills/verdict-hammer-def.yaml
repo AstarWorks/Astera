@@ -1,73 +1,246 @@
-# ADR-0230 persona weapon: Verdict Hammer DEF (sneak + left click), "Vigil". A 24-tick guard:
-# resist.physical +0.6,
-# full knockback resistance, the hammer held across the brow under gold halos. When the guard releases it answers with a counter pulse that shoves nearby enemies off and drives one
-# rupture stake into each.
-
 id: verdict-hammer-def
-
 name:
-  ja: "審判の構え"
-  en: "Vigil"
+  ja: 審判の構え
+  en: Vigil
 description:
-  ja: "杭槌を掲げて身を守り、物理ダメージを軽減する。構えを解くと衝撃波で周囲を押し返し、杭（破裂）を打ち込む。"
-  en: "Hold the hammer up: physical resistance. Releasing the guard sends a counter pulse that shoves enemies back and plants a rupture stake."
-
+  ja: 二本の杭を呼び、踏み込んで杭槌を叩きつける。
+  en: Call down paired nails, then advance and slam the hammer.
 archetype: sequence
-cooldown_ticks: 120
-resource_cost: 15              # energy
-tags: [ buff, defense, rupture ]
-
+cooldown_ticks: 95
+resource_cost: 15
 params:
   type: sequence
-
 phases:
   type: sequence
   cast:
-    - type: modify_attribute
-      targets: { type: caster }
-      attribute_key: resist.physical
-      delta: { type: literal, value: 0.6 }
-      ticks: { type: literal, value: 24 }
-    - type: modify_attribute
-      targets: { type: caster }
-      attribute_key: resist.knockback
-      delta: { type: literal, value: 1.0 }
-      ticks: { type: literal, value: 24 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.shield.block
-      pitch: { type: literal, value: 1.2 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: verdict-def-vigil
-    # Counter pulse at guard release (tick 24).
-    - type: damage
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
-      components:
-        - base: { type: literal, value: 4.0 }
-          attribute: physical
-      delay_ticks: { type: literal, value: 24 }
-    - type: apply_status
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
-      status_id: rupture
-      effect_duration_ticks: { type: literal, value: 200 }
-      stack_count: { type: literal, value: 1 }
-      delay_ticks: { type: literal, value: 24 }
-    - type: knockback
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
-      direction: { type: away_from_caster, vertical: 0.2 }
-      strength: { type: literal, value: 0.9 }
-      delay_ticks: { type: literal, value: 24 }
-    - type: hit_stop
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
+  - type: play_vfx
+    targets:
+      type: forward_ray
+      from: &id001
+        type: caster
+      distance:
+        type: literal
+        value: 12
+    delay_ticks:
+      type: literal
+      value: 8
+    vfx_id: verdict-s2-mark
+  - type: dash_strike
+    delay_ticks:
+      type: literal
+      value: 37
+    distance: 3.5
+    ticks: 10
+    radius: 0.3
+    hit_once: true
+    stop_on_block: true
+    on_hit: []
+    stop_before_target: 1.8
+  - type: play_vfx
+    targets: *id001
+    delay_ticks:
+      type: literal
+      value: 37
+    vfx_id: verdict-s2-call
+  - type: play_vfx
+    targets: *id001
+    delay_ticks:
+      type: literal
+      value: 44
+    vfx_id: verdict-def-vigil
+    freeze:
+    - at: 9
       ticks: 2
-      delay_ticks: { type: literal, value: 24 }
-    - type: play_vfx
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
-      vfx_id: verdict-impact
-      delay_ticks: { type: literal, value: 24 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.knockback
-      pitch: { type: literal, value: 0.7 }
-      delay_ticks: { type: literal, value: 24 }
+  - type: damage
+    targets:
+      type: nearby_entities
+      center: &id002
+        type: forward_ray
+        from: *id001
+        distance:
+          type: literal
+          value: 12
+      radius:
+        type: literal
+        value: 3.2
+      exclude_caster: true
+    delay_ticks:
+      type: literal
+      value: 24
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 7.0
+      attribute: physical
+  - type: hit_stop
+    targets: *id002
+    delay_ticks:
+      type: literal
+      value: 24
+    ticks: 2
+    include_caster: true
+  - type: play_sound
+    targets: *id001
+    delay_ticks:
+      type: literal
+      value: 24
+    sound_id: entity.player.attack.strong
+    pitch:
+      type: literal
+      value: 0.7
+  - type: schedule_particle_animation
+    targets: *id002
+    delay_ticks:
+      type: literal
+      value: 24
+    animation:
+    - type: point
+      particles:
+      - id: crit
+        count: 12
+        extra: 0.15
+      - id: end_rod
+        count: 8
+        extra: 0.09
+      - id: smoke
+        count: 4
+        extra: 0.03
+      - id: flash
+        count: 1
+  - type: play_vfx
+    targets: *id002
+    delay_ticks:
+      type: literal
+      value: 24
+    vfx_id: verdict-impact
+    scale:
+      type: literal
+      value: 1.6
+  - type: apply_status
+    targets: *id002
+    delay_ticks:
+      type: literal
+      value: 24
+    status_id: rupture
+    effect_duration_ticks:
+      type: literal
+      value: 200
+    stack_count:
+      type: literal
+      value: 1
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      angle_degrees:
+        type: literal
+        value: 100.0
+      distance:
+        type: literal
+        value: 3.6
+    delay_ticks:
+      type: literal
+      value: 53
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 10.0
+      attribute: physical
+  - type: hit_stop
+    targets: &id003
+      type: forward_ray
+      from: *id001
+      distance:
+        type: literal
+        value: 3.6
+    delay_ticks:
+      type: literal
+      value: 53
+    ticks: 2
+    include_caster: true
+  - type: play_sound
+    targets: *id001
+    delay_ticks:
+      type: literal
+      value: 53
+    sound_id: entity.player.attack.strong
+    pitch:
+      type: literal
+      value: 0.7
+  - type: schedule_particle_animation
+    targets: *id003
+    delay_ticks:
+      type: literal
+      value: 53
+    animation:
+    - type: point
+      particles:
+      - id: crit
+        count: 12
+        extra: 0.15
+      - id: end_rod
+        count: 8
+        extra: 0.09
+      - id: smoke
+        count: 4
+        extra: 0.03
+      - id: flash
+        count: 1
+  - type: play_vfx
+    targets: *id003
+    delay_ticks:
+      type: literal
+      value: 53
+    vfx_id: verdict-impact
+    scale:
+      type: literal
+      value: 2.5
+  - type: apply_status
+    targets: *id003
+    delay_ticks:
+      type: literal
+      value: 53
+    status_id: rupture
+    effect_duration_ticks:
+      type: literal
+      value: 200
+    stack_count:
+      type: literal
+      value: 1
+  - type: screen_flash
+    targets: *id001
+    delay_ticks:
+      type: literal
+      value: 53
+    overlay: white
+    color: '#FFF4CF'
+    fade_in:
+      type: literal
+      value: 0
+    stay:
+      type: literal
+      value: 1
+    fade_out:
+      type: literal
+      value: 1
+  - type: play_vfx
+    targets:
+      type: caster_forward
+      distance: 2.5
+      height: -1.62
+    vfx_id: verdict-ego-ring
+    delay_ticks:
+      type: literal
+      value: 53
+    scale:
+      type: literal
+      value: 0.55

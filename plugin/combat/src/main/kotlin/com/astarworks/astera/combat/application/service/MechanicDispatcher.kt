@@ -650,6 +650,7 @@ public class MechanicDispatcher(
                         invulnerable = resolveBool(mechanic.invulnerable, ctx),
                         stopOnBlock = resolveBool(mechanic.stopOnBlock, ctx),
                         followPitch = resolveBool(mechanic.followPitch, ctx),
+                        stopBeforeTarget = mechanic.stopBeforeTarget,
                         onHit = mechanic.onHit,
                     ),
                     ctx = ctx,

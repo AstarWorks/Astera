@@ -1,0 +1,48 @@
+{
+  "id": "verdict-hammer-s2",
+  "rev": 1,
+  "videoId": "Hc6CJXJrzME",
+  "start_s": 35.3,
+  "end_s": 38.2,
+  "skill": {
+    "name": "verdict-hammer-s2",
+    "coins": 1,
+    "asteraSkillId": "verdict-hammer-s2"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "verdict-hammer-s2",
+      "start_s": 35.3,
+      "end_s": 38.2,
+      "notes": ""
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "Coin 1",
+      "t_s": 36.6
+    }
+  ],
+  "notes": "Frame-verified visual timing; wiki slot assignment inferred (no skill titles in source). Q is a cinematic adaptation, not a confirmed identity E.G.O.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

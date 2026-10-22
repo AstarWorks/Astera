@@ -1,0 +1,56 @@
+{
+  "id": "couture-rapier-ego",
+  "rev": 1,
+  "videoId": "GIe7Fna5LD4",
+  "start_s": 47.3,
+  "end_s": 54.5,
+  "skill": {
+    "name": "couture-rapier-ego",
+    "coins": 0,
+    "asteraSkillId": "couture-rapier-ego"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "couture-rapier-ego",
+      "start_s": 47.3,
+      "end_s": 54.5,
+      "notes": ""
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "contact 1",
+      "t_s": 50.3,
+      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "contact 2",
+      "t_s": 52.8,
+      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
+    }
+  ],
+  "notes": "Mapping inferred from footage and supplied wiki; no skill labels in video. E.G.O slot adapts final suspended-shears sequence; not a verified wiki E.G.O.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

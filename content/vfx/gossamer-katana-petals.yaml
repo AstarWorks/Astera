@@ -1,0 +1,79 @@
+# Twelve short-lived red and dark petals. Cosmetic burst, no fourth damage event.
+id: gossamer-katana-petals
+duration_ticks: 14
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: petals
+  kind:
+    type: quad
+    color: '#BC1839'
+    alpha: 1
+    glyph: ◆
+  brightness: 15
+  start_tick: 0
+  end_tick: 12
+  emit:
+    count: 8
+    direction: outward
+    speed:
+    - 0.18
+    - 0.4
+    spread_deg: 180
+    gravity: 0.025
+    drag: 0.05
+    life_ticks:
+    - 7
+    - 11
+    size:
+    - 0.12
+    - 0.25
+    size_over_life:
+    - 1
+    - 0
+    alpha_over_life:
+    - 1
+    - 0
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.05
+    - 0
+- id: ink
+  kind:
+    type: quad
+    color: '#170E24'
+    alpha: 1
+    glyph: ◆
+  brightness: 15
+  start_tick: 0
+  end_tick: 12
+  emit:
+    count: 4
+    direction: outward
+    speed:
+    - 0.18
+    - 0.4
+    spread_deg: 180
+    gravity: 0.025
+    drag: 0.05
+    life_ticks:
+    - 7
+    - 11
+    size:
+    - 0.06
+    - 0.15
+    size_over_life:
+    - 1
+    - 0
+    alpha_over_life:
+    - 1
+    - 0
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.05
+    - 0

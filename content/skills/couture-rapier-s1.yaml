@@ -1,131 +1,157 @@
-# Couturier's Rapier S1 (left-click): a three-beat needle string, three real hits (2.0 + 2.0 + 3.5 = 7.5,
-# the sword-slash baseline), each its own damage event ignoring i-frames. Beat 1 is the melee hit (it
-# builds poise); beats 2 and 3 land 3 and 6 ticks later on the same target through hit_entity, the last
-# heavier with a 2-tick hit-stop and a bigger flash. +3 poise on the caster for the S3 finisher.
-
 id: couture-rapier-s1
-
 name:
-  ja: "縫い針"
-  en: "Basting Stitch"
+  ja: 縫い針
+  en: Basting Stitch
 description:
-  ja: "細剣で素早く三連突き。命中ごとに集中（poise）が溜まる。"
-  en: "A three-beat string of needle thrusts. Every hit builds poise for the finisher."
-
-archetype: melee
-cooldown_ticks: 14
-resource_cost: 8
-tags: [ melee, physical, combo, poise ]
-
+  ja: 構えから一閃し、相手を通り抜けて淡い軌跡を残す。
+  en: A measured wind-up, one passing cut, and a pale silk follow-through.
+archetype: sequence
+cooldown_ticks: 65
+resource_cost: 12
+tags:
+- physical
+- couture
 params:
-  type: melee
-  range: 3.4
-  arc_degrees: 55.0
-  knockback: 0.05
-  damage:
-    - base: { type: literal, value: 2.0 }
-      attribute: physical
-
+  type: sequence
 phases:
-  type: melee
+  type: sequence
   cast:
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.trident.throw
-      volume: { type: literal, value: 0.5 }
-      pitch: { type: literal, value: 1.8 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: couture-rapier-poke
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.trident.throw
-      volume: { type: literal, value: 0.5 }
-      pitch: { type: literal, value: 1.95 }
-      delay_ticks: { type: literal, value: 3 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: couture-rapier-poke-low
-      delay_ticks: { type: literal, value: 3 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.trident.throw
-      volume: { type: literal, value: 0.6 }
-      pitch: { type: literal, value: 2.0 }
-      delay_ticks: { type: literal, value: 6 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: couture-rapier-poke
-      scale: { type: literal, value: 1.2 }
-      delay_ticks: { type: literal, value: 6 }
-  hit_entity:
-    # beat 1 (the melee damage itself)
-    - type: apply_status
-      targets: { type: caster }
-      status_id: poise
-      effect_duration_ticks: { type: literal, value: 400 }
-    - type: play_vfx
-      targets: { type: target }
-      vfx_id: couture-rapier-burst
-      scale: { type: literal, value: 0.6 }
-    - type: play_sound
-      targets: { type: target }
-      sound_id: entity.player.attack.crit
-      volume: { type: literal, value: 0.5 }
-      pitch: { type: literal, value: 1.6 }
-    # beat 2
-    - type: damage
-      targets: { type: target }
-      components:
-        - base: { type: literal, value: 2.0 }
-          attribute: physical
-      ignore_invulnerability: { type: literal, value: true }
-      delay_ticks: { type: literal, value: 3 }
-    - type: apply_status
-      targets: { type: caster }
-      status_id: poise
-      effect_duration_ticks: { type: literal, value: 400 }
-      delay_ticks: { type: literal, value: 3 }
-    - type: play_vfx
-      targets: { type: target }
-      vfx_id: couture-rapier-burst-lite
-      scale: { type: literal, value: 0.6 }
-      delay_ticks: { type: literal, value: 3 }
-    - type: play_sound
-      targets: { type: target }
-      sound_id: entity.player.attack.crit
-      volume: { type: literal, value: 0.5 }
-      pitch: { type: literal, value: 1.75 }
-      delay_ticks: { type: literal, value: 3 }
-    # beat 3: the heavier one -- bigger flash, hit-stop
-    - type: damage
-      targets: { type: target }
-      components:
-        - base: { type: literal, value: 3.5 }
-          attribute: physical
-      ignore_invulnerability: { type: literal, value: true }
-      delay_ticks: { type: literal, value: 6 }
-    - type: apply_status
-      targets: { type: caster }
-      status_id: poise
-      effect_duration_ticks: { type: literal, value: 400 }
-      delay_ticks: { type: literal, value: 6 }
-    - type: play_vfx
-      targets: { type: target }
-      vfx_id: couture-rapier-burst
-      scale: { type: literal, value: 0.95 }
-      delay_ticks: { type: literal, value: 6 }
-    - type: hit_stop
-      targets: { type: target }
-      ticks: 2
-      delay_ticks: { type: literal, value: 6 }
-    - type: play_sound
-      targets: { type: target }
-      sound_id: entity.player.attack.crit
-      pitch: { type: literal, value: 1.9 }
-      delay_ticks: { type: literal, value: 6 }
-  miss:
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.nodamage
-      pitch: { type: literal, value: 1.7 }
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: couture-rapier-ready
+  - type: dash_strike
+    distance: 5
+    ticks: 3
+    radius: 0.8
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    delay_ticks:
+      type: literal
+      value: 30
+    on_hit: []
+    stop_before_target: 1.8
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: couture-rapier-slash
+    delay_ticks:
+      type: literal
+      value: 31
+  - type: damage
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      angle_degrees:
+        type: literal
+        value: 75
+      distance:
+        type: literal
+        value: 3.7
+      max_count: 1
+    components:
+    - base:
+        type: literal
+        value: 7.5
+      attribute: physical
+    ignore_invulnerability:
+      type: literal
+      value: true
+    delay_ticks:
+      type: literal
+      value: 31
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      angle_degrees:
+        type: literal
+        value: 75
+      distance:
+        type: literal
+        value: 3.7
+      max_count: 1
+    vfx_id: couture-rapier-cross
+    delay_ticks:
+      type: literal
+      value: 31
+  - type: play_sound
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      angle_degrees:
+        type: literal
+        value: 75
+      distance:
+        type: literal
+        value: 3.7
+      max_count: 1
+    sound_id: entity.player.attack.crit
+    volume:
+      type: literal
+      value: 0.6
+    pitch:
+      type: literal
+      value: 1.6
+    delay_ticks:
+      type: literal
+      value: 31
+  - type: hit_stop
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      angle_degrees:
+        type: literal
+        value: 75
+      distance:
+        type: literal
+        value: 3.7
+      max_count: 1
+    ticks: 2
+    include_caster: true
+    delay_ticks:
+      type: literal
+      value: 31
+  - type: screen_flash
+    targets:
+      type: caster
+    overlay: white
+    color: '#FFF1DC'
+    fade_in:
+      type: literal
+      value: 0
+    stay:
+      type: literal
+      value: 1
+    fade_out:
+      type: literal
+      value: 1
+    delay_ticks:
+      type: literal
+      value: 31
+  - type: apply_status
+    targets:
+      type: caster
+    status_id: charge
+    effect_duration_ticks:
+      type: literal
+      value: 400
+    stack_count:
+      type: literal
+      value: 1
+    delay_ticks:
+      type: literal
+      value: 31

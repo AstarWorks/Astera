@@ -48,6 +48,8 @@ public sealed class Targeter {
         public val direction: DirectionRef,
         public val angleDegrees: NumericValue,
         public val distance: NumericValue,
+        /** Nearest targets first; null preserves the full cone. */
+        public val maxCount: Int? = null,
     ) : Targeter()
 
     /** Non-teammates within [radius] of [center] (`null` = the 10-block default). */

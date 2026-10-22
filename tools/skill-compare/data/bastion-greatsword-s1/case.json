@@ -1,0 +1,55 @@
+{
+  "id": "bastion-greatsword-s1",
+  "rev": 2,
+  "videoId": "Svaaq9F7Ty8",
+  "start_s": 11.7,
+  "end_s": 15.0,
+  "identity": "Zwei Association West Section 3 Ishmael",
+  "weapon": "bastion-greatsword",
+  "status": "built",
+  "iterations": 0,
+  "report": "../bastion-greatsword-REPORT.md",
+  "skill": {
+    "name": "Moon Sweep",
+    "coins": 2,
+    "asteraSkillId": "bastion-greatsword-s1"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 6
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "s1",
+      "start_s": 11.7,
+      "end_s": 15.0,
+      "notes": ""
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "coin 1",
+      "t_s": 11.9,
+      "notes": ""
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "coin 2",
+      "t_s": 13.1,
+      "notes": ""
+    }
+  ],
+  "notes": "No fresh client captures: Docker prohibition; pending manager verification.",
+  "editLog": [],
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

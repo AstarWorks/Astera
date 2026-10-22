@@ -1,0 +1,54 @@
+{
+  "id": "ember-gauntlet-s2",
+  "rev": 1,
+  "videoId": "vBob-jTmlnc",
+  "start_s": 42.7,
+  "end_s": 44.7,
+  "skill": {
+    "name": "ember-gauntlet-s2",
+    "coins": 2,
+    "asteraSkillId": "ember-gauntlet-s2"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "ember-gauntlet-s2",
+      "start_s": 42.7,
+      "end_s": 44.7,
+      "notes": ""
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "Coin 1",
+      "t_s": 42.966667
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "Coin 2",
+      "t_s": 43.766667
+    }
+  ],
+  "notes": "Native 30 fps inspection; visual ring echoes are not additional damage hits.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

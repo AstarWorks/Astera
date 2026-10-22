@@ -1,69 +1,64 @@
-# Vendetta Bayonet: first crescent. A tilted orange arc that draws on along its length
-# (stagger), snaps open with out_expo, then burns down a block ladder (orange -> red -> gray)
-# and collapses. Anchored on the target; the crescent peak passes through the body.
-# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
-
 id: vendetta-slash-a
 duration_ticks: 20
-orient: look
+orient: yaw
 follow: false
 sample_ticks: 1
-
+rigs:
+- id: bayonet
+  pivot: [0.35, 1.05, 0.25]
+  rest: [0, 90, 0]
+  tilt: [0, 0, 65]
+  respect_hit_stop: true
+  end_tick: 8
+  parts:
+  - {id: heel, block: nether_bricks, offset: [0, 0.4, 0], size: [0.2, 0.8, 0.16]}
+  - {id: spine, block: nether_bricks, offset: [-0.03, 1.0, 0], size: [0.24, 0.5, 0.16], rotate: [0, 0, 5]}
+  - {id: tip, block: nether_bricks, offset: [-0.11, 1.35, 0], size: [0.24, 0.35, 0.16], rotate: [0, 0, 18]}
+  - {id: grip, block: black_concrete, offset: [0, -0.2, 0], size: [0.13, 0.4, 0.13]}
+  - {id: rib-0, block: bone_block, offset: [0.0, 0.22, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-1, block: bone_block, offset: [0.0, 0.41, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-2, block: bone_block, offset: [0.0, 0.6, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-3, block: bone_block, offset: [-0.019, 0.79, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-4, block: bone_block, offset: [-0.038, 0.98, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-5, block: bone_block, offset: [-0.057, 1.17, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-6, block: bone_block, offset: [-0.076, 1.36, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  swing:
+  - {t: 0, rotate: [110, 0, 0]}
+  - {t: 1, rotate: [125, 0, 0]}
+  - {t: 5, rotate: [-75, 0, 0], ease: out_quad}
+  - {t: 9, rotate: [-90, 0, 0], ease: out_cubic}
+  - {t: 16, rotate: [0, -55, 0], ease: in_out_quad}
+  trails:
+  - id: cut
+    from: [0, 0.55, 0]
+    to: [0, 2.1, 0]
+    start_t: 1
+    end_t: 5
+    life_ticks: 6
+    style: crisp
+    step_deg: 30
+    bands:
+    - from: 0.75
+      to: 1
+      color: '#FFFF8A28'
+      color_to: '#80491A23'
+      block: orange_concrete
+    - from: 0.68
+      to: 0.75
+      color: '#FF2C0714'
+      block: black_concrete
+    edge: {block: yellow_concrete, width: 0.055}
+    fade_power: 0.15
 elements:
-  # Outer glass blade: 8 segments of a 124 degree arc, drawn on one tick apart.
-  - id: blade
-    kind: { type: block, block: orange_stained_glass }
-    brightness: 15
-    glow_color: "#ff8a1f"
-    count: 8
-    slot_lifetime_ticks: 13
-    formation:
-      curve: { type: arc, radius: 2.8, from_deg: -62, to_deg: 62 }
-      tilt: { yaw: 0, pitch: 0, roll: 32 }
-      offset: [0.0, 1.1, -2.8]
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.02, 0.02, 0.05] }
-      - { t: 2, scale: [0.16, 0.16, 1.1], ease: out_expo }
-      - { t: 6, block: red_stained_glass }
-      - { t: 8, block: gray_stained_glass }
-      - { t: 12, scale: [0.0, 0.0, 1.1], ease: in_quad }
-
-  # White-hot core riding the blade, a hair thinner.
-  - id: core
-    kind: { type: block, block: white_concrete }
-    brightness: 15
-    count: 8
-    slot_lifetime_ticks: 11
-    formation:
-      curve: { type: arc, radius: 2.8, from_deg: -62, to_deg: 62 }
-      tilt: { yaw: 0, pitch: 0, roll: 32 }
-      offset: [0.0, 1.1, -2.8]
-      align: tangent
-      stagger_ticks: 1
-    keyframes:
-      - { t: 0, scale: [0.01, 0.01, 0.05] }
-      - { t: 2, scale: [0.06, 0.06, 1.1], ease: out_expo }
-      - { t: 7, scale: [0.06, 0.06, 1.1] }
-      - { t: 10, scale: [0.0, 0.0, 1.1], ease: in_quad }
-
-  # Spark glyph where the crescent crosses the body.
-  - id: flash
-    kind: { type: text, text: "<#ffd24a>✦", background: "#00000000", shadow: false, see_through: true }
-    billboard: center
-    brightness: 15
-    start_tick: 3
-    end_tick: 10
-    keyframes:
-      - { t: 0, translate: [0.0, 1.2, 0.2], scale: [0.0, 0.0, 0.0] }
-      - { t: 1, scale: [4.5, 4.5, 4.5], ease: out_back }
-      - { t: 6, scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  # Spray thrown off the cut.
-  - id: sparks
-    kind: { type: particle, particle_id: hit-spark, every_ticks: 2 }
-    start_tick: 3
-    end_tick: 9
-    keyframes:
-      - { t: 0, translate: [0.0, 1.2, 0.0] }
+- id: contact
+  kind: {type: particle, particle_id: gun-impact, every_ticks: 2}
+  start_tick: 5
+  end_tick: 8
+  keyframes:
+  - {t: 0, translate: [0, 1.1, 2.1]}
+- id: petals
+  kind: {type: particle, particle_id: vendetta-petals, every_ticks: 3}
+  start_tick: 5
+  end_tick: 10
+  keyframes:
+  - {t: 0, translate: [0, 1.1, 2.1]}

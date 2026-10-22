@@ -1,0 +1,77 @@
+{
+  "id": "vendetta-rifle-ego",
+  "rev": 1,
+  "videoId": "wbu2viInM3w",
+  "start_s": 104.4,
+  "end_s": 117.5,
+  "skill": {
+    "name": "Crimson Settlement",
+    "coins": 5,
+    "asteraSkillId": "vendetta-rifle-ego"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "vendetta-rifle-ego",
+      "start_s": 104.4,
+      "end_s": 117.5,
+      "notes": ""
+    },
+    {
+      "id": "hit-1",
+      "kind": "hit",
+      "label": "coin 1",
+      "t_s": 107.05,
+      "notes": "Contact group, not each decorative shard."
+    },
+    {
+      "id": "hit-2",
+      "kind": "hit",
+      "label": "coin 2",
+      "t_s": 107.95,
+      "notes": "Contact group, not each decorative shard."
+    },
+    {
+      "id": "hit-3",
+      "kind": "hit",
+      "label": "coin 3",
+      "t_s": 109.8,
+      "notes": "Contact group, not each decorative shard."
+    },
+    {
+      "id": "hit-4",
+      "kind": "hit",
+      "label": "coin 4",
+      "t_s": 111.45,
+      "notes": "Contact group, not each decorative shard."
+    },
+    {
+      "id": "hit-5",
+      "kind": "hit",
+      "label": "coin 5",
+      "t_s": 115.95,
+      "notes": "Contact group, not each decorative shard."
+    }
+  ],
+  "notes": "Q adapts the enhanced five-coin S3; this is not a separate E.G.O in the source.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

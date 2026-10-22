@@ -1,49 +1,31 @@
-# Persona weapon #10 (ADR-0230): white-and-black dueling blade. Poise stack (caster) built by cuts and
-# evades; five or more doubles the finisher's flurry. Four bindings: S1 triple cut, S2 sky rend,
-# S3 final prescript, DEF cold reply.
-
 id: edict-blade
-
 material: IRON_SWORD
-
 name:
-  ja: "<white>勅令の刃</white>"
-  en: "<white>Edict Blade</white>"
+  ja: <white>勅令の刃</white>
+  en: <white>Edict Blade</white>
 lore:
-  ja:
-    - "<gray>左クリック: 勅令の三断（突進 3連・平静+3）</gray>"
-    - "<gray>右クリック: 天穿ちの剣（跳躍 3連・星の印）</gray>"
-    - "<gray>スニーク + 右クリック: 最後の勅令（平静5以上で連撃倍化）</gray>"
-    - "<gray>スニーク + 左クリック: 冷たい返答（後退・反撃・平静+2）</gray>"
-    - "<dark_gray>rarity: epic / level: 4</dark_gray>"
-  en:
-    - "<gray>Left-click: triple cut (dash, 3 hits, +3 Poise)</gray>"
-    - "<gray>Right-click: sky rend (leap, 3 hits, star mark)</gray>"
-    - "<gray>Sneak + right-click: final prescript (5+ Poise doubles the flurry)</gray>"
-    - "<gray>Sneak + left-click: cold reply (backstep, counter, +2 Poise)</gray>"
-    - "<dark_gray>rarity: epic / level: 4</dark_gray>"
-
+  en: ['<gray>Left-click: twin cut (2 hits)</gray>', '<gray>Right-click: sky rend (3 hits)</gray>', '<gray>Sneak + right-click: final prescript (2 hits)</gray>',
+    '<gray>Sneak + left-click: cold reply (3 cuts)</gray>', '<gray>Q: thorn mandate (100 E.G.O)</gray>']
+  ja: ['<gray>左クリック: 勅令の二断</gray>', '<gray>右クリック: 天穿ちの剣</gray>', '<gray>スニーク＋右クリック: 最後の勅令</gray>', '<gray>スニーク＋左クリック: 冷たい返答</gray>', '<gray>Q: 棘の勅令（E.G.O
+      100）</gray>']
 rarity: epic
 level_requirement: 4
-
 attributes:
   attack_damage: 3.0
   attack_speed: 2.0
-
 equip_slot: mainhand
-
 resource_type: energy
 resource_cost_per_use: 14
-
 skills:
-  - trigger: left_click
-    skill_id: edict-s1
-  - trigger: right_click
-    skill_id: edict-s2
-  - trigger: sneak_right
-    skill_id: edict-s3
-  - trigger: sneak_left
-    skill_id: edict-def
-
+- trigger: left_click
+  skill_id: edict-s1
+- trigger: right_click
+  skill_id: edict-s2
+- trigger: sneak_right
+  skill_id: edict-s3
+- trigger: sneak_left
+  skill_id: edict-def
+- trigger: drop
+  skill_id: edict-ego
 pdc_tags:
   astera:rarity: epic

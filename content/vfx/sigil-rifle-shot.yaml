@@ -1,114 +1,179 @@
-# Sigil Rifle S1 "Marked Round": a vertical sigil disc spins up at the muzzle (the lens), a thin red
-# beam with a white core pierces forward through it in 2 ticks (out_expo) and collapses to nothing, gold
-# sparks fly off the lens, and a small star blinks at the muzzle.
-# Local axes: x = left, y = up, z = forward. Muzzle = [0, 1.45, 1.0].
-
 id: sigil-rifle-shot
-duration_ticks: 16
-orient: look
+duration_ticks: 12
+orient: yaw
 follow: false
-sample_ticks: 2
-
+sample_ticks: 1
 elements:
-  # The lens rim: ten glass pieces on a vertical circle facing forward (pitch 90 stands the XZ circle upright).
-  - id: lens-rim
-    kind: { type: block, block: red_stained_glass }
-    brightness: 15
-    glow_color: "#ff2a1a"
-    start_tick: 0
-    end_tick: 12
-    count: 10
-    formation:
-      curve: { type: circle, radius: 0.65 }
-      tilt: { yaw: 0, pitch: 90, roll: 0 }
-      offset: [0.0, 1.45, 1.0]
-      align: tangent
-    keyframes:
-      - { t: 0, scale: [0.0, 0.0, 0.0] }
-      - { t: 2, scale: [0.05, 0.05, 0.5], ease: out_back }
-      - { t: 8, scale: [0.05, 0.05, 0.5] }
-      - { t: 12, scale: [0.0, 0.0, 0.5], ease: in_quad }
-
-  # Three diameters spinning about the beam axis (roll) -- the disc reads as turning.
-  - id: lens-spin-a
-    kind: { type: block, block: white_concrete }
-    brightness: 15
-    start_tick: 0
-    end_tick: 12
-    keyframes:
-      - { t: 0, translate: [0.0, 1.45, 1.0], rotate: [0, 0, 0], scale: [0.0, 0.0, 0.0] }
-      - { t: 2, scale: [0.025, 1.2, 0.025], ease: out_expo }
-      - { t: 12, rotate: [0, 0, 300], scale: [0.0, 1.2, 0.0], ease: out_cubic }
-
-  - id: lens-spin-b
-    kind: { type: block, block: red_concrete }
-    brightness: 15
-    start_tick: 0
-    end_tick: 12
-    keyframes:
-      - { t: 0, translate: [0.0, 1.45, 1.0], rotate: [0, 0, 60], scale: [0.0, 0.0, 0.0] }
-      - { t: 2, scale: [0.025, 1.2, 0.025], ease: out_expo }
-      - { t: 12, rotate: [0, 0, 360], scale: [0.0, 1.2, 0.0], ease: out_cubic }
-
-  - id: lens-spin-c
-    kind: { type: block, block: red_concrete }
-    brightness: 15
-    start_tick: 0
-    end_tick: 12
-    keyframes:
-      - { t: 0, translate: [0.0, 1.45, 1.0], rotate: [0, 0, 120], scale: [0.0, 0.0, 0.0] }
-      - { t: 2, scale: [0.025, 1.2, 0.025], ease: out_expo }
-      - { t: 12, rotate: [0, 0, 420], scale: [0.0, 1.2, 0.0], ease: out_cubic }
-
-  # The shot: red beam, white core. Thickness snaps open then collapses; length stays.
-  - id: beam
-    kind: { type: block, block: red_stained_glass }
-    brightness: 15
-    glow_color: "#ff2a1a"
-    start_tick: 1
-    end_tick: 11
-    keyframes:
-      - { t: 0, translate: [0.0, 1.45, 15.0], scale: [0.02, 0.02, 28.0] }
-      - { t: 1, scale: [0.2, 0.2, 28.0], ease: out_expo }
-      - { t: 4, block: pink_stained_glass }
-      - { t: 10, scale: [0.0, 0.0, 28.0], ease: in_quad }
-    oscillate: { axis: scale_x, amplitude: 0.03, period_ticks: 2 }
-
-  - id: beam-core
-    kind: { type: block, block: white_concrete }
-    brightness: 15
-    start_tick: 1
-    end_tick: 7
-    keyframes:
-      - { t: 0, translate: [0.0, 1.45, 15.0], scale: [0.01, 0.01, 28.0] }
-      - { t: 1, scale: [0.07, 0.07, 28.0], ease: out_expo }
-      - { t: 6, scale: [0.0, 0.0, 28.0], ease: in_quad }
-
-  # Gold sparks thrown off the lens rim.
-  - id: spark
-    kind: { type: block, block: gold_block }
-    brightness: 15
-    start_tick: 1
-    end_tick: 10
-    count: 6
-    formation:
-      curve: { type: circle, radius: 0.5 }
-      tilt: { yaw: 0, pitch: 90, roll: 0 }
-      offset: [0.0, 1.45, 1.0]
-      align: outward
-    jitter: { position: 0.08, rotation_deg: 20, scale: 0.4 }
-    keyframes:
-      - { t: 0, scale: [0.03, 0.03, 0.1] }
-      - { t: 3, translate: [0.0, 0.0, 0.8], scale: [0.03, 0.03, 0.5], ease: out_expo }
-      - { t: 9, translate: [0.0, 0.0, 1.3], scale: [0.0, 0.0, 0.3], ease: in_quad }
-
-  - id: muzzle-star
-    kind: { type: text, text: "<#ffc24a>✦</#ffc24a>", background: "#00000000", shadow: false, see_through: true }
-    billboard: center
-    brightness: 15
-    start_tick: 1
-    end_tick: 8
-    keyframes:
-      - { t: 0, translate: [0.0, 1.45, 1.1], scale: [0.0, 0.0, 0.0] }
-      - { t: 1, scale: [4.0, 4.0, 4.0], ease: out_expo }
-      - { t: 7, scale: [0.0, 0.0, 0.0], ease: in_quad }
+- id: red-core
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate:
+    - -0.06
+    - 1.23
+    - 4.1
+    scale:
+    - 0.12
+    - 0.12
+    - 4.8
+  - t: 7
+    scale:
+    - 0
+    - 0
+    - 4.8
+    ease: in_quad
+- id: dark-underlay
+  kind:
+    type: block
+    block: black_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 4
+  keyframes:
+  - t: 0
+    translate:
+    - -0.08
+    - 1.18
+    - 4.1
+    scale:
+    - 0.18
+    - 0.06
+    - 4.8
+  - t: 4
+    scale:
+    - 0
+    - 0
+    - 4.8
+    ease: in_quad
+- id: hot-thread
+  kind:
+    type: block
+    block: yellow_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 3
+  keyframes:
+  - t: 0
+    translate:
+    - -0.02
+    - 1.29
+    - 4.1
+    scale:
+    - 0.045
+    - 0.025
+    - 4.8
+  - t: 3
+    scale:
+    - 0
+    - 0
+    - 4.8
+    ease: in_quad
+- id: bloom
+  kind:
+    type: block
+    block: red_stained_glass
+  brightness: 15
+  start_tick: 0
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate:
+    - -0.15
+    - 1.12
+    - 4.1
+    scale:
+    - 0.3
+    - 0.35
+    - 4.8
+  - t: 9
+    scale:
+    - 0
+    - 0
+    - 4.8
+    ease: in_quad
+- id: solid-impact-0
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.1
+    - 1.8
+    rotate:
+    - 0
+    - 25
+    - 0
+    scale:
+    - 0.055
+    - 0.22
+    - 1.6
+  - t: 7
+    scale:
+    - 0
+    - 0
+    - 1.6
+    ease: in_quad
+- id: solid-impact-1
+  kind:
+    type: block
+    block: red_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.1
+    - 1.8
+    rotate:
+    - 0
+    - -25
+    - 0
+    scale:
+    - 0.055
+    - 0.12
+    - 1.5
+  - t: 7
+    scale:
+    - 0
+    - 0
+    - 1.6
+    ease: in_quad
+- id: solid-impact-2
+  kind:
+    type: block
+    block: yellow_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 7
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.1
+    - 1.8
+    rotate:
+    - 0
+    - 0
+    - 0
+    scale:
+    - 0.065
+    - 0.055
+    - 1.9
+  - t: 7
+    scale:
+    - 0
+    - 0
+    - 1.6
+    ease: in_quad

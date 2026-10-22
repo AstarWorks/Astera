@@ -1,0 +1,223 @@
+id: ember-punch
+duration_ticks: 18
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: flame-0
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 0
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.05, 0.8]
+    scale: [0.019, 0.028, 0.09]
+  - t: 2
+    translate: [0, 1.05, 1.0]
+    scale: [0.114, 0.165, 0.54]
+    ease: out_expo
+    rotate: [12, 14, 0]
+  - t: 7
+    translate: [0, 1.2, 1.25]
+    block: orange_concrete
+  - t: 8
+    translate: [0, 1.4, 1.5]
+    scale: [0.0, 0.0, 0.0]
+    block: orange_concrete
+- id: flame-1
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 0
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.05, 1.35]
+    scale: [0.019, 0.028, 0.09]
+  - t: 2
+    translate: [0, 1.17, 1.55]
+    scale: [0.152, 0.22, 0.72]
+    ease: out_expo
+    rotate: [-12, -14, 0]
+  - t: 7
+    translate: [0, 1.2, 1.8]
+    block: orange_concrete
+  - t: 8
+    translate: [0, 1.4, 2.05]
+    scale: [0.0, 0.0, 0.0]
+    block: orange_concrete
+- id: flame-2
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 0
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.05, 1.9]
+    scale: [0.019, 0.028, 0.09]
+  - t: 2
+    translate: [0, 1.05, 2.1]
+    scale: [0.19, 0.275, 0.9]
+    ease: out_expo
+    rotate: [12, 14, 0]
+  - t: 7
+    translate: [0, 1.2, 2.35]
+    block: orange_concrete
+  - t: 8
+    translate: [0, 1.4, 2.6]
+    scale: [0.0, 0.0, 0.0]
+    block: orange_concrete
+- id: flame-3
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 0
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.05, 2.45]
+    scale: [0.019, 0.028, 0.09]
+  - t: 2
+    translate: [0, 1.17, 2.65]
+    scale: [0.228, 0.33, 1.08]
+    ease: out_expo
+    rotate: [-12, -14, 0]
+  - t: 7
+    translate: [0, 1.2, 2.9]
+    block: orange_concrete
+  - t: 8
+    translate: [0, 1.4, 3.15]
+    scale: [0.0, 0.0, 0.0]
+    block: orange_concrete
+- id: flame-4
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 0
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 1.05, 3.0]
+    scale: [0.019, 0.028, 0.09]
+  - t: 2
+    translate: [0, 1.05, 3.2]
+    scale: [0.266, 0.385, 1.26]
+    ease: out_expo
+    rotate: [12, 14, 0]
+  - t: 7
+    translate: [0, 1.2, 3.45]
+    block: orange_concrete
+  - t: 8
+    translate: [0, 1.4, 3.7]
+    scale: [0.0, 0.0, 0.0]
+    block: orange_concrete
+- id: bloom
+  kind: {type: block, block: orange_stained_glass}
+  brightness: 15
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [-0.18, 0.8, 0.85]
+    scale: [0.36, 0.5, 0.1]
+  - t: 2
+    scale: [0.36, 0.5, 2.7]
+    ease: out_expo
+  - t: 9
+    scale: [0.01, 0.01, 2.7]
+- id: flame
+  kind: {type: particle, particle_id: fire-trail, every_ticks: 3}
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate: [0, 1.05, 0]
+  count: 5
+  formation:
+    curve:
+      type: line
+      from: [0, 0, 0.8]
+      to: [0, 0, 3.4]
+- id: soot
+  kind: {type: particle, particle_id: fire-smoke, every_ticks: 3}
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 1.15, 0.8]
+- id: impact-spokes
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  count: 8
+  end_tick: 10
+  formation:
+    curve: {type: sphere, radius: 0.12}
+    offset: [0, 1.1, 3.0]
+    align: outward
+  keyframes:
+  - t: 0
+    scale: [0.06, 0.06, 0.12]
+  - t: 1
+    scale: [0.12, 0.12, 0.85]
+    ease: out_expo
+  - {t: 4, block: orange_concrete}
+  - t: 8
+    scale: [0.02, 0.02, 0.1]
+  start_tick: 1
+- id: impact-core
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate: [-0.12, 0.98, 2.88]
+    scale: [0.24, 0.24, 0.24]
+  - t: 3
+    scale: [0, 0, 0]
+  start_tick: 1
+- id: impact-flare
+  kind: {type: text, text: <#FFF1A0>✦, background: '#00000000', shadow: false, see_through: true}
+  billboard: center
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 1.1, 3.0]
+    scale: [0, 0, 0]
+  - t: 1
+    translate: [0, 0.1, 3.0]
+    scale: [8, 8, 8]
+    ease: out_expo
+  - t: 4
+    translate: [0, 0.1, 3.0]
+    scale: [8, 8, 8]
+  - t: 8
+    translate: [0, 1.1, 3.0]
+    scale: [0, 0, 0]
+rigs:
+- id: gauntlet
+  pivot: [-0.35, 1.05, 0.25]
+  rest: [0, 90, 0]
+  tilt: [0, 0, 12]
+  end_tick: 16
+  parts:
+  - id: cuff
+    block: black_concrete
+    offset: [0, 0.18, 0]
+    size: [0.38, 0.45, 0.38]
+  - id: fist
+    block: gray_concrete
+    offset: [0, 0.56, 0]
+    size: [0.45, 0.4, 0.42]
+  - id: nozzle
+    block: gold_block
+    offset: [0, 0.8, 0]
+    size: [0.25, 0.14, 0.25]
+    brightness: 15
+  swing:
+  - t: 0
+    rotate: [0, -25, 0]
+  - t: 3
+    rotate: [0, 0, 0]
+    ease: out_quad
+  - t: 7
+    rotate: [0, 0, 0]
+  - t: 15
+    rotate: [0, -35, 0]
+    ease: in_out_quad

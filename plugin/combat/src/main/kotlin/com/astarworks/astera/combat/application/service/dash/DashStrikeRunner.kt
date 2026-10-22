@@ -53,6 +53,7 @@ internal class DashStrikeRunner(
         val stopOnBlock: Boolean,
         val followPitch: Boolean,
         val onHit: List<Mechanic>,
+        val stopBeforeTarget: Double? = null,
     )
 
     private val active: MutableSet<Dash> = LinkedHashSet()
@@ -66,13 +67,16 @@ internal class DashStrikeRunner(
         }
         if (params.distance <= 0.0) return false
         val steps = params.ticks.coerceAtLeast(1)
+        val direction = heading(pose.direction, params.followPitch)
+        val distance = approachDistance(caster, pose, direction, params)
+        if (distance <= 0.0) return false
         val dash = Dash(
             caster = caster,
             params = params,
             ctx = ctx,
             world = pose.world,
             origin = pose.position,
-            stepVector = heading(pose.direction, params.followPitch) * (params.distance / steps),
+            stepVector = direction * (distance / steps),
             steps = steps,
             pose = pose,
         )
@@ -83,6 +87,22 @@ internal class DashStrikeRunner(
             dash.handle = scheduler.runRepeating(initialDelay = ticks(1), period = ticks(1)) { stepOnce(dash) }
         }
         return true
+    }
+
+    private fun approachDistance(caster: PlayerId, pose: PlayerPose, direction: Vec3, params: Params): Double {
+        val gap = params.stopBeforeTarget?.coerceAtLeast(0.0) ?: return params.distance
+        val origin = pose.position + Vec3(0.0, BODY_HALF_HEIGHT, 0.0)
+        return nearbyQuery.findNearby(origin, params.distance + gap + params.radius, pose.world)
+            .asSequence()
+            .filter { it.id != caster && living(listOf(it.id)).isNotEmpty() }
+            .mapNotNull { candidate ->
+                val feet = candidate.position ?: poseLookup?.poseOf(candidate.id)?.position ?: return@mapNotNull null
+                val delta = feet + Vec3(0.0, candidate.height / 2.0, 0.0) - origin
+                val forward = delta.dot(direction)
+                if (forward <= 0.0 || (delta - direction * forward).length() > params.radius) null
+                else (forward - gap).coerceIn(0.0, params.distance)
+            }
+            .minOrNull() ?: params.distance
     }
 
     /** Ends every running dash (plugin disable). */

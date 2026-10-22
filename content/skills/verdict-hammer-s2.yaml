@@ -1,122 +1,62 @@
-# ADR-0230 persona weapon: Verdict Hammer S2 (right click), "Heavenly Stakes". 8 ticks of
-# telegraph (hammer floats up, circuitry climbs both flanks), a 6-block dash; if it connects, the
-# spot is marked with a V and a closing hoop, and 38 ticks after the dash two sword stakes drop on
-# it (the hoop is the dodge window). Both hits scale with the target's rupture stakes; the dash
-# drives one stake in, the drop two more. A dash that touches nobody does nothing past the visuals.
-# A sequence skill: no baseline hit, all damage comes from the timeline below.
-
 id: verdict-hammer-s2
-
-name:
-  ja: "天降る杭"
-  en: "Heavenly Stakes"
-description:
-  ja: "杭槌を携えて踏み込み、命中した地点へ二本の杭を降らせる。足元の印が閉じる前に離れれば避けられる。"
-  en: "Dash in with the hammer, then call two sword stakes down on the spot. Step out before the hoop closes to dodge."
-
+name: {ja: 天降る杭, en: Heavenly Stakes}
+description: {ja: 狙った敵へ二本の杭を収束させ、一撃を落とす。, en: Summon two converging nails onto the aimed enemy in one strike.}
 archetype: sequence
-cooldown_ticks: 100
-resource_cost: 30              # energy
-tags: [ melee, physical, movement, rupture ]
-
-params:
-  type: sequence
-
+cooldown_ticks: 70
+resource_cost: 30
+params: {type: sequence}
 phases:
   type: sequence
   cast:
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.anvil.land
-      volume: { type: literal, value: 0.4 }
-      pitch: { type: literal, value: 0.7 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: verdict-s2-call
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.player.attack.knockback
-      pitch: { type: literal, value: 0.7 }
-      delay_ticks: { type: literal, value: 8 }
-    - type: dash_strike
-      delay_ticks: { type: literal, value: 8 }
-      distance: 6.0
-      ticks: 4
-      radius: 1.3
-      hit_once: true
-      invulnerable: true
-      stop_on_block: true
-      on_hit:
-        # Hit 1: the hammer, first stake.
-        - type: damage
-          targets: { type: target }
-          components:
-            - base: { type: literal, value: 7.0 }
-              attribute: physical
-              per_stack: { status_id: rupture, amount: 0.5, on: target, consume: false }
-        - type: apply_status
-          targets: { type: target }
-          status_id: rupture
-          effect_duration_ticks: { type: literal, value: 200 }
-          stack_count: { type: literal, value: 1 }
-        - type: hit_stop
-          targets: { type: target }
-          ticks: 3
-          include_caster: true
-        - type: knockback
-          targets: { type: target }
-          direction: { type: from_caster }
-          strength: { type: literal, value: 0.4 }
-        - type: play_vfx
-          targets: { type: target }
-          vfx_id: verdict-impact
-          scale: { type: literal, value: 1.3 }
-        - type: camera_shake
-          targets: { type: target }
-          intensity: { type: literal, value: 0.5 }
-          ticks: { type: literal, value: 6 }
-        - type: play_sound
-          targets: { type: target }
-          sound_id: entity.player.attack.strong
-        # Hit 2: the stakes drop on the spot, 38 ticks after the dash connected.
-        - type: play_vfx
-          targets: { type: hit_location }
-          vfx_id: verdict-s2-mark
-          delay_ticks: { type: literal, value: 8 }
-        - type: damage
-          targets: { type: nearby_entities, center: { type: hit_location }, radius: { type: literal, value: 3.3 }, exclude_caster: true }
-          components:
-            - base: { type: literal, value: 9.0 }
-              attribute: physical
-              per_stack: { status_id: rupture, amount: 0.8, on: target, consume: false }
-          delay_ticks: { type: literal, value: 38 }
-        - type: apply_status
-          targets: { type: nearby_entities, center: { type: hit_location }, radius: { type: literal, value: 3.3 }, exclude_caster: true }
-          status_id: rupture
-          effect_duration_ticks: { type: literal, value: 200 }
-          stack_count: { type: literal, value: 2 }
-          delay_ticks: { type: literal, value: 38 }
-        - type: knockup
-          targets: { type: nearby_entities, center: { type: hit_location }, radius: { type: literal, value: 3.3 }, exclude_caster: true }
-          strength: { type: literal, value: 0.6 }
-          delay_ticks: { type: literal, value: 38 }
-        - type: hit_stop
-          targets: { type: nearby_entities, center: { type: hit_location }, radius: { type: literal, value: 3.3 }, exclude_caster: true }
-          ticks: 3
-          delay_ticks: { type: literal, value: 38 }
-        - type: play_vfx
-          targets: { type: nearby_entities, center: { type: hit_location }, radius: { type: literal, value: 3.3 }, exclude_caster: true }
-          vfx_id: verdict-impact
-          scale: { type: literal, value: 1.6 }
-          delay_ticks: { type: literal, value: 38 }
-        - type: camera_shake
-          targets: { type: nearby_entities, center: { type: hit_location }, radius: { type: literal, value: 6.0 }, exclude_caster: false }
-          intensity: { type: literal, value: 0.8 }
-          ticks: { type: literal, value: 8 }
-          delay_ticks: { type: literal, value: 38 }
-        - type: play_sound
-          targets: { type: hit_location }
-          sound_id: entity.lightning_bolt.impact
-          volume: { type: literal, value: 0.6 }
-          pitch: { type: literal, value: 1.5 }
-          delay_ticks: { type: literal, value: 38 }
+  - type: play_vfx
+    targets:
+      type: forward_ray
+      from: &id001 {type: caster}
+      distance: {type: literal, value: 12}
+    delay_ticks: {type: literal, value: 10}
+    vfx_id: verdict-s2-mark
+  - type: damage
+    targets:
+      type: nearby_entities
+      center: &id002
+        type: forward_ray
+        from: *id001
+        distance: {type: literal, value: 12}
+      radius: {type: literal, value: 3.2}
+      exclude_caster: true
+    delay_ticks: {type: literal, value: 26}
+    ignore_invulnerability: {type: literal, value: true}
+    components:
+    - base: {type: literal, value: 9.0}
+      attribute: physical
+  - type: hit_stop
+    targets: *id002
+    delay_ticks: {type: literal, value: 26}
+    ticks: 2
+    include_caster: true
+  - type: play_sound
+    targets: *id001
+    delay_ticks: {type: literal, value: 26}
+    sound_id: entity.player.attack.strong
+    pitch: {type: literal, value: 0.7}
+  - type: schedule_particle_animation
+    targets: *id002
+    delay_ticks: {type: literal, value: 26}
+    animation:
+    - type: point
+      particles:
+      - {id: crit, count: 12, extra: 0.15}
+      - {id: end_rod, count: 8, extra: 0.09}
+      - {id: smoke, count: 4, extra: 0.03}
+      - {id: flash, count: 1}
+  - type: play_vfx
+    targets: *id002
+    delay_ticks: {type: literal, value: 26}
+    vfx_id: verdict-impact
+    scale: {type: literal, value: 1.6}
+  - type: apply_status
+    targets: *id002
+    delay_ticks: {type: literal, value: 26}
+    status_id: rupture
+    effect_duration_ticks: {type: literal, value: 200}
+    stack_count: {type: literal, value: 1}

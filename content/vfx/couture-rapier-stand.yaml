@@ -1,0 +1,138 @@
+id: couture-rapier-stand
+duration_ticks: 85
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: standing-blade-0
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 0
+  end_tick: 84
+  keyframes:
+  - t: 0
+    translate:
+    - -0.8
+    - 1.4
+    - -0.2
+    scale:
+    - 0.04
+    - 2.6
+    - 0.1
+  - t: 76
+    scale:
+    - 0.04
+    - 2.6
+    - 0.1
+  - t: 83
+    scale:
+    - 0
+    - 2.6
+    - 0
+    ease: in_quad
+- id: standing-loop-0
+  kind: {type: quad, glyph: ◇, color: '#FFF5E6', alpha: 1}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 84
+  keyframes:
+  - t: 0
+    translate:
+    - -0.8
+    - 2.85
+    - -0.2
+    scale:
+    - 0.4
+    - 0.55
+    - 1
+  - {t: 76, alpha: 1}
+  - {t: 83, alpha: 0}
+- id: standing-blade-1
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 0
+  end_tick: 84
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 1.4
+    - 0.2
+    scale:
+    - 0.04
+    - 2.6
+    - 0.1
+  - t: 76
+    scale:
+    - 0.04
+    - 2.6
+    - 0.1
+  - t: 83
+    scale:
+    - 0
+    - 2.6
+    - 0
+    ease: in_quad
+- id: standing-loop-1
+  kind: {type: quad, glyph: ◇, color: '#FFF5E6', alpha: 1}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 84
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 2.85
+    - 0.2
+    scale:
+    - 0.4
+    - 0.55
+    - 1
+  - {t: 76, alpha: 1}
+  - {t: 83, alpha: 0}
+- id: standing-blade-2
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 0
+  end_tick: 84
+  keyframes:
+  - t: 0
+    translate:
+    - 0.8
+    - 1.4
+    - -0.2
+    scale:
+    - 0.04
+    - 2.6
+    - 0.1
+  - t: 76
+    scale:
+    - 0.04
+    - 2.6
+    - 0.1
+  - t: 83
+    scale:
+    - 0
+    - 2.6
+    - 0
+    ease: in_quad
+- id: standing-loop-2
+  kind: {type: quad, glyph: ◇, color: '#FFF5E6', alpha: 1}
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 84
+  keyframes:
+  - t: 0
+    translate:
+    - 0.8
+    - 2.85
+    - -0.2
+    scale:
+    - 0.4
+    - 0.55
+    - 1
+  - {t: 76, alpha: 1}
+  - {t: 83, alpha: 0}

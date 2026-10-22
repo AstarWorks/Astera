@@ -1,0 +1,63 @@
+{
+  "id": "couture-rapier-s2",
+  "rev": 1,
+  "videoId": "GIe7Fna5LD4",
+  "start_s": 26.4,
+  "end_s": 31.4,
+  "skill": {
+    "name": "couture-rapier-s2",
+    "coins": 3,
+    "asteraSkillId": "couture-rapier-s2"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "couture-rapier-s2",
+      "start_s": 26.4,
+      "end_s": 31.4,
+      "notes": ""
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "contact 1",
+      "t_s": 27.05,
+      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "contact 2",
+      "t_s": 28.65,
+      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
+    },
+    {
+      "id": "hit3",
+      "kind": "hit",
+      "label": "contact 3",
+      "t_s": 30.35,
+      "notes": "Visual contact; tick = round((video seconds - start) * 20)."
+    }
+  ],
+  "notes": "Mapping inferred from footage and supplied wiki; no skill labels in video. ",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

@@ -1,82 +1,151 @@
-# Vendetta Bayonet: shotgun finale. One frame of white (flash glyph + a blast cube that melts down a
-# white -> glass ladder), then a 14-shard orange sphere, a crimson shock ring sweeping out to 4 blocks,
-# and rolling smoke. The cube is the "impact frame": big, short, bright. Anchored on the target.
-
 id: vendetta-burst
-duration_ticks: 30
-orient: look
+duration_ticks: 18
+orient: yaw
 follow: false
 sample_ticks: 1
-
 elements:
-  - id: flash
-    kind: { type: text, text: "<#ffffff>✦", background: "#00000000", shadow: false, see_through: true }
-    billboard: center
-    brightness: 15
-    end_tick: 10
-    keyframes:
-      - { t: 0, translate: [0.0, 1.2, 0.0], scale: [0.0, 0.0, 0.0] }
-      - { t: 1, scale: [18.0, 18.0, 18.0], ease: out_expo }
-      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  - id: blast
-    kind: { type: block, block: white_concrete }
-    brightness: 15
-    end_tick: 12
-    keyframes:
-      - { t: 0, translate: [0.0, 1.2, 0.0], rotate: [30, 20, 0], scale: [0.2, 0.2, 0.2] }
-      - { t: 2, scale: [3.8, 3.8, 3.8], ease: out_expo }
-      - { t: 3, block: white_stained_glass }
-      - { t: 5, block: orange_stained_glass }
-      - { t: 8, block: red_stained_glass }
-      - { t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  - id: shard
-    kind: { type: block, block: orange_stained_glass }
-    brightness: 15
-    glow_color: "#ff8a1f"
-    count: 14
-    end_tick: 20
-    formation:
-      curve: { type: sphere, radius: 0.2 }
-      offset: [0.0, 1.2, 0.0]
-      align: outward
-    jitter: { rotation_deg: 5, scale: 0.3 }
-    keyframes:
-      - { t: 0, translate: [0.0, 0.0, 0.3], scale: [0.05, 0.05, 0.3] }
-      - { t: 3, translate: [0.0, 0.0, 2.2], scale: [0.14, 0.14, 3.2], ease: out_expo }
-      - { t: 9, block: red_stained_glass }
-      - { t: 12, block: gray_stained_glass }
-      - { t: 18, translate: [0.0, 0.0, 3.4], scale: [0.0, 0.0, 3.2], ease: in_quad }
-
-  # Crimson shock ring at the floor of the blast.
-  - id: ring
-    kind: { type: block, block: red_stained_glass }
-    brightness: 15
-    glow_color: "#c8102e"
-    count: 12
-    start_tick: 2
-    end_tick: 20
-    formation:
-      curve: { type: circle, radius: 0.6 }
-      offset: [0.0, 0.5, 0.0]
-      align: tangent
-    keyframes:
-      - { t: 0, scale: [0.18, 0.18, 0.4] }
-      - { t: 8, translate: [-3.6, 0.0, 0.0], scale: [0.08, 0.08, 1.7], ease: out_expo }
-      - { t: 12, block: gray_stained_glass }
-      - { t: 17, scale: [0.0, 0.0, 1.7], ease: in_quad }
-
-  - id: smoke
-    kind: { type: particle, particle_id: gun-impact-smoke, every_ticks: 2 }
-    start_tick: 2
-    end_tick: 14
-    keyframes:
-      - { t: 0, translate: [0.0, 1.0, 0.0] }
-
-  - id: embers
-    kind: { type: particle, particle_id: fire-impact, every_ticks: 6 }
-    start_tick: 1
-    end_tick: 8
-    keyframes:
-      - { t: 0, translate: [0.0, 1.2, 0.0] }
+- id: dark-0
+  kind: {type: block, block: black_concrete}
+  brightness: 15
+  end_tick: 12
+  keyframes:
+  - {t: 0, translate: [-0.5, 0.1, 2.1], rotate: [0, 0, 36], scale: [0.03, 0.04, 0.06]}
+  - {t: 2, scale: [0.3, 1.6, 0.16], ease: out_expo}
+  - {t: 7, scale: [0.12, 1.5, 0.1]}
+  - {t: 11, scale: [0, 0, 0], ease: in_quad}
+- id: red-0
+  kind: {type: block, block: red_concrete}
+  brightness: 15
+  end_tick: 12
+  keyframes:
+  - {t: 0, translate: [-0.5, 0.1, 2.0], rotate: [0, 0, 36], scale: [0.03, 0.04, 0.06]}
+  - {t: 2, scale: [0.22, 1.6, 0.16], ease: out_expo}
+  - {t: 7, scale: [0.12, 1.5, 0.1]}
+  - {t: 11, scale: [0, 0, 0], ease: in_quad}
+- id: ember-0
+  kind: {type: particle, particle_id: fire-trail, every_ticks: 2}
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - {t: 0, translate: [-0.5, 0.7, 2]}
+- id: dark-1
+  kind: {type: block, block: black_concrete}
+  brightness: 15
+  end_tick: 12
+  keyframes:
+  - {t: 0, translate: [-0.25, 0.1, 2.1], rotate: [0, 0, 18], scale: [0.03, 0.04, 0.06]}
+  - {t: 2, scale: [0.3, 2.05, 0.16], ease: out_expo}
+  - {t: 7, scale: [0.12, 1.5, 0.1]}
+  - {t: 11, scale: [0, 0, 0], ease: in_quad}
+- id: red-1
+  kind: {type: block, block: red_concrete}
+  brightness: 15
+  end_tick: 12
+  keyframes:
+  - {t: 0, translate: [-0.25, 0.1, 2.0], rotate: [0, 0, 18], scale: [0.03, 0.04, 0.06]}
+  - {t: 2, scale: [0.22, 2.05, 0.16], ease: out_expo}
+  - {t: 7, scale: [0.12, 1.5, 0.1]}
+  - {t: 11, scale: [0, 0, 0], ease: in_quad}
+- id: ember-1
+  kind: {type: particle, particle_id: fire-trail, every_ticks: 2}
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - {t: 0, translate: [-0.25, 0.7, 2]}
+- id: dark-2
+  kind: {type: block, block: black_concrete}
+  brightness: 15
+  end_tick: 12
+  keyframes:
+  - {t: 0, translate: [0.0, 0.1, 2.1], rotate: [0, 0, 0], scale: [0.03, 0.04, 0.06]}
+  - {t: 2, scale: [0.3, 2.5, 0.16], ease: out_expo}
+  - {t: 7, scale: [0.12, 1.5, 0.1]}
+  - {t: 11, scale: [0, 0, 0], ease: in_quad}
+- id: red-2
+  kind: {type: block, block: red_concrete}
+  brightness: 15
+  end_tick: 12
+  keyframes:
+  - {t: 0, translate: [0.0, 0.1, 2.0], rotate: [0, 0, 0], scale: [0.03, 0.04, 0.06]}
+  - {t: 2, scale: [0.22, 2.5, 0.16], ease: out_expo}
+  - {t: 7, scale: [0.12, 1.5, 0.1]}
+  - {t: 11, scale: [0, 0, 0], ease: in_quad}
+- id: ember-2
+  kind: {type: particle, particle_id: fire-trail, every_ticks: 2}
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - {t: 0, translate: [0.0, 0.7, 2]}
+- id: dark-3
+  kind: {type: block, block: black_concrete}
+  brightness: 15
+  end_tick: 12
+  keyframes:
+  - {t: 0, translate: [0.25, 0.1, 2.1], rotate: [0, 0, -18], scale: [0.03, 0.04, 0.06]}
+  - {t: 2, scale: [0.3, 2.05, 0.16], ease: out_expo}
+  - {t: 7, scale: [0.12, 1.5, 0.1]}
+  - {t: 11, scale: [0, 0, 0], ease: in_quad}
+- id: red-3
+  kind: {type: block, block: red_concrete}
+  brightness: 15
+  end_tick: 12
+  keyframes:
+  - {t: 0, translate: [0.25, 0.1, 2.0], rotate: [0, 0, -18], scale: [0.03, 0.04, 0.06]}
+  - {t: 2, scale: [0.22, 2.05, 0.16], ease: out_expo}
+  - {t: 7, scale: [0.12, 1.5, 0.1]}
+  - {t: 11, scale: [0, 0, 0], ease: in_quad}
+- id: ember-3
+  kind: {type: particle, particle_id: fire-trail, every_ticks: 2}
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - {t: 0, translate: [0.25, 0.7, 2]}
+- id: dark-4
+  kind: {type: block, block: black_concrete}
+  brightness: 15
+  end_tick: 12
+  keyframes:
+  - {t: 0, translate: [0.5, 0.1, 2.1], rotate: [0, 0, -36], scale: [0.03, 0.04, 0.06]}
+  - {t: 2, scale: [0.3, 1.6, 0.16], ease: out_expo}
+  - {t: 7, scale: [0.12, 1.5, 0.1]}
+  - {t: 11, scale: [0, 0, 0], ease: in_quad}
+- id: red-4
+  kind: {type: block, block: red_concrete}
+  brightness: 15
+  end_tick: 12
+  keyframes:
+  - {t: 0, translate: [0.5, 0.1, 2.0], rotate: [0, 0, -36], scale: [0.03, 0.04, 0.06]}
+  - {t: 2, scale: [0.22, 1.6, 0.16], ease: out_expo}
+  - {t: 7, scale: [0.12, 1.5, 0.1]}
+  - {t: 11, scale: [0, 0, 0], ease: in_quad}
+- id: ember-4
+  kind: {type: particle, particle_id: fire-trail, every_ticks: 2}
+  start_tick: 1
+  end_tick: 9
+  keyframes:
+  - {t: 0, translate: [0.5, 0.7, 2]}
+- id: petals
+  kind: {type: quad, color: '#F52952', alpha: 0.95}
+  brightness: 15
+  start_tick: 1
+  end_tick: 10
+  emit:
+    count: 8
+    speed: [0.12, 0.3]
+    spread_deg: 140
+    direction: outward
+    gravity: 0.018
+    drag: 0.10
+    life_ticks: [6, 9]
+    size: [0.1, 0.22]
+    size_over_life: [1, 0]
+    alpha_over_life: [0.95, 0]
+    spin_deg_per_tick: 15
+  keyframes:
+  - {t: 0, translate: [0, 1.1, 2.1]}
+- id: smoke
+  kind: {type: particle, particle_id: dash-cloud, every_ticks: 3}
+  start_tick: 8
+  end_tick: 16
+  keyframes:
+  - {t: 0, translate: [0, 0.4, 2]}

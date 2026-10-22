@@ -1,0 +1,42 @@
+{
+  "id": "edict-blade-ego",
+  "rev": 1,
+  "videoId": "x6sc9JkW77c",
+  "start_s": 35.8,
+  "end_s": 39.2,
+  "skill": {
+    "name": "edict-ego",
+    "coins": 0,
+    "asteraSkillId": "edict-ego"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "edict-ego",
+      "start_s": 35.8,
+      "end_s": 39.2,
+      "notes": ""
+    }
+  ],
+  "notes": "Native 29.97-fps reference checked. Normal form: S3 has two coins, not the transformed four-coin move. E.G.O case is the non-damaging form entry. Defense is not shown.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

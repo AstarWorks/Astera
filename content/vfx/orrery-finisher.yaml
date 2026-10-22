@@ -1,0 +1,91 @@
+id: orrery-finisher
+duration_ticks: 18
+orient: yaw
+follow: false
+sample_ticks: 1
+rigs:
+- id: staff
+  pivot:
+  - -0.26
+  - 2.39
+  - 0.26
+  rest:
+  - 0
+  - 0
+  - 0
+  tilt:
+  - 0
+  - -35
+  - 20
+  end_tick: 17
+  respect_hit_stop: true
+  parts: []
+  swing:
+  - t: 0
+    rotate:
+    - 0
+    - 65
+    - 0
+    ease: out_quad
+  - t: 3
+    rotate:
+    - 0
+    - 100
+    - 0
+    ease: out_quad
+  - t: 7
+    rotate:
+    - 0
+    - 280
+    - 0
+    ease: out_quad
+  - t: 10
+    rotate:
+    - 0
+    - 290
+    - 0
+    ease: out_quad
+  - t: 17
+    rotate:
+    - 0
+    - 360
+    - 0
+    ease: out_quad
+  trails:
+  - id: fan
+    from:
+    - 0
+    - 1.0
+    - 0
+    to:
+    - 0
+    - 2.3
+    - 0
+    start_t: 3
+    end_t: 7
+    life_ticks: 5
+    style: both
+    step_deg: 50
+    bands:
+    - from: 0.0
+      to: 0.65
+      color: '#70DC820D'
+      color_to: '#204E2710'
+    - from: 0.65
+      to: 1.0
+      color: '#FFFFD447'
+      color_to: '#80FF970B'
+      block: gold_block
+    edge:
+      block: black_concrete
+      width: 0.025
+    fade_power: 0.3
+  emitters:
+  - id: embers
+    particle_id: orrery-ember
+    point:
+    - 0
+    - 1.65
+    - 0
+    start_t: 0
+    end_t: 8

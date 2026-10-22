@@ -265,6 +265,8 @@ public sealed class Mechanic {
         val invulnerable: BoolValue = BoolValue.Literal(true),
         val stopOnBlock: BoolValue = BoolValue.Literal(true),
         val followPitch: BoolValue = BoolValue.Literal(false),
+        /** Optional approach spacing; clamp travel before the first body in the dash corridor. */
+        val stopBeforeTarget: Double? = null,
         val onHit: List<Mechanic> = emptyList(),
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),

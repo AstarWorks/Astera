@@ -1,37 +1,84 @@
-# Orrery Staff: gold ring that blooms around a struck target (played at the target, facing the caster).
-# A big ○ glyph snaps outward while ten shards fly out along a vertical ring; ladder fade at the end.
-# Local axes: z points caster -> target; the ring plane is x/y (perpendicular to z).
-
 id: orrery-ring-hit
 duration_ticks: 12
 orient: to_target
 sample_ticks: 1
-
 elements:
-  - id: glyph
-    kind: { type: text, text: "<#ffb000><b>○</b>", background: "#00000000", shadow: false, see_through: true }
-    billboard: center
-    brightness: 15
-    start_tick: 0
-    end_tick: 11
-    keyframes:
-      - { t: 0, translate: [0.0, 1.0, 0.0], scale: [1.5, 1.5, 1.5] }
-      - { t: 4, scale: [10.0, 10.0, 10.0], ease: out_expo }
-      - { t: 11, scale: [12.0, 12.0, 12.0], ease: out_quad }
-
-  - id: shard
-    kind: { type: block, block: gold_block }
-    brightness: 15
-    count: 10
-    start_tick: 0
-    end_tick: 10
-    formation:
-      curve: { type: arc, radius: 0.3, from_deg: 0, to_deg: 360 }
-      tilt: { yaw: 0, pitch: 90, roll: 0 }
-      offset: [0.0, 1.0, 0.0]
-      align: outward
-    keyframes:
-      - { t: 0, scale: [0.14, 0.14, 0.14] }
-      - { t: 3, translate: [0.0, 0.0, 1.2], scale: [0.1, 0.1, 0.5], ease: out_expo }
-      - { t: 5, block: yellow_stained_glass }
-      - { t: 10, translate: [0.0, 0.0, 1.4], scale: [0.0, 0.0, 0.5], ease: in_quad }
+- id: shard
+  kind:
+    type: block
+    block: gold_block
+  brightness: 15
+  count: 8
+  start_tick: 0
+  end_tick: 10
+  formation:
+    curve:
+      type: arc
+      radius: 0.5
+      from_deg: 0
+      to_deg: 360
+    tilt:
+      yaw: 0
+      pitch: 0
+      roll: 90
+    offset:
+    - 0.0
+    - 1.0
+    - 0.0
+    align: outward
+  keyframes:
+  - t: 0
+    scale:
+    - 0.1
+    - 0.1
+    - 0.15
+  - t: 2
+    translate:
+    - 0
+    - 0
+    - 0.1
+    scale:
+    - 0.1
+    - 0.1
+    - 0.25
+    ease: out_expo
+  - t: 6
+    block: yellow_stained_glass
+  - t: 10
+    translate:
+    - 0
+    - 0
+    - 0.25
+    scale:
+    - 0
+    - 0
+    - 0
+    ease: in_quad
+- id: violet-core
+  kind:
+    type: block
+    block: purple_stained_glass
+  brightness: 15
+  start_tick: 0
+  end_tick: 8
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.0
+    - 0
+    scale:
+    - 0.03
+    - 0.2
+    - 0.2
+  - t: 2
+    scale:
+    - 0.03
+    - 0.8
+    - 0.8
+    ease: out_expo
+  - t: 8
+    scale:
+    - 0
+    - 0
+    - 0

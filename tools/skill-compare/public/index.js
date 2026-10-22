@@ -36,6 +36,10 @@ function slotRow(w, s) {
   const chips = el("div", "chips");
   const [stTxt, stCls] = STATUS[k ? k.status : "none"];
   chips.appendChild(el("span", "chip " + stCls, stTxt));
+  if (k) {
+    const verdict = { passed: "再現確認済", failed: "要修正", original: "独自設計", unverified: "再現未確認" };
+    chips.appendChild(el("span", "chip", verdict[k.verification?.status] ?? "再現未確認"));
+  }
   if (k && k.iterations > 0) chips.appendChild(el("span", "chip it", `${k.iterations}回目`));
   if (k && k.report) {
     const href = safeHref(k.report);

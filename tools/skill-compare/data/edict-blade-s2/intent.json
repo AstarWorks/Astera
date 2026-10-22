@@ -1,0 +1,465 @@
+{
+  "title": "edict-s2 - intent (my reading of the video, no Minecraft constraints)",
+  "source": {
+    "video": "x6sc9JkW77c",
+    "start_s": 16.8,
+    "frames": "frame_%03d.jpg",
+    "fps": 29.97
+  },
+  "units": "blocks; x = toward enemy, y = up, z = toward the side camera",
+  "duration_ticks": 136,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        4,
+        2.6,
+        17
+      ],
+      "target": [
+        4,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "Frame-estimated shot; perspective dolly approximates source zoom"
+    },
+    {
+      "t": 8,
+      "pos": [
+        4,
+        6,
+        17
+      ],
+      "target": [
+        4,
+        4,
+        0
+      ],
+      "fov": 40,
+      "note": "Frame-estimated shot; perspective dolly approximates source zoom"
+    },
+    {
+      "t": 28,
+      "pos": [
+        6.5,
+        3.5,
+        -8
+      ],
+      "target": [
+        6.5,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "Frame-estimated shot; perspective dolly approximates source zoom"
+    },
+    {
+      "t": 42,
+      "pos": [
+        6.5,
+        2.6,
+        17
+      ],
+      "target": [
+        6.5,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "Frame-estimated shot; perspective dolly approximates source zoom"
+    },
+    {
+      "t": 64,
+      "pos": [
+        6.5,
+        2,
+        5
+      ],
+      "target": [
+        6.5,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "Frame-estimated shot; perspective dolly approximates source zoom"
+    },
+    {
+      "t": 74,
+      "pos": [
+        6.5,
+        2.6,
+        12
+      ],
+      "target": [
+        6.5,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "Frame-estimated shot; perspective dolly approximates source zoom"
+    },
+    {
+      "t": 90,
+      "pos": [
+        6.5,
+        6,
+        14
+      ],
+      "target": [
+        6.5,
+        3,
+        0
+      ],
+      "fov": 40,
+      "note": "Frame-estimated shot; perspective dolly approximates source zoom"
+    },
+    {
+      "t": 118,
+      "pos": [
+        6.5,
+        2.5,
+        9
+      ],
+      "target": [
+        6.5,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "Frame-estimated shot; perspective dolly approximates source zoom"
+    },
+    {
+      "t": 128,
+      "pos": [
+        6.5,
+        2.6,
+        14
+      ],
+      "target": [
+        6.5,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "Frame-estimated shot; perspective dolly approximates source zoom"
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#EEEEF3",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 8,
+          "pos": [
+            0,
+            6,
+            0
+          ]
+        },
+        {
+          "t": 24,
+          "pos": [
+            0,
+            6,
+            0
+          ]
+        },
+        {
+          "t": 29,
+          "pos": [
+            5.4,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 86,
+          "pos": [
+            5.4,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 98,
+          "pos": [
+            5.4,
+            5.4,
+            0
+          ]
+        },
+        {
+          "t": 118,
+          "pos": [
+            5.4,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#7a2a2a",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            8,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 1.8,
+    "width": 0.18,
+    "color": "#EAF2FF",
+    "keys": [
+      {
+        "t": 0,
+        "angle": -40
+      },
+      {
+        "t": 24,
+        "angle": 135
+      },
+      {
+        "t": 29,
+        "angle": -60,
+        "ease": "out_quad"
+      },
+      {
+        "t": 35,
+        "angle": -40
+      },
+      {
+        "t": 61,
+        "angle": 135
+      },
+      {
+        "t": 66,
+        "angle": -60,
+        "ease": "out_quad"
+      },
+      {
+        "t": 72,
+        "angle": -40
+      },
+      {
+        "t": 113,
+        "angle": 135
+      },
+      {
+        "t": 118,
+        "angle": -60,
+        "ease": "out_quad"
+      },
+      {
+        "t": 124,
+        "angle": -40
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "crescent_ring",
+      "id": "fan0",
+      "t0": 25,
+      "t1": 36,
+      "center": [
+        5.4,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 25,
+      "radius": 2.65,
+      "start_deg": 100,
+      "sweep_deg": 160,
+      "draw_ticks": 4,
+      "width": 0.8,
+      "layers": [
+        {
+          "color": "#EDF4FF",
+          "width": 0.65,
+          "offset": 0,
+          "alpha": 0.8
+        },
+        {
+          "color": "#202435",
+          "width": 0.1,
+          "offset": 0.1
+        }
+      ]
+    },
+    {
+      "type": "spike_star",
+      "t0": 29,
+      "t1": 39,
+      "center": [
+        8,
+        1,
+        0
+      ],
+      "count": 12,
+      "length": [
+        0.6,
+        1.5
+      ],
+      "width": 0.15,
+      "color": "#C5D9FF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "hit",
+      "t": 29,
+      "at": [
+        8,
+        1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "crescent_ring",
+      "id": "fan1",
+      "t0": 62,
+      "t1": 73,
+      "center": [
+        5.4,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 25,
+      "radius": 2.65,
+      "start_deg": 100,
+      "sweep_deg": 160,
+      "draw_ticks": 4,
+      "width": 0.8,
+      "layers": [
+        {
+          "color": "#EDF4FF",
+          "width": 0.65,
+          "offset": 0,
+          "alpha": 0.8
+        },
+        {
+          "color": "#202435",
+          "width": 0.1,
+          "offset": 0.1
+        }
+      ]
+    },
+    {
+      "type": "spike_star",
+      "t0": 66,
+      "t1": 76,
+      "center": [
+        8,
+        1,
+        0
+      ],
+      "count": 12,
+      "length": [
+        0.6,
+        1.5
+      ],
+      "width": 0.15,
+      "color": "#C5D9FF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "hit",
+      "t": 66,
+      "at": [
+        8,
+        1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "crescent_ring",
+      "id": "fan2",
+      "t0": 114,
+      "t1": 125,
+      "center": [
+        5.4,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 25,
+      "radius": 2.65,
+      "start_deg": 100,
+      "sweep_deg": 160,
+      "draw_ticks": 4,
+      "width": 0.8,
+      "layers": [
+        {
+          "color": "#EDF4FF",
+          "width": 0.65,
+          "offset": 0,
+          "alpha": 0.8
+        },
+        {
+          "color": "#202435",
+          "width": 0.1,
+          "offset": 0.1
+        }
+      ]
+    },
+    {
+      "type": "spike_star",
+      "t0": 118,
+      "t1": 128,
+      "center": [
+        8,
+        1,
+        0
+      ],
+      "count": 12,
+      "length": [
+        0.6,
+        3.6
+      ],
+      "width": 0.15,
+      "color": "#C5D9FF",
+      "core": "#FFFFFF"
+    },
+    {
+      "type": "hit",
+      "t": 118,
+      "at": [
+        8,
+        1,
+        0
+      ],
+      "coin": 3
+    },
+    {
+      "type": "screen_flash",
+      "t0": 118,
+      "t1": 119,
+      "color": "#FFFFFF",
+      "alpha": 1
+    }
+  ]
+}

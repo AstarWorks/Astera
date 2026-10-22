@@ -1,0 +1,72 @@
+{
+  "id": "crimson-chain-axe-s3",
+  "rev": 1,
+  "videoId": "Gpj-lvOnAgs",
+  "start_s": 79.8,
+  "end_s": 86.8,
+  "skill": {
+    "name": "Blade Forest",
+    "coins": 5,
+    "asteraSkillId": "crimson-chain-axe-s3"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "Blade Forest",
+      "start_s": 79.8,
+      "end_s": 86.8,
+      "notes": ""
+    },
+    {
+      "id": "hit-1",
+      "kind": "hit",
+      "label": "contact 1",
+      "t_s": 80.3
+    },
+    {
+      "id": "hit-2",
+      "kind": "hit",
+      "label": "contact 2",
+      "t_s": 80.55
+    },
+    {
+      "id": "hit-3",
+      "kind": "hit",
+      "label": "contact 3",
+      "t_s": 81.4
+    },
+    {
+      "id": "hit-4",
+      "kind": "hit",
+      "label": "contact 4",
+      "t_s": 82.25
+    },
+    {
+      "id": "hit-5",
+      "kind": "hit",
+      "label": "contact 5",
+      "t_s": 83.3
+    }
+  ],
+  "notes": "Trailer has no skill labels. Variant mapping is provisional; see notes.md. Extended Q is a cinematic adaptation, not a confirmed identity E.G.O.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

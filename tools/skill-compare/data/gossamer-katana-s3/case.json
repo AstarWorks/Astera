@@ -1,0 +1,48 @@
+{
+  "id": "gossamer-katana-s3",
+  "rev": 1,
+  "videoId": "LkLhzmoJZ6Y",
+  "start_s": 43,
+  "end_s": 50.5,
+  "skill": {
+    "name": "gossamer-katana-s3",
+    "coins": 1,
+    "asteraSkillId": "gossamer-katana-s3"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "gossamer-katana-s3",
+      "start_s": 43,
+      "end_s": 50.5,
+      "notes": ""
+    },
+    {
+      "id": "coin-1",
+      "kind": "hit",
+      "label": "Coin 1",
+      "t_s": 47.35
+    }
+  ],
+  "notes": "Identity mapping is provisional: source montage has no readable skill labels. Three base coins for S1/S2; one base coin for S3. Extra visual cuts are not extra damage.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

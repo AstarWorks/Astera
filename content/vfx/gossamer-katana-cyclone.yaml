@@ -12,7 +12,6 @@ elements:
   - id: helix-a
     kind: { type: block, block: light_blue_stained_glass }
     brightness: 15
-    glow_color: "#8fe8ff"
     start_tick: 0
     slot_lifetime_ticks: 15
     count: 12
@@ -52,7 +51,6 @@ elements:
   - id: wall
     kind: { type: block, block: blue_stained_glass }
     brightness: 15
-    glow_color: "#3fa9ff"
     start_tick: 8
     slot_lifetime_ticks: 12
     count: 8

@@ -1,101 +1,143 @@
-# Gossamer Katana S2, the drawn line. The caster stands still for 20 ticks: ten ice motes gather into the
-# hilt while a hair-thin, flickering blue line already hangs at eye height across the whole field
-# (the telegraph: you can see where the cut WILL be). At tick 20 it flashes white (out_expo), a wide blue
-# glow blooms around it, two deep-blue diagonals cross it and eight petals fly out. The damage lands on
-# this beat (see the skill). Anchored on the caster, yaw-oriented so the line stays level.
-
 id: gossamer-katana-iaido-line
 duration_ticks: 40
 orient: yaw
 follow: false
 sample_ticks: 1
-
 elements:
-  - id: gather
-    kind: { type: block, block: light_blue_stained_glass }
-    brightness: 15
-    glow_color: "#8fe8ff"
-    start_tick: 0
-    end_tick: 19
-    count: 10
-    formation:
-      curve: { type: circle, radius: 1.1 }
-      offset: [0.0, 1.0, 0.0]
-      align: outward
-    keyframes:
-      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.05, 0.05, 0.25] }
-      - { t: 17, translate: [0.0, 0.0, -0.95], scale: [0.03, 0.03, 0.5], ease: in_cubic }
-      - { t: 19, scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  - id: hint
-    kind: { type: block, block: light_blue_stained_glass }
-    brightness: 15
-    glow_color: "#3fa9ff"
-    start_tick: 0
-    end_tick: 20
-    keyframes:
-      - { t: 0, translate: [0.0, 1.55, 6.0], scale: [0.0, 0.012, 0.012] }
-      - { t: 4, scale: [13.0, 0.012, 0.012], ease: out_quad }
-      - { t: 19, scale: [13.0, 0.02, 0.02], ease: in_quad }
-    oscillate: { axis: scale_x, amplitude: 0.5, period_ticks: 2 }
-
-  - id: line-core
-    kind: { type: block, block: white_concrete }
-    brightness: 15
-    start_tick: 20
-    end_tick: 31
-    keyframes:
-      - { t: 0, translate: [0.0, 1.55, 6.0], scale: [14.0, 0.01, 0.01] }
-      - { t: 1, scale: [14.0, 0.1, 0.1], ease: out_expo }
-      - { t: 5, block: white_stained_glass }
-      - { t: 10, scale: [14.0, 0.0, 0.0], ease: in_quad }
-
-  - id: line-glow
-    kind: { type: block, block: light_blue_stained_glass }
-    brightness: 15
-    glow_color: "#3fa9ff"
-    start_tick: 20
-    end_tick: 29
-    keyframes:
-      - { t: 0, translate: [0.0, 1.55, 6.0], scale: [14.0, 0.02, 0.02] }
-      - { t: 2, scale: [14.0, 0.4, 0.4], ease: out_expo }
-      - { t: 8, scale: [14.0, 0.0, 0.0], ease: in_quad }
-
-  - id: diag-a
-    kind: { type: block, block: blue_stained_glass }
-    brightness: 15
-    glow_color: "#3fa9ff"
-    start_tick: 21
-    end_tick: 30
-    keyframes:
-      - { t: 0, translate: [0.0, 1.55, 5.0], rotate: [0, 0, 35], scale: [0.03, 0.3, 0.03] }
-      - { t: 2, scale: [0.06, 7.0, 0.06], ease: out_expo }
-      - { t: 8, scale: [0.0, 7.0, 0.0], ease: in_quad }
-
-  - id: diag-b
-    kind: { type: block, block: blue_stained_glass }
-    brightness: 15
-    glow_color: "#3fa9ff"
-    start_tick: 22
-    end_tick: 31
-    keyframes:
-      - { t: 0, translate: [0.0, 1.55, 5.0], rotate: [0, 0, -35], scale: [0.03, 0.3, 0.03] }
-      - { t: 2, scale: [0.06, 7.0, 0.06], ease: out_expo }
-      - { t: 8, scale: [0.0, 7.0, 0.0], ease: in_quad }
-
-  - id: petal
-    kind: { type: text, text: "<#f2f2f2><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
-    billboard: center
-    brightness: 15
-    start_tick: 20
-    end_tick: 30
-    count: 8
-    formation:
-      curve: { type: circle, radius: 0.3 }
-      tilt: { yaw: 0, pitch: 90, roll: 0 }
-      offset: [0.0, 1.55, 4.5]
-      align: outward
-    keyframes:
-      - { t: 0, scale: [0.0, 0.0, 0.0] }
-      - { t: 2, translate: [0.0, 0.0, 0.8], scale: [4.0, 4.0, 4.0], ease: out_expo }
-      - { t: 9, translate: [0.0, 0.0, 2.2], scale: [0.0, 0.0, 0.0], ease: in_quad }
+- id: core
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 36
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.05
+    - 3.0
+    scale:
+    - 0.010000000000000002
+    - 0.045
+    - 13.1
+    rotate:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    scale:
+    - 0.05
+    - 0.045
+    - 13.1
+    ease: out_expo
+  - t: 35
+    scale:
+    - 0
+    - 0
+    - 0
+    ease: in_quad
+- id: dark
+  kind:
+    type: block
+    block: blue_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 34
+  keyframes:
+  - t: 0
+    translate:
+    - 0.04
+    - 0.98
+    - 3.0
+    scale:
+    - 0.012
+    - 0.1
+    - 13.1
+    rotate:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    scale:
+    - 0.06
+    - 0.1
+    - 13.1
+    ease: out_expo
+  - t: 33
+    scale:
+    - 0
+    - 0
+    - 0
+    ease: in_quad
+- id: bloom
+  kind:
+    type: quad
+    color: '#59D9FF'
+    alpha: 0.22
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 12
+  keyframes:
+  - t: 0
+    translate:
+    - -0.02
+    - 1.05
+    - 3.0
+    scale:
+    - 13.1
+    - 0.25
+    - 1
+    rotate:
+    - 90
+    - 0
+    - 0
+  - t: 11
+    scale:
+    - 13.1
+    - 0.25
+    - 1
+    alpha: 0
+    ease: in_quad
+    rotate:
+    - 90
+    - 0
+    - 0
+    translate:
+    - -0.02
+    - 1.05
+    - 3.0
+- id: glint
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.05
+    - 3.0
+    scale:
+    - 0.016
+    - 2.8
+    - 0.04
+    rotate:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    scale:
+    - 0.08
+    - 2.8
+    - 0.04
+    ease: out_expo
+  - t: 5
+    scale:
+    - 0
+    - 0
+    - 0
+    ease: in_quad

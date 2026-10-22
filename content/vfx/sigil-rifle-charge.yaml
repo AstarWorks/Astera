@@ -14,7 +14,6 @@ elements:
   - id: ring-outer
     kind: { type: block, block: red_stained_glass }
     brightness: 15
-    glow_color: "#b3141c"
     start_tick: 0
     slot_lifetime_ticks: 46
     count: 12
@@ -109,7 +108,6 @@ elements:
     kind: { type: text, text: "<#ff2a1a>▲</#ff2a1a>", background: "#00000000", shadow: false, see_through: true }
     billboard: center
     brightness: 15
-    glow_color: "#ff2a1a"
     start_tick: 16
     end_tick: 46
     keyframes:
@@ -123,7 +121,6 @@ elements:
     kind: { type: text, text: "<#ff2a1a>▲</#ff2a1a>", background: "#00000000", shadow: false, see_through: true }
     billboard: center
     brightness: 15
-    glow_color: "#ff2a1a"
     start_tick: 16
     end_tick: 46
     keyframes:
@@ -137,7 +134,6 @@ elements:
   - id: orb
     kind: { type: block, block: red_concrete }
     brightness: 15
-    glow_color: "#ffc24a"
     start_tick: 10
     end_tick: 46
     keyframes:

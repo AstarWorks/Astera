@@ -1,0 +1,12 @@
+id: orrery-ember
+shape:
+  kind: burst
+  spread_blocks: 0.04
+color:
+  r: 255
+  g: 196
+  b: 48
+count: 2
+lifetime_ticks: 8
+vanilla_particle: dust
+speed: 0.01

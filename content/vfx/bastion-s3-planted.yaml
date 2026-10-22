@@ -1,7 +1,6 @@
-# Zwei S3 beat 5b (cast tick 68-100), played ON THE TARGET: the sword stands planted (hilt y 1.6, point 0.4 into the floor)
+# Bastion S3 beat 5b (cast tick 68-100), played ON THE TARGET: the sword stands planted (hilt y 1.6, point 0.4 into the floor)
 # beside the caster until it is removed at ~tick 98. 6 displays.
-# Local axes: x = left, y = up, z = forward. Rig swing rotate = [yaw, pitch, roll]: yaw + = right; pitch + tips a FORWARD blade
-# down but tips a BEHIND blade (yaw ~180) UP, so behind-poses use pitch -; roll 90 turns the blade's wide face from the side to
+# Local axes: x = left, y = up, z = forward. Rig swing rotate = [yaw, pitch, roll]: yaw + = right; pitch + tips the blade DOWN before yaw, including behind-poses; roll 90 turns the blade's wide face from the side to
 # the horizontal (sweep). Blade 1.75 long x 0.32 wide x 0.07 thick, solid (no glow outline), pivot = the right hand.
 
 id: bastion-s3-planted
@@ -24,5 +23,5 @@ rigs:
       - { id: grip, block: black_concrete, offset: [0.0, -0.05, 0.0], size: [0.07, 0.35, 0.07] }
       - { id: pommel, block: gold_block, offset: [0.0, -0.25, 0.0], size: [0.1, 0.1, 0.1] }
     swing:
-      - { t: 0, rotate: [180, -90, 0] }                       # vertical, point 0.4 into the ground at the target's feet
-      - { t: 31, rotate: [180, -90, 0] }
+      - { t: 0, rotate: [180, 90, 0] }                       # vertical, point 0.4 into the ground at the target's feet
+      - { t: 31, rotate: [180, 90, 0] }

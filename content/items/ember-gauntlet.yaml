@@ -1,52 +1,20 @@
-# Persona weapon (ADR-0230): Ember Gauntlet -- a soot-black furnace brawler's armoured fist with a backpack
-# flamethrower. Orange / black smoke. Shared energy pool; stacks are Burn on the enemy and Charge on you.
-#   left-click       S1 Furnace Jab      lunge, 2 knuckles, +1 Charge per cast, +2 Burn on hit   (12 energy)
-#   right-click      S2 Hoop Cannon      flame jet + 3 fire hoops (5 with 3 Charge)              (28 energy)
-#   sneak + right    S3 Inferno Furnace  planted telegraph, 3 beats, eats Burn and Charge        (70 energy)
-#   sneak + left     DEF Flare Guard     8 ticks untouchable, flame ring shove, +2 Charge        (15 energy)
-
 id: ember-gauntlet
-
 material: GOLDEN_AXE
-
-name:
-  ja: "<#ff7a1a>灼拳の手甲</#ff7a1a>"
-  en: "<#ff7a1a>Ember Gauntlet</#ff7a1a>"
+name: {ja: <#ff7a1a>灼拳の手甲</#ff7a1a>, en: <#ff7a1a>Ember Gauntlet</#ff7a1a>}
 lore:
-  ja:
-    - "<gray>左クリック: 炉心の連拳（踏み込み二連・充填+1）</gray>"
-    - "<gray>右クリック: 輪砲（火の輪三連・充填3以上で五連）</gray>"
-    - "<gray>スニーク + 右クリック: 業炉・灼熱解放（燃焼と充填を消費）</gray>"
-    - "<gray>スニーク + 左クリック: フレア・ガード（短時間無敵・押し返し）</gray>"
-    - "<dark_gray>rarity: epic / level: 4</dark_gray>"
-  en:
-    - "<gray>Left-click: Furnace Jab (two-knuckle lunge, +1 charge)</gray>"
-    - "<gray>Right-click: Hoop Cannon (3 fire hoops, 5 with 3 charge)</gray>"
-    - "<gray>Sneak + right-click: Inferno Furnace (eats burn and charge)</gray>"
-    - "<gray>Sneak + left-click: Flare Guard (brief invulnerability, shove)</gray>"
-    - "<dark_gray>rarity: epic / level: 4</dark_gray>"
-
+  ja: ['<gray>左: 炉心の連拳 / 右: 輪砲</gray>', '<gray>スニーク右: 業炉・灼熱解放 / スニーク左: フレア・ガード</gray>', '<gold>Q: 熾火の心臓（E.G.O 100）</gold>']
+  en: ['<gray>Left: Furnace Jab / Right: Hoop Cannon</gray>', '<gray>Sneak right: Inferno Furnace / Sneak left: Flare Guard</gray>',
+    '<gold>Q: Cinder Heart (100 E.G.O)</gold>']
 rarity: epic
 level_requirement: 4
-
-attributes:
-  attack_damage: 5.0
-  attack_speed: 2.0
-
+attributes: {attack_damage: 5.0, attack_speed: 2.0}
 equip_slot: mainhand
-
 resource_type: energy
 resource_cost_per_use: 12
-
 skills:
-  - trigger: left_click
-    skill_id: ember-gauntlet-s1
-  - trigger: right_click
-    skill_id: ember-gauntlet-s2
-  - trigger: sneak_right
-    skill_id: ember-gauntlet-s3
-  - trigger: sneak_left
-    skill_id: ember-gauntlet-def
-
-pdc_tags:
-  astera:rarity: epic
+- {trigger: left_click, skill_id: ember-gauntlet-s1}
+- {trigger: right_click, skill_id: ember-gauntlet-s2}
+- {trigger: sneak_right, skill_id: ember-gauntlet-s3}
+- {trigger: sneak_left, skill_id: ember-gauntlet-def}
+- {trigger: drop, skill_id: ember-gauntlet-ego}
+pdc_tags: {'astera:rarity': epic}

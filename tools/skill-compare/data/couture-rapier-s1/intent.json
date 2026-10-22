@@ -1,0 +1,187 @@
+{
+  "title": "Couturier s1 \u2014 measured source intent",
+  "source": {
+    "video": "GIe7Fna5LD4",
+    "start_s": 11.5,
+    "frames": "frame_%05d.jpg",
+    "fps": 29.97
+  },
+  "units": "blocks; x = toward enemy, y = up, z = toward side camera",
+  "duration_ticks": 60,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        2.1,
+        2.335,
+        8.45
+      ],
+      "target": [
+        2.1,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 24,
+      "pos": [
+        0.0,
+        1.815,
+        4.55
+      ],
+      "target": [
+        0,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 31,
+      "pos": [
+        4.2,
+        1.685,
+        3.77
+      ],
+      "target": [
+        4.2,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    },
+    {
+      "t": 35,
+      "pos": [
+        3.0,
+        2.335,
+        7.8
+      ],
+      "target": [
+        3,
+        1.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Dolly calibrated against real-client S2 pairs: initial framing was 1/0.65 = 1.54 times too wide."
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#332B25",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 30,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 33,
+          "pos": [
+            5,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#982E24",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            4.2,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 2.7,
+    "width": 0.08,
+    "color": "#EEE1C8",
+    "keys": [
+      {
+        "t": 0,
+        "angle": -25
+      },
+      {
+        "t": 26,
+        "angle": 110
+      },
+      {
+        "t": 31,
+        "angle": 0
+      },
+      {
+        "t": 36,
+        "angle": -30
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 31,
+      "at": [
+        4.2,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "crescent_ring",
+      "id": "sweep31",
+      "t0": 28,
+      "t1": 38,
+      "center": [
+        0,
+        1.05,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 25,
+      "radius": 2.6,
+      "start_deg": 105,
+      "sweep_deg": 195,
+      "draw_ticks": 4,
+      "width": 0.55,
+      "layers": [
+        {
+          "color": "#FFF1EA",
+          "width": 0.55,
+          "alpha": 0.8
+        },
+        {
+          "color": "#28201C",
+          "width": 0.12,
+          "alpha": 0.5
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+id: edict-rig-cut
+duration_ticks: 18
+orient: yaw
+follow: false
+sample_ticks: 1
+rigs:
+- id: blade
+  pivot: [-0.3, 1.05, 0.25]
+  rest: [0, 90, 0]
+  tilt: [0, 0, 25]
+  respect_hit_stop: true
+  end_tick: 13
+  parts:
+  - id: blade
+    block: white_concrete
+    offset: [0, 1.05, 0]
+    size: [0.18, 1.8, 0.07]
+    brightness: 15
+  - id: spine
+    block: black_concrete
+    offset: [-0.12, 1.05, 0]
+    size: [0.06, 1.8, 0.08]
+  - id: guard
+    block: iron_block
+    offset: [0, 0.08, 0]
+    size: [0.5, 0.12, 0.16]
+    brightness: 15
+  swing:
+  - {t: 0, rotate: [90, 0, 0], ease: in_out_quad}
+  - {t: 1, rotate: [100, 0, 0], ease: in_out_quad}
+  - {t: 5, rotate: [-60, 0, 0], ease: out_quad}
+  - {t: 7, rotate: [-70, 0, 0], ease: in_out_quad}
+  - {t: 12, rotate: [-20, 0, 0], ease: in_out_quad}
+  trails:
+  - id: fan
+    from: [0, 0.35, 0]
+    to: [0, 2.65, 0]
+    start_t: 1
+    end_t: 5
+    life_ticks: 7
+    style: crisp
+    step_deg: 8
+    bands:
+    - from: 0.55
+      to: 1.0
+      color: '#E8EDF4FF'
+      color_to: '#204B6C91'
+      block: white_stained_glass

@@ -1,0 +1,56 @@
+{
+  "id": "sigil-rifle-s2",
+  "rev": 1,
+  "videoId": "-pOx9fo6A7M",
+  "start_s": 15.4,
+  "end_s": 18.9,
+  "skill": {
+    "name": "Twin Inscription",
+    "coins": 2,
+    "asteraSkillId": "sigil-rifle-s2"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "sigil-rifle-s2",
+      "start_s": 15.4,
+      "end_s": 18.9,
+      "notes": ""
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "coin 1",
+      "t_s": 16.375,
+      "notes": "Visual contact; nearest 20 TPS tick."
+    },
+    {
+      "id": "hit2",
+      "kind": "hit",
+      "label": "coin 2",
+      "t_s": 18.125,
+      "notes": "Visual contact; nearest 20 TPS tick."
+    }
+  ],
+  "notes": "Four real-client PDCA iterations; partial visual parity. See notes.md and ../sigil-rifle-REPORT.md. No full-match claim.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

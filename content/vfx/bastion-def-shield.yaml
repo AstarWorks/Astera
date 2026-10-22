@@ -1,81 +1,111 @@
-# Bastion Greatsword DEF: the tower shield. A translucent gold plate with a 24-piece hexagonal rim
-# and a crest glyph fades in in front of the caster (4 ticks), holds, flares white at tick 34 (the
-# guard is about to pay out), then a shield-bash hoop pushes outward and everything collapses.
-# Follows the caster. ~41 live displays at peak.
-# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
-
 id: bastion-def-shield
-duration_ticks: 44
+duration_ticks: 60
 orient: yaw
 follow: true
-sample_ticks: 2
-
+sample_ticks: 1
 elements:
-  - id: plate
-    kind: { type: block, block: yellow_stained_glass }
-    brightness: 12
-    glow_color: "#e8c860"
-    start_tick: 0
-    end_tick: 44
-    keyframes:
-      - { t: 0, translate: [0.0, 1.5, 1.8], scale: [0.0, 0.0, 0.06] }
-      - { t: 4, scale: [2.6, 3.0, 0.06], ease: out_back }
-      - { t: 33, scale: [2.6, 3.0, 0.06] }
-      - { t: 34, block: white_stained_glass }
-      - { t: 36, scale: [3.1, 3.5, 0.06], ease: out_expo }
-      - { t: 40, scale: [3.0, 3.4, 0.06] }
-      - { t: 44, scale: [0.0, 0.0, 0.06], ease: in_quad }
-    oscillate: { axis: translate_z, amplitude: 0.04, period_ticks: 4 }
-
-  # Hexagonal rim, 4 pieces per edge.
-  - id: rim
-    kind: { type: block, block: gold_block }
-    brightness: 15
-    glow_color: "#e8c860"
-    start_tick: 0
-    end_tick: 44
-    count: 24
-    formation:
-      curve: { type: polygon, radius: 1.5, sides: 6 }
-      offset: [0.0, 1.5, 1.8]
-      tilt: { yaw: 0, pitch: 90, roll: 0 }
-      align: tangent
-    keyframes:
-      - { t: 0, scale: [0.0, 0.0, 0.0] }
-      - { t: 4, scale: [0.12, 0.12, 0.55], ease: out_back }
-      - { t: 34, scale: [0.12, 0.12, 0.55] }
-      - { t: 36, scale: [0.2, 0.2, 0.7], ease: out_expo }
-      - { t: 44, scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  # Crest glyph on the plate (billboard so it reads from the front).
-  - id: crest
-    kind: { type: text, text: "<#ffd23a><b>盾</b>", background: "#00000000", shadow: false, see_through: true }
-    billboard: vertical
-    brightness: 15
-    start_tick: 2
-    end_tick: 44
-    keyframes:
-      - { t: 0, translate: [0.0, 1.5, 1.75], scale: [0.0, 0.0, 0.0] }
-      - { t: 4, scale: [5.0, 5.0, 5.0], ease: out_back }
-      - { t: 32, scale: [5.0, 5.0, 5.0] }
-      - { t: 36, scale: [7.5, 7.5, 7.5], ease: out_expo }
-      - { t: 42, scale: [0.0, 0.0, 0.0], ease: in_quad }
-    oscillate: { axis: scale_xyz, amplitude: 0.3, period_ticks: 6 }
-
-  # Shield bash hoop (matches the knockback at guard end).
-  - id: bash
-    kind: { type: block, block: orange_concrete }
-    brightness: 15
-    glow_color: "#ff7a1a"
-    start_tick: 36
-    end_tick: 44
-    count: 16
-    formation:
-      curve: { type: circle, radius: 0.5 }
-      offset: [0.0, 1.5, 1.9]
-      tilt: { yaw: 0, pitch: 90, roll: 0 }
-      align: outward
-    keyframes:
-      - { t: 0, scale: [0.2, 0.12, 0.16] }
-      - { t: 4, translate: [0.0, 0.0, 1.7], scale: [0.5, 0.1, 0.16], ease: out_expo }
-      - { t: 8, translate: [0.0, 0.0, 2.1], scale: [0.0, 0.0, 0.16], ease: in_quad }
+- id: aura-0
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 60
+  keyframes:
+  - {t: 0, translate: [0.35, 0.1, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [0.8139, 0.38, 0.04], ease: out_cubic}
+  - {t: 52, scale: [0.8139, 0.38, 0.04]}
+  - {t: 60, scale: [0, 0, 0], ease: in_quad}
+  brightness: 12
+- id: aura-1
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 60
+  keyframes:
+  - {t: 0, translate: [0.35, 0.45, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [1.2427, 0.38, 0.04], ease: out_cubic}
+  - {t: 52, scale: [1.2427, 0.38, 0.04]}
+  - {t: 60, scale: [0, 0, 0], ease: in_quad}
+  brightness: 12
+- id: aura-2
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 60
+  keyframes:
+  - {t: 0, translate: [0.35, 0.8, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [1.44, 0.38, 0.04], ease: out_cubic}
+  - {t: 52, scale: [1.44, 0.38, 0.04]}
+  - {t: 60, scale: [0, 0, 0], ease: in_quad}
+  brightness: 12
+- id: aura-3
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 60
+  keyframes:
+  - {t: 0, translate: [0.35, 1.15, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [1.5, 0.38, 0.04], ease: out_cubic}
+  - {t: 52, scale: [1.5, 0.38, 0.04]}
+  - {t: 60, scale: [0, 0, 0], ease: in_quad}
+  brightness: 12
+- id: aura-4
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 60
+  keyframes:
+  - {t: 0, translate: [0.35, 1.5, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [1.44, 0.38, 0.04], ease: out_cubic}
+  - {t: 52, scale: [1.44, 0.38, 0.04]}
+  - {t: 60, scale: [0, 0, 0], ease: in_quad}
+  brightness: 12
+- id: aura-5
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 60
+  keyframes:
+  - {t: 0, translate: [0.35, 1.85, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [1.2427, 0.38, 0.04], ease: out_cubic}
+  - {t: 52, scale: [1.2427, 0.38, 0.04]}
+  - {t: 60, scale: [0, 0, 0], ease: in_quad}
+  brightness: 12
+- id: aura-6
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 60
+  keyframes:
+  - {t: 0, translate: [0.35, 2.2, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [0.8139, 0.38, 0.04], ease: out_cubic}
+  - {t: 52, scale: [0.8139, 0.38, 0.04]}
+  - {t: 60, scale: [0, 0, 0], ease: in_quad}
+  brightness: 12
+- id: guard-sparks-18
+  kind: {type: particle, particle_id: bastion-s3-ember, every_ticks: 2}
+  start_tick: 18
+  end_tick: 22
+  keyframes:
+  - {t: 0, translate: [0.35, 1.3, 0.9]}
+- id: guard-sparks-38
+  kind: {type: particle, particle_id: bastion-s3-ember, every_ticks: 2}
+  start_tick: 38
+  end_tick: 42
+  keyframes:
+  - {t: 0, translate: [0.35, 1.3, 0.9]}
+- id: guard-sparks-50
+  kind: {type: particle, particle_id: bastion-s3-ember, every_ticks: 2}
+  start_tick: 50
+  end_tick: 54
+  keyframes:
+  - {t: 0, translate: [0.35, 1.3, 0.9]}
+rigs:
+- id: shield
+  pivot: [0.35, 1.1, 0.7]
+  end_tick: 58
+  parts:
+  - {id: face, block: gray_concrete, offset: [0, 0, 0], size: [0.85, 1.8, 0.12]}
+  - {id: inset, block: black_concrete, offset: [0, 0, 0.07], size: [0.6, 1.48, 0.025]}
+  - {id: left, block: gold_block, offset: [-0.45, 0, 0.09], size: [0.06, 1.9, 0.05]}
+  - {id: right, block: gold_block, offset: [0.45, 0, 0.09], size: [0.06, 1.9, 0.05]}
+  - {id: top, block: gold_block, offset: [0, 0.94, 0.09], size: [0.9, 0.06, 0.05]}
+  - {id: bottom, block: gold_block, offset: [0, -0.94, 0.09], size: [0.9, 0.06, 0.05]}
+  - {id: spine, block: gold_block, offset: [0, 0, 0.09], size: [0.06, 1.7, 0.05]}
+  swing:
+  - {t: 0, rotate: [0, 0, 0]}
+  - {t: 3, rotate: [-12, 0, 0], ease: out_cubic}
+  - {t: 52, rotate: [-12, 0, 0]}
+  - {t: 58, rotate: [-70, 0, 0], ease: in_quad}

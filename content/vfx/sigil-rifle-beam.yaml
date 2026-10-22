@@ -29,7 +29,6 @@ elements:
   - id: lens-rim
     kind: { type: block, block: red_stained_glass }
     brightness: 15
-    glow_color: "#ff2a1a"
     start_tick: 10
     slot_lifetime_ticks: 36
     count: 10
@@ -83,7 +82,6 @@ elements:
   - id: beam
     kind: { type: block, block: red_stained_glass }
     brightness: 15
-    glow_color: "#ff2a1a"
     start_tick: 44
     end_tick: 58
     keyframes:

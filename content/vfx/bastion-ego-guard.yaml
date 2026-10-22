@@ -1,0 +1,85 @@
+id: bastion-ego-guard
+duration_ticks: 20
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: aura-0
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 20
+  keyframes:
+  - {t: 0, translate: [0.35, 0.1, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [0.8139, 0.38, 0.04], ease: out_cubic}
+  - {t: 20, scale: [0, 0, 0]}
+  brightness: 12
+- id: aura-1
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 20
+  keyframes:
+  - {t: 0, translate: [0.35, 0.45, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [1.2427, 0.38, 0.04], ease: out_cubic}
+  - {t: 20, scale: [0, 0, 0]}
+  brightness: 12
+- id: aura-2
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 20
+  keyframes:
+  - {t: 0, translate: [0.35, 0.8, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [1.44, 0.38, 0.04], ease: out_cubic}
+  - {t: 20, scale: [0, 0, 0]}
+  brightness: 12
+- id: aura-3
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 20
+  keyframes:
+  - {t: 0, translate: [0.35, 1.15, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [1.5, 0.38, 0.04], ease: out_cubic}
+  - {t: 20, scale: [0, 0, 0]}
+  brightness: 12
+- id: aura-4
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 20
+  keyframes:
+  - {t: 0, translate: [0.35, 1.5, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [1.44, 0.38, 0.04], ease: out_cubic}
+  - {t: 20, scale: [0, 0, 0]}
+  brightness: 12
+- id: aura-5
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 20
+  keyframes:
+  - {t: 0, translate: [0.35, 1.85, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [1.2427, 0.38, 0.04], ease: out_cubic}
+  - {t: 20, scale: [0, 0, 0]}
+  brightness: 12
+- id: aura-6
+  kind: {type: block, block: yellow_stained_glass}
+  start_tick: 0
+  end_tick: 20
+  keyframes:
+  - {t: 0, translate: [0.35, 2.2, 0.8], scale: [0.01, 0.01, 0.02]}
+  - {t: 4, scale: [0.8139, 0.38, 0.04], ease: out_cubic}
+  - {t: 20, scale: [0, 0, 0]}
+  brightness: 12
+rigs:
+- id: shield
+  pivot: [0.35, 1.1, 0.7]
+  end_tick: 19
+  parts:
+  - {id: face, block: gray_concrete, offset: [0, 0, 0], size: [0.85, 1.8, 0.12]}
+  - {id: inset, block: black_concrete, offset: [0, 0, 0.07], size: [0.6, 1.48, 0.025]}
+  - {id: left, block: gold_block, offset: [-0.45, 0, 0.09], size: [0.06, 1.9, 0.05]}
+  - {id: right, block: gold_block, offset: [0.45, 0, 0.09], size: [0.06, 1.9, 0.05]}
+  - {id: top, block: gold_block, offset: [0, 0.94, 0.09], size: [0.9, 0.06, 0.05]}
+  - {id: bottom, block: gold_block, offset: [0, -0.94, 0.09], size: [0.9, 0.06, 0.05]}
+  - {id: spine, block: gold_block, offset: [0, 0, 0.09], size: [0.06, 1.7, 0.05]}
+  swing:
+  - {t: 0, rotate: [0, 0, 0]}
+  - {t: 3, rotate: [-12, 0, 0], ease: out_cubic}
+  - {t: 19, rotate: [-70, 0, 0]}

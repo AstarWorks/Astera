@@ -9,10 +9,16 @@ export const SLOTS = [
   ["right_click", "右クリック", "S2"],
   ["sneak_right", "スニーク+右", "S3"],
   ["sneak_left", "スニーク+左", "DEF"],
-  ["sneak_drop", "Q", "E.G.O"],
+  ["drop", "Q", "E.G.O"],
+  ["sneak_drop", "スニーク+Q", "追加"],
 ];
 
 const stripTags = (s) => String(s ?? "").replace(/<[^>]+>/g, "").trim();
+// ADR-0230 roster. YAML comments are not identifiers and may disappear when an author saves an item.
+const PERSONA_WEAPONS = new Set([
+  "couture-rapier", "gossamer-katana", "vendetta-rifle", "ember-gauntlet", "bastion-greatsword",
+  "verdict-hammer", "crimson-chain-axe", "sigil-rifle", "orrery-staff", "edict-blade",
+]);
 const yaml = (p) => { try { return Bun.YAML.parse(readFileSync(p, "utf8")); } catch { return null; } };
 
 function rangeType(sk) {
@@ -30,10 +36,8 @@ export function personaWeapons(repo) {
   if (!existsSync(dir)) return [];
   const out = [];
   for (const f of readdirSync(dir).filter((n) => n.endsWith(".yaml") && !n.startsWith("gui-")).sort()) {
-    const text = readFileSync(join(dir, f), "utf8");
-    if (!/ADR-0230|persona weapon/i.test(text)) continue;
     const it = yaml(join(dir, f));
-    if (!it?.id || !Array.isArray(it.skills)) continue;
+    if (!PERSONA_WEAPONS.has(it?.id) || !Array.isArray(it.skills)) continue;
     const bound = new Map(it.skills.map((b) => [b.trigger, b.skill_id]));
     const slots = SLOTS.filter(([t]) => bound.has(t)).map(([trigger, label, tag]) => {
       const skillId = bound.get(trigger);
@@ -80,6 +84,7 @@ function caseCard(rec, S, mcInfo) {
     skillName: c.skill?.name ?? rec.id, coins: c.skill?.coins ?? null,
     hits: (mc.hitTicks || []).length,
     status: captured ? "captured" : c.status === "built" ? "built" : "analysed",
+    verification: c.verification ?? { status: "unverified" },
     iterations: Number(c.iterations ?? 0),
     report,
     updated: Math.max(rec.mtime, log.length ? Date.parse(log[log.length - 1].at) || 0 : 0),

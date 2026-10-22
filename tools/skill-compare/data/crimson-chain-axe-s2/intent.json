@@ -1,0 +1,498 @@
+{
+  "title": "crimson-chain-axe s2 measured intent (provisional kit mapping)",
+  "source": {
+    "video": "Gpj-lvOnAgs",
+    "start_s": 96,
+    "fps": 29.97,
+    "frames": "frame_%05d.jpg"
+  },
+  "units": "blocks; x = toward enemy, y = up, z = toward side camera",
+  "duration_ticks": 110,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        0.2,
+        3.3,
+        11.5
+      ],
+      "target": [
+        0.2,
+        2.8,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 27,
+      "pos": [
+        0.9,
+        1.6,
+        0.25
+      ],
+      "target": [
+        0,
+        1.6,
+        0
+      ],
+      "fov": 40,
+      "note": "Face cut-in: frontal camera; source face/coat cannot be reproduced by default player skin."
+    },
+    {
+      "t": 28,
+      "pos": [
+        2.5,
+        3.3,
+        12
+      ],
+      "target": [
+        2.5,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "Return from the one-frame smear to the lance shot."
+    },
+    {
+      "t": 30,
+      "pos": [
+        2.5,
+        3.3,
+        12
+      ],
+      "target": [
+        2.5,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 43,
+      "pos": [
+        2.5,
+        2.2,
+        8
+      ],
+      "target": [
+        2.5,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 54,
+      "pos": [
+        2,
+        2.2,
+        5.5
+      ],
+      "target": [
+        2,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 56,
+      "pos": [
+        2.5,
+        3.3,
+        10
+      ],
+      "target": [
+        2.5,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 65,
+      "pos": [
+        1,
+        2.2,
+        6
+      ],
+      "target": [
+        1,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 80,
+      "pos": [
+        2.5,
+        2.2,
+        8
+      ],
+      "target": [
+        2.5,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    },
+    {
+      "t": 92,
+      "pos": [
+        2.5,
+        3.3,
+        11
+      ],
+      "target": [
+        2.5,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "Measured shot size; roll unavailable in capture camera."
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#8C1227",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 68,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 74,
+          "pos": [
+            0,
+            1.8,
+            0
+          ],
+          "ease": "out_cubic"
+        },
+        {
+          "t": 81,
+          "pos": [
+            0,
+            1.3,
+            0
+          ]
+        },
+        {
+          "t": 99,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#282029",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            4.5,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 4,
+    "width": 0.35,
+    "color": "#F2DDD1",
+    "keys": [
+      {
+        "t": 0,
+        "angle": 190
+      },
+      {
+        "t": 27,
+        "angle": 125
+      },
+      {
+        "t": 31,
+        "angle": -95,
+        "ease": "out_quad"
+      },
+      {
+        "t": 34,
+        "angle": -105
+      },
+      {
+        "t": 52,
+        "angle": 125
+      },
+      {
+        "t": 56,
+        "angle": -95,
+        "ease": "out_quad"
+      },
+      {
+        "t": 59,
+        "angle": -105
+      },
+      {
+        "t": 77,
+        "angle": 125
+      },
+      {
+        "t": 81,
+        "angle": -95,
+        "ease": "out_quad"
+      },
+      {
+        "t": 84,
+        "angle": -105
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 30,
+      "at": [
+        4.5,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "smear",
+      "t0": 30,
+      "t1": 45,
+      "from": [
+        -2,
+        4,
+        0
+      ],
+      "to": [
+        4.5,
+        1.1,
+        0
+      ],
+      "width": 0.15,
+      "color": "#F02B44",
+      "alpha": 1
+    },
+    {
+      "type": "hit",
+      "t": 56,
+      "at": [
+        4.5,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "crescent_ring",
+      "id": "arc-1",
+      "t0": 52,
+      "t1": 68,
+      "center": [
+        0,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": -35,
+      "radius": 4,
+      "start_deg": 110,
+      "sweep_deg": 220,
+      "draw_ticks": 4,
+      "width": 0.35,
+      "layers": [
+        {
+          "color": "#E52240",
+          "width": 0.35,
+          "alpha": 0.9
+        },
+        {
+          "color": "#FFF1DB",
+          "width": 0.05
+        }
+      ]
+    },
+    {
+      "type": "hit",
+      "t": 81,
+      "at": [
+        4.5,
+        1.1,
+        0
+      ],
+      "coin": 3
+    },
+    {
+      "type": "crescent_ring",
+      "id": "arc-2",
+      "t0": 77,
+      "t1": 93,
+      "center": [
+        0,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 25,
+      "radius": 4,
+      "start_deg": 110,
+      "sweep_deg": 220,
+      "draw_ticks": 4,
+      "width": 0.35,
+      "layers": [
+        {
+          "color": "#E52240",
+          "width": 0.35,
+          "alpha": 0.9
+        },
+        {
+          "color": "#FFF1DB",
+          "width": 0.05
+        }
+      ]
+    },
+    {
+      "type": "spike_star",
+      "t0": 0,
+      "t1": 27,
+      "center": [
+        0,
+        4.3,
+        0
+      ],
+      "count": 8,
+      "length": [
+        2.4,
+        2.4
+      ],
+      "width": 0.035,
+      "color": "#FFF1DB",
+      "core": "#FFF1DB",
+      "spread_deg": [
+        -180,
+        180
+      ],
+      "zigzag": 0,
+      "flicker": 3
+    },
+    {
+      "type": "smear",
+      "t0": 30,
+      "t1": 45,
+      "from": [
+        -2,
+        4.4,
+        0.3
+      ],
+      "to": [
+        4.5,
+        1.1,
+        0.3
+      ],
+      "width": 0.12,
+      "color": "#E52240",
+      "alpha": 1
+    },
+    {
+      "type": "crescent_ring",
+      "id": "coil-0",
+      "t0": 0,
+      "t1": 27,
+      "center": [
+        0,
+        4.3,
+        -0.35
+      ],
+      "tilt_deg": 90,
+      "radius": 3.6,
+      "start_deg": 0,
+      "sweep_deg": 330,
+      "draw_ticks": 8,
+      "width": 0.12,
+      "layers": [
+        {
+          "color": "#E52240",
+          "width": 0.12
+        }
+      ]
+    },
+    {
+      "type": "crescent_ring",
+      "id": "coil-1",
+      "t0": 0,
+      "t1": 27,
+      "center": [
+        0,
+        4.3,
+        0.0
+      ],
+      "tilt_deg": 90,
+      "radius": 3.45,
+      "start_deg": 90,
+      "sweep_deg": 330,
+      "draw_ticks": 8,
+      "width": 0.12,
+      "layers": [
+        {
+          "color": "#E52240",
+          "width": 0.12
+        }
+      ]
+    },
+    {
+      "type": "crescent_ring",
+      "id": "coil-2",
+      "t0": 0,
+      "t1": 27,
+      "center": [
+        0,
+        4.3,
+        0.35
+      ],
+      "tilt_deg": 90,
+      "radius": 3.3000000000000003,
+      "start_deg": 180,
+      "sweep_deg": 330,
+      "draw_ticks": 8,
+      "width": 0.12,
+      "layers": [
+        {
+          "color": "#E52240",
+          "width": 0.12
+        }
+      ]
+    }
+  ]
+}

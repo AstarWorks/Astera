@@ -1,0 +1,213 @@
+{
+  "title": "Judgement Rush — measured intent",
+  "source": {
+    "video": "Svaaq9F7Ty8",
+    "start_s": 14.9,
+    "frames": "frame_%03d.jpg",
+    "fps": 20
+  },
+  "units": "blocks; x toward target, y up, z toward camera",
+  "duration_ticks": 72,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        1.6,
+        2.6,
+        8
+      ],
+      "target": [
+        1.6,
+        1,
+        0
+      ],
+      "fov": 48
+    },
+    {
+      "t": 20,
+      "pos": [
+        0.4,
+        4.6,
+        8
+      ],
+      "target": [
+        0.4,
+        0.8,
+        0
+      ],
+      "fov": 48
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#e8803a",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#7a2a2a",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            3.1,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 1.75,
+    "width": 0.32,
+    "color": "#c9ccd4",
+    "keys": [
+      {
+        "t": 0,
+        "angle": 200
+      },
+      {
+        "t": 5,
+        "angle": 180
+      },
+      {
+        "t": 8,
+        "angle": 0
+      },
+      {
+        "t": 23,
+        "angle": 180
+      },
+      {
+        "t": 26,
+        "angle": 0
+      },
+      {
+        "t": 47,
+        "angle": 215
+      },
+      {
+        "t": 50,
+        "angle": -90
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 8,
+      "at": [
+        3.1,
+        1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "crescent_ring",
+      "id": "cut-0",
+      "t0": 5,
+      "t1": 14,
+      "center": [
+        0,
+        0.85,
+        0
+      ],
+      "plane": "horizontal",
+      "radius": 3.1,
+      "sweep_deg": 300,
+      "start_deg": 180,
+      "draw_ticks": 5,
+      "width": 0.65,
+      "layers": [
+        {
+          "color": "#ffd23a",
+          "width": 0.6,
+          "alpha": 0.9
+        }
+      ]
+    },
+    {
+      "type": "hit",
+      "t": 26,
+      "at": [
+        3.1,
+        1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "crescent_ring",
+      "id": "cut-1",
+      "t0": 23,
+      "t1": 32,
+      "center": [
+        0,
+        0.85,
+        0
+      ],
+      "plane": "horizontal",
+      "radius": 3.1,
+      "sweep_deg": 300,
+      "start_deg": 180,
+      "draw_ticks": 5,
+      "width": 0.65,
+      "layers": [
+        {
+          "color": "#ffd23a",
+          "width": 0.6,
+          "alpha": 0.9
+        }
+      ]
+    },
+    {
+      "type": "hit",
+      "t": 50,
+      "at": [
+        3.1,
+        1,
+        0
+      ],
+      "coin": 3
+    },
+    {
+      "type": "crescent_ring",
+      "id": "cut-2",
+      "t0": 47,
+      "t1": 56,
+      "center": [
+        0,
+        0.85,
+        0
+      ],
+      "plane": "vertical",
+      "radius": 3.1,
+      "sweep_deg": 300,
+      "start_deg": 180,
+      "draw_ticks": 5,
+      "width": 0.65,
+      "layers": [
+        {
+          "color": "#ffd23a",
+          "width": 0.6,
+          "alpha": 0.9
+        }
+      ]
+    }
+  ]
+}

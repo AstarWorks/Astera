@@ -45,7 +45,10 @@ public class PaperDisplayEntityGateway(
             is DisplayKind.Block -> {
                 val data = runCatching { server.createBlockData(blockKey(kind.blockKey)) }.getOrNull()
                     ?: return unsupported("unknown block '${kind.blockKey}'")
-                bukkitWorld.spawn(location, BlockDisplay::class.java) { it.block = data }
+                bukkitWorld.spawn(location, BlockDisplay::class.java) {
+                    it.block = data
+                    configure(it, spec)
+                }
             }
             is DisplayKind.Item -> {
                 val material = Material.matchMaterial(kind.itemId.value)
@@ -54,6 +57,7 @@ public class PaperDisplayEntityGateway(
                 bukkitWorld.spawn(location, ItemDisplay::class.java) {
                     it.setItemStack(ItemStack(material))
                     it.itemDisplayTransform = itemMode(kind.displayMode)
+                    configure(it, spec)
                 }
             }
             is DisplayKind.Text -> bukkitWorld.spawn(location, TextDisplay::class.java) { text ->
@@ -65,8 +69,14 @@ public class PaperDisplayEntityGateway(
                 kind.lineWidth?.let { text.lineWidth = it }
                 text.textOpacity = kind.textOpacity.toByte()
                 kind.textRgb?.let { text.text(text.text().color(TextColor.color(it))) }
+                configure(text, spec)
             }
         }
+        return DisplayHandle(display.uniqueId)
+    }
+
+    /** Initialize before the entity is added to the world and starts being tracked. */
+    private fun configure(display: Display, spec: DisplaySpec) {
         com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(display, "display-entity")
         display.billboard = when (spec.billboard) {
             DisplayBillboard.FIXED -> Display.Billboard.FIXED
@@ -81,14 +91,17 @@ public class PaperDisplayEntityGateway(
             display.glowColorOverride = Color.fromARGB(it)
         }
         spec.viewRange?.let { display.viewRange = it }
-        return DisplayHandle(display.uniqueId)
     }
 
     override fun update(handle: DisplayHandle, transform: DisplayTransform, interpolationTicks: Int) {
         val display = server.getEntity(handle.id) as? Display ?: return
+        val next = transformation(transform)
+        // Re-sending the start tick without a changed transform restarts client interpolation
+        // toward the same endpoint, including when a camera cut starts tracking this entity.
+        if (display.transformation == next) return
         display.interpolationDelay = 0
         display.interpolationDuration = interpolationTicks.coerceAtLeast(0)
-        display.transformation = transformation(transform)
+        display.transformation = next
     }
 
     override fun setBlock(handle: DisplayHandle, blockKey: String) {

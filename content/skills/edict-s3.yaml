@@ -1,170 +1,387 @@
-# Persona weapon #10 (edict-blade), S3 / sneak + right-click: Final Prescript.
-# Beat sheet (ticks): 0 a garbled glyph string flickers over the caster's head while black thorns grow
-# out of them (the long telegraph) -> 12 it locks into the command word 斬 -> 18 a blue bolt + star mark drops
-# on every target in the 40-degree cone -> 22 first cut: eight claw lines cross in the same 2 ticks (3.5,
-# 3t hit-stop, shake) -> 25..34 flurry of 4 cuts (1.8 each; with >= 5 Poise at cast time an interleaved
-# second flurry doubles it) with X-cross flashes -> 40 finisher (4 + 0.8 per Rupture, consumed): star burst,
-# ground ripple, knockback, 3t hit-stop on both. Poise is spent at the end.
-
 id: edict-s3
-
 name:
-  ja: "最後の勅令"
-  en: "Edict Final Prescript"
+  en: Edict Final Prescript
+  ja: 最後の勅令
 description:
-  ja: "頭上に乱れた文字が走り、やがて「斬」の一字に定まる。前方の敵すべてに星の印を落とし、無数の爪痕で断つ。「平静」が五つ以上なら連撃が倍になり、使い切る。"
-  en: "A garbled glyph resolves into a single command word. Marks everything ahead and cuts it with a storm of crossing lines. Five or more Poise doubles the flurry; Poise is spent."
-
+  en: A sweeping cut followed by a vault and descending strike.
+  ja: 薙ぎ払い、跳び上がって斬り下ろす。
 archetype: sequence
-cooldown_ticks: 300
-resource_cost: 45              # energy
-tags: [ melee, physical, persona, edict, poise, rupture, finisher, multi-hit ]
-
+cooldown_ticks: 180
+resource_cost: 18
 params:
   type: sequence
-
 phases:
   type: sequence
   cast:
-    # 0: prescript telegraph
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.respawn_anchor.charge
-      volume: { type: literal, value: 0.9 }
-      pitch: { type: literal, value: 0.7 }
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: edict-prescript
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.amethyst_cluster.break
-      volume: { type: literal, value: 0.9 }
-      pitch: { type: literal, value: 0.5 }
-      delay_ticks: { type: literal, value: 12 }
-    # 18: marker drops on every target in the cone
-    - type: play_vfx
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      vfx_id: edict-column
-      delay_ticks: { type: literal, value: 18 }
-    - type: play_sound
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      sound_id: entity.lightning_bolt.thunder
-      volume: { type: literal, value: 0.5 }
-      pitch: { type: literal, value: 1.8 }
-      delay_ticks: { type: literal, value: 18 }
-    - type: apply_status
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      status_id: rupture
-      effect_duration_ticks: { type: literal, value: 200 }
-      stack_count: { type: literal, value: 2 }
-      delay_ticks: { type: literal, value: 18 }
-    # 22: first cut -- the claw flurry
-    - type: damage
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      ignore_invulnerability: { type: literal, value: true }
-      delay_ticks: { type: literal, value: 22 }
-      components:
-        - base: { type: literal, value: 3.5 }
-          attribute: physical
-    - type: play_vfx
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      vfx_id: edict-claws
-      delay_ticks: { type: literal, value: 22 }
-    - type: hit_stop
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
+  - type: play_vfx
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 16
+    vfx_id: edict-dash-trail
+  - type: dash_strike
+    delay_ticks:
+      type: literal
+      value: 16
+    distance: 5.4
+    ticks: 3
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    follow_pitch: false
+    on_hit: []
+    stop_before_target: 1.8
+  - type: propel
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 42
+    direction:
+      type: up
+    strength:
+      type: literal
+      value: 0.85
+  - type: play_vfx
+    targets:
+      type: caster_forward
+      distance: 5.4
+      height: -1.62
+    delay_ticks:
+      type: literal
+      value: 15
+    vfx_id: edict-rig-cut
+    freeze:
+    - at: 5
+      ticks: 2
+  - type: damage
+    targets:
+      type: nearby_entities
+      center:
+        type: caster_forward
+        distance: 2.6
+        height: -0.72
+      radius:
+        type: literal
+        value: 1.7
+      exclude_caster: true
+      max_count:
+        type: literal
+        value: 1
+    delay_ticks:
+      type: literal
+      value: 20
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 3.0
+      attribute: physical
+  - type: play_vfx
+    targets:
+      type: nearby_entities
+      center:
+        type: caster_forward
+        distance: 2.6
+        height: -0.72
+      radius:
+        type: literal
+        value: 1.7
+      exclude_caster: true
+      max_count:
+        type: literal
+        value: 1
+    delay_ticks:
+      type: literal
+      value: 20
+    vfx_id: edict-impact
+  - type: spawn_particle
+    targets:
+      type: nearby_entities
+      center:
+        type: caster_forward
+        distance: 2.6
+        height: -0.72
+      radius:
+        type: literal
+        value: 1.7
+      exclude_caster: true
+      max_count:
+        type: literal
+        value: 1
+    delay_ticks:
+      type: literal
+      value: 20
+    particle_id: hit-spark
+  - type: hit_stop
+    targets:
+      type: nearby_entities
+      center:
+        type: caster_forward
+        distance: 2.6
+        height: -0.72
+      radius:
+        type: literal
+        value: 1.7
+      exclude_caster: true
+      max_count:
+        type: literal
+        value: 1
+    delay_ticks:
+      type: literal
+      value: 20
+    ticks: 2
+    include_caster: true
+  - type: play_sound
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 20
+    sound_id: entity.player.attack.crit
+    volume:
+      type: literal
+      value: 0.8
+    pitch:
+      type: literal
+      value: 1.2
+  - type: apply_status
+    targets:
+      type: nearby_entities
+      center:
+        type: caster_forward
+        distance: 2.6
+        height: -0.72
+      radius:
+        type: literal
+        value: 1.7
+      exclude_caster: true
+      max_count:
+        type: literal
+        value: 1
+    delay_ticks:
+      type: literal
+      value: 20
+    status_id: sinking
+    effect_duration_ticks:
+      type: literal
+      value: 200
+    stack_count:
+      type: literal
+      value: 1
+  - type: apply_status
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 20
+    status_id: poise
+    effect_duration_ticks:
+      type: literal
+      value: 400
+    stack_count:
+      type: literal
+      value: 1
+  - type: play_vfx
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 66
+    vfx_id: edict-rig-down
+    freeze:
+    - at: 5
       ticks: 3
-      delay_ticks: { type: literal, value: 22 }
-    - type: camera_shake
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      intensity: { type: literal, value: 0.5 }
-      ticks: { type: literal, value: 6 }
-      delay_ticks: { type: literal, value: 22 }
-    - type: play_sound
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      sound_id: entity.player.attack.crit
-      volume: { type: literal, value: 1.0 }
-      pitch: { type: literal, value: 1.3 }
-      delay_ticks: { type: literal, value: 22 }
-    # 25..34: flurry (strided), a second interleaved flurry when the cast started with >= 5 Poise
-    - type: loop
-      count: { type: literal, value: 4 }
-      stride_ticks: { type: literal, value: 3 }
-      delay_ticks: { type: literal, value: 25 }
-      mechanics:
-        - type: damage
-          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-          ignore_invulnerability: { type: literal, value: true }
-          components:
-            - base: { type: literal, value: 1.8 }
-              attribute: physical
-        - type: spawn_particle
-          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-          particle_id: hit-spark
-        - type: play_sound
-          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-          sound_id: entity.player.attack.sweep
-          volume: { type: literal, value: 0.6 }
-          pitch: { type: literal, value: 1.9 }
-    - type: loop
-      count: { type: literal, value: 4 }
-      stride_ticks: { type: literal, value: 3 }
-      delay_ticks: { type: literal, value: 26 }
-      condition: { type: has_status, on: caster, status_id: poise, min_stacks: 5 }
-      mechanics:
-        - type: damage
-          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-          ignore_invulnerability: { type: literal, value: true }
-          components:
-            - base: { type: literal, value: 1.8 }
-              attribute: physical
-        - type: spawn_particle
-          targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-          particle_id: hit-spark
-    - type: play_vfx
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      vfx_id: edict-slash-x
-      delay_ticks: { type: literal, value: 31 }
-    # 40: finisher
-    - type: damage
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      ignore_invulnerability: { type: literal, value: true }
-      delay_ticks: { type: literal, value: 40 }
-      components:
-        - base: { type: literal, value: 4.0 }
-          attribute: physical
-          per_stack: { status_id: rupture, amount: 0.8, on: target, consume: true }
-    - type: play_vfx
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      vfx_id: edict-star
-      delay_ticks: { type: literal, value: 40 }
-    - type: hit_stop
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      ticks: 3
-      include_caster: true
-      delay_ticks: { type: literal, value: 40 }
-    - type: camera_shake
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      intensity: { type: literal, value: 0.9 }
-      ticks: { type: literal, value: 10 }
-      delay_ticks: { type: literal, value: 40 }
-    - type: knockback
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 40.0 }, distance: { type: literal, value: 14.0 } }
-      direction: { type: from_caster }
-      strength: { type: literal, value: 1.0 }
-      delay_ticks: { type: literal, value: 41 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.generic.explode
-      volume: { type: literal, value: 0.8 }
-      pitch: { type: literal, value: 1.5 }
-      delay_ticks: { type: literal, value: 40 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.trident.thunder
-      volume: { type: literal, value: 0.8 }
-      pitch: { type: literal, value: 1.5 }
-      delay_ticks: { type: literal, value: 40 }
-    - type: remove_status
-      targets: { type: caster }
-      status_id: poise
-      delay_ticks: { type: literal, value: 42 }
+  - type: damage
+    targets:
+      type: nearby_entities
+      center:
+        type: caster_forward
+        distance: 2.6
+        height: -0.72
+      radius:
+        type: literal
+        value: 1.7
+      exclude_caster: true
+      max_count:
+        type: literal
+        value: 1
+    delay_ticks:
+      type: literal
+      value: 71
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 5.0
+      attribute: physical
+  - type: play_vfx
+    targets:
+      type: caster_forward
+      distance: 2.6
+      height: -1.62
+    delay_ticks:
+      type: literal
+      value: 71
+    vfx_id: edict-star
+  - type: spawn_particle
+    targets:
+      type: nearby_entities
+      center:
+        type: caster_forward
+        distance: 2.6
+        height: -0.72
+      radius:
+        type: literal
+        value: 1.7
+      exclude_caster: true
+      max_count:
+        type: literal
+        value: 1
+    delay_ticks:
+      type: literal
+      value: 71
+    particle_id: hit-spark
+  - type: hit_stop
+    targets:
+      type: nearby_entities
+      center:
+        type: caster_forward
+        distance: 2.6
+        height: -0.72
+      radius:
+        type: literal
+        value: 1.7
+      exclude_caster: true
+      max_count:
+        type: literal
+        value: 1
+    delay_ticks:
+      type: literal
+      value: 71
+    ticks: 3
+    include_caster: true
+  - type: play_sound
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 71
+    sound_id: entity.player.attack.crit
+    volume:
+      type: literal
+      value: 0.8
+    pitch:
+      type: literal
+      value: 1.2
+  - type: apply_status
+    targets:
+      type: nearby_entities
+      center:
+        type: caster_forward
+        distance: 2.6
+        height: -0.72
+      radius:
+        type: literal
+        value: 1.7
+      exclude_caster: true
+      max_count:
+        type: literal
+        value: 1
+    delay_ticks:
+      type: literal
+      value: 71
+    status_id: sinking
+    effect_duration_ticks:
+      type: literal
+      value: 200
+    stack_count:
+      type: literal
+      value: 1
+  - type: apply_status
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 71
+    status_id: poise
+    effect_duration_ticks:
+      type: literal
+      value: 400
+    stack_count:
+      type: literal
+      value: 1
+  - type: screen_flash
+    targets:
+      type: caster
+    delay_ticks:
+      type: literal
+      value: 71
+    overlay: white
+    color: '#FFFFFF'
+    fade_in:
+      type: literal
+      value: 0
+    stay:
+      type: literal
+      value: 1
+    fade_out:
+      type: literal
+      value: 1
+  - type: knockback
+    targets:
+      type: nearby_entities
+      center:
+        type: caster_forward
+        distance: 2.6
+        height: -0.72
+      radius:
+        type: literal
+        value: 1.7
+      exclude_caster: true
+      max_count:
+        type: literal
+        value: 1
+    delay_ticks:
+      type: literal
+      value: 71
+    direction:
+      type: from_caster
+    strength:
+      type: literal
+      value: 0.4
+  - type: hit_stop
+    targets:
+      type: caster
+    ticks: 12
+    delay_ticks:
+      type: literal
+      value: 54
+  - type: set_velocity
+    targets:
+      type: caster
+    direction:
+      type: up
+    magnitude:
+      type: literal
+      value: -1.0
+    delay_ticks:
+      type: literal
+      value: 67
+  - type: play_vfx
+    targets:
+      type: caster_forward
+      distance: 8.0
+      height: -1.62
+    vfx_id: edict-mark
+    delay_ticks:
+      type: literal
+      value: 0
+    follow:
+      type: literal
+      value: false

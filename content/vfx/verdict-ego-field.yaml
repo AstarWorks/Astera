@@ -1,0 +1,727 @@
+id: verdict-ego-field
+duration_ticks: 192
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: shaft0
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 30
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [2.0, -1.65, 0.0]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [2.0, 1.5, 0.0]
+    ease: out_cubic
+  - t: 150
+    translate: [2.0, 1.5, 0.0]
+  - t: 160
+    translate: [2.0, -1.65, 0.0]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross0
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 30
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [2.0, -0.3999999999999998, 0.0]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [2.0, 2.75, 0.0]
+    ease: out_cubic
+  - t: 150
+    translate: [2.0, 2.75, 0.0]
+  - t: 160
+    translate: [2.0, -0.3999999999999998, 0.0]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft1
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 31
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-1.982229405888748, -1.65, 1.8158853486393343]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [-1.982229405888748, 1.5, 1.8158853486393343]
+    ease: out_cubic
+  - t: 149
+    translate: [-1.982229405888748, 1.5, 1.8158853486393343]
+  - t: 159
+    translate: [-1.982229405888748, -1.65, 1.8158853486393343]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross1
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 31
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-1.982229405888748, -0.3999999999999998, 1.8158853486393343]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [-1.982229405888748, 2.75, 1.8158853486393343]
+    ease: out_cubic
+  - t: 149
+    translate: [-1.982229405888748, 2.75, 1.8158853486393343]
+  - t: 159
+    translate: [-1.982229405888748, -0.3999999999999998, 1.8158853486393343]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft2
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 32
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [0.25994404038901814, -1.65, -2.9619438927935766]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [0.25994404038901814, 1.5, -2.9619438927935766]
+    ease: out_cubic
+  - t: 148
+    translate: [0.25994404038901814, 1.5, -2.9619438927935766]
+  - t: 158
+    translate: [0.25994404038901814, -1.65, -2.9619438927935766]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross2
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 32
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [0.25994404038901814, -0.3999999999999998, -2.9619438927935766]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [0.25994404038901814, 2.75, -2.9619438927935766]
+    ease: out_cubic
+  - t: 148
+    translate: [0.25994404038901814, 2.75, -2.9619438927935766]
+  - t: 158
+    translate: [0.25994404038901814, -0.3999999999999998, -2.9619438927935766]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft3
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 33
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [1.9421867306242846, -1.65, 2.5332350503654526]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [1.9421867306242846, 1.5, 2.5332350503654526]
+    ease: out_cubic
+  - t: 147
+    translate: [1.9421867306242846, 1.5, 2.5332350503654526]
+  - t: 157
+    translate: [1.9421867306242846, -1.65, 2.5332350503654526]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross3
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 33
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [1.9421867306242846, -0.3999999999999998, 2.5332350503654526]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [1.9421867306242846, 2.75, 2.5332350503654526]
+    ease: out_cubic
+  - t: 147
+    translate: [1.9421867306242846, 2.75, 2.5332350503654526]
+  - t: 157
+    translate: [1.9421867306242846, -0.3999999999999998, 2.5332350503654526]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft4
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 34
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-3.3248801123808067, -1.65, -0.5881213253176066]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [-3.3248801123808067, 1.5, -0.5881213253176066]
+    ease: out_cubic
+  - t: 146
+    translate: [-3.3248801123808067, 1.5, -0.5881213253176066]
+  - t: 156
+    translate: [-3.3248801123808067, -1.65, -0.5881213253176066]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross4
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 34
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-3.3248801123808067, -0.3999999999999998, -0.5881213253176066]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [-3.3248801123808067, 2.75, -0.5881213253176066]
+    ease: out_cubic
+  - t: 146
+    translate: [-3.3248801123808067, 2.75, -0.5881213253176066]
+  - t: 156
+    translate: [-3.3248801123808067, -0.3999999999999998, -0.5881213253176066]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft5
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 30
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [2.986020408219389, -1.65, -1.8994665795532748]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [2.986020408219389, 1.5, -1.8994665795532748]
+    ease: out_cubic
+  - t: 150
+    translate: [2.986020408219389, 1.5, -1.8994665795532748]
+  - t: 160
+    translate: [2.986020408219389, -1.65, -1.8994665795532748]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross5
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 30
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [2.986020408219389, -0.3999999999999998, -1.8994665795532748]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [2.986020408219389, 2.75, -1.8994665795532748]
+    ease: out_cubic
+  - t: 150
+    translate: [2.986020408219389, 2.75, -1.8994665795532748]
+  - t: 160
+    translate: [2.986020408219389, -0.3999999999999998, -1.8994665795532748]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft6
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 31
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-0.9568587789808841, -1.65, 3.559486533705852]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [-0.9568587789808841, 1.5, 3.559486533705852]
+    ease: out_cubic
+  - t: 149
+    translate: [-0.9568587789808841, 1.5, 3.559486533705852]
+  - t: 159
+    translate: [-0.9568587789808841, -1.65, 3.559486533705852]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross6
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 31
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-0.9568587789808841, -0.3999999999999998, 3.559486533705852]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [-0.9568587789808841, 2.75, 3.559486533705852]
+    ease: out_cubic
+  - t: 149
+    translate: [-0.9568587789808841, 2.75, 3.559486533705852]
+  - t: 159
+    translate: [-0.9568587789808841, -0.3999999999999998, 3.559486533705852]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft7
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 32
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-1.7610993622197644, -1.65, -3.3908763253878718]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [-1.7610993622197644, 1.5, -3.3908763253878718]
+    ease: out_cubic
+  - t: 148
+    translate: [-1.7610993622197644, 1.5, -3.3908763253878718]
+  - t: 158
+    translate: [-1.7610993622197644, -1.65, -3.3908763253878718]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross7
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 32
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-1.7610993622197644, -0.3999999999999998, -3.3908763253878718]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [-1.7610993622197644, 2.75, -3.3908763253878718]
+    ease: out_cubic
+  - t: 148
+    translate: [-1.7610993622197644, 2.75, -3.3908763253878718]
+  - t: 158
+    translate: [-1.7610993622197644, -0.3999999999999998, -3.3908763253878718]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft8
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 33
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [3.7071815078548513, -1.65, 1.3538490190217518]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [3.7071815078548513, 1.5, 1.3538490190217518]
+    ease: out_cubic
+  - t: 147
+    translate: [3.7071815078548513, 1.5, 1.3538490190217518]
+  - t: 157
+    translate: [3.7071815078548513, -1.65, 1.3538490190217518]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross8
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 33
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [3.7071815078548513, -0.3999999999999998, 1.3538490190217518]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [3.7071815078548513, 2.75, 1.3538490190217518]
+    ease: out_cubic
+  - t: 147
+    translate: [3.7071815078548513, 2.75, 1.3538490190217518]
+  - t: 157
+    translate: [3.7071815078548513, -0.3999999999999998, 1.3538490190217518]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft9
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 34
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-3.757222632635871, -1.65, 1.550935976398074]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [-3.757222632635871, 1.5, 1.550935976398074]
+    ease: out_cubic
+  - t: 146
+    translate: [-3.757222632635871, 1.5, 1.550935976398074]
+  - t: 156
+    translate: [-3.757222632635871, -1.65, 1.550935976398074]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross9
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 34
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-3.757222632635871, -0.3999999999999998, 1.550935976398074]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [-3.757222632635871, 2.75, 1.550935976398074]
+    ease: out_cubic
+  - t: 146
+    translate: [-3.757222632635871, 2.75, 1.550935976398074]
+  - t: 156
+    translate: [-3.757222632635871, -0.3999999999999998, 1.550935976398074]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft10
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 30
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [1.7701539094002867, -1.65, -3.7827387226212412]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [1.7701539094002867, 1.5, -3.7827387226212412]
+    ease: out_cubic
+  - t: 150
+    translate: [1.7701539094002867, 1.5, -3.7827387226212412]
+  - t: 160
+    translate: [1.7701539094002867, -1.65, -3.7827387226212412]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross10
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 30
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [1.7701539094002867, -0.3999999999999998, -3.7827387226212412]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [1.7701539094002867, 2.75, -3.7827387226212412]
+    ease: out_cubic
+  - t: 150
+    translate: [1.7701539094002867, 2.75, -3.7827387226212412]
+  - t: 160
+    translate: [1.7701539094002867, -0.3999999999999998, -3.7827387226212412]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft11
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 31
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [1.2817406820414732, -1.65, 4.086355107283448]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [1.2817406820414732, 1.5, 4.086355107283448]
+    ease: out_cubic
+  - t: 149
+    translate: [1.2817406820414732, 1.5, 4.086355107283448]
+  - t: 159
+    translate: [1.2817406820414732, -1.65, 4.086355107283448]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross11
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 31
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [1.2817406820414732, -0.3999999999999998, 4.086355107283448]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [1.2817406820414732, 2.75, 4.086355107283448]
+    ease: out_cubic
+  - t: 149
+    translate: [1.2817406820414732, 2.75, 4.086355107283448]
+  - t: 159
+    translate: [1.2817406820414732, -0.3999999999999998, 4.086355107283448]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft12
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 32
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-3.793228916929051, -1.65, -2.1982397232689075]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [-3.793228916929051, 1.5, -2.1982397232689075]
+    ease: out_cubic
+  - t: 148
+    translate: [-3.793228916929051, 1.5, -2.1982397232689075]
+  - t: 158
+    translate: [-3.793228916929051, -1.65, -2.1982397232689075]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross12
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 32
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-3.793228916929051, -0.3999999999999998, -2.1982397232689075]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [-3.793228916929051, 2.75, -2.1982397232689075]
+    ease: out_cubic
+  - t: 148
+    translate: [-3.793228916929051, 2.75, -2.1982397232689075]
+  - t: 158
+    translate: [-3.793228916929051, -0.3999999999999998, -2.1982397232689075]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft13
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 33
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [4.376979934647776, -1.65, -0.9622804637708253]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [4.376979934647776, 1.5, -0.9622804637708253]
+    ease: out_cubic
+  - t: 147
+    translate: [4.376979934647776, 1.5, -0.9622804637708253]
+  - t: 157
+    translate: [4.376979934647776, -1.65, -0.9622804637708253]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross13
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 33
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [4.376979934647776, -0.3999999999999998, -0.9622804637708253]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [4.376979934647776, 2.75, -0.9622804637708253]
+    ease: out_cubic
+  - t: 147
+    translate: [4.376979934647776, 2.75, -0.9622804637708253]
+  - t: 157
+    translate: [4.376979934647776, -0.3999999999999998, -0.9622804637708253]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft14
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 34
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-2.6313116295742165, -1.65, 3.7427956074014146]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [-2.6313116295742165, 1.5, 3.7427956074014146]
+    ease: out_cubic
+  - t: 146
+    translate: [-2.6313116295742165, 1.5, 3.7427956074014146]
+  - t: 156
+    translate: [-2.6313116295742165, -1.65, 3.7427956074014146]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross14
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 34
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-2.6313116295742165, -0.3999999999999998, 3.7427956074014146]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [-2.6313116295742165, 2.75, 3.7427956074014146]
+    ease: out_cubic
+  - t: 146
+    translate: [-2.6313116295742165, 2.75, 3.7427956074014146]
+  - t: 156
+    translate: [-2.6313116295742165, -0.3999999999999998, 3.7427956074014146]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft15
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 30
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-0.5995915564817035, -1.65, -4.626881554887077]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [-0.5995915564817035, 1.5, -4.626881554887077]
+    ease: out_cubic
+  - t: 150
+    translate: [-0.5995915564817035, 1.5, -4.626881554887077]
+  - t: 160
+    translate: [-0.5995915564817035, -1.65, -4.626881554887077]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross15
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 30
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-0.5995915564817035, -0.3999999999999998, -4.626881554887077]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [-0.5995915564817035, 2.75, -4.626881554887077]
+    ease: out_cubic
+  - t: 150
+    translate: [-0.5995915564817035, 2.75, -4.626881554887077]
+  - t: 160
+    translate: [-0.5995915564817035, -0.3999999999999998, -4.626881554887077]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft16
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 31
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [3.634379374961788, -1.65, 3.0630359372786304]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [3.634379374961788, 1.5, 3.0630359372786304]
+    ease: out_cubic
+  - t: 149
+    translate: [3.634379374961788, 1.5, 3.0630359372786304]
+  - t: 159
+    translate: [3.634379374961788, -1.65, 3.0630359372786304]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross16
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 31
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [3.634379374961788, -0.3999999999999998, 3.0630359372786304]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [3.634379374961788, 2.75, 3.0630359372786304]
+    ease: out_cubic
+  - t: 149
+    translate: [3.634379374961788, 2.75, 3.0630359372786304]
+  - t: 159
+    translate: [3.634379374961788, -0.3999999999999998, 3.0630359372786304]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft17
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 32
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-4.833583980005657, -1.65, 0.19990278212934437]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [-4.833583980005657, 1.5, 0.19990278212934437]
+    ease: out_cubic
+  - t: 148
+    translate: [-4.833583980005657, 1.5, 0.19990278212934437]
+  - t: 158
+    translate: [-4.833583980005657, -1.65, 0.19990278212934437]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross17
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 32
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-4.833583980005657, -0.3999999999999998, 0.19990278212934437]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [-4.833583980005657, 2.75, 0.19990278212934437]
+    ease: out_cubic
+  - t: 148
+    translate: [-4.833583980005657, 2.75, 0.19990278212934437]
+  - t: 158
+    translate: [-4.833583980005657, -0.3999999999999998, 0.19990278212934437]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft18
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 33
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [3.4874161465233096, -1.65, -3.4704735601726022]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [3.4874161465233096, 1.5, -3.4704735601726022]
+    ease: out_cubic
+  - t: 147
+    translate: [3.4874161465233096, 1.5, -3.4704735601726022]
+  - t: 157
+    translate: [3.4874161465233096, -1.65, -3.4704735601726022]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross18
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 33
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [3.4874161465233096, -0.3999999999999998, -3.4704735601726022]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [3.4874161465233096, 2.75, -3.4704735601726022]
+    ease: out_cubic
+  - t: 147
+    translate: [3.4874161465233096, 2.75, -3.4704735601726022]
+  - t: 157
+    translate: [3.4874161465233096, -0.3999999999999998, -3.4704735601726022]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: shaft19
+  kind: {type: block, block: white_concrete}
+  brightness: 15
+  start_tick: 34
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-0.2309354287726327, -1.65, 4.994664035522069]
+    scale: [0.1, 2.7, 0.1]
+  - t: 5
+    translate: [-0.2309354287726327, 1.5, 4.994664035522069]
+    ease: out_cubic
+  - t: 146
+    translate: [-0.2309354287726327, 1.5, 4.994664035522069]
+  - t: 156
+    translate: [-0.2309354287726327, -1.65, 4.994664035522069]
+    scale: [0, 0, 0]
+    ease: in_quad
+- id: cross19
+  kind: {type: block, block: yellow_concrete}
+  brightness: 15
+  start_tick: 34
+  end_tick: 190
+  keyframes:
+  - t: 0
+    translate: [-0.2309354287726327, -0.3999999999999998, 4.994664035522069]
+    scale: [0.12, 0.12, 0.7]
+  - t: 5
+    translate: [-0.2309354287726327, 2.75, 4.994664035522069]
+    ease: out_cubic
+  - t: 146
+    translate: [-0.2309354287726327, 2.75, 4.994664035522069]
+  - t: 156
+    translate: [-0.2309354287726327, -0.3999999999999998, 4.994664035522069]
+    scale: [0, 0, 0]
+    ease: in_quad
+rigs: []

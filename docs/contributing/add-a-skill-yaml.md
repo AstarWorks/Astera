@@ -1,5 +1,7 @@
 # Adding a Skill
 
+Limbus参照武器の制作・修正は [統一手順書](limbus-skill-reproduction.md) から始める。このページはYAML記述のリファレンス。
+
 Astera Skill は `content/skills/<id>.yaml` 1 ファイルで完結します
 (Wave 5a / ADR-0030, Wave 5_skills-2 / ADR-0077)。Item とは別ファイルに
 分かれており、Item の `skills:` 配列から id 参照で複数の Item に同じ

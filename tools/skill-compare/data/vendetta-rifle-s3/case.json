@@ -1,0 +1,63 @@
+{
+  "id": "vendetta-rifle-s3",
+  "rev": 1,
+  "videoId": "wbu2viInM3w",
+  "start_s": 55.8,
+  "end_s": 64.2,
+  "skill": {
+    "name": "Reckoning Salvo",
+    "coins": 3,
+    "asteraSkillId": "vendetta-rifle-s3"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "vendetta-rifle-s3",
+      "start_s": 55.8,
+      "end_s": 64.2,
+      "notes": ""
+    },
+    {
+      "id": "hit-1",
+      "kind": "hit",
+      "label": "coin 1",
+      "t_s": 58.05,
+      "notes": "Contact group, not each decorative shard."
+    },
+    {
+      "id": "hit-2",
+      "kind": "hit",
+      "label": "coin 2",
+      "t_s": 59.95,
+      "notes": "Contact group, not each decorative shard."
+    },
+    {
+      "id": "hit-3",
+      "kind": "hit",
+      "label": "coin 3",
+      "t_s": 63.35,
+      "notes": "Contact group, not each decorative shard."
+    }
+  ],
+  "notes": "Native source is 24 fps. Earlier rack/ranged hypotheses rejected against frames.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

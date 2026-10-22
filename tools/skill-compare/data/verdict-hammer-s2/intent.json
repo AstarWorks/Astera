@@ -1,0 +1,169 @@
+{
+  "title": "verdict-hammer-s2 measured intent",
+  "source": {
+    "video": "Hc6CJXJrzME",
+    "start_s": 35.3,
+    "fps": 29.97
+  },
+  "units": "blocks; x toward enemy, y up, z toward side camera",
+  "duration_ticks": 58,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        3,
+        3.0,
+        10
+      ],
+      "target": [
+        3,
+        1.2,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    },
+    {
+      "t": 10,
+      "pos": [
+        6,
+        4.2,
+        10
+      ],
+      "target": [
+        6,
+        3.1,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    },
+    {
+      "t": 26,
+      "pos": [
+        6,
+        3.3,
+        9
+      ],
+      "target": [
+        6,
+        1.3,
+        0
+      ],
+      "fov": 40
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#29231D",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#A42A23",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            6,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 2.35,
+    "width": 1.2,
+    "color": "#30291F",
+    "keys": [
+      {
+        "t": 0,
+        "angle": 180
+      },
+      {
+        "t": 17,
+        "angle": 110
+      },
+      {
+        "t": 26,
+        "angle": -20
+      },
+      {
+        "t": 30,
+        "angle": -35
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 26,
+      "at": [
+        6,
+        1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "sparks",
+      "t0": 26,
+      "t1": 38,
+      "emitter": [
+        6,
+        1,
+        0
+      ],
+      "count": 24,
+      "color": "#FFF1AB",
+      "speed": 4,
+      "life": 8
+    },
+    {
+      "type": "pillar",
+      "t0": 25,
+      "t1": 31,
+      "at": [
+        6,
+        0,
+        0
+      ],
+      "height": 8,
+      "width": 0.5,
+      "color": "#FFF4C5"
+    },
+    {
+      "type": "crescent_ring",
+      "id": "ring0",
+      "t0": 26,
+      "t1": 40,
+      "center": [
+        6,
+        0.15,
+        0
+      ],
+      "plane": "horizontal",
+      "radius": 3.2,
+      "start_deg": 0,
+      "sweep_deg": 360,
+      "draw_ticks": 6,
+      "width": 0.15,
+      "color": "#FFD775"
+    }
+  ]
+}

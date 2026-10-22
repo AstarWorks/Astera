@@ -119,12 +119,14 @@ public sealed class TargeterYaml {
         public val direction: DirectionRefYaml,
         @SerialName("angle_degrees") public val angleDegrees: NumericValueYaml,
         public val distance: NumericValueYaml,
+        @SerialName("max_count") public val maxCount: Int? = null,
     ) : TargeterYaml() {
         override fun toDomain(): Targeter = Targeter.Cone(
             from = from.toDomain(),
             direction = direction.toDomain(),
             angleDegrees = angleDegrees.toDomain(),
             distance = distance.toDomain(),
+            maxCount = maxCount,
         )
     }
 

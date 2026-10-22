@@ -13,7 +13,6 @@ elements:
   - id: hoop
     kind: { type: block, block: yellow_stained_glass }
     brightness: 15
-    glow_color: "#ffd24a"
     count: 10
     start_tick: 0
     end_tick: 9

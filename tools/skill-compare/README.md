@@ -1,5 +1,7 @@
 # skill-compare
 
+制作・修正の統一手順と合格条件: [Limbus参照武器スキルの制作・修正手順](../../docs/contributing/limbus-skill-reproduction.md)。撮影済み・反復回数到達は再現合格を意味しない。
+
 Local web app (Bun + three.js 0.170, same stack as `tools/skill-viewer`): a reference video at **native fps**, my
 "intent" render of it, and Astera's Minecraft frames, on one millisecond clock with an editable timeline.
 Not shipped, not in `check`. Needs `bun`, and for fetching `yt-dlp`, `ffmpeg`, `python3` + `numpy`.

@@ -13,7 +13,6 @@ elements:
     kind: { type: item, item: diamond_sword, display_mode: fixed }
     billboard: vertical
     brightness: 15
-    glow_color: "#3fa9ff"
     start_tick: 0
     end_tick: 14
     count: 6

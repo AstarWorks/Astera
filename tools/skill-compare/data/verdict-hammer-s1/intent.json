@@ -1,0 +1,288 @@
+{
+  "title": "verdict-hammer-s1 measured intent",
+  "source": {
+    "video": "Hc6CJXJrzME",
+    "start_s": 10.9,
+    "fps": 29.97
+  },
+  "units": "blocks; x toward enemy, y up, z toward side camera",
+  "duration_ticks": 74,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        0,
+        3.0,
+        26
+      ],
+      "target": [
+        0,
+        1.2,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    },
+    {
+      "t": 6,
+      "pos": [
+        3,
+        2.5,
+        10
+      ],
+      "target": [
+        3,
+        1,
+        0
+      ],
+      "fov": 40
+    },
+    {
+      "t": 20,
+      "pos": [
+        6.3,
+        2.2,
+        9
+      ],
+      "target": [
+        6.3,
+        1.2,
+        0
+      ],
+      "fov": 40
+    },
+    {
+      "t": 28,
+      "pos": [
+        6.3,
+        2.2,
+        7.0
+      ],
+      "target": [
+        6.3,
+        1.2,
+        0
+      ],
+      "fov": 40,
+      "note": "12.433s close shot: body 85/216 screen heights; vertical coverage 216/85*1.8=4.574 blocks; distance ~4.574/(2*tan(20deg))=6.28; widened to 7 for source crescent."
+    },
+    {
+      "t": 45,
+      "pos": [
+        6,
+        1.7,
+        6
+      ],
+      "target": [
+        6,
+        1.2,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    },
+    {
+      "t": 53,
+      "pos": [
+        8,
+        2.8,
+        11
+      ],
+      "target": [
+        8,
+        1,
+        0
+      ],
+      "fov": 40,
+      "note": "Cut/dolly measured from the source shot; Minecraft actor differs from sprite."
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#29231D",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 7,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 19,
+          "pos": [
+            5.5,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 56,
+          "pos": [
+            5.5,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 64,
+          "pos": [
+            9.5,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#A42A23",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            8,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 2.35,
+    "width": 1.2,
+    "color": "#30291F",
+    "keys": [
+      {
+        "t": 0,
+        "angle": 180
+      },
+      {
+        "t": 22,
+        "angle": 110
+      },
+      {
+        "t": 31,
+        "angle": -20
+      },
+      {
+        "t": 35,
+        "angle": -35
+      },
+      {
+        "t": 40,
+        "angle": 110
+      },
+      {
+        "t": 49,
+        "angle": -20
+      },
+      {
+        "t": 53,
+        "angle": -35
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "hit",
+      "t": 31,
+      "at": [
+        8,
+        1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "sparks",
+      "t0": 31,
+      "t1": 43,
+      "emitter": [
+        8,
+        1,
+        0
+      ],
+      "count": 24,
+      "color": "#FFF1AB",
+      "speed": 4,
+      "life": 8
+    },
+    {
+      "type": "crescent_ring",
+      "id": "arc0",
+      "t0": 27,
+      "t1": 40,
+      "center": [
+        6,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 22,
+      "radius": 2.5,
+      "start_deg": 125,
+      "sweep_deg": 270,
+      "draw_ticks": 4,
+      "width": 0.8,
+      "color": "#FFF1AB"
+    },
+    {
+      "type": "hit",
+      "t": 48,
+      "at": [
+        8,
+        1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "sparks",
+      "t0": 49,
+      "t1": 61,
+      "emitter": [
+        8,
+        1,
+        0
+      ],
+      "count": 24,
+      "color": "#FFF1AB",
+      "speed": 4,
+      "life": 8
+    },
+    {
+      "type": "crescent_ring",
+      "id": "arc1",
+      "t0": 45,
+      "t1": 58,
+      "center": [
+        6,
+        1,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 22,
+      "radius": 2.5,
+      "start_deg": 125,
+      "sweep_deg": 270,
+      "draw_ticks": 4,
+      "width": 0.8,
+      "color": "#FFF1AB"
+    }
+  ]
+}

@@ -12,7 +12,6 @@ elements:
   - id: ring
     kind: { type: block, block: orange_stained_glass }
     brightness: 15
-    glow_color: "#ff7a1a"
     count: 20
     end_tick: 15
     formation:
@@ -29,7 +28,6 @@ elements:
   - id: hoop
     kind: { type: block, block: yellow_stained_glass }
     brightness: 15
-    glow_color: "#ffb020"
     count: 12
     start_tick: 1
     end_tick: 10

@@ -1,0 +1,48 @@
+{
+  "id": "ember-gauntlet-def",
+  "rev": 1,
+  "videoId": "vBob-jTmlnc",
+  "start_s": 47.5,
+  "end_s": 49.2,
+  "skill": {
+    "name": "ember-gauntlet-def",
+    "coins": 1,
+    "asteraSkillId": "ember-gauntlet-def"
+  },
+  "intent": {
+    "file": "intent.json"
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": true,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "skill",
+      "kind": "skill",
+      "label": "ember-gauntlet-def",
+      "start_s": 47.5,
+      "end_s": 49.2,
+      "notes": ""
+    },
+    {
+      "id": "hit1",
+      "kind": "hit",
+      "label": "Coin 1",
+      "t_s": 48.466667
+    }
+  ],
+  "notes": "Measured native 30 fps. DEF identification probable: incoming strike followed by one sweep. E.G.O absent.",
+  "editLog": [],
+  "status": "built",
+  "verification": {
+    "status": "unverified",
+    "reason": "Imported authoring snapshot; correction runtime and equipped-weapon captures require review."
+  }
+}

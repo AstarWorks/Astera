@@ -1,122 +1,297 @@
-# Sigil Rifle S3 (sneak + right-click) "Sigil Detonation": the caster plants for 44 ticks while a floor
-# sigil, horn flames and a hair-thin laser sight telegraph the lane (the aim is locked at cast time).
-# Tick 44 a thick beam pierces up to 34 blocks: 6 phys, +2 Sinking stacks, the struck are held 6 ticks.
-# Tick 46 stacked sigil discs build on every pierced target; tick 66 (20 ticks later, i-frame safe) they
-# detonate: 8 phys + 1.5 per Sinking stack, consuming them all. Anyone who leaves the lane in the 20-tick
-# window escapes the pop. 14 + 1.5/stack with no prior marks ~20; the point is scaling with S1/S2 stacks.
-# Cooldown 300; the caster is held for 12 more ticks after the pop.
-
 id: sigil-rifle-s3
-
 name:
-  ja: "刻印連鎖爆破"
-  en: "Sigil Detonation"
+  ja: 刻印連鎖爆破
+  en: Sigil Detonation
 description:
-  ja: "足を止めて照準を固定し、刻印のレンズから貫通ビームを放つ。貫かれた敵に刻印が積み重なり、連鎖して炸裂する。沈降が多いほど痛い。"
-  en: "Plant, lock the aim and fire a piercing beam through the sigil lens. Everything pierced is stacked with sigils that detonate in a chain; more Sinking, more damage."
-
+  ja: 照準を構え、一発と刻印の追撃を放つ。
+  en: Set your aim; a piercing round is followed by a redirected sigil impact.
 archetype: sequence
-cooldown_ticks: 300
-resource_cost: 60              # energy
-tags: [ ranged, aoe, physical, finisher, sinking ]
-
+cooldown_ticks: 150
+resource_cost: 60
+tags:
+- physical
+- sigil-rifle
 params:
   type: sequence
-
 phases:
   type: sequence
   cast:
-    # -- telegraph (0-44): rooted, floor sigil + laser sight both lock to the cast-time aim --
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: sigil-rifle-charge
-    - type: play_vfx
-      targets: { type: caster }
-      vfx_id: sigil-rifle-beam
-    - type: hit_stop
-      targets: { type: caster }
-      ticks: 44
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.beacon.charge
-      pitch: { type: literal, value: 1.4 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: block.beacon.ambient
-      volume: { type: literal, value: 0.7 }
-      pitch: { type: literal, value: 1.6 }
-      delay_ticks: { type: literal, value: 20 }
-    # -- the beam (44) --
-    - type: damage
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 5.0 }, distance: { type: literal, value: 34.0 } }
-      ignore_invulnerability: { type: literal, value: true }
-      delay_ticks: { type: literal, value: 44 }
-      snapshot_pose: true
-      components:
-        - base: { type: literal, value: 6.0 }
-          attribute: physical
-    - type: apply_status
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 5.0 }, distance: { type: literal, value: 34.0 } }
-      status_id: sinking
-      effect_duration_ticks: { type: literal, value: 200 }
-      stack_count: { type: literal, value: 2 }
-      delay_ticks: { type: literal, value: 44 }
-      snapshot_pose: true
-    - type: hit_stop
-      targets: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 5.0 }, distance: { type: literal, value: 34.0 } }
-      ticks: 6
-      delay_ticks: { type: literal, value: 44 }
-      snapshot_pose: true
-    - type: camera_shake
-      targets: { type: caster }
-      intensity: { type: literal, value: 0.6 }
-      ticks: { type: literal, value: 6 }
-      delay_ticks: { type: literal, value: 44 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.firework_rocket.blast
-      volume: { type: literal, value: 1.0 }
-      pitch: { type: literal, value: 0.5 }
-      delay_ticks: { type: literal, value: 44 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: item.crossbow.shoot
-      pitch: { type: literal, value: 0.5 }
-      delay_ticks: { type: literal, value: 44 }
-    # -- sigils stack on every pierced target (46) --
-    - type: play_vfx
-      targets: { type: filter, base: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 5.0 }, distance: { type: literal, value: 34.0 } }, condition: { type: has_status, status_id: sinking, min_stacks: 1 } }
-      vfx_id: sigil-rifle-detonate
-      delay_ticks: { type: literal, value: 46 }
-      snapshot_pose: true
-    # -- detonation (66) --
-    - type: damage
-      targets: { type: filter, base: { type: cone, from: { type: caster }, direction: { type: from_caster }, angle_degrees: { type: literal, value: 5.0 }, distance: { type: literal, value: 34.0 } }, condition: { type: has_status, status_id: sinking, min_stacks: 1 } }
-      ignore_invulnerability: { type: literal, value: true }
-      delay_ticks: { type: literal, value: 66 }
-      snapshot_pose: true
-      components:
-        - base: { type: literal, value: 8.0 }
-          attribute: physical
-          per_stack: { status_id: sinking, amount: 1.5, on: target, consume: true }
-    - type: hit_stop
-      targets: { type: caster }
-      ticks: 12
-      delay_ticks: { type: literal, value: 66 }
-    - type: camera_shake
-      targets: { type: caster }
-      intensity: { type: literal, value: 0.7 }
-      ticks: { type: literal, value: 8 }
-      delay_ticks: { type: literal, value: 66 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.generic.explode
-      volume: { type: literal, value: 0.9 }
-      pitch: { type: literal, value: 1.2 }
-      delay_ticks: { type: literal, value: 66 }
-    - type: play_sound
-      targets: { type: caster }
-      sound_id: entity.firework_rocket.twinkle
-      volume: { type: literal, value: 0.9 }
-      pitch: { type: literal, value: 1.4 }
-      delay_ticks: { type: literal, value: 68 }
+  - type: play_vfx
+    targets: &id001
+      type: caster
+    vfx_id: sigil-rifle-s3-rig
+    follow:
+      type: literal
+      value: true
+  - type: hit_stop
+    targets: *id001
+    ticks: 50
+  - type: play_sound
+    targets: *id001
+    sound_id: block.beacon.charge
+    pitch:
+      type: literal
+      value: 0.9
+  - type: play_vfx
+    targets: *id001
+    vfx_id: sigil-rifle-shot
+    delay_ticks: &id003
+      type: literal
+      value: 50
+  - type: damage
+    targets: &id002
+      type: forward_ray
+      from: *id001
+      distance:
+        type: literal
+        value: 12
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 8
+      attribute: physical
+      per_stack:
+        status_id: poise
+        amount: 0.1
+        'on': caster
+    delay_ticks:
+      type: literal
+      value: 71
+  - type: hit_stop
+    targets: *id002
+    ticks: 2
+    delay_ticks:
+      type: literal
+      value: 71
+  - type: schedule_particle_animation
+    targets: *id002
+    animation:
+    - type: point
+      particles:
+      - id: crit
+        count: 8
+        extra: 0.15
+        offset:
+          x: 0
+          y: 1
+          z: 0
+      - id: smoke
+        count: 5
+        extra: 0.04
+        offset:
+          x: 0
+          y: 1
+          z: 0
+      - id: dust
+        count: 14
+        extra: 0.08
+        color:
+          r: 245
+          g: 42
+          b: 19
+        scale: 1.2
+        offset:
+          x: 0
+          y: 1
+          z: 0
+    delay_ticks:
+      type: literal
+      value: 71
+  - type: play_sound
+    targets: *id001
+    sound_id: item.crossbow.shoot
+    pitch:
+      type: literal
+      value: 0.65
+    delay_ticks:
+      type: literal
+      value: 71
+  - type: camera_shake
+    targets: *id001
+    intensity:
+      type: literal
+      value: 0.2
+    ticks:
+      type: literal
+      value: 3
+    delay_ticks:
+      type: literal
+      value: 71
+  - type: play_vfx
+    targets: *id002
+    vfx_id: sigil-rifle-mark
+    delay_ticks:
+      type: literal
+      value: 71
+  - type: play_vfx
+    targets: *id002
+    vfx_id: sigil-rifle-detonate
+    delay_ticks:
+      type: literal
+      value: 80
+  - type: damage
+    targets: *id002
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 10
+      attribute: physical
+      per_stack:
+        status_id: poise
+        amount: 0.1
+        'on': caster
+    delay_ticks:
+      type: literal
+      value: 102
+  - type: hit_stop
+    targets: *id002
+    ticks: 2
+    delay_ticks:
+      type: literal
+      value: 102
+  - type: schedule_particle_animation
+    targets: *id002
+    animation:
+    - type: point
+      particles:
+      - id: crit
+        count: 8
+        extra: 0.15
+        offset:
+          x: 0
+          y: 1
+          z: 0
+      - id: smoke
+        count: 5
+        extra: 0.04
+        offset:
+          x: 0
+          y: 1
+          z: 0
+      - id: dust
+        count: 14
+        extra: 0.08
+        color:
+          r: 245
+          g: 42
+          b: 19
+        scale: 1.2
+        offset:
+          x: 0
+          y: 1
+          z: 0
+    delay_ticks:
+      type: literal
+      value: 102
+  - type: play_sound
+    targets: *id001
+    sound_id: item.crossbow.shoot
+    pitch:
+      type: literal
+      value: 0.65
+    delay_ticks:
+      type: literal
+      value: 102
+  - type: camera_shake
+    targets: *id001
+    intensity:
+      type: literal
+      value: 0.2
+    ticks:
+      type: literal
+      value: 3
+    delay_ticks:
+      type: literal
+      value: 102
+  - type: play_vfx
+    targets: *id002
+    vfx_id: sigil-rifle-mark
+    delay_ticks:
+      type: literal
+      value: 102
+  - type: screen_flash
+    targets: *id001
+    overlay: gold_burst
+    color: '#FF9B29'
+    stay:
+      type: literal
+      value: 1
+    fade_out:
+      type: literal
+      value: 1
+    delay_ticks:
+      type: literal
+      value: 102
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: sigil-rifle-shot
+    delay_ticks: &id004
+      type: literal
+      value: 71
+  - type: schedule_particle_animation
+    targets:
+      type: caster_forward
+      distance: 1.8
+      height: -0.35
+    delay_ticks: *id003
+    period_ticks:
+      type: literal
+      value: 2
+    duration_ticks:
+      type: literal
+      value: 8
+    animation:
+    - type: point
+      particles:
+      - id: dust
+        count: 16
+        extra: 0.09
+        offset:
+          x: 0.25
+          y: 0.25
+          z: 0.25
+        color:
+          r: 245
+          g: 42
+          b: 19
+        scale: 1.5
+      - id: smoke
+        count: 4
+        extra: 0.04
+  - type: schedule_particle_animation
+    targets:
+      type: caster_forward
+      distance: 1.8
+      height: -0.35
+    delay_ticks: *id004
+    period_ticks:
+      type: literal
+      value: 2
+    duration_ticks:
+      type: literal
+      value: 8
+    animation:
+    - type: point
+      particles:
+      - id: dust
+        count: 16
+        extra: 0.09
+        offset:
+          x: 0.25
+          y: 0.25
+          z: 0.25
+        color:
+          r: 245
+          g: 42
+          b: 19
+        scale: 1.5
+      - id: smoke
+        count: 4
+        extra: 0.04

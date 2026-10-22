@@ -23,7 +23,6 @@ elements:
   - id: needle
     kind: { type: block, block: orange_stained_glass }
     brightness: 15
-    glow_color: "#ff7a1a"
     count: 4
     end_tick: 9
     formation:

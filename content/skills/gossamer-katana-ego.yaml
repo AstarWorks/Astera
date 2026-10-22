@@ -1,0 +1,77 @@
+# Original unfilmed ultimate adaptation; Q costs 100 E.G.O. One finishing damage beat at 60.
+id: gossamer-katana-ego
+name: {en: Silent Loom, ja: 静寂の織機}
+description: {en: Gather the remaining threads into a single final cut., ja: 残された糸を集め、前方へ最後の一閃を放つ。}
+archetype: sequence
+cooldown_ticks: 160
+resource_cost: 0
+params: {type: sequence}
+phases:
+  type: sequence
+  cast:
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: gossamer-katana-draw
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: gossamer-katana-guard
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: gossamer-katana-iaido-line
+    delay_ticks: {type: literal, value: 20}
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: gossamer-katana-slash-up
+    delay_ticks: {type: literal, value: 30}
+  - type: play_vfx
+    targets: {type: caster}
+    vfx_id: gossamer-katana-slash-down
+    delay_ticks: {type: literal, value: 42}
+  - type: play_vfx
+    targets: {type: caster_forward, distance: 3.6, height: -1.62}
+    vfx_id: gossamer-katana-scar
+    delay_ticks: {type: literal, value: 60}
+  - type: screen_flash
+    targets: {type: caster}
+    overlay: white
+    fade_in: {type: literal, value: 0}
+    stay: {type: literal, value: 1}
+    fade_out: {type: literal, value: 2}
+    delay_ticks: {type: literal, value: 60}
+  - type: damage
+    targets:
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      angle_degrees: {type: literal, value: 65.0}
+      distance: {type: literal, value: 7.0}
+    ignore_invulnerability: {type: literal, value: true}
+    components:
+    - base: {type: literal, value: 24.0}
+      attribute: physical
+    delay_ticks: {type: literal, value: 60}
+  - type: hit_stop
+    targets:
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      angle_degrees: {type: literal, value: 65.0}
+      distance: {type: literal, value: 7.0}
+    ticks: 2
+    include_caster: true
+    delay_ticks: {type: literal, value: 60}
+  - type: spawn_particle
+    targets:
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      angle_degrees: {type: literal, value: 65.0}
+      distance: {type: literal, value: 7.0}
+    particle_id: hit-spark
+    delay_ticks: {type: literal, value: 60}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.player.attack.crit
+    pitch: {type: literal, value: 1.3}
+    delay_ticks: {type: literal, value: 60}
+ego_cost: 100

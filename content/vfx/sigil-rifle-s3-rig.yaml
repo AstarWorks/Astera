@@ -1,0 +1,159 @@
+id: sigil-rifle-s3-rig
+duration_ticks: 126
+orient: yaw
+follow: true
+sample_ticks: 1
+rigs:
+- id: rifle
+  pivot:
+  - -0.28
+  - 1.0
+  - 0.25
+  rest:
+  - 0
+  - 90
+  - 0
+  respect_hit_stop: false
+  end_tick: 126
+  parts:
+  - id: stock
+    block: black_concrete
+    offset:
+    - 0
+    - -0.2278
+    - 0
+    size:
+    - 0.2
+    - 0.7289
+    - 0.25
+    brightness: 10
+  - id: receiver
+    block: gray_concrete
+    offset:
+    - 0
+    - 0.3644
+    - 0
+    size:
+    - 0.18
+    - 0.6378
+    - 0.18
+    brightness: 10
+  - id: barrel
+    block: black_concrete
+    offset:
+    - 0
+    - 1.0478
+    - 0
+    size:
+    - 0.09
+    - 0.82
+    - 0.09
+    brightness: 10
+  - id: rail
+    block: light_gray_concrete
+    offset:
+    - -0.1
+    - 0.7289
+    - 0
+    size:
+    - 0.025
+    - 1.1844
+    - 0.035
+    brightness: 10
+  - id: sight
+    block: black_concrete
+    offset:
+    - 0
+    - 1.4122
+    - -0.09
+    size:
+    - 0.09
+    - 0.0729
+    - 0.1
+    brightness: 10
+  swing:
+  - t: 0
+    rotate:
+    - 0
+    - -90
+    - 0
+    ease: out_quad
+  - t: 12
+    rotate:
+    - 0
+    - -90
+    - 0
+    ease: out_quad
+  - t: 18
+    rotate:
+    - 0
+    - -125
+    - 0
+    ease: out_quad
+  - t: 23
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 49
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 51
+    rotate:
+    - 0
+    - -16
+    - 0
+    ease: out_quad
+  - t: 57
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  - t: 125
+    rotate:
+    - 0
+    - 0
+    - 0
+    ease: out_quad
+  trails:
+  - id: shoulder-ribbon
+    from:
+    - 0
+    - 0.55
+    - 0
+    to:
+    - 0
+    - 1.65
+    - 0
+    start_t: 18
+    end_t: 23
+    life_ticks: 8
+    step_deg: 25
+    style: both
+    bands:
+    - from: 0.7
+      to: 1
+      color: '#EEEF2311'
+      color_to: '#603A0808'
+      block: red_concrete
+    dark_rim:
+      color: '#D0190808'
+      width: 0.15
+    edge:
+      block: black_concrete
+      width: 0.03
+    fade_power: 0.3
+  emitters:
+  - id: embers-18
+    particle_id: sigil-rifle-embers
+    point:
+    - 0
+    - 1.65
+    - 0
+    start_t: 18
+    end_t: 23

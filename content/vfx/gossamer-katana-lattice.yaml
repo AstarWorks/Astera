@@ -1,72 +1,230 @@
-# Gossamer Katana S2 reveal on the struck target: a level cut and two diagonals draw a lattice over the
-# chest (out_expo, one tick apart), a white four-lobed flash sits at the crossing and six petals burst
-# outward. Anchored on the target; lines face the caster's look direction.
-
 id: gossamer-katana-lattice
-duration_ticks: 14
-orient: look
+duration_ticks: 22
+orient: yaw
 follow: false
 sample_ticks: 1
-
 elements:
-  - id: level
-    kind: { type: block, block: light_blue_stained_glass }
-    brightness: 15
-    glow_color: "#8fe8ff"
-    start_tick: 0
-    end_tick: 11
-    keyframes:
-      - { t: 0, translate: [0.0, 1.2, 0.3], scale: [0.2, 0.04, 0.04] }
-      - { t: 2, scale: [3.6, 0.07, 0.07], ease: out_expo }
-      - { t: 6, block: white_stained_glass }
-      - { t: 11, scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  - id: diag-a
-    kind: { type: block, block: blue_stained_glass }
-    brightness: 15
-    glow_color: "#3fa9ff"
-    start_tick: 1
-    end_tick: 12
-    keyframes:
-      - { t: 0, translate: [0.0, 1.2, 0.3], rotate: [0, 0, 35], scale: [0.04, 0.2, 0.04] }
-      - { t: 2, scale: [0.07, 3.6, 0.07], ease: out_expo }
-      - { t: 11, scale: [0.0, 3.6, 0.0], ease: in_quad }
-
-  - id: diag-b
-    kind: { type: block, block: blue_stained_glass }
-    brightness: 15
-    glow_color: "#3fa9ff"
-    start_tick: 2
-    end_tick: 13
-    keyframes:
-      - { t: 0, translate: [0.0, 1.2, 0.3], rotate: [0, 0, -35], scale: [0.04, 0.2, 0.04] }
-      - { t: 2, scale: [0.07, 3.6, 0.07], ease: out_expo }
-      - { t: 11, scale: [0.0, 3.6, 0.0], ease: in_quad }
-
-  - id: flare
-    kind: { type: text, text: "<#ffffff><b>❖</b>", background: "#00000000", shadow: false, see_through: true }
-    billboard: center
-    brightness: 15
-    start_tick: 0
-    end_tick: 9
-    keyframes:
-      - { t: 0, translate: [0.0, 1.2, 0.5], scale: [0.0, 0.0, 0.0] }
-      - { t: 2, scale: [7.0, 7.0, 7.0], ease: out_back }
-      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
-
-  - id: petal
-    kind: { type: text, text: "<#8fe8ff><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
-    billboard: center
-    brightness: 15
-    start_tick: 1
-    end_tick: 10
-    count: 6
-    formation:
-      curve: { type: circle, radius: 0.25 }
-      tilt: { yaw: 0, pitch: 90, roll: 0 }
-      offset: [0.0, 1.2, 0.5]
-      align: outward
-    keyframes:
-      - { t: 0, scale: [0.0, 0.0, 0.0] }
-      - { t: 2, translate: [0.0, 0.0, 0.7], scale: [3.0, 3.0, 3.0], ease: out_expo }
-      - { t: 8, translate: [0.0, 0.0, 1.8], scale: [0.0, 0.0, 0.0], ease: in_quad }
+- id: rake-a
+  kind:
+    type: block
+    block: light_blue_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 20
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.05
+    - 0
+    scale:
+    - 0.009
+    - 3.8
+    - 0.045
+    rotate:
+    - 0
+    - 38
+    - 0
+  - t: 1
+    scale:
+    - 0.045
+    - 6.8
+    - 0.045
+    ease: out_expo
+  - t: 18
+    scale:
+    - 0
+    - 0
+    - 0
+    ease: in_quad
+- id: rake-b
+  kind:
+    type: block
+    block: purple_concrete
+  brightness: 15
+  start_tick: 1
+  end_tick: 20
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.05
+    - 0
+    scale:
+    - 0.008
+    - 3.8
+    - 0.04
+    rotate:
+    - 0
+    - -40
+    - 0
+  - t: 1
+    scale:
+    - 0.04
+    - 6.8
+    - 0.04
+    ease: out_expo
+  - t: 18
+    scale:
+    - 0
+    - 0
+    - 0
+    ease: in_quad
+- id: level
+  kind:
+    type: block
+    block: light_blue_concrete
+  brightness: 15
+  start_tick: 0
+  end_tick: 20
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.05
+    - 0
+    scale:
+    - 0.008
+    - 0.045
+    - 5.4
+    rotate:
+    - 0
+    - 0
+    - 0
+  - t: 1
+    scale:
+    - 0.04
+    - 0.045
+    - 5.4
+    ease: out_expo
+  - t: 18
+    scale:
+    - 0
+    - 0
+    - 0
+    ease: in_quad
+- id: petals
+  kind:
+    type: quad
+    color: '#96EFFF'
+    alpha: 0.8
+    glyph: ✦
+  brightness: 15
+  start_tick: 0
+  end_tick: 12
+  emit:
+    count: 8
+    direction: outward
+    speed:
+    - 0.12
+    - 0.35
+    spread_deg: 180
+    gravity: 0.015
+    drag: 0.06
+    life_ticks:
+    - 5
+    - 10
+    size:
+    - 0.08
+    - 0.18
+    size_over_life:
+    - 1
+    - 0
+    alpha_over_life:
+    - 0.8
+    - 0
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.1
+    - 0
+- id: impact-dark
+  kind:
+    type: quad
+    color: '#111A36'
+    alpha: 1
+    glyph: ✦
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.05
+    - 0
+    scale: &id001
+    - 1.8
+    - 1.8
+    - 1
+  - t: 2
+    scale: *id001
+    ease: out_expo
+  - t: 5
+    scale:
+    - 0
+    - 0
+    - 1
+    alpha: 0
+    ease: in_quad
+- id: impact-core
+  kind:
+    type: quad
+    color: '#E9FAFF'
+    alpha: 1
+    glyph: ✦
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.05
+    - 0
+    scale: &id002
+    - 1.5
+    - 1.5
+    - 1
+  - t: 2
+    scale: *id002
+    ease: out_expo
+  - t: 5
+    scale:
+    - 0
+    - 0
+    - 1
+    alpha: 0
+    ease: in_quad
+- id: impact-bloom
+  kind:
+    type: quad
+    color: '#60E1FF'
+    alpha: 0.22
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 1.05
+    - 0
+    scale: &id003
+    - 3.2
+    - 1.1
+    - 1
+  - t: 2
+    scale: *id003
+    ease: out_expo
+  - t: 5
+    scale:
+    - 0
+    - 0
+    - 1
+    alpha: 0
+    ease: in_quad

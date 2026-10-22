@@ -13,7 +13,6 @@ elements:
   - id: spike
     kind: { type: block, block: orange_stained_glass }
     brightness: 15
-    glow_color: "#ff7a1a"
     count: 8
     end_tick: 14
     formation:
@@ -55,7 +54,6 @@ elements:
   - id: ring
     kind: { type: block, block: orange_stained_glass }
     brightness: 15
-    glow_color: "#ff7a1a"
     count: 6
     start_tick: 1
     end_tick: 14

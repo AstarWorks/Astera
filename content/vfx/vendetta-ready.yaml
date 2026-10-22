@@ -1,0 +1,34 @@
+id: vendetta-ready
+duration_ticks: 20
+orient: yaw
+follow: true
+sample_ticks: 1
+rigs:
+- id: bayonet
+  pivot: [0.35, 1.05, 0.25]
+  rest: [0, 90, 0]
+  tilt: [0, 0, 30]
+  respect_hit_stop: true
+  end_tick: 19
+  parts:
+  - {id: heel, block: nether_bricks, offset: [0, 0.4, 0], size: [0.2, 0.8, 0.16]}
+  - {id: spine, block: nether_bricks, offset: [-0.03, 1.0, 0], size: [0.24, 0.5, 0.16], rotate: [0, 0, 5]}
+  - {id: tip, block: nether_bricks, offset: [-0.11, 1.35, 0], size: [0.24, 0.35, 0.16], rotate: [0, 0, 18]}
+  - {id: grip, block: black_concrete, offset: [0, -0.2, 0], size: [0.13, 0.4, 0.13]}
+  - {id: rib-0, block: bone_block, offset: [0.0, 0.22, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-1, block: bone_block, offset: [0.0, 0.41, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-2, block: bone_block, offset: [0.0, 0.6, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-3, block: bone_block, offset: [-0.019, 0.79, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-4, block: bone_block, offset: [-0.038, 0.98, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-5, block: bone_block, offset: [-0.057, 1.17, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  - {id: rib-6, block: bone_block, offset: [-0.076, 1.36, 0], size: [0.28, 0.045, 0.18], brightness: 15}
+  swing:
+  - {t: 0, rotate: [0, -65, 0]}
+  - {t: 8, rotate: [0, -90, 0], ease: in_out_quad}
+  - {t: 16, rotate: [0, -70, 0]}
+  emitters:
+  - id: ignition
+    particle_id: fire-trail
+    point: [0, 1.5, 0]
+    start_t: 2
+    end_t: 6
