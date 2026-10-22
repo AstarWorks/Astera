@@ -28,6 +28,15 @@ import com.astarworks.astera.core.application.contents.QuestChainContents
 import com.astarworks.astera.core.application.usecase.advancement.GrantAdvancementRewardUseCase
 import com.astarworks.astera.core.application.usecase.advancement.ProgressAdvancementUseCase
 import com.astarworks.astera.core.application.usecase.dialog.RunNpcDialogUseCase
+import com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener
+import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IPlayerInventoryGateway
+import com.astarworks.astera.core.application.port.outbound.IVaultWindow
+import com.astarworks.astera.core.application.usecase.vault.AccessPersonalVaultUseCase
+import com.astarworks.astera.core.application.usecase.vault.OpenVaultUseCase
+import com.astarworks.astera.core.application.usecase.vault.SaveVaultUseCase
+import com.astarworks.astera.core.domain.event.MatchEnded
+import com.astarworks.astera.core.domain.event.MatchStarted
 import com.astarworks.astera.core.application.usecase.inventory.RestoreInventorySnapshotUseCase
 import com.astarworks.astera.core.application.usecase.inventory.SaveInventorySnapshotUseCase
 import com.astarworks.astera.core.application.usecase.quest.GrantQuestRewardUseCase
@@ -236,14 +245,42 @@ internal fun CoreWiringState.wireProgression() {
     services.register<IQuestService>(questService, priority = 0)
 
     // Inventory snapshot use cases + PlayerJoined-side listener.
-    @Suppress("UNUSED_VARIABLE")
-    val saveSnapshotUseCase = SaveInventorySnapshotUseCase(snapshotRepo)
-    val restoreSnapshotUseCase = RestoreInventorySnapshotUseCase(snapshotRepo, sessionRepo, eventBus)
+    // Repositories are resolved per call so the Postgres overlays (registered by
+    // Persistence AFTER Core enables) actually receive the traffic.
+    val liveSnapshots = LiveSnapshotRepository(services)
+    val saveSnapshotUseCase = SaveInventorySnapshotUseCase(liveSnapshots)
+    val restoreSnapshotUseCase = RestoreInventorySnapshotUseCase(liveSnapshots, sessionRepo, eventBus)
     // Wave H 5content-depth: preexisting bug from Wave E 5admin-ops —
     // RestoreInventoryOnPlayerJoinedListener gained `sessionRepo` for the
     // double-join idempotency guard but the caller wasn't updated.
     val restoreOnJoin = RestoreInventoryOnPlayerJoinedListener(restoreSnapshotUseCase, sessionRepo)
     wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { restoreOnJoin.handle(it) }
+
+    // WP12: per-match snapshot — save on entry (MatchStarted), restore on exit
+    // (MatchEnded). Host-neutral: the IPlayerInventoryGateway is resolved lazily
+    // (Paper registers it; headless hosts without one simply skip the capture).
+    val matchSnapshots = MatchInventorySnapshotListener(
+        gateway = { services.get<IPlayerInventoryGateway>() },
+        saveSnapshot = saveSnapshotUseCase,
+        matches = { services.get<IMatchRepository>() },
+    )
+    services.register<MatchInventorySnapshotListener>(matchSnapshots, priority = 0)
+    wave5completeSubs += eventBus.subscribe(MatchStarted::class) { matchSnapshots.handleStarted(it) }
+    wave5completeSubs += eventBus.subscribe(MatchEnded::class) { matchSnapshots.handleEnded(it) }
+
+    // WP12: personal vault (= ender chest) — `/vault` and the ender chest block
+    // share AccessPersonalVaultUseCase; the IVaultWindow is registered by the host.
+    val liveVaults = LiveVaultRepository(services)
+    val openVaultUseCase = OpenVaultUseCase(liveVaults)
+    services.register<OpenVaultUseCase>(openVaultUseCase, priority = 0)
+    services.register<SaveVaultUseCase>(SaveVaultUseCase(liveVaults), priority = 0)
+    val accessVault = AccessPersonalVaultUseCase(
+        openVault = openVaultUseCase,
+        window = { services.get<IVaultWindow>() },
+        matches = { services.get<IMatchRepository>() },
+    )
+    services.register<AccessPersonalVaultUseCase>(accessVault, priority = 0)
+    commandHandler.register(com.astarworks.astera.core.application.command.buildVaultCommandSpec(accessVault))
 
     // Wave O 5cross-server-wire (ADR-0132): close audit α#4 silent-drop —
     // PlayerArrivedOnServer / PlayerTransferRequested / ProxyHeartbeat
@@ -275,7 +312,6 @@ internal fun CoreWiringState.wireProgression() {
 
     // Silence unused-var (attributes/vault/settings/audit returned via registry for cross-plugin pickup).
     @Suppress("UNUSED_VARIABLE") val attrStoreRef = attributeContainerStore
-    @Suppress("UNUSED_VARIABLE") val vaultRef = vaultRepo
     @Suppress("UNUSED_VARIABLE") val settingsRef = settingsRepo
     @Suppress("UNUSED_VARIABLE") val auditRef = auditRepo
 }

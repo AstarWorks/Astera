@@ -25,7 +25,6 @@ import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
-import com.astarworks.astera.core.application.port.outbound.IPersonalVaultRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
@@ -148,7 +147,6 @@ internal class CoreWiringState(
     lateinit var particlesContentDir: Path
     lateinit var attributeContainerStore: IPlayerAttributeContainerStore
     lateinit var sessionRepo: IPlayerSessionRepository
-    lateinit var vaultRepo: IPersonalVaultRepository
     lateinit var settingsRepo: IPlayerSettingsRepository
     lateinit var auditRepo: IAuditLogRepository
     lateinit var snapshotRepo: IPlayerInventorySnapshotRepository

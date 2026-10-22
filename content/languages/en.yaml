@@ -14,6 +14,8 @@ astera:
       usage: "<yellow>Usage: /astera-items give <player> <item-id></yellow>"
     player-only: "<red>This command can only be run by a player.</red>"
     player-offline: "<red>You must be online to run that command.</red>"
+    vault:
+      root: "<gray>Open your personal vault (ender chest).</gray>"
     menu:
       root: "<gray>Open the main menu.</gray>"
     reload:
@@ -23,6 +25,12 @@ astera:
     profiling:
       root: "<gray>Profiling diagnostic commands (admin only).</gray>"
       export: "<green>Export profiling snapshot as flamegraph (Brendan Gregg collapsed format).</green>"
+
+  # WP12: personal vault (= ender chest), /vault + vanilla ender chest block.
+  vault:
+    title: "Personal Vault"
+    blocked-in-match: "<red>The vault cannot be opened during a match.</red>"
+    unavailable: "<red>Could not open your vault.</red>"
 
   # Wave _items-1 (ADR-0073): item / weapon content-specific i18n is now
   # inline in each content/items/<id>.yaml. The `weapon:` section is reduced
@@ -56,10 +64,6 @@ astera:
 
   # Wave 4 R3 — Declarative GUI demo (ADR-0021) + Wave 4.5 bindings (ADR-0027).
   gui:
-    loadout:
-      title: "Loadout"
-    personal_vault:
-      title: "Personal Vault"
     button:
       close: "Close"
     binding:
