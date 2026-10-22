@@ -179,6 +179,7 @@ public class PaperBarrierGateway(
         val anchor = barrier.region.min
         val location = Location(world, anchor.x, anchor.y, anchor.z)
         val display = world.spawn(location, BlockDisplay::class.java)
+        com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(display, "barrier")
         display.block = materialFor(status)
         display.transformation = scaleTransformationFor(barrier.region.min, barrier.region.max)
         // Long view range so players see the barrier from across the map.

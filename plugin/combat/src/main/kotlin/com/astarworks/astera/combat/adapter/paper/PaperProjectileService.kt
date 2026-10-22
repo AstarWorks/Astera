@@ -173,7 +173,7 @@ public class PaperProjectileService(
                     it.isShadowed = true
                 }
             }
-            entity.isPersistent = false
+            com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(entity, "projectile-display")
             entity.setGravity(false)
             entity.teleportDuration = DISPLAY_TELEPORT_TICKS
             entity.billboard = Display.Billboard.valueOf(display.billboard.name)

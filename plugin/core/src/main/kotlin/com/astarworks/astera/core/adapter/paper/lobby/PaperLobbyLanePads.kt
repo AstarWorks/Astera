@@ -61,7 +61,7 @@ internal class PaperLobbyLaneHolograms(
             val loc = Location(world, pad.x, pad.y + HEIGHT, pad.z)
             world.getChunkAt(loc).load()
             displays[lane] = world.spawn(loc, TextDisplay::class.java) { d ->
-                d.isPersistent = false
+                com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(d, "lane-pad:$lane")
                 d.addScoreboardTag(TAG)
                 d.billboard = Display.Billboard.CENTER
                 d.viewRange = 0.7f

@@ -85,6 +85,9 @@ internal class CorePaperBindings(
     /** Wave 6a-6 (ADR-0153): BukkitEventAdapter's time-polling task. */
     private var bukkitEventAdapterTimeTaskHandle: IScheduler.TaskHandle? = null
 
+    private var managedJanitor: com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntityJanitor? = null
+    private var paperHologramGateway: com.astarworks.astera.core.adapter.paper.hologram.PaperHologramGateway? = null
+
     /** Retained so [shutdown] can remove the lobby NPC bodies. */
     private var npcBodyService: com.astarworks.astera.core.adapter.paper.entity.PaperNpcBodyService? = null
     /** WP12: closed on [shutdown] so open vaults are saved. */
@@ -199,6 +202,10 @@ internal class CorePaperBindings(
             hologramGateway = { services ->
                 // Wave 6f (ADR-0163): Paper overlay routes through Bukkit Display
                 // Entity API (TextDisplay / ItemDisplay / BlockDisplay).
+                val managedRegistry = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry>()
+                val janitor = com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntityJanitor(plugin, managedRegistry)
+                janitor.start()
+                managedJanitor = janitor
                 val paperHologramGateway = com.astarworks.astera.core.adapter.paper.hologram.PaperHologramGateway(
                     server = server,
                     scheduler = scheduler,
@@ -210,7 +217,10 @@ internal class CorePaperBindings(
                     // which runs after this Core onEnable. Resolving at
                     // applyVisibility time is correct.
                     matchRepositoryLookup = { services.get<IMatchRepository>() },
+                    managed = managedRegistry,
+                    janitor = janitor,
                 )
+                this.paperHologramGateway = paperHologramGateway
                 // Wave 6g-visibility (ADR-0168) — bind the plugin reference for
                 // Player.showEntity / Player.hideEntity calls and register the
                 // JoinReapplyListener that re-applies PerPlayer visibility on
@@ -626,6 +636,10 @@ internal class CorePaperBindings(
 
     /** Paper-side teardown; the host-neutral wiring tears down via `WiringContext.close()` + `CoreWiringResult.shutdown()`. */
     fun shutdown() {
+        paperHologramGateway?.despawnAll()
+        paperHologramGateway = null
+        managedJanitor?.stop()
+        managedJanitor = null
         lobbyMenuKit?.stripAll()
         lobbyMenuKit = null
         lobbyLaneHolograms?.removeAll()

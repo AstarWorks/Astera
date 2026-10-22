@@ -53,7 +53,7 @@ internal class PaperSkillPreviewStage(plugin: JavaPlugin) : ISkillPreviewStage, 
         world.getChunkAt(targetLoc).load()
         val weapon = Material.matchMaterial(spec.weaponMaterial) ?: Material.IRON_SWORD
         val caster = world.spawn(casterLoc, Mannequin::class.java) { m ->
-            m.isPersistent = false
+            com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(m, "skill-preview")
             m.isSilent = true
             m.isInvulnerable = true
             m.isImmovable = true
@@ -62,7 +62,7 @@ internal class PaperSkillPreviewStage(plugin: JavaPlugin) : ISkillPreviewStage, 
             m.equipment.setItemInMainHand(ItemStack(weapon))
         }
         val target = world.spawn(targetLoc, Husk::class.java) { h ->
-            h.isPersistent = false
+            com.astarworks.astera.core.adapter.paper.entity.PaperManagedEntities.mark(h, "skill-preview")
             h.isSilent = true
             h.setAI(false)
             h.setGravity(false)

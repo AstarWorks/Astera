@@ -47,6 +47,12 @@ internal fun CoreWiringState.wireGameplayLoop() {
     // tick task AND publishes `HologramTransitionCancelled(reasonKind =
     // "scheduler_shutdown")` for every in-flight transition (no silent
     // leak on plugin reload).
+    // One registry of Astera-managed helper entities (owner key -> entity) for the whole server:
+    // features spawn once per owner, the Paper janitor purges strays (hologram-multiplication fix).
+    services.register<com.astarworks.astera.core.application.port.outbound.entity.IManagedEntityRegistry>(
+        com.astarworks.astera.core.application.service.entity.InMemoryManagedEntityRegistry(),
+        priority = 0,
+    )
     services.register<com.astarworks.astera.core.application.port.outbound.IHologramGateway>(
         com.astarworks.astera.core.application.service.InMemoryHologramGateway(),
         priority = 0,
