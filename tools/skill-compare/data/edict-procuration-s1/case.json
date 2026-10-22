@@ -11,7 +11,7 @@
   },
   "variant": {
     "label": "変身後 S1",
-    "implementation": "missing",
+    "implementation": "prototype",
     "order": 1
   },
   "mc": {
@@ -24,17 +24,33 @@
     "factor": 0.2,
     "windowMs": 150
   },
-  "segments": [],
-  "notes": "Procuration形態の追加参照。技同定の確度はmed。通常形態の映像・実装を代用しない。実装予定IDであり、現時点で発動する技ではない。原資料: /reference/edict-blade/extra-1.json",
+  "segments": [
+    {
+      "id": "procuration-s1-contact-1",
+      "kind": "hit",
+      "label": "接触候補1",
+      "t_s": 43.17646666666667,
+      "notes": "f1294〜1295、med確度。試作4tick。"
+    },
+    {
+      "id": "procuration-s1-contact-2",
+      "kind": "hit",
+      "label": "接触候補2（遮蔽）",
+      "t_s": 43.8438,
+      "notes": "f1314〜1320、low確度。試作21tick。見えないダメージ発生時刻は断定しない。"
+    }
+  ],
+  "notes": "Procuration形態の専用S1試作。直接発動の確認のみで、通常入力・持続変身・SP条件への接続は未実装。技同定はmed。二撃目の原動画接触候補はf1314〜1320（約17〜21tick）で、試作は21tickに命中を置く。原資料: /reference/edict-blade/extra-1.json",
   "editLog": [],
-  "status": "analysed",
+  "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "原動画の変身後技は観測済み。持続変身、専用技、バインド、実機撮影はいずれも未実装。通常形態のS1〜S3で代用して合格としない。"
+    "reason": "専用S1を直接発動して爪の展開・前進・接触を実機確認。通常入力・持続変身・SP条件への接続は未実装。曲線の黒い枝、青白い軌跡、人物姿勢、カメラは未一致。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 0,
+  "iterations": 3,
   "report": "/report/edict-blade",
-  "referenceRevision": "f1c3a46f72c16eaf6e85681b482e95f1bab5f26ca856902932022d9b913c7774"
+  "referenceRevision": "f1c3a46f72c16eaf6e85681b482e95f1bab5f26ca856902932022d9b913c7774",
+  "contentRevision": "80b3e9ffd63a22b48ab1ccc5ae34f42ec324e34b71e2fd2c932087ba925886ab"
 }

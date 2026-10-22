@@ -1,0 +1,109 @@
+id: edict-procuration-s1
+name:
+  ja: 変身後・代行する双手
+  en: Let These Hands be the Proxy with Which...
+description:
+  ja: Procurationの二群の爪撃。変身状態への接続は未実装。
+  en: Procuration claw sequence; form routing pending.
+archetype: sequence
+cooldown_ticks: 70
+resource_cost: 14
+params:
+  type: sequence
+phases:
+  type: sequence
+  cast:
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: edict-procuration-rake
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: edict-procuration-rake
+    delay_ticks:
+      type: literal
+      value: 17
+  - type: dash_strike
+    distance: 1
+    ticks: 4
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    stop_before_target: 1.2
+    invulnerable: false
+    on_hit: []
+    delay_ticks:
+      type: literal
+      value: 0
+  - type: dash_strike
+    distance: 3.6
+    ticks: 11
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    delay_ticks:
+      type: literal
+      value: 17
+  - type: damage
+    targets: &id001
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 6
+      angle_degrees:
+        type: literal
+        value: 65
+      max_count: 1
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 4
+  - type: play_vfx
+    targets: *id001
+    vfx_id: edict-impact
+    delay_ticks:
+      type: literal
+      value: 4
+  - type: damage
+    targets: *id001
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 21
+  - type: play_vfx
+    targets: *id001
+    vfx_id: edict-impact
+    delay_ticks:
+      type: literal
+      value: 21
+  - type: play_animation
+    targets:
+      type: caster
+    animation: crouch
+    ticks:
+      type: literal
+      value: 10
+    delay_ticks:
+      type: literal
+      value: 28

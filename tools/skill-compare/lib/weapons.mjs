@@ -112,7 +112,7 @@ export function buildIndex({ repo, S, mcInfo }) {
     const suf = m && w.id === m[1] ? m[2] : null;
     const tag = k.variant?.label || (suf === "ego" ? "E.G.O / Q" : suf ? suf.toUpperCase() : "case");
     if (!extra.has(w.id)) extra.set(w.id, []);
-    extra.get(w.id).push({ trigger: "", label: k.variant?.implementation === "missing" ? "未実装・未接続" : "", tag, skillId: k.skillId, ja: k.skillName, en: k.id, range: k.skillId || "-", case: k, ord: k.variant?.order ?? SUFFIX_ORDER.indexOf(suf) });
+    extra.get(w.id).push({ trigger: "", label: k.variant?.implementation === "missing" ? "未実装・未接続" : k.variant?.implementation === "prototype" ? "試作・未接続" : "", tag, skillId: k.skillId, ja: k.skillName, en: k.id, range: k.skillId || "-", case: k, ord: k.variant?.order ?? SUFFIX_ORDER.indexOf(suf) });
     used.add(k.id);
   }
   const weapons = roster.map((w) => {
