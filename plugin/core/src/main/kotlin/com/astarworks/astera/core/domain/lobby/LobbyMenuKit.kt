@@ -48,6 +48,9 @@ public class LobbyMenuKit(entries: List<KitEntry>) {
         val places = HashSet<Pair<KitArea, Int>>()
         for (e in this.entries) {
             require(ids.add(e.id)) { "duplicate kit entry id '${e.id}'" }
+            require(e.area != KitArea.HOTBAR || e.slot in HotbarLayout.KIT_SLOTS) {
+                "kit entry '${e.id}': hotbar slot ${e.slot} is in the weapon zone; kit slots are ${HotbarLayout.KIT_SLOTS}"
+            }
             require(places.add(e.area to e.slot)) { "kit slot ${e.area}/${e.slot} is used twice" }
         }
         byId = this.entries.associateBy { it.id }

@@ -19,7 +19,7 @@ class StarterGrantLoaderTest {
     @Test
     fun `load returns EMPTY when YAML is malformed`(@TempDir tmp: Path) {
         val path = tmp.resolve("starter-grant.yaml")
-        path.writeText("default_loadout: [unclosed")
+        path.writeText("starter_items: [unclosed")
 
         val result = StarterGrantLoader().load(path)
 
@@ -31,7 +31,7 @@ class StarterGrantLoaderTest {
         val path = tmp.resolve("starter-grant.yaml")
         path.writeText(
             """
-            default_loadout:
+            starter_items:
               - UpperCaseBad
             """.trimIndent(),
         )
@@ -46,7 +46,7 @@ class StarterGrantLoaderTest {
         val path = tmp.resolve("starter-grant.yaml")
         path.writeText(
             """
-            default_loadout:
+            starter_items:
               - example-sword
             wallet_grants:
               GOLD: 100
@@ -59,7 +59,7 @@ class StarterGrantLoaderTest {
 
         val result = StarterGrantLoader().load(path)
 
-        assertThat(result.defaultLoadout).hasSize(1)
+        assertThat(result.starterItems).hasSize(1)
         assertThat(result.walletGrants).hasSize(1)
         assertThat(result.tutorialAutoEnroll).isTrue
         assertThat(result.welcomeDialogId).isEqualTo("astera-welcome")

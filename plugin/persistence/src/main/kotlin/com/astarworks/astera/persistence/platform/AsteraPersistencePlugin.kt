@@ -3,7 +3,6 @@ package com.astarworks.astera.persistence.platform
 import com.astarworks.astera.core.application.port.outbound.IBlockDurabilityRepository
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IFriendshipRepository
-import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.INormaProgressRepository
 import com.astarworks.astera.core.application.port.outbound.IPartyRepository
@@ -19,6 +18,7 @@ import com.astarworks.astera.core.application.port.outbound.IPlayerSettingsRepos
 import com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository
 import com.astarworks.astera.core.application.port.outbound.IRewardBridge
 import com.astarworks.astera.core.application.port.outbound.IRegionPermissionService
+import com.astarworks.astera.core.application.port.outbound.IShopPurchaseRepository
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
 import com.astarworks.astera.core.application.port.outbound.ISkillProgressionRepository
 import com.astarworks.astera.core.application.port.outbound.IStageRegionIndex
@@ -44,7 +44,6 @@ import com.astarworks.astera.persistence.repository.PostgresCreatorRevenueReposi
 import com.astarworks.astera.persistence.repository.PostgresCurrencyIssuanceLog
 import com.astarworks.astera.persistence.repository.PostgresCurrencyLedger
 import com.astarworks.astera.persistence.repository.PostgresFriendshipRepository
-import com.astarworks.astera.persistence.repository.PostgresLoadoutRepository
 import com.astarworks.astera.persistence.repository.PostgresMarketplaceRepository
 import com.astarworks.astera.persistence.repository.PostgresMatchRepository
 import com.astarworks.astera.persistence.repository.PostgresNormaProgressRepository
@@ -65,6 +64,7 @@ import com.astarworks.astera.persistence.repository.PostgresPlayerStatsRepositor
 import com.astarworks.astera.persistence.repository.PostgresRegionPermissionService
 import com.astarworks.astera.persistence.repository.PostgresSkillProgressionRepository
 import com.astarworks.astera.persistence.repository.PostgresRewardBridge
+import com.astarworks.astera.persistence.repository.PostgresShopPurchaseRepository
 import com.astarworks.astera.persistence.repository.PostgresShopStockRepository
 import com.astarworks.astera.persistence.repository.PostgresStageRegistry
 import com.astarworks.astera.items.application.port.outbound.IItemInstanceRepository
@@ -239,10 +239,6 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             PostgresNormaProgressRepository(ctx.database),
             priority = 100,
         )
-        stage<ILoadoutRepository>(
-            PostgresLoadoutRepository(ctx.database),
-            priority = 100,
-        )
         // Wave 5e: Session + Social + Vault + Settings + Audit + InventorySnapshot.
         stage<IPersonalVaultRepository>(
             PostgresPersonalVaultRepository(ctx.database),
@@ -301,6 +297,11 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // Postgres-less fallback).
         stage<IShopStockRepository>(
             PostgresShopStockRepository(ctx.database),
+            priority = 100,
+        )
+        // ADR-0211: ownership ledger + purchase history (V64).
+        stage<IShopPurchaseRepository>(
+            PostgresShopPurchaseRepository(ctx.database),
             priority = 100,
         )
 

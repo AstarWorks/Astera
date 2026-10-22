@@ -38,7 +38,7 @@ class ReloadableLobbyContentsTest {
         val kitDir = Files.createDirectories(root.resolve("gui").resolve("kit"))
         Files.writeString(
             kitDir.resolve("lobby-kit.yaml"),
-            "entries:\n  - id: compass\n    area: hotbar\n    slot: 0\n    item: menu-compass\n    intent: gui.open\n",
+            "entries:\n  - id: compass\n    area: hotbar\n    slot: 8\n    item: menu-compass\n    intent: gui.open\n",
         )
         assertThat(contents.reload(root).failed).isZero()
         assertThat(contents.current().entries).hasSize(1)

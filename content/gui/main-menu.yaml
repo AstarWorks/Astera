@@ -1,7 +1,7 @@
 # Lobby main menu — five navigation tiles in a 9-slot single-row chest
 # (Wave 5wireup, ADR-0116 §G17).
 #
-# Tiles are placed at slots 1/2/4/6/7. Each `on_left` intent is routed by the application-layer
+# Tiles are placed at slots 1/2/3/4/6/7. Each `on_left` intent is routed by the application-layer
 # IGuiIntentRouter — adding a new intent means extending the router, not
 # editing this file.
 #
@@ -27,6 +27,13 @@ slots:
       key: lobby.shop.open
     tooltip:
       - astera.gui.main-menu.shop.tooltip
+  - type: static
+    index: 3
+    item: gui-tile-training
+    on_left:
+      key: lobby.training.travel
+    tooltip:
+      - astera.gui.main-menu.training.tooltip
   - type: static
     index: 4
     item: gui-tile-customize

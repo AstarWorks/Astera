@@ -6,52 +6,37 @@
 # crafted with, or saved into inventory snapshots / the vault.
 #
 #   area: hotbar | crafting_grid | crafting_result
-#   slot: hotbar 0..8 | crafting_grid 0..3 (row-major: 0 1 / 2 3) | crafting_result 0
+#   slot: hotbar 5..8 only (HotbarLayout: slots 0..4 belong to weapons) | crafting_grid 0..3 (row-major: 0 1 / 2 3) | crafting_result 0
 #   item: an id from content/items/ (icon, name and language come from the item)
 #   intent: any GuiIntent key; payload is passed through (gui.open {gui: <id>} opens content/gui/<id>.yaml)
 entries:
-  - id: hotbar-compass
-    area: hotbar
-    slot: 0
-    item: menu-compass
-    intent: gui.open
-    payload: { gui: main-menu }
-    lore_key: astera.lobby-kit.hint.use
-  - id: hotbar-queue
-    area: hotbar
-    slot: 1
-    item: gui-tile-queue
-    intent: lobby.queue.show
-    lore_key: astera.lobby-kit.hint.use
-  - id: hotbar-shop
-    area: hotbar
-    slot: 2
-    item: gui-tile-shop
-    intent: lobby.shop.open
-    lore_key: astera.lobby-kit.hint.use
+  # Hotbar policy (ADR-0211): the kit is compact - the four rightmost slots. Weapons (starter grant,
+  # shop, training rack, admin give) take 0..4 left to right. Everything else is one click away
+  # in the compass main menu and the crafting-grid buttons below.
   - id: hotbar-customize
     area: hotbar
-    slot: 3
+    slot: 5
     item: gui-tile-customize
     intent: lobby.customize.open
     lore_key: astera.lobby-kit.hint.use
-  - id: hotbar-training
+  - id: hotbar-shop
     area: hotbar
-    slot: 4
-    item: gui-tile-training
-    intent: lobby.training.travel
+    slot: 6
+    item: gui-tile-shop
+    intent: lobby.shop.open
     lore_key: astera.lobby-kit.hint.use
-  - id: hotbar-profile
+  - id: hotbar-queue
     area: hotbar
     slot: 7
-    item: gui-tile-profile
-    intent: lobby.profile.show
+    item: gui-tile-queue
+    intent: lobby.queue.show
     lore_key: astera.lobby-kit.hint.use
-  - id: hotbar-settings
+  - id: hotbar-compass
     area: hotbar
     slot: 8
-    item: gui-tile-settings
-    intent: lobby.settings.show
+    item: menu-compass
+    intent: gui.open
+    payload: { gui: main-menu }
     lore_key: astera.lobby-kit.hint.use
 
   # Inventory crafting grid: 2x2 input + result slot.

@@ -17,6 +17,8 @@ import com.astarworks.astera.core.domain.item.ItemId
  * @property stock How many are available.
  * @property displayKey Optional i18n key for a friendly offer name (falls
  *   back to the item's own display name when null).
+ * @property limit Ownership rule: unlock-once (default) or repeatable consumable (ADR-0211).
+ * @property category Optional tab the offer is listed under (`weapon`, `armor`, ...); null = uncategorised.
  */
 public data class ShopOffer(
     public val id: ShopOfferId,
@@ -24,4 +26,6 @@ public data class ShopOffer(
     public val price: ShopPrice,
     public val stock: ShopStock,
     public val displayKey: MessageKey? = null,
+    public val limit: PurchaseLimit = PurchaseLimit.ONCE,
+    public val category: String? = null,
 )

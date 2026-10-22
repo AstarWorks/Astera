@@ -53,6 +53,12 @@
                 },
                 "display_key": {
                     "type": "string"
+                },
+                "limit": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
                 }
             },
             "required": [

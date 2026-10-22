@@ -38,7 +38,7 @@ class InMemoryPlayerProfileServiceTest {
     @Test
     fun `createFirstTime applies the full starter grant on the happy path`() {
         val grant = StarterGrant(
-            defaultLoadout = listOf(ItemId("example-sword"), ItemId("example-wand")),
+            starterItems = listOf(ItemId("example-sword"), ItemId("example-wand")),
             walletGrants = mapOf(Currency.GOLD to 100L),
             tutorialAutoEnroll = true,
             tutorialScriptId = "getting-started",
@@ -73,7 +73,7 @@ class InMemoryPlayerProfileServiceTest {
         assertThat(profile.locale).isEqualTo("en")
         assertThat(profile.joinedAtEpochMs).isEqualTo(1_700_000_000_000L)
 
-        assertThat(service.loadoutFor(playerId)).hasSize(2)
+        assertThat(service.starterItemsFor(playerId)).hasSize(2)
         assertThat(ledger.credits).containsExactly(Credit(playerId, Currency.GOLD, 100L))
         assertThat(service.findTutorialEnrollment(playerId)).isEqualTo("getting-started")
         assertThat(service.findWelcomeDialog(playerId)).isEqualTo("astera-welcome")
@@ -100,7 +100,7 @@ class InMemoryPlayerProfileServiceTest {
     @Test
     fun `createFirstTime reports PartialGrant when a loadout item is unknown`() {
         val grant = StarterGrant(
-            defaultLoadout = listOf(ItemId("known"), ItemId("missing")),
+            starterItems = listOf(ItemId("known"), ItemId("missing")),
             walletGrants = emptyMap(),
             tutorialAutoEnroll = false,
             tutorialScriptId = null,
@@ -123,9 +123,9 @@ class InMemoryPlayerProfileServiceTest {
         val err = (outcome as Result.Failure).error
         assertThat(err).isInstanceOf(ProfileError.PartialGrant::class.java)
         assertThat((err as ProfileError.PartialGrant).failedSteps)
-            .containsExactly("default_loadout:missing")
+            .containsExactly("starter_items:missing")
         // The known item must still be granted.
-        assertThat(service.loadoutFor(playerId)).hasSize(1)
+        assertThat(service.starterItemsFor(playerId)).hasSize(1)
         // The profile must still exist — the join completes.
         assertThat(service.find(playerId)).isNotNull
     }
@@ -133,7 +133,7 @@ class InMemoryPlayerProfileServiceTest {
     @Test
     fun `createFirstTime reports failed wallet step when the ledger is missing`() {
         val grant = StarterGrant(
-            defaultLoadout = emptyList(),
+            starterItems = emptyList(),
             walletGrants = mapOf(Currency.GOLD to 50L),
             tutorialAutoEnroll = false,
             tutorialScriptId = null,
@@ -159,7 +159,7 @@ class InMemoryPlayerProfileServiceTest {
     @Test
     fun `createFirstTime reports failed tutorial step when the script is unknown`() {
         val grant = StarterGrant(
-            defaultLoadout = emptyList(),
+            starterItems = emptyList(),
             walletGrants = emptyMap(),
             tutorialAutoEnroll = true,
             tutorialScriptId = "never-registered",

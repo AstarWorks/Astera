@@ -326,7 +326,12 @@ astera:
 
   # WP12: personal vault (= ender chest), /vault + vanilla ender chest block.
   vault:
-    title: "Personal Vault"
+    title: "Personal Vault ({page}/{pages})"
+    nav:
+      prev: "<yellow>Previous page <gray>({page}/{pages})</gray></yellow>"
+      next: "<yellow>Next page <gray>({page}/{pages})</gray></yellow>"
+      sort: "<gold>Sort this page</gold> <gray>(merge stacks, order by item)</gray>"
+      page: "<white>Page {page} of {pages}</white>"
     blocked-in-match: "<red>The vault cannot be opened during a match.</red>"
     unavailable: "<red>Could not open your vault.</red>"
 
@@ -338,6 +343,25 @@ astera:
     fired: "<yellow>{player} used <gold>{item}</gold></yellow>"
     on_cooldown: "<red>{item} is on cooldown ({remaining})</red>"
     none_held: "<gray>No item equipped</gray>"
+    tooltip:
+      header: "{rarity} <dark_gray>- Lv.{level}</dark_gray>"
+      rarity:
+        common: "<white>Common</white>"
+        uncommon: "<green>Uncommon</green>"
+        rare: "<aqua>Rare</aqua>"
+        epic: "<light_purple>Epic</light_purple>"
+        legendary: "<gold>Legendary</gold>"
+      stat:
+        attack_damage: "<gray>Damage: <white>{value}</white></gray>"
+        attack_speed: "<gray>Attack speed: <white>{value}</white></gray>"
+        armor: "<gray>Armor: <white>{value}</white></gray>"
+        armor_toughness: "<gray>Toughness: <white>{value}</white></gray>"
+        max_health: "<gray>Max health: <white>+{value}</white></gray>"
+        knockback_resistance: "<gray>Knockback resistance: <white>{value}%</white></gray>"
+        move_speed: "<gray>Move speed: <white>{value}%</white></gray>"
+        magazine: "<gray>Magazine: <white>{value}</white></gray>"
+        cost_ammo: "<gray>Ammo per shot: <white>{value}</white></gray>"
+        cost_energy: "<gray>Energy per use: <white>{value}</white></gray>"
 
   permission:
     denied: "<red>You don't have permission: {permission}</red>"
@@ -383,6 +407,8 @@ astera:
         tooltip: "<gray>Click to travel to PvE / Survival / Lobby.</gray>"
       profile:
         tooltip: "<gray>Click to view your profile.</gray>"
+      training:
+        tooltip: "<gray>Click to visit the training range (try every weapon for free).</gray>"
     travel-menu:
       title: "<gold>Travel</gold>"
       pve:
@@ -451,24 +477,8 @@ astera:
       norma:
         tooltip: "<gray>Click to join the Norma rotation queue.</gray>"
 
-  weapons:
-    command:
-      # Two-arity bug guard: `gui` is both a leaf (root subcommand
-      # description) and a parent prefix (`gui.loadout`). YAML doesn't allow
-      # a scalar AND a map under the same key, so the deeper entry is written
-      # as a dotted-string key — LanguageLoader takes keyNode.content
-      # verbatim, so this still flattens to the expected
-      # `astera.weapons.command.gui.loadout` lookup key.
-      gui: "GUI commands"
-      "gui.loadout": "Open the loadout GUI"
-      "gui.loadout.player_not_online": "<red>You must be online to open this GUI.</red>"
-      "gui.loadout.not_found": "<red>Loadout GUI is not registered.</red>"
-      "gui.loadout.open_rejected": "<red>Could not open the loadout GUI.</red>"
-    loadout:
-      toggle:
-        ok: "Loadout updated."
 
-  # ── Wave 4.5 (ADR-0027): Shop / Loadout persist / Norma / Match / Spawn ──
+  # ── Wave 4.5 (ADR-0027): Shop / Norma / Match / Spawn ──
   economy:
     currency:
       star: "<yellow>STAR</yellow>"
@@ -501,15 +511,40 @@ astera:
           confirm: "<gold><bold>Click again to confirm!</bold></gold>"
           short: "<red>Need {missing} more {currency}</red>"
           sold_out: "<dark_red>Sold out</dark_red>"
+          carrying: "<green>You are carrying it</green>"
+          take_copy: "<yellow>Click to take another copy (free)</yellow>"
+        owned: "<green>Owned <dark_gray>(bought once, yours for good)</dark_gray></green>"
+        page:
+          prev: "<yellow>Previous page <gray>({page}/{pages})</gray></yellow>"
+          next: "<yellow>Next page <gray>({page}/{pages})</gray></yellow>"
+        category:
+          title: "<gold>Category: <white>{category}</white></gold>"
+          next: "<gray>Click for: <white>{category}</white></gray>"
+        history:
+          title: "<gold>Purchase history</gold>"
+          hint: "<gray>Click to see what you bought.</gray>"
+          gui_title: "Your purchases"
+          line: "<gray>{when} - paid <white>{amount}</white> {currency}</gray>"
+          back: "<yellow>Back to the shop</yellow>"
         wallet:
           title: "<gold>Your wallet</gold>"
           line: "<gray>{currency}: <white>{amount}</white></gray>"
+      category:
+        all: "All"
+        weapon: "Weapons"
+        gun: "Guns"
+        sword: "Swords"
+        staff: "Staves"
+        armor: "Armor"
+        consumable: "Consumables"
       browse:
         invalid_id: "<red>Invalid shop id: {shop}</red>"
         player_not_online: "<red>You must be online to browse the shop.</red>"
         not_found: "<red>Shop not found: {shop}</red>"
         open_rejected: "<red>Could not open shop GUI.</red>"
       purchase:
+        claimed: "<green>Took a copy of <gold>{offer}</gold> - you already own it, no charge.</green>"
+        already_carrying: "<yellow>You are already carrying that item.</yellow>"
         success: "<green>Purchased <gold>{offer}</gold> for {price} {currency}.</green>"
         failure_generic: "<red>Purchase failed.</red>"
         player_not_online: "<red>You must be online to purchase.</red>"
@@ -588,23 +623,6 @@ astera:
       fireball-cast:
         name: "<red>Fireball cast</red>"
 
-  loadout:
-    save:
-      success: "<green>Loadout slot <gold>{slot}</gold> saved.</green>"
-      failed: "<red>Failed to save loadout: {reason}</red>"
-    fetch:
-      success: "<green>Loadout loaded.</green>"
-      empty: "<gray>No loadout configured.</gray>"
-    slot:
-      main: "Main"
-      sub: "Sub"
-      move: "Movement"
-      special: "Special"
-      armor: "Armor"
-      ultimate: "Ultimate"
-    cleared: "<gray>Slot {slot} cleared.</gray>"
-    apply:
-      on_match_start: "<gray>Loadout applied for the match.</gray>"
 
   norma:
     toast: "<gold>Mission complete</gold>"
@@ -1468,8 +1486,8 @@ astera:
         name: "Travel Guide"
       refinement:
         name: "Refiner"
-      loadout:
-        name: "Loadout Tailor"
+      gear-keeper:
+        name: "Gear Keeper"
       profile:
         name: "Profile Keeper"
       settings:
@@ -1909,7 +1927,7 @@ astera:
       skill:
         tooltip: "<gray>Bind this skill.</gray>"
   tip:
-    "1": "<aqua>💡 Tip:</aqua> <gray>Open the lobby menu with the Compass to queue, edit loadouts, or browse the shop.</gray>"
+    "1": "<aqua>💡 Tip:</aqua> <gray>Open the lobby menu with the Compass to queue, open your vault, or browse the shop.</gray>"
     "2": "<aqua>💡 Tip:</aqua> <gray>Press F to cast your bound skill — bind skills via the Hotbar tile in the menu.</gray>"
     "3": "<aqua>💡 Tip:</aqua> <gray>Form a party to queue together — invite friends with <yellow>/party invite &lt;name&gt;</yellow>.</gray>"
     "4": "<aqua>💡 Tip:</aqua> <gray>Track your achievements from the Profile tile — every milestone counts.</gray>"
