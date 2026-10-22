@@ -13,10 +13,19 @@ class CommandsE2eTest : E2eBase() {
     fun `command tree is permission filtered`() {
         val player = bot("CmdPlayer")
         val admin = bot("CmdOp")
+        player.waitUntil(5_000) { player.commandTree != null }
+        // `joined` is set on the position packet, which can arrive before Paper's join-time
+        // ClientboundCommands. Snapshot the count only once the join tree has landed.
+        admin.waitUntil(5_000) { admin.commandTree != null }
         val before = admin.treeVersion()
         op(admin)
-        admin.waitUntil(6_000) { admin.treeVersion() > before }
-        player.waitUntil(5_000) { player.commandTree != null }
+        // Wait for the re-sent tree by content (the first packet after /op that shows the op subtrees),
+        // not for any packet newer than the snapshot: a late join-time tree would otherwise satisfy it.
+        val opTreeArrived = admin.waitUntil(6_000) { "items" in admin.commandTreeChildren("astera") }
+        E2eReport.check(suite, "op tree arrives after /op", "ClientboundCommands (re-sent after op)") {
+            assertThat(opTreeArrived).describedAs("no ClientboundCommands with op subtrees within 6s after /op (count before=$before, now=${admin.treeVersion()})").isTrue()
+            "ClientboundCommands count before=$before after=${admin.treeVersion()}"
+        }
 
         E2eReport.check(suite, "tree root exposes `astera` (non-op)", "ClientboundCommands") {
             assertThat(player.commandTreeRoots()).contains("astera")
