@@ -82,4 +82,24 @@ class CombatMatchBugHuntScenarioTest {
                 .doesNotContain(id)
         }
     }
+    @Test
+    fun `friendly fire uses match teams registered after combat enables`() {
+        scenario("bug-hunt-team-wiring") {
+            val red = player("red", team = "red")
+            val mate = player("mate", team = "blue")
+            val enemy = player("enemy", team = "red")
+            startMatch("norma", mapOf(red to "red", mate to "red", enemy to "blue"))
+            val damage = checkNotNull(sim.combat.applyDamage)
+            val source = com.astarworks.astera.combat.domain.damage.DamageSource.Skill(
+                com.astarworks.astera.core.domain.skill.SkillId("frost-nova"), red.id,
+            )
+            val profile = com.astarworks.astera.core.domain.damage.DamageProfile.single(
+                1.0, com.astarworks.astera.core.domain.damage.DamageAttribute.PHYSICAL,
+            )
+            assertThat(damage.execute(com.astarworks.astera.combat.domain.damage.DamageAttempt(mate.id, profile, source)))
+                .isInstanceOf(com.astarworks.astera.core.domain.Result.Failure::class.java)
+            assertThat(damage.execute(com.astarworks.astera.combat.domain.damage.DamageAttempt(enemy.id, profile, source)))
+                .isInstanceOf(com.astarworks.astera.core.domain.Result.Success::class.java)
+        }
+    }
 }
