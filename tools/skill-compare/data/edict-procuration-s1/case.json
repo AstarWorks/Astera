@@ -1,0 +1,40 @@
+{
+  "id": "edict-procuration-s1",
+  "rev": 1,
+  "videoId": "x6sc9JkW77c",
+  "start_s": 42.97626666666667,
+  "end_s": 44.8448,
+  "skill": {
+    "name": "変身後S1 — Let These Hands be the Proxy with Which...",
+    "coins": 2,
+    "asteraSkillId": "edict-procuration-s1"
+  },
+  "variant": {
+    "label": "変身後 S1",
+    "implementation": "missing",
+    "order": 1
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [],
+  "notes": "Procuration形態の追加参照。技同定の確度はmed。通常形態の映像・実装を代用しない。実装予定IDであり、現時点で発動する技ではない。原資料: /reference/edict-blade/extra-1.json",
+  "editLog": [],
+  "status": "analysed",
+  "verification": {
+    "status": "failed",
+    "reason": "原動画の変身後技は観測済み。持続変身、専用技、バインド、実機撮影はいずれも未実装。通常形態のS1〜S3で代用して合格としない。"
+  },
+  "weapon": "edict-blade",
+  "identity": "The Index Proxy Don Quixote / Procuration",
+  "iterations": 0,
+  "report": "/report/edict-blade",
+  "referenceRevision": "f1c3a46f72c16eaf6e85681b482e95f1bab5f26ca856902932022d9b913c7774"
+}

@@ -1,0 +1,40 @@
+{
+  "id": "edict-procuration-s2",
+  "rev": 1,
+  "videoId": "x6sc9JkW77c",
+  "start_s": 45.37866666666667,
+  "end_s": 48.6486,
+  "skill": {
+    "name": "変身後S2 — Procuration: Engrave",
+    "coins": 3,
+    "asteraSkillId": "edict-procuration-s2"
+  },
+  "variant": {
+    "label": "変身後 S2",
+    "implementation": "missing",
+    "order": 2
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [],
+  "notes": "Procuration形態の追加参照。技同定の確度はmed。通常形態の映像・実装を代用しない。実装予定IDであり、現時点で発動する技ではない。原資料: /reference/edict-blade/extra-2.json",
+  "editLog": [],
+  "status": "analysed",
+  "verification": {
+    "status": "failed",
+    "reason": "原動画の変身後技は観測済み。持続変身、専用技、バインド、実機撮影はいずれも未実装。通常形態のS1〜S3で代用して合格としない。"
+  },
+  "weapon": "edict-blade",
+  "identity": "The Index Proxy Don Quixote / Procuration",
+  "iterations": 0,
+  "report": "/report/edict-blade",
+  "referenceRevision": "b37d2efcfa09e705a57c7ad5b5990b2f325a2a39a2eaff45b1c7a565488cd70e"
+}

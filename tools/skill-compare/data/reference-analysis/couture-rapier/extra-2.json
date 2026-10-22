@@ -1,0 +1,632 @@
+{
+  "video_id": "GIe7Fna5LD4",
+  "identity": "Haute Couture::Alteration Shop Rodion",
+  "source_video": "../../vid/GIe7Fna5LD4.mp4",
+  "kit_source": "../../wiki/GIe7Fna5LD4.md",
+  "fps_num": 30000,
+  "fps_den": 1001,
+  "frame_indexing": "Zero-based source decoded frames. Intervals are [start,end). Source is 29.97002997 fps, not exactly 30.",
+  "measurement_note": "Distances and hex colors are visual estimates, not world coordinates or colorimeter samples. Frame precision applies to visible events; obscured contact is explicitly bounded. No HUD coin/name labels are visible.",
+  "review": "Whole video viewed at 6 fps; every source frame 330–1649 viewed in 44 contact sheets; selected frames enlarged. Old reports read only after the independent frame pass.",
+  "slot": "extra-2",
+  "official_name": "Cutout (S2-2; probable passive follow-up)",
+  "attack_type": "slash",
+  "observed": true,
+  "start_frame": 1414,
+  "end_frame_exclusive": 1618,
+  "start_s": 47.180467,
+  "end_s": 53.987267,
+  "official_coins": 2,
+  "mapping_confidence": "med",
+  "mapping_evidence": [
+    "Two contact clusters: falling fan around f1514 and giant closing shears around f1586–1587.",
+    "Occurs after supported hat-wearing ally attacks; kit passive changes follow-up to Cutout if target has Mark of Shearing. The preceding Patterning-like effects/marks are visually compatible, but status HUD is absent.",
+    "Do not call this E.G.O just because the framing is elaborate; no E.G.O card or name appears."
+  ],
+  "weapon": {
+    "type": "Ornate oversized tailoring shears / separable scissor blades",
+    "size_body_heights": [
+      1,
+      1.5
+    ],
+    "held": "Rodion gestures with raised hand while multiple shears move independently. Giant finisher shears are detached and overhead; Rodion remains on ground to target left.",
+    "parts": "Long paired narrow pointed dark blades, angular open diamond/polygon handle loops, pale flower cluster at the hinge, segmented/linked-looking silver contours. Closed blades can resemble a spear; open blades establish the scissor shape.",
+    "colors_hex": {
+      "blade": "#373536",
+      "edge": "#C8C6C3",
+      "handle": "#302D31",
+      "flowers": "#F2EEEA"
+    },
+    "evidence": [
+      "sheets/weapon_01.jpg",
+      "sheets/weapon_02.jpg",
+      "sheets/weapon_03.jpg"
+    ]
+  },
+  "props": [
+    {
+      "start_frame": 1423,
+      "end_frame_exclusive": 1461,
+      "start_s": 47.480767,
+      "end_s": 48.7487,
+      "object": "Ornate/outline shears gathering around raised hand",
+      "count": "approximately 5",
+      "size_body_heights": [
+        1,
+        1.5
+      ],
+      "origin": "Around and above Rodion",
+      "path": "Arrive on white linked trails, interlock into a radial bouquet."
+    },
+    {
+      "start_frame": 1461,
+      "end_frame_exclusive": 1514,
+      "start_s": 48.7487,
+      "end_s": 50.517133,
+      "object": "Five discernible airborne shears/blades in fan",
+      "count": 5,
+      "size_body_heights": [
+        1,
+        1.5
+      ],
+      "origin": "Bouquet above caster",
+      "path": "Travel right on curved glowing paths; align points downward over target, pause, then plunge. Background hanging outlines are excluded from count."
+    },
+    {
+      "start_frame": 1548,
+      "end_frame_exclusive": 1608,
+      "start_s": 51.6516,
+      "end_s": 53.6536,
+      "object": "Single giant decorated scissor pair",
+      "count": 1,
+      "size_body_heights": [
+        2,
+        3
+      ],
+      "origin": "Above target; luminous vertical trail rises before reveal",
+      "path": "Rise/assemble into open X; hover approximately 3–4 H above target; move down and close vertically through target. Caster does not leap."
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 1403,
+      "end_frame_exclusive": 1414,
+      "start_s": 46.813433,
+      "end_s": 47.180467,
+      "kind": "setup",
+      "description": "Standing by ally markers, about 3–4 H left of target."
+    },
+    {
+      "start_frame": 1414,
+      "end_frame_exclusive": 1461,
+      "start_s": 47.180467,
+      "end_s": 48.7487,
+      "kind": "summon",
+      "description": "Raise directing hand, slight torso lean; stays grounded."
+    },
+    {
+      "start_frame": 1461,
+      "end_frame_exclusive": 1548,
+      "start_s": 48.7487,
+      "end_s": 51.6516,
+      "kind": "remote_volley",
+      "description": "Hand directs curved flights; no advance to target."
+    },
+    {
+      "start_frame": 1548,
+      "end_frame_exclusive": 1618,
+      "start_s": 51.6516,
+      "end_s": 53.987267,
+      "kind": "remote_finisher",
+      "description": "Remains on left ground while giant scissors operate over target; held recovery. No teleport or airborne caster is visible."
+    }
+  ],
+  "hits": [
+    {
+      "coin": 1,
+      "contact_frame": 1514,
+      "contact_s": 50.517133,
+      "contact": "Falling fan of detached pointed shears/blades reaches target in one impact cluster; f1509 is overhead launch flare, not yet target contact.",
+      "range_class": "ranged_projectile",
+      "caster_target_distance_body_heights": [
+        3,
+        4
+      ],
+      "evidence": [
+        "sheets/detail_40.jpg"
+      ],
+      "contact_frame_bounds": [
+        1513,
+        1514
+      ],
+      "projectile_count": 5
+    },
+    {
+      "coin": 2,
+      "contact_frame": 1586,
+      "contact_s": 52.919533,
+      "contact": "Giant detached floral scissors descend and close through enemy; first target overlap visible f1586, closure flash f1587.",
+      "range_class": "aoe_at_target",
+      "caster_target_distance_body_heights": [
+        3,
+        4
+      ],
+      "evidence": [
+        "sheets/detail_42.jpg"
+      ],
+      "contact_frame_bounds": [
+        1584,
+        1587
+      ],
+      "impact_flash_frame": 1587,
+      "range_note": "Remote target-centered scissor closure; could also be implemented as a descending projectile. This is not caster melee."
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 1414,
+      "end_frame_exclusive": 1423,
+      "start_s": 47.180467,
+      "end_s": 47.480767,
+      "kind": "wind_up",
+      "description": "Close Rodion view; hand up."
+    },
+    {
+      "start_frame": 1423,
+      "end_frame_exclusive": 1434,
+      "start_s": 47.480767,
+      "end_s": 47.8478,
+      "kind": "summon",
+      "description": "White linked arcs sweep around hand; bright motes."
+    },
+    {
+      "start_frame": 1434,
+      "end_frame_exclusive": 1455,
+      "start_s": 47.8478,
+      "end_s": 48.5485,
+      "kind": "gather",
+      "description": "Several tools collect into radial structure above caster."
+    },
+    {
+      "start_frame": 1455,
+      "end_frame_exclusive": 1461,
+      "start_s": 48.5485,
+      "end_s": 48.7487,
+      "kind": "camera_punch",
+      "description": "Six-frame close-up of floral hinge and radiating blades."
+    },
+    {
+      "start_frame": 1461,
+      "end_frame_exclusive": 1494,
+      "start_s": 48.7487,
+      "end_s": 49.8498,
+      "kind": "projectile_paths",
+      "description": "Five shears curl rightward on separate arcs."
+    },
+    {
+      "start_frame": 1494,
+      "end_frame_exclusive": 1509,
+      "start_s": 49.8498,
+      "end_s": 50.3503,
+      "kind": "aim_hold",
+      "description": "Overhead fan points down at target."
+    },
+    {
+      "start_frame": 1509,
+      "end_frame_exclusive": 1513,
+      "start_s": 50.3503,
+      "end_s": 50.483767,
+      "kind": "launch_flash",
+      "description": "Bright overhead fan, not ground contact."
+    },
+    {
+      "start_frame": 1513,
+      "end_frame_exclusive": 1514,
+      "start_s": 50.483767,
+      "end_s": 50.517133,
+      "kind": "descent_cut_in",
+      "description": "One-frame pointed blades falling toward target."
+    },
+    {
+      "start_frame": 1514,
+      "end_frame_exclusive": 1518,
+      "start_s": 50.517133,
+      "end_s": 50.6506,
+      "kind": "hit_1_cut_in",
+      "description": "Overexposed close target impact."
+    },
+    {
+      "start_frame": 1518,
+      "end_frame_exclusive": 1534,
+      "start_s": 50.6506,
+      "end_s": 51.184467,
+      "kind": "hit_1_recovery",
+      "description": "Ground-centered spray and white oval shock ripple; blades momentarily remain embedded."
+    },
+    {
+      "start_frame": 1534,
+      "end_frame_exclusive": 1548,
+      "start_s": 51.184467,
+      "end_s": 51.6516,
+      "kind": "pause",
+      "description": "Sparkles fall; caster holds at left."
+    },
+    {
+      "start_frame": 1548,
+      "end_frame_exclusive": 1563,
+      "start_s": 51.6516,
+      "end_s": 52.1521,
+      "kind": "finisher_setup",
+      "description": "Vertical luminous trails rise; single giant decorated pair appears overhead."
+    },
+    {
+      "start_frame": 1563,
+      "end_frame_exclusive": 1580,
+      "start_s": 52.1521,
+      "end_s": 52.719333,
+      "kind": "hold",
+      "description": "Open X-shaped shears held over target."
+    },
+    {
+      "start_frame": 1580,
+      "end_frame_exclusive": 1584,
+      "start_s": 52.719333,
+      "end_s": 52.8528,
+      "kind": "descent",
+      "description": "Camera follows down; tool partly exits upper frame then drops."
+    },
+    {
+      "start_frame": 1584,
+      "end_frame_exclusive": 1586,
+      "start_s": 52.8528,
+      "end_s": 52.919533,
+      "kind": "close_insert",
+      "description": "Two-frame giant tool/bright sweeping arcs before clear target view."
+    },
+    {
+      "start_frame": 1586,
+      "end_frame_exclusive": 1587,
+      "start_s": 52.919533,
+      "end_s": 52.9529,
+      "kind": "contact",
+      "description": "Target under floral hinge; long blades overlap body."
+    },
+    {
+      "start_frame": 1587,
+      "end_frame_exclusive": 1589,
+      "start_s": 52.9529,
+      "end_s": 53.019633,
+      "kind": "closure_flash",
+      "description": "Two overexposed close-up frames."
+    },
+    {
+      "start_frame": 1589,
+      "end_frame_exclusive": 1602,
+      "start_s": 53.019633,
+      "end_s": 53.4534,
+      "kind": "finisher",
+      "description": "Huge white crescent pair closes around target; gold ring and petals."
+    },
+    {
+      "start_frame": 1602,
+      "end_frame_exclusive": 1618,
+      "start_s": 53.4534,
+      "end_s": 53.987267,
+      "kind": "recovery",
+      "description": "Pull out; X lines dissolve, particle fall, tool cluster remains at target."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 1423,
+      "end_frame_exclusive": 1461,
+      "start_s": 47.480767,
+      "end_s": 48.7487,
+      "shape": "Braided arcs, white motes, radial blade bouquet",
+      "size_body_heights": [
+        2,
+        3
+      ],
+      "position": "Above Rodion",
+      "colors_hex": [
+        "#FFFFFF",
+        "#E8CFD2",
+        "#50444D"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Arcs coil inward, tools rotate into bouquet; occasional flower spark pulses.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 1461,
+      "end_frame_exclusive": 1494,
+      "start_s": 48.7487,
+      "end_s": 49.8498,
+      "shape": "Five dotted curving trails",
+      "size_body_heights": [
+        4,
+        6
+      ],
+      "position": "Caster overhead to target overhead",
+      "colors_hex": [
+        "#FFFEF8",
+        "#D8C5CC"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Long arcing flights; trails shorten as tools stop.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 1509,
+      "end_frame_exclusive": 1513,
+      "start_s": 50.3503,
+      "end_s": 50.483767,
+      "shape": "Overhead star/fan flashes",
+      "size_body_heights": [
+        2,
+        3
+      ],
+      "position": "Above target",
+      "colors_hex": [
+        "#FFFFFF",
+        "#ECD5D6"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Flash down along aligned blades.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 1514,
+      "end_frame_exclusive": 1534,
+      "start_s": 50.517133,
+      "end_s": 51.184467,
+      "shape": "White spiked impact cluster and flat oval floor shockwave",
+      "size_body_heights": [
+        2,
+        3
+      ],
+      "position": "Target and feet",
+      "colors_hex": [
+        "#FFFFFF",
+        "#E8C2CB",
+        "#FF973A"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Plunge then lateral ripple, petals/debris scatter.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 1548,
+      "end_frame_exclusive": 1563,
+      "start_s": 51.6516,
+      "end_s": 52.1521,
+      "shape": "Narrow rising braided light streams",
+      "size_body_heights": [
+        2,
+        3
+      ],
+      "position": "Directly above target",
+      "colors_hex": [
+        "#FFFFFF",
+        "#E6C9CD"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Rise vertically and gather at floating hinge.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 1584,
+      "end_frame_exclusive": 1608,
+      "start_s": 52.8528,
+      "end_s": 53.6536,
+      "shape": "Opposed huge white/pink crescents, vertical flash, gold target circle",
+      "size_body_heights": [
+        3,
+        5
+      ],
+      "position": "Around and through target",
+      "colors_hex": [
+        "#FFFFFF",
+        "#E5C3CB",
+        "#DED949",
+        "#FF9E3C"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Crescents close inward, then expand into horizontal X slivers and petals.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 1602,
+      "end_frame_exclusive": 1618,
+      "start_s": 53.4534,
+      "end_s": 53.987267,
+      "shape": "White falling petals and thin cross slashes",
+      "size_body_heights": [
+        0.03,
+        0.2
+      ],
+      "position": "Target volume",
+      "colors_hex": [
+        "#FFFEF8",
+        "#D3B8C4"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Float outward and fall to ground.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 1414,
+      "end_frame_exclusive": 1425,
+      "start_s": 47.180467,
+      "end_s": 47.5475,
+      "shot": "close caster",
+      "framing": "Rodion half frame height; hand and hovering tools above.",
+      "transition": "Punch at f1414"
+    },
+    {
+      "start_frame": 1425,
+      "end_frame_exclusive": 1434,
+      "start_s": 47.5475,
+      "end_s": 47.8478,
+      "shot": "medium caster",
+      "framing": "Tilt/shift up slightly to show incoming curves.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 1434,
+      "end_frame_exclusive": 1455,
+      "start_s": 47.8478,
+      "end_s": 48.5485,
+      "shot": "medium-wide",
+      "framing": "Caster bottom-center, bouquet above.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 1455,
+      "end_frame_exclusive": 1461,
+      "start_s": 48.5485,
+      "end_s": 48.7487,
+      "shot": "extreme tool close-up",
+      "framing": "Floral hub and radiating blades dominate; head cropped at bottom.",
+      "transition": "Six-frame punch"
+    },
+    {
+      "start_frame": 1461,
+      "end_frame_exclusive": 1494,
+      "start_s": 48.7487,
+      "end_s": 49.8498,
+      "shot": "wide tracking right",
+      "framing": "Caster left, curved projectiles across upper field toward target.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 1494,
+      "end_frame_exclusive": 1509,
+      "start_s": 49.8498,
+      "end_s": 50.3503,
+      "shot": "high target framing",
+      "framing": "Tilt up: five pointed tools in upper/middle frame; target near lower edge.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 1509,
+      "end_frame_exclusive": 1513,
+      "start_s": 50.3503,
+      "end_s": 50.483767,
+      "shot": "close overhead launch",
+      "framing": "Bright stars fill upper field.",
+      "transition": "Punch"
+    },
+    {
+      "start_frame": 1513,
+      "end_frame_exclusive": 1514,
+      "start_s": 50.483767,
+      "end_s": 50.517133,
+      "shot": "descent insert",
+      "framing": "One frame: blades point down toward small target.",
+      "transition": "One-frame cut"
+    },
+    {
+      "start_frame": 1514,
+      "end_frame_exclusive": 1518,
+      "start_s": 50.517133,
+      "end_s": 50.6506,
+      "shot": "extreme target impact",
+      "framing": "Blade shafts and white flare fill view.",
+      "transition": "Hard cut"
+    },
+    {
+      "start_frame": 1518,
+      "end_frame_exclusive": 1548,
+      "start_s": 50.6506,
+      "end_s": 51.6516,
+      "shot": "wide",
+      "framing": "Pull out to caster left and target right with floor visible.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 1548,
+      "end_frame_exclusive": 1563,
+      "start_s": 51.6516,
+      "end_s": 52.1521,
+      "shot": "upward target track",
+      "framing": "Target drops to bottom while giant tool rises.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 1563,
+      "end_frame_exclusive": 1580,
+      "start_s": 52.1521,
+      "end_s": 52.719333,
+      "shot": "high hold",
+      "framing": "Open scissors in upper middle; enemy low.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 1580,
+      "end_frame_exclusive": 1584,
+      "start_s": 52.719333,
+      "end_s": 52.8528,
+      "shot": "downward track",
+      "framing": "Follow dropping tool.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 1584,
+      "end_frame_exclusive": 1586,
+      "start_s": 52.8528,
+      "end_s": 52.919533,
+      "shot": "extreme shear close-up",
+      "framing": "Blades and curved light fill frame.",
+      "transition": "Two-frame insert"
+    },
+    {
+      "start_frame": 1586,
+      "end_frame_exclusive": 1587,
+      "start_s": 52.919533,
+      "end_s": 52.9529,
+      "shot": "close target",
+      "framing": "Floral hinge above enemy halo.",
+      "transition": "One-frame target reveal"
+    },
+    {
+      "start_frame": 1587,
+      "end_frame_exclusive": 1589,
+      "start_s": 52.9529,
+      "end_s": 53.019633,
+      "shot": "extreme flash",
+      "framing": "Two-frame white/pink closure glare.",
+      "transition": "Punch"
+    },
+    {
+      "start_frame": 1589,
+      "end_frame_exclusive": 1602,
+      "start_s": 53.019633,
+      "end_s": 53.4534,
+      "shot": "close to wide",
+      "framing": "Target centered; slowly expose paired arcs and caster left.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 1602,
+      "end_frame_exclusive": 1618,
+      "start_s": 53.4534,
+      "end_s": 53.987267,
+      "shot": "wide",
+      "framing": "Return to stable field; target retains blade cluster.",
+      "transition": "Continuous reframing / scale change"
+    }
+  ],
+  "contact_sheets": [
+    "sheets/detail_37.jpg",
+    "sheets/detail_38.jpg",
+    "sheets/detail_39.jpg",
+    "sheets/detail_40.jpg",
+    "sheets/detail_41.jpg",
+    "sheets/detail_42.jpg",
+    "sheets/detail_43.jpg"
+  ],
+  "limitations": []
+}
