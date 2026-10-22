@@ -82,6 +82,21 @@ class ShopOwnershipAndBrowseTest {
     private fun slot(i: Int) = spec().slotAt(SlotIndex(i))
 
     @Test
+    fun `an owned unlock can be reclaimed after the authored stock becomes zero`() {
+        val original = offer("o", "sword")
+        register(original)
+        purchase.execute(playerId, shopId, original.id)
+        register(original.copy(stock = ShopStock.Limited(0)))
+
+        val result = purchase.execute(playerId, shopId, original.id) as Result.Success
+
+        assertThat(result.value.claimed).isTrue()
+        assertThat(ledger.balance(playerId, Currency.STAR)).isEqualTo(990L)
+        assertThat(delivery.delivered).hasSize(2)
+        assertThat(purchases.count(playerId, shopId, original.id)).isEqualTo(1)
+    }
+
+    @Test
     fun `a once-only unlock is paid once and re-clicking hands out a free copy`() {
         register(offer("o", "sword"))
         assertThat(purchase.execute(playerId, shopId, ShopOfferId("o"))).isInstanceOf(Result.Success::class.java)
