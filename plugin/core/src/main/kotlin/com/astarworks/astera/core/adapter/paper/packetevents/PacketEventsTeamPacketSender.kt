@@ -65,6 +65,6 @@ public class PacketEventsTeamPacketSender : ITeamPacketSender {
             WrapperPlayServerTeams.OptionData.NONE,
         )
         val packet = WrapperPlayServerTeams(teamName, WrapperPlayServerTeams.TeamMode.UPDATE, info)
-        PacketEvents.getAPI().playerManager.getUser(player).sendPacket(packet)
+        PacketEvents.getAPI().playerManager.getUser(player)?.sendPacket(packet)
     }
 }

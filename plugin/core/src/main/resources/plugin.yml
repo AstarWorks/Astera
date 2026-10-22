@@ -1,7 +1,7 @@
 name: Astera-Core
 version: '${version}'
 main: com.astarworks.astera.core.platform.AsteraCorePlugin
-api-version: '1.21'
+api-version: '26.3'
 authors: [AstarWorks]
 description: Astera core plugin — shared domain, ServiceRegistry, IDomainEventBus, Paper adapter scaffolding (ADR-0022).
 website: https://github.com/AstarWorks/Astera

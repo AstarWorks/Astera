@@ -31,7 +31,7 @@ services:
       # https://www.minecraft.net/en-us/eula
       EULA: "TRUE"
       TYPE: "PAPER"
-      VERSION: "26.1.2"
+      VERSION: "26.3"
       MEMORY: "4G"
       USE_AIKAR_FLAGS: "true"
       MAX_PLAYERS: "20"

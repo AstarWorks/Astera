@@ -110,7 +110,7 @@ Where RTM made a choice that doesn't meet Astera's cleanliness / decoupling / te
 | Persistent player data fragmented (Vault / Level / Settings / Skin / Donate as separate entities) | Joins require N reads; cross-cutting updates fragile | **One `PlayerProfile` row + JSONB fields** (Postgres) | ADR-0005 |
 | i18n: per-file YAML + raw `{key}` substitution | No plural / gender / number formatting; no compile-time key check | **`MessageKey` value class** + ICU MessageFormat (Phase 2 mid extension) | §11 (Result + MessageKey) |
 | ~0 test coverage | Refactoring is terrifying | **`domain` ≥ 90% line cov, `application` ≥ 80%**; test-fixtures module provides reusable fakes | [[testing-strategy]] |
-| JVM 17 + Paper 1.20.4 baseline | Already a year behind Minecraft 1.21+ | **JDK 25 + Paper 26.1.x** + monthly dep-bump discipline | ADR-0003, ADR-0012 |
+| JVM 17 + Paper 1.20.4 baseline | Already a year behind Minecraft 1.21+ | **JDK 25 + Paper 26.3** + monthly dep-bump discipline | ADR-0003, ADR-0012 |
 | No ADRs / no incident archive | Every design choice has to be re-discovered from `git log` | **16 ADRs** + [[../incidents]] template | [[../README]] |
 | Scheduler: tick-only callback API | Tick-rate assumptions baked into call sites; coroutines unavailable | **Coroutine-first `IScheduler`** (Duration param + `suspend awaitTicks` + `mainDispatcher`/`asyncDispatcher`) | [[adr/0011-phase-1-implementation-deviations]] + 計画書 §14.1 |
 | External plugin dependencies (11 required in RTM) | Each upstream stagnation blocks Astera releases | **Vanilla + self-build first** (0 plugins required) — `IItemRegistry` / `IProjectileService` / `ICommandHandler` Astera-owned | [[adr/0015-external-plugin-interrogation]] |

@@ -2,7 +2,7 @@
 
 ## Toolchain
 
-- **Kotlin 2.2** / **JDK 25** / **Paper 26.1.x**.
+- **Kotlin 2.2** / **JDK 25** / **Paper 26.3**.
 - Kotlin emits JVM_24 bytecode (the Kotlin 2.2 compiler ceiling). Java
   compiles to JVM_25 so Paper 26 Maven variants resolve correctly. See
   `gradle.properties` — `kotlin.jvm.target.validation.mode=warning` is set

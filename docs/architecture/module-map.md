@@ -49,7 +49,7 @@ Astera/
 
 ### `plugin:adapter:minecraft-impl-paper`
 - **パッケージ**: `com.astarworks.astera.adapter.paper.*`
-- **依存**: `:plugin:adapter:minecraft-api` + `io.papermc.paper:paper-api:26.1.x` (compileOnly)
+- **依存**: `:plugin:adapter:minecraft-api` + `io.papermc.paper:paper-api:26.3` (compileOnly)
 - **責務**: `IMc*` を Bukkit API で具象化
 
 ### `plugin:adapter:persistence-postgres`

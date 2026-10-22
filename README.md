@@ -4,8 +4,8 @@
 > Official AstarWorks project.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Minecraft](https://img.shields.io/badge/Minecraft-Java%2026.1.x-green.svg)
-![Paper](https://img.shields.io/badge/Paper-26.1.x-orange.svg)
+![Minecraft](https://img.shields.io/badge/Minecraft-Java%2026.3-green.svg)
+![Paper](https://img.shields.io/badge/Paper-26.3-orange.svg)
 ![JDK](https://img.shields.io/badge/JDK-25-red.svg)
 ![Status](https://img.shields.io/badge/status-core%20vision%20playable-green.svg)
 
@@ -54,7 +54,7 @@ Why: see [`docs/adr/0022-multi-plugin-portable-architecture.md`](docs/adr/0022-m
 ./gradlew shadowJar
 cp docker/.env.example docker/.env
 docker compose -f docker/docker-compose.yml up -d
-# Connect Minecraft Java client (26.1.x) to localhost:25565
+# Connect Minecraft Java client (26.3) to localhost:25565
 /astera-items give <yourName> knight-sword
 ```
 
@@ -62,7 +62,7 @@ Just want to compile and run unit + architecture tests? `./gradlew check`.
 
 ## Tech stack
 
-- **Kotlin 2.2** / **JDK 25** / **Paper 26.1.x**
+- **Kotlin 2.2** / **JDK 25** / **Paper 26.3**
 - **Gradle 9.5.1** + version catalog (single source of truth for dependencies)
 - **Koin** (DI, single — no Dagger/Spring stack)
 - **kaml** (YAML config)
