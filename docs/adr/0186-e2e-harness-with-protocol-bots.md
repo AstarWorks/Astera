@@ -95,3 +95,26 @@ directly against `127.0.0.1:25570` (RCON `25571`).
 - Fake-player Paper plugin: misses the client codec / command-tree view, ships test code in a plugin.
 - Testcontainers from the JVM test: needs the host to reach container ports, which is not true on
   the shared-daemon dev boxes.
+
+## Addendum (QA-3, 2026-10-22): per-checkout isolation
+
+Two agents running `make e2e` from different worktrees used to clash on the fixed compose project
+`astera-e2e`, the image tags `:e2e`, the runner container name and the host ports 25570/25571/8098.
+The "Running" section above still describes the old fixed names; this addendum supersedes those
+details (the decision itself is unchanged).
+
+- **Checkout id.** `scripts/e2e.sh` derives `ASTERA_E2E_ID` = first 8 hex chars of sha256 of the
+  canonical checkout path. Override with `E2E_ID=<id>`. `tools/e2e/build.gradle.kts` derives the same
+  value (`-Pe2e.id`, then `$ASTERA_E2E_ID`, then the path hash), so host-mode runs find the right project.
+- **Names.** Compose project `astera-e2e-<id>` (`name:` in the compose file interpolates the id and
+  `-p` is always passed); image tags `astera/*:e2e-<id>`; every built image carries the label
+  `astera.e2e.id=<id>`; runner container `astera-e2e-<id>-runner`; the `e2e-data` volume belongs to the project.
+- **Ports.** Host ports are ephemeral (`127.0.0.1::25565`, `127.0.0.1::25575`, `127.0.0.1::80`), so
+  nothing fixed is shared. The suite runs inside the compose network and does not need them. The pack
+  URL pushed to clients is the in-network `http://e2e-resource-pack/astera.zip` (bots never download it).
+  Host-mode runs read the port with `docker compose -p astera-e2e-<id> ... port e2e 25565` and pass
+  `-Pe2e.port=` / `-Pe2e.rconPort=`.
+- **Cleanup.** `make e2e-down` (= `scripts/e2e.sh down`) removes only this checkout's project
+  (`down -v --rmi all`), then the images and volumes still labelled with this id.
+- **Unchanged.** `E2E_KEEP=1` and `E2E_REUSE=1` keep their meaning. Shared BuildKit gradle cache id
+  `astera-e2e-gradle` is intentionally shared (Gradle locks its caches).

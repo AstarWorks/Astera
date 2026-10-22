@@ -5,14 +5,21 @@
 # under any offline name. It is NOT part of the dev stack: separate compose project
 # (`astera-e2e`), own volume, ports bound to 127.0.0.1 only, behind the `e2e` profile.
 #
-#   docker compose -p astera-e2e -f docker/docker-compose.e2e.yml --profile e2e up -d --build e2e e2e-resource-pack
+#   ASTERA_E2E_ID=<id> docker compose -p astera-e2e-<id> -f docker/docker-compose.e2e.yml --profile e2e up -d --build e2e e2e-resource-pack
+#
+# QA-3: every run is isolated per checkout. `scripts/e2e.sh` derives ASTERA_E2E_ID (default: first 8
+# hex chars of sha256 of the checkout path, overridable with E2E_ID=...) and that id is used for the
+# compose project (`astera-e2e-<id>`), image tags (`:e2e-<id>`), the `astera.e2e.id` image label,
+# the runner container name and the volume. Host ports are ephemeral (`127.0.0.1::<port>`), so two
+# checkouts never fight over 25570/8098; the runner reaches the backend over the compose network.
+# Find the host port of a running backend with: `docker compose -p astera-e2e-<id> ... port e2e 25565`.
 #
 # No Postgres / Redis: the in-memory repositories apply when ASTERA_PG_URL /
 # ASTERA_REDIS_URI are unset (role `all` needs no cross-server transfer).
 # The image is built from the same Dockerfile as the dev stack but tagged
 # `astera/minecraft-server:e2e` so it never replaces the dev image.
 
-name: astera-e2e
+name: astera-e2e-${ASTERA_E2E_ID:-local}
 
 services:
   e2e:
@@ -20,12 +27,14 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    image: astera/minecraft-server:e2e
+      labels:
+        astera.e2e.id: "${ASTERA_E2E_ID:-local}"
+    image: astera/minecraft-server:e2e-${ASTERA_E2E_ID:-local}
     stdin_open: true
     tty: true
     ports:
-      - "127.0.0.1:${ASTERA_E2E_PORT:-25570}:25565"
-      - "127.0.0.1:${ASTERA_E2E_RCON_PORT:-25571}:25575"
+      - "127.0.0.1::25565"
+      - "127.0.0.1::25575"
     environment:
       EULA: "TRUE"
       TYPE: "PAPER"
@@ -50,7 +59,8 @@ services:
       ASTERA_SERVER_NAME: "e2e"
       ASTERA_METRICS_ENABLED: "false"
       # Pack URL as a client would see it; the sha1 is read inside the network.
-      ASTERA_RESOURCE_PACK_URL: "http://localhost:${ASTERA_E2E_PACK_PORT:-8098}/astera.zip"
+      # Bots never download the pack (they only record the push packet), so the URL is an in-network name.
+      ASTERA_RESOURCE_PACK_URL: "http://e2e-resource-pack/astera.zip"
       ASTERA_RESOURCE_PACK_SHA1_URL: "http://e2e-resource-pack/astera.zip.sha1"
     volumes:
       - e2e-data:/data
@@ -69,9 +79,11 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.resource-pack
-    image: astera/resource-pack:e2e
+      labels:
+        astera.e2e.id: "${ASTERA_E2E_ID:-local}"
+    image: astera/resource-pack:e2e-${ASTERA_E2E_ID:-local}
     ports:
-      - "127.0.0.1:${ASTERA_E2E_PACK_PORT:-8098}:80"
+      - "127.0.0.1::80"
 
   # The bot suite, run inside the compose network (see docker/Dockerfile.e2e-runner for why).
   # `make e2e` builds it and runs it with `docker compose run`, then copies the report out.
@@ -80,7 +92,9 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.e2e-runner
-    image: astera/e2e-runner:e2e
+      labels:
+        astera.e2e.id: "${ASTERA_E2E_ID:-local}"
+    image: astera/e2e-runner:e2e-${ASTERA_E2E_ID:-local}
     environment:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
     command:
@@ -94,6 +108,7 @@ services:
       - -Pe2e.rconPort=25575
       - -Pe2e.rconPassword=${RCON_PASSWORD:-astera-e2e}
       - -Pe2e.serverLog=/e2e-server/logs/latest.log
+      - -Pe2e.id=${ASTERA_E2E_ID:-local}
     volumes:
       # The backend's latest.log, read-only: lets checks assert on server-side log lines (HUD diagnostics).
       - e2e-data:/e2e-server:ro

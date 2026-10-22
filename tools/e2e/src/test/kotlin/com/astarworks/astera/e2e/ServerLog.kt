@@ -8,7 +8,7 @@ object ServerLog {
         val path = System.getProperty("astera.e2e.serverLog")
         if (path != null && File(path).exists()) return File(path).readText()
         return runCatching {
-            val p = ProcessBuilder("docker", "logs", "astera-e2e-e2e-1").redirectErrorStream(true).start()
+            val p = ProcessBuilder("docker", "logs", "${E2eEnv.project}-e2e-1").redirectErrorStream(true).start()
             val out = p.inputStream.bufferedReader().readText()
             p.waitFor()
             out
