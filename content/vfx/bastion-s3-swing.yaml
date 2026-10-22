@@ -1,49 +1,51 @@
-# Zwei S3 beat 1 (cast tick 0-30): the greatsword is dragged low behind the caster (wind-up, 16 t), then
-# one ~315 degree horizontal sweep about the body at waist height (out_expo, 4 t) that leaves a 風切り
-# fan (white crisp edge, gold body, dark rim) which lingers and fades gold -> purple-grey. Embers fly
-# off the tip along the swing. Peak ~34 live displays at tick 20.
-# Local axes: x = left, y = up, z = forward. Swing rotate = [yaw, pitch, roll]; yaw + = right, pitch + tips the tip down.
+# Zwei S3 beat 1 (cast tick 0-30): blade held low behind (200 deg, 16 t), then a 300 degree waist-height sweep
+# (flat blade, edge leading, out_cubic 5 t) that leaves a 10-degree-tilted ring 1.6-3.3 around the caster
+# (white edge, opaque gold body, dark tail) which lingers and fades to purple-grey by tick 28; embers fly off.
+# Local axes: x = left, y = up, z = forward. Rig swing rotate = [yaw, pitch, roll]: yaw + = right; pitch + tips a FORWARD blade
+# down but tips a BEHIND blade (yaw ~180) UP, so behind-poses use pitch -; roll 90 turns the blade's wide face from the side to
+# the horizontal (sweep). Blade 1.75 long x 0.32 wide x 0.07 thick, solid (no glow outline), pivot = the right hand.
 
 id: bastion-s3-swing
 duration_ticks: 32
 orient: yaw
 follow: false
-sample_ticks: 2
+sample_ticks: 1
 
 rigs:
   - id: sword
-    pivot: [-0.35, 0.9, 0.3]
+    pivot: [-0.35, 0.9, 0.0]
     rest: [0, 90, 0]
-    tilt: [0, 0, 14]
+    tilt: [0, 0, 10]
     respect_hit_stop: true
-    end_tick: 30
+    end_tick: 29
     parts:
-      - { id: blade, block: iron_block, offset: [0.0, 2.05, 0.0], size: [0.4, 3.6, 0.12], brightness: 15 }
-      - { id: edge, block: white_concrete, offset: [0.21, 2.05, 0.0], size: [0.04, 3.6, 0.14], brightness: 15 }
-      - { id: guard, block: gold_block, offset: [0.0, 0.25, 0.0], size: [0.95, 0.14, 0.24], brightness: 15 }
-      - { id: grip, block: black_concrete, offset: [0.0, -0.25, 0.0], size: [0.1, 0.9, 0.1] }
+      - { id: blade, block: iron_block, offset: [0.0, 1.125, 0.0], size: [0.07, 1.75, 0.32] }
+      - { id: edge, block: white_concrete, offset: [0.0, 1.125, 0.145], size: [0.075, 1.75, 0.06] }
+      - { id: fuller, block: light_gray_concrete, offset: [0.0, 1.125, 0.0], size: [0.08, 1.5, 0.05] }
+      - { id: guard, block: gold_block, offset: [0.0, 0.21, 0.0], size: [0.1, 0.08, 0.5] }
+      - { id: grip, block: black_concrete, offset: [0.0, -0.05, 0.0], size: [0.07, 0.35, 0.07] }
+      - { id: pommel, block: gold_block, offset: [0.0, -0.25, 0.0], size: [0.1, 0.1, 0.1] }
     swing:
-      - { t: 0, rotate: [150, -14, 0] }                      # blade dragged low behind (pitch - lowers the tip when yaw is behind)
-      - { t: 10, rotate: [160, -14, 0], ease: in_out_quad }
-      - { t: 15, rotate: [168, -14, 0], ease: in_quad }      # last pull-back
-      - { t: 20, rotate: [-150, -14, 0], ease: out_cubic }   # the sweep: 318 degrees in 5 ticks
-      - { t: 28, rotate: [-155, -15, 0], ease: out_cubic }   # settles into the scrape pose
+      - { t: 0, rotate: [180, -20, 0] }                       # low behind: tip 0.2 above the floor
+      - { t: 15, rotate: [185, -20, 0], ease: in_quad }       # last drag-back
+      - { t: 20, rotate: [-120, 0, 90], ease: out_cubic }     # the sweep: 300 degrees at waist height, blade flat, 5 t
+      - { t: 28, rotate: [-175, -30, 0], ease: out_cubic }    # follow-through settles into the scrape pose
     trails:
       - id: wind
-        from: [0.0, 2.2, 0.0]          # the outer band of the blade: a ring ~1.6 wide at radius 2.2-3.85 (waist height)
-        to: [0.0, 3.85, 0.0]
+        from: [0.0, 1.6, 0.0]          # fan from the blade's outer part out to radius 3.3 (sword reach + fan)
+        to: [0.0, 3.3, 0.0]
         start_t: 16
         end_t: 21
-        life_ticks: 13
+        life_ticks: 9
         lag_ticks: 0
         style: both
-        step_deg: 30
-        fade_power: 0.8
-        bands:                         # opaque gold body, darker inner tail; fades gold -> purple-grey
-          - { from: 0.0, to: 0.4, color: "#F0A07818", color_to: "#703A2A50" }
-          - { from: 0.4, to: 1.0, color: "#FFFFD23A", color_to: "#804A3A60" }
-        edge: { block: white_concrete, width: 0.08 }
-        dark_rim: { color: "#D0302008", width: 0.25 }
+        step_deg: 26
+        fade_power: 0.9
+        bands:                         # dark tail inside, opaque gold outside; the white edge strip leads
+          - { from: 0.0, to: 0.4, color: "#908A6A20", color_to: "#503A2A50" }
+          - { from: 0.4, to: 1.0, color: "#F0FFD23A", color_to: "#603A2A50" }
+        edge: { block: white_concrete, width: 0.12 }
+        dark_rim: { color: "#A0302008", width: 0.18 }
     emitters:
-      - { id: embers, particle_id: bastion-s3-ember, point: [0.0, 3.85, 0.0], start_t: 16, end_t: 22 }
-      - { id: motes, particle_id: bastion-s3-ember-dust, point: [0.0, 3.2, 0.0], start_t: 16, end_t: 22 }
+      - { id: embers, particle_id: bastion-s3-ember, point: [0.0, 2.0, 0.0], start_t: 16, end_t: 22 }
+      - { id: motes, particle_id: bastion-s3-ember-dust, point: [0.0, 1.6, 0.0], start_t: 16, end_t: 22 }

@@ -1,39 +1,41 @@
-# Zwei S3 beat 3b (cast tick 46-58): the thrust through the target. The rig stabs straight ahead
-# (angle 0), 30-50 trail particles streak along the lane, thin white / gold speed-line quads ring the
-# lane, and three white wind arcs (whoosh) sit behind the target. ~30 live displays at peak.
-# Local axes: x = left, y = up, z = forward. Swing rotate = [yaw, pitch, roll].
+# Zwei S3 beat 3b (cast tick 44-58), played at the dash end: sword thrust straight ahead (hand y 1.1), speed lines
+# and streak particles along the lane (fading from tick 50), wind arcs behind the target. ~28 displays.
+# Local axes: x = left, y = up, z = forward. Rig swing rotate = [yaw, pitch, roll]: yaw + = right; pitch + tips a FORWARD blade
+# down but tips a BEHIND blade (yaw ~180) UP, so behind-poses use pitch -; roll 90 turns the blade's wide face from the side to
+# the horizontal (sweep). Blade 1.75 long x 0.32 wide x 0.07 thick, solid (no glow outline), pivot = the right hand.
 
 id: bastion-s3-thrust
-duration_ticks: 12
+duration_ticks: 14
 orient: yaw
 follow: false
 sample_ticks: 1
 
 rigs:
   - id: sword
-    pivot: [-0.35, 1.0, 0.3]
+    pivot: [-0.35, 1.1, 0.0]
     rest: [0, 90, 0]
     respect_hit_stop: true
-    end_tick: 10
+    end_tick: 13
     parts:
-      - { id: blade, block: iron_block, offset: [0.0, 2.05, 0.0], size: [0.4, 3.6, 0.12], brightness: 15 }
-      - { id: edge, block: white_concrete, offset: [0.21, 2.05, 0.0], size: [0.04, 3.6, 0.14], brightness: 15 }
-      - { id: guard, block: gold_block, offset: [0.0, 0.25, 0.0], size: [0.95, 0.14, 0.24], brightness: 15 }
-      - { id: grip, block: black_concrete, offset: [0.0, -0.25, 0.0], size: [0.1, 0.9, 0.1] }
+      - { id: blade, block: iron_block, offset: [0.0, 1.125, 0.0], size: [0.07, 1.75, 0.32] }
+      - { id: edge, block: white_concrete, offset: [0.0, 1.125, 0.145], size: [0.075, 1.75, 0.06] }
+      - { id: fuller, block: light_gray_concrete, offset: [0.0, 1.125, 0.0], size: [0.08, 1.5, 0.05] }
+      - { id: guard, block: gold_block, offset: [0.0, 0.21, 0.0], size: [0.1, 0.08, 0.5] }
+      - { id: grip, block: black_concrete, offset: [0.0, -0.05, 0.0], size: [0.07, 0.35, 0.07] }
+      - { id: pommel, block: gold_block, offset: [0.0, -0.25, 0.0], size: [0.1, 0.1, 0.1] }
     swing:
-      - { t: 0, rotate: [-60, 0, 0] }                        # swept in from the dash
-      - { t: 2, rotate: [0, 0, 0], ease: out_cubic }         # straight thrust
-      - { t: 8, rotate: [0, 0, 0] }
+      - { t: 0, rotate: [0, 0, 0] }                           # blade fully forward through the target
+      - { t: 12, rotate: [0, 0, 0] }
     emitters:
-      - { id: tipglow, particle_id: bastion-s3-ember, point: [0.0, 3.85, 0.0], start_t: 1, end_t: 6 }
+      - { id: tipglow, particle_id: bastion-s3-ember, point: [0.0, 2.0, 0.0], start_t: 1, end_t: 6 }
 
 elements:
   # Speed lines: a ring of thin white blades along the lane, seen from every side.
   - id: lines-white
     kind: { type: block, block: white_concrete }
     brightness: 15
-    start_tick: 0
-    end_tick: 7
+    start_tick: 4
+    end_tick: 12
     count: 8
     formation:
       curve: { type: circle, radius: 1.3 }
@@ -49,7 +51,6 @@ elements:
   - id: lines-gold
     kind: { type: block, block: yellow_concrete }
     brightness: 15
-    glow_color: "#ffd23a"
     start_tick: 1
     end_tick: 8
     count: 6

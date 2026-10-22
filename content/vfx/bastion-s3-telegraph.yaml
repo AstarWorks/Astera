@@ -12,7 +12,6 @@ elements:
   - id: ring
     kind: { type: block, block: yellow_stained_glass }
     brightness: 12
-    glow_color: "#ffd23a"
     start_tick: 0
     end_tick: 10
     count: 18

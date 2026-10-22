@@ -139,28 +139,29 @@ phases:
       hit_once: true
       invulnerable: true
       stop_on_block: true
-      on_hit:
-        - type: damage
-          targets: { type: target }
-          ignore_invulnerability: { type: literal, value: true }
-          components:
-            - base: { type: literal, value: 4.5 }
-              attribute: physical
-              per_stack: { status_id: charge, amount: 0.4, on: caster, consume: false }
-          delay_ticks: { type: literal, value: 2 }
-        - type: hit_stop
-          targets: { type: target }
-          ticks: 2
-          include_caster: true
-          delay_ticks: { type: literal, value: 2 }
-        - type: spawn_particle
-          targets: { type: target }
-          particle_id: bastion-s3-hit-crit
-          delay_ticks: { type: literal, value: 2 }
-        - type: play_sound
-          targets: { type: target }
-          sound_id: entity.player.attack.crit
-          delay_ticks: { type: literal, value: 2 }
+    # HIT 2 lands as the dash ends (a plain area hit: damage dealt from inside dash_strike on_hit re-triggers the held
+    # item's melee skill, which draws the Moon Sweep VFX over this timeline).
+    - type: damage
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 2.6 }, exclude_caster: true }
+      ignore_invulnerability: { type: literal, value: true }
+      components:
+        - base: { type: literal, value: 4.5 }
+          attribute: physical
+          per_stack: { status_id: charge, amount: 0.4, on: caster, consume: false }
+      delay_ticks: { type: literal, value: 46 }
+    - type: hit_stop
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 2.6 }, exclude_caster: true }
+      ticks: 2
+      include_caster: true
+      delay_ticks: { type: literal, value: 46 }
+    - type: spawn_particle
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 2.6 }, exclude_caster: true }
+      particle_id: bastion-s3-hit-crit
+      delay_ticks: { type: literal, value: 46 }
+    - type: play_sound
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 2.6 }, exclude_caster: true }
+      sound_id: entity.player.attack.crit
+      delay_ticks: { type: literal, value: 46 }
     - type: play_sound
       targets: { type: caster }
       sound_id: entity.player.attack.knockback
@@ -212,6 +213,10 @@ phases:
       targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.5 }, exclude_caster: true, max_count: { type: literal, value: 1 } }
       vfx_id: bastion-s3-telegraph
       delay_ticks: { type: literal, value: 60 }
+    - type: play_vfx
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.5 }, exclude_caster: true, max_count: { type: literal, value: 1 } }
+      vfx_id: bastion-s3-planted
+      delay_ticks: { type: literal, value: 68 }
     - type: play_sound
       targets: { type: caster }
       sound_id: item.trident.return
