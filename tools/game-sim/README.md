@@ -93,6 +93,11 @@ scenario end). Positions are world coordinates in blocks; ids are UUID strings.
       "projectileEvents": [ { "id": "…", "kind": "spawn|hit_entity|hit_block|expire|cancel",
                               "owner": "…", "target": "…" /* hit_entity only, else null */, "x": 0, "y": 0, "z": 0 } ],
       "particles":  [ { "key": "example-burst", "count": 1, "world": "world", "x": 0, "y": 0, "z": 0 } ],
+                                    // optional per particle: color{r,g,b}, scale, extra (speed);
+                                    // count 0 = directed: "velocity":{x,y,z} unit direction + "speed";
+                                    // "data":{kind: dust|dust_color_transition|tint|spell|block|item|trail|
+                                    //   sculk_charge|shriek|vibration|power, ...} (trail/vibration: absolute "target");
+                                    // "force": true, "viewers": "caster"|"others"
       "sounds":     [ { "key": "entity.blaze.shoot", "volume": 1.0, "pitch": 1.0, "world": "world", "x": 0, "y": 0, "z": 0 } ],
       "damage":     [ { "attacker": "…"/*null*/, "target": "…", "amount": 11.0, "source": "Skill", "hpAfter": 9.0 } ],
       "status":     [ { "target": "…", "effect": "burn", "op": "applied|removed|expired",

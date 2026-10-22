@@ -51,8 +51,19 @@ public data class VfxUpdate(
     public val text: String? = null,
 )
 
-/** Emit the particle at [tick], [offset] from the plan origin. */
+/**
+ * Emit the particle at [tick], [offset] from the plan origin.
+ *
+ * [pathOffsets] (only for `along_path` elements) are the extra, evenly spaced points between the
+ * previous emission position and [offset] (the last entry equals [offset]); the runtime emits at each.
+ * [tangent] is the element's direction of travel (`along_tangent` velocity), [center] the formation
+ * centre (`outward` velocity), [trailTarget] the plan-origin-relative `toward` point.
+ */
 public data class VfxParticleEmission(
     public val tick: Int,
     public val offset: Vec3,
+    public val pathOffsets: List<Vec3> = emptyList(),
+    public val tangent: Vec3? = null,
+    public val center: Vec3? = null,
+    public val trailTarget: Vec3? = null,
 )
