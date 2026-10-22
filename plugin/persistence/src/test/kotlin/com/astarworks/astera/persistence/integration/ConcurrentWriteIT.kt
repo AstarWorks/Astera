@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * Postgres + the in-memory party repository. Closes three audit P0 gaps:
  *
  *  1. **Wallet double-spend** — two threads racing on the same player's
- *     ledger debit. The Wave-F lock striping in [PostgresCurrencyLedger]
+ *     ledger debit. The row-locked SQL debit in [PostgresCurrencyLedger]
  *     forces serialisation, so exactly one debit succeeds and the other
  *     observes [WalletError.InsufficientFunds].
  *  2. **InventorySnapshot race** — two threads racing on `save()` for the
@@ -50,8 +50,7 @@ public class ConcurrentWriteIT : PostgresIntegrationTestBase() {
     /** Wallet double-spend regression: exactly one of two concurrent debits succeeds. */
     @Test
     public fun `concurrent debit on the same wallet yields one success and one insufficient-funds`() {
-        val containerStore = PostgresPlayerAttributeContainer(db)
-        val ledger = PostgresCurrencyLedger(containerStore)
+        val ledger = PostgresCurrencyLedger(db)
         val player = PlayerId(UUID.randomUUID())
 
         // Seed: exactly 100 GOLD — enough for one debit of 100 but not two.

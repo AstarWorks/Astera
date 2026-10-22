@@ -226,7 +226,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             PostgresStageRegistry(ctx.database),
             priority = 100,
         )
-        val ledger: ICurrencyLedger = PostgresCurrencyLedger(attributeContainerStore)
+        val ledger: ICurrencyLedger = PostgresCurrencyLedger(ctx.database)
         stage<ICurrencyLedger>(
             ledger,
             priority = 100,
