@@ -12,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin
  *
  * Resolves shared services from Astera-Core, constructs the four lifecycle use
  * cases, exposes them via IMatchLifecycle on the ServiceRegistry, and
- * registers the `/astera-match` command tree.
+ * registers the `/astera match` command tree.
  *
  * The Persistence plugin (Stage 4-改) registers Postgres-backed impls at
  * higher priority and `services.getOrThrow<IMatchRepository>()` then

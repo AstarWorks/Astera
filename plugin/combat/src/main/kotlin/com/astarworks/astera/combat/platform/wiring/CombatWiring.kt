@@ -693,7 +693,7 @@ public object CombatWiring {
             shutdownHooks = shutdownHooks,
         )
 
-        // ── F1-D (ADR-0183) — `/astera-admin` combat tools ─────────────────
+        // ── F1-D (ADR-0183) — `/astera admin panel` combat tools ─────────────────
         val adminTools = com.astarworks.astera.combat.application.admin.AdminCombatToolsUseCase(
             health = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>(),
             statuses = statusContainer,

@@ -33,15 +33,18 @@ are there; matches run on the **game** server (section 4).
 
 ## 3. Get weapons
 
+Every command is a subcommand of one root: `/astera`. Type `/astera help` for what you may use, or press Tab after `/astera ` (admin areas such as `admin`, `mod`, `items` only show for ops).
+
+
 ```
-/astera-items give <yourName> <item-id>      # any id in the table below
+/astera items give <yourName> <item-id>      # any id in the table below
 ```
 
-Or buy them: right-click the "Lobby Merchant" villager near spawn, or `/astera-shop`
-(new players start with 100 GOLD; prices below). `/vault` or an ender chest opens your personal vault.
+Or buy them: right-click the "Lobby Merchant" villager near spawn, or `/astera shop`
+(new players start with 100 GOLD; prices below). `/astera vault` or an ender chest opens your personal vault.
 Skill damage also hits mobs (`/summon zombie` to test). `Q` reloads any gun.
 
-### Admin panel (`/astera-admin`)
+### Admin panel (`/astera admin panel`)
 
 Ops (and anyone with `astera.admin.panel`) get a chest-GUI hub:
 
@@ -54,7 +57,7 @@ Ops (and anyone with `astera.admin.panel`) get a chest-GUI hub:
 | Self tools | God mode, fly, heal, clear cooldowns, refill ammo/mana. |
 
 Every action is permission-checked per click and written to the audit log.
-The quickest solo test loop: `/astera-admin` -> Weapons & items -> Full kit ->
+The quickest solo test loop: `/astera admin panel` -> Weapons & items -> Full kit ->
 Match control -> your lane -> right-click ("just me").
 
 ### Weapon roster (WP7)
@@ -90,15 +93,15 @@ start alone; friends who join the queue before the countdown ends are
 split across the two teams).
 
 ```
-/astera-queue join norma         # 2 teams (red / blue) on example-arena
-/astera-queue join annihilation  # 3 teams (red / blue / yellow) on annihilation-arena
-/astera-queue join break-core      # siege-flat: break the enemy emerald core block (yours is protected)
-/astera-queue join carry-tnt       # siege-flat: step into the centre-north zone for the TNT, run it into the enemy base (2 deliveries)
-/astera-queue join capture-wool    # siege-flat: stand alone in a wool zone for 10 s to capture it; 2 of 3 zones win
-/astera-queue join steal-jewelry   # siege-flat: step on the enemy diamond pedestal (inside their base), bank in your base; steal 2 to win
-/astera-queue join battle-loyal    # siege-flat: team deathmatch, 5 kills win
-/astera-queue status         # your position + how many players are queued
-/astera-queue leave          # optional: leave the queue
+/astera queue join norma         # 2 teams (red / blue) on example-arena
+/astera queue join annihilation  # 3 teams (red / blue / yellow) on annihilation-arena
+/astera queue join break-core      # siege-flat: break the enemy emerald core block (yours is protected)
+/astera queue join carry-tnt       # siege-flat: step into the centre-north zone for the TNT, run it into the enemy base (2 deliveries)
+/astera queue join capture-wool    # siege-flat: stand alone in a wool zone for 10 s to capture it; 2 of 3 zones win
+/astera queue join steal-jewelry   # siege-flat: step on the enemy diamond pedestal (inside their base), bank in your base; steal 2 to win
+/astera queue join battle-loyal    # siege-flat: team deathmatch, 5 kills win
+/astera queue status         # your position + how many players are queued
+/astera queue leave          # optional: leave the queue
 ```
 
 What happens next (no further commands):
@@ -120,9 +123,9 @@ What happens next (no further commands):
    for `norma`, `content/stages/annihilation-arena.yaml` for `annihilation`).
    Teammates get different spawns of that team (least-used first).
 3. A 10 s in-arena COUNTDOWN (`match_countdown_seconds`), then the match is ACTIVE.
-4. When the match ends (win condition, or `/astera-match end <matchId>`) everyone
-   is teleported back to the lobby and can `/astera-queue join norma` again.
-   `/astera-match list` shows the match id while it runs.
+4. When the match ends (win condition, or `/astera match end <matchId>`) everyone
+   is teleported back to the lobby and can `/astera queue join norma` again.
+   `/astera match list` shows the match id while it runs.
 
 If the arena is still in use, the queue waits (you are told once) and the
 next match starts as soon as it is free.
@@ -131,9 +134,9 @@ Tuning (`content/matchmaking/queue.yaml`, `/astera reload matchmaking` applies i
 `check_interval_seconds`, `queue_countdown_seconds`, `match_countdown_seconds`, and
 per lane `stage`, `teams`, `players_per_team`, `min_players`.
 
-Admin shortcuts (skip the queue): `/astera-match start example-arena`, then
-`/astera-match entry <matchId> <name>` (teleports and auto-balances teams), plus
-`/astera-match phase|end|abort|list`.
+Admin shortcuts (skip the queue): `/astera match start example-arena`, then
+`/astera match entry <matchId> <name>` (teleports and auto-balances teams), plus
+`/astera match phase|end|abort|list`.
 
 ## Resource pack (custom HP bar, ADR-0182)
 
@@ -169,7 +172,7 @@ the lobby spawn (the world spawn, x~0 z~0) and the `example-arena` /
 `annihilation-arena` / `siege-flat` stages. The siege lanes share `siege-flat`
 (red base at x=-40, blue at x=+40; objective zones in `content/stages/siege-flat.yaml`),
 so one siege match runs at a time; their tunables are in `content/game-modes/<mode>.yaml`.
-Objective modes only work through their queue lane (the admin `/astera-match start`
+Objective modes only work through their queue lane (the admin `/astera match start`
 has no mode key and runs plain Norma). A stage names its Bukkit world with `world:`
 (default `world`, the server's main world). The other stages (`siege-arena`,
 `forest-arena`, `boss-arena`) keep y>=64 coordinates and are not playable on the flat world.

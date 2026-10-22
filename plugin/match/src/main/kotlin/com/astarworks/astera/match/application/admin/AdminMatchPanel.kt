@@ -31,7 +31,7 @@ import com.astarworks.astera.match.domain.matchmaking.QueueSettings
 import org.slf4j.LoggerFactory
 
 /**
- * Match-plugin section of the `/astera-admin` panel (F1-D, ADR-0183): active
+ * Match-plugin section of the `/astera admin panel` panel (F1-D, ADR-0183): active
  * matches with end / abort / next-phase, and the queue lanes with "force
  * start now" / "start with just me". Also contributes the server-page
  * "validate content" action.

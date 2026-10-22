@@ -12,7 +12,7 @@ import com.astarworks.astera.core.domain.replay.ReplayFormat
  * The default implementation
  * (`com.astarworks.astera.match.application.service.replay.ReplayCaptureEngine`)
  * subscribes to the domain event bus on construction; callers (typically
- * `AsteraMatchPlugin` lifecycle hooks or ops `/astera-match replay` admin
+ * `AsteraMatchPlugin` lifecycle hooks or ops `/astera match replay` admin
  * commands) toggle which matches are actively buffered via the methods
  * below.
  *

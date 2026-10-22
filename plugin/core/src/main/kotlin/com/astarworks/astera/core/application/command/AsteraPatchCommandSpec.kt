@@ -6,9 +6,10 @@ import com.astarworks.astera.core.application.port.outbound.changelog.IChangelog
 import com.astarworks.astera.core.domain.changelog.ChangelogEntry
 import com.astarworks.astera.core.domain.changelog.ChangelogVersion
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.permission.Permission
 
 /**
- * Wave J 5server-content-ops (ADR-0127) — `/astera-patch [version]`.
+ * Wave J 5server-content-ops (ADR-0127) — `/astera patch [version]`.
  *
  * Renders changelog highlights:
  *
@@ -99,14 +100,14 @@ public fun buildAsteraPatchCommandSpec(
     }
 
     return CommandSpec.Literal(
-        name = "astera-patch",
-        description = MessageKey("astera.patch.command.root"),
+        name = "patch",
         subcommands = listOf(
             CommandSpec.Argument(
                 "version",
                 ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                optional = true,
             ),
         ),
         executor = executor,
-    )
+    ).forEveryone(Permission("astera.patch.read"))
 }

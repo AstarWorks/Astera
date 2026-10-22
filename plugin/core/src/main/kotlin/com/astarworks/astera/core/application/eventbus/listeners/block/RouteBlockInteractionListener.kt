@@ -60,7 +60,7 @@ public class RouteBlockInteractionListener(
 
         when (action) {
             is BlockInteractionAction.RunCommand -> {
-                // Wave 6 bridge: ICommandHandler does not yet expose
+                // Wave 6 bridge: IAsteraCommandRegistry does not yet expose
                 // "execute spec as player by id" — needs a CommandContext
                 // synthesised from the player handle. Tracked under the
                 // block-embed follow-up ADR.

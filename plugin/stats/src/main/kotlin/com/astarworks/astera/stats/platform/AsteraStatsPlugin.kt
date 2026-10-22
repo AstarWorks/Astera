@@ -18,7 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin
  * IDomainEventBus (soft-dep on Astera-Combat; the plugin still boots without
  * Combat present, subscriptions simply never fire).
  *
- * Registers `/astera-stats` command tree.
+ * Registers `/astera stats` command tree.
  */
 public class AsteraStatsPlugin : JavaPlugin() {
 

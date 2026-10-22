@@ -19,7 +19,7 @@ import com.astarworks.astera.core.domain.item.ItemId
 import org.slf4j.LoggerFactory
 
 /**
- * Items-plugin section of the `/astera-admin` panel: the weapons & items
+ * Items-plugin section of the `/astera admin panel` panel: the weapons & items
  * catalog (F1-D, ADR-0183). Contributes the hub tile and owns the
  * `admin.items.` intent prefix; every click is permission-checked through
  * [AdminPanelGuard.guarded] and every hand-out is audited.

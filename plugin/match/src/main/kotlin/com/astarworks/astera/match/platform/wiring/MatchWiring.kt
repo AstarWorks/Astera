@@ -1,6 +1,6 @@
 package com.astarworks.astera.match.platform.wiring
 
-import com.astarworks.astera.core.application.port.inbound.ICommandHandler
+import com.astarworks.astera.core.application.command.CommandMount
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -103,7 +103,7 @@ internal class MatchWiringEnv(
     val eventBus: IDomainEventBus,
     val scheduler: IScheduler,
     val playerGateway: IPlayerGateway,
-    val commandHandler: ICommandHandler,
+    val commands: CommandMount,
     val permService: IPermissionService,
     val msgRenderer: IMessageRenderer,
     val matchModeRegistry: com.astarworks.astera.match.application.port.outbound.IMatchModeRegistry,
@@ -119,7 +119,7 @@ internal class MatchWiringEnv(
  * Host-neutral Match wiring (ADR-0174). Pure construction / registration /
  * subscriptions / command specs — no Bukkit. Resolves the four lifecycle use
  * cases, exposes them via [IMatchLifecycle] on the ServiceRegistry, and
- * registers the `/astera-match` + `/astera-queue` command trees.
+ * registers the `/astera match` + `/astera queue` command trees.
  *
  * Areas, in the original `onEnable` order: lifecycle + game modes (here),
  * [MatchWorldWiring], [MatchSessionWiring], [MatchGameplayWiring].
@@ -203,7 +203,7 @@ public object MatchWiring {
         val eventBus = services.getOrThrow<IDomainEventBus>()
         val scheduler = services.getOrThrow<IScheduler>()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
-        val commandHandler = services.getOrThrow<ICommandHandler>()
+        val commands = ctx.commandMount("Astera-Match")
         val permService = services.getOrThrow<IPermissionService>()
         val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
 
@@ -501,7 +501,7 @@ public object MatchWiring {
         // Bridge: when a MatchStarted fires, resolve the match's mode via
         // [MatchStarted.modeKey] (Wave 5wireup §G16) and dispatch through
         // the framework hooks. `modeKey == null` keeps the legacy Norma
-        // path — every existing caller (admin `/astera-match start`,
+        // path — every existing caller (admin `/astera match start`,
         // MatchFoundUseCase) defaults to Norma until they opt in.
         //
         // For Annihilation, the wiring pre-seeds `scoringState["annihilation.teams"]`
@@ -575,7 +575,7 @@ public object MatchWiring {
 
         val env = MatchWiringEnv(
             ctx = ctx, ports = ports, matches = matches, stages = stages, eventBus = eventBus,
-            scheduler = scheduler, playerGateway = playerGateway, commandHandler = commandHandler,
+            scheduler = scheduler, playerGateway = playerGateway, commands = commands,
             permService = permService, msgRenderer = msgRenderer, matchModeRegistry = matchModeRegistry,
             facade = facade, queueSettings = queueSettings, annihilationTracker = annihilationTracker, worldGateway = worldGateway,
             scheduledTasks = scheduledTasks, shutdownHooks = shutdownHooks,

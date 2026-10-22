@@ -4,7 +4,6 @@ import com.astarworks.astera.core.adapter.api.hud.IBossBarManager
 import com.astarworks.astera.core.adapter.api.hud.IScoreboardManager
 import com.astarworks.astera.core.adapter.api.hud.ITabList
 import com.astarworks.astera.core.adapter.api.server.IMcServer
-import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.outbound.IBlockStateGateway
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.ICustomBlockRegistry
@@ -57,7 +56,6 @@ public class CorePlatformPorts(
     public val mcServer: IMcServer,
     public val scheduler: IScheduler,
     public val broadcaster: IBroadcaster,
-    public val commandHandler: ICommandHandler,
     /** Required: GUI rendering has no in-memory default. Built before the wiring registers [IGuiBindingResolver]. */
     public val guiAdapter: GuiAdapterFactory,
     // ---- HUD ------------------------------------------------------------
@@ -65,6 +63,11 @@ public class CorePlatformPorts(
     public val scoreboardManager: ((ServiceRegistry) -> IScoreboardManager)? = null,
     public val tabList: ((ServiceRegistry) -> ITabList)? = null,
     public val hudGateway: ((ServiceRegistry) -> IHudGateway)? = null,
+    /**
+     * The host's own permission answer for a player and node (Paper: `hasPermission`, true for
+     * operators). When set, the permission service honours it on top of Astera roles (ADR-0184).
+     */
+    public val hostPermission: ((com.astarworks.astera.core.domain.player.PlayerId, String) -> Boolean)? = null,
     /** The resource pack to push on join (ADR-0182); null = none configured. */
     public val resourcePack: com.astarworks.astera.core.domain.hud.ResourcePackSpec? = null,
     // ---- World ----------------------------------------------------------

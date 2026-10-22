@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.application.command
 
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
@@ -29,7 +30,16 @@ public data class CommandContext(
     public val sender: PlayerId?,
     public val args: Map<String, Any>,
     public val scheduler: IScheduler,
+    /** Who is invoking (player or console), with operator status. Defaults to a plain player / the console. */
+    public val actor: CommandActor = CommandActor(sender, isOperator = sender == null),
+    /** Where [reply] goes. The platform adapter renders the key for the sender's locale; works for the console too. */
+    public val replier: (MessageKey, Map<String, String>) -> Unit = { _, _ -> },
 ) {
+
+    /** Tell the invoker (player or console) the localized message for [key]. */
+    public fun reply(key: MessageKey, placeholders: Map<String, String> = emptyMap()) {
+        replier(key, placeholders)
+    }
 
     /** True when the invoker is the server console (no associated player). */
     public val isConsole: Boolean get() = sender == null

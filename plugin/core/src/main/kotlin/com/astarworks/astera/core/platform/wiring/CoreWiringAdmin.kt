@@ -268,19 +268,18 @@ internal fun CoreWiringState.wireBossAndAdmin() {
     )
 
     // 6. Brigadier admin commands.
-    Wave5tAdminCommands.build(
-        permissionService = permissionService,
+    Wave5tAdminCommands.mount(
+        commands = commands,
         submitFeedback = submitFeedback,
         feedbackQueue = feedbackQueue,
         slowQueryRepository = slowQueryRepo,
-    ).forEach { commandHandler.register(it) }
-    logger.info("Wave 5t admin commands registered (/astera report, feedback, slow-query).")
+    )
+    logger.info("Wave 5t commands mounted (/astera report, admin feedback, admin slow-query).")
 
-    // Wave E 5admin-ops (ADR-0122) — 10 flat admin commands. Each one
-    // routes through an already-wired port; the AdminOpsCommands builder
-    // is just the chat surface. Konsist rule
-    // `admin commands must declare a permission gate (ADR-0122)`
-    // verifies every literal here calls `requirePermission(...)`.
+    // Wave E 5admin-ops (ADR-0122) — 10 admin commands, now `/astera admin <verb>`
+    // (ADR-0184). Each one routes through an already-wired port; the
+    // AdminOpsCommands builder is just the chat surface. The whole-tree test
+    // verifies every leaf declares a permission.
     val adminOpsWorldGateway = services.get<com.astarworks.astera.core.application.port.outbound.IWorldGateway>()
         ?: com.astarworks.astera.core.application.service.effect.NoopWorldGatewayForEffects()
     val adminOpsCommands = AdminOpsCommands(
@@ -294,9 +293,10 @@ internal fun CoreWiringState.wireBossAndAdmin() {
         healthCheck = healthCheck,
         mobSpawner = mobSpawner,
         backupGateway = backupGateway,
+        mobIds = { services.get<com.astarworks.astera.core.application.port.outbound.mob.IMobRegistry>()?.all()?.map { it.id.value }.orEmpty() },
     )
-    val adminOpsCount = AdminOpsCommands.registerAll(commandHandler, adminOpsCommands)
-    logger.info("Wave E 5admin-ops: registered $adminOpsCount flat admin commands.")
+    val adminOpsCount = AdminOpsCommands.registerAll(commands, adminOpsCommands)
+    logger.info("Wave E 5admin-ops: mounted $adminOpsCount commands under /astera admin.")
 
     // ---- Anti-cheat + Anti-AFK (Wave 5q, ADR-0083) -----------------
     // Three light validators (movement / damage-rate / interact) +

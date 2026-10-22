@@ -2,7 +2,6 @@ package com.astarworks.astera.core.application.command
 
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.outbound.IPartyRepository
-import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.usecase.social.CreatePartyUseCase
 import com.astarworks.astera.core.application.usecase.social.JoinPartyUseCase
@@ -23,13 +22,13 @@ import org.slf4j.LoggerFactory
  * Five top-level literals (the CommandSpec DSL doesn't compose nested
  * subcommand trees):
  *
- *  - `/astera-party-invite <player>`     leader: invite (auto-creates a
+ *  - `/astera party invite <player>`     leader: invite (auto-creates a
  *                                        solo party first if the caller
  *                                        isn't in one)
- *  - `/astera-party-kick <player>`       leader-only
- *  - `/astera-party-transfer <player>`   leader-only
- *  - `/astera-party-leave`
- *  - `/astera-party-list`                lists current party members
+ *  - `/astera party kick <player>`       leader-only
+ *  - `/astera party transfer <player>`   leader-only
+ *  - `/astera party leave`
+ *  - `/astera party list`                lists current party members
  *
  * Permission gate: `astera.party.use`. Lobby invite is synchronous (the
  * target is added immediately; no async accept primitive yet — see
@@ -44,7 +43,6 @@ public class PartyCommands(
     private val parties: IPartyRepository,
     private val playerGateway: IPlayerGateway,
     private val mcServer: IMcServer,
-    private val permissionService: IPermissionService,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -58,12 +56,11 @@ public class PartyCommands(
     )
 
     private fun inviteCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-party-invite",
-        description = MessageKey("astera.party.command.invite.root"),
+        name = "invite",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "player",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                type = ArgumentType.PlayerName,
             ),
         ),
         executor = { ctx ->
@@ -78,7 +75,7 @@ public class PartyCommands(
                 )
 
             // If the caller has no party, spin one up with default max size
-            // so /astera-party-invite is a single-step UX. Wave 5e's
+            // so /astera party invite is a single-step UX. Wave 5e's
             // CreatePartyUseCase enforces "not already in a party" — but
             // the branch above guarantees that. Default maxSize = 4 matches
             // Wave 5e Party.maxSize convention; future config-driven.
@@ -97,20 +94,20 @@ public class PartyCommands(
             when (val outcome = joinParty.join(target, party.id)) {
                 is Result.Success -> {
                     log.info("{} invited {} into party {}", sender, target, party.id)
+                    ctx.reply(MessageKey("astera.command.reply.party-invite"), mapOf("player" to name))
                     CommandResult.Success
                 }
                 is Result.Failure -> partyFailure(outcome.error, name)
             }
         },
-    ).requirePermission(permissionService, Permission("astera.party.use"))
+    ).forEveryone(Permission("astera.party.use"))
 
     private fun kickCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-party-kick",
-        description = MessageKey("astera.party.command.kick.root"),
+        name = "kick",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "player",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                type = ArgumentType.PlayerName,
             ),
         ),
         executor = { ctx ->
@@ -126,20 +123,20 @@ public class PartyCommands(
             when (val outcome = kickPartyMember.kick(sender, target)) {
                 is Result.Success -> {
                     log.info("{} kicked {} from party", sender, target)
+                    ctx.reply(MessageKey("astera.command.reply.party-kick"), mapOf("player" to name))
                     CommandResult.Success
                 }
                 is Result.Failure -> partyFailure(outcome.error, name)
             }
         },
-    ).requirePermission(permissionService, Permission("astera.party.use"))
+    ).forEveryone(Permission("astera.party.use"))
 
     private fun transferCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-party-transfer",
-        description = MessageKey("astera.party.command.transfer.root"),
+        name = "transfer",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "player",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                type = ArgumentType.PlayerName,
             ),
         ),
         executor = { ctx ->
@@ -155,16 +152,16 @@ public class PartyCommands(
             when (val outcome = transferLeader.transfer(sender, target)) {
                 is Result.Success -> {
                     log.info("{} transferred party leadership to {}", sender, target)
+                    ctx.reply(MessageKey("astera.command.reply.party-transfer"), mapOf("player" to name))
                     CommandResult.Success
                 }
                 is Result.Failure -> partyFailure(outcome.error, name)
             }
         },
-    ).requirePermission(permissionService, Permission("astera.party.use"))
+    ).forEveryone(Permission("astera.party.use"))
 
     private fun leaveCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-party-leave",
-        description = MessageKey("astera.party.command.leave.root"),
+        name = "leave",
         executor = { ctx ->
             val sender = ctx.sender ?: return@Literal CommandResult.Failure(
                 MessageKey("astera.command.player-only"), emptyMap(),
@@ -172,38 +169,41 @@ public class PartyCommands(
             when (val outcome = leaveParty.leave(sender)) {
                 is Result.Success -> {
                     log.info("{} left their party", sender)
+                    ctx.reply(MessageKey("astera.command.reply.party-leave"))
                     CommandResult.Success
                 }
                 is Result.Failure -> partyFailure(outcome.error, "")
             }
         },
-    ).requirePermission(permissionService, Permission("astera.party.use"))
+    ).forEveryone(Permission("astera.party.use"))
 
     private fun listCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-party-list",
-        description = MessageKey("astera.party.command.list.root"),
+        name = "list",
         executor = { ctx ->
             val sender = ctx.sender ?: return@Literal CommandResult.Failure(
                 MessageKey("astera.command.player-only"), emptyMap(),
             )
             val party: Party? = parties.forPlayer(sender)
             if (party == null) {
-                log.info("/astera-party-list for {} → no party", sender)
+                log.info("/astera party list for {} → no party", sender)
                 return@Literal CommandResult.Failure(
                     MessageKey("astera.social.party.error.not-in-party"),
                     emptyMap(),
                 )
             }
-            log.info("/astera-party-list for {} → leader={} members={}",
-                sender, playerDisplay(party.leader), party.members.size,
+            ctx.reply(
+                MessageKey("astera.command.reply.party-list-header"),
+                mapOf("leader" to playerDisplay(party.leader), "count" to party.members.size.toString()),
             )
             party.members.forEach { id ->
-                val tag = if (id == party.leader) " (leader)" else ""
-                log.info("  member: {}{}", playerDisplay(id), tag)
+                ctx.reply(
+                    MessageKey(if (id == party.leader) "astera.command.reply.party-list-leader" else "astera.command.reply.party-list-member"),
+                    mapOf("player" to playerDisplay(id)),
+                )
             }
             CommandResult.Success
         },
-    ).requirePermission(permissionService, Permission("astera.party.use"))
+    ).forEveryone(Permission("astera.party.use"))
 
     private fun partyFailure(error: PartyError, playerName: String): CommandResult.Failure =
         CommandResult.Failure(

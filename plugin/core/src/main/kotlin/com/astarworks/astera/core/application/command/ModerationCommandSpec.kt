@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.application.command
 
 import com.astarworks.astera.core.application.port.outbound.IModerationService
-import com.astarworks.astera.core.application.port.outbound.IPermissionService
+import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.usecase.moderation.ApplyModerationActionUseCase
 import com.astarworks.astera.core.application.usecase.moderation.LiftModerationActionUseCase
 import com.astarworks.astera.core.application.usecase.moderation.QueryActiveModerationUseCase
@@ -43,19 +43,19 @@ import java.util.UUID
  * is translated to `astera.permission.denied`.
  */
 @Suppress("LongMethod")
-public fun buildModerationCommandSpec(
+public fun buildModerationAuxCommands(
     apply: ApplyModerationActionUseCase,
     lift: LiftModerationActionUseCase,
     query: QueryActiveModerationUseCase,
-    permService: IPermissionService,
+    playerResolver: IPlayerGateway,
     clock: Clock = Clock.systemUTC(),
-): CommandSpec.Literal {
+): List<CommandSpec.Literal> {
 
     fun parseDurationSecondsOrPermanent(seconds: Int, now: Instant): Instant? =
         if (seconds <= 0) null else now.plusSeconds(seconds.toLong())
 
     fun parsePlayerId(raw: String): PlayerId? =
-        runCatching { PlayerId(UUID.fromString(raw)) }.getOrNull()
+        playerResolver.findByName(raw) ?: runCatching { PlayerId(UUID.fromString(raw)) }.getOrNull()
 
     fun parseReason(raw: String): MessageKey? =
         runCatching { MessageKey(raw) }.getOrNull()
@@ -71,121 +71,20 @@ public fun buildModerationCommandSpec(
     )
 
     fun applyResult(
+        ctx: CommandContext,
         outcome: Result<ModerationAction, com.astarworks.astera.core.application.port.outbound.ModerationError>,
     ): CommandResult = when (outcome) {
-        is Result.Success -> CommandResult.Success
+        is Result.Success -> {
+            ctx.reply(MessageKey("astera.command.reply.mod-ratelimit"), mapOf("player" to ctx.required<String>("player")))
+            CommandResult.Success
+        }
         is Result.Failure -> outcome.error.toCommandFailure()
     }
 
-    val muteLiteral = CommandSpec.Literal(
-        name = "mute",
-        description = MessageKey("astera.mod.command.mute"),
-        subcommands = listOf(
-            CommandSpec.Argument("player", ArgumentType.StringArg()),
-            CommandSpec.Argument("duration", ArgumentType.IntegerArg(min = 0)),
-            CommandSpec.Argument("reason-key", ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy)),
-        ),
-        executor = lambda@ { ctx ->
-            val actor = ctx.sender
-                ?: return@lambda CommandResult.Failure(MessageKey("astera.command.player-only"))
-            val target = parsePlayerId(ctx.required("player"))
-                ?: return@lambda invalidPlayer(ctx.required("player"))
-            val seconds = ctx.required<Int>("duration")
-            val reason = parseReason(ctx.required("reason-key"))
-                ?: return@lambda invalidReason(ctx.required("reason-key"))
-            val now = Instant.now(clock)
-            val action = ModerationAction.Mute(
-                id = ModerationActionId.random(),
-                playerId = target,
-                issuedBy = actor,
-                reasonKey = reason,
-                issuedAt = now,
-                expiresAt = parseDurationSecondsOrPermanent(seconds, now),
-            )
-            applyResult(apply.apply(action))
-        },
-    ).requirePermission(permService, Permission(ApplyModerationActionUseCase.PERM_MUTE))
-
-    val kickLiteral = CommandSpec.Literal(
-        name = "kick",
-        description = MessageKey("astera.mod.command.kick"),
-        subcommands = listOf(
-            CommandSpec.Argument("player", ArgumentType.StringArg()),
-            CommandSpec.Argument("reason-key", ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy)),
-        ),
-        executor = lambda@ { ctx ->
-            val actor = ctx.sender
-                ?: return@lambda CommandResult.Failure(MessageKey("astera.command.player-only"))
-            val target = parsePlayerId(ctx.required("player"))
-                ?: return@lambda invalidPlayer(ctx.required("player"))
-            val reason = parseReason(ctx.required("reason-key"))
-                ?: return@lambda invalidReason(ctx.required("reason-key"))
-            val action = ModerationAction.Kick(
-                id = ModerationActionId.random(),
-                playerId = target,
-                issuedBy = actor,
-                reasonKey = reason,
-                issuedAt = Instant.now(clock),
-            )
-            applyResult(apply.apply(action))
-        },
-    ).requirePermission(permService, Permission(ApplyModerationActionUseCase.PERM_KICK))
-
-    val banLiteral = CommandSpec.Literal(
-        name = "ban",
-        description = MessageKey("astera.mod.command.ban"),
-        subcommands = listOf(
-            CommandSpec.Argument("player", ArgumentType.StringArg()),
-            CommandSpec.Argument("duration", ArgumentType.IntegerArg(min = 0)),
-            CommandSpec.Argument("reason-key", ArgumentType.StringArg()),
-            CommandSpec.Argument("scope", ArgumentType.StringArg()),
-        ),
-        executor = lambda@ { ctx ->
-            val actor = ctx.sender
-                ?: return@lambda CommandResult.Failure(MessageKey("astera.command.player-only"))
-            val target = parsePlayerId(ctx.required("player"))
-                ?: return@lambda invalidPlayer(ctx.required("player"))
-            val seconds = ctx.required<Int>("duration")
-            val reason = parseReason(ctx.required("reason-key"))
-                ?: return@lambda invalidReason(ctx.required("reason-key"))
-            val scopeRaw = ctx.required<String>("scope")
-            val scope: BanScope = when {
-                scopeRaw == "global" -> BanScope.Global
-                scopeRaw.startsWith("server:") -> {
-                    val serverId = scopeRaw.removePrefix("server:")
-                    if (serverId.isBlank()) {
-                        return@lambda CommandResult.Failure(
-                            MessageKey("astera.mod.error.invalid-scope"),
-                            mapOf("scope" to scopeRaw),
-                        )
-                    }
-                    BanScope.PerServer(serverId)
-                }
-
-                else -> return@lambda CommandResult.Failure(
-                    MessageKey("astera.mod.error.invalid-scope"),
-                    mapOf("scope" to scopeRaw),
-                )
-            }
-            val now = Instant.now(clock)
-            val action = ModerationAction.Ban(
-                id = ModerationActionId.random(),
-                playerId = target,
-                issuedBy = actor,
-                reasonKey = reason,
-                issuedAt = now,
-                expiresAt = parseDurationSecondsOrPermanent(seconds, now),
-                scope = scope,
-            )
-            applyResult(apply.apply(action))
-        },
-    ).requirePermission(permService, Permission(ApplyModerationActionUseCase.PERM_BAN))
-
     val ratelimitLiteral = CommandSpec.Literal(
         name = "ratelimit",
-        description = MessageKey("astera.mod.command.ratelimit"),
         subcommands = listOf(
-            CommandSpec.Argument("player", ArgumentType.StringArg()),
+            CommandSpec.Argument("player", ArgumentType.PlayerName),
             // rate / burst / duration: rate is encoded as Int tenths-of-token-per-second.
             // Phase 1 keeps types simple — the CommandSpec layer has no DoubleArg yet.
             CommandSpec.Argument("rate-tenths", ArgumentType.IntegerArg(min = 1)),
@@ -214,13 +113,12 @@ public fun buildModerationCommandSpec(
                 ratePerSecond = rateTenths / TENTHS_PER_TOKEN,
                 burstSize = burst,
             )
-            applyResult(apply.apply(action))
+            applyResult(ctx, apply.apply(action))
         },
-    ).requirePermission(permService, Permission(ApplyModerationActionUseCase.PERM_RATELIMIT))
+    ).requirePermission(Permission(ApplyModerationActionUseCase.PERM_RATELIMIT))
 
     val liftLiteral = CommandSpec.Literal(
         name = "lift",
-        description = MessageKey("astera.mod.command.lift"),
         subcommands = listOf(
             CommandSpec.Argument("action-id", ArgumentType.StringArg()),
         ),
@@ -234,42 +132,41 @@ public fun buildModerationCommandSpec(
                     mapOf("action-id" to raw),
                 )
             when (val outcome = lift.lift(id, actor)) {
-                is Result.Success -> CommandResult.Success
+                is Result.Success -> {
+                    ctx.reply(MessageKey("astera.command.reply.mod-lift"), mapOf("action-id" to raw))
+                    CommandResult.Success
+                }
                 is Result.Failure -> outcome.error.toCommandFailure()
             }
         },
-    ).requirePermission(permService, Permission(LiftModerationActionUseCase.PERM_LIFT))
+    ).requirePermission(Permission(LiftModerationActionUseCase.PERM_LIFT))
 
     val historyLiteral = CommandSpec.Literal(
         name = "history",
-        description = MessageKey("astera.mod.command.history"),
         subcommands = listOf(
-            CommandSpec.Argument("player", ArgumentType.StringArg()),
-            CommandSpec.Argument("limit", ArgumentType.IntegerArg(min = 1, max = HISTORY_HARD_LIMIT)),
+            CommandSpec.Argument("player", ArgumentType.PlayerName),
+            CommandSpec.Argument("limit", ArgumentType.IntegerArg(min = 1, max = HISTORY_HARD_LIMIT), optional = true),
         ),
         executor = lambda@ { ctx ->
             val target = parsePlayerId(ctx.required("player"))
                 ?: return@lambda invalidPlayer(ctx.required("player"))
-            val limit = ctx.required<Int>("limit")
-            // Side-effect-free read; adapter is responsible for paging the result
-            // to the moderator. Phase 1 just runs the query and returns Success.
-            query.history(target, limit)
+            val limit = ctx.optional<Int>("limit") ?: QueryActiveModerationUseCase.DEFAULT_HISTORY_LIMIT
+            val rows = query.history(target, limit)
+            ctx.reply(
+                MessageKey("astera.command.reply.mod-history-header"),
+                mapOf("player" to ctx.required<String>("player"), "count" to rows.size.toString()),
+            )
+            rows.forEach { row ->
+                ctx.reply(
+                    MessageKey("astera.command.reply.mod-history-line"),
+                    mapOf("id" to row.id.value.toString(), "action" to (row::class.simpleName ?: "?"), "at" to row.issuedAt.toString()),
+                )
+            }
             CommandResult.Success
         },
-    )
+    ).requirePermission(Permission(PERM_HISTORY))
 
-    return CommandSpec.Literal(
-        name = "mod",
-        description = MessageKey("astera.mod.command.root"),
-        subcommands = listOf(
-            muteLiteral,
-            kickLiteral,
-            banLiteral,
-            ratelimitLiteral,
-            liftLiteral,
-            historyLiteral,
-        ),
-    )
+    return listOf(ratelimitLiteral, liftLiteral, historyLiteral)
 }
 
 /**
@@ -305,5 +202,6 @@ private fun com.astarworks.astera.core.application.port.outbound.ModerationError
             )
     }
 
+private const val PERM_HISTORY: String = "astera.mod.history"
 private const val TENTHS_PER_TOKEN: Double = 10.0
 private const val HISTORY_HARD_LIMIT: Int = 200

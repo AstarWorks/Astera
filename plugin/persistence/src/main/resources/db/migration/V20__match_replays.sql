@@ -40,7 +40,7 @@ CREATE TABLE match_replays (
 -- (each save mints a fresh ReplayId, so this index stays small).
 CREATE UNIQUE INDEX idx_match_replays_replay_id ON match_replays (replay_id);
 
--- Time-range helper for the eventual `/astera-match replay list since=...`
+-- Time-range helper for the eventual `/astera match replay list since=...`
 -- admin command (Wave 5v ships export-by-match-id only; list lands in
 -- Phase 4 with the playback UI).
 CREATE INDEX idx_match_replays_saved_at ON match_replays (saved_at DESC);

@@ -18,7 +18,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
     // PvP server completeness — 6-axis MECE close on top of the
     // single-axis state machine the Wave 5wireup audit revealed.
     //
-    //   Axis 2 (Communication) — register `/astera-chat` + `/astera-announce`
+    //   Axis 2 (Communication) — register `/astera chat` + `/astera admin announce`
     //                            commands on top of Wave 5e ChatChannel +
     //                            Wave 5t IScheduledAnnouncementSystem.
     //   Axis 3 (Moderation)    — flat /astera-{kick,mute,unmute,ban,tempban,
@@ -156,17 +156,16 @@ internal fun CoreWiringState.wireCompletenessListeners() {
         lift = liftMod,
         service = moderationService,
         playerResolver = playerGateway,
-        permService = permissionService,
     )
-    flatModCommands.kick.copy(name = "astera-kick").let { commandHandler.register(it) }
-    flatModCommands.mute.copy(name = "astera-mute").let { commandHandler.register(it) }
-    flatModCommands.unmute.copy(name = "astera-unmute").let { commandHandler.register(it) }
-    flatModCommands.ban.copy(name = "astera-ban").let { commandHandler.register(it) }
-    flatModCommands.tempban.copy(name = "astera-tempban").let { commandHandler.register(it) }
-    flatModCommands.unban.copy(name = "astera-unban").let { commandHandler.register(it) }
-    flatModCommands.warn.copy(name = "astera-warn").let { commandHandler.register(it) }
+    flatModCommands.all().forEach { commands.register("mod", it) }
+    com.astarworks.astera.core.application.command.buildModerationAuxCommands(
+        apply = applyMod,
+        lift = liftMod,
+        query = com.astarworks.astera.core.application.usecase.moderation.QueryActiveModerationUseCase(moderationService),
+        playerResolver = playerGateway,
+    ).forEach { commands.register("mod", it) }
 
-    commandHandler.register(
+    commands.register(
         com.astarworks.astera.core.application.command.buildChatCommandSpec(
             sendChat = com.astarworks.astera.core.application.usecase.chat.SendChatMessageUseCase(
                 eventBus = eventBus,
@@ -175,22 +174,22 @@ internal fun CoreWiringState.wireCompletenessListeners() {
             teamLookup = { services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>() },
             partyRepository = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPartyRepository>(),
             playerResolver = playerGateway,
-        ).copy(name = "astera-chat"),
+        ),
     )
 
-    commandHandler.register(
+    commands.register(
+        "admin",
         com.astarworks.astera.core.application.command.buildAnnouncementCommandSpec(
             announcer = announcementSystem,
-            permissionService = permissionService,
-        ).copy(name = "astera-announce"),
+        ),
     )
 
     logger.info(
         "Wave 5complete wired: IModerationService + IItemEntityGateway + " +
             "IPlayerLocationLookup registered; KickPlayerOnAfkKicked + " +
             "SpawnItemEntityOnLootDropped + AutoPickupOnPlayerMoved + " +
-            "PlayerMovedLocationTracker subscribed; /astera-{kick,mute,unmute," +
-            "ban,tempban,unban,warn,chat,announce} commands registered.",
+            "PlayerMovedLocationTracker subscribed; /astera mod {kick,mute,unmute," +
+            "ban,tempban,unban,warn,ratelimit,lift,history}, /astera chat, /astera admin announce mounted.",
     )
 
     // ── Wave 5block-embed (ADR-0120) ──────────────────────────────────

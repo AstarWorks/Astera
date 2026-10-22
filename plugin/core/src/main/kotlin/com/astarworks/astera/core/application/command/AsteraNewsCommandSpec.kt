@@ -7,9 +7,10 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.news.NewsEntry
 import java.time.Clock
 import java.time.Instant
+import com.astarworks.astera.core.domain.permission.Permission
 
 /**
- * Wave J 5server-content-ops (ADR-0127) — `/astera-news [limit]`.
+ * Wave J 5server-content-ops (ADR-0127) — `/astera news [limit]`.
  *
  * Renders the top `limit` non-expired [NewsEntry] (newest first) as chat
  * messages to the invoking player.
@@ -92,16 +93,16 @@ public fun buildAsteraNewsCommandSpec(
     }
 
     return CommandSpec.Literal(
-        name = "astera-news",
-        description = MessageKey("astera.news.command.root"),
+        name = "news",
         subcommands = listOf(
             CommandSpec.Argument(
                 "limit",
                 ArgumentType.IntegerArg(min = 1, max = MAX_LIMIT),
+                optional = true,
             ),
         ),
         executor = executor,
-    )
+    ).forEveryone(Permission("astera.news.read"))
 }
 
 private const val DEFAULT_LIMIT: Int = 5

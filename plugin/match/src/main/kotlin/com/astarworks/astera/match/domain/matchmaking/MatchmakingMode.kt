@@ -33,7 +33,7 @@ public sealed interface MatchmakingMode {
 
     public companion object {
         /**
-         * Parse the wire form shared by `/astera-queue join` and the lobby GUI:
+         * Parse the wire form shared by `/astera queue join` and the lobby GUI:
          * `norma` | `custom:<game-mode-id>` | `tournament:<id>`. Returns null when malformed.
          */
         public fun parse(raw: String): MatchmakingMode? {

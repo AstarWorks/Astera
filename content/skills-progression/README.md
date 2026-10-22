@@ -29,7 +29,7 @@ perks:                        # optional, sorted ascending by level
 ## Loading
 
 `SkillProgressionContents` (`tools/architecture-test` enforces serialisation
-annotations stay out of domain) reloads via `/astera-stats reload skills-progression`
+annotations stay out of domain) reloads via `/astera admin reload skills-progression`
 through the standard `IReloadableContentsRegistry` path.
 
 ## Phase 1 status

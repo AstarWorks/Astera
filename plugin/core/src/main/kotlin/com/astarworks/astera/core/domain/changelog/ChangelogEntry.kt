@@ -8,8 +8,8 @@ import java.time.Instant
  * (Wave J 5server-content-ops, ADR-0127).
  *
  * Loaded from `content/changelog/<version>.yaml` files at boot. Highlights are
- * short bullet keys rendered as one chat line each by `/astera-patch`; `full`
- * is the long-form message rendered when the player runs `/astera-patch <version>`
+ * short bullet keys rendered as one chat line each by `/astera patch`; `full`
+ * is the long-form message rendered when the player runs `/astera patch <version>`
  * for detail.
  */
 public data class ChangelogEntry(

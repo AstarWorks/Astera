@@ -9,7 +9,9 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.DefaultRoles
 import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.domain.player.PlayerId
-import com.astarworks.astera.testfixtures.FakeScheduler
+import com.astarworks.astera.testfixtures.consoleActor
+import com.astarworks.astera.testfixtures.invokeAs
+import com.astarworks.astera.testfixtures.playerActor
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -18,9 +20,9 @@ import java.util.UUID
 /**
  * R1.c — verifies that:
  *
- * - `/astera-stats xp grant` is gated by `astera.stats.xp.grant` via
+ * - `/astera stats xp grant` is gated by `astera.stats.xp.grant` via
  *   [requirePermission]; PLAYER is denied, MODERATOR passes, console bypasses.
- * - `/astera-stats show <other>` requires `astera.stats.show.other` when the
+ * - `/astera stats show <other>` requires `astera.stats.show.other` when the
  *   sender is inspecting a player other than themselves. Self-inspection is
  *   open to everyone (no permission required). This branch is implemented
  *   inline in `AsteraStatsPlugin.buildCommandSpec(...)`; the test exercises
@@ -28,17 +30,12 @@ import java.util.UUID
  */
 class PermissionGatingTest {
 
-    private val scheduler = FakeScheduler()
-
-    private fun ctx(sender: PlayerId?): CommandContext =
-        CommandContext(sender = sender, args = emptyMap(), scheduler = scheduler)
-
     private fun gatedNoop(perm: Permission, svc: InMemoryPermissionService): CommandSpec.Literal =
         CommandSpec.Literal(
             name = "noop",
             subcommands = emptyList(),
             executor = { CommandResult.Success },
-        ).requirePermission(permissionService = svc, permission = perm)
+        ).requirePermission(perm)
 
     // -------------------------------------------------------------------------
     // xp grant — gated to MODERATOR
@@ -51,7 +48,7 @@ class PermissionGatingTest {
         svc.assign(player, DefaultRoles.PLAYER.id)
         val spec = gatedNoop(Permission("astera.stats.xp.grant"), svc)
 
-        val result = spec.executor!!(ctx(player))
+        val result = spec.invokeAs(svc, playerActor(player)).result
 
         assertThat(result).isInstanceOf(CommandResult.Failure::class.java)
         val failure = result as CommandResult.Failure
@@ -66,7 +63,7 @@ class PermissionGatingTest {
         svc.assign(mod, DefaultRoles.MODERATOR.id)
         val spec = gatedNoop(Permission("astera.stats.xp.grant"), svc)
 
-        val result = spec.executor!!(ctx(mod))
+        val result = spec.invokeAs(svc, playerActor(mod)).result
 
         assertThat(result).isEqualTo(CommandResult.Success)
     }
@@ -76,7 +73,7 @@ class PermissionGatingTest {
         val svc = InMemoryPermissionService()
         val spec = gatedNoop(Permission("astera.stats.xp.grant"), svc)
 
-        val result = spec.executor!!(ctx(sender = null))
+        val result = spec.invokeAs(svc, consoleActor()).result
 
         assertThat(result).isEqualTo(CommandResult.Success)
     }

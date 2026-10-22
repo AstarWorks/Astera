@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.changelog.ChangelogVersion
  * (Wave J 5server-content-ops, ADR-0127).
  *
  * Populated at startup by `ChangelogContents.bootstrap` and hot-reloadable via
- * `/astera-reload changelog`.
+ * `/astera admin reload changelog`.
  */
 public interface IChangelogRegistry : Contents<ChangelogVersion, ChangelogEntry> {
 

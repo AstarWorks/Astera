@@ -2,7 +2,6 @@ package com.astarworks.astera.core.application.command
 
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.outbound.IFriendshipRepository
-import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
 import com.astarworks.astera.core.application.usecase.social.AcceptFriendRequestUseCase
 import com.astarworks.astera.core.application.usecase.social.RemoveFriendUseCase
@@ -21,10 +20,10 @@ import org.slf4j.LoggerFactory
  * DSL doesn't compose deeply-nested literal-then-literal-then-argument
  * trees — see [CommandSpec.Literal] kdoc):
  *
- *  - `/astera-friend-add <player>`
- *  - `/astera-friend-accept <player>`
- *  - `/astera-friend-remove <player>`
- *  - `/astera-friend-list`
+ *  - `/astera friend add <player>`
+ *  - `/astera friend accept <player>`
+ *  - `/astera friend remove <player>`
+ *  - `/astera friend list`
  *
  * Player-self preference family — single permission gate `astera.friends.use`
  * applies to all four. Console invocations fail with `astera.command.player-only`
@@ -37,7 +36,6 @@ public class FriendCommands(
     private val friendships: IFriendshipRepository,
     private val playerGateway: IPlayerGateway,
     private val mcServer: IMcServer,
-    private val permissionService: IPermissionService,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -50,12 +48,11 @@ public class FriendCommands(
     )
 
     private fun addCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-friend-add",
-        description = MessageKey("astera.friends.command.add.root"),
+        name = "add",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "player",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                type = ArgumentType.PlayerName,
             ),
         ),
         executor = { ctx ->
@@ -71,6 +68,7 @@ public class FriendCommands(
             when (val outcome = sendFriendRequest.send(sender, target)) {
                 is Result.Success -> {
                     log.info("{} sent friend request to {}", sender, target)
+                    ctx.reply(MessageKey("astera.command.reply.friend-add"), mapOf("player" to name))
                     CommandResult.Success
                 }
                 is Result.Failure -> CommandResult.Failure(
@@ -79,15 +77,14 @@ public class FriendCommands(
                 )
             }
         },
-    ).requirePermission(permissionService, Permission("astera.friends.use"))
+    ).forEveryone(Permission("astera.friends.use"))
 
     private fun acceptCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-friend-accept",
-        description = MessageKey("astera.friends.command.accept.root"),
+        name = "accept",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "player",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                type = ArgumentType.PlayerName,
             ),
         ),
         executor = { ctx ->
@@ -103,6 +100,7 @@ public class FriendCommands(
             when (val outcome = acceptFriendRequest.accept(sender, requester)) {
                 is Result.Success -> {
                     log.info("{} accepted friend request from {}", sender, requester)
+                    ctx.reply(MessageKey("astera.command.reply.friend-accept"), mapOf("player" to name))
                     CommandResult.Success
                 }
                 is Result.Failure -> CommandResult.Failure(
@@ -111,15 +109,14 @@ public class FriendCommands(
                 )
             }
         },
-    ).requirePermission(permissionService, Permission("astera.friends.use"))
+    ).forEveryone(Permission("astera.friends.use"))
 
     private fun removeCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-friend-remove",
-        description = MessageKey("astera.friends.command.remove.root"),
+        name = "remove",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "player",
-                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
+                type = ArgumentType.PlayerName,
             ),
         ),
         executor = { ctx ->
@@ -135,6 +132,7 @@ public class FriendCommands(
             when (val outcome = removeFriend.remove(sender, target)) {
                 is Result.Success -> {
                     log.info("{} removed friendship with {}", sender, target)
+                    ctx.reply(MessageKey("astera.command.reply.friend-remove"), mapOf("player" to name))
                     CommandResult.Success
                 }
                 is Result.Failure -> CommandResult.Failure(
@@ -143,28 +141,29 @@ public class FriendCommands(
                 )
             }
         },
-    ).requirePermission(permissionService, Permission("astera.friends.use"))
+    ).forEveryone(Permission("astera.friends.use"))
 
     private fun listCommand(): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-friend-list",
-        description = MessageKey("astera.friends.command.list.root"),
+        name = "list",
         executor = { ctx ->
             val sender = playerSenderOrFail(ctx) ?: return@Literal CommandResult.Failure(
                 MessageKey("astera.command.player-only"), emptyMap(),
             )
             val accepted = friendships.forPlayer(sender)
                 .filter { it.status == FriendshipStatus.ACCEPTED }
-            log.info("/astera-friend-list for {} → {} accepted", sender, accepted.size)
-            // List entries are surfaced through logs only at this PoC stage;
-            // the GUI is the richer surface. Future wave can extend the
-            // executor to push localized messages via IBroadcaster.
-            accepted.forEach { row ->
-                val other = if (row.playerA == sender) row.playerB else row.playerA
-                log.info("  friend: {}", playerDisplay(other))
+            log.info("/astera friend list for {} → {} accepted", sender, accepted.size)
+            if (accepted.isEmpty()) {
+                ctx.reply(MessageKey("astera.command.reply.friend-list-empty"))
+            } else {
+                ctx.reply(MessageKey("astera.command.reply.friend-list-header"), mapOf("count" to accepted.size.toString()))
+                accepted.forEach { row ->
+                    val other = if (row.playerA == sender) row.playerB else row.playerA
+                    ctx.reply(MessageKey("astera.command.reply.friend-list-line"), mapOf("player" to playerDisplay(other)))
+                }
             }
             CommandResult.Success
         },
-    ).requirePermission(permissionService, Permission("astera.friends.use"))
+    ).forEveryone(Permission("astera.friends.use"))
 
     private fun playerDisplay(id: PlayerId): String =
         mcServer.findPlayer(id)?.name ?: id.uuid.toString()

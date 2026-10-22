@@ -3,7 +3,7 @@
 # Phase 1 ships the table only — claim flow returns NotImplemented until Phase 2
 # wires the streak repository to an actual reward grant (currency ledger +
 # IItemDelivery). Authors can already tune the table by editing this file and
-# running `/astera-reload login-bonus`.
+# running `/astera admin reload login-bonus`.
 
 days:
   - day: 1

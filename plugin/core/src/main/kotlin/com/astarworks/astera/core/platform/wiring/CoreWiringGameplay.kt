@@ -289,28 +289,24 @@ internal fun CoreWiringState.wireGameplayLoop() {
     //    `astera-match` / `astera-queue` register under their own
     //    top-level names in `AsteraMatchPlugin`. The `astera-` prefix is
     //    rewritten so they appear under one player-facing namespace.
-    commandHandler.register(
+    commands.register(
         com.astarworks.astera.core.application.command.buildTravelCommandSpec(
             travelToPve = travelToPve,
             travelToSurvival = travelToSurvival,
             returnToLobby = returnToLobby,
-        ).copy(name = "astera-travel"),
+        ),
     )
-    commandHandler.register(
+    commands.register(
         com.astarworks.astera.core.application.command.buildMainMenuCommandSpec(
             guiAdapter = guiAdapter,
             mcServer = mcServer,
-        ).copy(name = "astera-menu"),
-    )
-    commandHandler.register(
-        com.astarworks.astera.core.application.command.buildHelpCommandSpec()
-            .copy(name = "astera-help"),
+        ),
     )
 
     logger.info(
         "Wave 5wireup wired: IPlayerProfileService + IDialogGateway + " +
             "IHudGateway registered; CreateFirstTimeProfile / StartTutorial / " +
             "ShowWelcomeDialog / HudUpdateOnCurrencyChanged subscribed; " +
-            "/astera-travel + /astera-menu + /astera-help commands registered.",
+            "/astera travel + /astera menu commands mounted.",
     )
 }

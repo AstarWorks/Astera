@@ -31,7 +31,7 @@ import java.util.UUID
  * This port is the **routing table** for block-position interactions.
  * The companion `RouteBlockInteractionListener` (event-bus listener)
  * resolves the bound action and dispatches it through
- * `ICommandHandler` / `IGuiAdapter` / skill use cases / `IWorldGateway`.
+ * `IAsteraCommandRegistry` / `IGuiAdapter` / skill use cases / `IWorldGateway`.
  *
  * # Binding scope
  *

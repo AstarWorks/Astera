@@ -94,36 +94,37 @@ class AdminOpsCommandsTest {
     }
 
     @Test
-    fun `build returns 10 admin commands`() {
+    fun `build returns 10 admin commands without the legacy astera prefix`() {
         val all = commands.build()
         val names = all.map { it.name }
         assertThat(names).containsExactlyInAnyOrder(
-            "astera-maintenance",
-            "astera-teleport",
-            "astera-reload",
-            "astera-audit",
-            "astera-promote",
-            "astera-demote",
-            "astera-config",
-            "astera-health",
-            "astera-spawn-mob",
-            "astera-backup",
+            "maintenance",
+            "teleport",
+            "reload",
+            "audit",
+            "promote",
+            "demote",
+            "config",
+            "health",
+            "spawn-mob",
+            "backup",
         )
     }
 
     @Test
-    fun `every command is permission-gated and refuses unprivileged sender`() {
+    fun `every command declares a permission and the authorizer refuses an unprivileged sender`() {
         val unprivileged = PlayerId(UUID.randomUUID())
         commands.build().forEach { spec ->
+            assertThat(spec.permission).describedAs("${spec.name} permission").isNotNull()
             val ctx = ctx(
                 sender = unprivileged,
                 args = mapOf(
                     "action" to "status",
                     "player" to "Alice",
                     "world" to "world",
-                    "x" to "0",
-                    "y" to "64",
-                    "z" to "0",
+                    "x" to 0.0,
+                    "y" to 64.0,
+                    "z" to 0.0,
                     "limit" to 10,
                     "category" to "items",
                     "role-id" to "moderator",
@@ -134,7 +135,10 @@ class AdminOpsCommandsTest {
                     "target" to "Alice",
                 ),
             )
-            val result = runBlocking { spec.executor!!(ctx) }
+            val result = runBlocking {
+                CommandInvoker(CommandAuthorizer { permissionService }, scheduler)
+                    .invoke(spec, CommandActor(unprivileged), ctx.args) { _, _ -> }
+            }
             assertThat(result)
                 .describedAs("${spec.name} should reject unprivileged sender")
                 .isInstanceOf(CommandResult.Failure::class.java)
@@ -145,7 +149,7 @@ class AdminOpsCommandsTest {
 
     @Test
     fun `maintenance command toggles state on and off`() {
-        val cmd = commands.build().first { it.name == "astera-maintenance" }
+        val cmd = commands.build().first { it.name == "maintenance" }
         runBlocking {
             val onResult = cmd.executor!!(ctx(
                 sender = adminPlayer,
@@ -167,12 +171,12 @@ class AdminOpsCommandsTest {
 
     @Test
     fun `teleport command delegates to IWorldGateway`() {
-        val cmd = commands.build().first { it.name == "astera-teleport" }
+        val cmd = commands.build().first { it.name == "teleport" }
         worldGateway.teleportResult = true
         runBlocking {
             val result = cmd.executor!!(ctx(
                 sender = adminPlayer,
-                args = mapOf("player" to "Alice", "world" to "spawn", "x" to "1", "y" to "70", "z" to "2"),
+                args = mapOf("player" to "Alice", "world" to "spawn", "x" to 1.0, "y" to 70.0, "z" to 2.0),
             ))
             assertThat(result).isEqualTo(CommandResult.Success)
             assertThat(worldGateway.teleports).hasSize(1)
@@ -185,7 +189,7 @@ class AdminOpsCommandsTest {
 
     @Test
     fun `reload command reports UnknownCategory failure`() {
-        val cmd = commands.build().first { it.name == "astera-reload" }
+        val cmd = commands.build().first { it.name == "reload" }
         runBlocking {
             val result = cmd.executor!!(ctx(
                 sender = adminPlayer,
@@ -200,7 +204,7 @@ class AdminOpsCommandsTest {
 
     @Test
     fun `health command always succeeds and reads the snapshot`() {
-        val cmd = commands.build().first { it.name == "astera-health" }
+        val cmd = commands.build().first { it.name == "health" }
         runBlocking {
             val result = cmd.executor!!(ctx(sender = adminPlayer, args = emptyMap()))
             assertThat(result).isEqualTo(CommandResult.Success)
@@ -209,8 +213,8 @@ class AdminOpsCommandsTest {
 
     @Test
     fun `promote then demote round-trips through IPermissionService`() {
-        val promote = commands.build().first { it.name == "astera-promote" }
-        val demote = commands.build().first { it.name == "astera-demote" }
+        val promote = commands.build().first { it.name == "promote" }
+        val demote = commands.build().first { it.name == "demote" }
         runBlocking {
             val pResult = promote.executor!!(ctx(
                 sender = adminPlayer,
@@ -240,7 +244,7 @@ class AdminOpsCommandsTest {
                 occurredAt = clock.instant(),
             ),
         )
-        val cmd = commands.build().first { it.name == "astera-audit" }
+        val cmd = commands.build().first { it.name == "audit" }
         runBlocking {
             val result = cmd.executor!!(ctx(
                 sender = adminPlayer,
@@ -252,7 +256,7 @@ class AdminOpsCommandsTest {
 
     @Test
     fun `spawn-mob respects count and reports BackendError`() {
-        val cmd = commands.build().first { it.name == "astera-spawn-mob" }
+        val cmd = commands.build().first { it.name == "spawn-mob" }
         mobSpawner.nextResult = Result.failure(MobError.BackendError("world unloaded"))
         runBlocking {
             val result = cmd.executor!!(ctx(
@@ -261,9 +265,9 @@ class AdminOpsCommandsTest {
                     "mob-id" to "astera:zombie",
                     "count" to 3,
                     "world" to "world",
-                    "x" to "0",
-                    "y" to "64",
-                    "z" to "0",
+                    "x" to 0.0,
+                    "y" to 64.0,
+                    "z" to 0.0,
                 ),
             ))
             assertThat(result).isInstanceOf(CommandResult.Failure::class.java)
@@ -274,7 +278,7 @@ class AdminOpsCommandsTest {
 
     @Test
     fun `backup now requires a target and exports via the gateway`() {
-        val cmd = commands.build().first { it.name == "astera-backup" }
+        val cmd = commands.build().first { it.name == "backup" }
         runBlocking {
             val missing = cmd.executor!!(ctx(
                 sender = adminPlayer,
@@ -295,7 +299,7 @@ class AdminOpsCommandsTest {
 
     @Test
     fun `config get reads through the editor`() {
-        val cmd = commands.build().first { it.name == "astera-config" }
+        val cmd = commands.build().first { it.name == "config" }
         liveConfigEditor.fakeRead["items/foo.yaml"] = "hello"
         runBlocking {
             val ok = cmd.executor!!(ctx(

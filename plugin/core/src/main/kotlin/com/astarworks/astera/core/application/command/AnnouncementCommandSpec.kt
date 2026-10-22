@@ -14,7 +14,7 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * Wave 5complete (ADR-0117 §Axis 2) — `/astera-announce <messageKey> [kind]`.
+ * Wave 5complete (ADR-0117 §Axis 2) — `/astera admin announce <messageKey> [kind]`.
  *
  * Schedules a one-shot announcement that fires "now" via
  * [IScheduledAnnouncementSystem]'s [AnnouncementTrigger.Once] arm. The
@@ -26,7 +26,6 @@ import java.util.UUID
  */
 public fun buildAnnouncementCommandSpec(
     announcer: IScheduledAnnouncementSystem,
-    permissionService: IPermissionService,
     clock: Clock = Clock.systemUTC(),
 ): CommandSpec.Literal {
 
@@ -47,20 +46,22 @@ public fun buildAnnouncementCommandSpec(
             broadcastKind = kind,
         )
         when (val outcome = announcer.schedule(spec)) {
-            is Result.Success -> CommandResult.Success
+            is Result.Success -> {
+                ctx.reply(MessageKey("astera.command.reply.admin-announce"), mapOf("key" to messageKeyRaw, "kind" to kindRaw))
+                CommandResult.Success
+            }
             is Result.Failure -> CommandResult.Failure(outcome.error.messageKey)
         }
     }
 
     return CommandSpec.Literal(
         name = "announce",
-        description = MessageKey("astera.announce.command.root"),
         subcommands = listOf(
             CommandSpec.Argument("message-key", ArgumentType.StringArg()),
-            CommandSpec.Argument("kind", ArgumentType.StringArg()),
+            CommandSpec.Argument("kind", ArgumentType.Choice("chat", "actionbar", "title"), optional = true),
         ),
         executor = executor,
-    ).requirePermission(permissionService, Permission(PERM_ANNOUNCE))
+    ).requirePermission(Permission(PERM_ANNOUNCE))
 }
 
 private fun parseKind(raw: String): AnnouncementBroadcastKind? = when (raw.lowercase()) {

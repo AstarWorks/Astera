@@ -23,7 +23,7 @@ import com.astarworks.astera.match.domain.matchmaking.MatchmakingMode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** F1-D: the `/astera-admin` panel driven through the real wired object graph. */
+/** F1-D: the `/astera admin panel` panel driven through the real wired object graph. */
 class AdminPanelScenarioTest {
 
     private fun ScenarioScope.router(): IGuiIntentRouter = sim.services.getOrThrow()

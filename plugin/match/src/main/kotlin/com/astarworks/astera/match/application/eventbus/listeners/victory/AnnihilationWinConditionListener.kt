@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory
  * `AnnihilationMatchTracker.evaluateWinCondition` but did nothing with
  * the result — the audit gap recorded the win-condition path as
  * "read-only". Matches never actually ended via the Annihilation
- * outcome; only `/astera-match phase` admin commands could close them.
+ * outcome; only `/astera match phase` admin commands could close them.
  *
  * # Two trigger paths
  *

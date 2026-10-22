@@ -4,6 +4,7 @@ import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.gui.lobby.MainMenuGuiSpec
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.permission.Permission
 
 /**
  * `/astera menu` Brigadier command spec (Wave 5wireup, ADR-0116 §G11).
@@ -24,7 +25,6 @@ public fun buildMainMenuCommandSpec(
 ): CommandSpec.Literal =
     CommandSpec.Literal(
         name = "menu",
-        description = MessageKey("astera.command.menu.root"),
         executor = lambda@ { ctx ->
             val playerId = ctx.sender ?: return@lambda CommandResult.Failure(
                 MessageKey("astera.command.player-only"),
@@ -39,4 +39,4 @@ public fun buildMainMenuCommandSpec(
                 CommandResult.Failure(MessageKey("astera.gui.error.open-rejected"))
             }
         },
-    )
+    ).forEveryone(Permission("astera.menu.open"))

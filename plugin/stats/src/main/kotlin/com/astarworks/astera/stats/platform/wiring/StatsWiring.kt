@@ -4,7 +4,6 @@ import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
-import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
@@ -107,7 +106,7 @@ public class StatsWiringResult(
 
 /**
  * Host-neutral Stats wiring (ADR-0174). Pure construction / registration /
- * subscriptions / command specs — no Bukkit. Subscribes to PlayerKilled / DamageDealt on the shared event bus and registers the `/astera-stats` command tree.
+ * subscriptions / command specs — no Bukkit. Subscribes to PlayerKilled / DamageDealt on the shared event bus and registers the `/astera stats` command tree.
  */
 public object StatsWiring {
 
@@ -125,7 +124,7 @@ public object StatsWiring {
         val messages = services.getOrThrow<IMessageRenderer>()
         val broadcaster = services.getOrThrow<IBroadcaster>()
         val playerGateway = services.getOrThrow<IPlayerGateway>()
-        val commandHandler = services.getOrThrow<ICommandHandler>()
+        val commands = ctx.commandMount("Astera-Stats")
         val eventBus = services.getOrThrow<IDomainEventBus>()
         val permService = services.getOrThrow<IPermissionService>()
         val matchRepository = services.getOrThrow<IMatchRepository>()
@@ -424,174 +423,15 @@ public object StatsWiring {
             priority = 0,
         )
 
-        // 7. /astera-stats command -----------------------------------------
-        commandHandler.register(buildCommandSpec(grantXp, statsRepository, playerGateway, permService))
-
-        // Wave 7b: /astera-leaderboard [n] — top-N of the current season.
-        commandHandler.register(buildLeaderboardCommandSpec(queryLeaderboard, playerGateway))
-
-        // Wave E 5admin-ops (ADR-0122) — `/astera-grant-xp` flat admin command.
-        commandHandler.register(
-            com.astarworks.astera.stats.command.admin.AdminGrantXpCommandSpec(
-                grantXp = grantXp,
-                playerGateway = playerGateway,
-                permissionService = permService,
-            ).build(),
-        )
+        // 7. `/astera stats show|leaderboard|xp grant` (ADR-0184).
+        com.astarworks.astera.stats.command.StatsCommands(
+            grantXp = grantXp,
+            statsRepository = statsRepository,
+            queryLeaderboard = queryLeaderboard,
+            players = playerGateway,
+            permissions = { services.getOrThrow<IPermissionService>() },
+        ).build().forEach { commands.register("stats", it) }
 
         return StatsWiringResult(grantXp = grantXp, shutdownHooks = shutdownHooks.toList())
     }
-
-    private fun buildCommandSpec(
-        grantXp: GrantXpUseCase,
-        statsRepository: IPlayerStatsRepository,
-        playerGateway: IPlayerGateway,
-        permService: IPermissionService,
-    ): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-stats",
-        description = MessageKey("astera.stats.command.root"),
-        subcommands = listOf(
-            // /astera-stats show <playerName>
-            CommandSpec.Literal(
-                name = "show",
-                description = MessageKey("astera.stats.command.show"),
-                subcommands = listOf(
-                    CommandSpec.Argument(
-                        name = "target",
-                        type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-                    ),
-                ),
-                executor = lambda@ { ctx ->
-                    val targetName = ctx.required<String>("target")
-                    val targetId = playerGateway.findByName(targetName)
-                        ?: return@lambda CommandResult.Failure(
-                            MessageKey("astera.stats.command.show.player-not-found"),
-                            mapOf("player" to targetName),
-                        )
-                    // R1.c gating: showing your own stats is open to everyone;
-                    // inspecting another player requires astera.stats.show.other
-                    // (console bypasses, matching the framework decorator convention).
-                    val senderForPermCheck = ctx.sender
-                    if (senderForPermCheck != null && senderForPermCheck != targetId) {
-                        val perm = Permission("astera.stats.show.other")
-                        if (!permService.check(senderForPermCheck, perm)) {
-                            return@lambda CommandResult.Failure(
-                                MessageKey("astera.permission.denied"),
-                                mapOf("permission" to perm.id),
-                            )
-                        }
-                    }
-                    val stats = statsRepository.find(targetId)
-                    if (stats == null) {
-                        playerGateway.sendMessage(
-                            ctx.sender ?: return@lambda CommandResult.Failure(
-                                MessageKey("astera.stats.command.console-not-supported"),
-                            ),
-                            "[$targetName] No stats recorded yet.",
-                        )
-                    } else {
-                        val msg = "[$targetName] K=${stats.kills} D=${stats.deaths} " +
-                            "KD=${"%.2f".format(stats.kdRatio)} " +
-                            "DMG=${stats.damageDealt} Taken=${stats.damageTaken}"
-                        playerGateway.sendMessage(
-                            ctx.sender ?: return@lambda CommandResult.Failure(
-                                MessageKey("astera.stats.command.console-not-supported"),
-                            ),
-                            msg,
-                        )
-                    }
-                    CommandResult.Success
-                },
-            ),
-            // /astera-stats xp grant <playerName> <amount>
-            CommandSpec.Literal(
-                name = "xp",
-                description = MessageKey("astera.stats.command.xp"),
-                subcommands = listOf(
-                    CommandSpec.Literal(
-                        name = "grant",
-                        description = MessageKey("astera.stats.command.xp.grant"),
-                        subcommands = listOf(
-                            CommandSpec.Argument(
-                                name = "target",
-                                type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-                            ),
-                            CommandSpec.Argument(
-                                name = "amount",
-                                type = ArgumentType.IntegerArg(min = 1),
-                            ),
-                        ),
-                        executor = lambda@ { ctx ->
-                            val targetName = ctx.required<String>("target")
-                            val amount = ctx.required<Int>("amount").toLong()
-                            val targetId = playerGateway.findByName(targetName)
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.stats.command.xp.player-not-found"),
-                                    mapOf("player" to targetName),
-                                )
-                            val result = grantXp.execute(targetId, amount, XpSource.AdminGrant)
-                            if (result.isSuccess) CommandResult.Success
-                            else CommandResult.Failure(MessageKey("astera.stats.command.xp.invalid-amount"))
-                        },
-                    ).requirePermission(
-                        permissionService = permService,
-                        permission = Permission("astera.stats.xp.grant"),
-                    ),
-                ),
-            ),
-        ),
-    )
-
-    /**
-     * `/astera-leaderboard [n]` — print the top-N players of the current
-     * competitive season (default 10), highest Elo first (Wave 7b, ADR-0037).
-     * Read-only and open to everyone; rendering is a plain message line per
-     * entry (name resolution / GUI is Wave 7c polish).
-     */
-    private fun buildLeaderboardCommandSpec(
-        queryLeaderboard: com.astarworks.astera.stats.application.usecase.leaderboard.QueryLeaderboardUseCase,
-        playerGateway: IPlayerGateway,
-    ): CommandSpec.Literal {
-        fun render(sender: com.astarworks.astera.core.domain.player.PlayerId?, limit: Int): CommandResult {
-            if (sender == null) return CommandResult.Failure(MessageKey("astera.stats.command.console-not-supported"))
-            return queryLeaderboard.execute(limit).fold(
-                onSuccess = { entries ->
-                    if (entries.isEmpty()) {
-                        playerGateway.sendMessage(sender, "[Leaderboard] No ranked games played yet this season.")
-                    } else {
-                        playerGateway.sendMessage(sender, "[Leaderboard] Top ${entries.size} this season:")
-                        entries.forEachIndexed { i, e ->
-                            playerGateway.sendMessage(
-                                sender,
-                                "#${i + 1} ${e.playerId.uuid.toString().take(8)} " +
-                                    "rating=${e.rating} ${e.wins}W-${e.losses}L (${"%.0f".format(e.winRate * 100)}%)",
-                            )
-                        }
-                    }
-                    CommandResult.Success
-                },
-                onFailure = { CommandResult.Failure(MessageKey("astera.leaderboard.unavailable")) },
-            )
-        }
-        return CommandSpec.Literal(
-            name = "astera-leaderboard",
-            description = MessageKey("astera.leaderboard.command.root"),
-            executor = { ctx -> render(ctx.sender, DEFAULT_LEADERBOARD_LIMIT) },
-            subcommands = listOf(
-                CommandSpec.Literal(
-                    name = "top",
-                    description = MessageKey("astera.leaderboard.command.top"),
-                    subcommands = listOf(
-                        CommandSpec.Argument(
-                            name = "n",
-                            type = ArgumentType.IntegerArg(min = 1, max = 100),
-                        ),
-                    ),
-                    executor = { ctx -> render(ctx.sender, ctx.required<Int>("n")) },
-                ),
-            ),
-        )
-    }
-
-    private const val DEFAULT_LEADERBOARD_LIMIT = 10
 }

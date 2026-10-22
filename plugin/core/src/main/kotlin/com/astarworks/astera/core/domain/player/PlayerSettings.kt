@@ -40,7 +40,7 @@ public sealed interface ParticleVisibility {
  *
  * Phase 1 PoC: actual mix-down to client sound packets is left to a later
  * wave's adapter — this enum + value pair is the **persisted choice**, not
- * the audio backend. The `/astera-volume <channel> <0-100>` Brigadier
+ * the audio backend. The `/astera volume <channel> <0-100>` Brigadier
  * command + the Settings GUI volume tile both round-trip through here.
  */
 public enum class VolumeChannel {

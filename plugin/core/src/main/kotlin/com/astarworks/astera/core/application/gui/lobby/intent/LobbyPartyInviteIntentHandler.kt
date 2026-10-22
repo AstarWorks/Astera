@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory
  *
  * Triggered by `lobby.party.invite`. `payload[target]` carries the invitee
  * name; without a target the GUI closes and the player is told to use
- * `/astera-party invite <name>` (Phase 1 PoC posture — no anvil modal
+ * `/astera party invite <name>` (Phase 1 PoC posture — no anvil modal
  * primitive yet).
  *
  * # Why this doesn't use [InvitePartyMemberUseCase]

@@ -3,7 +3,7 @@
 # Wraps the Wave 5c pipeline (Star Generator + Anomaly + Sudden Death) under
 # the IGameMode framework. The pipeline itself is wired globally in
 # AsteraMatchPlugin; this YAML declares the mode so the framework registry
-# can advertise "norma" to /astera-match start, /astera queue join, and the
+# can advertise "norma" to /astera match start, /astera queue join, and the
 # HUD.
 #
 # Per Wave 5gamemode handoff: the framework foundation ships with one

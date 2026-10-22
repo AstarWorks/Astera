@@ -23,8 +23,8 @@ public sealed class OpenAdminPanelError {
 }
 
 /**
- * The single entry point for opening the `/astera-admin` hub (F1-D, ADR-0183).
- * Command nodes (today `/astera-admin`, later `/astera admin panel`) are thin
+ * The single entry point for opening the `/astera admin panel` hub (F1-D, ADR-0183).
+ * Command nodes (today `/astera admin panel`, later `/astera admin panel`) are thin
  * wrappers that call [execute]; the permission check lives here so no wrapper
  * can forget it.
  */

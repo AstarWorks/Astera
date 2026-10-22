@@ -2,19 +2,19 @@ package com.astarworks.astera.core.application.admin.panel
 
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
+import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 
 /**
- * `/astera-admin` (ADR-0122 flat naming, F1-D ADR-0183). Deliberately thin and
- * the only place the command is declared: it just calls [OpenAdminPanelUseCase],
- * so migrating to `/astera admin panel` means re-hosting this one node. The
- * permission gate (`astera.admin.panel` or server operator) lives in the use
- * case, so no command wrapper can forget it.
+ * `/astera admin panel` (F1-D ADR-0183, mounted in the single `/astera` tree by
+ * ADR-0184). Deliberately thin: it just calls [OpenAdminPanelUseCase]. The node
+ * declares `astera.admin.panel` (operators by default) so it is hidden from
+ * players; the use case keeps its own guard (permission or server operator,
+ * audited), so the panel stays closed even if the node were re-hosted.
  */
 public fun buildAdminPanelCommandSpec(open: OpenAdminPanelUseCase): CommandSpec.Literal = CommandSpec.Literal(
-    name = "astera-admin",
-    description = MessageKey("astera.admin.panel.command.root"),
+    name = "panel",
     executor = lambda@{ ctx ->
         val playerId = ctx.sender
             ?: return@lambda CommandResult.Failure(MessageKey("astera.command.player-only"))
@@ -26,4 +26,4 @@ public fun buildAdminPanelCommandSpec(open: OpenAdminPanelUseCase): CommandSpec.
             )
         }
     },
-)
+).requirePermission(AdminPanelGuard.PANEL_PERMISSION)

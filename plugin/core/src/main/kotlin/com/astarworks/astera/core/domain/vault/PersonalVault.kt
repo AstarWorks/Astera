@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
  *  - **loadout** ([com.astarworks.astera.core.domain.player.Loadout]): pre-match kit selection.
  *  - **inventory snapshot** ([com.astarworks.astera.core.domain.player.PlayerInventorySnapshot]):
  *    per-match save on entry / restore on exit.
- *  - **personal vault** (this type): persistent storage the player opens via `/vault`
+ *  - **personal vault** (this type): persistent storage the player opens via `/astera vault`
  *    or a vanilla ender chest block, with free item movement like a chest.
  *
  * Sparse slot model: [items] only lists occupied slots (`0 until [SLOT_COUNT]`),

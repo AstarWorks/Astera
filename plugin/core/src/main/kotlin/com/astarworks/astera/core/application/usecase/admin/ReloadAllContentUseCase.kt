@@ -9,12 +9,12 @@ public data class ReloadAllSummary(
     val failed: List<String>,
 )
 
-/** `/astera-admin` server page: at least one category failed to reload (previous state is preserved per category). */
+/** `/astera admin panel` server page: at least one category failed to reload (previous state is preserved per category). */
 public data class ReloadAllFailed(val summary: ReloadAllSummary)
 
 /**
  * Reloads every category registered on [IReloadableContentsRegistry] — the same
- * per-category `reload()` that `/astera-reload <category>` calls, run for all
+ * per-category `reload()` that `/astera admin reload <category>` calls, run for all
  * of them (F1-D, ADR-0183). Categories are independent: a failure in one never
  * stops the others.
  */

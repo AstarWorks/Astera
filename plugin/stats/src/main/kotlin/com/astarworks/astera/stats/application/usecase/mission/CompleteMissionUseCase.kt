@@ -12,7 +12,7 @@ import com.astarworks.astera.core.domain.norma.NormaId
  * Manual admin command: mark a norma as completed for a player.
  *
  * Listener-based completion (via [com.astarworks.astera.stats.application.eventbus.listeners.MissionProgressOnKillListener])
- * handles the automatic flow. This use case is for /astera-stats complete admin usage.
+ * handles the automatic flow. This use case is for /astera stats complete admin usage.
  */
 public class CompleteMissionUseCase(
     private val normaService: INormaService,

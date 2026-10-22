@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
  * # Why this matters
  *
  * Pre-Wave-5complete, Norma matches relied on an admin running
- * `/astera-match phase` after watching the score climb — there was no
+ * `/astera match phase` after watching the score climb — there was no
  * subscriber re-evaluating [VictoryConditionEvaluator] on score change.
  * This listener closes that gap by re-evaluating after every
  * [EntityPickedUpItem] (the Wave 5c star/deposit pipeline path) and

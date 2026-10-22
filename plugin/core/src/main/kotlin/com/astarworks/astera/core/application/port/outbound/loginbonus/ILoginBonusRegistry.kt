@@ -8,7 +8,7 @@ import com.astarworks.astera.core.domain.loginbonus.LoginBonusSpec
  * (Wave J 5server-content-ops, ADR-0127 — Phase 2 ready skeleton).
  *
  * Populated at startup by `LoginBonusContents.bootstrap` and hot-reloadable
- * via `/astera-reload login-bonus`.
+ * via `/astera admin reload login-bonus`.
  */
 public interface ILoginBonusRegistry : Contents<Int, LoginBonusSpec> {
     /** Convenience: spec for [day], or `null` if no entry is registered. */

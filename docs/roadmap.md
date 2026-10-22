@@ -59,7 +59,7 @@ Astera の Phase 計画。各 Phase は 1〜2 ヶ月目安。
 ### Application
 
 - Outbound ports: `ISkillRegistry`, `IStatusEffectContainer` (per-entity), `IDamageGateway` (apply HP delta to a target), `IItemIdentity` (PDC tag read/write), `IElementMatrix`, `IGuiAdapter`, `IMcBossBar`, `IMcScoreboard`
-- Inbound port: `ICommandHandler` + sealed `CommandSpec`
+- Inbound port: `IAsteraCommandRegistry` (ADR-0184) + sealed `CommandSpec`
 - Use cases (still event-light): `LoadContentUseCase` (generic ContentLoader<T>), `ResolveDamageUseCase` (pure), `ApplyDamageUseCase` (port-driven), `CastSkillUseCase`, `ApplyStatusUseCase`, `TickCooldownUseCase`
 - i18n: ICU MessageFormat 化 (複数形 / 数値 / 日時書式)
 

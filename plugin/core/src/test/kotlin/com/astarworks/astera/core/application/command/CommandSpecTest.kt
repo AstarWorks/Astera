@@ -43,7 +43,6 @@ class CommandSpecTest {
     fun `arguments and literals are partitioned correctly`() {
         val spec = CommandSpec.Literal(
             name = "astera",
-            description = MessageKey("astera.command.root"),
             subcommands = listOf(
                 CommandSpec.Literal(name = "give", executor = { CommandResult.Success }),
                 CommandSpec.Literal(name = "reload", executor = { CommandResult.Success }),
@@ -103,12 +102,10 @@ class CommandSpecTest {
         // Scenario from silly-knuth §6.1 E: /astera give <target> <weapon-id>
         val spec = CommandSpec.Literal(
             name = "astera",
-            description = MessageKey("astera.command.root"),
             executor = { CommandResult.Success },
             subcommands = listOf(
                 CommandSpec.Literal(
                     name = "give",
-                    description = MessageKey("astera.command.give"),
                     subcommands = listOf(
                         CommandSpec.Argument("target", ArgumentType.PlayerSelector),
                         CommandSpec.Argument(

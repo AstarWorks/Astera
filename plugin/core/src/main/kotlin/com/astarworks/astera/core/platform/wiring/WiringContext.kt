@@ -2,6 +2,7 @@ package com.astarworks.astera.core.platform.wiring
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.services.ServiceRegistry
+import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.proxy.ServerName
 import com.astarworks.astera.core.domain.proxy.ServerRole
 import java.nio.file.Path
@@ -27,6 +28,14 @@ public class WiringContext(
 ) {
     public val registrations: MutableList<ServiceRegistry.Registration> = mutableListOf()
     public val subscriptions: MutableList<IDomainEventBus.Subscription> = mutableListOf()
+
+    /** Handle for mounting [owner]'s subtrees under `/astera` (ADR-0184); removed again by [close]. */
+    public fun commandMount(owner: String): com.astarworks.astera.core.application.command.CommandMount =
+        com.astarworks.astera.core.application.command.CommandMount(
+            services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IAsteraCommandRegistry>(),
+            owner,
+            registrations,
+        )
 
     /** Unregisters / unsubscribes everything recorded, newest first. */
     public fun close() {

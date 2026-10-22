@@ -2,7 +2,7 @@
 #
 # Placed in hotbar slot 0 on lobby (re-)join by
 # `BindCompassOnLobbyJoinListener`. Today the user opens the MainMenu via
-# `/astera-menu` (Wave 5wireup §G11); Wave 6b will wire a right-click on
+# `/astera menu` (Wave 5wireup §G11); Wave 6b will wire a right-click on
 # this item to the same GUI via `OpenMainMenuOnCompassClickListener` once
 # the BukkitEventAdapter learns to emit the matching event.
 #
@@ -18,9 +18,9 @@ name:
 lore:
   ja:
     - "<gray>右クリックでメインメニューを開く</gray>"
-    - "<dark_gray>(コマンド: /astera-menu)</dark_gray>"
+    - "<dark_gray>(コマンド: /astera menu)</dark_gray>"
   en:
     - "<gray>Right-click to open the main menu</gray>"
-    - "<dark_gray>(command: /astera-menu)</dark_gray>"
+    - "<dark_gray>(command: /astera menu)</dark_gray>"
 
 rarity: common

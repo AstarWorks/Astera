@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode
  *
  * Goal: broken content fails loudly here instead of silently doing nothing in
  * game. The no-op sets mirror `combat/.../MechanicSupport.kt` (the Kotlin side
- * used by `/astera-validate`); keep the two in sync.
+ * used by `/astera admin validate`); keep the two in sync.
  */
 internal object SemanticChecks {
 

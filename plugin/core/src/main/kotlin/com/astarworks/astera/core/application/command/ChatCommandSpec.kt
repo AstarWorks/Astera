@@ -7,13 +7,14 @@ import com.astarworks.astera.core.application.usecase.chat.SendChatMessageUseCas
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.chat.ChatChannel
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.permission.Permission
 
 /**
  * Wave 5complete (ADR-0117 §Axis 2) — declarative spec for the four
  * player-facing chat commands.
  *
  * Builds **four sibling literals** under a parent that the platform
- * registers as the top-level `/astera-chat` namespace:
+ * registers as the top-level `/astera chat` namespace:
  *
  * | Command  | Channel resolved                                                 | Permission |
  * |----------|------------------------------------------------------------------|------------|
@@ -31,7 +32,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
  *
  * [IMatchTeamLookup] is registered by `AsteraMatchPlugin` (per ADR-0022
  * sibling isolation: Match-side service, Core has no access at construct
- * time). The lambda lets Core register `/astera-chat team` immediately
+ * time). The lambda lets Core register `/astera chat team` immediately
  * and resolves the lookup at command-invocation time — `null` means
  * Match plugin isn't loaded (or the player isn't in any match), both of
  * which render the same `astera.chat.error.no-team` failure.
@@ -53,7 +54,6 @@ public fun buildChatCommandSpec(
 
     val sayLiteral = CommandSpec.Literal(
         name = "say",
-        description = MessageKey("astera.chat.command.say"),
         subcommands = listOf(
             CommandSpec.Argument("message", ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy)),
         ),
@@ -62,11 +62,10 @@ public fun buildChatCommandSpec(
             val message = ctx.required<String>("message")
             sendResultToCommandResult(sendChat.send(sender, ChatChannel.Global, message))
         },
-    )
+    ).forEveryone(Permission("astera.chat.say"))
 
     val teamLiteral = CommandSpec.Literal(
         name = "team",
-        description = MessageKey("astera.chat.command.team"),
         subcommands = listOf(
             CommandSpec.Argument("message", ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy)),
         ),
@@ -79,11 +78,10 @@ public fun buildChatCommandSpec(
             val message = ctx.required<String>("message")
             sendResultToCommandResult(sendChat.send(sender, ChatChannel.Team(teamId), message))
         },
-    )
+    ).forEveryone(Permission("astera.chat.team"))
 
     val partyLiteral = CommandSpec.Literal(
         name = "party",
-        description = MessageKey("astera.chat.command.party"),
         subcommands = listOf(
             CommandSpec.Argument("message", ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy)),
         ),
@@ -94,13 +92,12 @@ public fun buildChatCommandSpec(
             val message = ctx.required<String>("message")
             sendResultToCommandResult(sendChat.send(sender, ChatChannel.Party(party.id), message))
         },
-    )
+    ).forEveryone(Permission("astera.chat.party"))
 
     val msgLiteral = CommandSpec.Literal(
         name = "msg",
-        description = MessageKey("astera.chat.command.msg"),
         subcommands = listOf(
-            CommandSpec.Argument("target", ArgumentType.StringArg()),
+            CommandSpec.Argument("target", ArgumentType.PlayerName),
             CommandSpec.Argument("message", ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy)),
         ),
         executor = lambda@ { ctx ->
@@ -114,11 +111,10 @@ public fun buildChatCommandSpec(
             val message = ctx.required<String>("message")
             sendResultToCommandResult(sendChat.send(sender, ChatChannel.Private(targetId), message))
         },
-    )
+    ).forEveryone(Permission("astera.chat.msg"))
 
     return CommandSpec.Literal(
         name = "chat",
-        description = MessageKey("astera.chat.command.root"),
         subcommands = listOf(sayLiteral, teamLiteral, partyLiteral, msgLiteral),
     )
 }

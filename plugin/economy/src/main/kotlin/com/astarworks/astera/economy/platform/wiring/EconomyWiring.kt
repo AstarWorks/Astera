@@ -4,7 +4,6 @@ import com.astarworks.astera.core.application.command.ArgumentType
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
-import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
@@ -96,7 +95,7 @@ public class EconomyWiringResult(
 
 /**
  * Host-neutral Economy wiring (ADR-0174). Pure construction / registration /
- * subscriptions / command specs — no Bukkit. Wires Deposit / Withdraw / Transfer, shop, betting and marketplace use cases and the `/astera-economy` command tree.
+ * subscriptions / command specs — no Bukkit. Wires Deposit / Withdraw / Transfer, shop, betting and marketplace use cases and the `/astera economy` command tree.
  */
 public object EconomyWiring {
 
@@ -115,10 +114,9 @@ public object EconomyWiring {
 
         // ── Shared services ────────────────────────────────────────────────────
         val eventBus = services.getOrThrow<IDomainEventBus>()
-        val commandHandler = services.getOrThrow<ICommandHandler>()
+        val commands = ctx.commandMount("Astera-Economy")
         val playerGateway = services.getOrThrow<IPlayerGateway>()
         val msgRenderer = services.getOrThrow<IMessageRenderer>()
-        val permService = services.getOrThrow<IPermissionService>()
         val matchRepository = services.getOrThrow<IMatchRepository>()
 
         // ── Economy-owned implementations ──────────────────────────────────────
@@ -155,7 +153,7 @@ public object EconomyWiring {
 
         // Wave 5f (ADR-0035, RTM #19/#12) use cases. EnforceCurrencyPolicyUseCase
         // is registered as a service so future command/GUI flows compose with
-        // Result.flatMap; the existing admin /astera-economy currency transfer
+        // Result.flatMap; the existing admin /astera economy transfer
         // command is intentionally NOT modified in Phase 1 (admin override) —
         // policy enforcement is documented as a Phase 2 player-initiated flow
         // integration in ADR-0035 §Consequences.
@@ -279,7 +277,7 @@ public object EconomyWiring {
             shopIntentHandler.handle(intent, player)
         }
 
-        // ── F1-D (ADR-0183) — `/astera-admin` give-currency action ────────
+        // ── F1-D (ADR-0183) — `/astera admin panel` give-currency action ────────
         registrations += com.astarworks.astera.economy.application.admin.AdminCurrencyPanel(
             guard = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.AdminPanelGuard>(),
             registry = services.getOrThrow<com.astarworks.astera.core.application.admin.panel.IAdminPanelRegistry>(),
@@ -428,10 +426,10 @@ public object EconomyWiring {
         ) { expireBetting.execute() }
 
         // ── Commands ───────────────────────────────────────────────────────────
-        commandHandler.register(
-            buildCommandSpec(deposit, withdraw, transfer, ledger, playerGateway, msgRenderer, permService),
-        )
-        commandHandler.register(buildShopCommandSpec(shopBrowse, permService))
+        // `/astera economy balance|grant|withdraw|transfer` and `/astera shop [id]` (ADR-0184).
+        com.astarworks.astera.economy.command.EconomyCommands(deposit, withdraw, transfer, ledger, playerGateway)
+            .build().forEach { commands.register("economy", it) }
+        commands.register(buildShopCommandSpec(shopBrowse, shopIds = { shopRegistry.all().map { it.id.value } }))
 
         // Wave 5server-harden (ADR-0123): register the ShopReferencesItemCheck
         // with the optional IContentValidator. If Core hasn't published one
@@ -454,206 +452,4 @@ public object EconomyWiring {
 
         return EconomyWiringResult(ledger = ledger, shutdownHooks = shutdownHooks.toList())
     }
-
-    @Suppress("LongMethod")
-    private fun buildCommandSpec(
-        deposit: DepositUseCase,
-        withdraw: WithdrawUseCase,
-        transfer: TransferUseCase,
-        ledger: ICurrencyLedger,
-        players: IPlayerGateway,
-        msg: IMessageRenderer,
-        permService: IPermissionService,
-    ): CommandSpec.Literal = CommandSpec.Literal(
-        name = "astera-economy",
-        description = MessageKey("astera.economy.command.root"),
-        subcommands = listOf(
-            CommandSpec.Literal(
-                name = "currency",
-                description = MessageKey("astera.economy.command.currency"),
-                subcommands = listOf(
-                    // /astera-economy currency deposit <player> <currency> <amount>
-                    CommandSpec.Literal(
-                        name = "deposit",
-                        subcommands = listOf(
-                            CommandSpec.Argument("player", ArgumentType.StringArg()),
-                            CommandSpec.Argument("currency", ArgumentType.StringArg()),
-                            CommandSpec.Argument("amount", ArgumentType.StringArg()),
-                        ),
-                        executor = lambda@ { ctx ->
-                            val playerName = ctx.required<String>("player")
-                            val currencyStr = ctx.required<String>("currency")
-                            val amountStr = ctx.required<String>("amount")
-
-                            val playerId = players.findByName(playerName)
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.economy.player_not_found"),
-                                    mapOf("player" to playerName),
-                                )
-                            val currency = parseCurrency(currencyStr)
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.economy.invalid_currency"),
-                                    mapOf("currency" to currencyStr),
-                                )
-                            val amount = amountStr.toLongOrNull()
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.economy.invalid_amount"),
-                                    mapOf("amount" to amountStr),
-                                )
-                            val result = deposit.execute(
-                                playerId,
-                                currency,
-                                amount,
-                                com.astarworks.astera.core.domain.event.CurrencyChangeReason.AdminGrant,
-                            )
-                            result.fold(
-                                onSuccess = { CommandResult.Success },
-                                onFailure = { CommandResult.Failure(it.messageKey) },
-                            )
-                        },
-                    ).requirePermission(
-                        permissionService = permService,
-                        permission = Permission("astera.economy.currency.deposit"),
-                    ),
-                    // /astera-economy currency withdraw <player> <currency> <amount>
-                    CommandSpec.Literal(
-                        name = "withdraw",
-                        subcommands = listOf(
-                            CommandSpec.Argument("player", ArgumentType.StringArg()),
-                            CommandSpec.Argument("currency", ArgumentType.StringArg()),
-                            CommandSpec.Argument("amount", ArgumentType.StringArg()),
-                        ),
-                        executor = lambda@ { ctx ->
-                            val playerName = ctx.required<String>("player")
-                            val currencyStr = ctx.required<String>("currency")
-                            val amountStr = ctx.required<String>("amount")
-
-                            val playerId = players.findByName(playerName)
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.economy.player_not_found"),
-                                    mapOf("player" to playerName),
-                                )
-                            val currency = parseCurrency(currencyStr)
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.economy.invalid_currency"),
-                                    mapOf("currency" to currencyStr),
-                                )
-                            val amount = amountStr.toLongOrNull()
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.economy.invalid_amount"),
-                                    mapOf("amount" to amountStr),
-                                )
-                            val result = withdraw.execute(
-                                playerId,
-                                currency,
-                                amount,
-                                com.astarworks.astera.core.domain.event.CurrencyChangeReason.Withdraw,
-                            )
-                            result.fold(
-                                onSuccess = { CommandResult.Success },
-                                onFailure = { CommandResult.Failure(it.messageKey) },
-                            )
-                        },
-                    ).requirePermission(
-                        permissionService = permService,
-                        permission = Permission("astera.economy.currency.withdraw"),
-                    ),
-                    // /astera-economy currency transfer <from> <to> <currency> <amount>
-                    CommandSpec.Literal(
-                        name = "transfer",
-                        subcommands = listOf(
-                            CommandSpec.Argument("from", ArgumentType.StringArg()),
-                            CommandSpec.Argument("to", ArgumentType.StringArg()),
-                            CommandSpec.Argument("currency", ArgumentType.StringArg()),
-                            CommandSpec.Argument("amount", ArgumentType.StringArg()),
-                        ),
-                        executor = lambda@ { ctx ->
-                            val fromName = ctx.required<String>("from")
-                            val toName = ctx.required<String>("to")
-                            val currencyStr = ctx.required<String>("currency")
-                            val amountStr = ctx.required<String>("amount")
-
-                            val fromId = players.findByName(fromName)
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.economy.player_not_found"),
-                                    mapOf("player" to fromName),
-                                )
-                            val toId = players.findByName(toName)
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.economy.player_not_found"),
-                                    mapOf("player" to toName),
-                                )
-                            val currency = parseCurrency(currencyStr)
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.economy.invalid_currency"),
-                                    mapOf("currency" to currencyStr),
-                                )
-                            val amount = amountStr.toLongOrNull()
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.economy.invalid_amount"),
-                                    mapOf("amount" to amountStr),
-                                )
-                            val result = transfer.execute(fromId, toId, currency, amount)
-                            result.fold(
-                                onSuccess = { CommandResult.Success },
-                                onFailure = { CommandResult.Failure(it.messageKey) },
-                            )
-                        },
-                    ).requirePermission(
-                        permissionService = permService,
-                        permission = Permission("astera.economy.currency.transfer"),
-                    ),
-                    // /astera-economy currency balance <player> [<currency>]
-                    CommandSpec.Literal(
-                        name = "balance",
-                        subcommands = listOf(
-                            CommandSpec.Argument("player", ArgumentType.StringArg()),
-                            CommandSpec.Argument("currency", ArgumentType.StringArg(ArgumentType.StringArg.Mode.Greedy)),
-                        ),
-                        executor = lambda@ { ctx ->
-                            val playerName = ctx.required<String>("player")
-                            val currencyStr = ctx.optional<String>("currency")?.trim()
-
-                            val playerId = players.findByName(playerName)
-                                ?: return@lambda CommandResult.Failure(
-                                    MessageKey("astera.economy.player_not_found"),
-                                    mapOf("player" to playerName),
-                                )
-
-                            val senderId = ctx.sender
-                            if (currencyStr.isNullOrBlank()) {
-                                // List all balances — output goes to the command invoker
-                                val wallet = ledger.wallet(playerId)
-                                Currency.entries.forEach { c ->
-                                    if (senderId != null) {
-                                        players.sendMessage(
-                                            senderId,
-                                            msg.render(senderId, MessageKey("astera.economy.balance_entry"), mapOf("player" to playerName, "currency" to c.name, "amount" to wallet.balance(c).toString())),
-                                        )
-                                    }
-                                }
-                            } else {
-                                val currency = parseCurrency(currencyStr)
-                                    ?: return@lambda CommandResult.Failure(
-                                        MessageKey("astera.economy.invalid_currency"),
-                                        mapOf("currency" to currencyStr),
-                                    )
-                                val balance = ledger.balance(playerId, currency)
-                                if (senderId != null) {
-                                    players.sendMessage(
-                                        senderId,
-                                        msg.render(senderId, MessageKey("astera.economy.balance_entry"), mapOf("player" to playerName, "currency" to currency.name, "amount" to balance.toString())),
-                                    )
-                                }
-                            }
-                            CommandResult.Success
-                        },
-                    ),
-                ),
-            ),
-        ),
-    )
-
-    private fun parseCurrency(raw: String): Currency? =
-        runCatching { Currency.valueOf(raw.uppercase()) }.getOrNull()
 }

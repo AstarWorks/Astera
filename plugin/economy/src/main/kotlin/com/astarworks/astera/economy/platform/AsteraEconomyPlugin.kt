@@ -13,7 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin
  * Resolves shared services from Astera-Core and publishes an in-memory
  * [ICurrencyLedger]. Wires Deposit / Withdraw / Transfer use cases,
  * the [DepositOnXpListener] (subscribed to [XpGranted] from Stats),
- * and the `/astera-economy` command tree.
+ * and the `/astera economy` command tree.
  *
  * The Persistence plugin (Stage 4-改) registers a Postgres-backed ledger
  * at higher priority and `services.getOrThrow<ICurrencyLedger>()` then

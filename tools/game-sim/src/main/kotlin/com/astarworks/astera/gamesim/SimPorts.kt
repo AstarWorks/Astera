@@ -16,7 +16,6 @@ import com.astarworks.astera.combat.domain.status.StatusEffectInstance
 import com.astarworks.astera.combat.domain.status.StatusKind
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
 import com.astarworks.astera.core.application.command.CommandSpec
-import com.astarworks.astera.core.application.port.inbound.ICommandHandler
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
@@ -364,12 +363,4 @@ public class SimItemDelivery : IItemDelivery {
 /** [IPaperItemIdResolver] reading the entity's held item (PDC on Paper). */
 public class SimItemIdResolver(private val world: SimWorld) : IPaperItemIdResolver {
     override fun heldItemId(playerId: PlayerId): ItemId? = world.find(playerId)?.heldItem
-}
-
-/** [ICommandHandler] that only remembers the registered command roots. */
-public class RecordingCommandHandler : ICommandHandler {
-    public val registered: MutableList<CommandSpec.Literal> = mutableListOf()
-    override fun register(spec: CommandSpec.Literal) {
-        registered += spec
-    }
 }

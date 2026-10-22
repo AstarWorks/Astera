@@ -13,7 +13,7 @@ import com.astarworks.astera.items.application.port.outbound.IItemDelivery
 import org.slf4j.LoggerFactory
 
 /**
- * Handles `/astera-items give <player> <item-id> [amount]` (Wave _items-1,
+ * Handles `/astera items give <player> <item-id> [amount]` (Wave _items-1,
  * ADR-0073).
  *
  * Item-centric replacement for the legacy `GiveWeaponUseCase`. Resolves the

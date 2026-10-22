@@ -54,7 +54,7 @@ public interface IGameModeScheduler {
 
     /**
      * Snapshot of currently-registered match ids. Used by tests and the
-     * `/astera-match list` HUD (Phase 3+); not by the framework's hot path.
+     * `/astera match list` HUD (Phase 3+); not by the framework's hot path.
      */
     public fun activeMatches(): Set<MatchId>
 

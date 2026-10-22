@@ -268,7 +268,7 @@ internal fun CoreWiringState.wireProgression() {
     wave5completeSubs += eventBus.subscribe(MatchStarted::class) { matchSnapshots.handleStarted(it) }
     wave5completeSubs += eventBus.subscribe(MatchEnded::class) { matchSnapshots.handleEnded(it) }
 
-    // WP12: personal vault (= ender chest) — `/vault` and the ender chest block
+    // WP12: personal vault (= ender chest) — `/astera vault` and the ender chest block
     // share AccessPersonalVaultUseCase; the IVaultWindow is registered by the host.
     val liveVaults = LiveVaultRepository(services)
     val openVaultUseCase = OpenVaultUseCase(liveVaults)
@@ -280,7 +280,13 @@ internal fun CoreWiringState.wireProgression() {
         matches = { services.get<IMatchRepository>() },
     )
     services.register<AccessPersonalVaultUseCase>(accessVault, priority = 0)
-    commandHandler.register(com.astarworks.astera.core.application.command.buildVaultCommandSpec(accessVault))
+    commands.register(com.astarworks.astera.core.application.command.buildVaultCommandSpec(accessVault))
+    commands.register(
+        com.astarworks.astera.core.application.command.buildTutorialCommandSpec(
+            sequencer = tutorialSequencer,
+            scriptIds = { tutorialContents.all().map { it.id.value } },
+        ),
+    )
 
     // Wave O 5cross-server-wire (ADR-0132): close audit α#4 silent-drop —
     // PlayerArrivedOnServer / PlayerTransferRequested / ProxyHeartbeat

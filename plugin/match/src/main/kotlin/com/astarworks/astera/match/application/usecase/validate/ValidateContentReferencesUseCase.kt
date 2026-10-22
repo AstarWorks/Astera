@@ -12,7 +12,7 @@ import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
 /**
  * Wave E 5admin-ops (ADR-0122) — cross-content integrity check.
  *
- * The `/astera-validate [category]` command consumes this use case to
+ * The `/astera admin validate [category]` command consumes this use case to
  * report dangling references in authored content. Phase 1 checks only the
  * single cross-plugin reference that exists today:
  *
@@ -44,7 +44,7 @@ public class ValidateContentReferencesUseCase(
 
     /**
      * Run every check in [categories] (or all if empty). Categories are the
-     * stable identifiers a `/astera-validate <category>` invocation accepts:
+     * stable identifiers a `/astera admin validate <category>` invocation accepts:
      *
      *   - `"items"` — items → skills (item bindings reference known skills)
      *   - `"skills"` — skills + item phase overrides only use runtime-supported mechanics

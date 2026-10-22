@@ -3,7 +3,7 @@ package com.astarworks.astera.match.application.replay.json
 import kotlinx.serialization.Serializable
 
 /**
- * Top-level wire envelope written by `/astera-match replay export <matchId>`
+ * Top-level wire envelope written by `/astera match replay export <matchId>`
  * (Wave 5v, ADR-0088).
  *
  * The Postgres `match_replays` row decomposes a [com.astarworks.astera.core

@@ -44,8 +44,12 @@ internal fun CoreWiringState.wireContentAndRepositories() {
     // Phase 1 trade-off; revisit in Wave 5 with deferred use-case wiring).
     permissionService =
         services.get<IPermissionService>()
-            ?: InMemoryPermissionService().also {
-                services.register<IPermissionService>(it, priority = 0)
+            ?: InMemoryPermissionService().let { roles ->
+                // Operators / host permission nodes pass too (ADR-0184); roles alone start empty.
+                val effective: IPermissionService = ports.hostPermission
+                    ?.let { host -> com.astarworks.astera.core.application.service.HostAwarePermissionService(roles, host) }
+                    ?: roles
+                effective.also { services.register<IPermissionService>(it, priority = 0) }
             }
     logger.info("Permission service registered (in-memory; ${DefaultRoles.builtin().size} default roles).")
 

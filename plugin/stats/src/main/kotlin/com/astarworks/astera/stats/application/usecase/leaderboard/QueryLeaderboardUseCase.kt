@@ -7,7 +7,7 @@ import com.astarworks.astera.stats.domain.leaderboard.LeaderboardEntry
 
 /**
  * Reads the top [limit] standings of the currently-active season (Wave 7b,
- * ADR-0037). Backs the `/astera-leaderboard` command and the leaderboard GUI.
+ * ADR-0037). Backs the `/astera stats leaderboard` command and the leaderboard GUI.
  *
  * Fails with [LeaderboardError.NoActiveSeason] rather than returning an empty
  * list so callers can distinguish "season exists but nobody has played" (empty

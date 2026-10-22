@@ -26,7 +26,7 @@ Work packages and their order live in
 | Weapons | Input triggers (click, sneak, drop = reload, hold) and a 10-weapon roster with ammo / mana / stamina pools |
 | Skills | Melee / projectile / aoe / buff archetypes, skill damage to players and mobs, mechanics batch A (status, movement, messages, cooldown, attributes) and batch B (explode, lightning, blocks, display, glow, shake, summon, heal) |
 | Modes | Queue to match (auto start, team balance, lobby return), per-team spawns, stage-to-world binding, Annihilation pillars (ADR-0175), BreakCore / CarryTnt / CaptureWool / StealJewelry / BattleLoyal (ADR-0176) |
-| Inventory and shop | Personal vault (`/vault`, ender chest), loadout and per-match snapshot, lobby shop NPC and `/astera-shop` |
+| Inventory and shop | Personal vault (`/astera vault`, ender chest), loadout and per-match snapshot, lobby shop NPC and `/astera shop` |
 | Persistence | Postgres overlay with Flyway migrations (resolved inside the plugin classloader), merged shadow `META-INF/services` |
 | Tooling | `schema-gen` emits every `content/schemas/*.json` from the DTOs (drift-checked), `contentLint` runs in `check` |
 

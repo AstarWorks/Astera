@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory
  * Per-channel separation lives in [VolumeChannel] — the GUI Spec exposes
  * three tiles in Wave H (one per channel), but Phase 1's Settings GUI only
  * shows a single "volume" tile that targets [VolumeChannel.Music]. The
- * Brigadier command `/astera-volume <channel> <0-100>` is the way to set
+ * Brigadier command `/astera volume <channel> <0-100>` is the way to set
  * the other two channels until the multi-tile spec lands.
  */
 public class LobbySettingsVolumeIntentHandler(

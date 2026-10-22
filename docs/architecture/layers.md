@@ -36,7 +36,7 @@ JUnit から純粋関数として高速に呼び出せる。Paper 起動不要�
 
 ### 含むもの
 - **Use Case**: `StartMatchUseCase`, `FireWeaponUseCase`, `GrantRewardUseCase`
-- **Inbound Port**: `ICommandHandler`, `IMatchTrigger` (外部から呼ばれる窓口)
+- **Inbound Port**: `IAsteraCommandRegistry`, `IMatchTrigger` (外部から呼ばれる窓口)
 - **Outbound Port**: `IPlayerGateway`, `IWorldGateway`, `IBroadcaster`, `IScheduler`, `ICurrencyLedger`, `IPersistence`, `IMessageRenderer`
 - **Application Service**: port 経由で domain を駆動する orchestration
 

@@ -19,7 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin
  * cross-plugin ports from Astera-Core's ServiceRegistry, wires the
  * Items-owned use cases (give-item, handle-item-trigger), registers the
  * vendor-neutral click sink + Bukkit enchant-gate listener, and publishes
- * the `/astera-items give` command tree.
+ * the `/astera items give` command tree.
  *
  * Lifecycle: Bukkit guarantees Astera-Core finishes `onEnable` before this
  * plugin's `onEnable` runs (the `depend: [Astera-Core]` entry in plugin.yml).

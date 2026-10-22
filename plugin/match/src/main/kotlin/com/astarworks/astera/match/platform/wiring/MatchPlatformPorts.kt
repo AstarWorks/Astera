@@ -12,7 +12,7 @@ import java.nio.file.Path
  *   the InMemory default (Paper: `PaperBarrierGateway`, BlockDisplay visual).
  *   `null` keeps the InMemory impl. Factory because the Paper impl resolves
  *   `IScheduler` / `IDomainEventBus` from the registry at registration time.
- * @property replayExportRoot directory `/astera-match replay export` writes to
+ * @property replayExportRoot directory `/astera match replay export` writes to
  *   (Paper: `<plugin dataFolder>/replays`; the simulator: a temp dir).
  * @property annihilationConfig tunables of the Annihilation mode (phase timers,
  *   pillar HP, ...). `null` (production) reads the `default_config` of

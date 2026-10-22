@@ -52,7 +52,7 @@ import java.util.UUID
  * locale; Wave 5q-follow-up adds placeholder propagation to the spec.
  * For now the structured detail is logged to the audit trail by
  * [com.astarworks.astera.core.application.service.error.InMemoryErrorReporter]
- * itself; the chat is the "look at the console / `/astera-audit`" pointer.
+ * itself; the chat is the "look at the console / `/astera admin audit`" pointer.
  *
  * # Schedule-failure handling
  *

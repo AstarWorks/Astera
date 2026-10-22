@@ -2351,6 +2351,64 @@ class ArchitectureTest {
                     }
             }
 
+    // ─── ADR-0184: one /astera command tree ─────────────────────────────────
+
+    /**
+     * Commands are contributed to the single `/astera` Brigadier root through
+     * `IAsteraCommandRegistry`; a `commands:` block in any plugin.yml would
+     * re-introduce a bare legacy root that shadows the tree and has no executor.
+     */
+    @Test
+    fun `no plugin yml declares legacy commands`() {
+        val repoRoot = File(".").canonicalFile.let { cwd ->
+            if (File(cwd, "content/languages").exists()) cwd else cwd.parentFile?.parentFile ?: cwd
+        }
+        val offenders = File(repoRoot, "plugin").walkTopDown()
+            .filter { it.name == "plugin.yml" && it.path.contains("/src/main/resources/") }
+            .filter { f -> f.readLines().any { it.startsWith("commands:") } }
+            .map { it.path }
+            .toList()
+        assertThat(offenders)
+            .withFailMessage { "plugin.yml must not declare commands (ADR-0184): $offenders" }
+            .isEmpty()
+    }
+
+    /** No command root other than `astera`: nothing may mount a hyphenated `astera-<verb>` literal. */
+    @Test
+    fun `no command literal is a hyphenated astera root`() {
+        val literalName = Regex("""CommandSpec\.Literal\(\s*name\s*=\s*"astera-""")
+        val offenders = collectMainSourceCorpus()
+            .filter { (_, text) -> literalName.containsMatchIn(text) }
+            .map { it.first }
+        assertThat(offenders)
+            .withFailMessage { "Hyphenated astera-<verb> command roots are gone (ADR-0184); mount under /astera instead: $offenders" }
+            .isEmpty()
+    }
+
+    /**
+     * Every executable command node declares a permission (successor of the ADR-0122 rule that
+     * admin commands carry `requirePermission`): in the command spec files the number of
+     * `executor =` leaves must not exceed the permission declarations. The runtime counterpart is
+     * `CommandTreeTest` in :tools:game-sim, which walks the real merged tree.
+     */
+    @Test
+    fun `every executable command node declares a permission`() {
+        val offenders = collectMainSourceCorpus()
+            .filter { (path, _) ->
+                (path.contains("/command/") && (path.endsWith("CommandSpec.kt") || path.endsWith("Commands.kt"))) ||
+                    path.endsWith("MatchCommandSpecs.kt")
+            }
+            .filterNot { (path, _) -> path.endsWith("/CommandSpec.kt") }
+            .mapNotNull { (path, text) ->
+                val leaves = Regex("""\bexecutor\s*=""").findAll(text).count()
+                val guards = Regex("""\.requirePermission\(|\.forEveryone\(|\bpermission\s*=\s*Permission\(""").findAll(text).count()
+                if (guards < leaves) "$path: $leaves executors, $guards permission declarations" else null
+            }
+        assertThat(offenders)
+            .withFailMessage { "Executable command nodes without a permission (ADR-0184): $offenders" }
+            .isEmpty()
+    }
+
     private fun collectMainSourceCorpus(): List<Pair<String, String>> =
         projectScope()
             .files
