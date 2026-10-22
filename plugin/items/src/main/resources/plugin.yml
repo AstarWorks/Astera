@@ -6,7 +6,8 @@ authors: [AstarWorks]
 description: Astera items plugin — custom item definitions, /astera-items give, click-to-skill (ADR-0069).
 website: https://github.com/AstarWorks/Astera
 depend: [Astera-Core]
-softdepend: [Astera-Combat, Astera-Match]
+# No softdepend: Combat softdepends on Items (ICooldownTracker etc. must exist
+# before Combat wires CastSkillUseCase); a reverse edge makes the order a cycle.
 commands:
   astera-items:
     description: Astera items commands (give, …)
