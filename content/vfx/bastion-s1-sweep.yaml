@@ -37,7 +37,7 @@ elements:
     formation:
       curve: { type: arc, radius: 3.3, from_deg: -85, to_deg: -28 }
       offset: [0.0, 1.2, 0.0]
-      tilt: { yaw: 0, pitch: 0, roll: 12 }
+      tilt: { yaw: 0, pitch: 0, roll: 30 }
       align: tangent
       stagger_ticks: 1
     jitter: { position: 0.05, rotation_deg: 3, scale: 0.2 }
@@ -57,7 +57,7 @@ elements:
     formation:
       curve: { type: arc, radius: 3.3, from_deg: -28, to_deg: 28 }
       offset: [0.0, 1.2, 0.0]
-      tilt: { yaw: 0, pitch: 0, roll: 12 }
+      tilt: { yaw: 0, pitch: 0, roll: 30 }
       align: tangent
       stagger_ticks: 1
     jitter: { position: 0.05, rotation_deg: 3, scale: 0.2 }
@@ -77,7 +77,7 @@ elements:
     formation:
       curve: { type: arc, radius: 3.3, from_deg: 28, to_deg: 85 }
       offset: [0.0, 1.2, 0.0]
-      tilt: { yaw: 0, pitch: 0, roll: 12 }
+      tilt: { yaw: 0, pitch: 0, roll: 30 }
       align: tangent
       stagger_ticks: 1
     jitter: { position: 0.05, rotation_deg: 3, scale: 0.2 }
@@ -98,7 +98,7 @@ elements:
     formation:
       curve: { type: arc, radius: 2.6, from_deg: -75, to_deg: 75 }
       offset: [0.0, 1.2, -0.55]
-      tilt: { yaw: 0, pitch: 0, roll: 12 }
+      tilt: { yaw: 0, pitch: 0, roll: 30 }
       align: tangent
       stagger_ticks: 1
     keyframes:
