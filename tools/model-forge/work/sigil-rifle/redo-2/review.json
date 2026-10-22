@@ -1,0 +1,141 @@
+{
+  "item": "sigil-rifle",
+  "round": 2,
+  "validation": {
+    "valid": true,
+    "elements": 57,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999911,
+      2.000000000000016
+    ],
+    "rotated_bounds": [
+      [
+        -7.899999999999999,
+        7.307617736356693,
+        3.5232233047033628
+      ],
+      [
+        24.3,
+        18.976776695296635,
+        12.476776695296637
+      ]
+    ]
+  },
+  "views": {
+    "front": {
+      "bounds": [
+        15,
+        85,
+        243,
+        167
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "side": {
+      "bounds": [
+        96,
+        86,
+        159,
+        167
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "top": {
+      "bounds": [
+        15,
+        96,
+        243,
+        159
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "iso": {
+      "bounds": [
+        25,
+        93,
+        243,
+        170
+      ],
+      "clipped": false,
+      "span": 36
+    },
+    "gui": {
+      "bounds": [
+        18,
+        76,
+        233,
+        175
+      ],
+      "clipped": false,
+      "span": 16
+    },
+    "firstperson_righthand": {
+      "bounds": [
+        88,
+        78,
+        200,
+        147
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_righthand": {
+      "bounds": [
+        103,
+        75,
+        152,
+        139
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        72,
+        78,
+        184,
+        147
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        103,
+        75,
+        152,
+        139
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "ground": {
+      "bounds": [
+        83,
+        89,
+        173,
+        121
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "fixed": {
+      "bounds": [
+        72,
+        106,
+        182,
+        145
+      ],
+      "clipped": false,
+      "span": 32
+    }
+  },
+  "concept_sha256": "e264150993468669480cc1436f0266ecf7c56f73ee8ebd2a32bb9d0b0b963c44",
+  "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+}

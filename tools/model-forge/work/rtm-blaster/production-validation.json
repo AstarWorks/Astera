@@ -1,0 +1,34 @@
+{
+  "valid": true,
+  "elements": 177,
+  "budget": 250,
+  "errors": [],
+  "warnings": [],
+  "density_range": [
+    1.9999999999999667,
+    2.0000000000000373
+  ],
+  "rotated_bounds": [
+    [
+      -7.899999999999999,
+      7.307617736356693,
+      6.05
+    ],
+    [
+      24.3,
+      19.5,
+      9.95
+    ]
+  ],
+  "asset_sha256": {
+    "content/models/items/rtm-blaster.model.json": "0570bb64d273c9c5e3d7fad8c729cc474e202462ba8ab7315c1025d7a4e48dd2",
+    "content/textures/items/rtm-blaster.png": "5553310fb9732cbca6d3735a2b9b9771c0505b34a0b15a53bb3b08ee413fc5ab"
+  },
+  "texture_shape": [
+    128,
+    128,
+    4
+  ],
+  "required_hands_present": true,
+  "correct_texture_reference": true
+}
