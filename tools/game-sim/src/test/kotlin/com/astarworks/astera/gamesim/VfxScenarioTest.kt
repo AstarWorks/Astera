@@ -53,4 +53,34 @@ class VfxScenarioTest {
             assertThat(spawn["billboard"]!!.jsonPrimitive.content).isEqualTo("fixed")
         }
     }
+
+    @Test
+    fun `the quad sparks demo spawns coloured text displays, restyles and moves them, and removes all`() {
+        scenario("vfx-demo-quad-sparks") {
+            val caster = player("caster", team = "red")
+
+            caster.cast("vfx-demo-quad-sparks")
+
+            // 24 embers + the glyph flash, all text displays with a translucent / coloured look
+            assertThat(sim.displays.spawned).hasSize(25)
+            val kinds = sim.displays.spawned.map { it.spec.kind }.filterIsInstance<DisplayKind.Text>()
+            assertThat(kinds).hasSize(25)
+            val solids = kinds.filter { it.textRgb == null }
+            assertThat(solids).hasSize(24)
+            assertThat(solids).allSatisfy { assertThat(it.backgroundArgb ushr 24).isEqualTo(255) }
+            assertThat(kinds.single { it.textRgb != null }.textRgb).isEqualTo(0xFFF2B0)
+
+            advance(20)
+            // alpha fades via style updates, particles move via teleports, never via transform translation
+            assertThat(sim.displays.styles).isNotEmpty()
+            assertThat(sim.displays.styles.minOf { it.backgroundArgb ushr 24 }).isLessThan(255)
+            assertThat(sim.displays.teleports).isNotEmpty()
+            assertThat(sim.displays.updates).isNotEmpty()
+
+            advance(30)
+            assertThat(sim.displays.active).isEmpty()
+            assertThat(sim.recorder.effects("display_spawn")).hasSize(25)
+            assertThat(sim.recorder.effects("display_remove")).hasSize(25)
+        }
+    }
 }

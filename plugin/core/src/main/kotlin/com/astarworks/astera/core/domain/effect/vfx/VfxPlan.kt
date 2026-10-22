@@ -37,6 +37,8 @@ public data class VfxElementPlan(
     /** Ascending, at most one per tick, none at [spawnTick] (keyframe time `t` lands at `spawnTick + 1 + t`). */
     public val updates: List<VfxUpdate>,
     public val particles: List<VfxParticleEmission>,
+    /** Spawn position as an offset from the plan origin (emitter particles start at their own point). */
+    public val spawnOffset: Vec3 = Vec3.ZERO,
 )
 
 /**
@@ -49,6 +51,14 @@ public data class VfxUpdate(
     public val interpolationTicks: Int,
     public val block: String? = null,
     public val text: String? = null,
+    /** Quad only: new colour / alpha sent with this update. */
+    public val style: VfxQuadStyle? = null,
+    /**
+     * Quad emitter particles only: move the ENTITY (teleport with `teleport_duration` = [interpolationTicks]) to this
+     * offset from the plan origin. Translation in the display transformation would be billboard-relative, so
+     * trajectories go through the entity position instead.
+     */
+    public val position: Vec3? = null,
 )
 
 /**

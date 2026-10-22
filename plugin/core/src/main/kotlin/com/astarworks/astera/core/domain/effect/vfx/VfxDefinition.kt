@@ -81,7 +81,7 @@ public data class VfxDefinition(
         require(elements.isNotEmpty()) { "VfxDefinition.elements must not be empty" }
         val ids = elements.map { it.id }
         require(ids.toSet().size == ids.size) { "VfxDefinition element ids must be unique: $ids" }
-        val slots = elements.sumOf { it.count }
+        val slots = elements.sumOf { it.slotCount }
         require(slots <= MAX_SLOTS) { "VfxDefinition has $slots element slots (max $MAX_SLOTS)" }
         elements.forEach {
             require(it.startTick < durationTicks) { "element '${it.id}' start_tick ${it.startTick} >= duration_ticks $durationTicks" }
@@ -121,7 +121,16 @@ public data class VfxElement(
      * applied about the anchor origin BEFORE the per-slot [keyframes]. Empty = static formation.
      */
     public val groupKeyframes: List<VfxGroupKeyframe> = emptyList(),
+    /**
+     * Particle emitter (display particles): spawns up to [VfxEmitter.count] quads whose trajectories the
+     * planner precomputes. Needs kind `quad`; [keyframes] are then optional (the first keyframe's `translate`
+     * is the emitter origin) and [count] / [formation] / [oscillate] are unused.
+     */
+    public val emit: VfxEmitter? = null,
 ) {
+    /** Display slots this element can plan (emitter particles count individually toward the budget). */
+    public val slotCount: Int get() = emit?.count ?: count
+
     init {
         require(id.isNotBlank()) { "VfxElement.id must not be blank" }
         require(brightness == null || brightness in 0..15) { "element '$id' brightness must be 0..15: $brightness" }
@@ -129,8 +138,9 @@ public data class VfxElement(
         require(endTick == null || endTick > startTick) { "element '$id' end_tick ($endTick) must be > start_tick ($startTick)" }
         require(slotLifetimeTicks == null || slotLifetimeTicks >= 1) { "element '$id' slot_lifetime_ticks must be >= 1: $slotLifetimeTicks" }
         require(count in 1..MAX_COUNT) { "element '$id' count must be 1..$MAX_COUNT: $count" }
-        require(keyframes.isNotEmpty()) { "element '$id' needs at least one keyframe" }
-        require(keyframes.first().t >= 0) { "element '$id' keyframe t must be >= 0" }
+        require(keyframes.isNotEmpty() || emit != null) { "element '$id' needs at least one keyframe" }
+        require(keyframes.isEmpty() || keyframes.first().t >= 0) { "element '$id' keyframe t must be >= 0" }
+        require(emit == null || kind is VfxElementKind.Quad) { "element '$id': emit needs kind quad" }
         keyframes.zipWithNext().forEach { (a, b) ->
             require(b.t > a.t) { "element '$id' keyframe t must be strictly increasing (${a.t} then ${b.t})" }
         }
@@ -141,6 +151,8 @@ public data class VfxElement(
         keyframes.forEach {
             require(it.block == null || kind is VfxElementKind.Block) { "element '$id': keyframe block swap needs kind block" }
             require(it.text == null || kind is VfxElementKind.Text) { "element '$id': keyframe text swap needs kind text" }
+            require((it.color == null && it.alpha == null) || kind is VfxElementKind.Quad) { "element '$id': keyframe color / alpha needs kind quad" }
+            require(it.alpha == null || it.alpha in 0.0..1.0) { "element '$id': keyframe alpha must be 0..1: ${it.alpha}" }
         }
     }
 
@@ -182,6 +194,24 @@ public sealed interface VfxElementKind {
     ) : VfxElementKind {
         init {
             require(text.isNotBlank()) { "VfxElementKind.Text.text must not be blank" }
+        }
+    }
+
+    /**
+     * Display particle: a coloured, translucent quad (TextDisplay) -- see [VfxQuad] for the calibration.
+     * [colorRgb] is `0xRRGGBB`, [alpha] 0..1. With a [glyph] (`"✦"`, `"●"`) the shape is drawn as coloured text
+     * (text colour + text_opacity) instead of a solid background rectangle.
+     */
+    public data class Quad(
+        public val colorRgb: Int = 0xFFFFFF,
+        public val alpha: Double = 1.0,
+        public val glyph: String? = null,
+        public val seeThrough: Boolean = false,
+    ) : VfxElementKind {
+        init {
+            require(colorRgb in 0..0xFFFFFF) { "VfxElementKind.Quad.colorRgb must be 0xRRGGBB: $colorRgb" }
+            require(alpha in 0.0..1.0) { "VfxElementKind.Quad.alpha must be 0..1: $alpha" }
+            require(glyph == null || glyph.isNotBlank()) { "VfxElementKind.Quad.glyph must not be blank" }
         }
     }
 
@@ -271,6 +301,10 @@ public data class VfxKeyframe(
     public val ease: Easing = Easing.LINEAR,
     public val block: String? = null,
     public val text: String? = null,
+    /** Quad only: `0xRRGGBB`, interpolated in RGB with [ease]; sent as a style update per sample (the client does not tween colour). */
+    public val color: Int? = null,
+    /** Quad only: 0..1, interpolated like [color]. */
+    public val alpha: Double? = null,
 )
 
 /**

@@ -3,6 +3,7 @@ package com.astarworks.astera.vfxpreview
 import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
+import com.astarworks.astera.core.domain.effect.vfx.VfxQuad
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import kotlin.math.max
@@ -37,6 +38,18 @@ sealed interface Prim {
         val itemKey: String,
         val rgb: Int,
         val glowArgb: Int?,
+    ) : Prim
+
+    /** Display particle: [width] x [height] blocks centred on [center], alpha blended. */
+    data class Quad(
+        val center: Vec3,
+        val rotation: Quaternion,
+        val billboard: DisplayBillboard,
+        val width: Double,
+        val height: Double,
+        val rgb: Int,
+        val alpha: Double,
+        val glyph: String?,
     ) : Prim
 
     data class Dot(val position: Vec3, val age: Int) : Prim
@@ -77,6 +90,19 @@ object SceneBuilder {
                     styled = MiniText.style(d.text ?: kind.text),
                     glowArgb = d.glowArgb,
                 )
+                is VfxElementKind.Quad -> {
+                    val unit = if (kind.glyph == null) Vec3(VfxQuad.SOLID_SCALE_X, VfxQuad.SOLID_SCALE_Y, 1.0) else Vec3(VfxQuad.GLYPH_SCALE, VfxQuad.GLYPH_SCALE, 1.0)
+                    prims += Prim.Quad(
+                        center = d.offset + shift,
+                        rotation = t.rotation,
+                        billboard = d.billboard,
+                        width = t.scale.x / unit.x,
+                        height = t.scale.y / unit.y,
+                        rgb = d.quadRgb ?: kind.colorRgb,
+                        alpha = d.quadAlpha,
+                        glyph = kind.glyph,
+                    )
+                }
                 is VfxElementKind.Particle -> Unit
             }
         }
@@ -98,6 +124,10 @@ object SceneBuilder {
             is Prim.Dot -> listOf(p.position)
             is Prim.Text -> {
                 val r = max(p.size.x, p.size.y) * 0.2
+                listOf(p.center + Vec3(r, r, r), p.center - Vec3(r, r, r))
+            }
+            is Prim.Quad -> {
+                val r = max(p.width, p.height) * 0.5
                 listOf(p.center + Vec3(r, r, r), p.center - Vec3(r, r, r))
             }
             is Prim.Item -> {

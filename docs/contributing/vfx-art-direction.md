@@ -84,6 +84,7 @@ ItemDisplay はほぼ使わない。
 | 光柱・ビーム | 芯 block (white/quartz) + 外側 glass (色) の 2 層、外側を oscillate で揺らす | 芯に沿って `end_rod` 上昇、根元に `flash`、ビーム上に `electric_spark` | 外側は少し太く・暗く (bloom) |
 | 炎 | (Display は使わないか、橙 glass の揺らぎ) | `flame` / `soul_fire_flame` / `small_flame` / `lava`、上昇は velocity up | 炎を block で作らない (硬く見える) |
 | 血・花弁 | (無し) | `dust` 赤 scale 1.5 を velocity outward + 落下、`cherry_leaves`、`falling_dust redstone_block` | |
+| 色付きの柔らかい火花・火の粉・光の粒・血の雫・花弁 (色・サイズ・半透明が要る粒) | **display particles**: `kind: { type: quad, color, alpha }` + `emit` (count ≤ 40, gravity, `color_over_life` / `alpha_over_life`)。形が要る粒は `glyph: "✦"` / `"●"` / `"▲"` | 補助に vanilla `dust` / `end_rod` を少量 | 1 粒 = 1 エンティティ (cast の display 予算を食う、≤ 40/要素)。billboard center 既定。質感は薄く小さく多く、`size` 0.05-0.15 |
 | 糸・鎖 | 極細 block (0.02) の line、または item display (chain) を line formation | `dust` 小粒を線上、`trail` で張る瞬間 | |
 | 魔法陣・時計陣 | 地面平行の ring + polygon (星) formation、group spin、text 記号 (◎ ☸) | `enchant` を陣に吸い込む、`end_rod` を陣の縁 | 地面平行 = rotate pitch -90 (text) / scale y 薄く (block) |
 | 文字演出 (斬・CLEAR) | text display、center billboard、scale 3-6、背景 `#00000000`、shadow false | 出現時に `flash`、消える時に `poof` | 1 文字 ≈ 0.25 block × scale |
@@ -115,3 +116,14 @@ ItemDisplay はほぼ使わない。
 
 `tools/skill-viewer` で **術者一人称・相手三人称・横** の 3 視点を出し、ダメージ tick と重ねて確認する。
 近似プレビューでの確認だけで完了にしない。
+
+## 5. Display particles (`quad`)
+
+vanilla particle には色・サイズ・透明度が無い。`kind: quad` は TextDisplay の背景色 (ARGB の alpha が効く) で
+**単色の半透明の板**を作る。`size` / `scale` は **ブロック単位** (1 = 1x1 ブロック)。
+較正 (text 1 px = 0.025 block, 空白 1 文字の背景箱 = 0.125 x 0.25 block, 中心は原点の 0.1 下):
+`scale = (w*8, h*4, 1)`、位置は entity 位置に置いて箱の中心を合わせる (`VfxQuad` KDoc)。
+glyph 版は `scale = size*5` (1 セル = 8 px = 0.2 block)、色は text colour + `text_opacity` (4 未満は不透明扱いなので下限 4)。
+クライアントは色を補間しないので、色 / alpha の変化は `sample_ticks` ごとの更新で送る。
+粒子は entity 位置を teleport (`teleport_duration`) で動かす (transformation の translation は billboard 相対になるため)。
+重力は世界座標の下向き。`emit` の乱数は cast の seed 固定 (同じ seed なら同じ軌道)。
