@@ -1,0 +1,339 @@
+{
+  "credit": "Astera / Codex (gpt-6-astra)",
+  "gui_light": "front",
+  "ambientocclusion": false,
+  "textures": {
+    "0": "astera:items/ember-gauntlet",
+    "particle": "astera:items/ember-gauntlet"
+  },
+  "elements": [
+    {
+      "name": "bracer block",
+      "from": [
+        4.5,
+        0.5,
+        4.5
+      ],
+      "to": [
+        11.5,
+        8.5,
+        11.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            13.75,
+            2.0
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            13.75,
+            2.0
+          ]
+        },
+        "east": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            13.75,
+            2.0
+          ]
+        },
+        "west": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            13.75,
+            2.0
+          ]
+        },
+        "up": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            13.75,
+            1.75
+          ]
+        },
+        "down": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            13.75,
+            1.75
+          ]
+        }
+      }
+    },
+    {
+      "name": "fist block",
+      "from": [
+        3.5,
+        8.5,
+        5.0
+      ],
+      "to": [
+        12.5,
+        17.5,
+        11.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            14.25,
+            2.25
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            14.25,
+            2.25
+          ]
+        },
+        "east": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            13.5,
+            2.25
+          ]
+        },
+        "west": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            13.5,
+            2.25
+          ]
+        },
+        "up": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            14.25,
+            1.5
+          ]
+        },
+        "down": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            14.25,
+            1.5
+          ]
+        }
+      }
+    },
+    {
+      "name": "thumb block",
+      "from": [
+        11.5,
+        9.5,
+        6.5
+      ],
+      "to": [
+        14.5,
+        14.5,
+        9.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            1.25
+          ]
+        },
+        "south": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            1.25
+          ]
+        },
+        "east": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            1.25
+          ]
+        },
+        "west": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            1.25
+          ]
+        },
+        "up": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ]
+        },
+        "down": {
+          "texture": "#0",
+          "uv": [
+            12.0,
+            0.0,
+            12.75,
+            0.75
+          ]
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        20,
+        -30,
+        -25
+      ],
+      "translation": [
+        0,
+        -1,
+        0
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        75,
+        -15,
+        -8
+      ],
+      "translation": [
+        0,
+        0,
+        -2
+      ],
+      "scale": [
+        0.68,
+        0.68,
+        0.68
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        75,
+        15,
+        8
+      ],
+      "translation": [
+        0,
+        0,
+        -2
+      ],
+      "scale": [
+        0.68,
+        0.68,
+        0.68
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.65,
+        0.65,
+        0.65
+      ]
+    },
+    "ground": {
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        2,
+        0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "translation": [
+        0,
+        -1,
+        0
+      ],
+      "scale": [
+        0.7,
+        0.7,
+        0.7
+      ]
+    }
+  }
+}

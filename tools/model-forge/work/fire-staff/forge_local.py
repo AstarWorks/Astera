@@ -56,11 +56,12 @@ class Prop:
     self.box('spiral wood ridge',[8,y,8.78],[1.55,.35,.25],'wood',-22.5)
     self.box('spiral wood return',[8,y+.45,7.22],[1.55,.35,.25],'wood',22.5)
    for y in np.arange(3,6.5,.55):self.box('raised leather wrap',[8,y,8],[1.8,.2,1.8],'leather')
- def finish(self):
+ def finish(self,display=None):
   out=ROOT/f'tools/model-forge/work/{self.item}/r{self.stage}';out.mkdir(parents=True,exist_ok=True)
   m={'credit':'Astera / Codex (gpt-6-astra)','gui_light':'front','ambientocclusion':False,'textures':{'0':f'astera:items/{self.item}','particle':f'astera:items/{self.item}'},'elements':self.els,'display':displays(self.item)}
   m['display']['gui'].update(rotation=[12,-25,-35],translation=[-1.8,-2.6,0],scale=[.46]*3)
   for hand in ('righthand','lefthand'):m['display']['thirdperson_'+hand]['scale']=[.58]*3
+  if display:m['display']=display
   tex={'#0':np.array(self.atlas)};v=validate(m,tex,budget=250)
   if not v['valid']:raise ValueError(v)
   (out/'model.json').write_text(json.dumps(m,indent=2)+'\n');self.atlas.save(out/'texture.png')
