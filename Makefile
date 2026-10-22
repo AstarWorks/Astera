@@ -152,5 +152,5 @@ e2e: ## Boot the offline e2e backend, run the MCProtocolLib bot suite, write bui
 	bash scripts/e2e.sh
 
 .PHONY: e2e-down
-e2e-down: ## Stop + drop the e2e backend (compose project astera-e2e)
-	docker compose -p astera-e2e -f docker/docker-compose.e2e.yml --profile e2e down -v --remove-orphans
+e2e-down: ## Stop + drop THIS checkout's e2e backend (project astera-e2e-<id>, volumes, images)
+	bash scripts/e2e.sh down
