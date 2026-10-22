@@ -1,5 +1,7 @@
 package com.astarworks.astera.core.domain.player.physiology
 
+import com.astarworks.astera.core.domain.player.PlayerId
+
 /**
  * Source / cause of a health-state mutation via [com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway].
  *
@@ -36,7 +38,11 @@ public sealed interface HealthChangeSource {
     public data class Skill(val skillId: String) : HealthChangeSource
 
     /** Status effect tick (regeneration / wither / etc.). */
-    public data class Status(val statusId: String) : HealthChangeSource
+    public data class Status(
+        val statusId: String,
+        /** Player who applied the status (DoT kill credit); null when environmental / unknown. */
+        val originPlayerId: PlayerId? = null,
+    ) : HealthChangeSource
 
     /** Catch-all for system / scripted mutations whose source is not modelled. */
     public data class Other(val label: String) : HealthChangeSource

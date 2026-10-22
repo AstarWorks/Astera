@@ -42,11 +42,6 @@ class SkillContentsTest {
           type: projectile
           launch_speed: 1.8
           max_lifetime_ticks: 60
-          damage:
-            - base:
-                type: literal
-                value: 12.0
-              attribute: fire
         phases:
           type: projectile
     """.trimIndent()
@@ -87,10 +82,24 @@ class SkillContentsTest {
         val params = spec.params as SkillParams.ProjectileParams
         assertThat(params.launchSpeed).isEqualTo(1.8)
         assertThat(params.maxLifetimeTicks).isEqualTo(60)
-        assertThat(params.damage.base).isEqualTo(12.0)
         // Inline i18n round-trips through LocalizedText.
         assertThat(spec.name.byLocale[LocaleCode.EN]).isEqualTo("Test Blast")
         assertThat(spec.description.byLocale[LocaleCode.JA]).isEqualTo("テスト用炸裂弾")
+    }
+
+    @Test
+    fun `projectile params with damage are rejected - damage lives in hit_entity mechanics`(@TempDir dir: Path) {
+        val withDamage = projectileYaml.replace(
+            "  max_lifetime_ticks: 60\n",
+            "  max_lifetime_ticks: 60\n  damage:\n    - base: { type: literal, value: 12.0 }\n      attribute: fire\n",
+        )
+        Files.writeString(dir.resolve("test-blast.yaml"), withDamage)
+
+        val contents = SkillContents()
+        val report = contents.bootstrap(dir)
+
+        assertThat(report.loaded).isEqualTo(0)
+        assertThat(report.failed).isEqualTo(1)
     }
 
     @Test

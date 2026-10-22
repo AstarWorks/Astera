@@ -15,8 +15,6 @@ import com.astarworks.astera.combat.testfixtures.FakeSkillRegistry
 import com.astarworks.astera.combat.testfixtures.FakeStatusEffectContainer
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.cooldown.CooldownKey
-import com.astarworks.astera.core.domain.damage.DamageAttribute
-import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -62,7 +60,6 @@ class CastSkillUseCaseTest {
         params = SkillParams.ProjectileParams(
             launchSpeed = 20.0,
             maxLifetimeTicks = 60,
-            damage = DamageProfile.single(8.0, DamageAttribute.FIRE),
         ),
         phases = com.astarworks.astera.core.domain.skill.phase.PhaseMechanics.Projectile(),
     )

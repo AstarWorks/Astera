@@ -21,7 +21,7 @@ public class FakeWorldGateway : IWorldGateway {
     public data class Removal(val world: WorldId, val at: Vec3)
     public data class ParticleEmission(val world: WorldId, val at: Vec3, val particle: ParticleSpec)
     public data class SoundEmission(val world: WorldId, val at: Vec3, val sound: SoundSpec)
-    public data class TeleportCall(val playerId: PlayerId, val at: Vec3, val world: WorldId?)
+    public data class TeleportCall(val playerId: PlayerId, val at: Vec3, val world: WorldId?, val yaw: Float? = null, val pitch: Float? = null)
 
     /**
      * Wave 5h: records a [spectatorSpawn] / [lobbySpawn] call. The [target]
@@ -77,8 +77,8 @@ public class FakeWorldGateway : IWorldGateway {
         sounds += SoundEmission(world, at, sound)
     }
 
-    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?): Boolean {
-        teleports += TeleportCall(playerId, at, world)
+    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean {
+        teleports += TeleportCall(playerId, at, world, yaw, pitch)
         return teleportResult
     }
 

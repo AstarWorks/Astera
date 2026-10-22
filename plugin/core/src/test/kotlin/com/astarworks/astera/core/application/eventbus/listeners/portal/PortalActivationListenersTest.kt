@@ -120,7 +120,7 @@ internal class PortalActivationListenersTest {
             override fun blockAt(world: WorldId, at: Vec3): com.astarworks.astera.core.domain.world.BlockType? = null
             override fun spawnParticle(world: WorldId, at: Vec3, particle: com.astarworks.astera.core.domain.effect.ParticleSpec) {}
             override fun playSound(world: WorldId, at: Vec3, sound: com.astarworks.astera.core.domain.effect.SoundSpec) {}
-            override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?): Boolean {
+            override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean {
                 teleportCalls += Triple(playerId, at, world)
                 return false
             }

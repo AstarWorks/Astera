@@ -85,9 +85,18 @@ public class RecordingWorldGateway(
         recorder.recordSound(scheduler.currentTick(), world.value, at, sound.key, sound.volume, sound.pitch)
     }
 
-    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?): Boolean {
+    override fun teleport(playerId: PlayerId, at: Vec3, world: WorldId?, yaw: Float?, pitch: Float?): Boolean {
         val entity = this.world.find(playerId) ?: return false
         entity.position = at
+        if (yaw != null || pitch != null) {
+            // Minecraft convention: yaw 0 faces +Z, 90 faces -X; positive pitch looks down.
+            val d = entity.direction
+            val curYaw = Math.toDegrees(Math.atan2(-d.x, d.z))
+            val curPitch = Math.toDegrees(-Math.asin(d.y.coerceIn(-1.0, 1.0)))
+            val y = Math.toRadians((yaw ?: curYaw.toFloat()).toDouble())
+            val p = Math.toRadians((pitch ?: curPitch.toFloat()).toDouble())
+            entity.direction = Vec3(-Math.sin(y) * Math.cos(p), -Math.sin(p), Math.cos(y) * Math.cos(p))
+        }
         if (world != null) entity.world = world
         recorder.recordTeleport(scheduler.currentTick(), playerId, at, entity.world.value)
         return true
@@ -240,19 +249,22 @@ public class SimStatusEffectContainer(
     private fun tickAll() {
         val now = scheduler.currentTick()
         for (playerId in active.keys.toList()) {
-            val perPlayer = active[playerId] ?: continue
-            for (effectId in perPlayer.keys.toList()) {
+            val effectIds = active[playerId]?.keys?.toList() ?: continue
+            for (effectId in effectIds) {
+                // Re-resolve: a DoT tick can kill the player and the death listener clears statuses.
+                val perPlayer = active[playerId] ?: break
                 val instance = perPlayer[effectId] ?: continue
                 applyTickEffect(playerId, instance)
-                val next = instance.remainingTicks - TICK_PERIOD.toInt()
+                val current = active[playerId]?.get(effectId) ?: continue
+                val next = current.remainingTicks - TICK_PERIOD.toInt()
                 if (next <= 0) {
-                    perPlayer.remove(effectId)
+                    active[playerId]?.remove(effectId)
                     eventBus.publish(StatusExpired(target = playerId, effectId = effectId, atTick = now))
                 } else {
-                    perPlayer[effectId] = instance.copy(remainingTicks = next)
+                    active[playerId]?.put(effectId, current.copy(remainingTicks = next))
                 }
             }
-            if (perPlayer.isEmpty()) active.remove(playerId)
+            if (active[playerId]?.isEmpty() == true) active.remove(playerId)
         }
     }
 
@@ -260,7 +272,7 @@ public class SimStatusEffectContainer(
         val health = healthGateway() ?: return
         val amount = instance.spec.magnitude * instance.currentStacks
         if (amount <= 0.0) return
-        val source = HealthChangeSource.Status(instance.spec.id.value)
+        val source = HealthChangeSource.Status(instance.spec.id.value, instance.sourcePlayerId)
         when (instance.spec.kind) {
             StatusKind.BURN -> health.damage(playerId, amount, source)
             StatusKind.HEAL_AMP -> health.heal(playerId, amount, source)

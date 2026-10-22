@@ -62,6 +62,8 @@ public class RespawnUseCase(
             playerId = spec.playerId,
             at = spec.spawnPoint.position,
             world = spec.spawnPoint.world,
+            yaw = spec.spawnPoint.yaw,
+            pitch = spec.spawnPoint.pitch,
         )
         if (!teleported) return Result.Failure(RespawnError.TeleportFailed(spec.playerId))
 

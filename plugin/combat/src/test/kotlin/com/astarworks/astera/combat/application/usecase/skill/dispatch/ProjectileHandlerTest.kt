@@ -10,8 +10,6 @@ import com.astarworks.astera.combat.domain.projectile.MotionProfile
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.combat.testfixtures.FakeNearbyTargetQuery
 import com.astarworks.astera.combat.testfixtures.FakeProjectileService
-import com.astarworks.astera.core.domain.damage.DamageAttribute
-import com.astarworks.astera.core.domain.damage.DamageProfile
 import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.effect.SoundId
 import com.astarworks.astera.core.domain.effect.scheduler.ScheduledParticleSpec
@@ -61,7 +59,6 @@ class ProjectileHandlerTest {
     private val params = SkillParams.ProjectileParams(
         launchSpeed = 1.8,
         maxLifetimeTicks = 60,
-        damage = DamageProfile.single(8.0, DamageAttribute.FIRE),
     )
     private val phases = PhaseMechanics.Projectile(
         cast = listOf(

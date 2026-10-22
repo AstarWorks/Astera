@@ -22,9 +22,6 @@ params:
   type: projectile
   launch_speed: 2.2
   max_lifetime_ticks: 50
-  damage:
-    - base: { type: literal, value: 6.0 }
-      attribute: water
 
 phases:
   type: projectile

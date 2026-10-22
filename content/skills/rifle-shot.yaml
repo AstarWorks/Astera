@@ -20,9 +20,6 @@ params:
   type: projectile
   launch_speed: 4.5
   max_lifetime_ticks: 40
-  damage:
-    - base: { type: literal, value: 8.0 }
-      attribute: physical
 
 phases:
   type: projectile

@@ -6,7 +6,7 @@
 # Wave 5combat-depth combo + focus-fire + target-lock integration.
 #
 # Lifecycle:
-#   Phase 1 Build (5 min): pillars BUILDING, immune to damage; resource gathering.
+#   Phase 1 Build (60 s playtest value; was 5 min): pillars BUILDING, immune to damage; resource gathering.
 #   Phase 2 Engage (10 min): Tier 1 pillars VULNERABLE. Combat opens.
 #   Phase 3 Tier 3 (5 min): Tier 2 + 3 pillars VULNERABLE. Killing Tier 3 eliminates team.
 #   Phase 4 Sudden Death (60 sec): DoT on surviving Tier 3s + HP-tiebreaker on expiry.
@@ -26,7 +26,7 @@ impl_class: com.astarworks.astera.match.application.gamemode.annihilation.Annihi
 tick_period_ticks: 20
 default_config:
   pillar_hp: "500"
-  build_phase_ticks: "6000"
+  build_phase_ticks: "1200"
   engage_phase_ticks: "12000"
   tier3_phase_ticks: "6000"
   sudden_death_ticks: "1200"

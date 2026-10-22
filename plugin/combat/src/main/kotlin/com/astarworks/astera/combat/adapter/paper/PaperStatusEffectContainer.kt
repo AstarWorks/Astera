@@ -256,7 +256,7 @@ public class PaperStatusEffectContainer(
      * top of the tick damage delivered by [StatusEffectTickListener] (double
      * DoT). The Bukkit potion is icon-only.
      */
-    private fun bukkitPotionTypeFor(kind: StatusKind): PotionEffectType? = when (kind) {
+    internal fun bukkitPotionTypeFor(kind: StatusKind): PotionEffectType? = when (kind) {
         StatusKind.SPEED_UP -> PotionEffectType.SPEED
         StatusKind.SPEED_DOWN -> PotionEffectType.SLOWNESS
         StatusKind.PARALYSIS -> PotionEffectType.SLOWNESS // applied at high amplifier; HUD only
