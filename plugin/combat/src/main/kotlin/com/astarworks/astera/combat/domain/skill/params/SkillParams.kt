@@ -18,9 +18,18 @@ public sealed class SkillParams {
         val range: Double,
         val knockback: Double,
         val damage: DamageProfile,
+        /** Full apex angle of the swing cone in degrees (WP3); 360 hits all around. */
+        val arcDegrees: Double = DEFAULT_ARC_DEGREES,
     ) : SkillParams() {
         init {
             require(range >= 0.0) { "MeleeParams.range must be >= 0: $range" }
+            require(arcDegrees > 0.0 && arcDegrees <= 360.0) {
+                "MeleeParams.arcDegrees must be in (0, 360]: $arcDegrees"
+            }
+        }
+
+        public companion object {
+            public const val DEFAULT_ARC_DEGREES: Double = 120.0
         }
     }
 

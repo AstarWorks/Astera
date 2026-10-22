@@ -2,12 +2,15 @@ package com.astarworks.astera.combat.platform.paper
 
 import com.astarworks.astera.combat.adapter.paper.PaperDamageGateway
 import com.astarworks.astera.combat.adapter.paper.PaperEnvironmentDamagePublisher
+import com.astarworks.astera.combat.adapter.paper.PaperEntityDamageGateway
 import com.astarworks.astera.combat.adapter.paper.PaperKnockbackGateway
+import com.astarworks.astera.combat.adapter.paper.PaperNearbyTargetQuery
 import com.astarworks.astera.combat.adapter.paper.PaperProjectileService
 import com.astarworks.astera.combat.adapter.paper.PaperStatusEffectContainer
 import com.astarworks.astera.combat.adapter.paper.PaperVanillaKillPublisher
 import com.astarworks.astera.combat.adapter.paper.ProjectileHitListener
 import com.astarworks.astera.combat.adapter.paper.StatusEffectTickListener
+import com.astarworks.astera.combat.adapter.paper.VanillaMeleeSuppressor
 import com.astarworks.astera.combat.adapter.paper.aoe.PaperAreaEffectGateway
 import com.astarworks.astera.combat.adapter.paper.aoe.PaperExplosionGateway
 import com.astarworks.astera.combat.adapter.paper.aoe.PaperFireSpreadController
@@ -50,10 +53,17 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
     private var statusContainer: PaperStatusEffectContainer? = null
     private var projectileService: PaperProjectileService? = null
     private var explosionGateway: PaperExplosionGateway? = null
+    private var entityDamageGateway: PaperEntityDamageGateway? = null
 
     private var statusTickHandle: IScheduler.TaskHandle? = null
 
     val ports: CombatPlatformPorts = CombatPlatformPorts(
+        nearbyTargetQuery = { PaperNearbyTargetQuery(plugin.server) },
+        entityDamageGateway = {
+            val gateway = PaperEntityDamageGateway(plugin.server)
+            entityDamageGateway = gateway
+            gateway
+        },
         projectileService = { services ->
             // Wave 6a-N2 (ADR-0155) — PaperProjectileService. Spawns vanilla
             // Bukkit projectile entities as visual carriers.
@@ -163,6 +173,10 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             ).start(plugin)
         }
 
+        // WP3: cancel the vanilla copy of a melee hit from an Astera item so it
+        // never double-applies next to the melee skill (ADR-0149).
+        VanillaMeleeSuppressor(entityDamageGateway).start(plugin)
+
         // Wave 6a-N3 (ADR-0159): combat-side publisher for vanilla-intrusion
         // EnvironmentDamageApplied. Core BukkitEventAdapter (ADR-0153) Role 2
         // cancels + reroutes the EntityDamageEvent at EventPriority.LOW; this
@@ -191,5 +205,6 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         projectileService = null
         statusContainer = null
         explosionGateway = null
+        entityDamageGateway = null
     }
 }

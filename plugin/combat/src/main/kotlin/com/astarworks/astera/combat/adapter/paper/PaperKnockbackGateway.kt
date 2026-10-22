@@ -4,6 +4,7 @@ import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.player.PlayerId
 import org.bukkit.Server
+import org.bukkit.entity.LivingEntity
 import org.bukkit.attribute.Attribute
 import org.bukkit.util.Vector
 import org.slf4j.LoggerFactory
@@ -59,7 +60,8 @@ public class PaperKnockbackGateway(
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun applyImpulse(target: PlayerId, impulse: Vec3) {
-        val player = server.getPlayer(target.uuid)
+        // Players and non-player living entities (mobs travel as PlayerId(entityUuid), WP3).
+        val player = server.getEntity(target.uuid) as? LivingEntity
         if (player == null) {
             if (log.isDebugEnabled) {
                 log.debug("PaperKnockbackGateway: target {} offline; skipping impulse {}", target, impulse)

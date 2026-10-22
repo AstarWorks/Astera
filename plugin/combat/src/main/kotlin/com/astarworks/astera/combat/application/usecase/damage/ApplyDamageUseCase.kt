@@ -5,6 +5,7 @@ import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.IArmorEquipmentProvider
 import com.astarworks.astera.combat.application.port.outbound.IDamageBonusSource
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
+import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
@@ -81,8 +82,17 @@ public class ApplyDamageUseCase(
      * the product regardless.
      */
     private val bonusSources: List<IDamageBonusSource> = emptyList(),
+    /**
+     * WP3: non-player living entities (mobs). When set and
+     * [IEntityDamageGateway.isEntityTarget] holds for the target, the attempt
+     * takes [executeOnEntity] instead of the player path.
+     */
+    private val entityDamageGateway: IEntityDamageGateway? = null,
 ) {
     public fun execute(attempt: DamageAttempt): Result<DamageOutcome, ApplyDamageError> {
+        if (entityDamageGateway?.isEntityTarget(attempt.targetId) == true) {
+            return executeOnEntity(entityDamageGateway, attempt)
+        }
         // 1. Immunity check
         if (statusContainer.has(attempt.targetId, IMMUNITY_ID)) {
             return Result.failure(ApplyDamageError.TargetImmune(attempt.targetId))
@@ -202,6 +212,49 @@ public class ApplyDamageUseCase(
                             atTick = atTick,
                         ),
                     )
+                }
+                Result.success(gw.value)
+            }
+            is Result.Failure -> Result.failure(ApplyDamageError.GatewayFailed(gw.error))
+        }
+    }
+
+    /**
+     * Mob path (WP3): same rule pipeline minus player-only state (no attribute
+     * container, no equipped armor, no status immunity). Publishes
+     * [DamageDealt] / [KnockbackApplied] but never [PlayerKilled] — a mob death
+     * is the host's `EntityDeathEvent` (Paper kill credit comes from
+     * `LivingEntity.damage(amount, attacker)`).
+     */
+    private fun executeOnEntity(
+        gateway: IEntityDamageGateway,
+        attempt: DamageAttempt,
+    ): Result<DamageOutcome, ApplyDamageError> {
+        val attackerId = attempt.source.attackerIdOrNull()
+        val resolution = damageRule.resolve(
+            attempt = attempt,
+            defenderArmor = null,
+            defenderContainer = null,
+            attackerTeam = attackerId?.let { teamLookup?.teamOf(it) },
+            defenderTeam = null,
+        )
+        if (resolution.resolved.wasBlocked) {
+            return Result.failure(ApplyDamageError.FriendlyFireBlocked(attempt.targetId))
+        }
+        val atTick = scheduler.currentTick()
+        return when (val gw = gateway.apply(attempt.targetId, resolution.resolved, attempt.source)) {
+            is Result.Success -> {
+                eventBus.publish(
+                    DamageDealt(
+                        attacker = attackerId,
+                        target = attempt.targetId,
+                        resolved = resolution.resolved,
+                        source = attempt.source,
+                        atTick = atTick,
+                    ),
+                )
+                resolution.knockback?.let { impulse ->
+                    knockbackGateway.applyImpulse(attempt.targetId, impulse)
                 }
                 Result.success(gw.value)
             }

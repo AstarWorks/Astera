@@ -12,6 +12,7 @@ import com.astarworks.astera.combat.application.port.outbound.IComboTracker
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IDamageHistoryService
 import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
+import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IFocusFireTracker
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.IManaPoolService
@@ -191,6 +192,11 @@ public object CombatWiring {
         // ships the Stub so port consumers can wire against the surface.
         registrations += services.register<ICelEvaluator>(StubCelEvaluator())
 
+        // WP3: host spatial query (players + mobs) before anything captures it.
+        ports.nearbyTargetQuery?.let {
+            registrations += services.register<INearbyTargetQuery>(it(services), priority = 100)
+        }
+
         // Wave 5m (ADR-0088): Combat AOE + environment damage source.
         // Register InMemory defaults; Wave 6a `PaperExplosionGateway` /
         // `PaperAreaEffectGateway` / `PaperLightningGateway` /
@@ -324,6 +330,13 @@ public object CombatWiring {
             registrations += services.register<IStatusEffectContainer>(it(services), priority = 100)
         }
 
+        // WP3: non-player (mob) damage. Optional: without a host impl mobs are
+        // simply not damageable (ApplyDamageUseCase never takes the entity path).
+        ports.entityDamageGateway?.let {
+            registrations += services.register<IEntityDamageGateway>(it(services), priority = 100)
+        }
+        val entityDamageGateway = services.get<IEntityDamageGateway>()
+
         val damageGateway = services.get<IDamageGateway>()
         val statusContainer = services.get<IStatusEffectContainer>()
 
@@ -404,6 +417,7 @@ public object CombatWiring {
                     focusFireBonusSource,
                     targetLockBonusSource,
                 ),
+                entityDamageGateway = entityDamageGateway,
             )
             val consumeMana = ConsumeManaUseCase(manaService, eventBus)
 
@@ -514,7 +528,12 @@ public object CombatWiring {
             // Wave _skills-2 (ADR-0077) — archetype handlers, each holding a
             // reference to the shared MechanicDispatcher.
             val projectileHandler = ProjectileHandler(projectileService, mechanicDispatcher)
-            val meleeHandler = MeleeHandler(nearbyQuery, applyDamage, mechanicDispatcher)
+            val meleeHandler = MeleeHandler(
+                nearbyQuery,
+                applyDamage,
+                mechanicDispatcher,
+                services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>(),
+            )
             val aoeHandler = AoeHandler(nearbyQuery, applyDamage, mechanicDispatcher)
             val buffHandler = BuffHandler(applyStatus, scheduler, mechanicDispatcher)
             val teleportHandler = TeleportHandler(worldGateway, mechanicDispatcher)
