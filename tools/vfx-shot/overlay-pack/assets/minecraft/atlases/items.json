@@ -1,0 +1,6 @@
+{
+  "sources": [
+    { "type": "directory", "source": "generated/items", "prefix": "generated/items/" },
+    { "type": "directory", "source": "items", "prefix": "items/" }
+  ]
+}
