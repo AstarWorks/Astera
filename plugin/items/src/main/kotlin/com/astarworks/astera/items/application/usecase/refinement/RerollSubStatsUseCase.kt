@@ -76,7 +76,7 @@ public class RerollSubStatsUseCase(
         keepIfBetter: (previous: List<SubStatRoll>, candidate: List<SubStatRoll>) -> Boolean = KEEP_IF_HIGHER_SUM,
     ): Result<Outcome, RefinementError> {
         // 1. Load the instance.
-        val instance = instances.findById(instanceId)
+        val instance = instances.findById(instanceId)?.takeIf { it.owner == owner }
             ?: return Result.failure(RefinementError.UnknownInstance(instanceId))
 
         // 2. Re-derive the per-item spec.

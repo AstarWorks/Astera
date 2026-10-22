@@ -99,9 +99,9 @@ public class SimpleMessageRenderer(
         return LocaleCode.parse(raw)
     }
 
-    /** Trims `ja_jp` → `ja`, `en_us` → `en`. */
+    /** Use the same primary language subtag for key-based and inline translations. */
     private fun normalize(raw: String?): String? =
-        raw?.substringBefore('_')?.lowercase()?.takeIf { it.isNotBlank() }
+        raw?.let { LocaleCode.parse(it).code }?.takeIf { it.isNotBlank() }
 
     private fun substitute(template: String, placeholders: Map<String, String>): String {
         if (placeholders.isEmpty()) return template

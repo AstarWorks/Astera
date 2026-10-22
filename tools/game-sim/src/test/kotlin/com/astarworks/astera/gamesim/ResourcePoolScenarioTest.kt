@@ -1,5 +1,9 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.port.outbound.IResourceRegenScheduler
+import com.astarworks.astera.core.application.service.DefaultResourceRegenScheduler
+import com.astarworks.astera.core.application.services.getOrThrow
+import com.astarworks.astera.core.domain.event.ResourceRegenned
 import com.astarworks.astera.combat.domain.event.CastRejectionReason
 import com.astarworks.astera.combat.domain.event.SkillCast
 import com.astarworks.astera.combat.domain.event.SkillCastRejected
@@ -11,6 +15,25 @@ import org.junit.jupiter.api.Test
 
 /** WP2 (ADR-0194): ammo and the shared energy pool in the cast path, reload on Shift+Q (sneak_drop), regen, cooldown override. */
 class ResourcePoolScenarioTest {
+
+    @Test
+    fun `quit stops resource regeneration and a rejoin resumes it`() {
+        scenario("resource-regen-quit-rejoin") {
+            val knight = player("knight")
+            val regen = sim.services.getOrThrow<IResourceRegenScheduler>() as DefaultResourceRegenScheduler
+            assertThat(regen.trackedPlayers()).contains(knight.id)
+            sim.detachPlayer(knight.id)
+            assertThat(regen.trackedPlayers()).doesNotContain(knight.id)
+            val before = eventsOf<ResourceRegenned>().size
+            advance(40)
+            assertThat(eventsOf<ResourceRegenned>()).hasSize(before)
+            sim.attachPlayer(knight.id, knight.name)
+            assertThat(regen.trackedPlayers()).contains(knight.id)
+            advance(40)
+            assertThat(eventsOf<ResourceRegenned>().size).isGreaterThan(before)
+        }
+    }
+
 
     @Test
     fun `pistol empties its magazine, the cast is rejected, drop reloads, it fires again`() {
