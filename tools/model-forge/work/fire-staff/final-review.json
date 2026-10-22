@@ -1,12 +1,34 @@
 {
   "item": "fire-staff",
-  "concept_sha256": "c10b71f02756dce6b628a7256461b8489084de4079571e6abfeabd9634f10a7c",
+  "round": 5,
+  "validation": {
+    "valid": true,
+    "elements": 113,
+    "budget": 250,
+    "errors": [],
+    "warnings": [],
+    "density_range": [
+      1.9999999999999754,
+      2.000000000000046
+    ],
+    "rotated_bounds": [
+      [
+        4.283482843455161,
+        -1.0075000000000003,
+        5.95
+      ],
+      [
+        11.71651715654484,
+        29.709619407771257,
+        10.743053843017858
+      ]
+    ]
+  },
   "views": {
     "front": {
-      "iou": 0.80185,
       "bounds": [
         102,
-        15,
+        9,
         153,
         227
       ],
@@ -14,275 +36,181 @@
       "span": 36
     },
     "side": {
-      "iou": 0.89743,
       "bounds": [
-        116,
-        15,
-        138,
+        109,
+        9,
+        142,
         227
       ],
       "clipped": false,
       "span": 36
     },
     "top": {
-      "iou": 0.86756,
       "bounds": [
         102,
-        117,
+        113,
         153,
-        139
+        147
       ],
       "clipped": false,
       "span": 36
     },
     "iso": {
-      "iou": 0.88421,
       "bounds": [
-        102,
-        20,
-        153,
-        225
+        103,
+        15,
+        152,
+        222
       ],
       "clipped": false,
       "span": 36
     },
     "gui": {
       "bounds": [
-        41,
         58,
-        169,
-        220
+        48,
+        185,
+        221
       ],
       "clipped": false,
       "span": 16
     },
     "firstperson_righthand": {
       "bounds": [
-        96,
-        20,
-        144,
-        174
+        103,
+        18,
+        152,
+        185
       ],
       "clipped": false,
       "span": 32
     },
     "thirdperson_righthand": {
       "bounds": [
-        108,
-        1,
-        136,
-        145
+        118,
+        8,
+        144,
+        149
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "firstperson_lefthand": {
+      "bounds": [
+        119,
+        17,
+        168,
+        185
+      ],
+      "clipped": false,
+      "span": 32
+    },
+    "thirdperson_lefthand": {
+      "bounds": [
+        110,
+        9,
+        137,
+        149
       ],
       "clipped": false,
       "span": 32
     },
     "ground": {
       "bounds": [
-        112,
-        51,
-        127,
-        117
+        119,
+        52,
+        136,
+        125
       ],
       "clipped": false,
       "span": 32
     },
     "fixed": {
       "bounds": [
-        104,
-        49,
-        135,
-        182
+        110,
+        48,
+        145,
+        194
       ],
       "clipped": false,
       "span": 32
     }
   },
-  "validation": {
-    "valid": true,
-    "elements": 15,
-    "budget": 64,
-    "errors": [],
-    "warnings": [],
-    "density_range": [
-      1.9999999999999964,
-      2.0000000000000098
-    ],
-    "rotated_bounds": [
-      [
-        4.290728564989833,
-        -1.0,
-        6.5
-      ],
-      [
-        11.662344807956204,
-        28.865323881037952,
-        9.725000000000001
-      ]
-    ]
-  },
-  "note": "IoU compares independent polygon construction targets, not the source icon. Hand views are isolated orthographic transform previews.",
-  "sha256": {
-    "content/models/items/fire-staff.model.json": "aee52ef359be9575df17d1135fcbb02b1294f986efdedd95250e5aacc05ff0c1",
-    "content/textures/items/fire-staff.png": "25f622c4b5a4dc7a5a7a88f108370679d80d478f6b2d9d452d3bd3dc36087e70"
-  },
+  "concept_sha256": "8fe0a63db8a809be2358ef057699d77d1915d448004f54429477a2072ef86753",
+  "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used.",
   "rounds": [
     {
-      "round": "round-1",
+      "item": "fire-staff",
+      "round": 1,
+      "validation": {
+        "valid": true,
+        "elements": 3,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          2.0,
+          2.0000000000000004
+        ],
+        "rotated_bounds": [
+          [
+            5.5,
+            0.0,
+            6.0
+          ],
+          [
+            10.5,
+            29.0,
+            10.0
+          ]
+        ]
+      },
       "views": {
         "front": {
-          "iou": 0.63685,
           "bounds": [
-            117,
-            36,
-            138,
-            227
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "side": {
-          "iou": 0.68116,
-          "bounds": [
-            117,
-            36,
-            138,
-            227
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "top": {
-          "iou": 0.43682,
-          "bounds": [
-            117,
-            117,
-            138,
-            138
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "iso": {
-          "iou": 0.69192,
-          "bounds": [
-            113,
-            36,
-            142,
-            223
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "gui": {
-          "bounds": [
-            45,
-            65,
-            161,
-            217
-          ],
-          "clipped": false,
-          "span": 16
-        },
-        "firstperson_righthand": {
-          "bounds": [
-            101,
-            33,
-            141,
-            174
-          ],
-          "clipped": false,
-          "span": 32
-        },
-        "thirdperson_righthand": {
-          "bounds": [
-            111,
+            110,
             14,
-            135,
-            144
-          ],
-          "clipped": false,
-          "span": 32
-        },
-        "ground": {
-          "bounds": [
-            117,
-            57,
-            122,
-            117
-          ],
-          "clipped": false,
-          "span": 32
-        },
-        "fixed": {
-          "bounds": [
-            113,
-            61,
-            126,
-            182
-          ],
-          "clipped": false,
-          "span": 32
-        }
-      },
-      "concept_sha256": "c10b71f02756dce6b628a7256461b8489084de4079571e6abfeabd9634f10a7c",
-      "sha256": {
-        "model.json": "9ed72896408b1e67514034bb1b76fdc9d659582246f1dc89c85b71e36872e9e6",
-        "texture.png": "e888eb2e3a04e66d960ab6578b1bfc11aac2688b2186ada01e722a11831ff77a",
-        "comparison.png": "aaa3063b26e91aec3de3804745b36268e468010e5299773f4544daac0d2bce1b"
-      }
-    },
-    {
-      "round": "round-2",
-      "views": {
-        "front": {
-          "iou": 0.73693,
-          "bounds": [
-            102,
-            17,
-            153,
-            227
+            145,
+            219
           ],
           "clipped": false,
           "span": 36
         },
         "side": {
-          "iou": 0.77869,
           "bounds": [
-            117,
-            17,
-            138,
-            227
+            114,
+            14,
+            141,
+            219
           ],
           "clipped": false,
           "span": 36
         },
         "top": {
-          "iou": 0.85893,
           "bounds": [
-            102,
-            117,
-            153,
-            138
+            110,
+            114,
+            145,
+            141
           ],
           "clipped": false,
           "span": 36
         },
         "iso": {
-          "iou": 0.81106,
           "bounds": [
-            102,
-            23,
-            153,
-            223
+            105,
+            16,
+            150,
+            216
           ],
           "clipped": false,
           "span": 36
         },
         "gui": {
           "bounds": [
-            45,
-            62,
-            166,
+            63,
+            42,
+            194,
             217
           ],
           "clipped": false,
@@ -290,19 +218,39 @@
         },
         "firstperson_righthand": {
           "bounds": [
-            96,
-            21,
-            141,
-            174
+            102,
+            19,
+            148,
+            180
           ],
           "clipped": false,
           "span": 32
         },
         "thirdperson_righthand": {
           "bounds": [
-            111,
-            3,
-            137,
+            119,
+            10,
+            145,
+            144
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            123,
+            19,
+            169,
+            180
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            110,
+            10,
+            136,
             144
           ],
           "clipped": false,
@@ -310,40 +258,200 @@
         },
         "ground": {
           "bounds": [
-            112,
-            51,
-            127,
-            117
+            122,
+            54,
+            133,
+            122
           ],
           "clipped": false,
           "span": 32
         },
         "fixed": {
           "bounds": [
-            104,
+            116,
+            51,
+            139,
+            189
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "8fe0a63db8a809be2358ef057699d77d1915d448004f54429477a2072ef86753",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "fire-staff",
+      "round": 2,
+      "validation": {
+        "valid": true,
+        "elements": 28,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.999999999999996,
+          2.0000000000000124
+        ],
+        "rotated_bounds": [
+          [
+            4.283482843455161,
+            -1.0075000000000003,
+            6.25
+          ],
+          [
+            11.71651715654484,
+            29.299999999999997,
+            10.743053843017858
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            102,
+            12,
+            153,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            109,
+            12,
+            139,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            102,
+            116,
+            153,
+            147
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            103,
+            18,
+            152,
+            222
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            58,
+            51,
+            185,
+            221
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            103,
+            19,
+            152,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            118,
+            11,
+            144,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            19,
+            168,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            110,
+            10,
+            137,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            119,
+            53,
+            136,
+            125
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            110,
             50,
-            135,
-            182
+            145,
+            194
           ],
           "clipped": false,
           "span": 32
         }
       },
-      "concept_sha256": "c10b71f02756dce6b628a7256461b8489084de4079571e6abfeabd9634f10a7c",
-      "sha256": {
-        "model.json": "d2fa410b22d5731fdaa22dd4043e44d58e91277cb66553f739ed6b384d09da85",
-        "texture.png": "e888eb2e3a04e66d960ab6578b1bfc11aac2688b2186ada01e722a11831ff77a",
-        "comparison.png": "022d144367f94b1a67c1c5736ad92d032e373f6e64e5d7ae7658d01013bc5553"
-      }
+      "concept_sha256": "8fe0a63db8a809be2358ef057699d77d1915d448004f54429477a2072ef86753",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
     },
     {
-      "round": "round-3",
+      "item": "fire-staff",
+      "round": 3,
+      "validation": {
+        "valid": true,
+        "elements": 101,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999754,
+          2.000000000000046
+        ],
+        "rotated_bounds": [
+          [
+            4.283482843455161,
+            -1.0075000000000003,
+            5.95
+          ],
+          [
+            11.71651715654484,
+            29.299999999999997,
+            10.743053843017858
+          ]
+        ]
+      },
       "views": {
         "front": {
-          "iou": 0.74921,
           "bounds": [
             102,
-            15,
+            12,
             153,
             227
           ],
@@ -351,209 +459,140 @@
           "span": 36
         },
         "side": {
-          "iou": 0.79671,
           "bounds": [
-            116,
-            15,
-            138,
+            109,
+            12,
+            142,
             227
           ],
           "clipped": false,
           "span": 36
         },
         "top": {
-          "iou": 0.86856,
           "bounds": [
             102,
-            117,
+            113,
             153,
-            139
+            147
           ],
           "clipped": false,
           "span": 36
         },
         "iso": {
-          "iou": 0.83902,
           "bounds": [
-            102,
-            21,
-            153,
-            225
+            103,
+            18,
+            152,
+            222
           ],
           "clipped": false,
           "span": 36
         },
         "gui": {
           "bounds": [
-            41,
-            59,
-            166,
-            220
-          ],
-          "clipped": false,
-          "span": 16
-        },
-        "firstperson_righthand": {
-          "bounds": [
-            96,
-            20,
-            144,
-            174
-          ],
-          "clipped": false,
-          "span": 32
-        },
-        "thirdperson_righthand": {
-          "bounds": [
-            108,
-            1,
-            136,
-            145
-          ],
-          "clipped": false,
-          "span": 32
-        },
-        "ground": {
-          "bounds": [
-            112,
-            51,
-            127,
-            117
-          ],
-          "clipped": false,
-          "span": 32
-        },
-        "fixed": {
-          "bounds": [
-            104,
-            49,
-            135,
-            182
-          ],
-          "clipped": false,
-          "span": 32
-        }
-      },
-      "concept_sha256": "c10b71f02756dce6b628a7256461b8489084de4079571e6abfeabd9634f10a7c",
-      "sha256": {
-        "model.json": "7defed75fbdc3627d82b77856450490c5dec21a718775e4f2796a06e1bf9168f",
-        "texture.png": "e888eb2e3a04e66d960ab6578b1bfc11aac2688b2186ada01e722a11831ff77a",
-        "comparison.png": "0dd634c0f407717b87b255fff56ebc56442bb2df64913a97623521208fa87c5b"
-      }
-    },
-    {
-      "round": "round-4",
-      "views": {
-        "front": {
-          "iou": 0.80551,
-          "bounds": [
-            102,
-            15,
-            153,
-            227
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "side": {
-          "iou": 0.89902,
-          "bounds": [
-            116,
-            15,
-            138,
-            227
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "top": {
-          "iou": 0.86856,
-          "bounds": [
-            102,
-            117,
-            153,
-            139
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "iso": {
-          "iou": 0.88421,
-          "bounds": [
-            102,
-            20,
-            153,
-            225
-          ],
-          "clipped": false,
-          "span": 36
-        },
-        "gui": {
-          "bounds": [
-            41,
             58,
-            169,
-            220
+            51,
+            185,
+            221
           ],
           "clipped": false,
           "span": 16
         },
         "firstperson_righthand": {
           "bounds": [
-            96,
-            20,
-            144,
-            174
+            103,
+            19,
+            152,
+            185
           ],
           "clipped": false,
           "span": 32
         },
         "thirdperson_righthand": {
           "bounds": [
-            108,
-            1,
-            136,
-            145
+            118,
+            11,
+            144,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            19,
+            168,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            110,
+            10,
+            137,
+            149
           ],
           "clipped": false,
           "span": 32
         },
         "ground": {
           "bounds": [
-            112,
-            51,
-            127,
-            117
+            119,
+            53,
+            136,
+            125
           ],
           "clipped": false,
           "span": 32
         },
         "fixed": {
           "bounds": [
-            104,
-            49,
-            135,
-            182
+            110,
+            50,
+            145,
+            194
           ],
           "clipped": false,
           "span": 32
         }
       },
-      "concept_sha256": "c10b71f02756dce6b628a7256461b8489084de4079571e6abfeabd9634f10a7c",
-      "sha256": {
-        "model.json": "e72432662567f7ae46863f7990f76e982f1d4ca91dccd88b8c9022bb2217c004",
-        "texture.png": "a9516831aa148a04bd8d7b7c77ee85268a56278d48c0ce7cfd70b987e93afb55",
-        "comparison.png": "b8b1a3559861392d75055928aa365c2025f49782b4de65b80e5e2bd77444c1f9"
-      }
+      "concept_sha256": "8fe0a63db8a809be2358ef057699d77d1915d448004f54429477a2072ef86753",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
     },
     {
-      "round": "round-5",
+      "item": "fire-staff",
+      "round": 4,
+      "validation": {
+        "valid": true,
+        "elements": 106,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999754,
+          2.000000000000046
+        ],
+        "rotated_bounds": [
+          [
+            4.283482843455161,
+            -1.0075000000000003,
+            5.95
+          ],
+          [
+            11.71651715654484,
+            29.299999999999997,
+            10.743053843017858
+          ]
+        ]
+      },
       "views": {
         "front": {
-          "iou": 0.80185,
           "bounds": [
             102,
-            15,
+            12,
             153,
             227
           ],
@@ -561,95 +600,254 @@
           "span": 36
         },
         "side": {
-          "iou": 0.89743,
           "bounds": [
-            116,
-            15,
-            138,
+            109,
+            12,
+            142,
             227
           ],
           "clipped": false,
           "span": 36
         },
         "top": {
-          "iou": 0.86756,
           "bounds": [
             102,
-            117,
+            113,
             153,
-            139
+            147
           ],
           "clipped": false,
           "span": 36
         },
         "iso": {
-          "iou": 0.88421,
           "bounds": [
-            102,
-            20,
-            153,
-            225
+            103,
+            18,
+            152,
+            222
           ],
           "clipped": false,
           "span": 36
         },
         "gui": {
           "bounds": [
-            41,
             58,
-            169,
-            220
+            51,
+            185,
+            221
           ],
           "clipped": false,
           "span": 16
         },
         "firstperson_righthand": {
           "bounds": [
-            96,
-            20,
-            144,
-            174
+            103,
+            19,
+            152,
+            185
           ],
           "clipped": false,
           "span": 32
         },
         "thirdperson_righthand": {
           "bounds": [
-            108,
-            1,
-            136,
-            145
+            118,
+            11,
+            144,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            19,
+            168,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            110,
+            10,
+            137,
+            149
           ],
           "clipped": false,
           "span": 32
         },
         "ground": {
           "bounds": [
-            112,
-            51,
-            127,
-            117
+            119,
+            53,
+            136,
+            125
           ],
           "clipped": false,
           "span": 32
         },
         "fixed": {
           "bounds": [
-            104,
-            49,
-            135,
-            182
+            110,
+            50,
+            145,
+            194
           ],
           "clipped": false,
           "span": 32
         }
       },
-      "concept_sha256": "c10b71f02756dce6b628a7256461b8489084de4079571e6abfeabd9634f10a7c",
-      "sha256": {
-        "model.json": "aee52ef359be9575df17d1135fcbb02b1294f986efdedd95250e5aacc05ff0c1",
-        "texture.png": "25f622c4b5a4dc7a5a7a88f108370679d80d478f6b2d9d452d3bd3dc36087e70",
-        "comparison.png": "fb439f5a6bcb49992590cefad1b76ec0a26d9f1b2f5ed3977bc849ed8d6b7627"
-      }
+      "concept_sha256": "8fe0a63db8a809be2358ef057699d77d1915d448004f54429477a2072ef86753",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
+    },
+    {
+      "item": "fire-staff",
+      "round": 5,
+      "validation": {
+        "valid": true,
+        "elements": 113,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999754,
+          2.000000000000046
+        ],
+        "rotated_bounds": [
+          [
+            4.283482843455161,
+            -1.0075000000000003,
+            5.95
+          ],
+          [
+            11.71651715654484,
+            29.709619407771257,
+            10.743053843017858
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            102,
+            9,
+            153,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            109,
+            9,
+            142,
+            227
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            102,
+            113,
+            153,
+            147
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            103,
+            15,
+            152,
+            222
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            58,
+            48,
+            185,
+            221
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            103,
+            18,
+            152,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            118,
+            8,
+            144,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            119,
+            17,
+            168,
+            185
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            110,
+            9,
+            137,
+            149
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            119,
+            52,
+            136,
+            125
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            110,
+            48,
+            145,
+            194
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "8fe0a63db8a809be2358ef057699d77d1915d448004f54429477a2072ef86753",
+      "comparison": "Visual comparison to image-generated target; no code-drawn polygon IoU used."
     }
-  ]
+  ],
+  "sha256": {
+    "content/models/items/fire-staff.model.json": "e2e06b026bf18fc5a4b7dd1cc3ac259c87f47ccafdf9ef1948aec9b596bb5abf",
+    "content/textures/items/fire-staff.png": "7b78def5420c26e270e71fce5c5ef952ea8049e737c4c922bbfcae8df52b4a7d",
+    "tools/model-forge/work/fire-staff/ai-target/concept.png": "8fe0a63db8a809be2358ef057699d77d1915d448004f54429477a2072ef86753"
+  }
 }
