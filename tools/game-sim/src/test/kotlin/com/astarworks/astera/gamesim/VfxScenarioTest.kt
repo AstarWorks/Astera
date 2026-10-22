@@ -2,6 +2,9 @@ package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.domain.effect.DisplayKind
 import org.assertj.core.api.Assertions.assertThat
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.jupiter.api.Test
 
 /** ADR-0220: `play_vfx` end to end -- YAML skill, YAML choreography, real wiring, sim display gateway. */
@@ -37,6 +40,17 @@ class VfxScenarioTest {
             assertThat(sim.displays.active).isEmpty()
             assertThat(sim.recorder.effects("display_remove")).hasSize(8)
             assertThat(sim.recorder.effects("display_spawn")).hasSize(8)
+
+            // the viewer's full-fidelity record: every spawn / update / remove carries the exact transform sent to the client
+            val ops = sim.recorder.toJson().jsonObject["ticks"]!!.jsonArray
+                .flatMap { it.jsonObject["displays"]!!.jsonArray }.map { it.jsonObject }
+            assertThat(ops.count { it["op"]!!.jsonPrimitive.content == "spawn" }).isEqualTo(8)
+            assertThat(ops.count { it["op"]!!.jsonPrimitive.content == "remove" }).isEqualTo(8)
+            assertThat(ops.count { it["op"]!!.jsonPrimitive.content == "update" }).isEqualTo(sim.displays.updates.size)
+            val spawn = ops.first { it["op"]!!.jsonPrimitive.content == "spawn" }
+            assertThat(spawn["rotation"]!!.jsonArray).hasSize(4)
+            assertThat(spawn["scale"]!!.jsonArray).hasSize(3)
+            assertThat(spawn["billboard"]!!.jsonPrimitive.content).isEqualTo("fixed")
         }
     }
 }
