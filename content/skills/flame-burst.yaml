@@ -23,12 +23,18 @@ params:
   launch_speed: 1.4
   max_lifetime_ticks: 50
   visual:
+    # Budget: ~8 particles per 0.25-block sample, ~25 samples / 2 ticks => ~100 spawns/tick while in flight.
+    trail_spacing: 0.3
     trail:
       - type: point
         particles:
-          - { id: flame, count: 2, extra: 0.01, offset: { x: 0.06, y: 0.06, z: 0.06 } }
-          - { id: smoke, extra: 0.01, offset: { x: 0.05, y: 0.05, z: 0.05 } }
-    display: { variant: item, material: minecraft:fire_charge, scale: 0.6 }
+          - { id: flame, count: 3, extra: 0.02, offset: { x: 0.12, y: 0.12, z: 0.12 } }
+          - { id: dust, count: 2, offset: { x: 0.1, y: 0.1, z: 0.1 }, color: { r: 255, g: 120, b: 20 }, scale: 1.6 }
+          - { id: lava, count: 1, offset: { x: 0.08, y: 0.08, z: 0.08 } }
+      - type: point
+        particles:
+          - { id: smoke, offset: { x: 0.05, y: 0.05, z: 0.05 } }
+    display: { variant: item, material: minecraft:fire_charge, scale: 0.9 }
 
 phases:
   type: projectile
@@ -61,12 +67,24 @@ phases:
       sound_id: entity.generic.explode
       volume: { type: literal, value: 0.5 }
       pitch: { type: literal, value: 1.3 }
-    - type: spawn_particle
+    # Impact: fireball core + ember ring that expands to 3 blocks over 6 ticks (~120 + 6*16*3 = ~410 spawns once).
+    - type: schedule_particle_animation
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.0, z: 0.0 } } }
-      particle_id: fire-impact
-    - type: spawn_particle
-      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.0, z: 0.0 } } }
-      particle_id: fire-impact-smoke
+      animation:
+        - type: point
+          particles:
+            - { id: explosion, count: 1 }
+            - { id: flame, count: 60, extra: 0.25 }
+            - { id: lava, count: 12, extra: 0.1 }
+            - { id: large_smoke, count: 6, extra: 0.04 }
+        - type: ring
+          period_ticks: 6
+          points: 16
+          start_radius: 0.5
+          end_radius: 3.0
+          particles:
+            - { id: flame, count: 0, extra: 0.08 }
+            - { id: dust, color: { r: 255, g: 110, b: 20 }, scale: 2.0 }
     - type: play_sound
       targets: { type: caster }
       sound_id: entity.arrow.hit_player
@@ -78,12 +96,22 @@ phases:
       sound_id: entity.generic.explode
       volume: { type: literal, value: 0.4 }
       pitch: { type: literal, value: 1.4 }
-    - type: spawn_particle
+    - type: schedule_particle_animation
       targets: { type: hit_location }
-      particle_id: fire-impact
-    - type: spawn_particle
-      targets: { type: hit_location }
-      particle_id: fire-impact-smoke
+      animation:
+        - type: point
+          particles:
+            - { id: explosion, count: 1 }
+            - { id: flame, count: 50, extra: 0.22 }
+            - { id: large_smoke, count: 4, extra: 0.04 }
+        - type: ring
+          period_ticks: 6
+          points: 16
+          start_radius: 0.5
+          end_radius: 2.5
+          particles:
+            - { id: flame, count: 0, extra: 0.08 }
+            - { id: dust, color: { r: 255, g: 110, b: 20 }, scale: 2.0 }
   miss: []
   expire:
     - type: play_sound

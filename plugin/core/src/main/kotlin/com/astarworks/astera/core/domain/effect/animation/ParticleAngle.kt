@@ -11,6 +11,7 @@ import kotlin.random.Random
  *  - [HORIZONTAL]: the direction flattened onto the XZ plane; a direction with no
  *    horizontal part (or already flat) picks a random horizontal one, like RTM.
  *  - [VERTICAL]: straight up.
+ *  - [DOWN]: straight down (a sky-to-ground [AnimatedShape.Line]).
  *  - [RANDOM]: a fresh random unit vector per shape instance (rejection-sampled from
  *    the cube like RTM, so it is not uniform on the sphere).
  */
@@ -18,6 +19,7 @@ public enum class ParticleAngle {
     RAW,
     HORIZONTAL,
     VERTICAL,
+    DOWN,
     RANDOM,
     ;
 
@@ -30,6 +32,7 @@ public enum class ParticleAngle {
                 Vec3(direction.x, 0.0, direction.z).normalize()
             }
         VERTICAL -> Vec3(0.0, 1.0, 0.0)
+        DOWN -> Vec3(0.0, -1.0, 0.0)
         RANDOM -> randomUnit(random)
     }
 

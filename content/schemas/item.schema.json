@@ -211,6 +211,7 @@
                                 "raw",
                                 "horizontal",
                                 "vertical",
+                                "down",
                                 "random"
                             ]
                         },
@@ -252,6 +253,53 @@
                     "properties": {
                         "type": {
                             "type": "string",
+                            "const": "line"
+                        },
+                        "delay_ticks": {
+                            "type": "integer"
+                        },
+                        "amount": {
+                            "type": "integer"
+                        },
+                        "angle": {
+                            "type": "string",
+                            "enum": [
+                                "raw",
+                                "horizontal",
+                                "vertical",
+                                "down",
+                                "random"
+                            ]
+                        },
+                        "particles": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.AnimatedParticleYaml"
+                            }
+                        },
+                        "length": {
+                            "type": "number"
+                        },
+                        "segments": {
+                            "type": "integer"
+                        },
+                        "jitter": {
+                            "type": "number"
+                        },
+                        "points_per_segment": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "particles"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
                             "const": "point"
                         },
                         "delay_ticks": {
@@ -266,6 +314,7 @@
                                 "raw",
                                 "horizontal",
                                 "vertical",
+                                "down",
                                 "random"
                             ]
                         },
@@ -274,6 +323,56 @@
                             "items": {
                                 "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.AnimatedParticleYaml"
                             }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "particles"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "ring"
+                        },
+                        "delay_ticks": {
+                            "type": "integer"
+                        },
+                        "amount": {
+                            "type": "integer"
+                        },
+                        "angle": {
+                            "type": "string",
+                            "enum": [
+                                "raw",
+                                "horizontal",
+                                "vertical",
+                                "down",
+                                "random"
+                            ]
+                        },
+                        "particles": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.AnimatedParticleYaml"
+                            }
+                        },
+                        "period_ticks": {
+                            "type": "integer"
+                        },
+                        "points": {
+                            "type": "integer"
+                        },
+                        "start_radius": {
+                            "type": "number"
+                        },
+                        "end_radius": {
+                            "type": "number"
+                        },
+                        "rise": {
+                            "type": "number"
                         }
                     },
                     "required": [

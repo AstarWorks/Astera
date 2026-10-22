@@ -35,18 +35,50 @@ phases:
       sound_id: entity.player.hurt_freeze
       volume: { type: literal, value: 0.7 }
       pitch: { type: literal, value: 1.0 }
-    - type: spawn_particle
-      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.3, z: 0.0 } } }
-      particle_id: frost-nova-flakes
-    - type: spawn_particle
-      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 1.0, z: 0.0 } } }
-      particle_id: frost-nova-dust
+    # Budget: expanding ground ring 8 ticks x 24 pts x 3 particles = 576, + ground-hugging inner ring 8 x 12 = 96,
+    # + core burst 40 => ~710 spawns once per cast.
+    - type: schedule_particle_animation
+      targets: { type: caster_offset, offset: { type: literal, value: { x: 0.0, y: 0.15, z: 0.0 } } }
+      animation:
+        - type: point
+          particles:
+            - { id: snowflake, count: 40, extra: 0.12 }
+        - type: ring
+          period_ticks: 8
+          points: 24
+          start_radius: 0.5
+          end_radius: 5.0
+          particles:
+            - { id: snowflake, count: 0, extra: 0.03 }
+            - { id: dust, color: { r: 200, g: 235, b: 255 }, scale: 1.6 }
+            - { id: end_rod, count: 0, extra: 0.02 }
+        - type: ring
+          delay_ticks: 2
+          period_ticks: 6
+          points: 12
+          start_radius: 0.5
+          end_radius: 3.5
+          particles:
+            - { id: snowflake, count: 2, extra: 0.02, offset: { x: 0.0, y: 0.5, z: 0.0 } }
   hit_entity:
     - type: apply_status
       targets: { type: target }
       status_id: freeze
       effect_duration_ticks: { type: literal, value: 60 }
-    - type: spawn_particle
-      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.0, z: 0.0 } } }
-      particle_id: frost-impact
+    # Frozen: an ice shell of crystals around the target (burst of ~70).
+    - type: schedule_particle_animation
+      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 0.9, z: 0.0 } } }
+      animation:
+        - type: point
+          particles:
+            - { id: snowflake, count: 30, extra: 0.02, offset: { x: 0.4, y: 0.8, z: 0.4 } }
+            - { id: dust, count: 20, color: { r: 170, g: 225, b: 255 }, scale: 1.4, offset: { x: 0.4, y: 0.8, z: 0.4 } }
+            - { id: end_rod, count: 10, extra: 0.02, offset: { x: 0.35, y: 0.8, z: 0.35 } }
+        - type: ring
+          period_ticks: 3
+          points: 10
+          start_radius: 0.6
+          end_radius: 0.9
+          particles:
+            - { id: end_rod, count: 0, extra: 0.01 }
   expire: []
