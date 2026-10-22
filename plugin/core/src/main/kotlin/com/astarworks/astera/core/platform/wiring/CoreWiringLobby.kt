@@ -460,6 +460,21 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             scheduler = scheduler,
         ),
     )
+    // F1-I (ADR-0186): `/astera admin drain <target> [abort|keep]` moves this backend's players
+    // to another backend so `make dev-plugins` can restart it without kicking anybody.
+    commands.register(
+        "admin",
+        com.astarworks.astera.core.application.command.admin.buildAsteraDrainCommandSpec(
+            eventBus = eventBus,
+            scheduler = scheduler,
+            matches = { services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>() },
+            transfers = { services.get<com.astarworks.astera.core.application.port.outbound.IServerTransferGateway>() },
+            onlinePlayers = {
+                services.get<com.astarworks.astera.core.application.port.outbound.admin.IAdminPlayerGateway>()
+                    ?.onlinePlayers().orEmpty()
+            },
+        ),
+    )
     commands.register(
         com.astarworks.astera.core.application.command.buildAsteraNewsCommandSpec(
             registry = newsContents,

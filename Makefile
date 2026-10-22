@@ -48,6 +48,14 @@ docker-up: ## (Re)build image (jars + content baked in) and start Velocity + lob
 		echo "Generated a Velocity forwarding secret in docker/.env"; }
 	$(DOCKER_COMPOSE) up -d --build
 
+.PHONY: dev-plugins
+dev-plugins: ## Fast loop: build jars, push changed ones into the running backends, restart only those (players are moved, not kicked)
+	./scripts/dev-deploy.sh plugins
+
+.PHONY: dev-content
+dev-content: ## Fast loop: push content/ into the running backends and reload it in place (no restart)
+	./scripts/dev-deploy.sh content
+
 .PHONY: docker-down
 docker-down: ## Stop local stack (keeps volumes)
 	$(DOCKER_COMPOSE) down

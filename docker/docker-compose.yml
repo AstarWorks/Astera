@@ -18,7 +18,8 @@
 # `content/` into the image at /content (outside the /data volume). The Docker
 # daemon is shared with the host, so a bind mount of ../content would be empty
 # in the container. Content/code changes therefore need `make docker-up`
-# (rebuilds the image). See docs/contributing/playtest.md.
+# (rebuilds the image); `make dev-plugins` / `make dev-content` push just the changed
+# jars / content into the running backends instead. See docs/contributing/playtest.md.
 #
 # Host ports are overridable (ASTERA_PORT, POSTGRES_PORT, REDIS_PORT) and there
 # are no pinned container names, so a second stack can run with
@@ -45,6 +46,9 @@ x-astera-backend: &astera-backend
     # Authentication happens on Velocity; the backend only trusts the proxy.
     ONLINE_MODE: "FALSE"
     PATCH_DEFINITIONS: "/patches"
+    # Always re-sync /plugins -> /data/plugins on start (default would skip a "newer" destination).
+    # `make dev-plugins` updates both copies; a rebuilt image (make docker-up) must win (ADR-0186).
+    SYNC_SKIP_NEWER_IN_DESTINATION: "false"
     CFG_VELOCITY_SECRET: "${VELOCITY_FORWARDING_SECRET:?VELOCITY_FORWARDING_SECRET is empty: run `make docker-up` (it generates one in docker/.env)}"
     # Playtest world: superflat (surface block y=-61, stand at y=-60), so
     # content/stages/example-arena.yaml coordinates sit on ground. Only

@@ -26,8 +26,8 @@ make docker-logs    # tail velocity + lobby + game
 the first time (the file is git-ignored; never commit a real value). Running
 `docker compose` by hand without that variable set fails with a clear message.
 
-Content or code changes need `make docker-up` again (content is baked into the
-image; do not bind-mount `../content` — the Docker daemon may be remote/shared).
+Content or code changes need `make docker-up` again (or the fast loop `make dev-plugins` / `make dev-content`, see docs/contributing/playtest.md). Content is baked into the
+image; do not bind-mount `../content` — the Docker daemon may be remote/shared.
 
 Connect with a **real, paid Minecraft Java 26.3 account** to `localhost:25565`
 (Velocity authenticates against Mojang). Step-by-step play instructions:

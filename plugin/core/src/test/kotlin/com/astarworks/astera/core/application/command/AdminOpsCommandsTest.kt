@@ -203,6 +203,15 @@ class AdminOpsCommandsTest {
     }
 
     @Test
+    fun `reload all succeeds with an empty registry`() {
+        val cmd = commands.build().first { it.name == "reload" }
+        runBlocking {
+            val result = cmd.executor!!(ctx(sender = adminPlayer, args = mapOf("category" to "all")))
+            assertThat(result).isEqualTo(CommandResult.Success)
+        }
+    }
+
+    @Test
     fun `health command always succeeds and reads the snapshot`() {
         val cmd = commands.build().first { it.name == "health" }
         runBlocking {

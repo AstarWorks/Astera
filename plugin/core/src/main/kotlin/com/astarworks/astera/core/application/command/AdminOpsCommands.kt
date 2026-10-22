@@ -13,6 +13,7 @@ import com.astarworks.astera.core.application.port.outbound.admin.LiveConfigEdit
 import com.astarworks.astera.core.application.port.outbound.admin.ServerBackupError
 import com.astarworks.astera.core.application.port.outbound.maintenance.IMaintenanceModeService
 import com.astarworks.astera.core.application.port.outbound.mob.IMobSpawner
+import com.astarworks.astera.core.application.usecase.admin.ReloadAllContentUseCase
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -33,7 +34,7 @@ import java.time.Clock
  *
  *  - `/astera admin maintenance <on|off|status> [reason...]`  astera.admin.maintenance
  *  - `/astera admin teleport <player> <world> [x y z]`        astera.admin.teleport
- *  - `/astera admin reload <category>`                        astera.admin.reload
+ *  - `/astera admin reload <category|all>`                    astera.admin.reload
  *  - `/astera admin audit <player> [limit]`                   astera.admin.audit
  *  - `/astera admin promote <player> <role-id>`               astera.admin.role.grant
  *  - `/astera admin demote <player> <role-id>`                astera.admin.role.revoke
@@ -173,18 +174,35 @@ public class AdminOpsCommands(
 
     // ─── admin reload ────────────────────────────────────────────────────
 
+    /** `reload all` (`make dev-content`, ADR-0186): every registered category, each independent. */
+    private fun reloadAll(ctx: CommandContext): CommandResult {
+        val summary = when (val all = ReloadAllContentUseCase(reloadRegistry).execute()) {
+            is Result.Success -> all.value
+            is Result.Failure -> all.error.summary
+        }
+        log.info("Reloaded all categories: ok={} failed={}", summary.reloaded, summary.failed)
+        if (summary.failed.isEmpty()) {
+            ctx.reply(MessageKey("astera.command.reply.admin-reload"), mapOf("category" to RELOAD_ALL))
+            return CommandResult.Success
+        }
+        return CommandResult.Failure(
+            MessageKey("astera.command.reload.load_failed"),
+            mapOf("category" to summary.failed.joinToString(",")),
+        )
+    }
+
     private fun reloadCommand(): CommandSpec.Literal = CommandSpec.Literal(
         name = "reload",
         subcommands = listOf(
             CommandSpec.Argument(
                 name = "category",
                 type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
-                completer = { _ -> reloadRegistry.categories().toList() },
+                completer = { _ -> listOf(RELOAD_ALL) + reloadRegistry.categories().toList() },
             ),
         ),
         executor = { ctx ->
             val category = ctx.required<String>("category")
-            when (val outcome = reloadRegistry.reload(category)) {
+            if (category == RELOAD_ALL) reloadAll(ctx) else when (val outcome = reloadRegistry.reload(category)) {
                 is Result.Success -> {
                     log.info("Reloaded category {}: {}", category, outcome.value)
                     ctx.reply(MessageKey("astera.command.reply.admin-reload"), mapOf("category" to category))
@@ -586,6 +604,7 @@ public class AdminOpsCommands(
     public companion object {
         private const val DEFAULT_AUDIT_LIMIT = 25
         private const val MAX_SPAWN_COUNT = 64
+        private const val RELOAD_ALL = "all"
 
         /** Mount every Core admin command under `/astera admin`; returns how many were mounted. */
         public fun registerAll(commands: CommandMount, admin: AdminOpsCommands): Int {

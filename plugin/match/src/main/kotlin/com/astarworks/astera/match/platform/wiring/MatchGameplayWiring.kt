@@ -247,6 +247,16 @@ internal object MatchGameplayWiring {
             }
         }
 
+        // F1-I (ADR-0186): `/astera admin drain` cancels running matches so their players can be moved.
+        subscriptions += eventBus.subscribe(
+            com.astarworks.astera.core.domain.event.lifecycle.ServerDrainStarted::class,
+        ) { event ->
+            if (!event.abortMatches) return@subscribe
+            for (active in matches.findActiveMatches().toList()) {
+                facade.end(active.id, com.astarworks.astera.core.domain.event.EndReason.Cancelled("server-drain"))
+            }
+        }
+
         logger.info(
             "Wave 5wireup wired: /astera queue command registered; " +
                 "RespawnOnPlayerKilled + TeleportToLobbyOnMatchEnded subscribed.",

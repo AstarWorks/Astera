@@ -10,9 +10,46 @@ make docker-up                          # builds 7 jars + bakes content/, genera
 make docker-logs                        # wait for "Done (...)!" on lobby AND game, all Astera-* enabled
 ```
 
-`make docker-up` rebuilds every time; re-run it after changing code or `content/`.
+`make docker-up` rebuilds the whole image every time (minutes, both backends restart). For the
+edit-test loop use the fast targets below instead.
 The stack is Velocity (proxy) + `lobby` + `game` (two Paper servers) + Postgres +
 Redis; see `docker/README.md` and ADR-0179.
+
+### Fast loop: change code or content without `make docker-up` (ADR-0186)
+
+| Target | Does | You wait | Players |
+|---|---|---|---|
+| `make dev-content` | copies `content/` into both backends, runs `/astera admin reload all` | ~3 s | nothing happens to them |
+| `make dev-plugins` | `shadowJar` for the 7 plugins (incremental), then per backend whose jars changed: drain, stop, copy jars, start | build 25-45 s + ~55 s per backend (Paper `Done` is ~25 s of that, the rest is itzg init + JVM), backends one after the other | moved to the other backend, not kicked |
+
+`make dev-plugins` never touches Velocity, Postgres, Redis or the resource pack. Details:
+
+- Only jars whose SHA-256 differs from the one in the container are copied, and only a backend with a
+  changed jar restarts. `BACKENDS=lobby make dev-plugins` limits it to one backend, `FORCE=1` redeploys
+  unchanged jars (use it to restart for non-reloadable content, see below).
+- Order is lobby, then game. Before a backend stops, `/astera admin drain <other>` runs over RCON:
+  its players are moved to the other backend through Velocity, running matches on `game` are cancelled
+  (no winner) and their players go to the lobby. After the backend is back, parked players are moved
+  home (`drain <backend> keep` on the other side, which skips players in a running match).
+- What a player sees: lobby restart = a switch to the game server (the game server shows its normal
+  "wrong server" notice and tries to send them back, which fails while the lobby boots; they are moved
+  once it is up). Game restart mid-match = match cancelled, back in the lobby. Nobody gets a
+  disconnect screen. If the other backend is down, the players cannot be parked and Velocity's
+  `try = ["lobby", "game"]` decides.
+- Jars go into `/data/plugins` (what Paper loads) and `/plugins` (what itzg syncs from on every start,
+  `SYNC_SKIP_NEWER_IN_DESTINATION=false`), so a plain container restart keeps them. A later
+  `make docker-up` recreates the containers from a fresh image and wins again.
+- Needs the stack up (`make docker-up` once) and RCON (`docker/.env` `RCON_PASSWORD`, default fine).
+
+`reload all` covers: advancements, anomaly, armor, blocks, changelog, combat-depth/combos, dialogs,
+game-modes, gathering, generators, gui, items, login-bonus, matchmaking, mobs, music, news, normas,
+particles, permissions, pve/*, quests, recipes, skills, skills-progression, sounds, stages, status,
+tutorials. **Not reloadable** (loaded at boot): `languages/`, `balance/`, `hud/`, `shops/`,
+`lobby-npcs/`, `worlds/`, `flex/`, `bet-policies/`. Push them with `make dev-content` and then
+`FORCE=1 make dev-plugins` (graceful restart, content is already in place). Textures/models/HUD art
+need the resource pack rebuilt (`resource-pack` service), not covered by these targets.
+
+Why not `/reload` or PlugMan-style hot swap: see ADR-0186.
 
 ## 2. Connect
 
@@ -181,7 +218,8 @@ has no mode key and runs plain Norma). A stage names its Bukkit world with `worl
 
 - Logs: `docker compose -f docker/docker-compose.yml logs -f velocity lobby game`
 - Content is baked into the image at `/content` (outside the `/data` volume),
-  so every `make docker-up` serves exactly the repo's `content/`.
+  so every `make docker-up` serves exactly the repo's `content/`; `make dev-content` replaces
+  `/content` in the running containers (lost again when the containers are recreated).
 - Reset world and data: `make docker-nuke` then `make docker-up`
   (`LEVEL_TYPE=FLAT` only applies to a freshly created world).
 - Second stack next to a running one: use another project name and host ports, e.g.
