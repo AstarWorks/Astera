@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0211: Skill visual viewer lives in this repo (`tools/skill-viewer`)
+# ADR-0225: Skill visual viewer lives in this repo (`tools/skill-viewer`)
 
 ## Status
 

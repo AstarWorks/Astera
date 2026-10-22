@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Accepted. Extends [[adr/0186-e2e-harness-with-protocol-bots]] (QA-1, isolated offline backend) to the running
+Accepted. Extends [[adr/0222-e2e-harness-with-protocol-bots]] (QA-1, isolated offline backend) to the running
 `astera-dev` stack.
 
 ## Context

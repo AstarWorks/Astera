@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
 
 /**
- * F3-9 (ADR-0201) - `/astera admin pack reload [force]`: re-read the pack sha1
+ * F3-9 (ADR-0224) - `/astera admin pack reload [force]`: re-read the pack sha1
  * from the pack host and re-push the pack to everybody online, so
  * `docker compose up -d --build resource-pack` plus this one command applies new
  * textures without a backend restart. `force` re-pushes even when the hash is

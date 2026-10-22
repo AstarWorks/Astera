@@ -30,7 +30,7 @@ public interface IItemDelivery {
 
     /**
      * Re-apply the visual half of the current [IItemRegistry] specs (name, lore, item model) to every
-     * Astera stack online players hold, in place; returns how many stacks changed (F3-9, ADR-0201).
+     * Astera stack online players hold, in place; returns how many stacks changed (F3-9, ADR-0224).
      * Gameplay data (attributes, skill bindings) is read from the registry at use time and needs no
      * refresh.
      */

@@ -22,7 +22,7 @@ dependencyResolutionManagement {
         maven("https://jitpack.io/") { name = "jitpack" }
         maven("https://repo.codemc.io/repository/maven-public/") { name = "codemc" }
         maven("https://repo.codemc.io/repository/maven-releases/") { name = "codemc-releases" }
-        // MCProtocolLib (protocol bots for :tools:e2e, ADR-0186). Scoped: nothing else resolves here.
+        // MCProtocolLib (protocol bots for :tools:e2e, ADR-0222). Scoped: nothing else resolves here.
         maven("https://repo.opencollab.dev/maven-releases/") {
             name = "opencollab"
             content {
@@ -75,12 +75,12 @@ include(
     // Headless game simulator: boots the production wiring with simulator
     // ports, runs scenarios, exports JSON traces (ADR-0174). Not shipped.
     ":tools:game-sim",
-    // Static three.js viewer for game-sim traces + headless PNG/GIF skill frames (ADR-0211). Not shipped, not in `check`.
+    // Static three.js viewer for game-sim traces + headless PNG/GIF skill frames (ADR-0225). Not shipped, not in `check`.
     ":tools:skill-viewer",
     // Renders the procedural sky-island lobby plan to a PNG preview (ADR-0179). Not shipped.
     ":tools:lobby-gen",
     // Black-box E2E: MCProtocolLib bots join a real Paper backend (docker, `make e2e`) and assert
-    // on the packets a client receives (ADR-0186). Needs docker; NOT part of `check`. Not shipped.
+    // on the packets a client receives (ADR-0222). Needs docker; NOT part of `check`. Not shipped.
     ":tools:e2e",
     // Software-rendered contact sheets of content/vfx choreographies (ADR-0220). No Minecraft. Not shipped.
     ":tools:vfx-preview",

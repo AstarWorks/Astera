@@ -1,5 +1,5 @@
 /*
- * :tools:e2e - black-box end-to-end harness (ADR-0186, QA-1). NOT SHIPPED, NOT part of `check`.
+ * :tools:e2e - black-box end-to-end harness (ADR-0222, QA-1). NOT SHIPPED, NOT part of `check`.
  *
  * MCProtocolLib bots (real Minecraft Java 26.3 protocol clients) join the offline-mode `e2e`
  * backend from docker/docker-compose.e2e.yml and assert on what a client receives: resource pack

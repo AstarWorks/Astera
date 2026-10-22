@@ -39,7 +39,7 @@ Connect with a **real, paid Minecraft Java 26.3 account** to `localhost:25565`
 |---|---|
 | `Dockerfile` | Paper backend image (plugins + `content/` + `/patches`) |
 | `velocity/` | Velocity image: itzg/mc-proxy + `velocity.toml` (`[servers]` lobby + game, `try = ["lobby"]`) |
-| `docker-compose.hotswap.yml`, `hotswap/` | DEV ONLY overlay: backends on JetBrains Runtime 25 + hotswap agent (`make dev-hotswap-up`, ADR-0201) |
+| `docker-compose.hotswap.yml`, `hotswap/` | DEV ONLY overlay: backends on JetBrains Runtime 25 + hotswap agent (`make dev-hotswap-up`, ADR-0224) |
 | `paper-patches/velocity.json` | itzg patch: Paper `proxies.velocity` enabled, online-mode, secret from `CFG_VELOCITY_SECRET` |
 
 ## Running a second stack
