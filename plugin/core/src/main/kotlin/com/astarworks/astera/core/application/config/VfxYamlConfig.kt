@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.effect.vfx.VfxDefinition
 import com.astarworks.astera.core.domain.effect.vfx.VfxElement
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxFormation
+import com.astarworks.astera.core.domain.effect.vfx.VfxGroupKeyframe
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.effect.vfx.VfxJitter
 import com.astarworks.astera.core.domain.effect.vfx.VfxKeyframe
@@ -86,12 +87,17 @@ public data class VfxElementYaml(
     public val billboard: String = "fixed",
     @SerialName("view_range") public val viewRange: Double? = null,
     @SerialName("start_tick") public val startTick: Int = 0,
+    /** Absolute removal tick for every slot (staggered slots share it). */
     @SerialName("end_tick") public val endTick: Int? = null,
+    /** Per-slot lifetime from its own spawn; overrides `end_tick` when set. */
+    @SerialName("slot_lifetime_ticks") public val slotLifetimeTicks: Int? = null,
     public val count: Int = 1,
     public val formation: VfxFormationYaml? = null,
     public val jitter: VfxJitterYaml? = null,
     public val keyframes: List<VfxKeyframeYaml>,
     public val oscillate: VfxOscillateYaml? = null,
+    /** Whole-formation track: translate / rotate / scale of all slots together, before per-slot keyframes. */
+    @SerialName("group_keyframes") public val groupKeyframes: List<VfxGroupKeyframeYaml> = emptyList(),
 ) {
     public fun toDomain(): VfxElement = VfxElement(
         id = id,
@@ -102,11 +108,13 @@ public data class VfxElementYaml(
         viewRange = viewRange?.toFloat(),
         startTick = startTick,
         endTick = endTick,
+        slotLifetimeTicks = slotLifetimeTicks,
         count = count,
         formation = formation?.toDomain(count),
         jitter = jitter?.toDomain(),
         keyframes = keyframes.map { it.toDomain() },
         oscillate = oscillate?.toDomain(),
+        groupKeyframes = groupKeyframes.map { it.toDomain() },
     )
 }
 
@@ -299,6 +307,25 @@ public data class VfxKeyframeYaml(
         ease = ease?.let { Easing.fromKey(it) ?: throw IllegalArgumentException("unknown ease '$it'") } ?: Easing.LINEAR,
         block = block,
         text = text,
+    )
+}
+
+@Serializable
+public data class VfxGroupKeyframeYaml(
+    public val t: Int,
+    public val translate: List<Double>? = null,
+    /** `[yaw, pitch, roll]` degrees about the anchor origin. */
+    public val rotate: List<Double>? = null,
+    /** Uniform scale of the whole formation. */
+    public val scale: Double? = null,
+    public val ease: String? = null,
+) {
+    public fun toDomain(): VfxGroupKeyframe = VfxGroupKeyframe(
+        t = t,
+        translate = translate?.let { vec3(it, "group_keyframe.translate") },
+        rotateEuler = rotate?.let { vec3(it, "group_keyframe.rotate") },
+        scale = scale,
+        ease = ease?.let { Easing.fromKey(it) ?: throw IllegalArgumentException("unknown ease '$it'") } ?: Easing.LINEAR,
     )
 }
 

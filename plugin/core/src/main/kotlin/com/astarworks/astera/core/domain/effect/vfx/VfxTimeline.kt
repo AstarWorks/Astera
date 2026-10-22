@@ -28,6 +28,10 @@ import kotlin.math.min
  *    centres block displays, whose origin is a corner, so they rotate/scale about their
  *    middle), `rotation = L = Rs * euler(R)`, `scale = S`.
  *
+ * Group track ([VfxElement.groupKeyframes]): a whole-formation translate / rotate / uniform scale about
+ * the anchor origin, applied before the slot geometry (`p' = T + Rg * (S * p)`, slot rotation `Rg * Rs`).
+ * Its keyframe times join the element's as sampling breakpoints.
+ *
  * Keyframes: absent fields carry over; the `ease` of a keyframe shapes the segment ending
  * at it; euler angles are interpolated component-wise (so a 720 degree roll is a double
  * spin) and each segment is sampled in chunks of at most `sampleTicks`, further halved
@@ -69,19 +73,20 @@ public object VfxTimeline {
         val curveParams = formation?.curve?.distribute(el.count, formation.closed) ?: List(el.count) { 0.0 }
         val tilt = formation?.tiltYawPitchRoll?.let { Quaternion.fromEulerDegrees(it.x, it.y, it.z) } ?: Quaternion.IDENTITY
         val keyframes = resolveKeyframes(el.keyframes)
-        val lifetime = (el.endTick ?: def.durationTicks) - el.startTick
+        val group = resolveGroup(el.groupKeyframes)
+        val absoluteEnd = el.endTick ?: def.durationTicks
         val out = ArrayList<VfxElementPlan>(el.count)
 
         for (slot in 0 until el.count) {
             val order = if (formation?.reverse == true) el.count - 1 - slot else slot
             val spawn = el.startTick + order * (formation?.staggerTicks ?: 0)
             if (spawn >= def.durationTicks) continue
-            val despawn = min(def.durationTicks, spawn + lifetime)
+            val despawn = min(def.durationTicks, el.slotLifetimeTicks?.let { spawn + it } ?: absoluteEnd)
             val life = despawn - spawn
             if (life <= 0) continue
 
             val geometry = slotGeometry(el, formation, curveParams[slot], tilt, anchorRot, scale, slotRandom(seed, elementIndex, slot))
-            val ctx = SlotContext(el, keyframes, geometry, scale, life, def.sampleTicks)
+            val ctx = SlotContext(el, keyframes, group, anchorRot, geometry, scale, life, def.sampleTicks)
 
             out += if (el.kind is VfxElementKind.Particle) {
                 particleSlot(el, el.kind, slot, spawn, despawn, ctx)
@@ -167,6 +172,37 @@ public object VfxTimeline {
 
     private val UNIT_SCALE = Vec3(1.0, 1.0, 1.0)
 
+    private data class GroupLocal(val translate: Vec3, val euler: Vec3, val scale: Double)
+
+    private class GroupResolved(val t: Int, val local: GroupLocal, val ease: Easing)
+
+    private val GROUP_IDENTITY = GroupLocal(Vec3.ZERO, Vec3.ZERO, 1.0)
+
+    private fun resolveGroup(frames: List<VfxGroupKeyframe>): List<GroupResolved> {
+        var cur = GROUP_IDENTITY
+        return frames.map { f ->
+            cur = GroupLocal(f.translate ?: cur.translate, f.rotateEuler ?: cur.euler, f.scale ?: cur.scale)
+            GroupResolved(f.t, cur, f.ease)
+        }
+    }
+
+    private fun groupAt(frames: List<GroupResolved>, u: Int): GroupLocal {
+        if (frames.isEmpty()) return GROUP_IDENTITY
+        val first = frames.first()
+        if (u <= first.t) return first.local
+        val last = frames.last()
+        if (u >= last.t) return last.local
+        val k = frames.indexOfFirst { it.t >= u }
+        val a = frames[k - 1]
+        val b = frames[k]
+        val f = b.ease.apply((u - a.t).toDouble() / (b.t - a.t))
+        return GroupLocal(
+            translate = lerp(a.local.translate, b.local.translate, f),
+            euler = lerp(a.local.euler, b.local.euler, f),
+            scale = a.local.scale + (b.local.scale - a.local.scale) * f,
+        )
+    }
+
     private fun resolveKeyframes(frames: List<VfxKeyframe>): List<Resolved> {
         var cur = Local(Vec3.ZERO, Vec3.ZERO, UNIT_SCALE)
         return frames.map { f ->
@@ -214,6 +250,8 @@ public object VfxTimeline {
     private class SlotContext(
         val el: VfxElement,
         val frames: List<Resolved>,
+        val group: List<GroupResolved>,
+        val anchorRot: Quaternion,
         val geometry: SlotGeometry,
         val scale: Double,
         val life: Int,
@@ -221,18 +259,50 @@ public object VfxTimeline {
     ) {
         fun localAt(u: Int): Local = oscillated(stateAt(frames, u), el.oscillate, u)
 
+        /** Sorted distinct element-relative ticks where the element or group track changes slope. */
+        val breakpoints: List<Int> = (frames.map { it.t } + group.map { it.t }).distinct().sorted()
+
+        /**
+         * Group transform at [u]: (world rotation, extra world translation, uniform scale). The rotation
+         * is the group euler conjugated into world space (`A . Rg . A^-1`) so it pivots in anchor axes.
+         */
+        private fun groupWorldAt(u: Int): Triple<Quaternion, Vec3, Double> {
+            if (group.isEmpty()) return Triple(Quaternion.IDENTITY, Vec3.ZERO, 1.0)
+            val g = groupAt(group, u)
+            val rg = Quaternion.fromEulerDegrees(g.euler.x, g.euler.y, g.euler.z)
+            return Triple(anchorRot * rg * anchorRot.conjugate(), anchorRot.rotate(g.translate * scale), g.scale)
+        }
+
+        /** Slot position/rotation/scale-factor after the group track at [u]. */
+        private fun placed(u: Int): Triple<Vec3, Quaternion, Double> {
+            val (gr, gt, gs) = groupWorldAt(u)
+            return Triple(gt + gr.rotate(geometry.position * gs), gr * geometry.rotation, gs)
+        }
+
+        /** Rotation delta (degrees) of the group track alone between two ticks (multi-turn aware). */
+        fun groupTurnDegrees(start: Int, end: Int): Double {
+            if (group.isEmpty()) return 0.0
+            val a = groupAt(group, start).euler
+            val b = groupAt(group, end).euler
+            return maxOf(abs(b.x - a.x), abs(b.y - a.y), abs(b.z - a.z))
+        }
+
         /** World-space (anchor-origin-relative) display transformation of the slot at element tick [u]. */
         fun transformAt(u: Int): DisplayTransform {
             val local = localAt(u)
-            val s = scale * geometry.scaleFactor
+            val (position, slotRotation, groupScale) = placed(u)
+            val s = scale * geometry.scaleFactor * groupScale
             val sc = Vec3(local.scale.x * s, local.scale.y * s, local.scale.z * s)
-            val rotation = geometry.rotation * Quaternion.fromEulerDegrees(local.euler.x, local.euler.y, local.euler.z)
-            var translation = geometry.position + geometry.rotation.rotate(local.translate * scale)
+            val rotation = slotRotation * Quaternion.fromEulerDegrees(local.euler.x, local.euler.y, local.euler.z)
+            var translation = position + slotRotation.rotate(local.translate * scale * groupScale)
             if (el.kind is VfxElementKind.Block) translation -= rotation.rotate(sc * 0.5)
             return DisplayTransform(translation, rotation, sc)
         }
 
-        fun centerAt(u: Int): Vec3 = geometry.position + geometry.rotation.rotate(localAt(u).translate * scale)
+        fun centerAt(u: Int): Vec3 {
+            val (position, slotRotation, groupScale) = placed(u)
+            return position + slotRotation.rotate(localAt(u).translate * scale * groupScale)
+        }
     }
 
     // ---- display slot ----------------------------------------------------------
@@ -287,9 +357,9 @@ public object VfxTimeline {
 
     private fun segmentSteps(ctx: SlotContext, sample: Int): List<Step> {
         val steps = ArrayList<Step>()
-        for (k in 1 until ctx.frames.size) {
-            val a = ctx.frames[k - 1].t
-            val b = ctx.frames[k].t
+        for (k in 1 until ctx.breakpoints.size) {
+            val a = ctx.breakpoints[k - 1]
+            val b = ctx.breakpoints[k]
             val d = b - a
             val n = (d + sample - 1) / sample
             var prev = a
@@ -316,9 +386,9 @@ public object VfxTimeline {
     private fun turnDegrees(ctx: SlotContext, start: Int, end: Int): Double {
         val a = ctx.localAt(start).euler
         val b = ctx.localAt(end).euler
-        val euler = maxOf(abs(b.x - a.x), abs(b.y - a.y), abs(b.z - a.z))
-        val qa = Quaternion.fromEulerDegrees(a.x, a.y, a.z)
-        val qb = Quaternion.fromEulerDegrees(b.x, b.y, b.z)
+        val euler = maxOf(abs(b.x - a.x), abs(b.y - a.y), abs(b.z - a.z)) + ctx.groupTurnDegrees(start, end)
+        val qa = ctx.transformAt(start).rotation
+        val qb = ctx.transformAt(end).rotation
         return max(euler, Math.toDegrees(qa.angleTo(qb)))
     }
 

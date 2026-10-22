@@ -118,13 +118,14 @@ public class PaperDamageGateway(
         target: PlayerId,
         resolved: ResolvedDamage,
         source: DamageSource,
+        ignoreInvulnerability: Boolean,
     ): Result<DamageOutcome, DamageApplicationError> {
         val player = server.getPlayer(target.uuid)
             ?: return Result.failure(DamageApplicationError.TargetOffline(target))
         if (player.isDead) {
             return Result.failure(DamageApplicationError.TargetAlreadyDead(target))
         }
-        if (player.noDamageTicks > 0) {
+        if (!ignoreInvulnerability && player.noDamageTicks > 0) {
             return Result.failure(DamageApplicationError.Immune(target))
         }
 
@@ -161,7 +162,8 @@ public class PaperDamageGateway(
         player.playHurtAnimation(0f)
 
         // Bukkit i-frame reset so subsequent rapid Astera hits respect
-        // the same invulnerability window vanilla uses.
+        // the same invulnerability window vanilla uses. An ignore_invulnerability
+        // hit (multi-hit skill beat) re-arms it too, but never gated on it.
         player.noDamageTicks = player.maximumNoDamageTicks
 
         return if (newHp <= 0.0) {

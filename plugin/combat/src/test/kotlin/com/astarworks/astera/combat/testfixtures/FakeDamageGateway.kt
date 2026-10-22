@@ -24,11 +24,16 @@ public class FakeDamageGateway : IDamageGateway {
 
     public val applied: MutableList<Triple<PlayerId, ResolvedDamage, DamageSource>> = mutableListOf()
 
+    /** Parallel to [applied]: the `ignoreInvulnerability` flag of each call. */
+    public val ignoreInvulnerabilityCalls: MutableList<Boolean> = mutableListOf()
+
     override fun apply(
         target: PlayerId,
         resolved: ResolvedDamage,
         source: DamageSource,
+        ignoreInvulnerability: Boolean,
     ): Result<DamageOutcome, DamageApplicationError> {
+        ignoreInvulnerabilityCalls += ignoreInvulnerability
         applied += Triple(target, resolved, source)
         return nextResult ?: Result.success(nextOutcome)
     }

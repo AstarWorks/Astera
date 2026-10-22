@@ -172,6 +172,7 @@ public class SimDamageGateway(
         target: PlayerId,
         resolved: ResolvedDamage,
         source: DamageSource,
+        ignoreInvulnerability: Boolean,
     ): Result<DamageOutcome, DamageApplicationError> {
         if (world.find(target) == null) return Result.failure(DamageApplicationError.TargetOffline(target))
 
@@ -182,7 +183,7 @@ public class SimDamageGateway(
 
         val now = scheduler.currentTick()
         val last = lastHitTick[target]
-        if (last != null && now - last < invulnerabilityTicks) {
+        if (!ignoreInvulnerability && last != null && now - last < invulnerabilityTicks) {
             return Result.failure(DamageApplicationError.Immune(target))
         }
 

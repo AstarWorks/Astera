@@ -117,6 +117,7 @@ public class ValidateContentReferencesUseCase(
         is PhaseMechanics.Aoe -> phases.cast + phases.hitEntity + phases.expire
         is PhaseMechanics.Buff -> phases.cast + phases.expire + phases.removed
         is PhaseMechanics.Teleport -> phases.cast + phases.preTeleport + phases.postTeleport
+        is PhaseMechanics.Sequence -> phases.cast
         is PhaseMechanics.Summon -> phases.cast + phases.spawn + phases.summonDeath
     }
 
