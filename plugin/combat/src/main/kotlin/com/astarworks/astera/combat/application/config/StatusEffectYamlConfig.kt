@@ -55,6 +55,7 @@ public data class StatusEffectYamlConfig(
             magnitude = params.magnitude(),
             stackable = stackable,
             maxStacks = maxStacks,
+            defaultDurationTicks = defaultDurationTicks,
         )
     }
 }

@@ -53,7 +53,7 @@ public class ApplyStatusUseCase(
         val instance = StatusEffectInstance(
             spec = spec,
             targetPlayerId = targetId,
-            remainingTicks = durationTicks ?: DEFAULT_DURATION_TICKS,
+            remainingTicks = durationTicks ?: spec.defaultDurationTicks,
             currentStacks = stacks.coerceAtLeast(1),
             appliedAtTick = scheduler.currentTick(),
             sourcePlayerId = sourceId,
@@ -62,9 +62,6 @@ public class ApplyStatusUseCase(
         return instance
     }
 
-    private companion object {
-        const val DEFAULT_DURATION_TICKS: Int = 100 // 5 s at 20 tps
-    }
 }
 
 /** Expected failure modes of [ApplyStatusUseCase.execute]. */

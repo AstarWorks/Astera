@@ -133,4 +133,15 @@ class CombatMatchBugHuntScenarioTest {
             assertThat(lifecycle.start(stage)).isInstanceOf(com.astarworks.astera.core.domain.Result.Success::class.java)
         }
     }
+    @Test
+    fun `status application uses the shipped poison duration`() {
+        scenario("bug-hunt-status-duration") {
+            val target = player("target")
+            val applied = checkNotNull(sim.combat.applyStatus).execute(
+                target.id, com.astarworks.astera.core.domain.status.StatusEffectId("poison"),
+            )
+            check(applied is com.astarworks.astera.core.domain.Result.Success)
+            assertThat(applied.value.remainingTicks).isEqualTo(200)
+        }
+    }
 }

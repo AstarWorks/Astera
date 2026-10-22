@@ -82,4 +82,18 @@ class ApplyStatusUseCaseTest {
         assertThat((error as ApplyStatusError.EffectNotFound).effectId).isEqualTo(burnId)
         assertThat(eventBus.published).isEmpty()
     }
+    @Test
+    fun `omitted duration uses the YAML status default and explicit duration wins`() {
+        val dto = com.astarworks.astera.combat.application.config.StatusEffectYamlConfig(
+            id = "burn", displayNameKey = "test.burn", kind = "burn", defaultDurationTicks = 240,
+            params = com.astarworks.astera.combat.application.config.StatusEffectParamsYaml.BurnParamsYaml(2.0),
+        )
+        registry.register(dto.toSpec())
+        val configured = useCase.execute(targetId, burnId)
+        check(configured is Result.Success)
+        assertThat(configured.value.remainingTicks).isEqualTo(240)
+        val overridden = useCase.execute(targetId, burnId, durationTicks = 20)
+        check(overridden is Result.Success)
+        assertThat(overridden.value.remainingTicks).isEqualTo(20)
+    }
 }
