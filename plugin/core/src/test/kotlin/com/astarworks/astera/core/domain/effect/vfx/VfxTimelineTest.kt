@@ -742,7 +742,10 @@ class VfxTimelineTest {
             ),
         ).elements.single()
         val swap = p.updates.single { it.text == "B" }
-        assertThat(swap.interpolationTicks).isEqualTo(0) // a keyframe is a breakpoint: not inside a step
+        // a keyframe is a breakpoint, not inside a step: the swap rides the update that STARTS the 2..6 step
+        assertThat(swap.tick).isEqualTo(p.updates.first().tick + 2)
+        assertThat(swap.interpolationTicks).isEqualTo(4)
+        assertThat(swap.transform.translation.x).isCloseTo(6.0, within(1e-9))
         val s2 = plan(
             definition(
                 spriteElement(frameTicks = 2, keyframes = listOf(kf(0), kf(6, translate = Vec3(6.0, 0.0, 0.0)))),
