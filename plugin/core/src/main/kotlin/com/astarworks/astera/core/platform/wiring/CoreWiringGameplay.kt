@@ -169,6 +169,19 @@ internal fun CoreWiringState.wireGameplayLoop() {
             createFirstTimeListener.handle(event)
         }
     }
+    val starterItemsListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
+        .DeliverStarterItemsListener(
+            starterItems = { profileService.loadoutFor(it) },
+            delivery = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemDelivery>() },
+            server = mcServer,
+            sessions = sessionRepo,
+        )
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.FirstTimeProfileCreated::class) { event ->
+        starterItemsListener.handle(event)
+    }
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class) { event ->
+        starterItemsListener.handle(event)
+    }
     val startTutorialListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
         .StartTutorialOnFirstTimeProfileCreatedListener(
             profileService = profileService,

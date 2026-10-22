@@ -7,7 +7,8 @@ import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IShopRegistry
 import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
-import com.astarworks.astera.core.application.service.toAdapterTemplate
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.economy.WalletError
@@ -35,8 +36,7 @@ import com.astarworks.astera.core.domain.event.CurrencyChanged
  * ADR-0073 unified items + weapons under `:plugin:items`):
  *
  *   `IItemRegistry.find(itemId)` (returns `ItemSpec`) →
- *   `spec.toAdapterTemplate(messages, viewer)` →
- *   `IMcServer.findPlayer(playerId).giveItem(template, null, emptyList())`
+ *   `IItemDelivery.give(player, spec)` (Items materializer; PDC item id, skills, attributes)
  *
  * `IItemRegistry` is non-generic; the Items plugin (renamed from Weapons by
  * ADR-0073) seeds it from `content/items/<id>.yaml` at startup. If Phase 4
@@ -62,7 +62,7 @@ import com.astarworks.astera.core.domain.event.CurrencyChanged
  *    [ShopStockError.Storage] the debit is reversed with
  *    [ICurrencyLedger.credit] and the use case fails.
  *    [ShopStock.Unlimited] offers skip the decrement.
- * 8. Deliver via [com.astarworks.astera.core.adapter.api.entity.IMcPlayer.giveItem].
+ * 8. Deliver via [IItemDelivery.give].
  * 9. Publish [CurrencyChanged] with reason [CurrencyChangeReason.ShopPurchase].
  *
  * ## Why the dual stock check
@@ -84,6 +84,10 @@ public class ShopPurchaseUseCase(
     private val server: IMcServer,
     private val eventBus: IDomainEventBus,
     private val stockRepository: IShopStockRepository,
+    /** Items-owned materializer (skill bindings, attributes, durability, lore). Resolved lazily: Items enables after Economy. */
+    private val delivery: () -> IItemDelivery?,
+    /** `true` while a running match holds the buyer's entry snapshot (purchases are refused then). */
+    private val inMatch: (PlayerId) -> Boolean,
 ) {
     public fun execute(
         playerId: PlayerId,
@@ -92,6 +96,7 @@ public class ShopPurchaseUseCase(
     ): Result<ShopPurchaseReceipt, ShopPurchaseError> {
         val player = server.findPlayer(playerId)
             ?: return Result.failure(ShopPurchaseError.PlayerNotOnline)
+        if (inMatch(playerId)) return Result.failure(ShopPurchaseError.BlockedInMatch)
 
         val shopSpec = registry.resolve(shopId)
             ?: return Result.failure(ShopPurchaseError.ShopNotFound(shopId))
@@ -112,9 +117,11 @@ public class ShopPurchaseUseCase(
                     "Item '${offer.itemId.value}' is not registered (offer=${offerId.value}, shop=${shopId.value})",
                 ),
             )
-        // Wave _items-1: ItemSpec → adapter-boundary IMcItemTemplate, resolving
-        // the spec's inline LocalizedText / LocalizedLore for the buyer's locale.
-        val template = spec.toAdapterTemplate(messages, playerId)
+        // Delivery goes through the Items materializer so a bought weapon carries its
+        // `astera-items:item_id` tag, skill bindings and attributes (the generic template path
+        // wrote a different PDC key and produced an inert item). Checked BEFORE the debit.
+        val itemDelivery = delivery()
+            ?: return Result.failure(ShopPurchaseError.DeliveryFailed("Item delivery is not available on this server"))
 
         val debit = ledger.debit(playerId, offer.price.currency, offer.price.amount)
         return when (debit) {
@@ -162,12 +169,16 @@ public class ShopPurchaseUseCase(
                     }
                 }
 
-                // Deliver — IMcPlayer.giveItem currently returns Unit, so this
-                // arm always succeeds at the contract level. If the platform
-                // adapter detects an unrecoverable failure it logs at WARN; a
-                // typed surface for that case is a Phase 4 enhancement
-                // (vendor-neutral IItemDelivery port).
-                player.giveItem(template, displayNameOverride = null, loreOverride = emptyList())
+                // Deliver. InventoryFull still delivered (the leftover is dropped at the buyer's feet).
+                when (val delivered = itemDelivery.give(player, spec, 1)) {
+                    is DeliveryResult.Delivered, is DeliveryResult.InventoryFull -> Unit
+                    is DeliveryResult.UnknownTemplate -> {
+                        ledger.credit(playerId, offer.price.currency, offer.price.amount)
+                        return Result.failure(
+                            ShopPurchaseError.DeliveryFailed("Item template '${delivered.templateKey}' cannot be materialized"),
+                        )
+                    }
+                }
 
                 val newBalance = debit.value.balance(offer.price.currency)
                 eventBus.publish(
@@ -199,6 +210,12 @@ public sealed class ShopPurchaseError {
 
     /** No [com.astarworks.astera.core.domain.shop.ShopSpec] is registered under [shopId]. */
     public data class ShopNotFound(public val shopId: ShopId) : ShopPurchaseError()
+
+    /**
+     * The buyer is inside a running match. Their inventory is rewritten from the entry snapshot when
+     * the match ends (ADR-0198), so anything bought now would be lost together with the currency.
+     */
+    public data object BlockedInMatch : ShopPurchaseError()
 
     /** The shop exists but has no offer with [offerId]. */
     public data class OfferNotFound(

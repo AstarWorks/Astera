@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.application.port.outbound
 
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.vault.PersonalVault
 
 /**
@@ -15,4 +16,11 @@ import com.astarworks.astera.core.domain.vault.PersonalVault
 public interface IVaultWindow {
     /** @return `true` if the window was shown, `false` if the owner is offline / refused. */
     public fun show(vault: PersonalVault): Boolean
+
+    /**
+     * Closes [playerId]'s open vault window, if any, which persists its contents. Called before the
+     * vault is (re)loaded for a new window: a window opened from a stale copy while the old one is
+     * still unsaved would duplicate whatever was taken out of the old one.
+     */
+    public fun closeFor(playerId: PlayerId)
 }

@@ -66,11 +66,15 @@ public class ShopPurchaseUseCaseTest {
     private lateinit var messages: FakeMessageRenderer
     private lateinit var uc: ShopPurchaseUseCase
 
+    private lateinit var delivery: com.astarworks.astera.testfixtures.FakeItemDelivery
+    private val inMatch = mutableSetOf<PlayerId>()
+
     @BeforeEach
     public fun setUp() {
         server = FakeMcServer()
         player = FakeMcPlayer(id = playerId)
         server.register(player)
+        delivery = com.astarworks.astera.testfixtures.FakeItemDelivery()
 
         ledger = InMemoryCurrencyLedger()
         items = InMemoryItemRegistry().apply {
@@ -89,6 +93,8 @@ public class ShopPurchaseUseCaseTest {
             server = server,
             eventBus = eventBus,
             stockRepository = stockRepository,
+            delivery = { delivery },
+            inMatch = { it in inMatch },
         )
     }
 
@@ -154,7 +160,7 @@ public class ShopPurchaseUseCaseTest {
         assertThat(stockRepository.currentStock(shopId, offerId)).isEqualTo(ShopStock.Limited(0))
 
         // Player received exactly 3 items, not 4.
-        assertThat(player.given).hasSize(3)
+        assertThat(delivery.delivered).hasSize(3)
 
         // Exactly 3 CurrencyChanged events (one per success) — the 4th was
         // rolled back before publishing.
@@ -173,7 +179,7 @@ public class ShopPurchaseUseCaseTest {
 
         // Spec is Unlimited -> no row was seeded.
         assertThat(stockRepository.currentStock(shopId, unlimitedOfferId)).isNull()
-        assertThat(player.given).hasSize(5)
+        assertThat(delivery.delivered).hasSize(5)
         assertThat(eventBus.publishedOfType<CurrencyChanged>()).hasSize(5)
     }
 
@@ -186,7 +192,34 @@ public class ShopPurchaseUseCaseTest {
         assertThat(result.errorOrNull()).isEqualTo(ShopPurchaseError.InsufficientFunds(Currency.GOLD, have = 0L, need = price.amount))
         // Stock unchanged — debit-failure short-circuit ran before decrementStock.
         assertThat(stockRepository.currentStock(shopId, offerId)).isEqualTo(ShopStock.Limited(3))
-        assertThat(player.given).isEmpty()
+        assertThat(delivery.delivered).isEmpty()
+    }
+
+    @Test
+    public fun `purchase is refused while a match holds the entry snapshot and nothing is charged`() {
+        registerLimitedShop(initial = 3)
+        ledger.credit(playerId, Currency.GOLD, price.amount)
+        inMatch += playerId
+
+        val result = uc.execute(playerId, shopId, offerId)
+
+        assertThat(result.errorOrNull()).isEqualTo(ShopPurchaseError.BlockedInMatch)
+        assertThat(ledger.balance(playerId, Currency.GOLD)).isEqualTo(price.amount)
+        assertThat(delivery.delivered).isEmpty()
+        assertThat(stockRepository.currentStock(shopId, offerId)).isEqualTo(ShopStock.Limited(3))
+    }
+
+    @Test
+    public fun `missing item delivery fails before the buyer is charged`() {
+        registerLimitedShop(initial = 3)
+        ledger.credit(playerId, Currency.GOLD, price.amount)
+        val noDelivery = ShopPurchaseUseCase(shopRegistry, ledger, items, messages, server, eventBus, stockRepository, { null }, { false })
+
+        val result = noDelivery.execute(playerId, shopId, offerId)
+
+        assertThat(result.errorOrNull()).isInstanceOf(ShopPurchaseError.DeliveryFailed::class.java)
+        assertThat(ledger.balance(playerId, Currency.GOLD)).isEqualTo(price.amount)
+        assertThat(stockRepository.currentStock(shopId, offerId)).isEqualTo(ShopStock.Limited(3))
     }
 
     @Test
@@ -216,7 +249,7 @@ public class ShopPurchaseUseCaseTest {
         assertThat(result.errorOrNull()).isInstanceOf(ShopPurchaseError.DeliveryFailed::class.java)
         // Debit was reversed.
         assertThat(ledger.balance(playerId, Currency.GOLD)).isEqualTo(balanceBefore)
-        assertThat(player.given).isEmpty()
+        assertThat(delivery.delivered).isEmpty()
     }
 
     /** Minimal in-memory [IItemRegistry] mirroring the marketplace tests' fake. */

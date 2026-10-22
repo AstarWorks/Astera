@@ -15,11 +15,11 @@ import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.items.application.admin.AdminItemCatalog
-import com.astarworks.astera.items.application.port.outbound.DeliveryResult
-import com.astarworks.astera.items.application.port.outbound.IItemDelivery
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.items.application.port.outbound.ITrainingInventory
 import com.astarworks.astera.items.application.port.outbound.ITrainingRackGateway
-import com.astarworks.astera.items.application.port.outbound.ItemOrigin
+import com.astarworks.astera.core.application.port.outbound.item.ItemOrigin
 import com.astarworks.astera.items.application.port.outbound.RackFrame
 import org.slf4j.LoggerFactory
 

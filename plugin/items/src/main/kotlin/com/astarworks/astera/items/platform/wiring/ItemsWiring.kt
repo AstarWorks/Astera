@@ -26,7 +26,7 @@ import com.astarworks.astera.core.platform.wiring.WiringContext
 import com.astarworks.astera.items.adapter.paper.IPaperItemIdResolver
 import com.astarworks.astera.items.adapter.paper.ItemSkillTriggerListener
 import com.astarworks.astera.items.application.config.glow.GlowProfileFileYaml
-import com.astarworks.astera.items.application.port.outbound.IItemDelivery
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.items.application.port.outbound.IItemInstanceRepository
 import com.astarworks.astera.items.application.port.outbound.IItemRenderer
 import com.astarworks.astera.items.application.service.training.TrainingRackService
@@ -110,6 +110,9 @@ public object ItemsWiring {
             com.astarworks.astera.items.application.admin.SkillTesterDelivery(itemRegistry, itemDelivery),
         )
         registrations += services.register<IPaperItemIdResolver>(itemIdResolver)
+        registrations += services.register<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>(
+            com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery { itemIdResolver.inventoryItemIds(it) },
+        )
 
         // ── Wave 5refine / ADR-0100 — Item Refinement Layer ──────────────
         // Per-instance state + per-item profile registry. Persistence will

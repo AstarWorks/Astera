@@ -24,6 +24,8 @@ class AccessPersonalVaultUseCaseTest {
 
     private class RecordingWindow(var accept: Boolean = true) : IVaultWindow {
         val shown = mutableListOf<PersonalVault>()
+        var onClose: (PlayerId) -> Unit = {}
+        override fun closeFor(playerId: PlayerId) = onClose(playerId)
         override fun show(vault: PersonalVault): Boolean {
             shown += vault
             return accept
@@ -84,6 +86,19 @@ class AccessPersonalVaultUseCaseTest {
 
         assertThat(window.shown.last()).isEqualTo(stored)
         assertThat(window.shown.last().itemAt(26)?.nbt).isEqualTo("b64")
+    }
+
+    @Test
+    fun `an open window is saved before the vault is read back for the next one`() {
+        val save = SaveVaultUseCase(repo)
+        val before = PersonalVault(player, listOf(PersonalVault.VaultItem(0, "minecraft:diamond", 3)))
+        save.save(before)
+        // The old window had the diamond taken out; closing it persists the emptied vault.
+        window.onClose = { save.save(PersonalVault.empty(it)) }
+
+        access().open(player)
+
+        assertThat(window.shown.single().items).isEmpty()
     }
 
     @Test

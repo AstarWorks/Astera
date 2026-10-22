@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory
 public class MatchInventorySnapshotListener(
     private val gateway: () -> IPlayerInventoryGateway?,
     private val saveSnapshot: SaveInventorySnapshotUseCase,
+    /** Runs once per player right after the entry snapshot was taken (so anything it adds is not snapshotted). */
+    private val afterEntryCapture: (PlayerId) -> Unit = {},
     private val matches: () -> IMatchRepository?,
 ) {
 
@@ -60,6 +62,7 @@ public class MatchInventorySnapshotListener(
         val snapshot = gateway()?.capture(playerId) ?: return
         saveSnapshot.save(snapshot)
         perMatch[playerId] = snapshot
+        afterEntryCapture(playerId)
     }
 
     public fun handleEnded(event: MatchEnded) {

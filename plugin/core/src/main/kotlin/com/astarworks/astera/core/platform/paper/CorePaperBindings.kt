@@ -294,6 +294,13 @@ internal class CorePaperBindings(
                         sessions = sessions,
                         scheduler = scheduler,
                     ).start(plugin)
+                com.astarworks.astera.core.adapter.paper.inventory
+                    .MatchItemSandboxListener(
+                        isHeld = { playerId ->
+                            services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
+                                ?.isHeld(playerId) ?: false
+                        },
+                    ).start(plugin)
                 logger.info("Wave 6b-3: Paper inventory lifecycle + action-lock listeners wired.")
             },
             packetInterceptor = if (packetEventsInstalled) {

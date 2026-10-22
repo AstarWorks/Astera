@@ -260,10 +260,20 @@ internal fun CoreWiringState.wireProgression() {
     // WP12: per-match snapshot — save on entry (MatchStarted), restore on exit
     // (MatchEnded). Host-neutral: the IPlayerInventoryGateway is resolved lazily
     // (Paper registers it; headless hosts without one simply skip the capture).
+    val loanerKit = com.astarworks.astera.core.application.service.inventory.MatchLoanerKit(
+        owned = { services.get<com.astarworks.astera.core.application.port.outbound.item.IOwnedItemQuery>() },
+        items = itemContents,
+        delivery = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemDelivery>() },
+        server = mcServer,
+        players = playerGateway,
+        messages = messages,
+        kitItems = { profileService.starterItemIds() },
+    )
     val matchSnapshots = MatchInventorySnapshotListener(
         gateway = { services.get<IPlayerInventoryGateway>() },
         saveSnapshot = saveSnapshotUseCase,
         matches = { services.get<IMatchRepository>() },
+        afterEntryCapture = { loanerKit.ensureArmed(it) },
     )
     services.register<MatchInventorySnapshotListener>(matchSnapshots, priority = 0)
     wave5completeSubs += eventBus.subscribe(MatchStarted::class) { matchSnapshots.handleStarted(it) }

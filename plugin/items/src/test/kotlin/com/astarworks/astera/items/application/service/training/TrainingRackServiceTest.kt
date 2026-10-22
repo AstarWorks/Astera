@@ -11,10 +11,10 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.core.domain.world.WorldId
-import com.astarworks.astera.items.application.port.outbound.DeliveryResult
+import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
 import com.astarworks.astera.items.application.port.outbound.ITrainingInventory
 import com.astarworks.astera.items.application.port.outbound.ITrainingRackGateway
-import com.astarworks.astera.items.application.port.outbound.ItemOrigin
+import com.astarworks.astera.core.application.port.outbound.item.ItemOrigin
 import com.astarworks.astera.items.application.port.outbound.RackFrame
 import com.astarworks.astera.items.testfixtures.FakeItemDelivery
 import com.astarworks.astera.items.testfixtures.InMemoryItemRegistry

@@ -25,6 +25,7 @@ public class AccessPersonalVaultUseCase(
             return Result.Failure(VaultError.BlockedInMatch)
         }
         val vaultWindow = window() ?: return Result.Failure(VaultError.WindowUnavailable)
+        vaultWindow.closeFor(playerId) // persist an already-open window before reading the vault back
         return when (val loaded = openVault.openVault(playerId)) {
             is Result.Failure -> Result.Failure(loaded.error)
             is Result.Success ->

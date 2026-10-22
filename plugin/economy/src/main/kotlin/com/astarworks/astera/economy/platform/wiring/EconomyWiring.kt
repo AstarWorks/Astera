@@ -289,6 +289,11 @@ public object EconomyWiring {
             server = mcServer,
             eventBus = eventBus,
             stockRepository = shopStockRepository,
+            delivery = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemDelivery>() },
+            inMatch = { playerId ->
+                services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()
+                    ?.isHeld(playerId) ?: false
+            },
         )
         val shopIntentHandler = ShopIntentHandler(
             purchase = shopPurchase,

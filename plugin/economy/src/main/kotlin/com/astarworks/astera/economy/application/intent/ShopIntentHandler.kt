@@ -184,6 +184,8 @@ public class ShopIntentHandler(
                         "have" to have.toString(),
                         "short" to (need - have).toString(),
                     ))
+            is ShopPurchaseError.BlockedInMatch ->
+                MessageKey("astera.economy.shop.purchase.blocked_in_match") to base
             is ShopPurchaseError.DeliveryFailed ->
                 MessageKey("astera.economy.shop.purchase.delivery_failed") to (base + ("reason" to reason))
         }

@@ -68,6 +68,11 @@ public class PaperVaultWindow(
         return true
     }
 
+    override fun closeFor(playerId: PlayerId) {
+        val player = server.getPlayer(playerId.uuid) ?: return
+        if (player.openInventory.topInventory.holder is VaultHolder) player.closeInventory()
+    }
+
     /** Close every open vault so contents are saved (called on plugin disable). */
     public fun closeAll() {
         for (player in server.onlinePlayers) {

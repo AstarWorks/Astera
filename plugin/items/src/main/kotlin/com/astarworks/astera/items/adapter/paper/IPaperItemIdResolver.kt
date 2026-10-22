@@ -20,4 +20,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
  */
 public interface IPaperItemIdResolver {
     public fun heldItemId(playerId: PlayerId): ItemId?
+
+    /** Item ids of every Astera stack in the player's inventory (hotbar, main, armor, off-hand), in slot order. */
+    public fun inventoryItemIds(playerId: PlayerId): List<ItemId>
 }
