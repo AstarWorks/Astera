@@ -303,4 +303,32 @@ class CrossServerHandoffTest {
         assertThat(w.gameTransfers.transfers).containsExactly(Triple(stray, lobby, TransferReason.LobbyReturn))
         assertThat(w.notes).contains("astera.match.matchmaking.wrong-server")
     }
+    @Test
+    fun `departed arrivals are not entered into a match when remaining players arrive`() {
+        val w = World()
+        val first = PlayerId(UUID.randomUUID())
+        val last = PlayerId(UUID.randomUUID())
+        val assignment = MatchAssignment(MatchId("departed"), stage, null, listOf(listOf(first), listOf(last)))
+        w.link.node(lobby).sendMessage(game, ProxyChannel.MATCH_FOUND, MatchAssignmentCodec.encode(assignment))
+        w.gameBus.publish(PlayerArrivedOnServer(first, lobby, game))
+        w.gameBus.publish(com.astarworks.astera.core.domain.event.PlayerQuitServer(first))
+        w.gameBus.publish(PlayerArrivedOnServer(last, lobby, game))
+        assertThat(w.lifecycle.started).isEmpty()
+        w.gameSeconds(settings.arrivalTimeoutSeconds)
+        assertThat(w.lifecycle.entries.map { it.second }).containsExactly(last)
+    }
+
+    @Test
+    fun `an arrival that quits can rejoin and complete the assignment`() {
+        val w = World()
+        val first = PlayerId(UUID.randomUUID())
+        val last = PlayerId(UUID.randomUUID())
+        val assignment = MatchAssignment(MatchId("rejoined"), stage, null, listOf(listOf(first), listOf(last)))
+        w.link.node(lobby).sendMessage(game, ProxyChannel.MATCH_FOUND, MatchAssignmentCodec.encode(assignment))
+        w.gameBus.publish(PlayerArrivedOnServer(first, lobby, game))
+        w.gameBus.publish(com.astarworks.astera.core.domain.event.PlayerQuitServer(first))
+        w.gameBus.publish(PlayerArrivedOnServer(first, lobby, game))
+        w.gameBus.publish(PlayerArrivedOnServer(last, lobby, game))
+        assertThat(w.lifecycle.entries.map { it.second }).containsExactlyInAnyOrder(first, last)
+    }
 }
