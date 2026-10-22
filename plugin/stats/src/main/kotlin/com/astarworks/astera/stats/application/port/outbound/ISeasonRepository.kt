@@ -23,6 +23,9 @@ public interface ISeasonRepository {
      */
     public fun start(label: String, at: Instant): Season
 
+    /** Atomically record a schedule key and reset; null if that key already ran. */
+    public fun startOnce(scheduleKey: String, label: String, at: Instant): Season?
+
     /** All seasons, most recent first. */
     public fun all(): List<Season>
 }

@@ -10,6 +10,12 @@
 # and placeholders: {player}, {weapon}, {amount}.
 
 astera:
+  progression.reward.chat: "<gold>レベル {level} 報酬:</gold> +{star} STAR、+{gold} GOLD。解放: {unlocks}"
+  progression.reward.title: "<gold>レベル {level} 報酬を獲得！</gold>"
+  progression.unlocks.name: "<gold>解放済みコンテンツ</gold>"
+  progression.unlocks.entry: "<gray>{id}</gray>"
+  progression.unlocks.empty: "<gray>まだ解放されていません。</gray>"
+  progression.season.ended: "<gold>シーズン {season} が終了しました。新ランキング: {next}！</gold>"
   system:
     welcome: "<gold><bold>Astera</bold></gold> へようこそ、{player}！"
     plugin_enabled: "<green>Astera プラグインが有効になりました</green>"

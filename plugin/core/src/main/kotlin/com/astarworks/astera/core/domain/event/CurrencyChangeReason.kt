@@ -14,6 +14,7 @@ public sealed interface CurrencyChangeReason {
     public data class Transfer(val counterpartyId: PlayerId) : CurrencyChangeReason
     public data object MatchReward : CurrencyChangeReason
     public data object MissionReward : CurrencyChangeReason
+    public data class LevelReward(val level: Int) : CurrencyChangeReason
 
     /** Daily login bonus (ADR-0210). */
     public data object LoginBonus : CurrencyChangeReason

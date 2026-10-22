@@ -61,6 +61,7 @@ class QueryLeaderboardUseCaseTest {
     private object NoSeasonRepository : ISeasonRepository {
         override fun current(): Season? = null
         override fun start(label: String, at: Instant): Season = error("not used")
+        override fun startOnce(scheduleKey: String, label: String, at: java.time.Instant): Season? = error("Not used")
         override fun all(): List<Season> = emptyList()
     }
 }

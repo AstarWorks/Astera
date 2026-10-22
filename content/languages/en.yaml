@@ -2,6 +2,12 @@
 # See ja.yaml for key naming conventions and MiniMessage syntax.
 
 astera:
+  progression.reward.chat: "<gold>Level {level} rewards:</gold> +{star} STAR, +{gold} GOLD. Unlocks: {unlocks}"
+  progression.reward.title: "<gold>Level {level} rewards claimed!</gold>"
+  progression.unlocks.name: "<gold>Permanent unlocks</gold>"
+  progression.unlocks.entry: "<gray>{id}</gray>"
+  progression.unlocks.empty: "<gray>No unlocks yet.</gray>"
+  progression.season.ended: "<gold>Season {season} ended. A fresh leaderboard is open: {next}!</gold>"
   system:
     welcome: "Welcome to <gold><bold>Astera</bold></gold>, {player}!"
     plugin_enabled: "<green>Astera plugin enabled</green>"
