@@ -1,0 +1,608 @@
+{
+  "title": "Zwei West S3 'Ward' — intent (my reading of the video, no Minecraft constraints)",
+  "source": {
+    "video": "Svaaq9F7Ty8",
+    "start_s": 18.6,
+    "frames": "frame_%03d.jpg",
+    "fps": 20
+  },
+  "units": "blocks; x = toward enemy, y = up, z = toward the side camera",
+  "duration_ticks": 100,
+  "camera": [
+    {
+      "t": 0,
+      "pos": [
+        2.5,
+        1.6,
+        9.0
+      ],
+      "target": [
+        2.5,
+        1.0,
+        0
+      ],
+      "fov": 40,
+      "note": "wide side view"
+    },
+    {
+      "t": 15,
+      "pos": [
+        0.6,
+        1.5,
+        2.2
+      ],
+      "target": [
+        0.2,
+        1.3,
+        0
+      ],
+      "fov": 35,
+      "note": "cut-in close-up on caster"
+    },
+    {
+      "t": 18,
+      "pos": [
+        1.0,
+        4.2,
+        8.5
+      ],
+      "target": [
+        1.2,
+        0.4,
+        0
+      ],
+      "fov": 48,
+      "note": "wide, high — looks down on the waist-level ring"
+    },
+    {
+      "t": 44,
+      "pos": [
+        2.5,
+        0.6,
+        3.0
+      ],
+      "target": [
+        3.0,
+        1.0,
+        0
+      ],
+      "fov": 38,
+      "note": "low close dash shot"
+    },
+    {
+      "t": 50,
+      "pos": [
+        3.0,
+        1.6,
+        8.0
+      ],
+      "target": [
+        3.0,
+        1.0,
+        0
+      ],
+      "fov": 40
+    },
+    {
+      "t": 68,
+      "pos": [
+        3.4,
+        1.8,
+        2.0
+      ],
+      "target": [
+        3.6,
+        1.6,
+        0
+      ],
+      "fov": 35,
+      "note": "plunge close-up"
+    },
+    {
+      "t": 71,
+      "pos": [
+        3.6,
+        2.2,
+        10.5
+      ],
+      "target": [
+        3.8,
+        1.6,
+        0
+      ],
+      "fov": 55,
+      "note": "wide on spike star (fills frame)"
+    }
+  ],
+  "actors": [
+    {
+      "id": "caster",
+      "height": 1.8,
+      "color": "#e8803a",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 15,
+          "pos": [
+            0.6,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 44,
+          "pos": [
+            0.6,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 47,
+          "pos": [
+            3.0,
+            0,
+            0
+          ],
+          "ease": "out_expo"
+        },
+        {
+          "t": 80,
+          "pos": [
+            3.0,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 82,
+          "pos": [
+            3.2,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enemy",
+      "height": 1.8,
+      "color": "#7a2a2a",
+      "keys": [
+        {
+          "t": 0,
+          "pos": [
+            4.2,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 22,
+          "pos": [
+            4.2,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 24,
+          "pos": [
+            4.5,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 48,
+          "pos": [
+            4.5,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 52,
+          "pos": [
+            4.9,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 70,
+          "pos": [
+            4.9,
+            0,
+            0
+          ]
+        },
+        {
+          "t": 76,
+          "pos": [
+            8.5,
+            0.4,
+            0
+          ],
+          "ease": "out_cubic"
+        },
+        {
+          "t": 82,
+          "pos": [
+            9.0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "weapon": {
+    "attach": "caster",
+    "length": 2.7,
+    "width": 0.35,
+    "color": "#c9ccd4",
+    "note": "greatsword ~1.5x body height. angle = blade direction in the x-y plane (0 = pointing forward/+x, 90 = up, 180 = back, -90 = down); grip at hand (0.25, 1.0)",
+    "keys": [
+      {
+        "t": 0,
+        "angle": 200,
+        "note": "dragged low behind"
+      },
+      {
+        "t": 15,
+        "angle": 200
+      },
+      {
+        "t": 18,
+        "angle": 160,
+        "spin_y": 0
+      },
+      {
+        "t": 22,
+        "angle": 10,
+        "spin_y": 300,
+        "ease": "out_expo",
+        "note": "horizontal 300deg sweep around the body (spin about y)"
+      },
+      {
+        "t": 28,
+        "angle": -160,
+        "spin_y": 360,
+        "note": "follow-through, tip to ground behind"
+      },
+      {
+        "t": 43,
+        "angle": -165,
+        "note": "tip scraping the ground"
+      },
+      {
+        "t": 46,
+        "angle": 0,
+        "ease": "out_expo",
+        "note": "thrust forward"
+      },
+      {
+        "t": 55,
+        "angle": 0
+      },
+      {
+        "t": 58,
+        "angle": 100,
+        "ease": "out_cubic",
+        "note": "raised overhead, point up-back"
+      },
+      {
+        "t": 67,
+        "angle": 100
+      },
+      {
+        "t": 69,
+        "angle": -90,
+        "ease": "in_expo",
+        "note": "plunged point-down into the ground in front"
+      },
+      {
+        "t": 95,
+        "angle": -90
+      }
+    ]
+  },
+  "effects": [
+    {
+      "type": "crescent_ring",
+      "t0": 18,
+      "t1": 28,
+      "id": "coin1-ring",
+      "center": [
+        0.6,
+        0.7,
+        0
+      ],
+      "plane": "horizontal",
+      "tilt_deg": 8,
+      "radius": 3.8,
+      "start_deg": 200,
+      "sweep_deg": 300,
+      "draw_ticks": 4,
+      "width": 1.1,
+      "layers": [
+        {
+          "color": "#ffffff",
+          "width": 0.18,
+          "offset": 0.0
+        },
+        {
+          "color": "#ffd23a",
+          "width": 0.8,
+          "offset": -0.15,
+          "alpha": 0.85
+        },
+        {
+          "color": "#8a6a20",
+          "width": 0.6,
+          "offset": -0.7,
+          "alpha": 0.45,
+          "note": "trailing tail"
+        }
+      ],
+      "fade": {
+        "from": 24,
+        "to": 28,
+        "tail_color": "#3a2a50"
+      },
+      "note": "revised v2: band at waist height, radius ~2 body heights, seen from above"
+    },
+    {
+      "type": "sparks",
+      "t0": 15,
+      "t1": 26,
+      "emitter": [
+        0.6,
+        0.9,
+        0
+      ],
+      "count": 30,
+      "color": "#ff8a20",
+      "speed": 6,
+      "dir": "tangent_of:coin1-ring",
+      "life": 6,
+      "streak": true
+    },
+    {
+      "type": "hit",
+      "t": 22,
+      "at": [
+        4.2,
+        1.1,
+        0
+      ],
+      "coin": 1
+    },
+    {
+      "type": "decal",
+      "t0": 24,
+      "t1": 100,
+      "at": [
+        3.6,
+        0.01,
+        0
+      ],
+      "color": "#9a1010",
+      "size": 1.4,
+      "note": "blood on the floor"
+    },
+    {
+      "type": "sparks",
+      "t0": 33,
+      "t1": 43,
+      "emitter": "weapon_tip",
+      "count": 4,
+      "per_tick": true,
+      "color": "#ff9a30",
+      "speed": 3,
+      "dir": "up_back_arc",
+      "gravity": 9,
+      "life": 5,
+      "streak": true,
+      "note": "tip scraping the ground = charge telegraph"
+    },
+    {
+      "type": "smear",
+      "t0": 44,
+      "t1": 47,
+      "from": [
+        0.6,
+        1.0,
+        0
+      ],
+      "to": [
+        3.2,
+        1.0,
+        0
+      ],
+      "width": 0.9,
+      "color": "#ffd23a",
+      "alpha": 0.9,
+      "note": "brush-stroke dash trail"
+    },
+    {
+      "type": "screen_flash",
+      "t0": 45,
+      "t1": 46,
+      "color": "#d8d0c0",
+      "alpha": 1.0
+    },
+    {
+      "type": "speedlines",
+      "t0": 46,
+      "t1": 53,
+      "region": {
+        "x": [
+          -1,
+          6
+        ],
+        "y": [
+          0.2,
+          2.2
+        ],
+        "z": [
+          -1.5,
+          1.5
+        ]
+      },
+      "count": 40,
+      "dir": [
+        1,
+        0,
+        0
+      ],
+      "length": [
+        1.0,
+        3.5
+      ],
+      "color": "#ffe27a",
+      "alpha": 0.9,
+      "fade_from": 50
+    },
+    {
+      "type": "whoosh_arcs",
+      "t0": 46,
+      "t1": 52,
+      "at": [
+        4.6,
+        1.0,
+        0
+      ],
+      "count": 3,
+      "radius": [
+        0.6,
+        1.2
+      ],
+      "color": "#f0f0f0",
+      "note": "white wind arcs behind the enemy"
+    },
+    {
+      "type": "hit",
+      "t": 47,
+      "at": [
+        4.5,
+        1.1,
+        0
+      ],
+      "coin": 2
+    },
+    {
+      "type": "glint",
+      "t0": 56,
+      "t1": 67,
+      "at": "weapon_tip",
+      "color": "#fff3b0",
+      "note": "raised blade gleam during the hold"
+    },
+    {
+      "type": "screen_flash",
+      "t0": 69,
+      "t1": 71,
+      "color": "#fff2a0",
+      "alpha": [
+        1.0,
+        0.6
+      ],
+      "note": "white-yellow over-exposure"
+    },
+    {
+      "type": "pillar",
+      "t0": 70,
+      "t1": 80,
+      "at": [
+        3.8,
+        0,
+        0
+      ],
+      "height": 6.0,
+      "width": 0.6,
+      "color": "#fff6c8",
+      "glow": "#ffd23a"
+    },
+    {
+      "type": "hbar",
+      "t0": 70,
+      "t1": 79,
+      "center": [
+        3.8,
+        1.5,
+        0
+      ],
+      "length": 9.0,
+      "thickness": 0.2,
+      "color": "#ffffff",
+      "note": "horizontal flash line through the pillar"
+    },
+    {
+      "type": "spike_star",
+      "t0": 70,
+      "t1": 81,
+      "center": [
+        3.8,
+        1.4,
+        0
+      ],
+      "count": 18,
+      "hemisphere": "full",
+      "spread_deg": [
+        -160,
+        160
+      ],
+      "length": [
+        2.5,
+        6.0
+      ],
+      "zigzag": 2,
+      "width": 0.3,
+      "color": "#ffe14a",
+      "core": "#ffffff",
+      "flicker": 2,
+      "note": "revised v2: radiates from pillar mid-height in all directions, spans the frame"
+    },
+    {
+      "type": "ground_cracks",
+      "t0": 71,
+      "t1": 93,
+      "center": [
+        3.8,
+        0.02,
+        0
+      ],
+      "count": 9,
+      "length": [
+        0.6,
+        1.6
+      ],
+      "color": "#ffd23a",
+      "fade_from": 82
+    },
+    {
+      "type": "hit",
+      "t": 70,
+      "at": [
+        4.9,
+        1.1,
+        0
+      ],
+      "coin": 3,
+      "knockback": [
+        3.6,
+        0.4,
+        0
+      ]
+    }
+  ]
+}

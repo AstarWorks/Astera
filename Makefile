@@ -180,3 +180,12 @@ vfx-shot-down: ## Stop + drop the vfx-shot server (project astera-shot; only nee
 .PHONY: live-bots
 live-bots: ## Run bot scenarios against the live stack: make live-bots SCENARIO=smoke|weapons|match|all (report: build/live-report.md)
 	bash scripts/live-bots.sh $(or $(SCENARIO),all)
+
+.PHONY: skill-compare
+skill-compare: ## Video vs intent vs Minecraft compare web app on 0.0.0.0:8097 (PORT=, HOST= to change)
+	cd tools/skill-compare && bun install && bun server.mjs
+
+.PHONY: skill-compare-fetch
+skill-compare-fetch: ## Download a reference video + native-fps frames/waveform for its cases: make skill-compare-fetch VIDEO=<youtube id> [CASE=<id>]
+	@test -n "$(VIDEO)" || { echo "usage: make skill-compare-fetch VIDEO=<youtube id> [CASE=<case id>]"; exit 2; }
+	cd tools/skill-compare && bun install && bun scripts/prepare.mjs "$(VIDEO)" $(CASE)

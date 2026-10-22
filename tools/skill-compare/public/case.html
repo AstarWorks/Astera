@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skill compare case</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <a href="/">&larr; cases</a>
+    <h1 id="title">loading&hellip;</h1>
+    <span class="sub" id="sub"></span>
+    <span>focus column:
+      <button data-focus="">all</button><button data-focus="video">video</button><button data-focus="intent">intent</button><button data-focus="mc">minecraft</button>
+    </span>
+  </div>
+  <div class="cols" id="cols">
+    <section class="col" data-col="video"><h2>Video <small id="vinfo"></small></h2>
+      <div class="view"><canvas id="vcv"></canvas><div class="ph on" id="vph">frames not cached: make skill-compare-fetch</div></div></section>
+    <section class="col" data-col="intent"><h2>Intent (my reading) <small id="iinfo"></small></h2>
+      <div class="view" id="stage"><canvas id="cv"></canvas><div id="flash"></div><div id="labels"></div><div class="hud" id="hud"></div></div></section>
+    <section class="col" data-col="mc"><h2>Minecraft <small id="minfo"></small></h2>
+      <div class="view"><img id="mimg" alt="minecraft frame"><div class="ph on" id="mph">no Minecraft frames</div><div class="badge" id="mbadge" hidden></div></div>
+      <div class="mcctl">
+        <select id="msrc" aria-label="minecraft source"></select>
+        <label>cast offset <input id="moff" type="range" min="-2000" max="2000" step="10" value="0"> <input id="moffn" type="number" step="10" value="0"> ms</label>
+      </div></section>
+  </div>
+  <div class="ctl">
+    <button id="bFm" title="back 1 video frame (Left)">&#9664; frame</button>
+    <button id="bTm" title="back 1 tick (Shift+Left)">&#9664; tick</button>
+    <button id="bPlay" class="primary" title="Space">Play</button>
+    <button id="bTp" title="forward 1 tick (Shift+Right)">tick &#9654;</button>
+    <button id="bFp" title="forward 1 video frame (Right)">frame &#9654;</button>
+    <span class="sep"></span>
+    <select id="speed" aria-label="speed"><option value="1">1x</option><option value="0.5">0.5x</option><option value="0.25">0.25x</option><option value="0.1">0.1x</option></select>
+    <label class="chk"><input type="checkbox" id="fzOn"> focus slow-mo</label>
+    <label class="chk">&times;<input type="number" id="fzF" min="0.02" max="1" step="0.05" style="width:68px"></label>
+    <button id="bLoop" title="clear loop (Esc)">clear loop</button>
+    <span class="read" id="read"></span>
+  </div>
+  <div class="tlwrap">
+    <div class="tlhead">
+      <span><i style="background:var(--onset)"></i>onsets (&gt;1.5 kHz)</span><span><i style="background:var(--cut)"></i>scene cuts</span>
+      <span><i style="background:var(--zone)"></i>focus zones</span><span><i style="background:var(--hit)"></i>hit (drag)</span>
+      <span><i style="background:var(--mc)"></i>Minecraft hits</span><span><i style="background:var(--loop)"></i>loop (shift-drag)</span>
+    </div>
+    <div class="tl" id="tl"><canvas id="tlc"></canvas><div class="head" id="head"></div></div>
+  </div>
+  <div class="panel">
+    <h3>Selected segment</h3>
+    <div class="ed" id="ed"><span class="status">click a segment or hit marker</span></div>
+  </div>
+  <div class="panel">
+    <button id="bAddHit" title="H">+ hit @ playhead</button>
+    <button id="bAddSeg">+ segment @ playhead</button>
+    <label class="chk">name <input type="text" id="who" size="10" placeholder="who"></label>
+    <button id="bSave" class="primary" title="Ctrl+S">Save</button>
+    <span class="status" id="status"></span>
+    <label class="ed wide" style="width:100%;display:flex;flex-direction:column"><span style="color:var(--mute);font-size:11.5px">case notes</span><textarea id="cnotes"></textarea></label>
+    <div class="log" id="log"></div>
+  </div>
+  <div class="note">Space play/pause &middot; &larr;/&rarr; 1 video frame &middot; Shift+&larr;/&rarr; 1 tick (50 ms) &middot; 1-4 speed 1/.5/.25/.1 &middot; F focus slow-mo &middot; H add hit &middot; Del remove &middot; Esc clear loop &middot; Ctrl+S save &middot; shift-drag timeline = loop &middot; drag hits/segments (snaps to video frames)</div>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

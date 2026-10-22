@@ -1,0 +1,16 @@
+{
+  "name": "astera-skill-compare",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Local LAN web app: reference video (native fps) vs intent render vs Minecraft frames on one millisecond clock",
+  "scripts": {
+    "start": "bun server.mjs",
+    "test": "bun test test/",
+    "shot": "bun scripts/shot.mjs"
+  },
+  "dependencies": {
+    "three": "0.170.0",
+    "playwright-core": "1.58.2"
+  }
+}
