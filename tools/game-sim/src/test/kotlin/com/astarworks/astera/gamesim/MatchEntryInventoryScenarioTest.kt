@@ -25,9 +25,11 @@ class MatchEntryInventoryScenarioTest {
             val inventory = checkNotNull(sim.inventory)
             inventory.put(player.id, "sword")
 
+            val rival = sim.spawnPlayer("p2")
             sim.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.Norma)
+            sim.services.getOrThrow<IMatchmaker>().enqueue(rival.id, MatchmakingMode.Norma)
             assertThat(sim.stepUntil(600) { sim.eventsOf<MatchStarted>().isNotEmpty() }).isTrue()
-            assertThat(sim.eventsOf<PlayerEnteredMatch>().map { it.playerId }).containsExactly(player.id)
+            assertThat(sim.eventsOf<PlayerEnteredMatch>().map { it.playerId }).containsExactlyInAnyOrder(player.id, rival.id)
             assertThat(repo.findLatest(player.id)!!.hotbar[0]).isNotNull()
 
             inventory.put(player.id, "match-kit") // the match replaces the inventory

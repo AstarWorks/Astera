@@ -758,6 +758,8 @@ astera:
       # WP8 — scheduled queue -> match flow
       countdown: "<yellow>Match starts in <gold>{seconds}</gold>s <gray>({players} queued)</gray></yellow>"
       countdown-cancelled: "<gray>Not enough players ({players}/{required}); waiting for more.</gray>"
+      waiting-opponents: "<yellow>Waiting for opponents ({players} queued, at least {required} needed, on both sides). This is a PvP lane - it never starts solo.</yellow>"
+      insufficient-cancelled: "<red>Not enough players showed up. The match was cancelled; returning you to the lobby.</red>"
       stage-busy: "<gray>The arena is in use. Your match starts as soon as it is free.</gray>"
       server-down: "<red>The arena server is down. The queue is on hold until it is back.</red>"
       match-found: "<green>Match found! Teleporting to <gold>{stage}</gold> on team <gold>{team}</gold>.</green>"
@@ -1083,6 +1085,7 @@ astera:
       team-footer: "<gray>Astera PvP</gray>"
     respawn:
       out-of-match: "<yellow>You were defeated. Returning to the lobby.</yellow>"
+      out-of-match-here: "<yellow>You were defeated. You have been revived.</yellow>"
 
   # Wave 5e — Tutorial display strings (ADR-0034). Renders via `astera.tutorial.*`
   # MessageKey calls in `TutorialContents` + `content/tutorials/*.yaml`.

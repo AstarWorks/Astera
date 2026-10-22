@@ -765,6 +765,8 @@ astera:
       # WP8 — スケジュール式 キュー → マッチ
       countdown: "<yellow>マッチ開始まで <gold>{seconds}</gold> 秒 <gray>（キュー {players} 人）</gray></yellow>"
       countdown-cancelled: "<gray>人数が足りません（{players}/{required}）。参加者を待っています。</gray>"
+      waiting-opponents: "<yellow>対戦相手を待っています（キュー {players} 人、双方に最低 {required} 人必要）。PvP レーンは 1 人では開始しません。</yellow>"
+      insufficient-cancelled: "<red>参加人数が足りないためマッチを中止しました。ロビーに戻ります。</red>"
       stage-busy: "<gray>アリーナ使用中です。空き次第マッチが始まります。</gray>"
       server-down: "<red>アリーナサーバーが停止中です。復旧までキューを保留します。</red>"
       match-found: "<green>マッチ成立！ <gold>{stage}</gold> へ移動します（チーム <gold>{team}</gold>）。</green>"
@@ -1089,6 +1091,7 @@ astera:
       team-footer: "<gray>Astera PvP</gray>"
     respawn:
       out-of-match: "<yellow>倒されました。ロビーに戻ります。</yellow>"
+      out-of-match-here: "<yellow>倒されました。復活しました。</yellow>"
 
   # Wave 5e — Tutorial 表示文字列 (ADR-0034)。
   # Wave 5p (ADR-0088): sequencer subkeys are nested here (single tutorial: section)。

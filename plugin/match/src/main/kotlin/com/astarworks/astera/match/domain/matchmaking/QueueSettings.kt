@@ -3,6 +3,24 @@ package com.astarworks.astera.match.domain.matchmaking
 import com.astarworks.astera.core.domain.stage.StageId
 import com.astarworks.astera.match.domain.mode.GameModeId
 
+/** What a queue lane is for: only [PVP] lanes insist on opponents. */
+public enum class LaneKind {
+    /** Teams fight each other: every team needs at least one player, so nobody starts a PvP match alone. */
+    PVP,
+
+    /** Cooperative / against the environment: a solo start is fine. */
+    PVE,
+
+    /** Practice lane: a solo start is fine. */
+    TRAINING;
+
+    public companion object {
+        public fun parse(wire: String): LaneKind =
+            entries.firstOrNull { it.name.equals(wire.trim(), ignoreCase = true) }
+                ?: throw IllegalArgumentException("unknown lane kind '$wire' (pvp | pve | training)")
+    }
+}
+
 /**
  * One queue lane of `content/matchmaking/queue.yaml` (WP8): which stage a
  * lane plays on and how big the match is.
@@ -16,6 +34,7 @@ public data class QueueLane(
     val teams: Int,
     val playersPerTeam: Int,
     val minPlayers: Int,
+    val kind: LaneKind = LaneKind.PVP,
 ) {
     init {
         if (key != NORMA_KEY) GameModeId(key) // validates lower-kebab
@@ -32,7 +51,12 @@ public data class QueueLane(
     /** Roster cap: a full queue starts immediately. */
     public val capacity: Int get() = teams * playersPerTeam
 
-    public fun sizeSpec(): MatchSizeSpec = MatchSizeSpec(teams, playersPerTeam, minPlayers)
+    /**
+     * PvP lanes never form a match with an empty team ([MatchSizeSpec.requireAllTeams]); PvE / training lanes
+     * may start with a single player.
+     */
+    public fun sizeSpec(): MatchSizeSpec =
+        MatchSizeSpec(teams, playersPerTeam, minPlayers, requireAllTeams = kind == LaneKind.PVP)
 
     public companion object {
         public const val NORMA_KEY: String = "norma"
@@ -86,6 +110,7 @@ public data class QueueSettings(
                     teams = 2,
                     playersPerTeam = 4,
                     minPlayers = 2,
+                    kind = LaneKind.PVP,
                 ),
             ),
         )

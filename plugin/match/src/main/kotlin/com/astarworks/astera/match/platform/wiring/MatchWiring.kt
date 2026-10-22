@@ -302,6 +302,22 @@ public object MatchWiring {
             onSuddenDeathExpired = { id ->
                 endMatch.execute(id, com.astarworks.astera.core.domain.event.EndReason.SuddenDeathResolved)
             },
+            // A countdown stuck below the roster floor (opponents never arrived) ends instead of hanging:
+            // everyone is told and sent back (lobby teleport / game-server transfer follow MatchEnded).
+            onInsufficientPlayers = { id ->
+                val roster = matches.findById(id)?.teams?.flatMap { it.members }.orEmpty()
+                roster.forEach { member ->
+                    playerGateway.sendMessage(
+                        member,
+                        msgRenderer.render(
+                            member,
+                            com.astarworks.astera.core.domain.i18n.MessageKey("astera.match.matchmaking.insufficient-cancelled"),
+                            emptyMap(),
+                        ),
+                    )
+                }
+                endMatch.execute(id, com.astarworks.astera.core.domain.event.EndReason.Cancelled("insufficient-players"))
+            },
         )
         scheduledTasks += scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
             phaseTimer.tickAll()

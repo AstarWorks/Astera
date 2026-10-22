@@ -8,8 +8,9 @@ import com.astarworks.astera.core.application.port.outbound.IServerTransferGatew
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.MatchEnded
-import com.astarworks.astera.core.domain.event.PlayerQuitServer
+import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.PlayerArrivedOnServer
+import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
@@ -17,6 +18,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.proxy.ProxyChannel
 import com.astarworks.astera.core.domain.proxy.ServerName
 import com.astarworks.astera.core.domain.proxy.TransferReason
+import com.astarworks.astera.match.application.admin.MatchMinPlayerWaivers
 import com.astarworks.astera.match.application.port.inbound.IMatchLifecycle
 import com.astarworks.astera.match.application.port.outbound.matchmaking.IQueueNotifier
 import com.astarworks.astera.match.domain.matchmaking.AssignmentStatus
@@ -48,6 +50,7 @@ public class MatchAssignmentReceiver(
     private val scheduler: IScheduler,
     private val notifier: IQueueNotifier,
     private val settings: CrossServerSettings,
+    private val waivers: MatchMinPlayerWaivers? = null,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -71,7 +74,9 @@ public class MatchAssignmentReceiver(
         }
         val joined = eventBus.subscribe(PlayerArrivedOnServer::class) { onPlayerJoined(it.playerId) }
         val quit = eventBus.subscribe(PlayerQuitServer::class) { event ->
+            // Before the match starts a departed player is simply forgotten; afterwards the abandon watchdog applies.
             session?.takeIf { it.matchId == null }?.arrived?.remove(event.playerId)
+            onPlayerQuit(event.playerId)
         }
         val ended = eventBus.subscribe(MatchEnded::class) { onMatchEnded(it.matchId) }
         handles += { assignments.cancel() }
@@ -109,6 +114,25 @@ public class MatchAssignmentReceiver(
         if (current.arrived.size == current.assignment.players.size) startMatch(current)
     }
 
+    /**
+     * Everybody left a running match (all quit or were bounced): without this the game server stays "busy"
+     * until the match's own time limit. After [ABANDON_GRACE_SECONDS] with nobody on the server the match is
+     * cancelled, which frees the server through the normal `Ended` path.
+     */
+    private fun onPlayerQuit(playerId: PlayerId) {
+        val current = session ?: return
+        val matchId = current.matchId ?: return
+        if (playerId !in current.arrived) return
+        current.arrived -= playerId
+        if (current.arrived.isNotEmpty()) return
+        scheduler.runLater(ticks(ABANDON_GRACE_SECONDS * TICKS_PER_SECOND)) {
+            if (session !== current || current.arrived.isNotEmpty()) return@runLater
+            val live = matches.findById(matchId)?.takeIf { it.phase != MatchPhase.ENDED } ?: return@runLater
+            log.warn("Match {} abandoned by all players; cancelling it.", live.id)
+            lifecycle.end(live.id, EndReason.Cancelled("abandoned"))
+        }
+    }
+
     private fun onArrivalTimeout(current: Session) {
         if (session !== current || current.matchId != null) return
         val missing = current.assignment.players.size - current.arrived.size
@@ -134,6 +158,7 @@ public class MatchAssignmentReceiver(
             }
         }
         current.matchId = matchId
+        if (assignment.forced) waivers?.waive(matchId)
         // Assignment team i maps onto the match's i-th team; surplus teams fold back.
         val teamIds = matches.findById(matchId)?.teams?.map { it.id }.orEmpty()
         assignment.teams.forEachIndexed { index, team ->
@@ -183,5 +208,6 @@ public class MatchAssignmentReceiver(
     private companion object {
         const val TICKS_PER_SECOND = 20L
         const val BOUNCE_DELAY_SECONDS = 3
+        const val ABANDON_GRACE_SECONDS = 30L
     }
 }

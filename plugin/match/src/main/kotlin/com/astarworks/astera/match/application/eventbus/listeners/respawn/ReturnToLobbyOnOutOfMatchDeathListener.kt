@@ -24,6 +24,13 @@ import org.slf4j.LoggerFactory
  *
  * HP is restored even when the lobby teleport fails (the goal is "player is
  * playable again"); the failure is logged at WARN.
+ *
+ * **Game-only backends** ([gameServer]): there is no lobby world on this server, `lobbySpawn` would
+ * drop the victim at the default world spawn (looks like "dying kicked me out of the arena") and a
+ * death can legitimately land outside a registered match: while the other assigned players are still
+ * arriving, or in the result window after the match ended. Those players are revived where they
+ * stand; the assignment receiver is the only thing that moves players off a game server (proxy
+ * transfer after the match / bounce of strays).
  */
 public class ReturnToLobbyOnOutOfMatchDeathListener(
     private val matches: IMatchRepository,
@@ -32,6 +39,7 @@ public class ReturnToLobbyOnOutOfMatchDeathListener(
     private val playerGateway: IPlayerGateway,
     private val messages: IMessageRenderer,
     private val statusEffects: IStatusEffectContainer? = null,
+    private val gameServer: Boolean = false,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -42,9 +50,11 @@ public class ReturnToLobbyOnOutOfMatchDeathListener(
 
         statusEffects?.clear(victim)
 
-        when (val tp = worldGateway.lobbySpawn(victim)) {
-            is Result.Success -> Unit
-            is Result.Failure -> log.warn("Out-of-match death: lobby spawn for {} failed: {}", victim, tp.error)
+        if (!gameServer) {
+            when (val tp = worldGateway.lobbySpawn(victim)) {
+                is Result.Success -> Unit
+                is Result.Failure -> log.warn("Out-of-match death: lobby spawn for {} failed: {}", victim, tp.error)
+            }
         }
 
         val max = healthGateway.getMaxHealth(victim) ?: DEFAULT_MAX_HP
@@ -53,11 +63,12 @@ public class ReturnToLobbyOnOutOfMatchDeathListener(
             is Result.Failure -> log.warn("Out-of-match death: HP restore for {} failed: {}", victim, hp.error)
         }
 
-        playerGateway.sendMessage(victim, messages.render(victim, MSG, emptyMap()))
+        playerGateway.sendMessage(victim, messages.render(victim, if (gameServer) MSG_HERE else MSG, emptyMap()))
     }
 
     private companion object {
         const val DEFAULT_MAX_HP = 20.0
         val MSG = MessageKey("astera.hud.respawn.out-of-match")
+        val MSG_HERE = MessageKey("astera.hud.respawn.out-of-match-here")
     }
 }

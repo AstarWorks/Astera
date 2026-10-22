@@ -1,6 +1,7 @@
 package com.astarworks.astera.match.application.config
 
 import com.astarworks.astera.core.domain.stage.StageId
+import com.astarworks.astera.match.domain.matchmaking.LaneKind
 import com.astarworks.astera.match.domain.matchmaking.QueueLane
 import com.astarworks.astera.match.domain.matchmaking.QueueSettings
 import kotlinx.serialization.SerialName
@@ -18,7 +19,8 @@ import kotlinx.serialization.Serializable
  *     stage: example-arena
  *     teams: 2
  *     players_per_team: 4
- *     min_players: 1       # 1 = playtest alone; raise for real play
+ *     min_players: 2       # pvp lanes are floored at one player per team
+ *     kind: pvp            # pvp | pve | training (only pve / training may start solo)
  * ```
  */
 @Serializable
@@ -35,16 +37,22 @@ public data class QueueYamlConfig(
         public val teams: Int = 2,
         @SerialName("players_per_team") public val playersPerTeam: Int = 4,
         @SerialName("min_players") public val minPlayers: Int = 2,
+        /** `pvp` (default) | `pve` | `training`. Only non-PvP lanes may start with a single player. */
+        public val kind: String = "pvp",
     )
 
     public fun toSettings(): QueueSettings {
         val built = lanes.map {
+            val kind = LaneKind.parse(it.kind)
+            // A PvP lane needs an opponent: never below one player per team, whatever the YAML says.
+            val floor = if (kind == LaneKind.PVP) maxOf(it.minPlayers, it.teams) else it.minPlayers
             QueueLane(
                 key = it.id,
                 stage = StageId(it.stage),
                 teams = it.teams,
                 playersPerTeam = it.playersPerTeam,
-                minPlayers = it.minPlayers,
+                minPlayers = floor.coerceAtMost(it.teams * it.playersPerTeam),
+                kind = kind,
             )
         }
         require(built.map { it.key }.toSet().size == built.size) { "duplicate lane id in queue.yaml" }
