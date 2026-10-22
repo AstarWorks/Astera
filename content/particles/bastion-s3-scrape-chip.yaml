@@ -1,0 +1,10 @@
+# Zwei S3: floor chips popped by the scraping blade
+id: bastion-s3-scrape-chip
+shape: { kind: burst, spread_blocks: 0.1 }
+color: { r: 128, g: 128, b: 128 }
+count: 2
+lifetime_ticks: 14
+vanilla_particle: block_crumble
+data: { kind: block, block: stone }
+velocity: { direction: up, speed: 0.2, spread_degrees: 50 }
+force: true

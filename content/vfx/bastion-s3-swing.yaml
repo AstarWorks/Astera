@@ -1,0 +1,49 @@
+# Zwei S3 beat 1 (cast tick 0-30): the greatsword is dragged low behind the caster (wind-up, 16 t), then
+# one ~315 degree horizontal sweep about the body at waist height (out_expo, 4 t) that leaves a 風切り
+# fan (white crisp edge, gold body, dark rim) which lingers and fades gold -> purple-grey. Embers fly
+# off the tip along the swing. Peak ~34 live displays at tick 20.
+# Local axes: x = left, y = up, z = forward. Swing rotate = [yaw, pitch, roll]; yaw + = right, pitch + tips the tip down.
+
+id: bastion-s3-swing
+duration_ticks: 32
+orient: yaw
+follow: false
+sample_ticks: 2
+
+rigs:
+  - id: sword
+    pivot: [-0.35, 0.9, 0.3]
+    rest: [0, 90, 0]
+    tilt: [0, 0, 10]
+    respect_hit_stop: true
+    end_tick: 30
+    parts:
+      - { id: blade, block: iron_block, offset: [0.0, 1.6, 0.0], size: [0.4, 2.7, 0.12], brightness: 15 }
+      - { id: edge, block: white_concrete, offset: [0.21, 1.6, 0.0], size: [0.04, 2.7, 0.14], brightness: 15 }
+      - { id: guard, block: gold_block, offset: [0.0, 0.25, 0.0], size: [0.95, 0.14, 0.24], brightness: 15 }
+      - { id: grip, block: black_concrete, offset: [0.0, -0.25, 0.0], size: [0.1, 0.9, 0.1] }
+    swing:
+      - { t: 0, rotate: [150, 35, 0] }                       # blade dragged low behind
+      - { t: 10, rotate: [160, 38, 0], ease: in_out_quad }
+      - { t: 15, rotate: [168, 36, 0], ease: in_quad }       # last pull-back
+      - { t: 20, rotate: [-150, 12, 0], ease: out_cubic }     # the sweep: 318 degrees in 5 ticks
+      - { t: 28, rotate: [-150, 18, 0], ease: out_cubic }    # settles into the scrape pose
+    trails:
+      - id: wind
+        from: [0.0, 0.9, 0.0]
+        to: [0.0, 2.9, 0.0]
+        start_t: 16
+        end_t: 21
+        life_ticks: 10
+        lag_ticks: 0
+        style: both
+        step_deg: 36
+        fade_power: 1.2
+        bands:
+          - { from: 0.0, to: 0.45, color: "#70E8B820", color_to: "#303A2A50" }
+          - { from: 0.45, to: 1.0, color: "#E0FFD23A", color_to: "#503A2A50" }
+        edge: { block: white_concrete, width: 0.05 }
+        dark_rim: { color: "#C0302008", width: 0.22 }
+    emitters:
+      - { id: embers, particle_id: bastion-s3-ember, point: [0.0, 2.9, 0.0], start_t: 16, end_t: 22 }
+      - { id: motes, particle_id: bastion-s3-ember-dust, point: [0.0, 2.3, 0.0], start_t: 16, end_t: 22 }

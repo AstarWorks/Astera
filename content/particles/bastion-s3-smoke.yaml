@@ -1,0 +1,9 @@
+# Zwei S3: dark smoke thrown out of the slam (the dark half of the white/dark contrast pair)
+id: bastion-s3-smoke
+shape: { kind: burst, spread_blocks: 0.5 }
+color: { r: 40, g: 30, b: 30 }
+count: 4
+lifetime_ticks: 20
+vanilla_particle: large_smoke
+velocity: { direction: outward, speed: 0.12, spread_degrees: 60 }
+force: true

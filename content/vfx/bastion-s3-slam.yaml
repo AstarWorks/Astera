@@ -1,0 +1,175 @@
+# Zwei S3 beat 5 (cast tick 70-98): the heavy hit. A white pillar with a yellow glass bloom, a thin
+# horizontal bar through it, a jagged spike star (two segments per spike, 2.5-6 blocks, in a vertical
+# plane along the lane and a second one across it) flicking out from mid-height, dark smoke behind for
+# contrast; then flat gold cracks glow on the floor and fade from tick 82 while debris and dust rise.
+# Peak ~46 live displays at tick 71.
+# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
+
+id: bastion-s3-slam
+duration_ticks: 28
+orient: yaw
+follow: false
+sample_ticks: 1
+
+elements:
+  # Pillar core: opaque white, then pops to glass and shrinks.
+  - id: pillar
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 0
+    end_tick: 12
+    keyframes:
+      - { t: 0, translate: [-0.05, 0.0, 2.45], scale: [0.1, 0.4, 0.1] }
+      - { t: 1, translate: [-0.175, 0.0, 2.325], scale: [0.35, 3.2, 0.35], ease: out_expo }
+      - { t: 8, translate: [-0.1, 0.0, 2.4], scale: [0.2, 3.2, 0.2] }
+      - { t: 10, block: white_stained_glass }
+      - { t: 12, translate: [0.0, 0.0, 2.5], scale: [0.0, 3.2, 0.0], ease: in_quad }
+
+  - id: bloom
+    kind: { type: block, block: yellow_stained_glass }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 0
+    end_tick: 13
+    keyframes:
+      - { t: 0, translate: [-0.1, 0.0, 2.4], scale: [0.2, 0.5, 0.2] }
+      - { t: 2, translate: [-0.5, 0.0, 2.0], scale: [1.0, 3.6, 1.0], ease: out_expo }
+      - { t: 8, translate: [-0.4, 0.0, 2.1], scale: [0.8, 3.4, 0.8] }
+      - { t: 13, translate: [0.0, 0.0, 2.5], scale: [0.0, 3.4, 0.0], ease: in_quad }
+    oscillate: { axis: scale_x, amplitude: 0.12, period_ticks: 2 }
+
+  # Horizontal bar across the pillar at chest height.
+  - id: bar
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 0
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [-0.3, 1.5, 2.47], scale: [0.6, 0.06, 0.06] }
+      - { t: 2, translate: [-4.2, 1.5, 2.47], scale: [8.4, 0.05, 0.06], ease: out_expo }
+      - { t: 9, translate: [-4.2, 1.5, 2.47], scale: [8.4, 0.03, 0.06] }
+      - { t: 10, translate: [0.0, 1.5, 2.47], scale: [0.0, 0.0, 0.06], ease: in_quad }
+
+  # Spike star, plane 1 (y-z, along the caster -> target lane): first segments.
+  - id: spike-a1
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 0
+    end_tick: 12
+    count: 10
+    formation:
+      curve: { type: circle, radius: 0.3 }
+      offset: [0.0, 1.6, 2.5]
+      tilt: { yaw: 0, pitch: 0, roll: 90 }
+      align: outward
+    jitter: { position: 0.0, rotation_deg: 8, scale: 0.35 }
+    keyframes:
+      - { t: 0, scale: [0.06, 0.06, 0.4] }
+      - { t: 2, scale: [0.09, 0.09, 2.4], ease: out_expo }
+      - { t: 6, scale: [0.06, 0.06, 2.4] }
+      - { t: 12, scale: [0.0, 0.0, 2.4], ease: in_quad }
+
+  # Plane 1, second (outer) segments, kinked.
+  - id: spike-a2
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 1
+    end_tick: 12
+    count: 10
+    formation:
+      curve: { type: circle, radius: 2.5 }
+      offset: [0.0, 1.6, 2.5]
+      tilt: { yaw: 0, pitch: 0, roll: 90 }
+      align: outward
+    jitter: { position: 0.0, rotation_deg: 24, scale: 0.4 }
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.3] }
+      - { t: 2, scale: [0.07, 0.07, 2.4], ease: out_expo }
+      - { t: 5, block: yellow_stained_glass }
+      - { t: 11, scale: [0.0, 0.0, 2.4], ease: in_quad }
+
+  # Spike star, plane 2 (x-y, across the lane): visible from the caster's eyes.
+  - id: spike-b1
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 0
+    end_tick: 11
+    count: 8
+    formation:
+      curve: { type: circle, radius: 0.3 }
+      offset: [0.0, 1.6, 2.5]
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      align: outward
+    jitter: { position: 0.0, rotation_deg: 8, scale: 0.35 }
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.4] }
+      - { t: 2, scale: [0.07, 0.07, 2.2], ease: out_expo }
+      - { t: 11, scale: [0.0, 0.0, 2.2], ease: in_quad }
+
+  - id: spike-b2
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 1
+    end_tick: 11
+    count: 8
+    formation:
+      curve: { type: circle, radius: 2.4 }
+      offset: [0.0, 1.6, 2.5]
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      align: outward
+    jitter: { position: 0.0, rotation_deg: 24, scale: 0.4 }
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.3] }
+      - { t: 2, scale: [0.06, 0.06, 2.0], ease: out_expo }
+      - { t: 10, scale: [0.0, 0.0, 2.0], ease: in_quad }
+
+  # Ground cracks: flat gold slabs radiating from the pillar foot, glowing, fading from tick 12.
+  - id: cracks
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    glow_color: "#ffb020"
+    start_tick: 1
+    end_tick: 24
+    count: 9
+    formation:
+      curve: { type: circle, radius: 0.5 }
+      offset: [0.0, 0.03, 2.5]
+      align: outward
+    jitter: { position: 0.0, rotation_deg: 10, scale: 0.35 }
+    keyframes:
+      - { t: 0, scale: [0.05, 0.03, 0.3] }
+      - { t: 3, scale: [0.12, 0.03, 3.4], ease: out_expo }
+      - { t: 12, block: yellow_stained_glass }
+      - { t: 22, scale: [0.0, 0.03, 3.4], ease: in_quad }
+
+  # Particles: flash, dark smoke (contrast), debris + dust thrown up.
+  - id: flash
+    kind: { type: particle, particle_id: bastion-s3-flash, every_ticks: 1 }
+    start_tick: 0
+    end_tick: 2
+    keyframes:
+      - { t: 0, translate: [0.0, 1.5, 2.5] }
+
+  - id: smoke
+    kind: { type: particle, particle_id: bastion-s3-smoke, every_ticks: 2 }
+    start_tick: 0
+    end_tick: 14
+    keyframes:
+      - { t: 0, translate: [0.0, 0.4, 2.5] }
+
+  - id: debris
+    kind: { type: particle, particle_id: bastion-s3-debris, every_ticks: 2 }
+    start_tick: 0
+    end_tick: 16
+    keyframes:
+      - { t: 0, translate: [0.0, 0.2, 2.5] }
+
+  - id: dust
+    kind: { type: particle, particle_id: bastion-s3-debris-dust, every_ticks: 2 }
+    start_tick: 1
+    end_tick: 14
+    keyframes:
+      - { t: 0, translate: [0.0, 0.2, 2.5] }

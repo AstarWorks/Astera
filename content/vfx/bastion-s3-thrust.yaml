@@ -1,0 +1,97 @@
+# Zwei S3 beat 3b (cast tick 46-58): the thrust through the target. The rig stabs straight ahead
+# (angle 0), 30-50 trail particles streak along the lane, thin white / gold speed-line quads ring the
+# lane, and three white wind arcs (whoosh) sit behind the target. ~30 live displays at peak.
+# Local axes: x = left, y = up, z = forward. Swing rotate = [yaw, pitch, roll].
+
+id: bastion-s3-thrust
+duration_ticks: 12
+orient: yaw
+follow: false
+sample_ticks: 1
+
+rigs:
+  - id: sword
+    pivot: [-0.35, 1.0, 0.3]
+    rest: [0, 90, 0]
+    respect_hit_stop: true
+    end_tick: 10
+    parts:
+      - { id: blade, block: iron_block, offset: [0.0, 1.6, 0.0], size: [0.4, 2.7, 0.12], brightness: 15 }
+      - { id: edge, block: white_concrete, offset: [0.21, 1.6, 0.0], size: [0.04, 2.7, 0.14], brightness: 15 }
+      - { id: guard, block: gold_block, offset: [0.0, 0.25, 0.0], size: [0.95, 0.14, 0.24], brightness: 15 }
+      - { id: grip, block: black_concrete, offset: [0.0, -0.25, 0.0], size: [0.1, 0.9, 0.1] }
+    swing:
+      - { t: 0, rotate: [-60, 0, 0] }                        # swept in from the dash
+      - { t: 2, rotate: [0, 0, 0], ease: out_cubic }         # straight thrust
+      - { t: 8, rotate: [0, 0, 0] }
+    emitters:
+      - { id: tipglow, particle_id: bastion-s3-ember, point: [0.0, 2.9, 0.0], start_t: 1, end_t: 6 }
+
+elements:
+  # Speed lines: a ring of thin white blades along the lane, seen from every side.
+  - id: lines-white
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 0
+    end_tick: 7
+    count: 8
+    formation:
+      curve: { type: circle, radius: 1.3 }
+      offset: [0.0, 1.1, 0.2]
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      align: none
+    jitter: { position: 0.25, rotation_deg: 0, scale: 0.4 }
+    keyframes:
+      - { t: 0, scale: [0.03, 0.03, 0.4] }
+      - { t: 2, translate: [0.0, 0.0, 1.2], scale: [0.03, 0.03, 3.2], ease: out_expo }
+      - { t: 6, translate: [0.0, 0.0, 3.0], scale: [0.0, 0.0, 3.2], ease: in_quad }
+
+  - id: lines-gold
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 1
+    end_tick: 8
+    count: 6
+    formation:
+      curve: { type: circle, radius: 0.8 }
+      offset: [0.0, 1.1, 0.0]
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      align: none
+    jitter: { position: 0.2, rotation_deg: 0, scale: 0.4 }
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.4] }
+      - { t: 2, translate: [0.0, 0.0, 1.5], scale: [0.05, 0.05, 2.6], ease: out_expo }
+      - { t: 6, translate: [0.0, 0.0, 3.4], scale: [0.0, 0.0, 2.6], ease: in_quad }
+
+  # Streak particles: trail particles on a ring around the lane fly down to 4.5 blocks ahead.
+  - id: streaks
+    kind: { type: particle, particle_id: bastion-s3-streak, every_ticks: 1, trail_to: [0.0, 1.1, 4.5] }
+    start_tick: 0
+    end_tick: 5
+    count: 10
+    formation:
+      curve: { type: circle, radius: 1.5 }
+      offset: [0.0, 1.1, 0.4]
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.0] }
+
+  # Wind arcs behind the target: vertical-ish white crescents (the whoosh left after the thrust).
+  - id: whoosh
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 1
+    end_tick: 9
+    slot_lifetime_ticks: 6
+    count: 5
+    formation:
+      curve: { type: arc, radius: 1.5, from_deg: -70, to_deg: 70 }
+      offset: [0.0, 1.0, 3.3]
+      tilt: { yaw: 90, pitch: 0, roll: 0 }
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.03, 0.03, 0.2] }
+      - { t: 2, scale: [0.04, 0.04, 1.1], ease: out_expo }
+      - { t: 6, scale: [0.0, 0.0, 1.1], ease: in_quad }

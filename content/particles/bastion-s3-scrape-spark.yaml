@@ -1,0 +1,9 @@
+# Zwei S3: spark kicked up and back where the blade tip scrapes the floor
+id: bastion-s3-scrape-spark
+shape: { kind: point }
+color: { r: 255, g: 200, b: 80 }
+count: 3
+lifetime_ticks: 10
+vanilla_particle: crit
+velocity: { direction: outward, speed: 0.38, spread_degrees: 35 }
+force: true

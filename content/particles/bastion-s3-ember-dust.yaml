@@ -1,0 +1,10 @@
+# Zwei S3: gold -> dark-amber dust motes with the embers (a dark mix reads on any backdrop)
+id: bastion-s3-ember-dust
+shape: { kind: burst, spread_blocks: 0.15 }
+color: { r: 255, g: 210, b: 58 }
+count: 2
+lifetime_ticks: 14
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 255, g: 210, b: 58 }, to: { r: 70, g: 40, b: 20 }, scale: 1.1 }
+speed: 0.0
+force: true

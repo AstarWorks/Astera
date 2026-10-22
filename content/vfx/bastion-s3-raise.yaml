@@ -1,0 +1,58 @@
+# Zwei S3 beat 4 (cast tick 56-102): the sword is raised overhead and held trembling (anticipation, 12 t),
+# a thin gold telegraph ring marks the ground in front of the target from tick 60, then the blade
+# plunges in 2 ticks into the ground and stays planted, sinking and fading until tick ~101.
+# Peak ~22 live displays. Local axes: x = left, y = up, z = forward. Swing rotate = [yaw, pitch, roll];
+# pitch - lifts the tip up (overhead), pitch + drives it down into the floor.
+
+id: bastion-s3-raise
+duration_ticks: 46
+orient: yaw
+follow: false
+sample_ticks: 1
+
+rigs:
+  - id: sword
+    pivot: [-0.35, 1.0, 0.3]
+    rest: [0, 90, 0]
+    respect_hit_stop: true
+    end_tick: 44
+    parts:
+      - { id: blade, block: iron_block, offset: [0.0, 1.6, 0.0], size: [0.4, 2.7, 0.12], brightness: 15 }
+      - { id: edge, block: white_concrete, offset: [0.21, 1.6, 0.0], size: [0.04, 2.7, 0.14], brightness: 15 }
+      - { id: guard, block: gold_block, offset: [0.0, 0.25, 0.0], size: [0.95, 0.14, 0.24], brightness: 15 }
+      - { id: grip, block: black_concrete, offset: [0.0, -0.25, 0.0], size: [0.1, 0.9, 0.1] }
+    swing:
+      - { t: 0, rotate: [0, 0, 0] }                          # held from the thrust
+      - { t: 4, rotate: [0, -104, 0], ease: out_cubic }      # raised overhead, point up / back
+      - { t: 6, rotate: [0, -108, 0] }                       # trembles while it is held
+      - { t: 7, rotate: [0, -103, 0] }
+      - { t: 8, rotate: [0, -109, 0] }
+      - { t: 9, rotate: [0, -103, 0] }
+      - { t: 10, rotate: [0, -109, 0] }
+      - { t: 11, rotate: [0, -104, 0] }
+      - { t: 12, rotate: [0, -108, 0] }
+      - { t: 14, rotate: [0, 22, 0], ease: in_expo }         # plunge (cast 68-70)
+      - { t: 30, rotate: [0, 22, 0] }
+      - { t: 44, rotate: [0, 40, 0], ease: in_quad }         # sinks as it fades
+    emitters:
+      - { id: glint, particle_id: bastion-s3-glint, point: [0.0, 2.9, 0.0], start_t: 5, end_t: 12 }
+      - { id: embers, particle_id: bastion-s3-ember-dust, point: [0.0, 2.9, 0.0], start_t: 16, end_t: 40 }
+
+elements:
+  # Ground telegraph: a thin gold ring under the target, pulsing until the plunge.
+  - id: ring
+    kind: { type: block, block: yellow_stained_glass }
+    brightness: 12
+    glow_color: "#ffd23a"
+    start_tick: 4
+    end_tick: 14
+    count: 18
+    formation:
+      curve: { type: circle, radius: 1.8 }
+      offset: [0.0, 0.05, 2.6]
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.0, 0.03, 0.0] }
+      - { t: 3, scale: [0.07, 0.03, 0.7], ease: out_back }
+      - { t: 10, scale: [0.07, 0.03, 0.7] }
+    oscillate: { axis: scale_x, amplitude: 0.03, period_ticks: 3 }

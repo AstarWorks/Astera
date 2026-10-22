@@ -1,0 +1,9 @@
+# Zwei S3: speed line, a trail particle flying from its slot to the element's trail_to point
+id: bastion-s3-streak
+shape: { kind: point }
+color: { r: 255, g: 230, b: 150 }
+count: 1
+lifetime_ticks: 8
+vanilla_particle: trail
+data: { kind: trail, toward: true, color: { r: 255, g: 226, b: 140 }, duration_ticks: 6 }
+force: true

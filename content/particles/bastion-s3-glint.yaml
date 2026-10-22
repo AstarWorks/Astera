@@ -1,0 +1,9 @@
+# Zwei S3: end_rod glint at the raised sword tip
+id: bastion-s3-glint
+shape: { kind: burst, spread_blocks: 0.1 }
+color: { r: 255, g: 255, b: 255 }
+count: 2
+lifetime_ticks: 10
+vanilla_particle: end_rod
+velocity: { direction: outward, speed: 0.06, spread_degrees: 90 }
+force: true

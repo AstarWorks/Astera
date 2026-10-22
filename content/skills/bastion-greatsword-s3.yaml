@@ -1,8 +1,10 @@
-# ADR-0230 persona weapon: Bastion Greatsword S3 (sneak + right click), "Colossus Fall".
-# Finisher: 29 ticks of telegraph (the floor hoop is the 5.2-block damage radius), the slam, and
-# an aftershock 22 ticks later. Both hits scale with banked charge; the aftershock spends it.
-# The slam is fixed on the spot the cast started at, so leaving the hoop dodges it.
-# A sequence skill: no baseline hit, all damage comes from the timeline below.
+# Zwei S3 "Ward" on the Bastion Greatsword (sneak + right click). A 100-tick, three-hit timeline:
+# wind-up (0-15) -> cut-in + HIT 1 horizontal sweep (16-20) -> blade scrapes the floor (28-43) ->
+# HIT 2 brush-smear dash + thrust (44-53) -> sword raised overhead and held (56-67) -> plunge and
+# HIT 3 heavy with pillar + spike star (70) -> cracks fade, sword planted (up to 100).
+# Hits: 4.5 / 4.5 / 8.0 + banked charge (0.4 / 0.4 / 0.6 per stack, the last one spends it). Every beat
+# ignores i-frames; hit 1 reaches 4.0 (visual reach 3.2 + margin), hit 3 knocks back along the radial.
+# A sequence skill: no baseline hit, all damage comes from the timeline below. VFX files: bastion-s3-*.
 
 id: bastion-greatsword-s3
 
@@ -10,8 +12,8 @@ name:
   ja: "巨剣墜つ"
   en: "Colossus Fall"
 description:
-  ja: "巨大な剣を掲げて叩きつける奥義。足元の光輪が範囲の予告。溜め（チャージ）を消費して余震の威力が増す。"
-  en: "Raise a colossal sword and bring it down. The floor hoop shows the radius. Spends charge for extra damage."
+  ja: "巨大な剣を引きずって薙ぎ払い、突進で貫き、掲げて叩きつける三連の奥義。溜め（チャージ）を消費して最後の一撃が重くなる。"
+  en: "Sweep, rush through, then raise the colossal sword and slam it down. Spends charge for the final blow."
 
 archetype: sequence
 cooldown_ticks: 300
@@ -24,62 +26,279 @@ params:
 phases:
   type: sequence
   cast:
+    # ---- Beat 0 (0-15): wind-up, blade dragged low behind.
     - type: play_sound
       targets: { type: caster }
-      sound_id: block.anvil.land
-      pitch: { type: literal, value: 0.5 }
+      sound_id: item.armor.equip_netherite
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 0.6 }
     - type: play_vfx
       targets: { type: caster }
-      vfx_id: bastion-s3-colossus
-    # Slam (tick 29).
+      vfx_id: bastion-s3-swing
+    # ---- Beat 1 (16-20): cut-in, HIT 1 horizontal sweep.
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.trident.riptide_1
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 1.2 }
+      delay_ticks: { type: literal, value: 14 }
+    - type: screen_flash
+      targets: { type: caster }
+      overlay: speed_diag
+      color: "#FFFFFF"
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 1 }
+      fade_out: { type: literal, value: 0 }
+      delay_ticks: { type: literal, value: 16 }
+    - type: screen_flash
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.0 }, exclude_caster: true }
+      overlay: speed_diag
+      color: "#FFFFFF"
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 1 }
+      fade_out: { type: literal, value: 0 }
+      delay_ticks: { type: literal, value: 16 }
+    - type: screen_flash
+      targets: { type: caster }
+      overlay: gold_burst
+      color: "#FFC84A"
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 1 }
+      fade_out: { type: literal, value: 0 }
+      delay_ticks: { type: literal, value: 17 }
+    - type: screen_flash
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.0 }, exclude_caster: true }
+      overlay: gold_burst
+      color: "#FFC84A"
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 1 }
+      fade_out: { type: literal, value: 0 }
+      delay_ticks: { type: literal, value: 17 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.sweep
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 0.7 }
+      delay_ticks: { type: literal, value: 16 }
     - type: damage
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.2 }, exclude_caster: true }
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
+      ignore_invulnerability: { type: literal, value: true }
       components:
-        - base: { type: literal, value: 10.0 }
+        - base: { type: literal, value: 4.5 }
           attribute: physical
-          per_stack: { status_id: charge, amount: 0.7, on: caster, consume: false }
-      delay_ticks: { type: literal, value: 29 }
-      snapshot_pose: true
-    - type: knockup
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.2 }, exclude_caster: true }
-      strength: { type: literal, value: 0.8 }
-      delay_ticks: { type: literal, value: 29 }
-      snapshot_pose: true
+          per_stack: { status_id: charge, amount: 0.4, on: caster, consume: false }
+      delay_ticks: { type: literal, value: 20 }
     - type: hit_stop
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.2 }, exclude_caster: true }
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
+      ticks: 2
+      include_caster: true
+      delay_ticks: { type: literal, value: 20 }
+    - type: spawn_particle
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
+      particle_id: bastion-s3-hit-crit
+      delay_ticks: { type: literal, value: 20 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.strong
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 0.9 }
+      delay_ticks: { type: literal, value: 20 }
+    # ---- Beat 2 (28-43): tip scrapes the floor (charge telegraph).
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: bastion-s3-scrape
+      delay_ticks: { type: literal, value: 28 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.grindstone.use
+      volume: { type: literal, value: 0.5 }
+      pitch: { type: literal, value: 1.4 }
+      delay_ticks: { type: literal, value: 30 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.grindstone.use
+      volume: { type: literal, value: 0.5 }
+      pitch: { type: literal, value: 1.4 }
+      delay_ticks: { type: literal, value: 36 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.grindstone.use
+      volume: { type: literal, value: 0.5 }
+      pitch: { type: literal, value: 1.4 }
+      delay_ticks: { type: literal, value: 42 }
+    # ---- Beat 3 (44-53): HIT 2 brush-smear dash and thrust.
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: bastion-s3-dash
+      delay_ticks: { type: literal, value: 43 }
+    - type: dash_strike
+      delay_ticks: { type: literal, value: 44 }
+      distance: 3.0
+      ticks: 2
+      radius: 1.3
+      hit_once: true
+      invulnerable: true
+      stop_on_block: true
+      on_hit:
+        - type: damage
+          targets: { type: target }
+          ignore_invulnerability: { type: literal, value: true }
+          components:
+            - base: { type: literal, value: 4.5 }
+              attribute: physical
+              per_stack: { status_id: charge, amount: 0.4, on: caster, consume: false }
+          delay_ticks: { type: literal, value: 2 }
+        - type: hit_stop
+          targets: { type: target }
+          ticks: 2
+          include_caster: true
+          delay_ticks: { type: literal, value: 2 }
+        - type: spawn_particle
+          targets: { type: target }
+          particle_id: bastion-s3-hit-crit
+          delay_ticks: { type: literal, value: 2 }
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.player.attack.crit
+          delay_ticks: { type: literal, value: 2 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.knockback
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 0.8 }
+      delay_ticks: { type: literal, value: 44 }
+    - type: screen_flash
+      targets: { type: caster }
+      overlay: white
+      color: "#D8D0C0"
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 1 }
+      fade_out: { type: literal, value: 0 }
+      delay_ticks: { type: literal, value: 45 }
+    - type: screen_flash
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.0 }, exclude_caster: true }
+      overlay: white
+      color: "#D8D0C0"
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 1 }
+      fade_out: { type: literal, value: 0 }
+      delay_ticks: { type: literal, value: 45 }
+    - type: screen_flash
+      targets: { type: caster }
+      overlay: gold_burst
+      color: "#FFC84A"
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 1 }
+      fade_out: { type: literal, value: 0 }
+      delay_ticks: { type: literal, value: 46 }
+    - type: screen_flash
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.0 }, exclude_caster: true }
+      overlay: gold_burst
+      color: "#FFC84A"
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 1 }
+      fade_out: { type: literal, value: 0 }
+      delay_ticks: { type: literal, value: 46 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: bastion-s3-thrust
+      delay_ticks: { type: literal, value: 46 }
+    # ---- Beat 4 (56-69): sword raised overhead, held; ground telegraph; plunge.
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: bastion-s3-raise
+      delay_ticks: { type: literal, value: 56 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.trident.return
+      volume: { type: literal, value: 0.8 }
+      pitch: { type: literal, value: 0.7 }
+      delay_ticks: { type: literal, value: 56 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.beacon.ambient
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 1.5 }
+      delay_ticks: { type: literal, value: 62 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.iron_golem.attack
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 0.6 }
+      delay_ticks: { type: literal, value: 68 }
+    # ---- Beat 5 (70): HIT 3 heavy, pillar + spike star.
+    - type: screen_flash
+      targets: { type: caster }
+      overlay: white
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 1 }
+      fade_out: { type: literal, value: 0 }
+      delay_ticks: { type: literal, value: 69 }
+    - type: screen_flash
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.0 }, exclude_caster: true }
+      overlay: white
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 1 }
+      fade_out: { type: literal, value: 0 }
+      delay_ticks: { type: literal, value: 69 }
+    - type: screen_flash
+      targets: { type: caster }
+      overlay: gold_burst
+      color: "#FFC84A"
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 2 }
+      fade_out: { type: literal, value: 2 }
+      delay_ticks: { type: literal, value: 70 }
+    - type: screen_flash
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.0 }, exclude_caster: true }
+      overlay: gold_burst
+      color: "#FFC84A"
+      fade_in: { type: literal, value: 0 }
+      stay: { type: literal, value: 2 }
+      fade_out: { type: literal, value: 2 }
+      delay_ticks: { type: literal, value: 70 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: bastion-s3-slam
+      delay_ticks: { type: literal, value: 70 }
+    - type: damage
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.5 }, exclude_caster: true }
+      ignore_invulnerability: { type: literal, value: true }
+      components:
+        - base: { type: literal, value: 8.0 }
+          attribute: physical
+          per_stack: { status_id: charge, amount: 0.6, on: caster, consume: true }
+      delay_ticks: { type: literal, value: 70 }
+    - type: knockback
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.5 }, exclude_caster: true }
+      direction: { type: away_from_caster, vertical: 0.3 }
+      strength: { type: literal, value: 1.6 }
+      delay_ticks: { type: literal, value: 70 }
+    - type: hit_stop
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.5 }, exclude_caster: true }
       ticks: 4
       include_caster: true
-      delay_ticks: { type: literal, value: 29 }
-      snapshot_pose: true
+      delay_ticks: { type: literal, value: 70 }
     - type: camera_shake
       targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 9.0 }, exclude_caster: false }
       intensity: { type: literal, value: 0.9 }
       ticks: { type: literal, value: 8 }
-      delay_ticks: { type: literal, value: 29 }
-      snapshot_pose: true
+      delay_ticks: { type: literal, value: 70 }
     - type: play_sound
       targets: { type: caster }
       sound_id: entity.generic.explode
-      volume: { type: literal, value: 0.9 }
+      volume: { type: literal, value: 1.0 }
       pitch: { type: literal, value: 0.6 }
-      delay_ticks: { type: literal, value: 29 }
-    # Aftershock (tick 51); spends the charge.
-    - type: damage
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 5.6 }, exclude_caster: true }
-      components:
-        - base: { type: literal, value: 7.0 }
-          attribute: physical
-          per_stack: { status_id: charge, amount: 0.7, on: caster, consume: true }
-      delay_ticks: { type: literal, value: 51 }
-      snapshot_pose: true
-    - type: camera_shake
-      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 9.0 }, exclude_caster: false }
-      intensity: { type: literal, value: 0.6 }
-      ticks: { type: literal, value: 6 }
-      delay_ticks: { type: literal, value: 51 }
-      snapshot_pose: true
+      delay_ticks: { type: literal, value: 70 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.anvil.land
+      volume: { type: literal, value: 1.0 }
+      pitch: { type: literal, value: 0.5 }
+      delay_ticks: { type: literal, value: 70 }
     - type: play_sound
       targets: { type: caster }
       sound_id: entity.firework_rocket.blast
+      volume: { type: literal, value: 0.8 }
       pitch: { type: literal, value: 0.6 }
-      delay_ticks: { type: literal, value: 51 }
+      delay_ticks: { type: literal, value: 72 }
