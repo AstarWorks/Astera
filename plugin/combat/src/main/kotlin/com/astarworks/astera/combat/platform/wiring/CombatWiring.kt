@@ -488,7 +488,7 @@ public object CombatWiring {
                 entityDamageGateway = entityDamageGateway,
                 godMode = godModeService,
                 protection = trainingProtection,
-                // ADR-0235: Match registers IMatchTeamLookup after Combat enables, so resolve per call.
+                // ADR-0237: Match registers IMatchTeamLookup after Combat enables, so resolve per call.
                 contexts = combatContexts,
             )
 

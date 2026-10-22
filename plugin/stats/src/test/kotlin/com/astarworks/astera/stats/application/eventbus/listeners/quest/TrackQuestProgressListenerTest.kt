@@ -88,7 +88,7 @@ class TrackQuestProgressListenerTest {
     }
 
     @Test
-    fun `kills and mob kills outside a match advance nothing (ADR-0235)`() {
+    fun `kills and mob kills outside a match advance nothing (ADR-0237)`() {
         for (context in listOf(CombatContext.Training, CombatContext.Lobby, CombatContext.World)) {
             val quests = RecordingQuests(mutableListOf(row("hunt")))
             val listener = TrackQuestProgressListener(quests, chains, InMemoryMatchRepository())

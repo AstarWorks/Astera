@@ -6,7 +6,7 @@ supersedes: null
 superseded_by: null
 ---
 
-# ADR-0235: Combat context gates progression, economy and kill credit
+# ADR-0237: Combat context gates progression, economy and kill credit
 
 ## Status
 

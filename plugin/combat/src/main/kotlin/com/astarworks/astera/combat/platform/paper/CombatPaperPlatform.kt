@@ -217,7 +217,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         ctx.subscriptions += PaperVanillaKillPublisher(
             eventBus = eventBus,
             scheduler = scheduler,
-            // ADR-0235: Match registers IMatchTeamLookup after Combat enables, so resolve per call.
+            // ADR-0237: Match registers IMatchTeamLookup after Combat enables, so resolve per call.
             resolver = VanillaKillResolver(
                 com.astarworks.astera.core.application.service.combat.CombatContextResolver {
                     services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()

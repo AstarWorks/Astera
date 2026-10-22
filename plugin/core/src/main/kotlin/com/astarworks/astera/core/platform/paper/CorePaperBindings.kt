@@ -420,7 +420,7 @@ internal class CorePaperBindings(
             eventBus = result.eventBus,
             playerHealthGateway = highestPriorityPlayerHealthGateway,
             scheduler = scheduler,
-            // ADR-0235: a mob kill counts only for a match participant (the lookup is registered by Match, later).
+            // ADR-0237: a mob kill counts only for a match participant (the lookup is registered by Match, later).
             mobKillContext = { killer ->
                 com.astarworks.astera.core.application.service.combat.CombatContextResolver {
                     ctx.services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()

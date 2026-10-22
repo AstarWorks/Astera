@@ -33,7 +33,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-/** ADR-0235: the damage source stamps the [CombatContext] on every `DamageDealt` / `PlayerKilled`. */
+/** ADR-0237: the damage source stamps the [CombatContext] on every `DamageDealt` / `PlayerKilled`. */
 class ApplyDamageUseCaseContextTest {
 
     private val red = PlayerId(UUID.randomUUID())

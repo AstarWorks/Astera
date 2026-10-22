@@ -34,7 +34,7 @@ public data class PendingVanillaAttribution(
  * `PlayerKilled` (only the `oldHp > 0 -> newHp <= 0` edge qualifies).
  */
 public class VanillaKillResolver(
-    /** ADR-0235: stamps the kill's context; the default lookup-less resolver files everything under `Lobby`. */
+    /** ADR-0237: stamps the kill's context; the default lookup-less resolver files everything under `Lobby`. */
     private val contexts: CombatContextResolver = CombatContextResolver { null },
 ) {
 

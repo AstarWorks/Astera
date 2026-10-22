@@ -28,7 +28,7 @@ class AssistAttributionUseCaseTest {
     )
 
     @Test
-    fun `a kill outside a match credits no assists (ADR-0235)`() {
+    fun `a kill outside a match credits no assists (ADR-0237)`() {
         val svc = InMemoryDamageHistoryService()
         svc.record(victim, DamageEntry(assistA, 5.0, at = 50L))
         val bus = FakeDomainEventBus()

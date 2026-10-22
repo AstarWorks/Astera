@@ -9,7 +9,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-/** ADR-0235: the context is `Match` only for match participants; everything else is a non-counting context. */
+/** ADR-0237: the context is `Match` only for match participants; everything else is a non-counting context. */
 class CombatContextResolverTest {
 
     private val red = PlayerId(UUID.randomUUID())

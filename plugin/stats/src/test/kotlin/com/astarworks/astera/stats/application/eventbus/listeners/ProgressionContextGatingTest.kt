@@ -43,7 +43,7 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 /**
- * ADR-0235: every progression / stat / kill-credit consumer counts a combat event only when it carries a
+ * ADR-0237: every progression / stat / kill-credit consumer counts a combat event only when it carries a
  * `Match` context. Training dummies, lobby brawls and wild mobs leave no trace; a match event pays as before.
  */
 class ProgressionContextGatingTest {

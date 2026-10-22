@@ -5,7 +5,7 @@ import com.astarworks.astera.core.domain.combat.CombatContext
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Decides the [CombatContext] of an event at its source (ADR-0235). The lookup is resolved per call:
+ * Decides the [CombatContext] of an event at its source (ADR-0237). The lookup is resolved per call:
  * the match plugin registers [IMatchTeamLookup] after combat enables.
  */
 public class CombatContextResolver(private val lookup: () -> IMatchTeamLookup?) {

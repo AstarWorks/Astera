@@ -3,7 +3,7 @@ package com.astarworks.astera.core.domain.combat
 import com.astarworks.astera.core.domain.match.MatchId
 
 /**
- * Where a combat event happened (ADR-0235). Stamped on `DamageDealt` / `PlayerKilled` / `MobKilled`
+ * Where a combat event happened (ADR-0237). Stamped on `DamageDealt` / `PlayerKilled` / `MobKilled`
  * by the code that creates the event, so every consumer decides from the event itself instead of
  * guessing from the target.
  *

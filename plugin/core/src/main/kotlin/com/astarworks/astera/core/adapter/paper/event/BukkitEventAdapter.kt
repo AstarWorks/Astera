@@ -116,7 +116,7 @@ public class BukkitEventAdapter(
     private val eventBus: IDomainEventBus,
     private val playerHealthGateway: IPlayerHealthGateway,
     private val scheduler: IScheduler,
-    /** ADR-0235: context of a mob kill by [PlayerId] (null = no credited player); `Match` only for match participants. */
+    /** ADR-0237: context of a mob kill by [PlayerId] (null = no credited player); `Match` only for match participants. */
     private val mobKillContext: (PlayerId?) -> com.astarworks.astera.core.domain.combat.CombatContext =
         { com.astarworks.astera.core.domain.combat.CombatContext.World },
 ) : Listener {

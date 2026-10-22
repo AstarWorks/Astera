@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test
 import java.util.UUID
 
 /**
- * ADR-0235: sandbag hits, lobby brawls and wild mob kills leave XP, STAR, missions, quests, achievements,
+ * ADR-0237: sandbag hits, lobby brawls and wild mob kills leave XP, STAR, missions, quests, achievements,
  * stats and the kill feed untouched; a PvP kill between match participants moves them.
  */
 class CombatContextProgressionScenarioTest {

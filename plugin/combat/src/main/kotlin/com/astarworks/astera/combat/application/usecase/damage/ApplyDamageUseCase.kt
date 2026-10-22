@@ -95,7 +95,7 @@ public class ApplyDamageUseCase(
     /** F3-11: players in the lobby training range are immune to damage from anyone (no PvP there). */
     private val protection: com.astarworks.astera.combat.application.port.outbound.IDamageProtection? = null,
     /**
-     * ADR-0235: decides the [CombatContext] stamped on every published [DamageDealt] / [PlayerKilled].
+     * ADR-0237: decides the [CombatContext] stamped on every published [DamageDealt] / [PlayerKilled].
      * Defaults to the (possibly late-registered, hence possibly null) [teamLookup]; wiring passes a
      * per-call lookup because the match plugin registers its lookup after combat enables.
      */

@@ -119,7 +119,7 @@ class TrackAdvancementProgressListenerTest {
     }
 
     @Test
-    fun `PlayerKilled outside a match progresses nothing (ADR-0235)`() {
+    fun `PlayerKilled outside a match progresses nothing (ADR-0237)`() {
         for (context in listOf(CombatContext.Training, CombatContext.Lobby, CombatContext.World)) {
             listener.handle(
                 PlayerKilled(

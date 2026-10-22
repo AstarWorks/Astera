@@ -31,7 +31,7 @@ class RecordDamageHistoryOnDamageDealtListenerTest {
     )
 
     @Test
-    fun `training and lobby hits leave no assist trail (ADR-0235)`() {
+    fun `training and lobby hits leave no assist trail (ADR-0237)`() {
         val svc = InMemoryDamageHistoryService()
         val listener = RecordDamageHistoryOnDamageDealtListener(svc)
         for (context in listOf(CombatContext.Training, CombatContext.Lobby, CombatContext.World)) {

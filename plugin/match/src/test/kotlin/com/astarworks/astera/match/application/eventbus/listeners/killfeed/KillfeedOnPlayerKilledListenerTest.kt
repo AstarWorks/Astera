@@ -93,7 +93,7 @@ class KillfeedOnPlayerKilledListenerTest {
     }
 
     @Test
-    fun `a kill outside a match context is not announced even if the victim is a participant (ADR-0235)`() {
+    fun `a kill outside a match context is not announced even if the victim is a participant (ADR-0237)`() {
         val matches = InMemoryMatchRepository().apply { save(buildMatch()) }
         val hud = FakeHudGateway()
 
