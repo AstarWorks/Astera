@@ -3,10 +3,51 @@ package com.astarworks.astera.e2e
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** ADR-0200: tab header / footer, team-coloured nameplates and HP under the name, as a client receives them. */
+/** ADR-0206: tab header / footer, team-coloured nameplates and HP under the name, as a client receives them. */
 class HudE2eTest : E2eBase() {
 
     private val suite = "HUD"
+
+    @Test
+    fun `a hit shows a damage number and a hit marker sound to the attacker only`() {
+        val a = bot("HitA")
+        val b = bot("HitB")
+        b.waitUntil(8_000) { b.actionBars.isNotEmpty() && !b.health.isNaN() }
+        op(a)
+        op(b)
+        Thread.sleep(500)
+        val slotsBefore = a.slotUpdates.size
+        a.command("astera items give ${a.name} pistol")
+        a.waitUntil(4_000) { a.slotUpdates.size > slotsBefore }
+        val hotbarIndex = a.slotUpdates.drop(slotsBefore).lastOrNull { it.containerId == 0 && it.amount > 0 && it.slot in 36..44 }?.let { it.slot - 36 } ?: 0
+        rcon("tp ${a.name} ${a.x} ${a.y} ${a.z} 0 0")
+        rcon("tp ${b.name} ${a.x} ${a.y} ${a.z + 4} 180 0")
+        Thread.sleep(1_000)
+        a.selectHotbar(hotbarIndex)
+        Thread.sleep(500)
+        val soundsBefore = a.sounds.size
+        val displaysBefore = a.spawnedEntityTypes["TEXT_DISPLAY"]?.get() ?: 0
+        val targetDisplaysBefore = b.spawnedEntityTypes["TEXT_DISPLAY"]?.get() ?: 0
+        repeat(3) {
+            a.useItem(0f, 0f)
+            Thread.sleep(900)
+        }
+        a.waitUntil(3_000) { (a.spawnedEntityTypes["TEXT_DISPLAY"]?.get() ?: 0) > displaysBefore }
+        Thread.sleep(500)
+
+        E2eReport.check(suite, "attacker gets a floating damage number (text display), the target does not", "ClientboundAddEntity(TEXT_DISPLAY)") {
+            val attackerGot = (a.spawnedEntityTypes["TEXT_DISPLAY"]?.get() ?: 0) - displaysBefore
+            val targetGot = (b.spawnedEntityTypes["TEXT_DISPLAY"]?.get() ?: 0) - targetDisplaysBefore
+            assertThat(attackerGot).describedAs("no TEXT_DISPLAY spawned for the attacker; spawned=${a.spawnedEntityTypes}").isGreaterThan(0)
+            assertThat(targetGot).describedAs("the target saw the attacker's damage number").isZero()
+            "attacker saw $attackerGot damage number(s), target $targetGot; attacker entity types=${a.spawnedEntityTypes}"
+        }
+        E2eReport.check(suite, "attacker hears the hit marker", "ClientboundSound") {
+            val heard = a.sounds.drop(soundsBefore)
+            assertThat(heard).describedAs("no sound packet for the attacker after shooting").isNotEmpty()
+            "sounds: ${heard.take(6)}"
+        }
+    }
 
     @Test
     fun `tab list header and footer in the lobby, then nameplates and tab in a match`() {

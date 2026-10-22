@@ -21,7 +21,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-/** ADR-0200: team-coloured nameplates with HP, and the tab header / footer. */
+/** ADR-0206: team-coloured nameplates with HP, and the tab header / footer. */
 class NameplateAndTabTest {
 
     private val a = PlayerId(UUID.fromString("11111111-1111-1111-1111-111111111111"))

@@ -18,7 +18,7 @@ import com.astarworks.astera.match.application.service.hud.TeamColors
 import org.slf4j.LoggerFactory
 
 /**
- * Kill feed (ADR-0200): on [PlayerKilled] of a match participant, every member of
+ * Kill feed (ADR-0206): on [PlayerKilled] of a match participant, every member of
  * the match gets one chat line naming killer, victim and weapon, each name in its
  * team colour and every word in the reader's language; the killer additionally
  * gets a subtitle with the victim's name. The victim's own screen (title, killer,

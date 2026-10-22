@@ -132,7 +132,7 @@ internal fun CoreWiringState.wireCompletenessListeners() {
     ) { event ->
         chatDisplayListener.handle(event)
     }
-    // ADR-0200: the tab list is NOT re-populated here any more. The old roster push
+    // ADR-0206: the tab list is NOT re-populated here any more. The old roster push
     // rewrote every row with a plain-text display name (and ping 0), which erased the
     // team colour / grouping the nameplate service sets; header and footer are owned
     // by the match plugin's TabHeaderFooterService.

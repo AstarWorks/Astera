@@ -61,7 +61,9 @@ public class CorePlatformPorts(
     public val scoreboardManager: ((ServiceRegistry) -> IScoreboardManager)? = null,
     public val tabList: ((ServiceRegistry) -> ITabList)? = null,
     public val hudGateway: ((ServiceRegistry) -> IHudGateway)? = null,
-    /** Team-coloured nameplates / tab grouping / HP under the name (ADR-0200). Null = in-memory recorder. */
+    /** Team-coloured nameplates / tab grouping / HP under the name (ADR-0206). Null = in-memory recorder. */
+    /** Floating damage numbers for the attacker (ADR-0206). Null = in-memory recorder. */
+    public val damageIndicatorGateway: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.IDamageIndicatorGateway)? = null,
     public val playerLabelGateway: ((ServiceRegistry) -> com.astarworks.astera.core.application.port.outbound.IPlayerLabelGateway)? = null,
     /**
      * The host's own permission answer for a player and node (Paper: `hasPermission`, true for

@@ -333,7 +333,7 @@ internal object MatchGameplayWiring {
         // ── Wave 5complete (ADR-0117 §Axis 4 + Axis 5) ──────────────────
         //
         //   MatchHudWiring (sidebar services)    — see ADR-0177
-        //   KillfeedOnPlayerKilledListener       — match chat kill feed (ADR-0200) +
+        //   KillfeedOnPlayerKilledListener       — match chat kill feed (ADR-0206) +
         //                                          killer subtitle; victim screen is
         //                                          DeathRespawnCoordinator
         //   NormaVictoryConditionEvaluatorListener — auto-fires

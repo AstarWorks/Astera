@@ -13,7 +13,7 @@ import org.bukkit.scoreboard.Scoreboard
 import java.util.UUID
 
 /**
- * Paper [IPlayerLabelGateway] (ADR-0200): the labels live on the **viewer's own**
+ * Paper [IPlayerLabelGateway] (ADR-0206): the labels live on the **viewer's own**
  * scoreboard (the sidebar already gives every viewer a private one), so one viewer's
  * styling never leaks to another.
  *

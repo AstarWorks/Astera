@@ -142,6 +142,7 @@ internal class CorePaperBindings(
                     tabListPacketSender,
                 )
             },
+            damageIndicatorGateway = { com.astarworks.astera.core.adapter.paper.hud.PaperDamageIndicatorGateway(server, plugin, scheduler) },
             playerLabelGateway = { com.astarworks.astera.core.adapter.paper.hud.PaperPlayerLabelGateway(server) },
             resourcePack = com.astarworks.astera.core.platform.wiring.ResourcePackEnv.load(logger = logger),
             hudGateway = { services ->
@@ -416,6 +417,14 @@ internal class CorePaperBindings(
         runCatching { installLobbyWorld(ctx) }
             .onFailure { logger.log(java.util.logging.Level.SEVERE, "Lobby world setup failed; lobby stays on the main world.", it) }
         bukkitEventAdapterTimeTaskHandle = bukkitEventAdapter.start(plugin)
+        // ADR-0206: chat lines read `Name » message`, the name in the sender's team colour.
+        server.pluginManager.registerEvents(
+            com.astarworks.astera.core.adapter.paper.chat.PaperChatFormatListener(
+                matches = { ctx.services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>() },
+                messages = { ctx.services.get<IMessageRenderer>() },
+            ),
+            plugin,
+        )
         logger.info(
             "Wave 6a-6 BukkitEventAdapter wired (Role 1: 9 event translations; " +
                 "Role 2: EntityDamageEvent + PlayerDeathEvent defensive cancellation " +

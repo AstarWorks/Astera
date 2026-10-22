@@ -14,7 +14,7 @@ import com.astarworks.astera.match.domain.gamemode.IGameMode
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Header and footer of the tab list (ADR-0200), the single owner of both.
+ * Header and footer of the tab list (ADR-0206), the single owner of both.
  *
  *  - lobby: the brand, "Lobby", and how many players are online;
  *  - match: the brand, the mode's title, and the viewer's own team plus the number

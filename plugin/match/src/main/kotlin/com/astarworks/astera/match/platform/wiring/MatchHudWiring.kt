@@ -105,7 +105,7 @@ internal object MatchHudWiring {
     }
 
     /**
-     * ADR-0200: team-coloured nameplates + HP under the name (match participants), and the
+     * ADR-0206: team-coloured nameplates + HP under the name (match participants), and the
      * tab-list header / footer (everyone). Both run on game and lobby backends alike.
      */
     private fun installNameplatesAndTab(env: MatchWiringEnv, modeOf: (MatchId) -> IGameMode?) {
@@ -119,7 +119,11 @@ internal object MatchHudWiring {
                 matches = env.matches,
                 labels = labels,
                 messages = env.msgRenderer,
-                hpOf = { player -> health?.getCurrentHealth(player) },
+                // A player whose container holds no HP yet is at full health (same rule as the status line).
+                hpOf = { player ->
+                    health?.let { it.getCurrentHealth(player) ?: it.getMaxHealth(player) }
+                        ?: com.astarworks.astera.core.application.eventbus.listeners.hud.HpStatusHudService.DEFAULT_MAX_HP
+                },
                 scheduler = env.scheduler,
             )
             env.shutdownHooks += { nameplates.stop() }

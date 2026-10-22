@@ -31,6 +31,8 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.Clientbound
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundRespawnPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundSystemChatPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundTabListPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundAddEntityPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundSoundPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundSetHealthPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.inventory.ClientboundContainerSetContentPacket
@@ -124,6 +126,10 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
     @Volatile var tabHeader: String? = null; private set
     @Volatile var tabFooter: String? = null; private set
     val tabUpdates = AtomicInteger()
+    /** Entity types the server spawned for this client (e.g. TEXT_DISPLAY for floating damage numbers), by count. */
+    val spawnedEntityTypes = ConcurrentHashMap<String, AtomicInteger>()
+    /** Sound events played at this client (packet sound, as printed by the protocol library). */
+    val sounds = CopyOnWriteArrayList<String>()
     val screens = CopyOnWriteArrayList<ScreenView>()
     val contents = ConcurrentHashMap<Int, List<SlotView>>()
     val slotUpdates = CopyOnWriteArrayList<SlotView>()
@@ -219,6 +225,8 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
                 packet.players?.forEach { p -> if (p != null) t.players += p }
                 if (packet.action.name == "REMOVE") teams.remove(packet.teamName)
             }
+            is ClientboundAddEntityPacket -> spawnedEntityTypes.computeIfAbsent(packet.type.name) { AtomicInteger() }.incrementAndGet()
+            is ClientboundSoundPacket -> sounds += packet.sound.toString()
             is ClientboundTabListPacket -> {
                 tabHeader = plain(packet.header)
                 tabFooter = plain(packet.footer)

@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 /**
  * How one viewer sees other players' names: team colour on nameplates and in the
  * tab list (grouped by team), and an exact HP readout under the nameplate
- * (ADR-0200).
+ * (ADR-0206).
  *
  * The labels are **per viewer** (each viewer has their own scoreboard), so a
  * future "enemies show HP, allies do not" rule is a different map per viewer,

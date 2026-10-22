@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.hud
 
 /**
- * The styling of one player's name as seen by one viewer (ADR-0200).
+ * The styling of one player's name as seen by one viewer (ADR-0206).
  *
  * @property group stable id of the team the name is grouped under; groups sort
  *   alphabetically in the tab list, so one team's players sit together.

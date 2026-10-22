@@ -13,7 +13,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import kotlin.math.ceil
 
 /**
- * Who is on whose side, readable at a glance (ADR-0200): every participant of a live
+ * Who is on whose side, readable at a glance (ADR-0206): every participant of a live
  * match sees every other participant with the team colour on the nameplate and in the
  * tab list (grouped by team) and the exact HP under the nameplate.
  *
