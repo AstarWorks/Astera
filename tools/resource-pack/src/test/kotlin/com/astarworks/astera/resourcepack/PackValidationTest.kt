@@ -72,7 +72,8 @@ class PackValidationTest {
             for (provider in json(path).path("providers")) {
                 if (provider.path("type").asText() != "bitmap") continue
                 val ref = provider.path("file").asText()
-                val key = textureKey(ref)
+                // Font bitmap `file`s keep their extension (`astera:hud/status/atlas.png`), unlike model textures.
+                val key = if (ref.startsWith("astera:")) "assets/astera/textures/${ref.removePrefix("astera:")}" else null
                 assertThat(key).`as`("$path provider file '$ref' must be astera:-namespaced").isNotNull()
                 assertThat(files).`as`("$path provider file $ref").containsKey(key)
             }
