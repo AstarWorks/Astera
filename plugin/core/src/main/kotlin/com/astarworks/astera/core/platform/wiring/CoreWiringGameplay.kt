@@ -265,6 +265,11 @@ internal fun CoreWiringState.wireGameplayLoop() {
         .HudDiagnosticsService(hudGateway, scheduler, packConfigured = { resourcePackService.current() != null })
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hudDiagnostics.onJoined(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hudDiagnostics.onQuit(it) }
+    // A client that quit loses its sidebar. Without this the HUD gateway and the scoreboard manager keep believing the
+    // old board is on screen, and the same player logging in again (a mid-match reconnect) is never shown one.
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) {
+        hudGateway.clearFor(it.playerId, com.astarworks.astera.core.domain.hud.HudRegion.SIDEBAR)
+    }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourcePackStatusChanged::class) { hudDiagnostics.onPackStatus(it) }
     val pushOnJoin = com.astarworks.astera.core.application.eventbus.listeners.hud
         .ResourcePackPushOnJoinListener(hudGateway) { resourcePackService.current() }
