@@ -1,0 +1,133 @@
+# Gossamer Katana S2 (right-click): the drawn line. The caster is rooted for 20 ticks while a thin blue
+# line hangs at eye height and everything in the lane glows -- then the line flashes and the damage
+# arrives ALL AT ONCE: 12.0 in one lump (a target takes one hit per 20-tick invulnerability window and
+# `damage.ignore_invulnerability` is not honoured by the dispatcher yet), four trailing camera-shake pulses
+# for the "cut grid" feel, and two bleed stacks. Nothing lands before tick 20 and targets are re-read
+# at that moment, so stepping out of the lane dodges it.
+
+id: gossamer-katana-s2
+
+name:
+  ja: "居合の一筋"
+  en: "Unseen Line"
+description:
+  ja: "納刀したまま溜め、見えていた一筋の線が光った瞬間に全員へ遅れて斬撃が届く。出血2。"
+  en: "A still draw: the line you could see flashes and every hit lands at once, late. Leaves 2 bleed."
+
+archetype: buff
+cooldown_ticks: 90
+resource_cost: 25
+tags: [ melee, physical, delayed, bleed ]
+
+# `evasive` is a placeholder 2-tick status: the archetype needs one, the caster is rooted by hit_stop.
+params:
+  type: buff
+  status_effect_id: evasive
+  duration_ticks: 2
+
+phases:
+  type: buff
+  cast:
+    # --- the draw (ticks 0-20) ---
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.trident.return
+      volume: { type: literal, value: 0.6 }
+      pitch: { type: literal, value: 0.8 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: gossamer-katana-iaido-line
+    - type: hit_stop
+      targets: { type: caster }
+      ticks: 22
+    - type: glow
+      targets:
+        type: cone
+        from: { type: caster }
+        direction: { type: from_caster }
+        angle_degrees: { type: literal, value: 60.0 }
+        distance: { type: literal, value: 9.0 }
+      ticks: { type: literal, value: 20 }
+    # --- the line lands (ticks 20-24) ---
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.sweep
+      pitch: { type: literal, value: 0.7 }
+      delay_ticks: { type: literal, value: 20 }
+    - type: damage
+      targets:
+        type: cone
+        from: { type: caster }
+        direction: { type: from_caster }
+        angle_degrees: { type: literal, value: 60.0 }
+        distance: { type: literal, value: 9.0 }
+      components:
+        - base: { type: literal, value: 12.0 }
+          attribute: physical
+      delay_ticks: { type: literal, value: 20 }
+    - type: loop
+      targets: { type: caster }
+      count: { type: literal, value: 4 }
+      stride_ticks: { type: literal, value: 1 }
+      delay_ticks: { type: literal, value: 21 }
+      mechanics:
+        - type: camera_shake
+          targets:
+            type: cone
+            from: { type: caster }
+            direction: { type: from_caster }
+            angle_degrees: { type: literal, value: 60.0 }
+            distance: { type: literal, value: 9.0 }
+          intensity: { type: literal, value: 0.2 }
+          ticks: { type: literal, value: 2 }
+    - type: play_vfx
+      targets:
+        type: cone
+        from: { type: caster }
+        direction: { type: from_caster }
+        angle_degrees: { type: literal, value: 60.0 }
+        distance: { type: literal, value: 9.0 }
+      vfx_id: gossamer-katana-lattice
+      delay_ticks: { type: literal, value: 20 }
+    - type: hit_stop
+      targets:
+        type: cone
+        from: { type: caster }
+        direction: { type: from_caster }
+        angle_degrees: { type: literal, value: 60.0 }
+        distance: { type: literal, value: 9.0 }
+      ticks: 4
+      delay_ticks: { type: literal, value: 20 }
+    - type: camera_shake
+      targets:
+        type: cone
+        from: { type: caster }
+        direction: { type: from_caster }
+        angle_degrees: { type: literal, value: 60.0 }
+        distance: { type: literal, value: 9.0 }
+      intensity: { type: literal, value: 0.3 }
+      ticks: { type: literal, value: 6 }
+      delay_ticks: { type: literal, value: 20 }
+    - type: apply_status
+      targets:
+        type: cone
+        from: { type: caster }
+        direction: { type: from_caster }
+        angle_degrees: { type: literal, value: 60.0 }
+        distance: { type: literal, value: 9.0 }
+      status_id: bleed
+      effect_duration_ticks: { type: literal, value: 120 }
+      stack_count: { type: literal, value: 2 }
+      delay_ticks: { type: literal, value: 24 }
+    - type: play_sound
+      targets:
+        type: cone
+        from: { type: caster }
+        direction: { type: from_caster }
+        angle_degrees: { type: literal, value: 60.0 }
+        distance: { type: literal, value: 9.0 }
+      sound_id: entity.player.attack.crit
+      pitch: { type: literal, value: 1.1 }
+      delay_ticks: { type: literal, value: 20 }
+  expire: []
+  removed: []

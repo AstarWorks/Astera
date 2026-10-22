@@ -1,0 +1,102 @@
+# Persona weapon: Ember Gauntlet (inspired by a soot-black furnace brawler with a backpack flamethrower).
+# S1 left-click -- Furnace Jab. A two-knuckle lunge: each knuckle lights a small starburst and stacks Burn;
+# the second one carries the damage (players have 20-tick invulnerability frames, so the heavy beat is last).
+# Casting builds one Charge on the caster (the buff status), which Hoop Cannon / Inferno Furnace spend.
+
+id: ember-gauntlet-s1
+
+name:
+  ja: "炉心の連拳"
+  en: "Furnace Jab"
+description:
+  ja: "踏み込んで二度殴り、命中ごとに小さな炎の星を灯して燃焼を蓄積する。使うたびに充填が1溜まる。"
+  en: "Lunges for two knuckle strikes that each light a small starburst and stack burn. Every cast builds one charge."
+
+archetype: buff
+cooldown_ticks: 16
+resource_cost: 12              # energy
+tags: [ persona, melee, fire, burn, combo ]
+
+params:
+  type: buff
+  status_effect_id: charge     # +1 Charge on the caster per cast
+  duration_ticks: 160
+
+phases:
+  type: buff
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.firecharge.use
+      volume: { type: literal, value: 0.6 }
+      pitch: { type: literal, value: 1.3 }
+    - type: spawn_particle
+      targets: { type: caster_forward, distance: 1.1, height: -0.3 }
+      particle_id: fire-cast
+    - type: dash_strike
+      distance: 3.0
+      ticks: 3
+      radius: 1.3
+      hit_once: true
+      invulnerable: false
+      stop_on_block: true
+      on_hit:
+        # knuckle 1
+        - type: play_vfx
+          targets: { type: target }
+          vfx_id: ember-hoop-hit
+        - type: apply_status
+          targets: { type: target }
+          status_id: burn
+          effect_duration_ticks: { type: literal, value: 20 }
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.player.attack.strong
+          pitch: { type: literal, value: 1.2 }
+        - type: spawn_particle
+          targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.1, z: 0.0 } } }
+          particle_id: fire-impact
+        # knuckle 2 -- the heavy one
+        - type: play_vfx
+          targets: { type: target }
+          vfx_id: ember-starburst
+          scale: { type: literal, value: 0.75 }
+          delay_ticks: { type: literal, value: 5 }
+        - type: damage
+          targets: { type: target }
+          components:
+            - base: { type: literal, value: 4.5 }
+              attribute: fire
+          delay_ticks: { type: literal, value: 5 }
+        - type: apply_status
+          targets: { type: target }
+          status_id: burn
+          effect_duration_ticks: { type: literal, value: 20 }
+          delay_ticks: { type: literal, value: 5 }
+        - type: hit_stop
+          targets: { type: target }
+          ticks: 2
+          include_caster: true
+          delay_ticks: { type: literal, value: 5 }
+        - type: knockback
+          targets: { type: target }
+          direction: { type: from_caster }
+          strength: { type: literal, value: 0.5 }
+          delay_ticks: { type: literal, value: 5 }
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.generic.explode
+          volume: { type: literal, value: 0.4 }
+          pitch: { type: literal, value: 1.6 }
+          delay_ticks: { type: literal, value: 5 }
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.player.attack.crit
+          pitch: { type: literal, value: 0.8 }
+          delay_ticks: { type: literal, value: 5 }
+        - type: spawn_particle
+          targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.1, z: 0.0 } } }
+          particle_id: fire-impact
+          delay_ticks: { type: literal, value: 5 }
+  expire: []
+  removed: []

@@ -1,0 +1,56 @@
+# Edict Blade: the finisher impact -- a white over-exposed frame (two ticks), twelve long star spikes
+# bursting out in the view plane on out_expo, and a ground ripple of fourteen slabs racing out to radius 5.
+# Spikes cool white -> glass -> gone; the ripple fades with a gray ladder. Played at the victim;
+# duration kept well under the 100-tick finisher cap. Local axes: x = left, y = up, z = caster -> target.
+
+id: edict-star
+duration_ticks: 26
+orient: to_target
+sample_ticks: 1
+
+elements:
+  - id: frame
+    kind: { type: text, text: "<#ffffff><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 4
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0], scale: [8.0, 8.0, 8.0] }
+      - { t: 1, scale: [34.0, 34.0, 34.0], ease: out_expo }
+      - { t: 4, scale: [38.0, 38.0, 38.0] }
+
+  - id: spikes
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    glow_color: "#8fb8ff"
+    count: 12
+    start_tick: 1
+    end_tick: 20
+    formation:
+      curve: { type: arc, radius: 0.25, from_deg: 0, to_deg: 360 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.2, 0.0]
+      align: outward
+    jitter: { scale: 0.35 }
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.3] }
+      - { t: 3, translate: [0.0, 0.0, 2.6], scale: [0.09, 0.09, 5.2], ease: out_expo }
+      - { t: 8, block: white_stained_glass }
+      - { t: 19, translate: [0.0, 0.0, 3.2], scale: [0.0, 0.0, 5.2], ease: in_quad }
+
+  - id: ripple
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    count: 14
+    start_tick: 2
+    end_tick: 24
+    formation:
+      curve: { type: arc, radius: 0.5, from_deg: 0, to_deg: 360 }
+      offset: [0.0, 0.04, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, scale: [0.35, 0.03, 0.2] }
+      - { t: 8, translate: [0.0, 0.0, 4.6], scale: [0.55, 0.03, 0.35], ease: out_expo }
+      - { t: 12, block: light_gray_stained_glass }
+      - { t: 22, translate: [0.0, 0.0, 5.2], scale: [0.0, 0.03, 0.0], ease: in_quad }

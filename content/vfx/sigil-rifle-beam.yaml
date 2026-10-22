@@ -1,0 +1,132 @@
+# Sigil Rifle S3 beam, locked to the aim at cast time. Ticks 8-44: a hair-thin red laser sight shows the
+# lane (so PvP can read and leave it) while a vertical sigil disc spins up at the muzzle. Tick 44: the
+# lens flares, a 0.7-block red beam with a white core pierces 34 blocks in one tick, a white star blinks at
+# the muzzle and gold sparks burst off the disc; the beam collapses by tick 56.
+# Local axes: x = left, y = up, z = forward. Muzzle = [0, 1.45, 1.0].
+
+id: sigil-rifle-beam
+duration_ticks: 60
+orient: look
+follow: false
+sample_ticks: 2
+
+elements:
+  # Telegraph: thin laser sight, flickering, doubling in brightness just before the shot.
+  - id: sight
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    start_tick: 8
+    end_tick: 44
+    keyframes:
+      - { t: 0, translate: [0.0, 1.45, 18.0], scale: [0.0, 0.0, 34.0] }
+      - { t: 4, scale: [0.025, 0.025, 34.0], ease: out_quad }
+      - { t: 28, scale: [0.025, 0.025, 34.0] }
+      - { t: 34, scale: [0.06, 0.06, 34.0], ease: in_cubic }
+      - { t: 36, scale: [0.0, 0.0, 34.0], ease: in_quad }
+    oscillate: { axis: scale_xz, amplitude: 0.012, period_ticks: 2 }
+
+  # The lens: vertical sigil ring + three diameters spinning about the beam axis.
+  - id: lens-rim
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#ff2a1a"
+    start_tick: 10
+    end_tick: 46
+    count: 10
+    formation:
+      curve: { type: circle, radius: 0.85 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.45, 1.0]
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 3, scale: [0.06, 0.06, 0.5], ease: out_back }
+      - { t: 24, scale: [0.06, 0.06, 0.5] }
+      - { t: 26, scale: [0.1, 0.1, 0.6], ease: out_expo }
+      - { t: 34, scale: [0.0, 0.0, 0.6], ease: in_quad }
+
+  - id: lens-spin-a
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 10
+    end_tick: 46
+    keyframes:
+      - { t: 0, translate: [0.0, 1.45, 1.0], rotate: [0, 0, 0], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [0.03, 1.6, 0.03], ease: out_expo }
+      - { t: 24, rotate: [0, 0, 1080], scale: [0.03, 1.6, 0.03], ease: in_cubic }
+      - { t: 36, rotate: [0, 0, 1260], scale: [0.0, 1.6, 0.0], ease: out_quad }
+
+  - id: lens-spin-b
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 10
+    end_tick: 46
+    keyframes:
+      - { t: 0, translate: [0.0, 1.45, 1.0], rotate: [0, 0, 60], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [0.03, 1.6, 0.03], ease: out_expo }
+      - { t: 24, rotate: [0, 0, 1140], scale: [0.03, 1.6, 0.03], ease: in_cubic }
+      - { t: 36, rotate: [0, 0, 1320], scale: [0.0, 1.6, 0.0], ease: out_quad }
+
+  - id: lens-spin-c
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 10
+    end_tick: 46
+    keyframes:
+      - { t: 0, translate: [0.0, 1.45, 1.0], rotate: [0, 0, 120], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [0.03, 1.6, 0.03], ease: out_expo }
+      - { t: 24, rotate: [0, 0, 1200], scale: [0.03, 1.6, 0.03], ease: in_cubic }
+      - { t: 36, rotate: [0, 0, 1380], scale: [0.0, 1.6, 0.0], ease: out_quad }
+
+  # The shot (tick 44).
+  - id: beam
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#ff2a1a"
+    start_tick: 44
+    end_tick: 58
+    keyframes:
+      - { t: 0, translate: [0.0, 1.45, 18.0], scale: [0.05, 0.05, 34.0] }
+      - { t: 1, scale: [0.7, 0.7, 34.0], ease: out_expo }
+      - { t: 6, block: pink_stained_glass }
+      - { t: 14, scale: [0.0, 0.0, 34.0], ease: in_quad }
+    oscillate: { axis: scale_xz, amplitude: 0.06, period_ticks: 2 }
+
+  - id: beam-core
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 44
+    end_tick: 52
+    keyframes:
+      - { t: 0, translate: [0.0, 1.45, 18.0], scale: [0.02, 0.02, 34.0] }
+      - { t: 1, scale: [0.25, 0.25, 34.0], ease: out_expo }
+      - { t: 8, scale: [0.0, 0.0, 34.0], ease: in_quad }
+
+  - id: muzzle-star
+    kind: { type: text, text: "<white>✦</white>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 44
+    end_tick: 54
+    keyframes:
+      - { t: 0, translate: [0.0, 1.45, 1.2], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [12.0, 12.0, 12.0], ease: out_expo }
+      - { t: 10, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: spark
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    start_tick: 44
+    end_tick: 56
+    count: 6
+    formation:
+      curve: { type: circle, radius: 0.6 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.45, 1.0]
+      align: outward
+    jitter: { position: 0.1, rotation_deg: 25, scale: 0.4 }
+    keyframes:
+      - { t: 0, scale: [0.03, 0.03, 0.1] }
+      - { t: 3, translate: [0.0, 0.0, 1.4], scale: [0.04, 0.04, 0.8], ease: out_expo }
+      - { t: 12, translate: [0.0, 0.0, 2.2], scale: [0.0, 0.0, 0.3], ease: in_quad }

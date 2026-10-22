@@ -1,0 +1,63 @@
+# Sigil Rifle mark, played on a struck target (follows it): a small red sigil ring settles above the
+# head with a spinning cross inside and a gold ring glyph that pulses once on arrival. Reads as "marked"
+# from across the arena without covering the target.
+# Local axes: x = left, y = up, z = forward.
+
+id: sigil-rifle-mark
+duration_ticks: 36
+orient: yaw
+follow: true
+sample_ticks: 2
+
+elements:
+  - id: ring
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#b3141c"
+    start_tick: 0
+    end_tick: 34
+    count: 8
+    formation:
+      curve: { type: circle, radius: 0.5 }
+      offset: [0.0, 2.35, 0.0]
+      align: tangent
+    keyframes:
+      - { t: 0, translate: [0.0, 0.6, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, translate: [0.0, 0.0, 0.0], scale: [0.04, 0.04, 0.45], ease: out_back }
+      - { t: 26, scale: [0.04, 0.04, 0.45] }
+      - { t: 34, scale: [0.0, 0.0, 0.45], ease: in_quad }
+
+  - id: cross-a
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 1
+    end_tick: 34
+    keyframes:
+      - { t: 0, translate: [0.0, 2.35, 0.0], rotate: [0, 0, 0], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [0.03, 0.03, 0.9], ease: out_expo }
+      - { t: 26, rotate: [360, 0, 0], scale: [0.03, 0.03, 0.9] }
+      - { t: 33, rotate: [540, 0, 0], scale: [0.0, 0.0, 0.9], ease: in_quad }
+
+  - id: cross-b
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 1
+    end_tick: 34
+    keyframes:
+      - { t: 0, translate: [0.0, 2.35, 0.0], rotate: [90, 0, 0], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [0.03, 0.03, 0.9], ease: out_expo }
+      - { t: 26, rotate: [450, 0, 0], scale: [0.03, 0.03, 0.9] }
+      - { t: 33, rotate: [630, 0, 0], scale: [0.0, 0.0, 0.9], ease: in_quad }
+
+  - id: glyph
+    kind: { type: text, text: "<#ffc24a>◎</#ffc24a>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 34
+    keyframes:
+      - { t: 0, translate: [0.0, 2.35, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 3, scale: [5.0, 5.0, 5.0], ease: out_back }
+      - { t: 8, scale: [2.4, 2.4, 2.4], ease: in_out_quad }
+      - { t: 28, scale: [2.4, 2.4, 2.4] }
+      - { t: 34, scale: [0.0, 0.0, 0.0], ease: in_quad }

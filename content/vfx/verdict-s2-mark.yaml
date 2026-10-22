@@ -1,0 +1,144 @@
+# Verdict Hammer S2 finisher, anchored on the spot the dash connected ("Heavenly Stakes"). A gold
+# V and a floor hoop mark the strike point; a second hoop closes in over 30 ticks (the dodge
+# window) while a pair of swords hangs overhead. On the last tick they drop point-first, a white
+# column of light, a gold shockwave hoop and a fountain of shards erupt, and the swords stay
+# planted for 30 ticks as the "stakes" (the rupture status carries the actual stack).
+# Peak ~39 live displays.
+# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
+
+id: verdict-s2-mark
+duration_ticks: 62
+orient: yaw
+follow: false
+sample_ticks: 2
+
+elements:
+  # V decal lying flat on the floor.
+  - id: decal
+    kind: { type: text, text: "<#ffcc40><b>V</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: fixed
+    brightness: 15
+    start_tick: 0
+    end_tick: 40
+    keyframes:
+      - { t: 0, translate: [0.0, 0.06, 0.0], rotate: [0, -90, 0], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [8.0, 8.0, 8.0], ease: out_back }
+      - { t: 30, scale: [8.0, 8.0, 8.0] }
+      - { t: 34, scale: [11.0, 11.0, 11.0], ease: out_expo }
+      - { t: 40, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  # Static outer hoop = the damage radius.
+  - id: outer
+    kind: { type: block, block: yellow_stained_glass }
+    brightness: 12
+    glow_color: "#ffcc40"
+    start_tick: 0
+    end_tick: 30
+    count: 18
+    formation:
+      curve: { type: circle, radius: 3.3 }
+      offset: [0.0, 0.05, 0.0]
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.0, 0.03, 0.0] }
+      - { t: 4, scale: [0.16, 0.03, 0.95], ease: out_back }
+      - { t: 30, scale: [0.16, 0.03, 0.95] }
+
+  # Closing hoop: reaches the centre exactly when the stakes land.
+  - id: closing
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    start_tick: 0
+    end_tick: 30
+    count: 10
+    formation:
+      curve: { type: circle, radius: 3.3 }
+      offset: [0.0, 0.08, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.7, 0.05, 0.14] }
+      - { t: 30, translate: [0.0, 0.0, -3.2], scale: [0.25, 0.05, 0.14], ease: in_quad }
+
+  # The two sword stakes: appear high, converge in a V, drop on tick 24, stay planted.
+  - id: stake-left
+    kind: { type: item, item: golden_sword, display_mode: fixed }
+    brightness: 15
+    glow_color: "#ffcc40"
+    start_tick: 0
+    end_tick: 60
+    keyframes:
+      - { t: 0, translate: [0.9, 11.0, 0.0], rotate: [0, 0, 233], scale: [0.0, 0.0, 0.0] }
+      - { t: 5, scale: [4.0, 4.0, 4.0], ease: out_back }
+      - { t: 24, translate: [0.9, 11.0, 0.0], ease: linear }
+      - { t: 30, translate: [0.25, 1.7, 0.0], rotate: [0, 0, 227], ease: in_expo }
+      - { t: 54, translate: [0.25, 1.7, 0.0] }
+      - { t: 60, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: stake-right
+    kind: { type: item, item: golden_sword, display_mode: fixed }
+    brightness: 15
+    glow_color: "#ffcc40"
+    start_tick: 0
+    end_tick: 60
+    keyframes:
+      - { t: 0, translate: [-0.9, 11.0, 0.0], rotate: [0, 0, 217], scale: [0.0, 0.0, 0.0] }
+      - { t: 5, scale: [4.0, 4.0, 4.0], ease: out_back }
+      - { t: 24, translate: [-0.9, 11.0, 0.0], ease: linear }
+      - { t: 30, translate: [-0.25, 1.7, 0.0], rotate: [0, 0, 223], ease: in_expo }
+      - { t: 54, translate: [-0.25, 1.7, 0.0] }
+      - { t: 60, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  # Column of light on impact: white concrete, then glass, narrowing.
+  - id: column
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 30
+    end_tick: 42
+    keyframes:
+      - { t: 0, translate: [0.0, 8.0, 0.0], scale: [1.7, 16.0, 1.7] }
+      - { t: 3, block: white_stained_glass }
+      - { t: 10, scale: [0.1, 16.0, 0.1], ease: in_quad }
+
+  - id: flash
+    kind: { type: text, text: "<#ffe27a><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 30
+    end_tick: 38
+    keyframes:
+      - { t: 0, translate: [0.0, 1.4, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [10.0, 10.0, 10.0], ease: out_expo }
+      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: shock
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    glow_color: "#ffcc40"
+    start_tick: 30
+    end_tick: 40
+    count: 24
+    formation:
+      curve: { type: circle, radius: 0.5 }
+      offset: [0.0, 0.15, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, scale: [0.4, 0.12, 0.16] }
+      - { t: 6, translate: [0.0, 0.0, 2.8], scale: [0.8, 0.1, 0.16], ease: out_expo }
+      - { t: 10, translate: [0.0, 0.0, 3.2], scale: [0.0, 0.0, 0.16], ease: in_quad }
+
+  # Shards fountaining upward from the impact.
+  - id: fountain
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    start_tick: 30
+    end_tick: 42
+    count: 6
+    formation:
+      curve: { type: circle, radius: 1.0 }
+      offset: [0.0, 0.1, 0.0]
+      align: none
+    jitter: { position: 0.2, rotation_deg: 25, scale: 0.3 }
+    keyframes:
+      - { t: 0, scale: [0.08, 0.3, 0.08] }
+      - { t: 5, translate: [0.0, 3.2, 0.0], scale: [0.1, 0.6, 0.1], ease: out_cubic }
+      - { t: 12, translate: [0.0, 4.2, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad }

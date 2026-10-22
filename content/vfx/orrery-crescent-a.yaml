@@ -1,0 +1,95 @@
+# Orrery Staff: a gold crescent swung across the caster, left-to-right (paired with orrery-crescent-b).
+# Six glass shards on a tilted arc draw on one per tick (the sweep), a hot core rides inside a wide bloom,
+# a spark flashes at the apex, and red/green ornament motes trail the arc.
+# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
+
+id: orrery-crescent-a
+duration_ticks: 16
+orient: look
+sample_ticks: 1
+
+elements:
+  # Wide soft bloom: snaps open, then thins away.
+  - id: bloom
+    kind: { type: block, block: orange_stained_glass }
+    brightness: 15
+    count: 6
+    start_tick: 0
+    end_tick: 8
+    formation:
+      curve: { type: arc, radius: 2.8, from_deg: -75, to_deg: 75 }
+      tilt: { yaw: 0, pitch: 0, roll: 22 }
+      offset: [0.0, 1.3, 0.2]
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.02, 0.02, 0.3] }
+      - { t: 1, scale: [0.3, 0.3, 1.4], ease: out_expo }
+      - { t: 8, scale: [0.0, 0.0, 1.4], ease: in_quad }
+
+  # Hot core: gold block -> yellow glass -> gone (block-ladder fade).
+  - id: core
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    glow_color: "#ffb000"
+    count: 6
+    start_tick: 0
+    end_tick: 8
+    formation:
+      curve: { type: arc, radius: 2.8, from_deg: -75, to_deg: 75 }
+      tilt: { yaw: 0, pitch: 0, roll: 22 }
+      offset: [0.0, 1.3, 0.2]
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.02, 0.02, 0.3] }
+      - { t: 1, scale: [0.09, 0.09, 1.35], ease: out_expo }
+      - { t: 4, block: yellow_stained_glass }
+      - { t: 8, scale: [0.0, 0.0, 1.35], ease: in_quad }
+
+  # Spark where the sweep ends.
+  - id: flash
+    kind: { type: text, text: "<#ffd45a><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 5
+    end_tick: 13
+    keyframes:
+      - { t: 0, translate: [-1.9, 1.9, 2.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [4.5, 4.5, 4.5], ease: out_back }
+      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  # Ornament motes: red and green baubles riding the swing.
+  - id: mote-red
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    count: 3
+    start_tick: 1
+    end_tick: 11
+    formation:
+      curve: { type: arc, radius: 2.8, from_deg: -70, to_deg: 70 }
+      tilt: { yaw: 0, pitch: 0, roll: 22 }
+      offset: [0.0, 1.3, 0.2]
+      stagger_ticks: 1
+    jitter: { position: 0.3, rotation_deg: 40, scale: 0.2 }
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [0.1, 0.1, 0.1], ease: out_back }
+      - { t: 10, translate: [0.0, 0.7, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: mote-green
+    kind: { type: block, block: lime_concrete }
+    brightness: 15
+    count: 3
+    start_tick: 2
+    end_tick: 12
+    formation:
+      curve: { type: arc, radius: 2.5, from_deg: -70, to_deg: 70 }
+      tilt: { yaw: 0, pitch: 0, roll: 22 }
+      offset: [0.0, 1.3, 0.2]
+      stagger_ticks: 1
+    jitter: { position: 0.3, rotation_deg: 40, scale: 0.2 }
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [0.1, 0.1, 0.1], ease: out_back }
+      - { t: 10, translate: [0.0, 0.7, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad }

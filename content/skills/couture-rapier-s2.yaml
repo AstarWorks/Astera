@@ -1,0 +1,135 @@
+# Couturier's Rapier S2 (right-click): the hemline rush. A 3-tick wind-up (afterimages stay standing where
+# the caster was, streak lines rake out along the path), then a 7-block invulnerable dash-through.
+# Whoever it touches gets: an X "scissor" cut with a 3-tick freeze (6.0), three flickering follow-up
+# stabs (2-tick spacing, poise + flash only: a target takes one hit per 20-tick invulnerability window,
+# `damage.ignore_invulnerability` is not honoured by the dispatcher yet) and, 21 ticks after the cut,
+# a closing thrust (4.0) with a 2-tick hit-stop; the caster is pulled back afterwards. 10 damage,
+# 5 poise. The cooldown is the cost of the mobility.
+
+id: couture-rapier-s2
+
+name:
+  ja: "裾払いの突進"
+  en: "Hemline Rush"
+description:
+  ja: "無敵の突進で相手を貫き、X字の鋏刃と連続突きを叩き込んで下がる。poise を溜める。"
+  en: "An invulnerable dash-through into a scissor X and a flicker of stabs, then a step back. Builds poise."
+
+archetype: buff
+cooldown_ticks: 80
+resource_cost: 25
+tags: [ melee, movement, physical, combo, poise ]
+
+# The `dash` speed status rides along for the tail of the run (the dash_strike itself does the travel).
+params:
+  type: buff
+  status_effect_id: dash
+  duration_ticks: 8
+
+phases:
+  type: buff
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.trident.throw
+      pitch: { type: literal, value: 1.9 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: couture-rapier-afterimage
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: couture-rapier-dash-trail
+      delay_ticks: { type: literal, value: 3 }
+    - type: hit_stop
+      targets: { type: caster }
+      ticks: 3
+    - type: dash_strike
+      distance: 7.0
+      ticks: 4
+      radius: 1.3
+      hit_once: true
+      invulnerable: true
+      stop_on_block: true
+      delay_ticks: { type: literal, value: 3 }
+      on_hit:
+        # the scissor cut: X lines, red flash, 3-tick freeze
+        - type: damage
+          targets: { type: target }
+          components:
+            - base: { type: literal, value: 6.0 }
+              attribute: physical
+        - type: apply_status
+          targets: { type: caster }
+          status_id: poise
+          effect_duration_ticks: { type: literal, value: 400 }
+        - type: play_vfx
+          targets: { type: target }
+          vfx_id: couture-rapier-cross
+        - type: hit_stop
+          targets: { type: target }
+          ticks: 3
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.player.attack.crit
+          pitch: { type: literal, value: 1.5 }
+        - type: camera_shake
+          targets: { type: target }
+          intensity: { type: literal, value: 0.25 }
+          ticks: { type: literal, value: 4 }
+        # flicker stabs, every 2 ticks, after the freeze
+        - type: loop
+          targets: { type: target }
+          count: { type: literal, value: 3 }
+          stride_ticks: { type: literal, value: 2 }
+          delay_ticks: { type: literal, value: 4 }
+          mechanics:
+            - type: apply_status
+              targets: { type: caster }
+              status_id: poise
+              effect_duration_ticks: { type: literal, value: 400 }
+            - type: play_vfx
+              targets: { type: target }
+              vfx_id: couture-rapier-burst-lite
+              scale: { type: literal, value: 0.7 }
+            - type: play_sound
+              targets: { type: target }
+              sound_id: entity.player.attack.crit
+              volume: { type: literal, value: 0.5 }
+              pitch: { type: literal, value: 1.8 }
+        # closing thrust
+        - type: damage
+          targets: { type: target }
+          components:
+            - base: { type: literal, value: 4.0 }
+              attribute: physical
+          delay_ticks: { type: literal, value: 21 }
+        - type: apply_status
+          targets: { type: caster }
+          status_id: poise
+          effect_duration_ticks: { type: literal, value: 400 }
+          delay_ticks: { type: literal, value: 21 }
+        - type: play_vfx
+          targets: { type: target }
+          vfx_id: couture-rapier-burst
+          delay_ticks: { type: literal, value: 21 }
+        - type: hit_stop
+          targets: { type: target }
+          ticks: 2
+          delay_ticks: { type: literal, value: 21 }
+        - type: knockback
+          targets: { type: target }
+          direction: { type: from_caster }
+          strength: { type: literal, value: 0.5 }
+          delay_ticks: { type: literal, value: 21 }
+        - type: play_sound
+          targets: { type: target }
+          sound_id: entity.player.attack.knockback
+          delay_ticks: { type: literal, value: 21 }
+    # step back out of the reply
+    - type: propel
+      targets: { type: caster }
+      direction: { type: from_caster }
+      strength: { type: literal, value: -0.7 }
+      delay_ticks: { type: literal, value: 27 }
+  expire: []
+  removed: []

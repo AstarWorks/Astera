@@ -1,0 +1,50 @@
+# Persona weapon (ADR-0221): Crimson Chain-Axe. Rupture build-up weapon -- every hit stacks Rupture on the
+# target (extra damage taken from this axe), S3 spends them all. Blood red, white four-point stars.
+# Left-click = S1 chain sweep (3 hits), right-click = S2 hooked lunge, sneak + right-click = S3 blade
+# forest (finisher), sneak + left-click = DEF chain ward.
+
+id: crimson-chain-axe
+
+material: NETHERITE_AXE
+
+name:
+  ja: "<#c0102a>緋の鎖斧</#c0102a>"
+  en: "<#c0102a>Crimson Chain-Axe</#c0102a>"
+lore:
+  ja:
+    - "<gray>左クリック: 連薙ぎ（三連撃・裂傷を蓄積）</gray>"
+    - "<gray>右クリック: 鉤爪の突進（三連撃・無敵突進）</gray>"
+    - "<gray>スニーク + 右クリック: 刃の森（裂傷を消費して大打撃）</gray>"
+    - "<gray>スニーク + 左クリック: 鎖の結界（弾き返し）</gray>"
+    - "<dark_gray>rarity: epic / level: 4</dark_gray>"
+  en:
+    - "<gray>Left-click: chain sweep (3 hits, stacks Rupture)</gray>"
+    - "<gray>Right-click: hooked lunge (3 hits, invulnerable dash)</gray>"
+    - "<gray>Sneak + right-click: blade forest (spends Rupture for a huge blow)</gray>"
+    - "<gray>Sneak + left-click: chain ward (counter pulse)</gray>"
+    - "<dark_gray>rarity: epic / level: 4</dark_gray>"
+
+rarity: epic
+level_requirement: 4
+
+attributes:
+  attack_damage: 9.0
+  attack_speed: 0.9
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 22
+
+skills:
+  - trigger: left_click
+    skill_id: crimson-chain-axe-s1
+  - trigger: right_click
+    skill_id: crimson-chain-axe-s2
+  - trigger: sneak_right
+    skill_id: crimson-chain-axe-s3
+  - trigger: sneak_left
+    skill_id: crimson-chain-axe-def
+
+pdc_tags:
+  astera:rarity: epic

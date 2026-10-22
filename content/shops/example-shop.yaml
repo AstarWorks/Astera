@@ -106,3 +106,51 @@ offers:
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.thunder-staff
+  - id: couture-rapier
+    item: couture-rapier
+    price:
+      currency: GOLD
+      amount: 160
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.couture-rapier
+  - id: gossamer-katana
+    item: gossamer-katana
+    price:
+      currency: GOLD
+      amount: 160
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.gossamer-katana
+  - id: bastion-greatsword
+    item: bastion-greatsword
+    price:
+      currency: GOLD
+      amount: 160
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.bastion-greatsword
+  - id: verdict-hammer
+    item: verdict-hammer
+    price:
+      currency: GOLD
+      amount: 180
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.verdict-hammer
+  - id: vendetta-rifle
+    item: vendetta-rifle
+    price:
+      currency: GOLD
+      amount: 160
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.vendetta-rifle
+  - id: ember-gauntlet
+    item: ember-gauntlet
+    price:
+      currency: GOLD
+      amount: 160
+    stock:
+      type: unlimited
+    display_key: astera.economy.shop.example-shop.offer.ember-gauntlet

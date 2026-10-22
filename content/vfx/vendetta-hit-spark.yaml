@@ -1,0 +1,35 @@
+# Vendetta Bayonet: small per-beam hit mark (rack volley, one per landed beam). A crimson cut
+# star with a magenta flare; cheap enough to fire many times per cast. Anchored on the target.
+
+id: vendetta-hit-spark
+duration_ticks: 9
+orient: look
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: flare
+    kind: { type: text, text: "<#ff3d7f>✦", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    end_tick: 7
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [4.0, 4.0, 4.0], ease: out_back }
+      - { t: 5, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: needle
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#ff2040"
+    count: 6
+    end_tick: 7
+    formation:
+      curve: { type: sphere, radius: 0.1 }
+      offset: [0.0, 1.2, 0.0]
+      align: outward
+    jitter: { rotation_deg: 10, scale: 0.3 }
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.1], scale: [0.03, 0.03, 0.2] }
+      - { t: 2, translate: [0.0, 0.0, 0.8], scale: [0.06, 0.06, 1.3], ease: out_expo }
+      - { t: 6, scale: [0.0, 0.0, 1.3], ease: in_quad }

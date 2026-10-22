@@ -1,0 +1,84 @@
+# Verdict Hammer S2 cast side: the hammer floats up behind the caster and a gold circuitry zigzag
+# runs up both flanks (8 ticks of telegraph), then the hammer is thrown forward with the dash,
+# gold streaks rake the lane and a dust trail follows. ~25 live displays.
+# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
+
+id: verdict-s2-call
+duration_ticks: 17
+orient: yaw
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: hammer
+    kind: { type: item, item: mace, display_mode: fixed }
+    brightness: 15
+    glow_color: "#ffcc40"
+    start_tick: 0
+    end_tick: 15
+    keyframes:
+      - { t: 0, translate: [0.0, 2.6, -0.3], rotate: [0, 0, 45], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, translate: [0.0, 3.3, 0.0], scale: [3.6, 3.6, 3.6], ease: out_back }
+      - { t: 8, translate: [0.0, 3.3, 0.0] }
+      - { t: 10, translate: [0.0, 1.6, 3.5], rotate: [0, 80, 45], ease: out_expo }
+      - { t: 15, translate: [0.0, 1.6, 6.0], scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: circuit-left
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    glow_color: "#3fe0e0"
+    start_tick: 0
+    end_tick: 12
+    count: 6
+    formation:
+      curve: { type: lightning, from: [1.5, 0.1, 0.3], to: [1.5, 3.0, 0.3], segments: 5, amplitude: 0.35, seed: 3 }
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [0.05, 0.05, 0.6], ease: out_expo }
+      - { t: 8, scale: [0.05, 0.05, 0.6] }
+      - { t: 12, scale: [0.0, 0.0, 0.6], ease: in_quad }
+    oscillate: { axis: scale_xz, amplitude: 0.025, period_ticks: 2 }
+
+  - id: circuit-right
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    glow_color: "#3fe0e0"
+    start_tick: 0
+    end_tick: 12
+    count: 6
+    formation:
+      curve: { type: lightning, from: [-1.5, 0.1, 0.3], to: [-1.5, 3.0, 0.3], segments: 5, amplitude: 0.35, seed: 11 }
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [0.05, 0.05, 0.6], ease: out_expo }
+      - { t: 8, scale: [0.05, 0.05, 0.6] }
+      - { t: 12, scale: [0.0, 0.0, 0.6], ease: in_quad }
+    oscillate: { axis: scale_xz, amplitude: 0.025, period_ticks: 2 }
+
+  - id: streak
+    kind: { type: block, block: gold_block }
+    brightness: 15
+    glow_color: "#ffcc40"
+    start_tick: 8
+    end_tick: 16
+    count: 8
+    formation:
+      curve: { type: line, from: [0.8, 0.3, 0.8], to: [-0.8, 1.9, 6.2] }
+      align: none
+    jitter: { position: 0.3, rotation_deg: 0, scale: 0.3 }
+    keyframes:
+      - { t: 0, scale: [0.04, 0.04, 0.3] }
+      - { t: 2, scale: [0.05, 0.05, 2.4], ease: out_expo }
+      - { t: 8, scale: [0.0, 0.0, 2.4], ease: in_quad }
+
+  - id: dust
+    kind: { type: particle, particle_id: dash-cloud, every_ticks: 1 }
+    start_tick: 8
+    end_tick: 14
+    keyframes:
+      - { t: 0, translate: [0.0, 0.15, 0.2] }
+      - { t: 5, translate: [0.0, 0.15, 6.4], ease: linear }

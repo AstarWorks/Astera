@@ -1,0 +1,48 @@
+# Sigil Rifle DEF (sneak + left-click) "Sigil Ward": slip back and leave a sigil. The caster is shoved
+# backward (the guard step) with an evasive burst, and anything within 3.5 blocks when the sigil blooms
+# takes one Sinking stack, so a pursuer arrives slowed and already half-marked for S3.
+
+id: sigil-rifle-def
+
+name:
+  ja: "刻印の退き足"
+  en: "Sigil Ward"
+description:
+  ja: "後ろへ退きながら足元に刻印を残す。近くの敵には沈降が刻まれ、追撃が鈍る。"
+  en: "Step back leaving a sigil underfoot; close enemies are marked with Sinking and slowed."
+
+archetype: buff
+cooldown_ticks: 100
+resource_cost: 20              # energy
+tags: [ buff, defense, movement, sinking ]
+
+params:
+  type: buff
+  status_effect_id: evasive
+  duration_ticks: 25
+
+phases:
+  type: buff
+  cast:
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: sigil-rifle-ward
+      follow: { type: literal, value: true }
+    - type: apply_status
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 3.5 } }
+      status_id: sinking
+      effect_duration_ticks: { type: literal, value: 160 }
+    - type: propel
+      targets: { type: caster }
+      direction: { type: from_caster }
+      strength: { type: literal, value: -0.9 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: block.beacon.power_select
+      pitch: { type: literal, value: 1.6 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.knockback
+      pitch: { type: literal, value: 1.3 }
+  expire: []
+  removed: []

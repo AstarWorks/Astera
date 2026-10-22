@@ -1,0 +1,125 @@
+# Bastion Greatsword S1, hit 1: the "moon sweep". A giant gold sword draws back, then three
+# staggered arc sections (6 shards each) snap into a butter-yellow crescent from the caster's right
+# to left, an orange inner crescent trails it, embers fly off the tail. Shards use the block ladder
+# yellow concrete -> yellow glass -> shrink. ~34 live displays at peak.
+# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
+
+id: bastion-s1-sweep
+duration_ticks: 25
+orient: look
+follow: false
+sample_ticks: 2
+
+elements:
+  # Telegraph + swing: the projected sword lifts to the right shoulder, then whips across.
+  - id: blade
+    kind: { type: item, item: golden_sword, display_mode: fixed }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 0
+    end_tick: 17
+    keyframes:
+      - { t: 0, translate: [-1.1, 1.6, 0.6], rotate: [0, 0, -20], scale: [0.0, 0.0, 0.0] }
+      - { t: 3, rotate: [0, 0, 20], scale: [3.0, 3.0, 3.0], ease: out_back }
+      - { t: 6, translate: [-1.3, 2.0, 0.4], rotate: [0, 0, 55], ease: out_quad }
+      - { t: 9, translate: [1.3, 1.1, 1.8], rotate: [0, 20, 135], ease: out_expo }
+      - { t: 13, scale: [3.0, 3.0, 3.0] }
+      - { t: 17, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  # Crescent, section 1 of 3 (right side).
+  - id: moon-a
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 7
+    end_tick: 17
+    count: 6
+    formation:
+      curve: { type: arc, radius: 3.3, from_deg: -85, to_deg: -28 }
+      offset: [0.0, 1.2, 0.0]
+      tilt: { yaw: 0, pitch: 0, roll: 12 }
+      align: tangent
+      stagger_ticks: 1
+    jitter: { position: 0.05, rotation_deg: 3, scale: 0.2 }
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.25] }
+      - { t: 2, scale: [0.16, 0.16, 0.95], ease: out_expo }
+      - { t: 6, block: yellow_stained_glass }
+      - { t: 10, scale: [0.0, 0.0, 0.95], ease: in_quad }
+
+  - id: moon-b
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 8
+    end_tick: 18
+    count: 6
+    formation:
+      curve: { type: arc, radius: 3.3, from_deg: -28, to_deg: 28 }
+      offset: [0.0, 1.2, 0.0]
+      tilt: { yaw: 0, pitch: 0, roll: 12 }
+      align: tangent
+      stagger_ticks: 1
+    jitter: { position: 0.05, rotation_deg: 3, scale: 0.2 }
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.25] }
+      - { t: 2, scale: [0.2, 0.2, 1.0], ease: out_expo }
+      - { t: 6, block: yellow_stained_glass }
+      - { t: 10, scale: [0.0, 0.0, 1.0], ease: in_quad }
+
+  - id: moon-c
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 9
+    end_tick: 19
+    count: 6
+    formation:
+      curve: { type: arc, radius: 3.3, from_deg: 28, to_deg: 85 }
+      offset: [0.0, 1.2, 0.0]
+      tilt: { yaw: 0, pitch: 0, roll: 12 }
+      align: tangent
+      stagger_ticks: 1
+    jitter: { position: 0.05, rotation_deg: 3, scale: 0.2 }
+    keyframes:
+      - { t: 0, scale: [0.05, 0.05, 0.25] }
+      - { t: 2, scale: [0.16, 0.16, 0.95], ease: out_expo }
+      - { t: 6, block: yellow_stained_glass }
+      - { t: 10, scale: [0.0, 0.0, 0.95], ease: in_quad }
+
+  # Thinner orange crescent, shifted back, so the two read as one torn moon.
+  - id: moon-inner
+    kind: { type: block, block: orange_concrete }
+    brightness: 15
+    glow_color: "#ff9a2a"
+    start_tick: 8
+    end_tick: 17
+    count: 9
+    formation:
+      curve: { type: arc, radius: 2.6, from_deg: -75, to_deg: 75 }
+      offset: [0.0, 1.2, -0.55]
+      tilt: { yaw: 0, pitch: 0, roll: 12 }
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.03, 0.03, 0.2] }
+      - { t: 2, scale: [0.08, 0.08, 0.7], ease: out_expo }
+      - { t: 5, block: orange_stained_glass }
+      - { t: 9, scale: [0.0, 0.0, 0.7], ease: in_quad }
+
+  # Embers thrown off the crescent's tail.
+  - id: ember
+    kind: { type: block, block: orange_concrete }
+    brightness: 15
+    start_tick: 9
+    end_tick: 19
+    count: 6
+    formation:
+      curve: { type: arc, radius: 3.3, from_deg: -60, to_deg: 60 }
+      offset: [0.0, 1.2, 0.0]
+      align: outward
+    jitter: { position: 0.3, rotation_deg: 30, scale: 0.3 }
+    keyframes:
+      - { t: 0, scale: [0.1, 0.1, 0.1] }
+      - { t: 6, translate: [0.0, 0.5, 1.4], rotate: [0, 0, 180], scale: [0.14, 0.14, 0.14], ease: out_cubic }
+      - { t: 10, translate: [0.0, 0.2, 1.8], scale: [0.0, 0.0, 0.0], ease: in_quad }
