@@ -117,7 +117,7 @@ class RunTutorialSequencerUseCaseTest {
     }
 
     @Test
-    fun `final advance publishes Completed and clears state`() {
+    fun `final advance publishes Completed and retains a graduation latch`() {
         registry.register(
             TutorialScript(
                 id = scriptId,
@@ -129,7 +129,7 @@ class RunTutorialSequencerUseCaseTest {
         val r = useCase.advance(player)
         assertThat((r as Result.Success).value).isNull()
         assertThat(completed).hasSize(1)
-        assertThat(stateRepo.find(player)).isNull()
+        assertThat(stateRepo.find(player)?.completed).isTrue()
     }
 
     @Test
@@ -150,7 +150,7 @@ class RunTutorialSequencerUseCaseTest {
         assertThat(r).isInstanceOf(Result.Success::class.java)
         assertThat(cancelled).hasSize(1)
         assertThat(cancelled[0].stepIndex).isEqualTo(1)
-        assertThat(stateRepo.find(player)).isNull()
+        assertThat(stateRepo.find(player)?.paused).isTrue()
     }
 
     @Test
@@ -177,6 +177,50 @@ class RunTutorialSequencerUseCaseTest {
     fun `advance without start returns NotRunning`() {
         val r = useCase.advance(player)
         assertThat((r as Result.Failure).error).isInstanceOf(TutorialSequencerError.NotRunning::class.java)
+    }
+
+    @Test
+    fun `only the current real action advances, skip resumes, and replay cannot farm rewards`() {
+        val actions = listOf("menu", "range", "rack", "primary", "secondary", "reload", "hud", "shop", "vault", "queue")
+        registry.register(TutorialScript(scriptId, MessageKey("astera.tutorial.welcome"), actions.map { TutorialStep.WaitForAction(it) }))
+        val rewards = mutableListOf<com.astarworks.astera.core.domain.event.TutorialCompleted>()
+        events.subscribe(com.astarworks.astera.core.domain.event.TutorialCompleted::class) { rewards += it }
+        useCase.startSequence(player, scriptId)
+        assertThat(useCase.recordAction(player, "primary").getOrNull()).isFalse()
+        assertThat(stateRepo.find(player)?.stepIndex).isZero()
+        useCase.recordAction(player, "menu")
+        useCase.cancel(player)
+        assertThat(useCase.currentStep(player)).isNull()
+        assertThat(useCase.recordAction(player, "range").getOrNull()).isFalse()
+        // A new runner instance represents reconnect / server restart using the same repository.
+        val resumed = RunTutorialSequencerUseCase(registry, stateRepo, events, scheduler, AllTruePredicateEvaluator)
+        assertThat(resumed.startSequence(player, scriptId).isSuccess).isTrue()
+        assertThat((resumed.currentStep(player) as TutorialStep.WaitForAction).actionId).isEqualTo("range")
+        actions.drop(1).forEach { assertThat(resumed.recordAction(player, it).getOrNull()).isTrue() }
+        assertThat(rewards).hasSize(1)
+        assertThat(resumed.currentStep(player)).isNull()
+        assertThat(stateRepo.find(player)?.rewardGranted).isTrue()
+        resumed.startSequence(player, scriptId)
+        actions.forEach { resumed.recordAction(player, it) }
+        assertThat(rewards).hasSize(1)
+    }
+
+    @Test
+    fun `match or game role guard blocks start and progress without losing the cursor`() {
+        registry.register(TutorialScript(scriptId, MessageKey("astera.tutorial.welcome"), listOf(TutorialStep.WaitForAction("menu"))))
+        var lobby = false
+        val guarded = RunTutorialSequencerUseCase(registry, stateRepo, events, scheduler, AllTruePredicateEvaluator, canRun = { lobby })
+        assertThat(guarded.startSequence(player, scriptId).isFailure).isTrue()
+        assertThat(stateRepo.find(player)).isNull()
+        lobby = true
+        guarded.startSequence(player, scriptId)
+        lobby = false
+        assertThat(guarded.recordAction(player, "menu").isFailure).isTrue()
+        assertThat(stateRepo.find(player)?.stepIndex).isZero()
+        assertThat(completed).isEmpty()
+        lobby = true
+        assertThat(guarded.recordAction(player, "menu").getOrNull()).isTrue()
+        assertThat(completed).hasSize(1)
     }
 
     /** Predicate evaluator that returns true for every predicate. */

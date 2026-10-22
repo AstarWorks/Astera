@@ -87,6 +87,7 @@ internal class PaperLobbyMenuKit(
     private val intents: IGuiIntentRouter,
     private val mcServer: IMcServer,
     private val inMatch: (PlayerId) -> Boolean,
+    private val onMenuKey: (PlayerId) -> Unit = {},
 ) : Listener {
 
     private val kit: LobbyMenuKit get() = kitSource()
@@ -368,6 +369,7 @@ internal class PaperLobbyMenuKit(
             if (entry != null) {
                 e.isCancelled = true
                 press(player, entry)
+                if (!player.isSneaking) onMenuKey(PlayerId(player.uniqueId))
                 return
             }
         }

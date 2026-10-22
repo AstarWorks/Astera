@@ -32,6 +32,7 @@ import com.astarworks.astera.core.domain.event.PlayerJoinedServer
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.match.TeamId
+import com.astarworks.astera.core.domain.world.WorldId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.platform.wiring.CorePlatformPorts
 import com.astarworks.astera.core.platform.wiring.CoreWiring
@@ -196,8 +197,9 @@ public class GameSim private constructor(
         team: TeamId? = null,
         facing: Vec3 = Vec3(0.0, 0.0, 1.0),
         join: Boolean = true,
+        worldId: WorldId = WorldId("world"),
     ): SimEntity {
-        val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team))
+        val entity = world.add(SimEntity(newPlayerId(), name, SimEntityKind.PLAYER, at, facing.normalize(), team, world = worldId))
         recorder.registerEntity(entity)
         if (join) {
             handoff?.onJoin(entity.id)
@@ -282,10 +284,28 @@ public class GameSim private constructor(
 
     public fun leftClick(entity: SimEntity): Boolean = input(entity, IMcEvent.InputKind.LEFT_CLICK)
 
+    /** The lobby F key (the same menu-kit entry and successful-open check as Paper). */
+    public fun swapHands(entity: SimEntity): Boolean {
+        val player = server.view(entity.id) ?: return false
+        if (com.astarworks.astera.core.domain.lobby.LobbyMenuKitPolicy.inMatch(
+                services.get<com.astarworks.astera.core.application.eventbus.listeners.MatchInventorySnapshotListener>()?.isHeld(entity.id) ?: false,
+                services.get<com.astarworks.astera.core.application.port.outbound.IMatchRepository>()?.findMatchOf(entity.id)?.phase,
+            )) return false
+        if (entity.heldItem != null && entity.heldItem?.value != "menu-compass") return false
+        val kit = services.get<com.astarworks.astera.core.application.contents.LobbyMenuKitContents>() ?: return false
+        val entry = kit.current().at(com.astarworks.astera.core.domain.lobby.KitArea.KEY_SWAP, 0) ?: return false
+        services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>().dispatch(player, entry.intent)
+        val opened = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IGuiAdapter>()
+            .currentSpec(player)?.id?.value == "main-menu"
+        if (opened) services.getOrThrow<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()
+            .recordAction(entity.id, "menu")
+        return opened
+    }
+
     public fun rightClick(entity: SimEntity, sneaking: Boolean = false): Boolean =
         input(entity, IMcEvent.InputKind.RIGHT_CLICK, sneaking)
 
-    /** The drop key (Q = E.G.O slot; Shift+Q = reload on guns). */
+    /** The drop key: the held binding decides (pistol Q reload; persona guns usually Shift+Q reload). */
     public fun drop(entity: SimEntity, sneaking: Boolean = false): Boolean =
         input(entity, IMcEvent.InputKind.DROP, sneaking)
 

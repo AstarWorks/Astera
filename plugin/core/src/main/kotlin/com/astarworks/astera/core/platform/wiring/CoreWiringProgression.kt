@@ -170,17 +170,25 @@ internal fun CoreWiringState.wireProgression() {
     services.register<INpcDialogService>(dialogService, priority = 0)
 
     // γ. Tutorial sequencer (Wave 5p extensions on top of Wave 5e registry).
-    val tutorialStateRepo: IPlayerTutorialStateRepository =
-        services.get<IPlayerTutorialStateRepository>()
-            ?: InMemoryPlayerTutorialStateRepository().also {
-                services.register<IPlayerTutorialStateRepository>(it, priority = 0)
-            }
+    services.register<IPlayerTutorialStateRepository>(
+        ports.tutorialStateRepository ?: InMemoryPlayerTutorialStateRepository(), priority = 0,
+    )
+    // Resolve on every operation so priority-100 persistence overlays remain authoritative.
+    val tutorialStateRepo = object : IPlayerTutorialStateRepository {
+        private fun delegate() = services.getOrThrow<IPlayerTutorialStateRepository>()
+        override fun find(playerId: com.astarworks.astera.core.domain.player.PlayerId) = delegate().find(playerId)
+        override fun save(playerId: com.astarworks.astera.core.domain.player.PlayerId, snapshot: com.astarworks.astera.core.domain.tutorial.TutorialRunnerSnapshot) = delegate().save(playerId, snapshot)
+        override fun clear(playerId: com.astarworks.astera.core.domain.player.PlayerId) = delegate().clear(playerId)
+        override fun all() = delegate().all()
+    }
     tutorialSequencer = RunTutorialSequencerUseCase(
         registry = tutorialContents,
         stateRepo = tutorialStateRepo,
         events = eventBus,
         scheduler = scheduler,
         predicateEvaluator = dialogPredicateEvaluator,
+        canStart = { player -> ctx.serverRole.hostsLobby && !tutorialInMatch(player) },
+        canRun = { tutorialEligible(it) },
     )
     services.register<ITutorialSequencerService>(tutorialSequencer, priority = 0)
 
@@ -290,6 +298,7 @@ internal fun CoreWiringState.wireProgression() {
         openVault = openVaultUseCase,
         window = { services.get<IVaultWindow>() },
         matches = { services.get<IMatchRepository>() },
+        onOpened = { tutorialSequencer.recordAction(it, "vault") },
     )
     services.register<AccessPersonalVaultUseCase>(accessVault, priority = 0)
     commands.register(com.astarworks.astera.core.application.command.buildVaultCommandSpec(accessVault))
@@ -297,6 +306,7 @@ internal fun CoreWiringState.wireProgression() {
         com.astarworks.astera.core.application.command.buildTutorialCommandSpec(
             sequencer = tutorialSequencer,
             scriptIds = { tutorialContents.all().map { it.id.value } },
+            savedState = tutorialStateRepo::find,
         ),
     )
 

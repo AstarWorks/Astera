@@ -233,7 +233,7 @@ public class PaperHologramGateway(
             world.spawn(loc, entityClass) { entity ->
                 applyBaseFields(entity, hologram)
                 when (val kind = hologram.kind) {
-                    is HologramKind.Text -> applyText(entity as TextDisplay, kind)
+                    is HologramKind.Text -> applyText(entity as TextDisplay, kind, textViewer(hologram))
                     is HologramKind.Item -> applyItem(entity as ItemDisplay, kind)
                     is HologramKind.Block -> applyBlock(entity as BlockDisplay, kind)
                 }
@@ -300,7 +300,7 @@ public class PaperHologramGateway(
         return mutate(handle, "updateKind") { entity, _ ->
             live[handle] = current.copy(kind = kind)
             when (kind) {
-                is HologramKind.Text -> applyText(entity as TextDisplay, kind)
+                is HologramKind.Text -> applyText(entity as TextDisplay, kind, textViewer(current))
                 is HologramKind.Item -> applyItem(entity as ItemDisplay, kind)
                 is HologramKind.Block -> applyBlock(entity as BlockDisplay, kind)
             }
@@ -417,7 +417,7 @@ public class PaperHologramGateway(
         lines: List<MessageKey>,
     ): Result<Unit, HologramError> = mutateText(handle, "updateTextContent") { entity, current, textKind ->
         live[handle] = current.copy(kind = textKind.copy(lines = lines))
-        entity.text = renderLines(lines)
+        entity.text = renderLines(lines, textViewer(current))
     }
 
     override fun updateTextLineWidth(
@@ -654,8 +654,8 @@ public class PaperHologramGateway(
         entity.glowColorOverride = hologram.glowColor?.let { toBukkitColor(it) }
     }
 
-    private fun applyText(entity: TextDisplay, kind: HologramKind.Text) {
-        entity.text = renderLines(kind.lines)
+    private fun applyText(entity: TextDisplay, kind: HologramKind.Text, viewer: PlayerId?) {
+        entity.text = renderLines(kind.lines, viewer)
         entity.lineWidth = kind.lineWidth
         entity.backgroundColor = kind.backgroundColor?.let { toBukkitColor(it) }
         entity.textOpacity = kind.textOpacity
@@ -770,10 +770,13 @@ public class PaperHologramGateway(
      * Without an [IMessageRenderer] the raw [MessageKey.value] is used —
      * useful for tests + dev environments before i18n is wired.
      */
-    private fun renderLines(lines: List<MessageKey>): String {
+    private fun textViewer(hologram: Hologram): PlayerId? =
+        (hologram.visibilityScope as? HologramVisibilityScope.PerPlayer)?.playerIds?.singleOrNull()
+
+    private fun renderLines(lines: List<MessageKey>, viewer: PlayerId? = null): String {
         val renderer = messageRenderer
         return lines.joinToString(separator = "\n") { key ->
-            renderer?.render(playerId = null, key = key) ?: key.value
+            renderer?.render(playerId = viewer, key = key) ?: key.value
         }
     }
 

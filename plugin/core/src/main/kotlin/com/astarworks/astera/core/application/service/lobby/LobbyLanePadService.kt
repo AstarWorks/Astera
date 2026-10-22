@@ -22,6 +22,7 @@ public class LobbyLanePadService(
     private val surfaceY: Int,
     private val catalog: () -> ILobbyLaneCatalog?,
     private val eventBus: IDomainEventBus,
+    private val onWalk: (PlayerId, WorldId, Vec3) -> Unit = { _, _, _ -> },
 ) {
     private val standingOn = ConcurrentHashMap<PlayerId, String>()
 
@@ -44,6 +45,7 @@ public class LobbyLanePadService(
             standingOn.remove(playerId)
             return null
         }
+        onWalk(playerId, world, at)
         val lane = LobbyLanePadLayout.laneAt(pads(), surfaceY, at)
         if (lane == null) {
             standingOn.remove(playerId)

@@ -69,6 +69,7 @@ public class ShopBrowseUseCase(
     private val purchases: IShopPurchaseRepository = InMemoryShopPurchaseRepository(),
     private val carried: (PlayerId) -> List<ItemId> = { emptyList() },
     private val zone: ZoneId = ZoneOffset.UTC,
+    private val onOpened: (PlayerId) -> Unit = {},
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -106,9 +107,11 @@ public class ShopBrowseUseCase(
         views[playerId] = view
         if (open) {
             adapter.update(player, guiSpec)
+            onOpened(playerId)
             return Result.success(Unit)
         }
         return if (adapter.open(player, guiSpec)) {
+            onOpened(playerId)
             Result.success(Unit)
         } else {
             Result.failure(ShopBrowseError.OpenRejected)

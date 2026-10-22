@@ -82,6 +82,7 @@ public object CoreWiring {
         state.wireGameplayLoop()
         state.wireCompletenessListeners()
         state.wireServerHardenAndLobby()
+        state.wireTutorialGuide()
         state.wireCommandHelp()
         return CoreWiringResult(
             guiAdapter = state.guiAdapter,

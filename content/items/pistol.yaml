@@ -1,5 +1,5 @@
 # WP1 gun roster: right-click = shot, hold = auto-repeat (same shot, throttled
-# by the binding's cooldown override), sneak + drop key (Shift+Q) = reload (the drop is cancelled).
+# by the binding's cooldown override), drop key (Q) = reload (the drop is cancelled).
 # WP2: 12-round magazine (1 ammo per shot), refilled by the reload skill.
 
 id: pistol
@@ -12,10 +12,10 @@ name:
 lore:
   ja:
     - "<gray>右クリック: 射撃</gray>"
-    - "<gray>Shift+Q: リロード</gray>"
+    - "<gray>Q: リロード</gray>"
   en:
     - "<gray>Right-click: shoot</gray>"
-    - "<gray>Shift+Q: reload</gray>"
+    - "<gray>Q: reload</gray>"
 
 rarity: common
 level_requirement: 1
@@ -36,7 +36,7 @@ skills:
   - trigger: right_click
     skill_id: pistol-shot
     cooldown_override_ticks: 6    # 0.3s between shots; wins over the skill's own cooldown_ticks
-  - trigger: sneak_drop
+  - trigger: drop
     skill_id: pistol-reload
 
 pdc_tags:
