@@ -13,22 +13,22 @@ import com.fasterxml.jackson.databind.JsonNode
  */
 internal object SemanticChecks {
 
-    /** Mechanic `type:` values whose dispatcher branch only logs. */
+    /**
+     * Mechanic `type:` values whose dispatcher branch only logs. WP4 batch A
+     * (cleanse/ignite/freeze/silence, set_velocity/propel/leap, send_*,
+     * set_cooldown, modify_attribute, remove_status) is implemented.
+     */
     val NO_OP_MECHANICS: Set<String> = setOf(
-        "heal", "resurrect", "remove_status", "cleanse", "ignite", "freeze", "silence",
-        "set_velocity", "propel", "leap", "summon_lightning", "summon", "set_block",
-        "remove_block", "explode", "give_item", "consume_item", "modify_attribute",
-        "set_cooldown", "spawn_display", "schedule_particle_animation", "glow",
-        "camera_shake", "send_message", "send_action_bar", "send_title",
+        "heal", "resurrect", "summon_lightning", "summon", "set_block",
+        "remove_block", "explode", "give_item", "consume_item",
+        "spawn_display", "schedule_particle_animation", "glow", "camera_shake",
     )
 
-    /** Condition `type:` values that always evaluate to false at runtime. */
-    val UNSUPPORTED_CONDITIONS: Set<String> = setOf(
-        "has_status", "is_ally", "is_enemy", "health_below", "distance_less_than",
-    )
+    /** Condition `type:` values that always evaluate to false at runtime (none: all entity-state conditions are implemented). */
+    val UNSUPPORTED_CONDITIONS: Set<String> = emptySet()
 
-    /** Targeter `type:` values that always resolve to no targets. */
-    val UNSUPPORTED_TARGETERS: Set<String> = setOf("forward_ray", "cone", "enemies", "allies")
+    /** Targeter `type:` values that always resolve to no targets (none: ForwardRay / Cone / Enemies / Allies landed with ADR-0174). */
+    val UNSUPPORTED_TARGETERS: Set<String> = emptySet()
 
     /** Ids defined elsewhere in content/, for reference checks. */
     data class KnownIds(

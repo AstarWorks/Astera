@@ -17,15 +17,21 @@ import java.util.concurrent.ConcurrentHashMap
 public class InMemoryEntityDamageGateway : IEntityDamageGateway {
 
     private val hp = ConcurrentHashMap<PlayerId, Double>()
+    private val maxHp = ConcurrentHashMap<PlayerId, Double>()
 
     /** Registers (or resets) [entity] with [hitPoints]. */
     public fun spawn(entity: PlayerId, hitPoints: Double) {
         require(hitPoints > 0.0) { "hitPoints must be > 0: $hitPoints" }
         hp[entity] = hitPoints
+        maxHp[entity] = hitPoints
     }
 
     /** Remaining hit points, or `null` if the entity was never spawned or is dead. */
     public fun hitPointsOf(entity: PlayerId): Double? = hp[entity]?.takeIf { it > 0.0 }
+
+    override fun hitPoints(target: PlayerId): Double? = hp[target]
+
+    override fun maxHitPoints(target: PlayerId): Double? = maxHp[target]
 
     override fun isEntityTarget(target: PlayerId): Boolean = hp.containsKey(target)
 

@@ -1,6 +1,12 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
+import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
+import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
+import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
+import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
@@ -10,6 +16,11 @@ import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.skill.expression.CelContext
 import com.astarworks.astera.combat.domain.skill.expression.CelSkillScript
 import com.astarworks.astera.core.application.port.outbound.IBroadcaster
+import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
+import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
+import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup
 import com.astarworks.astera.core.application.port.outbound.IParticleRegistry
@@ -21,7 +32,10 @@ import com.astarworks.astera.core.application.port.outbound.effect.ISoundSchedul
 import com.astarworks.astera.core.application.port.outbound.effect.ISoundRegistry
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.attribute.AttributeKey
+import com.astarworks.astera.core.domain.attribute.AttributeModifier
 import com.astarworks.astera.core.domain.attribute.SimpleAttributeContainer
+import com.astarworks.astera.core.domain.cooldown.CooldownKey
 import com.astarworks.astera.core.domain.damage.DamageAttribute
 import com.astarworks.astera.core.domain.damage.DamageComponent
 import com.astarworks.astera.core.domain.damage.DamageProfile
@@ -124,6 +138,26 @@ public class MechanicDispatcher(
     private val poseLookup: IPlayerPoseLookup? = null,
     /** ADR-0174: team membership for Enemies / Allies targeters (null = no team info). */
     private val teamLookup: IMatchTeamLookup? = null,
+    /** WP4: status read/remove for HasStatus, Cleanse, RemoveStatus. */
+    private val statusContainer: IStatusEffectContainer? = null,
+    /** WP4: lets a `content/status/` entry override the built-in Freeze / Silence specs. */
+    private val statusRegistry: IStatusEffectRegistry? = null,
+    /** WP4: SetVelocity / Propel / Leap / Ignite / Freeze body effects (players and mobs). */
+    private val entityEffects: IEntityEffectsGateway? = null,
+    /** WP4: ActionBar / Title output. */
+    private val feedback: IPlayerFeedbackGateway? = null,
+    /** WP4: renders `LocalizedText` for SendMessage / ActionBar / Title. */
+    private val messageRenderer: IMessageRenderer? = null,
+    /** WP4: chat delivery for SendMessage. */
+    private val playerGateway: IPlayerGateway? = null,
+    /** WP4: SetCooldown. */
+    private val cooldownTracker: ICooldownTracker? = null,
+    /** WP4: ModifyAttribute. */
+    private val attributeStore: IPlayerAttributeContainerStore? = null,
+    /** WP4: lazily resolved player HP (HealthBelow, dead-target skip). */
+    private val playerHealth: (() -> IPlayerHealthGateway?)? = null,
+    /** WP4: lazily resolved mob HP (HealthBelow, dead-target skip). */
+    private val entityHealth: (() -> IEntityDamageGateway?)? = null,
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
 ) {
 
@@ -149,21 +183,57 @@ public class MechanicDispatcher(
 
     internal val targeterResolver: TargeterResolver = TargeterResolver(nearbyQuery, log, poseLookup, teamLookup)
 
+    private val vitals: TargetVitals? =
+        if (playerHealth != null || entityHealth != null) {
+            TargetVitals({ playerHealth?.invoke() }, { entityHealth?.invoke() })
+        } else {
+            null
+        }
+
+    private val conditions = ConditionEvaluator(
+        targeters = targeterResolver,
+        teamLookup = teamLookup,
+        statusContainer = statusContainer,
+        vitals = vitals,
+        resolveDouble = { value, c -> resolveDouble(value, c) },
+    )
+
+    /**
+     * Drops targets that are already dead: a victim killed by an earlier
+     * mechanic of the same hit must not receive statuses / movement afterwards.
+     */
+    private fun living(ids: List<PlayerId>): List<PlayerId> =
+        ids.filter { it !in killedThisDispatch && (vitals?.isAlive(it) ?: true) }
+
+    /**
+     * Targets a Damage mechanic killed during the current top-level [dispatch].
+     * Needed on top of [vitals]: outside a match a dead player is revived
+     * synchronously by the `PlayerKilled` listeners, so HP alone no longer says
+     * "died in this hit" by the time the next mechanic runs.
+     */
+    private val killedThisDispatch: MutableSet<PlayerId> = HashSet()
+    private var dispatchDepth: Int = 0
+
     /**
      * Dispatch each mechanic in [mechanics] against [ctx]. Used by archetype
      * handlers once per phase (cast / hit_entity / hit_block / miss / expire …).
      */
     public fun dispatch(mechanics: List<Mechanic>, ctx: MechanicContext) {
-        for (mechanic in mechanics) {
-            try {
-                dispatchOne(mechanic, ctx)
-            } catch (ex: Exception) {
-                log.warn(
-                    "MechanicDispatcher: mechanic {} threw; skipping",
-                    mechanic::class.simpleName,
-                    ex,
-                )
+        dispatchDepth++
+        try {
+            for (mechanic in mechanics) {
+                try {
+                    dispatchOne(mechanic, ctx)
+                } catch (ex: Exception) {
+                    log.warn(
+                        "MechanicDispatcher: mechanic {} threw; skipping",
+                        mechanic::class.simpleName,
+                        ex,
+                    )
+                }
             }
+        } finally {
+            if (--dispatchDepth == 0) killedThisDispatch.clear()
         }
     }
 
@@ -221,7 +291,7 @@ public class MechanicDispatcher(
                 val profile = buildDamageProfile(mechanic.components)
                 val sourceSkillId = ctx.castedSkills.firstOrNull() ?: FALLBACK_SKILL_ID
                 for (target in targets) {
-                    applyDamage.execute(
+                    val outcome = applyDamage.execute(
                         DamageAttempt(
                             targetId = target,
                             baseProfile = profile,
@@ -232,6 +302,9 @@ public class MechanicDispatcher(
                             ),
                         ),
                     )
+                    if (outcome is Result.Success && outcome.value is DamageOutcome.Killed) {
+                        killedThisDispatch += target
+                    }
                 }
             }
 
@@ -248,7 +321,7 @@ public class MechanicDispatcher(
             }
 
             is Mechanic.ApplyStatus -> {
-                val targets = targeterResolver.resolvePlayers(mechanic.targets, ctx)
+                val targets = living(targeterResolver.resolvePlayers(mechanic.targets, ctx))
                 if (targets.isEmpty()) return
                 if (applyStatus == null) {
                     log.warn("ApplyStatus mechanic dropped: ApplyStatusUseCase not wired")
@@ -267,21 +340,49 @@ public class MechanicDispatcher(
             }
 
             is Mechanic.RemoveStatus -> {
-                log.info(
-                    "RemoveStatus mechanic ({}); container.remove deferred to Phase 6",
-                    mechanic.statusId,
-                )
+                val container = statusContainer ?: return warnMissing("RemoveStatus", "IStatusEffectContainer")
+                for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    container.remove(target, mechanic.statusId)
+                }
             }
 
             is Mechanic.Cleanse -> {
-                log.info("Cleanse mechanic (onlyHarmful={}); impl deferred to Phase 6",
-                    resolveBool(mechanic.onlyHarmful, ctx))
+                val onlyHarmful = resolveBool(mechanic.onlyHarmful, ctx)
+                for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    statusContainer?.active(target)
+                        ?.filter { !onlyHarmful || it.spec.kind.harmful }
+                        ?.forEach { statusContainer.remove(target, it.spec.id) }
+                    // Fire and frost are harmful by definition, so they go either way.
+                    entityEffects?.setFireTicks(target, 0)
+                    entityEffects?.thaw(target)
+                }
             }
 
-            is Mechanic.Ignite,
-            is Mechanic.Freeze,
+            is Mechanic.Ignite -> {
+                val effects = entityEffects ?: return warnMissing("Ignite", "IEntityEffectsGateway")
+                val burnTicks = resolveInt(mechanic.ticks, ctx).coerceAtLeast(0)
+                for (target in living(targeterResolver.resolvePlayers(mechanic.targets, ctx))) {
+                    effects.setFireTicks(target, burnTicks)
+                }
+            }
+
+            is Mechanic.Freeze -> {
+                val freezeTicks = resolveInt(mechanic.ticks, ctx).coerceAtLeast(0)
+                val spec = statusRegistry?.find(MechanicStatuses.FREEZE_ID) ?: MechanicStatuses.FREEZE
+                for (target in living(targeterResolver.resolvePlayers(mechanic.targets, ctx))) {
+                    applyStatus?.applySpec(target, spec, freezeTicks)
+                    entityEffects?.freeze(target, freezeTicks)
+                }
+                if (applyStatus == null && entityEffects == null) warnMissing("Freeze", "ApplyStatusUseCase")
+            }
+
             is Mechanic.Silence -> {
-                log.info("{} mechanic dispatched (impl deferred to Phase 6)", mechanic::class.simpleName)
+                val status = applyStatus ?: return warnMissing("Silence", "ApplyStatusUseCase")
+                val silenceTicks = resolveInt(mechanic.ticks, ctx).coerceAtLeast(0)
+                val spec = statusRegistry?.find(MechanicStatuses.SILENCE_ID) ?: MechanicStatuses.SILENCE
+                for (target in living(targeterResolver.resolvePlayers(mechanic.targets, ctx))) {
+                    status.applySpec(target, spec, silenceTicks)
+                }
             }
 
             // ===== Movement ===========================================
@@ -290,7 +391,7 @@ public class MechanicDispatcher(
                     log.warn("Knockback mechanic dropped: IKnockbackGateway not wired")
                     return
                 }
-                val targets = targeterResolver.resolvePlayers(mechanic.targets, ctx)
+                val targets = living(targeterResolver.resolvePlayers(mechanic.targets, ctx))
                 val magnitude = resolveDouble(mechanic.strength, ctx)
                 val dir = resolveDirection(mechanic.direction, ctx)
                 val impulse = dir * magnitude
@@ -304,20 +405,37 @@ public class MechanicDispatcher(
                     log.warn("Knockup mechanic dropped: IKnockbackGateway not wired")
                     return
                 }
-                val targets = targeterResolver.resolvePlayers(mechanic.targets, ctx)
+                val targets = living(targeterResolver.resolvePlayers(mechanic.targets, ctx))
                 val magnitude = resolveDouble(mechanic.strength, ctx)
                 for (target in targets) {
                     knockbackGateway.applyImpulse(target, Vec3(0.0, magnitude, 0.0))
                 }
             }
 
-            is Mechanic.SetVelocity,
-            is Mechanic.Propel,
+            is Mechanic.SetVelocity -> {
+                val effects = entityEffects ?: return warnMissing("SetVelocity", "IEntityEffectsGateway")
+                val velocity = resolveDirection(mechanic.direction, ctx) * resolveDouble(mechanic.magnitude, ctx)
+                for (target in living(targeterResolver.resolvePlayers(mechanic.targets, ctx))) {
+                    effects.setVelocity(target, velocity)
+                }
+            }
+
+            is Mechanic.Propel -> {
+                val effects = entityEffects ?: return warnMissing("Propel", "IEntityEffectsGateway")
+                val delta = resolveDirection(mechanic.direction, ctx) * resolveDouble(mechanic.strength, ctx)
+                for (target in living(targeterResolver.resolvePlayers(mechanic.targets, ctx))) {
+                    effects.addVelocity(target, delta)
+                }
+            }
+
             is Mechanic.Leap -> {
-                log.info(
-                    "{} mechanic dispatched (movement port deferred to Phase 6)",
-                    mechanic::class.simpleName,
-                )
+                val effects = entityEffects ?: return warnMissing("Leap", "IEntityEffectsGateway")
+                val dest = resolveLocation(mechanic.destination, ctx) ?: return
+                val arc = resolveDouble(mechanic.arcHeight, ctx)
+                for (target in living(targeterResolver.resolvePlayers(mechanic.targets, ctx))) {
+                    val from = positionOf(target, ctx)
+                    effects.setVelocity(target, LeapPhysics.velocity(from, dest.position, arc))
+                }
             }
 
             is Mechanic.Teleport -> {
@@ -342,13 +460,40 @@ public class MechanicDispatcher(
 
             // ===== Item / inventory ===================================
             is Mechanic.GiveItem,
-            is Mechanic.ConsumeItem,
-            is Mechanic.ModifyAttribute,
-            is Mechanic.SetCooldown -> {
+            is Mechanic.ConsumeItem -> {
                 log.info(
-                    "{} mechanic dispatched (inventory/attribute port deferred to Phase 6)",
+                    "{} mechanic dispatched (inventory port deferred to Phase 6)",
                     mechanic::class.simpleName,
                 )
+            }
+
+            is Mechanic.ModifyAttribute -> {
+                val store = attributeStore ?: return warnMissing("ModifyAttribute", "IPlayerAttributeContainerStore")
+                val key = runCatching { AttributeKey(mechanic.attributeKey) }.getOrNull()
+                if (key == null) {
+                    log.warn("ModifyAttribute dropped: invalid attribute key '{}'", mechanic.attributeKey)
+                    return
+                }
+                val delta = resolveDouble(mechanic.delta, ctx)
+                val lifetime = resolveInt(mechanic.ticks, ctx).coerceAtLeast(0)
+                for (target in living(targeterResolver.resolvePlayers(mechanic.targets, ctx))) {
+                    val container = store.containerFor(target)
+                    val source = "mechanic:modify_attribute:${java.util.UUID.randomUUID()}"
+                    container.addModifier(AttributeModifier(key, AttributeModifier.Operation.ADD, delta, source))
+                    // ticks = 0 keeps the modifier for good (until the container is rebuilt).
+                    if (lifetime > 0) {
+                        scheduler.runLater(ticks(lifetime.toLong())) { container.removeModifiersBySource(source) }
+                    }
+                }
+            }
+
+            is Mechanic.SetCooldown -> {
+                val tracker = cooldownTracker ?: return warnMissing("SetCooldown", "ICooldownTracker")
+                val cooldown = resolveInt(mechanic.cooldownTicks, ctx).coerceAtLeast(0)
+                val key = CooldownKey.Skill(mechanic.skillId.value)
+                for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    if (cooldown == 0) tracker.reset(target, key) else tracker.start(target, key, cooldown.toLong())
+                }
             }
 
             // ===== Visual / cosmetic ==================================
@@ -432,20 +577,37 @@ public class MechanicDispatcher(
 
             // ===== Messages ===========================================
             is Mechanic.SendMessage -> {
-                if (broadcaster == null) {
-                    log.debug("SendMessage dropped (IBroadcaster not wired)")
-                    return
-                }
-                val targets = targeterResolver.resolvePlayers(mechanic.targets, ctx)
-                for (target in targets) {
-                    // Phase 1: best-effort; real localized routing arrives in Phase 6.
-                    log.debug("SendMessage to {} (LocalizedText routing deferred)", target)
+                val renderer = messageRenderer ?: return warnMissing("SendMessage", "IMessageRenderer")
+                val gateway = playerGateway ?: return warnMissing("SendMessage", "IPlayerGateway")
+                for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    gateway.sendMessage(target, renderer.renderText(target, mechanic.message))
                 }
             }
 
-            is Mechanic.SendActionBar,
+            is Mechanic.SendActionBar -> {
+                val renderer = messageRenderer ?: return warnMissing("SendActionBar", "IMessageRenderer")
+                val out = feedback ?: return warnMissing("SendActionBar", "IPlayerFeedbackGateway")
+                for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    out.sendActionBar(target, renderer.renderText(target, mechanic.message))
+                }
+            }
+
             is Mechanic.SendTitle -> {
-                log.debug("{} mechanic dispatched (Phase 6 send-API wire)", mechanic::class.simpleName)
+                val renderer = messageRenderer ?: return warnMissing("SendTitle", "IMessageRenderer")
+                val out = feedback ?: return warnMissing("SendTitle", "IPlayerFeedbackGateway")
+                val fadeIn = resolveInt(mechanic.fadeInTicks, ctx).coerceAtLeast(0)
+                val stay = resolveInt(mechanic.stayTicks, ctx).coerceAtLeast(0)
+                val fadeOut = resolveInt(mechanic.fadeOutTicks, ctx).coerceAtLeast(0)
+                for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    out.sendTitle(
+                        target = target,
+                        title = renderer.renderText(target, mechanic.title),
+                        subtitle = mechanic.subtitle?.let { renderer.renderText(target, it) },
+                        fadeInTicks = fadeIn,
+                        stayTicks = stay,
+                        fadeOutTicks = fadeOut,
+                    )
+                }
             }
 
             // ===== Control flow =======================================
@@ -568,21 +730,22 @@ public class MechanicDispatcher(
 
     private fun resolveCondition(condition: Condition, ctx: MechanicContext): Boolean = when (condition) {
         is Condition.Cel -> evalCelScalar(condition.script) { it as? Boolean ?: false } ?: false
-        is Condition.HasStatus -> {
-            // Phase 1: HasStatus needs an IStatusEffectContainer the dispatcher
-            // does not yet hold. Treat as false until Phase 6 wires it.
-            log.debug("Condition.HasStatus deferred to Phase 6 (returning false)")
-            false
-        }
-        is Condition.IsAlly, is Condition.IsEnemy ->
-            // No team service wired into dispatcher in Phase 1.
-            false
-        is Condition.HealthBelow, is Condition.DistanceLessThan ->
-            // Need player attribute store; Phase 6.
-            false
         is Condition.And -> resolveCondition(condition.left, ctx) && resolveCondition(condition.right, ctx)
         is Condition.Or -> resolveCondition(condition.left, ctx) || resolveCondition(condition.right, ctx)
         is Condition.Not -> !resolveCondition(condition.inner, ctx)
+        is Condition.HasStatus,
+        is Condition.IsAlly,
+        is Condition.IsEnemy,
+        is Condition.HealthBelow,
+        is Condition.DistanceLessThan -> conditions.evaluate(condition, ctx) ?: false
+    }
+
+    /** Live feet position of [id] (pose lookup), else the cast origin. */
+    private fun positionOf(id: PlayerId, ctx: MechanicContext): Vec3 =
+        poseLookup?.poseOf(id)?.position ?: ctx.origin
+
+    private fun warnMissing(mechanic: String, port: String) {
+        log.warn("{} mechanic dropped: {} not wired", mechanic, port)
     }
 
     private data class ResolvedLocation(val position: Vec3, val world: WorldId?)

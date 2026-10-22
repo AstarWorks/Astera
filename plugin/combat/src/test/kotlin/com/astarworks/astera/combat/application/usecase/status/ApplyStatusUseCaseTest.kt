@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
+import com.astarworks.astera.testfixtures.FakeScheduler
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,6 +33,7 @@ class ApplyStatusUseCaseTest {
     private lateinit var registry: FakeStatusEffectRegistry
     private lateinit var container: FakeStatusEffectContainer
     private lateinit var eventBus: FakeDomainEventBus
+    private val scheduler = FakeScheduler()
     private lateinit var useCase: ApplyStatusUseCase
 
     @BeforeEach
@@ -42,13 +44,14 @@ class ApplyStatusUseCaseTest {
         useCase = ApplyStatusUseCase(
             effectRegistry = registry,
             effectContainer = container,
-            eventBus = eventBus,
+            scheduler = scheduler,
         )
     }
 
     @Test
-    fun `happy path - applies effect and publishes StatusApplied`() {
+    fun `happy path - applies effect with the scheduler tick and leaves publishing to the container`() {
         registry.register(burnSpec)
+        scheduler.advanceTicks(7)
 
         val result = useCase.execute(targetId, burnId, durationTicks = 60)
 
@@ -61,10 +64,10 @@ class ApplyStatusUseCaseTest {
 
         assertThat(container.has(targetId, burnId)).isTrue()
 
-        val events = eventBus.publishedOfType<StatusApplied>()
-        assertThat(events).hasSize(1)
-        assertThat(events[0].target).isEqualTo(targetId)
-        assertThat(events[0].effect).isEqualTo(instance)
+        // The container owns StatusApplied (with merged stacks and the real tick);
+        // the use case publishing as well made every application fire twice.
+        assertThat(eventBus.publishedOfType<StatusApplied>()).isEmpty()
+        assertThat(instance.appliedAtTick).isEqualTo(7L)
     }
 
     @Test

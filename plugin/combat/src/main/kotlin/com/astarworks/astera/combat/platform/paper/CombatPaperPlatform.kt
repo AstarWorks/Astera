@@ -3,6 +3,8 @@ package com.astarworks.astera.combat.platform.paper
 import com.astarworks.astera.combat.adapter.paper.PaperDamageGateway
 import com.astarworks.astera.combat.adapter.paper.PaperEnvironmentDamagePublisher
 import com.astarworks.astera.combat.adapter.paper.PaperEntityDamageGateway
+import com.astarworks.astera.combat.adapter.paper.PaperEntityEffectsGateway
+import com.astarworks.astera.combat.adapter.paper.PaperPlayerFeedbackGateway
 import com.astarworks.astera.combat.adapter.paper.PaperKnockbackGateway
 import com.astarworks.astera.combat.adapter.paper.PaperNearbyTargetQuery
 import com.astarworks.astera.combat.adapter.paper.PaperProjectileService
@@ -64,6 +66,8 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
             entityDamageGateway = gateway
             gateway
         },
+        entityEffectsGateway = { PaperEntityEffectsGateway(plugin.server) },
+        playerFeedbackGateway = { PaperPlayerFeedbackGateway(plugin.server) },
         projectileService = { services ->
             // Wave 6a-N2 (ADR-0155) — PaperProjectileService. Spawns vanilla
             // Bukkit projectile entities as visual carriers.

@@ -389,7 +389,7 @@ public object CombatWiring {
             val applyStatus = ApplyStatusUseCase(
                 effectRegistry = statusContents,
                 effectContainer = statusContainer,
-                eventBus = eventBus,
+                scheduler = scheduler,
             )
             // Wave K 5integration-wire (ADR-0128): the three combat-depth
             // trackers contribute IDamageBonusSource impls consulted by
@@ -467,6 +467,17 @@ public object CombatWiring {
                 // Match registers IMatchTeamLookup after Combat enables (softdepend
                 // order), so resolve it per call instead of at wiring time.
                 teamLookup = IMatchTeamLookup { playerId -> services.get<IMatchTeamLookup>()?.teamOf(playerId) },
+                // WP4 mechanics batch A.
+                statusContainer = statusContainer,
+                statusRegistry = statusContents,
+                entityEffects = ports.entityEffectsGateway?.invoke(services),
+                feedback = ports.playerFeedbackGateway?.invoke(services),
+                messageRenderer = services.get<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>(),
+                playerGateway = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerGateway>(),
+                cooldownTracker = cooldownTracker,
+                attributeStore = services.get<IPlayerAttributeContainerStore>(),
+                playerHealth = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>() },
+                entityHealth = { services.get<IEntityDamageGateway>() },
             )
             registrations += services.register<MechanicDispatcher>(mechanicDispatcher)
 

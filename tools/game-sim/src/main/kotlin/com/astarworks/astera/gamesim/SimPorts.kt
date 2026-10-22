@@ -3,7 +3,9 @@ package com.astarworks.astera.gamesim
 import com.astarworks.astera.combat.application.port.outbound.DamageApplicationError
 import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
+import com.astarworks.astera.combat.application.port.outbound.IEntityEffectsGateway
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
+import com.astarworks.astera.combat.application.port.outbound.IPlayerFeedbackGateway
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.domain.damage.DamageSource
 import com.astarworks.astera.combat.domain.damage.ResolvedDamage
@@ -262,6 +264,52 @@ public class SimStatusEffectContainer(
 
     private companion object {
         const val TICK_PERIOD: Long = 20L
+    }
+}
+
+/** [IEntityEffectsGateway] writing straight onto the [SimEntity] (velocity is recorded, not integrated). */
+public class SimEntityEffectsGateway(private val world: SimWorld) : IEntityEffectsGateway {
+    override fun setVelocity(target: PlayerId, velocity: Vec3) {
+        world.find(target)?.velocity = velocity
+    }
+
+    override fun addVelocity(target: PlayerId, delta: Vec3) {
+        world.find(target)?.let { it.velocity = it.velocity + delta }
+    }
+
+    override fun setFireTicks(target: PlayerId, ticks: Int) {
+        world.find(target)?.fireTicks = ticks
+    }
+
+    override fun freeze(target: PlayerId, ticks: Int) {
+        world.find(target)?.frozenTicks = ticks
+    }
+
+    override fun thaw(target: PlayerId) {
+        world.find(target)?.frozenTicks = 0
+    }
+}
+
+/** [IPlayerFeedbackGateway] that records action bars and titles per player for assertions. */
+public class SimPlayerFeedbackGateway : IPlayerFeedbackGateway {
+    public data class Title(val target: PlayerId, val title: String, val subtitle: String?)
+
+    public val actionBars: MutableList<Pair<PlayerId, String>> = mutableListOf()
+    public val titles: MutableList<Title> = mutableListOf()
+
+    override fun sendActionBar(target: PlayerId, rendered: String) {
+        actionBars += target to rendered
+    }
+
+    override fun sendTitle(
+        target: PlayerId,
+        title: String,
+        subtitle: String?,
+        fadeInTicks: Int,
+        stayTicks: Int,
+        fadeOutTicks: Int,
+    ) {
+        titles += Title(target, title, subtitle)
     }
 }
 

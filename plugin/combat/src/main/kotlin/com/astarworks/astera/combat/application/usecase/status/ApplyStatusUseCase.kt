@@ -2,10 +2,10 @@ package com.astarworks.astera.combat.application.usecase.status
 
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectRegistry
-import com.astarworks.astera.combat.domain.event.StatusApplied
+import com.astarworks.astera.combat.domain.status.StatusEffectSpec
 import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.combat.domain.status.StatusEffectInstance
-import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
+import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.player.PlayerId
 
@@ -14,8 +14,9 @@ import com.astarworks.astera.core.domain.player.PlayerId
  *
  * Resolves the [com.astarworks.astera.combat.domain.status.StatusEffectSpec] from the
  * registry, constructs a [StatusEffectInstance] from the spec, delegates to the
- * container (which handles stacking / refresh per spec rules), and publishes
- * [StatusApplied].
+ * container (which handles stacking / refresh per spec rules). The container
+ * publishes [com.astarworks.astera.combat.domain.event.StatusApplied] (with the
+ * merged stack count); this use case must not publish it a second time.
  *
  * [durationTicks] overrides the spec's default if provided, allowing callers
  * (e.g. a skill mechanic) to supply a custom duration.
@@ -23,7 +24,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 public class ApplyStatusUseCase(
     private val effectRegistry: IStatusEffectRegistry,
     private val effectContainer: IStatusEffectContainer,
-    private val eventBus: IDomainEventBus,
+    private val scheduler: IScheduler,
 ) {
     public fun execute(
         targetId: PlayerId,
@@ -32,27 +33,31 @@ public class ApplyStatusUseCase(
     ): Result<StatusEffectInstance, ApplyStatusError> {
         val spec = effectRegistry.find(effectId)
             ?: return Result.failure(ApplyStatusError.EffectNotFound(effectId))
+        return Result.success(applySpec(targetId, spec, durationTicks))
+    }
 
-        val ticks = durationTicks ?: DEFAULT_DURATION_TICKS
-        val atTick = System.currentTimeMillis() / TICKS_TO_MS
-
+    /**
+     * Applies an already-resolved [spec] (mechanic-built statuses such as
+     * Freeze / Silence that have no `content/status/` entry).
+     */
+    public fun applySpec(
+        targetId: PlayerId,
+        spec: StatusEffectSpec,
+        durationTicks: Int? = null,
+    ): StatusEffectInstance {
         val instance = StatusEffectInstance(
             spec = spec,
             targetPlayerId = targetId,
-            remainingTicks = ticks,
+            remainingTicks = durationTicks ?: DEFAULT_DURATION_TICKS,
             currentStacks = 1,
-            appliedAtTick = atTick,
+            appliedAtTick = scheduler.currentTick(),
         )
-
         effectContainer.apply(instance)
-        eventBus.publish(StatusApplied(target = targetId, effect = instance, atTick = atTick))
-
-        return Result.success(instance)
+        return instance
     }
 
     private companion object {
         const val DEFAULT_DURATION_TICKS: Int = 100 // 5 s at 20 tps
-        const val TICKS_TO_MS: Long = 50L
     }
 }
 

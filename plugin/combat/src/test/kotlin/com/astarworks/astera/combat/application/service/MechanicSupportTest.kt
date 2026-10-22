@@ -1,9 +1,14 @@
 package com.astarworks.astera.combat.application.service
 
 import com.astarworks.astera.core.domain.effect.SoundId
+import com.astarworks.astera.core.domain.skill.SkillId
 import com.astarworks.astera.core.domain.skill.condition.Condition
 import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
+import com.astarworks.astera.core.domain.skill.targeter.DirectionRef
+import com.astarworks.astera.core.domain.skill.targeter.LocationRef
 import com.astarworks.astera.core.domain.skill.targeter.Targeter
+import com.astarworks.astera.core.domain.skill.value.IntValue
+import com.astarworks.astera.core.domain.status.StatusEffectId
 import com.astarworks.astera.core.domain.skill.value.NumericValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -30,14 +35,41 @@ class MechanicSupportTest {
     }
 
     @Test
-    fun `CEL condition and always-false condition are reported`() {
+    fun `CEL condition is reported`() {
         val cel = Mechanic.PlaySound(Targeter.Caster, SoundId("entity.blaze.shoot"), condition = Condition.Cel("true"))
         assertThat(MechanicSupport.problemsOf(cel)).anyMatch { "CEL condition" in it }
-        val health = Mechanic.PlaySound(
-            Targeter.Caster, SoundId("entity.blaze.shoot"),
-            condition = Condition.Not(Condition.HealthBelow(Targeter.Caster, NumericValue.Literal(5.0))),
+    }
+
+    @Test
+    fun `entity-state conditions and team targeters are supported`() {
+        val conditions = listOf(
+            Condition.HealthBelow(Targeter.Caster, NumericValue.Literal(0.5)),
+            Condition.IsAlly(Targeter.Caster, Targeter.Target),
+            Condition.IsEnemy(Targeter.Caster, Targeter.Target),
+            Condition.DistanceLessThan(Targeter.Caster, Targeter.Target, NumericValue.Literal(5.0)),
+            Condition.HasStatus(Targeter.Target, StatusEffectId("burn")),
         )
-        assertThat(MechanicSupport.problemsOf(health)).anyMatch { "HealthBelow" in it }
+        for (condition in conditions) {
+            val m = Mechanic.PlaySound(Targeter.Enemies(Targeter.Caster), SoundId("entity.blaze.shoot"), condition = condition)
+            assertThat(MechanicSupport.problemsOf(m)).describedAs(condition.toString()).isEmpty()
+        }
+    }
+
+    @Test
+    fun `WP4 mechanics are supported`() {
+        val zero = IntValue.Literal(0)
+        val mechanics = listOf(
+            Mechanic.Cleanse(Targeter.Caster),
+            Mechanic.Ignite(Targeter.Target, zero),
+            Mechanic.Freeze(Targeter.Target, zero),
+            Mechanic.Silence(Targeter.Target, zero),
+            Mechanic.SetVelocity(Targeter.Caster, DirectionRef.Up, NumericValue.Literal(1.0)),
+            Mechanic.Propel(Targeter.Caster, DirectionRef.FromCaster, NumericValue.Literal(1.0)),
+            Mechanic.Leap(Targeter.Caster, LocationRef.Target),
+            Mechanic.SetCooldown(Targeter.Caster, SkillId("s"), zero),
+            Mechanic.ModifyAttribute(Targeter.Caster, "stat.attack_damage", NumericValue.Literal(1.0), zero),
+        )
+        for (m in mechanics) assertThat(MechanicSupport.problemsOf(m)).describedAs(m.toString()).isEmpty()
     }
 
     @Test
@@ -45,11 +77,5 @@ class MechanicSupportTest {
         val heal = Mechanic.Heal(Targeter.Caster, NumericValue.Literal(5.0))
         val loop = Mechanic.Loop(Targeter.Caster, count = com.astarworks.astera.core.domain.skill.value.IntValue.Literal(2), mechanics = listOf(sound, heal))
         assertThat(MechanicSupport.problemsOf(loop)).anyMatch { "Heal" in it }
-    }
-
-    @Test
-    fun `team-filter targeter is reported`() {
-        val m = Mechanic.PlaySound(Targeter.Enemies(Targeter.Caster), SoundId("entity.blaze.shoot"))
-        assertThat(MechanicSupport.problemsOf(m)).anyMatch { "Enemies" in it }
     }
 }

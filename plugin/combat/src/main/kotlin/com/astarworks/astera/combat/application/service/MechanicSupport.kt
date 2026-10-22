@@ -2,7 +2,6 @@ package com.astarworks.astera.combat.application.service
 
 import com.astarworks.astera.core.domain.skill.condition.Condition
 import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
-import com.astarworks.astera.core.domain.skill.targeter.Targeter
 
 /**
  * Single source of truth for which authored content [MechanicDispatcher] cannot
@@ -37,7 +36,6 @@ public object MechanicSupport {
         if (CEL_MARKER in mechanic.toString()) {
             out += "mechanic '$name' uses a CEL script (CEL evaluator is a stub: evaluates to 0/false/ZERO)"
         }
-        unsupportedTargeter(mechanic.targets)?.let { out += "mechanic '$name' uses $it" }
         mechanic.condition?.let { unsupportedCondition(it, out, name) }
         when (mechanic) {
             is Mechanic.IfThen -> {
@@ -63,33 +61,25 @@ public object MechanicSupport {
             is Condition.Not -> unsupportedCondition(condition.inner, out, owner)
             is Condition.Cel ->
                 out += "mechanic '$owner' has a CEL condition (CEL evaluator is a stub: always false)"
+            // HasStatus / IsAlly / IsEnemy / HealthBelow / DistanceLessThan: implemented (WP4).
             is Condition.HasStatus, is Condition.IsAlly, is Condition.IsEnemy,
-            is Condition.HealthBelow, is Condition.DistanceLessThan ->
-                out += "mechanic '$owner' has condition '${condition::class.simpleName}' which always evaluates to false"
+            is Condition.HealthBelow, is Condition.DistanceLessThan -> Unit
         }
-    }
-
-    private fun unsupportedTargeter(targeter: Targeter): String? = when (targeter) {
-        is Targeter.ForwardRay, is Targeter.Cone, is Targeter.Enemies, is Targeter.Allies ->
-            "targeter '${targeter::class.simpleName}' which always resolves to no targets"
-        is Targeter.Filter -> unsupportedTargeter(targeter.base)
-        is Targeter.Random -> unsupportedTargeter(targeter.from)
-        else -> null
     }
 
     /** Mechanics whose [MechanicDispatcher] branch only logs. */
     internal fun isNoOp(mechanic: Mechanic): Boolean = when (mechanic) {
-        is Mechanic.Heal, is Mechanic.Resurrect, is Mechanic.RemoveStatus, is Mechanic.Cleanse,
-        is Mechanic.Ignite, is Mechanic.Freeze, is Mechanic.Silence,
-        is Mechanic.SetVelocity, is Mechanic.Propel, is Mechanic.Leap,
+        is Mechanic.Heal, is Mechanic.Resurrect,
         is Mechanic.SummonLightning, is Mechanic.Summon, is Mechanic.SetBlock,
         is Mechanic.RemoveBlock, is Mechanic.Explode,
-        is Mechanic.GiveItem, is Mechanic.ConsumeItem, is Mechanic.ModifyAttribute,
-        is Mechanic.SetCooldown,
+        is Mechanic.GiveItem, is Mechanic.ConsumeItem,
         is Mechanic.SpawnDisplay, is Mechanic.ScheduleParticleAnimation, is Mechanic.Glow,
-        is Mechanic.CameraShake,
-        is Mechanic.SendMessage, is Mechanic.SendActionBar, is Mechanic.SendTitle -> true
+        is Mechanic.CameraShake -> true
         is Mechanic.Damage, is Mechanic.ApplyStatus, is Mechanic.Knockback, is Mechanic.Knockup,
+        is Mechanic.RemoveStatus, is Mechanic.Cleanse, is Mechanic.Ignite, is Mechanic.Freeze,
+        is Mechanic.Silence, is Mechanic.SetVelocity, is Mechanic.Propel, is Mechanic.Leap,
+        is Mechanic.ModifyAttribute, is Mechanic.SetCooldown,
+        is Mechanic.SendMessage, is Mechanic.SendActionBar, is Mechanic.SendTitle,
         is Mechanic.Teleport, is Mechanic.SpawnParticle, is Mechanic.PlaySound,
         is Mechanic.CastSkill, is Mechanic.IfThen, is Mechanic.Loop, is Mechanic.Choose -> false
     }

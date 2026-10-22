@@ -44,6 +44,12 @@ public class PaperEntityDamageGateway(
         return entity is LivingEntity && entity !is Player && entity !is ArmorStand
     }
 
+    override fun hitPoints(target: PlayerId): Double? =
+        (server.getEntity(target.uuid) as? LivingEntity)?.takeIf { it.isValid }?.health
+
+    override fun maxHitPoints(target: PlayerId): Double? =
+        (server.getEntity(target.uuid) as? LivingEntity)?.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH)?.value
+
     override fun apply(
         target: PlayerId,
         resolved: ResolvedDamage,

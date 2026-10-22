@@ -36,6 +36,13 @@ public class SimEntity(
     /** Hitbox: 0.6 wide, 1.8 tall, anchored at the feet (vanilla player). */
     public val hitboxWidth: Double = 0.6
     public val hitboxHeight: Double = 1.8
+
+    /** Last velocity written by a movement mechanic (blocks per tick); the sim does not integrate it. */
+    public var velocity: Vec3 = Vec3.ZERO
+
+    /** Remaining burn / frost time written by Ignite / Freeze (the sim does not count it down). */
+    public var fireTicks: Int = 0
+    public var frozenTicks: Int = 0
     public val eyePosition: Vec3 get() = position + Vec3(0.0, EYE_HEIGHT, 0.0)
 
     /** Sets [direction] from a horizontal heading: yaw 0 = +z, 90 = -x (Minecraft convention), pitch up is positive. */
