@@ -50,12 +50,10 @@ services:
       ENABLE_RCON: "true"
       RCON_PORT: "25575"
       RCON_PASSWORD: "${RCON_PASSWORD:-astera}"
-      # Datasource hints for the plugin (read by application config later).
-      ASTERA_DB_HOST: "postgres"
-      ASTERA_DB_PORT: "5432"
-      ASTERA_DB_NAME: "astera"
-      ASTERA_DB_USER: "astera"
-      ASTERA_DB_PASSWORD: "${POSTGRES_PASSWORD:-astera}"
+      # Postgres datasource read by Astera-Persistence (PersistenceModule).
+      ASTERA_PG_URL: "jdbc:postgresql://postgres:5432/astera"
+      ASTERA_PG_USER: "astera"
+      ASTERA_PG_PASSWORD: "${POSTGRES_PASSWORD:-astera}"
       ASTERA_REDIS_HOST: "redis"
       ASTERA_REDIS_PORT: "6379"
       # Metrics surface — Prometheus scrape target on the host at :9092/metrics.

@@ -254,6 +254,15 @@ public class GameSim private constructor(
         public fun defaultContentDir(): Path =
             Paths.get(System.getProperty("astera.sim.contentDir") ?: "content").toAbsolutePath().normalize()
 
+        /**
+         * Plugin names in the order [boot] installs them. `PluginLoadOrderTest`
+         * asserts this is a valid topological order of the real `plugin.yml`
+         * depend/softdepend graph, so a load-order bug cannot hide in the sim.
+         */
+        public val WIRING_ORDER: List<String> = listOf(
+            "Astera-Core", "Astera-Items", "Astera-Combat", "Astera-Match", "Astera-Stats", "Astera-Economy",
+        )
+
         public fun defaultTraceDir(): Path =
             Paths.get(System.getProperty("astera.sim.traceDir") ?: "build/sim-traces").toAbsolutePath().normalize()
 
