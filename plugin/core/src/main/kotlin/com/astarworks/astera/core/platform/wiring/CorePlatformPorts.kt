@@ -64,6 +64,8 @@ public class CorePlatformPorts(
     public val scoreboardManager: ((ServiceRegistry) -> IScoreboardManager)? = null,
     public val tabList: ((ServiceRegistry) -> ITabList)? = null,
     public val hudGateway: ((ServiceRegistry) -> IHudGateway)? = null,
+    /** The resource pack to push on join (ADR-0182); null = none configured. */
+    public val resourcePack: com.astarworks.astera.core.domain.hud.ResourcePackSpec? = null,
     // ---- World ----------------------------------------------------------
     /** No in-memory default exists: when null, `services.get<IWorldGateway>()` is null and the wiring falls back to a Noop. */
     public val worldGateway: ((ServiceRegistry) -> IWorldGateway)? = null,

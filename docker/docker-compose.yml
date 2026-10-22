@@ -148,6 +148,23 @@ services:
       timeout: 3s
       retries: 10
 
+# ---- F1-C (ADR-0182): resource pack server --------------------------------
+# NEW service block, kept separate from the paper service. The Paper side
+# needs these env vars (F1-A owns the paper block - merge them there):
+#   ASTERA_RESOURCE_PACK_URL:      "${ASTERA_RESOURCE_PACK_URL:-http://localhost:8099/astera.zip}"  # what CLIENTS download
+#   ASTERA_RESOURCE_PACK_SHA1_URL: "http://resource-pack/astera.zip.sha1"                          # what the SERVER reads at boot
+# and `resource-pack: {condition: service_started}` under paper.depends_on.
+# For players off this machine set ASTERA_RESOURCE_PACK_URL to the host's LAN/public address.
+  resource-pack:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.resource-pack
+    image: astera/resource-pack:dev
+    container_name: astera-resource-pack
+    restart: unless-stopped
+    ports:
+      - "8099:80"       # http://localhost:8099/astera.zip
+
 volumes:
   velocity-data:
   lobby-data:

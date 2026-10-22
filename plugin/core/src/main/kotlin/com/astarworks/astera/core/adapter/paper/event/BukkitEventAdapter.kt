@@ -155,6 +155,27 @@ public class BukkitEventAdapter(
         }
     }
 
+    /** ADR-0182: the status HUD switches between glyph bar and text on what the client did with the pack. */
+    @EventHandler
+    public fun onResourcePackStatus(event: org.bukkit.event.player.PlayerResourcePackStatusEvent) {
+        val status = when (event.status) {
+            org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.SUCCESSFULLY_LOADED ->
+                com.astarworks.astera.core.domain.hud.ResourcePackStatus.LOADED
+            org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.ACCEPTED,
+            org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.DOWNLOADED,
+            -> com.astarworks.astera.core.domain.hud.ResourcePackStatus.ACCEPTED
+            org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.DECLINED ->
+                com.astarworks.astera.core.domain.hud.ResourcePackStatus.DECLINED
+            else -> com.astarworks.astera.core.domain.hud.ResourcePackStatus.FAILED
+        }
+        safePublish {
+            com.astarworks.astera.core.domain.event.ResourcePackStatusChanged(
+                playerId = PlayerId(event.player.uniqueId),
+                status = status,
+            )
+        }
+    }
+
     @EventHandler
     public fun onPlayerQuit(event: PlayerQuitEvent) {
         safePublish {

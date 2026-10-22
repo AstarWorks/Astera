@@ -1,0 +1,28 @@
+{
+  "_comment" : "Negative-space characters (ADR-0097 / ADR-0182). GENERATED from NegativeSpace - do not edit. PUA range F810-F838.",
+  "providers" : [
+    {
+      "type" : "space",
+      "advances" : {
+        "\uF810" : 1,
+        "\uF811" : 2,
+        "\uF812" : 4,
+        "\uF813" : 8,
+        "\uF814" : 16,
+        "\uF815" : 32,
+        "\uF816" : 64,
+        "\uF817" : 128,
+        "\uF818" : 256,
+        "\uF830" : -1,
+        "\uF831" : -2,
+        "\uF832" : -4,
+        "\uF833" : -8,
+        "\uF834" : -16,
+        "\uF835" : -32,
+        "\uF836" : -64,
+        "\uF837" : -128,
+        "\uF838" : -256
+      }
+    }
+  ]
+}

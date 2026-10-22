@@ -121,6 +121,33 @@ public sealed interface HudLayout {
             }
         }
     }
+
+    /**
+     * The persistent status line (HP bar), owned by `HpStatusHudService` (ADR-0182).
+     *
+     * It is not a screen surface of its own: the gateway composites it into the
+     * action bar line together with whatever readout / toast is live there, so
+     * the HP bar survives toasts and the one-owner rule of ADR-0177 still holds
+     * (the action bar's *content* has owners, the *status line* has exactly one).
+     *
+     * @property component what to draw. [HudComponent.FontText] is the glyph
+     *   form (resource pack loaded); anything else is the plain-text fallback
+     *   and is simply prefixed to the readout.
+     * @property anchorLeftPx for a [HudComponent.FontText] component: where its
+     *   left edge must land, in pixels from the screen centre (negative = left).
+     *   The gateway cancels the centring of the action bar around it. `null`
+     *   for non-glyph components.
+     */
+    public data class StatusLine(
+        public val component: HudComponent,
+        public val anchorLeftPx: Int? = null,
+    ) : HudLayout {
+        init {
+            require((component is HudComponent.FontText) == (anchorLeftPx != null)) {
+                "StatusLine.anchorLeftPx must be set exactly when the component is FontText"
+            }
+        }
+    }
 }
 
 /**

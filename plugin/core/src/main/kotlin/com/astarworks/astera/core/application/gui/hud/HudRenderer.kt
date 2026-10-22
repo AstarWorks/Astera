@@ -61,6 +61,7 @@ public class HudRenderer(
             is HudComponent.ProgressBar -> renderProgressBar(component)
             is HudComponent.Composite -> renderComposite(component, viewer)
             is HudComponent.Spacer -> renderSpacer(component)
+            is HudComponent.FontText -> Component.text(component.text).font(ASTERA_FONT_KEY)
         }
 
     /**
@@ -78,6 +79,7 @@ public class HudRenderer(
             is HudLayout.Subtitle -> render(layout.component, viewer)
             is HudLayout.Sidebar,
             is HudLayout.TabList,
+            is HudLayout.StatusLine, // composed into the action bar by the gateway, not rendered alone
             -> Component.empty()
         }
 

@@ -8,6 +8,7 @@ import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.hud.HudRegion
 import com.astarworks.astera.core.domain.hud.region
+import com.astarworks.astera.core.domain.hud.status.StatusHudGlyphs
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
@@ -46,6 +47,12 @@ public class SimHudRecorder(
 
     public fun actionBar(player: PlayerId): HudLayout.ActionBar? = layout(player, HudRegion.ACTION_BAR) as? HudLayout.ActionBar
 
+    public fun statusLine(player: PlayerId): HudLayout.StatusLine? =
+        layout(player, HudRegion.STATUS_LINE) as? HudLayout.StatusLine
+
+    /** The status line as text: `hp-bar:cur/max` (glyph form) or `key{current=..,max=..}` (text form). */
+    public fun statusLineText(player: PlayerId): String? = statusLine(player)?.let { describe(it.component) }
+
     public fun bossBar(player: PlayerId, slot: Int = 1): HudLayout.BossBarSlot? =
         layout(player, regionOfSlot(slot)) as? HudLayout.BossBarSlot
 
@@ -71,6 +78,7 @@ public class SimHudRecorder(
         is HudLayout.BossBarSlot -> describe(layout.component) + " @%.2f".format(layout.progress)
         is HudLayout.TabList -> "tab-list"
         is HudLayout.Subtitle -> describe(layout.component)
+        is HudLayout.StatusLine -> describe(layout.component)
     }
 
     private fun regionOfSlot(slot: Int): HudRegion = when (slot) {
@@ -90,6 +98,17 @@ public class SimHudRecorder(
             is HudComponent.Glyph -> "glyph:${component.textureRef.value}"
             is HudComponent.ProgressBar -> "bar:${component.percent}"
             is HudComponent.Spacer -> "spacer"
+            is HudComponent.FontText -> "hp-bar:" + hpNumbers(component)
         }
+
+        /** The `cur/max` digits drawn on an HP-bar glyph string (`?` when none). */
+        public fun hpNumbers(text: HudComponent.FontText): String =
+            text.text.mapNotNull { c ->
+                when (c) {
+                    StatusHudGlyphs.SLASH -> '/'
+                    in StatusHudGlyphs.digit(0)..StatusHudGlyphs.digit(9) -> '0' + (c - StatusHudGlyphs.DIGIT_ZERO)
+                    else -> null
+                }
+            }.joinToString("").ifEmpty { "?" }
     }
 }

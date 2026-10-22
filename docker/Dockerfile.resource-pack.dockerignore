@@ -1,0 +1,31 @@
+# Build outputs
+**/build/
+**/.gradle/
+**/.kotlin/
+**/out/
+**/bin/
+
+# IDE / editor
+**/.idea/
+**/.vscode/
+**/*.iml
+**/.DS_Store
+
+# VCS
+.git/
+.gitignore
+.github/
+
+# Local env
+**/.env
+**/.env.*
+!**/.env.example
+
+# Docker artefacts themselves don't need to enter the build context
+docker/
+
+# Docs and deploy aren't needed for the jar build
+docs/
+deploy/
+private/
+tools/architecture-test/build/
