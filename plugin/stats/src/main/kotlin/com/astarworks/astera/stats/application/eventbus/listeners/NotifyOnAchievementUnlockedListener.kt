@@ -7,6 +7,7 @@ import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.stats.application.port.outbound.IAchievementRepository
 import com.astarworks.astera.stats.domain.event.AchievementUnlocked
 import org.slf4j.LoggerFactory
 
@@ -29,13 +30,14 @@ import org.slf4j.LoggerFactory
  * forbids core → stats imports, so the listener has to live in stats too
  * (parallel to `RefreshNameplateOnAchievementUnlockedListener`).
  *
- * # Phase 1 PoC stubs
+ * # Subtitle content
  *
  * - Chat: real `IPlayerGateway.sendMessage` → MiniMessage rendered by
- *   `IMessageRenderer`. Already wired in `AsteraStatsPlugin`.
- * - HUD popup: `HudLayout.Subtitle` through `IHudGateway`. `InMemoryHudGateway`
- *   records the call and publishes `HudShown`; Wave 6b's Paper popup adapter
- *   carries the payload through to the screen unchanged.
+ *   `IMessageRenderer`.
+ * - HUD popup: `HudLayout.Subtitle` through `IHudGateway`, showing the
+ *   achievement's name and description from the catalog
+ *   ([IAchievementRepository]). Falls back to the id-only subtitle when the
+ *   achievement is not in the catalog.
  *
  * # Idempotency
  *
@@ -49,6 +51,7 @@ public class NotifyOnAchievementUnlockedListener(
     private val playerGateway: IPlayerGateway,
     private val messages: IMessageRenderer,
     private val hudGateway: IHudGateway,
+    private val achievements: IAchievementRepository,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -64,11 +67,24 @@ public class NotifyOnAchievementUnlockedListener(
         )
         playerGateway.sendMessage(event.playerId, rendered)
 
-        val layout = HudLayout.Subtitle(
-            component = HudComponent.Text(
+        val definition = achievements.find(event.achievementId)
+        val component: HudComponent = if (definition != null) {
+            HudComponent.Composite(
+                parts = listOf(
+                    HudComponent.Text(messageKey = definition.nameKey, color = HudColor.GOLD),
+                    HudComponent.Text(messageKey = definition.descriptionKey, color = HudColor.GRAY),
+                ),
+                spacing = 3,
+            )
+        } else {
+            HudComponent.Text(
                 messageKey = MessageKey("astera.achievement.unlocked.subtitle"),
                 color = HudColor.GOLD,
-            ),
+                placeholders = mapOf("achievement" to event.achievementId.value),
+            )
+        }
+        val layout = HudLayout.Subtitle(
+            component = component,
             fadeInTicks = 10,
             stayTicks = 60,
             fadeOutTicks = 10,

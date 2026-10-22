@@ -429,7 +429,11 @@ public object EconomyWiring {
         // `/astera economy balance|grant|withdraw|transfer` and `/astera shop [id]` (ADR-0184).
         com.astarworks.astera.economy.command.EconomyCommands(deposit, withdraw, transfer, ledger, playerGateway)
             .build().forEach { commands.register("economy", it) }
-        commands.register(buildShopCommandSpec(shopBrowse, shopIds = { shopRegistry.all().map { it.id.value } }))
+        // The shop is lobby-only (ADR-0179), so `/astera shop` is registered
+        // only where the lobby is hosted, mirroring the intent handler above.
+        if (ctx.serverRole.hostsLobby) {
+            commands.register(buildShopCommandSpec(shopBrowse, shopIds = { shopRegistry.all().map { it.id.value } }))
+        }
 
         // Wave 5server-harden (ADR-0123): register the ShopReferencesItemCheck
         // with the optional IContentValidator. If Core hasn't published one
