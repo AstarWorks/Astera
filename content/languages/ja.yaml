@@ -903,6 +903,8 @@ astera:
       summary: "<gold>{delta} {currency}</gold> <gray>(所持 {balance})</gray>"
     status:
       stacks: "<gray>x{stacks}</gray>"
+      seconds: "<gray>{seconds}s</gray>"
+      separator: "<dark_gray>|</dark_gray>"
       # ADR-0182 — リソースパック未適用時の文字表示 HP。
       hp: "<red>HP</red> <white>{current}/{max}</white>"
       # F2-2 (ADR-0194) - 銃を持っていてパック未適用のときのテキスト表示。

@@ -82,8 +82,13 @@ public class HudStatusEffectReadoutListener(
     private fun render(playerId: PlayerId): HudLayout.ActionBar? {
         val parts = mutableListOf<HudComponent>()
 
-        for (effect in statusEffects.active(playerId).take(MAX_EFFECTS)) {
-            parts += HudComponent.Text(messageKey = effect.spec.displayNameKey, color = HudColor.WHITE)
+        for ((index, effect) in statusEffects.active(playerId).take(MAX_EFFECTS).withIndex()) {
+            if (index > 0) parts += HudComponent.Text(messageKey = KEY_SEPARATOR)
+            // Harmful effects read red, beneficial ones green; stacks and seconds left follow the name.
+            parts += HudComponent.Text(
+                messageKey = effect.spec.displayNameKey,
+                color = if (effect.spec.kind.harmful) HudColor.RED else HudColor.GREEN,
+            )
             if (effect.currentStacks > 1) {
                 parts += HudComponent.Text(
                     messageKey = KEY_STACKS,
@@ -91,6 +96,11 @@ public class HudStatusEffectReadoutListener(
                     placeholders = mapOf("stacks" to effect.currentStacks.toString()),
                 )
             }
+            parts += HudComponent.Text(
+                messageKey = KEY_SECONDS,
+                color = HudColor.GRAY,
+                placeholders = mapOf("seconds" to secondsLeft(effect.remainingTicks).toString()),
+            )
         }
 
         if (parts.isEmpty()) return null
@@ -101,7 +111,12 @@ public class HudStatusEffectReadoutListener(
         )
     }
 
+    /** Whole seconds left, rounded up so an effect that is still on never reads 0. */
+    private fun secondsLeft(ticks: Int): Int = (ticks + TICKS_PER_SECOND - 1) / TICKS_PER_SECOND
+
     public companion object {
+        private const val TICKS_PER_SECOND = 20
+
         /** Half a second: cheap for <= 32 players, fast enough to follow effect stacks. */
         public const val DEFAULT_POLL_PERIOD_TICKS: Long = 10L
 
@@ -114,5 +129,7 @@ public class HudStatusEffectReadoutListener(
         public const val MAX_EFFECTS: Int = 4
 
         private val KEY_STACKS: MessageKey = MessageKey("astera.hud.status.stacks")
+        private val KEY_SECONDS: MessageKey = MessageKey("astera.hud.status.seconds")
+        private val KEY_SEPARATOR: MessageKey = MessageKey("astera.hud.status.separator")
     }
 }

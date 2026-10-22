@@ -902,6 +902,8 @@ astera:
       summary: "<gold>{delta} {currency}</gold> <gray>({balance})</gray>"
     status:
       stacks: "<gray>x{stacks}</gray>"
+      seconds: "<gray>{seconds}s</gray>"
+      separator: "<dark_gray>|</dark_gray>"
       # ADR-0182 — plain-text HP, shown while the resource pack is not loaded.
       hp: "<red>HP</red> <white>{current}/{max}</white>"
       # F2-2 (ADR-0194) - text form while a gun is held and the pack is not loaded.
