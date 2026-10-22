@@ -975,6 +975,6 @@ public data class QuaternionYaml(
     public val z: Double,
     public val w: Double,
 ) {
-    public fun toDomain(): com.astarworks.astera.core.domain.effect.Quaternion =
-        com.astarworks.astera.core.domain.effect.Quaternion(x, y, z, w)
+    public fun toDomain(): com.astarworks.astera.core.domain.geometry.math.Quaternion =
+        com.astarworks.astera.core.domain.geometry.math.Quaternion(x, y, z, w)
 }

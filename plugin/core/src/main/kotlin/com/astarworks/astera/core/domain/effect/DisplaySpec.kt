@@ -1,6 +1,7 @@
 package com.astarworks.astera.core.domain.effect
 
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.item.ItemId
 
@@ -69,24 +70,6 @@ public data class DisplayTransform(
     public companion object {
         public val ONE_SCALE: Vec3 = Vec3(1.0, 1.0, 1.0)
         public val IDENTITY: DisplayTransform = DisplayTransform()
-    }
-}
-
-/**
- * Unit-quaternion orientation, double precision. Identity is `(0, 0, 0, 1)`
- * — Mojang's wire convention `(x, y, z, w)`.
- *
- * Lives here (rather than in `geometry/`) because no other domain concept
- * needs a quaternion in Phase 1. Promote when a second use site appears.
- */
-public data class Quaternion(
-    public val x: Double,
-    public val y: Double,
-    public val z: Double,
-    public val w: Double,
-) {
-    public companion object {
-        public val IDENTITY: Quaternion = Quaternion(0.0, 0.0, 0.0, 1.0)
     }
 }
 
