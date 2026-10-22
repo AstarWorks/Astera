@@ -68,8 +68,7 @@ Admin shortcuts (skip the queue): `/astera-match start example-arena`, then
 ## Logs / reset
 
 - Logs: `docker compose -f docker/docker-compose.yml logs -f paper`
-- Deleted/renamed files under `content/` stay in the `/data` volume (the image
-  sync only overwrites). Remove them with `docker exec astera-paper rm /data/content/<path>`
-  or reset the volume.
+- Content is baked into the image at `/content` (outside the `/data` volume),
+  so every `make docker-up` serves exactly the repo's `content/`.
 - Reset world and data: `make docker-nuke` then `make docker-up`
   (`LEVEL_TYPE=FLAT` only applies to a freshly created world).

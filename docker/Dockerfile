@@ -56,8 +56,6 @@ FROM itzg/minecraft-server:java25 AS runtime
 # EULA is intentionally left FALSE; the operator must opt in via env or the
 # docker-compose file. This keeps the base image redistribution-safe.
 ENV EULA=FALSE \
-    SYNC_SKIP_NEWER_IN_DESTINATION=false \
-    COPY_CONFIG_DEST=/data \
     TYPE=PAPER \
     VERSION=26.1.2 \
     MEMORY=4G \
@@ -71,13 +69,12 @@ ENV EULA=FALSE \
 # Plugin jars: itzg copies /plugins -> /data/plugins on every start.
 COPY --from=builder /out/ /plugins/
 
-# Content: the core plugin resolves `<server root>/content` = /data/content.
-# The Docker daemon is shared with the host, so a bind mount of ../content
-# would appear empty; bake it into the image instead. itzg syncs /config ->
-# $COPY_CONFIG_DEST (set to /data above; default is /data/config) on every
-# start; SYNC_SKIP_NEWER_IN_DESTINATION=false makes a rebuilt image overwrite
-# stale copies in the /data volume.
-COPY content /config/content/
+# Content: the core plugin checks `<server root>/../content` (= /content) before
+# `<server root>/content`. The Docker daemon is shared with the host, so a bind
+# mount of ../content would appear empty; bake it into the image at /content.
+# It lives outside the /data volume, so each rebuilt image carries exactly the
+# repo's content — deleted files do not linger.
+COPY content /content/
 
 # 25565 = Minecraft Java, 25575 = RCON. World/config volume is /data.
 EXPOSE 25565 25575
