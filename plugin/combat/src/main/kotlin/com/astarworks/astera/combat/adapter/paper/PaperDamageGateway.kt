@@ -4,6 +4,7 @@ import com.astarworks.astera.combat.application.port.outbound.DamageApplicationE
 import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.IDamageGateway
 import com.astarworks.astera.combat.domain.damage.DamageSource
+import com.astarworks.astera.combat.domain.damage.InvulnerabilityFrames
 import com.astarworks.astera.combat.domain.damage.ResolvedDamage
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -34,8 +35,11 @@ import java.util.concurrent.ConcurrentHashMap
  *     floor (ADR-0149 §C) so vanilla `PlayerDeathEvent` NEVER fires.
  *  5. Trigger `player.playHurtAnimation(0f)` for vanilla red-flash +
  *     hurt-sound feedback (no damage applied by this call).
- *  6. Set `player.noDamageTicks = player.maximumNoDamageTicks` so subsequent
- *     rapid hits respect Bukkit i-frame semantics.
+ *  6. Invulnerability frames are Astera-owned ([InvulnerabilityFrames], one
+ *     20-tick window per target after a landed hit). The vanilla
+ *     `noDamageTicks` is neither read nor written: vanilla sets it for its own
+ *     reasons (join / respawn / mob hits / the core re-route) and a read made
+ *     rapid, unrelated Astera hits report `Immune` with no feedback.
  *  7. Return `Killed` if newHp ≤ 0.0 else `HpReduced(newHp)`.
  *
  * `ApplyDamageUseCase` publishes `PlayerKilled` on `DamageOutcome.Killed`
@@ -96,6 +100,8 @@ public class PaperDamageGateway(
 
     private val log = LoggerFactory.getLogger(javaClass)
 
+    private val frames = InvulnerabilityFrames()
+
     /**
      * Per-tick marker: players whose damage was applied via Path 1
      * (this gateway). Read by Wave 6a-6 BukkitEventAdapter.onPlayerDeath
@@ -124,9 +130,6 @@ public class PaperDamageGateway(
         if (player.isDead) {
             return Result.failure(DamageApplicationError.TargetAlreadyDead(target))
         }
-        if (player.noDamageTicks > 0) {
-            return Result.failure(DamageApplicationError.Immune(target))
-        }
 
         val container = containerStore.containerFor(target)
         val currentHp = (container.get(Attributes.CURRENT_HP) as? AttributeValue.NumberValue)?.value
@@ -138,6 +141,11 @@ public class PaperDamageGateway(
         // reject so ApplyDamageUseCase does not re-publish PlayerKilled per hit.
         if (currentHp <= 0.0) {
             return Result.failure(DamageApplicationError.TargetAlreadyDead(target))
+        }
+
+        if (!frames.tryEnter(target, scheduler.currentTick())) {
+            log.debug("PaperDamageGateway: {} is inside its Astera invulnerability window", target)
+            return Result.failure(DamageApplicationError.Immune(target))
         }
 
         // Mark BEFORE the container write so Wave 6a-6 BukkitEventAdapter
@@ -159,10 +167,6 @@ public class PaperDamageGateway(
         // Vanilla feedback (red flash + hurt sound) — no damage applied
         // by this call (it just plays the animation per Paper API).
         player.playHurtAnimation(0f)
-
-        // Bukkit i-frame reset so subsequent rapid Astera hits respect
-        // the same invulnerability window vanilla uses.
-        player.noDamageTicks = player.maximumNoDamageTicks
 
         return if (newHp <= 0.0) {
             Result.success(DamageOutcome.Killed)

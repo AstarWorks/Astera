@@ -18,17 +18,25 @@ class WeaponsE2eTest : E2eBase() {
         rcon("data get entity ${b.name} foodLevel").trim().substringAfterLast(" ").toIntOrNull()
 
     private fun give(a: Bot, item: String): Int? {
+        // One weapon at a time: the lobby kit leaves only a few free hotbar slots, so a second give would
+        // land in the main inventory and never be selectable.
+        rcon("clear ${a.name}")
+        Thread.sleep(300)
+        val before = a.slotUpdates.size
         a.command("astera items give ${a.name} $item")
-        Thread.sleep(500)
-        val slot = a.slotUpdates.lastOrNull { it.containerId == 0 && it.amount > 0 && it.slot in 36..44 }?.slot?.minus(36)
+        a.waitUntil(4_000) { a.slotUpdates.size > before }
+        Thread.sleep(300)
+        // Only updates caused by this give: older ones point at the previous weapons' slots.
+        val slot = a.slotUpdates.drop(before).lastOrNull { it.containerId == 0 && it.amount > 0 && it.slot in 36..44 }?.slot?.minus(36)
         if (slot != null) {
-            a.selectHotbar((slot + 1) % 9)
-            Thread.sleep(200)
             a.selectHotbar(slot)
             Thread.sleep(400)
         }
+        lastSelected = rcon("data get entity ${a.name} SelectedItem").trim()
         return slot
     }
+
+    private var lastSelected: String = ""
 
     private fun face(a: Bot, b: Bot, distance: Double) {
         val ax = 0.5
@@ -54,7 +62,12 @@ class WeaponsE2eTest : E2eBase() {
             "pistol" to false, "rifle" to false, "fire-staff" to false, "frost-staff" to false,
             "thunder-staff" to false, "verdant-staff" to false, "shotgun" to false,
         )) {
-            give(a, item) ?: continue
+            val slot = give(a, item)
+            E2eReport.check(suite, "$item lands in a selectable hotbar slot", "SetContainerSlot") {
+                assertThat(slot).describedAs("no hotbar slot update after /items give $item").isNotNull()
+                "hotbar $slot; selected=$lastSelected"
+            }
+            if (slot == null) continue
             if (melee) {
                 repeat(3) { n ->
                     rcon("effect give ${a.name} minecraft:instant_health 1 4 true")
@@ -66,7 +79,7 @@ class WeaponsE2eTest : E2eBase() {
                     val after = food(a)
                     E2eReport.check(suite, "$item left click #$n spends energy (food bar)", "server foodLevel") {
                         assertThat(after != null && before != null && after < before)
-                            .describedAs("food $before -> $after; hp target=${hp(b)}; chat=${a.chatTexts().takeLast(3)}").isTrue()
+                            .describedAs("food $before -> $after; hp target=${hp(b)}; selected=$lastSelected").isTrue()
                         "food $before -> $after"
                     }
                 }
@@ -85,7 +98,7 @@ class WeaponsE2eTest : E2eBase() {
                 }
                 E2eReport.check(suite, "$item hits a still target $tries/$tries", "server Health") {
                     assertThat(hits).describedAs("hits=$hits/$tries").isEqualTo(tries)
-                    "hits $hits/$tries"
+                    "hits $hits/$tries (selected=$lastSelected)"
                 }
             }
         }

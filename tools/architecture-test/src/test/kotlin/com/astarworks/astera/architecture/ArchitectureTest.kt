@@ -2247,6 +2247,14 @@ class ArchitectureTest {
                             "mirror to player.health (clamped ≥ MIRROR_MIN_HP=1.0)."
                     }
                     .doesNotContain("player.damage(")
+                // Invulnerability is Astera-owned (InvulnerabilityFrames); reading vanilla
+                // noDamageTicks made unrelated vanilla i-frames swallow Astera hits.
+                assertThat(file.text)
+                    .withFailMessage {
+                        "ADR-0149 violation: PaperDamageGateway source ${file.path} touches " +
+                            "`player.noDamageTicks`. Use InvulnerabilityFrames (Astera-owned window)."
+                    }
+                    .doesNotContain("player.noDamageTicks")
                 // Forbidden zero-HP write: fires vanilla PlayerDeathEvent
                 // synchronously, bypassing PlayerKilled domain event flow.
                 listOf(
