@@ -5,7 +5,7 @@ import com.astarworks.astera.core.application.port.outbound.IServerTransferGatew
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.MatchEnded
-import com.astarworks.astera.core.domain.event.PlayerJoinedServer
+import com.astarworks.astera.core.domain.event.PlayerArrivedOnServer
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.match.MatchId
@@ -83,6 +83,11 @@ class CrossServerHandoffTest {
             Result.Success(Unit)
     }
 
+    private class FakeLiveness(var up: Boolean = true) : com.astarworks.astera.core.application.port.outbound.IServerLiveness {
+        override fun isUp(server: ServerName): Boolean = up
+        override fun upPeers(): Set<ServerName> = emptySet()
+    }
+
     private class FakeLifecycle(private val matches: InMemoryMatchRepository) : IMatchLifecycle {
         val started = mutableListOf<Pair<StageId, String?>>()
         val entries = mutableListOf<Triple<MatchId, PlayerId, TeamId?>>()
@@ -115,14 +120,15 @@ class CrossServerHandoffTest {
 
         val matchmaker = InMemoryMatchmaker(eventBus = lobbyBus)
         val lobbyTransfers = FakeTransfers { player, target ->
-            if (target == game) gameBus.publish(PlayerJoinedServer(player))
+            if (target == game) gameBus.publish(PlayerArrivedOnServer(player, lobby, game))
         }
         val gameTransfers = FakeTransfers()
         val gameMatches = InMemoryMatchRepository()
         val lifecycle = FakeLifecycle(gameMatches)
 
+        val liveness = FakeLiveness()
         val former = RemoteMatchFormer(
-            matchmaker, link.node(lobby), lobbyTransfers, notifier, lobbyScheduler, settings,
+            matchmaker, link.node(lobby), lobbyTransfers, liveness, notifier, lobbyScheduler, settings,
         ) { MatchPlan(stage, "norma-mode") }.also { it.start() }
 
         val receiver = MatchAssignmentReceiver(
@@ -201,6 +207,24 @@ class CrossServerHandoffTest {
     }
 
     @Test
+    fun `a game server whose heartbeat is gone holds the queue instead of assigning`() {
+        val w = World()
+        w.liveness.up = false
+        w.queue(2)
+
+        assertThat(w.former.isStageBusy(MatchmakingMode.Norma)).isTrue()
+        assertThat(w.former.holdNotice(MatchmakingMode.Norma)).isEqualTo("server-down")
+        assertThat(w.former.execute(MatchmakingMode.Norma)).isEqualTo(Result.Success(null))
+        assertThat(w.link.sent).isEmpty()
+        assertThat(w.matchmaker.pendingByMode(MatchmakingMode.Norma)).hasSize(2)
+
+        w.liveness.up = true
+        assertThat(w.former.holdNotice(MatchmakingMode.Norma)).isEqualTo("stage-busy")
+        assertThat(w.former.execute(MatchmakingMode.Norma)).isInstanceOf(Result.Success::class.java)
+        assertThat(w.link.sent).isNotEmpty()
+    }
+
+    @Test
     fun `no answer from the game server re-queues after the ack timeout`() {
         val w = World(withGame = false)
         val players = w.queue(2)
@@ -238,7 +262,7 @@ class CrossServerHandoffTest {
         lobbyNode.sendMessage(game, ProxyChannel.MATCH_FOUND, MatchAssignmentCodec.encode(assignment))
         assertThat(statuses).containsExactly(AssignmentStatus.Accepted(MatchId("a-9")))
 
-        bus.publish(PlayerJoinedServer(here))
+        bus.publish(PlayerArrivedOnServer(here, lobby, game))
         assertThat(lifecycle.started).isEmpty() // still waiting for the second player
 
         scheduler.advanceTicks(settings.arrivalTimeoutSeconds * 20L)
@@ -272,7 +296,7 @@ class CrossServerHandoffTest {
         val w = World()
         val stray = PlayerId(UUID.randomUUID())
 
-        w.gameBus.publish(PlayerJoinedServer(stray))
+        w.gameBus.publish(PlayerArrivedOnServer(stray, lobby, game))
         assertThat(w.gameTransfers.transfers).isEmpty()
         w.gameSeconds(5)
 

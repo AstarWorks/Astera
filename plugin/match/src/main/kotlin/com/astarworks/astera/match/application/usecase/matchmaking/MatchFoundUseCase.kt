@@ -115,6 +115,9 @@ public interface MatchFormer {
     /** `true` while [mode]'s lane cannot take another match. */
     public fun isStageBusy(mode: MatchmakingMode): Boolean
 
+    /** Suffix of the `astera.match.matchmaking.*` notice queued players get while [isStageBusy]. */
+    public fun holdNotice(mode: MatchmakingMode): String = "stage-busy"
+
     /**
      * Try to form one match for [mode]. `Success(null)` = nothing to do.
      *

@@ -638,6 +638,7 @@ astera:
       countdown: "<yellow>Match starts in <gold>{seconds}</gold>s <gray>({players} queued)</gray></yellow>"
       countdown-cancelled: "<gray>Not enough players ({players}/{required}); waiting for more.</gray>"
       stage-busy: "<gray>The arena is in use. Your match starts as soon as it is free.</gray>"
+      server-down: "<red>The arena server is down. The queue is on hold until it is back.</red>"
       match-found: "<green>Match found! Teleporting to <gold>{stage}</gold> on team <gold>{team}</gold>.</green>"
       start-failed: "<red>The match could not start; you were put back in the queue.</red>"
       # ADR-0179 — lobby/game server split
@@ -1292,6 +1293,13 @@ astera:
       teleport-failed: "<red>Teleport failed.</red>"
       no-party: "<red>You are not in a party. Join one before traveling to a survival island.</red>"
       island-load-failed: "<red>Failed to load your party's survival island ({detail}).</red>"
+
+  # F3-6 (ADR-0187) — server hand-off
+  proxy:
+    transfer:
+      title: "<gold>Moving servers…</gold>"
+      subtitle: "<gray>Your inventory travels with you.</gray>"
+      actionbar: "<gray>Moving to <white>{server}</white>…</gray>"
 
   # ADR-0185 — lobby hotbar kit + crafting-grid menu buttons.
   lobby-kit:

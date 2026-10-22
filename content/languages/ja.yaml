@@ -640,6 +640,7 @@ astera:
       countdown: "<yellow>マッチ開始まで <gold>{seconds}</gold> 秒 <gray>（キュー {players} 人）</gray></yellow>"
       countdown-cancelled: "<gray>人数が足りません（{players}/{required}）。参加者を待っています。</gray>"
       stage-busy: "<gray>アリーナ使用中です。空き次第マッチが始まります。</gray>"
+      server-down: "<red>アリーナサーバーが停止中です。復旧までキューを保留します。</red>"
       match-found: "<green>マッチ成立！ <gold>{stage}</gold> へ移動します（チーム <gold>{team}</gold>）。</green>"
       start-failed: "<red>マッチを開始できませんでした。キューに戻しました。</red>"
       # ADR-0179 — ロビー/ゲームサーバー分離
@@ -1283,6 +1284,13 @@ astera:
       teleport-failed: "<red>テレポートに失敗しました。</red>"
       no-party: "<red>パーティに参加していません。サバイバルアイランドへ行く前にパーティに参加してください。</red>"
       island-load-failed: "<red>サバイバルアイランドの読み込みに失敗しました ({detail})。</red>"
+
+  # F3-6 (ADR-0187) — server hand-off
+  proxy:
+    transfer:
+      title: "<gold>サーバー移動中…</gold>"
+      subtitle: "<gray>インベントリは引き継がれます。</gray>"
+      actionbar: "<gray><white>{server}</white> へ移動しています…</gray>"
 
   # ADR-0185 — lobby hotbar kit + crafting-grid menu buttons.
   lobby-kit:

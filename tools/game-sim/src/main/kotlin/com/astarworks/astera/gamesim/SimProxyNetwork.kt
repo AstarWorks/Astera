@@ -31,6 +31,13 @@ public class SimProxyNetwork {
     /** Every player move so far as `(player, from, to)`. */
     public val moves: MutableList<Triple<PlayerId, ServerName, ServerName>> = mutableListOf()
 
+    private val down: MutableSet<ServerName> = linkedSetOf()
+
+    /** Takes [name] off the network (crashed: no ticks, no messages in or out) or brings it back. */
+    public fun setDown(name: ServerName, isDown: Boolean) {
+        if (isDown) down += name else down -= name
+    }
+
     public fun node(name: ServerName): IProxyMessenger = nodes.getOrPut(name) { Node(name) }
 
     public fun register(name: ServerName, sim: GameSim) {
@@ -41,21 +48,21 @@ public class SimProxyNetwork {
     public fun pump() {
         while (queue.isNotEmpty()) {
             val (target, message) = queue.removeAt(0)
-            nodes[target]?.deliver(message)
+            if (target !in down) nodes[target]?.deliver(message)
         }
     }
 
     /** Steps every server one tick at a time, pumping the network between ticks. */
     public fun step(ticks: Int) {
         repeat(ticks) {
-            sims.values.forEach { it.step(1) }
+            sims.filterKeys { it !in down }.values.forEach { it.step(1) }
             pump()
         }
     }
 
     private fun move(playerId: PlayerId, from: ServerName, to: ServerName): Result<Unit, ProxyError> {
         val source = sims[from] ?: return Result.Failure(ProxyError.NoProxyConnection)
-        val target = sims[to] ?: return Result.Failure(ProxyError.UnknownTargetServer(to))
+        val target = sims[to]?.takeIf { to !in down } ?: return Result.Failure(ProxyError.UnknownTargetServer(to))
         val entity = source.detachPlayer(playerId) ?: return Result.Failure(ProxyError.NoProxyConnection)
         moves += Triple(playerId, from, to)
         target.attachPlayer(playerId, entity.name)
@@ -70,6 +77,7 @@ public class SimProxyNetwork {
 
         override fun sendMessage(targetServer: ServerName, channel: ProxyChannel, payload: ByteArray): Result<Unit, ProxyError> {
             if (targetServer !in nodes) return Result.Failure(ProxyError.UnknownTargetServer(targetServer))
+            if (local in down) return Result.Success(Unit)
             val message = ProxyMessage(local, channel, payload.copyOf())
             sent += message
             queue += targetServer to message

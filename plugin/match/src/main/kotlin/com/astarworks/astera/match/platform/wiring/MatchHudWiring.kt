@@ -83,6 +83,10 @@ internal object MatchHudWiring {
 
         subscriptions += eventBus.subscribe(PlayerJoinedServer::class) { lobbySidebar.onJoined(it.playerId) }
         subscriptions += eventBus.subscribe(PlayerQuitServer::class) { lobbySidebar.onQuit(it.playerId) }
+        // F3-6: kit + wallet + queue lines are re-read once the hand-off restore has finished.
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerArrivedOnServer::class) {
+            lobbySidebar.refresh(it.playerId)
+        }
         subscriptions += eventBus.subscribe(PlayerReturnedToLobby::class) { lobbySidebar.refresh(it.playerId) }
         subscriptions += eventBus.subscribe(MatchQueueJoined::class) { lobbySidebar.refresh(it.playerId) }
         subscriptions += eventBus.subscribe(MatchQueueLeft::class) { lobbySidebar.refresh(it.playerId) }

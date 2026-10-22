@@ -1,12 +1,15 @@
 package com.astarworks.astera.gamesim
 
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
+import com.astarworks.astera.core.application.port.outbound.IServerLiveness
 import com.astarworks.astera.core.application.services.getOrThrow
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.EndReason
 import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.event.MatchStarted
+import com.astarworks.astera.core.domain.event.PlayerArrivedOnServer
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
+import com.astarworks.astera.core.domain.event.ProxyHeartbeat
 import com.astarworks.astera.core.domain.proxy.ProxyChannel
 import com.astarworks.astera.core.domain.proxy.ServerName
 import com.astarworks.astera.core.domain.proxy.ServerRole
@@ -99,6 +102,9 @@ class LobbyGameSplitScenarioTest {
             assertThat(network.sent.map { it.channel }).contains(ProxyChannel.MATCH_FOUND, ProxyChannel.MATCH_STATUS)
             assertThat(network.moves.map { it.third }).containsExactly(gameName)
 
+            // The match starts once the hand-off token has landed and the arrival is announced.
+            network.step(5)
+
             // The match runs on the game server only, with the player on a team.
             assertThat(game.eventsOf<MatchStarted>()).hasSize(1)
             assertThat(lobby.eventsOf<MatchStarted>()).isEmpty()
@@ -133,6 +139,91 @@ class LobbyGameSplitScenarioTest {
             }
             assertThat(secondArrived).`as`("held player is assigned once the game server is free").isTrue()
             assertThat(game.eventsOf<MatchStarted>()).hasSize(2)
+        } finally {
+            lobby.shutdown()
+            game.shutdown()
+        }
+    }
+
+    private fun arrivedOn(network: SimProxyNetwork, sim: GameSim, player: com.astarworks.astera.core.domain.player.PlayerId, maxTicks: Int): Boolean {
+        repeat(maxTicks) {
+            if (sim.world.find(player) != null) return true
+            network.step(1)
+        }
+        return sim.world.find(player) != null
+    }
+
+    @Test
+    fun `inventory survives lobby to game to lobby even when the save is slow`() {
+        val network = SimProxyNetwork()
+        val shared = SharedSnapshotRepository(readLag = 4)
+        val lobby = GameSim.boot("split-inv-lobby", role = ServerRole.LOBBY, serverName = lobbyName, proxy = network.node(lobbyName), snapshots = shared)
+        val game = GameSim.boot("split-inv-game", role = ServerRole.GAME, serverName = gameName, proxy = network.node(gameName), snapshots = shared)
+        network.register(lobbyName, lobby)
+        network.register(gameName, game)
+        try {
+            val player = lobby.spawnPlayer("p1")
+            val view = checkNotNull(lobby.server.view(player.id))
+            network.step(60) // the direct login waits for a token that never comes, then restores the latest (nothing)
+            assertThat(lobby.eventsOf<PlayerArrivedOnServer>().map { it.playerId }).containsExactly(player.id)
+            checkNotNull(lobby.inventory).put(player.id, "sword")
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.Norma)
+
+            assertThat(arrivedOn(network, game, player.id, 800)).`as`("player reached the game server").isTrue()
+            // "Moving to ..." shown on the source before the proxy hop.
+            assertThat(view.titles).contains(com.astarworks.astera.core.domain.i18n.MessageKey("astera.proxy.transfer.title"))
+            assertThat(view.actionBars).contains(com.astarworks.astera.core.domain.i18n.MessageKey("astera.proxy.transfer.actionbar"))
+
+            // The player was attached before the token was delivered: nothing restored yet, then the token lands.
+            network.step(5)
+            assertThat(game.eventsOf<PlayerArrivedOnServer>().map { it.playerId }).contains(player.id)
+            assertThat(checkNotNull(game.inventory).items(player.id)).containsExactly("sword")
+            assertThat(game.eventsOf<MatchStarted>()).hasSize(1)
+
+            val matches = game.services.getOrThrow<IMatchRepository>()
+            val lifecycle = game.services.getOrThrow<IMatchLifecycle>()
+            lifecycle.end(matches.findActiveMatches().single().id, EndReason.AdminEnded)
+            network.step(8 * 20 + 40)
+
+            assertThat(lobby.world.find(player.id)).`as`("player is back on the lobby").isNotNull()
+            assertThat(shared.staleReads).`as`("the lagging store was actually read stale").isGreaterThan(0)
+            assertThat(checkNotNull(lobby.inventory).items(player.id)).containsExactly("sword")
+            assertThat(checkNotNull(game.inventory).items(player.id)).isEmpty()
+            assertThat(lobby.eventsOf<PlayerArrivedOnServer>().last().fromServer).isEqualTo(gameName)
+        } finally {
+            lobby.shutdown()
+            game.shutdown()
+        }
+    }
+
+    @Test
+    fun `game server down holds the queue and the assignment goes out once it is back`() {
+        val network = SimProxyNetwork()
+        val lobby = GameSim.boot("split-down-lobby", role = ServerRole.LOBBY, serverName = lobbyName, proxy = network.node(lobbyName))
+        val game = GameSim.boot("split-down-game", role = ServerRole.GAME, serverName = gameName, proxy = network.node(gameName))
+        network.register(lobbyName, lobby)
+        network.register(gameName, game)
+        try {
+            val liveness = lobby.services.getOrThrow<IServerLiveness>()
+            network.step(10)
+            assertThat(liveness.isUp(gameName)).isTrue()
+
+            network.setDown(gameName, true)
+            network.step(5 * 20 + 310) // > 15 s without a heartbeat
+            assertThat(liveness.isUp(gameName)).isFalse()
+            assertThat(lobby.eventsOf<ProxyHeartbeat>().last().knownPeers).isEmpty()
+
+            val player = lobby.spawnPlayer("p1")
+            lobby.services.getOrThrow<IMatchmaker>().enqueue(player.id, MatchmakingMode.Norma)
+            network.step(800)
+
+            assertThat(network.sent.map { it.channel }).doesNotContain(ProxyChannel.MATCH_FOUND)
+            assertThat(lobby.world.find(player.id)).`as`("queued player stays on the lobby").isNotNull()
+            assertThat(lobby.services.getOrThrow<IMatchmaker>().queueStatus(player.id)).isNotNull()
+
+            network.setDown(gameName, false)
+            assertThat(arrivedOn(network, game, player.id, 800)).`as`("assigned once the game server is back").isTrue()
+            assertThat(liveness.isUp(gameName)).isTrue()
         } finally {
             lobby.shutdown()
             game.shutdown()
