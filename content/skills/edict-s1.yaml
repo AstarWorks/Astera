@@ -2,8 +2,6 @@
 # A 5-block dash-cut (invulnerable while it runs) that leaves white streak lines and a dust trail.
 # The body it passes through is cut three times -- X-cross (3), flat line 6t later (3), heavy downward
 # line 12t later (4, hit-stop 3t, small knockback). Each cut banks one Poise on the caster.
-# Archetype melee is only the cast container (range 0.5, token contact damage): all real damage is the
-# explicit mechanics under dash_strike.on_hit. Later cuts are gated on the target still being close.
 
 id: edict-s1
 
@@ -14,22 +12,16 @@ description:
   ja: "白い軌跡を残して駆け抜け、斬り抜けた相手を三度断つ。斬るたびに「平静」が溜まる。"
   en: "Dashes through the target leaving white streaks and cuts it three times. Each cut banks one Poise."
 
-archetype: melee
+archetype: sequence
 cooldown_ticks: 30
 resource_cost: 14              # energy
 tags: [ melee, physical, dash, persona, edict, poise, multi-hit ]
 
 params:
-  type: melee
-  range: 0.5
-  arc_degrees: 30.0
-  knockback: 0.0
-  damage:
-    - base: { type: literal, value: 1.0 }
-      attribute: physical
+  type: sequence
 
 phases:
-  type: melee
+  type: sequence
   cast:
     - type: play_sound
       targets: { type: caster }
@@ -138,5 +130,3 @@ phases:
           pitch: { type: literal, value: 1.2 }
           delay_ticks: { type: literal, value: 12 }
           condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 4.5 } }
-  hit_entity: []
-  miss: []

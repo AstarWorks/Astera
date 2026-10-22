@@ -14,13 +14,16 @@ elements:
     glow_color: "#ffb000"
     count: 8
     start_tick: 0
-    end_tick: 22
+    slot_lifetime_ticks: 22
     formation:
       curve: { type: arc, radius: 1.35, from_deg: 0, to_deg: 360 }
       tilt: { yaw: 0, pitch: 90, roll: 0 }
       offset: [0.0, 1.0, 0.0]
       align: tangent
       stagger_ticks: 1
+    group_keyframes:
+      - { t: 0, rotate: [0, 0, 0] }
+      - { t: 22, rotate: [160, 0, 0], ease: out_cubic }
     keyframes:
       - { t: 0, scale: [0.07, 0.07, 0.2] }
       - { t: 2, scale: [0.08, 0.08, 1.15], ease: out_expo }
@@ -32,7 +35,7 @@ elements:
     brightness: 15
     count: 8
     start_tick: 2
-    end_tick: 24
+    slot_lifetime_ticks: 22
     formation:
       curve: { type: arc, radius: 1.35, from_deg: 0, to_deg: 360 }
       tilt: { yaw: 60, pitch: 90, roll: 0 }
@@ -40,6 +43,9 @@ elements:
       align: tangent
       stagger_ticks: 1
       reverse: true
+    group_keyframes:
+      - { t: 0, rotate: [0, 0, 0] }
+      - { t: 22, rotate: [160, 0, 0], ease: out_cubic }
     keyframes:
       - { t: 0, scale: [0.07, 0.07, 0.2] }
       - { t: 2, scale: [0.08, 0.08, 1.15], ease: out_expo }
@@ -51,13 +57,16 @@ elements:
     brightness: 15
     count: 8
     start_tick: 4
-    end_tick: 26
+    slot_lifetime_ticks: 22
     formation:
       curve: { type: arc, radius: 1.35, from_deg: 0, to_deg: 360 }
       tilt: { yaw: 120, pitch: 90, roll: 0 }
       offset: [0.0, 1.0, 0.0]
       align: tangent
       stagger_ticks: 1
+    group_keyframes:
+      - { t: 0, rotate: [0, 0, 0] }
+      - { t: 22, rotate: [160, 0, 0], ease: out_cubic }
     keyframes:
       - { t: 0, scale: [0.07, 0.07, 0.2] }
       - { t: 2, scale: [0.08, 0.08, 1.15], ease: out_expo }

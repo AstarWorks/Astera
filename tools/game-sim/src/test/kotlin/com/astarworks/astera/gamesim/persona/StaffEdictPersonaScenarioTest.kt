@@ -1,6 +1,8 @@
 package com.astarworks.astera.gamesim.persona
 
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
+import com.astarworks.astera.combat.domain.event.DamageDealt
+import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.combat.application.service.MechanicContext
 import com.astarworks.astera.core.adapter.api.event.IMcEvent
 import com.astarworks.astera.core.application.services.getOrThrow
@@ -25,9 +27,8 @@ import org.junit.jupiter.api.Test
  * banked / spent, displays are spawned and all of them are removed by the end of the effect, and the live
  * display count stays inside the per-skill budget (60).
  *
- * Note: players carry 20-tick invulnerability frames, and `damage.ignore_invulnerability` is not yet honoured
- * by the dispatcher, so only the first hit of a multi-hit skill lands in the sim. The tests therefore assert
- * "damage landed" (and relative scaling for the first hit) rather than the full per-skill damage budget.
+ * Multi-hit skills assert the number of distinct [DamageDealt] events on the dummy ("coins"); hp is not used
+ * because a 20 HP dummy killed by a long skill is revived at full HP outside a match.
  */
 class StaffEdictPersonaScenarioTest {
 
@@ -67,6 +68,11 @@ class StaffEdictPersonaScenarioTest {
         assertThat(stacks(caster, id)).isEqualTo(n)
     }
 
+    /** Distinct damage events that landed on [target] (a dummy killed mid-skill is revived at full HP, so hp is not a measure). */
+    private fun ScenarioScope.hits(target: SimEntity): List<DamageDealt> = eventsOf<DamageDealt>().filter { it.target == target.id }
+
+    private fun ScenarioScope.dealt(target: SimEntity): Double = hits(target).sumOf { it.resolved.finalAmount }
+
     private fun ScenarioScope.sneakLeft(entity: SimEntity) {
         assertThat(sim.input(entity, IMcEvent.InputKind.LEFT_CLICK, sneaking = true)).isTrue()
     }
@@ -102,12 +108,11 @@ class StaffEdictPersonaScenarioTest {
     fun `orrery s1 twin arcs hit, bank two charge and draw gold crescents`() {
         scenario("persona-orrery-s1") {
             val (caster, target) = duel("orrery-staff", 3.0)
-            val before = hp(target)
 
             caster.leftClick()
             val peak = runTracking(30)
 
-            assertThat(hp(target)).isLessThan(before)
+            assertThat(hits(target)).`as`("two crescents").hasSize(2)
             assertThat(stacks(caster, charge)).isEqualTo(2)
             assertThat(blocks()).contains("gold_block", "orange_stained_glass", "lime_concrete", "red_concrete")
             assertThat(texts().joinToString()).contains("★").contains("○")
@@ -121,12 +126,11 @@ class StaffEdictPersonaScenarioTest {
     fun `orrery s2 clockwork spin draws the seal, finishes with a flash and hit-stop`() {
         scenario("persona-orrery-s2") {
             val (caster, target) = duel("orrery-staff", 3.0)
-            val before = hp(target)
 
             caster.rightClick()
             val peak = runTracking(30)
 
-            assertThat(hp(target)).isLessThan(before)
+            assertThat(hits(target)).`as`("contact + spin + lance + finisher").hasSize(4)
             assertThat(stacks(caster, charge)).isEqualTo(3)
             assertThat(target.frozenTicks).`as`("finisher hit-stop").isGreaterThan(0)
             assertThat(sim.recorder.effects("camera_shake")).isNotEmpty()
@@ -146,19 +150,16 @@ class StaffEdictPersonaScenarioTest {
             // A second dummy behind the first in the charged lane: the beam pierces.
             val behind = player("behind", at = Vec3(-12.0, groundY, 11.0), team = "blue")
             seed(charged.caster, charge, 8)
-            val chargedBefore = hp(charged.target)
-            val plainBefore = hp(plain.target)
-            val behindBefore = hp(behind)
 
             sneakRight(charged.caster)
             sneakRight(plain.caster)
             val peak = runTracking(60)
 
-            val chargedLoss = chargedBefore - hp(charged.target)
-            val plainLoss = plainBefore - hp(plain.target)
+            val chargedLoss = dealt(charged.target)
+            val plainLoss = dealt(plain.target)
             assertThat(plainLoss).isGreaterThan(0.0)
             assertThat(chargedLoss).`as`("8 Charge adds power").isGreaterThan(plainLoss)
-            assertThat(hp(behind)).`as`("beam pierces").isLessThan(behindBefore)
+            assertThat(hits(behind)).`as`("beam pierces").isNotEmpty()
             assertThat(stacks(charged.caster, charge)).`as`("bank spent").isZero()
             assertThat(blocks()).contains("glowstone", "white_concrete", "yellow_stained_glass", "orange_stained_glass")
             assertThat(texts().joinToString()).contains("◎")
@@ -176,7 +177,7 @@ class StaffEdictPersonaScenarioTest {
             sneakRight(caster)
             val peak = runTracking(70)
             assertThat(peak).isBetween(30, 60)
-            assertThat(hp(target)).isLessThan(20.0)
+            assertThat(hits(target).size).`as`("pulses + closing burst").isBetween(7, 8)
             advance(60)
             assertDisplaysAllRemoved()
         }
@@ -186,14 +187,13 @@ class StaffEdictPersonaScenarioTest {
     fun `orrery def counter-seal grants evade and charge, singes what is close`() {
         scenario("persona-orrery-def") {
             val (caster, target) = duel("orrery-staff", 2.5)
-            val before = hp(target)
 
             sneakLeft(caster)
             val peak = runTracking(30)
 
             assertThat(sim.services.getOrThrow<IStatusEffectContainer>().has(caster.id, evasive)).isTrue()
             assertThat(stacks(caster, charge)).isEqualTo(2)
-            assertThat(hp(target)).isLessThan(before)
+            assertThat(hits(target)).hasSize(1)
             assertThat(target.frozenTicks).isGreaterThan(0)
             assertThat(blocks()).contains("gold_block", "orange_concrete")
             assertThat(peak).isBetween(20, 60)
@@ -208,12 +208,11 @@ class StaffEdictPersonaScenarioTest {
     fun `edict s1 dash-cut passes through the target, cuts it and banks three poise`() {
         scenario("persona-edict-s1") {
             val (caster, target) = duel("edict-blade", 3.0)
-            val before = hp(target)
 
             caster.leftClick()
             val peak = runTracking(26)
 
-            assertThat(hp(target)).isLessThan(before)
+            assertThat(hits(target)).`as`("three cuts").hasSize(3)
             assertThat(caster.position.z).`as`("dashed through").isGreaterThan(target.position.z)
             assertThat(stacks(caster, poise)).isEqualTo(3)
             assertThat(target.frozenTicks).isGreaterThan(0)
@@ -229,12 +228,11 @@ class StaffEdictPersonaScenarioTest {
     fun `edict s2 sky rend dives onto the target, marks it with rupture and a following star`() {
         scenario("persona-edict-s2") {
             val (caster, target) = duel("edict-blade", 4.0)
-            val before = hp(target)
 
             caster.rightClick()
             val peak = runTracking(40)
 
-            assertThat(hp(target)).isLessThan(before)
+            assertThat(hits(target)).`as`("three cuts").hasSize(3)
             assertThat(stacks(target, rupture)).`as`("mark").isEqualTo(2)
             assertThat(stacks(caster, poise)).isEqualTo(3)
             assertThat(blocks()).contains("quartz_block", "black_concrete")
@@ -250,13 +248,12 @@ class StaffEdictPersonaScenarioTest {
     fun `edict s3 final prescript garbles then resolves, claws the cone and spends poise and rupture`() {
         scenario("persona-edict-s3") {
             val (caster, target) = duel("edict-blade", 6.0)
-            val before = hp(target)
-            seed(caster, poise, 5)
+            seed(caster, poise, 3)
 
             sneakRight(caster)
             val peak = runTracking(70)
 
-            assertThat(hp(target)).isLessThan(before)
+            assertThat(hits(target)).`as`("first cut + 4 flurry + finisher, no doubling under 5 poise").hasSize(6)
             assertThat(stacks(caster, poise)).`as`("poise spent").isZero()
             assertThat(stacks(target, rupture)).`as`("rupture spent by the finisher").isZero()
             val textSwaps = sim.displays.swaps.filter { it.kind == "text" }.map { it.value }
@@ -273,17 +270,33 @@ class StaffEdictPersonaScenarioTest {
     }
 
     @Test
+    fun `edict s3 with five poise doubles the flurry and kills the dummy before the finisher`() {
+        scenario("persona-edict-s3-doubled") {
+            val (caster, target) = duel("edict-blade", 6.0)
+            seed(caster, poise, 5)
+
+            sneakRight(caster)
+            advance(45)
+
+            assertThat(hits(target).size).`as`("first cut + 4 + 4 flurry beats").isGreaterThanOrEqualTo(9)
+            assertThat(eventsOf<PlayerKilled>()).isNotEmpty()
+            assertThat(stacks(caster, poise)).isZero()
+            advance(80)
+            assertDisplaysAllRemoved()
+        }
+    }
+
+    @Test
     fun `edict def cold reply backsteps, banks poise and counters the cone`() {
         scenario("persona-edict-def") {
             val (caster, target) = duel("edict-blade", 3.5)
-            val before = hp(target)
 
             sneakLeft(caster)
             val peak = runTracking(26)
 
             assertThat(sim.services.getOrThrow<IStatusEffectContainer>().has(caster.id, evasive)).isTrue()
             assertThat(stacks(caster, poise)).isEqualTo(2)
-            assertThat(hp(target)).isLessThan(before)
+            assertThat(hits(target)).hasSize(1)
             assertThat(blocks()).contains("white_stained_glass", "white_concrete")
             assertThat(peak).isBetween(4, 60)
             advance(40)
