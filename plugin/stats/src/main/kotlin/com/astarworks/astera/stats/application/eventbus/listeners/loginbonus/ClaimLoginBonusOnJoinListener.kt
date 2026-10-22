@@ -18,7 +18,7 @@ import java.time.Clock
 import java.time.LocalDate
 
 /**
- * Lobby only (ADR-0199): when a player joins, collect today's login bonus a moment after the join
+ * Lobby only (ADR-0210): when a player joins, collect today's login bonus a moment after the join
  * messages (and the last-match recap) and tell them what they got: one chat line plus the
  * title/subtitle toast path the achievements already use. Nothing is shown when today's bonus was
  * already claimed, so rejoining stays quiet.

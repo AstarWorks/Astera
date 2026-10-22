@@ -18,7 +18,7 @@ import java.time.LocalDate
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * [ILoginBonusService] (ADR-0199). The reward currency is credited through the shared
+ * [ILoginBonusService] (ADR-0210). The reward currency is credited through the shared
  * [ICurrencyLedger] and announced as `CurrencyChanged(LoginBonus)` so wallet HUDs update.
  *
  * Reward `items` are carried in the claim but not delivered here: core has no inventory

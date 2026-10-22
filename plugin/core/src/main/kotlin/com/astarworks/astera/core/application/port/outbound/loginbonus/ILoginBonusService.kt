@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import java.time.LocalDate
 
 /**
- * Daily login-bonus claim flow + streak read accessors (ADR-0127, claim flow ADR-0199).
+ * Daily login-bonus claim flow + streak read accessors (ADR-0127, claim flow ADR-0210).
  *
  * "Today" is the caller's calendar day (server zone). The streak continues only when the
  * previous claim was exactly yesterday; any longer gap restarts it at 1. The configured

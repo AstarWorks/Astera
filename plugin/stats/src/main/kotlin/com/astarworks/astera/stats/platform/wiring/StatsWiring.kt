@@ -219,7 +219,7 @@ public object StatsWiring {
         subscriptions += eventBus.subscribe(LeveledUp::class) { hudLeveledUpListener.handle(it) }
 
         // ---- Wave 5e Achievement + LevelUpMission + Reward listeners ---------
-        // ADR-0199: unlocks persist (V60 Postgres overlay wins when present); the catalog is
+        // ADR-0210: unlocks persist (V60 Postgres overlay wins when present); the catalog is
         // content/achievements/ and was never populated before, so no achievement could unlock.
         val achievementRepo: IAchievementRepository =
             services.get<IAchievementRepository>()
@@ -269,7 +269,7 @@ public object StatsWiring {
             grantXp,
             AdvanceLevelOnNormaCompletedListener.DEFAULT_CRITERION_BY_LEVEL,
         )
-        // ADR-0199: a completed mission pays its XP and tells the player (its currency is paid by the economy
+        // ADR-0210: a completed mission pays its XP and tells the player (its currency is paid by the economy
         // plugin). This replaced an IRewardBridge enqueue that nothing ever consumed.
         val payOutMission = com.astarworks.astera.stats.application.eventbus.listeners.PayOutMissionCompletedListener(
             grantXp = grantXp,
@@ -482,7 +482,7 @@ public object StatsWiring {
             }
         }
 
-        // ---- ADR-0199: quests that actually run, and the daily login bonus ----------
+        // ---- ADR-0210: quests that actually run, and the daily login bonus ----------
         // Quest chains are open to everyone (started on join) and advance on real events; before this
         // nothing ever called IQuestService.progressCurrent. Stage clears are announced to the player.
         val questService = services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IQuestService>()

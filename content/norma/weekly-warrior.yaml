@@ -1,4 +1,4 @@
-# Mission (ADR-0199). weekly window: progress restarts each ISO week.
+# Mission (ADR-0210). weekly window: progress restarts each ISO week.
 id: weekly-warrior
 display_name_key: astera.norma.weekly-warrior.name
 period: weekly

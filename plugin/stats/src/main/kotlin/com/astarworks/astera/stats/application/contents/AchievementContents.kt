@@ -9,7 +9,7 @@ import com.astarworks.astera.stats.domain.achievement.Achievement
 import java.nio.file.Path
 
 /**
- * `content/achievements/` catalog (ADR-0199). Before this existed nothing ever filled the
+ * `content/achievements/` catalog (ADR-0210). Before this existed nothing ever filled the
  * achievement catalog, so every `UnlockAchievementUseCase` call failed with `NotInCatalog`.
  */
 public class AchievementContents : YamlDynamicContents<AchievementId, Achievement, AchievementYamlConfig>(

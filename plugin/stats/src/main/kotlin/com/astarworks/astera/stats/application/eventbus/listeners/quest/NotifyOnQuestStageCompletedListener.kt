@@ -11,7 +11,7 @@ import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
 
 /**
- * Tells the player a quest stage (or the whole chain) was cleared (ADR-0199): a chat line naming
+ * Tells the player a quest stage (or the whole chain) was cleared (ADR-0210): a chat line naming
  * the stage plus the title/subtitle toast the achievements use. Stage rewards are paid by the quest
  * service itself.
  */

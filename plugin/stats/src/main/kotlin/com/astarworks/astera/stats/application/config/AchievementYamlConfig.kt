@@ -6,7 +6,7 @@ import com.astarworks.astera.stats.domain.achievement.Achievement
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/** YAML DTO for `content/achievements/<id>.yaml` (ADR-0199): one catalog entry per file. */
+/** YAML DTO for `content/achievements/<id>.yaml` (ADR-0210): one catalog entry per file. */
 @Serializable
 public data class AchievementYamlConfig(
     val id: String,

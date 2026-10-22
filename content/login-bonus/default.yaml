@@ -1,4 +1,4 @@
-# Daily login-bonus rotation (ADR-0127; claim flow ADR-0199).
+# Daily login-bonus rotation (ADR-0127; claim flow ADR-0210).
 #
 # A player's first login of the (server-local) day pays the reward of their streak day; logging in
 # on consecutive days grows the streak, missing a day restarts it at day 1. When the streak is

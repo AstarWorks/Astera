@@ -13,7 +13,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
 import org.slf4j.LoggerFactory
 
 /**
- * Drives quest chains from real events (ADR-0199). Until this existed nothing called
+ * Drives quest chains from real events (ADR-0210). Until this existed nothing called
  * [IQuestService.progressCurrent], so no quest stage could ever clear.
  *
  * For every chain the player has started and not finished, the *current stage's* criteria decide

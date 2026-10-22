@@ -1,4 +1,4 @@
-# Mission (ADR-0199). daily window: progress restarts each day.
+# Mission (ADR-0210). daily window: progress restarts each day.
 id: daily-grinder
 display_name_key: astera.norma.daily-grinder.name
 period: daily

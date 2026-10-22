@@ -463,7 +463,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
     //  - `/astera patch [version]` — latest or version-specific
     //    ChangelogEntry, from content/changelog/*.yaml.
     //  - Login bonus — LoginBonusContents + login-streak repository +
-    //    DefaultLoginBonusService (claim flow: ADR-0199).
+    //    DefaultLoginBonusService (claim flow: ADR-0210).
     val newsContentDir: Path = contentDir.resolve("news")
     val newsContents = com.astarworks.astera.core.application.contents.NewsContents()
     val newsReport = newsContents.bootstrap(newsContentDir)

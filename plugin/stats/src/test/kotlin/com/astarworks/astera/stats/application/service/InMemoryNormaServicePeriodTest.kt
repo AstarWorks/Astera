@@ -15,7 +15,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.util.UUID
 
-/** ADR-0199: daily / weekly missions restart in a new window instead of staying completed forever. */
+/** ADR-0210: daily / weekly missions restart in a new window instead of staying completed forever. */
 class InMemoryNormaServicePeriodTest {
 
     private class MutableClock(var now: Instant) : Clock() {

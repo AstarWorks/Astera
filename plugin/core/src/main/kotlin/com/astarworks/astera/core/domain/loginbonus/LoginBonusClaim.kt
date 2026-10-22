@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.loginbonus
 
 /**
- * The outcome of a successful daily claim (ADR-0199).
+ * The outcome of a successful daily claim (ADR-0210).
  *
  * @property streakDays consecutive login days including today (1 after a gap).
  * @property day the rotation day whose reward was paid (`1..` the table length; the table wraps).

@@ -21,7 +21,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID
 
-/** ADR-0199: quests start on join and advance only from events the current stage's criteria ask for. */
+/** ADR-0210: quests start on join and advance only from events the current stage's criteria ask for. */
 class TrackQuestProgressListenerTest {
 
     private val player = PlayerId(UUID.randomUUID())

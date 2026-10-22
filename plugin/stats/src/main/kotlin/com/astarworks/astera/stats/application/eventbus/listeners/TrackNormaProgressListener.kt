@@ -13,7 +13,7 @@ import com.astarworks.astera.stats.domain.event.XpGranted
 import org.slf4j.LoggerFactory
 
 /**
- * Feeds the non-kill mission targets (ADR-0199; kills stay in [MissionProgressOnKillListener]):
+ * Feeds the non-kill mission targets (ADR-0210; kills stay in [MissionProgressOnKillListener]):
  * `damage` from [DamageDealt], `match_wins` from [MatchEnded] (every member of the winning team)
  * and `xp_gain` from [XpGranted]. Missions are `content/norma/`; every newly completed one is
  * announced as [MissionCompleted].

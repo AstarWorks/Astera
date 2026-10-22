@@ -11,7 +11,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.upsert
 import java.time.Instant
 
-/** Postgres-backed [ILoginStreakRepository] (V61, ADR-0199). */
+/** Postgres-backed [ILoginStreakRepository] (V61, ADR-0210). */
 public class PostgresLoginStreakRepository(private val db: Database) : ILoginStreakRepository {
 
     override fun findByPlayer(playerId: PlayerId): LoginStreakRecord? = transaction(db) {

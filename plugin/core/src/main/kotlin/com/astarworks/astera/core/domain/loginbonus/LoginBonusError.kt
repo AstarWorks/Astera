@@ -4,7 +4,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 
 /**
  * Sealed error hierarchy for the login-bonus claim flow
- * (Wave J 5server-content-ops, ADR-0127; claim flow ADR-0199).
+ * (Wave J 5server-content-ops, ADR-0127; claim flow ADR-0210).
  */
 public sealed class LoginBonusError {
     public abstract val messageKey: MessageKey

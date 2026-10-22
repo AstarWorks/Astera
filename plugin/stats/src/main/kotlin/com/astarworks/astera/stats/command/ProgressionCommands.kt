@@ -18,7 +18,7 @@ import java.time.Clock
 import java.time.LocalDate
 
 /**
- * The progression screens (ADR-0199), each a top-level `/astera` area for every player:
+ * The progression screens (ADR-0210), each a top-level `/astera` area for every player:
  *
  * ```
  * /astera daily          collect today's login bonus, or show the streak and tomorrow's reward

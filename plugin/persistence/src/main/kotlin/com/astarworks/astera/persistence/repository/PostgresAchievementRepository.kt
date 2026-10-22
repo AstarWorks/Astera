@@ -15,7 +15,7 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * Postgres-backed [IAchievementRepository] (V60, ADR-0199).
+ * Postgres-backed [IAchievementRepository] (V60, ADR-0210).
  *
  * The catalog is content (`content/achievements/`), kept in memory and filled by
  * [registerAll]; only the per-player unlocks are stored. Positive answers are cached

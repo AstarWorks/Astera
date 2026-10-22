@@ -8,7 +8,7 @@ import com.astarworks.astera.stats.domain.event.LeveledUp
 import com.astarworks.astera.stats.domain.event.MissionCompleted
 
 /**
- * The progression-loop achievements (ADR-0199): a 7-day login streak, reaching level 5 / 10 and
+ * The progression-loop achievements (ADR-0210): a 7-day login streak, reaching level 5 / 10 and
  * the first completed mission. Re-unlocking is a no-op in `UnlockAchievementUseCase`, so every
  * handler may fire as often as its event does.
  */

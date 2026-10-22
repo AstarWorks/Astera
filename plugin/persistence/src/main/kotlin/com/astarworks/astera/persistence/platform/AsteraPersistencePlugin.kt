@@ -419,7 +419,7 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
-        // ADR-0199: progression state that was in-memory only. Skill progression (V32), quest
+        // ADR-0210: progression state that was in-memory only. Skill progression (V32), quest
         // chains (V27), advancements (V26) and the engagement snapshot (V30) already had
         // Postgres classes that were never staged; achievements (V60) and login streaks (V61) are new.
         stage<ISkillProgressionRepository>(PostgresSkillProgressionRepository(ctx.database), priority = 100)

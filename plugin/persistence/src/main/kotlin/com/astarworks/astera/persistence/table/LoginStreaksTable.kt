@@ -6,7 +6,7 @@ import org.jetbrains.exposed.v1.javatime.date
 import org.jetbrains.exposed.v1.javatime.timestamp
 import java.time.Instant
 
-/** `login_streaks` (V61, ADR-0199) — daily login-bonus streak per player. */
+/** `login_streaks` (V61, ADR-0210) — daily login-bonus streak per player. */
 public object LoginStreaksTable : Table("login_streaks") {
     public val playerId = javaUUID("player_id")
     public val streakDays = integer("streak_days")

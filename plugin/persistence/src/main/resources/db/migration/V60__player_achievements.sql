@@ -1,4 +1,4 @@
--- V60: unlocked achievements per player (progression pass, ADR-0199).
+-- V60: unlocked achievements per player (progression pass, ADR-0210).
 -- Backs stats.IAchievementRepository unlocks; the catalog lives in content/achievements/.
 -- The composite PK makes a repeated unlock a no-op (ON CONFLICT DO NOTHING).
 CREATE TABLE player_achievements (

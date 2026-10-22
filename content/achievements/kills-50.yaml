@@ -1,4 +1,4 @@
-# Achievement catalog entry (ADR-0199). Names / descriptions: astera.stats.achievement.kills-50.*
+# Achievement catalog entry (ADR-0210). Names / descriptions: astera.stats.achievement.kills-50.*
 id: kills-50
 name_key: astera.stats.achievement.kills-50.name
 description_key: astera.stats.achievement.kills-50.description

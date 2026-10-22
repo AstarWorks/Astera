@@ -13,7 +13,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
-/** ADR-0199: V60 achievements, V61 login streaks and the V62 norma period key against real Postgres. */
+/** ADR-0210: V60 achievements, V61 login streaks and the V62 norma period key against real Postgres. */
 public class PostgresProgressionRepositoriesIT : PostgresIntegrationTestBase() {
 
     @Test

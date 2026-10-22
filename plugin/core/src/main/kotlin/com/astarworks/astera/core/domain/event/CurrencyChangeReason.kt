@@ -15,7 +15,7 @@ public sealed interface CurrencyChangeReason {
     public data object MatchReward : CurrencyChangeReason
     public data object MissionReward : CurrencyChangeReason
 
-    /** Daily login bonus (ADR-0199). */
+    /** Daily login bonus (ADR-0210). */
     public data object LoginBonus : CurrencyChangeReason
     public data object AdminGrant : CurrencyChangeReason
 

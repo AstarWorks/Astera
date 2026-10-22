@@ -1,4 +1,4 @@
-# Achievement catalog entry (ADR-0199). Names / descriptions: astera.stats.achievement.mission-first.*
+# Achievement catalog entry (ADR-0210). Names / descriptions: astera.stats.achievement.mission-first.*
 id: mission-first
 name_key: astera.stats.achievement.mission-first.name
 description_key: astera.stats.achievement.mission-first.description

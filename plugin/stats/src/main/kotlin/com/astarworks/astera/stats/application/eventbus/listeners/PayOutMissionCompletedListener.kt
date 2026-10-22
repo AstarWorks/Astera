@@ -13,7 +13,7 @@ import com.astarworks.astera.stats.application.usecase.level.GrantXpUseCase
 import com.astarworks.astera.stats.domain.event.MissionCompleted
 
 /**
- * On [MissionCompleted] (ADR-0199): grant the reward's XP and tell the player.
+ * On [MissionCompleted] (ADR-0210): grant the reward's XP and tell the player.
  *
  * The currency part of the reward is paid by the economy plugin's `DepositOnMissionCompletedListener`;
  * this listener owns what the stats plugin can pay (XP, so a mission also moves the level) and the

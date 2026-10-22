@@ -22,7 +22,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-/** ADR-0199: join -> daily bonus, kills/wins -> missions + quests + achievements, all on the shipped content. */
+/** ADR-0210: join -> daily bonus, kills/wins -> missions + quests + achievements, all on the shipped content. */
 class ProgressionLoopScenarioTest {
 
     @Test
