@@ -54,12 +54,19 @@ public object VfxTimeline {
 
     /**
      * Plans [def] for an anchor oriented by [anchor]. [scale] multiplies every length
-     * (formation, translations, display scales) - the `play_vfx` `scale` argument.
+     * (formation, translations, display scales) - the `play_vfx` `scale` argument. [freezes] are the
+     * `play_vfx` hit-stop windows; only rigs with `respect_hit_stop` honour them.
      */
-    public fun plan(def: VfxDefinition, anchor: Frame, seed: Long, scale: Double = 1.0): VfxPlan {
+    public fun plan(
+        def: VfxDefinition,
+        anchor: Frame,
+        seed: Long,
+        scale: Double = 1.0,
+        freezes: List<VfxFreeze> = emptyList(),
+    ): VfxPlan {
         val slots = def.elements.flatMapIndexed { index, element ->
             planElement(def, element, index, anchor.rotation, seed, scale)
-        }
+        } + def.rigs.flatMap { VfxRigPlanner.plan(def, it, anchor.rotation, scale, freezes) }
         return VfxPlan(anchor.origin, def.durationTicks, def.follow, slots.sortedBy { it.spawnTick })
     }
 

@@ -12,6 +12,7 @@ import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementPlan
+import com.astarworks.astera.core.domain.effect.vfx.VfxFreeze
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.effect.vfx.VfxParticleEmission
 import com.astarworks.astera.core.domain.effect.vfx.VfxPlan
@@ -49,6 +50,8 @@ public class VfxRequest(
     public val seed: Long = 0L,
     /** The caster, for particle `viewers: caster|others`. */
     public val caster: PlayerId? = null,
+    /** Hit-stop windows (effect ticks) that freeze rigs with `respect_hit_stop`. */
+    public val freeze: List<VfxFreeze> = emptyList(),
 )
 
 /** One particle element emission handed to the runtime (which plans it through `ParticleEmitter`). */
@@ -110,7 +113,7 @@ public class VfxPlayer(
         val def = registry.find(request.vfxId) ?: return Result.failure(VfxPlayError.UnknownVfx(request.vfxId))
         val effective = request.follow?.let { def.copy(follow = it) } ?: def
         val frame = effective.orient.frame(request.origin, request.look, request.toTarget)
-        val plan = VfxTimeline.plan(effective, frame, request.seed, request.scale)
+        val plan = VfxTimeline.plan(effective, frame, request.seed, request.scale, request.freeze)
         if (reserved + plan.displayCount > maxLiveDisplays) {
             log.debug("VFX {} dropped: {} + {} live displays exceed the cap {}", request.vfxId, reserved, plan.displayCount, maxLiveDisplays)
             return Result.failure(VfxPlayError.OverCapacity(reserved, plan.displayCount, maxLiveDisplays))

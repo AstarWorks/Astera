@@ -517,6 +517,8 @@ public sealed class Mechanic {
         val vfxId: VfxId,
         val scale: NumericValue = NumericValue.Literal(1.0),
         val follow: BoolValue? = null,
+        /** Hit-stop windows (effect-relative ticks) that freeze the rigs with `respect_hit_stop`. */
+        val freeze: List<com.astarworks.astera.core.domain.effect.vfx.VfxFreeze> = emptyList(),
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),

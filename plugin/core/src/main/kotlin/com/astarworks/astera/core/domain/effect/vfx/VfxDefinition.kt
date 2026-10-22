@@ -74,17 +74,22 @@ public data class VfxDefinition(
     /** Easing resolution: keyframe segments are split into chunks of at most this many ticks. */
     public val sampleTicks: Int = 2,
     public val elements: List<VfxElement>,
+    /** Weapon rigs + 風切り trails ([VfxRig]); planned into ordinary slots by [VfxRigPlanner]. */
+    public val rigs: List<VfxRig> = emptyList(),
 ) {
     init {
         require(durationTicks in 1..MAX_DURATION_TICKS) { "VfxDefinition.durationTicks must be 1..$MAX_DURATION_TICKS: $durationTicks" }
         require(sampleTicks >= 1) { "VfxDefinition.sampleTicks must be >= 1: $sampleTicks" }
-        require(elements.isNotEmpty()) { "VfxDefinition.elements must not be empty" }
-        val ids = elements.map { it.id }
+        require(elements.isNotEmpty() || rigs.isNotEmpty()) { "VfxDefinition needs elements or rigs" }
+        val ids = elements.map { it.id } + rigs.map { it.id }
         require(ids.toSet().size == ids.size) { "VfxDefinition element ids must be unique: $ids" }
         val slots = elements.sumOf { it.slotCount }
         require(slots <= MAX_SLOTS) { "VfxDefinition has $slots element slots (max $MAX_SLOTS)" }
         elements.forEach {
             require(it.startTick < durationTicks) { "element '${it.id}' start_tick ${it.startTick} >= duration_ticks $durationTicks" }
+        }
+        rigs.forEach {
+            require(it.startTick < durationTicks) { "rig '${it.id}' start_tick ${it.startTick} >= duration_ticks $durationTicks" }
         }
     }
 

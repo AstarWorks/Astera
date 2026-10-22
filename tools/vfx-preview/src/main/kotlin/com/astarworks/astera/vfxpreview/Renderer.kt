@@ -17,7 +17,10 @@ import kotlin.math.max
 import kotlin.math.tan
 
 enum class ViewMode(val key: String) {
-    DEFAULT("default"), TOP("top"), SIDE("side"), FRONT("front"), BEHIND("behind");
+    DEFAULT("default"), TOP("top"), SIDE("side"), FRONT("front"), BEHIND("behind"),
+
+    /** Caster first person: camera at the eye (y 1.62) looking +Z. */
+    EYE("eye");
 
     companion object {
         fun parse(key: String): ViewMode? = entries.firstOrNull { it.key == key }
@@ -47,9 +50,15 @@ class Camera(
     companion object {
         const val NEAR: Double = 0.05
         const val FOV_V_DEG: Double = 48.0
+        const val EYE_FOV_V_DEG: Double = 70.0
 
         /** Frames every point of [points] (plus the caster) tightly for [view]. */
         fun fit(view: ViewMode, points: List<Vec3>, width: Int, height: Int): Camera {
+            if (view == ViewMode.EYE) {
+                val tanEye = tan(Math.toRadians(EYE_FOV_V_DEG / 2))
+                // caster faces +Z, so local "left" (+X) is screen-left: screen right is world -X
+                return Camera(Vec3(0.0, 1.62, 0.0), Vec3(0.0, 0.0, 1.0), Vec3(-1.0, 0.0, 0.0), Vec3(0.0, 1.0, 0.0), (height / 2.0) / tanEye, width, height)
+            }
             val dir = when (view) { // target -> camera
                 ViewMode.DEFAULT -> Vec3(-0.55, 0.42, -0.72)
                 ViewMode.TOP -> Vec3(0.0, 1.0, 0.0001)

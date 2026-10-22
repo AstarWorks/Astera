@@ -130,3 +130,52 @@ glyph 版は `scale = size*5` (1 セル = 8 px = 0.2 block)、色は text colour
 
 ゲーム内では `/astera skill preview <skill-id> view=side|opponent|behind speed=0.25` でダミーに発動させ、
 術者の一人称以外の視点から実機で確認する (`again` で再生、`freeze` / `step` でコマ送り。詳細は `docs/contributing/playtest.md`)。
+
+## 7. Weapon rig + 風切り
+
+桜井式: **武器そのものが支点 (手) を中心に回り、斬撃の軌跡は「刃が掃いた線」から生成した扇状の面**にする。手置きの線を並べない。
+`content/vfx/<id>.yaml` の `rigs:` に書く (サンプル: `demo-greatsword-swing.yaml`、再生は `content/skills/vfx-demo-greatsword.yaml`)。
+
+```yaml
+rigs:
+  - id: sword
+    pivot: [-0.35, 1.2, 0.3]      # 手の位置 (アンカー相対, x=左 y=上 z=前)
+    rest: [0, 90, 0]              # swing 0 の向き。pitch 90 で刃 (+Y) が前 (+Z) を向く
+    tilt: [0, 0, 20]              # 振りの面ごと傾ける (真横から見ると面が線に潰れるのを避ける)
+    respect_hit_stop: true
+    parts:                        # 刃のローカル座標。offset = 箱の中心, size = 箱の大きさ
+      - { id: blade, block: iron_block, offset: [0, 1.6, 0], size: [0.4, 2.6, 0.12] }
+    swing:                        # 手を中心にした euler キーフレーム (component-wise, ease 付き)
+      - { t: 0, rotate: [110, 0, 0] }
+      - { t: 6, rotate: [-190, 0, 0], ease: out_quad }
+    trails:                       # 風切り
+      - id: wind
+        from: [0, 0.9, 0]         # 刃の根元 / 先端 (ローカル)
+        to:   [0, 2.9, 0]
+        start_t: 2
+        end_t: 7
+        life_ticks: 7
+        lag_ticks: 0
+        style: soft               # soft = 半透明 TextDisplay 背景 / crisp = 薄い block / both
+        step_deg: 36              # 1 サンプルの最大回転 (毎 tick 以上は必ず取る)
+        bands:                    # 根元 -> 先端。内側ほど薄く、先端ほど不透明で明るい
+          - { from: 0.0, to: 0.5, color: "#40FFD070", color_to: "#20C07010" }
+          - { from: 0.5, to: 1.0, color: "#C8FFFFFF", color_to: "#FFE0A020" }
+        edge: { block: white_concrete, width: 0.05 }    # 先端のパリッとした縁
+        dark_rim: { color: "#B01A0C00", width: 0.22 }   # 明るい背景でも読めるように先端の外に暗い帯
+    boards:                       # 1 フレーム斬撃板 (桜井方式2): hit 時に面を N tick だけ出す
+      - { id: board, at: 5, ticks: 2, from: [0, 0.9, 0], to: [0, 2.9, 0], arc_deg: 90, color: "#A0FFFFFF" }
+    emitters:                     # 刃の点から毎 tick (経路上にも) パーティクル
+      - { id: embers, particle_id: fire-trail, point: [0, 2.9, 0], start_t: 2, end_t: 8 }
+```
+
+仕組み (全部 `VfxRigPlanner` が通常の slot に展開する。色・アルファの更新は quad と共通の `setTextStyle` (VfxUpdate.style)):
+
+- **剛体**: 各 part の display = `pivot frame ∘ tilt ∘ swing ∘ rest ∘ part offset`。箱の角ではなく中心 `offset` で書く (角基準への補正はプランナーがやる)。
+- **クライアント補間は tick ごとに線形 (平行移動) + slerp (回転)**。したがって swing は keyframe 区間を `sample_ticks` 以下に刻み、さらに 1 chunk の回転が **60° を超えないよう細分化**する。最小 chunk は 1 tick なので、**速い振りは 1 tick に 1 update が必須** (300° / 3 tick ≈ 3 chunk × 100°)。1 tick で 170° を超える ease (`out_expo` で 3 tick の 300° など) は slerp が逆回りするので**プランナーが例外で拒否**する → `out_quad` / `out_cubic` か tick を足す。
+- **風切り**: `[start_t, end_t]` を毎 tick、回転が `step_deg` を超える tick は細分化してサンプルし、隣り合う 2 サンプルごとに `bands` 1 本につき 1 枚の面 (台形を長方形で近似、7% 重ね) を作る。面は刃が通った後の tick に出現し (`lag_ticks` で更に遅延)、`life_ticks` かけて `(1 - age/life)^fade_power` で透明になり、`color_to` へ色が移る。長方形近似の隙間を減らすため、幅は外側寄りで取る (`BAND_OUTER_WEIGHT`)。
+- **soft** の面は`kind: quad` (§5 の較正 `VfxQuad`) と同じ。ブロックと違い**アルファが使える**が、背景色の更新は補間されない (毎 tick 段階的に変わる)。**crisp** は block 板で、フェードは縮小 (edge は細くなって消える)。
+- **予算**: 面の数 = サンプル数 × (bands + edge + rim)。デモで約 50 display (step_deg 36)。`MAX_SLOTS` 256 を超えるとプランナーが拒否。減らすときは `step_deg` を上げる / `bands` を 2 に / `dark_rim` を外す。
+- **ヒットストップ**: skill の `play_vfx` に `freeze: [{ at: 7, ticks: 3 }]` (effect tick) を渡すと、`respect_hit_stop: true` の rig は **その窓の間 swing とフェードが止まる** (進行中の補間は窓の頭で終わらせ、窓が終わると続きから)。窓の分だけ rig の存続が延びるので、`duration_ticks` に余裕を持たせる。skill 本体の `hit_stop` とは別に渡す (同じ tick を書く)。
+- 確認: `./gradlew :tools:vfx-preview:run --args='demo-greatsword-swing --view side|top|eye [--freeze 7:3]'` (`eye` = 術者一人称、y 1.62 から +Z)。**扇が 1 枚の面に読めるか**を top と side で確認する。
+- `follow: true` の effect では面がアンカーに付いて動く (風切りにならない)。rig を使う effect は `follow: false`。
