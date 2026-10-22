@@ -77,6 +77,9 @@ internal class CorePaperBindings(
     /** Wave 6a-6 (ADR-0153): BukkitEventAdapter's time-polling task. */
     private var bukkitEventAdapterTimeTaskHandle: IScheduler.TaskHandle? = null
 
+    /** Retained so [shutdown] can remove the lobby NPC bodies. */
+    private var npcBodyService: com.astarworks.astera.core.adapter.paper.entity.PaperNpcBodyService? = null
+
     /** Set by the GUI factory; the Paper listener needs the concrete adapter. */
     private var paperGuiAdapter: PaperGuiAdapter? = null
 
@@ -205,6 +208,18 @@ internal class CorePaperBindings(
                 // reconnect (Bukkit's per-viewer visibility state is per-session).
                 paperHologramGateway.start(plugin)
                 paperHologramGateway
+            },
+            npcBodies = { services ->
+                val bodies = com.astarworks.astera.core.adapter.paper.entity.PaperNpcBodyService(
+                    plugin = plugin,
+                    mcServer = mcServer,
+                    messages = services.getOrThrow<IMessageRenderer>(),
+                    interactions = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.entity.INpcInteractionRouter>(),
+                    intents = services.getOrThrow<com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter>(),
+                )
+                bodies.start()
+                npcBodyService = bodies
+                bodies
             },
             playerSoundGateway = com.astarworks.astera.core.adapter.paper.effect.PaperPlayerSoundGateway(server),
             playerHealthGateway = { services ->
@@ -336,6 +351,8 @@ internal class CorePaperBindings(
 
     /** Paper-side teardown; the host-neutral wiring tears down via `WiringContext.close()` + `CoreWiringResult.shutdown()`. */
     fun shutdown() {
+        npcBodyService?.removeAll()
+        npcBodyService = null
         matchQueueMetric?.stop()
         metricsHttpServer?.stop()
         // Wave 6a-6 (ADR-0153): cancel BukkitEventAdapter time-polling task.

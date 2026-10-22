@@ -82,11 +82,21 @@ public class ShopIntentHandler(
         }
 
         when (val result = purchase.execute(player.id, shopId, offerId)) {
-            is Result.Success -> send(
-                player,
-                MSG_SUCCESS,
-                mapOf("shop_id" to shopId.value, "offer_id" to offerId.value),
-            )
+            is Result.Success -> {
+                val receipt = result.value
+                send(
+                    player,
+                    MSG_SUCCESS,
+                    mapOf(
+                        "shop_id" to shopId.value,
+                        "offer_id" to offerId.value,
+                        "offer" to receipt.itemName,
+                        "price" to receipt.price.amount.toString(),
+                        "currency" to receipt.price.currency.name,
+                        "balance" to receipt.newBalance.toString(),
+                    ),
+                )
+            }
             is Result.Failure -> {
                 val (key, placeholders) = result.error.toRendering(shopId, offerId)
                 send(player, key, placeholders)
@@ -116,7 +126,8 @@ public class ShopIntentHandler(
             is ShopPurchaseError.OutOfStock ->
                 MessageKey("astera.economy.shop.purchase.out_of_stock") to base
             is ShopPurchaseError.InsufficientFunds ->
-                MessageKey("astera.economy.shop.purchase.insufficient_funds") to base
+                MessageKey("astera.economy.shop.purchase.insufficient_funds") to
+                    (base + ("currency" to currency.name))
             is ShopPurchaseError.DeliveryFailed ->
                 MessageKey("astera.economy.shop.purchase.delivery_failed") to (base + ("reason" to reason))
         }

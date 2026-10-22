@@ -4,36 +4,36 @@ Astera Shop は `content/shops/<id>.yaml` 1 ファイルで定義します
 (Wave 5g / ADR-0036, Wave 5refine / ADR-0100)。Item を Currency で売る
 NPC merchant の vocabulary を宣言的に書きます。Kotlin コードは触りません。
 
-## 最小例 (iron-merchant)
+## 最小例 (example-shop)
 
 ```yaml
-# content/shops/iron-merchant.yaml
-id: iron-merchant
-display_key: astera.economy.shop.iron-merchant.title
+# content/shops/example-shop.yaml
+id: example-shop
+display_key: astera.economy.shop.example-shop.title
 
 offers:
-  - id: iron-sword
-    item: iron-sword
+  - id: example-sword
+    item: example-sword
     price:
       currency: GOLD
       amount: 50
     stock:
       type: unlimited
-    display_key: astera.economy.shop.iron-merchant.offer.sword
+    display_key: astera.economy.shop.example-shop.offer.sword
 
-  - id: iron-helmet
-    item: iron-helmet
+  - id: example-pistol
+    item: example-pistol
     price:
       currency: GOLD
       amount: 40
     stock:
       type: unlimited
-    display_key: astera.economy.shop.iron-merchant.offer.helmet
+    display_key: astera.economy.shop.example-shop.offer.pistol
 ```
 
 ## Schema reference
 
-`plugin/economy/.../application/port/outbound/IShopVendor.kt` + `ShopSpec`
+`plugin/core/.../domain/shop/ShopSpec.kt`
 が SSOT。
 
 | Field | Type | Required | 説明 |
@@ -76,20 +76,25 @@ plugin 有効時)、reload では維持される (offer 定義のみ swap)。
 | Currency | 用途 |
 |---|---|
 | `GOLD` | 汎用通貨 (rewards / 普通の merchant) |
-| `STAR` | premium (rare-merchant / 限定 offers) |
+| `STAR` | premium (限定 offers) |
 | `GEM` | (将来予約) |
 
 価格は `Currency` 単位で 1 つ。multi-currency / 複合支払いは Phase 4 で
 別 ADR 起草。
 
-## Shop UI と Vendor
+## Shop UI と購入フロー
 
-Shop の購入フローは Wave 5g `IShopVendor` 経由:
+ショップの入口は 2 つ (WP13 で整理):
 
-1. Player が Vendor NPC と interact (`NpcDialogContents` 経由でも GUI 経由でも)
-2. `OpenShopGuiUseCase` が `ShopGui` を `IGuiAdapter` で render
-3. Player が offer をクリック → `PurchaseFromShopUseCase` 起動
-4. `ICurrencyLedger.debit` + `IItemRegistry.materialize` + inventory put
+- **ロビー NPC**: `content/lobby-npcs/shop-npc.yaml` の右クリックが
+  `lobby.shop.open` を発火 → `LobbyShopOpenIntentHandler` → `ShopBrowseUseCase`
+  (`payload.shop_id` 省略時は `example-shop`)。メインメニューのショップタイルも同じ intent。
+- **コマンド**: `/astera-shop` (既定ショップ) / `/astera-shop browse <shop-id>`。
+
+購入フロー: ショップ GUI の offer クリック → `shop.purchase` intent →
+`ShopPurchaseUseCase` (`ICurrencyLedger.debit` → 在庫 decrement → `giveItem`)。
+所持金は新規プレイヤーの starter grant (`content/balance/starter-grant.yaml`、GOLD 100) か、
+管理者の `/astera-grant-currency <player> <currency> <amount>` で付与。
 
 `stock: limited` の場合、`IShopStockRepository` (Persistence overlay 100,
 in-memory 0) で在庫を atomically decrement。

@@ -183,7 +183,7 @@ public class ShopPurchaseUseCaseTest {
         // Buyer has nothing.
 
         val result = uc.execute(playerId, shopId, offerId)
-        assertThat(result.errorOrNull()).isEqualTo(ShopPurchaseError.InsufficientFunds)
+        assertThat(result.errorOrNull()).isEqualTo(ShopPurchaseError.InsufficientFunds(Currency.GOLD))
         // Stock unchanged — debit-failure short-circuit ran before decrementStock.
         assertThat(stockRepository.currentStock(shopId, offerId)).isEqualTo(ShopStock.Limited(3))
         assertThat(player.given).isEmpty()

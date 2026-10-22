@@ -28,6 +28,7 @@ import com.astarworks.astera.core.application.port.outbound.analytics.IAnalytics
 import com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway
 import com.astarworks.astera.core.application.port.outbound.cinematic.ICameraGateway
 import com.astarworks.astera.core.application.port.outbound.effect.IPlayerSoundGateway
+import com.astarworks.astera.core.application.port.outbound.entity.INpcBodyMaterializer
 import com.astarworks.astera.core.application.port.outbound.packet.IPacketInterceptor
 import com.astarworks.astera.core.application.port.outbound.sign.ISignActionService
 import com.astarworks.astera.core.application.services.ServiceRegistry
@@ -72,6 +73,8 @@ public class CorePlatformPorts(
     public val worldRulesGateway: IWorldRulesGateway? = null,
     public val signActionService: ISignActionService? = null,
     public val hologramGateway: ((ServiceRegistry) -> IHologramGateway)? = null,
+    /** Physical bodies for the NPCs in `content/lobby-npcs/`; absent in headless hosts. */
+    public val npcBodies: ((ServiceRegistry) -> INpcBodyMaterializer)? = null,
     // ---- Player / effects -----------------------------------------------
     public val playerSoundGateway: IPlayerSoundGateway? = null,
     public val playerHealthGateway: ((ServiceRegistry) -> IPlayerHealthGateway)? = null,

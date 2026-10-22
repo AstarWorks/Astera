@@ -9,6 +9,7 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
 import com.astarworks.astera.core.domain.shop.ShopId
+import com.astarworks.astera.economy.application.intent.LobbyShopOpenIntentHandler
 import com.astarworks.astera.economy.application.usecase.shop.ShopBrowseError
 import com.astarworks.astera.economy.application.usecase.shop.ShopBrowseUseCase
 
@@ -84,6 +85,23 @@ internal fun buildShopCommandSpec(
         name = "astera-shop",
         description = MessageKey("astera.economy.command.shop.root"),
         subcommands = listOf(browseLiteral),
+        // `/astera-shop` with no argument opens the lobby's default shop, the
+        // same target as the lobby shop NPC / main-menu tile (`lobby.shop.open`).
+        executor = lambda@ { ctx ->
+            val playerId = ctx.sender
+                ?: return@lambda CommandResult.Failure(MessageKey("astera.command.player-only"))
+            val shopId = LobbyShopOpenIntentHandler.DEFAULT_LOBBY_SHOP_ID
+            when (val outcome = browse.execute(playerId, shopId)) {
+                is Result.Success -> CommandResult.Success
+                is Result.Failure -> CommandResult.Failure(
+                    messageKey = outcome.error.toMessageKey(),
+                    placeholders = mapOf("shop-id" to shopId.value),
+                )
+            }
+        },
+    ).requirePermission(
+        permissionService = permService,
+        permission = Permission("astera.economy.shop.browse"),
     )
 }
 

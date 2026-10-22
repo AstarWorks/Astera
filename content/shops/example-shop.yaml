@@ -1,4 +1,7 @@
-# Wave 4.5 R3.5 demo shop. Sells 3 example weapons for STAR / GOLD.
+# Lobby shop (default target of the lobby shop NPC, the main-menu tile and
+# `/astera-shop`). Every `item` must exist in content/items/ (ShopShippedContentTest).
+# Priced in GOLD: a new player starts with 100 GOLD (content/balance/starter-grant.yaml),
+# so the sword and pistol are affordable at once; the wand needs more earnings.
 # offers iterate in YAML order; ShopBrowseUseCase places them at slot index 0, 1, 2 in a CHEST_27 GUI.
 id: example-shop
 display_key: astera.economy.shop.example-shop.title
@@ -7,16 +10,16 @@ offers:
   - id: example-sword
     item: example-sword
     price:
-      currency: STAR
-      amount: 100
+      currency: GOLD
+      amount: 50
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.sword
   - id: example-pistol
     item: example-pistol
     price:
-      currency: STAR
-      amount: 200
+      currency: GOLD
+      amount: 80
     stock:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.pistol
@@ -24,7 +27,7 @@ offers:
     item: example-wand
     price:
       currency: GOLD
-      amount: 500
+      amount: 150
     stock:
       type: limited
       remaining: 10
