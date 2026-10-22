@@ -40,6 +40,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  * cooldown_ticks: 4
  * resource_type: energy # optional; default = the source item's resource_type
  * resource_cost: 2      # optional; default = the item's resource_cost_per_use; 0 = free
+ * ego_cost: 100      # optional; E.G.O gauge points the cast consumes (refused when short)
  * reload_ticks: 30      # optional; marks a reload skill (refills the item's ammo after N ticks)
  * ready_cue: true       # optional; sound when the cooldown ends (default: on for cooldowns >= 3 s)
  * name: { ja: "プラズマ", en: "Plasma" }
@@ -88,6 +89,7 @@ public data class SkillYamlConfig(
     @SerialName("reload_ticks") public val reloadTicks: Int? = null,
     @SerialName("charge_ticks") public val chargeTicks: Long? = null,
     @SerialName("ready_cue") public val readyCue: Boolean? = null,
+    @SerialName("ego_cost") public val egoCost: Int? = null,
     public val tags: List<String> = emptyList(),
 ) {
     /**
@@ -129,6 +131,7 @@ public data class SkillYamlConfig(
             reloadTicks = reloadTicks,
             chargeVariant = variant,
             readyCue = readyCue,
+            egoCost = egoCost,
         )
     }
 

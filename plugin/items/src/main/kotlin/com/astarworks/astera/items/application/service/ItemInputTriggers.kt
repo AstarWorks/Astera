@@ -13,7 +13,7 @@ import com.astarworks.astera.core.domain.skill.SkillTrigger
  * | left click | `[LEFT_CLICK]`; sneaking: `[SNEAK_LEFT, LEFT_CLICK]` |
  * | right click | `[RIGHT_CLICK]`; sneaking: `[SNEAK_RIGHT, RIGHT_CLICK]` |
  * | right click repeat (held) | `[HOLD]` + the right-click row |
- * | drop key | `[DROP]` |
+ * | drop key | `[DROP]`; sneaking: `[SNEAK_DROP, DROP]` |
  * | bow / crossbow release | `[SHOOT]` |
  */
 public object ItemInputTriggers {
@@ -35,7 +35,9 @@ public object ItemInputTriggers {
                     else listOf(SkillTrigger.RIGHT_CLICK)
                 if (heldRepeat) listOf(SkillTrigger.HOLD) + base else base
             }
-            InputKind.DROP -> listOf(SkillTrigger.DROP)
+            InputKind.DROP ->
+                if (sneaking) listOf(SkillTrigger.SNEAK_DROP, SkillTrigger.DROP)
+                else listOf(SkillTrigger.DROP)
             InputKind.SHOOT -> listOf(SkillTrigger.SHOOT)
         }
 }

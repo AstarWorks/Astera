@@ -1,6 +1,6 @@
 # Persona weapon (ADR-0230): Vendetta Bayonet -- a crime-boss duelist's rifle used as a polearm.
 # Crimson / magenta / orange. Six rounds (the gun skills spend them), the bayonet is free; the
-# stack is Tremor on the target. Q = reload.
+# stack is Tremor on the target. Shift+Q = reload.
 #   left-click       S1 Bayonet Triple    dash, 2 crescents + thrust, +2 tremor            (free)
 #   right-click      S2 Rack Volley       ghost rifle rack, 8 beams, hop back              (2 rounds)
 #   sneak + right    S3 Reckoning Salvo   planted telegraph, 3 beats, eats all tremor     (3 rounds)
@@ -19,14 +19,14 @@ lore:
     - "<gray>右クリック: 銃架の斉射（弾2発・後方へ跳ぶ）</gray>"
     - "<gray>スニーク + 右クリック: 報復の一斉掃射（弾3発・震動を消費）</gray>"
     - "<gray>スニーク + 左クリック: ヘアピン・パリィ（無敵の反撃）</gray>"
-    - "<gray>Q: リロード</gray>"
+    - "<gray>Shift+Q: リロード</gray>"
     - "<dark_gray>rarity: epic / level: 4</dark_gray>"
   en:
     - "<gray>Left-click: Bayonet Triple (dash, two cuts, point-blank thrust)</gray>"
     - "<gray>Right-click: Rack Volley (2 rounds, hops back)</gray>"
     - "<gray>Sneak + right-click: Reckoning Salvo (3 rounds, eats tremor)</gray>"
     - "<gray>Sneak + left-click: Hairpin Parry (invulnerable riposte)</gray>"
-    - "<gray>Q: reload</gray>"
+    - "<gray>Shift+Q: reload</gray>"
     - "<dark_gray>rarity: epic / level: 4</dark_gray>"
 
 rarity: epic
@@ -52,7 +52,7 @@ skills:
     skill_id: vendetta-rifle-s3
   - trigger: sneak_left
     skill_id: vendetta-rifle-def
-  - trigger: drop
+  - trigger: sneak_drop
     skill_id: pistol-reload
 
 pdc_tags:

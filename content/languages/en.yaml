@@ -874,8 +874,9 @@ astera:
       friendly_fire_blocked: "<yellow>Friendly fire blocked.</yellow>"
     cast:
       insufficient:
-        ammo: "Out of ammo - press Q to reload"
+        ammo: "Out of ammo - press Shift+Q to reload"
         energy: "Not enough energy"
+        ego: "E.G.O gauge not full yet"
       reloading: "Reloading..."
       ammo_full: "Magazine is full"
       not_reloadable: "This item cannot be reloaded"
@@ -945,6 +946,11 @@ astera:
       count: "<gold>{count}</gold>"
     mining:
       progress: "<gray>Mining...</gray>"
+    # ADR-0231: E.G.O gauge; action-bar readout (combat) + READY title flash.
+    ego:
+      gauge: "<light_purple>E.G.O {value}/{max}</light_purple>"
+      ready: "<gold><bold>E.G.O READY</bold></gold>"
+      flash: "<gold><bold>E.G.O READY</bold></gold> <gray>[Q]</gray>"
     # WP14 (ADR-0177) — one owner per HUD channel (see docs/adr/0177-*).
     #   action bar : combat readout (status effects), toasts on top
     #   cooldown icons ride the status line (ADR-0197)

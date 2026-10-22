@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.skill.SkillId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** WP2 (ADR-0194): ammo and the shared energy pool in the cast path, reload on the drop key, regen, cooldown override. */
+/** WP2 (ADR-0194): ammo and the shared energy pool in the cast path, reload on Shift+Q (sneak_drop), regen, cooldown override. */
 class ResourcePoolScenarioTest {
 
     @Test
@@ -41,8 +41,8 @@ class ResourcePoolScenarioTest {
             assertThat(shots()).isEqualTo(12)
             assertThat(rejections()).containsExactly(CastRejectionReason.INSUFFICIENT_AMMO)
 
-            // Q reloads; shooting mid-reload is refused, the magazine refills after 30 ticks.
-            shooter.drop()
+            // Shift+Q reloads; shooting mid-reload is refused, the magazine refills after 30 ticks.
+            shooter.drop(sneaking = true)
             advance(15)
             shooter.rightClick()
             assertThat(rejections()).contains(CastRejectionReason.RELOADING)

@@ -19,6 +19,7 @@ import com.astarworks.astera.core.domain.i18n.LocaleCode
 import com.astarworks.astera.core.domain.i18n.LocalizedText
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.application.contents.ItemContents
+import com.astarworks.astera.core.application.service.InMemoryEgoGauge
 import com.astarworks.astera.core.application.service.InMemoryResourcePoolService
 import com.astarworks.astera.core.domain.i18n.LocalizedLore
 import com.astarworks.astera.core.domain.item.DropPolicy
@@ -276,6 +277,52 @@ class CastSkillUseCaseTest {
         assertThat(cooldownTracker.isCoolingDown(casterId, CooldownKey.Skill(skillId.value))).isFalse()
         assertThat(eventBus.publishedOfType<SkillCastRejected>().single().reason)
             .isEqualTo(CastRejectionReason.INSUFFICIENT_ENERGY)
+    }
+
+    @Test
+    fun `ego cost is refused while the gauge is short and consumed on a cast`() {
+        val gauge = InMemoryEgoGauge(scheduler, eventBus)
+        val uc = CastSkillUseCase(
+            skillRegistry = skillRegistry,
+            statusContainer = statusContainer,
+            eventBus = eventBus,
+            cooldownTracker = cooldownTracker,
+            scheduler = scheduler,
+            egoGauge = gauge,
+        )
+        skillRegistry.register(spec.copy(egoCost = 100))
+
+        gauge.gain(casterId, 60)
+        val refused = uc.execute(casterId, skillId)
+        assertThat(((refused as Result.Failure).error as CastSkillError.InsufficientEgo).have).isEqualTo(60)
+        assertThat(gauge.value(casterId)).isEqualTo(60)
+        assertThat(cooldownTracker.isCoolingDown(casterId, CooldownKey.Skill(skillId.value))).isFalse()
+        assertThat(eventBus.publishedOfType<SkillCastRejected>().single().reason)
+            .isEqualTo(CastRejectionReason.INSUFFICIENT_EGO)
+
+        gauge.gain(casterId, 40)
+        val ok = uc.execute(casterId, skillId)
+        assertThat(ok).isInstanceOf(Result.Success::class.java)
+        assertThat(gauge.value(casterId)).isZero()
+    }
+
+    @Test
+    fun `an energy shortfall does not eat the ego gauge`() {
+        val (_, pool) = withResources()
+        val gauge = InMemoryEgoGauge(scheduler, eventBus)
+        val itemRegistry = ItemContents().also { it.register(staffId, item(staffId, ResourceType.Energy, cost = 40, max = 100)) }
+        val uc = CastSkillUseCase(
+            skillRegistry = skillRegistry, statusContainer = statusContainer, eventBus = eventBus,
+            cooldownTracker = cooldownTracker, scheduler = scheduler, resourcePool = pool, items = itemRegistry,
+            egoGauge = gauge,
+        )
+        skillRegistry.register(spec.copy(egoCost = 100, resourceCost = 500))
+        gauge.gain(casterId, 100)
+
+        val result = uc.execute(casterId, skillId, sourceItemId = staffId)
+
+        assertThat(((result as Result.Failure).error)).isInstanceOf(CastSkillError.InsufficientResource::class.java)
+        assertThat(gauge.value(casterId)).isEqualTo(100)
     }
 
     @Test
