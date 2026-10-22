@@ -43,7 +43,7 @@ class StartTutorialOnFirstTimeProfileCreatedListenerTest {
     @Test
     fun `handle starts the recorded tutorial sequence`() {
         val grant = StarterGrant(
-            defaultLoadout = emptyList(),
+            starterItems = emptyList(),
             walletGrants = emptyMap(),
             tutorialAutoEnroll = true,
             tutorialScriptId = "tutorial-getting-started",
@@ -78,7 +78,7 @@ class StartTutorialOnFirstTimeProfileCreatedListenerTest {
     @Test
     fun `handle swallows sequencer failure`() {
         val grant = StarterGrant(
-            defaultLoadout = emptyList(),
+            starterItems = emptyList(),
             walletGrants = emptyMap(),
             tutorialAutoEnroll = true,
             tutorialScriptId = "tutorial-getting-started",

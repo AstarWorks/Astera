@@ -10,7 +10,7 @@ import com.astarworks.astera.core.domain.item.ItemId
  * Kotlin, no YAML annotations, no I/O. It captures the three things a
  * first-time profile creation must seed:
  *
- *   - [defaultLoadout]: items every new player starts with. Resolved through
+ *   - [starterItems]: items every new player starts with. Resolved through
  *     `IItemRegistry.find(id)` at apply-time; unknown ids degrade gracefully
  *     (logged + skipped) so renaming a starter item never wedges joins.
  *   - [walletGrants]: per-currency initial balances. Applied via
@@ -28,7 +28,7 @@ import com.astarworks.astera.core.domain.item.ItemId
  * YAML shapes; rewrite the on-disk file and the [toDomain] converter
  * together.
  *
- * @property defaultLoadout ordered list of items granted. Order matters for
+ * @property starterItems ordered list of items granted. Order matters for
  *   hotbar placement when an inventory adapter (Wave 6b) consumes the grant;
  *   slot 0 wins the player's hand. List may be empty.
  * @property walletGrants per-currency initial balances. Values MUST be
@@ -43,7 +43,7 @@ import com.astarworks.astera.core.domain.item.ItemId
  *   is captured for forward use and surfaced on the audit log only.
  */
 public data class StarterGrant(
-    val defaultLoadout: List<ItemId>,
+    val starterItems: List<ItemId>,
     val walletGrants: Map<Currency, Long>,
     val tutorialAutoEnroll: Boolean,
     val tutorialScriptId: String?,
@@ -65,7 +65,7 @@ public data class StarterGrant(
     public companion object {
         /** Empty grant — no loadout, no wallet credit, no tutorial. Useful in tests. */
         public val EMPTY: StarterGrant = StarterGrant(
-            defaultLoadout = emptyList(),
+            starterItems = emptyList(),
             walletGrants = emptyMap(),
             tutorialAutoEnroll = false,
             tutorialScriptId = null,

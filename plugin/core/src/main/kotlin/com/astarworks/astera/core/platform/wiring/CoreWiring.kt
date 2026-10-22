@@ -27,7 +27,6 @@ import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
 import com.astarworks.astera.core.application.port.outbound.IGuiBindingResolver
 import com.astarworks.astera.core.application.port.outbound.IGuiRegistry
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
-import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPermissionService
 import com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore
@@ -286,14 +285,12 @@ internal fun CoreWiringState.wireGui() {
     logger.info("GUI specs loaded: ${guiReport.loaded} ok, ${guiReport.failed} failed")
 
     // Wave 4.5 (ADR-0027) + Wave 5f (ADR-0035): lazy providers since these
-    // dependencies are registered by feature plugins (ILoadoutRepository /
-    // ICurrencyLedger) or stats services (IPlayerAttributeContainerStore)
+    // dependencies are registered by feature plugins (ICurrencyLedger) or stats services (IPlayerAttributeContainerStore)
     // that load AFTER Astera-Core. Lambdas are only invoked at GUI render
     // time. ResolvedReactiveSlot signature (Wave 5f) lets the resolver
     // return numeric overrides (display / lore / count) for the new
     // `player.coins.<currency>` and `player.kills` bindings.
     val defaultGuiBindingResolver: IGuiBindingResolver = DefaultGuiBindingResolver(
-        loadoutsProvider = { services.get<ILoadoutRepository>() },
         walletProvider = { services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>() },
         playerStatsProvider = { playerId ->
             services.get<com.astarworks.astera.core.application.port.outbound.IPlayerAttributeContainerStore>()

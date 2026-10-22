@@ -171,7 +171,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
     }
     val starterItemsListener = com.astarworks.astera.core.application.eventbus.listeners.onboarding
         .DeliverStarterItemsListener(
-            starterItems = { profileService.loadoutFor(it) },
+            starterItems = { profileService.starterItemsFor(it) },
             delivery = { services.get<com.astarworks.astera.core.application.port.outbound.item.IItemDelivery>() },
             server = mcServer,
             sessions = sessionRepo,

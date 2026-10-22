@@ -10,7 +10,7 @@ class StarterGrantTest {
 
     @Test
     fun `EMPTY has no loadout no wallet no tutorial`() {
-        assertThat(StarterGrant.EMPTY.defaultLoadout).isEmpty()
+        assertThat(StarterGrant.EMPTY.starterItems).isEmpty()
         assertThat(StarterGrant.EMPTY.walletGrants).isEmpty()
         assertThat(StarterGrant.EMPTY.tutorialAutoEnroll).isFalse
         assertThat(StarterGrant.EMPTY.tutorialScriptId).isNull()
@@ -21,7 +21,7 @@ class StarterGrantTest {
     fun `init rejects a negative wallet grant`() {
         assertThatThrownBy {
             StarterGrant(
-                defaultLoadout = emptyList(),
+                starterItems = emptyList(),
                 walletGrants = mapOf(Currency.GOLD to -1L),
                 tutorialAutoEnroll = false,
                 tutorialScriptId = null,
@@ -35,7 +35,7 @@ class StarterGrantTest {
     fun `init rejects tutorialAutoEnroll true with blank script id`() {
         assertThatThrownBy {
             StarterGrant(
-                defaultLoadout = emptyList(),
+                starterItems = emptyList(),
                 walletGrants = emptyMap(),
                 tutorialAutoEnroll = true,
                 tutorialScriptId = "",
@@ -48,14 +48,14 @@ class StarterGrantTest {
     @Test
     fun `init accepts a valid grant with a single item`() {
         val grant = StarterGrant(
-            defaultLoadout = listOf(ItemId("example-sword")),
+            starterItems = listOf(ItemId("example-sword")),
             walletGrants = mapOf(Currency.GOLD to 100L),
             tutorialAutoEnroll = true,
             tutorialScriptId = "getting-started",
             welcomeDialogId = null,
         )
 
-        assertThat(grant.defaultLoadout).hasSize(1)
+        assertThat(grant.starterItems).hasSize(1)
         assertThat(grant.walletGrants[Currency.GOLD]).isEqualTo(100L)
     }
 }

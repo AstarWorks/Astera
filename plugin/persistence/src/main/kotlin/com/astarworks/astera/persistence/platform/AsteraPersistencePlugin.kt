@@ -3,7 +3,6 @@ package com.astarworks.astera.persistence.platform
 import com.astarworks.astera.core.application.port.outbound.IBlockDurabilityRepository
 import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
 import com.astarworks.astera.core.application.port.outbound.IFriendshipRepository
-import com.astarworks.astera.core.application.port.outbound.ILoadoutRepository
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.core.application.port.outbound.INormaProgressRepository
 import com.astarworks.astera.core.application.port.outbound.IPartyRepository
@@ -44,7 +43,6 @@ import com.astarworks.astera.persistence.repository.PostgresCreatorRevenueReposi
 import com.astarworks.astera.persistence.repository.PostgresCurrencyIssuanceLog
 import com.astarworks.astera.persistence.repository.PostgresCurrencyLedger
 import com.astarworks.astera.persistence.repository.PostgresFriendshipRepository
-import com.astarworks.astera.persistence.repository.PostgresLoadoutRepository
 import com.astarworks.astera.persistence.repository.PostgresMarketplaceRepository
 import com.astarworks.astera.persistence.repository.PostgresMatchRepository
 import com.astarworks.astera.persistence.repository.PostgresNormaProgressRepository
@@ -237,10 +235,6 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         )
         stage<INormaProgressRepository>(
             PostgresNormaProgressRepository(ctx.database),
-            priority = 100,
-        )
-        stage<ILoadoutRepository>(
-            PostgresLoadoutRepository(ctx.database),
             priority = 100,
         )
         // Wave 5e: Session + Social + Vault + Settings + Audit + InventorySnapshot.

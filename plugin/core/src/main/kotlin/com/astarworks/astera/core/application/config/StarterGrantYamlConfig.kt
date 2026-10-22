@@ -18,7 +18,7 @@ import kotlinx.serialization.Serializable
  * # Wire format
  *
  * ```yaml
- * default_loadout:
+ * starter_items:
  *   - example-sword
  *   - example-wand
  *
@@ -47,7 +47,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 public data class StarterGrantYamlConfig(
-    @SerialName("default_loadout") public val defaultLoadout: List<String> = emptyList(),
+    @SerialName("starter_items") public val starterItems: List<String> = emptyList(),
     @SerialName("wallet_grants") public val walletGrants: Map<String, Long> = emptyMap(),
     public val tutorial: TutorialBlock = TutorialBlock(),
     @SerialName("welcome_dialog_id") public val welcomeDialogId: String? = null,
@@ -100,13 +100,13 @@ public data class StarterGrantYamlConfig(
         // 3. Item ids — validate lexical shape now so YAML typos surface at
         //    load time rather than first-join time. Registry existence is
         //    not enforced here (a starter item might be content-pack-pending).
-        val parsedItems = defaultLoadout.mapIndexed { idx, raw ->
+        val parsedItems = starterItems.mapIndexed { idx, raw ->
             try {
                 ItemId(raw)
             } catch (e: IllegalArgumentException) {
                 return Result.failure(
                     ConfigError.InvalidIdentifier(
-                        field = "default_loadout[$idx]",
+                        field = "starter_items[$idx]",
                         rawValue = raw,
                         constraint = e.message ?: "kebab-case [a-z0-9-]",
                     ),
@@ -116,7 +116,7 @@ public data class StarterGrantYamlConfig(
 
         return Result.success(
             StarterGrant(
-                defaultLoadout = parsedItems,
+                starterItems = parsedItems,
                 walletGrants = parsedWallet.toMap(),
                 tutorialAutoEnroll = tutorial.autoEnroll,
                 tutorialScriptId = tutorial.scriptId?.takeIf { tutorial.autoEnroll },
