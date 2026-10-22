@@ -3,6 +3,8 @@ package com.astarworks.astera.match.application.usecase.match
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.event.EndReason
+import com.astarworks.astera.core.domain.event.MatchEnded
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
 import com.astarworks.astera.match.application.port.outbound.IMatchModeRegistry
@@ -97,6 +99,16 @@ public class SwitchPhaseUseCase(
             ),
         )
 
+        if (next == MatchPhase.ENDED) {
+            val reason = when (trigger) {
+                MatchStateMachine.TransitionTrigger.SuddenDeathTimer -> EndReason.TimerExpired
+                MatchStateMachine.TransitionTrigger.Cancel -> EndReason.Cancelled("phase-cancelled")
+                else -> EndReason.AdminEnded
+            }
+            eventBus.publish(
+                MatchEnded(matchId, VictoryConditionEvaluator().evaluate(updated), scheduler.currentTick(), reason),
+            )
+        }
         return Result.success(next)
     }
 }

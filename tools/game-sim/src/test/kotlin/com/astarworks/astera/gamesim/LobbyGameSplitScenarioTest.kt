@@ -152,6 +152,35 @@ class LobbyGameSplitScenarioTest {
         }
     }
 
+    @Test
+    fun `game drops an assignment if the only arrived player disconnects before start`() {
+        val network = SimProxyNetwork()
+        val lobbyNode = network.node(lobbyName)
+        val game = GameSim.boot("split-arrival-quit", role = ServerRole.GAME, serverName = gameName, proxy = network.node(gameName))
+        network.register(gameName, game)
+        try {
+            val playerId = com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())
+            val missing = com.astarworks.astera.core.domain.player.PlayerId(java.util.UUID.randomUUID())
+            val assignment = com.astarworks.astera.match.domain.matchmaking.MatchAssignment(
+                com.astarworks.astera.core.domain.match.MatchId("arrival-quit"),
+                com.astarworks.astera.core.domain.stage.StageId("example-arena"), null,
+                listOf(listOf(playerId), listOf(missing)),
+            )
+            lobbyNode.sendMessage(gameName, ProxyChannel.MATCH_FOUND,
+                com.astarworks.astera.match.application.service.matchmaking.MatchAssignmentCodec.encode(assignment))
+            network.pump()
+            game.attachPlayer(playerId, "quit-before-start")
+            network.step(60)
+            assertThat(game.eventsOf<PlayerArrivedOnServer>().map { it.playerId }).contains(playerId)
+            game.detachPlayer(playerId)
+            network.step(45 * 20)
+            assertThat(game.eventsOf<MatchStarted>()).isEmpty()
+            assertThat(game.services.getOrThrow<IMatchRepository>().findActiveMatches()).isEmpty()
+        } finally {
+            game.shutdown()
+        }
+    }
+
     private fun arrivedOn(network: SimProxyNetwork, sim: GameSim, player: com.astarworks.astera.core.domain.player.PlayerId, maxTicks: Int): Boolean {
         repeat(maxTicks) {
             if (sim.world.find(player) != null) return true

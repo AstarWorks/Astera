@@ -23,9 +23,10 @@ public class AssistAttributionUseCase(
     public fun handle(event: PlayerKilled) {
         if (!event.context.countsForProgression) return // ADR-0235
         val attackers = history.recentAttackers(event.victim, window, asOf = event.atTick)
+        history.clear(event.victim)
         if (attackers.isEmpty()) return
         attackers.asSequence()
-            .filter { it != event.killer }
+            .filter { it != event.killer && it != event.victim }
             .forEach { assister ->
                 eventBus.publish(
                     AssistCredited(

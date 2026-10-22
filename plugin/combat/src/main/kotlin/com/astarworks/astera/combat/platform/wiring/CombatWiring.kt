@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.platform.wiring
 
+import com.astarworks.astera.combat.domain.damage.attackerIdOrNull
 import com.astarworks.astera.combat.application.config.StatusEffectInteractionLoader
 import com.astarworks.astera.combat.application.contents.ArmorContents
 import com.astarworks.astera.combat.application.contents.ComboRouteContents
@@ -389,7 +390,17 @@ public object CombatWiring {
                     base = ports.entityDamageGateway?.invoke(services) ?: services.get<IEntityDamageGateway>(),
                     dummies = trainingDummies,
                     now = { services.getOrThrow<IScheduler>().currentTick() },
-                    onHit = { dummy, resolved, source -> trainingService?.onHit(dummy, resolved, source) },
+                    onHit = { dummy, resolved, source ->
+                        trainingService?.onHit(dummy, resolved, source)
+                        val primary = when (source) {
+                            is com.astarworks.astera.combat.domain.damage.DamageSource.Skill -> source.skillId.value == "sword-slash"
+                            is com.astarworks.astera.combat.domain.damage.DamageSource.Item -> source.itemId.value == "knight-sword"
+                            else -> false
+                        }
+                        if (primary) source.attackerIdOrNull()?.let { player ->
+                            services.get<com.astarworks.astera.core.application.port.inbound.ITutorialSequencerService>()?.recordAction(player, "primary")
+                        }
+                    },
                 ),
                 structures = { services.get<com.astarworks.astera.core.application.port.outbound.IStructureTargets>() },
             ),
@@ -433,7 +444,8 @@ public object CombatWiring {
         // Wave 6a Paper sweep pattern.
         val projectileService: IProjectileService = ports.projectileService(services)
         registrations += services.register<IProjectileService>(projectileService, priority = 100)
-        val teamLookup = services.get<IMatchTeamLookup>()
+        // Match enables after Combat; resolve its team service when damage is applied.
+        val teamLookup = IMatchTeamLookup { playerId -> services.get<IMatchTeamLookup>()?.teamOf(playerId) }
         val combatContexts = com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() }
         val damageRule = DamageRule(
             elementMatrix = elementMatrix,

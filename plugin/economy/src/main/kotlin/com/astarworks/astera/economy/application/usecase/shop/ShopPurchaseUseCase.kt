@@ -123,13 +123,6 @@ public class ShopPurchaseUseCase(
         val offer = shopSpec.offer(offerId)
             ?: return Result.failure(ShopPurchaseError.OfferNotFound(shopId, offerId))
 
-        when (val stock = offer.stock) {
-            is ShopStock.Limited -> if (stock.remaining <= 0) {
-                return Result.failure(ShopPurchaseError.OutOfStock(shopId, offerId))
-            }
-            is ShopStock.Unlimited -> Unit
-        }
-
         val spec = itemRegistry.find(offer.itemId)
             ?: return Result.failure(
                 ShopPurchaseError.DeliveryFailed(

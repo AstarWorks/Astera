@@ -122,14 +122,18 @@ internal fun CoreWiringState.wirePlayerSystems() {
     services.register<IResourceRegenScheduler>(resourceRegen, priority = 0)
     // Drive the regen pool at server-tick cadence. Per-tick visit walks the
     // tracked player set only — empty cost when no Annihilation match is live.
-    scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) {
+    val resourceRegenTask = scheduler.runRepeatingTicks(initialDelayTicks = 1L, periodTicks = 1L) {
         resourceRegen.tick(scheduler.currentTick())
     }
+    shutdownHooks += { resourceRegenTask.cancel() }
     // Initialise the resource pool whenever a player joins, mirroring the
     // existing Wave 5e RestoreInventorySnapshot subscribe pattern.
     wave5completeSubs += eventBus.subscribe(PlayerJoinedServer::class) { event ->
         resourcePool.initialiseFor(event.playerId)
         resourceRegen.trackPlayer(event.playerId)
+    }
+    wave5completeSubs += eventBus.subscribe(PlayerQuitServer::class) { event ->
+        resourceRegen.untrackPlayer(event.playerId)
     }
 
     // ADR-0231: the E.G.O gauge. Tuning from content/balance/ego.yaml; emptied on

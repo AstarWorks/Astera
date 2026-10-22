@@ -186,7 +186,8 @@ public object StatsWiring {
 
         // Wave _infra-2b: register norma contents on the /astera reload dispatcher.
         val reloadRegistry = services.getOrThrow<IReloadableContentsRegistry>()
-        reloadRegistry.register(normaContents, normaContentDir)
+        val normaReload = reloadRegistry.register(normaContents, normaContentDir)
+        shutdownHooks += normaReload::unregister
 
         // 5. Use cases ------------------------------------------------------
         val recordKill = RecordKillUseCase(statsRepository, eventBus)
@@ -207,6 +208,7 @@ public object StatsWiring {
         val broadcastOnLeveledUpListener = BroadcastOnLeveledUpListener(broadcaster)
         val recordAssistListener = RecordAssistOnAssistCreditedListener(recordAssist)
 
+        subscriptions += eventBus.subscribe(PlayerKilled::class) { recordDeath.execute(it.victim) }
         subscriptions += eventBus.subscribe(PlayerKilled::class) { rewardOnKill.handle(it) }
         subscriptions += eventBus.subscribe(DamageDealt::class) { rewardOnDamage.handle(it) }
         subscriptions += eventBus.subscribe(PlayerKilled::class) { missionProgressOnKill.handle(it) }
@@ -278,12 +280,13 @@ public object StatsWiring {
         val achievementReport = achievementContents.bootstrap(achievementContentDir)
         logger.info("Loaded ${achievementReport.loaded} achievement(s) from $achievementContentDir (failed: ${achievementReport.failed})")
         achievementRepo.registerAll(achievementContents.all().toList())
-        reloadRegistry.register(
+        val achievementReload = reloadRegistry.register(
             com.astarworks.astera.stats.application.contents.ReloadSyncedContents(achievementContents) {
                 achievementRepo.registerAll(achievementContents.all().toList())
             },
             achievementContentDir,
         )
+        shutdownHooks += achievementReload::unregister
 
         // ── Wave M 5polish-quickwin (ADR-0130 §B) ────────────────────────
         // PlayerAchievementListGuiBindingResolver projects the achievement
@@ -297,6 +300,7 @@ public object StatsWiring {
             val achievementListResolver = com.astarworks.astera.stats.application.service.gui
                 .PlayerAchievementListGuiBindingResolver({ achievementRepo })
             compositeBindingResolverForStats.addDelegate(achievementListResolver)
+            shutdownHooks += { compositeBindingResolverForStats.removeDelegate(achievementListResolver) }
             logger.info(
                 "Wave M 5polish-quickwin (ADR-0130 §B) wired: " +
                     "PlayerAchievementListGuiBindingResolver appended to composite resolver.",
@@ -382,7 +386,8 @@ public object StatsWiring {
         )
         registrations += services.register<ISkillXpCurveRegistry>(skillProgressionContents, priority = 0)
         registrations += services.register<ISkillPerkRegistry>(skillProgressionContents, priority = 0)
-        reloadRegistry.register(skillProgressionContents, skillProgressionContentDir)
+        val skillProgressionReload = reloadRegistry.register(skillProgressionContents, skillProgressionContentDir)
+        shutdownHooks += skillProgressionReload::unregister
 
         val awardSkillXp = AwardSkillXpUseCase(skillProgressionRepo, skillProgressionContents, eventBus)
         val combatXpOnDamage = AwardCombatXpOnDamageDealtListener(awardSkillXp)

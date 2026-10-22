@@ -18,39 +18,9 @@ import com.astarworks.astera.core.domain.tutorial.TutorialScriptId
 import com.astarworks.astera.core.domain.tutorial.TutorialSequencerError
 import com.astarworks.astera.core.domain.tutorial.TutorialStep
 
-/**
- * Wave 5p tutorial sequencer (ADR-0088).
- *
- * # Design
- *
- *  - **State** lives in [IPlayerTutorialStateRepository] so it survives restart
- *    + proxy hop (Wave _persist-1, ADR-0068).
- *  - **Reuses** the existing `TutorialContents` registry (Wave 5e) — the same
- *    `content/tutorials/` YAML drives both Wave 5e's `RunTutorialUseCase` and
- *    this sequencer.
- *  - **Predicate** evaluation delegates to [IDialogPredicateEvaluator] via a
- *    one-to-one [TutorialPredicate] → [DialogPredicate] adapter; the two
- *    sealed hierarchies are kept parallel so each can evolve independently
- *    (see [TutorialPredicate] kdoc).
- *  - [AwaitPredicate] auto-advances during [startSequence] / [advance] if
- *    the predicate is already true — same idea as dialog Condition nodes.
- *
- * # Wait-step semantics
- *
- * The use case **does not** poll. Each wait variant is driven by an external
- * listener that calls [advance] when the wait condition is satisfied:
- *
- *  - [TutorialStep.AwaitInteraction] → Worker δ's
- *    `AdvanceTutorialOnNpcInteractedListener` (subscribes
- *    `NpcInteracted` from Wave 5l).
- *  - [TutorialStep.AwaitMovement] → Wave 6a Paper movement listener.
- *  - [TutorialStep.AwaitSkillCast] → Wave 5p `SkillCastRequested` subscriber.
- *  - [TutorialStep.AwaitPredicate] → walked during the next [advance] call
- *    (no listener needed; predicates are point-in-time).
- *  - [TutorialStep.ShowDialog] → Worker δ's listener on `NpcDialogEnded`.
- *
- * Phase 1 PoC: those listeners are wired in Phase C (Worker δ). The use case
- * itself stays input-driven.
+/** Persisted tutorial cursor. Successful action tokens advance one matching wait step.
+ * Skip pauses, start resumes, and completing a replay never emits another graduation reward.
+ * Eligibility is supplied by host-neutral wiring; a match or another world suspends progress.
  */
 public class RunTutorialSequencerUseCase(
     private val registry: ITutorialRegistry,
@@ -58,14 +28,25 @@ public class RunTutorialSequencerUseCase(
     private val events: IDomainEventBus,
     private val scheduler: IScheduler,
     private val predicateEvaluator: IDialogPredicateEvaluator,
+    private val canRun: (PlayerId) -> Boolean = { true },
+    private val canStart: (PlayerId) -> Boolean = canRun,
 ) : ITutorialSequencerService {
 
     override fun startSequence(
         playerId: PlayerId,
         scriptId: TutorialScriptId,
     ): Result<Unit, TutorialSequencerError> {
-        if (stateRepo.find(playerId) != null) {
-            return Result.failure(TutorialSequencerError.AlreadyRunning(playerId))
+        if (!canStart(playerId)) return Result.failure(TutorialSequencerError.IllegalStep("lobby only"))
+        val previous = stateRepo.find(playerId)
+        if (previous != null && !previous.completed) {
+            if (previous.scriptId != scriptId || !previous.paused) {
+                return Result.failure(TutorialSequencerError.AlreadyRunning(playerId))
+            }
+            val step = registry.find(scriptId)?.steps?.getOrNull(previous.stepIndex)
+                ?: return Result.failure(TutorialSequencerError.NotInCatalog(scriptId))
+            stateRepo.save(playerId, previous.copy(paused = false))
+            events.publish(TutorialStepEntered(playerId, scriptId, previous.stepIndex, step))
+            return walkAutoAdvance(playerId, scheduler.currentTick())
         }
         val script = registry.find(scriptId)
             ?: return Result.failure(TutorialSequencerError.NotInCatalog(scriptId))
@@ -73,7 +54,7 @@ public class RunTutorialSequencerUseCase(
         val tick = scheduler.currentTick()
         stateRepo.save(
             playerId,
-            TutorialRunnerSnapshot(scriptId, stepIndex = 0, startedAtTick = tick),
+            TutorialRunnerSnapshot(scriptId, stepIndex = 0, startedAtTick = tick, rewardGranted = previous?.rewardGranted ?: false),
         )
         events.publish(
             TutorialStepEntered(
@@ -89,6 +70,7 @@ public class RunTutorialSequencerUseCase(
 
     override fun currentStep(playerId: PlayerId): TutorialStep? {
         val snap = stateRepo.find(playerId) ?: return null
+        if (snap.paused || snap.completed) return null
         val script = registry.find(snap.scriptId) ?: return null
         return script.steps.getOrNull(snap.stepIndex)
     }
@@ -96,15 +78,20 @@ public class RunTutorialSequencerUseCase(
     override fun advance(playerId: PlayerId): Result<TutorialStep?, TutorialSequencerError> {
         val snap = stateRepo.find(playerId)
             ?: return Result.failure(TutorialSequencerError.NotRunning(playerId))
+        if (!canRun(playerId) || snap.paused || snap.completed) {
+            return Result.failure(TutorialSequencerError.IllegalStep("tutorial is suspended"))
+        }
         val script = registry.find(snap.scriptId)
         if (script == null) {
-            stateRepo.clear(playerId)
             return Result.failure(TutorialSequencerError.NotInCatalog(snap.scriptId))
         }
 
         val nextIndex = snap.stepIndex + 1
         if (nextIndex >= script.steps.size) {
-            stateRepo.clear(playerId)
+            stateRepo.save(playerId, snap.copy(completed = true, rewardGranted = true))
+            if (!snap.rewardGranted) events.publish(com.astarworks.astera.core.domain.event.TutorialCompleted(
+                playerId, snap.scriptId, scheduler.currentTick(),
+            ))
             events.publish(
                 TutorialSequenceCompleted(
                     playerId = playerId,
@@ -134,7 +121,8 @@ public class RunTutorialSequencerUseCase(
     override fun cancel(playerId: PlayerId): Result<Unit, TutorialSequencerError> {
         val snap = stateRepo.find(playerId)
             ?: return Result.failure(TutorialSequencerError.NotRunning(playerId))
-        stateRepo.clear(playerId)
+        if (snap.completed) return Result.failure(TutorialSequencerError.NotRunning(playerId))
+        stateRepo.save(playerId, snap.copy(paused = true))
         events.publish(
             TutorialSequenceCancelled(
                 playerId = playerId,

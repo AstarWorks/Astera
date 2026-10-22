@@ -423,6 +423,9 @@ public class AsteraPersistencePlugin : JavaPlugin() {
         // chains (V27), advancements (V26) and the engagement snapshot (V30) already had
         // Postgres classes that were never staged; achievements (V60) and login streaks (V61) are new.
         stage<ISkillProgressionRepository>(PostgresSkillProgressionRepository(ctx.database), priority = 100)
+        stage<com.astarworks.astera.core.application.port.outbound.IPlayerTutorialStateRepository>(
+            com.astarworks.astera.persistence.repository.PostgresPlayerTutorialStateRepository(ctx.database), priority = 100,
+        )
         stage<IPlayerQuestProgressRepository>(PostgresPlayerQuestProgressRepository(ctx.database), priority = 100)
         stage<IPlayerAdvancementProgressRepository>(PostgresPlayerAdvancementProgressRepository(ctx.database), priority = 100)
         stage<com.astarworks.astera.core.application.port.outbound.engagement.IEngagementSnapshotRepository>(

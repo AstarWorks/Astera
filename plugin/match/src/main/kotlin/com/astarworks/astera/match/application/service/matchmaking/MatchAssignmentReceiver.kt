@@ -73,12 +73,16 @@ public class MatchAssignmentReceiver(
             if (assignment == null) log.warn("Dropping malformed match assignment from {}", message.fromServer) else onAssignment(assignment, message.fromServer)
         }
         val joined = eventBus.subscribe(PlayerArrivedOnServer::class) { onPlayerJoined(it.playerId) }
+        val quit = eventBus.subscribe(PlayerQuitServer::class) { event ->
+            // Before the match starts a departed player is simply forgotten; afterwards the abandon watchdog applies.
+            session?.takeIf { it.matchId == null }?.arrived?.remove(event.playerId)
+            onPlayerQuit(event.playerId)
+        }
         val ended = eventBus.subscribe(MatchEnded::class) { onMatchEnded(it.matchId) }
-        val quit = eventBus.subscribe(PlayerQuitServer::class) { onPlayerQuit(it.playerId) }
         handles += { assignments.cancel() }
         handles += { joined.cancel() }
-        handles += { ended.cancel() }
         handles += { quit.cancel() }
+        handles += { ended.cancel() }
     }
 
     public fun stop() {

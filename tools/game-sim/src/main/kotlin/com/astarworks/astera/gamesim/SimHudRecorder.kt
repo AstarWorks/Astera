@@ -1,5 +1,7 @@
 package com.astarworks.astera.gamesim
 
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
+import kotlinx.serialization.json.*
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.event.HudCleared
 import com.astarworks.astera.core.domain.event.HudShown
@@ -21,6 +23,7 @@ import com.astarworks.astera.core.domain.player.PlayerId
  */
 public class SimHudRecorder(
     private val recorder: TraceRecorder,
+    private val messages: IMessageRenderer,
     private val now: () -> Long,
 ) {
     public enum class Op { SHOW, UPDATE, CLEAR }
@@ -91,7 +94,67 @@ public class SimHudRecorder(
     private fun record(player: PlayerId, region: HudRegion, op: Op, layout: HudLayout?) {
         if (layout == null) current.remove(player to region) else current[player to region] = layout
         log += Entry(now(), player, region, op, layout)
-        recorder.recordHud(now(), player, region.name, op.name.lowercase(), layout?.let(::summary).orEmpty())
+        recorder.recordHud(
+            now(), player, region.name, op.name.lowercase(), layout?.let(::summary).orEmpty(),
+            layout?.let { encodeLayout(it, player) } ?: JsonNull,
+        )
+    }
+
+    // Resolved at event time, so replay does not depend on later content/i18n changes.
+    private fun encodeLayout(layout: HudLayout, player: PlayerId): JsonObject = buildJsonObject {
+        fun component(name: String, value: HudComponent?) {
+            put(name, value?.let { encodeComponent(it, player) } ?: JsonNull)
+        }
+        when (layout) {
+            is HudLayout.Sidebar -> {
+                put("title", messages.render(player, layout.titleKey))
+                put("lines", JsonArray(layout.lines.map { encodeComponent(it, player) }))
+            }
+            is HudLayout.ActionBar -> {
+                component("component", layout.component)
+                put("ttlTicks", layout.ttlTicks)
+            }
+            is HudLayout.StatusLine -> {
+                component("component", layout.component)
+                put("anchorLeftPx", layout.anchorLeftPx?.let(::JsonPrimitive) ?: JsonNull)
+            }
+            is HudLayout.TabList -> {
+                component("header", layout.header)
+                component("footer", layout.footer)
+            }
+            is HudLayout.Subtitle -> {
+                component("component", layout.component)
+                component("title", layout.title)
+                put("fadeInTicks", layout.fadeInTicks)
+                put("stayTicks", layout.stayTicks)
+                put("fadeOutTicks", layout.fadeOutTicks)
+            }
+        }
+    }
+
+    private fun encodeComponent(value: HudComponent, player: PlayerId): JsonObject = buildJsonObject {
+        when (value) {
+            is HudComponent.Text -> {
+                put("text", messages.render(player, value.messageKey, value.placeholders))
+                value.color?.let { put("color", (it.redInt shl 16) or (it.greenInt shl 8) or it.blueInt) }
+            }
+            is HudComponent.FontText -> {
+                put("text", value.text)
+                put("font", "astera:default")
+                put("widthPx", value.widthPx)
+            }
+            is HudComponent.Composite -> {
+                put("parts", JsonArray(value.parts.map { encodeComponent(it, player) }))
+                put("spacing", value.spacing)
+            }
+            // These intentionally mirror the current PaperHudGateway's visible output.
+            is HudComponent.Glyph -> put("text", "<glyph:${value.textureRef.value}>")
+            is HudComponent.Spacer -> put("text", " ")
+            is HudComponent.ProgressBar -> {
+                val filled = value.currentSegments()
+                put("text", "[" + "#".repeat(filled) + ".".repeat(value.widthSegments - filled) + "]")
+            }
+        }
     }
 
     private fun summary(layout: HudLayout): String = when (layout) {
