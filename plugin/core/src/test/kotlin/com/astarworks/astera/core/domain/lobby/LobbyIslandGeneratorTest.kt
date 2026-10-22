@@ -5,18 +5,20 @@ import org.junit.jupiter.api.Test
 
 class LobbyIslandGeneratorTest {
 
-    private val plan = LobbyIslandGenerator.generate(seed = 20261022L, centerX = 0, centerZ = 0, surfaceY = 64)
+    private val lanes = listOf("norma", "annihilation", "break-core", "carry-tnt", "capture-wool")
+
+    private val plan = LobbyIslandGenerator.generate(seed = 20261022L, centerX = 0, centerZ = 0, surfaceY = 64, lanes = lanes)
 
     @Test
     fun `generation is deterministic for the same seed`() {
-        val again = LobbyIslandGenerator.generate(20261022L, 0, 0, 64)
+        val again = LobbyIslandGenerator.generate(20261022L, 0, 0, 64, lanes)
         assertThat(again.blocks).isEqualTo(plan.blocks)
         assertThat(again.npcSpots).isEqualTo(plan.npcSpots)
     }
 
     @Test
     fun `a different seed changes the terrain`() {
-        val other = LobbyIslandGenerator.generate(1L, 0, 0, 64)
+        val other = LobbyIslandGenerator.generate(1L, 0, 0, 64, lanes)
         assertThat(other.blocks).isNotEqualTo(plan.blocks)
     }
 
@@ -32,7 +34,7 @@ class LobbyIslandGeneratorTest {
 
     @Test
     fun `the plan is translation invariant in structure`() {
-        val moved = LobbyIslandGenerator.generate(20261022L, 100, -40, 64)
+        val moved = LobbyIslandGenerator.generate(20261022L, 100, -40, 64, lanes)
         assertThat(moved.blocks.size).isNotEqualTo(0)
         assertThat(moved.maxX - moved.minX).isEqualTo(plan.maxX - plan.minX)
     }
@@ -46,7 +48,7 @@ class LobbyIslandGeneratorTest {
     fun `every recommended NPC stand is on a walkable block`() {
         assertThat(plan.npcSpots.keys).containsExactlyInAnyOrder(
             "shop-npc", "queue-npc", "travel-npc", "party-npc",
-            "profile-npc", "settings-npc", "loadout-npc", "refinement-npc",
+            "profile-npc", "settings-npc", "loadout-npc",
         )
         plan.npcSpots.forEach { (id, spot) ->
             assertThat(plan.isWalkable(com.astarworks.astera.core.domain.geometry.Vec3(spot.x, spot.y, spot.z)))
@@ -57,10 +59,11 @@ class LobbyIslandGeneratorTest {
 
     @Test
     fun `one queue pad per lane, walkable, with a sign carrying its i18n keys`() {
-        assertThat(plan.lanePads.keys).containsExactlyElementsOf(LobbyIslandGenerator.LANES)
+        assertThat(plan.lanePads.keys).containsExactlyElementsOf(lanes)
         plan.lanePads.forEach { (lane, pos) ->
             assertThat(plan.isWalkable(pos)).describedAs("pad $lane").isTrue()
-            val sign = plan.signs.single { s -> s.lines.firstOrNull()?.value == "astera.lobby.sign.lane.$lane.title" }
+            val sign = plan.signs.single { s -> s.placeholders["lane"] == LobbyLanePadLayout.displayName(lane) }
+            assertThat(sign.lines.first()?.value).isEqualTo("astera.lobby.sign.lane.title")
             assertThat(plan.stateAt(sign.pos.x, sign.pos.y, sign.pos.z)).isEqualTo(sign.state)
         }
     }
@@ -104,5 +107,20 @@ class LobbyIslandGeneratorTest {
         assertThat(names).doesNotContain("air")
         plan.blocks.values.filter { it.endsWith("_leaves") || it.contains("_leaves[") }
             .forEach { assertThat(it).contains("persistent=true") }
+    }
+
+    @Test
+    fun `pads are generated for any lane list, all reachable and distinct`() {
+        for (n in listOf(0, 1, 3, 5, 6, 9, 12)) {
+            val ids = (1..n).map { "lane-$it" }
+            val p = LobbyIslandGenerator.generate(20261022L, 0, 0, 64, ids)
+            assertThat(p.lanePads.keys).describedAs("n=$n").containsExactlyElementsOf(ids)
+            assertThat(p.lanePads.values.toSet()).describedAs("n=$n distinct").hasSize(n)
+            p.lanePads.forEach { (lane, pos) ->
+                assertThat(p.isWalkable(pos)).describedAs("n=$n pad $lane").isTrue()
+                assertThat(LobbyLanePadLayout.laneAt(p.lanePads, 64, pos)).isEqualTo(lane)
+            }
+            assertThat(p.signs.filter { it.placeholders.containsKey("lane") }).hasSize(n)
+        }
     }
 }

@@ -34,7 +34,13 @@ fun main(args: Array<String>) {
             exitProcess(1)
         }
     }
-    val plan = LobbyWorldContent.plan(config)
+    val queueYaml = contentDir.resolve("matchmaking/queue.yaml")
+    val lanes = if (Files.isRegularFile(queueYaml)) {
+        Regex("""(?m)^\s*-\s*id:\s*(\S+)""").findAll(Files.readString(queueYaml)).map { it.groupValues[1] }.toList()
+    } else {
+        emptyList()
+    }
+    val plan = LobbyWorldContent.plan(config, lanes)
     println("blocks=${plan.blocks.size} bounds=x[${plan.minX},${plan.maxX}] y[${plan.minY},${plan.maxY}] z[${plan.minZ},${plan.maxZ}]")
     println("spawn=${plan.spawn} yaw=${plan.spawnYaw}")
     plan.npcSpots.toSortedMap().forEach { (id, s) -> println("npc $id: x=${s.x} y=${s.y} z=${s.z} yaw=${s.yaw} walkable=${plan.isWalkable(com.astarworks.astera.core.domain.geometry.Vec3(s.x, s.y, s.z))}") }

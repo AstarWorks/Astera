@@ -273,11 +273,17 @@ public class GameSim private constructor(
 
     /**
      * Moves [entity] to [to] and reports it like the Paper move adapter
-     * (`PaperMatchWorldInputAdapter`): one `PlayerMoved`, only for players in a match.
+     * (`PaperMatchWorldInputAdapter`): one `PlayerMoved`, only for players in a match; and, on a
+     * lobby-hosting server, to the lobby lane pads.
      */
     public fun moveTo(entity: SimEntity, to: Vec3) {
         val from = entity.position
         entity.position = to
+        // The lobby's lane pads watch every player move, as the Paper PlayerMoveEvent listener does.
+        if (entity.kind == SimEntityKind.PLAYER) {
+            services.get<com.astarworks.astera.core.application.service.lobby.LobbyLanePadService>()
+                ?.onMoved(entity.id, entity.world, to)
+        }
         if (services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMatchRepository>().findMatchOf(entity.id) == null) return
         eventBus.publish(
             com.astarworks.astera.core.domain.event.PlayerMoved(
