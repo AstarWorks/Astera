@@ -20,29 +20,29 @@ class ProjectileLifecycleScenarioTest {
     fun `a missed projectile expires once and plays the miss cue once`() {
         val trace = scenario("projectile-expires") {
             val shooter = player("shooter")
-            shooter.holds("example-pistol")
+            shooter.holds("pistol")
             shooter.rightClick()
             advance(80)
             assertThat(sim.projectiles.inFlight).isZero()
         }
         val kinds = projectileEventKinds(trace)
         assertThat(kinds).containsExactly("spawn", "expire")
-        // example-blast's `miss` phase plays a sweep sound; `expire` is empty, so exactly one.
-        assertThat(soundCount(trace, "entity.player.attack.sweep")).isEqualTo(1)
+        // pistol-shot's `cast` phase plays one report; `miss` / `expire` are empty.
+        assertThat(soundCount(trace, "entity.firework_rocket.blast")).isEqualTo(1)
     }
 
     @Test
     fun `a projectile fired at the ground hits a block once`() {
         val trace = scenario("projectile-hits-ground") {
             val shooter = player("shooter")
-            shooter.holds("example-pistol")
+            shooter.holds("pistol")
             shooter.lookAt(Vec3(0.0, groundY, 6.0)) // down at the floor, 6 blocks ahead
             shooter.rightClick()
             advance(40)
             assertThat(sim.projectiles.inFlight).isZero()
         }
         assertThat(projectileEventKinds(trace)).containsExactly("spawn", "hit_block")
-        assertThat(soundCount(trace, "entity.player.attack.sweep")).isEqualTo(1)
+        assertThat(soundCount(trace, "entity.firework_rocket.blast")).isEqualTo(1)
     }
 
     private fun projectileEventKinds(trace: java.nio.file.Path): List<String> =

@@ -6,7 +6,7 @@
 id: kills-100
 title_key: astera.advancement.kills_100.title
 description_key: astera.advancement.kills_100.description
-icon_item: example-sword
+icon_item: knight-sword
 frame: GOAL
 hidden: false
 parent: first-kill

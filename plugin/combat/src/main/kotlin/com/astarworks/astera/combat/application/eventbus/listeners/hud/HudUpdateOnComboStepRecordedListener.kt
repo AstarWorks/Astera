@@ -36,6 +36,7 @@ public class HudUpdateOnComboStepRecordedListener(
             component = HudComponent.Text(
                 messageKey = MessageKey("astera.hud.combo.streak"),
                 color = HudColor.WHITE,
+                placeholders = mapOf("streak" to event.streakCount.toString()),
             ),
             ttlTicks = 30,
             priority = 1,

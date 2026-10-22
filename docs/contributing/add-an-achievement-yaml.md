@@ -12,7 +12,7 @@ Astera Custom Advancement は `content/advancements/<id>.yaml` 1 ファイルで
 id: first-kill
 title_key: astera.advancement.first_kill.title
 description_key: astera.advancement.first_kill.description
-icon_item: example-sword
+icon_item: knight-sword
 frame: TASK
 hidden: false
 
@@ -33,7 +33,7 @@ rewards:
 id: boss-defeat
 title_key: astera.advancement.boss_defeat.title
 description_key: astera.advancement.boss_defeat.description
-icon_item: example-sword
+icon_item: knight-sword
 frame: CHALLENGE
 hidden: false
 parent_id: kills-100

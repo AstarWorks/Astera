@@ -16,7 +16,7 @@ steps:
   - type: send_message
     key: astera.tutorial.welcome
   - type: give_item
-    itemId: astera:example-pistol
+    itemId: astera:pistol
     count: 1
   - type: wait_for_action
     actionId: fire_weapon

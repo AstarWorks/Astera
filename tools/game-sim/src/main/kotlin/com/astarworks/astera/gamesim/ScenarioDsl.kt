@@ -17,7 +17,7 @@ import java.nio.file.Path
  * scenario("pistol-kills-player") {
  *     val shooter = player("shooter", team = "red")
  *     val victim = player("victim", at = Vec3(0.0, groundY, 8.0), team = "blue")
- *     shooter.holds("example-pistol")
+ *     shooter.holds("pistol")
  *     repeat(4) { shooter.click(); advance(10) }
  *     assertThat(hp(victim)).isEqualTo(0.0)
  * }
@@ -26,9 +26,10 @@ import java.nio.file.Path
 public fun scenario(
     name: String,
     annihilation: com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig? = null,
+    seed: Long = GameSim.DEFAULT_SEED,
     block: ScenarioScope.() -> Unit,
 ): Path {
-    val sim = GameSim.boot(name, annihilation = annihilation)
+    val sim = GameSim.boot(name, annihilation = annihilation, seed = seed)
     var trace: Path? = null
     try {
         ScenarioScope(sim).block()

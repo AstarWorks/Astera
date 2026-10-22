@@ -7,8 +7,8 @@ Astera Item は `content/items/<id>.yaml` 1 ファイルで完結します
 ## 最小例 (sword)
 
 ```yaml
-# content/items/example-sword.yaml
-id: example-sword
+# content/items/knight-sword.yaml
+id: knight-sword
 
 material: IRON_SWORD
 
@@ -34,7 +34,7 @@ equip_slot: mainhand
 
 skills:
   - trigger: left_click
-    skill_id: example-charge
+    skill_id: sword-dash
 ```
 
 ## フル例 (gun, skill 複数 bind, custom model, overrides)
@@ -128,9 +128,7 @@ params:
   type: projectile                      # archetype と整合する必要あり
   launch_speed: 1.8
   max_lifetime_ticks: 60
-  damage:
-    base: 8.0
-    attribute: electric                 # physical | fire | electric | wind | water | earth
+  # projectile damage lives in `phases.hit_entity` (a `damage` mechanic), not in params
 ```
 
 **Skill から `trigger:` は削除されている**点に注意 (Wave _items-1 で binding

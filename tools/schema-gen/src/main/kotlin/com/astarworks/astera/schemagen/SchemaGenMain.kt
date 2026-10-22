@@ -6,7 +6,10 @@ import com.astarworks.astera.combat.application.config.StatusEffectYamlConfig
 import com.astarworks.astera.core.application.config.BlockDurabilityYamlConfig
 import com.astarworks.astera.core.application.config.GuiYamlConfig
 import com.astarworks.astera.core.application.config.ItemYamlConfig
+import com.astarworks.astera.core.application.config.ParticleYamlConfig
 import com.astarworks.astera.economy.application.config.ShopYamlConfig
+import com.astarworks.astera.match.application.config.AnomalyScheduleYamlConfig
+import com.astarworks.astera.match.application.config.GeneratorYamlConfig
 import com.astarworks.astera.match.application.config.StageYamlConfig
 import com.astarworks.astera.stats.application.config.NormaYamlConfig
 import kotlinx.serialization.serializer
@@ -76,6 +79,21 @@ fun main(args: Array<String>) {
             name = "block-durability",
             serializer = serializer<BlockDurabilityYamlConfig>(),
             schemaId = "https://astera.astarworks.com/schemas/block-durability.schema.json",
+        ),
+        SchemaEntry(
+            name = "generator",
+            serializer = serializer<GeneratorYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/generator.schema.json",
+        ),
+        SchemaEntry(
+            name = "anomaly",
+            serializer = serializer<AnomalyScheduleYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/anomaly.schema.json",
+        ),
+        SchemaEntry(
+            name = "particle",
+            serializer = serializer<ParticleYamlConfig>(),
+            schemaId = "https://astera.astarworks.com/schemas/particle.schema.json",
         ),
     )
 

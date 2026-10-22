@@ -28,6 +28,7 @@ import kotlin.io.path.writeText
  *  - Sealed / Polymorphic → `{"oneOf": [...]}` — each registered subclass is inlined.
  *  - CONTEXTUAL → `{"type": "object"}` (fallback)
  */
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 object SchemaGenerator {
 
     private val prettyJson = Json { prettyPrint = true; encodeDefaults = true }
@@ -44,11 +45,20 @@ object SchemaGenerator {
         outputPath: Path,
         schemaId: String,
     ) {
-        val root = descriptorToSchema(serializer.descriptor)
+        val defs = linkedMapOf<String, JsonObject>()
+        activeDefs.set(defs)
+        activeDefShapes.set(mutableMapOf())
+        val root = try {
+            descriptorToSchemaUnguarded(serializer.descriptor)
+        } finally {
+            activeDefs.remove()
+            activeDefShapes.remove()
+        }
         val withMeta = buildJsonObject {
             put("\$schema", "http://json-schema.org/draft-07/schema#")
             put("\$id", schemaId)
             root.forEach { (k, v) -> put(k, v) }
+            if (defs.isNotEmpty()) put("definitions", JsonObject(defs.toSortedMap()))
         }
         outputPath.writeText(prettyJson.encodeToString(JsonElement.serializer(), withMeta))
     }
@@ -57,7 +67,52 @@ object SchemaGenerator {
     // Internal recursive conversion
     // -------------------------------------------------------------------------
 
+    /**
+     * Definition table active during [generate]. Every named composite (class /
+     * sealed hierarchy) below the root is emitted once under `definitions` and
+     * referenced via `$ref`; that keeps recursive types (a mechanic nesting
+     * mechanics) finite and stops shared sub-types from being re-expanded per
+     * path (exponential blow-up on the sealed mechanic / condition trees).
+     * `null` (direct [descriptorToSchema] calls from unit tests) means "inline
+     * everything", guarded against recursion.
+     */
+    private val activeDefs = ThreadLocal<MutableMap<String, JsonObject>?>()
+    private val activeDefShapes = ThreadLocal<MutableMap<String, List<String>>?>()
+    private val expanding = ThreadLocal.withInitial { ArrayDeque<String>() }
+
     internal fun descriptorToSchema(descriptor: SerialDescriptor): JsonObject {
+        val isComposite = descriptor.kind is StructureKind.CLASS ||
+            descriptor.kind is StructureKind.OBJECT || descriptor.kind is PolymorphicKind
+        if (!isComposite) return descriptorToSchemaUnguarded(descriptor)
+
+        val defs = activeDefs.get()
+        if (defs != null) {
+            val shapes = activeDefShapes.get()!!
+            val base = descriptor.serialName.removeSuffix("?").replace(Regex("[^A-Za-z0-9_.-]"), "_")
+            val shape = (0 until descriptor.elementsCount).map { descriptor.getElementName(it) }
+            var name = base
+            var n = 2
+            while (name in shapes && shapes[name] != shape) name = "${base}_${n++}"
+            if (name !in defs) {
+                shapes[name] = shape
+                defs[name] = JsonObject(emptyMap()) // placeholder breaks recursion
+                defs[name] = descriptorToSchemaUnguarded(descriptor)
+            }
+            return buildJsonObject { put("\$ref", "#/definitions/$name") }
+        }
+
+        val stack = expanding.get()
+        val key = descriptor.serialName
+        if (key in stack) return JsonObject(emptyMap())
+        stack.addLast(key)
+        try {
+            return descriptorToSchemaUnguarded(descriptor)
+        } finally {
+            stack.removeLast()
+        }
+    }
+
+    private fun descriptorToSchemaUnguarded(descriptor: SerialDescriptor): JsonObject {
         return when (val kind = descriptor.kind) {
             // ── Structures (data classes / regular classes) ──────────────────
             StructureKind.CLASS, StructureKind.OBJECT -> buildStructureSchema(descriptor)
@@ -145,7 +200,11 @@ object SchemaGenerator {
                 val variantDescriptor = valueDescriptor.getElementDescriptor(i)
                 // The element name is the serial name used as the discriminator value.
                 val discriminatorValue = valueDescriptor.getElementName(i)
-                val variantSchema = descriptorToSchema(variantDescriptor)
+                val variantSchema = if (variantDescriptor.kind is StructureKind) {
+                    buildStructureSchema(variantDescriptor)
+                } else {
+                    descriptorToSchema(variantDescriptor)
+                }
 
                 // Inject a literal "type" property with the discriminator value so
                 // the schema communicates the expected wire value.

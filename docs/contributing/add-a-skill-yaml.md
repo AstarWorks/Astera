@@ -8,8 +8,8 @@ Skill を再利用できます。Kotlin コードは触りません。
 ## 最小例 (charged buff)
 
 ```yaml
-# content/skills/example-charge.yaml
-id: example-charge
+# content/skills/sword-dash.yaml
+id: sword-dash
 
 name:
   ja: "加速チャージ"
@@ -24,7 +24,7 @@ tags: [ buff, movement ]
 
 params:
   type: buff
-  status_effect_id: example-speed
+  status_effect_id: regen
   duration_ticks: 100
 
 phases:
@@ -64,7 +64,7 @@ KDoc を参照。
 
 | `params.type` | 必須 |
 |---|---|
-| `projectile` | `launch_speed: Double`, `max_lifetime_ticks: Long`, `damage: { base, attribute }` |
+| `projectile` | `launch_speed: Double` (blocks/tick), `max_lifetime_ticks: Long`, `hit_radius: Double?`. Damage is NOT a param: put a `damage` mechanic in `phases.hit_entity` (WP-G) |
 | `melee` | `range: Double`, `damage: { base, attribute }` |
 | `aoe` | `radius: Double`, `damage: { base, attribute }` |
 | `buff` | `status_effect_id: String`, `duration_ticks: Long` |
@@ -122,7 +122,7 @@ atomic swap (parse error 1 件でも全 rollback)。
 # content/items/my-sword.yaml
 skills:
   - trigger: left_click
-    skill_id: example-charge          # ← この Skill を参照
+    skill_id: sword-dash          # ← この Skill を参照
     cooldown_override_ticks: 40       # binding 側で上書き
 ```
 

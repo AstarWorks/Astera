@@ -8,7 +8,7 @@
 id: tutorial-graduate
 title_key: astera.advancement.tutorial_graduate.title
 description_key: astera.advancement.tutorial_graduate.description
-icon_item: example-sword
+icon_item: knight-sword
 frame: TASK
 hidden: false
 criteria:

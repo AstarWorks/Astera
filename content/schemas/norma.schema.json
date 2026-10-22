@@ -13,6 +13,35 @@
             "type": "string"
         },
         "target": {
+            "$ref": "#/definitions/com.astarworks.astera.stats.application.config.NormaTargetYaml"
+        },
+        "reward": {
+            "$ref": "#/definitions/com.astarworks.astera.stats.application.config.NormaRewardYaml"
+        }
+    },
+    "required": [
+        "id",
+        "display_name_key",
+        "period",
+        "target",
+        "reward"
+    ],
+    "definitions": {
+        "com.astarworks.astera.stats.application.config.NormaRewardYaml": {
+            "type": "object",
+            "properties": {
+                "currency_id": {
+                    "type": "string"
+                },
+                "currency_amount": {
+                    "type": "integer"
+                },
+                "xp": {
+                    "type": "integer"
+                }
+            }
+        },
+        "com.astarworks.astera.stats.application.config.NormaTargetYaml": {
             "oneOf": [
                 {
                     "type": "object",
@@ -79,27 +108,6 @@
                     ]
                 }
             ]
-        },
-        "reward": {
-            "type": "object",
-            "properties": {
-                "currency_id": {
-                    "type": "string"
-                },
-                "currency_amount": {
-                    "type": "integer"
-                },
-                "xp": {
-                    "type": "integer"
-                }
-            }
         }
-    },
-    "required": [
-        "id",
-        "display_name_key",
-        "period",
-        "target",
-        "reward"
-    ]
+    }
 }

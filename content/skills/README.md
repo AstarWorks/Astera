@@ -7,7 +7,7 @@ an item-centric binding model (the skill itself no longer owns the input
 ## Schema (Wave _items-1, current)
 
 ```yaml
-id: example-blast
+id: flame-burst
 
 # Inline locale → string maps (ADR-0073). No write-back to
 # content/languages/*.yaml is required when a skill is added / renamed /
@@ -61,9 +61,9 @@ See `content/items/.../<item>.yaml`:
 # excerpt from an item YAML
 skills:
   - trigger: right_click
-    skill_id: example-blast
+    skill_id: flame-burst
   - trigger: sneak_right
-    skill_id: example-buff
+    skill_id: regrowth
 ```
 
 The same skill can be bound to multiple items / triggers (or none at all,

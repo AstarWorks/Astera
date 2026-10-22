@@ -313,17 +313,26 @@ public class GameSim private constructor(
         public fun defaultTraceDir(): Path =
             Paths.get(System.getProperty("astera.sim.traceDir") ?: "build/sim-traces").toAbsolutePath().normalize()
 
+        /** Default seed: every scenario is reproducible unless it asks for another. */
+        public const val DEFAULT_SEED: Long = 20261022L
+
         /** Boots the whole stack. [contentDir] defaults to the repository's real `content/`. */
         public fun boot(
             scenarioName: String,
             contentDir: Path = defaultContentDir(),
             groundY: Double = SimWorld.DEFAULT_GROUND_Y,
             annihilation: com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig? = null,
+            /** Seed of the one random source behind crits, status chances and weighted branches. */
+            seed: Long = DEFAULT_SEED,
         ): GameSim {
             val logger = Logger.getLogger("astera-sim").apply { level = Level.WARNING }
             val world = SimWorld(groundY)
             val scheduler = FakeScheduler()
             val services = ServiceRegistry()
+            // One seeded source for every random roll; CombatWiring picks it up instead of its own.
+            services.register<com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer>(
+                com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer(seed),
+            )
             val recorder = TraceRecorder(scenarioName, groundY)
             val mcServer = SimMcServer(world)
             val broadcaster = FakeBroadcaster()

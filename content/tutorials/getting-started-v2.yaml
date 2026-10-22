@@ -4,7 +4,7 @@ steps:
   - type: send_message
     key: astera.tutorial.welcome
   - type: grant_item
-    item_id: example-sword
+    item_id: knight-sword
     count: 1
   - type: await_skill_cast
     skill_id: example-strike

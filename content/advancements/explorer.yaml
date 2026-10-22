@@ -8,7 +8,7 @@
 id: explorer
 title_key: astera.advancement.explorer.title
 description_key: astera.advancement.explorer.description
-icon_item: example-sword
+icon_item: knight-sword
 frame: TASK
 hidden: false
 criteria:

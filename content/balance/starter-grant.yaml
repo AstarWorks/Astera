@@ -16,8 +16,8 @@
 # matters when the Wave 6b inventory adapter consumes the grant — slot 0
 # wins the player's hand.
 default_loadout:
-  - example-sword
-  - example-wand
+  - knight-sword
+  - frost-staff
 
 # Per-currency initial balance. Currency keys must match `Currency` enum
 # constants (STAR / GOLD / GEM); values are 64-bit non-negative integers.

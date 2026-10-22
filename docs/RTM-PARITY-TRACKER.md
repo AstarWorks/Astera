@@ -16,6 +16,36 @@ and parallelization windows.
 > trigger next; use this tracker to verify "did the wave land everything in
 > its column".
 
+## Status update (2026-10, WP15)
+
+The parity percentages in this file stop at the Wave 6 / 7 era. Since 2026-10-22 the
+tracked scope is the core vision (game system, weapons, skills, shop / vault /
+inventory); the authoritative list of what is done and what is left is
+[plans/2026-10-core-vision-backlog.md](plans/2026-10-core-vision-backlog.md) plus
+`git log`. Rows below that belong to Phase 4+ (UGC, web admin, marketplace, gacha,
+cosmetics, metaverse, generative AI, ops automation) are **out of scope**: leave them
+as they are, do not build them.
+
+Core-vision rows now covered by code and `:tools:game-sim` scenarios:
+
+| Feature | State | Where |
+|---|---|---|
+| Headless simulator | done | ADR-0174, `tools/game-sim` |
+| Input triggers + weapon roster (gun / sword / staff) | done | `content/items`, `plugin/items` |
+| Resource pools (ammo, mana, stamina), reload, regen | done | `plugin/combat` cast path |
+| Melee + skill damage to mobs | done | `plugin/combat` |
+| Mechanics batch A and B | done | `MechanicDispatcher` |
+| Skill / status roster | done | `content/skills`, `content/status` |
+| Queue to match, team balance | done | `plugin/match` |
+| Stage + spawn model, Annihilation pillars | done | ADR-0175, `content/stages` |
+| Siege objective modes | done | ADR-0176 |
+| Personal vault / loadout / snapshot | done | `plugin/core`, `content/gui` |
+| Lobby shop | done | `plugin/economy`, `content/shops`, `content/lobby-npcs` |
+| Postgres persistence + service-file merge | done | `plugin/persistence` |
+| HUD essentials (sidebar, resource bars, star counter) | WP14 | in progress at time of writing |
+
+---
+
 ## Wave 5a Phase A prep — Tier 0 foundational primitives
 
 The next session (Wave 5a Combat depth) folds **Tier 0 foundational primitives**

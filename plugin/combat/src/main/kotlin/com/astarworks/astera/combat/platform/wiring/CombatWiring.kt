@@ -154,7 +154,9 @@ public object CombatWiring {
         logger.info("Armor specs loaded: ${armorReport.loaded} ok, ${armorReport.failed} failed")
 
         // Wave 5a — Damage randomizer (Wave 6 may swap a tournament-specific seeded impl)
-        val damageRandomizer = KotlinRandomDamageRandomizer()
+        // A host may pre-register a seeded source (the simulator does); it is then the single
+        // random source for crits, status chances and weighted branches.
+        val damageRandomizer = services.get<IDamageRandomizer>() ?: KotlinRandomDamageRandomizer()
 
         // Wave 5a-fix2 — sliding-window damage history for assist attribution (ADR-0063)
         val damageHistory = InMemoryDamageHistoryService()
@@ -178,7 +180,9 @@ public object CombatWiring {
         registrations += services.register<IStatusEffectRegistry>(statusContents)
         registrations += services.register<IElementMatrix>(elementMatrix)
         registrations += services.register<IArmorRegistry>(armorContents)
-        registrations += services.register<IDamageRandomizer>(damageRandomizer)
+        if (services.get<IDamageRandomizer>() == null) {
+            registrations += services.register<IDamageRandomizer>(damageRandomizer)
+        }
         registrations += services.register<IDamageHistoryService>(damageHistory)
         registrations += services.register<IStatusEffectInteractionRule>(statusInteractionRule)
 
@@ -499,6 +503,7 @@ public object CombatWiring {
                 displayGateway = ports.displayEntityGateway?.invoke(services),
                 summonGateway = ports.summonGateway?.invoke(services),
                 summonRegistry = summonRegistry,
+                randomizer = damageRandomizer,
             )
             registrations += services.register<MechanicDispatcher>(mechanicDispatcher)
             // Temporary blocks, displays and summons must not outlive the plugin.

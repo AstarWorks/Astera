@@ -10,6 +10,32 @@ Living doc — updated at the end of every wave.
 
 ---
 
+## Status update (2026-10, WP15) — read this first
+
+The Wave-era numbers below (parity %, "Last updated 2026-05-17") are historical.
+Scope since 2026-10-22 is the **core vision**: game system (queue / match / modes),
+lightweight weapon system, skill system, and a tidy shop / vault / inventory.
+Work packages and their order live in
+[plans/2026-10-core-vision-backlog.md](plans/2026-10-core-vision-backlog.md).
+
+**Landed** (see `git log`, ADR-0174 .. ADR-0176):
+
+| Area | What is in |
+|---|---|
+| Game simulation | Host-neutral `platform/wiring/` + headless `:tools:game-sim` scenario tests with one seeded random source (ADR-0174) |
+| Weapons | Input triggers (click, sneak, drop = reload, hold) and a 10-weapon roster with ammo / mana / stamina pools |
+| Skills | Melee / projectile / aoe / buff archetypes, skill damage to players and mobs, mechanics batch A (status, movement, messages, cooldown, attributes) and batch B (explode, lightning, blocks, display, glow, shake, summon, heal) |
+| Modes | Queue to match (auto start, team balance, lobby return), per-team spawns, stage-to-world binding, Annihilation pillars (ADR-0175), BreakCore / CarryTnt / CaptureWool / StealJewelry / BattleLoyal (ADR-0176) |
+| Inventory and shop | Personal vault (`/vault`, ender chest), loadout and per-match snapshot, lobby shop NPC and `/astera-shop` |
+| Persistence | Postgres overlay with Flyway migrations (resolved inside the plugin classloader), merged shadow `META-INF/services` |
+| Tooling | `schema-gen` emits every `content/schemas/*.json` from the DTOs (drift-checked), `contentLint` runs in `check` |
+
+**Out of scope (do not extend): Tier 9 and later below** (Phase 4 UGC / web admin /
+cosmetics, Phase 5 metaverse, Phase 6 generative AI, Phase 7 ops automation) and the
+marketplace, gacha, tournament / ranked extras. Existing code for them stays as is.
+
+---
+
 ## Reading order
 
 This doc coordinates 4 other living references:

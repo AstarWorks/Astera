@@ -119,7 +119,7 @@ class SiegeModesScenarioTest {
             assertThat(eventsOf<MatchEnded>()).isEmpty()
 
             // Runner grabs the TNT and is shot down: the TNT is back, so the guard can take it.
-            guard.holds("example-pistol")
+            guard.holds("pistol")
             runner.moveTo(tntSpawn)
             guard.moveTo(Vec3(0.0, -60.0, -10.0))
             kill(guard, runner)
@@ -190,7 +190,7 @@ class SiegeModesScenarioTest {
             assertThat(blockAt(pedestalMarker)).isEqualTo("minecraft:diamond_block")
 
             // Thief steals one jewel, the keeper shoots them down before banking.
-            keeper.holds("example-pistol")
+            keeper.holds("pistol")
             thief.moveTo(bluePedestal)
             keeper.moveTo(Vec3(44.0, -60.0, 17.0))
             kill(keeper, thief)
@@ -224,7 +224,7 @@ class SiegeModesScenarioTest {
             val matchId = startMatch("battle-loyal", mapOf(ace to "red", prey to "blue"))
             ace.position = Vec3(0.0, groundY, 0.0)
             prey.position = Vec3(0.0, groundY, 10.0)
-            ace.holds("example-pistol")
+            ace.holds("pistol")
 
             // A kill only scores when the killer is credited: a burn that finishes the victim
             // off has no origin, so more than five deaths may be needed.

@@ -75,3 +75,12 @@ tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
 tasks.withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach {
     enabled = false
 }
+
+// Shadow jars: with the default EXCLUDE strategy Gradle drops the second copy of a
+// duplicate path (e.g. META-INF/services/<spi>) before `mergeServiceFiles()` sees it,
+// silently losing ServiceLoader registrations from all but one dependency (Flyway
+// then fails with "Unknown prefix for location"). INCLUDE lets the merge transformer
+// see every copy. Applied here once for every module that uses the shadow plugin.
+tasks.matching { it.name == "shadowJar" }.configureEach {
+    (this as org.gradle.api.tasks.bundling.AbstractArchiveTask).duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}

@@ -74,8 +74,8 @@ class ResourcePoolScenarioTest {
             val afterCasts = mana(mage)
             assertThat(afterCasts).isBetween(27, 28)
 
-            // example-mana-skill costs 30: refused while the pool is short.
-            mage.cast("example-mana-skill")
+            // lightning-bolt costs 30: refused while the pool is short.
+            mage.cast("lightning-bolt")
             assertThat(eventsOf<SkillCastRejected>().map { it.reason })
                 .containsExactly(CastRejectionReason.INSUFFICIENT_MANA)
             assertThat(mana(mage)).isEqualTo(afterCasts)
@@ -83,8 +83,8 @@ class ResourcePoolScenarioTest {
             // 6 mana/s: ~20 ticks later the pool covers it again.
             advance(20)
             assertThat(mana(mage)).isGreaterThanOrEqualTo(30)
-            mage.cast("example-mana-skill")
-            assertThat(eventsOf<SkillCast>().count { it.skillId == SkillId("example-mana-skill") }).isEqualTo(1)
+            mage.cast("lightning-bolt")
+            assertThat(eventsOf<SkillCast>().count { it.skillId == SkillId("lightning-bolt") }).isEqualTo(1)
             assertThat(mana(mage)).isLessThan(10)
 
             // Fully regenerates to the staff's capacity, never beyond.
