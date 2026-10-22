@@ -35,6 +35,12 @@ entries:
     item: gui-tile-customize
     intent: lobby.customize.open
     lore_key: astera.lobby-kit.hint.use
+  - id: hotbar-training
+    area: hotbar
+    slot: 4
+    item: gui-tile-training
+    intent: lobby.training.travel
+    lore_key: astera.lobby-kit.hint.use
   - id: hotbar-profile
     area: hotbar
     slot: 7

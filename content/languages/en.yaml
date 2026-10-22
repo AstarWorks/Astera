@@ -1412,9 +1412,26 @@ astera:
         queue:
           title: "<dark_red><bold>Matches</bold></dark_red>"
           subtitle: "<dark_gray>Queue here</dark_gray>"
+        training:
+          title: "<aqua><bold>Training</bold></aqua>"
+          subtitle: "<dark_gray>Range & Dummies</dark_gray>"
       lane:
         hint: "<dark_gray>Step on the pad</dark_gray>"
         title: "<gold><bold>{lane}</bold></gold>"
+      # F3-11 — training range signs.
+      training:
+        range:
+          title: "<aqua><bold>Firing Lane</bold></aqua>"
+          distance: "<dark_gray>{distance} blocks</dark_gray>"
+        melee:
+          title: "<red><bold>Melee Pit</bold></red>"
+          hint: "<dark_gray>Swing away</dark_gray>"
+        mover:
+          title: "<gold><bold>Moving Target</bold></gold>"
+          hint: "<dark_gray>Lead your shots</dark_gray>"
+        rack:
+          title: "<green><bold>Weapon Rack</bold></green>"
+          hint: "<dark_gray>Click a frame</dark_gray>"
     # F3-1 — queue lane pads: holograms above the pads, join confirmation.
     lane:
       board:
@@ -1436,6 +1453,26 @@ astera:
         actionbar: "<red>Your party is too large for <white>{lane}</white>.</red>"
       failed:
         actionbar: "<red>Could not join <white>{lane}</white>.</red>"
+    # F3-11 — training range: kit button and weapon rack.
+    training:
+      travel:
+        arrived: "<green>Welcome to the training range. Dummies never die and refill after 3 seconds.</green>"
+        unavailable: "<red>The training range is not available right now.</red>"
+      rack:
+        claimed: "<green>Took <white>{item}</white> from the rack. It stays in the lobby.</green>"
+        not-in-range: "<red>Take weapons from the rack while standing in the training range.</red>"
+        unknown: "<red>That weapon is not on the rack.</red>"
+        already-held: "<yellow>You already carry <white>{item}</white> from the rack.</yellow>"
+        full: "<red>Your inventory is full.</red>"
+
+  # F3-11 — lobby training dummies: name tag and live HP / DPS line.
+  training:
+    dummy:
+      name:
+        range: "<aqua>Target <white>{distance} m</white></aqua>"
+        melee: "<red>Melee Dummy</red>"
+        mover: "<gold>Moving Target</gold>"
+      stats: "<white>HP {hp}/{max}</white> <gray>|</gray> <yellow>DPS {dps}</yellow>"
 
   # Wave E 5admin-ops (ADR-0122) — flat /astera-<verb> admin commands.
   # Every key maps to one of the 15 commands wired across Core / Items /

@@ -1,0 +1,12 @@
+# F3-11 (ADR-0200) — lobby kit "Training" button (hotbar slot 4): teleports to the training range.
+
+id: gui-tile-training
+material: TARGET
+name:
+  ja: "<gold>トレーニング</gold>"
+  en: "<gold>Training</gold>"
+lore:
+  ja:
+    - "<gray>射撃レーン・近接ピット・的が待つ訓練場へ移動します</gray>"
+  en:
+    - "<gray>Teleport to the training range: firing lanes, melee pit, moving target</gray>"

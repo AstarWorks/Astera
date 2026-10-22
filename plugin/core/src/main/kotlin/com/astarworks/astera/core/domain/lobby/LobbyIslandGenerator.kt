@@ -24,6 +24,8 @@ import kotlin.random.Random
  *  - garden island west (-44, 0): pond and a waterfall over the rim.
  *  - pavilion island north (0, -42): gazebo viewpoint.
  *  - three small floating rocks with cherry trees.
+ *  - training island east of the market (F3-11, [LobbyTrainingLayout]): firing lanes, melee pit,
+ *    moving-target track and the weapon rack, joined to the main island by a bridge.
  * Bridges (3 wide, fenced, lantern posts) join the four satellites to the main island.
  */
 public object LobbyIslandGenerator {
@@ -90,6 +92,12 @@ public object LobbyIslandGenerator {
                 island(35, 38, 5.5, s + 4),
                 island(-30, 40, 3.5, s - 11),
             )
+            // The training island (F3-11) has its own random stream so the older islands keep their shape.
+            island(
+                LobbyTrainingLayout.ISLAND_X, LobbyTrainingLayout.ISLAND_Z, LobbyTrainingLayout.ISLAND_RADIUS, s,
+                Random(seed xor TRAINING_SALT),
+                depthScale = TRAINING_DEPTH_SCALE,
+            )
             val allIslands = listOf(main, market, queue, garden, pavilion) + rocks
 
             paths()
@@ -99,7 +107,12 @@ public object LobbyIslandGenerator {
             bridge(-15, 0, -36, 0)
             bridge(0, 15, 0, 38)
             bridge(0, -15, 0, -34)
+            bridge(
+                LobbyTrainingLayout.BRIDGE_FROM_X, LobbyTrainingLayout.ISLAND_Z,
+                LobbyTrainingLayout.BRIDGE_TO_X, LobbyTrainingLayout.ISLAND_Z,
+            )
             signposts()
+            trainingIsland()
             marketIsland()
             queueIsland()
             gardenIsland(garden)
@@ -116,15 +129,16 @@ public object LobbyIslandGenerator {
                 surfaceY = s,
                 npcSpots = npcSpots,
                 lanePads = lanePads,
+                training = LobbyTrainingLayout.plan(cx, cz, s),
             )
         }
 
         // ── terrain ──────────────────────────────────────────────────────
 
-        private fun island(ox: Int, oz: Int, r: Double, topY: Int): Island {
+        private fun island(ox: Int, oz: Int, r: Double, topY: Int, random: Random = rng, depthScale: Double = 1.0): Island {
             val isl = Island(
                 cx + ox, cz + oz, r, topY,
-                rng.nextDouble() * 2 * PI, rng.nextDouble() * 2 * PI, rng.nextDouble() * 2 * PI,
+                random.nextDouble() * 2 * PI, random.nextDouble() * 2 * PI, random.nextDouble() * 2 * PI,
             )
             val ext = ceil(r * 1.25).toInt()
             for (dx in -ext..ext) {
@@ -135,7 +149,7 @@ public object LobbyIslandGenerator {
                     val t = d / rim
                     val x = isl.cx + dx
                     val z = isl.cz + dz
-                    val depth = (r * 0.9 * (1 - t * t).pow(0.85)).roundToInt() + 2 + (rnd(x, z, 1) * 2.5).toInt()
+                    val depth = (r * 0.9 * depthScale * (1 - t * t).pow(0.85)).roundToInt() + 2 + (rnd(x, z, 1) * 2.5).toInt()
                     for (dy in 0..depth) {
                         val state = when {
                             dy == 0 -> "minecraft:grass_block"
@@ -149,14 +163,14 @@ public object LobbyIslandGenerator {
             // stalactites
             val count = (r / 2.5).toInt() + 1
             repeat(count) {
-                val ang = rng.nextDouble() * 2 * PI
-                val t = 0.1 + rng.nextDouble() * 0.65
+                val ang = random.nextDouble() * 2 * PI
+                val t = 0.1 + random.nextDouble() * 0.65
                 val rim = isl.radiusAt(ang)
                 val x = isl.cx + (cos(ang) * rim * t).roundToInt()
                 val z = isl.cz + (sin(ang) * rim * t).roundToInt()
                 var bottom = topY
                 while (get(x, bottom - 1, z) != null) bottom--
-                val len = 3 + (rng.nextDouble() * r * 0.45).toInt()
+                val len = 3 + (random.nextDouble() * r * 0.45 * depthScale).toInt()
                 for (k in 1..len) {
                     val spread = (len - k).toDouble() / len
                     val y = bottom - k
@@ -282,6 +296,7 @@ public object LobbyIslandGenerator {
                 Triple(-9, -2, "garden") to 12,
                 Triple(-2, -9, "pavilion") to 0,
                 Triple(2, 9, "queue") to 8,
+                Triple(9, -6, "training") to 4,
             )
             for ((spec, rotation) in specs) {
                 val x = cx + spec.first
@@ -475,6 +490,117 @@ public object LobbyIslandGenerator {
             }
         }
 
+
+        // ── training island (F3-11) ─────────────────────────────────────
+
+        private fun trainingIsland() {
+            val ix = cx + LobbyTrainingLayout.ISLAND_X
+            val iz = cz + LobbyTrainingLayout.ISLAND_Z
+            val shootX = ix + LobbyTrainingLayout.SHOOT_X
+            val laneColors = listOf("lime", "yellow", "orange", "red")
+
+            // firing platform, 5 wide, spanning every lane, with a yellow firing line on its east edge
+            for (x in shootX - 3..shootX + 1) {
+                for (z in iz - 13..iz + 3) {
+                    val edge = x == shootX - 3 || z == iz - 13 || z == iz + 3
+                    set(x, s, z, if (x == shootX + 1) "minecraft:yellow_concrete" else if (edge) "minecraft:smooth_stone" else "minecraft:polished_andesite")
+                }
+            }
+            lampPost(shootX + 1, iz - 13)
+            lampPost(shootX + 1, iz + 3)
+
+            // one lane per firing distance: floor strip from the line to the target pad, a marker sign beside the pad
+            LobbyTrainingLayout.RANGE_DISTANCES.forEachIndexed { i, d ->
+                val z = iz + LobbyTrainingLayout.LANE_Z[i]
+                val color = laneColors[i % laneColors.size]
+                for (x in shootX + 2..shootX + d - 2) set(x, s, z, "minecraft:smooth_stone")
+                for (dx in -1..1) for (dz in -1..1) set(shootX + d + dx, s, z + dz, "minecraft:${color}_concrete")
+                set(shootX + d, s, z, "minecraft:target")
+                val signPos = LobbyBlockPos(shootX + d, s + 1, z + 2)
+                val signState = "minecraft:oak_sign[rotation=4]"
+                set(signPos.x, signPos.y, signPos.z, signState)
+                signs += LobbySign(
+                    signPos,
+                    signState,
+                    listOf(
+                        MessageKey("astera.lobby.sign.training.range.title"),
+                        MessageKey("astera.lobby.sign.training.range.distance"),
+                        null,
+                        null,
+                    ),
+                    placeholders = mapOf("distance" to d.toString()),
+                )
+            }
+
+            // melee pit: floor sunk one block, stone rim flush with the deck
+            val pitX = ix + LobbyTrainingLayout.PIT_X
+            val pitZ = iz + LobbyTrainingLayout.PIT_Z
+            val pr = LobbyTrainingLayout.PIT_RADIUS
+            for (dx in -(pr + 2)..pr + 2) {
+                for (dz in -(pr + 2)..pr + 2) {
+                    val d = hypot(dx.toDouble(), dz.toDouble())
+                    val pos = LobbyBlockPos(pitX + dx, s, pitZ + dz)
+                    when {
+                        d <= pr + 0.5 -> {
+                            blocks.remove(pos)
+                            set(pos.x, s - 1, pos.z, "minecraft:red_sand")
+                        }
+                        d <= pr + 1.5 -> set(pos.x, s, pos.z, "minecraft:stone_bricks")
+                    }
+                }
+            }
+            run {
+                val signPos = LobbyBlockPos(pitX, s + 1, pitZ - pr - 2)
+                val signState = "minecraft:oak_sign[rotation=8]"
+                set(signPos.x, signPos.y, signPos.z, signState)
+                signs += LobbySign(
+                    signPos,
+                    signState,
+                    listOf(MessageKey("astera.lobby.sign.training.melee.title"), MessageKey("astera.lobby.sign.training.melee.hint"), null, null),
+                )
+            }
+
+            // moving target: a rail strip with end posts and the stand that aims at it
+            val trackZ = iz + LobbyTrainingLayout.TRACK_Z
+            for (x in LobbyTrainingLayout.TRACK_FROM_X..LobbyTrainingLayout.TRACK_TO_X) set(ix + x, s, trackZ, "minecraft:polished_blackstone")
+            for (x in listOf(LobbyTrainingLayout.TRACK_FROM_X - 1, LobbyTrainingLayout.TRACK_TO_X + 1)) {
+                set(ix + x, s, trackZ, "minecraft:polished_blackstone")
+                set(ix + x, s + 1, trackZ, WALL)
+                set(ix + x, s + 2, trackZ, "minecraft:lantern[hanging=false]")
+            }
+            val standX = ix + LobbyTrainingLayout.STAND_X
+            val standZ = iz + LobbyTrainingLayout.STAND_Z
+            for (dx in -1..1) for (dz in -1..1) set(standX + dx, s, standZ + dz, if (dx == 0 && dz == 0) "minecraft:yellow_concrete" else "minecraft:smooth_stone")
+            run {
+                val signPos = LobbyBlockPos(standX, s + 1, standZ - 2)
+                val signState = "minecraft:oak_sign[rotation=8]"
+                set(signPos.x, signPos.y, signPos.z, signState)
+                signs += LobbySign(
+                    signPos,
+                    signState,
+                    listOf(MessageKey("astera.lobby.sign.training.mover.title"), MessageKey("astera.lobby.sign.training.mover.hint"), null, null),
+                )
+            }
+
+            // weapon rack: a backing wall in two groups with a walkway between them (the bridge arrives there)
+            val wallX = ix + LobbyTrainingLayout.RACK_WALL_X
+            for (dz in (-8..-2) + (2..8)) {
+                for (y in 1..4) set(wallX, s + y, iz + dz, "minecraft:dark_oak_planks")
+                set(wallX, s + 5, iz + dz, "minecraft:dark_oak_slab[type=bottom]")
+            }
+            for (dz in listOf(-5, 5)) {
+                val signPos = LobbyBlockPos(wallX + 1, s + 4, iz + dz)
+                val signState = "minecraft:oak_wall_sign[facing=east]"
+                set(signPos.x, signPos.y, signPos.z, signState)
+                signs += LobbySign(
+                    signPos,
+                    signState,
+                    listOf(MessageKey("astera.lobby.sign.training.rack.title"), MessageKey("astera.lobby.sign.training.rack.hint"), null, null),
+                )
+            }
+            for (dz in listOf(-8, 8)) lampPost(wallX + 1, iz + dz)
+        }
+
         // ── garden, pavilion ────────────────────────────────────────────
 
         private fun gardenIsland(garden: Island) {
@@ -647,6 +773,10 @@ public object LobbyIslandGenerator {
     }
 
     private const val WALL = "minecraft:stone_brick_wall"
+    private const val TRAINING_SALT: Long = 0x7261696e696e67L
+
+    /** The training deck is wide, so its underside is flattened to stay clear of the void-rescue line. */
+    private const val TRAINING_DEPTH_SCALE: Double = 0.55
     private val ARROWS: List<Pair<Int, Int>> = listOf(1 to 0, -1 to 0, 0 to 1, 0 to -1)
     /** Axis direction to the satellite centre it leads to, with how far the path runs. */
     private val AXES: List<Pair<Pair<Int, Int>, Int>> = listOf(

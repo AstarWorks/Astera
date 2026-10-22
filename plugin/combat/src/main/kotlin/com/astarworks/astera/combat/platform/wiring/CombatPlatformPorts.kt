@@ -43,6 +43,7 @@ import com.astarworks.astera.core.application.services.ServiceRegistry
  * @property displayEntityGateway SpawnDisplay output (WP5); null = the mechanic warns and drops.
  * @property summonGateway Summon mob spawning (WP5); null = the mechanic warns and drops.
  * @property blockEditGuard overrides the default arena-only terrain-edit guard (WP5); null = `ArenaBlockEditGuard`.
+ * @property trainingDummyShells visible bodies of the lobby training dummies (F3-11); null = no dummies on this host.
  * @property explosionGateway receives the full-pipeline damage applier built
  *   from `ApplyDamageUseCase` (Wave 6e-N1 / ADR-0164), so it is a 2-arg factory.
  */
@@ -62,4 +63,5 @@ public class CombatPlatformPorts(
     public val displayEntityGateway: ((ServiceRegistry) -> IDisplayEntityGateway)? = null,
     public val summonGateway: ((ServiceRegistry) -> ISummonGateway)? = null,
     public val blockEditGuard: ((ServiceRegistry) -> IBlockEditGuard)? = null,
+    public val trainingDummyShells: ((ServiceRegistry) -> com.astarworks.astera.combat.application.port.outbound.ITrainingDummyShells)? = null,
 )

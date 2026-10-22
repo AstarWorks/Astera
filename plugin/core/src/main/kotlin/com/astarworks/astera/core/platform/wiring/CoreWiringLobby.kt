@@ -352,6 +352,18 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             .LobbyTravelShowIntentHandler.INTENT_PREFIX,
     ) { intent, player -> travelShowHandler.handle(intent, player) }
 
+    // F3-11 (ADR-0200): lobby training range + the kit's "Training" button.
+    registerLobbyTrainingRange()
+    val trainingTravelHandler = com.astarworks.astera.core.application.gui.lobby.intent.LobbyTrainingTravelIntentHandler(
+        range = { services.get<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>() },
+        worlds = { services.get<com.astarworks.astera.core.application.port.outbound.IWorldGateway>() },
+        messages = messages,
+        playerGateway = playerGateway,
+    )
+    waveGRegistrations += waveGRouter.register(
+        com.astarworks.astera.core.application.gui.lobby.intent.LobbyTrainingTravelIntentHandler.INTENT_TRAVEL,
+    ) { intent, player -> trainingTravelHandler.handle(intent, player) }
+
     ctx.registrations += waveGRegistrations
 
     // Brigadier command families.
@@ -500,7 +512,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             scheduler = scheduler,
         ),
     )
-    // F1-I (ADR-0186): `/astera admin drain <target> [abort|keep]` moves this backend's players
+    // F1-I (ADR-0200): `/astera admin drain <target> [abort|keep]` moves this backend's players
     // to another backend so `make dev-plugins` can restart it without kicking anybody.
     commands.register(
         "admin",
@@ -534,5 +546,25 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
         "Wave J 5server-content-ops wired: INewsRegistry + IChangelogRegistry " +
             "+ ILoginBonusRegistry + ILoginBonusService + ILoginStreakRepository " +
             "registered; /astera admin restart, /astera news, /astera patch commands mounted.",
+    )
+}
+
+/**
+ * Publishes the training range landmarks (F3-11) on backends that host the lobby. The plan is a pure
+ * function of `content/worlds/lobby.yaml`, so it is known long before the lobby world is created.
+ */
+private fun CoreWiringState.registerLobbyTrainingRange() {
+    if (!ctx.serverRole.hostsLobby) return
+    val config = when (val loaded = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.load(ctx.contentDir)) {
+        is com.astarworks.astera.core.domain.Result.Success -> loaded.value
+        is com.astarworks.astera.core.domain.Result.Failure -> return
+    }
+    val plan = com.astarworks.astera.core.domain.lobby.LobbyTrainingLayout.plan(config.center.x, config.center.z, config.surfaceY)
+    ctx.registrations += services.register<com.astarworks.astera.core.application.port.outbound.lobby.ILobbyTrainingRange>(
+        com.astarworks.astera.core.application.port.outbound.lobby.LobbyTrainingRange(
+            com.astarworks.astera.core.domain.world.WorldId(config.id),
+            plan,
+        ),
+        priority = 0,
     )
 }
