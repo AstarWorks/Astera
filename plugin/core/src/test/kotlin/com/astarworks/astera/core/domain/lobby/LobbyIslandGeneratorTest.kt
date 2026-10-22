@@ -23,8 +23,8 @@ class LobbyIslandGeneratorTest {
     }
 
     @Test
-    fun `the build stays inside a sane 130 block footprint around the surface`() {
-        assertThat(plan.maxX - plan.minX).isLessThan(130)
+    fun `the build stays inside a sane footprint around the surface (the training island stretches it east)`() {
+        assertThat(plan.maxX - plan.minX).isLessThan(220)
         assertThat(plan.maxZ - plan.minZ).isLessThan(130)
         assertThat(plan.maxY - plan.minY).isLessThan(80)
         assertThat(plan.blocks.size).isBetween(20_000, 200_000)

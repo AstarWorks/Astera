@@ -4,6 +4,8 @@ import com.astarworks.astera.combat.adapter.paper.PaperDamageGateway
 import com.astarworks.astera.combat.adapter.paper.PaperEnvironmentDamagePublisher
 import com.astarworks.astera.combat.adapter.paper.PaperDisplayEntityGateway
 import com.astarworks.astera.combat.adapter.paper.PaperEntityDamageGateway
+import com.astarworks.astera.combat.adapter.paper.training.PaperTrainingDummyGuard
+import com.astarworks.astera.combat.adapter.paper.training.PaperTrainingDummyShells
 import com.astarworks.astera.combat.adapter.paper.PaperSummonGateway
 import com.astarworks.astera.combat.adapter.paper.SummonAllegianceListener
 import com.astarworks.astera.combat.application.service.SummonRegistry
@@ -73,6 +75,7 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
         entityEffectsGateway = { PaperEntityEffectsGateway(plugin.server) },
         displayEntityGateway = { PaperDisplayEntityGateway(plugin.server) },
         summonGateway = { PaperSummonGateway(plugin.server) },
+        trainingDummyShells = { PaperTrainingDummyShells(plugin) },
         playerFeedbackGateway = { PaperPlayerFeedbackGateway(plugin.server) },
         projectileService = { services ->
             // F2-4 — server-simulated projectiles (no vanilla projectile entity).
@@ -182,6 +185,9 @@ internal class CombatPaperPlatform(private val plugin: JavaPlugin) {
 
         // WP5: summons never target or hurt their owner's side.
         services.get<SummonRegistry>()?.let { SummonAllegianceListener(it).start(plugin) }
+
+        // F3-11: lobby training dummies are immortal; vanilla damage on their bodies is cancelled.
+        plugin.server.pluginManager.registerEvents(PaperTrainingDummyGuard(), plugin)
 
         // WP3: cancel the vanilla copy of a melee hit from an Astera item so it
         // never double-applies next to the melee skill (ADR-0149).

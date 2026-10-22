@@ -1398,9 +1398,26 @@ astera:
         queue:
           title: "<dark_red><bold>マッチ</bold></dark_red>"
           subtitle: "<dark_gray>ここで待機</dark_gray>"
+        training:
+          title: "<aqua><bold>訓練場</bold></aqua>"
+          subtitle: "<dark_gray>射撃・近接</dark_gray>"
       lane:
         hint: "<dark_gray>床の上に立つ</dark_gray>"
         title: "<gold><bold>{lane}</bold></gold>"
+      # F3-11 — 訓練場の看板。
+      training:
+        range:
+          title: "<aqua><bold>射撃レーン</bold></aqua>"
+          distance: "<dark_gray>{distance} ブロック</dark_gray>"
+        melee:
+          title: "<red><bold>近接ピット</bold></red>"
+          hint: "<dark_gray>思い切り振ろう</dark_gray>"
+        mover:
+          title: "<gold><bold>動く的</bold></gold>"
+          hint: "<dark_gray>先を読んで撃つ</dark_gray>"
+        rack:
+          title: "<green><bold>武器ラック</bold></green>"
+          hint: "<dark_gray>額縁を右クリック</dark_gray>"
     # F3-1 — キューのレーン床: 床の上のホログラムと参加の確認表示。
     lane:
       board:
@@ -1422,6 +1439,26 @@ astera:
         actionbar: "<red>パーティが <white>{lane}</white> には大きすぎます。</red>"
       failed:
         actionbar: "<red><white>{lane}</white> に参加できませんでした。</red>"
+    # F3-11 — 訓練場: キットのボタンと武器ラック。
+    training:
+      travel:
+        arrived: "<green>訓練場へようこそ。ダミーは倒れず、3 秒攻撃しないと全回復します。</green>"
+        unavailable: "<red>訓練場は現在利用できません。</red>"
+      rack:
+        claimed: "<green>ラックから <white>{item}</white> を受け取りました。ロビー専用です。</green>"
+        not-in-range: "<red>武器は訓練場の中でラックから受け取ってください。</red>"
+        unknown: "<red>その武器はラックにありません。</red>"
+        already-held: "<yellow><white>{item}</white> はすでに所持しています。</yellow>"
+        full: "<red>インベントリがいっぱいです。</red>"
+
+  # F3-11 — ロビーの訓練用ダミー: 名札と HP / DPS の表示。
+  training:
+    dummy:
+      name:
+        range: "<aqua>的 <white>{distance} m</white></aqua>"
+        melee: "<red>近接ダミー</red>"
+        mover: "<gold>動く的</gold>"
+      stats: "<white>HP {hp}/{max}</white> <gray>|</gray> <yellow>DPS {dps}</yellow>"
 
   # Wave E 5admin-ops (ADR-0122) — /astera-<verb> 管理者コマンド群。
   admin:
