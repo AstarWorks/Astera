@@ -2,8 +2,10 @@
 // A pure function of (tracks, time): everything is rebuilt from DisplayTrack.stateAt(t) every frame.
 import * as THREE from 'three';
 import {
-  ITEM_THICKNESS, TEXT_PIXEL, buildDisplayTracks, displayWorldMatrix, itemModelMatrix, textLayout, textSpaceMatrix, transformMatrix,
+  ITEM_THICKNESS, TEXT_PIXEL, bitmapGlyphQuads, buildDisplayTracks, displayWorldMatrix, glyphAdvance, itemModelMatrix, parseStyled, textLayout,
+  textSpaceMatrix, transformMatrix,
 } from './display-math.js';
+import { ASTERA_FONTS } from './generated/astera-fonts.js';
 import { blockTexture, preloadItem, spriteFor } from './sprites.js';
 
 // ---------------------------------------------------------------- material
@@ -21,7 +23,7 @@ uniform sampler2D map; uniform vec3 tint; uniform float alpha; uniform float lig
 varying vec2 vUv; varying vec3 vN;
 void main() {
   vec4 c = texture2D(map, vUv);
-  if (c.a < cutoff) discard;
+  if (c.a * alpha < cutoff) discard; // vanilla text: (texture * vertex colour).a < 0.1 -> discard
   vec3 n = normalize(vN);
   float l0 = max(0.0, dot(normalize(vec3(0.2, 1.0, -0.7)), n));
   float l1 = max(0.0, dot(normalize(vec3(-0.2, 1.0, 0.7)), n));
@@ -88,69 +90,98 @@ export function itemGeometry(s) {
 
 // ---------------------------------------------------------------- text
 
-const NAMED = {
-  black: '#000000', dark_blue: '#0000aa', dark_green: '#00aa00', dark_aqua: '#00aaaa', dark_red: '#aa0000', dark_purple: '#aa00aa', gold: '#ffaa00', gray: '#aaaaaa',
-  dark_gray: '#555555', blue: '#5555ff', green: '#55ff55', aqua: '#55ffff', red: '#ff5555', light_purple: '#ff55ff', yellow: '#ffff55', white: '#ffffff',
-};
-const LEGACY = { 0: 'black', 1: 'dark_blue', 2: 'dark_green', 3: 'dark_aqua', 4: 'dark_red', 5: 'dark_purple', 6: 'gold', 7: 'gray', 8: 'dark_gray', 9: 'blue', a: 'green', b: 'aqua', c: 'red', d: 'light_purple', e: 'yellow', f: 'white' };
-
-/** MiniMessage / legacy subset -> runs [{text, color, bold}]. Unknown tags are dropped. */
-export function parseStyled(src) {
-  const runs = [];
-  const stack = []; let bold = false;
-  let color = '#ffffff';
-  const re = /<(\/?)([^<>]+)>|[§&]([0-9a-fk-or])|([^<§&]+|[<§&])/g;
-  let m;
-  while ((m = re.exec(src))) {
-    if (m[3] !== undefined) {
-      if (LEGACY[m[3]]) color = NAMED[LEGACY[m[3]]]; else if (m[3] === 'l') bold = true; else if (m[3] === 'r') { color = '#ffffff'; bold = false; }
-    } else if (m[2] !== undefined) {
-      const close = m[1] === '/'; const tag = m[2].toLowerCase();
-      if (tag === 'b' || tag === 'bold') bold = !close;
-      else if (tag === 'reset' || tag === 'r') { color = '#ffffff'; bold = false; stack.length = 0; }
-      else {
-        const col = tag.startsWith('#') ? tag : tag.startsWith('color:') ? tag.slice(6) : tag.startsWith('gradient') ? (tag.split(':')[1] ?? '#ffffff') : NAMED[tag] ? NAMED[tag] : null;
-        if (col) { if (close) color = stack.pop() ?? '#ffffff'; else { stack.push(color); color = col.startsWith('#') ? col : (NAMED[col] ?? '#ffffff'); } }
-      }
-    } else if (m[4] !== undefined && m[4] !== '') runs.push({ text: m[4], color, bold });
-  }
-  return runs;
-}
+export { parseStyled };
 
 const LATIN_FONT = '"Noto Sans Mono","DejaVu Sans Mono",monospace';
 const WIDE_FONT = '"Noto Sans CJK JP","Noto Sans CJK SC","Noto Serif CJK SC","Noto Serif CJK JP",sans-serif';
 const TEXT_RES = 4; // canvas pixels per font pixel
 const textCache = new Map();
+/** Bitmap-font metrics by font id (embedded content/fonts/**, scripts/embed-sprites.mjs). */
+const FONTS = ASTERA_FONTS;
+/** `${fontId}|${providerIndex}` -> THREE.Texture of the provider's image (decoded by preloadFonts). */
+const fontTextures = new Map();
+
+/** Font ids referenced by `<font:...>` anywhere in the given text lines. */
+export function fontsIn(lines) {
+  const ids = new Set();
+  for (const l of lines ?? []) for (const r of parseStyled(l)) if (r.font) ids.add(r.font);
+  return ids;
+}
+
+/** Decodes the provider images of the given bitmap fonts into textures (nearest filter, like the font atlas). */
+async function preloadFonts(ids, warn) {
+  const jobs = [];
+  for (const id of ids) {
+    const font = FONTS[id];
+    if (!font) { warn(`text display: font ${id} is not a bitmap font in content/fonts (drawn with the default font)`); continue; }
+    font.providers.forEach((p, i) => {
+      const key = `${id}|${i}`;
+      if (fontTextures.has(key)) return;
+      const img = new Image();
+      img.src = p.texture;
+      fontTextures.set(key, null);
+      jobs.push(img.decode().then(() => {
+        const t = new THREE.Texture(img);
+        t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; t.needsUpdate = true;
+        fontTextures.set(key, t);
+      }));
+    });
+  }
+  await Promise.all(jobs);
+}
 
 function textAssets(lines, lineWidth, shadow) {
   const key = JSON.stringify([lines, lineWidth, shadow]);
   if (textCache.has(key)) return textCache.get(key);
   const parsed = lines.map((l) => ({ runs: parseStyled(l) }));
-  const layout = textLayout(parsed, lineWidth ?? 200);
+  const layout = textLayout(parsed, lineWidth ?? 200, FONTS);
   const S = TEXT_RES;
   const w = Math.max(1, Math.ceil(layout.width) + 2), h = Math.max(1, layout.height);
   const c = document.createElement('canvas'); c.width = w * S; c.height = h * S;
   const g = c.getContext('2d');
   g.textBaseline = 'alphabetic';
+  let drawn = false; // any default-font glyph on the canvas (bitmap glyphs are separate quads)
   parsed.forEach((line, i) => {
     let pen = (w - layout.widths[i]) / 2;
     const top = i * 9;
     for (const run of line.runs) {
       for (const ch of run.text) {
+        const adv = glyphAdvance(ch, run.bold, run.font, FONTS);
+        if (run.font && FONTS[run.font]) { pen += adv; continue; } // bitmap glyphs: own quads (bitmapGlyphQuads)
         const wide = ch.codePointAt(0) >= 0x2000;
         g.font = `${run.bold ? 'bold ' : ''}${(wide ? 8 : 9) * S}px ${wide ? WIDE_FONT : LATIN_FONT}`;
         const base = (top + (wide ? 7 : 7.5)) * S;
         if (shadow) { g.fillStyle = 'rgba(0,0,0,0.65)'; g.fillText(ch, (pen + 1) * S, base + S); }
         g.fillStyle = run.color; g.fillText(ch, pen * S, base);
-        pen += (wide ? 9 : ch === ' ' ? 4 : /[il.,:;'!|]/.test(ch) ? 3 : 6) + (run.bold ? 1 : 0);
+        drawn = true;
+        pen += adv;
       }
     }
   });
   const tex = new THREE.CanvasTexture(c);
   tex.magFilter = THREE.LinearFilter; tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false;
-  const entry = { tex, layout, w, h };
+  const entry = { tex, layout, w, h, drawn, glyphs: bitmapGlyphQuads(parsed, FONTS, lineWidth ?? 200) };
   textCache.set(key, entry);
   return entry;
+}
+
+const hexRgb = (c) => new THREE.Vector3(parseInt(c.slice(1, 3), 16) / 255, parseInt(c.slice(3, 5), 16) / 255, parseInt(c.slice(5, 7), 16) / 255);
+
+/**
+ * One bitmap-font glyph quad (text space px) textured with its cell of the provider image: vanilla `rendertype_text`
+ * = texture * text colour * opacity, discarded below alpha 0.1, translucent blend.
+ */
+function glyphMesh(q, light, depthTest, opacity) {
+  const tex = fontTextures.get(`${q.font}|${q.provider}`);
+  if (!tex) return null;
+  const geo = new THREE.PlaneGeometry(q.x1 - q.x0, q.y1 - q.y0).translate((q.x0 + q.x1) / 2, (q.y0 + q.y1) / 2, 0.03);
+  // PlaneGeometry vertex order: top-left, top-right, bottom-left, bottom-right; texture flipY -> v = 1 - imageFraction.
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute([q.u0, 1 - q.v0, q.u1, 1 - q.v0, q.u0, 1 - q.v1, q.u1, 1 - q.v1], 2));
+  const mat = entityMaterial(tex, { light, diffuse: false, transparent: true, depthTest, cutoff: 0.1, alpha: opacity });
+  mat.uniforms.tint.value = hexRgb(q.color);
+  const m = new THREE.Mesh(geo, mat);
+  m.renderOrder = 2;
+  return m;
 }
 
 function buildText(spawn, lines, light) {
@@ -160,15 +191,22 @@ function buildText(spawn, lines, light) {
   const argb = spawn.background >>> 0;
   const alpha = (argb >>> 24) / 255;
   const depthTest = !spawn.seeThrough;
+  const opacity = spawn.textOpacity == null ? 1 : (spawn.textOpacity & 255) / 255;
   const space = textSpaceMatrix();
   if (alpha * 255 >= 26) {
     const mat = entityMaterial(spriteTexture({ w: 1, h: 1, data: new Uint8ClampedArray([(argb >> 16) & 255, (argb >> 8) & 255, argb & 255, 255]) }), { alpha, light, diffuse: false, transparent: true, depthTest });
     const m = new THREE.Mesh(new THREE.PlaneGeometry(bg.x1 - bg.x0, bg.y1 - bg.y0).translate((bg.x0 + bg.x1) / 2, (bg.y0 + bg.y1) / 2, 0), mat);
     m.matrixAutoUpdate = false; m.matrix.copy(space); m.renderOrder = 1; group.add(m);
   }
-  const mat = entityMaterial(a.tex, { light, diffuse: false, transparent: true, depthTest, cutoff: 0.004 });
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(a.w, a.h).translate(0, a.h / 2, 0.02), mat);
-  m.matrixAutoUpdate = false; m.matrix.copy(space); m.renderOrder = 2; group.add(m);
+  if (a.drawn) { // an all-bitmap line leaves the canvas empty: no invisible plane wider than the glyph quads
+    const mat = entityMaterial(a.tex, { light, diffuse: false, transparent: true, depthTest, cutoff: 0.004 });
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(a.w, a.h).translate(0, a.h / 2, 0.02), mat);
+    m.matrixAutoUpdate = false; m.matrix.copy(space); m.renderOrder = 2; group.add(m);
+  }
+  for (const q of a.glyphs) {
+    const gm = glyphMesh(q, light, depthTest, opacity);
+    if (gm) { gm.matrixAutoUpdate = false; gm.matrix.copy(space); group.add(gm); }
+  }
   group.userData.noGlow = true;
   return group;
 }
@@ -192,7 +230,13 @@ export class DisplayRenderer {
     this.entries = [];
     const tracks = buildDisplayTracks(trace);
     const items = new Set(tracks.filter((t) => t.spawn.kind === 'item').map((t) => t.spawn.item));
-    await Promise.all([...items].map((id) => preloadItem(id)));
+    const fonts = new Set();
+    for (const t of tracks) {
+      if (t.spawn.kind !== 'text') continue;
+      for (const id of fontsIn(t.spawn.lines)) fonts.add(id);
+      for (const sw of t.swaps) if (sw.kind === 'text') for (const id of fontsIn(sw.lines)) fonts.add(id);
+    }
+    await Promise.all([...[...items].map((id) => preloadItem(id)), preloadFonts(fonts, (m) => this._warn(m))]);
     for (const track of tracks) {
       const node = new THREE.Group();
       node.matrixAutoUpdate = false; node.visible = false;

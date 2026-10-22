@@ -67,6 +67,10 @@ Output in `tools/skill-viewer/build/skill-frames/<skill>/`:
 | `anim-<view>.gif` | real time, from just before the cast until the effect dies down |
 | `sheet.png`, `anim.gif`, `frames/key-<tick>.png` | the side view (kept for old links) |
 
+Custom particle sprites (ADR-0239: `type: sprite` VFX = a text display showing a glyph of font `astera:vfx/<id>`, one
+text swap per flipbook frame) are drawn from `content/fonts/**` + their strip PNGs with the vanilla bitmap-font rules
+(`DISPLAY-SEMANTICS.md` section 3a); `bun run build` embeds them.
+
 Block / item / text display entities are drawn with the exact client semantics documented in `DISPLAY-SEMANTICS.md`
 (transformation order, pivots, billboards, interpolation, brightness, glow outline). The trace carries them as a per-tick
 `displays` array (`spawn` / `update` / `swap` / `teleport` / `remove`, additive to `astera-sim-trace/1`).

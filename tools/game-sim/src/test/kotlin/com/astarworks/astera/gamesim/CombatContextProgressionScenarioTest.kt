@@ -75,7 +75,7 @@ class CombatContextProgressionScenarioTest {
         )
     }
 
-    private fun hit(attacker: SimEntity, target: PlayerId, amount: Double) = checkNotNull(sim.combat.applyDamage).execute(
+    private fun ScenarioScope.hit(attacker: SimEntity, target: PlayerId, amount: Double) = checkNotNull(sim.combat.applyDamage).execute(
         DamageAttempt(
             targetId = target,
             baseProfile = DamageProfile.single(amount, DamageAttribute.PHYSICAL),

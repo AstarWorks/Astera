@@ -46,6 +46,7 @@ class ShippedContentDecodesTest {
             "gui" to { d -> GuiContents().bootstrap(d) },
             "blocks" to { d -> CustomBlockContents().bootstrap(d) },
             "particles" to { d -> ParticleContents().bootstrap(d) },
+            "sprites" to { d -> SpriteContents().bootstrap(d) },
             "gathering" to { d -> GatheringSpotContents().bootstrap(d) },
             "tutorials" to { d -> TutorialContents().bootstrap(d) },
             "advancements" to { d -> AdvancementContents().bootstrap(d) },

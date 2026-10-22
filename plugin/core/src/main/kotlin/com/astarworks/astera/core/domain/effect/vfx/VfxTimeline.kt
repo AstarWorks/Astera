@@ -54,18 +54,21 @@ public object VfxTimeline {
 
     /**
      * Plans [def] for an anchor oriented by [anchor]. [scale] multiplies every length
-     * (formation, translations, display scales) - the `play_vfx` `scale` argument. [freezes] are the
-     * `play_vfx` hit-stop windows; only rigs with `respect_hit_stop` honour them.
+     * (formation, translations, display scales) - the `play_vfx` `scale` argument. [sprites] supplies the
+     * frame counts that unroll `sprite` elements into flipbook text swaps (unknown sprite = 1 frame).
+     * [freezes] are the `play_vfx` hit-stop windows; only rigs with `respect_hit_stop` honour them.
      */
     public fun plan(
         def: VfxDefinition,
         anchor: Frame,
         seed: Long,
         scale: Double = 1.0,
+        sprites: SpriteFrames,
         freezes: List<VfxFreeze> = emptyList(),
+        sprites: SpriteFrames = SpriteFrames.NONE,
     ): VfxPlan {
         val slots = def.elements.flatMapIndexed { index, element ->
-            planElement(def, element, index, anchor.rotation, seed, scale)
+            planElement(def, element, index, anchor.rotation, seed, scale, sprites)
         } + def.rigs.flatMap { VfxRigPlanner.plan(def, it, anchor.rotation, scale, freezes) }
         return VfxPlan(anchor.origin, def.durationTicks, def.follow, slots.sortedBy { it.spawnTick })
     }
@@ -79,6 +82,7 @@ public object VfxTimeline {
         anchorRot: Quaternion,
         seed: Long,
         scale: Double,
+        sprites: SpriteFrames,
     ): List<VfxElementPlan> {
         if (el.emit != null) return VfxEmitterPlanner.plan(def, el, elementIndex, anchorRot, seed, scale)
         val formation = el.formation
@@ -103,7 +107,7 @@ public object VfxTimeline {
             out += if (el.kind is VfxElementKind.Particle) {
                 particleSlot(el, el.kind, formation, slot, spawn, despawn, ctx)
             } else {
-                displaySlot(el, slot, spawn, despawn, ctx)
+                displaySlot(el, slot, spawn, despawn, ctx, sprites)
             }
         }
         return out
@@ -320,9 +324,24 @@ public object VfxTimeline {
 
     // ---- display slot ----------------------------------------------------------
 
-    private fun displaySlot(el: VfxElement, slot: Int, spawn: Int, despawn: Int, ctx: SlotContext): VfxElementPlan {
+    private fun displaySlot(
+        el: VfxElement,
+        slot: Int,
+        spawn: Int,
+        despawn: Int,
+        ctx: SlotContext,
+        sprites: SpriteFrames,
+    ): VfxElementPlan {
         val first = ctx.frames.first()
+        val sprite = el.kind as? VfxElementKind.Sprite
+        val frameCount = sprite?.let { (sprites.frames(it.spriteId) ?: 1).coerceIn(1, SpriteGlyphs.MAX_FRAMES) } ?: 1
         val kind = when (val k = el.kind) {
+            is VfxElementKind.Sprite -> VfxElementKind.Text(
+                text = SpriteGlyphs.text(k.spriteId, 0, k.colorArgb),
+                backgroundArgb = 0,
+                shadow = false,
+                seeThrough = k.seeThrough,
+            )
             is VfxElementKind.Block -> if (first.t == 0 && first.block != null) k.copy(blockKey = first.block) else k
             is VfxElementKind.Text -> if (first.t == 0 && first.text != null) k.copy(text = first.text) else k
             is VfxElementKind.Quad -> VfxQuad.trackAt(el, k, 0.0).let { (c, a) -> k.copy(colorRgb = c, alpha = a) }
@@ -340,14 +359,14 @@ public object VfxTimeline {
             spawnTick = spawn,
             despawnTick = despawn,
             initial = ctx.transformAt(0),
-            updates = updatesFor(spawn, ctx),
+            updates = updatesFor(spawn, ctx, sprite, frameCount),
             particles = emptyList(),
             // quads sit at their own entity position (a transformation translation would be billboard-relative)
             spawnOffset = if (quad) ctx.centerAt(0) else Vec3.ZERO,
         )
     }
 
-    private fun updatesFor(spawn: Int, ctx: SlotContext): List<VfxUpdate> {
+    private fun updatesFor(spawn: Int, ctx: SlotContext, sprite: VfxElementKind.Sprite?, frameCount: Int): List<VfxUpdate> {
         // The client needs a tick with the entity before it can interpolate, so the keyframe
         // clock starts ANIMATION_DELAY_TICKS after the spawn: element-relative tick u happens at spawn + 1 + u.
         val base = spawn + ANIMATION_DELAY_TICKS
@@ -358,12 +377,17 @@ public object VfxTimeline {
             if (step.start >= animLife) continue
             byTick[base + step.start] = VfxUpdate(base + step.start, ctx.transformAt(step.end), step.end - step.start)
         }
+        val swaps = ArrayList<Swap>()
         for (f in ctx.frames) {
             if (f.t < 1 || f.t >= animLife || (f.block == null && f.text == null)) continue
-            val tick = base + f.t
+            swaps += Swap(f.t, f.block, f.text)
+        }
+        if (sprite != null) flipbookSwaps(sprite, frameCount, animLife, swaps)
+        for (swap in swaps) {
+            val tick = base + swap.u
             val existing = byTick[tick]
-            byTick[tick] = existing?.copy(block = f.block, text = f.text)
-                ?: VfxUpdate(tick, ctx.transformAt(f.t), 0, f.block, f.text)
+            byTick[tick] = existing?.copy(block = swap.block, text = swap.text)
+                ?: swapInsideStep(swap, tick, steps, ctx)
         }
         val el = ctx.el
         if (el.kind is VfxElementKind.Quad) {
@@ -378,6 +402,32 @@ public object VfxTimeline {
             }
         }
         return byTick.values.sortedBy { it.tick }
+    }
+
+    private class Swap(val u: Int, val block: String?, val text: String?)
+
+    /** Text swaps `frame k` at `u = k * frameTicks`: wrapping with [VfxElementKind.Sprite.loop], else stopping on the last frame. */
+    private fun flipbookSwaps(sprite: VfxElementKind.Sprite, frameCount: Int, animLife: Int, out: MutableList<Swap>) {
+        if (frameCount < 2) return
+        var k = 1
+        while (k * sprite.frameTicks < animLife) {
+            if (!sprite.loop && k >= frameCount) break
+            out += Swap(k * sprite.frameTicks, null, SpriteGlyphs.text(sprite.spriteId, k % frameCount, sprite.colorArgb))
+            k++
+        }
+    }
+
+    /**
+     * A swap landing strictly inside an interpolation step must not cancel it: the update carries the step's
+     * end transform and the remaining ticks, so the motion keeps flowing. Outside any step it is a plain swap.
+     */
+    private fun swapInsideStep(swap: Swap, tick: Int, steps: List<Step>, ctx: SlotContext): VfxUpdate {
+        val inside = steps.firstOrNull { it.start < swap.u && swap.u < it.end }
+        return if (inside != null) {
+            VfxUpdate(tick, ctx.transformAt(inside.end), inside.end - swap.u, swap.block, swap.text)
+        } else {
+            VfxUpdate(tick, ctx.transformAt(swap.u), 0, swap.block, swap.text)
+        }
     }
 
     private class Step(val start: Int, val end: Int)

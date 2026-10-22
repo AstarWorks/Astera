@@ -1,0 +1,18 @@
+# AI particle sheet (ADR-0239): one row = one flipbook animation, frames left to right.
+# `python3 tools/item-art/scripts/gen_sheet.py tools/item-art/sheets/vfx-v1.yaml`, then map the rows in
+# content/textures/sources/sprites.yaml ({ from: vfx-v1, row: N, frames: 6 }).
+name: vfx-v1
+grid: [6, 6]
+# Green key: no row below is green.
+background: "#00FF00"
+style: >-
+  bright game VFX particle frames in chunky 32x32-style pixel art, glowing saturated colours with a white-hot
+  core, 3-4 tone ramps, crisp pixels, no dark outline, no ground, no motion blur, transparent-looking edges
+  drawn as clean pixel clusters. Each animation reads clearly as start -> peak -> fade out.
+animations:
+  fire-burst: an explosion of orange and yellow fire, small flash -> big fireball -> breaking into embers -> a few last sparks
+  frost-shatter: an ice crystal cluster in cyan and white that forms, cracks and shatters into flying shards that vanish
+  arcane-slash: a crescent sword-slash arc of violet and magenta energy that sweeps in, flares bright, then thins and dissolves
+  holy-glint: a golden four-pointed star glint with a soft ring, twinkling from a dot to full size and back to nothing
+  thunder-spark: a jagged electric spark of pale yellow and light blue lightning that crackles, branches and fizzles out
+  blood-splash: a crimson red splash of droplets bursting outward from the centre and falling apart

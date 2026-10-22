@@ -6,7 +6,10 @@ import { mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three';
-import { UNIT_CUBE, displayWorldMatrix, projectBounds, textLayout, textSpaceMatrix, transformMatrix } from '../src/display-math.js';
+import {
+  UNIT_CUBE, bitmapGlyphQuads, displayWorldMatrix, parseStyled, projectBounds, textLayout, textSpaceMatrix, transformMatrix,
+} from '../src/display-math.js';
+import { ASTERA_FONTS } from '../src/generated/astera-fonts.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'build/calibration');
@@ -98,6 +101,23 @@ for (const [mode, roll, camPos, label] of [['fixed', 45, [0, 60, 6], 'south'], [
     boundsOk(`text center from ${label}`, r, 1.5, 6);
     check(`text center from ${label}: visible, 1.2 blocks wide face-on (south view)`, r.measured && (label !== 'south' || close(w, 1.2, 0.05)), `world width ${w.toFixed(3)}`);
   }
+}
+
+// 5. sprite glyph (ADR-0239): font astera:vfx/glint frame 2, scale 2, billboard center. 32 px cell -> 1.6 x 1.6 blocks,
+//    centred on the entity position (ascent 14 = size/2 - 2), drawn from the bitmap provider's image.
+{
+  const scale = [2, 2, 2];
+  const [g] = bitmapGlyphQuads([{ runs: parseStyled('<font:astera:vfx/glint></font>') }], ASTERA_FONTS);
+  const corners = [[g.x0, g.y0], [g.x1, g.y0], [g.x0, g.y1], [g.x1, g.y1]].map(([x, y]) => new Vector3(x, y, 0));
+  const cam = { pos: [0, 60, 6], target: [0, 60, 0], fov: 50 };
+  const r = await scene('5-sprite-glyph-center', [spawn({ kind: 'text', lines: ['<font:astera:vfx/glint></font>'], background: 0, shadow: false, seeThrough: true, lineWidth: null, billboard: 'center', scale })], cam,
+    corners, (fwd) => displayWorldMatrix({ x: 0, y: 60, z: 0, billboard: 'center', cameraForward: fwd, local: transformMatrix(new Vector3(), new Quaternion(), new Vector3(...scale)) }).multiply(textSpaceMatrix()));
+  check('sprite glyph: drawn vertices == closed-form projection', ['x0', 'y0', 'x1', 'y1'].every((f) => close(r.measured[f], r.exp[f], 1)), JSON.stringify({ drawn: r.measured, expected: r.exp }, (k, v) => (typeof v === 'number' ? +v.toFixed(1) : v)));
+  const h = r.world.max[1] - r.world.min[1], cy = (r.world.max[1] + r.world.min[1]) / 2;
+  check('sprite glyph: 1.6 blocks tall, centred on the entity (y 60)', close(h, 1.6, 1e-3) && close(cy, 60, 1e-3), `height ${h.toFixed(3)} centre y ${cy.toFixed(3)}`);
+  // the raster: opaque glint pixels only, inside the quad, roughly symmetric about the screen centre column
+  const inside = r.px.x0 >= r.exp.x0 - 2 && r.px.x1 <= r.exp.x1 + 2 && r.px.y0 >= r.exp.y0 - 2 && r.px.y1 <= r.exp.y1 + 2;
+  check('sprite glyph: raster pixels lie inside the glyph quad', inside && r.px.x1 > r.px.x0, JSON.stringify({ px: r.px }));
 }
 
 await browser.close();
