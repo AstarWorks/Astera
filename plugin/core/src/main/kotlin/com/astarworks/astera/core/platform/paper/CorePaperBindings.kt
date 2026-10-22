@@ -370,11 +370,46 @@ internal class CorePaperBindings(
             playerHealthGateway = highestPriorityPlayerHealthGateway,
             scheduler = scheduler,
         )
+        installLobbyWorld(ctx)
         bukkitEventAdapterTimeTaskHandle = bukkitEventAdapter.start(plugin)
         logger.info(
             "Wave 6a-6 BukkitEventAdapter wired (Role 1: 9 event translations; " +
                 "Role 2: EntityDamageEvent + PlayerDeathEvent defensive cancellation " +
                 "per ADR-0149 §D).",
+        )
+    }
+
+    /**
+     * ADR-0180 — procedural sky-island lobby. Only on backends that host the
+     * lobby (`serverRole.hostsLobby`): creates the void `lobby` world from
+     * `content/worlds/lobby.yaml`, pastes the build (idempotent), applies the
+     * world rules and registers the lobby protection listener. Missing or
+     * invalid content leaves the old behaviour (lobby = main world).
+     */
+    private fun installLobbyWorld(ctx: WiringContext) {
+        if (!ctx.serverRole.hostsLobby) {
+            logger.info("Lobby world skipped (server role ${ctx.serverRole}).")
+            return
+        }
+        val config = when (val loaded = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.load(ctx.contentDir)) {
+            is com.astarworks.astera.core.domain.Result.Success -> loaded.value
+            is com.astarworks.astera.core.domain.Result.Failure -> {
+                logger.warning("Lobby world content unavailable (${loaded.error}); lobby stays on the main world.")
+                return
+            }
+        }
+        val plan = com.astarworks.astera.core.application.service.lobby.LobbyWorldContent.plan(config)
+        val world = com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyWorld(
+            plugin = plugin,
+            messages = ctx.services.getOrThrow<IMessageRenderer>(),
+            rules = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldRulesGateway>(),
+            time = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldTimeGateway>(),
+            weather = ctx.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IWorldWeatherGateway>(),
+        ).install(config, plan) ?: return
+        val spawn = org.bukkit.Location(world, config.spawn.x, config.spawn.y, config.spawn.z, config.spawn.yaw, config.spawn.pitch)
+        server.pluginManager.registerEvents(
+            com.astarworks.astera.core.adapter.paper.lobby.PaperLobbyRulesListener(config.id, config.rules) { spawn.clone() },
+            plugin,
         )
     }
 

@@ -1025,6 +1025,33 @@ astera:
       party:
         name: "Party Coordinator"
 
+    # ADR-0180 — signs on the procedural sky-island lobby (4 lines, <=15 chars each).
+    sign:
+      dir:
+        market:
+          title: "<gold><bold>Market</bold></gold>"
+          subtitle: "<dark_gray>Shop & Gear</dark_gray>"
+        garden:
+          title: "<dark_green><bold>Garden</bold></dark_green>"
+          subtitle: "<dark_gray>Relax</dark_gray>"
+        pavilion:
+          title: "<light_purple><bold>Viewpoint</bold></light_purple>"
+          subtitle: "<dark_gray>Pavilion</dark_gray>"
+        queue:
+          title: "<dark_red><bold>Matches</bold></dark_red>"
+          subtitle: "<dark_gray>Queue here</dark_gray>"
+      lane:
+        hint: "<dark_gray>Step on the pad</dark_gray>"
+        norma:
+          title: "<green><bold>NORMA</bold></green>"
+          subtitle: "<dark_gray>Quota race</dark_gray>"
+        annihilation:
+          title: "<red><bold>ANNIHILATION</bold></red>"
+          subtitle: "<dark_gray>3 pillars</dark_gray>"
+        siege:
+          title: "<aqua><bold>SIEGE</bold></aqua>"
+          subtitle: "<dark_gray>Objectives</dark_gray>"
+
   # Wave E 5admin-ops (ADR-0122) — flat /astera-<verb> admin commands.
   # Every key maps to one of the 15 commands wired across Core / Items /
   # Economy / Stats / Match plugins. Keys are flat per command so the

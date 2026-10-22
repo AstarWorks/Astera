@@ -7,10 +7,10 @@ type: display_entity
 
 spawn:
   world: lobby
-  x: -2.5
-  y: -60.0
-  z: 0.5
-  yaw: 90.0
+  x: 47.5
+  y: 65.0
+  z: -5.5
+  yaw: 0.0
   pitch: 0.0
 
 interaction:

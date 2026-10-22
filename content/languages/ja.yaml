@@ -1016,6 +1016,33 @@ astera:
       party:
         name: "パーティコーディネーター"
 
+    # ADR-0180 — 空島ロビーの看板 (4 行、1 行 15 文字以内)。
+    sign:
+      dir:
+        market:
+          title: "<gold><bold>マーケット</bold></gold>"
+          subtitle: "<dark_gray>ショップ・装備</dark_gray>"
+        garden:
+          title: "<dark_green><bold>庭園</bold></dark_green>"
+          subtitle: "<dark_gray>くつろぎ</dark_gray>"
+        pavilion:
+          title: "<light_purple><bold>展望台</bold></light_purple>"
+          subtitle: "<dark_gray>あずまや</dark_gray>"
+        queue:
+          title: "<dark_red><bold>マッチ</bold></dark_red>"
+          subtitle: "<dark_gray>ここで待機</dark_gray>"
+      lane:
+        hint: "<dark_gray>床の上に立つ</dark_gray>"
+        norma:
+          title: "<green><bold>ノルマ</bold></green>"
+          subtitle: "<dark_gray>ノルマ競争</dark_gray>"
+        annihilation:
+          title: "<red><bold>殲滅</bold></red>"
+          subtitle: "<dark_gray>3 本の柱</dark_gray>"
+        siege:
+          title: "<aqua><bold>攻城</bold></aqua>"
+          subtitle: "<dark_gray>目標を落とせ</dark_gray>"
+
   # Wave E 5admin-ops (ADR-0122) — /astera-<verb> 管理者コマンド群。
   admin:
     maintenance:
