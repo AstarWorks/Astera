@@ -68,4 +68,18 @@ class CombatMatchBugHuntScenarioTest {
             assertThat(stopped.value.keyFrames.map { it.tick }).containsExactlyElementsOf((started + 1..started + 5).toList())
         }
     }
+    @Test
+    fun `natural sudden death expiry runs match end cleanup`() {
+        scenario("bug-hunt-natural-end") {
+            val red = player("red")
+            val blue = player("blue")
+            val id = startMatch("norma", mapOf(red to "red", blue to "blue"))
+            val lifecycle = sim.services.getOrThrow<IMatchLifecycle>()
+            lifecycle.switchPhase(id, com.astarworks.astera.match.domain.match.MatchStateMachine.TransitionTrigger.ScoreThresholdReached)
+            advance(com.astarworks.astera.match.domain.match.PhaseTimings.SUDDEN_DEATH_TICKS.toInt() + 40)
+            assertThat(eventsOf<com.astarworks.astera.core.domain.event.MatchEnded>().map { it.matchId }).containsExactly(id)
+            assertThat(sim.services.getOrThrow<com.astarworks.astera.match.application.port.outbound.IGameModeScheduler>().activeMatches())
+                .doesNotContain(id)
+        }
+    }
 }

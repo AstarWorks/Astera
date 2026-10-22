@@ -76,6 +76,19 @@ class SwitchPhaseUseCaseTest {
             .isInstanceOf(SwitchPhaseError.TransitionFailed::class.java)
     }
 
+    @Test
+    fun `sudden death expiry publishes MatchEnded once with the winning team`() {
+        val id = MatchId("sudden-death")
+        val red = TeamId("red")
+        matches.save(buildMatch(id, MatchPhase.SUDDEN_DEATH).copy(score = Score(mapOf(red to 1000))))
+        useCase.execute(id, MatchStateMachine.TransitionTrigger.SuddenDeathTimer)
+        useCase.execute(id, MatchStateMachine.TransitionTrigger.SuddenDeathTimer)
+        val ended = eventBus.publishedOfType<com.astarworks.astera.core.domain.event.MatchEnded>()
+        assertThat(ended).hasSize(1)
+        assertThat(ended.single().winningTeam).isEqualTo(red)
+        assertThat(ended.single().reason).isEqualTo(com.astarworks.astera.core.domain.event.EndReason.TimerExpired)
+    }
+
     private fun buildMatch(id: MatchId, phase: MatchPhase): Match {
         val red = TeamId("red")
         val blue = TeamId("blue")
