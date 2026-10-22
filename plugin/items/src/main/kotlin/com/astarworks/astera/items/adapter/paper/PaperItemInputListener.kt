@@ -71,6 +71,22 @@ public class PaperItemInputListener(
     }
 
     @EventHandler
+    public fun tmpTp(e: org.bukkit.event.player.PlayerTeleportEvent) {
+        log.info("TMPDBG teleport {} {} -> {} cause={} caller={}", e.player.name, e.from.world?.name, e.to.world?.name, e.cause,
+            Throwable().stackTrace.drop(1).filter { "astarworks" in it.className }.take(4))
+    }
+
+    @EventHandler
+    public fun tmpDeath(e: org.bukkit.event.entity.PlayerDeathEvent) {
+        log.info("TMPDBG death {} {}", e.player.name, e.deathMessage())
+    }
+
+    @EventHandler
+    public fun tmpResp(e: org.bukkit.event.player.PlayerRespawnEvent) {
+        log.info("TMPDBG respawn {} -> {}", e.player.name, e.respawnLocation.world?.name)
+    }
+
+    @EventHandler
     public fun onQuit(e: PlayerQuitEvent) {
         sink(IMcEvent.PlayerQuit(PaperPlayer(e.player)))
     }
