@@ -10,3 +10,6 @@ R3 (102): Opened comparison. Clamps and turret make scope convincing, selector a
 R4 (122): Opened comparison. Wood texture has distracting freckles instead of concept's directional grain. Change this batch's wood patch to horizontal grain with a restrained ramp. Final add lens retaining lip, small green receiver stripe and buttpad ribs. Scope green is only obvious end-on; stripe will support inventory identity.
 
 R5 (137): Opened comparison. Directional wood reads cleanly, green lens and receiver stripe distinguish the standard rifle; detailed scope and magazine survive 64px. Accept local authoring. Weaknesses: concept stock is rounder, model edge highlights stronger, magazine is angular; 16px loses optic detail. Both hands point forward, all 11 views unclipped. Client perspective/grip review remains outstanding.
+
+
+Final audit (snapshot 6; five modeling rounds + audit): Reopened all views after seating identity/forearm strips and restoring five-tone directional wood. Stock and forearm now carry clear grain rather than freckles; green optic remains the small signature accent. All 11 views remain unclipped. Comparison background changed only for readability; target remains unchanged.

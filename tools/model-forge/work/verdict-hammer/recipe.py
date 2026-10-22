@@ -50,11 +50,39 @@ class Prop:
   return im
  def model(self):return {'credit':'Astera / Codex gpt-6-astra / image-generated target','textures':{'0':f'astera:items/{self.item}','particle':f'astera:items/{self.item}'},'gui_light':'front','ambientocclusion':False,'elements':self.elements,'display':displays(self.item)}
 
+def surface_polish(p):
+ # Final audit: move shallow decorations onto supporting surfaces; no UV scale change.
+ for e in p.elements:
+  name=e['name'];dz=0
+  if p.item=='pistol':
+   dz={'walnut grip inset':.2,'grip scored edge':.2,'slide serration':.1,'light channel shadow':.1,'cyan side strip':.1,'lower diode':.35,'frame pin':.5,'underside cooling fin':.6,'light polished edge':.1,'light channel end cap':.15}.get(name,0)
+  elif name in ('receiver identity stripe','forearm edge'):dz=.3
+  elif p.item=='rtm-blaster' and name=='housing screw':dz=.4
+  elif p.item=='sigil-rifle' and name=='gold heraldic trim':dz=.3
+  elif p.item=='sigil-rifle' and name=='gold receiver rail':dz=.1
+  elif p.item=='vendetta-rifle' and name=='blade fuller':dz=.1
+  elif p.item=='vendetta-rifle' and name=='blade tip bevel':dz=.2
+  if dz:
+   dz*=1 if (e['from'][2]+e['to'][2])/2<8 else -1
+   for key in ('from','to'):e[key][2]+=dz
+   if 'rotation' in e:e['rotation']['origin'][2]+=dz
+
 def review(p,display=None,finish=False):
+ if p.stage>=6:surface_polish(p)
+ def preview(im):
+  if p.stage<6:return tile(im)
+  return Image.alpha_composite(Image.new('RGBA',im.size,'#657080'),im).convert('RGB')
  work=FORGE/'work'/p.item;out=work/f'redo-{p.stage}';out.mkdir(parents=True,exist_ok=True)
  m=p.model()
  if display:m['display']=display
- atlas=p.atlas();textures={'#0':np.array(atlas),'#particle':np.array(atlas)}
+ atlas=p.atlas()
+ if p.stage>=6 and p.item in ('rifle','shotgun','rtm-blaster'):
+  ramp=[(43,26,21,255),(79,47,29,255),(117,71,42,255),(151,94,45,255),(184,127,64,255)]
+  for y in range(64):
+   for x in range(32):
+    t=4 if y%23==0 else 3 if y%13==0 else 0 if (y+x//9)%19==0 else 1 if (y+x//9)%9==0 else 2
+    atlas.putpixel((96+x,y),ramp[t])
+ textures={'#0':np.array(atlas),'#particle':np.array(atlas)}
  check=validate(m,textures,budget=250,density=2)
  if not check['valid']:raise ValueError(check)
  (out/'model.json').write_text(json.dumps(m,indent=2)+'\n');atlas.save(out/'texture.png')
@@ -66,9 +94,9 @@ def review(p,display=None,finish=False):
  for i,v in enumerate(views):
   im,_,diag=render(m,textures,v,size=256);im.save(out/f'{v}.png');metrics[v]=diag
   x=710+(i%4)*220;y=45+(i//4)*245
-  sheet.paste(tile(im).resize((215,215)),(x,y));d.text((x,y-16),v,fill='white')
+  sheet.paste(preview(im).resize((215,215)),(x,y));d.text((x,y-16),v,fill='white')
  for i,size in enumerate((16,32,64)):
-  im,_,_=render(m,textures,'gui',size=size);sheet.paste(tile(im).resize((128,128),Image.Resampling.NEAREST),(720+i*150,810));d.text((720+i*150,790),str(size)+' px',fill='white')
+  im,_,_=render(m,textures,'gui',size=size);sheet.paste(preview(im).resize((128,128),Image.Resampling.NEAREST),(720+i*150,810));d.text((720+i*150,790),str(size)+' px',fill='white')
  sheet.save(out/'comparison.png')
  report={'item':p.item,'round':p.stage,'validation':check,'views':metrics,'concept_sha256':hashlib.sha256((work/'ai-concept.png').read_bytes()).hexdigest(),'comparison':'Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation.'}
  (out/'review.json').write_text(json.dumps(report,indent=2)+'\n')

@@ -1,6 +1,6 @@
 {
   "item": "vendetta-rifle",
-  "round": 5,
+  "round": 6,
   "validation": {
     "valid": true,
     "elements": 178,
@@ -843,10 +843,151 @@
       },
       "concept_sha256": "1c84fa7fc1ea07ecda053f56b2770c8bba0f0795bc3c9018a18f94a480c27ad6",
       "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
+    },
+    {
+      "item": "vendetta-rifle",
+      "round": 6,
+      "validation": {
+        "valid": true,
+        "elements": 178,
+        "budget": 250,
+        "errors": [],
+        "warnings": [],
+        "density_range": [
+          1.9999999999999667,
+          2.0000000000000373
+        ],
+        "rotated_bounds": [
+          [
+            -7.899999999999999,
+            7.307617736356693,
+            5.7749999999999995
+          ],
+          [
+            24.900000000000002,
+            19.5,
+            10.75
+          ]
+        ]
+      },
+      "views": {
+        "front": {
+          "bounds": [
+            15,
+            82,
+            247,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "side": {
+          "bounds": [
+            108,
+            82,
+            143,
+            167
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "top": {
+          "bounds": [
+            15,
+            112,
+            247,
+            147
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "iso": {
+          "bounds": [
+            25,
+            79,
+            232,
+            159
+          ],
+          "clipped": false,
+          "span": 36
+        },
+        "gui": {
+          "bounds": [
+            18,
+            87,
+            224,
+            175
+          ],
+          "clipped": false,
+          "span": 16
+        },
+        "firstperson_righthand": {
+          "bounds": [
+            88,
+            75,
+            181,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_righthand": {
+          "bounds": [
+            116,
+            72,
+            142,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "firstperson_lefthand": {
+          "bounds": [
+            72,
+            75,
+            165,
+            147
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "thirdperson_lefthand": {
+          "bounds": [
+            116,
+            72,
+            142,
+            139
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "ground": {
+          "bounds": [
+            83,
+            88,
+            174,
+            121
+          ],
+          "clipped": false,
+          "span": 32
+        },
+        "fixed": {
+          "bounds": [
+            70,
+            104,
+            182,
+            145
+          ],
+          "clipped": false,
+          "span": 32
+        }
+      },
+      "concept_sha256": "1c84fa7fc1ea07ecda053f56b2770c8bba0f0795bc3c9018a18f94a480c27ad6",
+      "comparison": "Visual comparison against image-generated turnaround; no self-derived silhouette score. Hand views are isolated orthographic display transforms, not a client simulation."
     }
   ],
   "sha256": {
-    "model.json": "99fa104eae6603c6b68587a26181d6f282ad530e1fd3b18bb4b4abfce50338da",
+    "model.json": "810e56ee08d8c7471c7080b22b07940e63cb9290cb04c2e18e87368de7a77814",
     "texture.png": "17eac232a30912983de5dfe8aca2057f23a67cc7fb1bee7e450e5b320b3b8e8a"
   }
 }

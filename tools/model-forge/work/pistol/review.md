@@ -10,3 +10,6 @@ R3 (52): Opened comparison. Cyan stripe and brown grip give correct identity at 
 R4 (72): Opened comparison. Atlas creates unwanted checker-like bright patches along cyan stripe; target stripe is continuous. Correct luminous materials to horizontal bands for guns, then add emitter corner bevels and channel end caps. Grip and negative space remain readable at 32px; edge highlights are brighter than target.
 
 R5 (82): Opened comparison. Continuous cyan stripe now matches target, emitter bevels and channel caps add depth. Accept local authoring: compact sci-fi silhouette, brown grip, cyan strip readable at 16/32px. Weakness: brighter thin metal edges and less chunky grip than painting; direct end-on third-person preview hides most profile, as expected from forward alignment. Actual hand placement needs Minecraft review. All 11 previews unclipped, schema/UV/density pass (250 budget).
+
+
+Final audit (snapshot 6; five modeling rounds + audit): Reopened all views after seating grip inset, serrations, light backing, pins and lower fins onto supporting surfaces. Cyan strip stays continuous and trigger opening stays clear; no silhouette regression. All 11 views remain unclipped. Comparison background changed only for readability; target remains unchanged.

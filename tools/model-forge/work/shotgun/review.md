@@ -10,3 +10,6 @@ R3 (75): Opened comparison. Pump ribs add the concept's scalloped silhouette, re
 R4 (115): Opened comparison. Red/brass shells establish identity at 32px, pump and tube arrangement match. Barrel top has noisy stippling from repeated trim texture. Replace silver patch with continuous five-tone bands for this item; add thin longitudinal highlights and shell seams. Target's warmer wood and softer roundness remain more painterly.
 
 R5 (124): Opened comparison. Barrel broadside is calmer, shell highlights and pump silhouette hold at 32px. Accept local authoring with weaknesses: upper barrel still shows fine stepped-facet seams in iso; source has fuller stock and warmer wood; red shells merge into one accent at 16px. All 11 views unclipped; validate passes 250-element budget and 2 texels/unit. Engine motion/z-fighting review required.
+
+
+Final audit (snapshot 6; five modeling rounds + audit): Reopened all views after seating identity trim and restoring five-tone wood. Twin tubes, pump ribs and red shell cluster are clear; fine metal seam aliasing remains visible in iso. All 11 views remain unclipped. Comparison background changed only for readability; target remains unchanged.

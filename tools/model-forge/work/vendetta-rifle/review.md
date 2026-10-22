@@ -10,3 +10,6 @@ R3 (126): Opened comparison. Crimson rails, magenta gems and blade bevel establi
 R4 (154): Opened comparison. Trim is readable at 32px, blade still looks flat and barrel overly silver against concept's charcoal. Darken barrel, add blade fuller and angled tip bevel, bolt lever/knob, orange optic palette and darker five-tone wood. This should separate blade from barrel rather than letting two bright strips merge.
 
 R5 (178): Opened comparison. Orange optic cap contrasts with magenta/crimson, darker barrel separates from silver bayonet, fuller and stepped tip read in iso. Accept local authoring. Weaknesses: concept blade is more smoothly curved, stock is more angular, orange cap nearly disappears in side-on 16px view, edge trim brighter than painting. All 11 previews unclipped; client hand/animation review remains outstanding.
+
+
+Final audit (snapshot 6; five modeling rounds + audit): Reopened all views after seating identity trim/fullers/tip bevels. Silver blade is attached and distinct from dark barrel; orange scope and crimson-magenta trim preserve identity. All 11 views remain unclipped. Comparison background changed only for readability; target remains unchanged.

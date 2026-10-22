@@ -10,3 +10,6 @@ R3 (113): Opened comparison. Black inset fixes side face. Teal central seal and 
 R4 (129): Opened comparison. Painted gold reads brighter and teal catches light; ring/pin details survive 64px. Silver wraps are too stark against the concept's dark leather. Darken their dedicated material; add the concept's end teal medallions, side pommel gems and collar lips. 16px retains gold/teal landmarks but loses haft continuity.
 
 R5 (161): Opened all views in final comparison. Darker wraps reduce the wire-like look; end seals and side pommel gems remain visible in both third-person transforms. Rounded black head, gold hoops and teal seal read at 32px. Accept for local authoring. Weaknesses: ring facets remain stepped, narrow shaft fades at 16px, concept has richer painted facet shading. In-client grip, animation, glint and perspective remain unverified. Validator called with authorized budget=250, density=2; no shared tool modification.
+
+
+Final audit (snapshot 6; five modeling rounds + audit): Reopened every view on a neutral lighter background to expose the dark head and wrapped haft. Same accepted geometry; teal/gold landmarks hold, stepped end medallions remain visible. No additional modeling round claimed. All 11 views remain unclipped. Comparison background changed only for readability; target remains unchanged.

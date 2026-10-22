@@ -10,3 +10,6 @@ R3 (114): Opened comparison. Double ring/cross and stock scroll are visible, but
 R4 (151): Opened comparison. Gold/black remap matches concept palette, rune marks and compass points enrich ring. Dark body blends into preview background, and forearm lacks substantial gold rail. Lift charcoal midtone modestly, add red slits/gold receiver rail and barrel bands. Preserve dark mass rather than making whole prop pale.
 
 R5 (174): Opened comparison. Charcoal mass is more legible, red slots and gold rails connect palette through receiver to ring. Accept local authoring: supported open double sigil with star/cross, black ornamental stock and red collars match identity. Weaknesses: circle is octagonal, rune strokes symbolic rather than legible text, thin ring disappears edge-on at 16px; no magical bloom. All previews unclipped, validator passes. Real client hand and animation review remains.
+
+
+Final audit (snapshot 6; five modeling rounds + audit): Reopened all views after seating heraldic trim and gold rails. Double circle and supported bracket silhouette remain open; thin ring stays less prominent at edge-on angles. All 11 views remain unclipped. Comparison background changed only for readability; target remains unchanged.
