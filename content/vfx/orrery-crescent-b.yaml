@@ -13,7 +13,7 @@ elements:
     brightness: 15
     count: 6
     start_tick: 0
-    end_tick: 8
+    slot_lifetime_ticks: 8
     formation:
       curve: { type: arc, radius: 2.8, from_deg: -75, to_deg: 75 }
       tilt: { yaw: 0, pitch: 0, roll: -22 }
@@ -32,7 +32,7 @@ elements:
     glow_color: "#ffb000"
     count: 6
     start_tick: 0
-    end_tick: 8
+    slot_lifetime_ticks: 8
     formation:
       curve: { type: arc, radius: 2.8, from_deg: -75, to_deg: 75 }
       tilt: { yaw: 0, pitch: 0, roll: -22 }
@@ -62,7 +62,7 @@ elements:
     brightness: 15
     count: 3
     start_tick: 1
-    end_tick: 11
+    slot_lifetime_ticks: 10
     formation:
       curve: { type: arc, radius: 2.8, from_deg: -70, to_deg: 70 }
       tilt: { yaw: 0, pitch: 0, roll: -22 }
@@ -80,7 +80,7 @@ elements:
     brightness: 15
     count: 3
     start_tick: 2
-    end_tick: 12
+    slot_lifetime_ticks: 10
     formation:
       curve: { type: arc, radius: 2.5, from_deg: -70, to_deg: 70 }
       tilt: { yaw: 0, pitch: 0, roll: -22 }

@@ -16,7 +16,7 @@ elements:
     glow_color: "#ffb000"
     count: 14
     start_tick: 0
-    end_tick: 34
+    slot_lifetime_ticks: 34
     formation:
       curve: { type: arc, radius: 1.9, from_deg: 0, to_deg: 360 }
       tilt: { yaw: 0, pitch: 90, roll: 0 }
@@ -34,7 +34,7 @@ elements:
     brightness: 15
     count: 9
     start_tick: 2
-    end_tick: 32
+    slot_lifetime_ticks: 30
     formation:
       curve: { type: arc, radius: 1.15, from_deg: 0, to_deg: 360 }
       tilt: { yaw: 0, pitch: 90, roll: 0 }

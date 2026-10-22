@@ -3,7 +3,7 @@
 # (telegraph) -> 12 dive-cut 7 blocks forward (invulnerable), the sword plunges in sync -> on contact:
 # X-cross cut (3) + the target is MARKED (2 Rupture, a blue star follows it) -> +6 flat cut (3) ->
 # +13 finisher (4 + 0.5 per Rupture): star burst, ground ripple, 3t hit-stop on both, camera shake.
-# Every cut banks one Poise. Archetype melee is only the cast container (range 0.5, token contact).
+# Every cut banks one Poise.
 
 id: edict-s2
 
@@ -14,22 +14,16 @@ description:
   ja: "跳び上がると空に幻の剣が現れ、急降下とともに突き刺さる。三度断ち、相手に星の印を刻む。"
   en: "Leaps; a ghost sword hangs overhead, then the dive-cut lands with it. Three cuts and a blue star mark on the target."
 
-archetype: melee
+archetype: sequence
 cooldown_ticks: 100
 resource_cost: 30              # energy
 tags: [ melee, physical, dash, persona, edict, poise, rupture, multi-hit ]
 
 params:
-  type: melee
-  range: 0.5
-  arc_degrees: 30.0
-  knockback: 0.0
-  damage:
-    - base: { type: literal, value: 1.0 }
-      attribute: physical
+  type: sequence
 
 phases:
-  type: melee
+  type: sequence
   cast:
     # 0: leap + ghost sword telegraph
     - type: propel
@@ -167,5 +161,3 @@ phases:
           pitch: { type: literal, value: 1.6 }
           delay_ticks: { type: literal, value: 13 }
           condition: { type: distance_less_than, a: { type: caster }, b: { type: target }, distance: { type: literal, value: 5.0 } }
-  hit_entity: []
-  miss: []

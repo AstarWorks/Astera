@@ -15,7 +15,7 @@ elements:
     glow_color: "#8fb8ff"
     count: 3
     start_tick: 0
-    end_tick: 14
+    slot_lifetime_ticks: 14
     formation:
       curve: { type: line, from: [0.0, 0.0, 0.0], to: [0.0, 0.0, -2.2] }
       stagger_ticks: 2

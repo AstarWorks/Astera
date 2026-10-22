@@ -19,12 +19,19 @@ elements:
       curve: { type: arc, radius: 0.01, from_deg: 0, to_deg: 360 }
       offset: [0.0, 1.0, 0.0]
     jitter: { position: 0.35, rotation_deg: 75, scale: 0.25 }
+    group_keyframes:
+      - { t: 0, rotate: [0, 0, 0] }
+      - { t: 2, rotate: [0, 0, 0] }
+      - { t: 12, rotate: [0, 0, 28], ease: out_quad }
     keyframes:
       - { t: 0, scale: [0.02, 0.2, 0.02] }
-      - { t: 2, scale: [0.045, 6.5, 0.045], ease: out_expo }
-      - { t: 5, block: white_stained_glass }
-      - { t: 8, block: light_blue_stained_glass }
-      - { t: 12, scale: [0.0, 6.5, 0.0], ease: in_quad }
+      - { t: 2, scale: [0.06, 6.5, 0.06], ease: out_expo }
+      - { t: 4, scale: [0.045, 6.0, 0.045], ease: out_quad }
+      - { t: 6, block: white_stained_glass, scale: [0.035, 5.0, 0.035] }
+      - { t: 8, block: light_blue_stained_glass, scale: [0.03, 4.0, 0.03] }
+      - { t: 10, scale: [0.02, 2.6, 0.02] }
+      - { t: 12, scale: [0.0, 1.2, 0.0], ease: in_quad }
+    oscillate: { axis: scale_xz, amplitude: 0.01, period_ticks: 2 }
 
   - id: petals
     kind: { type: block, block: light_blue_concrete }

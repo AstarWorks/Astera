@@ -5,8 +5,6 @@
 # 3t hit-stop, shake) -> 25..34 flurry of 4 cuts (1.8 each; with >= 5 Poise at cast time an interleaved
 # second flurry doubles it) with X-cross flashes -> 40 finisher (4 + 0.8 per Rupture, consumed): star burst,
 # ground ripple, knockback, 3t hit-stop on both. Poise is spent at the end.
-# Archetype melee is only the cast container (range 0.5, token contact): all damage is explicit below.
-# The cone and every vfx use the cast-time aim, so the lock is readable and dodgeable by moving off the line.
 
 id: edict-s3
 
@@ -17,22 +15,16 @@ description:
   ja: "頭上に乱れた文字が走り、やがて「斬」の一字に定まる。前方の敵すべてに星の印を落とし、無数の爪痕で断つ。「平静」が五つ以上なら連撃が倍になり、使い切る。"
   en: "A garbled glyph resolves into a single command word. Marks everything ahead and cuts it with a storm of crossing lines. Five or more Poise doubles the flurry; Poise is spent."
 
-archetype: melee
+archetype: sequence
 cooldown_ticks: 300
 resource_cost: 45              # energy
 tags: [ melee, physical, persona, edict, poise, rupture, finisher, multi-hit ]
 
 params:
-  type: melee
-  range: 0.5
-  arc_degrees: 20.0
-  knockback: 0.0
-  damage:
-    - base: { type: literal, value: 1.0 }
-      attribute: physical
+  type: sequence
 
 phases:
-  type: melee
+  type: sequence
   cast:
     # 0: prescript telegraph
     - type: play_sound
@@ -176,5 +168,3 @@ phases:
       targets: { type: caster }
       status_id: poise
       delay_ticks: { type: literal, value: 42 }
-  hit_entity: []
-  miss: []
