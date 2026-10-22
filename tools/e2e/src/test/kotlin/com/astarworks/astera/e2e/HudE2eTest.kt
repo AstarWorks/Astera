@@ -115,6 +115,10 @@ class HudE2eTest : E2eBase() {
 
         val worldsBefore = b.worldHistory.size
         val posBefore = b.positionPackets.get()
+        // A PvP lane never starts with one player (game-loop queue floor): bring an opponent.
+        val partner = bot("HudTab2")
+        partner.waitUntil(15_000) { partner.sidebarLines().isNotEmpty() }
+        partner.command("astera queue join norma")
         b.command("astera queue join norma")
         b.waitUntil(45_000) { b.positionPackets.get() > posBefore || b.worldHistory.size > worldsBefore }
         b.waitUntil(15_000) { b.teamOf(b.name)?.first?.startsWith("ast_np_") == true }

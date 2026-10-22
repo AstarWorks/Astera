@@ -27,6 +27,7 @@ import org.geysermc.mcprotocollib.protocol.data.game.ResourcePackStatus
 import org.geysermc.mcprotocollib.protocol.data.game.command.CommandNode
 import org.geysermc.mcprotocollib.protocol.data.game.command.CommandType
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.Hand
+import org.geysermc.mcprotocollib.protocol.data.game.entity.player.PositionElement
 import org.geysermc.mcprotocollib.protocol.data.game.entity.player.HandPreference
 import org.geysermc.mcprotocollib.protocol.data.game.scoreboard.ObjectiveAction
 import org.geysermc.mcprotocollib.protocol.data.game.scoreboard.ScoreboardPosition
@@ -178,6 +179,8 @@ class Bot private constructor(
     @Volatile var x = 0.0; private set
     @Volatile var y = 0.0; private set
     @Volatile var z = 0.0; private set
+    @Volatile var yawDeg = 0f; private set
+    @Volatile var pitchDeg = 0f; private set
     @Volatile var worldName: String? = null; private set
     val worldHistory = CopyOnWriteArrayList<String>()
     val positionPackets = AtomicInteger()
@@ -261,9 +264,16 @@ class Bot private constructor(
                 worldHistory += worldName!!
             }
             is ClientboundPlayerPositionPacket -> {
-                x = packet.position.x; y = packet.position.y; z = packet.position.z
+                // Relative flags (a vanilla client applies them to its own state before echoing the absolute result).
+                val rel = packet.relatives
+                x = if (PositionElement.X in rel) x + packet.position.x else packet.position.x
+                y = if (PositionElement.Y in rel) y + packet.position.y else packet.position.y
+                z = if (PositionElement.Z in rel) z + packet.position.z else packet.position.z
+                yawDeg = if (PositionElement.Y_ROT in rel) yawDeg + packet.yRot else packet.yRot
+                pitchDeg = if (PositionElement.X_ROT in rel) pitchDeg + packet.xRot else packet.xRot
                 positionPackets.incrementAndGet()
-                session.send(ServerboundAcceptTeleportationPacket(packet.id, x, y, z, packet.yRot, packet.xRot))
+                System.err.println("[bot $name] position packet id=${packet.id} pos=${packet.position} rot=${packet.yRot}/${packet.xRot} rel=$rel -> $x,$y,$z $yawDeg/$pitchDeg")
+                session.send(ServerboundAcceptTeleportationPacket(packet.id, x, y, z, yawDeg, pitchDeg))
                 session.send(ServerboundPlayerLoadedPacket.INSTANCE)
                 joined = true
             }
@@ -496,7 +506,7 @@ class Bot private constructor(
     fun closeWindow(id: Int) = session.send(ServerboundContainerClosePacket(id))
 
     /** Keeps the anti-AFK detector quiet. */
-    fun nudge() = session.send(ServerboundMovePlayerPosRotPacket(true, false, x, y, z, 0f, 0f))
+    fun nudge() = session.send(ServerboundMovePlayerPosRotPacket(true, false, x, y, z, yawDeg, pitchDeg))
 
     // --- queries ---------------------------------------------------------------------------------------------
     fun waitUntil(timeoutMs: Long = 10_000, cond: () -> Boolean): Boolean {
