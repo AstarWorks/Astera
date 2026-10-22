@@ -1,6 +1,6 @@
 # Vendetta Bayonet: blood-crystal spikes erupting in a ring around the target. Eight crimson spikes
 # lean outward (pitch via keyframe rotate), shoot up with out_expo, then cool down a block ladder
-# (red -> gray -> black) and sink. Radial cracks flash on the floor first; a centre shard
+# (red -> gray -> pale gray) and sink. Radial cracks flash on the floor first; a centre shard
 # punches straight up through the target. Anchored on the target, yaw only.
 
 id: vendetta-spike-ring
@@ -10,9 +10,9 @@ follow: false
 sample_ticks: 1
 
 elements:
-  # Floor cracks, black bars radiating out of the target's feet, 1 tick ahead of the spikes.
+  # Floor cracks, gray bars radiating out of the target's feet, 1 tick ahead of the spikes.
   - id: crack
-    kind: { type: block, block: black_concrete }
+    kind: { type: block, block: gray_concrete }
     count: 8
     end_tick: 12
     formation:
@@ -41,7 +41,7 @@ elements:
       - { t: 0, translate: [0.0, -0.2, 0.0], rotate: [0, 16, 0], scale: [0.35, 0.3, 0.35] }
       - { t: 3, translate: [0.0, 1.2, 0.0], scale: [0.4, 2.7, 0.4], ease: out_expo }
       - { t: 7, block: gray_concrete }
-      - { t: 10, block: black_concrete }
+      - { t: 10, block: light_gray_concrete }
       - { t: 15, translate: [0.0, -0.2, 0.0], scale: [0.3, 0.3, 0.3], ease: in_quad }
 
   # Glass tip glow so each spike reads as crystal.

@@ -46,6 +46,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Damage(
             targets = targets.toDomain(),
@@ -56,6 +57,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -68,6 +70,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Heal(
             targets = targets.toDomain(),
@@ -76,6 +79,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -88,6 +92,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Resurrect(
             targets = targets.toDomain(),
@@ -96,6 +101,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -113,6 +119,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.ApplyStatus(
             targets = targets.toDomain(),
@@ -124,6 +131,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -138,6 +146,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.RemoveStatus(
             targets = targets.toDomain(),
@@ -147,6 +156,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -159,6 +169,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Cleanse(
             targets = targets.toDomain(),
@@ -167,6 +178,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -179,6 +191,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Ignite(
             targets = targets.toDomain(),
@@ -187,6 +200,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -199,6 +213,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Freeze(
             targets = targets.toDomain(),
@@ -207,6 +222,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -219,6 +235,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Silence(
             targets = targets.toDomain(),
@@ -227,6 +244,33 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
+        )
+    }
+
+    @Serializable
+    @SerialName("restore_resource")
+    public data class RestoreResource(
+        /** `ammo` | `energy`. */
+        public val resource: String,
+        public val amount: IntValueYaml,
+        public val targets: TargeterYaml = TargeterYaml.Caster,
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.RestoreResource(
+            resource = com.astarworks.astera.core.domain.resource.ResourceType.fromKey(resource)
+                ?: throw IllegalArgumentException("restore_resource: unknown resource '$resource' (ammo / energy)"),
+            amount = amount.toDomain(),
+            targets = targets.toDomain(),
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -242,6 +286,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Knockback(
             targets = targets.toDomain(),
@@ -251,6 +296,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -263,6 +309,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Knockup(
             targets = targets.toDomain(),
@@ -271,6 +318,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -284,6 +332,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.SetVelocity(
             targets = targets.toDomain(),
@@ -293,6 +342,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -306,6 +356,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Propel(
             targets = targets.toDomain(),
@@ -315,6 +366,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -327,6 +379,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Teleport(
             targets = targets.toDomain(),
@@ -335,6 +388,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -353,6 +407,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.DashStrike(
             distance = com.astarworks.astera.core.domain.skill.value.NumericValue.Literal(distance),
@@ -367,6 +422,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -380,6 +436,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.HitStop(
             targets = targets.toDomain(),
@@ -389,6 +446,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -402,6 +460,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Leap(
             targets = targets.toDomain(),
@@ -411,6 +470,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -425,6 +485,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.SummonLightning(
             targets = targets.toDomain(),
@@ -433,6 +494,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -447,6 +509,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Summon(
             targets = targets.toDomain(),
@@ -457,6 +520,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -471,6 +535,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.SetBlock(
             targets = targets.toDomain(),
@@ -481,6 +546,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -494,6 +560,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.RemoveBlock(
             targets = targets.toDomain(),
@@ -503,6 +570,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -519,6 +587,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Explode(
             targets = targets.toDomain(),
@@ -531,6 +600,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -546,6 +616,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.GiveItem(
             targets = targets.toDomain(),
@@ -555,6 +626,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -568,6 +640,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.ConsumeItem(
             targets = targets.toDomain(),
@@ -577,6 +650,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -591,6 +665,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.ModifyAttribute(
             targets = targets.toDomain(),
@@ -601,6 +676,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -614,6 +690,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.SetCooldown(
             targets = targets.toDomain(),
@@ -623,6 +700,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -638,6 +716,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.SpawnParticle(
             targets = targets.toDomain(),
@@ -647,6 +726,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -659,6 +739,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.ScheduleParticleAnimation(
             targets = targets.toDomain(),
@@ -667,6 +748,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -681,6 +763,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.PlaySound(
             targets = targets.toDomain(),
@@ -691,6 +774,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -709,6 +793,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.SpawnDisplay(
             targets = targets.toDomain(),
@@ -717,6 +802,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -732,6 +818,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.PlayVfx(
             targets = targets.toDomain(),
@@ -742,6 +829,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -754,6 +842,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Glow(
             targets = targets.toDomain(),
@@ -762,6 +851,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -775,6 +865,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.CameraShake(
             targets = targets.toDomain(),
@@ -784,6 +875,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -798,6 +890,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.SendMessage(
             targets = targets.toDomain(),
@@ -806,6 +899,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -818,6 +912,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.SendActionBar(
             targets = targets.toDomain(),
@@ -826,6 +921,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -842,6 +938,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.SendTitle(
             targets = targets.toDomain(),
@@ -854,6 +951,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -868,6 +966,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.CastSkill(
             targets = targets.toDomain(),
@@ -876,6 +975,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -890,6 +990,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.IfThen(
             targets = targets.toDomain(),
@@ -900,6 +1001,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -914,6 +1016,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Loop(
             targets = targets.toDomain(),
@@ -924,6 +1027,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 
@@ -936,6 +1040,7 @@ public sealed class MechanicYaml {
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
         public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
     ) : MechanicYaml() {
         override fun toDomain(): Mechanic = Mechanic.Choose(
             targets = targets.toDomain(),
@@ -944,6 +1049,7 @@ public sealed class MechanicYaml {
             periodTicks = periodTicks.toDomain(),
             durationTicks = durationTicks.toDomain(),
             condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
         )
     }
 

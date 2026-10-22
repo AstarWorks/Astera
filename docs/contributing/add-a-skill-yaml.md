@@ -145,4 +145,13 @@ skills:
 - `damage.components[].per_stack`: `{ status_id, amount, on, consume }`。ダメージに `amount x スタック数` を加算 (乗数適用後)。スタックは被弾前に読み、`consume: true` は mechanic 全体の命中後に消費。
 - `dash_strike`: 術者を `distance` / `ticks` で前進させ、カプセル (`radius`) に触れた対象へ `on_hit` を実行。`invulnerable` は `immunity` status を付与。
 - `hit_stop`: 対象 (と `include_caster` で術者) を `ticks` 間その場に固定。
+- `hit_stop` と knockback / knockup / propel の順序は自由: 固定中 (または同 tick 内の先行) の押し出しは解除時に適用される。
+- `restore_resource { resource: ammo|energy, amount }`: 術者の保持アイテムの resource pool を回復 (上限でクランプ)。
+- `damage.ignore_invulnerability: true`: 無敵フレームを無視し、多段ヒットの全 beat が当たる。
+- `filter` targeter の condition は候補ごとに評価 (`target` = その候補)。`enemies` / `allies` に `radius` (既定 10)。
+- 向き `away_from_caster` / `toward_caster` (`vertical` で Y 成分): 対象ごとの放射方向。
+- `delay_ticks` > 0 / `period_ticks` / loop stride の mechanic は発動時の術者の現在位置・視線で再解決される (ダッシュ追従)。cast 時の姿勢を使うなら `snapshot_pose: true`。`condition` も発動時に評価。
+- `archetype: sequence` (`params: { type: sequence }`, `phases: { type: sequence, cast: [...] }`): cast フェーズだけの mechanics コンテナ。タイムライン専用スキル向け。
+- melee / aoe の `params.damage` も `per_stack` に対応。`resist.<属性>` は無装備でも効く。
+- VFX: `end_tick` は全スロット共通の絶対 tick。スロットごとの寿命は `slot_lifetime_ticks`。`group_keyframes` で formation 全体を平行移動 / 回転 / 拡縮。
 - スタック専用 status は `content/status/` の `kind: stack_debuff|stack_buff` + `params: { type: marker }`。

@@ -80,7 +80,7 @@ public object MechanicSupport {
         is Mechanic.Silence, is Mechanic.SetVelocity, is Mechanic.Propel, is Mechanic.Leap,
         is Mechanic.ModifyAttribute, is Mechanic.SetCooldown,
         is Mechanic.SendMessage, is Mechanic.SendActionBar, is Mechanic.SendTitle,
-        is Mechanic.DashStrike, is Mechanic.HitStop,
+        is Mechanic.DashStrike, is Mechanic.HitStop, is Mechanic.RestoreResource,
         is Mechanic.Teleport, is Mechanic.SpawnParticle, is Mechanic.ScheduleParticleAnimation, is Mechanic.PlaySound,
         is Mechanic.CastSkill, is Mechanic.IfThen, is Mechanic.Loop, is Mechanic.Choose -> false
     }

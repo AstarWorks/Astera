@@ -50,6 +50,7 @@ public class InMemoryDamageGateway : IDamageGateway {
         target: PlayerId,
         resolved: ResolvedDamage,
         source: DamageSource,
+        ignoreInvulnerability: Boolean,
     ): Result<DamageOutcome, DamageApplicationError> {
         log.debug(
             "InMemoryDamageGateway (Phase 1 PoC stub): no-op for target={} damage={} source={}",

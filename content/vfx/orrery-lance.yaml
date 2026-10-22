@@ -32,7 +32,7 @@ elements:
     oscillate: { axis: scale_xz, amplitude: 0.06, period_ticks: 2 }
 
   - id: tip-spark
-    kind: { type: text, text: "<#fff2a8><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    kind: { type: text, text: "<#fff2a8><b>★</b>", background: "#00000000", shadow: false, see_through: true }
     billboard: center
     brightness: 15
     start_tick: 1

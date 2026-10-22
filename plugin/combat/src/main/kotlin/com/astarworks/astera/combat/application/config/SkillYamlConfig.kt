@@ -139,6 +139,7 @@ public data class SkillYamlConfig(
         SkillArchetype.BUFF -> params is SkillParams.BuffParams
         SkillArchetype.TELEPORT -> params is SkillParams.TeleportParams
         SkillArchetype.SUMMON -> params is SkillParams.SummonParams
+        SkillArchetype.SEQUENCE -> params is SkillParams.SequenceParams
     }
 
     private fun matchesPhases(archetype: SkillArchetype, phases: PhaseMechanics): Boolean = when (archetype) {
@@ -148,6 +149,7 @@ public data class SkillYamlConfig(
         SkillArchetype.BUFF -> phases is PhaseMechanics.Buff
         SkillArchetype.TELEPORT -> phases is PhaseMechanics.Teleport
         SkillArchetype.SUMMON -> phases is PhaseMechanics.Summon
+        SkillArchetype.SEQUENCE -> phases is PhaseMechanics.Sequence
     }
 
     private fun Map<String, String>.toLocalizedText(): LocalizedText =
@@ -271,6 +273,13 @@ public sealed class SkillParamsYaml {
             maxDistance = maxDistance,
             requiresLineOfSight = requiresLineOfSight,
         )
+    }
+
+    /** `params: { type: sequence }` - the sequence archetype has no parameters. */
+    @Serializable
+    @SerialName("sequence")
+    public data object SequenceParamsYaml : SkillParamsYaml() {
+        override fun toDomain(): SkillParams = SkillParams.SequenceParams
     }
 
     @Serializable

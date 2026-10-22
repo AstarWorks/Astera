@@ -10,7 +10,7 @@ sample_ticks: 1
 
 elements:
   - id: frame
-    kind: { type: text, text: "<#ffffff><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    kind: { type: text, text: "<#ffffff><b>★</b>", background: "#00000000", shadow: false, see_through: true }
     billboard: center
     brightness: 15
     start_tick: 0
@@ -50,7 +50,7 @@ elements:
       offset: [0.0, 0.04, 0.0]
       align: outward
     keyframes:
-      - { t: 0, scale: [0.35, 0.03, 0.2] }
-      - { t: 8, translate: [0.0, 0.0, 4.6], scale: [0.55, 0.03, 0.35], ease: out_expo }
+      - { t: 0, scale: [0.5, 0.04, 0.3] }
+      - { t: 8, translate: [0.0, 0.0, 4.6], scale: [1.1, 0.04, 0.6], ease: out_expo }
       - { t: 12, block: light_gray_stained_glass }
       - { t: 22, translate: [0.0, 0.0, 5.2], scale: [0.0, 0.03, 0.0], ease: in_quad }

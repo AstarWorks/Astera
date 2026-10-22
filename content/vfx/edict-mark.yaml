@@ -23,7 +23,7 @@ elements:
     oscillate: { axis: translate_y, amplitude: 0.1, period_ticks: 12 }
 
   - id: ring
-    kind: { type: text, text: "<#dcebff><b>✧</b>", background: "#00000000", shadow: false, see_through: true }
+    kind: { type: text, text: "<#dcebff><b>☆</b>", background: "#00000000", shadow: false, see_through: true }
     billboard: center
     brightness: 15
     start_tick: 2

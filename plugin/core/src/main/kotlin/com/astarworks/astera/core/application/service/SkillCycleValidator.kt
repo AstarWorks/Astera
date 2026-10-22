@@ -46,6 +46,7 @@ public class SkillCycleValidator {
             is PhaseMechanics.Aoe -> listOf(phases.cast, phases.hitEntity, phases.expire)
             is PhaseMechanics.Buff -> listOf(phases.cast, phases.expire, phases.removed)
             is PhaseMechanics.Teleport -> listOf(phases.cast, phases.preTeleport, phases.postTeleport)
+            is PhaseMechanics.Sequence -> listOf(phases.cast)
             is PhaseMechanics.Summon -> listOf(phases.cast, phases.spawn, phases.summonDeath)
         }
         for (list in lists) collectCastSkillRefs(list, refs)

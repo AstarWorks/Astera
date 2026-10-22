@@ -50,10 +50,15 @@ public sealed class Targeter {
         public val distance: NumericValue,
     ) : Targeter()
 
-    public data class Enemies(public val center: Targeter) : Targeter()
+    /** Non-teammates within [radius] of [center] (`null` = the 10-block default). */
+    public data class Enemies(
+        public val center: Targeter,
+        public val radius: NumericValue? = null,
+    ) : Targeter()
     public data class Allies(
         public val center: Targeter,
         public val includeSelf: Boolean = false,
+        public val radius: NumericValue? = null,
     ) : Targeter()
 
     public data class Filter(

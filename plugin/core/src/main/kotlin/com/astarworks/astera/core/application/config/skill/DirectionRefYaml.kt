@@ -14,6 +14,8 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  * direction: { kind: from_caster }
  * direction: { kind: from_hit_normal }
  * direction: { kind: up }
+ * direction: { kind: away_from_caster, vertical: 0.2 }   # radial push, per target
+ * direction: { kind: toward_caster }                      # radial pull
  * direction:
  *   kind: custom
  *   vector: { kind: literal, value: { x: 0.0, y: 1.0, z: 0.5 } }
@@ -32,6 +34,18 @@ public sealed class DirectionRefYaml {
     @SerialName("from_caster")
     public data object FromCaster : DirectionRefYaml() {
         override fun toDomain(): DirectionRef = DirectionRef.FromCaster
+    }
+
+    @Serializable
+    @SerialName("away_from_caster")
+    public data class AwayFromCaster(public val vertical: Double = 0.0) : DirectionRefYaml() {
+        override fun toDomain(): DirectionRef = DirectionRef.AwayFromCaster(vertical)
+    }
+
+    @Serializable
+    @SerialName("toward_caster")
+    public data class TowardCaster(public val vertical: Double = 0.0) : DirectionRefYaml() {
+        override fun toDomain(): DirectionRef = DirectionRef.TowardCaster(vertical)
     }
 
     @Serializable

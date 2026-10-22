@@ -185,6 +185,8 @@ public class MechanicDispatcher(
     private val summonRegistry: SummonRegistry = SummonRegistry { teamLookup },
     /** Shared random source for `chance:` rolls and weighted `Choose` branches (seedable in the simulator). */
     private val randomizer: IDamageRandomizer = KotlinRandomDamageRandomizer(),
+    /** `restore_resource`: lazily resolved held-item resource pool. */
+    private val resourcePool: (() -> com.astarworks.astera.core.application.port.outbound.IResourcePoolService?)? = null,
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
 ) {
 
@@ -209,6 +211,10 @@ public class MechanicDispatcher(
     }
 
     internal val targeterResolver: TargeterResolver = TargeterResolver(nearbyQuery, log, poseLookup, teamLookup)
+
+    init {
+        targeterResolver.conditionGate = ::resolveCondition
+    }
 
     private val vitals: TargetVitals? =
         if (playerHealth != null || entityHealth != null) {
@@ -296,6 +302,9 @@ public class MechanicDispatcher(
     /** Undoes every temporary world change batch B made (blocks, displays, summons, glow) and ends running dashes. */
     public fun shutdown() {
         dashRunner.shutdown()
+        heldUntil.clear()
+        deferredMovement.clear()
+        recentMovement.clear()
         vfxMechanics?.shutdown()
         worldMechanics.shutdown()
     }
@@ -340,10 +349,7 @@ public class MechanicDispatcher(
     }
 
     private fun dispatchOne(mechanic: Mechanic, ctx: MechanicContext) {
-        // 1. Gate by condition (if any).
-        val gate = mechanic.condition
-        if (gate != null && !resolveCondition(gate, ctx)) return
-
+        // 1. The condition gates each firing: immediately here, or at fire time for delayed / repeating mechanics.
         // 2. Resolve timing.
         val delay = resolveInt(mechanic.delayTicks, ctx).coerceAtLeast(0)
         val period = resolveInt(mechanic.periodTicks, ctx).coerceAtLeast(0)
@@ -359,19 +365,79 @@ public class MechanicDispatcher(
                     initialDelay = ticks(delay.toLong()),
                     period = ticks(period.toLong()),
                 ) {
-                    execute(mechanic, ctx)
+                    fireGated(mechanic, livePose(mechanic, ctx))
                 }
                 if (duration > 0) {
                     scheduler.runLater(ticks((delay + duration).toLong())) { handle.cancel() }
                 }
             }
             delay > 0 -> {
-                scheduler.runLater(ticks(delay.toLong())) { execute(mechanic, ctx) }
+                scheduler.runLater(ticks(delay.toLong())) { fireGated(mechanic, livePose(mechanic, ctx)) }
             }
             else -> {
-                execute(mechanic, ctx)
+                fireGated(mechanic, ctx)
             }
         }
+    }
+
+    /** Runs [mechanic] if its `condition` holds against [ctx] at THIS moment (cast time or fire time). */
+    private fun fireGated(mechanic: Mechanic, ctx: MechanicContext) {
+        val gate = mechanic.condition
+        if (gate != null && !resolveCondition(gate, ctx)) return
+        execute(mechanic, ctx)
+    }
+
+    // ---- hit_stop vs. movement ordering -------------------------------------------------------
+
+    /** Tick at which a hit-stopped entity is released. */
+    private val heldUntil: MutableMap<PlayerId, Long> = HashMap()
+
+    /** Movement impulses applied to a held entity, replayed on release. */
+    private val deferredMovement: MutableMap<PlayerId, MutableList<() -> Unit>> = HashMap()
+
+    /** Movement applied this tick per entity, so a hit_stop that follows can defer it instead of wiping it. */
+    private val recentMovement: MutableMap<PlayerId, Pair<Long, MutableList<() -> Unit>>> = HashMap()
+
+    /**
+     * Applies a knockback / knockup / propel [op] now, unless [target] is hit-stopped, in which case it
+     * is deferred and applied on release. Remembered for the current tick so a later hit_stop in the
+     * same tick defers it too (authors can order the two freely).
+     */
+    private fun applyMovement(target: PlayerId, op: () -> Unit) {
+        val now = scheduler.currentTick()
+        if ((heldUntil[target] ?: Long.MIN_VALUE) > now) {
+            deferredMovement.getOrPut(target) { ArrayList() } += op
+            return
+        }
+        op()
+        val recent = recentMovement[target]
+        if (recent == null || recent.first != now) recentMovement[target] = now to mutableListOf(op) else recent.second += op
+    }
+
+    private fun holdEntity(effects: IEntityEffectsGateway, id: PlayerId, ticks: Int) {
+        val now = scheduler.currentTick()
+        val sameTick = recentMovement.remove(id)?.takeIf { it.first == now }?.second.orEmpty()
+        effects.hold(id, ticks) // zeroes velocity: re-apply this tick's movement after the release
+        if (sameTick.isNotEmpty()) deferredMovement.getOrPut(id) { ArrayList() } += sameTick
+        val release = now + ticks
+        heldUntil[id] = maxOf(heldUntil[id] ?: 0L, release)
+        scheduler.runLater(ticks(ticks.toLong())) {
+            if ((heldUntil[id] ?: Long.MAX_VALUE) <= scheduler.currentTick()) {
+                heldUntil.remove(id)
+                deferredMovement.remove(id)?.forEach { it() }
+            }
+        }
+    }
+
+    /**
+     * Delayed / repeating executions re-read the caster's CURRENT feet position and look so
+     * geometric targeters follow a dash. Skipped for `snapshot_pose: true`, for contexts without a
+     * cast pose, and for projectile-impact contexts (`hitLocation` set), which anchor on the impact.
+     */
+    internal fun livePose(mechanic: Mechanic, ctx: MechanicContext): MechanicContext {
+        if (mechanic.snapshotPose || ctx.pose == null || ctx.hitLocation != null) return ctx
+        val live = poseLookup?.poseOf(ctx.actorId) ?: return ctx
+        return ctx.copy(origin = live.position, pose = live, worldId = ctx.worldId ?: live.world)
     }
 
     /**
@@ -393,6 +459,7 @@ public class MechanicDispatcher(
                 val sourceSkillId = ctx.castedSkills.firstOrNull() ?: FALLBACK_SKILL_ID
                 // per_stack.consume: stacks counted before the hit, removed once every target has been hit.
                 val consumed = LinkedHashMap<Pair<PlayerId, StatusEffectId>, Int>()
+                val ignoreInvuln = resolveBool(mechanic.ignoreInvulnerability, ctx)
                 for (target in targets) {
                     val outcome = applyDamage.execute(
                         DamageAttempt(
@@ -403,6 +470,7 @@ public class MechanicDispatcher(
                                 casterId = ctx.actorId,
                                 casterPosition = ctx.origin,
                             ),
+                            ignoreInvulnerability = ignoreInvuln,
                         ),
                     )
                     if (outcome is Result.Success && outcome.value is DamageOutcome.Killed) {
@@ -498,10 +566,9 @@ public class MechanicDispatcher(
                 }
                 val targets = living(targeterResolver.resolvePlayers(mechanic.targets, ctx))
                 val magnitude = resolveDouble(mechanic.strength, ctx)
-                val dir = resolveDirection(mechanic.direction, ctx)
-                val impulse = dir * magnitude
                 for (target in targets) {
-                    knockbackGateway.applyImpulse(target, impulse)
+                    val impulse = resolveDirection(mechanic.direction, ctx, target) * magnitude
+                    applyMovement(target) { knockbackGateway.applyImpulse(target, impulse) }
                 }
             }
 
@@ -513,23 +580,24 @@ public class MechanicDispatcher(
                 val targets = living(targeterResolver.resolvePlayers(mechanic.targets, ctx))
                 val magnitude = resolveDouble(mechanic.strength, ctx)
                 for (target in targets) {
-                    knockbackGateway.applyImpulse(target, Vec3(0.0, magnitude, 0.0))
+                    applyMovement(target) { knockbackGateway.applyImpulse(target, Vec3(0.0, magnitude, 0.0)) }
                 }
             }
 
             is Mechanic.SetVelocity -> {
                 val effects = entityEffects ?: return warnMissing("SetVelocity", "IEntityEffectsGateway")
-                val velocity = resolveDirection(mechanic.direction, ctx) * resolveDouble(mechanic.magnitude, ctx)
+                val magnitude = resolveDouble(mechanic.magnitude, ctx)
                 for (target in living(targeterResolver.resolvePlayers(mechanic.targets, ctx))) {
-                    effects.setVelocity(target, velocity)
+                    effects.setVelocity(target, resolveDirection(mechanic.direction, ctx, target) * magnitude)
                 }
             }
 
             is Mechanic.Propel -> {
                 val effects = entityEffects ?: return warnMissing("Propel", "IEntityEffectsGateway")
-                val delta = resolveDirection(mechanic.direction, ctx) * resolveDouble(mechanic.strength, ctx)
+                val strength = resolveDouble(mechanic.strength, ctx)
                 for (target in living(targeterResolver.resolvePlayers(mechanic.targets, ctx))) {
-                    effects.addVelocity(target, delta)
+                    val delta = resolveDirection(mechanic.direction, ctx, target) * strength
+                    applyMovement(target) { effects.addVelocity(target, delta) }
                 }
             }
 
@@ -568,13 +636,22 @@ public class MechanicDispatcher(
                 )
             }
 
+            is Mechanic.RestoreResource -> {
+                val pool = resourcePool?.invoke() ?: return warnMissing("RestoreResource", "IResourcePoolService")
+                val amount = resolveInt(mechanic.amount, ctx).coerceAtLeast(0)
+                if (amount == 0) return
+                for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    pool.applyRegen(target, mechanic.resource, amount)
+                }
+            }
+
             is Mechanic.HitStop -> {
                 val effects = entityEffects ?: return warnMissing("HitStop", "IEntityEffectsGateway")
                 val holdTicks = resolveInt(mechanic.ticks, ctx).coerceAtLeast(0)
                 if (holdTicks == 0) return
                 val held = LinkedHashSet(living(targeterResolver.resolvePlayers(mechanic.targets, ctx)))
                 if (resolveBool(mechanic.includeCaster, ctx)) held += ctx.actorId
-                for (id in held) effects.hold(id, holdTicks)
+                for (id in held) holdEntity(effects, id, holdTicks)
             }
 
             // ===== World ==============================================
@@ -808,6 +885,24 @@ public class MechanicDispatcher(
 
     // -------- Value resolution (CEL injection points) ----------------
 
+    /**
+     * Runs [perTarget] for each of [targets] with [profile] folded for that target (`per_stack` bonuses
+     * read from the caster / target status stacks), then consumes the counted stacks once every target
+     * has been handled. Used by archetype handlers whose `params.damage` honours `per_stack` too.
+     */
+    public fun forEachWithPerStack(
+        targets: List<PlayerId>,
+        profile: DamageProfile,
+        ctx: MechanicContext,
+        perTarget: (PlayerId, DamageProfile) -> Unit,
+    ) {
+        val consumed = LinkedHashMap<Pair<PlayerId, StatusEffectId>, Int>()
+        for (target in targets) {
+            perTarget(target, buildDamageProfile(profile.components, target, ctx, consumed))
+        }
+        for ((key, stacks) in consumed) statusContainer?.removeStacks(key.first, key.second, stacks)
+    }
+
     private fun buildDamageProfile(
         components: List<DamageComponent>,
         target: PlayerId,
@@ -881,7 +976,13 @@ public class MechanicDispatcher(
         ),
     )
 
-    private fun resolveDirection(direction: DirectionRef, ctx: MechanicContext): Vec3 = when (direction) {
+    private fun resolveDirection(direction: DirectionRef, ctx: MechanicContext, target: PlayerId? = null): Vec3 = when (direction) {
+        is DirectionRef.AwayFromCaster -> RadialDirection.compute(
+            ctx.origin, target?.let { positionOf(it, ctx) }, ctx.pose?.direction, direction.vertical, toward = false,
+        )
+        is DirectionRef.TowardCaster -> RadialDirection.compute(
+            ctx.origin, target?.let { positionOf(it, ctx) }, ctx.pose?.direction, direction.vertical, toward = true,
+        )
         // ADR-0174: caster look vector from MechanicContext.pose; +X when unknown.
         DirectionRef.FromCaster -> ctx.pose?.direction ?: Vec3(1.0, 0.0, 0.0)
         DirectionRef.FromHitNormal -> Vec3(1.0, 0.0, 0.0) // Phase 1 placeholder
