@@ -1,5 +1,5 @@
-# WP1: sword sneak + right-click. Short speed burst (a true propel/leap
-# dash arrives with WP4's movement mechanics).
+# WP1/WP7: sword sneak + right-click. A real forward lunge (propel) plus a
+# short speed burst; shared by the knight's sword and the dagger.
 
 id: sword-dash
 
@@ -23,6 +23,10 @@ params:
 phases:
   type: buff
   cast:
+    - type: propel
+      targets: { type: caster }
+      direction: { type: from_caster }
+      strength: { type: literal, value: 1.1 }
     - type: play_sound
       targets: { type: caster }
       sound_id: entity.player.attack.knockback

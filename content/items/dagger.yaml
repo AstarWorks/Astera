@@ -1,0 +1,42 @@
+# WP7 sword roster: fast, short reach, bleeds. Left-click = stab,
+# sneak + right-click = dash (lunge) to close the gap.
+
+id: dagger
+
+material: STONE_SWORD
+
+name:
+  ja: "<dark_gray>ダガー</dark_gray>"
+  en: "<dark_gray>Dagger</dark_gray>"
+lore:
+  ja:
+    - "<gray>左クリック: 刺突（出血）</gray>"
+    - "<gray>スニーク + 右クリック: ダッシュ</gray>"
+    - "<dark_gray>rarity: uncommon / level: 2</dark_gray>"
+  en:
+    - "<gray>Left-click: stab (bleed)</gray>"
+    - "<gray>Sneak + right-click: dash</gray>"
+    - "<dark_gray>rarity: uncommon / level: 2</dark_gray>"
+
+rarity: uncommon
+level_requirement: 2
+
+attributes:
+  attack_damage: 3.0
+  attack_speed: 3.0
+
+equip_slot: mainhand
+
+resource_type: stamina
+resource_cost_per_use: 8
+resource_max_pool: 100
+resource_regen_per_second: 25.0
+
+skills:
+  - trigger: left_click
+    skill_id: dagger-stab
+  - trigger: sneak_right
+    skill_id: sword-dash
+
+pdc_tags:
+  astera:rarity: uncommon

@@ -1,0 +1,46 @@
+# WP7 gun roster: close-range burst. Right-click = blast (13 dmg cone, knockback),
+# Q = reload, sneak + right-click = backstep.
+
+id: shotgun
+
+material: DIAMOND_HORSE_ARMOR
+
+name:
+  ja: "<red>ショットガン</red>"
+  en: "<red>Shotgun</red>"
+lore:
+  ja:
+    - "<gray>右クリック: 散弾（近距離・ノックバック）</gray>"
+    - "<gray>スニーク + 右クリック: バックステップ</gray>"
+    - "<gray>Q: リロード</gray>"
+    - "<dark_gray>rarity: uncommon / level: 3</dark_gray>"
+  en:
+    - "<gray>Right-click: blast (close range, knockback)</gray>"
+    - "<gray>Sneak + right-click: backstep</gray>"
+    - "<gray>Q: reload</gray>"
+    - "<dark_gray>rarity: uncommon / level: 3</dark_gray>"
+
+rarity: uncommon
+level_requirement: 3
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 4.0
+
+equip_slot: mainhand
+
+resource_type: ammo
+resource_cost_per_use: 1
+resource_max_pool: 6
+resource_reloadable: true
+
+skills:
+  - trigger: right_click
+    skill_id: shotgun-blast
+  - trigger: sneak_right
+    skill_id: backstep
+  - trigger: drop
+    skill_id: pistol-reload
+
+pdc_tags:
+  astera:rarity: uncommon

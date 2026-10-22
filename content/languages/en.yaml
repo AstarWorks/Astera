@@ -179,6 +179,16 @@ astera:
           sword: "Example Sword"
           pistol: "Example Pistol"
           wand: "Example Wand"
+          pistol-basic: "Pistol"
+          knight-sword: "Knight's Sword"
+          dagger: "Dagger"
+          frost-staff: "Frost Staff"
+          fire-staff: "Fire Staff"
+          shotgun: "Shotgun"
+          rifle: "Rifle"
+          verdant-staff: "Verdant Staff"
+          greatsword: "Greatsword"
+          thunder-staff: "Thunder Staff"
       browse:
         invalid_id: "<red>Invalid shop id: {shop}</red>"
         player_not_online: "<red>You must be online to browse the shop.</red>"
@@ -1138,3 +1148,26 @@ astera:
     "4": "<aqua>💡 Tip:</aqua> <gray>Track your achievements from the Profile tile — every milestone counts.</gray>"
     "5": "<aqua>💡 Tip:</aqua> <gray>Refining items raises their rarity tier and unlocks per-tier perks. Visit the Refinement tile.</gray>"
     "6": "<aqua>💡 Tip:</aqua> <gray>Survival Islands let you build with your party — open the Travel tile to visit yours.</gray>"
+
+  # WP7: status effect display names (content/status/*.yaml display_name_key).
+  status:
+    burn:
+      name: "Burning"
+    freeze:
+      name: "Frozen"
+    poison:
+      name: "Poisoned"
+    reloading:
+      name: "Reloading"
+    dash:
+      name: "Dashing"
+    shock:
+      name: "Shocked"
+    wet:
+      name: "Soaked"
+    bleed:
+      name: "Bleeding"
+    regen:
+      name: "Regenerating"
+    evasive:
+      name: "Evasive"

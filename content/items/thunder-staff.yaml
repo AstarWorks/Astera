@@ -1,0 +1,38 @@
+# WP7 staff roster: lightning stun. Right-click = lightning bolt (14 electric + shock).
+# Electric beats water: pair with a frost-staff ally's wet targets.
+
+id: thunder-staff
+
+material: LIGHTNING_ROD
+
+name:
+  ja: "<yellow>サンダースタッフ</yellow>"
+  en: "<yellow>Thunder Staff</yellow>"
+lore:
+  ja:
+    - "<gray>右クリック: 稲妻（麻痺）</gray>"
+    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
+  en:
+    - "<gray>Right-click: lightning bolt (shock)</gray>"
+    - "<dark_gray>rarity: rare / level: 3</dark_gray>"
+
+rarity: rare
+level_requirement: 3
+
+attributes:
+  attack_damage: 2.0
+  attack_speed: 1.0
+
+equip_slot: mainhand
+
+resource_type: mana
+resource_cost_per_use: 30
+resource_max_pool: 100
+resource_regen_per_second: 6.0
+
+skills:
+  - trigger: right_click
+    skill_id: lightning-bolt
+
+pdc_tags:
+  astera:rarity: rare

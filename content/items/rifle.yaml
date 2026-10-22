@@ -1,0 +1,46 @@
+# WP7 gun roster: accurate sustained fire. Right-click = shot (8 dmg, long range),
+# Q = reload, sneak + right-click = backstep.
+
+id: rifle
+
+material: GOLDEN_HORSE_ARMOR
+
+name:
+  ja: "<green>ライフル</green>"
+  en: "<green>Rifle</green>"
+lore:
+  ja:
+    - "<gray>右クリック: 射撃（長射程）</gray>"
+    - "<gray>スニーク + 右クリック: バックステップ</gray>"
+    - "<gray>Q: リロード</gray>"
+    - "<dark_gray>rarity: uncommon / level: 2</dark_gray>"
+  en:
+    - "<gray>Right-click: shoot (long range)</gray>"
+    - "<gray>Sneak + right-click: backstep</gray>"
+    - "<gray>Q: reload</gray>"
+    - "<dark_gray>rarity: uncommon / level: 2</dark_gray>"
+
+rarity: uncommon
+level_requirement: 2
+
+attributes:
+  attack_damage: 1.0
+  attack_speed: 4.0
+
+equip_slot: mainhand
+
+resource_type: ammo
+resource_cost_per_use: 1
+resource_max_pool: 20
+resource_reloadable: true
+
+skills:
+  - trigger: right_click
+    skill_id: rifle-shot
+  - trigger: sneak_right
+    skill_id: backstep
+  - trigger: drop
+    skill_id: pistol-reload
+
+pdc_tags:
+  astera:rarity: uncommon

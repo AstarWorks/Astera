@@ -15,6 +15,7 @@ description:
 
 archetype: projectile
 cooldown_ticks: 30
+resource_cost: 8               # mana
 tags: [ ranged, ice-family, slow ]
 
 params:
@@ -45,6 +46,11 @@ phases:
       status_id: freeze
       effect_duration_ticks: { type: literal, value: 60 }
       chance: { type: literal, value: 0.70 }
+    # Soaks the target: a follow-up shock doubles the wet slow (status-effect-interactions).
+    - type: apply_status
+      targets: { type: target }
+      status_id: wet
+      effect_duration_ticks: { type: literal, value: 100 }
   hit_block:
     - type: spawn_particle
       targets: { type: hit_location }
