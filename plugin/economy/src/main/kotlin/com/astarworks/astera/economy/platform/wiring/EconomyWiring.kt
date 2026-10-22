@@ -227,6 +227,14 @@ public object EconomyWiring {
             depositOnMissionCompletedListener.handle(event)
         }
 
+        // ADR-0202: every wallet movement lands in the append-only audit log.
+        val recordMovements = com.astarworks.astera.economy.application.eventbus.listeners.AuditCurrencyMovementListener {
+            services.get<com.astarworks.astera.core.application.port.outbound.IAuditLogRepository>()
+        }
+        subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.CurrencyChanged::class) { event ->
+            recordMovements.handle(event)
+        }
+
         // ── Wave K 5integration-wire (ADR-0128) ──────────────────────────────
         //   TutorialCompleted → DepositUseCase(STAR, 50, TutorialReward).
         //   Closes the onboarding loop on the economy side; the achievement
@@ -269,6 +277,9 @@ public object EconomyWiring {
             registry = shopRegistry,
             adapter = guiAdapter,
             server = mcServer,
+            ledger = ledger,
+            stock = shopStockRepository,
+            messages = msgRenderer,
         )
         val shopPurchase = ShopPurchaseUseCase(
             registry = shopRegistry,
@@ -283,6 +294,9 @@ public object EconomyWiring {
             purchase = shopPurchase,
             messages = msgRenderer,
             playerGateway = playerGateway,
+            registry = shopRegistry,
+            ledger = ledger,
+            browse = shopBrowse,
         )
         registrations += intentRouter.register(ShopIntentHandler.INTENT_PREFIX) { intent, player ->
             shopIntentHandler.handle(intent, player)

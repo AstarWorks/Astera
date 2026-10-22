@@ -48,6 +48,21 @@ public sealed interface AuditEvent {
         override val occurredAt: Instant,
     ) : AuditEvent
 
+    /**
+     * One row per wallet movement (ADR-0202): the append-only transaction log.
+     * [delta] is signed, [newBalance] the balance after, [reason] a stable
+     * string (`match_reward`, `shop:<shop>/<offer>`, `transfer:<uuid>`, ...).
+     */
+    public data class CurrencyMovement(
+        override val id: AuditEventId,
+        val player: PlayerId,
+        val currency: Currency,
+        val delta: Long,
+        val newBalance: Long,
+        val reason: String,
+        override val occurredAt: Instant,
+    ) : AuditEvent
+
     public data class MatchStarted(
         override val id: AuditEventId,
         val matchId: MatchId,

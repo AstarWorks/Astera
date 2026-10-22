@@ -469,6 +469,10 @@ astera:
 
   # ── Wave 4.5 (ADR-0027): Shop / Loadout 永続化 / Norma / Match / Spawn ──
   economy:
+    currency:
+      star: "<yellow>STAR</yellow>"
+      gold: "<gold>GOLD</gold>"
+      gem: "<light_purple>GEM</light_purple>"
     shop:
       example-shop:
         title: "サンプルショップ"
@@ -486,6 +490,19 @@ astera:
           verdant-staff: "翠緑の杖"
           greatsword: "大剣"
           thunder-staff: "サンダースタッフ"
+      gui:
+        spacer: " "
+        price: "<gray>価格: <green>{amount}</green> {currency}</gray>"
+        price_short: "<gray>価格: <red>{amount}</red> {currency} <dark_gray>(所持 {have})</dark_gray></gray>"
+        stock: "<gray>在庫: <white>{remaining}</white></gray>"
+        action:
+          buy: "<yellow>クリックで購入</yellow>"
+          confirm: "<gold><bold>もう一度クリックで購入確定！</bold></gold>"
+          short: "<red>{currency} があと {missing} 足りません</red>"
+          sold_out: "<dark_red>売り切れ</dark_red>"
+        wallet:
+          title: "<gold>所持金</gold>"
+          line: "<gray>{currency}: <white>{amount}</white></gray>"
       browse:
         invalid_id: "<red>不正なショップ ID: {shop}</red>"
         player_not_online: "<red>ショップを開くにはオンラインである必要があります。</red>"
@@ -498,7 +515,8 @@ astera:
         shop_not_found: "<red>購入中にショップが消失しました。</red>"
         offer_not_found: "<red>そのオファーは存在しません。</red>"
         out_of_stock: "<red>在庫切れです。</red>"
-        insufficient_funds: "<red>{currency} の残高が不足しています。</red>"
+        insufficient_funds: "<red>{currency} が足りません: 必要 {need}、所持 {have}（あと {short}）。</red>"
+        confirm: "<yellow>{price} {currency} - 購入を確定するには、もう一度アイテムをクリックしてください。</yellow>"
         delivery_failed: "<red>アイテムを配送できませんでした: {reason}</red>"
     command:
       shop:
@@ -948,6 +966,7 @@ astera:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>確保、</gray><white>{left}</white> <gray>残り</gray>"
       you: "<gray>あなた:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>スター</gray>"
+      gold: "<gold>*</gold> <white>{gold}</white> <gray>ゴールド</gray>"
     lobby:
       title: "<gold><bold>Astera</bold></gold>"
       online: "<gray>接続中:</gray> <white>{count}</white>"

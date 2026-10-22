@@ -466,6 +466,10 @@ astera:
 
   # ── Wave 4.5 (ADR-0027): Shop / Loadout persist / Norma / Match / Spawn ──
   economy:
+    currency:
+      star: "<yellow>STAR</yellow>"
+      gold: "<gold>GOLD</gold>"
+      gem: "<light_purple>GEM</light_purple>"
     shop:
       example-shop:
         title: "Example Shop"
@@ -483,6 +487,19 @@ astera:
           verdant-staff: "Verdant Staff"
           greatsword: "Greatsword"
           thunder-staff: "Thunder Staff"
+      gui:
+        spacer: " "
+        price: "<gray>Price: <green>{amount}</green> {currency}</gray>"
+        price_short: "<gray>Price: <red>{amount}</red> {currency} <dark_gray>(you have {have})</dark_gray></gray>"
+        stock: "<gray>In stock: <white>{remaining}</white></gray>"
+        action:
+          buy: "<yellow>Click to buy</yellow>"
+          confirm: "<gold><bold>Click again to confirm!</bold></gold>"
+          short: "<red>Need {missing} more {currency}</red>"
+          sold_out: "<dark_red>Sold out</dark_red>"
+        wallet:
+          title: "<gold>Your wallet</gold>"
+          line: "<gray>{currency}: <white>{amount}</white></gray>"
       browse:
         invalid_id: "<red>Invalid shop id: {shop}</red>"
         player_not_online: "<red>You must be online to browse the shop.</red>"
@@ -495,7 +512,8 @@ astera:
         shop_not_found: "<red>Shop disappeared during purchase.</red>"
         offer_not_found: "<red>That offer no longer exists.</red>"
         out_of_stock: "<red>Sold out.</red>"
-        insufficient_funds: "<red>Insufficient {currency} balance.</red>"
+        insufficient_funds: "<red>Not enough {currency}: need {need}, you have {have} ({short} short).</red>"
+        confirm: "<yellow>{price} {currency} - click the item again to confirm the purchase.</yellow>"
         delivery_failed: "<red>Could not deliver item: {reason}</red>"
     command:
       shop:
@@ -947,6 +965,7 @@ astera:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>banked,</gray> <white>{left}</white> <gray>left</gray>"
       you: "<gray>You:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>Stars</gray>"
+      gold: "<gold>*</gold> <white>{gold}</white> <gray>Gold</gray>"
     lobby:
       title: "<gold><bold>Astera</bold></gold>"
       online: "<gray>Online:</gray> <white>{count}</white>"
