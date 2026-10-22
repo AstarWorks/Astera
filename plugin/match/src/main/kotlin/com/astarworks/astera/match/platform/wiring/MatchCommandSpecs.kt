@@ -1,6 +1,7 @@
 package com.astarworks.astera.match.platform.wiring
 
 import com.astarworks.astera.core.application.command.ArgumentType
+import com.astarworks.astera.core.application.command.CommandConfirm
 import com.astarworks.astera.core.application.command.CommandContext
 import com.astarworks.astera.core.application.command.CommandResult
 import com.astarworks.astera.core.application.command.forEveryone
@@ -67,6 +68,12 @@ internal object MatchCommandSpecs {
                             name = "lane",
                             type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
                             completer = { _ -> laneTokens(settings()) },
+                            // hover text next to each lane: players waiting / players needed to start
+                            tooltips = { _ ->
+                                settings().lanes.mapValues { (_, lane) ->
+                                    "${matchmaker.pendingByMode(lane.mode).size}/${lane.minPlayers}"
+                                }
+                            },
                         ),
                     ),
                     executor = { ctx ->
@@ -130,6 +137,7 @@ internal object MatchCommandSpecs {
                                 mapOf("mode" to status.mode.toString(), "position" to position.toString()),
                             )
                             replyProgress(ctx, status.mode, matchmaker, settings)
+                            ctx.reply(MessageKey("astera.match.queue.status.actions")) // clickable [Leave]
                             CommandResult.Success
                         }
                     },
@@ -318,9 +326,11 @@ internal object MatchCommandSpecs {
                         ctx.reply(MessageKey("astera.command.reply.match-list-none"))
                     } else {
                         ctx.reply(MessageKey("astera.command.reply.match-list-header"), mapOf("count" to active.size.toString()))
+                        // operators get clickable [End] / [Abort] buttons on each line
+                        val lineKey = if (ctx.actor.isOperator) "astera.command.reply.match-list-line-op" else "astera.command.reply.match-list-line"
                         active.forEach { m ->
                             ctx.reply(
-                                MessageKey("astera.command.reply.match-list-line"),
+                                MessageKey(lineKey),
                                 mapOf("match" to m.id.value, "phase" to m.phase.toString(), "stage" to m.stageId.value),
                             )
                         }
@@ -339,9 +349,11 @@ internal object MatchCommandSpecs {
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
                         completer = { _ -> matches.findActiveMatches().map { it.id.value } },
                     ),
+                    CommandConfirm.argument(),
                 ),
                 executor = { ctx ->
                     val matchIdStr = ctx.required<String>("match-id")
+                    CommandConfirm.guard(ctx, "/astera match abort $matchIdStr")?.let { return@Literal it }
                     val matchId = runCatching { MatchId(matchIdStr) }.getOrNull()
                         ?: return@Literal CommandResult.Failure(
                             MessageKey("astera.match.command.end.invalid-id"),
@@ -367,9 +379,11 @@ internal object MatchCommandSpecs {
                         type = ArgumentType.StringArg(ArgumentType.StringArg.Mode.SingleWord),
                         completer = { _ -> matches.findActiveMatches().map { it.id.value } },
                     ),
+                    CommandConfirm.argument(),
                 ),
                 executor = { ctx ->
                     val matchIdStr = ctx.required<String>("match-id")
+                    CommandConfirm.guard(ctx, "/astera match cancel $matchIdStr")?.let { return@Literal it }
                     val matchId = runCatching { MatchId(matchIdStr) }.getOrNull()
                         ?: return@Literal CommandResult.Failure(
                             MessageKey("astera.match.command.end.invalid-id"),

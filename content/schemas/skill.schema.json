@@ -45,6 +45,9 @@
         "ready_cue": {
             "type": "boolean"
         },
+        "ego_cost": {
+            "type": "integer"
+        },
         "tags": {
             "type": "array",
             "items": {

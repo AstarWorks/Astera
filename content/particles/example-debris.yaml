@@ -1,0 +1,19 @@
+# stone debris thrown outwards from the impact point
+id: example-debris
+shape:
+  kind: point
+color:
+  r: 128
+  g: 128
+  b: 128
+count: 8
+lifetime_ticks: 20
+vanilla_particle: block_crumble
+data:
+  kind: block
+  block: stone
+velocity:
+  direction: outward
+  speed: 0.3
+  spread_degrees: 30
+force: true

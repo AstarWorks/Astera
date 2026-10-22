@@ -54,6 +54,7 @@ phases:
 | `cooldown_ticks` | `Long` | ✅ | デフォルト cooldown (≥ 0)。Item binding 側で上書き可 |
 | `mana_cost` | `Int` | optional | デフォルト 0 |
 | `charge_ticks` | `Long?` | optional | null = instant cast |
+| `ego_cost` | `Int?` | optional | E.G.O ゲージ消費量 (0..100、ADR-0231)。不足なら cast 拒否 (`astera.combat.cast.insufficient.ego`)。`trigger: drop` (Q) に bind する究極技用。エネルギーも消費させたくなければ `resource_cost: 0` を併記 |
 | `tags` | `List<String>` | optional | フィルタ用 (gui / 統計向け) |
 | `params` | `Map<String, Any>` | ✅ | `type:` が `archetype` と整合する必要あり |
 | `phases` | `PhaseSpec` | optional | `cast` / `hit` / `expire` / `removed` などの effect chain |
@@ -128,6 +129,23 @@ skills:
 
 同じ Skill を別 Item に異なる trigger で bind できます。
 
+### E.G.O 枠 (究極技)
+
+`drop` (Q) は E.G.O 枠。ゲージ (`content/balance/ego.yaml`: 与ダメ +5 / 被ダメ +4 / 戦闘外で減衰 /
+死亡・マッチ開始でリセット) が満タンで光り (`E.G.O READY`)、`ego_cost: 100` の Skill が撃てる。
+
+```yaml
+# content/skills/my-ego.yaml
+ego_cost: 100
+resource_cost: 0        # エネルギーは取らない (任意)
+# content/items/my-weapon.yaml
+skills:
+  - trigger: drop           # Q = E.G.O
+    skill_id: my-ego
+  - trigger: sneak_drop     # Shift+Q = リロード (銃)
+    skill_id: pistol-reload
+```
+
 ## 参考
 
 - ADR-0030 (Combat depth foundation)
@@ -154,4 +172,5 @@ skills:
 - `archetype: sequence` (`params: { type: sequence }`, `phases: { type: sequence, cast: [...] }`): cast フェーズだけの mechanics コンテナ。タイムライン専用スキル向け。
 - melee / aoe の `params.damage` も `per_stack` に対応。`resist.<属性>` は無装備でも効く。
 - VFX: `end_tick` は全スロット共通の絶対 tick。スロットごとの寿命は `slot_lifetime_ticks`。`group_keyframes` で formation 全体を平行移動 / 回転 / 拡縮。
+- VFX display particles: `kind: { type: quad, color: "#RRGGBB", alpha: 0..1, glyph?, see_through? }`。keyframe に `color` / `alpha` で色・透明度を補間。`emit: { count (≤40), rate_per_tick?, speed: [min,max], spread_deg, direction: forward|up|outward|tangent|custom[x,y,z], gravity, drag, life_ticks: [min,max], size: [min,max], size_over_life: [s,e], color_over_life: [..], alpha_over_life: [..], spin_deg_per_tick }` で粒子を放出 (デモ: `content/vfx/demo-quad-sparks.yaml`、較正は `docs/contributing/vfx-art-direction.md` §5)。
 - スタック専用 status は `content/status/` の `kind: stack_debuff|stack_buff` + `params: { type: marker }`。

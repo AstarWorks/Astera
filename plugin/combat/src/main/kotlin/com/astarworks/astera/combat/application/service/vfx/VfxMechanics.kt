@@ -48,6 +48,7 @@ internal class VfxMechanics(
                 toTarget = (position - casterPosition).takeIf { it.lengthSquared() > 1e-9 },
                 scale = scale,
                 follow = follow,
+                caster = ctx.actorId,
                 anchor = live,
                 seed = scheduler.currentTick() * 1_000_003L + ctx.actorId.hashCode() * 31L + index,
             )

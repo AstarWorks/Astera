@@ -73,7 +73,7 @@ class RifleGauntletPersonaScenarioTest {
     private fun ScenarioScope.step(ticks: Int) {
         repeat(ticks) {
             advance(1)
-            peak = maxOf(peak, sim.displays.active.size)
+            peak = maxOf(peak, sim.displays.peakActive)
         }
     }
 
@@ -104,7 +104,7 @@ class RifleGauntletPersonaScenarioTest {
                 .containsEntry(SkillTrigger.RIGHT_CLICK, "vendetta-rifle-s2")
                 .containsEntry(SkillTrigger.SNEAK_RIGHT, "vendetta-rifle-s3")
                 .containsEntry(SkillTrigger.SNEAK_LEFT, "vendetta-rifle-def")
-                .containsEntry(SkillTrigger.DROP, "pistol-reload")
+                .containsEntry(SkillTrigger.SNEAK_DROP, "pistol-reload")
             val gauntlet = checkNotNull(items["ember-gauntlet"]).skillBindings.associate { it.trigger to it.skillId.value }
             assertThat(gauntlet).containsEntry(SkillTrigger.LEFT_CLICK, "ember-gauntlet-s1")
                 .containsEntry(SkillTrigger.RIGHT_CLICK, "ember-gauntlet-s2")

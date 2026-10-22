@@ -45,6 +45,8 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.Clientbound
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundSystemChatPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundTabListPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundAddEntityPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundRemoveEntitiesPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundDamageEventPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundSetEntityDataPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundSoundPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
@@ -94,6 +96,7 @@ data class BossBarView(val id: UUID, var title: String, var progress: Float, val
 data class ScoreView(var value: Int, var display: String?)
 data class TeamView(var prefix: String, var suffix: String, val players: MutableSet<String> = mutableSetOf(), var color: String? = null)
 data class ScreenView(val containerId: Int, val type: String, val title: String)
+data class EntityEvent(val at: Long, val id: Int, val type: String, val added: Boolean)
 data class SlotView(val containerId: Int, val slot: Int, val itemId: Int, val amount: Int)
 
 /** Flattens an Adventure component the way a client would display it; translatable keys stay visible as `<key>`. */
@@ -178,6 +181,16 @@ class Bot private constructor(
     @Volatile var worldName: String? = null; private set
     val worldHistory = CopyOnWriteArrayList<String>()
     val positionPackets = AtomicInteger()
+    /** Every entity add / remove packet in arrival order (display-entity lifetime checks). */
+    /** Entity id by UUID for every entity spawned at this client (players included), for attack packets. */
+    val entityIdByUuid = ConcurrentHashMap<UUID, Int>()
+    /** This client's own entity id, and the entity id of every damage-event packet received (self hits = ids equal to it). */
+    @Volatile var selfEntityId = -1; private set
+    val damageEventEntities = CopyOnWriteArrayList<Int>()
+    /** Floating damage numbers shown to this client, one per text-display entity, in arrival order. */
+    val damageNumbers = CopyOnWriteArrayList<String>()
+    private val seenDamageNumberEntities = java.util.Collections.newSetFromMap(ConcurrentHashMap<Int, Boolean>())
+    val entityEvents = CopyOnWriteArrayList<EntityEvent>()
     val packetCounts = ConcurrentHashMap<String, AtomicInteger>()
 
     val stateIds = ConcurrentHashMap<Int, Int>()
@@ -226,7 +239,9 @@ class Bot private constructor(
             is ClientboundGameEventPacket -> if (packet.notification == GameEvent.CHANGE_GAME_MODE) gameModes += packet.value.toString()
             is ClientboundCustomQueryPacket -> answerLoginQuery(packet)
             is ClientboundCustomPayloadPacket -> handlePluginMessage(packet)
+            is ClientboundDamageEventPacket -> damageEventEntities += packet.entityId
             is ClientboundLoginPacket -> {
+                selfEntityId = packet.entityId
                 loggedIn = true
                 if (servers.isNotEmpty()) {
                     // Velocity tells real clients to listen on the legacy proxy channel; Paper only delivers
@@ -282,9 +297,21 @@ class Bot private constructor(
                 packet.players?.forEach { p -> if (p != null) t.players += p }
                 if (packet.action.name == "REMOVE") teams.remove(packet.teamName)
             }
-            is ClientboundAddEntityPacket -> spawnedEntityTypes.computeIfAbsent(packet.type.name) { AtomicInteger() }.incrementAndGet()
+            is ClientboundAddEntityPacket -> {
+                spawnedEntityTypes.computeIfAbsent(packet.type.name) { AtomicInteger() }.incrementAndGet()
+                entityEvents += EntityEvent(System.currentTimeMillis(), packet.entityId, packet.type.name, true)
+                entityIdByUuid[packet.uuid] = packet.entityId
+            }
+            is ClientboundRemoveEntitiesPacket -> packet.entityIds.forEach { entityEvents += EntityEvent(System.currentTimeMillis(), it, "", false) }
             is ClientboundSoundPacket -> sounds += packet.sound.toString()
-            is ClientboundSetEntityDataPacket -> packet.metadata.forEach { m -> (m.value as? Component)?.let { entityTexts += plain(it) } }
+            is ClientboundSetEntityDataPacket -> packet.metadata.forEach { m ->
+                (m.value as? Component)?.let { c ->
+                    val txt = plain(c)
+                    entityTexts += txt
+                    // floating damage numbers ("-7", "-12.5"): one text display per landed hit
+                    if (DAMAGE_NUMBER.matches(txt) && seenDamageNumberEntities.add(packet.entityId)) damageNumbers += txt
+                }
+            }
             is ClientboundTabListPacket -> {
                 tabHeader = plain(packet.header)
                 tabFooter = plain(packet.footer)
@@ -422,6 +449,15 @@ class Bot private constructor(
     /** Left click in the air (arm swing) - fires `left_click` bindings. */
     fun punch() = session.send(ServerboundPunchPacket.INSTANCE)
 
+    /** Melee attack on [entityId] (what a real client sends with the swing when an entity is in the crosshair). */
+    fun attack(entityId: Int) {
+        val buf = io.netty.buffer.Unpooled.buffer()
+        var v = entityId
+        while (v and 0x7F.inv() != 0) { buf.writeByte((v and 0x7F) or 0x80); v = v ushr 7 }
+        buf.writeByte(v)
+        session.send(org.geysermc.mcprotocollib.protocol.packet.ingame.serverbound.player.ServerboundAttackPacket(buf))
+    }
+
     /** Holds/releases sneak (shift) - `sneak_right` bindings need it held while right-clicking. */
     fun sneak(on: Boolean) = session.send(ServerboundPlayerInputPacket(false, false, false, false, false, on, false))
 
@@ -434,6 +470,11 @@ class Bot private constructor(
             if (wholeStack) PlayerAction.DROP_ITEM_STACK else PlayerAction.DROP_ITEM,
             Vector3i.from(0, 0, 0), Direction.DOWN, 0,
         ),
+    )
+
+    /** F: swap main hand and off hand (ADR-0232 keybind in the lobby). */
+    fun swapHands() = session.send(
+        ServerboundPlayerActionPacket(PlayerAction.SWAP_HANDS, Vector3i.from(0, 0, 0), Direction.DOWN, 0),
     )
 
     /** A raw inventory-window click as a client would send it (no predicted slot changes). */
@@ -510,6 +551,7 @@ class Bot private constructor(
     }
 
     companion object {
+        private val DAMAGE_NUMBER = Regex("-[0-9]+(\\.[0-9]+)?")
         /** Paper rejects a second connection from one IP within `connection-throttle` (4s): space our logins out. */
         fun offlineUuid(name: String): UUID = UUID.nameUUIDFromBytes("OfflinePlayer:$name".toByteArray(Charsets.UTF_8))
 

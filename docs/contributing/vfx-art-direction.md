@@ -4,6 +4,61 @@ Limbus Company 風の 2D 演出を Minecraft で再現するときの「部品�
 Display entity (block / item / text) と particle は役割が違う。**形と面は Display、動きと粒立ちは particle**。
 どちらか片方だけで作らない。
 
+## 0. 原則 (桜井政博「ゲーム作るには」エフェクト回より)
+
+出典: 「モヤっとさせるな」「閃光､爆発､残煙」「パーティクルの限界」「エフェクトをスローで見てみよう」「風切り」(YouTube, 桜井政博のゲーム作るには)。
+
+1. **モヤっとさせない。** 加算 (発光) だけの効果は手応えとメリハリを失い、暗い画面でしか見えない。
+   主体は**パリッとした描き割り (ベタ塗り)**。発光は添えるだけ。
+   → 芯は不透明 (concrete / alpha 1 の TextDisplay 板)。色付きガラス + brightness 15 は縁と余韻にだけ使う。
+2. **相反するもので引き立てる。** 明るい効果に**暗いものを混ぜる** (明るい背景でも見える)。曲線には直線を添える。
+   → 斬撃・閃光には黒/暗色の縁 (dark rim) か暗い粒を必ず混ぜる。
+3. **爆発 (大きな命中) は 4 段:** 閃光 (一瞬、爆発範囲より大きく、黒も混ぜる) → 爆炎 (中心から勢いよく、まだパリッと)
+   → 黒煙にバトンタッチ → 収束 (短すぎると手応えが無い)。消え際に小さな閃光を混ぜて「パパッと消える」。
+   画面振動は手応えを大きく変える。地上の命中は上への飛散 + 地面の衝撃波。判定は爆炎の間ずっと出さない。
+4. **パーティクルは少なく賢く:** 寿命は短く、**出すタイミングをずらす**、**位置を重ねない** (重なりは無駄)、
+   **1 枚の板に複数の粒を描く** (TextDisplay 1 体に `✦ · ✧ ·` を並べる)、白と黒の粒を混ぜてどの背景でも見せる。
+   動きは座標パターンの事前計算で軽く作れる (本プランナがそれ)。
+5. **風切り (剣の軌跡):** 主流は**刃が通った軌跡に扇形の面を張る** (要 = 手元、少し遅れて追従、尾は半透明で消える)。
+   ただ追うだけだと間延びするので**モーション側を直す**。真横の水平斬りは見えないので傾ける。
+   高速の振り抜きは**板 1 枚を一瞬** + ヒットストップで見せる。武器の性格に合わせる
+   (先端が強い = エッジ強調 / 豪剣 = 荒々しく / 打撃 = ガタガタ / ビーム = 消えず発光体 / 炎 = 炎の残像)。
+6. **スローで観察する。** 判断はコマ送り (比較ページ: 動画 | 意図 3D | Minecraft) で行う。
+
+構成の基本形: **武器そのもの = BlockDisplay の組み物 (rig) を手元を軸に実際に振る**、
+**風切り = TextDisplay の半透明の扇を刃の通過に沿って自動生成**、**命中 = パーティクルの色・閃光・飛散 + 暗い残煙**。
+ItemDisplay はほぼ使わない。
+
+## 0.5 業界の知見 (出典つき)
+
+- **溜め → 発生 → 余韻。** 主動作は寿命の**最初の 1/4 で終える**、線形タイミングは使わない、余韻は徐々に弱める。
+  命中の演出はダメージと**同じ tick** に出す。([VFX Apprentice: timing](https://www.vfxapprentice.com/blog/the-soul-of-effects-what-is-timing-in-vfx),
+  [style guides](https://www.vfxapprentice.com/blog/creating-vfx-style-guides-for-games))
+- **重要度 = 見た目の大きさ。** 技の重要度を 1–10 で付け、強い技ほど大きく明るく鋭く。同じ効果 (スタン・回復) は同じ見た目言語。
+  ([LoL VFX の解剖](https://realtimevfx.com/t/anatomy-of-a-league-of-legends-missile-part-2-what-are-we-communicating-with-our-vfx/13062))
+- **当たり判定と見た目を一致させる。** 命中 tick の演出の広がり = ダメージ範囲。予兆の形 = 判定の形。([Riot: clarity](https://riotgames.com/en/news/dev-clarity-in-league))
+- **形:** 主要素 1 つ + 副要素。脅威は鋭い形、補助は丸い形。太い線と細い線を混ぜる。矛盾する形を重ねない。([LoL VFX tips](https://www.vfxapprentice.com/blog/10-league-of-legends-vfx-design-tips))
+- **明度と色:** 0/100 の極端を避け中間を広く使う。補色は一方を従に。パレットは類似色/三角配色で 3–4 色、支配色 1 つ。
+  明るさは「キャラより上、UI より少し下」。([LoL VFX tips](https://www.vfxapprentice.com/blog/10-league-of-legends-vfx-design-tips))
+- **ヒットストップ:** 攻撃側・被弾側を同時に止める、強い攻撃ほど長く、上限を設ける、多人数戦では短めに (止まった相手を第三者が殴れるため)。
+  ([桜井政博 ファミ通コラム要約](https://sourcegaming.info/2015/11/11/thoughts-on-hitstop-sakurais-famitsu-column-vol-490-1/),
+  [critpoints](https://critpoints.net/2017/05/17/hitstophitfreezehitlaghitpausehitshit/))
+  目安: 格闘ゲームで弱 7 / 強 11 フレーム程度 (60fps)。Minecraft の 20tps では弱 2 / 強 4 tick。
+- **風切りの欠け:** 高速の振りは毎フレームの刃の位置の間が空く (180° を 4 フレームで振ると 4 本の筋になる)。
+  → 振りの最中は 1 tick に 1 回以上更新し、先端に smear の破片を足す。([realtimevfx](https://realtimevfx.com/t/ue4-weapon-slash-meshes-vs-animtrail-data/5628))
+
+### 1 スキルのチェックリスト
+1. 重要度 1–10 を決め、大きさ・明るさ・長さをそれに合わせる。
+2. 溜め / 命中 tick / 余韻 の tick を書く。予兆は命中より先に読める。
+3. 命中 tick の演出の広がり = ダメージ範囲。
+4. 主要素 1 つ (脅威 = 鋭い)、副要素は 1 つまで。
+5. 色は 3–4 色、支配色 1 つ。暗い芯か縁を必ず入れる。
+6. 線形のタイミングは使わない。主動作は寿命の最初の 1/4。頂点で 1–2 tick 止める。
+7. 層: 芯 / 閃光 / 火花 / 煙 / 地面 / (決め技のみ) 画面。情報を足さない層は削る。
+8. 命中: 接触点に火花、ヒットストップ (強さで 2–4 tick)、被弾側の揺れ、音。
+9. 余韻で要素を減らしてから消す。次の技や相手の姿を隠さない。
+10. Display 数・寿命・視聴者あたりの上限を守る。比較ページ (動画 | 意図 | Minecraft) で確認する。
+
 ## 1. 二つの素材の性質
 
 | | Display entity | Particle |
@@ -29,6 +84,7 @@ Display entity (block / item / text) と particle は役割が違う。**形と�
 | 光柱・ビーム | 芯 block (white/quartz) + 外側 glass (色) の 2 層、外側を oscillate で揺らす | 芯に沿って `end_rod` 上昇、根元に `flash`、ビーム上に `electric_spark` | 外側は少し太く・暗く (bloom) |
 | 炎 | (Display は使わないか、橙 glass の揺らぎ) | `flame` / `soul_fire_flame` / `small_flame` / `lava`、上昇は velocity up | 炎を block で作らない (硬く見える) |
 | 血・花弁 | (無し) | `dust` 赤 scale 1.5 を velocity outward + 落下、`cherry_leaves`、`falling_dust redstone_block` | |
+| 色付きの柔らかい火花・火の粉・光の粒・血の雫・花弁 (色・サイズ・半透明が要る粒) | **display particles**: `kind: { type: quad, color, alpha }` + `emit` (count ≤ 40, gravity, `color_over_life` / `alpha_over_life`)。形が要る粒は `glyph: "✦"` / `"●"` / `"▲"` | 補助に vanilla `dust` / `end_rod` を少量 | 1 粒 = 1 エンティティ (cast の display 予算を食う、≤ 40/要素)。billboard center 既定。質感は薄く小さく多く、`size` 0.05-0.15 |
 | 糸・鎖 | 極細 block (0.02) の line、または item display (chain) を line formation | `dust` 小粒を線上、`trail` で張る瞬間 | |
 | 魔法陣・時計陣 | 地面平行の ring + polygon (星) formation、group spin、text 記号 (◎ ☸) | `enchant` を陣に吸い込む、`end_rod` を陣の縁 | 地面平行 = rotate pitch -90 (text) / scale y 薄く (block) |
 | 文字演出 (斬・CLEAR) | text display、center billboard、scale 3-6、背景 `#00000000`、shadow false | 出現時に `flash`、消える時に `poof` | 1 文字 ≈ 0.25 block × scale |
@@ -60,3 +116,14 @@ Display entity (block / item / text) と particle は役割が違う。**形と�
 
 `tools/skill-viewer` で **術者一人称・相手三人称・横** の 3 視点を出し、ダメージ tick と重ねて確認する。
 近似プレビューでの確認だけで完了にしない。
+
+## 5. Display particles (`quad`)
+
+vanilla particle には色・サイズ・透明度が無い。`kind: quad` は TextDisplay の背景色 (ARGB の alpha が効く) で
+**単色の半透明の板**を作る。`size` / `scale` は **ブロック単位** (1 = 1x1 ブロック)。
+較正 (text 1 px = 0.025 block, 空白 1 文字の背景箱 = 0.125 x 0.25 block, 中心は原点の 0.1 下):
+`scale = (w*8, h*4, 1)`、位置は entity 位置に置いて箱の中心を合わせる (`VfxQuad` KDoc)。
+glyph 版は `scale = size*5` (1 セル = 8 px = 0.2 block)、色は text colour + `text_opacity` (4 未満は不透明扱いなので下限 4)。
+クライアントは色を補間しないので、色 / alpha の変化は `sample_ticks` ごとの更新で送る。
+粒子は entity 位置を teleport (`teleport_duration`) で動かす (transformation の translation は billboard 相対になるため)。
+重力は世界座標の下向き。`emit` の乱数は cast の seed 固定 (同じ seed なら同じ軌道)。

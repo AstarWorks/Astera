@@ -37,6 +37,8 @@ public data class VfxElementPlan(
     /** Ascending, at most one per tick, none at [spawnTick] (keyframe time `t` lands at `spawnTick + 1 + t`). */
     public val updates: List<VfxUpdate>,
     public val particles: List<VfxParticleEmission>,
+    /** Spawn position as an offset from the plan origin (emitter particles start at their own point). */
+    public val spawnOffset: Vec3 = Vec3.ZERO,
 )
 
 /**
@@ -49,10 +51,29 @@ public data class VfxUpdate(
     public val interpolationTicks: Int,
     public val block: String? = null,
     public val text: String? = null,
+    /** Quad only: new colour / alpha sent with this update. */
+    public val style: VfxQuadStyle? = null,
+    /**
+     * Quad emitter particles only: move the ENTITY (teleport with `teleport_duration` = [interpolationTicks]) to this
+     * offset from the plan origin. Translation in the display transformation would be billboard-relative, so
+     * trajectories go through the entity position instead.
+     */
+    public val position: Vec3? = null,
 )
 
-/** Emit the particle at [tick], [offset] from the plan origin. */
+/**
+ * Emit the particle at [tick], [offset] from the plan origin.
+ *
+ * [pathOffsets] (only for `along_path` elements) are the extra, evenly spaced points between the
+ * previous emission position and [offset] (the last entry equals [offset]); the runtime emits at each.
+ * [tangent] is the element's direction of travel (`along_tangent` velocity), [center] the formation
+ * centre (`outward` velocity), [trailTarget] the plan-origin-relative `toward` point.
+ */
 public data class VfxParticleEmission(
     public val tick: Int,
     public val offset: Vec3,
+    public val pathOffsets: List<Vec3> = emptyList(),
+    public val tangent: Vec3? = null,
+    public val center: Vec3? = null,
+    public val trailTarget: Vec3? = null,
 )

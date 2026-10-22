@@ -55,6 +55,7 @@ internal object CombatHudWiring {
                     hudGateway = hudGatewayOrNull,
                     scheduler = scheduler,
                     statusEffects = statusContainer,
+                    egoGauge = services.get<com.astarworks.astera.core.application.port.outbound.IEgoGauge>(),
                 )
                 shutdownHooks += { effectsReadout.stop() }
                 logger.info("ADR-0177 wired: HudStatusEffectReadoutListener polling started.")
@@ -92,6 +93,13 @@ internal object CombatHudWiring {
             val readyCue = SkillReadyCueListener(soundGateway, skillRegistry)
             subscriptions += eventBus.subscribe(SkillCooldownStarted::class) { readyCue.onStarted(it) }
             subscriptions += eventBus.subscribe(CooldownExpired::class) { readyCue.onExpired(it) }
+        }
+
+        // ADR-0231 — "E.G.O READY" chime + subtitle flash when the gauge fills.
+        if (soundGateway != null && hudGatewayOrNull != null) {
+            val egoCue = com.astarworks.astera.combat.application.eventbus.listeners.hud
+                .EgoReadyCueListener(hudGatewayOrNull, soundGateway)
+            subscriptions += eventBus.subscribe(com.astarworks.astera.core.domain.event.EgoGaugeChanged::class) { egoCue.onChanged(it) }
         }
 
         // ADR-0206 — hit marker sound + floating damage number for the attacker.

@@ -1,9 +1,9 @@
 // Headless frame renderer: trace JSON -> PNG frames + contact sheets + animated GIF.
-//   bun scripts/render.mjs --traces <dir> --out <dir> [--scenario a,b | --all] [--cell 512x288] [--no-gif] [--cams side,behind,close,impact]
+//   bun scripts/render.mjs --traces <dir> --out <dir> [--scenario showcase-simple-shoot | --all] [--cell 512x288] [--views side,first,opponent] [--no-gif]
 // Needs dist/ (bun run build) and a Chromium that playwright-core can launch (see README).
 import { chromium } from 'playwright-core';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -15,6 +15,7 @@ const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) =>
 const tracesDir = resolve(args.traces ?? join(root, '../game-sim/build/sim-traces'));
 const outDir = resolve(args.out ?? join(root, 'build/skill-frames'));
 const [CW, CH] = String(args.cell ?? '512x288').split('x').map(Number);
+const views = String(args.views ?? 'side,first,opponent').split(',');
 const page_url = 'file://' + join(root, 'dist/index.html') + '?capture';
 if (!existsSync(join(root, 'dist/index.html'))) throw new Error('dist/ missing: run `bun run build` in tools/skill-viewer');
 
@@ -23,7 +24,7 @@ if (args.all) names = readdirSync(tracesDir).filter((f) => /^showcase-.*\.json$/
 else {
   const s = String(args.scenario ?? '');
   if (!s || s === 'true') throw new Error('pass --scenario <skill id | trace name> or --all');
-  names = s.split(',').map((x) => (existsSync(join(tracesDir, x + '.json')) ? x : 'showcase-' + x)); // comma list allowed
+  names = [existsSync(join(tracesDir, s + '.json')) ? s : 'showcase-' + s];
 }
 
 /** Choose 16 key ticks: a few before the cast, flight, impact and the aftermath. */
@@ -83,8 +84,7 @@ for (const name of names) {
   await page.evaluate(() => window.viewer.setCapture(true));
 
   const { frames, castT, impactT, lastActive } = keyTicks(trace);
-  const sheets = {};
-  for (const cam of String(args.cams ?? 'side,behind').split(',')) {
+  for (const cam of views) {
     await page.evaluate((c) => window.viewer.applyCamera(c), cam);
     const shots = [];
     for (const tick of frames) {
@@ -96,29 +96,28 @@ for (const name of names) {
       if (cam === 'side') writeFileSync(join(dir, 'frames', `key-${String(tick).padStart(3, '0')}.png`), png);
     }
     const sheetPage = await ctx.newPage();
-    await renderSheet(sheetPage, shots, `${skill}  -  camera ${cam}  -  20 TPS, impact at tick ${impactT}`, join(dir, cam === 'side' ? 'sheet.png' : `sheet-${cam}.png`));
+    await renderSheet(sheetPage, shots, `${skill}  -  view ${cam}  -  20 TPS, impact at tick ${impactT}`, join(dir, `sheet-${cam}.png`));
     await sheetPage.close();
-    sheets[cam] = true;
-  }
+    if (cam === (views.includes('side') ? 'side' : views[0])) copyFileSync(join(dir, `sheet-${cam}.png`), join(dir, 'sheet.png'));
 
-  // Animated GIF (side camera, real time): from just before the cast until the activity dies down.
-  await page.evaluate(() => window.viewer.applyCamera('side'));
-  if (args['no-gif']) { await ctx.close(); console.log(`${skill}: ${join(dir, 'sheet.png')}  (cast ${castT}, impact ${impactT}, active until ${lastActive})`); summary.push({ skill, sheet: join(dir, 'sheet.png') }); continue; }
-  const from = Math.max(0, castT - 3), to = Math.min(trace.ticks.length - 1, Math.max(lastActive + 6, castT + 20));
-  const step = Math.max(1, Math.ceil((to - from + 1) / 90)); // <= 90 frames
-  const tmp = join(dir, 'anim-frames');
-  mkdirSync(tmp);
-  let n = 0;
-  for (let t = from; t <= to; t += step) {
-    await page.evaluate((x) => window.viewer.seek(x), t);
-    await page.screenshot({ path: join(tmp, `f${String(n++).padStart(4, '0')}.png`) });
+    if (args['no-gif']) continue;
+    // Animated GIF (real time): from just before the cast until the activity dies down.
+    const from = Math.max(0, castT - 3), to = Math.min(trace.ticks.length - 1, Math.max(lastActive + 6, castT + 20));
+    const step = Math.max(1, Math.ceil((to - from + 1) / 90)); // <= 90 frames
+    const tmp = join(dir, 'anim-frames');
+    mkdirSync(tmp);
+    let n = 0;
+    for (let t = from; t <= to; t += step) {
+      await page.evaluate((x) => window.viewer.seek(x), t);
+      await page.screenshot({ path: join(tmp, `f${String(n++).padStart(4, '0')}.png`) });
+    }
+    try {
+      execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(20 / step), '-i', join(tmp, 'f%04d.png'),
+        '-vf', 'split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse', '-loop', '0', join(dir, `anim-${cam}.gif`)]);
+      if (cam === (views.includes('side') ? 'side' : views[0])) copyFileSync(join(dir, `anim-${cam}.gif`), join(dir, 'anim.gif'));
+    } catch (e) { console.log(`  [${skill}] ffmpeg failed: ${e.message}`); }
+    rmSync(tmp, { recursive: true, force: true });
   }
-  const fps = 20 / step;
-  try {
-    execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(fps), '-i', join(tmp, 'f%04d.png'),
-      '-vf', 'split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse', '-loop', '0', join(dir, 'anim.gif')]);
-  } catch (e) { console.log(`  [${skill}] ffmpeg failed: ${e.message}`); }
-  rmSync(tmp, { recursive: true, force: true });
   await ctx.close();
   console.log(`${skill}: ${join(dir, 'sheet.png')}  (cast ${castT}, impact ${impactT}, active until ${lastActive})`);
   summary.push({ skill, sheet: join(dir, 'sheet.png') });

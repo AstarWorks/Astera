@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
  * ```yaml
  * entries:
  *   - id: compass
- *     area: hotbar            # hotbar | crafting_grid | crafting_result
+ *     area: hotbar            # hotbar | crafting_grid | crafting_result | key_swap | key_sneak_swap | key_drop
  *     slot: 0                 # hotbar 0..8, grid 0..3 (row-major), result 0
  *     item: menu-compass      # an id from content/items/
  *     intent: gui.open        # any GuiIntent key

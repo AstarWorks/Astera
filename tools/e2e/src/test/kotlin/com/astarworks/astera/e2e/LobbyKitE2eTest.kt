@@ -10,9 +10,9 @@ import org.junit.jupiter.api.Test
 class LobbyKitE2eTest : E2eBase() {
 
     private val suite = "Lobby kit & HUD"
-    /** HotbarLayout (ADR-0211): the kit is compact in 5..8; slots 0..4 belong to weapons. */
-    private val kitHotbar = listOf(5, 6, 7, 8)
-    private val weaponZone = listOf(0, 1, 2, 3, 4)
+    /** HotbarLayout (ADR-0232): the kit is ONE item (the compass, slot 8); slots 0..7 belong to the player / weapons. */
+    private val kitHotbar = listOf(8)
+    private val weaponZone = (0..7).toList()
 
     /** Which hotbar / crafting slots hold anything on the server (item identity is not needed to see a change). */
     private fun inventoryIds(b: Bot): String = serverSlots(b)
@@ -23,8 +23,10 @@ class LobbyKitE2eTest : E2eBase() {
         b.waitUntil(8_000) { b.contents[0]?.any { it.amount > 0 } == true }
         Thread.sleep(1_500)
 
-        E2eReport.check(suite, "kit items are in hotbar slots 5,6,7,8 after join, weapons (starter grant) in 0..4", "SetContainerContent(inventory)") {
+        E2eReport.check(suite, "exactly one kit item (compass, slot 8) after join, weapons (starter grant) in 0..7, no other menu item", "SetContainerContent(inventory)") {
             val hb = b.hotbar()
+            val compass = hb[8]
+            assertThat(weaponZone.filter { hb[it] == compass }).describedAs("compass id also in the weapon zone: $hb").isEmpty()
             val missing = kitHotbar.filter { hb[it] == -1 }
             assertThat(missing).describedAs("kit slots empty: $missing (hotbar=$hb)").isEmpty()
             val kitIds = kitHotbar.map { hb[it] }.toSet()
@@ -41,7 +43,8 @@ class LobbyKitE2eTest : E2eBase() {
         val invBefore = inventoryIds(b)
         val hotbarBefore = b.hotbar()
         val craftBefore = b.craftingArea()
-        b.selectHotbar(6)
+        val screensBefore = b.screens.size
+        b.selectHotbar(8)
         Thread.sleep(300)
         b.dropSelected(false)
         b.dropSelected(true)
@@ -51,6 +54,9 @@ class LobbyKitE2eTest : E2eBase() {
         b.clickSlot(0, 20, ContainerActionType.CLICK_ITEM, ClickItemAction.LEFT_CLICK)
         b.clickSlot(0, 43, ContainerActionType.SHIFT_CLICK_ITEM, org.geysermc.mcprotocollib.protocol.data.game.inventory.ShiftClickItemAction.LEFT_CLICK)
         Thread.sleep(2_000)
+        // Q on the compass is the queue keybind (ADR-0232), so it may open a window; close it before going on.
+        b.screens.drop(screensBefore).forEach { b.closeWindow(it.containerId) }
+        Thread.sleep(500)
         b.selectHotbar(0)
 
         E2eReport.check(suite, "kit items cannot be dropped or moved (server inventory unchanged)", "ServerboundPlayerAction(DROP) + ServerboundContainerClick") {
@@ -87,6 +93,51 @@ class LobbyKitE2eTest : E2eBase() {
             val s = b.screens.last()
             assertThat(rawKeys(listOf(s.title))).describedAs("raw key as title").isEmpty()
             "window id=${s.containerId} type=${s.type} title='${s.title}'"
+        }
+    }
+
+    @Test
+    fun `swap-hand keybinds open the menu when no weapon is held and never touch the hand otherwise`() {
+        val b = bot("Keys")
+        b.waitUntil(8_000) { b.contents[0]?.any { it.amount > 0 } == true }
+        Thread.sleep(1_500)
+
+        E2eReport.check(suite, "F with an empty hand (slot 7) opens the main menu", "ServerboundPlayerAction(SWAP_HANDS) -> OpenScreen") {
+            b.closeWindow(0)
+            b.selectHotbar(7)
+            Thread.sleep(300)
+            assertThat(b.hotbar()[7]).describedAs("slot 7 must be free for this check: ${b.hotbar()}").isEqualTo(-1)
+            val before = b.screens.size
+            b.swapHands()
+            assertThat(b.waitUntil(5_000) { b.screens.size > before }).describedAs("F opened nothing; chat=${b.chatTexts().takeLast(3)}").isTrue()
+            val s = b.screens.last()
+            b.closeWindow(s.containerId)
+            assertThat(rawKeys(listOf(s.title))).describedAs("raw key as title").isEmpty()
+            "window id=${s.containerId} title='${s.title}'"
+        }
+        E2eReport.check(suite, "Sneak+F with an empty hand opens a different window (vault / loadout)", "SWAP_HANDS while sneaking -> OpenScreen") {
+            Thread.sleep(500)
+            val before = b.screens.size
+            b.sneak(true)
+            Thread.sleep(300)
+            b.swapHands()
+            val opened = b.waitUntil(5_000) { b.screens.size > before }
+            b.sneak(false)
+            assertThat(opened).describedAs("Sneak+F opened nothing; chat=${b.chatTexts().takeLast(3)}").isTrue()
+            val s = b.screens.last()
+            b.closeWindow(s.containerId)
+            "window id=${s.containerId} title='${s.title}'"
+        }
+        E2eReport.check(suite, "F while holding a weapon does not open a menu (weapons keep their hand)", "SWAP_HANDS with a weapon selected") {
+            Thread.sleep(500)
+            val weaponSlot = (0..7).first { b.hotbar()[it] != -1 }
+            b.selectHotbar(weaponSlot)
+            Thread.sleep(300)
+            val before = b.screens.size
+            b.swapHands()
+            Thread.sleep(1_500)
+            assertThat(b.screens.size).describedAs("F with a weapon in hand opened a window").isEqualTo(before)
+            "weapon slot=$weaponSlot, hotbar=${b.hotbar()}"
         }
     }
 

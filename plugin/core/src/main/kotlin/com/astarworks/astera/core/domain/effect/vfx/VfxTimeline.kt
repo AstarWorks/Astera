@@ -10,6 +10,7 @@ import com.astarworks.astera.core.domain.geometry.math.SeededRandom
 import com.astarworks.astera.core.domain.geometry.math.distribute
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -48,6 +49,9 @@ public object VfxTimeline {
     /** Ticks between an entity's spawn and the start of its keyframe clock (`interpolation` needs a rendered tick first). */
     public const val ANIMATION_DELAY_TICKS: Int = 1
 
+    /** Cap on interpolated `along_path` particle points per emission. */
+    public const val MAX_PATH_POINTS: Int = 24
+
     /**
      * Plans [def] for an anchor oriented by [anchor]. [scale] multiplies every length
      * (formation, translations, display scales) - the `play_vfx` `scale` argument.
@@ -69,6 +73,7 @@ public object VfxTimeline {
         seed: Long,
         scale: Double,
     ): List<VfxElementPlan> {
+        if (el.emit != null) return VfxEmitterPlanner.plan(def, el, elementIndex, anchorRot, seed, scale)
         val formation = el.formation
         val curveParams = formation?.curve?.distribute(el.count, formation.closed) ?: List(el.count) { 0.0 }
         val tilt = formation?.tiltYawPitchRoll?.let { Quaternion.fromEulerDegrees(it.x, it.y, it.z) } ?: Quaternion.IDENTITY
@@ -89,7 +94,7 @@ public object VfxTimeline {
             val ctx = SlotContext(el, keyframes, group, anchorRot, geometry, scale, life, def.sampleTicks)
 
             out += if (el.kind is VfxElementKind.Particle) {
-                particleSlot(el, el.kind, slot, spawn, despawn, ctx)
+                particleSlot(el, el.kind, formation, slot, spawn, despawn, ctx)
             } else {
                 displaySlot(el, slot, spawn, despawn, ctx)
             }
@@ -294,6 +299,7 @@ public object VfxTimeline {
             val s = scale * geometry.scaleFactor * groupScale
             val sc = Vec3(local.scale.x * s, local.scale.y * s, local.scale.z * s)
             val rotation = slotRotation * Quaternion.fromEulerDegrees(local.euler.x, local.euler.y, local.euler.z)
+            if (el.kind is VfxElementKind.Quad) return VfxQuad.transform(el.kind, rotation, sc)
             var translation = position + slotRotation.rotate(local.translate * scale * groupScale)
             if (el.kind is VfxElementKind.Block) translation -= rotation.rotate(sc * 0.5)
             return DisplayTransform(translation, rotation, sc)
@@ -312,8 +318,10 @@ public object VfxTimeline {
         val kind = when (val k = el.kind) {
             is VfxElementKind.Block -> if (first.t == 0 && first.block != null) k.copy(blockKey = first.block) else k
             is VfxElementKind.Text -> if (first.t == 0 && first.text != null) k.copy(text = first.text) else k
+            is VfxElementKind.Quad -> VfxQuad.trackAt(el, k, 0.0).let { (c, a) -> k.copy(colorRgb = c, alpha = a) }
             else -> el.kind
         }
+        val quad = el.kind is VfxElementKind.Quad
         return VfxElementPlan(
             elementId = el.id,
             slot = slot,
@@ -327,6 +335,8 @@ public object VfxTimeline {
             initial = ctx.transformAt(0),
             updates = updatesFor(spawn, ctx),
             particles = emptyList(),
+            // quads sit at their own entity position (a transformation translation would be billboard-relative)
+            spawnOffset = if (quad) ctx.centerAt(0) else Vec3.ZERO,
         )
     }
 
@@ -347,6 +357,18 @@ public object VfxTimeline {
             val existing = byTick[tick]
             byTick[tick] = existing?.copy(block = f.block, text = f.text)
                 ?: VfxUpdate(tick, ctx.transformAt(f.t), 0, f.block, f.text)
+        }
+        val el = ctx.el
+        if (el.kind is VfxElementKind.Quad) {
+            val styled = VfxQuad.hasStyleTrack(el)
+            return byTick.values.sortedBy { it.tick }.map { u ->
+                val startU = u.tick - base
+                val endU = startU + u.interpolationTicks
+                u.copy(
+                    position = ctx.centerAt(endU),
+                    style = if (styled) VfxQuad.trackAt(el, el.kind, startU + u.interpolationTicks / 2.0).let { (c, a) -> VfxQuad.style(el.kind, c, a) } else null,
+                )
+            }
         }
         return byTick.values.sortedBy { it.tick }
     }
@@ -394,16 +416,41 @@ public object VfxTimeline {
 
     // ---- particle slot ---------------------------------------------------------
 
+    /** Points spaced at most [step] apart from just after [from] up to and including [to]; empty when they coincide. */
+    private fun pathBetween(from: Vec3, to: Vec3, step: Double): List<Vec3> {
+        val distance = from.distance(to)
+        if (distance < 1e-9) return emptyList()
+        val n = ceil(distance / step).toInt().coerceIn(1, MAX_PATH_POINTS)
+        return (1..n).map { i -> from + (to - from) * (i.toDouble() / n) }
+    }
+
     private fun particleSlot(
         el: VfxElement,
         kind: VfxElementKind.Particle,
+        formation: VfxFormation?,
         slot: Int,
         spawn: Int,
         despawn: Int,
         ctx: SlotContext,
     ): VfxElementPlan {
+        val center = formation?.let { ctx.anchorRot.rotate(it.offset * ctx.scale) }
+        val trailTarget = kind.trailTo?.let { ctx.anchorRot.rotate(it * ctx.scale) }
         val emissions = (0 until ctx.life step kind.everyTicks).map { u ->
-            VfxParticleEmission(spawn + u, ctx.centerAt(u))
+            val at = ctx.centerAt(u)
+            val next = if (u + 1 < ctx.life) ctx.centerAt(u + 1) - at else at - ctx.centerAt((u - 1).coerceAtLeast(0))
+            val path = if (kind.alongPath && u > 0) {
+                pathBetween(ctx.centerAt((u - kind.everyTicks).coerceAtLeast(0)), at, kind.stepBlocks)
+            } else {
+                emptyList()
+            }
+            VfxParticleEmission(
+                tick = spawn + u,
+                offset = at,
+                pathOffsets = path,
+                tangent = next.takeIf { it.lengthSquared() > 1e-12 }?.normalize(),
+                center = center,
+                trailTarget = trailTarget,
+            )
         }
         return VfxElementPlan(
             elementId = el.id,

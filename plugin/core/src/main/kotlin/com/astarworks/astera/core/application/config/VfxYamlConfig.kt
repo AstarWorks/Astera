@@ -8,6 +8,8 @@ import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.effect.vfx.VfxAlign
 import com.astarworks.astera.core.domain.effect.vfx.VfxDefinition
 import com.astarworks.astera.core.domain.effect.vfx.VfxElement
+import com.astarworks.astera.core.domain.effect.vfx.VfxEmitDirection
+import com.astarworks.astera.core.domain.effect.vfx.VfxEmitter
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxFormation
 import com.astarworks.astera.core.domain.effect.vfx.VfxGroupKeyframe
@@ -84,7 +86,8 @@ public data class VfxElementYaml(
     public val kind: VfxKindYaml,
     public val brightness: Int? = null,
     @SerialName("glow_color") public val glowColor: String? = null,
-    public val billboard: String = "fixed",
+    /** Default `center` for quads (display particles), `fixed` otherwise. */
+    public val billboard: String? = null,
     @SerialName("view_range") public val viewRange: Double? = null,
     @SerialName("start_tick") public val startTick: Int = 0,
     /** Absolute removal tick for every slot (staggered slots share it). */
@@ -94,17 +97,19 @@ public data class VfxElementYaml(
     public val count: Int = 1,
     public val formation: VfxFormationYaml? = null,
     public val jitter: VfxJitterYaml? = null,
-    public val keyframes: List<VfxKeyframeYaml>,
+    public val keyframes: List<VfxKeyframeYaml> = emptyList(),
     public val oscillate: VfxOscillateYaml? = null,
     /** Whole-formation track: translate / rotate / scale of all slots together, before per-slot keyframes. */
     @SerialName("group_keyframes") public val groupKeyframes: List<VfxGroupKeyframeYaml> = emptyList(),
+    /** Display-particle emitter (kind `quad` only); keyframes become optional. */
+    public val emit: VfxEmitYaml? = null,
 ) {
     public fun toDomain(): VfxElement = VfxElement(
         id = id,
         kind = kind.toDomain(),
         brightness = brightness,
         glowArgb = glowColor?.let { parseArgb(it, "glow_color") },
-        billboard = parseEnum<DisplayBillboard>(billboard, "billboard"),
+        billboard = parseEnum<DisplayBillboard>(billboard ?: if (kind is VfxKindYaml.Quad) "center" else "fixed", "billboard"),
         viewRange = viewRange?.toFloat(),
         startTick = startTick,
         endTick = endTick,
@@ -115,6 +120,7 @@ public data class VfxElementYaml(
         keyframes = keyframes.map { it.toDomain() },
         oscillate = oscillate?.toDomain(),
         groupKeyframes = groupKeyframes.map { it.toDomain() },
+        emit = emit?.toDomain(),
     )
 }
 
@@ -154,13 +160,37 @@ public sealed class VfxKindYaml {
             VfxElementKind.Text(text, parseArgb(background, "background"), shadow, seeThrough, lineWidth)
     }
 
+    /**
+     * Display particle: a coloured translucent quad (TextDisplay). `color` `#RRGGBB`, `alpha` 0..1.
+     * With `glyph` the shape is a coloured glyph (text colour + text_opacity) instead of a solid rectangle.
+     */
+    @Serializable
+    @SerialName("quad")
+    public data class Quad(
+        public val color: String = "#FFFFFF",
+        public val alpha: Double = 1.0,
+        public val glyph: String? = null,
+        @SerialName("see_through") public val seeThrough: Boolean = false,
+    ) : VfxKindYaml() {
+        override fun toDomain(): VfxElementKind = VfxElementKind.Quad(parseRgb(color, "color"), alpha, glyph, seeThrough)
+    }
+
     @Serializable
     @SerialName("particle")
     public data class Particle(
         @SerialName("particle_id") public val particleId: String,
         @SerialName("every_ticks") public val everyTicks: Int = 1,
+        @SerialName("along_path") public val alongPath: Boolean = false,
+        @SerialName("step_blocks") public val stepBlocks: Double = 0.4,
+        @SerialName("trail_to") public val trailTo: List<Double>? = null,
     ) : VfxKindYaml() {
-        override fun toDomain(): VfxElementKind = VfxElementKind.Particle(ParticleId(particleId), everyTicks)
+        override fun toDomain(): VfxElementKind = VfxElementKind.Particle(
+            ParticleId(particleId),
+            everyTicks,
+            alongPath,
+            stepBlocks,
+            trailTo?.let { vec3(it, "trail_to") },
+        )
     }
 }
 
@@ -298,6 +328,10 @@ public data class VfxKeyframeYaml(
     public val ease: String? = null,
     public val block: String? = null,
     public val text: String? = null,
+    /** Quad only: `#RRGGBB`. */
+    public val color: String? = null,
+    /** Quad only: 0..1. */
+    public val alpha: Double? = null,
 ) {
     public fun toDomain(): VfxKeyframe = VfxKeyframe(
         t = t,
@@ -307,6 +341,8 @@ public data class VfxKeyframeYaml(
         ease = ease?.let { Easing.fromKey(it) ?: throw IllegalArgumentException("unknown ease '$it'") } ?: Easing.LINEAR,
         block = block,
         text = text,
+        color = color?.let { parseRgb(it, "keyframe.color") },
+        alpha = alpha,
     )
 }
 
@@ -338,6 +374,67 @@ public data class VfxOscillateYaml(
     public fun toDomain(): VfxOscillate = VfxOscillate(parseEnum<VfxOscillateAxis>(axis, "oscillate.axis"), amplitude, periodTicks)
 }
 
+/**
+ * Display-particle emitter (ADR-0220), see [VfxEmitter]. Ranges are `[min, max]`.
+ *
+ * ```yaml
+ * emit:
+ *   count: 24
+ *   speed: [0.1, 0.3]
+ *   direction: up          # forward | up | outward | tangent | custom[x,y,z]
+ *   spread_deg: 35
+ *   gravity: 0.02
+ *   life_ticks: [16, 24]
+ *   size: [0.05, 0.1]
+ *   color_over_life: ["#ffd24a", "#ff4a10", "#601000"]
+ *   alpha_over_life: [1.0, 0.0]
+ * ```
+ */
+@Serializable
+public data class VfxEmitYaml(
+    public val count: Int,
+    @SerialName("rate_per_tick") public val ratePerTick: Int? = null,
+    public val speed: List<Double> = listOf(0.0, 0.0),
+    @SerialName("spread_deg") public val spreadDeg: Double = 0.0,
+    /** `forward` / `up` / `outward` / `tangent`, or `custom[x, y, z]` (anchor-local axes). */
+    public val direction: String = "up",
+    public val gravity: Double = 0.0,
+    public val drag: Double = 0.0,
+    @SerialName("life_ticks") public val lifeTicks: List<Int> = listOf(20, 20),
+    public val size: List<Double> = listOf(0.1, 0.1),
+    @SerialName("size_over_life") public val sizeOverLife: List<Double> = listOf(1.0, 1.0),
+    @SerialName("color_over_life") public val colorOverLife: List<String> = emptyList(),
+    @SerialName("alpha_over_life") public val alphaOverLife: List<Double> = emptyList(),
+    @SerialName("spin_deg_per_tick") public val spinDegPerTick: Double = 0.0,
+) {
+    public fun toDomain(): VfxEmitter {
+        require(speed.size == 2) { "emit.speed must be [min, max]" }
+        require(lifeTicks.size == 2) { "emit.life_ticks must be [min, max]" }
+        require(size.size == 2) { "emit.size must be [min, max]" }
+        require(sizeOverLife.size == 2) { "emit.size_over_life must be [start, end]" }
+        require(colorOverLife.size != 1 && alphaOverLife.size != 1) { "emit.color_over_life / alpha_over_life need at least 2 stops" }
+        return VfxEmitter(
+            count = count,
+            ratePerTick = ratePerTick,
+            speedMin = speed[0],
+            speedMax = speed[1],
+            spreadDeg = spreadDeg,
+            direction = parseDirection(direction),
+            gravity = gravity,
+            drag = drag,
+            lifeMin = lifeTicks[0],
+            lifeMax = lifeTicks[1],
+            sizeMin = size[0],
+            sizeMax = size[1],
+            sizeStart = sizeOverLife[0],
+            sizeEnd = sizeOverLife[1],
+            colorOverLife = colorOverLife.map { parseRgb(it, "emit.color_over_life") },
+            alphaOverLife = alphaOverLife,
+            spinDegPerTick = spinDegPerTick,
+        )
+    }
+}
+
 private fun vec3(list: List<Double>, field: String): Vec3 {
     require(list.size == 3) { "$field must be [x, y, z], got ${list.size} numbers" }
     return Vec3(list[0], list[1], list[2])
@@ -357,4 +454,29 @@ private fun parseArgb(raw: String, field: String): Int {
         "$field must be #RRGGBB or #AARRGGBB, got '$raw'"
     }
     return if (hex.length == 6) (0xFF000000L or value).toInt() else value.toInt()
+}
+
+/** `#RRGGBB` only (display particles carry alpha separately). */
+private fun parseRgb(raw: String, field: String): Int {
+    val hex = raw.trim().removePrefix("#")
+    val value = hex.toIntOrNull(16)
+    require(value != null && hex.length == 6) { "$field must be #RRGGBB, got '$raw'" }
+    return value
+}
+
+private val CUSTOM_DIRECTION = Regex("""custom\s*\[\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*]""", RegexOption.IGNORE_CASE)
+
+private fun parseDirection(raw: String): VfxEmitDirection {
+    val key = raw.trim()
+    CUSTOM_DIRECTION.matchEntire(key)?.let { m ->
+        val (x, y, z) = m.destructured
+        return VfxEmitDirection.Custom(Vec3(x.toDouble(), y.toDouble(), z.toDouble()))
+    }
+    return when (key.lowercase()) {
+        "forward" -> VfxEmitDirection.Forward
+        "up" -> VfxEmitDirection.Up
+        "outward" -> VfxEmitDirection.Outward
+        "tangent" -> VfxEmitDirection.Tangent
+        else -> throw IllegalArgumentException("unknown emit.direction '$raw' (expected forward/up/outward/tangent/custom[x,y,z])")
+    }
 }

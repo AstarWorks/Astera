@@ -177,6 +177,7 @@ class WeaponsLiveTest : LiveBase() {
                         "left_click" -> shooter.punch()
                         "sneak_right" -> { shooter.sneak(true); Thread.sleep(250); shooter.useItem(0f, 0f); Thread.sleep(150); shooter.sneak(false) }
                         "drop" -> shooter.dropSelected(false)
+                        "sneak_drop" -> { shooter.sneak(true); Thread.sleep(250); shooter.dropSelected(false); Thread.sleep(150); shooter.sneak(false) }
                         else -> E2eReport.notes += "$label: trigger ${bd.trigger} not driven by the harness"
                     }
                 }

@@ -28,6 +28,9 @@ cooldown_ticks: 40             # ticks; 20 = 1s
 resource_type: energy          # ammo | energy; default = the source item's resource_type
 resource_cost: 30              # spent from the caster's pool before SkillCast; default = the item's
                                # resource_cost_per_use; 0 = free
+ego_cost: 100                  # E.G.O gauge points (0..100, content/balance/ego.yaml) consumed by the cast;
+                               # refused with an action-bar message when the gauge holds less. Bind such a
+                               # skill to `trigger: drop` (Q). Add `resource_cost: 0` if it must not cost energy too.
 reload_ticks: 30               # marks a reload skill: refills the item's ammo after N ticks
 charge_ticks: 30               # hold-to-cast window before the cast fires
 

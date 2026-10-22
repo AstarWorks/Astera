@@ -6,7 +6,9 @@ import com.astarworks.astera.core.application.command.CommandActor
 import com.astarworks.astera.core.application.command.CommandAuthorizer
 import com.astarworks.astera.core.application.command.CommandInvoker
 import com.astarworks.astera.core.application.command.CommandPaths
+import com.astarworks.astera.core.application.command.CommandShortcuts
 import com.astarworks.astera.core.application.command.CommandSpec
+import com.astarworks.astera.core.application.command.CommandUsage
 import com.astarworks.astera.core.application.port.inbound.IAsteraCommandRegistry
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -61,12 +63,25 @@ public class PaperCommandBridge(
             val registrar = event.registrar()
             dispatcher = registrar.dispatcher
             val root = registry.snapshot()
+            val built = builder.build(root).build()
             registrar.register(
                 plugin.pluginMeta,
-                builder.build(root).build(),
+                built,
                 "Astera commands: /astera help",
                 emptyList(),
             )
+            // ADR-0234: /play /menu /vault /shop /lang are redirects into the one tree, never second specs.
+            for ((name, target) in CommandShortcuts.TABLE) {
+                var found: com.mojang.brigadier.tree.CommandNode<CommandSourceStack>? = built
+                for (segment in target) found = found?.getChild(segment)
+                val node = found ?: continue // owner plugin not loaded: the shortcut does not exist either
+                val shortcut = com.mojang.brigadier.builder.LiteralArgumentBuilder.literal<CommandSourceStack>(name)
+                    .requires(node.requirement)
+                    .redirect(node)
+                    .executes(node.command)
+                    .build()
+                registrar.register(plugin.pluginMeta, shortcut, "Shortcut for /astera ${target.joinToString(" ")}", emptyList())
+            }
         }
         registry.addListener { scheduler.runLater(50.milliseconds) { republish() } }
     }
@@ -121,7 +136,9 @@ public class PaperCommandBridge(
 
     override fun usage(source: CommandSourceStack, path: List<String>, node: CommandSpec.Literal) {
         val actor = actor(source)
-        replier(source, actor)(CommandInvoker.USAGE, mapOf("usage" to CommandPaths.usage(path, node)))
+        val reply = replier(source, actor)
+        val children = node.literals.filter { authorizer.isVisible(actor, it) }
+        CommandUsage.replies(path, node, children, renderer(), actor.playerId).forEach { (key, ph) -> reply(key, ph) }
     }
 
     private fun replier(source: CommandSourceStack, actor: CommandActor): (MessageKey, Map<String, String>) -> Unit =

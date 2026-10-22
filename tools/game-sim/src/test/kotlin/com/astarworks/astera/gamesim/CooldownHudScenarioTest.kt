@@ -95,7 +95,7 @@ class CooldownHudScenarioTest {
             // cooldown_override_ticks (6) wins over the skill's own 8.
             assertThat(sim.sweeps.of(shooter.id).map { it.ticks }).containsExactly(6)
 
-            shooter.drop() // reload
+            shooter.drop(sneaking = true) // reload
             advance(2)
             assertThat(sim.sweeps.of(shooter.id).map { it.ticks }).containsExactly(6, 30)
         }

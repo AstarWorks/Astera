@@ -11,6 +11,7 @@ import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
@@ -62,6 +63,8 @@ public class PaperDisplayEntityGateway(
                 text.isShadowed = kind.shadow
                 text.isSeeThrough = kind.seeThrough
                 kind.lineWidth?.let { text.lineWidth = it }
+                text.textOpacity = kind.textOpacity.toByte()
+                kind.textRgb?.let { text.text(text.text().color(TextColor.color(it))) }
             }
         }
         display.isPersistent = false
@@ -97,6 +100,13 @@ public class PaperDisplayEntityGateway(
         val display = server.getEntity(handle.id) as? TextDisplay ?: return
         val lines = renderedLines.map { AsteraTextDeserializer.deserialize(it) }
         display.text(Component.join(net.kyori.adventure.text.JoinConfiguration.newlines(), lines))
+    }
+
+    override fun setTextStyle(handle: DisplayHandle, backgroundArgb: Int, textOpacity: Int, textRgb: Int?) {
+        val display = server.getEntity(handle.id) as? TextDisplay ?: return
+        display.backgroundColor = Color.fromARGB(backgroundArgb)
+        display.textOpacity = textOpacity.coerceIn(0, 255).toByte()
+        if (textRgb != null) display.text(display.text().color(TextColor.color(textRgb)))
     }
 
     override fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
