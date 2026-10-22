@@ -33,6 +33,8 @@ public sealed interface HudComponent {
     public data class Text(
         public val messageKey: MessageKey,
         public val color: HudColor? = null,
+        /** `{name}` -> value substitutions applied by the message renderer (e.g. `remaining` / `max`). */
+        public val placeholders: Map<String, String> = emptyMap(),
     ) : HudComponent
 
     /**

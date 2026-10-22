@@ -15,7 +15,6 @@ import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.application.port.outbound.IEntityDamageGateway
 import com.astarworks.astera.combat.application.port.outbound.IFocusFireTracker
 import com.astarworks.astera.combat.application.port.outbound.IKnockbackGateway
-import com.astarworks.astera.combat.application.port.outbound.IManaPoolService
 import com.astarworks.astera.combat.application.port.outbound.INearbyTargetQuery
 import com.astarworks.astera.combat.application.port.outbound.IProjectileService
 import com.astarworks.astera.combat.application.port.outbound.ISkillRegistry
@@ -30,7 +29,6 @@ import com.astarworks.astera.combat.application.port.outbound.aoe.ILightningGate
 import com.astarworks.astera.combat.application.service.ChargeTracker
 import com.astarworks.astera.combat.application.service.EmptyNearbyTargetQuery
 import com.astarworks.astera.combat.application.service.InMemoryDamageHistoryService
-import com.astarworks.astera.combat.application.service.InMemoryManaPoolService
 import com.astarworks.astera.combat.application.service.JumpCountTracker
 import com.astarworks.astera.combat.application.service.KotlinRandomDamageRandomizer
 import com.astarworks.astera.combat.application.service.MechanicDispatcher
@@ -50,7 +48,6 @@ import com.astarworks.astera.combat.application.service.damagebonus.TargetLockBo
 import com.astarworks.astera.combat.application.service.focus.InMemoryFocusFireTracker
 import com.astarworks.astera.combat.application.service.targetlock.InMemoryTargetLockController
 import com.astarworks.astera.combat.application.usecase.charge.ChargedSkillCastUseCase
-import com.astarworks.astera.combat.application.usecase.cost.ConsumeManaUseCase
 import com.astarworks.astera.combat.application.usecase.damage.ApplyDamageUseCase
 import com.astarworks.astera.combat.application.usecase.damage.AssistAttributionUseCase
 import com.astarworks.astera.combat.application.usecase.damage.RecordDamageHistoryOnDamageDealtListener
@@ -154,9 +151,6 @@ public object CombatWiring {
         val armorReport = armorContents.bootstrap(armorContentDir)
         logger.info("Armor specs loaded: ${armorReport.loaded} ok, ${armorReport.failed} failed")
 
-        // Wave 5a — Mana pool service (in-memory; Wave 5e adds Postgres persistence)
-        val manaService = InMemoryManaPoolService()
-
         // Wave 5a — Damage randomizer (Wave 6 may swap a tournament-specific seeded impl)
         val damageRandomizer = KotlinRandomDamageRandomizer()
 
@@ -182,7 +176,6 @@ public object CombatWiring {
         registrations += services.register<IStatusEffectRegistry>(statusContents)
         registrations += services.register<IElementMatrix>(elementMatrix)
         registrations += services.register<IArmorRegistry>(armorContents)
-        registrations += services.register<IManaPoolService>(manaService)
         registrations += services.register<IDamageRandomizer>(damageRandomizer)
         registrations += services.register<IDamageHistoryService>(damageHistory)
         registrations += services.register<IStatusEffectInteractionRule>(statusInteractionRule)
@@ -419,7 +412,6 @@ public object CombatWiring {
                 ),
                 entityDamageGateway = entityDamageGateway,
             )
-            val consumeMana = ConsumeManaUseCase(manaService, eventBus)
 
             // Wave 6e-N1 (ADR-0164): the explosion overlay is wired with
             // ApplyDamageExplosionDamageApplier so explosion entity damage
@@ -505,7 +497,8 @@ public object CombatWiring {
                 eventBus = eventBus,
                 cooldownTracker = cooldownTracker,
                 scheduler = scheduler,
-                consumeMana = consumeMana,
+                resourcePool = services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>(),
+                items = services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
                 poseLookup = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>(),
                 // skillCastDispatcher injected after construction below to
                 // break the wiring cycle (dispatcher needs ProjectileHandler
@@ -578,7 +571,7 @@ public object CombatWiring {
             // cross-plugin SkillCastRequested event. Items publishes this
             // when a bound input fires; we translate it into a
             // CastSkillUseCase.execute(...) call so combat continues to own
-            // the silence / cooldown / mana pipeline. Wave _skills-2 carries
+            // the silence / cooldown / resource pipeline. Wave _skills-2 carries
             // phase_overrides through.
             subscriptions += eventBus.subscribe(SkillCastRequested::class) { event ->
                 castSkill.execute(
@@ -586,7 +579,19 @@ public object CombatWiring {
                     skillId = event.skillId,
                     at = event.origin,
                     phaseOverrides = event.phaseOverrides,
+                    sourceItemId = event.sourceItemId,
+                    cooldownOverrideTicks = event.cooldownOverrideTicks,
                 )
+            }
+
+            // WP2 — player-facing feedback when a cast is refused (empty
+            // magazine, no mana, mid-reload, silenced).
+            services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()?.let { hud ->
+                val feedback = com.astarworks.astera.combat.application.eventbus.listeners.hud
+                    .CastRejectedFeedbackListener(hud)
+                subscriptions += eventBus.subscribe(
+                    com.astarworks.astera.combat.domain.event.SkillCastRejected::class,
+                ) { event -> feedback.handle(event) }
             }
 
             // Wave 5a-fix2 — assist attribution pipeline (ADR-0063)
@@ -609,7 +614,7 @@ public object CombatWiring {
 
             logger.info(
                 "Astera-Combat use cases wired: " +
-                    "ApplyDamage, CastSkill (mana-aware), ApplyStatus, TickCooldown, " +
+                    "ApplyDamage, CastSkill (resource-aware), ApplyStatus, TickCooldown, " +
                     "ChargedSkillCast, SkillCastDispatcher (6 archetypes), " +
                     "DamageHistory + AssistAttribution, " +
                     "ApplyArmorModifiers (Wave 5e, ADR-0058), JumpCountTracker (Wave 5e).",

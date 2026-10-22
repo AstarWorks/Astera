@@ -400,7 +400,7 @@ public class PaperHudGateway(
         }
 
     private fun renderTextComponent(playerId: PlayerId, text: HudComponent.Text): Component {
-        val rendered = messageRenderer.render(playerId = playerId, key = text.messageKey)
+        val rendered = messageRenderer.render(playerId = playerId, key = text.messageKey, placeholders = text.placeholders)
         val base = miniMessage.deserialize(rendered)
         return text.color?.let { base.color(toTextColor(it)) } ?: base
     }

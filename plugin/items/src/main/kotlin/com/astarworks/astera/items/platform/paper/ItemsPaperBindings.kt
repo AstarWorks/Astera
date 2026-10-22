@@ -2,6 +2,7 @@ package com.astarworks.astera.items.platform.paper
 
 import com.astarworks.astera.items.adapter.paper.EnchantmentGateListener
 import com.astarworks.astera.items.adapter.paper.PaperItemIdResolver
+import com.astarworks.astera.items.adapter.paper.PaperHeldItemListener
 import com.astarworks.astera.items.adapter.paper.PaperItemInputListener
 import com.astarworks.astera.items.platform.wiring.ItemsWiringResult
 import org.bukkit.plugin.java.JavaPlugin
@@ -20,6 +21,12 @@ internal object ItemsPaperBindings {
             sink = wired.triggerListener::handle,
         )
         plugin.server.pluginManager.registerEvents(inputListener, plugin)
+
+        // Hotbar selection -> active weapon (resource HUD / per-weapon capacity).
+        plugin.server.pluginManager.registerEvents(
+            PaperHeldItemListener(PaperItemIdResolver(plugin, plugin.server), wired.handleTrigger),
+            plugin,
+        )
 
         // Enchant-gate + keep-on-death listener (Bukkit-native).
         plugin.server.pluginManager.registerEvents(EnchantmentGateListener(plugin), plugin)

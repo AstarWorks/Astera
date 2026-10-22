@@ -12,7 +12,6 @@ import org.bukkit.plugin.java.JavaPlugin
  *
  * Wave 5a additions wired here:
  *  - `IArmorRegistry` + `ArmorLoaderService` (publishes registry, loads YAML)
- *  - `IManaPoolService` (in-memory default; Wave 5e adds persistence)
  *  - `IDamageRandomizer` (`KotlinRandomDamageRandomizer` default; tests bind `FakeDamageRandomizer`)
  *  - `IKnockbackGateway` (`NoOpKnockbackGateway` default; Wave 6 `PaperKnockbackGateway` overrides)
  *  - `IArmorEquipmentProvider` (`StubArmorEquipmentProvider` default; Wave 6 reads inventory)
@@ -20,7 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin
  *  - `DamageRule` instance with full modifier pipeline
  *    (Headshot → ArmorReduction → CriticalStrike → Knockback) registered on
  *    the ServiceRegistry so Wave 6 adapters can resolve it
- *  - `ConsumeManaUseCase` constructed and threaded into `CastSkillUseCase`
+ *  - `CastSkillUseCase` spends ammo / mana / stamina from Core's `IResourcePoolService` (WP2)
  *  - `ChargedSkillCastUseCase` + `ChargeTracker`
  *  - `SkillCastDispatcher` subscribed to `SkillCast` with 6 archetype handlers
  *    (PROJECTILE/MELEE/AOE/BUFF/TELEPORT/SUMMON; SUMMON stubbed for Wave 6)
@@ -57,7 +56,7 @@ public class AsteraCombatPlugin : JavaPlugin() {
         logger.info(
             "Astera-Combat enabled. Services published: " +
                 "ISkillRegistry, IStatusEffectRegistry, IElementMatrix, " +
-                "IArmorRegistry, IManaPoolService, IDamageRandomizer, " +
+                "IArmorRegistry, IDamageRandomizer, " +
                 "IDamageHistoryService, DamageRule, " +
                 "IExplosionGateway, IAreaEffectGateway, ILightningGateway, " +
                 "IFireSpreadController (Wave 5m / ADR-0088), " +

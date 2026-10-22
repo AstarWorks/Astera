@@ -99,8 +99,11 @@ public interface IResourcePoolService {
         amount: Int,
     ): Result<Int, ResourceError>
 
-    /** Per-type cap table currently active (loaded from balance YAML at boot). */
-    public fun capFor(type: ResourceType): ResourceCap
+    /**
+     * Cap + regen rate currently in force for [playerId]'s [type]: the active
+     * weapon's override when it uses [type], else the per-type default.
+     */
+    public fun capFor(playerId: PlayerId, type: ResourceType): ResourceCap
 }
 
 /** Errors returnable from [IResourcePoolService]. */

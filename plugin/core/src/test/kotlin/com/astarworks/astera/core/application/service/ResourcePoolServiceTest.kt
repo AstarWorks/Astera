@@ -220,10 +220,36 @@ class ResourcePoolServiceTest {
     }
 
     @Test
-    fun `capFor returns cap defaults`() {
-        assertThat(service.capFor(ResourceType.Ammo)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Ammo])
-        assertThat(service.capFor(ResourceType.Stamina)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Stamina])
-        assertThat(service.capFor(ResourceType.Mana)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Mana])
+    fun `capFor returns cap defaults without an active weapon`() {
+        service.initialiseFor(pid)
+        assertThat(service.capFor(pid, ResourceType.Ammo)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Ammo])
+        assertThat(service.capFor(pid, ResourceType.Stamina)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Stamina])
+        assertThat(service.capFor(pid, ResourceType.Mana)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Mana])
+    }
+
+    @Test
+    fun `capFor uses the active weapon override for its own type only`() {
+        service.initialiseFor(pid)
+        service.setActiveWeapon(pid, pistolId)
+        assertThat(service.capFor(pid, ResourceType.Ammo).maxPool).isEqualTo(12)
+        assertThat(service.capFor(pid, ResourceType.Mana)).isEqualTo(ResourceCap.DEFAULTS[ResourceType.Mana])
+    }
+
+    @Test
+    fun `equipping a smaller-capacity weapon clamps the carried counter`() {
+        service.initialiseFor(pid)
+        assertThat(service.currentPool(pid)!!.ammo).isEqualTo(30)
+        service.setActiveWeapon(pid, pistolId)
+        assertThat(service.currentPool(pid)!!.ammo).isEqualTo(12)
+    }
+
+    @Test
+    fun `applyRegen clamps at the active weapon capacity`() {
+        service.initialiseFor(pid)
+        service.setActiveWeapon(pid, wandId)
+        service.spendResource(pid, ResourceType.Mana, 70)
+        val outcome = service.applyRegen(pid, ResourceType.Mana, 999)
+        assertThat(outcome.getOrNull()).isEqualTo(80)
     }
 
     @Test

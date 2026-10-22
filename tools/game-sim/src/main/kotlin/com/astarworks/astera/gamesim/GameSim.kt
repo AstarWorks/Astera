@@ -153,7 +153,13 @@ public class GameSim private constructor(
     /** Equips an item the entity already owns (or any registered item) as the held item. */
     public fun hold(entity: SimEntity, itemId: String) {
         entity.heldItem = ItemId(itemId)
+        // What PaperHeldItemListener does on a hotbar change: the pool follows the held item.
+        items.handleTrigger.onHeldItemChanged(entity.id, entity.heldItem)
     }
+
+    /** The entity's resource pool (ammo / stamina / mana), or `null` before it joined. */
+    public fun pool(entity: SimEntity): com.astarworks.astera.core.domain.resource.PlayerResourcePool? =
+        services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>()?.currentPool(entity.id)
 
     /** Feeds one input with the held item into the same sink `PaperItemInputListener` feeds. */
     public fun input(entity: SimEntity, kind: IMcEvent.InputKind, sneaking: Boolean = false): Boolean {
@@ -165,6 +171,9 @@ public class GameSim private constructor(
 
     public fun rightClick(entity: SimEntity, sneaking: Boolean = false): Boolean =
         input(entity, IMcEvent.InputKind.RIGHT_CLICK, sneaking)
+
+    /** The drop key (Q): bound to reload on guns. */
+    public fun drop(entity: SimEntity): Boolean = input(entity, IMcEvent.InputKind.DROP)
 
     /**
      * Requests a skill cast the way an item binding does: publishes the

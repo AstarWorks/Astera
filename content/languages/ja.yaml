@@ -484,9 +484,15 @@ astera:
       mitigated_by_armor: "<gray>(-{amount} 防具軽減)</gray>"
       critical: "<red><bold>クリティカル！</bold></red>"
       friendly_fire_blocked: "<yellow>フレンドリーファイアは無効です。</yellow>"
-    mana:
-      insufficient: "<red>マナ不足 ({have}/{tried})。</red>"
-      consumed: "<aqua>-{amount} マナ</aqua>"
+    cast:
+      insufficient:
+        ammo: "弾切れ - Qでリロード"
+        mana: "マナが足りない"
+        stamina: "スタミナが足りない"
+      reloading: "リロード中..."
+      ammo_full: "弾倉は満タン"
+      not_reloadable: "このアイテムはリロードできない"
+      silenced: "沈黙中"
     skill:
       charge:
         started: "<yellow>{skill} をチャージ中…</yellow>"

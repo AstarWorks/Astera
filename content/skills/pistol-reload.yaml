@@ -1,5 +1,6 @@
-# WP1: gun drop key (Q). Placeholder reload: a short slow + click sound.
-# WP2 turns this into a real ammo-pool refill.
+# WP1: gun drop key (Q). WP2: a real reload. `reload_ticks` marks it as a reload:
+# after 30 ticks the source item's ammo is refilled; ammo casts are rejected until
+# then. The buff phase keeps the short slow + click sound as the visible cue.
 
 id: pistol-reload
 
@@ -12,6 +13,8 @@ description:
 
 archetype: buff
 cooldown_ticks: 30
+resource_cost: 0               # reloading itself is free
+reload_ticks: 30
 tags: [ gun, reload ]
 
 params:

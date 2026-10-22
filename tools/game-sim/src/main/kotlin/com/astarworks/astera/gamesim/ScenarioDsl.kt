@@ -66,6 +66,18 @@ public class ScenarioScope(public val sim: GameSim) {
         sim.rightClick(this, sneaking)
     }
 
+    /** Presses the drop key (Q) with the held item. */
+    public fun SimEntity.drop() {
+        sim.drop(this)
+    }
+
+    /** Current ammo / mana / stamina of [entity]. */
+    public fun ammo(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.ammo
+
+    public fun mana(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.mana
+
+    public fun stamina(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.stamina
+
     /** Casts [skillId] as if a bound item had requested it (see [GameSim.cast]). */
     public fun SimEntity.cast(skillId: String) {
         sim.cast(this, skillId)

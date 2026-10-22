@@ -1,7 +1,5 @@
 package com.astarworks.astera.items.application.usecase
 
-import com.astarworks.astera.core.application.port.outbound.ICooldownTracker
-import com.astarworks.astera.core.application.service.InMemoryCooldownTracker
 import com.astarworks.astera.core.domain.event.SkillCastRequested
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.item.ItemId
@@ -12,7 +10,7 @@ import com.astarworks.astera.items.testfixtures.InMemoryItemRegistry
 import com.astarworks.astera.items.testfixtures.itemSpec
 import com.astarworks.astera.items.testfixtures.itemSpecWithBinding
 import com.astarworks.astera.testfixtures.FakeDomainEventBus
-import com.astarworks.astera.testfixtures.FakeScheduler
+import com.astarworks.astera.testfixtures.FakeResourcePoolService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.UUID
@@ -22,12 +20,11 @@ class HandleItemTriggerUseCaseTest {
     private val playerId = PlayerId(UUID.randomUUID())
     private val origin = Vec3(0.0, 64.0, 0.0)
 
-    private val scheduler = FakeScheduler()
-    private val cooldowns: ICooldownTracker = InMemoryCooldownTracker(scheduler)
+    private val pool = FakeResourcePoolService()
     private val eventBus = FakeDomainEventBus()
     private val items = InMemoryItemRegistry()
 
-    private val uc = HandleItemTriggerUseCase(items, cooldowns, eventBus)
+    private val uc = HandleItemTriggerUseCase(items, eventBus, pool)
 
     @Test
     fun `matching trigger publishes SkillCastRequested`() {
@@ -79,7 +76,7 @@ class HandleItemTriggerUseCaseTest {
     }
 
     @Test
-    fun `cooldown override gates the second trigger`() {
+    fun `binding cooldown override is carried on the event and not gated here`() {
         val spec = itemSpecWithBinding(
             id = "burst-sword",
             trigger = SkillTrigger.LEFT_CLICK,
@@ -88,13 +85,19 @@ class HandleItemTriggerUseCaseTest {
         )
         items.register(spec)
 
-        // First fire goes through and starts the cooldown.
+        // Combat owns the cooldown gate; Items forwards every trigger with the override.
         uc.execute(playerId, spec.id, SkillTrigger.LEFT_CLICK, origin)
-        // Second fire (no tick advance) is gated by the override.
         uc.execute(playerId, spec.id, SkillTrigger.LEFT_CLICK, origin)
 
         val published = eventBus.publishedOfType<SkillCastRequested>()
-        assertThat(published).hasSize(1)
-        assertThat(published[0].cooldownOverrideTicks).isEqualTo(40)
+        assertThat(published).hasSize(2)
+        assertThat(published.map { it.cooldownOverrideTicks }).containsOnly(40)
+    }
+
+    @Test
+    fun `held item change updates the resource pool's active weapon`() {
+        val id = ItemId("pistol")
+        uc.onHeldItemChanged(playerId, id)
+        assertThat(pool.calls).contains(FakeResourcePoolService.Call.SetActiveWeapon(playerId, id))
     }
 }

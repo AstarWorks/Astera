@@ -11,6 +11,7 @@ description:
 
 archetype: aoe
 cooldown_ticks: 160
+resource_cost: 25              # mana (type from the frost staff); frost-shard uses the staff's default
 tags: [ magic, ice-family, aoe ]
 
 params:
