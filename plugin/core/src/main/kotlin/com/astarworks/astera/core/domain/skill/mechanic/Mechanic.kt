@@ -486,6 +486,19 @@ public sealed class Mechanic {
         override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
+    /** Arm one retaliation against the next damaging attack within range and the time window. */
+    public data class Counter(
+        override val targets: Targeter,
+        val windowTicks: IntValue,
+        val maxDistance: NumericValue,
+        val onHit: List<Mechanic>,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic()
+
     /** A timed registered player animation; pose restoration belongs to the gateway. */
     public data class PlayAnimation(
         override val targets: Targeter,

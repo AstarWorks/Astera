@@ -3,7 +3,7 @@ name:
   ja: 返し裁ち
   en: Trimming Guard
 description:
-  ja: 身を守り、近くを大鋏で裁つ。防御後の反撃は一定時間で発動する。
+  ja: 構えて近距離の攻撃を受けると、一度だけ攻撃者を裁つ。
   en: Trimming Guard
 archetype: sequence
 cooldown_ticks: 85
@@ -27,80 +27,84 @@ phases:
     targets:
       type: caster
     vfx_id: couture-rapier-guard
-  - type: play_vfx
+  - type: counter
     targets:
       type: caster
-    vfx_id: couture-shears-snip
-    delay_ticks:
+    window_ticks:
       type: literal
-      value: 12
-    follow:
+      value: 30
+    max_distance:
       type: literal
-      value: true
-  - type: damage
-    targets:
-      type: cone
-      from:
+      value: 3.5
+    on_hit:
+    - type: play_vfx
+      targets:
         type: caster
-      direction:
-        type: from_caster
-      distance:
+      vfx_id: couture-shears-snip
+      delay_ticks:
         type: literal
-        value: 3.5
-      angle_degrees:
+        value: 0
+      follow:
         type: literal
-        value: 90
-      max_count: 1
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
+        value: true
+    - type: damage
+      targets:
+        type: target
+      ignore_invulnerability:
         type: literal
-        value: 6
-      attribute: physical
-    delay_ticks:
-      type: literal
-      value: 19
-  - type: play_vfx
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
+        value: true
+      components:
+      - base:
+          type: literal
+          value: 6
+        attribute: physical
+      delay_ticks:
         type: literal
-        value: 3.5
-      angle_degrees:
+        value: 7
+      condition:
+        type: distance_less_than
+        a:
+          type: caster
+        b:
+          type: target
+        distance:
+          type: literal
+          value: 3.5
+    - type: play_vfx
+      targets:
+        type: target
+      vfx_id: couture-rapier-cross
+      delay_ticks:
         type: literal
-        value: 90
-      max_count: 1
-    vfx_id: couture-rapier-cross
-    delay_ticks:
-      type: literal
-      value: 19
-  - type: play_sound
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
+        value: 7
+      condition:
+        type: distance_less_than
+        a:
+          type: caster
+        b:
+          type: target
+        distance:
+          type: literal
+          value: 3.5
+    - type: play_sound
+      targets:
+        type: target
+      sound_id: entity.player.attack.strong
+      volume:
         type: literal
-        value: 3.5
-      angle_degrees:
+        value: 0.7
+      pitch:
         type: literal
-        value: 90
-      max_count: 1
-    sound_id: entity.player.attack.strong
-    volume:
-      type: literal
-      value: 0.7
-    pitch:
-      type: literal
-      value: 1.1
-    delay_ticks:
-      type: literal
-      value: 19
+        value: 1.1
+      delay_ticks:
+        type: literal
+        value: 7
+      condition:
+        type: distance_less_than
+        a:
+          type: caster
+        b:
+          type: target
+        distance:
+          type: literal
+          value: 3.5
