@@ -1,7 +1,6 @@
 package com.astarworks.astera.core.application.service
 
 import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
-import com.astarworks.astera.core.application.port.outbound.FoodMutationError
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.PlayerFoodChanged
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -29,47 +28,22 @@ class PlayerFoodGatewayTest {
     }
 
     @Test
-    fun `suppressHungerHud sets food to 20 and locks saturation`() {
+    fun `mirrorEnergy writes the level and zeroes saturation`() {
         val captured = mutableListOf<PlayerFoodChanged>()
         eventBus.subscribe(PlayerFoodChanged::class) { captured += it }
 
-        gateway.suppressHungerHud(pid, suppress = true)
+        gateway.mirrorEnergy(pid, 10)
 
-        assertThat(gateway.isHungerSuppressed(pid)).isTrue()
-        assertThat(gateway.getFoodLevel(pid)).isEqualTo(20)
-        assertThat(gateway.getSaturation(pid)).isEqualTo(20.0f)
-        assertThat(captured.last().suppressed).isTrue()
-    }
-
-    @Test
-    fun `suppressHungerHud false unsets the flag without resetting saturation`() {
-        gateway.suppressHungerHud(pid, suppress = true)
-        gateway.suppressHungerHud(pid, suppress = false)
-
-        assertThat(gateway.isHungerSuppressed(pid)).isFalse()
-    }
-
-    @Test
-    fun `setHungerAsMana maps 0_5 to 10`() {
-        gateway.setHungerAsMana(pid, 0.5f)
         assertThat(gateway.getFoodLevel(pid)).isEqualTo(10)
         assertThat(gateway.getSaturation(pid)).isEqualTo(0.0f)
+        assertThat(captured.last().foodLevel).isEqualTo(10)
     }
 
     @Test
-    fun `setHungerAsMana clamps 0 and 1 boundaries`() {
-        gateway.setHungerAsMana(pid, 0.0f)
-        assertThat(gateway.getFoodLevel(pid)).isEqualTo(0)
-
-        gateway.setHungerAsMana(pid, 1.0f)
-        assertThat(gateway.getFoodLevel(pid)).isEqualTo(20)
-    }
-
-    @Test
-    fun `setHungerAsMana rejects out-of-range values`() {
-        assertThat(gateway.setHungerAsMana(pid, -0.1f)).isInstanceOf(Result.Failure::class.java)
-        assertThat(gateway.setHungerAsMana(pid, 1.5f)).isInstanceOf(Result.Failure::class.java)
-        assertThat(gateway.setHungerAsMana(pid, Float.NaN)).isInstanceOf(Result.Failure::class.java)
+    fun `mirrorEnergy rejects out-of-range levels`() {
+        assertThat(gateway.mirrorEnergy(pid, -1)).isInstanceOf(Result.Failure::class.java)
+        assertThat(gateway.mirrorEnergy(pid, 21)).isInstanceOf(Result.Failure::class.java)
+        assertThat(gateway.getFoodLevel(pid)).isNull()
     }
 
     @Test
@@ -96,14 +70,5 @@ class PlayerFoodGatewayTest {
     fun `getFoodLevel and getSaturation return null before any mutation`() {
         assertThat(gateway.getFoodLevel(pid)).isNull()
         assertThat(gateway.getSaturation(pid)).isNull()
-    }
-
-    @Test
-    fun `suppress true overrides prior setHungerAsMana state`() {
-        gateway.setHungerAsMana(pid, 0.3f)
-        gateway.suppressHungerHud(pid, suppress = true)
-
-        assertThat(gateway.isHungerSuppressed(pid)).isTrue()
-        assertThat(gateway.getFoodLevel(pid)).isEqualTo(20)
     }
 }

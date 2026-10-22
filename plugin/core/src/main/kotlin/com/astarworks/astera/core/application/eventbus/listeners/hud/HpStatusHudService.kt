@@ -2,7 +2,9 @@ package com.astarworks.astera.core.application.eventbus.listeners.hud
 
 import com.astarworks.astera.core.application.port.outbound.HudError
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
+import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.Result
@@ -12,9 +14,11 @@ import com.astarworks.astera.core.domain.event.ResourcePackStatusChanged
 import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
+import com.astarworks.astera.core.domain.hud.status.AmmoReadoutLayout
 import com.astarworks.astera.core.domain.hud.status.HpBarLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.core.domain.resource.ResourceType
 import org.slf4j.LoggerFactory
 import kotlin.math.ceil
 import kotlin.math.roundToInt
@@ -23,6 +27,12 @@ import kotlin.math.roundToInt
  * The status line's one owner (ADR-0182): keeps every player's HP readout in
  * step with the Astera HP container, which is the source of truth (ADR-0149;
  * the Bukkit hearts are a lossy mirror).
+ *
+ * # Ammo (F2-2, ADR-0194)
+ *
+ * While the player holds a gun (an item whose resource is [ResourceType.Ammo])
+ * the same line also carries `[bullet] cur/max` right of the HP bar. That
+ * replaces the boss-bar weapon-resource HUD of ADR-0177; energy is on the food bar.
  *
  * # Two renderings
  *
@@ -50,6 +60,8 @@ import kotlin.math.roundToInt
 public class HpStatusHudService(
     private val health: IPlayerHealthGateway,
     private val hudGateway: IHudGateway,
+    private val pools: IResourcePoolService,
+    private val items: IItemRegistry,
     scheduler: IScheduler,
     flushPeriodTicks: Long = FLUSH_PERIOD_TICKS,
 ) {
@@ -104,21 +116,37 @@ public class HpStatusHudService(
         lastSent -= playerId
     }
 
+    /** `current to max` ammo of the gun in hand, or `null` when the held item uses no ammo. */
+    private fun heldAmmo(playerId: PlayerId): Pair<Int, Int>? {
+        val pool = pools.currentPool(playerId) ?: return null
+        val weapon = pool.activeWeapon ?: return null
+        if (items.find(weapon)?.resourceType != ResourceType.Ammo) return null
+        return pool.ammo to pools.capFor(playerId, ResourceType.Ammo).maxPool
+    }
+
     private fun render(playerId: PlayerId): HudLayout.StatusLine {
         val max = health.getMaxHealth(playerId) ?: DEFAULT_MAX_HP
         val hp = health.getCurrentHealth(playerId) ?: max
+        val ammo = heldAmmo(playerId)
         if (playerId in packLoaded) {
-            return HudLayout.StatusLine(HpBarLayout.render(hp, max), anchorLeftPx = HpBarLayout.HEARTS_LEFT_PX)
+            val bar = HpBarLayout.render(hp, max)
+            val block = if (ammo == null) bar else AmmoReadoutLayout.appendTo(bar, AmmoReadoutLayout.render(ammo.first, ammo.second))
+            return HudLayout.StatusLine(block, anchorLeftPx = HpBarLayout.HEARTS_LEFT_PX)
         }
         val maxInt = max.roundToInt().coerceAtLeast(1)
+        val placeholders = mutableMapOf(
+            "current" to ceil(hp).toInt().coerceIn(0, maxInt).toString(),
+            "max" to maxInt.toString(),
+        )
+        if (ammo != null) {
+            placeholders["ammo"] = ammo.first.toString()
+            placeholders["ammoMax"] = ammo.second.toString()
+        }
         return HudLayout.StatusLine(
             HudComponent.Text(
-                messageKey = KEY_HP,
+                messageKey = if (ammo == null) KEY_HP else KEY_HP_AMMO,
                 color = HudColor.WHITE,
-                placeholders = mapOf(
-                    "current" to ceil(hp).toInt().coerceIn(0, maxInt).toString(),
-                    "max" to maxInt.toString(),
-                ),
+                placeholders = placeholders,
             ),
         )
     }
@@ -131,5 +159,6 @@ public class HpStatusHudService(
         public const val DEFAULT_MAX_HP: Double = 20.0
 
         private val KEY_HP: MessageKey = MessageKey("astera.hud.status.hp")
+        private val KEY_HP_AMMO: MessageKey = MessageKey("astera.hud.status.hp-ammo")
     }
 }

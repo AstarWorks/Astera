@@ -19,7 +19,7 @@ import com.astarworks.astera.core.domain.skill.SkillId
  * (cast | abort).
  *
  * Delegates the actual "fire the skill" effect to [CastSkillUseCase] so
- * cooldown / silence / mana / event-publish concerns stay in one place. This
+ * cooldown / silence / energy / event-publish concerns stay in one place. This
  * use case only adds the *charge phase* (timer + intermediate events) on top
  * of the instant-cast pipeline.
  *

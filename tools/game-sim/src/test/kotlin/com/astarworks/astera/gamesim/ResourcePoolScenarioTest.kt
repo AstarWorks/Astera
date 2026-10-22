@@ -9,7 +9,7 @@ import com.astarworks.astera.core.domain.skill.SkillId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** WP2: ammo / mana / stamina pools in the cast path, reload on the drop key, regen, cooldown override. */
+/** WP2 (ADR-0194): ammo and the shared energy pool in the cast path, reload on the drop key, regen, cooldown override. */
 class ResourcePoolScenarioTest {
 
     @Test
@@ -59,53 +59,79 @@ class ResourcePoolScenarioTest {
     }
 
     @Test
-    fun `staff mana drains on casts, rejects when short and regenerates`() {
-        scenario("staff-mana-regen") {
+    fun `staff and sword drain the same energy pool, which refuses when short and regenerates`() {
+        scenario("energy-shared-pool") {
             val mage = player("mage", team = "red")
             val dummy = mob("dummy", at = Vec3(0.0, groundY, 12.0), team = "blue")
             sim.setMaxHealth(dummy, 500.0)
             mage.holds("frost-staff")
             mage.faces(dummy)
-            assertThat(mana(mage)).isEqualTo(60) // item capacity
+            assertThat(energy(mage)).isEqualTo(100) // one shared cap, no per-item override
 
-            mage.rightClick()                 // frost-shard: item default 8
-            mage.rightClick(sneaking = true)  // frost-nova: skill cost 25
+            mage.rightClick()                 // frost-shard: 8
+            mage.rightClick(sneaking = true)  // frost-nova: 25
             advance(1)
-            val afterCasts = mana(mage)
-            assertThat(afterCasts).isBetween(27, 28)
+            val afterStaff = energy(mage)
+            assertThat(afterStaff).isBetween(66, 68)
 
-            // lightning-bolt costs 30: refused while the pool is short.
+            // Switching to a blade keeps the same pool; the sword dash (30) and a swing (15) come out of it.
+            mage.holds("knight-sword")
+            assertThat(energy(mage)).isBetween(afterStaff, afterStaff + 1)
+            mage.cast("sword-dash")
+            advance(1)
+            val afterDash = energy(mage)
+            assertThat(afterDash).isBetween(afterStaff - 31, afterStaff - 29)
+
+            // lightning-bolt costs 30 and the pool has been drawn down by both weapons: drain it until refused.
+            mage.holds("thunder-staff")
             mage.cast("lightning-bolt")
-            assertThat(eventsOf<SkillCastRejected>().map { it.reason })
-                .containsExactly(CastRejectionReason.INSUFFICIENT_MANA)
-            assertThat(mana(mage)).isEqualTo(afterCasts)
+            mage.cast("flame-burst")
+            assertThat(eventsOf<SkillCastRejected>().map { it.reason }).contains(CastRejectionReason.INSUFFICIENT_ENERGY)
+            val dry = energy(mage)
+            assertThat(dry).isLessThan(30)
 
-            // 6 mana/s: ~20 ticks later the pool covers it again.
-            advance(20)
-            assertThat(mana(mage)).isGreaterThanOrEqualTo(30)
-            mage.cast("lightning-bolt")
-            assertThat(eventsOf<SkillCast>().count { it.skillId == SkillId("lightning-bolt") }).isEqualTo(1)
-            assertThat(mana(mage)).isLessThan(10)
+            // 15/s: a second later the pool covers a bolt again.
+            advance(40)
+            assertThat(energy(mage)).isGreaterThan(dry)
 
-            // Fully regenerates to the staff's capacity, never beyond.
+            // Fully regenerates to the shared cap, never beyond.
             advance(400)
-            assertThat(mana(mage)).isEqualTo(60)
+            assertThat(energy(mage)).isEqualTo(100)
         }
     }
 
     @Test
-    fun `sword swings spend stamina which regenerates`() {
-        scenario("sword-stamina") {
+    fun `energy is mirrored on the food bar and vanilla hunger cannot move it`() {
+        scenario("energy-food-bar") {
             val knight = player("knight", team = "red")
             knight.holds("knight-sword")
-            assertThat(stamina(knight)).isEqualTo(100)
+            advance(2)
+            assertThat(foodLevel(knight)).isEqualTo(20)
 
             knight.leftClick()
             advance(1)
-            assertThat(stamina(knight)).isBetween(85, 86)
+            // 100 -> ~85 energy is 17 of 20 food points
+            assertThat(foodLevel(knight)).isBetween(16, 18)
 
             advance(100)
-            assertThat(stamina(knight)).isEqualTo(100)
+            assertThat(energy(knight)).isEqualTo(100)
+            assertThat(foodLevel(knight)).isEqualTo(20)
+        }
+    }
+
+    @Test
+    fun `sword swings spend energy which regenerates`() {
+        scenario("sword-energy") {
+            val knight = player("knight", team = "red")
+            knight.holds("knight-sword")
+            assertThat(energy(knight)).isEqualTo(100)
+
+            knight.leftClick()
+            advance(1)
+            assertThat(energy(knight)).isBetween(84, 86)
+
+            advance(100)
+            assertThat(energy(knight)).isEqualTo(100)
         }
     }
 }

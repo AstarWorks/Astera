@@ -1,6 +1,5 @@
 package com.astarworks.astera.core.platform.wiring
 
-import com.astarworks.astera.core.adapter.api.hud.IBossBarManager
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IPartyRepository
 import com.astarworks.astera.core.application.port.outbound.IPlayerGateway
@@ -111,10 +110,10 @@ internal fun CoreWiringState.wireGameplayLoop() {
                 services.register<com.astarworks.astera.core.application.port.outbound.IDialogGateway>(it, priority = 0)
             }
     // Wave 6b-2 (ADR-0157): PaperHudGateway overlays InMemoryHudGateway
-    // at priority 100. Routes ActionBar / Subtitle / BossBarSlot through
-    // Adventure API (Player.sendActionBar / showTitle / via
-    // IBossBarManager); Sidebar / TabList layouts log-once and route
-    // through their dedicated managers wired earlier.
+    // at priority 100. Routes ActionBar / StatusLine / Subtitle through
+    // Adventure API (Player.sendActionBar / showTitle); Sidebar / TabList
+    // layouts route through their dedicated managers wired earlier.
+    // There is no boss-bar surface (F2-2, ADR-0194).
     services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()
         ?: com.astarworks.astera.core.application.service.InMemoryHudGateway(eventBus, scheduler).also {
             services.register<com.astarworks.astera.core.application.port.outbound.IHudGateway>(it, priority = 0)
@@ -196,29 +195,34 @@ internal fun CoreWiringState.wireGameplayLoop() {
         hudCurrencyListener.handle(event)
     }
 
-    // 4.1 WP2 — weapon-resource HUD (ammo / mana / stamina of the held item).
-    //     Subscribes to ResourceSpent / ResourceReloaded / ResourceRegenned and
-    //     PlayerActiveWeaponChanged; reads current / max from the pool service.
+    // 4.1 F2-2 (ADR-0194) - energy on the vanilla food bar (replaces the WP2 boss bar)
+    //     and the reload sweep on the held item. Ammo is on the status line (4.15).
     val resourcePoolForHud = services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>()
-    if (resourcePoolForHud != null) {
-        val hudResourceListener = com.astarworks.astera.core.application.eventbus.listeners.hud
-            .HudUpdateOnResourcePoolChangedListener(hudGateway, resourcePoolForHud, itemContents, scheduler)
-        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceSpent::class) { event ->
-            hudResourceListener.onSpent(event)
-        }
-        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceReloadStarted::class) { event ->
-            hudResourceListener.onReloadStarted(event)
-        }
-        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceReloaded::class) { event ->
-            hudResourceListener.onReloaded(event)
-        }
-        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceRegenned::class) { event ->
-            hudResourceListener.onRegenned(event)
-        }
+    val foodGatewayForHud = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerFoodGateway>()
+    if (resourcePoolForHud != null && foodGatewayForHud != null) {
+        val energyFoodBar = com.astarworks.astera.core.application.eventbus.listeners.hud
+            .EnergyFoodBarListener(resourcePoolForHud, foodGatewayForHud, scheduler)
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { energyFoodBar.onJoined(it) }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { energyFoodBar.onQuit(it) }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerRespawned::class) { energyFoodBar.onRespawned(it) }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceSpent::class) { energyFoodBar.onSpent(it) }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceRegenned::class) { energyFoodBar.onRegenned(it) }
         wave5completeSubs += eventBus.subscribe(
             com.astarworks.astera.core.domain.event.PlayerActiveWeaponChanged::class,
-        ) { event -> hudResourceListener.onActiveWeaponChanged(event) }
+        ) { energyFoodBar.onActiveWeaponChanged(it) }
     }
+    val itemCooldownGateway: com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway =
+        services.get<com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway>()
+            ?: com.astarworks.astera.core.application.service.InMemoryItemCooldownGateway().also {
+                services.register<com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway>(it, priority = 0)
+            }
+    ports.itemCooldownGateway?.let {
+        services.register<com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway>(it(services), priority = 100)
+    }
+    val reloadOverlay = com.astarworks.astera.core.application.eventbus.listeners.hud.ReloadCooldownOverlayListener(
+        services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway>(),
+    )
+    wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceReloadStarted::class) { reloadOverlay.onReloadStarted(it) }
 
     // 4.15 ADR-0182 — status line (exact HP bar) and the resource pack it needs.
     //      HpStatusHudService owns the status-line channel: glyph bar once the
@@ -228,6 +232,8 @@ internal fun CoreWiringState.wireGameplayLoop() {
         .HpStatusHudService(
             health = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway>(),
             hudGateway = hudGateway,
+            pools = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>(),
+            items = itemContents,
             scheduler = scheduler,
         )
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hpStatusHud.onJoined(it) }

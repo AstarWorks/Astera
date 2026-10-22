@@ -23,10 +23,6 @@ public value class HudHandle(public val value: String) {
  */
 public enum class HudRegion {
     ACTION_BAR,
-    BOSS_BAR_SLOT_1,
-    BOSS_BAR_SLOT_2,
-    BOSS_BAR_SLOT_3,
-    BOSS_BAR_SLOT_4,
     SIDEBAR,
     TAB_LIST_HEADER,
     TAB_LIST_FOOTER,

@@ -103,16 +103,16 @@ class AdminCombatPanelTest {
     }
 
     @Test
-    fun `refill tops ammo mana and stamina up to the cap`() {
+    fun `refill tops ammo and energy up to the cap`() {
         pools.initialiseFor(admin.id)
         pools.spendResource(admin.id, ResourceType.Ammo, 20)
-        pools.spendResource(admin.id, ResourceType.Mana, 50)
+        pools.spendResource(admin.id, ResourceType.Energy, 50)
 
         router.dispatch(admin, on(admin, AdminCombatPanel.REFILL))
 
         val pool = pools.currentPool(admin.id)!!
         assertThat(pool.ammo).isEqualTo(30)
-        assertThat(pool.mana).isEqualTo(100)
+        assertThat(pool.energy).isEqualTo(100)
     }
 
     @Test

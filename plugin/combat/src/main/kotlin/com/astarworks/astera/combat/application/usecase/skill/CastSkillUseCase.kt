@@ -27,7 +27,7 @@ import com.astarworks.astera.core.domain.skill.SkillId
 
 /**
  * Gates a skill cast: looks up the spec, checks silence, per-skill cooldown and
- * reload state, **spends the cast's resource** (ammo / mana / stamina, WP2),
+ * reload state, **spends the cast's resource** (ammo / energy, WP2; ADR-0194),
  * records the cooldown via [ICooldownTracker], publishes [SkillCast], and
  * returns the spec.
  *
@@ -214,8 +214,7 @@ public class CastSkillUseCase(
 
     private fun rejectionFor(type: ResourceType): CastRejectionReason = when (type) {
         ResourceType.Ammo -> CastRejectionReason.INSUFFICIENT_AMMO
-        ResourceType.Mana -> CastRejectionReason.INSUFFICIENT_MANA
-        ResourceType.Stamina -> CastRejectionReason.INSUFFICIENT_STAMINA
+        ResourceType.Energy -> CastRejectionReason.INSUFFICIENT_ENERGY
     }
 
     private companion object {

@@ -15,7 +15,7 @@ description:
 
 archetype: projectile
 cooldown_ticks: 80
-resource_cost: 25              # mana
+resource_cost: 25              # energy
 tags: [ ranged, fire-family, aoe ]
 
 params:

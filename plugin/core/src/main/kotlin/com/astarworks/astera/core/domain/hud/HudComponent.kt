@@ -23,7 +23,7 @@ public sealed interface HudComponent {
      *
      * @property messageKey i18n key resolved by the renderer.
      * @property color optional tint override. If `null`, the renderer
-     *   inherits whatever the surrounding context (BossBar / ActionBar)
+     *   inherits whatever the surrounding context (ActionBar / Sidebar)
      *   defaults to. **MiniMessage note**: when the resolved string already
      *   contains MiniMessage color tags (e.g. `<red>foo</red>`), the
      *   `color` override is applied as the **outer** color and inner

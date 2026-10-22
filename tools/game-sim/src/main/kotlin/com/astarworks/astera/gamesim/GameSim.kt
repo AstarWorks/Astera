@@ -255,9 +255,18 @@ public class GameSim private constructor(
         items.handleTrigger.onHeldItemChanged(entity.id, entity.heldItem)
     }
 
-    /** The entity's resource pool (ammo / stamina / mana), or `null` before it joined. */
+    /** The entity's resource pool (ammo / energy), or `null` before it joined. */
     public fun pool(entity: SimEntity): com.astarworks.astera.core.domain.resource.PlayerResourcePool? =
         services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>()?.currentPool(entity.id)
+
+    /** The vanilla food level the energy bar currently shows for [entity] (F2-2, ADR-0194), or `null` before the first write. */
+    public fun foodLevel(entity: SimEntity): Int? =
+        services.get<com.astarworks.astera.core.application.port.outbound.IPlayerFoodGateway>()?.getFoodLevel(entity.id)
+
+    /** Item cooldown sweeps (reload progress) the HUD asked the client to draw, in order (F2-2, ADR-0194). */
+    public fun cooldownSweeps(): List<com.astarworks.astera.core.application.service.InMemoryItemCooldownGateway.Sweep> =
+        (services.get<com.astarworks.astera.core.application.port.outbound.IItemCooldownGateway>()
+            as? com.astarworks.astera.core.application.service.InMemoryItemCooldownGateway)?.sweeps.orEmpty()
 
     /** Feeds one input with the held item into the same sink `PaperItemInputListener` feeds. */
     public fun input(entity: SimEntity, kind: IMcEvent.InputKind, sneaking: Boolean = false): Boolean {

@@ -109,7 +109,7 @@ public data class ItemYamlConfig(
     public val skills: List<ItemSkillBindingYaml> = emptyList(),
     @SerialName("pdc_tags") public val pdcTags: Map<String, String> = emptyMap(),
     // ---- Resource pool (Wave 5k, ADR-0080) ----
-    /** Lowercase serial name of the resource type (`ammo` / `stamina` / `mana`); omit for non-weapon items. */
+    /** Lowercase serial name of the resource type (`ammo` / `energy`); omit for non-weapon items. */
     @SerialName("resource_type") public val resourceType: String? = null,
     @SerialName("resource_cost_per_use") public val resourceCostPerUse: Int = 0,
     /** -1 (default) means "use the type's [com.astarworks.astera.core.domain.resource.ResourceCap] default cap". */
@@ -186,7 +186,7 @@ public data class ItemYamlConfig(
                 ResourceType.fromKey(it)
                     ?: throw IllegalArgumentException(
                         "ItemYamlConfig '$id': unknown resource_type '$it' " +
-                            "(expected ammo / stamina / mana).",
+                            "(expected ammo / energy).",
                     )
             },
             resourceCostPerUse = resourceCostPerUse,

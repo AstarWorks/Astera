@@ -634,7 +634,7 @@ public object CombatWiring {
             }
 
             // WP2 — player-facing feedback when a cast is refused (empty
-            // magazine, no mana, mid-reload, silenced).
+            // magazine, no energy, mid-reload, silenced).
             services.get<com.astarworks.astera.core.application.port.outbound.IHudGateway>()?.let { hud ->
                 val feedback = com.astarworks.astera.combat.application.eventbus.listeners.hud
                     .CastRejectedFeedbackListener(hud)

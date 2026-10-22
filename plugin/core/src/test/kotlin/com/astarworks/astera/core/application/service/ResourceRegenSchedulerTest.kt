@@ -39,29 +39,30 @@ class ResourceRegenSchedulerTest {
     }
 
     @Test
-    fun `tick regenerates stamina at the type rate`() {
+    fun `tick regenerates energy at the type rate`() {
         resourcePool.initialiseFor(pid)
         // Deplete by half so regen has room.
-        resourcePool.spendResource(pid, ResourceType.Stamina, 50)
+        resourcePool.spendResource(pid, ResourceType.Energy, 50)
         regen.trackPlayer(pid)
 
-        // Stamina default regen = 20 / sec = 1 per tick.
+        // Energy default regen = 15 / sec = 0.75 per tick: the second tick flushes 1.
         regen.tick(1L)
-        assertThat(resourcePool.currentPool(pid)!!.stamina).isEqualTo(51)
+        regen.tick(2L)
+        assertThat(resourcePool.currentPool(pid)!!.energy).isEqualTo(51)
     }
 
     @Test
     fun `tick accumulates sub-integer rates correctly`() {
-        // Mana default regen = 5 / sec = 0.25 / tick. After 4 ticks: +1.
+        // Energy default regen = 15 / sec = 0.75 / tick. After 1 tick nothing flushed, after 4 ticks: +3.
         resourcePool.initialiseFor(pid)
-        resourcePool.spendResource(pid, ResourceType.Mana, 50)
+        resourcePool.spendResource(pid, ResourceType.Energy, 50)
         regen.trackPlayer(pid)
 
-        repeat(3) { regen.tick(it.toLong()) }
-        assertThat(resourcePool.currentPool(pid)!!.mana).isEqualTo(50)
+        regen.tick(0L)
+        assertThat(resourcePool.currentPool(pid)!!.energy).isEqualTo(50)
 
-        regen.tick(3L)
-        assertThat(resourcePool.currentPool(pid)!!.mana).isEqualTo(51)
+        repeat(3) { regen.tick((it + 1).toLong()) }
+        assertThat(resourcePool.currentPool(pid)!!.energy).isEqualTo(53)
     }
 
     @Test
@@ -70,8 +71,8 @@ class ResourceRegenSchedulerTest {
         regen.trackPlayer(pid)
 
         repeat(100) { regen.tick(it.toLong()) }
-        val cap = ResourceCap.DEFAULTS[ResourceType.Stamina]!!.maxPool
-        assertThat(resourcePool.currentPool(pid)!!.stamina).isEqualTo(cap)
+        val cap = ResourceCap.DEFAULTS[ResourceType.Energy]!!.maxPool
+        assertThat(resourcePool.currentPool(pid)!!.energy).isEqualTo(cap)
     }
 
     @Test
@@ -79,22 +80,24 @@ class ResourceRegenSchedulerTest {
         val captured = mutableListOf<ResourceRegenned>()
         eventBus.subscribe(ResourceRegenned::class) { captured += it }
         resourcePool.initialiseFor(pid)
-        resourcePool.spendResource(pid, ResourceType.Stamina, 50)
+        resourcePool.spendResource(pid, ResourceType.Energy, 50)
         regen.trackPlayer(pid)
 
         regen.tick(1L)
+        regen.tick(2L)
 
-        // Stamina regen flushes (1/tick), Mana regen doesn't flush yet (0.25/tick).
-        assertThat(captured.any { it.type == ResourceType.Stamina }).isTrue()
+        // 0.75/tick: the second tick crosses 1.0 and flushes.
+        assertThat(captured.any { it.type == ResourceType.Energy }).isTrue()
     }
 
     @Test
     fun `tick returns set of changed players`() {
         resourcePool.initialiseFor(pid)
-        resourcePool.spendResource(pid, ResourceType.Stamina, 50)
+        resourcePool.spendResource(pid, ResourceType.Energy, 50)
         regen.trackPlayer(pid)
 
-        val changed = regen.tick(1L)
+        regen.tick(1L)
+        val changed = regen.tick(2L)
         assertThat(changed).contains(pid)
     }
 
@@ -115,17 +118,17 @@ class ResourceRegenSchedulerTest {
     @Test
     fun `untrackPlayer stops regen and clears accumulator`() {
         resourcePool.initialiseFor(pid)
-        resourcePool.spendResource(pid, ResourceType.Mana, 50)
+        resourcePool.spendResource(pid, ResourceType.Energy, 50)
         regen.trackPlayer(pid)
         regen.tick(1L)
         regen.untrackPlayer(pid)
 
         repeat(100) { regen.tick(it.toLong() + 10L) }
 
-        // Stamina was tracked in tick 1 only; pool not advanced past tick 1's flush.
+        // Tracked for tick 1 only (0.75 accumulated, nothing flushed), then untracked.
         val poolAfter = resourcePool.currentPool(pid)!!
-        // No further mana regen.
-        assertThat(poolAfter.mana).isEqualTo(50)
+        // No further energy regen.
+        assertThat(poolAfter.energy).isEqualTo(50)
     }
 
     @Test

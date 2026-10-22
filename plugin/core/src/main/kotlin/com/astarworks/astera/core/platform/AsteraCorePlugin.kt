@@ -182,7 +182,6 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IGuiRegistry",
             "IGuiIntentRouter",
             "IGuiAdapter",
-            "IBossBarManager",
             "IScoreboardManager",
             "ITabList",
             "IBlockStateGateway",

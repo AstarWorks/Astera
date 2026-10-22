@@ -4,49 +4,27 @@ import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.player.PlayerId
 
 /**
- * Outbound port: mutate a player's hunger bar (Wave 5k, ADR-0080).
+ * Outbound port: write a player's food bar (Wave 5k, ADR-0080; F2-2, ADR-0194).
  *
- * # Why this exists
+ * # What the food bar is
  *
- * Astera does not use the vanilla hunger mechanic in Phase 1 — Hypixel-style
- * Annihilation has no eating loop. The hunger bar real-estate is repurposed
- * as one of two ways to render resource state:
- *
- *  1. **Suppress** ([suppressHungerHud]) — `foodLevel = 20` + saturation max
- *     so the bar sits full and untouched; the Wave 5j (future) custom HUD
- *     renders the resource bar via a BossBar or scoreboard slot. This is the
- *     production default once the custom HUD lands.
- *  2. **Re-purpose as mana / resource bar** ([setHungerAsMana]) — map a
- *     0..1 resource ratio onto the 0..20 food gauge. Fallback for clients
- *     that disable resource pack delivery or for the pre-HUD Phase 1 PoC.
- *
- * Use one path or the other; mixing them produces visual flicker. The
- * [isHungerSuppressed] flag captures the current mode and listeners assume
- * it.
+ * Astera has no eating loop. The vanilla food bar is the **energy bar**: the
+ * food level (0..20) mirrors `energy / max energy` (`EnergyFoodBar`, domain).
+ * Vanilla hunger must have no effect of its own, so the Paper adapter cancels
+ * every `FoodLevelChangeEvent` (a plain `Player.setFoodLevel` fires none, so
+ * Astera's own writes pass), natural health regeneration from satiety and
+ * starvation damage. HP is the Astera container (ADR-0149).
  */
 public interface IPlayerFoodGateway {
 
     /**
-     * Lock [playerId]'s hunger bar at full (foodLevel = 20, saturation = 20).
+     * Write the energy mirror: food level [level] (0..20), saturation 0 and
+     * exhaustion 0, so nothing but Astera moves the bar and satiety never
+     * heals the player.
      *
-     * Idempotent. Implementations do NOT install a tick-by-tick watchdog —
-     * the Paper adapter relies on `FoodLevelChangeEvent` cancellation in
-     * Wave 6a. The InMemory default just flips an internal boolean.
+     * Fails with [FoodMutationError.InvalidValue] when [level] is outside 0..20.
      */
-    public fun suppressHungerHud(playerId: PlayerId, suppress: Boolean = true): Result<Unit, FoodMutationError>
-
-    /**
-     * Set the food gauge to the integer derived from [manaPercent].
-     *
-     * `manaPercent` is in `[0.0, 1.0]`. Implementations call
-     * `setFoodLevel((manaPercent * 20).roundToInt())` plus
-     * `setSaturation(0f)`. Use this only when [suppressHungerHud] is false —
-     * once the custom HUD lands suppression is the production path.
-     *
-     * Fails with [FoodMutationError.InvalidValue] when [manaPercent] is
-     * outside `[0, 1]` or non-finite.
-     */
-    public fun setHungerAsMana(playerId: PlayerId, manaPercent: Float): Result<Unit, FoodMutationError>
+    public fun mirrorEnergy(playerId: PlayerId, level: Int): Result<Unit, FoodMutationError>
 
     /** Set [playerId]'s raw food level (0..20). Use only for special-case scripts. */
     public fun setFoodLevel(playerId: PlayerId, level: Int): Result<Unit, FoodMutationError>
@@ -54,13 +32,10 @@ public interface IPlayerFoodGateway {
     /** Set [playerId]'s raw saturation (0..max-foodLevel). */
     public fun setSaturation(playerId: PlayerId, saturation: Float): Result<Unit, FoodMutationError>
 
-    /** Whether [playerId]'s hunger bar is currently suppressed (custom-HUD mode). */
-    public fun isHungerSuppressed(playerId: PlayerId): Boolean
-
-    /** Current food level for [playerId], or null if no override has been applied. */
+    /** Current food level for [playerId], or null if never written / offline. */
     public fun getFoodLevel(playerId: PlayerId): Int?
 
-    /** Current saturation for [playerId], or null if no override has been applied. */
+    /** Current saturation for [playerId], or null if never written / offline. */
     public fun getSaturation(playerId: PlayerId): Float?
 }
 

@@ -47,6 +47,9 @@ public object StatusHudGlyphs {
     public const val SEG_CRIT_TWO: Char = ''
     public const val HEART: Char = ''
     public const val SLASH: Char = ''
+
+    /** Bullet icon in front of the ammo count (F2-2, ADR-0194). */
+    public const val AMMO: Char = ''
     public const val DIGIT_ZERO: Char = ''
 
     /** Not a glyph: a cell that stays empty in the atlas grid. */
@@ -54,8 +57,8 @@ public object StatusHudGlyphs {
 
     /** The atlas grid, row by row (`chars` of the bitmap font provider). */
     public val ATLAS_ROWS: List<String> = listOf(
-        "$CAP_LEFT$CAP_RIGHT$SEG_EMPTY$SEG_FULL$SEG_ONE$SEG_TWO$SEG_CRIT_FULL$SEG_CRIT_ONE$SEG_CRIT_TWO$HEART$SLASH" +
-            NONE.toString().repeat(5),
+        "$CAP_LEFT$CAP_RIGHT$SEG_EMPTY$SEG_FULL$SEG_ONE$SEG_TWO$SEG_CRIT_FULL$SEG_CRIT_ONE$SEG_CRIT_TWO$HEART$SLASH$AMMO" +
+            NONE.toString().repeat(4),
         (0..9).joinToString("") { digit(it).toString() } + NONE.toString().repeat(6),
     )
 
@@ -68,7 +71,7 @@ public object StatusHudGlyphs {
     public fun advance(glyph: Char): Int = when {
         glyph == CAP_LEFT || glyph == CAP_RIGHT -> 2
         glyph in SEG_EMPTY..SEG_CRIT_TWO -> COLUMNS_PER_SEGMENT + 1
-        glyph == HEART -> 8
+        glyph == HEART || glyph == AMMO -> 8
         glyph == SLASH || glyph in digit(0)..digit(9) -> 7
         else -> NegativeSpace.advanceOf(glyph) ?: error("not a status HUD glyph: U+%04X".format(glyph.code))
     }

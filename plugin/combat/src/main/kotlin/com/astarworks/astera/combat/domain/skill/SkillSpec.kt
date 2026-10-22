@@ -27,7 +27,7 @@ import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
  *  - [tags] — free-form designer-facing classifiers (see [SkillTag]).
  *  - [phases] — per-phase mechanic lists.
  *  - [resourceType] / [resourceCost] — what a cast spends from the caster's
- *    resource pool (ammo / mana / stamina). `resourceType == null` means "the
+ *    resource pool (ammo / energy). `resourceType == null` means "the
  *    resource of the item the cast comes from"; `resourceCost == null` means
  *    "the item's `resource_cost_per_use`"; an explicit `0` is free.
  *  - [reloadTicks] — non-null marks a reload skill: [reloadTicks] after the cast

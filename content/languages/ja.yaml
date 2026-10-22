@@ -770,8 +770,7 @@ astera:
     cast:
       insufficient:
         ammo: "弾切れ - Qでリロード"
-        mana: "マナが足りない"
-        stamina: "スタミナが足りない"
+        energy: "エネルギーが足りない"
       reloading: "リロード中..."
       ammo_full: "弾倉は満タン"
       not_reloadable: "このアイテムはリロードできない"
@@ -825,10 +824,6 @@ astera:
   # Wave 5b HUD リファレンス設計 (ADR-0031)。Wave 6 Paper 実装が widget を
   # 配線する際に使えるよう、ここで keys を予約する。
   hud:
-    bossbar:
-      match:
-        phase: "<gold>フェーズ：</gold> <white>{phase}</white>"
-        time_remaining: "<gold>残り時間：</gold> <white>{time}</white>"
     scoreboard:
       match:
         title: "<gold><bold>試合</bold></gold>"
@@ -841,33 +836,23 @@ astera:
       streak: "<gold>コンボ x{streak}</gold>"
     leveled-up:
       title: "<yellow><bold>レベル{level}！</bold></yellow>"
-    mana:
-      value: "<aqua>{mana}</aqua>"
     star:
       count: "<gold>{count}</gold>"
     mining:
       progress: "<gray>採掘中...</gray>"
     # WP14 (ADR-0177) — HUD チャンネルは 1 つにつき持ち主 1 つ (docs/adr/0177-*)。
     #   アクションバー: 戦闘表示 (クールダウン + 状態異常)、通知が優先
-    #   ボスバー 1: 武器リソース   サイドバー: 試合 / ロビー
+    #   満腹度バー: エネルギー (F2-2, ADR-0194)   ステータス行: HP + 弾薬   サイドバー: 試合 / ロビー
     cooldown:
       summary: "<aqua>クールダウン:</aqua> <white>{count} 件 ({seconds}秒)</white>"
     currency:
       summary: "<gold>{delta} {currency}</gold> <gray>(所持 {balance})</gray>"
-    resource:
-      mana:
-        label: "<aqua>マナ:</aqua> <white>{remaining}/{max}</white>"
-      stamina:
-        label: "<yellow>スタミナ:</yellow> <white>{remaining}/{max}</white>"
-      ammo:
-        label: "<white>弾薬:</white> <white>{remaining}/{max}</white>"
-        empty: "<red>弾切れ - リロード！</red> <white>{remaining}/{max}</white>"
-        reloading: "<yellow>リロード中...</yellow>"
-        reloaded: "<green>リロード完了</green> <white>{remaining}/{max}</white>"
     status:
       stacks: "<gray>x{stacks}</gray>"
       # ADR-0182 — リソースパック未適用時の文字表示 HP。
       hp: "<red>HP</red> <white>{current}/{max}</white>"
+      # F2-2 (ADR-0194) - 銃を持っていてパック未適用のときのテキスト表示。
+      hp-ammo: "<red>HP</red> <white>{current}/{max}</white>  <yellow>弾</yellow> <white>{ammo}/{ammoMax}</white>"
     resource-pack:
       prompt: "<gold>Astera リソースパック</gold> <gray>- 専用 HP バー・アイテムモデル・サウンド</gray>"
     sidebar:
@@ -1567,8 +1552,8 @@ astera:
       "combat.tile.god.lore": "<gray>Astera のダメージ処理で無効化されます。</gray>"
       "combat.tile.cooldowns": "<yellow>クールダウン解除</yellow>"
       "combat.tile.cooldowns.lore": "<gray>進行中のクールダウンを全てリセットします。</gray>"
-      "combat.tile.refill": "<green>弾薬・マナ補充</green>"
-      "combat.tile.refill.lore": "<gray>弾薬・マナ・スタミナを満タンにします。</gray>"
+      "combat.tile.refill": "<green>弾薬・エネルギー補充</green>"
+      "combat.tile.refill.lore": "<gray>弾薬とエネルギーを満タンにします。</gray>"
       "combat.healed": "<green><white>{player}</white> を全回復しました。</green>"
       "combat.statuses-cleared": "<green><white>{player}</white> の状態異常を解除しました。</green>"
       "combat.cooldowns-cleared": "<green>{player} のクールダウンを <white>{count}</white> 件解除しました。</green>"

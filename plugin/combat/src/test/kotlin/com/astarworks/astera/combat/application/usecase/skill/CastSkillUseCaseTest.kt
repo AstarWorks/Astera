@@ -190,7 +190,7 @@ class CastSkillUseCaseTest {
     private fun withResources(): Pair<CastSkillUseCase, InMemoryResourcePoolService> {
         val itemRegistry = ItemContents()
         itemRegistry.register(pistolId, item(pistolId, ResourceType.Ammo, cost = 1, max = 3, reloadable = true))
-        itemRegistry.register(staffId, item(staffId, ResourceType.Mana, cost = 40, max = 100))
+        itemRegistry.register(staffId, item(staffId, ResourceType.Energy, cost = 40, max = 100))
         val pool = InMemoryResourcePoolService(scheduler, eventBus, itemRegistry)
         pool.initialiseFor(casterId)
         val uc = CastSkillUseCase(
@@ -244,14 +244,14 @@ class CastSkillUseCaseTest {
 
         val ok = uc.execute(casterId, skillId, sourceItemId = staffId)
         assertThat(ok).isInstanceOf(Result.Success::class.java)
-        assertThat(pool.currentPool(casterId)!!.mana).isEqualTo(30)
+        assertThat(pool.currentPool(casterId)!!.energy).isEqualTo(30)
 
         cooldownTracker.reset(casterId, CooldownKey.Skill(skillId.value))
         val short = uc.execute(casterId, skillId, sourceItemId = staffId)
         assertThat(((short as Result.Failure).error as CastSkillError.InsufficientResource).have).isEqualTo(30)
         assertThat(cooldownTracker.isCoolingDown(casterId, CooldownKey.Skill(skillId.value))).isFalse()
         assertThat(eventBus.publishedOfType<SkillCastRejected>().single().reason)
-            .isEqualTo(CastRejectionReason.INSUFFICIENT_MANA)
+            .isEqualTo(CastRejectionReason.INSUFFICIENT_ENERGY)
     }
 
     @Test
@@ -261,7 +261,7 @@ class CastSkillUseCaseTest {
 
         uc.execute(casterId, skillId, sourceItemId = staffId)
 
-        assertThat(pool.currentPool(casterId)!!.mana).isEqualTo(100)
+        assertThat(pool.currentPool(casterId)!!.energy).isEqualTo(100)
     }
 
     @Test
