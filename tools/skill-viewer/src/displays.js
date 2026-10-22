@@ -140,6 +140,7 @@ function textAssets(lines, lineWidth, shadow) {
   const c = document.createElement('canvas'); c.width = w * S; c.height = h * S;
   const g = c.getContext('2d');
   g.textBaseline = 'alphabetic';
+  let drawn = false; // any default-font glyph on the canvas (bitmap glyphs are separate quads)
   parsed.forEach((line, i) => {
     let pen = (w - layout.widths[i]) / 2;
     const top = i * 9;
@@ -152,13 +153,14 @@ function textAssets(lines, lineWidth, shadow) {
         const base = (top + (wide ? 7 : 7.5)) * S;
         if (shadow) { g.fillStyle = 'rgba(0,0,0,0.65)'; g.fillText(ch, (pen + 1) * S, base + S); }
         g.fillStyle = run.color; g.fillText(ch, pen * S, base);
+        drawn = true;
         pen += adv;
       }
     }
   });
   const tex = new THREE.CanvasTexture(c);
   tex.magFilter = THREE.LinearFilter; tex.minFilter = THREE.LinearFilter; tex.generateMipmaps = false;
-  const entry = { tex, layout, w, h, glyphs: bitmapGlyphQuads(parsed, FONTS, lineWidth ?? 200) };
+  const entry = { tex, layout, w, h, drawn, glyphs: bitmapGlyphQuads(parsed, FONTS, lineWidth ?? 200) };
   textCache.set(key, entry);
   return entry;
 }
@@ -196,9 +198,11 @@ function buildText(spawn, lines, light) {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(bg.x1 - bg.x0, bg.y1 - bg.y0).translate((bg.x0 + bg.x1) / 2, (bg.y0 + bg.y1) / 2, 0), mat);
     m.matrixAutoUpdate = false; m.matrix.copy(space); m.renderOrder = 1; group.add(m);
   }
-  const mat = entityMaterial(a.tex, { light, diffuse: false, transparent: true, depthTest, cutoff: 0.004 });
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(a.w, a.h).translate(0, a.h / 2, 0.02), mat);
-  m.matrixAutoUpdate = false; m.matrix.copy(space); m.renderOrder = 2; group.add(m);
+  if (a.drawn) { // an all-bitmap line leaves the canvas empty: no invisible plane wider than the glyph quads
+    const mat = entityMaterial(a.tex, { light, diffuse: false, transparent: true, depthTest, cutoff: 0.004 });
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(a.w, a.h).translate(0, a.h / 2, 0.02), mat);
+    m.matrixAutoUpdate = false; m.matrix.copy(space); m.renderOrder = 2; group.add(m);
+  }
   for (const q of a.glyphs) {
     const gm = glyphMesh(q, light, depthTest, opacity);
     if (gm) { gm.matrixAutoUpdate = false; gm.matrix.copy(space); group.add(gm); }

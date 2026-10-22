@@ -80,6 +80,6 @@ describe('sprite glyph on a text display', () => {
   test('glyphs of a two-sprite line sit side by side, the line centred as a whole', () => {
     const qs = quadsOf(sprite('glint', 2) + sprite('glint', 2));
     expect(qs.length).toBe(2);
-    near(qs[1].x0 - qs[0].x0, 32); // advance of a full-width frame = 31 + 1
+    near(qs[1].x0 - qs[0].x0, 33); // advance of a pinned full-width frame = 32 + 1
   });
 });
