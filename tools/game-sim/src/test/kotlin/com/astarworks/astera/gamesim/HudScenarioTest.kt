@@ -47,7 +47,7 @@ class HudScenarioTest {
                 .containsEntry("count", "2")
             assertThat(idle.keys()).contains("astera.hud.lobby.queue.idle")
             assertThat(idle.texts().first { it.messageKey.value == "astera.hud.sidebar.stars" }.placeholders)
-                .containsEntry("stars", "25")
+                .containsEntry("stars", "175")
 
             val queued = sim.services.getOrThrow<IMatchmaker>().enqueue(alice.id, MatchmakingMode.Norma)
             assertThat(queued).isInstanceOf(Result.Success::class.java)
@@ -61,6 +61,8 @@ class HudScenarioTest {
             )
             assertThat(inQueue.keys()).doesNotContain("astera.hud.lobby.queue.idle")
 
+            // The daily login bonus lands ~5 s after joining and moves the wallet once; let it settle first.
+            advance(100)
             // Idle seconds cost nothing: the poll sees identical layouts and sends nothing.
             val changes = sim.hud.changes(alice.id, HudRegion.SIDEBAR).size
             advance(100)

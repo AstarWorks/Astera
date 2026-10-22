@@ -22,6 +22,7 @@ internal object NormaProgressTable : Table("norma_progress") {
     val currentCount = long("current_count")
     val completed = bool("completed").default(false)
     val completedAt = timestamp("completed_at").nullable()
+    val periodKey = text("period_key").default("")
     val updatedAt = timestamp("updated_at").clientDefault { Instant.now() }
     override val primaryKey: PrimaryKey = PrimaryKey(playerId, normaId)
 }

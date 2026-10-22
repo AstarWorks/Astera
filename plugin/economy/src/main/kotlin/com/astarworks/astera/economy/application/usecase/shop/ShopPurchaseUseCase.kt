@@ -126,8 +126,10 @@ public class ShopPurchaseUseCase(
         val debit = ledger.debit(playerId, offer.price.currency, offer.price.amount)
         return when (debit) {
             is Result.Failure -> when (debit.error) {
-                is WalletError.InsufficientFunds ->
-                    Result.failure(ShopPurchaseError.InsufficientFunds(offer.price.currency))
+                is WalletError.InsufficientFunds -> {
+                    val short = debit.error as WalletError.InsufficientFunds
+                    Result.failure(ShopPurchaseError.InsufficientFunds(offer.price.currency, short.have, short.tried))
+                }
             }
             is Result.Success -> {
                 // Authoritative stock gate. Unlimited offers skip this entirely
@@ -227,9 +229,16 @@ public sealed class ShopPurchaseError {
         public val offerId: ShopOfferId,
     ) : ShopPurchaseError()
 
-    /** The buyer lacks the required currency for this offer's price. */
-    /** Wallet could not cover the price; [currency] is the one that fell short. */
-    public data class InsufficientFunds(public val currency: Currency) : ShopPurchaseError()
+    /**
+     * Wallet could not cover the price. [currency] is the one that fell short,
+     * [have] the balance at the time and [need] the offer price, so the buyer
+     * can be told exactly how much is missing.
+     */
+    public data class InsufficientFunds(
+        public val currency: Currency,
+        public val have: Long,
+        public val need: Long,
+    ) : ShopPurchaseError()
 
     /**
      * The offer's item could not be delivered. Carries a human-readable

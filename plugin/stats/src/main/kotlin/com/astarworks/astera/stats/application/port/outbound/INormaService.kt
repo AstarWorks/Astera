@@ -6,9 +6,20 @@ import com.astarworks.astera.core.domain.norma.Norma
 import com.astarworks.astera.core.domain.norma.NormaId
 import com.astarworks.astera.core.domain.norma.NormaTarget
 
+/** One mission as the player sees it now: [current] already counts only the running daily / weekly window. */
+public data class NormaView(
+    public val norma: Norma,
+    public val current: Long,
+    public val required: Long,
+    public val completed: Boolean,
+)
+
 public interface INormaService {
     public fun activeNormasFor(playerId: PlayerId): Collection<Norma>
     public fun progress(playerId: PlayerId): Collection<MissionProgress>
+
+    /** Every defined mission with the player's progress in the current period (daily / weekly rows roll over). */
+    public fun views(playerId: PlayerId): List<NormaView>
 
     /**
      * Records [delta] progress for all normas matching the type of [target].

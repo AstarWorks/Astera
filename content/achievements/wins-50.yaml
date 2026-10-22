@@ -1,0 +1,5 @@
+# Achievement catalog entry (ADR-0210). Names / descriptions: astera.stats.achievement.wins-50.*
+id: wins-50
+name_key: astera.stats.achievement.wins-50.name
+description_key: astera.stats.achievement.wins-50.description
+icon_item_id: knight-sword

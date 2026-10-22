@@ -304,10 +304,31 @@ class MatchSidebarTest {
         messages = renderer,
         stars = { 15L },
         scheduler = scheduler,
+        gold = { 0L },
     )
 
     private fun LobbyFixture.sidebarOf(player: PlayerId): HudLayout.Sidebar =
         hud.currentLayout(hud.activeFor(player).single()) as HudLayout.Sidebar
+
+    @Test
+    fun `the lobby sidebar shows a GOLD line when the player holds gold`() {
+        val f = LobbyFixture()
+        val service = LobbySidebarService(
+            matches = f.matches,
+            matchmaker = f.matchmaker,
+            hud = f.hud,
+            messages = renderer,
+            stars = { 15L },
+            scheduler = f.scheduler,
+            gold = { 9L },
+        )
+        service.onJoined(p1)
+        service.refreshAll()
+
+        val layout = f.sidebarOf(p1)
+        assertThat(layout.text("astera.hud.sidebar.gold").placeholders).containsEntry("gold", "9")
+        assertThat(layout.keys().indexOf("astera.hud.sidebar.gold")).isGreaterThan(layout.keys().indexOf("astera.hud.sidebar.stars"))
+    }
 
     @Test
     fun `the lobby sidebar shows players online, queue state and stars`() {
@@ -322,6 +343,7 @@ class MatchSidebarTest {
         assertThat(idle.text("astera.hud.lobby.online").placeholders).containsEntry("count", "2")
         assertThat(idle.keys()).contains("astera.hud.lobby.queue.idle")
         assertThat(idle.text("astera.hud.sidebar.stars").placeholders).containsEntry("stars", "15")
+        assertThat(idle.keys()).`as`("no GOLD line while the player has none").doesNotContain("astera.hud.sidebar.gold")
 
         f.matchmaker.enqueue(p1, MatchmakingMode.Norma)
         service.refresh(p1)

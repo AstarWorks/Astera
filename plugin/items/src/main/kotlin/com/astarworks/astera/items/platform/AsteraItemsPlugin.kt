@@ -63,7 +63,7 @@ public class AsteraItemsPlugin : JavaPlugin() {
                     itemModels = ItemModelCatalog.fromContentDir(core.contentDir),
                 )
                 materializer = built
-                PaperItemDelivery(built, server)
+                PaperItemDelivery(built, server, PaperItemIdResolver(this, server))
             },
             itemIdResolver = PaperItemIdResolver(this, server),
             trainingRack = { services ->

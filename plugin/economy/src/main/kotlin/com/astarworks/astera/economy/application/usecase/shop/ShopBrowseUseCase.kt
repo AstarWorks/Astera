@@ -2,7 +2,17 @@ package com.astarworks.astera.economy.application.usecase.shop
 
 import com.astarworks.astera.core.adapter.api.server.IMcServer
 import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
+import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
+import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.application.port.outbound.IShopRegistry
+import com.astarworks.astera.core.application.port.outbound.IShopStockRepository
+import com.astarworks.astera.core.domain.economy.Currency
+import com.astarworks.astera.core.domain.gui.GuiText
+import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.item.ItemId
+import com.astarworks.astera.core.domain.shop.ShopOffer
+import com.astarworks.astera.core.domain.shop.ShopOfferId
+import com.astarworks.astera.core.domain.shop.ShopStock
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.gui.GuiId
 import com.astarworks.astera.core.domain.gui.GuiIntent
@@ -46,16 +56,33 @@ public class ShopBrowseUseCase(
     private val registry: IShopRegistry,
     private val adapter: IGuiAdapter,
     private val server: IMcServer,
+    private val ledger: ICurrencyLedger,
+    private val stock: IShopStockRepository,
+    private val messages: IMessageRenderer,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    public fun execute(playerId: PlayerId, shopId: ShopId): Result<Unit, ShopBrowseError> {
+    /**
+     * Opens [shopId] for [playerId], or - when the player already has this
+     * shop open - repaints it in place (balance / stock changed after a
+     * purchase). [pendingOffer] marks the offer that is waiting for its
+     * confirming second click.
+     */
+    public fun execute(
+        playerId: PlayerId,
+        shopId: ShopId,
+        pendingOffer: ShopOfferId? = null,
+    ): Result<Unit, ShopBrowseError> {
         val player = server.findPlayer(playerId)
             ?: return Result.failure(ShopBrowseError.PlayerNotOnline)
         val shopSpec = registry.resolve(shopId)
             ?: return Result.failure(ShopBrowseError.ShopNotFound(shopId))
 
-        val guiSpec = buildShopGui(shopSpec)
+        val guiSpec = buildShopGui(playerId, shopSpec, pendingOffer)
+        if (adapter.currentSpec(player)?.id == guiSpec.id) {
+            adapter.update(player, guiSpec)
+            return Result.success(Unit)
+        }
         return if (adapter.open(player, guiSpec)) {
             Result.success(Unit)
         } else {
@@ -64,15 +91,15 @@ public class ShopBrowseUseCase(
     }
 
     /**
-     * Builds the dynamic chest GUI for [shopSpec]. Offers iterate in declared
-     * order and are placed at slot indices `0..min(offers.size, MAX_OFFERS)-1`.
-     * Offers beyond [MAX_OFFERS] are dropped with a WARN log — the operator
-     * should split the shop or wait for the Phase 4 multi-page expansion.
+     * Rows of offers (9 per row, declared order) plus one footer row holding
+     * the wallet. Each offer icon is the item itself (its own name, lore and
+     * stats), with the price in the right currency, the live stock and the
+     * click hint appended.
      */
-    private fun buildShopGui(shopSpec: ShopSpec): GuiSpec {
+    private fun buildShopGui(playerId: PlayerId, shopSpec: ShopSpec, pendingOffer: ShopOfferId?): GuiSpec {
         val visibleOffers = if (shopSpec.offers.size > MAX_OFFERS) {
             log.warn(
-                "ShopSpec '{}' has {} offers; Wave 4.5 caps the GUI at {} — extra offers are hidden.",
+                "ShopSpec '{}' has {} offers; the GUI caps at {} - extra offers are hidden.",
                 shopSpec.id.value,
                 shopSpec.offers.size,
                 MAX_OFFERS,
@@ -81,37 +108,93 @@ public class ShopBrowseUseCase(
         } else {
             shopSpec.offers
         }
+        val offerRows = ((visibleOffers.size + 8) / 9).coerceAtLeast(1)
+        val size = GuiSize.entries.first { it.slotCount == (offerRows + 1) * 9 }
 
         return GuiSpec.build(
             id = GuiId("shop-${shopSpec.id.value}"),
             title = shopSpec.displayKey,
-            size = GuiSize.CHEST_27,
+            size = size,
         ) {
             visibleOffers.forEachIndexed { index, offer ->
-                slot(
-                    SlotIndex(index),
-                    GuiSlot.Static(
-                        itemId = offer.itemId,
-                        onLeftClick = GuiIntent(
-                            key = "shop.purchase",
-                            payload = mapOf(
-                                "shop_id" to shopSpec.id.value,
-                                "offer_id" to offer.id.value,
-                            ),
-                        ),
-                    ),
-                )
+                slot(SlotIndex(index), offerSlot(playerId, shopSpec, offer, pendingOffer == offer.id))
+            }
+            for (col in 0 until 9) {
+                slot(SlotIndex(size.slotCount - 9 + col), if (col == 4) walletSlot(playerId) else GuiSlot.Border(FOOTER_PANE))
             }
         }
     }
 
+    private fun offerSlot(playerId: PlayerId, shopSpec: ShopSpec, offer: ShopOffer, pending: Boolean): GuiSlot.Static {
+        val have = ledger.balance(playerId, offer.price.currency)
+        val affordable = have >= offer.price.amount
+        val remaining = when (val live = stock.currentStock(shopSpec.id, offer.id) ?: offer.stock) {
+            is ShopStock.Unlimited -> null
+            is ShopStock.Limited -> live.remaining
+        }
+        val soldOut = remaining != null && remaining <= 0
+        val currencyName = currencyName(playerId, offer.price.currency)
+        val priceArgs = mapOf(
+            "amount" to offer.price.amount.toString(),
+            "currency" to currencyName,
+            "have" to have.toString(),
+        )
+        val lore = buildList {
+            add(GuiText(SPACER))
+            add(GuiText(if (affordable) PRICE_OK else PRICE_SHORT, priceArgs))
+            if (remaining != null && !soldOut) add(GuiText(STOCK_LIMITED, mapOf("remaining" to remaining.toString())))
+            add(
+                GuiText(
+                    when {
+                        soldOut -> ACTION_SOLD_OUT
+                        !affordable -> ACTION_SHORT
+                        pending -> ACTION_CONFIRM
+                        else -> ACTION_BUY
+                    },
+                    mapOf("missing" to (offer.price.amount - have).toString(), "currency" to currencyName),
+                ),
+            )
+        }
+        return GuiSlot.Static(
+            itemId = offer.itemId,
+            onLeftClick = GuiIntent(
+                key = "shop.purchase",
+                payload = mapOf("shop_id" to shopSpec.id.value, "offer_id" to offer.id.value),
+            ),
+            lore = lore,
+        )
+    }
+
+    private fun walletSlot(playerId: PlayerId): GuiSlot.Static = GuiSlot.Static(
+        itemId = WALLET_ICON,
+        displayName = GuiText(WALLET_TITLE),
+        lore = Currency.entries.map { c ->
+            GuiText(
+                WALLET_LINE,
+                mapOf("currency" to currencyName(playerId, c), "amount" to ledger.balance(playerId, c).toString()),
+            )
+        },
+    )
+
+    private fun currencyName(playerId: PlayerId, currency: Currency): String =
+        messages.render(playerId, MessageKey("astera.economy.currency.${currency.name.lowercase()}"))
+
     public companion object {
-        /**
-         * Wave 4.5 cap. `CHEST_27` is the Phase 1 PoC ceiling; the domain
-         * already supports `CHEST_54` and a future paging variant can re-use
-         * this use case with no signature change.
-         */
-        public const val MAX_OFFERS: Int = 27
+        /** Offers per shop: five rows; the sixth is the wallet footer. */
+        public const val MAX_OFFERS: Int = 45
+
+        private val FOOTER_PANE = ItemId("gui-pane-dark")
+        private val WALLET_ICON = ItemId("gui-admin-currency")
+        private val SPACER = MessageKey("astera.economy.shop.gui.spacer")
+        private val PRICE_OK = MessageKey("astera.economy.shop.gui.price")
+        private val PRICE_SHORT = MessageKey("astera.economy.shop.gui.price_short")
+        private val STOCK_LIMITED = MessageKey("astera.economy.shop.gui.stock")
+        private val ACTION_BUY = MessageKey("astera.economy.shop.gui.action.buy")
+        private val ACTION_CONFIRM = MessageKey("astera.economy.shop.gui.action.confirm")
+        private val ACTION_SHORT = MessageKey("astera.economy.shop.gui.action.short")
+        private val ACTION_SOLD_OUT = MessageKey("astera.economy.shop.gui.action.sold_out")
+        private val WALLET_TITLE = MessageKey("astera.economy.shop.gui.wallet.title")
+        private val WALLET_LINE = MessageKey("astera.economy.shop.gui.wallet.line")
     }
 }
 

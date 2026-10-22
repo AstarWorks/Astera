@@ -44,6 +44,7 @@ import com.astarworks.astera.core.domain.event.SkillCooldownStarted
 import com.astarworks.astera.items.application.usecase.refinement.ApplyRefinementUseCase
 import com.astarworks.astera.items.application.usecase.refinement.RerollSubStatsUseCase
 import com.astarworks.astera.items.command.giveItemSubcommand
+import com.astarworks.astera.items.command.refreshItemsSubcommand
 import com.charleskorn.kaml.Yaml
 
 /** What the host needs after [ItemsWiring.install]. */
@@ -255,6 +256,7 @@ public object ItemsWiring {
         // Command tree.
         // `/astera items give <target> <item> [amount]` (ADR-0184).
         commands.register("items", giveItemSubcommand(giveItem, itemRegistry))
+        commands.register("items", refreshItemsSubcommand(itemDelivery, itemRegistry))
 
         // ── Wave M 5polish-quickwin (ADR-0130 §D) ────────────────────────
         // Sample tooltip providers:

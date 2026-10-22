@@ -53,7 +53,7 @@ internal sealed interface Design {
 
     data class Blade(
         val length: Double, val halfWidth: Double, val guardHalfWidth: Double,
-        val blade: Ramp, val guard: Ramp, val grip: Ramp, val fuller: Boolean,
+        val blade: Ramp, val guard: Ramp, val grip: Ramp, val fuller: Boolean, val halo: Int? = null,
     ) : Design { override val style = ModelStyle.HANDHELD }
 
     data class Staff(val element: Element) : Design { override val style = ModelStyle.HANDHELD }
@@ -84,9 +84,10 @@ internal object ItemArt {
     private val DESIGNS: Map<String, Design> = mapOf(
         "pistol" to Design.Gun(GunKind.PISTOL, 0xFF39C6E8.toInt()),
         "rifle" to Design.Gun(GunKind.RIFLE, 0xFF4CC95A.toInt()),
+        "rtm-blaster" to Design.Gun(GunKind.RIFLE, 0xFFD070E8.toInt()),
         "shotgun" to Design.Gun(GunKind.SHOTGUN, 0xFFE0412F.toInt()),
-        "knight-sword" to Design.Blade(25.5, 1.9, 4.2, STEEL, GOLD, LEATHER, fuller = true),
-        "greatsword" to Design.Blade(30.0, 2.8, 5.8, DARK_STEEL, CRIMSON, BLACK_METAL, fuller = true),
+        "knight-sword" to Design.Blade(25.5, 1.9, 4.2, STEEL, GOLD, LEATHER, fuller = true, halo = 0xFFFFE066.toInt()),
+        "greatsword" to Design.Blade(30.0, 2.8, 5.8, DARK_STEEL, CRIMSON, BLACK_METAL, fuller = true, halo = 0xFFE8434C.toInt()),
         "dagger" to Design.Blade(19.5, 1.5, 2.7, GUNMETAL, DARK_STEEL, LEATHER, fuller = false),
         "fire-staff" to Design.Staff(Element.FIRE),
         "frost-staff" to Design.Staff(Element.FROST),
@@ -125,6 +126,19 @@ internal object ItemArt {
         }
     }
 
+    /** Every item id under `content/items` (skill-bearing or not). */
+    fun allItemIds(contentDir: Path): List<String> = Files.list(contentDir.resolve("items")).use { st ->
+        st.filter { it.name.endsWith(".yaml") }.sorted().toList()
+    }.mapNotNull { Yaml().load<Map<String, Any?>>(Files.readString(it)).orEmpty()["id"] as? String }
+
+    /** GUI / kit / skill-kind icons (non-weapons) that exist as items and have a design in [Icons]. */
+    fun icons(contentDir: Path): List<Pair<String, IconSpec>> =
+        allItemIds(contentDir).mapNotNull { id -> Icons.SPECS[id]?.let { id to it } }
+
+    fun iconModelJson(id: String): String =
+        "{\n  \"parent\": \"minecraft:item/generated\",\n  \"textures\": {\n    \"layer0\": " +
+            "\"$NAMESPACE:$RESOURCE_PREFIX/$id\"\n  }\n}\n"
+
     fun render(item: ItemRecord): BufferedImage {
         val seed = item.id.fold(1469598103934665603L) { h, c -> (h xor c.code.toLong()) * 1099511628211L }
         val sprite = Sprite(seed)
@@ -155,6 +169,10 @@ internal object ItemArt {
         for (item in weapons(contentDir)) {
             files["$TEXTURE_DIR/${item.id}.png"] = png(render(item))
             files["$MODEL_DIR/${item.id}.model.json"] = modelJson(item).toByteArray()
+        }
+        for ((id, spec) in icons(contentDir)) {
+            files["$TEXTURE_DIR/$id.png"] = png(Icons.render(id, spec))
+            files["$MODEL_DIR/$id.model.json"] = iconModelJson(id).toByteArray()
         }
         return files
     }

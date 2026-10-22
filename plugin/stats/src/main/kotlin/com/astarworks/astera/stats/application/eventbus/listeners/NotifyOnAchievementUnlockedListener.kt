@@ -57,17 +57,20 @@ public class NotifyOnAchievementUnlockedListener(
     private val log = LoggerFactory.getLogger(javaClass)
 
     public fun handle(event: AchievementUnlocked) {
+        val definition = achievements.find(event.achievementId)
         val chatKey = MessageKey("astera.achievement.unlocked.chat")
         val rendered = messages.render(
             playerId = event.playerId,
             key = chatKey,
             placeholders = mapOf(
-                "achievement" to event.achievementId.value,
+                "achievement" to (
+                    definition?.let { messages.render(event.playerId, it.nameKey, emptyMap()) }
+                        ?: event.achievementId.value
+                    ),
             ),
         )
         playerGateway.sendMessage(event.playerId, rendered)
 
-        val definition = achievements.find(event.achievementId)
         val component: HudComponent = if (definition != null) {
             HudComponent.Composite(
                 parts = listOf(

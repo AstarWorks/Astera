@@ -68,4 +68,29 @@ class ItemArtTest {
         assertThat(ItemArt.designFor(item)).isInstanceOf(Design.Staff::class.java)
         assertThat(ItemArt.pixels(ItemArt.render(item))).isNotEmpty()
     }
+
+    @Test
+    fun `every non-weapon item has an icon design or is deliberately vanilla`() {
+        val weaponIds = weapons.map { it.id }.toSet()
+        val undecided = ItemArt.allItemIds(contentDir).filter { it !in weaponIds && it !in Icons.SPECS && it !in Icons.VANILLA }
+        assertThat(undecided).`as`("items with neither an icon design nor a vanilla exemption").isEmpty()
+    }
+
+    @Test
+    fun `icon designs only name items that exist and never overlap weapons`() {
+        val ids = ItemArt.allItemIds(contentDir).toSet()
+        assertThat(Icons.SPECS.keys - ids).isEmpty()
+        assertThat(Icons.VANILLA - ids).isEmpty()
+        assertThat(Icons.SPECS.keys.intersect(weapons.map { it.id }.toSet())).isEmpty()
+    }
+
+    @Test
+    fun `icons are drawn, visually distinct and have a model`() {
+        val icons = ItemArt.icons(contentDir)
+        assertThat(icons).hasSizeGreaterThan(40)
+        val pixels = icons.map { (id, spec) -> ItemArt.pixels(Icons.render(id, spec)) }
+        for ((i, px) in pixels.withIndex()) assertThat(px.count { it ushr 24 == 0xFF }).`as`(icons[i].first).isGreaterThan(80)
+        assertThat(icons.map { it.second }.toSet()).`as`("one design per glyph and theme").hasSameSizeAs(icons)
+        assertThat(ItemArt.iconModelJson("gui-tile-shop")).contains("minecraft:item/generated", "astera:generated/items/gui-tile-shop")
+    }
 }

@@ -1,0 +1,71 @@
+package com.astarworks.astera.gamesim
+
+import com.astarworks.astera.core.application.port.inbound.IGuiIntentRouter
+import com.astarworks.astera.core.application.port.outbound.IAuditLogRepository
+import com.astarworks.astera.core.application.port.outbound.ICurrencyLedger
+import com.astarworks.astera.core.application.port.outbound.IGuiAdapter
+import com.astarworks.astera.core.application.services.getOrThrow
+import com.astarworks.astera.core.domain.audit.AuditEvent
+import com.astarworks.astera.core.domain.economy.Currency
+import com.astarworks.astera.core.domain.gui.GuiIntent
+import com.astarworks.astera.core.domain.gui.GuiSlot
+import com.astarworks.astera.core.domain.gui.SlotIndex
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+/**
+ * Shop loop on the real wired graph (ADR-0199 / ADR-0202): a new player starts with the
+ * STAR grant, opens the lobby shop, sees prices in the right currency, needs a confirming
+ * second click for an expensive offer, is told what is missing when short, and every
+ * movement lands in the audit log.
+ */
+class ShopScenarioTest {
+
+    private fun ScenarioScope.dispatch(who: SimEntity, key: String, vararg payload: Pair<String, String>) {
+        val view = checkNotNull(sim.server.view(who.id))
+        sim.services.getOrThrow<IGuiIntentRouter>().dispatch(view, GuiIntent(key, payload.toMap()))
+    }
+
+    private fun ScenarioScope.buyClick(who: SimEntity, offer: String) =
+        dispatch(who, "shop.purchase", "shop_id" to "example-shop", "offer_id" to offer)
+
+    @Test
+    fun `new player opens the shop, confirms a purchase, gets the item and is told when short`() {
+        scenario("shop-loop") {
+            val ledger = sim.services.getOrThrow<ICurrencyLedger>()
+            val buyer = player("buyer")
+            advance(1)
+            assertThat(ledger.balance(buyer.id, Currency.STAR)).`as`("starter grant").isEqualTo(150L)
+
+            dispatch(buyer, "lobby.shop.open")
+            val view = checkNotNull(sim.server.view(buyer.id))
+            val spec = checkNotNull(sim.services.getOrThrow<IGuiAdapter>().currentSpec(view))
+            assertThat(spec.id.value).isEqualTo("shop-example-shop")
+            val firstOffer = spec.slotAt(SlotIndex(0)) as GuiSlot.Static
+            assertThat(firstOffer.lore.map { it.key.value }).contains("astera.economy.shop.gui.price")
+
+            // knight-sword costs 100 STAR: the first click only asks for confirmation.
+            buyClick(buyer, "knight-sword")
+            assertThat(ledger.balance(buyer.id, Currency.STAR)).isEqualTo(150L)
+            assertThat(view.givenItems).containsExactly("knight-sword", "frost-staff") // starter grant only
+
+            buyClick(buyer, "knight-sword")
+            assertThat(ledger.balance(buyer.id, Currency.STAR)).isEqualTo(50L)
+            assertThat(view.givenItems).containsExactly("knight-sword", "frost-staff", "knight-sword")
+
+            // 120 STAR pistol with 50 STAR left: refused, nothing charged, shortfall named.
+            buyClick(buyer, "pistol")
+            assertThat(ledger.balance(buyer.id, Currency.STAR)).isEqualTo(50L)
+            assertThat(view.messages.joinToString("\n")).contains("need 120").contains("you have 50").contains("70 short")
+
+            // Transaction log: starter grant is not a CurrencyChanged, the purchase is.
+            val movements = sim.services.getOrThrow<IAuditLogRepository>().recent(limit = 50)
+                .filterIsInstance<AuditEvent.CurrencyMovement>().filter { it.player == buyer.id }
+            assertThat(movements).anySatisfy {
+                assertThat(it.delta).isEqualTo(-100L)
+                assertThat(it.newBalance).isEqualTo(50L)
+                assertThat(it.reason).isEqualTo("shop:example-shop/knight-sword")
+            }
+        }
+    }
+}

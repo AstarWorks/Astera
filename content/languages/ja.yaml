@@ -43,6 +43,7 @@ astera:
   friends.pending.none: "<gray>保留中のフレンド申請はありません。</gray>"
   friends.pending.footer: "<gray>/astera friend accept <プレイヤー> で承認できます。</gray>"
   items.command.give.success: "<green>{player} に <gold>{item}</gold> を {amount} 個渡しました。</green>"
+  items.command.refresh.success: "<green>所持中のアイテム <gold>{count}</gold> スタックの名前・説明・モデルを更新しました。</green>"
   items.command.give.invalid_amount: "<red>数量は 1 以上にしてください（{amount}）。</red>"
   items.command.give.invalid_id: "<red>無効なアイテム ID <gold>{item}</gold> です。</red>"
   items.command.give.not_found: "<red>アイテム <gold>{item}</gold> が見つかりません。</red>"
@@ -132,6 +133,10 @@ astera:
       lang: "表示言語を切り替える（ja / en）"
       volume: "音量チャンネルを設定（music / sound / voice）"
       news: "最新のお知らせを読む"
+      daily: "デイリーログインボーナスを受け取る"
+      missions: "デイリー・ウィークリーミッションを表示"
+      quests: "クエストを表示"
+      achievements: "実績を表示"
       patch: "パッチノートを読む"
       report: "プレイヤーや不具合を報告する"
       shop: "ショップを開く（既定はロビーのショップ）"
@@ -158,6 +163,7 @@ astera:
       match-replay-export: "保存済みリプレイをファイルへ出力"
       items: "アイテム"
       items-give: "プレイヤーにアイテムを渡す"
+      items-refresh: "編集したアイテムの名前・説明・見た目を所持中のアイテムへ反映"
       skill: "スキルを直接発動"
       skill-list: "登録済みスキルの一覧"
       skill-cast: "スキルを発動（リソース消費なし、--force でクールダウン無視）"
@@ -217,6 +223,8 @@ astera:
       admin-backup: "プレイヤーのバックアップ"
       admin-restart: "再起動を予約"
       admin-drain: "このサーバーのプレイヤーを別のサーバーへ移動"
+      admin-pack: "リソースパック関連"
+      admin-pack-reload: "リソースパックのハッシュを再取得し、オンラインの全員へ再送信"
       admin-panel: "管理パネルを開く（武器・マッチ・プレイヤー・サーバー）"
       admin-announce: "お知らせを配信"
       admin-stage: "ステージカタログ"
@@ -251,6 +259,8 @@ astera:
       admin-restart: "<yellow>{minutes} 分後の再起動を予約しました。</yellow>"
       admin-drain: "<yellow>{count} 人を <gold>{target}</gold> へ移動します。</yellow>"
       admin-drain-unavailable: "<red>このサーバーではサーバー間移動を利用できません。</red>"
+      admin-pack-reload: "<green>リソースパック {sha1}（変更: {changed}）を {count} 人へ再送信しました。</green>"
+      admin-pack-unavailable: "<red>リソースパックを読み込めません（ASTERA_RESOURCE_PACK_URL 未設定、または sha1 ファイルに接続できません）。直前のパックを維持します。</red>"
       admin-slow-query-header: "<gold>スロークエリ: 累計 {total} 件、直近7日 {recent} 件</gold>"
       admin-slow-query-line: "<gray>#{index} {ms}ms [{context}] {sql}</gray>"
       admin-spawn-mob: "<green>{mob} を {count} 体、{world} の {x} {y} {z} にスポーンしました。</green>"
@@ -463,6 +473,10 @@ astera:
 
   # ── Wave 4.5 (ADR-0027): Shop / Loadout 永続化 / Norma / Match / Spawn ──
   economy:
+    currency:
+      star: "<yellow>STAR</yellow>"
+      gold: "<gold>GOLD</gold>"
+      gem: "<light_purple>GEM</light_purple>"
     shop:
       example-shop:
         title: "サンプルショップ"
@@ -480,6 +494,19 @@ astera:
           verdant-staff: "翠緑の杖"
           greatsword: "大剣"
           thunder-staff: "サンダースタッフ"
+      gui:
+        spacer: " "
+        price: "<gray>価格: <green>{amount}</green> {currency}</gray>"
+        price_short: "<gray>価格: <red>{amount}</red> {currency} <dark_gray>(所持 {have})</dark_gray></gray>"
+        stock: "<gray>在庫: <white>{remaining}</white></gray>"
+        action:
+          buy: "<yellow>クリックで購入</yellow>"
+          confirm: "<gold><bold>もう一度クリックで購入確定！</bold></gold>"
+          short: "<red>{currency} があと {missing} 足りません</red>"
+          sold_out: "<dark_red>売り切れ</dark_red>"
+        wallet:
+          title: "<gold>所持金</gold>"
+          line: "<gray>{currency}: <white>{amount}</white></gray>"
       browse:
         invalid_id: "<red>不正なショップ ID: {shop}</red>"
         player_not_online: "<red>ショップを開くにはオンラインである必要があります。</red>"
@@ -492,7 +519,8 @@ astera:
         shop_not_found: "<red>購入中にショップが消失しました。</red>"
         offer_not_found: "<red>そのオファーは存在しません。</red>"
         out_of_stock: "<red>在庫切れです。</red>"
-        insufficient_funds: "<red>{currency} の残高が不足しています。</red>"
+        insufficient_funds: "<red>{currency} が足りません: 必要 {need}、所持 {have}（あと {short}）。</red>"
+        confirm: "<yellow>{price} {currency} - 購入を確定するには、もう一度アイテムをクリックしてください。</yellow>"
         delivery_failed: "<red>アイテムを配送できませんでした: {reason}</red>"
         blocked_in_match: "<red>試合中はショップを利用できません（購入品が試合後の持ち物復元で失われるため）。</red>"
     command:
@@ -581,6 +609,19 @@ astera:
       on_match_start: "<gray>試合用のロードアウトを適用しました。</gray>"
 
   norma:
+    toast: "<gold>ミッション達成</gold>"
+    daily-killer-1:
+      name: "デイリーハンター（5 人撃破）"
+    daily-damage:
+      name: "デイリーダメージ（1,500 ダメージ）"
+    daily-victory:
+      name: "デイリー勝利（1 試合勝利）"
+    daily-grinder:
+      name: "デイリー修練（400 XP 獲得）"
+    weekly-warrior:
+      name: "ウィークリーウォリアー（5 試合勝利）"
+    weekly-slayer:
+      name: "ウィークリースレイヤー（40 人撃破）"
     progress:
       updated: "<gray>{norma}: {current}/{target}</gray>"
     completed: "<green>ミッション達成: <gold>{norma}</gold>！</green>"
@@ -944,6 +985,7 @@ astera:
         team: "<{color}>{team}</{color}><gray>:</gray> <white>{score}/{goal}</white> <gray>確保、</gray><white>{left}</white> <gray>残り</gray>"
       you: "<gray>あなた:</gray> <{color}>{team}</{color}>"
       stars: "<yellow>*</yellow> <white>{stars}</white> <gray>スター</gray>"
+      gold: "<gold>*</gold> <white>{gold}</white> <gray>ゴールド</gray>"
     lobby:
       title: "<gold><bold>Astera</bold></gold>"
       online: "<gray>接続中:</gray> <white>{count}</white>"
@@ -1002,6 +1044,39 @@ astera:
       kills-100:
         name: "<gold>英雄</gold>"
         description: "<gray>キル数 100。</gray>"
+      wins-1:
+        name: "<gold>初勝利</gold>"
+        description: "<gray>初めて試合に勝利する。</gray>"
+      wins-10:
+        name: "<gold>チャンピオン</gold>"
+        description: "<gray>試合に 10 回勝利する。</gray>"
+      wins-50:
+        name: "<gold>征服者</gold>"
+        description: "<gray>試合に 50 回勝利する。</gray>"
+      damage-1k:
+        name: "<gold>重撃</gold>"
+        description: "<gray>累計 1,000 ダメージを与える。</gray>"
+      damage-10k:
+        name: "<gold>破壊者</gold>"
+        description: "<gray>累計 10,000 ダメージを与える。</gray>"
+      tutorial-graduate:
+        name: "<gold>チュートリアル卒業</gold>"
+        description: "<gray>チュートリアルを完了する。</gray>"
+      explorer:
+        name: "<gold>探検家</gold>"
+        description: "<gray>森の探索クエストを達成する。</gray>"
+      streak-7:
+        name: "<gold>常連</gold>"
+        description: "<gray>7 日連続でログインする。</gray>"
+      level-5:
+        name: "<gold>新星</gold>"
+        description: "<gray>レベル 5 に到達する。</gray>"
+      level-10:
+        name: "<gold>古参</gold>"
+        description: "<gray>レベル 10 に到達する。</gray>"
+      mission-first:
+        name: "<gold>ミッション達成</gold>"
+        description: "<gray>初めてミッションを達成する。</gray>"
 
     # F3-4 — 「直近の試合」カード: /astera stats last とロビー復帰時のまとめ。
     last:
@@ -1153,6 +1228,7 @@ astera:
     progress:
       stage-completed: "<gold>クエスト段階クリア！</gold>"
       chain-completed: "<gold>クエスト完了！</gold>"
+      stage-line: "<gray>{quest}: {stage}</gray>"
 
   # Wave 5multi-skill (ADR-0101): 多軸スキル進行のパーク表示。
   progression:
@@ -1748,9 +1824,43 @@ astera:
         "3": "管理者コマンド + スケジュールアナウンス + メンテナンスモード。"
       full: "Phase 1 PoC リリース: 全機能 × 状態マトリックスは RTM-PARITY-TRACKER.md を参照。"
 
+  board:
+    leaderboard:
+      title: "§6§l== シーズンランキング =="
+      empty: "§7ランク戦の結果はまだありません。"
+
+  progress:
+    daily:
+      header: "<gold><bold>デイリーログインボーナス</bold></gold>"
+      status: "<gray>連続ログイン:</gray> <white>{streak}</white> <gray>日。今日は</gray> <white>{day}</white> <gray>日目の報酬</gray>"
+      claimed: "<green>今日のボーナスは受け取り済みです。</green>"
+      unavailable: "<yellow>今日のボーナスは設定されていません。</yellow>"
+      tomorrow: "<gray>明日:</gray> <yellow>{amount} {currency}</yellow>"
+    missions:
+      header: "<gold><bold>ミッション</bold></gold>"
+      none: "<gray>ミッションはありません。</gray>"
+      line: "<gray>[{period}]</gray> <white>{name}</white> <yellow>{current}/{required}</yellow>"
+      line-done: "<gray>[{period}]</gray> <green>{name} - 達成</green>"
+    period:
+      daily: "デイリー"
+      weekly: "ウィークリー"
+      seasonal: "シーズン"
+    quests:
+      header: "<gold><bold>クエスト</bold></gold>"
+      none: "<gray>クエストはまだありません。参加時に開始されます。</gray>"
+      line: "{quest}<gray>:</gray> <white>{stage}</white> <yellow>{current}/{required}</yellow>"
+      line-done: "{quest} <green>- 完了</green>"
+    achievements:
+      header: "<gold><bold>実績</bold></gold> <gray>（{unlocked}/{total}）</gray>"
+      line-unlocked: "<green>[x]</green> {name} <gray>- {description}</gray>"
+      line-locked: "<dark_gray>[ ]</dark_gray> <gray>{name} - {description}</gray>"
+
   loginbonus:
+    claimed:
+      chat: "<gold>デイリーボーナス！</gold> <gray>{day} 日目（連続 {streak} 日）:</gray> <yellow>+{amount} {currency}</yellow>"
+      toast-title: "<gold>デイリーボーナス</gold>"
+      toast-body: "<yellow>+{amount} {currency}</yellow> <gray>- 連続 {streak} 日</gray>"
     error:
-      not_implemented: "<red>デイリーログインボーナスの取得は未実装です（Phase 2 で対応）。</red>"
       already_claimed_today: "<yellow>本日のボーナスは既に取得済みです。</yellow>"
       no_reward_for_day: "<red>日 {day} に対応する報酬が設定されていません。</red>"
 

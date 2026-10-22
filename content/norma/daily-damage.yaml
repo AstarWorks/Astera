@@ -1,0 +1,11 @@
+# Mission (ADR-0210). daily window: progress restarts each day.
+id: daily-damage
+display_name_key: astera.norma.daily-damage.name
+period: daily
+target:
+  type: damage
+  amount: 1500
+reward:
+  currency_id: STAR
+  currency_amount: 30
+  xp: 60

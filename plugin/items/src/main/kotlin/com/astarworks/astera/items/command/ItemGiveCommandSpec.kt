@@ -6,7 +6,9 @@ import com.astarworks.astera.core.application.command.CommandSpec
 import com.astarworks.astera.core.application.command.requirePermission
 import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.permission.Permission
+import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.items.application.usecase.GiveItemUseCase
 
 /**
@@ -55,3 +57,19 @@ internal fun giveItemSubcommand(
         }
     },
 ).requirePermission(Permission("astera.items.give"))
+
+/**
+ * `/astera items refresh` (F3-9, ADR-0201): after `/astera admin reload items`, re-apply the visual half
+ * of the edited specs (name, lore, item model) to every Astera stack online players hold. Gameplay data
+ * is read from the registry at use time and needs no refresh.
+ */
+internal fun refreshItemsSubcommand(
+    delivery: IItemDelivery,
+    items: IItemRegistry,
+): CommandSpec.Literal = CommandSpec.Literal(
+    name = "refresh",
+    executor = { ctx ->
+        ctx.reply(MessageKey("astera.items.command.refresh.success"), mapOf("count" to delivery.refreshHeld(items).toString()))
+        CommandResult.Success
+    },
+).requirePermission(Permission("astera.items.refresh"))

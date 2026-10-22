@@ -9,4 +9,6 @@ public data class MissionProgress(
     val current: Long,
     val completed: Boolean,
     val completedAt: Instant?,
+    /** The daily / weekly window this row counts for (`2026-10-22`, `2026-W43`); `""` = does not reset. */
+    val periodKey: String = "",
 )

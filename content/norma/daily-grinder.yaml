@@ -1,0 +1,11 @@
+# Mission (ADR-0210). daily window: progress restarts each day.
+id: daily-grinder
+display_name_key: astera.norma.daily-grinder.name
+period: daily
+target:
+  type: xp_gain
+  amount: 400
+reward:
+  currency_id: STAR
+  currency_amount: 25
+  xp: 50

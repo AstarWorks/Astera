@@ -1,40 +1,35 @@
 package com.astarworks.astera.core.application.port.outbound.loginbonus
 
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.loginbonus.LoginBonusClaim
 import com.astarworks.astera.core.domain.loginbonus.LoginBonusError
-import com.astarworks.astera.core.domain.loginbonus.LoginBonusReward
+import com.astarworks.astera.core.domain.loginbonus.LoginBonusStatus
 import com.astarworks.astera.core.domain.loginbonus.LoginStreakRecord
 import com.astarworks.astera.core.domain.player.PlayerId
 import java.time.LocalDate
 
 /**
- * Daily login-bonus claim flow + streak read accessor
- * (Wave J 5server-content-ops, ADR-0127 — Phase 2 ready skeleton).
+ * Daily login-bonus claim flow + streak read accessors (ADR-0127, claim flow ADR-0210).
  *
- * Phase 1 [com.astarworks.astera.core.application.service.loginbonus.DefaultLoginBonusService]
- * returns `Result.Failure(LoginBonusError.NotImplemented)` from [claimDaily] —
- * actual reward grant + streak increment ships in Phase 2.
+ * "Today" is the caller's calendar day (server zone). The streak continues only when the
+ * previous claim was exactly yesterday; any longer gap restarts it at 1. The configured
+ * rotation wraps: streak 8 on a 7-day table pays day 1 again.
  */
 public interface ILoginBonusService {
 
     /**
-     * Attempt to claim today's login bonus for [playerId]. Phase 2 will:
-     *
-     *  1. Look up the player's streak record (or treat absent as day 0).
-     *  2. Reject if [today] equals `lastClaimDate`.
-     *  3. Increment the streak (reset to 1 if there's a gap).
-     *  4. Look up the [ILoginBonusRegistry] entry for the new streak day.
-     *  5. Grant the reward (currency + items) via the relevant feature ports.
-     *  6. Persist the updated streak record.
-     *
-     * Phase 1 returns [LoginBonusError.NotImplemented] without touching the
-     * repository so test fixtures stay deterministic.
+     * Claim today's bonus: [LoginBonusError.AlreadyClaimedToday] if [today] was already claimed,
+     * otherwise advance the streak, credit the reward, save the streak and publish
+     * `LoginBonusClaimed`.
      */
     public fun claimDaily(
         playerId: PlayerId,
         today: LocalDate,
-    ): Result<LoginBonusReward, LoginBonusError>
+    ): Result<LoginBonusClaim, LoginBonusError>
 
-    /** Read accessor — exposed in Phase 1 so UI / GUI can show the streak. */
+    /** What claiming (or having claimed) today means for [playerId]; nothing is written. */
+    public fun status(playerId: PlayerId, today: LocalDate): LoginBonusStatus
+
+    /** Raw streak record, or `null` if the player never claimed. */
     public fun streakOf(playerId: PlayerId): LoginStreakRecord?
 }

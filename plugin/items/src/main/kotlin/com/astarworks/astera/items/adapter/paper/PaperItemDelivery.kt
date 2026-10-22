@@ -1,10 +1,12 @@
 package com.astarworks.astera.items.adapter.paper
 
 import com.astarworks.astera.core.adapter.api.entity.IMcPlayer
+import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.domain.item.ItemSpec
 import com.astarworks.astera.core.application.port.outbound.item.DeliveryResult
 import com.astarworks.astera.core.application.port.outbound.item.IItemDelivery
 import com.astarworks.astera.core.application.port.outbound.item.ItemOrigin
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.adapter.paper.lobby.TrainingItemTag
 import org.bukkit.Server
 
@@ -22,7 +24,22 @@ import org.bukkit.Server
 public class PaperItemDelivery(
     private val materializer: PaperItemMaterializer,
     private val server: Server,
+    private val idResolver: PaperItemIdResolver,
 ) : IItemDelivery {
+
+    override fun refreshHeld(items: IItemRegistry): Int {
+        materializer.rescanModels()
+        var changed = 0
+        for (player in server.onlinePlayers) {
+            for (stack in player.inventory.contents) {
+                if (stack == null) continue
+                val id = idResolver.itemIdOf(stack) ?: continue
+                val spec = items.find(id) ?: continue
+                if (materializer.refreshVisuals(stack, spec, PlayerId(player.uniqueId))) changed++
+            }
+        }
+        return changed
+    }
 
     override fun give(target: IMcPlayer, spec: ItemSpec, amount: Int, origin: ItemOrigin): DeliveryResult {
         val bukkitPlayer = server.getPlayer(target.id.uuid)

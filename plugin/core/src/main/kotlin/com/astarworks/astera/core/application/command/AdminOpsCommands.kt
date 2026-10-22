@@ -562,6 +562,8 @@ public class AdminOpsCommands(
             event.grantee == playerId || event.grantedBy == playerId
         is com.astarworks.astera.core.domain.audit.AuditEvent.CurrencyTransferred ->
             event.from == playerId || event.to == playerId
+        is com.astarworks.astera.core.domain.audit.AuditEvent.CurrencyMovement ->
+            event.player == playerId
         is com.astarworks.astera.core.domain.audit.AuditEvent.ChatMessageRecorded ->
             event.sender == playerId
         is com.astarworks.astera.core.domain.audit.AuditEvent.MatchStarted -> false

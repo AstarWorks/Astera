@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "astera:generated/items/gui-admin-cat-other"
+  }
+}

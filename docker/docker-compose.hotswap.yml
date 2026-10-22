@@ -1,0 +1,35 @@
+# DEV-ONLY overlay: run the lobby/game backends on JetBrains Runtime with
+# enhanced class redefinition and a loopback-only hotswap agent, so `make dev-hotswap`
+# can apply a Kotlin change to the running plugins without a restart
+# (F3-9, ADR-0201). Usage (from the repo root):
+#
+#     make dev-hotswap-up
+#   = docker compose -f docker/docker-compose.yml -f docker/docker-compose.hotswap.yml up -d --build
+#
+# The hotswap agent listens on 127.0.0.1:5006 INSIDE each backend container and is
+# not published: only a process in that container (the client that
+# scripts/dev-deploy.sh runs there with `docker compose exec`) can reach it.
+# Never use this file in a shared or production environment.
+
+x-hotswap-env: &hotswap-env
+  ASTERA_DEV_HOTSWAP: "1"
+  # Aikar flags (USE_AIKAR_FLAGS) stay; these are appended.
+  JVM_OPTS: "-XX:+AllowEnhancedClassRedefinition -javaagent:/opt/astera-dev/hotswap-agent.jar=port=5006"
+
+x-hotswap-build: &hotswap-build
+  context: ./hotswap
+  dockerfile: Dockerfile
+  args:
+    BASE: astera/minecraft-server:dev
+
+services:
+  lobby:
+    image: astera/minecraft-server:dev-hotswap
+    build: *hotswap-build
+    environment:
+      <<: *hotswap-env
+  game:
+    image: astera/minecraft-server:dev-hotswap
+    build: *hotswap-build
+    environment:
+      <<: *hotswap-env

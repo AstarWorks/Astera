@@ -271,7 +271,7 @@ public class AsteraCorePlugin : JavaPlugin() {
             "IChangelogRegistry (YAML-backed ChangelogContents)",
             "ILoginBonusRegistry (YAML-backed LoginBonusContents)",
             "ILoginStreakRepository (InMemory default; Phase 2 Postgres overlay)",
-            "ILoginBonusService (Phase 1 skeleton; claimDaily returns NotImplemented)",
+            "ILoginBonusService (daily claim + streak, ADR-0210)",
         )
     }
 }

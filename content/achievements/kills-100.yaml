@@ -1,0 +1,5 @@
+# Achievement catalog entry (ADR-0210). Names / descriptions: astera.stats.achievement.kills-100.*
+id: kills-100
+name_key: astera.stats.achievement.kills-100.name
+description_key: astera.stats.achievement.kills-100.description
+icon_item_id: knight-sword
