@@ -458,6 +458,7 @@ public class GameSim private constructor(
                 recorder = recorder,
                 isAlive = alive,
                 resolver = { services.get<ProjectileImpactResolver>() },
+                worldGateway = { worldGateway },
             )
 
             sim = GameSim(scenarioName, world, scheduler, services, recorder, mcServer, projectiles, broadcaster, contexts)

@@ -1,0 +1,13 @@
+# dagger thrust sparks
+id: stab-spark
+shape:
+  kind: burst
+  spread_blocks: 0.1
+color:
+  r: 255
+  g: 255
+  b: 255
+count: 6
+lifetime_ticks: 20
+vanilla_particle: crit
+speed: 0.25

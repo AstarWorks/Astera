@@ -1,0 +1,13 @@
+# thunder impact: spark burst
+id: thunder-impact
+shape:
+  kind: burst
+  spread_blocks: 0.5
+color:
+  r: 190
+  g: 220
+  b: 255
+count: 44
+lifetime_ticks: 20
+vanilla_particle: electric_spark
+speed: 0.3

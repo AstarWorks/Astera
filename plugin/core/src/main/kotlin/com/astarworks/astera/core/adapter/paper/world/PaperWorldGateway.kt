@@ -12,6 +12,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.BlockType
 import com.astarworks.astera.core.domain.world.WorldId
+import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -145,6 +146,10 @@ public class PaperWorldGateway(
             log.debug("PaperWorldGateway.spawnParticle: unknown particle {}", particle.key)
             return
         }
+        val data = particleData(bukkitParticle, particle) ?: run {
+            log.debug("PaperWorldGateway.spawnParticle: {} needs data this spec cannot supply", particle.key)
+            return
+        }
         val loc = toLocation(w, at)
         w.spawnParticle(
             bukkitParticle,
@@ -153,7 +158,24 @@ public class PaperWorldGateway(
             particle.offset.x,
             particle.offset.y,
             particle.offset.z,
+            particle.extra,
+            data.value,
         )
+    }
+
+    /** Boxed so "no data needed" (`Data(null)`) differs from "data required but unavailable" (`null`). */
+    private class Data(val value: Any?)
+
+    private fun particleData(bukkit: Particle, spec: ParticleSpec): Data? {
+        val rgb = spec.color?.let { Color.fromRGB(it.r, it.g, it.b) } ?: Color.WHITE
+        return when (bukkit.dataType) {
+            Void::class.java -> Data(null)
+            Particle.DustOptions::class.java -> Data(Particle.DustOptions(rgb, spec.scale.coerceIn(0.01f, 4f)))
+            Particle.DustTransition::class.java ->
+                Data(Particle.DustTransition(rgb, Color.WHITE, spec.scale.coerceIn(0.01f, 4f)))
+            Color::class.java -> Data(rgb)
+            else -> null
+        }
     }
 
     override fun playSound(world: WorldId, at: Vec3, sound: SoundSpec) {

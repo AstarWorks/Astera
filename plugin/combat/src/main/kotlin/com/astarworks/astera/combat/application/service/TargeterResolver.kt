@@ -38,7 +38,7 @@ internal class TargeterResolver(
         Targeter.Target -> ctx.targetId?.let { listOf(it) } ?: emptyList()
         Targeter.Origin, Targeter.HitLocation, Targeter.ProjectilePosition ->
             emptyList() // Location-only targeters; no player resolution.
-        is Targeter.CasterOffset, is Targeter.TargetOffset,
+        is Targeter.CasterOffset, is Targeter.CasterForward, is Targeter.TargetOffset,
         is Targeter.ProjectileOffset, is Targeter.HitOffset ->
             emptyList()
         is Targeter.NearbyEntities -> {
@@ -68,6 +68,7 @@ internal class TargeterResolver(
             Targeter.Target -> listOf(targetLocation(ctx))
             Targeter.HitLocation, Targeter.ProjectilePosition -> listOf(hitLocation(ctx))
             is Targeter.CasterOffset -> listOf(ctx.origin + literalVec(targeter.offset))
+            is Targeter.CasterForward -> listOf(casterForward(targeter, ctx))
             is Targeter.TargetOffset -> listOf(targetLocation(ctx) + literalVec(targeter.offset))
             is Targeter.ProjectileOffset -> listOf(hitLocation(ctx) + literalVec(targeter.offset))
             is Targeter.HitOffset -> listOf(hitLocation(ctx) + literalVec(targeter.offset))
@@ -83,6 +84,12 @@ internal class TargeterResolver(
                 resolvePlayers(targeter, ctx).map { poseLookup?.poseOf(it)?.position ?: ctx.origin }
             }
         }
+    }
+
+    private fun casterForward(t: Targeter.CasterForward, ctx: MechanicContext): Vec3 {
+        val pose = ctx.pose ?: return ctx.origin + Vec3(0.0, FALLBACK_EYE_HEIGHT + t.height, 0.0)
+        val dir = pose.direction.normalize()
+        return pose.eyePosition + dir * t.distance + Vec3(0.0, t.height, 0.0)
     }
 
     /** Location of `Targeter.Target`: live target position, else the impact point, else the origin. */
@@ -224,6 +231,9 @@ internal class TargeterResolver(
         /** Player hitbox (standing): 0.6 wide, 1.8 tall. */
         const val BODY_HALF_WIDTH: Double = 0.3
         const val BODY_HEIGHT: Double = 1.8
+
+        /** Eye height used when a cast carries no pose. */
+        const val FALLBACK_EYE_HEIGHT: Double = 1.5
 
         /**
          * `Targeter.Enemies` / `Allies` carry no radius in the schema; they scan

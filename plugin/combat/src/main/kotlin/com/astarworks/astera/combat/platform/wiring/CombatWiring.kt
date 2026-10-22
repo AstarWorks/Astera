@@ -576,7 +576,11 @@ public object CombatWiring {
 
             // Wave _skills-2 (ADR-0077) — archetype handlers, each holding a
             // reference to the shared MechanicDispatcher.
-            val projectileHandler = ProjectileHandler(projectileService, mechanicDispatcher)
+            val projectileHandler = ProjectileHandler(
+                projectileService,
+                mechanicDispatcher,
+                particles = { id -> particleRegistry?.find(id) },
+            )
             val meleeHandler = MeleeHandler(
                 nearbyQuery,
                 applyDamage,

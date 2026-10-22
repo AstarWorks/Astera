@@ -4,27 +4,25 @@ import com.astarworks.astera.core.domain.effect.ParticleSpec
 
 /**
  * What the projectile *looks like* in flight — independent of motion / hit /
- * damage. A projectile can be invisible ([None]), trail particles, ride on a
- * Bukkit Display entity, or borrow a vanilla projectile entity.
+ * damage. Astera projectiles are server-simulated (no vanilla throwable
+ * entity ever exists), so the look is composed from two optional parts:
+ *
+ *  - a particle [trail] emitted along the path every [trailIntervalTicks];
+ *  - a [display] entity (item / block / text display) that rides the projectile.
+ *
+ * Both empty = invisible (instant beams whose impact uses a particle effect).
  */
-public sealed class ProjectileVisual {
-
-    /** Invisible — useful for instant beams whose impact uses a [OnHitEffect.SpawnParticle]. */
-    public data object None : ProjectileVisual()
-
-    /** Emit [particle] every [intervalTicks] ticks along the projectile's path. */
-    public data class ParticleTrail(
-        val particle: ParticleSpec,
-        val intervalTicks: Int = 1,
-    ) : ProjectileVisual() {
-        init {
-            require(intervalTicks > 0) { "intervalTicks must be > 0, got $intervalTicks" }
-        }
+public data class ProjectileVisual(
+    val trail: List<ParticleSpec> = emptyList(),
+    val trailIntervalTicks: Int = 1,
+    val display: DisplaySpec? = null,
+) {
+    init {
+        require(trailIntervalTicks > 0) { "trailIntervalTicks must be > 0, got $trailIntervalTicks" }
     }
 
-    /** Carry a Bukkit Display entity (ItemDisplay / BlockDisplay / TextDisplay). */
-    public data class Display(val display: DisplaySpec) : ProjectileVisual()
-
-    /** Use a vanilla projectile entity (Arrow / Snowball / Trident / ...). */
-    public data class VanillaEntity(val type: VanillaProjectileType) : ProjectileVisual()
+    public companion object {
+        /** Invisible. */
+        public val None: ProjectileVisual = ProjectileVisual()
+    }
 }

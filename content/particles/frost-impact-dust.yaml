@@ -1,0 +1,13 @@
+# frost impact: pale-blue dust
+id: frost-impact-dust
+shape:
+  kind: burst
+  spread_blocks: 0.45
+color:
+  r: 200
+  g: 230
+  b: 255
+count: 18
+lifetime_ticks: 20
+vanilla_particle: dust
+size: 1.2

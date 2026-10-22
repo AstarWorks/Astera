@@ -32,10 +32,21 @@ phases:
       targets: { type: caster }
       sound_id: entity.player.attack.sweep
       pitch: { type: literal, value: 1.6 }
+    - type: spawn_particle
+      targets: { type: caster_forward, distance: 1.4, height: -0.2 }
+      particle_id: stab-spark
   hit_entity:
     - type: apply_status
       targets: { type: target }
       status_id: bleed
       effect_duration_ticks: { type: literal, value: 100 }
       chance: { type: literal, value: 0.6 }
+    - type: play_sound
+      targets: { type: target }
+      sound_id: entity.player.attack.crit
+      volume: { type: literal, value: 0.6 }
+      pitch: { type: literal, value: 1.5 }
+    - type: spawn_particle
+      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
+      particle_id: hit-spark
   miss: []

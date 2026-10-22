@@ -1,0 +1,13 @@
+# frost impact: snowflake burst
+id: frost-impact
+shape:
+  kind: burst
+  spread_blocks: 0.5
+color:
+  r: 235
+  g: 245
+  b: 255
+count: 32
+lifetime_ticks: 20
+vanilla_particle: snowflake
+speed: 0.1

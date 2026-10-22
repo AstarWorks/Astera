@@ -25,6 +25,21 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 /**
+ * The three ways a projectile can end; the host calls exactly one of them, once
+ * (see [ProjectileImpactResolver], the production implementation).
+ */
+public interface ProjectileImpactHandler {
+    /** The projectile struck an entity at [at] ([target] = the struck player/mob id). */
+    public fun onHitEntity(flight: ProjectileImpactResolver.Flight, target: PlayerId?, at: Vec3)
+
+    /** The projectile struck a block at [at]. */
+    public fun onHitBlock(flight: ProjectileImpactResolver.Flight, at: Vec3)
+
+    /** The projectile's lifetime ended in flight at [at]. */
+    public fun onExpire(flight: ProjectileImpactResolver.Flight, at: Vec3)
+}
+
+/**
  * Host-neutral projectile impact resolution (ADR-0174).
  *
  * Extracted from the Paper `ProjectileHitListener` so the production listener
@@ -59,7 +74,7 @@ public class ProjectileImpactResolver(
     /** WP10: world structures (pillars); a projectile that lands on one hits it like an entity. Lazy: Match registers it later. */
     private val structures: () -> IStructureTargets? = { null },
     private val log: Logger = LoggerFactory.getLogger(ProjectileImpactResolver::class.java),
-) {
+) : ProjectileImpactHandler {
 
     /** What the host knows about the projectile at impact time. */
     public data class Flight(
@@ -73,13 +88,13 @@ public class ProjectileImpactResolver(
      * or `null` for a non-player entity (phases still run; player-keyed
      * mechanics find no target).
      */
-    public fun onHitEntity(flight: Flight, target: PlayerId?, at: Vec3) {
+    override fun onHitEntity(flight: Flight, target: PlayerId?, at: Vec3) {
         runOnHitEffects(flight, target, at)
         runPhase(flight, at, target) { it.hitEntity }
     }
 
     /** The projectile struck a block at [at]. */
-    public fun onHitBlock(flight: Flight, at: Vec3) {
+    override fun onHitBlock(flight: Flight, at: Vec3) {
         // WP10: landing on (or touching) a damageable structure block is an entity hit on it.
         structureNear(flight, at)?.let { return onHitEntity(flight, it, at) }
         runOnHitEffects(flight, null, at)
@@ -88,7 +103,7 @@ public class ProjectileImpactResolver(
     }
 
     /** The projectile's lifetime ended in flight at [at] without striking anything. */
-    public fun onExpire(flight: Flight, at: Vec3) {
+    override fun onExpire(flight: Flight, at: Vec3) {
         runPhase(flight, at, null) { it.expire }
         runPhase(flight, at, null) { it.miss }
     }

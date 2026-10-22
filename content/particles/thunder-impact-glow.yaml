@@ -1,0 +1,13 @@
+# thunder impact: white glints
+id: thunder-impact-glow
+shape:
+  kind: burst
+  spread_blocks: 0.4
+color:
+  r: 255
+  g: 255
+  b: 255
+count: 14
+lifetime_ticks: 20
+vanilla_particle: end_rod
+speed: 0.15

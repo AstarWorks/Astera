@@ -44,6 +44,8 @@ public sealed class SkillParams {
         val maxLifetimeTicks: Int,
         /** Projectile hit-test sphere radius in blocks (ADR-0174). */
         val hitRadius: Double = DEFAULT_HIT_RADIUS,
+        /** What the projectile looks like in flight (particle trail ids + optional display entity). */
+        val visual: ProjectileVisualParams = ProjectileVisualParams.NONE,
     ) : SkillParams() {
         init {
             require(hitRadius > 0.0) { "ProjectileParams.hitRadius must be > 0: $hitRadius" }
@@ -104,5 +106,25 @@ public sealed class SkillParams {
             require(count >= 1) { "SummonParams.count must be >= 1: $count" }
             require(lifetimeTicks >= 0) { "SummonParams.lifetimeTicks must be >= 0: $lifetimeTicks" }
         }
+    }
+}
+
+/**
+ * In-flight look of a skill projectile, as authored in YAML (`params.visual`).
+ * [trail] lists `content/particles` ids emitted along the flight path every
+ * [trailIntervalTicks]; [display] is an optional item/block display entity
+ * that rides the projectile. Empty = invisible.
+ */
+public data class ProjectileVisualParams(
+    val trail: List<com.astarworks.astera.core.domain.effect.ParticleId> = emptyList(),
+    val trailIntervalTicks: Int = 1,
+    val display: com.astarworks.astera.combat.domain.projectile.DisplaySpec? = null,
+) {
+    init {
+        require(trailIntervalTicks > 0) { "trailIntervalTicks must be > 0: $trailIntervalTicks" }
+    }
+
+    public companion object {
+        public val NONE: ProjectileVisualParams = ProjectileVisualParams()
     }
 }

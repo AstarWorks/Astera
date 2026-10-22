@@ -542,8 +542,9 @@ public class MechanicDispatcher(
                 // Wave 5effects: route through IParticleScheduler if wired;
                 // otherwise fall through to IWorldGateway.spawnParticle (which
                 // itself may be a no-op until Wave 6).
-                val particleKey = definition?.id?.value ?: mechanic.particleId.value
-                val spec = ParticleSpec(key = particleKey, count = count)
+                // A vanilla-mapped definition owns its count / spread / colour; a mechanic count > 1 overrides the count.
+                val spec = definition?.toParticleSpec(countOverride = count.takeIf { it > 1 })
+                    ?: ParticleSpec(key = mechanic.particleId.value, count = count)
                 val ps = particleScheduler
                 if (ps != null && ctx.worldId != null) {
                     for (loc in locations) {

@@ -34,7 +34,7 @@ import com.astarworks.astera.core.application.services.ServiceRegistry
  * explosion.
  *
  * @property projectileService required: no InMemory default exists for this
- *   port (Paper `PaperProjectileService` / simulator tick-stepped service).
+ *   port (Paper `PaperProjectileService` / simulator tick-stepped service, both on `ProjectileStepper`).
  * @property nearbyTargetQuery host spatial query over players *and mobs*; registered
  *   first so every later `services.get<INearbyTargetQuery>()` sees it (WP3).
  * @property entityDamageGateway non-player (mob) damage; null = mobs are not damageable (WP3).

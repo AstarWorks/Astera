@@ -58,6 +58,15 @@ public sealed class TargeterYaml {
     }
 
     @Serializable
+    @SerialName("caster_forward")
+    public data class CasterForward(
+        public val distance: Double,
+        public val height: Double = 0.0,
+    ) : TargeterYaml() {
+        override fun toDomain(): Targeter = Targeter.CasterForward(distance, height)
+    }
+
+    @Serializable
     @SerialName("target_offset")
     public data class TargetOffset(public val offset: VectorValueYaml) : TargeterYaml() {
         override fun toDomain(): Targeter = Targeter.TargetOffset(offset.toDomain())

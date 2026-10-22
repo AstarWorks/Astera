@@ -8,6 +8,10 @@ import com.astarworks.astera.combat.domain.projectile.LifetimePolicy
 import com.astarworks.astera.combat.domain.projectile.MotionProfile
 import com.astarworks.astera.combat.domain.projectile.ProjectileSkillBinding
 import com.astarworks.astera.combat.domain.projectile.ProjectileSpec
+import com.astarworks.astera.combat.domain.projectile.ProjectileVisual
+import com.astarworks.astera.combat.domain.skill.params.ProjectileVisualParams
+import com.astarworks.astera.core.domain.effect.ParticleDefinition
+import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.combat.domain.skill.params.SkillParams
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
@@ -33,6 +37,8 @@ import com.astarworks.astera.core.domain.skill.phase.PhaseMechanics
 public class ProjectileHandler(
     private val projectileService: IProjectileService,
     private val dispatcher: MechanicDispatcher,
+    /** Resolves the `params.visual.trail` particle ids; an unknown id is skipped. */
+    private val particles: (ParticleId) -> ParticleDefinition? = { null },
 ) {
     /**
      * Fire the `cast` phase, then spawn the projectile via [IProjectileService].
@@ -62,6 +68,7 @@ public class ProjectileHandler(
                 maxTicks = params.maxLifetimeTicks.takeIf { it > 0 } ?: DEFAULT_LIFETIME_TICKS,
             ),
             onHit = emptyList(),
+            visual = visualOf(params.visual),
             skill = ProjectileSkillBinding(
                 skillId = event.skillId,
                 phases = phases,
@@ -75,6 +82,16 @@ public class ProjectileHandler(
             origin = muzzle,
             direction = direction,
             owner = event.caster,
+        )
+    }
+
+    private fun visualOf(visual: ProjectileVisualParams): ProjectileVisual {
+        val trail = visual.trail.mapNotNull { id -> particles(id)?.toParticleSpec() }
+        if (trail.isEmpty() && visual.display == null) return ProjectileVisual.None
+        return ProjectileVisual(
+            trail = trail,
+            trailIntervalTicks = visual.trailIntervalTicks,
+            display = visual.display,
         )
     }
 

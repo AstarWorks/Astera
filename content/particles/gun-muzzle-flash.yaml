@@ -1,0 +1,13 @@
+# muzzle flash
+id: gun-muzzle-flash
+shape:
+  kind: burst
+  spread_blocks: 0.04
+color:
+  r: 255
+  g: 200
+  b: 80
+count: 5
+lifetime_ticks: 20
+vanilla_particle: flame
+speed: 0.08

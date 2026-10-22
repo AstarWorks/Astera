@@ -44,7 +44,7 @@ else is reachable through `sim` (`GameSim`): `sim.services`, `sim.match`, ...
 |---|---|---|
 | `IScheduler` | `FakeScheduler` (test-fixtures) | virtual time; `GameSim.step` advances one tick at a time |
 | `IWorldGateway` | `RecordingWorldGateway` | tick-stamps particles, sounds, teleports; Core's in-memory particle / sound *schedulers* run on top of it, so scheduled effects are recorded at emission tick |
-| `IProjectileService` | `SimProjectileService` | per-tick motion + segment hit test; calls `ProjectileImpactResolver` once per projectile (`onHitEntity` / `onHitBlock` / `onExpire`) |
+| `IProjectileService` | `SimProjectileService` | per-tick `ProjectileStepper` (the same stepping Paper runs) with a flat-world `ProjectileWorldProbe`; calls `ProjectileImpactResolver` once per projectile (`onHitEntity` / `onHitBlock` / `onExpire`) |
 | `INearbyTargetQuery`, `IPlayerPoseLookup` | `SimNearbyTargetQuery`, `SimPoseLookup` | over `SimEntity` positions. NB: no Paper impl of `INearbyTargetQuery` is registered in production yet |
 | `IDamageGateway` | `SimDamageGateway` | ADR-0149/0151: reads/writes `CURRENT_HP` in the attribute container, `Killed` at 0, Bukkit-style 20-tick invulnerability frames |
 | `IStatusEffectContainer` | `SimStatusEffectContainer` | + the 20-tick DoT / expiry loop of Paper's `StatusEffectTickListener` |

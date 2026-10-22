@@ -1,0 +1,11 @@
+# sword swing arc
+id: slash-sweep
+shape:
+  kind: point
+color:
+  r: 255
+  g: 255
+  b: 255
+count: 1
+lifetime_ticks: 20
+vanilla_particle: sweep_attack
