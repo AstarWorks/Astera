@@ -32,6 +32,7 @@ import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.Clientbound
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundSystemChatPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.ClientboundTabListPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundAddEntityPacket
+import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.ClientboundSetEntityDataPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.level.ClientboundSoundPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundPlayerPositionPacket
 import org.geysermc.mcprotocollib.protocol.packet.ingame.clientbound.entity.player.ClientboundSetHealthPacket
@@ -130,6 +131,8 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
     val spawnedEntityTypes = ConcurrentHashMap<String, AtomicInteger>()
     /** Sound events played at this client (packet sound, as printed by the protocol library). */
     val sounds = CopyOnWriteArrayList<String>()
+    /** Plain text of every text-component entity metadata value received (text displays, custom names). */
+    val entityTexts = CopyOnWriteArrayList<String>()
     val screens = CopyOnWriteArrayList<ScreenView>()
     val contents = ConcurrentHashMap<Int, List<SlotView>>()
     val slotUpdates = CopyOnWriteArrayList<SlotView>()
@@ -227,6 +230,7 @@ class Bot private constructor(val name: String, private val packPolicy: PackPoli
             }
             is ClientboundAddEntityPacket -> spawnedEntityTypes.computeIfAbsent(packet.type.name) { AtomicInteger() }.incrementAndGet()
             is ClientboundSoundPacket -> sounds += packet.sound.toString()
+            is ClientboundSetEntityDataPacket -> packet.metadata.forEach { m -> (m.value as? Component)?.let { entityTexts += plain(it) } }
             is ClientboundTabListPacket -> {
                 tabHeader = plain(packet.header)
                 tabFooter = plain(packet.footer)

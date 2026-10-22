@@ -26,21 +26,22 @@ class HudE2eTest : E2eBase() {
         a.selectHotbar(hotbarIndex)
         Thread.sleep(500)
         val soundsBefore = a.sounds.size
-        val displaysBefore = a.spawnedEntityTypes["TEXT_DISPLAY"]?.get() ?: 0
-        val targetDisplaysBefore = b.spawnedEntityTypes["TEXT_DISPLAY"]?.get() ?: 0
+        val textsBefore = a.entityTexts.size
+        val targetTextsBefore = b.entityTexts.size
         repeat(3) {
             a.useItem(0f, 0f)
             Thread.sleep(900)
         }
-        a.waitUntil(3_000) { (a.spawnedEntityTypes["TEXT_DISPLAY"]?.get() ?: 0) > displaysBefore }
+        val number = Regex("^-\\d+$")
+        a.waitUntil(3_000) { a.entityTexts.drop(textsBefore).any { number.matches(it) } }
         Thread.sleep(500)
 
-        E2eReport.check(suite, "attacker gets a floating damage number (text display), the target does not", "ClientboundAddEntity(TEXT_DISPLAY)") {
-            val attackerGot = (a.spawnedEntityTypes["TEXT_DISPLAY"]?.get() ?: 0) - displaysBefore
-            val targetGot = (b.spawnedEntityTypes["TEXT_DISPLAY"]?.get() ?: 0) - targetDisplaysBefore
-            assertThat(attackerGot).describedAs("no TEXT_DISPLAY spawned for the attacker; spawned=${a.spawnedEntityTypes}").isGreaterThan(0)
-            assertThat(targetGot).describedAs("the target saw the attacker's damage number").isZero()
-            "attacker saw $attackerGot damage number(s), target $targetGot; attacker entity types=${a.spawnedEntityTypes}"
+        E2eReport.check(suite, "attacker gets a floating damage number (text display), the target does not", "ClientboundSetEntityData(text)") {
+            val attackerNumbers = a.entityTexts.drop(textsBefore).filter { number.matches(it) }
+            val targetNumbers = b.entityTexts.drop(targetTextsBefore).filter { number.matches(it) }
+            assertThat(attackerNumbers).describedAs("no '-N' text display for the attacker; texts=${a.entityTexts.drop(textsBefore).take(10)}").isNotEmpty()
+            assertThat(targetNumbers).describedAs("the target saw the attacker's damage number").isEmpty()
+            "attacker saw $attackerNumbers, target saw $targetNumbers; attacker text displays spawned=${a.spawnedEntityTypes["TEXT_DISPLAY"]}"
         }
         E2eReport.check(suite, "attacker hears the hit marker", "ClientboundSound") {
             val heard = a.sounds.drop(soundsBefore)
