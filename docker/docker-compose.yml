@@ -71,11 +71,18 @@ x-astera-backend: &astera-backend
     # Metrics surface (scraped inside the network; not published to the host).
     ASTERA_METRICS_ENABLED: "true"
     ASTERA_METRICS_PORT: "9092"
+    # Resource pack (ADR-0182): clients download from the host address; the
+    # server reads the hash inside the network. Off this machine, set
+    # ASTERA_RESOURCE_PACK_URL in docker/.env to the host's LAN/public address.
+    ASTERA_RESOURCE_PACK_URL: "${ASTERA_RESOURCE_PACK_URL:-http://localhost:8099/astera.zip}"
+    ASTERA_RESOURCE_PACK_SHA1_URL: "http://resource-pack/astera.zip.sha1"
   depends_on:
     postgres:
       condition: service_healthy
     redis:
       condition: service_healthy
+    resource-pack:
+      condition: service_started
 
 services:
   velocity:
@@ -148,19 +155,12 @@ services:
       timeout: 3s
       retries: 10
 
-# ---- F1-C (ADR-0182): resource pack server --------------------------------
-# NEW service block, kept separate from the paper service. The Paper side
-# needs these env vars (F1-A owns the paper block - merge them there):
-#   ASTERA_RESOURCE_PACK_URL:      "${ASTERA_RESOURCE_PACK_URL:-http://localhost:8099/astera.zip}"  # what CLIENTS download
-#   ASTERA_RESOURCE_PACK_SHA1_URL: "http://resource-pack/astera.zip.sha1"                          # what the SERVER reads at boot
-# and `resource-pack: {condition: service_started}` under paper.depends_on.
-# For players off this machine set ASTERA_RESOURCE_PACK_URL to the host's LAN/public address.
+  # Resource pack server (ADR-0182): http://<host>:8099/astera.zip
   resource-pack:
     build:
       context: ..
       dockerfile: docker/Dockerfile.resource-pack
     image: astera/resource-pack:dev
-    container_name: astera-resource-pack
     restart: unless-stopped
     ports:
       - "8099:80"       # http://localhost:8099/astera.zip
