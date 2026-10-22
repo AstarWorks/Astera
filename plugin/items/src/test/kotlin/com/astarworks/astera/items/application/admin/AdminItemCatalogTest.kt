@@ -4,6 +4,7 @@ import com.astarworks.astera.core.domain.gui.GuiSlot
 import com.astarworks.astera.core.domain.gui.SlotIndex
 import com.astarworks.astera.core.domain.item.EquipSlot
 import com.astarworks.astera.core.domain.item.ItemSpec
+import com.astarworks.astera.core.domain.item.ItemTemplate
 import com.astarworks.astera.core.domain.resource.ResourceType
 import com.astarworks.astera.items.testfixtures.itemSpec
 import org.assertj.core.api.Assertions.assertThat
@@ -12,8 +13,8 @@ import org.junit.jupiter.api.Test
 class AdminItemCatalogTest {
 
     private fun gun(id: String) = itemSpec(id).copy(resourceType = ResourceType.Ammo)
-    private fun sword(id: String) = itemSpec(id).copy(resourceType = ResourceType.Stamina)
-    private fun staff(id: String) = itemSpec(id).copy(resourceType = ResourceType.Mana)
+    private fun sword(id: String) = itemSpec(id).copy(resourceType = ResourceType.Energy)
+    private fun staff(id: String) = itemSpec(id, template = ItemTemplate.Vanilla(material = "BLAZE_ROD")).copy(resourceType = ResourceType.Energy)
     private fun gear(id: String) = itemSpec(id, equipSlot = EquipSlot.HELMET)
     private fun misc(id: String) = itemSpec(id)
 

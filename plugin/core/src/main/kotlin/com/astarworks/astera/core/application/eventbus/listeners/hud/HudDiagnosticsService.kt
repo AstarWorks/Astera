@@ -70,13 +70,12 @@ public class HudDiagnosticsService(
     public fun describe(playerId: PlayerId): HudDiagnostics {
         val layouts = hud.layoutsFor(playerId)
         val sidebar = layouts.filterIsInstance<HudLayout.Sidebar>().firstOrNull()
-        val bossBars = layouts.filterIsInstance<HudLayout.BossBarSlot>()
         val actionBar = layouts.filterIsInstance<HudLayout.ActionBar>().firstOrNull()
         val status = layouts.filterIsInstance<HudLayout.StatusLine>().firstOrNull()
         return HudDiagnostics(
             playerId = playerId,
             sidebar = sidebar?.let { "${it.lines.size} lines (${it.titleKey.value})" } ?: "none",
-            bossBar = if (bossBars.isEmpty()) "none" else bossBars.joinToString("+") { "slot${it.slot}" },
+            bossBar = NO_BOSS_BAR,
             actionBar = buildString {
                 append(actionBar?.let { "readout(${nameOf(it.component)})" } ?: "no readout")
                 append(" + ")
@@ -99,5 +98,8 @@ public class HudDiagnosticsService(
 
     public companion object {
         public const val LOG_DELAY_TICKS: Long = 60L
+
+        /** There is no boss-bar surface any more (F2-2, ADR-0194); the field stays so the log line is stable. */
+        public const val NO_BOSS_BAR: String = "none"
     }
 }

@@ -7,12 +7,12 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
  * [HudComponent] tree renders (Wave 5j, ADR-0097).
  *
  * The Wave 6b `PaperHudGateway` maps each layout to its
- * Bukkit/Adventure surface (Action Bar / BossBar / Sidebar / TabList /
- * Title-Subtitle). Sealed so the gateway's `when` is exhaustive.
+ * Bukkit/Adventure surface (Action Bar / Sidebar / TabList /
+ * Title-Subtitle / status line). Sealed so the gateway's `when` is exhaustive.
+ * There is deliberately **no boss-bar layout** (F2-2, ADR-0194): energy is the
+ * food bar, ammo is on the status line, reload progress is an item cooldown.
  *
- * **Vendor-neutral**: nothing here imports `org.bukkit.boss.BossBar` or
- * Adventure types — the [BossBarColor] / [BossBarStyle] enums mirror
- * Adventure's values exactly so the renderer can do a 1-1 map.
+ * **Vendor-neutral**: nothing here imports Bukkit or Adventure types.
  */
 public sealed interface HudLayout {
 
@@ -36,37 +36,6 @@ public sealed interface HudLayout {
             require(ttlTicks in 1..1200) { "ActionBar.ttlTicks must be 1..1200, was $ttlTicks" }
             require(priority >= 0) { "ActionBar.priority must be >= 0, was $priority" }
         }
-    }
-
-    /**
-     * One of up to four stacked boss bars at the top of the player's
-     * screen.
-     *
-     * @property slot 1..4 (Bukkit stacks up to 4 visible BossBars).
-     * @property color color of the bar background (Adventure mirror).
-     * @property style notch style (Adventure mirror).
-     * @property progress 0.0..1.0 fill ratio of the bar itself
-     *   (independent of any [HudComponent.ProgressBar] in `component`).
-     */
-    public data class BossBarSlot(
-        public val slot: Int,
-        public val component: HudComponent,
-        public val color: BossBarColor,
-        public val style: BossBarStyle,
-        public val progress: Float = 1f,
-    ) : HudLayout {
-        init {
-            require(slot in 1..4) { "BossBarSlot.slot must be 1..4, was $slot" }
-            require(progress in 0f..1f) { "BossBarSlot.progress must be 0..1, was $progress" }
-        }
-
-        /**
-         * Convenience copy helper: same slot/component/color/style with a
-         * fresh progress value. Validates the new value via [BossBarSlot]
-         * init checks.
-         */
-        public fun withProgress(newProgress: Float): BossBarSlot =
-            copy(progress = newProgress)
     }
 
     /**
@@ -149,14 +118,3 @@ public sealed interface HudLayout {
         }
     }
 }
-
-/**
- * Mirror of Adventure's `BossBar.Color`. Renderer maps 1-1 — values must
- * stay in sync if Adventure ever adds new colors (none in 7+ years).
- */
-public enum class BossBarColor { PINK, BLUE, RED, GREEN, YELLOW, PURPLE, WHITE }
-
-/**
- * Mirror of Adventure's `BossBar.Overlay`. Renderer maps 1-1.
- */
-public enum class BossBarStyle { PROGRESS, NOTCHED_6, NOTCHED_10, NOTCHED_12, NOTCHED_20 }

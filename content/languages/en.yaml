@@ -767,8 +767,7 @@ astera:
     cast:
       insufficient:
         ammo: "Out of ammo - press Q to reload"
-        mana: "Not enough mana"
-        stamina: "Not enough stamina"
+        energy: "Not enough energy"
       reloading: "Reloading..."
       ammo_full: "Magazine is full"
       not_reloadable: "This item cannot be reloaded"
@@ -822,10 +821,6 @@ astera:
   # Wave 5b HUD reference design (ADR-0031). Keys are reserved here so
   # Wave 6 Paper impls have a localised string ready when widgets are wired.
   hud:
-    bossbar:
-      match:
-        phase: "<gold>Phase:</gold> <white>{phase}</white>"
-        time_remaining: "<gold>Time:</gold> <white>{time}</white>"
     scoreboard:
       match:
         title: "<gold><bold>Match</bold></gold>"
@@ -838,33 +833,23 @@ astera:
       streak: "<gold>Combo x{streak}</gold>"
     leveled-up:
       announce: "<yellow><bold>Level up!</bold></yellow> <white>Lv.{level}</white>"
-    mana:
-      value: "<aqua>{mana}</aqua>"
     star:
       count: "<gold>{count}</gold>"
     mining:
       progress: "<gray>Mining...</gray>"
     # WP14 (ADR-0177) — one owner per HUD channel (see docs/adr/0177-*).
     #   action bar : combat readout (cooldowns + status effects), toasts on top
-    #   boss bar 1 : weapon resource   sidebar : match / lobby
+    #   food bar   : energy (F2-2, ADR-0194)   status line : HP + ammo   sidebar : match / lobby
     cooldown:
       summary: "<aqua>Cooldown:</aqua> <white>{count} ({seconds}s)</white>"
     currency:
       summary: "<gold>{delta} {currency}</gold> <gray>({balance})</gray>"
-    resource:
-      mana:
-        label: "<aqua>Mana:</aqua> <white>{remaining}/{max}</white>"
-      stamina:
-        label: "<yellow>Stamina:</yellow> <white>{remaining}/{max}</white>"
-      ammo:
-        label: "<white>Ammo:</white> <white>{remaining}/{max}</white>"
-        empty: "<red>Empty - reload!</red> <white>{remaining}/{max}</white>"
-        reloading: "<yellow>Reloading...</yellow>"
-        reloaded: "<green>Reloaded</green> <white>{remaining}/{max}</white>"
     status:
       stacks: "<gray>x{stacks}</gray>"
       # ADR-0182 — plain-text HP, shown while the resource pack is not loaded.
       hp: "<red>HP</red> <white>{current}/{max}</white>"
+      # F2-2 (ADR-0194) - text form while a gun is held and the pack is not loaded.
+      hp-ammo: "<red>HP</red> <white>{current}/{max}</white>  <yellow>Ammo</yellow> <white>{ammo}/{ammoMax}</white>"
     resource-pack:
       prompt: "<gold>Astera resource pack</gold> <gray>- custom HP bar, item models and sounds</gray>"
     sidebar:
@@ -1545,8 +1530,8 @@ astera:
       "combat.tile.god.lore": "<gray>Immune in the Astera damage path.</gray>"
       "combat.tile.cooldowns": "<yellow>Clear cooldowns</yellow>"
       "combat.tile.cooldowns.lore": "<gray>Reset every active cooldown.</gray>"
-      "combat.tile.refill": "<green>Refill ammo / mana</green>"
-      "combat.tile.refill.lore": "<gray>Fill ammo, mana and stamina.</gray>"
+      "combat.tile.refill": "<green>Refill ammo / energy</green>"
+      "combat.tile.refill.lore": "<gray>Fill ammo and energy.</gray>"
       "combat.healed": "<green>Healed <white>{player}</white> to full.</green>"
       "combat.statuses-cleared": "<green>Cleared statuses of <white>{player}</white>.</green>"
       "combat.cooldowns-cleared": "<green>Cleared <white>{count}</white> cooldown(s) of {player}.</green>"

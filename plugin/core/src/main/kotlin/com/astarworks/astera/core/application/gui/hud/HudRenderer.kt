@@ -26,7 +26,6 @@ import net.kyori.adventure.text.format.TextColor
  *
  * Wave 6b `PaperHudGateway` calls into this renderer per layout:
  *  - [HudLayout.ActionBar]     → `audience.sendActionBar(render(layout.component))`
- *  - [HudLayout.BossBarSlot]   → `BossBar.title(render(layout.component))` + `audience.showBossBar(...)`
  *  - [HudLayout.Sidebar]       → Scoreboard objective with one rendered line per [HudComponent]
  *  - [HudLayout.TabList]       → `audience.sendPlayerListHeaderAndFooter(header, footer)`
  *  - [HudLayout.Subtitle]      → `audience.showTitle(Title.title(empty, render(component), times))`
@@ -75,7 +74,6 @@ public class HudRenderer(
     public fun renderLayout(layout: HudLayout, viewer: PlayerId?): Component =
         when (layout) {
             is HudLayout.ActionBar -> render(layout.component, viewer)
-            is HudLayout.BossBarSlot -> render(layout.component, viewer)
             is HudLayout.Subtitle -> render(layout.component, viewer)
             is HudLayout.Sidebar,
             is HudLayout.TabList,

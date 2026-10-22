@@ -13,7 +13,7 @@ description:
 
 archetype: buff
 cooldown_ticks: 240
-resource_cost: 35              # mana
+resource_cost: 35              # energy
 tags: [ magic, earth-family, support, heal ]
 
 params:

@@ -10,7 +10,7 @@ superseded_by: null
 
 ## Status
 
-Accepted. Supersedes the HUD listener wiring of ADR-0118 (match HUD) and the
+Accepted (the boss-bar row of section 3 is replaced by ADR-0194). Supersedes the HUD listener wiring of ADR-0118 (match HUD) and the
 unwired `LobbyWaitingRoomHud` of ADR-0089 gamma; ADR-0097 / ADR-0031 (HUD
 primitives) are unchanged.
 

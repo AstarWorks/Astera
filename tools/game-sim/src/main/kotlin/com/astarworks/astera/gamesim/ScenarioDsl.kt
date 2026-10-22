@@ -90,12 +90,16 @@ public class ScenarioScope(public val sim: GameSim) {
         sim.drop(this)
     }
 
-    /** Current ammo / mana / stamina of [entity]. */
+    /** Current ammo / energy of [entity]. */
     public fun ammo(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.ammo
 
-    public fun mana(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.mana
+    /** The vanilla food level (the energy bar) shown for [entity], or `null` before the first write. */
+    public fun foodLevel(entity: SimEntity): Int? = sim.foodLevel(entity)
 
-    public fun stamina(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.stamina
+    /** Item cooldown sweeps (reload progress) drawn so far. */
+    public fun cooldownSweeps(): List<com.astarworks.astera.core.application.service.InMemoryItemCooldownGateway.Sweep> = sim.cooldownSweeps()
+
+    public fun energy(entity: SimEntity): Int = checkNotNull(sim.pool(entity)) { "${entity.name} has no resource pool" }.energy
 
     /** Casts [skillId] as if a bound item had requested it (see [GameSim.cast]). */
     public fun SimEntity.cast(skillId: String) {

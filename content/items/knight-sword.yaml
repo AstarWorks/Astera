@@ -26,11 +26,9 @@ attributes:
 
 equip_slot: mainhand
 
-# Resource pool (WP2, optional for melee): stamina per swing, regenerates fast.
-resource_type: stamina
+# Resource pool (WP2, optional for melee): energy per swing (the shared pool, ADR-0194).
+resource_type: energy
 resource_cost_per_use: 15
-resource_max_pool: 100
-resource_regen_per_second: 20.0
 
 skills:
   - trigger: left_click

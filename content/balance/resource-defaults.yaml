@@ -1,16 +1,17 @@
-# Per-resource-type defaults — applied when an item doesn't override
-# (Wave 5k, ADR-0080, Annihilation vision).
+# Per-resource-type defaults - applied when an item doesn't override
+# (Wave 5k, ADR-0080; mana + stamina merged into energy by ADR-0194).
 #
 # Each weapon's `resource_max_pool` / `resource_regen_per_second` (negative
 # sentinel) falls back to the value here. Reload semantics are decided by the
 # item itself (`resource_reloadable: true` on Ammo weapons only).
 #
-# Phase 1 PoC values mirror Hypixel Annihilation pacing:
-#   - Ammo: 30 baseline (pistol mag), no passive regen — designers reload.
-#   - Stamina: 100 baseline (Dark Souls-style), regen 20/sec → ~5s full refill.
-#   - Mana: 100 baseline, regen 5/sec → ~20s full refill.
+#   - Ammo: 30 baseline, no passive regen - designers reload. Guns set their
+#     own magazine size.
+#   - Energy: ONE pool shared by every melee swing and spell, shown on the
+#     vanilla food bar. 100 baseline, regen 15/sec -> ~7s full refill.
+#     Items do not override it, so swapping weapons never changes the cap.
 #
-# These values are NOT YET loaded by Core — `ResourceCap.DEFAULTS` carries the
+# These values are NOT YET loaded by Core - `ResourceCap.DEFAULTS` carries the
 # same numbers as a compiled fall-back. The loader hook lands when Wave 5n
 # (per-match balance overlay) introduces the content/balance/ reload pipeline.
 
@@ -18,10 +19,6 @@ ammo:
   max_pool: 30
   regen_per_second: 0.0
 
-stamina:
+energy:
   max_pool: 100
-  regen_per_second: 20.0
-
-mana:
-  max_pool: 100
-  regen_per_second: 5.0
+  regen_per_second: 15.0

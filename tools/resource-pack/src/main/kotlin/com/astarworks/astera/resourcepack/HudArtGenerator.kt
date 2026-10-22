@@ -22,7 +22,7 @@ import javax.imageio.ImageIO
  *  - `status/atlas.png`   HP bar parts + digits, 8x9 cells in the grid of [StatusHudGlyphs.ATLAS_ROWS]
  *  - `status.json`        bitmap provider for the atlas
  *  - `space.json`         `space` provider with the negative-space characters
- *  - `mana/<name>.png`, `currency/star-icon.png`  the images `mana-bar.json` / `star-counter.json` always pointed at
+ *  - `currency/star-icon.png`  the image `star-counter.json` points at
  *
  * Every glyph has an opaque pixel (or an alpha-1 marker) in its last visible
  * column so the pen advance is exactly [StatusHudGlyphs.advance].
@@ -39,6 +39,9 @@ public object HudArtGenerator {
     private const val CRIT = 0xFFFF6A2E.toInt()
     private const val CRIT_LOW = 0xFFB23414.toInt()
     private const val WHITE = 0xFFFFFFFF.toInt()
+    private const val BRASS_HIGH = 0xFFFFE08A.toInt()
+    private const val BRASS = 0xFFE0A030.toInt()
+    private const val BRASS_LOW = 0xFFA06A18.toInt()
     private const val SHADOW = 0xCC000000.toInt()
     private const val MARKER = 0x01000000
 
@@ -56,6 +59,15 @@ public object HudArtGenerator {
         '/' to listOf("00001", "00010", "00010", "00100", "01000", "01000", "10000"),
     )
 
+    private val bulletRows: List<String> = listOf(
+        "..#..",
+        ".###.",
+        ".###.",
+        ".###.",
+        "#####",
+        "#####",
+    )
+
     private val heartRows: List<String> = listOf(
         ".##.##.",
         "#######",
@@ -70,9 +82,6 @@ public object HudArtGenerator {
         "status/atlas.png" to png(atlas()),
         "status.json" to statusJson().toByteArray(),
         "space.json" to spaceJson().toByteArray(),
-        "mana/icon.png" to png(manaIcon()),
-        "mana/bar-fill.png" to png(solid(4, 8, 0xFF3D8BFF.toInt(), 0xFF8CC0FF.toInt(), 0xFF2457B8.toInt())),
-        "mana/bar-empty.png" to png(solid(4, 8, EMPTY_FILL, EMPTY_FILL, EMPTY_LOW)),
         "currency/star-icon.png" to png(starIcon()),
     )
 
@@ -114,6 +123,7 @@ public object HudArtGenerator {
             StatusHudGlyphs.SEG_CRIT_TWO -> segment(::px, 2, critical = true)
             StatusHudGlyphs.SEG_CRIT_FULL -> segment(::px, 3, critical = true)
             StatusHudGlyphs.HEART -> heart(::px)
+            StatusHudGlyphs.AMMO -> bullet(::px)
             StatusHudGlyphs.SLASH -> text('/', ::px)
             else -> text('0' + (glyph - StatusHudGlyphs.DIGIT_ZERO), ::px)
         }
@@ -142,6 +152,16 @@ public object HudArtGenerator {
         }
     }
 
+    /** A brass bullet for the ammo readout; the alpha-1 marker pins the cell's last column (advance 8). */
+    private fun bullet(px: (Int, Int, Int) -> Unit) {
+        bulletRows.forEachIndexed { y, line ->
+            line.forEachIndexed { x, c ->
+                if (c == '#') px(x + 1, y + 1, if (y <= 1) BRASS_HIGH else if (y >= 4) BRASS_LOW else BRASS)
+            }
+        }
+        px(StatusHudGlyphs.advance(StatusHudGlyphs.AMMO) - 2, StatusHudGlyphs.CELL_HEIGHT - 1, MARKER)
+    }
+
     private fun heart(px: (Int, Int, Int) -> Unit) {
         heartRows.forEachIndexed { y, line ->
             line.forEachIndexed { x, c ->
@@ -162,31 +182,6 @@ public object HudArtGenerator {
     }
 
     // ---- small icons --------------------------------------------------------
-
-    private fun solid(width: Int, height: Int, mid: Int, high: Int, low: Int): BufferedImage {
-        val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
-        for (y in 0 until height) for (x in 0 until width) image.setRGB(x, y, if (y == 0) high else if (y == height - 1) low else mid)
-        return image
-    }
-
-    private fun manaIcon(): BufferedImage = shape(
-        9,
-        10,
-        0xFF3D8BFF.toInt(),
-        0xFFBFE0FF.toInt(),
-        listOf(
-            "....#....",
-            "...###...",
-            "..#####..",
-            ".#######.",
-            ".#######.",
-            "#########",
-            "#########",
-            ".#######.",
-            "..#####..",
-            "...###...",
-        ),
-    )
 
     private fun starIcon(): BufferedImage = shape(
         9,

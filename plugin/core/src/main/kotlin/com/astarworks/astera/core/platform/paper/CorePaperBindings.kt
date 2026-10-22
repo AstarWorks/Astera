@@ -104,11 +104,6 @@ internal class CorePaperBindings(
 
         val broadcaster = buildBroadcaster(scheduler)
 
-        // Wave 6b-2 (ADR-0157): Adventure API (Paper-bundled) is the rendering
-        // substrate of the HUD adapters. PaperHudGateway shares this manager.
-        val paperBossBarManager = com.astarworks.astera.core.adapter.paper.hud
-            .PaperBossBarManager(server, scheduler)
-
         return CorePlatformPorts(
             mcServer = mcServer,
             scheduler = scheduler,
@@ -122,7 +117,6 @@ internal class CorePaperBindings(
                     messages = messages,
                 ).also { paperGuiAdapter = it }
             },
-            bossBarManager = paperBossBarManager,
             // Wave 6c-stub-packetevents-B (ADR-0171): per-viewer scoreboard locale.
             // The PE-backed sender is constructed strictly inside the
             // packetEventsInstalled gate; without PE the scoreboards get null and
@@ -149,12 +143,12 @@ internal class CorePaperBindings(
                 )
             },
             resourcePack = com.astarworks.astera.core.platform.wiring.ResourcePackEnv.load(logger = logger),
+            itemCooldownGateway = { com.astarworks.astera.core.adapter.paper.hud.PaperItemCooldownGateway(server) },
             hudGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.hud.PaperHudGateway(
                     server = server,
                     messageRenderer = services.getOrThrow<IMessageRenderer>(),
                     scheduler = scheduler,
-                    bossBarManager = paperBossBarManager,
                     scoreboardManager = services.getOrThrow<com.astarworks.astera.core.adapter.api.hud.IScoreboardManager>(),
                     eventBus = services.getOrThrow<IDomainEventBus>(),
                 )

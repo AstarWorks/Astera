@@ -1,6 +1,5 @@
 package com.astarworks.astera.core.platform.wiring
 
-import com.astarworks.astera.core.adapter.api.hud.IBossBarManager
 import com.astarworks.astera.core.adapter.api.hud.IScoreboardManager
 import com.astarworks.astera.core.adapter.api.hud.ITabList
 import com.astarworks.astera.core.application.contents.block.CustomBlockContents
@@ -14,7 +13,6 @@ import com.astarworks.astera.core.application.port.outbound.IWorldWeatherGateway
 import com.astarworks.astera.core.application.service.BlockDurabilityLoader
 import com.astarworks.astera.core.application.service.InMemoryBlockDurabilityRepository
 import com.astarworks.astera.core.application.service.InMemoryBlockStateGateway
-import com.astarworks.astera.core.application.service.InMemoryBossBarManager
 import com.astarworks.astera.core.application.service.InMemoryScoreboardManager
 import com.astarworks.astera.core.application.service.InMemorySchematicLoader
 import com.astarworks.astera.core.application.service.InMemoryTabList
@@ -38,19 +36,16 @@ import com.astarworks.astera.core.domain.world.BlockDurabilityRule
 internal fun CoreWiringState.wireHudAndWorld() {
     // ---- HUD ports (Wave 5b, ADR-0031) -------------------------------
     // In-memory defaults at priority 0. Wave 6 Paper impls land at
-    // priority 100 (Adventure-backed BossBar / Scoreboard / TabList).
-    val bossBarManager: IBossBarManager = InMemoryBossBarManager()
+    // priority 100 (Adventure-backed Scoreboard / TabList).
     val scoreboardManager: IScoreboardManager = InMemoryScoreboardManager()
     tabList = InMemoryTabList()
-    services.register<IBossBarManager>(bossBarManager, priority = 0)
     services.register<IScoreboardManager>(scoreboardManager, priority = 0)
     services.register<ITabList>(tabList, priority = 0)
 
     // Wave 6b-2 (ADR-0157): Paper HUD adapters overlay InMemory at
     // priority 100. Adventure API (Paper-bundled) is the rendering
     // substrate. PaperHudGateway is wired later (after messages
-    // resolution) since it depends on PaperBossBarManager + eventBus.
-    ports.bossBarManager?.let { services.register<IBossBarManager>(it, priority = 100) }
+    // resolution) since it depends on the message renderer + eventBus.
     // Wave 6c-stub-packetevents-B/C (ADR-0171 / ADR-0172): per-viewer scoreboard and
     // tab-list locale need PacketEvents senders; the host factory builds them
     // (strictly behind its own packetEventsInstalled gate) from the message renderer.

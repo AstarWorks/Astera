@@ -25,7 +25,7 @@ public sealed class AdminToolError {
 /**
  * Admin-panel combat tools (F1-D, ADR-0183): heal to full on the **Astera HP
  * container** (not vanilla health), clear statuses, clear cooldowns, refill
- * ammo / mana / stamina, toggle god mode. Each operates on any player so the
+ * ammo / energy, toggle god mode. Each operates on any player so the
  * same use case serves "self tools" and "per-player actions".
  */
 public class AdminCombatToolsUseCase(
@@ -59,7 +59,7 @@ public class AdminCombatToolsUseCase(
         return Result.success(keys.size)
     }
 
-    /** Fill ammo, mana and stamina to the cap of the held weapon. */
+    /** Fill ammo and energy to the cap of the held weapon. */
     public fun refillResources(target: PlayerId): Result<Unit, AdminToolError> {
         val pools = resources ?: return Result.failure(AdminToolError.Unavailable("resources"))
         if (pools.currentPool(target) == null) return Result.failure(AdminToolError.NoResourcePool(target))

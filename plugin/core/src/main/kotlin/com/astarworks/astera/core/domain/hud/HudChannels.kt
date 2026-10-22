@@ -10,13 +10,6 @@ package com.astarworks.astera.core.domain.hud
  */
 public fun HudLayout.region(): HudRegion = when (this) {
     is HudLayout.ActionBar -> HudRegion.ACTION_BAR
-    is HudLayout.BossBarSlot -> when (slot) {
-        1 -> HudRegion.BOSS_BAR_SLOT_1
-        2 -> HudRegion.BOSS_BAR_SLOT_2
-        3 -> HudRegion.BOSS_BAR_SLOT_3
-        4 -> HudRegion.BOSS_BAR_SLOT_4
-        else -> error("BossBarSlot.slot out of range: $slot") // init-block rejects this
-    }
     is HudLayout.Sidebar -> HudRegion.SIDEBAR
     // Header and footer share one logical layout; clearing either clears it.
     is HudLayout.TabList -> HudRegion.TAB_LIST_HEADER

@@ -45,8 +45,7 @@ public class InMemoryResourcePoolService(
                 playerId = playerId,
                 activeWeapon = null,
                 ammo = defaults[ResourceType.Ammo]?.maxPool ?: 0,
-                stamina = defaults[ResourceType.Stamina]?.maxPool ?: 0,
-                mana = defaults[ResourceType.Mana]?.maxPool ?: 0,
+                energy = defaults[ResourceType.Energy]?.maxPool ?: 0,
             )
         }
     }

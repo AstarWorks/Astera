@@ -31,7 +31,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
  * id: plasma-burst
  * archetype: projectile
  * cooldown_ticks: 4
- * resource_type: mana   # optional; default = the source item's resource_type
+ * resource_type: energy # optional; default = the source item's resource_type
  * resource_cost: 2      # optional; default = the item's resource_cost_per_use; 0 = free
  * reload_ticks: 30      # optional; marks a reload skill (refills the item's ammo after N ticks)
  * name: { ja: "プラズマ", en: "Plasma" }
@@ -114,7 +114,7 @@ public data class SkillYamlConfig(
             phases = domainPhases,
             resourceType = resourceType?.let {
                 ResourceType.fromKey(it)
-                    ?: throw IllegalArgumentException("Skill '$id': unknown resource_type '$it' (ammo / stamina / mana)")
+                    ?: throw IllegalArgumentException("Skill '$id': unknown resource_type '$it' (ammo / energy)")
             },
             resourceCost = resourceCost,
             reloadTicks = reloadTicks,

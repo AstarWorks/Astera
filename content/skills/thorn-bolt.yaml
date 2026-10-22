@@ -12,7 +12,7 @@ description:
 
 archetype: projectile
 cooldown_ticks: 24
-resource_cost: 6               # mana
+resource_cost: 6               # energy
 tags: [ ranged, earth-family, poison ]
 
 params:

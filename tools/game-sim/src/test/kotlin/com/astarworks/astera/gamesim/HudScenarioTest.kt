@@ -31,8 +31,6 @@ class HudScenarioTest {
 
     private fun HudLayout.Sidebar.keys(): List<String> = texts().map { it.messageKey.value }
 
-    private fun HudLayout.BossBarSlot.text(): HudComponent.Text = component as HudComponent.Text
-
     // ---- lobby -------------------------------------------------------------
 
     @Test
@@ -154,56 +152,56 @@ class HudScenarioTest {
         }
     }
 
-    // ---- weapon resource ---------------------------------------------------
+    // ---- weapon resource (F2-2, ADR-0194) -----------------------------------
 
     @Test
-    fun `the weapon resource owns one boss bar that follows the held item, drains, and shows the reload`() {
+    fun `ammo is on the status line next to HP, reload is a cooldown sweep, energy is the food bar, and no boss bar ever exists`() {
         scenario("hud-weapon-resource") {
             val shooter = player("shooter", team = "red")
             val dummy = mob("dummy", at = Vec3(0.0, groundY, 12.0), team = "blue")
             sim.setMaxHealth(dummy, 500.0)
 
+            // No gun in hand: the status line carries HP only.
+            advance(4)
+            assertThat(sim.hud.statusAmmo(shooter.id)).isNull()
+
             shooter.holds("pistol")
             shooter.faces(dummy)
-            advance(2)
-            val full = checkNotNull(sim.hud.bossBar(shooter.id)) { "no resource bar for a held pistol" }
-            assertThat(full.text().messageKey.value).isEqualTo("astera.hud.resource.ammo.label")
-            assertThat(full.text().placeholders).containsEntry("remaining", "12").containsEntry("max", "12")
-            assertThat(full.progress).isEqualTo(1f)
+            advance(4)
+            assertThat(sim.hud.statusAmmo(shooter.id)).isEqualTo("12/12")
+            assertThat(sim.hud.statusLineText(shooter.id)).contains("astera.hud.status.hp-ammo")
 
             repeat(3) {
                 shooter.rightClick()
                 advance(6)
             }
-            val drained = checkNotNull(sim.hud.bossBar(shooter.id))
-            assertThat(drained.text().placeholders).containsEntry("remaining", "9")
-            assertThat(drained.progress).isEqualTo(0.75f)
+            assertThat(sim.hud.statusAmmo(shooter.id)).isEqualTo("9/12")
 
-            // Empty: red prompt. Then Q: yellow bar filling with the reload timer, green flash when done.
+            // Empty, then Q: the held item gets the native cooldown sweep for the reload time; ammo refills after it.
             repeat(9) {
                 shooter.rightClick()
                 advance(6)
             }
-            assertThat(checkNotNull(sim.hud.bossBar(shooter.id)).text().messageKey.value).isEqualTo("astera.hud.resource.ammo.empty")
+            assertThat(sim.hud.statusAmmo(shooter.id)).isEqualTo("0/12")
+            assertThat(cooldownSweeps()).isEmpty()
             shooter.drop()
-            advance(16)
-            val reloading = checkNotNull(sim.hud.bossBar(shooter.id))
-            assertThat(reloading.text().messageKey.value).isEqualTo("astera.hud.resource.ammo.reloading")
-            assertThat(reloading.progress).isBetween(0.3f, 0.7f)
-            advance(16)
-            assertThat(checkNotNull(sim.hud.bossBar(shooter.id)).text().messageKey.value).isEqualTo("astera.hud.resource.ammo.reloaded")
+            advance(2)
+            assertThat(cooldownSweeps().map { it.ticks }).containsExactly(30)
+            advance(32)
+            assertThat(sim.hud.statusAmmo(shooter.id)).isEqualTo("12/12")
 
-            // One handle the whole time: the first draw is a show, every later one an update.
-            val ops = sim.hud.changes(shooter.id, HudRegion.BOSS_BAR_SLOT_1).map { it.op }
+            // Putting the gun away drops the ammo part; the energy bar (food) keeps showing.
+            shooter.holds("knight-sword")
+            advance(4)
+            assertThat(sim.hud.statusAmmo(shooter.id)).isNull()
+            assertThat(foodLevel(shooter)).isEqualTo(20)
+
+            // The status line is one handle the whole time, and no boss-bar region was ever drawn.
+            val ops = sim.hud.changes(shooter.id, HudRegion.STATUS_LINE).map { it.op }
             assertThat(ops.first()).isEqualTo(SimHudRecorder.Op.SHOW)
             assertThat(ops.drop(1)).containsOnly(SimHudRecorder.Op.UPDATE)
-
-            // Putting the pistol away hides the bar.
-            shooter.holds("rifle")
-            advance(2)
-            sim.hud.bossBar(shooter.id)?.let {
-                assertThat(it.text().messageKey.value).`as`("a different gun draws its own ammo").startsWith("astera.hud.resource.")
-            }
+            assertThat(sim.hud.bossBarLayoutsRecorded).isZero()
+            assertThat(HudRegion.entries.map { it.name }).noneMatch { it.startsWith("BOSS_BAR") }
         }
     }
 

@@ -1,7 +1,5 @@
 package com.astarworks.astera.core.application.gui.hud
 
-import com.astarworks.astera.core.domain.hud.BossBarColor
-import com.astarworks.astera.core.domain.hud.BossBarStyle
 import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudGlyphRef
@@ -20,11 +18,11 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
  *
  * ```
  * hudLayout {
- *     bossBar(slot = 1, color = BossBarColor.BLUE, style = BossBarStyle.NOTCHED_10, progress = 0.5f) {
+ *     actionBar(ttlTicks = 20) {
  *         composite(spacing = 2) {
- *             glyph("hud/mana/icon", widthPx = 10)
+ *             glyph("hud/currency/star-icon", widthPx = 10)
  *             spacer(2)
- *             text("astera.hud.mana.value")
+ *             text("astera.hud.star.count")
  *         }
  *     }
  * }
@@ -47,7 +45,7 @@ import com.astarworks.astera.core.domain.i18n.MessageKey
 
 /**
  * DSL receiver marker. Scopes nested receivers so an inner `composite { … }`
- * block cannot accidentally call the outer `bossBar(…)` / `sidebar(…)`
+ * block cannot accidentally call the outer `actionBar(…)` / `sidebar(…)`
  * methods. Mirrors `@GuiSlotDsl` / `@DialogDsl` in the sibling builders.
  */
 @DslMarker
@@ -56,7 +54,7 @@ public annotation class HudDsl
 /**
  * Entry point of the [HudLayout] DSL. Construct exactly one layout via the
  * [block] receiver, picking one of [HudLayoutBuilder.actionBar] /
- * [HudLayoutBuilder.bossBar] / [HudLayoutBuilder.sidebar] /
+ * [HudLayoutBuilder.sidebar] /
  * [HudLayoutBuilder.tabList] / [HudLayoutBuilder.subtitle].
  *
  * @throws IllegalStateException if the block sets zero layouts or more than one.
@@ -65,7 +63,7 @@ public fun hudLayout(block: HudLayoutBuilder.() -> Unit): HudLayout =
     HudLayoutBuilder().apply(block).build()
 
 /**
- * Top-level builder. Each `bossBar(…)`, `actionBar(…)` etc. call sets the
+ * Top-level builder. Each `actionBar(…)`, `sidebar(…)` etc. call sets the
  * single layout slot; a second call within the same block fails at
  * `build()` to surface the mistake at the call site rather than silently
  * discarding the earlier configuration.
@@ -89,34 +87,6 @@ public class HudLayoutBuilder {
             HudLayout.ActionBar(
                 component = HudComponentBuilder().apply(block).build(),
                 ttlTicks = ttlTicks,
-            )
-        }
-    }
-
-    /**
-     * BossBar slot layout. MC stacks up to 4 visible BossBars per player;
-     * [slot] picks the vertical position (1 = top, 4 = bottom-most).
-     *
-     * @param slot 1..4. Out-of-range fails in [HudLayout.BossBarSlot.init].
-     * @param color Adventure-mirrored bar color (no Adventure import).
-     * @param style Adventure-mirrored notching style.
-     * @param progress 0f..1f fill ratio. Out-of-range fails in
-     *   [HudLayout.BossBarSlot.init].
-     */
-    public fun bossBar(
-        slot: Int,
-        color: BossBarColor,
-        style: BossBarStyle,
-        progress: Float = 1f,
-        block: HudComponentBuilder.() -> Unit,
-    ) {
-        assignLayout("bossBar") {
-            HudLayout.BossBarSlot(
-                slot = slot,
-                component = HudComponentBuilder().apply(block).build(),
-                color = color,
-                style = style,
-                progress = progress,
             )
         }
     }
@@ -185,7 +155,7 @@ public class HudLayoutBuilder {
     }
 
     internal fun build(): HudLayout = checkNotNull(layout) {
-        "hudLayout { ... } requires exactly one of actionBar { } / bossBar(...) { } / " +
+        "hudLayout { ... } requires exactly one of actionBar { } / " +
             "sidebar(...) { } / tabList { } / subtitle(...) { } to be called."
     }
 
@@ -207,7 +177,7 @@ public class HudLayoutBuilder {
 
 /**
  * Component-tree sub-builder, shared by every layout that takes a single
- * component (`actionBar`, `bossBar`, `subtitle`) as well as each line of a
+ * component (`actionBar`, `subtitle`) as well as each line of a
  * `sidebar` / `tabList`.
  *
  * The builder collects primitives in declaration order; `build()` returns:
@@ -231,7 +201,7 @@ public class HudComponentBuilder internal constructor() {
      * player's locale.
      *
      * @param color optional tint override. `null` (default) inherits the
-     *   surrounding layout's color (e.g. BossBar's color).
+     *   surrounding layout's color (e.g. the sidebar's).
      */
     public fun text(messageKey: String, color: HudColor? = null) {
         parts += HudComponent.Text(MessageKey(messageKey), color)
