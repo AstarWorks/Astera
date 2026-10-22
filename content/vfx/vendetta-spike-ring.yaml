@@ -1,0 +1,83 @@
+# Vendetta Bayonet: blood-crystal spikes erupting in a ring around the target. Eight crimson spikes
+# lean outward (pitch via keyframe rotate), shoot up with out_expo, then cool down a block ladder
+# (red -> gray -> black) and sink. Radial cracks flash on the floor first; a centre shard
+# punches straight up through the target. Anchored on the target, yaw only.
+
+id: vendetta-spike-ring
+duration_ticks: 20
+orient: yaw
+follow: false
+sample_ticks: 1
+
+elements:
+  # Floor cracks, black bars radiating out of the target's feet, 1 tick ahead of the spikes.
+  - id: crack
+    kind: { type: block, block: black_concrete }
+    count: 8
+    end_tick: 12
+    formation:
+      curve: { type: circle, radius: 0.1 }
+      offset: [0.0, 0.04, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.1], scale: [0.1, 0.03, 0.2] }
+      - { t: 2, translate: [0.0, 0.0, 1.3], scale: [0.14, 0.03, 2.6], ease: out_expo }
+      - { t: 9, scale: [0.14, 0.03, 2.6] }
+      - { t: 11, scale: [0.0, 0.03, 2.6], ease: in_quad }
+
+  # Main spikes.
+  - id: spike
+    kind: { type: block, block: red_concrete }
+    brightness: 12
+    glow_color: "#c8102e"
+    count: 8
+    start_tick: 1
+    end_tick: 17
+    formation:
+      curve: { type: circle, radius: 2.3 }
+      align: outward
+    jitter: { position: 0.12, rotation_deg: 5, scale: 0.18 }
+    keyframes:
+      - { t: 0, translate: [0.0, -0.2, 0.0], rotate: [0, 16, 0], scale: [0.35, 0.3, 0.35] }
+      - { t: 3, translate: [0.0, 1.2, 0.0], scale: [0.4, 2.7, 0.4], ease: out_expo }
+      - { t: 7, block: gray_concrete }
+      - { t: 10, block: black_concrete }
+      - { t: 15, translate: [0.0, -0.2, 0.0], scale: [0.3, 0.3, 0.3], ease: in_quad }
+
+  # Glass tip glow so each spike reads as crystal.
+  - id: glint
+    kind: { type: block, block: magenta_stained_glass }
+    brightness: 15
+    glow_color: "#ff3d7f"
+    count: 8
+    start_tick: 1
+    end_tick: 11
+    formation:
+      curve: { type: circle, radius: 2.3 }
+      align: outward
+    jitter: { position: 0.12, rotation_deg: 5, scale: 0.18 }
+    keyframes:
+      - { t: 0, translate: [0.0, -0.2, 0.0], rotate: [0, 16, 0], scale: [0.2, 0.2, 0.2] }
+      - { t: 3, translate: [0.0, 1.3, 0.0], scale: [0.2, 2.8, 0.2], ease: out_expo }
+      - { t: 6, block: pink_stained_glass }
+      - { t: 9, scale: [0.0, 2.8, 0.0], ease: in_quad }
+
+  # Centre shard through the target.
+  - id: pillar
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#ff2040"
+    start_tick: 3
+    end_tick: 13
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.3, 0.2, 0.3] }
+      - { t: 2, translate: [0.0, 1.6, 0.0], scale: [0.5, 3.4, 0.5], ease: out_expo }
+      - { t: 5, block: gray_stained_glass }
+      - { t: 9, scale: [0.0, 3.4, 0.0], ease: in_quad }
+
+  - id: shards
+    kind: { type: particle, particle_id: gun-impact, every_ticks: 3 }
+    start_tick: 1
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [0.0, 0.6, 0.0] }

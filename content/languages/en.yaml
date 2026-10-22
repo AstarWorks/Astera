@@ -495,6 +495,8 @@ astera:
           gossamer-katana: "Gossamer Katana"
           bastion-greatsword: "Bastion Greatsword"
           verdict-hammer: "Verdict Hammer"
+          vendetta-rifle: "Vendetta Bayonet"
+          ember-gauntlet: "Ember Gauntlet"
       gui:
         spacer: " "
         price: "<gray>Price: <green>{amount}</green> {currency}</gray>"
