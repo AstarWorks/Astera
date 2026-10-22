@@ -12,8 +12,8 @@ id: example-shop
 display_key: astera.economy.shop.example-shop.title
 
 offers:
-  - id: example-sword
-    item: example-sword
+  - id: knight-sword
+    item: knight-sword
     price:
       currency: GOLD
       amount: 50
@@ -21,8 +21,8 @@ offers:
       type: unlimited
     display_key: astera.economy.shop.example-shop.offer.sword
 
-  - id: example-pistol
-    item: example-pistol
+  - id: pistol
+    item: pistol
     price:
       currency: GOLD
       amount: 40

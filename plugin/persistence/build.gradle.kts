@@ -88,11 +88,6 @@ tasks.shadowJar {
     archiveBaseName.set("astera-persistence")
     archiveClassifier.set("")
     mergeServiceFiles()
-    // INCLUDE is required: with the default EXCLUDE, Gradle drops the second copy of a
-    // duplicate path before mergeServiceFiles() sees it, so flyway-core's
-    // META-INF/services/...Plugin was replaced by the postgres module's (Flyway then
-    // fails with "Unknown prefix for location").
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     dependencies {
         exclude { "${it.moduleGroup}:${it.moduleName}" in project.coreProvidedModules() }
     }

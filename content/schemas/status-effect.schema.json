@@ -22,6 +22,18 @@
             "type": "integer"
         },
         "params": {
+            "$ref": "#/definitions/com.astarworks.astera.combat.application.config.StatusEffectParamsYaml"
+        }
+    },
+    "required": [
+        "id",
+        "display_name_key",
+        "kind",
+        "default_duration_ticks",
+        "params"
+    ],
+    "definitions": {
+        "com.astarworks.astera.combat.application.config.StatusEffectParamsYaml": {
             "oneOf": [
                 {
                     "type": "object",
@@ -117,12 +129,5 @@
                 }
             ]
         }
-    },
-    "required": [
-        "id",
-        "display_name_key",
-        "kind",
-        "default_duration_ticks",
-        "params"
-    ]
+    }
 }

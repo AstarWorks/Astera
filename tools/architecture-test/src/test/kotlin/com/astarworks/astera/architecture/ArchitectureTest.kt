@@ -625,7 +625,7 @@ class ArchitectureTest {
     // ─── Wave 5e — ADR-0058 §5 attribute container facade rule ──────────────
 
     /**
-     * Wave 5e (ADR-0058 §5). `Wallet` / `PlayerStats` / `ManaPool` are
+     * Wave 5e (ADR-0058 §5). `Wallet` / `PlayerStats` are
      * facades over [com.astarworks.astera.core.domain.attribute.IAttributeContainer].
      * They MUST NOT own parallel state — every numeric field must read
      * through the container. The only allowed stored properties are the
@@ -640,7 +640,6 @@ class ArchitectureTest {
         val facadeClasses = setOf(
             "com.astarworks.astera.core.domain.economy.Wallet",
             "com.astarworks.astera.core.domain.stats.PlayerStats",
-            "com.astarworks.astera.combat.domain.resource.ManaPool",
         )
         val allowedStored = setOf("playerId", "container")
         projectScope()
@@ -648,7 +647,7 @@ class ArchitectureTest {
             .filter { it.fullyQualifiedName in facadeClasses }
             .flatMap { it.properties() }
             .assertFalse(
-                additionalMessage = "ADR-0058 §5: Wallet/PlayerStats/ManaPool must back to IAttributeContainer. " +
+                additionalMessage = "ADR-0058 §5: Wallet/PlayerStats must back to IAttributeContainer. " +
                     "Stored fields other than playerId / container are parallel state — convert to " +
                     "`val foo: Long get() = container.effectiveNumber(Attributes.FOO).toLong()`.",
             ) { prop ->

@@ -9,107 +9,118 @@
         "display_name_key": {
             "type": "string"
         },
+        "world": {
+            "type": "string"
+        },
         "regions": {
             "type": "array",
             "items": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "min": {
-                        "type": "object",
-                        "properties": {
-                            "x": {
-                                "type": "number"
-                            },
-                            "y": {
-                                "type": "number"
-                            },
-                            "z": {
-                                "type": "number"
-                            }
-                        },
-                        "required": [
-                            "x",
-                            "y",
-                            "z"
-                        ]
-                    },
-                    "max": {
-                        "type": "object",
-                        "properties": {
-                            "x": {
-                                "type": "number"
-                            },
-                            "y": {
-                                "type": "number"
-                            },
-                            "z": {
-                                "type": "number"
-                            }
-                        },
-                        "required": [
-                            "x",
-                            "y",
-                            "z"
-                        ]
-                    }
-                },
-                "required": [
-                    "min",
-                    "max"
-                ]
+                "$ref": "#/definitions/com.astarworks.astera.match.application.config.RegionYamlConfig"
             }
         },
         "spawn_points": {
             "type": "array",
             "items": {
-                "type": "object",
-                "properties": {
-                    "team": {
-                        "type": "string"
-                    },
-                    "role": {
-                        "type": "string"
-                    },
-                    "position": {
-                        "type": "object",
-                        "properties": {
-                            "x": {
-                                "type": "number"
-                            },
-                            "y": {
-                                "type": "number"
-                            },
-                            "z": {
-                                "type": "number"
-                            }
-                        },
-                        "required": [
-                            "x",
-                            "y",
-                            "z"
-                        ]
-                    },
-                    "yaw": {
-                        "type": "number"
-                    },
-                    "pitch": {
-                        "type": "number"
-                    }
-                },
-                "required": [
-                    "position"
-                ]
+                "$ref": "#/definitions/com.astarworks.astera.match.application.config.SpawnPointYamlConfig"
             }
         },
-        "world": {
-            "type": "string"
+        "pillars": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/com.astarworks.astera.match.application.config.PillarYamlConfig"
+            }
         }
     },
     "required": [
         "id",
         "display_name_key"
-    ]
+    ],
+    "definitions": {
+        "com.astarworks.astera.match.application.config.PillarYamlConfig": {
+            "type": "object",
+            "properties": {
+                "team": {
+                    "type": "string"
+                },
+                "tier": {
+                    "type": "integer"
+                },
+                "position": {
+                    "$ref": "#/definitions/com.astarworks.astera.match.application.config.Vec3YamlConfig"
+                },
+                "block": {
+                    "type": "string"
+                },
+                "hp": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "team",
+                "tier",
+                "position",
+                "block"
+            ]
+        },
+        "com.astarworks.astera.match.application.config.RegionYamlConfig": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "min": {
+                    "$ref": "#/definitions/com.astarworks.astera.match.application.config.Vec3YamlConfig"
+                },
+                "max": {
+                    "$ref": "#/definitions/com.astarworks.astera.match.application.config.Vec3YamlConfig"
+                }
+            },
+            "required": [
+                "min",
+                "max"
+            ]
+        },
+        "com.astarworks.astera.match.application.config.SpawnPointYamlConfig": {
+            "type": "object",
+            "properties": {
+                "team": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "position": {
+                    "$ref": "#/definitions/com.astarworks.astera.match.application.config.Vec3YamlConfig"
+                },
+                "yaw": {
+                    "type": "number"
+                },
+                "pitch": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "position"
+            ]
+        },
+        "com.astarworks.astera.match.application.config.Vec3YamlConfig": {
+            "type": "object",
+            "properties": {
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                },
+                "z": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "x",
+                "y",
+                "z"
+            ]
+        }
+    }
 }

@@ -36,6 +36,7 @@ public class HudUpdateOnLeveledUpListener(
             component = HudComponent.Text(
                 messageKey = MessageKey("astera.hud.leveled-up.announce"),
                 color = HudColor.YELLOW,
+                placeholders = mapOf("level" to event.newLevel.value.toString()),
             ),
             ttlTicks = 80,
             priority = 1,

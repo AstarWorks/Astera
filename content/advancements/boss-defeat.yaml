@@ -4,7 +4,7 @@
 id: boss-defeat
 title_key: astera.advancement.boss_defeat.title
 description_key: astera.advancement.boss_defeat.description
-icon_item: example-sword
+icon_item: knight-sword
 frame: CHALLENGE
 hidden: false
 parent: kills-100

@@ -9,15 +9,15 @@ steps:
   - type: send_message
     key: astera.tutorial.skill.intro
   - type: grant_item
-    item_id: example-wand
+    item_id: frost-staff
     count: 1
   - type: await_skill_cast
-    skill_id: example-blast
+    skill_id: flame-burst
     timeout_sec: 60
   - type: send_message
     key: astera.tutorial.skill.first_cast
   - type: await_skill_cast
-    skill_id: example-buff
+    skill_id: regrowth
     timeout_sec: 60
   - type: send_message
     key: astera.tutorial.skill.complete

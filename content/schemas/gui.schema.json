@@ -15,240 +15,7 @@
         "slots": {
             "type": "array",
             "items": {
-                "oneOf": [
-                    {
-                        "type": "object",
-                        "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "border"
-                            },
-                            "index": {
-                                "type": "integer"
-                            },
-                            "item": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "type",
-                            "index",
-                            "item"
-                        ]
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "confirmation"
-                            },
-                            "index": {
-                                "type": "integer"
-                            },
-                            "prompt_key": {
-                                "type": "string"
-                            },
-                            "confirm_item": {
-                                "type": "string"
-                            },
-                            "cancel_item": {
-                                "type": "string"
-                            },
-                            "confirm": {
-                                "type": "object",
-                                "properties": {
-                                    "key": {
-                                        "type": "string"
-                                    },
-                                    "payload": {
-                                        "type": "object",
-                                        "additionalProperties": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "required": [
-                                    "key"
-                                ]
-                            },
-                            "cancel": {
-                                "type": "object",
-                                "properties": {
-                                    "key": {
-                                        "type": "string"
-                                    },
-                                    "payload": {
-                                        "type": "object",
-                                        "additionalProperties": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "required": [
-                                    "key"
-                                ]
-                            }
-                        },
-                        "required": [
-                            "type",
-                            "index",
-                            "prompt_key",
-                            "confirm_item",
-                            "cancel_item",
-                            "confirm",
-                            "cancel"
-                        ]
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "text_input"
-                            },
-                            "index": {
-                                "type": "integer"
-                            },
-                            "placeholder_key": {
-                                "type": "string"
-                            },
-                            "max_length": {
-                                "type": "integer"
-                            },
-                            "on_submit": {
-                                "type": "object",
-                                "properties": {
-                                    "key": {
-                                        "type": "string"
-                                    },
-                                    "payload": {
-                                        "type": "object",
-                                        "additionalProperties": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "required": [
-                                    "key"
-                                ]
-                            }
-                        },
-                        "required": [
-                            "type",
-                            "index",
-                            "placeholder_key",
-                            "on_submit"
-                        ]
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "empty"
-                            },
-                            "index": {
-                                "type": "integer"
-                            }
-                        },
-                        "required": [
-                            "type",
-                            "index"
-                        ]
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "reactive"
-                            },
-                            "index": {
-                                "type": "integer"
-                            },
-                            "binding": {
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "type",
-                            "index",
-                            "binding"
-                        ]
-                    },
-                    {
-                        "type": "object",
-                        "properties": {
-                            "type": {
-                                "type": "string",
-                                "const": "static"
-                            },
-                            "index": {
-                                "type": "integer"
-                            },
-                            "item": {
-                                "type": "string"
-                            },
-                            "on_left": {
-                                "type": "object",
-                                "properties": {
-                                    "key": { "type": "string" },
-                                    "payload": {
-                                        "type": "object",
-                                        "additionalProperties": { "type": "string" }
-                                    }
-                                },
-                                "required": ["key"]
-                            },
-                            "on_right": {
-                                "type": "object",
-                                "properties": {
-                                    "key": { "type": "string" },
-                                    "payload": {
-                                        "type": "object",
-                                        "additionalProperties": { "type": "string" }
-                                    }
-                                },
-                                "required": ["key"]
-                            },
-                            "on_shift": {
-                                "type": "object",
-                                "properties": {
-                                    "key": { "type": "string" },
-                                    "payload": {
-                                        "type": "object",
-                                        "additionalProperties": { "type": "string" }
-                                    }
-                                },
-                                "required": ["key"]
-                            },
-                            "on_middle": {
-                                "type": "object",
-                                "properties": {
-                                    "key": { "type": "string" },
-                                    "payload": {
-                                        "type": "object",
-                                        "additionalProperties": { "type": "string" }
-                                    }
-                                },
-                                "required": ["key"]
-                            },
-                            "tooltip": {
-                                "type": "array",
-                                "items": { "type": "string" }
-                            },
-                            "count": {
-                                "type": "integer"
-                            }
-                        },
-                        "required": [
-                            "type",
-                            "index",
-                            "item"
-                        ]
-                    }
-                ]
+                "$ref": "#/definitions/com.astarworks.astera.core.application.config.GuiSlotYamlConfig"
             }
         }
     },
@@ -256,5 +23,200 @@
         "id",
         "title_key",
         "size"
-    ]
+    ],
+    "definitions": {
+        "com.astarworks.astera.core.application.config.GuiIntentYamlConfig": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "payload": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "key"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.GuiSlotYamlConfig": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "border"
+                        },
+                        "index": {
+                            "type": "integer"
+                        },
+                        "item": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "index",
+                        "item"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "confirmation"
+                        },
+                        "index": {
+                            "type": "integer"
+                        },
+                        "prompt_key": {
+                            "type": "string"
+                        },
+                        "confirm_item": {
+                            "type": "string"
+                        },
+                        "cancel_item": {
+                            "type": "string"
+                        },
+                        "confirm": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.GuiIntentYamlConfig"
+                        },
+                        "cancel": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.GuiIntentYamlConfig"
+                        },
+                        "tooltip": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "index",
+                        "prompt_key",
+                        "confirm_item",
+                        "cancel_item",
+                        "confirm",
+                        "cancel"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "empty"
+                        },
+                        "index": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "index"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "reactive"
+                        },
+                        "index": {
+                            "type": "integer"
+                        },
+                        "binding": {
+                            "type": "string"
+                        },
+                        "tooltip": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "index",
+                        "binding"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "static"
+                        },
+                        "index": {
+                            "type": "integer"
+                        },
+                        "item": {
+                            "type": "string"
+                        },
+                        "on_left": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.GuiIntentYamlConfig"
+                        },
+                        "on_right": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.GuiIntentYamlConfig"
+                        },
+                        "on_shift": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.GuiIntentYamlConfig"
+                        },
+                        "on_middle": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.GuiIntentYamlConfig"
+                        },
+                        "tooltip": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "count": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "index",
+                        "item"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "text_input"
+                        },
+                        "index": {
+                            "type": "integer"
+                        },
+                        "placeholder_key": {
+                            "type": "string"
+                        },
+                        "max_length": {
+                            "type": "integer"
+                        },
+                        "on_submit": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.GuiIntentYamlConfig"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "index",
+                        "placeholder_key",
+                        "on_submit"
+                    ]
+                }
+            ]
+        }
+    }
 }

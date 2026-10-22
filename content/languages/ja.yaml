@@ -553,6 +553,16 @@ astera:
     title:
       match_start: "<gold><bold>試合開始</bold></gold>"
       match_end: "<red><bold>試合終了</bold></red>"
+    combo:
+      streak: "<gold>コンボ x{streak}</gold>"
+    leveled-up:
+      announce: "<yellow><bold>レベルアップ！</bold></yellow> <white>Lv.{level}</white>"
+    mana:
+      value: "<aqua>{mana}</aqua>"
+    star:
+      count: "<gold>{count}</gold>"
+    mining:
+      progress: "<gray>採掘中...</gray>"
     # WP14 (ADR-0177) — HUD チャンネルは 1 つにつき持ち主 1 つ (docs/adr/0177-*)。
     #   アクションバー: 戦闘表示 (クールダウン + 状態異常)、通知が優先
     #   ボスバー 1: 武器リソース   サイドバー: 試合 / ロビー

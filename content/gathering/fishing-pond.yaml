@@ -14,11 +14,11 @@ position:
   z: 24.5
 cooldown_ticks: 100
 yields:
-  - item_id: example-sword
+  - item_id: knight-sword
     weight: 60
     min_count: 1
     max_count: 1
-  - item_id: example-wand
+  - item_id: frost-staff
     weight: 40
     min_count: 1
     max_count: 1

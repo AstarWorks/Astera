@@ -9,56 +9,44 @@
         "anomalies": {
             "type": "array",
             "items": {
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "type": "string",
-                        "enum": [
-                            "resource_spike",
-                            "status_burst",
-                            "spawn_surge",
-                            "time_warp",
-                            "gravity_shift",
-                            "fog_of_war"
-                        ]
-                    },
-                    "weight": {
-                        "type": "integer",
-                        "minimum": 1
-                    },
-                    "duration_seconds": {
-                        "type": "number",
-                        "exclusiveMinimum": 0
-                    },
-                    "attribute_key": {
-                        "type": "string",
-                        "pattern": "^[a-z]+(\\.[a-z0-9_]+)+$"
-                    },
-                    "operation": {
-                        "type": "string",
-                        "enum": [
-                            "ADD",
-                            "MULTIPLY",
-                            "SET"
-                        ]
-                    },
-                    "value": {
-                        "type": "number"
-                    }
-                },
-                "required": [
-                    "type",
-                    "weight",
-                    "duration_seconds",
-                    "attribute_key",
-                    "operation",
-                    "value"
-                ]
+                "$ref": "#/definitions/com.astarworks.astera.match.application.config.AnomalyYamlConfig"
             }
         }
     },
     "required": [
-        "stage_id",
-        "anomalies"
-    ]
+        "stage_id"
+    ],
+    "definitions": {
+        "com.astarworks.astera.match.application.config.AnomalyYamlConfig": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "integer"
+                },
+                "duration_seconds": {
+                    "type": "number"
+                },
+                "attribute_key": {
+                    "type": "string"
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "type",
+                "weight",
+                "duration_seconds",
+                "attribute_key",
+                "operation",
+                "value"
+            ]
+        }
+    }
 }

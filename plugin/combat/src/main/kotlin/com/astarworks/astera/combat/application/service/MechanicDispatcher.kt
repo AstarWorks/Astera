@@ -1,5 +1,6 @@
 package com.astarworks.astera.combat.application.service
 
+import com.astarworks.astera.combat.application.port.outbound.IDamageRandomizer
 import com.astarworks.astera.combat.application.port.outbound.DamageOutcome
 import com.astarworks.astera.combat.application.port.outbound.ICelEvaluator
 import com.astarworks.astera.combat.application.port.outbound.IBlockEditGuard
@@ -175,6 +176,8 @@ public class MechanicDispatcher(
     private val summonGateway: ISummonGateway? = null,
     /** WP5: summon ownership / allegiance bookkeeping, shared with the host's targeting guard. */
     private val summonRegistry: SummonRegistry = SummonRegistry { teamLookup },
+    /** Shared random source for `chance:` rolls and weighted `Choose` branches (seedable in the simulator). */
+    private val randomizer: IDamageRandomizer = KotlinRandomDamageRandomizer(),
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
 ) {
 
@@ -368,7 +371,7 @@ public class MechanicDispatcher(
                 val durationTicks = resolveInt(mechanic.effectDurationTicks, ctx)
                 val chance = resolveDouble(mechanic.chance, ctx).coerceIn(0.0, 1.0)
                 for (target in targets) {
-                    if (chance < 1.0 && kotlin.random.Random.nextDouble() > chance) continue
+                    if (chance < 1.0 && randomizer.nextDouble() > chance) continue
                     applyStatus.execute(
                         targetId = target,
                         effectId = mechanic.statusId,
@@ -679,7 +682,7 @@ public class MechanicDispatcher(
                 if (mechanic.weighted.isEmpty()) return
                 val total = mechanic.weighted.sumOf { it.weight }
                 if (total <= 0.0) return
-                val pick = kotlin.random.Random.nextDouble() * total
+                val pick = randomizer.nextDouble() * total
                 var acc = 0.0
                 for (branch in mechanic.weighted) {
                     acc += branch.weight

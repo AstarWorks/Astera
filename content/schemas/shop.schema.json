@@ -12,76 +12,87 @@
         "offers": {
             "type": "array",
             "items": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "item": {
-                        "type": "string"
-                    },
-                    "price": {
-                        "type": "object",
-                        "properties": {
-                            "currency": {
-                                "type": "string"
-                            },
-                            "amount": {
-                                "type": "integer"
-                            }
-                        },
-                        "required": [
-                            "currency",
-                            "amount"
-                        ]
-                    },
-                    "stock": {
-                        "oneOf": [
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "type": {
-                                        "type": "string",
-                                        "const": "limited"
-                                    },
-                                    "remaining": {
-                                        "type": "integer"
-                                    }
-                                },
-                                "required": [
-                                    "type",
-                                    "remaining"
-                                ]
-                            },
-                            {
-                                "type": "object",
-                                "properties": {
-                                    "type": {
-                                        "type": "string",
-                                        "const": "unlimited"
-                                    }
-                                },
-                                "required": [
-                                    "type"
-                                ]
-                            }
-                        ]
-                    },
-                    "display_key": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "id",
-                    "item",
-                    "price",
-                    "stock"
-                ]
+                "$ref": "#/definitions/com.astarworks.astera.economy.application.config.ShopOfferYamlConfig"
             }
         }
     },
     "required": [
         "id",
         "display_key"
-    ]
+    ],
+    "definitions": {
+        "com.astarworks.astera.economy.application.config.PriceYamlConfig": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string"
+                },
+                "amount": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "currency",
+                "amount"
+            ]
+        },
+        "com.astarworks.astera.economy.application.config.ShopOfferYamlConfig": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "item": {
+                    "type": "string"
+                },
+                "price": {
+                    "$ref": "#/definitions/com.astarworks.astera.economy.application.config.PriceYamlConfig"
+                },
+                "stock": {
+                    "$ref": "#/definitions/com.astarworks.astera.economy.application.config.StockYamlConfig"
+                },
+                "display_key": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "item",
+                "price",
+                "stock"
+            ]
+        },
+        "com.astarworks.astera.economy.application.config.StockYamlConfig": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "limited"
+                        },
+                        "remaining": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "remaining"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "unlimited"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                }
+            ]
+        }
+    }
 }

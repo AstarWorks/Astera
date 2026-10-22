@@ -29,3 +29,32 @@ tasks.register<JavaExec>("generateSchemas") {
     mainClass.set("com.astarworks.astera.schemagen.SchemaGenMainKt")
     args = listOf("${rootDir}/content/schemas")
 }
+
+// Drift guard: regenerate into build/ and fail when content/schemas/ differs, so a DTO change
+// without `./gradlew :tools:schema-gen:generateSchemas` cannot land. Part of `check`.
+val generateSchemasToBuildDir = tasks.register<JavaExec>("generateSchemasToBuildDir") {
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass.set("com.astarworks.astera.schemagen.SchemaGenMainKt")
+    args = listOf(layout.buildDirectory.dir("schemas-check").get().asFile.absolutePath)
+}
+
+val checkSchemas = tasks.register("checkSchemas") {
+    group = "verification"
+    description = "Fail when content/schemas/ is out of date with the @Serializable DTOs."
+    dependsOn(generateSchemasToBuildDir)
+    val fresh = layout.buildDirectory.dir("schemas-check")
+    val committed = rootProject.layout.projectDirectory.dir("content/schemas")
+    doLast {
+        val stale = fresh.get().asFile.listFiles { f -> f.name.endsWith(".schema.json") }.orEmpty()
+            .filter { f ->
+                val existing = committed.file(f.name).asFile
+                !existing.isFile || existing.readText() != f.readText()
+            }
+            .map { it.name }
+        check(stale.isEmpty()) {
+            "content/schemas out of date: $stale. Run ./gradlew :tools:schema-gen:generateSchemas and commit."
+        }
+    }
+}
+
+tasks.named("check") { dependsOn(checkSchemas) }

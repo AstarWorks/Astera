@@ -10,7 +10,7 @@ Astera Recipe は `content/recipes/<id>.yaml` 1 ファイルで定義します
 ```yaml
 # content/recipes/iron-sword.yaml
 id: iron-sword
-output_item: example-sword
+output_item: knight-sword
 output_count: 1
 crafting_station: AsteraWorkbench
 ingredients:

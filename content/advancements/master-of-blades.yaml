@@ -1,7 +1,7 @@
 id: master-of-blades
 title_key: astera.advancement.master_of_blades.title
 description_key: astera.advancement.master_of_blades.description
-icon_item: example-sword
+icon_item: knight-sword
 frame: CHALLENGE
 hidden: false
 parent: first-kill

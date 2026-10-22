@@ -40,30 +40,7 @@
             "type": "integer"
         },
         "attributes": {
-            "type": "object",
-            "properties": {
-                "attack_damage": {
-                    "type": "number"
-                },
-                "attack_speed": {
-                    "type": "number"
-                },
-                "armor": {
-                    "type": "number"
-                },
-                "armor_toughness": {
-                    "type": "number"
-                },
-                "knockback_resistance": {
-                    "type": "number"
-                },
-                "movement_speed_multiplier": {
-                    "type": "number"
-                },
-                "max_health_bonus": {
-                    "type": "number"
-                }
-            }
+            "$ref": "#/definitions/com.astarworks.astera.core.application.config.AttributesYaml"
         },
         "equip_slot": {
             "type": "string"
@@ -89,22 +66,7 @@
         "skills": {
             "type": "array",
             "items": {
-                "type": "object",
-                "properties": {
-                    "trigger": {
-                        "type": "string"
-                    },
-                    "skill_id": {
-                        "type": "string"
-                    },
-                    "cooldown_override_ticks": {
-                        "type": "integer"
-                    }
-                },
-                "required": [
-                    "trigger",
-                    "skill_id"
-                ]
+                "$ref": "#/definitions/com.astarworks.astera.core.application.config.ItemSkillBindingYaml"
             }
         },
         "pdc_tags": {
@@ -112,9 +74,2540 @@
             "additionalProperties": {
                 "type": "string"
             }
+        },
+        "resource_type": {
+            "type": "string"
+        },
+        "resource_cost_per_use": {
+            "type": "integer"
+        },
+        "resource_max_pool": {
+            "type": "integer"
+        },
+        "resource_regen_per_second": {
+            "type": "number"
+        },
+        "resource_reloadable": {
+            "type": "boolean"
         }
     },
     "required": [
         "id"
-    ]
+    ],
+    "definitions": {
+        "com.astarworks.astera.core.application.config.AttributesYaml": {
+            "type": "object",
+            "properties": {
+                "attack_damage": {
+                    "type": "number"
+                },
+                "attack_speed": {
+                    "type": "number"
+                },
+                "armor": {
+                    "type": "number"
+                },
+                "armor_toughness": {
+                    "type": "number"
+                },
+                "knockback_resistance": {
+                    "type": "number"
+                },
+                "movement_speed_multiplier": {
+                    "type": "number"
+                },
+                "max_health_bonus": {
+                    "type": "number"
+                }
+            }
+        },
+        "com.astarworks.astera.core.application.config.ItemSkillBindingYaml": {
+            "type": "object",
+            "properties": {
+                "trigger": {
+                    "type": "string"
+                },
+                "skill_id": {
+                    "type": "string"
+                },
+                "cooldown_override_ticks": {
+                    "type": "integer"
+                },
+                "phase_overrides": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.PhaseOverridesYaml"
+                }
+            },
+            "required": [
+                "trigger",
+                "skill_id"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.BindingRefYaml": {
+            "type": "object",
+            "properties": {
+                "root": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "root",
+                "key"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.BoolValueYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "cel"
+                        },
+                        "script": {
+                            "type": "string"
+                        },
+                        "refs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BindingRefYaml"
+                            }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "script"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "literal"
+                        },
+                        "value": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "value"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.ConditionYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "and"
+                        },
+                        "left": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "right": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "left",
+                        "right"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "cel"
+                        },
+                        "script": {
+                            "type": "string"
+                        },
+                        "refs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BindingRefYaml"
+                            }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "script"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "distance_less_than"
+                        },
+                        "a": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "b": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "distance": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "a",
+                        "b",
+                        "distance"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "has_status"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "status_id": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "status_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "health_below"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "fraction": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "fraction"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "is_ally"
+                        },
+                        "a": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "b": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "a",
+                        "b"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "is_enemy"
+                        },
+                        "a": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "b": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "a",
+                        "b"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "not"
+                        },
+                        "inner": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "inner"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "or"
+                        },
+                        "left": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "right": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "left",
+                        "right"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.DamageComponentYaml": {
+            "type": "object",
+            "properties": {
+                "base": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                },
+                "attribute": {
+                    "type": "string"
+                },
+                "multiplier": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                }
+            },
+            "required": [
+                "base",
+                "attribute"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.DirectionRefYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "custom"
+                        },
+                        "vector": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.VectorValueYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "vector"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "from_caster"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "from_hit_normal"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "up"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.DisplayKindYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "block"
+                        },
+                        "block_key": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "block_key"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "item"
+                        },
+                        "item_id": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "item_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "text"
+                        },
+                        "lines": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "background_argb": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "lines"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.DisplaySpecYaml": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.DisplayKindYaml"
+                },
+                "transform": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.DisplayTransformYaml"
+                },
+                "lifetime_ticks": {
+                    "type": "integer"
+                },
+                "billboard": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "kind",
+                "lifetime_ticks"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.DisplayTransformYaml": {
+            "type": "object",
+            "properties": {
+                "translation": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.Vec3Yaml"
+                },
+                "rotation": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.QuaternionYaml"
+                },
+                "scale": {
+                    "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.Vec3Yaml"
+                }
+            }
+        },
+        "com.astarworks.astera.core.application.config.skill.IntValueYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "cel"
+                        },
+                        "script": {
+                            "type": "string"
+                        },
+                        "refs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BindingRefYaml"
+                            }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "script"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "literal"
+                        },
+                        "value": {
+                            "type": "integer"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "value"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.LocationRefYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "absolute"
+                        },
+                        "world": {
+                            "type": "string"
+                        },
+                        "position": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.Vec3Yaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "world",
+                        "position"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "caster"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "offset"
+                        },
+                        "from": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.LocationRefYaml"
+                        },
+                        "delta": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.VectorValueYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "from",
+                        "delta"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "origin"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "target"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.MechanicYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "apply_status"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "status_id": {
+                            "type": "string"
+                        },
+                        "effect_duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "chance": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "stack_count": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "status_id",
+                        "effect_duration_ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "camera_shake"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "intensity": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "intensity",
+                        "ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "cast_skill"
+                        },
+                        "skill_id": {
+                            "type": "string"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "skill_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "choose"
+                        },
+                        "weighted": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.WeightedBranchYaml"
+                            }
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "weighted"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "cleanse"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "only_harmful": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BoolValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "consume_item"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "item_id": {
+                            "type": "string"
+                        },
+                        "count": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "item_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "damage"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "components": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.DamageComponentYaml"
+                            }
+                        },
+                        "ignore_armor": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BoolValueYaml"
+                        },
+                        "ignore_invulnerability": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BoolValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "components"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "explode"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "power": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "break_blocks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BoolValueYaml"
+                        },
+                        "incendiary": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BoolValueYaml"
+                        },
+                        "radius": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "components": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.DamageComponentYaml"
+                            }
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "power"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "freeze"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "give_item"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "item_id": {
+                            "type": "string"
+                        },
+                        "count": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "item_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "glow"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "heal"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "amount": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "amount"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "if_then"
+                        },
+                        "predicate": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        },
+                        "then": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                            }
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "else": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                            }
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "predicate",
+                        "then"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "ignite"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "knockback"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "direction": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.DirectionRefYaml"
+                        },
+                        "strength": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "direction",
+                        "strength"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "knockup"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "strength": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "strength"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "leap"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "destination": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.LocationRefYaml"
+                        },
+                        "arc_height": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "destination"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "loop"
+                        },
+                        "count": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "mechanics": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                            }
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "stride_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "count",
+                        "mechanics"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "modify_attribute"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "attribute_key": {
+                            "type": "string"
+                        },
+                        "delta": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "attribute_key",
+                        "delta",
+                        "ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "play_sound"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "sound_id": {
+                            "type": "string"
+                        },
+                        "volume": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "pitch": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "sound_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "propel"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "direction": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.DirectionRefYaml"
+                        },
+                        "strength": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "direction",
+                        "strength"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "remove_block"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "revert_after_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "outside_arena": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BoolValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "remove_status"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "status_id": {
+                            "type": "string"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "status_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "resurrect"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "heal_fraction": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "heal_fraction"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "schedule_particle_animation"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "animation_id": {
+                            "type": "string"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "animation_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "send_action_bar"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "message": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "message"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "send_message"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "message": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "message"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "send_title"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "title": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        },
+                        "subtitle": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        },
+                        "fade_in_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "stay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "fade_out_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "title"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "set_block"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "block_key": {
+                            "type": "string"
+                        },
+                        "revert_after_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "outside_arena": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BoolValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "block_key"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "set_cooldown"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "skill_id": {
+                            "type": "string"
+                        },
+                        "cooldown_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "skill_id",
+                        "cooldown_ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "set_velocity"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "direction": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.DirectionRefYaml"
+                        },
+                        "magnitude": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "direction",
+                        "magnitude"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "silence"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "ticks"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "spawn_display"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "display": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.DisplaySpecYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "display"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "spawn_particle"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "particle_id": {
+                            "type": "string"
+                        },
+                        "count": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "particle_id"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "summon"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "entity_type_key": {
+                            "type": "string"
+                        },
+                        "count": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "lifetime_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "entity_type_key"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "summon_lightning"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "visual_only": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BoolValueYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "teleport"
+                        },
+                        "targets": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "destination": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.LocationRefYaml"
+                        },
+                        "delay_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "period_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "duration_ticks": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "targets",
+                        "destination"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.NumericValueYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "cel"
+                        },
+                        "script": {
+                            "type": "string"
+                        },
+                        "refs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BindingRefYaml"
+                            }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "script"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "literal"
+                        },
+                        "value": {
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "value"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.PhaseOverridesYaml": {
+            "type": "object",
+            "properties": {
+                "cast_append": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "cast_prepend": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "cast_replace": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "hit_entity_append": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "hit_entity_prepend": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "hit_entity_replace": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "hit_block_append": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "hit_block_prepend": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "hit_block_replace": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "miss_append": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "miss_prepend": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "miss_replace": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "expire_append": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "expire_prepend": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "expire_replace": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "removed_append": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "removed_prepend": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "removed_replace": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "pre_teleport_append": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "pre_teleport_prepend": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "pre_teleport_replace": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "post_teleport_append": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "post_teleport_prepend": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "post_teleport_replace": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "spawn_append": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "spawn_prepend": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "spawn_replace": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "summon_death_append": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "summon_death_prepend": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                },
+                "summon_death_replace": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                }
+            }
+        },
+        "com.astarworks.astera.core.application.config.skill.QuaternionYaml": {
+            "type": "object",
+            "properties": {
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                },
+                "z": {
+                    "type": "number"
+                },
+                "w": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "x",
+                "y",
+                "z",
+                "w"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.TargeterYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "allies"
+                        },
+                        "center": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "include_self": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "center"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "caster"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "caster_offset"
+                        },
+                        "offset": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.VectorValueYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "offset"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "cone"
+                        },
+                        "from": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "direction": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.DirectionRefYaml"
+                        },
+                        "angle_degrees": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "distance": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "from",
+                        "direction",
+                        "angle_degrees",
+                        "distance"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "enemies"
+                        },
+                        "center": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "center"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "filter"
+                        },
+                        "base": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "condition": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.ConditionYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "base",
+                        "condition"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "forward_ray"
+                        },
+                        "from": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "distance": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "from",
+                        "distance"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "hit_location"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "hit_offset"
+                        },
+                        "offset": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.VectorValueYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "offset"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "nearby_entities"
+                        },
+                        "center": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "radius": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.NumericValueYaml"
+                        },
+                        "max_count": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        },
+                        "exclude_caster": {
+                            "type": "boolean"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "center",
+                        "radius"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "origin"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "projectile_offset"
+                        },
+                        "offset": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.VectorValueYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "offset"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "projectile_position"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "random"
+                        },
+                        "from": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.TargeterYaml"
+                        },
+                        "count": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.IntValueYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "from",
+                        "count"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "target"
+                        }
+                    },
+                    "required": [
+                        "type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "target_offset"
+                        },
+                        "offset": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.VectorValueYaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "offset"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.Vec3Yaml": {
+            "type": "object",
+            "properties": {
+                "x": {
+                    "type": "number"
+                },
+                "y": {
+                    "type": "number"
+                },
+                "z": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "x",
+                "y",
+                "z"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.VectorValueYaml": {
+            "oneOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "cel"
+                        },
+                        "script": {
+                            "type": "string"
+                        },
+                        "refs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.BindingRefYaml"
+                            }
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "script"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "type": {
+                            "type": "string",
+                            "const": "literal"
+                        },
+                        "value": {
+                            "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.Vec3Yaml"
+                        }
+                    },
+                    "required": [
+                        "type",
+                        "value"
+                    ]
+                }
+            ]
+        },
+        "com.astarworks.astera.core.application.config.skill.WeightedBranchYaml": {
+            "type": "object",
+            "properties": {
+                "weight": {
+                    "type": "number"
+                },
+                "mechanics": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.skill.MechanicYaml"
+                    }
+                }
+            },
+            "required": [
+                "weight",
+                "mechanics"
+            ]
+        }
+    }
 }

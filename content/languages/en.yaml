@@ -551,6 +551,16 @@ astera:
     title:
       match_start: "<gold><bold>MATCH START</bold></gold>"
       match_end: "<red><bold>MATCH END</bold></red>"
+    combo:
+      streak: "<gold>Combo x{streak}</gold>"
+    leveled-up:
+      announce: "<yellow><bold>Level up!</bold></yellow> <white>Lv.{level}</white>"
+    mana:
+      value: "<aqua>{mana}</aqua>"
+    star:
+      count: "<gold>{count}</gold>"
+    mining:
+      progress: "<gray>Mining...</gray>"
     # WP14 (ADR-0177) — one owner per HUD channel (see docs/adr/0177-*).
     #   action bar : combat readout (cooldowns + status effects), toasts on top
     #   boss bar 1 : weapon resource   sidebar : match / lobby

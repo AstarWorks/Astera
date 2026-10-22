@@ -199,7 +199,7 @@ class HudScenarioTest {
             assertThat(ops.drop(1)).containsOnly(SimHudRecorder.Op.UPDATE)
 
             // Putting the pistol away hides the bar.
-            shooter.holds("example-pistol")
+            shooter.holds("rifle")
             advance(2)
             sim.hud.bossBar(shooter.id)?.let {
                 assertThat(it.text().messageKey.value).`as`("a different gun draws its own ammo").startsWith("astera.hud.resource.")

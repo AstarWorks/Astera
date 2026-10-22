@@ -1,38 +1,13 @@
 # Lobby shop (default target of the lobby shop NPC, the main-menu tile and
 # `/astera-shop`). Every `item` must exist in content/items/ (ShopShippedContentTest).
 # Priced in GOLD: a new player starts with 100 GOLD (content/balance/starter-grant.yaml),
-# so the example items, pistol, knight sword and dagger are affordable at once;
+# so the pistol, knight sword and dagger are affordable at once;
 # the staffs, shotgun, rifle and greatsword (WP7 roster) need more earnings.
 # offers iterate in YAML order; ShopBrowseUseCase places them at slot index 0, 1, 2 in a CHEST_27 GUI.
 id: example-shop
 display_key: astera.economy.shop.example-shop.title
 
 offers:
-  - id: example-sword
-    item: example-sword
-    price:
-      currency: GOLD
-      amount: 50
-    stock:
-      type: unlimited
-    display_key: astera.economy.shop.example-shop.offer.sword
-  - id: example-pistol
-    item: example-pistol
-    price:
-      currency: GOLD
-      amount: 80
-    stock:
-      type: unlimited
-    display_key: astera.economy.shop.example-shop.offer.pistol
-  - id: example-wand
-    item: example-wand
-    price:
-      currency: GOLD
-      amount: 150
-    stock:
-      type: limited
-      remaining: 10
-    display_key: astera.economy.shop.example-shop.offer.wand
   - id: pistol
     item: pistol
     price:

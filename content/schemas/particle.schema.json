@@ -4,75 +4,22 @@
     "type": "object",
     "properties": {
         "id": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9-]*$"
+            "type": "string"
         },
         "shape": {
-            "type": "object",
-            "properties": {
-                "kind": {
-                    "type": "string",
-                    "enum": [
-                        "point",
-                        "line",
-                        "circle",
-                        "sphere",
-                        "burst"
-                    ]
-                },
-                "length_blocks": {
-                    "type": "number",
-                    "exclusiveMinimum": 0
-                },
-                "radius_blocks": {
-                    "type": "number",
-                    "exclusiveMinimum": 0
-                },
-                "spread_blocks": {
-                    "type": "number",
-                    "exclusiveMinimum": 0
-                }
-            },
-            "required": [
-                "kind"
-            ]
+            "$ref": "#/definitions/com.astarworks.astera.core.application.config.ShapeDto"
         },
         "color": {
-            "type": "object",
-            "properties": {
-                "r": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 255
-                },
-                "g": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 255
-                },
-                "b": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "maximum": 255
-                }
-            },
-            "required": [
-                "r",
-                "g",
-                "b"
-            ]
+            "$ref": "#/definitions/com.astarworks.astera.core.application.config.ColorDto"
         },
         "count": {
-            "type": "integer",
-            "exclusiveMinimum": 0
+            "type": "integer"
         },
         "lifetime_ticks": {
-            "type": "integer",
-            "exclusiveMinimum": 0
+            "type": "integer"
         },
         "display_name_key": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9_-]*(\\.[a-z0-9_-]+)*$"
+            "type": "string"
         }
     },
     "required": [
@@ -81,5 +28,46 @@
         "color",
         "count",
         "lifetime_ticks"
-    ]
+    ],
+    "definitions": {
+        "com.astarworks.astera.core.application.config.ColorDto": {
+            "type": "object",
+            "properties": {
+                "r": {
+                    "type": "integer"
+                },
+                "g": {
+                    "type": "integer"
+                },
+                "b": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "r",
+                "g",
+                "b"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.ShapeDto": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string"
+                },
+                "length_blocks": {
+                    "type": "number"
+                },
+                "radius_blocks": {
+                    "type": "number"
+                },
+                "spread_blocks": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "kind"
+            ]
+        }
+    }
 }

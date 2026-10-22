@@ -16,10 +16,10 @@ class WandStatusScenarioTest {
 
     @Test
     fun `flame burst applies burn which ticks damage and expires`() {
-        scenario("wand-applies-burn") {
+        scenario("wand-applies-burn", seed = GameSim.DEFAULT_SEED + 2) { // a seed whose first burn roll (85%) lands
             val caster = player("caster", team = "red")
             val target = mob("dummy", at = Vec3(0.0, groundY, 8.0), team = "blue")
-            caster.holds("example-wand")
+            caster.holds("fire-staff")
             caster.faces(target)
             // Keep the dummy alive through repeated casts so the status effect can be observed.
             sim.setMaxHealth(target, 200.0)
@@ -27,16 +27,11 @@ class WandStatusScenarioTest {
             val container = sim.services.getOrThrow<IStatusEffectContainer>()
             val burn = StatusEffectId("burn")
 
-            // flame-burst applies burn with 85% chance per hit (non-seeded RNG in the dispatcher):
-            // cast until it lands. Eight casts miss with probability < 3e-7.
-            fun burnApplied() = eventsOf<StatusApplied>().any { it.target == target.id && it.effect.spec.id == burn }
-            var attempts = 0
-            while (!burnApplied() && attempts < 8) {
-                attempts++
-                caster.cast("flame-burst")
-                advance(85) // > the skill's 80-tick cooldown; the hit lands on the next tick
-            }
-            assertThat(burnApplied()).isTrue()
+            // flame-burst applies burn with 85% chance per hit; the sim's seeded RNG makes the roll
+            // reproducible, so one cast is enough.
+            caster.cast("flame-burst")
+            advance(85) // > the skill's 80-tick cooldown; the hit lands on the next tick
+            assertThat(eventsOf<StatusApplied>().any { it.target == target.id && it.effect.spec.id == burn }).isTrue()
             // One hit lands one StatusApplied (not two) and one burn stack, stamped with the sim tick.
             val applied = eventsOf<StatusApplied>().filter { it.target == target.id && it.effect.spec.id == burn }
             assertThat(applied).hasSize(1)
@@ -60,7 +55,7 @@ class WandStatusScenarioTest {
         scenario("wand-kill-skips-status") {
             val caster = player("caster", team = "red")
             val target = mob("dummy", at = Vec3(0.0, groundY, 8.0), team = "blue")
-            caster.holds("example-wand")
+            caster.holds("fire-staff")
             caster.faces(target)
             sim.setMaxHealth(target, 1.0) // the 12-damage hit kills it before apply_status runs
 

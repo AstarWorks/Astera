@@ -52,8 +52,7 @@ TTK numbers come from `./gradlew :tools:game-sim:test --tests '*WeaponRosterTtk*
 (spam the primary input at a stationary 20-HP player; the test asserts every weapon lands in 1 to 6 s).
 Players have 20-tick invulnerability frames, so a direct hit lands at most once a second whatever the
 fire rate; a critical (10 percent, x2) can shorten any of these (shotgun / greatsword can one-shot).
-The older `example-*` items (`example-sword`, `example-pistol`, `example-wand`) are still shipped
-(tutorials, starter grant, recipes reference them) and sit in the shop too.
+The shop, starter grant, recipes and tutorials all use this roster (the old `example-*` items were removed in WP15).
 
 ## 4. Run a match (queue)
 

@@ -88,7 +88,7 @@ class AnnihilationPillarScenarioTest {
 
             // --- Phase 1 (Build): pillars are immune --------------------------------
             red.position = Vec3(pillar("blue", NexusPillarTier.TIER_1).centre.x, groundY, pillar("blue", NexusPillarTier.TIER_1).centre.z + 5.0)
-            red.holds("example-pistol")
+            red.holds("fire-staff")
             red.lookAt(pillar("blue", NexusPillarTier.TIER_1).centre)
             red.cast("flame-burst")
             advance(60)

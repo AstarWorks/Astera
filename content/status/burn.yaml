@@ -1,5 +1,5 @@
 # Wave H 5content-depth (ADR-0125): standard burn DoT.
-# Stronger per-tick damage than example-burn (the prototype) so skill
+# Stronger per-tick damage than burn (the prototype) so skill
 # authors have a "real" burn id to apply when ignition lasts longer
 # than a tick or two.
 

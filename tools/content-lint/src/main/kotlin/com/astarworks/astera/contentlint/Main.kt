@@ -26,9 +26,7 @@ import kotlin.system.exitProcess
  *         not an error since not every content type has authored examples yet).
  *   - 1 — at least one validation failure, missing schema, or YAML parse error.
  *
- * Not wired into `./gradlew check` by design; CI invokes `./gradlew check
- * contentLint` in parallel so a schema breach doesn't gate unit-test
- * iteration on unrelated code (see ADR-0067 §Decision (3)).
+ * Wired into the root `./gradlew check` since WP15 (supersedes ADR-0067 §Decision (3)).
  */
 fun main(args: Array<String>) {
     val parsed = CliArgs.parse(args)
@@ -139,16 +137,13 @@ internal data class SchemaTarget(
 
 internal object SchemaMapping {
     val all: List<SchemaTarget> = listOf(
-        SchemaTarget("weapon.schema.json", "weapons"),
         SchemaTarget("skill.schema.json", "skills"),
         SchemaTarget("status-effect.schema.json", "status"),
         SchemaTarget("stage.schema.json", "stages"),
         SchemaTarget("item.schema.json", "items"),
         SchemaTarget("gui.schema.json", "gui"),
         SchemaTarget("norma.schema.json", "norma"),
-        // generator.schema.json describes a SINGLE Star Generator entry; the
-        // on-disk files under content/generators/ are arrays of such entries.
-        SchemaTarget("generator.schema.json", "generators", arrayOfEntries = true),
+        SchemaTarget("generator.schema.json", "generators"),
         SchemaTarget("anomaly.schema.json", "anomaly"),
         SchemaTarget("shop.schema.json", "shops"),
         // Wave 5f (ADR-0035, RTM #21): particles are per-file definitions

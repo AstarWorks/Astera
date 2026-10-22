@@ -5,7 +5,7 @@
  * `contentLint` task; run via `./gradlew contentLint` or directly via
  * `./gradlew :tools:content-lint:run`.
  *
- * Intentionally NOT wired into `check` — see ADR-0067 §Decision (3).
+ * Wired into the root `check` since WP15 (schema drift must fail the build).
  *
  * Dependencies:
  *   - com.networknt:json-schema-validator — Draft-07 (matches content/schemas)

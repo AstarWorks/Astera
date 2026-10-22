@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test
  *
  * The attacker presses the primary input every tick (cooldown / resource rejections are part of
  * the weapon's real cadence) and presses the drop key to reload when an ammo weapon runs dry.
- * Status chances (bleed) are not seedable, so each weapon is run [TRIALS] times and the slowest
- * and fastest kill must both sit inside the band. A rolled critical hit (10 percent, x2 in
- * CombatWiring, not seedable) replays the run, so the table is the crit-free baseline; a crit
- * only shortens it (shotgun / greatsword can one-shot on a crit, by design).
+ * Status chances (bleed) and crits come from the sim's seeded random source; each weapon is run
+ * [TRIALS] times on different seeds and the slowest and fastest kill must both sit inside the
+ * band. The seeds are crit-free (a crit, 10 percent x2 in CombatWiring, only shortens a kill;
+ * shotgun / greatsword can one-shot on a crit, by design).
  *
  * Players have 20-tick invulnerability frames (PaperDamageGateway), so a direct hit lands at
  * most once a second regardless of fire rate; DoTs (burn, bleed, poison) bypass them.
@@ -59,21 +59,15 @@ class WeaponRosterTtkScenarioTest {
 
     /**
      * Ticks from the first input to the victim's death, or null if it survived [LIMIT_TICKS].
-     * Runs that rolled a critical hit (10 percent x2 in CombatWiring, not seedable) are replayed,
-     * so the number is the crit-free baseline; a crit can only shorten it.
+     * Each trial runs on its own fixed seed ([GameSim.DEFAULT_SEED] + [SEED_OFFSETS]), so the run is
+     * reproducible; the seeds are chosen so no trial rolls a critical hit (asserted in [runOnce]),
+     * which keeps the table the crit-free baseline.
      */
-    private fun timeToKill(weapon: Weapon, trial: Int): Int? {
-        repeat(MAX_CRIT_RETRIES) { attempt ->
-            val (ttk, crit) = runOnce(weapon, "$trial-$attempt")
-            if (!crit) return ttk
-        }
-        error("${weapon.item}: every attempt rolled a crit")
-    }
+    private fun timeToKill(weapon: Weapon, trial: Int): Int? = runOnce(weapon, trial)
 
-    private fun runOnce(weapon: Weapon, tag: String): Pair<Int?, Boolean> {
+    private fun runOnce(weapon: Weapon, trial: Int): Int? {
         var result: Int? = null
-        var crit = false
-        scenario("roster-ttk-${weapon.item}-$tag") {
+        scenario("roster-ttk-${weapon.item}-$trial", seed = GameSim.DEFAULT_SEED + SEED_OFFSETS[trial - 1]) {
             val attacker = player("attacker", team = "red")
             val victim = player("victim", at = Vec3(0.0, groundY, weapon.distance), team = "blue")
             attacker.holds(weapon.item)
@@ -96,9 +90,9 @@ class WeaponRosterTtkScenarioTest {
                 kill.killer?.let { assertThat(it).isEqualTo(attacker.id) }
                 result = (sim.tick - start).toInt()
             }
-            crit = eventsOf<CriticalHit>().isNotEmpty()
+            assertThat(eventsOf<CriticalHit>()).`as`("${weapon.item} trial $trial rolled a crit; use another seed").isEmpty()
         }
-        return result to crit
+        return result
     }
 
     @Test
@@ -118,8 +112,9 @@ class WeaponRosterTtkScenarioTest {
     }
 
     private companion object {
-        const val TRIALS = 5
-        const val MAX_CRIT_RETRIES = 12
+        /** Seeds (offsets from the default) for which no weapon rolls a crit in any trial. */
+        val SEED_OFFSETS = listOf(9, 12, 18, 27, 32)
+        val TRIALS = SEED_OFFSETS.size
         const val LIMIT_TICKS = 20 * 12
         const val MIN_SECONDS = 1.0
         const val MAX_SECONDS = 6.0

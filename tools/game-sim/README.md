@@ -21,7 +21,7 @@ plugin modules). If a wiring function ever needs a Paper type, the Konsist rule
     scenario("pistol-kills-player") {              // boots GameSim from the real content/
         val shooter = player("shooter", team = "red")
         val victim  = player("victim", at = Vec3(0.0, groundY, 10.0), team = "blue")
-        shooter.holds("example-pistol")             // GiveItemUseCase -> held item
+        shooter.holds("pistol")             // GiveItemUseCase -> held item
         shooter.faces(victim)
         repeat(20) { if (eventsOf<PlayerKilled>().isEmpty()) { shooter.click(); advance(10) } }
         assertThat(eventsOf<PlayerKilled>().single().victim).isEqualTo(victim.id)

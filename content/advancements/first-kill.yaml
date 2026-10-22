@@ -1,7 +1,7 @@
 id: first-kill
 title_key: astera.advancement.first_kill.title
 description_key: astera.advancement.first_kill.description
-icon_item: example-sword
+icon_item: knight-sword
 frame: TASK
 hidden: false
 criteria:

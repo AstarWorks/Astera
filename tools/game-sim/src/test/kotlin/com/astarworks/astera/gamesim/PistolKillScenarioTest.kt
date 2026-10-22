@@ -19,10 +19,10 @@ class PistolKillScenarioTest {
         val trace = scenario("pistol-kills-player") {
             val shooter = player("shooter", team = "red", at = Vec3(0.0, groundY, 0.0))
             val victim = player("victim", team = "blue", at = Vec3(0.0, groundY, 10.0))
-            shooter.holds("example-pistol")
+            shooter.holds("pistol")
             shooter.faces(victim)
 
-            // example-blast has a 40-tick skill cooldown, so keep clicking until the kill lands.
+            // The pistol fires every 6 ticks; keep clicking until the kill lands.
             repeat(20) {
                 if (eventsOf<PlayerKilled>().isEmpty()) {
                     shooter.rightClick()
@@ -41,8 +41,7 @@ class PistolKillScenarioTest {
             assertThat(victim.position.z).isEqualTo(0.0)
 
             // The cast left its cues in the trace recorder.
-            assertThat(sim.recorder.particleKeys()).contains("example-burst")
-            assertThat(sim.recorder.soundKeys()).contains("entity.blaze.shoot")
+            assertThat(sim.recorder.soundKeys()).contains("entity.firework_rocket.blast")
         }
 
         // JSON trace export (schema documented in tools/game-sim/README.md).

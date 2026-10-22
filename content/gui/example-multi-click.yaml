@@ -27,19 +27,19 @@ slots:
 
   - type: static
     index: 4
-    item: example-sword
+    item: knight-sword
     on_left:
       key: shop.purchase
-      payload: { offer_id: "example-sword", qty: "1" }
+      payload: { offer_id: "knight-sword", qty: "1" }
     on_right:
       key: shop.preview
-      payload: { offer_id: "example-sword" }
+      payload: { offer_id: "knight-sword" }
     on_shift:
       key: shop.purchase
-      payload: { offer_id: "example-sword", qty: "64" }
+      payload: { offer_id: "knight-sword", qty: "64" }
     on_middle:
       key: shop.favorite.toggle
-      payload: { offer_id: "example-sword" }
+      payload: { offer_id: "knight-sword" }
     tooltip:
       - astera.gui.shop.multi-click.tooltip.line1
       - astera.gui.shop.multi-click.tooltip.line2

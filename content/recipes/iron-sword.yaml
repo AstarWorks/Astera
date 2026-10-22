@@ -1,7 +1,7 @@
 # Wave 5s (ADR-0091): canonical shaped recipe sample.
 # Two iron ingots vertically + a stick at the bottom; AsteraWorkbench station.
 id: iron-sword
-output_item: example-sword
+output_item: knight-sword
 output_count: 1
 crafting_station: AsteraWorkbench
 ingredients:
