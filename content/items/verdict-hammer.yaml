@@ -1,0 +1,50 @@
+# ADR-0230 persona weapon #6: Verdict Hammer (gold / black / teal). Stack = rupture "stakes" driven
+# into the target by S1 / S2 / DEF; the S1 echo, S2 drop and S3 finisher all scale with them.
+
+id: verdict-hammer
+
+material: MACE
+
+name:
+  ja: "<gold>審判の杭槌</gold>"
+  en: "<gold>Verdict Hammer</gold>"
+lore:
+  ja:
+    - "<gray>左クリック: 槌音の一撃（二連撃・杭を打つ）</gray>"
+    - "<gray>右クリック: 天降る杭（杭を打つ）</gray>"
+    - "<gray>スニーク + 右クリック: 黒曜の審判（杭の数で威力増加）</gray>"
+    - "<gray>スニーク + 左クリック: 審判の構え（反撃の衝撃波）</gray>"
+    - "<dark_gray>rarity: epic / level: 5</dark_gray>"
+  en:
+    - "<gray>Left-click: Gavel Strike (two beats, plants stakes)</gray>"
+    - "<gray>Right-click: Heavenly Stakes (plants stakes)</gray>"
+    - "<gray>Sneak + right-click: Obsidian Judgment (scales with stakes)</gray>"
+    - "<gray>Sneak + left-click: Vigil (counter pulse)</gray>"
+    - "<dark_gray>rarity: epic / level: 5</dark_gray>"
+
+rarity: epic
+level_requirement: 5
+
+attributes:
+  attack_damage: 9.0
+  attack_speed: 0.8
+
+equip_slot: mainhand
+
+resource_type: energy
+resource_cost_per_use: 20
+
+glint: true
+
+skills:
+  - trigger: left_click
+    skill_id: verdict-hammer-s1
+  - trigger: right_click
+    skill_id: verdict-hammer-s2
+  - trigger: sneak_right
+    skill_id: verdict-hammer-s3
+  - trigger: sneak_left
+    skill_id: verdict-hammer-def
+
+pdc_tags:
+  astera:rarity: epic

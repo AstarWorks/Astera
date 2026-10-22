@@ -1,0 +1,69 @@
+# Vendetta Bayonet: first crescent. A tilted orange arc that draws on along its length
+# (stagger), snaps open with out_expo, then burns down a block ladder (orange -> red -> gray)
+# and collapses. Anchored on the target; the crescent peak passes through the body.
+# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
+
+id: vendetta-slash-a
+duration_ticks: 20
+orient: look
+follow: false
+sample_ticks: 1
+
+elements:
+  # Outer glass blade: 8 segments of a 124 degree arc, drawn on one tick apart.
+  - id: blade
+    kind: { type: block, block: orange_stained_glass }
+    brightness: 15
+    glow_color: "#ff8a1f"
+    count: 8
+    slot_lifetime_ticks: 13
+    formation:
+      curve: { type: arc, radius: 2.8, from_deg: -62, to_deg: 62 }
+      tilt: { yaw: 0, pitch: 0, roll: 32 }
+      offset: [0.0, 1.1, -2.8]
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.02, 0.02, 0.05] }
+      - { t: 2, scale: [0.16, 0.16, 1.1], ease: out_expo }
+      - { t: 6, block: red_stained_glass }
+      - { t: 8, block: gray_stained_glass }
+      - { t: 12, scale: [0.0, 0.0, 1.1], ease: in_quad }
+
+  # White-hot core riding the blade, a hair thinner.
+  - id: core
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    count: 8
+    slot_lifetime_ticks: 11
+    formation:
+      curve: { type: arc, radius: 2.8, from_deg: -62, to_deg: 62 }
+      tilt: { yaw: 0, pitch: 0, roll: 32 }
+      offset: [0.0, 1.1, -2.8]
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.01, 0.01, 0.05] }
+      - { t: 2, scale: [0.06, 0.06, 1.1], ease: out_expo }
+      - { t: 7, scale: [0.06, 0.06, 1.1] }
+      - { t: 10, scale: [0.0, 0.0, 1.1], ease: in_quad }
+
+  # Spark glyph where the crescent crosses the body.
+  - id: flash
+    kind: { type: text, text: "<#ffd24a>✦", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 3
+    end_tick: 10
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.2], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [4.5, 4.5, 4.5], ease: out_back }
+      - { t: 6, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  # Spray thrown off the cut.
+  - id: sparks
+    kind: { type: particle, particle_id: hit-spark, every_ticks: 2 }
+    start_tick: 3
+    end_tick: 9
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0] }

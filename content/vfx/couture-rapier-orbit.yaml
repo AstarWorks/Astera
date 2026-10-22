@@ -1,0 +1,76 @@
+# Couturier's Rapier spinning slash rings: three tilted ellipse-like rings drawn on around the target
+# one after another. Each ring is a tangent-aligned chain of short bars staggered one tick apart, so it
+# is "drawn on" in a sweep (the chain's lifetime is only 6 ticks, so the bright head races around while
+# the tail dies). Anchored on the target.
+
+id: couture-rapier-orbit
+duration_ticks: 22
+orient: yaw
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: ring-a
+    kind: { type: block, block: cyan_stained_glass }
+    brightness: 15
+    glow_color: "#3ff0ff"
+    start_tick: 0
+    slot_lifetime_ticks: 6
+    count: 8
+    formation:
+      curve: { type: circle, radius: 1.6 }
+      tilt: { yaw: 0, pitch: 0, roll: 28 }
+      offset: [0.0, 1.0, 0.0]
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.03, 0.03, 0.2] }
+      - { t: 1, scale: [0.05, 0.05, 0.75], ease: out_expo }
+      - { t: 4, block: white_stained_glass }
+      - { t: 6, scale: [0.0, 0.0, 0.75], ease: in_quad }
+    group_keyframes:
+      - { t: 0 }
+      - { t: 9, rotate: [200, 0, 0], ease: out_quad }
+
+  - id: ring-b
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 2
+    slot_lifetime_ticks: 6
+    count: 8
+    formation:
+      curve: { type: circle, radius: 1.9 }
+      tilt: { yaw: 0, pitch: 25, roll: -32 }
+      offset: [0.0, 1.0, 0.0]
+      align: tangent
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.02, 0.02, 0.2] }
+      - { t: 1, scale: [0.035, 0.035, 0.85], ease: out_expo }
+      - { t: 6, scale: [0.0, 0.0, 0.85], ease: in_quad }
+    group_keyframes:
+      - { t: 0 }
+      - { t: 9, rotate: [-200, 0, 0], ease: out_quad }
+
+  - id: ring-c
+    kind: { type: block, block: light_blue_stained_glass }
+    brightness: 15
+    glow_color: "#8ff8ff"
+    start_tick: 4
+    slot_lifetime_ticks: 6
+    count: 8
+    formation:
+      curve: { type: circle, radius: 1.3 }
+      tilt: { yaw: -35, pitch: 0, roll: 62 }
+      offset: [0.0, 1.0, 0.0]
+      align: tangent
+      stagger_ticks: 1
+      reverse: true
+    keyframes:
+      - { t: 0, scale: [0.03, 0.03, 0.2] }
+      - { t: 1, scale: [0.045, 0.045, 0.65], ease: out_expo }
+      - { t: 4, block: white_stained_glass }
+      - { t: 6, scale: [0.0, 0.0, 0.65], ease: in_quad }
+    group_keyframes:
+      - { t: 0 }
+      - { t: 9, rotate: [260, 0, 0], ease: out_quad }

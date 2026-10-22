@@ -512,6 +512,12 @@ astera:
           verdant-staff: "翠緑の杖"
           greatsword: "大剣"
           thunder-staff: "サンダースタッフ"
+          couture-rapier: "仕立屋の細剣"
+          gossamer-katana: "蜘糸の太刀"
+          bastion-greatsword: "城壁の大剣"
+          verdict-hammer: "審判の杭槌"
+          vendetta-rifle: "報復の銃剣"
+          ember-gauntlet: "灼拳の手甲"
       gui:
         spacer: " "
         price: "<gray>価格: <green>{amount}</green> {currency}</gray>"

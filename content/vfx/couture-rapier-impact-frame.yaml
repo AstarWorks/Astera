@@ -1,0 +1,32 @@
+# Couturier's Rapier impact frame: for ~6 ticks the target's chest is filled by one huge pale glyph on a
+# dark plate with a white diagonal streak cutting it, then it snaps away. The beat is "the camera
+# punches in". Anchored on the target; always faces the viewer.
+
+id: couture-rapier-impact-frame
+duration_ticks: 10
+orient: look
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: glyph
+    kind: { type: text, text: "<#d8fff8><b>突</b>", background: "#b0000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 8
+    keyframes:
+      - { t: 0, translate: [0.0, 1.4, 0.6], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [17.0, 17.0, 17.0], ease: out_expo }
+      - { t: 6, scale: [18.5, 18.5, 18.5] }
+      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: streak
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 1
+    end_tick: 7
+    keyframes:
+      - { t: 0, translate: [0.0, 1.4, 0.3], rotate: [0, 0, 38], scale: [0.05, 0.3, 0.05] }
+      - { t: 1, scale: [0.22, 12.0, 0.22], ease: out_expo }
+      - { t: 6, scale: [0.0, 12.0, 0.0], ease: in_quad }

@@ -173,6 +173,7 @@ public class SimDamageGateway(
         target: PlayerId,
         resolved: ResolvedDamage,
         source: DamageSource,
+        ignoreInvulnerability: Boolean,
     ): Result<DamageOutcome, DamageApplicationError> {
         if (world.find(target) == null) return Result.failure(DamageApplicationError.TargetOffline(target))
 
@@ -181,7 +182,7 @@ public class SimDamageGateway(
         val currentHp = (container.get(Attributes.CURRENT_HP) as? AttributeValue.NumberValue)?.value ?: maxHp
         if (currentHp <= 0.0) return Result.failure(DamageApplicationError.TargetAlreadyDead(target))
 
-        if (!frames.tryEnter(target, scheduler.currentTick())) {
+        if (!frames.tryEnter(target, scheduler.currentTick(), ignoreInvulnerability)) {
             return Result.failure(DamageApplicationError.Immune(target))
         }
 

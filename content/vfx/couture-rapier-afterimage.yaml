@@ -1,0 +1,26 @@
+# Couturier's Rapier afterimage: three red-glowing blade silhouettes left standing along the start of the
+# run. They pop in one tick apart, drift up a little and shrink to nothing (in_quad), so a fast
+# dash leaves a readable "where I was" for the opponent. Anchored on the start position.
+
+id: couture-rapier-afterimage
+duration_ticks: 14
+orient: yaw
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: ghost
+    kind: { type: item, item: iron_sword, display_mode: fixed }
+    billboard: vertical
+    brightness: 15
+    glow_color: "#d8323a"
+    start_tick: 0
+    slot_lifetime_ticks: 10
+    count: 3
+    formation:
+      curve: { type: line, from: [0.0, 1.1, 0.4], to: [0.0, 1.1, 3.4] }
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.2, 0.2, 0.2] }
+      - { t: 2, scale: [1.5, 1.5, 1.5], ease: out_back }
+      - { t: 9, translate: [0.0, 0.35, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad }

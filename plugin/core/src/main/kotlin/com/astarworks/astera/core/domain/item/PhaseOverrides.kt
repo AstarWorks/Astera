@@ -88,6 +88,9 @@ public data class PhaseOverrides(
             preTeleport = compose(base.preTeleport, preTeleportPrepend, preTeleportAppend, preTeleportReplace),
             postTeleport = compose(base.postTeleport, postTeleportPrepend, postTeleportAppend, postTeleportReplace),
         )
+        is PhaseMechanics.Sequence -> base.copy(
+            cast = compose(base.cast, castPrepend, castAppend, castReplace),
+        )
         is PhaseMechanics.Summon -> base.copy(
             cast = compose(base.cast, castPrepend, castAppend, castReplace),
             spawn = compose(base.spawn, spawnPrepend, spawnAppend, spawnReplace),

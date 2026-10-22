@@ -189,7 +189,7 @@ public class ApplyDamageUseCase(
         }
 
         // 6. Delegate to gateway, then emit main + knockback + death events
-        return when (val gw = damageGateway.apply(attempt.targetId, boostedResolved, attempt.source)) {
+        return when (val gw = damageGateway.apply(attempt.targetId, boostedResolved, attempt.source, attempt.ignoreInvulnerability)) {
             is Result.Success -> {
                 eventBus.publish(
                     DamageDealt(

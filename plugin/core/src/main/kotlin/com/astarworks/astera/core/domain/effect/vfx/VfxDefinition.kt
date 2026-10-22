@@ -103,25 +103,40 @@ public data class VfxElement(
     public val billboard: DisplayBillboard = DisplayBillboard.FIXED,
     public val viewRange: Float? = null,
     public val startTick: Int = 0,
-    /** Slot lifetime is `endTick - startTick` (so staggered copies live as long as the first); `null` = until the effect ends. */
+    /**
+     * ABSOLUTE tick at which every slot is removed (staggered copies share it, so later slots live
+     * shorter); `null` = until the effect ends. Overridden by [slotLifetimeTicks] when given.
+     */
     public val endTick: Int? = null,
+    /** Per-slot lifetime from its own spawn tick; keeps staggered copies equally long-lived. */
+    public val slotLifetimeTicks: Int? = null,
     /** Formation copies. */
     public val count: Int = 1,
     public val formation: VfxFormation? = null,
     public val jitter: VfxJitter? = null,
     public val keyframes: List<VfxKeyframe>,
     public val oscillate: VfxOscillate? = null,
+    /**
+     * Whole-formation track (translate / rotate / scale of every slot of this element together),
+     * applied about the anchor origin BEFORE the per-slot [keyframes]. Empty = static formation.
+     */
+    public val groupKeyframes: List<VfxGroupKeyframe> = emptyList(),
 ) {
     init {
         require(id.isNotBlank()) { "VfxElement.id must not be blank" }
         require(brightness == null || brightness in 0..15) { "element '$id' brightness must be 0..15: $brightness" }
         require(startTick >= 0) { "element '$id' start_tick must be >= 0: $startTick" }
         require(endTick == null || endTick > startTick) { "element '$id' end_tick ($endTick) must be > start_tick ($startTick)" }
+        require(slotLifetimeTicks == null || slotLifetimeTicks >= 1) { "element '$id' slot_lifetime_ticks must be >= 1: $slotLifetimeTicks" }
         require(count in 1..MAX_COUNT) { "element '$id' count must be 1..$MAX_COUNT: $count" }
         require(keyframes.isNotEmpty()) { "element '$id' needs at least one keyframe" }
         require(keyframes.first().t >= 0) { "element '$id' keyframe t must be >= 0" }
         keyframes.zipWithNext().forEach { (a, b) ->
             require(b.t > a.t) { "element '$id' keyframe t must be strictly increasing (${a.t} then ${b.t})" }
+        }
+        groupKeyframes.firstOrNull()?.let { require(it.t >= 0) { "element '$id' group_keyframes t must be >= 0" } }
+        groupKeyframes.zipWithNext().forEach { (a, b) ->
+            require(b.t > a.t) { "element '$id' group_keyframes t must be strictly increasing (${a.t} then ${b.t})" }
         }
         keyframes.forEach {
             require(it.block == null || kind is VfxElementKind.Block) { "element '$id': keyframe block swap needs kind block" }
@@ -247,6 +262,25 @@ public data class VfxKeyframe(
     public val block: String? = null,
     public val text: String? = null,
 )
+
+/**
+ * Whole-formation keyframe at element-relative tick [t]. Expressed in the anchor's local axes,
+ * pivoting about the anchor origin: `p' = translate + rotate(scale * p)`. Absent fields carry over
+ * (identity before the first); [ease] shapes the segment ending here. [scale] is uniform (it scales
+ * the formation's positions and the display sizes alike).
+ */
+public data class VfxGroupKeyframe(
+    public val t: Int,
+    public val translate: Vec3? = null,
+    /** `(yaw, pitch, roll)` degrees, interpolated component-wise (multi-turn spins work). */
+    public val rotateEuler: Vec3? = null,
+    public val scale: Double? = null,
+    public val ease: Easing = Easing.LINEAR,
+) {
+    init {
+        require(scale == null || scale > 0.0) { "VfxGroupKeyframe.scale must be > 0: $scale" }
+    }
+}
 
 public enum class VfxOscillateAxis {
     SCALE_X, SCALE_Y, SCALE_Z,

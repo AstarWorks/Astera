@@ -1,0 +1,49 @@
+# Edict Blade: backstep afterimages (DEF). Three pale silhouettes are left along the retreat path, one every
+# two ticks, cooling white -> blue -> gray glass before they dissolve; at the end of the evade a single
+# counter-line flashes at chest height and a blue star winks. Anchor = where the caster stood; the retreat
+# runs along -z. Local axes: x = left, y = up, z = forward (yaw only).
+
+id: edict-ghost
+duration_ticks: 22
+orient: yaw
+sample_ticks: 1
+
+elements:
+  - id: body
+    kind: { type: block, block: white_stained_glass }
+    brightness: 15
+    glow_color: "#8fb8ff"
+    count: 3
+    start_tick: 0
+    slot_lifetime_ticks: 14
+    formation:
+      curve: { type: line, from: [0.0, 0.0, 0.0], to: [0.0, 0.0, -2.2] }
+      stagger_ticks: 2
+    keyframes:
+      - { t: 0, translate: [0.0, 0.9, 0.0], scale: [0.5, 1.8, 0.3] }
+      - { t: 4, block: light_blue_stained_glass }
+      - { t: 8, block: gray_stained_glass }
+      - { t: 14, scale: [0.0, 1.8, 0.0], ease: in_quad }
+
+  - id: counter-line
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    glow_color: "#8fb8ff"
+    start_tick: 8
+    end_tick: 20
+    keyframes:
+      - { t: 0, translate: [2.2, 1.1, -2.2], rotate: [0, 0, 8], scale: [0.2, 0.04, 0.04] }
+      - { t: 2, translate: [0.0, 1.1, -2.2], scale: [4.8, 0.06, 0.06], ease: out_expo }
+      - { t: 5, block: white_stained_glass }
+      - { t: 12, scale: [0.0, 0.06, 0.06], ease: in_quad }
+
+  - id: star
+    kind: { type: text, text: "<#4f8fff><b>★</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 9
+    end_tick: 18
+    keyframes:
+      - { t: 0, translate: [0.0, 1.1, -2.2], scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [6.0, 6.0, 6.0], ease: out_back }
+      - { t: 9, rotate: [0, 0, 120], scale: [0.0, 0.0, 0.0], ease: in_quad }

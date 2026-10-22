@@ -1,0 +1,54 @@
+# Vendetta Bayonet: the ghost rifle rack. Eight crossbow projections float up behind the caster on a
+# shallow arc, pop in one tick apart (out_back), kick back when the volley fires, then fade.
+# The arc has a far-forward centre (z = 10) so vendetta-beam-volley can reuse the SAME formation and the
+# beams converge on a point ~10 blocks ahead. Anchored on the caster, yaw only.
+# The crossbows are rolled -45 so the barrel reads vertical (verify in game: the sprite's diagonal is
+# the one thing the planner cannot check).
+
+id: vendetta-rack
+duration_ticks: 30
+orient: yaw
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: barrel
+    kind: { type: item, item: crossbow, display_mode: fixed }
+    brightness: 15
+    glow_color: "#ff2040"
+    billboard: fixed
+    view_range: 2.0
+    count: 8
+    slot_lifetime_ticks: 24
+    formation:
+      curve: { type: arc, radius: 11.6, from_deg: 194, to_deg: 166 }
+      offset: [0.0, 1.9, 10.0]
+      align: outward
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, translate: [0.0, -0.9, 0.0], rotate: [180, 0, -45], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, translate: [0.0, 0.0, 0.0], scale: [1.9, 1.9, 1.9], ease: out_back }
+      - { t: 12, translate: [0.0, 0.0, 0.0] }
+      # recoil kick when the volley fires (backwards = outward = local +z of this slot)
+      - { t: 14, translate: [0.0, 0.1, 0.35], ease: out_expo }
+      - { t: 18, translate: [0.0, 0.0, 0.0], ease: out_quad }
+      - { t: 22, translate: [0.0, 0.7, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad }
+    # a slow bob keeps the held barrels alive between the pop-in and the recoil
+    oscillate: { axis: translate_y, amplitude: 0.07, period_ticks: 8 }
+
+  # Faint crimson halo ring under the rack line (the "summoning" read).
+  - id: halo
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    count: 6
+    start_tick: 1
+    end_tick: 22
+    formation:
+      curve: { type: arc, radius: 11.6, from_deg: 196, to_deg: 164 }
+      offset: [0.0, 1.0, 10.0]
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [0.05, 0.05, 0.6], ease: out_expo }
+      - { t: 16, scale: [0.05, 0.05, 0.6] }
+      - { t: 20, scale: [0.0, 0.0, 0.6], ease: in_quad }

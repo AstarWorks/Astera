@@ -1,18 +1,20 @@
 name: CI
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
-    branches:
-      - main
+    branches: [main, 'wp/**']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      skills:
+        description: 'Skill ids to render (space separated), or ALL (slow, 40+ min). Empty = skills changed in the last push'
+        type: string
+        default: ''
 
-# Cancel in-progress runs for the same branch / PR.
-# For PRs we cancel on new pushes; for main we let runs complete (artifacts are useful).
+# Cancel superseded runs per branch / PR.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -21,30 +23,33 @@ jobs:
   build:
     name: Build & Test (./gradlew check)
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK 25 (Temurin)
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           java-version: '25'
           distribution: 'temurin'
 
-      - name: Set up Gradle
-        # Wrapper-driven: do NOT pin gradle-version here.
-        # The wrapper at gradle/wrapper/gradle-wrapper.properties decides the Gradle version (9.5.1).
-        uses: gradle/actions/setup-gradle@v4
+      # Wrapper-driven: the gradle version comes from gradle/wrapper/gradle-wrapper.properties.
+      - uses: gradle/actions/setup-gradle@v4
         with:
-          cache-read-only: ${{ github.event_name == 'pull_request' && github.ref != 'refs/heads/main' }}
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
 
-      - name: Run check (unit tests + Konsist architecture tests)
+      - name: Check (unit tests + Konsist architecture tests)
         run: ./gradlew check --no-daemon --stacktrace
 
-      - name: Build shadowJar (push to main only)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: ./gradlew :plugin:platform-paper-plugin:shadowJar --no-daemon
+      - name: Build the 7 plugin shadow jars
+        run: make build GRADLEW="./gradlew --no-daemon"
+
+      - name: Upload plugin jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: astera-plugin-jars
+          path: plugin/*/build/libs/astera-*.jar
+          retention-days: 14
+          if-no-files-found: error
 
       - name: Upload test reports (on failure)
         if: failure()
@@ -57,11 +62,107 @@ jobs:
           retention-days: 14
           if-no-files-found: ignore
 
-      - name: Upload shadowJar (push to main only)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && success()
+  e2e:
+    name: E2E (make e2e)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run the e2e suite
+        run: make e2e
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ -f build/e2e-report.md ]; then
+            cat build/e2e-report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No build/e2e-report.md produced (backend or runner failed to start)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload e2e report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: astera-paper-plugin
-          path: plugin/platform-paper-plugin/build/libs/astera-paper-*.jar
-          retention-days: 30
-          if-no-files-found: error
+          name: e2e-report
+          path: build/e2e-report.md
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Backend logs (on failure)
+        if: failure()
+        run: |
+          mkdir -p build
+          for c in $(docker ps -a --format '{{.Names}}' | grep astera-e2e); do docker logs --tail 300 "$c" > "build/docker-$c.log" 2>&1 || true; done
+
+      - name: Upload backend logs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-backend-logs
+          path: build/docker-*.log
+          retention-days: 7
+          if-no-files-found: ignore
+
+  skill-frames:
+    name: Skill frame renders
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install ffmpeg + Chromium
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          cd tools/skill-viewer
+          bun install --frozen-lockfile
+          bunx playwright-core install --with-deps chromium
+
+      - name: Pick skills
+        id: pick
+        run: |
+          if [ -n "${{ inputs.skills }}" ]; then
+            echo "skills=${{ inputs.skills }}" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then base="$(git merge-base origin/main HEAD)"; fi
+          skills="$(git diff --name-only "$base" HEAD -- 'content/skills/*.yaml' | xargs -r -n1 basename | sed 's/\.yaml$//' | tr '\n' ' ')"
+          echo "changed skills: ${skills:-none}"
+          echo "skills=${skills}" >> "$GITHUB_OUTPUT"
+
+      - name: Render skills
+        if: steps.pick.outputs.skills != ''
+        run: |
+          if [ "${{ steps.pick.outputs.skills }}" = "ALL" ]; then
+            ./gradlew :tools:skill-viewer:render --no-daemon --stacktrace
+          else
+            for s in ${{ steps.pick.outputs.skills }}; do
+              ./gradlew :tools:skill-viewer:render -Pscenario="$s" --no-daemon --stacktrace
+            done
+          fi
+
+      - name: Upload skill frames
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-frames
+          path: tools/skill-viewer/build/skill-frames/
+          retention-days: 14
+          if-no-files-found: ignore

@@ -20,6 +20,10 @@ class MatchE2eTest : E2eBase() {
         val posPacketsBefore = b.positionPackets.get()
         val worldsBefore = b.worldHistory.size
         val chatBefore = b.chat.size
+        // norma needs a second player in the queue; this suite brings its own instead of relying on leftovers.
+        val partner = bot("Matcher2")
+        op(partner)
+        partner.command("astera queue join norma")
         b.command("astera queue join norma")
         val joinReply = b.chatSince(chatBefore)
 

@@ -57,14 +57,16 @@ class SimpleShootScenarioTest {
         val trailDust = all.filter { it.key == "dust" && it.p["scale"]!!.jsonPrimitive.content.toDouble() == 1.5 }
         assertThat(trailDust).isNotEmpty()
 
-        // ProjectileEnd: 2 instances x 2 ticks x 15 points = 60 scale-2 dust, 30 on each of two consecutive ticks.
+        // ProjectileEnd: 3 instances x 2 ticks x 15 points = 90 scale-2 dust, 45 on each of two consecutive ticks
+        // (3 instead of RTM's 2 and a ~1-1.5 block radius instead of 3-4; the extra flat ring uses scale 2.5).
         val ring = all.filter { it.key == "dust" && it.p["scale"]!!.jsonPrimitive.content.toDouble() == 2.0 }
-        assertThat(ring).hasSize(60)
+        assertThat(ring).hasSize(90)
         val byTick = ring.groupBy { it.tick }.toSortedMap()
         assertThat(byTick.keys).hasSize(2)
         val ticks = byTick.keys.toList()
         assertThat(ticks[1] - ticks[0]).isEqualTo(1L)
-        assertThat(byTick.values.map { it.size }).containsExactly(30, 30)
+        assertThat(byTick.values.map { it.size }).containsExactly(45, 45)
+        // The orbit stays tight around the impact point (RTM's 3-4 block radius was tightened).
         val c = ring.first().p["color"]!!.jsonObject
         assertThat(listOf("r", "g", "b").map { c[it]!!.jsonPrimitive.content.toInt() }).containsExactly(255, 100, 20)
         // The ring is centred on where the beam landed: after the last trail sample.

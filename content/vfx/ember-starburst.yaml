@@ -1,0 +1,76 @@
+# Ember Gauntlet: the impact starburst. A sphere of eight orange spikes snaps out of the target's
+# chest (out_expo), a yellow core and a spike-tip ladder (orange -> red -> gray) burn down, a gold
+# glyph flares, and a flat flame ring rolls out. Every length scales with play_vfx `scale`, so the
+# jab's second knuckle uses ~0.75 and the hoop cannon's closing hoop ~0.95. Anchored on the target.
+
+id: ember-starburst
+duration_ticks: 18
+orient: look
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: spike
+    kind: { type: block, block: orange_stained_glass }
+    brightness: 15
+    glow_color: "#ff7a1a"
+    count: 8
+    end_tick: 14
+    formation:
+      curve: { type: sphere, radius: 0.15 }
+      offset: [0.0, 1.2, 0.0]
+      align: outward
+    jitter: { rotation_deg: 5, scale: 0.25 }
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.2], scale: [0.04, 0.04, 0.3] }
+      - { t: 2, translate: [0.0, 0.0, 1.0], scale: [0.14, 0.14, 1.7], ease: out_expo }
+      - { t: 6, block: red_stained_glass }
+      - { t: 9, block: gray_stained_glass }
+      - { t: 13, scale: [0.0, 0.0, 1.7], ease: in_quad }
+
+  - id: core
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    count: 3
+    end_tick: 9
+    formation:
+      curve: { type: sphere, radius: 0.15 }
+      offset: [0.0, 1.2, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.1], scale: [0.03, 0.03, 0.2] }
+      - { t: 2, translate: [0.0, 0.0, 0.6], scale: [0.07, 0.07, 1.0], ease: out_expo }
+      - { t: 8, scale: [0.0, 0.0, 1.0], ease: in_quad }
+
+  - id: flare
+    kind: { type: text, text: "<#ffb020>✦", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    end_tick: 11
+    keyframes:
+      - { t: 0, translate: [0.0, 1.2, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [9.0, 9.0, 9.0], ease: out_expo }
+      - { t: 9, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: ring
+    kind: { type: block, block: orange_stained_glass }
+    brightness: 15
+    glow_color: "#ff7a1a"
+    count: 6
+    start_tick: 1
+    end_tick: 14
+    formation:
+      curve: { type: circle, radius: 0.3 }
+      offset: [0.0, 0.4, 0.0]
+      align: tangent
+    keyframes:
+      - { t: 0, scale: [0.1, 0.06, 0.2] }
+      - { t: 6, translate: [-1.7, 0.0, 0.0], scale: [0.07, 0.05, 1.0], ease: out_expo }
+      - { t: 9, block: gray_stained_glass }
+      - { t: 12, scale: [0.0, 0.0, 1.0], ease: in_quad }
+
+  - id: embers
+    kind: { type: particle, particle_id: fire-impact, every_ticks: 5 }
+    end_tick: 11
+    keyframes:
+      - { t: 0, translate: [0.0, 1.1, 0.0] }

@@ -64,7 +64,7 @@ elements:
     kind: { type: block, block: netherite_block }
     count: 4
     start_tick: 3
-    end_tick: 15
+    slot_lifetime_ticks: 12      # every staggered shard lives 12 ticks from its own spawn
     formation:
       curve: { type: arc, radius: 1.6, from_deg: -60, to_deg: 60 }
       offset: [0.0, 1.2, 3.0]

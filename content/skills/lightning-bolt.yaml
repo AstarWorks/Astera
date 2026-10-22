@@ -23,11 +23,22 @@ params:
   launch_speed: 3.0
   max_lifetime_ticks: 40
   visual:
+    # Budget: per 0.5-block sample 4 sparks + a jagged 0.8-block arc (~9 pts x 2) => ~25; at 3 blocks/tick => ~150/tick.
+    trail_spacing: 0.5
     trail:
       - type: point
         particles:
-          - { id: electric_spark, count: 3, extra: 0.02, offset: { x: 0.1, y: 0.1, z: 0.1 } }
+          - { id: electric_spark, count: 4, extra: 0.05, offset: { x: 0.15, y: 0.15, z: 0.15 } }
           - { id: end_rod, offset: { x: 0.02, y: 0.02, z: 0.02 } }
+      - type: line
+        angle: random
+        length: 0.9
+        segments: 3
+        jitter: 0.25
+        points_per_segment: 3
+        particles:
+          - { id: electric_spark }
+          - { id: end_rod }
     display: { variant: item, material: minecraft:end_rod, scale: 0.8 }
 
 phases:
@@ -60,9 +71,37 @@ phases:
     - type: spawn_particle
       targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.0, z: 0.0 } } }
       particle_id: thunder-impact
-    - type: spawn_particle
-      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.0, z: 0.0 } } }
-      particle_id: thunder-impact-glow
+    # A real bolt from the sky (jagged 8-block line + visual-only lightning) and a flat shockwave ring.
+    - type: summon_lightning
+      targets: { type: target }
+      visual_only: { type: literal, value: true }
+    - type: schedule_particle_animation
+      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 8.0, z: 0.0 } } }
+      animation:
+        - type: line
+          angle: down
+          amount: 2
+          length: 8.0
+          segments: 10
+          jitter: 0.6
+          points_per_segment: 4
+          particles:
+            - { id: electric_spark }
+            - { id: end_rod }
+    - type: schedule_particle_animation
+      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 0.2, z: 0.0 } } }
+      animation:
+        - type: point
+          particles:
+            - { id: electric_spark, count: 40, extra: 0.35 }
+            - { id: end_rod, count: 12, extra: 0.25 }
+        - type: ring
+          period_ticks: 4
+          points: 14
+          start_radius: 0.5
+          end_radius: 2.5
+          particles:
+            - { id: electric_spark, count: 0, extra: 0.1 }
     - type: play_sound
       targets: { type: caster }
       sound_id: entity.arrow.hit_player
@@ -74,12 +113,20 @@ phases:
       sound_id: entity.lightning_bolt.impact
       volume: { type: literal, value: 0.5 }
       pitch: { type: literal, value: 1.6 }
-    - type: spawn_particle
+    - type: schedule_particle_animation
       targets: { type: hit_location }
-      particle_id: thunder-impact
-    - type: spawn_particle
-      targets: { type: hit_location }
-      particle_id: thunder-impact-glow
+      animation:
+        - type: point
+          particles:
+            - { id: electric_spark, count: 40, extra: 0.35 }
+            - { id: end_rod, count: 12, extra: 0.25 }
+        - type: ring
+          period_ticks: 4
+          points: 14
+          start_radius: 0.5
+          end_radius: 2.5
+          particles:
+            - { id: electric_spark, count: 0, extra: 0.1 }
   miss: []
   expire:
     - type: spawn_particle

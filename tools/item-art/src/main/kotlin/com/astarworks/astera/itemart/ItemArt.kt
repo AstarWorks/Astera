@@ -57,6 +57,9 @@ internal sealed interface Design {
     ) : Design { override val style = ModelStyle.HANDHELD }
 
     data class Staff(val element: Element) : Design { override val style = ModelStyle.HANDHELD }
+
+    /** Hand-drawn persona weapon silhouette (ADR-0221). */
+    data class Persona(val art: PersonaArt) : Design { override val style = art.style }
 }
 
 /** A weapon read from `content/items` YAML files: an item that binds at least one skill. */
@@ -89,6 +92,20 @@ internal object ItemArt {
         "knight-sword" to Design.Blade(25.5, 1.9, 4.2, STEEL, GOLD, LEATHER, fuller = true, halo = 0xFFFFE066.toInt()),
         "greatsword" to Design.Blade(30.0, 2.8, 5.8, DARK_STEEL, CRIMSON, BLACK_METAL, fuller = true, halo = 0xFFE8434C.toInt()),
         "dagger" to Design.Blade(19.5, 1.5, 2.7, GUNMETAL, DARK_STEEL, LEATHER, fuller = false),
+        "couture-rapier" to Design.Persona(PersonaArt.RAPIER),
+        "gossamer-katana" to Design.Persona(PersonaArt.KATANA),
+        "vendetta-rifle" to Design.Persona(PersonaArt.VENDETTA_RIFLE),
+        "ember-gauntlet" to Design.Persona(PersonaArt.GAUNTLET),
+        "verdict-hammer" to Design.Persona(PersonaArt.HAMMER),
+        "crimson-chain-axe" to Design.Persona(PersonaArt.CHAIN_AXE),
+        "sigil-rifle" to Design.Persona(PersonaArt.SIGIL_RIFLE),
+        "orrery-staff" to Design.Persona(PersonaArt.ORRERY),
+        "edict-blade" to Design.Persona(PersonaArt.EDICT),
+        "bastion-greatsword" to Design.Blade(
+            28.5, 3.5, 7.0, Ramp(0xFFB8841A.toInt(), 0xFFFFD23A.toInt(), 0xFFFFE680.toInt(), 0xFFFFFFFF.toInt()),
+            Ramp(0xFF7A3A06.toInt(), 0xFFE07818.toInt(), 0xFFFFA83A.toInt(), 0xFFFFD880.toInt()), BLACK_METAL,
+            fuller = true, halo = 0xFFFFD23A.toInt(),
+        ),
         "fire-staff" to Design.Staff(Element.FIRE),
         "frost-staff" to Design.Staff(Element.FROST),
         "thunder-staff" to Design.Staff(Element.THUNDER),
@@ -147,6 +164,7 @@ internal object ItemArt {
             is Design.Gun -> GunPainter.paint(sprite, d, rnd)
             is Design.Blade -> BladePainter.paint(sprite, d)
             is Design.Staff -> StaffPainter.paint(sprite, d.element, rnd)
+            is Design.Persona -> PersonaPainter.paint(sprite, d.art)
         }
         return sprite.render()
     }

@@ -119,6 +119,41 @@ class SkillContentsTest {
     }
 
     @Test
+    fun `bootstrap loads sequence skill with only a cast phase`(@TempDir dir: Path) {
+        Files.writeString(
+            dir.resolve("test-seq.yaml"),
+            """
+            id: test-seq
+            name:
+              ja: テスト連撃
+              en: Test Sequence
+            description:
+              ja: 説明
+              en: Description
+            archetype: sequence
+            cooldown_ticks: 20
+            params:
+              type: sequence
+            phases:
+              type: sequence
+              cast:
+                - type: play_sound
+                  targets: { type: caster }
+                  sound_id: x
+            """.trimIndent(),
+        )
+
+        val contents = SkillContents()
+        val report = contents.bootstrap(dir)
+
+        assertThat(report.failed).isEqualTo(0)
+        val spec = contents.find(SkillId("test-seq"))!!
+        assertThat(spec.archetype).isEqualTo(SkillArchetype.SEQUENCE)
+        assertThat(spec.params).isEqualTo(SkillParams.SequenceParams)
+        assertThat((spec.phases as com.astarworks.astera.core.domain.skill.phase.PhaseMechanics.Sequence).cast).hasSize(1)
+    }
+
+    @Test
     fun `bootstrap is best-effort - malformed yaml is skipped and other files still load`(@TempDir dir: Path) {
         Files.writeString(dir.resolve("good.yaml"), projectileYaml)
         Files.writeString(dir.resolve("broken.yaml"), "id: : : not valid : yaml :::\n  - oops")

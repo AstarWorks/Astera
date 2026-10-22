@@ -15,4 +15,6 @@ public data class DamageAttempt(
     val baseProfile: DamageProfile,
     val source: DamageSource,
     val headshot: Boolean = false,
+    /** `damage.ignore_invulnerability`: the gateway skips its i-frame window for this hit. */
+    val ignoreInvulnerability: Boolean = false,
 )

@@ -130,8 +130,12 @@ public sealed class TargeterYaml {
 
     @Serializable
     @SerialName("enemies")
-    public data class Enemies(public val center: TargeterYaml) : TargeterYaml() {
-        override fun toDomain(): Targeter = Targeter.Enemies(center.toDomain())
+    public data class Enemies(
+        public val center: TargeterYaml,
+        /** Scan radius in blocks; omitted = 10. */
+        public val radius: NumericValueYaml? = null,
+    ) : TargeterYaml() {
+        override fun toDomain(): Targeter = Targeter.Enemies(center.toDomain(), radius?.toDomain())
     }
 
     @Serializable
@@ -139,10 +143,13 @@ public sealed class TargeterYaml {
     public data class Allies(
         public val center: TargeterYaml,
         @SerialName("include_self") public val includeSelf: Boolean = false,
+        /** Scan radius in blocks; omitted = 10. */
+        public val radius: NumericValueYaml? = null,
     ) : TargeterYaml() {
         override fun toDomain(): Targeter = Targeter.Allies(
             center = center.toDomain(),
             includeSelf = includeSelf,
+            radius = radius?.toDomain(),
         )
     }
 

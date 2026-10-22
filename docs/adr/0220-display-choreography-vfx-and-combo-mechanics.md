@@ -61,5 +61,5 @@ Accepted
 - **スキルごとにインラインで display を記述**: 再利用性が無く YAML が肥大化するため、`content/vfx/` に分離して ID 参照にした。
 
 ## References
-- ADR-0077 (spawn_display), ADR-0221 (persona weapon roster)
+- ADR-0077 (spawn_display), ADR-0230 (persona weapon roster)
 - 参考動画: ProjectMoon 公式チャンネル (Limbus Company 人格紹介)、"Orbital Lasers in Minecraft (Sky Torch)"

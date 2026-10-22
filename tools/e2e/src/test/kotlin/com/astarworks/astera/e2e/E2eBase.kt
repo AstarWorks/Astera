@@ -34,13 +34,44 @@ abstract class E2eBase {
 
     @AfterEach
     fun cleanUp() {
+        // A bot still in the norma queue would be formed into a match after this test, and hold the arena for the next suite.
+        bots.forEach { b -> runCatching { b.command("astera queue leave") } }
         bots.forEach { b ->
             // Take anyone out of a running match so the next test starts from a clean lobby.
             runCatching { rcon("kick ${b.name}") }
             b.close()
         }
         bots.clear()
-        E2eReport.failIfAny()
+        try {
+            // QA-4: any match a test started (HUD, Match, ...) must not hold the arena for the next suite.
+            endActiveMatches()
+        } finally {
+            E2eReport.failIfAny()
+        }
+    }
+
+    /** Ids of the matches `/astera match list` reports on the backend (console reply, legacy `§x` colour codes stripped). */
+    protected fun activeMatchIds(): List<String> {
+        // RCON replies carry legacy section-sign colour codes ("§fmatch-ab12§r §7[ACTIVE] ..."), so strip them before parsing.
+        val reply = rcon("astera match list").replace(Regex("\u00A7.|\u001B\\[[0-9;]*m"), "")
+        val ids = Regex("(match-[0-9a-f]+) \\[").findAll(reply).map { it.groupValues[1] }.distinct().toList()
+        check(ids.isNotEmpty() || !Regex("[1-9]\\d* active").containsMatchIn(reply)) { "unparseable match list reply: '$reply'" }
+        return ids
+    }
+
+    /**
+     * QA-4: ends every running match via RCON and waits until `/astera match list` is empty, i.e. the arena is free.
+     * Fails loudly if a match survives the timeout, instead of letting the next suite hit "The arena is in use".
+     */
+    protected fun endActiveMatches(timeoutMs: Long = 60_000) {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (true) {
+            val ids = activeMatchIds()
+            if (ids.isEmpty()) return
+            check(System.currentTimeMillis() < deadline) { "matches still running after teardown (arena not free): $ids" }
+            ids.forEach { id -> runCatching { rcon("astera match end $id") } }
+            Thread.sleep(1_000)
+        }
     }
 
     protected fun quote(lines: Collection<String>, max: Int = 30): String =

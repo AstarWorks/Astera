@@ -68,7 +68,9 @@ public class ArmorReductionModifier(
         defenderContainer: IAttributeContainer?,
         randomizer: IDamageRandomizer,
     ): WorkingDamage {
-        if (armor == null || armor.equipped.isEmpty()) return working
+        // Unarmored defenders still carry resist.<attribute> on their container (status buffs, skills).
+        val equipped = armor?.equipped.orEmpty()
+        if (equipped.isEmpty() && defenderContainer == null) return working
         val before = working.currentAmount
         if (before <= 0.0) return working
 
@@ -81,7 +83,7 @@ public class ArmorReductionModifier(
         // and the small window before LoadoutChanged → ApplyArmorModifiers fires).
         val containerResist: Double = defenderContainer
             ?.effectiveNumber(resistKey)
-            ?: armor.equipped.values.sumOf { it.reduction.forAttribute(attackAttribute) }
+            ?: equipped.values.sumOf { it.reduction.forAttribute(attackAttribute) }
 
         // Per-slot attribution remains spec-derived: it's the per-slot share
         // of THIS attribute's reduction that the wearer's static armor list
@@ -90,12 +92,12 @@ public class ArmorReductionModifier(
         // attribute proportionally to the slot percentages, so the
         // MitigationReason.Armor entries always sum to the actual delta.
         val perSlot = mutableListOf<Pair<ArmorSlot, Double>>()
-        for ((slot, spec) in armor.equipped) {
+        for ((slot, spec) in equipped) {
             perSlot += slot to spec.reduction.forAttribute(attackAttribute)
         }
 
         // Set bonus aggregation: count pieces per setKey, look up active bonus tier.
-        val setCounts = armor.equipped.values
+        val setCounts = equipped.values
             .mapNotNull { it.setKey }
             .groupingBy { it }
             .eachCount()

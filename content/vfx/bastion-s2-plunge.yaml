@@ -1,0 +1,127 @@
+# Bastion Greatsword S2 finisher, anchored on the spot where the rush connected: a converging
+# warning hoop counts down 14 ticks (dodgeable), a giant sword drops point-first, and on landing a
+# spiked ground star, ten radial light rays, a star flash and a shockwave hoop erupt.
+# Peak ~46 live displays at the landing frame.
+# Local axes: x = left, y = up, z = forward. rotate = [yaw, pitch, roll] degrees.
+
+id: bastion-s2-plunge
+duration_ticks: 30
+orient: yaw
+follow: false
+sample_ticks: 2
+
+elements:
+  # Warning ring (the damage radius) pulsing on the floor.
+  - id: mark
+    kind: { type: block, block: yellow_stained_glass }
+    brightness: 12
+    start_tick: 0
+    end_tick: 14
+    count: 16
+    formation:
+      curve: { type: circle, radius: 3.4 }
+      offset: [0.0, 0.05, 0.0]
+      align: tangent
+    group_keyframes: [ { t: 0 }, { t: 14, rotate: [60, 0, 0] } ]
+    keyframes:
+      - { t: 0, scale: [0.0, 0.03, 0.0] }
+      - { t: 3, scale: [0.16, 0.03, 0.75], ease: out_back }
+      - { t: 14, scale: [0.16, 0.03, 0.75] }
+    oscillate: { axis: scale_x, amplitude: 0.05, period_ticks: 4 }
+
+  # Converging orange hoop: reaches the centre exactly on impact.
+  - id: close-in
+    kind: { type: block, block: orange_concrete }
+    brightness: 15
+    start_tick: 0
+    end_tick: 14
+    count: 12
+    formation:
+      curve: { type: circle, radius: 3.4 }
+      offset: [0.0, 0.08, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.0], scale: [0.6, 0.05, 0.14] }
+      - { t: 14, translate: [0.0, 0.0, -3.3], scale: [0.25, 0.05, 0.14], ease: in_quad }
+
+  # Giant sword materialises high above, then drops point-first.
+  - id: sword
+    kind: { type: item, item: golden_sword, display_mode: fixed }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 0
+    end_tick: 28
+    keyframes:
+      - { t: 0, translate: [0.0, 8.0, 0.0], rotate: [0, 180, 45], scale: [0.0, 0.0, 0.0] }
+      - { t: 5, scale: [5.0, 5.0, 5.0], ease: out_back }
+      - { t: 10, translate: [0.0, 7.4, 0.0], ease: linear }
+      - { t: 14, translate: [0.0, 2.0, 0.0], ease: in_quad }
+      - { t: 24, translate: [0.0, 2.0, 0.0] }
+      - { t: 28, scale: [0.0, 0.0, 0.0], ease: in_quad }
+    oscillate: { axis: translate_y, amplitude: 0.08, period_ticks: 3 }
+
+  # Ground spike star, tilted up and out, erupting on landing.
+  - id: spikes
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    glow_color: "#ffd23a"
+    start_tick: 14
+    end_tick: 28
+    count: 14
+    formation:
+      curve: { type: circle, radius: 0.6 }
+      offset: [0.0, 0.05, 0.0]
+      align: outward
+    jitter: { position: 0.0, rotation_deg: 6, scale: 0.25 }
+    keyframes:
+      - { t: 0, translate: [0.0, 0.2, 0.8], rotate: [0, -25, 0], scale: [0.1, 0.1, 0.4] }
+      - { t: 2, translate: [0.0, 0.9, 2.2], scale: [0.16, 0.16, 3.8], ease: out_expo }
+      - { t: 8, block: yellow_stained_glass }
+      - { t: 14, scale: [0.0, 0.0, 3.8], ease: in_quad }
+
+  # Radial light rays: a vertical fan behind the star, white -> glass.
+  - id: rays
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 14
+    end_tick: 23
+    count: 10
+    formation:
+      curve: { type: circle, radius: 0.5 }
+      offset: [0.0, 1.0, 0.0]
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      align: outward
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.5], scale: [0.04, 0.04, 0.5] }
+      - { t: 2, translate: [0.0, 0.0, 3.2], scale: [0.05, 0.05, 5.5], ease: out_expo }
+      - { t: 4, block: white_stained_glass }
+      - { t: 9, scale: [0.0, 0.0, 5.5], ease: in_quad }
+
+  - id: flash
+    kind: { type: text, text: "<#fff6a0><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 14
+    end_tick: 22
+    keyframes:
+      - { t: 0, translate: [0.0, 1.4, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 1, scale: [11.0, 11.0, 11.0], ease: out_expo }
+      - { t: 3, scale: [8.0, 8.0, 8.0] }
+      - { t: 8, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  # Shockwave hoop racing out to the damage radius.
+  - id: shock
+    kind: { type: block, block: orange_concrete }
+    brightness: 15
+    glow_color: "#ff7a1a"
+    start_tick: 14
+    end_tick: 23
+    count: 20
+    formation:
+      curve: { type: circle, radius: 0.5 }
+      offset: [0.0, 0.15, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, scale: [0.5, 0.12, 0.14] }
+      - { t: 5, translate: [0.0, 0.0, 3.0], scale: [1.0, 0.1, 0.14], ease: out_expo }
+      - { t: 9, translate: [0.0, 0.0, 3.4], scale: [0.0, 0.0, 0.14], ease: in_quad }

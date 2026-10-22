@@ -1,0 +1,39 @@
+# Orrery Staff: ornament motes -- red and green baubles spiralling up around the caster.
+# The colour signature of the weapon: it rides on charge-up and on guard. Two interleaved helices.
+# Local axes: x = left, y = up, z = forward (yaw only).
+
+id: orrery-motes
+duration_ticks: 24
+orient: yaw
+sample_ticks: 2
+
+elements:
+  - id: red
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    count: 8
+    start_tick: 0
+    slot_lifetime_ticks: 14
+    formation:
+      curve: { type: helix, radius: 1.0, turns: 2.0, height: 2.2, start_deg: 0 }
+      offset: [0.0, 0.1, 0.0]
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [0.1, 0.1, 0.1], ease: out_back }
+      - { t: 13, translate: [0.0, 0.8, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: green
+    kind: { type: block, block: lime_concrete }
+    brightness: 15
+    count: 8
+    start_tick: 0
+    slot_lifetime_ticks: 14
+    formation:
+      curve: { type: helix, radius: 1.0, turns: 2.0, height: 2.2, start_deg: 180 }
+      offset: [0.0, 0.1, 0.0]
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, scale: [0.0, 0.0, 0.0] }
+      - { t: 2, scale: [0.1, 0.1, 0.1], ease: out_back }
+      - { t: 13, translate: [0.0, 0.8, 0.0], scale: [0.0, 0.0, 0.0], ease: in_quad }

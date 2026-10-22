@@ -1,0 +1,88 @@
+# Gossamer Katana S1 (left-click): thread cut. Two real hits -- a rising ice-blue cut (3.0, the melee hit),
+# then a falling cut 4 ticks later (4.0, ignores i-frames, 2-tick hit-stop, +1 bleed). 7 per string plus
+# the bleed.
+
+id: gossamer-katana-s1
+
+name:
+  ja: "糸切り"
+  en: "Thread Cut"
+description:
+  ja: "太刀で斬り上げ、続けて斬り下ろす二連撃。二撃目で出血が溜まる。"
+  en: "A rising cut and a falling follow-up. The second beat leaves the target bleeding."
+
+archetype: melee
+cooldown_ticks: 14
+resource_cost: 8
+tags: [ melee, physical, combo, bleed ]
+
+params:
+  type: melee
+  range: 3.6
+  arc_degrees: 85.0
+  knockback: 0.1
+  damage:
+    - base: { type: literal, value: 3.0 }
+      attribute: physical
+
+phases:
+  type: melee
+  cast:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.trident.return
+      volume: { type: literal, value: 0.5 }
+      pitch: { type: literal, value: 1.7 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: gossamer-katana-slash-up
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.sweep
+      volume: { type: literal, value: 0.7 }
+      pitch: { type: literal, value: 1.4 }
+      delay_ticks: { type: literal, value: 4 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: gossamer-katana-slash-down
+      delay_ticks: { type: literal, value: 4 }
+  hit_entity:
+    - type: play_sound
+      targets: { type: target }
+      sound_id: entity.player.attack.crit
+      volume: { type: literal, value: 0.5 }
+      pitch: { type: literal, value: 1.5 }
+    - type: spawn_particle
+      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
+      particle_id: hit-spark
+    # beat 2
+    - type: damage
+      targets: { type: target }
+      components:
+        - base: { type: literal, value: 4.0 }
+          attribute: physical
+      ignore_invulnerability: { type: literal, value: true }
+      delay_ticks: { type: literal, value: 4 }
+    - type: apply_status
+      targets: { type: target }
+      status_id: bleed
+      effect_duration_ticks: { type: literal, value: 100 }
+      delay_ticks: { type: literal, value: 4 }
+    - type: hit_stop
+      targets: { type: target }
+      ticks: 2
+      delay_ticks: { type: literal, value: 4 }
+    - type: play_sound
+      targets: { type: target }
+      sound_id: entity.player.attack.crit
+      pitch: { type: literal, value: 1.2 }
+      delay_ticks: { type: literal, value: 4 }
+    - type: spawn_particle
+      targets: { type: target_offset, offset: { type: literal, value: { x: 0.0, y: 1.2, z: 0.0 } } }
+      particle_id: hit-spark
+      delay_ticks: { type: literal, value: 4 }
+  miss:
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.nodamage
+      pitch: { type: literal, value: 1.5 }

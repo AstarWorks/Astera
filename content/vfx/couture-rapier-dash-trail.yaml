@@ -1,0 +1,48 @@
+# Couturier's Rapier S2 lunge: five hair-thin cyan streak lines rake out along the 7-block run
+# (their tails thin away so the line seems to be pulled forward), a flat white ground stroke, and a dust
+# trail laid down progressively (stagger) as the caster passes each point. Anchored on the start position.
+
+id: couture-rapier-dash-trail
+duration_ticks: 12
+orient: yaw
+follow: false
+sample_ticks: 1
+
+elements:
+  - id: streak
+    kind: { type: block, block: cyan_stained_glass }
+    brightness: 15
+    glow_color: "#3ff0ff"
+    start_tick: 0
+    end_tick: 9
+    count: 5
+    formation:
+      curve: { type: line, from: [-0.55, 0.4, 0.0], to: [0.55, 1.8, 0.0] }
+      align: none
+    jitter: { position: 0.05, rotation_deg: 0, scale: 0.15 }
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.5], scale: [0.025, 0.025, 0.4] }
+      - { t: 2, translate: [0.0, 0.0, 3.6], scale: [0.03, 0.03, 6.5], ease: out_expo }
+      - { t: 4, block: white_stained_glass }
+      - { t: 8, translate: [0.0, 0.0, 6.5], scale: [0.0, 0.0, 6.5], ease: in_quad }
+
+  - id: ground-stroke
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 0
+    end_tick: 8
+    keyframes:
+      - { t: 0, translate: [0.0, 0.04, 0.5], scale: [0.1, 0.02, 0.4] }
+      - { t: 2, translate: [0.0, 0.04, 3.7], scale: [0.14, 0.02, 7.0], ease: out_expo }
+      - { t: 8, translate: [0.0, 0.04, 3.7], scale: [0.0, 0.02, 7.0], ease: in_quad }
+
+  - id: dust
+    kind: { type: particle, particle_id: dash-cloud, every_ticks: 2 }
+    start_tick: 1
+    slot_lifetime_ticks: 8
+    count: 7
+    formation:
+      curve: { type: line, from: [0.0, 0.15, 0.5], to: [0.0, 0.15, 7.0] }
+      stagger_ticks: 1
+    keyframes:
+      - { t: 0, translate: [0.0, 0.0, 0.0] }

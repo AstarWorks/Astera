@@ -26,9 +26,11 @@ class VfxTimelineTest {
         formation: VfxFormation? = null,
         jitter: VfxJitter? = null,
         oscillate: VfxOscillate? = null,
+        group: List<VfxGroupKeyframe> = emptyList(),
+        slotLifetime: Int? = null,
     ) = VfxElement(
         id = id, kind = kind, startTick = start, endTick = end, count = count,
-        formation = formation, jitter = jitter, keyframes = keyframes, oscillate = oscillate,
+        formation = formation, jitter = jitter, keyframes = keyframes, oscillate = oscillate, groupKeyframes = group, slotLifetimeTicks = slotLifetime,
     )
 
     private fun definition(vararg elements: VfxElement, duration: Int = 30, sample: Int = 2, follow: Boolean = false) =
@@ -345,9 +347,18 @@ class VfxTimelineTest {
     }
 
     @Test
-    fun `staggered copies live as long as the first copy`() {
+    fun `end_tick is absolute for every staggered slot`() {
         val p = plan(
             definition(element(count = 2, start = 2, end = 8, formation = arcFormation(VfxAlign.NONE, stagger = 3), keyframes = listOf(kf(0)))),
+        ).elements.sortedBy { it.slot }
+        assertThat(p.map { it.spawnTick }).containsExactly(2, 5)
+        assertThat(p.map { it.despawnTick }).containsOnly(8)
+    }
+
+    @Test
+    fun `slot_lifetime_ticks keeps staggered copies equally long-lived`() {
+        val p = plan(
+            definition(element(count = 2, start = 2, slotLifetime = 6, formation = arcFormation(VfxAlign.NONE, stagger = 3), keyframes = listOf(kf(0)))),
         ).elements.sortedBy { it.slot }
         assertThat(p.map { it.despawnTick - it.spawnTick }).containsOnly(6)
     }
@@ -463,6 +474,95 @@ class VfxTimelineTest {
         assertThat(e.updates).isEmpty()
         assertThat(e.particles.map { it.tick }).containsExactly(0, 2, 4, 6)
         e.particles.forEachIndexed { i, em -> assertThat(em.offset.z).isCloseTo(2.0 * i, within(1e-9)) }
+    }
+
+    // ---- group keyframes -------------------------------------------------------
+
+    @Test
+    fun `group rotation swings the whole formation about the anchor`() {
+        val e = plan(
+            definition(
+                element(
+                    count = 2,
+                    formation = VfxFormation(Curve.Line(Vec3(0.0, 0.0, 0.0), Vec3(0.0, 0.0, 0.0)), offset = Vec3(2.0, 0.0, 0.0)),
+                    keyframes = listOf(kf(0)),
+                    group = listOf(VfxGroupKeyframe(0), VfxGroupKeyframe(10, rotateEuler = Vec3(90.0, 0.0, 0.0))),
+                ),
+            ),
+        ).elements.first()
+        assertVec(e.initial.translation, 2.0, 0.0, 0.0)
+        assertThat(e.updates).isNotEmpty()
+        // After 90 degrees about Y the offset lies on the Z axis, radius preserved.
+        val end = e.updates.last().transform.translation
+        assertThat(end.x).isCloseTo(0.0, within(1e-6))
+        assertThat(kotlin.math.abs(end.z)).isCloseTo(2.0, within(1e-6))
+        // Samples stay on the circle of radius 2 (rotation, not a lerp).
+        e.updates.forEach { assertThat(it.transform.translation.length()).isCloseTo(2.0, within(1e-6)) }
+        // The rotation is applied to the display orientation too.
+        assertThat(e.updates.last().transform.rotation.angleTo(e.initial.rotation)).isCloseTo(Math.PI / 2, within(1e-6))
+    }
+
+    @Test
+    fun `group translate and scale move and grow the formation, element keyframes stay local`() {
+        val e = plan(
+            definition(
+                element(
+                    formation = VfxFormation(Curve.Line(Vec3.ZERO, Vec3.ZERO), offset = Vec3(1.0, 0.0, 0.0)),
+                    keyframes = listOf(kf(0, scale = Vec3(1.0, 1.0, 1.0))),
+                    group = listOf(VfxGroupKeyframe(0), VfxGroupKeyframe(4, translate = Vec3(0.0, 3.0, 0.0), scale = 2.0)),
+                ),
+            ),
+        ).elements.first()
+        val last = e.updates.last().transform
+        assertVec(last.translation, 2.0, 3.0, 0.0)
+        assertVec(last.scale, 2.0, 2.0, 2.0)
+    }
+
+    @Test
+    fun `fast group spins are chunked below the shortest-path limit`() {
+        val e = plan(
+            definition(
+                element(
+                    formation = VfxFormation(Curve.Line(Vec3.ZERO, Vec3.ZERO), offset = Vec3(1.0, 0.0, 0.0)),
+                    keyframes = listOf(kf(0)),
+                    group = listOf(VfxGroupKeyframe(0), VfxGroupKeyframe(8, rotateEuler = Vec3(720.0, 0.0, 0.0))),
+                ),
+                sample = 8,
+            ),
+        ).elements.first()
+        assertThat(e.updates.size).isGreaterThanOrEqualTo(5)
+        e.updates.forEach { assertThat(it.interpolationTicks).isLessThanOrEqualTo(2) }
+    }
+
+    @Test
+    fun `a ring formation travels forward along local +Z with a group translate`() {
+        val facingEast = Frame.fromYawPitch(Vec3.ZERO, -90.0, 0.0)
+        for (anchor in listOf(origin, facingEast)) {
+            val plan = plan(
+                definition(
+                    element(
+                        count = 6,
+                        formation = VfxFormation(Curve.Arc(1.5, 0.0, 360.0)),
+                        keyframes = listOf(kf(0)),
+                        group = listOf(VfxGroupKeyframe(0), VfxGroupKeyframe(10, translate = Vec3(0.0, 0.0, 8.0))),
+                    ),
+                ),
+                anchor = anchor,
+            ).elements
+            val fwd = anchor.forward()
+            for (slot in plan) {
+                val start = slot.initial.translation
+                val end = slot.updates.last().transform.translation
+                val delta = end - start
+                assertVec(delta, fwd.x * 8.0, fwd.y * 8.0, fwd.z * 8.0, 1e-6)
+            }
+        }
+    }
+
+    @Test
+    fun `group keyframes must be strictly increasing`() {
+        assertThatThrownBy { element(keyframes = listOf(kf(0)), group = listOf(VfxGroupKeyframe(2), VfxGroupKeyframe(2))) }
+            .isInstanceOf(IllegalArgumentException::class.java)
     }
 
     // ---- validation + orient ---------------------------------------------------

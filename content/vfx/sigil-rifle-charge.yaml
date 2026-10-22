@@ -1,0 +1,147 @@
+# Sigil Rifle S3 "Sigil Detonation" ground telegraph (tick 0-46): two concentric sigil rings and a
+# pentagram are drawn on the floor under the caster (staggered so they read as turning), three diameter
+# bars sweep a full 720 degrees inside them, two horn-shaped flames flare either side of the head, and
+# a hot orb gathers at the muzzle. The caster is rooted for the whole thing.
+# Local axes: x = left, y = up, z = forward.
+
+id: sigil-rifle-charge
+duration_ticks: 44
+orient: yaw
+follow: false
+sample_ticks: 2
+
+elements:
+  - id: ring-outer
+    kind: { type: block, block: red_stained_glass }
+    brightness: 15
+    glow_color: "#b3141c"
+    start_tick: 0
+    slot_lifetime_ticks: 46
+    count: 12
+    formation:
+      curve: { type: circle, radius: 3.0 }
+      offset: [0.0, 0.05, 0.0]
+      align: tangent
+      stagger_ticks: 1
+    group_keyframes:
+      - { t: 0 }
+      - { t: 40, rotate: [-120, 0, 0], ease: in_out_sine }
+    keyframes:
+      - { t: 0, scale: [0.0, 0.03, 0.0] }
+      - { t: 3, scale: [0.12, 0.03, 1.3], ease: out_expo }
+      - { t: 36, scale: [0.12, 0.03, 1.3] }
+      - { t: 44, scale: [0.0, 0.03, 1.3], ease: in_quad }
+    oscillate: { axis: scale_x, amplitude: 0.04, period_ticks: 4 }
+
+  - id: ring-inner
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 8
+    slot_lifetime_ticks: 38
+    count: 8
+    formation:
+      curve: { type: circle, radius: 1.9 }
+      offset: [0.0, 0.07, 0.0]
+      align: tangent
+      stagger_ticks: 1
+    group_keyframes:
+      - { t: 0 }
+      - { t: 36, rotate: [240, 0, 0], ease: in_out_sine }
+    keyframes:
+      - { t: 0, scale: [0.0, 0.03, 0.0] }
+      - { t: 3, scale: [0.05, 0.03, 1.05], ease: out_expo }
+      - { t: 30, scale: [0.05, 0.03, 1.05] }
+      - { t: 38, scale: [0.0, 0.03, 1.05], ease: in_quad }
+
+  - id: hexagram
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 14
+    slot_lifetime_ticks: 32
+    count: 10
+    formation:
+      curve: { type: polygon, radius: 2.7, sides: 5, skip: 2 }
+      offset: [0.0, 0.09, 0.0]
+      align: tangent
+      stagger_ticks: 1
+    group_keyframes:
+      - { t: 0 }
+      - { t: 30, rotate: [-180, 0, 0], ease: in_out_sine }
+    keyframes:
+      - { t: 0, scale: [0.0, 0.03, 0.0] }
+      - { t: 3, scale: [0.07, 0.03, 1.6], ease: out_expo }
+      - { t: 24, scale: [0.07, 0.03, 1.6] }
+      - { t: 30, scale: [0.0, 0.03, 1.6], ease: in_quad }
+
+  # Diameter bars sweeping two full turns about the vertical axis (yaw), 60 degrees apart.
+  - id: sweep-a
+    kind: { type: block, block: white_concrete }
+    brightness: 15
+    start_tick: 4
+    end_tick: 44
+    keyframes:
+      - { t: 0, translate: [0.0, 0.11, 0.0], rotate: [0, 0, 0], scale: [0.0, 0.02, 0.0] }
+      - { t: 4, scale: [0.04, 0.02, 5.6], ease: out_expo }
+      - { t: 40, rotate: [720, 0, 0], scale: [0.04, 0.02, 5.6], ease: in_out_sine }
+
+  - id: sweep-b
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 4
+    end_tick: 44
+    keyframes:
+      - { t: 0, translate: [0.0, 0.11, 0.0], rotate: [60, 0, 0], scale: [0.0, 0.02, 0.0] }
+      - { t: 4, scale: [0.04, 0.02, 5.6], ease: out_expo }
+      - { t: 40, rotate: [780, 0, 0], scale: [0.04, 0.02, 5.6], ease: in_out_sine }
+
+  - id: sweep-c
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    start_tick: 4
+    end_tick: 44
+    keyframes:
+      - { t: 0, translate: [0.0, 0.11, 0.0], rotate: [120, 0, 0], scale: [0.0, 0.02, 0.0] }
+      - { t: 4, scale: [0.04, 0.02, 5.6], ease: out_expo }
+      - { t: 40, rotate: [840, 0, 0], scale: [0.04, 0.02, 5.6], ease: in_out_sine }
+
+  # Horn flames either side of the head: flare in, flicker, hold.
+  - id: horn-left
+    kind: { type: text, text: "<#ff2a1a>▲</#ff2a1a>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    glow_color: "#ff2a1a"
+    start_tick: 16
+    end_tick: 46
+    keyframes:
+      - { t: 0, translate: [0.4, 2.15, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, translate: [0.5, 2.35, 0.0], scale: [3.0, 3.0, 3.0], ease: out_back }
+      - { t: 26, scale: [3.4, 3.4, 3.4] }
+      - { t: 30, scale: [0.0, 0.0, 0.0], ease: in_quad }
+    oscillate: { axis: scale_xyz, amplitude: 0.35, period_ticks: 2 }
+
+  - id: horn-right
+    kind: { type: text, text: "<#ff2a1a>▲</#ff2a1a>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    glow_color: "#ff2a1a"
+    start_tick: 16
+    end_tick: 46
+    keyframes:
+      - { t: 0, translate: [-0.4, 2.15, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, translate: [-0.5, 2.35, 0.0], scale: [3.0, 3.0, 3.0], ease: out_back }
+      - { t: 26, scale: [3.4, 3.4, 3.4] }
+      - { t: 30, scale: [0.0, 0.0, 0.0], ease: in_quad }
+    oscillate: { axis: scale_xyz, amplitude: 0.35, period_ticks: 2 }
+
+  # Orb gathering at the muzzle.
+  - id: orb
+    kind: { type: block, block: red_concrete }
+    brightness: 15
+    glow_color: "#ffc24a"
+    start_tick: 10
+    end_tick: 46
+    keyframes:
+      - { t: 0, translate: [0.0, 1.45, 1.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 30, scale: [0.35, 0.35, 0.35], ease: in_cubic }
+      - { t: 36, scale: [0.5, 0.5, 0.5], ease: out_expo }
+    oscillate: { axis: scale_xyz, amplitude: 0.04, period_ticks: 2 }

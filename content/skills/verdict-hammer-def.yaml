@@ -1,0 +1,73 @@
+# ADR-0230 persona weapon: Verdict Hammer DEF (sneak + left click), "Vigil". A 24-tick guard:
+# resist.physical +0.6,
+# full knockback resistance, the hammer held across the brow under gold halos. When the guard releases it answers with a counter pulse that shoves nearby enemies off and drives one
+# rupture stake into each.
+
+id: verdict-hammer-def
+
+name:
+  ja: "審判の構え"
+  en: "Vigil"
+description:
+  ja: "杭槌を掲げて身を守り、物理ダメージを軽減する。構えを解くと衝撃波で周囲を押し返し、杭（破裂）を打ち込む。"
+  en: "Hold the hammer up: physical resistance. Releasing the guard sends a counter pulse that shoves enemies back and plants a rupture stake."
+
+archetype: sequence
+cooldown_ticks: 120
+resource_cost: 15              # energy
+tags: [ buff, defense, rupture ]
+
+params:
+  type: sequence
+
+phases:
+  type: sequence
+  cast:
+    - type: modify_attribute
+      targets: { type: caster }
+      attribute_key: resist.physical
+      delta: { type: literal, value: 0.6 }
+      ticks: { type: literal, value: 24 }
+    - type: modify_attribute
+      targets: { type: caster }
+      attribute_key: resist.knockback
+      delta: { type: literal, value: 1.0 }
+      ticks: { type: literal, value: 24 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: item.shield.block
+      pitch: { type: literal, value: 1.2 }
+    - type: play_vfx
+      targets: { type: caster }
+      vfx_id: verdict-def-vigil
+    # Counter pulse at guard release (tick 24).
+    - type: damage
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
+      components:
+        - base: { type: literal, value: 4.0 }
+          attribute: physical
+      delay_ticks: { type: literal, value: 24 }
+    - type: apply_status
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
+      status_id: rupture
+      effect_duration_ticks: { type: literal, value: 200 }
+      stack_count: { type: literal, value: 1 }
+      delay_ticks: { type: literal, value: 24 }
+    - type: knockback
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
+      direction: { type: away_from_caster, vertical: 0.2 }
+      strength: { type: literal, value: 0.9 }
+      delay_ticks: { type: literal, value: 24 }
+    - type: hit_stop
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
+      ticks: 2
+      delay_ticks: { type: literal, value: 24 }
+    - type: play_vfx
+      targets: { type: nearby_entities, center: { type: caster }, radius: { type: literal, value: 4.0 }, exclude_caster: true }
+      vfx_id: verdict-impact
+      delay_ticks: { type: literal, value: 24 }
+    - type: play_sound
+      targets: { type: caster }
+      sound_id: entity.player.attack.knockback
+      pitch: { type: literal, value: 0.7 }
+      delay_ticks: { type: literal, value: 24 }

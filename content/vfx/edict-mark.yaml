@@ -1,0 +1,35 @@
+# Edict Blade: the prescript mark -- a blue star hovering above a marked target (follows the entity),
+# with a thin white ring glyph turning around it. Bobs gently and shrinks away at the end of the mark.
+# Anchor = the marked entity. Local axes: x = left, y = up.
+
+id: edict-mark
+duration_ticks: 100
+orient: world
+follow: true
+sample_ticks: 4
+
+elements:
+  - id: star
+    kind: { type: text, text: "<#4f8fff><b>★</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 98
+    keyframes:
+      - { t: 0, translate: [0.0, 2.6, 0.0], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [6.0, 6.0, 6.0], ease: out_back }
+      - { t: 90, scale: [6.0, 6.0, 6.0] }
+      - { t: 98, scale: [0.0, 0.0, 0.0], ease: in_quad }
+    oscillate: { axis: translate_y, amplitude: 0.1, period_ticks: 12 }
+
+  - id: ring
+    kind: { type: text, text: "<#dcebff><b>☆</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 2
+    end_tick: 98
+    keyframes:
+      - { t: 0, translate: [0.0, 2.6, 0.0], rotate: [0, 0, 0], scale: [0.0, 0.0, 0.0] }
+      - { t: 4, scale: [10.0, 10.0, 10.0], ease: out_expo }
+      - { t: 90, rotate: [0, 0, 1440], scale: [10.0, 10.0, 10.0] }
+      - { t: 96, scale: [0.0, 0.0, 0.0], ease: in_quad }

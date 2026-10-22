@@ -1,0 +1,36 @@
+# Orrery Staff: the light version of orrery-ring-hit for repeating beam pulses (one per 4 ticks per target):
+# a quick ○ glyph and four shards, so overlapping pulses stay cheap. Played at the target, facing the caster.
+# Local axes: z points caster -> target; the ring plane is x/y.
+
+id: orrery-ring-pulse
+duration_ticks: 8
+orient: to_target
+sample_ticks: 1
+
+elements:
+  - id: glyph
+    kind: { type: text, text: "<#ffb000><b>○</b>", background: "#00000000", shadow: false, see_through: true }
+    billboard: center
+    brightness: 15
+    start_tick: 0
+    end_tick: 7
+    keyframes:
+      - { t: 0, translate: [0.0, 1.0, 0.0], scale: [2.0, 2.0, 2.0] }
+      - { t: 3, scale: [8.0, 8.0, 8.0], ease: out_expo }
+      - { t: 7, scale: [0.0, 0.0, 0.0], ease: in_quad }
+
+  - id: shard
+    kind: { type: block, block: yellow_concrete }
+    brightness: 15
+    count: 4
+    start_tick: 0
+    end_tick: 7
+    formation:
+      curve: { type: arc, radius: 0.3, from_deg: 45, to_deg: 405 }
+      tilt: { yaw: 0, pitch: 90, roll: 0 }
+      offset: [0.0, 1.0, 0.0]
+      align: outward
+    keyframes:
+      - { t: 0, scale: [0.1, 0.1, 0.1] }
+      - { t: 3, translate: [0.0, 0.0, 0.9], scale: [0.08, 0.08, 0.4], ease: out_expo }
+      - { t: 7, translate: [0.0, 0.0, 1.1], scale: [0.0, 0.0, 0.4], ease: in_quad }

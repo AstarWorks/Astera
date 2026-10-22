@@ -124,6 +124,7 @@ public class PaperDamageGateway(
         target: PlayerId,
         resolved: ResolvedDamage,
         source: DamageSource,
+        ignoreInvulnerability: Boolean,
     ): Result<DamageOutcome, DamageApplicationError> {
         val player = server.getPlayer(target.uuid)
             ?: return Result.failure(DamageApplicationError.TargetOffline(target))
@@ -143,7 +144,7 @@ public class PaperDamageGateway(
             return Result.failure(DamageApplicationError.TargetAlreadyDead(target))
         }
 
-        if (!frames.tryEnter(target, scheduler.currentTick())) {
+        if (!frames.tryEnter(target, scheduler.currentTick(), ignoreInvulnerability)) {
             log.debug("PaperDamageGateway: {} is inside its Astera invulnerability window", target)
             return Result.failure(DamageApplicationError.Immune(target))
         }
