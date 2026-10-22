@@ -1281,6 +1281,12 @@ astera:
       no-party: "<red>パーティに参加していません。サバイバルアイランドへ行く前にパーティに参加してください。</red>"
       island-load-failed: "<red>サバイバルアイランドの読み込みに失敗しました ({detail})。</red>"
 
+  # ADR-0185 — lobby hotbar kit + crafting-grid menu buttons.
+  lobby-kit:
+    hint:
+      use: "<gray>右クリックで開く</gray>"
+      click: "<gray>クリックで開く</gray>"
+
   lobby:
     npc:
       queue:

@@ -316,6 +316,7 @@ internal fun CoreWiringState.wireGui() {
 
     services.register<IGuiRegistry>(guiContents)
     services.register<IGuiIntentRouter>(guiIntentRouter)
+    wireGuiOpenIntentAndMenuKit()
     services.register<IGuiAdapter>(guiAdapter)
     services.register<IGuiBindingResolver>(guiBindingResolver)
     // Wave M 5polish-quickwin (ADR-0130) — also expose the concrete

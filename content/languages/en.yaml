@@ -1290,6 +1290,12 @@ astera:
       no-party: "<red>You are not in a party. Join one before traveling to a survival island.</red>"
       island-load-failed: "<red>Failed to load your party's survival island ({detail}).</red>"
 
+  # ADR-0185 — lobby hotbar kit + crafting-grid menu buttons.
+  lobby-kit:
+    hint:
+      use: "<gray>Right-click to open</gray>"
+      click: "<gray>Click to open</gray>"
+
   lobby:
     npc:
       queue:
