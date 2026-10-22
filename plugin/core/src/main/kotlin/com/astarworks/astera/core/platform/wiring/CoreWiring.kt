@@ -265,6 +265,7 @@ internal fun CoreWiringState.wireBase() {
     // Feature plugins call services.getOrThrow<X>() in their own onEnable.
     services.register<IScheduler>(scheduler)
     services.register<IMessageRenderer>(messages)
+    services.register<com.astarworks.astera.core.application.port.outbound.IDynamicMessages>(simpleMessages)
     services.register<IBroadcaster>(broadcaster)
     services.register<IDomainEventBus>(eventBus)
     services.register<IItemRegistry>(itemContents)

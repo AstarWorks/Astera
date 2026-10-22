@@ -419,6 +419,25 @@ public class AsteraPersistencePlugin : JavaPlugin() {
             priority = 100,
         )
 
+        // ADR-0210: progression state that was in-memory only. Skill progression (V32), quest
+        // chains (V27), advancements (V26) and the engagement snapshot (V30) already had
+        // Postgres classes that were never staged; achievements (V60) and login streaks (V61) are new.
+        stage<ISkillProgressionRepository>(PostgresSkillProgressionRepository(ctx.database), priority = 100)
+        stage<IPlayerQuestProgressRepository>(PostgresPlayerQuestProgressRepository(ctx.database), priority = 100)
+        stage<IPlayerAdvancementProgressRepository>(PostgresPlayerAdvancementProgressRepository(ctx.database), priority = 100)
+        stage<com.astarworks.astera.core.application.port.outbound.engagement.IEngagementSnapshotRepository>(
+            PostgresEngagementSnapshotRepository(ctx.database),
+            priority = 100,
+        )
+        stage<com.astarworks.astera.stats.application.port.outbound.IAchievementRepository>(
+            com.astarworks.astera.persistence.repository.PostgresAchievementRepository(ctx.database),
+            priority = 100,
+        )
+        stage<com.astarworks.astera.core.application.port.outbound.loginbonus.ILoginStreakRepository>(
+            com.astarworks.astera.persistence.repository.PostgresLoginStreakRepository(ctx.database),
+            priority = 100,
+        )
+
     }
 
     override fun onDisable() {

@@ -1,0 +1,10 @@
+# Lobby season-ranking board (ADR-0210): a text display that shows the top players of the
+# current season (rating, W/L). It floats north of the plaza fountain, in view from the spawn.
+# Only lobby-hosting backends spawn it. Restart (or `make dev-content`) to move it.
+
+world: lobby
+x: 0.5
+y: 68.5
+z: -7.5
+rows: 10
+refresh_seconds: 30

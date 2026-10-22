@@ -50,6 +50,7 @@ public class PostgresNormaProgressRepository(private val db: Database) : INormaP
                 it[currentCount] = progress.current
                 it[completed] = progress.completed
                 it[completedAt] = progress.completedAt
+                it[periodKey] = progress.periodKey
                 it[updatedAt] = Instant.now()
             }
         }
@@ -68,5 +69,6 @@ public class PostgresNormaProgressRepository(private val db: Database) : INormaP
         current = this[NormaProgressTable.currentCount],
         completed = this[NormaProgressTable.completed],
         completedAt = this[NormaProgressTable.completedAt],
+        periodKey = this[NormaProgressTable.periodKey],
     )
 }

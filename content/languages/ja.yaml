@@ -133,6 +133,10 @@ astera:
       lang: "表示言語を切り替える（ja / en）"
       volume: "音量チャンネルを設定（music / sound / voice）"
       news: "最新のお知らせを読む"
+      daily: "デイリーログインボーナスを受け取る"
+      missions: "デイリー・ウィークリーミッションを表示"
+      quests: "クエストを表示"
+      achievements: "実績を表示"
       patch: "パッチノートを読む"
       report: "プレイヤーや不具合を報告する"
       shop: "ショップを開く（既定はロビーのショップ）"
@@ -604,6 +608,19 @@ astera:
       on_match_start: "<gray>試合用のロードアウトを適用しました。</gray>"
 
   norma:
+    toast: "<gold>ミッション達成</gold>"
+    daily-killer-1:
+      name: "デイリーハンター（5 人撃破）"
+    daily-damage:
+      name: "デイリーダメージ（1,500 ダメージ）"
+    daily-victory:
+      name: "デイリー勝利（1 試合勝利）"
+    daily-grinder:
+      name: "デイリー修練（400 XP 獲得）"
+    weekly-warrior:
+      name: "ウィークリーウォリアー（5 試合勝利）"
+    weekly-slayer:
+      name: "ウィークリースレイヤー（40 人撃破）"
     progress:
       updated: "<gray>{norma}: {current}/{target}</gray>"
     completed: "<green>ミッション達成: <gold>{norma}</gold>！</green>"
@@ -1025,6 +1042,39 @@ astera:
       kills-100:
         name: "<gold>英雄</gold>"
         description: "<gray>キル数 100。</gray>"
+      wins-1:
+        name: "<gold>初勝利</gold>"
+        description: "<gray>初めて試合に勝利する。</gray>"
+      wins-10:
+        name: "<gold>チャンピオン</gold>"
+        description: "<gray>試合に 10 回勝利する。</gray>"
+      wins-50:
+        name: "<gold>征服者</gold>"
+        description: "<gray>試合に 50 回勝利する。</gray>"
+      damage-1k:
+        name: "<gold>重撃</gold>"
+        description: "<gray>累計 1,000 ダメージを与える。</gray>"
+      damage-10k:
+        name: "<gold>破壊者</gold>"
+        description: "<gray>累計 10,000 ダメージを与える。</gray>"
+      tutorial-graduate:
+        name: "<gold>チュートリアル卒業</gold>"
+        description: "<gray>チュートリアルを完了する。</gray>"
+      explorer:
+        name: "<gold>探検家</gold>"
+        description: "<gray>森の探索クエストを達成する。</gray>"
+      streak-7:
+        name: "<gold>常連</gold>"
+        description: "<gray>7 日連続でログインする。</gray>"
+      level-5:
+        name: "<gold>新星</gold>"
+        description: "<gray>レベル 5 に到達する。</gray>"
+      level-10:
+        name: "<gold>古参</gold>"
+        description: "<gray>レベル 10 に到達する。</gray>"
+      mission-first:
+        name: "<gold>ミッション達成</gold>"
+        description: "<gray>初めてミッションを達成する。</gray>"
 
     # F3-4 — 「直近の試合」カード: /astera stats last とロビー復帰時のまとめ。
     last:
@@ -1176,6 +1226,7 @@ astera:
     progress:
       stage-completed: "<gold>クエスト段階クリア！</gold>"
       chain-completed: "<gold>クエスト完了！</gold>"
+      stage-line: "<gray>{quest}: {stage}</gray>"
 
   # Wave 5multi-skill (ADR-0101): 多軸スキル進行のパーク表示。
   progression:
@@ -1771,9 +1822,43 @@ astera:
         "3": "管理者コマンド + スケジュールアナウンス + メンテナンスモード。"
       full: "Phase 1 PoC リリース: 全機能 × 状態マトリックスは RTM-PARITY-TRACKER.md を参照。"
 
+  board:
+    leaderboard:
+      title: "§6§l== シーズンランキング =="
+      empty: "§7ランク戦の結果はまだありません。"
+
+  progress:
+    daily:
+      header: "<gold><bold>デイリーログインボーナス</bold></gold>"
+      status: "<gray>連続ログイン:</gray> <white>{streak}</white> <gray>日。今日は</gray> <white>{day}</white> <gray>日目の報酬</gray>"
+      claimed: "<green>今日のボーナスは受け取り済みです。</green>"
+      unavailable: "<yellow>今日のボーナスは設定されていません。</yellow>"
+      tomorrow: "<gray>明日:</gray> <yellow>{amount} {currency}</yellow>"
+    missions:
+      header: "<gold><bold>ミッション</bold></gold>"
+      none: "<gray>ミッションはありません。</gray>"
+      line: "<gray>[{period}]</gray> <white>{name}</white> <yellow>{current}/{required}</yellow>"
+      line-done: "<gray>[{period}]</gray> <green>{name} - 達成</green>"
+    period:
+      daily: "デイリー"
+      weekly: "ウィークリー"
+      seasonal: "シーズン"
+    quests:
+      header: "<gold><bold>クエスト</bold></gold>"
+      none: "<gray>クエストはまだありません。参加時に開始されます。</gray>"
+      line: "{quest}<gray>:</gray> <white>{stage}</white> <yellow>{current}/{required}</yellow>"
+      line-done: "{quest} <green>- 完了</green>"
+    achievements:
+      header: "<gold><bold>実績</bold></gold> <gray>（{unlocked}/{total}）</gray>"
+      line-unlocked: "<green>[x]</green> {name} <gray>- {description}</gray>"
+      line-locked: "<dark_gray>[ ]</dark_gray> <gray>{name} - {description}</gray>"
+
   loginbonus:
+    claimed:
+      chat: "<gold>デイリーボーナス！</gold> <gray>{day} 日目（連続 {streak} 日）:</gray> <yellow>+{amount} {currency}</yellow>"
+      toast-title: "<gold>デイリーボーナス</gold>"
+      toast-body: "<yellow>+{amount} {currency}</yellow> <gray>- 連続 {streak} 日</gray>"
     error:
-      not_implemented: "<red>デイリーログインボーナスの取得は未実装です（Phase 2 で対応）。</red>"
       already_claimed_today: "<yellow>本日のボーナスは既に取得済みです。</yellow>"
       no_reward_for_day: "<red>日 {day} に対応する報酬が設定されていません。</red>"
 
