@@ -45,14 +45,6 @@ tasks.register<Exec>("render") {
     )
 }
 
-tasks.register<Exec>("bunTest") {
-    group = "skill viewer"
-    description = "bun test: display-entity math (DISPLAY-SEMANTICS.md)"
-    dependsOn(install)
-    workingDir = viewerDir.asFile
-    commandLine(bun.get(), "test", "test/")
-}
-
 tasks.register<Exec>("calibrate") {
     group = "skill viewer"
     description = "Renders calibration displays and asserts their projected bounds (PNGs in build/calibration)"

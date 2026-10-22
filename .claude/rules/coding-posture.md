@@ -30,11 +30,19 @@
 
 ## Tests
 
-- **JUnit 5 + AssertJ.** Domain tests must run without any Paper harness —
-  if a test needs `Bukkit.getServer()`, the production code is in the wrong
-  layer.
-- Cross-plugin fakes live in `plugin:test-fixtures`. Feature-specific fakes
-  live inside that feature's `src/test/`.
+- **Integration tests only; unit tests are forbidden** (founder decision
+  2026-10-23: unit tests cost more to maintain than they return). Allowed:
+  `tools/game-sim` scenario tests (real wiring), `tools/e2e` (real Paper +
+  bots), Postgres `*IT` (Testcontainers), tests that load the real shipped
+  `content/` through real loaders (`Shipped*ContentDecodesTest` etc.), and
+  Konsist rules in `tools/architecture-test`.
+- Do not write tests that exercise one class/use case with fakes or mocks.
+  To verify logic, add a game-sim scenario instead.
+- `plugin/*/src/test/` may only hold `*IT` or `Shipped*Test` classes or entries
+  of `tools/architecture-test/src/test/resources/konsist-allowlist/plugin-tests.txt`;
+  Konsist (`TestPolicyTest`) fails the build otherwise. Policy + classification:
+  `docs/contributing/testing-policy.md`.
+- Cross-plugin in-memory fakes for game-sim live in `plugin:test-fixtures`.
 - Konsist tests (`tools:architecture-test`) are part of `./gradlew check`.
 
 ## ADR discipline

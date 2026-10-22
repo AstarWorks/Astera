@@ -6,7 +6,6 @@
   "description": "Local LAN web app: reference video (native fps) vs intent render vs Minecraft frames on one millisecond clock",
   "scripts": {
     "start": "bun server.mjs",
-    "test": "bun test test/",
     "shot": "bun scripts/shot.mjs"
   },
   "dependencies": {
