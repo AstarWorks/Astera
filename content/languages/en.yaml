@@ -491,6 +491,7 @@ astera:
         out_of_stock: "<red>Sold out.</red>"
         insufficient_funds: "<red>Insufficient {currency} balance.</red>"
         delivery_failed: "<red>Could not deliver item: {reason}</red>"
+        blocked_in_match: "<red>The shop is closed during a match - purchases would be lost when your inventory is restored.</red>"
     command:
       shop:
         root: "Shop commands"

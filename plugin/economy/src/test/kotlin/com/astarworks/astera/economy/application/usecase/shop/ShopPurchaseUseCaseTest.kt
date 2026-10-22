@@ -67,6 +67,7 @@ public class ShopPurchaseUseCaseTest {
     private lateinit var uc: ShopPurchaseUseCase
 
     private lateinit var delivery: com.astarworks.astera.testfixtures.FakeItemDelivery
+    private val inMatch = mutableSetOf<PlayerId>()
 
     @BeforeEach
     public fun setUp() {
@@ -93,6 +94,7 @@ public class ShopPurchaseUseCaseTest {
             eventBus = eventBus,
             stockRepository = stockRepository,
             delivery = { delivery },
+            inMatch = { it in inMatch },
         )
     }
 
@@ -194,10 +196,24 @@ public class ShopPurchaseUseCaseTest {
     }
 
     @Test
+    public fun `purchase is refused while a match holds the entry snapshot and nothing is charged`() {
+        registerLimitedShop(initial = 3)
+        ledger.credit(playerId, Currency.GOLD, price.amount)
+        inMatch += playerId
+
+        val result = uc.execute(playerId, shopId, offerId)
+
+        assertThat(result.errorOrNull()).isEqualTo(ShopPurchaseError.BlockedInMatch)
+        assertThat(ledger.balance(playerId, Currency.GOLD)).isEqualTo(price.amount)
+        assertThat(delivery.delivered).isEmpty()
+        assertThat(stockRepository.currentStock(shopId, offerId)).isEqualTo(ShopStock.Limited(3))
+    }
+
+    @Test
     public fun `missing item delivery fails before the buyer is charged`() {
         registerLimitedShop(initial = 3)
         ledger.credit(playerId, Currency.GOLD, price.amount)
-        val noDelivery = ShopPurchaseUseCase(shopRegistry, ledger, items, messages, server, eventBus, stockRepository) { null }
+        val noDelivery = ShopPurchaseUseCase(shopRegistry, ledger, items, messages, server, eventBus, stockRepository, { null }, { false })
 
         val result = noDelivery.execute(playerId, shopId, offerId)
 

@@ -494,6 +494,7 @@ astera:
         out_of_stock: "<red>在庫切れです。</red>"
         insufficient_funds: "<red>{currency} の残高が不足しています。</red>"
         delivery_failed: "<red>アイテムを配送できませんでした: {reason}</red>"
+        blocked_in_match: "<red>試合中はショップを利用できません（購入品が試合後の持ち物復元で失われるため）。</red>"
     command:
       shop:
         root: "ショップコマンド"

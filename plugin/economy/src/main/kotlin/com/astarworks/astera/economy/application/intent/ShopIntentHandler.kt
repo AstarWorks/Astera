@@ -128,6 +128,8 @@ public class ShopIntentHandler(
             is ShopPurchaseError.InsufficientFunds ->
                 MessageKey("astera.economy.shop.purchase.insufficient_funds") to
                     (base + ("currency" to currency.name))
+            is ShopPurchaseError.BlockedInMatch ->
+                MessageKey("astera.economy.shop.purchase.blocked_in_match") to base
             is ShopPurchaseError.DeliveryFailed ->
                 MessageKey("astera.economy.shop.purchase.delivery_failed") to (base + ("reason" to reason))
         }

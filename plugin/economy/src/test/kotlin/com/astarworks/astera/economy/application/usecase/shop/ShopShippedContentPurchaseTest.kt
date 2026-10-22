@@ -67,7 +67,7 @@ class ShopShippedContentPurchaseTest {
         val report = ShopLoaderService(shops, stock).loadFrom(content.resolve("shops"))
         assertThat(report.failures).isEmpty()
 
-        purchase = ShopPurchaseUseCase(shops, ledger, items, messages, server, eventBus, stock) { delivery }
+        purchase = ShopPurchaseUseCase(shops, ledger, items, messages, server, eventBus, stock, { delivery }, { false })
 
         // A brand-new player gets the shipped starter grant (what first join does).
         StarterGrantLoader().load(content.resolve("balance").resolve("starter-grant.yaml"))

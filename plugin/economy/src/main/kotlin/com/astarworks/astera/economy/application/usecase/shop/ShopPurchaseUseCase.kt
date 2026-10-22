@@ -86,6 +86,8 @@ public class ShopPurchaseUseCase(
     private val stockRepository: IShopStockRepository,
     /** Items-owned materializer (skill bindings, attributes, durability, lore). Resolved lazily: Items enables after Economy. */
     private val delivery: () -> IItemDelivery?,
+    /** `true` while a running match holds the buyer's entry snapshot (purchases are refused then). */
+    private val inMatch: (PlayerId) -> Boolean,
 ) {
     public fun execute(
         playerId: PlayerId,
@@ -94,6 +96,7 @@ public class ShopPurchaseUseCase(
     ): Result<ShopPurchaseReceipt, ShopPurchaseError> {
         val player = server.findPlayer(playerId)
             ?: return Result.failure(ShopPurchaseError.PlayerNotOnline)
+        if (inMatch(playerId)) return Result.failure(ShopPurchaseError.BlockedInMatch)
 
         val shopSpec = registry.resolve(shopId)
             ?: return Result.failure(ShopPurchaseError.ShopNotFound(shopId))
@@ -205,6 +208,12 @@ public sealed class ShopPurchaseError {
 
     /** No [com.astarworks.astera.core.domain.shop.ShopSpec] is registered under [shopId]. */
     public data class ShopNotFound(public val shopId: ShopId) : ShopPurchaseError()
+
+    /**
+     * The buyer is inside a running match. Their inventory is rewritten from the entry snapshot when
+     * the match ends (ADR-0198), so anything bought now would be lost together with the currency.
+     */
+    public data object BlockedInMatch : ShopPurchaseError()
 
     /** The shop exists but has no offer with [offerId]. */
     public data class OfferNotFound(
