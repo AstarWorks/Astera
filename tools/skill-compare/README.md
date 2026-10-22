@@ -40,6 +40,8 @@ segment edges); they snap to video frames. Column focus buttons enlarge one colu
 
 Selected per case in the page, discovered by the server for `skill.asteraSkillId`:
 
+- `vfx-compare` (default when present): third-person real-client frames from the case's own camera keys, `make`-less:
+  `SKILL=<skill> VIEW=compare CASE=<case> bash tools/vfx-shot/vfx-shot.sh`; `meta.json` `cast_tick_ms` aligns it automatically.
 - `vfx-caster|opponent|side`: real client frames `build/vfx-shot/<skill>/<view>/frame_NNN.png` (`make vfx-shot SKILL=...`,
   frame NNN = tick after the cast; override the dir with `SKILL_COMPARE_VFX_SHOT`).
 - `viewer`: `tools/skill-viewer/build/skill-frames/<skill>/frames/key-<tick>.png` (nearest key tick; only key ticks exist).

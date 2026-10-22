@@ -45,11 +45,13 @@ export function makeHandler(opts = {}) {
   function mcInfo(skill) {
     const info = { skill, sources: {}, hitTicks: [], castTickInTrace: 5 };
     if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(skill || "")) return info;
-    for (const view of ["caster", "opponent", "side"]) {
+    for (const view of ["compare", "caster", "opponent", "side"]) {
       const d = join(vfxShotDir, skill, view);
       if (existsSync(d)) {
         const n = readdirSync(d).filter((f) => /^frame_\d{3,4}\.png$/.test(f)).length;
-        if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n };
+        let castFrame = 0;  // compare: frames before the cast (meta.json cast_tick_ms)
+        try { castFrame = Math.round((readJson(join(d, "meta.json")).cast_tick_ms ?? 0) / 50); } catch { /* no meta: frame 0 = cast */ }
+        if (n) info.sources["vfx-" + view] = { kind: "frames", base: `/mc/vfx/${skill}/${view}/`, count: n, castFrame };
       }
     }
     const kd = join(viewerDir, skill, "frames");
@@ -148,7 +150,7 @@ export function makeHandler(opts = {}) {
       const f = join(cacheDir, m[1], "frames", m[2]);
       return inside(cacheDir, f) ? file(f, "image/jpeg") : err(400, "bad path");
     }
-    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(caster|opponent|side)\/(frame_\d{3,4}\.png)$/.exec(p))) {
+    if ((m = /^\/mc\/vfx\/([a-z0-9-]+)\/(compare|caster|opponent|side)\/(frame_\d{3,4}\.png)$/.exec(p))) {
       const f = join(vfxShotDir, m[1], m[2], m[3]);
       return inside(vfxShotDir, f) ? file(f, "image/png") : err(400, "bad path");
     }

@@ -91,9 +91,10 @@ function setupMc() {
   const names = Object.keys(srcs);
   if (!names.length) sel.appendChild(Object.assign(el("option", "", "(no frames)"), { value: "" }));
   for (const n of names) sel.appendChild(Object.assign(el("option", "", n), { value: n }));
-  if (names.includes(S.c.mc.source)) sel.value = S.c.mc.source;
+  if (names.includes("vfx-compare") && !S.srcPicked) { sel.value = S.c.mc.source = "vfx-compare"; }
+  else if (names.includes(S.c.mc.source)) sel.value = S.c.mc.source;
   else if (names.length) { sel.value = names[0]; S.c.mc.source = names[0]; }
-  sel.onchange = () => { S.c.mc.source = sel.value; S.lastMc = ""; update(true); };
+  sel.onchange = () => { S.c.mc.source = sel.value; S.srcPicked = true; S.lastMc = ""; update(true); };
   $("moff").value = $("moffn").value = S.c.mc.offset_ms ?? 0;
   const setOff = (v) => { S.c.mc.offset_ms = clamp(Math.round(+v || 0), -5000, 5000); $("moff").value = $("moffn").value = S.c.mc.offset_ms; buildTimeline(); update(true); };
   $("moff").oninput = (e) => setOff(e.target.value);
@@ -109,8 +110,9 @@ function showMc(ms) {
   const tick = msToTick(ms, castOf());
   let url, shown, dim = false, label;
   if (src.kind === "frames") {
-    const n = clamp(tick, 0, src.count - 1);
-    dim = tick < 0 || tick > src.count - 1;
+    const f = tick + (src.castFrame ?? 0);
+    const n = clamp(f, 0, src.count - 1);
+    dim = f < 0 || f > src.count - 1;
     shown = n; url = `${src.base}frame_${String(n).padStart(3, "0")}.png`;
     label = `t+${tick} (frame_${String(n).padStart(3, "0")})`;
   } else {
