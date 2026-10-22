@@ -81,6 +81,9 @@ public class GameSim private constructor(
     /** Action bars / titles sent by mechanics (WP4). */
     public val feedback: SimPlayerFeedbackGateway = SimPlayerFeedbackGateway(recorder) { scheduler.currentTick() }
 
+    /** What every HUD channel currently shows per player, and every show / update / clear (WP14). */
+    public val hud: SimHudRecorder = SimHudRecorder(recorder) { scheduler.currentTick() }
+
     /** Displays spawned by SpawnDisplay (WP5). */
     public val displays: SimDisplayGateway = SimDisplayGateway(scheduler, recorder)
 
@@ -443,6 +446,7 @@ public class GameSim private constructor(
 
     private fun attachTaps() {
         val bus = eventBus
+        hud.attach(bus)
         bus.subscribe(DomainEvent::class) { event ->
             events += event
             val type = event::class.simpleName ?: "event"

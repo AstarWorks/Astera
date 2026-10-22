@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.gamemode
 
+import com.astarworks.astera.match.domain.gamemode.HudLine
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.Match
@@ -75,6 +76,19 @@ public class CaptureWoolGameMode @JvmOverloads constructor(
                 return
             }
         }
+    }
+
+    override fun hudLines(run: Run, match: Match): List<HudLine> {
+        val goal = capturesToWin(run)
+        val teamLines = match.teams.map { team ->
+            HudLine(
+                key = MessageKey("astera.hud.sidebar.capture-wool.team"),
+                placeholders = mapOf("score" to (run.captured[team.id] ?: 0).toString(), "goal" to goal.toString()),
+                team = team.id,
+            )
+        }
+        val open = run.progress.values.count { it.capturedBy == null }
+        return teamLines + HudLine(MessageKey("astera.hud.sidebar.capture-wool.open"), mapOf("open" to open.toString(), "total" to run.markers.size.toString()))
     }
 
     override fun finish(run: Run) {

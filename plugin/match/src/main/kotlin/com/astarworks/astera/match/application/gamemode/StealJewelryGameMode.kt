@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.gamemode
 
+import com.astarworks.astera.match.domain.gamemode.HudLine
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.Match
@@ -80,6 +81,21 @@ public class StealJewelryGameMode @JvmOverloads constructor(
         val gems = run.carried.remove(victim)?.takeIf { it.isNotEmpty() } ?: return
         gems.forEach { owner -> run.onPedestal[owner] = (run.onPedestal[owner] ?: 0) + 1 }
         tellMatch(match, KEY_RECOVERED, mapOf("team" to (victimTeam?.value ?: "")))
+    }
+
+    override fun hudLines(run: Run, match: Match): List<HudLine> {
+        val goal = gemsPerTeam() * (match.teams.size - 1)
+        return match.teams.map { team ->
+            HudLine(
+                key = MessageKey("astera.hud.sidebar.steal-jewelry.team"),
+                placeholders = mapOf(
+                    "score" to (run.banked[team.id] ?: 0).toString(),
+                    "goal" to goal.toString(),
+                    "left" to (run.onPedestal[team.id] ?: 0).toString(),
+                ),
+                team = team.id,
+            )
+        }
     }
 
     override fun finish(run: Run) {

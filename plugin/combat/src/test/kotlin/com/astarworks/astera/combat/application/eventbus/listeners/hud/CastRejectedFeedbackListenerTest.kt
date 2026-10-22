@@ -20,9 +20,14 @@ class CastRejectedFeedbackListenerTest {
     private fun rejected(reason: CastRejectionReason, tick: Long) =
         SkillCastRejected(pid, SkillId("pistol-shot"), reason, tick)
 
-    private fun keys(): List<String> = hud.operations
-        .filterIsInstance<FakeHudGateway.HudOp.Shown>()
-        .map { ((it.layout as HudLayout.Subtitle).component as HudComponent.Text).messageKey.value }
+    /** Every subtitle drawn (first = Shown, later ones replace the handle in place = Updated). */
+    private fun keys(): List<String> = hud.operations.mapNotNull {
+        when (it) {
+            is FakeHudGateway.HudOp.Shown -> it.layout
+            is FakeHudGateway.HudOp.Updated -> it.layout
+            else -> null
+        }
+    }.map { ((it as HudLayout.Subtitle).component as HudComponent.Text).messageKey.value }
 
     @Test
     fun `shows the reason as a subtitle`() {

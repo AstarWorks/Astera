@@ -66,6 +66,7 @@ public class AfkWarningHudListener(
         val layout = HudLayout.ActionBar(
             component = HudComponent.Text(messageKey = KEY_WARNING),
             ttlTicks = ACTIONBAR_TTL,
+            priority = 2,
         )
         when (val outcome = hudGateway.showFor(event.playerId, layout)) {
             is Result.Success -> Unit

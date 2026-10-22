@@ -23,12 +23,19 @@ public sealed interface HudLayout {
      *   action bar fades in ~40 ticks (2s); set higher for persistent
      *   readouts (mana / cooldown). Wave 6b adapter re-sends every
      *   `ttlTicks - 5` to avoid flicker.
+     * @property priority arbitration between producers sharing the action
+     *   bar (see [HudChannelPolicy]): 0 = persistent readout, >= 1 = toast
+     *   that must stay visible for its TTL.
      */
     public data class ActionBar(
         public val component: HudComponent,
         public val ttlTicks: Int = 40,
+        public val priority: Int = 0,
     ) : HudLayout {
-        init { require(ttlTicks in 1..1200) { "ActionBar.ttlTicks must be 1..1200, was $ttlTicks" } }
+        init {
+            require(ttlTicks in 1..1200) { "ActionBar.ttlTicks must be 1..1200, was $ttlTicks" }
+            require(priority >= 0) { "ActionBar.priority must be >= 0, was $priority" }
+        }
     }
 
     /**

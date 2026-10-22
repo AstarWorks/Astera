@@ -5,7 +5,10 @@ import com.astarworks.astera.core.application.eventbus.InMemoryDomainEventBus
 import com.astarworks.astera.core.application.service.InMemoryResourcePoolService
 import com.astarworks.astera.core.domain.event.PlayerActiveWeaponChanged
 import com.astarworks.astera.core.domain.event.ResourceRegenned
+import com.astarworks.astera.core.domain.event.ResourceReloadStarted
+import com.astarworks.astera.core.domain.event.ResourceReloaded
 import com.astarworks.astera.core.domain.event.ResourceSpent
+import com.astarworks.astera.core.domain.hud.BossBarColor
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.hud.HudRegion
@@ -38,8 +41,9 @@ class HudUpdateOnResourcePoolChangedListenerTest {
         it.register(pistol, item(pistol, ResourceType.Ammo, max = 12))
         it.register(staff, item(staff, ResourceType.Mana, max = 60))
     }
-    private val pools = InMemoryResourcePoolService(FakeScheduler(), InMemoryDomainEventBus(), items)
-    private val listener = HudUpdateOnResourcePoolChangedListener(hud, pools, items)
+    private val scheduler = FakeScheduler()
+    private val pools = InMemoryResourcePoolService(scheduler, InMemoryDomainEventBus(), items)
+    private val listener = HudUpdateOnResourcePoolChangedListener(hud, pools, items, scheduler)
 
     private fun item(id: ItemId, type: ResourceType, max: Int) = ItemSpec(
         id = id,
@@ -58,10 +62,19 @@ class HudUpdateOnResourcePoolChangedListenerTest {
         pdcTags = emptyMap(),
         resourceType = type,
         resourceMaxPool = max,
+        resourceReloadable = type == ResourceType.Ammo,
     )
 
-    private fun shown(): List<HudLayout.BossBarSlot> =
-        hud.operations.filterIsInstance<FakeHudGateway.HudOp.Shown>().map { it.layout as HudLayout.BossBarSlot }
+    /** Every layout the gateway was asked to draw, in order (first draw = Shown, redraws = Updated). */
+    private fun drawn(): List<HudLayout.BossBarSlot> = hud.operations.mapNotNull {
+        when (it) {
+            is FakeHudGateway.HudOp.Shown -> it.layout as? HudLayout.BossBarSlot
+            is FakeHudGateway.HudOp.Updated -> it.layout as? HudLayout.BossBarSlot
+            else -> null
+        }
+    }
+
+    private fun label(bar: HudLayout.BossBarSlot): String = (bar.component as HudComponent.Text).messageKey.value
 
     @Test
     fun `spend of the held resource draws remaining over max`() {
@@ -71,11 +84,12 @@ class HudUpdateOnResourcePoolChangedListenerTest {
 
         listener.onSpent(ResourceSpent(pid, ResourceType.Ammo, 3, remaining = 9, atTick = 1))
 
-        val bar = shown().single()
+        val bar = drawn().single()
         val text = bar.component as HudComponent.Text
         assertThat(text.messageKey.value).isEqualTo("astera.hud.resource.ammo.label")
         assertThat(text.placeholders).containsEntry("remaining", "9").containsEntry("max", "12")
         assertThat(bar.progress).isEqualTo(0.75f)
+        assertThat(bar.slot).isEqualTo(HudUpdateOnResourcePoolChangedListener.SLOT)
     }
 
     @Test
@@ -85,31 +99,94 @@ class HudUpdateOnResourcePoolChangedListenerTest {
 
         listener.onRegenned(ResourceRegenned(pid, ResourceType.Mana, 1, newValue = 50, atTick = 1))
 
-        assertThat(shown()).isEmpty()
+        assertThat(drawn()).isEmpty()
     }
 
     @Test
-    fun `regen redraws are throttled`() {
+    fun `regen redraws are throttled and unchanged content is not redrawn`() {
         pools.initialiseFor(pid)
         pools.setActiveWeapon(pid, staff)
+        pools.spendResource(pid, ResourceType.Mana, 20)
 
-        listener.onRegenned(ResourceRegenned(pid, ResourceType.Mana, 1, newValue = 60, atTick = 10))
-        listener.onRegenned(ResourceRegenned(pid, ResourceType.Mana, 1, newValue = 60, atTick = 12))
-        listener.onRegenned(ResourceRegenned(pid, ResourceType.Mana, 1, newValue = 60, atTick = 15))
+        listener.onRegenned(ResourceRegenned(pid, ResourceType.Mana, 1, newValue = 41, atTick = 10))
+        listener.onRegenned(ResourceRegenned(pid, ResourceType.Mana, 1, newValue = 41, atTick = 12)) // throttled
+        listener.onRegenned(ResourceRegenned(pid, ResourceType.Mana, 1, newValue = 41, atTick = 15)) // same content
 
-        assertThat(shown()).hasSize(2)
+        assertThat(drawn()).hasSize(1)
     }
 
     @Test
-    fun `switching weapons clears the other resources and draws the new one`() {
+    fun `empty ammo turns the bar red with a reload prompt and a reload flashes green`() {
+        pools.initialiseFor(pid)
+        pools.setActiveWeapon(pid, pistol)
+        pools.spendResource(pid, ResourceType.Ammo, 12)
+        listener.onSpent(ResourceSpent(pid, ResourceType.Ammo, 12, remaining = 0, atTick = 1))
+
+        val empty = drawn().last()
+        assertThat(label(empty)).isEqualTo("astera.hud.resource.ammo.empty")
+        assertThat(empty.color).isEqualTo(BossBarColor.RED)
+
+        pools.reload(pid, pistol)
+        listener.onReloaded(ResourceReloaded(pid, pistol, ammoAfter = 12, atTick = 2))
+
+        val reloaded = drawn().last()
+        assertThat(label(reloaded)).isEqualTo("astera.hud.resource.ammo.reloaded")
+        assertThat(reloaded.color).isEqualTo(BossBarColor.GREEN)
+        assertThat(reloaded.progress).isEqualTo(1f)
+    }
+
+    @Test
+    fun `a reload shows a yellow bar that fills with the timer and ends on the green flash`() {
+        pools.initialiseFor(pid)
+        pools.setActiveWeapon(pid, pistol)
+        pools.spendResource(pid, ResourceType.Ammo, 12)
+
+        listener.onReloadStarted(ResourceReloadStarted(pid, pistol, durationTicks = 30, atTick = 0))
+        scheduler.advanceTicks(15)
+
+        val mid = drawn().last()
+        assertThat(label(mid)).isEqualTo("astera.hud.resource.ammo.reloading")
+        assertThat(mid.color).isEqualTo(BossBarColor.YELLOW)
+        assertThat(mid.progress).isEqualTo(0.5f)
+        // Redrawn in 5-tick steps (start, 5, 10, 15), still one handle.
+        assertThat(drawn()).hasSize(4)
+        assertThat(hud.activeFor(pid)).hasSize(1)
+
+        scheduler.advanceTicks(15)
+        pools.reload(pid, pistol)
+        listener.onReloaded(ResourceReloaded(pid, pistol, ammoAfter = 12, atTick = 30))
+        assertThat(label(drawn().last())).isEqualTo("astera.hud.resource.ammo.reloaded")
+
+        val drawnAfterFlash = drawn().size
+        scheduler.advanceTicks(20)
+        assertThat(drawn()).hasSize(drawnAfterFlash) // the animation stopped with the reload
+    }
+
+    @Test
+    fun `switching to an item without a resource clears the bar and switching back redraws`() {
         pools.initialiseFor(pid)
         pools.setActiveWeapon(pid, staff)
-
         listener.onActiveWeaponChanged(PlayerActiveWeaponChanged(pid, previous = pistol, current = staff, atTick = 1))
+        assertThat(label(drawn().single())).isEqualTo("astera.hud.resource.mana.label")
+
+        pools.setActiveWeapon(pid, null)
+        listener.onActiveWeaponChanged(PlayerActiveWeaponChanged(pid, previous = staff, current = null, atTick = 2))
 
         val cleared = hud.operations.filterIsInstance<FakeHudGateway.HudOp.Cleared>().map { it.region }
-        assertThat(cleared).containsExactlyInAnyOrder(HudRegion.BOSS_BAR_SLOT_2, HudRegion.BOSS_BAR_SLOT_3)
-        assertThat((shown().single().component as HudComponent.Text).messageKey.value)
-            .isEqualTo("astera.hud.resource.mana.label")
+        assertThat(cleared).containsExactly(HudRegion.BOSS_BAR_SLOT_1)
+        assertThat(hud.activeFor(pid)).isEmpty()
+    }
+
+    @Test
+    fun `the weapon resource only ever occupies one boss bar handle`() {
+        pools.initialiseFor(pid)
+        pools.setActiveWeapon(pid, pistol)
+        repeat(3) { i ->
+            pools.spendResource(pid, ResourceType.Ammo, 1)
+            listener.onSpent(ResourceSpent(pid, ResourceType.Ammo, 1, remaining = 11 - i, atTick = i.toLong()))
+        }
+
+        assertThat(drawn()).hasSize(3)
+        assertThat(hud.activeFor(pid)).hasSize(1)
     }
 }

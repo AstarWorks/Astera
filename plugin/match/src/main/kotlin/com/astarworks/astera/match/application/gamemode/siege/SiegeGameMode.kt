@@ -1,5 +1,7 @@
 package com.astarworks.astera.match.application.gamemode.siege
 
+import com.astarworks.astera.match.domain.gamemode.MatchHudStatus
+import com.astarworks.astera.match.domain.gamemode.HudLine
 import com.astarworks.astera.combat.domain.event.PlayerKilled
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IMatchRepository
@@ -150,6 +152,11 @@ public abstract class SiegeGameMode<R : SiegeRun>(
         if (live(match)) tickRun(run, match, tick)
     }
 
+    final override fun hudStatus(match: Match, nowTick: Long): MatchHudStatus {
+        val run = runs[match.id] ?: return MatchHudStatus(lines = MatchHudStatus.scoreLines(match))
+        return MatchHudStatus(lines = hudLines(run, match))
+    }
+
     final override fun onMatchEnded(context: GameModeContext) {
         val e = env ?: return
         val run = runs.remove(context.matchId) ?: return
@@ -171,6 +178,9 @@ public abstract class SiegeGameMode<R : SiegeRun>(
     protected open fun broken(run: R, match: Match, player: PlayerId, team: TeamId?, position: Vec3) {}
 
     protected open fun killed(run: R, match: Match, victim: PlayerId, victimTeam: TeamId?, killer: PlayerId?, killerTeam: TeamId?) {}
+
+    /** Objective state for the match sidebar (WP14); defaults to the plain team score. */
+    protected open fun hudLines(run: R, match: Match): List<HudLine> = MatchHudStatus.scoreLines(match)
 
     /** Once per [tickPeriodTicks] while the match is ACTIVE / SUDDEN_DEATH. */
     protected open fun tickRun(run: R, match: Match, tick: Long) {}

@@ -135,9 +135,11 @@ class HudGatewayTest {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `clearFor ACTION_BAR removes all action bar handles for that player`() {
+    fun `clearFor ACTION_BAR removes the action bar handle of that player`() {
+        // A region holds one handle per player (ADR-0177): the second show reuses the first.
         val ab1 = (gateway.showFor(alice, actionBarLayout) as Result.Success).value
         val ab2 = (gateway.showFor(alice, actionBarLayout) as Result.Success).value
+        assertThat(ab2).isEqualTo(ab1)
         // unrelated handle that must NOT be cleared
         val side = (gateway.showFor(alice, sidebarLayout) as Result.Success).value
 
@@ -147,7 +149,7 @@ class HudGatewayTest {
         val cleared = bus.publishedOfType<HudCleared>()
         assertThat(cleared).hasSize(1)
         assertThat(cleared.first().region).isEqualTo(HudRegion.ACTION_BAR)
-        assertThat(cleared.first().clearedHandles).containsExactlyInAnyOrder(ab1, ab2)
+        assertThat(cleared.first().clearedHandles).containsExactly(ab1)
     }
 
     @Test

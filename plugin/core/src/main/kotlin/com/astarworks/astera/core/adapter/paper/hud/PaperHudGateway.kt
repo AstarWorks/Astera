@@ -4,6 +4,8 @@ import com.astarworks.astera.core.adapter.api.hud.BossBarColor as ApiBossBarColo
 import com.astarworks.astera.core.adapter.api.hud.BossBarId
 import com.astarworks.astera.core.adapter.api.hud.BossBarOverlay as ApiBossBarOverlay
 import com.astarworks.astera.core.adapter.api.hud.IBossBarManager
+import com.astarworks.astera.core.adapter.api.hud.IScoreboardManager
+import com.astarworks.astera.core.adapter.api.hud.ScoreboardId
 import com.astarworks.astera.core.application.port.outbound.HudError
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
@@ -17,11 +19,13 @@ import com.astarworks.astera.core.domain.event.HudUpdated
 import com.astarworks.astera.core.domain.event.ResourcePackPushRequested
 import com.astarworks.astera.core.domain.hud.BossBarColor as DomainBossBarColor
 import com.astarworks.astera.core.domain.hud.BossBarStyle
+import com.astarworks.astera.core.domain.hud.HudChannelPolicy
 import com.astarworks.astera.core.domain.hud.HudColor
 import com.astarworks.astera.core.domain.hud.HudComponent
 import com.astarworks.astera.core.domain.hud.HudHandle
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.hud.HudRegion
+import com.astarworks.astera.core.domain.hud.region
 import com.astarworks.astera.core.domain.hud.ResourcePackSpec
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
@@ -56,12 +60,17 @@ import java.util.concurrent.ConcurrentHashMap
  *  - `BossBarSlot` → routed to [bossBarManager]. The slot becomes part of
  *    the bar id (`hud.slot{n}.{handle}`) so up to 4 concurrent bars per
  *    player are supported (Bukkit stacks up to 4 in the HUD).
- *  - `Sidebar` / `TabList` — **Phase 1 stub** in this gateway. The
- *    sub-B sibling adapter (PaperScoreboardManager + PaperTabList) owns
- *    those surfaces directly via [IScoreboardManager] / [ITabList];
- *    callers wire those ports, not this gateway, for sidebar / tab list.
- *    The gateway still tracks the handle so `activeFor` / `clearFor`
- *    accounting stays correct, and logs INFO on first call.
+ *  - `Sidebar` → a per-player line board (`hud.sidebar.<uuid>`) on the shared
+ *    [IScoreboardManager]; only changed lines are rewritten (WP14, ADR-0177).
+ *  - `TabList` — still owned by `PaperTabList` ([ITabList]); the gateway
+ *    only tracks the handle for `activeFor` / `clearFor` accounting.
+ *
+ * # Channel ownership (ADR-0177)
+ *
+ * A region holds one handle per player: `showFor` into an occupied region
+ * updates that handle in place (no stacked boss bars / sidebars), and a live
+ * higher-priority action bar is not overwritten by a lower-priority one
+ * ([HudChannelPolicy]).
  *  - `Subtitle` → `Player.showTitle(Title.title(empty, subtitle, Times.times(...)))`.
  *    Main title is empty so this surface is *strictly* a subtitle slot;
  *    callers wanting both main + sub should compose at a higher layer.
@@ -108,6 +117,7 @@ public class PaperHudGateway(
     private val messageRenderer: IMessageRenderer,
     private val scheduler: IScheduler,
     private val bossBarManager: IBossBarManager,
+    private val scoreboardManager: IScoreboardManager,
     private val eventBus: IDomainEventBus,
 ) : IHudGateway {
 
@@ -116,13 +126,17 @@ public class PaperHudGateway(
         val layout: HudLayout,
         /** Bossbar id materialized for this handle, when the layout is BossBarSlot. */
         val bossBarId: BossBarId? = null,
+        /** Tick at which an action bar stops being visible (see [HudChannelPolicy]). */
+        val expiresAt: Long = Long.MAX_VALUE,
+        /** Bumped on every show / update so a stale TTL callback cannot clear newer content. */
+        val gen: Int = 0,
     )
 
     private val log = LoggerFactory.getLogger(javaClass)
 
     private val active: ConcurrentHashMap<HudHandle, ActiveHud> = ConcurrentHashMap()
 
-    private var sidebarStubLogged: Boolean = false
+    private var unsupportedSidebarLineLogged: Boolean = false
     private var tabListStubLogged: Boolean = false
 
     private val miniMessage: MiniMessage = MiniMessage.miniMessage()
@@ -134,9 +148,25 @@ public class PaperHudGateway(
         val player = server.getPlayer(playerId.uuid)
             ?: return Result.failure(HudError.UnknownPlayer(playerId))
 
+        // One live handle per (player, region): replace in place instead of
+        // stacking (a second boss bar per shot, a second sidebar per refresh).
+        val now = scheduler.currentTick()
+        val occupant = active.entries.firstOrNull { (_, hud) ->
+            hud.playerId == playerId && hud.layout.region() == layout.region()
+        }
+        if (occupant != null) {
+            if (HudChannelPolicy.suppresses(occupant.value.layout, occupant.value.expiresAt, layout, now)) {
+                return Result.success(occupant.key)
+            }
+            return when (val updated = updateFor(occupant.key, layout)) {
+                is Result.Success -> Result.success(occupant.key)
+                is Result.Failure -> Result.failure(updated.error)
+            }
+        }
+
         val handle = HudHandle(UUID.randomUUID().toString())
-        val bossBarId = renderLayout(player, playerId, handle, layout)
-        active[handle] = ActiveHud(playerId, layout, bossBarId)
+        val bossBarId = renderLayout(player, playerId, handle, layout, previous = null)
+        active[handle] = ActiveHud(playerId, layout, bossBarId, HudChannelPolicy.expiresAt(layout, now), gen = 0)
 
         eventBus.publish(
             HudShown(
@@ -145,7 +175,7 @@ public class PaperHudGateway(
                 layout = layout,
             ),
         )
-        scheduleActionBarTtl(playerId, handle, layout)
+        scheduleActionBarTtl(playerId, handle, layout, gen = 0)
         return Result.success(handle)
     }
 
@@ -161,11 +191,21 @@ public class PaperHudGateway(
         // If region changed between the old and new layout, clear the old
         // region first so we don't leak a bossbar / action-bar render
         // outside the handle's lifecycle.
-        if (regionOf(current.layout) != regionOf(layout)) {
+        val sameRegion = current.layout.region() == layout.region()
+        if (!sameRegion) {
             clearLayoutSurface(current)
         }
-        val newBossBarId = renderLayout(player, current.playerId, handle, layout)
-        active[handle] = current.copy(layout = layout, bossBarId = newBossBarId)
+        val newBossBarId = renderLayout(
+            player, current.playerId, handle, layout,
+            previous = if (sameRegion) current.layout else null,
+        )
+        val gen = current.gen + 1
+        active[handle] = current.copy(
+            layout = layout,
+            bossBarId = newBossBarId,
+            expiresAt = HudChannelPolicy.expiresAt(layout, scheduler.currentTick()),
+            gen = gen,
+        )
 
         eventBus.publish(
             HudUpdated(
@@ -174,6 +214,7 @@ public class PaperHudGateway(
                 layout = layout,
             ),
         )
+        scheduleActionBarTtl(current.playerId, handle, layout, gen)
         return Result.success(Unit)
     }
 
@@ -183,7 +224,7 @@ public class PaperHudGateway(
     ): Result<Unit, HudError> {
         val matching = active.entries
             .filter { (_, hud) ->
-                hud.playerId == playerId && regionOf(hud.layout) == region
+                hud.playerId == playerId && hud.layout.region() == region
             }
             .map { it.key }
         for (handle in matching) {
@@ -253,6 +294,7 @@ public class PaperHudGateway(
         playerId: PlayerId,
         handle: HudHandle,
         layout: HudLayout,
+        previous: HudLayout?,
     ): BossBarId? = when (layout) {
         is HudLayout.ActionBar -> {
             player.sendActionBar(toComponent(playerId, layout.component))
@@ -260,14 +302,7 @@ public class PaperHudGateway(
         }
         is HudLayout.BossBarSlot -> renderBossBar(playerId, handle, layout)
         is HudLayout.Sidebar -> {
-            if (!sidebarStubLogged) {
-                log.info(
-                    "PaperHudGateway.showFor(Sidebar) is a Phase 1 stub — sub-B " +
-                        "PaperScoreboardManager owns the sidebar surface (ADR-0031 §hud-routing). " +
-                        "Handle is tracked for activeFor / clearFor accounting only.",
-                )
-                sidebarStubLogged = true
-            }
+            renderSidebar(playerId, layout, previous as? HudLayout.Sidebar)
             null
         }
         is HudLayout.TabList -> {
@@ -337,7 +372,11 @@ public class PaperHudGateway(
                 val id = hud.bossBarId ?: bossBarIdFor(HudHandle(hud.playerId.toString()), layout.slot)
                 bossBarManager.removeBossBar(id)
             }
-            is HudLayout.Sidebar -> Unit // owned by PaperScoreboardManager
+            is HudLayout.Sidebar -> {
+                val id = sidebarIdFor(hud.playerId)
+                scoreboardManager.hide(hud.playerId)
+                scoreboardManager.remove(id)
+            }
             is HudLayout.TabList -> Unit // owned by PaperTabList
             is HudLayout.Subtitle -> player.resetTitle()
         }
@@ -347,17 +386,53 @@ public class PaperHudGateway(
         playerId: PlayerId,
         handle: HudHandle,
         layout: HudLayout,
+        gen: Int,
     ) {
         if (layout !is HudLayout.ActionBar) return
         val ttl = layout.ttlTicks
         if (ttl <= 0) return
         scheduler.runLater(ticks(ttl.toLong())) {
+            // Only the latest show / update of the handle may expire it.
             val current = active[handle] ?: return@runLater
-            if (current.playerId != playerId) return@runLater
-            if (current.layout !is HudLayout.ActionBar) return@runLater
+            if (current.playerId != playerId || current.gen != gen) return@runLater
             clearFor(playerId, HudRegion.ACTION_BAR)
         }
     }
+
+    // ---- Sidebar ----------------------------------------------------------
+
+    /**
+     * Sidebar -> the player's own line board. Lines are `Text` components
+     * (key + placeholders, localised per viewer by the scoreboard); only lines
+     * that differ from [previous] are rewritten, so a once-per-second timer
+     * line costs one team-prefix update rather than a full redraw.
+     */
+    private fun renderSidebar(playerId: PlayerId, layout: HudLayout.Sidebar, previous: HudLayout.Sidebar?) {
+        val id = sidebarIdFor(playerId)
+        val board = scoreboardManager.scoreboard(id) ?: scoreboardManager.createScoreboard(id, layout.titleKey)
+        if (previous == null || previous.titleKey != layout.titleKey) board.setTitle(layout.titleKey)
+        val count = layout.lines.size
+        layout.lines.forEachIndexed { i, component ->
+            val old = previous?.lines?.getOrNull(i)
+            if (old == component && previous.lines.size == count) return@forEachIndexed
+            val index = count - 1 - i // vanilla sorts by score: highest index renders on top
+            if (component is HudComponent.Text) {
+                board.addLine(index, component.messageKey, component.placeholders)
+            } else {
+                if (!unsupportedSidebarLineLogged) {
+                    log.warn("Sidebar lines must be HudComponent.Text; {} skipped.", component::class.simpleName)
+                    unsupportedSidebarLineLogged = true
+                }
+                board.removeLine(index)
+            }
+        }
+        if (previous != null && previous.lines.size > count) {
+            for (index in count until previous.lines.size) board.removeLine(index)
+        }
+        if (scoreboardManager.currentScoreboard(playerId)?.id != id) scoreboardManager.show(playerId, board)
+    }
+
+    private fun sidebarIdFor(playerId: PlayerId): ScoreboardId = ScoreboardId("hud.sidebar.${playerId.uuid}")
 
     // ---- HudComponent → Adventure Component -------------------------------
 
@@ -427,29 +502,6 @@ public class PaperHudGateway(
 
     private fun toTextColor(color: HudColor): TextColor =
         TextColor.color(color.redInt, color.greenInt, color.blueInt)
-
-    // ---- Region mapping ---------------------------------------------------
-
-    /**
-     * Map a layout to its `HudRegion`. Exhaustive on the sealed
-     * `HudLayout` hierarchy so a new variant forces a compile error.
-     * Mirrors [InMemoryHudGateway.regionOf] — the contract is:
-     * `clearFor(region)` clears any handle whose layout resolves to
-     * that region.
-     */
-    private fun regionOf(layout: HudLayout): HudRegion = when (layout) {
-        is HudLayout.ActionBar -> HudRegion.ACTION_BAR
-        is HudLayout.BossBarSlot -> when (layout.slot) {
-            1 -> HudRegion.BOSS_BAR_SLOT_1
-            2 -> HudRegion.BOSS_BAR_SLOT_2
-            3 -> HudRegion.BOSS_BAR_SLOT_3
-            4 -> HudRegion.BOSS_BAR_SLOT_4
-            else -> error("BossBarSlot.slot out of range: ${layout.slot}")
-        }
-        is HudLayout.Sidebar -> HudRegion.SIDEBAR
-        is HudLayout.TabList -> HudRegion.TAB_LIST_HEADER
-        is HudLayout.Subtitle -> HudRegion.SUBTITLE
-    }
 
     private fun bossBarIdFor(handle: HudHandle, slot: Int): BossBarId =
         BossBarId("hud.slot${slot}.${handle.value.lowercase().filter { it.isLetterOrDigit() || it == '-' }}")

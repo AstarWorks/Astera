@@ -190,9 +190,12 @@ internal fun CoreWiringState.wireGameplayLoop() {
     val resourcePoolForHud = services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>()
     if (resourcePoolForHud != null) {
         val hudResourceListener = com.astarworks.astera.core.application.eventbus.listeners.hud
-            .HudUpdateOnResourcePoolChangedListener(hudGateway, resourcePoolForHud, itemContents)
+            .HudUpdateOnResourcePoolChangedListener(hudGateway, resourcePoolForHud, itemContents, scheduler)
         wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceSpent::class) { event ->
             hudResourceListener.onSpent(event)
+        }
+        wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceReloadStarted::class) { event ->
+            hudResourceListener.onReloadStarted(event)
         }
         wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.ResourceReloaded::class) { event ->
             hudResourceListener.onReloaded(event)

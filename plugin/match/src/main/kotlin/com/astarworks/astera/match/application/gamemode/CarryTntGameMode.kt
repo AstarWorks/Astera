@@ -1,5 +1,6 @@
 package com.astarworks.astera.match.application.gamemode
 
+import com.astarworks.astera.match.domain.gamemode.HudLine
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.match.Match
@@ -61,6 +62,23 @@ public class CarryTntGameMode @JvmOverloads constructor(
         if (run.carrier != victim) return
         run.carrier = null
         tellMatch(match, KEY_DROPPED, mapOf("team" to (victimTeam?.value ?: "")))
+    }
+
+    override fun hudLines(run: Run, match: Match): List<HudLine> {
+        val carrierTeam = run.carrier?.let { c -> match.teams.firstOrNull { c in it.members }?.id }
+        val teamLines = match.teams.map { team ->
+            HudLine(
+                key = MessageKey("astera.hud.sidebar.carry-tnt.team"),
+                placeholders = mapOf("score" to (run.deliveries[team.id] ?: 0).toString(), "goal" to deliveriesToWin().toString()),
+                team = team.id,
+            )
+        }
+        val carrier = if (carrierTeam != null) {
+            HudLine(MessageKey("astera.hud.sidebar.carry-tnt.carried"), team = carrierTeam)
+        } else {
+            HudLine(MessageKey("astera.hud.sidebar.carry-tnt.loose"))
+        }
+        return teamLines + carrier
     }
 
     override fun finish(run: Run) {

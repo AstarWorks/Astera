@@ -39,7 +39,8 @@ internal object CombatHudWiring {
             ) { event -> hudComboListener.handle(event) }
             logger.info("Wave 5wireup §G8 wired: HudUpdateOnComboStepRecorded subscribed.")
 
-            // Wave 5match-hud (ADR-0118 §1) — Cooldown HUD readout.
+            // WP14 (ADR-0177) — the action bar's one persistent owner: cooldown
+            // readout + active status effects (the old status sidebar is gone).
             //   ICooldownTracker has no Started/Tick event (intentional —
             //   tick storms would flood the bus). The listener polls the
             //   tracker every 5 ticks and pushes an action-bar update for
@@ -53,6 +54,7 @@ internal object CombatHudWiring {
                         sessions = sessionRepoOrNull,
                         hudGateway = hudGatewayOrNull,
                         scheduler = scheduler,
+                        statusEffects = statusContainer,
                     )
                 shutdownHooks += { cooldownHudListener.stop() }
                 logger.info(
@@ -63,33 +65,6 @@ internal object CombatHudWiring {
                 logger.warning(
                     "Cooldown HUD listener skipped — ICooldownTracker=${cooldownTracker != null}, " +
                         "IPlayerSessionRepository=${sessionRepoOrNull != null}.",
-                )
-            }
-
-            // Wave 5match-hud (ADR-0118 §3) — Status-effect sidebar.
-            //   Subscribes to StatusApplied (:plugin:combat) and the Core
-            //   StatusEffectCancelled. Sidebar recomputed from
-            //   IStatusEffectContainer.active per push so the rendered
-            //   slate stays consistent with the container's truth.
-            if (statusContainer != null) {
-                val statusHudListener = com.astarworks.astera.combat.application.eventbus.listeners.hud
-                    .HudUpdateOnStatusEffectChangedListener(
-                        statusEffectContainer = statusContainer,
-                        hudGateway = hudGatewayOrNull,
-                    )
-                subscriptions += eventBus.subscribe(
-                    com.astarworks.astera.combat.domain.event.StatusApplied::class,
-                ) { event -> statusHudListener.onApplied(event) }
-                subscriptions += eventBus.subscribe(
-                    com.astarworks.astera.core.domain.event.StatusEffectCancelled::class,
-                ) { event -> statusHudListener.onCancelled(event) }
-                logger.info(
-                    "Wave 5match-hud (ADR-0118 §3) wired: " +
-                        "HudUpdateOnStatusEffectChanged subscribed (StatusApplied + StatusEffectCancelled).",
-                )
-            } else {
-                logger.warning(
-                    "Status-effect HUD listener skipped — IStatusEffectContainer not present.",
                 )
             }
         } else {

@@ -35,6 +35,7 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
         val teleports = mutableListOf<JsonElement>()
         val effects = mutableListOf<JsonElement>()
         val events = mutableListOf<JsonElement>()
+        val hud = mutableListOf<JsonElement>()
         var hasSnapshot = false
         var entities: JsonElement = JsonArray(emptyList())
         var projectiles: JsonElement = JsonArray(emptyList())
@@ -125,6 +126,16 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
             put("op", op)
             put("stacks", stacks)
             put("remainingTicks", remainingTicks)
+        }
+    }
+
+    /** [op]: `show`, `update`, `clear`; [summary] is the layout's text keys / placeholders (empty on clear). */
+    public fun recordHud(tick: Long, player: PlayerId, region: String, op: String, summary: String) {
+        bucket(tick).hud += buildJsonObject {
+            put("player", player.uuid.toString())
+            put("region", region)
+            put("op", op)
+            put("summary", summary.take(240))
         }
     }
 
@@ -238,6 +249,7 @@ public class TraceRecorder(private val scenario: String, private val groundY: Do
                             put("teleports", JsonArray(b.teleports))
                             put("effects", JsonArray(b.effects))
                             put("events", JsonArray(b.events))
+                            put("hud", JsonArray(b.hud))
                         },
                     )
                 }

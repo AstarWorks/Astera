@@ -101,6 +101,8 @@ scenario end). Positions are world coordinates in blocks; ids are UUID strings.
       "teleports":  [ { "id": "…", "world": "world", "x": 0, "y": 0, "z": 0 } ],
       "effects":    [ { "kind": "explosion|lightning|block_place|block_remove|display_spawn|display_remove|summon|despawn|glow|camera_shake",
                         "detail": "radius=5.0 damage=10.0 hit=2 blocks=None", "x": 0, "y": 0, "z": 0 /* absent for camera_shake */ } ],
+      "hud":        [ { "player": "…", "region": "SIDEBAR|ACTION_BAR|BOSS_BAR_SLOT_1|…", "op": "show|update|clear",
+                        "summary": "i18n keys + placeholders of the layout" } ],
       "events":     [ { "type": "MatchStarted", "summary": "MatchStarted(…)" } ]
                                     // every other DomainEvent (HUD / regen chatter filtered out); summary = toString, truncated
     }

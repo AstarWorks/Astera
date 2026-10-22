@@ -10,9 +10,11 @@ import com.astarworks.astera.core.domain.event.HudCleared
 import com.astarworks.astera.core.domain.event.HudShown
 import com.astarworks.astera.core.domain.event.HudUpdated
 import com.astarworks.astera.core.domain.event.ResourcePackPushRequested
+import com.astarworks.astera.core.domain.hud.HudChannelPolicy
 import com.astarworks.astera.core.domain.hud.HudHandle
 import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.hud.HudRegion
+import com.astarworks.astera.core.domain.hud.region
 import com.astarworks.astera.core.domain.hud.ResourcePackSpec
 import com.astarworks.astera.core.domain.player.PlayerId
 import java.util.UUID
@@ -48,6 +50,10 @@ public class InMemoryHudGateway(
     private data class ActiveHud(
         val playerId: PlayerId,
         val layout: HudLayout,
+        /** Tick at which an action bar stops being visible (see [HudChannelPolicy]). */
+        val expiresAt: Long = Long.MAX_VALUE,
+        /** Bumped on every show / update so a stale TTL callback cannot clear newer content. */
+        val gen: Int = 0,
     )
 
     private val active: ConcurrentHashMap<HudHandle, ActiveHud> = ConcurrentHashMap()
@@ -56,8 +62,22 @@ public class InMemoryHudGateway(
         playerId: PlayerId,
         layout: HudLayout,
     ): Result<HudHandle, HudError> {
+        val now = nowTick()
+        // One live handle per (player, region): replace in place instead of stacking.
+        val occupant = active.entries.firstOrNull { (_, hud) ->
+            hud.playerId == playerId && hud.layout.region() == layout.region()
+        }
+        if (occupant != null) {
+            if (HudChannelPolicy.suppresses(occupant.value.layout, occupant.value.expiresAt, layout, now)) {
+                return Result.success(occupant.key)
+            }
+            return when (val updated = updateFor(occupant.key, layout)) {
+                is Result.Success -> Result.success(occupant.key)
+                is Result.Failure -> Result.failure(updated.error)
+            }
+        }
         val handle = HudHandle(UUID.randomUUID().toString())
-        active[handle] = ActiveHud(playerId, layout)
+        active[handle] = ActiveHud(playerId, layout, HudChannelPolicy.expiresAt(layout, now), gen = 0)
         eventBus.publish(
             HudShown(
                 playerId = playerId,
@@ -65,7 +85,7 @@ public class InMemoryHudGateway(
                 layout = layout,
             ),
         )
-        scheduleActionBarTtl(playerId, handle, layout)
+        scheduleActionBarTtl(playerId, handle, layout, gen = 0)
         return Result.success(handle)
     }
 
@@ -75,7 +95,12 @@ public class InMemoryHudGateway(
     ): Result<Unit, HudError> {
         val current = active[handle]
             ?: return Result.failure(HudError.UnknownHandle(handle))
-        active[handle] = current.copy(layout = layout)
+        val gen = current.gen + 1
+        active[handle] = current.copy(
+            layout = layout,
+            expiresAt = HudChannelPolicy.expiresAt(layout, nowTick()),
+            gen = gen,
+        )
         eventBus.publish(
             HudUpdated(
                 playerId = current.playerId,
@@ -83,6 +108,7 @@ public class InMemoryHudGateway(
                 layout = layout,
             ),
         )
+        scheduleActionBarTtl(current.playerId, handle, layout, gen)
         return Result.success(Unit)
     }
 
@@ -92,7 +118,7 @@ public class InMemoryHudGateway(
     ): Result<Unit, HudError> {
         val matching = active.entries
             .filter { (_, hud) ->
-                hud.playerId == playerId && regionOf(hud.layout) == region
+                hud.playerId == playerId && hud.layout.region() == region
             }
             .map { it.key }
         for (handle in matching) {
@@ -137,41 +163,22 @@ public class InMemoryHudGateway(
      * "clear didn't find my handle" footgun a default-fallthrough would
      * create.
      */
-    private fun regionOf(layout: HudLayout): HudRegion = when (layout) {
-        is HudLayout.ActionBar -> HudRegion.ACTION_BAR
-        is HudLayout.BossBarSlot -> when (layout.slot) {
-            1 -> HudRegion.BOSS_BAR_SLOT_1
-            2 -> HudRegion.BOSS_BAR_SLOT_2
-            3 -> HudRegion.BOSS_BAR_SLOT_3
-            4 -> HudRegion.BOSS_BAR_SLOT_4
-            else -> error("BossBarSlot.slot out of range: ${layout.slot}") // init-block rejects this
-        }
-        is HudLayout.Sidebar -> HudRegion.SIDEBAR
-        // TabList header+footer share the same logical layout; we map to the
-        // header region for clear purposes. clearFor(TAB_LIST_HEADER) and
-        // clearFor(TAB_LIST_FOOTER) both clear the TabList — adapters that
-        // treat them as independent surfaces will split this in Wave 6b.
-        is HudLayout.TabList -> HudRegion.TAB_LIST_HEADER
-        is HudLayout.Subtitle -> HudRegion.SUBTITLE
-    }
+    private fun nowTick(): Long = scheduler?.currentTick() ?: 0L
 
     private fun scheduleActionBarTtl(
         playerId: PlayerId,
         handle: HudHandle,
         layout: HudLayout,
+        gen: Int,
     ) {
         val sched = scheduler ?: return
         if (layout !is HudLayout.ActionBar) return
         val ttl = layout.ttlTicks
         if (ttl <= 0) return
         sched.runLater(ticks(ttl.toLong())) {
-            // Only auto-clear if the handle is still ours and unchanged —
-            // an explicit updateFor / clearFor before TTL fires takes
-            // precedence. The map check protects us; the layout check
-            // prevents clearing a handle reused for a different region.
+            // Only the latest show / update of the handle may expire it.
             val current = active[handle] ?: return@runLater
-            if (current.playerId != playerId) return@runLater
-            if (current.layout !is HudLayout.ActionBar) return@runLater
+            if (current.playerId != playerId || current.gen != gen) return@runLater
             clearFor(playerId, HudRegion.ACTION_BAR)
         }
     }

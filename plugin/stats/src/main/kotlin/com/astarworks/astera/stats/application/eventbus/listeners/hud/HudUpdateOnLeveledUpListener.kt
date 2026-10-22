@@ -38,6 +38,7 @@ public class HudUpdateOnLeveledUpListener(
                 color = HudColor.YELLOW,
             ),
             ttlTicks = 80,
+            priority = 1,
         )
         hudGateway.showFor(event.playerId, layout).also { result ->
             if (result is com.astarworks.astera.core.domain.Result.Failure) {

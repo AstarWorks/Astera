@@ -2,11 +2,14 @@ package com.astarworks.astera.match.application.gamemode.annihilation
 
 import com.astarworks.astera.core.application.port.outbound.IDomainEventBus
 import com.astarworks.astera.core.domain.i18n.MessageKey
+import com.astarworks.astera.core.domain.match.Match
 import com.astarworks.astera.core.domain.stage.Stage
 import com.astarworks.astera.match.domain.gamemode.GameModeContext
 import com.astarworks.astera.match.domain.gamemode.GameModeEvent
 import com.astarworks.astera.match.domain.gamemode.IGameMode
 import com.astarworks.astera.match.domain.gamemode.IGameModePhase
+import com.astarworks.astera.match.domain.gamemode.MatchHudStatus
+import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationHudStatus
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig
 import com.astarworks.astera.match.domain.mode.GameModeId
 
@@ -136,6 +139,11 @@ public class AnnihilationGameMode @JvmOverloads constructor(
         tr.applySuddenDeathTick(context.matchId, tick)
         // The win condition is not evaluated here: AnnihilationWinConditionListener
         // ends the match on TeamEliminated and on the sudden-death timer.
+    }
+
+    override fun hudStatus(match: Match, nowTick: Long): MatchHudStatus {
+        val state = tracker?.state(match.id) ?: return MatchHudStatus(lines = MatchHudStatus.scoreLines(match))
+        return AnnihilationHudStatus.of(state, match, nowTick)
     }
 
     override fun onMatchEnded(context: GameModeContext) {
