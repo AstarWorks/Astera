@@ -43,13 +43,13 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "細い白桃色の軌跡と予備動作中の連続ズームを実機確認。比較・通常左クリック映像を更新。人物の低い構え・手足の振付は未実装。画面内の術者位置、散片密度、命中時の画面被覆にも差が残る。"
+    "reason": "通常左クリックと比較撮影で低い姿勢の開始・保持・通過を確認。専用実機確認で重複発動後の保持と立ち姿への復元も確認。再撮影camera応答遅れ最大4ms。腕・膝の細かな角度、振り向き、散片、衝撃の画面被覆には差が残る。初回撮影の約0.8秒遅延は除外済みだが原因未確定。"
   },
   "weapon": "couture-rapier",
   "identity": "The Alteration Shop Rodion",
   "videoTitle": "The Alteration Shop Rodion — skill showcase",
-  "iterations": 13,
+  "iterations": 16,
   "report": "/report/couture-rapier",
   "referenceRevision": "3a88f54825eec141e8c687f87ded3861206e760c42c17897d7061cfca2ce6b9a",
-  "contentRevision": "8bcee05aa6c85dab4c7789452f9a8bf92ecd5eedb99118190d9158040f10ee7f"
+  "contentRevision": "e16d4fd88f0924c611aa18b4b88dba4c93ee4314a71139bb14f2c9e4da6bb6a4"
 }

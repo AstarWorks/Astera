@@ -130,3 +130,17 @@ make skill-compare
 - 実機欄は全フレームのWebPが揃えば軽量プレビューを使い、欠けていればPNGへ戻す。原寸PNGは計測用に残す。撮影版をURLに含め、再撮影前の画像キャッシュとの混在を防ぐ。
 - PNGとWebPは同じ0始まりのフレーム番号を使う。枚数一致だけでは不十分で、PNG各ファイルに同番号のWebPがあることを確認する。再生成では余剰連番を削除し、撮影metaのプレビュー版を更新する。先頭・命中付近・末尾を両形式で照合する。
 - 比較撮影の `director-timing.log` にcast応答と各camera cutの送信・応答時刻を残す。連続同一フレームが少なくても同期正常とは限らない。予定のpull-back時点でimpactの近景が残る等の遅延があれば、その映像は `captureQuality.invalid` として除外し再撮影する。RCON応答時刻だけではクライアント描画時刻を証明しない。
+
+### 人物の姿勢をスキルから指定する
+
+`play_animation` の `animation: crouch` は、プレイヤーの姿勢を `ticks` の間固定する。`delay_ticks` で開始を指定する。入力のShift状態を変更しないため、通常左クリックをShift+左へ切り替える操作ではない。
+
+```yaml
+- type: play_animation
+  targets: {type: caster}
+  animation: crouch
+  ticks: {type: literal, value: 35}
+  delay_ticks: {type: literal, value: 2}
+```
+
+終了時は元の姿勢と固定状態を復元する。重ねた場合は最新の予約だけが解除を行い、プラグイン停止時にも解除する。未知のanimation IDは実行失敗として記録する。現在のPaper実装はネイティブの低い姿勢のみで、任意の腕・脚・胴体の関節アニメーションを実装したものではない。原作の細かな振付をこれだけで合格にしない。

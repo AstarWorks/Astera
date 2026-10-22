@@ -191,6 +191,7 @@ public class MechanicDispatcher(
     private val randomizer: IDamageRandomizer = KotlinRandomDamageRandomizer(),
     /** `restore_resource`: lazily resolved held-item resource pool. */
     private val resourcePool: (() -> com.astarworks.astera.core.application.port.outbound.IResourcePoolService?)? = null,
+    private val playerAnimation: com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway? = null,
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
 ) {
 
@@ -746,6 +747,16 @@ public class MechanicDispatcher(
                 }
             }
 
+            is Mechanic.PlayAnimation -> {
+                val gateway = playerAnimation ?: return warnMissing("PlayAnimation", "IPlayerAnimationGateway")
+                val ticks = resolveInt(mechanic.ticks, ctx).toLong()
+                for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    when (val result = gateway.playCustomAnimation(target, mechanic.animation, ticks)) {
+                        is Result.Success -> Unit
+                        is Result.Failure -> log.warn("Animation {} failed for {}: {}", mechanic.animation, target, result.error)
+                    }
+                }
+            }
             is Mechanic.PlaySound -> {
                 val locations = targeterResolver.resolveLocations(mechanic.targets, ctx)
                 if (locations.isEmpty()) return

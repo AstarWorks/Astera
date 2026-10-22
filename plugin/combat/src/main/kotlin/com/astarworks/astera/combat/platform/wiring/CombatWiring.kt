@@ -544,6 +544,7 @@ public object CombatWiring {
                 celEvaluator = celEvaluator,
                 scheduler = scheduler,
                 eventBus = eventBus,
+                playerAnimation = services.get<com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway>(),
                 particleScheduler = particleScheduler,
                 particleAnimator = services.get<com.astarworks.astera.core.application.port.outbound.effect.IParticleAnimator>(),
                 particleRegistry = particleRegistry,

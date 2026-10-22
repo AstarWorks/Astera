@@ -756,6 +756,27 @@ public sealed class MechanicYaml {
     }
 
     @Serializable
+    @SerialName("play_animation")
+    public data class PlayAnimation(
+        public val targets: TargeterYaml,
+        public val animation: String,
+        public val ticks: IntValueYaml = IntValueYaml.Literal(20),
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.PlayAnimation(
+            targets = targets.toDomain(),
+            animation = com.astarworks.astera.core.domain.animation.player.CustomAnimationId(animation),
+            ticks = ticks.toDomain(), delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(), durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(), snapshotPose = snapshotPose,
+        )
+    }
+
+    @Serializable
     @SerialName("play_sound")
     public data class PlaySound(
         public val targets: TargeterYaml,

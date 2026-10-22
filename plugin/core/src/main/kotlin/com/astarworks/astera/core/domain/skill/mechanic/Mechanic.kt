@@ -486,6 +486,18 @@ public sealed class Mechanic {
         override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
+    /** A timed registered player animation; pose restoration belongs to the gateway. */
+    public data class PlayAnimation(
+        override val targets: Targeter,
+        val animation: com.astarworks.astera.core.domain.animation.player.CustomAnimationId,
+        val ticks: IntValue = IntValue.Literal(20),
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic()
+
     public data class PlaySound(
         override val targets: Targeter,
         val soundId: SoundId,
