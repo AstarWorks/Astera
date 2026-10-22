@@ -1,0 +1,105 @@
+# Astera E2E test backend (QA-1, ADR-0186). Used by `make e2e` / :tools:e2e.
+#
+# One standalone Paper server that runs lobby AND matches (ASTERA_SERVER_ROLE=all)
+# with ONLINE_MODE=FALSE and no Velocity, so protocol bots (MCProtocolLib) can join
+# under any offline name. It is NOT part of the dev stack: separate compose project
+# (`astera-e2e`), own volume, ports bound to 127.0.0.1 only, behind the `e2e` profile.
+#
+#   docker compose -p astera-e2e -f docker/docker-compose.e2e.yml --profile e2e up -d --build e2e e2e-resource-pack
+#
+# No Postgres / Redis: the in-memory repositories apply when ASTERA_PG_URL /
+# ASTERA_REDIS_URI are unset (role `all` needs no cross-server transfer).
+# The image is built from the same Dockerfile as the dev stack but tagged
+# `astera/minecraft-server:e2e` so it never replaces the dev image.
+
+name: astera-e2e
+
+services:
+  e2e:
+    profiles: ["e2e"]
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: astera/minecraft-server:e2e
+    stdin_open: true
+    tty: true
+    ports:
+      - "127.0.0.1:${ASTERA_E2E_PORT:-25570}:25565"
+      - "127.0.0.1:${ASTERA_E2E_RCON_PORT:-25571}:25575"
+    environment:
+      EULA: "TRUE"
+      TYPE: "PAPER"
+      VERSION: "26.3"
+      MEMORY: "2G"
+      USE_AIKAR_FLAGS: "true"
+      MAX_PLAYERS: "20"
+      ONLINE_MODE: "FALSE"
+      ENFORCE_SECURE_PROFILE: "FALSE"
+      LEVEL_TYPE: "minecraft:flat"
+      GENERATOR_SETTINGS: '{"biome":"minecraft:plains","features":false,"lakes":false,"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"structure_overrides":[]}'
+      MODE: "survival"
+      DIFFICULTY: "normal"
+      PVP: "true"
+      SPAWN_PROTECTION: "0"
+      ALLOW_FLIGHT: "true"
+      MOTD: "Astera e2e"
+      ENABLE_RCON: "true"
+      RCON_PORT: "25575"
+      RCON_PASSWORD: "${RCON_PASSWORD:-astera-e2e}"
+      ASTERA_SERVER_ROLE: "all"
+      ASTERA_SERVER_NAME: "e2e"
+      ASTERA_METRICS_ENABLED: "false"
+      # Pack URL as a client would see it; the sha1 is read inside the network.
+      ASTERA_RESOURCE_PACK_URL: "http://localhost:${ASTERA_E2E_PACK_PORT:-8098}/astera.zip"
+      ASTERA_RESOURCE_PACK_SHA1_URL: "http://e2e-resource-pack/astera.zip.sha1"
+    volumes:
+      - e2e-data:/data
+    depends_on:
+      e2e-resource-pack:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "mc-health"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 60s
+
+  e2e-resource-pack:
+    profiles: ["e2e"]
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.resource-pack
+    image: astera/resource-pack:e2e
+    ports:
+      - "127.0.0.1:${ASTERA_E2E_PACK_PORT:-8098}:80"
+
+  # The bot suite, run inside the compose network (see docker/Dockerfile.e2e-runner for why).
+  # `make e2e` builds it and runs it with `docker compose run`, then copies the report out.
+  e2e-runner:
+    profiles: ["e2e"]
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.e2e-runner
+    image: astera/e2e-runner:e2e
+    environment:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+    command:
+      - gradle
+      - --no-daemon
+      - --offline
+      - --console=plain
+      - :tools:e2e:e2e
+      - -Pe2e.host=e2e
+      - -Pe2e.port=25565
+      - -Pe2e.rconPort=25575
+      - -Pe2e.rconPassword=${RCON_PASSWORD:-astera-e2e}
+      - -Pe2e.serverLog=/e2e-server/logs/latest.log
+    volumes:
+      # The backend's latest.log, read-only: lets checks assert on server-side log lines (HUD diagnostics).
+      - e2e-data:/e2e-server:ro
+    depends_on:
+      e2e:
+        condition: service_healthy
+
+volumes:
+  e2e-data:

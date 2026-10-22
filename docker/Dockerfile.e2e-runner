@@ -1,0 +1,37 @@
+# syntax=docker/dockerfile:1.7
+#
+# Astera E2E runner (QA-1, ADR-0186): runs the :tools:e2e protocol-bot suite INSIDE the
+# `astera-e2e` compose network, so it reaches the `e2e` backend by service name no matter
+# where the Docker daemon runs (a remote/shared daemon publishes ports on a host the
+# calling shell cannot reach; a bind mount of the repo would be empty - same constraint
+# as docker/Dockerfile). Build context is the repository root:
+#
+#     docker compose -p astera-e2e -f docker/docker-compose.e2e.yml --profile e2e build e2e-runner
+#
+# Dependencies and test classes are resolved at image build time, so the run itself is
+# offline-fast and re-uses the layer cache until a source file changes.
+
+FROM gradle:9.5.1-jdk25
+
+WORKDIR /workspace
+
+COPY settings.gradle.kts build.gradle.kts gradle.properties /workspace/
+COPY gradle /workspace/gradle/
+COPY buildSrc /workspace/buildSrc/
+COPY config /workspace/config/
+COPY tools /workspace/tools/
+COPY plugin /workspace/plugin/
+COPY content /workspace/content/
+
+# The BuildKit cache keeps downloaded dependencies across rebuilds; the final image gets its own
+# copy (a cache mount is not part of the image) so the run itself can be --offline.
+RUN --mount=type=cache,id=astera-e2e-gradle,target=/root/.gradle \
+    gradle --no-daemon :tools:e2e:testClasses :tools:e2e:resolveE2eClasspath \
+ && mkdir -p /opt/gradle-home \
+ && cp -a /root/.gradle/. /opt/gradle-home/
+
+ENV GRADLE_USER_HOME=/opt/gradle-home
+
+# Defaults match the compose service names; override with -Pe2e.* in the command.
+CMD ["gradle", "--no-daemon", "--offline", "--console=plain", ":tools:e2e:e2e", \
+     "-Pe2e.host=e2e", "-Pe2e.port=25565", "-Pe2e.rconPort=25575"]
