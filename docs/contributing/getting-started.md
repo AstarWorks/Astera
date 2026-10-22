@@ -38,7 +38,7 @@ make docker-up
 - PostgreSQL — port 5432
 - Redis — port 6379
 
-Minecraft クライアント (Java Edition 26.1.x) で `localhost` に接続できれば成功です。
+Minecraft クライアント (Java Edition 26.3) で `localhost` に接続できれば成功です。
 武器の入手〜マッチ開始までは [`playtest.md`](playtest.md) を参照。
 YAML (`content/`) を変えたら `make docker-up` で再 build が必要です。
 

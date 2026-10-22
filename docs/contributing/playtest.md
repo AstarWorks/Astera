@@ -14,7 +14,7 @@ make docker-logs                        # wait for "Done (...)!" and all Astera-
 
 ## 2. Connect
 
-Minecraft Java Edition 26.1.x -> Multiplayer -> Direct Connect -> `localhost:25565`
+Minecraft Java Edition 26.3 -> Multiplayer -> Direct Connect -> `localhost:25565`
 (host:25565; `online-mode=false`, any username). World is superflat survival, PvP on.
 You must be op (`OPS=` in `docker/.env`, or run `op <name>` in the server console:
 `docker exec -i astera-paper rcon-cli op <name>`).

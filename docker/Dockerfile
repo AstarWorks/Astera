@@ -57,7 +57,7 @@ FROM itzg/minecraft-server:java25 AS runtime
 # docker-compose file. This keeps the base image redistribution-safe.
 ENV EULA=FALSE \
     TYPE=PAPER \
-    VERSION=26.1.2 \
+    VERSION=26.3 \
     MEMORY=4G \
     USE_AIKAR_FLAGS=true \
     MAX_PLAYERS=20 \

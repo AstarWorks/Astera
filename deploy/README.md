@@ -39,14 +39,14 @@ kubectl apply -f deploy/apps/argocd-apps.yaml
 The Minecraft Lobby and Game pods both run **`ghcr.io/astarworks/astera:latest`**,
 which is built and published by the workflow in `.github/workflows/image.yml` (Step 5).
 That image is `itzg/minecraft-server:java25` with the Astera Paper plugin jar baked in
-(`docker/Dockerfile`). Paper version is pinned with `VERSION: "26.1.2"` (Paper
-"year.drop.hotfix" format, MC Java 26.1.x / JDK 25).
+(`docker/Dockerfile`). Paper version is pinned with `VERSION: "26.3"` (Paper
+"year.drop.hotfix" format, MC Java 26.3 / JDK 25).
 
 ## Versions
 
 | Component   | Image / Version                                     |
 |-------------|-----------------------------------------------------|
-| Paper       | `VERSION: "26.1.2"` (MC 26.1.x / JDK 25)            |
+| Paper       | `VERSION: "26.3"` (MC 26.3 / JDK 25)                |
 | Velocity    | `itzg/mc-proxy:latest`                              |
 | Astera plug | `ghcr.io/astarworks/astera:latest` (built Step 5)   |
 | PostgreSQL  | `postgres:17-alpine`                                |

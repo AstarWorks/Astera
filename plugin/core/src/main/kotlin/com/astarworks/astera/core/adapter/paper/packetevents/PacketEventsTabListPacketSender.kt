@@ -43,7 +43,7 @@ import java.util.UUID
  *
  * ## PE 2.x `PlayerInfo` constructor choice
  *
- * PE 2.12.x exposes a 7-arg [WrapperPlayServerPlayerInfoUpdate.PlayerInfo]
+ * PE 2.12+ exposes a 7-arg [WrapperPlayServerPlayerInfoUpdate.PlayerInfo]
  * `(profile, listed, latency, gameMode, displayName?, chatSession?,
  * listOrder)` plus a deprecated `Optional<Component>` variant. We use the
  * nullable-Component overload and fill in the fields irrelevant to the
@@ -76,7 +76,7 @@ public class PacketEventsTabListPacketSender : ITabListPacketSender {
             EnumSet.of(WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_DISPLAY_NAME),
             listOf(info),
         )
-        PacketEvents.getAPI().playerManager.getUser(viewer).sendPacket(packet)
+        PacketEvents.getAPI().playerManager.getUser(viewer)?.sendPacket(packet)
     }
 
     override fun sendLatencyUpdate(viewer: Player, subjectUuid: UUID, latencyMs: Int) {
@@ -93,7 +93,7 @@ public class PacketEventsTabListPacketSender : ITabListPacketSender {
             EnumSet.of(WrapperPlayServerPlayerInfoUpdate.Action.UPDATE_LATENCY),
             listOf(info),
         )
-        PacketEvents.getAPI().playerManager.getUser(viewer).sendPacket(packet)
+        PacketEvents.getAPI().playerManager.getUser(viewer)?.sendPacket(packet)
     }
 
     override fun sendAddEntry(
@@ -124,11 +124,11 @@ public class PacketEventsTabListPacketSender : ITabListPacketSender {
             ),
             listOf(info),
         )
-        PacketEvents.getAPI().playerManager.getUser(viewer).sendPacket(packet)
+        PacketEvents.getAPI().playerManager.getUser(viewer)?.sendPacket(packet)
     }
 
     override fun sendRemoveEntry(viewer: Player, entryUuid: UUID) {
         val packet = WrapperPlayServerPlayerInfoRemove(entryUuid)
-        PacketEvents.getAPI().playerManager.getUser(viewer).sendPacket(packet)
+        PacketEvents.getAPI().playerManager.getUser(viewer)?.sendPacket(packet)
     }
 }

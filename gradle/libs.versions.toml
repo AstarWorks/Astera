@@ -5,14 +5,14 @@ ksp = "2.3.8"                   # KSP2 new numbering (no -kotlin- prefix)
 jdk = "25"
 
 # Paper (Minecraft Java Edition 26.x — requires JDK 25)
-paper = "26.1.2.build.63-stable"
+paper = "26.3.build.211-stable"
 
 # JOML (pure-math library — Vector3f / Quaternionf / Matrix4f).
-# Paper API pulls 1.10.8 transitively; we declare it here so `:plugin:core`
+# Paper API pulls 1.10.9 transitively; we declare it here so `:plugin:core`
 # (and test source) can import directly. ADR-0074 Wave 5h-fix: JOML in
 # `core.domain.hologram.*` is allowed (Bukkit-free domain rule does not
 # extend to pure-math libraries).
-joml = "1.10.8"
+joml = "1.10.9"
 
 # DI / Config
 koin = "4.2.1"
@@ -67,11 +67,11 @@ oraxen = "999.999.999"
 mythic-dist = "999.999.999"
 
 # PacketEvents (Wave 6c-stub-packetevents, ADR-0170) — softdepend.
-# 2.12.x supports Minecraft 26.1; CodeMC repo (declared in settings.gradle.kts).
+# 2.14.x supports Minecraft 26.3; CodeMC repo (declared in settings.gradle.kts).
 # Astera boots in vanilla Paper without it (CLAUDE.md §4 invariant); the
 # Paper adapter performs a runtime `Bukkit.getPluginManager().getPlugin(...)`
 # check and stays on the InMemory IPacketInterceptor when absent.
-packetevents = "2.12.2"
+packetevents = "2.14.0"
 
 [libraries]
 # Kotlin / kotlinx

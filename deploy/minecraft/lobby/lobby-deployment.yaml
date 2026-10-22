@@ -40,9 +40,9 @@ spec:
               value: "Asia/Tokyo"
             - name: TYPE
               value: "PAPER"
-            # Paper "year.drop.hotfix" versioning (Minecraft 26.1.x / JDK 25).
+            # Paper "year.drop.hotfix" versioning (Minecraft 26.3 / JDK 25).
             - name: VERSION
-              value: "26.1.2"
+              value: "26.3"
             - name: USE_NATIVE_TRANSPORT
               value: "true"
             - name: ENABLE_AUTOPAUSE

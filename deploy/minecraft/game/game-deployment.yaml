@@ -46,7 +46,7 @@ spec:
             - name: TYPE
               value: "PAPER"
             - name: VERSION
-              value: "26.1.2"
+              value: "26.3"
             - name: USE_NATIVE_TRANSPORT
               value: "true"
             - name: ENABLE_AUTOPAUSE
