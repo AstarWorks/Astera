@@ -49,7 +49,7 @@ elements:
 
   # Spark where the sweep ends.
   - id: flash
-    kind: { type: text, text: "<#ffd45a><b>✦</b>", background: "#00000000", shadow: false, see_through: true }
+    kind: { type: text, text: "<#ffd45a><b>★</b>", background: "#00000000", shadow: false, see_through: true }
     billboard: center
     brightness: 15
     start_tick: 5
