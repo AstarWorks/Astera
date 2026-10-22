@@ -1,0 +1,329 @@
+{
+  "video_id": "LkLhzmoJZ6Y",
+  "identity": "Blade of the House of Spiders Ryōshū",
+  "source_fps": {
+    "numerator": 30000,
+    "denominator": 1001
+  },
+  "frame_indexing": "Zero-based source decoded frame. End frames exclusive. Source PTS = frame * 1001 / 30000.",
+  "accuracy": "Contacts denote first visible intersection/impact, not hidden engine damage ticks. Native neighborhoods resolve listed events to source frames; other envelope transitions sampled every two source frames have up to one-frame uncertainty. Coin mappings are hypotheses without HUD.",
+  "scale": "H = standing caster body height in the SAME shot. Distances are screen-plane estimates; not inferred from effect length.",
+  "color_note": "Hex colors are visual palette approximations, not calibrated pixel measurements.",
+  "kit_source": "../../wiki/LkLhzmoJZ6Y.md (provided snapshot only)",
+  "sheet_note": "overview sheets are 6 fps; detail sheets select even source frames (~14.985 fps). detail f-label is SAMPLE index, not source frame; use timestamp. Native sheets label actual SRC frame; windows may be discontinuous.",
+  "slot": "extra-1",
+  "name": "Unresolved four-contact arc chain",
+  "mapping": {
+    "confidence": "low",
+    "official_coins": null,
+    "attack_type": "Slash",
+    "evidence": [
+      "Four new contact presentations: 645, 659, 672, 683. No idle boundary between them.",
+      "Does not directly match supplied 3/3/1 coin counts; last event may be echo/reuse/follow-up."
+    ],
+    "alternatives": [
+      "S2 with echoed/reused contact",
+      "S1/S2 plus one automatic follow-up",
+      "S3 variant with multiple animated contacts per coin"
+    ]
+  },
+  "time_range": {
+    "start_frame": 634,
+    "end_frame_exclusive": 714,
+    "start_s": 21.154467,
+    "end_s": 23.8238
+  },
+  "weapon": {
+    "type": "Long narrow curved single-edged sword; katana/nodachi-like silhouette, with separate dark scabbard",
+    "size_relative_to_body_height": {
+      "total_length_H": [
+        1.2,
+        1.6
+      ],
+      "blade_width_H": [
+        0.04,
+        0.08
+      ]
+    },
+    "held": "One hand controls hilt in visible dash poses; other hand manages scabbard. Exact fingers/grip obscured in motion. Two separated hands support sword/scabbard assembly above head in overhead poses.",
+    "parts_colors": {
+      "blade": "silver-white #DDE8F4; darker blue-gray spine #536781",
+      "hilt": "dark violet #26233D with pale diagonal wrapping #A7A3BC",
+      "scabbard": "near-black/navy #10182B",
+      "cord": "thin dark cord at hilt/scabbard; red ribbons/threads accompany body"
+    },
+    "evidence": [
+      "detail_018.jpg at 51.118 s",
+      "native_013.jpg at 78.779 s",
+      "native_014.jpg at 81.015 s"
+    ],
+    "measurement_note": "Screen-space estimates from chibi sprite; camera scaling and foreshortening preclude exact world dimensions."
+  },
+  "props": [
+    {
+      "type": "body/weapon afterimages",
+      "count_visible": "2–4 each pass",
+      "origin": "caster",
+      "path": "alternating sides of target",
+      "size_H": 1,
+      "timing": {
+        "start_frame": 643,
+        "end_frame_exclusive": 704,
+        "start_s": 21.454767,
+        "end_s": 23.490133
+      }
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 634,
+      "end_frame_exclusive": 643,
+      "start_s": 21.154467,
+      "end_s": 21.454767,
+      "description": "Raise blade and gather glint, <0.5 H."
+    },
+    {
+      "start_frame": 643,
+      "end_frame_exclusive": 659,
+      "start_s": 21.454767,
+      "end_s": 21.988633,
+      "description": "Close ~2–3 H to target; circular slash, then reverse."
+    },
+    {
+      "start_frame": 659,
+      "end_frame_exclusive": 683,
+      "start_s": 21.988633,
+      "end_s": 22.789433,
+      "description": "Two rapid changes of side, each ~2–3 H."
+    },
+    {
+      "start_frame": 683,
+      "end_frame_exclusive": 714,
+      "start_s": 22.789433,
+      "end_s": 23.8238,
+      "description": "Final low sweep left; crouched recovery, red impressions and dust persist to cut."
+    }
+  ],
+  "hits": [
+    {
+      "frame": 645,
+      "time_s": 21.5215,
+      "contact": "Horizontal cut at target with orbiting white ribbon",
+      "range_class": "dash_melee",
+      "caster_target_distance_H": [
+        0,
+        1
+      ],
+      "coin_candidate": null,
+      "confidence": "med",
+      "note": "",
+      "contact_sheet": "native_003.jpg"
+    },
+    {
+      "frame": 659,
+      "time_s": 21.988633,
+      "contact": "Vertical cyan slash/cross at target",
+      "range_class": "dash_melee",
+      "caster_target_distance_H": [
+        0,
+        1.2
+      ],
+      "coin_candidate": null,
+      "confidence": "med",
+      "note": "",
+      "contact_sheet": "native_003.jpg"
+    },
+    {
+      "frame": 672,
+      "time_s": 22.4224,
+      "contact": "Fresh vertical cross and blade pass across target",
+      "range_class": "dash_melee",
+      "caster_target_distance_H": [
+        0,
+        1.2
+      ],
+      "coin_candidate": null,
+      "confidence": "med",
+      "note": "",
+      "contact_sheet": "native_003.jpg"
+    },
+    {
+      "frame": 683,
+      "time_s": 22.789433,
+      "contact": "Further blue cross as red-afterimage return pass begins",
+      "range_class": "dash_melee",
+      "caster_target_distance_H": [
+        0,
+        1.5
+      ],
+      "coin_candidate": null,
+      "confidence": "med",
+      "note": "Possibly echo of preceding contact; not asserted as a fourth coin.",
+      "contact_sheet": "native_003.jpg"
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 634,
+      "end_frame_exclusive": 643,
+      "start_s": 21.154467,
+      "end_s": 21.454767,
+      "description": "Wind-up blade up, glint, white foot ring."
+    },
+    {
+      "start_frame": 643,
+      "end_frame_exclusive": 659,
+      "start_s": 21.454767,
+      "end_s": 21.988633,
+      "description": "Cyan crescent and contact 1, trailing purple loops; white speed ball forms for next pass."
+    },
+    {
+      "start_frame": 659,
+      "end_frame_exclusive": 672,
+      "start_s": 21.988633,
+      "end_s": 22.4224,
+      "description": "Contact 2 and target punch-in 669–671."
+    },
+    {
+      "start_frame": 672,
+      "end_frame_exclusive": 683,
+      "start_s": 22.4224,
+      "end_s": 22.789433,
+      "description": "Contact 3; three trailing violet arcs."
+    },
+    {
+      "start_frame": 683,
+      "end_frame_exclusive": 696,
+      "start_s": 22.789433,
+      "end_s": 23.2232,
+      "description": "Contact presentation 4; red silhouette and white smear at caster."
+    },
+    {
+      "start_frame": 696,
+      "end_frame_exclusive": 714,
+      "start_s": 23.2232,
+      "end_s": 23.8238,
+      "description": "Arcs and dust vanish; crouched hold, cut to different arena."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 643,
+      "end_frame_exclusive": 696,
+      "start_s": 21.454767,
+      "end_s": 23.2232,
+      "shape": "alternating open crescent loops and thin vertical cross",
+      "size_H": [
+        2,
+        3
+      ],
+      "position": "victim and pass path",
+      "palette": {
+        "core": "#A9FAFF",
+        "edge_glow": "#37CEFF",
+        "secondary": "#7956FF",
+        "dark_fill": "#071C50",
+        "accent": "#E12DFF"
+      },
+      "motion": "cyan leading rim, violet/magenta delayed loops",
+      "fade": "trail arcs thin over 0.3–0.5 s"
+    },
+    {
+      "start_frame": 643,
+      "end_frame_exclusive": 709,
+      "start_s": 21.454767,
+      "end_s": 23.656967,
+      "shape": "white orbital ribbons, foot smoke, black chips and red silhouette",
+      "size_H": [
+        0.5,
+        3
+      ],
+      "position": "caster waist and floor",
+      "palette": {
+        "white": "#E3ECF9",
+        "red": "#E80032",
+        "black": "#10101C"
+      },
+      "motion": "ribbons wrap horizontally; smoke stays at prior positions",
+      "fade": "dust fades by 23.6 s"
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 634,
+      "end_frame_exclusive": 643,
+      "start_s": 21.154467,
+      "end_s": 21.454767,
+      "shot": "medium caster",
+      "framing": "Caster right, target left."
+    },
+    {
+      "start_frame": 643,
+      "end_frame_exclusive": 656,
+      "start_s": 21.454767,
+      "end_s": 21.888533,
+      "shot": "tracking two-shot",
+      "framing": "Track into victim; caster body ~0.3 image height."
+    },
+    {
+      "start_frame": 656,
+      "end_frame_exclusive": 659,
+      "start_s": 21.888533,
+      "end_s": 21.988633,
+      "shot": "close two-shot",
+      "framing": "White speed disk right of target."
+    },
+    {
+      "start_frame": 659,
+      "end_frame_exclusive": 669,
+      "start_s": 21.988633,
+      "end_s": 22.3223,
+      "shot": "medium two-shot",
+      "framing": "Alternating lateral follow."
+    },
+    {
+      "start_frame": 669,
+      "end_frame_exclusive": 672,
+      "start_s": 22.3223,
+      "end_s": 22.4224,
+      "shot": "target torso insert",
+      "framing": "Three frames before new cross."
+    },
+    {
+      "start_frame": 672,
+      "end_frame_exclusive": 683,
+      "start_s": 22.4224,
+      "end_s": 22.789433,
+      "shot": "medium tracking",
+      "framing": "Victim right; caster crosses left."
+    },
+    {
+      "start_frame": 683,
+      "end_frame_exclusive": 686,
+      "start_s": 22.789433,
+      "end_s": 22.889533,
+      "shot": "impact punch",
+      "framing": "Cross and dust enlarged."
+    },
+    {
+      "start_frame": 686,
+      "end_frame_exclusive": 714,
+      "start_s": 22.889533,
+      "end_s": 23.8238,
+      "shot": "wide easing out",
+      "framing": "Low caster left, target right."
+    }
+  ],
+  "repeats": [],
+  "contact_sheets": [
+    "detail_005.jpg",
+    "detail_006.jpg",
+    "native_003.jpg"
+  ],
+  "coin_comparison": {
+    "visible_contact_groups": 4,
+    "official_coins": null,
+    "verified_coin_assignments": false,
+    "note": "Visual contact groups do not establish hidden game damage events. Null coins retain unresolved mapping."
+  }
+}

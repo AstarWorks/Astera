@@ -1,0 +1,517 @@
+{
+  "schema_version": 1,
+  "slot": "extra-1",
+  "name": "Let These Hands be the Proxy with Which...",
+  "form": "Procuration",
+  "status": "observed",
+  "time_range": {
+    "start_frame": 1288,
+    "end_frame_exclusive": 1344,
+    "start_s": 42.976267,
+    "end_s": 44.8448
+  },
+  "mapping": {
+    "kit_slot": "Procuration S1",
+    "confidence": "med",
+    "evidence": [
+      "Two separated rake groups, black claw form, reset at f1344; matches supplied 2-coin Slash S1."
+    ],
+    "attack_type": "Slash",
+    "official_coins": 2
+  },
+  "weapon": {
+    "type": "paired black branching claw-like arm extensions, with flexible ribbon/thorn trails",
+    "size_relative_to_body_height": {
+      "resting_each_claw": [
+        0.7,
+        1.2
+      ],
+      "extended_branch_fan": [
+        2,
+        3.5
+      ],
+      "both_sides_total_span": [
+        2.5,
+        4
+      ]
+    },
+    "held": "Extensions surround/project from both forearms; no hilt or two-handed sword grip. Don sweeps her arms and the jointed, hooked black structures follow.",
+    "parts_and_colors": [
+      {
+        "part": "solid jagged outer fingers/branches",
+        "color_hex": "#080D10",
+        "shape": "irregular long hooked tapering prongs with open gaps"
+      },
+      {
+        "part": "edge veins/highlights",
+        "color_hex": "#687474",
+        "shape": "thin pale angular lines inside black silhouette"
+      },
+      {
+        "part": "flexible trailing fan",
+        "color_hex": "#06090B",
+        "shape": "several long curved black ribbons; extensions overlap, exact finger count unresolved"
+      },
+      {
+        "part": "white glove and collar",
+        "color_hex": "#ECEEE8",
+        "shape": "small original hand and neck components remain visible"
+      }
+    ],
+    "confidence": "high for claw-like silhouette; med for exact attachment anatomy",
+    "evidence": [
+      "sheets/detail_03.png (f1313)",
+      "sheets/detail_04.png (f1509)",
+      "sheets/transform_03.jpg (f1144 standing transformed silhouette)"
+    ],
+    "important_distinction": "No visible conventional sword. The dialogue calls this her sword metaphorically; the visible equipment is branching claws."
+  },
+  "props": [
+    {
+      "type": "attached claw extensions",
+      "count": "two arm assemblies; overlapping prong count unresolved",
+      "origin": "forearms",
+      "path": "fan backward/up, then rake forward",
+      "size_body_heights": [
+        1,
+        3.5
+      ],
+      "timing": {
+        "start_frame": 1288,
+        "end_frame_exclusive": 1344,
+        "start_s": 42.976267,
+        "end_s": 44.8448
+      },
+      "detached_projectiles": "none resolved"
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 1288,
+      "end_frame_exclusive": 1294,
+      "start_s": 42.976267,
+      "end_s": 43.176467,
+      "motion": "wind_up",
+      "distance_body_heights": [
+        0,
+        0.5
+      ],
+      "description": "Black arm fan rises behind head; small forward lean."
+    },
+    {
+      "start_frame": 1294,
+      "end_frame_exclusive": 1307,
+      "start_s": 43.176467,
+      "end_s": 43.610233,
+      "motion": "lunge",
+      "distance_body_heights": [
+        0.5,
+        1
+      ],
+      "description": "Extended claws reach target at right edge, then recoil."
+    },
+    {
+      "start_frame": 1307,
+      "end_frame_exclusive": 1314,
+      "start_s": 43.610233,
+      "end_s": 43.8438,
+      "motion": "wind_up",
+      "distance_body_heights": [
+        0,
+        0.3
+      ],
+      "description": "Claws rear backward with orange shoulder flare."
+    },
+    {
+      "start_frame": 1314,
+      "end_frame_exclusive": 1330,
+      "start_s": 43.8438,
+      "end_s": 44.377667,
+      "motion": "dash",
+      "distance_body_heights": [
+        2,
+        3
+      ],
+      "description": "Rightward tracking strike, camera follows face and claw ribbons."
+    },
+    {
+      "start_frame": 1330,
+      "end_frame_exclusive": 1344,
+      "start_s": 44.377667,
+      "end_s": 44.8448,
+      "motion": "recovery",
+      "distance_body_heights": [
+        0,
+        0.5
+      ],
+      "description": "Black fan retracts into low crouch before reset."
+    }
+  ],
+  "hits": [
+    {
+      "coin_candidate": 1,
+      "frame": 1294,
+      "time_s": 43.176467,
+      "contact": "extended claw rake at far-right target edge",
+      "range_class": "melee",
+      "caster_target_distance_body_heights": [
+        2,
+        3
+      ],
+      "evidence": "Caster-local blue flare f1292 is preparation; target overlap begins f1294-1295.",
+      "contact_frame_bounds": [
+        1294,
+        1295
+      ],
+      "visual_timing_confidence": "med",
+      "game_damage_registration_frame": null
+    },
+    {
+      "coin_candidate": 2,
+      "frame": 1314,
+      "time_s": 43.8438,
+      "contact": "forward claw sweep, target cropped during close-up",
+      "range_class": "dash_melee",
+      "caster_target_distance_body_heights": [
+        1,
+        2
+      ],
+      "evidence": "Strike starts with close cut f1314; target intersection is obscured until f1320.",
+      "contact_frame_bounds": [
+        1314,
+        1320
+      ],
+      "visual_timing_confidence": "low",
+      "game_damage_registration_frame": null
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 1288,
+      "end_frame_exclusive": 1292,
+      "start_s": 42.976267,
+      "end_s": 43.109733,
+      "kind": "wind_up",
+      "description": "Purple echo and huge raised black fan."
+    },
+    {
+      "start_frame": 1292,
+      "end_frame_exclusive": 1294,
+      "start_s": 43.109733,
+      "end_s": 43.176467,
+      "kind": "caster_flare",
+      "description": "Blue star above caster; not damage."
+    },
+    {
+      "start_frame": 1294,
+      "end_frame_exclusive": 1307,
+      "start_s": 43.176467,
+      "end_s": 43.610233,
+      "kind": "hit_1",
+      "description": "Pale multi-line rake, black trailing strips; first recoil."
+    },
+    {
+      "start_frame": 1307,
+      "end_frame_exclusive": 1314,
+      "start_s": 43.610233,
+      "end_s": 43.8438,
+      "kind": "wind_up_2",
+      "description": "Orange flare near shoulder and black fan rears."
+    },
+    {
+      "start_frame": 1314,
+      "end_frame_exclusive": 1317,
+      "start_s": 43.8438,
+      "end_s": 43.9439,
+      "kind": "cut_in",
+      "description": "Three moving close-up frames of face and claws."
+    },
+    {
+      "start_frame": 1317,
+      "end_frame_exclusive": 1322,
+      "start_s": 43.9439,
+      "end_s": 44.110733,
+      "kind": "tracking_close",
+      "description": "Camera moves right with luminous streaks; no separate coin inferred."
+    },
+    {
+      "start_frame": 1322,
+      "end_frame_exclusive": 1330,
+      "start_s": 44.110733,
+      "end_s": 44.377667,
+      "kind": "hit_2_hold",
+      "description": "Pullback to target and rake trails."
+    },
+    {
+      "start_frame": 1330,
+      "end_frame_exclusive": 1344,
+      "start_s": 44.377667,
+      "end_s": 44.8448,
+      "kind": "recovery",
+      "description": "White lines gone; black ribbons settle."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 1288,
+      "end_frame_exclusive": 1344,
+      "start_s": 42.976267,
+      "end_s": 44.8448,
+      "name": "Procuration foot glow",
+      "shape": "small shallow oval/flame tuft",
+      "size_body_heights": [
+        0.4,
+        0.8
+      ],
+      "position": "directly under caster",
+      "colors_hex": [
+        "#E9E6FF",
+        "#9D9AE8",
+        "#4E4E86"
+      ],
+      "layering": "white core, lavender rim",
+      "motion": "tracks feet even during low dash",
+      "fade": "persistent within this form",
+      "lifetime_s": 1.868533
+    },
+    {
+      "start_frame": 1288,
+      "end_frame_exclusive": 1294,
+      "start_s": 42.976267,
+      "end_s": 43.176467,
+      "name": "afterimages",
+      "shape": "1-3 translucent copies of Don, sometimes doubled by motion blur",
+      "size_body_heights": [
+        0.8,
+        1.1
+      ],
+      "position": "behind previous caster position",
+      "colors_hex": [
+        "#4E4D86"
+      ],
+      "layering": "transparent colored silhouette behind opaque caster",
+      "motion": "purple echo behind caster",
+      "fade": "old copies dissolve; not separately acting clones",
+      "lifetime_s": 0.2002
+    },
+    {
+      "start_frame": 1292,
+      "end_frame_exclusive": 1297,
+      "start_s": 43.109733,
+      "end_s": 43.276567,
+      "name": "caster blue flare",
+      "shape": "four-point star",
+      "size_body_heights": [
+        0.6,
+        1
+      ],
+      "position": "above head",
+      "colors_hex": [
+        "#FFFFFF",
+        "#A8D4FF",
+        "#727ED6"
+      ],
+      "layering": "white core cyan bloom",
+      "motion": "brief expansion",
+      "fade": "shrinks before target rake",
+      "lifetime_s": 0.166833
+    },
+    {
+      "start_frame": 1294,
+      "end_frame_exclusive": 1307,
+      "start_s": 43.176467,
+      "end_s": 43.610233,
+      "name": "claw rake trails",
+      "shape": "bundles of 3-5 narrow curved tapered streaks; overlapping fans can show more",
+      "size_body_heights": [
+        2,
+        4
+      ],
+      "position": "arm-sweep corridor / target",
+      "colors_hex": [
+        "#FFFFFF",
+        "#D7E7FF",
+        "#9294D3",
+        "#080D10"
+      ],
+      "layering": "bright white central lines, pale lavender edges, broad black trailing ribbons underneath",
+      "motion": "forward/down crossing sweep",
+      "fade": "bright stripes turn lavender, then leave black ribbons that retract/fade",
+      "lifetime_s": 0.433767
+    },
+    {
+      "start_frame": 1307,
+      "end_frame_exclusive": 1315,
+      "start_s": 43.610233,
+      "end_s": 43.877167,
+      "name": "shoulder spark",
+      "shape": "small pointed orange flare",
+      "size_body_heights": [
+        0.2,
+        0.5
+      ],
+      "position": "caster upper torso",
+      "colors_hex": [
+        "#FFF1C9",
+        "#D99A5C"
+      ],
+      "layering": "pale core amber edge",
+      "motion": "flares during rearward preparation",
+      "fade": "vanishes into dash",
+      "lifetime_s": 0.266933
+    },
+    {
+      "start_frame": 1314,
+      "end_frame_exclusive": 1330,
+      "start_s": 43.8438,
+      "end_s": 44.377667,
+      "name": "claw rake trails",
+      "shape": "bundles of 3-5 narrow curved tapered streaks; overlapping fans can show more",
+      "size_body_heights": [
+        2,
+        4
+      ],
+      "position": "arm-sweep corridor / target",
+      "colors_hex": [
+        "#FFFFFF",
+        "#D7E7FF",
+        "#9294D3",
+        "#080D10"
+      ],
+      "layering": "bright white central lines, pale lavender edges, broad black trailing ribbons underneath",
+      "motion": "nearly horizontal forward streaks then diagonal fan",
+      "fade": "bright stripes turn lavender, then leave black ribbons that retract/fade",
+      "lifetime_s": 0.533867
+    },
+    {
+      "start_frame": 1294,
+      "end_frame_exclusive": 1344,
+      "start_s": 43.176467,
+      "end_s": 44.8448,
+      "name": "blue-white fragments / petals",
+      "shape": "irregular teardrop and polygon chips",
+      "size_body_heights": [
+        0.03,
+        0.2
+      ],
+      "position": "caster-to-target corridor and impact",
+      "colors_hex": [
+        "#F3FFFF",
+        "#9CD9FF",
+        "#747BD1"
+      ],
+      "layering": "white small centers with cyan/lavender rims",
+      "motion": "scatter upward/outward and drift down; no coherent projectile flight",
+      "fade": "individual particles dim and vanish",
+      "lifetime_s": 1.668333
+    },
+    {
+      "start_frame": 1297,
+      "end_frame_exclusive": 1344,
+      "start_s": 43.276567,
+      "end_s": 44.8448,
+      "name": "impact fragments / dark ground residue",
+      "shape": "angular black scraps with pale edges; low jagged floor patch",
+      "size_body_heights": [
+        0.03,
+        0.35
+      ],
+      "position": "around target and impact floor",
+      "colors_hex": [
+        "#11191B",
+        "#9FAEAE",
+        "#671A25"
+      ],
+      "layering": "dark fragments and sparse dark red stain below bright particles",
+      "motion": "scraps rise and arc outward; floor patch remains",
+      "fade": "flying fragments thin out; floor residue can persist across edits",
+      "lifetime_s": 1.568233
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 1288,
+      "end_frame_exclusive": 1294,
+      "start_s": 42.976267,
+      "end_s": 43.176467,
+      "shot": "medium side",
+      "framing": "caster center-left target clipped right",
+      "operation": "slight push"
+    },
+    {
+      "start_frame": 1294,
+      "end_frame_exclusive": 1307,
+      "start_s": 43.176467,
+      "end_s": 43.610233,
+      "shot": "medium",
+      "framing": "rake at right edge",
+      "operation": "track then ease out"
+    },
+    {
+      "start_frame": 1307,
+      "end_frame_exclusive": 1314,
+      "start_s": 43.610233,
+      "end_s": 43.8438,
+      "shot": "medium",
+      "framing": "raised claw fan fills upper left",
+      "operation": "push"
+    },
+    {
+      "start_frame": 1314,
+      "end_frame_exclusive": 1317,
+      "start_s": 43.8438,
+      "end_s": 43.9439,
+      "shot": "tight moving close-up",
+      "framing": "face and black branches fill screen",
+      "operation": "three-frame punch"
+    },
+    {
+      "start_frame": 1317,
+      "end_frame_exclusive": 1322,
+      "start_s": 43.9439,
+      "end_s": 44.110733,
+      "shot": "close tracking",
+      "framing": "claws and white streaks, target partially outside crop",
+      "operation": "track right"
+    },
+    {
+      "start_frame": 1322,
+      "end_frame_exclusive": 1344,
+      "start_s": 44.110733,
+      "end_s": 44.8448,
+      "shot": "medium to wide",
+      "framing": "both actors and retracting fan",
+      "operation": "pullback; reset f1344"
+    }
+  ],
+  "contact_sheets": [
+    "sheets/procuration_02.jpg",
+    "sheets/procuration_03.jpg",
+    "sheets/detail_03.png"
+  ],
+  "measurement_notes": {
+    "source_video": "../../vid/x6sc9JkW77c.mp4",
+    "source_audio": "../../aud/x6sc9JkW77c.m4a",
+    "kit_source": "../../wiki/x6sc9JkW77c.md",
+    "fps_num": 30000,
+    "fps_den": 1001,
+    "frame_index_base": 0,
+    "frame_time_formula": "frame * 1001 / 30000 seconds",
+    "interval_convention": "[start_frame, end_frame_exclusive); end is first idle/cut-away frame, not last contact",
+    "precision": "Every combat frame in the listed native contact sheets was inspected; overview sheets are 6 fps. Native source is 29.97002997 fps, not exactly 30. Use source frame indices for reproduction.",
+    "hit_definition": "First visible target overlap/impact for each proposed coin group. A held starburst and its shrinking/knockback tail are one event. Frame-accurate VFX timing does not reveal hidden engine damage registration. Bounds and confidence distinguish obscured contact from visible contact.",
+    "coin_mapping_limit": "No readable skill-name/coin HUD during the attack demonstrations. Names and grouping are inferred from supplied kit, form, count, motif and resets. Procuration has multiple cosmetic rakes per proposed coin; do not schedule extra damage for each rake.",
+    "units": "Body height (BH) means upright chibi Don from soles to top of hair in the same shot. Distances are screen-plane estimates, usually +/-0.5 BH, not measured 3D world distances.",
+    "colors": "Approximate displayed sRGB palette estimates, not exact source shader colors. Bloom and compression change local pixels.",
+    "range_class_definition": "aoe_at_target describes spatial placement of an effect on the distant target; it does not assert multi-target game mechanics. No clearly resolved ballistic projectile or sustained beam was seen.",
+    "workflow": "Viewed all 20 overview sheets, then all native combat sheets, then full-resolution details and boundary/contact checks; old notes read only after independent frame inspection. Audio onset file was inspected as secondary context, never used to assign a hit."
+  },
+  "observed_coin_groups": 2,
+  "coin_grouping_confidence": "med",
+  "approach": {
+    "start_frame": 1261,
+    "end_frame_exclusive": 1284,
+    "start_s": 42.075367,
+    "end_s": 42.8428
+  }
+}

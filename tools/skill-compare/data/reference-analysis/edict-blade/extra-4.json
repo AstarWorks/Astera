@@ -1,0 +1,248 @@
+{
+  "schema_version": 1,
+  "slot": "extra-4",
+  "name": "Prescript/status displays and passive visual cues",
+  "status": "observed_visuals_mechanical_trigger_unresolved",
+  "mapping": {
+    "kit_slot": "passives / specials",
+    "confidence": "low for exact passive attribution; high for visual presence",
+    "evidence": [
+      "Glyph and status-marker displays occur during non-attacking gaps.",
+      "Gold aura is already present at f1458 reset, before Annihilate winds up f1509. No numerical damage bonus is visible."
+    ]
+  },
+  "time_ranges": [
+    {
+      "start_frame": 726,
+      "end_frame_exclusive": 895,
+      "start_s": 24.2242,
+      "end_s": 29.863167
+    },
+    {
+      "start_frame": 1144,
+      "end_frame_exclusive": 1261,
+      "start_s": 38.171467,
+      "end_s": 42.075367
+    },
+    {
+      "start_frame": 1458,
+      "end_frame_exclusive": 1488,
+      "start_s": 48.6486,
+      "end_s": 49.6496
+    }
+  ],
+  "weapon": null,
+  "props": [
+    {
+      "type": "blue target marker",
+      "shape": "small flower/six-petal-like emblem on torso",
+      "size_body_heights": [
+        0.35,
+        0.5
+      ],
+      "color_hex": "#77BCEB",
+      "origin": "appears attached to target; no flight",
+      "timing": "present before normal S3 and in later demonstrations"
+    },
+    {
+      "type": "floating text/glyph overlays",
+      "origin": "screen-space above caster",
+      "size_body_heights": [
+        0.2,
+        1.5
+      ],
+      "count": "variable, not separately physical objects",
+      "timing": "display sections listed in time_ranges"
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 726,
+      "end_frame_exclusive": 804,
+      "start_s": 24.2242,
+      "end_s": 26.8268,
+      "motion": "idle",
+      "distance_body_heights": [
+        0,
+        0
+      ],
+      "description": "Status/glyph presentation."
+    },
+    {
+      "start_frame": 1144,
+      "end_frame_exclusive": 1261,
+      "start_s": 38.171467,
+      "end_s": 42.075367,
+      "motion": "idle",
+      "distance_body_heights": [
+        0,
+        0
+      ],
+      "description": "Transformed idle; camera repositions f1148-1154."
+    },
+    {
+      "start_frame": 1458,
+      "end_frame_exclusive": 1488,
+      "start_s": 48.6486,
+      "end_s": 49.6496,
+      "motion": "idle",
+      "distance_body_heights": [
+        0,
+        0
+      ],
+      "description": "Gold aura around stationary caster."
+    }
+  ],
+  "hits": [],
+  "beats": [
+    {
+      "start_frame": 726,
+      "end_frame_exclusive": 804,
+      "start_s": 24.2242,
+      "end_s": 26.8268,
+      "kind": "status_display",
+      "description": "Glyph/Prescript presentation after normal S3."
+    },
+    {
+      "start_frame": 804,
+      "end_frame_exclusive": 895,
+      "start_s": 26.8268,
+      "end_s": 29.863167,
+      "kind": "UI_display",
+      "description": "Battle interface visible; no discrete attack demonstration."
+    },
+    {
+      "start_frame": 1144,
+      "end_frame_exclusive": 1261,
+      "start_s": 38.171467,
+      "end_s": 42.075367,
+      "kind": "form_idle_display",
+      "description": "Transformed silhouette and later glyphs; no strike."
+    },
+    {
+      "start_frame": 1458,
+      "end_frame_exclusive": 1488,
+      "start_s": 48.6486,
+      "end_s": 49.6496,
+      "kind": "gold_aura_idle",
+      "description": "Gold motes precede final approach."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 1458,
+      "end_frame_exclusive": 1509,
+      "start_s": 48.6486,
+      "end_s": 50.3503,
+      "name": "gold aura before S3",
+      "shape": "small amber specks and curls",
+      "size_body_heights": [
+        0.3,
+        1.5
+      ],
+      "position": "caster body and feet",
+      "colors_hex": [
+        "#FFEBA7",
+        "#C6A04B"
+      ],
+      "layering": "pale centers amber glow",
+      "motion": "slow drift while standing and moving",
+      "fade": "persists into skill",
+      "lifetime_s": 1.7017
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 726,
+      "end_frame_exclusive": 804,
+      "start_s": 24.2242,
+      "end_s": 26.8268,
+      "shot": "wide",
+      "framing": "caster and target with glyphs",
+      "operation": "display hold"
+    },
+    {
+      "start_frame": 804,
+      "end_frame_exclusive": 895,
+      "start_s": 26.8268,
+      "end_s": 29.863167,
+      "shot": "battle UI wide",
+      "framing": "interface and arena",
+      "operation": "hard cut at f804"
+    },
+    {
+      "start_frame": 1144,
+      "end_frame_exclusive": 1148,
+      "start_s": 38.171467,
+      "end_s": 38.304933,
+      "shot": "wide",
+      "framing": "transformed caster",
+      "operation": "idle"
+    },
+    {
+      "start_frame": 1148,
+      "end_frame_exclusive": 1150,
+      "start_s": 38.304933,
+      "end_s": 38.371667,
+      "shot": "reframed wide",
+      "framing": "caster briefly cropped at right",
+      "operation": "abrupt reposition"
+    },
+    {
+      "start_frame": 1150,
+      "end_frame_exclusive": 1154,
+      "start_s": 38.371667,
+      "end_s": 38.505133,
+      "shot": "wide",
+      "framing": "caster re-centered",
+      "operation": "pullback"
+    },
+    {
+      "start_frame": 1154,
+      "end_frame_exclusive": 1261,
+      "start_s": 38.505133,
+      "end_s": 42.075367,
+      "shot": "wide",
+      "framing": "transformed idle/glyph display",
+      "operation": "hold"
+    },
+    {
+      "start_frame": 1458,
+      "end_frame_exclusive": 1488,
+      "start_s": 48.6486,
+      "end_s": 49.6496,
+      "shot": "wide",
+      "framing": "gold-aura caster left target right",
+      "operation": "reset and hold"
+    }
+  ],
+  "contact_sheets": [
+    "sheets/overview_07.jpg",
+    "sheets/overview_08.jpg",
+    "sheets/overview_09.jpg",
+    "sheets/overview_10.jpg",
+    "sheets/overview_11.jpg",
+    "sheets/overview_12.jpg",
+    "sheets/overview_13.jpg",
+    "sheets/procuration_07.jpg",
+    "sheets/procuration_08.jpg",
+    "sheets/procuration_09.jpg"
+  ],
+  "measurement_notes": {
+    "source_video": "../../vid/x6sc9JkW77c.mp4",
+    "source_audio": "../../aud/x6sc9JkW77c.m4a",
+    "kit_source": "../../wiki/x6sc9JkW77c.md",
+    "fps_num": 30000,
+    "fps_den": 1001,
+    "frame_index_base": 0,
+    "frame_time_formula": "frame * 1001 / 30000 seconds",
+    "interval_convention": "[start_frame, end_frame_exclusive); end is first idle/cut-away frame, not last contact",
+    "precision": "Every combat frame in the listed native contact sheets was inspected; overview sheets are 6 fps. Native source is 29.97002997 fps, not exactly 30. Use source frame indices for reproduction.",
+    "hit_definition": "First visible target overlap/impact for each proposed coin group. A held starburst and its shrinking/knockback tail are one event. Frame-accurate VFX timing does not reveal hidden engine damage registration. Bounds and confidence distinguish obscured contact from visible contact.",
+    "coin_mapping_limit": "No readable skill-name/coin HUD during the attack demonstrations. Names and grouping are inferred from supplied kit, form, count, motif and resets. Procuration has multiple cosmetic rakes per proposed coin; do not schedule extra damage for each rake.",
+    "units": "Body height (BH) means upright chibi Don from soles to top of hair in the same shot. Distances are screen-plane estimates, usually +/-0.5 BH, not measured 3D world distances.",
+    "colors": "Approximate displayed sRGB palette estimates, not exact source shader colors. Bloom and compression change local pixels.",
+    "range_class_definition": "aoe_at_target describes spatial placement of an effect on the distant target; it does not assert multi-target game mechanics. No clearly resolved ballistic projectile or sustained beam was seen.",
+    "workflow": "Viewed all 20 overview sheets, then all native combat sheets, then full-resolution details and boundary/contact checks; old notes read only after independent frame inspection. Audio onset file was inspected as secondary context, never used to assign a hit."
+  }
+}

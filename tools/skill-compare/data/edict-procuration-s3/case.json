@@ -1,0 +1,40 @@
+{
+  "id": "edict-procuration-s3",
+  "rev": 1,
+  "videoId": "x6sc9JkW77c",
+  "start_s": 50.3503,
+  "end_s": 56.890166666666666,
+  "skill": {
+    "name": "変身後S3 — Procuration: Annihilate",
+    "coins": 4,
+    "asteraSkillId": "edict-procuration-s3"
+  },
+  "variant": {
+    "label": "変身後 S3",
+    "implementation": "missing",
+    "order": 3
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [],
+  "notes": "Procuration形態の追加参照。技同定の確度はmed。通常形態の映像・実装を代用しない。実装予定IDであり、現時点で発動する技ではない。原資料: /reference/edict-blade/extra-3.json",
+  "editLog": [],
+  "status": "analysed",
+  "verification": {
+    "status": "failed",
+    "reason": "原動画の変身後技は観測済み。持続変身、専用技、バインド、実機撮影はいずれも未実装。通常形態のS1〜S3で代用して合格としない。"
+  },
+  "weapon": "edict-blade",
+  "identity": "The Index Proxy Don Quixote / Procuration",
+  "iterations": 0,
+  "report": "/report/edict-blade",
+  "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448"
+}
