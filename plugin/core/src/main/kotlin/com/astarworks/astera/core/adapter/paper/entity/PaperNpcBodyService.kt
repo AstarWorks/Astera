@@ -54,6 +54,18 @@ internal class PaperNpcBodyService(
     private val bodies = ConcurrentHashMap<EntityHandle, UUID>()
     private val pending = java.util.concurrent.CopyOnWriteArrayList<PendingBody>()
 
+    /**
+     * Worlds that are being created after startup (the lobby world, ADR-0180). A body for one of
+     * these stays pending instead of falling back to the main world; clear the set and call
+     * [flush] once the world exists (or its creation failed).
+     */
+    @Volatile
+    var awaitedWorlds: Set<String> = emptySet()
+
+    fun flush() {
+        if (plugin.server.isPrimaryThread) flushPending() else plugin.server.scheduler.runTask(plugin, Runnable { flushPending() })
+    }
+
     fun start() {
         plugin.server.pluginManager.registerEvents(this, plugin)
         plugin.server.scheduler.runTask(plugin, Runnable { flushPending() })
@@ -101,7 +113,9 @@ internal class PaperNpcBodyService(
     private fun trySpawn(req: PendingBody): Boolean {
         // "lobby" is the logical world name: the sky-island world (ADR-0180) when loaded,
         // else the server's main world (see PaperWorldGateway.lobbySpawn).
-        val bukkitWorld = plugin.server.getWorld(req.world.value) ?: plugin.server.worlds.firstOrNull()
+        val named = plugin.server.getWorld(req.world.value)
+        if (named == null && req.world.value in awaitedWorlds) return false
+        val bukkitWorld = named ?: plugin.server.worlds.firstOrNull()
             ?: return false
         val location = Location(bukkitWorld, req.position.x, req.position.y, req.position.z, req.yaw, req.pitch)
         val name = MiniMessage.miniMessage().deserialize(messages.render(null, req.displayName))
