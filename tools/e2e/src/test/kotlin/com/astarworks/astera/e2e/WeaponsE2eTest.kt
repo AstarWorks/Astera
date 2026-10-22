@@ -108,6 +108,7 @@ class WeaponsE2eTest : E2eBase() {
                     stage(a, b, 2.2, 1_500)
                     val before = food(a)
                     // A real client sends the swing plus the attack on the entity in its crosshair.
+                    E2eReport.notes += "Weapons $item click #$n sent, a.gm=${rcon("data get entity ${a.name} playerGameType").trim().substringAfter("data: ")}"
                     a.punch()
                     a.entityIdByUuid[b.uuid]?.let(a::attack)
                     // Sample through the swing: the cost is charged on cast, and energy regenerates right after.
@@ -145,6 +146,7 @@ class WeaponsE2eTest : E2eBase() {
                 }
             }
         }
+        E2eReport.notes += "weapons-debug trace: " + ServerLog.lines("weapons-debug").map { it.substringAfter("[weapons-debug]") }
         E2eReport.notes += "server log WARN/ERROR: " + ServerLog.lines("Astera").filter { "ERROR" in it || "WARN" in it }.takeLast(15)
     }
 }

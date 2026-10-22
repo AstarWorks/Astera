@@ -42,6 +42,7 @@ public class PaperItemInputListener(
 
     @EventHandler
     public fun onInteract(e: PlayerInteractEvent) {
+        if (TRACE) log.info("[weapons-debug] interact {} action={} hand={} item={} cancelled={}", e.player.name, e.action, e.hand, e.item?.type, e.isCancelled)
         if (e.hand != EquipmentSlot.HAND) return
         val kind = when (e.action) {
             Action.LEFT_CLICK_AIR, Action.LEFT_CLICK_BLOCK -> InputKind.LEFT_CLICK
@@ -55,6 +56,7 @@ public class PaperItemInputListener(
     @EventHandler
     public fun onAttack(e: EntityDamageByEntityEvent) {
         val attacker = e.damager as? Player ?: return
+        if (TRACE) log.info("[weapons-debug] attack {} cause={} skillScope={} victim={}", attacker.name, e.cause, SkillDamageScope.active, e.entity.name)
         if (e.cause != DamageCause.ENTITY_ATTACK) return
         // Skill-applied damage (caster as damager) is not a player click.
         if (SkillDamageScope.active) return
