@@ -1,5 +1,13 @@
 package com.astarworks.astera.vfxpreview
 
+import com.astarworks.astera.core.domain.effect.DisplayBillboard
+import com.astarworks.astera.core.domain.effect.DisplayTransform
+import com.astarworks.astera.core.domain.effect.ParticleId
+import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
+import com.astarworks.astera.core.domain.effect.vfx.VfxElementPlan
+import com.astarworks.astera.core.domain.effect.vfx.VfxParticleEmission
+import com.astarworks.astera.core.domain.effect.vfx.VfxPlan
+import com.astarworks.astera.core.domain.geometry.Vec3
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.awt.image.BufferedImage
@@ -71,6 +79,36 @@ class VfxPreviewTest {
         assertThat(strips.frame(SpriteRef("spark", 1), 0xFFFFFF)!!.getRGB(1, 1)).isEqualTo(0xFF00FF00.toInt())
         assertThat(strips.frame(SpriteRef("spark", 2), 0xFFFFFF)).isNull()
         assertThat(strips.frame(SpriteRef("missing", 0), 0xFFFFFF)).isNull()
+    }
+
+    @Test
+    fun `particle replay expands along_path streaks and carries direction`() {
+        val emission = VfxParticleEmission(
+            tick = 2,
+            offset = Vec3(0.0, 0.0, 2.0),
+            pathOffsets = listOf(Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 2.0)),
+            tangent = Vec3(0.0, 0.0, 1.0),
+        )
+        val element = VfxElementPlan(
+            elementId = "streak",
+            slot = 0,
+            kind = VfxElementKind.Particle(ParticleId("streak"), alongPath = true),
+            brightness = null,
+            glowArgb = null,
+            billboard = DisplayBillboard.FIXED,
+            viewRange = null,
+            spawnTick = 0,
+            despawnTick = 5,
+            initial = DisplayTransform.IDENTITY,
+            updates = emptyList(),
+            particles = listOf(emission),
+        )
+        val replay = PlanReplay(VfxPlan(Vec3.ZERO, 5, false, listOf(element)))
+        val live = replay.particles(3)
+        assertThat(live).hasSize(2)
+        assertThat(live.map { it.position.z }).containsExactly(1.0, 2.0)
+        assertThat(live.first().direction).isEqualTo(Vec3(0.0, 0.0, 1.0))
+        assertThat(live.first().age).isEqualTo(1)
     }
 
     private fun differingPixels(a: BufferedImage, b: BufferedImage): Int {

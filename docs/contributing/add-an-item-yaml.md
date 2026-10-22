@@ -86,10 +86,11 @@ glint: null                             # null=follow vanilla; true/false=force
 # Skill bindings - 複数可。`trigger` は player input、`skill_id` は
 # content/skills/<id>.yaml を id 参照。`cooldown_override_ticks` で binding
 # 単位の cooldown 上書き可。
-# trigger: left_click | right_click | sneak_left | sneak_right | hold | drop | shoot
-#   - sneak_* は無ければ通常の left/right_click に fallback (具体的な方が優先)
+# trigger: left_click | right_click | sneak_left | sneak_right | hold | drop | sneak_drop | shoot
+#   - sneak_* は無ければ通常の left/right_click/drop に fallback (具体的な方が優先)
 #   - hold = 右クリック押しっぱなしの 2 回目以降 (無ければ right_click に fallback)
-#   - drop = Q キー。bind すると drop は cancel される (リロード用)
+#   - drop = Q キー = E.G.O 枠 (究極技、skill 側 `ego_cost: 100`)。bind すると drop は cancel される
+#   - sneak_drop = Shift+Q = 銃のリロード (`pistol-reload`)
 #   - shoot = 弓/クロスボウの発射
 skills:
   - trigger: left_click
@@ -138,12 +139,8 @@ params:
 
 `SkillTrigger` enum で定義 (`plugin/core/.../domain/skill/SkillTrigger.kt`):
 
-`left_click`, `right_click`, `sneak_left`, `sneak_right`, `left_click_air`,
-`left_click_block`, `right_click_air`, `right_click_block`, `interact`,
-`shoot`, `block_break`, `consume`, `crouch`, `jump`, `sprint`, `drop`,
-`stack_drop`, `pickup`, `hyper`, `attack`, `shield`, `damaged`, `death`,
-`hold` (sustained press, channel-style), `auto` (scheduled), `system`
-(server-side fires)
+`left_click`, `right_click`, `sneak_left`, `sneak_right`, `hold` (右クリック押しっぱなし),
+`drop` (Q = E.G.O 枠), `sneak_drop` (Shift+Q = リロード), `shoot` (弓/クロスボウ)
 
 Phase 1 では `left_click` 系が確実に動く。他は Wave 6 で Paper-side
 BukkitEventAdapter に listener が追加される。

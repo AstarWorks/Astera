@@ -52,7 +52,7 @@ class SiegeModesScenarioTest {
                 advance(10)
                 return@repeat
             }
-            if (ammo(shooter) == 0) shooter.drop()
+            if (ammo(shooter) == 0) shooter.drop(sneaking = true)
             shooter.faces(victim)
             shooter.rightClick()
             advance(10)

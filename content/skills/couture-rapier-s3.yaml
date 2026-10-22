@@ -108,11 +108,11 @@ phases:
               sound_id: entity.player.attack.crit
               volume: { type: literal, value: 0.55 }
               pitch: { type: literal, value: 1.7 }
-        # finisher: the dome comes first so its poise gate still sees the stacks the damage then spends
+        # finisher: the dome fires one tick BEFORE the damage so its poise gate still sees the stacks the damage then spends
         - type: play_vfx
           targets: { type: target }
           vfx_id: couture-rapier-dome
-          delay_ticks: { type: literal, value: 16 }
+          delay_ticks: { type: literal, value: 15 }
           condition: { type: has_status, on: caster, status_id: poise, min_stacks: 3 }
         - type: damage
           targets: { type: target }

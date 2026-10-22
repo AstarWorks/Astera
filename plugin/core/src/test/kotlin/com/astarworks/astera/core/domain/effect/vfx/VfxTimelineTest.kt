@@ -481,6 +481,68 @@ class VfxTimelineTest {
         e.particles.forEachIndexed { i, em -> assertThat(em.offset.z).isCloseTo(2.0 * i, within(1e-9)) }
     }
 
+    @Test
+    fun `along_path particle elements emit the whole streak between emissions`() {
+        val p = plan(
+            definition(
+                element(
+                    kind = VfxElementKind.Particle(
+                        ParticleId("streak"),
+                        everyTicks = 1,
+                        alongPath = true,
+                        stepBlocks = 0.5,
+                        trailTo = Vec3(0.0, 2.0, 0.0),
+                    ),
+                    end = 5,
+                    keyframes = listOf(kf(0, translate = Vec3.ZERO), kf(4, translate = Vec3(0.0, 0.0, 4.0))),
+                ),
+            ),
+        )
+        val e = p.elements.single().particles
+        assertThat(e[0].pathOffsets).isEmpty()
+        // 1 block per tick, 0.5 spacing -> two points per tick, the last equal to the emission position
+        assertThat(e[2].pathOffsets).hasSize(2)
+        assertVec(e[2].pathOffsets.last(), 0.0, 0.0, e[2].offset.z)
+        assertThat(e[2].pathOffsets.first().z).isCloseTo(e[1].offset.z + 0.5, within(1e-6))
+        // direction of travel and the plan-relative trail target
+        assertVec(e[1].tangent!!, 0.0, 0.0, 1.0)
+        assertVec(e[1].trailTarget!!, 0.0, 2.0, 0.0)
+    }
+
+    @Test
+    fun `without along_path no path points are planned and a still element has no tangent`() {
+        val p = plan(
+            definition(
+                element(
+                    kind = VfxElementKind.Particle(ParticleId("still")),
+                    end = 3,
+                    keyframes = listOf(kf(0, translate = Vec3(1.0, 0.0, 0.0))),
+                ),
+            ),
+        )
+        p.elements.single().particles.forEach {
+            assertThat(it.pathOffsets).isEmpty()
+            assertThat(it.tangent).isNull()
+            assertThat(it.trailTarget).isNull()
+        }
+    }
+
+    @Test
+    fun `formation particle elements carry the formation centre for outward velocity`() {
+        val p = plan(
+            definition(
+                element(
+                    kind = VfxElementKind.Particle(ParticleId("ring-sparks")),
+                    end = 2,
+                    count = 2,
+                    formation = VfxFormation(Curve.Arc(2.0, 0.0, 180.0), offset = Vec3(0.0, 1.0, 0.0)),
+                    keyframes = listOf(kf(0)),
+                ),
+            ),
+        )
+        p.elements.forEach { el -> el.particles.forEach { assertVec(it.center!!, 0.0, 1.0, 0.0) } }
+    }
+
     // ---- group keyframes -------------------------------------------------------
 
     @Test

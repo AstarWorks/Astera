@@ -206,13 +206,23 @@ public sealed interface VfxElementKind {
         }
     }
 
-    /** No entity: emits a `content/particles` id at the element position every [everyTicks]. */
+    /**
+     * No entity: emits a `content/particles` id at the element position every [everyTicks].
+     *
+     * [alongPath] also emits at [stepBlocks] spacing between the previous and the current emission
+     * position (a continuous streak instead of one dot per tick). [trailTo] is an offset from the anchor
+     * origin handed to the particle as its `toward` target (`trail` / `vibration` data).
+     */
     public data class Particle(
         public val particleId: ParticleId,
         public val everyTicks: Int = 1,
+        public val alongPath: Boolean = false,
+        public val stepBlocks: Double = 0.4,
+        public val trailTo: Vec3? = null,
     ) : VfxElementKind {
         init {
             require(everyTicks >= 1) { "VfxElementKind.Particle.everyTicks must be >= 1: $everyTicks" }
+            require(stepBlocks > 0.0) { "VfxElementKind.Particle.stepBlocks must be > 0: $stepBlocks" }
         }
     }
 }

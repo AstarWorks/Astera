@@ -85,11 +85,21 @@ class ItemSkillTriggerListenerTest {
     }
 
     @Test
-    fun `drop fires reload and is consumed`() {
-        bind(SkillTrigger.RIGHT_CLICK to "shot", SkillTrigger.DROP to "reload")
+    fun `drop fires the E_G_O skill and sneak drop fires reload, both consumed`() {
+        bind(SkillTrigger.RIGHT_CLICK to "shot", SkillTrigger.DROP to "ego", SkillTrigger.SNEAK_DROP to "reload")
 
         assertThat(listener.handle(input(InputKind.DROP))).isTrue()
-        assertThat(casts()).containsExactly("reload")
+        assertThat(casts()).containsExactly("ego")
+        assertThat(listener.handle(input(InputKind.DROP, sneaking = true))).isTrue()
+        assertThat(casts()).containsExactly("ego", "reload")
+    }
+
+    @Test
+    fun `sneak drop falls back to the plain drop binding`() {
+        bind(SkillTrigger.DROP to "ego")
+
+        assertThat(listener.handle(input(InputKind.DROP, sneaking = true))).isTrue()
+        assertThat(casts()).containsExactly("ego")
     }
 
     @Test

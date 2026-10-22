@@ -25,6 +25,7 @@ public object AdminIntents {
     public const val CURRENCY_PREFIX: String = "admin.currency."
     public const val COMBAT_PREFIX: String = "admin.combat."
     public const val SKILLS_PREFIX: String = "admin.skills."
+    public const val CMD_PREFIX: String = "admin.cmd."
 }
 
 /** Shared widgets and the open-or-update helper for panel pages. */

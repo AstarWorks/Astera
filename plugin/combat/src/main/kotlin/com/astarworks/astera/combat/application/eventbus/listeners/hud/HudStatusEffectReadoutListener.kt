@@ -1,6 +1,7 @@
 package com.astarworks.astera.combat.application.eventbus.listeners.hud
 
 import com.astarworks.astera.combat.application.port.outbound.IStatusEffectContainer
+import com.astarworks.astera.core.application.port.outbound.IEgoGauge
 import com.astarworks.astera.core.application.port.outbound.IHudGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerSessionRepository
 import com.astarworks.astera.core.application.port.outbound.IScheduler
@@ -16,7 +17,8 @@ import org.slf4j.LoggerFactory
 /**
  * The action bar's one persistent owner: the combat readout (WP14, ADR-0177).
  *
- * Shows the active status effects (name, `xN` when stacked). Cooldowns left this
+ * Shows the E.G.O gauge (ADR-0231; `E.G.O n/max`, `E.G.O READY` when full) and the
+ * active status effects (name, `xN` when stacked). Cooldowns left this
  * line in ADR-0197: they are per-binding icons on the status line now, so this
  * class (`HudUpdateOnCooldownTickListener` until then) only reads effects.
  *
@@ -38,6 +40,8 @@ public class HudStatusEffectReadoutListener(
     private val scheduler: IScheduler,
     private val statusEffects: IStatusEffectContainer,
     pollPeriodTicks: Long = DEFAULT_POLL_PERIOD_TICKS,
+    /** ADR-0231: when set, the E.G.O gauge is the first segment of the readout while it holds anything. */
+    private val egoGauge: IEgoGauge? = null,
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -82,8 +86,22 @@ public class HudStatusEffectReadoutListener(
     private fun render(playerId: PlayerId): HudLayout.ActionBar? {
         val parts = mutableListOf<HudComponent>()
 
+        val ego = egoGauge
+        val egoValue = ego?.value(playerId) ?: 0
+        if (ego != null && egoValue > 0) {
+            parts += if (egoValue >= ego.config.max) {
+                HudComponent.Text(messageKey = KEY_EGO_READY, color = HudColor.GOLD)
+            } else {
+                HudComponent.Text(
+                    messageKey = KEY_EGO_GAUGE,
+                    color = HudColor.LIGHT_PURPLE,
+                    placeholders = mapOf("value" to egoValue.toString(), "max" to ego.config.max.toString()),
+                )
+            }
+        }
+
         for ((index, effect) in statusEffects.active(playerId).take(MAX_EFFECTS).withIndex()) {
-            if (index > 0) parts += HudComponent.Text(messageKey = KEY_SEPARATOR)
+            if (index > 0 || parts.isNotEmpty()) parts += HudComponent.Text(messageKey = KEY_SEPARATOR)
             // Harmful effects read red, beneficial ones green; stacks and seconds left follow the name.
             parts += HudComponent.Text(
                 messageKey = effect.spec.displayNameKey,
@@ -130,6 +148,8 @@ public class HudStatusEffectReadoutListener(
 
         private val KEY_STACKS: MessageKey = MessageKey("astera.hud.status.stacks")
         private val KEY_SECONDS: MessageKey = MessageKey("astera.hud.status.seconds")
+        private val KEY_EGO_GAUGE: MessageKey = MessageKey("astera.hud.ego.gauge")
+        private val KEY_EGO_READY: MessageKey = MessageKey("astera.hud.ego.ready")
         private val KEY_SEPARATOR: MessageKey = MessageKey("astera.hud.status.separator")
     }
 }

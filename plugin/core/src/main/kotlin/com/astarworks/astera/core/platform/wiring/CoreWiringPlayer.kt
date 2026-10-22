@@ -17,6 +17,7 @@ import com.astarworks.astera.core.application.port.outbound.mob.IPveLootDistribu
 import com.astarworks.astera.core.application.port.outbound.mob.IPveXpDistributor
 import com.astarworks.astera.core.application.port.outbound.IPlayerFoodGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
+import com.astarworks.astera.core.application.port.outbound.IEgoGauge
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IResourceRegenScheduler
 import com.astarworks.astera.core.application.port.outbound.IPlayerPvpStateService
@@ -39,10 +40,14 @@ import com.astarworks.astera.core.application.service.InMemoryPlayerFoodGateway
 import com.astarworks.astera.core.application.service.InMemoryPlayerHealthGateway
 import com.astarworks.astera.core.application.service.InMemoryPlayerSpeedGateway
 import com.astarworks.astera.core.application.service.InMemoryPlayerPvpStateService
+import com.astarworks.astera.core.application.service.EgoConfigLoader
+import com.astarworks.astera.core.application.service.InMemoryEgoGauge
 import com.astarworks.astera.core.application.service.InMemoryResourcePoolService
 import com.astarworks.astera.core.application.service.InMemorySpawnProtectionGateway
 import com.astarworks.astera.core.application.port.outbound.IPlayerSpeedGateway
+import com.astarworks.astera.core.domain.event.PlayerEnteredMatch
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
+import com.astarworks.astera.core.domain.event.PlayerQuitServer
 import com.astarworks.astera.core.application.services.register
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.i18n.MessageKey
@@ -126,6 +131,17 @@ internal fun CoreWiringState.wirePlayerSystems() {
         resourcePool.initialiseFor(event.playerId)
         resourceRegen.trackPlayer(event.playerId)
     }
+
+    // ADR-0231: the E.G.O gauge. Tuning from content/balance/ego.yaml; emptied on
+    // match entry (combat resets it on death); drains once a second out of combat.
+    val egoGauge: IEgoGauge =
+        InMemoryEgoGauge(scheduler, eventBus, EgoConfigLoader().load(contentDir.resolve("balance/ego.yaml")))
+    services.register<IEgoGauge>(egoGauge, priority = 0)
+    scheduler.runRepeatingTicks(initialDelayTicks = 20L, periodTicks = 20L) {
+        egoGauge.decay(scheduler.currentTick())
+    }
+    wave5completeSubs += eventBus.subscribe(PlayerEnteredMatch::class) { egoGauge.reset(it.playerId) }
+    wave5completeSubs += eventBus.subscribe(PlayerQuitServer::class) { egoGauge.reset(it.playerId) }
 
     // ---- Wave 5o (ADR-0081) Respawn / Spawn protection / PvP toggle -----
     // ISpawnProtectionGateway: per-player invulnerability window with TTL

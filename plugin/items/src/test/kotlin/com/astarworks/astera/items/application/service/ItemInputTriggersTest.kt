@@ -30,9 +30,11 @@ class ItemInputTriggersTest {
     }
 
     @Test
-    fun `drop and shoot map one to one`() {
-        assertThat(ItemInputTriggers.candidates(InputKind.DROP, sneaking = true))
+    fun `drop maps to DROP and sneaking drop prefers SNEAK_DROP then falls back, shoot is one to one`() {
+        assertThat(ItemInputTriggers.candidates(InputKind.DROP, sneaking = false))
             .containsExactly(SkillTrigger.DROP)
+        assertThat(ItemInputTriggers.candidates(InputKind.DROP, sneaking = true))
+            .containsExactly(SkillTrigger.SNEAK_DROP, SkillTrigger.DROP)
         assertThat(ItemInputTriggers.candidates(InputKind.SHOOT, sneaking = false))
             .containsExactly(SkillTrigger.SHOOT)
     }

@@ -591,6 +591,7 @@ public object CombatWiring {
                 resourcePool = services.get<com.astarworks.astera.core.application.port.outbound.IResourcePoolService>(),
                 items = services.get<com.astarworks.astera.core.application.port.outbound.IItemRegistry>(),
                 poseLookup = services.get<com.astarworks.astera.core.application.port.outbound.IPlayerPoseLookup>(),
+                egoGauge = services.get<com.astarworks.astera.core.application.port.outbound.IEgoGauge>(),
                 // skillCastDispatcher injected after construction below to
                 // break the wiring cycle (dispatcher needs ProjectileHandler
                 // which needs the projectile service which we resolve next).
@@ -699,6 +700,14 @@ public object CombatWiring {
             val assistAttribution = AssistAttributionUseCase(damageHistory, eventBus)
             subscriptions += eventBus.subscribe(DamageDealt::class) { damageHistoryListener.handle(it) }
             subscriptions += eventBus.subscribe(PlayerKilled::class) { assistAttribution.handle(it) }
+
+            // ADR-0231 — E.G.O gauge: fills on hits dealt / taken, empties on death.
+            services.get<com.astarworks.astera.core.application.port.outbound.IEgoGauge>()?.let { gauge ->
+                val egoListener = com.astarworks.astera.combat.application.eventbus.listeners.ego
+                    .EgoGaugeCombatListener(gauge)
+                subscriptions += eventBus.subscribe(DamageDealt::class) { egoListener.onDamage(it) }
+                subscriptions += eventBus.subscribe(PlayerKilled::class) { egoListener.onKilled(it) }
+            }
             if (statusContainer != null) {
                 val clearStatuses = com.astarworks.astera.combat.application.eventbus.listeners.status
                     .ClearStatusesOnPlayerKilledListener(statusContainer)

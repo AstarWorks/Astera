@@ -17,7 +17,10 @@ package com.astarworks.astera.core.domain.skill
  *   repeats when the item binds it, otherwise repeats fall back to
  *   [RIGHT_CLICK]. Not emitted for items vanilla treats as "using" (bow,
  *   crossbow, food, shield) because those do not re-send the click.
- * - [DROP] — drop key (Q). The drop is cancelled when bound; used as reload.
+ * - [DROP] — drop key (Q). The drop is cancelled when bound. The persona E.G.O
+ *   slot (ADR-0231): the per-weapon ultimate, usually `ego_cost: 100`.
+ * - [SNEAK_DROP] — drop key while sneaking (Shift+Q). Gun reload. If an item has
+ *   no sneak-drop binding, sneaking + Q fires the plain [DROP] binding instead.
  * - [SHOOT] — bow / crossbow release.
  *
  * Promoted from `:plugin:combat` to `:plugin:core` in Wave _items-1
@@ -31,5 +34,6 @@ public enum class SkillTrigger {
     SNEAK_RIGHT,
     HOLD,
     DROP,
+    SNEAK_DROP,
     SHOOT,
 }
