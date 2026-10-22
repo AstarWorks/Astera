@@ -82,6 +82,20 @@ class ShopOwnershipAndBrowseTest {
     private fun slot(i: Int) = spec().slotAt(SlotIndex(i))
 
     @Test
+    fun `shop command errors supply the localized shop placeholder`() = kotlinx.coroutines.runBlocking {
+        val command = com.astarworks.astera.economy.command.buildShopCommandSpec(browse)
+        for (id in listOf("missing-shop", "INVALID")) {
+            val context = com.astarworks.astera.core.application.command.CommandContext(
+                sender = playerId,
+                args = mapOf("shop-id" to id),
+                scheduler = com.astarworks.astera.testfixtures.FakeScheduler(),
+            )
+            val failure = command.executor!!(context) as com.astarworks.astera.core.application.command.CommandResult.Failure
+            assertThat(failure.placeholders).containsEntry("shop", id)
+        }
+    }
+
+    @Test
     fun `authored offer display key overrides the catalog name in the shop`() {
         val key = MessageKey("astera.shop.special-offer")
         register(offer("o", "sword").copy(displayKey = key))

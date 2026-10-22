@@ -30,6 +30,24 @@ class ShopScenarioTest {
         dispatch(who, "shop.purchase", "shop_id" to "example-shop", "offer_id" to offer)
 
     @Test
+    fun `shop command errors render the requested id in both languages`() {
+        scenario("shop-command-errors") {
+            val buyer = player("buyer")
+            val messages = sim.services.getOrThrow<com.astarworks.astera.core.application.port.outbound.IMessageRenderer>()
+            for (locale in listOf("en", "ja")) {
+                sim.command("buyer", "lang $locale")
+                for (id in listOf("missing-shop", "INVALID")) {
+                    val run = sim.command("buyer", "shop $id")
+                    val executed = run.outcome as com.astarworks.astera.core.application.command.CommandTreeRunner.Outcome.Executed
+                    val failure = executed.result as com.astarworks.astera.core.application.command.CommandResult.Failure
+                    val rendered = messages.render(buyer.id, failure.messageKey, failure.placeholders)
+                    assertThat(rendered).contains(id).doesNotContain("{shop}")
+                }
+            }
+        }
+    }
+
+    @Test
     fun `shop offer display key reaches the GUI through the production intent`() {
         scenario("shop-offer-display-key") {
             val buyer = player("buyer")
