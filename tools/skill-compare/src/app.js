@@ -27,6 +27,7 @@ function init(d) {
   S.fps = d.media.ready ? d.media.fps : 30;
   S.frameCount = d.media.ready ? d.media.frameCount : Math.floor((S.dur * S.fps) / 1000);
   S.saved = JSON.stringify(S.c);
+  if (d.weapon) { const c = $("crumb"); c.textContent = ""; const a1 = document.createElement("a"); a1.href = "/"; a1.innerHTML = "&larr; 武器一覧"; const a2 = document.createElement("a"); a2.href = "/#w-" + d.weapon.id; a2.textContent = d.weapon.ja || d.weapon.id; c.append(a1, " / ", a2, ` / ${d.weapon.slot}`); }
   document.title = (S.c.skill.name || caseId) + " - skill compare";
   $("title").textContent = S.c.skill.name || caseId;
   $("sub").textContent = `video ${S.c.videoId} ${S.c.start_s}-${S.c.end_s} s @ ${S.fps} fps - Astera ${S.c.skill.asteraSkillId || "-"} - ${S.c.skill.coins ?? "?"} coins`;

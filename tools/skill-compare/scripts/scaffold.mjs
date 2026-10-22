@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { CASE_ID_RE, VIDEO_ID_RE } from "../src/timeline.js";
 
 const HERE = join(dirname(fileURLToPath(import.meta.url)), "..");
-const [id, videoId, start, end, skillId, name, coins] = process.argv.slice(2);
+const [id, videoId, start, end, skillId, name, coins, identity, weapon, videoTitle] = process.argv.slice(2);
 const start_s = Number(start), end_s = Number(end);
 const usage = "usage: bun scripts/scaffold.mjs <case> <videoId> <start_s> <end_s> <asteraSkillId> [name] [coins]";
 if (!CASE_ID_RE.test(id ?? "") || !VIDEO_ID_RE.test(videoId ?? "") || !(end_s > start_s) || !/^[a-z0-9][a-z0-9-]{0,63}$/.test(skillId ?? "")) {
@@ -21,7 +21,7 @@ mkdirSync(dir, { recursive: true });
 const write = (f, o) => writeFileSync(join(dir, f), JSON.stringify(o, null, 2) + "\n");
 const ticks = Math.round((end_s - start_s) * 20);
 write("case.json", {
-  id, rev: 0, videoId, start_s, end_s,
+  id, rev: 0, videoId, start_s, end_s, identity: identity || "", weapon: weapon || "", videoTitle: videoTitle || "", status: "analysed", iterations: 0, report: "",
   skill: { name: name || skillId, coins: Number(coins || 0), asteraSkillId: skillId },
   intent: { file: "intent.json" },
   mc: { source: "vfx-compare", offset_ms: 0, castTickInTrace: 5 },
