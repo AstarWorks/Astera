@@ -1,0 +1,289 @@
+{
+  "parts": [
+    {
+      "polygon": [
+        [
+          7.25,
+          -1
+        ],
+        [
+          8.75,
+          -1
+        ],
+        [
+          8.75,
+          23
+        ],
+        [
+          7.25,
+          23
+        ]
+      ],
+      "depth": 1.5,
+      "z": 8,
+      "color": "#283c44"
+    },
+    {
+      "polygon": [
+        [
+          7,
+          1
+        ],
+        [
+          9,
+          1
+        ],
+        [
+          9,
+          10
+        ],
+        [
+          7,
+          10
+        ]
+      ],
+      "depth": 2,
+      "z": 8,
+      "color": "#26313d"
+    },
+    {
+      "polygon": [
+        [
+          6.5,
+          0
+        ],
+        [
+          9.5,
+          0
+        ],
+        [
+          9.5,
+          0.8
+        ],
+        [
+          6.5,
+          0.8
+        ]
+      ],
+      "depth": 3,
+      "z": 8,
+      "color": "#d8ab50"
+    },
+    {
+      "polygon": [
+        [
+          6.5,
+          10
+        ],
+        [
+          9.5,
+          10
+        ],
+        [
+          9.5,
+          10.8
+        ],
+        [
+          6.5,
+          10.8
+        ]
+      ],
+      "depth": 3,
+      "z": 8,
+      "color": "#d8ab50"
+    },
+    {
+      "polygon": [
+        [
+          6.5,
+          19.5
+        ],
+        [
+          9.5,
+          19.5
+        ],
+        [
+          9.5,
+          20.3
+        ],
+        [
+          6.5,
+          20.3
+        ]
+      ],
+      "depth": 3,
+      "z": 8,
+      "color": "#d8ab50"
+    },
+    {
+      "polygon": [
+        [
+          0,
+          21
+        ],
+        [
+          1,
+          20
+        ],
+        [
+          15,
+          20
+        ],
+        [
+          16,
+          21
+        ],
+        [
+          16,
+          25
+        ],
+        [
+          15,
+          26
+        ],
+        [
+          1,
+          26
+        ],
+        [
+          0,
+          25
+        ]
+      ],
+      "depth": 6,
+      "z": 8,
+      "color": "#273541"
+    },
+    {
+      "polygon": [
+        [
+          2,
+          19.75
+        ],
+        [
+          3.25,
+          19.75
+        ],
+        [
+          3.25,
+          26.25
+        ],
+        [
+          2,
+          26.25
+        ]
+      ],
+      "depth": 6.5,
+      "z": 8,
+      "color": "#e4b759"
+    },
+    {
+      "polygon": [
+        [
+          12.75,
+          19.75
+        ],
+        [
+          14.0,
+          19.75
+        ],
+        [
+          14.0,
+          26.25
+        ],
+        [
+          12.75,
+          26.25
+        ]
+      ],
+      "depth": 6.5,
+      "z": 8,
+      "color": "#e4b759"
+    },
+    {
+      "polygon": [
+        [
+          8,
+          20.8
+        ],
+        [
+          10.2,
+          23
+        ],
+        [
+          8,
+          25.2
+        ],
+        [
+          5.8,
+          23
+        ]
+      ],
+      "depth": 0.5,
+      "z": 11.25,
+      "color": "#efc46c"
+    },
+    {
+      "polygon": [
+        [
+          8,
+          21.45
+        ],
+        [
+          9.55,
+          23
+        ],
+        [
+          8,
+          24.55
+        ],
+        [
+          6.45,
+          23
+        ]
+      ],
+      "depth": 0.5,
+      "z": 11.65,
+      "color": "#35cabd"
+    }
+  ],
+  "item": "verdict-hammer",
+  "brief": "Astera: bold silhouette, top-left pixel highlights, readable held prop. Preserve the source weapon identity; use true volume and restrained material trims.",
+  "source_sha256": "43cc69e4b7d4de59611de946e94bcb650be69d8a3cd4b58c5fd10fd5589c2744",
+  "provenance": "Codex-authored polygon construction drawing from existing AI sheet; no model render input",
+  "camera": {
+    "center": [
+      8,
+      13,
+      8
+    ],
+    "span": 36,
+    "views": {
+      "front": [
+        0,
+        0,
+        0
+      ],
+      "side": [
+        0,
+        -90,
+        0
+      ],
+      "top": [
+        90,
+        0,
+        0
+      ],
+      "iso": [
+        20,
+        -30,
+        0
+      ]
+    }
+  },
+  "key": [
+    255,
+    0,
+    255
+  ]
+}
