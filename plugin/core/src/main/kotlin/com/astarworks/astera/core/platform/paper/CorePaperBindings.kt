@@ -420,6 +420,12 @@ internal class CorePaperBindings(
             eventBus = result.eventBus,
             playerHealthGateway = highestPriorityPlayerHealthGateway,
             scheduler = scheduler,
+            // ADR-0237: a mob kill counts only for a match participant (the lookup is registered by Match, later).
+            mobKillContext = { killer ->
+                com.astarworks.astera.core.application.service.combat.CombatContextResolver {
+                    ctx.services.get<com.astarworks.astera.core.application.port.outbound.IMatchTeamLookup>()
+                }.againstEntity(killer)
+            },
         )
         // Never let the lobby world fail Core's onEnable (it would disable every Astera plugin).
         runCatching { installLobbyWorld(ctx) }

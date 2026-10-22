@@ -300,6 +300,7 @@ internal fun CoreWiringState.wireServerHardenAndLobby() {
             playerGateway = playerGateway,
             levels = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerLevelView>() },
             stats = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerStatsRepository>() },
+            unlocks = { services.get<com.astarworks.astera.core.application.port.outbound.IPlayerUnlockView>() },
             wallet = { services.get<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>() },
         )
     waveGRegistrations += waveGRouter.register(

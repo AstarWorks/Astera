@@ -477,6 +477,17 @@ class Bot private constructor(
         ServerboundPlayerActionPacket(PlayerAction.SWAP_HANDS, Vector3i.from(0, 0, 0), Direction.DOWN, 0),
     )
 
+    /**
+     * Breaks the block at ([bx],[by],[bz]) like a client does: START_DIGGING, hold, FINISH_DIGGING. The server
+     * decides whether the block really breaks (tool speed, game mode) or an objective consumes the hit instead.
+     */
+    fun dig(bx: Int, by: Int, bz: Int, holdMs: Long = 300) {
+        val pos = Vector3i.from(bx, by, bz)
+        session.send(ServerboundPlayerActionPacket(PlayerAction.START_DIGGING, pos, Direction.UP, sequence.getAndIncrement()))
+        Thread.sleep(holdMs)
+        session.send(ServerboundPlayerActionPacket(PlayerAction.FINISH_DIGGING, pos, Direction.UP, sequence.getAndIncrement()))
+    }
+
     /** A raw inventory-window click as a client would send it (no predicted slot changes). */
     fun clickSlot(containerId: Int, slot: Int, type: ContainerActionType, param: ContainerAction) = session.send(
         ServerboundContainerClickPacket(containerId, stateIds[containerId] ?: 0, slot, type, param, null, emptyMap<Int, HashedStack?>()),
@@ -578,7 +589,7 @@ class Bot private constructor(
             packPolicy: PackPolicy = PackPolicy.LOAD,
             locale: String = "en_us",
             waitForJoin: Boolean = true,
-            endpoint: Endpoint = Endpoint(E2eEnv.host, E2eEnv.port),
+            endpoint: Endpoint = E2eEnv.botEndpoint,
             servers: Map<String, Endpoint> = emptyMap(),
             exactName: String? = null,
         ): Bot {

@@ -33,8 +33,7 @@ import java.util.concurrent.ConcurrentHashMap
  *
  * Per player: STAR and GOLD go through [DepositUseCase] (reason `MatchReward`),
  * XP through [GrantXpUseCase] (source `MatchWin` for a win, `MatchParticipation`
- * otherwise; `DepositOnXpListener` ignores those two so XP is not paid twice as
- * STAR), then a breakdown goes to chat, the [LastMatchRecord] is saved to the
+ * otherwise; XP never converts to STAR on top, ADR-0235), then a breakdown goes to chat, the [LastMatchRecord] is saved to the
  * shared player store, and finally one [MatchRewardsGranted] is published.
  *
  * "Once" is per match: a second [MatchSummaryReady] for the same match id is

@@ -55,7 +55,7 @@ internal object SemanticChecks {
                 checkRef(node, "particle_id", known.particles, "particle", path, errors)
                 checkRef(node, "skill_id", known.skills, "skill", path, errors)
                 checkRef(node, "vfx_id", known.vfx, "vfx", path, errors)
-                // ADR-0237: only a vfx element kind (`type: sprite`) carries a sprite reference.
+                // ADR-0239: only a vfx element kind (`type: sprite`) carries a sprite reference.
                 if (type == "sprite") checkRef(node, "sprite", known.sprites, "sprite", path, errors)
                 for ((key, child) in node.properties()) {
                     // `params.type` is the archetype discriminator (projectile,

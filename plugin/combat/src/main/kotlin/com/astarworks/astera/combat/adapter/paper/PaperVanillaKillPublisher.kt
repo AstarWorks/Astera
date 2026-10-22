@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap
 public class PaperVanillaKillPublisher(
     private val eventBus: IDomainEventBus,
     private val scheduler: IScheduler,
-    private val resolver: VanillaKillResolver = VanillaKillResolver(),
+    private val resolver: VanillaKillResolver,
 ) : Listener {
 
     private val log = LoggerFactory.getLogger(javaClass)

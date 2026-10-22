@@ -48,6 +48,7 @@ public class AuditCurrencyMovementListener(
             is CurrencyChangeReason.Transfer -> "transfer:${reason.counterpartyId.uuid}"
             CurrencyChangeReason.MatchReward -> "match_reward"
             CurrencyChangeReason.MissionReward -> "mission_reward"
+            is CurrencyChangeReason.LevelReward -> "level_reward:${reason.level}"
             CurrencyChangeReason.LoginBonus -> "login_bonus"
             CurrencyChangeReason.AdminGrant -> "admin_grant"
             CurrencyChangeReason.TutorialReward -> "tutorial_reward"

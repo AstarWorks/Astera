@@ -83,7 +83,7 @@ public class VfxPlayer(
     private val emitParticle: (VfxParticleCall) -> Unit,
     private val log: Logger,
     private val maxLiveDisplays: Int = MAX_LIVE_DISPLAYS,
-    /** Flipbook frame counts for `sprite` elements (ADR-0237); unknown sprites play as one frame. */
+    /** Flipbook frame counts for `sprite` elements (ADR-0239); unknown sprites play as one frame. */
     private val sprites: SpriteFrames = SpriteFrames.NONE,
 ) {
 

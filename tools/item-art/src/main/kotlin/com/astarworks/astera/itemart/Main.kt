@@ -15,7 +15,7 @@ import kotlin.system.exitProcess
  *
  *  - `write <contentDir> <previewPng>`  regenerate the committed art + the contact sheet
  *  - `check <contentDir>`               fail when the committed art is stale
- *  - `convert <image> <outDir> [colors]`  convert one raster with every stage dumped (ADR-0236 tuning aid)
+ *  - `convert <image> <outDir> [colors]`  convert one raster with every stage dumped (ADR-0238 tuning aid)
  */
 public fun main(args: Array<String>) {
     when (args.firstOrNull()) {

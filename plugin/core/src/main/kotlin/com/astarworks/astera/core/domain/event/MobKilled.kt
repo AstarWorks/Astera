@@ -1,5 +1,6 @@
 package com.astarworks.astera.core.domain.event
 
+import com.astarworks.astera.core.domain.combat.CombatContext
 import com.astarworks.astera.core.domain.entity.EntityHandle
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.mob.MobTypeId
@@ -37,4 +38,6 @@ public data class MobKilled(
     public val atTick: Long,
     override val version: Int = 1,
     override val occurredAt: Instant = Instant.now(),
+    /** Where it happened (ADR-0237): `Match` only when the killer is a match participant; default is for tests. */
+    public val context: CombatContext = CombatContext.Match(),
 ) : DomainEvent

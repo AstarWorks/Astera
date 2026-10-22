@@ -1,4 +1,4 @@
-# Custom particle sprites (ADR-0237), tool-only. `./gradlew :tools:item-art:run` writes, per sprite id,
+# Custom particle sprites (ADR-0239), tool-only. `./gradlew :tools:item-art:run` writes, per sprite id,
 #   textures/generated/sprites/<id>.png   horizontal frame strip
 #   fonts/vfx/<id>.json                   bitmap font, frame i = U+E000 + i
 #   sprites/<id>.yaml                     runtime metadata (frame count)

@@ -10,7 +10,7 @@ import kotlin.math.sqrt
 
 /**
  * Turns any raster (an AI sheet cell, a hand-drawn PNG, a high-res render) into a [Sprite.SIZE] icon that
- * sits next to the code-drawn ones (ADR-0236). Deterministic, so the output can be checked in `check`.
+ * sits next to the code-drawn ones (ADR-0238). Deterministic, so the output can be checked in `check`.
  *
  * Stages (kept in [Stages] for the `convert` debug command):
  *  1. normalize   — key out the background colour flood-filled from the border, drop specks, crop

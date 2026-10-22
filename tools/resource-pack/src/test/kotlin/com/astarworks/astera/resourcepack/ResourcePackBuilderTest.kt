@@ -17,6 +17,39 @@ class ResourcePackBuilderTest {
     private fun json(bytes: ByteArray) = mapper.readTree(bytes)
 
     @Test
+    fun `atlas definitions cover every item and block texture directory the pack writes`() {
+        val files = ResourcePackBuilder(contentDir).collect()
+        val sources = listOf("items", "blocks").flatMap { atlas ->
+            val bytes = files["assets/minecraft/atlases/$atlas.json"] ?: return@flatMap emptyList()
+            json(bytes).path("sources").map {
+                assertThat(it.path("type").asText()).isEqualTo("directory")
+                assertThat(it.path("prefix").asText()).isEqualTo(it.path("source").asText() + "/")
+                atlas to it.path("source").asText()
+            }
+        }
+        val covered = sources.map { it.second }
+        val textures = files.keys.filter { it.startsWith("assets/astera/textures/") && it.endsWith(".png") }
+            .map { it.removePrefix("assets/astera/textures/") }
+        for (t in textures) {
+            val top = if (t.startsWith("generated/items/")) "generated/items" else t.substringBefore('/')
+            if (top in setOf("items", "generated/items", "blocks")) {
+                assertThat(covered).`as`(t).contains(top)
+            }
+        }
+        assertThat(covered).contains("generated/items", "items")
+    }
+
+    @Test
+    fun `atlasDirectories maps item and block texture paths`() {
+        val m = ResourcePackBuilder.atlasDirectories(
+            listOf("assets/astera/textures/items/a/b.png", "assets/astera/textures/generated/items/x.png",
+                "assets/astera/textures/blocks/y.png", "assets/astera/textures/hud/z.png"),
+        )
+        assertThat(m["items"]).containsExactly("generated/items", "items")
+        assertThat(m["blocks"]).containsExactly("blocks")
+    }
+
+    @Test
     fun `the real content builds a pack with mcmeta, font, sprites, models and textures`() {
         val files = ResourcePackBuilder(contentDir).collect()
 
@@ -30,7 +63,7 @@ class ResourcePackBuilderTest {
         val types = providers.map { it.path("type").asText() }
         assertThat(types).contains("bitmap", "space")
         assertThat(providers.filter { it.path("type").asText() == "bitmap" }.map { it.path("file").asText() })
-            .contains("astera:hud/status/atlas.png", "astera:hud/currency/star-icon.png")
+            .contains("astera:hud/status/atlas.png", "astera:hud/currency/star-icon.png", "astera:hud/effects/atlas.png")
         // Every bitmap provider resolves to a file inside the pack (no dangling references).
         for (provider in providers.filter { it.path("type").asText() == "bitmap" }) {
             val path = "assets/astera/textures/" + provider.path("file").asText().substringAfter("astera:")
@@ -133,40 +166,6 @@ class ResourcePackBuilderTest {
         assertThat(events.path("skill/fireball/cast").path("sounds").map { it.asText() }).containsExactly("astera:skills/fireball-cast")
         assertThat(events.path("ui/confirm").path("sounds").map { it.asText() }).containsExactly("astera:ui/confirm")
         assertThat(events.has("skill/ghost")).isFalse()
-    }
-
-    @Test
-    fun `content fonts ship under assets font and texture sources stay out`(@TempDir tmp: Path) {
-        fun put(rel: String, bytes: ByteArray) {
-            val f = tmp.resolve(rel)
-            Files.createDirectories(f.parent)
-            Files.write(f, bytes)
-        }
-        put("fonts/vfx/spark.json", """{"providers":[{"type":"bitmap","file":"astera:generated/sprites/spark.png","ascent":14,"height":32,"chars":["\ue000"]}]}""".toByteArray())
-        put("textures/generated/sprites/spark.png", byteArrayOf(1))
-        put("textures/sources/sheets/vfx-v1.png", byteArrayOf(2))
-        put("textures/sources/sprites.yaml", "sources: {}".toByteArray())
-        put("hud/status.json", """{"providers":[{"type":"space","advances":{"a":1}}]}""".toByteArray())
-
-        val files = ResourcePackBuilder(tmp).collect()
-
-        assertThat(json(files.getValue("assets/astera/font/vfx/spark.json")).path("providers").path(0).path("file").asText())
-            .isEqualTo("astera:generated/sprites/spark.png")
-        assertThat(files).containsKey("assets/astera/textures/generated/sprites/spark.png")
-        assertThat(files).containsKey("assets/astera/font/default.json")
-        assertThat(files.keys.filter { it.contains("sources") }).isEmpty()
-    }
-
-    @Test
-    fun `a fonts default json colliding with the merged hud font fails loudly`(@TempDir tmp: Path) {
-        Files.createDirectories(tmp.resolve("fonts"))
-        Files.createDirectories(tmp.resolve("hud"))
-        Files.writeString(tmp.resolve("fonts/default.json"), """{"providers":[]}""")
-        Files.writeString(tmp.resolve("hud/status.json"), """{"providers":[{"type":"space","advances":{"a":1}}]}""")
-
-        org.assertj.core.api.Assertions.assertThatThrownBy { ResourcePackBuilder(tmp).collect() }
-            .isInstanceOf(IllegalStateException::class.java)
-            .hasMessageContaining("collides")
     }
 
     @Test

@@ -14,7 +14,7 @@ import kotlin.math.pow
 import kotlin.math.sin
 
 /**
- * Code-drawn animated particle sprites (ADR-0237). Each painter evaluates an intensity field `v` in 0..1
+ * Code-drawn animated particle sprites (ADR-0239). Each painter evaluates an intensity field `v` in 0..1
  * per pixel and quantises it onto a 4-tone ramp derived from one base colour, so silhouettes are clean,
  * bright in the core and darker toward the rim, with binary alpha and no outline. Fully deterministic.
  *

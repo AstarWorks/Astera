@@ -7,6 +7,7 @@ import com.astarworks.astera.core.application.port.outbound.IItemRegistry
 import com.astarworks.astera.core.application.port.outbound.IPlayerHealthGateway
 import com.astarworks.astera.core.application.port.outbound.IResourcePoolService
 import com.astarworks.astera.core.application.port.outbound.IScheduler
+import com.astarworks.astera.core.application.port.outbound.IStatusEffectIconSource
 import com.astarworks.astera.core.application.port.outbound.runRepeatingTicks
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.event.PlayerJoinedServer
@@ -18,12 +19,13 @@ import com.astarworks.astera.core.domain.hud.HudLayout
 import com.astarworks.astera.core.domain.hud.status.AmmoReadoutLayout
 import com.astarworks.astera.core.domain.hud.status.CooldownHudLayout
 import com.astarworks.astera.core.domain.hud.status.HpBarLayout
+import com.astarworks.astera.core.domain.hud.status.StatusEffectHudLayout
 import com.astarworks.astera.core.domain.i18n.MessageKey
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.resource.ResourceType
-import org.slf4j.LoggerFactory
 import kotlin.math.ceil
 import kotlin.math.roundToInt
+import org.slf4j.LoggerFactory
 
 /**
  * The status line's one owner (ADR-0182): keeps every player's HP readout in
@@ -67,6 +69,7 @@ public class HpStatusHudService(
     scheduler: IScheduler,
     flushPeriodTicks: Long = FLUSH_PERIOD_TICKS,
     private val cooldownIcons: () -> ICooldownIconSource? = { null },
+    private val statusEffectIcons: () -> IStatusEffectIconSource? = { null },
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -136,7 +139,9 @@ public class HpStatusHudService(
         if (playerId in packLoaded) {
             val bar = HpBarLayout.render(hp, max)
             val block = if (ammo == null) bar else AmmoReadoutLayout.appendTo(bar, AmmoReadoutLayout.render(ammo.first, ammo.second))
-            return HudLayout.StatusLine(CooldownHudLayout.overlay(block, cooldowns), anchorLeftPx = HpBarLayout.HEARTS_LEFT_PX)
+            val withCooldowns = CooldownHudLayout.overlay(block, cooldowns)
+            val withEffects = StatusEffectHudLayout.overlay(withCooldowns, statusEffectIcons()?.entriesFor(playerId).orEmpty())
+            return HudLayout.StatusLine(withEffects, anchorLeftPx = HpBarLayout.HEARTS_LEFT_PX)
         }
         val maxInt = max.roundToInt().coerceAtLeast(1)
         val placeholders = mutableMapOf(

@@ -434,6 +434,7 @@ public object CombatWiring {
         val projectileService: IProjectileService = ports.projectileService(services)
         registrations += services.register<IProjectileService>(projectileService, priority = 100)
         val teamLookup = services.get<IMatchTeamLookup>()
+        val combatContexts = com.astarworks.astera.core.application.service.combat.CombatContextResolver { services.get<IMatchTeamLookup>() }
         val damageRule = DamageRule(
             elementMatrix = elementMatrix,
             modifiers = listOf(
@@ -487,6 +488,8 @@ public object CombatWiring {
                 entityDamageGateway = entityDamageGateway,
                 godMode = godModeService,
                 protection = trainingProtection,
+                // ADR-0237: Match registers IMatchTeamLookup after Combat enables, so resolve per call.
+                contexts = combatContexts,
             )
 
             // Wave 6e-N1 (ADR-0164): the explosion overlay is wired with

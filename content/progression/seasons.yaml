@@ -1,0 +1,7 @@
+# UTC instants; non-overlapping windows in chronological order.
+# `next` labels the fresh leaderboard partition opened when this window ends.
+seasons:
+  - id: preseason-2026
+    start: "2026-10-01T00:00:00Z"
+    end: "2027-01-01T00:00:00Z"
+    next: "Season 2027 Q1"

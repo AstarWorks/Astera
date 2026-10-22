@@ -293,7 +293,7 @@ class Renderer(
         val tx = AffineTransform(ex[0] - o[0], ex[1] - o[1], ey[0] - o[0], ey[1] - o[1], o[0], o[1])
         val sprite = t.styled.sprite?.let { sprites.frame(it, t.styled.rgb) }
         if (sprite != null) {
-            // Font glyph (ADR-0237): H px square, centred on the display origin by ascent = H/2 - 2.
+            // Font glyph (ADR-0239): H px square, centred on the display origin by ascent = H/2 - 2.
             out += Drawable(camera.depth(t.center) - 0.0005) { g ->
                 val old = g.transform
                 val hint = g.getRenderingHint(RenderingHints.KEY_INTERPOLATION)

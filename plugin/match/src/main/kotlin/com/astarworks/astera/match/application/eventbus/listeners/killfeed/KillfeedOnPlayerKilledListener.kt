@@ -43,6 +43,7 @@ public class KillfeedOnPlayerKilledListener(
     private val log = LoggerFactory.getLogger(javaClass)
 
     public fun handle(event: PlayerKilled) {
+        if (!event.context.countsForProgression) return // ADR-0235: only match kills are announced
         val match = matches.findMatchOf(event.victim) ?: return
         val killer = event.killer?.takeIf { it != event.victim }
 

@@ -206,7 +206,7 @@ public sealed interface VfxElementKind {
     }
 
     /**
-     * Custom particle sprite (ADR-0237): a flipbook of font glyphs shown on a TextDisplay. [VfxTimeline.plan]
+     * Custom particle sprite (ADR-0239): a flipbook of font glyphs shown on a TextDisplay. [VfxTimeline.plan]
      * resolves it into a [Text] kind plus timed text swaps, so runtimes need no sprite-specific display.
      * Frame `k` shows for [frameTicks] ticks; [loop] wraps after the last frame, otherwise it stays there.
      * [colorArgb] tints the glyph (`null` / white = the texture's own colours).

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate an item-icon or particle-animation sheet with an image model (ADR-0236 / ADR-0237).
+"""Generate an item-icon or particle-animation sheet with an image model (ADR-0238 / ADR-0239).
 Human-run, never part of the build.
 
     python3 tools/item-art/scripts/gen_sheet.py tools/item-art/sheets/<name>.yaml [--prompt-only]
@@ -35,7 +35,7 @@ def prompt(spec: dict) -> str:
         f"Consistent style for the whole sheet: {spec['style']}\n\n"
     )
     if "animations" in spec:
-        # One row per animation, frames left to right (sprites, ADR-0237).
+        # One row per animation, frames left to right (sprites, ADR-0239).
         anims = list(spec["animations"].items())
         if len(anims) > rows:
             sys.exit(f"{len(anims)} animations do not fit {rows} rows")

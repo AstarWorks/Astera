@@ -1,4 +1,4 @@
-# ADR-0237 demo: plays content/vfx/demo-sprites.yaml in front of the caster. Not bound to any
+# ADR-0239 demo: plays content/vfx/demo-sprites.yaml in front of the caster. Not bound to any
 # item; cast it with `caster.cast(...)` in the simulator.
 
 id: vfx-demo-sprites

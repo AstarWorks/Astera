@@ -1,4 +1,4 @@
-# Raster sources of item icons (ADR-0236). `./gradlew :tools:item-art:run` converts each listed item's
+# Raster sources of item icons (ADR-0238). `./gradlew :tools:item-art:run` converts each listed item's
 # source to its 32x32 icon under textures/generated/items; unlisted items stay drawn by code (ADR-0193/0223).
 # Any tool may make a source — an AI sheet (tools/item-art/scripts/gen_sheet.py), Aseprite, a hand-drawn
 # PNG — only the committed file counts. Per item: `name: <source>` or `{ from: <source>, colors: N, model: handheld|generated }`.

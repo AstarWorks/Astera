@@ -77,6 +77,7 @@ details in `docs/contributing/ci.md`.
 - **Claude pushes `main` itself** after `./gradlew check` is green (founder
   authorization 2026-10-22; no per-push approval). Never force-push, never
   rewrite pushed history. Phase B workers / subagents still do not push.
+- **Unit tests are forbidden** (founder 2026-10-23). Workers write no unit tests; coverage = game-sim scenario / e2e / `*IT`. `TestPolicyTest` (Konsist) enforces it. See `docs/contributing/testing-policy.md`.
 - **Konsist must stay green.** Run `./gradlew :tools:architecture-test:test`
   (or `make check`) before commit. New Konsist rules may be added; existing
   rules must not be relaxed.

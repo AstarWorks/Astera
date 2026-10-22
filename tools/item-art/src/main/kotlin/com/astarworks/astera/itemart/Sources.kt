@@ -7,7 +7,7 @@ import java.nio.file.Path
 import javax.imageio.ImageIO
 
 /**
- * Raster sources for item art (ADR-0236): `content/textures/sources/items.yaml` names, per item, an image
+ * Raster sources for item art (ADR-0238): `content/textures/sources/items.yaml` names, per item, an image
  * the icon is converted from instead of being drawn by code. Any tool may produce the image (an AI sheet,
  * Aseprite, a hand-drawn PNG); only the committed file matters. Items not listed stay procedural.
  *

@@ -238,6 +238,7 @@ internal fun CoreWiringState.wireGameplayLoop() {
             scheduler = scheduler,
             // ADR-0197: the combat plugin registers the cooldown icons later; look them up per flush.
             cooldownIcons = { services.get<com.astarworks.astera.core.application.port.outbound.ICooldownIconSource>() },
+            statusEffectIcons = { services.get<com.astarworks.astera.core.application.port.outbound.IStatusEffectIconSource>() },
         )
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerJoinedServer::class) { hpStatusHud.onJoined(it) }
     wave5completeSubs += eventBus.subscribe(com.astarworks.astera.core.domain.event.PlayerQuitServer::class) { hpStatusHud.onQuit(it) }

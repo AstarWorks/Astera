@@ -32,6 +32,8 @@ public class TrainingDummyEntityDamageGateway(
     override fun isEntityTarget(target: PlayerId): Boolean =
         dummies.isDummy(target) || base?.isEntityTarget(target) == true
 
+    override fun isTrainingTarget(target: PlayerId): Boolean = dummies.isDummy(target)
+
     override fun apply(
         target: PlayerId,
         resolved: ResolvedDamage,

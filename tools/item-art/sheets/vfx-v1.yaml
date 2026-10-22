@@ -1,4 +1,4 @@
-# AI particle sheet (ADR-0237): one row = one flipbook animation, frames left to right.
+# AI particle sheet (ADR-0239): one row = one flipbook animation, frames left to right.
 # `python3 tools/item-art/scripts/gen_sheet.py tools/item-art/sheets/vfx-v1.yaml`, then map the rows in
 # content/textures/sources/sprites.yaml ({ from: vfx-v1, row: N, frames: 6 }).
 name: vfx-v1

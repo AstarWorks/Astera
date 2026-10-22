@@ -1,4 +1,4 @@
-# AI sheet spec (ADR-0236): `python3 tools/item-art/scripts/gen_sheet.py tools/item-art/sheets/weapons-v1.yaml`
+# AI sheet spec (ADR-0238): `python3 tools/item-art/scripts/gen_sheet.py tools/item-art/sheets/weapons-v1.yaml`
 # One generation draws every cell, so the batch shares one style. The image lands in
 # content/textures/sources/sheets/<name>.png; pick which items use it in content/textures/sources/items.yaml.
 name: weapons-v1

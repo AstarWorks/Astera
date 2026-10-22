@@ -34,8 +34,8 @@ public data class BuiltPack(val zip: Path, val sha1: String, val entryCount: Int
  * | `content/sounds/<tree>.ogg` + `*.yaml`       | `assets/astera/sounds/<tree>` + `assets/astera/sounds.json` |
  * | `content/hud/<tree>.png`                     | `assets/astera/textures/hud/<tree>`                      |
  * | `content/hud/top-level .json`                     | providers merged into `assets/astera/font/default.json` |
- * | `content/fonts/<tree>.json`                  | `assets/astera/font/<tree>.json` (`fonts/vfx/spark.json` = font `astera:vfx/spark`, ADR-0237) |
- * | `content/textures/sources/` (all of it)     | not shipped (raster sources for `:tools:item-art`, ADR-0236) |
+ * | `content/fonts/<tree>.json`                  | `assets/astera/font/<tree>.json` (`fonts/vfx/spark.json` = font `astera:vfx/spark`, ADR-0239) |
+ * | `content/textures/sources/` (all of it)     | not shipped (raster sources for `:tools:item-art`, ADR-0238) |
  * | (generated)                              | transparent sprites hiding the vanilla hearts / armor bar |
  *
  * The zip is reproducible: sorted entries, fixed timestamps, stored (not
@@ -53,6 +53,7 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         addHud(files)
         addFonts(files)
         addVanillaOverrides(files)
+        addAtlases(files)
         return files
     }
 
@@ -69,6 +70,19 @@ public class ResourcePackBuilder(private val contentDir: Path) {
     }
 
     // ---- sections ---------------------------------------------------------------
+
+    /**
+     * Vanilla's atlas sources only cover `textures/item` / `textures/block`, so item-model
+     * textures under `textures/items/` and `textures/generated/items/` render magenta unless
+     * the pack adds `directory` sources. Atlas definitions merge across packs.
+     */
+    private fun addAtlases(files: MutableMap<String, ByteArray>) {
+        val dirs = atlasDirectories(files.keys)
+        for ((atlas, list) in dirs) {
+            val sources = list.map { mapOf("type" to "directory", "source" to it, "prefix" to "$it/") }
+            files["assets/minecraft/atlases/$atlas.json"] = json(mapOf("sources" to sources)).toByteArray()
+        }
+    }
 
     private fun addTextures(files: MutableMap<String, ByteArray>) {
         for (file in filesUnder("textures")) {
@@ -165,7 +179,7 @@ public class ResourcePackBuilder(private val contentDir: Path) {
     }
 
     /**
-     * Font definitions (ADR-0237): `content/fonts/<tree>.json` ships verbatim as
+     * Font definitions (ADR-0239): `content/fonts/<tree>.json` ships verbatim as
      * `assets/astera/font/<tree>.json`. The HUD owns `font/default.json` (merged in [addHud]), so a
      * `fonts/default.json` next to it would silently replace one of the two: refuse.
      */
@@ -219,7 +233,7 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         public const val ZIP_NAME: String = "astera.zip"
         public const val SPRITE_SIZE: Int = 9
 
-        /** Subdirectory of `content/textures/` holding generator inputs (ADR-0236); never packed. */
+        /** Subdirectory of `content/textures/` holding generator inputs (ADR-0238); never packed. */
         public const val SOURCES_DIR: String = "sources"
 
         /** Model directory (under `models/`) that `:tools:item-art` writes. */
@@ -259,6 +273,26 @@ public class ResourcePackBuilder(private val contentDir: Path) {
         }.distinct().sorted()
 
         private val mapper: ObjectMapper = JsonMapper.builder().enable(JsonWriteFeature.ESCAPE_NON_ASCII).build()
+
+        /** Atlas name to texture directories (relative to `textures/`) the pack's PNGs live in. */
+        internal fun atlasDirectories(paths: Collection<String>): Map<String, List<String>> {
+            val prefix = "assets/$NAMESPACE/textures/"
+            val items = sortedSetOf<String>()
+            val blocks = sortedSetOf<String>()
+            for (path in paths) {
+                if (!path.startsWith(prefix) || !path.endsWith(".png")) continue
+                val parts = path.removePrefix(prefix).split('/')
+                when {
+                    parts.size >= 3 && parts[0] == "generated" && parts[1] == "items" -> items += "generated/items"
+                    parts.size >= 2 && parts[0] == "items" -> items += "items"
+                    parts.size >= 2 && parts[0] == "blocks" -> blocks += "blocks"
+                }
+            }
+            val out = sortedMapOf<String, List<String>>()
+            if (items.isNotEmpty()) out["items"] = items.toList()
+            if (blocks.isNotEmpty()) out["blocks"] = blocks.toList()
+            return out
+        }
 
         private fun json(value: Any): String = mapper.writeValueAsString(value) + "\n"
 

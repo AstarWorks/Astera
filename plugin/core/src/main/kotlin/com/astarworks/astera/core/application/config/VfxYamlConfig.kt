@@ -174,7 +174,7 @@ public sealed class VfxKindYaml {
             VfxElementKind.Text(text, parseArgb(background, "background"), shadow, seeThrough, lineWidth)
     }
 
-    /** Custom particle sprite flipbook (ADR-0237); `color` is `#RRGGBB` (alpha ignored) or absent for the texture's own colours. */
+    /** Custom particle sprite flipbook (ADR-0239); `color` is `#RRGGBB` (alpha ignored) or absent for the texture's own colours. */
     @Serializable
     @SerialName("sprite")
     public data class Sprite(

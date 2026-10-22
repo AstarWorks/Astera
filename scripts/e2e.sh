@@ -12,8 +12,19 @@
 # project (astera-e2e-<id>), the image tags (:e2e-<id>), the `astera.e2e.id` image label, the runner
 # container and the volume (via the project). Host ports are ephemeral, so runs from different
 # worktrees never collide.
+#
+# QA-7: bots join THROUGH Velocity (offline-mode, modern forwarding, -Dvelocity.packet-decode-logging=true),
+# the production path, and the run fails if Velocity's log shows any exception / decode error.
+#   E2E_VIA=direct scripts/e2e.sh   # bots straight to the backend, no Velocity (diagnostics)
+# Velocity's log is copied to build/e2e-velocity.log (uploaded by CI as the e2e-velocity-log artifact).
 set -uo pipefail
 cd "$(dirname "$0")/.."
+
+E2E_VIA="${E2E_VIA:-velocity}"
+export E2E_VIA
+if [ "$E2E_VIA" = "velocity" ]; then export E2E_PATCHES=/patches; else export E2E_PATCHES=""; fi
+SERVICES=(e2e e2e-resource-pack)
+[ "$E2E_VIA" = "velocity" ] && SERVICES+=(e2e-velocity)
 
 ROOT="$(pwd -P)"
 if [ -n "${E2E_ID:-}" ]; then
@@ -51,7 +62,7 @@ echo "[e2e] checkout id $ASTERA_E2E_ID (project $PROJECT)"
 [ -n "${E2E_REUSE:-}" ] || "${C[@]}" down -v --remove-orphans >/dev/null 2>&1 || true
 
 echo "[e2e] building + starting the backend (first run builds the Paper image: several minutes)"
-"${C[@]}" up -d --build --wait e2e e2e-resource-pack || { echo "[e2e] backend failed to start"; "${C[@]}" logs --tail 80 e2e; exit 2; }
+"${C[@]}" up -d --build --wait "${SERVICES[@]}" || { echo "[e2e] backend failed to start"; "${C[@]}" logs --tail 80 "${SERVICES[@]}"; exit 2; }
 
 echo "[e2e] building the runner"
 "${C[@]}" build e2e-runner || { echo "[e2e] runner build failed"; exit 2; }
@@ -63,9 +74,23 @@ docker cp "$RUNNER:/workspace/tools/e2e/build/e2e-report.md" "$REPORT" 2>/dev/nu
   && echo "[e2e] report: $REPORT" || echo "[e2e] no report produced"
 docker rm -f "$RUNNER" >/dev/null 2>&1 || true
 
+# QA-7: Velocity's own verdict. Any exception / decode failure in the proxy log fails the run, even when
+# every bot check passed (the bot that hit it may already have been written off as a flaky disconnect).
+if [ "$E2E_VIA" = "velocity" ]; then
+  VLOG=build/e2e-velocity.log
+  "${C[@]}" logs --no-color --no-log-prefix e2e-velocity > "$VLOG" 2>&1 || true
+  bad="$(grep -nE 'Exception|did not decode|Failed to decode|decode.*(error|fail)|ERROR' "$VLOG" | head -20)"
+  if [ -n "$bad" ]; then
+    echo "[e2e] FAIL: Velocity logged decode errors / exceptions (see $VLOG):"; echo "$bad"
+    rc=1
+  else
+    echo "[e2e] Velocity log clean: $(grep -c 'has connected' "$VLOG") joins, no exceptions / decode errors"
+  fi
+fi
+
 if [ -n "${E2E_KEEP:-}" ]; then
   echo "[e2e] backend left running (E2E_KEEP=1; tear down with: make e2e-down)"
 else
-  "${C[@]}" stop e2e e2e-resource-pack >/dev/null 2>&1 || true
+  "${C[@]}" stop "${SERVICES[@]}" >/dev/null 2>&1 || true
 fi
 exit $rc

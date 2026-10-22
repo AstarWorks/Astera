@@ -21,7 +21,7 @@ Before editing, read `.claude/CLAUDE.md` (non-negotiable rules) and
   `Result<T, E>` in application APIs, kaml DTOs only in `application/config/`,
   versions only in `gradle/libs.versions.toml`, en/ja i18n key parity.
 - Pre-release posture: delete/rename freely, no `@Deprecated`, no shims.
-- Write or update JUnit 5 + AssertJ tests for logic you change.
+- Do NOT write unit tests (forbidden, `docs/contributing/testing-policy.md`). If behaviour needs coverage, add or extend a `tools/game-sim` scenario test, or report that need back.
 - Match the surrounding code's naming, comment density and idiom.
 
 ## Must not (Worker禁則, `.claude/rules/wave-execution.md`)

@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.effect.vfx
 
 /**
- * Single source of truth for how a sprite frame becomes TextDisplay text (ADR-0237).
+ * Single source of truth for how a sprite frame becomes TextDisplay text (ADR-0239).
  *
  * Each sprite owns the font `astera:vfx/<id>`; frame `i` is the codepoint `U+E000 + i`.
  */

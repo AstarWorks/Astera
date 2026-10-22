@@ -25,6 +25,7 @@ public class InMemorySeasonRepository(
 ) : ISeasonRepository {
 
     private val lock = Any()
+    private val completedSchedules = mutableSetOf<String>()
 
     /** Insertion order: oldest first, newest last. */
     private val seasons: MutableList<Season> = mutableListOf(
@@ -44,6 +45,13 @@ public class InMemorySeasonRepository(
         val opened = Season(id = id, label = label, startedAt = at)
         seasons += opened
         opened
+    }
+
+    override fun startOnce(scheduleKey: String, label: String, at: Instant): Season? = synchronized(lock) {
+        if (scheduleKey in completedSchedules) return@synchronized null
+        val season = start(label, at)
+        completedSchedules += scheduleKey
+        season
     }
 
     override fun all(): List<Season> = synchronized(lock) {

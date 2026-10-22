@@ -27,6 +27,8 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+      args:
+        E2E_FAST: "1"
       labels:
         astera.e2e.id: "${ASTERA_E2E_ID:-local}"
     image: astera/minecraft-server:e2e-${ASTERA_E2E_ID:-local}
@@ -55,6 +57,11 @@ services:
       ENABLE_RCON: "true"
       RCON_PORT: "25575"
       RCON_PASSWORD: "${RCON_PASSWORD:-astera-e2e}"
+      # Production path (QA-7): bots join through `e2e-velocity` (modern forwarding). scripts/e2e.sh
+      # sets E2E_PATCHES=/patches (docker/paper-patches/velocity.json: trust the proxy secret) unless
+      # E2E_VIA=direct, where the backend stays plain offline-mode for diagnostics / vfx-shot.
+      PATCH_DEFINITIONS: "${E2E_PATCHES:-}"
+      CFG_VELOCITY_SECRET: "${E2E_FORWARDING_SECRET:-astera-e2e-forwarding-secret}"
       ASTERA_SERVER_ROLE: "all"
       ASTERA_SERVER_NAME: "e2e"
       ASTERA_METRICS_ENABLED: "false"
@@ -73,6 +80,36 @@ services:
       timeout: 5s
       retries: 60
       start_period: 60s
+
+  # QA-7: the production front door. Velocity (offline-mode, modern forwarding) in front of the
+  # backend, with -Dvelocity.packet-decode-logging=true so every clientbound packet Velocity cannot
+  # re-decode is logged with its id. Bots connect here by default (E2E_VIA=direct skips it).
+  e2e-velocity:
+    profiles: ["e2e"]
+    build:
+      context: ./velocity
+      dockerfile: Dockerfile.e2e
+      labels:
+        astera.e2e.id: "${ASTERA_E2E_ID:-local}"
+    image: astera/velocity:e2e-${ASTERA_E2E_ID:-local}
+    ports:
+      - "127.0.0.1::25565"
+    environment:
+      TYPE: "VELOCITY"
+      MEMORY: "512M"
+      JVM_OPTS: "-Dvelocity.packet-decode-logging=true"
+      VELOCITY_FORWARDING_SECRET: "${E2E_FORWARDING_SECRET:-astera-e2e-forwarding-secret}"
+    volumes:
+      - e2e-velocity-data:/server
+    depends_on:
+      e2e:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "mc-monitor status --host localhost --port 25565 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
 
   e2e-resource-pack:
     profiles: ["e2e"]
@@ -99,6 +136,7 @@ services:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
       E2E_ONLY: "${E2E_ONLY:-}"
       E2E_WEAPONS: "${E2E_WEAPONS:-}"
+      E2E_VIA: "${E2E_VIA:-velocity}"
     command:
       - gradle
       - --no-daemon
@@ -111,12 +149,21 @@ services:
       - -Pe2e.rconPassword=${RCON_PASSWORD:-astera-e2e}
       - -Pe2e.serverLog=/e2e-server/logs/latest.log
       - -Pe2e.id=${ASTERA_E2E_ID:-local}
+      # QA-7: where bots connect. `velocity` (default) = through e2e-velocity like real players;
+      # `direct` = straight to the backend (diagnostics).
+      - -Pe2e.via=${E2E_VIA:-velocity}
+      - -Pe2e.proxyHost=e2e-velocity
+      - -Pe2e.proxyPort=25565
+      - -Pe2e.velocityLog=/e2e-velocity/logs/latest.log
     volumes:
       # The backend's latest.log, read-only: lets checks assert on server-side log lines (HUD diagnostics).
       - e2e-data:/e2e-server:ro
+      # Velocity's latest.log (QA-7): the "no decode errors through the proxy" check reads it.
+      - e2e-velocity-data:/e2e-velocity:ro
     depends_on:
       e2e:
         condition: service_healthy
 
 volumes:
   e2e-data:
+  e2e-velocity-data:

@@ -15,6 +15,16 @@ object E2eEnv {
     val rconPort: Int = System.getProperty("astera.e2e.rconPort", "25575").toInt()
     val rconPassword: String = System.getProperty("astera.e2e.rconPassword", "astera-e2e")
     val autostart: Boolean = System.getProperty("astera.e2e.autostart", "false").toBoolean()
+    /** QA-7: `velocity` (default via scripts/e2e.sh, production path) or `direct` (straight to the backend). */
+    val via: String = System.getProperty("astera.e2e.via", "direct")
+    val viaVelocity: Boolean = via == "velocity"
+    val proxyHost: String = System.getProperty("astera.e2e.proxyHost", "e2e-velocity")
+    val proxyPort: Int = System.getProperty("astera.e2e.proxyPort", "25565").toInt()
+    /** Velocity's latest.log, mounted read-only into the runner. */
+    val velocityLog: String? = System.getProperty("astera.e2e.velocityLog")
+    /** Where bots connect: the proxy when via=velocity, so every suite exercises what a real client receives. */
+    val botEndpoint: Endpoint get() = if (viaVelocity) Endpoint(proxyHost, proxyPort) else Endpoint(host, port)
+
     /** This checkout's compose project (astera-e2e-<id>); see scripts/e2e.sh. */
     val project: String = System.getProperty("astera.e2e.project", "astera-e2e-local")
     private val composeFile: String? = System.getProperty("astera.e2e.composeFile")

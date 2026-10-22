@@ -29,6 +29,7 @@ public class TrackNormaProgressListener(
     private val log = LoggerFactory.getLogger(javaClass)
 
     public fun handle(event: DamageDealt) {
+        if (!event.context.countsForProgression) return // ADR-0235: training damage is not a `damage` mission
         val attacker = event.attacker ?: return
         if (attacker == event.target) return
         val damage = event.resolved.finalAmount.toLong()

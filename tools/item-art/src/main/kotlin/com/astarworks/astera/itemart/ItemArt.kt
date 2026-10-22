@@ -183,7 +183,7 @@ internal object ItemArt {
 
     /**
      * Every generated file, keyed by path relative to the content dir. An item with a raster source
-     * ([Sources], ADR-0236) is converted from it; otherwise weapons and icons are drawn by code.
+     * ([Sources], ADR-0238) is converted from it; otherwise weapons and icons are drawn by code.
      */
     fun renderAll(contentDir: Path): Map<String, ByteArray> {
         val files = sortedMapOf<String, ByteArray>()

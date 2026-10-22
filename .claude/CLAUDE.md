@@ -88,7 +88,7 @@ SSOT.
 - `.claude/rules/module-layout.md` — 7-plugin layout, sibling-isolation matrix,
   per-plugin internal package structure, "when you touch X" guide.
 - `.claude/rules/coding-posture.md` — Kotlin/JDK versions, DI choice, test
-  framework, ADR discipline.
+  policy (integration tests only; unit tests forbidden), ADR discipline.
 - `.claude/rules/ai-delegation.md` — Phase 1 AI usage policy. Studio +
   content authoring tools moved to a separate repo
   ([[adr/0079-extract-studio-to-own-repo]]); plugin-side invariants

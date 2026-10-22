@@ -33,4 +33,7 @@ public class MatchRepositoryTeamLookup(
         val match = matchRepository.findMatchOf(playerId) ?: return null
         return match.teams.firstOrNull { team -> playerId in team.members }?.id
     }
+
+    override fun matchOf(playerId: PlayerId): com.astarworks.astera.core.domain.match.MatchId? =
+        matchRepository.findMatchOf(playerId)?.id
 }

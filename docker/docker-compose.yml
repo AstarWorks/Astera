@@ -103,6 +103,8 @@ services:
     environment:
       TYPE: "VELOCITY"
       MEMORY: "512M"
+      # Debug switch, e.g. VELOCITY_JVM_OPTS=-Dvelocity.packet-decode-logging=true
+      JVM_OPTS: "${VELOCITY_JVM_OPTS:-}"
       VELOCITY_FORWARDING_SECRET: "${VELOCITY_FORWARDING_SECRET:?VELOCITY_FORWARDING_SECRET is empty: run `make docker-up` (it generates one in docker/.env)}"
     volumes:
       - velocity-data:/server

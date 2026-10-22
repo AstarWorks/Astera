@@ -50,6 +50,8 @@ Add to **both** `content/languages/en.yaml` and `ja.yaml`:
 
 ## 4. Tests
 
+Integration tests only (game-sim scenario / e2e / IT); unit tests are forbidden (see `testing-policy.md`).
+
 `:tools:game-sim` boots every real wiring: `sim.command("alice", "items give alice dagger", operator = true)`,
 `sim.complete("alice", "items give ")`, and `CommandTreeTest` already asserts permission, executor and
 description for every leaf of the merged tree.

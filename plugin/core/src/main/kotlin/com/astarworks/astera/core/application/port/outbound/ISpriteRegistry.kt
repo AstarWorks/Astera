@@ -6,7 +6,7 @@ import com.astarworks.astera.core.domain.effect.vfx.SpriteFrames
 import com.astarworks.astera.core.domain.effect.vfx.SpriteId
 
 /**
- * Outbound port: read-side view onto `content/sprites/<id>.yaml` (ADR-0237), the runtime metadata of the
+ * Outbound port: read-side view onto `content/sprites/<id>.yaml` (ADR-0239), the runtime metadata of the
  * generated particle sprites. Also a [SpriteFrames] so `VfxTimeline.plan` can unroll flipbooks.
  */
 public interface ISpriteRegistry : Contents<SpriteId, SpriteDefinition>, SpriteFrames {

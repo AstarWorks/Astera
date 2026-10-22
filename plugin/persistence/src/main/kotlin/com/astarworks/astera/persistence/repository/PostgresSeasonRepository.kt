@@ -38,6 +38,9 @@ public class PostgresSeasonRepository(private val db: Database) : ISeasonReposit
     }
 
     override fun start(label: String, at: Instant): Season = transaction(db) {
+        (connection.connection as java.sql.Connection).prepareStatement(
+            "SELECT pg_advisory_xact_lock(20923501)",
+        ).use { it.execute() }
         // Close the prior active season (if any) at the same instant the new one
         // opens, so there is never a gap or overlap of active seasons.
         SeasonsTable.update({ SeasonsTable.endedAt.isNull() }) {
@@ -58,6 +61,18 @@ public class PostgresSeasonRepository(private val db: Database) : ISeasonReposit
             it[endedAt] = season.endedAt
         }
         season
+    }
+
+    override fun startOnce(scheduleKey: String, label: String, at: Instant): Season? = transaction(db) {
+        val c = connection.connection as java.sql.Connection
+        c.prepareStatement("SELECT pg_advisory_xact_lock(20923501)").use { it.execute() }
+        val inserted = c.prepareStatement(
+            "INSERT INTO season_schedule_resets (schedule_key) VALUES (?) ON CONFLICT DO NOTHING",
+        ).use { st ->
+            st.setString(1, scheduleKey)
+            st.executeUpdate() > 0
+        }
+        if (inserted) start(label, at) else null
     }
 
     override fun all(): List<Season> = transaction(db) {

@@ -8,7 +8,7 @@ import javax.imageio.ImageIO
 data class SpriteRef(val id: String, val frame: Int)
 
 /**
- * Frames of `content/textures/generated/sprites/<id>.png` (ADR-0237): a horizontal strip of
+ * Frames of `content/textures/generated/sprites/<id>.png` (ADR-0239): a horizontal strip of
  * square `size`-px frames, `size` = strip height. Frames are tinted (multiply) and cached.
  */
 class SpriteStrips(private val contentDir: File) {

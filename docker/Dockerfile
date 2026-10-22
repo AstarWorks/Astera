@@ -76,6 +76,11 @@ COPY --from=builder /out/ /plugins/
 # repo's content — deleted files do not linger.
 COPY content /content/
 
+# G1: the e2e image (docker-compose.e2e.yml, E2E_FAST=1) runs the playthrough suites with shortened timers.
+ARG E2E_FAST=0
+COPY docker/e2e-tune-content.sh /tmp/e2e-tune-content.sh
+RUN if [ "$E2E_FAST" = "1" ]; then sh /tmp/e2e-tune-content.sh /content; fi && rm /tmp/e2e-tune-content.sh
+
 # Paper config patches (itzg PATCH_DEFINITIONS): the compose file points
 # PATCH_DEFINITIONS=/patches at this directory on the lobby / game backends so
 # Paper trusts Velocity's modern forwarding (secret from CFG_VELOCITY_SECRET).

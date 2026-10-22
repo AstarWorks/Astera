@@ -151,7 +151,7 @@ internal object SchemaMapping {
         SchemaTarget("particle.schema.json", "particles"),
         // ADR-0220: display choreographies, one definition per file.
         SchemaTarget("vfx.schema.json", "vfx"),
-        // ADR-0237: generated particle sprite metadata (written by :tools:item-art).
+        // ADR-0239: generated particle sprite metadata (written by :tools:item-art).
         SchemaTarget("sprite.schema.json", "sprites"),
         // element-matrix is a balance singleton, not a directory of authored
         // entries — validate only the one file the schema describes.

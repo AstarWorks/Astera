@@ -18,7 +18,7 @@ public data class SpriteDefinition(
 }
 
 /**
- * Sprite-side `Contents<SpriteId, SpriteDefinition>` (ADR-0237): YAML at `content/sprites/`, registered as the
+ * Sprite-side `Contents<SpriteId, SpriteDefinition>` (ADR-0239): YAML at `content/sprites/`, registered as the
  * [ISpriteRegistry] port. Bootstrapped before [VfxContents] so flipbooks resolve their frame counts at play time.
  */
 public class SpriteContents : YamlDynamicContents<SpriteId, SpriteDefinition, SpriteYamlConfig>(

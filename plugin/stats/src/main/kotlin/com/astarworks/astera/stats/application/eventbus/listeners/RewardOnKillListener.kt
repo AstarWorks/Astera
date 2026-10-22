@@ -10,6 +10,7 @@ public class RewardOnKillListener(
     private val grantXp: GrantXpUseCase,
 ) {
     public fun handle(event: PlayerKilled) {
+        if (!event.context.countsForProgression) return // ADR-0235
         val killerId = event.killer ?: return
         recordKill.execute(killerId)
         grantXp.execute(killerId, 100L, XpSource.Kill)

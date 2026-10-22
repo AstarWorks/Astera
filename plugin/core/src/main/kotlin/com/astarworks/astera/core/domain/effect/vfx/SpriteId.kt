@@ -1,7 +1,7 @@
 package com.astarworks.astera.core.domain.effect.vfx
 
 /**
- * Identifier of a custom particle sprite (`content/sprites/<id>.yaml`, ADR-0237);
+ * Identifier of a custom particle sprite (`content/sprites/<id>.yaml`, ADR-0239);
  * lower-kebab-case like [VfxId].
  */
 @JvmInline
