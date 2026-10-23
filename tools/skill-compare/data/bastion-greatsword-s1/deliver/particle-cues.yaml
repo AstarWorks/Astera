@@ -29,6 +29,14 @@ cues: []
 #   hit 1 (skill tick = e + 3): e1 2, e2 19, e3 38, e4 58, e5 52, e6 43, e7 16, e8 19, e9 20, e10 5   (total 272, peak 58; r5 276 / 58)
 #   hit 2 (skill tick = e + 27): e1 2, e2 27, e3 59, e4 114, e5 104, e6 74, e7 42, e8 31, e9 22, e10 10, e11 10, e12 3   (total 498, peak 114; r5 515 / 111)
 # Clearance (emission points): caster eye min >= 1.5 (0 points inside; r5 had 54 / 112 inside), opponent eye min 0.85 (both hits).
+# Round 8 (particle-artist, real-client r5 diffs): lingering types removed. bastion-s1-p-glow + -p-trail-glint (wax_on, hung 30-40 ticks)
+#   and -p-firework (white flecks, hung 15-20+ ticks) are DELETED; replaced by `trail` glints that travel and die on arrival:
+#   bastion-s1-p-glint (gold, 6 ticks), -p-glint-hot (white-gold, 4 ticks), -p-glint-rise (orange, 9 ticks); one element per glint
+#   (ids s1h1-p-glint*, s1h2-p-glint*), count 1, trail_to = its own target in the fx frame.
+#   hit 1: blade shed fx 1-8 (gold r 2.15 -> r 2.55, 0.7 tick ahead) + fx 2-7 (hot r 1.85 -> r 2.2); contact glints fx 4-7 (8): 20 kept.
+#   hit 2: blade shed fx 1-8 + fx 2-7 + high line fx 2-8 (y +0.35); contact glints fx 4-8 (10): 28 kept.
+#   Travel 0.4-1.7 blocks; every start->target chord clears caster eye >= 1.55 and opponent eye >= 1.03.
+#   Net per-tick count change vs r7b: wax_on glint path points (1 per 0.45-0.6 block) out, 1 trail per element in; peaks drop slightly.
 display_particles:
   fx-high: {added_displays: 0}
   fx-low:  {added_displays: 0}

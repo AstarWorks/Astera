@@ -1,9 +1,0 @@
-# wax_on gold motes: flicker, 10-40 ticks, drift up slowly (wax_on scales given velocity by 0.005, hence speed 4)
-id: bastion-s1-p-glow
-shape: { kind: point }
-color: { r: 255, g: 210, b: 58 }
-count: 2
-lifetime_ticks: 20
-vanilla_particle: wax_on
-velocity: { direction: up, speed: 4.0, spread_degrees: 80 }
-force: true

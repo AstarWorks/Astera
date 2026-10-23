@@ -52,20 +52,24 @@ def defs():
          "item", 3, 12, color=GOLD, data="{ kind: item, item: gold_nugget }", velocity="{ direction: outward, speed: 0.22, spread_degrees: 0 }")
     pdef("coal", "dark chips mixed with the gold (item particle charcoal)",
          "item", 3, 12, color=(30, 24, 20), data="{ kind: item, item: charcoal }", velocity="{ direction: outward, speed: 0.18, spread_degrees: 0 }")
-    pdef("firework", "a few long-lived white-gold spark flecks that arc up and fall (firework: v = speed, gravity 0.1, friction 0.91; lives ~2 s, keep count low)",
-         "firework", 2, 20, color=(255, 236, 170), velocity="{ direction: up, speed: 0.2, spread_degrees: 65 }")
+    # r5 founder: particles must MOVE and change every tick. The gold glints are `trail` particles: the client moves each
+    # one from its spawn point to the element's trail_to over exactly duration_ticks and removes it on arrival (the only
+    # vanilla type with an exact, server-set life and a server-set colour that also travels). They replace wax_on (hung
+    # 30-40 ticks near-static as a big orange `+`) and firework (white `+`/`x` flecks hanging ~15-20+ ticks).
+    pdef("glint", "gold glint shed off the blade edge: travels ~0.6-1.5 blocks ahead/outward along the swing in 6 ticks, then dies",
+         "trail", 1, 6, color=(255, 214, 70), data="{ kind: trail, toward: true, color: { r: 255, g: 214, b: 70 }, duration_ticks: 6 }")
+    pdef("glint-hot", "white-gold glint, shorter (4 ticks): the hot head of the shed sparks",
+         "trail", 1, 4, color=(255, 244, 200), data="{ kind: trail, toward: true, color: { r: 255, g: 244, b: 200 }, duration_ticks: 4 }")
+    pdef("glint-rise", "gold-orange glint flung up and out of the contact over 9 ticks (replaces wax_on motes and firework flecks)",
+         "trail", 1, 9, color=(255, 170, 50), data="{ kind: trail, toward: true, color: { r: 255, g: 170, b: 50 }, duration_ticks: 9 }")
     pdef("ember", "orange to dark-red ember dust that hangs and drifts up (dust life = 8/U * scale, ~2-22 ticks at 0.55)",
          "dust_color_transition", 3, 14, color=(255, 150, 40),
          data="{ kind: dust_color_transition, from: { r: 255, g: 175, b: 55 }, to: { r: 150, g: 40, b: 10 }, scale: 0.55 }",
          velocity="{ direction: up, speed: 0.05, spread_degrees: 90 }")
-    pdef("glow", "wax_on gold motes: flicker, 10-40 ticks, drift up slowly (wax_on scales given velocity by 0.005, hence speed 4)",
-         "wax_on", 2, 20, color=GOLD, velocity="{ direction: up, speed: 4.0, spread_degrees: 80 }")
     pdef("trail-gold", "gold dust left along the blade path (one per path point)",
          "dust", 1, 12, color=GOLD, size=0.5, velocity="{ direction: outward, speed: 0.05, spread_degrees: 90 }")
     pdef("trail-dark", "near-black dust mixed into the gold path (reads on bright backdrops)",
          "dust", 1, 12, color=(26, 18, 6), size=0.55, velocity="{ direction: outward, speed: 0.05, spread_degrees: 90 }")
-    pdef("trail-glint", "wax_on glint along the blade path",
-         "wax_on", 1, 20, color=GOLD, velocity="{ direction: outward, speed: 3.0, spread_degrees: 0 }")
     pdef("trail-spark", "crit specks thrown along the swing tangent from the path (chase the blade)",
          "crit", 1, 8, color=(255, 240, 190), velocity="{ direction: along_tangent, speed: 0.8, spread_degrees: 25 }")
     pdef("debris", "grey stone chips kicked up at the contact's feet (block_crumble)",
@@ -218,6 +222,27 @@ def off(p, dx=0.0, dy=0.0, dz=0.0):
     return (p[0] + dx, p[1] + dy, p[2] + dz)
 
 
+def shed(f, keys, delay, fx0, fx1, r0, r1, ahead, eye, pid, dy=0.0):
+    """Gold `trail` glints shed off the blade: one per fx tick, spawned on the blade at radius r0 and travelling to the
+    blade point `ahead` skill ticks later at radius r1 (= flung forward along the swing and outward), dropped when the
+    straight flight (the client lerps linearly to the target) would cut a camera keep-out."""
+    for t in range(fx0, fx1 + 1):
+        a = on_blade(keys, t + delay, r0, eye)
+        b = off(on_blade(keys, t + delay + ahead, r1, eye), 0.0, dy, 0.0)
+        if math.dist(b, eye) < EYE_KEEP or math.dist(b, CASTER_EYE) < NEAR or not chord_clear(a, b, eye):
+            continue
+        f.add("glint", pid, t, t + 1, [a], trail_to=b)
+
+
+def burst_glints(f, c, eye, shots):
+    """Contact glints: (fx tick, start offset, end offset, particle) flown from the contact, keep-out checked."""
+    for tick, d0, d1, pid in shots:
+        a, b = off(c, *d0), off(c, *d1)
+        if math.dist(b, eye) < EYE_KEEP or math.dist(b, CASTER_EYE) < NEAR or not chord_clear(a, b, eye):
+            continue
+        f.add("glint", pid, tick, tick + 1, [a], trail_to=b)
+
+
 def hit1():
     f = Fx("s1h1")
     # contact (fx 4 = skill 7): blade phi 6, pitch -15, tip y 0.11 at z 2.74 (under/behind the target). Sparks sit on the
@@ -232,7 +257,8 @@ def hit1():
     ride(f, "trail-gold", "trail-gold", 1, gold, 0.2, H1_EYE)
     ride(f, "trail-dark", "trail-dark", 1, blade_path(H1_KEYS, H1_DELAY, 1, 9, 2.45, H1_EYE), 0.25, H1_EYE)
     ride(f, "trail-gold", "trail-gold", 2, blade_path(H1_KEYS, H1_DELAY, 2, 6, 2.0, H1_EYE, lag=0.5), 0.3, H1_EYE)
-    ride(f, "trail-glint", "trail-glint", 2, gold[1:], 0.45, H1_EYE)
+    shed(f, H1_KEYS, H1_DELAY, 1, 8, 2.15, 2.55, 0.7, H1_EYE, "glint")
+    shed(f, H1_KEYS, H1_DELAY, 2, 7, 1.85, 2.2, 0.45, H1_EYE, "glint-hot", dy=0.08)
     ride(f, "trail-spark", "trail-spark", 2, blade_path(H1_KEYS, H1_DELAY, 2, 7, 2.3, H1_EYE), 0.45, H1_EYE)
     # inner line (r 1.5) carries the last 50 deg of the chop into the contact, fx 3 -> 4 (-> 6 drag), where the outer
     # chords were dropped: 1.1 from the opponent eye, 1.65 from the caster eye
@@ -256,13 +282,20 @@ def hit1():
     f.at("coal", "coal", 4, off(c, -0.1, 0, -0.2))
     f.at("coal", "coal", 5, off(c, 0.12, -0.05, -0.15))
     f.at("coal", "coal", 6, off(c, 0, 0.1, -0.15))
-    # firework flecks rise ~2 blocks: emitted 0.9 to either side of the target's eye column, never under it
-    f.at("firework", "firework", 5, (c[0] + 0.95, 0.3, c[2] - 0.1))
-    f.at("firework", "firework", 6, (c[0] - 0.9, 0.3, c[2] - 0.2))
-    # (b) embers + glow motes drifting up from the contact for 7 ticks (the emitter rises 0.07/tick, back 0.03/tick)
+    # glints flung up and out of the contact, staggered fx 4-7, each flies its own line and dies (4-9 ticks)
+    burst_glints(f, c, H1_EYE, (
+        (4, (0.05, 0.05, -0.05), (0.75, 0.55, -0.35), "glint-rise"),
+        (4, (-0.05, 0.0, -0.1), (-0.8, 0.45, -0.3), "glint-rise"),
+        (4, (0.0, 0.05, -0.1), (0.35, 0.3, -0.55), "glint-hot"),
+        (5, (0.1, 0.05, -0.1), (1.0, 0.35, -0.1), "glint-rise"),
+        (5, (-0.1, 0.05, -0.15), (-0.55, 0.7, -0.45), "glint-rise"),
+        (6, (0.05, 0.1, -0.1), (0.5, 0.8, -0.6), "glint"),
+        (6, (-0.05, 0.0, -0.1), (-1.0, 0.25, -0.2), "glint"),
+        (7, (0.0, 0.1, -0.15), (-0.3, 0.75, -0.7), "glint"),
+    ))
+    # (b) embers drifting up from the contact for 7 ticks (the emitter rises 0.07/tick, back 0.03/tick)
     rise = [(c[0], c[1] + 0.07 * i, c[2] - 0.03 * i) for i in range(7)]
     f.add("ember", "ember", 4, 11, rise)
-    f.add("glow", "glow", 4, 11, [off(p, 0.15, 0.0, 0.0) for p in rise])
     # (d) ground debris kicked up where the blade bites the floor
     f.at("debris", "debris", 4, g)
     f.at("debris", "debris", 5, off(g, -0.2, 0, -0.1))
@@ -289,12 +322,14 @@ def hit2():
     ride(f, "trail-gold", "trail-gold", 1, gold, 0.3, H2_EYE)
     ride(f, "trail-dark", "trail-dark", 1, blade_path(H2_KEYS, H2_DELAY, 1, 8, 2.45, H2_EYE), 0.32, H2_EYE)
     ride(f, "trail-gold", "trail-gold", 2, blade_path(H2_KEYS, H2_DELAY, 2, 5, 2.0, H2_EYE, lag=0.5), 0.35, H2_EYE)
-    ride(f, "trail-glint", "trail-glint", 2, gold[1:], 0.5, H2_EYE)
+    shed(f, H2_KEYS, H2_DELAY, 1, 8, 2.15, 2.6, 0.7, H2_EYE, "glint")
+    shed(f, H2_KEYS, H2_DELAY, 2, 7, 1.9, 2.3, 0.45, H2_EYE, "glint-hot", dy=0.1)
     ride(f, "trail-spark", "trail-spark", 2, blade_path(H2_KEYS, H2_DELAY, 2, 7, 2.3, H2_EYE), 0.45, H2_EYE)
-    # second, higher blade line (hit 2 is the heavy one): gold + dark + glint 0.3 higher, one tick later
+    # second, higher blade line (hit 2 is the heavy one): gold + dark 0.3 higher, one tick later, plus a glint shed
     hi = [off(p, 0.0, 0.3, 0.0) for p in blade_path(H2_KEYS, H2_DELAY, 1, 8, 2.3, H2_EYE)]
-    for pid, st in (("trail-gold", 0.36), ("trail-dark", 0.4), ("trail-glint", 0.6)):
+    for pid, st in (("trail-gold", 0.36), ("trail-dark", 0.4)):
         ride(f, pid, pid, 2, hi, st, H2_EYE)
+    shed(f, H2_KEYS, H2_DELAY, 2, 8, 2.3, 2.75, 0.6, H2_EYE, "glint", dy=0.35)
     # convergence (front half arc, r 0.55: the caster is only 1.4 behind the contact, so no specks on the caster side)
     f.add("converge", "converge", 2, 4, [off(c, 0, 0.3, 0)] * 2, trail_to=c)
     f.add("converge", "converge", 3, 5, [off(c, 0, 0.35, 0)] * 2, trail_to=off(c, 0, 0.1, 0))
@@ -310,15 +345,23 @@ def hit2():
         f.at("nugget", "nugget", tick, off(c, *d))
     for tick, d in ((4, (-0.1, 0, -0.2)), (4, (0.15, 0.05, -0.1)), (5, (0.12, -0.05, -0.15)), (6, (0, 0.1, -0.15)), (7, (-0.1, 0.0, -0.1))):
         f.at("coal", "coal", tick, off(c, *d))
-    f.at("firework", "firework", 5, (c[0] + 0.95, 0.35, c[2] + 0.1))
-    f.at("firework", "firework", 6, (c[0] - 0.95, 0.35, c[2] + 0.15))
-    f.at("firework", "firework", 7, (c[0] + 0.9, 0.3, c[2] + 0.3))
-    # embers / glow rise straight up (no drift toward the caster: the contact is only 1.8 from the caster eye)
+    # glints flung up and sideways out of the contact (never back toward the caster, 1.8 behind), fx 4-8
+    burst_glints(f, c, H2_EYE, (
+        (4, (0.05, 0.05, 0.0), (0.9, 0.5, 0.2), "glint-rise"),
+        (4, (-0.05, 0.05, 0.0), (-0.9, 0.55, 0.15), "glint-rise"),
+        (4, (0.0, 0.0, 0.05), (0.4, 0.25, 0.55), "glint-hot"),
+        (5, (0.1, 0.05, 0.0), (1.2, 0.3, 0.4), "glint-rise"),
+        (5, (-0.1, 0.05, 0.05), (-0.6, 0.75, 0.3), "glint-rise"),
+        (5, (0.0, 0.05, 0.05), (-0.35, 0.2, 0.6), "glint-hot"),
+        (6, (0.05, 0.1, 0.05), (0.55, 0.85, 0.35), "glint"),
+        (6, (-0.05, 0.05, 0.0), (-1.15, 0.3, 0.25), "glint"),
+        (7, (0.1, 0.05, 0.05), (0.8, 0.6, 0.6), "glint-rise"),
+        (8, (-0.1, 0.05, 0.05), (-0.5, 0.7, 0.55), "glint"),
+    ))
+    # embers rise straight up (no drift toward the caster: the contact is only 1.8 from the caster eye)
     rise = [(c[0], c[1] + 0.045 * i, c[2]) for i in range(8)]
     f.add("ember", "ember", 4, 12, rise)
     f.add("ember", "ember", 5, 13, [off(p, 0.25, 0.0, -0.05) for p in rise])
-    f.add("glow", "glow", 4, 12, [off(p, -0.25, 0.0, 0.1) for p in rise])
-    f.add("glow", "glow", 6, 12, [off(p, 0.3, 0.05, 0.15) for p in rise][:6])
     # (d) ground debris below the contact + (e) shockwave rings centred under the ring smear (the pivot's floor point)
     f.at("debris", "debris", 4, g)
     f.at("debris", "debris", 5, off(g, -0.25, 0, 0.05))
