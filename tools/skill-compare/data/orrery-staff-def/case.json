@@ -16,9 +16,7 @@
   "referenceRevision": "2e144cddf8f0adfbc3f737f99bcc64bee5c4be4550b10ff3df8a5fa648fbbfa8",
   "verification": {
     "status": "unverified",
-    "reason": "原動画でこの操作は未観測。wiki由来のAstera向け設計であり、原作再現の合格対象に含めない。",
-    "normalInput": "実入力撮影あり。標的HP 200.0f（回数の測定ではない）",
-    "evidence": "/evidence/orrery-staff-def.png"
+    "reason": "参照動画に観測なし。武器モデルは変更したが、この技の一致は認定しない。"
   },
   "rev": 1,
   "focus": {
@@ -37,5 +35,5 @@
   "intent": {
     "file": "intent-round2.json"
   },
-  "contentRevision": "5b7b1f57231eb60ee328abc36ed771d193ea86b89c882066f629c857995826b2"
+  "contentRevision": "76812fdeb80c13a689f8373f624af9af134f7d3e34d7721b9fd84971d92d3a7e"
 }
