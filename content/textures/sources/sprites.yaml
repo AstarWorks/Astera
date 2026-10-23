@@ -30,6 +30,11 @@ sprites:
   slash: { draw: slash, frames: 6, color: "#d8e4ff" }
   couture-orbit: { draw: orbit, frames: 1, size: 128, color: "#fff4ee" }
   couture-cut: { draw: slice, frames: 6, size: 128, color: "#fff4ee" }
+  bastion-arc: { draw: arc, frames: 6, size: 256, color: "#ffcf3a" }
+  bastion-smoke: { draw: arc, frames: 6, size: 256, color: "#8d939e" }
+  bastion-ink: { draw: ink, frames: 6, size: 256, color: "#ffe36a" }
+  bastion-crest: { draw: crest, frames: 1, size: 256, color: "#ffd25a" }
+  bastion-rim: { draw: rim, frames: 1, size: 256, color: "#ffcf3a" }
 
   fire-burst: { from: vfx-v1, row: 0, frames: 6 }
   frost-shatter: { from: vfx-v1, row: 1, frames: 6 }

@@ -1,0 +1,59 @@
+# Bastion S3 scrape (video 20.23-20.8s): the caster leans forward dragging the blade tip along the floor behind him; orange sparks at the tip.
+
+id: bastion-scrape
+duration_ticks: 12
+orient: yaw
+follow: false
+sample_ticks: 1
+rigs:
+- id: sword
+  pivot: [-0.3, 0.95, 0.15]
+  rest: [0, 90, 0]
+  tilt: [0, 0, 0]
+  respect_hit_stop: true
+  end_tick: 11
+  parts:
+  - id: face
+    block: gray_concrete
+    offset: [0, 1.55, 0]
+    size: [0.46, 1.9, 0.07]
+  - id: rim_l
+    block: white_concrete
+    offset: [0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: rim_r
+    block: white_concrete
+    offset: [-0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: tip
+    block: white_concrete
+    offset: [0, 2.5, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: base
+    block: white_concrete
+    offset: [0, 0.62, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: inset
+    block: yellow_concrete
+    offset: [0, 0.86, 0]
+    size: [0.09, 0.2, 0.09]
+  - id: guard
+    block: black_concrete
+    offset: [0, 0.5, 0]
+    size: [0.62, 0.1, 0.18]
+  - id: grip
+    block: black_concrete
+    offset: [0, 0.05, 0]
+    size: [0.09, 0.8, 0.09]
+  swing:
+  - t: 0
+    rotate: [172, 24, 0]
+  - t: 10
+    rotate: [172, 24, 0]
+  emitters:
+  - id: sparks
+    particle_id: bastion-s3-scrape-spark
+    point: [0, 2.5, 0]
+    start_t: 1
+    end_t: 10
+    step_blocks: 0.3

@@ -1,179 +1,156 @@
+# Zwei West Section 3 Ishmael, Knight's Greatsword Form (video 11.633-14.233): two waist-high sweeps. Rebuilt from fresh observation
+# (tools/skill-compare/data/bastion-greatsword-s1/notes.md). Caster movement: short step-in before hit 1, crouched lunge before hit 2.
 id: bastion-greatsword-s1
-name:
-  ja: 月輪の薙ぎ
-  en: Moon Sweep
-description:
-  ja: 腰の高さで二度薙ぎ払う。初撃が当たると溜めを得る。
-  en: Two broad waist-high sweeps. Landing the first banks charge.
+name: {ja: 月輪の薙ぎ, en: Moon Sweep}
+description: {ja: 一歩踏み込んで腰の高さで二度薙ぎ払う。初撃が当たると溜めを得る。, en: Step in and sweep twice at waist height. Landing the first banks charge.}
 archetype: sequence
 cooldown_ticks: 64
 resource_cost: 20
-tags:
-- melee
-- physical
-- charge
-params:
-  type: sequence
+tags: [melee, physical, charge]
+params: {type: sequence}
 phases:
   type: sequence
   cast:
+  - type: hide_held_item
+    targets: {type: caster}
+    ticks: {type: literal, value: 46}
+  - type: dash_strike
+    distance: 1.6
+    ticks: 3
+    radius: 0.3
+    hit_once: true
+    stop_on_block: true
+    follow_pitch: false
+    on_hit: []
+    stop_before_target: 2.4
   - type: play_vfx
-    vfx_id: bastion-s1-sweep
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 3
+    targets: {type: caster}
+    vfx_id: bastion-sweep-high
+    delay_ticks: {type: literal, value: 1}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.player.attack.sweep
+    volume: {type: literal, value: 0.9}
+    pitch: {type: literal, value: 0.8}
+    delay_ticks: {type: literal, value: 5}
   - type: damage
     targets:
       type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 3.4
-      angle_degrees:
-        type: literal
-        value: 110
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
       max_count: 1
     components:
-    - base:
-        type: literal
-        value: 7
+    - base: {type: literal, value: 7}
       attribute: physical
-    ignore_invulnerability:
-      type: literal
-      value: true
-    delay_ticks:
-      type: literal
-      value: 7
+    ignore_invulnerability: {type: literal, value: true}
+    delay_ticks: {type: literal, value: 7}
   - type: spawn_particle
     targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
     particle_id: bastion-s3-hit-crit
-    delay_ticks:
-      type: literal
-      value: 7
+    delay_ticks: {type: literal, value: 7}
   - type: hit_stop
     targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
     ticks: 2
     include_caster: true
-    delay_ticks:
-      type: literal
-      value: 7
+    delay_ticks: {type: literal, value: 7}
   - type: play_sound
-    targets:
-      type: caster
+    targets: {type: caster}
     sound_id: entity.player.attack.strong
-    delay_ticks:
-      type: literal
-      value: 7
+    delay_ticks: {type: literal, value: 7}
   - type: apply_status
-    targets:
-      type: caster
+    targets: {type: caster}
     status_id: charge
-    effect_duration_ticks:
-      type: literal
-      value: 400
-    stack_count:
-      type: literal
-      value: 1
-    delay_ticks:
-      type: literal
-      value: 7
+    effect_duration_ticks: {type: literal, value: 400}
+    stack_count: {type: literal, value: 1}
     condition:
       type: distance_less_than
-      a:
-        type: caster
+      a: {type: caster}
       b:
         type: nearby_entities
-        center:
-          type: caster
-        radius:
-          type: literal
-          value: 3.3
+        center: {type: caster}
+        radius: {type: literal, value: 3.7}
         exclude_caster: true
-      distance:
-        type: literal
-        value: 3.4
+      distance: {type: literal, value: 3.6}
+    delay_ticks: {type: literal, value: 7}
+  - type: dash_strike
+    distance: 0.7
+    ticks: 3
+    radius: 0.3
+    hit_once: true
+    stop_on_block: true
+    follow_pitch: false
+    on_hit: []
+    stop_before_target: 1.7
+    delay_ticks: {type: literal, value: 24}
   - type: play_vfx
-    vfx_id: bastion-s1-rise
-    targets:
-      type: caster
-    delay_ticks:
-      type: literal
-      value: 27
+    targets: {type: caster}
+    vfx_id: bastion-sweep-low
+    delay_ticks: {type: literal, value: 25}
+  - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.player.attack.sweep
+    pitch: {type: literal, value: 0.7}
+    delay_ticks: {type: literal, value: 28}
   - type: damage
     targets:
       type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 3.4
-      angle_degrees:
-        type: literal
-        value: 110
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
       max_count: 1
     components:
-    - base:
-        type: literal
-        value: 9
+    - base: {type: literal, value: 9}
       attribute: physical
-    ignore_invulnerability:
-      type: literal
-      value: true
-    delay_ticks:
-      type: literal
-      value: 31
+    ignore_invulnerability: {type: literal, value: true}
+    delay_ticks: {type: literal, value: 31}
   - type: spawn_particle
     targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
     particle_id: bastion-s3-hit-crit
-    delay_ticks:
-      type: literal
-      value: 31
+    delay_ticks: {type: literal, value: 31}
   - type: hit_stop
     targets:
-      type: nearby_entities
-      center:
-        type: caster
-      radius:
-        type: literal
-        value: 3.3
-      exclude_caster: true
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
     ticks: 2
     include_caster: true
-    delay_ticks:
-      type: literal
-      value: 31
+    delay_ticks: {type: literal, value: 31}
   - type: play_sound
+    targets: {type: caster}
+    sound_id: entity.player.attack.crit
+    delay_ticks: {type: literal, value: 31}
+  - type: knockback
     targets:
-      type: caster
-    sound_id: entity.player.attack.strong
-    delay_ticks:
-      type: literal
-      value: 31
+      type: cone
+      from: {type: caster}
+      direction: {type: from_caster}
+      distance: {type: literal, value: 3.6}
+      angle_degrees: {type: literal, value: 110}
+      max_count: 1
+    direction: {type: away_from_caster, vertical: 0.2}
+    strength: {type: literal, value: 0.5}
+    delay_ticks: {type: literal, value: 31}

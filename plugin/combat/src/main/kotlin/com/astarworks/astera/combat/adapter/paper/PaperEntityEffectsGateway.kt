@@ -103,6 +103,14 @@ public class PaperEntityEffectsGateway(
         entity(target)?.isGlowing = glowing
     }
 
+    override fun setHeldItemHidden(target: PlayerId, hidden: Boolean) {
+        val owner = server.getPlayer(target.uuid)?.takeIf { it.isValid } ?: return
+        val shown = if (hidden) org.bukkit.inventory.ItemStack.of(org.bukkit.Material.AIR) else owner.inventory.itemInMainHand
+        for (viewer in owner.world.players) {
+            if (viewer != owner) viewer.sendEquipmentChange(owner, org.bukkit.inventory.EquipmentSlot.HAND, shown)
+        }
+    }
+
     private fun entity(id: PlayerId): Entity? = server.getEntity(id.uuid)?.takeIf { it.isValid }
 
     private companion object {

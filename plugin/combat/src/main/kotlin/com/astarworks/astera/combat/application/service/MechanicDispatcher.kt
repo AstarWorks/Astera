@@ -822,6 +822,7 @@ public class MechanicDispatcher(
                 vfx.play(mechanic, ctx, resolveDouble(mechanic.scale, ctx), mechanic.follow?.let { resolveBool(it, ctx) }, mechanic.freeze)
             }
             is Mechanic.Glow -> worldMechanics.glow(mechanic, ctx)
+            is Mechanic.HideHeldItem -> worldMechanics.hideHeldItem(mechanic, ctx)
             is Mechanic.CameraShake -> worldMechanics.cameraShake(mechanic, ctx)
 
             is Mechanic.ScheduleParticleAnimation -> {
