@@ -92,12 +92,13 @@ class StarsE2eTest : PlaythroughBase() {
         Thread.sleep(1_200)
         val deathSpot = posOf(a)
         val tKill = System.currentTimeMillis()
+        val logFromKill = logLineCount()
         rcon("damage ${a.name} 1000 minecraft:magic by ${c.name}")
         a.waitUntil(8_000) { a.deaths.isNotEmpty() }
         val victimCleared = c.waitUntil(6_000) { starCount(a) == 0 }
         E2eReport.check(suite, "a kill bursts the victim's carried stars (victim back to 0)", "SetScore") {
             assertThat(choose.map { clean(it) }.joinToString(" ")).describedAs("no reply to /astera norma choose kill").contains("kill")
-            assertThat(victimCleared).describedAs("victim still carries ${starCount(a)} stars: ${sidebar(a)} (carried before: $carried)").isTrue()
+            assertThat(victimCleared).describedAs("victim still carries ${starCount(a)} stars: ${sidebar(a)} (carried before: $carried); server log: ${ServerLog.read().lineSequence().drop(logFromKill).filter { it.contains("star", true) || it.contains("ERROR") || it.contains("threw") }.take(12).toList()}").isTrue()
             "victim stars $carried -> ${starCount(a)} ${System.currentTimeMillis() - tKill} ms after the kill"
         }
         E2eReport.check(suite, "the KILL goal levels the killer up (Lv 1 -> 2 after one kill)", "SetScore") {

@@ -68,6 +68,7 @@ internal object MatchStarWiring {
             eventBus = eventBus,
             marker = env.ports.starDropMarker?.invoke(services),
             deathDropRatio = { id -> configOf(id).deathDropRatio },
+            log = { env.ctx.logger.info(it) },
         )
         val norma = NormaLevelService(
             matches = env.matches,

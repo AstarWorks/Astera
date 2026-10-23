@@ -41,6 +41,7 @@ public class StarDropService(
     private val marker: IStarDropMarker?,
     private val deathDropRatio: (MatchId) -> Double,
     private val random: Random = Random.Default,
+    private val log: (String) -> Unit = {},
 ) {
     private val drops: MutableMap<Long, StarDrop> = ConcurrentHashMap()
     private val nextId = AtomicLong(1)
@@ -63,13 +64,15 @@ public class StarDropService(
 
     /** A kill inside a match: the victim's stars burst out as drops around the death position. */
     public fun onKilled(event: PlayerKilled) {
-        if (event.context !is CombatContext.Match) return
+        if (event.context !is CombatContext.Match) { log("star burst skipped: context ${event.context}"); return }
         val match = matches.findMatchOf(event.victim) ?: return
         if (match.phase == MatchPhase.ENDED) return
         val carried = store.get(match.id, event.victim)
         val burst = floor(carried * deathDropRatio(match.id)).toInt()
+        log("star burst: victim=${event.victim} carried=$carried burst=$burst")
         if (burst <= 0) return
-        val at = positions.positionOf(event.victim, includeDead = true) ?: return
+        val at = positions.positionOf(event.victim, includeDead = true)
+        if (at == null) { log("star burst: no position for ${event.victim}"); return }
         if (store.spend(match.id, event.victim, burst) is com.astarworks.astera.core.domain.Result.Failure) return
         val stacks = minOf(burst, MAX_BURST_DROPS)
         val base = burst / stacks
