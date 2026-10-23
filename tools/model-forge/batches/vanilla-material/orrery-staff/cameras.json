@@ -1,0 +1,1156 @@
+[
+  {
+    "file": "orrery-staff-orbit--45-0.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.7100000381469727,
+        -15.204120467387447,
+        24.144120047770755
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit--45-45.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.78247104970774,
+        -15.204120467387447,
+        17.072471011560772
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit--45-90.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.854120085917728,
+        -15.204120467387447,
+        1.4784009667365948e-15
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit--45-135.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.782471049707745,
+        -15.204120467387447,
+        -17.07247101156077
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit--45-180.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.7100000381469755,
+        -15.204120467387447,
+        -24.144120047770755
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit--45-225.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -15.3624709734138,
+        -15.204120467387447,
+        -17.07247101156077
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit--45-270.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -22.434120009623783,
+        -15.204120467387447,
+        -3.882670630533191e-15
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit--45-315.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -15.362470973413803,
+        -15.204120467387447,
+        17.072471011560765
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-0-0.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.7100000381469727,
+        8.939999580383303,
+        34.14494202312154
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-0-45.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.85412008591772,
+        8.939999580383303,
+        24.144120047770755
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-0-90.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        35.85494206126851,
+        8.939999580383303,
+        2.090774697784387e-15
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-0-135.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.854120085917728,
+        8.939999580383303,
+        -24.14412004777075
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-0-180.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.7100000381469769,
+        8.939999580383303,
+        -34.14494202312154
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-0-225.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -22.43412000962377,
+        8.939999580383303,
+        -24.144120047770762
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-0-270.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -32.434941984974564,
+        8.939999580383303,
+        -5.490925463927733e-15
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-0-315.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -22.434120009623786,
+        8.939999580383303,
+        24.144120047770745
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-45-0.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.7100000381469727,
+        33.08411962815405,
+        24.144120047770755
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-45-45.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.78247104970774,
+        33.08411962815405,
+        17.072471011560772
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-45-90.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        25.854120085917728,
+        33.08411962815405,
+        1.4784009667365948e-15
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-45-135.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.782471049707745,
+        33.08411962815405,
+        -17.07247101156077
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-45-180.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.7100000381469755,
+        33.08411962815405,
+        -24.144120047770755
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-45-225.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -15.3624709734138,
+        33.08411962815405,
+        -17.07247101156077
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-45-270.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -22.434120009623783,
+        33.08411962815405,
+        -3.882670630533191e-15
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-orbit-45-315.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -15.362470973413803,
+        33.08411962815405,
+        17.072471011560765
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-pole--90.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.7100000381469727,
+        -25.204942442721162,
+        0.000034144942032070105
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-pole-90.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        1.7100000381469727,
+        43.08494160348776,
+        0.00003414494202311585
+      ],
+      "target": [
+        1.7100000381469727,
+        8.9399995803833,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-gui.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "gui",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        2.4492935982947065e-15,
+        40
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-firstperson_righthand.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "firstperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-firstperson_lefthand.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "firstperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-thirdperson_righthand.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "thirdperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-thirdperson_lefthand.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "thirdperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-thirdperson_righthand_side.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "thirdperson_righthand_side",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        48,
+        21.999999999999996,
+        2.9391523179536475e-15
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-ground.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "ground",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-ground_spin.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "ground_spin",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "orrery-staff-fixed.png",
+    "item": "orrery-staff",
+    "source": "content/models/items/orrery-staff.model.json",
+    "sha256": "a051fd83cf746243130aa21333f995e2f7d7884c3b44f7581a14573559462efb",
+    "context": "fixed",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.6942229581241772e-15,
+        1.3471114790620886e-15,
+        -22
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]
