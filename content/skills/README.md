@@ -139,7 +139,8 @@ direction: { kind: toward_caster }                       # pull inward
   Their `condition` is also evaluated when they fire, not at cast time.
 - `for_each_target` resolves its `targets` once when the wrapper fires and dispatches `mechanics` for each distinct living entity.
   Children using `{ type: target }` retain that entity through delays/repeats even if another enemy becomes nearer.
-  Children stop firing while the selected entity is dead, absent or in a different world. The caster/origin remain unchanged.
+  When a child or tracked VFX observes the selected entity dead, absent or in a different world, that selection is permanently cancelled.
+  Returning to the original world does not resume its remaining children. The caster/origin remain unchanged.
   Child geometric targeters still select normally; use `target` for the bound entity. A repeating wrapper selects anew on each wrapper firing.
   Location `{ type: target_origin }` refers to that entity's position/world when the wrapper selected it, and stays fixed as it moves.
   It is unavailable outside a target-bound context. Teleport offsets from it are absolute choreography, with no automatic collision clearance.
@@ -193,3 +194,11 @@ Per-cast budgets (spawned particle packets; keep a one-shot under ~1000 and a fl
 ring = `amount * period_ticks * points * particles`, line = `amount * (segments * points_per_segment + 1) * particles`.
 Current: flame-burst impact ~410, frost-nova ~710, regrowth ~850, lightning-bolt strike ~300, simple-shoot impact ~400,
 frost-shard ~160, thorn-bolt ~100. Each YAML carries its own budget comment. Before/after sheets: `docs/assets/skills/`.
+
+### VFX endpoint tracking for a bound target
+
+Inside `for_each_target`, `play_vfx: { targets: { type: caster }, vfx_id: ..., track_bound_target: true }` passes the selected living entity to the effect. The effect definition must have `target_reference: [0, 0, 4]` (the authored target feet in local anchor coordinates). It must use a fixed anchor (`follow: false`, no native attachment). Missing/incompatible tracking requests are rejected, not played at a guessed position.
+
+A non-emitting display element may set `target_track: [{ t: 0, weight: 0 }, { t: 20, weight: 1 }]`. Weights are finite0..1, keys strictly increase, and time follows the element interpolation clock (`spawn + 1 + t`). The runtime adds `(live target feet - authored target feet) * interpolated weight` to the entity position each tick, preserving model scale and rotation. Weight0 keeps the authored pose; weight1 moves its endpoint to the same target at any distance/height. Intermediate weights can distribute a trail between endpoints. This does not rotate or stretch trail glyphs, avoid obstacles, implement hit detection, or follow the caster. Large changes can therefore leave gaps/incorrect orientation in a trail and must be reviewed.
+
+The target's death/disappearance/world mismatch stops all displays in this effect and marks the shared selection cancelled, so its delayed damage also stays cancelled after a world return. An independently started impact effect has its own lifetime; it is not retroactively cancelled.

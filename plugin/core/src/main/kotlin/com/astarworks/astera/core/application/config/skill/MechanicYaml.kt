@@ -861,6 +861,7 @@ public sealed class MechanicYaml {
     public data class PlayVfx(
         public val targets: TargeterYaml,
         @SerialName("vfx_id") public val vfxId: String,
+        @SerialName("track_bound_target") public val trackBoundTarget: Boolean = false,
         public val scale: NumericValueYaml = NumericValueYaml.Literal(1.0),
         public val follow: BoolValueYaml? = null,
         /** Hit-stop windows `[{at, ticks}]` (effect ticks) freezing the rigs that set `respect_hit_stop`. */
@@ -874,6 +875,7 @@ public sealed class MechanicYaml {
         override fun toDomain(): Mechanic = Mechanic.PlayVfx(
             targets = targets.toDomain(),
             vfxId = com.astarworks.astera.core.domain.effect.vfx.VfxId(vfxId),
+            trackBoundTarget = trackBoundTarget,
             scale = scale.toDomain(),
             follow = follow?.toDomain(),
             freeze = freeze.map { it.toDomain() },

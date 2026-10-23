@@ -14,6 +14,7 @@ import com.astarworks.astera.core.domain.effect.vfx.VfxEmitter
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxFormation
 import com.astarworks.astera.core.domain.effect.vfx.VfxGroupKeyframe
+import com.astarworks.astera.core.domain.effect.vfx.VfxTargetKey
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.effect.vfx.VfxJitter
 import com.astarworks.astera.core.domain.effect.vfx.VfxKeyframe
@@ -78,6 +79,7 @@ public data class VfxYamlConfig(
     public val elements: List<VfxElementYaml> = emptyList(),
     /** Weapon rigs with 風切り trails (see [VfxRigYaml]). */
     public val rigs: List<VfxRigYaml> = emptyList(),
+    @SerialName("target_reference") public val targetReference: List<Double>? = null,
 ) {
     /** Materializes the domain definition; every validation failure comes back as a [VfxConfigError]. */
     public fun toDefinition(): Result<VfxDefinition, VfxConfigError> = try {
@@ -93,6 +95,7 @@ public data class VfxYamlConfig(
                 sampleTicks = sampleTicks,
                 elements = elements.map { it.toDomain() },
                 rigs = rigs.map { it.toDomain() },
+                targetReference = targetReference?.let { vec3(it, "target_reference") },
             ),
         )
     } catch (e: IllegalArgumentException) {
@@ -123,6 +126,7 @@ public data class VfxElementYaml(
     @SerialName("group_keyframes") public val groupKeyframes: List<VfxGroupKeyframeYaml> = emptyList(),
     /** Display-particle emitter (kind `quad` only); keyframes become optional. */
     public val emit: VfxEmitYaml? = null,
+    @SerialName("target_track") public val targetTrack: List<VfxTargetKeyYaml> = emptyList(),
 ) {
     public fun toDomain(): VfxElement = VfxElement(
         id = id,
@@ -141,8 +145,12 @@ public data class VfxElementYaml(
         oscillate = oscillate?.toDomain(),
         groupKeyframes = groupKeyframes.map { it.toDomain() },
         emit = emit?.toDomain(),
+        targetTrack = targetTrack.map { VfxTargetKey(it.t, it.weight) },
     )
 }
+
+@Serializable
+public data class VfxTargetKeyYaml(public val t: Int, public val weight: Double)
 
 @OptIn(ExperimentalSerializationApi::class)
 @JsonClassDiscriminator("type")

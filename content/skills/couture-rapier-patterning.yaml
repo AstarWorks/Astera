@@ -3,8 +3,8 @@ name:
   ja: パターニング（追撃試作）
   en: Patterning prototype
 description:
-  ja: 未接続の遠隔追撃試作。固定4m撮影用の軌道。
-  en: Unbound follow-up prototype; fixed four-metre visual trajectory.
+  ja: 選択標的へ鋏の終点を追従させる未接続の遠隔追撃試作。
+  en: Unbound follow-up prototype with live endpoint tracking.
 archetype: sequence
 cooldown_ticks: 65
 resource_cost: 0
@@ -13,10 +13,6 @@ params:
 phases:
   type: sequence
   cast:
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: couture-patterning
   - type: for_each_target
     targets:
       type: cone
@@ -32,6 +28,11 @@ phases:
         value: 45
       max_count: 1
     mechanics:
+    - type: play_vfx
+      targets:
+        type: caster
+      vfx_id: couture-patterning
+      track_bound_target: true
     - type: damage
       targets:
         type: target

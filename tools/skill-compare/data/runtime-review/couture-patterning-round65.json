@@ -1,0 +1,65 @@
+{
+  "status": "failed",
+  "case": "couture-rapier-patterning",
+  "round": 65,
+  "static": {
+    "capture": "build/limbus-review/round65/verified-captures/couture-rapier-patterning-1792737106660252671",
+    "frames": 77,
+    "cameraMaxLatenessMs": 6,
+    "maxRepeatedFrames": 1,
+    "health": [
+      200,
+      194.096,
+      188.19199
+    ],
+    "displayPeak": 55,
+    "displaySamples": 761
+  },
+  "moving": {
+    "capture": "build/limbus-review/round65/verified-captures/couture-rapier-patterning-1792737083447857320",
+    "frames": 77,
+    "cameraMaxLatenessMs": 9,
+    "maxRepeatedFrames": 2,
+    "health": [
+      200,
+      194.096,
+      182.288
+    ],
+    "targetStart": [
+      304.5,
+      100,
+      300.5
+    ],
+    "targetEnd": [
+      306.5,
+      101,
+      301.5
+    ]
+  },
+  "cancellation": [
+    {
+      "action": "remove",
+      "baseline": 0,
+      "during": 28,
+      "after": 0
+    },
+    {
+      "action": "world-change",
+      "baseline": 0,
+      "during": 28,
+      "after": 0
+    },
+    {
+      "action": "world-return",
+      "baseline": 0,
+      "during": 28,
+      "after": 0
+    }
+  ],
+  "rejectedCameraLatenessMs": [
+    150,
+    257
+  ],
+  "notes": "鋏の終点を同一標的へ追従させ、移動・消失を実機確認。長距離の尾の節間/向き、鋏の進行方向、腕・装飾・発光・カメラ・追撃発動条件は未一致。",
+  "evidence": "/evidence/couture-patterning-tracking.png"
+}

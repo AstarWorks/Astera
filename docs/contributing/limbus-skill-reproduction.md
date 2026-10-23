@@ -490,3 +490,11 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Replaced shared impact only in Patterning with a dedicated glint-based horizontal pair, brief vertical/core pulses, and six emitted petals. First capture was too thin/occluded; increased thickness/core and enabled sprite see_through, then recaptured. Occlusion through walls is not verified.
 - Final77frames, camera6ms, repeated maximum2 (019/020 held preparation). Display sample773 observations peaks55; HP200→188.192→182.288, two drops1.003s apart. Damage mechanics unchanged.
 - Fidelity failed: enlarged32px glint has hard edges; vertical punch/glow/petals, target-relative flight, original pose/camera and passive routing remain incomplete. Evidence /evidence/couture-patterning-impact.png and runtime-review/couture-patterning-round64.json.
+
+### Round 65: live target endpoint and shared cancellation
+
+- Added opt-in bound-target VFX correction. Element target weights use the same spawn+1+t clock as transforms; translation preserves model rotation/scale. Fixed-anchor effects only; no emitting elements. Patterning selects the target once before starting its choreography.
+- Bound children and tracking VFX share cancellation. On observed death/disappearance/world mismatch the effect ends and delayed children stay cancelled after return. Actual probes: remove/world-change/world-return, display28→0; world-return HP200 after delayed-hit times.
+- Real clients: target moved4→6m forward,+1m lateral,+1m up between contacts. Final moving77frames,camera9ms,maxrepeat2,HP200→194.096→182.288. Final static77frames,camera6ms,maxrepeat1,HP200→194.096→188.19199; static display peak55 from761 sequential observations.
+- Cold first casts delayed camera150/257ms; reject those captures. After a rehearsal, recreate scene/target and record moving/static separately. Publish static source-comparison only. Build core/combat and contentLint474 passed; schema edits limited to new fields/definition.
+- Fidelity remains failed: translation does not align blade/trail rotation or stretch links, so long-distance gaps remain. Pose/light/camera/trigger semantics and collision/occlusion remain unfinished. Evidence /evidence/couture-patterning-tracking.png; runtime-review/couture-patterning-round65.json.

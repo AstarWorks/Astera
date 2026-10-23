@@ -2000,6 +2000,9 @@
                         },
                         "snapshot_pose": {
                             "type": "boolean"
+                        },
+                        "track_bound_target": {
+                            "type": "boolean"
                         }
                     },
                     "required": [
