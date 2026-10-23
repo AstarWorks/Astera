@@ -2,7 +2,7 @@
   {
     "op": "import",
     "args": {
-      "path": "/tmp/crimson-chain-axe-before.json"
+      "path": "/tmp/crimson-chain-axe-original-redo.json"
     },
     "validation": {
       "valid": true,
@@ -103,7 +103,7 @@
             "ids": [
               "e0001"
             ],
-            "material": "wood.stripped_dark_oak_log",
+            "material": "wood.stripped_crimson_stem",
             "seed": 20261023
           }
         },
@@ -150,7 +150,7 @@
               "e0162",
               "e0163"
             ],
-            "material": "metal.anvil",
+            "material": "metal.netherite_block",
             "seed": 20261023
           }
         },
@@ -183,7 +183,7 @@
               "e0069",
               "e0072"
             ],
-            "material": "metal.copper_block",
+            "material": "concrete.red_concrete",
             "seed": 20261023
           }
         },
@@ -301,7 +301,7 @@
               "e0082",
               "e0083"
             ],
-            "material": "cloth.red_wool",
+            "material": "gem.redstone_block",
             "seed": 20261023
           }
         }
@@ -394,7 +394,7 @@
   {
     "op": "export",
     "args": {
-      "path": "/tmp/crimson-chain-axe-replay/export"
+      "path": "/tmp/crimson-chain-axe-redo-forge/export"
     },
     "validation": null
   }
