@@ -1,0 +1,53 @@
+{
+  "runtime": {
+    "baseCommit": "0fcad6988f2caaf9fbb7157935245bcace7de11e",
+    "changes": "PaperScheduler equal-tick tasks execute in enqueue order; S2 return VFX starts on the reversal tick (37).",
+    "scope": "S2 direct prototype capture; not a complete fidelity claim",
+    "coreSha256": "9b4cca67440d08b069dc47f8fa688515f20b0393290dcb9fc62a396e29eec040",
+    "combatSha256": "9b6ddb0400e3d031bafde4b5daa83c6877748b51f904cb35d5e7533512260f78"
+  },
+  "deployedEvidence": {
+    "content/skills/edict-procuration-s2.yaml": "121d84ca9725b901029b14bd7e14c2285ebf539111c0c4f46d85d758092131db",
+    "content/vfx/edict-procuration-engrave-return.yaml": "88742bbf56fc14f7204428be20c91060f83028c4879b32a05e18a943795fb2e1"
+  },
+  "sourceOfFinding": "PaperScheduler compared only executeAtTick; equal-tick PriorityQueue order was unspecified.",
+  "change": "Add monotonically increasing enqueue sequence; rearmed repetitions receive a new sequence.",
+  "verification": {
+    "skill": "edict-procuration-s2",
+    "turnTick": 37,
+    "returnVfxTick": 37,
+    "contactTicks": [
+      5,
+      30,
+      38
+    ],
+    "captures": [
+      {
+        "directory": "repeat-1792718528",
+        "quality": {
+          "maxRepeatedFrames": 1,
+          "reviewRequired": false,
+          "cameraMaxLatenessMs": 4.0
+        }
+      },
+      {
+        "directory": "repeat-1792718547",
+        "quality": {
+          "maxRepeatedFrames": 2,
+          "reviewRequired": false,
+          "cameraMaxLatenessMs": 8.0
+        }
+      }
+    ],
+    "visualObservation": "Both captures show claws extending from caster on right toward target on left after reversal.",
+    "excludedCameraLatenessMs": [
+      161,
+      116
+    ]
+  },
+  "limitations": [
+    "No full original-reference fidelity approval",
+    "Movement/follow callback ordering remains separate",
+    "Persistent form routing absent"
+  ]
+}
