@@ -56,6 +56,7 @@ internal class WorldMechanics(
     private val summons: ISummonGateway?,
     private val summonRegistry: SummonRegistry,
     private val effects: IEntityEffectsGateway?,
+    private val heldItems: HeldItemHider?,
     private val feedback: IPlayerFeedbackGateway?,
     private val messageRenderer: IMessageRenderer?,
     private val teamLookup: IMatchTeamLookup?,
@@ -296,23 +297,11 @@ internal class WorldMechanics(
 
     // ---- HideHeldItem --------------------------------------------------------
 
-    private val hiddenUntil: MutableMap<PlayerId, Long> = HashMap()
-
     fun hideHeldItem(m: Mechanic.HideHeldItem, ctx: MechanicContext) {
-        val gateway = effects ?: return warnMissing("HideHeldItem", "IEntityEffectsGateway")
+        val hider = heldItems ?: return warnMissing("HideHeldItem", "IEntityEffectsGateway")
         val duration = host.resolveInt(m.ticks, ctx).toLong()
         if (duration <= 0) return
-        for (target in living(targeters.resolvePlayers(m.targets, ctx))) {
-            gateway.setHeldItemHidden(target, true)
-            hiddenUntil[target] = scheduler.currentTick() + duration
-            // A later hide on the same target pushes the end out; only the last one restores the item.
-            scheduler.runLaterTicks(duration) {
-                if ((hiddenUntil[target] ?: 0L) <= scheduler.currentTick()) {
-                    hiddenUntil.remove(target)
-                    gateway.setHeldItemHidden(target, false)
-                }
-            }
-        }
+        for (target in living(targeters.resolvePlayers(m.targets, ctx))) hider.hide(target, duration)
     }
 
     // ---- CameraShake ---------------------------------------------------------
@@ -343,8 +332,7 @@ internal class WorldMechanics(
         summonRegistry.all().forEach { summonRegistry.forget(it) }
         glowUntil.keys.toList().forEach { effects?.setGlowing(it, false) }
         glowUntil.clear()
-        hiddenUntil.keys.toList().forEach { effects?.setHeldItemHidden(it, false) }
-        hiddenUntil.clear()
+        heldItems?.shutdown()
     }
 
     private fun warnMissing(mechanic: String, port: String) {
