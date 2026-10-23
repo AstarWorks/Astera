@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
  *
  * Two top-level fields:
  *
- * - [values] — `{ "stat.kills": 7, "wallet.star": 1500, "resource.mana_max": 100, ... }`
+ * - [values] — `{ "stat.kills": 7, "wallet.gold": 1500, "resource.mana_max": 100, ... }`
  *   stored as an object so jsonb_object_agg-style backfills line up
  *   with the V14 migration. Each entry is a [AttributeValueJson] sealed
  *   variant so flags/refs/durations round-trip alongside numbers.

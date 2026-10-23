@@ -81,7 +81,7 @@ public class PostgresAuditLogRepositoryIT : PostgresIntegrationTestBase() {
         val movement = AuditEvent.CurrencyMovement(
             id = AuditEventId.random(),
             player = PlayerId(UUID.randomUUID()),
-            currency = Currency.STAR,
+            currency = Currency.GOLD,
             delta = -120L,
             newBalance = 30L,
             reason = "shop:example-shop/pistol",

@@ -1,17 +1,15 @@
 # Permanent, lifetime claims: changing an already claimed level never re-grants it.
 levels:
   2:
-    star: 50
+    gold: 50
     titles: [newcomer]
   3:
-    star: 75
+    gold: 75
     cosmetics: [rising-star]
   5:
-    star: 100
-    gold: 2
+    gold: 102
     titles: [adventurer]
   10:
-    star: 200
-    gold: 5
+    gold: 205
     titles: [veteran]
 # Optional items: [<item-id>] records entitlement, not a physical inventory grant.

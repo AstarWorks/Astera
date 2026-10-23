@@ -6,6 +6,6 @@ target:
   type: kills
   count: 40
 reward:
-  currency_id: STAR
+  currency_id: GOLD
   currency_amount: 150
   xp: 250

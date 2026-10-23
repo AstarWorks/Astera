@@ -2,14 +2,16 @@
 # content/stages/example-arena.yaml at the same x/z). Mirrors plugin/match/.../application/config/GeneratorYamlConfig.kt.
 #
 # `match_stage_id` ties the generator to a stage in content/stages/. `period_seconds` is wall-clock seconds.
-# `amount` is the base per-spawn quantity; anomalies / boons scale it at runtime.
+# `amount` is the base per-spawn star count (anomalies / boons scale it). Stars are an in-match item: the generator holds
+# them (up to `stockpile_cap`, default 5) until a participant within `pickup_radius` blocks (default 3) takes them.
 
 id: arena-south
 match_stage_id: example-arena
 position: { x: 0.5, y: 65.0, z: 62.5 }
-currency: STAR
 period_seconds: 30.0
 amount: 1
 tier: iron
 affiliation:
   kind: neutral
+# Sudden death (late game) multiplies each pop.
+late_game_multiplier: 2.0

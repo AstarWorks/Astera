@@ -16,7 +16,6 @@ public class InMemoryLevelRewardRepository(private val ledger: () -> ICurrencyLe
     override fun apply(playerId: PlayerId, level: Int, reward: LevelReward): Result<Boolean, LevelRewardError> {
         if (playerId to level in claims) return Result.success(false)
         val wallet = ledger() ?: return Result.failure(LevelRewardError.LedgerUnavailable)
-        wallet.credit(playerId, Currency.STAR, reward.star)
         wallet.credit(playerId, Currency.GOLD, reward.gold)
         owned.getOrPut(playerId) { mutableSetOf() }.addAll(reward.unlocks)
         claims += playerId to level

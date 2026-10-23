@@ -34,7 +34,7 @@ public class PostgresRewardBridgeIT : PostgresIntegrationTestBase() {
                 RewardBundle.RewardItem("astera:sword", count = 1),
                 RewardBundle.RewardItem("astera:potion", count = 8),
             ),
-            currency = mapOf(Currency.STAR to 1500L, Currency.GOLD to 100L),
+            currency = mapOf(Currency.GEM to 1500L, Currency.GOLD to 100L),
             xp = 250L,
             // Truncate to microseconds: Postgres TIMESTAMP stores 6 fractional digits,
             // Java Instant has 9 (nanoseconds). The round-trip truncates the last 3
@@ -51,7 +51,7 @@ public class PostgresRewardBridgeIT : PostgresIntegrationTestBase() {
         assertThat(got.playerId).isEqualTo(bundle.playerId)
         assertThat(got.items.map { it.itemId }).containsExactly("astera:sword", "astera:potion")
         assertThat(got.items.map { it.count }).containsExactly(1, 8)
-        assertThat(got.currency).isEqualTo(mapOf(Currency.STAR to 1500L, Currency.GOLD to 100L))
+        assertThat(got.currency).isEqualTo(mapOf(Currency.GEM to 1500L, Currency.GOLD to 100L))
         assertThat(got.xp).isEqualTo(250L)
         assertThat(got.createdAt).isEqualTo(bundle.createdAt)
     }

@@ -44,9 +44,10 @@ class PersistenceOverlayScenarioTest {
             // session: Core's join listener wrote to the overlay store.
             assertThat(overlay.sessions.find(newcomer.id)).isNotNull
 
-            // wallet: the starter grant landed in the overlay ledger, whichever reader asks.
-            assertThat(overlay.ledger.balance(newcomer.id, Currency.STAR)).isEqualTo(150L)
-            assertThat(services.getOrThrow<ICurrencyLedger>().balance(newcomer.id, Currency.STAR)).isEqualTo(150L)
+            // wallet: a credit lands in the overlay ledger, whichever reader asks.
+            overlay.ledger.credit(newcomer.id, Currency.GOLD, 150L)
+            assertThat(overlay.ledger.balance(newcomer.id, Currency.GOLD)).isEqualTo(150L)
+            assertThat(services.getOrThrow<ICurrencyLedger>().balance(newcomer.id, Currency.GOLD)).isEqualTo(150L)
 
             // vault: the registered use case persists into the overlay.
             val vault = PersonalVault(newcomer.id, listOf(PersonalVault.VaultItem(slot = 0, itemId = "pistol", count = 1)))

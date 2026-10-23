@@ -297,6 +297,9 @@ internal object MatchGameplayWiring {
 
         // F3-5: death screen -> death cam -> countdown -> respawn at a team spawn -> spawn protection.
         val deathConfigLogged = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
+        val matchStars = MatchStarWiring.install(env)
+        env.stars = matchStars
+        commands.register(MatchCommandSpecs.buildNormaCommandSpec(matchStars.norma))
         val deathRespawn = DeathRespawnCoordinator(
             matches = matches,
             stages = stages,
@@ -451,6 +454,7 @@ internal object MatchGameplayWiring {
             threshold = { id -> env.modeConfigOf(id)["score_threshold"]?.toIntOrNull()?.takeIf { it > 0 } ?: 10 },
             timeLimitTicks = { id -> (env.modeConfigOf(id)["time_limit_seconds"]?.toLongOrNull()?.takeIf { it > 0 } ?: 600L) * 20L },
             now = { scheduler.currentTick() },
+            levelOf = { match, team -> matchStars.norma.topLevel(match, team) },
         )
         subscriptions += eventBus.subscribe(
             com.astarworks.astera.combat.domain.event.PlayerKilled::class,

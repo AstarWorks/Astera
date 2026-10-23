@@ -48,7 +48,7 @@ criteria:
 
 rewards:
   - type: grant_currency
-    currency: STAR
+    currency: GOLD
     amount: 50
   - type: grant_title
     title_id: boss-slayer

@@ -14,7 +14,7 @@ import com.astarworks.astera.core.domain.item.ItemId
  *   - **Cross-server progression** — proxy traversal preserves state via our
  *     own Postgres tables (ADR-0068); Vanilla advancements would be world-local.
  *   - **Custom criteria vocabulary** — Astera-specific signals like
- *     `CurrencyEarned` (STAR / GOLD / GEM) and `MatchesWon` have no Vanilla
+ *     `CurrencyEarned` (GOLD / GEM) and `MatchesWon` have no Vanilla
  *     equivalent.
  *   - **Composable rewards** — currency / title / achievement / item dispatch
  *     into Astera's own service ports, not Vanilla's `recipes` / `function`

@@ -243,15 +243,11 @@ public object StatsWiring {
             rewardConfig.levels.mapValues { it.value.toDomain() }, levelRewards, playerGateway, messages, hudGateway,
             onGranted = { id, level, reward ->
                 val ledger = services.getOrThrow<com.astarworks.astera.core.application.port.outbound.ICurrencyLedger>()
-                for ((currency, amount) in listOf(
-                    com.astarworks.astera.core.domain.economy.Currency.STAR to reward.star,
-                    com.astarworks.astera.core.domain.economy.Currency.GOLD to reward.gold,
-                )) {
-                    if (amount > 0) eventBus.publish(CurrencyChanged(
-                        id, currency, amount, ledger.balance(id, currency),
-                        com.astarworks.astera.core.domain.event.CurrencyChangeReason.LevelReward(level),
-                    ))
-                }
+                val currency = com.astarworks.astera.core.domain.economy.Currency.GOLD
+                if (reward.gold > 0) eventBus.publish(CurrencyChanged(
+                    id, currency, reward.gold, ledger.balance(id, currency),
+                    com.astarworks.astera.core.domain.event.CurrencyChangeReason.LevelReward(level),
+                ))
             },
         )
         registrations += services.register(grantLevelRewards)

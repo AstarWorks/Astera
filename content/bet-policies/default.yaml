@@ -6,6 +6,5 @@ acceptance_timeout_ms: 600000
 loss_streak_limit: 5
 loss_streak_cooldown_ms: 86400000
 allowed_currencies:
-  - star
   - gold
 payout_split: 1.0

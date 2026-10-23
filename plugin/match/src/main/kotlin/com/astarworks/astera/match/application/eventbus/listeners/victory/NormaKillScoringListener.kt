@@ -32,6 +32,7 @@ public class NormaKillScoringListener(
     private val threshold: (MatchId) -> Int,
     private val timeLimitTicks: (MatchId) -> Long,
     private val now: () -> Long,
+    private val levelOf: (Match, TeamId) -> Int = { _, _ -> 1 },
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -73,9 +74,11 @@ public class NormaKillScoringListener(
     }
 
     /** The team strictly ahead on points, or `null` (draw). */
+    /** Time-limit winner: the team with the highest Norma level, then the most kills; `null` when both tie. */
     internal fun leader(match: Match): TeamId? {
-        val best = match.teams.maxOfOrNull { match.score.valueFor(it.id) } ?: return null
-        return match.teams.filter { match.score.valueFor(it.id) == best }.singleOrNull()?.id
+        fun rank(team: TeamId): Pair<Int, Int> = levelOf(match, team) to match.score.valueFor(team)
+        val best = match.teams.map { rank(it.id) }.maxWithOrNull(compareBy({ it.first }, { it.second })) ?: return null
+        return match.teams.filter { rank(it.id) == best }.singleOrNull()?.id
     }
 
     private fun end(matchId: MatchId, reason: EndReason, why: String) {

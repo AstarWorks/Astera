@@ -1,7 +1,6 @@
 package com.astarworks.astera.economy.application.usecase.shop
 
 import com.astarworks.astera.core.application.contents.ItemContents
-import com.astarworks.astera.core.application.service.StarterGrantLoader
 import com.astarworks.astera.core.domain.Result
 import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.event.CurrencyChanged
@@ -75,9 +74,8 @@ class ShopShippedContentPurchaseTest {
         gui = FakeGuiAdapter()
         browse = ShopBrowseUseCase(shops, gui, server, ledger, stock, messages)
 
-        // A brand-new player gets the shipped starter grant (what first join does).
-        StarterGrantLoader().load(content.resolve("balance").resolve("starter-grant.yaml"))
-            .walletGrants.forEach { (currency, amount) -> if (amount > 0) ledger.credit(playerId, currency, amount) }
+        // New players start with no GOLD: give this one enough for the cheapest offer.
+        ledger.credit(playerId, Currency.GOLD, 150L)
     }
 
     @Test
@@ -94,7 +92,7 @@ class ShopShippedContentPurchaseTest {
     fun `a new player buys the cheapest offer - wallet debited and item delivered`() {
         val offer = shops.resolve(shopId)!!.offers.minBy { it.price.amount }
         val startBalance = ledger.balance(playerId, offer.price.currency)
-        assertThat(startBalance).`as`("starter grant must afford the cheapest lobby offer").isGreaterThanOrEqualTo(offer.price.amount)
+        assertThat(startBalance).`as`("the test wallet must afford the cheapest lobby offer").isGreaterThanOrEqualTo(offer.price.amount)
 
         val result = purchase.execute(playerId, shopId, offer.id)
 
@@ -111,7 +109,7 @@ class ShopShippedContentPurchaseTest {
     fun `an offer the wallet cannot cover fails with InsufficientFunds and changes nothing`() {
         val offer = shops.resolve(shopId)!!.offers.maxBy { it.price.amount }
         val balance = ledger.balance(playerId, offer.price.currency)
-        // Drain to just under the price (the starter grant may already be below it).
+        // Drain to just under the price (the wallet may already be below it).
         if (balance >= offer.price.amount) {
             ledger.debit(playerId, offer.price.currency, balance - (offer.price.amount - 1))
         }
@@ -185,7 +183,6 @@ class ShopShippedContentPurchaseTest {
     @Test
     fun `the shop gui shows price in the offer currency, a wallet and shortfall for unaffordable offers`() {
         ledger.debit(playerId, Currency.GOLD, ledger.balance(playerId, Currency.GOLD))
-        ledger.debit(playerId, Currency.STAR, ledger.balance(playerId, Currency.STAR))
         assertThat(browse.execute(playerId, shopId)).isInstanceOf(Result.Success::class.java)
         val spec = gui.currentSpec(player)!!
         val offers = shops.resolve(shopId)!!.offers

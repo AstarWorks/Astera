@@ -31,7 +31,6 @@ public object ProfileCardGuiSpec {
         val matchesPlayed: Long,
         val wins: Long,
         val losses: Long,
-        val star: Long,
         val gold: Long,
         val gem: Long,
         val unlocks: List<String> = emptyList(),
@@ -94,7 +93,6 @@ public object ProfileCardGuiSpec {
                 itemId = ItemId("gui-tile-shop"),
                 displayName = GuiText(MessageKey("astera.gui.profile-card.wallet.name")),
                 lore = listOf(
-                    GuiText(MessageKey("astera.gui.profile-card.wallet.star"), mapOf("amount" to snapshot.star.toString())),
                     GuiText(MessageKey("astera.gui.profile-card.wallet.gold"), mapOf("amount" to snapshot.gold.toString())),
                     GuiText(MessageKey("astera.gui.profile-card.wallet.gem"), mapOf("amount" to snapshot.gem.toString())),
                 ),

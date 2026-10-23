@@ -12,6 +12,7 @@ import com.astarworks.astera.core.domain.match.MatchId
 import com.astarworks.astera.core.domain.match.MatchPhase
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.match.domain.gamemode.IGameMode
+import com.astarworks.astera.match.domain.norma.NormaHud
 import org.slf4j.LoggerFactory
 
 /**
@@ -38,7 +39,7 @@ public class MatchSidebarService(
     private val modeOf: (MatchId) -> IGameMode?,
     private val hud: IHudGateway,
     private val messages: IMessageRenderer,
-    private val stars: (PlayerId) -> Long?,
+    private val norma: (PlayerId) -> NormaHud?,
     private val scheduler: IScheduler,
     pollPeriodTicks: Long = DEFAULT_POLL_PERIOD_TICKS,
 ) {
@@ -101,7 +102,7 @@ public class MatchSidebarService(
     }
 
     private fun push(match: Match, model: SidebarModel, playerId: PlayerId) {
-        val layout = MatchSidebarModel.layoutFor(model, match, playerId, messages, stars(playerId))
+        val layout = MatchSidebarModel.layoutFor(model, match, playerId, messages, norma(playerId))
         if (lastSent[playerId] == layout) return
         lastSent[playerId] = layout
         when (val outcome = hud.showFor(playerId, layout)) {

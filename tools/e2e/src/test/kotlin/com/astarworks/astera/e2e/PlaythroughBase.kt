@@ -207,11 +207,14 @@ abstract class PlaythroughBase : E2eBase() {
             E2eReport.check(suite, "${b.name}: rewards were paid and announced", "SystemChat") {
                 assertThat(chat.any { it.contains("Rewards") || it.contains("Reward:") })
                     .describedAs("no reward block/line after the match:\n${quote(chat, 40)}").isTrue()
-                quote(chat.filter { it.contains("Reward") || it.contains("STAR") || it.contains("Level") || it.contains("Total") }, 12)
+                // Stars are an in-match item: no reward line may grant or mention them.
+                assertThat(chat.filter { STAR_WORD.containsMatchIn(it) }).describedAs("star amounts in the post-match chat:\n${quote(chat, 40)}").isEmpty()
+                quote(chat.filter { it.contains("Reward") || it.contains("Level") || it.contains("Total") }, 12)
             }
             E2eReport.check(suite, "${b.name}: back in the lobby with kit, lobby sidebar and playable game mode", "inventory + sidebar + RCON") {
                 assertThat(b.hotbar()[8] != -1).describedAs("lobby kit missing in slot 8: ${b.hotbar()}").isTrue()
                 assertThat(b.sidebarTitle()).describedAs("still on the match sidebar: ${sidebar(b)}").isEqualTo(lobbySidebarTitle)
+                assertThat(sidebar(b).filter { STAR_WORD.containsMatchIn(it) }).describedAs("the lobby sidebar shows a star line: ${sidebar(b)}").isEmpty()
                 val gt = gameTypeOf(b)
                 assertThat(gt).describedAs("stuck in game mode $gt (3 = spectator)").isIn(0, 2)
                 "hotbar=${b.hotbar()} sidebar='${b.sidebarTitle()}' gameType=$gt health=${b.health}"

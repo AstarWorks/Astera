@@ -42,7 +42,7 @@ public object LastMatchView {
         add(
             Line(
                 MessageKey("astera.stats.last.rewards"),
-                mapOf("star" to record.star.toString(), "gold" to record.gold.toString(), "xp" to record.xp.toString()),
+                mapOf("gold" to record.gold.toString(), "xp" to record.xp.toString()),
             ),
         )
         if (record.level > 0) {

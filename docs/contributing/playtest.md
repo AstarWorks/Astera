@@ -19,7 +19,7 @@ floating target marker. Try the flow in English and Japanese (`/astera lang ja`)
 | HUD | Watch for four seconds | Food bar is shared energy; ammo and cooldown icons / hotbar sweep explain readiness |
 | Shop | Put the weapon away; F → Shop or click the marked merchant | Opening the shop advances; no purchase is needed |
 | Vault | Sneak+F → Vault, or F → Customize → Vault | The real vault window opens; no deposit is needed |
-| Queue | Follow the south marker and step onto a queue pad | Tutorial completes, queue entry proceeds, first graduation grants 50 STAR |
+| Queue | Follow the south marker and step onto a queue pad | Tutorial completes, queue entry proceeds, first graduation grants 50 GOLD |
 
 The compass stays in hotbar slot 8; inventory crafting-grid buttons offer the same lobby
 navigation. Q on the compass opens queue selection. Weapons bind their own inputs: this

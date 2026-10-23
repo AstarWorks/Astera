@@ -34,11 +34,11 @@ class HudScenarioTest {
     // ---- lobby -------------------------------------------------------------
 
     @Test
-    fun `lobby sidebar shows online players, queue state and the star wallet`() {
+    fun `lobby sidebar shows online players, queue state and no star line`() {
         scenario("hud-lobby-sidebar") {
             val alice = player("alice")
             player("bob")
-            sim.services.getOrThrow<ICurrencyLedger>().credit(alice.id, Currency.STAR, 25)
+            sim.services.getOrThrow<ICurrencyLedger>().credit(alice.id, Currency.GOLD, 25)
             advance(40)
 
             val idle = checkNotNull(sim.hud.sidebar(alice.id)) { "no lobby sidebar" }
@@ -46,8 +46,7 @@ class HudScenarioTest {
             assertThat(idle.texts().first { it.messageKey.value == "astera.hud.lobby.online" }.placeholders)
                 .containsEntry("count", "2")
             assertThat(idle.keys()).contains("astera.hud.lobby.queue.idle")
-            assertThat(idle.texts().first { it.messageKey.value == "astera.hud.sidebar.stars" }.placeholders)
-                .containsEntry("stars", "175")
+            assertThat(idle.keys()).doesNotContain("astera.hud.sidebar.stars")
 
             val queued = sim.services.getOrThrow<IMatchmaker>().enqueue(alice.id, MatchmakingMode.Norma)
             assertThat(queued).isInstanceOf(Result.Success::class.java)
@@ -220,7 +219,7 @@ class HudScenarioTest {
             assertThat(sim.hud.actionBar(shooter.id)).isNull()
 
             sim.eventBus.publish(
-                CurrencyChanged(shooter.id, Currency.STAR, delta = 5, newBalance = 30, reason = CurrencyChangeReason.MatchReward),
+                CurrencyChanged(shooter.id, Currency.GOLD, delta = 5, newBalance = 30, reason = CurrencyChangeReason.MatchReward),
             )
             advance(2)
             val toast = checkNotNull(sim.hud.actionBar(shooter.id))

@@ -24,7 +24,10 @@ import com.astarworks.astera.match.domain.matchmaking.QueueLane
 import com.astarworks.astera.match.domain.matchmaking.QueueSettings
 import com.astarworks.astera.core.application.port.outbound.IMessageRenderer
 import com.astarworks.astera.core.domain.player.PlayerId
+import com.astarworks.astera.match.application.service.NormaLevelService
 import com.astarworks.astera.match.application.usecase.match.EndMatchError
+import com.astarworks.astera.match.domain.norma.NormaError
+import com.astarworks.astera.match.domain.norma.NormaGoal
 import com.astarworks.astera.match.application.usecase.match.EntryGameError
 import com.astarworks.astera.match.application.usecase.match.StartMatchError
 import com.astarworks.astera.match.application.usecase.match.SwitchPhaseError
@@ -45,6 +48,39 @@ import java.util.logging.Logger
  * under the single `/astera` root by the wiring).
  */
 internal object MatchCommandSpecs {
+
+    /**
+     * `/astera norma choose star|kill`: picks which goal clears the player's current Norma level (stars carried or
+     * kills made). Allowed any time before the goal is reached; refused outside a live Norma match.
+     */
+    fun buildNormaCommandSpec(norma: NormaLevelService): CommandSpec.Literal = CommandSpec.Literal(
+        name = "norma",
+        subcommands = listOf(
+            CommandSpec.Literal(
+                name = "choose",
+                subcommands = listOf(
+                    CommandSpec.Argument("goal", ArgumentType.Choice(listOf("star", "kill"))),
+                ),
+                executor = { ctx ->
+                    val senderId = ctx.sender
+                        ?: return@Literal CommandResult.Failure(MessageKey("astera.command.player-only"))
+                    val goal = if (ctx.required<String>("goal").equals("kill", ignoreCase = true)) NormaGoal.KILL else NormaGoal.STAR
+                    when (val res = norma.choose(senderId, goal)) {
+                        is Result.Success -> {
+                            ctx.reply(MessageKey("astera.match.norma-choice.chosen"), mapOf("goal" to goal.name.lowercase()))
+                            CommandResult.Success
+                        }
+                        is Result.Failure -> CommandResult.Failure(
+                            when (res.error) {
+                                NormaError.NotInNormaMatch -> MessageKey("astera.match.norma-choice.not-in-match")
+                                NormaError.AtMaxLevel -> MessageKey("astera.match.norma-choice.max-level")
+                            },
+                        )
+                    }
+                },
+            ).forEveryone(Permission("astera.norma.choose")),
+        ),
+    )
 
     /**
      * `/astera queue join <lane>` / `leave` / `status` (Wave 5w ADR-0089 delta, WP8).

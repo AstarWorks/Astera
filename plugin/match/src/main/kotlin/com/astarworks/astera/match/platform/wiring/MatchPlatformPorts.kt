@@ -3,6 +3,8 @@ package com.astarworks.astera.match.platform.wiring
 import com.astarworks.astera.core.application.port.outbound.spectator.ISpectator
 import com.astarworks.astera.core.application.services.ServiceRegistry
 import com.astarworks.astera.match.application.port.outbound.IBarrierGateway
+import com.astarworks.astera.match.application.port.outbound.IMatchPlayerPositions
+import com.astarworks.astera.match.application.port.outbound.IStarDropMarker
 import com.astarworks.astera.match.domain.gamemode.annihilation.AnnihilationConfig
 import java.nio.file.Path
 
@@ -15,6 +17,9 @@ import java.nio.file.Path
  *   `IScheduler` / `IDomainEventBus` from the registry at registration time.
  * @property spectator the host's spectator-mode port (Paper: `PaperSpectator`, the simulator: its own
  *   recorder), registered at priority 100. `null` disables death cam / real spectating.
+ * @property playerPositions live player position source for in-match star pickup (Paper: a Bukkit read that
+ *   skips dead / spectating players). `null` falls back to the `PlayerMoved`-fed `IPlayerLocationLookup`.
+ * @property starDropMarker makes a star drop visible on the map (Paper: END_ROD particles). `null` = invisible (simulator).
  * @property replayExportRoot directory `/astera match replay export` writes to
  *   (Paper: `<plugin dataFolder>/replays`; the simulator: a temp dir).
  * @property annihilationConfig tunables of the Annihilation mode (phase timers,
@@ -27,4 +32,6 @@ public class MatchPlatformPorts(
     public val barrierGateway: ((ServiceRegistry) -> IBarrierGateway)? = null,
     public val annihilationConfig: AnnihilationConfig? = null,
     public val spectator: ((ServiceRegistry) -> ISpectator)? = null,
+    public val playerPositions: ((ServiceRegistry) -> IMatchPlayerPositions)? = null,
+    public val starDropMarker: ((ServiceRegistry) -> IStarDropMarker)? = null,
 )

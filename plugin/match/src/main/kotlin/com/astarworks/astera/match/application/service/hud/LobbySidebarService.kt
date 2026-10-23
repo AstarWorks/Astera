@@ -48,7 +48,6 @@ public class LobbySidebarService(
     private val matchmaker: IMatchmaker,
     private val hud: IHudGateway,
     private val messages: IMessageRenderer,
-    private val stars: (PlayerId) -> Long?,
     scheduler: IScheduler,
     private val gold: (PlayerId) -> Long? = { null },
     pollPeriodTicks: Long = DEFAULT_POLL_PERIOD_TICKS,
@@ -135,11 +134,10 @@ public class LobbySidebarService(
                 add(text("astera.hud.lobby.queue.elapsed", "time" to wait.elapsed))
                 add(text(wait.statusKey, "seconds" to (wait.seconds ?: 0).toString()))
             }
-            stars(playerId)?.let {
+            // GOLD (quests / top-tier shop items); hidden while the player has none. Stars are an in-match item only.
+            gold(playerId)?.takeIf { g -> g > 0L }?.let { g ->
                 add(text("astera.hud.sidebar.spacer"))
-                add(text("astera.hud.sidebar.stars", "stars" to it.toString()))
-                // GOLD (quests / top-tier shop items) sits under STAR; hidden while the player has none.
-                gold(playerId)?.takeIf { g -> g > 0L }?.let { g -> add(text("astera.hud.sidebar.gold", "gold" to g.toString())) }
+                add(text("astera.hud.sidebar.gold", "gold" to g.toString()))
             }
         }
         return HudLayout.Sidebar(titleKey = TITLE_KEY, lines = lines)

@@ -30,8 +30,7 @@ public class GrantLevelRewardsUseCase(
                 is Result.Success -> if (claim.value) {
                     granted++
                     onGranted(playerId, earnedLevel, reward)
-                    val args = mapOf("level" to earnedLevel.toString(), "star" to reward.star.toString(),
-                        "gold" to reward.gold.toString(), "unlocks" to reward.unlocks.sorted().joinToString(", "))
+                    val args = mapOf("level" to earnedLevel.toString(), "gold" to reward.gold.toString(), "unlocks" to reward.unlocks.sorted().joinToString(", "))
                     players.sendMessage(playerId, messages.render(playerId, CHAT, args))
                     hud.showFor(playerId, HudLayout.Subtitle(
                         component = HudComponent.Text(TITLE, placeholders = args),

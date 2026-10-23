@@ -1,6 +1,5 @@
 package com.astarworks.astera.match.domain.event
 
-import com.astarworks.astera.core.domain.economy.Currency
 import com.astarworks.astera.core.domain.event.DomainEvent
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.match.MatchId
@@ -25,7 +24,6 @@ public data class ResourceSpawned(
     val generatorId: GeneratorId,
     val matchId: MatchId,
     val position: Vec3,
-    val currency: Currency,
     val amount: Int,
     val atTick: Long,
     override val occurredAt: Instant = Instant.now(),

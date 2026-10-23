@@ -1,7 +1,7 @@
 #!/bin/sh
 # G1: shortens the timers of the baked content so the e2e playthrough suites finish in CI minutes
 # (queue 10s -> 3s, match countdown 10s -> 5s, respawn 5s -> 2s, annihilation build/engage 60s/10min -> 5s/10s,
-# pillar HP 500/800 -> 60, norma 10 kills / 10 min -> 3 kills / 150s). Run by docker/Dockerfile only for
+# pillar HP 500/800 -> 60, norma 10 kills / 10 min -> 3 kills / 150s, star generator period 30s -> 3s). Run by docker/Dockerfile only for
 # `--build-arg E2E_FAST=1` (docker-compose.e2e.yml); the dev and live images keep the real values.
 # Every edit asserts that its pattern is present, so content drift fails the image build instead of
 # silently running the suites with production timers.
@@ -32,3 +32,14 @@ patch game-modes/annihilation.yaml 's/^(  engage_phase_ticks:).*/\1 "200"/' '^  
 patch game-modes/annihilation.yaml 's/^(  sudden_death_ticks:).*/\1 "600"/' '^  sudden_death_ticks:'
 # The tier-3 pillars carry their own HP in the stage.
 patch stages/annihilation-arena.yaml 's/^(    hp:) 800$/\1 60/' '^    hp: 800$'
+
+# Star generators (in-match stars): 30s -> 3s so a bot standing on a pedestal collects within the suite.
+for g in arena-east arena-west arena-north arena-south; do
+  patch "generators/$g.yaml" 's/^period_seconds:.*/period_seconds: 3.0/' '^period_seconds:'
+done
+
+# Norma levels: 3 levels, small goals so a suite reaches them (star goal 2 then 3, kill goal 1 then 2), and the whole
+# carried stack bursts on death.
+patch game-modes/norma.yaml 's/^(  norma_max_level:).*/\1 "3"/' '^  norma_max_level:'
+patch game-modes/norma.yaml 's/^(  norma_stars_goal:).*/\1 "2,3"/' '^  norma_stars_goal:'
+patch game-modes/norma.yaml 's/^(  norma_kills_goal:).*/\1 "1,2"/' '^  norma_kills_goal:'

@@ -9,27 +9,27 @@
 days:
   - day: 1
     reward:
-      currency: STAR
+      currency: GOLD
       amount: 10
   - day: 2
     reward:
-      currency: STAR
+      currency: GOLD
       amount: 15
   - day: 3
     reward:
-      currency: STAR
+      currency: GOLD
       amount: 20
   - day: 4
     reward:
-      currency: STAR
+      currency: GOLD
       amount: 30
   - day: 5
     reward:
-      currency: STAR
+      currency: GOLD
       amount: 45
   - day: 6
     reward:
-      currency: STAR
+      currency: GOLD
       amount: 65
   - day: 7
     reward:

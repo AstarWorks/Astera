@@ -30,6 +30,9 @@ public interface IGeneratorRepository {
     /** Drop the generator with [id], if present. No-op otherwise. */
     public fun remove(id: GeneratorId)
 
+    /** Drops every generator instance of [matchId] (match end: generators are per-match). */
+    public fun removeForMatch(matchId: MatchId)
+
     /** Lookup by id; null if unknown. */
     public fun findById(id: GeneratorId): StarGenerator?
 }
