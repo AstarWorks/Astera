@@ -335,3 +335,9 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Added an opposite-facing soft trail by reversing its radial endpoints. Cross product in `VfxRigPlanner.surface` reverses the face normal; omitted the duplicate edge. No renderer/API changes were needed.
 - `contentLint` passed; runtime VFX reload succeeded. Actual-client capture: 195 frames, camera lateness maximum 3 ms, repeated-frame run maximum 2. `frame_055.png` shows the previously missing tilted red surface, now a continuous translucent arc. This supports the back-face diagnosis from round 39.
 - Still failed: polygonal corners, weak white glow, chain shape and caster motion/pose, floor effects, transformation/input routing. The additional faces increase display usage; complete-cast live display budget remains unverified and must be measured, including overlapping swings and impact effects. Capture: `build/limbus-review/round40/captures`.
+
+### Round 41: complete Crimson cast live-display measurement
+
+- Ran the actual direct combo cast with RCON sampling of block/text/item displays within 20 blocks of the scene: 757 samples, initial count zero, observed combined peak 133. Queries for the three types are sequential, so the sum is not an atomic tick snapshot; nevertheless **one block-display query returned 104**, independently proving the handoff limit of 60 is exceeded.
+- Capture completed: 195 frames, maximum camera lateness 2 ms, repeated-frame maximum 3. Raw timestamped command replies: `build/limbus-review/round41/live-displays.json`; summary: `data/runtime-review/crimson-display-budget-round41.json`.
+- Do not use successful runtime admission (global engine budget 600) as proof of the per-cast 60 limit. Rework overlapping physical rigs and impact counts while retaining two-sided trails, then repeat full-cast measurement and visual comparison. No fidelity pass.
