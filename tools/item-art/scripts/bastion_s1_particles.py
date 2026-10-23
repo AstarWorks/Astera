@@ -43,15 +43,21 @@ ORANGE = (255, 150, 40)
 
 def defs():
     pdef("crit", "white-gold crit sparks flung in every direction from the contact (crit: v = 0.4 * speed, friction 0.7; r7b speed 0.7: the floor contact sits 1.2-1.4 under the opponent eye)",
-         "crit", 5, 8, color=(255, 240, 190), velocity="{ direction: outward, speed: 0.7, spread_degrees: 0 }")
+         "crit", 3, 8, color=(255, 240, 190), velocity="{ direction: outward, speed: 0.7, spread_degrees: 0 }")
     pdef("spark", "electric_spark streaks (life 2-3 ticks, v = 0.25 * speed) fired forward in a cone: reads from compare/side",
          "electric_spark", 4, 3, color=(255, 240, 190), velocity="{ direction: from_caster_look, speed: 1.8, spread_degrees: 55 }")
     pdef("spark-up", "electric_spark streaks fired up in a wide cone (r7b speed 1.0: rise <= ~0.75, stays clear of the opponent eye above the contact)",
          "electric_spark", 3, 3, color=(255, 240, 190), velocity="{ direction: up, speed: 1.0, spread_degrees: 70 }")
-    pdef("nugget", "bright gold chips (item particle: v = speed, gravity) flung outward (r7b 0.22: straight-up rise <= ~0.6)",
-         "item", 3, 12, color=GOLD, data="{ kind: item, item: gold_nugget }", velocity="{ direction: outward, speed: 0.22, spread_degrees: 0 }")
-    pdef("coal", "dark chips mixed with the gold (item particle charcoal)",
-         "item", 3, 12, color=(30, 24, 20), data="{ kind: item, item: charcoal }", velocity="{ direction: outward, speed: 0.18, spread_degrees: 0 }")
+    # r9 (real client r6): `item` chips (gold_nugget / charcoal) and `block_crumble` debris fell, landed and lay on the floor as
+    # static squares for 20-35 ticks. Everything here now dies in the air: small dust (life <= 8/0.2 * scale ticks, no gravity)
+    # and `trail` chips (exact life, removed on arrival in mid-air).
+    pdef("fleck-gold", "small gold flecks at the contact, gold -> orange (dust scale 0.35: life ~3-14 ticks, never lands)",
+         "dust_color_transition", 3, 8, shape="{ kind: burst, spread_blocks: 0.14 }", color=GOLD,
+         data="{ kind: dust_color_transition, from: { r: 255, g: 222, b: 70 }, to: { r: 225, g: 110, b: 20 }, scale: 0.35 }",
+         velocity="{ direction: outward, speed: 0.1, spread_degrees: 80 }")
+    pdef("fleck-dark", "small near-black dust flecks mixed with the gold (replaces charcoal chips; scale 0.3, life ~2-12 ticks)",
+         "dust", 3, 8, shape="{ kind: burst, spread_blocks: 0.16 }", color=(26, 20, 14), size=0.3,
+         velocity="{ direction: outward, speed: 0.08, spread_degrees: 80 }")
     # r5 founder: particles must MOVE and change every tick. The gold glints are `trail` particles: the client moves each
     # one from its spawn point to the element's trail_to over exactly duration_ticks and removes it on arrival (the only
     # vanilla type with an exact, server-set life and a server-set colour that also travels). They replace wax_on (hung
@@ -67,33 +73,35 @@ def defs():
          data="{ kind: dust_color_transition, from: { r: 255, g: 175, b: 55 }, to: { r: 150, g: 40, b: 10 }, scale: 0.55 }",
          velocity="{ direction: up, speed: 0.05, spread_degrees: 90 }")
     pdef("trail-gold", "gold dust left along the blade path (one per path point)",
-         "dust", 1, 12, color=GOLD, size=0.5, velocity="{ direction: outward, speed: 0.05, spread_degrees: 90 }")
+         "dust", 1, 12, color=GOLD, size=0.4, velocity="{ direction: outward, speed: 0.05, spread_degrees: 90 }")
     pdef("trail-dark", "near-black dust mixed into the gold path (reads on bright backdrops)",
-         "dust", 1, 12, color=(26, 18, 6), size=0.55, velocity="{ direction: outward, speed: 0.05, spread_degrees: 90 }")
-    pdef("trail-spark", "crit specks thrown along the swing tangent from the path (chase the blade)",
-         "crit", 1, 8, color=(255, 240, 190), velocity="{ direction: along_tangent, speed: 0.8, spread_degrees: 25 }")
-    pdef("debris", "grey stone chips kicked up at the contact's feet (block_crumble)",
-         "block_crumble", 4, 18, shape="{ kind: burst, spread_blocks: 0.15 }", color=(128, 128, 128),
-         data="{ kind: block, block: stone }", velocity="{ direction: up, speed: 0.3, spread_degrees: 55 }")
-    pdef("debris-dark", "dark deepslate chips mixed with the grey ones",
-         "block_crumble", 3, 18, shape="{ kind: burst, spread_blocks: 0.15 }", color=(60, 60, 66),
-         data="{ kind: block, block: deepslate }", velocity="{ direction: up, speed: 0.25, spread_degrees: 60 }")
+         "dust", 1, 12, color=(26, 18, 6), size=0.32, velocity="{ direction: outward, speed: 0.05, spread_degrees: 90 }")
+    pdef("trail-spark", "electric_spark flicks thrown along the swing tangent from the path (r9: was crit, whose white X read as a big glyph at close-up)",
+         "electric_spark", 1, 3, color=(255, 240, 190), velocity="{ direction: along_tangent, speed: 1.6, spread_degrees: 25 }")
+    pdef("grit", "grey grit kicked up at the contact's feet, grey -> dark (dust scale 0.35, spawned 0.15-0.3 above the floor; replaces block_crumble)",
+         "dust_color_transition", 4, 8, shape="{ kind: burst, spread_blocks: 0.15 }", color=(150, 146, 140),
+         data="{ kind: dust_color_transition, from: { r: 160, g: 156, b: 150 }, to: { r: 60, g: 56, b: 52 }, scale: 0.35 }",
+         velocity="{ direction: up, speed: 0.1, spread_degrees: 55 }")
+    pdef("chip-grey", "grey stone chip flung up and out of the floor contact: a `trail` dot that dies on arrival in mid-air (5 ticks)",
+         "trail", 1, 5, color=(130, 126, 120), data="{ kind: trail, toward: true, color: { r: 130, g: 126, b: 120 }, duration_ticks: 5 }")
+    pdef("chip-dark", "dark chip flung up and out of the floor contact (trail, 6 ticks)",
+         "trail", 1, 6, color=(40, 34, 30), data="{ kind: trail, toward: true, color: { r: 40, g: 34, b: 30 }, duration_ticks: 6 }")
     pdef("dust-ground", "warm grey dust puffs at the feet of the contact (small, short)",
          "dust_color_transition", 3, 12, shape="{ kind: burst, spread_blocks: 0.25 }", color=(190, 180, 164),
-         data="{ kind: dust_color_transition, from: { r: 200, g: 190, b: 172 }, to: { r: 90, g: 84, b: 76 }, scale: 0.7 }",
+         data="{ kind: dust_color_transition, from: { r: 200, g: 190, b: 172 }, to: { r: 90, g: 84, b: 76 }, scale: 0.45 }",
          velocity="{ direction: outward, speed: 0.04, spread_degrees: 80 }")
     pdef("dust-dark", "near-black dust at the feet, dark mixed into the grey",
-         "dust", 2, 12, shape="{ kind: burst, spread_blocks: 0.25 }", color=(40, 34, 30), size=0.7,
+         "dust", 2, 10, shape="{ kind: burst, spread_blocks: 0.25 }", color=(40, 34, 30), size=0.35,
          velocity="{ direction: outward, speed: 0.04, spread_degrees: 80 }")
     for i, r in enumerate((0.55, 0.95, 1.35), 1):
         pdef("wave-%d" % i, "shockwave ring %d of 3 (radius %.2f, flat on the floor, dust spreading outward); hit 2 slam, one ring per tick" % (i, r),
              "dust_color_transition", 1, 10, shape="{ kind: ring, radius_blocks: %s, points: %d }" % (r, 10 + 3 * i),
              color=(200, 190, 170),
-             data="{ kind: dust_color_transition, from: { r: 215, g: 205, b: 185 }, to: { r: 110, g: 100, b: 90 }, scale: 0.6 }",
+             data="{ kind: dust_color_transition, from: { r: 215, g: 205, b: 185 }, to: { r: 110, g: 100, b: 90 }, scale: 0.45 }",
              velocity="{ direction: outward, speed: 0.06, spread_degrees: 25 }")
-    pdef("wave-chip", "stone chips thrown outward on the slam ring (block_crumble, outward over the floor)",
-         "block_crumble", 1, 14, shape="{ kind: ring, radius_blocks: 0.8, points: 10 }", color=(128, 128, 128),
-         data="{ kind: block, block: gravel }", velocity="{ direction: outward, speed: 0.35, spread_degrees: 30 }")
+    pdef("wave-chip", "dark grit on the slam ring (r9: dust scale 0.3 instead of block_crumble gravel, which landed and stayed)",
+         "dust", 1, 8, shape="{ kind: ring, radius_blocks: 0.8, points: 10 }", color=(48, 42, 36), size=0.3,
+         velocity="{ direction: outward, speed: 0.1, spread_degrees: 30 }")
     pdef("converge", "gold trail specks gathering onto the contact (trail flies to the element's trail_to over 4 ticks): 6 points on the front half arc (r7b: the back half reached 1.0 from the caster eye in hit 2)",
          "trail", 1, 6, shape="{ kind: arc, radius_blocks: 0.55, from_deg: -100, to_deg: 100, points: 6 }", color=(255, 226, 140),
          data="{ kind: trail, toward: true, color: { r: 255, g: 226, b: 140 }, duration_ticks: 4 }")
@@ -234,13 +242,13 @@ def shed(f, keys, delay, fx0, fx1, r0, r1, ahead, eye, pid, dy=0.0):
         f.add("glint", pid, t, t + 1, [a], trail_to=b)
 
 
-def burst_glints(f, c, eye, shots):
-    """Contact glints: (fx tick, start offset, end offset, particle) flown from the contact, keep-out checked."""
+def burst_glints(f, c, eye, shots, name="glint"):
+    """Contact glints / chips: (fx tick, start offset, end offset, particle) flown from c, keep-out checked."""
     for tick, d0, d1, pid in shots:
         a, b = off(c, *d0), off(c, *d1)
         if math.dist(b, eye) < EYE_KEEP or math.dist(b, CASTER_EYE) < NEAR or not chord_clear(a, b, eye):
             continue
-        f.add("glint", pid, tick, tick + 1, [a], trail_to=b)
+        f.add(name, pid, tick, tick + 1, [a], trail_to=b)
 
 
 def hit1():
@@ -278,11 +286,11 @@ def hit1():
     f.at("spark", "spark", 6, off(c, 0.1, -0.05, -0.1))
     f.at("spark-up", "spark-up", 4, off(c, 0.05, 0.05, -0.05))
     f.at("spark-up", "spark-up", 5, off(c, -0.12, 0.08, -0.1))
-    f.at("nugget", "nugget", 4, off(c, 0, 0, -0.15))
-    f.at("nugget", "nugget", 5, off(c, 0.1, 0.05, -0.2))
-    f.at("coal", "coal", 4, off(c, -0.1, 0, -0.2))
-    f.at("coal", "coal", 5, off(c, 0.12, -0.05, -0.15))
-    f.at("coal", "coal", 6, off(c, 0, 0.1, -0.15))
+    f.at("fleck-gold", "fleck-gold", 4, off(c, 0, 0.05, -0.15))
+    f.at("fleck-gold", "fleck-gold", 5, off(c, 0.1, 0.1, -0.2))
+    f.at("fleck-dark", "fleck-dark", 4, off(c, -0.1, 0, -0.2))
+    f.at("fleck-dark", "fleck-dark", 5, off(c, 0.12, -0.05, -0.15))
+    f.at("fleck-dark", "fleck-dark", 6, off(c, 0, 0.1, -0.15))
     # glints flung up and out of the contact, staggered fx 4-7, each flies its own line and dies (4-9 ticks)
     burst_glints(f, c, H1_EYE, (
         (4, (0.05, 0.05, -0.05), (0.75, 0.55, -0.35), "glint-rise"),
@@ -298,10 +306,16 @@ def hit1():
     rise = [(c[0], c[1] + 0.07 * i, c[2] - 0.03 * i) for i in range(7)]
     f.add("ember", "ember", 4, 11, rise)
     # (d) ground debris kicked up where the blade bites the floor
-    f.at("debris", "debris", 4, g)
-    f.at("debris", "debris", 5, off(g, -0.2, 0, -0.1))
-    f.at("debris-dark", "debris-dark", 4, off(g, 0.2, 0, -0.05))
-    f.at("debris-dark", "debris-dark", 6, off(g, 0.0, 0, -0.2))
+    # r9: grit dust 0.15-0.3 above the floor + trail chips flung up/out that vanish in mid-air (nothing lands)
+    f.at("grit", "grit", 4, off(g, 0, 0.2, 0))
+    f.at("grit", "grit", 5, off(g, -0.2, 0.15, -0.1))
+    burst_glints(f, g, H1_EYE, (
+        (4, (0.1, 0.1, -0.05), (0.55, 0.6, -0.25), "chip-grey"),
+        (4, (-0.1, 0.1, -0.05), (-0.6, 0.5, -0.2), "chip-dark"),
+        (5, (0.0, 0.1, -0.1), (0.2, 0.7, -0.5), "chip-dark"),
+        (5, (0.15, 0.1, 0.0), (0.75, 0.35, 0.1), "chip-grey"),
+        (6, (-0.15, 0.1, -0.1), (-0.5, 0.65, -0.45), "chip-dark"),
+    ), name="chip")
     f.at("dust-ground", "dust-ground", 4, g)
     f.at("dust-ground", "dust-ground", 5, off(g, 0.3, 0, -0.15))
     f.at("dust-ground", "dust-ground", 6, off(g, -0.3, 0, -0.15))
@@ -321,31 +335,30 @@ def hit2():
     # (c) blade path on the low ring: fx 1 (skill 28, phi 210 behind-right) -> fx 4 contact phi 18 -> fx 8 phi 102.
     gold = blade_path(H2_KEYS, H2_DELAY, 1, 8, 2.15, H2_EYE)
     ride(f, "trail-gold", "trail-gold", 1, gold, 0.3, H2_EYE)
-    ride(f, "trail-dark", "trail-dark", 1, blade_path(H2_KEYS, H2_DELAY, 1, 8, 2.45, H2_EYE), 0.32, H2_EYE)
+    ride(f, "trail-dark", "trail-dark", 1, blade_path(H2_KEYS, H2_DELAY, 1, 8, 2.45, H2_EYE), 0.42, H2_EYE)
     ride(f, "trail-gold", "trail-gold", 2, blade_path(H2_KEYS, H2_DELAY, 2, 5, 2.0, H2_EYE, lag=0.5), 0.35, H2_EYE)
     shed(f, H2_KEYS, H2_DELAY, 1, 8, 2.15, 2.6, 0.7, H2_EYE, "glint")
     shed(f, H2_KEYS, H2_DELAY, 2, 7, 1.9, 2.3, 0.45, H2_EYE, "glint-hot", dy=0.1)
     ride(f, "trail-spark", "trail-spark", 2, blade_path(H2_KEYS, H2_DELAY, 2, 7, 2.3, H2_EYE), 0.45, H2_EYE)
     # second, higher blade line (hit 2 is the heavy one): gold + dark 0.3 higher, one tick later, plus a glint shed
     hi = [off(p, 0.0, 0.3, 0.0) for p in blade_path(H2_KEYS, H2_DELAY, 1, 8, 2.3, H2_EYE)]
-    for pid, st in (("trail-gold", 0.36), ("trail-dark", 0.4)):
+    for pid, st in (("trail-gold", 0.36), ("trail-dark", 0.52)):
         ride(f, pid, pid, 2, hi, st, H2_EYE)
     shed(f, H2_KEYS, H2_DELAY, 2, 8, 2.3, 2.75, 0.6, H2_EYE, "glint", dy=0.35)
     # convergence (front half arc, r 0.55: the caster is only 1.4 behind the contact, so no specks on the caster side)
     f.add("converge", "converge", 2, 4, [off(c, 0, 0.3, 0)] * 2, trail_to=c)
     f.add("converge", "converge", 3, 5, [off(c, 0, 0.35, 0)] * 2, trail_to=off(c, 0, 0.1, 0))
-    for tick, d in ((4, (0, 0, -0.05)), (4, (0.12, 0.08, -0.1)), (5, (-0.1, -0.05, -0.1)), (5, (0.05, 0.05, -0.15))):
+    # r9: 4 crit calls x 3 (was 6 x 5): the crit X read as a big glyph at the compare close-up
+    for tick, d in ((4, (0, 0, -0.05)), (5, (-0.1, -0.05, -0.1)), (6, (-0.15, 0.1, -0.1)), (7, (0.15, -0.05, -0.1))):
         f.at("crit", "crit", tick, off(c, *d))
-    f.at("crit", "crit", 6, off(c, -0.15, 0.1, -0.1))
-    f.at("crit", "crit", 7, off(c, 0.15, -0.05, -0.1))
     for tick, d in ((4, (0, 0, -0.1)), (4, (0.15, 0.08, -0.2)), (5, (-0.1, 0.05, -0.1)), (5, (0.1, -0.05, -0.2)), (6, (0.1, -0.05, -0.1)), (7, (-0.1, 0.05, -0.1))):
         f.at("spark", "spark", tick, off(c, *d))
     for tick, d in ((4, (0.05, 0.05, 0)), (5, (-0.1, 0.1, -0.05)), (6, (0.1, 0.08, -0.1))):
         f.at("spark-up", "spark-up", tick, off(c, *d))
-    for tick, d in ((4, (0, 0, -0.15)), (4, (-0.15, 0.05, -0.2)), (5, (0.1, 0.05, -0.2)), (6, (0.0, -0.05, -0.2))):
-        f.at("nugget", "nugget", tick, off(c, *d))
+    for tick, d in ((4, (0, 0, -0.15)), (4, (-0.15, 0.05, -0.2)), (5, (0.1, 0.05, -0.2)), (5, (0.15, 0.1, -0.1)), (6, (0.0, -0.05, -0.2)), (7, (-0.1, 0.1, -0.1))):
+        f.at("fleck-gold", "fleck-gold", tick, off(c, *d))
     for tick, d in ((4, (-0.1, 0, -0.2)), (4, (0.15, 0.05, -0.1)), (5, (0.12, -0.05, -0.15)), (6, (0, 0.1, -0.15)), (7, (-0.1, 0.0, -0.1))):
-        f.at("coal", "coal", tick, off(c, *d))
+        f.at("fleck-dark", "fleck-dark", tick, off(c, *d))
     # glints flung up and sideways out of the contact (never back toward the caster, 1.8 behind), fx 4-8
     burst_glints(f, c, H2_EYE, (
         (4, (0.05, 0.05, 0.0), (0.9, 0.5, 0.2), "glint-rise"),
@@ -364,12 +377,18 @@ def hit2():
     f.add("ember", "ember", 4, 12, rise)
     f.add("ember", "ember", 5, 13, [off(p, 0.25, 0.0, -0.05) for p in rise])
     # (d) ground debris below the contact + (e) shockwave rings centred under the ring smear (the pivot's floor point)
-    f.at("debris", "debris", 4, g)
-    f.at("debris", "debris", 5, off(g, -0.25, 0, 0.05))
-    f.at("debris", "debris", 6, off(g, 0.25, 0, 0.0))
-    f.at("debris-dark", "debris-dark", 4, off(g, 0.2, 0, 0.0))
-    f.at("debris-dark", "debris-dark", 5, off(g, -0.1, 0, -0.1))
-    f.at("debris-dark", "debris-dark", 6, off(g, 0.0, 0, 0.1))
+    f.at("grit", "grit", 4, off(g, 0, 0.2, 0))
+    f.at("grit", "grit", 5, off(g, -0.25, 0.15, 0.05))
+    f.at("grit", "grit", 6, off(g, 0.25, 0.2, 0.0))
+    burst_glints(f, g, H2_EYE, (
+        (4, (0.1, 0.1, 0.0), (0.7, 0.55, 0.2), "chip-grey"),
+        (4, (-0.1, 0.1, 0.0), (-0.75, 0.5, 0.15), "chip-dark"),
+        (5, (0.05, 0.1, 0.05), (0.35, 0.65, 0.5), "chip-dark"),
+        (5, (-0.15, 0.1, 0.05), (-0.9, 0.3, 0.35), "chip-grey"),
+        (6, (0.15, 0.1, 0.05), (0.95, 0.4, 0.3), "chip-dark"),
+        (6, (-0.05, 0.1, 0.05), (-0.4, 0.7, 0.45), "chip-dark"),
+        (7, (0.0, 0.1, 0.05), (0.3, 0.45, 0.6), "chip-grey"),
+    ), name="chip")
     f.at("dust-ground", "dust-ground", 4, g)
     f.at("dust-ground", "dust-ground", 5, off(g, 0.35, 0, -0.2))
     f.at("dust-ground", "dust-ground", 6, off(g, -0.35, 0, -0.2))
