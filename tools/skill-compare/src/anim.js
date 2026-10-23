@@ -49,7 +49,7 @@ function renderRest(cap) {
       const url = cap.rest[view]?.[kind];
       if (url) { const i = el("img"); i.src = url; i.alt = `${kind} ${view}`; i.loading = "lazy"; i.onclick = () => window.open(url, "_blank", "noopener"); fig.appendChild(i); }
       else fig.appendChild(el("div", "ph on", "撮影なし"));
-      fig.appendChild(el("figcaption", null, `${kind === "vanilla" ? "バニラ" : "リグ (t+" + 0 + ")"} / ${names[view]}`));
+      fig.appendChild(el("figcaption", null, `${kind === "vanilla" ? "バニラ" : "リグ (t+" + (S.d.capture.restTick ?? 0) + ")"} / ${names[view]}`));
       grid.appendChild(fig);
     }
   }

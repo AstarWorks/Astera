@@ -75,19 +75,30 @@ export function makeAnim({ repo, root, S }) {
     return out;
   }
 
+  /** Every build/vfx-shot dir that may hold anim/<id>: the case sources' dirs, SKILL_COMPARE_MEDIA_DIRS, this repo's, and every checkout under
+   *  the worktree root (SKILL_COMPARE_WORKTREE_ROOT or <repo>/.claude/worktrees), whether or not it has skill-compare case data. */
+  function captureBases() {
+    const out = new Set(S.vfxDirs().map((d) => resolve(d)));
+    out.add(resolve(repo, "build", "vfx-shot"));
+    const wtRoot = process.env.SKILL_COMPARE_WORKTREE_ROOT || join(repo, ".claude", "worktrees");
+    if (existsSync(wtRoot)) {
+      for (const d of readdirSync(wtRoot, { withFileTypes: true })) if (d.isDirectory()) out.add(resolve(wtRoot, d.name, "build", "vfx-shot"));
+    }
+    return [...out];
+  }
+
   /** The newest <vfx-shot dir>/anim/<id> that has meta.json (main, worktrees, SKILL_COMPARE_MEDIA_DIRS). */
   function captureOf(id) {
     let best = null, bestT = -1;
-    for (const b of S.vfxDirs()) {
+    for (const b of captureBases()) {
       const dir = join(b, "anim", id), t = mtime(join(dir, "meta.json"));
       if (t > bestT) { best = { dir, base: b }; bestT = t; }
     }
     if (!best) return null;
     try {
       const meta = readJson(join(best.dir, "meta.json"));
-      const sources = S.sources();
-      const src = sources.find((s) => s.vfxDir === best.base);
-      return { dir: best.dir, meta, mtime: bestT, from: src ? { worktree: src.name, branch: src.branch } : { worktree: "media-dir", branch: meta.branch ?? "" } };
+      const src = S.sources().find((s) => resolve(s.vfxDir) === resolve(best.base));
+      return { dir: best.dir, meta, mtime: bestT, from: src ? { worktree: src.name, branch: src.branch } : { worktree: best.base.split("/.claude/worktrees/")[1]?.split("/")[0] ?? "media-dir", branch: meta.branch ?? "" } };
     } catch { return null; }
   }
 
@@ -160,7 +171,7 @@ export function makeAnim({ repo, root, S }) {
         return { ...out, relativeTo: info?.relativeTo ?? "start" };
       };
       capture = {
-        prov: provOf(m), from: cap.from, preTicks: m.playPreTicks ?? 3, trigger: m.trigger ?? null,
+        prov: provOf(m), from: cap.from, preTicks: m.playPreTicks ?? 3, restTick: m.restTick ?? 0, trigger: m.trigger ?? null,
         rest, play: { front: playFrames("front"), side: playFrames("side") },
         blendIn: blend("blend-in", m.blendIn), blendOut: blend("blend-out", m.blendOut),
       };

@@ -11,7 +11,7 @@
 #   play/{front,side}/frame_NNN.png  every tick of the motion; NNN = tick + 3 (3 frames before the trigger), see meta.json playPreTicks
 #   blend-in/{front,side}/, blend-out/{front,side}/   slices of play/ around the blend, firstTick in meta.json
 #   meta.json                      provenance (branch, commit, capture time, anim, length, resolution, FOV)
-# Knobs: ITEM (held item, default bastion-greatsword), D (camera distance, 2.4), REST_TICK (0), plus the vfx-shot ones
+# Knobs: ITEM (held item, default bastion-greatsword), D (camera distance, 2.4), REST_TICK (max(2, blend_in_ticks)), plus the vfx-shot ones
 # (RES, FOV, SETTLE, CAST_LAG_MS, SHOT_KEEP, SHOT_CACHE). See tools/vfx-shot/README.md.
 set -uo pipefail
 
@@ -50,7 +50,7 @@ VFX_SHOT_SOURCED=1
 
 PRE=3                                  # frames kept before the trigger (tick -3..-1)
 D="${D:-2.4}"                          # camera distance from the caster
-REST_TICK="${REST_TICK:-0}"
+REST_TICK="${REST_TICK:-$((BLEND_IN > 2 ? BLEND_IN : 2))}"   # first tick the rig is surely drawn: blend-in length, at least 2 (client lag ~1-2 ticks)
 OUT="$OUT_ROOT/anim/$ANIM_ID"
 if [ "$TRIGGER_KIND" = skill ]; then TRIGGER_CMD="astera skill cast $TRIGGER_SKILL Caster --force"
 else TRIGGER_CMD="execute as Caster run astera emote $ANIM_ID"; fi

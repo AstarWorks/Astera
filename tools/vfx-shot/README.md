@@ -109,7 +109,7 @@ the caster's face), `side` (90 degrees), `top` (3 blocks above, looking down). O
 | file | what |
 |---|---|
 | `vanilla-{front,side,top}.png` | the real body at rest |
-| `rig-{front,side,top}.png` | the rig at tick `REST_TICK` (0 = its first tick; the rest pose must equal the vanilla body) |
+| `rig-{front,side,top}.png` | the rig at tick `REST_TICK` (default max(2, blend_in_ticks): the first tick the rig is surely on screen, since at t+0 the client has not drawn it yet; the real tick is in `meta.json` `restTick` and on the page) |
 | `play/{front,side}/frame_NNN.{png,webp}` | every tick of the motion plus its blend-out (`length + blend_out + 4` ticks; a `loop: true` motion films `length` ticks); NNN = tick + 3, so `frame_000` = t-3 |
 | `blend-in/{front,side}/`, `blend-out/{front,side}/` | slices of `play/` around the blends (a looping motion films its blend-out separately, relative to `emote stop`); first tick in `meta.json` |
 | `meta.json` | provenance: `branch`, `implementationCommit`, `capturedAt`, `anim`, `trigger`, `lengthTicks`, `loop`, blend lengths, `playPreTicks`, `resolution`, `fov` |
