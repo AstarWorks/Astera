@@ -127,12 +127,8 @@ elements:
     size:
     - 0.08
     - 0.18
-    size_over_life:
-    - 1
-    - 0
-    alpha_over_life:
-    - 0.8
-    - 0
+    size_over_life: [{ t: 0, v: 1 }, { t: 1, v: 0 }]
+    alpha_over_life: [{ t: 0, v: 0.8 }, { t: 1, v: 0 }]
   keyframes:
   - t: 0
     translate:
@@ -155,12 +151,15 @@ elements:
     - 0
     - 1.05
     - 0
-    scale: &id001
+    scale:
     - 1.8
     - 1.8
     - 1
   - t: 2
-    scale: *id001
+    scale:
+    - 1.8
+    - 1.8
+    - 1
     ease: out_expo
   - t: 5
     scale:
@@ -185,12 +184,15 @@ elements:
     - 0
     - 1.05
     - 0
-    scale: &id002
+    scale:
     - 1.5
     - 1.5
     - 1
   - t: 2
-    scale: *id002
+    scale:
+    - 1.5
+    - 1.5
+    - 1
     ease: out_expo
   - t: 5
     scale:
@@ -214,12 +216,15 @@ elements:
     - 0
     - 1.05
     - 0
-    scale: &id003
+    scale:
     - 3.2
     - 1.1
     - 1
   - t: 2
-    scale: *id003
+    scale:
+    - 3.2
+    - 1.1
+    - 1
     ease: out_expo
   - t: 5
     scale:

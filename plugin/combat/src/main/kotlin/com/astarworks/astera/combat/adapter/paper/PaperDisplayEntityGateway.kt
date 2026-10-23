@@ -156,6 +156,10 @@ public class PaperDisplayEntityGateway(
         display.transformation = next
     }
 
+    override fun setViewRange(handle: DisplayHandle, viewRange: Float) {
+        (server.getEntity(handle.id) as? Display)?.viewRange = viewRange
+    }
+
     override fun setBlock(handle: DisplayHandle, blockKey: String) {
         val display = server.getEntity(handle.id) as? BlockDisplay ?: return
         runCatching { server.createBlockData(blockKey(blockKey)) }.onSuccess { display.block = it }

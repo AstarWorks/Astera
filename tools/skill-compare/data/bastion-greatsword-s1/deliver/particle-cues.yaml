@@ -1,0 +1,24 @@
+# limbus-vfx round 5 (particle layer) -> director.
+# The whole new layer lives INSIDE content/vfx/bastion-s1-fx-high.yaml / -fx-low.yaml as `kind: particle` elements (ids s1h1-p-* / s1h2-p-*),
+# so it is tick-exact on the fx clock (fx-high delay 3, fx-low delay 27; contact = effect tick 4) and costs ZERO displays.
+# Particle definitions: content/particles/bastion-s1-p-*.yaml (22 files). Generator: tools/item-art/scripts/bastion_s1_particles.py
+# (run it AFTER tools/item-art/scripts/bastion_s1_fx.py: that script rewrites the fx files and drops the marked particle block).
+#
+# Skill YAML: NO step has to be added. The old caster-feet spawn_particle steps become redundant noise (they spawn flat at the feet,
+# 3-5 particles) and should be REMOVED from content/skills/bastion-greatsword-s1.yaml; keep the two bastion-s1-hit-crit steps (target chest burst).
+remove_steps:            # type: spawn_particle, targets: caster, delay_ticks as listed
+  - {particle_id: bastion-s1-ember,       delay_ticks: [5, 6, 7, 8, 29, 30, 31]}
+  - {particle_id: bastion-s1-dust-gold,   delay_ticks: [6, 30, 31]}
+  - {particle_id: bastion-s1-dust-black,  delay_ticks: [6, 30, 31]}
+  - {particle_id: bastion-s1-hit-spark,   delay_ticks: [7, 31]}
+  - {particle_id: bastion-s1-smoke-dark,  delay_ticks: [8, 32]}
+keep_steps:
+  - {particle_id: bastion-s1-hit-crit, delay_ticks: [7, 31], targets: cone target}
+cues: []
+# Per-tick vanilla particle totals (computed by script from the shipped YAML, along_path points included):
+#   hit 1 (skill tick = e + 3): e2 10, e3 42, e4 53, e5 58, e6 51, e7 27, e8 25, e9 5, e10 5   (total 276, peak 58)
+#   hit 2 (skill tick = e + 27): e2 10, e3 47, e4 108, e5 111, e6 96, e7 61, e8 40, e9 19, e10 10, e11 10, e12 3   (total 515, peak 111; limit 300, brief 120)
+display_particles:
+  fx-high: {added_displays: 0}
+  fx-low:  {added_displays: 0}
+display_budget_peak: {fx-high: 16, fx-low: 18}   # unchanged
