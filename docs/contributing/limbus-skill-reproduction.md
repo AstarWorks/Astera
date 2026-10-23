@@ -471,3 +471,10 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - Registered Patterning (native frames641..727) and probable Cutout (1414..1618) as missing implementations, with no asteraSkillId. Never borrow base-slot captures for an unimplemented follow-up. One reused coin in Patterning produces two visible contacts; Cutout's five falling blades are one contact cluster.
 - Prepared86/204 native frames and visually checked overhead preparation and both contacts. Browser playback reached both ends and looped without errors; index exposes both as 未実装・未接続 with no Minecraft sources. Local evidence: build/limbus-review/round61.
 - extra-3 depicts another ally, not Rodion; preserve as context for follow-up triggers, exclude from this weapon's attack count. Trigger logic, actual implementation/capture and fidelity review for both new cases remain outstanding.
+
+### Round 62: Patterning direct prototype
+
+- Added two overhead shears flights and same-target contacts21/41. Single-coin reuse remains two observed contacts, not two base coins. Passive trigger/normal input are not implemented.
+- Initial runtime load rejected duplicate keys; corrected before capture. First capture exposed second-flight timing error: element keys must be relative to spawn, not whole VFX time. Corrected and recaptured; keep rejected evidence separate.
+- Final77frames, camera5ms, repeated maximum1. HP200→188.192→182.288 in two steps about0.993s apart; critical damage means magnitude is not a reference match. Display sample peak43 across769 sequential observations.
+- Fidelity failed: fixed4m flight does not track arbitrary targets; linked trail/pose/model detail/light/camera and exact arrival versus damage remain incomplete. VfxTimeline also starts interpolation1tick after element spawn; account for this in timing review. Evidence build/limbus-review/round62, runtime-review/couture-patterning-round62.json.
