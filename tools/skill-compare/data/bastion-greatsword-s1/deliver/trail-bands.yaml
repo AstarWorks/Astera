@@ -1,0 +1,17 @@
+# limbus-vfx round 2 -> animator/director. The low wake read as a polyline hoop (step_deg 40 = 9 straight segments) and the
+# rig has no sweep to the target (animator r3: sword chops behind-right). Proposal:
+# 1. Carry the cut with ONE smooth sprite per hit: `bastion-s1-ring` (smooth ellipse, needle tips, dark rim baked in) now lives in
+#    fx-high (s1h1-ring, thin, hip height) and fx-low (s1h2-ring-a/-b, low and thick). The dark edge is baked into the sprite, so
+#    `dark_rim` (extra displays) is no longer needed.
+# 2. Therefore remove the rig wake trails wind1 / wind2 (frees their ~21 displays: budget rig 20 + fx 16 = 36/60), OR keep only the
+#    short strike-key segment below (no hoop: short life, fine step).
+fallback_if_a_trail_is_kept:
+  style: soft
+  step_deg: 12          # 40 made visible straight segments
+  fade_power: 1.0
+  life_ticks: 5
+  bands:
+    - { from: 0.0, to: 0.76, color: '#00FFC040', color_to: '#00FFC040' }
+    - { from: 0.76, to: 0.93, color: '#E6F0A010', color_to: '#50FFA818' }
+    - { from: 0.93, to: 1.0, color: '#FFFFF4D0', color_to: '#90FFE070' }
+  edge: { block: white_concrete, width: 0.04 }

@@ -95,6 +95,42 @@
                 "color"
             ]
         },
+        "com.astarworks.astera.core.application.config.VfxColorKeyYaml": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "number"
+                },
+                "v": {
+                    "type": "string"
+                },
+                "ease": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "t",
+                "v"
+            ]
+        },
+        "com.astarworks.astera.core.application.config.VfxCurveKeyYaml": {
+            "type": "object",
+            "properties": {
+                "t": {
+                    "type": "number"
+                },
+                "v": {
+                    "type": "number"
+                },
+                "ease": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "t",
+                "v"
+            ]
+        },
         "com.astarworks.astera.core.application.config.VfxCurveYaml": {
             "oneOf": [
                 {
@@ -434,23 +470,39 @@
                 "size_over_life": {
                     "type": "array",
                     "items": {
-                        "type": "number"
-                    }
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxCurveKeyYaml"
+                    },
+                    "minItems": 1
                 },
                 "color_over_life": {
                     "type": "array",
                     "items": {
-                        "type": "string"
-                    }
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxColorKeyYaml"
+                    },
+                    "minItems": 1
                 },
                 "alpha_over_life": {
                     "type": "array",
                     "items": {
-                        "type": "number"
-                    }
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxCurveKeyYaml"
+                    },
+                    "minItems": 1
                 },
-                "spin_deg_per_tick": {
-                    "type": "number"
+                "spin_over_life": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/com.astarworks.astera.core.application.config.VfxCurveKeyYaml"
+                    },
+                    "minItems": 1
+                },
+                "start_frame": {
+                    "type": "string"
+                },
+                "frame_ticks": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             },
             "required": [

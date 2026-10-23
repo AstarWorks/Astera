@@ -138,9 +138,9 @@ elements:
     drag: 0.10
     life_ticks: [6, 9]
     size: [0.1, 0.22]
-    size_over_life: [1, 0]
-    alpha_over_life: [0.95, 0]
-    spin_deg_per_tick: 15
+    size_over_life: [{ t: 0, v: 1 }, { t: 1, v: 0 }]
+    alpha_over_life: [{ t: 0, v: 0.95 }, { t: 1, v: 0 }]
+    spin_over_life: [{ t: 0, v: 15 }]
   keyframes:
   - {t: 0, translate: [0, 1.1, 2.1]}
 - id: smoke

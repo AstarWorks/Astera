@@ -1,0 +1,391 @@
+# Bastion S2 hit3 (video 17.2-17.7s): blade raised behind the head, overhead slam; one tall vertical gold arch with white speed lines and a crown of jagged shards.
+# Rig t0 = 6 ticks before the contact (t6).
+
+id: bastion-overhead
+duration_ticks: 32
+orient: yaw
+follow: false
+sample_ticks: 1
+rigs:
+- id: sword
+  pivot: [0.0, 1.4, 0.45]
+  rest: [0, 90, 0]
+  tilt: [0, 0, 6]
+  respect_hit_stop: true
+  end_tick: 31
+  parts:
+  - id: face
+    block: gray_concrete
+    offset: [0, 1.55, 0]
+    size: [0.46, 1.9, 0.07]
+  - id: rim_l
+    block: white_concrete
+    offset: [0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: rim_r
+    block: white_concrete
+    offset: [-0.25, 1.55, 0]
+    size: [0.07, 1.9, 0.12]
+  - id: tip
+    block: white_concrete
+    offset: [0, 2.5, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: base
+    block: white_concrete
+    offset: [0, 0.62, 0]
+    size: [0.58, 0.08, 0.12]
+  - id: inset
+    block: yellow_concrete
+    offset: [0, 0.86, 0]
+    size: [0.09, 0.2, 0.09]
+  - id: guard
+    block: black_concrete
+    offset: [0, 0.5, 0]
+    size: [0.62, 0.1, 0.18]
+  - id: grip
+    block: black_concrete
+    offset: [0, 0.05, 0]
+    size: [0.09, 0.8, 0.09]
+  swing:
+  - t: 0
+    rotate: [0, -118, 0]
+  - t: 1
+    rotate: [0, -152, 0]
+    ease: in_out_quad
+  - t: 5
+    rotate: [0, 52, 0]
+    ease: in_quad
+  - t: 8
+    rotate: [0, 56, 0]
+    ease: out_cubic
+  - t: 28
+    rotate: [0, 56, 0]
+  trails:
+  - id: wind
+    from: [0, 0.7, 0]
+    to: [0, 2.55, 0]
+    start_t: 2
+    end_t: 7
+    life_ticks: 9
+    lag_ticks: 0
+    style: soft
+    step_deg: 20
+    fade_power: 1.0
+    bands:
+    - from: 0.0
+      to: 0.8
+      color: '#00FFC040'
+      color_to: '#00FFC040'
+    - from: 0.8
+      to: 0.93
+      color: '#C0FFC83A'
+      color_to: '#30FFA818'
+    - from: 0.93
+      to: 1.0
+      color: '#FFFFFBE0'
+      color_to: '#80FFE070'
+    edge:
+      block: white_concrete
+      width: 0.04
+    dark_rim:
+      color: '#B0180C04'
+      width: 0.16
+elements:
+- id: streaks
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 6
+  end_tick: 14
+  count: 6
+  formation:
+    curve:
+      type: line
+      from: [0.0, 0.7, 0.4]
+      to: [0.0, 1.5, 0.4]
+  jitter:
+    position: 0.12
+    scale: 0.45
+  keyframes:
+  - t: 0
+    scale: [0.09, 0.09, 0.3]
+  - t: 2
+    translate: [0, 0, 2.2]
+    scale: [0.09, 0.09, 4.4]
+    ease: out_expo
+  - t: 7
+    translate: [0, 0, 3.9600000000000004]
+    scale: [0, 0, 4.4]
+    ease: in_quad
+- id: arch
+  kind:
+    type: sprite
+    sprite: bastion-arc
+    frame_ticks: 2
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 15
+  keyframes:
+  - t: 0
+    translate: [0.0, 0.2, 2.2]
+    rotate: [0.0, 0, 0]
+    scale: [0.675, 0.95, 1.0]
+- id: sparks
+  kind:
+    type: block
+    block: orange_concrete
+  brightness: 15
+  start_tick: 5
+  end_tick: 14
+  count: 4
+  formation:
+    curve:
+      type: line
+      from: [-0.15, 0.35, 1.6]
+      to: [0.15, 1.15, 1.6]
+    stagger_ticks: 1
+  jitter:
+    position: 0.1
+    scale: 0.4
+  keyframes:
+  - t: 0
+    scale: [0.025, 0.025, 0.25]
+  - t: 2
+    translate: [0, 0, 1.32]
+    scale: [0.03, 0.03, 2.4]
+    ease: out_expo
+  - t: 5
+    translate: [0, 0, 2.4]
+    scale: [0.0, 0.0, 2.4]
+    ease: in_quad
+- id: ink
+  kind:
+    type: sprite
+    sprite: bastion-ink
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 4
+  end_tick: 10
+  keyframes:
+  - t: 0
+    translate: [0, 0.9, 1.8]
+    rotate: [0.0, 0, 0.0]
+    scale: [0.85, 0.55, 1.0]
+- id: flat
+  kind:
+    type: sprite
+    sprite: bastion-ink
+    frame_ticks: 1
+    loop: false
+    see_through: true
+  billboard: center
+  brightness: 15
+  start_tick: 3
+  end_tick: 9
+  keyframes:
+  - t: 0
+    translate: [0, 0.3, 1.8]
+    rotate: [0.0, 0, 0.0]
+    scale: [1.0, 0.275, 1.0]
+- id: flash
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FFEFA0'
+    alpha: 1.0
+  brightness: 15
+  start_tick: 6
+  end_tick: 11
+  keyframes:
+  - t: 0
+    translate: [0, 0.7, 2.2]
+    scale: [0.21, 0.21, 1.0]
+  - t: 1
+    scale: [1.4, 1.4, 1.0]
+    ease: out_back
+  - t: 5
+    scale: [0.7, 0.7, 1.0]
+    color: '#FF9A30'
+    alpha: 0.0
+    ease: out_quad
+- id: spike0
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 6
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [0.5262690685009261, 1.32, 1.7213485607334635]
+      segments: 5
+      amplitude: 0.28
+      seed: 31
+    offset: [0, 0.0, 2.2]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 0.6696387085585778]
+    ease: out_expo
+  - t: 6
+    scale: [0.1, 0.1, 0.6696387085585778]
+  - t: 9
+    scale: [0.0, 0.0, 0.6696387085585778]
+    ease: in_quad
+- id: spike1
+  kind:
+    type: block
+    block: yellow_concrete
+  brightness: 15
+  start_tick: 6
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [2.394153720623578, 2.4, 0.16741553698590056]
+      segments: 5
+      amplitude: 0.28
+      seed: 32
+    offset: [0, 0.0, 2.2]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 1.0182337649086284]
+    ease: out_expo
+  - t: 6
+    scale: [0.1, 0.1, 1.0182337649086284]
+  - t: 9
+    scale: [0.0, 0.0, 1.0182337649086284]
+    ease: in_quad
+- id: spike2
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 6
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [1.2275970481124974, 1.8599999999999999, -1.3164366629145068]
+      segments: 5
+      amplitude: 0.28
+      seed: 33
+    offset: [0, 0.0, 2.2]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 0.7765075659644277]
+    ease: out_expo
+  - t: 6
+    scale: [0.1, 0.1, 0.7765075659644277]
+  - t: 9
+    scale: [0.0, 0.0, 0.7765075659644277]
+    ease: in_quad
+- id: spike3
+  kind:
+    type: block
+    block: yellow_concrete
+  brightness: 15
+  start_tick: 6
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [-1.052090752293786, 1.32, -2.1571057111180005]
+      segments: 5
+      amplitude: 0.28
+      seed: 34
+    offset: [0, 0.0, 2.2]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 0.8217152791569594]
+    ease: out_expo
+  - t: 6
+    scale: [0.1, 0.1, 0.8217152791569594]
+  - t: 9
+    scale: [0.0, 0.0, 0.8217152791569594]
+    ease: in_quad
+- id: spike4
+  kind:
+    type: block
+    block: white_concrete
+  brightness: 15
+  start_tick: 6
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [-1.753866116613423, 2.4, -0.4049118978189574]
+      segments: 5
+      amplitude: 0.28
+      seed: 35
+    offset: [0, 0.0, 2.2]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 0.8999999999999999]
+    ease: out_expo
+  - t: 6
+    scale: [0.1, 0.1, 0.8999999999999999]
+  - t: 9
+    scale: [0.0, 0.0, 0.8999999999999999]
+    ease: in_quad
+- id: spike5
+  kind:
+    type: block
+    block: yellow_concrete
+  brightness: 15
+  start_tick: 6
+  end_tick: 15
+  count: 5
+  formation:
+    curve:
+      type: lightning
+      from: [0, 0.05, 0]
+      to: [-1.3420629683297918, 1.8599999999999999, 1.9896901741321003]
+      segments: 5
+      amplitude: 0.28
+      seed: 36
+    offset: [0, 0.0, 2.2]
+    align: tangent
+  keyframes:
+  - t: 0
+    scale: [0.04000000000000001, 0.04000000000000001, 0.1]
+  - t: 1
+    scale: [0.13, 0.13, 0.9109138268793595]
+    ease: out_expo
+  - t: 6
+    scale: [0.1, 0.1, 0.9109138268793595]
+  - t: 9
+    scale: [0.0, 0.0, 0.9109138268793595]
+    ease: in_quad

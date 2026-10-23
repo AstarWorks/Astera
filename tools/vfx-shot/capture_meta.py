@@ -37,6 +37,33 @@ if timing.is_file():
         if lateness > 100:
             meta["captureQuality"].update(invalid=True, reviewRequired=True,
                 reason="Camera command response exceeded its planned time by more than 100 ms; recapture required.")
+# viewer session: the client log written while recording and the viewer's position before/after.
+# A defeat, world change or lobby return means the frames do not show the scene.
+VIEWER_MOVE_LIMIT = 40.0
+session_problem = None
+viewer_log = directory / "viewer-client.log"
+if viewer_log.is_file():
+    hit = re.search(r"You were defeated|Returning to the lobby|Loading terrain|Respawning|Changing dimension",
+                    viewer_log.read_text(errors="replace"), re.I)
+    if hit:
+        session_problem = f"Viewer client log shows '{hit[0]}' during recording; the viewer left the scene."
+viewer_pos = directory / "viewer-pos.txt"
+if session_problem is None and viewer_pos.is_file():
+    lines = viewer_pos.read_text().splitlines()
+    if len(lines) >= 2:
+        coords = [[float(n) for n in re.findall(r"(-?\d+(?:\.\d+)?)d", line.split(" in ")[0])] for line in lines[:2]]
+        dims = [line.split(" in ")[-1].strip() for line in lines[:2]]
+        if dims[0] != dims[1]:
+            session_problem = f"Viewer changed dimension during recording ({dims[0]} -> {dims[1]})."
+        elif all(len(c) == 3 for c in coords):
+            moved = sum((a - b) ** 2 for a, b in zip(*coords)) ** 0.5
+            meta["captureQuality"]["viewerMovedBlocks"] = round(moved, 1)
+            if moved > VIEWER_MOVE_LIMIT:
+                session_problem = f"Viewer moved {moved:.0f} blocks from its teleport position during recording."
+        else:
+            session_problem = "Viewer position could not be read after recording."
+if session_problem:
+    meta["captureQuality"].update(invalid=True, reviewRequired=True, reason=session_problem + " Recapture required.")
 if frames:
     meta["capturedAt"] = datetime.datetime.fromtimestamp(frames[-1].stat().st_mtime, datetime.timezone.utc).isoformat()
 root = Path(__file__).resolve().parents[2]
