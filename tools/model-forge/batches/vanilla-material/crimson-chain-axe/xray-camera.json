@@ -1,0 +1,35 @@
+[
+  {
+    "file": "crimson-chain-axe-detail.png",
+    "item": "crimson-chain-axe",
+    "source": "content/models/items/crimson-chain-axe.model.json",
+    "sha256": "60152f44cd85e951bb9b6f5c9a4e562dc0b07acbd3988c6e74328b7376af2d21",
+    "context": "model",
+    "mode": "xray",
+    "camera": {
+      "position": [
+        19.97406258339751,
+        15.05387046637692,
+        28.601135283781023
+      ],
+      "target": [
+        -0.04999995231628418,
+        5.699526309967041,
+        0.003810286521911621
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]
