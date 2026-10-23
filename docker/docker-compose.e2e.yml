@@ -65,6 +65,8 @@ services:
       ASTERA_SERVER_ROLE: "all"
       ASTERA_SERVER_NAME: "e2e"
       ASTERA_METRICS_ENABLED: "false"
+      # Quiet by default elsewhere: weapon input / cast / energy-bar trace lines ("[weapons-debug]").
+      ASTERA_DEBUG_WEAPONS: "1"
       # Pack URL as a client would see it; the sha1 is read inside the network.
       # Bots never download the pack (they only record the push packet), so the URL is an in-network name.
       ASTERA_RESOURCE_PACK_URL: "http://e2e-resource-pack/astera.zip"

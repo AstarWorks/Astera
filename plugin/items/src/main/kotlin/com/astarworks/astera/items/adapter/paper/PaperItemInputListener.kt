@@ -42,6 +42,7 @@ public class PaperItemInputListener(
 
     @EventHandler
     public fun onInteract(e: PlayerInteractEvent) {
+        if (TRACE) log.info("[weapons-debug] interact {} action={} hand={} item={} cancelled={}", e.player.name, e.action, e.hand, e.item?.type, e.isCancelled)
         if (e.hand != EquipmentSlot.HAND) return
         val kind = when (e.action) {
             Action.LEFT_CLICK_AIR, Action.LEFT_CLICK_BLOCK -> InputKind.LEFT_CLICK
@@ -55,10 +56,22 @@ public class PaperItemInputListener(
     @EventHandler
     public fun onAttack(e: EntityDamageByEntityEvent) {
         val attacker = e.damager as? Player ?: return
+        if (TRACE) log.info("[weapons-debug] attack {} cause={} skillScope={} victim={}", attacker.name, e.cause, SkillDamageScope.active, e.entity.name)
         if (e.cause != DamageCause.ENTITY_ATTACK) return
         // Skill-applied damage (caster as damager) is not a player click.
         if (SkillDamageScope.active) return
         if (dispatch(attacker, InputKind.LEFT_CLICK, attacker.inventory.itemInMainHand)) e.isCancelled = true
+    }
+
+    /** E2E trace only: whether the arm swing / the attack packet reached the server at all. */
+    @EventHandler(ignoreCancelled = false)
+    public fun traceSwing(e: io.papermc.paper.event.player.PlayerArmSwingEvent) {
+        if (TRACE) log.info("[weapons-debug] swing {} hand={} dim={}", e.player.name, e.hand, e.player.world.name)
+    }
+
+    @EventHandler(ignoreCancelled = false)
+    public fun tracePreAttack(e: io.papermc.paper.event.player.PrePlayerAttackEntityEvent) {
+        if (TRACE) log.info("[weapons-debug] preattack {} victim={} cancelled={}", e.player.name, e.attacked.name, e.isCancelled)
     }
 
     @EventHandler
@@ -83,6 +96,12 @@ public class PaperItemInputListener(
         val itemId = itemIdResolver.itemIdOf(stack) ?: return false
         val consumed = sink(IMcEvent.PlayerInput(PaperPlayer(player), kind, player.isSneaking, itemId))
         log.debug("input {} {} item={} consumed={}", player.name, kind, itemId, consumed)
+        if (TRACE) log.info("[weapons-debug] input {} {} item={} consumed={} tick={}", player.name, kind, itemId, consumed, player.world.gameTime)
         return consumed
+    }
+
+    private companion object {
+        /** E2E-only trace (`ASTERA_DEBUG_WEAPONS`), quiet by default. */
+        val TRACE: Boolean = System.getenv("ASTERA_DEBUG_WEAPONS") != null
     }
 }

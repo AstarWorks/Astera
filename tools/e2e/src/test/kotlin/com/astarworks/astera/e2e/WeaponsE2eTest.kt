@@ -86,6 +86,12 @@ class WeaponsE2eTest : E2eBase() {
         val b = bot("Target")
         op(a)
         op(b)
+        // The overworld arena is a night-time flat world: wandering zombies hit the bots, kill them (Astera
+        // sends an out-of-match death to the lobby, where damage and hunger are off) and soak up skill arcs.
+        // Keep it empty and bright. (Peaceful is not an option: vanilla refills food there and would move the bar.)
+        for (rule in listOf("spawn_mobs", "doMobSpawning", "advance_time", "doDaylightCycle")) rcon("gamerule $rule false")
+        rcon("time set day")
+        rcon("execute in minecraft:overworld run kill @e[type=!minecraft:player]")
         rcon("gamemode survival ${a.name}")
         rcon("gamemode survival ${b.name}")
         Thread.sleep(1_000)
@@ -108,6 +114,7 @@ class WeaponsE2eTest : E2eBase() {
                     stage(a, b, 2.2, 1_500)
                     val before = food(a)
                     // A real client sends the swing plus the attack on the entity in its crosshair.
+                    E2eReport.notes += "Weapons $item click #$n sent, victimId=${a.entityIdByUuid[b.uuid]} a.gm=${rcon("data get entity ${a.name} playerGameType").trim().substringAfter("data: ")}"
                     a.punch()
                     a.entityIdByUuid[b.uuid]?.let(a::attack)
                     // Sample through the swing: the cost is charged on cast, and energy regenerates right after.
@@ -117,7 +124,7 @@ class WeaponsE2eTest : E2eBase() {
                     val after = samples.minOrNull()
                     E2eReport.check(suite, "$item left click #$n spends energy (food bar)", "server foodLevel") {
                         assertThat(after != null && before != null && after < before)
-                            .describedAs("food $before -> $samples; hp target=${hp(b)}; pos a=${rcon("data get entity ${a.name} Pos").trim()} b=${rcon("data get entity ${b.name} Pos").trim()}; dim=${rcon("data get entity ${a.name} Dimension").trim()}; selected=$lastSelected").isTrue()
+                            .describedAs("food $before -> $samples; hp target=${hp(b)}; pos a=${rcon("data get entity ${a.name} Pos").trim()} b=${rcon("data get entity ${b.name} Pos").trim()}; dim=${rcon("data get entity ${a.name} Dimension").trim()}; selected=$lastSelected; server=${ServerLog.lines("weapons-debug").filter { a.name in it || a.uuid.toString() in it }.takeLast(6).map { it.substringAfter("[weapons-debug]") }}").isTrue()
                         "food $before -> min $after"
                     }
                 }
@@ -145,6 +152,7 @@ class WeaponsE2eTest : E2eBase() {
                 }
             }
         }
+        E2eReport.notes += "weapons-debug trace: " + ServerLog.lines("weapons-debug").map { it.substringAfter("[weapons-debug]") }
         E2eReport.notes += "server log WARN/ERROR: " + ServerLog.lines("Astera").filter { "ERROR" in it || "WARN" in it }.takeLast(15)
     }
 }
