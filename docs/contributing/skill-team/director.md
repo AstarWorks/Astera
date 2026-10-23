@@ -65,3 +65,7 @@ Relevant Learnings: <links>
 (Append dated bullets after each skill, newest last. Format: `- YYYY-MM-DD <case>: <fact / pitfall / number>`.)
 
 - 2026-10-23 seed: created from repo docs; no skill run yet.
+- 2026-10-24 bastion-greatsword-s1 (integration round 1, single rig): custom OGGs are referenced as `sound_id: 'astera:weapons/<name>'` (bare OGG = its own event). `hit_stop` holds entities only; skill `delay_ticks` run in real ticks, so a rig `freeze` of the same ticks shifts only the rig clock (hit 2 keys already include the +2); no drift to fix in YAML. `hide_held_item` must cover rig duration + freeze windows (52 + 4 = 56).
+- 2026-10-24 bastion-s1: the vfx trail bands pasted with the transparent inner band dropped (alpha 00 band is pure budget) and `dark_rim` dropped, step_deg kept 40: 2 bands + edge = 21 trail displays; 20 rig + 21 trail + <=16 fx = 57 <= 60. Do not use step_deg 20 (doubles it).
+- 2026-10-24 bastion-s1 capture facts: compare frame N = skill tick N-6 (PRE_TICKS 6). Held item still shows at t+0/t+1, nothing at t+2/t+3, rig sword from t+4 (a 2-tick bare-hand gap; held item returns ~t+56). First-person caster view: stray `small_flame` tip embers and the hit-2 ink sprite fill the camera (t+16 big flame quad, t+32 full-screen gold). Particles DO render (crit, flames, dust, white poof squares).
+- 2026-10-24 tooling: a worktree-isolated agent cannot run compound shell (`;`, `&&`, `$(..)` with git) or `bash -c`; run `make vfx-shot ...` with env args in background and wait with `timeout N tail --pid=PID -f /dev/null`.

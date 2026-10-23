@@ -1,0 +1,10 @@
+# Bastion S1 (round 2): warm-grey dust ring at the feet. Was poof (white round blobs that lingered ~30 ticks); small dust lives ~5-20 ticks. Hit 1: 5, hit 2: two calls.
+id: bastion-s1-ground-poof
+shape: { kind: ring, radius_blocks: 0.9, points: 5 }
+color: { r: 170, g: 160, b: 146 }
+count: 1
+lifetime_ticks: 10
+vanilla_particle: dust_color_transition
+data: { kind: dust_color_transition, from: { r: 190, g: 180, b: 164 }, to: { r: 96, g: 90, b: 82 }, scale: 0.7 }
+velocity: { direction: outward, speed: 0.1, spread_degrees: 20 }
+force: true

@@ -1,0 +1,10 @@
+# limbus-vfx round 2 -> director: ticks/counts UNCHANGED from round 1; only the particle kinds changed.
+# small_flame/end_rod/poof/smoke (vanilla life up to 40-60 ticks; cartoon flame sprite near the caster camera) were replaced by
+# dust_color_transition at scale 0.4-0.8 (life ~5-20 ticks). Per hit: hit 1 ember 4 calls x3, dust-gold 1x8 + dust-black 1x4 +
+# ground-poof 1x5 (tick 6); hit-crit 8 + hit-spark 5 (tick 7); smoke-dark 5 (tick 8). Hit 2 = same +24 ticks, doubled as in round 1.
+# Rig emitters: tip-ember 1/tick, tip-glint 1/tick (animator keeps the ticks).
+cues: []   # no tick/count change requested
+display_particles:
+  fx-high: [{ element: s1h1-sparks, count: 4 }, { element: s1h1-specks, count: 2 }]
+  fx-low: [{ element: s1h2-sparks, count: 4 }, { element: s1h2-specks, count: 3 }]   # s1h2-sparks-hip dropped (budget)
+display_budget_peak: { fx-high: 16, fx-low: 16 }   # conservative (end tick counted alive), cap 16
