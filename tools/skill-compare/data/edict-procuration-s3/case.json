@@ -59,12 +59,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "round30: 参照46〜50の下降ズームと54付近の引きに合わせ、比較撮影カメラ30〜36tickを修正。初回の頭部切れをレビューし34tick注視位置を左上へ再調整、再撮影040で頭部が画面内に戻ることを確認。通常プレイのカメラは未実装。光帯の広がり・黒い爪の比率・人物姿勢・持続変身・通常入力は未一致。"
+    "reason": "round31: 下降時の白青光帯を3→5本、太さと開きを時間変化させ、黒い爪の厚みを55%へ縮小。再撮影040で白い面積の増加を確認。初回000〜007の重複は開始をまたぐため無効。128px素材の拡大による段差、輪郭・人物姿勢、通常プレイのカメラ、持続変身・通常入力は未一致。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 32,
+  "iterations": 34,
   "report": "/report/edict-blade",
   "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
-  "contentRevision": "077f4a8313610af4e0540a0f7f39be7d2aa3164c462c8e9f10d4bea8ec892549"
+  "contentRevision": "b78d92fbe6831fd037a0f0c45ff887afb073a3a318dc5519b23ddcd01e4f81c5"
 }
