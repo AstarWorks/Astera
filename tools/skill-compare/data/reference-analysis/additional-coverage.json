@@ -166,7 +166,7 @@
     "videoId": "x6sc9JkW77c",
     "file": "extra-3.json",
     "sha256": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
-    "coverage": "case-registered-implementation-missing",
+    "coverage": "prototype-direct-capture-form-routing-missing",
     "name": "Procuration: Annihilate",
     "case": "edict-procuration-s3"
   },

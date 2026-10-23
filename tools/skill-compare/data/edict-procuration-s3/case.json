@@ -11,7 +11,7 @@
   },
   "variant": {
     "label": "変身後 S3",
-    "implementation": "missing",
+    "implementation": "prototype",
     "order": 3
   },
   "mc": {
@@ -24,17 +24,47 @@
     "factor": 0.2,
     "windowMs": 150
   },
-  "segments": [],
-  "notes": "Procuration形態の追加参照。技同定の確度はmed。通常形態の映像・実装を代用しない。実装予定IDであり、現時点で発動する技ではない。原資料: /reference/edict-blade/extra-3.json",
+  "segments": [
+    {
+      "id": "procuration-s3-contact-1",
+      "kind": "hit",
+      "label": "接触候補1",
+      "t_s": 50.98426666666667,
+      "notes": "f1528〜1529、med確度。隠れたダメージ判定時刻は不明。"
+    },
+    {
+      "id": "procuration-s3-contact-2",
+      "kind": "hit",
+      "label": "接触候補2",
+      "t_s": 51.6516,
+      "notes": "f1548〜1550、med確度。隠れたダメージ判定時刻は不明。"
+    },
+    {
+      "id": "procuration-s3-contact-3",
+      "kind": "hit",
+      "label": "接触候補3",
+      "t_s": 52.7527,
+      "notes": "f1578〜1581、med確度。隠れたダメージ判定時刻は不明。"
+    },
+    {
+      "id": "procuration-s3-contact-4",
+      "kind": "hit",
+      "label": "接触候補4",
+      "t_s": 55.78906666666666,
+      "notes": "f1650〜1672、low確度。隠れたダメージ判定時刻は不明。"
+    }
+  ],
+  "notes": "専用S3試作。持続変身・通常入力未接続。接触候補は13/26/48/109tickを採用。最後は遮蔽によりf1650〜1672の幅があり、109tickを原作の確定ダメージ時刻とは扱わない。",
   "editLog": [],
-  "status": "analysed",
+  "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "原動画の変身後技は観測済み。持続変身、専用技、バインド、実機撮影はいずれも未実装。通常形態のS1〜S3で代用して合格としない。"
+    "reason": "専用S3を直接発動して2回撮影。往復・跳躍・着地・左側からの標的上の連撃を確認。開始の囲いとカメラを修正。爪の持続・形、後半の光線、黒白フラッシュ、人物姿勢、カメラと接触時刻は未一致。持続変身・通常入力未接続。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 0,
+  "iterations": 2,
   "report": "/report/edict-blade",
-  "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448"
+  "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
+  "contentRevision": "efa7034ade80e18247ec240b2141e4cb0a14e885225fc59a4654ea84ccc0c09a"
 }
