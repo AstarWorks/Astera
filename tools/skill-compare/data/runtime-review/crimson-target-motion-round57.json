@@ -1,0 +1,80 @@
+{
+  "case": "crimson-chain-axe-transformed-combo-a",
+  "contentRevision": "81f5c7d4f38dddf5c16621b88a4b121473caac25882759352572909beeecf9f1",
+  "status": "bound-target-airborne-prototype-observed-fidelity-failed",
+  "captureQuality": {
+    "maxRepeatedFrames": 2,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 8.0
+  },
+  "capturedAt": "2026-10-23T05:29:11.685681+00:00",
+  "peakDisplays": 59,
+  "displaySamples": 738,
+  "displayScope": "One direct Crimson combo cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "motion": {
+    "motion-a": {
+      "minY": 100.0,
+      "maxY": 102.0,
+      "endY": 100.0,
+      "healthChanges": [
+        {
+          "time": 1792733338.6316543,
+          "health": 200.0
+        },
+        {
+          "time": 1792733340.715599,
+          "health": 194.096
+        },
+        {
+          "time": 1792733340.9328,
+          "health": 188.19199
+        },
+        {
+          "time": 1792733341.7679226,
+          "health": 182.28798
+        },
+        {
+          "time": 1792733342.6119423,
+          "health": 176.38397
+        },
+        {
+          "time": 1792733344.3027358,
+          "health": 170.47997
+        }
+      ]
+    },
+    "motion-b": {
+      "minY": 100.0,
+      "maxY": 100.0,
+      "endY": 100.0,
+      "healthChanges": [
+        {
+          "time": 1792733338.6326272,
+          "health": 200.0
+        }
+      ]
+    },
+    "motion-c": {
+      "minY": 100.0,
+      "maxY": 100.0,
+      "endY": 100.0,
+      "healthChanges": [
+        {
+          "time": 1792733338.6333566,
+          "health": 200.0
+        }
+      ]
+    }
+  },
+  "rawEvidence": [
+    "build/limbus-review/round57/target-positions-health-repeat.json",
+    "build/limbus-review/round57/live-displays-repeat.json"
+  ],
+  "review": "Round57: 同じ標的へ5接触を保持し、位置基準の上昇/保持/下降を実装。実機100→102→100、選択標的のみHP200→170.47997、他2体200。速度指定だけの初回試作は上昇せず撤回。高さ・時刻は仮、空中標的に対する鎖の低さ、人物姿勢、光/カメラ/命中仕様/通常入力は未一致。",
+  "limitations": [
+    "Uncalibrated2-block rise and provisional51..107 tick path",
+    "Open NoAI arena only; collision/active AI/player/interrupt behavior unverified",
+    "Physical chain misses elevated body in some frames",
+    "Exact original damage/coins not established"
+  ]
+}
