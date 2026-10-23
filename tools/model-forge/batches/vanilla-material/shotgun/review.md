@@ -1,77 +1,78 @@
-# Shotgun vanilla materials
+# Shotgun palette restoration — ADR-0251
 
-The existing pump shotgun silhouette and every display transform are retained.
-Three barrel facets slightly longer than 16 units split into two cells each,
-124 → 127 elements; internal split faces are omitted.
+The reference is `36743b70:content/models/items/shotgun.model.json`, rendered by
+Forge as [before.png](before.png). Its original PNG is byte-identical to the
+current source texture. The **current HEAD** supplies geometry and display,
+including all 127 existing cuboids and internal split-face omissions.
 
-| Parts | Catalog material |
-|---|---|
-| Stock, cheek comb, wrist, pump and raised wooden ribs | `wood.stripped_dark_oak_log` |
-| Receiver, bevels, barrel, lower tube, guards, rails, ferrules, shell carrier | `metal.netherite_block` |
-| Fasteners, screws, trigger, muzzle rim, tube caps, bead, highlight rails | `metal.iron_block` |
-| Shell heads | `metal.gold_block` |
-| Shell cases, seams, selectors, identity stripes | `concrete.red_concrete` |
-| Bore and ejection recesses | `concrete.black_concrete` |
-| Buttpad and buttplate ribs | `cloth.black_wool` |
+| Parts | Vanilla pattern | Tint |
+|---|---|---|
+| Barrel, receiver plates/bevels, muzzle, trigger, screws | iron block | `#c5dbe6` |
+| Receiver, lower tube, carrier, guard heel | iron block | `#242d3a` |
+| Pump ferrules, front guard | iron block | `#3b4858` |
+| Rail teeth | iron block | `#a2b4bf` |
+| Stock, wrist, pump and wooden ribs | stripped oak | `#b58d6b` |
+| Cheek comb | stripped oak | `#ffdfaa` |
+| Shell cases and identity stripes | white concrete | `#ec4164` |
+| Shell seams and selectors | white concrete | `#ff9caa` |
+| Brass shell heads | iron block | `#fff0a5` |
+| Buttpad and buttplate ribs | white wool | `#3f4c5d` |
+| Open bore | white concrete | `#151d28` |
 
-No custom PNG or Mojang texture is installed. All references use the block atlas.
-Seed 20261023 crops at one texel per local unit on every face; display scaling
-scales those texels with the model. Wood follows each cuboid's longest axis,
-including the vertical raised pump ribs; the main pump and stock run lengthwise.
+The historical painted palette contains dark blue steel `(32,40,51)`, silver
+`(176,195,205)`, walnut `(117,71,42)`, warm comb `(184,127,64)`, rose shells
+`(236,65,100)` and pale brass `(255,240,165)`. Light iron/concrete compensate
+for multiplication; stripped oak preserves wood grain with a brown tint.
+This restores the silver barrel rather than retaining the first pass's netherite.
+No texture sprite, custom PNG, shared catalog or Forge implementation is changed.
 
-## Visual review
+## Visual review and verification
 
-Opened before/after eight-view boards, the Forge contexts board, the player
-contexts board, the 26-direction contact sheet, and 16/32/64px GUI samples.
-The thin steel highlight rails make the dark barrel readable; red shells and
-brass heads remain distinct. The muzzle stays black with a bright metal rim.
-The barrel split near the muzzle shows no conspicuous seam at these views.
-32/64px inventory retains material separation; at 16px it mainly reads by outline.
-[client.png](client.png) and [client-offhand.png](client-offhand.png) are native,
-unedited 1280×720 Xvfb captures of isolated 26.3 creative superflat singleplayer.
-Both first-person hands leave the screen center clear; both third-person hands
-point the barrel forward, including the side view. Ground/frame placement and
-original proportions are retained. No concept was supplied; before is regression
-reference only. Existing stepped facets, small detached details and overlaps
-were preserved rather than redesigned.
+Opened the before/after eight-angle boards, all seven Forge contexts, the
+26-direction browser sweep, all nine player contexts, and 16/32/64px inventory.
+Silver barrel/plates contrast against the blue-black receiver. Walnut pump/stock
+and pink-red shells retain the original identity. End-on bore stays dark; thin
+metal edges remain readable. Grain and split seams show no new conspicuous defect.
+At 16px the narrow silhouette dominates; wood/silver contrast survives, while
+individual shell detail needs 32/64px. No geometry or transform fix was proposed.
+The verifier independently compares every non-face element field, face-key set
+and display block against HEAD, checks one texel/unit on every face, zero Forge
+validation errors, and exact export/reimport. See [verification.json](verification.json).
+Existing overlap/contact warnings remain conservative and are not a full geometry audit.
 
-Forge validation has zero errors and conservative warnings: 402 overlaps,
-9 coplanar contacts, 1 disconnected-component report. These are not a complete
-z-fighting audit. Direct checks on the real exported assets confirmed display
-identity, unchanged cuboids except the three equal-volume splits, one texel/unit
-on every face, deterministic replay and block-only texture references.
+Native [client.png](client.png) and [client-offhand.png](client-offhand.png) were
+opened after a successful capture under the shared client lock. Both are raw
+1280×720 Xvfb screenshots from the real 26.3 client in an isolated creative
+superflat. The tinted wood, silver-blue barrel, blue-black receiver, rose shells
+and pale brass render correctly; both hands leave the screen center clear.
+The stock continues below the screen with the preserved display transform.
+The log contains no model, atlas or tint errors; offline-account/Realms and
+unavailable-audio messages are unrelated.
 
-## Reproduction
-
-Save the pre-change model from this commit's parent, then:
+## Reproduce
 
 ```sh
+git show 36743b70:content/models/items/shotgun.model.json > /tmp/shotgun-original.json
 python3 tools/model-forge/batches/vanilla-material/shotgun/remake.py \
-  --project /tmp/shotgun-material-fresh --before /tmp/shotgun-before.json
-python3 tools/model-forge/context_preview.py --out build/shotgun-contexts shotgun
+  --project /tmp/shotgun-tint-fresh --before /tmp/shotgun-original.json
 python3 tools/model-forge/context_preview.py --viewer --out build/shotgun-reviewer shotgun
 bun tools/model-forge/review.mjs build/shotgun-reviewer/viewer.html build/shotgun-angle-review
 flock /tmp/claude-1000/astera-mc-client.lock \
-  python3 tools/model-forge/batches/vanilla-material/shotgun/capture-client.py
+  python3 tools/model-forge/batches/vanilla-material/shotgun/capture-client.py \
+  --world-source '<isolated 26.3 superflat world directory>'
 ```
 
-The client helper creates a minimal capture pack with the exact authored model,
-uses the existing portablemc 26.3 runtime and a dynamically allocated Xvfb display,
-and waits for `build/shotgun-client/stop`. Create an isolated creative superflat
-with commands enabled and give `iron_axe[item_model="astera:shotgun"]`.
-Touch `build/shotgun-client/capture` then `stop` to capture the unedited Xvfb root
-window into client.png and terminate the isolated client. Default FOV 70,
-1280×720, GUI scale 2, software GL and view bob disabled.
+The minimal capture pack follows `ResourcePackBuilder.addModels/modelDefinition`:
+remove `astera_tints` from cuboid JSON and emit that RGB table as native
+`minecraft:constant` sources in `assets/astera/items/shotgun.json`. Each face keeps
+its tintindex. It references only native block textures and includes no PNGs.
+This does not claim the production ZIP was built or deployed.
 
 ## Remaining risks / catalog wishes
 
-- Native main/offhand images were opened and reviewed. Dark barrel rails, wooden
-  pump and red/gold shells render correctly; screen center remains clear.
-  Native lighting is darker than Forge, and the stock continues below the screen
-  with the retained transform. No model/texture/atlas errors appeared in the log.
-  Unrelated offline-account Realms, unavailable audio and end_of_frame warnings remain.
-- Production pack build/deployment and use animations remain manager verification.
-- Original overlaps and very small faceted pieces remain; offline warnings are conservative.
-- Netherite is the closest catalog metal to blued steel, but has broad panel marks;
-  a quieter dark steel material would suit firearms. No shared catalog edits made.
-- No Gradle, unit tests, E2E, Docker, servers or push were run.
+- Stripped birch would offer a lighter neutral wood base; the catalog lacks it.
+  Stripped oak is the closest available pattern and works with the brown tint.
+- Native lighting/perspective differs from Forge; use animations, shader packs,
+  and production pack assembly/deployment remain manager verification.
+- Pre-existing overlapping bevels and tiny pieces are retained with geometry.
+- No Gradle tests, unit tests, E2E, Docker, standalone servers or push were run.
