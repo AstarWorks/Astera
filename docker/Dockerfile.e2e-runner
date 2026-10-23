@@ -25,7 +25,7 @@ COPY content /workspace/content/
 
 # The BuildKit cache keeps downloaded dependencies across rebuilds; the final image gets its own
 # copy (a cache mount is not part of the image) so the run itself can be --offline.
-RUN --mount=type=cache,id=astera-e2e-gradle,target=/root/.gradle \
+RUN --mount=type=cache,id=astera-e2e-gradle,sharing=locked,target=/root/.gradle \
     gradle --no-daemon :tools:e2e:testClasses :tools:e2e:resolveE2eClasspath \
  && mkdir -p /opt/gradle-home \
  && cp -a /root/.gradle/. /opt/gradle-home/

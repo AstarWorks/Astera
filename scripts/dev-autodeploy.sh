@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 # Host-local origin/main watcher. Runtime copy lives outside the detached checkout.
+#
+# Commands: up | down | status | run | once | mark-deployed <sha>
+#   mark-deployed <sha>  Record a MANUAL deploy. When a range holds docker/compose changes the watcher logs
+#                        "manual deploy needed ... entire range held" and never advances last-sha. After deploying
+#                        by hand from a checkout of <sha> (make dev-content && FORCE=1 make dev-plugins, plus
+#                        docker compose up -d --build --no-deps bot-runner resource-pack), run this so later
+#                        commits are diffed from <sha> instead of staying held forever.
 set -euo pipefail
 ROOT=/IdeaProjects/Astera
 DEPLOY=$ROOT/.claude/worktrees/dev-deploy
@@ -203,5 +210,19 @@ case "${1:-run}" in
     docker inspect "$SUPERVISOR" --format '{{.State.Status}} restart={{.HostConfig.RestartPolicy.Name}}'
     tail -n 10 "$STATE/deploy.log" 2>/dev/null || true
     ;;
-  *) echo "usage: $0 up|down|status|run|once" >&2; exit 2 ;;
+  mark-deployed)
+    sha_arg=${2:-}
+    [ -n "$sha_arg" ] || { echo "usage: $0 mark-deployed <sha>" >&2; exit 2; }
+    sha=$(git -C "$DEPLOY" rev-parse --verify "$sha_arg^{commit}") || { echo "unknown commit: $sha_arg" >&2; exit 1; }
+    (
+      flock 9
+      for f in last-sha attempted-sha; do
+        printf '%s\n' "$sha" > "$STATE/$f.tmp"
+        mv "$STATE/$f.tmp" "$STATE/$f"
+      done
+      rm -f "$STATE/manual-needed"
+      log "deployed $sha [manual]"
+    ) 9>"$LOCK"
+    ;;
+  *) echo "usage: $0 up|down|status|run|once|mark-deployed <sha>" >&2; exit 2 ;;
 esac

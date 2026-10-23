@@ -27,7 +27,7 @@ COPY tools /workspace/tools/
 COPY plugin /workspace/plugin/
 COPY content /workspace/content/
 
-RUN --mount=type=cache,id=astera-resource-pack-gradle,target=/home/gradle/.gradle \
+RUN --mount=type=cache,id=astera-resource-pack-gradle,sharing=locked,target=/home/gradle/.gradle \
     gradle --no-daemon -x test :tools:resource-pack:buildResourcePack \
  && test -s build/resource-pack/astera.zip \
  && test -s build/resource-pack/astera.zip.sha1

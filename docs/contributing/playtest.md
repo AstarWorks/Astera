@@ -69,6 +69,12 @@ No GitHub CI, webhook or external service is involved.
 - Events: `/IdeaProjects/Astera/.claude/state/dev-deploy/deploy.log`; detailed build output:
   `build.log` in that directory. `last-sha` records successful deployment; `attempted-sha`
   prevents retrying a failed push, including after restarts. The next push diffs from `last-sha`.
+- Docker/compose changes are never auto-deployed: the watcher logs `manual deploy needed ... entire
+  range held` and keeps `last-sha`. Deploy by hand from a checkout of that sha
+  (`make dev-content && FORCE=1 make dev-plugins`, then
+  `docker compose up -d --build --no-deps bot-runner resource-pack`), then tell the watcher with
+  `scripts/dev-autodeploy.sh mark-deployed <sha>`. It writes `last-sha` and `attempted-sha`, clears
+  `manual-needed` and logs `deployed <sha> [manual]`; later commits are diffed from that sha.
 - Runtime: Docker container `astera-dev-autodeploy`, with `unless-stopped`, supervises a
   `docker exec` watcher in this development container (also `unless-stopped`). The host
   Docker daemon cannot bind-mount this container's repo, so the supervisor mounts only the

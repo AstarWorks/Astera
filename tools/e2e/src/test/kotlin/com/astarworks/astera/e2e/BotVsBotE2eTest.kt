@@ -76,12 +76,20 @@ class BotVsBotE2eTest : PlaythroughBase() {
         // --- the AI plays ---------------------------------------------------------------------------------------
         val deathsBefore = bots.sumOf { it.deaths.size }
         brains.forEach { it.mode = BotBrain.Mode.FIGHT }
+        // The default Norma goal is STAR and the e2e star generators pay every 3 s, so an idle pair reaches level 3 in ~13 s
+        // and the match ends before the bots have crossed the arena. Pick the KILL goal (as a player would from the picker),
+        // and again after every level-up, so the match can only end through fighting.
+        var lastChooseAt = 0L
         val tPlay = System.currentTimeMillis()
         val deadline = tPlay + 300_000
         var firstKillMs = -1L
         val track = mutableListOf<String>()
         var stallAt: Triple<Double, Double, Double>? = null
         while (System.currentTimeMillis() < deadline && matchLines().isNotEmpty()) {
+            if (System.currentTimeMillis() - lastChooseAt > 2_000) {
+                lastChooseAt = System.currentTimeMillis()
+                bots.forEach { it.command("astera norma choose kill") }
+            }
             if (firstKillMs < 0 && bots.sumOf { it.deaths.size } > deathsBefore) firstKillMs = System.currentTimeMillis() - tPlay
             if ((System.currentTimeMillis() - tPlay) / 1_000 % 10 == 0L) {
                 track += "${(System.currentTimeMillis() - tPlay) / 1_000}s:" + bots.joinToString("/") { b -> posOf(b)?.let { "(%.0f,%.0f)".format(it.first, it.third) } ?: "?" }

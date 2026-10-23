@@ -35,7 +35,7 @@ COPY content /workspace/content/
 
 # Build the 7 shaded plugin jars (ADR-0022). Tests are skipped here because CI
 # runs `./gradlew check` separately. plugin:test-fixtures is NOT shipped.
-RUN --mount=type=cache,target=/home/gradle/.gradle \
+RUN --mount=type=cache,id=astera-plugins-gradle,sharing=locked,target=/home/gradle/.gradle \
     gradle --no-daemon -x test \
         :plugin:core:shadowJar \
         :plugin:items:shadowJar \
