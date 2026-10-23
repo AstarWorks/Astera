@@ -147,3 +147,57 @@ phases:
     delay_ticks:
       type: literal
       value: 38
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 6
+      angle_degrees:
+        type: literal
+        value: 65
+      max_count: 1
+    vfx_id: edict-procuration-petals
+    delay_ticks:
+      type: literal
+      value: 5
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 6
+      angle_degrees:
+        type: literal
+        value: 65
+      max_count: 1
+    vfx_id: edict-procuration-petals
+    delay_ticks:
+      type: literal
+      value: 30
+  - type: play_vfx
+    targets:
+      type: cone
+      from:
+        type: caster
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 6
+      angle_degrees:
+        type: literal
+        value: 65
+      max_count: 1
+    vfx_id: edict-procuration-petals
+    delay_ticks:
+      type: literal
+      value: 38

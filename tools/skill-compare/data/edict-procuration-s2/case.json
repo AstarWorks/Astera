@@ -52,12 +52,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "枝を細くし曲線へ近づけ、白い斬線の両面表示を実機確認。線分の逆傾き・片面消失・定義slot超過を修正。発光の縁・先端の形・破片・姿勢・カメラ・接触時刻は未一致。持続変身と通常入力未接続。"
+    "reason": "専用の花弁状spriteを追加し、三群の接触に伴う散乱・下降を実機確認。破片の青/白比率・形の種類・分布、発光の縁、姿勢、カメラ、描画開始時刻は未一致。持続変身・通常入力未接続。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 8,
+  "iterations": 9,
   "report": "/report/edict-blade",
   "referenceRevision": "b37d2efcfa09e705a57c7ad5b5990b2f325a2a39a2eaff45b1c7a565488cd70e",
-  "contentRevision": "e031446fe1ccc530a497e5f7d926cbc462a02006fc31b8dbc4333ef8bb2392dc"
+  "contentRevision": "f0a837922b7f7b70efb0f8c248892732dd86b895768ef65abdebb61b6113214f"
 }
