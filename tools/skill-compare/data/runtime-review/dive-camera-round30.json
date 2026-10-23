@@ -1,0 +1,72 @@
+{
+  "runtime": {
+    "baseCommit": "304471332e9ed7c6b309331e291fb07d2aaf367a",
+    "resourcePackSha1": "859e0afe874a9c0c9de8a74d8534cd74189bb6aa",
+    "deployedEvidence": {
+      "content/vfx/edict-procuration-airborne.yaml": "2ba61339b5933824e0fc96bd02d06f660b28c44868a538dc48ce294a8df5ce84",
+      "content/vfx/edict-procuration-dive.yaml": "85cee3f8603740d1aca75c5273d9e4d88b2e4d390860b3a1668c9e89f7e68f41",
+      "content/skills/edict-procuration-s3.yaml": "9ff2048abb38312f6458319b6305ec22c836f1a49e04f5931314dd691c85dd29"
+    },
+    "coreSha256": "b54a8e06d0d57bd7aa364ba83c7cec57c0c4b661f159c45bbad05f19b05f5bde",
+    "combatSha256": "aef44f22621f89f3448dc9c9716652a2c0f813976f2fd934d1e4c49745e10a25",
+    "cameraRevision": "04b04967b23cc491c1a99e87f6d74bf133b3889d430de2dd3f24e51036b34699",
+    "changes": "Capture-camera dive dolly, revised tick34 focus left/up after clipping review; no gameplay camera"
+  },
+  "scope": "Comparison capture camera only; gameplay camera remains unimplemented",
+  "referenceFrames": [
+    44,
+    46,
+    48,
+    50,
+    52,
+    54,
+    56,
+    58,
+    60
+  ],
+  "observations": "Zoom-in at source46-50, retreat by54; reconstructed as tick30-36 dolly at fixed FOV70.",
+  "captures": [
+    {
+      "path": "build/limbus-review/round30/first",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 5.0
+      },
+      "cameraRevision": "da5cc79688039b19137d4558bd866664ec65b3282644f8861d45f9f1b9256aa2"
+    },
+    {
+      "path": "build/limbus-review/round30/repeat-initial",
+      "quality": {
+        "maxRepeatedFrames": 2,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 5.0
+      },
+      "cameraRevision": "da5cc79688039b19137d4558bd866664ec65b3282644f8861d45f9f1b9256aa2"
+    },
+    {
+      "path": "build/limbus-review/round30/revised-first",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 5.0
+      },
+      "cameraRevision": "04b04967b23cc491c1a99e87f6d74bf133b3889d430de2dd3f24e51036b34699"
+    },
+    {
+      "path": "build/limbus-review/round30/revised-repeat",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 5.0
+      },
+      "cameraRevision": "04b04967b23cc491c1a99e87f6d74bf133b3889d430de2dd3f24e51036b34699"
+    }
+  ],
+  "visualReview": {
+    "initial/frames_039_041": "Zoom present, caster head clipped at top/left.",
+    "revised-first/frame_040": "Tick34 focus shifted left/up; caster head now within frame.",
+    "remaining": "Framing is not certified identical; source streak fan covers much more of the screen and body posture is different."
+  },
+  "fidelityStatus": "failed"
+}
