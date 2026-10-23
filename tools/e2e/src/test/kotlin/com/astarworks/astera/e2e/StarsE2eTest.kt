@@ -28,6 +28,9 @@ class StarsE2eTest : PlaythroughBase() {
     private fun levelOf(b: Bot): Pair<Int, Int>? =
         sidebar(b).firstNotNullOfOrNull { Regex("Lv\\s*(\\d+)/(\\d+)").find(it)?.let { m -> m.groupValues[1].toInt() to m.groupValues[2].toInt() } }
 
+    /** The `Goal: ...` sidebar line, or null. */
+    private fun goalLine(b: Bot): String? = sidebar(b).firstOrNull { it.contains("Goal:") }
+
     /** Dropped-item entities (a star drop is a glowing NETHER_STAR item) this bot currently sees within [r] blocks of (x, z). */
     private fun itemsNear(b: Bot, x: Double, z: Double, r: Double): Int =
         b.entities.values.count { it.type.equals("ITEM", ignoreCase = true) && Math.hypot(it.x - x, it.z - z) <= r }
@@ -49,7 +52,8 @@ class StarsE2eTest : PlaythroughBase() {
             "line='${active?.raw}'"
         }
         if (active == null) return
-        Thread.sleep(2_500) // generators have popped at least once; nobody stands on a pedestal
+        // Nobody stands on a pedestal. Keep the pre-pedestal steps short: every 3 s each generator holds one more star.
+        both.forEach { b -> b.waitUntil(5_000) { goalLine(b) != null } }
 
         E2eReport.check(suite, "the match sidebar shows 0 stars, Lv 1/3 and the goal (Stars 0/2) for everyone at the start", "SetScore") {
             for (b in both) {
