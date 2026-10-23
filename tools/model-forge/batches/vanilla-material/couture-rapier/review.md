@@ -1,37 +1,43 @@
-# Couture rapier — vanilla materials
+# Couture rapier — restored palette
 
-- Blades and cutting edges (`e0001–e0006`, `e0012–e0017`): `metal.iron_block`.
-- Open handles (`e0007–e0011`, `e0018–e0022`): `stone.polished_blackstone`.
-- Pale flower pivot (`e0023–e0026`): `metal.iron_block`.
-- No custom PNGs or shipped Mojang PNGs. All resources use the native block atlas.
+The source palette is `36743b70:content/models/items/couture-rapier.model.json`, sampled from its original 32×32 authored atlas. `before.png` renders that revision through Forge. Current HEAD geometry and display are imported separately before recolouring.
 
-Geometry, names, rotations, element order and every display transform match the original exactly (26 elements; no splits needed). Vanilla UV spans retain one texel per local model unit. Thin blade side faces use quarter-turn crops inside the iron block texture: its subtle lines run along the blade instead of forming distracting transverse bands. Crops on opposite blade faces match, preserving a coherent finish. Blackstone is the closest opaque dark catalog material to the original black handles. Wish: a smooth opaque dark metal; `metal.anvil` has transparent pixels unsuitable for these thin closed handle bars.
+| Part | Original RGB | Vanilla pattern | Tint |
+|---|---|---|---|
+| Blade bodies (`e0001`, `e0003`, `e0005`, `e0012`, `e0014`, `e0016`) | 52,58,72 | iron_block | #3c4353 |
+| Cutting edges (`e0002`, `e0004`, `e0006`, `e0013`, `e0015`, `e0017`) | 213,193,203 | iron_block | #f5deea |
+| Open metal handles (`e0007–e0011`, `e0018–e0022`) | 28,31,39 | iron_block | #20242d |
+| Flower pivot (`e0023–e0026`) | 242,230,236 | iron_block | #fff3fa |
+
+All parts are metal. Light iron supplies the vanilla pattern without restricting the custom hue. Multiplication approximates the original atlas colours; the pearl pivot is slightly darker than the original painted swatch. No custom or derived PNG textures were added. Thin blades retain longitudinal, interior iron crops at one texel per local model unit. The blackened metal handles replace stone and remain opaque.
 
 ## Visual review
 
-Opened and inspected `before.png`, final `after.png` (eight identical Forge cameras), `forge-contexts.png`, `contexts.png` (Java left-hand signs and mannequin contexts), `all-angles.png` (26 directions) and `inventory.png` (16/32/64 px). The silhouette, blade steps, flower and handle joins are retained. No newly floating parts, cutout holes or stretched blade texels are visible. Iron is brighter than the original painted gunmetal, improving inventory readability. The black handles have low contrast on the dark offline background, as the original does.
+Opened original `before.png`, final `after.png`, `contexts.png`, `forge-contexts.png`, `inventory.png` and the 26-direction `all-angles.png`. The dark blue-gray blade bodies, rose-silver cutting edges and pearl flower restore the original scissor identity. Pale edges and flower separate the dark blade bodies in the GUI; 16px necessarily reduces the very thin outline to a few pixels. Both hands, third-person side, ground/spin and fixed retain the original silhouette. The current display puts most of the handle below the first-person screen and presents the blades edge-on; these transforms are preserved exactly.
 
-Critic: initial iron crops made horizontal bands; gold handles and purple petals departed from the original palette. An anvil handle trial exposed alpha holes. Fixes: iron side UVs rotated 90 degrees with swapped spans; opaque polished-blackstone handles; pale iron flower. Verifier: the final blades have longitudinal detail, all handle bars are continuous, and the flower retains its pale color. Front/back/oblique/underside views preserve outline and joins. No concept image was supplied; the original model is regression evidence only.
-
-Forge validation: zero errors, 54 conservative overlap warnings before and after. Original edge/bevel and flower intersections remain; this material-only edit is not a complete z-fighting audit. No geometry was added to meet the generic hero-prop element target.
+Critic: flat white blades had lost the original dark gunmetal/rose edge separation; stone handles also lost their metal surface. Fix: four constant tints on light iron, with blade crops oriented along the length. Verifier: original/after cameras show restored part hues, continuous opaque handle loops and unchanged joins; no newly stretched pixels or geometry regressions. No concept image was supplied; the old model is palette/regression evidence only. Forge validation has zero errors and the same 54 conservative overlap warnings; intentional pre-existing intersections remain.
 
 ## Reproduction
 
-Save the original model from this commit's parent, then run:
-
 ```sh
-git show <parent>:content/models/items/couture-rapier.model.json > /tmp/couture-rapier-before.json
+git show 36743b70:content/models/items/couture-rapier.model.json > /tmp/couture-original.json
+git show <pre-recolour-parent>:content/models/items/couture-rapier.model.json > /tmp/couture-current.json
 (cd tools/skill-viewer && bun install --frozen-lockfile)
 python3 tools/model-forge/batches/vanilla-material/couture-rapier/remake.py \
-  --project /tmp/couture-rapier-fresh --before /tmp/couture-rapier-before.json
+  --project /tmp/couture-fresh --before /tmp/couture-original.json --current /tmp/couture-current.json
 python3 tools/model-forge/context_preview.py --viewer --out build/couture-rapier-reviewer couture-rapier
 bun tools/model-forge/review.mjs build/couture-rapier-reviewer/viewer.html build/couture-rapier-review couture-rapier
+flock /tmp/claude-1000/astera-mc-client.lock python3 tools/model-forge/batches/vanilla-material/couture-rapier/capture-client.py --world-source <isolated-creative-superflat-world>
 ```
 
-`operations.json` records Forge operations, including crop adjustments, snapshots, validation and export. `cameras.json` preserves the 35 reviewer cameras; `all-angles.png` is a contact sheet of the orbit captures. Viewer HTML embeds cached vanilla pixels and remains under ignored `build/`.
+`remake.py` asserts all 26 element geometries, face sets and current display are preserved. `operations.json` records imports, snapshots, material and UV operations, validation and export. The viewer embeds cached vanilla pixels and stays in ignored `build/`. `cameras.json` records 35 exact viewer camera/context captures.
 
-## Native client and remaining limits
+## Native client and limits
 
-`client.png` and `client-thirdperson.png` were opened and inspected. The native log contains no missing-model or mixed-atlas errors. `client.png` is an unedited native 1280×720 screenshot from Minecraft Java 26.3, portablemc, Xvfb and software GL, in an isolated creative superflat. The capture pack contains the exact final model, its item definition and the pilot's builder-equivalent block atlas directory source. Assemble it with this directory's `capture-pack.py --out <fresh-pack-directory>`. Launch and capture under `flock /tmp/claude-1000/astera-mc-client.lock`, using a free Xvfb display and a game directory containing `couture-rapier`.
+The minimal pack mirrors `ResourcePackBuilder.addModels/itemDefinition`: strips `astera_tints` from the cuboid JSON and emits each RGB as a `minecraft:constant` item tint in palette order, retaining all face tint indices. Vanilla references remain native block-atlas sources; no Mojang PNGs are shipped. This is builder-equivalent assembly, not a production pack build or server deployment.
 
-The original first-person transforms put the handles and pivot mostly below the screen and the paired blades edge-on; preserved per scope. The offline side context and GUI show the paired silhouette; the native front-facing third-person view is nearly edge-on under the preserved transforms. Offline hand/lighting approximations cannot establish swing, bobbing, varying FOV or shader behavior. Native capture is singleplayer evidence, not a production pack or Astera server deployment. Production pack/integration verification remains with the manager. No Gradle, tests, E2E, Docker, server launch or push was run.
+Native capture uses the installed portablemc 26.3 runtime, dynamically allocated Xvfb display, llvmpipe, 1280×720, FOV 70, bob off and GUI scale 2. The entire launch/capture holds the shared client flock, using `build/couture-rapier-client`. Only the isolated copy of the source world has commands enabled. Screenshots are unedited Xvfb root captures. Opened both `client.png` and `client-thirdperson.png`: the gunmetal bodies, rose edges, opaque black loops and pearl pivot all render. The broad face visible in front of the third-person character belongs to the stationary fixed-context item display, not the held model.
+
+The native log has no missing-model, texture, tint or mixed-atlas errors. Offline-account authentication/Realms and unavailable audio-device errors are unrelated to model rendering. The initial optional item-display scale command was rejected by the 26.3 transformation codec; the display rendered at its default unit scale. The reproducer now omits that optional transform, reproducing the captured effective state without that warning.
+
+Remaining risks: production pack/integration checks remain with the manager; offline lighting/mannequin differs from native perspective; swing, FOV changes and shaders are unverified; pre-existing 54 overlap candidates were retained. No catalog wishes: tintable iron covers all four metal finishes. No Gradle, tests, E2E, Docker or push was run.
