@@ -2280,6 +2280,7 @@ astera:
   play.lane.capture-wool.desc: "<gray>相手より先にウールのゾーンを制圧。</gray>"
   play.lane.steal-jewelry.desc: "<gray>敵の台座から宝石を奪って持ち帰る。</gray>"
   play.lane.battle-loyal.desc: "<gray>チームデスマッチ。先にキル目標に届いた側の勝ち。</gray>"
+  play.lane.pve-waves.desc: "<gray>ソロでも友達とでも。3ウェーブのモンスターを倒せ。</gray>"
   play.queue.joined: "<green><gold>{lane}</gold> のキューに参加しました。</green><gray>サイドバーで状況を確認。抜けるには赤いホットバーアイテムかメニュー。</gray>"
   play.queue.already-here: "<yellow>すでに <gold>{lane}</gold> で待機中です。</yellow>"
   play.queue.left: "<yellow>キューを抜けました <gray>{lane}</gray>。</yellow>"

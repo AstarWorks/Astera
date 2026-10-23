@@ -2292,6 +2292,7 @@ astera:
   play.lane.capture-wool.desc: "<gray>Capture the wool zones before the other team.</gray>"
   play.lane.steal-jewelry.desc: "<gray>Steal jewels from rival pedestals and bank them.</gray>"
   play.lane.battle-loyal.desc: "<gray>Team deathmatch. First to the kill goal wins.</gray>"
+  play.lane.pve-waves.desc: "<gray>Play alone or with a friend. Clear 3 waves of monsters.</gray>"
   play.queue.joined: "<green>Queued for <gold>{lane}</gold>.</green> <gray>Watch the sidebar. Leave with the red hotbar item or the menu.</gray>"
   play.queue.already-here: "<yellow>You are already queued for <gold>{lane}</gold>.</yellow>"
   play.queue.left: "<yellow>You left the queue <gray>{lane}</gray>.</yellow>"

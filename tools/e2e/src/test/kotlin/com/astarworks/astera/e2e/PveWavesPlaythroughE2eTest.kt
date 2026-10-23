@@ -29,7 +29,7 @@ class PveWavesPlaythroughE2eTest : PlaythroughBase() {
         return Regex("count: (\\d+)").find(text)?.groupValues?.get(1)?.toInt() ?: if (text.startsWith("Test passed")) 1 else 0
     }
 
-    private fun mobCount(): Int = countOf(rcon("execute if entity @e[tag=astera_pve_mob]"))
+    private fun mobCount(): Int = countOf(inArena("if entity @e[tag=astera_pve_mob]"))
 
     private fun mobCountNear(b: Bot, radius: Int): Int =
         countOf(rcon("execute at ${b.name} if entity @e[tag=astera_pve_mob,distance=..$radius]"))
