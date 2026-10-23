@@ -1,105 +1,77 @@
-# Knight sword — vanilla materials
+# Knight sword palette restoration
 
-The 108-element original becomes 117 elements through Forge's >16-unit blade
-splits. Bounds, named/rotated cuboid volumes and every display transform are
-unchanged. The original is the regression reference; no concept image was supplied.
-No custom texture was needed, and no Mojang PNG is included in the pack or commit.
+Original palette reference: `36743b70:content/models/items/knight-sword.model.json`,
+rendered through Forge as `before.png`. Its atlas has silver-blue steel
+(#96acb4 / #cbdde0), gray-blue fuller (#718493), warm gold (#d99c30 /
+#f4cb59), reddish leather (#4c261a), and dark binding (#281612).
 
-| Parts | Catalog material |
-|---|---|
-| Blade web, ricasso, long bevels, taper, silver lips, nick highlights | `metal.iron_block` |
-| Guard, quillons, collars, wheel pommel, bosses, pins and gold borders | `metal.gold_block` |
-| Fuller and rivet bezels | `stone.polished_blackstone` |
-| Grip | `cloth.brown_wool` |
-| Diagonal grip binding | `cloth.black_wool` |
+| Parts | Vanilla pattern | Tint |
+|---|---|---|
+| Blade web, ricasso, point | iron_block | #b0c7ce |
+| Edge bevels, fuller lips, wear highlights | iron_block | #e0f5f6 |
+| Inset fuller | iron_block | #8196a6 |
+| Guard arms/center, collars, wheel middle | iron_block | #e9af38 |
+| Gold bevels, facets, curls, rivets, bosses, border | iron_block | #ffda71 |
+| Rivet bezels | iron_block | #c08532 |
+| Leather grip | white_wool | #602f21 |
+| Diagonal leather binding | white_wool | #301d17 |
 
-The pieces named `stepped crystal facet` were gold in the original atlas; they
-remain part of the gold wheel pommel. Brown/black wool is the nearest catalog
-substitute for leather. Catalog wish: a static brown leather-like block material.
-No catalog or shared Forge implementation was changed.
+Tints compensate for multiplication and separate edges from the blue-silver web.
+Fine wool crops give the leather its wrap texture. The gold/silver/brown identity
+remains distinct from the greatsword's blue/crimson palette. No custom PNGs or
+Mojang texture sprites are shipped.
 
-## Visual review
+## Review and verification
 
-- `before.png` and `after.png`: the same eight canonical cameras, opened and
-  reviewed. Blade, stepped tip, curled guard and pommel retain the original outline.
-  The dark fuller distinguishes the iron blade from its pale background highlights.
-  Foreground masks match exactly across the before/after board (zero changed pixels).
-- `contexts.png`: pilot-style GUI, both first/third person hands, ground and fixed.
-- `contexts-faithful.jpg`: the existing Java hand-sign/player-base renderer's nine
-  contexts, opened and reviewed. Grip meets the hand in both third-person views;
-  the point clears the center in both first-person previews. Ground and fixed
-  contexts remain centered. These are offline resting-pose approximations.
-- `orbits.png`: all 26 reviewer orbit cameras, including underside, backside and
-  thin edge views, opened and reviewed. `cameras.json` retains camera metadata.
-  No newly floating pieces or missing external split faces were visible.
+Opened before/after eight-view boards, contexts.png, contexts-faithful.jpg,
+orbits.png (26 directions), and inventory.png (16/32/64px). Blade edges and gray-blue
+fuller remain distinguishable; gold guard/pommel and reddish grip read at small GUI
+sizes. Side, back and underside retain the original joins and silhouette.
+No new floating pieces or visible fighting faces were observed. Existing cuboid
+intersections remain outside this material-only task.
 
-Iron block shading produces pale rectangular patches; it is intentionally more
-varied than the former flat blue-gray atlas. At the blade split and narrow bevels,
-material crops change but texels retain their local size. Thin gold and cloth
-pieces sample only fractions of a texel, so they read mainly by value/silhouette.
-Every face uses one vanilla texel per model unit, including fractional dimensions;
-no UV exceeds 16 units. The materials all share the native block atlas.
+`verification.json` records exact HEAD geometry and display equality (117 elements,
+unchanged face directions), eight deduplicated tint entries, identical Forge
+export/import, zero exported PNGs and zero validation errors. Conservative overlap
+warnings describe retained geometry. Operations and warning counts are preserved in
+operations.json. The historical reference is never used as the geometry source.
 
-Forge validation has zero errors. Original conservative warnings: 156 overlapping
-AABBs and 44 possible coplanar contacts. Final warnings: 172 and 57 respectively;
-blade cells introduce extra candidate pairs. The transient batch reports a mixed
-atlas warning because the unused original slot is still present; packaging removes
-that slot, and the final model has only `minecraft:block/` references. Original
-intentional overlaps/contact candidates remain. This is not a complete z-fighting
-audit; static images cannot establish motion behavior.
-
-## Reproduce
-
-Save `content/models/items/knight-sword.model.json` from this commit's parent to an
-absolute temporary path, then run with a fresh project directory:
+Reproduce from the repository root with a fresh ignored project directory:
 
 ```sh
-bun install --cwd tools/skill-viewer --ignore-scripts --frozen-lockfile
+git show 36743b70:content/models/items/knight-sword.model.json > build/knight-sword-original.json
 python3 tools/model-forge/batches/vanilla-material/knight-sword/remake.py \
-  --project /tmp/knight-sword-forge-replay --before /tmp/knight-sword-before.json
-python3 tools/model-forge/batches/vanilla-material/knight-sword/capture-pack.py \
-  --out build/knight-sword-client/resourcepacks/vanilla-material
+  --project build/knight-sword-tint-replay --before build/knight-sword-original.json
+flock /tmp/claude-1000/astera-mc-client.lock \
+  python3 tools/model-forge/batches/vanilla-material/knight-sword/capture-client.py \
+  --world-source '<isolated creative superflat world directory>'
 ```
 
-The remake imports, observes every original element, snapshots, assigns materials
-in one batch (seed 20261023), packages used slots, reimports, snapshots, renders,
-validates and exports through Forge. It also runs the existing context renderer and
-35-view reviewer. Embedded vanilla preview data remains in the temporary project;
-only rendered evidence and camera metadata are committed. Use
-`MODEL_FORGE_CLIENT_JAR` to select a different local jar.
+## Native capture
 
-## Native client
+The capture pack follows ResourcePackBuilder: remove `astera_tints` from the cuboid
+JSON and emit the indexed RGB values as `minecraft:constant` sources in the item
+model definition. All face tint indices and material references are preserved.
+This is a minimal builder-equivalent pack, not a production ZIP build.
 
-`client.png` is the raw 1280×720 Xvfb root-window capture from Minecraft Java 26.3,
-portablemc and llvmpipe. Opened and reviewed: the iron blade, black fuller, gold
-crossguard and brown/black wrap render clearly. No missing-model cube, missing
-texture, mixed-atlas error or duplicate-sprite warning was present. Native lighting
-is darker and smoother than Forge's board; the blade's rectangular iron crops are
-less pronounced. The unchanged first-person transform extends the grip below the
-screen; the blade and crossguard remain visible and clear of the crosshair.
+The full portablemc 26.3/Xvfb launch, capture and shutdown holds the shared client
+lock. Its unique game directory is `build/knight-sword-client`; Xvfb allocates an
+unused display. The isolated copied world uses creative mode, commands enabled,
+noon/clear/peaceful, FOV 70, bob disabled and 1280x720. `client.png` is the native
+unmodified root screenshot with the equipped sword and hotbar.
 
-Launch the existing `/home/node/.cache/astera-vfx-shot/venv/bin/portablemc` under
-`flock /tmp/claude-1000/astera-mc-client.lock` with
-`--main-dir /home/node/.cache/astera-vfx-shot/mcdir start 26.3`,
-`--mc-dir "$PWD/build/knight-sword-client" -u KnightCapture --resolution 1280x720`.
-Keep that lock through launch, capture and client shutdown. Use a fresh
-`Xvfb -displayfd 1 -screen 0 1280x720x24 -nolisten tcp`,
-`LIBGL_ALWAYS_SOFTWARE=1`, `LP_NUM_THREADS=4`, FOV 70, GUI scale 2, view bob off,
-and `resourcePacks:["vanilla","file/vanilla-material"]` in the isolated options.
-Create an isolated creative superflat with commands enabled and structures off.
-Give `/give @s minecraft:iron_sword[minecraft:item_model="astera:knight-sword"]`,
-set `/time set noon`, `/weather clear`, and `/tp @s ~ ~ ~ 0 0`. Allow chat to fade,
-then use `import -window root` without resizing/painting. The pack's exact model
-bytes were compared with the committed model before launch. Only native block
-references are shipped. This verifies the minimal capture pack, not production
-pack compilation or an Astera deployment.
+Opened `client.png`: silver-blue steel, a darker fuller, warm gold fittings and
+reddish/dark leather wraps render correctly in first person and the hotbar. Final
+client log has no model, texture, mixed-atlas or tint-loading errors. Offline
+authentication/audio and a missing end_of_frame post-effect message are unrelated.
+The final pack's cuboid and constant tints were compared directly with source.
+The source world must be client-created; a Paper-exported world's dimension data
+was rejected before the successful capture.
 
-## Remaining risks
+## Remaining limits
 
-- Production resource-pack build and server deployment remain manager/CI work.
-- Iron block's border pattern is visible on narrow blade strips; a brushed steel
-  block material would provide a quieter alternative if the catalog gains one.
-- Existing bevel overlaps and coplanar candidates are preserved, as required.
-- Swing/use animation and changing FOV require additional in-game review.
-
-No Gradle, tests, E2E, Docker, dedicated server, push or shared-content edits were run.
+Native capture covers first person and hotbar. Swing/use, shaders, glint and other
+native contexts remain unverified; offline player lighting is illustrative.
+Multiplicative tints cannot brighten black or provide emission. Production pack
+build/integration verification remains with the manager. No tests, Gradle, Docker,
+servers, live containers or push were run. Catalog wishes: none.
