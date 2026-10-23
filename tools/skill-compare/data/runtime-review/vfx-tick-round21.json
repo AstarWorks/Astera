@@ -1,0 +1,40 @@
+{
+  "runtime": {
+    "baseCommit": "dcab68b26be815abc8f472f21c941378c05a05ad",
+    "changes": "VFX age 0 retained on birth tick; follow samples queued after existing same-tick dash steps",
+    "scope": "S3 direct prototype capture; not a complete fidelity claim",
+    "coreSha256": "191ace3c039020d8a4ecb507d3838d844eb4cf07390be92843a02cfda40498fd",
+    "combatSha256": "44c13e043197d2689926785be1709980d29b4395c50a1d2bfe3dea6efdf0c6f7"
+  },
+  "deployedEvidence": {
+    "content/skills/edict-procuration-s3.yaml": "e09e58b850c11af15cc6b9e8ec6b48afad3697394daccf8561d27152ad924d0b",
+    "content/vfx/edict-procuration-airborne.yaml": "c4fe37d58d5ba1df3731a47171c2678bcf71bbd86059c963e93989df6cca5c2c",
+    "content/vfx/edict-procuration-crossing.yaml": "de231dce63eb9ca3a1f30c9d5e39ed87009d94b40c6c77b7b71a2737f22f5bbe"
+  },
+  "sourceFindings": [
+    "Delayed play can run before the existing shared ticker in the same tick; age 0 was immediately followed by age 1.",
+    "Repeating VFX ticker can read anchor before an already queued dash step."
+  ],
+  "changes": [
+    "Skip shared age advancement on the start tick",
+    "Queue shared VFX update with zero delay after existing equal-tick FIFO tasks"
+  ],
+  "captureQuality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 5.0
+  },
+  "excludedCameraLatenessMs": [
+    451
+  ],
+  "visualReview": {
+    "frame_038": "Existing airborne claws remain near caster body.",
+    "frame_040": "Old claws remain on left; newly spawned claws visibly lead the interpolated body to the right. Attachment is still failed.",
+    "frame_042": "New claws near caster after descent; shape and pose remain unlike source."
+  },
+  "limitations": [
+    "This capture does not directly measure exact per-instance server age",
+    "Client interpolation and new-display spawn alignment remain unresolved",
+    "No full-fidelity approval"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "status": "failed",
+  "case": "couture-rapier-patterning",
+  "round": 62,
+  "captureFrames": 77,
+  "cameraMaxLatenessMs": 5,
+  "maxRepeatedFrames": 1,
+  "displayPeak": 43,
+  "displaySamples": 769,
+  "health": [
+    200,
+    188.192,
+    182.288
+  ],
+  "notes": "実機2接触を確認したが、原動画のリンク状の尾・腕上げ・光・カメラ・微細な到達時刻が未一致。固定4mの軌道で追撃条件は未接続。",
+  "rejectedCapture": "round62/captures: second flight used absolute key times",
+  "acceptedCapture": "round62/repeat-captures: second flight relative times"
+}

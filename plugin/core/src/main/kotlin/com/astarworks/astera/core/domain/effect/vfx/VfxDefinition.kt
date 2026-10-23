@@ -76,11 +76,24 @@ public data class VfxDefinition(
     public val elements: List<VfxElement>,
     /** Weapon rigs + 風切り trails ([VfxRig]); planned into ordinary slots by [VfxRigPlanner]. */
     public val rigs: List<VfxRig> = emptyList(),
+    /** Optional anchor teleport smoothing override; 0 disables teleport smoothing. */
+    public val followTeleportTicks: Int? = null,
+    /** Opt-in native attachment for fixed displays following a player anchor. */
+    public val attachToAnchor: Boolean = false,
+    /** Replace an earlier following effect in this group on the same entity and world. */
+    public val replaceGroup: String? = null,
+    /** Authored target feet position in anchor-local coordinates; tracked slots translate by the live correction. */
+    public val targetReference: Vec3? = null,
 ) {
     init {
         require(durationTicks in 1..MAX_DURATION_TICKS) { "VfxDefinition.durationTicks must be 1..$MAX_DURATION_TICKS: $durationTicks" }
+        require(followTeleportTicks == null || followTeleportTicks in 0..59) { "followTeleportTicks must be 0..59" }
+        require(replaceGroup == null || replaceGroup.matches(Regex("[a-z][a-z0-9-]{0,63}"))) { "replaceGroup must be lower-kebab, at most 64 characters" }
         require(sampleTicks >= 1) { "VfxDefinition.sampleTicks must be >= 1: $sampleTicks" }
         require(elements.isNotEmpty() || rigs.isNotEmpty()) { "VfxDefinition needs elements or rigs" }
+        require(targetReference == null || (!follow && !attachToAnchor)) { "target tracking requires a fixed anchor without native attachment" }
+        require(elements.none { it.targetLine } || sampleTicks == 1) { "target_line requires sample_ticks: 1" }
+        require(elements.none { it.targetTrack.isNotEmpty() || it.targetLine } || targetReference != null) { "target tracks require target_reference" }
         val ids = elements.map { it.id } + rigs.map { it.id }
         require(ids.toSet().size == ids.size) { "VfxDefinition element ids must be unique: $ids" }
         val slots = elements.sumOf { it.slotCount }
@@ -132,6 +145,10 @@ public data class VfxElement(
      * is the emitter origin) and [count] / [formation] / [oscillate] are unused.
      */
     public val emit: VfxEmitter? = null,
+    /** Keys share the element keyframe clock: spawn + 1 + t. Model scale and rotation are preserved. */
+    public val targetTrack: List<VfxTargetKey> = emptyList(),
+    /** Stretch local +Z endpoint to the bound target; preserve the authored -Z endpoint. */
+    public val targetLine: Boolean = false,
 ) {
     /** Display slots this element can plan (emitter particles count individually toward the budget). */
     public val slotCount: Int get() = emit?.count ?: count
@@ -146,6 +163,9 @@ public data class VfxElement(
         require(keyframes.isNotEmpty() || emit != null) { "element '$id' needs at least one keyframe" }
         require(keyframes.isEmpty() || keyframes.first().t >= 0) { "element '$id' keyframe t must be >= 0" }
         require(emit == null || kind is VfxElementKind.Quad) { "element '$id': emit needs kind quad" }
+        require(targetTrack.isEmpty() || (emit == null && kind !is VfxElementKind.Particle)) { "target tracking supports non-emitting displays only" }
+        require(!targetLine || (kind is VfxElementKind.Block && billboard == DisplayBillboard.FIXED && count == 1 && formation == null && emit == null && targetTrack.isEmpty())) { "target_line requires one fixed block without target_track or formation" }
+        targetTrack.zipWithNext().forEach { (a, b) -> require(b.t > a.t) { "target track times must increase" } }
         keyframes.zipWithNext().forEach { (a, b) ->
             require(b.t > a.t) { "element '$id' keyframe t must be strictly increasing (${a.t} then ${b.t})" }
         }
@@ -159,7 +179,8 @@ public data class VfxElement(
                 if (kind is VfxElementKind.Sprite) "element '$id': sprite elements animate by flipbook, keyframe text swaps are not allowed"
                 else "element '$id': keyframe text swap needs kind text"
             }
-            require((it.color == null && it.alpha == null) || kind is VfxElementKind.Quad) { "element '$id': keyframe color / alpha needs kind quad" }
+            require(it.color == null || kind is VfxElementKind.Quad) { "element '$id': keyframe color needs kind quad" }
+            require(it.alpha == null || kind is VfxElementKind.Quad || kind is VfxElementKind.Sprite) { "element '$id': keyframe alpha needs kind quad or sprite" }
             require(it.alpha == null || it.alpha in 0.0..1.0) { "element '$id': keyframe alpha must be 0..1: ${it.alpha}" }
         }
     }
@@ -181,9 +202,12 @@ public sealed interface VfxElementKind {
     public data class Item(
         public val itemKey: String,
         public val displayMode: DisplayItemMode = DisplayItemMode.FIXED,
+        /** Optional resource-pack item definition; material and gameplay item data remain vanilla. */
+        public val itemModel: String? = null,
     ) : VfxElementKind {
         init {
             require(itemKey.isNotBlank()) { "VfxElementKind.Item.itemKey must not be blank" }
+            require(itemModel == null || itemModel.matches(Regex("[a-z0-9._-]+:[a-z0-9/._-]+"))) { "item_model must be a namespaced resource key" }
             itemId // validates the key shape
         }
 
@@ -199,8 +223,11 @@ public sealed interface VfxElementKind {
         public val shadow: Boolean = false,
         public val seeThrough: Boolean = false,
         public val lineWidth: Int? = null,
+        /** Initial glyph opacity, including resolved sprite keyframe alpha. */
+        public val textOpacity: Int = 255,
     ) : VfxElementKind {
         init {
+            require(textOpacity in 0..255) { "textOpacity must be in 0..255" }
             require(text.isNotBlank()) { "VfxElementKind.Text.text must not be blank" }
         }
     }
@@ -329,7 +356,7 @@ public data class VfxKeyframe(
     public val text: String? = null,
     /** Quad only: `0xRRGGBB`, interpolated in RGB with [ease]; sent as a style update per sample (the client does not tween colour). */
     public val color: Int? = null,
-    /** Quad only: 0..1, interpolated like [color]. */
+    /** Quad or sprite: 0..1, interpolated like [color]. */
     public val alpha: Double? = null,
 )
 

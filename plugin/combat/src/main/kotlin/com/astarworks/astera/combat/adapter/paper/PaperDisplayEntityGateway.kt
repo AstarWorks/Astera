@@ -10,11 +10,14 @@ import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.world.WorldId
+import com.astarworks.astera.core.domain.player.PlayerId
+import org.bukkit.entity.Player
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Color
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.Server
 import org.bukkit.entity.BlockDisplay
 import org.bukkit.entity.Display
@@ -29,14 +32,51 @@ import org.slf4j.LoggerFactory
 /**
  * Paper [IDisplayEntityGateway] (WP5): spawns non-persistent `BlockDisplay` /
  * `ItemDisplay` / `TextDisplay` entities. Item displays resolve the item id as
- * a vanilla material key (Astera custom items need the Items plugin and are not
- * resolvable from Combat). Main thread only.
+ * a vanilla material key and optionally apply a resource-pack item_model.
+ * No custom-item gameplay data or Items plugin dependency is required. Main thread only.
  */
 public class PaperDisplayEntityGateway(
     private val server: Server,
 ) : IDisplayEntityGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
+    private class Attachment(val anchor: PlayerId, val world: org.bukkit.World,
+        var offset: Vec3, var transform: DisplayTransform)
+    private val attachments = mutableMapOf<DisplayHandle, Attachment>()
+
+    override fun spawnAttached(world: WorldId, spec: DisplaySpec, renderedLines: List<String>, anchor: PlayerId, offset: Vec3): DisplayHandle? {
+        val player = server.getPlayer(anchor.uuid) ?: return null
+        if (spec.billboard != DisplayBillboard.FIXED || player.world.name != world.value) return null
+        val location = player.location
+        val origin = Vec3(location.x, location.y + player.height, location.z)
+        // Both the spawn position and its first metadata must already use the riding origin:
+        // a post-spawn correction can otherwise render a frame below the player's feet.
+        val initial = spec.transform.copy(translation = spec.transform.translation + offset - Vec3(0.0, player.height, 0.0))
+        val handle = spawn(world, origin, spec.copy(transform = initial), renderedLines) ?: return null
+        val display = server.getEntity(handle.id) as? Display ?: return null
+        if (!player.addPassenger(display)) {
+            remove(handle)
+            return null
+        }
+        attachments[handle] = Attachment(anchor, player.world, offset, spec.transform)
+        return handle
+    }
+
+    override fun isAttached(handle: DisplayHandle, anchor: PlayerId, world: WorldId): Boolean {
+        val attachment = attachments[handle] ?: return false
+        val display = server.getEntity(handle.id) as? Display ?: return false
+        return display.isValid && attachment.anchor == anchor && attachment.world.name == world.value &&
+            attachmentOwner(handle, display, attachment) != null
+    }
+
+    private fun attachmentOwner(handle: DisplayHandle, display: Display, attachment: Attachment): Player? {
+        val player = server.getPlayer(attachment.anchor.uuid)
+        if (player == null || player.world != attachment.world || display.world != attachment.world || display.vehicle != player) {
+            remove(handle)
+            return null
+        }
+        return player
+    }
 
     override fun spawn(world: WorldId, at: Vec3, spec: DisplaySpec, renderedLines: List<String>): DisplayHandle? {
         val bukkitWorld = server.getWorld(world.value) ?: return null
@@ -54,8 +94,13 @@ public class PaperDisplayEntityGateway(
                 val material = Material.matchMaterial(kind.itemId.value)
                     ?: Material.matchMaterial(kind.itemId.value.replace('-', '_'))
                     ?: return unsupported("item '${kind.itemId.value}' is not a vanilla material")
+                val stack = ItemStack(material)
+                kind.itemModel?.let { key ->
+                    val model = NamespacedKey.fromString(key) ?: return unsupported("invalid item model '$key'")
+                    stack.itemMeta = stack.itemMeta.apply { itemModel = model }
+                }
                 bukkitWorld.spawn(location, ItemDisplay::class.java) {
-                    it.setItemStack(ItemStack(material))
+                    it.setItemStack(stack)
                     it.itemDisplayTransform = itemMode(kind.displayMode)
                     configure(it, spec)
                 }
@@ -95,7 +140,14 @@ public class PaperDisplayEntityGateway(
 
     override fun update(handle: DisplayHandle, transform: DisplayTransform, interpolationTicks: Int) {
         val display = server.getEntity(handle.id) as? Display ?: return
-        val next = transformation(transform)
+        val attachment = attachments[handle]
+        val effective = if (attachment != null) {
+            val player = attachmentOwner(handle, display, attachment) ?: return
+            attachment.transform = transform
+            // Player passenger origin is at the current pose's height; content remains feet-relative.
+            transform.copy(translation = transform.translation + attachment.offset - Vec3(0.0, player.height, 0.0))
+        } else transform
+        val next = transformation(effective)
         // Re-sending the start tick without a changed transform restarts client interpolation
         // toward the same endpoint, including when a camera cut starts tracking this entity.
         if (display.transformation == next) return
@@ -124,6 +176,14 @@ public class PaperDisplayEntityGateway(
 
     override fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int) {
         val display = server.getEntity(handle.id) as? Display ?: return
+        val attachment = attachments[handle]
+        if (attachment != null) {
+            val player = attachmentOwner(handle, display, attachment) ?: return
+            val origin = player.location
+            attachment.offset = at - Vec3(origin.x, origin.y, origin.z)
+            update(handle, attachment.transform, teleportTicks)
+            return
+        }
         display.teleportDuration = teleportTicks.coerceIn(0, 59)
         display.teleport(Location(display.world, at.x, at.y, at.z, yaw, pitch))
     }
@@ -139,6 +199,7 @@ public class PaperDisplayEntityGateway(
         ItemDisplay.ItemDisplayTransform.valueOf(mode.name)
 
     override fun remove(handle: DisplayHandle) {
+        attachments.remove(handle)
         server.getEntity(handle.id)?.remove()
     }
 

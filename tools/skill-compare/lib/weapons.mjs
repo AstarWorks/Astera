@@ -68,7 +68,7 @@ function thumbs(rec, S, mc) {
   const cmp = mc?.sources?.["vfx-compare"];
   if (cmp) {
     const n = Math.round((t - c.start_s) * 20) + cmp.castFrame;
-    if (n >= 0 && n < cmp.count) out.mc = `${cmp.base}frame_${String(n).padStart(3, "0")}.png`;
+    if (n >= 0 && n < cmp.count) out.mc = `${cmp.base}frame_${String(n).padStart(3, "0")}.${cmp.extension || "png"}?v=${encodeURIComponent(cmp.revision || "")}`;
   }
   return out;
 }
@@ -81,7 +81,7 @@ function caseCard(rec, S, mcInfo) {
   const report = typeof c.report === "string" && c.report ? c.report : null;
   return {
     id: rec.id, skillId: skillId ?? "", identity: c.identity ?? "", videoTitle: c.videoTitle ?? "", videoId: c.videoId, weapon: c.weapon ?? "",
-    skillName: c.skill?.name ?? rec.id, coins: c.skill?.coins ?? null,
+    variant: c.variant ?? null, skillName: c.skill?.name ?? rec.id, coins: c.skill?.coins ?? null,
     hits: c.referenceRevision && !mc.hitTicks?.length ? null : (mc.hitTicks || []).length,
     status: c.status === "from-wiki" ? "from-wiki" : captured ? "captured" : c.status === "built" ? "built" : "analysed",
     verification: c.verification ?? { status: "unverified" },
@@ -110,9 +110,9 @@ export function buildIndex({ repo, S, mcInfo }) {
     const w = roster.find((x) => x.id === k.weapon) ?? (m ? roster.find((x) => x.id === m[1]) : null);
     if (!w) continue;
     const suf = m && w.id === m[1] ? m[2] : null;
-    const tag = suf === "ego" ? "E.G.O / Q" : suf ? suf.toUpperCase() : "case";
+    const tag = k.variant?.label || (suf === "ego" ? "E.G.O / Q" : suf ? suf.toUpperCase() : "case");
     if (!extra.has(w.id)) extra.set(w.id, []);
-    extra.get(w.id).push({ trigger: "", label: "", tag, skillId: k.skillId, ja: k.skillName, en: k.id, range: k.skillId || "-", case: k, ord: SUFFIX_ORDER.indexOf(suf) });
+    extra.get(w.id).push({ trigger: "", label: k.variant?.implementation === "missing" ? "未実装・未接続" : k.variant?.implementation === "prototype" ? "試作・未接続" : "", tag, skillId: k.skillId, ja: k.skillName, en: k.id, range: k.skillId || "-", case: k, ord: k.variant?.order ?? SUFFIX_ORDER.indexOf(suf) });
     used.add(k.id);
   }
   const weapons = roster.map((w) => {

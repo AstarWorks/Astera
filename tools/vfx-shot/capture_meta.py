@@ -6,6 +6,7 @@ Repeated frames request visual review; an idle scene alone is not proof of a sta
 import datetime
 import hashlib
 import json
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -24,6 +25,17 @@ for frame in frames:
     longest = max(longest, run)
     previous = digest
 meta["captureQuality"] = {"maxRepeatedFrames": longest, "reviewRequired": longest >= 15}
+timing = directory / "director-timing.log"
+if timing.is_file():
+    log = timing.read_text()
+    start = re.search(r"^STAMP ([0-9.]+)$", log, re.M)
+    cuts = re.findall(r"^CAMERA (\d+) SENT ([0-9.]+) ACK ([0-9.]+)$", log, re.M)
+    if start and cuts:
+        lateness = max(0.0, max((float(ack) - float(start[1])) * 1000 - int(t) for t, sent, ack in cuts))
+        meta["captureQuality"]["cameraMaxLatenessMs"] = round(lateness, 1)
+        if lateness > 100:
+            meta["captureQuality"].update(invalid=True, reviewRequired=True,
+                reason="Camera command response exceeded its planned time by more than 100 ms; recapture required.")
 if frames:
     meta["capturedAt"] = datetime.datetime.fromtimestamp(frames[-1].stat().st_mtime, datetime.timezone.utc).isoformat()
 root = Path(__file__).resolve().parents[2]

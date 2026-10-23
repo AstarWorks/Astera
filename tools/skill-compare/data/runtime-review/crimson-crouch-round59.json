@@ -1,0 +1,29 @@
+{
+  "case": "crimson-chain-axe-transformed-combo-a",
+  "contentRevision": "ff30cd147eeaa95ff891199b259d5187f662cb67aeb41faf3d5520f1ccdeff0a",
+  "status": "crouch-intervals-observed-fidelity-failed",
+  "captureQuality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 3.0
+  },
+  "capturedAt": "2026-10-23T05:37:31.777403+00:00",
+  "peakDisplays": 59,
+  "sampleCount": 766,
+  "intervals": [
+    [
+      37,
+      47
+    ],
+    [
+      59,
+      69
+    ],
+    [
+      76,
+      103
+    ]
+  ],
+  "review": "Round59: 接触前後3区間に既存crouchを適用。frame050/071/086で低い姿勢、115で上昇時の通常姿勢を確認。腕の伸ばし・胴体の捻り・手と鎖の接続・空中標的との高さ・光/カメラ/命中/通常入力は未一致。",
+  "scope": "Vanilla crouch height/lean only; not custom arm/torso animation. Normal stance restored before ascent."
+}

@@ -1,0 +1,392 @@
+{
+  "video_id": "GIe7Fna5LD4",
+  "identity": "Haute Couture::Alteration Shop Rodion",
+  "source_video": "../../vid/GIe7Fna5LD4.mp4",
+  "kit_source": "../../wiki/GIe7Fna5LD4.md",
+  "fps_num": 30000,
+  "fps_den": 1001,
+  "frame_indexing": "Zero-based source decoded frames. Intervals are [start,end). Source is 29.97002997 fps, not exactly 30.",
+  "measurement_note": "Distances and hex colors are visual estimates, not world coordinates or colorimeter samples. Frame precision applies to visible events; obscured contact is explicitly bounded. No HUD coin/name labels are visible.",
+  "review": "Whole video viewed at 6 fps; every source frame 330–1649 viewed in 44 contact sheets; selected frames enlarged. Old reports read only after the independent frame pass.",
+  "slot": "extra-1",
+  "official_name": "Patterning (S1-2; passive follow-up)",
+  "attack_type": "slash",
+  "observed": true,
+  "start_frame": 641,
+  "end_frame_exclusive": 727,
+  "start_s": 21.388033,
+  "end_s": 24.257567,
+  "official_coins": 1,
+  "mapping_confidence": "high",
+  "mapping_evidence": [
+    "Two near-identical remote cutting strikes at f672 and f703; one coin reused once in supplied kit, so two contacts do not imply two base coins.",
+    "Starts after the supported ally finishes its two-hit action. Same stationary overhead launch repeated; fits passive-triggered Patterning."
+  ],
+  "weapon": {
+    "type": "Ornate oversized tailoring shears / separable scissor blades",
+    "size_body_heights": [
+      1.0,
+      1.5
+    ],
+    "held": "Main floral shears float above the raised directing hand; caster stays planted during both remote strikes.",
+    "parts": "Long paired narrow pointed dark blades, angular open diamond/polygon handle loops, pale flower cluster at the hinge, segmented/linked-looking silver contours. Closed blades can resemble a spear; open blades establish the scissor shape.",
+    "colors_hex": {
+      "blade": "#373536",
+      "edge": "#C8C6C3",
+      "handle": "#302D31",
+      "flowers": "#F2EEEA"
+    },
+    "evidence": [
+      "sheets/weapon_01.jpg",
+      "sheets/weapon_02.jpg",
+      "sheets/weapon_03.jpg"
+    ]
+  },
+  "props": [
+    {
+      "start_frame": 643,
+      "end_frame_exclusive": 686,
+      "start_s": 21.454767,
+      "end_s": 22.889533,
+      "object": "Detached floral shears with long angular linked trail",
+      "count": 1,
+      "size_body_heights": [
+        1,
+        1.5
+      ],
+      "origin": "Raised above Rodion",
+      "path": "Rotates overhead, then travels diagonally down/right to target; long pale linked line remains back toward launch."
+    },
+    {
+      "start_frame": 686,
+      "end_frame_exclusive": 727,
+      "start_s": 22.889533,
+      "end_s": 24.257567,
+      "object": "Reused detached shears",
+      "count": 1,
+      "size_body_heights": [
+        1,
+        1.5
+      ],
+      "origin": "Above caster again",
+      "path": "Repeats overhead rotation and targetward flight, leaving sustained thin cutting line."
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 620,
+      "end_frame_exclusive": 641,
+      "start_s": 20.687333,
+      "end_s": 21.388033,
+      "kind": "approach",
+      "description": "Glide from left into staging position about 2 H."
+    },
+    {
+      "start_frame": 641,
+      "end_frame_exclusive": 686,
+      "start_s": 21.388033,
+      "end_s": 22.889533,
+      "kind": "cast",
+      "description": "Rise and raise arm; stationary 3–4 H from enemy."
+    },
+    {
+      "start_frame": 686,
+      "end_frame_exclusive": 727,
+      "start_s": 22.889533,
+      "end_s": 24.257567,
+      "kind": "repeat_cast",
+      "description": "Repeat arm/shears rotation without closing gap."
+    }
+  ],
+  "hits": [
+    {
+      "coin": 1,
+      "contact_frame": 672,
+      "contact_s": 22.4224,
+      "contact": "Detached/extended floral shears meet target; pale diagonal tether and transverse cutting flare.",
+      "range_class": "ranged_projectile",
+      "caster_target_distance_body_heights": [
+        3,
+        4
+      ],
+      "evidence": [
+        "sheets/detail_12.jpg"
+      ],
+      "reuse_index": 0
+    },
+    {
+      "coin": 1,
+      "contact_frame": 703,
+      "contact_s": 23.456767,
+      "contact": "Same remotely directed shears make second cutting contact; target star flares after launch flash f699.",
+      "range_class": "ranged_projectile",
+      "caster_target_distance_body_heights": [
+        3,
+        4
+      ],
+      "evidence": [
+        "sheets/detail_13.jpg"
+      ],
+      "reuse_index": 1
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 641,
+      "end_frame_exclusive": 645,
+      "start_s": 21.388033,
+      "end_s": 21.5215,
+      "kind": "wind_up",
+      "description": "Rise, arm up, floating tool forms above hand."
+    },
+    {
+      "start_frame": 645,
+      "end_frame_exclusive": 657,
+      "start_s": 21.5215,
+      "end_s": 21.9219,
+      "kind": "motion",
+      "description": "White half-moon circles overhead; no contact."
+    },
+    {
+      "start_frame": 657,
+      "end_frame_exclusive": 671,
+      "start_s": 21.9219,
+      "end_s": 22.389033,
+      "kind": "hold",
+      "description": "Detached tool aimed toward target."
+    },
+    {
+      "start_frame": 671,
+      "end_frame_exclusive": 672,
+      "start_s": 22.389033,
+      "end_s": 22.4224,
+      "kind": "camera_punch",
+      "description": "One-frame tighter caster view."
+    },
+    {
+      "start_frame": 672,
+      "end_frame_exclusive": 674,
+      "start_s": 22.4224,
+      "end_s": 22.489133,
+      "kind": "hit_1",
+      "description": "Launch/target flare with two-frame action punch."
+    },
+    {
+      "start_frame": 674,
+      "end_frame_exclusive": 686,
+      "start_s": 22.489133,
+      "end_s": 22.889533,
+      "kind": "follow_through",
+      "description": "Tight target then widening; shears remain at chest height."
+    },
+    {
+      "start_frame": 686,
+      "end_frame_exclusive": 699,
+      "start_s": 22.889533,
+      "end_s": 23.3233,
+      "kind": "reuse_wind_up",
+      "description": "Cut back to caster; overhead crescent repeats."
+    },
+    {
+      "start_frame": 699,
+      "end_frame_exclusive": 703,
+      "start_s": 23.3233,
+      "end_s": 23.456767,
+      "kind": "projectile_travel",
+      "description": "Launch star at caster, pan right; f702 shows arrival before bright target flare."
+    },
+    {
+      "start_frame": 703,
+      "end_frame_exclusive": 715,
+      "start_s": 23.456767,
+      "end_s": 23.857167,
+      "kind": "hit_2",
+      "description": "Transverse white star and pink/orange accents; ease out."
+    },
+    {
+      "start_frame": 715,
+      "end_frame_exclusive": 727,
+      "start_s": 23.857167,
+      "end_s": 24.257567,
+      "kind": "recovery",
+      "description": "Held pose, residual particles; scene starts resetting at f727."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 645,
+      "end_frame_exclusive": 657,
+      "start_s": 21.5215,
+      "end_s": 21.9219,
+      "shape": "Vertical half-moon rotation",
+      "size_body_heights": [
+        1,
+        1.5
+      ],
+      "position": "Above caster hand",
+      "colors_hex": [
+        "#FFFFFF",
+        "#BFB7BD"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Rotate around hovering shears; thin crescent fades.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 672,
+      "end_frame_exclusive": 686,
+      "start_s": 22.4224,
+      "end_s": 22.889533,
+      "shape": "Diagonal braided/linked trail and narrow horizontal cross flare",
+      "size_body_heights": [
+        3,
+        4
+      ],
+      "position": "From above caster to target torso",
+      "colors_hex": [
+        "#FFFFFF",
+        "#E9C9CD",
+        "#FF9939"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Straight targetward travel; line and petal motes persist.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 688,
+      "end_frame_exclusive": 699,
+      "start_s": 22.956267,
+      "end_s": 23.3233,
+      "shape": "Repeated overhead crescent",
+      "size_body_heights": [
+        1,
+        1.5
+      ],
+      "position": "Above caster",
+      "colors_hex": [
+        "#FFFFFF",
+        "#D3C6CE"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Same rotation as first launch.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 699,
+      "end_frame_exclusive": 717,
+      "start_s": 23.3233,
+      "end_s": 23.9239,
+      "shape": "Launch star then target cross flare",
+      "size_body_heights": [
+        1,
+        2
+      ],
+      "position": "Caster first, then target",
+      "colors_hex": [
+        "#FFFFFF",
+        "#E7C6CD",
+        "#FF9F43"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Separate launch and contact; do not count launch flash as a hit.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 641,
+      "end_frame_exclusive": 643,
+      "start_s": 21.388033,
+      "end_s": 21.454767,
+      "shot": "wide side-on",
+      "framing": "Caster left-center; target right.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 643,
+      "end_frame_exclusive": 648,
+      "start_s": 21.454767,
+      "end_s": 21.6216,
+      "shot": "medium caster",
+      "framing": "Overhead shears and hand emphasized.",
+      "transition": "Snap in"
+    },
+    {
+      "start_frame": 648,
+      "end_frame_exclusive": 671,
+      "start_s": 21.6216,
+      "end_s": 22.389033,
+      "shot": "wide side-on",
+      "framing": "Both subjects, ample overhead headroom.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 671,
+      "end_frame_exclusive": 672,
+      "start_s": 22.389033,
+      "end_s": 22.4224,
+      "shot": "medium caster",
+      "framing": "One-frame prep insert.",
+      "transition": "One-frame punch"
+    },
+    {
+      "start_frame": 672,
+      "end_frame_exclusive": 674,
+      "start_s": 22.4224,
+      "end_s": 22.489133,
+      "shot": "close action",
+      "framing": "Diagonal bright line from upper-left to lower-right.",
+      "transition": "Punch"
+    },
+    {
+      "start_frame": 674,
+      "end_frame_exclusive": 686,
+      "start_s": 22.489133,
+      "end_s": 22.889533,
+      "shot": "close target to wide",
+      "framing": "Target fills 40–60% height initially; pull back.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 686,
+      "end_frame_exclusive": 699,
+      "start_s": 22.889533,
+      "end_s": 23.3233,
+      "shot": "medium then wide caster",
+      "framing": "Return left for reuse.",
+      "transition": "Cut at f686"
+    },
+    {
+      "start_frame": 699,
+      "end_frame_exclusive": 703,
+      "start_s": 23.3233,
+      "end_s": 23.456767,
+      "shot": "moving action close-up",
+      "framing": "Track line to right; brief floor/background-only view f701–702.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 703,
+      "end_frame_exclusive": 727,
+      "start_s": 23.456767,
+      "end_s": 24.257567,
+      "shot": "target close-up to wide",
+      "framing": "Target-centered flare; pull back to both sprites.",
+      "transition": "Continuous reframing / scale change"
+    }
+  ],
+  "contact_sheets": [
+    "sheets/detail_11.jpg",
+    "sheets/detail_12.jpg",
+    "sheets/detail_13.jpg",
+    "sheets/detail_14.jpg"
+  ],
+  "limitations": [],
+  "approach": {
+    "start_frame": 620,
+    "end_frame_exclusive": 641,
+    "start_s": 20.687333,
+    "end_s": 21.388033
+  },
+  "expected_hit_count_with_reuse": 2
+}

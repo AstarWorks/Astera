@@ -1,0 +1,139 @@
+# Smooth white-core rings, two faces each; 4 displays instead of 48 segments.
+id: crimson-combo-hover-orbits
+duration_ticks: 40
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: orbit-0-0
+  kind:
+    type: sprite
+    sprite: crimson-orbit
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 40
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 0.8
+    - 0.7
+    rotate:
+    - 90
+    - 0
+    - 12.4
+    scale:
+    - 1.66667
+    - 0.35417
+    - 1
+    alpha: 0.25
+  - t: 3
+    alpha: 1
+  - t: 25
+    alpha: 0.9
+  - t: 33
+    alpha: 0.55
+  - t: 39
+    alpha: 0
+- id: orbit-0-1
+  kind:
+    type: sprite
+    sprite: crimson-orbit
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 40
+  keyframes:
+  - t: 0
+    translate:
+    - 0.0
+    - 0.8
+    - 0.7
+    rotate:
+    - 270
+    - 0
+    - -12.4
+    scale:
+    - 1.66667
+    - 0.35417
+    - 1
+    alpha: 0.25
+  - t: 3
+    alpha: 1
+  - t: 25
+    alpha: 0.9
+  - t: 33
+    alpha: 0.55
+  - t: 39
+    alpha: 0
+- id: orbit-1-0
+  kind:
+    type: sprite
+    sprite: crimson-orbit
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 40
+  keyframes:
+  - t: 0
+    translate:
+    - 0.03
+    - 0.8
+    - 0.7
+    rotate:
+    - 90
+    - 0
+    - -12.4
+    scale:
+    - 1.66667
+    - 0.35417
+    - 1
+    alpha: 0.25
+  - t: 3
+    alpha: 1
+  - t: 25
+    alpha: 0.9
+  - t: 33
+    alpha: 0.55
+  - t: 39
+    alpha: 0
+- id: orbit-1-1
+  kind:
+    type: sprite
+    sprite: crimson-orbit
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 40
+  keyframes:
+  - t: 0
+    translate:
+    - 0.03
+    - 0.8
+    - 0.7
+    rotate:
+    - 270
+    - 0
+    - 12.4
+    scale:
+    - 1.66667
+    - 0.35417
+    - 1
+    alpha: 0.25
+  - t: 3
+    alpha: 1
+  - t: 25
+    alpha: 0.9
+  - t: 33
+    alpha: 0.55
+  - t: 39
+    alpha: 0

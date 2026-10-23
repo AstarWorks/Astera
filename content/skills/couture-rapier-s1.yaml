@@ -13,6 +13,16 @@ params:
 phases:
   type: sequence
   cast:
+  - type: play_animation
+    targets:
+      type: caster
+    animation: crouch
+    ticks:
+      type: literal
+      value: 35
+    delay_ticks:
+      type: literal
+      value: 2
   - type: play_vfx
     targets:
       type: caster

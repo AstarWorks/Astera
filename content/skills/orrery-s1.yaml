@@ -25,6 +25,16 @@ phases:
     delay_ticks:
       type: literal
       value: 20
+  - type: play_animation
+    targets:
+      type: caster
+    animation: hide-main-hand
+    ticks:
+      type: literal
+      value: 18
+    delay_ticks:
+      type: literal
+      value: 17
   - type: play_vfx
     targets:
       type: caster
@@ -99,6 +109,16 @@ phases:
     delay_ticks:
       type: literal
       value: 24
+  - type: play_animation
+    targets:
+      type: caster
+    animation: hide-main-hand
+    ticks:
+      type: literal
+      value: 18
+    delay_ticks:
+      type: literal
+      value: 48
   - type: play_vfx
     targets:
       type: caster

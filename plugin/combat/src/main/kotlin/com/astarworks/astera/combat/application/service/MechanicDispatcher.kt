@@ -116,7 +116,7 @@ public class MechanicDispatcher(
     private val broadcaster: IBroadcaster?,
     private val celEvaluator: ICelEvaluator,
     private val scheduler: IScheduler,
-    @Suppress("unused") private val eventBus: IDomainEventBus,
+    private val eventBus: IDomainEventBus,
     /**
      * Wave 5effects (ADR-0109): tick-scheduled emission engine. When wired
      * `Mechanic.SpawnParticle` produces a real emission (single-tick burst
@@ -191,6 +191,7 @@ public class MechanicDispatcher(
     private val randomizer: IDamageRandomizer = KotlinRandomDamageRandomizer(),
     /** `restore_resource`: lazily resolved held-item resource pool. */
     private val resourcePool: (() -> com.astarworks.astera.core.application.port.outbound.IResourcePoolService?)? = null,
+    private val playerAnimation: com.astarworks.astera.core.application.port.outbound.animation.IPlayerAnimationGateway? = null,
     private val log: Logger = LoggerFactory.getLogger(MechanicDispatcher::class.java),
 ) {
 
@@ -270,6 +271,7 @@ public class MechanicDispatcher(
                     log = log,
                 ),
                 targeters = targeterResolver,
+                isLiving = { living(listOf(it)).isNotEmpty() },
                 poseLookup = poseLookup,
                 scheduler = scheduler,
                 log = log,
@@ -319,8 +321,13 @@ public class MechanicDispatcher(
         log = log,
     )
 
+    private val counters = CounterWindows(eventBus, scheduler, poseLookup,
+        isAlive = { vitals?.isAlive(it) != false },
+        run = { mechanics, context -> dispatch(mechanics, context) })
+
     /** Undoes every temporary world change batch B made (blocks, displays, summons, glow) and ends running dashes. */
     public fun shutdown() {
+        counters.shutdown()
         dashRunner.shutdown()
         heldUntil.clear()
         deferredMovement.clear()
@@ -402,6 +409,15 @@ public class MechanicDispatcher(
 
     /** Runs [mechanic] if its `condition` holds against [ctx] at THIS moment (cast time or fire time). */
     private fun fireGated(mechanic: Mechanic, ctx: MechanicContext) {
+        if (ctx.boundTargetState?.cancelled == true) return
+        if (ctx.boundTargetWorld != null) {
+            val target = ctx.targetId
+            val pose = target?.let { poseLookup?.poseOf(it) }
+            if (target == null || living(listOf(target)).isEmpty() || pose?.world != ctx.boundTargetWorld) {
+                ctx.boundTargetState?.cancelled = true
+                return
+            }
+        }
         val gate = mechanic.condition
         if (gate != null && !resolveCondition(gate, ctx)) return
         execute(mechanic, ctx)
@@ -651,6 +667,8 @@ public class MechanicDispatcher(
                         stopOnBlock = resolveBool(mechanic.stopOnBlock, ctx),
                         followPitch = resolveBool(mechanic.followPitch, ctx),
                         stopBeforeTarget = mechanic.stopBeforeTarget,
+                        localDirection = mechanic.localDirection,
+                        faceMovement = mechanic.faceMovement,
                         onHit = mechanic.onHit,
                     ),
                     ctx = ctx,
@@ -746,6 +764,23 @@ public class MechanicDispatcher(
                 }
             }
 
+            is Mechanic.Counter -> {
+                val window = resolveInt(mechanic.windowTicks, ctx)
+                val range = resolveDouble(mechanic.maxDistance, ctx)
+                for (guard in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    counters.arm(ctx.copy(actorId = guard), window, range, mechanic.onHit)
+                }
+            }
+            is Mechanic.PlayAnimation -> {
+                val gateway = playerAnimation ?: return warnMissing("PlayAnimation", "IPlayerAnimationGateway")
+                val ticks = resolveInt(mechanic.ticks, ctx).toLong()
+                for (target in targeterResolver.resolvePlayers(mechanic.targets, ctx)) {
+                    when (val result = gateway.playCustomAnimation(target, mechanic.animation, ticks)) {
+                        is Result.Success -> Unit
+                        is Result.Failure -> log.warn("Animation {} failed for {}: {}", mechanic.animation, target, result.error)
+                    }
+                }
+            }
             is Mechanic.PlaySound -> {
                 val locations = targeterResolver.resolveLocations(mechanic.targets, ctx)
                 if (locations.isEmpty()) return
@@ -868,6 +903,14 @@ public class MechanicDispatcher(
                     castedSkills = ctx.castedSkills + mechanic.skillId,
                 )
                 castSkillInvoker.invoke(mechanic.skillId, mechanic.targets, nextCtx)
+            }
+
+            is Mechanic.ForEachTarget -> {
+                val targets = living(targeterResolver.resolvePlayers(mechanic.targets, ctx)).distinct()
+                for (target in targets) {
+                    val targetPose = poseLookup?.poseOf(target) ?: continue
+                    dispatch(mechanic.mechanics, ctx.copy(targetId = target, boundTargetWorld = targetPose.world, boundTargetOrigin = targetPose.position, boundTargetState = BoundTargetState()))
+                }
             }
 
             is Mechanic.IfThen -> {
@@ -1016,6 +1059,7 @@ public class MechanicDispatcher(
     private fun resolveLocation(location: LocationRef, ctx: MechanicContext): ResolvedLocation? = when (location) {
         LocationRef.Caster, LocationRef.Origin -> ResolvedLocation(ctx.origin, ctx.worldId)
         LocationRef.Target -> ctx.targetId?.let { ResolvedLocation(targeterResolver.targetLocation(ctx), ctx.worldId) }
+        LocationRef.TargetOrigin -> ctx.boundTargetOrigin?.let { ResolvedLocation(it, ctx.boundTargetWorld) }
         is LocationRef.Absolute -> ResolvedLocation(location.position, location.world)
         is LocationRef.Offset -> {
             val base = resolveLocation(location.from, ctx) ?: return null
@@ -1066,6 +1110,10 @@ public class MechanicDispatcher(
 public data class MechanicContext(
     public val actorId: PlayerId,
     public val targetId: PlayerId? = null,
+    /** ForEachTarget children stop if the bound entity dies, disappears or changes world. */
+    public val boundTargetWorld: WorldId? = null,
+    public val boundTargetOrigin: Vec3? = null,
+    public val boundTargetState: BoundTargetState? = null,
     public val origin: Vec3,
     public val worldId: WorldId? = null,
     public val depth: Int = 0,
@@ -1083,3 +1131,8 @@ public data class MechanicContext(
      */
     public val hitLocation: Vec3? = null,
 )
+
+/** Shared by delayed children and tracked VFX of one selected target; main-thread only. */
+public class BoundTargetState {
+    public var cancelled: Boolean = false
+}

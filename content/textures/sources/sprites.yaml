@@ -10,6 +10,17 @@ sources:
   vfx-v1: { file: sheets/vfx-v1.png, grid: [6, 6] }
 
 sprites:
+  gossamer-ribbon: { draw: gossamer_ribbon, frames: 4, size: 128, color: "#DDE5F5" }
+  gossamer-trail-wedge: { quad_font: true, draw: gossamer_trail_wedge, frames: 1, size: 128, color: "#FFFFFF" }
+  gossamer-echo-back: { draw: gossamer_echo_mirror, frames: 1, size: 128, color: "#AAB4CF" }
+  gossamer-echo: { draw: gossamer_echo, frames: 1, size: 128, color: "#AAB4CF" }
+  orrery-impact: { draw: orrery_impact, frames: 4, size: 128, color: "#ffb522" }
+  orrery-orb: { draw: orb, frames: 1, size: 128, color: "#ffae24" }
+  crimson-link: { draw: crimson_link, frames: 1, size: 256, color: "#e4cdd0" }
+  crimson-orbit: { draw: crimson_orbit, frames: 1, size: 256, color: "#ef2445" }
+  procuration-ribbon: { draw: procuration_ribbon, frames: 1, size: 256, color: "#809de9" }
+  procuration-petal-blue: { draw: petal_blue, frames: 1, size: 128, color: "#809de9" }
+  procuration-petal: { draw: petal, frames: 1, size: 128, color: "#9cbcff" }
   spark: { draw: spark, frames: 6, color: "#ffe27a" }
   ring: { draw: ring, frames: 6, color: "#7fd6ff" }
   burst: { draw: burst, frames: 6, color: "#ff9a3c" }
@@ -17,6 +28,7 @@ sprites:
   flame: { draw: flame, frames: 6, color: "#ff7a1f" }
   glint: { draw: glint, frames: 6, color: "#e8f6ff" }
   slash: { draw: slash, frames: 6, color: "#d8e4ff" }
+  couture-orbit: { draw: orbit, frames: 1, size: 128, color: "#fff4ee" }
   couture-cut: { draw: slice, frames: 6, size: 128, color: "#fff4ee" }
 
   fire-burst: { from: vfx-v1, row: 0, frames: 6 }

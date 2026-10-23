@@ -1,0 +1,36 @@
+{
+  "case": "couture-rapier-cutout",
+  "round": 66,
+  "status": "failed",
+  "capture": "build/limbus-review/round66/captures/couture-rapier-cutout-1792738028638155564",
+  "frames": 156,
+  "cameraMaxLatenessMs": 9,
+  "maxRepeatedFrames": 1,
+  "health": [
+    200.0,
+    194.096,
+    188.19199
+  ],
+  "displayPeak": 45,
+  "displaySamples": 752,
+  "displayScope": "One direct Cutout cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "referenceFrames": [
+    1414,
+    1618
+  ],
+  "contactFrames": [
+    1514,
+    1586
+  ],
+  "authoredContactTicks": [
+    67,
+    115
+  ],
+  "notes": "5本の鋏→下降接触→巨大鋏閉鎖の直接呼出し試作。花飾り・白い連結軌跡・接触時の発光・腕姿勢・カメラは未一致。追撃条件は未接続。",
+  "visualReview": [
+    "頭上の5本は展開するが、原映像の花飾りと白い連結線がない。",
+    "5本の下降を1接触として確認。個々の刃に別ダメージを付けない。",
+    "巨大鋏の閉鎖後の輪は原映像の白い弧・金色の輪・花弁と異なる。",
+    "撮影に前回標的のドロップが残る。次回はウォームアップ後に除去する。"
+  ]
+}

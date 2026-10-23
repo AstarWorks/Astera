@@ -1,0 +1,65 @@
+id: gossamer-chain-recovery
+duration_ticks: 15
+orient: yaw
+follow: true
+sample_ticks: 1
+rigs:
+- id: katana
+  pivot:
+  - -0.25
+  - 1.0
+  - 0.25
+  rest:
+  - 0
+  - 0
+  - 0
+  tilt:
+  - 0
+  - 0
+  - 0
+  respect_hit_stop: true
+  end_tick: 14
+  parts:
+  - id: blade
+    block: iron_block
+    offset:
+    - 0
+    - 1.05
+    - 0
+    size:
+    - 0.09
+    - 2.0
+    - 0.05
+    brightness: 15
+  - id: grip
+    block: black_concrete
+    offset:
+    - 0
+    - -0.15
+    - 0
+    size:
+    - 0.1
+    - 0.4
+    - 0.08
+  - id: guard
+    block: blue_concrete
+    offset:
+    - 0
+    - 0.06
+    - 0
+    size:
+    - 0.28
+    - 0.08
+    - 0.18
+  swing:
+  - t: 0
+    rotate:
+    - 0
+    - 105
+    - 0
+  - t: 14
+    rotate:
+    - 0
+    - 105
+    - 0
+  trails: []

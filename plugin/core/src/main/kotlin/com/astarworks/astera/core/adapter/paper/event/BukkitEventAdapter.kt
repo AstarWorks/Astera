@@ -368,10 +368,12 @@ public class BukkitEventAdapter(
                 // would apply. Astera has no partial-hit model, so drop it.
                 if (entity.noDamageTicks > entity.maximumNoDamageTicks / 2) return
                 val playerId = PlayerId(entity.uniqueId)
+                val damager = (event as? org.bukkit.event.entity.EntityDamageByEntityEvent)?.damager
+                val attacker = if (damager is org.bukkit.entity.Projectile) damager.shooter as? org.bukkit.entity.Entity else damager
                 val outcome = playerHealthGateway.damage(
                     playerId,
                     event.finalDamage,
-                    synthesizeHealthChangeSource(event.cause),
+                    attacker?.let { HealthChangeSource.Attack(it.uniqueId) } ?: synthesizeHealthChangeSource(event.cause),
                 )
                 if (outcome is com.astarworks.astera.core.domain.Result.Failure) {
                     log.warn(

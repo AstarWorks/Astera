@@ -1,0 +1,63 @@
+{
+  "id": "edict-procuration-s2",
+  "rev": 1,
+  "videoId": "x6sc9JkW77c",
+  "start_s": 45.37866666666667,
+  "end_s": 48.6486,
+  "skill": {
+    "name": "変身後S2 — Procuration: Engrave",
+    "coins": 3,
+    "asteraSkillId": "edict-procuration-s2"
+  },
+  "variant": {
+    "label": "変身後 S2",
+    "implementation": "prototype",
+    "order": 2
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "procuration-s2-contact-1",
+      "kind": "hit",
+      "label": "接触候補1",
+      "t_s": 45.6456,
+      "notes": "原動画 f1368〜1372、med確度。開始から5.34tick。実装の命中時刻ではない。"
+    },
+    {
+      "id": "procuration-s2-contact-2",
+      "kind": "hit",
+      "label": "接触候補2",
+      "t_s": 46.88016666666667,
+      "notes": "原動画 f1405〜1405、high確度。開始から30.03tick。実装の命中時刻ではない。"
+    },
+    {
+      "id": "procuration-s2-contact-3",
+      "kind": "hit",
+      "label": "接触候補3",
+      "t_s": 47.280566666666665,
+      "notes": "原動画 f1417〜1419、med確度。開始から38.04tick。実装の命中時刻ではない。"
+    }
+  ],
+  "notes": "Procuration形態の専用S2試作。5/30/38tickの三群の接触、28tickからの通過、37tickの反転を構成。持続変身・通常入力未接続。技同定med。原動画接触候補は約5.34/30.03/38.04tick。斬線の向き替えを追加ダメージとして数えない。",
+  "editLog": [],
+  "status": "captured",
+  "verification": {
+    "status": "failed",
+    "reason": "同tickの反転→VFXの順序を修正し、37tickで標的側へ出ることを実機2撮影で確認。爪の曲線・幅・青白い光帯、身体との接続、人物姿勢・カメラは未一致。持続変身と通常入力は未接続。"
+  },
+  "weapon": "edict-blade",
+  "identity": "The Index Proxy Don Quixote / Procuration",
+  "iterations": 15,
+  "report": "/report/edict-blade",
+  "referenceRevision": "b37d2efcfa09e705a57c7ad5b5990b2f325a2a39a2eaff45b1c7a565488cd70e",
+  "contentRevision": "d85d3af4165f5f35991ca88d480c517deefaa93e2c535f7d21cef2f75f5559e2"
+}

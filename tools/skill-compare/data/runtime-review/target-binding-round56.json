@@ -1,0 +1,31 @@
+{
+  "status": "target-binding-runtime-probe-passed-fidelity-not-established",
+  "results": [
+    {
+      "scenario": "nearer-bystander",
+      "aHealth": 194.096,
+      "bHealth": 200.0,
+      "pass": true
+    },
+    {
+      "scenario": "world-transfer",
+      "aHealth": 200.0,
+      "bHealth": 200.0,
+      "pass": true
+    },
+    {
+      "scenario": "removed-target",
+      "aHealth": null,
+      "bHealth": 200.0,
+      "pass": true
+    }
+  ],
+  "scope": "Real Caster client, two NoAI husks, delayed target damage; nearer replacement, cross-world transfer, removal. No unit suite run. Not a Crimson airborne reproduction capture.",
+  "rawEvidence": "build/limbus-review/round56/binding-probe.json",
+  "limitations": [
+    "Airborne trajectory/launch/landing boundaries still unresolved",
+    "Crimson production prototype not yet using wrapper",
+    "Repeating/multi-target nesting and temporary world-return behavior not probed"
+  ],
+  "firstAttempt": "Nether query returned no entity in an unloaded destination chunk; reran with temporary forceload and removed it afterward."
+}

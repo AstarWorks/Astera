@@ -137,10 +137,22 @@ direction: { kind: toward_caster }                       # pull inward
 - **Delayed / repeating mechanics** (`delay_ticks` > 0, `period_ticks`, loop stride) re-read the caster's CURRENT position and look when they fire,
   so cone / forward_ray / caster_forward / nearby_entities follow a dash. `snapshot_pose: true` on a mechanic keeps the cast-time pose instead.
   Their `condition` is also evaluated when they fire, not at cast time.
+- `for_each_target` resolves its `targets` once when the wrapper fires and dispatches `mechanics` for each distinct living entity.
+  Children using `{ type: target }` retain that entity through delays/repeats even if another enemy becomes nearer.
+  When a child or tracked VFX observes the selected entity dead, absent or in a different world, that selection is permanently cancelled.
+  Returning to the original world does not resume its remaining children. The caster/origin remain unchanged.
+  Child geometric targeters still select normally; use `target` for the bound entity. A repeating wrapper selects anew on each wrapper firing.
+  Location `{ type: target_origin }` refers to that entity's position/world when the wrapper selected it, and stays fixed as it moves.
+  It is unavailable outside a target-bound context. Teleport offsets from it are absolute choreography, with no automatic collision clearance.
+  This does not make `cast_skill` inherit a target: its current platform wiring ignores the targeter/context target.
 - `params.damage` of `melee` / `aoe` honours `per_stack` like `damage` mechanics. `resist.<attribute>` applies to unarmored players too.
 - VFX (`content/vfx/*.yaml`): `end_tick` is ABSOLUTE for every formation slot (staggered slots live shorter); `slot_lifetime_ticks` gives each slot
   its own lifetime from its spawn instead. `group_keyframes` (`t`, `translate`, `rotate [yaw,pitch,roll]`, uniform `scale`, `ease`) move / spin / scale
   the whole formation about the anchor before per-slot keyframes, e.g. a hoop travelling along local +Z: `group_keyframes: [{ t: 0 }, { t: 10, translate: [0, 0, 8] }]`.
+
+`play_animation` currently supports `crouch` (temporary pose for `ticks`) and `swing-main-hand` (one native arm swing).
+For `swing-main-hand`, zero ticks skips the action; a positive duration requests one swing and does not change its native playback speed or hold the arm in place.
+Neither animation adds a damage event. These are pose approximations, not custom skeletal clips.
 
 ## Screen flash (cut-in overlays)
 
@@ -182,3 +194,15 @@ Per-cast budgets (spawned particle packets; keep a one-shot under ~1000 and a fl
 ring = `amount * period_ticks * points * particles`, line = `amount * (segments * points_per_segment + 1) * particles`.
 Current: flame-burst impact ~410, frost-nova ~710, regrowth ~850, lightning-bolt strike ~300, simple-shoot impact ~400,
 frost-shard ~160, thorn-bolt ~100. Each YAML carries its own budget comment. Before/after sheets: `docs/assets/skills/`.
+
+### VFX endpoint tracking for a bound target
+
+Inside `for_each_target`, `play_vfx: { targets: { type: caster }, vfx_id: ..., track_bound_target: true }` passes the selected living entity to the effect. The effect definition must have `target_reference: [0, 0, 4]` (the authored target feet in local anchor coordinates). It must use a fixed anchor (`follow: false`, no native attachment). Missing/incompatible tracking requests are rejected, not played at a guessed position.
+
+A non-emitting display element may set `target_track: [{ t: 0, weight: 0 }, { t: 20, weight: 1 }]`. Weights are finite0..1, keys strictly increase, and time follows the element interpolation clock (`spawn + 1 + t`). The runtime adds `(live target feet - authored target feet) * interpolated weight` to the entity position each tick, preserving model scale and rotation. Weight0 keeps the authored pose; weight1 moves its endpoint to the same target at any distance/height. Intermediate weights can distribute a trail between endpoints. This does not rotate or stretch trail glyphs, avoid obstacles, implement hit detection, or follow the caster. Large changes can therefore leave gaps/incorrect orientation in a trail and must be reviewed.
+
+The target's death/disappearance/world mismatch stops all displays in this effect and marks the shared selection cancelled, so its delayed damage also stays cancelled after a world return. An independently started impact effect has its own lifetime; it is not retroactively cancelled.
+
+`target_line: true` on a single fixed block element stretches and rotates its authored local +Z endpoint by the live target correction, preserving its authored -Z endpoint and X/Y thickness. The authored far endpoint must coincide with `target_reference` plus the desired impact-height offset. Requires `sample_ticks: 1`, fixed anchor, `track_bound_target: true`, no formation/emitter/target_track. The block-corner transform is re-centred before rotation. It is visual only: it neither adds hits nor checks obstacles, and does not move the caster anchor. Target disappearance uses the same permanent cancellation as target_track.
+
+`play_animation` with `animation: hide-main-hand` hides the main-hand equipment appearance for `ticks` while a separate VFX rig represents the weapon. It does not mutate server inventory. Paper refreshes appearance packets each tick (including the actor); the actor may also see an empty hotbar slot. Overlaps extend to the latest expiry. Expiry/death/shutdown restores the current held item, not a saved inventory snapshot. This is duration-based, not a cast-cancellation binding. Zero ticks is a no-op.

@@ -1,0 +1,52 @@
+{
+  "id": "couture-rapier-cutout",
+  "rev": 1,
+  "videoId": "GIe7Fna5LD4",
+  "start_s": 47.18046666666667,
+  "end_s": 53.98726666666666,
+  "skill": {
+    "name": "Cutout (S2-2; probable passive follow-up)",
+    "coins": 2,
+    "asteraSkillId": "couture-rapier-cutout"
+  },
+  "variant": {
+    "label": "Cutout / 追撃",
+    "implementation": "prototype",
+    "order": 2
+  },
+  "mc": {
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false
+  },
+  "segments": [
+    {
+      "id": "hit-1",
+      "kind": "hit",
+      "label": "接触 1 / f1514",
+      "t_s": 50.517133333333334,
+      "notes": "Falling fan of detached pointed shears/blades reaches target in one impact cluster; f1509 is overhead launch flare, not yet target contact."
+    },
+    {
+      "id": "hit-2",
+      "kind": "hit",
+      "label": "接触 2 / f1586",
+      "t_s": 52.919533333333334,
+      "notes": "Giant detached floral scissors descend and close through enemy; first target overlap visible f1586, closure flash f1587."
+    }
+  ],
+  "notes": "対応名は推定。5本の下降鋏は1接触群、巨大鋏の閉鎖が2接触目。直接呼出し試作で、追撃分岐・通常入力は未接続。",
+  "status": "captured",
+  "verification": {
+    "status": "failed",
+    "reason": "軌跡のyaw符号を修正し、鋏の位置・向きから終点を算出。線の連続性と接写時の集中を改善したが、参照の曲率・輪郭幅・正確な端点・鋏細部・腕姿勢・発光・追撃条件は未一致。"
+  },
+  "weapon": "couture-rapier",
+  "identity": "Haute Couture::Alteration Shop Rodion",
+  "iterations": 5,
+  "report": "/report/couture-rapier",
+  "referenceRevision": "0088d1573794f40b284eb444517e050283b613370be1ddcb7eb6b60ddf4b3247",
+  "contentRevision": "b8a09ce212546ec01a03cda80d3dea238eb07386d0989d8073a3f1c905f99f71"
+}

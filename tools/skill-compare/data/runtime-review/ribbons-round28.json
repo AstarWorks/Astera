@@ -1,0 +1,47 @@
+{
+  "runtime": {
+    "baseCommit": "b25c5d45d70b699c306c055a8b94ea4e2681fe72",
+    "resourcePackSha1": "859e0afe874a9c0c9de8a74d8534cd74189bb6aa",
+    "coreSha256": "b54a8e06d0d57bd7aa364ba83c7cec57c0c4b661f159c45bbad05f19b05f5bde",
+    "combatSha256": "aef44f22621f89f3448dc9c9716652a2c0f813976f2fd934d1e4c49745e10a25",
+    "deployedEvidence": {
+      "content/sprites/procuration-ribbon.yaml": "0c6da3ad4f92d3b75da321e7e0edc26c6e232d720d8bba2d7236b4debbb71b24",
+      "content/vfx/edict-procuration-crossing.yaml": "ce1ad4fda3b1165865a4a31a5f70c15a8a470878b03283e7f2cbee8b8e39ab6a",
+      "content/vfx/edict-procuration-airborne.yaml": "42ab5420554d17a1ac5836892e067f1a84a75c83286e4a0da07687b00c6628f2"
+    }
+  },
+  "captures": [
+    {
+      "path": "build/limbus-review/round28/first",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 3.0
+      }
+    },
+    {
+      "path": "build/limbus-review/round28/repeat",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 4.0
+      }
+    }
+  ],
+  "visualReview": {
+    "first/frame_024": "Tapered white streaks with blue rim now curved, replacing straight segmented lines.",
+    "first/frames_021_028": "Claws and ribbons visible across sampled ground reversals.",
+    "first/frames_031_034": "Ribbons visible during aerial pass, but flat horizontal orientation does not reproduce source diagonal flow.",
+    "source_relative_27_30_32_35_38_41": "Source has broader changing streak fan, low body posture and more irregular light trails."
+  },
+  "displayCounts": {
+    "crossing": 54,
+    "airborne": 54
+  },
+  "fidelityStatus": "failed",
+  "limitations": [
+    "Only these two VFX satisfy the 60-display per-effect ceiling; full skill concurrency not certified",
+    "No persistent transformation or normal-input routing",
+    "Motion, pose, black-claw silhouette and camera remain unmatched"
+  ]
+}

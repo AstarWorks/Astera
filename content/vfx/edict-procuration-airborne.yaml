@@ -1,0 +1,1887 @@
+id: edict-procuration-airborne
+duration_ticks: 6
+orient: yaw
+follow: true
+attach_to_anchor: true
+follow_teleport_ticks: 3
+sample_ticks: 1
+replace_group: edict-procuration-arms
+elements:
+- id: branch-2-claw-0-curve-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.1517187499999997
+    - 0.16799999999999998
+    rotate:
+    - 0
+    - -0.5861528899324794
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.33601758347778465
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-0-curve-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.1742187499999996
+    - 0.63
+    rotate:
+    - 0
+    - -4.043200156494215
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.589467082546812
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-0-curve-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.2914062499999999
+    - 1.4175
+    rotate:
+    - 0
+    - -11.053641282169169
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 1.0056568302140896
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-0-curve-3
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.44390625
+    - 2.4255
+    rotate:
+    - 0
+    - -6.222139783754166
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 1.035097596923232
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-0-curve-4
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.3767187500000002
+    - 3.331125
+    rotate:
+    - 0
+    - 17.494671595732424
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.8201878619598382
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-0-curve-5
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 1.07671875
+    - 3.961125
+    rotate:
+    - 0
+    - 36.493884802777245
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.5942752972371055
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-0-curve-6
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 0.7437499999999999
+    - 4.134375
+    rotate:
+    - 0
+    - 112.78240573048163
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.3389436715739061
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-0-curve-7
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.3
+    - 0.4687499999999999
+    - 3.924375000000001
+    rotate:
+    - 0
+    - 140.56233339438893
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.3738753970241953
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-1-curve-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.38
+    - 1.1886718749999998
+    - 0.13776000000000002
+    rotate:
+    - 0
+    - -15.680449903910837
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.28617009987778674
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-1-curve-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.38
+    - 1.3074218749999997
+    - 0.5166
+    rotate:
+    - 0
+    - -18.37463557447563
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.5080632736323916
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-1-curve-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.38
+    - 1.5792968749999998
+    - 1.1623499999999998
+    rotate:
+    - 0
+    - -25.359020462709065
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 0.8956424513381789
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-1-curve-3
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.38
+    - 1.9105468749999999
+    - 1.9889099999999997
+    rotate:
+    - 0
+    - -18.290983157406597
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 0.8886806989515764
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-1-curve-4
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.38
+    - 1.9378906249999999
+    - 2.7315224999999996
+    rotate:
+    - 0
+    - 19.26720499772005
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.6795040366889387
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-1-curve-5
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.38
+    - 1.637890625
+    - 3.2481225
+    rotate:
+    - 0
+    - 43.80774835665564
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.5428476101785495
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-1-curve-6
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.38
+    - 1.2937500000000002
+    - 3.3901875
+    rotate:
+    - 0
+    - 109.00370776265282
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.33051382819028907
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-1-curve-7
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.38
+    - 1.0187500000000003
+    - 3.217987500000001
+    rotate:
+    - 0
+    - 134.91241493270553
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.33536346047981946
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-2-curve-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.45999999999999996
+    - 1.2155468750000002
+    - 0.18816000000000005
+    rotate:
+    - 0
+    - -19.206145569273694
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.39850007991098646
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-2-curve-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.45999999999999996
+    - 1.404296875
+    - 0.7056000000000002
+    rotate:
+    - 0
+    - -20.51379605433713
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.7031481448735128
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-2-curve-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.45999999999999996
+    - 1.788671875
+    - 1.5876000000000003
+    rotate:
+    - 0
+    - -25.291723749886916
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 1.222636735405927
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-2-curve-3
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.45999999999999996
+    - 2.249921875
+    - 2.7165600000000003
+    rotate:
+    - 0
+    - -19.147675308070205
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 1.2199734320115594
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-2-curve-4
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.45999999999999996
+    - 2.346015625
+    - 3.7308600000000007
+    rotate:
+    - 0
+    - 13.353424142968146
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.9004650217396358
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-2-curve-5
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.45999999999999996
+    - 2.0460156250000003
+    - 4.43646
+    rotate:
+    - 0
+    - 36.22870983148648
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.6633242852305063
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-2-curve-6
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.45999999999999996
+    - 1.6937500000000003
+    - 4.6305000000000005
+    rotate:
+    - 0
+    - 115.1922932872938
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.34534801287976175
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-2-curve-7
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - -0.45999999999999996
+    - 1.4187500000000002
+    - 4.395300000000001
+    rotate:
+    - 0
+    - 143.70701060046156
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.40124033944756893
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-3-curve-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.202109375
+    - 0.15288000000000002
+    rotate:
+    - 0
+    - -18.82175303260093
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.32303362897934096
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-3-curve-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.355859375
+    - 0.5733000000000001
+    rotate:
+    - 0
+    - -20.802192018820886
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.5723931105469061
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-3-curve-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.683984375
+    - 1.2899250000000002
+    rotate:
+    - 0
+    - -26.76290894040301
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 1.0059274513485368
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-3-curve-3
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 2.080234375
+    - 2.207205
+    rotate:
+    - 0
+    - -19.930441067437684
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 0.9960460339896758
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-3-curve-4
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 2.1419531249999997
+    - 3.0313237500000003
+    rotate:
+    - 0
+    - 16.88658385026575
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.7439243053196426
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-3-curve-5
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.8419531249999999
+    - 3.6046237500000005
+    rotate:
+    - 0
+    - 41.44596953721514
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.5799946077726176
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-3-curve-6
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.49375
+    - 3.7622812500000005
+    rotate:
+    - 0
+    - 110.91685615201563
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.3345468074967239
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-3-curve-7
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.3
+    - 1.2187499999999998
+    - 3.5711812499999995
+    rotate:
+    - 0
+    - 137.89089456569155
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.354189753389692
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-4-curve-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.38
+    - 1.1617968749999998
+    - 0.17808000000000002
+    rotate:
+    - 0
+    - -3.790010259954154
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.35694062620982586
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-4-curve-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.38
+    - 1.210546875
+    - 0.6678000000000002
+    rotate:
+    - 0
+    - -6.762347126003674
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.6276464707054943
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-4-curve-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.38
+    - 1.369921875
+    - 1.5025500000000003
+    rotate:
+    - 0
+    - -13.171709711238888
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 1.074488134096446
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-4-curve-3
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.38
+    - 1.571171875
+    - 2.5710300000000004
+    rotate:
+    - 0
+    - -8.224607735047991
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 1.102074970573265
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-4-curve-4
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.38
+    - 1.529765625
+    - 3.530992500000001
+    rotate:
+    - 0
+    - 16.17248408160682
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.863349861847191
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-4-curve-5
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.38
+    - 1.2297656250000002
+    - 4.1987925000000015
+    rotate:
+    - 0
+    - 35.372991633039895
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.6210626956689334
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-4-curve-6
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.38
+    - 0.89375
+    - 4.382437500000001
+    rotate:
+    - 0
+    - 113.99862833798538
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.34207019107925785
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-4-curve-7
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.38
+    - 0.6187500000000001
+    - 4.159837500000001
+    rotate:
+    - 0
+    - 142.19019628129155
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.3874121263267321
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-5-curve-0
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.45999999999999996
+    - 1.1315625
+    - 0.12096
+    rotate:
+    - 0
+    - 8.666681510505867
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.24471422521994912
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-5-curve-1
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.45999999999999996
+    - 1.1015625000000002
+    - 0.4536
+    rotate:
+    - 0
+    - 3.1265342110823475
+    - 0
+    scale:
+    - 0.066
+    - 0.12
+    - 0.4239911027663198
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-5-curve-2
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.45999999999999996
+    - 1.1343750000000004
+    - 1.0206
+    rotate:
+    - 0
+    - -7.118665444094771
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 0.716160437402123
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-5-curve-3
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.45999999999999996
+    - 1.1893750000000003
+    - 1.7463600000000001
+    rotate:
+    - 0
+    - -1.6429132996977456
+    - 0
+    scale:
+    - 0.066
+    - 0.08800000000000001
+    - 0.7411846847446323
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-5-curve-4
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.45999999999999996
+    - 1.0706250000000002
+    - 2.39841
+    rotate:
+    - 0
+    - 24.674615644030816
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.6198131419226284
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-5-curve-5
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.45999999999999996
+    - 0.7706250000000001
+    - 2.85201
+    rotate:
+    - 0
+    - 44.77173116984661
+    - 0
+    scale:
+    - 0.066
+    - 0.052000000000000005
+    - 0.4845346250785385
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-5-curve-6
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.45999999999999996
+    - 0.4437500000000001
+    - 2.97675
+    rotate:
+    - 0
+    - 106.82531659803377
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.326475879660351
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: branch-2-claw-5-curve-7
+  kind:
+    type: block
+    block: black_concrete
+  start_tick: 0
+  end_tick: 6
+  keyframes:
+  - t: 0
+    translate:
+    - 0.45999999999999996
+    - 0.16875000000000007
+    - 2.82555
+    rotate:
+    - 0
+    - 131.1978785067157
+    - 0
+    scale:
+    - 0.066
+    - 0.018
+    - 0.3156400798377804
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: ribbon-0--1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - translate:
+    - -0.02
+    - 0.99
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - 5
+    scale:
+    - 0.975
+    - 0.23249999999999998
+    - 1
+    t: 0
+  - translate:
+    - -0.02
+    - 0.99
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - 5
+    scale:
+    - 0.975
+    - 0.31
+    - 1
+    t: 1
+  - translate:
+    - -0.02
+    - 0.99
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - 5
+    scale:
+    - 0.975
+    - 0.2015
+    - 1
+    t: 3
+  - translate:
+    - -0.02
+    - 0.99
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - 5
+    scale:
+    - 0.975
+    - 0.0
+    - 1
+    t: 4
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: ribbon-0-1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - translate:
+    - 0.02
+    - 0.99
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - -5
+    scale:
+    - 0.975
+    - 0.23249999999999998
+    - 1
+    t: 0
+  - translate:
+    - 0.02
+    - 0.99
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - -5
+    scale:
+    - 0.975
+    - 0.31
+    - 1
+    t: 1
+  - translate:
+    - 0.02
+    - 0.99
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - -5
+    scale:
+    - 0.975
+    - 0.2015
+    - 1
+    t: 3
+  - translate:
+    - 0.02
+    - 0.99
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - -5
+    scale:
+    - 0.975
+    - 0.0
+    - 1
+    t: 4
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: ribbon-1--1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - translate:
+    - -0.02
+    - 1.25
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - 0
+    scale:
+    - 0.975
+    - 0.23249999999999998
+    - 1
+    t: 0
+  - translate:
+    - -0.02
+    - 1.25
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - 0
+    scale:
+    - 0.975
+    - 0.31
+    - 1
+    t: 1
+  - translate:
+    - -0.02
+    - 1.25
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - 0
+    scale:
+    - 0.975
+    - 0.2015
+    - 1
+    t: 3
+  - translate:
+    - -0.02
+    - 1.25
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - 0
+    scale:
+    - 0.975
+    - 0.0
+    - 1
+    t: 4
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: ribbon-1-1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - translate:
+    - 0.02
+    - 1.25
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 0.975
+    - 0.23249999999999998
+    - 1
+    t: 0
+  - translate:
+    - 0.02
+    - 1.25
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 0.975
+    - 0.31
+    - 1
+    t: 1
+  - translate:
+    - 0.02
+    - 1.25
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 0.975
+    - 0.2015
+    - 1
+    t: 3
+  - translate:
+    - 0.02
+    - 1.25
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 0.975
+    - 0.0
+    - 1
+    t: 4
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: ribbon-2--1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - translate:
+    - -0.02
+    - 1.51
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - -5
+    scale:
+    - 0.975
+    - 0.23249999999999998
+    - 1
+    t: 0
+  - translate:
+    - -0.02
+    - 1.51
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - -5
+    scale:
+    - 0.975
+    - 0.31
+    - 1
+    t: 1
+  - translate:
+    - -0.02
+    - 1.51
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - -5
+    scale:
+    - 0.975
+    - 0.2015
+    - 1
+    t: 3
+  - translate:
+    - -0.02
+    - 1.51
+    - 2.3
+    rotate:
+    - -90
+    - 0
+    - -5
+    scale:
+    - 0.975
+    - 0.0
+    - 1
+    t: 4
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999
+- id: ribbon-2-1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - translate:
+    - 0.02
+    - 1.51
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - 5
+    scale:
+    - 0.975
+    - 0.23249999999999998
+    - 1
+    t: 0
+  - translate:
+    - 0.02
+    - 1.51
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - 5
+    scale:
+    - 0.975
+    - 0.31
+    - 1
+    t: 1
+  - translate:
+    - 0.02
+    - 1.51
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - 5
+    scale:
+    - 0.975
+    - 0.2015
+    - 1
+    t: 3
+  - translate:
+    - 0.02
+    - 1.51
+    - 2.3
+    rotate:
+    - 90
+    - 0
+    - 5
+    scale:
+    - 0.975
+    - 0.0
+    - 1
+    t: 4
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 30
+    - 0
+    translate:
+    - 0
+    - 0.16076951545867355
+    - 0.5999999999999999

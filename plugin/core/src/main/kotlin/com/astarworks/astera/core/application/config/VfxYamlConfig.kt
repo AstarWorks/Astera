@@ -14,6 +14,7 @@ import com.astarworks.astera.core.domain.effect.vfx.VfxEmitter
 import com.astarworks.astera.core.domain.effect.vfx.VfxElementKind
 import com.astarworks.astera.core.domain.effect.vfx.VfxFormation
 import com.astarworks.astera.core.domain.effect.vfx.VfxGroupKeyframe
+import com.astarworks.astera.core.domain.effect.vfx.VfxTargetKey
 import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.effect.vfx.VfxJitter
 import com.astarworks.astera.core.domain.effect.vfx.VfxKeyframe
@@ -71,10 +72,14 @@ public data class VfxYamlConfig(
     @SerialName("duration_ticks") public val durationTicks: Int,
     public val orient: String = "look",
     public val follow: Boolean = false,
+    @SerialName("follow_teleport_ticks") public val followTeleportTicks: Int? = null,
+    @SerialName("attach_to_anchor") public val attachToAnchor: Boolean = false,
+    @SerialName("replace_group") public val replaceGroup: String? = null,
     @SerialName("sample_ticks") public val sampleTicks: Int = 2,
     public val elements: List<VfxElementYaml> = emptyList(),
     /** Weapon rigs with 風切り trails (see [VfxRigYaml]). */
     public val rigs: List<VfxRigYaml> = emptyList(),
+    @SerialName("target_reference") public val targetReference: List<Double>? = null,
 ) {
     /** Materializes the domain definition; every validation failure comes back as a [VfxConfigError]. */
     public fun toDefinition(): Result<VfxDefinition, VfxConfigError> = try {
@@ -84,9 +89,13 @@ public data class VfxYamlConfig(
                 durationTicks = durationTicks,
                 orient = parseEnum<VfxOrient>(orient, "orient"),
                 follow = follow,
+                followTeleportTicks = followTeleportTicks,
+                attachToAnchor = attachToAnchor,
+                replaceGroup = replaceGroup,
                 sampleTicks = sampleTicks,
                 elements = elements.map { it.toDomain() },
                 rigs = rigs.map { it.toDomain() },
+                targetReference = targetReference?.let { vec3(it, "target_reference") },
             ),
         )
     } catch (e: IllegalArgumentException) {
@@ -117,6 +126,8 @@ public data class VfxElementYaml(
     @SerialName("group_keyframes") public val groupKeyframes: List<VfxGroupKeyframeYaml> = emptyList(),
     /** Display-particle emitter (kind `quad` only); keyframes become optional. */
     public val emit: VfxEmitYaml? = null,
+    @SerialName("target_track") public val targetTrack: List<VfxTargetKeyYaml> = emptyList(),
+    @SerialName("target_line") public val targetLine: Boolean = false,
 ) {
     public fun toDomain(): VfxElement = VfxElement(
         id = id,
@@ -135,8 +146,13 @@ public data class VfxElementYaml(
         oscillate = oscillate?.toDomain(),
         groupKeyframes = groupKeyframes.map { it.toDomain() },
         emit = emit?.toDomain(),
+        targetTrack = targetTrack.map { VfxTargetKey(it.t, it.weight) },
+        targetLine = targetLine,
     )
 }
+
+@Serializable
+public data class VfxTargetKeyYaml(public val t: Int, public val weight: Double)
 
 @OptIn(ExperimentalSerializationApi::class)
 @JsonClassDiscriminator("type")
@@ -155,9 +171,10 @@ public sealed class VfxKindYaml {
     public data class Item(
         public val item: String,
         @SerialName("display_mode") public val displayMode: String = "fixed",
+        @SerialName("item_model") public val itemModel: String? = null,
     ) : VfxKindYaml() {
         override fun toDomain(): VfxElementKind =
-            VfxElementKind.Item(item, parseEnum<DisplayItemMode>(displayMode, "display_mode"))
+            VfxElementKind.Item(item, parseEnum<DisplayItemMode>(displayMode, "display_mode"), itemModel)
     }
 
     @Serializable
@@ -358,7 +375,7 @@ public data class VfxKeyframeYaml(
     public val text: String? = null,
     /** Quad only: `#RRGGBB`. */
     public val color: String? = null,
-    /** Quad only: 0..1. */
+    /** Quad or sprite: 0..1. */
     public val alpha: Double? = null,
 ) {
     public fun toDomain(): VfxKeyframe = VfxKeyframe(
@@ -571,6 +588,7 @@ public data class VfxTrailYaml(
     @SerialName("dark_rim") public val darkRim: VfxTrailRimYaml? = null,
     @SerialName("step_deg") public val stepDeg: Double = 30.0,
     @SerialName("fade_power") public val fadePower: Double = 1.5,
+    @SerialName("double_sided") public val doubleSided: Boolean = false,
 ) {
     public fun toDomain(): VfxTrail = VfxTrail(
         id = id,
@@ -586,6 +604,7 @@ public data class VfxTrailYaml(
         darkRim = darkRim?.toDomain(),
         stepDeg = stepDeg,
         fadePower = fadePower,
+        doubleSided = doubleSided,
     )
 }
 
@@ -600,6 +619,7 @@ public data class VfxTrailBandYaml(
     @SerialName("color_to") public val colorTo: String? = null,
     /** Crisp slab block (styles `crisp` / `both`). */
     public val block: String? = null,
+    public val glyph: String? = null,
 ) {
     public fun toDomain(): VfxTrailBand = VfxTrailBand(
         from = from,
@@ -607,6 +627,7 @@ public data class VfxTrailBandYaml(
         argb = parseArgb(color, "band.color"),
         toArgb = colorTo?.let { parseArgb(it, "band.color_to") },
         block = block,
+        glyph = glyph,
     )
 }
 

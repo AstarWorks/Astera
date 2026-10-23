@@ -40,12 +40,16 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler {
     private var tickerTask: BukkitTask? = null
 
     /**
-     * Min-heap ordered by [HeapEntry.executeAtTick].
+     * Min-heap ordered by execution tick, then enqueue order for equal ticks.
+     * A turn and a VFX scheduled for the same tick must keep their authored order.
      *
      * Only accessed from the Paper main thread (inside [dispatchTick]) so no
      * external synchronisation is needed for the heap itself.
      */
-    private val heap: PriorityQueue<HeapEntry> = PriorityQueue(compareBy { it.executeAtTick })
+    private val heap: PriorityQueue<HeapEntry> = PriorityQueue(
+        compareBy<HeapEntry> { it.executeAtTick }.thenBy { it.sequence },
+    )
+    private var nextSequence: Long = 0L
 
     /** Start the single-ticker BukkitTask. Call from [Plugin.onEnable]. */
     public fun start() {
@@ -75,7 +79,7 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler {
             }
             if (head.periodTicks > 0L) {
                 // Re-arm repeating task relative to its last fire time to avoid drift.
-                heap.offer(HeapEntry(now + head.periodTicks, head.periodTicks, head.task, head.handle))
+                heap.offer(HeapEntry(now + head.periodTicks, head.periodTicks, head.task, head.handle, nextSequence++))
             }
         }
     }
@@ -125,7 +129,7 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler {
         task: () -> Unit,
     ): HeapTaskHandle {
         val handle = HeapTaskHandle()
-        val entry = HeapEntry(executeAtTick, periodTicks, task, handle)
+        val entry = HeapEntry(executeAtTick, periodTicks, task, handle, nextSequence++)
         handle.entry = entry
         heap.offer(entry)
         return handle
@@ -138,6 +142,7 @@ public class PaperScheduler(private val plugin: Plugin) : IScheduler {
         val periodTicks: Long,       // 0 = one-shot
         val task: () -> Unit,
         val handle: HeapTaskHandle,
+        val sequence: Long,
     ) {
         val isAlive: Boolean get() = handle.alive
     }

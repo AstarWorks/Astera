@@ -13,36 +13,57 @@ params:
 phases:
   type: sequence
   cast:
+  - type: dash_strike
+    distance: 3
+    ticks: 7
+    radius: 0.8
+    hit_once: true
+    invulnerable: false
+    stop_on_block: true
+    on_hit: []
+    stop_before_target: 4
+  - type: play_animation
+    targets:
+      type: caster
+    animation: crouch
+    ticks:
+      type: literal
+      value: 7
+    delay_ticks:
+      type: literal
+      value: 0
+  - type: play_animation
+    targets:
+      type: caster
+    animation: hide-main-hand
+    ticks:
+      type: literal
+      value: 100
+    delay_ticks:
+      type: literal
+      value: 7
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: orrery-s2-charge-ring
+    delay_ticks:
+      type: literal
+      value: 7
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: orrery-s2-charge-ring
+    delay_ticks:
+      type: literal
+      value: 50
   - type: play_vfx
     targets:
       type: caster
     vfx_id: orrery-s2-poise
-  - type: play_vfx
-    targets:
-      type: caster
-    vfx_id: orrery-orb-high
     delay_ticks:
       type: literal
-      value: 10
-  - type: play_vfx
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    vfx_id: orrery-seal-ground
-    delay_ticks:
-      type: literal
-      value: 25
-  - type: damage
+      value: 7
+  - type: for_each_target
     targets:
       type: nearby_entities
       center:
@@ -64,78 +85,37 @@ phases:
       max_count:
         type: literal
         value: 5
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 9
-      attribute: physical
     delay_ticks:
       type: literal
       value: 35
-  - type: play_vfx
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
+    mechanics:
+    - type: damage
+      targets:
+        type: target
+      ignore_invulnerability:
         type: literal
-        value: 12
-      angle_degrees:
+        value: true
+      components:
+      - base:
+          type: literal
+          value: 9
+        attribute: physical
+    - type: play_vfx
+      targets:
+        type: target
+      vfx_id: orrery-s2-impact
+      track_bound_target: true
+    - type: play_sound
+      targets:
+        type: target
+      sound_id: entity.player.attack.strong
+      volume:
         type: literal
-        value: 45
-      max_count: 1
-    vfx_id: orrery-ring-hit
-    delay_ticks:
-      type: literal
-      value: 35
-  - type: play_sound
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
+        value: 0.7
+      pitch:
         type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    sound_id: entity.player.attack.strong
-    volume:
-      type: literal
-      value: 0.7
-    pitch:
-      type: literal
-      value: 1.1
-    delay_ticks:
-      type: literal
-      value: 35
-  - type: play_vfx
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
-        type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    vfx_id: orrery-finisher
-    delay_ticks:
-      type: literal
-      value: 54
-  - type: damage
+        value: 1.1
+  - type: for_each_target
     targets:
       type: nearby_entities
       center:
@@ -157,56 +137,33 @@ phases:
       max_count:
         type: literal
         value: 5
-    ignore_invulnerability:
-      type: literal
-      value: true
-    components:
-    - base:
-        type: literal
-        value: 12
-      attribute: physical
     delay_ticks:
       type: literal
       value: 61
-  - type: play_vfx
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
+    mechanics:
+    - type: damage
+      targets:
+        type: target
+      ignore_invulnerability:
         type: literal
-        value: 12
-      angle_degrees:
+        value: true
+      components:
+      - base:
+          type: literal
+          value: 12
+        attribute: physical
+    - type: play_vfx
+      targets:
+        type: target
+      vfx_id: orrery-s2-impact-long
+      track_bound_target: true
+    - type: play_sound
+      targets:
+        type: target
+      sound_id: entity.player.attack.strong
+      volume:
         type: literal
-        value: 45
-      max_count: 1
-    vfx_id: orrery-ring-hit
-    delay_ticks:
-      type: literal
-      value: 61
-  - type: play_sound
-    targets:
-      type: cone
-      from:
-        type: caster
-      direction:
-        type: from_caster
-      distance:
+        value: 0.7
+      pitch:
         type: literal
-        value: 12
-      angle_degrees:
-        type: literal
-        value: 45
-      max_count: 1
-    sound_id: entity.player.attack.strong
-    volume:
-      type: literal
-      value: 0.7
-    pitch:
-      type: literal
-      value: 1.1
-    delay_ticks:
-      type: literal
-      value: 61
+        value: 1.1

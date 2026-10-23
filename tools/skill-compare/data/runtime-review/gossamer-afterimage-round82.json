@@ -1,0 +1,39 @@
+{
+  "round": 82,
+  "case": "gossamer-katana-arc-chain",
+  "status": "failed",
+  "capture": "build/limbus-review/round82/final-captures/gossamer-katana-arc-chain-1792746521937967434",
+  "frames": 73,
+  "quality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 3.0
+  },
+  "runtime": {
+    "coreSha256": "6d25726243810e67722d94467616c5cdeae3a53b7e8f425f46248d9e772f6a01",
+    "combatSha256": "f118565f5e591447a46888c3af6822318d14008723ab9b4ec2f604fca94470ca",
+    "resourcePackSha1": "782fd0be185cb97fce86fe5df4997af2268e081a"
+  },
+  "health": [
+    200.0,
+    194.096,
+    188.19199,
+    182.28798,
+    176.38397
+  ],
+  "displayPeak": 25,
+  "displaySamples": 771,
+  "displayScope": "One direct Gossamer arc-chain prototype cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "review": "青・赤の平面人型残像は実機で表示確認。髪・衣服・姿勢・刀の曲率、途切れる細い斬撃縁、白い帯状残光、花模様、腕姿勢、カメラは未一致。通常入力・状態分岐・正式キット対応は未確定。",
+  "reviewedCaptureFrames": [
+    16,
+    34,
+    43
+  ],
+  "reviewedReferenceFrames": [
+    683
+  ],
+  "implementation": "Arc-chain-only blue sprites at ticks7/24 and red at33 replace cube echoes. Positive-scale front/back faces use separately mirrored bitmaps. Shared echo used by other skills unchanged.",
+  "rejected": "Initial back face used negative X scale; blue echo disappeared from comparison camera. Replaced with mirrored bitmap and positive geometry scale, then recaptured.",
+  "limits": "Single generic leaning human pictogram is not source anatomy, hair, clothes or pose. see_through renders over occluders. Four damage events remain prototype fixtures, not verified original damage count."
+}

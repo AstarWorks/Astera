@@ -1,0 +1,65 @@
+{
+  "id": "gossamer-katana-dash-flurry",
+  "rev": 1,
+  "videoId": "LkLhzmoJZ6Y",
+  "start_s": 43.61023333333333,
+  "end_s": 46.3463,
+  "skill": {
+    "name": "Unresolved rapid dash flurry and diagonal blue finisher",
+    "coins": null,
+    "asteraSkillId": null
+  },
+  "variant": {
+    "label": "高速突進・青い斜め斬撃",
+    "implementation": "missing",
+    "order": 5
+  },
+  "mc": {
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false
+  },
+  "segments": [
+    {
+      "id": "contact-1",
+      "kind": "hit",
+      "label": "観測上の接触 1 / f1317",
+      "t_s": 43.9439,
+      "notes": "Cyan horizontal blade pass through target / confidence: med; contact is not proof of a separate damage event."
+    },
+    {
+      "id": "contact-2",
+      "kind": "hit",
+      "label": "観測上の接触 2 / f1329",
+      "t_s": 44.3443,
+      "notes": "Return horizontal pass through target torso / confidence: med; contact is not proof of a separate damage event."
+    },
+    {
+      "id": "contact-3",
+      "kind": "hit",
+      "label": "観測上の接触 3 / f1341",
+      "t_s": 44.7447,
+      "notes": "Spinning slash beside target with lingering central flare / confidence: low; contact is not proof of a separate damage event."
+    },
+    {
+      "id": "contact-4",
+      "kind": "hit",
+      "label": "観測上の接触 4 / f1363",
+      "t_s": 45.478766666666665,
+      "notes": "Airborne descending diagonal cyan cut intersects victim / confidence: med; contact is not proof of a separate damage event."
+    }
+  ],
+  "notes": "追加観測区間。キットとの対応と実ダメージ回数は未確定。専用実装・撮影はなく、既存技の映像は流用しない。",
+  "status": "analysed",
+  "verification": {
+    "status": "unverified",
+    "reason": "参照映像のみ。専用実装・実機撮影・照合は未完了。"
+  },
+  "weapon": "gossamer-katana",
+  "identity": "Blade of the House of Spiders Ryōshū",
+  "iterations": 0,
+  "report": "/report/gossamer-katana",
+  "referenceRevision": "1b68b8e09d0130a7deeea0faf7467d49378f3614f117e1d8a72c15ae27644aee"
+}

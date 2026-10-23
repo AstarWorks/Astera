@@ -107,9 +107,83 @@ internal object ParticlePainters {
     }
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
-        "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
-        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice,
+        "gossamer_trail_wedge" to { c, _, _, _ ->
+            c.forEach { x, y -> if (abs(y - 16.0) <= 16.0 * (0.63 + 0.37 * x / 32.0)) 1.0 else 0.0 }
+        },
+        "gossamer_ribbon" to ::gossamerRibbon,
+        "gossamer_echo" to ::gossamerEcho, "gossamer_echo_mirror" to { c, t, _, n -> gossamerEcho(c, t, 1, n) }, "orrery_impact" to ::orreryImpact, "orb" to ::orb, "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
+        "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue, "procuration_ribbon" to ::procurationRibbon, "crimson_orbit" to ::crimsonOrbit, "crimson_link" to ::crimsonLink,
     )
+
+    /** Shallow crossing white loops at the first contact; open ends follow the visible orbital streaks. */
+    private fun gossamerRibbon(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            var v = 0.0
+            for (strand in 0..3) {
+                val dx = (x - 16.0) / (14.0 - strand * 0.45)
+                val dy = (y - 16.0 - (strand - 1.5) * 0.35 - (if (strand % 2 == 0) 0.14 else -0.14) * (x - 16.0)) / (2.5 + strand * 0.3)
+                val a = (atan2(dy, dx) + PI * 3.0 + i * 0.35 + strand * 0.3) % (2.0 * PI)
+                val tail = (a / 0.7).coerceIn(0.0, 1.0)
+                val line = (1.0 - abs(hypot(dx, dy) - 1.0) / (0.035 + strand * 0.008)).coerceAtLeast(0.0)
+                v = max(v, line * tail)
+            }
+            v
+        }
+    }
+
+    /** Forward-leaning sword silhouette; a continuous outline instead of disconnected cube limbs. */
+    private fun gossamerEcho(c: Canvas, t: Double, i: Int, n: Int) {
+        fun segment(x: Double, y: Double, ax: Double, ay: Double, bx: Double, by: Double, radius: Double): Double {
+            val dx = bx - ax
+            val dy = by - ay
+            val u = ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)
+            return radius - hypot(x - (ax + dx * u.coerceIn(0.0, 1.0)), y - (ay + dy * u.coerceIn(0.0, 1.0)))
+        }
+        c.forEach { imageX, y ->
+            val x = if (i == 1) 32.0 - imageX else imageX
+            var d = 2.8 - hypot(x - 20, y - 8.5) // head
+            val limbs = listOf(
+                doubleArrayOf(18.0, 11.0, 12.0, 18.5, 2.5), // leaning torso
+                doubleArrayOf(12.0, 19.0, 20.0, 22.0, 1.8),
+                doubleArrayOf(20.0, 22.0, 24.0, 27.0, 1.2),
+                doubleArrayOf(12.0, 19.0, 7.0, 25.0, 1.6),
+                doubleArrayOf(7.0, 25.0, 3.0, 27.0, 1.0),
+                doubleArrayOf(17.0, 12.0, 21.0, 17.0, 1.25),
+                doubleArrayOf(21.0, 17.0, 25.0, 15.0, 0.9),
+                doubleArrayOf(16.0, 13.0, 12.0, 12.0, 1.0),
+                doubleArrayOf(12.0, 12.0, 9.0, 7.0, 0.8),
+                doubleArrayOf(11.0, 17.0, 3.0, 20.0, 1.3), // trailing coat
+                doubleArrayOf(24.0, 15.0, 31.0, 13.8, 0.28), // drawn blade
+                doubleArrayOf(7.0, 18.5, 16.0, 20.0, 0.35), // separate scabbard
+            )
+            for (v in limbs) d = max(d, segment(x, y, v[0], v[1], v[2], v[3], v[4]))
+            if (d < 0) 0.0 else if (d < 0.3) 0.9 else 0.55
+        }
+    }
+
+    /** Interrupted double annulus with radial teeth, observed on Concentration's victim. */
+    private fun orreryImpact(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val dx = x - C
+            val dy = y - C
+            val r = hypot(dx, dy)
+            val a = atan2(dy, dx) + i * PI / 48
+            val sector = (a * 12 / PI + 48) % 1.0
+            val gap = sector < 0.10
+            val outer = if (!gap) max(0.0, 1.0 - abs(r - 12.0) / 1.8) else 0.0
+            val inner = if (sector > 0.18) max(0.0, 0.9 - abs(r - 9.2) / 0.65) else 0.0
+            val tooth = if (sector in 0.38..0.58 && r in 10.0..14.8) 0.65 else 0.0
+            max(max(outer, inner), tooth)
+        }
+    }
+
+    /** Round charge light: broad white centre, narrow gold rim, no star arms. */
+    private fun orb(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val r = hypot(x - C, y - C) / 15.0
+            if (r > 1.0) 0.0 else (1.0 - r.pow(4)).coerceIn(0.0, 1.0)
+        }
+    }
 
     /** A 4-point star that pops open, hangs, then shrinks, with a small diagonal star and a white-hot core. */
     private fun spark(c: Canvas, t: Double, i: Int, n: Int) {
@@ -264,6 +338,81 @@ internal object ParticlePainters {
 
     /** Fine cutting ribbon, preserving the slash arc and sweep timing. */
     private fun slice(c: Canvas, t: Double, i: Int, n: Int) = crescent(c, t, 1.2)
+
+    /** Asymmetric pointed fragment with a white face and blue rim; rotation comes from the VFX. */
+    private fun petal(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val u = (y - 4.0) / 24.0
+            if (u !in 0.0..1.0) return@forEach 0.0
+            val width = 7.0 * sin(PI * u).pow(0.65) * (0.65 + 0.65 * u)
+            val centre = 16.0 + 3.0 * (u - 0.5) + 0.8 * sin(3.0 * PI * u)
+            val edge = 1.0 - abs(x - centre) / max(0.01, width)
+            if (edge <= 0.0) 0.0 else min(1.0, 0.3 + edge * 1.4)
+        }
+    }
+
+    /** Broader, chipped blue face seen alongside the pointed white petals. */
+    private fun petalBlue(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val u = (y - 5.0) / 22.0
+            if (u !in 0.0..1.0) return@forEach 0.0
+            val width = 9.0 * sin(PI * u).pow(0.4) * (0.85 + 0.12 * sin(7.0 * PI * u))
+            val centre = 16.0 - 3.0 * u + sin(2.0 * PI * u)
+            val edge = 1.0 - abs(x - centre) / max(0.01, width)
+            if (edge <= 0.0) 0.0 else 0.3 + 0.4 * edge
+        }
+    }
+
+    /** Shallow pointed white/blue streak, observed during Procuration's horizontal passes. */
+    private fun procurationRibbon(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val u = (x - 1.0) / 30.0
+            if (u !in 0.0..1.0) return@forEach 0.0
+            val centre = 18.0 - 7.0 * sin(PI * u) + 2.0 * u
+            val halfWidth = 2.2 * sin(PI * u).pow(0.65) * (1.2 - 0.5 * u)
+            val edge = 1.0 - abs(y - centre) / max(0.01, halfWidth)
+            if (edge <= 0.0) 0.0 else min(1.0, 0.3 + edge * 1.5)
+        }
+    }
+
+    /** Paired inward-open crescent blades on a dark spine, observed on the transformed chain. */
+    private fun crimsonLink(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val mx = if (x > C) 32.0 - x else x
+            val outer = hypot(mx - 10.0, y - C)
+            val inner = hypot(mx - 12.6, y - C)
+            if (outer < 7.0 && inner > 6.6) {
+                val depth = min(7.0 - outer, inner - 6.6)
+                min(1.0, 0.35 + depth * 0.8)
+            } else if (abs(x - C) < 1.2 && y in 1.5..30.5) {
+                0.2
+            } else if (abs(y - C) < 1.0 && x in 5.0..27.0) {
+                0.3
+            } else 0.0
+        }
+    }
+
+    /** Continuous white-core crimson ring; the VFX stretches and tilts it into crossed ellipses. */
+    private fun crimsonOrbit(c: Canvas, t: Double, i: Int, n: Int) {
+        c.forEach { x, y ->
+            val distance = abs(hypot(x - C, y - C) - 12.0)
+            (1.0 - distance / 0.65).coerceAtLeast(0.0)
+        }
+    }
+
+    /** A long, tapered orbit ribbon; the VFX timeline supplies its rotation. */
+    private fun orbit(c: Canvas, t: Double, i: Int, n: Int) {
+        val sweep = 230.0 * PI / 180.0
+        c.forEach { x, y ->
+            val dx = x - C
+            val dy = y - C
+            val angle = (atan2(dy, dx) + 2 * PI) % (2 * PI)
+            val u = angle / sweep
+            if (u !in 0.0..1.0) return@forEach 0.0
+            val halfWidth = 0.12 + 1.35 * sin(PI * u).pow(0.7)
+            (1.0 - abs(hypot(dx, dy) - 11.5) / halfWidth) * (0.85 + 0.15 * sin(PI * u))
+        }
+    }
 
     private fun crescent(c: Canvas, t: Double, width: Double) {
         val cx = 1.0

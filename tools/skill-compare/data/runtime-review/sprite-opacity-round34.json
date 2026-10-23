@@ -1,0 +1,61 @@
+{
+  "runtime": {
+    "baseCommit": "449d91c9a871922445f0a5f22e228fb09333be0d",
+    "resourcePackSha1": "38014dcbb395fadb945df2684ee0525689b50a3c",
+    "deployedEvidence": {
+      "content/vfx/edict-procuration-airborne.yaml": "cd2d449fd63028eefd3056c69d04079d5f047cd95851d77f61d812e077953c5a",
+      "content/vfx/edict-procuration-dive.yaml": "c2d78ed903a26fb52f8dc1465a8c8f921abb884520933e0c309d938460c920f9",
+      "content/skills/edict-procuration-s3.yaml": "e2aa92e6f15f0331dbd3372cc8c23e614f464f61b0629b3b77da8954d9388825",
+      "content/sprites/procuration-ribbon.yaml": "4de1894675e84f16dc9c4ec6534be76cca6205f74501b9667a63fda2050cf81d",
+      "content/vfx/edict-procuration-crossing.yaml": "b12e0c23975fa2c35a1e017122b490bf2351babca5fd6bc8b8591dad326b651e",
+      "content/vfx/edict-procuration-air-trace.yaml": "e39e49e0b11cece06bfc8b8e45b5442e3c1752392cf3397ee6608ddec3107add"
+    },
+    "coreSha256": "3474fe1589d802cea27497c783a50ab32dbe62fc48dde60eaf03b10c18674c12",
+    "combatSha256": "3283e4d3fdbfaba602bf90883e9b01d135914ad05fdf866591e46ff8415a7659",
+    "cameraRevision": "04b04967b23cc491c1a99e87f6d74bf133b3889d430de2dd3f24e51036b34699",
+    "changes": "Sprite initial opacity and alpha keyframe playback; residual streak alpha decay"
+  },
+  "opacityProbe": {
+    "cast": "§aCast §fcapture-opacity§a for Caster.\n",
+    "initial": {
+      "reply": "Text Display has the following entity data: 64b",
+      "unsigned": 64
+    },
+    "bright": {
+      "reply": "Text Display has the following entity data: -65b",
+      "unsigned": 191
+    },
+    "zero": {
+      "reply": "Text Display has the following entity data: 4b",
+      "unsigned": 4
+    },
+    "expired": "",
+    "passed": true
+  },
+  "captures": [
+    {
+      "path": "build/limbus-review/round34/captures/edict-procuration-s3-1792725924830287395",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": true,
+        "cameraMaxLatenessMs": 114.0,
+        "invalid": true,
+        "reason": "Camera command response exceeded its planned time by more than 100 ms; recapture required."
+      }
+    },
+    {
+      "path": "build/limbus-review/round34/captures/edict-procuration-s3-1792725951601809791",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 9.0
+      }
+    }
+  ],
+  "visualReview": {
+    "valid/frames_033_036": "Target residual appears, then becomes faint/absent while attached claws remain; overlapping effects limit isolated pixel measurement.",
+    "limitations": "Opacity transmission and expiry verified; exact source decay curve, pose, choreography and gameplay camera remain unmatched."
+  },
+  "temporaryFixturesRemoved": true,
+  "fidelityStatus": "failed"
+}

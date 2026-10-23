@@ -12,12 +12,15 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IWorldGateway
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.geometry.math.Frame
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.player.PlayerPose
 import com.astarworks.astera.core.domain.skill.mechanic.Mechanic
 import com.astarworks.astera.core.domain.world.WorldId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.math.atan2
+import kotlin.math.ceil
 import kotlin.math.floor
 
 /**
@@ -54,6 +57,8 @@ internal class DashStrikeRunner(
         val followPitch: Boolean,
         val onHit: List<Mechanic>,
         val stopBeforeTarget: Double? = null,
+        val localDirection: Vec3? = null,
+        val faceMovement: Boolean = false,
     )
 
     private val active: MutableSet<Dash> = LinkedHashSet()
@@ -65,9 +70,21 @@ internal class DashStrikeRunner(
             log.warn("DashStrike dropped: no pose for caster {}", caster)
             return false
         }
-        if (params.distance <= 0.0) return false
+        if (!params.distance.isFinite() || params.distance < 0.0) return false
         val steps = params.ticks.coerceAtLeast(1)
-        val direction = heading(pose.direction, params.followPitch)
+        val forward = heading(pose.direction, params.followPitch)
+        val direction = params.localDirection?.let {
+            Frame.fromDirection(Vec3.ZERO, forward).directionToWorld(it.normalize()).normalize()
+        } ?: forward
+        if (!direction.x.isFinite() || !direction.y.isFinite() || !direction.z.isFinite() || direction.lengthSquared() < 1e-12) return false
+        val level = Vec3(direction.x, 0.0, direction.z)
+        val face = if (params.faceMovement && level.lengthSquared() > 1e-12) level.normalize() else null
+        // An explicit zero-length, facing dash is a turn in place, without a sweep or immunity.
+        if (params.distance == 0.0) {
+            val facing = face ?: return false
+            return worldGateway.teleport(caster, pose.position, pose.world,
+                yaw = Math.toDegrees(atan2(-facing.x, facing.z)).toFloat())
+        }
         val distance = approachDistance(caster, pose, direction, params)
         if (distance <= 0.0) return false
         val dash = Dash(
@@ -78,7 +95,8 @@ internal class DashStrikeRunner(
             origin = pose.position,
             stepVector = direction * (distance / steps),
             steps = steps,
-            pose = pose,
+            pose = face?.let { pose.copy(direction = it) } ?: pose,
+            yaw = face?.let { Math.toDegrees(atan2(-it.x, it.z)).toFloat() },
         )
         active += dash
         dash.immunityApplied = params.invulnerable && grantImmunity(caster, steps)
@@ -119,11 +137,11 @@ internal class DashStrikeRunner(
         dash.stepIndex++
         val from = dash.position
         val to = dash.origin + dash.stepVector * dash.stepIndex.toDouble()
-        if (dash.params.stopOnBlock && blocked(dash.world, to)) {
+        if (dash.params.stopOnBlock && blockedBetween(dash.world, from, to)) {
             finish(dash)
             return
         }
-        if (!worldGateway.teleport(dash.caster, to, dash.world)) {
+        if (!worldGateway.teleport(dash.caster, to, dash.world, yaw = dash.yaw)) {
             finish(dash)
             return
         }
@@ -180,6 +198,13 @@ internal class DashStrikeRunner(
         return true
     }
 
+    /** Sample the swept path so a long or descending step cannot skip a thin wall or floor. */
+    private fun blockedBetween(world: WorldId, from: Vec3, to: Vec3): Boolean {
+        val delta = to - from
+        val samples = ceil(delta.length() / 0.25).toInt().coerceAtLeast(1)
+        return (1..samples).any { blocked(world, from + delta * (it.toDouble() / samples)) }
+    }
+
     private fun blocked(world: WorldId, at: Vec3): Boolean =
         BLOCK_PROBE_HEIGHTS.any { dy ->
             val block = worldGateway.blockAt(world, Vec3(floor(at.x), floor(at.y + dy), floor(at.z)))
@@ -212,6 +237,7 @@ internal class DashStrikeRunner(
         val stepVector: Vec3,
         val steps: Int,
         val pose: PlayerPose,
+        val yaw: Float?,
     ) {
         var position: Vec3 = origin
         var stepIndex: Int = 0
@@ -225,8 +251,8 @@ internal class DashStrikeRunner(
         const val BODY_HALF_HEIGHT: Double = 0.9
         const val SAFETY_TICKS: Int = 40
 
-        /** Feet-relative heights probed for a solid block (knee and head). */
-        val BLOCK_PROBE_HEIGHTS: List<Double> = listOf(0.5, 1.5)
+        /** Feet-relative heights probed for a solid block (feet, knee and head). */
+        val BLOCK_PROBE_HEIGHTS: List<Double> = listOf(0.01, 0.5, 1.5)
 
         /** Non-air blocks a dash passes through. */
         val PASSABLE: Set<String> = setOf(

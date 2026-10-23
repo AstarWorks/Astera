@@ -44,7 +44,7 @@ import com.astarworks.astera.core.domain.status.StatusEffectId
  *  - Visual (5) — SpawnParticle / ScheduleParticleAnimation / PlaySound /
  *    SpawnDisplay / Glow / CameraShake (6 with CameraShake)
  *  - Messages (3) — SendMessage / SendActionBar / SendTitle
- *  - Control flow (4) — CastSkill / IfThen / Loop / Choose
+ *  - Control flow (5) — CastSkill / IfThen / Loop / Choose
  *
  * Wave _skills-2 / ADR-0077.
  */
@@ -267,13 +267,25 @@ public sealed class Mechanic {
         val followPitch: BoolValue = BoolValue.Literal(false),
         /** Optional approach spacing; clamp travel before the first body in the dash corridor. */
         val stopBeforeTarget: Double? = null,
+        /** Direction in caster axes: +Z forward, +X left, +Y up; null preserves the look heading. */
+        val localDirection: com.astarworks.astera.core.domain.geometry.Vec3? = null,
+        /** Turn horizontal facing toward movement, preserving camera pitch. */
+        val faceMovement: Boolean = false,
         val onHit: List<Mechanic> = emptyList(),
         override val delayTicks: IntValue = IntValue.Literal(0),
         override val periodTicks: IntValue = IntValue.Literal(0),
         override val durationTicks: IntValue = IntValue.Literal(0),
         override val condition: Condition? = null,
         override val snapshotPose: Boolean = false,
-    ) : Mechanic()
+    ) : Mechanic() {
+        init {
+            localDirection?.let {
+                require(it.x.isFinite() && it.y.isFinite() && it.z.isFinite() && it.lengthSquared() > 1e-12) {
+                    "DashStrike.localDirection must be finite and nonzero"
+                }
+            }
+        }
+    }
 
     /**
      * Freeze [targets] in place for [ticks] ticks to sell an impact (zero velocity, no walking, no
@@ -486,6 +498,31 @@ public sealed class Mechanic {
         override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
+    /** Arm one retaliation against the next damaging attack within range and the time window. */
+    public data class Counter(
+        override val targets: Targeter,
+        val windowTicks: IntValue,
+        val maxDistance: NumericValue,
+        val onHit: List<Mechanic>,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic()
+
+    /** A timed registered player animation; pose restoration belongs to the gateway. */
+    public data class PlayAnimation(
+        override val targets: Targeter,
+        val animation: com.astarworks.astera.core.domain.animation.player.CustomAnimationId,
+        val ticks: IntValue = IntValue.Literal(20),
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic()
+
     public data class PlaySound(
         override val targets: Targeter,
         val soundId: SoundId,
@@ -517,6 +554,8 @@ public sealed class Mechanic {
     public data class PlayVfx(
         override val targets: Targeter,
         val vfxId: VfxId,
+        /** Requires the target selected by for_each_target. */
+        val trackBoundTarget: Boolean = false,
         val scale: NumericValue = NumericValue.Literal(1.0),
         val follow: BoolValue? = null,
         /** Hit-stop windows (effect-relative ticks) that freeze the rigs with `respect_hit_stop`. */
@@ -606,7 +645,18 @@ public sealed class Mechanic {
         override val snapshotPose: Boolean = false,
     ) : Mechanic()
 
-    // ───────────────────────── Control flow (4) ─────────────────────────
+    // ───────────────────────── Control flow (5) ─────────────────────────
+
+    /** Resolve once, then keep each entity as Target in delayed/repeated children. */
+    public data class ForEachTarget(
+        override val targets: Targeter,
+        val mechanics: List<Mechanic>,
+        override val delayTicks: IntValue = IntValue.Literal(0),
+        override val periodTicks: IntValue = IntValue.Literal(0),
+        override val durationTicks: IntValue = IntValue.Literal(0),
+        override val condition: Condition? = null,
+        override val snapshotPose: Boolean = false,
+    ) : Mechanic()
 
     /**
      * Cast another skill from inside this mechanic chain. Cycle detection

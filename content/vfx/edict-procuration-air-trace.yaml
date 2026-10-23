@@ -1,0 +1,468 @@
+id: edict-procuration-air-trace
+duration_ticks: 5
+orient: yaw
+follow: false
+sample_ticks: 1
+elements:
+- id: trace-0--1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - -0.025
+    - 0.97
+    - 0
+    rotate:
+    - -90
+    - 0
+    - 3
+    scale:
+    - 0.65
+    - 0.13
+    - 1
+    alpha: 1
+  - t: 1
+    translate:
+    - -0.025
+    - 0.97
+    - 0
+    rotate:
+    - -90
+    - 0
+    - 3
+    scale:
+    - 0.55
+    - 0.13
+    - 1
+    alpha: 0.85
+  - t: 2
+    translate:
+    - -0.025
+    - 0.97
+    - 0
+    rotate:
+    - -90
+    - 0
+    - 3
+    scale:
+    - 0.3
+    - 0.13
+    - 1
+    alpha: 0.4
+  - t: 4
+    translate:
+    - -0.025
+    - 0.97
+    - 0
+    rotate:
+    - -90
+    - 0
+    - 3
+    scale:
+    - 0
+    - 0.13
+    - 1
+    alpha: 0
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 45
+    - 0
+    translate:
+    - 0
+    - 0.3514718625761429
+    - 0.8485281374238569
+- id: trace-0-1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - 0.025
+    - 0.97
+    - 0
+    rotate:
+    - 90
+    - 0
+    - -3
+    scale:
+    - 0.65
+    - 0.13
+    - 1
+    alpha: 1
+  - t: 1
+    translate:
+    - 0.025
+    - 0.97
+    - 0
+    rotate:
+    - 90
+    - 0
+    - -3
+    scale:
+    - 0.55
+    - 0.13
+    - 1
+    alpha: 0.85
+  - t: 2
+    translate:
+    - 0.025
+    - 0.97
+    - 0
+    rotate:
+    - 90
+    - 0
+    - -3
+    scale:
+    - 0.3
+    - 0.13
+    - 1
+    alpha: 0.4
+  - t: 4
+    translate:
+    - 0.025
+    - 0.97
+    - 0
+    rotate:
+    - 90
+    - 0
+    - -3
+    scale:
+    - 0
+    - 0.13
+    - 1
+    alpha: 0
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 45
+    - 0
+    translate:
+    - 0
+    - 0.3514718625761429
+    - 0.8485281374238569
+- id: trace-1--1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - -0.031
+    - 1.2
+    - 0
+    rotate:
+    - -90
+    - 0
+    - 0
+    scale:
+    - 0.65
+    - 0.13
+    - 1
+    alpha: 1
+  - t: 1
+    translate:
+    - -0.031
+    - 1.2
+    - 0
+    rotate:
+    - -90
+    - 0
+    - 0
+    scale:
+    - 0.55
+    - 0.13
+    - 1
+    alpha: 0.85
+  - t: 2
+    translate:
+    - -0.031
+    - 1.2
+    - 0
+    rotate:
+    - -90
+    - 0
+    - 0
+    scale:
+    - 0.3
+    - 0.13
+    - 1
+    alpha: 0.4
+  - t: 4
+    translate:
+    - -0.031
+    - 1.2
+    - 0
+    rotate:
+    - -90
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0.13
+    - 1
+    alpha: 0
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 45
+    - 0
+    translate:
+    - 0
+    - 0.3514718625761429
+    - 0.8485281374238569
+- id: trace-1-1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - 0.031
+    - 1.2
+    - 0
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 0.65
+    - 0.13
+    - 1
+    alpha: 1
+  - t: 1
+    translate:
+    - 0.031
+    - 1.2
+    - 0
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 0.55
+    - 0.13
+    - 1
+    alpha: 0.85
+  - t: 2
+    translate:
+    - 0.031
+    - 1.2
+    - 0
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 0.3
+    - 0.13
+    - 1
+    alpha: 0.4
+  - t: 4
+    translate:
+    - 0.031
+    - 1.2
+    - 0
+    rotate:
+    - 90
+    - 0
+    - 0
+    scale:
+    - 0
+    - 0.13
+    - 1
+    alpha: 0
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 45
+    - 0
+    translate:
+    - 0
+    - 0.3514718625761429
+    - 0.8485281374238569
+- id: trace-2--1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - -0.037000000000000005
+    - 1.43
+    - 0
+    rotate:
+    - -90
+    - 0
+    - -3
+    scale:
+    - 0.65
+    - 0.13
+    - 1
+    alpha: 1
+  - t: 1
+    translate:
+    - -0.037000000000000005
+    - 1.43
+    - 0
+    rotate:
+    - -90
+    - 0
+    - -3
+    scale:
+    - 0.55
+    - 0.13
+    - 1
+    alpha: 0.85
+  - t: 2
+    translate:
+    - -0.037000000000000005
+    - 1.43
+    - 0
+    rotate:
+    - -90
+    - 0
+    - -3
+    scale:
+    - 0.3
+    - 0.13
+    - 1
+    alpha: 0.4
+  - t: 4
+    translate:
+    - -0.037000000000000005
+    - 1.43
+    - 0
+    rotate:
+    - -90
+    - 0
+    - -3
+    scale:
+    - 0
+    - 0.13
+    - 1
+    alpha: 0
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 45
+    - 0
+    translate:
+    - 0
+    - 0.3514718625761429
+    - 0.8485281374238569
+- id: trace-2-1
+  kind:
+    type: sprite
+    sprite: procuration-ribbon
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 5
+  keyframes:
+  - t: 0
+    translate:
+    - 0.037000000000000005
+    - 1.43
+    - 0
+    rotate:
+    - 90
+    - 0
+    - 3
+    scale:
+    - 0.65
+    - 0.13
+    - 1
+    alpha: 1
+  - t: 1
+    translate:
+    - 0.037000000000000005
+    - 1.43
+    - 0
+    rotate:
+    - 90
+    - 0
+    - 3
+    scale:
+    - 0.55
+    - 0.13
+    - 1
+    alpha: 0.85
+  - t: 2
+    translate:
+    - 0.037000000000000005
+    - 1.43
+    - 0
+    rotate:
+    - 90
+    - 0
+    - 3
+    scale:
+    - 0.3
+    - 0.13
+    - 1
+    alpha: 0.4
+  - t: 4
+    translate:
+    - 0.037000000000000005
+    - 1.43
+    - 0
+    rotate:
+    - 90
+    - 0
+    - 3
+    scale:
+    - 0
+    - 0.13
+    - 1
+    alpha: 0
+  group_keyframes:
+  - t: 0
+    rotate:
+    - 180
+    - 45
+    - 0
+    translate:
+    - 0
+    - 0.3514718625761429
+    - 0.8485281374238569

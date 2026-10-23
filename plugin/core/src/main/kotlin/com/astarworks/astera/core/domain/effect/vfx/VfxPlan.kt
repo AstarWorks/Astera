@@ -15,6 +15,11 @@ public data class VfxPlan(
     public val durationTicks: Int,
     public val follow: Boolean,
     public val elements: List<VfxElementPlan>,
+    public val followTeleportTicks: Int? = null,
+    /** Opt-in native attachment for fixed displays following a player anchor. */
+    public val attachToAnchor: Boolean = false,
+    /** Replace an earlier following effect in this group on the same entity and world. */
+    public val replaceGroup: String? = null,
 ) {
     /** Number of display entities the plan spawns (particle slots spawn none). */
     public val displayCount: Int get() = elements.count { it.kind !is VfxElementKind.Particle }
@@ -51,7 +56,7 @@ public data class VfxUpdate(
     public val interpolationTicks: Int,
     public val block: String? = null,
     public val text: String? = null,
-    /** Quad only: new colour / alpha sent with this update. */
+    /** Quad colour/alpha or sprite opacity sent with this update. */
     public val style: VfxQuadStyle? = null,
     /**
      * Quad emitter particles only: move the ENTITY (teleport with `teleport_duration` = [interpolationTicks]) to this

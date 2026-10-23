@@ -1,0 +1,52 @@
+{
+  "id": "couture-rapier-patterning",
+  "rev": 1,
+  "videoId": "GIe7Fna5LD4",
+  "start_s": 21.388033333333333,
+  "end_s": 24.257566666666666,
+  "skill": {
+    "name": "Patterning (S1-2; passive follow-up)",
+    "coins": 1,
+    "asteraSkillId": "couture-rapier-patterning"
+  },
+  "variant": {
+    "label": "Patterning / 追撃",
+    "implementation": "prototype",
+    "order": 1
+  },
+  "mc": {
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false
+  },
+  "segments": [
+    {
+      "id": "hit-1",
+      "kind": "hit",
+      "label": "接触 1 / f672",
+      "t_s": 22.4224,
+      "notes": "Detached/extended floral shears meet target; pale diagonal tether and transverse cutting flare."
+    },
+    {
+      "id": "hit-2",
+      "kind": "hit",
+      "label": "接触 2 / f703",
+      "t_s": 23.456766666666667,
+      "notes": "Same remotely directed shears make second cutting contact; target star flares after launch flash f699."
+    }
+  ],
+  "notes": "1コイン再使用の2接触。直接呼出し試作、追撃条件・通常入力は未接続。選択標的の現在位置へ鋏の終点を補正し、21/41tickに同じ標的へ命中。尾の各節も位置補正するが長距離の間隔・向きは未一致。",
+  "status": "captured",
+  "verification": {
+    "status": "failed",
+    "reason": "鋏の終点を同一標的へ追従させ、移動・消失を実機確認。長距離の尾の節間/向き、鋏の進行方向、腕・装飾・発光・カメラ・追撃発動条件は未一致。"
+  },
+  "weapon": "couture-rapier",
+  "identity": "Haute Couture::Alteration Shop Rodion",
+  "iterations": 11,
+  "report": "/report/couture-rapier",
+  "referenceRevision": "f256c2f71203b07c0bcbe4dabee85a9472ab6d5e2ef78e4189e3a3928661e56d",
+  "contentRevision": "83605beea356c6b5efa9b8ed3f5a32d7e1502751cf91357a8e56f3fad9ba9025"
+}

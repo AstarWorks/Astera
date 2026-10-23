@@ -3,6 +3,7 @@ package com.astarworks.astera.combat.application.port.outbound
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.DisplayTransform
 import com.astarworks.astera.core.domain.geometry.Vec3
+import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
 import java.util.UUID
 
@@ -41,6 +42,18 @@ public interface IDisplayEntityGateway {
 
     /** Moves the display; the client smooths the move over [teleportTicks] (`teleport_duration`). */
     public fun teleport(handle: DisplayHandle, at: Vec3, yaw: Float, pitch: Float, teleportTicks: Int)
+
+    /** Spawn at the native riding origin with a corrected initial transform. Null requests ordinary follow fallback. */
+    public fun spawnAttached(
+        world: WorldId,
+        spec: DisplaySpec,
+        renderedLines: List<String>,
+        anchor: PlayerId,
+        offset: Vec3,
+    ): DisplayHandle? = null
+
+    /** Whether this live display is still riding the requested anchor in the requested world. */
+    public fun isAttached(handle: DisplayHandle, anchor: PlayerId, world: WorldId): Boolean = false
 
     /** Removes a display; unknown / already removed handles are ignored. */
     public fun remove(handle: DisplayHandle)

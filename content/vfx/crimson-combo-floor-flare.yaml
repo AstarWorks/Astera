@@ -1,0 +1,336 @@
+id: crimson-combo-floor-flare
+duration_ticks: 34
+orient: world
+follow: false
+sample_ticks: 1
+elements:
+- id: ground-ring-0
+  kind:
+    type: sprite
+    sprite: crimson-orbit
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 34
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 0.04
+    - 0
+    rotate:
+    - 0
+    - 90
+    - 0
+    scale:
+    - 0.25
+    - 0.25
+    - 1
+    alpha: 0.6
+  - t: 3
+    scale:
+    - 0.55
+    - 0.55
+    - 1
+    alpha: 1
+  - t: 20
+    scale:
+    - 0.65
+    - 0.65
+    - 1
+    alpha: 0.8
+  - t: 33
+    scale:
+    - 0.75
+    - 0.75
+    - 1
+    alpha: 0
+- id: floor-red-0
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FF2438'
+    alpha: 0.65
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 34
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 0.06
+    - 0
+    rotate:
+    - 0
+    - 90
+    - 0
+    scale:
+    - 1.0
+    - 1.0
+    - 1
+    alpha: 0.65
+  - t: 3
+    scale:
+    - 2.5
+    - 2.5
+    - 1
+  - t: 18
+    scale:
+    - 2.0
+    - 2.0
+    - 1
+    alpha: 0.52
+  - t: 33
+    scale:
+    - 0.5
+    - 0.5
+    - 1
+    alpha: 0
+- id: floor-core-0
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FFF0DC'
+    alpha: 1
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 34
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 0.08
+    - 0
+    rotate:
+    - 0
+    - 90
+    - 0
+    scale:
+    - 0.44000000000000006
+    - 0.44000000000000006
+    - 1
+    alpha: 1
+  - t: 3
+    scale:
+    - 1.1
+    - 1.1
+    - 1
+  - t: 18
+    scale:
+    - 0.8800000000000001
+    - 0.8800000000000001
+    - 1
+    alpha: 0.8
+  - t: 33
+    scale:
+    - 0.22000000000000003
+    - 0.22000000000000003
+    - 1
+    alpha: 0
+- id: ground-ring-1
+  kind:
+    type: sprite
+    sprite: crimson-orbit
+    frame_ticks: 1
+    loop: false
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 34
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 0.04
+    - 0
+    rotate:
+    - 0
+    - 270
+    - 0
+    scale:
+    - 0.25
+    - 0.25
+    - 1
+    alpha: 0.6
+  - t: 3
+    scale:
+    - 0.55
+    - 0.55
+    - 1
+    alpha: 1
+  - t: 20
+    scale:
+    - 0.65
+    - 0.65
+    - 1
+    alpha: 0.8
+  - t: 33
+    scale:
+    - 0.75
+    - 0.75
+    - 1
+    alpha: 0
+- id: floor-red-1
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FF2438'
+    alpha: 0.65
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 34
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 0.06
+    - 0
+    rotate:
+    - 0
+    - 270
+    - 0
+    scale:
+    - 1.0
+    - 1.0
+    - 1
+    alpha: 0.65
+  - t: 3
+    scale:
+    - 2.5
+    - 2.5
+    - 1
+  - t: 18
+    scale:
+    - 2.0
+    - 2.0
+    - 1
+    alpha: 0.52
+  - t: 33
+    scale:
+    - 0.5
+    - 0.5
+    - 1
+    alpha: 0
+- id: floor-core-1
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FFF0DC'
+    alpha: 1
+  billboard: fixed
+  brightness: 15
+  start_tick: 0
+  end_tick: 34
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 0.08
+    - 0
+    rotate:
+    - 0
+    - 270
+    - 0
+    scale:
+    - 0.44000000000000006
+    - 0.44000000000000006
+    - 1
+    alpha: 1
+  - t: 3
+    scale:
+    - 1.1
+    - 1.1
+    - 1
+  - t: 18
+    scale:
+    - 0.8800000000000001
+    - 0.8800000000000001
+    - 1
+    alpha: 0.8
+  - t: 33
+    scale:
+    - 0.22000000000000003
+    - 0.22000000000000003
+    - 1
+    alpha: 0
+- id: billboard-halo
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FF2438'
+    alpha: 0.45
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 34
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 0.25
+    - 0
+    scale:
+    - 0.8999999999999999
+    - 0.8999999999999999
+    - 1
+    alpha: 0.45
+  - t: 3
+    scale:
+    - 3
+    - 3
+    - 1
+  - t: 18
+    scale:
+    - 2.4000000000000004
+    - 2.4000000000000004
+    - 1
+    alpha: 0.315
+  - t: 33
+    scale:
+    - 0.30000000000000004
+    - 0.30000000000000004
+    - 1
+    alpha: 0
+- id: billboard-light
+  kind:
+    type: quad
+    glyph: ✦
+    color: '#FFF0DC'
+    alpha: 1
+  billboard: center
+  brightness: 15
+  start_tick: 0
+  end_tick: 34
+  keyframes:
+  - t: 0
+    translate:
+    - 0
+    - 0.25
+    - 0
+    scale:
+    - 0.42
+    - 0.42
+    - 1
+    alpha: 1
+  - t: 3
+    scale:
+    - 1.4
+    - 1.4
+    - 1
+  - t: 18
+    scale:
+    - 1.1199999999999999
+    - 1.1199999999999999
+    - 1
+    alpha: 0.7
+  - t: 33
+    scale:
+    - 0.13999999999999999
+    - 0.13999999999999999
+    - 1
+    alpha: 0

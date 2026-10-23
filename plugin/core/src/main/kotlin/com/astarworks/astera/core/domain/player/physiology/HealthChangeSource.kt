@@ -44,6 +44,9 @@ public sealed interface HealthChangeSource {
         val originPlayerId: PlayerId? = null,
     ) : HealthChangeSource
 
+    /** A vanilla entity attack accepted by the canonical health router (entity UUID may be a mob). */
+    public data class Attack(val attackerId: java.util.UUID) : HealthChangeSource
+
     /** Catch-all for system / scripted mutations whose source is not modelled. */
     public data class Other(val label: String) : HealthChangeSource
 }

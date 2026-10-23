@@ -17,6 +17,9 @@ import com.astarworks.astera.core.domain.item.EquipSlot
 import com.astarworks.astera.core.domain.item.ItemId
 import com.astarworks.astera.core.domain.player.PlayerId
 import com.astarworks.astera.core.domain.world.WorldId
+import org.bukkit.Material
+import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.ItemStack
 import org.bukkit.Location
 import org.bukkit.Server
 import org.bukkit.entity.ArmorStand
@@ -66,9 +69,8 @@ import java.util.concurrent.ConcurrentHashMap
  *    is animation-only; the use case must update inventory state
  *    separately" — material lookup needs `IItemRegistry`, which Wave 6d
  *    deliberately keeps out of the animation gateway surface.
- *  - [playCustomAnimation] → Phase 1 stub mirroring InMemory: validate
- *    duration only, no Bukkit hook. Real packet-based emotes land in
- *    Phase 4's cosmetic registry.
+ *  - [playCustomAnimation] → `crouch` temporarily fixes the visual pose, then restores
+ *    the prior pose/fixed state. Unknown animation ids fail. This is not joint animation.
  *
  * # ADR-0149 §C invariant
  *
@@ -118,9 +120,70 @@ public class PaperPlayerAnimationGateway(
     private val server: Server,
     private val eventBus: IDomainEventBus,
     private val tickClock: () -> Long = { 0L },
+    private val scheduler: com.astarworks.astera.core.application.port.outbound.IScheduler? = null,
 ) : IPlayerAnimationGateway {
 
     private val log = LoggerFactory.getLogger(javaClass)
+    private data class PoseOverride(val player: Player, val previous: org.bukkit.entity.Pose, val fixed: Boolean)
+    private val poseOverrides = mutableMapOf<PlayerId, PoseOverride>()
+    private class HandOverride(val player: Player, var until: Long) {
+        var task: com.astarworks.astera.core.application.port.outbound.IScheduler.TaskHandle? = null
+    }
+    private val handOverrides = mutableMapOf<PlayerId, HandOverride>()
+
+    private fun showHand(player: Player, item: ItemStack) {
+        // Appearance packets only. Never replace inventory contents or restore an old item snapshot.
+        player.world.players.forEach { viewer -> viewer.sendEquipmentChange(player, EquipmentSlot.HAND, item) }
+    }
+
+    private fun releaseHand(id: PlayerId, state: HandOverride) {
+        if (handOverrides[id] !== state) return
+        handOverrides.remove(id)
+        state.task?.cancel()
+        if (onlinePlayer(id) === state.player) showHand(state.player, state.player.inventory.itemInMainHand)
+    }
+
+    private fun hideHand(id: PlayerId, player: Player, duration: Long): Result<Unit, PlayerAnimationError> {
+        if (duration == 0L) return Result.success(Unit)
+        val clock = scheduler ?: return Result.failure(PlayerAnimationError.Platform("Animation scheduler unavailable"))
+        val until = clock.currentTick() + duration
+        handOverrides[id]?.let { old ->
+            if (old.player === player) {
+                old.until = maxOf(old.until, until)
+                return Result.success(Unit)
+            }
+            releaseHand(id, old)
+        }
+        val state = HandOverride(player, until)
+        handOverrides[id] = state
+        val empty = ItemStack(Material.AIR)
+        showHand(player, empty)
+        state.task = clock.runRepeating(
+            com.astarworks.astera.core.application.port.outbound.ticks(1),
+            com.astarworks.astera.core.application.port.outbound.ticks(1),
+        ) {
+            if (!player.isOnline || player.isDead || clock.currentTick() >= state.until) releaseHand(id, state)
+            else showHand(player, empty)
+        }
+        return Result.success(Unit)
+    }
+
+
+    private fun releasePose(id: PlayerId, state: PoseOverride) {
+        if (poseOverrides[id] !== state) return
+        poseOverrides.remove(id)
+        val player = onlinePlayer(id) ?: return
+        if (player !== state.player) return
+        if (player.hasFixedPose() && player.pose == org.bukkit.entity.Pose.SNEAKING) {
+            player.setPose(state.previous, state.fixed)
+        }
+    }
+
+    /** Release visual pose overrides before the scheduler stops on plugin disable. */
+    public fun shutdown() {
+        poseOverrides.toMap().forEach { (id, state) -> releasePose(id, state) }
+        handOverrides.toMap().forEach { (id, state) -> releaseHand(id, state) }
+    }
 
     private val sneakStates: ConcurrentHashMap<PlayerId, Boolean> = ConcurrentHashMap()
     private val sleepStates: ConcurrentHashMap<PlayerId, Boolean> = ConcurrentHashMap()
@@ -271,16 +334,22 @@ public class PaperPlayerAnimationGateway(
             )
         }
         if (!server.isPrimaryThread) return offMain("playCustomAnimation")
-        onlinePlayer(playerId) ?: return unknownPlayer(playerId)
-        // Phase 1 stub mirroring InMemory: no vanilla Bukkit hook exists
-        // for arbitrary custom animations without raw packets (deferred to
-        // the Phase 4 cosmetic emote registry per port KDoc).
-        log.debug(
-            "PaperPlayerAnimationGateway.playCustomAnimation: stub (player={}, animation={}, ticks={})",
-            playerId,
-            animation,
-            durationTicks,
-        )
+        val player = onlinePlayer(playerId) ?: return unknownPlayer(playerId)
+        if (animation.value == "hide-main-hand") return hideHand(playerId, player, durationTicks)
+        if (animation.value == "swing-main-hand") {
+            // One native swing: duration gates zero but does not retime the client's arm animation.
+            return if (durationTicks == 0L) Result.success(Unit) else swingArm(playerId, PlayerHand.MainHand)
+        }
+        if (animation.value != "crouch") return Result.failure(PlayerAnimationError.UnknownCustomAnimation(animation))
+        if (durationTicks == 0L) return Result.success(Unit)
+        val clock = scheduler ?: return Result.failure(PlayerAnimationError.Platform("Animation scheduler unavailable"))
+        val previous = poseOverrides[playerId]?.takeIf { it.player === player }
+        val state = PoseOverride(player, previous?.previous ?: player.pose, previous?.fixed ?: player.hasFixedPose())
+        poseOverrides[playerId] = state
+        player.setPose(org.bukkit.entity.Pose.SNEAKING, true)
+        clock.runLater(com.astarworks.astera.core.application.port.outbound.ticks(durationTicks)) {
+            releasePose(playerId, state)
+        }
         return Result.success(Unit)
     }
 

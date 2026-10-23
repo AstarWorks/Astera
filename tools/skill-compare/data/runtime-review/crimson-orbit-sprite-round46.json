@@ -1,0 +1,12 @@
+{
+  "scope": "One direct Crimson combo cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "peak": 59,
+  "limit": 60,
+  "case": "crimson-chain-axe-transformed-combo-a",
+  "contentRevision": "c9063d1c93125c86c65e00dc6142ccac3c644a709ee956532919b3d4c933a77d",
+  "status": "sampled-within-limit-fidelity-failed",
+  "sampleCount": 768,
+  "orbitDisplayCount": 4,
+  "resourcePackSha1": "245cb2747aab6317c25984936082365b43200fc9",
+  "rawEvidence": "build/limbus-review/round46/live-displays.json"
+}

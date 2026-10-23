@@ -1,0 +1,39 @@
+{
+  "round": 86,
+  "case": "gossamer-katana-arc-chain",
+  "status": "failed",
+  "capture": "build/limbus-review/round86/captures/gossamer-katana-arc-chain-1792748253129196880",
+  "frames": 73,
+  "quality": {
+    "maxRepeatedFrames": 1,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 4.0
+  },
+  "runtime": {
+    "coreSha256": "2e2e14b89cf37a72ad30ccbc61c73fc78c5ff186ae4d9c75a99d6d5eb2d7b3a4",
+    "combatSha256": "f118565f5e591447a46888c3af6822318d14008723ab9b4ec2f604fca94470ca",
+    "resourcePackSha1": "0d4a184be0dcabc4c0c11236bb5352794eff9db3"
+  },
+  "health": [
+    200.0,
+    194.096,
+    188.19199,
+    182.28798,
+    176.38397
+  ],
+  "displayPeak": 52,
+  "displaySamples": 761,
+  "displayScope": "One direct Gossamer arc-chain prototype cast; actual entities within 20 blocks of scene; sequential queries are not an atomic tick snapshot",
+  "review": "最初の接触に白い交差残光を追加し拡大・退色を実機確認。線が規則的で原映像の強弱・流れ・煙状の塊は未一致。構え時の足元の輪、後半の白い残光、花模様、帯の継ぎ目・発光、残像の衣服と姿勢、刀の曲率、カメラも未一致。通常入力・状態分岐・正式キット対応は未確定。",
+  "reviewedCaptureFrames": [
+    16,
+    20
+  ],
+  "reviewedReferenceFrames": [
+    642,
+    645,
+    650
+  ],
+  "implementation": "Dedicated4-frame128px white crossing-loop sprite at first contact tick7, anchored at caster position after approach. Two fixed front/back faces, no see-through; expands horizontally and rises slightly while fading over9ticks. No shared existing skill effects changed.",
+  "limits": "Regular ellipses are an approximation: original lines vary more in thickness, span and streak direction. Flat sprite is not volumetric wrap. Reference642 foot ring precedes first contact and is not implemented here; later white speed ball/smears intentionally remain missing. First-contact scene does not establish all-view occlusion or timing fidelity."
+}

@@ -1,0 +1,223 @@
+{
+  "metadata": {
+    "video_id": "Gpj-lvOnAgs",
+    "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
+    "source_fps": "30000/1001",
+    "frame_convention": "Zero-based decoded source frame; time_s = frame * 1001 / 30000. End frames exclusive. Native source is 29.970 fps, not exactly 30.",
+    "units": "BH = visible standing body height of caster in same shot, excluding halo/cape spread. Distances are screen-plane estimates, not calibrated world coordinates.",
+    "precision": "Native-window events identify individual frames. Other boundaries from 6/15 fps are explicitly approximate (usually +/-2 frames for 15 fps, +/-5 for 6 fps). Flash-obscured contact is bracketed; no invisible collision or coin boundary is asserted.",
+    "colors": "Hex values are visual approximations under bloom/compression, not sampled material albedos.",
+    "mapping_policy": "Supplied kit is the authority for names, Pierce type and coin counts. No skill-name/coin UI is readable; mapping confidence is separate from visual confidence. Repeated VFX pulses are not counted automatically as coins.",
+    "kit_source": "../../wiki/Gpj-lvOnAgs.md",
+    "native_index": "native/index.json"
+  },
+  "slot": "extra-1",
+  "candidate_name": "Form change associated with La Fin de l'Enfance / Noble Dignity (exact trigger unverified)",
+  "mapping_confidence": "high form continuity; low exact passive trigger",
+  "weapon": {
+    "before": {
+      "type": "Bare-hand/orb casting; no held firearm or edged weapon visible",
+      "size_BH": "Hand-sized emission .15–.3; suspended red orb cluster .3–.6",
+      "holding": "One hand extended toward recipient; two arms raise for barrage; no shouldering/grip",
+      "parts_colors": "Pale hand; olive/gold cape #A58B43; white/pink clothes #F4DFDA. Red spell nodes #EF2445, cream cores #FFF0DC."
+    },
+    "after": {
+      "type": "Flexible chain carrying repeating paired crescent/axe-shaped links; skeletal claw gauntlet",
+      "size_BH": "Gauntlet forearm/claws .5–.8; link .15–.3; deployed chain typically3–5; cape/ribs enlarge apparent silhouette",
+      "holding": "Chain curves from hand/arm area; mostly one-arm lash with other arm extended. Some grip is hidden by cape. No rigid two-handed greatsword swing established.",
+      "parts_colors": "Ivory/pink edged paired crescents #E4CDD0, dark central chain #3C1521, red inner facets #9D1832; skeletal ivory claw fingers over red glove, black/red ribbed cloak."
+    }
+  },
+  "occurrences": [
+    {
+      "id": "transformation",
+      "start_s": 72.472,
+      "end_s": 76.176,
+      "start_frame": 2172,
+      "end_frame_exclusive": 2283,
+      "mapping_confidence": "high",
+      "repeat_of": null,
+      "official_coins": 0,
+      "hits_vs_coins": "0 confirmed target hits; transformation flashes are self-centered",
+      "hits": [],
+      "beats": [
+        {
+          "start_s": 72.472,
+          "end_s": 72.639,
+          "description": "Whole floor becomes dark red petal pattern"
+        },
+        {
+          "start_s": 72.639,
+          "end_s": 73.073,
+          "description": "Base-form close; pale head and olive cape"
+        },
+        {
+          "start_s": 73.073,
+          "end_s": 73.14,
+          "description": "Cape closes with one-frame extreme crop f2190"
+        },
+        {
+          "start_s": 73.14,
+          "end_s": 73.273,
+          "description": "Red silhouette extends, new cloak appears"
+        },
+        {
+          "start_s": 73.273,
+          "end_s": 74.074,
+          "description": "Back-facing tall red/black cloak holds"
+        },
+        {
+          "start_s": 74.107,
+          "end_s": 74.241,
+          "description": "Four-point white/red fullscreen flash f2221–2224"
+        },
+        {
+          "start_s": 74.241,
+          "end_s": 74.541,
+          "description": "Jagged red ring expands; blond red figure becomes visible"
+        },
+        {
+          "start_s": 74.608,
+          "end_s": 74.641,
+          "description": "Single-frame face close f2236"
+        },
+        {
+          "start_s": 74.641,
+          "end_s": 76.176,
+          "description": "Transformed idle; chain pooled at feet, red motes"
+        }
+      ],
+      "camera": [
+        {
+          "start_s": 72.472,
+          "end_s": 72.639,
+          "shot": "wide group",
+          "framing": "Petal floor fills plane"
+        },
+        {
+          "start_s": 72.639,
+          "end_s": 73.073,
+          "shot": "base-form medium-close",
+          "framing": "Keep recognisable head/cloak"
+        },
+        {
+          "start_s": 73.073,
+          "end_s": 73.14,
+          "shot": "extreme cape crop",
+          "framing": "One-frame push"
+        },
+        {
+          "start_s": 73.14,
+          "end_s": 74.074,
+          "shot": "medium back view",
+          "framing": "New cloak occupies center"
+        },
+        {
+          "start_s": 74.107,
+          "end_s": 74.541,
+          "shot": "flash then medium ring",
+          "framing": "Centered expanding radial ring"
+        },
+        {
+          "start_s": 74.608,
+          "end_s": 74.641,
+          "shot": "single-frame face insert",
+          "framing": "Blond head/red face cover"
+        },
+        {
+          "start_s": 74.641,
+          "end_s": 76.176,
+          "shot": "full-body medium",
+          "framing": "Ribs, claw, cloak, chain visible"
+        }
+      ],
+      "effects": [
+        {
+          "start_s": 72.472,
+          "end_s": 76.176,
+          "shape_layering": "Dark red petal floor overlay and rising flecks",
+          "size_BH": "whole arena",
+          "position": "Floor",
+          "colors_hex": {
+            "core": "#FFF0DC",
+            "glow": "#FF2438",
+            "body": "#DC1535",
+            "dark_accents": "#69091C",
+            "void": "#190609",
+            "petals": "#EF1435",
+            "gold": "#FFE58A"
+          },
+          "motion_fade": "Appears abruptly and persists beyond transformation"
+        },
+        {
+          "start_s": 74.107,
+          "end_s": 74.541,
+          "shape_layering": "White field and red fourpoint center followed by ragged white/red ring with dark center",
+          "size_BH": "1–6 expanding",
+          "position": "Caster center",
+          "colors_hex": {
+            "core": "#FFF0DC",
+            "glow": "#FF2438",
+            "body": "#DC1535",
+            "dark_accents": "#69091C",
+            "void": "#190609",
+            "petals": "#EF1435",
+            "gold": "#FFE58A"
+          },
+          "motion_fade": "Flash contracts to ring, ring spreads/fades"
+        },
+        {
+          "start_s": 74.641,
+          "end_s": 76.176,
+          "shape_layering": "Red remnant glow/motes",
+          "size_BH": ".03–.2",
+          "position": "Around transformed body",
+          "colors_hex": {
+            "core": "#FFF0DC",
+            "glow": "#FF2438",
+            "body": "#DC1535",
+            "dark_accents": "#69091C",
+            "void": "#190609",
+            "petals": "#EF1435",
+            "gold": "#FFE58A"
+          },
+          "motion_fade": "Slow drift"
+        }
+      ],
+      "props": [],
+      "caster_motion": [
+        {
+          "time_s": [
+            72.639,
+            73.14
+          ],
+          "motion": "base form stationary, closes cape",
+          "distance_BH": "0"
+        },
+        {
+          "time_s": [
+            73.14,
+            74.641
+          ],
+          "motion": "pose/form replacement, no attack lunge",
+          "distance_BH": "not measurable during flash"
+        },
+        {
+          "time_s": [
+            74.641,
+            76.176
+          ],
+          "motion": "idle",
+          "distance_BH": "0"
+        }
+      ],
+      "contact_sheets": [
+        "sheets/native_08.jpg",
+        "sheets/native_09.jpg",
+        "sheets/detail_01.jpg",
+        "sheets/detail_02.jpg",
+        "sheets/detail_03.jpg"
+      ]
+    }
+  ]
+}

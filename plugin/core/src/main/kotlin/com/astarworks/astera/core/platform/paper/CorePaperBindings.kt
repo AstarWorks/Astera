@@ -70,6 +70,8 @@ internal class CorePaperBindings(
     @Volatile private var itemMaterializer: (() -> com.astarworks.astera.core.adapter.paper.item.PaperItemMaterializer?)? = null
     private lateinit var scheduler: IScheduler
 
+    private var playerAnimationGateway: com.astarworks.astera.core.adapter.paper.animation.PaperPlayerAnimationGateway? = null
+
     /** Retained so [shutdown] can call [PaperScheduler.stop]. */
     private var paperScheduler: PaperScheduler? = null
 
@@ -280,7 +282,8 @@ internal class CorePaperBindings(
                     server = server,
                     eventBus = services.getOrThrow<IDomainEventBus>(),
                     tickClock = scheduler::currentTick,
-                )
+                    scheduler = scheduler,
+                ).also { playerAnimationGateway = it }
             },
             cameraGateway = { services ->
                 com.astarworks.astera.core.adapter.paper.cinematic.PaperCameraGateway(
@@ -659,6 +662,8 @@ internal class CorePaperBindings(
 
     /** Paper-side teardown; the host-neutral wiring tears down via `WiringContext.close()` + `CoreWiringResult.shutdown()`. */
     fun shutdown() {
+        playerAnimationGateway?.shutdown()
+        playerAnimationGateway = null
         paperHologramGateway?.despawnAll()
         paperHologramGateway = null
         managedJanitor?.stop()

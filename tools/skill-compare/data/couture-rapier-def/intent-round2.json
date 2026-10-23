@@ -5,23 +5,23 @@
     "start_s": 0,
     "fps": 29.97002997002997
   },
-  "units": "blocks; 1.8 blocks per visible body height. Side-camera approximation; poses unresolved.",
+  "units": "blocks; unobserved adaptation example: incoming attack at tick 10, conditional counter contact at tick 18. Not original footage.",
   "duration_ticks": 60,
   "camera": [
     {
       "t": 0,
       "pos": [
         2.0,
-        2.5,
-        8
+        1.779705046871106,
+        4.158426916645899
       ],
       "target": [
         2.0,
         1,
         0
       ],
-      "fov": 40,
-      "note": "原動画の身体比に合わせるための仮の側面カメラ。カット毎のズーム・姿勢は実機比較で調整中。"
+      "fov": 70,
+      "note": "原動画未観測の動作確認用カメラ。固定70度の実クライアントに合わせ距離を換算。原動画一致の根拠ではない。"
     }
   ],
   "actors": [
@@ -37,22 +37,6 @@
             0,
             0
           ]
-        },
-        {
-          "t": 15,
-          "pos": [
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "t": 19,
-          "pos": [
-            2.2,
-            0,
-            0
-          ]
         }
       ]
     },
@@ -64,7 +48,7 @@
         {
           "t": 0,
           "pos": [
-            4,
+            2.3,
             0,
             0
           ]
@@ -354,9 +338,9 @@
   "effects": [
     {
       "type": "hit",
-      "t": 19,
+      "t": 18,
       "at": [
-        4,
+        2.3,
         1.1,
         0
       ],
@@ -364,10 +348,10 @@
     },
     {
       "type": "spike_star",
-      "t0": 19,
-      "t1": 27,
+      "t0": 18,
+      "t1": 26,
       "center": [
-        4,
+        2.3,
         1.1,
         0
       ],
@@ -387,10 +371,10 @@
     },
     {
       "type": "crescent_ring",
-      "t0": 17,
-      "t1": 28,
+      "t0": 16,
+      "t1": 27,
       "center": [
-        2.7,
+        2.3,
         1.1,
         0
       ],

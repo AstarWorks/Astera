@@ -1,0 +1,632 @@
+{
+  "video_id": "GIe7Fna5LD4",
+  "identity": "Haute Couture::Alteration Shop Rodion",
+  "source_video": "../../vid/GIe7Fna5LD4.mp4",
+  "kit_source": "../../wiki/GIe7Fna5LD4.md",
+  "fps_num": 30000,
+  "fps_den": 1001,
+  "frame_indexing": "Zero-based source decoded frames. Intervals are [start,end). Source is 29.97002997 fps, not exactly 30.",
+  "measurement_note": "Distances and hex colors are visual estimates, not world coordinates or colorimeter samples. Frame precision applies to visible events; obscured contact is explicitly bounded. No HUD coin/name labels are visible.",
+  "review": "Whole video viewed at 6 fps; every source frame 330–1649 viewed in 44 contact sheets; selected frames enlarged. Old reports read only after the independent frame pass.",
+  "slot": "extra-3",
+  "official_name": "Other character: hat-wearing black-clad ally",
+  "attack_type": "unknown from this identity kit",
+  "observed": true,
+  "start_frame": 504,
+  "end_frame_exclusive": 612,
+  "start_s": 16.8168,
+  "end_s": 20.4204,
+  "official_coins": null,
+  "mapping_confidence": "high",
+  "mapping_evidence": [
+    "Different sprite: tall angular black hat, striped dark suit/coat, cane or narrow held tool, gold rather than Rodion pink-white attack accents.",
+    "Rodion remains faint/background at the left; ally carries the three upright support markers."
+  ],
+  "weapon": {
+    "type": "Narrow cane/rod-like held implement; exact weapon unresolved",
+    "size_body_heights": [
+      0.8,
+      1.2
+    ],
+    "held": "One hand; narrow shaft beside striped body.",
+    "parts": "Dark thin straight shaft; no broad sword blade established.",
+    "colors_hex": {
+      "shaft": "#252123"
+    },
+    "evidence": [
+      "sheets/detail_08.jpg",
+      "sheets/detail_34.jpg"
+    ]
+  },
+  "props": [
+    {
+      "start_frame": 504,
+      "end_frame_exclusive": 612,
+      "start_s": 16.8168,
+      "end_s": 20.4204,
+      "object": "Three upright white support markers",
+      "count": 3,
+      "size_body_heights": [
+        1,
+        1.5
+      ],
+      "origin": "From Retouche ally effect",
+      "path": "Follow the ally; do not infer these are Rodion projectile attacks."
+    }
+  ],
+  "caster_motion": [
+    {
+      "start_frame": 504,
+      "end_frame_exclusive": 532,
+      "start_s": 16.8168,
+      "end_s": 17.751067,
+      "kind": "approach",
+      "description": "Hat-wearing ally advances about 3 H while Rodion becomes a background/translucent nonacting sprite."
+    },
+    {
+      "start_frame": 532,
+      "end_frame_exclusive": 550,
+      "start_s": 17.751067,
+      "end_s": 18.351667,
+      "kind": "wind_up",
+      "description": "Ally squares pose; upright markers surround it."
+    },
+    {
+      "start_frame": 550,
+      "end_frame_exclusive": 568,
+      "start_s": 18.351667,
+      "end_s": 18.952267,
+      "kind": "sweep",
+      "description": "Gold circular sweep, no extra coin in its decaying return arc."
+    },
+    {
+      "start_frame": 568,
+      "end_frame_exclusive": 575,
+      "start_s": 18.952267,
+      "end_s": 19.185833,
+      "kind": "wind_up",
+      "description": "Low reset."
+    },
+    {
+      "start_frame": 575,
+      "end_frame_exclusive": 594,
+      "start_s": 19.185833,
+      "end_s": 19.8198,
+      "kind": "dash",
+      "description": "Ally passes target, ends right."
+    },
+    {
+      "start_frame": 594,
+      "end_frame_exclusive": 612,
+      "start_s": 19.8198,
+      "end_s": 20.4204,
+      "kind": "recovery",
+      "description": "Gold streaks fade; pose held."
+    }
+  ],
+  "hits": [
+    {
+      "coin": null,
+      "contact_frame": 550,
+      "contact_s": 18.351667,
+      "contact": "Gold crescent reaches enemy at right; ally figure partly hidden by camera punch.",
+      "range_class": "melee",
+      "caster_target_distance_body_heights": [
+        1,
+        2
+      ],
+      "evidence": [
+        "sheets/detail_08.jpg"
+      ],
+      "contact_frame_bounds": [
+        550,
+        552
+      ]
+    },
+    {
+      "coin": null,
+      "contact_frame": 575,
+      "contact_s": 19.185833,
+      "contact": "Ally traverses target plane with gold horizontal streak and star.",
+      "range_class": "dash_melee",
+      "caster_target_distance_body_heights": [
+        0,
+        1
+      ],
+      "evidence": [
+        "sheets/detail_09.jpg"
+      ]
+    }
+  ],
+  "beats": [
+    {
+      "start_frame": 550,
+      "end_frame_exclusive": 555,
+      "start_s": 18.351667,
+      "end_s": 18.5185,
+      "kind": "hit_1_punch",
+      "description": "Close ally/gold crescent then target star."
+    },
+    {
+      "start_frame": 575,
+      "end_frame_exclusive": 580,
+      "start_s": 19.185833,
+      "end_s": 19.352667,
+      "kind": "hit_2_punch",
+      "description": "Gold dash streak, camera chases to target."
+    },
+    {
+      "start_frame": 580,
+      "end_frame_exclusive": 594,
+      "start_s": 19.352667,
+      "end_s": 19.8198,
+      "kind": "follow_through",
+      "description": "Held star and horizontal ribbons."
+    },
+    {
+      "start_frame": 594,
+      "end_frame_exclusive": 612,
+      "start_s": 19.8198,
+      "end_s": 20.4204,
+      "kind": "recovery",
+      "description": "Settle right of target."
+    }
+  ],
+  "effects": [
+    {
+      "start_frame": 550,
+      "end_frame_exclusive": 568,
+      "start_s": 18.351667,
+      "end_s": 18.952267,
+      "shape": "Gold/ivory ring crescent and pointed star",
+      "size_body_heights": [
+        2,
+        3
+      ],
+      "position": "Ally to enemy",
+      "colors_hex": [
+        "#FFF9CC",
+        "#D9BC64",
+        "#FFFFFF"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Circular sweep thins and fades.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    },
+    {
+      "start_frame": 574,
+      "end_frame_exclusive": 599,
+      "start_s": 19.152467,
+      "end_s": 19.986633,
+      "shape": "Gold horizontal dash ribbons and jagged star",
+      "size_body_heights": [
+        3,
+        5
+      ],
+      "position": "Across target",
+      "colors_hex": [
+        "#FFF8C3",
+        "#C99F4B",
+        "#FFFFFF"
+      ],
+      "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+      "motion": "Fast pass-through, held impact then fading horizontal streaks.",
+      "fade": "Opacity falls to zero; small motes outlive the solid shape."
+    }
+  ],
+  "camera": [
+    {
+      "start_frame": 504,
+      "end_frame_exclusive": 550,
+      "start_s": 16.8168,
+      "end_s": 18.351667,
+      "shot": "wide side-on",
+      "framing": "Follow advancing ally, Rodion faint at left.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 550,
+      "end_frame_exclusive": 555,
+      "start_s": 18.351667,
+      "end_s": 18.5185,
+      "shot": "close ally",
+      "framing": "Hat and striped costume clearly distinct.",
+      "transition": "Punch"
+    },
+    {
+      "start_frame": 555,
+      "end_frame_exclusive": 575,
+      "start_s": 18.5185,
+      "end_s": 19.185833,
+      "shot": "wide",
+      "framing": "Show target and gold arc.",
+      "transition": "Continuous reframing / scale change"
+    },
+    {
+      "start_frame": 575,
+      "end_frame_exclusive": 589,
+      "start_s": 19.185833,
+      "end_s": 19.652967,
+      "shot": "close moving impact",
+      "framing": "Track gold dash into target.",
+      "transition": "Rapid punch"
+    },
+    {
+      "start_frame": 589,
+      "end_frame_exclusive": 612,
+      "start_s": 19.652967,
+      "end_s": 20.4204,
+      "shot": "wide",
+      "framing": "Ally beyond target right.",
+      "transition": "Continuous reframing / scale change"
+    }
+  ],
+  "contact_sheets": [
+    "sheets/detail_06.jpg",
+    "sheets/detail_07.jpg",
+    "sheets/detail_08.jpg",
+    "sheets/detail_09.jpg",
+    "sheets/detail_10.jpg"
+  ],
+  "limitations": [],
+  "second_action": {
+    "start_frame": 1211,
+    "end_frame_exclusive": 1397,
+    "start_s": 40.407033,
+    "end_s": 46.613233,
+    "is_repeat": false,
+    "description": "Same ally, different three-impact action; not Rodion S3. First sweep resembles earlier ally first strike; later second sweep and dome are different.",
+    "hits": [
+      {
+        "coin": null,
+        "contact_frame": 1263,
+        "contact_s": 42.1421,
+        "contact": "Gold crescent/star at enemy.",
+        "range_class": "melee",
+        "caster_target_distance_body_heights": [
+          1,
+          2
+        ],
+        "evidence": [
+          "sheets/detail_32.jpg"
+        ]
+      },
+      {
+        "coin": null,
+        "contact_frame": 1289,
+        "contact_s": 43.009633,
+        "contact": "Second distinct gold sweep across target.",
+        "range_class": "melee",
+        "caster_target_distance_body_heights": [
+          1,
+          2
+        ],
+        "evidence": [
+          "sheets/detail_32.jpg"
+        ]
+      },
+      {
+        "coin": null,
+        "contact_frame": 1336,
+        "contact_s": 44.577867,
+        "contact": "Expanding gold dome from ally reaches target; clear target star by f1339.",
+        "range_class": "self_aoe",
+        "caster_target_distance_body_heights": [
+          1,
+          2
+        ],
+        "evidence": [
+          "sheets/detail_34.jpg"
+        ],
+        "contact_frame_bounds": [
+          1336,
+          1339
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "start_frame": 1211,
+        "end_frame_exclusive": 1239,
+        "start_s": 40.407033,
+        "end_s": 41.3413,
+        "kind": "approach",
+        "description": "Ally advances across floor."
+      },
+      {
+        "start_frame": 1239,
+        "end_frame_exclusive": 1263,
+        "start_s": 41.3413,
+        "end_s": 42.1421,
+        "kind": "wind_up",
+        "description": "Ally holds and twists."
+      },
+      {
+        "start_frame": 1263,
+        "end_frame_exclusive": 1280,
+        "start_s": 42.1421,
+        "end_s": 42.709333,
+        "kind": "hit_1",
+        "description": "One gold arc/star episode."
+      },
+      {
+        "start_frame": 1280,
+        "end_frame_exclusive": 1289,
+        "start_s": 42.709333,
+        "end_s": 43.009633,
+        "kind": "reset",
+        "description": "Prepare second sweep."
+      },
+      {
+        "start_frame": 1289,
+        "end_frame_exclusive": 1305,
+        "start_s": 43.009633,
+        "end_s": 43.5435,
+        "kind": "hit_2",
+        "description": "Second gold arc/star episode."
+      },
+      {
+        "start_frame": 1305,
+        "end_frame_exclusive": 1335,
+        "start_s": 43.5435,
+        "end_s": 44.5445,
+        "kind": "wind_up",
+        "description": "Dark floor ring expands with small yellow points."
+      },
+      {
+        "start_frame": 1335,
+        "end_frame_exclusive": 1336,
+        "start_s": 44.5445,
+        "end_s": 44.577867,
+        "kind": "camera_punch",
+        "description": "One-frame close ally anticipation."
+      },
+      {
+        "start_frame": 1336,
+        "end_frame_exclusive": 1354,
+        "start_s": 44.577867,
+        "end_s": 45.178467,
+        "kind": "hit_3",
+        "description": "Gold translucent half-dome, floor disk, triangular shards, target star."
+      },
+      {
+        "start_frame": 1354,
+        "end_frame_exclusive": 1355,
+        "start_s": 45.178467,
+        "end_s": 45.211833,
+        "kind": "flash",
+        "description": "One flat pale-gold frame."
+      },
+      {
+        "start_frame": 1355,
+        "end_frame_exclusive": 1357,
+        "start_s": 45.211833,
+        "end_s": 45.278567,
+        "kind": "cut_in",
+        "description": "Two tan/dark motion frames."
+      },
+      {
+        "start_frame": 1357,
+        "end_frame_exclusive": 1373,
+        "start_s": 45.278567,
+        "end_s": 45.812433,
+        "kind": "recovery",
+        "description": "Dome collapses into dark smoke shell and pale ground ring."
+      },
+      {
+        "start_frame": 1373,
+        "end_frame_exclusive": 1397,
+        "start_s": 45.812433,
+        "end_s": 46.613233,
+        "kind": "idle",
+        "description": "Ally settles; Rodion next action begins after transition."
+      }
+    ],
+    "effects": [
+      {
+        "start_frame": 1263,
+        "end_frame_exclusive": 1280,
+        "start_s": 42.1421,
+        "end_s": 42.709333,
+        "shape": "Gold crescent/star",
+        "size_body_heights": [
+          2,
+          3
+        ],
+        "position": "Ally and target",
+        "colors_hex": [
+          "#FFF7C7",
+          "#D9BB65"
+        ],
+        "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+        "motion": "Circular sweep.",
+        "fade": "Opacity falls to zero; small motes outlive the solid shape."
+      },
+      {
+        "start_frame": 1289,
+        "end_frame_exclusive": 1305,
+        "start_s": 43.009633,
+        "end_s": 43.5435,
+        "shape": "Second gold crescent/star",
+        "size_body_heights": [
+          2,
+          3
+        ],
+        "position": "Ally and target",
+        "colors_hex": [
+          "#FFF7C7",
+          "#D9BB65"
+        ],
+        "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+        "motion": "Distinct restarted sweep.",
+        "fade": "Opacity falls to zero; small motes outlive the solid shape."
+      },
+      {
+        "start_frame": 1316,
+        "end_frame_exclusive": 1336,
+        "start_s": 43.910533,
+        "end_s": 44.577867,
+        "shape": "Dark circular ground stain with gold points",
+        "size_body_heights": [
+          3,
+          4
+        ],
+        "position": "Centered on ally feet",
+        "colors_hex": [
+          "#171414",
+          "#D9C47D"
+        ],
+        "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+        "motion": "Spread outward.",
+        "fade": "Opacity falls to zero; small motes outlive the solid shape."
+      },
+      {
+        "start_frame": 1336,
+        "end_frame_exclusive": 1354,
+        "start_s": 44.577867,
+        "end_s": 45.178467,
+        "shape": "Translucent gold dome, floor disk, triangle shards",
+        "size_body_heights": [
+          3,
+          4
+        ],
+        "position": "Ally-centered, touching target",
+        "colors_hex": [
+          "#E8D29F",
+          "#FFF5C6",
+          "#FFFFFF"
+        ],
+        "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+        "motion": "Dome expands then holds.",
+        "fade": "Opacity falls to zero; small motes outlive the solid shape."
+      },
+      {
+        "start_frame": 1354,
+        "end_frame_exclusive": 1357,
+        "start_s": 45.178467,
+        "end_s": 45.278567,
+        "shape": "Pale gold then tan full-view flash",
+        "size_body_heights": null,
+        "position": "Gameplay area",
+        "colors_hex": [
+          "#FFE8B9",
+          "#82745B"
+        ],
+        "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+        "motion": "One pale plus two darker frames.",
+        "fade": "Hard cut."
+      },
+      {
+        "start_frame": 1357,
+        "end_frame_exclusive": 1373,
+        "start_s": 45.278567,
+        "end_s": 45.812433,
+        "shape": "Dark smoke half-ring and ground ripple",
+        "size_body_heights": [
+          3,
+          4
+        ],
+        "position": "Former dome perimeter",
+        "colors_hex": [
+          "#211D19",
+          "#B8A887"
+        ],
+        "layering": "Bright core over translucent glow; dark tool silhouettes remain visible where not overexposed.",
+        "motion": "Shell contracts/dissolves outward.",
+        "fade": "Opacity falls to zero; small motes outlive the solid shape."
+      }
+    ],
+    "camera": [
+      {
+        "start_frame": 1211,
+        "end_frame_exclusive": 1263,
+        "start_s": 40.407033,
+        "end_s": 42.1421,
+        "shot": "wide",
+        "framing": "Track ally toward enemy.",
+        "transition": "Continuous reframing / scale change"
+      },
+      {
+        "start_frame": 1263,
+        "end_frame_exclusive": 1280,
+        "start_s": 42.1421,
+        "end_s": 42.709333,
+        "shot": "medium to wide",
+        "framing": "Gold first sweep.",
+        "transition": "Punch"
+      },
+      {
+        "start_frame": 1289,
+        "end_frame_exclusive": 1305,
+        "start_s": 43.009633,
+        "end_s": 43.5435,
+        "shot": "medium to wide",
+        "framing": "Second sweep.",
+        "transition": "Punch"
+      },
+      {
+        "start_frame": 1305,
+        "end_frame_exclusive": 1335,
+        "start_s": 43.5435,
+        "end_s": 44.5445,
+        "shot": "wide",
+        "framing": "Keep expanding floor ring visible.",
+        "transition": "Continuous reframing / scale change"
+      },
+      {
+        "start_frame": 1335,
+        "end_frame_exclusive": 1336,
+        "start_s": 44.5445,
+        "end_s": 44.577867,
+        "shot": "close ally",
+        "framing": "One-frame setup.",
+        "transition": "Punch"
+      },
+      {
+        "start_frame": 1336,
+        "end_frame_exclusive": 1339,
+        "start_s": 44.577867,
+        "end_s": 44.677967,
+        "shot": "close dome",
+        "framing": "Ally and dome edge; target partly cropped.",
+        "transition": "Continuous reframing / scale change"
+      },
+      {
+        "start_frame": 1339,
+        "end_frame_exclusive": 1354,
+        "start_s": 44.677967,
+        "end_s": 45.178467,
+        "shot": "medium-wide",
+        "framing": "Entire dome and target.",
+        "transition": "Continuous reframing / scale change"
+      },
+      {
+        "start_frame": 1354,
+        "end_frame_exclusive": 1357,
+        "start_s": 45.178467,
+        "end_s": 45.278567,
+        "shot": "flash insert",
+        "framing": "Pale gold 1 frame, tan 2 frames.",
+        "transition": "Hard cuts"
+      },
+      {
+        "start_frame": 1357,
+        "end_frame_exclusive": 1397,
+        "start_s": 45.278567,
+        "end_s": 46.613233,
+        "shot": "wide",
+        "framing": "Shell dissipates; hold.",
+        "transition": "Continuous reframing / scale change"
+      }
+    ],
+    "contact_sheets": [
+      "sheets/detail_30.jpg",
+      "sheets/detail_31.jpg",
+      "sheets/detail_32.jpg",
+      "sheets/detail_33.jpg",
+      "sheets/detail_34.jpg",
+      "sheets/detail_35.jpg",
+      "sheets/detail_36.jpg"
+    ]
+  }
+}

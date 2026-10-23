@@ -1,0 +1,677 @@
+id: crimson-combo-descending
+duration_ticks: 17
+orient: yaw
+follow: true
+sample_ticks: 1
+elements:
+- id: link-0-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 0.169686, 0.262194]
+    rotate: [62.074551, 11.433006, -20.504513]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 0.140068, 0.030953]
+    rotate: [69.429504, -22.331185, 45.354428]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.037167, -0.045166]
+    rotate: [84.479348, -29.534259, 78.906592]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.037167, -0.045166]
+    rotate: [84.479348, -29.534259, 78.906592]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.092699, 0.371233]
+    rotate: [103.85207, 26.87861, 241.390866]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-0-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 0.169686, 0.262194]
+    rotate: [-117.925449, -11.433006, 20.504513]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 0.140068, 0.030953]
+    rotate: [-110.570496, 22.331185, -45.354428]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.037167, -0.045166]
+    rotate: [-95.520652, 29.534259, -78.906592]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.037167, -0.045166]
+    rotate: [-95.520652, 29.534259, -78.906592]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.092699, 0.371233]
+    rotate: [-76.14793, -26.87861, -241.390866]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-1-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 0.486264, 0.436045]
+    rotate: [64.322063, 16.070398, -29.931318]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 0.433454, -0.295686]
+    rotate: [68.472171, -21.413406, 42.785129]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.137549, -0.530752]
+    rotate: [82.178713, -29.054591, 74.206724]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.137549, -0.530752]
+    rotate: [82.178713, -29.054591, 74.206724]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.230405, 0.735375]
+    rotate: [99.534143, 28.579367, 250.654084]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-1-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 0.486264, 0.436045]
+    rotate: [-115.677937, -16.070398, 29.931318]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 0.433454, -0.295686]
+    rotate: [-111.527829, 21.413406, -42.785129]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.137549, -0.530752]
+    rotate: [-97.821287, 29.054591, -74.206724]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.137549, -0.530752]
+    rotate: [-97.821287, 29.054591, -74.206724]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.230405, 0.735375]
+    rotate: [-80.465857, -28.579367, -250.654084]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-2-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 0.772684, 0.656424]
+    rotate: [66.520122, 19.229734, -37.16928]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 0.738034, -0.611947]
+    rotate: [67.929499, -20.851876, 41.280008]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.27431, -1.007344]
+    rotate: [79.681876, -28.326185, 69.008658]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.27431, -1.007344]
+    rotate: [79.681876, -28.326185, 69.008658]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.325211, 1.113174]
+    rotate: [96.6073, 29.32965, -103.304575]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-2-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 0.772684, 0.656424]
+    rotate: [-113.479878, -19.229734, 37.16928]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 0.738034, -0.611947]
+    rotate: [-112.070501, 20.851876, -41.280008]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.27431, -1.007344]
+    rotate: [-100.318124, 28.326185, -69.008658]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.27431, -1.007344]
+    rotate: [-100.318124, 28.326185, -69.008658]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.325211, 1.113174]
+    rotate: [-83.3927, -29.32965, 103.304575]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-3-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.031281, 0.909009]
+    rotate: [68.605535, 21.546641, -43.149334]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 1.048879, -0.922064]
+    rotate: [67.644214, -20.543534, 40.472851]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.452659, -1.469914]
+    rotate: [76.781491, -27.177582, 62.785002]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.452659, -1.469914]
+    rotate: [76.781491, -27.177582, 62.785002]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.389433, 1.497416]
+    rotate: [94.336871, 29.713791, -98.698842]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-3-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.031281, 0.909009]
+    rotate: [-111.394465, -21.546641, 43.149334]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 1.048879, -0.922064]
+    rotate: [-112.355786, 20.543534, -40.472851]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.452659, -1.469914]
+    rotate: [-103.218509, 27.177582, -62.785002]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.452659, -1.469914]
+    rotate: [-103.218509, 27.177582, -62.785002]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.389433, 1.497416]
+    rotate: [-85.663129, -29.713791, 98.698842]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-4-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.263961, 1.185707]
+    rotate: [70.64345, 23.377432, -48.479231]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 1.362623, -1.229254]
+    rotate: [67.54894, -20.438435, 40.200686]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.681448, -1.909571]
+    rotate: [73.288462, -25.282197, 54.892888]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.681448, -1.909571]
+    rotate: [73.288462, -25.282197, 54.892888]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.428837, 1.885013]
+    rotate: [92.378056, 29.91435, -94.760221]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-4-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.263961, 1.185707]
+    rotate: [-109.35655, -23.377432, 48.479231]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 1.362623, -1.229254]
+    rotate: [-112.45106, 20.438435, -40.200686]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.681448, -1.909571]
+    rotate: [-106.711538, 25.282197, -54.892888]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.681448, -1.909571]
+    rotate: [-106.711538, 25.282197, -54.892888]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.428837, 1.885013]
+    rotate: [-87.621944, -29.91435, 94.760221]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-5-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.471365, 1.481843]
+    rotate: [72.741852, 24.925845, -53.604564]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 1.676535, -1.536271]
+    rotate: [67.62158, -20.518663, 40.408314]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.973112, -2.309924]
+    rotate: [69.116022, -22.040295, 44.524269]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.973112, -2.309924]
+    rotate: [69.116022, -22.040295, 44.524269]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.445932, 2.274239]
+    rotate: [90.528201, 29.995783, -91.056446]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-5-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.471365, 1.481843]
+    rotate: [-107.258148, -24.925845, 53.604564]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 1.676535, -1.536271]
+    rotate: [-112.37842, 20.518663, -40.408314]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 0.973112, -2.309924]
+    rotate: [-110.883978, 22.040295, -44.524269]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 0.973112, -2.309924]
+    rotate: [-110.883978, 22.040295, -44.524269]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.445932, 2.274239]
+    rotate: [-89.471799, -29.995783, 91.056446]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-6-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.652549, 1.794706]
+    rotate: [75.048245, 26.314594, -58.93493]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 1.987971, -1.845796]
+    rotate: [67.872714, -20.791247, 41.120256]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 1.340413, -2.641394]
+    rotate: [64.635247, -16.580881, 31.045425]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 1.340413, -2.641394]
+    rotate: [64.635247, -16.580881, 31.045425]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.441091, 2.663808]
+    rotate: [88.628435, 29.971547, -87.256083]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-6-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.652549, 1.794706]
+    rotate: [-104.951755, -26.314594, 58.93493]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 1.987971, -1.845796]
+    rotate: [-112.127286, 20.791247, -41.120256]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 1.340413, -2.641394]
+    rotate: [-115.364753, 16.580881, -31.045425]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 1.340413, -2.641394]
+    rotate: [-115.364753, 16.580881, -31.045425]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.441091, 2.663808]
+    rotate: [-91.371565, -29.971547, 87.256083]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-7-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.804487, 2.122741]
+    rotate: [77.785669, 27.614825, -64.967105]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 2.293868, -2.160787]
+    rotate: [68.350373, -21.29012, 42.450604]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 1.783241, -2.860462]
+    rotate: [61.154813, -8.622926, 15.227778]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 1.783241, -2.860462]
+    rotate: [61.154813, -8.622926, 15.227778]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.412732, 3.05236]
+    rotate: [86.505117, 29.814576, -82.997144]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-7-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.804487, 2.122741]
+    rotate: [-102.214331, -27.614825, 64.967105]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 2.293868, -2.160787]
+    rotate: [-111.649627, 21.29012, -42.450604]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 1.783241, -2.860462]
+    rotate: [-118.845187, 8.622926, -15.227778]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 1.783241, -2.860462]
+    rotate: [-118.845187, 8.622926, -15.227778]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.412732, 3.05236]
+    rotate: [-93.494883, -29.814576, 82.997144]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-8-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.920944, 2.464913]
+    rotate: [81.34022, 28.835016, -72.474286]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 2.590041, -2.484915]
+    rotate: [69.166753, -22.087985, 44.659319]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 2.271787, -2.933894]
+    rotate: [60.000001, -0.009193, 0.015923]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 2.271787, -2.933894]
+    rotate: [60.000001, -0.009193, 0.015923]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.356738, 3.437863]
+    rotate: [83.900869, 29.430146, -77.731218]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-8-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.920944, 2.464913]
+    rotate: [-98.65978, -28.835016, 72.474286]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 2.590041, -2.484915]
+    rotate: [-110.833247, 22.087985, -44.659319]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 2.271787, -2.933894]
+    rotate: [-119.999999, 0.009193, -0.015923]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 2.271787, -2.933894]
+    rotate: [-119.999999, 0.009193, -0.015923]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.356738, 3.437863]
+    rotate: [-96.099131, -29.430146, 77.731218]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-9-0
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.989916, 2.819542]
+    rotate: [86.453136, 29.808994, -82.892587]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 2.869798, -2.823254]
+    rotate: [70.578226, -23.324261, 48.314674]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 2.762528, -2.871102]
+    rotate: [60.730565, 6.892789, -12.086022]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 2.762528, -2.871102]
+    rotate: [60.730565, 6.892789, -12.086022]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.2646, 3.816252]
+    rotate: [80.333507, 28.538238, -70.377237]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+- id: link-9-1
+  kind: {type: sprite, sprite: crimson-link, frame_ticks: 1, loop: false}
+  billboard: fixed
+  brightness: 12
+  start_tick: 0
+  end_tick: 14
+  keyframes:
+  - t: 0
+    translate: [0, 1.989916, 2.819542]
+    rotate: [-93.546864, -29.808994, 82.892587]
+    scale: [0.09, 0.062354, 1]
+  - t: 4
+    translate: [0, 2.869798, -2.823254]
+    rotate: [-109.421774, 23.324261, -48.314674]
+    scale: [0.09, 0.075705, 1]
+  - t: 6
+    translate: [0, 2.762528, -2.871102]
+    rotate: [-119.269435, -6.892789, 12.086022]
+    scale: [0.09, 0.08551, 1]
+  - t: 9
+    translate: [0, 2.762528, -2.871102]
+    rotate: [-119.269435, -6.892789, 12.086022]
+    scale: [0.09, 0.08551, 1]
+  - t: 13
+    translate: [0, -0.2646, 3.816252]
+    rotate: [-99.666493, -28.538238, 70.377237]
+    scale: [0.09, 0.067181, 1]
+  group_keyframes:
+  - t: 0
+    translate: [-0.25, 1, 0.3]
+    rotate: [0, 0, 0]
+rigs:
+- id: chain
+  pivot: [-0.25, 1, 0.3]
+  rest: [0, 90, 0]
+  tilt: [0, 0, -55]
+  respect_hit_stop: true
+  end_tick: 14
+  parts: []
+  swing:
+  - t: 0
+    rotate: [170, 0, 0]
+  - t: 2
+    rotate: [180, 0, 0]
+    ease: in_out_quad
+  - t: 6
+    rotate: [0, 0, 0]
+    ease: out_quad
+  - t: 8
+    rotate: [-10, 0, 0]
+  - t: 13
+    rotate: [-20, 0, 0]
+    ease: out_cubic
+  trails:
+  - id: blade-fan
+    from: [0, 3.65, 0]
+    to: [0, 4.0, 0]
+    start_t: 2
+    end_t: 6
+    life_ticks: 5
+    step_deg: 18
+    style: soft
+    bands:
+    - {from: 0.0, to: 1.0, color: '#F0EF2445', color_to: '#3069091C'}
+    edge: {block: white_concrete, width: 0.055}
+  - id: blade-fan-back
+    from: [0, 4.0, 0]
+    to: [0, 3.65, 0]
+    start_t: 2
+    end_t: 6
+    life_ticks: 5
+    step_deg: 18
+    style: soft
+    bands:
+    - {from: 0.0, to: 1.0, color: '#F0EF2445', color_to: '#3069091C'}
+  emitters:
+  - id: contact-petals
+    particle_id: crimson-chain-axe-petals
+    point: [0, 4, 0]
+    start_t: 6
+    end_t: 7
+replace_group: crimson-combo-chain

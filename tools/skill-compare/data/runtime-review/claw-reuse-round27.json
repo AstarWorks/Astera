@@ -1,0 +1,77 @@
+{
+  "runtime": {
+    "core": "b54a8e06d0d57bd7aa364ba83c7cec57c0c4b661f159c45bbad05f19b05f5bde",
+    "combat": "aef44f22621f89f3448dc9c9716652a2c0f813976f2fd934d1e4c49745e10a25",
+    "baseCommit": "21d63d26836e4b5efb7766878007cec096e37177",
+    "changes": "Reuse compatible live native passengers across same-anchor VFX group replacement"
+  },
+  "deployedEvidence": {
+    "content/skills/edict-procuration-s3.yaml": "3b180a62d55d4b0e4ddbb40f33c08e787591aa451a409df491ac3ce717de437a",
+    "content/vfx/edict-procuration-cage.yaml": "e6027fe6669773d3218fc2c5f67fd1eca9d4e229cc22cc88dae0b967279be2ba",
+    "content/vfx/edict-procuration-crossing.yaml": "f99aa78b516830c0316b816152a55a305499e2faaddf03601b05886d1afcdaa6",
+    "content/vfx/edict-procuration-airborne.yaml": "018c28a40d4c7c9519645df34abb93c0edc7ac71bc5fcd8cdf2712de495054de",
+    "content/vfx/edict-procuration-landed-claws.yaml": "42bdefe110959e0ca5c48db79705807bbf6d298ac9e7702b0e82779e74fef3e9",
+    "content/vfx/edict-procuration-distant-fan.yaml": "c4c8799ff8b6aeaad9c6df915d2362d3e8a90c3e33fa27a77954a603cf1904e0"
+  },
+  "probe": {
+    "before": {
+      "Caster": {
+        "uuid": "Block Display has the following entity data: [I; -1730148557, 1917929658, -1614855956, -1058417471]",
+        "color": "Block Display has the following entity data: \"minecraft:red_concrete\""
+      },
+      "Watcher": {
+        "uuid": "Block Display has the following entity data: [I; -2125115455, 1498694738, -1441433818, 1664081885]",
+        "color": "Block Display has the following entity data: \"minecraft:red_concrete\""
+      }
+    },
+    "after": {
+      "Caster": {
+        "uuid": "Block Display has the following entity data: [I; -1730148557, 1917929658, -1614855956, -1058417471]",
+        "color": "Block Display has the following entity data: \"minecraft:blue_concrete\""
+      },
+      "Watcher": {
+        "uuid": "Block Display has the following entity data: [I; -2125115455, 1498694738, -1441433818, 1664081885]",
+        "color": "Block Display has the following entity data: \"minecraft:red_concrete\""
+      }
+    },
+    "expired": {
+      "uuid": "",
+      "color": ""
+    },
+    "passed": true
+  },
+  "captures": [
+    {
+      "path": "build/limbus-review/round27/first-invalid",
+      "quality": {
+        "maxRepeatedFrames": 2,
+        "reviewRequired": true,
+        "cameraMaxLatenessMs": 134.0,
+        "invalid": true,
+        "reason": "Camera command response exceeded its planned time by more than 100 ms; recapture required."
+      }
+    },
+    {
+      "path": "build/limbus-review/round27/repeat-valid",
+      "quality": {
+        "maxRepeatedFrames": 2,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 8.0
+      }
+    },
+    {
+      "path": "build/limbus-review/round27/probe-capture",
+      "quality": {
+        "maxRepeatedFrames": 2,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 3.0
+      }
+    }
+  ],
+  "visualReview": {
+    "repeat-valid/frames_022_to_028": "Claws remain visible across both direction switches; former blank frame026 now contains claws.",
+    "source_relative_27_30_32_35_38_41": "Curved broad white/blue streaks and low body pose remain unmatched."
+  },
+  "temporaryFixturesRemoved": true,
+  "fidelityStatus": "failed"
+}

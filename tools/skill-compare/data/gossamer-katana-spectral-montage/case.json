@@ -1,0 +1,79 @@
+{
+  "id": "gossamer-katana-spectral-montage",
+  "rev": 1,
+  "videoId": "LkLhzmoJZ6Y",
+  "start_s": 71.60486666666667,
+  "end_s": 78.7787,
+  "skill": {
+    "name": "Spectral attack montage / special sequence, exact kit assignment unresolved",
+    "coins": null,
+    "asteraSkillId": null
+  },
+  "variant": {
+    "label": "分身体による連続攻撃（対応未確定）",
+    "implementation": "missing",
+    "order": 7
+  },
+  "mc": {
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false
+  },
+  "segments": [
+    {
+      "id": "contact-1",
+      "kind": "hit",
+      "label": "観測上の接触 1 / f2179",
+      "t_s": 72.70596666666667,
+      "notes": "Spectral curved blade reaches group with vertical cyan cross / confidence: med; contact is not proof of a separate damage event."
+    },
+    {
+      "id": "contact-2",
+      "kind": "hit",
+      "label": "観測上の接触 2 / f2187",
+      "t_s": 72.9729,
+      "notes": "Spectral circular slash through target group / confidence: med; contact is not proof of a separate damage event."
+    },
+    {
+      "id": "contact-3",
+      "kind": "hit",
+      "label": "観測上の接触 3 / f2196",
+      "t_s": 73.2732,
+      "notes": "Further spectral crescent/cross at group / confidence: med; contact is not proof of a separate damage event."
+    },
+    {
+      "id": "contact-4",
+      "kind": "hit",
+      "label": "観測上の接触 4 / f2235",
+      "t_s": 74.5745,
+      "notes": "Large spectral descending diagonal cut across group / confidence: med; contact is not proof of a separate damage event."
+    },
+    {
+      "id": "contact-5",
+      "kind": "hit",
+      "label": "観測上の接触 5 / f2276",
+      "t_s": 75.94253333333333,
+      "notes": "Multiple spectral crescents sweep group / confidence: med; contact is not proof of a separate damage event."
+    },
+    {
+      "id": "contact-6",
+      "kind": "hit",
+      "label": "観測上の接触 6 / f2337",
+      "t_s": 77.9779,
+      "notes": "Spectral descending blade and vertical cyan fan at group / confidence: med; contact is not proof of a separate damage event."
+    }
+  ],
+  "notes": "追加観測区間。キットとの対応と実ダメージ回数は未確定。専用実装・撮影はなく、既存技の映像は流用しない。",
+  "status": "analysed",
+  "verification": {
+    "status": "unverified",
+    "reason": "参照映像のみ。専用実装・実機撮影・照合は未完了。"
+  },
+  "weapon": "gossamer-katana",
+  "identity": "Blade of the House of Spiders Ryōshū",
+  "iterations": 0,
+  "report": "/report/gossamer-katana",
+  "referenceRevision": "fc1f79977971fb7e0ee373e3db53ae453df85c99c2aed0b9dd12c6b63853eb70"
+}

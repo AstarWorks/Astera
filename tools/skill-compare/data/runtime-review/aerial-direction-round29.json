@@ -1,0 +1,68 @@
+{
+  "runtime": {
+    "baseCommit": "c69e91c28bdcd8e3df45d1ba1ff4ab2a99796474",
+    "resourcePackSha1": "859e0afe874a9c0c9de8a74d8534cd74189bb6aa",
+    "deployedEvidence": {
+      "content/vfx/edict-procuration-airborne.yaml": "2ba61339b5933824e0fc96bd02d06f660b28c44868a538dc48ce294a8df5ce84",
+      "content/vfx/edict-procuration-dive.yaml": "85cee3f8603740d1aca75c5273d9e4d88b2e4d390860b3a1668c9e89f7e68f41",
+      "content/skills/edict-procuration-s3.yaml": "9ff2048abb38312f6458319b6305ec22c836f1a49e04f5931314dd691c85dd29"
+    },
+    "coreSha256": "b54a8e06d0d57bd7aa364ba83c7cec57c0c4b661f159c45bbad05f19b05f5bde",
+    "combatSha256": "aef44f22621f89f3448dc9c9716652a2c0f813976f2fd934d1e4c49745e10a25"
+  },
+  "referenceObservation": {
+    "reference": "edict-procuration-s3",
+    "relativeFrames": [
+      36,
+      38,
+      40,
+      42,
+      44,
+      46,
+      48,
+      50
+    ],
+    "observation": {
+      "36_44": "Caster rises screen-left while hand-attached white streaks point screen-right/down toward the target; movement and attack direction differ.",
+      "46_50": "Caster descends screen-right with a broad diagonal down-right light fan, accompanied by a strong camera zoom."
+    },
+    "implementationTrial": {
+      "ascentTick": 25,
+      "ascentLocalYaw": 180,
+      "ascentLocalPitch": 30,
+      "diveTick": 31,
+      "diveLocalYaw": 0,
+      "diveLocalPitch": 35,
+      "pivot": [
+        0,
+        1.2,
+        0
+      ]
+    },
+    "uncertainty": "Angles are visual approximations, not measured original 3D transforms; source camera zoom and body pose still need reconstruction."
+  },
+  "captures": [
+    {
+      "path": "build/limbus-review/round29/first",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 3.0
+      }
+    },
+    {
+      "path": "build/limbus-review/round29/repeat",
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 7.0
+      }
+    }
+  ],
+  "visualReview": {
+    "first/frames_031_036": "Caster travels left/up; claws and light streaks point down/right toward target.",
+    "first/frames_037_040": "Caster reverses to right/down; attack remains down/right.",
+    "remaining": "Source dive zoom at relative46-50 and broad diagonal light fan remain unmatched; player pose and curved claw shape remain different."
+  },
+  "fidelityStatus": "failed"
+}

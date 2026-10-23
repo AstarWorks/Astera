@@ -1,0 +1,70 @@
+{
+  "id": "edict-procuration-s3",
+  "rev": 1,
+  "videoId": "x6sc9JkW77c",
+  "start_s": 50.3503,
+  "end_s": 56.890166666666666,
+  "skill": {
+    "name": "変身後S3 — Procuration: Annihilate",
+    "coins": 4,
+    "asteraSkillId": "edict-procuration-s3"
+  },
+  "variant": {
+    "label": "変身後 S3",
+    "implementation": "prototype",
+    "order": 3
+  },
+  "mc": {
+    "source": "vfx-compare",
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false,
+    "factor": 0.2,
+    "windowMs": 150
+  },
+  "segments": [
+    {
+      "id": "procuration-s3-contact-1",
+      "kind": "hit",
+      "label": "接触候補1",
+      "t_s": 50.98426666666667,
+      "notes": "f1528〜1529、med確度。隠れたダメージ判定時刻は不明。"
+    },
+    {
+      "id": "procuration-s3-contact-2",
+      "kind": "hit",
+      "label": "接触候補2",
+      "t_s": 51.6516,
+      "notes": "f1548〜1550、med確度。隠れたダメージ判定時刻は不明。"
+    },
+    {
+      "id": "procuration-s3-contact-3",
+      "kind": "hit",
+      "label": "接触候補3",
+      "t_s": 52.7527,
+      "notes": "f1578〜1581、med確度。隠れたダメージ判定時刻は不明。"
+    },
+    {
+      "id": "procuration-s3-contact-4",
+      "kind": "hit",
+      "label": "接触候補4",
+      "t_s": 55.78906666666666,
+      "notes": "f1650〜1672、low確度。隠れたダメージ判定時刻は不明。"
+    }
+  ],
+  "notes": "専用S3試作。持続変身・通常入力未接続。接触候補は13/26/48/109tickを採用。最後は遮蔽によりf1650〜1672の幅があり、109tickを原作の確定ダメージ時刻とは扱わない。",
+  "editLog": [],
+  "status": "captured",
+  "verification": {
+    "status": "failed",
+    "reason": "round34: spriteの初期alphaと時間変化を読み込み・計画・表示へ接続。実機でopacity64→191→4と終了消去を確認。残光へalpha減衰を適用し再撮影。初回カメラ114ms遅延は無効、採用映像は9ms。正確な減衰曲線・人物姿勢・通常プレイカメラ・変身入力は未一致。"
+  },
+  "weapon": "edict-blade",
+  "identity": "The Index Proxy Don Quixote / Procuration",
+  "iterations": 40,
+  "report": "/report/edict-blade",
+  "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
+  "contentRevision": "d3b04789463a2dfc322776e576f1f2817038799b10aeb7acaab0819d25ec60cc"
+}

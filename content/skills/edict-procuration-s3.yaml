@@ -1,0 +1,343 @@
+id: edict-procuration-s3
+name:
+  ja: 変身後・殲滅せよ
+  en: 'Procuration: Annihilate'
+description:
+  ja: 往復・跳躍・離れた標的への爪撃の試作。持続変身・通常入力未接続。
+  en: Crossings, aerial rakes and distant finisher prototype; form routing pending.
+archetype: sequence
+cooldown_ticks: 150
+resource_cost: 24
+params:
+  type: sequence
+phases:
+  type: sequence
+  cast:
+  - type: dash_strike
+    distance: 7
+    ticks: 3
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    delay_ticks:
+      type: literal
+      value: 13
+  - type: dash_strike
+    distance: 7
+    ticks: 3
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    local_direction:
+      x: 0
+      y: 0
+      z: -1
+    face_movement: true
+    delay_ticks:
+      type: literal
+      value: 17
+  - type: dash_strike
+    distance: 7
+    ticks: 3
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    local_direction:
+      x: 0
+      y: 0
+      z: -1
+    face_movement: true
+    delay_ticks:
+      type: literal
+      value: 20
+  - type: dash_strike
+    distance: 7.615773105863909
+    ticks: 5
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    local_direction:
+      x: 0
+      y: 3
+      z: -7
+    face_movement: true
+    delay_ticks:
+      type: literal
+      value: 25
+  - type: dash_strike
+    distance: 7.615773105863909
+    ticks: 5
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    local_direction:
+      x: 0
+      y: -3
+      z: -7
+    face_movement: true
+    delay_ticks:
+      type: literal
+      value: 31
+  - type: dash_strike
+    distance: 0
+    ticks: 1
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    local_direction:
+      x: 0
+      y: 0
+      z: -1
+    face_movement: true
+    delay_ticks:
+      type: literal
+      value: 37
+  - type: dash_strike
+    distance: 9
+    ticks: 8
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    local_direction:
+      x: 0
+      y: 0
+      z: 1
+    face_movement: true
+    delay_ticks:
+      type: literal
+      value: 46
+  - type: dash_strike
+    distance: 0.4
+    ticks: 1
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    local_direction:
+      x: 0
+      y: 0
+      z: -1
+    face_movement: true
+    delay_ticks:
+      type: literal
+      value: 56
+  - type: play_vfx
+    targets: &id001
+      type: caster
+    vfx_id: edict-procuration-crossing
+    delay_ticks:
+      type: literal
+      value: 13
+  - type: play_vfx
+    targets: *id001
+    vfx_id: edict-procuration-crossing
+    delay_ticks:
+      type: literal
+      value: 17
+  - type: play_vfx
+    targets: *id001
+    vfx_id: edict-procuration-crossing
+    delay_ticks:
+      type: literal
+      value: 20
+  - type: play_vfx
+    targets: *id001
+    vfx_id: edict-procuration-airborne
+    delay_ticks:
+      type: literal
+      value: 25
+  - type: play_vfx
+    targets: *id001
+    vfx_id: edict-procuration-dive
+    delay_ticks:
+      type: literal
+      value: 31
+  - type: play_vfx
+    targets: *id001
+    vfx_id: edict-procuration-crossing
+    delay_ticks:
+      type: literal
+      value: 46
+  - type: play_vfx
+    targets: *id001
+    vfx_id: edict-procuration-cage
+  - type: play_vfx
+    targets: &id003
+      type: cone
+      from: *id001
+      direction:
+        type: from_caster
+      distance:
+        type: literal
+        value: 12
+      angle_degrees:
+        type: literal
+        value: 70
+      max_count: 1
+    vfx_id: edict-procuration-distant-rakes
+    delay_ticks:
+      type: literal
+      value: 57
+  - type: damage
+    targets: &id002
+      type: nearby_entities
+      center: *id001
+      radius:
+        type: literal
+        value: 3.2
+      max_count:
+        type: literal
+        value: 1
+      exclude_caster: true
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 13
+  - type: play_vfx
+    targets: *id002
+    vfx_id: edict-impact
+    delay_ticks:
+      type: literal
+      value: 13
+  - type: play_vfx
+    targets: *id002
+    vfx_id: edict-procuration-petals
+    delay_ticks:
+      type: literal
+      value: 13
+  - type: damage
+    targets: *id002
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 26
+  - type: play_vfx
+    targets: *id002
+    vfx_id: edict-impact
+    delay_ticks:
+      type: literal
+      value: 26
+  - type: play_vfx
+    targets: *id002
+    vfx_id: edict-procuration-petals
+    delay_ticks:
+      type: literal
+      value: 26
+  - type: damage
+    targets: *id002
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 48
+  - type: play_vfx
+    targets: *id002
+    vfx_id: edict-impact
+    delay_ticks:
+      type: literal
+      value: 48
+  - type: play_vfx
+    targets: *id002
+    vfx_id: edict-procuration-petals
+    delay_ticks:
+      type: literal
+      value: 48
+  - type: damage
+    targets: *id003
+    ignore_invulnerability:
+      type: literal
+      value: true
+    components:
+    - base:
+        type: literal
+        value: 6
+      attribute: physical
+    delay_ticks:
+      type: literal
+      value: 109
+  - type: play_vfx
+    targets: *id003
+    vfx_id: edict-impact
+    delay_ticks:
+      type: literal
+      value: 109
+  - type: play_vfx
+    targets: *id003
+    vfx_id: edict-procuration-petals
+    delay_ticks:
+      type: literal
+      value: 109
+  - type: play_animation
+    targets: *id001
+    animation: crouch
+    ticks:
+      type: literal
+      value: 20
+    delay_ticks:
+      type: literal
+      value: 110
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: edict-procuration-landed-claws
+    delay_ticks:
+      type: literal
+      value: 37
+  - type: play_vfx
+    targets:
+      type: caster
+    vfx_id: edict-procuration-distant-fan
+    delay_ticks:
+      type: literal
+      value: 57
+  - type: play_vfx
+    targets:
+      type: nearby_entities
+      center:
+        type: caster
+      radius:
+        type: literal
+        value: 3.2
+      max_count:
+        type: literal
+        value: 1
+      exclude_caster: true
+    vfx_id: edict-procuration-air-trace
+    delay_ticks:
+      type: literal
+      value: 26

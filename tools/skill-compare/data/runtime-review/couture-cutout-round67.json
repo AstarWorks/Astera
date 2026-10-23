@@ -1,0 +1,25 @@
+{
+  "case": "couture-rapier-cutout",
+  "round": 67,
+  "status": "failed",
+  "capture": "build/limbus-review/round67/final-captures/couture-rapier-cutout-1792738642560655824",
+  "frames": 156,
+  "quality": {
+    "maxRepeatedFrames": 2,
+    "reviewRequired": false,
+    "cameraMaxLatenessMs": 4.0
+  },
+  "repeatedFrameRuns": [
+    [
+      107,
+      108
+    ]
+  ],
+  "changes": [
+    "40面の軌跡をsee_throughで描画。高さ0.13→0.45。",
+    "各区間の4文字の菱形を1文字へ変更し、横幅を4倍にした。",
+    "ウォームアップ後のアイテムドロップを撮影前に除去。経験値オーブは残る。"
+  ],
+  "review": "白い連結軌跡を実機で視認できるよう改善。輪郭はまだ均一で、節間・方向・始点の離れ、花飾り・発光・腕姿勢・追撃条件は未一致。see_throughによる遮蔽越しの表示も未解決。",
+  "intermediateCapture": "build/limbus-review/round67/captures/couture-rapier-cutout-1792738532895800352"
+}

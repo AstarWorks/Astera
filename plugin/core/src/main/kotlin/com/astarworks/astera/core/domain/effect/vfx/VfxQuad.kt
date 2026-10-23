@@ -80,14 +80,19 @@ public object VfxQuad {
 
     /** Colour + alpha of the element's keyframe track at element-relative tick [u] (carry-over, eased like transforms). */
     public fun trackAt(el: VfxElement, kind: VfxElementKind.Quad, u: Double): Pair<Int, Double> {
-        var color = kind.colorRgb
-        var alpha = kind.alpha
+        return trackAt(el, kind.colorRgb, kind.alpha, u)
+    }
+
+    /** Shared eased style sampling; sprites use the alpha component while preserving their glyph tint. */
+    public fun trackAt(el: VfxElement, initialColor: Int, initialAlpha: Double, u: Double): Pair<Int, Double> {
+        var color = initialColor
+        var alpha = initialAlpha
         val resolved = el.keyframes.map { f ->
             color = f.color ?: color
             alpha = f.alpha ?: alpha
             Triple(f, color, alpha)
         }
-        if (resolved.isEmpty()) return kind.colorRgb to kind.alpha
+        if (resolved.isEmpty()) return initialColor to initialAlpha
         val first = resolved.first()
         if (u <= first.first.t) return first.second to first.third
         val last = resolved.last()

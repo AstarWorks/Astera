@@ -404,6 +404,8 @@ public sealed class MechanicYaml {
         @SerialName("stop_on_block") public val stopOnBlock: Boolean = true,
         @SerialName("follow_pitch") public val followPitch: Boolean = false,
         @SerialName("stop_before_target") public val stopBeforeTarget: Double? = null,
+        @SerialName("local_direction") public val localDirection: Vec3Yaml? = null,
+        @SerialName("face_movement") public val faceMovement: Boolean = false,
         @SerialName("on_hit") public val onHit: List<MechanicYaml> = emptyList(),
         @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
         @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
@@ -420,6 +422,8 @@ public sealed class MechanicYaml {
             stopOnBlock = com.astarworks.astera.core.domain.skill.value.BoolValue.Literal(stopOnBlock),
             followPitch = com.astarworks.astera.core.domain.skill.value.BoolValue.Literal(followPitch),
             stopBeforeTarget = stopBeforeTarget,
+            localDirection = localDirection?.toDomain(),
+            faceMovement = faceMovement,
             onHit = onHit.map { it.toDomain() },
             delayTicks = delayTicks.toDomain(),
             periodTicks = periodTicks.toDomain(),
@@ -756,6 +760,48 @@ public sealed class MechanicYaml {
     }
 
     @Serializable
+    @SerialName("counter")
+    public data class Counter(
+        public val targets: TargeterYaml,
+        @SerialName("window_ticks") public val windowTicks: IntValueYaml,
+        @SerialName("max_distance") public val maxDistance: NumericValueYaml,
+        @SerialName("on_hit") public val onHit: List<MechanicYaml>,
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.Counter(
+            targets = targets.toDomain(), windowTicks = windowTicks.toDomain(),
+            maxDistance = maxDistance.toDomain(), onHit = onHit.map { it.toDomain() },
+            delayTicks = delayTicks.toDomain(), periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(), condition = condition?.toDomain(), snapshotPose = snapshotPose,
+        )
+    }
+
+    @Serializable
+    @SerialName("play_animation")
+    public data class PlayAnimation(
+        public val targets: TargeterYaml,
+        public val animation: String,
+        public val ticks: IntValueYaml = IntValueYaml.Literal(20),
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.PlayAnimation(
+            targets = targets.toDomain(),
+            animation = com.astarworks.astera.core.domain.animation.player.CustomAnimationId(animation),
+            ticks = ticks.toDomain(), delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(), durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(), snapshotPose = snapshotPose,
+        )
+    }
+
+    @Serializable
     @SerialName("play_sound")
     public data class PlaySound(
         public val targets: TargeterYaml,
@@ -815,6 +861,7 @@ public sealed class MechanicYaml {
     public data class PlayVfx(
         public val targets: TargeterYaml,
         @SerialName("vfx_id") public val vfxId: String,
+        @SerialName("track_bound_target") public val trackBoundTarget: Boolean = false,
         public val scale: NumericValueYaml = NumericValueYaml.Literal(1.0),
         public val follow: BoolValueYaml? = null,
         /** Hit-stop windows `[{at, ticks}]` (effect ticks) freezing the rigs that set `respect_hit_stop`. */
@@ -828,6 +875,7 @@ public sealed class MechanicYaml {
         override fun toDomain(): Mechanic = Mechanic.PlayVfx(
             targets = targets.toDomain(),
             vfxId = com.astarworks.astera.core.domain.effect.vfx.VfxId(vfxId),
+            trackBoundTarget = trackBoundTarget,
             scale = scale.toDomain(),
             follow = follow?.toDomain(),
             freeze = freeze.map { it.toDomain() },
@@ -1002,7 +1050,29 @@ public sealed class MechanicYaml {
         )
     }
 
-    // ───────────────────────── Control flow (4) ─────────────────────────
+    // ───────────────────────── Control flow (5) ─────────────────────────
+
+    @Serializable
+    @SerialName("for_each_target")
+    public data class ForEachTarget(
+        public val targets: TargeterYaml,
+        public val mechanics: List<MechanicYaml>,
+        @SerialName("delay_ticks") public val delayTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("period_ticks") public val periodTicks: IntValueYaml = IntValueYaml.Literal(0),
+        @SerialName("duration_ticks") public val durationTicks: IntValueYaml = IntValueYaml.Literal(0),
+        public val condition: ConditionYaml? = null,
+        @SerialName("snapshot_pose") public val snapshotPose: Boolean = false,
+    ) : MechanicYaml() {
+        override fun toDomain(): Mechanic = Mechanic.ForEachTarget(
+            targets = targets.toDomain(),
+            mechanics = mechanics.map { it.toDomain() },
+            delayTicks = delayTicks.toDomain(),
+            periodTicks = periodTicks.toDomain(),
+            durationTicks = durationTicks.toDomain(),
+            condition = condition?.toDomain(),
+            snapshotPose = snapshotPose,
+        )
+    }
 
     @Serializable
     @SerialName("cast_skill")

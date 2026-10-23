@@ -1,0 +1,68 @@
+{
+  "round": 74,
+  "weapon": "orrery-staff",
+  "status": "failed",
+  "captures": [
+    {
+      "case": "orrery-staff-s1",
+      "capture": "build/limbus-review/round74/verified-captures/orrery-staff-s1-1792741678253954074",
+      "frames": 107,
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 2.0
+      },
+      "itemFields": [
+        "id",
+        "count",
+        "components.minecraft:item_model"
+      ],
+      "itemFieldsUnchanged": true,
+      "firstPersonDuring": "build/limbus-review/round74/verified-items/orrery-s1/caster-during.png",
+      "firstPersonAfter": "build/limbus-review/round74/verified-items/orrery-s1/caster-after.png"
+    },
+    {
+      "case": "orrery-staff-s2",
+      "capture": "build/limbus-review/round74/verified-captures/orrery-staff-s2-1792741709896637231",
+      "frames": 126,
+      "quality": {
+        "maxRepeatedFrames": 2,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 3.0
+      },
+      "itemFields": [
+        "id",
+        "count",
+        "components.minecraft:item_model"
+      ],
+      "itemFieldsUnchanged": true,
+      "firstPersonDuring": "build/limbus-review/round74/verified-items/orrery-s2/caster-during.png",
+      "firstPersonAfter": "build/limbus-review/round74/verified-items/orrery-s2/caster-after.png"
+    },
+    {
+      "case": "orrery-staff-s3",
+      "capture": "build/limbus-review/round74/verified-captures/orrery-staff-s3-1792741752382353786",
+      "frames": 224,
+      "quality": {
+        "maxRepeatedFrames": 1,
+        "reviewRequired": false,
+        "cameraMaxLatenessMs": 3.0
+      },
+      "itemFields": [
+        "id",
+        "count",
+        "components.minecraft:item_model"
+      ],
+      "itemFieldsUnchanged": true,
+      "firstPersonDuring": "build/limbus-review/round74/verified-items/orrery-s3/caster-during.png",
+      "firstPersonAfter": "build/limbus-review/round74/verified-items/orrery-s3/caster-after.png"
+    }
+  ],
+  "review": "演出中に手持ち武器の見た目だけを隠し、二重表示を改善。本人視点の手持ち・ホットバーも一時的に空になる。実アイテムID・個数・モデル指定は不変で、終了後の表示復帰を確認。腕姿勢・武器位置・形状細部・光・カメラは未一致。",
+  "rejectedCaptures": "Initial S2/S3 invoked rery-s2/rery-s3 because auxiliary ffmpeg read roster stdin. Marked invalid and replaced with -nostdin captures.",
+  "limits": [
+    "Mid-animation slot switching, overlapping requests and disconnect recovery are handled in code but not yet verified by a real-client scenario.",
+    "Only the three reported item fields were compared, not the full inventory NBT.",
+    "The override is duration-based; it is not tied to an external cancellation token."
+  ]
+}

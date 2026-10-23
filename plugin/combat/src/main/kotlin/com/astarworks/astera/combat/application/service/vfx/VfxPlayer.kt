@@ -6,7 +6,10 @@ import com.astarworks.astera.core.application.port.outbound.IScheduler
 import com.astarworks.astera.core.application.port.outbound.IVfxRegistry
 import com.astarworks.astera.core.application.port.outbound.ticks
 import com.astarworks.astera.core.domain.Result
+import com.astarworks.astera.core.domain.effect.DisplayBillboard
 import com.astarworks.astera.core.domain.effect.DisplayKind
+import com.astarworks.astera.core.domain.effect.DisplayTransform
+import com.astarworks.astera.core.domain.geometry.math.Quaternion
 import com.astarworks.astera.core.domain.effect.DisplaySpec
 import com.astarworks.astera.core.domain.effect.ParticleId
 import com.astarworks.astera.core.domain.effect.vfx.SpriteFrames
@@ -18,6 +21,8 @@ import com.astarworks.astera.core.domain.effect.vfx.VfxId
 import com.astarworks.astera.core.domain.effect.vfx.VfxParticleEmission
 import com.astarworks.astera.core.domain.effect.vfx.VfxPlan
 import com.astarworks.astera.core.domain.effect.vfx.VfxQuad
+import com.astarworks.astera.core.domain.effect.vfx.VfxTargetKey
+import com.astarworks.astera.core.domain.effect.vfx.targetWeightAt
 import com.astarworks.astera.core.domain.effect.vfx.VfxTimeline
 import com.astarworks.astera.core.domain.geometry.Vec3
 import com.astarworks.astera.core.domain.i18n.LocaleCode
@@ -28,6 +33,7 @@ import org.slf4j.Logger
 /** Why [VfxPlayer.play] did not start an effect. */
 public sealed class VfxPlayError {
     public data class UnknownVfx(val id: VfxId) : VfxPlayError()
+    public data class InvalidTargetTracking(val id: VfxId) : VfxPlayError()
 
     /** Starting would exceed the server-wide live display cap. */
     public data class OverCapacity(val reserved: Int, val requested: Int, val cap: Int) : VfxPlayError()
@@ -53,6 +59,10 @@ public class VfxRequest(
     public val caster: PlayerId? = null,
     /** Hit-stop windows (effect ticks) that freeze rigs with `respect_hit_stop`. */
     public val freeze: List<VfxFreeze> = emptyList(),
+    /** Entity identity for optional native attachment; location anchors leave this null. */
+    public val anchorEntityId: PlayerId? = null,
+    /** Bound live target feet; null result permanently stops this effect. */
+    public val target: (() -> Vec3?)? = null,
 )
 
 /** One particle element emission handed to the runtime (which plans it through `ParticleEmitter`). */
@@ -91,15 +101,23 @@ public class VfxPlayer(
         var handle: DisplayHandle? = null
         var nextUpdate: Int = 0
         var nextParticle: Int = 0
+        var attached: Boolean = false
 
         /** Entity position offset from the anchor (quads sit at their own point; `0` for ordinary displays). */
         var offset: Vec3 = plan.spawnOffset
+        var targetOffset: Vec3 = Vec3.ZERO
+        var authoredTransform: DisplayTransform = plan.initial
+        var lineCorrection: Vec3? = null
 
         /** Quad updates move the entity themselves, so the per-tick follow teleport would fight them. */
         val selfMoving: Boolean = plan.updates.any { it.position != null }
     }
 
-    private class Instance(val request: VfxRequest, val plan: VfxPlan) {
+    private class Instance(
+        val request: VfxRequest, val plan: VfxPlan, val startedAt: Long,
+        val targetReference: Vec3?, val targetTracks: Map<String, List<VfxTargetKey>>,
+        val targetLines: Set<String>,
+    ) {
         val elements: List<ElementState> = plan.elements.map(::ElementState)
         var position: Vec3 = request.origin
         var age: Int = 0
@@ -114,20 +132,58 @@ public class VfxPlayer(
 
     public fun play(request: VfxRequest): Result<Unit, VfxPlayError> {
         val def = registry.find(request.vfxId) ?: return Result.failure(VfxPlayError.UnknownVfx(request.vfxId))
+        if ((request.target != null) != (def.targetReference != null) ||
+            (request.target != null && ((request.follow ?: def.follow) || request.target.invoke() == null))) {
+            return Result.failure(VfxPlayError.InvalidTargetTracking(request.vfxId))
+        }
         val effective = request.follow?.let { def.copy(follow = it) } ?: def
         val frame = effective.orient.frame(request.origin, request.look, request.toTarget)
         val plan = VfxTimeline.plan(effective, frame, request.seed, request.scale, sprites, request.freeze)
-        if (reserved + plan.displayCount > maxLiveDisplays) {
-            log.debug("VFX {} dropped: {} + {} live displays exceed the cap {}", request.vfxId, reserved, plan.displayCount, maxLiveDisplays)
-            return Result.failure(VfxPlayError.OverCapacity(reserved, plan.displayCount, maxLiveDisplays))
+        val replaced = if (plan.follow && plan.replaceGroup != null && request.anchorEntityId != null) {
+            instances.filter { it.plan.follow && it.plan.replaceGroup == plan.replaceGroup &&
+                it.request.anchorEntityId == request.anchorEntityId && it.request.world == request.world }
+        } else emptyList()
+        val remaining = reserved - replaced.sumOf { it.plan.displayCount }
+        if (remaining + plan.displayCount > maxLiveDisplays) {
+            log.debug("VFX {} dropped: {} after replacement + {} displays exceed cap {}", request.vfxId, remaining, plan.displayCount, maxLiveDisplays)
+            return Result.failure(VfxPlayError.OverCapacity(remaining, plan.displayCount, maxLiveDisplays))
         }
-        val instance = Instance(request, plan)
+        // Keep the current effect if the new plan cannot fit; only replace after admission.
+        val instance = Instance(request, plan, scheduler.currentTick(),
+            def.targetReference?.let { frame.rotation.rotate(it * request.scale) },
+            def.elements.filter { it.targetTrack.isNotEmpty() }.associate { it.id to it.targetTrack },
+            def.elements.filter { it.targetLine }.map { it.id }.toSet())
+        if (plan.attachToAnchor && request.anchorEntityId != null) {
+            val reusable = replaced.flatMap { it.elements }.filter { state ->
+                state.attached && state.handle?.let {
+                    displays.isAttached(it, request.anchorEntityId, request.world)
+                } == true
+            }.toMutableList()
+            for (state in instance.elements) {
+                val next = state.plan
+                if (next.spawnTick != 0 || next.billboard != DisplayBillboard.FIXED) continue
+                val previous = reusable.firstOrNull { old ->
+                    old.plan.kind == next.kind && old.plan.billboard == next.billboard &&
+                        old.plan.brightness == next.brightness && old.plan.glowArgb == next.glowArgb &&
+                        old.plan.viewRange == next.viewRange
+                } ?: continue
+                state.handle = previous.handle
+                state.attached = true
+                previous.handle = null
+                reusable.remove(previous)
+            }
+        }
+        replaced.forEach(::finish)
         reserved += plan.displayCount
         if (advance(instance)) {
             finish(instance)
         } else {
             instances += instance
-            if (ticker == null) ticker = scheduler.runRepeating(ticks(1), ticks(1)) { tickAll() }
+            if (ticker == null) ticker = scheduler.runRepeating(ticks(1), ticks(1)) {
+                // Equal-tick FIFO dispatch puts this after already queued dash steps.
+                // Sample the anchor after movement, not halfway through the mechanic queue.
+                scheduler.runLater(ticks(0)) { tickAll() }
+            }
         }
         return Result.success(Unit)
     }
@@ -142,6 +198,9 @@ public class VfxPlayer(
 
     private fun tickAll() {
         for (instance in instances.toList()) {
+            // play() already processed age 0. A delayed cast can precede our shared ticker
+            // in this same server tick; it must not immediately consume age 1 as well.
+            if (instance.startedAt == scheduler.currentTick()) continue
             instance.age++
             try {
                 if (advance(instance)) finish(instance)
@@ -160,15 +219,24 @@ public class VfxPlayer(
     private fun advance(instance: Instance): Boolean {
         val age = instance.age
         val plan = instance.plan
+        val targetCorrection = instance.request.target?.let { target ->
+            val live = target() ?: return true
+            live - (instance.position + (instance.targetReference ?: return true))
+        }
         val anchor = instance.request.anchor
         if (plan.follow && anchor != null) {
             anchor()?.let { instance.position = it }
             for (state in instance.elements) {
-                if (!state.selfMoving) state.handle?.let { displays.teleport(it, instance.position + state.offset, 0f, 0f, FOLLOW_TELEPORT_TICKS) }
+                if (!state.selfMoving) state.handle?.let { displays.teleport(it, instance.position + state.offset, 0f, 0f, plan.followTeleportTicks ?: FOLLOW_TELEPORT_TICKS) }
             }
         }
         for (state in instance.elements) {
             val e = state.plan
+            val track = instance.targetTracks[e.elementId]
+            if (targetCorrection != null && track != null) {
+                state.targetOffset = targetCorrection * track.targetWeightAt(age - e.spawnTick - VfxTimeline.ANIMATION_DELAY_TICKS)
+            }
+            if (e.elementId in instance.targetLines) state.lineCorrection = targetCorrection
             if (e.kind !is VfxElementKind.Particle && age == e.spawnTick) spawn(instance, state)
             val handle = state.handle
             if (handle != null) {
@@ -180,10 +248,17 @@ public class VfxPlayer(
                     u.style?.let { displays.setTextStyle(handle, it.backgroundArgb, it.textOpacity, it.textRgb) }
                     u.position?.let {
                         state.offset = it
-                        displays.teleport(handle, instance.position + it, 0f, 0f, u.interpolationTicks.coerceIn(0, MAX_TELEPORT_TICKS))
+                        displays.teleport(handle, instance.position + it + state.targetOffset, 0f, 0f, (if (plan.follow && !state.attached) plan.followTeleportTicks else null) ?: u.interpolationTicks.coerceIn(0, MAX_TELEPORT_TICKS))
                     }
-                    displays.update(handle, u.transform, u.interpolationTicks)
+                    state.authoredTransform = u.transform
+                    if (state.lineCorrection == null) displays.update(handle, u.transform, u.interpolationTicks)
                 }
+            }
+            if (handle != null && state.lineCorrection != null) {
+                displays.update(handle, lineTransform(state.authoredTransform, state.lineCorrection!!), 0)
+            }
+            if (handle != null && track != null && targetCorrection != null) {
+                displays.teleport(handle, instance.position + state.offset + state.targetOffset, 0f, 0f, 0)
             }
             val kind = e.kind
             if (kind is VfxElementKind.Particle) {
@@ -223,7 +298,7 @@ public class VfxPlayer(
         val e = state.plan
         val spec = DisplaySpec(
             kind = displayKind(e.kind) ?: return,
-            transform = e.initial,
+            transform = state.lineCorrection?.let { lineTransform(e.initial, it) } ?: e.initial,
             lifetimeTicks = (e.despawnTick - e.spawnTick).toLong().coerceAtLeast(1L),
             billboard = e.billboard,
             brightness = e.brightness,
@@ -235,19 +310,54 @@ public class VfxPlayer(
             is VfxElementKind.Quad -> listOf(VfxQuad.text(k))
             else -> emptyList()
         }
-        state.handle = displays.spawn(instance.request.world, instance.position + e.spawnOffset, spec, lines)
+        // A replacement retains compatible passengers so the client never waits for a
+        // new entity's first render. Reset animated content as well as its transform.
+        state.handle?.let { handle ->
+            when (val kind = spec.kind) {
+                is DisplayKind.Block -> displays.setBlock(handle, kind.blockKey)
+                is DisplayKind.Text -> {
+                    displays.setText(handle, lines)
+                    displays.setTextStyle(handle, kind.backgroundArgb, kind.textOpacity, kind.textRgb)
+                }
+                is DisplayKind.Item -> Unit // Identical kind includes item and display mode.
+            }
+            displays.teleport(handle, instance.position + e.spawnOffset + state.targetOffset, 0f, 0f, 0)
+            displays.update(handle, e.initial, 0)
+            return
+        }
+        val anchorId = instance.request.anchorEntityId
+        if (instance.plan.follow && instance.plan.attachToAnchor && anchorId != null && e.billboard == DisplayBillboard.FIXED) {
+            state.handle = displays.spawnAttached(instance.request.world, spec, lines, anchorId, e.spawnOffset)
+            state.attached = state.handle != null
+            if (!state.attached) log.debug("VFX {}: native attachment unavailable for '{}'", instance.request.vfxId, e.elementId)
+        }
+        if (state.handle == null) state.handle = displays.spawn(instance.request.world, instance.position + e.spawnOffset + state.targetOffset, spec, lines)
         if (state.handle == null) log.debug("VFX {}: display for element '{}' was not spawned", instance.request.vfxId, e.elementId)
+    }
+
+    /** Block transforms use corner origins. Reconstruct both centreline endpoints before stretching. */
+    private fun lineTransform(t: DisplayTransform, correction: Vec3): DisplayTransform {
+        val center = t.translation + t.rotation.rotate(t.scale * 0.5)
+        val half = t.rotation.rotate(Vec3(0.0, 0.0, t.scale.z * 0.5))
+        val start = center - half
+        val end = center + half + correction
+        val delta = end - start
+        val length = delta.length()
+        val rotation = if (length < 1e-8) t.rotation else Quaternion.lookRotation(delta, t.rotation.rotate(Vec3(0.0, 1.0, 0.0)))
+        val scale = Vec3(t.scale.x, t.scale.y, length)
+        return DisplayTransform((start + end) * 0.5 - rotation.rotate(scale * 0.5), rotation, scale)
     }
 
     private fun displayKind(kind: VfxElementKind): DisplayKind? = when (kind) {
         is VfxElementKind.Block -> DisplayKind.Block(kind.blockKey)
-        is VfxElementKind.Item -> DisplayKind.Item(kind.itemId, kind.displayMode)
+        is VfxElementKind.Item -> DisplayKind.Item(kind.itemId, kind.displayMode, kind.itemModel)
         is VfxElementKind.Text -> DisplayKind.Text(
             lines = listOf(LocalizedText(mapOf(LocaleCode.EN to kind.text))),
             backgroundArgb = kind.backgroundArgb,
             shadow = kind.shadow,
             seeThrough = kind.seeThrough,
             lineWidth = kind.lineWidth,
+            textOpacity = kind.textOpacity,
         )
         is VfxElementKind.Quad -> {
             val style = VfxQuad.style(kind, kind.colorRgb, kind.alpha)

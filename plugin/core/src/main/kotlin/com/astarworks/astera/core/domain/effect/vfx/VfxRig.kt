@@ -105,6 +105,8 @@ public data class VfxTrailBand(
     public val argb: Int,
     public val toArgb: Int? = null,
     public val block: String? = null,
+    /** Optional 8px-calibrated glyph; uses outer-edge chord width instead of rectangular overlap. */
+    public val glyph: String? = null,
 ) {
     init {
         require(from >= 0.0 && to > from) { "trail band needs 0 <= from < to: $from..$to" }
@@ -152,6 +154,8 @@ public data class VfxTrail(
     public val darkRim: VfxTrailRim? = null,
     public val stepDeg: Double = 30.0,
     public val fadePower: Double = 1.5,
+    /** Emit a reversed soft face as well; crisp slabs already have both sides. */
+    public val doubleSided: Boolean = false,
 ) {
     init {
         require(id.isNotBlank()) { "VfxTrail.id must not be blank" }

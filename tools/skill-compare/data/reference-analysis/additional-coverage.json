@@ -1,0 +1,195 @@
+[
+  {
+    "weapon": "sigil-rifle",
+    "videoId": "-pOx9fo6A7M",
+    "file": "extra-1.json",
+    "sha256": "4cefe5924e5e216907312c170b41724cdcbc7f4700744592d3fa5b2425a3cb0e",
+    "coverage": "pending-review",
+    "name": "S3 repeated with eye aura / ally-target amplification (exact variant unconfirmed)"
+  },
+  {
+    "weapon": "orrery-staff",
+    "videoId": "0DYvUxa24wo",
+    "file": "extra-1.json",
+    "sha256": "697ab87c4632f98a9914713b9c413d3024954d07d5c3e243dd4bba2b0172309a",
+    "coverage": "prototype-direct-capture-resource-routing-missing",
+    "name": "Mind Whip",
+    "case": "orrery-staff-s3-repeat"
+  },
+  {
+    "weapon": "couture-rapier",
+    "videoId": "GIe7Fna5LD4",
+    "file": "extra-1.json",
+    "sha256": "f256c2f71203b07c0bcbe4dabee85a9472ab6d5e2ef78e4189e3a3928661e56d",
+    "coverage": "prototype-captured-fidelity-failed",
+    "name": "Patterning (S1-2; passive follow-up)",
+    "caseId": "couture-rapier-patterning"
+  },
+  {
+    "weapon": "couture-rapier",
+    "videoId": "GIe7Fna5LD4",
+    "file": "extra-2.json",
+    "sha256": "0088d1573794f40b284eb444517e050283b613370be1ddcb7eb6b60ddf4b3247",
+    "coverage": "prototype-direct-capture-passive-routing-missing",
+    "name": "Cutout (S2-2; probable passive follow-up)",
+    "caseId": "couture-rapier-cutout",
+    "case": "couture-rapier-cutout"
+  },
+  {
+    "weapon": "couture-rapier",
+    "videoId": "GIe7Fna5LD4",
+    "file": "extra-3.json",
+    "sha256": "4eadaf77ec307f68bae37b3e1efe431168fdf72a20a59c233d18b893537bfe7e",
+    "coverage": "other-character-not-weapon-skill",
+    "name": "Other character: hat-wearing black-clad ally",
+    "notes": "Two ally action sequences precede Rodion follow-ups; do not assign their gold attacks to the shears weapon."
+  },
+  {
+    "weapon": "crimson-chain-axe",
+    "videoId": "Gpj-lvOnAgs",
+    "file": "extra-1.json",
+    "sha256": "185b085ffb57bb599e6b1923313d7c58e694326f8e27015123cb0c5b47633288",
+    "coverage": "pending-review",
+    "name": "extra-1"
+  },
+  {
+    "weapon": "crimson-chain-axe",
+    "videoId": "Gpj-lvOnAgs",
+    "file": "extra-2.json",
+    "sha256": "1a7206c4cdb8bd8e498e32584791a6c0beb8c643be0343255523718cf1c9b6c8",
+    "coverage": "pending-review",
+    "name": "extra-2"
+  },
+  {
+    "weapon": "crimson-chain-axe",
+    "videoId": "Gpj-lvOnAgs",
+    "file": "extra-3.json",
+    "sha256": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
+    "coverage": "prototype-captured-fidelity-failed",
+    "name": "Unresolved first transformed chain/hover combo",
+    "caseId": "crimson-chain-axe-transformed-combo-a",
+    "notes": "Native f2342–2605 exclusive. Skill identity and coin count unresolved; five visual contacts are not proof of five coins."
+  },
+  {
+    "weapon": "verdict-hammer",
+    "videoId": "Hc6CJXJrzME",
+    "file": "extra-1.json",
+    "sha256": "8dfa3163e4d6b1eb5488cd825355dd8d49e78e19da79f4098a85d2ca877c02a0",
+    "coverage": "pending-review",
+    "name": "extra-1"
+  },
+  {
+    "weapon": "verdict-hammer",
+    "videoId": "Hc6CJXJrzME",
+    "file": "extra-2.json",
+    "sha256": "32bdde375cc913710e38cf749e4a8ae795a9e946e5d8b6f5b4dcd9a84768d034",
+    "coverage": "pending-review",
+    "name": "extra-2"
+  },
+  {
+    "weapon": "verdict-hammer",
+    "videoId": "Hc6CJXJrzME",
+    "file": "extra-3.json",
+    "sha256": "12cd7b1c5b0eb2e41f164ab26b262fd0bd9de8bf7f1539a39087b371f66b7a5c",
+    "coverage": "pending-review",
+    "name": "extra-3"
+  },
+  {
+    "weapon": "gossamer-katana",
+    "videoId": "LkLhzmoJZ6Y",
+    "file": "extra-1.json",
+    "sha256": "b4a6153c026f88c462eb7e0054e298c4f104f513b253e237275999201a833ae3",
+    "coverage": "prototype-direct-captured-kit-routing-missing",
+    "name": "Unresolved four-contact arc chain",
+    "case": "gossamer-katana-arc-chain"
+  },
+  {
+    "weapon": "gossamer-katana",
+    "videoId": "LkLhzmoJZ6Y",
+    "file": "extra-2.json",
+    "sha256": "f280f323921682ea67a80742de84de783bc430a50688250500155b29ac61c38f",
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Rend Space - Echoshear (tentative two-contact form)",
+    "case": "gossamer-katana-echoshear-candidate"
+  },
+  {
+    "weapon": "gossamer-katana",
+    "videoId": "LkLhzmoJZ6Y",
+    "file": "extra-3.json",
+    "sha256": "929b70cc701d75eaf82cc52df573c57fdee1fc0d7a45529c6c9b8f63b7dd4b6f",
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Inevitable Termination (candidate)",
+    "case": "gossamer-katana-termination-candidate"
+  },
+  {
+    "weapon": "gossamer-katana",
+    "videoId": "LkLhzmoJZ6Y",
+    "file": "extra-4.json",
+    "sha256": "0e27e59a58a4c4fc24f9489a300e88e668b89ae5ae9cf17a2b54570556aa594d",
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Unresolved two-contact crescent / descending fan",
+    "case": "gossamer-katana-crescent-fan"
+  },
+  {
+    "weapon": "gossamer-katana",
+    "videoId": "LkLhzmoJZ6Y",
+    "file": "extra-5.json",
+    "sha256": "1b68b8e09d0130a7deeea0faf7467d49378f3614f117e1d8a72c15ae27644aee",
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Unresolved rapid dash flurry and diagonal blue finisher",
+    "case": "gossamer-katana-dash-flurry"
+  },
+  {
+    "weapon": "gossamer-katana",
+    "videoId": "LkLhzmoJZ6Y",
+    "file": "extra-6.json",
+    "sha256": "9e57db43555112499a0364b68302dc8d95c94f2b144773817456b73408666242",
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Rend Space - String Connection (tentative)",
+    "case": "gossamer-katana-string-connection-candidate"
+  },
+  {
+    "weapon": "gossamer-katana",
+    "videoId": "LkLhzmoJZ6Y",
+    "file": "extra-7.json",
+    "sha256": "fc1f79977971fb7e0ee373e3db53ae453df85c99c2aed0b9dd12c6b63853eb70",
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Spectral attack montage / special sequence, exact kit assignment unresolved",
+    "case": "gossamer-katana-spectral-montage"
+  },
+  {
+    "weapon": "edict-blade",
+    "videoId": "x6sc9JkW77c",
+    "file": "extra-1.json",
+    "sha256": "f1c3a46f72c16eaf6e85681b482e95f1bab5f26ca856902932022d9b913c7774",
+    "coverage": "prototype-direct-capture-form-routing-missing",
+    "name": "Let These Hands be the Proxy with Which...",
+    "case": "edict-procuration-s1"
+  },
+  {
+    "weapon": "edict-blade",
+    "videoId": "x6sc9JkW77c",
+    "file": "extra-2.json",
+    "sha256": "b37d2efcfa09e705a57c7ad5b5990b2f325a2a39a2eaff45b1c7a565488cd70e",
+    "coverage": "prototype-direct-capture-form-routing-missing",
+    "name": "Procuration: Engrave",
+    "case": "edict-procuration-s2"
+  },
+  {
+    "weapon": "edict-blade",
+    "videoId": "x6sc9JkW77c",
+    "file": "extra-3.json",
+    "sha256": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
+    "coverage": "prototype-direct-capture-form-routing-missing",
+    "name": "Procuration: Annihilate",
+    "case": "edict-procuration-s3"
+  },
+  {
+    "weapon": "edict-blade",
+    "videoId": "x6sc9JkW77c",
+    "file": "extra-4.json",
+    "sha256": "05d6b730bd0a9e5e9917b8b14001fd9368641de11285011fc7e697836f4c32c0",
+    "coverage": "pending-review",
+    "name": "Prescript/status displays and passive visual cues"
+  }
+]
