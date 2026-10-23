@@ -107,6 +107,9 @@ internal object ParticlePainters {
     }
 
     private val PAINTERS: Map<String, (Canvas, Double, Int, Int) -> Unit> = mapOf(
+        "gossamer_trail_wedge" to { c, _, _, _ ->
+            c.forEach { x, y -> if (abs(y - 16.0) <= 16.0 * (0.63 + 0.37 * x / 32.0)) 1.0 else 0.0 }
+        },
         "gossamer_echo" to ::gossamerEcho, "gossamer_echo_mirror" to { c, t, _, n -> gossamerEcho(c, t, 1, n) }, "orrery_impact" to ::orreryImpact, "orb" to ::orb, "spark" to ::spark, "ring" to ::ring, "burst" to ::burst, "puff" to ::puff,
         "flame" to ::flame, "glint" to ::glint, "slash" to ::slash, "slice" to ::slice, "orbit" to ::orbit, "petal" to ::petal, "petal_blue" to ::petalBlue, "procuration_ribbon" to ::procurationRibbon, "crimson_orbit" to ::crimsonOrbit, "crimson_link" to ::crimsonLink,
     )

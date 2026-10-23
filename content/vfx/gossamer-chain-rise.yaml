@@ -95,6 +95,7 @@ rigs:
     bands:
     - from: 0
       to: 0.86
+      glyph: '<font:astera:vfx/gossamer-trail-wedge-quad></font>'
       color: '#DD14245F'
       color_to: '#606138A8'
     - from: 0.86

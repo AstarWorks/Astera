@@ -55,12 +55,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "分割を25度に細分化し外周の角を軽減。矩形の重なりによる内側の突起、原映像の滑らかな発光・白い残光・花模様、残像の衣服と姿勢、刀の曲率、カメラは未一致。通常入力・状態分岐・正式キット対応は未確定。"
+    "reason": "台形素材で帯の内側の大きな重なりを解消。区間境界の細い隙間、外周の角・発光、白い残光・花模様、残像の衣服と姿勢、刀の曲率、カメラは未一致。通常入力・状態分岐・正式キット対応は未確定。"
   },
   "weapon": "gossamer-katana",
   "identity": "Blade of the House of Spiders Ryōshū",
-  "iterations": 8,
+  "iterations": 9,
   "report": "/report/gossamer-katana",
   "referenceRevision": "b4a6153c026f88c462eb7e0054e298c4f104f513b253e237275999201a833ae3",
-  "contentRevision": "a557f1c8ca3252e13b06db51d1851fccc582920cbcc04253fc81e35f7ba923f0"
+  "contentRevision": "fc3c1902fdfc7f93e32ddaf08076a7102a8840e38a5b465f4be7df12eff099bd"
 }

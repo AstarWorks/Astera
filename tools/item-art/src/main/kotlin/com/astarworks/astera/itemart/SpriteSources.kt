@@ -37,7 +37,7 @@ internal object SpriteSources {
         data class Strip(val source: Sources.Source) : Origin
     }
 
-    data class Def(val id: String, val origin: Origin, val frames: Int, val size: Int, val colors: Int, val outline: Boolean)
+    data class Def(val id: String, val origin: Origin, val frames: Int, val size: Int, val colors: Int, val outline: Boolean, val quadFont: Boolean = false)
 
     fun load(contentDir: Path): List<Def> {
         val manifest = contentDir.resolve(MANIFEST)
@@ -81,7 +81,7 @@ internal object SpriteSources {
             }
             require(frames in 1..MAX_FRAMES) { "$MANIFEST: sprite $id: frames must be 1..$MAX_FRAMES" }
             require(size in 8..256) { "$MANIFEST: sprite $id: size must be 8..256" }
-            Def(id, origin, frames, size, colors, outline)
+            Def(id, origin, frames, size, colors, outline, o["quad_font"] == true)
         }
     }
 
@@ -167,10 +167,10 @@ internal object SpriteSources {
     const val WIDTH_PIN: Int = 0x01000000
 
     /** Bitmap font JSON; the codepoints are written as \\u escapes so the file stays plain ASCII. */
-    fun fontJson(id: String, frames: Int, size: Int): String {
+    fun fontJson(id: String, frames: Int, size: Int, ascent: Int = size / 2 - 2): String {
         val chars = (0 until frames).joinToString("") { "\\u%04x".format(FIRST_CODEPOINT + it) }
         return "{\"providers\":[{\"type\":\"bitmap\",\"file\":\"${ItemArt.NAMESPACE}:generated/sprites/$id.png\"," +
-            "\"ascent\":${size / 2 - 2},\"height\":$size,\"chars\":[\"$chars\"]}]}\n"
+            "\"ascent\":$ascent,\"height\":$size,\"chars\":[\"$chars\"]}]}\n"
     }
 
     fun metaYaml(id: String, frames: Int, size: Int): String = "$HEADER\nid: $id\nframes: $frames\nsize: $size\n"
@@ -184,6 +184,7 @@ internal object SpriteSources {
             val frames = render(def)
             files["$TEXTURE_DIR/${def.id}.png"] = ItemArt.png(strip(frames))
             files["$FONT_DIR/${def.id}.json"] = fontJson(def.id, frames.size, def.size).toByteArray()
+            if (def.quadFont) files["$FONT_DIR/${def.id}-quad.json"] = fontJson(def.id, frames.size, 8, 7).toByteArray()
             files["$META_DIR/${def.id}.yaml"] = metaYaml(def.id, frames.size, def.size).toByteArray()
         }
         return files

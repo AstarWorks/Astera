@@ -10,6 +10,7 @@ sources:
   vfx-v1: { file: sheets/vfx-v1.png, grid: [6, 6] }
 
 sprites:
+  gossamer-trail-wedge: { quad_font: true, draw: gossamer_trail_wedge, frames: 1, size: 128, color: "#FFFFFF" }
   gossamer-echo-back: { draw: gossamer_echo_mirror, frames: 1, size: 128, color: "#AAB4CF" }
   gossamer-echo: { draw: gossamer_echo, frames: 1, size: 128, color: "#AAB4CF" }
   orrery-impact: { draw: orrery_impact, frames: 4, size: 128, color: "#ffb522" }
