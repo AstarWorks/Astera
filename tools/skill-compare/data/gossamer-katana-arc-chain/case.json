@@ -52,15 +52,15 @@
     }
   ],
   "notes": "4接触の専用直接呼出し試作。通常入力・状態分岐・正式キット対応は未確定。試作ダメージ4回を原作の確定ダメージ回数として扱わない。",
-  "status": "captured",
+  "status": "built",
   "verification": {
     "status": "failed",
-    "reason": "青・赤の平面人型残像は実機で表示確認。髪・衣服・姿勢・刀の曲率、途切れる細い斬撃縁、白い帯状残光、花模様、腕姿勢、カメラは未一致。通常入力・状態分岐・正式キット対応は未確定。"
+    "reason": "縦斬りの半透明面を実機で確認。扇形の角・矩形の重なり・細い縁、残像の髪と衣服・姿勢、刀の曲率、白い残光、花模様、カメラは未一致。通常入力・状態分岐・正式キット対応は未確定。"
   },
   "weapon": "gossamer-katana",
   "identity": "Blade of the House of Spiders Ryōshū",
-  "iterations": 6,
+  "iterations": 7,
   "report": "/report/gossamer-katana",
   "referenceRevision": "b4a6153c026f88c462eb7e0054e298c4f104f513b253e237275999201a833ae3",
-  "contentRevision": "119cb6abe65fdb944047742c06b3b2443a804fcf83a4e9cc4d7a7abd2bbee1c4"
+  "contentRevision": "79f830ba8c32fa1a4a33fb954f71f86e180068d7f4ad7afa2896e269e0748505"
 }

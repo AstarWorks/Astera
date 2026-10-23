@@ -91,6 +91,7 @@ rigs:
     life_ticks: 3
     step_deg: 40
     style: soft
+    double_sided: true
     bands:
     - from: 0
       to: 0.86

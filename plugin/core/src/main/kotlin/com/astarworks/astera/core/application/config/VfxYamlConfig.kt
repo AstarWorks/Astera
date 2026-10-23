@@ -588,6 +588,7 @@ public data class VfxTrailYaml(
     @SerialName("dark_rim") public val darkRim: VfxTrailRimYaml? = null,
     @SerialName("step_deg") public val stepDeg: Double = 30.0,
     @SerialName("fade_power") public val fadePower: Double = 1.5,
+    @SerialName("double_sided") public val doubleSided: Boolean = false,
 ) {
     public fun toDomain(): VfxTrail = VfxTrail(
         id = id,
@@ -603,6 +604,7 @@ public data class VfxTrailYaml(
         darkRim = darkRim?.toDomain(),
         stepDeg = stepDeg,
         fadePower = fadePower,
+        doubleSided = doubleSided,
     )
 }
 
