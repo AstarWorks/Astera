@@ -51,6 +51,9 @@ clock). The client FOV option is the first key's fov; other keys' fov is emulate
 `build/vfx-shot/<skill>/compare/` has `PRE_TICKS_CMP` (6) frames before the cast and `meta.json` with `cast_tick_ms`,
 which skill-compare reads (source `vfx-compare`, the default) to align the frames with the case's skill start.
 
+Every view writes `meta.json` (`view`, `skill`, `frames`, `fov`, `fovMode` = `fixed` | `intent-first-key` | `override-dolly` | `override-nodolly`, `resolution`,
+`capturedAt`, `branch`, `implementationCommit`); skill-compare shows it as the provenance badge and `make skill-brief` copies it into its manifest.
+
 ## How it works
 
 1. Boots compose project `astera-shot` from `docker/docker-compose.e2e.yml` + `compose.override.yml`
@@ -58,7 +61,7 @@ which skill-compare reads (source `vfx-compare`, the default) to align the frame
    The dev container is attached to that network (`docker network connect`) so clients reach the server.
 2. `rcon.py` talks RCON straight to the server IP; readiness is polled (RCON / client log), never slept on.
 3. Clients: `portablemc` (offline name) with `--join-server`. Options are written per client
-   (render distance 6, FOV 70, no view bob, particles all, GUI scale 2, sound off, no pause on focus loss).
+   (render distance 6, FOV 90 (compare: the intent's), no view bob, particles all, GUI scale 2, sound off, no pause on focus loss).
    F1 hides the HUD (`HIDE_HUD=0` keeps it; note F1 also hides the first-person hand).
 4. `ffmpeg -f x11grab` records with wall-clock timestamps; `rcon.py --stamp` prints the epoch time just before
    the cast, so frame 0 is the cast tick (plus `CAST_LAG_MS`, default 60, for render/network lag).
@@ -76,7 +79,7 @@ that atlas itself.
 ## Knobs (env)
 
 `VIEW`, `TICKS`, `ITEM` (default: skill id minus `-sN`/`-def`), `TIME_OF_DAY` (6000), `DISTANCE` (4),
-`RES` (1280x720), `HIDE_HUD`, `GUI_SCALE`, `FOV_OPT` (0.0 = 70), `RENDER_DISTANCE`, `SETTLE` (6 s),
+`RES` (1280x720), `HIDE_HUD`, `GUI_SCALE`, `FOV` (degrees, 30-110; default 90 for caster/opponent/side, compare: the intent's first camera key unless set), `FOV_DOLLY` (compare: 1 = keep the reference framing, 0 = keep camera positions and widen), `FOV_OPT` (raw normalised value, 0.0 = 70), `RENDER_DISTANCE`, `SETTLE` (6 s),
 `PRE_ROLL`, `SHEET_STEP` (2), `CAST_LAG_MS`, `SHOT_KEEP`, `SHOT_CACHE` (portablemc venv + game files,
 default `~/.cache/astera-vfx-shot`; first run downloads the client ~ 1 GB).
 
