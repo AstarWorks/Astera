@@ -1,6 +1,6 @@
 # Zwei West Section 3 Ishmael, Knight's Greatsword Form (video 11.633-14.233): two waist-high sweeps. Director integration (pilot, ONE rig).
 # bastion-s1-rig plays at skill tick 0 for the whole skill (freeze 7/31 = the two hit_stops); fx-high/low play at 3/27 (contact = effect tick 4).
-# Sounds: deliver/sound-cues.yaml; vanilla particles: deliver/particle-cues.yaml. Caster movement: step-in before hit 1, crouched lunge before hit 2.
+# Sounds: deliver/sound-cues.yaml; vanilla particles ride the blade inside fx-high/low (deliver/particle-cues.yaml round 7b); only the target hit-crit bursts stay here. Caster movement: step-in before hit 1, crouched lunge before hit 2.
 id: bastion-greatsword-s1
 name: {ja: 月輪の薙ぎ, en: Moon Sweep}
 description: {ja: 一歩踏み込んで腰の高さで二度薙ぎ払う。初撃が当たると溜めを得る。, en: Step in and sweep twice at waist height. Landing the first banks charge.}
@@ -51,22 +51,6 @@ phases:
     volume: {type: literal, value: 0.65}
     pitch: {type: literal, value: 1.0}
     delay_ticks: {type: literal, value: 4}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-ember
-    delay_ticks: {type: literal, value: 5}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-ember
-    delay_ticks: {type: literal, value: 6}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-dust-gold
-    delay_ticks: {type: literal, value: 6}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-dust-black
-    delay_ticks: {type: literal, value: 6}
   - type: play_sound
     targets: {type: caster}
     sound_id: 'astera:weapons/bastion-s1-impact-steel'
@@ -116,27 +100,11 @@ phases:
     targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 3.6}, angle_degrees: {type: literal, value: 110}, max_count: 1}
     particle_id: bastion-s1-hit-crit
     delay_ticks: {type: literal, value: 7}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-hit-spark
-    delay_ticks: {type: literal, value: 7}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-ember
-    delay_ticks: {type: literal, value: 7}
   - type: play_sound
     targets: {type: caster}
     sound_id: 'astera:weapons/bastion-s1-ring-whirl'
     volume: {type: literal, value: 0.51}
     pitch: {type: literal, value: 1.2}
-    delay_ticks: {type: literal, value: 8}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-ember
-    delay_ticks: {type: literal, value: 8}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-smoke-dark
     delay_ticks: {type: literal, value: 8}
   - type: play_sound
     targets: {type: caster}
@@ -176,27 +144,11 @@ phases:
     volume: {type: literal, value: 0.5}
     pitch: {type: literal, value: 0.8}
     delay_ticks: {type: literal, value: 27}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-ember
-    delay_ticks: {type: literal, value: 29}
   - type: play_sound
     targets: {type: caster}
     sound_id: 'astera:weapons/bastion-s1-flash-sting'
     volume: {type: literal, value: 0.4}
     pitch: {type: literal, value: 1.0}
-    delay_ticks: {type: literal, value: 30}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-ember
-    delay_ticks: {type: literal, value: 30}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-dust-gold
-    delay_ticks: {type: literal, value: 30}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-dust-black
     delay_ticks: {type: literal, value: 30}
   - type: play_sound
     targets: {type: caster}
@@ -243,31 +195,11 @@ phases:
     targets: {type: cone, from: {type: caster}, direction: {type: from_caster}, distance: {type: literal, value: 3.6}, angle_degrees: {type: literal, value: 110}, max_count: 1}
     particle_id: bastion-s1-hit-crit
     delay_ticks: {type: literal, value: 31}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-hit-spark
-    delay_ticks: {type: literal, value: 31}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-ember
-    delay_ticks: {type: literal, value: 31}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-dust-gold
-    delay_ticks: {type: literal, value: 31}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-dust-black
-    delay_ticks: {type: literal, value: 31}
   - type: play_sound
     targets: {type: caster}
     sound_id: 'astera:weapons/bastion-s1-ring-whirl'
     volume: {type: literal, value: 0.46}
     pitch: {type: literal, value: 1.0}
-    delay_ticks: {type: literal, value: 32}
-  - type: spawn_particle
-    targets: {type: caster}
-    particle_id: bastion-s1-smoke-dark
     delay_ticks: {type: literal, value: 32}
   - type: play_sound
     targets: {type: caster}
