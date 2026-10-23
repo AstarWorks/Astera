@@ -1,36 +1,77 @@
 {
   "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
-  "capture": "Isolated creative superflat singleplayer, native main/offhand Xvfb screenshots without image editing. Shared astera-mc-client.lock held throughout launcher/capture. No standalone server, Docker, Gradle or tests.",
+  "capture": "Isolated creative superflat singleplayer; raw main/offhand Xvfb screenshots opened and reviewed. Shared astera-mc-client.lock held throughout launcher and capture. No standalone server, Docker, Gradle or tests.",
   "item": "minecraft:iron_axe[minecraft:item_model=\"astera:shotgun\"]",
-  "resourcePack": "Minimal capture pack with exact authored model and native block references. No custom or vanilla PNG files.",
+  "resourcePack": "Minimal builder-equivalent pack: authoring astera_tints removed from cuboid JSON and emitted as minecraft:constant tint sources in item definition; native block references only. No PNGs.",
   "modelElements": 127,
-  "sha256": {
-    "content/models/items/shotgun.model.json": "fb365e2f6a17b5d6e3bb4f00e76db04cf045dc2c62b9862c36d23963930e13b8",
-    "tools/model-forge/batches/vanilla-material/shotgun/after.png": "20657a3645c82529ed2d9dc0206c4bdc94326c8f228ea344561e0dc118cfa7ed",
-    "tools/model-forge/batches/vanilla-material/shotgun/angles.png": "6bed84f4f9e6a2a9151182e614a94a46c93407237b36384790b3307bc5bfb036",
-    "tools/model-forge/batches/vanilla-material/shotgun/before.png": "ad8e7f930fea2afdc6c706a09229e8265bf7d1099b29f2a52a5765570908c818",
-    "tools/model-forge/batches/vanilla-material/shotgun/client-offhand.png": "0099a7009a6df5c82816fce0a6bb6f30687694b0b93e715aad568b2f944d6bc2",
-    "tools/model-forge/batches/vanilla-material/shotgun/client.png": "e7bf7dd6bb12afd26e8d4068220141d14e7e3a69b5ed850b04a0a811708a129b",
-    "tools/model-forge/batches/vanilla-material/shotgun/contexts.png": "8aec6f6feb2f2f198b2ba871e161149e720abf185cbc189b66f89f44d0ce57d1",
-    "tools/model-forge/batches/vanilla-material/shotgun/inventory.png": "58bf0e463847229da5dc184e986f27333e3bc55567c19419e15ae146fdfb4b0c",
-    "tools/model-forge/batches/vanilla-material/shotgun/player-contexts.png": "97cb555b6a6472f2b173effb863b4f98971e4155e777587a8bda1d3fc0f843de"
-  },
-  "remainingRisks": [
-    "Production pack build and deployment deferred to manager.",
-    "Offline cameras and lighting differ from native first-person perspective.",
-    "Pre-existing overlaps and small facet separations retained.",
-    "Netherite is a close catalog substitute for blued steel, with broader panel markings."
+  "paletteReference": "36743b70:content/models/items/shotgun.model.json",
+  "geometryReference": "10c182aaef7d9a44490bcf7e8e5f44749cd32a96",
+  "constantTints": [
+    2370874,
+    11898219,
+    4148317,
+    16768938,
+    12966886,
+    3885144,
+    16751786,
+    10663103,
+    15483236,
+    16773285,
+    1383720
   ],
+  "sha256": {
+    "content/models/items/shotgun.model.json": "eb5b9bc43a7fb0cda9bc708f44574c9c6c68d54e413453d0c74a957efe2a0ee1",
+    "tools/model-forge/batches/vanilla-material/shotgun/after.png": "f6a00c763bf7b54cad8dcff2fa5ac8999289973909cb5671204a977864913112",
+    "tools/model-forge/batches/vanilla-material/shotgun/angles.png": "9edb3cffa9fa9bb16e29071787d7c7a4e31f693573c498d7b9ec2e3ea56ad061",
+    "tools/model-forge/batches/vanilla-material/shotgun/before.png": "ad8e7f930fea2afdc6c706a09229e8265bf7d1099b29f2a52a5765570908c818",
+    "tools/model-forge/batches/vanilla-material/shotgun/client-offhand.png": "c8f00187e01d07d67dcf6aa46ac89ae52ac4023665cb7000c33cb045b9586c88",
+    "tools/model-forge/batches/vanilla-material/shotgun/client.png": "f95fee7841de22ec51a65df00b83f326cf9a780ee26295c40d0635c48b04c471",
+    "tools/model-forge/batches/vanilla-material/shotgun/contexts.png": "53322c12a6170f748e8f313a3af3a89714cea11b11af3eddd65217773b0864d1",
+    "tools/model-forge/batches/vanilla-material/shotgun/inventory.png": "e280a936fe480005d8d8465f4f7acd8ee8f991aed5b97a3809881c26e5585aab",
+    "tools/model-forge/batches/vanilla-material/shotgun/player-contexts.png": "40ac695f2b10e11712b21a25b973d3c09a7d27e335dfd23209cf2f6cd4a5ae8f",
+    "tools/model-forge/batches/vanilla-material/shotgun/capture-client.py": "dff6d16c04cd8d8917c7e0503edb712b8729730b3c5921b96941bbded4e924ec",
+    "tools/model-forge/batches/vanilla-material/shotgun/remake.py": "23766edf5bc05969a1b408a67de1d9a3116ec0221e0dd953b7bd00f0f4038d31",
+    "tools/model-forge/batches/vanilla-material/shotgun/operations.json": "e6d220ebd95bcd2f75ee0cdbec210ec82b765cc1ec56a5ecde3c873447e8159c",
+    "tools/model-forge/batches/vanilla-material/shotgun/verification.json": "f8cc8d35aa870c598c8d8463cfa2b36ed31d5489c6de8adac44f88d6b302c1b7",
+    "tools/model-forge/batches/vanilla-material/shotgun/cameras.json": "7e1d66e7b3172463ac217d425a7f016eb10aecb67ca79e19a82949bc8258240b",
+    "tools/model-forge/batches/vanilla-material/shotgun/review.md": "cc0c71ac72a248ecd767fd3a417508f80d057c9d0d2da0ab0fb0527a55179230"
+  },
   "validation": {
-    "valid": true,
-    "errors": [],
-    "warnings": {
-      "overlap_aabb": 402,
-      "coplanar_contact_possible_zfight": 9,
-      "floating_components_aabb": 1
-    },
+    "geometryUnchanged": true,
+    "displayUnchanged": true,
+    "elements": 127,
+    "exportImportIdentical": true,
     "allFaceTexelsPerLocalUnit": 1,
-    "displayTransformsUnchanged": true,
+    "palette": [
+      2370874,
+      11898219,
+      4148317,
+      16768938,
+      12966886,
+      3885144,
+      16751786,
+      10663103,
+      15483236,
+      16773285,
+      1383720
+    ],
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 9,
+        "overlap_aabb": 402,
+        "floating_components_aabb": 1
+      }
+    },
     "deterministicReplay": true
-  }
+  },
+  "catalogWishes": [
+    "wood.stripped_birch_log: lighter neutral wood base; used tinted stripped oak instead."
+  ],
+  "remainingRisks": [
+    "Production pack build/deployment and use animations remain manager verification.",
+    "Offline lighting and perspective differ from native client.",
+    "Existing overlapping bevels and tiny parts retained with exact HEAD geometry."
+  ]
 }

@@ -1,0 +1,1156 @@
+[
+  {
+    "file": "shotgun-orbit--45-0.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.24250030517578125,
+        -21.242820619171543,
+        26.21858733755915
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit--45-45.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.587386856728042,
+        -21.242820619171543,
+        18.619886527710406
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit--45-90.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        26.18608766657679,
+        -21.242820619171543,
+        0.2749999761581437
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit--45-135.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.587386856728045,
+        -21.242820619171543,
+        -18.06988657539412
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit--45-180.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.24250030517578441,
+        -21.242820619171543,
+        -25.668587385242866
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit--45-225.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.102386246376483,
+        -21.242820619171543,
+        -18.06988657539412
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit--45-270.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.701087056225226,
+        -21.242820619171543,
+        0.2749999761581379
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit--45-315.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.102386246376486,
+        -21.242820619171543,
+        18.6198865277104
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-0-0.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.24250030517578125,
+        4.700766742229464,
+        36.96477307926266
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-0-45.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        26.186087666576785,
+        4.700766742229464,
+        26.21858733755915
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-0-90.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        36.9322734082803,
+        4.700766742229464,
+        0.2749999761581443
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-0-135.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        26.18608766657679,
+        4.700766742229464,
+        -25.668587385242862
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-0-180.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.24250030517578575,
+        4.700766742229464,
+        -36.41477312694638
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-0-225.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.70108705622522,
+        4.700766742229464,
+        -25.66858738524288
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-0-270.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -36.44727279792874,
+        4.700766742229464,
+        0.2749999761581362
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-0-315.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.70108705622523,
+        4.700766742229464,
+        26.218587337559143
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-45-0.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.24250030517578125,
+        30.644354103630466,
+        26.21858733755915
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-45-45.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.587386856728042,
+        30.644354103630466,
+        18.619886527710406
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-45-90.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        26.18608766657679,
+        30.644354103630466,
+        0.2749999761581437
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-45-135.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        18.587386856728045,
+        30.644354103630466,
+        -18.06988657539412
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-45-180.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.24250030517578441,
+        30.644354103630466,
+        -25.668587385242866
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-45-225.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.102386246376483,
+        30.644354103630466,
+        -18.06988657539412
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-45-270.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -25.701087056225226,
+        30.644354103630466,
+        0.2749999761581379
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-orbit-45-315.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -18.102386246376486,
+        30.644354103630466,
+        18.6198865277104
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-pole--90.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.24250030517578125,
+        -31.989006360856713,
+        0.2750366659312548
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-pole-90.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "model",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0.24250030517578125,
+        41.39053984531564,
+        0.2750366659312452
+      ],
+      "target": [
+        0.24250030517578125,
+        4.700766742229462,
+        0.2749999761581421
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-gui.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "gui",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        2.4492935982947065e-15,
+        40
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-firstperson_righthand.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "firstperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-firstperson_lefthand.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "firstperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        0,
+        24.000000000000004,
+        32.39999999999999
+      ],
+      "target": [
+        0,
+        24,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 70
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-thirdperson_righthand.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "thirdperson_righthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-thirdperson_lefthand.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "thirdperson_lefthand",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -44,
+        40,
+        -43.99999999999999
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-thirdperson_righthand_side.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "thirdperson_righthand_side",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        48,
+        21.999999999999996,
+        2.9391523179536475e-15
+      ],
+      "target": [
+        0,
+        14,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-ground.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "ground",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-ground_spin.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "ground_spin",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        -24.000000000000004,
+        21,
+        -24
+      ],
+      "target": [
+        0,
+        4,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  },
+  {
+    "file": "shotgun-fixed.png",
+    "item": "shotgun",
+    "source": "content/models/items/shotgun.model.json",
+    "sha256": "20837448313213b0a3943079cd6d17a2539b2f8ccc5547deb613b673a7d25810",
+    "context": "fixed",
+    "mode": "textured",
+    "camera": {
+      "position": [
+        2.6942229581241772e-15,
+        1.3471114790620886e-15,
+        -22
+      ],
+      "target": [
+        0,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "zoom": 1,
+      "fov": 42
+    },
+    "selected": [],
+    "hidden": [],
+    "size": [
+      1130,
+      856
+    ]
+  }
+]

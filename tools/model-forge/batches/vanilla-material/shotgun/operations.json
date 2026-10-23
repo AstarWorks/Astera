@@ -2,7 +2,7 @@
   {
     "op": "import",
     "args": {
-      "path": "/tmp/shotgun-before.json"
+      "path": "/tmp/shotgun-original.json"
     },
     "validation": {
       "valid": true,
@@ -67,6 +67,925 @@
     "validation": null
   },
   {
+    "op": "import",
+    "args": {
+      "path": "build/shotgun-recolour-replay/head.json"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 9,
+        "overlap_aabb": 402,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "history.snapshot",
+    "args": {
+      "name": "head"
+    },
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 9,
+        "overlap_aabb": 402,
+        "floating_components_aabb": 1
+      }
+    }
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0001"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0002"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0003"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0004"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0005"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0006"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0007"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0008"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0009"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0010"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0011"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0012"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0013"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0014"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0015"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0016"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0017"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0018"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0019"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0020"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0021"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0022"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0023"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0024"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0025"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0026"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0027"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0028"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0029"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0030"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0031"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0032"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0033"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0034"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0035"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0036"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0037"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0038"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0039"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0040"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0041"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0042"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0043"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0044"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0045"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0046"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0047"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0048"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0049"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0050"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0051"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0052"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0053"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0054"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0055"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0056"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0057"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0058"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0059"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0060"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0061"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0062"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0063"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0064"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0065"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0066"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0067"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0068"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0069"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0070"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0071"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0072"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0073"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0074"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0075"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0076"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0077"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0078"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0079"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0080"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0081"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0082"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0083"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0084"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0085"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0086"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0087"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0088"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0089"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0090"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0091"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0092"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0093"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0094"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0095"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0096"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0097"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0098"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0099"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0100"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0101"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0102"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0103"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0104"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0105"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0106"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0107"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0108"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0109"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0110"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0111"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0112"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0113"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0114"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0115"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0116"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0117"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0118"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0119"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0120"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0121"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0122"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0123"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0124"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0125"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0126"
+    },
+    "validation": null
+  },
+  {
+    "op": "scene.element",
+    "args": {
+      "id": "e0127"
+    },
+    "validation": null
+  },
+  {
     "op": "batch",
     "args": {
       "ops": [
@@ -75,46 +994,18 @@
           "args": {
             "ids": [
               "e0001",
-              "e0007",
-              "e0008",
-              "e0009",
-              "e0010",
               "e0011",
-              "e0012",
               "e0014",
               "e0015",
               "e0016",
               "e0017",
-              "e0018",
-              "e0025",
-              "e0032",
-              "e0033",
-              "e0034",
-              "e0035",
-              "e0036",
-              "e0037",
-              "e0040",
-              "e0041",
-              "e0042",
-              "e0043",
-              "e0044",
-              "e0045",
-              "e0070",
-              "e0071",
-              "e0072",
-              "e0073",
-              "e0112",
-              "e0113",
-              "e0114",
-              "e0115",
-              "e0116",
-              "e0117",
-              "e0118",
-              "e0119",
-              "e0120"
+              "e0019",
+              "e0026",
+              "e0115"
             ],
-            "material": "metal.netherite_block",
-            "seed": 20261023
+            "material": "metal.iron_block",
+            "tint": "#242d3a",
+            "seed": 20261024
           }
         },
         {
@@ -124,11 +1015,7 @@
               "e0002",
               "e0003",
               "e0004",
-              "e0006",
               "e0069",
-              "e0087",
-              "e0088",
-              "e0089",
               "e0090",
               "e0091",
               "e0092",
@@ -150,10 +1037,14 @@
               "e0108",
               "e0109",
               "e0110",
-              "e0111"
+              "e0111",
+              "e0112",
+              "e0113",
+              "e0114"
             ],
-            "material": "wood.stripped_dark_oak_log",
-            "seed": 20261023
+            "material": "wood.stripped_oak_log",
+            "tint": "#b58d6b",
+            "seed": 20261024
           }
         },
         {
@@ -165,19 +1056,37 @@
               "e0067",
               "e0068"
             ],
-            "material": "cloth.black_wool",
-            "seed": 20261023
+            "material": "cloth.white_wool",
+            "tint": "#3f4c5d",
+            "seed": 20261024
           }
         },
         {
           "op": "material.apply",
           "args": {
             "ids": [
+              "e0006"
+            ],
+            "material": "wood.stripped_oak_log",
+            "tint": "#ffdfaa",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0007",
+              "e0008",
+              "e0009",
+              "e0010",
               "e0013",
+              "e0018",
               "e0021",
               "e0022",
               "e0023",
               "e0024",
+              "e0025",
               "e0028",
               "e0029",
               "e0030",
@@ -186,35 +1095,47 @@
               "e0039",
               "e0046",
               "e0047",
+              "e0070",
+              "e0071",
+              "e0072",
+              "e0073",
               "e0074",
               "e0075",
               "e0076",
               "e0077",
-              "e0082",
-              "e0083",
-              "e0084",
+              "e0078",
+              "e0079",
+              "e0080",
               "e0085",
               "e0086",
-              "e0121",
-              "e0122"
+              "e0087",
+              "e0088",
+              "e0089",
+              "e0124",
+              "e0125"
             ],
             "material": "metal.iron_block",
-            "seed": 20261023
+            "tint": "#c5dbe6",
+            "seed": 20261024
           }
         },
         {
           "op": "material.apply",
           "args": {
             "ids": [
-              "e0019",
-              "e0026",
-              "e0078",
-              "e0079",
-              "e0080",
-              "e0081"
+              "e0012",
+              "e0116",
+              "e0117",
+              "e0118",
+              "e0119",
+              "e0120",
+              "e0121",
+              "e0122",
+              "e0123"
             ],
-            "material": "concrete.black_concrete",
-            "seed": 20261023
+            "material": "metal.iron_block",
+            "tint": "#3b4858",
+            "seed": 20261024
           }
         },
         {
@@ -223,6 +1144,40 @@
             "ids": [
               "e0020",
               "e0027",
+              "e0126",
+              "e0127"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#ff9caa",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0032",
+              "e0033",
+              "e0034",
+              "e0035",
+              "e0036",
+              "e0037",
+              "e0040",
+              "e0041",
+              "e0042",
+              "e0043",
+              "e0044",
+              "e0045"
+            ],
+            "material": "metal.iron_block",
+            "tint": "#a2b4bf",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
               "e0048",
               "e0049",
               "e0050",
@@ -232,12 +1187,11 @@
               "e0058",
               "e0059",
               "e0064",
-              "e0065",
-              "e0123",
-              "e0124"
+              "e0065"
             ],
-            "material": "concrete.red_concrete",
-            "seed": 20261023
+            "material": "concrete.white_concrete",
+            "tint": "#ec4164",
+            "seed": 20261024
           }
         },
         {
@@ -253,8 +1207,23 @@
               "e0062",
               "e0063"
             ],
-            "material": "metal.gold_block",
-            "seed": 20261023
+            "material": "metal.iron_block",
+            "tint": "#fff0a5",
+            "seed": 20261024
+          }
+        },
+        {
+          "op": "material.apply",
+          "args": {
+            "ids": [
+              "e0081",
+              "e0082",
+              "e0083",
+              "e0084"
+            ],
+            "material": "concrete.white_concrete",
+            "tint": "#151d28",
+            "seed": 20261024
           }
         }
       ]
@@ -263,7 +1232,6 @@
       "valid": true,
       "errors": [],
       "warnings": {
-        "mixed_texture_atlases": 1,
         "coplanar_contact_possible_zfight": 9,
         "overlap_aabb": 402,
         "floating_components_aabb": 1
@@ -326,6 +1294,39 @@
     "validation": null
   },
   {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 32,
+      "name": "inventory-16"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 32,
+      "name": "inventory-32"
+    },
+    "validation": null
+  },
+  {
+    "op": "render",
+    "args": {
+      "views": [
+        "gui"
+      ],
+      "resolution": 64,
+      "name": "inventory-64"
+    },
+    "validation": null
+  },
+  {
     "op": "measure",
     "args": null,
     "validation": null
@@ -346,7 +1347,7 @@
   {
     "op": "history.diff",
     "args": {
-      "a": "before",
+      "a": "head",
       "b": "after"
     },
     "validation": null
@@ -354,8 +1355,26 @@
   {
     "op": "export",
     "args": {
-      "path": "/tmp/shotgun-forge-final/export"
+      "path": "build/shotgun-recolour-replay/export"
     },
     "validation": null
+  },
+  {
+    "op": "measure",
+    "args": null,
+    "validation": null
+  },
+  {
+    "op": "validate",
+    "args": null,
+    "validation": {
+      "valid": true,
+      "errors": [],
+      "warnings": {
+        "coplanar_contact_possible_zfight": 9,
+        "overlap_aabb": 402,
+        "floating_components_aabb": 1
+      }
+    }
   }
 ]
