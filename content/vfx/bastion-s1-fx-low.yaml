@@ -14,13 +14,13 @@ elements:
   end_tick: 9
   keyframes:
   - t: 0
-    translate: [0, 0.75, 1.2]
+    translate: [0, 0.5, 1.35]
     rotate: [0, 0, 0]
-    scale: [0.7812, 0.3516, 1.0]
+    scale: [0.625, 0.2625, 1.0]
   - t: 2
-    scale: [0.875, 0.3937, 1.0]
+    scale: [0.6875, 0.2888, 1.0]
     ease: out_quad
-    translate: [0, 0.75, 1.2]
+    translate: [0, 0.5, 1.35]
     rotate: [0, 0, 0]
 - id: s1h2-ring
   kind: {type: sprite, sprite: bastion-s1-ring, frame_ticks: 1, loop: false, see_through: true}

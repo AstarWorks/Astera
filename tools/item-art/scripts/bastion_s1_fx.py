@@ -178,9 +178,13 @@ def low():
     # ONE connected ragged ink mass of horizontal brush tongues (reference e00-e02), camera-facing (billboard center),
     # hip-to-chest height (0.0-1.5) so it reads as a mass from eye level instead of a flat floor slab; tips translucent.
     # Round 8 flipbook: f0 splash on fx 3-4 (contact), full fx 5-6, dissolve fx 7-9 (3 frames eroding tips first).
+    # r9 (real client r6: ~40% of the compare close-up and of the first person t31-37): 4.0 -> 4.4 wide (was 5.0 -> 5.6),
+    # ratio 0.42, centre y 0.5 / z 1.35 (was 0.75 / 1.2). Perspective coverage (alpha > 0.1, 16:9): caster FP pitch 0
+    # <= ~12%, pitch -10 <= ~25% (was 30 / 43); compare close-up (intent t30 key, fov 45) <= ~12% (was 20); opponent
+    # eye (z 1.7) sees it below its frame. Scratch tool: inkcov.py in the r9 report.
     els.append(sprite("s1h2-ink", "bastion-s1-ink", 3, 9, [
-        kf(0, [0, 0.75, 1.2], [0, 0, 0], [s256(5.0), s256(5.0) * 0.45, 1.0]),
-        kf(2, scale=[s256(5.6), s256(5.6) * 0.45, 1.0], ease="out_quad")]))
+        kf(0, [0, 0.5, 1.35], [0, 0, 0], [s256(4.0), s256(4.0) * 0.42, 1.0]),
+        kf(2, scale=[s256(4.4), s256(4.4) * 0.42, 1.0], ease="out_quad")]))
     # Round 7b: the low ring is the smear of the r7 ring swing, IN its plane (10 deg tilt, lowest toward phi 60 = left-
     # front at the floor pitch -15 / y 0.11, centre on the pivot axis at tip pitch -5, radius 2.535 = tip; fitted to the
     # r7 keys 24-30 within 0.12 blocks), turning the blade's way (left-back -> back -> right -> front), 221 deg from
