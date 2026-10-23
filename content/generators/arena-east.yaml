@@ -6,7 +6,7 @@
 
 id: arena-east
 match_stage_id: example-arena
-position: { x: 6.5, y: 65.0, z: 0.5 }
+position: { x: 12.5, y: 65.0, z: 0.5 }
 currency: STAR
 period_seconds: 30.0
 amount: 1
