@@ -214,21 +214,21 @@ phases:
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: gossamer-katana-echo
+    vfx_id: gossamer-chain-echo-blue
     delay_ticks:
       type: literal
       value: 7
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: gossamer-katana-echo
+    vfx_id: gossamer-chain-echo-blue
     delay_ticks:
       type: literal
       value: 24
   - type: play_vfx
     targets:
       type: caster
-    vfx_id: gossamer-katana-echo
+    vfx_id: gossamer-chain-echo-red
     delay_ticks:
       type: literal
       value: 33
