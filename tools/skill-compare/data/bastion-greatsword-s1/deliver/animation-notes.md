@@ -173,3 +173,11 @@ LOW
  e14 tip(phi,pitch)=(  180,-20.0) tipY=0.05 turn/chunk=  4.1 edge_vs_vel=89 euler=(-532.9,18.7,68.8) err=0e+00
       mid-chord edge_vs_chord=89
 ```
+
+## Round 2 (real parts pasted, axis conflict resolved)
+- `bastion-s1-rig` now holds the 20 modeler parts verbatim (blade +Y, edges +-X, face normal +-Z: identical to the axes round 1 solved for, so NO euler change). Pivot y 0.92 -> 1.0 (REST tip y 0.05 -> 0.13, video 0.1-0.2). Trail `to` / emitter point y 2.55 -> 2.5 (real tip 2.545).
+- Axis truth: the composed transform is `tilt * swing * rest`. `rest [0,90,0]` alone puts the face UP/DOWN (modeler is right about that, with swing identity) but the swing keys carry a roll (-172.9, 18.7, 68.8 at rest) that turns it back to sideways. Computed composed face normal (x left, y up, z fwd): REST (-1.00, 0.00, 0.00) = broad face to the caster's side, edge dir (0,0.94,-0.34); sweep keys 4..9: |y| 0.96-0.99 (face horizontal, edge leading); settle keys 10..14: |y| 0.89 -> 0.03; back to (-1,0,0) at key 19. Hit 2 same (keys 25-33 |y| 0.87-1.00). Full table: `evidence/animator/r2/face-normal-per-key.txt` (script computes tilt*swing*rest*Z from the yaml). No tilt [0,0,90] or constant roll needed; the 20 deg plane tilt is kept.
+- Preview (vfx-preview, --freeze 7:2 --freeze 31:2, no planner exception): side REST shows the broad face with fuller + lime inlay, tip back and 20 deg down, tip above floor (frame_000 opened); top sweep shows the broad face as a full strip (face horizontal) with the contact held on effect ticks 7+8; eye shows the blade face-on from below at contact. Strips opened: `evidence/animator/r2/strip-hit1-{side,top,eye}.png` (hit2 strips rendered, not opened).
+- Displays: 20 sword parts + 21 trail = 41 alive max (budget 44). One rig, exactly one sword at every tick.
+- Hit-2 lowest tip now y ~0.30 (pivot +0.08); brief asked 0.2. Not retuned.
+- Real client NOT run.

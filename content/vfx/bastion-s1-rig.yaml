@@ -5,7 +5,7 @@
 # Hit 2: e_k -> key k+24 (the first 2-tick freeze shifts it), contact displayed at effect tick 31.
 # Swing euler values are solved by script from per-tick tip targets (phi, pitch) and edge roll; see deliver/animation-notes.md.
 # Anchor frame x=left y=up z=forward. tilt roll -20: the caster's right end of the swing plane is higher.
-# PLACEHOLDER parts (round 1): re-paste deliver/rig-parts.yaml in round 2. fx / sprites live in bastion-s1-fx-high/low.yaml.
+# Parts: verbatim deliver/rig-parts.yaml (20 parts, round 2). Face normal = local Z, edges = +-X, blade = +Y. fx / sprites live in bastion-s1-fx-high/low.yaml.
 
 id: bastion-s1-rig
 duration_ticks: 52
@@ -14,43 +14,31 @@ follow: true
 sample_ticks: 1
 rigs:
 - id: sword
-  pivot: [-0.15, 0.92, 0.25]
+  pivot: [-0.15, 1.0, 0.25]
   rest: [0, 90, 0]
   tilt: [0, 0, -20]
   respect_hit_stop: true
   parts:
-  - id: blade_face
-    block: gray_concrete
-    offset: [0, 1.55, 0]
-    size: [0.46, 1.9, 0.07]
-  - id: rim_l
-    block: white_concrete
-    offset: [0.25, 1.55, 0]
-    size: [0.07, 1.9, 0.12]
-  - id: rim_r
-    block: white_concrete
-    offset: [-0.25, 1.55, 0]
-    size: [0.07, 1.9, 0.12]
-  - id: tip
-    block: white_concrete
-    offset: [0, 2.5, 0]
-    size: [0.58, 0.08, 0.12]
-  - id: base
-    block: white_concrete
-    offset: [0, 0.62, 0]
-    size: [0.58, 0.08, 0.12]
-  - id: inset
-    block: yellow_concrete
-    offset: [0, 0.86, 0]
-    size: [0.09, 0.2, 0.09]
-  - id: guard
-    block: black_concrete
-    offset: [0, 0.5, 0]
-    size: [0.62, 0.1, 0.18]
-  - id: grip
-    block: black_concrete
-    offset: [0, 0.05, 0]
-    size: [0.09, 0.8, 0.09]
+  - { id: blade_face, block: iron_block, offset: [0.0, 1.3162, 0.0], size: [0.1688, 1.7575, 0.05] }
+  - { id: edge_l, block: smooth_quartz, offset: [0.0953, 1.3162, 0.0], size: [0.0219, 1.7575, 0.0425] }
+  - { id: edge_r, block: smooth_quartz, offset: [-0.0953, 1.3162, 0.0], size: [0.0219, 1.7575, 0.0425] }
+  - { id: rim_l, block: polished_blackstone, offset: [0.1131, 1.3162, 0.0], size: [0.0137, 1.7575, 0.03] }
+  - { id: rim_r, block: polished_blackstone, offset: [-0.1131, 1.3162, 0.0], size: [0.0137, 1.7575, 0.03] }
+  - { id: fuller, block: polished_deepslate, offset: [0.0, 1.4312, 0.0], size: [0.0275, 1.3125, 0.06] }
+  - { id: tip_1, block: iron_block, offset: [0.0, 2.23, 0.0], size: [0.2, 0.07, 0.05] }
+  - { id: tip_2, block: iron_block, offset: [0.0, 2.3, 0.0], size: [0.16, 0.07, 0.05] }
+  - { id: tip_3, block: smooth_quartz, offset: [0.0, 2.37, 0.0], size: [0.12, 0.07, 0.0425] }
+  - { id: tip_4, block: polished_blackstone, offset: [0.0, 2.475, 0.0], size: [0.08, 0.14, 0.03] }
+  - { id: inlay, block: lime_concrete, offset: [0.0, 0.6, 0.0], size: [0.09, 0.2, 0.07] }
+  - { id: inlay_frame, block: gold_block, offset: [0.0, 0.6, 0.0], size: [0.1125, 0.225, 0.0625] }
+  - { id: ricasso, block: polished_blackstone, offset: [0.0, 0.4019, 0.0], size: [0.24, 0.0712, 0.065] }
+  - { id: guard_1, block: polished_deepslate, offset: [0.0, 0.285, 0.0], size: [0.2875, 0.12, 0.1187] }
+  - { id: guard_2, block: polished_deepslate, offset: [0.0, 0.2875, 0.0], size: [0.575, 0.0875, 0.0813] }
+  - { id: guard_cap_l, block: gold_block, offset: [0.2987, 0.2938, 0.0], size: [0.0225, 0.1, 0.0938] }
+  - { id: guard_cap_r, block: gold_block, offset: [-0.2987, 0.2938, 0.0], size: [0.0225, 0.1, 0.0938] }
+  - { id: grip, block: black_wool, offset: [0.0, 0.0563, 0.0], size: [0.1, 0.2625, 0.1] }
+  - { id: grip_collar, block: gold_block, offset: [0.0, 0.2031, 0.0], size: [0.125, 0.0312, 0.125] }
+  - { id: pommel, block: polished_blackstone, offset: [0.0, -0.1625, 0.0], size: [0.1562, 0.125, 0.1437] }
   swing:
   - { t: 0, rotate: [-172.9, 18.7, 68.8] }
   - { t: 2, rotate: [-172.9, 18.7, 68.8] }
@@ -85,7 +73,7 @@ rigs:
   trails:
   - id: wind1
     from: [0, 0.7, 0]
-    to: [0, 2.55, 0]
+    to: [0, 2.5, 0]
     start_t: 4
     end_t: 8
     life_ticks: 9
@@ -107,7 +95,7 @@ rigs:
       width: 0.04
   - id: wind2
     from: [0, 0.7, 0]
-    to: [0, 2.55, 0]
+    to: [0, 2.5, 0]
     start_t: 26
     end_t: 30
     life_ticks: 9
@@ -129,7 +117,7 @@ rigs:
       width: 0.04
 
   emitters:
-  - { id: tip_ember_1, particle_id: bastion-s1-tip-ember, point: [0, 2.55, 0], start_t: 4, end_t: 10 }
-  - { id: tip_glint_1, particle_id: bastion-s1-tip-glint, point: [0, 2.55, 0], start_t: 4, end_t: 9 }
-  - { id: tip_ember_2, particle_id: bastion-s1-tip-ember, point: [0, 2.55, 0], start_t: 26, end_t: 32 }
-  - { id: tip_glint_2, particle_id: bastion-s1-tip-glint, point: [0, 2.55, 0], start_t: 26, end_t: 31 }
+  - { id: tip_ember_1, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 4, end_t: 10 }
+  - { id: tip_glint_1, particle_id: bastion-s1-tip-glint, point: [0, 2.5, 0], start_t: 4, end_t: 9 }
+  - { id: tip_ember_2, particle_id: bastion-s1-tip-ember, point: [0, 2.5, 0], start_t: 26, end_t: 32 }
+  - { id: tip_glint_2, particle_id: bastion-s1-tip-glint, point: [0, 2.5, 0], start_t: 26, end_t: 31 }
