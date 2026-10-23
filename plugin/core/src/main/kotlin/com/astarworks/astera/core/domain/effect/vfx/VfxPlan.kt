@@ -56,7 +56,7 @@ public data class VfxUpdate(
     public val interpolationTicks: Int,
     public val block: String? = null,
     public val text: String? = null,
-    /** Quad only: new colour / alpha sent with this update. */
+    /** Quad colour/alpha or sprite opacity sent with this update. */
     public val style: VfxQuadStyle? = null,
     /**
      * Quad emitter particles only: move the ENTITY (teleport with `teleport_duration` = [interpolationTicks]) to this

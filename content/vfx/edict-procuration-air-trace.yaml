@@ -28,6 +28,7 @@ elements:
     - 0.65
     - 0.13
     - 1
+    alpha: 1
   - t: 1
     translate:
     - -0.025
@@ -39,8 +40,9 @@ elements:
     - 3
     scale:
     - 0.55
-    - 0.11
+    - 0.13
     - 1
+    alpha: 0.85
   - t: 2
     translate:
     - -0.025
@@ -52,8 +54,9 @@ elements:
     - 3
     scale:
     - 0.3
-    - 0.065
+    - 0.13
     - 1
+    alpha: 0.4
   - t: 4
     translate:
     - -0.025
@@ -65,8 +68,9 @@ elements:
     - 3
     scale:
     - 0
-    - 0
+    - 0.13
     - 1
+    alpha: 0
   group_keyframes:
   - t: 0
     rotate:
@@ -101,6 +105,7 @@ elements:
     - 0.65
     - 0.13
     - 1
+    alpha: 1
   - t: 1
     translate:
     - 0.025
@@ -112,8 +117,9 @@ elements:
     - -3
     scale:
     - 0.55
-    - 0.11
+    - 0.13
     - 1
+    alpha: 0.85
   - t: 2
     translate:
     - 0.025
@@ -125,8 +131,9 @@ elements:
     - -3
     scale:
     - 0.3
-    - 0.065
+    - 0.13
     - 1
+    alpha: 0.4
   - t: 4
     translate:
     - 0.025
@@ -138,8 +145,9 @@ elements:
     - -3
     scale:
     - 0
-    - 0
+    - 0.13
     - 1
+    alpha: 0
   group_keyframes:
   - t: 0
     rotate:
@@ -174,6 +182,7 @@ elements:
     - 0.65
     - 0.13
     - 1
+    alpha: 1
   - t: 1
     translate:
     - -0.031
@@ -185,8 +194,9 @@ elements:
     - 0
     scale:
     - 0.55
-    - 0.11
+    - 0.13
     - 1
+    alpha: 0.85
   - t: 2
     translate:
     - -0.031
@@ -198,8 +208,9 @@ elements:
     - 0
     scale:
     - 0.3
-    - 0.065
+    - 0.13
     - 1
+    alpha: 0.4
   - t: 4
     translate:
     - -0.031
@@ -211,8 +222,9 @@ elements:
     - 0
     scale:
     - 0
-    - 0
+    - 0.13
     - 1
+    alpha: 0
   group_keyframes:
   - t: 0
     rotate:
@@ -247,6 +259,7 @@ elements:
     - 0.65
     - 0.13
     - 1
+    alpha: 1
   - t: 1
     translate:
     - 0.031
@@ -258,8 +271,9 @@ elements:
     - 0
     scale:
     - 0.55
-    - 0.11
+    - 0.13
     - 1
+    alpha: 0.85
   - t: 2
     translate:
     - 0.031
@@ -271,8 +285,9 @@ elements:
     - 0
     scale:
     - 0.3
-    - 0.065
+    - 0.13
     - 1
+    alpha: 0.4
   - t: 4
     translate:
     - 0.031
@@ -284,8 +299,9 @@ elements:
     - 0
     scale:
     - 0
-    - 0
+    - 0.13
     - 1
+    alpha: 0
   group_keyframes:
   - t: 0
     rotate:
@@ -320,6 +336,7 @@ elements:
     - 0.65
     - 0.13
     - 1
+    alpha: 1
   - t: 1
     translate:
     - -0.037000000000000005
@@ -331,8 +348,9 @@ elements:
     - -3
     scale:
     - 0.55
-    - 0.11
+    - 0.13
     - 1
+    alpha: 0.85
   - t: 2
     translate:
     - -0.037000000000000005
@@ -344,8 +362,9 @@ elements:
     - -3
     scale:
     - 0.3
-    - 0.065
+    - 0.13
     - 1
+    alpha: 0.4
   - t: 4
     translate:
     - -0.037000000000000005
@@ -357,8 +376,9 @@ elements:
     - -3
     scale:
     - 0
-    - 0
+    - 0.13
     - 1
+    alpha: 0
   group_keyframes:
   - t: 0
     rotate:
@@ -393,6 +413,7 @@ elements:
     - 0.65
     - 0.13
     - 1
+    alpha: 1
   - t: 1
     translate:
     - 0.037000000000000005
@@ -404,8 +425,9 @@ elements:
     - 3
     scale:
     - 0.55
-    - 0.11
+    - 0.13
     - 1
+    alpha: 0.85
   - t: 2
     translate:
     - 0.037000000000000005
@@ -417,8 +439,9 @@ elements:
     - 3
     scale:
     - 0.3
-    - 0.065
+    - 0.13
     - 1
+    alpha: 0.4
   - t: 4
     translate:
     - 0.037000000000000005
@@ -430,8 +453,9 @@ elements:
     - 3
     scale:
     - 0
-    - 0
+    - 0.13
     - 1
+    alpha: 0
   group_keyframes:
   - t: 0
     rotate:

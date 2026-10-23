@@ -307,6 +307,7 @@ public class VfxPlayer(
             shadow = kind.shadow,
             seeThrough = kind.seeThrough,
             lineWidth = kind.lineWidth,
+            textOpacity = kind.textOpacity,
         )
         is VfxElementKind.Quad -> {
             val style = VfxQuad.style(kind, kind.colorRgb, kind.alpha)

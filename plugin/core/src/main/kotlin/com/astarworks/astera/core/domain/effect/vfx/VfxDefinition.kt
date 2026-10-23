@@ -167,7 +167,8 @@ public data class VfxElement(
                 if (kind is VfxElementKind.Sprite) "element '$id': sprite elements animate by flipbook, keyframe text swaps are not allowed"
                 else "element '$id': keyframe text swap needs kind text"
             }
-            require((it.color == null && it.alpha == null) || kind is VfxElementKind.Quad) { "element '$id': keyframe color / alpha needs kind quad" }
+            require(it.color == null || kind is VfxElementKind.Quad) { "element '$id': keyframe color needs kind quad" }
+            require(it.alpha == null || kind is VfxElementKind.Quad || kind is VfxElementKind.Sprite) { "element '$id': keyframe alpha needs kind quad or sprite" }
             require(it.alpha == null || it.alpha in 0.0..1.0) { "element '$id': keyframe alpha must be 0..1: ${it.alpha}" }
         }
     }
@@ -207,8 +208,11 @@ public sealed interface VfxElementKind {
         public val shadow: Boolean = false,
         public val seeThrough: Boolean = false,
         public val lineWidth: Int? = null,
+        /** Initial glyph opacity, including resolved sprite keyframe alpha. */
+        public val textOpacity: Int = 255,
     ) : VfxElementKind {
         init {
+            require(textOpacity in 0..255) { "textOpacity must be in 0..255" }
             require(text.isNotBlank()) { "VfxElementKind.Text.text must not be blank" }
         }
     }
@@ -337,7 +341,7 @@ public data class VfxKeyframe(
     public val text: String? = null,
     /** Quad only: `0xRRGGBB`, interpolated in RGB with [ease]; sent as a style update per sample (the client does not tween colour). */
     public val color: Int? = null,
-    /** Quad only: 0..1, interpolated like [color]. */
+    /** Quad or sprite: 0..1, interpolated like [color]. */
     public val alpha: Double? = null,
 )
 

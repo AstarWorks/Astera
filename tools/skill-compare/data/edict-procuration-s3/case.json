@@ -59,12 +59,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "round33: 参照42の標的上の3本の残光を追加。26tickの標的位置に固定し、実撮影032〜034で人物と離れて残ることを確認、035〜036で消失。透明度減衰は幅縮小による近似。形状・姿勢・正確な時刻、通常プレイのカメラ、持続変身・通常入力は未一致。"
+    "reason": "round34: spriteの初期alphaと時間変化を読み込み・計画・表示へ接続。実機でopacity64→191→4と終了消去を確認。残光へalpha減衰を適用し再撮影。初回カメラ114ms遅延は無効、採用映像は9ms。正確な減衰曲線・人物姿勢・通常プレイカメラ・変身入力は未一致。"
   },
   "weapon": "edict-blade",
   "identity": "The Index Proxy Don Quixote / Procuration",
-  "iterations": 38,
+  "iterations": 40,
   "report": "/report/edict-blade",
   "referenceRevision": "2375ea25a4d44ee03fd7e16a5af077f4f3e792db13d2074079c9c24d06543448",
-  "contentRevision": "9d55071138fe13c541b17335a006f93ae1cbad7ed712f5c77125f34800c7be28"
+  "contentRevision": "d3b04789463a2dfc322776e576f1f2817038799b10aeb7acaab0819d25ec60cc"
 }

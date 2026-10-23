@@ -288,3 +288,10 @@ S3では囲い→地上通過→空中→着地→地上通過→遠隔攻撃中
 - contentLint460件成功。実撮影032〜034では標的に残る線と移動する人物が分離し、035〜036では残光が見えなくなる。2撮影のカメラ遅延は4ms。記録は `runtime-review/air-trace-round33.json` / `build/limbus-review/round33/`。
 - 今回は `ARCHIVE_DIR` を指定し、撮影batch自身が次の撮影を始める前に保存した。両撮影にmetadataがあり、途中コピーの混在を回避できた。
 - 完全一致は未達。透明度の減衰を幅縮小で近似しているほか、対象選択・命中時刻も元作品の内部仕様を証明したものではない。人物姿勢・通常プレイのカメラ・持続変身・通常入力の残課題を維持する。
+
+### Round 34 — sprite の透明度キーを実表示へ接続
+
+- sprite のkeyframe `alpha` を初期TextDisplay opacityと更新へ渡す。quadと同じ補間を再利用し、spriteの既存色は保持する。色キーは引き続きquad専用。初期opacityも生成前に設定し、0近傍が不透明として扱われる仕様を避けるため最小4へclampする。
+- 初回の実機probeでdomain validationがsprite alphaを拒否する経路を発見し修正。schemaのcontentLint成功だけで実読み込みを認定しない。再起動後VFX180件・失敗0を確認し、probeで64→191→4、寿命終了後の消去を確認。fixtureは削除・reload済み。
+- core/combat shadowJarとcontentLint成功。残光の幅は保ち、長さの縮小にalpha減衰を加えた。他の既存spriteにalphaキーがないことを確認。初回撮影はカメラ114ms遅延で無効、再撮影は9ms・重複最大1を採用した。
+- 記録は `runtime-review/sprite-opacity-round34.json` / `build/limbus-review/round34/`。033〜036で標的上の残光が薄くなって消えるが、身体側の爪と重なるため独立した画素測定による減衰一致は未認定。全10武器の形状・動作・命中・カメラ等の完了条件は維持する。
