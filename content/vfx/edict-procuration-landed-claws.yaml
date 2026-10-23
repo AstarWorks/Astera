@@ -2,6 +2,7 @@ id: edict-procuration-landed-claws
 duration_ticks: 11
 orient: yaw
 follow: true
+attach_to_anchor: true
 sample_ticks: 1
 elements:
 - id: claw-0-0

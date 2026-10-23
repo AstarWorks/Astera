@@ -246,12 +246,13 @@ public class VfxPlayer(
             is VfxElementKind.Quad -> listOf(VfxQuad.text(k))
             else -> emptyList()
         }
-        state.handle = displays.spawn(instance.request.world, instance.position + e.spawnOffset, spec, lines)
         val anchorId = instance.request.anchorEntityId
         if (instance.plan.follow && instance.plan.attachToAnchor && anchorId != null && e.billboard == DisplayBillboard.FIXED) {
-            state.handle?.let { state.attached = displays.attach(it, anchorId, e.spawnOffset, e.initial) }
+            state.handle = displays.spawnAttached(instance.request.world, spec, lines, anchorId, e.spawnOffset)
+            state.attached = state.handle != null
             if (!state.attached) log.debug("VFX {}: native attachment unavailable for '{}'", instance.request.vfxId, e.elementId)
         }
+        if (state.handle == null) state.handle = displays.spawn(instance.request.world, instance.position + e.spawnOffset, spec, lines)
         if (state.handle == null) log.debug("VFX {}: display for element '{}' was not spawned", instance.request.vfxId, e.elementId)
     }
 

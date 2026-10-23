@@ -89,6 +89,22 @@ phases:
       type: literal
       value: 31
   - type: dash_strike
+    distance: 0
+    ticks: 1
+    radius: 0.6
+    hit_once: true
+    stop_on_block: true
+    invulnerable: false
+    on_hit: []
+    local_direction:
+      x: 0
+      y: 0
+      z: -1
+    face_movement: true
+    delay_ticks:
+      type: literal
+      value: 37
+  - type: dash_strike
     distance: 9
     ticks: 8
     radius: 0.6
@@ -99,7 +115,7 @@ phases:
     local_direction:
       x: 0
       y: 0
-      z: -1
+      z: 1
     face_movement: true
     delay_ticks:
       type: literal
