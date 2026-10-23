@@ -1,6 +1,6 @@
 {
   "client": "Minecraft Java 26.3, portablemc, Xvfb, llvmpipe, 1280x720",
-  "capture": "Isolated creative superflat singleplayer; installed pilot portablemc runtime. Entire launch/capture serialized with /tmp/claude-1000/astera-mc-client.lock; unique Xvfb display and edict-blade game directory. Native screenshots with no resizing or painting. No server, Docker, Gradle or tests.",
+  "capture": "Isolated creative superflat singleplayer copied locally into Edict Blade Materials; installed pilot portablemc runtime. Entire launch/capture serialized with /tmp/claude-1000/astera-mc-client.lock; Xvfb -displayfd and edict-blade game directory. Native screenshots without resizing or painting. No Docker, Gradle or tests; no external server.",
   "item": "minecraft:iron_sword[minecraft:item_model=\"astera:edict-blade\"]",
   "resourcePack": "Minimal capture pack with exact authored model, item definition and builder-equivalent blocks/ directory source. Native block references only; no vanilla PNG files and no custom texture needed.",
   "modelElements": 15,
@@ -8,26 +8,30 @@
   "clientGameDirectory": "build/edict-blade-client",
   "sourceCommit": "36743b70",
   "sha256": {
-    "content/models/items/edict-blade.model.json": "8fd8eb7e37a5acad0520b153f02a4ce7819a17560180dfb1ad5d5862d681c47c",
-    "tools/model-forge/batches/vanilla-material/edict-blade/after.png": "34b79e47209ad49f2a9c8fd0c0c817dccf412bfc6992c98b9fe49639da924fd0",
+    "content/models/items/edict-blade.model.json": "9d8fd9aeb1fa4fc04b0a0410410435964d6e63f6523874b28cc3324aa64c3eaa",
+    "tools/model-forge/batches/vanilla-material/edict-blade/after.png": "abe78ebca9c1c4b7cf8824c538265c6c8de6344acfb7c99ad9d3b1f4378d0f5b",
     "tools/model-forge/batches/vanilla-material/edict-blade/before.png": "7546ef845434db74821f3f0dc1c7eccabee0fd73018ed507902dc114a687edef",
-    "tools/model-forge/batches/vanilla-material/edict-blade/cameras.json": "8610c50d80476375423194a5235c02bbc8a9da1e9dbe9bfb02b4254146609531",
+    "tools/model-forge/batches/vanilla-material/edict-blade/cameras.json": "4c8dfdd915b91f2d5b4c8647eed1f111fab2da3479383a2534278f1f72a8cc4a",
+    "tools/model-forge/batches/vanilla-material/edict-blade/capture-client.py": "34475fa409ba6b24bf0973e06025a4e3fdd6f158bdace405fb0133f0656718d8",
     "tools/model-forge/batches/vanilla-material/edict-blade/capture-pack.py": "41c5316e166c0aaa789d374f3aae76ed453d2d82fa0abb745f7aa3f26ce65542",
-    "tools/model-forge/batches/vanilla-material/edict-blade/client-detail.png": "6186508e749ad6e8af149e048f3f363ecfdac489092b612a43947980072de781",
-    "tools/model-forge/batches/vanilla-material/edict-blade/client.png": "0dbbd4d177cf5a4d072986623906ca1883c0ad2a9f35485777169a5815011767",
-    "tools/model-forge/batches/vanilla-material/edict-blade/contexts-player.png": "9b0040a3c8fadde04d0ef11105598216d105c385cf0a06af3293155974762c19",
-    "tools/model-forge/batches/vanilla-material/edict-blade/contexts.png": "c38dde76acffa1d0d9bd14b6449e7c197e7dcb8e0a10fbb0b264087e81f2e4e5",
-    "tools/model-forge/batches/vanilla-material/edict-blade/inventory.png": "5cfff0c4edf96b6322ea2abfd73021777e77603b7eec25d2e2c5e44c6bd6c3e8",
-    "tools/model-forge/batches/vanilla-material/edict-blade/operations.json": "0be8c5b45d5f3b416a5cb4ff690343fbf26e6c64178e88202b1f23561e1ec60e",
-    "tools/model-forge/batches/vanilla-material/edict-blade/remake.py": "d8fcb976edf15f1b86793d5e069b6b43c13d412100a8e7067d5a546b573031d7",
-    "tools/model-forge/batches/vanilla-material/edict-blade/review.md": "f7678774c1f0a8a38a53a5e4bc61751c1f62fedcc1e3110ccd41e3e12a537dd5",
-    "tools/model-forge/batches/vanilla-material/edict-blade/sweep.png": "e8415dcf08291fd928a8bb4dfa2563bdb3ac3898b87ade857a4ef8b6213dfc46"
+    "tools/model-forge/batches/vanilla-material/edict-blade/client-detail.png": "4704df2c6ab83db2906d4b1f2a774dd899235a8ad3a857a052f7d2dac2c9fc78",
+    "tools/model-forge/batches/vanilla-material/edict-blade/client.png": "f742faf937e8112174f507f010506e4f4c464fcc2988347b1f74be1dcab47eb4",
+    "tools/model-forge/batches/vanilla-material/edict-blade/compare-materials.py": "fca9f0f3ddf6c2022f411d62d65c5822ed09b50254851792fd2cf0185f114e10",
+    "tools/model-forge/batches/vanilla-material/edict-blade/comparison-operations.json": "8ac2260cce5ee03b652b896d261b68bc39780f2d40a758fb0b0d08655ffd2443",
+    "tools/model-forge/batches/vanilla-material/edict-blade/contexts-player.png": "a68b41f98f6293be780289e1ab74fb43b8c29bd952a38255c560617a8e0eccb4",
+    "tools/model-forge/batches/vanilla-material/edict-blade/contexts.png": "934012e03fe12bb6ddb1bd04c8fcc5fa9487376b5e23ace2148d825ec8b2ee99",
+    "tools/model-forge/batches/vanilla-material/edict-blade/inventory.png": "75e879787c7e797c81ac98bf38d8c7f4140330a26225add3f366d90ac3715897",
+    "tools/model-forge/batches/vanilla-material/edict-blade/material-comparison.png": "e16568ed4b7249e015914ed60a953eaddbc572a11adc729a5a300f8e07200889",
+    "tools/model-forge/batches/vanilla-material/edict-blade/operations.json": "ad7d60ddeb018ac76196e0d0b17a54627fd4d63ec9d5eb100e6397723632a29a",
+    "tools/model-forge/batches/vanilla-material/edict-blade/remake.py": "83d5c308da0d225401108c6ab99e3d8c1e063723d6419db10d7819dc371e302e",
+    "tools/model-forge/batches/vanilla-material/edict-blade/review.md": "7402cbd79c44d97e2e41fd9cc8a1dbed66bf7dc6365070d39aaf3abf3e05c5f8",
+    "tools/model-forge/batches/vanilla-material/edict-blade/sweep.png": "adb985a3f06ec32af177febed92626263367575619698bcb8f261fe362a727f0"
   },
   "remainingRisks": [
-    "Production pack compilation and server deployment remain manager responsibilities.",
-    "Original coincident finger/glove geometry and partly separated chain assemblies retained; matching coplanar UVs remove material speckling.",
-    "Native client and perspective preview both clip the inherited first-person placement at the viewport bottom; display transforms are unchanged per task scope.",
-    "Thin chain links become subpixel at smallest inventory sizes; no swing, bob, glint, shader or alternate-FOV verification."
+    "Production pack compilation and deployment remain manager responsibilities.",
+    "Original coincident finger/glove geometry and separated chain assemblies retained; matching coplanar UVs remove material speckling.",
+    "Inherited first-person placement clips below the viewport; authored transforms remain unchanged.",
+    "Copper retains some brown/green patina instead of perfectly flat brass. Thin chain becomes subpixel at 16px. Animation and alternate-FOV variants unverified."
   ],
   "geometryVerification": {
     "unchanged": true,
@@ -54,16 +58,17 @@
       "white-glove-*",
       "finger-*"
     ],
-    "metal.gold_block": [
+    "metal.exposed_copper": [
       "brass-cuff-*",
       "chain-*"
     ]
   },
   "catalogWishes": [
-    "Muted brass: gold_block used as the closest available warm polished metal."
+    "Dedicated low-contrast muted brass would match the original more closely than the selected copper patina; no catalog addition required."
   ],
   "reviewedImages": [
     "before.png",
+    "material-comparison.png",
     "after.png",
     "contexts.png",
     "contexts-player.png",
@@ -71,5 +76,41 @@
     "sweep.png",
     "client.png",
     "client-detail.png"
-  ]
+  ],
+  "sourceModelSha256": "2fa12bff98c3e4e210089bab370a94ceecd2dc2242823ad36deddbeccc1024e6",
+  "materialCrops": {
+    "brass-cuff sides": [
+      1,
+      10
+    ],
+    "brass-cuff up/down": [
+      8,
+      6
+    ],
+    "chain": [
+      1,
+      2
+    ],
+    "density": "one vanilla texel per local model unit; unchanged UV extents"
+  },
+  "materialComparison": {
+    "image": "material-comparison.png",
+    "candidates": [
+      "original at 36743b70",
+      "metal.gold_block",
+      "metal.raw_gold_block",
+      "metal.exposed_copper",
+      "metal.weathered_copper",
+      "stone.red_terracotta",
+      "leather.brown_mushroom_block",
+      "selected exposed-copper khaki crops"
+    ],
+    "verdict": "Cropped exposed copper preserves the original muted olive/khaki family; raw gold stays saturated, weathered copper is too green, terracotta red and mushroom brown."
+  },
+  "clientLogReview": {
+    "missingTextureOrModelWarnings": 0,
+    "mixedAtlasWarnings": 0,
+    "duplicateSpriteWarnings": 0,
+    "summonAndEntityTransformCommandsSucceeded": true
+  }
 }

@@ -1,105 +1,83 @@
-# Vanilla materials — edict-blade
+# Extended vanilla materials — edict-blade
 
-The existing model is two white gloves, brass cuffs and five golden chain links,
-not a metal blade despite its item ID. Preserve that authored design: all 15
-cuboids, rotations, face coverage and seven display transforms are unchanged.
-No geometry splitting or custom PNG is needed.
+The authored item is two white gloves with brass/khaki cuffs and five chain links.
+This redo replaces the first pass's bright gold with muted exposed-copper patina.
+All 15 cuboids, rotations, face coverage and display transforms match the ORIGINAL
+model at `36743b70`; `before.png` is rendered from that revision, not the gold pass.
 
-| Parts | Material | Reason |
+| Parts | Material | UV choice |
 |---|---|---|
-| white-glove-0/1, six finger cuboids | cloth.white_wool | Soft white glove fabric; neutral, low contrast grain. |
-| brass-cuff-0/1, chain-0 through chain-4 | metal.gold_block | Warm polished metal, closest catalog material to the original brass. |
+| white-glove-0/1, finger-* | cloth.white_wool | Existing deterministic crops and matching coplanar finger UVs retained. |
+| brass-cuff-0/1 | metal.exposed_copper | Side crops start at (1,10); top/bottom at (8,6), retaining one texel per unit. |
+| chain-0 through chain-4 | metal.exposed_copper | Small khaki crop at (1,2), retaining one texel per unit. |
 
-All material faces use one vanilla texel per local model unit, including fractional
-finger/chain faces. Seed 20261023 chooses deterministic crops. Native block references
-only; no Mojang PNG, copied vanilla atlas source, custom painted texture or shared
-Forge implementation change.
+Opened `material-comparison.png`: identical front/oblique cameras show the original,
+gold, raw gold, exposed copper, weathered copper, red terracotta, brown mushroom and
+selected copper crops side by side. Raw gold remains yellow/orange; weathered copper
+is too green; red terracotta is too red; mushroom is browner and reads as leather.
+Selected exposed-copper crops preserve the original olive/khaki family while retaining
+subtle brown/green patina. Uncropped exposed copper has excessive pink patches.
+Yellow terracotta is not in this catalog; no shared catalog change was made.
 
-## Review and correction
+Opened `after.png`, `contexts.png`, `contexts-player.png`, `sweep.png`, `inventory.png`
+and both new native client screenshots. The eight canonical directions and 26-angle
+perspective sweep retain the outline and finger steps. Patina remains restrained in GUI,
+third person, ground and fixed views. At 16px the chain is subpixel; the white/khaki pair
+still reads. No new seams, stretched texels or missing textures were visible. The
+pre-existing finger/glove coincident faces still share UVs to avoid speckling.
+No concept image was supplied; the original is regression evidence only, not a claim
+of matching an independently generated concept.
 
-Opened before.png, after.png, contexts.png, contexts-player.png, inventory.png and
-sweep.png. Eight Forge directions plus a 26-direction perspective sweep retain the
-outline, cuff overhang and finger steps. GUI at 16/32/64px keeps the white/gold pair
-recognizable; the thin chain becomes subpixel at the smallest size.
+Geometry/display/face-coverage comparisons pass. Forge validation has zero errors,
+14 conservative overlap warnings and one disconnected-components warning, unchanged
+from the original. All 90 faces retain one vanilla texel per local model unit.
+No custom or Mojang PNG is shipped, no geometry is split, and only block-atlas
+resources are used. The original overlap and chain separation are intentionally retained.
 
-The initial material pass exposed the original coplanar fingertip/glove faces as
-speckled patches. The second Forge batch aligns the up/north UVs on e0003–e0005 and
-e0008–e0010 to their underlying gloves e0001/e0006 at the same density. Reopened the
-same cameras: the patches disappear, including top/back views, without geometry or
-silhouette edits. No new seams or stretched texels are visible. This makes coincident
-faces sample the same material; it does not remove the pre-existing overlapping faces.
+## Native client
 
-Forge validation: zero errors, 14 overlap warnings and one disconnected-components
-warning, identical before/after. The latter is the original two partly separated chain
-assemblies, not a newly disconnected part. No geometry cleanup is authorized here.
+`client.png` and `client-detail.png` are raw 1280×720 Xvfb captures from Minecraft
+Java 26.3 with portablemc/llvmpipe, FOV 70, view bob off and GUI scale 2. The entire
+launch/capture holds `/tmp/claude-1000/astera-mc-client.lock`; Xvfb chooses a free display.
+The isolated creative superflat is a local copy of the pilot-style Fire Staff Materials
+capture world, under this worktree's `build/edict-blade-client/saves/Edict Blade Materials`.
+The minimal pack contains the exact authored JSON and native block references.
 
-contexts.png uses Forge's approximate hands. contexts-player.png adds perspective,
-both Java hand signs, third-person rest pose, side view, two ground spins, fixed and GUI.
-The inherited first-person transforms put this small model at/below the lower viewport
-edge in that illustrative preview. Display transforms are explicitly preserved by this
-task; native evidence and its limits are recorded below.
+The inherited first-person placement still clips almost the entire item below the
+viewport; `client.png` shows the glove at the bottom right and the complete hotbar icon.
+`client-detail.png` additionally presents the exact model in a native item_display using
+its GUI context, entity scale [3,3,3] and translation [0,0.4,0]. This makes the muted cuffs
+visible without editing authored transforms. Final logs have no missing texture/model,
+mixed-atlas, model-bake or duplicate-sprite warnings. Offline authentication/Realms
+messages are unrelated to the capture world.
 
 ## Reproduction
 
-Save the original model from the parent commit, then use a fresh project:
+From the repository root, use fresh project/pack directories:
 
 ```sh
-git show <parent>:content/models/items/edict-blade.model.json > build/edict-before.json
+mkdir -p build/edict-redo
+git show 36743b70:content/models/items/edict-blade.model.json > build/edict-redo/original.json
 python3 tools/model-forge/batches/vanilla-material/edict-blade/remake.py \
-  --project build/edict-remake --before build/edict-before.json
-(cd tools/skill-viewer && bun install --frozen-lockfile)
+  --project build/edict-redo/replay --before build/edict-redo/original.json
+python3 tools/model-forge/batches/vanilla-material/edict-blade/compare-materials.py \
+  --project build/edict-redo/comparison --before build/edict-redo/original.json
 python3 tools/model-forge/context_preview.py --out build/edict-contexts edict-blade
 python3 tools/model-forge/context_preview.py --viewer --out build/edict-viewer edict-blade
 bun tools/model-forge/review.mjs build/edict-viewer/viewer.html build/edict-sweep edict-blade
 python3 tools/model-forge/batches/vanilla-material/edict-blade/capture-pack.py \
   --out build/edict-blade-client/resourcepacks/vanilla-material
+# Prepare the isolated creative capture world at the path above, then:
+flock /tmp/claude-1000/astera-mc-client.lock \
+  python3 tools/model-forge/batches/vanilla-material/edict-blade/capture-client.py
 ```
 
-The viewer embeds Mojang pixels for local inspection only and stays in ignored build/.
-The capture pack installs the exact authored model, its item definition and the same
-custom blocks-directory atlas source as the pilot/builder; no vanilla PNGs are copied.
-Use the pilot's installed portablemc 26.3 runtime, a fresh game directory containing
-edict-blade, Xvfb -displayfd (1280×720), software GL with LP_NUM_THREADS=4, FOV 70,
-GUI scale 2, view bob off and file/vanilla-material enabled. Hold the entire client
-launch and capture under flock /tmp/claude-1000/astera-mc-client.lock.
+## Remaining risks / catalog wishes
 
-## Native client review
-
-Opened client.png and client-detail.png, both raw 1280×720 Xvfb root captures
-from the actual 26.3 client (portablemc, llvmpipe). client.png keeps the authored
-first-person pose: only the glove upper surfaces appear at the bottom-right edge.
-This confirms the inherited placement limitation seen in the perspective preview;
-it is not a missing-model cube. The hotbar shows the complete white/gold pair.
-
-client-detail.png shows the same exact authored model in a native item_display
-entity using its GUI display context, with entity scale 3 and translation [0,0.4,0]
-for inspection. This supplemental world presentation does not edit the model or
-its display transforms. White fabric and warm metal are clear, with no missing
-textures, visible UV speckles or mixed-atlas error. The client log has no missing
-texture, multiple-atlas, model-bake or duplicate-sprite warning. Offline-account
-Realms authentication errors are unrelated to this local singleplayer capture.
-The client was stopped and the lock released after capturing both images.
-
-In the isolated creative superflat, issue these commands (FOV 70, GUI scale 2):
-
-```mcfunction
-/give @s minecraft:iron_sword[minecraft:item_model="astera:edict-blade"]
-/time set noon
-/summon minecraft:item_display ~ ~1 ~3 {item:{id:"minecraft:iron_sword",count:1,components:{"minecraft:item_model":"astera:edict-blade"}},item_display:"gui",billboard:"center",transformation:{translation:[0f,0.4f,0f],left_rotation:[0f,0f,0f,1f],scale:[3f,3f,3f],right_rotation:[0f,0f,0f,1f]}}
-```
-
-Capture client.png before summoning; switch to an empty hotbar slot for
-client-detail.png. Use `import -window root` on the unique Xvfb display; do not
-resize, paint, composite or crop either native screenshot.
-
-## Remaining risks / catalog wish
-
-- The inherited first-person pose clips nearly the entire model at the screen bottom,
-  confirmed in the native client. Fixing hand placement requires a separately authorized
-  display-transform change. This material task explicitly preserves those transforms.
-- Muted brass is absent from the catalog; gold_block is the closest warm polished metal.
-- Original coincident fingertip faces and chain separation remain as required; UV alignment
-  removes the visible material discontinuity, not the underlying mesh overlap.
-- Production resource-pack compilation, server deployment and animation/FOV variants
-  remain outside this isolated material/capture task. No Gradle, tests, Docker, servers,
-  e2e or push was run.
+- The preserved first-person transforms clip the item below the screen. Correcting
+  placement needs a separate display-transform task.
+- Exposed copper is a close khaki substitute with some brown/green patina; a dedicated
+  low-contrast brass texture would match the original flat tone more precisely.
+- Original overlaps and separated chain assemblies remain; animation, alternate FOV,
+  shaders, production resource-pack compilation and deployment are unverified.
+- No Gradle, unit tests, check/test tasks, E2E, Docker, servers or push was run.
