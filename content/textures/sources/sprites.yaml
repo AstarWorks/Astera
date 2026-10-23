@@ -8,6 +8,12 @@
 
 sources:
   vfx-v1: { file: sheets/vfx-v1.png, grid: [6, 6] }
+  bastion-s1-crescent: { file: images/bastion-s1-crescent.png }
+  bastion-s1-ink: { file: images/bastion-s1-ink.png }
+  bastion-s1-streak: { file: images/bastion-s1-streak.png }
+  bastion-s1-smoke: { file: images/bastion-s1-smoke.png }
+  bastion-s1-glint: { file: images/bastion-s1-glint.png }
+  bastion-s1-sliver: { file: images/bastion-s1-sliver.png }
 
 sprites:
   spark: { draw: spark, frames: 6, color: "#ffe27a" }
@@ -30,3 +36,9 @@ sprites:
   holy-glint: { from: vfx-v1, row: 3, frames: 6 }
   thunder-spark: { from: vfx-v1, row: 4, frames: 6 }
   blood-splash: { from: vfx-v1, row: 5, frames: 6 }
+  bastion-s1-crescent: { from: bastion-s1-crescent, raw: true, frames: 6, size: 256 }
+  bastion-s1-ink: { from: bastion-s1-ink, raw: true, frames: 6, size: 256 }
+  bastion-s1-streak: { from: bastion-s1-streak, raw: true, frames: 1, size: 256 }
+  bastion-s1-smoke: { from: bastion-s1-smoke, raw: true, frames: 4, size: 256 }
+  bastion-s1-glint: { from: bastion-s1-glint, raw: true, frames: 2, size: 128 }
+  bastion-s1-sliver: { from: bastion-s1-sliver, raw: true, frames: 3, size: 128 }

@@ -4,6 +4,7 @@ import org.yaml.snakeyaml.Yaml
 import java.awt.image.BufferedImage
 import java.nio.file.Files
 import java.nio.file.Path
+import javax.imageio.ImageIO
 
 /**
  * Custom particle sprites (ADR-0239): `content/textures/sources/sprites.yaml` lists, per sprite id, either a
@@ -35,6 +36,8 @@ internal object SpriteSources {
         data class Draw(val painter: String, val color: Int) : Origin
         data class Cells(val source: Sources.Source, val row: Int) : Origin
         data class Strip(val source: Sources.Source) : Origin
+        /** A finished RGBA strip (frames * size wide, size tall) used as is: soft alpha, no palette, no keying. */
+        data class Raw(val source: Sources.Source) : Origin
     }
 
     data class Def(val id: String, val origin: Origin, val frames: Int, val size: Int, val colors: Int, val outline: Boolean)
@@ -74,7 +77,7 @@ internal object SpriteSources {
                         origin = Origin.Cells(src, row)
                     } else {
                         frames = requireNotNull(int("frames")) { "$MANIFEST: sprite $id: a single-image source needs frames" }
-                        origin = Origin.Strip(src)
+                        origin = if (o["raw"] == true) Origin.Raw(src) else Origin.Strip(src)
                     }
                 }
                 else -> error("$MANIFEST: sprite $id needs `draw` or `from`")
@@ -95,7 +98,21 @@ internal object SpriteSources {
     fun render(def: Def): List<BufferedImage> = when (val o = def.origin) {
         is Origin.Draw -> ParticlePainters.frames(o.painter, def.frames, def.size, o.color)
         is Origin.Cells -> convert(def, sheetFrames(o.source.file, o.row, def.frames, o.source.grid!!.first, o.source.grid.second))
+        is Origin.Raw -> rawFrames(o.source.file, def)
         is Origin.Strip -> convert(def, sheetFrames(o.source.file, 0, def.frames, def.frames, 1))
+    }
+
+    /** Splits a hand-made strip into [Def.frames] square frames of [Def.size] without touching a pixel. */
+    internal fun rawFrames(file: Path, def: Def): List<BufferedImage> {
+        val img = requireNotNull(ImageIO.read(file.toFile())) { "unreadable source image $file" }
+        require(img.width == def.frames * def.size && img.height == def.size) {
+            "$MANIFEST: sprite ${def.id}: raw strip ${file.fileName} is ${img.width}x${img.height}, expected ${def.frames * def.size}x${def.size}"
+        }
+        return (0 until def.frames).map { i ->
+            BufferedImage(def.size, def.size, BufferedImage.TYPE_INT_ARGB).also {
+                it.setRGB(0, 0, def.size, def.size, img.getRGB(i * def.size, 0, def.size, def.size, null, 0, def.size), 0, def.size)
+            }
+        }
     }
 
     internal fun convert(def: Def, frames: List<BufferedImage>): List<BufferedImage> = PixelConverter.convertFrames(
