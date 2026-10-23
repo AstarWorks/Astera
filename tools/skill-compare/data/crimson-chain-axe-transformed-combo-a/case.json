@@ -66,12 +66,12 @@
   "status": "captured",
   "verification": {
     "status": "failed",
-    "reason": "Round43: 一回の全詠唱サンプリング763回でピーク59。全条件・全tickの上限保証ではない。初回撮影は末尾12同一フレームで無効、再撮影は195フレーム・同一最大2・カメラ遅延2ms。四方向の閃光を確認。鎖形状・光・浮遊・姿勢・床発光・変身/通常入力は未一致。"
+    "reason": "Round44: 上昇/浮遊を実機確認。座標293サンプル、Y100→103.6、6.1〜8.6秒はY103.6一定、終了後Y100。195フレーム、カメラ遅延3ms・同一最大1。上側軌跡の画面外切れ、軌跡形状、鎖の刃・人物姿勢・床発光・変身/通常入力は未一致。浮遊は障害物なしの撮影場でのみ確認、衝突/中断は未確認。"
   },
   "weapon": "crimson-chain-axe",
   "identity": "Haute Couture::The Crimson God of Le Rouge Sinclair",
-  "iterations": 8,
+  "iterations": 9,
   "report": "/report/crimson-chain-axe",
   "referenceRevision": "62a90b1631a3d439a70ba2a52929c5b7811ff2d48b62cdecedbf908149c67002",
-  "contentRevision": "a9689bd9e24e052bc2c58f775cafb8c4530ff8efe40825d45b31bd7681be999f"
+  "contentRevision": "7b3872013636abc7a533fd522c629c9fb55aa00824b087be930b0bb4950061a5"
 }
