@@ -570,3 +570,19 @@ S3の命中輪を同じ標的へ追従させ、最後の輪とビームの持続
 原動画f571の対象を囲む太い分割リングを再確認。既存の8本の棒をS2専用の二重リング・放射状の歯・紫の閃光へ置換した。ダメージ・表示・音を各命中の同じ対象へ結び付け、対象追従を指定。1撃目16tick、2撃目19tick。初回撮影の小さすぎるリングを横1.3倍・縦1.35倍、中心高さ1.1へ補正して再撮影。
 
 小さな8本の棒から、敵を囲む分割二重リングと紫の閃光へ変更。実機で2命中と対象上のリングを確認。発光のにじみ、破片の不規則な動き、傾き・遠近感、腕姿勢、カメラは未一致。移動対象・複数対象の今回版実機検証は未実施。 実機126フレーム、遅延最大3.0ms、重複最大1、表示数観測最大36。HP [200.0, 182.288, 170.48]、2回の変化。クリティカルによる量の変動は命中回数に数えない。詳細: `runtime-review/orrery-s2-impact-round78.json`。
+
+### round79：追加観測7区間を比較画面へ対応付け
+
+未対応だった追加区間を独立した参照枠に追加。7つの新技と断定せず、正式キット・状態分岐との対応は未確定として扱う。計940フレーム。専用実装・実機撮影は未完了で、既存技の撮影を流用しない。
+
+| 参照枠 | フレーム数 | 状態 |
+|---|---:|---|
+| [gossamer-katana-arc-chain](/case.html?id=gossamer-katana-arc-chain) | 80 | 未実装・未接続 |
+| [gossamer-katana-echoshear-candidate](/case.html?id=gossamer-katana-echoshear-candidate) | 142 | 未実装・未接続 |
+| [gossamer-katana-termination-candidate](/case.html?id=gossamer-katana-termination-candidate) | 22 | 未実装・未接続 |
+| [gossamer-katana-crescent-fan](/case.html?id=gossamer-katana-crescent-fan) | 67 | 未実装・未接続 |
+| [gossamer-katana-dash-flurry](/case.html?id=gossamer-katana-dash-flurry) | 82 | 未実装・未接続 |
+| [gossamer-katana-string-connection-candidate](/case.html?id=gossamer-katana-string-connection-candidate) | 332 | 未実装・未接続 |
+| [gossamer-katana-spectral-montage](/case.html?id=gossamer-katana-spectral-montage) | 215 | 未実装・未接続 |
+
+最後の連続攻撃は本体の移動と分身体の移動を分離する。短い対象上の青い発光は、追加ダメージと断定しない。今回の観察範囲と残課題は `runtime-review/gossamer-coverage-round79.json` に記録。

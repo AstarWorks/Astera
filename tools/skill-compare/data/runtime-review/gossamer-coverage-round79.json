@@ -1,0 +1,64 @@
+{
+  "round": 79,
+  "weapon": "gossamer-katana",
+  "status": "reference-only-implementation-missing",
+  "cases": [
+    {
+      "case": "gossamer-katana-arc-chain",
+      "frames": 80,
+      "referenceRevision": "f824347892e0db403417081bf8bbb8a4fa3e8d62c0ba3084344a77b1d621d02d",
+      "review": "同一の連続区間内で接近と左右の反転、円弧状の残光が続く。4接触の提示を通常S1/S2の3コインへ無理に割り当てない。",
+      "step": 4
+    },
+    {
+      "case": "gossamer-katana-echoshear-candidate",
+      "frames": 142,
+      "referenceRevision": "f280f323921682ea67a80742de84de783bc430a50688250500155b29ac61c38f",
+      "review": "画面右側での構えから左へ通過し、再度の構えと大きな青い交差線へ続く。2接触形態の候補だが正式な状態分岐は未確定。",
+      "step": 4
+    },
+    {
+      "case": "gossamer-katana-termination-candidate",
+      "frames": 22,
+      "referenceRevision": "929b70cc701d75eaf82cc52df573c57fdee1fc0d7a45529c6c9b8f63b7dd4b6f",
+      "review": "本体は離れた左側に留まり、対象位置で青い結び目・花状の発光が起こる。独立したダメージ発生は映像だけでは証明できない。",
+      "step": 4
+    },
+    {
+      "case": "gossamer-katana-crescent-fan",
+      "frames": 67,
+      "referenceRevision": "0e27e59a58a4c4fc24f9489a300e88e668b89ae5ae9cf17a2b54570556aa594d",
+      "review": "近接の青い三日月と、構え直し後の大きな下降扇状斬撃を区別する。後者を単なる最初の残光としてまとめない。",
+      "step": 4
+    },
+    {
+      "case": "gossamer-katana-dash-flurry",
+      "frames": 82,
+      "referenceRevision": "1b68b8e09d0130a7deeea0faf7467d49378f3614f117e1d8a72c15ae27644aee",
+      "review": "短い往復突進・円形の残光に続いて青い斜めの大きな斬撃が出る。短い接触のうちf1341は判定不確実。",
+      "step": 4
+    },
+    {
+      "case": "gossamer-katana-string-connection-candidate",
+      "frames": 332,
+      "referenceRevision": "9e57db43555112499a0364b68302dc8d95c94f2b144773817456b73408666242",
+      "review": "金色オーラ下の長い構え、横一線の通過斬撃、頭上の構え、巨大な交差線へ続く。元のS3とは持続と動きが違うため別参照枠にする。",
+      "step": 6
+    },
+    {
+      "case": "gossamer-katana-spectral-montage",
+      "frames": 215,
+      "referenceRevision": "fc1f79977971fb7e0ee373e3db53ae453df85c99c2aed0b9dd12c6b63853eb70",
+      "review": "金色オーラの本体は左側に留まり、青い分身体が相手集団へ移動して斬る。分身の経路へ本体をテレポートさせない。連続提示とキットの対応は未確定。",
+      "step": 6
+    }
+  ],
+  "totalReferenceFrames": 940,
+  "scope": "Additional7 observed intervals, not7 proven separate kit skills. Sampled overview review; contact markers inherited from existing native-frame analysis.",
+  "limitations": [
+    "No new Minecraft implementation or capture in this round.",
+    "Coin counts unknown; visual contact count is not damage count.",
+    "State routing and official mapping unresolved.",
+    "No fidelity certification."
+  ]
+}

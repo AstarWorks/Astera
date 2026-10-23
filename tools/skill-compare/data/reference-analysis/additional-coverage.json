@@ -99,56 +99,63 @@
     "videoId": "LkLhzmoJZ6Y",
     "file": "extra-1.json",
     "sha256": "f824347892e0db403417081bf8bbb8a4fa3e8d62c0ba3084344a77b1d621d02d",
-    "coverage": "pending-review",
-    "name": "Unresolved four-contact arc chain"
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Unresolved four-contact arc chain",
+    "case": "gossamer-katana-arc-chain"
   },
   {
     "weapon": "gossamer-katana",
     "videoId": "LkLhzmoJZ6Y",
     "file": "extra-2.json",
     "sha256": "f280f323921682ea67a80742de84de783bc430a50688250500155b29ac61c38f",
-    "coverage": "pending-review",
-    "name": "Rend Space - Echoshear (tentative two-contact form)"
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Rend Space - Echoshear (tentative two-contact form)",
+    "case": "gossamer-katana-echoshear-candidate"
   },
   {
     "weapon": "gossamer-katana",
     "videoId": "LkLhzmoJZ6Y",
     "file": "extra-3.json",
     "sha256": "929b70cc701d75eaf82cc52df573c57fdee1fc0d7a45529c6c9b8f63b7dd4b6f",
-    "coverage": "pending-review",
-    "name": "Inevitable Termination (candidate)"
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Inevitable Termination (candidate)",
+    "case": "gossamer-katana-termination-candidate"
   },
   {
     "weapon": "gossamer-katana",
     "videoId": "LkLhzmoJZ6Y",
     "file": "extra-4.json",
     "sha256": "0e27e59a58a4c4fc24f9489a300e88e668b89ae5ae9cf17a2b54570556aa594d",
-    "coverage": "pending-review",
-    "name": "Unresolved two-contact crescent / descending fan"
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Unresolved two-contact crescent / descending fan",
+    "case": "gossamer-katana-crescent-fan"
   },
   {
     "weapon": "gossamer-katana",
     "videoId": "LkLhzmoJZ6Y",
     "file": "extra-5.json",
     "sha256": "1b68b8e09d0130a7deeea0faf7467d49378f3614f117e1d8a72c15ae27644aee",
-    "coverage": "pending-review",
-    "name": "Unresolved rapid dash flurry and diagonal blue finisher"
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Unresolved rapid dash flurry and diagonal blue finisher",
+    "case": "gossamer-katana-dash-flurry"
   },
   {
     "weapon": "gossamer-katana",
     "videoId": "LkLhzmoJZ6Y",
     "file": "extra-6.json",
     "sha256": "9e57db43555112499a0364b68302dc8d95c94f2b144773817456b73408666242",
-    "coverage": "pending-review",
-    "name": "Rend Space - String Connection (tentative)"
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Rend Space - String Connection (tentative)",
+    "case": "gossamer-katana-string-connection-candidate"
   },
   {
     "weapon": "gossamer-katana",
     "videoId": "LkLhzmoJZ6Y",
     "file": "extra-7.json",
     "sha256": "fc1f79977971fb7e0ee373e3db53ae453df85c99c2aed0b9dd12c6b63853eb70",
-    "coverage": "pending-review",
-    "name": "Spectral attack montage / special sequence, exact kit assignment unresolved"
+    "coverage": "reference-case-added-implementation-missing",
+    "name": "Spectral attack montage / special sequence, exact kit assignment unresolved",
+    "case": "gossamer-katana-spectral-montage"
   },
   {
     "weapon": "edict-blade",

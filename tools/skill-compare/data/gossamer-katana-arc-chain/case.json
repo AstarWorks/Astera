@@ -1,0 +1,65 @@
+{
+  "id": "gossamer-katana-arc-chain",
+  "rev": 1,
+  "videoId": "LkLhzmoJZ6Y",
+  "start_s": 21.154466666666668,
+  "end_s": 23.8238,
+  "skill": {
+    "name": "Unresolved four-contact arc chain",
+    "coins": null,
+    "asteraSkillId": null
+  },
+  "variant": {
+    "label": "4接触の連続斬撃（対応未確定）",
+    "implementation": "missing",
+    "order": 1
+  },
+  "mc": {
+    "offset_ms": 0,
+    "castTickInTrace": 5
+  },
+  "focus": {
+    "enabled": false
+  },
+  "segments": [
+    {
+      "id": "contact-1",
+      "kind": "hit",
+      "label": "観測上の接触 1 / f645",
+      "t_s": 21.5215,
+      "notes": "Horizontal cut at target with orbiting white ribbon / confidence: med; contact is not proof of a separate damage event."
+    },
+    {
+      "id": "contact-2",
+      "kind": "hit",
+      "label": "観測上の接触 2 / f659",
+      "t_s": 21.988633333333333,
+      "notes": "Vertical cyan slash/cross at target / confidence: med; contact is not proof of a separate damage event."
+    },
+    {
+      "id": "contact-3",
+      "kind": "hit",
+      "label": "観測上の接触 3 / f672",
+      "t_s": 22.4224,
+      "notes": "Fresh vertical cross and blade pass across target / confidence: med; contact is not proof of a separate damage event."
+    },
+    {
+      "id": "contact-4",
+      "kind": "hit",
+      "label": "観測上の接触 4 / f683",
+      "t_s": 22.789433333333335,
+      "notes": "Further blue cross as red-afterimage return pass begins / confidence: med; contact is not proof of a separate damage event."
+    }
+  ],
+  "notes": "追加観測区間。キットとの対応と実ダメージ回数は未確定。専用実装・撮影はなく、既存技の映像は流用しない。",
+  "status": "analysed",
+  "verification": {
+    "status": "unverified",
+    "reason": "参照映像のみ。専用実装・実機撮影・照合は未完了。"
+  },
+  "weapon": "gossamer-katana",
+  "identity": "Blade of the House of Spiders Ryōshū",
+  "iterations": 0,
+  "report": "/report/gossamer-katana",
+  "referenceRevision": "f824347892e0db403417081bf8bbb8a4fa3e8d62c0ba3084344a77b1d621d02d"
+}
